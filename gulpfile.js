@@ -5,7 +5,6 @@ var fileImports = require("gulp-imports");
 var uglify = require("gulp-uglify");
 var rename = require("gulp-rename");
 var bump = require("gulp-bump");
-var git = require("gulp-git");
 var size = require('gulp-size');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
 var pkg = require("./package.json");
