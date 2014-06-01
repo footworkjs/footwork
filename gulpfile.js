@@ -22,21 +22,31 @@ var banner = ["/**",
 gulp.task('default', ['tests']);
 
 gulp.task('ci', ['tests']);
-gulp.task('tests', ['build-all'], function() {
+gulp.task('tests', ['test_alldeps', 'test_minimal-amd'], function() {
   return gulp
-    .src('spec/runner.html')
+    .src('spec/runner_alldeps.html')
+    .pipe(mochaPhantomJS({ reporter: 'list' }));
+});
+gulp.task('test_alldeps', ['build-all'], function() {
+  return gulp
+    .src('spec/runner_alldeps.html')
+    .pipe(mochaPhantomJS({ reporter: 'list' }));
+});
+gulp.task('test_minimal-amd', ['build-all'], function() {
+  return gulp
+    .src('spec/runner_minimal-amd.html')
     .pipe(mochaPhantomJS({ reporter: 'list' }));
 });
 
-gulp.task('build-all', ['build-nodeps']);
-gulp.task("build-nodeps", function() {
+gulp.task('build-all', ['build_alldeps', 'build_minimal-amd']);
+gulp.task("build_alldeps", function() {
   return gulp
-    .src(["source/build-profile/nodeps.js"])
+    .src(["source/build-profile/alldeps.js"])
     .pipe(header(banner, {
       pkg: pkg
     }))
     .pipe(fileImports())
-    .pipe(rename("footwork-nodeps.js"))
+    .pipe(rename("footwork-alldeps.js"))
     .pipe(gulp.dest("dist/"))
     .pipe(uglify({
       compress: { negate_iife: false }
@@ -44,6 +54,24 @@ gulp.task("build-nodeps", function() {
     .pipe(header(banner, {
       pkg: pkg
     }))
-    .pipe(rename("footwork-nodeps.min.js"))
+    .pipe(rename("footwork-alldeps.min.js"))
+    .pipe(gulp.dest("dist/"));
+});
+gulp.task("build_minimal-amd", function() {
+  return gulp
+    .src(["source/build-profile/minimal-amd.js"])
+    .pipe(header(banner, {
+      pkg: pkg
+    }))
+    .pipe(fileImports())
+    .pipe(rename("footwork-minimal-amd.js"))
+    .pipe(gulp.dest("dist/"))
+    .pipe(uglify({
+      compress: { negate_iife: false }
+    }))
+    .pipe(header(banner, {
+      pkg: pkg
+    }))
+    .pipe(rename("footwork-minimal-amd.min.js"))
     .pipe(gulp.dest("dist/"));
 });
