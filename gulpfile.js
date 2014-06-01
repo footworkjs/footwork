@@ -19,11 +19,10 @@ var banner = ["/**",
 
 gulp.task('default', ['test', 'build']);
 
-gulp.task('test', ['build'], function() {
+gulp.task('test', function() {
     return gulp
       .src('spec/test.js')
       .pipe(mocha({ reporter: 'list' }));
-      // .pipe(mochaPhantomJS({ reporter: 'nyan' }));
 });
 
 gulp.task("build", function() {
