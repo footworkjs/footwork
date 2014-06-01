@@ -19,7 +19,7 @@ var banner = ["/**",
 
 gulp.task('default', ['test', 'build']);
 
-gulp.task('test', function() {
+gulp.task('test', ['build'], function() {
     return gulp
       .src('spec/test.js')
       .pipe(mocha({ reporter: 'list' }));
