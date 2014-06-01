@@ -7,6 +7,7 @@
     root.ko = factory(_, ko);
   }
 }(this, function (_, ko) {
+  //import("../../deps/apollo.js");
   //import("../../bower_components/riveter/lib/riveter.js");
   //import("../../bower_components/conduitjs/lib/conduit.js");
   //import("../../bower_components/postal.js/lib/postal.js");

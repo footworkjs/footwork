@@ -2,12 +2,14 @@
   "name": "footwork.js",
   "description": "A solid base for structured knockout applications.",
   "author": "Jonathan Newman (http://staticty.pe)",
-  "contributors": [{
-    "name": "Jonathan Newman",
-    "email": "jonathan@staticty.pe",
-    "url": "http://staticty.pe"
-  }],
-  "version": "0.0.1",
+  "contributors": [
+    {
+      "name": "Jonathan Newman",
+      "email": "jonathan@staticty.pe",
+      "url": "http://staticty.pe"
+    }
+  ],
+  "version": "0.1.0",
   "homepage": "http://footworkjs.com",
   "licenses": [
     {
@@ -25,9 +27,9 @@
     "gulp-footer": "~1.0.4",
     "gulp-uglify": "^0.3.0",
     "gulp-rename": "^1.2.0",
-    "gulp-debug": "~0.3.0",
     "gulp-mocha": "~0.4.1",
     "gulp-size": "~0.1.1",
+    "gulp-bump": "*",
     "gulp-mocha-phantomjs": "~0.2.2"
   }
 }

@@ -4,9 +4,10 @@ var footer = require("gulp-footer");
 var fileImports = require("gulp-imports");
 var uglify = require("gulp-uglify");
 var rename = require("gulp-rename");
+var bump = require("gulp-bump");
+var git = require("gulp-git");
 var size = require('gulp-size');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
-var debug = require('gulp-debug');
 var pkg = require("./package.json");
 
 var banner = ["/**",
@@ -20,6 +21,12 @@ var banner = ["/**",
 ].join("\n");
 
 gulp.task('default', ['tests']);
+
+gulp.task('bump', function () {
+  return gulp.src(['./package.json', './bower.json'])
+    .pipe(bump())
+    .pipe(gulp.dest('./'));
+});
 
 gulp.task('ci', ['tests']);
 gulp.task('tests', ['test_alldeps', 'test_minimal-amd'], function() {

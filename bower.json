@@ -1,6 +1,6 @@
 {
   "name": "knockout-footwork.js",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A base for structured knockout development.",
   "homepage": "http://footworkjs.com",
   "keywords": [
@@ -20,13 +20,17 @@
   "ignore": [
     "source",
     "spec",
-    ".gitignore",
-    "gulpfile.js",
+    "deps",
+    "bower_components",
+    "node_modules",
     "bower.json",
+    "package.json",
+    "gulpfile.js",
+    ".travis.yml",
+    ".gitignore",
     "README.md"
   ],
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "knockoutjs": ">=3.1.0",
     "underscore": ">=1.5.0",
@@ -35,7 +39,6 @@
     "requirejs": "~2.1.10",
     "expect": "0.1.2",
     "mocha": "~1.17.1",
-    "requirejs": "~2.1.10",
     "conduitjs": "~0.3.2"
   }
 }

@@ -7,6 +7,7 @@
     root.ko = factory();
   }
 }(this, function () {
+  //import("../../deps/apollo.js");
   //import("../../bower_components/knockoutjs/dist/knockout.js");
   //import("../../bower_components/lodash/dist/lodash.underscore.js");
   //import("../../bower_components/riveter/lib/riveter.js");
