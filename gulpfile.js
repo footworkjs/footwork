@@ -1,10 +1,12 @@
 var gulp = require('gulp');
 var header = require("gulp-header");
+var footer = require("gulp-footer");
 var fileImports = require("gulp-imports");
 var uglify = require("gulp-uglify");
 var rename = require("gulp-rename");
 var size = require('gulp-size');
-var mocha = require('gulp-mocha');
+var mochaPhantomJS = require('gulp-mocha-phantomjs');
+var debug = require('gulp-debug');
 var pkg = require("./package.json");
 
 var banner = ["/**",
@@ -17,32 +19,31 @@ var banner = ["/**",
   ""
 ].join("\n");
 
-gulp.task('default', ['test', 'build']);
+gulp.task('default', ['tests']);
 
-gulp.task('test', ['build'], function() {
-    return gulp
-      .src('spec/test.js')
-      .pipe(mocha({ reporter: 'list' }));
+gulp.task('ci', ['tests']);
+gulp.task('tests', ['build-all'], function() {
+  return gulp
+    .src('spec/runner.html')
+    .pipe(mochaPhantomJS({ reporter: 'list' }));
 });
 
-gulp.task("build", function() {
+gulp.task('build-all', ['build-nodeps']);
+gulp.task("build-nodeps", function() {
   return gulp
-    .src(["source/footwork.js"])
+    .src(["source/build-profile/nodeps.js"])
     .pipe(header(banner, {
       pkg: pkg
     }))
     .pipe(fileImports())
+    .pipe(rename("footwork-nodeps.js"))
     .pipe(gulp.dest("dist/"))
     .pipe(uglify({
-      compress: {
-        negate_iife: false
-      }
+      compress: { negate_iife: false }
     }))
     .pipe(header(banner, {
       pkg: pkg
     }))
-    .pipe(rename("footwork.min.js"))
+    .pipe(rename("footwork-nodeps.min.js"))
     .pipe(gulp.dest("dist/"));
 });
-
-gulp.task('ci', ['test']);

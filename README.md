@@ -5,4 +5,4 @@ A solid base for structured knockout applications.
 
 Unit tests and documentation (and more features) coming soon.
 
-### This is not ready for use _yet_.
+### This is not ready for use yet.
