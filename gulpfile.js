@@ -3,8 +3,10 @@ var header = require("gulp-header");
 var fileImports = require("gulp-imports");
 var uglify = require("gulp-uglify");
 var rename = require("gulp-rename");
-
+var size = require('gulp-size');
+var mocha = require('gulp-mocha');
 var pkg = require("./package.json");
+
 var banner = ["/**",
   " * <%= pkg.name %> - <%= pkg.description %>",
   " * Author: <%= pkg.author %>",
@@ -15,10 +17,18 @@ var banner = ["/**",
   ""
 ].join("\n");
 
-gulp.task('default', ['combine']);
+gulp.task('default', ['test', 'build']);
 
-gulp.task("combine", function() {
-  return gulp.src(["source/footwork.js"])
+gulp.task('test', ['build'], function() {
+    return gulp
+      .src('spec/test.js')
+      .pipe(mocha({ reporter: 'list' }));
+      // .pipe(mochaPhantomJS({ reporter: 'nyan' }));
+});
+
+gulp.task("build", function() {
+  return gulp
+    .src(["source/footwork.js"])
     .pipe(header(banner, {
       pkg: pkg
     }))
@@ -35,3 +45,5 @@ gulp.task("combine", function() {
     .pipe(rename("footwork.min.js"))
     .pipe(gulp.dest("dist/"));
 });
+
+gulp.task('ci', ['test']);
