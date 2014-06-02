@@ -87,7 +87,7 @@ var Apollo = (function () {
   return exports;
 })();
 
-  function getModules() {
+  var modules = (function getModules() {
     var module = undefined;
     var exports = undefined;
     var define = undefined;
@@ -883,10 +883,7 @@ var Apollo = (function () {
     }).call(modules);
 
     return modules;
-  }
-
-  var modules = getModules();
-  console.log('modules', getModules());
+  }());
 
   return (function (_, ko, riveter, postal) {
     var applyBindings = ko.applyBindings;

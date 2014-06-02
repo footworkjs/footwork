@@ -9,7 +9,7 @@
 }(this, function (_, ko) {
   //import("../../deps/apollo.js");
 
-  function getModules() {
+  var modules = (function getModules() {
     var module = undefined;
     var exports = undefined;
     var define = undefined;
@@ -32,9 +32,7 @@
     }).call(modules);
 
     return modules;
-  }
-
-  var modules = getModules();
+  }());
 
   return (function (_, ko, riveter, postal) {
     //import("../footwork.js");
