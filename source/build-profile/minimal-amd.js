@@ -10,35 +10,33 @@
   //import("../../deps/apollo.js");
 
   function getModules() {
+    var module = undefined;
+    var exports = undefined;
+    var define = undefined;
     var modules = {
       _: _,
       ko: ko,
       Apollo: Apollo
-    }, extract;
-    
-    var module = undefined,
-        exports = undefined,
-        define = undefined;
+    };
 
-    extract = function() {
+    (function() {
       //import("../../bower_components/riveter/lib/riveter.js");
-    }
-    extract.call(modules);
+    }).call(modules);
 
-    extract = function() {
+    (function() {
       //import("../../bower_components/conduitjs/lib/conduit.js");
-    }
-    extract.call(modules);
+    }).call(modules);
 
-    extract = function() {
+    (function() {
       //import("../../bower_components/postal.js/lib/postal.js");
-    }
-    extract.call(modules);
+    }).call(modules);
 
     return modules;
   }
 
-  console.log('modules', getModules());
+  var modules = getModules();
 
-  //import("../footwork.js");
+  return (function (_, ko, riveter, postal) {
+    //import("../footwork.js");
+  })(modules._, modules.ko, modules.riveter, modules.postal);
 }));

@@ -88,17 +88,16 @@ var Apollo = (function () {
 })();
 
   function getModules() {
+    var module = undefined;
+    var exports = undefined;
+    var define = undefined;
     var modules = {
       _: _,
       ko: ko,
       Apollo: Apollo
-    }, extract;
-    
-    var module = undefined,
-        exports = undefined,
-        define = undefined;
+    };
 
-    extract = function() {
+    (function() {
       /**
  * riveter - Mix-in, inheritance and constructor extend behavior for your JavaScript enjoyment.
  * © 2012 - Copyright appendTo, LLC 
@@ -223,10 +222,9 @@ var Apollo = (function () {
     };
     return riveter;
 }));
-    }
-    extract.call(modules);
+    }).call(modules);
 
-    extract = function() {
+    (function() {
       /**
  * conduitjs - Give any method a pre/post invocation pipeline....
  * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
@@ -363,10 +361,9 @@ var Apollo = (function () {
         }
     }
 }));
-    }
-    extract.call(modules);
+    }).call(modules);
 
-    extract = function() {
+    (function() {
       /**
  * postal - Pub/Sub library providing wildcard subscriptions, complex message handling, etc.  Works server and client-side.
  * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
@@ -883,15 +880,16 @@ var Apollo = (function () {
     }
     return _postal;
 }));
-    }
-    extract.call(modules);
+    }).call(modules);
 
     return modules;
   }
 
+  var modules = getModules();
   console.log('modules', getModules());
 
-  var applyBindings = ko.applyBindings;
+  return (function (_, ko, riveter, postal) {
+    var applyBindings = ko.applyBindings;
 ko.applyBindings = function(model, element) {
   applyBindings(model, element);
   if(typeof model.startup === 'function' && model._options !== undefined) {
@@ -1277,4 +1275,5 @@ ko.model = function(modelOptions) {
 
 return ko;
 
+  })(modules._, modules.ko, modules.riveter, modules.postal);
 }));
