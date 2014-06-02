@@ -1,7 +1,7 @@
 /**
  * footwork.js - A solid base for structured knockout applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.1.0
+ * Version: v0.1.1
  * Url: http://footworkjs.com
  * License(s): MIT
  */
@@ -86,7 +86,20 @@ var Apollo = (function () {
 
   return exports;
 })();
-  /**
+
+  function getModules() {
+    var modules = {
+      _: _,
+      ko: ko,
+      Apollo: Apollo
+    }, extract;
+    
+    var module = undefined,
+        exports = undefined,
+        define = undefined;
+
+    extract = function() {
+      /**
  * riveter - Mix-in, inheritance and constructor extend behavior for your JavaScript enjoyment.
  * © 2012 - Copyright appendTo, LLC 
  * Author(s): Jim Cowart, Nicholas Cloud, Doug Neiner
@@ -210,7 +223,11 @@ var Apollo = (function () {
     };
     return riveter;
 }));
-  /**
+    }
+    extract.call(modules);
+
+    extract = function() {
+      /**
  * conduitjs - Give any method a pre/post invocation pipeline....
  * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
  * Version: v0.3.2
@@ -346,7 +363,11 @@ var Apollo = (function () {
         }
     }
 }));
-  /**
+    }
+    extract.call(modules);
+
+    extract = function() {
+      /**
  * postal - Pub/Sub library providing wildcard subscriptions, complex message handling, etc.  Works server and client-side.
  * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
  * Version: v0.10.0
@@ -862,6 +883,13 @@ var Apollo = (function () {
     }
     return _postal;
 }));
+    }
+    extract.call(modules);
+
+    return modules;
+  }
+
+  console.log('modules', getModules());
 
   var applyBindings = ko.applyBindings;
 ko.applyBindings = function(model, element) {
