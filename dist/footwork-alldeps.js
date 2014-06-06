@@ -15,18 +15,18 @@
   }
 }(this, function () {
   var modules = (function getModules() {
-    // define our own root object to use
+    // define our own root object to supply to the modules as an attachment point
     var root = {};
 
-    // lodash directly checks for the window object before it uses 'this' so we supply our root for that as well
+    // supply our root for modules that directly check for the window object (lodash does this)
     var window = root;
 
-    // hide from node.js or browserified (CommonJS modules)
+    // hide the modules from node.js or browserified (CommonJS environments)
     var module = undefined,
         exports = undefined,
         global = undefined;
 
-    // hide from requirejs (AMD modules)
+    // hide the modules from requirejs (AMD environments)
     var define = undefined;
 
     (function() {
@@ -5884,9 +5884,9 @@
     }).call(root);
 
     /**
-     * Knockout double-wraps their module so we can't lie about the window object to it.
-     * As a result we just let knockout (ko) bind to the window object directly (unforunately).
-     * I am unsure of the workaround for this. Pull requests accepted!
+     * Knockout double-wraps their module so we can't lie about the window/root object to it.
+     * As a result we just let knockout (ko) bind to (ahem, pollute) the window object directly (unforunately).
+     * I am unsure of the workaround for this. Pull requests encouraged!
      */
     // Knockout JavaScript library v3.1.0
 // (c) Steven Sanderson - http://knockoutjs.com/
@@ -5985,7 +5985,7 @@ v.S,v.Ia),v.Zb=!0)}l(h.beforeRemove,e);l(h.afterMove,z);l(h.afterAdd,m);a.a.f.se
 !t.tmpl)return 0;try{if(0<=t.tmpl.tag.tmpl.open.toString().indexOf("__"))return 2}catch(a){}return 1}();this.renderTemplateSource=function(b,e,f){f=f||{};if(2>a)throw Error("Your version of jQuery.tmpl is too old. Please upgrade to jQuery.tmpl 1.0.0pre or later.");var h=b.data("precompiled");h||(h=b.text()||"",h=t.template(null,"{{ko_with $item.koBindingContext}}"+h+"{{/ko_with}}"),b.data("precompiled",h));b=[e.$data];e=t.extend({koBindingContext:e},f.templateOptions);e=t.tmpl(h,b,e);e.appendTo(w.createElement("div"));
 t.fragments={};return e};this.createJavaScriptEvaluatorBlock=function(a){return"{{ko_code ((function() { return "+a+" })()) }}"};this.addTemplate=function(a,b){w.write("<script type='text/html' id='"+a+"'>"+b+"\x3c/script>")};0<a&&(t.tmpl.tag.ko_code={open:"__.push($1 || '');"},t.tmpl.tag.ko_with={open:"with($1) {",close:"} "})};a.La.prototype=new a.C;var b=new a.La;0<b.ac&&a.Wa(b);a.b("jqueryTmplTemplateEngine",a.La)})()})})();})();
 
-    root.ko = ko; // ew...
+    root.ko = ko; // ick...
 
     return root;
   }());

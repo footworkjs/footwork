@@ -15,13 +15,22 @@
   }
 }(this, function (_, ko) {
   var modules = (function getModules() {
-    var module = undefined;
-    var exports = undefined;
-    var define = undefined;
-    var modules = {
+    // define our own root object to supply to the modules as an attachment point
+    var root = {
       _: _,
       ko: ko
     };
+
+    // supply our root for modules that directly check for the window object
+    var window = root;
+
+    // hide from node.js or browserified (CommonJS environments)
+    var module = undefined,
+        exports = undefined,
+        global = undefined;
+
+    // hide from requirejs (AMD environments)
+    var define = undefined;
 
     (function() {
       /*! Apollo v1.6.0 | (c) 2014 @toddmotto | github.com/toddmotto/apollo */
@@ -107,7 +116,7 @@
 
 });
 
-    }).call(modules);
+    }).call(root);
 
     (function() {
       /**
@@ -234,7 +243,7 @@
     };
     return riveter;
 }));
-    }).call(modules);
+    }).call(root);
 
     (function() {
       /**
@@ -373,7 +382,7 @@
         }
     }
 }));
-    }).call(modules);
+    }).call(root);
 
     (function() {
       /**
@@ -892,9 +901,9 @@
     }
     return _postal;
 }));
-    }).call(modules);
+    }).call(root);
 
-    return modules;
+    return root;
   }());
 
   return (function (_, ko, riveter, postal, Apollo) {

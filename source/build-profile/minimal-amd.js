@@ -8,31 +8,40 @@
   }
 }(this, function (_, ko) {
   var modules = (function getModules() {
-    var module = undefined;
-    var exports = undefined;
-    var define = undefined;
-    var modules = {
+    // define our own root object to supply to the modules as an attachment point
+    var root = {
       _: _,
       ko: ko
     };
 
+    // supply our root for modules that directly check for the window object
+    var window = root;
+
+    // hide from node.js or browserified (CommonJS environments)
+    var module = undefined,
+        exports = undefined,
+        global = undefined;
+
+    // hide from requirejs (AMD environments)
+    var define = undefined;
+
     (function() {
       //import("../../bower_components/apollo/dist/apollo.js");
-    }).call(modules);
+    }).call(root);
 
     (function() {
       //import("../../bower_components/riveter/lib/riveter.js");
-    }).call(modules);
+    }).call(root);
 
     (function() {
       //import("../../bower_components/conduitjs/lib/conduit.js");
-    }).call(modules);
+    }).call(root);
 
     (function() {
       //import("../../bower_components/postal.js/lib/postal.js");
-    }).call(modules);
+    }).call(root);
 
-    return modules;
+    return root;
   }());
 
   return (function (_, ko, riveter, postal, Apollo) {
