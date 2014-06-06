@@ -7,17 +7,18 @@
     root.ko = factory(_, ko);
   }
 }(this, function (_, ko) {
-  //import("../../deps/apollo.js");
-
   var modules = (function getModules() {
     var module = undefined;
     var exports = undefined;
     var define = undefined;
     var modules = {
       _: _,
-      ko: ko,
-      Apollo: Apollo
+      ko: ko
     };
+
+    (function() {
+      //import("../../bower_components/apollo/dist/apollo.js");
+    }).call(modules);
 
     (function() {
       //import("../../bower_components/riveter/lib/riveter.js");
@@ -34,7 +35,7 @@
     return modules;
   }());
 
-  return (function (_, ko, riveter, postal) {
+  return (function (_, ko, riveter, postal, Apollo) {
     //import("../footwork.js");
-  })(modules._, modules.ko, modules.riveter, modules.postal);
+  })(modules._, modules.ko, modules.riveter, modules.postal, modules.Apollo);
 }));

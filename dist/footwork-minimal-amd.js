@@ -14,8 +14,27 @@
     root.ko = factory(_, ko);
   }
 }(this, function (_, ko) {
-  // https://github.com/toddmotto/apollo
-var Apollo = (function () {
+  var modules = (function getModules() {
+    var module = undefined;
+    var exports = undefined;
+    var define = undefined;
+    var modules = {
+      _: _,
+      ko: ko
+    };
+
+    (function() {
+      /*! Apollo v1.6.0 | (c) 2014 @toddmotto | github.com/toddmotto/apollo */
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define(factory);
+  } else if (typeof exports === 'object') {
+    module.exports = factory;
+  } else {
+    root.Apollo = factory();
+  }
+})(this, function () {
+
   'use strict';
 
   var exports = {}, _hasClass, _addClass, _removeClass, _toggleClass;
@@ -85,17 +104,10 @@ var Apollo = (function () {
   };
 
   return exports;
-})();
 
-  var modules = (function getModules() {
-    var module = undefined;
-    var exports = undefined;
-    var define = undefined;
-    var modules = {
-      _: _,
-      ko: ko,
-      Apollo: Apollo
-    };
+});
+
+    }).call(modules);
 
     (function() {
       /**
@@ -885,7 +897,7 @@ var Apollo = (function () {
     return modules;
   }());
 
-  return (function (_, ko, riveter, postal) {
+  return (function (_, ko, riveter, postal, Apollo) {
     var applyBindings = ko.applyBindings;
 ko.applyBindings = function(model, element) {
   applyBindings(model, element);
@@ -1272,5 +1284,5 @@ ko.model = function(modelOptions) {
 
 return ko;
 
-  })(modules._, modules.ko, modules.riveter, modules.postal);
+  })(modules._, modules.ko, modules.riveter, modules.postal, modules.Apollo);
 }));
