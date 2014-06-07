@@ -1,6 +1,6 @@
 {
   "name": "footwork.js",
-  "description": "A solid base for structured knockout applications.",
+  "description": "A solid footing for larger knockout applications.",
   "author": "Jonathan Newman (http://staticty.pe)",
   "contributors": [
     {
@@ -9,7 +9,7 @@
       "url": "http://staticty.pe"
     }
   ],
-  "version": "0.1.4",
+  "version": "0.1.5",
   "homepage": "http://footworkjs.com",
   "licenses": [
     {
@@ -17,11 +17,20 @@
       "url": "http://www.opensource.org/licenses/mit-license.php"
     }
   ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/reflectiveSingleton/footwork.git"
+  },
   "devDependencies": {
     "bower": "~1.2.8",
     "mocha": "~1.17.1",
     "mocha-phantomjs": "~3.4.1",
+    "merge-stream": "~0.1.1",
+    "lodash": "~2.4.1",
     "gulp": "~3.6.2",
+    "gulp-ignore": "~1.1.0",
+    "gulp-rimraf": "~0.1.0",
+    "gulp-wrap-docco": "0.0.3",
     "gulp-imports": "~0.0.1",
     "gulp-header": "~1.0.2",
     "gulp-footer": "~1.0.4",

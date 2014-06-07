@@ -1,7 +1,7 @@
 {
   "name": "knockout-footwork.js",
-  "version": "0.1.4",
-  "description": "A base for structured knockout development.",
+  "version": "0.1.5",
+  "description": "A solid footing for larger knockout applications.",
   "homepage": "http://footworkjs.com",
   "keywords": [
     "knockout",
@@ -14,8 +14,8 @@
     "url": "git://github.com/reflectiveSingleton/footwork.git"
   },
   "main": [
-    "lib/footwork.min.js",
-    "lib/footwork.js"
+    "dist/footwork-all.min.js",
+    "dist/footwork-all.js"
   ],
   "ignore": [
     "source",
@@ -40,6 +40,8 @@
     "apollo": "https://github.com/toddmotto/apollo.git#1.6.0",
     "requirejs": "~2.1.10",
     "expect": "0.1.2",
-    "mocha": "~1.17.1"
+    "mocha": "~1.17.1",
+    "highlight": "8.0",
+    "jquery": ">=2.1.1"
   }
 }

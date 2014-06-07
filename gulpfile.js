@@ -8,8 +8,22 @@ var bump = require('gulp-bump');
 var size = require('gulp-size');
 var replace = require('gulp-replace');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
+var wrapDocco = require('gulp-wrap-docco');
+var merge = require('merge-stream');
+var ignore = require('gulp-ignore');
+var rimraf = require('gulp-rimraf');
+var _ = require('lodash');
 var pkg = require('./package.json');
 var reporter = 'list';
+var statement = 'A solid footing for larger knockout applications.';
+
+var sourceFiles = [
+  'main',
+  'model-namespace',
+  'broadcast-receive',
+  'bindingHandlers',
+  'extenders'
+];
 
 var build = function(buildProfile) {
   return gulp
@@ -61,26 +75,26 @@ gulp.task('build-and-test', ['test_all', 'test_minimal', 'test_bare'], function(
     .pipe(mochaPhantomJS({ reporter: reporter }));
 });
 
-gulp.task('test_all', ['build-all'], function() {
+gulp.task('test_all', ['build_all'], function() {
   return gulp
     .src('spec/runner_all.html')
     .pipe(mochaPhantomJS({ reporter: reporter }));
 });
 
-gulp.task('test_minimal', ['build-all'], function() {
+gulp.task('test_minimal', ['build_minimal'], function() {
   return gulp
     .src('spec/runner_minimal.html')
     .pipe(mochaPhantomJS({ reporter: reporter }));
 });
 
-gulp.task('test_bare', ['build-all'], function() {
+gulp.task('test_bare', ['build_bare'], function() {
   return gulp
     .src('spec/runner_bare.html')
     .pipe(mochaPhantomJS({ reporter: reporter }));
 });
 
 // Building tasks
-gulp.task('build-all', ['build_all', 'build_minimal', 'build_bare']);
+gulp.task('build-everything', ['build_all', 'build_minimal', 'build_bare']);
 
 gulp.task('build_all', function() {
   return build('all');
@@ -92,4 +106,31 @@ gulp.task('build_minimal', function() {
 
 gulp.task('build_bare', function() {
   return build('bare');
+});
+
+// Documentation tasks
+gulp.task('docs', ['doc_index', 'doc_js']);
+gulp.task('documentation', ['docs']);
+
+gulp.task('docs_clean', function() {
+  return gulp.src('./docs/*.html', { read: false })
+    .pipe(rimraf());
+});
+
+gulp.task('doc_js', ['docs_clean'], function() {
+  return merge.apply(null, _.map(sourceFiles, function(sourceFile) {
+    return gulp.src('source/' + sourceFile + '.js')
+      .pipe(wrapDocco())
+      .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
+      .pipe(rename(sourceFile + '.html'))
+      .pipe(gulp.dest('./docs'))
+  }));
+});
+
+gulp.task('doc_index', ['docs_clean'], function() {
+  return gulp.src('documentation/index.html')
+    .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
+    .pipe(replace(/FOOTWORK_SOURCEFILES/g, JSON.stringify(sourceFiles)))
+    .pipe(replace(/FOOTWORK_STATEMENT/g, statement))
+    .pipe(gulp.dest('./docs'));
 });
