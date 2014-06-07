@@ -7,7 +7,7 @@ require.config({
     "conduitjs": "../bower_components/conduitjs/lib/conduit",
     "postal": "../bower_components/postal.js/lib/postal",
     "apollo": "../bower_components/apollo/dist/apollo",
-    "footwork": "../dist/footwork-minimal",
+    "footwork": "../dist/footwork-bare",
   },
   waitSeconds: 1500
 });

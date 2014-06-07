@@ -11,7 +11,7 @@ describe('sanity', function () {
     expect(ko.model()).to.be.a('function');
   });
 
-  it('has the ability to create a model with the correctly defined namespace', function() {
+  it('has the ability to create a model with a correctly defined namespace', function() {
     var ModelA = ko.model({
       namespace: 'ModelA'
     });
@@ -20,7 +20,7 @@ describe('sanity', function () {
     expect(modelA.namespaceName).to.eql('ModelA');
   });
 
-  it('has the ability to create nested models with the correctly defined namespaces', function() {
+  it('has the ability to create nested models with correctly defined namespaces', function() {
     var ModelA = ko.model({
       namespace: 'ModelA',
       factory: function() {
@@ -40,7 +40,10 @@ describe('sanity', function () {
     });
 
     var ModelC = ko.model({
-      namespace: 'ModelC'
+      namespace: 'ModelC',
+      factory: function() {
+        this.recordedNamespaceName = ko.currentNamespaceName();
+      }
     });
 
     var modelA = new ModelA();
@@ -48,6 +51,6 @@ describe('sanity', function () {
     expect(modelA.postSubModelNamespaceName).to.eql('ModelA');
     expect(modelA.subModelB.preSubModelNamespaceName).to.eql('ModelB');
     expect(modelA.subModelB.postSubModelNamespaceName).to.eql('ModelB');
-    expect(modelA.subModelB.subModelC.namespaceName).to.eql('ModelC');
+    expect(modelA.subModelB.subModelC.recordedNamespaceName).to.eql('ModelC');
   });
 });
