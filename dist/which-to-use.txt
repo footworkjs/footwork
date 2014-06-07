@@ -8,7 +8,7 @@ footwork-minimal.js - You will need to provide (via either <script>
 
 footwork-bare.js - You will need to provide (via either <script>
                    includes, requirejs, browserify, etc):
-    'lodash' - http://lodash.com/
+    'lodash' - http://lodash.com/ (footwork uses lodash.underscore.js)
     'knockout' - http://knockoutjs.com/
     'postal' - https://github.com/postaljs/postal.js/
 
@@ -32,6 +32,7 @@ Why multiple build profiles?
 I need a different build, can I make others?
     Well sure, the gulpfile.js is in the repo:
     https://github.com/reflectiveSingleton/footwork
+    [TODO]: Make documentation concerning custom builds.
     I also accept pull requests, so if you think your build would help
     out others as well, please feel free to submit a pull.
 
