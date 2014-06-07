@@ -6004,245 +6004,6 @@ ko.applyBindings = function(model, element) {
   }
 };
 
-ko.bindingHandlers.registerElement = {
-  preprocess: function (value) {
-    return '\'' + value + '\'';
-  },
-  init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-    var elOption = ko.unwrap(valueAccessor()),
-      refresh,
-      defaultOptions = {
-        name: element.getAttribute('id') || element.getAttribute('name'),
-        context: 'relative'
-      };
-
-    if (typeof elOption === 'string') {
-      elOption = _.extend(defaultOptions, { name: elOption });
-    } else if (typeof elOption === 'object') {
-      elOption = _.extend(defaultOptions, elOption);
-    }
-
-    if (typeof viewModel.el !== 'object') {
-      viewModel.el = {};
-    }
-
-    viewModel.el[ elOption.name ] = element;
-  }
-};
-
-/**
- * Source: https://github.com/SteveSanderson/knockout/wiki/Bindings---class
- */
-ko.bindingHandlers['class'] = {
-  'update': function( element, valueAccessor ) {
-    if( element['__ko__previousClassValue__'] ) {
-      Apollo.removeClass(element, element['__ko__previousClassValue__']);
-    }
-    var value = ko.utils.unwrapObservable(valueAccessor());
-    value !== undefined && Apollo.addClass(element, value);
-    element['__ko__previousClassValue__'] = value;
-  }
-};
-
-ko.bindingHandlers['stopBinding'] = {
-  init: function() {
-    return { controlsDescendantBindings: true };
-  }
-};
-
-// custom throttle() based on ko v3.0.0 throttle(), allows value to be force()'d to a value at any time
-ko.extenders.throttle = function(target, opt) {
-  if( typeof opt === 'number' ) {
-    opt = {
-      timeout: opt,
-      when: function() { return true; } // default always throttle
-    };
-  }
-
-  target.throttleEvaluation = opt.timeout;
-
-  var writeTimeoutInstance = null,
-      throttledTarget = ko.dependentObservable({
-          'read': target,
-          'write': function(value) {
-            if( opt.when(value) ) {
-              clearTimeout(writeTimeoutInstance);
-              writeTimeoutInstance = setTimeout(function() {
-                target(value);
-              }, opt.timeout);
-            } else {
-              clearTimeout(writeTimeoutInstance);
-              target(value);
-            }
-          }
-      });
-
-  throttledTarget.force = function( value ) {
-    clearTimeout(writeTimeoutInstance);
-    target(value);
-  };
-
-  return throttledTarget;
-};
-
-ko.extenders.autoDisable = function( target, delay ) {
-  return target.extend({
-    delayTrigger: {
-      delay: delay || 0,
-      trigger: function( target ) { target( false ); }
-    }
-  });
-};
-
-ko.extenders.autoEnable = function( target, delay ) {
-  return target.extend({
-    delayTrigger: {
-      delay: delay || 0,
-      trigger: function( target ) { target( true ); }
-    }
-  });
-};
-
-ko.extenders.delayTrigger = function( target, options ) {
-  var delay = 300,
-      triggerFunc = function() {},
-      trigger;
-
-  if( typeof options === 'object' ) {
-    delay = !isNaN( options.delay ) && parseInt( options.delay, 10 ) || delay;
-    triggerFunc = options.trigger || triggerFunc;
-  } else {
-    delay = !isNaN( options ) && parseInt( options, 10 ) || delay;
-  }
-
-  var clearTrigger = function() {
-    clearTimeout( trigger );
-    trigger = undefined;
-  };
-
-  var delayedObservable = ko.computed({
-    read: target,
-    write: function( state ) {
-      target( state );
-
-      if( trigger !== undefined ) {
-        clearTrigger();
-      }
-
-      trigger = setTimeout(function() {
-        triggerFunc( target, options );
-      }.bind(target), delayedObservable.triggerDelay);
-    }
-  });
-  delayedObservable.clearTrigger = clearTrigger;
-  delayedObservable.triggerDelay = delay;
-
-  return delayedObservable;
-};
-
-ko.extenders.delayWrite = function( target, options ) {
-  var filter, delay = 300;
-
-  if( typeof options === 'object' ) {
-    delay = !isNaN( options.delay ) && parseInt( options.delay, 10 ) || delay;
-    filter = options.filter || function() { return true; };
-  } else {
-    delay = !isNaN( options ) && parseInt( options, 10 ) || delay;
-  }
-
-  return ko.computed({
-    read: target,
-    write: function( writeValue ) {
-      if( filter( writeValue ) ) {
-        if(target._delayWriteTimer) {
-          clearTimeout( this._delayWriteTimer );
-        }
-        target._delayWriteTimer = setTimeout(function() {
-          target( writeValue );
-        }, delay);
-      } else {
-        target( writeValue );
-      }
-    }
-  });
-};
-
-//     this.myValue = ko.observable().receiveFrom('Namespace' / Namespace, 'varName');
-ko.subscribable.fn.receiveFrom = function(namespace, variable) {
-  var target = this,
-      observable = this,
-      channel;
-
-  if( _.isObject(namespace) === true && namespace.channel !== undefined ) {
-    channel = namespace;
-  } else if(typeof namespace === 'string') {
-    channel = postal.channel( namespace );
-  } else {
-    throw 'Invalid namespace [' + typeof namespace + ']';
-  }
-
-  observable = ko.computed({
-    read: target,
-    write: function( value ) {
-      channel.publish( 'change.' + variable, value );
-    }
-  });
-
-  observable.refresh = function() {
-    channel.publish( 'refresh.' + variable );
-  };
-  channel.subscribe( variable, function( newValue ) {
-    target( newValue );
-  });
-
-  observable.__isReceived = true;
-  return observable;
-};
-
-//     this.myValue = ko.observable().broadcastAs('NameOfVar');
-//     this.myValue = ko.observable().broadcastAs('NameOfVar', isWritable);
-//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', writable: true });
-//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', namespace: Namespace });
-ko.subscribable.fn.broadcastAs = function(varName, option) {
-  var observable = this, channel;
-
-  if(_.isObject(varName) === true) {
-    option = varName;
-  } else {
-    if( typeof option === 'boolean' ) {
-      option = {
-        name: varName,
-        writable: option
-      };
-    } else if( _.isObject(option) === true ) {
-      option = _.extend({
-        name: varName
-      }, option);
-    } else {
-      option = {
-        name: varName
-      };
-    }
-  }
-  channel = option.namespace || ko.currentNamespace();
-
-  if( option.writable ) {
-    channel.subscribe( 'change.' + option.name, function( newValue ) {
-      observable( newValue );
-    });
-  }
-
-  channel.subscribe( 'refresh.' + option.name, function() {
-    channel.publish( option.name, observable() );
-  });
-  observable.subscribe(function( newValue ) {
-    channel.publish( option.name, newValue );
-  });
-
-  observable.__isBroadcast = true;
-  return observable;
-};
-
 ko.__nsStack = [];
 ko.namespace = function(namespaceName) {
   return postal.channel(namespaceName);
@@ -6373,6 +6134,242 @@ ko.model = function(modelOptions) {
     composure = composure.concat(modelOptions.mixins);
   }
   return riveter.compose.apply( undefined, composure );
+};
+//     this.myValue = ko.observable().receiveFrom('Namespace' / Namespace, 'varName');
+ko.subscribable.fn.receiveFrom = function(namespace, variable) {
+  var target = this,
+      observable = this,
+      channel;
+
+  if( _.isObject(namespace) === true && namespace.channel !== undefined ) {
+    channel = namespace;
+  } else if(typeof namespace === 'string') {
+    channel = postal.channel( namespace );
+  } else {
+    throw 'Invalid namespace [' + typeof namespace + ']';
+  }
+
+  observable = ko.computed({
+    read: target,
+    write: function( value ) {
+      channel.publish( 'change.' + variable, value );
+    }
+  });
+
+  observable.refresh = function() {
+    channel.publish( 'refresh.' + variable );
+  };
+  channel.subscribe( variable, function( newValue ) {
+    target( newValue );
+  });
+
+  observable.__isReceived = true;
+  return observable;
+};
+
+//     this.myValue = ko.observable().broadcastAs('NameOfVar');
+//     this.myValue = ko.observable().broadcastAs('NameOfVar', isWritable);
+//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', writable: true });
+//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', namespace: Namespace });
+ko.subscribable.fn.broadcastAs = function(varName, option) {
+  var observable = this, channel;
+
+  if(_.isObject(varName) === true) {
+    option = varName;
+  } else {
+    if( typeof option === 'boolean' ) {
+      option = {
+        name: varName,
+        writable: option
+      };
+    } else if( _.isObject(option) === true ) {
+      option = _.extend({
+        name: varName
+      }, option);
+    } else {
+      option = {
+        name: varName
+      };
+    }
+  }
+  channel = option.namespace || ko.currentNamespace();
+
+  if( option.writable ) {
+    channel.subscribe( 'change.' + option.name, function( newValue ) {
+      observable( newValue );
+    });
+  }
+
+  channel.subscribe( 'refresh.' + option.name, function() {
+    channel.publish( option.name, observable() );
+  });
+  observable.subscribe(function( newValue ) {
+    channel.publish( option.name, newValue );
+  });
+
+  observable.__isBroadcast = true;
+  return observable;
+};
+ko.bindingHandlers.registerElement = {
+  preprocess: function (value) {
+    return '\'' + value + '\'';
+  },
+  init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+    var elOption = ko.unwrap(valueAccessor()),
+      refresh,
+      defaultOptions = {
+        name: element.getAttribute('id') || element.getAttribute('name'),
+        context: 'relative'
+      };
+
+    if (typeof elOption === 'string') {
+      elOption = _.extend(defaultOptions, { name: elOption });
+    } else if (typeof elOption === 'object') {
+      elOption = _.extend(defaultOptions, elOption);
+    }
+
+    if (typeof viewModel.el !== 'object') {
+      viewModel.el = {};
+    }
+
+    viewModel.el[ elOption.name ] = element;
+  }
+};
+
+/**
+ * Source: https://github.com/SteveSanderson/knockout/wiki/Bindings---class
+ */
+ko.bindingHandlers['class'] = {
+  'update': function( element, valueAccessor ) {
+    if( element['__ko__previousClassValue__'] ) {
+      Apollo.removeClass(element, element['__ko__previousClassValue__']);
+    }
+    var value = ko.utils.unwrapObservable(valueAccessor());
+    value !== undefined && Apollo.addClass(element, value);
+    element['__ko__previousClassValue__'] = value;
+  }
+};
+
+ko.bindingHandlers['stopBinding'] = {
+  init: function() {
+    return { controlsDescendantBindings: true };
+  }
+};
+// custom throttle() based on ko v3.0.0 throttle(), allows value to be force()'d to a value at any time
+ko.extenders.throttle = function(target, opt) {
+  if( typeof opt === 'number' ) {
+    opt = {
+      timeout: opt,
+      when: function() { return true; } // default always throttle
+    };
+  }
+
+  target.throttleEvaluation = opt.timeout;
+
+  var writeTimeoutInstance = null,
+      throttledTarget = ko.dependentObservable({
+          'read': target,
+          'write': function(value) {
+            if( opt.when(value) ) {
+              clearTimeout(writeTimeoutInstance);
+              writeTimeoutInstance = setTimeout(function() {
+                target(value);
+              }, opt.timeout);
+            } else {
+              clearTimeout(writeTimeoutInstance);
+              target(value);
+            }
+          }
+      });
+
+  throttledTarget.force = function( value ) {
+    clearTimeout(writeTimeoutInstance);
+    target(value);
+  };
+
+  return throttledTarget;
+};
+
+ko.extenders.autoDisable = function( target, delay ) {
+  return target.extend({
+    delayTrigger: {
+      delay: delay || 0,
+      trigger: function( target ) { target( false ); }
+    }
+  });
+};
+
+ko.extenders.autoEnable = function( target, delay ) {
+  return target.extend({
+    delayTrigger: {
+      delay: delay || 0,
+      trigger: function( target ) { target( true ); }
+    }
+  });
+};
+
+ko.extenders.delayTrigger = function( target, options ) {
+  var delay = 300,
+      triggerFunc = function() {},
+      trigger;
+
+  if( typeof options === 'object' ) {
+    delay = !isNaN( options.delay ) && parseInt( options.delay, 10 ) || delay;
+    triggerFunc = options.trigger || triggerFunc;
+  } else {
+    delay = !isNaN( options ) && parseInt( options, 10 ) || delay;
+  }
+
+  var clearTrigger = function() {
+    clearTimeout( trigger );
+    trigger = undefined;
+  };
+
+  var delayedObservable = ko.computed({
+    read: target,
+    write: function( state ) {
+      target( state );
+
+      if( trigger !== undefined ) {
+        clearTrigger();
+      }
+
+      trigger = setTimeout(function() {
+        triggerFunc( target, options );
+      }.bind(target), delayedObservable.triggerDelay);
+    }
+  });
+  delayedObservable.clearTrigger = clearTrigger;
+  delayedObservable.triggerDelay = delay;
+
+  return delayedObservable;
+};
+
+ko.extenders.delayWrite = function( target, options ) {
+  var filter, delay = 300;
+
+  if( typeof options === 'object' ) {
+    delay = !isNaN( options.delay ) && parseInt( options.delay, 10 ) || delay;
+    filter = options.filter || function() { return true; };
+  } else {
+    delay = !isNaN( options ) && parseInt( options, 10 ) || delay;
+  }
+
+  return ko.computed({
+    read: target,
+    write: function( writeValue ) {
+      if( filter( writeValue ) ) {
+        if(target._delayWriteTimer) {
+          clearTimeout( this._delayWriteTimer );
+        }
+        target._delayWriteTimer = setTimeout(function() {
+          target( writeValue );
+        }, delay);
+      } else {
+        target( writeValue );
+      }
+    }
+  });
 };
 
 return ko;

@@ -54,6 +54,6 @@
   }());
 
   return (function (_, ko, riveter, postal, Apollo) {
-    //import("../footwork.js");
+    //import("../main.js");
   })(modules._, modules.ko, modules.riveter, modules.postal, modules.Apollo);
 }));
