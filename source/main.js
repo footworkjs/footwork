@@ -17,5 +17,3 @@ ko.applyBindings = function(model, element) {
 //import("broadcast-receive.js");
 //import("bindingHandlers.js");
 //import("extenders.js");
-
-return ko;

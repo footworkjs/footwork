@@ -645,8 +645,6 @@ ko.extenders.delayWrite = function( target, options ) {
     }
   });
 };
-
-return ko;
-
+    return ko;
   })(modules._, modules.ko, modules.riveter, modules.postal, modules.Apollo);
 }));

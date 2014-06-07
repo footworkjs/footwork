@@ -32,15 +32,15 @@ gulp.task('bump', function () {
 // Testing tasks
 gulp.task('ci', ['build-and-test']);
 
-gulp.task('build-and-test', ['test_alldeps', 'test_minimal', 'test_bare'], function() {
+gulp.task('build-and-test', ['test_all', 'test_minimal', 'test_bare'], function() {
   return gulp
-    .src('spec/runner_alldeps.html')
+    .src('spec/runner_all.html')
     .pipe(mochaPhantomJS({ reporter: reporter }));
 });
 
-gulp.task('test_alldeps', ['build-all'], function() {
+gulp.task('test_all', ['build-all'], function() {
   return gulp
-    .src('spec/runner_alldeps.html')
+    .src('spec/runner_all.html')
     .pipe(mochaPhantomJS({ reporter: reporter }));
 });
 
@@ -57,18 +57,18 @@ gulp.task('test_bare', ['build-all'], function() {
 });
 
 // Building tasks
-gulp.task('build-all', ['build_alldeps', 'build_minimal', 'build_bare']);
+gulp.task('build-all', ['build_all', 'build_minimal', 'build_bare']);
 
-gulp.task("build_alldeps", function() {
+gulp.task("build_all", function() {
   return gulp
-    .src(["source/build-profile/alldeps.js"])
+    .src(["source/build-profile/all.js"])
     .pipe(header(banner, {
       pkg: pkg
     }))
     .pipe(fileImports())
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
-    .pipe(rename("footwork-alldeps.js"))
-    .pipe(size({ title: '[alldeps] Unminified' }))
+    .pipe(rename("footwork-all.js"))
+    .pipe(size({ title: '[all] Unminified' }))
     .pipe(gulp.dest("dist/"))
     .pipe(uglify({
       compress: { negate_iife: false }
@@ -76,9 +76,9 @@ gulp.task("build_alldeps", function() {
     .pipe(header(banner, {
       pkg: pkg
     }))
-    .pipe(rename("footwork-alldeps.min.js"))
-    .pipe(size({ title: '[alldeps] Minified' }))
-    .pipe(size({ title: '[alldeps] Minified', gzip: true }))
+    .pipe(rename("footwork-all.min.js"))
+    .pipe(size({ title: '[all] Minified' }))
+    .pipe(size({ title: '[all] Minified', gzip: true }))
     .pipe(gulp.dest("dist/"));
 });
 
