@@ -24,8 +24,11 @@ ko.modelCount = function() {
   }, 0);
   return counts;
 };
-ko.getModels = function() {
-  return models;
+ko.getModels = function(namespaceName) {
+  if(namespaceName === undefined) {
+    return models;
+  }
+  return models[namespaceName];
 };
 ko.debugModels = function(state) {
   debugModels = state;

@@ -6032,8 +6032,11 @@ ko.modelCount = function() {
   }, 0);
   return counts;
 };
-ko.getModels = function() {
-  return models;
+ko.getModels = function(namespaceName) {
+  if(namespaceName === undefined) {
+    return models;
+  }
+  return models[namespaceName];
 };
 ko.debugModels = function(state) {
   debugModels = state;
@@ -6376,8 +6379,6 @@ ko.extenders.delayWrite = function( target, options ) {
     }
   });
 };
-
-return ko;
-
+    return ko;
   })(modules._, modules.ko, modules.riveter, modules.postal, modules.Apollo);
 }));
