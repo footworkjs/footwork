@@ -8,6 +8,7 @@ var bump = require("gulp-bump");
 var size = require('gulp-size');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
 var pkg = require("./package.json");
+var reporter = 'list';
 
 var banner = ["/**",
   " * <%= pkg.name %> - <%= pkg.description %>",
@@ -19,7 +20,7 @@ var banner = ["/**",
   ""
 ].join("\n");
 
-gulp.task('default', ['tests']);
+gulp.task('default', ['build-and-test']);
 
 gulp.task('bump', function () {
   return gulp.src(['./package.json', './bower.json'])
@@ -27,24 +28,30 @@ gulp.task('bump', function () {
     .pipe(gulp.dest('./'));
 });
 
-gulp.task('ci', ['tests']);
-gulp.task('tests', ['test_alldeps', 'test_minimal-amd'], function() {
+// Testing tasks
+gulp.task('ci', ['build-and-test']);
+
+gulp.task('build-and-test', ['test_alldeps', 'test_minimal-amd'], function() {
   return gulp
     .src('spec/runner_alldeps.html')
-    .pipe(mochaPhantomJS({ reporter: 'list' }));
+    .pipe(mochaPhantomJS({ reporter: reporter }));
 });
+
 gulp.task('test_alldeps', ['build-all'], function() {
   return gulp
     .src('spec/runner_alldeps.html')
-    .pipe(mochaPhantomJS({ reporter: 'list' }));
+    .pipe(mochaPhantomJS({ reporter: reporter }));
 });
+
 gulp.task('test_minimal-amd', ['build-all'], function() {
   return gulp
     .src('spec/runner_minimal-amd.html')
-    .pipe(mochaPhantomJS({ reporter: 'list' }));
+    .pipe(mochaPhantomJS({ reporter: reporter }));
 });
 
+// Building tasks
 gulp.task('build-all', ['build_alldeps', 'build_minimal-amd']);
+
 gulp.task("build_alldeps", function() {
   return gulp
     .src(["source/build-profile/alldeps.js"])
@@ -53,6 +60,7 @@ gulp.task("build_alldeps", function() {
     }))
     .pipe(fileImports())
     .pipe(rename("footwork-alldeps.js"))
+    .pipe(size({ title: '[alldeps] Unminified' }))
     .pipe(gulp.dest("dist/"))
     .pipe(uglify({
       compress: { negate_iife: false }
@@ -61,8 +69,11 @@ gulp.task("build_alldeps", function() {
       pkg: pkg
     }))
     .pipe(rename("footwork-alldeps.min.js"))
+    .pipe(size({ title: '[alldeps] Minified' }))
+    .pipe(size({ title: '[alldeps] Minified', gzip: true }))
     .pipe(gulp.dest("dist/"));
 });
+
 gulp.task("build_minimal-amd", function() {
   return gulp
     .src(["source/build-profile/minimal-amd.js"])
@@ -71,6 +82,7 @@ gulp.task("build_minimal-amd", function() {
     }))
     .pipe(fileImports())
     .pipe(rename("footwork-minimal-amd.js"))
+    .pipe(size({ title: '[minimal-amd] Unminified' }))
     .pipe(gulp.dest("dist/"))
     .pipe(uglify({
       compress: { negate_iife: false }
@@ -79,5 +91,7 @@ gulp.task("build_minimal-amd", function() {
       pkg: pkg
     }))
     .pipe(rename("footwork-minimal-amd.min.js"))
+    .pipe(size({ title: '[minimal-amd] Minified' }))
+    .pipe(size({ title: '[minimal-amd] Minified', gzip: true }))
     .pipe(gulp.dest("dist/"));
 });

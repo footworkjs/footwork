@@ -1,10 +1,6 @@
 'use strict';
 
-describe('knockout', function () {
-  it('object exists', function () {
-    expect(ko.observable).not.to.be(undefined);
-  });
-
+describe('Sanity', function () {
   it('has ability to create a namespace', function() {
     expect(ko.namespace).to.be.a('function');
     expect(ko.namespace()).to.be.an('object');

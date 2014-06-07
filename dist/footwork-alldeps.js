@@ -1,7 +1,7 @@
 /**
  * footwork.js - A solid base for structured knockout applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.1.1
+ * Version: v0.1.3
  * Url: http://footworkjs.com
  * License(s): MIT
  */
@@ -21,12 +21,12 @@
     // supply our root for modules that directly check for the window object (lodash does this)
     var window = root;
 
-    // hide the modules from node.js or browserified (CommonJS environments)
+    // hide node.js or browserified from the modules (CommonJS environment)
     var module = undefined,
         exports = undefined,
         global = undefined;
 
-    // hide the modules from requirejs (AMD environments)
+    // hide requirejs from the modules (AMD environment)
     var define = undefined;
 
     (function() {

@@ -1,6 +1,6 @@
 {
   "name": "knockout-footwork.js",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "A base for structured knockout development.",
   "homepage": "http://footworkjs.com",
   "keywords": [
@@ -38,7 +38,6 @@
     "postal.js": "0.10.0",
     "conduitjs": "0.3.2",
     "apollo": "https://github.com/toddmotto/apollo.git#1.6.0",
-
     "requirejs": "~2.1.10",
     "expect": "0.1.2",
     "mocha": "~1.17.1"

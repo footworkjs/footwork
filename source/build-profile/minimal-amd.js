@@ -17,12 +17,12 @@
     // supply our root for modules that directly check for the window object
     var window = root;
 
-    // hide from node.js or browserified (CommonJS environments)
+    // hide node.js or browserified from the modules (CommonJS environment)
     var module = undefined,
         exports = undefined,
         global = undefined;
 
-    // hide from requirejs (AMD environments)
+    // hide requirejs from the modules (AMD environment)
     var define = undefined;
 
     (function() {

@@ -14,12 +14,12 @@
     // supply our root for modules that directly check for the window object (lodash does this)
     var window = root;
 
-    // hide the modules from node.js or browserified (CommonJS environments)
+    // hide node.js or browserified from the modules (CommonJS environment)
     var module = undefined,
         exports = undefined,
         global = undefined;
 
-    // hide the modules from requirejs (AMD environments)
+    // hide requirejs from the modules (AMD environment)
     var define = undefined;
 
     (function() {
