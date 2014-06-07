@@ -1,3 +1,5 @@
+ko._footworkVersion = 'FOOTWORK_VERSION';
+
 var applyBindings = ko.applyBindings;
 ko.applyBindings = function(model, element) {
   applyBindings(model, element);

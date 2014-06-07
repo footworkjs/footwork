@@ -6,6 +6,7 @@ var uglify = require("gulp-uglify");
 var rename = require("gulp-rename");
 var bump = require("gulp-bump");
 var size = require('gulp-size');
+var replace = require('gulp-replace');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
 var pkg = require("./package.json");
 var reporter = 'list';
@@ -65,6 +66,7 @@ gulp.task("build_alldeps", function() {
       pkg: pkg
     }))
     .pipe(fileImports())
+    .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
     .pipe(rename("footwork-alldeps.js"))
     .pipe(size({ title: '[alldeps] Unminified' }))
     .pipe(gulp.dest("dist/"))
@@ -87,6 +89,7 @@ gulp.task("build_minimal", function() {
       pkg: pkg
     }))
     .pipe(fileImports())
+    .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
     .pipe(rename("footwork-minimal.js"))
     .pipe(size({ title: '[minimal] Unminified' }))
     .pipe(gulp.dest("dist/"))
@@ -109,6 +112,7 @@ gulp.task("build_bare", function() {
       pkg: pkg
     }))
     .pipe(fileImports())
+    .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
     .pipe(rename("footwork-bare.js"))
     .pipe(size({ title: '[bare] Unminified' }))
     .pipe(gulp.dest("dist/"))

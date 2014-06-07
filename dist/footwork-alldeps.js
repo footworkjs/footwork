@@ -1,7 +1,7 @@
 /**
  * footwork.js - A solid base for structured knockout applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.1.3
+ * Version: v0.1.4
  * Url: http://footworkjs.com
  * License(s): MIT
  */
@@ -5991,7 +5991,9 @@ t.fragments={};return e};this.createJavaScriptEvaluatorBlock=function(a){return"
   }());
 
   return (function (_, ko, riveter, postal, Apollo) {
-    var applyBindings = ko.applyBindings;
+    ko._footworkVersion = '0.1.4';
+
+var applyBindings = ko.applyBindings;
 ko.applyBindings = function(model, element) {
   applyBindings(model, element);
   if(typeof model.startup === 'function' && model._options !== undefined) {

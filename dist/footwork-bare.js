@@ -1,7 +1,7 @@
 /**
  * footwork.js - A solid base for structured knockout applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.1.3
+ * Version: v0.1.4
  * Url: http://footworkjs.com
  * License(s): MIT
  */
@@ -124,11 +124,10 @@
     }).call(root);
 
     /**
-     * riveter.js is included in 'bare' build because it requires 'underscore', while
+     * riveter.js is included in the 'bare' build because it requires 'underscore', while
      * postal requires lodash. Lodash is the preferred, and riveter is the smaller source
      * so we manually inject _ for riveter by embedding it as a dependency and supplying
-     * lodash.
-     * TODO: custom build of riveter to require lodash so this dependency can be un-embedded?
+     * lodash. Also, riveter is considered unlikely to be an independent dependency.
      */
     (function() {
       /**
@@ -261,7 +260,9 @@
   }());
 
   return (function (_, ko, riveter, postal, Apollo) {
-    var applyBindings = ko.applyBindings;
+    ko._footworkVersion = '0.1.4';
+
+var applyBindings = ko.applyBindings;
 ko.applyBindings = function(model, element) {
   applyBindings(model, element);
   if(typeof model.startup === 'function' && model._options !== undefined) {
