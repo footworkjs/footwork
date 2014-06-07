@@ -1,0 +1,19 @@
+footwork-all.js - All dependencies embedded, this can be used
+                  without any other externally provided dependencies.
+
+footwork-minimal.js - You will need to provide (via either <script>
+                      includes, requirejs, browserify, etc):
+    'lodash' - http://lodash.com/
+    'knockout' - http://knockoutjs.com/
+
+footwork-bare.js - You will need to provide (via either <script>
+                   includes, requirejs, browserify, etc):
+    'lodash' - http://lodash.com/
+    'knockout' - http://knockoutjs.com/
+    'postal' - https://github.com/postaljs/postal.js/
+
+NOTE: All of these releases may be used via all common script loaders
+      including requireJS (AMD) and Browserify (CommonJS). It is
+      important that the names used for the modules match the ones given
+      above so that the script loaders will work properly. For more
+      information, see http://footworkjs.com
