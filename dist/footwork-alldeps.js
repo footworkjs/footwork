@@ -6008,10 +6008,13 @@ ko.__nsStack = [];
 ko.namespace = function(namespaceName) {
   return postal.channel(namespaceName);
 };
-ko.currentNamespace = function() {
-  return ko.namespace(ko.__nsStack[0]);
+ko.currentNamespaceName = function() {
+  return ko.__nsStack[0];
 };
-ko.enterNamespace = function(namespaceName) {
+ko.currentNamespace = function() {
+  return ko.namespace(ko.currentNamespaceName());
+};
+ko.enterNamespaceName = function(namespaceName) {
   ko.__nsStack.unshift( namespaceName );
 };
 ko.exitNamespace = function() {
@@ -6065,7 +6068,7 @@ ko.model = function(modelOptions) {
       modelOptions.namespace = indexedNamespaceName(modelOptions.namespace, modelOptions.autoIncrement);
 
       this._modelOptions = modelOptions;
-      ko.enterNamespace(modelOptions.namespace);
+      ko.enterNamespaceName(modelOptions.namespace);
 
       this._options = _.extend({
         namespace: modelOptions.namespace || ('namespace' + modelNum)
