@@ -235,7 +235,7 @@ ul.sections > li > div {
 }
 
 /*----------------------  (> 481px) ---------------------*/
-@media only screen and (min-width: 481px) {
+@media only screen and (min-width: 1225px) {
   #container {
     position: relative;
   }
@@ -274,11 +274,11 @@ ul.sections > li > div {
 
 
 
-  .background {
+  main .background {
     position: absolute;
     z-index: 1;
     top: 0; bottom: 0;
-    width: 350px;
+    width: 250px;
     border-right: 1px solid #ddd;
     -webkit-box-shadow: -10px 0 25px -18px black inset;
     -moz-box-shadow: -10px 0 25px -18px black inset;
@@ -303,8 +303,8 @@ ul.sections > li > div {
   }
 
   ul.sections > li > div.annotation {
-    max-width: 350px;
-    min-width: 350px;
+    max-width: 250px;
+    min-width: 250px;
     min-height: 5px;
     padding: 13px;
     overflow-x: hidden;
@@ -353,14 +353,14 @@ ul.sections > li > div {
 }
 
 /*---------------------- (> 1025px) ---------------------*/
-@media only screen and (min-width: 1025px) {
+@media only screen and (min-width: 1225px) {
 
   body {
     font-size: 16px;
     line-height: 24px;
   }
 
-  .background {
+  main .background {
     width: 250px;
   }
   ul.sections > li > div.annotation {

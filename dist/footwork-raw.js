@@ -5,9 +5,16 @@
  * Url: http://footworkjs.com
  * License(s): MIT
  */
+// Footwork.js
+// ----------------
+
+// Record the footwork version as of this build.
 ko._footworkVersion = '0.1.7';
 
+// Preserve the original applyBindings method for later use
 var applyBindings = ko.applyBindings;
+
+// Override the original applyBindings method to provide and enable 'model' life-cycle hooks/events.
 ko.applyBindings = function(model, element) {
   applyBindings(model, element);
   if(typeof model.startup === 'function' && model._options !== undefined) {
@@ -20,6 +27,9 @@ ko.applyBindings = function(model, element) {
   }
 };
 
+// Namespace and model creation / management.
+// ----------------
+
 ko.__nsStack = [];
 
 /**
@@ -31,6 +41,7 @@ ko.__nsStack = [];
 ko.namespace = function(namespaceName) {
   return postal.channel(namespaceName);
 };
+/** Return the current namespace name. */
 ko.currentNamespaceName = function() {
   return ko.__nsStack[0];
 };
@@ -40,9 +51,15 @@ ko.currentNamespace = function() {
 ko.enterNamespaceName = function(namespaceName) {
   ko.__nsStack.unshift( namespaceName );
 };
+
+// Called at the after a model constructor function is run. exitNamespace()
+// will shift the current namespace off of the stack, exiting to the
+// next namespace in the stack
 ko.exitNamespace = function() {
   ko.__nsStack.shift();
 };
+
+// Returns the model count for each currently defined namespace
 ko.modelCount = function() {
   var counts = _.reduce(namespaceNameCounter, function(modelCounts, modelCount, modelName) {
     modelCounts[modelName] = modelCount + 1;
@@ -53,23 +70,28 @@ ko.modelCount = function() {
   }, 0);
   return counts;
 };
+
 ko.getModels = function(namespaceName) {
   if(namespaceName === undefined) {
     return models;
   }
   return models[namespaceName];
 };
+
 ko.debugModels = function(state) {
   debugModels = state;
 };
+
 ko.refreshModels = function() {
   _.invoke(ko.getModels(), 'refreshReceived');
 };
+
 var models = {},
     modelNum = 0,
     debugModels = false;
 
 var namespaceNameCounter = {};
+
 var indexedNamespaceName = function(name, autoIncrement) {
   if(namespaceNameCounter[name] === undefined) {
     namespaceNameCounter[name] = 0;
