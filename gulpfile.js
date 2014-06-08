@@ -154,6 +154,7 @@ gulp.task('doc_index', function() {
     pageContent += fs.readFileSync('docs/pages/' + sourceFile + '.html', 'utf8')
     pageContent += '</section>';
   });
+  pageContent = pageContent.replace('FOOTWORK_VERSION', pkg.version, 'g');
 
   return gulp.src('docs/templates/index.html')
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
