@@ -1,0 +1,233 @@
+.useless-browser {
+  background: white;
+  padding: 20px;
+  border: 1px solid #aaa;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+html {
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+}
+
+@viewport {
+  zoom: 1.0;
+  width: device-width;
+  height: device-height;
+  user-zoom: fixed;
+}
+
+@-ms-viewport {
+  zoom: 1.0;
+  width: device-width;
+  height: device-height;
+  user-zoom: fixed;
+}
+
+html {
+  color: @body-text;
+  font: @primary-font;
+}
+
+* {
+  margin: 0;
+}
+
+html, body {
+  height: 100%;
+  background-color: @body-bg-color;
+}
+
+body {
+  overflow-y: scroll;
+}
+
+.page-logo {
+  width: @default-logo-width;
+  height: @default-logo-height;
+
+  .logo-color(@header-fg-hover, mix(@header-fg-hover, @header-bg, 60%), @pane-bg-color);
+}
+
+.main-wrapper {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  margin: 0 auto -@footer-height;
+  position: relative;
+  background: @body-bg-color;
+}
+
+footer, .push {
+  height: @footer-height;
+  clear: both;
+}
+
+.overlay {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+
+  &.visible {
+    display: block;
+  }
+}
+
+a {
+  color: @link-color;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+    color: darken(@link-color, 15%);
+  }
+}
+
+.sp-container {
+  .sp-button-container {
+    display: none !important;
+  }
+
+  .sp-input {
+    background: white;
+  }
+}
+
+.button-color(@color) {
+  @active-color: contrast(@color, white, black, 60%);
+  @hover-color: contrast(@color, white, black, 60%);
+  @normal-color: mix(contrast(@color, white, black, 60%), @color, 80%);
+
+  background-color: lighten(@color, 10%);
+  .gradient(@color, darken(@color, 5%), lighten(@color, 5%));
+  color: @normal-color;
+  border: 1px solid darken(@color, 5%);
+
+  &:hover {
+    background-color: lighten(@color, 20%);
+    .gradient(@color, darken(@color, 0%), lighten(@color, 10%));
+    color: @hover-color;
+
+    &:active .icon {
+      border-color: @active-color;
+    }
+
+    .icon {
+      border-right: 1px solid @normal-color;
+    }
+  }
+
+  &:active {
+    background: @color;
+    border-color: darken( @color, 15% );
+    color: @active-color;
+  }
+}
+
+.button {
+  @button-padding: 8px;
+  @button-height: 27px;
+
+  display: inline-block;
+  position: relative;
+  zoom: 1;
+  cursor: default;
+  overflow: visible;
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 0 @button-padding;
+  font-size: 14px;
+  line-height: @button-height;
+  vertical-align: middle;
+  .box-sizing(border-box);
+  .border-radius(2px);
+  min-width: 60px;
+
+  &:hover {
+    .transition(background-color 0.1s ease);
+
+    .icon {
+      width: 28px;
+      .transition(margin-right 0.3s ease, width 0.2s ease);
+      margin-right: @button-padding;
+
+      &.icon-refresh {
+        width: 23px;
+      }
+    }
+
+    .shortcut {
+      opacity: 0.8;
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  &:active {
+    position: relative;
+    .transition(background-color 0s linear);
+    .box-shadow(0 1px 3px -1px black inset);
+    .icon {
+      .transition(all 0s linear);
+    }
+  }
+
+  span {
+    display: inline-block;
+  }
+
+  .icon {
+    display: inline-block;
+    width: 0;
+    font-size: 18px;
+    vertical-align: -4px;
+    text-align: left;
+    overflow: hidden;
+    margin-right: 0;
+    .transition(width 0.3s 0.3s ease, margin-right 0.3s 0.3s ease);
+
+    &.icon-refresh {
+      font-size: 15px;
+      vertical-align: -3px;
+    }
+  }
+
+  .shortcut {
+    display: inline;
+    float: none;
+    border: 1px solid white;
+    border: 1px solid rgba(255,255,255,0.5);
+    opacity: 0.5;
+    margin-left: 5px;
+  }
+
+  .button-color(@button-background);
+}
+
+.shortcut {
+  display: block;
+  float: left;
+  margin-left: 10px;
+  border: 1px solid white;
+  border: 1px solid rgba(0,0,0,0.5);
+  font-size: 12px;
+  line-height: 17px;
+  font-style: italic;
+  padding: 1px 5px 1px 3px;
+  .border-radius(3px);
+  opacity: 0.7;
+  background-color: white;
+  color: black;
+  cursor: pointer;
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.hidden {
+  display: none !important;
+}

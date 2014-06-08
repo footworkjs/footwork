@@ -1,0 +1,33 @@
+body {
+  &.loading {
+    main {
+      opacity: 0;
+      .transition(opacity 0s linear);
+    }
+  }
+  
+  .initialized-only {
+    display: none;
+  }
+
+  &.initialized {
+    #collapse-button {
+      display: block;
+    }
+
+    .pane-links .logo a svg .parens {
+      .open {
+        fill: @pane-bg-color;
+        .transition(fill 1.5s 1s ease);
+      }
+      .close {
+        fill: @pane-bg-color;
+        .transition(fill 1s 0.7s ease);
+      }
+    }
+
+    .initialized-only {
+      display: inherit;
+    }
+  }
+}

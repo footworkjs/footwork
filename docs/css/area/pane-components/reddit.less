@@ -1,0 +1,109 @@
+.pane-component {
+  @entry-padding: 10px;
+
+  &.reddit {
+    @score-size: 20px;
+    @transition: padding 0.3s ease, margin 0.3s ease;
+    @background-color: contrast(@pane-bg-color, black, white, 60%);
+    @text-color: contrast(@background-color);
+    @title-height: 30px;
+
+    .entry-row {
+      background-color: @background-color;
+      padding: 0;
+
+      &.active {
+        .icon {
+          opacity: 0.6;
+          .transition(all 0.3s ease);
+        }
+        .title {
+          a {
+            color: @text-color;
+          }
+        }
+      }
+
+      &.post {
+        .title {
+          margin-bottom: 0;
+          border: none;
+
+          a {
+            color: mix(@background-color, @text-color, 50%);
+          }
+        }
+      }
+
+      &.comment {
+        .title {
+          max-width: 100%;
+          line-height: @title-height;
+          font-weight: normal;
+          border-bottom: 1px solid  mix(@background-color, @text-color, 90%);
+          padding: 10px 0;
+          margin: 0 10px 10px 10px;
+
+          .content {
+            max-width: 100%;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+          }
+        }
+
+        & > .content {
+          line-height: 20px;
+        }
+
+        .score {
+          float: right;
+        }
+      }
+
+      & > .content {
+        padding: 0 10px 10px;
+        clear: both;
+      }
+
+      a {
+        color: mix(@background-color, @text-color, 70%);
+        .transition(all 0.3s ease);
+      }
+
+      .icon, .score {
+        float: left;
+      }
+
+      .score {
+        width: 40px;
+        text-align: center;
+        float: right;
+      }
+
+      .icon {
+        margin-right: 5px;
+        opacity: 0.2;
+        font-size: 25px;
+        line-height: @title-height;
+        .transition(all 0.3s 0.2s ease);
+      }
+
+      .title {
+        position: relative;
+        font-weight: bold;
+        line-height: 20px;
+        text-align: left;
+        margin-bottom: @entry-padding;
+        padding: 10px;
+        .box-sizing(border-box);
+        .clearblock;
+
+        .content {
+          display: block;
+          margin-left: 35px;
+        }
+      }
+    }
+  }
+}

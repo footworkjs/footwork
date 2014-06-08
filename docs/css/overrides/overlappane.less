@@ -1,0 +1,19 @@
+body {
+  &.overlapPane {
+    .main-pane, footer > .content {
+      margin-left: @accent-padding !important;
+    }
+
+    #settings {
+      display: none;
+    }
+
+    .configuration {
+      display: none;
+    }
+
+    .pane > .content .pane-component > .content {
+      z-index: 1;
+    }
+  }
+}

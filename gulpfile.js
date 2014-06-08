@@ -117,12 +117,14 @@ gulp.task('build_bare', ['build_prep'], function() {
 });
 
 // Documentation tasks
-gulp.task('docs', ['doc_index', 'doc_js']);
+gulp.task('docs', ['doc_index', 'doc_js', 'doc_set_version']);
 gulp.task('documentation', ['docs']);
 
 gulp.task('docs_clean', function() {
-  return gulp.src('./docs/*.html', { read: false })
-    .pipe(rimraf());
+  return merge(
+    gulp.src('./docs/*.html', { read: false }).pipe(rimraf()),
+    gulp.src('./docs/pages/*.html', { read: false }).pipe(rimraf())
+  );
 });
 
 gulp.task('doc_js', ['docs_clean'], function() {
@@ -131,14 +133,25 @@ gulp.task('doc_js', ['docs_clean'], function() {
       .pipe(wrapDocco())
       .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
       .pipe(rename(sourceFile + '.html'))
-      .pipe(gulp.dest('./docs'));
+      .pipe(gulp.dest('./docs/pages'));
   }));
 });
 
 gulp.task('doc_index', ['docs_clean'], function() {
-  return gulp.src('documentation/index.html')
+  return gulp.src('docs/templates/index.html')
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
     .pipe(replace(/FOOTWORK_SOURCEFILES/g, JSON.stringify(sourceFiles)))
     .pipe(replace(/FOOTWORK_STATEMENT/g, statement))
     .pipe(gulp.dest('./docs'));
+});
+
+gulp.task('doc_set_version', ['docs_clean'], function() {
+  return merge(
+    gulp.src('docs/package.json')
+      .pipe(bump({ version: pkg.version }))
+      .pipe(gulp.dest('./docs')),
+    gulp.src('docs/bower.json')
+      .pipe(bump({ version: pkg.version }))
+      .pipe(gulp.dest('./docs'))
+  );
 });

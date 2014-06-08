@@ -1,0 +1,8 @@
+{
+  "name": "riveter",
+  "version": "0.1.2",
+  "main": ["lib/riveter.min.js", "lib/riveter.js"],
+  "dependencies": {
+    "underscore": "~1.4.0"
+  }
+}

@@ -1,0 +1,28 @@
+
+  
+  
+  
+    <div class='highlight'><pre>ko._footworkVersion = <span class="hljs-string">'0.1.6'</span>;
+
+<span class="hljs-keyword">var</span> applyBindings = ko.applyBindings;
+ko.applyBindings = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(model, element)</span> {</span>
+  applyBindings(model, element);
+  <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> model.startup === <span class="hljs-string">'function'</span> &amp;&amp; model._options !== <span class="hljs-literal">undefined</span>) {
+    <span class="hljs-keyword">if</span>(model._options.startup !== <span class="hljs-literal">false</span>) {
+      model.startup();
+    }
+    <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> model._modelOptions.afterBinding === <span class="hljs-string">'function'</span>) {
+      model._modelOptions.afterBinding.call(model);
+    }
+  }
+};</pre></div>
+  
+
+  
+  <p>import(“model-namespace.js”);
+import(“broadcast-receive.js”);
+import(“bindingHandlers.js”);
+import(“extenders.js”);</p>
+
+  
+

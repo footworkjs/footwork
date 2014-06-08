@@ -1,0 +1,24 @@
+{
+  "name": "footwork.js-docs",
+  "version": "0.1.6",
+  "description": "footwork.js documentation",
+  "homepage": "http://footworkjs.com",
+  "author": "Jonathan Newman <jonathan@staticty.pe>",
+  "dependencies": {},
+  "directory": "components",
+  "devDependencies": {
+    "knockoutjs": "*",
+    "lodash": "*",
+    "postal.js": ">=0.10.0",
+    "riveter": "*",
+    "store-js": "*",
+    "moment": "*",
+    "jwerty": "*",
+    "history.js": "*",
+    "requirejs": "*",
+    "expect": "*",
+    "mocha": "*",
+    "highlight": "*",
+    "jquery": "1.11.0"
+  }
+}

@@ -1,0 +1,593 @@
+<!doctype html>
+<html class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+    <title>footwork.js - FOOTWORK_STATEMENT</title>
+    <meta name="description" content="An library/framework which extends knockout.js to provide fixtures for testable and maintainable development.">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="generator" content="gulp">
+
+    <link id="default-style" rel="stylesheet" href="css/style.css" type="text/css">
+    <link rel="icon" href="./images/favicon.png">
+
+    <!--[if IE 8]>
+      <link rel="stylesheet" href="/css/style-ie.css" type="text/css">
+      <script src="/scripts/lib/html5shiv.js"></script>
+      <script>window.isCrappyBrowser = true;</script>
+    <![endif]-->
+
+    <script>
+      /* Modernizr 2.7.1 (Custom Build) | MIT & BSD
+       * Build: http://modernizr.com/download/#-csstransforms3d-svg-touch-cssclasses-teststyles-testprop-testallprops-prefixes-domprefixes
+       */
+      ;window.Modernizr=function(a,b,c){function A(a){j.cssText=a}function B(a,b){return A(m.join(a+";")+(b||""))}function C(a,b){return typeof a===b}function D(a,b){return!!~(""+a).indexOf(b)}function E(a,b){for(var d in a){var e=a[d];if(!D(e,"-")&&j[e]!==c)return b=="pfx"?e:!0}return!1}function F(a,b,d){for(var e in a){var f=b[a[e]];if(f!==c)return d===!1?a[e]:C(f,"function")?f.bind(d||b):f}return!1}function G(a,b,c){var d=a.charAt(0).toUpperCase()+a.slice(1),e=(a+" "+o.join(d+" ")+d).split(" ");return C(b,"string")||C(b,"undefined")?E(e,b):(e=(a+" "+p.join(d+" ")+d).split(" "),F(e,b,c))}var d="2.7.1",e={},f=!0,g=b.documentElement,h="modernizr",i=b.createElement(h),j=i.style,k,l={}.toString,m=" -webkit- -moz- -o- -ms- ".split(" "),n="Webkit Moz O ms",o=n.split(" "),p=n.toLowerCase().split(" "),q={svg:"http://www.w3.org/2000/svg"},r={},s={},t={},u=[],v=u.slice,w,x=function(a,c,d,e){var f,i,j,k,l=b.createElement("div"),m=b.body,n=m||b.createElement("body");if(parseInt(d,10))while(d--)j=b.createElement("div"),j.id=e?e[d]:h+(d+1),l.appendChild(j);return f=["&#173;",'<style id="s',h,'">',a,"</style>"].join(""),l.id=h,(m?l:n).innerHTML+=f,n.appendChild(l),m||(n.style.background="",n.style.overflow="hidden",k=g.style.overflow,g.style.overflow="hidden",g.appendChild(n)),i=c(l,a),m?l.parentNode.removeChild(l):(n.parentNode.removeChild(n),g.style.overflow=k),!!i},y={}.hasOwnProperty,z;!C(y,"undefined")&&!C(y.call,"undefined")?z=function(a,b){return y.call(a,b)}:z=function(a,b){return b in a&&C(a.constructor.prototype[b],"undefined")},Function.prototype.bind||(Function.prototype.bind=function(b){var c=this;if(typeof c!="function")throw new TypeError;var d=v.call(arguments,1),e=function(){if(this instanceof e){var a=function(){};a.prototype=c.prototype;var f=new a,g=c.apply(f,d.concat(v.call(arguments)));return Object(g)===g?g:f}return c.apply(b,d.concat(v.call(arguments)))};return e}),r.touch=function(){var c;return"ontouchstart"in a||a.DocumentTouch&&b instanceof DocumentTouch?c=!0:x(["@media (",m.join("touch-enabled),("),h,")","{#modernizr{top:9px;position:absolute}}"].join(""),function(a){c=a.offsetTop===9}),c},r.csstransforms3d=function(){var a=!!G("perspective");return a&&"webkitPerspective"in g.style&&x("@media (transform-3d),(-webkit-transform-3d){#modernizr{left:9px;position:absolute;height:3px;}}",function(b,c){a=b.offsetLeft===9&&b.offsetHeight===3}),a},r.svg=function(){return!!b.createElementNS&&!!b.createElementNS(q.svg,"svg").createSVGRect};for(var H in r)z(r,H)&&(w=H.toLowerCase(),e[w]=r[H](),u.push((e[w]?"":"no-")+w));return e.addTest=function(a,b){if(typeof a=="object")for(var d in a)z(a,d)&&e.addTest(d,a[d]);else{a=a.toLowerCase();if(e[a]!==c)return e;b=typeof b=="function"?b():b,typeof f!="undefined"&&f&&(g.className+=" "+(b?"":"no-")+a),e[a]=b}return e},A(""),i=k=null,e._version=d,e._prefixes=m,e._domPrefixes=p,e._cssomPrefixes=o,e.testProp=function(a){return E([a])},e.testAllProps=G,e.testStyles=x,g.className=g.className.replace(/(^|\s)no-js(\s|$)/,"$1$2")+(f?" js "+u.join(" "):""),e}(this,this.document);
+    </script>
+  </head>
+  
+  <body class="js-body no-transitions" data-bind="class: bodyState, style: { minHeight: minHeight }, css: uiState">
+    <!--[if IE 8]>
+    <div class="unsupported-browser notice">
+      <p>Please note that <em>Internet Explorer 8 is unsupported</em> and while still readable, most features of this site will either not be available or work with minimal functionality.</p>
+    </div>
+    <![endif]-->
+
+    <!--[if lt IE 8]>
+    <div class="useless-browser notice">
+      <img src="/images/no-ie.jpg" title="Friends don't let friends use ancient IE." alt="Say no to ancient IE">
+      <p>You can help stop computer abuse, upgrade to a new browser today.</p>
+    </div>
+    <![endif]-->
+
+    <div class="stop-binding" data-bind="stopBinding: true">
+      <div class="js-pane pane-bg has-layout-trans" data-bind="transition: transition, transform: leftTransform,
+                                                                    style: { width: width, left: leftOffset }"></div>
+    </div> <!-- /stopBinding -->
+
+    <div class="main-wrapper">
+      <div class="stop-binding" data-bind="stopBinding: true">
+        <header class="js-header main-header" data-bind="css: { navReflowing: navReflowing }, transform: closedTransform,
+                                                       style: { height: visibleHeight, top: topOffset, borderBottomWidth: borderWidth }">
+          <div class="source-link has-trans" data-bind="css: { visible: sourceLinkVisible, forceHidden: sourceLinkHidden }">
+            <a class="button" target="_blank" href="https://github.com/reflectiveSingleton/footwork">
+              <span class="icon icon-github"></span>
+              <span>View source on Github</span>
+            </a>
+          </div>
+          <div class="bottom-highlight"></div>
+
+          <div class="header-bar" data-bind="style: { height: contentHeight }">
+            <div class="stop-binding" data-bind="stopBinding: true">
+              <div class="js-paneLinks pane-links" data-bind="style: { width: columnWidth }, css: { pageHasSections: pageHasSections }">
+                <div class="logo">
+                  <a href="/" class="internal">
+                    <div class="img-logo no-svg-only"></div>
+                    <div class="svg-only">
+                      <svg id="page-logo" class="page-logo" width="161px" height="30px" viewBox="0 0 161 30">
+                        <g class="static">
+                          <path class="s" d="M5.217,8.583C4.873,8.921,4.701,9.369,4.701,9.926c0,0.558,0.21,1.001,0.63,1.33 c0.42,0.329,1.39,0.718,2.91,1.166c1.52,0.448,2.7,1.12,3.54,2.015c0.84,0.896,1.26,2.202,1.26,3.92 c0,1.719-0.539,3.112-1.615,4.181c-1.077,1.069-2.494,1.604-4.25,1.604c-2.536,0-4.819-1.124-6.851-3.372l2.131-3.125 c1.726,1.809,3.323,2.714,4.789,2.714c0.656,0,1.172-0.169,1.546-0.508c0.374-0.338,0.562-0.795,0.562-1.37 c0-0.576-0.199-1.032-0.596-1.371c-0.397-0.338-1.184-0.681-2.36-1.028c-1.864-0.529-3.228-1.22-4.09-2.069 c-0.863-0.85-1.294-2.184-1.294-4.002c0-1.818,0.546-3.221,1.638-4.208s2.456-1.48,4.09-1.48c1.069,0,2.139,0.219,3.208,0.658 c1.069,0.439,2.001,1.061,2.795,1.864l-1.81,3.125c-1.39-1.261-2.826-1.892-4.308-1.892C6.03,8.076,5.561,8.245,5.217,8.583z"/>
+                          <path class="t" d="M22.871,8.459v15.461h-3.574V8.459H14.76V4.758h12.648v3.701H22.871z"/>
+                          <path class="a" d="M41.43,23.921l-1.489-4.14h-6.713l-1.489,4.14h-3.804l6.92-19.163h3.46l6.919,19.163H41.43z M36.595,10.46 l-2.016,5.565h4.01L36.595,10.46z"/>
+                          <path class="t2" d="M53.871,8.459v15.461h-3.574V8.459H45.76V4.758h12.648v3.701H53.871z"/>
+                          <path class="i" d="M61.02,4.758h3.574v19.163H61.02V4.758z"/>
+                          <path class="c" d="M75.89,20.138c1.756,0,3.192-0.831,4.308-2.494l2.291,2.823c-1.818,2.449-3.96,3.674-6.427,3.674 c-2.467,0-4.499-0.933-6.095-2.797s-2.394-4.217-2.394-7.059c0-2.841,0.813-5.213,2.44-7.114c1.627-1.9,3.616-2.851,5.969-2.851 c2.627,0,4.827,1.197,6.599,3.591l-2.223,3.016c-1.13-1.681-2.536-2.522-4.216-2.522c-1.344,0-2.494,0.526-3.448,1.577 c-0.955,1.051-1.432,2.467-1.432,4.249s0.45,3.212,1.352,4.291S74.606,20.138,75.89,20.138z"/>
+                        </g>
+                        <g class="type">
+                          <path class="t" d="M92.456,8.459v15.461h-3.574V8.459h-4.537V4.758h12.647v3.701H92.456z"/>
+                          <path class="y" d="M107.485,23.921h-3.574v-7.566L98.366,4.758h3.872l3.46,7.128l3.46-7.128h3.872 l-5.545,11.596V23.921z"/>
+                          <path class="dot" d="M110.041,23.605c-0.256-0.306-0.384-0.681-0.384-1.125c0-0.443,0.128-0.818,0.384-1.125 c0.255-0.306,0.568-0.459,0.939-0.459s0.685,0.153,0.94,0.459c0.256,0.307,0.384,0.682,0.384,1.125 c0,0.444-0.128,0.819-0.384,1.125c-0.256,0.307-0.569,0.459-0.94,0.459S110.296,23.912,110.041,23.605z"/>
+                          <path class="p" d="M125.418,6.472c1.123,1.143,1.685,2.897,1.685,5.264c0,2.367-0.577,4.099-1.73,5.195 s-2.914,1.645-5.281,1.645h-2.131v5.346h-3.574V4.758h5.659C122.504,4.758,124.295,5.33,125.418,6.472z M122.795,14.011 c0.427-0.576,0.642-1.416,0.642-2.522c0-1.105-0.279-1.892-0.837-2.358c-0.558-0.466-1.425-0.699-2.601-0.699h-2.039v6.442h2.406 C121.558,14.874,122.366,14.586,122.795,14.011z"/>
+                          <path class="e" d="M141.445,4.758v3.811h-7.974v3.948h7.172v3.646h-7.172v3.975h8.226v3.783h-11.8V4.758 H141.445z"/>
+                        </g>
+                        <g class="parens">
+                          <path class="open" d="M148.308,8.024c-0.634,2.257-0.95,4.368-0.95,6.333s0.316,4.081,0.95,6.346 s1.409,4.176,2.326,5.729h-3.712c-0.749-1.261-1.432-3.038-2.051-5.332c-0.618-2.293-0.928-4.537-0.928-6.73 c0-2.193,0.31-4.441,0.928-6.744c0.619-2.303,1.302-4.084,2.051-5.346h3.712C149.717,3.853,148.941,5.767,148.308,8.024z"/>
+                          <path class="close" d="M154.104,20.703c0.634-2.266,0.951-4.382,0.951-6.346s-0.317-4.075-0.951-6.333 s-1.409-4.171-2.325-5.744h3.712c0.748,1.261,1.432,3.043,2.05,5.346c0.619,2.303,0.929,4.551,0.929,6.744 c0,2.193-0.31,4.437-0.929,6.73c-0.618,2.294-1.302,4.071-2.05,5.332h-3.712C152.695,24.879,153.471,22.969,154.104,20.703z"/>
+                        </g>
+                      </svg>
+                    </div>
+                  </a>
+                </div>
+                
+                <div class="areas" data-bind="style: { width: headerWidth }, class: currentSelection">
+                  <div class="primary">
+                    <a href="https://github.com/reflectiveSingleton" class="icon-github Github" title="Github"
+                       data-bind="click: chooseSection, style: { lineHeight: height }" data-section="Github"></a>
+                  </div>
+                  <div class="alternate">
+                    <span class="icon-page-sections PageSections link" title="Page Sections" data-bind="click: chooseSection, style: { lineHeight: height }" data-section="PageSections"></span>
+                  </div>
+                </div>
+              </div>
+            </div> <!-- /stopBinding -->
+
+            <div class="stop-binding" data-bind="stopBinding: true">
+              <nav class="js-navigation" data-bind="style: { marginLeft: offsetMargin }">
+                <div class="main-load-bar">
+
+                  <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { top: loadBarTopPos, width: loader.percentComplete }">
+                    <div class="shadow"></div>
+                    <div class="error" data-bind="text: loader.message"></div>
+                  </div>
+                </div>
+
+                <div class="menu-item first" data-menu-id="code">
+                  <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
+                    <a href="/code" class="internal" data-menu-id="code" data-title="Code">
+                      <span></span>code<span>()</span>
+                    </a>
+                  </div>
+                  <div class="drop-down">
+                    <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
+                      <a href="/code" class="internal" data-menu-id="code" data-title="Code">
+                        <span></span>code<span>()</span>
+                      </a>
+                    </div>
+
+                    <div class="content">
+                      <div class="row">
+                        <a class="item internal" data-menu-id="code" data-title="Floaties.js" href="/code/floaties.js">floaties.js</a>
+                      </div>
+                      <div class="row">
+                        <a class="item internal" data-menu-id="code" data-title="Stylesheet.js" href="/code/stylesheet.js">stylesheet.js</a>
+                      </div>
+                      <div class="row">
+                        <a class="item internal" data-menu-id="code" data-title="Proximity.js" href="/code/proximity.js">proximity.js</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="menu-item blog">
+                  <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
+                    <a href="/blog" class="internal" data-id="blog" data-title="Blog">blog</a>
+                  </div>
+                </div>
+
+                <div class="aside menu-item about" data-bind="style: { height: headerContentHeight }">
+                  <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
+                    <a href="/about" class="internal" data-id="about" data-title="About">about</a>
+                  </div>
+                </div>
+
+                <div class="drop-top js-only has-trans" data-bind="css: { visible: headerDropVisible, active: headerOpen, hidden: dropHidden }, click: toggleHeader">
+                  <span class="icon" data-bind="class: arrowIcon"></span>
+                  <div class="info" data-bind="html: dropInfoText">Click to expand the header. <span class="shortcut">ctrl + x</span></div>
+                </div>
+              </nav>
+            </div> <!-- /stopBinding -->
+          </div>
+        </header>
+      </div> <!-- /stopBinding -->
+
+
+      <div class="stop-binding" data-bind="stopBinding: true">
+        <nav class="mobile-header js-navigation">
+          <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }">
+            <div class="message" data-bind="text: loader.message">Loading...</div>
+          </div>
+          <a class="page-logo internal" href="/">
+            <svg width="161px" height="30px" viewBox="0 0 161 30" class="mobile-only page-logo">
+              <g class="static">
+                <path class="s" d="M5.217,8.583C4.873,8.921,4.701,9.369,4.701,9.926c0,0.558,0.21,1.001,0.63,1.33 c0.42,0.329,1.39,0.718,2.91,1.166c1.52,0.448,2.7,1.12,3.54,2.015c0.84,0.896,1.26,2.202,1.26,3.92 c0,1.719-0.539,3.112-1.615,4.181c-1.077,1.069-2.494,1.604-4.25,1.604c-2.536,0-4.819-1.124-6.851-3.372l2.131-3.125 c1.726,1.809,3.323,2.714,4.789,2.714c0.656,0,1.172-0.169,1.546-0.508c0.374-0.338,0.562-0.795,0.562-1.37 c0-0.576-0.199-1.032-0.596-1.371c-0.397-0.338-1.184-0.681-2.36-1.028c-1.864-0.529-3.228-1.22-4.09-2.069 c-0.863-0.85-1.294-2.184-1.294-4.002c0-1.818,0.546-3.221,1.638-4.208s2.456-1.48,4.09-1.48c1.069,0,2.139,0.219,3.208,0.658 c1.069,0.439,2.001,1.061,2.795,1.864l-1.81,3.125c-1.39-1.261-2.826-1.892-4.308-1.892C6.03,8.076,5.561,8.245,5.217,8.583z"/>
+                <path class="t" d="M22.871,8.459v15.461h-3.574V8.459H14.76V4.758h12.648v3.701H22.871z"/>
+                <path class="a" d="M41.43,23.921l-1.489-4.14h-6.713l-1.489,4.14h-3.804l6.92-19.163h3.46l6.919,19.163H41.43z M36.595,10.46 l-2.016,5.565h4.01L36.595,10.46z"/>
+                <path class="t2" d="M53.871,8.459v15.461h-3.574V8.459H45.76V4.758h12.648v3.701H53.871z"/>
+                <path class="i" d="M61.02,4.758h3.574v19.163H61.02V4.758z"/>
+                <path class="c" d="M75.89,20.138c1.756,0,3.192-0.831,4.308-2.494l2.291,2.823c-1.818,2.449-3.96,3.674-6.427,3.674 c-2.467,0-4.499-0.933-6.095-2.797s-2.394-4.217-2.394-7.059c0-2.841,0.813-5.213,2.44-7.114c1.627-1.9,3.616-2.851,5.969-2.851 c2.627,0,4.827,1.197,6.599,3.591l-2.223,3.016c-1.13-1.681-2.536-2.522-4.216-2.522c-1.344,0-2.494,0.526-3.448,1.577 c-0.955,1.051-1.432,2.467-1.432,4.249s0.45,3.212,1.352,4.291S74.606,20.138,75.89,20.138z"/>
+              </g>
+              <g class="type">
+                <path class="t" d="M92.456,8.459v15.461h-3.574V8.459h-4.537V4.758h12.647v3.701H92.456z"/>
+                <path class="y" d="M107.485,23.921h-3.574v-7.566L98.366,4.758h3.872l3.46,7.128l3.46-7.128h3.872 l-5.545,11.596V23.921z"/>
+                <path class="dot" d="M110.041,23.605c-0.256-0.306-0.384-0.681-0.384-1.125c0-0.443,0.128-0.818,0.384-1.125 c0.255-0.306,0.568-0.459,0.939-0.459s0.685,0.153,0.94,0.459c0.256,0.307,0.384,0.682,0.384,1.125 c0,0.444-0.128,0.819-0.384,1.125c-0.256,0.307-0.569,0.459-0.94,0.459S110.296,23.912,110.041,23.605z"/>
+                <path class="p" d="M125.418,6.472c1.123,1.143,1.685,2.897,1.685,5.264c0,2.367-0.577,4.099-1.73,5.195 s-2.914,1.645-5.281,1.645h-2.131v5.346h-3.574V4.758h5.659C122.504,4.758,124.295,5.33,125.418,6.472z M122.795,14.011 c0.427-0.576,0.642-1.416,0.642-2.522c0-1.105-0.279-1.892-0.837-2.358c-0.558-0.466-1.425-0.699-2.601-0.699h-2.039v6.442h2.406 C121.558,14.874,122.366,14.586,122.795,14.011z"/>
+                <path class="e" d="M141.445,4.758v3.811h-7.974v3.948h7.172v3.646h-7.172v3.975h8.226v3.783h-11.8V4.758 H141.445z"/>
+              </g>
+              <g class="parens">
+                <path class="open" d="M148.308,8.024c-0.634,2.257-0.95,4.368-0.95,6.333s0.316,4.081,0.95,6.346 s1.409,4.176,2.326,5.729h-3.712c-0.749-1.261-1.432-3.038-2.051-5.332c-0.618-2.293-0.928-4.537-0.928-6.73 c0-2.193,0.31-4.441,0.928-6.744c0.619-2.303,1.302-4.084,2.051-5.346h3.712C149.717,3.853,148.941,5.767,148.308,8.024z"/>
+                <path class="close" d="M154.104,20.703c0.634-2.266,0.951-4.382,0.951-6.346s-0.317-4.075-0.951-6.333 s-1.409-4.171-2.325-5.744h3.712c0.748,1.261,1.432,3.043,2.05,5.346c0.619,2.303,0.929,4.551,0.929,6.744 c0,2.193-0.31,4.437-0.929,6.73c-0.618,2.294-1.302,4.071-2.05,5.332h-3.712C152.695,24.879,153.471,22.969,154.104,20.703z"/>
+              </g>
+            </svg>
+          </a>
+        </nav>
+      </div> <!-- /stopBinding -->
+
+      <div class="main-content" data-bind="style: { paddingTop: mainContentTopOffset }">
+        <div class="stop-binding" data-bind="stopBinding: true">
+          <div class="js-pane pane has-layout-trans" data-bind="style: { width: width, top: topOffset, left: leftOffset }, transition: transition, transform: transform">
+            <div class="mobile-only gripper"></div>
+
+            <div class="mobile-only page-logo js-only">
+              <a class="internal" href="/">
+                <svg width="161px" height="30px" viewBox="0 0 161 30" class="mobile-only">
+                  <g class="static">
+                    <path class="s" d="M5.217,8.583C4.873,8.921,4.701,9.369,4.701,9.926c0,0.558,0.21,1.001,0.63,1.33 c0.42,0.329,1.39,0.718,2.91,1.166c1.52,0.448,2.7,1.12,3.54,2.015c0.84,0.896,1.26,2.202,1.26,3.92 c0,1.719-0.539,3.112-1.615,4.181c-1.077,1.069-2.494,1.604-4.25,1.604c-2.536,0-4.819-1.124-6.851-3.372l2.131-3.125 c1.726,1.809,3.323,2.714,4.789,2.714c0.656,0,1.172-0.169,1.546-0.508c0.374-0.338,0.562-0.795,0.562-1.37 c0-0.576-0.199-1.032-0.596-1.371c-0.397-0.338-1.184-0.681-2.36-1.028c-1.864-0.529-3.228-1.22-4.09-2.069 c-0.863-0.85-1.294-2.184-1.294-4.002c0-1.818,0.546-3.221,1.638-4.208s2.456-1.48,4.09-1.48c1.069,0,2.139,0.219,3.208,0.658 c1.069,0.439,2.001,1.061,2.795,1.864l-1.81,3.125c-1.39-1.261-2.826-1.892-4.308-1.892C6.03,8.076,5.561,8.245,5.217,8.583z"/>
+                    <path class="t" d="M22.871,8.459v15.461h-3.574V8.459H14.76V4.758h12.648v3.701H22.871z"/>
+                    <path class="a" d="M41.43,23.921l-1.489-4.14h-6.713l-1.489,4.14h-3.804l6.92-19.163h3.46l6.919,19.163H41.43z M36.595,10.46 l-2.016,5.565h4.01L36.595,10.46z"/>
+                    <path class="t2" d="M53.871,8.459v15.461h-3.574V8.459H45.76V4.758h12.648v3.701H53.871z"/>
+                    <path class="i" d="M61.02,4.758h3.574v19.163H61.02V4.758z"/>
+                    <path class="c" d="M75.89,20.138c1.756,0,3.192-0.831,4.308-2.494l2.291,2.823c-1.818,2.449-3.96,3.674-6.427,3.674 c-2.467,0-4.499-0.933-6.095-2.797s-2.394-4.217-2.394-7.059c0-2.841,0.813-5.213,2.44-7.114c1.627-1.9,3.616-2.851,5.969-2.851 c2.627,0,4.827,1.197,6.599,3.591l-2.223,3.016c-1.13-1.681-2.536-2.522-4.216-2.522c-1.344,0-2.494,0.526-3.448,1.577 c-0.955,1.051-1.432,2.467-1.432,4.249s0.45,3.212,1.352,4.291S74.606,20.138,75.89,20.138z"/>
+                  </g>
+                  <g class="type">
+                    <path class="t" d="M92.456,8.459v15.461h-3.574V8.459h-4.537V4.758h12.647v3.701H92.456z"/>
+                    <path class="y" d="M107.485,23.921h-3.574v-7.566L98.366,4.758h3.872l3.46,7.128l3.46-7.128h3.872 l-5.545,11.596V23.921z"/>
+                    <path class="dot" d="M110.041,23.605c-0.256-0.306-0.384-0.681-0.384-1.125c0-0.443,0.128-0.818,0.384-1.125 c0.255-0.306,0.568-0.459,0.939-0.459s0.685,0.153,0.94,0.459c0.256,0.307,0.384,0.682,0.384,1.125 c0,0.444-0.128,0.819-0.384,1.125c-0.256,0.307-0.569,0.459-0.94,0.459S110.296,23.912,110.041,23.605z"/>
+                    <path class="p" d="M125.418,6.472c1.123,1.143,1.685,2.897,1.685,5.264c0,2.367-0.577,4.099-1.73,5.195 s-2.914,1.645-5.281,1.645h-2.131v5.346h-3.574V4.758h5.659C122.504,4.758,124.295,5.33,125.418,6.472z M122.795,14.011 c0.427-0.576,0.642-1.416,0.642-2.522c0-1.105-0.279-1.892-0.837-2.358c-0.558-0.466-1.425-0.699-2.601-0.699h-2.039v6.442h2.406 C121.558,14.874,122.366,14.586,122.795,14.011z"/>
+                    <path class="e" d="M141.445,4.758v3.811h-7.974v3.948h7.172v3.646h-7.172v3.975h8.226v3.783h-11.8V4.758 H141.445z"/>
+                  </g>
+                  <g class="parens">
+                    <path class="open" d="M148.308,8.024c-0.634,2.257-0.95,4.368-0.95,6.333s0.316,4.081,0.95,6.346 s1.409,4.176,2.326,5.729h-3.712c-0.749-1.261-1.432-3.038-2.051-5.332c-0.618-2.293-0.928-4.537-0.928-6.73 c0-2.193,0.31-4.441,0.928-6.744c0.619-2.303,1.302-4.084,2.051-5.346h3.712C149.717,3.853,148.941,5.767,148.308,8.024z"/>
+                    <path class="close" d="M154.104,20.703c0.634-2.266,0.951-4.382,0.951-6.346s-0.317-4.075-0.951-6.333 s-1.409-4.171-2.325-5.744h3.712c0.748,1.261,1.432,3.043,2.05,5.346c0.619,2.303,0.929,4.551,0.929,6.744 c0,2.193-0.31,4.437-0.929,6.73c-0.618,2.294-1.302,4.071-2.05,5.332h-3.712C152.695,24.879,153.471,22.969,154.104,20.703z"/>
+                  </g>
+                </svg>
+              </a>
+            </div>
+
+            <div class="stop-binding" data-bind="stopBinding: true">
+              <div class="js-paneLinks pane-links" data-bind="css: { pageHasSections: pageHasSections }">
+                <div class="areas" data-bind="class: currentSelection">
+                  <div class="primary">
+                    <a href="https://github.com/reflectiveSingleton" class="icon-github Github" title="Github"
+                       data-bind="click: chooseSection" data-section="Github"></a>
+                    <a href="https://twitter.com/overfocus" class="icon-twitter Twitter" title="Twitter"
+                       data-bind="click: chooseSection" data-section="Twitter"></a>
+                    <a href="http://www.reddit.com/user/reflectiveSingleton/" class="icon-reddit Reddit" title="Reddit"
+                       data-bind="click: chooseSection" data-section="Reddit"></a>
+                  </div>
+                  <div class="alternate">
+                    <span class="icon-page-sections PageSections link" title="Page Sections" data-bind="click: chooseSection" data-section="PageSections"></span>
+                    <span class="icon-main-menu MainMenu link" title="Main Menu" data-bind="click: chooseSection" data-section="MainMenu"></span>
+                  </div>
+                </div>
+              </div>
+            </div> <!-- /stopBinding -->
+
+            <div class="content">
+              <div class="stop-binding" data-bind="stopBinding: true">
+                <div class="js-mainMenu mainMenu pane-component initialized" data-bind="css: { visible: visible }">
+                  <div class="content" data-bind="style: { height: paneContentMaxHeight }">
+                    <div class="title" data-bind="style: { width: mobileWidth }">
+                      <span class="label">
+                        <span class="text">Main Menu</span>
+                      </span>
+                    </div>
+                    <nav data-bind="style: { width: mobileWidth }, foreach: entries">
+                      <a class="internal" data-bind="css: { visible: visible }, attr: { 'data-title': labelText, href: url }, text: labelText"></a>
+                    </nav>
+                  </div>
+                </div>
+              </div> <!-- /stopBinding -->
+
+              <div class="stop-binding" data-bind="stopBinding: true">
+                <div class="js-pageSections pageSections pane-component" data-bind="css: { visible: visible, initialized: initialized }">
+                  <div class="title no-mobile">
+                    <span class="label">
+                      <span class="text" data-bind="text: title"></span>
+                    </span>
+                  </div>
+                  <div class="content" data-bind="css: { hasContent: sectionCount }, style: { height: paneContentMaxHeight }">
+                    <div class="title mobile-only">
+                      <span class="label">
+                        <span class="text" data-bind="text: title"></span>
+                      </span>
+                    </div>
+                    <div class="description" data-bind="text: description"></div>
+                    <div data-bind="foreach: sections">
+                      <a class="section-label entry-row" data-bind="click: chooseSection, css: { active: active, visible: visible }, attr: { href: anchorAddress }">
+                        <div class="title" data-bind="text: title"></div>
+                        <span class="description" data-bind="text: description"></span>
+                        <div class="arrow"></div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div> <!-- /stopBinding -->
+
+              <div class="stop-binding" data-bind="stopBinding: true">
+                <div class="js-reddit reddit pane-component" data-bind="css: state">
+                  <div class="not-initialized">
+                    <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }">
+                      <div class="message" data-bind="text: loader.message">Loading ...</div>
+                    </div>
+                  </div>
+                  <div class="small title no-mobile">
+                    <a class="label" href="http://www.reddit.com/user/reflectiveSingleton/">
+                      <span class="icon icon-reddit"></span>&nbsp;&nbsp;<span class="text">/user/reflectiveSingleton</span>
+                    </a>
+                  </div>
+                  <div class="content hasContent" data-bind="css: { unavailable: moreUnavailable }, style: { height: paneContentMaxHeight }">
+                    <div class="small title mobile-only">
+                      <a class="label" href="http://www.reddit.com/user/reflectiveSingleton/">
+                        <span class="icon icon-reddit"></span>&nbsp;&nbsp;<span class="text">/user/reflectiveSingleton</span>
+                      </a>
+                    </div>
+
+                    <script type="text/html" id="reddit-post">
+                      <div class="title">
+                        <span class="icon" data-bind="class: entryIcon" title="post"></span>
+                        <div class="score">
+                          <span class="text" data-bind="text: offsetScore"></span>
+                          <div class="corner"></div>
+                        </div>
+                        <a class="content" data-bind="text: postTitle, attr: { href: relevantURL, title: postTitle }"></a>
+                      </div>
+                    </script>
+
+                    <script type="text/html" id="reddit-comment">
+                      <div class="title">
+                        <span class="icon" data-bind="class: entryIcon" title="comment"></span>
+                        <a class="content" data-bind="text: postTitle, attr: { href: relevantURL, title: postTitle }"></a>
+                      </div>
+                      <div class="content" data-bind="html: postHTML"></div>
+                      <div class="score">
+                        <span class="text" data-bind="text: offsetScore"></span>
+                        <div class="corner"></div>
+                      </div>
+                    </script>
+
+                    <div class="entries" data-bind="foreach: entries">
+                      <div class="entry-row" data-bind="css: state, class: type, event: { mouseover: activate }, template: { name: entryTemplate }"></div>
+                    </div>
+
+                    <div class="available">
+                      <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }"></div>
+                      <button class="button" data-bind="click: loadEntries">
+                        <span data-bind="text: moreEntriesButtonText">View more ...</span>
+                      </button>
+                    </div>
+                    <div class="unavailable">
+                      <div class="message">...there doesn't appear to be anything else...</div>
+                    </div>
+                  </div>
+                </div>
+              </div> <!-- /stopBinding -->
+
+              <div class="stop-binding" data-bind="stopBinding: true">
+                <div class="js-twitter twitter pane-component" data-bind="css: state">
+                  <div class="not-initialized">
+                    <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }">
+                      <div class="message" data-bind="text: loader.message">Loading ...</div>
+                    </div>
+                  </div>
+                  <div class="small title no-mobile">
+                    <a class="label" href="https://twitter.com/overfocus">
+                      <span class="icon icon-twitter"></span>&nbsp;&nbsp;<span class="text">overfocus</span>
+                    </a>
+                  </div>
+                  <div class="content hasContent" data-bind="css: { unavailable: moreUnavailable }, style: { height: paneContentMaxHeight }">
+                    <div class="small title mobile-only">
+                      <a class="label" href="https://twitter.com/overfocus">
+                        <span class="icon icon-twitter"></span>&nbsp;&nbsp;<span class="text">overfocus</span>
+                      </a>
+                    </div>
+                    <div data-bind="foreach: entries">
+                      <div class="entry-row" data-bind="css: { visible: visible }">
+                        <div data-bind="html: html"></div>
+                      </div>
+                    </div>
+                    <div class="available">
+                      <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }"></div>
+                      <button class="button" data-bind="click: loadEntries">
+                        <span data-bind="text: moreEntriesButtonText">View more ...</span>
+                      </button>
+                    </div>
+                    <div class="unavailable">
+                      <div class="message">...there doesn't appear to be anything else...</div>
+                    </div>
+                  </div>
+                </div>
+              </div> <!-- /stopBinding -->
+
+              <div class="stop-binding" data-bind="stopBinding: true">
+                <div class="js-github github pane-component" data-bind="css: state">
+                  <div class="not-initialized">
+                    <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }">
+                      <div class="message" data-bind="text: loader.message">Loading ...</div>
+                    </div>
+                  </div>
+                  <div class="small title no-mobile">
+                    <a class="label" target="_blank" href="https://github.com/reflectiveSingleton">
+                      <span class="icon icon-github"></span>&nbsp;&nbsp;<span class="text">github.com/reflectiveSingleton</span>
+                    </a>
+                  </div>
+                  <div class="content hasContent" data-bind="css: { unavailable: moreUnavailable }, style: { height: paneContentMaxHeight }">
+                    <div class="small title mobile-only">
+                      <a class="label" href="https://github.com/reflectiveSingleton">
+                        <span class="icon icon-github"></span>&nbsp;&nbsp;<span class="text">github.com/reflectiveSingleton</span>
+                      </a>
+                    </div>
+                    <div class="entries" data-bind="foreach: entries">
+                      <div class="entry-row" data-bind="css: state, event: { mouseover: activate }">
+                        <div class="title">
+                          <span class="icon" data-bind="class: iconType"></span>
+                          <div class="date" data-bind="text: dateRelative"></div>
+                        </div>
+                        <div class="content" data-bind="html: html"></div>
+                      </div>
+                    </div>
+                    <div class="available">
+                      <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }"></div>
+                      <button class="button" data-bind="click: loadEntries">
+                        <span data-bind="text: loader.message">View more ...</span>
+                      </button>
+                    </div>
+                    <div class="unavailable">
+                      <div class="message">...there doesn't appear to be anything else...</div>
+                    </div>
+                  </div>
+                </div>
+              </div> <!-- /stopBinding -->
+            </div>
+          </div>
+        </div> <!-- /stopBinding -->
+
+        <div class="main-pane has-layout-trans" data-bind="css: { configVisible: configVisible }, style: { marginLeft: mainContentOffset }">
+          <div class="stop-binding" data-bind="stopBinding: true">
+            <main class="js-main">
+              <?php App::loadView( isset( $bodyView ) ? $bodyView : DEFAULT_BODY_VIEW ); ?>
+            </main>
+          </div> <!-- /stopBinding -->
+          <div id="collapse-button" class="has-layout-trans js-only"
+               data-bind="click: togglePaneCollapse,
+                          style: { top: topOffset, left: leftOffset }, transition: paneTransition, transform: transform">
+            <div class="arrow"></div>
+            <div class="mouse-action"><div class="mask"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stop-binding" data-bind="stopBinding: true">
+        <div class="js-footer push" data-bind="style: { height: height }"></div>
+      </div> <!-- /stopBinding -->
+    </div>
+
+    <div class="stop-binding" data-bind="stopBinding: true">
+      <footer class="js-footer">
+        <div class="content has-layout-trans" data-bind="style: { marginLeft: columnWidth }">
+          <div class="layout-mode js-only" data-bind="class: viewPortLayoutMode">
+            <div class="icon desktop icon-screen" data-bind="click: setMode" data-mode="desktop"></div>
+            <div class="icon mobile icon-mobile" data-bind="click: setMode" data-mode="mobile"></div>
+          </div>
+
+          <input type="checkbox" class="hidden" id="no-js-hidden">
+          <div class="no-js notice">
+            <div class="icon icon-warning-sign"></div>
+            <p> It is recommended you enable javascript execution. I promise, nothing bad will happen...</p>
+            <label for="no-js-hidden" class="button">Ok</label>
+          </div>
+
+          <div id="html5-badge" class="svg-only">
+            <!-- https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5 -->
+            <svg class="background" width="192px" height="45px" viewBox="0 0 271.667 63.858">
+              <polygon fill="#D9D9D9" points="48,9.929 264.333,9.929 271.667,30.68 264.333,52.096 48,52.096 "/>
+              <path fill="#E34F26" d="M5.114,57.373L0,0h56.25l-5.114,57.373l-23.074,6.486"/>
+              <path fill="#EF652A" d="M28.187,58.869l18.584-5.114l4.365-49.141H28.187"/>
+              <path fill="#EBEBEB" d="M28.187,25.942h-9.354l-0.624-7.234h9.978v-6.984h-0.125H10.477l0.125,1.871l1.746,19.457h15.84V25.942z M28.187,44.277h-0.125l-7.858-2.12l-0.499-5.613h-3.742h-3.243l0.873,11.1l14.468,3.991h0.125V44.277z"/>
+              <path fill="#FFFFFF" d="M28.063,25.942v7.109h8.731l-0.873,9.105l-7.858,2.12v7.359l14.468-3.991l0.125-1.247l1.621-18.584 l0.249-1.871H42.53H28.063z M28.063,11.724v4.365v2.619l0,0H45.15l0,0l0,0l0.125-1.497l0.374-3.617l0.125-1.871H28.063z"/>
+            </svg>
+
+            <div class="controls">
+              <div class="feature graphics">
+                <div class="facet top">
+                  <div class="pop-up">
+                    <div class="title">3D, Graphics &amp; Effects</div>
+                    <div class="arrow"></div>
+                  </div>
+                  <svg viewBox="0 0 19.583 17.708">
+                    <path fill="#999999" d="M10.615,0l-5.03,1.622l10.9,3.53v6.954l-7.264,2.348L3.09,12.474V5.658l5.927,1.916l5.03-1.622L3.131,2.413 L0,3.432v11.291l9.221,2.984l10.362-3.351V2.894L10.615,0z"/>
+                    <title>3D, GRAPHICS &amp; EFFECTS</title>
+                  </svg>
+                </div>
+                <div class="facet face">
+                  <svg viewBox="0 0 19.583 17.708">
+                    <path fill="#999999" d="M10.615,0l-5.03,1.622l10.9,3.53v6.954l-7.264,2.348L3.09,12.474V5.658l5.927,1.916l5.03-1.622L3.131,2.413 L0,3.432v11.291l9.221,2.984l10.362-3.351V2.894L10.615,0z"/>
+                    <title>3D, GRAPHICS &amp; EFFECTS</title>
+                  </svg>
+                </div>
+              </div>
+              <div class="feature css3">
+                <div class="facet top">
+                  <div class="pop-up">
+                    <div class="title">CSS Styling</div>
+                    <div class="arrow"></div>
+                  </div>
+                  <svg viewBox="0 0 19.563 17.708">
+                    <title>CSS Styling Logo</title>
+                    <path fill="#999999" d="M2.911,0L2.254,3.284h13.367l-0.417,2.121H1.828L1.181,8.69h13.367l-0.746,3.746l-5.388,1.784l-4.669-1.784 l0.32-1.624H0.781L0,14.752l7.722,2.956l8.903-2.956l1.181-5.929l0.24-1.189L19.563,0H2.911z"/>
+                  </svg>
+                </div>
+                <div class="facet face">
+                  <svg viewBox="0 0 19.563 17.708">
+                    <title>CSS Styling Logo</title>
+                    <path fill="#999999" d="M2.911,0L2.254,3.284h13.367l-0.417,2.121H1.828L1.181,8.69h13.367l-0.746,3.746l-5.388,1.784l-4.669-1.784 l0.32-1.624H0.781L0,14.752l7.722,2.956l8.903-2.956l1.181-5.929l0.24-1.189L19.563,0H2.911z"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="feature device">
+                <div class="facet top">
+                  <div class="pop-up">
+                    <div class="title">Device Access</div>
+                    <div class="arrow"></div>
+                  </div>
+                  <svg viewBox="0 0 18.764 17.708">
+                    <title>Device Access Logo</title>
+                    <path fill="#999999" d="M13.619,3.808L17.426,0h-4.081L9.393,3.952L5.434,0H1.353L5.16,3.808H0v13.9h2.713h2.941h1.132l2.592-2.592 l2.592,2.592h1.505h2.576h2.713v-13.9H13.619z M9.386,11.027L5.601,14.82H2.888V6.695h13.003v8.124h-2.713L9.386,11.027z"/>
+                  </svg>
+                </div>
+                <div class="facet face">
+                  <svg viewBox="0 0 18.764 17.708">
+                    <title>Device Access Logo</title>
+                    <path fill="#999999" d="M13.619,3.808L17.426,0h-4.081L9.393,3.952L5.434,0H1.353L5.16,3.808H0v13.9h2.713h2.941h1.132l2.592-2.592 l2.592,2.592h1.505h2.576h2.713v-13.9H13.619z M9.386,11.027L5.601,14.82H2.888V6.695h13.003v8.124h-2.713L9.386,11.027z"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="feature storage">
+                <div class="facet top">
+                  <div class="pop-up">
+                    <div class="title">Storage</div>
+                    <div class="arrow"></div>
+                  </div>
+                  <svg viewBox="0 0 20.319 17.708">
+                    <title>Offline Storage</title>
+                    <path fill="#999999" d="M20.319,5.458h-3.302C15.663,2.204,12.436,0,8.85,0C3.973,0,0,3.966,0,8.85s3.973,8.857,8.85,8.857 c3.586,0,6.805-2.197,8.166-5.458h3.296V5.458H20.319z M17.694,9.617H8.85c-0.421,0-0.767-0.339-0.767-0.767 c0-0.421,0.339-0.767,0.767-0.767h8.837v1.534H17.694z M8.85,15.082c-3.434,0-6.225-2.791-6.225-6.225S5.417,2.632,8.85,2.632 c2.128,0,4.083,1.105,5.216,2.833H8.85c-1.865,0-3.392,1.52-3.392,3.392c0,1.865,1.52,3.392,3.392,3.392h5.216 C12.94,13.977,10.985,15.082,8.85,15.082z"/>
+                  </svg>
+                </div>
+                <div class="facet face">
+                  <svg viewBox="0 0 20.319 17.708">
+                    <title>Offline Storage</title>
+                    <path fill="#999999" d="M20.319,5.458h-3.302C15.663,2.204,12.436,0,8.85,0C3.973,0,0,3.966,0,8.85s3.973,8.857,8.85,8.857 c3.586,0,6.805-2.197,8.166-5.458h3.296V5.458H20.319z M17.694,9.617H8.85c-0.421,0-0.767-0.339-0.767-0.767 c0-0.421,0.339-0.767,0.767-0.767h8.837v1.534H17.694z M8.85,15.082c-3.434,0-6.225-2.791-6.225-6.225S5.417,2.632,8.85,2.632 c2.128,0,4.083,1.105,5.216,2.833H8.85c-1.865,0-3.392,1.52-3.392,3.392c0,1.865,1.52,3.392,3.392,3.392h5.216 C12.94,13.977,10.985,15.082,8.85,15.082z"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="feature performance">
+                <div class="facet top">
+                <div class="pop-up">
+                  <div class="title">Performance and Integration</div>
+                  <div class="arrow"></div>
+                </div>
+                  <svg viewBox="0 0 17.708 17.708">
+                    <title>Performance and Integration</title>
+                    <path fill="#999999" d="M17.587,7.385l-2.59-1.074l1.067-2.575c-0.272-0.381-0.567-0.741-0.891-1.069 c-0.019-0.021-0.039-0.042-0.059-0.063c-0.033-0.033-0.069-0.065-0.105-0.098c-0.317-0.311-0.666-0.593-1.033-0.858l-2.575,1.065 l-1.074-2.59C9.393-0.035,8.451-0.039,7.54,0.1C7.524,0.102,7.509,0.103,7.496,0.105C7.456,0.11,7.418,0.119,7.383,0.127 L6.309,2.711l-2.59-1.072C2.945,2.191,2.273,2.855,1.724,3.605C1.719,3.612,1.713,3.62,1.707,3.628 C1.684,3.659,1.662,3.692,1.641,3.725l1.07,2.583l-2.59,1.075c-0.155,0.933-0.16,1.872-0.023,2.782 c0.002,0.016,0.003,0.034,0.006,0.049c0.005,0.038,0.012,0.075,0.019,0.112l2.586,1.07l-1.07,2.582 c0.246,0.345,0.511,0.675,0.8,0.978c0.051,0.054,0.099,0.11,0.153,0.163c0.037,0.038,0.079,0.073,0.118,0.11 c0.311,0.303,0.654,0.577,1.014,0.835l2.581-1.069l1.07,2.586c0.038,0.008,0.079,0.015,0.118,0.024 c0.009-0.001,0.021,0.001,0.03,0.002c0.915,0.141,1.858,0.136,2.798-0.02l1.073-2.59l2.584,1.07c0.034-0.02,0.067-0.043,0.098-0.067 c0.01-0.006,0.019-0.014,0.03-0.023c0.743-0.546,1.406-1.215,1.958-1.987l-1.073-2.592l2.586-1.07 c0.006-0.037,0.015-0.076,0.022-0.116c0.001-0.012,0.001-0.024,0.003-0.036C17.747,9.263,17.743,8.322,17.587,7.385z M15.494,9.338 l-2.726,1.129l0.004,0.01l-0.009,0.003l1.13,2.725c-0.21,0.245-0.44,0.473-0.686,0.686l-2.726-1.128l-0.003,0.009l-0.009-0.005 L9.34,15.493c-0.322,0.024-0.644,0.023-0.97,0.001l-1.13-2.726l-0.008,0.003l-0.005-0.01l-2.734,1.133 c-0.028-0.024-0.06-0.045-0.088-0.072c-0.09-0.08-0.176-0.171-0.261-0.258c-0.086-0.086-0.176-0.169-0.258-0.26 c-0.024-0.026-0.046-0.059-0.07-0.088l1.131-2.734l-0.009-0.005l0.005-0.008L2.216,9.34C2.194,9.014,2.192,8.691,2.218,8.37 l2.723-1.128L4.938,7.234l0.008-0.003L3.815,4.502c0.214-0.246,0.442-0.476,0.686-0.686l2.726,1.128L7.23,4.937L7.238,4.94 l1.13-2.726c0.325-0.023,0.648-0.023,0.97,0.001l1.128,2.726l0.012,0.005l2.726-1.129c0.118,0.104,0.232,0.215,0.346,0.327 c0.115,0.117,0.23,0.234,0.337,0.359l-1.128,2.725l0.009,0.003l-0.004,0.01l2.725,1.128C15.517,8.69,15.518,9.014,15.494,9.338z M11.143,7.909l-0.004-0.008l0.66-1.59c-0.121-0.143-0.256-0.275-0.4-0.402L9.808,6.568L9.806,6.564L9.801,6.566L9.142,4.975 c-0.188-0.015-0.376-0.015-0.566,0l-0.659,1.59H7.912L7.91,6.567L6.318,5.91C6.176,6.031,6.044,6.165,5.916,6.307L6.576,7.9 L6.571,7.902l0.002,0.006L4.976,8.57C4.975,8.59,4.971,8.614,4.97,8.635c-0.003,0.07-0.001,0.143-0.001,0.214 c0,0.07-0.003,0.143,0.003,0.214c0,0.022,0.001,0.044,0.005,0.067l1.597,0.661v0.007L6.577,9.8l-0.658,1.592 c0.121,0.142,0.257,0.274,0.401,0.397l1.59-0.659l0.001,0.006l0.006-0.002l0.659,1.592c0.191,0.015,0.38,0.015,0.567,0l0.659-1.592 l0.005,0.002L9.81,11.13l1.59,0.657c0.143-0.123,0.276-0.256,0.4-0.398l-0.659-1.59l0.005-0.003L11.144,9.79l1.59-0.659 c0.006-0.096,0.008-0.194,0.009-0.287c0-0.093-0.001-0.187-0.008-0.278L11.143,7.909z M8.855,9.927c-0.593,0-1.074-0.48-1.074-1.074 c0-0.593,0.48-1.074,1.074-1.074c0.593,0,1.074,0.48,1.074,1.074C9.929,9.446,9.448,9.927,8.855,9.927z"/>
+                  </svg>
+                </div>
+                <div class="facet face">
+                  <svg viewBox="0 0 17.708 17.708">
+                    <title>Performance and Integration</title>
+                    <path fill="#999999" d="M17.587,7.385l-2.59-1.074l1.067-2.575c-0.272-0.381-0.567-0.741-0.891-1.069 c-0.019-0.021-0.039-0.042-0.059-0.063c-0.033-0.033-0.069-0.065-0.105-0.098c-0.317-0.311-0.666-0.593-1.033-0.858l-2.575,1.065 l-1.074-2.59C9.393-0.035,8.451-0.039,7.54,0.1C7.524,0.102,7.509,0.103,7.496,0.105C7.456,0.11,7.418,0.119,7.383,0.127 L6.309,2.711l-2.59-1.072C2.945,2.191,2.273,2.855,1.724,3.605C1.719,3.612,1.713,3.62,1.707,3.628 C1.684,3.659,1.662,3.692,1.641,3.725l1.07,2.583l-2.59,1.075c-0.155,0.933-0.16,1.872-0.023,2.782 c0.002,0.016,0.003,0.034,0.006,0.049c0.005,0.038,0.012,0.075,0.019,0.112l2.586,1.07l-1.07,2.582 c0.246,0.345,0.511,0.675,0.8,0.978c0.051,0.054,0.099,0.11,0.153,0.163c0.037,0.038,0.079,0.073,0.118,0.11 c0.311,0.303,0.654,0.577,1.014,0.835l2.581-1.069l1.07,2.586c0.038,0.008,0.079,0.015,0.118,0.024 c0.009-0.001,0.021,0.001,0.03,0.002c0.915,0.141,1.858,0.136,2.798-0.02l1.073-2.59l2.584,1.07c0.034-0.02,0.067-0.043,0.098-0.067 c0.01-0.006,0.019-0.014,0.03-0.023c0.743-0.546,1.406-1.215,1.958-1.987l-1.073-2.592l2.586-1.07 c0.006-0.037,0.015-0.076,0.022-0.116c0.001-0.012,0.001-0.024,0.003-0.036C17.747,9.263,17.743,8.322,17.587,7.385z M15.494,9.338 l-2.726,1.129l0.004,0.01l-0.009,0.003l1.13,2.725c-0.21,0.245-0.44,0.473-0.686,0.686l-2.726-1.128l-0.003,0.009l-0.009-0.005 L9.34,15.493c-0.322,0.024-0.644,0.023-0.97,0.001l-1.13-2.726l-0.008,0.003l-0.005-0.01l-2.734,1.133 c-0.028-0.024-0.06-0.045-0.088-0.072c-0.09-0.08-0.176-0.171-0.261-0.258c-0.086-0.086-0.176-0.169-0.258-0.26 c-0.024-0.026-0.046-0.059-0.07-0.088l1.131-2.734l-0.009-0.005l0.005-0.008L2.216,9.34C2.194,9.014,2.192,8.691,2.218,8.37 l2.723-1.128L4.938,7.234l0.008-0.003L3.815,4.502c0.214-0.246,0.442-0.476,0.686-0.686l2.726,1.128L7.23,4.937L7.238,4.94 l1.13-2.726c0.325-0.023,0.648-0.023,0.97,0.001l1.128,2.726l0.012,0.005l2.726-1.129c0.118,0.104,0.232,0.215,0.346,0.327 c0.115,0.117,0.23,0.234,0.337,0.359l-1.128,2.725l0.009,0.003l-0.004,0.01l2.725,1.128C15.517,8.69,15.518,9.014,15.494,9.338z M11.143,7.909l-0.004-0.008l0.66-1.59c-0.121-0.143-0.256-0.275-0.4-0.402L9.808,6.568L9.806,6.564L9.801,6.566L9.142,4.975 c-0.188-0.015-0.376-0.015-0.566,0l-0.659,1.59H7.912L7.91,6.567L6.318,5.91C6.176,6.031,6.044,6.165,5.916,6.307L6.576,7.9 L6.571,7.902l0.002,0.006L4.976,8.57C4.975,8.59,4.971,8.614,4.97,8.635c-0.003,0.07-0.001,0.143-0.001,0.214 c0,0.07-0.003,0.143,0.003,0.214c0,0.022,0.001,0.044,0.005,0.067l1.597,0.661v0.007L6.577,9.8l-0.658,1.592 c0.121,0.142,0.257,0.274,0.401,0.397l1.59-0.659l0.001,0.006l0.006-0.002l0.659,1.592c0.191,0.015,0.38,0.015,0.567,0l0.659-1.592 l0.005,0.002L9.81,11.13l1.59,0.657c0.143-0.123,0.276-0.256,0.4-0.398l-0.659-1.59l0.005-0.003L11.144,9.79l1.59-0.659 c0.006-0.096,0.008-0.194,0.009-0.287c0-0.093-0.001-0.187-0.008-0.278L11.143,7.909z M8.855,9.927c-0.593,0-1.074-0.48-1.074-1.074 c0-0.593,0.48-1.074,1.074-1.074c0.593,0,1.074,0.48,1.074,1.074C9.929,9.446,9.448,9.927,8.855,9.927z"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="feature semantics">
+                <div class="facet top">
+                  <div class="pop-up">
+                    <div class="title">Semantic Mark-Up</div>
+                    <div class="arrow"></div>
+                  </div>
+                  <svg viewBox="0 0 17.72 17.708">
+                    <title>Semantic Mark-Up</title>
+                    <polygon fill="#999999" points="8.862,0 0,4.479 0,7.424 8.862,2.945 17.72,7.424 17.72,4.479 "/>
+                    <polygon fill="#999999" points="8.862,5.141 0,9.62 0,12.565 8.862,8.086 17.72,12.565 17.72,9.62 "/>
+                    <polygon fill="#999999" points="8.862,10.283 0,14.762 0,17.708 8.862,13.229 17.72,17.708 17.72,14.762 "/>
+                  </svg>
+                </div>
+                <div class="facet right"></div>
+                <div class="facet face">
+                  <svg viewBox="0 0 17.72 17.708">
+                    <title>Semantic Mark-Up</title>
+                    <polygon fill="#999999" points="8.862,0 0,4.479 0,7.424 8.862,2.945 17.72,7.424 17.72,4.479 "/>
+                    <polygon fill="#999999" points="8.862,5.141 0,9.62 0,12.565 8.862,8.086 17.72,12.565 17.72,9.62 "/>
+                    <polygon fill="#999999" points="8.862,10.283 0,14.762 0,17.708 8.862,13.229 17.72,17.708 17.72,14.762 "/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div> <!-- /stopBinding -->
+
+    <script src="scripts/require.js" data-main="scripts/app/main"></script>
+    <![endif]-->
+  </body>
+</html>

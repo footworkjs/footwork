@@ -1,0 +1,51 @@
+
+  
+  
+  
+    <div class='highlight'><pre>ko.bindingHandlers.registerElement = {
+  preprocess: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(value)</span> {</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-string">'\''</span> + value + <span class="hljs-string">'\''</span>;
+  },
+  init: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext)</span> {</span>
+    <span class="hljs-keyword">var</span> elOption = ko.unwrap(valueAccessor()),
+      refresh,
+      defaultOptions = {
+        name: element.getAttribute(<span class="hljs-string">'id'</span>) || element.getAttribute(<span class="hljs-string">'name'</span>),
+        context: <span class="hljs-string">'relative'</span>
+      };
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> elOption === <span class="hljs-string">'string'</span>) {
+      elOption = _.extend(defaultOptions, { name: elOption });
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> elOption === <span class="hljs-string">'object'</span>) {
+      elOption = _.extend(defaultOptions, elOption);
+    }
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> viewModel.el !== <span class="hljs-string">'object'</span>) {
+      viewModel.el = {};
+    }
+
+    viewModel.el[ elOption.name ] = element;
+  }
+};
+
+<span class="hljs-comment">/**
+ * Source: https://github.com/SteveSanderson/knockout/wiki/Bindings---class
+ */</span>
+ko.bindingHandlers[<span class="hljs-string">'class'</span>] = {
+  <span class="hljs-string">'update'</span>: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( element, valueAccessor )</span> {</span>
+    <span class="hljs-keyword">if</span>( element[<span class="hljs-string">'__ko__previousClassValue__'</span>] ) {
+      Apollo.removeClass(element, element[<span class="hljs-string">'__ko__previousClassValue__'</span>]);
+    }
+    <span class="hljs-keyword">var</span> value = ko.utils.unwrapObservable(valueAccessor());
+    value !== <span class="hljs-literal">undefined</span> &amp;&amp; Apollo.addClass(element, value);
+    element[<span class="hljs-string">'__ko__previousClassValue__'</span>] = value;
+  }
+};
+
+ko.bindingHandlers[<span class="hljs-string">'stopBinding'</span>] = {
+  init: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+    <span class="hljs-keyword">return</span> { controlsDescendantBindings: <span class="hljs-literal">true</span> };
+  }
+};</pre></div>
+  
+

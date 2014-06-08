@@ -1,0 +1,39 @@
+{
+  "name": "conduitjs",
+  "version": "0.3.2",
+  "description": "Give any method a pipeline....",
+  "homepage": "https://github.com/ifandelse/ConduitJS",
+  "keywords": [
+    "strategy",
+    "pipeline",
+    "AOP",
+    "proxy",
+    "decorator",
+    "step"
+  ],
+  "author": "Jim Cowart <jim@ifandelse.com>",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ifandelse/ConduitJS.git"
+  },
+  "main": [
+    "lib/conduit.min.js",
+    "lib/conduit.js"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "jquery": "~1.10.2",
+    "bootstrap": "~3.0.3",
+    "expect": "0.1.2",
+    "mocha": "~1.17.0"
+  },
+  "_release": "0.3.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.3.2",
+    "commit": "f3808ad910d469eb9c5ae5653bedadc66b54580f"
+  },
+  "_source": "git://github.com/ifandelse/ConduitJS.git",
+  "_target": "~0.3.2",
+  "_originalSource": "conduitjs"
+}

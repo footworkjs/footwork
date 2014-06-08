@@ -1,0 +1,69 @@
+body {
+  &.headerMoving {
+    header,
+    .main-content .main-pane #collapse-button,
+    .main-content .pane,
+    .management,
+    div .pane-bg,
+    .pane-component > .content,
+    .body.gripper,
+    .header-bar,
+    .menu-item > .title,
+    header .pane-links a,
+    header .pane-links span {
+      -webkit-transition: -webkit-transform @header-move-speed ease, height @header-move-speed ease, line-height @header-move-speed ease, top @header-move-speed ease !important;
+      -moz-transition: -moz-transform @header-move-speed ease, height @header-move-speed ease, line-height @header-move-speed ease, top @header-move-speed ease !important;
+      -ms-transition: -ms-transform @header-move-speed ease, height @header-move-speed ease, line-height @header-move-speed ease, top @header-move-speed ease !important;
+      -o-transition: -o-transform @header-move-speed ease, height @header-move-speed ease, line-height @header-move-speed ease, top @header-move-speed ease !important;
+      transition: transform @header-move-speed ease, height @header-move-speed ease, line-height @header-move-speed ease, top @header-move-speed ease !important;
+    }
+    div .pane-bg {
+      .transition(all @header-move-speed ease) !important;
+    }
+    .main-content .main-pane #collapse-button {
+      -webkit-transition: -webkit-transform @header-move-speed ease, top @header-move-speed ease !important;
+      -moz-transition: -moz-transform @header-move-speed ease, top @header-move-speed ease !important;
+      -ms-transition: -ms-transform @header-move-speed ease, top @header-move-speed ease !important;
+      -o-transition: -o-transform @header-move-speed ease, top @header-move-speed ease !important;
+      transition: transform @header-move-speed ease, top @header-move-speed ease !important;
+    }
+  }
+
+  &.paneMoving {
+    #collapse-button {
+      -webkit-transition: -webkit-transform @pane-collapse-time @pane-collapse-func, width @pane-collapse-time @pane-collapse-func, left @pane-collapse-time @pane-collapse-func !important;
+      -moz-transition: -moz-transform @pane-collapse-time @pane-collapse-func, width @pane-collapse-time @pane-collapse-func, left @pane-collapse-time @pane-collapse-func !important;
+      -ms-transition: -ms-transform @pane-collapse-time @pane-collapse-func, width @pane-collapse-time @pane-collapse-func, left @pane-collapse-time @pane-collapse-func !important;
+      -o-transition: -o-transform @pane-collapse-time @pane-collapse-func, width @pane-collapse-time @pane-collapse-func, left @pane-collapse-time @pane-collapse-func !important;
+      transition: transform @pane-collapse-time @pane-collapse-func, width @pane-collapse-time @pane-collapse-func, left @pane-collapse-time @pane-collapse-func !important;
+    }
+    .pane {
+      -webkit-transition: -webkit-transform @pane-collapse-time @pane-collapse-func, width @pane-collapse-time @pane-collapse-func, left @pane-collapse-time @pane-collapse-func !important;
+      -moz-transition: -moz-transform @pane-collapse-time @pane-collapse-func, width @pane-collapse-time @pane-collapse-func, left @pane-collapse-time @pane-collapse-func !important;
+      -ms-transition: -ms-transform @pane-collapse-time @pane-collapse-func, width @pane-collapse-time @pane-collapse-func, left @pane-collapse-time @pane-collapse-func !important;
+      -o-transition: -o-transform @pane-collapse-time @pane-collapse-func, width @pane-collapse-time @pane-collapse-func, left @pane-collapse-time @pane-collapse-func !important;
+      transition: transform @pane-collapse-time @pane-collapse-func, width @pane-collapse-time @pane-collapse-func, left @pane-collapse-time @pane-collapse-func !important;
+    }
+    .pane-bg {
+      -webkit-transition: -webkit-transform @pane-collapse-time @pane-collapse-func, left @pane-collapse-time @pane-collapse-func;
+      -moz-transition: -moz-transform @pane-collapse-time @pane-collapse-func, left @pane-collapse-time @pane-collapse-func;
+      -ms-transition: -ms-transform @pane-collapse-time @pane-collapse-func, left @pane-collapse-time @pane-collapse-func;
+      -o-transition: -o-transform @pane-collapse-time @pane-collapse-func, left @pane-collapse-time @pane-collapse-func;
+      transition: transform @pane-collapse-time @pane-collapse-func, left @pane-collapse-time @pane-collapse-func;
+    }
+
+    .layout-controls {
+      .header, .corner, .column {
+        -webkit-transition: -webkit-transform @pane-collapse-time @pane-collapse-func, background-color 0.3s linear, left @pane-collapse-time @pane-collapse-func, opacity 0.3s ease;
+        -moz-transition: -moz-transform @pane-collapse-time @pane-collapse-func, background-color 0.3s linear, left @pane-collapse-time @pane-collapse-func, opacity 0.3s ease;
+        -ms-transition: -ms-transform @pane-collapse-time @pane-collapse-func, background-color 0.3s linear, left @pane-collapse-time @pane-collapse-func, opacity 0.3s ease;
+        -o-transition: -o-transform @pane-collapse-time @pane-collapse-func, background-color 0.3s linear, left @pane-collapse-time @pane-collapse-func, opacity 0.3s ease;
+        transition: transform @pane-collapse-time @pane-collapse-func, background-color 0.3s linear, left @pane-collapse-time @pane-collapse-func, opacity 0.3s ease;
+      }
+    }
+
+    .management > .content {
+      .transition(@pane-collapse);
+    }
+  }
+}

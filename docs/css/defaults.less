@@ -1,0 +1,70 @@
+/* structure defaults */
+@default-pane-width: 440px;
+@default-logo-width: 161px;
+@default-logo-height: 30px;
+@footer-height: 70px;
+@accent-padding: 20px;
+@pane-links-height: 50px;
+@default-header-height: 60px;
+@button-height: 25px;
+@config-elements-shadow: 0 1px 2px 0 #000;
+@load-bar-color: #940606;
+@load-bar-color: spin(darken(@pane-bg-color, 10%), -10);
+
+@pane-collapse-time: 0.4s;
+@pane-collapse-func: ease;
+@header-border-width: 5px;
+@header-min-height: 35px;
+@header-move-speed: 0.3s;
+
+/* computeds/etc */
+@body-text: lighten( contrast(@body-bg-color, white, black, 60%), 20% );
+@link-color-mixin: #2793e6;
+@link-color-mix-amount: 30%;
+@link-color: mix(@body-text, @link-color-mixin, @link-color-mix-amount);
+.link-color-for(@bg-color) {
+  color: mix(contrast(@bg-color, white, black, 50%), @link-color-mixin, @link-color-mix-amount);
+}
+
+@controls-fg: contrast(@controls-bg);
+@controls-header-text: contrast(@controls-bg);
+@header-fg-hover: contrast(@header-bg, white, black, 50%);
+@pane-fg-color: contrast(@pane-bg-color, white, black, 50%);
+
+@header-fg-default: darken(@header-fg-hover, 35%);
+@header-dropdown-bg: @pane-bg-color;
+@header-dropdown-fg: lighten(@pane-bg-color, 40%);
+@header-dropdown-fg-hover: @header-fg-hover;
+
+@pane-right-border: 1px solid black;
+
+@footer-bg: darken(@header-bg, 3%);
+@sprite-image: "../images/sprite.png";
+@controls-header: lighten(@controls-bg, 30%);
+@pane-collapse: all @pane-collapse-time @pane-collapse-func;
+
+@primary-font-family: sans-serif;
+@primary-font: 15px @primary-font-family, 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+@header-font: 15px @primary-font-family, 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+
+@button-background: lighten(@pane-bg-color, 10%);
+
+@management-column-width: 180px;
+
+@mixColor: mix(@pane-bg-color, @body-bg-color, 15%);
+
+::selection {
+  background: #222;
+  color: white;
+  }
+::-moz-selection {
+  background: #222;
+  color: white;
+}
+
+input::-webkit-input-placeholder {
+    color:    #aaa;
+}
+input:-moz-placeholder {
+    color:    #aaa;
+}

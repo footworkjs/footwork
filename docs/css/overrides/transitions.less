@@ -1,0 +1,57 @@
+.noTransition {
+  .transition(none) !important;
+}
+
+.layoutTransitionsDisabled {
+  .has-layout-trans {
+    .noTransition;
+  }
+}
+
+.transitionsDisabled {
+  .has-layout-trans, .has-trans {
+    .noTransition;
+
+    * {
+      .noTransition;
+    }
+  }
+}
+
+body {
+  &.transitionsDisabled, &.layoutTransitionsDisabled {
+    &.headerMoving {
+      header,
+      .main-content .main-pane #collapse-button,
+      .main-content .pane,
+      .management,
+      div .pane-bg,
+      .pane-component > .content,
+      .body.gripper,
+      .header-bar,
+      .menu-item > .title,
+      header .pane-links a,
+      header .pane-links span {
+        .transition(none) !important;
+      }
+    }
+
+    &.paneMoving {
+      #collapse-button {
+        .transition(none) !important;
+      }
+      .pane {
+        .transition(none) !important;
+      }
+      .pane-bg {
+        .transition(none) !important;
+      }
+
+      .layout-controls {
+        .header, .corner, .column {
+          .transition(none) !important;
+        }
+      }
+    }
+  }
+}

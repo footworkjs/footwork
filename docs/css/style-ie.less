@@ -1,0 +1,78 @@
+@import "setup/mixins.less";
+@import "config.less";
+@import "defaults.less";
+
+body, html, header, .main-content {
+  /*background: red !important;*/
+}
+
+#html5-badge {
+  display: none;
+}
+
+.highlight {
+  display: none;
+}
+
+nav .drop-top {
+  display: none;
+}
+
+
+@split: 35%;
+header {
+  .pane-links {
+    width: @split !important;
+    
+    .areas {
+      max-width: 50%;
+    }
+
+    .logo {
+      max-width: 50%;
+      width: @default-logo-width;
+
+      a {
+        display: block;
+        padding-right: @accent-padding;
+      }
+
+      img {
+        width: 100%;
+      }
+    }
+  }
+  nav {
+    margin-left: @split !important;
+  }
+}
+
+.pane-bg {
+  background: @pane-bg-color;
+}
+
+footer {
+  .layout-mode {
+    display: none;
+  }
+}
+
+.unsupported-browser {
+  position: absolute;
+  top: @default-header-height + @accent-padding;
+  right: @accent-padding;
+  background: #c84a4a;
+  color: white;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: bold;
+  padding: 15px;
+  width: 350px;
+  max-width: 75%;
+  z-index: 2;
+  filter: alpha(opacity=40);
+
+  &:hover {
+    filter: alpha(opacity=100);
+  }
+}
