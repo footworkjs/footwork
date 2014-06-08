@@ -1,9 +1,17 @@
-
-  
-  <pre><code><span class="hljs-keyword">this</span>.myValue = ko.observable().receiveFrom(<span class="hljs-string">'Namespace'</span> / Namespace, <span class="hljs-string">'varName'</span>);
+<ul class="sections">
+    
+    
+    <li id="section-1">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-1">&#182;</a>
+          </div>
+          <pre><code><span class="hljs-keyword">this</span>.myValue = ko.observable().receiveFrom(<span class="hljs-string">'Namespace'</span> / Namespace, <span class="hljs-string">'varName'</span>);
 </code></pre>
-  
-    <div class='highlight'><pre>ko.subscribable.fn.receiveFrom = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespace, variable)</span> {</span>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre>ko.subscribable.fn.receiveFrom = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespace, variable)</span> {</span>
   <span class="hljs-keyword">var</span> target = <span class="hljs-keyword">this</span>,
       observable = <span class="hljs-keyword">this</span>,
       channel;
@@ -32,17 +40,25 @@
 
   observable.__isReceived = <span class="hljs-literal">true</span>;
   <span class="hljs-keyword">return</span> observable;
-};</pre></div>
-  
-
-  
-  <pre><code><span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs(<span class="hljs-string">'NameOfVar'</span>);
+};</pre></div></div>
+        
+    </li>
+    
+    
+    <li id="section-2">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-2">&#182;</a>
+          </div>
+          <pre><code><span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs(<span class="hljs-string">'NameOfVar'</span>);
 <span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs(<span class="hljs-string">'NameOfVar'</span>, isWritable);
 <span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs({ name: <span class="hljs-string">'NameOfVar'</span>, writable: <span class="hljs-literal">true</span> });
 <span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs({ name: <span class="hljs-string">'NameOfVar'</span>, namespace: Namespace });
 </code></pre>
-  
-    <div class='highlight'><pre>ko.subscribable.fn.broadcastAs = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(varName, option)</span> {</span>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre>ko.subscribable.fn.broadcastAs = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(varName, option)</span> {</span>
   <span class="hljs-keyword">var</span> observable = <span class="hljs-keyword">this</span>, channel;
 
   <span class="hljs-keyword">if</span>(_.isObject(varName) === <span class="hljs-literal">true</span>) {
@@ -80,6 +96,8 @@
 
   observable.__isBroadcast = <span class="hljs-literal">true</span>;
   <span class="hljs-keyword">return</span> observable;
-};</pre></div>
-  
-
+};</pre></div></div>
+        
+    </li>
+    
+</ul>

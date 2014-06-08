@@ -24,7 +24,7 @@ define([ "knockout-footwork", "lodash" ],
           return 'PageSections';
         }, this).broadcastAs('defaultSelection');
         this.currentSelection = ko.observable().broadcastAs('currentSelection', true);
-        this.versionLabel = '<span class="version">v' + ko._footworkVersion + '</span>';
+        this.versionLabel = '<span class="version">v' + window.footworkVersionAtCreation + '</span>';
 
         this.width = ko.computed(function() {
           var width = parseInt( this.columnWidth(), 10) - this.config.paneAccentPadding(),
