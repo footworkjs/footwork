@@ -96,18 +96,14 @@ header .pane-links {
       text-align: center;
       .box-sizing(border-box);
 
-      &:hover {
-        &:before {
-          color: @header-fg-hover;
-          text-decoration: none;
-        }
+      &:hover span {
+        color: @header-fg-hover;
+        text-decoration: none;
       }
 
-      &:active, &:focus {
-        &:before {
-          color: darken(@header-fg-hover, 10%);
-          top: 1px;
-        }
+      &:active span, &:focus span {
+        color: darken(@header-fg-hover, 10%);
+        top: 1px;
       }
     }
 

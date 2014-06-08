@@ -801,7 +801,7 @@ body.mobile .main-header .logo a svg {
 }
 body.narrow .pane .content .pane-component,
 body.mobile .pane .content .pane-component {
-  background-position: right -75px;
+  background-position: right -76px;
 }
 body.narrow .pane .content .pane-component > .title,
 body.mobile .pane .content .pane-component > .title,
@@ -2929,15 +2929,15 @@ header .pane-links > .areas .primary {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
 }
-.pane-links > .areas a:hover:before,
-.pane-links > .areas .link:hover:before {
+.pane-links > .areas a:hover span,
+.pane-links > .areas .link:hover span {
   color: #ffffff;
   text-decoration: none;
 }
-.pane-links > .areas a:active:before,
-.pane-links > .areas .link:active:before,
-.pane-links > .areas a:focus:before,
-.pane-links > .areas .link:focus:before {
+.pane-links > .areas a:active span,
+.pane-links > .areas .link:active span,
+.pane-links > .areas a:focus span,
+.pane-links > .areas .link:focus span {
   color: #e6e6e6;
   top: 1px;
 }
