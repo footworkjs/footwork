@@ -1,7 +1,7 @@
 /**
  * footwork.js - A solid footing for larger knockout applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.1.6
+ * Version: v0.1.7
  * Url: http://footworkjs.com
  * License(s): MIT
  */
@@ -253,7 +253,7 @@ var module = undefined,
   }).call(root);
 
   return (function footwork(_, ko, postal, Apollo, riveter) {
-    ko._footworkVersion = '0.1.6';
+    ko._footworkVersion = '0.1.7';
 
 var applyBindings = ko.applyBindings;
 ko.applyBindings = function(model, element) {
