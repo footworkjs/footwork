@@ -1,6 +1,13 @@
+// Footwork.js
+// ----------------
+
+// Record the footwork version as of this build.
 ko._footworkVersion = 'FOOTWORK_VERSION';
 
+// Preserve the original applyBindings method for later use
 var applyBindings = ko.applyBindings;
+
+// Override the original applyBindings method to provide and enable 'model' life-cycle hooks/events.
 ko.applyBindings = function(model, element) {
   applyBindings(model, element);
   if(typeof model.startup === 'function' && model._options !== undefined) {

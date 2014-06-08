@@ -1,7 +1,18 @@
+// Namespace and model creation / management.
+// ----------------
+
 ko.__nsStack = [];
+
+/**
+ * Creates and returns a new namespace channel
+ *
+ * @param {namespaceName} string - The name of the namespace
+ * @return {channel}
+ */
 ko.namespace = function(namespaceName) {
   return postal.channel(namespaceName);
 };
+/** Return the current namespace name. */
 ko.currentNamespaceName = function() {
   return ko.__nsStack[0];
 };
@@ -11,9 +22,15 @@ ko.currentNamespace = function() {
 ko.enterNamespaceName = function(namespaceName) {
   ko.__nsStack.unshift( namespaceName );
 };
+
+// Called at the after a model constructor function is run. exitNamespace()
+// will shift the current namespace off of the stack, exiting to the
+// next namespace in the stack
 ko.exitNamespace = function() {
   ko.__nsStack.shift();
 };
+
+// Returns the model count for each currently defined namespace
 ko.modelCount = function() {
   var counts = _.reduce(namespaceNameCounter, function(modelCounts, modelCount, modelName) {
     modelCounts[modelName] = modelCount + 1;
@@ -24,23 +41,28 @@ ko.modelCount = function() {
   }, 0);
   return counts;
 };
+
 ko.getModels = function(namespaceName) {
   if(namespaceName === undefined) {
     return models;
   }
   return models[namespaceName];
 };
+
 ko.debugModels = function(state) {
   debugModels = state;
 };
+
 ko.refreshModels = function() {
   _.invoke(ko.getModels(), 'refreshReceived');
 };
+
 var models = {},
     modelNum = 0,
     debugModels = false;
 
 var namespaceNameCounter = {};
+
 var indexedNamespaceName = function(name, autoIncrement) {
   if(namespaceNameCounter[name] === undefined) {
     namespaceNameCounter[name] = 0;

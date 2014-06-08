@@ -269,6 +269,13 @@ ko.applyBindings = function(model, element) {
 };
 
 ko.__nsStack = [];
+
+/**
+ * Creates and returns a new namespace channel
+ *
+ * @param {namespaceName} string - The name of the namespace
+ * @return {channel}
+ */
 ko.namespace = function(namespaceName) {
   return postal.channel(namespaceName);
 };
