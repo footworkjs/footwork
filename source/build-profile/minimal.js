@@ -7,23 +7,11 @@
     root.ko = factory(_, ko);
   }
 }(this, function (_, ko) {
-  var modules = (function getModules() {
-    // define our own root object to supply to the modules as an attachment point
-    var root = {
-      _: _,
-      ko: ko
-    };
+  var _define = define;
 
-    // supply our root for modules that directly check for the window object
-    var window = root;
-
-    // hide node.js or browserified from the modules (CommonJS environment)
-    var module = undefined,
-        exports = undefined,
-        global = undefined;
-
-    // hide requirejs from the modules (AMD environment)
-    var define = undefined;
+  var root = (function getModules() {
+    //import("helpers/root-for-loaders.js");
+    _.extend(root, { _: _, ko: ko });
 
     (function() {
       //import("../../bower_components/apollo/dist/apollo.js");
@@ -44,8 +32,8 @@
     return root;
   }());
 
-  return (function (_, ko, riveter, postal, Apollo) {
+  return (function footwork(_, ko, postal, Apollo, riveter) {
     //import("../main.js");
     return ko;
-  })(modules._, modules.ko, modules.riveter, modules.postal, modules.Apollo);
+  })(root._, root.ko, root.postal, root.Apollo, root.riveter);
 }));

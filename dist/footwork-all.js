@@ -1,7 +1,7 @@
 /**
- * footwork.js - A solid base for structured knockout applications.
+ * footwork.js - A solid footing for larger knockout applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.1.4
+ * Version: v0.1.6
  * Url: http://footworkjs.com
  * License(s): MIT
  */
@@ -14,107 +14,20 @@
     root.ko = factory();
   }
 }(this, function () {
-  var modules = (function getModules() {
+  var root = (function getModules() {
     // define our own root object to supply to the modules as an attachment point
-    var root = {};
+var root = {};
+  
+// supply our root for modules that directly check for the window object
+var window = root;
 
-    // supply our root for modules that directly check for the window object (lodash does this)
-    var window = root;
+// hide requirejs from the modules (AMD environment)
+var define = undefined;
 
-    // hide node.js or browserified from the modules (CommonJS environment)
-    var module = undefined,
-        exports = undefined,
-        global = undefined;
-
-    // hide requirejs from the modules (AMD environment)
-    var define = undefined;
-
-    (function() {
-      /*! Apollo v1.6.0 | (c) 2014 @toddmotto | github.com/toddmotto/apollo */
-(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    define(factory);
-  } else if (typeof exports === 'object') {
-    module.exports = factory;
-  } else {
-    root.Apollo = factory();
-  }
-})(this, function () {
-
-  'use strict';
-
-  var exports = {}, _hasClass, _addClass, _removeClass, _toggleClass;
-
-  var _forEach = function (classes, callback) {
-    if (Object.prototype.toString.call(classes) !== '[object Array]') {
-      classes = classes.split(' ');
-    }
-    for (var i = 0; i < classes.length; i++) {
-      callback(classes[i], i);
-    }
-  };
-
-  if (document.documentElement.classList) {
-    _hasClass = function (elem, className) {
-      return elem.classList.contains(className);
-    };
-    _addClass = function (elem, className) {
-      elem.classList.add(className);
-    };
-    _removeClass = function (elem, className) {
-      elem.classList.remove(className);
-    };
-    _toggleClass = function (elem, className) {
-      elem.classList.toggle(className);
-    };
-  } else {
-    _hasClass = function (elem, className) {
-      return new RegExp('(^|\\s)' + className + '(\\s|$)').test(elem.className);
-    };
-    _addClass = function (elem, className) {
-      if (!exports.hasClass(elem, className)) {
-        elem.className += (elem.className ? ' ' : '') + className;
-      }
-    };
-    _removeClass = function (elem, className) {
-      if (exports.hasClass(elem, className)) {
-        elem.className = elem.className.replace(new RegExp('(^|\\s)*' + className + '(\\s|$)*', 'g'), '');
-      }
-    };
-    _toggleClass = function (elem, className) {
-      var toggle = exports.hasClass(elem, className) ? exports.removeClass : exports.addClass;
-      toggle(elem, className);
-    };
-  }
-
-  exports.hasClass = function (elem, className) {
-    return _hasClass(elem, className);
-  };
-
-  exports.addClass = function (elem, classes) {
-    _forEach(classes, function (className) {
-      _addClass(elem, className);
-    });
-  };
-
-  exports.removeClass = function (elem, classes) {
-    _forEach(classes, function (className) {
-      _removeClass(elem, className);
-    });
-  };
-
-  exports.toggleClass = function (elem, classes) {
-    _forEach(classes, function (className) {
-      _toggleClass(elem, className);
-    });
-  };
-
-  return exports;
-
-});
-
-    }).call(root);
-
+// hide node.js or browserified from the modules (CommonJS environment)
+var module = undefined,
+    exports = undefined,
+    global = undefined;
     (function() {
       /**
  * @license
@@ -5099,6 +5012,92 @@
     }).call(root);
 
     (function() {
+      /*! Apollo v1.6.0 | (c) 2014 @toddmotto | github.com/toddmotto/apollo */
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define(factory);
+  } else if (typeof exports === 'object') {
+    module.exports = factory;
+  } else {
+    root.Apollo = factory();
+  }
+})(this, function () {
+
+  'use strict';
+
+  var exports = {}, _hasClass, _addClass, _removeClass, _toggleClass;
+
+  var _forEach = function (classes, callback) {
+    if (Object.prototype.toString.call(classes) !== '[object Array]') {
+      classes = classes.split(' ');
+    }
+    for (var i = 0; i < classes.length; i++) {
+      callback(classes[i], i);
+    }
+  };
+
+  if (document.documentElement.classList) {
+    _hasClass = function (elem, className) {
+      return elem.classList.contains(className);
+    };
+    _addClass = function (elem, className) {
+      elem.classList.add(className);
+    };
+    _removeClass = function (elem, className) {
+      elem.classList.remove(className);
+    };
+    _toggleClass = function (elem, className) {
+      elem.classList.toggle(className);
+    };
+  } else {
+    _hasClass = function (elem, className) {
+      return new RegExp('(^|\\s)' + className + '(\\s|$)').test(elem.className);
+    };
+    _addClass = function (elem, className) {
+      if (!exports.hasClass(elem, className)) {
+        elem.className += (elem.className ? ' ' : '') + className;
+      }
+    };
+    _removeClass = function (elem, className) {
+      if (exports.hasClass(elem, className)) {
+        elem.className = elem.className.replace(new RegExp('(^|\\s)*' + className + '(\\s|$)*', 'g'), '');
+      }
+    };
+    _toggleClass = function (elem, className) {
+      var toggle = exports.hasClass(elem, className) ? exports.removeClass : exports.addClass;
+      toggle(elem, className);
+    };
+  }
+
+  exports.hasClass = function (elem, className) {
+    return _hasClass(elem, className);
+  };
+
+  exports.addClass = function (elem, classes) {
+    _forEach(classes, function (className) {
+      _addClass(elem, className);
+    });
+  };
+
+  exports.removeClass = function (elem, classes) {
+    _forEach(classes, function (className) {
+      _removeClass(elem, className);
+    });
+  };
+
+  exports.toggleClass = function (elem, classes) {
+    _forEach(classes, function (className) {
+      _toggleClass(elem, className);
+    });
+  };
+
+  return exports;
+
+});
+
+    }).call(root);
+
+    (function() {
       /**
  * riveter - Mix-in, inheritance and constructor extend behavior for your JavaScript enjoyment.
  * © 2012 - Copyright appendTo, LLC 
@@ -5110,10 +5109,10 @@
 (function (root, factory) {
     if (typeof module === "object" && module.exports) {
         // Node, or CommonJS-Like environments
-        module.exports = factory(require("underscore"));
+        module.exports = factory(require("lodash"));
     } else if (typeof define === "function" && define.amd) {
         // AMD. Register as an anonymous module.
-        define(["underscore"], function (_) {
+        define(["lodash"], function (_) {
             return factory(_, root);
         });
     } else {
@@ -5883,12 +5882,15 @@
 }));
     }).call(root);
 
-    /**
-     * Knockout double-wraps their module so we can't lie about the window/root object to it.
-     * As a result we just let knockout (ko) bind to (ahem, pollute) the window object directly (unforunately).
-     * I am unsure of the workaround for this. Pull requests encouraged!
-     */
-    // Knockout JavaScript library v3.1.0
+    return root;
+  }());
+
+  /**
+   * Knockout double-wraps their module so we can't lie about the window/root object to it.
+   * As a result we just let knockout (ko) bind to (ahem, pollute) the window object directly (unforunately).
+   * I am unsure of the workaround for this. Pull requests encouraged!
+   */
+  // Knockout JavaScript library v3.1.0
 // (c) Steven Sanderson - http://knockoutjs.com/
 // License: MIT (http://www.opensource.org/licenses/mit-license.php)
 
@@ -5985,13 +5987,10 @@ v.S,v.Ia),v.Zb=!0)}l(h.beforeRemove,e);l(h.afterMove,z);l(h.afterAdd,m);a.a.f.se
 !t.tmpl)return 0;try{if(0<=t.tmpl.tag.tmpl.open.toString().indexOf("__"))return 2}catch(a){}return 1}();this.renderTemplateSource=function(b,e,f){f=f||{};if(2>a)throw Error("Your version of jQuery.tmpl is too old. Please upgrade to jQuery.tmpl 1.0.0pre or later.");var h=b.data("precompiled");h||(h=b.text()||"",h=t.template(null,"{{ko_with $item.koBindingContext}}"+h+"{{/ko_with}}"),b.data("precompiled",h));b=[e.$data];e=t.extend({koBindingContext:e},f.templateOptions);e=t.tmpl(h,b,e);e.appendTo(w.createElement("div"));
 t.fragments={};return e};this.createJavaScriptEvaluatorBlock=function(a){return"{{ko_code ((function() { return "+a+" })()) }}"};this.addTemplate=function(a,b){w.write("<script type='text/html' id='"+a+"'>"+b+"\x3c/script>")};0<a&&(t.tmpl.tag.ko_code={open:"__.push($1 || '');"},t.tmpl.tag.ko_with={open:"with($1) {",close:"} "})};a.La.prototype=new a.C;var b=new a.La;0<b.ac&&a.Wa(b);a.b("jqueryTmplTemplateEngine",a.La)})()})})();})();
 
-    root.ko = ko; // ick...
+  root.ko = ko; // ick...
 
-    return root;
-  }());
-
-  return (function (_, ko, riveter, postal, Apollo) {
-    ko._footworkVersion = '0.1.4';
+  return (function footwork(_, ko, postal, Apollo, riveter) {
+    ko._footworkVersion = '0.1.6';
 
 var applyBindings = ko.applyBindings;
 ko.applyBindings = function(model, element) {
@@ -6380,5 +6379,5 @@ ko.extenders.delayWrite = function( target, options ) {
   });
 };
     return ko;
-  })(modules._, modules.ko, modules.riveter, modules.postal, modules.Apollo);
+  })(root._, root.ko, root.postal, root.Apollo, root.riveter);
 }));

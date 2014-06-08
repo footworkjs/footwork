@@ -9,7 +9,7 @@
       "url": "http://staticty.pe"
     }
   ],
-  "version": "0.1.5",
+  "version": "0.1.6",
   "homepage": "http://footworkjs.com",
   "licenses": [
     {
@@ -28,6 +28,8 @@
     "merge-stream": "~0.1.1",
     "lodash": "~2.4.1",
     "gulp": "~3.6.2",
+    "gulp-amdclean": "~0.2.1",
+    "gulp-esprima": "*",
     "gulp-ignore": "~1.1.0",
     "gulp-rimraf": "~0.1.0",
     "gulp-wrap-docco": "0.0.3",

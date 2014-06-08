@@ -96,15 +96,23 @@ gulp.task('test_bare', ['build_bare'], function() {
 // Building tasks
 gulp.task('build-everything', ['build_all', 'build_minimal', 'build_bare']);
 
-gulp.task('build_all', function() {
+gulp.task('build_prep', function() {
+  // we have to force load of lodash instead of underscore
+  return gulp
+    .src('bower_components/riveter/lib/riveter.js')
+    .pipe(replace(/underscore/g, 'lodash'))
+    .pipe(gulp.dest('./bower_components/riveter/lib'));
+});
+
+gulp.task('build_all', ['build_prep'], function() {
   return build('all');
 });
 
-gulp.task('build_minimal', function() {
+gulp.task('build_minimal', ['build_prep'], function() {
   return build('minimal');
 });
 
-gulp.task('build_bare', function() {
+gulp.task('build_bare', ['build_prep'], function() {
   return build('bare');
 });
 
@@ -123,7 +131,7 @@ gulp.task('doc_js', ['docs_clean'], function() {
       .pipe(wrapDocco())
       .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
       .pipe(rename(sourceFile + '.html'))
-      .pipe(gulp.dest('./docs'))
+      .pipe(gulp.dest('./docs'));
   }));
 });
 

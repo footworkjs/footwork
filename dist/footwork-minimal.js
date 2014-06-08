@@ -1,7 +1,7 @@
 /**
- * footwork.js - A solid base for structured knockout applications.
+ * footwork.js - A solid footing for larger knockout applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.1.4
+ * Version: v0.1.6
  * Url: http://footworkjs.com
  * License(s): MIT
  */
@@ -14,23 +14,23 @@
     root.ko = factory(_, ko);
   }
 }(this, function (_, ko) {
-  var modules = (function getModules() {
+  var _define = define;
+
+  var root = (function getModules() {
     // define our own root object to supply to the modules as an attachment point
-    var root = {
-      _: _,
-      ko: ko
-    };
+var root = {};
+  
+// supply our root for modules that directly check for the window object
+var window = root;
 
-    // supply our root for modules that directly check for the window object
-    var window = root;
+// hide requirejs from the modules (AMD environment)
+var define = undefined;
 
-    // hide node.js or browserified from the modules (CommonJS environment)
-    var module = undefined,
-        exports = undefined,
-        global = undefined;
-
-    // hide requirejs from the modules (AMD environment)
-    var define = undefined;
+// hide node.js or browserified from the modules (CommonJS environment)
+var module = undefined,
+    exports = undefined,
+    global = undefined;
+    _.extend(root, { _: _, ko: ko });
 
     (function() {
       /*! Apollo v1.6.0 | (c) 2014 @toddmotto | github.com/toddmotto/apollo */
@@ -130,10 +130,10 @@
 (function (root, factory) {
     if (typeof module === "object" && module.exports) {
         // Node, or CommonJS-Like environments
-        module.exports = factory(require("underscore"));
+        module.exports = factory(require("lodash"));
     } else if (typeof define === "function" && define.amd) {
         // AMD. Register as an anonymous module.
-        define(["underscore"], function (_) {
+        define(["lodash"], function (_) {
             return factory(_, root);
         });
     } else {
@@ -906,8 +906,8 @@
     return root;
   }());
 
-  return (function (_, ko, riveter, postal, Apollo) {
-    ko._footworkVersion = '0.1.4';
+  return (function footwork(_, ko, postal, Apollo, riveter) {
+    ko._footworkVersion = '0.1.6';
 
 var applyBindings = ko.applyBindings;
 ko.applyBindings = function(model, element) {
@@ -1296,5 +1296,5 @@ ko.extenders.delayWrite = function( target, options ) {
   });
 };
     return ko;
-  })(modules._, modules.ko, modules.riveter, modules.postal, modules.Apollo);
+  })(root._, root.ko, root.postal, root.Apollo, root.riveter);
 }));
