@@ -461,7 +461,7 @@ body.collapsed #collapse-button .arrow {
   height: 0px;
   border-style: solid;
   border-width: 25px 0 25px 15px;
-  border-color: transparent transparent transparent #d6623a;
+  border-color: transparent transparent transparent #31b191;
   right: auto;
   left: 20px;
 }
@@ -495,7 +495,7 @@ body.collapsed #collapse-button .mouse-action {
 }
 body.collapsed #collapse-button .mouse-action .mask {
   border-width: 19px 0 19px 9px;
-  border-color: transparent transparent transparent #d6623a;
+  border-color: transparent transparent transparent #31b191;
   left: -13px;
 }
 body.collapsed .management > .content {
@@ -621,7 +621,7 @@ body.initialized #collapse-button {
   display: block;
 }
 body.initialized .pane-links .logo a svg .parens .open {
-  fill: #d6623a;
+  fill: #31b191;
   -webkit-transition: fill 1.5s 1s ease;
   -moz-transition: fill 1.5s 1s ease;
   -ms-transition: fill 1.5s 1s ease;
@@ -629,7 +629,7 @@ body.initialized .pane-links .logo a svg .parens .open {
   transition: fill 1.5s 1s ease;
 }
 body.initialized .pane-links .logo a svg .parens .close {
-  fill: #d6623a;
+  fill: #31b191;
   -webkit-transition: fill 1s 0.7s ease;
   -moz-transition: fill 1s 0.7s ease;
   -ms-transition: fill 1s 0.7s ease;
@@ -716,7 +716,7 @@ body.mobile .pane-links > .areas .alternate .link {
   width: 50%;
 }
 body.mobile .pane-links > .areas .alternate .link:first-child {
-  border-left: 1px solid #b74b26;
+  border-left: 1px solid #268970;
 }
 body.mobile .pane-links > .areas .alternate .link.MainMenu {
   display: block;
@@ -846,7 +846,7 @@ body.mobile .pane > .content .pane-component > .title {
   font-size: 15px;
   line-height: 30px;
   height: 30px;
-  border-bottom: 1px solid #a24322;
+  border-bottom: 1px solid #207560;
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
@@ -905,7 +905,7 @@ html.no-js .no-js {
   display: block !important;
 }
 html.no-js .pane-bg {
-  background: #d6623a;
+  background: #31b191;
 }
 html.no-js .pane > .content {
   width: 0 !important;
@@ -1088,15 +1088,15 @@ body.verySmall .main-header .logo a svg {
   border-bottom: 1px solid #dfdfdf;
   display: none;
 }
-.main-wrapper .mobile-header .static path {
-  fill: #d6623a;
+.main-wrapper .mobile-header .footwork path {
+  fill: #31b191;
   -webkit-transition: fill 0s linear;
   -moz-transition: fill 0s linear;
   -ms-transition: fill 0s linear;
   -o-transition: fill 0s linear;
   transition: fill 0s linear;
 }
-.main-wrapper .mobile-header .type path {
+.main-wrapper .mobile-header .js path {
   fill: #acacac;
   -webkit-transition: fill 0s linear;
   -moz-transition: fill 0s linear;
@@ -1104,11 +1104,8 @@ body.verySmall .main-header .logo a svg {
   -o-transition: fill 0s linear;
   transition: fill 0s linear;
 }
-.main-wrapper .mobile-header .type path.dot {
-  fill: #d6623a;
-}
-.main-wrapper .mobile-header .parens path {
-  fill: #d6623a;
+.main-wrapper .mobile-header .foot path {
+  fill: #31b191;
   -webkit-transition: fill 0s linear;
   -moz-transition: fill 0s linear;
   -ms-transition: fill 0s linear;
@@ -1128,7 +1125,7 @@ body.verySmall .main-header .logo a svg {
   left: 0;
   top: 0;
   margin-top: 0;
-  background: #cc542a;
+  background: #2b9d81;
 }
 .main-wrapper .mobile-header .load-bar .message {
   position: absolute;
@@ -1152,7 +1149,7 @@ body.verySmall .main-header .logo a svg {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
-  border-bottom: 5px solid #d6623a;
+  border-bottom: 5px solid #31b191;
   z-index: 3;
   -webkit-transition: none;
   -moz-transition: none;
@@ -1197,43 +1194,43 @@ body.verySmall .main-header .logo a svg {
   left: -3000px;
 }
 .main-header .source-link .button {
-  background-color: #e8a58e;
-  background: #df8464;
-  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #da734f), color-stop(1, #e39479));
-  background: -ms-linear-gradient(bottom, #da734f, #e39479);
-  background: -moz-linear-gradient(center bottom, #da734f 0%, #e39479 100%);
-  background: -o-linear-gradient(#e39479, #da734f);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e39479', endColorstr='#da734f', GradientType=0);
-  color: #f9e6e0;
-  border: 1px solid #da734f;
+  background-color: #70d8be;
+  background: #49ccab;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #37c5a1), color-stop(1, #5cd2b5));
+  background: -ms-linear-gradient(bottom, #37c5a1, #5cd2b5);
+  background: -moz-linear-gradient(center bottom, #37c5a1 0%, #5cd2b5 100%);
+  background: -o-linear-gradient(#5cd2b5, #37c5a1);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5cd2b5', endColorstr='#37c5a1', GradientType=0);
+  color: #0f2922;
+  border: 1px solid #37c5a1;
   cursor: pointer;
 }
 .main-header .source-link .button:hover {
-  background-color: #f0c7b9;
-  background: #df8464;
-  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #df8464), color-stop(1, #e8a58e));
-  background: -ms-linear-gradient(bottom, #df8464, #e8a58e);
-  background: -moz-linear-gradient(center bottom, #df8464 0%, #e8a58e 100%);
-  background: -o-linear-gradient(#e8a58e, #df8464);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e8a58e', endColorstr='#df8464', GradientType=0);
-  color: #ffffff;
+  background-color: #98e3d0;
+  background: #49ccab;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #49ccab), color-stop(1, #70d8be));
+  background: -ms-linear-gradient(bottom, #49ccab, #70d8be);
+  background: -moz-linear-gradient(center bottom, #49ccab 0%, #70d8be 100%);
+  background: -o-linear-gradient(#70d8be, #49ccab);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#70d8be', endColorstr='#49ccab', GradientType=0);
+  color: #000000;
 }
 .main-header .source-link .button:hover:active .icon {
-  border-color: #ffffff;
+  border-color: #000000;
 }
 .main-header .source-link .button:hover .icon {
-  border-right: 1px solid #f9e6e0;
+  border-right: 1px solid #0f2922;
 }
 .main-header .source-link .button:active {
-  background: #df8464;
-  border-color: #cc542a;
-  color: #ffffff;
+  background: #49ccab;
+  border-color: #2b9d81;
+  color: #000000;
 }
 .main-header .bottom-highlight {
   position: absolute;
   bottom: -1px;
   width: 100%;
-  border-bottom: 1px solid #df8464;
+  border-bottom: 1px solid #49ccab;
 }
 .main-header .icon,
 .main-header .icons {
@@ -1339,8 +1336,8 @@ body.verySmall .main-header .logo a svg {
   right: 5px;
   width: 35px;
   height: 20px;
-  background: #d6623a;
-  color: #e6e6e6;
+  background: #31b191;
+  color: #000000;
   text-align: center;
   line-height: 15px;
   border-top-width: 0;
@@ -1399,7 +1396,7 @@ body.verySmall .main-header .logo a svg {
 .main-header nav .drop-top.active {
   height: 35px;
   line-height: 40px;
-  color: #ffffff;
+  color: #000000;
   -webkit-transition: height 0.3s 0s ease, line-height 0.3s 0s ease, opacity 0.2s ease;
   -moz-transition: height 0.3s 0s ease, line-height 0.3s 0s ease, opacity 0.2s ease;
   -ms-transition: height 0.3s 0s ease, line-height 0.3s 0s ease, opacity 0.2s ease;
@@ -1532,7 +1529,7 @@ body.verySmall .main-header .logo a svg {
   position: absolute;
   left: 0;
   top: -500px;
-  background: #d6623a;
+  background: #31b191;
   max-width: 100%;
   cursor: auto;
   opacity: 0;
@@ -1547,7 +1544,7 @@ body.verySmall .main-header .logo a svg {
   color: #ffffff;
   cursor: pointer;
   line-height: 60px;
-  border-top: 1px solid #e8a58e;
+  border-top: 1px solid #70d8be;
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
@@ -1561,14 +1558,14 @@ body.verySmall .main-header .logo a svg {
   top: 100%;
   left: 0;
   min-width: 100%;
-  color: #f9e9e3;
-  background: #d6623a;
+  color: #c0eee2;
+  background: #31b191;
   -moz-box-shadow: 0px 2px 3px -1px #000000;
   -webkit-box-shadow: 0px 2px 3px -1px #000000;
   box-shadow: 0px 2px 3px -1px #000000;
 }
 .main-header nav .menu-item .drop-down .content a {
-  color: #f9e9e3;
+  color: #c0eee2;
 }
 .main-header nav .menu-item .drop-down .content a:hover {
   color: #ffffff;
@@ -1994,8 +1991,8 @@ footer #html5-badge .feature .pop-up {
   right: -10px;
   visibility: hidden;
   opacity: 0;
-  background: #d6623a;
-  color: #ffffff;
+  background: #31b191;
+  color: #000000;
   -webkit-transition: opacity 0.2s ease;
   -moz-transition: opacity 0.2s ease;
   -ms-transition: opacity 0.2s ease;
@@ -2020,7 +2017,7 @@ footer #html5-badge .feature .pop-up > div.arrow {
   margin: 0;
   right: 7px;
   top: 100%;
-  border: 15px solid #d6623a;
+  border: 15px solid #31b191;
   border-left-color: transparent;
   border-right-color: transparent;
   border-bottom-color: transparent;
@@ -2091,7 +2088,7 @@ footer #html5-badge .feature .pop-up > div.arrow {
   -ms-transition: opacity 0s ease;
   -o-transition: opacity 0s ease;
   transition: opacity 0s ease;
-  background: #b73326;
+  background: #268960;
   z-index: 1;
 }
 .load-bar .message {
@@ -2195,7 +2192,7 @@ footer #html5-badge .feature .pop-up > div.arrow {
   opacity: 1;
   visibility: visible;
   left: 9px;
-  border-right-color: #b74b26;
+  border-right-color: #268970;
 }
 #collapse-button .mouse-action {
   position: absolute;
@@ -2206,7 +2203,7 @@ footer #html5-badge .feature .pop-up > div.arrow {
   height: 0px;
   border-style: solid;
   border-width: 20px 12px 20px 0;
-  border-color: transparent #d6623a transparent transparent;
+  border-color: transparent #31b191 transparent transparent;
   opacity: 0;
   -webkit-transition: left 0.1s 0.2s linear, opacity 0.1s 0.2s linear;
   -moz-transition: left 0.1s 0.2s linear, opacity 0.1s 0.2s linear;
@@ -2250,7 +2247,7 @@ footer #html5-badge .feature .pop-up > div.arrow {
   top: 0;
   bottom: 0;
   width: 20px;
-  background: #d3582d;
+  background: #2ea587;
   border-right: 1px solid #000000;
   z-index: 2;
   box-sizing: border-box;
@@ -2260,20 +2257,20 @@ footer #html5-badge .feature .pop-up > div.arrow {
 .pane {
   position: fixed;
   z-index: 2;
-  color: #ffffff;
+  color: #000000;
   left: -500px;
 }
 .pane .page-logo {
   display: block;
   width: 100%;
   height: 50px;
-  background-color: #d6623a;
+  background-color: #31b191;
   /*.logo-color(@body-bg-color, @pane-bg-color, @body-bg-color);*/
   display: none;
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
-  border-bottom: 1px solid #b74b26;
+  border-bottom: 1px solid #268970;
   position: relative;
 }
 .pane .page-logo:after {
@@ -2336,7 +2333,7 @@ footer #html5-badge .feature .pop-up > div.arrow {
   font-size: 20px;
   font-weight: bold;
   text-align: right;
-  background: #8d3a1d;
+  background: #1b6150;
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
@@ -2352,20 +2349,20 @@ footer #html5-badge .feature .pop-up > div.arrow {
   color: #ffffff;
 }
 .pane > .content .pane-component ::-webkit-scrollbar-track {
-  background-color: #cc542a;
+  background-color: #2b9d81;
   -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.4) inset;
   -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.4) inset;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.4) inset;
 }
 .pane > .content .pane-component ::-webkit-scrollbar {
   width: 20px;
-  background-color: #d6623a;
+  background-color: #31b191;
 }
 .pane > .content .pane-component ::-webkit-scrollbar-thumb {
-  background-color: #a24322;
+  background-color: #207560;
 }
 .pane > .content .pane-component ::-webkit-scrollbar-thumb:hover {
-  background-color: #8d3a1d;
+  background-color: #1b6150;
 }
 .pane > .content .pane-component > .title {
   display: block;
@@ -2380,8 +2377,8 @@ footer #html5-badge .feature .pop-up > div.arrow {
   white-space: nowrap;
   text-align: right;
   padding-right: 20px;
-  background: #d6623a;
-  border-bottom: 1px solid #a24322;
+  background: #31b191;
+  border-bottom: 1px solid #207560;
 }
 .pane > .content .pane-component > .title.small {
   font-size: 15px;
@@ -2400,12 +2397,12 @@ footer #html5-badge .feature .pop-up > div.arrow {
   top: 2px;
 }
 .pane > .content .pane-component > .title a {
-  color: #f3d0c4;
+  color: #0f352c;
   text-decoration: none;
   font-size: 18px;
 }
 .pane > .content .pane-component > .title a:hover {
-  color: #ffffff;
+  color: #000000;
 }
 .pane > .content .pane-component > .content {
   position: relative;
@@ -2428,7 +2425,7 @@ footer #html5-badge .feature .pop-up > div.arrow {
 .pane > .content .pane-component > .content .unavailable .message {
   padding: 10px;
   text-align: center;
-  background: #cc542a;
+  background: #2b9d81;
   line-height: 30px;
   -moz-box-shadow: 0 4px 6px -4px #000000 inset;
   -webkit-box-shadow: 0 4px 6px -4px #000000 inset;
@@ -2498,8 +2495,8 @@ footer #html5-badge .feature .pop-up > div.arrow {
   white-space: nowrap;
   text-align: right;
   padding-right: 20px;
-  background: #d6623a;
-  border-bottom: 1px solid #b74b26;
+  background: #31b191;
+  border-bottom: 1px solid #268970;
 }
 .pane > .content .pane-component > .content > .title.small {
   font-size: 15px;
@@ -2518,12 +2515,12 @@ footer #html5-badge .feature .pop-up > div.arrow {
   top: 3px;
 }
 .pane > .content .pane-component > .content > .title a {
-  color: #f9e9e3;
+  color: #c0eee2;
   text-decoration: none;
   font-size: 20px;
 }
 .pane > .content .pane-component > .content > .title a:hover {
-  color: #ffffff;
+  color: #000000;
 }
 .pane > .content .pane-component > .content > .description {
   padding: 5px 20px 5px 5px;
@@ -2531,7 +2528,7 @@ footer #html5-badge .feature .pop-up > div.arrow {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   text-align: right;
-  border-bottom: 1px solid #b74b26;
+  border-bottom: 1px solid #268970;
   line-height: 20px;
   font-style: italic;
 }
@@ -2569,8 +2566,8 @@ footer #html5-badge .feature .pop-up > div.arrow {
   color: #ffffff;
   padding-right: 20px;
   opacity: 0;
-  border: 1px solid #8d3a1d;
-  background-color: #a24322;
+  border: 1px solid #1b6150;
+  background-color: #207560;
   margin-left: 10px;
   -webkit-transition: opacity 0.8s ease;
   -moz-transition: opacity 0.8s ease;
@@ -2581,7 +2578,7 @@ footer #html5-badge .feature .pop-up > div.arrow {
 .pane-component.mainMenu nav a:hover,
 .pane-component.mainMenu nav a:active {
   text-decoration: none;
-  background-color: #8d3a1d;
+  background-color: #1b6150;
 }
 .pane-component.mainMenu nav a.visible {
   opacity: 1;
@@ -2608,7 +2605,7 @@ footer #html5-badge .feature .pop-up > div.arrow {
   text-decoration: none;
   overflow: hidden;
   padding-right: 20px;
-  color: #f0c7b9;
+  color: #98e3d0;
   margin: 10px 0;
   -webkit-transform: scale(1);
   -moz-transform: scale(1);
@@ -2635,10 +2632,10 @@ footer #html5-badge .feature .pop-up > div.arrow {
 }
 .pane .content .pane-component.pageSections .section-label:focus .title,
 .pane .content .pane-component.pageSections .section-label:active .title {
-  color: #ffffff;
+  color: #000000;
 }
 .pane .content .pane-component.pageSections .section-label.active .title {
-  color: #ffffff;
+  color: #000000;
   text-shadow: 0 1px 2px black;
   -webkit-transition: text-shadow 0.2s linear;
   -moz-transition: text-shadow 0.2s linear;
@@ -2861,7 +2858,7 @@ header .pane-links > .areas .primary {
 .pane-links {
   width: 100%;
   height: 50px;
-  background-color: #d6623a;
+  background-color: #31b191;
 }
 .pane-links.pageHasSections > .areas .primary {
   right: 60px;
@@ -2871,7 +2868,7 @@ header .pane-links > .areas .primary {
   text-align: center;
 }
 .pane-links.pageHasSections > .areas .alternate .link {
-  color: #e8a58e;
+  color: #70d8be;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -2880,24 +2877,24 @@ header .pane-links > .areas .primary {
   user-select: none;
 }
 .pane-links.pageHasSections > .areas .alternate .link:hover {
-  color: #ffffff;
+  color: #000000;
 }
 .pane-links.pageHasSections > .areas .alternate .link:active,
 .pane-links.pageHasSections > .areas .alternate .link:focus {
-  color: #e6e6e6;
+  color: #000000;
 }
 .pane-links > .areas {
   height: 100%;
   width: 100%;
   position: relative;
-  color: #f0c7b9;
+  color: #98e3d0;
   -webkit-transition: opacity 0.3s 0.1s ease, left 0s 0.4s linear;
   -moz-transition: opacity 0.3s 0.1s ease, left 0s 0.4s linear;
   -ms-transition: opacity 0.3s 0.1s ease, left 0s 0.4s linear;
   -o-transition: opacity 0.3s 0.1s ease, left 0s 0.4s linear;
   transition: opacity 0.3s 0.1s ease, left 0s 0.4s linear;
   opacity: 1;
-  border-bottom: 1px solid #a24322;
+  border-bottom: 1px solid #207560;
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
@@ -2907,7 +2904,7 @@ header .pane-links > .areas .primary {
 .pane-links > .areas.Twitter .Twitter,
 .pane-links > .areas.PageSections .PageSections.link,
 .pane-links > .areas.MainMenu .MainMenu.link {
-  color: #ffffff;
+  color: #000000;
 }
 .pane-links > .areas a,
 .pane-links > .areas .link {
@@ -3755,7 +3752,7 @@ body {
   width: 161px;
   height: 30px;
 }
-.page-logo .static path {
+.page-logo .footwork path {
   fill: #ffffff;
   -webkit-transition: fill 0s linear;
   -moz-transition: fill 0s linear;
@@ -3763,7 +3760,7 @@ body {
   -o-transition: fill 0s linear;
   transition: fill 0s linear;
 }
-.page-logo .type path {
+.page-logo .js path {
   fill: #adadad;
   -webkit-transition: fill 0s linear;
   -moz-transition: fill 0s linear;
@@ -3771,11 +3768,8 @@ body {
   -o-transition: fill 0s linear;
   transition: fill 0s linear;
 }
-.page-logo .type path.dot {
-  fill: #d6623a;
-}
-.page-logo .parens path {
-  fill: #d6623a;
+.page-logo .foot path {
+  fill: #31b191;
   -webkit-transition: fill 0s linear;
   -moz-transition: fill 0s linear;
   -ms-transition: fill 0s linear;
@@ -3839,15 +3833,15 @@ a:hover {
   -webkit-border-radius: 2px;
   border-radius: 2px;
   min-width: 60px;
-  background-color: #e8a58e;
-  background: #df8464;
-  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #da734f), color-stop(1, #e39479));
-  background: -ms-linear-gradient(bottom, #da734f, #e39479);
-  background: -moz-linear-gradient(center bottom, #da734f 0%, #e39479 100%);
-  background: -o-linear-gradient(#e39479, #da734f);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e39479', endColorstr='#da734f', GradientType=0);
-  color: #f9e6e0;
-  border: 1px solid #da734f;
+  background-color: #70d8be;
+  background: #49ccab;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #37c5a1), color-stop(1, #5cd2b5));
+  background: -ms-linear-gradient(bottom, #37c5a1, #5cd2b5);
+  background: -moz-linear-gradient(center bottom, #37c5a1 0%, #5cd2b5 100%);
+  background: -o-linear-gradient(#5cd2b5, #37c5a1);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5cd2b5', endColorstr='#37c5a1', GradientType=0);
+  color: #0f2922;
+  border: 1px solid #37c5a1;
 }
 .button:hover {
   -webkit-transition: background-color 0.1s ease;
@@ -3922,25 +3916,25 @@ a:hover {
   margin-left: 5px;
 }
 .button:hover {
-  background-color: #f0c7b9;
-  background: #df8464;
-  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #df8464), color-stop(1, #e8a58e));
-  background: -ms-linear-gradient(bottom, #df8464, #e8a58e);
-  background: -moz-linear-gradient(center bottom, #df8464 0%, #e8a58e 100%);
-  background: -o-linear-gradient(#e8a58e, #df8464);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e8a58e', endColorstr='#df8464', GradientType=0);
-  color: #ffffff;
+  background-color: #98e3d0;
+  background: #49ccab;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #49ccab), color-stop(1, #70d8be));
+  background: -ms-linear-gradient(bottom, #49ccab, #70d8be);
+  background: -moz-linear-gradient(center bottom, #49ccab 0%, #70d8be 100%);
+  background: -o-linear-gradient(#70d8be, #49ccab);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#70d8be', endColorstr='#49ccab', GradientType=0);
+  color: #000000;
 }
 .button:hover:active .icon {
-  border-color: #ffffff;
+  border-color: #000000;
 }
 .button:hover .icon {
-  border-right: 1px solid #f9e6e0;
+  border-right: 1px solid #0f2922;
 }
 .button:active {
-  background: #df8464;
-  border-color: #cc542a;
-  color: #ffffff;
+  background: #49ccab;
+  border-color: #2b9d81;
+  color: #000000;
 }
 .shortcut {
   display: block;
