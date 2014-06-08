@@ -13,9 +13,12 @@ var merge = require('merge-stream');
 var ignore = require('gulp-ignore');
 var rimraf = require('gulp-rimraf');
 var _ = require('lodash');
+var runSequence = require('run-sequence');
+
 var pkg = require('./package.json');
 var reporter = 'list';
 var statement = 'A solid footing for larger knockout applications.';
+var args   = require('yargs').argv;
 
 var sourceFiles = [
   'main',
@@ -116,9 +119,11 @@ gulp.task('build_bare', ['build_prep'], function() {
   return build('bare');
 });
 
-// Documentation tasks
-gulp.task('docs', ['doc_index', 'doc_js', 'doc_set_version']);
-gulp.task('documentation', ['docs']);
+// Documentation / release oriented tasks
+gulp.task('readyRelease', function(callback) {
+  runSequence('set_version', 'docs', callback);
+});
+gulp.task('docs', ['doc_js', 'doc_index']);
 
 gulp.task('docs_clean', function() {
   return merge(
@@ -145,13 +150,22 @@ gulp.task('doc_index', ['docs_clean'], function() {
     .pipe(gulp.dest('./docs'));
 });
 
-gulp.task('doc_set_version', ['docs_clean'], function() {
+gulp.task('set_version', ['docs_clean'], function() {
+  var version = pkg.version;
+  if(typeof args.ver !== 'undefined') {
+    version = args.ver;
+    pkg.version = version;
+  }
+
   return merge(
     gulp.src('docs/package.json')
-      .pipe(bump({ version: pkg.version }))
+      .pipe(bump({ version: version }))
       .pipe(gulp.dest('./docs')),
     gulp.src('docs/bower.json')
-      .pipe(bump({ version: pkg.version }))
-      .pipe(gulp.dest('./docs'))
+      .pipe(bump({ version: version }))
+      .pipe(gulp.dest('./docs')),
+    gulp.src(['./package.json', './bower.json'])
+      .pipe(bump({ version: version }))
+      .pipe(gulp.dest('./'))
   );
 });
