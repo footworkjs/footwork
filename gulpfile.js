@@ -9,11 +9,14 @@ var size = require('gulp-size');
 var replace = require('gulp-replace');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
 var wrapDocco = require('gulp-wrap-docco');
+var docco = require('gulp-docco');
+var jsdoc = require('gulp-jsdoc');
 var merge = require('merge-stream');
 var ignore = require('gulp-ignore');
 var rimraf = require('gulp-rimraf');
 var _ = require('lodash');
 var runSequence = require('run-sequence');
+var fs = require('fs');
 
 var pkg = require('./package.json');
 var reporter = 'list';
@@ -97,7 +100,7 @@ gulp.task('test_bare', ['build_bare'], function() {
 });
 
 // Building tasks
-gulp.task('build-everything', ['build_all', 'build_minimal', 'build_bare']);
+gulp.task('build-everything', ['build_all', 'build_minimal', 'build_bare', 'build_raw']);
 
 gulp.task('build_prep', function() {
   // we have to force load of lodash instead of underscore
@@ -119,38 +122,50 @@ gulp.task('build_bare', ['build_prep'], function() {
   return build('bare');
 });
 
+gulp.task('build_raw', ['build_prep'], function() {
+  return build('raw');
+});
+
 // Documentation / release oriented tasks
 gulp.task('readyRelease', function(callback) {
   runSequence('set_version', 'build-everything', 'docs', callback);
 });
-gulp.task('docs', ['doc_js', 'doc_index']);
+gulp.task('docs', function(callback) {
+  runSequence('docs_clean', 'doc_js', 'doc_index', callback);
+});
 
 gulp.task('docs_clean', function() {
   return merge(
     gulp.src('./docs/*.html', { read: false }).pipe(rimraf()),
-    gulp.src('./docs/pages/*.html', { read: false }).pipe(rimraf())
+    gulp.src('./docs/pages/*', { read: false }).pipe(rimraf())
   );
 });
 
-gulp.task('doc_js', ['docs_clean'], function() {
-  return merge.apply(null, _.map(sourceFiles, function(sourceFile) {
-    return gulp.src('source/' + sourceFile + '.js')
-      .pipe(wrapDocco())
-      .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
-      .pipe(rename(sourceFile + '.html'))
-      .pipe(gulp.dest('./docs/pages'));
-  }));
+gulp.task('doc_js', function() {
+  return gulp.src('source/*.js')
+    .pipe(docco({
+      layout: 'parallel'
+    }))
+    .pipe(gulp.dest('docs/pages'));
 });
 
-gulp.task('doc_index', ['docs_clean'], function() {
+gulp.task('doc_index', function() {
+  var pageContent = '';
+  _.each(sourceFiles, function(sourceFile) {
+    pageContent += '<a id="' + sourceFile + '" class="section-anchor"></a><section name="' + sourceFile + '">';
+    pageContent += fs.readFileSync('docs/pages/' + sourceFile + '.html', 'utf8')
+    pageContent += '</section>';
+  });
+
   return gulp.src('docs/templates/index.html')
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
     .pipe(replace(/FOOTWORK_SOURCEFILES/g, JSON.stringify(sourceFiles)))
     .pipe(replace(/FOOTWORK_STATEMENT/g, statement))
+    .pipe(replace(/FOOTWORK_PAGECONTENT/, pageContent))
     .pipe(gulp.dest('./docs'));
 });
 
-gulp.task('set_version', ['docs_clean'], function() {
+gulp.task('set_version', function() {
   var version = pkg.version;
   if(typeof args.ver !== 'undefined') {
     version = args.ver;

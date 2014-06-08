@@ -32,7 +32,7 @@
     "run-sequence": "*",
     "gulp-ignore": "~1.1.0",
     "gulp-rimraf": "~0.1.0",
-    "gulp-wrap-docco": "0.0.3",
+    "gulp-docco": "*",
     "gulp-imports": "~0.0.1",
     "gulp-header": "~1.0.2",
     "gulp-footer": "~1.0.4",
