@@ -1479,7 +1479,7 @@ body.verySmall .main-header .logo a svg {
 }
 .main-header nav .menu-item {
   float: left;
-  margin-left: 10px;
+  margin-left: 20px;
   position: relative;
   cursor: pointer;
   z-index: 1;

@@ -24,7 +24,7 @@ define([ "jquery", "lodash", "knockout-footwork", "storage" ],
               },
               pane: {
                 min: { width: 161 },
-                max: { width: 440 },
+                max: { width: 340 },
                 collapsed: false,
                 accentPadding: 20
               },
