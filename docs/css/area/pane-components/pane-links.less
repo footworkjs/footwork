@@ -48,10 +48,6 @@ header .pane-links {
 
   &.pageHasSections {
     & > .areas {
-      .primary {
-        right: @page-section-width + @page-section-margin;
-      }
-
       .alternate {
         display: block;
         text-align: center;
@@ -72,7 +68,7 @@ header .pane-links {
     }
   }
 
-  & > .areas { 
+  & > .areas {
     height: 100%;
     width: 100%;
     position: relative;
@@ -91,7 +87,7 @@ header .pane-links {
       position: relative;
       float: right;
       height: 100%;
-      width: 33.333%;
+      width: 30%;
       cursor: pointer;
       color: darken( @header-bg, 10% );
       line-height: @pane-links-height;
@@ -101,13 +97,17 @@ header .pane-links {
       .box-sizing(border-box);
 
       &:hover {
-        color: @header-fg-hover;
-        text-decoration: none;
+        &:before {
+          color: @header-fg-hover;
+          text-decoration: none;
+        }
       }
 
       &:active, &:focus {
-        color: darken(@header-fg-hover, 10%);
-        top: 1px;
+        &:before {
+          color: darken(@header-fg-hover, 10%);
+          top: 1px;
+        }
       }
     }
 
@@ -117,6 +117,10 @@ header .pane-links {
       right: @accent-padding;
       top: -2px;
       height: 100%;
+
+      a:before {
+        margin-right: 5px;
+      }
     }
 
     .alternate {

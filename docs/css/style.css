@@ -429,7 +429,7 @@ table {
     transition: margin-left 0.3s ease;
   }
 }
-@media screen and (max-width: 450px) {
+@media screen and (max-width: 600px) {
   nav .menu-item {
     margin-left: 10px !important;
   }
@@ -2869,9 +2869,6 @@ header .pane-links > .areas .primary {
   height: 50px;
   background-color: #31b191;
 }
-.pane-links.pageHasSections > .areas .primary {
-  right: 60px;
-}
 .pane-links.pageHasSections > .areas .alternate {
   display: block;
   text-align: center;
@@ -2921,7 +2918,7 @@ header .pane-links > .areas .primary {
   position: relative;
   float: right;
   height: 100%;
-  width: 33.333%;
+  width: 30%;
   cursor: pointer;
   color: #1a1a1a;
   line-height: 50px;
@@ -2932,15 +2929,15 @@ header .pane-links > .areas .primary {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
 }
-.pane-links > .areas a:hover,
-.pane-links > .areas .link:hover {
+.pane-links > .areas a:hover:before,
+.pane-links > .areas .link:hover:before {
   color: #ffffff;
   text-decoration: none;
 }
-.pane-links > .areas a:active,
-.pane-links > .areas .link:active,
-.pane-links > .areas a:focus,
-.pane-links > .areas .link:focus {
+.pane-links > .areas a:active:before,
+.pane-links > .areas .link:active:before,
+.pane-links > .areas a:focus:before,
+.pane-links > .areas .link:focus:before {
   color: #e6e6e6;
   top: 1px;
 }
@@ -2950,6 +2947,9 @@ header .pane-links > .areas .primary {
   right: 20px;
   top: -2px;
   height: 100%;
+}
+.pane-links > .areas .primary a:before {
+  margin-right: 5px;
 }
 .pane-links > .areas .alternate {
   position: absolute;

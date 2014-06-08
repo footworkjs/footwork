@@ -224,11 +224,7 @@
               <div class="js-paneLinks pane-links" data-bind="css: { pageHasSections: pageHasSections }">
                 <div class="areas" data-bind="class: currentSelection">
                   <div class="primary">
-                    <a href="https://github.com/reflectiveSingleton/footwork" class="icon-github Github" title="Footwork.js" data-section="Github"></a>
-                  </div>
-                  <div class="alternate">
-                    <span class="icon-page-sections PageSections link" title="Page Sections" data-bind="click: chooseSection" data-section="PageSections"></span>
-                    <span class="icon-main-menu MainMenu link" title="Main Menu" data-bind="click: chooseSection" data-section="MainMenu"></span>
+                    <a href="https://github.com/reflectiveSingleton/footwork" title="Footwork.js at Github" data-bind="html: versionLabel"></a>
                   </div>
                 </div>
               </div>
@@ -579,7 +575,7 @@
     </div> <!-- /stopBinding -->
 
     <script>
-      window._pageMeta = { title: 'Footwork.js <span class="version">v0.1.7</span>',
+      window._pageMeta = { title: 'Documentation index',
                            sections: [
                              { anchor: 'model', title: '.model()' },
                              { anchor: 'communication', title: 'Communication' },
