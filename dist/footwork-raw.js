@@ -1,7 +1,7 @@
 /**
  * footwork.js - A solid footing for larger knockout applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.1.7
+ * Version: v0.1.8
  * Url: http://footworkjs.com
  * License(s): MIT
  */
@@ -9,7 +9,7 @@
 // ----------------
 
 // Record the footwork version as of this build.
-ko._footworkVersion = '0.1.7';
+ko._footworkVersion = '0.1.8';
 
 // Preserve the original applyBindings method for later use
 var applyBindings = ko.applyBindings;
