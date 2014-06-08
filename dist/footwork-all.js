@@ -14,8 +14,7 @@
     root.ko = factory();
   }
 }(this, function () {
-  var root = (function getModules() {
-    // define our own root object to supply to the modules as an attachment point
+  // define our own root object to supply to the modules as an attachment point
 var root = {};
   
 // supply our root for modules that directly check for the window object
@@ -28,8 +27,8 @@ var define = undefined;
 var module = undefined,
     exports = undefined,
     global = undefined;
-    (function() {
-      /**
+  (function() {
+    /**
  * @license
  * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
  * Build: `lodash underscore exports="amd,commonjs,global,node" -o ./dist/lodash.underscore.js`
@@ -5009,10 +5008,10 @@ var module = undefined,
   }
 }.call(this));
 
-    }).call(root);
+  }).call(root);
 
-    (function() {
-      /*! Apollo v1.6.0 | (c) 2014 @toddmotto | github.com/toddmotto/apollo */
+  (function() {
+    /*! Apollo v1.6.0 | (c) 2014 @toddmotto | github.com/toddmotto/apollo */
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     define(factory);
@@ -5095,10 +5094,10 @@ var module = undefined,
 
 });
 
-    }).call(root);
+  }).call(root);
 
-    (function() {
-      /**
+  (function() {
+    /**
  * riveter - Mix-in, inheritance and constructor extend behavior for your JavaScript enjoyment.
  * © 2012 - Copyright appendTo, LLC 
  * Author(s): Jim Cowart, Nicholas Cloud, Doug Neiner
@@ -5222,10 +5221,10 @@ var module = undefined,
     };
     return riveter;
 }));
-    }).call(root);
+  }).call(root);
 
-    (function() {
-      /**
+  (function() {
+    /**
  * conduitjs - Give any method a pre/post invocation pipeline....
  * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
  * Version: v0.3.2
@@ -5361,10 +5360,10 @@ var module = undefined,
         }
     }
 }));
-    }).call(root);
+  }).call(root);
 
-    (function() {
-      /**
+  (function() {
+    /**
  * postal - Pub/Sub library providing wildcard subscriptions, complex message handling, etc.  Works server and client-side.
  * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
  * Version: v0.10.0
@@ -5880,10 +5879,7 @@ var module = undefined,
     }
     return _postal;
 }));
-    }).call(root);
-
-    return root;
-  }());
+  }).call(root);
 
   /**
    * Knockout double-wraps their module so we can't lie about the window/root object to it.

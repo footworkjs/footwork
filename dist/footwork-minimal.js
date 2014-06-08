@@ -14,10 +14,7 @@
     root.ko = factory(_, ko);
   }
 }(this, function (_, ko) {
-  var _define = define;
-
-  var root = (function getModules() {
-    // define our own root object to supply to the modules as an attachment point
+  // define our own root object to supply to the modules as an attachment point
 var root = {};
   
 // supply our root for modules that directly check for the window object
@@ -30,10 +27,10 @@ var define = undefined;
 var module = undefined,
     exports = undefined,
     global = undefined;
-    _.extend(root, { _: _, ko: ko });
+  _.extend(root, { _: _, ko: ko });
 
-    (function() {
-      /*! Apollo v1.6.0 | (c) 2014 @toddmotto | github.com/toddmotto/apollo */
+  (function() {
+    /*! Apollo v1.6.0 | (c) 2014 @toddmotto | github.com/toddmotto/apollo */
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     define(factory);
@@ -116,10 +113,10 @@ var module = undefined,
 
 });
 
-    }).call(root);
+  }).call(root);
 
-    (function() {
-      /**
+  (function() {
+    /**
  * riveter - Mix-in, inheritance and constructor extend behavior for your JavaScript enjoyment.
  * © 2012 - Copyright appendTo, LLC 
  * Author(s): Jim Cowart, Nicholas Cloud, Doug Neiner
@@ -243,10 +240,10 @@ var module = undefined,
     };
     return riveter;
 }));
-    }).call(root);
+  }).call(root);
 
-    (function() {
-      /**
+  (function() {
+    /**
  * conduitjs - Give any method a pre/post invocation pipeline....
  * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
  * Version: v0.3.2
@@ -382,10 +379,10 @@ var module = undefined,
         }
     }
 }));
-    }).call(root);
+  }).call(root);
 
-    (function() {
-      /**
+  (function() {
+    /**
  * postal - Pub/Sub library providing wildcard subscriptions, complex message handling, etc.  Works server and client-side.
  * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
  * Version: v0.10.0
@@ -901,10 +898,7 @@ var module = undefined,
     }
     return _postal;
 }));
-    }).call(root);
-
-    return root;
-  }());
+  }).call(root);
 
   return (function footwork(_, ko, postal, Apollo, riveter) {
     ko._footworkVersion = '0.1.6';

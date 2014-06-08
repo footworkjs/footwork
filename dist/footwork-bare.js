@@ -14,10 +14,7 @@
     root.ko = factory(_, ko, postal);
   }
 }(this, function (_, ko, postal) {
-  var _define = define;
-
-  var root = (function getModules() {
-    // define our own root object to supply to the modules as an attachment point
+  // define our own root object to supply to the modules as an attachment point
 var root = {};
   
 // supply our root for modules that directly check for the window object
@@ -30,14 +27,14 @@ var define = undefined;
 var module = undefined,
     exports = undefined,
     global = undefined;
-    _.extend(root, { _: _, ko: ko, postal: postal });
+  _.extend(root, { _: _, ko: ko, postal: postal });
 
-    /**
-     * apollo is small and considered unlikely to be an independent dependency and so is embedded
-     * in the 'bare' build.
-     */
-    (function() {
-      /*! Apollo v1.6.0 | (c) 2014 @toddmotto | github.com/toddmotto/apollo */
+  /**
+   * apollo is small and considered unlikely to be an independent dependency and so is embedded
+   * in the 'bare' build.
+   */
+  (function() {
+    /*! Apollo v1.6.0 | (c) 2014 @toddmotto | github.com/toddmotto/apollo */
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     define(factory);
@@ -120,16 +117,16 @@ var module = undefined,
 
 });
 
-    }).call(root);
+  }).call(root);
 
+  /**
+   * riveter.js is included in the 'bare' build because it requires 'underscore', while
+   * postal requires lodash. Lodash is the preferred, and riveter is the smaller source
+   * so we manually inject _ for riveter by embedding it as a dependency and supplying
+   * lodash. Also, riveter is considered unlikely to be an independent dependency.
+   */
+  (function() {
     /**
-     * riveter.js is included in the 'bare' build because it requires 'underscore', while
-     * postal requires lodash. Lodash is the preferred, and riveter is the smaller source
-     * so we manually inject _ for riveter by embedding it as a dependency and supplying
-     * lodash. Also, riveter is considered unlikely to be an independent dependency.
-     */
-    (function() {
-      /**
  * riveter - Mix-in, inheritance and constructor extend behavior for your JavaScript enjoyment.
  * © 2012 - Copyright appendTo, LLC 
  * Author(s): Jim Cowart, Nicholas Cloud, Doug Neiner
@@ -253,10 +250,7 @@ var module = undefined,
     };
     return riveter;
 }));
-    }).call(root);
-
-    return root;
-  }());
+  }).call(root);
 
   return (function footwork(_, ko, postal, Apollo, riveter) {
     ko._footworkVersion = '0.1.6';

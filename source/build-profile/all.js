@@ -7,30 +7,26 @@
     root.ko = factory();
   }
 }(this, function () {
-  var root = (function getModules() {
-    //import("helpers/root-for-loaders.js");
-    (function() {
-      //import("../../bower_components/lodash/dist/lodash.underscore.js");
-    }).call(root);
+  //import("helpers/root-for-loaders.js");
+  (function() {
+    //import("../../bower_components/lodash/dist/lodash.underscore.js");
+  }).call(root);
 
-    (function() {
-      //import("../../bower_components/apollo/dist/apollo.js");
-    }).call(root);
+  (function() {
+    //import("../../bower_components/apollo/dist/apollo.js");
+  }).call(root);
 
-    (function() {
-      //import("../../bower_components/riveter/lib/riveter.js");
-    }).call(root);
+  (function() {
+    //import("../../bower_components/riveter/lib/riveter.js");
+  }).call(root);
 
-    (function() {
-      //import("../../bower_components/conduitjs/lib/conduit.js");
-    }).call(root);
+  (function() {
+    //import("../../bower_components/conduitjs/lib/conduit.js");
+  }).call(root);
 
-    (function() {
-      //import("../../bower_components/postal.js/lib/postal.js");
-    }).call(root);
-
-    return root;
-  }());
+  (function() {
+    //import("../../bower_components/postal.js/lib/postal.js");
+  }).call(root);
 
   /**
    * Knockout double-wraps their module so we can't lie about the window/root object to it.

@@ -7,30 +7,24 @@
     root.ko = factory(_, ko);
   }
 }(this, function (_, ko) {
-  var _define = define;
+  //import("helpers/root-for-loaders.js");
+  _.extend(root, { _: _, ko: ko });
 
-  var root = (function getModules() {
-    //import("helpers/root-for-loaders.js");
-    _.extend(root, { _: _, ko: ko });
+  (function() {
+    //import("../../bower_components/apollo/dist/apollo.js");
+  }).call(root);
 
-    (function() {
-      //import("../../bower_components/apollo/dist/apollo.js");
-    }).call(root);
+  (function() {
+    //import("../../bower_components/riveter/lib/riveter.js");
+  }).call(root);
 
-    (function() {
-      //import("../../bower_components/riveter/lib/riveter.js");
-    }).call(root);
+  (function() {
+    //import("../../bower_components/conduitjs/lib/conduit.js");
+  }).call(root);
 
-    (function() {
-      //import("../../bower_components/conduitjs/lib/conduit.js");
-    }).call(root);
-
-    (function() {
-      //import("../../bower_components/postal.js/lib/postal.js");
-    }).call(root);
-
-    return root;
-  }());
+  (function() {
+    //import("../../bower_components/postal.js/lib/postal.js");
+  }).call(root);
 
   return (function footwork(_, ko, postal, Apollo, riveter) {
     //import("../main.js");

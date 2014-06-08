@@ -7,32 +7,26 @@
     root.ko = factory(_, ko, postal);
   }
 }(this, function (_, ko, postal) {
-  var _define = define;
+  //import("helpers/root-for-loaders.js");
+  _.extend(root, { _: _, ko: ko, postal: postal });
 
-  var root = (function getModules() {
-    //import("helpers/root-for-loaders.js");
-    _.extend(root, { _: _, ko: ko, postal: postal });
+  /**
+   * apollo is small and considered unlikely to be an independent dependency and so is embedded
+   * in the 'bare' build.
+   */
+  (function() {
+    //import("../../bower_components/apollo/dist/apollo.js");
+  }).call(root);
 
-    /**
-     * apollo is small and considered unlikely to be an independent dependency and so is embedded
-     * in the 'bare' build.
-     */
-    (function() {
-      //import("../../bower_components/apollo/dist/apollo.js");
-    }).call(root);
-
-    /**
-     * riveter.js is included in the 'bare' build because it requires 'underscore', while
-     * postal requires lodash. Lodash is the preferred, and riveter is the smaller source
-     * so we manually inject _ for riveter by embedding it as a dependency and supplying
-     * lodash. Also, riveter is considered unlikely to be an independent dependency.
-     */
-    (function() {
-      //import("../../bower_components/riveter/lib/riveter.js");
-    }).call(root);
-
-    return root;
-  }());
+  /**
+   * riveter.js is included in the 'bare' build because it requires 'underscore', while
+   * postal requires lodash. Lodash is the preferred, and riveter is the smaller source
+   * so we manually inject _ for riveter by embedding it as a dependency and supplying
+   * lodash. Also, riveter is considered unlikely to be an independent dependency.
+   */
+  (function() {
+    //import("../../bower_components/riveter/lib/riveter.js");
+  }).call(root);
 
   return (function footwork(_, ko, postal, Apollo, riveter) {
     //import("../main.js");
