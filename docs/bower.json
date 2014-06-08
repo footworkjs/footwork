@@ -12,12 +12,9 @@
     "postal.js": ">=0.10.0",
     "riveter": "*",
     "store-js": "*",
-    "moment": "*",
     "jwerty": "*",
     "history.js": "*",
     "requirejs": "*",
-    "expect": "*",
-    "mocha": "*",
     "highlight": "*",
     "jquery": "1.11.0"
   }
