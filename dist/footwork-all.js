@@ -27,6 +27,7 @@ var define = undefined;
 var module = undefined,
     exports = undefined,
     global = undefined;
+
   (function() {
     /**
  * @license

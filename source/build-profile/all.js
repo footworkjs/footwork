@@ -7,7 +7,8 @@
     root.ko = factory();
   }
 }(this, function () {
-  //import("helpers/root-for-loaders.js");
+  //import("helpers/root-masks.js");
+
   (function() {
     //import("../../bower_components/lodash/dist/lodash.underscore.js");
   }).call(root);

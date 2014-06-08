@@ -7,7 +7,7 @@
     root.ko = factory(_, ko, postal);
   }
 }(this, function (_, ko, postal) {
-  //import("helpers/root-for-loaders.js");
+  //import("helpers/root-masks.js");
   _.extend(root, { _: _, ko: ko, postal: postal });
 
   /**
