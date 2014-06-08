@@ -430,6 +430,9 @@ table {
   }
 }
 @media screen and (max-width: 450px) {
+  nav .menu-item {
+    margin-left: 10px !important;
+  }
   nav .menu-item .title {
     font-size: 12px;
   }
@@ -1320,7 +1323,7 @@ body.verySmall .main-header .logo a svg {
   bottom: 0;
   left: 0;
   right: 0;
-  margin-left: 440px;
+  margin-left: 340px;
   font-size: 15px;
   border-bottom: 1px solid #0d0d0d;
   border-left: 1px solid #424242;
@@ -1992,7 +1995,7 @@ footer #html5-badge .feature .pop-up {
   visibility: hidden;
   opacity: 0;
   background: #31b191;
-  color: #000000;
+  color: #ffffff;
   -webkit-transition: opacity 0.2s ease;
   -moz-transition: opacity 0.2s ease;
   -ms-transition: opacity 0.2s ease;
@@ -2257,8 +2260,11 @@ footer #html5-badge .feature .pop-up > div.arrow {
 .pane {
   position: fixed;
   z-index: 2;
-  color: #000000;
+  color: #ffffff;
   left: -500px;
+}
+.pane .version {
+  color: #98d8c8;
 }
 .pane .page-logo {
   display: block;
@@ -2397,12 +2403,12 @@ footer #html5-badge .feature .pop-up > div.arrow {
   top: 2px;
 }
 .pane > .content .pane-component > .title a {
-  color: #0f352c;
+  color: #c1e8de;
   text-decoration: none;
   font-size: 18px;
 }
 .pane > .content .pane-component > .title a:hover {
-  color: #000000;
+  color: #ffffff;
 }
 .pane > .content .pane-component > .content {
   position: relative;
@@ -2520,10 +2526,10 @@ footer #html5-badge .feature .pop-up > div.arrow {
   font-size: 20px;
 }
 .pane > .content .pane-component > .content > .title a:hover {
-  color: #000000;
+  color: #ffffff;
 }
 .pane > .content .pane-component > .content > .description {
-  padding: 5px 20px 5px 5px;
+  padding: 0;
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
@@ -2531,6 +2537,9 @@ footer #html5-badge .feature .pop-up > div.arrow {
   border-bottom: 1px solid #268970;
   line-height: 20px;
   font-style: italic;
+}
+.pane > .content .pane-component > .content > .description.visible {
+  padding: 5px 20px 5px 5px;
 }
 .pane > .content .pane-component .entry-row {
   display: block;
@@ -2632,10 +2641,10 @@ footer #html5-badge .feature .pop-up > div.arrow {
 }
 .pane .content .pane-component.pageSections .section-label:focus .title,
 .pane .content .pane-component.pageSections .section-label:active .title {
-  color: #000000;
+  color: #ffffff;
 }
 .pane .content .pane-component.pageSections .section-label.active .title {
-  color: #000000;
+  color: #ffffff;
   text-shadow: 0 1px 2px black;
   -webkit-transition: text-shadow 0.2s linear;
   -moz-transition: text-shadow 0.2s linear;
@@ -2824,7 +2833,7 @@ header .pane-links {
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 440px;
+  width: 340px;
   height: 50px;
 }
 header .pane-links.pageHasSections > .areas .primary {
@@ -2837,7 +2846,7 @@ header .pane-links.pageHasSections > .areas .alternate .link {
   color: #666666;
 }
 header .pane-links > .areas {
-  width: 259px;
+  width: 159px;
   color: #a6a6a6;
   border-bottom: none;
 }
@@ -2877,11 +2886,11 @@ header .pane-links > .areas .primary {
   user-select: none;
 }
 .pane-links.pageHasSections > .areas .alternate .link:hover {
-  color: #000000;
+  color: #ffffff;
 }
 .pane-links.pageHasSections > .areas .alternate .link:active,
 .pane-links.pageHasSections > .areas .alternate .link:focus {
-  color: #000000;
+  color: #e6e6e6;
 }
 .pane-links > .areas {
   height: 100%;
@@ -2904,13 +2913,13 @@ header .pane-links > .areas .primary {
 .pane-links > .areas.Twitter .Twitter,
 .pane-links > .areas.PageSections .PageSections.link,
 .pane-links > .areas.MainMenu .MainMenu.link {
-  color: #000000;
+  color: #ffffff;
 }
 .pane-links > .areas a,
 .pane-links > .areas .link {
   display: block;
   position: relative;
-  float: left;
+  float: right;
   height: 100%;
   width: 33.333%;
   cursor: pointer;

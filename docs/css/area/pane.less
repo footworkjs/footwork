@@ -101,6 +101,10 @@
   color: @pane-fg-color;
   left: -500px;
 
+  .version {
+    color: mix(@pane-bg-color, @pane-fg-color);    
+  }
+
   .page-logo {
     .clearblock;
     width: 100%;
@@ -338,7 +342,11 @@
         }
 
         & > .description {
-          padding: 5px @accent-padding 5px 5px;
+          &.visible {
+            padding: 5px @accent-padding 5px 5px;
+          }
+
+          padding: 0;
           .box-sizing(border-box);
           text-align: right;
           border-bottom: 1px solid darken(@pane-bg-color, 10%);

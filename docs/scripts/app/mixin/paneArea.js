@@ -17,6 +17,9 @@ define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
         this.entries = ko.observableArray([]);
         this.currentPage = ko.observable(1);
         this.description = ko.observable();
+        this.descriptionVisible = ko.computed(function() {
+          return this.description() !== undefined && this.description().length > 0;
+        }, this);
         this.moreUnavailable = ko.observable(false);
         this.moreEntriesButtonText = this.loader.message;
         this.initialized = ko.computed(function() {
