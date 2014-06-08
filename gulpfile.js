@@ -121,7 +121,7 @@ gulp.task('build_bare', ['build_prep'], function() {
 
 // Documentation / release oriented tasks
 gulp.task('readyRelease', function(callback) {
-  runSequence('set_version', 'docs', callback);
+  runSequence('set_version', 'build-everything', 'docs', callback);
 });
 gulp.task('docs', ['doc_js', 'doc_index']);
 
