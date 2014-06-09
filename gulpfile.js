@@ -36,7 +36,7 @@ var banner = ['/**',
   ' * Url: <%= pkg.homepage %>',
   ' * License(s): <% pkg.licenses.forEach(function( license, idx ){ %><%= license.type %><% if(idx !== pkg.licenses.length-1) { %>, <% } %><% }); %>',
   ' */',
-  ''
+  '', ''
 ];
 
 var rawBanner = [
@@ -47,7 +47,8 @@ var rawBanner = [
   '// Copyright (c)2014 Jonathan Newman.',
   '// Distributed under MIT license',
   '//',
-  '// http://footworkjs.com'
+  '// http://footworkjs.com',
+  '', ''
 ];
 
 var build = function(buildProfile) {
@@ -58,7 +59,7 @@ var build = function(buildProfile) {
   headerBanner = headerBanner.join('\n');
 
   if(buildProfile === 'raw') {
-    headerBanner = rawBanner.join("\n") + '\n\n' + headerBanner;
+    headerBanner = rawBanner.join("\n") + headerBanner;
   }
 
   return gulp
