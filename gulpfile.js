@@ -37,7 +37,7 @@ var banner = ['/**',
   ' * License(s): <% pkg.licenses.forEach(function( license, idx ){ %><%= license.type %><% if(idx !== pkg.licenses.length-1) { %>, <% } %><% }); %>',
   ' */',
   ''
-].join('\n');
+];
 
 var rawBanner = [
   '// footwork.js',
@@ -48,12 +48,17 @@ var rawBanner = [
   '// Distributed under MIT license',
   '//',
   '// http://footworkjs.com'
-].join('\n');
+];
 
 var build = function(buildProfile) {
-  var headerBanner = banner;
+  var headerBanner = banner.slice(0);
+  if(buildProfile !== 'raw') {
+    headerBanner[3] += '-' + buildProfile;
+  }
+  headerBanner = headerBanner.join('\n');
+
   if(buildProfile === 'raw') {
-    headerBanner = rawBanner + "\n" + banner;
+    headerBanner = rawBanner.join("\n") + '\n\n' + headerBanner;
   }
 
   return gulp
