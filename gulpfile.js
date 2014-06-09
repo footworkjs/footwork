@@ -29,10 +29,36 @@ var sourceFiles = [
   'extenders'
 ];
 
+var banner = ['/**',
+  ' * <%= pkg.name %> - <%= pkg.description %>',
+  ' * Author: <%= pkg.author %>',
+  ' * Version: v<%= pkg.version %>',
+  ' * Url: <%= pkg.homepage %>',
+  ' * License(s): <% pkg.licenses.forEach(function( license, idx ){ %><%= license.type %><% if(idx !== pkg.licenses.length-1) { %>, <% } %><% }); %>',
+  ' */',
+  ''
+].join('\n');
+
+var rawBanner = [
+  '// footwork.js',
+  '// ----------------------------------',
+  '// v' + pkg.version,
+  '//',
+  '// Copyright (c)2014 Jonathan Newman.',
+  '// Distributed under MIT license',
+  '//',
+  '// http://footworkjs.com'
+].join('\n');
+
 var build = function(buildProfile) {
+  var headerBanner = banner;
+  if(buildProfile === 'raw') {
+    headerBanner = rawBanner + "\n" + banner;
+  }
+
   return gulp
     .src(['source/build-profile/' + buildProfile + '.js'])
-    .pipe(header(banner, {
+    .pipe(header(headerBanner, {
       pkg: pkg
     }))
     .pipe(fileImports())
@@ -51,16 +77,6 @@ var build = function(buildProfile) {
     .pipe(size({ title: '[' + buildProfile + '] Minified', gzip: true }))
     .pipe(gulp.dest('dist/'));
 };
-
-var banner = ['/**',
-  ' * <%= pkg.name %> - <%= pkg.description %>',
-  ' * Author: <%= pkg.author %>',
-  ' * Version: v<%= pkg.version %>',
-  ' * Url: <%= pkg.homepage %>',
-  ' * License(s): <% pkg.licenses.forEach(function( license, idx ){ %><%= license.type %><% if(idx !== pkg.licenses.length-1) { %>, <% } %><% }); %>',
-  ' */',
-  ''
-].join('\n');
 
 gulp.task('default', ['build-and-test']);
 
@@ -140,7 +156,7 @@ gulp.task('docs_clean', function() {
 });
 
 gulp.task('doc_js', function() {
-  return gulp.src('source/*.js')
+  return gulp.src('dist/footwork-raw.js')
     .pipe(docco({
       layout: 'parallel'
     }))
@@ -149,7 +165,7 @@ gulp.task('doc_js', function() {
 
 gulp.task('doc_index', function() {
   var pageContent = '';
-  _.each(sourceFiles, function(sourceFile) {
+  _.each(['footwork-raw'], function(sourceFile) {
     pageContent += '<a id="' + sourceFile + '" class="section-anchor"></a><section name="' + sourceFile + '">';
     pageContent += fs.readFileSync('docs/pages/' + sourceFile + '.html', 'utf8')
     pageContent += '</section>';
