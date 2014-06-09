@@ -1,5 +1,7 @@
-// Footwork.js
-// ----------------
+// main.js
+// -----------
+
+// Bindings, initialization, and life-cycle management.
 
 // Record the footwork version as of this build.
 ko._footworkVersion = 'FOOTWORK_VERSION';

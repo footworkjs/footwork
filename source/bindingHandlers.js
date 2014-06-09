@@ -1,3 +1,6 @@
+// bindingHandlers.js
+// ------------------
+
 ko.bindingHandlers.registerElement = {
   preprocess: function (value) {
     return '\'' + value + '\'';

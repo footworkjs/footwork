@@ -1,3 +1,6 @@
+// extenders.js
+// ----------------
+
 // custom throttle() based on ko v3.0.0 throttle(), allows value to be force()'d to a value at any time
 ko.extenders.throttle = function(target, opt) {
   if( typeof opt === 'number' ) {

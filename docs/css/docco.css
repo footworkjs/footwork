@@ -124,6 +124,25 @@ ul.sections {
   margin:0;
 }
 
+#section-1 {
+  padding-top: 0px;
+}
+#footwork-js {
+  margin: 0 !important;
+}
+#section-1 .annotation {
+  overflow: hidden;
+}
+
+ul.sections li {
+  padding-top: 10px;
+}
+
+.pilcrow {
+  padding-top: 35px !important;
+  margin-top: -10px !important;
+}
+
 /*
   Force border-box so that % widths fit the parent
   container without overlap because of margin/padding.

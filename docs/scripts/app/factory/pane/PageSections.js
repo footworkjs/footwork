@@ -30,7 +30,7 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "jquery.pulse" ],
 
         this.anchorPosition = ko.observable();
         computeAnchorPos = function() {
-          this.anchorPosition( $( '[name=' + this.anchor() + ']' ).offset() );
+          this.anchorPosition( $( '[id=' + this.anchor() + ']' ).offset() );
         }.bind(this);
         computeAnchorPos();
 
