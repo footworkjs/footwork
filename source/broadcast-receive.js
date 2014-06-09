@@ -1,3 +1,6 @@
+// broadcast-receive.js
+// ----------------
+
 //     this.myValue = ko.observable().receiveFrom('Namespace' / Namespace, 'varName');
 ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this,

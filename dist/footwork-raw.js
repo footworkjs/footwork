@@ -1,3 +1,11 @@
+// footwork.js
+// ----------------------------------
+// v0.1.8
+//
+// Copyright (c)2014 Jonathan Newman.
+// Distributed under MIT license
+//
+// http://footworkjs.com
 /**
  * footwork.js - A solid footing for larger knockout applications.
  * Author: Jonathan Newman (http://staticty.pe)
@@ -5,8 +13,10 @@
  * Url: http://footworkjs.com
  * License(s): MIT
  */
-// Footwork.js
-// ----------------
+// main.js
+// -----------
+
+// Bindings, initialization, and life-cycle management.
 
 // Record the footwork version as of this build.
 ko._footworkVersion = '0.1.8';
@@ -27,27 +37,28 @@ ko.applyBindings = function(model, element) {
   }
 };
 
-// Namespace and model creation / management.
-// ----------------
+// model-namespace.js
+// ------------------
 
 ko.__nsStack = [];
 
-/**
- * Creates and returns a new namespace channel
- *
- * @param {namespaceName} string - The name of the namespace
- * @return {channel}
- */
+// Creates and returns a new namespace channel
 ko.namespace = function(namespaceName) {
   return postal.channel(namespaceName);
 };
-/** Return the current namespace name. */
+
+// Return the current namespace name.
 ko.currentNamespaceName = function() {
   return ko.__nsStack[0];
 };
+
+// Return the current namespace channel.
 ko.currentNamespace = function() {
   return ko.namespace(ko.currentNamespaceName());
 };
+
+// enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
+// 'entering' into that namespace (it is now the currentNamespace)
 ko.enterNamespaceName = function(namespaceName) {
   ko.__nsStack.unshift( namespaceName );
 };
@@ -59,7 +70,7 @@ ko.exitNamespace = function() {
   ko.__nsStack.shift();
 };
 
-// Returns the model count for each currently defined namespace
+// Returns the number of created models for each defined namespace
 ko.modelCount = function() {
   var counts = _.reduce(namespaceNameCounter, function(modelCounts, modelCount, modelName) {
     modelCounts[modelName] = modelCount + 1;
@@ -71,6 +82,8 @@ ko.modelCount = function() {
   return counts;
 };
 
+// Returns a reference to the specified models.
+// If no name is supplied, a reference to an array containing all model references is returned.
 ko.getModels = function(namespaceName) {
   if(namespaceName === undefined) {
     return models;
@@ -186,6 +199,9 @@ ko.model = function(modelOptions) {
   }
   return riveter.compose.apply( undefined, composure );
 };
+// broadcast-receive.js
+// ----------------
+
 //     this.myValue = ko.observable().receiveFrom('Namespace' / Namespace, 'varName');
 ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this,
@@ -261,6 +277,9 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
   observable.__isBroadcast = true;
   return observable;
 };
+// bindingHandlers.js
+// ------------------
+
 ko.bindingHandlers.registerElement = {
   preprocess: function (value) {
     return '\'' + value + '\'';
@@ -306,6 +325,9 @@ ko.bindingHandlers['stopBinding'] = {
     return { controlsDescendantBindings: true };
   }
 };
+// extenders.js
+// ----------------
+
 // custom throttle() based on ko v3.0.0 throttle(), allows value to be force()'d to a value at any time
 ko.extenders.throttle = function(target, opt) {
   if( typeof opt === 'number' ) {
