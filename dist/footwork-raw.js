@@ -1,6 +1,6 @@
 // footwork.js
 // ----------------------------------
-// v0.1.8
+// v0.1.9
 //
 // Copyright (c)2014 Jonathan Newman (http://staticty.pe).
 // Distributed under MIT license
@@ -10,7 +10,7 @@
 /**
  * footwork.js - A solid footing for larger knockout applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.1.8
+ * Version: v0.1.9
  * Url: http://footworkjs.com
  * License(s): MIT
  */
@@ -18,10 +18,8 @@
 // main.js
 // -----------
 
-// Bindings, initialization, and life-cycle management.
-
 // Record the footwork version as of this build.
-ko._footworkVersion = '0.1.8';
+ko._footworkVersion = '0.1.9';
 
 // Preserve the original applyBindings method for later use
 var applyBindings = ko.applyBindings;
@@ -42,6 +40,10 @@ ko.applyBindings = function(model, element) {
 // model-namespace.js
 // ------------------
 
+// Prepare an empty namespace stack.
+// This is where footwork registers its current working namespace name. Each new namespace is
+// 'unshifted' and 'shifted' as they are entered and exited, keeping the most current at
+// index 0.
 ko.__nsStack = [];
 
 // Creates and returns a new namespace channel
@@ -95,6 +97,7 @@ ko.getModels = function(namespaceName) {
 
 // Tell footwork whether or not it should count and keep references to all created models
 // NOTE: This can lead to memory leaks and should not be used in production.
+var debugModels = false;
 ko.debugModels = function(state) {
   debugModels = state;
 };
@@ -104,12 +107,17 @@ ko.refreshModels = function() {
   _.invoke(ko.getModels(), 'refreshReceived');
 };
 
-var models = {},
-    modelNum = 0,
-    debugModels = false;
+// Initialize the models registry
+var models = {};
 
+// Counter used in the event no namespace is provided for a model
+var modelNum = 0;
+
+// This counter is used when model options { autoIncrement: true } and more than one model
+// having the same namespace is instantiated. This is used in the event you do not want
+// multiple copies of the same model to share the same namespace (if they do share a
+// namespace, they receive all of the same events/messages/commands/etc).
 var namespaceNameCounter = {};
-
 var indexedNamespaceName = function(name, autoIncrement) {
   if(namespaceNameCounter[name] === undefined) {
     namespaceNameCounter[name] = 0;
@@ -134,17 +142,14 @@ ko.model = function(modelOptions) {
       modelOptions.namespace = indexedNamespaceName(modelOptions.namespace, modelOptions.autoIncrement);
 
       this._modelOptions = modelOptions;
-      ko.enterNamespaceName(modelOptions.namespace);
 
       this._options = _.extend({
         namespace: modelOptions.namespace || ('namespace' + modelNum)
       }, options);
       modelNum++;
 
-      this.namespace = ko.namespace( this.namespace = this._options.namespace );
-      if(ko.currentNamespace().channel !== '/') {
-        this.namespace = ko.currentNamespace();
-      }
+      ko.enterNamespaceName( this._options.namespace );
+      this.namespace = ko.currentNamespace();
       this._globalChannel = ko.namespace();
     },
     mixin: {
