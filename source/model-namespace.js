@@ -52,10 +52,13 @@ ko.getModels = function(namespaceName) {
   return models[namespaceName];
 };
 
+// Tell footwork whether or not it should count and keep references to all created models
+// NOTE: This can lead to memory leaks and should not be used in production.
 ko.debugModels = function(state) {
   debugModels = state;
 };
 
+// Tell all models to request the values which it listens for
 ko.refreshModels = function() {
   _.invoke(ko.getModels(), 'refreshReceived');
 };
