@@ -471,19 +471,18 @@
         <div class="main-pane has-layout-trans" data-bind="css: { configVisible: configVisible }, style: { marginLeft: mainContentOffset }">
           <div class="stop-binding" data-bind="stopBinding: true">
             <main class="js-main">
-              <div class="background"></div>
               <div class="hljs"><ul class="sections">
     
     
     <li id="section-1">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-1">&#182;</a>
           </div>
           <h2 id="footwork-js">footwork.js</h2>
 
+          <div class="annotation-bg"></div>
         </div>
         
     </li>
@@ -491,7 +490,6 @@
     
     <li id="section-2">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-2">&#182;</a>
@@ -501,6 +499,7 @@
 Distributed under MIT license</p>
 <p><a href="http://footworkjs.com">http://footworkjs.com</a></p>
 
+          <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre>
@@ -517,13 +516,13 @@ Distributed under MIT license</p>
     
     <li id="section-3">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-3">&#182;</a>
           </div>
           <h2 id="main-js">main.js</h2>
 
+          <div class="annotation-bg"></div>
         </div>
         
     </li>
@@ -531,13 +530,13 @@ Distributed under MIT license</p>
     
     <li id="section-4">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-4">&#182;</a>
           </div>
           <p>Bindings, initialization, and life-cycle management.</p>
 
+          <div class="annotation-bg"></div>
         </div>
         
     </li>
@@ -545,13 +544,13 @@ Distributed under MIT license</p>
     
     <li id="section-5">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-5">&#182;</a>
           </div>
           <p>Record the footwork version as of this build.</p>
 
+          <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre>ko._footworkVersion = <span class="hljs-string">'0.1.8'</span>;</pre></div></div>
@@ -561,13 +560,13 @@ Distributed under MIT license</p>
     
     <li id="section-6">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-6">&#182;</a>
           </div>
           <p>Preserve the original applyBindings method for later use</p>
 
+          <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> applyBindings = ko.applyBindings;</pre></div></div>
@@ -577,13 +576,13 @@ Distributed under MIT license</p>
     
     <li id="section-7">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-7">&#182;</a>
           </div>
           <p>Override the original applyBindings method to provide and enable ‘model’ life-cycle hooks/events.</p>
 
+          <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre>ko.applyBindings = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(model, element)</span> {</span>
@@ -603,13 +602,13 @@ Distributed under MIT license</p>
     
     <li id="section-8">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-8">&#182;</a>
           </div>
           <h2 id="model-namespace-js">model-namespace.js</h2>
 
+          <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre>
@@ -620,13 +619,13 @@ ko.__nsStack = [];</pre></div></div>
     
     <li id="section-9">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-9">&#182;</a>
           </div>
           <p>Creates and returns a new namespace channel</p>
 
+          <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre>ko.namespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName)</span> {</span>
@@ -638,13 +637,13 @@ ko.__nsStack = [];</pre></div></div>
     
     <li id="section-10">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-10">&#182;</a>
           </div>
           <p>Return the current namespace name.</p>
 
+          <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre>ko.currentNamespaceName = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
@@ -656,13 +655,13 @@ ko.__nsStack = [];</pre></div></div>
     
     <li id="section-11">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-11">&#182;</a>
           </div>
           <p>Return the current namespace channel.</p>
 
+          <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre>ko.currentNamespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
@@ -674,7 +673,6 @@ ko.__nsStack = [];</pre></div></div>
     
     <li id="section-12">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-12">&#182;</a>
@@ -682,6 +680,7 @@ ko.__nsStack = [];</pre></div></div>
           <p>enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
 ‘entering’ into that namespace (it is now the currentNamespace)</p>
 
+          <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre>ko.enterNamespaceName = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName)</span> {</span>
@@ -693,7 +692,6 @@ ko.__nsStack = [];</pre></div></div>
     
     <li id="section-13">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-13">&#182;</a>
@@ -702,6 +700,7 @@ ko.__nsStack = [];</pre></div></div>
 will shift the current namespace off of the stack, exiting to the
 next namespace in the stack</p>
 
+          <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre>ko.exitNamespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
@@ -713,13 +712,13 @@ next namespace in the stack</p>
     
     <li id="section-14">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-14">&#182;</a>
           </div>
           <p>Returns the number of created models for each defined namespace</p>
 
+          <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre>ko.modelCount = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
@@ -738,7 +737,6 @@ next namespace in the stack</p>
     
     <li id="section-15">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-15">&#182;</a>
@@ -746,6 +744,7 @@ next namespace in the stack</p>
           <p>Returns a reference to the specified models.
 If no name is supplied, a reference to an array containing all model references is returned.</p>
 
+          <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre>ko.getModels = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName)</span> {</span>
@@ -753,13 +752,42 @@ If no name is supplied, a reference to an array containing all model references 
     <span class="hljs-keyword">return</span> models;
   }
   <span class="hljs-keyword">return</span> models[namespaceName];
-};
+};</pre></div></div>
+        
+    </li>
+    
+    
+    <li id="section-16">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-16">&#182;</a>
+          </div>
+          <p>Tell footwork whether or not it should count and keep references to all created models
+NOTE: This can lead to memory leaks and should not be used in production.</p>
 
-ko.debugModels = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(state)</span> {</span>
+          <div class="annotation-bg"></div>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre>ko.debugModels = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(state)</span> {</span>
   debugModels = state;
-};
+};</pre></div></div>
+        
+    </li>
+    
+    
+    <li id="section-17">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-17">&#182;</a>
+          </div>
+          <p>Tell all models to request the values which it listens for</p>
 
-ko.refreshModels = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+          <div class="annotation-bg"></div>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre>ko.refreshModels = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
   _.invoke(ko.getModels(), <span class="hljs-string">'refreshReceived'</span>);
 };
 
@@ -867,29 +895,29 @@ ko.model = <span class="hljs-function"><span class="hljs-keyword">function</span
     </li>
     
     
-    <li id="section-16">
+    <li id="section-18">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-16">&#182;</a>
+            <a class="pilcrow" href="#section-18">&#182;</a>
           </div>
           <h2 id="broadcast-receive-js">broadcast-receive.js</h2>
 
+          <div class="annotation-bg"></div>
         </div>
         
     </li>
     
     
-    <li id="section-17">
+    <li id="section-19">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-17">&#182;</a>
+            <a class="pilcrow" href="#section-19">&#182;</a>
           </div>
           <pre><code><span class="hljs-keyword">this</span>.myValue = ko.observable().receiveFrom(<span class="hljs-string">'Namespace'</span> / Namespace, <span class="hljs-string">'varName'</span>);
 </code></pre>
+          <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre>ko.subscribable.fn.receiveFrom = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespace, variable)</span> {</span>
@@ -926,18 +954,18 @@ ko.model = <span class="hljs-function"><span class="hljs-keyword">function</span
     </li>
     
     
-    <li id="section-18">
+    <li id="section-20">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-18">&#182;</a>
+            <a class="pilcrow" href="#section-20">&#182;</a>
           </div>
           <pre><code><span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs(<span class="hljs-string">'NameOfVar'</span>);
 <span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs(<span class="hljs-string">'NameOfVar'</span>, isWritable);
 <span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs({ name: <span class="hljs-string">'NameOfVar'</span>, writable: <span class="hljs-literal">true</span> });
 <span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs({ name: <span class="hljs-string">'NameOfVar'</span>, namespace: Namespace });
 </code></pre>
+          <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre>ko.subscribable.fn.broadcastAs = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(varName, option)</span> {</span>
@@ -983,15 +1011,15 @@ ko.model = <span class="hljs-function"><span class="hljs-keyword">function</span
     </li>
     
     
-    <li id="section-19">
+    <li id="section-21">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-19">&#182;</a>
+            <a class="pilcrow" href="#section-21">&#182;</a>
           </div>
           <h2 id="bindinghandlers-js">bindingHandlers.js</h2>
 
+          <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre>
@@ -1044,29 +1072,29 @@ ko.bindingHandlers[<span class="hljs-string">'stopBinding'</span>] = {
     </li>
     
     
-    <li id="section-20">
+    <li id="section-22">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-20">&#182;</a>
+            <a class="pilcrow" href="#section-22">&#182;</a>
           </div>
           <h2 id="extenders-js">extenders.js</h2>
 
+          <div class="annotation-bg"></div>
         </div>
         
     </li>
     
     
-    <li id="section-21">
+    <li id="section-23">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-21">&#182;</a>
+            <a class="pilcrow" href="#section-23">&#182;</a>
           </div>
           <p>custom throttle() based on ko v3.0.0 throttle(), allows value to be force()’d to a value at any time</p>
 
+          <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre>ko.extenders.throttle = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(target, opt)</span> {</span>

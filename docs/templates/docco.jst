@@ -3,12 +3,12 @@
     <% var section = sections[i]; %>
     <li id="section-<%= i + 1 %>">
         <div class="annotation">
-          <div class="annotation-bg"></div>
           <% heading = section.docsHtml.match(/^\s*<(h\d)>/) %>
           <div class="pilwrap <%= heading ? 'for-' + heading[1] : '' %>">
             <a class="pilcrow" href="#section-<%= i + 1 %>">&#182;</a>
           </div>
           <%= section.docsHtml %>
+          <div class="annotation-bg"></div>
         </div>
         <% if (section.codeText.replace(/\s/gm, '') != '') { %>
         <div class="content"><%= section.codeHtml %></div>

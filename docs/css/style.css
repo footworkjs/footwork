@@ -1484,7 +1484,6 @@ body.verySmall .main-header .logo a svg {
   float: left;
   margin-left: 20px;
   position: relative;
-  cursor: pointer;
   z-index: 1;
 }
 .main-header nav .menu-item.aside {
@@ -1503,14 +1502,6 @@ body.verySmall .main-header .logo a svg {
 }
 .main-header nav .menu-item .title.icon {
   padding: 0 10px;
-}
-.main-header nav .menu-item .title:hover,
-.main-header nav .menu-item .title.active {
-  color: #ffffff;
-}
-.main-header nav .menu-item .title:hover a,
-.main-header nav .menu-item .title.active a {
-  color: #ffffff;
 }
 .main-header nav .menu-item .title a {
   color: #a6a6a6;
@@ -1597,7 +1588,7 @@ body.verySmall .main-header .logo a svg {
 }
 main {
   position: relative;
-  padding: 20px 10px 20px 20px;
+  padding: 0px 10px 0px 0px;
   opacity: 1;
   -webkit-transition: opacity 0.2s ease;
   -moz-transition: opacity 0.2s ease;
@@ -1605,6 +1596,24 @@ main {
   -o-transition: opacity 0.2s ease;
   transition: opacity 0.2s ease;
   font-size: 15px;
+}
+main a {
+  color: #485ecf;
+  cursor: pointer;
+}
+main a:hover {
+  color: #2f45b5;
+}
+main #section-1 {
+  padding-top: 20px;
+}
+main #section-3 .annotation-bg {
+  -moz-border-radius: 50px 0 0 0;
+  -webkit-border-radius: 50px 0 0 0;
+  border-radius: 50px 0 0 0;
+}
+main .annotation-bg {
+  background: #eee;
 }
 main p + p {
   margin-top: 10px;

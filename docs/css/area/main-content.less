@@ -20,10 +20,32 @@
 
 main {
   position: relative;
-  padding: 20px 10px 20px 20px;
+  padding: 0px 10px 0px 0px;
   opacity: 1;
   .transition(opacity 0.2s ease);
   font-size: 15px;
+
+  @linkColor: #485ecf;
+  a {
+    color: @linkColor;
+    cursor: pointer;
+    &:hover {
+      color: darken(@linkColor, 10%);
+    }
+  }
+
+  #section-1 {
+    padding-top: 20px;
+  }
+  #section-3 {
+    .annotation-bg {
+      .border-radius(50px 0 0 0);
+    }
+  }
+
+  .annotation-bg {
+    background: #eee;
+  }
 
   p + p {
     margin-top: 10px;
