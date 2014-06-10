@@ -1588,7 +1588,7 @@ body.verySmall .main-header .logo a svg {
 }
 main {
   position: relative;
-  padding: 0px 10px 0px 0px;
+  padding: 0px 10px 0px 10px;
   opacity: 1;
   -webkit-transition: opacity 0.2s ease;
   -moz-transition: opacity 0.2s ease;
@@ -1621,6 +1621,12 @@ main #section-22 {
 }
 main .annotation-bg {
   background: #eee;
+}
+main .section .annotation h2 {
+  margin-top: 50px;
+}
+main #section-3 .annotation h2 {
+  margin-top: 30px;
 }
 main p + p {
   margin-top: 10px;
