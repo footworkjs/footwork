@@ -25,10 +25,10 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "jquery.pulse" ],
           return this.currentSection() === this.anchor();
         }, this);
         this.$anchorElement = ko.computed(function() {
-          return $( '#' + this.anchor() ).parents('.section').find('a.pilcrow');
+          return $( '#' + this.anchor() ).parents('.section');
         }, this);
         this.anchorName = ko.computed(function() {
-          return this.$anchorElement().attr('href').replace('#', '');
+          return this.$anchorElement().find('a.pilcrow').attr('href').replace('#', '');
         }, this);
         this.anchorAddress = ko.computed(function() {
           return this.pageBaseURL() + '#' + this.anchorName();
