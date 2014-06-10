@@ -24,13 +24,19 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "jquery.pulse" ],
         this.active = ko.computed(function() {
           return this.currentSection() === this.anchor();
         }, this);
+        this.$anchorElement = ko.computed(function() {
+          return $( '#' + this.anchor() ).parents('.section').find('a.pilcrow');
+        }, this);
+        this.anchorName = ko.computed(function() {
+          return this.$anchorElement().attr('href').replace('#', '');
+        }, this);
         this.anchorAddress = ko.computed(function() {
-          return this.pageBaseURL() + '#' + this.anchor();
+          return this.pageBaseURL() + '#' + this.anchorName();
         }, this);
 
         this.anchorPosition = ko.observable();
         computeAnchorPos = function() {
-          this.anchorPosition( $( '[id=' + this.anchor() + ']' ).offset() );
+          this.anchorPosition( this.$anchorElement().offset() );
         }.bind(this);
         computeAnchorPos();
 
@@ -48,7 +54,7 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "jquery.pulse" ],
           var $anchor;
           if( sectionName === this.anchor() ) {
             this.chooseSection();
-            $anchor = $( '[name=' + this.anchor() + ']' );
+            $anchor = this.$anchorElement();
             $anchor.length && window.scrollTo( 0, $anchor.offset().top );
           }
         }).withContext(this);

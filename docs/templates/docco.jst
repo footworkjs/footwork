@@ -1,7 +1,7 @@
 <ul class="sections">
     <% for (var i=0, l=sections.length; i<l; i++) { %>
     <% var section = sections[i]; %>
-    <li id="section-<%= i + 1 %>">
+    <li id="section-<%= i + 1 %>" class="section">
         <div class="annotation">
           <% heading = section.docsHtml.match(/^\s*<(h\d)>/) %>
           <div class="pilwrap <%= heading ? 'for-' + heading[1] : '' %>">
