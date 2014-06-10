@@ -2,10 +2,11 @@
 // ----------------------------------
 // v0.1.8
 //
-// Copyright (c)2014 Jonathan Newman.
+// Copyright (c)2014 Jonathan Newman (http://staticty.pe).
 // Distributed under MIT license
 //
 // http://footworkjs.com
+
 /**
  * footwork.js - A solid footing for larger knockout applications.
  * Author: Jonathan Newman (http://staticty.pe)
@@ -13,6 +14,7 @@
  * Url: http://footworkjs.com
  * License(s): MIT
  */
+
 // main.js
 // -----------
 

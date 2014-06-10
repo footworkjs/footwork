@@ -42,12 +42,12 @@ var banner = ['/**',
 var rawBanner = [
   '// footwork.js',
   '// ----------------------------------',
-  '// v' + pkg.version,
+  '// v<%= pkg.version %>',
   '//',
-  '// Copyright (c)2014 Jonathan Newman.',
-  '// Distributed under MIT license',
+  '// Copyright (c)2014 <%= pkg.author %>.',
+  '// Distributed under <% pkg.licenses.forEach(function( license, idx ){ %><%= license.type %><% if(idx !== pkg.licenses.length-1) { %>, <% } %><% }); %> license',
   '//',
-  '// http://footworkjs.com',
+  '// <%= pkg.homepage %>',
   '', ''
 ];
 
@@ -64,9 +64,7 @@ var build = function(buildProfile) {
 
   return gulp
     .src(['source/build-profile/' + buildProfile + '.js'])
-    .pipe(header(headerBanner, {
-      pkg: pkg
-    }))
+    .pipe(header(headerBanner, { pkg: pkg }))
     .pipe(fileImports())
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
     .pipe(rename('footwork-' + buildProfile + '.js'))
@@ -75,9 +73,7 @@ var build = function(buildProfile) {
     .pipe(uglify({
       compress: { negate_iife: false }
     }))
-    .pipe(header(banner, {
-      pkg: pkg
-    }))
+    .pipe(header(banner, { pkg: pkg }))
     .pipe(rename('footwork-' + buildProfile + '.min.js'))
     .pipe(size({ title: '[' + buildProfile + '] Minified' }))
     .pipe(size({ title: '[' + buildProfile + '] Minified', gzip: true }))
@@ -164,25 +160,18 @@ gulp.task('docs_clean', function() {
 gulp.task('doc_js', function() {
   return gulp.src('dist/footwork-raw.js')
     .pipe(docco({
-      layout: 'parallel'
+      // layout: 'parallel'
+      template: 'docs/templates/docco.jst'
     }))
     .pipe(gulp.dest('docs/pages'));
 });
 
 gulp.task('doc_index', function() {
-  var pageContent = '';
-  _.each(['footwork-raw'], function(sourceFile) {
-    pageContent += '<a id="' + sourceFile + '" class="section-anchor"></a><section name="' + sourceFile + '">';
-    pageContent += fs.readFileSync('docs/pages/' + sourceFile + '.html', 'utf8')
-    pageContent += '</section>';
-  });
-  pageContent = pageContent.replace('FOOTWORK_VERSION', pkg.version, 'g');
-
   return gulp.src('docs/templates/index.html')
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
     .pipe(replace(/FOOTWORK_SOURCEFILES/g, JSON.stringify(sourceFiles)))
     .pipe(replace(/FOOTWORK_STATEMENT/g, statement))
-    .pipe(replace(/FOOTWORK_PAGECONTENT/, pageContent))
+    .pipe(replace(/FOOTWORK_PAGECONTENT/, fs.readFileSync('docs/pages/footwork-raw.html', 'utf8').replace('FOOTWORK_VERSION', pkg.version, 'g')))
     .pipe(gulp.dest('./docs'));
 });
 
@@ -194,10 +183,7 @@ gulp.task('set_version', function() {
   }
 
   return merge(
-    gulp.src('docs/package.json')
-      .pipe(bump({ version: version }))
-      .pipe(gulp.dest('./docs')),
-    gulp.src('docs/bower.json')
+    gulp.src(['docs/package.json', 'docs/bower.json'])
       .pipe(bump({ version: version }))
       .pipe(gulp.dest('./docs')),
     gulp.src(['./package.json', './bower.json'])
