@@ -139,10 +139,6 @@ ul.sections {
   overflow: hidden;
 }
 
-#section-3, #section-8, #section-16, #section-19, #section-20 {
-  padding-top: 20px;
-}
-
 .annotation-bg {
   background: #eee;
 }

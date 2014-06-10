@@ -1612,6 +1612,13 @@ main #section-3 .annotation-bg {
   -webkit-border-radius: 50px 0 0 0;
   border-radius: 50px 0 0 0;
 }
+main #section-3,
+main #section-8,
+main #section-18,
+main #section-21,
+main #section-22 {
+  padding-top: 20px;
+}
 main .annotation-bg {
   background: #eee;
 }
