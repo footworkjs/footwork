@@ -1,10 +1,11 @@
 /**
  * footwork.js - A solid footing for larger knockout applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.1.8
+ * Version: v0.1.8-bare
  * Url: http://footworkjs.com
  * License(s): MIT
  */
+
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     define(['lodash', 'knockout', 'postal'], factory);
