@@ -95,7 +95,7 @@ ko.model = function(modelOptions) {
     mixins: undefined,
     params: undefined,
     afterBinding: function() {},
-    factory: function() {}
+    constructor: function() {}
   }, modelOptions);
 
   var viewModel = {
@@ -164,7 +164,7 @@ ko.model = function(modelOptions) {
     }
   };
 
-  var composure = [ modelOptions.factory, viewModel ];
+  var composure = [ modelOptions.constructor, viewModel ];
   if(modelOptions.mixins !== undefined) {
     composure = composure.concat(modelOptions.mixins);
   }

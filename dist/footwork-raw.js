@@ -1,6 +1,6 @@
 // footwork.js
 // ----------------------------------
-// v0.1.9
+// v0.2.0
 //
 // Copyright (c)2014 Jonathan Newman (http://staticty.pe).
 // Distributed under MIT license
@@ -10,7 +10,7 @@
 /**
  * footwork.js - A solid footing for larger knockout applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.1.9
+ * Version: v0.2.0
  * Url: http://footworkjs.com
  * License(s): MIT
  */
@@ -19,7 +19,7 @@
 // -----------
 
 // Record the footwork version as of this build.
-ko._footworkVersion = '0.1.9';
+ko._footworkVersion = '0.2.0';
 
 // Preserve the original applyBindings method for later use
 var applyBindings = ko.applyBindings;
@@ -134,7 +134,7 @@ ko.model = function(modelOptions) {
     mixins: undefined,
     params: undefined,
     afterBinding: function() {},
-    factory: function() {}
+    constructor: function() {}
   }, modelOptions);
 
   var viewModel = {
@@ -203,12 +203,29 @@ ko.model = function(modelOptions) {
     }
   };
 
-  var composure = [ modelOptions.factory, viewModel ];
+  var composure = [ modelOptions.constructor, viewModel ];
   if(modelOptions.mixins !== undefined) {
     composure = composure.concat(modelOptions.mixins);
   }
   return riveter.compose.apply( undefined, composure );
 };
+ko.component = function(options) {
+  if(typeof options.name !== 'string') {
+    throw 'Components must be provided a name (namespace).';
+  }
+
+  if(typeof options.template !== 'string') {
+    throw 'Components must be provided a template.';
+  }
+
+  options.namespace = options.name;
+  var viewModel = this.model(options);
+  
+  ko.components.register(options.name, {
+    viewModel: viewModel,
+    template: options.template
+  });
+}
 // broadcast-receive.js
 // ----------------
 
