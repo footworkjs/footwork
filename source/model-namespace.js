@@ -71,9 +71,6 @@ ko.refreshModels = function() {
 // Initialize the models registry
 var models = {};
 
-// Counter used in the event no namespace is provided for a model
-var modelNum = 0;
-
 // This counter is used when model options { autoIncrement: true } and more than one model
 // having the same namespace is instantiated. This is used in the event you do not want
 // multiple copies of the same model to share the same namespace (if they do share a
@@ -105,9 +102,8 @@ ko.model = function(modelOptions) {
       this._modelOptions = modelOptions;
 
       this._options = _.extend({
-        namespace: modelOptions.namespace || ('namespace' + modelNum)
+        namespace: modelOptions.namespace || _.uniqueId('namespace')
       }, options);
-      modelNum++;
 
       ko.enterNamespaceName( this._options.namespace );
       this.namespace = ko.currentNamespace();
