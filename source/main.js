@@ -21,6 +21,7 @@ ko.applyBindings = function(model, element) {
 };
 
 //import("model-namespace.js");
+//import("component.js");
 //import("broadcast-receive.js");
 //import("bindingHandlers.js");
 //import("extenders.js");

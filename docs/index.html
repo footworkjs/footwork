@@ -494,7 +494,7 @@
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-2">&#182;</a>
           </div>
-          <p>v0.1.9</p>
+          <p>v0.2.0</p>
 <p>Copyright (c)2014 Jonathan Newman (<a href="http://staticty.pe">http://staticty.pe</a>).
 Distributed under MIT license</p>
 <p><a href="http://footworkjs.com">http://footworkjs.com</a></p>
@@ -506,7 +506,7 @@ Distributed under MIT license</p>
 <span class="hljs-comment">/**
  * footwork.js - A solid footing for larger knockout applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.1.9
+ * Version: v0.2.0
  * Url: http://footworkjs.com
  * License(s): MIT
  */</span></pre></div></div>
@@ -539,7 +539,7 @@ Distributed under MIT license</p>
           <div class="annotation-bg"></div>
         </div>
         
-        <div class="content"><div class='highlight'><pre>ko._footworkVersion = <span class="hljs-string">'0.1.9'</span>;</pre></div></div>
+        <div class="content"><div class='highlight'><pre>ko._footworkVersion = <span class="hljs-string">'0.2.0'</span>;</pre></div></div>
         
     </li>
     
@@ -860,7 +860,7 @@ ko.model = <span class="hljs-function"><span class="hljs-keyword">function</span
     mixins: <span class="hljs-literal">undefined</span>,
     params: <span class="hljs-literal">undefined</span>,
     afterBinding: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>},
-    factory: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>}
+    constructor: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>}
   }, modelOptions);
 
   <span class="hljs-keyword">var</span> viewModel = {
@@ -929,12 +929,29 @@ ko.model = <span class="hljs-function"><span class="hljs-keyword">function</span
     }
   };
 
-  <span class="hljs-keyword">var</span> composure = [ modelOptions.factory, viewModel ];
+  <span class="hljs-keyword">var</span> composure = [ modelOptions.constructor, viewModel ];
   <span class="hljs-keyword">if</span>(modelOptions.mixins !== <span class="hljs-literal">undefined</span>) {
     composure = composure.concat(modelOptions.mixins);
   }
   <span class="hljs-keyword">return</span> riveter.compose.apply( <span class="hljs-literal">undefined</span>, composure );
-};</pre></div></div>
+};
+ko.component = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> {</span>
+  <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> options.name !== <span class="hljs-string">'string'</span>) {
+    <span class="hljs-keyword">throw</span> <span class="hljs-string">'Components must be provided a name (namespace).'</span>;
+  }
+
+  <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> options.template !== <span class="hljs-string">'string'</span>) {
+    <span class="hljs-keyword">throw</span> <span class="hljs-string">'Components must be provided a template.'</span>;
+  }
+
+  options.namespace = options.name;
+  <span class="hljs-keyword">var</span> viewModel = <span class="hljs-keyword">this</span>.model(options);
+  
+  ko.components.register(options.name, {
+    viewModel: viewModel,
+    template: options.template
+  });
+}</pre></div></div>
         
     </li>
     
@@ -1422,7 +1439,7 @@ ko.extenders.delayWrite = <span class="hljs-function"><span class="hljs-keyword"
     </div> <!-- /stopBinding -->
 
     <script>
-      window.footworkVersionAtCreation = '0.1.9';
+      window.footworkVersionAtCreation = '0.2.0';
       window._pageMeta = { title: 'Documentation Index',
                            sections: [
                              { anchor: 'main-js', title: 'main.js' },
