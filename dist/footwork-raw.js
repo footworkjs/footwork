@@ -27,7 +27,8 @@ var applyBindings = ko.applyBindings;
 // Override the original applyBindings method to provide and enable 'model' life-cycle hooks/events.
 ko.applyBindings = function(model, element) {
   applyBindings(model, element);
-  if(typeof model.startup === 'function' && model._options !== undefined) {
+  
+  if(typeof model !== undefined && typeof model.startup === 'function' && typeof model._options !== 'undefined') {
     if(model._options.startup !== false) {
       model.startup();
     }
@@ -471,3 +472,44 @@ ko.extenders.delayWrite = function( target, options ) {
     }
   });
 };
+/**
+  {
+    routes: [{ route: 'test/route(/:optional)' }]
+  }
+ */
+var routes = [];
+
+ko.router = function(options) {
+  var router = this.router;
+
+  if(_.isObject(options)) {
+    _.map(options.routes, function(route) {
+      router.add(route);
+    });
+  }
+
+  return router;
+};
+
+ko.router.prototype.add = function(route) {
+  routes.push(route);
+  console.log('router.add', route);
+};
+
+// Note, URL parsing/parametrization code shamelessly 'borrowed' from Durandal (http://durandaljs.com/) - Thanks!
+var optionalParam = /\((.*?)\)/g;
+var namedParam = /(\(\?)?:\w+/g;
+var splatParam = /\*\w+/g;
+var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
+var routesAreCaseSensitive = false;
+
+function routeStringToRegExp(routeString) {
+  routeString = routeString.replace(escapeRegExp, '\\$&')
+    .replace(optionalParam, '(?:$1)?')
+    .replace(namedParam, function(match, optional) {
+      return optional ? match : '([^\/]+)';
+    })
+    .replace(splatParam, '(.*?)');
+
+  return new RegExp('^' + routeString + '$', routesAreCaseSensitive ? undefined : 'i');
+}
