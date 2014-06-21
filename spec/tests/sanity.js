@@ -23,7 +23,7 @@ describe('sanity', function () {
   it('has the ability to create nested models with correctly defined namespaces', function() {
     var ModelA = ko.model({
       namespace: 'ModelA',
-      factory: function() {
+      constructor: function() {
         this.preSubModelNamespaceName = ko.currentNamespaceName();
         this.subModelB = new ModelB();
         this.postSubModelNamespaceName = ko.currentNamespaceName();
@@ -32,7 +32,7 @@ describe('sanity', function () {
 
     var ModelB = ko.model({
       namespace: 'ModelB',
-      factory: function() {
+      constructor: function() {
         this.preSubModelNamespaceName = ko.currentNamespaceName();
         this.subModelC = new ModelC();
         this.postSubModelNamespaceName = ko.currentNamespaceName();
@@ -41,7 +41,7 @@ describe('sanity', function () {
 
     var ModelC = ko.model({
       namespace: 'ModelC',
-      factory: function() {
+      constructor: function() {
         this.recordedNamespaceName = ko.currentNamespaceName();
       }
     });
