@@ -1,41 +1,41 @@
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['lodash', 'knockout', 'postal'], factory);
+    define(['lodash', 'knockout', 'postal', 'Q', 'delegate', 'Apollo'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory(require('lodash'), require('knockout'), require('postal'));
+    module.exports = factory(require('lodash'), require('knockout'), require('postal'), require('Q'), require('delegate'), require('Apollo'));
   } else {
-    root.ko = factory(_, ko, postal);
+    root.ko = factory(_, ko, postal, Q, delegate, Apollo);
   }
-}(this, function (_, ko, postal) {
+}(this, function (_, ko, postal, Q, delegate, Apollo) {
+  var definedModules = [ '_', 'ko', 'postal', 'Q', 'delegate', 'Apollo' ];
   var windowObject = window;
   
   return (function() {
     //import("helpers/root-masks.js");
-    _.extend(root, { _: _, ko: ko, postal: postal });
+    _.extend(root, {
+      _: _,
+      ko: ko,
+      postal: postal,
+      delegate: delegate,
+      Apollo: Apollo,
+      Q: Q
+    });
 
-    (function() {
-      //import("../../bower_components/apollo/dist/apollo.js");
-    }).call(root);
-
+    /**
+     * Riveter still embedded in 'bare' build as it is problematic when used as a module compared to the other dependencies. It depends on
+     * underscore as opposed to lodash...meaning both lodash and underscore would be required if lodash was not substituted for underscore
+     * in riveter.
+     */
     (function() {
       //import("../../bower_components/riveter/lib/riveter.js");
     }).call(root);
 
-    (function(window) {
-      //import("../../bower_components/history.js/scripts/bundled-uncompressed/html4+html5/native.history.js");
-    }).call(root, windowObject);
+    // list of dependencies to 'export' inside the library as .embed properties
+    var embeddedDependencies = [ 'riveter' ];
 
-    (function() {
-      //import("../../bower_components/matches.js/matches.js");
-    }).call(root);
-
-    (function() {
-      //import("../../bower_components/delegate.js/delegate.js");
-    }).call(root);
-
-    return (function footwork(_, ko, postal, Apollo, riveter, delegate) {
+    return (function footwork(embedded, _, ko, postal, Apollo, riveter, delegate, Q) {
       //import("../main.js");
       return ko;
-    })(root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate);
+    })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.Q );
   })();
 }));

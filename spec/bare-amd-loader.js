@@ -4,6 +4,10 @@ require.config({
     "lodash": "../bower_components/lodash/dist/lodash.underscore",
     "postal": "../bower_components/postal.js/lib/postal",
     "conduitjs": "../bower_components/conduitjs/lib/conduit",
+    "delegate": "../bower_components/delegate.js/delegate",
+    "matches": "../bower_components/matches.js/matches",
+    "Apollo": "../bower_components/apollo/dist/apollo",
+    "Q": "../bower_components/q/q",
     "footwork": "../dist/footwork-bare",
   },
   waitSeconds: 1500
