@@ -1,3 +1,25 @@
+// router.js
+// ------------------
+
+/**
+ * Example route:
+ * {
+ *   routes: [{
+ *     route: 'test/route(/:optional)',
+ *     title: function() {
+ *       return ko.request('nameSpace', 'broadcast:someVariable');
+ *     },
+ *     nav: true
+ *   }]
+ * }
+ */
+
+// Initialize necessary cache and boolean registers
+var routes = [];
+var navigationModel;
+var historyIsEnabled;
+
+// Declare regular expressions used to parse a uri
 // Sourced: https://github.com/BlueSpire/Durandal/blob/e88fd385fb930d38456e35812b44ecd6ea7d8f4c/platforms/Bower/Durandal/js/plugins/router.js
 var optionalParam = /\((.*?)\)/g;
 var namedParam = /(\(\?)?:\w+/g;
@@ -5,6 +27,7 @@ var splatParam = /\*\w+/g;
 var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var routesAreCaseSensitive = false;
 
+// Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
 function routeStringToRegExp(routeString) {
   routeString = routeString.replace(escapeRegExp, '\\$&')
     .replace(optionalParam, '(?:$1)?')
@@ -16,39 +39,11 @@ function routeStringToRegExp(routeString) {
   return new RegExp('^' + routeString + '$', routesAreCaseSensitive ? undefined : 'i');
 }
 
-/**
-  {
-    routes: [{
-      route: 'test/route(/:optional)',
-      title: function() {
-        return ko.request('nameSpace', 'broadcast:someVariable');
-      },
-      nav: true
-    }]
-  }
- */
-var routes = [];
-var navigationModel;
+function historyReady() {
+  var isReady = _.has(History, 'Adapter');
+  isReady === false && log('History.js is not loaded.');
 
-var router = ko.router = function(config) {
-  var router = this.router;
-
-  config = _.extend({
-    activate: true,
-    routes: []
-  }, router.config, config);
-
-  router.config = config;
-  router.setRoutes(config.routes);
-
-  return (config.activate ? router.activate() : router);
-};
-
-router.config = {};
-router.namespace = ko.namespace('router');
-
-function historyIsLoaded() {
-  return _.has(History, 'Adapter');
+  return isReady;
 }
 
 function extractNavItems(routes) {
@@ -61,16 +56,33 @@ function hasNavItems(routes) {
 }
 
 function isObservable(thing) {
-  return _.has(thing, 'notifySubscribers');
+  return typeof thing !== 'undefined' && _.isFunction(thing.notifySubscribers);
 }
 
 function unknownRoute() {
   return (typeof router.config !== 'undefined' ? _.result(router.config.route404) : undefined);
 }
 
+var router = ko.router = function(config) {
+  var router = this.router;
+
+  router.config = config = _.extend({
+    activate: true,
+    routes: []
+  }, router.config, config);
+  router.setRoutes();
+
+  return (config.activate ? router.activate() : router);
+};
+
+router.config = {};
+router.namespace = ko.namespace('router');
+
 router.setRoutes = function(route) {
   routes = [];
-  router.addRoutes(route);
+  router.addRoutes(route || this.config.routes);
+
+  return router;
 };
 
 router.addRoutes = function(route) {
@@ -85,18 +97,22 @@ router.addRoutes = function(route) {
 };
 
 var navModelUpdate = ko.observable();
-router.navigationModel = function() {
+var navPredicate;
+router.navigationModel = function(predicate) {
+  navPredicate = predicate || navPredicate || function() { return true; };
+
   if(typeof navigationModel === 'undefined') {
     navigationModel = ko.computed(function() {
       this.navModelUpdate(); // dummy reference used to trigger updates
-      return extractNavItems( routes );
-    }, { routes: routes, navModelUpdate: navModelUpdate });
+      return _.filter( extractNavItems( routes ), navPredicate );
+    }, { navModelUpdate: navModelUpdate });
   }
+
   return navigationModel;
 };
 
 router.stateChanged = function(url) {
-  url = url || History.getState().url;
+  url = url || (historyIsEnabled ? History.getState().url : '#default');
   this.namespace.publish('stateChanged', url);
   var route = this.getRouteFor(url);
 
@@ -113,10 +129,24 @@ router.getRoutes = function() {
   return routes;
 };
 
-router.activate = _.once( _.bind(function() {
-  if( historyIsLoaded() ) {
-    History.Adapter.bind( window, 'statechange', router.stateChanged);
+router.setupHistoryAdapter = function() {
+  if(historyIsEnabled !== true) {
+    historyIsEnabled = false;
+    if( historyReady() ) {
+      History.Adapter.bind( window, 'statechange', router.stateChanged);
+      historyIsEnabled = true;
+    }
   }
+
+  return historyIsEnabled;
+}
+
+router.historyIsEnabled = function() {
+  return historyIsEnabled;
+};
+
+router.activate = _.once( _.bind(function() {
+  router.setupHistoryAdapter();
 
   delegate(document)
     .on('click', 'a', function(event) {
