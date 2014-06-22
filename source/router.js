@@ -78,9 +78,13 @@ router.getRouteFor = function(url) {
 
 router.activate = _.once( _.bind(function() {
   console.log('router.activate');
-  delegate(document).on('click', 'a', function(event) {
-    console.info('delegateClick-event', event.delegateTarget);
-  });
+  delegate(document)
+    .on('click', 'a', function(event) {
+      console.info('delegateClick-event', event.delegateTarget);
+    })
+    .on('click', '.footwork-link-target', function(event) {
+      console.info('delegateClick-event', event.delegateTarget);
+    });
 
   History.Adapter.bind( window, 'statechange', router.stateChanged);
   router.stateChanged();
