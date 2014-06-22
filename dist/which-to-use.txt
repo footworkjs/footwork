@@ -10,7 +10,9 @@ footwork-bare.js - You will need to provide (via either <script>
                    includes, requirejs, browserify, etc):
     'lodash' - http://lodash.com/ (footwork uses lodash.underscore.js)
     'knockout' - http://knockoutjs.com/
+    'conduitjs' - https://github.com/ifandelse/ConduitJS
     'postal' - https://github.com/postaljs/postal.js/
+    'matches' - https://github.com/necolas/matches.js
     'delegate' - https://github.com/component/delegate,
     'Apollo' - https://github.com/toddmotto/apollo,
     'q' - https://github.com/kriskowal/q
