@@ -45,16 +45,25 @@
     }).call(root);
 
     /**
-     * Knockout double-wraps their module so we can't lie about the window/root object to it.
-     * As a result we just let knockout (ko) bind to (ahem, pollute) the window object directly (unforunately).
-     * I am unsure of the workaround for this. Pull requests encouraged!
+     * Q.js doesn't have a proper UMD wrapper and doesn't reference 'this' as global (so we can't lie to it).
+     * Unfortunately that means polluting the actual global object.
+     */
+    //import("../../bower_components/q/q.js");
+    root.Q = Q; // ick...
+
+    /**
+     * Knockout double-wraps their module so we can't lie about the window/root object to it. As a result
+     * knockout pollutes the global object.
      */
     //import("../../bower_components/knockoutjs/dist/knockout.js");
     root.ko = ko; // ick...
 
-    return (function footwork(_, ko, postal, Apollo, riveter, delegate) {
+    // list of dependencies to 'export' inside the library as .embed properties
+    var embeddedDependencies = [ '_', 'Apollo', 'riveter', 'Conduit', 'postal', 'matches', 'delegate' ];
+
+    return (function footwork(embedded, _, ko, postal, Apollo, riveter, delegate, Q) {
       //import("../main.js");
       return ko;
-    })(root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate);
+    })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.Q );
   })();
 }));
