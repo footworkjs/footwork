@@ -11,6 +11,9 @@ footwork-bare.js - You will need to provide (via either <script>
     'lodash' - http://lodash.com/ (footwork uses lodash.underscore.js)
     'knockout' - http://knockoutjs.com/
     'postal' - https://github.com/postaljs/postal.js/
+    'delegate' - https://github.com/component/delegate,
+    'Apollo' - https://github.com/toddmotto/apollo,
+    'Q' - https://github.com/kriskowal/q
 
 NOTE: All of these releases may be used via all common script loaders
       including requireJS (AMD) and Browserify (CommonJS). It is
