@@ -668,13 +668,15 @@ var navigationModel;
 var router = ko.router = function(config) {
   var router = this.router;
 
+  config = _.extend({
+    activate: true,
+    routes: []
+  }, router.config, config);
+
   router.config = config;
+  router.setRoutes(config.routes);
 
-  if(_.isObject(config)) {
-    router.add(config.routes);
-  }
-
-  return router.activate();
+  return (config.activate ? router.activate() : router);
 };
 
 router.config = {};
@@ -701,14 +703,18 @@ function unknownRoute() {
   return (typeof router.config !== 'undefined' ? _.result(router.config.route404) : undefined);
 }
 
-router.add = function(route) {
+router.setRoutes = function(route) {
+  routes = [];
+  router.addRoutes(route);
+};
+
+router.addRoutes = function(route) {
   route = _.isArray(route) ? route : [route];
   routes.push.apply(routes, route);
 
   if( hasNavItems(route) && isObservable(navigationModel) ) {
     navModelUpdate.notifySubscribers(); // trigger router.navigationModel to recompute its list
   }
-  console.log('router.add', route);
 
   return router;
 };
@@ -733,9 +739,13 @@ router.stateChanged = function(url) {
 };
 
 router.getRouteFor = function(url) {
-  _.each(routes, function(route) {
+  _.each(router.getRoutes(), function(route) {
     console.log(route);
   });
+};
+
+router.getRoutes = function() {
+  return routes;
 };
 
 router.activate = _.once( _.bind(function() {
