@@ -8,14 +8,13 @@
 
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['lodash', 'knockout', 'postal', 'Q', 'delegate', 'Apollo'], factory);
+    define(['lodash', 'knockout', 'postal', 'q', 'delegate', 'Apollo', 'Qajax'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory(require('lodash'), require('knockout'), require('postal'), require('Q'), require('delegate'), require('Apollo'));
+    module.exports = factory(require('lodash'), require('knockout'), require('postal'), require('q'), require('delegate'), require('Apollo'), require('Qajax'));
   } else {
-    root.ko = factory(_, ko, postal, Q, delegate, Apollo);
+    root.ko = factory(_, ko, postal, Q, delegate, Apollo, Qajax);
   }
-}(this, function (_, ko, postal, Q, delegate, Apollo) {
-  var definedModules = [ '_', 'ko', 'postal', 'Q', 'delegate', 'Apollo' ];
+}(this, function (_, ko, postal, Q, delegate, Apollo, Qajax) {
   var windowObject = window;
   
   return (function() {
@@ -38,7 +37,8 @@ var module = undefined,
       postal: postal,
       delegate: delegate,
       Apollo: Apollo,
-      Q: Q
+      Q: Q,
+      Qajax: Qajax
     });
 
     /**
@@ -176,7 +176,7 @@ var module = undefined,
     // list of dependencies to 'export' inside the library as .embed properties
     var embeddedDependencies = [ 'riveter' ];
 
-    return (function footwork(embedded, _, ko, postal, Apollo, riveter, delegate, Q) {
+    return (function footwork(embedded, _, ko, postal, Apollo, riveter, delegate, Q, Qajax) {
       // main.js
 // -----------
 
@@ -726,6 +726,6 @@ router.activate = _.once( _.bind(function() {
   return router;
 }, router) );
       return ko;
-    })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.Q );
+    })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.Q, root.Qajax );
   })();
 }));

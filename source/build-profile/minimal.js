@@ -41,6 +41,10 @@
       //import("../../bower_components/delegate.js/delegate.js");
     }).call(root);
 
+    (function() {
+      //import("../../bower_components/qajax/src/qajax.js");
+    }).call(root);
+
     /**
      * Q.js doesn't have a proper UMD wrapper and doesn't reference 'this' as global (so we can't lie to it).
      * Unfortunately that means polluting the actual global object.
@@ -49,11 +53,11 @@
     root.Q = Q; // ick...
 
     // list of dependencies to 'export' inside the library as .embed properties
-    var embeddedDependencies = [ 'Apollo', 'riveter', 'Conduit', 'postal', 'matches', 'delegate' ];
+    var embeddedDependencies = [ 'Apollo', 'riveter', 'Conduit', 'postal', 'matches', 'delegate', 'Qajax' ];
 
-    return (function footwork(embedded, _, ko, postal, Apollo, riveter, delegate, Q) {
+    return (function footwork(embedded, _, ko, postal, Apollo, riveter, delegate, Q, Qajax) {
       //import("../main.js");
       return ko;
-    })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.Q );embedded
+    })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.Q, root.Qajax );
   })();
 }));
