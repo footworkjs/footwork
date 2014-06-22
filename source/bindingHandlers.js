@@ -2,7 +2,7 @@
 // ------------------
 
 ko.bindingHandlers.registerElement = {
-  preprocess: function (value) {
+  preprocess: function (value, name, addBindingCallback) {
     return '\'' + value + '\'';
   },
   init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
