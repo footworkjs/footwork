@@ -21,14 +21,21 @@
       //import("../../bower_components/riveter/lib/riveter.js");
     }).call(root);
 
-    (function() {
-      var window = windowObject;
-      //import("../../bower_components/history.js/scripts/uncompressed/history.js");
-    })();
+    (function(window) {
+      //import("../../bower_components/history.js/scripts/bundled-uncompressed/html4+html5/native.history.js");
+    }).call(root, windowObject);
 
-    return (function footwork(_, ko, postal, Apollo, riveter) {
+    (function() {
+      //import("../../bower_components/matches.js/matches.js");
+    }).call(root);
+
+    (function() {
+      //import("../../bower_components/delegate.js/delegate.js");
+    }).call(root);
+
+    return (function footwork(_, ko, postal, Apollo, riveter, delegate) {
       //import("../main.js");
       return ko;
-    })(root._, root.ko, root.postal, root.Apollo, root.riveter);
+    })(root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate);
   })();
 }));
