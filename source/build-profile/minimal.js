@@ -11,7 +11,10 @@
   
   return (function() {
     //import("helpers/root-masks.js");
-    _.extend(root, { _: _, ko: ko });
+    _.extend(root, {
+      _: _,
+      ko: ko
+    });
 
     (function() {
       //import("../../bower_components/apollo/dist/apollo.js");
