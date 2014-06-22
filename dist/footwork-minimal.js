@@ -31,7 +31,10 @@ var define = undefined;
 var module = undefined,
     exports = undefined,
     global = undefined;
-    _.extend(root, { _: _, ko: ko });
+    _.extend(root, {
+      _: _,
+      ko: ko
+    });
 
     (function() {
       /*! Apollo v1.6.0 | (c) 2014 @toddmotto | github.com/toddmotto/apollo */
@@ -7292,9 +7295,7 @@ var router = ko.router = function(config) {
   router.config = config;
 
   if(_.isObject(config)) {
-    _.map(config.routes, function(route) {
-      router.add(route);
-    });
+    router.add(config.routes);
   }
 
   return router.activate();
@@ -7303,18 +7304,46 @@ var router = ko.router = function(config) {
 router.config = {};
 router.namespace = ko.namespace('router');
 
-router.add = function(route) {
-  routes.push(route);
+function historyIsLoaded() {
+  return _.has(History, 'Adapter');
+}
 
-  if( _(route).has('nav') && route.nav === true && _(navigationModel).has('valueHasMutated') ) {
-    navigationModel.push(route);
+function extractNavItems(routes) {
+  routes = ( _.isArray(routes) ? routes : [routes] );
+  return _.where(routes, { nav: true });
+}
+
+function hasNavItems(routes) {
+  return extractNavItems( routes ).length > 0;
+}
+
+function isObservable(thing) {
+  return _.has(thing, 'notifySubscribers');
+}
+
+function unknownRoute() {
+  return (typeof router.config !== 'undefined' ? _.result(router.config.route404) : undefined);
+}
+
+router.add = function(route) {
+  route = _.isArray(route) ? route : [route];
+  routes.push.apply(routes, route);
+
+  if( hasNavItems(route) && isObservable(navigationModel) ) {
+    navModelUpdate.notifySubscribers(); // trigger router.navigationModel to recompute its list
   }
   console.log('router.add', route);
+
+  return router;
 };
 
+var navModelUpdate = ko.observable();
 router.navigationModel = function() {
   if(typeof navigationModel === 'undefined') {
-    navigationModel = ko.observableArray( _(routes).where({ nav: true }) );
+    navigationModel = ko.computed(function() {
+      this.navModelUpdate(); // dummy reference used to trigger updates
+      return extractNavItems( routes );
+    }, { routes: routes, navModelUpdate: navModelUpdate });
   }
   return navigationModel;
 };
@@ -7323,28 +7352,31 @@ router.stateChanged = function(url) {
   url = url || History.getState().url;
   this.namespace.publish('stateChanged', url);
   var route = this.getRouteFor(url);
+
+  return router;
 };
 
 router.getRouteFor = function(url) {
-  var route = router.config.route404;
   _.each(routes, function(route) {
     console.log(route);
   });
 };
 
 router.activate = _.once( _.bind(function() {
-  console.log('router.activate');
+  if( historyIsLoaded() ) {
+    History.Adapter.bind( window, 'statechange', router.stateChanged);
+  }
+
   delegate(document)
     .on('click', 'a', function(event) {
       console.info('delegateClick-event', event.delegateTarget);
-    })
+    });
+  delegate(document)
     .on('click', '.footwork-link-target', function(event) {
       console.info('delegateClick-event', event.delegateTarget);
     });
 
-  History.Adapter.bind( window, 'statechange', router.stateChanged);
-  router.stateChanged();
-  return router;
+  return router.stateChanged();
 }, router) );
       return ko;
     })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.Q, root.Qajax );
