@@ -4484,6 +4484,372 @@ return delegate;
 
     }).call(root);
 
+    (function() {
+      /*
+ * Qajax.js - Simple Promise ajax library based on Q
+ */
+/*jslint newcap: true */
+(function (definition) {
+  var Q;
+  if (typeof exports === "object") {
+    Q = require("q");
+    module.exports = definition(Q);
+  }
+  else if (typeof define === 'function' && define.amd){
+    define(['q'], definition);
+  }
+  else {
+    Q = window.Q;
+    window.Qajax = definition(Q);
+  }
+})(function (Q) {
+  "use strict";
+
+  // Qajax
+  // ===
+  // *Perform an asynchronous HTTP request (ajax).*
+  //
+  // Signatures
+  // ---
+  //
+  // * `Qajax(url: String) => Promise[XHR]`
+  // * `Qajax(options: Object) => Promise[XHR]`
+  // * `Qajax(url: String, options: Object) => Promise[XHR]`
+  //
+  // Parameters
+  // ---
+  // `settings` **(object)** or **(string)** URL:
+  //
+  // - `url` **(string)**: the URL of the resource
+  // - `method` **(string)** *optional*: the http method to use *(default: GET)*.
+  // - `timeout` **(number)** *optional*: the time in ms to reject the XHR if not terminated.
+  // - `data` **(any)** *optional*: the data to send.
+  // - headers **(object)** *optional*: a map of headers to use for the XHR.
+  // - `cancellation` **(Promise)** *optional*: provide a "cancellation" promise which if fulfilled will cancel the current XHR.
+  // - **Or any other parameter from the Qajax.defaults**.
+  //
+  // Result
+  // ---
+  // returns a **Promise of XHR**, whatever the status code is.
+  //
+  var Qajax = function () {
+    var args = arguments, settings;
+    /* Validating arguments */
+    if (!args.length) {
+      throw new Error("Qajax: settings are required");
+    }
+    if (typeof args[0] === "string") {
+      settings = (typeof args[1] === 'object' && args[1]) || {};
+      settings.url = args[0];
+    }
+    else if (typeof args[0] === "object"){
+      settings = args[0];
+    }
+    else {
+      throw new Error("Qajax: settings must be an object");
+    }
+    if (!settings.url) {
+      throw new Error("Qajax: settings.url is required");
+    }
+    if ("cancellation" in settings && !Q.isPromiseAlike(settings.cancellation)) {
+      throw new Error("cancellation must be a Promise.");
+    }
+
+    var xhr = new XMLHttpRequest(),
+      cancellation = settings.cancellation || Q.defer().promise, // default is a never ending promise
+      method = getOrElse("method", settings),
+      base = getOrElse("base", settings),
+      url = settings.url,
+      data = settings.data,
+      params = settings.params || {},
+      xhrResult = Q.defer(),
+      timeout = getOrElse("timeout", settings),
+      headers = extend1({}, getOrElse("headers", settings)),
+      cacheParam = getOrElse("cache", settings);
+
+    if (cacheParam) {
+      params[cacheParam === true ? "_" : cacheParam] = (new Date()).getTime();
+    }
+
+    // Let's build the url based on the configuration
+    // * Prepend the base if one
+    if (base) {
+      url = base + url;
+    }
+
+    // * Serialize and append the params if any
+    var queryParams = serializeQuery(params);
+    if (queryParams) {
+      url = url + (hasQuery(url) ? "?" : "&") + queryParams;
+    }
+
+    // if data is a Javascript object, JSON is used
+    if (data !== null && typeof data === "object") {
+      if (!(CONTENT_TYPE in headers)) {
+        headers[CONTENT_TYPE] = "application/json";
+      }
+      data = JSON.stringify(data);
+    }
+
+    return Q.fcall(function () { // Protect from any exception
+
+      // Bind the XHR finished callback
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          try {
+            log(method + " " + url + " => " + xhr.status);
+            if (xhr.status) {
+              xhrResult.resolve(xhr);
+            } else {
+              xhrResult.reject(xhr); // this case occured mainly when xhr.abort() has been called.
+            }
+          } catch (e) {
+            xhrResult.reject(xhr); // IE could throw an error
+          }
+        }
+      };
+
+      xhr.onprogress = function (progress) {
+          xhrResult.notify(progress);
+      };
+
+      // Open the XHR
+      xhr.open(method, url, true);
+
+      // Add headers
+      for (var h in headers) {
+        if (headers.hasOwnProperty(h)) {
+          xhr.setRequestHeader(h, headers[h]);
+        }
+      }
+
+      // Send the XHR
+      if (data !== undefined && data !== null) {
+        xhr.send(data);
+      } else {
+        xhr.send();
+      }
+
+      cancellation.fin(function () {
+          if (!xhrResult.promise.isFulfilled()) {
+              log("Qajax cancellation reached.");
+              xhr.abort();
+          }
+      });
+
+      // If no timeout, just return the promise
+      if (!timeout) {
+        return xhrResult.promise;
+      }
+      // Else, either the xhr promise or the timeout is reached
+      else {
+        return xhrResult.promise.timeout(timeout).fail(function (errorOrXHR) {
+          // If timeout has reached (Error is triggered)
+          if (errorOrXHR instanceof Error) {
+            log("Qajax request delay reach in " + method + " " + url);
+            xhr.abort(); // Abort this XHR so it can reject xhrResult
+          }
+          // Make the promise fail again.
+          throw xhr;
+        });
+      }
+    });
+  };
+
+  /*
+   * DEPRECATED. Use Qajax.defaults.timeout instead.
+   * Default XMLHttpRequest timeout.
+   */
+  Qajax.TIMEOUT = undefined;
+
+  // Qajax Defaults
+  // ===
+
+  // Defaults settings of Qajax.
+  // Feel free to override any of them.
+
+  Qajax.defaults = {
+    // `logs` **(boolean)**: Flag to enable logs
+    logs: false,
+    // `timeout` **(number)**: The timeout, in ms, to apply to the request.
+    // If no response after that delay, the promise will be failed
+    timeout: 60000,
+    // `cache` **(boolean | string)**: cache flag to enable a hack appending the current timestamp
+    // to your requests to prevent IE from caching them and always returning the same result.
+    // If "true", will set the param with the name "_"
+    // If a string, will use it as the param name
+    cache: window.ActiveXObject || "ActiveXObject" in window,
+    // `method` **(string)**: The default HTTP method to apply when calling Qajax(url) 
+    method: "GET",
+    // `header` **(object)**: The default HTTP headers to apply to your requests
+    headers: {},
+    // `base` **(string)**: The base of all urls of your requests. Will be prepend to all urls.
+    base: ""
+  };
+
+  // Qajax.filterStatus
+  // ===
+  // *Filter an XHR to a given status, to consider only valid status to be success.*
+  //
+  // Parameters
+  // ---
+  // `validStatus` **(number or function)**: either a http code (like 200) or a predicate function (statusCode).
+  //
+  // Result
+  // ---
+  // Returns a **(function)** returning a Promise of XHR considered successful (according to validStatus)
+  //
+  // Usage example
+  // ---
+  // ```javascript
+  // Qajax(settings).then(Qajax.filterStatus(200))
+  //
+  // Qajax(settings).then(
+  //    Qajax.filterStatus(function(s){ return s == 200 })
+  // )
+  // ```
+  //
+  Qajax.filterStatus = function (validStatus) {
+    var check, typ;
+    typ = typeof validStatus;
+    if (typ === "function") {
+      check = validStatus;
+    } else if (typ === "number") {
+      check = function (s) {
+        return s === validStatus;
+      };
+    } else {
+      throw "validStatus type " + typ + " unsupported";
+    }
+    return function (xhr) {
+      var status = 0;
+      try {
+        status = xhr.status; // IE can fail to access status
+      } catch (e) {
+        log("Qajax: failed to read xhr.status");
+      }
+      if (status === 1223) {
+        status = 204; // 204 No Content IE bug
+      }
+      return check(status) ? Q.resolve(xhr) : Q.reject(xhr);
+    };
+  };
+
+  // Qajax.filterSuccess
+  // ===
+  // *Filter all Success status code case.*
+  // A good example of `Qajax.filterStatus` implementation.
+  //
+  Qajax.filterSuccess = Qajax.filterStatus(function (s) {
+    return (s >= 200 && s < 300) || s === 304;
+  });
+
+  // Qajax.toJSON
+  // ===
+  // *Extract a JSON from a XHR.*
+  // 
+  // Parameters
+  // ---
+  // `xhr` **(XMLHttpRequest)**: the XHR.
+  // 
+  // Result
+  // ---
+  // A **(promise)** of the parsed JSON.
+  //
+  // Usage example
+  // ---
+  // ```
+  // Qajax(settings).then(Qajax.toJSON)
+  // ```
+  //
+  Qajax.toJSON = function (xhr) {
+    return Q.fcall(function () {
+      return JSON.parse(xhr.responseText);
+    });
+  };
+
+  // Qajax.getJSON
+  // ===
+  // *Get a JSON from an URL - shortcut to Qajax.*
+  //
+  // Parameters
+  // ---
+  // `url` **(string)**: the ressource to fetch.
+  // 
+  // Result
+  // ---
+  // Returns a **(promise)** of a JS Object.
+  //
+  Qajax.getJSON = function (url) {
+    return Qajax({ url: url, method: "GET" })
+      .then(Qajax.filterSuccess)
+      .then(Qajax.toJSON);
+  };
+
+  // Qajax.serialize
+  // ===
+  // *Make a query string from a JS Object.*
+  // 
+  // Parameters
+  // ---
+  // `paramsObj` **(object)** the params to serialize.
+  //
+  // Result
+  // ---
+  // Returns the serialized query **(string)**.
+  //
+  Qajax.serialize = serializeQuery;
+
+  // Private util functions
+  // ===
+
+  // Get a param from the current settings of the request,
+  // if missing, try to return the "else" argument,
+  // if also missing, return it from the "defaults"
+  function getOrElse(paramName, settings) {
+    return paramName in settings ? settings[paramName] : Qajax.defaults[paramName];
+  }
+
+  function extend1 (extendee, object) {
+    for (var key in object) {
+      if (object.hasOwnProperty(key)) {
+        extendee[key] = object[key];
+      }
+    }
+    return extendee;
+  }
+
+  // Serialize a map of properties (as a JavaScript object) to a query string
+  function serializeQuery(paramsObj) {
+    var k, params = [];
+    for (k in paramsObj) {
+      if (paramsObj.hasOwnProperty(k)) {
+        params.push(encodeURIComponent(k) + "=" + encodeURIComponent(paramsObj[k]));
+      }
+    }
+    return params.join("&");
+  }
+
+  // Test if a given url has already a query string
+  function hasQuery(url) {
+    return (url.indexOf("?") === -1);
+  }
+
+  // safe log function
+  function log (msg) {
+    if (Qajax.defaults.logs && window.console) {
+      console.log(msg);
+    }
+  }
+
+  var CONTENT_TYPE = "Content-Type";
+
+  return Qajax;
+
+});
+
+    }).call(root);
+
     /**
      * Q.js doesn't have a proper UMD wrapper and doesn't reference 'this' as global (so we can't lie to it).
      * Unfortunately that means polluting the actual global object.
@@ -4701,8 +5067,9 @@ var nextTick =(function () {
 // If you need a security guarantee, these primordials need to be
 // deeply frozen anyway, and if you don’t need a security guarantee,
 // this is just plain paranoid.
-// However, this **might** have the nice side-effect of reducing the size of
-// the minified code by reducing x.call() to merely x()
+// However, this does have the nice side-effect of reducing the size
+// of the code by reducing x.call() to merely x(), eliminating many
+// hard-to-minify characters.
 // See Mark Miller’s explanation of what this does.
 // http://wiki.ecmascript.org/doku.php?id=conventions:safe_meta_programming
 var call = Function.call;
@@ -4812,6 +5179,22 @@ if (typeof ReturnValue !== "undefined") {
     QReturnValue = function (value) {
         this.value = value;
     };
+}
+
+// Until V8 3.19 / Chromium 29 is released, SpiderMonkey is the only
+// engine that has a deployed base of browsers that support generators.
+// However, SM's generators use the Python-inspired semantics of
+// outdated ES6 drafts.  We would like to support ES6, but we'd also
+// like to make it possible to use generators in deployed browsers, so
+// we also support Python-style generators.  At some point we can remove
+// this block.
+var hasES6Generators;
+try {
+    /* jshint evil: true, nonew: false */
+    new Function("(function* (){ yield 1; })");
+    hasES6Generators = true;
+} catch (e) {
+    hasES6Generators = false;
 }
 
 // long stack traces
@@ -5002,7 +5385,7 @@ function defer() {
     };
 
     // XXX deprecated
-    promise.valueOf = function () {
+    promise.valueOf = deprecate(function () {
         if (messages) {
             return promise;
         }
@@ -5011,7 +5394,7 @@ function defer() {
             resolvedPromise = nearerValue; // shorten chain
         }
         return nearerValue;
-    };
+    }, "valueOf", "inspect");
 
     promise.inspect = function () {
         if (!resolvedPromise) {
@@ -5114,7 +5497,6 @@ defer.prototype.makeNodeResolver = function () {
  * @returns a promise that may be resolved with the given resolve and reject
  * functions, or rejected by a thrown exception in resolver
  */
-Q.Promise = promise; // ES6
 Q.promise = promise;
 function promise(resolver) {
     if (typeof resolver !== "function") {
@@ -5128,11 +5510,6 @@ function promise(resolver) {
     }
     return deferred.promise;
 }
-
-promise.race = race; // ES6
-promise.all = all; // ES6
-promise.reject = reject; // ES6
-promise.resolve = Q; // ES6
 
 // XXX experimental.  This method is a way to denote that a local value is
 // serializable and should be immediately dispatched to a remote upon request,
@@ -5249,14 +5626,14 @@ function Promise(descriptor, fallback, inspect) {
             promise.exception = inspected.reason;
         }
 
-        promise.valueOf = function () {
+        promise.valueOf = deprecate(function () {
             var inspected = inspect();
             if (inspected.state === "pending" ||
                 inspected.state === "rejected") {
                 return promise;
             }
             return inspected.value;
-        };
+        });
     }
 
     return promise;
@@ -5458,14 +5835,43 @@ Promise.prototype.isRejected = function () {
 // shimmed environments, this would naturally be a `Set`.
 var unhandledReasons = [];
 var unhandledRejections = [];
+var unhandledReasonsDisplayed = false;
 var trackUnhandledRejections = true;
+function displayUnhandledReasons() {
+    if (
+        !unhandledReasonsDisplayed &&
+        typeof window !== "undefined" &&
+        !window.Touch &&
+        window.console
+    ) {
+        console.warn("[Q] Unhandled rejection reasons (should be empty):",
+                     unhandledReasons);
+    }
+
+    unhandledReasonsDisplayed = true;
+}
+
+function logUnhandledReasons() {
+    for (var i = 0; i < unhandledReasons.length; i++) {
+        var reason = unhandledReasons[i];
+        console.warn("Unhandled rejection reason:", reason);
+    }
+}
 
 function resetUnhandledRejections() {
     unhandledReasons.length = 0;
     unhandledRejections.length = 0;
+    unhandledReasonsDisplayed = false;
 
     if (!trackUnhandledRejections) {
         trackUnhandledRejections = true;
+
+        // Show unhandled rejection reasons if Node exits without handling an
+        // outstanding rejection.  (Note that Browserify presently produces a
+        // `process` global without the `EventEmitter` `on` method.)
+        if (typeof process !== "undefined" && process.on) {
+            process.on("exit", logUnhandledReasons);
+        }
     }
 }
 
@@ -5480,6 +5886,7 @@ function trackRejection(promise, reason) {
     } else {
         unhandledReasons.push("(no stack) " + reason);
     }
+    displayUnhandledReasons();
 }
 
 function untrackRejection(promise) {
@@ -5503,6 +5910,9 @@ Q.getUnhandledReasons = function () {
 
 Q.stopUnhandledRejectionTracking = function () {
     resetUnhandledRejections();
+    if (typeof process !== "undefined" && process.on) {
+        process.removeListener("exit", logUnhandledReasons);
+    }
     trackUnhandledRejections = false;
 };
 
@@ -5666,17 +6076,7 @@ function async(makeGenerator) {
         // when verb is "throw", arg is an exception
         function continuer(verb, arg) {
             var result;
-
-            // Until V8 3.19 / Chromium 29 is released, SpiderMonkey is the only
-            // engine that has a deployed base of browsers that support generators.
-            // However, SM's generators use the Python-inspired semantics of
-            // outdated ES6 drafts.  We would like to support ES6, but we'd also
-            // like to make it possible to use generators in deployed browsers, so
-            // we also support Python-style generators.  At some point we can remove
-            // this block.
-
-            if (typeof StopIteration === "undefined") {
-                // ES6 Generators
+            if (hasES6Generators) {
                 try {
                     result = generator[verb](arg);
                 } catch (exception) {
@@ -5688,7 +6088,6 @@ function async(makeGenerator) {
                     return when(result.value, callback, errback);
                 }
             } else {
-                // SpiderMonkey Generators
                 // FIXME: Remove this case when SM does ES6 generators.
                 try {
                     result = generator[verb](arg);
@@ -6396,9 +6795,9 @@ return Q;
     root.Q = Q; // ick...
 
     // list of dependencies to 'export' inside the library as .embed properties
-    var embeddedDependencies = [ 'Apollo', 'riveter', 'Conduit', 'postal', 'matches', 'delegate' ];
+    var embeddedDependencies = [ 'Apollo', 'riveter', 'Conduit', 'postal', 'matches', 'delegate', 'Qajax' ];
 
-    return (function footwork(embedded, _, ko, postal, Apollo, riveter, delegate, Q) {
+    return (function footwork(embedded, _, ko, postal, Apollo, riveter, delegate, Q, Qajax) {
       // main.js
 // -----------
 
@@ -6948,6 +7347,6 @@ router.activate = _.once( _.bind(function() {
   return router;
 }, router) );
       return ko;
-    })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.Q );embedded
+    })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.Q, root.Qajax );
   })();
 }));

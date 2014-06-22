@@ -7,7 +7,8 @@ require.config({
     "delegate": "../bower_components/delegate.js/delegate",
     "matches": "../bower_components/matches.js/matches",
     "Apollo": "../bower_components/apollo/dist/apollo",
-    "Q": "../bower_components/q/q",
+    "q": "../bower_components/q/q",
+    "Qajax": "../bower_components/qajax/src/qajax",
     "footwork": "../dist/footwork-bare",
   },
   waitSeconds: 1500

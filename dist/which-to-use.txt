@@ -13,7 +13,8 @@ footwork-bare.js - You will need to provide (via either <script>
     'postal' - https://github.com/postaljs/postal.js/
     'delegate' - https://github.com/component/delegate,
     'Apollo' - https://github.com/toddmotto/apollo,
-    'Q' - https://github.com/kriskowal/q
+    'q' - https://github.com/kriskowal/q
+    'Qajax' - https://github.com/gre/qajax
 
 NOTE: All of these releases may be used via all common script loaders
       including requireJS (AMD) and Browserify (CommonJS). It is
