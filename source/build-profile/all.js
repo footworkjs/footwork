@@ -8,7 +8,7 @@
   }
 }(this, function () {
   var windowObject = window;
-  
+
   return (function() {
     //import("helpers/root-masks.js");
 
@@ -32,10 +32,17 @@
       //import("../../bower_components/postal.js/lib/postal.js");
     }).call(root);
 
+    (function(window) {
+      //import("../../bower_components/history.js/scripts/bundled-uncompressed/html4+html5/native.history.js");
+    }).call(root, windowObject);
+
     (function() {
-      var window = windowObject;
-      //import("../../bower_components/history.js/scripts/uncompressed/history.js");
-    })();
+      //import("../../bower_components/matches.js/matches.js");
+    }).call(root);
+
+    (function() {
+      //import("../../bower_components/delegate.js/delegate.js");
+    }).call(root);
 
     /**
      * Knockout double-wraps their module so we can't lie about the window/root object to it.
@@ -45,9 +52,9 @@
     //import("../../bower_components/knockoutjs/dist/knockout.js");
     root.ko = ko; // ick...
 
-    return (function footwork(_, ko, postal, Apollo, riveter) {
+    return (function footwork(_, ko, postal, Apollo, riveter, delegate) {
       //import("../main.js");
       return ko;
-    })(root._, root.ko, root.postal, root.Apollo, root.riveter);
+    })(root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate);
   })();
 }));
