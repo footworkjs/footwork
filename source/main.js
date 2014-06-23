@@ -117,7 +117,8 @@ ko.applyBindings = function(model, element) {
   }
 };
 
-//import("model-namespace.js");
+//import("namespace.js");
+//import("model.js");
 //import("component.js");
 //import("broadcast-receive.js");
 //import("bindingHandlers.js");
