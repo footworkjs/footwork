@@ -12193,18 +12193,27 @@ ko.component = function(options) {
 // broadcast-receive.js
 // ----------------
 
+ko.isAReceivable = function(thing) {
+  return _.has(thing, '__isReceived') && thing.__isReceived === true;
+};
+
+ko.isABroadcastable = function(thing) {
+  return _.has(thing, '__isBroadcast') && thing.__isBroadcast === true;
+};
+
 //     this.myValue = ko.observable().receiveFrom('Namespace' / Namespace, 'varName');
 ko.subscribable.fn.receiveFrom = function(namespace, variable) {
-  var target = this,
-      observable = this,
-      channel;
+  var target = this;
+  var observable = this;
+  var channel;
 
   if( _.isObject(namespace) === true && namespace.channel !== undefined ) {
     channel = namespace;
   } else if(typeof namespace === 'string') {
     channel = postal.channel( namespace );
   } else {
-    throw 'Invalid namespace [' + typeof namespace + ']';
+    ko.logError('Invalid namespace [' + typeof namespace + ']');
+    return observable;
   }
 
   observable = ko.computed({
