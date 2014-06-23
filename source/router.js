@@ -59,6 +59,10 @@ function routeStringToRegExp(routeString) {
   return new RegExp('^' + routeString + '$', routesAreCaseSensitive ? undefined : 'i');
 }
 
+function normalizeURL(url) {
+  return url.substr(router.config.baseRoute.length).replace(/(^\/#)*(^#)*/, '/');
+}
+
 function historyReady() {
   var isReady = _.has(History, 'Adapter');
   isReady === false && errorLog('History.js is not loaded.');
@@ -83,10 +87,6 @@ function unknownRoute() {
   return (typeof router.config !== 'undefined' ? _.result(router.config.unknownRoute) : undefined);
 }
 
-function normalizeURL(url) {
-  return url.substr(router.config.baseRoute.length).replace(/(^\/#)*(^#)*/, '/');
-}
-
 router.setRoutes = function(route) {
   routes = [];
   router.addRoutes(route || this.config.routes);
@@ -99,7 +99,7 @@ router.addRoutes = function(route) {
   routes.push.apply(routes, route);
 
   if( hasNavItems(route) && isObservable(navigationModel) ) {
-    navModelUpdate.notifySubscribers(); // trigger router.navigationModel to recompute its list
+    navModelUpdate.notifySubscribers(); // tell router.navigationModel to recompute its list
   }
 
   return router;
@@ -151,8 +151,7 @@ var getActionFor = router.getActionFor = function(url) {
       };
       
       action = function(params) {
-        _.extend(options.params, params);
-        options.controller( options.params );
+        options.controller( _.extend(options.params, params) );
       };
       action.options = options;
     }
