@@ -9,6 +9,10 @@
 }(this, function () {
   var windowObject = window;
 
+  // Cross-browser console log() function
+  // http://patik.github.io/console.log-wrapper/
+  //import("../../bower_components/consolelog/consolelog.js");
+
   return (function() {
     //import("helpers/root-masks.js");
 
