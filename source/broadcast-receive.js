@@ -20,7 +20,7 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   } else if(typeof namespace === 'string') {
     channel = postal.channel( namespace );
   } else {
-    logError('Invalid namespace [' + typeof namespace + ']');
+    ko.logError('Invalid namespace [' + typeof namespace + ']');
     return observable;
   }
 
