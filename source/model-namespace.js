@@ -76,14 +76,24 @@ var models = {};
 // multiple copies of the same model to share the same namespace (if they do share a
 // namespace, they receive all of the same events/messages/commands/etc).
 var namespaceNameCounter = {};
-var indexedNamespaceName = function(name, autoIncrement) {
+
+function indexedNamespaceName(name, autoIncrement) {
   if(namespaceNameCounter[name] === undefined) {
     namespaceNameCounter[name] = 0;
   } else {
     namespaceNameCounter[name]++;
   }
   return name + ((autoIncrement === true && namespaceNameCounter[name] > 0) ? namespaceNameCounter[name] : '');
-};
+}
+
+function NamespaceMask(namespaceName) {
+  this._preInit = function() {
+    this.forceNamespaceName = namespaceName;
+  };
+  this._postInit = function() {
+    delete this.forceNamespaceName;
+  };
+}
 
 ko.model = function(modelOptions) {
   modelOptions = _.extend({
@@ -92,56 +102,44 @@ ko.model = function(modelOptions) {
     mixins: undefined,
     params: undefined,
     afterBinding: function() {},
-    constructor: function() {}
+    constructor: function() {},
+    componentNamespace: undefined
   }, modelOptions);
+
+  // var mask = new NamespaceMask(namespaceName);
 
   var viewModel = {
     _preInit: function( options ) {
-      modelOptions.namespace = indexedNamespaceName(modelOptions.namespace, modelOptions.autoIncrement);
-
+      modelOptions.namespace = indexedNamespaceName(modelOptions.componentNamespace || modelOptions.namespace || _.uniqueId('namespace'), modelOptions.autoIncrement);
       this._modelOptions = modelOptions;
 
-      this._options = _.extend({
-        namespace: modelOptions.namespace || _.uniqueId('namespace')
-      }, options);
-
-      ko.enterNamespaceName( this._options.namespace );
+      // var namespace = ko.currentNamespace();
+      ko.enterNamespaceName( modelOptions.namespace );
       this.namespace = ko.currentNamespace();
-      this._globalChannel = ko.namespace();
+      this._globalNamespace = ko.namespace();
     },
     mixin: {
-      namespaceName: modelOptions.namespace,
+      getNamespaceName: function() {
+        return this.namespace.channel;
+      },
+      getModelOptions: function() {
+        return modelOptions;
+      },
       broadcastAll: function() {
         var model = this;
-        if(typeof this._broadcast === 'object') {
-          _.each( this._broadcast, function( observable, observableName ) {
-            model.namespace.publish( observableName, observable() );
-          });
-        }
-
         _.each( this, function(property, propName) {
-          if( _.isObject(property) === true && property.__isBroadcast === true ) {
+          if( _.isObject(property) && property.__isBroadcast === true ) {
             model.namespace.publish( propName, property() );
           }
         });
         return this;
       },
       refreshReceived: function() {
-        if( typeof this._receive === 'object' && this._receive.refresh !== undefined ) {
-          _.invoke( this._receive, 'refresh' );
-          if( typeof this._receive.config === 'object' ) {
-            _.invoke( this._receive.config, 'refresh' );
-          }
-        }
-
         _.each( this, function(property, propName) {
-          if( _.isObject(property) === true && property.__isReceived === true ) {
+          if( _.isObject(property) && property.__isReceived === true ) {
             property.refresh();
           }
         });
-        if( _.isObject(this.config) === true ) {
-          _.invoke( this.config, 'refresh' );
-        }
         return this;
       },
       startup: function() {
@@ -151,12 +149,12 @@ ko.model = function(modelOptions) {
     },
     _postInit: function( options ) {
       if(debugModels === true) {
-        models[ ko.currentNamespace().channel ] = this;
+        models[ this.getNamespaceName() ] = this;
       }
 
       ko.exitNamespace();
       this.startup();
-      typeof this._modelOptions.afterCreating === 'function' && this._modelOptions.afterCreating.call(this);
+      _.isFunction(modelOptions.afterCreating) && modelOptions.afterCreating.call(this);
     }
   };
 
@@ -164,5 +162,10 @@ ko.model = function(modelOptions) {
   if(modelOptions.mixins !== undefined) {
     composure = composure.concat(modelOptions.mixins);
   }
-  return riveter.compose.apply( undefined, composure );
+  var model = riveter.compose.apply( undefined, composure );
+
+  model._isFootworkModel = true;
+  model.options = modelOptions;
+
+  return model;
 };
