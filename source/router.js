@@ -61,8 +61,11 @@ function routeStringToRegExp(routeString) {
 function normalizeURL(url) {
   if(_.isNull(router.config.baseRoute) === false && url.indexOf(router.config.baseRoute) === 0) {
     url = url.substr(router.config.baseRoute.length);
+    if(url.length > 1) {
+      url = url.replace(hashMatch, '/');
+    }
   }
-  return url.replace(hashMatch, '/');
+  return url;
 }
 
 function historyReady() {
@@ -164,7 +167,7 @@ var getActionFor = router.getActionFor = function(url) {
   });
 
   if(Action === noop) {
-    ko.logError('Route for [', originalURL, '] has no associated action.');
+    ko.logError('Could not locate associated action for ', originalURL);
   }
 
   return Action;
