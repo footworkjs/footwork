@@ -5,7 +5,7 @@ describe('components', function () {
     ko.component({
       name: 'ComponentA',
       template: '<div>a template</div>',
-      constructor: function() {
+      viewModel: function() {
         this.variable = ko.observable().broadcastAs('variable');
       }
     });

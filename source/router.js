@@ -129,16 +129,16 @@ router.stateChange = function(url) {
 };
 
 var getActionFor = router.getActionFor = function(url) {
-  var action = noop;
+  var Action = noop;
 
   _.each(router.getRoutes(), function(routeDesc) {
     var routeString = routeDesc.route;
     var routeRegex = routeStringToRegExp(routeString);
     var routeParamValues = url.match(routeRegex);
 
-    if(routeParamValues !== null && action === noop) {
+    if(routeParamValues !== null && Action === noop) {
       var routeParams = _.map(routeString.match(namedParam), function(param) {
-        return param.replace(':','');
+        return param.replace(':', '');
       });
 
       var options = {
@@ -150,14 +150,14 @@ var getActionFor = router.getActionFor = function(url) {
           }, {})
       };
       
-      action = function(params) {
-        options.controller( _.extend(options.params, params) );
+      Action = function(params) {
+        options.controller( _.extend(options.params, params), options );
       };
-      action.options = options;
+      Action.options = options;
     }
   });
 
-  return action;
+  return Action;
 };
 
 router.getRoutes = function() {

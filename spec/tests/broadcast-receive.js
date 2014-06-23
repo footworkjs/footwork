@@ -4,7 +4,7 @@ describe('broadcast-receive', function () {
   it('has the ability to create model with an observable that broadcasts', function() {
     var ModelA = ko.model({
       namespace: 'ModelA',
-      constructor: function() {
+      initialize: function() {
         this.broadcaster = ko.observable().broadcastAs('broadcaster');
       }
     });
@@ -17,7 +17,7 @@ describe('broadcast-receive', function () {
   it('has the ability to create model with an observable that listens', function() {
     var ModelB = ko.model({
       namespace: 'ModelB',
-      constructor: function() {
+      initialize: function() {
         this.receiver = ko.observable().receiveFrom('ModelA', 'broadcaster');
       }
     });
@@ -30,7 +30,7 @@ describe('broadcast-receive', function () {
   it('has the ability to create model with an observable that broadcasts', function() {
     var ModelA = ko.model({
       namespace: 'ModelA',
-      constructor: function() {
+      initialize: function() {
         this.broadcaster = ko.observable().broadcastAs('broadcaster');
       }
     });
@@ -43,7 +43,7 @@ describe('broadcast-receive', function () {
   it('modelB receiver() can receive data from the modelA broadcaster()', function() {
     var ModelA = ko.model({
       namespace: 'ModelA',
-      constructor: function() {
+      initialize: function() {
         this.broadcaster = ko.observable().broadcastAs('broadcaster');
       }
     });
@@ -51,7 +51,7 @@ describe('broadcast-receive', function () {
 
     var ModelB = ko.model({
       namespace: 'ModelB',
-      constructor: function() {
+      initialize: function() {
         this.receiver = ko.observable().receiveFrom('ModelA', 'broadcaster');
       }
     });
@@ -64,7 +64,7 @@ describe('broadcast-receive', function () {
   it('modelB can write to writableReceiver() and modelA sees the new data on writableBroadcaster()', function() {
     var ModelA = ko.model({
       namespace: 'ModelA',
-      constructor: function() {
+      initialize: function() {
         this.writableBroadcaster = ko.observable().broadcastAs('writableBroadcaster', true);
       }
     });
@@ -72,7 +72,7 @@ describe('broadcast-receive', function () {
 
     var ModelB = ko.model({
       namespace: 'ModelB',
-      constructor: function() {
+      initialize: function() {
         this.writableReceiver = ko.observable().receiveFrom('ModelA', 'writableBroadcaster', true);
       }
     });
@@ -85,7 +85,7 @@ describe('broadcast-receive', function () {
   it('when modelB tries to write to nonwritableReceiver() modelA does not see the data on nonwritableBroadcaster()', function() {
     var ModelA = ko.model({
       namespace: 'ModelA',
-      constructor: function() {
+      initialize: function() {
         this.nonwritableBroadcaster = ko.observable().broadcastAs('nonwritableBroadcaster');
       }
     });
@@ -93,7 +93,7 @@ describe('broadcast-receive', function () {
 
     var ModelB = ko.model({
       namespace: 'ModelB',
-      constructor: function() {
+      initialize: function() {
         this.nonwritableReceiver = ko.observable().receiveFrom('ModelA', 'nonwritableBroadcaster', true);
       }
     });
