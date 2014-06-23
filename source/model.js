@@ -4,6 +4,11 @@
 // Initialize the models registry
 var models = {};
 
+// Duck type function for determining whether or not something is a footwork model
+function isFootworkModel(thing) {
+  return typeof thing !== 'undefined' && thing._isFootworkModel === true;
+}
+
 // Returns the number of created models for each defined namespace
 ko.modelCount = function() {
   var counts = _.reduce(namespaceNameCounter, function(modelCounts, modelCount, modelName) {
@@ -31,6 +36,10 @@ ko.refreshModels = function() {
 };
 
 ko.model = function(modelOptions) {
+  if(typeof modelOptions !== 'undefined' && typeof modelOptions.viewModel !== 'undefined') {
+    modelOptions.initialize = modelOptions.viewModel;
+  }
+
   modelOptions = _.extend({
     namespace: undefined,
     componentNamespace: undefined,
@@ -38,7 +47,7 @@ ko.model = function(modelOptions) {
     mixins: undefined,
     params: undefined,
     afterBinding: noop,
-    constructor: noop
+    initialize: noop
   }, modelOptions);
 
   var viewModel = {
@@ -86,7 +95,7 @@ ko.model = function(modelOptions) {
     }
   };
 
-  var composure = [ modelOptions.constructor, viewModel ];
+  var composure = [ modelOptions.initialize, viewModel ];
   if(modelOptions.mixins !== undefined) {
     composure = composure.concat(modelOptions.mixins);
   }

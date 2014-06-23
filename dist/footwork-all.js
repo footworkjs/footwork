@@ -12080,6 +12080,11 @@ ko.exitNamespace = function() {
 // Initialize the models registry
 var models = {};
 
+// Duck type function for determining whether or not something is a footwork model
+function isFootworkModel(thing) {
+  return typeof thing !== 'undefined' && thing._isFootworkModel === true;
+}
+
 // Returns the number of created models for each defined namespace
 ko.modelCount = function() {
   var counts = _.reduce(namespaceNameCounter, function(modelCounts, modelCount, modelName) {
@@ -12107,6 +12112,10 @@ ko.refreshModels = function() {
 };
 
 ko.model = function(modelOptions) {
+  if(typeof modelOptions !== 'undefined' && typeof modelOptions.viewModel !== 'undefined') {
+    modelOptions.initialize = modelOptions.viewModel;
+  }
+
   modelOptions = _.extend({
     namespace: undefined,
     componentNamespace: undefined,
@@ -12114,7 +12123,7 @@ ko.model = function(modelOptions) {
     mixins: undefined,
     params: undefined,
     afterBinding: noop,
-    constructor: noop
+    initialize: noop
   }, modelOptions);
 
   var viewModel = {
@@ -12162,7 +12171,7 @@ ko.model = function(modelOptions) {
     }
   };
 
-  var composure = [ modelOptions.constructor, viewModel ];
+  var composure = [ modelOptions.initialize, viewModel ];
   if(modelOptions.mixins !== undefined) {
     composure = composure.concat(modelOptions.mixins);
   }
@@ -12183,11 +12192,16 @@ ko.component = function(options) {
   }
 
   options.namespace = options.name = _.result(options, 'name');
-  var viewModel = (options.constructor._isFootworkModel === true ? options.constructor : this.model(options));
-  viewModel.options.componentNamespace = options.namespace;
+  var viewModel = options.initialize || options.viewModel;
+  if( isFootworkModel(viewModel) ) {
+    viewModel.options.componentNamespace = options.namespace;
+  } else if( _.isFunction(viewModel) ) {
+    viewModel = this.model(options);
+  }
 
   //TODO: determine how mixins from the (optionally) supplied footwork model mix in with the mixins supplied directly in the component options
-  //      as well as others like params, afterBinding.
+  //      as well as others like params, afterBinding. Currently we will just use the viewModel's mixins/etc, only the namespace is overridden
+  //      from the template definition.
 
   ko.components.register(options.name, {
     viewModel: viewModel,
@@ -12584,16 +12598,16 @@ router.stateChange = function(url) {
 };
 
 var getActionFor = router.getActionFor = function(url) {
-  var action = noop;
+  var Action = noop;
 
   _.each(router.getRoutes(), function(routeDesc) {
     var routeString = routeDesc.route;
     var routeRegex = routeStringToRegExp(routeString);
     var routeParamValues = url.match(routeRegex);
 
-    if(routeParamValues !== null && action === noop) {
+    if(routeParamValues !== null && Action === noop) {
       var routeParams = _.map(routeString.match(namedParam), function(param) {
-        return param.replace(':','');
+        return param.replace(':', '');
       });
 
       var options = {
@@ -12605,14 +12619,14 @@ var getActionFor = router.getActionFor = function(url) {
           }, {})
       };
       
-      action = function(params) {
-        options.controller( _.extend(options.params, params) );
+      Action = function(params) {
+        options.controller( _.extend(options.params, params), options );
       };
-      action.options = options;
+      Action.options = options;
     }
   });
 
-  return action;
+  return Action;
 };
 
 router.getRoutes = function() {
