@@ -6842,7 +6842,8 @@ var noop = function() { };
 ko.debugLevel = ko.observable(0);
 
 // internal logging method used when debugging is on
-ko.log = function() {
+var log;
+ko.log = log = function() {
   if(ko.debugLevel() > 2) {
     // originally sourced from Durandal (http://durandaljs.com/)
     try {
@@ -6873,7 +6874,8 @@ ko.log = function() {
   }
 };
 
-ko.logError = function(error, err) {
+var logError;
+ko.logError = logError = function(error, err) {
   if(ko.debugLevel() > 1) {
     // originally sourced from Durandal (http://durandaljs.com/)
     var exception;
@@ -6966,6 +6968,7 @@ ko.currentNamespace = function() {
 // 'entering' into that namespace (it is now the currentNamespace)
 ko.enterNamespaceName = function(namespaceName) {
   namespaceStack.unshift( namespaceName );
+  return ko.currentNamespace();
 };
 
 // Called at the after a model constructor function is run. exitNamespace()
@@ -6973,6 +6976,7 @@ ko.enterNamespaceName = function(namespaceName) {
 // next namespace in the stack
 ko.exitNamespace = function() {
   namespaceStack.shift();
+  return ko.currentNamespace();
 };
 
 // model.js
@@ -7117,7 +7121,7 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   } else if(typeof namespace === 'string') {
     channel = postal.channel( namespace );
   } else {
-    ko.logError('Invalid namespace [' + typeof namespace + ']');
+    logError('Invalid namespace [' + typeof namespace + ']');
     return observable;
   }
 
@@ -7143,6 +7147,7 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
 //     this.myValue = ko.observable().broadcastAs('NameOfVar', isWritable);
 //     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', writable: true });
 //     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', namespace: Namespace });
+//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', namespace: 'NamespaceName' });
 ko.subscribable.fn.broadcastAs = function(varName, option) {
   var observable = this, channel;
 
@@ -7164,7 +7169,11 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
       };
     }
   }
+
   channel = option.namespace || ko.currentNamespace();
+  if(typeof channel === 'string') {
+    channel = ko.namespace(channel);
+  }
 
   if( option.writable ) {
     channel.subscribe( 'change.' + option.name, function( newValue ) {
@@ -7365,10 +7374,28 @@ ko.extenders.delayWrite = function( target, options ) {
  * }
  */
 
+// Create the main router method. This can be used to both activate and add routes.
+var router = ko.router = function(config) {
+  var router = this.router;
+
+  router.config = config = _.extend({
+    baseRoute: 'http://site.com',
+    activate: true,
+    unknownRoute: undefined,
+    routes: []
+  }, router.config, config);
+  router.config.baseRoute = _.result(router.config, 'baseRoute');
+
+  return (config.activate ? router.setRoutes().activate() : router.setRoutes());
+};
+
+router.config = {};
+router.namespace = ko.enterNamespaceName('router');
+
 // Initialize necessary cache and boolean registers
 var routes = [];
 var navigationModel;
-var historyIsEnabled;
+var historyIsEnabled = ko.observable().broadcastAs('historyIsEnabled');
 
 // Declare regular expressions used to parse a uri
 // Sourced: https://github.com/BlueSpire/Durandal/blob/e88fd385fb930d38456e35812b44ecd6ea7d8f4c/platforms/Bower/Durandal/js/plugins/router.js
@@ -7392,7 +7419,7 @@ function routeStringToRegExp(routeString) {
 
 function historyReady() {
   var isReady = _.has(History, 'Adapter');
-  isReady === false && router.errorLog('History.js is not loaded.');
+  isReady === false && errorLog('History.js is not loaded.');
 
   return isReady;
 }
@@ -7413,23 +7440,6 @@ function isObservable(thing) {
 function unknownRoute() {
   return (typeof router.config !== 'undefined' ? _.result(router.config.unknownRoute) : undefined);
 }
-
-var router = ko.router = function(config) {
-  var router = this.router;
-
-  router.config = config = _.extend({
-    baseRoute: 'http://site.com',
-    activate: true,
-    unknownRoute: undefined,
-    routes: []
-  }, router.config, config);
-  router.config.baseRoute = _.result(router.config, 'baseRoute');
-
-  return (config.activate ? router.setRoutes().activate() : router.setRoutes());
-};
-
-router.config = {};
-router.namespace = ko.namespace('router');
 
 router.setRoutes = function(route) {
   routes = [];
@@ -7461,12 +7471,14 @@ router.navigationModel = function(predicate) {
     }, { navModelUpdate: navModelUpdate });
   }
 
-  return navigationModel;
+  return navigationModel.broadcastAs({ name: 'navigationModel', namespace: router.namespace });
 };
 
-router.stateChanged = function(url) {
-  url = url || (historyIsEnabled ? History.getState().url : '#default');
-  this.namespace.publish('stateChanged', url);
+var currentState = ko.observable().broadcastAs('currentState');
+router.stateChange = function(url) {
+  url = url || (historyIsEnabled() ? History.getState().url : '#default');
+  currentState(url);
+  this.namespace.publish('stateChange', url);
   var route = this.getRouteFor(url);
 
   return router;
@@ -7475,21 +7487,21 @@ router.stateChanged = function(url) {
 router.getRouteFor = function(url) {
   var matchParams;
   url = url.substr(router.config.baseRoute.length);
-  console.info('getRouteFor', url);
-  // {
-  //   route: 'test/route(/:optional)',
-  //   controller: module,
-  //   title: function() {
-  //     return ko.request('nameSpace', 'broadcast:someVariable');
-  //   },
-  //   nav: true
-  // }
 
-  _.each(router.getRoutes(), function(route) {
-    var routeRegex;
-    if(url.match(routeRegex = routeStringToRegExp( route.route )) !== null) {
-      // found matching route
-      route.controller(route.route.split(/\//));
+  _.each(router.getRoutes(), function(routeDesc) {
+    var routeString = routeDesc.route;
+    var routeRegex = routeStringToRegExp(routeString);
+    var routeParamValues = url.match(routeRegex);
+
+    if(routeParamValues !== null) {
+      var routeParams = _.map(routeString.match(namedParam), function(param) {
+        return param.replace(':','');
+      });
+
+      routeDesc.controller( _.reduce(routeParams, function(parameters, parameterName, index) {
+        parameters[parameterName] = routeParamValues[index + 1];
+        return parameters;
+      }, {}) );
     }
   });
 };
@@ -7499,11 +7511,12 @@ router.getRoutes = function() {
 };
 
 router.setupHistoryAdapter = function() {
-  if(historyIsEnabled !== true) {
-    historyIsEnabled = false;
+  if(historyIsEnabled() !== true) {
     if( historyReady() ) {
-      History.Adapter.bind( window, 'statechange', router.stateChanged);
-      historyIsEnabled = true;
+      History.Adapter.bind( window, 'statechange', router.stateChange);
+      historyIsEnabled(true);
+    } else {
+      historyIsEnabled(false);
     }
   }
 
@@ -7511,7 +7524,7 @@ router.setupHistoryAdapter = function() {
 }
 
 router.historyIsEnabled = function() {
-  return historyIsEnabled;
+  return historyIsEnabled();
 };
 
 router.activate = _.once( _.bind(function() {
@@ -7524,8 +7537,10 @@ router.activate = _.once( _.bind(function() {
       console.info('delegateClick-event', event.delegateTarget);
     });
 
-  return router.setupHistoryAdapter().stateChanged();
+  return router.setupHistoryAdapter().stateChange();
 }, router) );
+
+router.namespace = ko.exitNamespace(); // exit from 'router' namespace
       return ko;
     })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.Q, root.Qajax );
   })();

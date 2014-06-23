@@ -44,6 +44,7 @@ ko.currentNamespace = function() {
 // 'entering' into that namespace (it is now the currentNamespace)
 ko.enterNamespaceName = function(namespaceName) {
   namespaceStack.unshift( namespaceName );
+  return ko.currentNamespace();
 };
 
 // Called at the after a model constructor function is run. exitNamespace()
@@ -51,4 +52,5 @@ ko.enterNamespaceName = function(namespaceName) {
 // next namespace in the stack
 ko.exitNamespace = function() {
   namespaceStack.shift();
+  return ko.currentNamespace();
 };
