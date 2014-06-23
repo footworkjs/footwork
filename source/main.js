@@ -107,7 +107,7 @@ var applyBindings = ko.applyBindings;
 ko.applyBindings = function(model, element) {
   applyBindings(model, element);
 
-  if(typeof model !== undefined && typeof model.startup === 'function' && typeof model._options !== 'undefined') {
+  if(typeof model !== 'undefined' && typeof model.startup === 'function' && typeof model._options !== 'undefined') {
     if(model._options.startup !== false) {
       model.startup();
     }

@@ -17,7 +17,7 @@ describe('sanity', function () {
     });
     var modelA = new ModelA();
 
-    expect(modelA.namespaceName).to.eql('ModelA');
+    expect(modelA.getNamespaceName()).to.eql('ModelA');
   });
 
   it('has the ability to create nested models with correctly defined namespaces', function() {
