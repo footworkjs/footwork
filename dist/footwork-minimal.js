@@ -16,6 +16,140 @@
   }
 }(this, function (_, ko) {
   var windowObject = window;
+
+  // Cross-browser console log() function
+  // http://patik.github.io/console.log-wrapper/
+  /**
+ * Cross-Browser console.log() Wrapper
+ *
+ * Version 2.0.0, 2013-10-20
+ * By Craig Patik
+ * https://github.com/patik/console.log-wrapper/
+ */
+/*global log:true */
+
+// Tell IE9 to use its built-in console
+if (Function.prototype.bind && /^object$|^function$/.test(typeof console) && typeof console.log === 'object' && typeof window.addEventListener === 'function') {
+    ['log', 'info', 'warn', 'error', 'assert', 'dir', 'clear', 'profile', 'profileEnd']
+        .forEach(function(method) {
+            console[method] = this.call(console[method], console);
+        }, Function.prototype.bind);
+}
+
+// log() -- The complete, cross-browser (we don't judge!) console.log wrapper for his or her logging pleasure
+if (!window.log) {
+    window.log = function() {
+        var args = arguments,
+            isIECompatibilityView = false,
+            i, sliced,
+            // Test if the browser is IE8
+            isIE8 = function _isIE8() {
+                // Modenizr, es5-shim, and other scripts may polyfill `Function.prototype.bind` so we can't rely solely on whether that is defined
+                return (!Function.prototype.bind || (Function.prototype.bind && typeof window.addEventListener === 'undefined')) &&
+                    typeof console === 'object' &&
+                    typeof console.log === 'object';
+            };
+
+        log.history = log.history || []; // store logs to an array for reference
+        log.history.push(arguments);
+
+        // If the detailPrint plugin is loaded, check for IE10- pretending to be an older version,
+        //   otherwise it won't pass the "Browser with a console" condition below. IE8-10 can use
+        //   console.log normally, even though in IE7/8 modes it will claim the console is not defined.
+        // TODO: Can someone please test this on Windows Vista and Windows 8?
+        if (log.detailPrint && log.needsDetailPrint) {
+            (function() {
+                var ua = navigator.userAgent,
+                    winRegexp = /Windows\sNT\s(\d+\.\d+)/;
+
+                // Check for certain combinations of Windows and IE versions to test for IE running in an older mode
+                if (console && console.log && /MSIE\s(\d+)/.test(ua) && winRegexp.test(ua)) {
+                    // Windows 7 or higher cannot possibly run IE7 or older
+                    if (parseFloat(winRegexp.exec(ua)[1]) >= 6.1) {
+                        isIECompatibilityView = true;
+                    }
+                    // Cannot test for IE8+ running in IE7 mode on XP (Win 5.1) or Vista (Win 6.0)...
+                }
+            }());
+        }
+
+        // Browser with a console
+        if (isIECompatibilityView || typeof console.log === 'function') {
+            sliced = Array.prototype.slice.call(args);
+
+            // Get argument details for browsers with primitive consoles if this optional plugin is included
+            if (log.detailPrint && log.needsDetailPrint) {
+                // Display a separator before the list
+                console.log('-----------------');
+                args = log.detailPrint(args);
+                i = 0;
+
+                while (i < args.length) {
+                    console.log(args[i]);
+                    i++;
+                }
+            }
+            // Single argument, which is a string
+            else if (sliced.length === 1 && typeof sliced[0] === 'string') {
+                console.log(sliced.toString());
+            }
+            else {
+                console.log(sliced);
+            }
+        }
+        // IE8
+        else if (isIE8()) {
+            if (log.detailPrint) {
+                // Prettify arguments
+                args = log.detailPrint(args);
+
+                // Add separator at the beginning of the list
+                args.unshift('-----------------');
+
+                // Loop through arguments and log them individually
+                i = 0;
+                while (i < args.length) {
+                    Function.prototype.call.call(console.log, console, Array.prototype.slice.call([args[i]]));
+                    i++;
+                }
+            }
+            else {
+                Function.prototype.call.call(console.log, console, Array.prototype.slice.call(args));
+            }
+        }
+        // IE7 and lower, and other old browsers
+        else {
+            // Inject Firebug lite
+            if (!document.getElementById('firebug-lite')) {
+                // Include the script
+                (function () {
+                    var script = document.createElement('script');
+
+                    script.type = 'text/javascript';
+                    script.id = 'firebug-lite';
+
+                    // If you run the script locally, change this to /path/to/firebug-lite/build/firebug-lite.js
+                    script.src = 'https://getfirebug.com/firebug-lite.js';
+
+                    // If you want to expand the console window by default, uncomment this line
+                    //document.getElementsByTagName('HTML')[0].setAttribute('debug','true');
+                    document.getElementsByTagName('HEAD')[0].appendChild(script);
+                }());
+
+                setTimeout(function() {
+                    window.log.apply(window, args);
+                }, 2000);
+            }
+            else {
+                // FBL was included but it hasn't finished loading yet, so try again momentarily
+                setTimeout(function() {
+                    window.log.apply(window, args);
+                }, 500);
+            }
+        }
+    };
+}
+
   
   return (function() {
     // define our own root object to supply to the modules as an attachment point
@@ -6817,91 +6951,25 @@ if (!String.prototype.trim) {
   };
 }
 
-//see http://patik.com/blog/complete-cross-browser-console-log/
-// Tell IE9 to use its built-in console
-var treatAsIE8 = false;
-if (Function.prototype.bind && (typeof console === 'object' || typeof console === 'function') && typeof console.log == 'object') {
-  try {
-    ['log', 'info', 'warn', 'error', 'assert', 'dir', 'clear', 'profile', 'profileEnd']
-      .forEach(function(method) {
-        console[method] = this.call(console[method], console);
-      }, Function.prototype.bind);
-  } catch (ex) {
-    treatAsIE8 = true;
-  }
-}
-
 // misc utility noop function
 var noop = function() { };
 
 // Initialize the debugLevel observable, this controls
 // what level of debug statements are logged to the console
 // 0 === off
-// 1 === errors
+// 1 === errors / problems only
 // 2 === notices (very noisy)
-ko.debugLevel = ko.observable(0);
+ko.debugLevel = ko.observable(1);
 
-// internal logging method used when debugging is on
-var log;
-ko.log = log = function() {
-  if(ko.debugLevel() > 2) {
-    // originally sourced from Durandal (http://durandaljs.com/)
-    try {
-      // Modern browsers
-      if (typeof console != 'undefined' && typeof console.log == 'function') {
-        // Opera 11
-        if (window.opera) {
-          var i = 0;
-          while (i < arguments.length) {
-            console.log('Item ' + (i + 1) + ': ' + arguments[i]);
-            i++;
-          }
-        }
-        // All other modern browsers
-        else if ((slice.call(arguments)).length == 1 && typeof slice.call(arguments)[0] == 'string') {
-          console.log((slice.call(arguments)).toString());
-        } else {
-          console.log.apply(console, slice.call(arguments));
-        }
-      }
-      // IE8
-      else if ((!Function.prototype.bind || treatAsIE8) && typeof console != 'undefined' && typeof console.log == 'object') {
-        Function.prototype.call.call(console.log, console, slice.call(arguments));
-      }
-
-      // IE7 and lower, and other old browsers
-    } catch (ignore) { }
+// expose internal logging methods
+ko.log = function() {
+  if(ko.debugLevel() >= 2) {
+    log.apply(null, arguments);
   }
 };
-
-var logError;
-ko.logError = logError = function(error, err) {
-  if(ko.debugLevel() > 1) {
-    // originally sourced from Durandal (http://durandaljs.com/)
-    var exception;
-    
-    if(error instanceof Error){
-      exception = error;
-    } else {
-      exception = new Error(error);
-    }
-    
-    exception.innerError = err;
-    
-    //Report the error as an error, not as a log
-    try {
-      // Modern browsers (it's only a single item, no need for argument splitting as in log() above)
-      if (typeof console != 'undefined' && typeof console.error == 'function') {
-        console.error(exception);
-      }
-      // IE8
-      else if ((!Function.prototype.bind || treatAsIE8) && typeof console != 'undefined' && typeof console.error == 'object') {
-        Function.prototype.call.call(console.error, console, exception);
-      }
-      // IE7 and lower, and other old browsers
-    } catch (ignore) { }
-
-    throw exception;
+ko.logError = function() {
+  if(ko.debugLevel() >= 1) {
+    log.apply(null, arguments);
   }
 };
 
@@ -7378,20 +7446,18 @@ ko.extenders.delayWrite = function( target, options ) {
 /**
  * Example route:
  * {
- *   routes: [{
- *     route: 'test/route(/:optional)',
- *     title: function() {
- *       return ko.request('nameSpace', 'broadcast:someVariable');
- *     },
- *     nav: true
- *   }]
+ *   route: 'test/route(/:optional)',
+ *   title: function() {
+ *     return ko.request('nameSpace', 'broadcast:someVariable');
+ *   },
+ *   nav: true
  * }
  */
 
 var routerDefaultConfig = {
-  baseRoute: 'http://site.com',
+  baseRoute: null,
+  unknownRoute: null,
   activate: true,
-  unknownRoute: undefined,
   routes: []
 };
 
@@ -7420,6 +7486,7 @@ var namedParam = /(\(\?)?:\w+/g;
 var splatParam = /\*\w+/g;
 var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var routesAreCaseSensitive = false;
+var hashMatch = /(^\/#)*(^#)*/;
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
 function routeStringToRegExp(routeString) {
@@ -7434,12 +7501,15 @@ function routeStringToRegExp(routeString) {
 }
 
 function normalizeURL(url) {
-  return url.substr(router.config.baseRoute.length).replace(/(^\/#)*(^#)*/, '/');
+  if(_.isNull(router.config.baseRoute) === false && url.indexOf(router.config.baseRoute) === 0) {
+    url = url.substr(router.config.baseRoute.length);
+  }
+  return url.replace(hashMatch, '/');
 }
 
 function historyReady() {
   var isReady = _.has(History, 'Adapter');
-  isReady === false && errorLog('History.js is not loaded.');
+  isReady === false && ko.logError('History.js is not loaded.');
 
   return isReady;
 }
@@ -7501,9 +7571,13 @@ router.stateChange = function(url) {
 
   return router;
 };
+currentState.subscribe(function(newState) {
+  ko.log('New Route:', newState);
+});
 
 var getActionFor = router.getActionFor = function(url) {
   var Action = noop;
+  var originalURL = url;
 
   _.each(router.getRoutes(), function(routeDesc) {
     var routeString = routeDesc.route;
@@ -7530,6 +7604,10 @@ var getActionFor = router.getActionFor = function(url) {
       Action.options = options;
     }
   });
+
+  if(Action === noop) {
+    ko.logError('Route for [', originalURL, '] has no associated action.');
+  }
 
   return Action;
 };

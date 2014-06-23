@@ -4,20 +4,18 @@
 /**
  * Example route:
  * {
- *   routes: [{
- *     route: 'test/route(/:optional)',
- *     title: function() {
- *       return ko.request('nameSpace', 'broadcast:someVariable');
- *     },
- *     nav: true
- *   }]
+ *   route: 'test/route(/:optional)',
+ *   title: function() {
+ *     return ko.request('nameSpace', 'broadcast:someVariable');
+ *   },
+ *   nav: true
  * }
  */
 
 var routerDefaultConfig = {
-  baseRoute: 'http://site.com',
+  baseRoute: null,
+  unknownRoute: null,
   activate: true,
-  unknownRoute: undefined,
   routes: []
 };
 
@@ -46,6 +44,7 @@ var namedParam = /(\(\?)?:\w+/g;
 var splatParam = /\*\w+/g;
 var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var routesAreCaseSensitive = false;
+var hashMatch = /(^\/#)*(^#)*/;
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
 function routeStringToRegExp(routeString) {
@@ -60,12 +59,15 @@ function routeStringToRegExp(routeString) {
 }
 
 function normalizeURL(url) {
-  return url.substr(router.config.baseRoute.length).replace(/(^\/#)*(^#)*/, '/');
+  if(_.isNull(router.config.baseRoute) === false && url.indexOf(router.config.baseRoute) === 0) {
+    url = url.substr(router.config.baseRoute.length);
+  }
+  return url.replace(hashMatch, '/');
 }
 
 function historyReady() {
   var isReady = _.has(History, 'Adapter');
-  isReady === false && errorLog('History.js is not loaded.');
+  isReady === false && ko.logError('History.js is not loaded.');
 
   return isReady;
 }
@@ -127,9 +129,13 @@ router.stateChange = function(url) {
 
   return router;
 };
+currentState.subscribe(function(newState) {
+  ko.log('New Route:', newState);
+});
 
 var getActionFor = router.getActionFor = function(url) {
   var Action = noop;
+  var originalURL = url;
 
   _.each(router.getRoutes(), function(routeDesc) {
     var routeString = routeDesc.route;
@@ -156,6 +162,10 @@ var getActionFor = router.getActionFor = function(url) {
       Action.options = options;
     }
   });
+
+  if(Action === noop) {
+    ko.logError('Route for [', originalURL, '] has no associated action.');
+  }
 
   return Action;
 };

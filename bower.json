@@ -38,6 +38,7 @@
     "postal.js": "0.10.0",
     "conduitjs": "0.3.2",
     "apollo": "https://github.com/toddmotto/apollo.git#1.6.0",
+    "consolelog": "*",
     "history.js": "1.8.0",
     "delegate.js": "1.0.2",
     "q": "*",
