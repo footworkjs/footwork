@@ -8,11 +8,16 @@ ko.component = function(options) {
   }
 
   options.namespace = options.name = _.result(options, 'name');
-  var viewModel = (options.constructor._isFootworkModel === true ? options.constructor : this.model(options));
-  viewModel.options.componentNamespace = options.namespace;
+  var viewModel = options.initialize || options.viewModel;
+  if( isFootworkModel(viewModel) ) {
+    viewModel.options.componentNamespace = options.namespace;
+  } else if( _.isFunction(viewModel) ) {
+    viewModel = this.model(options);
+  }
 
   //TODO: determine how mixins from the (optionally) supplied footwork model mix in with the mixins supplied directly in the component options
-  //      as well as others like params, afterBinding.
+  //      as well as others like params, afterBinding. Currently we will just use the viewModel's mixins/etc, only the namespace is overridden
+  //      from the template definition.
 
   ko.components.register(options.name, {
     viewModel: viewModel,
