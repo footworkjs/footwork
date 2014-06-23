@@ -14,22 +14,24 @@
  * }
  */
 
-// Create the main router method. This can be used to both activate and add routes.
+var routerDefaultConfig = {
+  baseRoute: 'http://site.com',
+  activate: true,
+  unknownRoute: undefined,
+  routes: []
+};
+
+// Create the main router method. This can be used to both activate the router and setup routes.
 var router = ko.router = function(config) {
   var router = this.router;
 
-  router.config = config = _.extend({
-    baseRoute: 'http://site.com',
-    activate: true,
-    unknownRoute: undefined,
-    routes: []
-  }, router.config, config);
+  router.config = config = _.extend({}, routerDefaultConfig, router.config, config);
   router.config.baseRoute = _.result(router.config, 'baseRoute');
 
   return (config.activate ? router.setRoutes().activate() : router.setRoutes());
 };
 
-router.config = {};
+router.config = _.clone(routerDefaultConfig);
 router.namespace = ko.enterNamespaceName('router');
 
 // Initialize necessary cache and boolean registers
@@ -81,6 +83,10 @@ function unknownRoute() {
   return (typeof router.config !== 'undefined' ? _.result(router.config.unknownRoute) : undefined);
 }
 
+function normalizeURL(url) {
+  return url.substr(router.config.baseRoute.length).replace(/(^\/#)*(^#)*/, '/');
+}
+
 router.setRoutes = function(route) {
   routes = [];
   router.addRoutes(route || this.config.routes);
@@ -116,34 +122,43 @@ router.navigationModel = function(predicate) {
 
 var currentState = ko.observable().broadcastAs('currentState');
 router.stateChange = function(url) {
-  url = url || (historyIsEnabled() ? History.getState().url : '#default');
-  currentState(url);
-  this.namespace.publish('stateChange', url);
-  var route = this.getRouteFor(url);
+  currentState( url = normalizeURL( url || (historyIsEnabled() ? History.getState().url : '#default') ) );
+  getActionFor(url)(); // get the route if it exists and run the action if one is returned
 
   return router;
 };
 
-router.getRouteFor = function(url) {
-  var matchParams;
-  url = url.substr(router.config.baseRoute.length);
+var getActionFor = router.getActionFor = function(url) {
+  var action = noop;
 
   _.each(router.getRoutes(), function(routeDesc) {
     var routeString = routeDesc.route;
     var routeRegex = routeStringToRegExp(routeString);
     var routeParamValues = url.match(routeRegex);
 
-    if(routeParamValues !== null) {
+    if(routeParamValues !== null && action === noop) {
       var routeParams = _.map(routeString.match(namedParam), function(param) {
         return param.replace(':','');
       });
 
-      routeDesc.controller( _.reduce(routeParams, function(parameters, parameterName, index) {
-        parameters[parameterName] = routeParamValues[index + 1];
-        return parameters;
-      }, {}) );
+      var options = {
+        controller: routeDesc.controller,
+        url: routeParamValues[0],
+        params: _.reduce(routeParams, function(parameters, parameterName, index) {
+            parameters[parameterName] = routeParamValues[index + 1];
+            return parameters;
+          }, {})
+      };
+      
+      action = function(params) {
+        _.extend(options.params, params);
+        options.controller( options.params );
+      };
+      action.options = options;
     }
   });
+
+  return action;
 };
 
 router.getRoutes = function() {
