@@ -20,7 +20,7 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   } else if(typeof namespace === 'string') {
     channel = postal.channel( namespace );
   } else {
-    ko.logError('Invalid namespace [' + typeof namespace + ']');
+    logError('Invalid namespace [' + typeof namespace + ']');
     return observable;
   }
 
@@ -46,6 +46,7 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
 //     this.myValue = ko.observable().broadcastAs('NameOfVar', isWritable);
 //     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', writable: true });
 //     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', namespace: Namespace });
+//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', namespace: 'NamespaceName' });
 ko.subscribable.fn.broadcastAs = function(varName, option) {
   var observable = this, channel;
 
@@ -67,7 +68,11 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
       };
     }
   }
+
   channel = option.namespace || ko.currentNamespace();
+  if(typeof channel === 'string') {
+    channel = ko.namespace(channel);
+  }
 
   if( option.writable ) {
     channel.subscribe( 'change.' + option.name, function( newValue ) {
