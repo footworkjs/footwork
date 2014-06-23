@@ -41,7 +41,7 @@ function routeStringToRegExp(routeString) {
 
 function historyReady() {
   var isReady = _.has(History, 'Adapter');
-  isReady === false && log('History.js is not loaded.');
+  isReady === false && router.errorLog('History.js is not loaded.');
 
   return isReady;
 }
