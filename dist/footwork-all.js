@@ -12689,6 +12689,7 @@ var getActionFor = router.getActionFor = function(url) {
 
       var options = {
         controller: routeDesc.controller,
+        title: routeDesc.title,
         url: routeParamValues[0],
         params: _.reduce(routeParams, function(parameters, parameterName, index) {
             parameters[parameterName] = routeParamValues[index + 1];
