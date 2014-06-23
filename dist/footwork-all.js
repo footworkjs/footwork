@@ -12018,6 +12018,27 @@ ko.applyBindings = function(model, element) {
 // model-namespace.js
 // ------------------
 
+// Initialize the models registry
+var models = {};
+
+// This counter is used when model options { autoIncrement: true } and more than one model
+// having the same namespace is instantiated. This is used in the event you do not want
+// multiple copies of the same model to share the same namespace (if they do share a
+// namespace, they receive all of the same events/messages/commands/etc).
+var namespaceNameCounter = {};
+
+// Returns a normalized namespace name based off of 'name'. It will register the name counter
+// if not present and increment it if it is, then return the name (with the counter appended
+// if autoIncrement === true).
+function indexedNamespaceName(name, autoIncrement) {
+  if(namespaceNameCounter[name] === undefined) {
+    namespaceNameCounter[name] = 0;
+  } else {
+    namespaceNameCounter[name]++;
+  }
+  return name + ((autoIncrement === true && namespaceNameCounter[name] > 0) ? namespaceNameCounter[name] : '');
+}
+
 // Prepare an empty namespace stack.
 // This is where footwork registers its current working namespace name. Each new namespace is
 // 'unshifted' and 'shifted' as they are entered and exited, keeping the most current at
@@ -12085,53 +12106,24 @@ ko.refreshModels = function() {
   _.invoke(ko.getModels(), 'refreshReceived');
 };
 
-// Initialize the models registry
-var models = {};
-
-// This counter is used when model options { autoIncrement: true } and more than one model
-// having the same namespace is instantiated. This is used in the event you do not want
-// multiple copies of the same model to share the same namespace (if they do share a
-// namespace, they receive all of the same events/messages/commands/etc).
-var namespaceNameCounter = {};
-
-function indexedNamespaceName(name, autoIncrement) {
-  if(namespaceNameCounter[name] === undefined) {
-    namespaceNameCounter[name] = 0;
-  } else {
-    namespaceNameCounter[name]++;
-  }
-  return name + ((autoIncrement === true && namespaceNameCounter[name] > 0) ? namespaceNameCounter[name] : '');
-}
-
-function NamespaceMask(namespaceName) {
-  this._preInit = function() {
-    this.forceNamespaceName = namespaceName;
-  };
-  this._postInit = function() {
-    delete this.forceNamespaceName;
-  };
-}
-
 ko.model = function(modelOptions) {
   modelOptions = _.extend({
     namespace: undefined,
+    componentNamespace: undefined,
     autoIncrement: false,
     mixins: undefined,
     params: undefined,
-    afterBinding: function() {},
-    constructor: function() {},
-    componentNamespace: undefined
+    afterBinding: noop,
+    constructor: noop
   }, modelOptions);
-
-  // var mask = new NamespaceMask(namespaceName);
 
   var viewModel = {
     _preInit: function( options ) {
       modelOptions.namespace = indexedNamespaceName(modelOptions.componentNamespace || modelOptions.namespace || _.uniqueId('namespace'), modelOptions.autoIncrement);
       this._modelOptions = modelOptions;
 
-      // var namespace = ko.currentNamespace();
       ko.enterNamespaceName( modelOptions.namespace );
+
       this.namespace = ko.currentNamespace();
       this._globalNamespace = ko.namespace();
     },
@@ -12170,6 +12162,7 @@ ko.model = function(modelOptions) {
       }
 
       ko.exitNamespace();
+
       this.startup();
       _.isFunction(modelOptions.afterCreating) && modelOptions.afterCreating.call(this);
     }
