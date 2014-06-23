@@ -7411,19 +7411,21 @@ function isObservable(thing) {
 }
 
 function unknownRoute() {
-  return (typeof router.config !== 'undefined' ? _.result(router.config.route404) : undefined);
+  return (typeof router.config !== 'undefined' ? _.result(router.config.unknownRoute) : undefined);
 }
 
 var router = ko.router = function(config) {
   var router = this.router;
 
   router.config = config = _.extend({
+    baseRoute: 'http://site.com',
     activate: true,
+    unknownRoute: undefined,
     routes: []
   }, router.config, config);
-  router.setRoutes();
+  router.config.baseRoute = _.result(router.config, 'baseRoute');
 
-  return (config.activate ? router.activate() : router);
+  return (config.activate ? router.setRoutes().activate() : router.setRoutes());
 };
 
 router.config = {};
@@ -7471,8 +7473,24 @@ router.stateChanged = function(url) {
 };
 
 router.getRouteFor = function(url) {
+  var matchParams;
+  url = url.substr(router.config.baseRoute.length);
+  console.info('getRouteFor', url);
+  // {
+  //   route: 'test/route(/:optional)',
+  //   controller: module,
+  //   title: function() {
+  //     return ko.request('nameSpace', 'broadcast:someVariable');
+  //   },
+  //   nav: true
+  // }
+
   _.each(router.getRoutes(), function(route) {
-    console.log(route);
+    var routeRegex;
+    if(url.match(routeRegex = routeStringToRegExp( route.route )) !== null) {
+      // found matching route
+      route.controller(route.route.split(/\//));
+    }
   });
 };
 
@@ -7489,7 +7507,7 @@ router.setupHistoryAdapter = function() {
     }
   }
 
-  return historyIsEnabled;
+  return router;
 }
 
 router.historyIsEnabled = function() {
@@ -7497,8 +7515,6 @@ router.historyIsEnabled = function() {
 };
 
 router.activate = _.once( _.bind(function() {
-  router.setupHistoryAdapter();
-
   delegate(document)
     .on('click', 'a', function(event) {
       console.info('delegateClick-event', event.delegateTarget);
@@ -7508,7 +7524,7 @@ router.activate = _.once( _.bind(function() {
       console.info('delegateClick-event', event.delegateTarget);
     });
 
-  return router.stateChanged();
+  return router.setupHistoryAdapter().stateChanged();
 }, router) );
       return ko;
     })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.Q, root.Qajax );
