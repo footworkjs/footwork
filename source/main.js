@@ -39,7 +39,8 @@ var noop = function() { };
 ko.debugLevel = ko.observable(0);
 
 // internal logging method used when debugging is on
-ko.log = function() {
+var log;
+ko.log = log = function() {
   if(ko.debugLevel() > 2) {
     // originally sourced from Durandal (http://durandaljs.com/)
     try {
@@ -70,7 +71,8 @@ ko.log = function() {
   }
 };
 
-ko.logError = function(error, err) {
+var logError;
+ko.logError = logError = function(error, err) {
   if(ko.debugLevel() > 1) {
     // originally sourced from Durandal (http://durandaljs.com/)
     var exception;
