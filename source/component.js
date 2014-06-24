@@ -1,10 +1,10 @@
 ko.component = function(options) {
   if(typeof options.name !== 'string') {
-    throw 'Components must be provided a name (namespace).';
+    ko.logError('Components must be provided a name (namespace).');
   }
 
   if(typeof options.template !== 'string') {
-    throw 'Components must be provided a template.';
+    ko.logError('Components must be provided a template.');
   }
 
   options.namespace = options.name = _.result(options, 'name');
