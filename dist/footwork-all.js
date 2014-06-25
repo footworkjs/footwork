@@ -12587,12 +12587,12 @@ var hashMatch = /(^\/#)*(^#)*/;
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
 function routeStringToRegExp(routeString) {
-  routeString = routeString.replace(escapeRegExp, '\\$&')
-    .replace(optionalParam, '(?:$1)?')
+  routeString = routeString.replace(escapeRegExp, "\\$&")
+    .replace(optionalParam, "(?:$1)?")
     .replace(namedParam, function(match, optional) {
-      return optional ? match : '([^\/]+)';
+      return optional ? match : "([^\/]+)";
     })
-    .replace(splatParam, '(.*?)');
+    .replace(splatParam, "(.*?)");
 
   return new RegExp('^' + routeString + '$', routesAreCaseSensitive ? undefined : 'i');
 }

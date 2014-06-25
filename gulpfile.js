@@ -160,10 +160,10 @@ gulp.task('doc_js', function() {
 
 gulp.task('doc_index', function() {
   return gulp.src('docs/templates/index.html')
-    .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
-    .pipe(replace(/FOOTWORK_SOURCEFILES/g, JSON.stringify(sourceFiles)))
-    .pipe(replace(/FOOTWORK_STATEMENT/g, statement))
-    .pipe(replace(/FOOTWORK_PAGECONTENT/, fs.readFileSync('docs/pages/footwork-raw.html', 'utf8').replace('FOOTWORK_VERSION', pkg.version, 'g')))
+    .pipe( replace('FOOTWORK_VERSION', pkg.version, 'g') )
+    .pipe( replace('FOOTWORK_SOURCEFILES', JSON.stringify(sourceFiles), 'g') )
+    .pipe( replace('FOOTWORK_STATEMENT', statement, 'g') )
+    .pipe( replace('FOOTWORK_PAGECONTENT', fs.readFileSync('docs/pages/footwork-raw.html', 'utf8').replace('FOOTWORK_VERSION', pkg.version, 'g')) )
     .pipe(gulp.dest('./docs'));
 });
 
