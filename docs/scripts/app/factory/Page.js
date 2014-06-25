@@ -15,7 +15,7 @@ define([ "jquery", "lodash", "knockout-footwork", "history" ],
           }
         }
       },
-      factory: function() {
+      initialize: function() {
         var pageSectionsNamespace = ko.namespace('PageSections'),
             paneElementsNamespace = ko.namespace('PaneElements'),
             $mainContent = $('.js-main');

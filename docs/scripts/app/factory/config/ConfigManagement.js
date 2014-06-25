@@ -2,7 +2,7 @@ define([ "knockout-footwork", "lodash" ],
   function( ko, _ ) {
     return ko.model({
       namespace: 'ConfigManagement',
-      factory: function() {
+      initialize: function() {
         var Configuration = ko.namespace('Configuration');
 
         this.config = {

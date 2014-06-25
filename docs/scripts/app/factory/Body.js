@@ -5,7 +5,7 @@ define([ "knockout-footwork", "lodash" ],
       afterBinding: function() {
         this.initialized( true );
       },
-      factory: function() {
+      initialize: function() {
         this.initialized = ko.observable(false);
         this.configVisible = ko.observable().receiveFrom('Configuration', 'visible');
         this.configReflowing = ko.observable().receiveFrom('Configuration', 'reflowing');
@@ -146,7 +146,7 @@ define([ "knockout-footwork", "lodash" ],
 
         this.minHeight.extend({ throttle: 150 })
           .subscribe(function() {
-            this._globalChannel.publish('refreshDocSize');
+            this._globalNamespace.publish('refreshDocSize');
           }, this);
 
         this.uiState = ko.computed(function() {

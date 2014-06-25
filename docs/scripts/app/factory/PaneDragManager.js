@@ -22,7 +22,7 @@ define([ "jquery", "lodash", "knockout-footwork" ],
           });
         }
       },
-      factory: function() {
+      initialize: function() {
         var dragPointers = [],
             lastMove = { movePoint: { x: 0 } },
             clickTimeout,

@@ -2,7 +2,7 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "paneEntry" ],
   function( $, _, ko, paneArea, paneEntry ) {
     var Entry = ko.model({
       mixins: paneEntry,
-      factory: function(options) {
+      initialize: function(options) {
         var entryData = options.entryData;
 
         this.raw = ko.observable( entryData.data );
@@ -73,7 +73,7 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "paneEntry" ],
     return ko.model({
       namespace: 'Reddit',
       mixins: paneArea,
-      params: { EntryFactory: Entry, url: '/json/redditAPI/page/' }
+      params: { Entryinitialize: Entry, url: '/json/redditAPI/page/' }
     });
   }
 );

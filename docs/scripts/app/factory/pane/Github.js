@@ -2,7 +2,7 @@ define([ "knockout-footwork", "paneArea", "paneEntry" ],
   function( ko, paneArea, paneEntry ) {
     var Entry = ko.model({
       mixins: paneEntry,
-      factory: function(options) {
+      initialize: function(options) {
         var raw;
         this.raw = ko.observable( raw = options.entryData || {} );
         this.type = raw.type;
@@ -15,8 +15,8 @@ define([ "knockout-footwork", "paneArea", "paneEntry" ],
     return ko.model({
       namespace: 'Github',
       mixins: paneArea,
-      params: { EntryFactory: Entry, url: '/json/githubAPI/page/' },
-      factory: function() {
+      params: { Entryinitialize: Entry, url: '/json/githubAPI/page/' },
+      initialize: function() {
         this.entryTypes = function() {
           return _.reduce(this.entries(), function(entries, entry) {
             entries.push(entry.raw().type);

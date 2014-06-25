@@ -22,27 +22,6 @@ define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
         }, this);
         this.moreUnavailable = ko.observable(false);
         this.moreEntriesButtonText = this.loader.message;
-        this.initialized = ko.computed(function() {
-          return !!this.entries().length;
-        }, this);
-
-        this.visible = ko.computed(function() {
-          if( this.currentSelection() === this.namespaceName ) {
-            if( this.entries().length === 0 ) {
-              this.loadEntries();
-            }
-            return true;
-          }
-          return false;
-        }, this);
-
-        this.state = ko.computed(function() {
-          return {
-            initialized: this.initialized(),
-            visible: this.visible(),
-            loading: this.loader.loading()
-          };
-        }, this);
 
         this.loadEntries = function() {
           var currentPage = this.currentPage();
@@ -65,6 +44,28 @@ define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
               }.bind(this));
           }
         }.bind(this);
+        
+        this.initialized = ko.computed(function() {
+          return !!this.entries().length;
+        }, this);
+
+        this.visible = ko.computed(function() {
+          if( this.currentSelection() === this.namespaceName ) {
+            if( this.entries().length === 0 ) {
+              this.loadEntries();
+            }
+            return true;
+          }
+          return false;
+        }, this);
+
+        this.state = ko.computed(function() {
+          return {
+            initialized: this.initialized(),
+            visible: this.visible(),
+            loading: this.loader.loading()
+          };
+        }, this);
       }
     };
   }

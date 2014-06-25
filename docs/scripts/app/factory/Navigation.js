@@ -2,7 +2,7 @@ define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
   function( $, _, ko, LoadState ) {
     return ko.model({
       namespace: 'Navigation',
-      factory: function() {
+      initialize: function() {
         this.viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
         this.configVisible = ko.observable().receiveFrom('Configuration', 'visible');
         this.headerMaxHeight = ko.observable().receiveFrom('Configuration', 'headerMaxHeight');
@@ -26,14 +26,14 @@ define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
 
         this.loader = new LoadState({ ignoreStatus: 404 });
 
-        this._globalChannel.subscribe('configReset', function() {
+        this._globalNamespace.subscribe('configReset', function() {
           this.headerOpen(false);
         }).withContext(this);
 
         var pageNamespace = ko.namespace('Page');
         pageNamespace.subscribe('loadingPage', function(promise) {
           this.loader.watch( promise, (this.viewPortLayoutMode() === 'mobile' ? 400 : 300), function() {
-            this._globalChannel.publish( 'refreshDocSize' );
+            this._globalNamespace.publish( 'refreshDocSize' );
           }.bind(this)).fail(function(xhr) {
             if(xhr.status === 404) {
               this.loader.setState('ready');

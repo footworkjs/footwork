@@ -40,7 +40,7 @@ define([ "require", "jquery", "lodash", "knockout-footwork", "LoadState" ],
 
     var Theme = ko.model({
       namespace: 'Theme',
-      factory: function(options) {
+      initialize: function(options) {
         var colorHexFilter = /[^a-f0-9]/gi;
         options = options || {};
 
@@ -117,7 +117,7 @@ define([ "require", "jquery", "lodash", "knockout-footwork", "LoadState" ],
       afterBinding: function() {
         this.currentTheme( new Theme(window.theme) );
       },
-      factory: function() {
+      initialize: function() {
         themes = this;
 
         this.config = {
@@ -225,7 +225,7 @@ define([ "require", "jquery", "lodash", "knockout-footwork", "LoadState" ],
 
                   this.visibleHeaderHeight.subscribe(function() { $colorPickers.spectrum('hide'); });
                   this.paneWidth.subscribe(function() { $colorPickers.spectrum('hide'); });
-                  this._globalChannel.subscribe('enableControl', function() { $colorPickers.spectrum('hide'); });
+                  this._globalNamespace.subscribe('enableControl', function() { $colorPickers.spectrum('hide'); });
                   configurationNamespace.subscribe('reset', function() { $colorPickers.spectrum('hide'); });
                   this.config.visible.subscribe(function(state) { state === false && $colorPickers.spectrum('hide'); });
 

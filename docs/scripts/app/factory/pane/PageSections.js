@@ -5,7 +5,7 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "jquery.pulse" ],
       afterCreating: function() {
         this.visible( false );
       },
-      factory: function(pageSectionData) {
+      initialize: function(pageSectionData) {
         var paneElementsNamespace = ko.namespace('PaneElements'),
             computeAnchorPos, anchorComputeDelay = 100;
 
@@ -28,7 +28,11 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "jquery.pulse" ],
           return $( '#' + this.anchor() ).parents('.section');
         }, this);
         this.anchorName = ko.computed(function() {
-          return this.$anchorElement().find('a.pilcrow').attr('href').replace('#', '');
+          var $anchorElement = this.$anchorElement();
+          if($anchorElement.length) {
+            return this.$anchorElement().find('a.pilcrow').attr('href').replace('#', '');
+          }
+          return null;
         }, this);
         this.anchorAddress = ko.computed(function() {
           return this.pageBaseURL() + '#' + this.anchorName();
@@ -79,7 +83,7 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "jquery.pulse" ],
     return ko.model({
       namespace: 'PageSections',
       mixins: paneArea,
-      factory: function() {
+      initialize: function() {
         this.visible = ko.observable(false);
         this.description = ko.observable();
         this.initialized = ko.observable(true);
@@ -131,7 +135,7 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "jquery.pulse" ],
           }, [] ));
 
           if( this.hasSections() && this.viewPortLayoutMode() !== 'mobile' ) {
-            this.currentSelection( this.namespaceName );
+            this.currentSelection( this.getNamespaceName() );
           } else {
             this.currentSelection( this.defaultPaneSelection() );
           }
@@ -149,7 +153,7 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "jquery.pulse" ],
         }).withContext(this);
 
         this.currentSelection.subscribe(function( newSelection ) {
-          this.visible( newSelection === this.namespaceName );
+          this.visible( newSelection === this.getNamespaceName() );
         }, this);
       }
     });

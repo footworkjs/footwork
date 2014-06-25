@@ -9,7 +9,7 @@ define([ "jquery", "lodash", "knockout-footwork" ],
           this.config.paneCollapsed(true);
         }
       },
-      factory: function() {
+      initialize: function() {
         this.config = {
           transitionsEnabled: ko.observable().receiveFrom('Configuration', 'transitionsEnabled'),
           paneAccentPadding: ko.observable().receiveFrom('Configuration', 'paneAccentPadding'),
@@ -28,7 +28,7 @@ define([ "jquery", "lodash", "knockout-footwork" ],
           write: function( observable, value ) {
             this.resizing( true );
             observable( value );
-            this._globalChannel.publish( 'refreshDocSize' );
+            this._globalNamespace.publish( 'refreshDocSize' );
           }.bind( this )
         }).broadcastAs('dimensions', true);
         this.isTablet = ko.observable( window.isTablet ).broadcastAs('isTablet', true);

@@ -40,6 +40,6 @@
     "commit": "7db393a3f6f2c3ac920a117bdcfa314d491f6ef3"
   },
   "_source": "git://github.com/a2labs/riveter.git",
-  "_target": "*",
+  "_target": "0.1.2",
   "_originalSource": "riveter"
 }

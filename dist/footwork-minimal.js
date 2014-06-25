@@ -6984,6 +6984,7 @@ ko.applyBindings = function(model, element) {
     if(model._options.startup !== false) {
       model.startup();
     }
+    console.log('applyBindings',model);
     if(typeof model._modelOptions.afterBinding === 'function') {
       model._modelOptions.afterBinding.call(model);
     }
@@ -7050,13 +7051,13 @@ ko.exitNamespace = function() {
 // model.js
 // ------------------
 
-// Initialize the models registry
-var models = {};
-
 // Duck type function for determining whether or not something is a footwork model
 function isFootworkModel(thing) {
   return typeof thing !== 'undefined' && thing._isFootworkModel === true;
 }
+
+// Initialize the models registry
+var models = {};
 
 // Returns the number of created models for each defined namespace
 ko.modelCount = function() {
@@ -7103,6 +7104,7 @@ ko.model = function(modelOptions) {
     _preInit: function( options ) {
       modelOptions.namespace = indexedNamespaceName(modelOptions.componentNamespace || modelOptions.namespace || _.uniqueId('namespace'), modelOptions.autoIncrement);
       this._modelOptions = modelOptions;
+      this._options = options;
 
       ko.enterNamespaceName( modelOptions.namespace );
 
@@ -7157,11 +7159,11 @@ ko.model = function(modelOptions) {
 };
 ko.component = function(options) {
   if(typeof options.name !== 'string') {
-    throw 'Components must be provided a name (namespace).';
+    ko.logError('Components must be provided a name (namespace).');
   }
 
   if(typeof options.template !== 'string') {
-    throw 'Components must be provided a template.';
+    ko.logError('Components must be provided a template.');
   }
 
   options.namespace = options.name = _.result(options, 'name');

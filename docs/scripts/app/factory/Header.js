@@ -2,7 +2,7 @@ define([ "knockout-footwork", "lodash" ],
   function( ko, _ ) {
     return ko.model({
       namespace: 'Header',
-      factory: function() {
+      initialize: function() {
         var CLOSED = true,
             OPEN = false,
             DIRECTION_DOWN = 1,

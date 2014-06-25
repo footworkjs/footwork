@@ -2,7 +2,7 @@ define([ "knockout-footwork", "lodash" ],
   function( ko, _ ) {
     return ko.model({
       namespace: 'Pane',
-      factory: function() {
+      initialize: function() {
         this.config = {
           paneMaxWidth: ko.observable().receiveFrom('Configuration', 'paneMaxWidth'),
           paneCollapsed: ko.observable().receiveFrom('Configuration', 'paneCollapsed'),

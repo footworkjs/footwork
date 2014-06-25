@@ -1,0 +1,17 @@
+{
+    "name": "matches.js",
+    "description": "Test if a DOM element matches a given selector",
+    "version": "1.0.3",
+    "main": "matches.js",
+    "ignore": [
+        "test",
+        ".jshintrc",
+        ".travis.yml",
+        "CHANGELOG.md",
+        "karma.conf.js",
+        "package.json"
+    ],
+    "devDependencies": {
+        "chai": "*"
+    }
+}

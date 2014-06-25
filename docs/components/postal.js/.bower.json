@@ -44,6 +44,6 @@
     "commit": "83c0a63a81e034ebc75b24c660cd7d361a53d3bc"
   },
   "_source": "git://github.com/postaljs/postal.js.git",
-  "_target": ">=0.10.0",
+  "_target": "0.10.0",
   "_originalSource": "postal.js"
 }

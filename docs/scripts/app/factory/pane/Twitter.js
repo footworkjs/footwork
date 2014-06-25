@@ -2,7 +2,7 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "paneEntry" ],
   function( $, _, ko, paneArea, paneEntry ) {
     var Entry = ko.model({
       mixins: paneEntry,
-      factory: function(options) {
+      initialize: function(options) {
         var entryData = options.entryData || {};
         this.raw = ko.observable( entryData || {} );
         this.html = ko.observable( entryData.html );
@@ -12,7 +12,7 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "paneEntry" ],
     return ko.model({
       namespace: 'Twitter',
       mixins: paneArea,
-      factory: function() {
+      initialize: function() {
         this.loadEntries = function() {
           var currentPage = this.currentPage();
           this.currentPage( currentPage + 1 );
@@ -22,7 +22,7 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "paneEntry" ],
               this.moreUnavailable( false );
 
               _.each( entries, function( entryData ) {
-                this.entries.push( new Entry({ namespace: this.namespaceName, entryData: entryData }) );
+                this.entries.push( new Entry({ namespace: this.getNamespaceName(), entryData: entryData }) );
               }.bind(this) );
             } else {
               this.moreUnavailable( true );

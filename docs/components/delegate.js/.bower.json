@@ -1,0 +1,30 @@
+{
+  "name": "delegate.js",
+  "description": "DOM event delegation component",
+  "version": "1.0.2",
+  "main": "delegate.js",
+  "ignore": [
+    "test",
+    ".jshintrc",
+    ".travis.yml",
+    "CHANGELOG.md",
+    "karma.conf.js",
+    "package.json"
+  ],
+  "dependencies": {
+    "matches.js": "*"
+  },
+  "devDependencies": {
+    "chai": "~1.6.1"
+  },
+  "homepage": "https://github.com/necolas/delegate.js",
+  "_release": "1.0.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.0.2",
+    "commit": "91f301dc18fdde24534809746400736b12155977"
+  },
+  "_source": "git://github.com/necolas/delegate.js.git",
+  "_target": "1.0.2",
+  "_originalSource": "delegate.js"
+}

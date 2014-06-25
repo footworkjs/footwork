@@ -47,6 +47,7 @@ ko.applyBindings = function(model, element) {
     if(model._options.startup !== false) {
       model.startup();
     }
+    console.log('applyBindings',model);
     if(typeof model._modelOptions.afterBinding === 'function') {
       model._modelOptions.afterBinding.call(model);
     }

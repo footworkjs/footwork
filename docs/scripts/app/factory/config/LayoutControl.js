@@ -2,7 +2,7 @@ define([ "knockout-footwork", "lodash" ],
   function( ko, _ ) {
     return ko.model({
       namespace: 'LayoutControl',
-      factory: function() {
+      initialize: function() {
         this.active = {
           header: ko.observable(),
           column: ko.observable(),
@@ -170,7 +170,7 @@ define([ "knockout-footwork", "lodash" ],
             });
 
             this.currentControl( handlerControl );
-            this._globalChannel.publish( 'enableControl', this.mutateControl );
+            this._globalNamespace.publish( 'enableControl', this.mutateControl );
           }
         }.bind( this );
 
@@ -180,7 +180,7 @@ define([ "knockout-footwork", "lodash" ],
             controlState(false);
           });
           this.currentControl(false);
-          this._globalChannel.publish( 'disableControl', this.mutateControl );
+          this._globalNamespace.publish( 'disableControl', this.mutateControl );
         }.bind( this );
 
         this.namespace.subscribe( 'disableControl', function() {

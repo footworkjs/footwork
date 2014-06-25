@@ -2,7 +2,7 @@ define([ "knockout-footwork", "lodash" ],
   function( ko, _ ) {
     return ko.model({
       namespace: 'Footer',
-      factory: function() {
+      initialize: function() {
         this.viewPortDim = ko.observable().receiveFrom('ViewPort', 'dimensions');
         this.bottomScrollPosition = ko.observable().receiveFrom('ViewPort', 'bottomScrollPosition');
         this.headerClosed = ko.observable().receiveFrom('Header', 'closed');

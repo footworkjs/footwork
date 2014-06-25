@@ -2,7 +2,7 @@ define([ "jquery", "lodash", "knockout-footwork", "storage" ],
   function( $, _, ko, storage ) {
     return ko.model({
       namespace: 'Configuration',
-      factory: function() {
+      initialize: function() {
         var headerOverallMin = 35,
             setConfig,
             reset,
@@ -255,7 +255,7 @@ define([ "jquery", "lodash", "knockout-footwork", "storage" ],
           }
 
           setConfig( $.extend( true, {}, overwriteConfig, preserveValues ) );
-          this._globalChannel.publish('configReset');
+          this._globalNamespace.publish('configReset');
 
           this.reflowing(true);
           $(start).animate( end, {

@@ -9,6 +9,11 @@ require.config({
     }
   },
   paths: {
+    "delegate": "../components/delegate.js/delegate",
+    "matches": "../components/matches.js/matches",
+    "Apollo": "../components/apollo/dist/apollo",
+    "q": "../components/q/q",
+    "Qajax": "../components/qajax/src/qajax",
     "jquery":            "../components/jquery/dist/jquery",
     "postal":            "../components/postal.js/lib/postal",
     "jwerty":            "lib/jwerty", // jwerty does not provide an AMD build, this is a custom wrapped version
@@ -55,11 +60,11 @@ require.config({
 
 require([
   "jquery", "lodash", "knockout-footwork", "jwerty", "PaneDragManager",
-  "Page", "Header", "Body", "Footer", "Navigation", "Pane", "PaneLinks", "MainMenu", "PageSections", "Reddit", "Twitter", "Github", "ViewPort", "Configuration", "ConfigManagement", "Themes", "LayoutControl",
+  "Page", "Header", "Body", "Footer", "Navigation", "Pane", "PaneLinks", "MainMenu", "PageSections", "ViewPort", "Configuration", "Themes", "LayoutControl",
   "koBindings", "koExtenders", "jquery.touchy", "jquery.mousewheel", "jquery.easing" ],
   function(
       $, _, ko, jwerty, PaneDragManager,
-      Page, Header, Body, Footer, Navigation, Pane, PaneLinks, MainMenu, PageSections, Reddit, Twitter, Github, ViewPort, Configuration, ConfigManagement, Themes, LayoutControl ) {
+      Page, Header, Body, Footer, Navigation, Pane, PaneLinks, MainMenu, PageSections, ViewPort, Configuration, Themes, LayoutControl ) {
 
     if( window.isCrappyBrowser === true ) {
       return false;
@@ -85,11 +90,9 @@ require([
         refreshDocSize,
         models = [];
 
-    ko.debugModels(true);
     window.ko = ko;
     _.each([ { Factory: LayoutControl, target: '.js-layoutControl' },
              { Factory: Configuration, target: '.js-configuration' },
-             { Factory: ConfigManagement, target: '.js-configManagement' },
              { Factory: Header, target: '.js-header' },
              { Factory: Body, target: '.js-body' },
              { Factory: Footer, target: '.js-footer' },
@@ -97,10 +100,6 @@ require([
              { Factory: Pane, target: '.js-pane' },
              { Factory: PaneLinks, target: '.js-paneLinks' },
              { Factory: PageSections, target: '.js-pageSections' },
-             { Factory: MainMenu, target: '.js-mainMenu' },
-             { Factory: Reddit, target: '.js-reddit' },
-             { Factory: Twitter, target: '.js-twitter' },
-             { Factory: Github, target: '.js-github' },
              { Factory: ViewPort },
              { Factory: Page },
              { Factory: PaneDragManager, useWhen: function() { return Modernizr.touch === true; } } ],
