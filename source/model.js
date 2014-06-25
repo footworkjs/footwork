@@ -1,13 +1,13 @@
 // model.js
 // ------------------
 
-// Initialize the models registry
-var models = {};
-
 // Duck type function for determining whether or not something is a footwork model
 function isFootworkModel(thing) {
   return typeof thing !== 'undefined' && thing._isFootworkModel === true;
 }
+
+// Initialize the models registry
+var models = {};
 
 // Returns the number of created models for each defined namespace
 ko.modelCount = function() {
@@ -54,6 +54,7 @@ ko.model = function(modelOptions) {
     _preInit: function( options ) {
       modelOptions.namespace = indexedNamespaceName(modelOptions.componentNamespace || modelOptions.namespace || _.uniqueId('namespace'), modelOptions.autoIncrement);
       this._modelOptions = modelOptions;
+      this._options = options;
 
       ko.enterNamespaceName( modelOptions.namespace );
 

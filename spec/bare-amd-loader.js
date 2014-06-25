@@ -9,7 +9,7 @@ require.config({
     "Apollo": "../bower_components/apollo/dist/apollo",
     "q": "../bower_components/q/q",
     "Qajax": "../bower_components/qajax/src/qajax",
-    "footwork": "../dist/footwork-bare",
+    "footwork": "../dist/footwork-bare"
   },
   waitSeconds: 1500
 });
