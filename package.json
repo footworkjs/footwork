@@ -21,7 +21,21 @@
     "type": "git",
     "url": "git://github.com/reflectiveSingleton/footwork.git"
   },
+  "testling": {
+    "html": "spec/runner_all.html",
+    "browsers": [
+      "ie/6..latest",
+      "chrome/22..latest",
+      "firefox/16..latest",
+      "safari/latest",
+      "opera/11.0..latest",
+      "iphone/6",
+      "ipad/6",
+      "android-browser/latest"
+    ]
+  },
   "devDependencies": {
+    "tape": "~2.4.0",
     "bower": "~1.2.8",
     "mocha": "~1.17.1",
     "mocha-phantomjs": "~3.4.1",
