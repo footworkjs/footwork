@@ -14,7 +14,7 @@ if (!String.prototype.trim) {
   };
 }
 
-// misc utility noop function
+// misc utility functions
 var noop = function() { };
 
 // Initialize the debugLevel observable, this controls
@@ -54,8 +54,8 @@ ko.applyBindings = function(model, element) {
   }
 };
 
-//import("namespace.js");
 //import("model.js");
+//import("namespace.js");
 //import("component.js");
 //import("broadcast-receive.js");
 //import("bindingHandlers.js");
