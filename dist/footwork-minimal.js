@@ -1,5 +1,5 @@
 /**
- * footwork.js - A solid footing for larger knockout applications.
+ * footwork.js - A solid footing for knockout applications.
  * Author: Jonathan Newman (http://staticty.pe)
  * Version: v0.2.0-minimal
  * Url: http://footworkjs.com
@@ -6951,7 +6951,7 @@ if (!String.prototype.trim) {
   };
 }
 
-// misc utility noop function
+// misc utility functions
 var noop = function() { };
 
 // Initialize the debugLevel observable, this controls
@@ -6991,63 +6991,6 @@ ko.applyBindings = function(model, element) {
   }
 };
 
-// namespace.js
-// ------------------
-
-// This counter is used when model options { autoIncrement: true } and more than one model
-// having the same namespace is instantiated. This is used in the event you do not want
-// multiple copies of the same model to share the same namespace (if they do share a
-// namespace, they receive all of the same events/messages/commands/etc).
-var namespaceNameCounter = {};
-
-// Prepare an empty namespace stack.
-// This is where footwork registers its current working namespace name. Each new namespace is
-// 'unshifted' and 'shifted' as they are entered and exited, keeping the most current at
-// index 0.
-var namespaceStack = [];
-
-// Returns a normalized namespace name based off of 'name'. It will register the name counter
-// if not present and increment it if it is, then return the name (with the counter appended
-// if autoIncrement === true and the counter is > 0).
-function indexedNamespaceName(name, autoIncrement) {
-  if(namespaceNameCounter[name] === undefined) {
-    namespaceNameCounter[name] = 0;
-  } else {
-    namespaceNameCounter[name]++;
-  }
-  return name + ((autoIncrement === true && namespaceNameCounter[name] > 0) ? namespaceNameCounter[name] : '');
-}
-
-// Creates and returns a new namespace channel
-ko.namespace = function(namespaceName) {
-  return postal.channel(namespaceName);
-};
-
-// Return the current namespace name.
-ko.currentNamespaceName = function() {
-  return namespaceStack[0];
-};
-
-// Return the current namespace channel.
-ko.currentNamespace = function() {
-  return ko.namespace(ko.currentNamespaceName());
-};
-
-// enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
-// 'entering' into that namespace (it is now the currentNamespace)
-ko.enterNamespaceName = function(namespaceName) {
-  namespaceStack.unshift( namespaceName );
-  return ko.currentNamespace();
-};
-
-// Called at the after a model constructor function is run. exitNamespace()
-// will shift the current namespace off of the stack, exiting to the
-// next namespace in the stack
-ko.exitNamespace = function() {
-  namespaceStack.shift();
-  return ko.currentNamespace();
-};
-
 // model.js
 // ------------------
 
@@ -7085,12 +7028,14 @@ ko.refreshModels = function() {
   _.invoke(ko.getModels(), 'refreshReceived');
 };
 
+var modelMixins = [];
+
 ko.model = function(modelOptions) {
-  if(typeof modelOptions !== 'undefined' && typeof modelOptions.viewModel !== 'undefined') {
+  if( typeof modelOptions !== 'undefined' && _.isFunction(modelOptions.viewModel) === true ) {
     modelOptions.initialize = modelOptions.viewModel;
   }
 
-  modelOptions = _.extend({
+  var modelOptions = _.extend({
     namespace: undefined,
     componentNamespace: undefined,
     autoIncrement: false,
@@ -7100,63 +7045,198 @@ ko.model = function(modelOptions) {
     initialize: noop
   }, modelOptions);
 
-  var viewModel = {
-    _preInit: function( options ) {
-      modelOptions.namespace = indexedNamespaceName(modelOptions.componentNamespace || modelOptions.namespace || _.uniqueId('namespace'), modelOptions.autoIncrement);
-      this._modelOptions = modelOptions;
-      this._options = options;
-
-      ko.enterNamespaceName( modelOptions.namespace );
-
-      this.namespace = ko.currentNamespace();
-      this._globalNamespace = ko.namespace();
-    },
-    mixin: {
-      getNamespaceName: function() {
-        return this.namespace.channel;
-      },
-      broadcastAll: function() {
-        var model = this;
-        _.each( this, function(property, propName) {
-          if( _.isObject(property) && property.__isBroadcast === true ) {
-            model.namespace.publish( propName, property() );
-          }
-        });
-        return this;
-      },
-      refreshReceived: function() {
-        _.each( this, function(property, propName) {
-          if( _.isObject(property) && property.__isReceived === true ) {
-            property.refresh();
-          }
-        });
-        return this;
-      },
-      startup: function() {
-        this.refreshReceived().broadcastAll();
-        return this;
+  var modelOptionsMixin = {
+    _preInit: function( initOptions ) {
+      this._model = {
+        modelOptions: modelOptions,
+        initOptions: initOptions
       }
-    },
-    _postInit: function( options ) {
-      models[ this.getNamespaceName() ] = this;
-      ko.exitNamespace();
-
-      this.startup();
-      _.isFunction(modelOptions.afterCreating) && modelOptions.afterCreating.call(this);
     }
   };
 
-  var composure = [ modelOptions.initialize, viewModel ];
+  var composure = [ modelOptions.initialize, modelOptionsMixin ].concat( modelMixins );
   if(modelOptions.mixins !== undefined) {
     composure = composure.concat(modelOptions.mixins);
   }
-  var model = riveter.compose.apply( undefined, composure );
 
+  var model = riveter.compose.apply( undefined, composure );
   model._isFootworkModel = true;
-  model.options = modelOptions;
 
   return model;
 };
+// namespace.js
+// ------------------
+
+// This counter is used when model options { autoIncrement: true } and more than one model
+// having the same namespace is instantiated. This is used in the event you do not want
+// multiple copies of the same model to share the same namespace (if they do share a
+// namespace, they receive all of the same events/messages/commands/etc).
+var namespaceNameCounter = {};
+
+// Prepare an empty namespace stack.
+// This is where footwork registers its current working namespace name. Each new namespace is
+// 'unshifted' and 'shifted' as they are entered and exited, keeping the most current at
+// index 0.
+var namespaceStack = [];
+
+// Returns a normalized namespace name based off of 'name'. It will register the name counter
+// if not present and increment it if it is, then return the name (with the counter appended
+// if autoIncrement === true and the counter is > 0).
+function indexedNamespaceName(name, autoIncrement) {
+  if(namespaceNameCounter[name] === undefined) {
+    namespaceNameCounter[name] = 0;
+  } else {
+    namespaceNameCounter[name]++;
+  }
+  return name + (autoIncrement === true ? namespaceNameCounter[name] : '');
+}
+
+function sendCommandToNamespace(commandKey, params) {
+  this.publish('command.' + commandKey, params);
+  return this;
+}
+
+function registerNamespaceCommandHandler(requestKey, callback) {
+  var handlerSubscription = this.subscribe('command.' + requestKey, callback);
+  this.commandHandlers.push(handlerSubscription);
+
+  return handlerSubscription;
+}
+
+function unregisterNamespaceCommandHandler(handlerSubscription) {
+  handlerSubscription.unsubscribe();
+  return this;
+}
+
+function requestResponseFromNamespace(requestKey, params) {
+  var response;
+  var subscription;
+
+  subscription = this.subscribe('request.' + requestKey + '.response', function(reqResponse) {
+    response = reqResponse;
+  });
+  this.publish('request.' + requestKey, params);
+  subscription.unsubscribe();
+
+  return response;
+}
+
+function registerNamespaceRequestHandler(requestKey, callback) {
+  var handler = function(params) {
+    var callbackResponse = callback(params);
+    this.publish('request.' + requestKey + '.response', callbackResponse);
+  };
+
+  var handlerSubscription = this.subscribe('request.' + requestKey, _.bind(handler, this));
+  this.requestHandlers.push(handlerSubscription);
+
+  return handlerSubscription;
+}
+
+function unregisterNamespaceRequestHandler(handlerSubscription) {
+  handlerSubscription.unsubscribe();
+  return this;
+}
+
+function disconnectNamespaceHandlers() {
+  _.invoke(this.requestHandlers, 'unsubscribe');
+  _.invoke(this.commandHandlers, 'unsubscribe');
+  return this;
+}
+
+// mixin provided to models which enables namespace capabilities including pub/sub, cqrs, etc
+modelMixins.push({
+  _preInit: function( options ) {
+    this._model.globalNamespace = ko.namespace();
+    this._model.namespaceName = indexedNamespaceName(this._model.modelOptions.componentNamespace || this._model.modelOptions.namespace || _.uniqueId('namespace'), this._model.modelOptions.autoIncrement);
+
+    ko.enterNamespaceName( this._model.namespaceName );
+    this.namespace = ko.currentNamespace();
+  },
+  mixin: {
+    getNamespaceName: function() {
+      return this.namespace.channel;
+    },
+    broadcastAll: function() {
+      var model = this;
+      _.each( this, function(property, propName) {
+        if( _.isObject(property) && property.__isBroadcast === true ) {
+          model.namespace.publish( propName, property() );
+        }
+      });
+      return this;
+    },
+    refreshReceived: function() {
+      _.each( this, function(property, propName) {
+        if( _.isObject(property) && property.__isReceived === true ) {
+          property.refresh();
+        }
+      });
+      return this;
+    },
+    startup: function() {
+      this.refreshReceived().broadcastAll();
+      return this;
+    }
+  },
+  _postInit: function( options ) {
+    models[ this.getNamespaceName() ] = this;
+    ko.exitNamespace();
+
+    this.startup();
+    _.isFunction(this._model.modelOptions.afterCreating) && this._model.modelOptions.afterCreating.call(this);
+  }
+});
+
+// Creates and returns a new namespace instance
+ko.namespace = function(namespaceName) {
+  var namespace = postal.channel(namespaceName);
+
+  namespace.shutdown = _.bind( disconnectNamespaceHandlers, namespace );
+
+  namespace.commandHandlers = [];
+  namespace.command = _.bind( sendCommandToNamespace, namespace );
+  namespace.command.handler = _.bind( registerNamespaceCommandHandler, namespace );
+  namespace.command.handler.unregister = _.bind( unregisterNamespaceCommandHandler, namespace );
+
+  namespace.requestHandlers = [];
+  namespace.request = _.bind( requestResponseFromNamespace, namespace );
+  namespace.request.handler = _.bind( registerNamespaceRequestHandler, namespace );
+  namespace.request.handler.unregister = _.bind( unregisterNamespaceRequestHandler, namespace );
+
+  return namespace;
+};
+
+// Duck type check for a namespace object
+ko.isNamespace = function(thing) {
+  return _.isFunction(thing.subscribe) && _.isFunction(thing.publish) && typeof thing.channel === 'string';
+};
+
+// Return the current namespace name.
+ko.currentNamespaceName = function() {
+  return namespaceStack[0];
+};
+
+// Return the current namespace channel.
+ko.currentNamespace = function() {
+  return ko.namespace(ko.currentNamespaceName());
+};
+
+// enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
+// 'entering' into that namespace (it is now the currentNamespace)
+ko.enterNamespaceName = function(namespaceName) {
+  namespaceStack.unshift( namespaceName );
+  return ko.currentNamespace();
+};
+
+// Called at the after a model constructor function is run. exitNamespace()
+// will shift the current namespace off of the stack, 'exiting' to the
+// next namespace in the stack
+ko.exitNamespace = function() {
+  namespaceStack.shift();
+  return ko.currentNamespace();
+};
+
 ko.component = function(options) {
   if(typeof options.name !== 'string') {
     ko.logError('Components must be provided a name (namespace).');
@@ -7194,16 +7274,13 @@ ko.isABroadcastable = function(thing) {
   return _.has(thing, '__isBroadcast') && thing.__isBroadcast === true;
 };
 
-//     this.myValue = ko.observable().receiveFrom('Namespace' / Namespace, 'varName');
+//     this.myValue = ko.observable().receiveFrom('NamespaceName' / Namespace, 'varName');
 ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
   var observable = this;
-  var channel;
 
-  if( _.isObject(namespace) === true && namespace.channel !== undefined ) {
-    channel = namespace;
-  } else if(typeof namespace === 'string') {
-    channel = postal.channel( namespace );
+  if( ko.isNamespace(namespace) === false && typeof namespace === 'string') {
+    namespace = ko.namespace( namespace );
   } else {
     ko.logError('Invalid namespace [' + typeof namespace + ']');
     return observable;
@@ -7212,14 +7289,14 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   observable = ko.computed({
     read: target,
     write: function( value ) {
-      channel.publish( 'change.' + variable, value );
+      namespace.publish( 'change.' + variable, value );
     }
   });
 
   observable.refresh = function() {
-    channel.publish( 'refresh.' + variable );
+    namespace.publish( 'refresh.' + variable );
   };
-  channel.subscribe( variable, function( newValue ) {
+  namespace.subscribe( variable, function( newValue ) {
     target( newValue );
   });
 
@@ -7233,7 +7310,8 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
 //     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', namespace: Namespace });
 //     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', namespace: 'NamespaceName' });
 ko.subscribable.fn.broadcastAs = function(varName, option) {
-  var observable = this, channel;
+  var observable = this;
+  var namespace;
 
   if(_.isObject(varName) === true) {
     option = varName;
@@ -7254,22 +7332,22 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
     }
   }
 
-  channel = option.namespace || ko.currentNamespace();
-  if(typeof channel === 'string') {
-    channel = ko.namespace(channel);
+  namespace = option.namespace || ko.currentNamespace();
+  if(typeof namespace === 'string') {
+    namespace = ko.namespace(channel);
   }
 
   if( option.writable ) {
-    channel.subscribe( 'change.' + option.name, function( newValue ) {
+    namespace.subscribe( 'change.' + option.name, function( newValue ) {
       observable( newValue );
     });
   }
 
-  channel.subscribe( 'refresh.' + option.name, function() {
-    channel.publish( option.name, observable() );
+  namespace.subscribe( 'refresh.' + option.name, function() {
+    namespace.publish( option.name, observable() );
   });
   observable.subscribe(function( newValue ) {
-    channel.publish( option.name, newValue );
+    namespace.publish( option.name, newValue );
   });
 
   observable.__isBroadcast = true;
@@ -7381,7 +7459,7 @@ ko.extenders.autoEnable = function( target, delay ) {
 
 ko.extenders.delayTrigger = function( target, options ) {
   var delay = 300,
-      triggerFunc = function() {},
+      triggerFunc = noop,
       trigger;
 
   if( typeof options === 'object' ) {
@@ -7651,6 +7729,14 @@ router.activate = _.once( _.bind(function() {
 
   return router.setupHistoryAdapter().stateChange();
 }, router) );
+
+ko.components.register('outlet', {
+  viewModel: function() {
+    this.isSuccess = ko.observable('SUCCESSING INTENSIFIES');
+  },
+  // use comment bindings!
+  template: '<div data-bind="text: isSuccess"></div>'
+});
 
 router.namespace = ko.exitNamespace(); // exit from 'router' namespace
       return ko;

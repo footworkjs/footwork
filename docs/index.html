@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
 
-    <title>footwork.js - A solid footing for larger knockout applications.</title>
+    <title>footwork.js - A solid footing for knockout applications.</title>
     <meta name="description" content="An library/framework which extends knockout.js to provide fixtures for testable and maintainable development.">
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -144,7 +144,7 @@
 
                 <div class="menu-item">
                   <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    A solid footing for larger knockout applications.
+                    A solid footing for knockout applications.
                   </div>
                 </div>
 
@@ -504,7 +504,7 @@ Distributed under MIT license</p>
         
         <div class="content"><div class='highlight'><pre>
 <span class="hljs-comment">/**
- * footwork.js - A solid footing for larger knockout applications.
+ * footwork.js - A solid footing for knockout applications.
  * Author: Jonathan Newman (http://staticty.pe)
  * Version: v0.2.0
  * Url: http://footworkjs.com
@@ -586,7 +586,7 @@ Distributed under MIT license</p>
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-7">&#182;</a>
           </div>
-          <p>misc utility noop function</p>
+          <p>misc utility functions</p>
 
           <div class="annotation-bg"></div>
         </div>
@@ -691,7 +691,7 @@ ko.logError = <span class="hljs-function"><span class="hljs-keyword">function</s
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-12">&#182;</a>
           </div>
-          <h2 id="namespace-js">namespace.js</h2>
+          <h2 id="model-js">model.js</h2>
 
           <div class="annotation-bg"></div>
         </div>
@@ -705,178 +705,6 @@ ko.logError = <span class="hljs-function"><span class="hljs-keyword">function</s
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-13">&#182;</a>
           </div>
-          <p>This counter is used when model options { autoIncrement: true } and more than one model
-having the same namespace is instantiated. This is used in the event you do not want
-multiple copies of the same model to share the same namespace (if they do share a
-namespace, they receive all of the same events/messages/commands/etc).</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> namespaceNameCounter = {};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-14" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-14">&#182;</a>
-          </div>
-          <p>Prepare an empty namespace stack.
-This is where footwork registers its current working namespace name. Each new namespace is
-‘unshifted’ and ‘shifted’ as they are entered and exited, keeping the most current at
-index 0.</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> namespaceStack = [];</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-15" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-15">&#182;</a>
-          </div>
-          <p>Returns a normalized namespace name based off of ‘name’. It will register the name counter
-if not present and increment it if it is, then return the name (with the counter appended
-if autoIncrement === true and the counter is &gt; 0).</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">indexedNamespaceName</span><span class="hljs-params">(name, autoIncrement)</span> {</span>
-  <span class="hljs-keyword">if</span>(namespaceNameCounter[name] === <span class="hljs-literal">undefined</span>) {
-    namespaceNameCounter[name] = <span class="hljs-number">0</span>;
-  } <span class="hljs-keyword">else</span> {
-    namespaceNameCounter[name]++;
-  }
-  <span class="hljs-keyword">return</span> name + ((autoIncrement === <span class="hljs-literal">true</span> &amp;&amp; namespaceNameCounter[name] &gt; <span class="hljs-number">0</span>) ? namespaceNameCounter[name] : <span class="hljs-string">''</span>);
-}</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-16" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-16">&#182;</a>
-          </div>
-          <p>Creates and returns a new namespace channel</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>ko.namespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName)</span> {</span>
-  <span class="hljs-keyword">return</span> postal.channel(namespaceName);
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-17" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-17">&#182;</a>
-          </div>
-          <p>Return the current namespace name.</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>ko.currentNamespaceName = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-  <span class="hljs-keyword">return</span> namespaceStack[<span class="hljs-number">0</span>];
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-18" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-18">&#182;</a>
-          </div>
-          <p>Return the current namespace channel.</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>ko.currentNamespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-  <span class="hljs-keyword">return</span> ko.namespace(ko.currentNamespaceName());
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-19" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-19">&#182;</a>
-          </div>
-          <p>enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
-‘entering’ into that namespace (it is now the currentNamespace)</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>ko.enterNamespaceName = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName)</span> {</span>
-  namespaceStack.unshift( namespaceName );
-  <span class="hljs-keyword">return</span> ko.currentNamespace();
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-20" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-20">&#182;</a>
-          </div>
-          <p>Called at the after a model constructor function is run. exitNamespace()
-will shift the current namespace off of the stack, exiting to the
-next namespace in the stack</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>ko.exitNamespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-  namespaceStack.shift();
-  <span class="hljs-keyword">return</span> ko.currentNamespace();
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-21" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-21">&#182;</a>
-          </div>
-          <h2 id="model-js">model.js</h2>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-    </li>
-    
-    
-    <li id="section-22" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-22">&#182;</a>
-          </div>
           <p>Duck type function for determining whether or not something is a footwork model</p>
 
           <div class="annotation-bg"></div>
@@ -889,11 +717,11 @@ next namespace in the stack</p>
     </li>
     
     
-    <li id="section-23" class="section">
+    <li id="section-14" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-23">&#182;</a>
+            <a class="pilcrow" href="#section-14">&#182;</a>
           </div>
           <p>Initialize the models registry</p>
 
@@ -905,11 +733,11 @@ next namespace in the stack</p>
     </li>
     
     
-    <li id="section-24" class="section">
+    <li id="section-15" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-24">&#182;</a>
+            <a class="pilcrow" href="#section-15">&#182;</a>
           </div>
           <p>Returns the number of created models for each defined namespace</p>
 
@@ -930,11 +758,11 @@ next namespace in the stack</p>
     </li>
     
     
-    <li id="section-25" class="section">
+    <li id="section-16" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-25">&#182;</a>
+            <a class="pilcrow" href="#section-16">&#182;</a>
           </div>
           <p>Returns a reference to the specified models.
 If no name is supplied, a reference to an array containing all model references is returned.</p>
@@ -952,11 +780,11 @@ If no name is supplied, a reference to an array containing all model references 
     </li>
     
     
-    <li id="section-26" class="section">
+    <li id="section-17" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-26">&#182;</a>
+            <a class="pilcrow" href="#section-17">&#182;</a>
           </div>
           <p>Tell all models to request the values which it listens for</p>
 
@@ -967,12 +795,14 @@ If no name is supplied, a reference to an array containing all model references 
   _.invoke(ko.getModels(), <span class="hljs-string">'refreshReceived'</span>);
 };
 
+<span class="hljs-keyword">var</span> modelMixins = [];
+
 ko.model = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(modelOptions)</span> {</span>
-  <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> modelOptions !== <span class="hljs-string">'undefined'</span> &amp;&amp; <span class="hljs-keyword">typeof</span> modelOptions.viewModel !== <span class="hljs-string">'undefined'</span>) {
+  <span class="hljs-keyword">if</span>( <span class="hljs-keyword">typeof</span> modelOptions !== <span class="hljs-string">'undefined'</span> &amp;&amp; _.isFunction(modelOptions.viewModel) === <span class="hljs-literal">true</span> ) {
     modelOptions.initialize = modelOptions.viewModel;
   }
 
-  modelOptions = _.extend({
+  <span class="hljs-keyword">var</span> modelOptions = _.extend({
     namespace: <span class="hljs-literal">undefined</span>,
     componentNamespace: <span class="hljs-literal">undefined</span>,
     autoIncrement: <span class="hljs-literal">false</span>,
@@ -982,63 +812,320 @@ ko.model = <span class="hljs-function"><span class="hljs-keyword">function</span
     initialize: noop
   }, modelOptions);
 
-  <span class="hljs-keyword">var</span> viewModel = {
-    _preInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( options )</span> {</span>
-      modelOptions.namespace = indexedNamespaceName(modelOptions.componentNamespace || modelOptions.namespace || _.uniqueId(<span class="hljs-string">'namespace'</span>), modelOptions.autoIncrement);
-      <span class="hljs-keyword">this</span>._modelOptions = modelOptions;
-      <span class="hljs-keyword">this</span>._options = options;
-
-      ko.enterNamespaceName( modelOptions.namespace );
-
-      <span class="hljs-keyword">this</span>.namespace = ko.currentNamespace();
-      <span class="hljs-keyword">this</span>._globalNamespace = ko.namespace();
-    },
-    mixin: {
-      getNamespaceName: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.namespace.channel;
-      },
-      broadcastAll: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-        <span class="hljs-keyword">var</span> model = <span class="hljs-keyword">this</span>;
-        _.each( <span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(property, propName)</span> {</span>
-          <span class="hljs-keyword">if</span>( _.isObject(property) &amp;&amp; property.__isBroadcast === <span class="hljs-literal">true</span> ) {
-            model.namespace.publish( propName, property() );
-          }
-        });
-        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
-      },
-      refreshReceived: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-        _.each( <span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(property, propName)</span> {</span>
-          <span class="hljs-keyword">if</span>( _.isObject(property) &amp;&amp; property.__isReceived === <span class="hljs-literal">true</span> ) {
-            property.refresh();
-          }
-        });
-        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
-      },
-      startup: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-        <span class="hljs-keyword">this</span>.refreshReceived().broadcastAll();
-        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+  <span class="hljs-keyword">var</span> modelOptionsMixin = {
+    _preInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( initOptions )</span> {</span>
+      <span class="hljs-keyword">this</span>._model = {
+        modelOptions: modelOptions,
+        initOptions: initOptions
       }
-    },
-    _postInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( options )</span> {</span>
-      models[ <span class="hljs-keyword">this</span>.getNamespaceName() ] = <span class="hljs-keyword">this</span>;
-      ko.exitNamespace();
-
-      <span class="hljs-keyword">this</span>.startup();
-      _.isFunction(modelOptions.afterCreating) &amp;&amp; modelOptions.afterCreating.call(<span class="hljs-keyword">this</span>);
     }
   };
 
-  <span class="hljs-keyword">var</span> composure = [ modelOptions.initialize, viewModel ];
+  <span class="hljs-keyword">var</span> composure = [ modelOptions.initialize, modelOptionsMixin ].concat( modelMixins );
   <span class="hljs-keyword">if</span>(modelOptions.mixins !== <span class="hljs-literal">undefined</span>) {
     composure = composure.concat(modelOptions.mixins);
   }
-  <span class="hljs-keyword">var</span> model = riveter.compose.apply( <span class="hljs-literal">undefined</span>, composure );
 
+  <span class="hljs-keyword">var</span> model = riveter.compose.apply( <span class="hljs-literal">undefined</span>, composure );
   model._isFootworkModel = <span class="hljs-literal">true</span>;
-  model.options = modelOptions;
 
   <span class="hljs-keyword">return</span> model;
+};</pre></div></div>
+        
+    </li>
+    
+    
+    <li id="section-18" class="section">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-18">&#182;</a>
+          </div>
+          <h2 id="namespace-js">namespace.js</h2>
+
+          <div class="annotation-bg"></div>
+        </div>
+        
+    </li>
+    
+    
+    <li id="section-19" class="section">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-19">&#182;</a>
+          </div>
+          <p>This counter is used when model options { autoIncrement: true } and more than one model
+having the same namespace is instantiated. This is used in the event you do not want
+multiple copies of the same model to share the same namespace (if they do share a
+namespace, they receive all of the same events/messages/commands/etc).</p>
+
+          <div class="annotation-bg"></div>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> namespaceNameCounter = {};</pre></div></div>
+        
+    </li>
+    
+    
+    <li id="section-20" class="section">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-20">&#182;</a>
+          </div>
+          <p>Prepare an empty namespace stack.
+This is where footwork registers its current working namespace name. Each new namespace is
+‘unshifted’ and ‘shifted’ as they are entered and exited, keeping the most current at
+index 0.</p>
+
+          <div class="annotation-bg"></div>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> namespaceStack = [];</pre></div></div>
+        
+    </li>
+    
+    
+    <li id="section-21" class="section">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-21">&#182;</a>
+          </div>
+          <p>mixin provided to models which enables namespace capabilities including pub/sub, cqrs, etc</p>
+
+          <div class="annotation-bg"></div>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre>modelMixins.push({
+  _preInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( options )</span> {</span>
+    <span class="hljs-keyword">this</span>._model.globalNamespace = ko.namespace();
+    <span class="hljs-keyword">this</span>._model.namespaceName = indexedNamespaceName(<span class="hljs-keyword">this</span>._model.modelOptions.componentNamespace || <span class="hljs-keyword">this</span>._model.modelOptions.namespace || _.uniqueId(<span class="hljs-string">'namespace'</span>), <span class="hljs-keyword">this</span>._model.modelOptions.autoIncrement);
+
+    ko.enterNamespaceName( <span class="hljs-keyword">this</span>._model.namespaceName );
+    <span class="hljs-keyword">this</span>.namespace = ko.currentNamespace();
+  },
+  mixin: {
+    getNamespaceName: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.namespace.channel;
+    },
+    broadcastAll: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+      <span class="hljs-keyword">var</span> model = <span class="hljs-keyword">this</span>;
+      _.each( <span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(property, propName)</span> {</span>
+        <span class="hljs-keyword">if</span>( _.isObject(property) &amp;&amp; property.__isBroadcast === <span class="hljs-literal">true</span> ) {
+          model.namespace.publish( propName, property() );
+        }
+      });
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    },
+    refreshReceived: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+      _.each( <span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(property, propName)</span> {</span>
+        <span class="hljs-keyword">if</span>( _.isObject(property) &amp;&amp; property.__isReceived === <span class="hljs-literal">true</span> ) {
+          property.refresh();
+        }
+      });
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    },
+    startup: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+      <span class="hljs-keyword">this</span>.refreshReceived().broadcastAll();
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    }
+  },
+  _postInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( options )</span> {</span>
+    models[ <span class="hljs-keyword">this</span>.getNamespaceName() ] = <span class="hljs-keyword">this</span>;
+    ko.exitNamespace();
+
+    <span class="hljs-keyword">this</span>.startup();
+    _.isFunction(<span class="hljs-keyword">this</span>._model.modelOptions.afterCreating) &amp;&amp; <span class="hljs-keyword">this</span>._model.modelOptions.afterCreating.call(<span class="hljs-keyword">this</span>);
+  }
+});</pre></div></div>
+        
+    </li>
+    
+    
+    <li id="section-22" class="section">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-22">&#182;</a>
+          </div>
+          <p>Returns a normalized namespace name based off of ‘name’. It will register the name counter
+if not present and increment it if it is, then return the name (with the counter appended
+if autoIncrement === true and the counter is &gt; 0).</p>
+
+          <div class="annotation-bg"></div>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">indexedNamespaceName</span><span class="hljs-params">(name, autoIncrement)</span> {</span>
+  <span class="hljs-keyword">if</span>(namespaceNameCounter[name] === <span class="hljs-literal">undefined</span>) {
+    namespaceNameCounter[name] = <span class="hljs-number">0</span>;
+  } <span class="hljs-keyword">else</span> {
+    namespaceNameCounter[name]++;
+  }
+  <span class="hljs-keyword">return</span> name + (autoIncrement === <span class="hljs-literal">true</span> ? namespaceNameCounter[name] : <span class="hljs-string">''</span>);
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sendCommandToNamespace</span><span class="hljs-params">(commandKey, params)</span> {</span>
+  <span class="hljs-keyword">this</span>.publish(<span class="hljs-string">'command.'</span> + commandKey, params);
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">registerNamespaceCommandHandler</span><span class="hljs-params">(requestKey, callback)</span> {</span>
+  <span class="hljs-keyword">var</span> handler = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+    <span class="hljs-keyword">var</span> callbackResponse = callback();
+    <span class="hljs-keyword">this</span>.publish(<span class="hljs-string">'request.'</span> + requestKey + <span class="hljs-string">'.response'</span>, callbackResponse);
+  };
+
+  <span class="hljs-keyword">this</span>.subscribe(<span class="hljs-string">'request.'</span> + requestKey, handler);
+  <span class="hljs-keyword">this</span>.requestHandlers.push(handler);
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">requestDataFromNamespace</span><span class="hljs-params">(requestKey, params)</span> {</span>
+  <span class="hljs-keyword">var</span> response;
+  <span class="hljs-keyword">var</span> subscription;
+
+  <span class="hljs-keyword">this</span>.subscribe(<span class="hljs-string">'request.'</span> + requestKey + <span class="hljs-string">'.response'</span>, subscription = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(reqResponse)</span> {</span>
+    response = reqResponse;
+  });
+  <span class="hljs-keyword">this</span>.publish(<span class="hljs-string">'request.'</span> + requestKey, params);
+  subscription.unsubscribe();
+
+  <span class="hljs-keyword">return</span> response;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">registerNamespaceRequestHandler</span><span class="hljs-params">(requestKey, callback)</span> {</span>
+  <span class="hljs-keyword">var</span> handler = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+    <span class="hljs-keyword">var</span> callbackResponse = callback();
+    <span class="hljs-keyword">this</span>.publish(<span class="hljs-string">'request.'</span> + requestKey + <span class="hljs-string">'.response'</span>, callbackResponse);
+  };
+
+  <span class="hljs-keyword">this</span>.subscribe(<span class="hljs-string">'request.'</span> + requestKey, handler);
+  <span class="hljs-keyword">this</span>.requestHandlers.push(handler);
+}</pre></div></div>
+        
+    </li>
+    
+    
+    <li id="section-23" class="section">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-23">&#182;</a>
+          </div>
+          <p>Creates and returns a new namespace/postal channel</p>
+
+          <div class="annotation-bg"></div>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre>ko.namespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName)</span> {</span>
+  <span class="hljs-keyword">var</span> namespace = postal.channel(namespaceName);
+
+  namespace.command = _.bind( sendCommandToNamespace, namespace );
+  namespace.commandHandlers = [];
+  namespace.request = _.bind( requestDataFromNamespace, namespace );
+  namespace.requestHandlers = [];
+
+  namespace.command.handler = _.bind( registerNamespaceCommandHandler, namespace );
+  namespace.request.handler = _.bind( registerNamespaceRequestHandler, namespace );
+
+  <span class="hljs-keyword">return</span> namespace;
+};</pre></div></div>
+        
+    </li>
+    
+    
+    <li id="section-24" class="section">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-24">&#182;</a>
+          </div>
+          <p>Duck type check for a namespace object</p>
+
+          <div class="annotation-bg"></div>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre>ko.isNamespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(thing)</span> {</span>
+  <span class="hljs-keyword">return</span> _.isFunction(thing.subscribe) &amp;&amp; _.isFunction(thing.publish) &amp;&amp; <span class="hljs-keyword">typeof</span> thing.channel === <span class="hljs-string">'string'</span>;
+};</pre></div></div>
+        
+    </li>
+    
+    
+    <li id="section-25" class="section">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-25">&#182;</a>
+          </div>
+          <p>Return the current namespace name.</p>
+
+          <div class="annotation-bg"></div>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre>ko.currentNamespaceName = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+  <span class="hljs-keyword">return</span> namespaceStack[<span class="hljs-number">0</span>];
+};</pre></div></div>
+        
+    </li>
+    
+    
+    <li id="section-26" class="section">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-26">&#182;</a>
+          </div>
+          <p>Return the current namespace channel.</p>
+
+          <div class="annotation-bg"></div>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre>ko.currentNamespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+  <span class="hljs-keyword">return</span> ko.namespace(ko.currentNamespaceName());
+};</pre></div></div>
+        
+    </li>
+    
+    
+    <li id="section-27" class="section">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-27">&#182;</a>
+          </div>
+          <p>enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
+‘entering’ into that namespace (it is now the currentNamespace)</p>
+
+          <div class="annotation-bg"></div>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre>ko.enterNamespaceName = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName)</span> {</span>
+  namespaceStack.unshift( namespaceName );
+  <span class="hljs-keyword">return</span> ko.currentNamespace();
+};</pre></div></div>
+        
+    </li>
+    
+    
+    <li id="section-28" class="section">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-28">&#182;</a>
+          </div>
+          <p>Called at the after a model constructor function is run. exitNamespace()
+will shift the current namespace off of the stack, exiting to the
+next namespace in the stack</p>
+
+          <div class="annotation-bg"></div>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre>ko.exitNamespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+  namespaceStack.shift();
+  <span class="hljs-keyword">return</span> ko.currentNamespace();
 };
+
 ko.component = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> {</span>
   <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> options.name !== <span class="hljs-string">'string'</span>) {
     ko.logError(<span class="hljs-string">'Components must be provided a name (namespace).'</span>);
@@ -1059,11 +1146,11 @@ ko.component = <span class="hljs-function"><span class="hljs-keyword">function</
     </li>
     
     
-    <li id="section-27" class="section">
+    <li id="section-29" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-27">&#182;</a>
+            <a class="pilcrow" href="#section-29">&#182;</a>
           </div>
           <p>TODO: determine how mixins from the (optionally) supplied footwork model mix in with the mixins supplied directly in the component options
      as well as others like params, afterBinding. Currently we will just use the viewModel’s mixins/etc, only the namespace is overridden
@@ -1082,11 +1169,11 @@ ko.component = <span class="hljs-function"><span class="hljs-keyword">function</
     </li>
     
     
-    <li id="section-28" class="section">
+    <li id="section-30" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-28">&#182;</a>
+            <a class="pilcrow" href="#section-30">&#182;</a>
           </div>
           <h2 id="broadcast-receive-js">broadcast-receive.js</h2>
 
@@ -1105,13 +1192,13 @@ ko.isABroadcastable = <span class="hljs-function"><span class="hljs-keyword">fun
     </li>
     
     
-    <li id="section-29" class="section">
+    <li id="section-31" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-29">&#182;</a>
+            <a class="pilcrow" href="#section-31">&#182;</a>
           </div>
-          <pre><code><span class="hljs-keyword">this</span>.myValue = ko.observable().receiveFrom(<span class="hljs-string">'Namespace'</span> / Namespace, <span class="hljs-string">'varName'</span>);
+          <pre><code><span class="hljs-keyword">this</span>.myValue = ko.observable().receiveFrom(<span class="hljs-string">'NamespaceName'</span> / Namespace, <span class="hljs-string">'varName'</span>);
 </code></pre>
           <div class="annotation-bg"></div>
         </div>
@@ -1119,12 +1206,9 @@ ko.isABroadcastable = <span class="hljs-function"><span class="hljs-keyword">fun
         <div class="content"><div class='highlight'><pre>ko.subscribable.fn.receiveFrom = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespace, variable)</span> {</span>
   <span class="hljs-keyword">var</span> target = <span class="hljs-keyword">this</span>;
   <span class="hljs-keyword">var</span> observable = <span class="hljs-keyword">this</span>;
-  <span class="hljs-keyword">var</span> channel;
 
-  <span class="hljs-keyword">if</span>( _.isObject(namespace) === <span class="hljs-literal">true</span> &amp;&amp; namespace.channel !== <span class="hljs-literal">undefined</span> ) {
-    channel = namespace;
-  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> namespace === <span class="hljs-string">'string'</span>) {
-    channel = postal.channel( namespace );
+  <span class="hljs-keyword">if</span>( ko.isNamespace(namespace) === <span class="hljs-literal">false</span> &amp;&amp; <span class="hljs-keyword">typeof</span> namespace === <span class="hljs-string">'string'</span>) {
+    namespace = ko.namespace( namespace );
   } <span class="hljs-keyword">else</span> {
     ko.logError(<span class="hljs-string">'Invalid namespace ['</span> + <span class="hljs-keyword">typeof</span> namespace + <span class="hljs-string">']'</span>);
     <span class="hljs-keyword">return</span> observable;
@@ -1133,14 +1217,14 @@ ko.isABroadcastable = <span class="hljs-function"><span class="hljs-keyword">fun
   observable = ko.computed({
     read: target,
     write: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( value )</span> {</span>
-      channel.publish( <span class="hljs-string">'change.'</span> + variable, value );
+      namespace.publish( <span class="hljs-string">'change.'</span> + variable, value );
     }
   });
 
   observable.refresh = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-    channel.publish( <span class="hljs-string">'refresh.'</span> + variable );
+    namespace.publish( <span class="hljs-string">'refresh.'</span> + variable );
   };
-  channel.subscribe( variable, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( newValue )</span> {</span>
+  namespace.subscribe( variable, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( newValue )</span> {</span>
     target( newValue );
   });
 
@@ -1151,11 +1235,11 @@ ko.isABroadcastable = <span class="hljs-function"><span class="hljs-keyword">fun
     </li>
     
     
-    <li id="section-30" class="section">
+    <li id="section-32" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-30">&#182;</a>
+            <a class="pilcrow" href="#section-32">&#182;</a>
           </div>
           <pre><code><span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs(<span class="hljs-string">'NameOfVar'</span>);
 <span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs(<span class="hljs-string">'NameOfVar'</span>, isWritable);
@@ -1167,7 +1251,8 @@ ko.isABroadcastable = <span class="hljs-function"><span class="hljs-keyword">fun
         </div>
         
         <div class="content"><div class='highlight'><pre>ko.subscribable.fn.broadcastAs = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(varName, option)</span> {</span>
-  <span class="hljs-keyword">var</span> observable = <span class="hljs-keyword">this</span>, channel;
+  <span class="hljs-keyword">var</span> observable = <span class="hljs-keyword">this</span>;
+  <span class="hljs-keyword">var</span> namespace;
 
   <span class="hljs-keyword">if</span>(_.isObject(varName) === <span class="hljs-literal">true</span>) {
     option = varName;
@@ -1188,22 +1273,22 @@ ko.isABroadcastable = <span class="hljs-function"><span class="hljs-keyword">fun
     }
   }
 
-  channel = option.namespace || ko.currentNamespace();
-  <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> channel === <span class="hljs-string">'string'</span>) {
-    channel = ko.namespace(channel);
+  namespace = option.namespace || ko.currentNamespace();
+  <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> namespace === <span class="hljs-string">'string'</span>) {
+    namespace = ko.namespace(channel);
   }
 
   <span class="hljs-keyword">if</span>( option.writable ) {
-    channel.subscribe( <span class="hljs-string">'change.'</span> + option.name, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( newValue )</span> {</span>
+    namespace.subscribe( <span class="hljs-string">'change.'</span> + option.name, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( newValue )</span> {</span>
       observable( newValue );
     });
   }
 
-  channel.subscribe( <span class="hljs-string">'refresh.'</span> + option.name, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-    channel.publish( option.name, observable() );
+  namespace.subscribe( <span class="hljs-string">'refresh.'</span> + option.name, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+    namespace.publish( option.name, observable() );
   });
   observable.subscribe(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( newValue )</span> {</span>
-    channel.publish( option.name, newValue );
+    namespace.publish( option.name, newValue );
   });
 
   observable.__isBroadcast = <span class="hljs-literal">true</span>;
@@ -1213,11 +1298,11 @@ ko.isABroadcastable = <span class="hljs-function"><span class="hljs-keyword">fun
     </li>
     
     
-    <li id="section-31" class="section">
+    <li id="section-33" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-31">&#182;</a>
+            <a class="pilcrow" href="#section-33">&#182;</a>
           </div>
           <h2 id="bindinghandlers-js">bindingHandlers.js</h2>
 
@@ -1274,11 +1359,11 @@ ko.bindingHandlers[<span class="hljs-string">'stopBinding'</span>] = {
     </li>
     
     
-    <li id="section-32" class="section">
+    <li id="section-34" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-32">&#182;</a>
+            <a class="pilcrow" href="#section-34">&#182;</a>
           </div>
           <h2 id="extenders-js">extenders.js</h2>
 
@@ -1288,11 +1373,11 @@ ko.bindingHandlers[<span class="hljs-string">'stopBinding'</span>] = {
     </li>
     
     
-    <li id="section-33" class="section">
+    <li id="section-35" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-33">&#182;</a>
+            <a class="pilcrow" href="#section-35">&#182;</a>
           </div>
           <p>custom throttle() based on ko v3.0.0 throttle(), allows value to be force()’d to a value at any time</p>
 
@@ -1353,7 +1438,7 @@ ko.extenders.autoEnable = <span class="hljs-function"><span class="hljs-keyword"
 
 ko.extenders.delayTrigger = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( target, options )</span> {</span>
   <span class="hljs-keyword">var</span> delay = <span class="hljs-number">300</span>,
-      triggerFunc = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>},
+      triggerFunc = noop,
       trigger;
 
   <span class="hljs-keyword">if</span>( <span class="hljs-keyword">typeof</span> options === <span class="hljs-string">'object'</span> ) {
@@ -1418,11 +1503,11 @@ ko.extenders.delayWrite = <span class="hljs-function"><span class="hljs-keyword"
     </li>
     
     
-    <li id="section-34" class="section">
+    <li id="section-36" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-34">&#182;</a>
+            <a class="pilcrow" href="#section-36">&#182;</a>
           </div>
           <h2 id="router-js">router.js</h2>
 
@@ -1451,11 +1536,11 @@ ko.extenders.delayWrite = <span class="hljs-function"><span class="hljs-keyword"
     </li>
     
     
-    <li id="section-35" class="section">
+    <li id="section-37" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-35">&#182;</a>
+            <a class="pilcrow" href="#section-37">&#182;</a>
           </div>
           <p>Create the main router method. This can be used to both activate the router and setup routes.</p>
 
@@ -1477,11 +1562,11 @@ router.namespace = ko.enterNamespaceName(<span class="hljs-string">'router'</spa
     </li>
     
     
-    <li id="section-36" class="section">
+    <li id="section-38" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-36">&#182;</a>
+            <a class="pilcrow" href="#section-38">&#182;</a>
           </div>
           <p>Initialize necessary cache and boolean registers</p>
 
@@ -1495,11 +1580,11 @@ router.namespace = ko.enterNamespaceName(<span class="hljs-string">'router'</spa
     </li>
     
     
-    <li id="section-37" class="section">
+    <li id="section-39" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-37">&#182;</a>
+            <a class="pilcrow" href="#section-39">&#182;</a>
           </div>
           <p>Declare regular expressions used to parse a uri
 Sourced: <a href="https://github.com/BlueSpire/Durandal/blob/e88fd385fb930d38456e35812b44ecd6ea7d8f4c/platforms/Bower/Durandal/js/plugins/router.js">https://github.com/BlueSpire/Durandal/blob/e88fd385fb930d38456e35812b44ecd6ea7d8f4c/platforms/Bower/Durandal/js/plugins/router.js</a></p>
@@ -1517,11 +1602,11 @@ Sourced: <a href="https://github.com/BlueSpire/Durandal/blob/e88fd385fb930d38456
     </li>
     
     
-    <li id="section-38" class="section">
+    <li id="section-40" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-38">&#182;</a>
+            <a class="pilcrow" href="#section-40">&#182;</a>
           </div>
           <p>Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens</p>
 
@@ -1688,6 +1773,28 @@ router.activate = _.once( _.bind(<span class="hljs-function"><span class="hljs-k
 
   <span class="hljs-keyword">return</span> router.setupHistoryAdapter().stateChange();
 }, router) );
+
+ko.components.register(<span class="hljs-string">'outlet'</span>, {
+  viewModel: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+    <span class="hljs-keyword">this</span>.isSuccess = ko.observable(<span class="hljs-string">'SUCCESSING INTENSIFIES'</span>);
+  },</pre></div></div>
+        
+    </li>
+    
+    
+    <li id="section-41" class="section">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-41">&#182;</a>
+          </div>
+          <p>use comment bindings!</p>
+
+          <div class="annotation-bg"></div>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre>  template: <span class="hljs-string">'&lt;div data-bind="text: isSuccess"&gt;&lt;/div&gt;'</span>
+});
 
 router.namespace = ko.exitNamespace(); <span class="hljs-comment">// exit from 'router' namespace</span></pre></div></div>
         

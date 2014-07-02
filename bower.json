@@ -1,7 +1,7 @@
 {
   "name": "knockout-footwork.js",
   "version": "0.2.0",
-  "description": "A solid footing for larger knockout applications.",
+  "description": "A solid footing for knockout applications.",
   "homepage": "http://footworkjs.com",
   "keywords": [
     "knockout",

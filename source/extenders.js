@@ -56,7 +56,7 @@ ko.extenders.autoEnable = function( target, delay ) {
 
 ko.extenders.delayTrigger = function( target, options ) {
   var delay = 300,
-      triggerFunc = function() {},
+      triggerFunc = noop,
       trigger;
 
   if( typeof options === 'object' ) {

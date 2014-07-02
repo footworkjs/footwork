@@ -35,12 +35,14 @@ ko.refreshModels = function() {
   _.invoke(ko.getModels(), 'refreshReceived');
 };
 
+var modelMixins = [];
+
 ko.model = function(modelOptions) {
-  if(typeof modelOptions !== 'undefined' && typeof modelOptions.viewModel !== 'undefined') {
+  if( typeof modelOptions !== 'undefined' && _.isFunction(modelOptions.viewModel) === true ) {
     modelOptions.initialize = modelOptions.viewModel;
   }
 
-  modelOptions = _.extend({
+  var modelOptions = _.extend({
     namespace: undefined,
     componentNamespace: undefined,
     autoIncrement: false,
@@ -50,60 +52,22 @@ ko.model = function(modelOptions) {
     initialize: noop
   }, modelOptions);
 
-  var viewModel = {
-    _preInit: function( options ) {
-      modelOptions.namespace = indexedNamespaceName(modelOptions.componentNamespace || modelOptions.namespace || _.uniqueId('namespace'), modelOptions.autoIncrement);
-      this._modelOptions = modelOptions;
-      this._options = options;
-
-      ko.enterNamespaceName( modelOptions.namespace );
-
-      this.namespace = ko.currentNamespace();
-      this._globalNamespace = ko.namespace();
-    },
-    mixin: {
-      getNamespaceName: function() {
-        return this.namespace.channel;
-      },
-      broadcastAll: function() {
-        var model = this;
-        _.each( this, function(property, propName) {
-          if( _.isObject(property) && property.__isBroadcast === true ) {
-            model.namespace.publish( propName, property() );
-          }
-        });
-        return this;
-      },
-      refreshReceived: function() {
-        _.each( this, function(property, propName) {
-          if( _.isObject(property) && property.__isReceived === true ) {
-            property.refresh();
-          }
-        });
-        return this;
-      },
-      startup: function() {
-        this.refreshReceived().broadcastAll();
-        return this;
+  var modelOptionsMixin = {
+    _preInit: function( initOptions ) {
+      this._model = {
+        modelOptions: modelOptions,
+        initOptions: initOptions
       }
-    },
-    _postInit: function( options ) {
-      models[ this.getNamespaceName() ] = this;
-      ko.exitNamespace();
-
-      this.startup();
-      _.isFunction(modelOptions.afterCreating) && modelOptions.afterCreating.call(this);
     }
   };
 
-  var composure = [ modelOptions.initialize, viewModel ];
+  var composure = [ modelOptions.initialize, modelOptionsMixin ].concat( modelMixins );
   if(modelOptions.mixins !== undefined) {
     composure = composure.concat(modelOptions.mixins);
   }
-  var model = riveter.compose.apply( undefined, composure );
 
+  var model = riveter.compose.apply( undefined, composure );
   model._isFootworkModel = true;
-  model.options = modelOptions;
 
   return model;
 };
