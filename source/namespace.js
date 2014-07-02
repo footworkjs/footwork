@@ -22,12 +22,128 @@ function indexedNamespaceName(name, autoIncrement) {
   } else {
     namespaceNameCounter[name]++;
   }
-  return name + ((autoIncrement === true && namespaceNameCounter[name] > 0) ? namespaceNameCounter[name] : '');
+  return name + (autoIncrement === true ? namespaceNameCounter[name] : '');
 }
 
-// Creates and returns a new namespace channel
+function sendCommandToNamespace(commandKey, params) {
+  this.publish('command.' + commandKey, params);
+  return this;
+}
+
+function registerNamespaceCommandHandler(requestKey, callback) {
+  var handlerSubscription = this.subscribe('command.' + requestKey, callback);
+  this.commandHandlers.push(handlerSubscription);
+
+  return handlerSubscription;
+}
+
+function unregisterNamespaceCommandHandler(handlerSubscription) {
+  handlerSubscription.unsubscribe();
+  return this;
+}
+
+function requestResponseFromNamespace(requestKey, params) {
+  var response;
+  var subscription;
+
+  subscription = this.subscribe('request.' + requestKey + '.response', function(reqResponse) {
+    response = reqResponse;
+  });
+  this.publish('request.' + requestKey, params);
+  subscription.unsubscribe();
+
+  return response;
+}
+
+function registerNamespaceRequestHandler(requestKey, callback) {
+  var handler = function(params) {
+    var callbackResponse = callback(params);
+    this.publish('request.' + requestKey + '.response', callbackResponse);
+  };
+
+  var handlerSubscription = this.subscribe('request.' + requestKey, _.bind(handler, this));
+  this.requestHandlers.push(handlerSubscription);
+
+  return handlerSubscription;
+}
+
+function unregisterNamespaceRequestHandler(handlerSubscription) {
+  handlerSubscription.unsubscribe();
+  return this;
+}
+
+function disconnectNamespaceHandlers() {
+  _.invoke(this.requestHandlers, 'unsubscribe');
+  _.invoke(this.commandHandlers, 'unsubscribe');
+  return this;
+}
+
+// mixin provided to models which enables namespace capabilities including pub/sub, cqrs, etc
+modelMixins.push({
+  _preInit: function( options ) {
+    this._model.globalNamespace = ko.namespace();
+    this._model.namespaceName = indexedNamespaceName(this._model.modelOptions.componentNamespace || this._model.modelOptions.namespace || _.uniqueId('namespace'), this._model.modelOptions.autoIncrement);
+
+    ko.enterNamespaceName( this._model.namespaceName );
+    this.namespace = ko.currentNamespace();
+  },
+  mixin: {
+    getNamespaceName: function() {
+      return this.namespace.channel;
+    },
+    broadcastAll: function() {
+      var model = this;
+      _.each( this, function(property, propName) {
+        if( _.isObject(property) && property.__isBroadcast === true ) {
+          model.namespace.publish( propName, property() );
+        }
+      });
+      return this;
+    },
+    refreshReceived: function() {
+      _.each( this, function(property, propName) {
+        if( _.isObject(property) && property.__isReceived === true ) {
+          property.refresh();
+        }
+      });
+      return this;
+    },
+    startup: function() {
+      this.refreshReceived().broadcastAll();
+      return this;
+    }
+  },
+  _postInit: function( options ) {
+    models[ this.getNamespaceName() ] = this;
+    ko.exitNamespace();
+
+    this.startup();
+    _.isFunction(this._model.modelOptions.afterCreating) && this._model.modelOptions.afterCreating.call(this);
+  }
+});
+
+// Creates and returns a new namespace instance
 ko.namespace = function(namespaceName) {
-  return postal.channel(namespaceName);
+  var namespace = postal.channel(namespaceName);
+
+  namespace.shutdown = _.bind( disconnectNamespaceHandlers, namespace );
+
+  namespace.commandHandlers = [];
+  namespace.command = _.bind( sendCommandToNamespace, namespace );
+  namespace.command.handler = _.bind( registerNamespaceCommandHandler, namespace );
+  namespace.command.handler.unregister = _.bind( unregisterNamespaceCommandHandler, namespace );
+
+  namespace.requestHandlers = [];
+  namespace.request = _.bind( requestResponseFromNamespace, namespace );
+  namespace.request.handler = _.bind( registerNamespaceRequestHandler, namespace );
+  namespace.request.handler.unregister = _.bind( unregisterNamespaceRequestHandler, namespace );
+
+  return namespace;
+};
+
+// Duck type check for a namespace object
+ko.isNamespace = function(thing) {
+  return _.isFunction(thing.subscribe) && _.isFunction(thing.publish) && typeof thing.channel === 'string';
 };
 
 // Return the current namespace name.
@@ -48,7 +164,7 @@ ko.enterNamespaceName = function(namespaceName) {
 };
 
 // Called at the after a model constructor function is run. exitNamespace()
-// will shift the current namespace off of the stack, exiting to the
+// will shift the current namespace off of the stack, 'exiting' to the
 // next namespace in the stack
 ko.exitNamespace = function() {
   namespaceStack.shift();

@@ -18,7 +18,7 @@ var fs = require('fs');
 
 var pkg = require('./package.json');
 var reporter = 'list';
-var statement = 'A solid footing for larger knockout applications.';
+var statement = 'A solid footing for knockout applications.';
 var args   = require('yargs').argv;
 
 var sourceFiles = [
