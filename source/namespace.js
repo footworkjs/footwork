@@ -25,11 +25,13 @@ function indexedNamespaceName(name, autoIncrement) {
   return name + (autoIncrement === true ? namespaceNameCounter[name] : '');
 }
 
+// Method used to trigger an event on a namespace
 function triggerEventOnNamespace(eventKey, params) {
   this.publish('event.' + eventKey, params);
   return this;
 }
 
+// Method used to register an event handler on a namespace
 function registerNamespaceEventHandler(eventKey, callback) {
   var handlerSubscription = this.subscribe('event.' + eventKey, callback);
   this.commandHandlers.push(handlerSubscription);
@@ -37,16 +39,19 @@ function registerNamespaceEventHandler(eventKey, callback) {
   return handlerSubscription;
 }
 
+// Method used to unregister an event handler on a namespace
 function unregisterNamespaceEventHandler(handlerSubscription) {
   handlerSubscription.unsubscribe();
   return this;
 }
 
+// Method used to send a command to a namespace
 function sendCommandToNamespace(commandKey, params) {
   this.publish('command.' + commandKey, params);
   return this;
 }
 
+// Method used to register a command handler on a namespace
 function registerNamespaceCommandHandler(requestKey, callback) {
   var handlerSubscription = this.subscribe('command.' + requestKey, callback);
   this.commandHandlers.push(handlerSubscription);
@@ -54,11 +59,13 @@ function registerNamespaceCommandHandler(requestKey, callback) {
   return handlerSubscription;
 }
 
+// Method used to unregister a command handler on a namespace
 function unregisterNamespaceCommandHandler(handlerSubscription) {
   handlerSubscription.unsubscribe();
   return this;
 }
 
+// Method used to is a request for data from a namespace, returning the response (or undefined if no response)
 function requestResponseFromNamespace(requestKey, params) {
   var response;
   var subscription;
@@ -72,6 +79,8 @@ function requestResponseFromNamespace(requestKey, params) {
   return response;
 }
 
+// Method used to register a request handler on a namespace.
+// Requests sent using the specified requestKey will be called and passed in any params specified, the return value is passed back to the issuer
 function registerNamespaceRequestHandler(requestKey, callback) {
   var handler = function(params) {
     var callbackResponse = callback(params);
@@ -84,11 +93,13 @@ function registerNamespaceRequestHandler(requestKey, callback) {
   return handlerSubscription;
 }
 
+// Method used to unregister a request-response handler on a namespace
 function unregisterNamespaceRequestHandler(handlerSubscription) {
   handlerSubscription.unsubscribe();
   return this;
 }
 
+// This effectively shuts down all requests, commands, and events by unsubscribing all handlers on a discreet namespace object
 function disconnectNamespaceHandlers() {
   _.invoke(this.requestHandlers, 'unsubscribe');
   _.invoke(this.commandHandlers, 'unsubscribe');
