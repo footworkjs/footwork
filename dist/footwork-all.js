@@ -12145,6 +12145,11 @@ var makeModel = ko.model = function(modelOptions) {
         modelOptions: modelOptions,
         initOptions: initOptions
       }
+    },
+    _postInit: function() {
+      this.namespace.request.handler('__footwork_model_reference', function() {
+        return this;
+      });
     }
   };
 
