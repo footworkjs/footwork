@@ -7002,7 +7002,7 @@ function isFootworkModel(thing) {
 var models = {};
 
 // Returns the number of created models for each defined namespace
-ko.modelCount = function() {
+var modelCount = ko.modelCount = function() {
   var counts = _.reduce(namespaceNameCounter, function(modelCounts, modelCount, modelName) {
     modelCounts[modelName] = modelCount + 1;
     return modelCounts;
@@ -7015,7 +7015,7 @@ ko.modelCount = function() {
 
 // Returns a reference to the specified models.
 // If no name is supplied, a reference to an array containing all model references is returned.
-ko.getModels = function(namespaceName) {
+var getModels = ko.getModels = function(namespaceName) {
   if(namespaceName === undefined) {
     return models;
   }
@@ -7023,13 +7023,13 @@ ko.getModels = function(namespaceName) {
 };
 
 // Tell all models to request the values which it listens for
-ko.refreshModels = function() {
-  _.invoke(ko.getModels(), 'refreshReceived');
+var refreshModels = ko.refreshModels = function() {
+  _.invoke(getModels(), 'refreshReceived');
 };
 
 var modelMixins = [];
 
-ko.model = function(modelOptions) {
+var makeModel = ko.model = function(modelOptions) {
   if( typeof modelOptions !== 'undefined' && _.isFunction(modelOptions.viewModel) === true ) {
     modelOptions.initialize = modelOptions.viewModel;
   }
@@ -7173,7 +7173,7 @@ function disconnectNamespaceHandlers() {
 }
 
 // Creates and returns a new namespace instance
-ko.namespace = function(namespaceName) {
+var makeNamespace = ko.namespace = function(namespaceName) {
   var namespace = postal.channel(namespaceName);
 
   namespace.shutdown = _.bind( disconnectNamespaceHandlers, namespace );
@@ -7197,43 +7197,43 @@ ko.namespace = function(namespaceName) {
 };
 
 // Duck type check for a namespace object
-ko.isNamespace = function(thing) {
+var isNamespace = ko.isNamespace = function(thing) {
   return _.isFunction(thing.subscribe) && _.isFunction(thing.publish) && typeof thing.channel === 'string';
 };
 
 // Return the current namespace name.
-ko.currentNamespaceName = function() {
+var currentNamespaceName = ko.currentNamespaceName = function() {
   return namespaceStack[0];
 };
 
 // Return the current namespace channel.
-ko.currentNamespace = function() {
-  return ko.namespace(ko.currentNamespaceName());
+var currentNamespace = ko.currentNamespace = function() {
+  return makeNamespace( currentNamespaceName() );
 };
 
 // enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
 // 'entering' into that namespace (it is now the currentNamespace)
-ko.enterNamespaceName = function(namespaceName) {
+var enterNamespaceName = ko.enterNamespaceName = function(namespaceName) {
   namespaceStack.unshift( namespaceName );
-  return ko.currentNamespace();
+  return currentNamespace();
 };
 
 // Called at the after a model constructor function is run. exitNamespace()
 // will shift the current namespace off of the stack, 'exiting' to the
 // next namespace in the stack
-ko.exitNamespace = function() {
+var exitNamespace = ko.exitNamespace = function() {
   namespaceStack.shift();
-  return ko.currentNamespace();
+  return currentNamespace();
 };
 
 // mixin provided to models which enables namespace capabilities including pub/sub, cqrs, etc
 modelMixins.push({
   _preInit: function( options ) {
-    this._model.globalNamespace = ko.namespace();
+    this._model.globalNamespace = makeNamespace();
     this._model.namespaceName = indexedNamespaceName(this._model.modelOptions.componentNamespace || this._model.modelOptions.namespace || _.uniqueId('namespace'), this._model.modelOptions.autoIncrement);
 
-    ko.enterNamespaceName( this._model.namespaceName );
-    this.namespace = ko.currentNamespace();
+    enterNamespaceName( this._model.namespaceName );
+    this.namespace = currentNamespace();
   },
   mixin: {
     getNamespaceName: function() {
@@ -7242,15 +7242,15 @@ modelMixins.push({
     broadcastAll: function() {
       var model = this;
       _.each( this, function(property, propName) {
-        if( _.isObject(property) && property.__isBroadcast === true ) {
-          model.namespace.publish( propName, property() );
+        if( isABroadcastable(property) === true ) {
+          property.broadcast();
         }
       });
       return this;
     },
     refreshReceived: function() {
       _.each( this, function(property, propName) {
-        if( _.isObject(property) && property.__isReceived === true ) {
+        if( isAReceivable(property) === true ) {
           property.refresh();
         }
       });
@@ -7263,7 +7263,7 @@ modelMixins.push({
   },
   _postInit: function( options ) {
     models[ this.getNamespaceName() ] = this;
-    ko.exitNamespace();
+    exitNamespace();
 
     this.startup();
     _.isFunction(this._model.modelOptions.afterCreating) && this._model.modelOptions.afterCreating.call(this);
@@ -7298,11 +7298,11 @@ ko.component = function(options) {
 // broadcast-receive.js
 // ----------------
 
-ko.isAReceivable = function(thing) {
+var isAReceivable = ko.isAReceivable = function(thing) {
   return _.has(thing, '__isReceived') && thing.__isReceived === true;
 };
 
-ko.isABroadcastable = function(thing) {
+var isABroadcastable = ko.isABroadcastable = function(thing) {
   return _.has(thing, '__isBroadcast') && thing.__isBroadcast === true;
 };
 
@@ -7311,9 +7311,9 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
   var observable = this;
 
-  if(ko.isNamespace(namespace) === false) {
+  if(isNamespace(namespace) === false) {
     if( typeof namespace === 'string') {
-      namespace = ko.namespace( namespace );
+      namespace = makeNamespace( namespace );
     } else {
       ko.logError('Invalid namespace [' + typeof namespace + ']');
       return observable;
@@ -7366,9 +7366,9 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
     }
   }
 
-  namespace = option.namespace || ko.currentNamespace();
+  namespace = option.namespace || currentNamespace();
   if(typeof namespace === 'string') {
-    namespace = ko.namespace(channel);
+    namespace = makeNamespace(channel);
   }
 
   if( option.writable ) {
@@ -7377,6 +7377,9 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
     });
   }
 
+  observable.broadcast = function() {
+    namespace.publish( option.name, observable() );
+  };
   namespace.subscribe( 'refresh.' + option.name, function() {
     namespace.publish( option.name, observable() );
   });
@@ -7582,11 +7585,11 @@ var router = ko.router = function(config) {
   router.config = config = _.extend({}, routerDefaultConfig, router.config, config);
   router.config.baseRoute = _.result(router.config, 'baseRoute');
 
-  return (config.activate ? router.setRoutes().activate() : router.setRoutes());
+  return (config.activate ? setRoutes().activate() : setRoutes());
 };
 
 router.config = _.clone(routerDefaultConfig);
-router.namespace = ko.enterNamespaceName('router');
+router.namespace = enterNamespaceName('router');
 
 // Initialize necessary cache and boolean registers
 var routes = [];
@@ -7648,14 +7651,14 @@ function unknownRoute() {
   return (typeof router.config !== 'undefined' ? _.result(router.config.unknownRoute) : undefined);
 }
 
-router.setRoutes = function(route) {
+var setRoutes = _.bind(router.setRoutes = function(route) {
   routes = [];
-  router.addRoutes(route || this.config.routes);
+  addRoutes(route || this.config.routes);
 
   return router;
-};
+}, router);
 
-router.addRoutes = function(route) {
+var addRoutes = _.bind(router.addRoutes = function(route) {
   route = _.isArray(route) ? route : [route];
   routes.push.apply(routes, route);
 
@@ -7664,11 +7667,11 @@ router.addRoutes = function(route) {
   }
 
   return router;
-};
+}, router);
 
 var navModelUpdate = ko.observable();
 var navPredicate;
-router.navigationModel = function(predicate) {
+var makeNavigationModel = _.bind(router.navigationModel = function(predicate) {
   navPredicate = predicate || navPredicate || function() { return true; };
 
   if(typeof navigationModel === 'undefined') {
@@ -7679,24 +7682,25 @@ router.navigationModel = function(predicate) {
   }
 
   return navigationModel.broadcastAs({ name: 'navigationModel', namespace: router.namespace });
-};
+}, router);
 
-var currentState = ko.observable().broadcastAs('currentState');
-router.stateChange = function(url) {
+var stateChange = _.bind(router.stateChange = function(url) {
   currentState( url = normalizeURL( url || (historyIsEnabled() ? History.getState().url : '#default') ) );
   getActionFor(url)(); // get the route if it exists and run the action if one is returned
 
   return router;
-};
+}, router);
+
+var currentState = ko.observable().broadcastAs('currentState');
 currentState.subscribe(function(newState) {
   ko.log('New Route:', newState);
 });
 
-var getActionFor = router.getActionFor = function(url) {
+var getActionFor = _.bind(router.getActionFor = function(url) {
   var Action = noop;
   var originalURL = url;
 
-  _.each(router.getRoutes(), function(routeDesc) {
+  _.each(getRoutes(), function(routeDesc) {
     var routeString = routeDesc.route;
     var routeRegex = routeStringToRegExp(routeString);
     var routeParamValues = url.match(routeRegex);
@@ -7728,16 +7732,16 @@ var getActionFor = router.getActionFor = function(url) {
   }
 
   return Action;
-};
+}, router);
 
-router.getRoutes = function() {
+var getRoutes = _.bind(router.getRoutes = function() {
   return routes;
-};
+}, router);
 
-router.setupHistoryAdapter = function() {
+var setupHistoryAdapter = _.bind(router.setupHistoryAdapter = function() {
   if(historyIsEnabled() !== true) {
     if( historyReady() ) {
-      History.Adapter.bind( window, 'statechange', router.stateChange);
+      History.Adapter.bind( window, 'statechange', stateChange);
       historyIsEnabled(true);
     } else {
       historyIsEnabled(false);
@@ -7745,11 +7749,11 @@ router.setupHistoryAdapter = function() {
   }
 
   return router;
-}
+}, router);
 
-router.historyIsEnabled = function() {
-  return historyIsEnabled();
-};
+router.historyIsEnabled = ko.computed(function() {
+  return this.historyIsEnabled();
+}, { historyIsEnabled: historyIsEnabled });
 
 router.activate = _.once( _.bind(function() {
   delegate(document)
@@ -7761,7 +7765,7 @@ router.activate = _.once( _.bind(function() {
       console.info('delegateClick-event', event.delegateTarget);
     });
 
-  return router.setupHistoryAdapter().stateChange();
+  return setupHistoryAdapter().stateChange();
 }, router) );
 
 ko.components.register('outlet', {
@@ -7772,7 +7776,7 @@ ko.components.register('outlet', {
   template: '<div data-bind="text: isSuccess"></div>'
 });
 
-router.namespace = ko.exitNamespace(); // exit from 'router' namespace
+exitNamespace(); // exit from 'router' namespace
       return ko;
     })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.Q, root.Qajax );
   })();

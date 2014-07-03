@@ -10,7 +10,7 @@ function isFootworkModel(thing) {
 var models = {};
 
 // Returns the number of created models for each defined namespace
-ko.modelCount = function() {
+var modelCount = ko.modelCount = function() {
   var counts = _.reduce(namespaceNameCounter, function(modelCounts, modelCount, modelName) {
     modelCounts[modelName] = modelCount + 1;
     return modelCounts;
@@ -23,7 +23,7 @@ ko.modelCount = function() {
 
 // Returns a reference to the specified models.
 // If no name is supplied, a reference to an array containing all model references is returned.
-ko.getModels = function(namespaceName) {
+var getModels = ko.getModels = function(namespaceName) {
   if(namespaceName === undefined) {
     return models;
   }
@@ -31,13 +31,13 @@ ko.getModels = function(namespaceName) {
 };
 
 // Tell all models to request the values which it listens for
-ko.refreshModels = function() {
-  _.invoke(ko.getModels(), 'refreshReceived');
+var refreshModels = ko.refreshModels = function() {
+  _.invoke(getModels(), 'refreshReceived');
 };
 
 var modelMixins = [];
 
-ko.model = function(modelOptions) {
+var makeModel = ko.model = function(modelOptions) {
   if( typeof modelOptions !== 'undefined' && _.isFunction(modelOptions.viewModel) === true ) {
     modelOptions.initialize = modelOptions.viewModel;
   }
