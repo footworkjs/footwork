@@ -68,13 +68,13 @@ function unregisterNamespaceCommandHandler(handlerSubscription) {
 // Method used to is a request for data from a namespace, returning the response (or undefined if no response)
 function requestResponseFromNamespace(requestKey, params) {
   var response;
-  var subscription;
+  var responseSubscription;
 
-  subscription = this.subscribe('request.' + requestKey + '.response', function(reqResponse) {
+  responseSubscription = this.subscribe('request.' + requestKey + '.response', function(reqResponse) {
     response = reqResponse;
   });
   this.publish('request.' + requestKey, params);
-  subscription.unsubscribe();
+  responseSubscription.unsubscribe();
 
   return response;
 }
@@ -82,12 +82,12 @@ function requestResponseFromNamespace(requestKey, params) {
 // Method used to register a request handler on a namespace.
 // Requests sent using the specified requestKey will be called and passed in any params specified, the return value is passed back to the issuer
 function registerNamespaceRequestHandler(requestKey, callback) {
-  var handler = function(params) {
+  var requestHandler = _.bind(function(params) {
     var callbackResponse = callback(params);
     this.publish('request.' + requestKey + '.response', callbackResponse);
-  };
+  }, this);
 
-  var handlerSubscription = this.subscribe('request.' + requestKey, _.bind(handler, this));
+  var handlerSubscription = this.subscribe('request.' + requestKey, requestHandler);
   this.requestHandlers.push(handlerSubscription);
 
   return handlerSubscription;

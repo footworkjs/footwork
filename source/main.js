@@ -44,12 +44,11 @@ ko.applyBindings = function(model, element) {
   applyBindings(model, element);
 
   if(typeof model !== 'undefined' && typeof model.startup === 'function' && typeof model._options !== 'undefined') {
-    if(model._options.startup !== false) {
-      model.startup();
+    if(typeof model._model.initOptions !== 'undefined' && model._model.initOptions.startup !== false) {
+      model._model.initOptions.startup();
     }
-    console.log('applyBindings',model);
-    if(typeof model._modelOptions.afterBinding === 'function') {
-      model._modelOptions.afterBinding.call(model);
+    if(typeof model._model.modelOptions.afterBinding === 'function') {
+      model._model._modelOptions.afterBinding.call(model);
     }
   }
 };
