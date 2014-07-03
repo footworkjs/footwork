@@ -108,7 +108,7 @@ function disconnectNamespaceHandlers() {
 }
 
 // Creates and returns a new namespace instance
-ko.namespace = function(namespaceName) {
+var makeNamespace = ko.namespace = function(namespaceName) {
   var namespace = postal.channel(namespaceName);
 
   namespace.shutdown = _.bind( disconnectNamespaceHandlers, namespace );
@@ -132,43 +132,43 @@ ko.namespace = function(namespaceName) {
 };
 
 // Duck type check for a namespace object
-ko.isNamespace = function(thing) {
+var isNamespace = ko.isNamespace = function(thing) {
   return _.isFunction(thing.subscribe) && _.isFunction(thing.publish) && typeof thing.channel === 'string';
 };
 
 // Return the current namespace name.
-ko.currentNamespaceName = function() {
+var currentNamespaceName = ko.currentNamespaceName = function() {
   return namespaceStack[0];
 };
 
 // Return the current namespace channel.
-ko.currentNamespace = function() {
-  return ko.namespace(ko.currentNamespaceName());
+var currentNamespace = ko.currentNamespace = function() {
+  return makeNamespace( currentNamespaceName() );
 };
 
 // enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
 // 'entering' into that namespace (it is now the currentNamespace)
-ko.enterNamespaceName = function(namespaceName) {
+var enterNamespaceName = ko.enterNamespaceName = function(namespaceName) {
   namespaceStack.unshift( namespaceName );
-  return ko.currentNamespace();
+  return currentNamespace();
 };
 
 // Called at the after a model constructor function is run. exitNamespace()
 // will shift the current namespace off of the stack, 'exiting' to the
 // next namespace in the stack
-ko.exitNamespace = function() {
+var exitNamespace = ko.exitNamespace = function() {
   namespaceStack.shift();
-  return ko.currentNamespace();
+  return currentNamespace();
 };
 
 // mixin provided to models which enables namespace capabilities including pub/sub, cqrs, etc
 modelMixins.push({
   _preInit: function( options ) {
-    this._model.globalNamespace = ko.namespace();
+    this._model.globalNamespace = makeNamespace();
     this._model.namespaceName = indexedNamespaceName(this._model.modelOptions.componentNamespace || this._model.modelOptions.namespace || _.uniqueId('namespace'), this._model.modelOptions.autoIncrement);
 
-    ko.enterNamespaceName( this._model.namespaceName );
-    this.namespace = ko.currentNamespace();
+    enterNamespaceName( this._model.namespaceName );
+    this.namespace = currentNamespace();
   },
   mixin: {
     getNamespaceName: function() {
@@ -177,15 +177,15 @@ modelMixins.push({
     broadcastAll: function() {
       var model = this;
       _.each( this, function(property, propName) {
-        if( _.isObject(property) && property.__isBroadcast === true ) {
-          model.namespace.publish( propName, property() );
+        if( isABroadcastable(property) === true ) {
+          property.broadcast();
         }
       });
       return this;
     },
     refreshReceived: function() {
       _.each( this, function(property, propName) {
-        if( _.isObject(property) && property.__isReceived === true ) {
+        if( isAReceivable(property) === true ) {
           property.refresh();
         }
       });
@@ -198,7 +198,7 @@ modelMixins.push({
   },
   _postInit: function( options ) {
     models[ this.getNamespaceName() ] = this;
-    ko.exitNamespace();
+    exitNamespace();
 
     this.startup();
     _.isFunction(this._model.modelOptions.afterCreating) && this._model.modelOptions.afterCreating.call(this);

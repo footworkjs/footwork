@@ -26,11 +26,11 @@ var router = ko.router = function(config) {
   router.config = config = _.extend({}, routerDefaultConfig, router.config, config);
   router.config.baseRoute = _.result(router.config, 'baseRoute');
 
-  return (config.activate ? router.setRoutes().activate() : router.setRoutes());
+  return (config.activate ? setRoutes().activate() : setRoutes());
 };
 
 router.config = _.clone(routerDefaultConfig);
-router.namespace = ko.enterNamespaceName('router');
+router.namespace = enterNamespaceName('router');
 
 // Initialize necessary cache and boolean registers
 var routes = [];
@@ -92,14 +92,14 @@ function unknownRoute() {
   return (typeof router.config !== 'undefined' ? _.result(router.config.unknownRoute) : undefined);
 }
 
-router.setRoutes = function(route) {
+var setRoutes = _.bind(router.setRoutes = function(route) {
   routes = [];
-  router.addRoutes(route || this.config.routes);
+  addRoutes(route || this.config.routes);
 
   return router;
-};
+}, router);
 
-router.addRoutes = function(route) {
+var addRoutes = _.bind(router.addRoutes = function(route) {
   route = _.isArray(route) ? route : [route];
   routes.push.apply(routes, route);
 
@@ -108,11 +108,11 @@ router.addRoutes = function(route) {
   }
 
   return router;
-};
+}, router);
 
 var navModelUpdate = ko.observable();
 var navPredicate;
-router.navigationModel = function(predicate) {
+var makeNavigationModel = _.bind(router.navigationModel = function(predicate) {
   navPredicate = predicate || navPredicate || function() { return true; };
 
   if(typeof navigationModel === 'undefined') {
@@ -123,24 +123,25 @@ router.navigationModel = function(predicate) {
   }
 
   return navigationModel.broadcastAs({ name: 'navigationModel', namespace: router.namespace });
-};
+}, router);
 
-var currentState = ko.observable().broadcastAs('currentState');
-router.stateChange = function(url) {
+var stateChange = _.bind(router.stateChange = function(url) {
   currentState( url = normalizeURL( url || (historyIsEnabled() ? History.getState().url : '#default') ) );
   getActionFor(url)(); // get the route if it exists and run the action if one is returned
 
   return router;
-};
+}, router);
+
+var currentState = ko.observable().broadcastAs('currentState');
 currentState.subscribe(function(newState) {
   ko.log('New Route:', newState);
 });
 
-var getActionFor = router.getActionFor = function(url) {
+var getActionFor = _.bind(router.getActionFor = function(url) {
   var Action = noop;
   var originalURL = url;
 
-  _.each(router.getRoutes(), function(routeDesc) {
+  _.each(getRoutes(), function(routeDesc) {
     var routeString = routeDesc.route;
     var routeRegex = routeStringToRegExp(routeString);
     var routeParamValues = url.match(routeRegex);
@@ -172,16 +173,16 @@ var getActionFor = router.getActionFor = function(url) {
   }
 
   return Action;
-};
+}, router);
 
-router.getRoutes = function() {
+var getRoutes = _.bind(router.getRoutes = function() {
   return routes;
-};
+}, router);
 
-router.setupHistoryAdapter = function() {
+var setupHistoryAdapter = _.bind(router.setupHistoryAdapter = function() {
   if(historyIsEnabled() !== true) {
     if( historyReady() ) {
-      History.Adapter.bind( window, 'statechange', router.stateChange);
+      History.Adapter.bind( window, 'statechange', stateChange);
       historyIsEnabled(true);
     } else {
       historyIsEnabled(false);
@@ -189,11 +190,11 @@ router.setupHistoryAdapter = function() {
   }
 
   return router;
-}
+}, router);
 
-router.historyIsEnabled = function() {
-  return historyIsEnabled();
-};
+router.historyIsEnabled = ko.computed(function() {
+  return this.historyIsEnabled();
+}, { historyIsEnabled: historyIsEnabled });
 
 router.activate = _.once( _.bind(function() {
   delegate(document)
@@ -205,7 +206,7 @@ router.activate = _.once( _.bind(function() {
       console.info('delegateClick-event', event.delegateTarget);
     });
 
-  return router.setupHistoryAdapter().stateChange();
+  return setupHistoryAdapter().stateChange();
 }, router) );
 
 ko.components.register('outlet', {
@@ -216,4 +217,4 @@ ko.components.register('outlet', {
   template: '<div data-bind="text: isSuccess"></div>'
 });
 
-router.namespace = ko.exitNamespace(); // exit from 'router' namespace
+exitNamespace(); // exit from 'router' namespace
