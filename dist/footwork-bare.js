@@ -687,11 +687,13 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
   var observable = this;
 
-  if( ko.isNamespace(namespace) === false && typeof namespace === 'string') {
-    namespace = ko.namespace( namespace );
-  } else {
-    ko.logError('Invalid namespace [' + typeof namespace + ']');
-    return observable;
+  if(ko.isNamespace(namespace) === false) {
+    if( typeof namespace === 'string') {
+      namespace = ko.namespace( namespace );
+    } else {
+      ko.logError('Invalid namespace [' + typeof namespace + ']');
+      return observable;
+    }
   }
 
   observable = ko.computed({
