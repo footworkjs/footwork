@@ -44,7 +44,7 @@ ko.applyBindings = function(model, element) {
   applyBindings(model, element);
 
   if(typeof model !== 'undefined' && typeof model.startup === 'function' && typeof model._options !== 'undefined') {
-    if(typeof model._model.initOptions !== 'undefined' && model._model.initOptions.startup !== false) {
+    if(typeof model._model.initOptions !== 'undefined' && _.isFunction(model._model.initOptions.startup) === true) {
       model._model.initOptions.startup();
     }
     if(typeof model._model.modelOptions.afterBinding === 'function') {
