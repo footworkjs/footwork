@@ -1,11 +1,11 @@
 // broadcast-receive.js
 // ----------------
 
-ko.isAReceivable = function(thing) {
+var isAReceivable = ko.isAReceivable = function(thing) {
   return _.has(thing, '__isReceived') && thing.__isReceived === true;
 };
 
-ko.isABroadcastable = function(thing) {
+var isABroadcastable = ko.isABroadcastable = function(thing) {
   return _.has(thing, '__isBroadcast') && thing.__isBroadcast === true;
 };
 
@@ -14,9 +14,9 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
   var observable = this;
 
-  if(ko.isNamespace(namespace) === false) {
+  if(isNamespace(namespace) === false) {
     if( typeof namespace === 'string') {
-      namespace = ko.namespace( namespace );
+      namespace = makeNamespace( namespace );
     } else {
       ko.logError('Invalid namespace [' + typeof namespace + ']');
       return observable;
@@ -69,9 +69,9 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
     }
   }
 
-  namespace = option.namespace || ko.currentNamespace();
+  namespace = option.namespace || currentNamespace();
   if(typeof namespace === 'string') {
-    namespace = ko.namespace(channel);
+    namespace = makeNamespace(channel);
   }
 
   if( option.writable ) {
@@ -80,6 +80,9 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
     });
   }
 
+  observable.broadcast = function() {
+    namespace.publish( option.name, observable() );
+  };
   namespace.subscribe( 'refresh.' + option.name, function() {
     namespace.publish( option.name, observable() );
   });
