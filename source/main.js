@@ -48,7 +48,7 @@ ko.applyBindings = function(model, element) {
       model._model.initOptions.startup();
     }
     if(typeof model._model.modelOptions.afterBinding === 'function') {
-      model._model._modelOptions.afterBinding.call(model);
+      model._model.modelOptions.afterBinding.call(model);
     }
   }
 };
