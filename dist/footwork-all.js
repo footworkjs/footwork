@@ -12679,13 +12679,14 @@ var routerDefaultConfig = {
 };
 
 // Create the main router method. This can be used to both activate the router and setup routes.
+var routerConfig;
 var router = ko.router = function(config) {
   var router = this.router;
 
-  router.config = config = _.extend({}, routerDefaultConfig, router.config, config);
-  router.config.baseRoute = _.result(router.config, 'baseRoute');
+  routerConfig = router.config = _.extend({}, routerDefaultConfig, routerConfig, config);
+  routerConfig.baseRoute = _.result(routerConfig, 'baseRoute');
 
-  return (config.activate ? setRoutes().activate() : setRoutes());
+  return (routerConfig.activate ? setRoutes().activate() : setRoutes());
 };
 
 router.config = _.clone(routerDefaultConfig);
@@ -12718,8 +12719,8 @@ function routeStringToRegExp(routeString) {
 }
 
 function normalizeURL(url) {
-  if(_.isNull(router.config.baseRoute) === false && url.indexOf(router.config.baseRoute) === 0) {
-    url = url.substr(router.config.baseRoute.length);
+  if(_.isNull(routerConfig.baseRoute) === false && url.indexOf(routerConfig.baseRoute) === 0) {
+    url = url.substr(routerConfig.baseRoute.length);
     if(url.length > 1) {
       url = url.replace(hashMatch, '/');
     }
@@ -12748,7 +12749,7 @@ function isObservable(thing) {
 }
 
 function unknownRoute() {
-  return (typeof router.config !== 'undefined' ? _.result(router.config.unknownRoute) : undefined);
+  return (typeof routerConfig !== 'undefined' ? _.result(routerConfig.unknownRoute) : undefined);
 }
 
 var setRoutes = _.bind(router.setRoutes = function(route) {
