@@ -7663,7 +7663,7 @@ var setRoutes = _.bind(router.setRoutes = function(route) {
   return router;
 }, router);
 
-var addRoutes = _.bind(router.addRoutes = function(route) {
+var addRoutes = router.addRoutes = function(route) {
   route = _.isArray(route) ? route : [route];
   routes.push.apply(routes, route);
 
@@ -7672,11 +7672,11 @@ var addRoutes = _.bind(router.addRoutes = function(route) {
   }
 
   return router;
-}, router);
+};
 
 var navModelUpdate = ko.observable();
 var navPredicate;
-var makeNavigationModel = _.bind(router.navigationModel = function(predicate) {
+var makeNavigationModel = router.navigationModel = function(predicate) {
   navPredicate = predicate || navPredicate || function() { return true; };
 
   if(typeof navigationModel === 'undefined') {
@@ -7687,21 +7687,21 @@ var makeNavigationModel = _.bind(router.navigationModel = function(predicate) {
   }
 
   return navigationModel.broadcastAs({ name: 'navigationModel', namespace: router.namespace });
-}, router);
+};
 
-var stateChange = _.bind(router.stateChange = function(url) {
+var stateChange = router.stateChange = function(url) {
   currentState( url = normalizeURL( url || (historyIsEnabled() ? History.getState().url : '#default') ) );
   getActionFor(url)(); // get the route if it exists and run the action if one is returned
 
   return router;
-}, router);
+};
 
 var currentState = ko.observable().broadcastAs('currentState');
 currentState.subscribe(function(newState) {
   ko.log('New Route:', newState);
 });
 
-var getActionFor = _.bind(router.getActionFor = function(url) {
+var getActionFor = router.getActionFor = function(url) {
   var Action = noop;
   var originalURL = url;
 
@@ -7737,13 +7737,13 @@ var getActionFor = _.bind(router.getActionFor = function(url) {
   }
 
   return Action;
-}, router);
+};
 
-var getRoutes = _.bind(router.getRoutes = function() {
+var getRoutes = router.getRoutes = function() {
   return routes;
-}, router);
+};
 
-var setupHistoryAdapter = _.bind(router.setupHistoryAdapter = function() {
+var setupHistoryAdapter = router.setupHistoryAdapter = function() {
   if(historyIsEnabled() !== true) {
     if( historyReady() ) {
       History.Adapter.bind( window, 'statechange', stateChange);
@@ -7754,7 +7754,7 @@ var setupHistoryAdapter = _.bind(router.setupHistoryAdapter = function() {
   }
 
   return router;
-}, router);
+};
 
 router.historyIsEnabled = ko.computed(function() {
   return this.historyIsEnabled();
