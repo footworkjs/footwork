@@ -49,15 +49,8 @@
     }).call(root);
 
     (function() {
-      //import("../../bower_components/qajax/src/qajax.js");
+      //import("../../bower_components/reqwest/reqwest.js");
     }).call(root);
-
-    /**
-     * Q.js doesn't have a proper UMD wrapper and doesn't reference 'this' as global (so we can't lie to it).
-     * Unfortunately that means polluting the actual global object.
-     */
-    //import("../../bower_components/q/q.js");
-    root.Q = Q; // ick...
 
     /**
      * Knockout double-wraps their module so we can't lie about the window/root object to it. As a result
@@ -66,12 +59,12 @@
     //import("../../bower_components/knockoutjs/dist/knockout.js");
     root.ko = ko; // ick...
 
-    // list of dependencies to 'export' inside the library as .embed properties
-    var embeddedDependencies = [ '_', 'Apollo', 'riveter', 'Conduit', 'postal', 'matches', 'delegate', 'Qajax' ];
+    // list of dependencies to 'export' from the library as .embed properties
+    var embeddedDependencies = [ '_', 'ko', 'Apollo', 'riveter', 'Conduit', 'postal', 'matches', 'delegate', 'reqwest' ];
 
-    return (function footwork(embedded, _, ko, postal, Apollo, riveter, delegate, Q, Qajax) {
+    return (function footwork(embedded, _, ko, postal, Apollo, riveter, delegate, reqwest) {
       //import("../main.js");
       return ko;
-    })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.Q, root.Qajax );
+    })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.reqwest );
   })();
 }));
