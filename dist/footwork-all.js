@@ -12075,8 +12075,8 @@ var applyBindings = ko.applyBindings;
 ko.applyBindings = function(model, element) {
   applyBindings(model, element);
 
-  if(typeof model !== 'undefined' && typeof model.startup === 'function' && typeof model._options !== 'undefined') {
-    if(typeof model._model.initOptions !== 'undefined' && _.isFunction(model._model.initOptions.startup) === true) {
+  if(isFootworkModel(model) === true) {
+    if(_.isFunction(model._model.initOptions.startup) === true) {
       model._model.initOptions.startup();
     }
     if(typeof model._model.modelOptions.afterBinding === 'function') {
@@ -12088,9 +12088,14 @@ ko.applyBindings = function(model, element) {
 // model.js
 // ------------------
 
+// Duck type function for determining whether or not something is a footwork model constructor function
+function isFootworkModelCtor(thing) {
+  return typeof thing !== 'undefined' && thing._isFootworkModelCtor === true;
+}
+
 // Duck type function for determining whether or not something is a footwork model
 function isFootworkModel(thing) {
-  return typeof thing !== 'undefined' && thing._isFootworkModel === true;
+  return typeof thing !== 'undefined' && thing._isFootworkModel === true && _.isObject(thing._model) === true;
 }
 
 // Initialize the models registry
@@ -12141,9 +12146,10 @@ var makeModel = ko.model = function(modelOptions) {
 
   var modelOptionsMixin = {
     _preInit: function( initOptions ) {
+      this._isFootworkModel = true;
       this._model = {
         modelOptions: modelOptions,
-        initOptions: initOptions
+        initOptions: initOptions || {}
       }
     },
     _postInit: function() {
@@ -12159,7 +12165,7 @@ var makeModel = ko.model = function(modelOptions) {
   }
 
   var model = riveter.compose.apply( undefined, composure );
-  model._isFootworkModel = true;
+  model._isFootworkModelCtorCtor = true;
 
   return model;
 };
@@ -12380,7 +12386,7 @@ ko.component = function(options) {
 
   options.namespace = options.name = _.result(options, 'name');
   var viewModel = options.initialize || options.viewModel;
-  if( isFootworkModel(viewModel) ) {
+  if( isFootworkModelCtor(viewModel) ) {
     viewModel.options.componentNamespace = options.namespace;
   } else if( _.isFunction(viewModel) ) {
     viewModel = this.model(options);
