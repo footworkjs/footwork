@@ -1,5 +1,7 @@
 ![footwork.js](https://raw.github.com/reflectiveSingleton/footwork/master/docs/images/gh-footwork-logo.png)
 ========
+[http://footworkjs.com](http://footworkjs.com "Footwork.js Homepage")
+
 [![Build Status](https://travis-ci.org/reflectiveSingleton/footwork.png?branch=master)](https://travis-ci.org/reflectiveSingleton/footwork) [![Bower version](https://badge.fury.io/bo/footwork.png)](http://badge.fury.io/bo/footwork)
 
 A solid footing for large knockout applications.
@@ -36,14 +38,13 @@ There are a few main selling points:
 The following dependencies are considered part of 'core':
 
 * [Knockout](http://knockoutjs.com/)
-* [postal.js](https://github.com/postaljs/postal.js)
-* [conduitjs](https://github.com/ifandelse/ConduitJS) (needed by postal.js)
 * [lodash](http://lodash.com/)
 * [Apollo](https://github.com/toddmotto/apollo)
+* [reqwest](https://github.com/ded/reqwest)
+* [postal.js](https://github.com/postaljs/postal.js)
+  * [conduitjs](https://github.com/ifandelse/ConduitJS) (needed by postal.js)
 * [delegate](https://github.com/component/delegate)
-* [matches](https://github.com/necolas/matches.js) (needed by delegate)
-* [q](https://github.com/kriskowal/q)
-* [Qajax](https://github.com/gre/qajax)
+  * [matches](https://github.com/necolas/matches.js) (needed by delegate)
 
 More unit tests, documentation, and features coming soon.
 

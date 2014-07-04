@@ -9,11 +9,10 @@ require.config({
     }
   },
   paths: {
-    "delegate": "../components/delegate.js/delegate",
-    "matches": "../components/matches.js/matches",
-    "Apollo": "../components/apollo/dist/apollo",
-    "q": "../components/q/q",
-    "Qajax": "../components/qajax/src/qajax",
+    "delegate":          "../components/delegate.js/delegate",
+    "matches":           "../components/matches.js/matches",
+    "Apollo":            "../components/apollo/dist/apollo",
+    "reqwest":           "../components/reqwest/reqwest",
     "jquery":            "../components/jquery/dist/jquery",
     "postal":            "../components/postal.js/lib/postal",
     "jwerty":            "lib/jwerty", // jwerty does not provide an AMD build, this is a custom wrapped version
