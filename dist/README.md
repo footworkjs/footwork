@@ -1,7 +1,3 @@
-![footwork.js](https://raw.github.com/reflectiveSingleton/footwork/master/docs/images/gh-footwork-logo.png)
-========
-
-
 ## Why multiple build profiles?
 
   Some people have projects that already incorporate these
