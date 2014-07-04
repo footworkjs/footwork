@@ -13,9 +13,9 @@ TLDR: It makes knockout based applications easier to extend, scale, and maintain
 ## Why use footwork?
 There are a few main selling points:
 
- 1. **Expressive and semantic**
+1. **Expressive and semantic**
 
-    Footwork makes use of a formalized model construct along with the built-in namespace and CQRS/etc support to make working with your components and models easy.
+    Footwork makes use of a formalized model construct along with the built-in namespace and CQRS/etc support to make working with your components and models easy. Component support is from Knockout 3.2+ which allows for the creation and use of fully modular custom elements. Why wait for browsers to support components...use them today!
 
 2. **Low boilerplate**
 
@@ -25,11 +25,11 @@ There are a few main selling points:
 
     Footwork makes use of Knockout 3.2+ along with a modular structure that enables full encapsulation of both logic and display source code. Reusing your models and components couldn't be easier.
 
-    Note: footwork also recommends the use of requirejs to help with the modular structuring of your code.
+    Note: footwork also recommends the use of requirejs to help with the modular structuring and optimization of your code.
 
 4. **Maintainability**
 
-    Applications written using modular components and models combined with the expressiveness and semantics afforded by footwork makes maintaining them a breeze. This is because your code *says* what it means and does. Reading code you wrote a while back, or something someone else made becomes much more simple. Add in the communication advantages afforded by namespacing and CQRS/events/etc and footwork is quite fun to work with.
+    Applications written using modular components and models combined with the expressiveness and semantics afforded by footwork makes maintaining them a breeze. This is because your code *says* what it means and does. Reading code you wrote a while back, or something someone else made becomes much more straightforward.
 
 ### Footworks special sauce...
 
