@@ -9,7 +9,7 @@ ko.component = function(options) {
 
   options.namespace = options.name = _.result(options, 'name');
   var viewModel = options.initialize || options.viewModel;
-  if( isFootworkModel(viewModel) ) {
+  if( isFootworkModelCtor(viewModel) ) {
     viewModel.options.componentNamespace = options.namespace;
   } else if( _.isFunction(viewModel) ) {
     viewModel = this.model(options);
