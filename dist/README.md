@@ -22,7 +22,7 @@
     * 'lodash' - http://lodash.com/
     * 'knockout' - http://knockoutjs.com/
 
-3. **footwork-bare.js**
+* **footwork-bare.js**
 
     You will need to provide (via either &lt;script&gt; includes, requirejs, browserify, etc)
     * 'lodash' - http://lodash.com/ (footwork uses lodash.underscore.js natively)
@@ -36,12 +36,10 @@
 
 ### I need a different build, can I make others?
 
-  Well sure, the gulpfile.js is in the repo:
-  https://github.com/reflectiveSingleton/footwork
-  [TODO]: Make documentation concerning custom builds.
-  I also accept pull requests, so if you think your build would help
-  out others as well, please feel free to submit a pull.
+  Sure, the gulpfile.js is in the repo: https://github.com/reflectiveSingleton/footwork
+  
+  **TODO** Make documentation concerning custom builds.
 
---
+I also accept pull requests, if you think your build would help out others as well, please feel free to submit a PR.
 
 Please see http://footworkjs.com for more details.
