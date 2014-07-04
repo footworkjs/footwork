@@ -170,7 +170,7 @@ define([ "knockout-footwork", "lodash" ],
             });
 
             this.currentControl( handlerControl );
-            this._globalNamespace.publish( 'enableControl', this.mutateControl );
+            this._model.globalNamespace.publish( 'enableControl', this.mutateControl );
           }
         }.bind( this );
 
@@ -180,7 +180,7 @@ define([ "knockout-footwork", "lodash" ],
             controlState(false);
           });
           this.currentControl(false);
-          this._globalNamespace.publish( 'disableControl', this.mutateControl );
+          this._model.globalNamespace.publish( 'disableControl', this.mutateControl );
         }.bind( this );
 
         this.namespace.subscribe( 'disableControl', function() {

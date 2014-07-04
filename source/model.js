@@ -1,9 +1,14 @@
 // model.js
 // ------------------
 
+// Duck type function for determining whether or not something is a footwork model constructor function
+function isFootworkModelCtor(thing) {
+  return typeof thing !== 'undefined' && thing._isFootworkModelCtor === true;
+}
+
 // Duck type function for determining whether or not something is a footwork model
 function isFootworkModel(thing) {
-  return typeof thing !== 'undefined' && thing._isFootworkModel === true;
+  return typeof thing !== 'undefined' && thing._isFootworkModel === true && _.isObject(thing._model) === true;
 }
 
 // Initialize the models registry
@@ -54,9 +59,10 @@ var makeModel = ko.model = function(modelOptions) {
 
   var modelOptionsMixin = {
     _preInit: function( initOptions ) {
+      this._isFootworkModel = true;
       this._model = {
         modelOptions: modelOptions,
-        initOptions: initOptions
+        initOptions: initOptions || {}
       }
     },
     _postInit: function() {
@@ -72,7 +78,7 @@ var makeModel = ko.model = function(modelOptions) {
   }
 
   var model = riveter.compose.apply( undefined, composure );
-  model._isFootworkModel = true;
+  model._isFootworkModelCtorCtor = true;
 
   return model;
 };

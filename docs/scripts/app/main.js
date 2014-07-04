@@ -106,7 +106,7 @@ require([
     function( theModel ) {
       theModel = _.extend({ useWhen: function() { return true; } }, theModel);
       if( theModel.useWhen() === true ) {
-        var model = new theModel.Factory({ startup: false });
+        var model = new theModel.Factory();
         _.each($(theModel.target), function( element ) {
           ko.applyBindings( model, element );
         });

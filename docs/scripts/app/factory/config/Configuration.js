@@ -255,7 +255,7 @@ define([ "jquery", "lodash", "knockout-footwork", "storage" ],
           }
 
           setConfig( $.extend( true, {}, overwriteConfig, preserveValues ) );
-          this._globalNamespace.publish('configReset');
+          this._model.globalNamespace.publish('configReset');
 
           this.reflowing(true);
           $(start).animate( end, {

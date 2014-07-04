@@ -27,7 +27,7 @@ define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
           var currentPage = this.currentPage();
           this.currentPage( currentPage + 1 );
 
-          if(this._modelOptions.params !== undefined && this._modelOptions.params.url !== undefined) {
+          if(this._model.modelOptions.params !== undefined && this._model.modelOptions.params.url !== undefined) {
             this.loader
               .watch( $.ajax({ url: this._modelOptions.params.url + currentPage, dataType: 'json' }) )
               .done(function( entries ) {
