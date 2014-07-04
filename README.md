@@ -1,4 +1,4 @@
-footwork.js ![footwork.js](https://raw.github.com/reflectiveSingleton/footwork/master/docs/images/gh-footwork-logo.png)
+![footwork.js](https://raw.github.com/reflectiveSingleton/footwork/master/docs/images/gh-footwork-logo.png)
 ========
 [![Build Status](https://travis-ci.org/reflectiveSingleton/footwork.png?branch=master)](https://travis-ci.org/reflectiveSingleton/footwork) [![Bower version](https://badge.fury.io/bo/footwork.png)](http://badge.fury.io/bo/footwork)
 
@@ -14,7 +14,7 @@ The following dependencies are considered part of 'core':
 
 * [knockout](http://knockoutjs.com/)
 * [postal.js](https://github.com/postaljs/postal.js)
-* * [conduitjs](https://github.com/ifandelse/ConduitJS)
+..* [conduitjs](https://github.com/ifandelse/ConduitJS)
 * [lodash](http://lodash.com/)
 * [Apollo](https://github.com/toddmotto/apollo)
 * [delegate](https://github.com/component/delegate)
