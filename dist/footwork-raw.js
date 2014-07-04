@@ -60,13 +60,12 @@ var applyBindings = ko.applyBindings;
 ko.applyBindings = function(model, element) {
   applyBindings(model, element);
 
-  if(typeof model !== 'undefined' && typeof model.startup === 'function' && typeof model._options !== 'undefined') {
-    if(model._options.startup !== false) {
-      model.startup();
+  if(isFootworkModel(model) === true) {
+    if(_.isFunction(model._model.initOptions.startup) === true) {
+      model._model.initOptions.startup();
     }
-    console.log('applyBindings',model);
-    if(typeof model._modelOptions.afterBinding === 'function') {
-      model._modelOptions.afterBinding.call(model);
+    if(typeof model._model.modelOptions.afterBinding === 'function') {
+      model._model.modelOptions.afterBinding.call(model);
     }
   }
 };
@@ -74,16 +73,21 @@ ko.applyBindings = function(model, element) {
 // model.js
 // ------------------
 
+// Duck type function for determining whether or not something is a footwork model constructor function
+function isFootworkModelCtor(thing) {
+  return typeof thing !== 'undefined' && thing._isFootworkModelCtor === true;
+}
+
 // Duck type function for determining whether or not something is a footwork model
 function isFootworkModel(thing) {
-  return typeof thing !== 'undefined' && thing._isFootworkModel === true;
+  return typeof thing !== 'undefined' && thing._isFootworkModel === true && _.isObject(thing._model) === true;
 }
 
 // Initialize the models registry
 var models = {};
 
 // Returns the number of created models for each defined namespace
-ko.modelCount = function() {
+var modelCount = ko.modelCount = function() {
   var counts = _.reduce(namespaceNameCounter, function(modelCounts, modelCount, modelName) {
     modelCounts[modelName] = modelCount + 1;
     return modelCounts;
@@ -96,7 +100,7 @@ ko.modelCount = function() {
 
 // Returns a reference to the specified models.
 // If no name is supplied, a reference to an array containing all model references is returned.
-ko.getModels = function(namespaceName) {
+var getModels = ko.getModels = function(namespaceName) {
   if(namespaceName === undefined) {
     return models;
   }
@@ -104,13 +108,13 @@ ko.getModels = function(namespaceName) {
 };
 
 // Tell all models to request the values which it listens for
-ko.refreshModels = function() {
-  _.invoke(ko.getModels(), 'refreshReceived');
+var refreshModels = ko.refreshModels = function() {
+  _.invoke(getModels(), 'refreshReceived');
 };
 
 var modelMixins = [];
 
-ko.model = function(modelOptions) {
+var makeModel = ko.model = function(modelOptions) {
   if( typeof modelOptions !== 'undefined' && _.isFunction(modelOptions.viewModel) === true ) {
     modelOptions.initialize = modelOptions.viewModel;
   }
@@ -127,10 +131,16 @@ ko.model = function(modelOptions) {
 
   var modelOptionsMixin = {
     _preInit: function( initOptions ) {
+      this._isFootworkModel = true;
       this._model = {
         modelOptions: modelOptions,
-        initOptions: initOptions
+        initOptions: initOptions || {}
       }
+    },
+    _postInit: function() {
+      this.namespace.request.handler('__footwork_model_reference', function() {
+        return this;
+      });
     }
   };
 
@@ -140,7 +150,7 @@ ko.model = function(modelOptions) {
   }
 
   var model = riveter.compose.apply( undefined, composure );
-  model._isFootworkModel = true;
+  model._isFootworkModelCtorCtor = true;
 
   return model;
 };
@@ -159,50 +169,6 @@ var namespaceNameCounter = {};
 // index 0.
 var namespaceStack = [];
 
-// mixin provided to models which enables namespace capabilities including pub/sub, cqrs, etc
-modelMixins.push({
-  _preInit: function( options ) {
-    this._model.globalNamespace = ko.namespace();
-    this._model.namespaceName = indexedNamespaceName(this._model.modelOptions.componentNamespace || this._model.modelOptions.namespace || _.uniqueId('namespace'), this._model.modelOptions.autoIncrement);
-
-    ko.enterNamespaceName( this._model.namespaceName );
-    this.namespace = ko.currentNamespace();
-  },
-  mixin: {
-    getNamespaceName: function() {
-      return this.namespace.channel;
-    },
-    broadcastAll: function() {
-      var model = this;
-      _.each( this, function(property, propName) {
-        if( _.isObject(property) && property.__isBroadcast === true ) {
-          model.namespace.publish( propName, property() );
-        }
-      });
-      return this;
-    },
-    refreshReceived: function() {
-      _.each( this, function(property, propName) {
-        if( _.isObject(property) && property.__isReceived === true ) {
-          property.refresh();
-        }
-      });
-      return this;
-    },
-    startup: function() {
-      this.refreshReceived().broadcastAll();
-      return this;
-    }
-  },
-  _postInit: function( options ) {
-    models[ this.getNamespaceName() ] = this;
-    ko.exitNamespace();
-
-    this.startup();
-    _.isFunction(this._model.modelOptions.afterCreating) && this._model.modelOptions.afterCreating.call(this);
-  }
-});
-
 // Returns a normalized namespace name based off of 'name'. It will register the name counter
 // if not present and increment it if it is, then return the name (with the counter appended
 // if autoIncrement === true and the counter is > 0).
@@ -215,88 +181,185 @@ function indexedNamespaceName(name, autoIncrement) {
   return name + (autoIncrement === true ? namespaceNameCounter[name] : '');
 }
 
+// Method used to trigger an event on a namespace
+function triggerEventOnNamespace(eventKey, params) {
+  this.publish('event.' + eventKey, params);
+  return this;
+}
+
+// Method used to register an event handler on a namespace
+function registerNamespaceEventHandler(eventKey, callback) {
+  var handlerSubscription = this.subscribe('event.' + eventKey, callback);
+  this.commandHandlers.push(handlerSubscription);
+
+  return handlerSubscription;
+}
+
+// Method used to unregister an event handler on a namespace
+function unregisterNamespaceEventHandler(handlerSubscription) {
+  handlerSubscription.unsubscribe();
+  return this;
+}
+
+// Method used to send a command to a namespace
 function sendCommandToNamespace(commandKey, params) {
   this.publish('command.' + commandKey, params);
+  return this;
 }
 
+// Method used to register a command handler on a namespace
 function registerNamespaceCommandHandler(requestKey, callback) {
-  var handler = function() {
-    var callbackResponse = callback();
-    this.publish('request.' + requestKey + '.response', callbackResponse);
-  };
+  var handlerSubscription = this.subscribe('command.' + requestKey, callback);
+  this.commandHandlers.push(handlerSubscription);
 
-  this.subscribe('request.' + requestKey, handler);
-  this.requestHandlers.push(handler);
+  return handlerSubscription;
 }
 
-function requestDataFromNamespace(requestKey, params) {
-  var response;
-  var subscription;
+// Method used to unregister a command handler on a namespace
+function unregisterNamespaceCommandHandler(handlerSubscription) {
+  handlerSubscription.unsubscribe();
+  return this;
+}
 
-  this.subscribe('request.' + requestKey + '.response', subscription = function(reqResponse) {
+// Method used to is a request for data from a namespace, returning the response (or undefined if no response)
+function requestResponseFromNamespace(requestKey, params) {
+  var response;
+  var responseSubscription;
+
+  responseSubscription = this.subscribe('request.' + requestKey + '.response', function(reqResponse) {
     response = reqResponse;
   });
   this.publish('request.' + requestKey, params);
-  subscription.unsubscribe();
+  responseSubscription.unsubscribe();
 
   return response;
 }
 
+// Method used to register a request handler on a namespace.
+// Requests sent using the specified requestKey will be called and passed in any params specified, the return value is passed back to the issuer
 function registerNamespaceRequestHandler(requestKey, callback) {
-  var handler = function() {
-    var callbackResponse = callback();
+  var requestHandler = _.bind(function(params) {
+    var callbackResponse = callback(params);
     this.publish('request.' + requestKey + '.response', callbackResponse);
-  };
+  }, this);
 
-  this.subscribe('request.' + requestKey, handler);
-  this.requestHandlers.push(handler);
+  var handlerSubscription = this.subscribe('request.' + requestKey, requestHandler);
+  this.requestHandlers.push(handlerSubscription);
+
+  return handlerSubscription;
 }
 
-// Creates and returns a new namespace/postal channel
-ko.namespace = function(namespaceName) {
+// Method used to unregister a request-response handler on a namespace
+function unregisterNamespaceRequestHandler(handlerSubscription) {
+  handlerSubscription.unsubscribe();
+  return this;
+}
+
+// This effectively shuts down all requests, commands, and events by unsubscribing all handlers on a discreet namespace object
+function disconnectNamespaceHandlers() {
+  _.invoke(this.requestHandlers, 'unsubscribe');
+  _.invoke(this.commandHandlers, 'unsubscribe');
+  _.invoke(this.eventHandlers, 'unsubscribe');
+  return this;
+}
+
+// Creates and returns a new namespace instance
+var makeNamespace = ko.namespace = function(namespaceName) {
   var namespace = postal.channel(namespaceName);
 
-  namespace.command = _.bind( sendCommandToNamespace, namespace );
-  namespace.commandHandlers = [];
-  namespace.request = _.bind( requestDataFromNamespace, namespace );
-  namespace.requestHandlers = [];
+  namespace.shutdown = _.bind( disconnectNamespaceHandlers, namespace );
 
+  namespace.commandHandlers = [];
+  namespace.command = _.bind( sendCommandToNamespace, namespace );
   namespace.command.handler = _.bind( registerNamespaceCommandHandler, namespace );
+  namespace.command.handler.unregister = _.bind( unregisterNamespaceCommandHandler, namespace );
+
+  namespace.requestHandlers = [];
+  namespace.request = _.bind( requestResponseFromNamespace, namespace );
   namespace.request.handler = _.bind( registerNamespaceRequestHandler, namespace );
+  namespace.request.handler.unregister = _.bind( unregisterNamespaceRequestHandler, namespace );
+
+  namespace.eventHandlers = [];
+  namespace.event = namespace.triggerEvent = _.bind( triggerEventOnNamespace, namespace );
+  namespace.event.handler = _.bind( registerNamespaceEventHandler, namespace );
+  namespace.event.handler.unregister = _.bind( unregisterNamespaceEventHandler, namespace );
 
   return namespace;
 };
 
 // Duck type check for a namespace object
-ko.isNamespace = function(thing) {
+var isNamespace = ko.isNamespace = function(thing) {
   return _.isFunction(thing.subscribe) && _.isFunction(thing.publish) && typeof thing.channel === 'string';
 };
 
 // Return the current namespace name.
-ko.currentNamespaceName = function() {
+var currentNamespaceName = ko.currentNamespaceName = function() {
   return namespaceStack[0];
 };
 
 // Return the current namespace channel.
-ko.currentNamespace = function() {
-  return ko.namespace(ko.currentNamespaceName());
+var currentNamespace = ko.currentNamespace = function() {
+  return makeNamespace( currentNamespaceName() );
 };
 
 // enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
 // 'entering' into that namespace (it is now the currentNamespace)
-ko.enterNamespaceName = function(namespaceName) {
+var enterNamespaceName = ko.enterNamespaceName = function(namespaceName) {
   namespaceStack.unshift( namespaceName );
-  return ko.currentNamespace();
+  return currentNamespace();
 };
 
 // Called at the after a model constructor function is run. exitNamespace()
-// will shift the current namespace off of the stack, exiting to the
+// will shift the current namespace off of the stack, 'exiting' to the
 // next namespace in the stack
-ko.exitNamespace = function() {
+var exitNamespace = ko.exitNamespace = function() {
   namespaceStack.shift();
-  return ko.currentNamespace();
+  return currentNamespace();
 };
 
+// mixin provided to models which enables namespace capabilities including pub/sub, cqrs, etc
+modelMixins.push({
+  _preInit: function( options ) {
+    this._model.globalNamespace = makeNamespace();
+    this._model.namespaceName = indexedNamespaceName(this._model.modelOptions.componentNamespace || this._model.modelOptions.namespace || _.uniqueId('namespace'), this._model.modelOptions.autoIncrement);
+
+    enterNamespaceName( this._model.namespaceName );
+    this.namespace = currentNamespace();
+  },
+  mixin: {
+    getNamespaceName: function() {
+      return this.namespace.channel;
+    },
+    broadcastAll: function() {
+      var model = this;
+      _.each( this, function(property, propName) {
+        if( isABroadcastable(property) === true ) {
+          property.broadcast();
+        }
+      });
+      return this;
+    },
+    refreshReceived: function() {
+      _.each( this, function(property, propName) {
+        if( isAReceivable(property) === true ) {
+          property.refresh();
+        }
+      });
+      return this;
+    },
+    startup: function() {
+      this.refreshReceived().broadcastAll();
+      return this;
+    }
+  },
+  _postInit: function( options ) {
+    models[ this.getNamespaceName() ] = this;
+    exitNamespace();
+
+    this.startup();
+    _.isFunction(this._model.modelOptions.afterCreating) && this._model.modelOptions.afterCreating.call(this);
+  }
+});
 ko.component = function(options) {
   if(typeof options.name !== 'string') {
     ko.logError('Components must be provided a name (namespace).');
@@ -308,7 +371,7 @@ ko.component = function(options) {
 
   options.namespace = options.name = _.result(options, 'name');
   var viewModel = options.initialize || options.viewModel;
-  if( isFootworkModel(viewModel) ) {
+  if( isFootworkModelCtor(viewModel) ) {
     viewModel.options.componentNamespace = options.namespace;
   } else if( _.isFunction(viewModel) ) {
     viewModel = this.model(options);
@@ -326,11 +389,11 @@ ko.component = function(options) {
 // broadcast-receive.js
 // ----------------
 
-ko.isAReceivable = function(thing) {
+var isAReceivable = ko.isAReceivable = function(thing) {
   return _.has(thing, '__isReceived') && thing.__isReceived === true;
 };
 
-ko.isABroadcastable = function(thing) {
+var isABroadcastable = ko.isABroadcastable = function(thing) {
   return _.has(thing, '__isBroadcast') && thing.__isBroadcast === true;
 };
 
@@ -339,11 +402,13 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
   var observable = this;
 
-  if( ko.isNamespace(namespace) === false && typeof namespace === 'string') {
-    namespace = ko.namespace( namespace );
-  } else {
-    ko.logError('Invalid namespace [' + typeof namespace + ']');
-    return observable;
+  if(isNamespace(namespace) === false) {
+    if( typeof namespace === 'string') {
+      namespace = makeNamespace( namespace );
+    } else {
+      ko.logError('Invalid namespace [' + typeof namespace + ']');
+      return observable;
+    }
   }
 
   observable = ko.computed({
@@ -392,9 +457,9 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
     }
   }
 
-  namespace = option.namespace || ko.currentNamespace();
+  namespace = option.namespace || currentNamespace();
   if(typeof namespace === 'string') {
-    namespace = ko.namespace(channel);
+    namespace = makeNamespace(channel);
   }
 
   if( option.writable ) {
@@ -403,6 +468,9 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
     });
   }
 
+  observable.broadcast = function() {
+    namespace.publish( option.name, observable() );
+  };
   namespace.subscribe( 'refresh.' + option.name, function() {
     namespace.publish( option.name, observable() );
   });
@@ -602,17 +670,18 @@ var routerDefaultConfig = {
 };
 
 // Create the main router method. This can be used to both activate the router and setup routes.
+var routerConfig;
 var router = ko.router = function(config) {
   var router = this.router;
 
-  router.config = config = _.extend({}, routerDefaultConfig, router.config, config);
-  router.config.baseRoute = _.result(router.config, 'baseRoute');
+  routerConfig = router.config = _.extend({}, routerDefaultConfig, routerConfig, config);
+  routerConfig.baseRoute = _.result(routerConfig, 'baseRoute');
 
-  return (config.activate ? router.setRoutes().activate() : router.setRoutes());
+  return (routerConfig.activate ? setRoutes().activate() : setRoutes());
 };
 
 router.config = _.clone(routerDefaultConfig);
-router.namespace = ko.enterNamespaceName('router');
+router.namespace = enterNamespaceName('router');
 
 // Initialize necessary cache and boolean registers
 var routes = [];
@@ -641,8 +710,8 @@ function routeStringToRegExp(routeString) {
 }
 
 function normalizeURL(url) {
-  if(_.isNull(router.config.baseRoute) === false && url.indexOf(router.config.baseRoute) === 0) {
-    url = url.substr(router.config.baseRoute.length);
+  if(_.isNull(routerConfig.baseRoute) === false && url.indexOf(routerConfig.baseRoute) === 0) {
+    url = url.substr(routerConfig.baseRoute.length);
     if(url.length > 1) {
       url = url.replace(hashMatch, '/');
     }
@@ -671,17 +740,17 @@ function isObservable(thing) {
 }
 
 function unknownRoute() {
-  return (typeof router.config !== 'undefined' ? _.result(router.config.unknownRoute) : undefined);
+  return (typeof routerConfig !== 'undefined' ? _.result(routerConfig.unknownRoute) : undefined);
 }
 
-router.setRoutes = function(route) {
+var setRoutes = _.bind(router.setRoutes = function(route) {
   routes = [];
-  router.addRoutes(route || this.config.routes);
+  addRoutes(route || this.config.routes);
 
   return router;
-};
+}, router);
 
-router.addRoutes = function(route) {
+var addRoutes = router.addRoutes = function(route) {
   route = _.isArray(route) ? route : [route];
   routes.push.apply(routes, route);
 
@@ -694,7 +763,7 @@ router.addRoutes = function(route) {
 
 var navModelUpdate = ko.observable();
 var navPredicate;
-router.navigationModel = function(predicate) {
+var makeNavigationModel = router.navigationModel = function(predicate) {
   navPredicate = predicate || navPredicate || function() { return true; };
 
   if(typeof navigationModel === 'undefined') {
@@ -707,13 +776,14 @@ router.navigationModel = function(predicate) {
   return navigationModel.broadcastAs({ name: 'navigationModel', namespace: router.namespace });
 };
 
-var currentState = ko.observable().broadcastAs('currentState');
-router.stateChange = function(url) {
+var stateChange = router.stateChange = function(url) {
   currentState( url = normalizeURL( url || (historyIsEnabled() ? History.getState().url : '#default') ) );
   getActionFor(url)(); // get the route if it exists and run the action if one is returned
 
   return router;
 };
+
+var currentState = ko.observable().broadcastAs('currentState');
 currentState.subscribe(function(newState) {
   ko.log('New Route:', newState);
 });
@@ -722,7 +792,7 @@ var getActionFor = router.getActionFor = function(url) {
   var Action = noop;
   var originalURL = url;
 
-  _.each(router.getRoutes(), function(routeDesc) {
+  _.each(getRoutes(), function(routeDesc) {
     var routeString = routeDesc.route;
     var routeRegex = routeStringToRegExp(routeString);
     var routeParamValues = url.match(routeRegex);
@@ -756,14 +826,14 @@ var getActionFor = router.getActionFor = function(url) {
   return Action;
 };
 
-router.getRoutes = function() {
+var getRoutes = router.getRoutes = function() {
   return routes;
 };
 
-router.setupHistoryAdapter = function() {
+var setupHistoryAdapter = router.setupHistoryAdapter = function() {
   if(historyIsEnabled() !== true) {
     if( historyReady() ) {
-      History.Adapter.bind( window, 'statechange', router.stateChange);
+      History.Adapter.bind( window, 'statechange', stateChange);
       historyIsEnabled(true);
     } else {
       historyIsEnabled(false);
@@ -771,11 +841,11 @@ router.setupHistoryAdapter = function() {
   }
 
   return router;
-}
-
-router.historyIsEnabled = function() {
-  return historyIsEnabled();
 };
+
+router.historyIsEnabled = ko.computed(function() {
+  return this.historyIsEnabled();
+}, { historyIsEnabled: historyIsEnabled });
 
 router.activate = _.once( _.bind(function() {
   delegate(document)
@@ -787,7 +857,7 @@ router.activate = _.once( _.bind(function() {
       console.info('delegateClick-event', event.delegateTarget);
     });
 
-  return router.setupHistoryAdapter().stateChange();
+  return setupHistoryAdapter().stateChange();
 }, router) );
 
 ko.components.register('outlet', {
@@ -798,4 +868,4 @@ ko.components.register('outlet', {
   template: '<div data-bind="text: isSuccess"></div>'
 });
 
-router.namespace = ko.exitNamespace(); // exit from 'router' namespace
+exitNamespace(); // exit from 'router' namespace
