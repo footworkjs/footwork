@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
 
-    <title>footwork.js - A solid footing for knockout applications.</title>
-    <meta name="description" content="An library/framework which extends knockout.js to provide fixtures for testable and maintainable development.">
+    <title>footwork.js - A solid footing for large knockout applications.</title>
+    <meta name="description" content="A solid footing for large knockout applications.">
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
@@ -144,7 +144,7 @@
 
                 <div class="menu-item">
                   <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    A solid footing for knockout applications.
+                    A solid footing for large knockout applications.
                   </div>
                 </div>
 
@@ -671,12 +671,12 @@ ko.logError = <span class="hljs-function"><span class="hljs-keyword">function</s
         <div class="content"><div class='highlight'><pre>ko.applyBindings = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(model, element)</span> {</span>
   applyBindings(model, element);
 
-  <span class="hljs-keyword">if</span>(isFootworkModel(model) === <span class="hljs-literal">true</span>) {
-    <span class="hljs-keyword">if</span>(_.isFunction(model._model.initOptions.startup) === <span class="hljs-literal">true</span>) {
-      model._model.initOptions.startup();
+  <span class="hljs-keyword">if</span>(isFootworkViewModel(model) === <span class="hljs-literal">true</span>) {
+    <span class="hljs-keyword">if</span>(_.isFunction(model._viewModel.initOptions.startup) === <span class="hljs-literal">true</span>) {
+      model._viewModel.initOptions.startup();
     }
-    <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> model._model.modelOptions.afterBinding === <span class="hljs-string">'function'</span>) {
-      model._model.modelOptions.afterBinding.call(model);
+    <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> model._viewModel.modelOptions.afterBinding === <span class="hljs-string">'function'</span>) {
+      model._viewModel.modelOptions.afterBinding.call(model);
     }
   }
 };</pre></div></div>
@@ -690,7 +690,7 @@ ko.logError = <span class="hljs-function"><span class="hljs-keyword">function</s
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-12">&#182;</a>
           </div>
-          <h2 id="model-js">model.js</h2>
+          <h2 id="viewmodel-js">viewModel.js</h2>
 
           <div class="annotation-bg"></div>
         </div>
@@ -704,13 +704,13 @@ ko.logError = <span class="hljs-function"><span class="hljs-keyword">function</s
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-13">&#182;</a>
           </div>
-          <p>Duck type function for determining whether or not something is a footwork model constructor function</p>
+          <p>Duck type function for determining whether or not something is a footwork viewModel constructor function</p>
 
           <div class="annotation-bg"></div>
         </div>
         
-        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isFootworkModelCtor</span><span class="hljs-params">(thing)</span> {</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> thing !== <span class="hljs-string">'undefined'</span> &amp;&amp; thing._isFootworkModelCtor === <span class="hljs-literal">true</span>;
+        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isFootworkViewModelCtor</span><span class="hljs-params">(thing)</span> {</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> thing !== <span class="hljs-string">'undefined'</span> &amp;&amp; thing._isFootworkViewModelCtor === <span class="hljs-literal">true</span>;
 }</pre></div></div>
         
     </li>
@@ -722,13 +722,13 @@ ko.logError = <span class="hljs-function"><span class="hljs-keyword">function</s
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-14">&#182;</a>
           </div>
-          <p>Duck type function for determining whether or not something is a footwork model</p>
+          <p>Duck type function for determining whether or not something is a footwork viewModel</p>
 
           <div class="annotation-bg"></div>
         </div>
         
-        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isFootworkModel</span><span class="hljs-params">(thing)</span> {</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> thing !== <span class="hljs-string">'undefined'</span> &amp;&amp; thing._isFootworkModel === <span class="hljs-literal">true</span> &amp;&amp; _.isObject(thing._model) === <span class="hljs-literal">true</span>;
+        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isFootworkViewModel</span><span class="hljs-params">(thing)</span> {</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> thing !== <span class="hljs-string">'undefined'</span> &amp;&amp; thing._isFootworkViewModel === <span class="hljs-literal">true</span> &amp;&amp; _.isObject(thing._viewModel) === <span class="hljs-literal">true</span>;
 }</pre></div></div>
         
     </li>
@@ -740,12 +740,12 @@ ko.logError = <span class="hljs-function"><span class="hljs-keyword">function</s
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-15">&#182;</a>
           </div>
-          <p>Initialize the models registry</p>
+          <p>Initialize the viewModels registry</p>
 
           <div class="annotation-bg"></div>
         </div>
         
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> models = {};</pre></div></div>
+        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> viewModels = {};</pre></div></div>
         
     </li>
     
@@ -756,15 +756,15 @@ ko.logError = <span class="hljs-function"><span class="hljs-keyword">function</s
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-16">&#182;</a>
           </div>
-          <p>Returns the number of created models for each defined namespace</p>
+          <p>Returns the number of created viewModels for each defined namespace</p>
 
           <div class="annotation-bg"></div>
         </div>
         
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> modelCount = ko.modelCount = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-  <span class="hljs-keyword">var</span> counts = _.reduce(namespaceNameCounter, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(modelCounts, modelCount, modelName)</span> {</span>
-    modelCounts[modelName] = modelCount + <span class="hljs-number">1</span>;
-    <span class="hljs-keyword">return</span> modelCounts;
+        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> viewModelCount = ko.viewModelCount = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+  <span class="hljs-keyword">var</span> counts = _.reduce(namespaceNameCounter, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(viewModelCounts, viewModelCount, viewModelName)</span> {</span>
+    viewModelCounts[viewModelName] = viewModelCount + <span class="hljs-number">1</span>;
+    <span class="hljs-keyword">return</span> viewModelCounts;
   }, {});
   counts.__total = _.reduce(_.values(counts), <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(summation, num)</span> {</span>
     <span class="hljs-keyword">return</span> summation + num;
@@ -781,17 +781,17 @@ ko.logError = <span class="hljs-function"><span class="hljs-keyword">function</s
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-17">&#182;</a>
           </div>
-          <p>Returns a reference to the specified models.
+          <p>Returns a reference to the specified viewModels.
 If no name is supplied, a reference to an array containing all model references is returned.</p>
 
           <div class="annotation-bg"></div>
         </div>
         
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> getModels = ko.getModels = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName)</span> {</span>
+        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> getModels = ko.getViewModels = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName)</span> {</span>
   <span class="hljs-keyword">if</span>(namespaceName === <span class="hljs-literal">undefined</span>) {
-    <span class="hljs-keyword">return</span> models;
+    <span class="hljs-keyword">return</span> viewModels;
   }
-  <span class="hljs-keyword">return</span> models[namespaceName];
+  <span class="hljs-keyword">return</span> viewModels[namespaceName];
 };</pre></div></div>
         
     </li>
@@ -803,18 +803,18 @@ If no name is supplied, a reference to an array containing all model references 
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-18">&#182;</a>
           </div>
-          <p>Tell all models to request the values which it listens for</p>
+          <p>Tell all viewModels to request the values which it listens for</p>
 
           <div class="annotation-bg"></div>
         </div>
         
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> refreshModels = ko.refreshModels = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> refreshModels = ko.refreshViewModels = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
   _.invoke(getModels(), <span class="hljs-string">'refreshReceived'</span>);
 };
 
-<span class="hljs-keyword">var</span> modelMixins = [];
+<span class="hljs-keyword">var</span> viewModelMixins = [];
 
-<span class="hljs-keyword">var</span> makeModel = ko.model = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(modelOptions)</span> {</span>
+<span class="hljs-keyword">var</span> makeViewModel = ko.viewModel = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(modelOptions)</span> {</span>
   <span class="hljs-keyword">if</span>( <span class="hljs-keyword">typeof</span> modelOptions !== <span class="hljs-string">'undefined'</span> &amp;&amp; _.isFunction(modelOptions.viewModel) === <span class="hljs-literal">true</span> ) {
     modelOptions.initialize = modelOptions.viewModel;
   }
@@ -831,8 +831,8 @@ If no name is supplied, a reference to an array containing all model references 
 
   <span class="hljs-keyword">var</span> modelOptionsMixin = {
     _preInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( initOptions )</span> {</span>
-      <span class="hljs-keyword">this</span>._isFootworkModel = <span class="hljs-literal">true</span>;
-      <span class="hljs-keyword">this</span>._model = {
+      <span class="hljs-keyword">this</span>._isFootworkViewModel = <span class="hljs-literal">true</span>;
+      <span class="hljs-keyword">this</span>._viewModel = {
         modelOptions: modelOptions,
         initOptions: initOptions || {}
       }
@@ -844,13 +844,13 @@ If no name is supplied, a reference to an array containing all model references 
     }
   };
 
-  <span class="hljs-keyword">var</span> composure = [ modelOptions.initialize, modelOptionsMixin ].concat( modelMixins );
+  <span class="hljs-keyword">var</span> composure = [ modelOptions.initialize, modelOptionsMixin ].concat( viewModelMixins );
   <span class="hljs-keyword">if</span>(modelOptions.mixins !== <span class="hljs-literal">undefined</span>) {
     composure = composure.concat(modelOptions.mixins);
   }
 
   <span class="hljs-keyword">var</span> model = riveter.compose.apply( <span class="hljs-literal">undefined</span>, composure );
-  model._isFootworkModelCtorCtor = <span class="hljs-literal">true</span>;
+  model._isFootworkViewModelCtorCtor = <span class="hljs-literal">true</span>;
 
   <span class="hljs-keyword">return</span> model;
 };</pre></div></div>
@@ -1158,7 +1158,7 @@ Requests sent using the specified requestKey will be called and passed in any pa
           <div class="annotation-bg"></div>
         </div>
         
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> makeNamespace = ko.namespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName)</span> {</span>
+        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> makeNamespace = ko.namespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName, $parentNamespace)</span> {</span>
   <span class="hljs-keyword">var</span> namespace = postal.channel(namespaceName);
 
   namespace.shutdown = _.bind( disconnectNamespaceHandlers, namespace );
@@ -1178,6 +1178,7 @@ Requests sent using the specified requestKey will be called and passed in any pa
   namespace.event.handler = _.bind( registerNamespaceEventHandler, namespace );
   namespace.event.handler.unregister = _.bind( unregisterNamespaceEventHandler, namespace );
 
+  namespace.$parentNamespace = $parentNamespace;
   <span class="hljs-keyword">return</span> namespace;
 };</pre></div></div>
         
@@ -1245,14 +1246,16 @@ Requests sent using the specified requestKey will be called and passed in any pa
             <a class="pilcrow" href="#section-37">&#182;</a>
           </div>
           <p>enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
-‘entering’ into that namespace (it is now the currentNamespace)</p>
+‘entering’ into that namespace (it is now the currentNamespace).
+The namespace object returned from this method also has a pointer to its parent</p>
 
           <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> enterNamespaceName = ko.enterNamespaceName = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName)</span> {</span>
+  <span class="hljs-keyword">var</span> $parentNamespace = currentNamespace();
   namespaceStack.unshift( namespaceName );
-  <span class="hljs-keyword">return</span> currentNamespace();
+  <span class="hljs-keyword">return</span> makeNamespace( currentNamespaceName(), $parentNamespace );
 };</pre></div></div>
         
     </li>
@@ -1285,17 +1288,17 @@ next namespace in the stack</p>
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-39">&#182;</a>
           </div>
-          <p>mixin provided to models which enables namespace capabilities including pub/sub, cqrs, etc</p>
+          <p>mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc</p>
 
           <div class="annotation-bg"></div>
         </div>
         
-        <div class="content"><div class='highlight'><pre>modelMixins.push({
+        <div class="content"><div class='highlight'><pre>viewModelMixins.push({
   _preInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( options )</span> {</span>
-    <span class="hljs-keyword">this</span>._model.globalNamespace = makeNamespace();
-    <span class="hljs-keyword">this</span>._model.namespaceName = indexedNamespaceName(<span class="hljs-keyword">this</span>._model.modelOptions.componentNamespace || <span class="hljs-keyword">this</span>._model.modelOptions.namespace || _.uniqueId(<span class="hljs-string">'namespace'</span>), <span class="hljs-keyword">this</span>._model.modelOptions.autoIncrement);
+    <span class="hljs-keyword">this</span>._viewModel.globalNamespace = makeNamespace();
+    <span class="hljs-keyword">this</span>._viewModel.namespaceName = indexedNamespaceName(<span class="hljs-keyword">this</span>._viewModel.modelOptions.componentNamespace || <span class="hljs-keyword">this</span>._viewModel.modelOptions.namespace || _.uniqueId(<span class="hljs-string">'namespace'</span>), <span class="hljs-keyword">this</span>._viewModel.modelOptions.autoIncrement);
 
-    enterNamespaceName( <span class="hljs-keyword">this</span>._model.namespaceName );
+    enterNamespaceName( <span class="hljs-keyword">this</span>._viewModel.namespaceName );
     <span class="hljs-keyword">this</span>.namespace = currentNamespace();
   },
   mixin: {
@@ -1325,11 +1328,11 @@ next namespace in the stack</p>
     }
   },
   _postInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( options )</span> {</span>
-    models[ <span class="hljs-keyword">this</span>.getNamespaceName() ] = <span class="hljs-keyword">this</span>;
+    viewModels[ <span class="hljs-keyword">this</span>.getNamespaceName() ] = <span class="hljs-keyword">this</span>;
     exitNamespace();
 
     <span class="hljs-keyword">this</span>.startup();
-    _.isFunction(<span class="hljs-keyword">this</span>._model.modelOptions.afterCreating) &amp;&amp; <span class="hljs-keyword">this</span>._model.modelOptions.afterCreating.call(<span class="hljs-keyword">this</span>);
+    _.isFunction(<span class="hljs-keyword">this</span>._viewModel.modelOptions.afterCreating) &amp;&amp; <span class="hljs-keyword">this</span>._viewModel.modelOptions.afterCreating.call(<span class="hljs-keyword">this</span>);
   }
 });
 ko.component = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> {</span>
@@ -1343,10 +1346,10 @@ ko.component = <span class="hljs-function"><span class="hljs-keyword">function</
 
   options.namespace = options.name = _.result(options, <span class="hljs-string">'name'</span>);
   <span class="hljs-keyword">var</span> viewModel = options.initialize || options.viewModel;
-  <span class="hljs-keyword">if</span>( isFootworkModelCtor(viewModel) ) {
+  <span class="hljs-keyword">if</span>( isFootworkViewModelCtor(viewModel) ) {
     viewModel.options.componentNamespace = options.namespace;
   } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( _.isFunction(viewModel) ) {
-    viewModel = <span class="hljs-keyword">this</span>.model(options);
+    viewModel = <span class="hljs-keyword">this</span>.viewModel(options);
   }</pre></div></div>
         
     </li>
@@ -1806,10 +1809,10 @@ Sourced: <a href="https://github.com/BlueSpire/Durandal/blob/e88fd385fb930d38456
         
         <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> optionalParam = <span class="hljs-regexp">/\((.*?)\)/g</span>;
 <span class="hljs-keyword">var</span> namedParam = <span class="hljs-regexp">/(\(\?)?:\w+/g</span>;
-<span class="hljs-keyword">var</span> splatParam = <span class="hljs-regexp">/\*\w+/g</span>;
+<span class="hljs-keyword">var</span> splatParam = <span class="hljs-regexp">/\*\w*/g</span>;
 <span class="hljs-keyword">var</span> escapeRegExp = <span class="hljs-regexp">/[\-{}\[\]+?.,\\\^$|#\s]/g</span>;
 <span class="hljs-keyword">var</span> routesAreCaseSensitive = <span class="hljs-literal">false</span>;
-<span class="hljs-keyword">var</span> hashMatch = <span class="hljs-regexp">/(^\/#)*(^#)*/</span>;</pre></div></div>
+<span class="hljs-keyword">var</span> hashMatch = <span class="hljs-regexp">/(^\/#)/</span>;</pre></div></div>
         
     </li>
     
