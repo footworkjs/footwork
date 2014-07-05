@@ -1,6 +1,6 @@
 define([ "knockout-footwork", "lodash" ],
   function( ko, _ ) {
-    return ko.model({
+    return ko.viewModel({
       namespace: 'Header',
       initialize: function() {
         var CLOSED = true,

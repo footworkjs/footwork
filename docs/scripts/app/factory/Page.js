@@ -1,6 +1,6 @@
 define([ "jquery", "lodash", "knockout-footwork", "history" ],
   function( $, _, ko ) {
-    return ko.model({
+    return ko.viewModel({
       namespace: 'Page',
       afterCreating: function() {
         var metaData = window._pageMeta,

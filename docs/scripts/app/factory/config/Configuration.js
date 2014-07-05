@@ -1,6 +1,6 @@
 define([ "jquery", "lodash", "knockout-footwork", "storage" ],
   function( $, _, ko, storage ) {
-    return ko.model({
+    return ko.viewModel({
       namespace: 'Configuration',
       initialize: function() {
         var headerOverallMin = 35,

@@ -1,6 +1,6 @@
 define([ "jquery", "lodash", "knockout-footwork" ],
   function( $, _, ko ) {
-    var Entry = ko.model({
+    var Entry = ko.viewModel({
       namespace: 'PaneElements',
       initialize: function(entryData) {
         this.visible = ko.observable( null ).extend({ autoEnable: _.random( 200, 600 ) });
@@ -15,7 +15,7 @@ define([ "jquery", "lodash", "knockout-footwork" ],
       }
     });
 
-    return ko.model({
+    return ko.viewModel({
       namespace: 'MainMenu',
       initialize: function() {
         this.paneWidth = ko.observable().receiveFrom('Pane', 'width');

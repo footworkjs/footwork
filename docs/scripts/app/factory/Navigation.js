@@ -1,6 +1,6 @@
 define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
   function( $, _, ko, LoadState ) {
-    return ko.model({
+    return ko.viewModel({
       namespace: 'Navigation',
       initialize: function() {
         this.viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');

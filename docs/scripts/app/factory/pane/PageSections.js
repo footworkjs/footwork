@@ -1,6 +1,6 @@
 define([ "jquery", "lodash", "knockout-footwork", "paneArea", "jquery.pulse" ],
   function( $, _, ko, paneArea ) {
-    var PageSection = ko.model({
+    var PageSection = ko.viewModel({
       namespace: 'PageSection',
       afterCreating: function() {
         this.visible( false );
@@ -80,7 +80,7 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "jquery.pulse" ],
       }
     });
 
-    return ko.model({
+    return ko.viewModel({
       namespace: 'PageSections',
       mixins: paneArea,
       initialize: function() {

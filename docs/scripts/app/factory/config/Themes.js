@@ -38,7 +38,7 @@ define([ "require", "jquery", "lodash", "knockout-footwork", "LoadState" ],
           }
         };
 
-    var Theme = ko.model({
+    var Theme = ko.viewModel({
       namespace: 'Theme',
       initialize: function(options) {
         var colorHexFilter = /[^a-f0-9]/gi;
@@ -112,7 +112,7 @@ define([ "require", "jquery", "lodash", "knockout-footwork", "LoadState" ],
       }
     });
 
-    return ko.model({
+    return ko.viewModel({
       namespace: 'Themes',
       afterBinding: function() {
         this.currentTheme( new Theme(window.theme) );

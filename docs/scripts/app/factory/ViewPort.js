@@ -1,6 +1,6 @@
 define([ "jquery", "lodash", "knockout-footwork" ],
   function( $, _, ko ) {
-    return ko.model({
+    return ko.viewModel({
       namespace: 'ViewPort',
       afterCreating: function() {
         this.initialLoad(false);

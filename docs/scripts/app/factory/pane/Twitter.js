@@ -1,6 +1,6 @@
 define([ "jquery", "lodash", "knockout-footwork", "paneArea", "paneEntry" ],
   function( $, _, ko, paneArea, paneEntry ) {
-    var Entry = ko.model({
+    var Entry = ko.viewModel({
       mixins: paneEntry,
       initialize: function(options) {
         var entryData = options.entryData || {};
@@ -9,7 +9,7 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "paneEntry" ],
       }
     });
 
-    return ko.model({
+    return ko.viewModel({
       namespace: 'Twitter',
       mixins: paneArea,
       initialize: function() {

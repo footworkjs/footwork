@@ -1,6 +1,6 @@
 define([ "knockout-footwork", "paneArea", "paneEntry" ],
   function( ko, paneArea, paneEntry ) {
-    var Entry = ko.model({
+    var Entry = ko.viewModel({
       mixins: paneEntry,
       initialize: function(options) {
         var raw;
@@ -12,7 +12,7 @@ define([ "knockout-footwork", "paneArea", "paneEntry" ],
       }
     });
 
-    return ko.model({
+    return ko.viewModel({
       namespace: 'Github',
       mixins: paneArea,
       params: { Entryinitialize: Entry, url: '/json/githubAPI/page/' },

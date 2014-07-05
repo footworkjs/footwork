@@ -1,6 +1,6 @@
 define([ "knockout-footwork", "lodash" ],
   function( ko, _ ) {
-    return ko.model({
+    return ko.viewModel({
       namespace: 'PaneLinks',
       initialize: function() {
         var paneElementsNamespace = ko.namespace('PaneElements');
