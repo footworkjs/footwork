@@ -1,24 +1,24 @@
-// model.js
+// viewModel.js
 // ------------------
 
-// Duck type function for determining whether or not something is a footwork model constructor function
-function isFootworkModelCtor(thing) {
-  return typeof thing !== 'undefined' && thing._isFootworkModelCtor === true;
+// Duck type function for determining whether or not something is a footwork viewModel constructor function
+function isFootworkViewModelCtor(thing) {
+  return typeof thing !== 'undefined' && thing._isFootworkViewModelCtor === true;
 }
 
-// Duck type function for determining whether or not something is a footwork model
-function isFootworkModel(thing) {
-  return typeof thing !== 'undefined' && thing._isFootworkModel === true && _.isObject(thing._model) === true;
+// Duck type function for determining whether or not something is a footwork viewModel
+function isFootworkViewModel(thing) {
+  return typeof thing !== 'undefined' && thing._isFootworkViewModel === true && _.isObject(thing._viewModel) === true;
 }
 
-// Initialize the models registry
-var models = {};
+// Initialize the viewModels registry
+var viewModels = {};
 
-// Returns the number of created models for each defined namespace
-var modelCount = ko.modelCount = function() {
-  var counts = _.reduce(namespaceNameCounter, function(modelCounts, modelCount, modelName) {
-    modelCounts[modelName] = modelCount + 1;
-    return modelCounts;
+// Returns the number of created viewModels for each defined namespace
+var viewModelCount = ko.viewModelCount = function() {
+  var counts = _.reduce(namespaceNameCounter, function(viewModelCounts, viewModelCount, viewModelName) {
+    viewModelCounts[viewModelName] = viewModelCount + 1;
+    return viewModelCounts;
   }, {});
   counts.__total = _.reduce(_.values(counts), function(summation, num) {
     return summation + num;
@@ -26,21 +26,21 @@ var modelCount = ko.modelCount = function() {
   return counts;
 };
 
-// Returns a reference to the specified models.
+// Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all model references is returned.
-var getModels = ko.getModels = function(namespaceName) {
+var getModels = ko.getViewModels = function(namespaceName) {
   if(namespaceName === undefined) {
-    return models;
+    return viewModels;
   }
-  return models[namespaceName];
+  return viewModels[namespaceName];
 };
 
-// Tell all models to request the values which it listens for
-var refreshModels = ko.refreshModels = function() {
+// Tell all viewModels to request the values which it listens for
+var refreshModels = ko.refreshViewModels = function() {
   _.invoke(getModels(), 'refreshReceived');
 };
 
-var modelMixins = [];
+var viewModelMixins = [];
 
 var makeViewModel = ko.viewModel = function(modelOptions) {
   if( typeof modelOptions !== 'undefined' && _.isFunction(modelOptions.viewModel) === true ) {
@@ -59,8 +59,8 @@ var makeViewModel = ko.viewModel = function(modelOptions) {
 
   var modelOptionsMixin = {
     _preInit: function( initOptions ) {
-      this._isFootworkModel = true;
-      this._model = {
+      this._isFootworkViewModel = true;
+      this._viewModel = {
         modelOptions: modelOptions,
         initOptions: initOptions || {}
       }
@@ -72,13 +72,13 @@ var makeViewModel = ko.viewModel = function(modelOptions) {
     }
   };
 
-  var composure = [ modelOptions.initialize, modelOptionsMixin ].concat( modelMixins );
+  var composure = [ modelOptions.initialize, modelOptionsMixin ].concat( viewModelMixins );
   if(modelOptions.mixins !== undefined) {
     composure = composure.concat(modelOptions.mixins);
   }
 
   var model = riveter.compose.apply( undefined, composure );
-  model._isFootworkModelCtorCtor = true;
+  model._isFootworkViewModelCtorCtor = true;
 
   return model;
 };
