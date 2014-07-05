@@ -42,7 +42,7 @@ var refreshModels = ko.refreshModels = function() {
 
 var modelMixins = [];
 
-var makeModel = ko.model = function(modelOptions) {
+var makeViewModel = ko.viewModel = function(modelOptions) {
   if( typeof modelOptions !== 'undefined' && _.isFunction(modelOptions.viewModel) === true ) {
     modelOptions.initialize = modelOptions.viewModel;
   }

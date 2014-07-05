@@ -12,7 +12,7 @@ ko.component = function(options) {
   if( isFootworkModelCtor(viewModel) ) {
     viewModel.options.componentNamespace = options.namespace;
   } else if( _.isFunction(viewModel) ) {
-    viewModel = this.model(options);
+    viewModel = this.viewModel(options);
   }
 
   //TODO: determine how mixins from the (optionally) supplied footwork model mix in with the mixins supplied directly in the component options

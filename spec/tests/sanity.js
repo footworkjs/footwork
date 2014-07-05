@@ -7,12 +7,12 @@ describe('sanity', function () {
   });
 
   it('has the ability to create a model', function() {
-    expect(ko.model).to.be.a('function');
-    expect(ko.model()).to.be.a('function');
+    expect(ko.viewModel).to.be.a('function');
+    expect(ko.viewModel()).to.be.a('function');
   });
 
   it('has the ability to create a model with a correctly defined namespace', function() {
-    var ModelA = ko.model({
+    var ModelA = ko.viewModel({
       namespace: 'ModelA'
     });
     var modelA = new ModelA();
@@ -21,7 +21,7 @@ describe('sanity', function () {
   });
 
   it('has the ability to create nested models with correctly defined namespaces', function() {
-    var ModelA = ko.model({
+    var ModelA = ko.viewModel({
       namespace: 'ModelA',
       initialize: function() {
         this.preSubModelNamespaceName = ko.currentNamespaceName();
@@ -30,7 +30,7 @@ describe('sanity', function () {
       }
     });
 
-    var ModelB = ko.model({
+    var ModelB = ko.viewModel({
       namespace: 'ModelB',
       initialize: function() {
         this.preSubModelNamespaceName = ko.currentNamespaceName();
@@ -39,7 +39,7 @@ describe('sanity', function () {
       }
     });
 
-    var ModelC = ko.model({
+    var ModelC = ko.viewModel({
       namespace: 'ModelC',
       initialize: function() {
         this.recordedNamespaceName = ko.currentNamespaceName();

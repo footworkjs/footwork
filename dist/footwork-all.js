@@ -10424,7 +10424,7 @@ var refreshModels = ko.refreshModels = function() {
 
 var modelMixins = [];
 
-var makeModel = ko.model = function(modelOptions) {
+var makeViewModel = ko.viewModel = function(modelOptions) {
   if( typeof modelOptions !== 'undefined' && _.isFunction(modelOptions.viewModel) === true ) {
     modelOptions.initialize = modelOptions.viewModel;
   }
@@ -10684,7 +10684,7 @@ ko.component = function(options) {
   if( isFootworkModelCtor(viewModel) ) {
     viewModel.options.componentNamespace = options.namespace;
   } else if( _.isFunction(viewModel) ) {
-    viewModel = this.model(options);
+    viewModel = this.viewModel(options);
   }
 
   //TODO: determine how mixins from the (optionally) supplied footwork model mix in with the mixins supplied directly in the component options
