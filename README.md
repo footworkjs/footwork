@@ -1,10 +1,13 @@
 ![footwork.js](https://raw.github.com/reflectiveSingleton/footwork/master/docs/images/gh-footwork-logo.png)
+
+### WARNING: API and everything else is under flux. This framework is not ready for consumption just yet. Check back soon!
+
 ========
 [http://footworkjs.com](http://footworkjs.com "Footwork.js Homepage")
 
 [![Build Status](https://travis-ci.org/reflectiveSingleton/footwork.png?branch=master)](https://travis-ci.org/reflectiveSingleton/footwork) [![Bower version](https://badge.fury.io/bo/footwork.png)](http://badge.fury.io/bo/footwork)
 
-A solid footing for large knockout applications.
+A solid footing for knockout applications.
 
 ## What is footwork?
 
@@ -47,7 +50,5 @@ The following dependencies are considered part of 'core':
   * [matches](https://github.com/necolas/matches.js) (needed by delegate)
 
 More unit tests, documentation, and features coming soon.
-
-### Initial working version released - not ready for use (soon).
 
 [![Analytics](https://ga-beacon.appspot.com/UA-52543452-1/footwork/GITHUB-ROOT)](https://github.com/reflectiveSingleton/ga-beacon)
