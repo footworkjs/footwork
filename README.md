@@ -1,6 +1,6 @@
 ![footwork.js](https://raw.github.com/reflectiveSingleton/footwork/master/docs/images/gh-footwork-logo.png)
 
-### WARNING: API and everything else is under flux. This framework is not ready for consumption just yet. Check back soon!
+### WARNING: API under flux, this is not ready for consumption just yet. Check back soon!
 
 ========
 [http://footworkjs.com](http://footworkjs.com "Footwork.js Homepage")
