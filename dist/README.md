@@ -39,3 +39,5 @@
 I also accept pull requests, if you think your build would help out others as well, please feel free to submit a PR.
 
 Please see http://footworkjs.com for more details.
+
+[![Analytics](https://ga-beacon.appspot.com/UA-52543452-1/footwork/GITHUB-DIST)](https://github.com/reflectiveSingleton/ga-beacon)
