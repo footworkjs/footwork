@@ -43,12 +43,12 @@ var applyBindings = ko.applyBindings;
 ko.applyBindings = function(model, element) {
   applyBindings(model, element);
 
-  if(isFootworkModel(model) === true) {
-    if(_.isFunction(model._model.initOptions.startup) === true) {
-      model._model.initOptions.startup();
+  if(isFootworkViewModel(model) === true) {
+    if(_.isFunction(model._viewModel.initOptions.startup) === true) {
+      model._viewModel.initOptions.startup();
     }
-    if(typeof model._model.modelOptions.afterBinding === 'function') {
-      model._model.modelOptions.afterBinding.call(model);
+    if(typeof model._viewModel.modelOptions.afterBinding === 'function') {
+      model._viewModel.modelOptions.afterBinding.call(model);
     }
   }
 };

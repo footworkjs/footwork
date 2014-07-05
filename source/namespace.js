@@ -108,7 +108,7 @@ function disconnectNamespaceHandlers() {
 }
 
 // Creates and returns a new namespace instance
-var makeNamespace = ko.namespace = function(namespaceName) {
+var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
   var namespace = postal.channel(namespaceName);
 
   namespace.shutdown = _.bind( disconnectNamespaceHandlers, namespace );
@@ -128,6 +128,7 @@ var makeNamespace = ko.namespace = function(namespaceName) {
   namespace.event.handler = _.bind( registerNamespaceEventHandler, namespace );
   namespace.event.handler.unregister = _.bind( unregisterNamespaceEventHandler, namespace );
 
+  namespace.$parentNamespace = $parentNamespace;
   return namespace;
 };
 
@@ -147,10 +148,12 @@ var currentNamespace = ko.currentNamespace = function() {
 };
 
 // enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
-// 'entering' into that namespace (it is now the currentNamespace)
+// 'entering' into that namespace (it is now the currentNamespace).
+// The namespace object returned from this method also has a pointer to its parent
 var enterNamespaceName = ko.enterNamespaceName = function(namespaceName) {
+  var $parentNamespace = currentNamespace();
   namespaceStack.unshift( namespaceName );
-  return currentNamespace();
+  return makeNamespace( currentNamespaceName(), $parentNamespace );
 };
 
 // Called at the after a model constructor function is run. exitNamespace()
@@ -161,13 +164,13 @@ var exitNamespace = ko.exitNamespace = function() {
   return currentNamespace();
 };
 
-// mixin provided to models which enables namespace capabilities including pub/sub, cqrs, etc
-modelMixins.push({
+// mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
+viewModelMixins.push({
   _preInit: function( options ) {
-    this._model.globalNamespace = makeNamespace();
-    this._model.namespaceName = indexedNamespaceName(this._model.modelOptions.componentNamespace || this._model.modelOptions.namespace || _.uniqueId('namespace'), this._model.modelOptions.autoIncrement);
+    this._viewModel.globalNamespace = makeNamespace();
+    this._viewModel.namespaceName = indexedNamespaceName(this._viewModel.modelOptions.componentNamespace || this._viewModel.modelOptions.namespace || _.uniqueId('namespace'), this._viewModel.modelOptions.autoIncrement);
 
-    enterNamespaceName( this._model.namespaceName );
+    enterNamespaceName( this._viewModel.namespaceName );
     this.namespace = currentNamespace();
   },
   mixin: {
@@ -197,10 +200,10 @@ modelMixins.push({
     }
   },
   _postInit: function( options ) {
-    models[ this.getNamespaceName() ] = this;
+    viewModels[ this.getNamespaceName() ] = this;
     exitNamespace();
 
     this.startup();
-    _.isFunction(this._model.modelOptions.afterCreating) && this._model.modelOptions.afterCreating.call(this);
+    _.isFunction(this._viewModel.modelOptions.afterCreating) && this._viewModel.modelOptions.afterCreating.call(this);
   }
 });

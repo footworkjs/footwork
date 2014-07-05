@@ -17,7 +17,7 @@ There are a few main selling points:
 
 1. **Expressive and semantic**
 
-    Footwork makes use of a formalized viewModel construct along with built-in namespace, CQRS, and more. This makes working with your components and viewModels easy. Component support is from Knockout 3.2+ which allows for the creation and use of fully modular custom elements. Why wait for browsers to support components...use them today!
+    Footwork makes use of a formalized viewModel construct along with built-in namespace, CQRS, and more. This makes working with your components and viewModels easy. Integrated component support is from knockout 3.2+ which allows for the creation and use of fully modular custom elements. Why wait for browsers to support components...use them today!
 
 2. **Low boilerplate**
 
@@ -25,9 +25,9 @@ There are a few main selling points:
 
 3. **Module and component based**
 
-    Footwork makes use of Knockout 3.2+ along with a modular structure that enables full encapsulation of both logic and display source code. Reusing your models and components couldn't be easier.
+    Footwork makes use of Knockout 3.2+ along with a modular structure that enables full encapsulation of both logic and display source code. Reusing the different pieces of your application couldn't be easier.
 
-    Note: footwork also recommends the use of requirejs to help with the modular structuring and optimization of your code.
+    Note: it is also recommended to use requirejs for help with the modular structuring and optimization of your code.
 
 4. **Maintainability**
 

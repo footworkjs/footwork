@@ -45,7 +45,7 @@ var namedParam = /(\(\?)?:\w+/g;
 var splatParam = /\*\w+/g;
 var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var routesAreCaseSensitive = false;
-var hashMatch = /(^\/#)*(^#)*/;
+var hashMatch = /(^\/#)/;
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
 function routeStringToRegExp(routeString) {
