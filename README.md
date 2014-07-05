@@ -49,3 +49,5 @@ The following dependencies are considered part of 'core':
 More unit tests, documentation, and features coming soon.
 
 ### Initial working version released - not ready for use (soon).
+
+[![Analytics](https://ga-beacon.appspot.com/UA-52543452-1/footwork/README)](https://github.com/reflectiveSingleton/ga-beacon)

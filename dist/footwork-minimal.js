@@ -5910,7 +5910,7 @@ var historyIsEnabled = ko.observable().broadcastAs('historyIsEnabled');
 // Sourced: https://github.com/BlueSpire/Durandal/blob/e88fd385fb930d38456e35812b44ecd6ea7d8f4c/platforms/Bower/Durandal/js/plugins/router.js
 var optionalParam = /\((.*?)\)/g;
 var namedParam = /(\(\?)?:\w+/g;
-var splatParam = /\*\w+/g;
+var splatParam = /\*\w*/g;
 var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var routesAreCaseSensitive = false;
 var hashMatch = /(^\/#)/;
