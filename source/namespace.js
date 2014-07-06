@@ -118,6 +118,13 @@ function disconnectNamespaceHandlers() {
 
 // Creates and returns a new namespace instance
 var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
+  if(typeof $parentNamespace !== 'undefined') {
+    if(typeof $parentNamespace === 'string') {
+      namespaceName = $parentNamespace + '.' + namespaceName;
+    } else if(typeof $parentNamespace.channel !== 'undefined') {
+      namespaceName = $parentNamespace.channel + '.' + namespaceName;
+    }
+  }
   var namespace = postal.channel(namespaceName);
 
   namespace.shutdown = _.bind( disconnectNamespaceHandlers, namespace );
@@ -162,7 +169,7 @@ var currentNamespace = ko.currentNamespace = function() {
 var enterNamespaceName = ko.enterNamespaceName = function(namespaceName) {
   var $parentNamespace = currentNamespace();
   namespaceStack.unshift( namespaceName );
-  return makeNamespace( currentNamespaceName(), $parentNamespace );
+  return makeNamespace( currentNamespaceName() );
 };
 
 // Called at the after a model constructor function is run. exitNamespace()
@@ -211,7 +218,7 @@ viewModelMixins.push({
     exitNamespace();
 
     this.startup();
-    
+
     var $configParams = this.__getConfigParams();
     _.isFunction($configParams.afterCreating) && $configParams.afterCreating.call(this);
   }

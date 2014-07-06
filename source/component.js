@@ -18,9 +18,9 @@ ko.component = function(options) {
     viewModel = makeViewModel(options);
   }
 
-  //TODO: determine how mixins from the (optionally) supplied footwork model mix in with the mixins supplied directly in the component options
+  //TODO: determine how mixins from the (optionally) supplied footwork viewModel mix in with the mixins supplied directly in the component options
   //      as well as others like params, afterBinding. Currently we will just use the viewModel's mixins/etc, only the namespace is overridden
-  //      from the template definition.
+  //      from the component definition/configuration.
 
   ko.components.register(options.name, {
     viewModel: viewModel,
@@ -29,11 +29,50 @@ ko.component = function(options) {
 }
 
 ko.component({
+  name: 'empty',
+  viewModel: function(params) {
+    console.log('new empty component');
+  },
+  template: '<div class="empty component">[Empty]</div>'
+});
+
+ko.component({
+  name: 'error',
+  viewModel: function(params) {
+    this.message = ko.observable(params.message);
+    this.errors = params.errors;
+    console.log('new error component');
+  },
+  template: '\
+    <div class="component error" data-bind="foreach: errors">\
+      <span class="message" data-bind="text: $data"></span>\
+    </div>'
+});
+
+// outlets can only exist within parent components
+ko.component({
   name: 'outlet',
-  viewModel: function() {
-    this.outletIsActive = ko.observable(false);
-    this.targetComponent = ko.observable();
+  autoIncrement: true,
+  viewModel: function(params) {
+    var $parent = this.$parent = params.$parent;
+    this.outletName = params.name;
+    this.$namespace = makeNamespace(this.outletName, $parent.$namespace);
+    this.outletIsActive = ko.observable(true);
+
+    // .broadcastAs({ name: this.outletName, namespace: 'outlet.' });
+    this.errors = ko.observableArray();
+    var outletObservable = $parent[ this.outletName + 'Outlet' ];
+    if(typeof outletObservable !== 'undefined') {
+      this.targetComponent = outletObservable;
+    } else {
+      this.targetComponent = ko.observable('error');
+      this.errors.push('Could not locate outlet observable');
+    }
   },
   // use comment bindings!
-  template: '<div data-bind="if: outletIsActive">[OUTLET]<div data-bind="component: { name: targetComponent, params: { parentNamespace: namespace, parentViewModel: $data } }"></div></div>'
+  // template: '<!-- ko if: outletIsActive -->[OUTLET]<div data-bind="component: { name: targetComponent, params: { parentNamespace: namespace, $outletViewModel: $data, $parentViewModel: $parent } }, class: outletName"></div><!-- /ko -->'
+  template: '\
+    <!-- ko if: outletIsActive -->\
+      <div class="outlet" data-bind="component: { name: targetComponent, params: { errors: errors } }, class: outletName"></div>\
+    <!-- /ko -->'
 });
