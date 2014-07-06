@@ -20,7 +20,7 @@ There are a few main selling points:
 
 1. **Expressive and semantic**
 
-    Footwork makes use of a formalized viewModel construct along with built-in namespace, CQRS, and more. This makes working with your components and viewModels easy. Integrated component support is from knockout 3.2+ which allows for the creation and use of fully modular custom elements. Why wait for browsers to support components...use them today!
+    Footwork makes use of a formalized viewModel construct along with built-in namespace, CQRS, and more. This makes working with your applications pieces easy while providing for proper separation of concerns. Integrated component support is from knockout 3.2+ which allows for the creation and use of fully modular custom elements. Why wait for browsers to support components...use them today!
 
 2. **Low boilerplate**
 

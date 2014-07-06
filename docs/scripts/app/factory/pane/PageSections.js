@@ -50,11 +50,11 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "jquery.pulse" ],
         ko.observable().extend({ throttle: anchorComputeDelay }).receiveFrom('Pane', 'width').subscribe( computeAnchorPos );
         ko.observable().extend({ throttle: anchorComputeDelay + 1000 }).receiveFrom('Pane', 'collapsed').subscribe( computeAnchorPos );
 
-        this.namespace.subscribe('chooseSection', function( sectionName ) {
+        this.$namespace.subscribe('chooseSection', function( sectionName ) {
           sectionName === this.anchor() && this.chooseSection();
         }).withContext(this);
 
-        this.namespace.subscribe('scrollToSection', function( sectionName ) {
+        this.$namespace.subscribe('scrollToSection', function( sectionName ) {
           var $anchor;
           if( sectionName === this.anchor() ) {
             this.chooseSection();
@@ -141,11 +141,11 @@ define([ "jquery", "lodash", "knockout-footwork", "paneArea", "jquery.pulse" ],
           }
         }.bind(this);
 
-        this.namespace.subscribe('clear', function() {
+        this.$namespace.subscribe('clear', function() {
           this.sections( [] );
         }).withContext(this);
 
-        this.namespace.subscribe('load', function( pageData ) {
+        this.$namespace.subscribe('load', function( pageData ) {
           if( pageData ) {
             pageData.description && this.description( pageData.description );
             this.loadSections( pageData.sections );

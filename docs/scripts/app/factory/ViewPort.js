@@ -28,7 +28,7 @@ define([ "jquery", "lodash", "knockout-footwork" ],
           write: function( observable, value ) {
             this.resizing( true );
             observable( value );
-            this.$viewModel.globalNamespace.publish( 'refreshDocSize' );
+            this.$globalNamespace.publish( 'refreshDocSize' );
           }.bind( this )
         }).broadcastAs('dimensions', true);
         this.isTablet = ko.observable( window.isTablet ).broadcastAs('isTablet', true);

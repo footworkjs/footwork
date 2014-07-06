@@ -44,11 +44,13 @@ ko.applyBindings = function(model, element) {
   applyBindings(model, element);
 
   if(isViewModel(model) === true) {
-    if(_.isFunction(model.$viewModel.initParams.startup) === true) {
-      model.$viewModel.initParams.startup();
+    var $initParams = model.__getInitParams();
+    if(typeof $initParams !== 'undefined' && _.isFunction($initParams.startup) === true) {
+      $initParams.startup();
     }
-    if(typeof model.$viewModel.configParams.afterBinding === 'function') {
-      model.$viewModel.configParams.afterBinding.call(model);
+    var $configParams = model.getConfigParams();
+    if(typeof $configParams.afterBinding === 'function') {
+      $configParams.afterBinding.call(model);
     }
   }
 };

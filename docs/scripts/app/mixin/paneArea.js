@@ -27,7 +27,7 @@ define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
           var currentPage = this.currentPage();
           this.currentPage( currentPage + 1 );
 
-          if(this.$viewModel.configParams.params !== undefined && this.$viewModel.configParams.params.url !== undefined) {
+          if(this.$params !== undefined && this.$params.url !== undefined) {
             this.loader
               .watch( $.ajax({ url: this.$viewModelOptions.params.url + currentPage, dataType: 'json' }) )
               .done(function( entries ) {
@@ -35,7 +35,7 @@ define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
                   var observedEntries = this.entries();
                   this.moreUnavailable( false );
                   _.each( entries, function( entryData ) {
-                    observedEntries.push( (new this.$viewModelOptions.params.EntryFactory({ namespace: this.namespace, entryData: entryData })) );
+                    observedEntries.push( (new this.$viewModelOptions.params.EntryFactory({ namespace: this.$namespace, entryData: entryData })) );
                   }.bind(this) );
                   this.entries.valueHasMutated();
                 } else {
@@ -50,7 +50,7 @@ define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
         }, this);
 
         this.visible = ko.computed(function() {
-          if( this.currentSelection() === this.namespaceName ) {
+          if( this.currentSelection() === this.$namespaceName ) {
             if( this.entries().length === 0 ) {
               this.loadEntries();
             }

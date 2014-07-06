@@ -146,7 +146,7 @@ define([ "knockout-footwork", "lodash" ],
 
         this.minHeight.extend({ throttle: 150 })
           .subscribe(function() {
-            this.$viewModel.globalNamespace.publish('refreshDocSize');
+            this.$globalNamespace.publish('refreshDocSize');
           }, this);
 
         this.uiState = ko.computed(function() {
@@ -169,7 +169,7 @@ define([ "knockout-footwork", "lodash" ],
         this.togglePaneCollapse = function() {
           this.paneCollapsed( !this.paneCollapsed() );
         }.bind( this );
-        this.namespace.subscribe('togglePane', this.togglePaneCollapse);
+        this.$namespace.subscribe('togglePane', this.togglePaneCollapse);
       }
     });
   }

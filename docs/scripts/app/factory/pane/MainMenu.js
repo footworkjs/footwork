@@ -7,7 +7,7 @@ define([ "jquery", "lodash", "knockout-footwork" ],
         this.labelText = ko.observable( entryData.label );
         this.url = ko.observable( entryData.url );
 
-        this.namespace.subscribe('hideAll', function() {
+        this.$namespace.subscribe('hideAll', function() {
           this.visible( false );
         }).withContext(this);
 

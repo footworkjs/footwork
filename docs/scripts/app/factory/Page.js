@@ -79,7 +79,7 @@ define([ "jquery", "lodash", "knockout-footwork", "history" ],
               $mainContent.html(xhr.responseText);
             });
 
-          this.namespace.publish('loadingPage', this.loadingPagePromise);
+          this.$namespace.publish('loadingPage', this.loadingPagePromise);
         }.bind(this));
 
         this.loadMeta = function( metaData ) {
@@ -113,11 +113,11 @@ define([ "jquery", "lodash", "knockout-footwork", "history" ],
           return true;
         }.bind( this );
 
-        this.namespace.subscribe( 'initMeta', function( metaData ) {
+        this.$namespace.subscribe( 'initMeta', function( metaData ) {
           this.loadMeta( metaData );
         }).withContext( this );
 
-        this.namespace.subscribe( 'loadURL', function( param ) {
+        this.$namespace.subscribe( 'loadURL', function( param ) {
           this.loadURL( param.url, param.title );
         }).withContext( this );
       }

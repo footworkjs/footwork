@@ -150,7 +150,7 @@ define([ "jquery", "lodash", "knockout-footwork", "storage" ],
             if( ((this.navReflowing() === true || this.reflowing() === true) && this.paneAnimate3d() === true) === false ) {
               setConfig({ pane: { collapsed: collapseState } });
             } else {
-              this.namespace.publish('paneCollapsed', !collapseState);
+              this.$namespace.publish('paneCollapsed', !collapseState);
             }
           }
         }, this ).broadcastAs('paneCollapsed', true);
@@ -224,9 +224,9 @@ define([ "jquery", "lodash", "knockout-footwork", "storage" ],
             }.bind(this), 3000);
           }
         }.bind(this);
-        this.namespace.subscribe('updateSession', this.updateSession).withContext(this);
+        this.$namespace.subscribe('updateSession', this.updateSession).withContext(this);
 
-        this.namespace.subscribe('reset', reset = function( noReflow ) {
+        this.$namespace.subscribe('reset', reset = function( noReflow ) {
           if( this.navReflowing() === true || this.paneMoving() === true || this.headerMoving() === true ) {
             return false;
           }
@@ -255,7 +255,7 @@ define([ "jquery", "lodash", "knockout-footwork", "storage" ],
           }
 
           setConfig( $.extend( true, {}, overwriteConfig, preserveValues ) );
-          this.$viewModel.globalNamespace.publish('configReset');
+          this.$globalNamespace.publish('configReset');
 
           this.reflowing(true);
           $(start).animate( end, {

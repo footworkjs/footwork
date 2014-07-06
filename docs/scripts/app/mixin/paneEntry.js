@@ -29,7 +29,7 @@ define([ "knockout-footwork", "lodash" ],
             this.clickable(false);
           }
         }, this);
-        this.namespace.subscribe('deactivate', function(callingObject) {
+        this.$namespace.subscribe('deactivate', function(callingObject) {
           if( callingObject !== this && this.paneScrolling() === false ) {
             this.active(false);
           }

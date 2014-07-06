@@ -167,7 +167,7 @@ define([ "require", "jquery", "lodash", "knockout-footwork", "LoadState" ],
         });
         this.customizeAssetsLoaded = ko.observable(false);
         this.customizeModified = ko.observable(false);
-        this.namespace.subscribe('modified', function() { this.customizeModified(true); }).withContext(this);
+        this.$namespace.subscribe('modified', function() { this.customizeModified(true); }).withContext(this);
 
         this.setVisible = function(data, event) {
           if( this.loading() === false ) {
@@ -225,7 +225,7 @@ define([ "require", "jquery", "lodash", "knockout-footwork", "LoadState" ],
 
                   this.visibleHeaderHeight.subscribe(function() { $colorPickers.spectrum('hide'); });
                   this.paneWidth.subscribe(function() { $colorPickers.spectrum('hide'); });
-                  this.$viewModel.globalNamespace.subscribe('enableControl', function() { $colorPickers.spectrum('hide'); });
+                  this.$globalNamespace.subscribe('enableControl', function() { $colorPickers.spectrum('hide'); });
                   configurationNamespace.subscribe('reset', function() { $colorPickers.spectrum('hide'); });
                   this.config.visible.subscribe(function(state) { state === false && $colorPickers.spectrum('hide'); });
 

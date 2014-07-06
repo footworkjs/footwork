@@ -672,11 +672,11 @@ ko.logError = <span class="hljs-function"><span class="hljs-keyword">function</s
   applyBindings(model, element);
 
   <span class="hljs-keyword">if</span>(isViewModel(model) === <span class="hljs-literal">true</span>) {
-    <span class="hljs-keyword">if</span>(_.isFunction(model._viewModel.initOptions.startup) === <span class="hljs-literal">true</span>) {
-      model._viewModel.initOptions.startup();
+    <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> model.$initParams !== <span class="hljs-string">'undefined'</span> &amp;&amp; _.isFunction(model.$initParams.startup) === <span class="hljs-literal">true</span>) {
+      model.$initParams.startup();
     }
-    <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> model._viewModel.modelOptions.afterBinding === <span class="hljs-string">'function'</span>) {
-      model._viewModel.modelOptions.afterBinding.call(model);
+    <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> model.$configParams.afterBinding === <span class="hljs-string">'function'</span>) {
+      model.$configParams.afterBinding.call(model);
     }
   }
 };</pre></div></div>
@@ -1146,15 +1146,12 @@ next namespace in the stack</p>
         
         <div class="content"><div class='highlight'><pre>viewModelMixins.push({
   _preInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( options )</span> {</span>
-    <span class="hljs-keyword">this</span>._viewModel.globalNamespace = makeNamespace();
-    <span class="hljs-keyword">this</span>._viewModel.namespaceName = indexedNamespaceName(<span class="hljs-keyword">this</span>._viewModel.modelOptions.componentNamespace || <span class="hljs-keyword">this</span>._viewModel.modelOptions.namespace || _.uniqueId(<span class="hljs-string">'namespace'</span>), <span class="hljs-keyword">this</span>._viewModel.modelOptions.autoIncrement);
-
-    enterNamespaceName( <span class="hljs-keyword">this</span>._viewModel.namespaceName );
-    <span class="hljs-keyword">this</span>.namespace = currentNamespace();
+    <span class="hljs-keyword">this</span>.$namespace = enterNamespaceName( indexedNamespaceName(<span class="hljs-keyword">this</span>.$configParams.componentNamespace || <span class="hljs-keyword">this</span>.$configParams.namespace || _.uniqueId(<span class="hljs-string">'namespace'</span>), <span class="hljs-keyword">this</span>.$configParams.autoIncrement) );
+    <span class="hljs-keyword">this</span>.$globalNamespace = makeNamespace();
   },
   mixin: {
     getNamespaceName: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.namespace.channel;
+      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.$namespace.channel;
     },
     broadcastAll: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
       <span class="hljs-keyword">var</span> model = <span class="hljs-keyword">this</span>;
@@ -1183,7 +1180,7 @@ next namespace in the stack</p>
     exitNamespace();
 
     <span class="hljs-keyword">this</span>.startup();
-    _.isFunction(<span class="hljs-keyword">this</span>._viewModel.modelOptions.afterCreating) &amp;&amp; <span class="hljs-keyword">this</span>._viewModel.modelOptions.afterCreating.call(<span class="hljs-keyword">this</span>);
+    _.isFunction(<span class="hljs-keyword">this</span>.$configParams.afterCreating) &amp;&amp; <span class="hljs-keyword">this</span>.$configParams.afterCreating.call(<span class="hljs-keyword">this</span>);
   }
 });</pre></div></div>
         
@@ -1216,7 +1213,7 @@ next namespace in the stack</p>
         </div>
         
         <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isViewModelCtor</span><span class="hljs-params">(thing)</span> {</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> thing !== <span class="hljs-string">'undefined'</span> &amp;&amp; thing._isViewModelCtor === <span class="hljs-literal">true</span>;
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> thing !== <span class="hljs-string">'undefined'</span> &amp;&amp; thing.__isViewModelCtor === <span class="hljs-literal">true</span>;
 }</pre></div></div>
         
     </li>
@@ -1234,7 +1231,7 @@ next namespace in the stack</p>
         </div>
         
         <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isViewModel</span><span class="hljs-params">(thing)</span> {</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> thing !== <span class="hljs-string">'undefined'</span> &amp;&amp; thing._isViewModel === <span class="hljs-literal">true</span> &amp;&amp; _.isObject(thing._viewModel) === <span class="hljs-literal">true</span>;
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> thing !== <span class="hljs-string">'undefined'</span> &amp;&amp; _.isObject(thing.$configParams) === <span class="hljs-literal">true</span>;
 }</pre></div></div>
         
     </li>
@@ -1293,7 +1290,7 @@ If no name is supplied, a reference to an array containing all model references 
           <div class="annotation-bg"></div>
         </div>
         
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> getModels = ko.getViewModels = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName)</span> {</span>
+        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> getViewModels = ko.getViewModels = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName)</span> {</span>
   <span class="hljs-keyword">if</span>(namespaceName === <span class="hljs-literal">undefined</span>) {
     <span class="hljs-keyword">return</span> viewModels;
   }
@@ -1315,15 +1312,16 @@ If no name is supplied, a reference to an array containing all model references 
         </div>
         
         <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> refreshModels = ko.refreshViewModels = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-  _.invoke(getModels(), <span class="hljs-string">'refreshReceived'</span>);
+  _.invoke(getViewModels(), <span class="hljs-string">'refreshReceived'</span>);
 };
 
-<span class="hljs-keyword">var</span> makeViewModel = ko.viewModel = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(modelOptions)</span> {</span>
-  <span class="hljs-keyword">if</span>( <span class="hljs-keyword">typeof</span> modelOptions !== <span class="hljs-string">'undefined'</span> &amp;&amp; _.isFunction(modelOptions.viewModel) === <span class="hljs-literal">true</span> ) {
-    modelOptions.initialize = modelOptions.viewModel;
+<span class="hljs-keyword">var</span> makeViewModel = ko.viewModel = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(configParams)</span> {</span>
+  <span class="hljs-keyword">var</span> ctor = noop;
+  <span class="hljs-keyword">if</span>( <span class="hljs-keyword">typeof</span> configParams !== <span class="hljs-string">'undefined'</span>) {
+    ctor = configParams.viewModel || configParams.initialize || ctor;
   }
 
-  <span class="hljs-keyword">var</span> modelOptions = _.extend({
+  configParams = _.extend({
     namespace: <span class="hljs-literal">undefined</span>,
     componentNamespace: <span class="hljs-literal">undefined</span>,
     autoIncrement: <span class="hljs-literal">false</span>,
@@ -1331,30 +1329,31 @@ If no name is supplied, a reference to an array containing all model references 
     params: <span class="hljs-literal">undefined</span>,
     afterBinding: noop,
     initialize: noop
-  }, modelOptions);
+  }, configParams);
 
-  <span class="hljs-keyword">var</span> modelOptionsMixin = {
-    _preInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( initOptions )</span> {</span>
-      <span class="hljs-keyword">this</span>._isViewModel = <span class="hljs-literal">true</span>;
-      <span class="hljs-keyword">this</span>._viewModel = {
-        modelOptions: modelOptions,
-        initOptions: initOptions || {}
-      }
+  <span class="hljs-keyword">var</span> initViewModelMixin = {
+    _preInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( initParams )</span> {</span>
+      <span class="hljs-keyword">this</span>.$initParams = initParams;
+      <span class="hljs-keyword">this</span>.$params = configParams.params;
+      <span class="hljs-keyword">this</span>.$configParams = configParams;
+      <span class="hljs-keyword">this</span>.getConfigParams = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+        <span class="hljs-keyword">return</span> configParams;
+      };
     },
     _postInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-      <span class="hljs-keyword">this</span>.namespace.request.handler(<span class="hljs-string">'__footwork_model_reference'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
+      <span class="hljs-keyword">this</span>.$namespace.request.handler(<span class="hljs-string">'__footwork_model_reference'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
       });
     }
   };
 
-  <span class="hljs-keyword">var</span> composure = [ modelOptions.initialize, modelOptionsMixin ].concat( viewModelMixins );
-  <span class="hljs-keyword">if</span>(modelOptions.mixins !== <span class="hljs-literal">undefined</span>) {
-    composure = composure.concat(modelOptions.mixins);
+  <span class="hljs-keyword">var</span> composure = [ ctor, initViewModelMixin ].concat( viewModelMixins );
+  <span class="hljs-keyword">if</span>(configParams.mixins !== <span class="hljs-literal">undefined</span>) {
+    composure = composure.concat(configParams.mixins);
   }
 
   <span class="hljs-keyword">var</span> model = riveter.compose.apply( <span class="hljs-literal">undefined</span>, composure );
-  model._isViewModelCtorCtor = <span class="hljs-literal">true</span>;
+  model.__isViewModelCtor = <span class="hljs-literal">true</span>;
 
   <span class="hljs-keyword">return</span> model;
 };</pre></div></div>

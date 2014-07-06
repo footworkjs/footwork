@@ -26,14 +26,14 @@ define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
 
         this.loader = new LoadState({ ignoreStatus: 404 });
 
-        this.$viewModel.globalNamespace.subscribe('configReset', function() {
+        this.$globalNamespace.subscribe('configReset', function() {
           this.headerOpen(false);
         }).withContext(this);
 
         var pageNamespace = ko.namespace('Page');
         pageNamespace.subscribe('loadingPage', function(promise) {
           this.loader.watch( promise, (this.viewPortLayoutMode() === 'mobile' ? 400 : 300), function() {
-            this.$viewModel.globalNamespace.publish( 'refreshDocSize' );
+            this.$globalNamespace.publish( 'refreshDocSize' );
           }.bind(this)).fail(function(xhr) {
             if(xhr.status === 404) {
               this.loader.setState('ready');
@@ -55,7 +55,7 @@ define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
           }
         }.bind(this);
 
-        this.namespace.subscribe('toggleHeader', function() {
+        this.$namespace.subscribe('toggleHeader', function() {
           this.toggleHeader();
         }.bind(this));
 
