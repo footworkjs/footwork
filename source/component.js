@@ -12,10 +12,10 @@ ko.component = function(options) {
 
   options.namespace = options.name = _.result(options, 'name');
   var viewModel = options.initialize || options.viewModel;
-  if( isFootworkViewModelCtor(viewModel) ) {
+  if( isViewModelCtor(viewModel) ) {
     viewModel.options.componentNamespace = options.namespace;
   } else if( _.isFunction(viewModel) ) {
-    viewModel = this.viewModel(options);
+    viewModel = makeViewModel(options);
   }
 
   //TODO: determine how mixins from the (optionally) supplied footwork model mix in with the mixins supplied directly in the component options
@@ -28,10 +28,12 @@ ko.component = function(options) {
   });
 }
 
-ko.components.register('outlet', {
+ko.component({
+  name: 'outlet',
   viewModel: function() {
-    this.isSuccess = ko.observable('SUCCESSING INTENSIFIES');
+    this.outletIsActive = ko.observable(false);
+    this.targetComponent = ko.observable();
   },
   // use comment bindings!
-  template: '<div data-bind="text: isSuccess"></div>'
+  template: '<div data-bind="if: outletIsActive">[OUTLET]<div data-bind="component: { name: targetComponent, params: { parentNamespace: namespace, parentViewModel: $data } }"></div></div>'
 });

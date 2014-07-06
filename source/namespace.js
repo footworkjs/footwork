@@ -66,12 +66,21 @@ function unregisterNamespaceCommandHandler(handlerSubscription) {
 }
 
 // Method used to is a request for data from a namespace, returning the response (or undefined if no response)
+// This method will return an array of responses if more than one is received.
 function requestResponseFromNamespace(requestKey, params) {
-  var response;
+  var response = undefined;
   var responseSubscription;
 
   responseSubscription = this.subscribe('request.' + requestKey + '.response', function(reqResponse) {
-    response = reqResponse;
+    if(typeof response === 'undefined') {
+      response = reqResponse;
+    } else {
+      if( _.isArray(response) === true ) {
+        response.push(reqResponse);
+      } else {
+        response = [ response, reqResponse ];
+      }
+    }
   });
   this.publish('request.' + requestKey, params);
   responseSubscription.unsubscribe();
