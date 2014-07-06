@@ -723,7 +723,6 @@ ko.component({
   viewModel: function(params) {
     this.message = ko.observable(params.message);
     this.errors = params.errors;
-    console.log('new error component');
   },
   template: '\
     <div class="component error">\
@@ -754,7 +753,7 @@ ko.component({
       this.targetComponent = outletObservable;
     } else {
       this.targetComponent = ko.observable('error');
-      this.errors.push('Could not locate outlet observable');
+      this.errors.push('Could not locate outlet observable ($parent.' + this.outletName + 'Outlet' + ' is undefined).');
     }
   },
   // use comment bindings!
