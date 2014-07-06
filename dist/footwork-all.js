@@ -10371,99 +10371,18 @@ ko.applyBindings = function(model, element) {
   applyBindings(model, element);
 
   if(isViewModel(model) === true) {
-    if(_.isFunction(model._viewModel.initOptions.startup) === true) {
-      model._viewModel.initOptions.startup();
+    if(_.isFunction(model.$viewModel.initParams.startup) === true) {
+      model.$viewModel.initParams.startup();
     }
-    if(typeof model._viewModel.modelOptions.afterBinding === 'function') {
-      model._viewModel.modelOptions.afterBinding.call(model);
+    if(typeof model.$viewModel.configParams.afterBinding === 'function') {
+      model.$viewModel.configParams.afterBinding.call(model);
     }
   }
 };
 
-// viewModel.js
-// ------------------
-
-// Duck type function for determining whether or not something is a footwork viewModel constructor function
-function isViewModelCtor(thing) {
-  return typeof thing !== 'undefined' && thing._isViewModelCtor === true;
-}
-
-// Duck type function for determining whether or not something is a footwork viewModel
-function isViewModel(thing) {
-  return typeof thing !== 'undefined' && thing._isViewModel === true && _.isObject(thing._viewModel) === true;
-}
-
-// Initialize the viewModels registry
-var viewModels = {};
-
-// Returns the number of created viewModels for each defined namespace
-var viewModelCount = ko.viewModelCount = function() {
-  var counts = _.reduce(namespaceNameCounter, function(viewModelCounts, viewModelCount, viewModelName) {
-    viewModelCounts[viewModelName] = viewModelCount + 1;
-    return viewModelCounts;
-  }, {});
-  counts.__total = _.reduce(_.values(counts), function(summation, num) {
-    return summation + num;
-  }, 0);
-  return counts;
-};
-
-// Returns a reference to the specified viewModels.
-// If no name is supplied, a reference to an array containing all model references is returned.
-var getModels = ko.getViewModels = function(namespaceName) {
-  if(namespaceName === undefined) {
-    return viewModels;
-  }
-  return viewModels[namespaceName];
-};
-
-// Tell all viewModels to request the values which it listens for
-var refreshModels = ko.refreshViewModels = function() {
-  _.invoke(getModels(), 'refreshReceived');
-};
-
+// This stores the mixins which are automatically added to each viewModel
 var viewModelMixins = [];
 
-var makeViewModel = ko.viewModel = function(modelOptions) {
-  if( typeof modelOptions !== 'undefined' && _.isFunction(modelOptions.viewModel) === true ) {
-    modelOptions.initialize = modelOptions.viewModel;
-  }
-
-  var modelOptions = _.extend({
-    namespace: undefined,
-    componentNamespace: undefined,
-    autoIncrement: false,
-    mixins: undefined,
-    params: undefined,
-    afterBinding: noop,
-    initialize: noop
-  }, modelOptions);
-
-  var modelOptionsMixin = {
-    _preInit: function( initOptions ) {
-      this._isViewModel = true;
-      this._viewModel = {
-        modelOptions: modelOptions,
-        initOptions: initOptions || {}
-      }
-    },
-    _postInit: function() {
-      this.namespace.request.handler('__footwork_model_reference', function() {
-        return this;
-      });
-    }
-  };
-
-  var composure = [ modelOptions.initialize, modelOptionsMixin ].concat( viewModelMixins );
-  if(modelOptions.mixins !== undefined) {
-    composure = composure.concat(modelOptions.mixins);
-  }
-
-  var model = riveter.compose.apply( undefined, composure );
-  model._isViewModelCtorCtor = true;
-
-  return model;
-};
 // namespace.js
 // ------------------
 
@@ -10642,10 +10561,10 @@ var exitNamespace = ko.exitNamespace = function() {
 // mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
 viewModelMixins.push({
   _preInit: function( options ) {
-    this._viewModel.globalNamespace = makeNamespace();
-    this._viewModel.namespaceName = indexedNamespaceName(this._viewModel.modelOptions.componentNamespace || this._viewModel.modelOptions.namespace || _.uniqueId('namespace'), this._viewModel.modelOptions.autoIncrement);
+    this.$viewModel.globalNamespace = makeNamespace();
+    this.$viewModel.namespaceName = indexedNamespaceName(this.$viewModel.configParams.componentNamespace || this.$viewModel.configParams.namespace || _.uniqueId('namespace'), this.$viewModel.configParams.autoIncrement);
 
-    enterNamespaceName( this._viewModel.namespaceName );
+    enterNamespaceName( this.$viewModel.namespaceName );
     this.namespace = currentNamespace();
   },
   mixin: {
@@ -10679,9 +10598,90 @@ viewModelMixins.push({
     exitNamespace();
 
     this.startup();
-    _.isFunction(this._viewModel.modelOptions.afterCreating) && this._viewModel.modelOptions.afterCreating.call(this);
+    _.isFunction(this.$viewModel.configParams.afterCreating) && this.$viewModel.configParams.afterCreating.call(this);
   }
 });
+// viewModel.js
+// ------------------
+
+// Duck type function for determining whether or not something is a footwork viewModel constructor function
+function isViewModelCtor(thing) {
+  return typeof thing !== 'undefined' && thing._isViewModelCtor === true;
+}
+
+// Duck type function for determining whether or not something is a footwork viewModel
+function isViewModel(thing) {
+  return typeof thing !== 'undefined' && _.isObject(thing.$viewModel) === true;
+}
+
+// Initialize the viewModels registry
+var viewModels = {};
+
+// Returns the number of created viewModels for each defined namespace
+var viewModelCount = ko.viewModelCount = function() {
+  var counts = _.reduce(namespaceNameCounter, function(viewModelCounts, viewModelCount, viewModelName) {
+    viewModelCounts[viewModelName] = viewModelCount + 1;
+    return viewModelCounts;
+  }, {});
+  counts.__total = _.reduce(_.values(counts), function(summation, num) {
+    return summation + num;
+  }, 0);
+  return counts;
+};
+
+// Returns a reference to the specified viewModels.
+// If no name is supplied, a reference to an array containing all model references is returned.
+var getModels = ko.getViewModels = function(namespaceName) {
+  if(namespaceName === undefined) {
+    return viewModels;
+  }
+  return viewModels[namespaceName];
+};
+
+// Tell all viewModels to request the values which it listens for
+var refreshModels = ko.refreshViewModels = function() {
+  _.invoke(getModels(), 'refreshReceived');
+};
+
+var makeViewModel = ko.viewModel = function(configParams) {
+  if( typeof configParams !== 'undefined' && _.isFunction(configParams.viewModel) === true ) {
+    configParams.initialize = configParams.viewModel;
+  }
+
+  configParams = _.extend({
+    namespace: undefined,
+    componentNamespace: undefined,
+    autoIncrement: false,
+    mixins: undefined,
+    params: undefined,
+    afterBinding: noop,
+    initialize: noop
+  }, configParams);
+
+  var viewModelMixin = {
+    _preInit: function( initParams ) {
+      this.$viewModel = {
+        configParams: configParams,
+        initParams: initParams || {}
+      }
+    },
+    _postInit: function() {
+      this.namespace.request.handler('__footwork_model_reference', function() {
+        return this;
+      });
+    }
+  };
+
+  var composure = [ configParams.initialize, viewModelMixin ].concat( viewModelMixins );
+  if(configParams.mixins !== undefined) {
+    composure = composure.concat(configParams.mixins);
+  }
+
+  var model = riveter.compose.apply( undefined, composure );
+  model._isViewModelCtorCtor = true;
+
+  return model;
+};
 // component.js
 // ------------------
 

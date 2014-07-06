@@ -27,15 +27,15 @@ define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
           var currentPage = this.currentPage();
           this.currentPage( currentPage + 1 );
 
-          if(this._viewModel.modelOptions.params !== undefined && this._viewModel.modelOptions.params.url !== undefined) {
+          if(this.$viewModel.configParams.params !== undefined && this.$viewModel.configParams.params.url !== undefined) {
             this.loader
-              .watch( $.ajax({ url: this._viewModelOptions.params.url + currentPage, dataType: 'json' }) )
+              .watch( $.ajax({ url: this.$viewModelOptions.params.url + currentPage, dataType: 'json' }) )
               .done(function( entries ) {
                 if( entries.length ) {
                   var observedEntries = this.entries();
                   this.moreUnavailable( false );
                   _.each( entries, function( entryData ) {
-                    observedEntries.push( (new this._viewModelOptions.params.EntryFactory({ namespace: this.namespace, entryData: entryData })) );
+                    observedEntries.push( (new this.$viewModelOptions.params.EntryFactory({ namespace: this.namespace, entryData: entryData })) );
                   }.bind(this) );
                   this.entries.valueHasMutated();
                 } else {

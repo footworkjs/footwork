@@ -225,7 +225,7 @@ define([ "require", "jquery", "lodash", "knockout-footwork", "LoadState" ],
 
                   this.visibleHeaderHeight.subscribe(function() { $colorPickers.spectrum('hide'); });
                   this.paneWidth.subscribe(function() { $colorPickers.spectrum('hide'); });
-                  this._viewModel.globalNamespace.subscribe('enableControl', function() { $colorPickers.spectrum('hide'); });
+                  this.$viewModel.globalNamespace.subscribe('enableControl', function() { $colorPickers.spectrum('hide'); });
                   configurationNamespace.subscribe('reset', function() { $colorPickers.spectrum('hide'); });
                   this.config.visible.subscribe(function(state) { state === false && $colorPickers.spectrum('hide'); });
 

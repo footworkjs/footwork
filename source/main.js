@@ -44,17 +44,20 @@ ko.applyBindings = function(model, element) {
   applyBindings(model, element);
 
   if(isViewModel(model) === true) {
-    if(_.isFunction(model._viewModel.initOptions.startup) === true) {
-      model._viewModel.initOptions.startup();
+    if(_.isFunction(model.$viewModel.initParams.startup) === true) {
+      model.$viewModel.initParams.startup();
     }
-    if(typeof model._viewModel.modelOptions.afterBinding === 'function') {
-      model._viewModel.modelOptions.afterBinding.call(model);
+    if(typeof model.$viewModel.configParams.afterBinding === 'function') {
+      model.$viewModel.configParams.afterBinding.call(model);
     }
   }
 };
 
-//import("viewModel.js");
+// This stores the mixins which are automatically added to each viewModel
+var viewModelMixins = [];
+
 //import("namespace.js");
+//import("viewModel.js");
 //import("component.js");
 //import("broadcast-receive.js");
 //import("bindingHandlers.js");

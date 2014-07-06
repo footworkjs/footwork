@@ -146,7 +146,7 @@ define([ "knockout-footwork", "lodash" ],
 
         this.minHeight.extend({ throttle: 150 })
           .subscribe(function() {
-            this._viewModel.globalNamespace.publish('refreshDocSize');
+            this.$viewModel.globalNamespace.publish('refreshDocSize');
           }, this);
 
         this.uiState = ko.computed(function() {
