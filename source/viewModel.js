@@ -3,12 +3,12 @@
 
 // Duck type function for determining whether or not something is a footwork viewModel constructor function
 function isViewModelCtor(thing) {
-  return typeof thing !== 'undefined' && thing._isViewModelCtor === true;
+  return typeof thing !== 'undefined' && thing.__isViewModelCtor === true;
 }
 
 // Duck type function for determining whether or not something is a footwork viewModel
 function isViewModel(thing) {
-  return typeof thing !== 'undefined' && _.isObject(thing.$viewModel) === true;
+  return typeof thing !== 'undefined' && _.isFunction(thing.getConfigParams) === true;
 }
 
 // Initialize the viewModels registry
@@ -28,7 +28,7 @@ var viewModelCount = ko.viewModelCount = function() {
 
 // Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all model references is returned.
-var getModels = ko.getViewModels = function(namespaceName) {
+var getViewModels = ko.getViewModels = function(namespaceName) {
   if(namespaceName === undefined) {
     return viewModels;
   }
@@ -37,12 +37,13 @@ var getModels = ko.getViewModels = function(namespaceName) {
 
 // Tell all viewModels to request the values which it listens for
 var refreshModels = ko.refreshViewModels = function() {
-  _.invoke(getModels(), 'refreshReceived');
+  _.invoke(getViewModels(), 'refreshReceived');
 };
 
 var makeViewModel = ko.viewModel = function(configParams) {
-  if( typeof configParams !== 'undefined' && _.isFunction(configParams.viewModel) === true ) {
-    configParams.initialize = configParams.viewModel;
+  var ctor = noop;
+  if( typeof configParams !== 'undefined') {
+    ctor = configParams.viewModel || configParams.initialize || ctor;
   }
 
   configParams = _.extend({
@@ -55,27 +56,30 @@ var makeViewModel = ko.viewModel = function(configParams) {
     initialize: noop
   }, configParams);
 
-  var viewModelMixin = {
+  var initViewModelMixin = {
     _preInit: function( initParams ) {
-      this.$viewModel = {
-        configParams: configParams,
-        initParams: initParams || {}
-      }
+      this.$params = configParams.params;
+      this.__getConfigParams = function() {
+        return configParams;
+      };
+      this.__getInitParams = function() {
+        return initParams;
+      };
     },
     _postInit: function() {
-      this.namespace.request.handler('__footwork_model_reference', function() {
+      this.$namespace.request.handler('__footwork_model_reference', function() {
         return this;
       });
     }
   };
 
-  var composure = [ configParams.initialize, viewModelMixin ].concat( viewModelMixins );
+  var composure = [ ctor, initViewModelMixin ].concat( viewModelMixins );
   if(configParams.mixins !== undefined) {
     composure = composure.concat(configParams.mixins);
   }
 
   var model = riveter.compose.apply( undefined, composure );
-  model._isViewModelCtorCtor = true;
+  model.__isViewModelCtor = true;
 
   return model;
 };

@@ -10371,11 +10371,13 @@ ko.applyBindings = function(model, element) {
   applyBindings(model, element);
 
   if(isViewModel(model) === true) {
-    if(_.isFunction(model.$viewModel.initParams.startup) === true) {
-      model.$viewModel.initParams.startup();
+    var $initParams = model.__getInitParams();
+    if(typeof $initParams !== 'undefined' && _.isFunction($initParams.startup) === true) {
+      $initParams.startup();
     }
-    if(typeof model.$viewModel.configParams.afterBinding === 'function') {
-      model.$viewModel.configParams.afterBinding.call(model);
+    var $configParams = model.getConfigParams();
+    if(typeof $configParams.afterBinding === 'function') {
+      $configParams.afterBinding.call(model);
     }
   }
 };
@@ -10561,15 +10563,13 @@ var exitNamespace = ko.exitNamespace = function() {
 // mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
 viewModelMixins.push({
   _preInit: function( options ) {
-    this.$viewModel.globalNamespace = makeNamespace();
-    this.$viewModel.namespaceName = indexedNamespaceName(this.$viewModel.configParams.componentNamespace || this.$viewModel.configParams.namespace || _.uniqueId('namespace'), this.$viewModel.configParams.autoIncrement);
-
-    enterNamespaceName( this.$viewModel.namespaceName );
-    this.namespace = currentNamespace();
+    var $configParams = this.__getConfigParams();
+    this.$namespace = enterNamespaceName( indexedNamespaceName($configParams.componentNamespace || $configParams.namespace || _.uniqueId('namespace'), $configParams.autoIncrement) );
+    this.$globalNamespace = makeNamespace();
   },
   mixin: {
     getNamespaceName: function() {
-      return this.namespace.channel;
+      return this.$namespace.channel;
     },
     broadcastAll: function() {
       var model = this;
@@ -10598,7 +10598,9 @@ viewModelMixins.push({
     exitNamespace();
 
     this.startup();
-    _.isFunction(this.$viewModel.configParams.afterCreating) && this.$viewModel.configParams.afterCreating.call(this);
+    
+    var $configParams = this.__getConfigParams();
+    _.isFunction($configParams.afterCreating) && $configParams.afterCreating.call(this);
   }
 });
 // viewModel.js
@@ -10606,12 +10608,12 @@ viewModelMixins.push({
 
 // Duck type function for determining whether or not something is a footwork viewModel constructor function
 function isViewModelCtor(thing) {
-  return typeof thing !== 'undefined' && thing._isViewModelCtor === true;
+  return typeof thing !== 'undefined' && thing.__isViewModelCtor === true;
 }
 
 // Duck type function for determining whether or not something is a footwork viewModel
 function isViewModel(thing) {
-  return typeof thing !== 'undefined' && _.isObject(thing.$viewModel) === true;
+  return typeof thing !== 'undefined' && _.isFunction(thing.getConfigParams) === true;
 }
 
 // Initialize the viewModels registry
@@ -10631,7 +10633,7 @@ var viewModelCount = ko.viewModelCount = function() {
 
 // Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all model references is returned.
-var getModels = ko.getViewModels = function(namespaceName) {
+var getViewModels = ko.getViewModels = function(namespaceName) {
   if(namespaceName === undefined) {
     return viewModels;
   }
@@ -10640,12 +10642,13 @@ var getModels = ko.getViewModels = function(namespaceName) {
 
 // Tell all viewModels to request the values which it listens for
 var refreshModels = ko.refreshViewModels = function() {
-  _.invoke(getModels(), 'refreshReceived');
+  _.invoke(getViewModels(), 'refreshReceived');
 };
 
 var makeViewModel = ko.viewModel = function(configParams) {
-  if( typeof configParams !== 'undefined' && _.isFunction(configParams.viewModel) === true ) {
-    configParams.initialize = configParams.viewModel;
+  var ctor = noop;
+  if( typeof configParams !== 'undefined') {
+    ctor = configParams.viewModel || configParams.initialize || ctor;
   }
 
   configParams = _.extend({
@@ -10658,27 +10661,30 @@ var makeViewModel = ko.viewModel = function(configParams) {
     initialize: noop
   }, configParams);
 
-  var viewModelMixin = {
+  var initViewModelMixin = {
     _preInit: function( initParams ) {
-      this.$viewModel = {
-        configParams: configParams,
-        initParams: initParams || {}
-      }
+      this.$params = configParams.params;
+      this.__getConfigParams = function() {
+        return configParams;
+      };
+      this.__getInitParams = function() {
+        return initParams;
+      };
     },
     _postInit: function() {
-      this.namespace.request.handler('__footwork_model_reference', function() {
+      this.$namespace.request.handler('__footwork_model_reference', function() {
         return this;
       });
     }
   };
 
-  var composure = [ configParams.initialize, viewModelMixin ].concat( viewModelMixins );
+  var composure = [ ctor, initViewModelMixin ].concat( viewModelMixins );
   if(configParams.mixins !== undefined) {
     composure = composure.concat(configParams.mixins);
   }
 
   var model = riveter.compose.apply( undefined, composure );
-  model._isViewModelCtorCtor = true;
+  model.__isViewModelCtor = true;
 
   return model;
 };
