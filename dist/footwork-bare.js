@@ -726,8 +726,14 @@ ko.component({
     console.log('new error component');
   },
   template: '\
-    <div class="component error" data-bind="foreach: errors">\
-      <span class="message" data-bind="text: $data"></span>\
+    <div class="component error">\
+      <div class="title">Component Error:</div>\
+      <div data-bind="foreach: errors">\
+        <div class="error">\
+          <span class="number" data-bind="text: $index() + 1"></span>\
+          <span class="message" data-bind="text: $data"></span>\
+        </div>\
+      </div>\
     </div>'
 });
 
