@@ -53,7 +53,7 @@ ko.applyBindings = function(model, element) {
   }
 };
 
-//import("model.js");
+//import("viewModel.js");
 //import("namespace.js");
 //import("component.js");
 //import("broadcast-receive.js");

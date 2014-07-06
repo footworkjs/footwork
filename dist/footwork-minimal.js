@@ -5578,6 +5578,9 @@ viewModelMixins.push({
     _.isFunction(this._viewModel.modelOptions.afterCreating) && this._viewModel.modelOptions.afterCreating.call(this);
   }
 });
+// component.js
+// ------------------
+
 ko.component = function(options) {
   if(typeof options.name !== 'string') {
     ko.logError('Components must be provided a name (namespace).');
@@ -5604,6 +5607,14 @@ ko.component = function(options) {
     template: options.template
   });
 }
+
+ko.components.register('outlet', {
+  viewModel: function() {
+    this.isSuccess = ko.observable('SUCCESSING INTENSIFIES');
+  },
+  // use comment bindings!
+  template: '<div data-bind="text: isSuccess"></div>'
+});
 // broadcast-receive.js
 // ----------------
 
@@ -6077,14 +6088,6 @@ router.activate = _.once( _.bind(function() {
 
   return setupHistoryAdapter().stateChange();
 }, router) );
-
-ko.components.register('outlet', {
-  viewModel: function() {
-    this.isSuccess = ko.observable('SUCCESSING INTENSIFIES');
-  },
-  // use comment bindings!
-  template: '<div data-bind="text: isSuccess"></div>'
-});
 
 exitNamespace(); // exit from 'router' namespace
       return ko;
