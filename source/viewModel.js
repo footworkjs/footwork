@@ -2,13 +2,13 @@
 // ------------------
 
 // Duck type function for determining whether or not something is a footwork viewModel constructor function
-function isFootworkViewModelCtor(thing) {
-  return typeof thing !== 'undefined' && thing._isFootworkViewModelCtor === true;
+function isViewModelCtor(thing) {
+  return typeof thing !== 'undefined' && thing._isViewModelCtor === true;
 }
 
 // Duck type function for determining whether or not something is a footwork viewModel
-function isFootworkViewModel(thing) {
-  return typeof thing !== 'undefined' && thing._isFootworkViewModel === true && _.isObject(thing._viewModel) === true;
+function isViewModel(thing) {
+  return typeof thing !== 'undefined' && thing._isViewModel === true && _.isObject(thing._viewModel) === true;
 }
 
 // Initialize the viewModels registry
@@ -59,7 +59,7 @@ var makeViewModel = ko.viewModel = function(modelOptions) {
 
   var modelOptionsMixin = {
     _preInit: function( initOptions ) {
-      this._isFootworkViewModel = true;
+      this._isViewModel = true;
       this._viewModel = {
         modelOptions: modelOptions,
         initOptions: initOptions || {}
@@ -78,7 +78,7 @@ var makeViewModel = ko.viewModel = function(modelOptions) {
   }
 
   var model = riveter.compose.apply( undefined, composure );
-  model._isFootworkViewModelCtorCtor = true;
+  model._isViewModelCtorCtor = true;
 
   return model;
 };
