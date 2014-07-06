@@ -176,10 +176,10 @@ var exitNamespace = ko.exitNamespace = function() {
 // mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
 viewModelMixins.push({
   _preInit: function( options ) {
-    this._viewModel.globalNamespace = makeNamespace();
-    this._viewModel.namespaceName = indexedNamespaceName(this._viewModel.modelOptions.componentNamespace || this._viewModel.modelOptions.namespace || _.uniqueId('namespace'), this._viewModel.modelOptions.autoIncrement);
+    this.$viewModel.globalNamespace = makeNamespace();
+    this.$viewModel.namespaceName = indexedNamespaceName(this.$viewModel.configParams.componentNamespace || this.$viewModel.configParams.namespace || _.uniqueId('namespace'), this.$viewModel.configParams.autoIncrement);
 
-    enterNamespaceName( this._viewModel.namespaceName );
+    enterNamespaceName( this.$viewModel.namespaceName );
     this.namespace = currentNamespace();
   },
   mixin: {
@@ -213,6 +213,6 @@ viewModelMixins.push({
     exitNamespace();
 
     this.startup();
-    _.isFunction(this._viewModel.modelOptions.afterCreating) && this._viewModel.modelOptions.afterCreating.call(this);
+    _.isFunction(this.$viewModel.configParams.afterCreating) && this.$viewModel.configParams.afterCreating.call(this);
   }
 });

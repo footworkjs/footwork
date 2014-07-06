@@ -60,7 +60,7 @@ var applyBindings = ko.applyBindings;
 ko.applyBindings = function(model, element) {
   applyBindings(model, element);
 
-  if(isFootworkViewModel(model) === true) {
+  if(isViewModel(model) === true) {
     if(_.isFunction(model._viewModel.initOptions.startup) === true) {
       model._viewModel.initOptions.startup();
     }
@@ -70,90 +70,9 @@ ko.applyBindings = function(model, element) {
   }
 };
 
-// viewModel.js
-// ------------------
-
-// Duck type function for determining whether or not something is a footwork viewModel constructor function
-function isFootworkViewModelCtor(thing) {
-  return typeof thing !== 'undefined' && thing._isFootworkViewModelCtor === true;
-}
-
-// Duck type function for determining whether or not something is a footwork viewModel
-function isFootworkViewModel(thing) {
-  return typeof thing !== 'undefined' && thing._isFootworkViewModel === true && _.isObject(thing._viewModel) === true;
-}
-
-// Initialize the viewModels registry
-var viewModels = {};
-
-// Returns the number of created viewModels for each defined namespace
-var viewModelCount = ko.viewModelCount = function() {
-  var counts = _.reduce(namespaceNameCounter, function(viewModelCounts, viewModelCount, viewModelName) {
-    viewModelCounts[viewModelName] = viewModelCount + 1;
-    return viewModelCounts;
-  }, {});
-  counts.__total = _.reduce(_.values(counts), function(summation, num) {
-    return summation + num;
-  }, 0);
-  return counts;
-};
-
-// Returns a reference to the specified viewModels.
-// If no name is supplied, a reference to an array containing all model references is returned.
-var getModels = ko.getViewModels = function(namespaceName) {
-  if(namespaceName === undefined) {
-    return viewModels;
-  }
-  return viewModels[namespaceName];
-};
-
-// Tell all viewModels to request the values which it listens for
-var refreshModels = ko.refreshViewModels = function() {
-  _.invoke(getModels(), 'refreshReceived');
-};
-
+// This stores the mixins which are automatically added to each viewModel
 var viewModelMixins = [];
 
-var makeViewModel = ko.viewModel = function(modelOptions) {
-  if( typeof modelOptions !== 'undefined' && _.isFunction(modelOptions.viewModel) === true ) {
-    modelOptions.initialize = modelOptions.viewModel;
-  }
-
-  var modelOptions = _.extend({
-    namespace: undefined,
-    componentNamespace: undefined,
-    autoIncrement: false,
-    mixins: undefined,
-    params: undefined,
-    afterBinding: noop,
-    initialize: noop
-  }, modelOptions);
-
-  var modelOptionsMixin = {
-    _preInit: function( initOptions ) {
-      this._isFootworkViewModel = true;
-      this._viewModel = {
-        modelOptions: modelOptions,
-        initOptions: initOptions || {}
-      }
-    },
-    _postInit: function() {
-      this.namespace.request.handler('__footwork_model_reference', function() {
-        return this;
-      });
-    }
-  };
-
-  var composure = [ modelOptions.initialize, modelOptionsMixin ].concat( viewModelMixins );
-  if(modelOptions.mixins !== undefined) {
-    composure = composure.concat(modelOptions.mixins);
-  }
-
-  var model = riveter.compose.apply( undefined, composure );
-  model._isFootworkViewModelCtorCtor = true;
-
-  return model;
-};
 // namespace.js
 // ------------------
 
@@ -222,12 +141,21 @@ function unregisterNamespaceCommandHandler(handlerSubscription) {
 }
 
 // Method used to is a request for data from a namespace, returning the response (or undefined if no response)
+// This method will return an array of responses if more than one is received.
 function requestResponseFromNamespace(requestKey, params) {
-  var response;
+  var response = undefined;
   var responseSubscription;
 
   responseSubscription = this.subscribe('request.' + requestKey + '.response', function(reqResponse) {
-    response = reqResponse;
+    if(typeof response === 'undefined') {
+      response = reqResponse;
+    } else {
+      if( _.isArray(response) === true ) {
+        response.push(reqResponse);
+      } else {
+        response = [ response, reqResponse ];
+      }
+    }
   });
   this.publish('request.' + requestKey, params);
   responseSubscription.unsubscribe();
@@ -363,6 +291,88 @@ viewModelMixins.push({
     _.isFunction(this._viewModel.modelOptions.afterCreating) && this._viewModel.modelOptions.afterCreating.call(this);
   }
 });
+// viewModel.js
+// ------------------
+
+// Duck type function for determining whether or not something is a footwork viewModel constructor function
+function isViewModelCtor(thing) {
+  return typeof thing !== 'undefined' && thing._isViewModelCtor === true;
+}
+
+// Duck type function for determining whether or not something is a footwork viewModel
+function isViewModel(thing) {
+  return typeof thing !== 'undefined' && thing._isViewModel === true && _.isObject(thing._viewModel) === true;
+}
+
+// Initialize the viewModels registry
+var viewModels = {};
+
+// Returns the number of created viewModels for each defined namespace
+var viewModelCount = ko.viewModelCount = function() {
+  var counts = _.reduce(namespaceNameCounter, function(viewModelCounts, viewModelCount, viewModelName) {
+    viewModelCounts[viewModelName] = viewModelCount + 1;
+    return viewModelCounts;
+  }, {});
+  counts.__total = _.reduce(_.values(counts), function(summation, num) {
+    return summation + num;
+  }, 0);
+  return counts;
+};
+
+// Returns a reference to the specified viewModels.
+// If no name is supplied, a reference to an array containing all model references is returned.
+var getModels = ko.getViewModels = function(namespaceName) {
+  if(namespaceName === undefined) {
+    return viewModels;
+  }
+  return viewModels[namespaceName];
+};
+
+// Tell all viewModels to request the values which it listens for
+var refreshModels = ko.refreshViewModels = function() {
+  _.invoke(getModels(), 'refreshReceived');
+};
+
+var makeViewModel = ko.viewModel = function(params) {
+  if( typeof params !== 'undefined' && _.isFunction(params.viewModel) === true ) {
+    params.initialize = params.viewModel;
+  }
+
+  params = _.extend({
+    namespace: undefined,
+    componentNamespace: undefined,
+    autoIncrement: false,
+    mixins: undefined,
+    params: undefined,
+    afterBinding: noop,
+    initialize: noop
+  }, params);
+
+  var viewModelMixin = {
+    _preInit: function( initParams ) {
+      this._isViewModel = true;
+      this._viewModel = {
+        params: params,
+        initParams: initParams || {}
+      }
+    },
+    _postInit: function() {
+      this.namespace.request.handler('__footwork_model_reference', function() {
+        return this;
+      });
+    }
+  };
+
+  var composure = [ params.initialize, viewModelMixin ].concat( viewModelMixins );
+  if(params.mixins !== undefined) {
+    composure = composure.concat(params.mixins);
+  }
+
+  var model = riveter.compose.apply( undefined, composure );
+  model._isViewModelCtorCtor = true;
+
+  return model;
+};
 // component.js
 // ------------------
 
@@ -377,10 +387,10 @@ ko.component = function(options) {
 
   options.namespace = options.name = _.result(options, 'name');
   var viewModel = options.initialize || options.viewModel;
-  if( isFootworkViewModelCtor(viewModel) ) {
+  if( isViewModelCtor(viewModel) ) {
     viewModel.options.componentNamespace = options.namespace;
   } else if( _.isFunction(viewModel) ) {
-    viewModel = this.viewModel(options);
+    viewModel = makeViewModel(options);
   }
 
   //TODO: determine how mixins from the (optionally) supplied footwork model mix in with the mixins supplied directly in the component options
@@ -393,12 +403,14 @@ ko.component = function(options) {
   });
 }
 
-ko.components.register('outlet', {
+ko.component({
+  name: 'outlet',
   viewModel: function() {
-    this.isSuccess = ko.observable('SUCCESSING INTENSIFIES');
+    this.outletIsActive = ko.observable(false);
+    this.targetComponent = ko.observable();
   },
   // use comment bindings!
-  template: '<div data-bind="text: isSuccess"></div>'
+  template: '<div data-bind="if: outletIsActive">[OUTLET]<div data-bind="component: { name: targetComponent, params: { parentNamespace: namespace, parentViewModel: $data } }"></div></div>'
 });
 // broadcast-receive.js
 // ----------------
