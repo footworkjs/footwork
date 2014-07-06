@@ -5275,7 +5275,7 @@ var applyBindings = ko.applyBindings;
 ko.applyBindings = function(model, element) {
   applyBindings(model, element);
 
-  if(isFootworkViewModel(model) === true) {
+  if(isViewModel(model) === true) {
     if(_.isFunction(model._viewModel.initOptions.startup) === true) {
       model._viewModel.initOptions.startup();
     }
@@ -5289,13 +5289,13 @@ ko.applyBindings = function(model, element) {
 // ------------------
 
 // Duck type function for determining whether or not something is a footwork viewModel constructor function
-function isFootworkViewModelCtor(thing) {
-  return typeof thing !== 'undefined' && thing._isFootworkViewModelCtor === true;
+function isViewModelCtor(thing) {
+  return typeof thing !== 'undefined' && thing._isViewModelCtor === true;
 }
 
 // Duck type function for determining whether or not something is a footwork viewModel
-function isFootworkViewModel(thing) {
-  return typeof thing !== 'undefined' && thing._isFootworkViewModel === true && _.isObject(thing._viewModel) === true;
+function isViewModel(thing) {
+  return typeof thing !== 'undefined' && thing._isViewModel === true && _.isObject(thing._viewModel) === true;
 }
 
 // Initialize the viewModels registry
@@ -5346,7 +5346,7 @@ var makeViewModel = ko.viewModel = function(modelOptions) {
 
   var modelOptionsMixin = {
     _preInit: function( initOptions ) {
-      this._isFootworkViewModel = true;
+      this._isViewModel = true;
       this._viewModel = {
         modelOptions: modelOptions,
         initOptions: initOptions || {}
@@ -5365,7 +5365,7 @@ var makeViewModel = ko.viewModel = function(modelOptions) {
   }
 
   var model = riveter.compose.apply( undefined, composure );
-  model._isFootworkViewModelCtorCtor = true;
+  model._isViewModelCtorCtor = true;
 
   return model;
 };
@@ -5437,12 +5437,21 @@ function unregisterNamespaceCommandHandler(handlerSubscription) {
 }
 
 // Method used to is a request for data from a namespace, returning the response (or undefined if no response)
+// This method will return an array of responses if more than one is received.
 function requestResponseFromNamespace(requestKey, params) {
-  var response;
+  var response = undefined;
   var responseSubscription;
 
   responseSubscription = this.subscribe('request.' + requestKey + '.response', function(reqResponse) {
-    response = reqResponse;
+    if(typeof response === 'undefined') {
+      response = reqResponse;
+    } else {
+      if( _.isArray(response) === true ) {
+        response.push(reqResponse);
+      } else {
+        response = [ response, reqResponse ];
+      }
+    }
   });
   this.publish('request.' + requestKey, params);
   responseSubscription.unsubscribe();
@@ -5592,10 +5601,10 @@ ko.component = function(options) {
 
   options.namespace = options.name = _.result(options, 'name');
   var viewModel = options.initialize || options.viewModel;
-  if( isFootworkViewModelCtor(viewModel) ) {
+  if( isViewModelCtor(viewModel) ) {
     viewModel.options.componentNamespace = options.namespace;
   } else if( _.isFunction(viewModel) ) {
-    viewModel = this.viewModel(options);
+    viewModel = makeViewModel(options);
   }
 
   //TODO: determine how mixins from the (optionally) supplied footwork model mix in with the mixins supplied directly in the component options
@@ -5608,12 +5617,14 @@ ko.component = function(options) {
   });
 }
 
-ko.components.register('outlet', {
+ko.component({
+  name: 'outlet',
   viewModel: function() {
-    this.isSuccess = ko.observable('SUCCESSING INTENSIFIES');
+    this.outletIsActive = ko.observable(false);
+    this.targetComponent = ko.observable();
   },
   // use comment bindings!
-  template: '<div data-bind="text: isSuccess"></div>'
+  template: '<div data-bind="if: outletIsActive">[OUTLET]<div data-bind="component: { name: targetComponent, params: { parentNamespace: namespace, parentViewModel: $data } }"></div></div>'
 });
 // broadcast-receive.js
 // ----------------

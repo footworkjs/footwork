@@ -43,7 +43,7 @@ var applyBindings = ko.applyBindings;
 ko.applyBindings = function(model, element) {
   applyBindings(model, element);
 
-  if(isFootworkViewModel(model) === true) {
+  if(isViewModel(model) === true) {
     if(_.isFunction(model._viewModel.initOptions.startup) === true) {
       model._viewModel.initOptions.startup();
     }
