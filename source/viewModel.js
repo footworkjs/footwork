@@ -8,7 +8,7 @@ function isViewModelCtor(thing) {
 
 // Duck type function for determining whether or not something is a footwork viewModel
 function isViewModel(thing) {
-  return typeof thing !== 'undefined' && thing._isViewModel === true && _.isObject(thing._viewModel) === true;
+  return typeof thing !== 'undefined' && _.isObject(thing.$viewModel) === true;
 }
 
 // Initialize the viewModels registry
@@ -40,14 +40,12 @@ var refreshModels = ko.refreshViewModels = function() {
   _.invoke(getModels(), 'refreshReceived');
 };
 
-var viewModelMixins = [];
-
-var makeViewModel = ko.viewModel = function(modelOptions) {
-  if( typeof modelOptions !== 'undefined' && _.isFunction(modelOptions.viewModel) === true ) {
-    modelOptions.initialize = modelOptions.viewModel;
+var makeViewModel = ko.viewModel = function(configParams) {
+  if( typeof configParams !== 'undefined' && _.isFunction(configParams.viewModel) === true ) {
+    configParams.initialize = configParams.viewModel;
   }
 
-  var modelOptions = _.extend({
+  configParams = _.extend({
     namespace: undefined,
     componentNamespace: undefined,
     autoIncrement: false,
@@ -55,14 +53,13 @@ var makeViewModel = ko.viewModel = function(modelOptions) {
     params: undefined,
     afterBinding: noop,
     initialize: noop
-  }, modelOptions);
+  }, configParams);
 
-  var modelOptionsMixin = {
-    _preInit: function( initOptions ) {
-      this._isViewModel = true;
-      this._viewModel = {
-        modelOptions: modelOptions,
-        initOptions: initOptions || {}
+  var viewModelMixin = {
+    _preInit: function( initParams ) {
+      this.$viewModel = {
+        configParams: configParams,
+        initParams: initParams || {}
       }
     },
     _postInit: function() {
@@ -72,9 +69,9 @@ var makeViewModel = ko.viewModel = function(modelOptions) {
     }
   };
 
-  var composure = [ modelOptions.initialize, modelOptionsMixin ].concat( viewModelMixins );
-  if(modelOptions.mixins !== undefined) {
-    composure = composure.concat(modelOptions.mixins);
+  var composure = [ configParams.initialize, viewModelMixin ].concat( viewModelMixins );
+  if(configParams.mixins !== undefined) {
+    composure = composure.concat(configParams.mixins);
   }
 
   var model = riveter.compose.apply( undefined, composure );
