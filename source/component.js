@@ -73,6 +73,6 @@ ko.component({
   // template: '<!-- ko if: outletIsActive -->[OUTLET]<div data-bind="component: { name: targetComponent, params: { parentNamespace: namespace, $outletViewModel: $data, $parentViewModel: $parent } }, class: outletName"></div><!-- /ko -->'
   template: '\
     <!-- ko if: outletIsActive -->\
-      <div class="outlet" data-bind="component: { name: targetComponent, params: { errors: errors } }, class: outletName"></div>\
+      <!-- ko component: { name: targetComponent, params: { errors: errors } } --><!-- /ko -->\
     <!-- /ko -->'
 });
