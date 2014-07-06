@@ -1,3 +1,6 @@
+// component.js
+// ------------------
+
 ko.component = function(options) {
   if(typeof options.name !== 'string') {
     ko.logError('Components must be provided a name (namespace).');
@@ -24,3 +27,11 @@ ko.component = function(options) {
     template: options.template
   });
 }
+
+ko.components.register('outlet', {
+  viewModel: function() {
+    this.isSuccess = ko.observable('SUCCESSING INTENSIFIES');
+  },
+  // use comment bindings!
+  template: '<div data-bind="text: isSuccess"></div>'
+});

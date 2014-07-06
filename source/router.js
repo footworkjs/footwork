@@ -210,12 +210,4 @@ router.activate = _.once( _.bind(function() {
   return setupHistoryAdapter().stateChange();
 }, router) );
 
-ko.components.register('outlet', {
-  viewModel: function() {
-    this.isSuccess = ko.observable('SUCCESSING INTENSIFIES');
-  },
-  // use comment bindings!
-  template: '<div data-bind="text: isSuccess"></div>'
-});
-
 exitNamespace(); // exit from 'router' namespace
