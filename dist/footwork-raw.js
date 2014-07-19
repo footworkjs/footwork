@@ -61,11 +61,13 @@ ko.applyBindings = function(model, element) {
   applyBindings(model, element);
 
   if(isViewModel(model) === true) {
-    if(typeof model.$initParams !== 'undefined' && _.isFunction(model.$initParams.startup) === true) {
-      model.$initParams.startup();
+    var $initParams = model.__getInitParams();
+    if(typeof $initParams !== 'undefined' && _.isFunction($initParams.startup) === true) {
+      $initParams.startup();
     }
-    if(typeof model.$configParams.afterBinding === 'function') {
-      model.$configParams.afterBinding.call(model);
+    var $configParams = model.getConfigParams();
+    if(typeof $configParams.afterBinding === 'function') {
+      $configParams.afterBinding.call(model);
     }
   }
 };
@@ -193,6 +195,13 @@ function disconnectNamespaceHandlers() {
 
 // Creates and returns a new namespace instance
 var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
+  if(typeof $parentNamespace !== 'undefined') {
+    if(typeof $parentNamespace === 'string') {
+      namespaceName = $parentNamespace + '.' + namespaceName;
+    } else if(typeof $parentNamespace.channel !== 'undefined') {
+      namespaceName = $parentNamespace.channel + '.' + namespaceName;
+    }
+  }
   var namespace = postal.channel(namespaceName);
 
   namespace.shutdown = _.bind( disconnectNamespaceHandlers, namespace );
@@ -237,7 +246,7 @@ var currentNamespace = ko.currentNamespace = function() {
 var enterNamespaceName = ko.enterNamespaceName = function(namespaceName) {
   var $parentNamespace = currentNamespace();
   namespaceStack.unshift( namespaceName );
-  return makeNamespace( currentNamespaceName(), $parentNamespace );
+  return makeNamespace( currentNamespaceName() );
 };
 
 // Called at the after a model constructor function is run. exitNamespace()
@@ -251,7 +260,8 @@ var exitNamespace = ko.exitNamespace = function() {
 // mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
 viewModelMixins.push({
   _preInit: function( options ) {
-    this.$namespace = enterNamespaceName( indexedNamespaceName(this.$configParams.componentNamespace || this.$configParams.namespace || _.uniqueId('namespace'), this.$configParams.autoIncrement) );
+    var $configParams = this.__getConfigParams();
+    this.$namespace = enterNamespaceName( indexedNamespaceName($configParams.componentNamespace || $configParams.namespace || _.uniqueId('namespace'), $configParams.autoIncrement) );
     this.$globalNamespace = makeNamespace();
   },
   mixin: {
@@ -285,7 +295,9 @@ viewModelMixins.push({
     exitNamespace();
 
     this.startup();
-    _.isFunction(this.$configParams.afterCreating) && this.$configParams.afterCreating.call(this);
+
+    var $configParams = this.__getConfigParams();
+    _.isFunction($configParams.afterCreating) && $configParams.afterCreating.call(this);
   }
 });
 // viewModel.js
@@ -298,7 +310,7 @@ function isViewModelCtor(thing) {
 
 // Duck type function for determining whether or not something is a footwork viewModel
 function isViewModel(thing) {
-  return typeof thing !== 'undefined' && _.isObject(thing.$configParams) === true;
+  return typeof thing !== 'undefined' && _.isFunction(thing.getConfigParams) === true;
 }
 
 // Initialize the viewModels registry
@@ -348,10 +360,12 @@ var makeViewModel = ko.viewModel = function(configParams) {
 
   var initViewModelMixin = {
     _preInit: function( initParams ) {
-      this.$initParams = initParams;
       this.$params = configParams.params;
-      this.getConfigParams = function() {
+      this.__getConfigParams = function() {
         return configParams;
+      };
+      this.__getInitParams = function() {
+        return initParams;
       };
     },
     _postInit: function() {
@@ -391,9 +405,9 @@ ko.component = function(options) {
     viewModel = makeViewModel(options);
   }
 
-  //TODO: determine how mixins from the (optionally) supplied footwork model mix in with the mixins supplied directly in the component options
+  //TODO: determine how mixins from the (optionally) supplied footwork viewModel mix in with the mixins supplied directly in the component options
   //      as well as others like params, afterBinding. Currently we will just use the viewModel's mixins/etc, only the namespace is overridden
-  //      from the template definition.
+  //      from the component definition/configuration.
 
   ko.components.register(options.name, {
     viewModel: viewModel,
@@ -402,13 +416,57 @@ ko.component = function(options) {
 }
 
 ko.component({
+  name: 'empty',
+  viewModel: function(params) {
+    console.log('new empty component');
+  },
+  template: '<div class="empty component">[Empty]</div>'
+});
+
+ko.component({
+  name: 'error',
+  viewModel: function(params) {
+    this.message = ko.observable(params.message);
+    this.errors = params.errors;
+  },
+  template: '\
+    <div class="component error">\
+      <div class="title">Component Error:</div>\
+      <div data-bind="foreach: errors">\
+        <div class="error">\
+          <span class="number" data-bind="text: $index() + 1"></span>\
+          <span class="message" data-bind="text: $data"></span>\
+        </div>\
+      </div>\
+    </div>'
+});
+
+// outlets can only exist within parent components
+ko.component({
   name: 'outlet',
-  viewModel: function() {
-    this.outletIsActive = ko.observable(false);
-    this.targetComponent = ko.observable();
+  autoIncrement: true,
+  viewModel: function(params) {
+    var $parent = this.$parent = params.$parent;
+    this.outletName = params.name;
+    this.$namespace = makeNamespace(this.outletName, $parent.$namespace);
+    this.outletIsActive = ko.observable(true);
+
+    // .broadcastAs({ name: this.outletName, namespace: 'outlet.' });
+    this.errors = ko.observableArray();
+    var outletObservable = $parent[ this.outletName + 'Outlet' ];
+    if(typeof outletObservable !== 'undefined') {
+      this.targetComponent = outletObservable;
+    } else {
+      this.targetComponent = ko.observable('error');
+      this.errors.push('Could not locate outlet observable (' + this.outletName + 'Outlet' + ') on parent.');
+    }
   },
   // use comment bindings!
-  template: '<div data-bind="if: outletIsActive">[OUTLET]<div data-bind="component: { name: targetComponent, params: { parentNamespace: namespace, parentViewModel: $data } }"></div></div>'
+  // template: '<!-- ko if: outletIsActive -->[OUTLET]<div data-bind="component: { name: targetComponent, params: { parentNamespace: namespace, $outletViewModel: $data, $parentViewModel: $parent } }, class: outletName"></div><!-- /ko -->'
+  template: '\
+    <!-- ko if: outletIsActive -->\
+      <!-- ko component: { name: targetComponent, params: { errors: errors } } --><!-- /ko -->\
+    <!-- /ko -->'
 });
 // broadcast-receive.js
 // ----------------
