@@ -13,6 +13,12 @@
   // http://patik.github.io/console.log-wrapper/
   //import("../../bower_components/consolelog/consolelog.js");
 
+  /**
+   * Knockout needs to know about requirejs if present, and also double wraps their module so we can't lie about
+   * the root object to it. For those reasons we embed it out here.
+   */
+  //import("../../bower_components/knockoutjs/dist/knockout.js");
+
   return (function() {
     //import("helpers/root-masks.js");
 
@@ -52,14 +58,9 @@
       //import("../../bower_components/reqwest/reqwest.js");
     }).call(root);
 
-    /**
-     * Knockout double-wraps their module so we can't lie about the window/root object to it. As a result
-     * knockout pollutes the global object.
-     */
-    //import("../../bower_components/knockoutjs/dist/knockout.js");
     root.ko = ko; // ick...
 
-    // list of dependencies to 'export' from the library as .embed properties
+    // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ '_', 'ko', 'Apollo', 'riveter', 'Conduit', 'postal', 'matches', 'delegate', 'reqwest' ];
 
     return (function footwork(embedded, _, ko, postal, Apollo, riveter, delegate, reqwest) {

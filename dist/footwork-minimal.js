@@ -5226,7 +5226,7 @@ return delegate;
 
     }).call(root);
 
-    // list of dependencies to 'export' from the library as .embed properties
+    // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ 'Apollo', 'riveter', 'Conduit', 'postal', 'matches', 'delegate', 'reqwest' ];
 
     return (function footwork(embedded, _, ko, postal, Apollo, riveter, delegate, reqwest) {
@@ -5669,15 +5669,32 @@ var normalTags = [
 ];
 
 ko.components.getComponentNameForNode = function(node) {
-  var tagNameLower = node.tagName && node.tagName.toLowerCase();
+  var tagName = node.tagName && node.tagName.toLowerCase();
 
-  if( ko.components.isRegistered(tagNameLower) || _.indexOf(normalTags, tagNameLower) === -1 ) {
-    return tagNameLower;
-  } else {
-    return null;
+  if( ko.components.isRegistered(tagName) || _.indexOf(normalTags, tagName) === -1 ) {
+    return tagName;
+  }
+  return null;
+};
+
+var rootComponentPath = {
+  scripts: '/components',
+  templates: '/components'
+};
+ko.components.loadRelativeTo = function(rootURL) {
+  if( _.isObject(rootComponentPath) === true && typeof rootComponentPath.scripts !== 'undefined' && typeof rootComponentPath.templates !== 'undefined' ) {
+    rootComponentPath = rootURL;
+  } else if( typeof rootComponentPath === 'string' ) {
+    rootComponentPath = {
+      scripts: rootComponentPath,
+      templates: rootComponentPath
+    };
   }
 };
 
+// The footwork loader is a catch-all in the instance a registered component cannot be found.
+// The loader will attempt to use requirejs via knockouts integrated support if it is available, otherwise
+// we attempt to load the resources via ajax.
 ko.components.footworkDefaultLoader = {
   getConfig: function(name, callback) {
     var configOptions = {
@@ -5685,7 +5702,16 @@ ko.components.footworkDefaultLoader = {
       template: '<div class="ComponentLoader NoConfig">ComponentLoader</div>'
     };
 
-    callback(configOptions);
+    if( typeof requirejs === 'function' ) {
+      // load component using requirejs
+      configOptions = {
+        viewModel: { require: rootComponentPath.scripts + '/' + name + '.js' },
+        template: { require: 'text!' + rootComponentPath.templates + '/' + name + '.html' }
+      };
+      callback(configOptions);
+    } else {
+      // load component manually via ajax
+    }
   }
 };
 ko.components.loaders.push( ko.components.footworkDefaultLoader );

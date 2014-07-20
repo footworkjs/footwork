@@ -33,7 +33,7 @@
       //import("../../bower_components/riveter/lib/riveter.js");
     }).call(root);
 
-    // list of dependencies to 'export' from the library as .embed properties
+    // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ 'riveter' ];
 
     return (function footwork(embedded, _, ko, postal, Apollo, riveter, delegate, reqwest) {
