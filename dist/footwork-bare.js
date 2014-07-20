@@ -757,46 +757,64 @@ ko.components.getComponentNameForNode = function(node) {
   return null;
 };
 
-var rootComponentPath = {
+var defaultComponentLocation = {
   combined: null,
   scripts: '/components',
   templates: '/components'
 };
-ko.components.loadRelativeTo = function(rootURL) {
+var registerComponentLocation = ko.components.loadRelativeTo = function(rootURL, returnTheValue) {
+  var componentLocation = defaultComponentLocation;
+  if(returnTheValue === true) {
+    componentLocation = _.extend({}, defaultComponentLocation);
+  }
+
   if( _.isObject(rootURL) === true && typeof rootURL.scripts !== 'undefined' && typeof rootURL.templates !== 'undefined' ) {
-    rootComponentPath = rootURL;
+    componentLocation = rootURL;
   } else if( typeof rootURL === 'string' ) {
-    rootComponentPath = {
+    componentLocation = {
       combined: rootURL,
       scripts: null,
       templates: null
     };
   }
+
+  if(returnTheValue === true) {
+    return componentLocation;
+  } else {
+    defaultComponentLocation = componentLocation;
+  }
+};
+
+var componentLocations = {};
+ko.components.registerLocationOf = function(componentName, location) {
+  componentLocations[ componentName ] = registerComponentLocation(location, true);
 };
 
 // The footwork loader is a catch-all in the instance a registered component cannot be found.
 // The loader will attempt to use requirejs via knockouts integrated support if it is available, otherwise
 // we attempt to load the resources via ajax.
-ko.components.footworkDefaultLoader = {
+var footworkDefaultLoader = ko.components.footworkDefaultLoader = {
   getConfig: function(name, callback) {
+    var jsFile = name + '.js';
+    var templateFile = name + '.html';
+    var componentLocation = defaultComponentLocation;
     var configOptions = {
       viewModel: function() {},
       template: '<div class="ComponentLoader NoConfig">ComponentLoader</div>'
     };
 
-    var jsName = name;
-    if( jsName.match(/\.js$/i) === null ) {
-      jsName = jsName + '.js';
+    if( typeof componentLocations[name] !== 'undefined' ) {
+      componentLocation = componentLocations[name];
     }
 
     if( typeof require === 'function' ) {
       // load component using requirejs
-      if( typeof rootComponentPath.combined === 'string' ) {
-        configOptions = { require: rootComponentPath.combined + '/' + jsName };
+      if( typeof componentLocation.combined === 'string' ) {
+        configOptions = { require: componentLocation.combined + '/' + jsFile };
       } else {
         configOptions = {
-          viewModel: { require: rootComponentPath.scripts + '/' + jsName },
-          template: { require: 'text!' + rootComponentPath.templates + '/' + name + '.html' }
+          viewModel: { require: componentLocation.scripts + '/' + jsFile },
+          template: { require: 'text!' + componentLocation.templates + '/' + templateFile }
         };
       }
       callback(configOptions);
@@ -805,7 +823,7 @@ ko.components.footworkDefaultLoader = {
     }
   }
 };
-ko.components.loaders.push( ko.components.footworkDefaultLoader );
+ko.components.loaders.push( footworkDefaultLoader );
 
 // outlets can only exist within parent components
 ko.component({
