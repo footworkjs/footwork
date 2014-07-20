@@ -793,22 +793,19 @@ ko.components.registerLocationOf = function(componentName, location) {
 // The footwork loader is a catch-all in the instance a registered component cannot be found.
 // The loader will attempt to use requirejs via knockouts integrated support if it is available, otherwise
 // we attempt to load the resources via ajax.
+var useRequireIfAvailable = false;
 var footworkDefaultLoader = ko.components.footworkDefaultLoader = {
   getConfig: function(name, callback) {
     var jsFile = name + '.js';
     var templateFile = name + '.html';
-    var componentLocation = defaultComponentLocation;
+    var componentLocation = componentLocations[name] || defaultComponentLocation;
     var configOptions = {
       viewModel: function() {},
       template: '<div class="ComponentLoader NoConfig">ComponentLoader</div>'
     };
 
-    if( typeof componentLocations[name] !== 'undefined' ) {
-      componentLocation = componentLocations[name];
-    }
-
-    if( typeof require === 'function' ) {
-      // load component using requirejs
+    if( useRequireIfAvailable === true && typeof require === 'function' ) {
+      // load component using knockouts native support for requirejs
       if( typeof componentLocation.combined === 'string' ) {
         configOptions = { require: componentLocation.combined + '/' + jsFile };
       } else {
@@ -820,6 +817,36 @@ var footworkDefaultLoader = ko.components.footworkDefaultLoader = {
       callback(configOptions);
     } else {
       // load component manually via ajax
+      if( typeof componentLocation.combined === 'string' ) {
+        // combined
+        reqwest({ url: componentLocation.combined + '/' + jsFile })
+          .then(function(response) {
+            console.info('reqwest-response',response);
+          }, function(error, message) {
+            console.log('error',error,message);
+          });
+      } else {
+        // separated viewModel / template
+        var responses = {};
+        var errors = {};
+        var handleResponse = function(responseType, response) {
+          responses[responseType] = response;
+          if( _.keys(responses).length === 2 ) {
+            console.info('Done loading!', responses);
+          }
+        };
+        var handleError = function(responseType, error, message) {
+          errors[responseType] = response;
+          ko.logError('error', error, message);
+        };
+
+        reqwest({ url: componentLocation.scripts + '/' + jsFile })
+          .then( _.bind(handleResponse, {}, 'viewModel'), _.bind(handleError, {}, 'viewModel'));
+
+        reqwest({ url: componentLocation.templates + '/' + templateFile })
+          .then( _.bind(handleResponse, {}, 'template'), _.bind(handleError, {}, 'template'));
+      }
+      // ko.components.defaultLoader.loadComponent(name, );
     }
   }
 };
