@@ -52,7 +52,7 @@
       //import("../../bower_components/reqwest/reqwest.js");
     }).call(root);
 
-    // list of dependencies to 'export' from the library as .embed properties
+    // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ 'Apollo', 'riveter', 'Conduit', 'postal', 'matches', 'delegate', 'reqwest' ];
 
     return (function footwork(embedded, _, ko, postal, Apollo, riveter, delegate, reqwest) {
