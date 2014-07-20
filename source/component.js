@@ -74,16 +74,18 @@ ko.components.getComponentNameForNode = function(node) {
 };
 
 var rootComponentPath = {
+  combined: null,
   scripts: '/components',
   templates: '/components'
 };
 ko.components.loadRelativeTo = function(rootURL) {
-  if( _.isObject(rootComponentPath) === true && typeof rootComponentPath.scripts !== 'undefined' && typeof rootComponentPath.templates !== 'undefined' ) {
+  if( _.isObject(rootURL) === true && typeof rootURL.scripts !== 'undefined' && typeof rootURL.templates !== 'undefined' ) {
     rootComponentPath = rootURL;
-  } else if( typeof rootComponentPath === 'string' ) {
+  } else if( typeof rootURL === 'string' ) {
     rootComponentPath = {
-      scripts: rootComponentPath,
-      templates: rootComponentPath
+      combined: rootURL,
+      scripts: null,
+      templates: null
     };
   }
 };
@@ -98,12 +100,21 @@ ko.components.footworkDefaultLoader = {
       template: '<div class="ComponentLoader NoConfig">ComponentLoader</div>'
     };
 
-    if( typeof requirejs === 'function' ) {
+    var jsName = name;
+    if( jsName.match(/\.js$/i) === null ) {
+      jsName = jsName + '.js';
+    }
+
+    if( typeof require === 'function' ) {
       // load component using requirejs
-      configOptions = {
-        viewModel: { require: rootComponentPath.scripts + '/' + name + '.js' },
-        template: { require: 'text!' + rootComponentPath.templates + '/' + name + '.html' }
-      };
+      if( typeof rootComponentPath.combined === 'string' ) {
+        configOptions = { require: rootComponentPath.combined + '/' + jsName };
+      } else {
+        configOptions = {
+          viewModel: { require: rootComponentPath.scripts + '/' + jsName },
+          template: { require: 'text!' + rootComponentPath.templates + '/' + name + '.html' }
+        };
+      }
       callback(configOptions);
     } else {
       // load component manually via ajax
