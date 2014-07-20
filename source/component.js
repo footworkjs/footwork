@@ -107,24 +107,16 @@ ko.components.registerLocationOf = function(componentName, location) {
 };
 
 // The footwork loader is a catch-all in the instance a registered component cannot be found.
-// The loader will attempt to use requirejs via knockouts integrated support if it is available, otherwise
-// we attempt to load the resources via ajax.
+// The loader will attempt to use requirejs via knockouts integrated support if it is available.
 var footworkDefaultLoader = ko.components.footworkDefaultLoader = {
   getConfig: function(name, callback) {
     var jsFile = name + '.js';
     var templateFile = name + '.html';
-    var componentLocation = defaultComponentLocation;
-    var configOptions = {
-      viewModel: function() {},
-      template: '<div class="ComponentLoader NoConfig">ComponentLoader</div>'
-    };
-
-    if( typeof componentLocations[name] !== 'undefined' ) {
-      componentLocation = componentLocations[name];
-    }
+    var componentLocation = componentLocations[name] || defaultComponentLocation;
+    var configOptions = null;
 
     if( typeof require === 'function' ) {
-      // load component using requirejs
+      // load component using knockouts native support for requirejs
       if( typeof componentLocation.combined === 'string' ) {
         configOptions = { require: componentLocation.combined + '/' + jsFile };
       } else {
@@ -133,10 +125,8 @@ var footworkDefaultLoader = ko.components.footworkDefaultLoader = {
           template: { require: 'text!' + componentLocation.templates + '/' + templateFile }
         };
       }
-      callback(configOptions);
-    } else {
-      // load component manually via ajax
     }
+    callback(configOptions);
   }
 };
 ko.components.loaders.push( footworkDefaultLoader );
