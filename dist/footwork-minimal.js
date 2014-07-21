@@ -5280,7 +5280,7 @@ ko.applyBindings = function(model, element) {
     if(typeof $initParams !== 'undefined' && _.isFunction($initParams.startup) === true) {
       $initParams.startup();
     }
-    var $configParams = model.getConfigParams();
+    var $configParams = model.__getConfigParams();
     if(typeof $configParams.afterBinding === 'function') {
       $configParams.afterBinding.call(model);
     }
@@ -5527,7 +5527,7 @@ function isViewModelCtor(thing) {
 
 // Duck type function for determining whether or not something is a footwork viewModel
 function isViewModel(thing) {
-  return typeof thing !== 'undefined' && _.isFunction(thing.getConfigParams) === true;
+  return typeof thing !== 'undefined' && _.isFunction(thing.__getConfigParams) === true;
 }
 
 // Initialize the viewModels registry
@@ -5659,13 +5659,13 @@ var normalTags = [
   'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont', 'bdi', 'bgsound',
   'big', 'blink', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
   'content', 'data', 'datalist', 'dd', 'decorator', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'element',
-  'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'frameset', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head',
-  'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'isindex', 'kbd', 'keygen', 'label', 'legend', 'li',
-  'link', 'listing', 'main', 'map', 'mark', 'marquee', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'nobr', 'noframes',
-  'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture', 'pre', 'progress', 'q', 'rp', 'rt',
-  'ruby', 's', 'samp', 'script', 'section', 'select', 'shadow', 'small', 'source', 'spacer', 'span', 'strike', 'strong',
-  'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'template', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title',
-  'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp'
+  'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'frameset', 'g', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'isindex', 'kbd', 'keygen', 'label',
+  'legend', 'li', 'link', 'listing', 'main', 'map', 'mark', 'marquee', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'nobr',
+  'noframes', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture', 'polygon', 'path', 'pre',
+  'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'shadow', 'small', 'source', 'spacer',
+  'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'template', 'textarea',
+  'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp'
 ];
 
 ko.components.getComponentNameForNode = function(node) {
@@ -5711,63 +5711,26 @@ ko.components.registerLocationOf = function(componentName, location) {
 };
 
 // The footwork loader is a catch-all in the instance a registered component cannot be found.
-// The loader will attempt to use requirejs via knockouts integrated support if it is available, otherwise
-// we attempt to load the resources via ajax.
-var useRequireIfAvailable = false;
+// The loader will attempt to use requirejs via knockouts integrated support if it is available.
 var footworkDefaultLoader = ko.components.footworkDefaultLoader = {
   getConfig: function(name, callback) {
     var jsFile = name + '.js';
     var templateFile = name + '.html';
     var componentLocation = componentLocations[name] || defaultComponentLocation;
-    var configOptions = {
-      viewModel: function() {},
-      template: '<div class="ComponentLoader NoConfig">ComponentLoader</div>'
-    };
+    var configOptions = null;
 
-    if( useRequireIfAvailable === true && typeof require === 'function' ) {
+    if( typeof require === 'function' ) {
       // load component using knockouts native support for requirejs
       if( typeof componentLocation.combined === 'string' ) {
         configOptions = { require: componentLocation.combined + '/' + jsFile };
       } else {
         configOptions = {
-          viewModel: { require: componentLocation.scripts + '/' + jsFile },
-          template: { require: 'text!' + componentLocation.templates + '/' + templateFile }
+          viewModel: { require: (componentLocation.scripts || componentLocation.script) + '/' + jsFile },
+          template: { require: 'text!' + (componentLocation.templates || componentLocation.template) + '/' + templateFile }
         };
       }
-      callback(configOptions);
-    } else {
-      // load component manually via ajax
-      if( typeof componentLocation.combined === 'string' ) {
-        // combined
-        reqwest({ url: componentLocation.combined + '/' + jsFile })
-          .then(function(response) {
-            console.info('reqwest-response',response);
-          }, function(error, message) {
-            console.log('error',error,message);
-          });
-      } else {
-        // separated viewModel / template
-        var responses = {};
-        var errors = {};
-        var handleResponse = function(responseType, response) {
-          responses[responseType] = response;
-          if( _.keys(responses).length === 2 ) {
-            console.info('Done loading!', responses);
-          }
-        };
-        var handleError = function(responseType, error, message) {
-          errors[responseType] = response;
-          ko.logError('error', error, message);
-        };
-
-        reqwest({ url: componentLocation.scripts + '/' + jsFile })
-          .then( _.bind(handleResponse, {}, 'viewModel'), _.bind(handleError, {}, 'viewModel'));
-
-        reqwest({ url: componentLocation.templates + '/' + templateFile })
-          .then( _.bind(handleResponse, {}, 'template'), _.bind(handleError, {}, 'template'));
-      }
-      // ko.components.defaultLoader.loadComponent(name, );
     }
+    callback(configOptions);
   }
 };
 ko.components.loaders.push( footworkDefaultLoader );

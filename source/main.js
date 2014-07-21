@@ -48,7 +48,7 @@ ko.applyBindings = function(model, element) {
     if(typeof $initParams !== 'undefined' && _.isFunction($initParams.startup) === true) {
       $initParams.startup();
     }
-    var $configParams = model.getConfigParams();
+    var $configParams = model.__getConfigParams();
     if(typeof $configParams.afterBinding === 'function') {
       $configParams.afterBinding.call(model);
     }
