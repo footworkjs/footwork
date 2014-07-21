@@ -144,7 +144,7 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
   namespace.event.handler = _.bind( registerNamespaceEventHandler, namespace );
   namespace.event.handler.unregister = _.bind( unregisterNamespaceEventHandler, namespace );
 
-  namespace.getNamespaceName = function() {
+  namespace.getName = function() {
     return this.channel;
   };
   return namespace;
@@ -191,7 +191,7 @@ viewModelMixins.push({
   },
   mixin: {
     getNamespaceName: function() {
-      return this.$namespace.getNamespaceName();
+      return this.$namespace.getName();
     },
     broadcastAll: function() {
       var model = this;
