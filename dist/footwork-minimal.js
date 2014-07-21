@@ -5436,7 +5436,7 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
   namespace.event.handler = _.bind( registerNamespaceEventHandler, namespace );
   namespace.event.handler.unregister = _.bind( unregisterNamespaceEventHandler, namespace );
 
-  namespace.getNamespaceName = function() {
+  namespace.getName = function() {
     return this.channel;
   };
   return namespace;
@@ -5483,7 +5483,7 @@ viewModelMixins.push({
   },
   mixin: {
     getNamespaceName: function() {
-      return this.$namespace.getNamespaceName();
+      return this.$namespace.getName();
     },
     broadcastAll: function() {
       var model = this;
@@ -5667,6 +5667,25 @@ var normalTags = [
   'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'template', 'textarea',
   'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp'
 ];
+ko.components.tagIsComponent = function(tagName, isComponent) {
+  isComponent = (typeof isComponent === 'undefined' ? true : isComponent);
+
+  if( _.isArray(tagName) === true ) {
+    _.each(tagName, function(tag) {
+      ko.components.tagIsComponent(tag, isComponent);
+    });
+  }
+
+  if(isComponent !== true) {
+    if( _.contains(normalTags, tagName) === false ) {
+      normalTags.push(tagName);
+    }
+  } else {
+    normalTags = _.filter(normalTags, function(normalTagName) {
+      return normalTagName !== tagName;
+    });
+  }
+};
 
 ko.components.getComponentNameForNode = function(node) {
   var tagName = node.tagName && node.tagName.toLowerCase();
@@ -5679,7 +5698,7 @@ ko.components.getComponentNameForNode = function(node) {
 
 var defaultComponentLocation = {
   combined: null,
-  scripts: '/components',
+  viewModels: '/components',
   templates: '/components'
 };
 var registerComponentLocation = ko.components.loadRelativeTo = function(rootURL, returnTheValue) {
@@ -5688,12 +5707,12 @@ var registerComponentLocation = ko.components.loadRelativeTo = function(rootURL,
     componentLocation = _.extend({}, defaultComponentLocation);
   }
 
-  if( _.isObject(rootURL) === true && typeof rootURL.scripts !== 'undefined' && typeof rootURL.templates !== 'undefined' ) {
+  if( _.isObject(rootURL) === true && typeof rootURL.viewModels !== 'undefined' && typeof rootURL.templates !== 'undefined' ) {
     componentLocation = rootURL;
   } else if( typeof rootURL === 'string' ) {
     componentLocation = {
       combined: rootURL,
-      scripts: null,
+      viewModels: null,
       templates: null
     };
   }
@@ -5725,7 +5744,7 @@ var footworkDefaultLoader = ko.components.footworkDefaultLoader = {
         configOptions = { require: componentLocation.combined + '/' + jsFile };
       } else {
         configOptions = {
-          viewModel: { require: (componentLocation.scripts || componentLocation.script) + '/' + jsFile },
+          viewModel: { require: (componentLocation.viewModels || componentLocation.viewModel) + '/' + jsFile },
           template: { require: 'text!' + (componentLocation.templates || componentLocation.template) + '/' + templateFile }
         };
       }

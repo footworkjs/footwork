@@ -50,7 +50,7 @@ define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
         }, this);
 
         this.visible = ko.computed(function() {
-          if( this.currentSelection() === this.$namespaceName ) {
+          if( this.currentSelection() === this.getNamespaceName() ) {
             if( this.entries().length === 0 ) {
               this.loadEntries();
             }
