@@ -8,7 +8,7 @@ function isViewModelCtor(thing) {
 
 // Duck type function for determining whether or not something is a footwork viewModel
 function isViewModel(thing) {
-  return typeof thing !== 'undefined' && _.isFunction(thing.getConfigParams) === true;
+  return typeof thing !== 'undefined' && _.isFunction(thing.__getConfigParams) === true;
 }
 
 // Initialize the viewModels registry
