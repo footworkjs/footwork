@@ -41,10 +41,15 @@ var refreshModels = ko.refreshViewModels = function() {
 };
 
 var makeViewModel = ko.viewModel = function(configParams) {
-  var ctor = noop;
+  var ctor;
+  var afterInit;
+
+  configParams = configParams || {};
   if( typeof configParams !== 'undefined') {
-    ctor = configParams.viewModel || configParams.initialize || ctor;
+    ctor = configParams.viewModel || configParams.initialize || noop;
+    afterInit = configParams.afterInit || noop;
   }
+  afterInit = { _postInit: afterInit };
 
   configParams = _.extend({
     namespace: undefined,
@@ -53,6 +58,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
     mixins: undefined,
     params: undefined,
     afterBinding: noop,
+    afterInit: noop,
     initialize: noop
   }, configParams);
 
@@ -73,7 +79,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
     }
   };
 
-  var composure = [ ctor, initViewModelMixin ].concat( viewModelMixins );
+  var composure = [ ctor, initViewModelMixin ].concat( viewModelMixins, afterInit );
   if(configParams.mixins !== undefined) {
     composure = composure.concat(configParams.mixins);
   }
