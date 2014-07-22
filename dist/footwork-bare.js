@@ -825,21 +825,22 @@ var registerLocationOfComponent = ko.components.registerLocationOf = function(co
 // The loader will attempt to use requirejs via knockouts integrated support if it is available.
 var footworkDefaultLoader = ko.components.footworkDefaultLoader = {
   getConfig: function(name, callback) {
+    var combinedFile = name + componentFileExtensions.combined;
     var viewModelFile = name + componentFileExtensions.viewModel;
     var templateFile = name + componentFileExtensions.template;
-    var combinedFile = name + componentFileExtensions.combined;
     var componentLocation = componentLocations[name] || defaultComponentLocation;
+    var isPath = /\/$/i;
     var configOptions = null;
-    var extensionIsPresent = /\.[a-z0-9]{1,4}$/i;
     var viewModelPath;
     var templatePath;
     var combinedPath;
+    console.log(name);
 
     if( typeof require === 'function' ) {
       // load component using knockouts native support for requirejs
       if( typeof componentLocation.combined === 'string' ) {
         combinedPath = componentLocation.combined;
-        if( combinedPath.match(extensionIsPresent) === null ) {
+        if( combinedPath.match(isPath) !== null ) {
           combinedPath = combinedPath + '/' + combinedFile;
         }
 
@@ -850,10 +851,10 @@ var footworkDefaultLoader = ko.components.footworkDefaultLoader = {
         viewModelPath = (componentLocation.viewModels || componentLocation.viewModel);
         templatePath = 'text!' + (componentLocation.templates || componentLocation.template);
 
-        if( viewModelPath.match(extensionIsPresent) === null ) {
+        if( viewModelPath.match(isPath) !== null ) {
           viewModelPath = viewModelPath + '/' + viewModelFile;
         }
-        if( templatePath.match(extensionIsPresent) === null ) {
+        if( templatePath.match(isPath) !== null ) {
           templatePath = templatePath + '/' + templateFile;
         }
         
