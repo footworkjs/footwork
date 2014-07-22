@@ -750,9 +750,11 @@ ko.components.tagIsComponent = function(tagName, isComponent) {
 };
 
 var componentFileExtensions = {
+  combined: '.js',
   viewModel: '.js',
   template: '.html'
 };
+
 ko.components.setFileExtensions = function(fileType, extension) {
   if( typeof fileType === 'object' ) {
     _.extend(componentFileExtensions, fileType);
@@ -760,6 +762,7 @@ ko.components.setFileExtensions = function(fileType, extension) {
     componentFileExtensions[fileType] = extension;
   }
 };
+
 ko.components.getFileExtensions = function() {
   return _.clone(componentFileExtensions);
 };
@@ -824,21 +827,25 @@ var footworkDefaultLoader = ko.components.footworkDefaultLoader = {
   getConfig: function(name, callback) {
     var viewModelFile = name + componentFileExtensions.viewModel;
     var templateFile = name + componentFileExtensions.template;
+    var combinedFile = name + componentFileExtensions.combined;
     var componentLocation = componentLocations[name] || defaultComponentLocation;
     var configOptions = null;
     var extensionIsPresent = /\.[a-z0-9]{1,4}$/i;
     var viewModelPath;
-    var templateFile;
+    var templatePath;
+    var combinedPath;
 
     if( typeof require === 'function' ) {
       // load component using knockouts native support for requirejs
       if( typeof componentLocation.combined === 'string' ) {
-        viewModelPath = componentLocation.combined;
-        if( viewModelPath.match(extensionIsPresent) !== null ) {
-          configOptions = { require: viewModelPath };
-        } else {
-          configOptions = { require: viewModelPath + '/' + viewModelFile };
+        combinedPath = componentLocation.combined;
+        if( combinedPath.match(extensionIsPresent) === null ) {
+          combinedPath = combinedPath + '/' + combinedFile;
         }
+
+        configOptions = {
+          require: combinedPath
+        };
       } else {
         viewModelPath = (componentLocation.viewModels || componentLocation.viewModel);
         templatePath = 'text!' + (componentLocation.templates || componentLocation.template);
