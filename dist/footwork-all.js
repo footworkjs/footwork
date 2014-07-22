@@ -10608,9 +10608,6 @@ viewModelMixins.push({
     exitNamespace();
 
     this.startup();
-
-    var $configParams = this.__getConfigParams();
-    _.isFunction($configParams.afterCreating) && $configParams.afterCreating.call(this);
   }
 });
 // viewModel.js
@@ -10656,10 +10653,15 @@ var refreshModels = ko.refreshViewModels = function() {
 };
 
 var makeViewModel = ko.viewModel = function(configParams) {
-  var ctor = noop;
+  var ctor;
+  var afterInit;
+
+  configParams = configParams || {};
   if( typeof configParams !== 'undefined') {
-    ctor = configParams.viewModel || configParams.initialize || ctor;
+    ctor = configParams.viewModel || configParams.initialize || noop;
+    afterInit = configParams.afterInit || noop;
   }
+  afterInit = { _postInit: afterInit };
 
   configParams = _.extend({
     namespace: undefined,
@@ -10668,6 +10670,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
     mixins: undefined,
     params: undefined,
     afterBinding: noop,
+    afterInit: noop,
     initialize: noop
   }, configParams);
 
@@ -10688,7 +10691,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
     }
   };
 
-  var composure = [ ctor, initViewModelMixin ].concat( viewModelMixins );
+  var composure = [ ctor, initViewModelMixin ].concat( viewModelMixins, afterInit );
   if(configParams.mixins !== undefined) {
     composure = composure.concat(configParams.mixins);
   }
@@ -10728,27 +10731,6 @@ ko.component = function(options) {
   });
 }
 
-ko.component({
-  name: 'empty',
-  viewModel: function(params) {},
-  template: '<div class="empty component"></div>'
-});
-
-ko.component({
-  name: 'error',
-  viewModel: function(params) {
-    this.message = ko.observable(params.message);
-    this.errors = params.errors;
-  },
-  template: '\
-    <div class="component error" data-bind="foreach: errors">\
-      <div class="error">\
-        <span class="number" data-bind="text: $index() + 1"></span>\
-        <span class="message" data-bind="text: $data"></span>\
-      </div>\
-    </div>'
-});
-
 // These are tags which are ignored by the custom component loader
 // Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
 var normalTags = [
@@ -10783,6 +10765,10 @@ ko.components.tagIsComponent = function(tagName, isComponent) {
   }
 };
 
+ko.components.getNormalTagList = function() {
+  return normalTags.splice(0);
+};
+
 ko.components.getComponentNameForNode = function(node) {
   var tagName = node.tagName && node.tagName.toLowerCase();
 
@@ -10792,18 +10778,21 @@ ko.components.getComponentNameForNode = function(node) {
   return null;
 };
 
+
 var defaultComponentLocation = {
   combined: null,
   viewModels: '/components',
   templates: '/components'
 };
-var registerComponentLocation = ko.components.loadRelativeTo = function(rootURL, returnTheValue) {
+var componentRelativeLocation = ko.components.loadRelativeTo = function(rootURL, returnTheValue) {
   var componentLocation = defaultComponentLocation;
   if(returnTheValue === true) {
     componentLocation = _.extend({}, defaultComponentLocation);
   }
 
-  if( _.isObject(rootURL) === true && typeof rootURL.viewModels !== 'undefined' && typeof rootURL.templates !== 'undefined' ) {
+  if( _.isObject(rootURL) === true
+      && typeof (rootURL.viewModels || rootURL.viewModel) !== 'undefined'
+      && typeof (rootURL.template || rootURL.templates) !== 'undefined' ) {
     componentLocation = rootURL;
   } else if( typeof rootURL === 'string' ) {
     componentLocation = {
@@ -10821,8 +10810,13 @@ var registerComponentLocation = ko.components.loadRelativeTo = function(rootURL,
 };
 
 var componentLocations = {};
-ko.components.registerLocationOf = function(componentName, location) {
-  componentLocations[ componentName ] = registerComponentLocation(location, true);
+var registerLocationOfComponent = ko.components.registerLocationOf = function(componentName, location) {
+  if( _.isArray(componentName) === true ) {
+    _.each(componentName, function(component) {
+      registerLocationOfComponent(component, location);
+    });
+  }
+  componentLocations[ componentName ] = componentRelativeLocation(location, true);
 };
 
 // The footwork loader is a catch-all in the instance a registered component cannot be found.
@@ -10876,6 +10870,27 @@ ko.component({
     <!-- ko if: outletIsActive -->\
       <!-- ko component: { name: targetComponent, params: { errors: errors } } --><!-- /ko -->\
     <!-- /ko -->'
+});
+
+ko.component({
+  name: 'empty',
+  viewModel: function(params) {},
+  template: '<div class="empty component"></div>'
+});
+
+ko.component({
+  name: 'error',
+  viewModel: function(params) {
+    this.message = ko.observable(params.message);
+    this.errors = params.errors;
+  },
+  template: '\
+    <div class="component error" data-bind="foreach: errors">\
+      <div class="error">\
+        <span class="number" data-bind="text: $index() + 1"></span>\
+        <span class="message" data-bind="text: $data"></span>\
+      </div>\
+    </div>'
 });
 // broadcast-receive.js
 // ----------------

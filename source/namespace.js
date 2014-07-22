@@ -220,8 +220,5 @@ viewModelMixins.push({
     exitNamespace();
 
     this.startup();
-
-    var $configParams = this.__getConfigParams();
-    _.isFunction($configParams.afterCreating) && $configParams.afterCreating.call(this);
   }
 });
