@@ -329,6 +329,10 @@ if (!String.prototype.trim) {
 // misc utility functions
 var noop = function() { };
 
+var isPath = function(pathOrLocation) {
+  return pathOrLocation.match(/\/$/i) !== null;
+};
+
 // Initialize the debugLevel observable, this controls
 // what level of debug statements are logged to the console
 // 0 === off
@@ -829,7 +833,6 @@ ko.components.loaders.push( ko.components.footworkDefaultLoader = {
     var viewModelFile = name + componentFileExtensions.viewModel;
     var templateFile = name + componentFileExtensions.template;
     var componentLocation = componentLocations[name] || defaultComponentLocation;
-    var isPath = /\/$/i;
     var configOptions = null;
     var viewModelPath;
     var templatePath;
@@ -839,7 +842,8 @@ ko.components.loaders.push( ko.components.footworkDefaultLoader = {
       // load component using knockouts native support for requirejs
       if( typeof componentLocation.combined === 'string' ) {
         combinedPath = componentLocation.combined;
-        if( combinedPath.match(isPath) !== null ) {
+
+        if( isPath(combinedPath) === true ) {
           combinedPath = combinedPath + '/' + combinedFile;
         }
 
@@ -850,10 +854,10 @@ ko.components.loaders.push( ko.components.footworkDefaultLoader = {
         viewModelPath = (componentLocation.viewModels || componentLocation.viewModel);
         templatePath = 'text!' + (componentLocation.templates || componentLocation.template);
 
-        if( viewModelPath.match(isPath) !== null ) {
+        if( isPath(viewModelPath) === true ) {
           viewModelPath = viewModelPath + '/' + viewModelFile;
         }
-        if( templatePath.match(isPath) !== null ) {
+        if( isPath(templatePath) === true ) {
           templatePath = templatePath + '/' + templateFile;
         }
         
