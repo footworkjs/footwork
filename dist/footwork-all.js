@@ -10839,7 +10839,7 @@ var registerLocationOfComponent = ko.components.registerLocationOf = function(co
 
 // The footwork loader is a catch-all in the instance a registered component cannot be found.
 // The loader will attempt to use requirejs via knockouts integrated support if it is available.
-var footworkDefaultLoader = ko.components.footworkDefaultLoader = {
+ko.components.loaders.push( ko.components.footworkDefaultLoader = {
   getConfig: function(name, callback) {
     var combinedFile = name + componentFileExtensions.combined;
     var viewModelFile = name + componentFileExtensions.viewModel;
@@ -10850,7 +10850,6 @@ var footworkDefaultLoader = ko.components.footworkDefaultLoader = {
     var viewModelPath;
     var templatePath;
     var combinedPath;
-    console.log(name);
 
     if( typeof require === 'function' ) {
       // load component using knockouts native support for requirejs
@@ -10883,8 +10882,7 @@ var footworkDefaultLoader = ko.components.footworkDefaultLoader = {
 
     callback(configOptions);
   }
-};
-ko.components.loaders.push( footworkDefaultLoader );
+});
 
 // outlets can only exist within parent components
 ko.component({
