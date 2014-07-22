@@ -749,6 +749,21 @@ ko.components.tagIsComponent = function(tagName, isComponent) {
   }
 };
 
+var componentFileExtensions = {
+  viewModel: '.js',
+  template: '.html'
+};
+ko.components.setFileExtensions = function(fileType, extension) {
+  if( typeof fileType === 'object' ) {
+    _.extend(componentFileExtensions, fileType);
+  } else if(typeof componentFileExtensions[fileType] !== 'undefined') {
+    componentFileExtensions[fileType] = extension;
+  }
+};
+ko.components.getFileExtensions = function() {
+  return _.clone(componentFileExtensions);
+};
+
 ko.components.getNormalTagList = function() {
   return normalTags.splice(0);
 };
@@ -807,8 +822,8 @@ var registerLocationOfComponent = ko.components.registerLocationOf = function(co
 // The loader will attempt to use requirejs via knockouts integrated support if it is available.
 var footworkDefaultLoader = ko.components.footworkDefaultLoader = {
   getConfig: function(name, callback) {
-    var jsFile = name + '.js';
-    var templateFile = name + '.html';
+    var viewModelFile = name + componentFileExtensions.viewModel;
+    var templateFile = name + componentFileExtensions.template;
     var componentLocation = componentLocations[name] || defaultComponentLocation;
     var configOptions = null;
     var extensionIsPresent = /\.[a-z0-9]{1,4}$/i;
@@ -822,14 +837,14 @@ var footworkDefaultLoader = ko.components.footworkDefaultLoader = {
         if( viewModelPath.match(extensionIsPresent) !== null ) {
           configOptions = { require: viewModelPath };
         } else {
-          configOptions = { require: viewModelPath + '/' + jsFile };
+          configOptions = { require: viewModelPath + '/' + viewModelFile };
         }
       } else {
         viewModelPath = (componentLocation.viewModels || componentLocation.viewModel);
         templatePath = 'text!' + (componentLocation.templates || componentLocation.template);
 
         if( viewModelPath.match(extensionIsPresent) === null ) {
-          viewModelPath = viewModelPath + '/' + jsFile;
+          viewModelPath = viewModelPath + '/' + viewModelFile;
         }
         if( templatePath.match(extensionIsPresent) === null ) {
           templatePath = templatePath + '/' + templateFile;
@@ -841,6 +856,7 @@ var footworkDefaultLoader = ko.components.footworkDefaultLoader = {
         };
       }
     }
+
     callback(configOptions);
   }
 };
