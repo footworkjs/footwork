@@ -811,15 +811,33 @@ var footworkDefaultLoader = ko.components.footworkDefaultLoader = {
     var templateFile = name + '.html';
     var componentLocation = componentLocations[name] || defaultComponentLocation;
     var configOptions = null;
+    var extensionIsPresent = /\.[a-z0-9]{1,4}$/i;
+    var viewModelPath;
+    var templateFile;
 
     if( typeof require === 'function' ) {
       // load component using knockouts native support for requirejs
       if( typeof componentLocation.combined === 'string' ) {
-        configOptions = { require: componentLocation.combined + '/' + jsFile };
+        viewModelPath = componentLocation.combined;
+        if( viewModelPath.match(extensionIsPresent) !== null ) {
+          configOptions = { require: viewModelPath };
+        } else {
+          configOptions = { require: viewModelPath + '/' + jsFile };
+        }
       } else {
+        viewModelPath = (componentLocation.viewModels || componentLocation.viewModel);
+        templatePath = 'text!' + (componentLocation.templates || componentLocation.template);
+
+        if( viewModelPath.match(extensionIsPresent) === null ) {
+          viewModelPath = viewModelPath + '/' + jsFile;
+        }
+        if( templatePath.match(extensionIsPresent) === null ) {
+          templatePath = templatePath + '/' + templateFile;
+        }
+        
         configOptions = {
-          viewModel: { require: (componentLocation.viewModels || componentLocation.viewModel) + '/' + jsFile },
-          template: { require: 'text!' + (componentLocation.templates || componentLocation.template) + '/' + templateFile }
+          viewModel: { require: viewModelPath },
+          template: { require: templatePath }
         };
       }
     }
