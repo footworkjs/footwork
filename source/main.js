@@ -17,6 +17,10 @@ if (!String.prototype.trim) {
 // misc utility functions
 var noop = function() { };
 
+var isPath = function(pathOrLocation) {
+  return pathOrLocation.match(/\/$/i) !== null;
+};
+
 // Initialize the debugLevel observable, this controls
 // what level of debug statements are logged to the console
 // 0 === off
