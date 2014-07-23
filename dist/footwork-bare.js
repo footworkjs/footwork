@@ -15,8 +15,6 @@
     root.ko = factory(_, ko, postal, delegate, Apollo, reqwest);
   }
 }(this, function (_, ko, postal, delegate, Apollo, reqwest) {
-  var windowObject = window;
-
   // Cross-browser console log() function
   // http://patik.github.io/console.log-wrapper/
   /**
@@ -151,6 +149,9 @@ if (!window.log) {
 }
 
   
+  window.require = typeof require !== 'undefined' ? require : undefined;
+  window.define = typeof define !== 'undefined' ? define : undefined;
+
   return (function() {
     // define our own root object to supply to the modules as an attachment point
 var root = {};
@@ -191,10 +192,10 @@ var module = undefined,
 (function (root, factory) {
     if (typeof module === "object" && module.exports) {
         // Node, or CommonJS-Like environments
-        module.exports = factory(require("underscore"));
+        module.exports = factory(require("lodash"));
     } else if (typeof define === "function" && define.amd) {
         // AMD. Register as an anonymous module.
-        define(["underscore"], function (_) {
+        define(["lodash"], function (_) {
             return factory(_, root);
         });
     } else {

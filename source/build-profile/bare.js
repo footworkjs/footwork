@@ -7,12 +7,13 @@
     root.ko = factory(_, ko, postal, delegate, Apollo, reqwest);
   }
 }(this, function (_, ko, postal, delegate, Apollo, reqwest) {
-  var windowObject = window;
-
   // Cross-browser console log() function
   // http://patik.github.io/console.log-wrapper/
   //import("../../bower_components/consolelog/consolelog.js");
   
+  window.require = typeof require !== 'undefined' ? require : undefined;
+  window.define = typeof define !== 'undefined' ? define : undefined;
+
   return (function() {
     //import("helpers/root-masks.js");
     _.extend(root, {
