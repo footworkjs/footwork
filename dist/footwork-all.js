@@ -150,6 +150,9 @@ if (!window.log) {
     };
 }
 
+  
+  window.require = typeof require !== 'undefined' ? require : undefined;
+  window.define = typeof define !== 'undefined' ? define : undefined;
 
   /**
    * Knockout needs to know about requirejs if present, and also double wraps their module so we can't lie about
@@ -5362,10 +5365,10 @@ var module = undefined,
 (function (root, factory) {
     if (typeof module === "object" && module.exports) {
         // Node, or CommonJS-Like environments
-        module.exports = factory(require("underscore"));
+        module.exports = factory(require("lodash"));
     } else if (typeof define === "function" && define.amd) {
         // AMD. Register as an anonymous module.
-        define(["underscore"], function (_) {
+        define(["lodash"], function (_) {
             return factory(_, root);
         });
     } else {

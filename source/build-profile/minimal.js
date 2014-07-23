@@ -13,6 +13,9 @@
   // http://patik.github.io/console.log-wrapper/
   //import("../../bower_components/consolelog/consolelog.js");
   
+  window.require = typeof require !== 'undefined' ? require : undefined;
+  window.define = typeof define !== 'undefined' ? define : undefined;
+  
   return (function() {
     //import("helpers/root-masks.js");
     _.extend(root, {
