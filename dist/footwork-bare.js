@@ -493,6 +493,10 @@ function disconnectNamespaceHandlers() {
   return this;
 }
 
+function onNamespaceTemplateBind(callback) {
+  return this.subscribe('__elementIsBound', callback);
+}
+
 // Creates and returns a new namespace instance
 var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
   if(typeof $parentNamespace !== 'undefined') {
@@ -520,6 +524,8 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
   namespace.event = namespace.triggerEvent = _.bind( triggerEventOnNamespace, namespace );
   namespace.event.handler = _.bind( registerNamespaceEventHandler, namespace );
   namespace.event.handler.unregister = _.bind( unregisterNamespaceEventHandler, namespace );
+
+  namespace.onBind = _.bind( onNamespaceTemplateBind, namespace );
 
   namespace.getName = function() {
     return this.channel;
@@ -586,17 +592,11 @@ viewModelMixins.push({
         }
       });
       return this;
-    },
-    startup: function() {
-      this.refreshReceived().broadcastAll();
-      return this;
     }
   },
   _postInit: function( options ) {
     viewModels[ this.getNamespaceName() ] = this;
     exitNamespace();
-
-    this.startup();
   }
 });
 // viewModel.js
@@ -873,6 +873,15 @@ ko.components.loaders.push( ko.components.footworkDefaultLoader = {
   }
 });
 
+
+// Temporary solution to being able to programmatically wrap components in a custom binding
+// TODO: Handle this for user when it becomes possible (knockout 3.3?)
+ko.bindingHandlers['bindingEvents'] = {
+  'update': function( element, valueAccessor ) {
+    ko.namespace( ko.unwrap(valueAccessor()) ).publish('__elementIsBound', element);
+  }
+};
+
 // outlets can only exist within parent components
 ko.component({
   name: 'outlet',
@@ -937,7 +946,7 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
   var observable = this;
 
-  if(isNamespace(namespace) === false) {
+  if( isNamespace(namespace) === false ) {
     if( typeof namespace === 'string') {
       namespace = makeNamespace( namespace );
     } else {
@@ -955,13 +964,14 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
 
   observable.refresh = function() {
     namespace.publish( 'refresh.' + variable );
+    return this;
   };
   namespace.subscribe( variable, function( newValue ) {
     target( newValue );
   });
 
   observable.__isReceived = true;
-  return observable;
+  return observable.refresh();
 };
 
 //     this.myValue = ko.observable().broadcastAs('NameOfVar');
@@ -973,7 +983,7 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
   var observable = this;
   var namespace;
 
-  if(_.isObject(varName) === true) {
+  if( _.isObject(varName) === true ) {
     option = varName;
   } else {
     if( typeof option === 'boolean' ) {
@@ -1005,6 +1015,7 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
 
   observable.broadcast = function() {
     namespace.publish( option.name, observable() );
+    return this;
   };
   namespace.subscribe( 'refresh.' + option.name, function() {
     namespace.publish( option.name, observable() );
@@ -1014,7 +1025,7 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
   });
 
   observable.__isBroadcast = true;
-  return observable;
+  return observable.broadcast();
 };
 // bindingHandlers.js
 // ------------------

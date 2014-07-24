@@ -116,6 +116,10 @@ function disconnectNamespaceHandlers() {
   return this;
 }
 
+function onNamespaceTemplateBind(callback) {
+  return this.subscribe('__elementIsBound', callback);
+}
+
 // Creates and returns a new namespace instance
 var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
   if(typeof $parentNamespace !== 'undefined') {
@@ -143,6 +147,8 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
   namespace.event = namespace.triggerEvent = _.bind( triggerEventOnNamespace, namespace );
   namespace.event.handler = _.bind( registerNamespaceEventHandler, namespace );
   namespace.event.handler.unregister = _.bind( unregisterNamespaceEventHandler, namespace );
+
+  namespace.onBind = _.bind( onNamespaceTemplateBind, namespace );
 
   namespace.getName = function() {
     return this.channel;
@@ -209,16 +215,10 @@ viewModelMixins.push({
         }
       });
       return this;
-    },
-    startup: function() {
-      this.refreshReceived().broadcastAll();
-      return this;
     }
   },
   _postInit: function( options ) {
     viewModels[ this.getNamespaceName() ] = this;
     exitNamespace();
-
-    this.startup();
   }
 });

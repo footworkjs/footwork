@@ -181,6 +181,15 @@ ko.components.loaders.push( ko.components.footworkDefaultLoader = {
   }
 });
 
+
+// Temporary solution to being able to programmatically wrap components in a custom binding
+// TODO: Handle this for user when it becomes possible (knockout 3.3?)
+ko.bindingHandlers['bindingEvents'] = {
+  'update': function( element, valueAccessor ) {
+    ko.namespace( ko.unwrap(valueAccessor()) ).publish('__elementIsBound', element);
+  }
+};
+
 // outlets can only exist within parent components
 ko.component({
   name: 'outlet',
