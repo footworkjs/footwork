@@ -37,6 +37,7 @@
     "lodash": "2.4.1",
     "postal.js": "0.10.0",
     "conduitjs": "0.3.2",
+    "postal.preserve": "https://github.com/postaljs/postal.preserve.git#096aa33d92f6882d5d504dfedc85ead4ca5735ce",
     "apollo": "https://github.com/toddmotto/apollo.git#1.6.0",
     "consolelog": "*",
     "history.js": "1.8.0",
@@ -46,5 +47,8 @@
     "expect": "0.1.2",
     "mocha": "~1.17.1",
     "jquery": ">=2.1.1"
+  },
+  "resolutions": {
+    "postal.js": "0.10.0"
   }
 }
