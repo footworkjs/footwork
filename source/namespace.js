@@ -25,47 +25,67 @@ function indexedNamespaceName(name, autoIncrement) {
   return name + (autoIncrement === true ? namespaceNameCounter[name] : '');
 }
 
+function createEnvelope(topic, data, expires) {
+  var envelope = {
+    topic: topic,
+    data: data
+  };
+
+  if(typeof expires !== 'undefined') {
+    envelope.headers = {
+      preserve: true
+    };
+    if(expires instanceof Date) {
+      envelope.expires = expires
+    }
+  }
+  
+  return envelope;
+}
+
 // Method used to trigger an event on a namespace
-function triggerEventOnNamespace(eventKey, params) {
-  this.publish('event.' + eventKey, params);
+function triggerEventOnNamespace(eventKey, params, expires) {
+  this.publish( createEnvelope('event.' + eventKey, params, expires) );
   return this;
 }
 
 // Method used to register an event handler on a namespace
-function registerNamespaceEventHandler(eventKey, callback) {
-  var handlerSubscription = this.subscribe('event.' + eventKey, callback);
+function registerNamespaceEventHandler(eventKey, callback, context) {
+  if( typeof context !== 'undefined' ) {
+    callback = _.bind(callback, context);
+  }
+
+  var handlerSubscription = this.subscribe('event.' + eventKey, callback).enlistPreserved();
   this.commandHandlers.push(handlerSubscription);
 
   return handlerSubscription;
 }
 
 // Method used to unregister an event handler on a namespace
-function unregisterNamespaceEventHandler(handlerSubscription) {
+function unregisterNamespaceHandler(handlerSubscription) {
   handlerSubscription.unsubscribe();
   return this;
 }
 
 // Method used to send a command to a namespace
-function sendCommandToNamespace(commandKey, params) {
-  this.publish('command.' + commandKey, params);
+function sendCommandToNamespace(commandKey, params, expires) {
+  this.publish( createEnvelope('command.' + commandKey, params, expires) );
   return this;
 }
 
 // Method used to register a command handler on a namespace
-function registerNamespaceCommandHandler(requestKey, callback) {
-  var handlerSubscription = this.subscribe('command.' + requestKey, callback);
+function registerNamespaceCommandHandler(requestKey, callback, context) {
+  if( typeof context !== 'undefined' ) {
+    callback = _.bind(callback, context);
+  }
+
+  var handlerSubscription = this.subscribe('command.' + requestKey, callback).enlistPreserved();
   this.commandHandlers.push(handlerSubscription);
 
   return handlerSubscription;
 }
 
-// Method used to unregister a command handler on a namespace
-function unregisterNamespaceCommandHandler(handlerSubscription) {
-  handlerSubscription.unsubscribe();
-  return this;
-}
-
-// Method used to is a request for data from a namespace, returning the response (or undefined if no response)
+// Method used to issue a request for data from a namespace, returning the response (or undefined if no response)
 // This method will return an array of responses if more than one is received.
 function requestResponseFromNamespace(requestKey, params) {
   var response = undefined;
@@ -82,7 +102,8 @@ function requestResponseFromNamespace(requestKey, params) {
       }
     }
   });
-  this.publish('request.' + requestKey, params);
+  var t = createEnvelope('request.' + requestKey, response);
+  this.publish( createEnvelope('request.' + requestKey, response) );
   responseSubscription.unsubscribe();
 
   return response;
@@ -90,22 +111,20 @@ function requestResponseFromNamespace(requestKey, params) {
 
 // Method used to register a request handler on a namespace.
 // Requests sent using the specified requestKey will be called and passed in any params specified, the return value is passed back to the issuer
-function registerNamespaceRequestHandler(requestKey, callback) {
+function registerNamespaceRequestHandler(requestKey, callback, context) {
+  if( typeof context !== 'undefined' ) {
+    callback = _.bind(callback, context);
+  }
+
   var requestHandler = _.bind(function(params) {
     var callbackResponse = callback(params);
-    this.publish('request.' + requestKey + '.response', callbackResponse);
+    this.publish( createEnvelope('request.' + requestKey + '.response', callbackResponse) );
   }, this);
 
   var handlerSubscription = this.subscribe('request.' + requestKey, requestHandler);
   this.requestHandlers.push(handlerSubscription);
 
   return handlerSubscription;
-}
-
-// Method used to unregister a request-response handler on a namespace
-function unregisterNamespaceRequestHandler(handlerSubscription) {
-  handlerSubscription.unsubscribe();
-  return this;
 }
 
 // This effectively shuts down all requests, commands, and events by unsubscribing all handlers on a discreet namespace object
@@ -116,8 +135,18 @@ function disconnectNamespaceHandlers() {
   return this;
 }
 
-function onNamespaceTemplateBind(callback) {
-  return this.subscribe('__elementIsBound', callback);
+function onNamespaceTemplateBind(callback, context) {
+  if( typeof context !== 'undefined' ) {
+    callback = _.bind(callback, context);
+  }
+  var handlerSubscription = this.subscribe('__elementIsBound', callback);
+  this.bindingHandlers.push(handlerSubscription);
+
+  return handlerSubscription;
+}
+
+function getNamespaceName() {
+  return this.channel;
 }
 
 // Creates and returns a new namespace instance
@@ -136,23 +165,24 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
   namespace.commandHandlers = [];
   namespace.command = _.bind( sendCommandToNamespace, namespace );
   namespace.command.handler = _.bind( registerNamespaceCommandHandler, namespace );
-  namespace.command.handler.unregister = _.bind( unregisterNamespaceCommandHandler, namespace );
+  namespace.command.handler.unregister = _.bind( unregisterNamespaceHandler, namespace );
 
   namespace.requestHandlers = [];
   namespace.request = _.bind( requestResponseFromNamespace, namespace );
   namespace.request.handler = _.bind( registerNamespaceRequestHandler, namespace );
-  namespace.request.handler.unregister = _.bind( unregisterNamespaceRequestHandler, namespace );
+  namespace.request.handler.unregister = _.bind( unregisterNamespaceHandler, namespace );
 
   namespace.eventHandlers = [];
   namespace.event = namespace.triggerEvent = _.bind( triggerEventOnNamespace, namespace );
   namespace.event.handler = _.bind( registerNamespaceEventHandler, namespace );
-  namespace.event.handler.unregister = _.bind( unregisterNamespaceEventHandler, namespace );
+  namespace.event.handler.unregister = _.bind( unregisterNamespaceHandler, namespace );
 
-  namespace.onBind = _.bind( onNamespaceTemplateBind, namespace );
+  namespace.bindingHandlers = [];
+  namespace.afterBinding = _.bind( onNamespaceTemplateBind, namespace );
+  namespace.afterBinding.unregister = _.bind( unregisterNamespaceHandler, namespace );
 
-  namespace.getName = function() {
-    return this.channel;
-  };
+  namespace.getName = _.bind( getNamespaceName, namespace );
+
   return namespace;
 };
 
