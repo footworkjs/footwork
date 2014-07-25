@@ -16,12 +16,6 @@
   window.require = typeof require !== 'undefined' ? require : undefined;
   window.define = typeof define !== 'undefined' ? define : undefined;
 
-  /**
-   * Knockout needs to know about requirejs if present, and also double wraps their module so we can't lie about
-   * the root object to it. For those reasons we embed it out here.
-   */
-  //import("../../bower_components/knockoutjs/dist/knockout.js");
-
   return (function() {
     //import("helpers/root-masks.js");
 
@@ -60,6 +54,21 @@
     (function() {
       //import("../../bower_components/reqwest/reqwest.js");
     }).call(root);
+
+    /**
+     * postal.preserve plugin does not yet have a named bower package
+     */
+    if(typeof root.postal.preserve === 'undefined') {
+      (function() {
+        //import("../../bower_components/postal.preserve/lib/postal.preserve.js");
+      }).call(root);
+    }
+
+    /**
+     * Knockout needs to know about requirejs if present, and also double wraps their module so we can't lie about
+     * the root object to it. For those reasons we embed it out here.
+     */
+    //import("../../bower_components/knockoutjs/dist/knockout.js");
 
     root.ko = ko; // ick...
 
