@@ -1,9 +1,8 @@
 'use strict';
 
 describe('components', function () {
-  it('has the ability to create a footwork component which is registered as a knockout component', function() {
-    ko.component({
-      name: 'ComponentA',
+  it('Can create a component', function() {
+    ko.components.register('ComponentA', {
       template: '<div>a template</div>',
       viewModel: function() {
         this.variable = ko.observable().broadcastAs('variable');
