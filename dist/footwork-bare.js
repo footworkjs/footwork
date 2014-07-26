@@ -809,66 +809,8 @@ var makeViewModel = ko.viewModel = function(configParams) {
 
   return model;
 };
-// component.js
+// resource.js
 // ------------------
-
-var originalComponentRegisterFunc = ko.components.register;
-ko.components.register = function(componentName, options) {
-  var viewModel = options.initialize || options.viewModel;
-  
-  if(typeof componentName !== 'string') {
-    throw 'Components must be provided a componentName.';
-  }
-
-  //TODO: determine how mixins from the (optionally) supplied footwork viewModel mix in with the mixins supplied directly in the component options
-  //      as well as others like params, afterBinding. Currently we will just use the viewModel's mixins/etc, only the namespace is overridden
-  //      from the component definition/configuration.
-  if( isViewModelCtor(viewModel) ) {
-    viewModel.options.componentNamespace = componentName;
-  } else if( typeof viewModel === 'function' ) {
-    options.namespace = componentName;
-    viewModel = makeViewModel(options);
-  }
-
-  originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel,
-    template: options.template
-  });
-}
-
-// These are tags which are ignored by the custom component loader
-// Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
-var normalTags = [
-  'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont', 'bdi', 'bgsound',
-  'big', 'blink', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
-  'content', 'data', 'datalist', 'dd', 'decorator', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'element',
-  'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'frameset', 'g', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-  'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'isindex', 'kbd', 'keygen', 'label',
-  'legend', 'li', 'link', 'listing', 'main', 'map', 'mark', 'marquee', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'nobr',
-  'noframes', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture', 'polygon', 'path', 'pre',
-  'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'shadow', 'small', 'source', 'spacer',
-  'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'template', 'textarea',
-  'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp'
-];
-ko.components.tagIsComponent = function(tagName, isComponent) {
-  isComponent = (typeof isComponent === 'undefined' ? true : isComponent);
-
-  if( _.isArray(tagName) === true ) {
-    _.each(tagName, function(tag) {
-      ko.components.tagIsComponent(tag, isComponent);
-    });
-  }
-
-  if(isComponent !== true) {
-    if( _.contains(normalTags, tagName) === false ) {
-      normalTags.push(tagName);
-    }
-  } else {
-    normalTags = _.filter(normalTags, function(normalTagName) {
-      return normalTagName !== tagName;
-    });
-  }
-};
 
 var resourceFileExtensions = {
   combined: '.js',
@@ -978,6 +920,67 @@ var registerLocationOfViewModel = ko.viewModel.registerLocationOf = function(vie
 var getResourceLocation = ko.getResourceLocation = function(resourceName) {
   return resourceLocations[resourceName] || defaultResourceLocation;
 };
+// component.js
+// ------------------
+
+var originalComponentRegisterFunc = ko.components.register;
+ko.components.register = function(componentName, options) {
+  var viewModel = options.initialize || options.viewModel;
+  
+  if(typeof componentName !== 'string') {
+    throw 'Components must be provided a componentName.';
+  }
+
+  //TODO: determine how mixins from the (optionally) supplied footwork viewModel mix in with the mixins supplied directly in the component options
+  //      as well as others like params, afterBinding. Currently we will just use the viewModel's mixins/etc, only the namespace is overridden
+  //      from the component definition/configuration.
+  if( isViewModelCtor(viewModel) ) {
+    viewModel.options.componentNamespace = componentName;
+  } else if( typeof viewModel === 'function' ) {
+    options.namespace = componentName;
+    viewModel = makeViewModel(options);
+  }
+
+  originalComponentRegisterFunc(componentName, {
+    viewModel: viewModel,
+    template: options.template
+  });
+}
+
+// These are tags which are ignored by the custom component loader
+// Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
+var normalTags = [
+  'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont', 'bdi', 'bgsound',
+  'big', 'blink', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
+  'content', 'data', 'datalist', 'dd', 'decorator', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'element',
+  'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'frameset', 'g', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'isindex', 'kbd', 'keygen', 'label',
+  'legend', 'li', 'link', 'listing', 'main', 'map', 'mark', 'marquee', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'nobr',
+  'noframes', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture', 'polygon', 'path', 'pre',
+  'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'shadow', 'small', 'source', 'spacer',
+  'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'template', 'textarea',
+  'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp'
+];
+ko.components.tagIsComponent = function(tagName, isComponent) {
+  isComponent = (typeof isComponent === 'undefined' ? true : isComponent);
+
+  if( _.isArray(tagName) === true ) {
+    _.each(tagName, function(tag) {
+      ko.components.tagIsComponent(tag, isComponent);
+    });
+  }
+
+  if(isComponent !== true) {
+    if( _.contains(normalTags, tagName) === false ) {
+      normalTags.push(tagName);
+    }
+  } else {
+    normalTags = _.filter(normalTags, function(normalTagName) {
+      return normalTagName !== tagName;
+    });
+  }
+};
+
 
 // Monkey patch for knockout, enables the viewModel 'component' to initialize a model and bind to the html as intended
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
@@ -1092,17 +1095,15 @@ ko.components.loaders.push({
 });
 
 // Use the component update binding to provide the afterBinding() lifecycle event
-_.extend(ko.bindingHandlers.component, {
-  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    if( isViewModel(viewModel) === true ) {
-      var configParams = viewModel.__getConfigParams();
-      if( _.isFunction(configParams.afterInsert) === true && typeof configParams.afterInsert.wasCalled === 'undefined' ) {
-        configParams.afterBinding.wasCalled = true;
-        configParams.afterBinding.call(viewModel, element, valueAccessor, allBindings, viewModel, bindingContext);
-      }
+ko.bindingHandlers.component.update = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+  if( isViewModel(viewModel) === true ) {
+    var configParams = viewModel.__getConfigParams();
+    if( _.isFunction(configParams.afterInsert) === true && typeof configParams.afterInsert.wasCalled === 'undefined' ) {
+      configParams.afterBinding.wasCalled = true;
+      configParams.afterBinding.call(viewModel, element, valueAccessor, allBindings, viewModel, bindingContext);
     }
   }
-});
+};
 
 // outlets can only exist within parent components
 ko.components.register('outlet', {
@@ -1123,8 +1124,6 @@ ko.components.register('outlet', {
       this.errors.push('Could not locate outlet observable ($parentViewModel.' + this.outletName + 'Outlet' + ' is undefined).');
     }
   },
-  // use comment bindings!
-  // template: '<!-- ko if: outletIsActive -->[OUTLET]<div data-bind="component: { name: targetComponent, params: { parentNamespace: namespace, $outletViewModel: $data, $parentViewModel: $parent } }, class: outletName"></div><!-- /ko -->'
   template: '\
     <!-- ko if: outletIsActive -->\
       <!-- ko component: { name: targetComponent, params: { errors: errors } } --><!-- /ko -->\
