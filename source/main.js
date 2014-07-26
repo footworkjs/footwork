@@ -41,17 +41,13 @@ ko.logError = function() {
 };
 
 // Preserve the original applyBindings method for later use
-var applyBindings = ko.applyBindings;
+var originalApplyBindings = ko.applyBindings;
 
 // Override the original applyBindings method to provide and enable 'model' life-cycle hooks/events.
-ko.applyBindings = function(model, element) {
-  applyBindings(model, element);
+var applyBindings = ko.applyBindings = function(model, element) {
+  originalApplyBindings(model, element);
 
   if(isViewModel(model) === true) {
-    var $initParams = model.__getInitParams();
-    if(typeof $initParams !== 'undefined' && _.isFunction($initParams.startup) === true) {
-      $initParams.startup();
-    }
     var $configParams = model.__getConfigParams();
     if(typeof $configParams.afterBinding === 'function') {
       $configParams.afterBinding.call(model);
