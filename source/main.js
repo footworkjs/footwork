@@ -60,6 +60,7 @@ var viewModelMixins = [];
 
 //import("namespace.js");
 //import("viewModel.js");
+//import("resource.js");
 //import("component.js");
 //import("broadcast-receive.js");
 //import("bindingHandlers.js");
