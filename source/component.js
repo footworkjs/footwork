@@ -191,8 +191,9 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, i
         }
 
         // binding the viewModel onto each child element is not ideal, need to do this differently
+        // cannot get component.preprocess() method to work/be called for some reason
         _.each(element.children, function(child) {
-          ko.applyBindings(viewModel, child);
+          applyBindings(viewModel, child);
         });
       };
 
