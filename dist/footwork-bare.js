@@ -816,28 +816,25 @@ var makeViewModel = ko.viewModel = function(configParams) {
 // component.js
 // ------------------
 
-ko.component = function(options) {
-  if(typeof options.name !== 'string') {
-    ko.logError('Components must be provided a name (namespace).');
-  }
-
-  if(typeof options.template !== 'string') {
-    ko.logError('Components must be provided a template.');
-  }
-
-  options.namespace = options.name = _.result(options, 'name');
+var originalComponentRegisterFunc = ko.components.register;
+ko.components.register = function(componentName, options) {
   var viewModel = options.initialize || options.viewModel;
-  if( isViewModelCtor(viewModel) ) {
-    viewModel.options.componentNamespace = options.namespace;
-  } else if( _.isFunction(viewModel) ) {
-    viewModel = makeViewModel(options);
+  
+  if(typeof componentName !== 'string') {
+    throw 'Components must be provided a componentName.';
   }
 
   //TODO: determine how mixins from the (optionally) supplied footwork viewModel mix in with the mixins supplied directly in the component options
   //      as well as others like params, afterBinding. Currently we will just use the viewModel's mixins/etc, only the namespace is overridden
   //      from the component definition/configuration.
+  if( isViewModelCtor(viewModel) ) {
+    viewModel.options.componentNamespace = componentName;
+  } else if( typeof viewModel === 'function' ) {
+    options.namespace = componentName;
+    viewModel = makeViewModel(options);
+  }
 
-  ko.components.register(options.name, {
+  originalComponentRegisterFunc(componentName, {
     viewModel: viewModel,
     template: options.template
   });
@@ -877,7 +874,7 @@ ko.components.tagIsComponent = function(tagName, isComponent) {
   }
 };
 
-var componentFileExtensions = {
+var resourceFileExtensions = {
   combined: '.js',
   viewModel: '.js',
   template: '.html'
@@ -885,14 +882,14 @@ var componentFileExtensions = {
 
 ko.components.setFileExtensions = function(fileType, extension) {
   if( typeof fileType === 'object' ) {
-    _.extend(componentFileExtensions, fileType);
-  } else if(typeof componentFileExtensions[fileType] !== 'undefined') {
-    componentFileExtensions[fileType] = extension;
+    _.extend(resourceFileExtensions, fileType);
+  } else if(typeof resourceFileExtensions[fileType] !== 'undefined') {
+    resourceFileExtensions[fileType] = extension;
   }
 };
 
 ko.components.getFileExtensions = function() {
-  return _.clone(componentFileExtensions);
+  return _.clone(resourceFileExtensions);
 };
 
 ko.components.getNormalTagList = function() {
@@ -908,22 +905,31 @@ ko.components.getComponentNameForNode = function(node) {
   return null;
 };
 
-
-var defaultComponentLocation = {
+var defaultResourceLocation = {
   combined: null,
-  viewModels: '/components',
-  templates: '/components'
+  viewModels: '/viewModel/',
+  templates: '/component/'
 };
-var componentRelativeLocation = ko.components.loadRelativeTo = function(rootURL, returnTheValue) {
-  var componentLocation = defaultComponentLocation;
+var resourceRelativeLocation = function(rootURL, returnTheValue) {
+  var componentLocation = defaultResourceLocation;
   if(returnTheValue === true) {
-    componentLocation = _.extend({}, defaultComponentLocation);
+    componentLocation = _.extend({}, defaultResourceLocation);
   }
 
-  if( _.isObject(rootURL) === true
-      && typeof (rootURL.viewModels || rootURL.viewModel) !== 'undefined'
-      && typeof (rootURL.template || rootURL.templates) !== 'undefined' ) {
-    componentLocation = rootURL;
+  if( _.isObject(rootURL) === true ) {
+    // assume some combination of defaultResourceLocation and normalize the parameters
+    _.extend(componentLocation, _.reduce(rootURL, function(options, paramValue, paramName) {
+      if(paramName === 'viewModel') {
+        options.viewModels = paramValue;
+        delete options.viewModel;
+      } else if(paramName === 'template') {
+        options.templates = paramValue;
+        delete options.template;
+      } else {
+        options[paramName] = paramValue;
+      }
+      return options;
+    }, {}));
   } else if( typeof rootURL === 'string' ) {
     componentLocation = {
       combined: rootURL,
@@ -935,28 +941,115 @@ var componentRelativeLocation = ko.components.loadRelativeTo = function(rootURL,
   if(returnTheValue === true) {
     return componentLocation;
   } else {
-    defaultComponentLocation = componentLocation;
+    defaultResourceLocation = componentLocation;
   }
 };
 
-var componentLocations = {};
-var registerLocationOfComponent = ko.components.registerLocationOf = function(componentName, location) {
+var componentRelativeLocation = ko.components.loadRelativeTo = function(rootURL, returnTheValue) {
+  var returnValue = resourceRelativeLocation(rootURL, returnTheValue);
+  if(returnTheValue === true) {
+    return returnValue;
+  }
+};
+
+var resourceLocations = ko.resourceLocations = {};
+var registerLocationOfComponent = ko.components.registerLocationOf = function(componentName, componentLocation) {
   if( _.isArray(componentName) === true ) {
-    _.each(componentName, function(component) {
-      registerLocationOfComponent(component, location);
+    _.each(componentName, function(name) {
+      registerLocationOfComponent(name, componentLocation);
     });
   }
-  componentLocations[ componentName ] = componentRelativeLocation(location, true);
+  resourceLocations[ componentName ] = componentRelativeLocation(componentLocation, true);
+};
+
+var viewModelRelativeLocation = ko.viewModel.loadRelativeTo = function(rootURL, returnTheValue) {
+  var returnValue = resourceRelativeLocation({ viewModel: rootURL }, returnTheValue);
+  if(returnTheValue === true) {
+    return returnValue;
+  }
+};
+
+var registerLocationOfViewModel = ko.viewModel.registerLocationOf = function(viewModelName, viewModelLocation) {
+  if( _.isArray(viewModelName) === true ) {
+    _.each(viewModelName, function(name) {
+      registerLocationOfViewModel(name, viewModelLocation);
+    });
+  }
+  resourceLocations[ viewModelName ] = viewModelRelativeLocation(viewModelLocation, true);
+};
+
+// Return the resource definition for the supplied resourceName
+var getResourceLocation = ko.getResourceLocation = function(resourceName) {
+  return resourceLocations[resourceName] || defaultResourceLocation;
+};
+
+// Monkey patch for knockout, enables the viewModel 'component' to initialize a model and bind to the html as intended
+// TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
+var originalComponentInit = ko.bindingHandlers.component.init;
+ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, ignored2, bindingContext) {
+  if( element.tagName.toLowerCase() === 'viewmodel' ) {
+    var values = valueAccessor();
+
+    if( typeof values.params.name !== 'undefined' ) {
+      var viewModelName = ko.unwrap(values.params.name);
+      var resourceLocation = getResourceLocation( viewModelName ).viewModels;
+
+      if( typeof require === 'function' && typeof require.defined === 'function' && require.defined(viewModelName) === true ) {
+        // we have found a matching resource that is already cached by require, lets use it
+        resourceLocation = viewModelName;
+      }
+
+      var bindViewModel = function(ViewModel) {
+        var viewModel = ViewModel;
+        if(typeof ViewModel === 'function') {
+          viewModel = new ViewModel(values.params);
+        }
+
+        // binding the viewModel onto each child element is not ideal, need to do this differently
+        _.each(element.children, function(child) {
+          ko.applyBindings(viewModel, child);
+        });
+      };
+
+      if(typeof resourceLocation === 'string' ) {
+        if(typeof require === 'function') {
+          if(isPath(resourceLocation) === true) {
+            resourceLocation = resourceLocation + values.params.name;
+          }
+          if( resourceLocation !== viewModelName && resourceLocation.match(/\.js$/) === null ) {
+            resourceLocation = resourceLocation + resourceFileExtensions.viewModel;
+          }
+
+          // TODO: figure out why the leading '/' causes a problem here but not on components loaded via require?
+          resourceLocation = resourceLocation.replace(/^\//, '');
+
+          require([ resourceLocation ], bindViewModel);
+        } else {
+          throw 'Uses require, but no AMD loader is present';
+        }
+      } else if( typeof resourceLocation === 'function' ) {
+        bindViewModel( resourceLocation );
+      } else if( typeof resourceLocation === 'object' ) {
+        if( typeof resourceLocation.instance === 'object' ) {
+          bindViewModel( resourceLocation.instance );
+        } else if( typeof resourceLocation.createViewModel === 'function' ) {
+          bindViewModel( resourceLocation.createViewModel( values.params, { element: element } ) );
+        }
+      }
+    }
+    return { 'controlsDescendantBindings': true };
+  }
+  return originalComponentInit(element, valueAccessor, ignored1, ignored2, bindingContext);
 };
 
 // The footwork getConfig loader is a catch-all in the instance a registered component cannot be found.
 // The loader will attempt to use requirejs via knockouts integrated support if it is available.
 ko.components.loaders.push({
   getConfig: function(componentName, callback) {
-    var combinedFile = componentName + componentFileExtensions.combined;
-    var viewModelFile = componentName + componentFileExtensions.viewModel;
-    var templateFile = componentName + componentFileExtensions.template;
-    var componentLocation = componentLocations[componentName] || defaultComponentLocation;
+    var combinedFile = componentName + resourceFileExtensions.combined;
+    var viewModelFile = componentName + resourceFileExtensions.viewModel;
+    var templateFile = componentName + resourceFileExtensions.template;
+    var componentLocation = getResourceLocation(componentName);
     var configOptions = null;
     var viewModelPath;
     var templatePath;
@@ -964,7 +1057,12 @@ ko.components.loaders.push({
 
     if( typeof require === 'function' ) {
       // load component using knockouts native support for requirejs
-      if( typeof componentLocation.combined === 'string' ) {
+      if( require.defined(componentName) === true ) {
+        // component already cached, lets use it
+        configOptions = {
+          require: componentName
+        };
+      } else if( typeof componentLocation.combined === 'string' ) {
         combinedPath = componentLocation.combined;
 
         if( isPath(combinedPath) === true ) {
@@ -975,8 +1073,8 @@ ko.components.loaders.push({
           require: combinedPath
         };
       } else {
-        viewModelPath = (componentLocation.viewModels || componentLocation.viewModel);
-        templatePath = 'text!' + (componentLocation.templates || componentLocation.template);
+        viewModelPath = componentLocation.viewModels;
+        templatePath = 'text!' + componentLocation.templates;
 
         if( isPath(viewModelPath) === true ) {
           viewModelPath = viewModelPath + viewModelFile;
@@ -996,19 +1094,21 @@ ko.components.loaders.push({
   }
 });
 
-ko.bindingHandlers.component.update = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-  if( isViewModel(viewModel) === true ) {
-    var configParams = viewModel.__getConfigParams();
-    if( typeof configParams.afterBinding.called === 'undefined' ) {
-      configParams.afterBinding.called = true;
-      configParams.afterBinding.call(viewModel);
+// Use the component update binding to provide the afterBinding() lifecycle event
+_.extend(ko.bindingHandlers.component, {
+  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    if( isViewModel(viewModel) === true ) {
+      var configParams = viewModel.__getConfigParams();
+      if( _.isFunction(configParams.afterInsert) === true && typeof configParams.afterInsert.wasCalled === 'undefined' ) {
+        configParams.afterBinding.wasCalled = true;
+        configParams.afterBinding.call(viewModel, element, valueAccessor, allBindings, viewModel, bindingContext);
+      }
     }
   }
-};
+});
 
 // outlets can only exist within parent components
-ko.component({
-  name: 'outlet',
+ko.components.register('outlet', {
   autoIncrement: true,
   viewModel: function(params) {
     var $parentViewModel = this.$parent = params.$parent;
@@ -1034,14 +1134,12 @@ ko.component({
     <!-- /ko -->'
 });
 
-ko.component({
-  name: 'empty',
+ko.components.register('empty', {
   viewModel: function(params) {},
   template: '<div class="empty component"></div>'
 });
 
-ko.component({
-  name: 'error',
+ko.components.register('error', {
   viewModel: function(params) {
     this.message = ko.observable(params.message);
     this.errors = params.errors;
