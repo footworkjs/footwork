@@ -307,9 +307,6 @@ var module = undefined,
 }));
     }).call(root);
 
-    /**
-     * postal.preserve plugin does not yet have a named bower package
-     */
     if(typeof root.postal.preserve === 'undefined') {
       (function() {
         /**
@@ -575,7 +572,7 @@ function requestResponseFromNamespace(requestKey, params) {
       }
     }
   });
-  var t = createEnvelope('request.' + requestKey, response);
+
   this.publish( createEnvelope('request.' + requestKey, response) );
   responseSubscription.unsubscribe();
 
@@ -784,9 +781,9 @@ var makeViewModel = ko.viewModel = function(configParams) {
     autoIncrement: false,
     mixins: undefined,
     params: undefined,
-    afterBinding: noop,
+    initialize: noop,
     afterInit: noop,
-    initialize: noop
+    afterBinding: noop
   }, configParams);
 
   var initViewModelMixin = {
@@ -952,14 +949,14 @@ var registerLocationOfComponent = ko.components.registerLocationOf = function(co
   componentLocations[ componentName ] = componentRelativeLocation(location, true);
 };
 
-// The footwork loader is a catch-all in the instance a registered component cannot be found.
+// The footwork getConfig loader is a catch-all in the instance a registered component cannot be found.
 // The loader will attempt to use requirejs via knockouts integrated support if it is available.
-ko.components.loaders.push( ko.components.footworkDefaultLoader = {
-  getConfig: function(name, callback) {
-    var combinedFile = name + componentFileExtensions.combined;
-    var viewModelFile = name + componentFileExtensions.viewModel;
-    var templateFile = name + componentFileExtensions.template;
-    var componentLocation = componentLocations[name] || defaultComponentLocation;
+ko.components.loaders.push({
+  getConfig: function(componentName, callback) {
+    var combinedFile = componentName + componentFileExtensions.combined;
+    var viewModelFile = componentName + componentFileExtensions.viewModel;
+    var templateFile = componentName + componentFileExtensions.template;
+    var componentLocation = componentLocations[componentName] || defaultComponentLocation;
     var configOptions = null;
     var viewModelPath;
     var templatePath;
@@ -971,7 +968,7 @@ ko.components.loaders.push( ko.components.footworkDefaultLoader = {
         combinedPath = componentLocation.combined;
 
         if( isPath(combinedPath) === true ) {
-          combinedPath = combinedPath + '/' + combinedFile;
+          combinedPath = combinedPath + combinedFile;
         }
 
         configOptions = {
@@ -982,10 +979,10 @@ ko.components.loaders.push( ko.components.footworkDefaultLoader = {
         templatePath = 'text!' + (componentLocation.templates || componentLocation.template);
 
         if( isPath(viewModelPath) === true ) {
-          viewModelPath = viewModelPath + '/' + viewModelFile;
+          viewModelPath = viewModelPath + viewModelFile;
         }
         if( isPath(templatePath) === true ) {
-          templatePath = templatePath + '/' + templateFile;
+          templatePath = templatePath + templateFile;
         }
         
         configOptions = {
@@ -999,12 +996,13 @@ ko.components.loaders.push( ko.components.footworkDefaultLoader = {
   }
 });
 
-
-// Temporary solution to being able to programmatically wrap components in a custom binding
-// TODO: Handle this for user when it becomes possible (knockout 3.3?)
-ko.bindingHandlers['bindingEvents'] = {
-  'update': function( element, valueAccessor ) {
-    ko.namespace( ko.unwrap(valueAccessor()) ).publish('__elementIsBound', element);
+ko.bindingHandlers.component.update = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+  if( isViewModel(viewModel) === true ) {
+    var configParams = viewModel.__getConfigParams();
+    if( typeof configParams.afterBinding.called === 'undefined' ) {
+      configParams.afterBinding.called = true;
+      configParams.afterBinding.call(viewModel);
+    }
   }
 };
 

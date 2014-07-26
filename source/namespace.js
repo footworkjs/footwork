@@ -102,7 +102,7 @@ function requestResponseFromNamespace(requestKey, params) {
       }
     }
   });
-  var t = createEnvelope('request.' + requestKey, response);
+
   this.publish( createEnvelope('request.' + requestKey, response) );
   responseSubscription.unsubscribe();
 

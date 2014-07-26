@@ -57,9 +57,9 @@ var makeViewModel = ko.viewModel = function(configParams) {
     autoIncrement: false,
     mixins: undefined,
     params: undefined,
-    afterBinding: noop,
+    initialize: noop,
     afterInit: noop,
-    initialize: noop
+    afterBinding: noop
   }, configParams);
 
   var initViewModelMixin = {
