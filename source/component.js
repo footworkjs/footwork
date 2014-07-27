@@ -137,7 +137,7 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, i
   return originalComponentInit(element, valueAccessor, ignored1, ignored2, bindingContext);
 };
 
-function triggerAfterBinding(element, valueAccessor, allBindings, viewModel, bindingContext) {
+function componentTriggerAfterBinding(element, viewModel) {
   if( isViewModel(viewModel) === true ) {
     var configParams = viewModel.__getConfigParams();
     if( _.isFunction(configParams.afterBinding) === true && configParams.afterBinding.wasCalled === false ) {
@@ -147,7 +147,7 @@ function triggerAfterBinding(element, valueAccessor, allBindings, viewModel, bin
   }
 }
 
-// Use the $component wrapper binding to provide the afterBinding() lifecycle event for components
+// Use the $component wrapper binding to provide lifecycle events for components
 ko.virtualElements.allowedBindings.$component = true;
 ko.bindingHandlers.$component = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
@@ -157,7 +157,7 @@ ko.bindingHandlers.$component = {
         if( _.isFunction(configParams.afterDispose) === true ) {
           configParams.afterDispose.call(viewModel, element);
         }
-        if( _.isFunction(configParams.afterBinding) === true && configParams.afterBinding.wasCalled === true ) {
+        if( _.isFunction(configParams.afterBinding) === true ) {
           configParams.afterBinding.wasCalled = false;
         }
       }
@@ -171,13 +171,13 @@ ko.bindingHandlers.$component = {
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     if( isViewModel(viewModel) === true ) {
-      triggerAfterBinding(element, valueAccessor, allBindings, viewModel, bindingContext);
+      componentTriggerAfterBinding(element, viewModel);
     }
 
     var child = ko.virtualElements.firstChild(element);
     if( typeof child !== 'undefined' ) {
       viewModel = ko.dataFor( child );
-      triggerAfterBinding(element, valueAccessor, allBindings, viewModel, bindingContext);
+      componentTriggerAfterBinding(element, viewModel);
     }
   }
 };
