@@ -60,8 +60,10 @@ var makeViewModel = ko.viewModel = function(configParams) {
     params: undefined,
     initialize: noop,
     afterInit: noop,
-    afterBinding: noop
+    afterBinding: noop,
+    afterDispose: noop
   }, configParams);
+  configParams.afterBinding.wasCalled = false;
 
   var initViewModelMixin = {
     _preInit: function( initParams ) {
@@ -91,6 +93,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
 
   var model = riveter.compose.apply( undefined, composure );
   model.__isViewModelCtor = true;
+  model.__configParams = configParams;
 
   return model;
 };

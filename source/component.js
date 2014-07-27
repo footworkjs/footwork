@@ -13,7 +13,7 @@ var registerComponent = ko.components.register = function(componentName, options
   //      as well as others like params, afterBinding. Currently we will just use the viewModel's mixins/etc, only the namespace is overridden
   //      from the component definition/configuration.
   if( isViewModelCtor(viewModel) ) {
-    viewModel.options.componentNamespace = componentName;
+    viewModel.__configParams['componentNamespace'] = componentName;
   } else if( typeof viewModel === 'function' ) {
     options.namespace = componentName;
     viewModel = makeViewModel(options);
@@ -137,28 +137,47 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, i
   return originalComponentInit(element, valueAccessor, ignored1, ignored2, bindingContext);
 };
 
+function triggerAfterBinding(element, valueAccessor, allBindings, viewModel, bindingContext) {
+  if( isViewModel(viewModel) === true ) {
+    var configParams = viewModel.__getConfigParams();
+    if( _.isFunction(configParams.afterBinding) === true && configParams.afterBinding.wasCalled === false ) {
+      configParams.afterBinding.wasCalled = true;
+      configParams.afterBinding.call(viewModel);
+    }
+  }
+}
+
 // Use the $component wrapper binding to provide the afterBinding() lifecycle event for components
 ko.virtualElements.allowedBindings.$component = true;
 ko.bindingHandlers.$component = {
-  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+      if( isViewModel(viewModel) === true ) {
+        var configParams = viewModel.__getConfigParams();
+        if( _.isFunction(configParams.afterDispose) === true ) {
+          configParams.afterDispose.call(viewModel, element);
+        }
+        if( _.isFunction(configParams.afterBinding) === true && configParams.afterBinding.wasCalled === true ) {
+          configParams.afterBinding.wasCalled = false;
+        }
+      }
+
       _.each( viewModel, function( $namespace ) {
         if( isNamespace( $namespace ) === true ) {
           $namespace.shutdown();
         }
       });
     });
+  },
+  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    if( isViewModel(viewModel) === true ) {
+      triggerAfterBinding(element, valueAccessor, allBindings, viewModel, bindingContext);
+    }
 
     var child = ko.virtualElements.firstChild(element);
     if( typeof child !== 'undefined' ) {
       viewModel = ko.dataFor( child );
-      if( isViewModel(viewModel) === true ) {
-        var configParams = viewModel.__getConfigParams();
-        if( _.isFunction(configParams.afterBinding) === true && typeof configParams.afterBinding.wasCalled === 'undefined' ) {
-          configParams.afterBinding.wasCalled = true;
-          configParams.afterBinding.call(viewModel, element, valueAccessor, allBindings, viewModel, bindingContext);
-        }
-      }
+      triggerAfterBinding(element, valueAccessor, allBindings, viewModel, bindingContext);
     }
   }
 };
