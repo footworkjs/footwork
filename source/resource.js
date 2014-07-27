@@ -72,8 +72,8 @@ var resourceRelativeLocation = function(rootURL, returnTheValue) {
   }
 };
 
-var componentRelativeLocation = ko.components.loadRelativeTo = function(rootURL, returnTheValue) {
-  var returnValue = resourceRelativeLocation(rootURL, returnTheValue);
+var componentRelativeLocation = ko.components.loadRelativeTo = function(locations, returnTheValue) {
+  var returnValue = resourceRelativeLocation(locations, returnTheValue);
   if(returnTheValue === true) {
     return returnValue;
   }
