@@ -77,8 +77,7 @@ ko.components.tagIsComponent = function(tagName, isComponent) {
   }
 };
 
-
-// Monkey patch for knockout, enables the viewModel 'component' to initialize a model and bind to the html as intended
+// Monkey patch enables the viewModel 'component' to initialize a model and bind to the html as intended
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = ko.bindingHandlers.component.init;
 ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, ignored2, bindingContext) {
@@ -138,6 +137,42 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, i
   return originalComponentInit(element, valueAccessor, ignored1, ignored2, bindingContext);
 };
 
+// Use the componentActive wrapper binding to provide the afterBinding() lifecycle event for components
+ko.virtualElements.allowedBindings.componentActive = true;
+ko.bindingHandlers.componentActive = {
+  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    var child = ko.virtualElements.firstChild(element);
+    var children = [];
+    while (child) {
+      children.push(child);
+      child = ko.virtualElements.nextSibling(child);
+    }
+
+    if( typeof children !== 'undefined' && children.length > 0 ) {
+      viewModel = ko.dataFor( children[0] );
+      if( isViewModel(viewModel) === true ) {
+        var configParams = viewModel.__getConfigParams();
+        if( _.isFunction(configParams.afterBinding) === true && typeof configParams.afterBinding.wasCalled === 'undefined' ) {
+          configParams.afterBinding.wasCalled = true;
+          configParams.afterBinding.call(viewModel, element, valueAccessor, allBindings, viewModel, bindingContext);
+        }
+      }
+    }
+  }
+};
+
+// Custom loader used to wrap components with the componentActive custom binding
+var componentWrapper = '<!-- ko componentActive: true -->COMPONENT_MARKUP<!-- /ko -->';
+ko.components.loaders.unshift({
+  loadTemplate: function(componentName, templateConfig, callback) {
+    // console.info('ko.components.loaders loadTemplate', arguments);
+    if(typeof templateConfig === 'string') {
+      templateConfig = componentWrapper.replace(/COMPONENT_MARKUP/,templateConfig);
+    }
+    ko.components.defaultLoader.loadTemplate(componentName, templateConfig, callback);
+  }
+});
+
 // The footwork getConfig loader is a catch-all in the instance a registered component cannot be found.
 // The loader will attempt to use requirejs via knockouts integrated support if it is available.
 ko.components.loaders.push({
@@ -189,17 +224,6 @@ ko.components.loaders.push({
     callback(configOptions);
   }
 });
-
-// Use the component update binding to provide the afterBinding() lifecycle event
-ko.bindingHandlers.component.update = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-  if( isViewModel(viewModel) === true ) {
-    var configParams = viewModel.__getConfigParams();
-    if( _.isFunction(configParams.afterInsert) === true && typeof configParams.afterInsert.wasCalled === 'undefined' ) {
-      configParams.afterBinding.wasCalled = true;
-      configParams.afterBinding.call(viewModel, element, valueAccessor, allBindings, viewModel, bindingContext);
-    }
-  }
-};
 
 // outlets can only exist within parent components
 ko.components.register('outlet', {
