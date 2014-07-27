@@ -5982,9 +5982,9 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, i
   return originalComponentInit(element, valueAccessor, ignored1, ignored2, bindingContext);
 };
 
-// Use the componentActive wrapper binding to provide the afterBinding() lifecycle event for components
-ko.virtualElements.allowedBindings.componentActive = true;
-ko.bindingHandlers.componentActive = {
+// Use the $component wrapper binding to provide the afterBinding() lifecycle event for components
+ko.virtualElements.allowedBindings.$component = true;
+ko.bindingHandlers.$component = {
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var child = ko.virtualElements.firstChild(element);
     var children = [];
@@ -6006,13 +6006,12 @@ ko.bindingHandlers.componentActive = {
   }
 };
 
-// Custom loader used to wrap components with the componentActive custom binding
-var componentWrapper = '<!-- ko componentActive: true -->COMPONENT_MARKUP<!-- /ko -->';
-ko.components.loaders.unshift({
+// Custom loader used to wrap components with the $component custom binding
+var componentWrapperTemplate = '<!-- ko $component -->COMPONENT_MARKUP<!-- /ko -->';
+ko.components.loaders.unshift( ko.components.componentWrapper = {
   loadTemplate: function(componentName, templateConfig, callback) {
-    // console.info('ko.components.loaders loadTemplate', arguments);
     if(typeof templateConfig === 'string') {
-      templateConfig = componentWrapper.replace(/COMPONENT_MARKUP/,templateConfig);
+      templateConfig = componentWrapperTemplate.replace(/COMPONENT_MARKUP/,templateConfig);
     }
     ko.components.defaultLoader.loadTemplate(componentName, templateConfig, callback);
   }
@@ -6020,7 +6019,7 @@ ko.components.loaders.unshift({
 
 // The footwork getConfig loader is a catch-all in the instance a registered component cannot be found.
 // The loader will attempt to use requirejs via knockouts integrated support if it is available.
-ko.components.loaders.push({
+ko.components.loaders.push( ko.components.requireLoader = {
   getConfig: function(componentName, callback) {
     var combinedFile = componentName + resourceFileExtensions.combined;
     var viewModelFile = componentName + resourceFileExtensions.viewModel;
