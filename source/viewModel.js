@@ -53,6 +53,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
 
   configParams = _.extend({
     namespace: undefined,
+    name: undefined,
     componentNamespace: undefined,
     autoIncrement: false,
     mixins: undefined,
