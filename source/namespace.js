@@ -188,7 +188,7 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
 
 // Duck type check for a namespace object
 var isNamespace = ko.isNamespace = function(thing) {
-  return _.isFunction(thing.subscribe) && _.isFunction(thing.publish) && typeof thing.channel === 'string';
+  return typeof thing !== 'undefined' && _.isFunction(thing.subscribe) && _.isFunction(thing.publish) && typeof thing.channel === 'string';
 };
 
 // Return the current namespace name.
