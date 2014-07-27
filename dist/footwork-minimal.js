@@ -5902,12 +5902,12 @@ var normalTags = [
   'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'template', 'textarea',
   'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp'
 ];
-ko.components.tagIsComponent = function(tagName, isComponent) {
+var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponent) {
   isComponent = (typeof isComponent === 'undefined' ? true : isComponent);
 
   if( _.isArray(tagName) === true ) {
     _.each(tagName, function(tag) {
-      ko.components.tagIsComponent(tag, isComponent);
+      tagIsComponent(tag, isComponent);
     });
   }
 
