@@ -70,10 +70,7 @@ function normalizeURL(url) {
 }
 
 function historyReady() {
-  var isReady = _.has(History, 'Adapter');
-  isReady === false && ko.logError('History.js is not loaded.');
-
-  return isReady;
+  return _.has(History, 'Adapter');
 }
 
 function extractNavItems(routes) {
@@ -135,7 +132,7 @@ var stateChange = router.stateChange = function(url) {
 
 var currentState = ko.observable().broadcastAs('currentState');
 currentState.subscribe(function(newState) {
-  ko.log('New Route:', newState);
+  console.log('New Route:', newState);
 });
 
 var getActionFor = router.getActionFor = function(url) {
@@ -170,7 +167,7 @@ var getActionFor = router.getActionFor = function(url) {
   });
 
   if(Action === noop) {
-    ko.logError('Could not locate associated action for ', originalURL);
+    throw 'Could not locate associated action for ' + originalURL;
   }
 
   return Action;

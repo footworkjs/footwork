@@ -18,8 +18,7 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
     if( typeof namespace === 'string') {
       namespace = makeNamespace( namespace );
     } else {
-      ko.logError('Invalid namespace [' + typeof namespace + ']');
-      return observable;
+      throw 'Invalid namespace [' + typeof namespace + ']';
     }
   }
 

@@ -9,10 +9,6 @@
 }(this, function () {
   var windowObject = window;
 
-  // Cross-browser console log() function
-  // http://patik.github.io/console.log-wrapper/
-  //import("../../bower_components/consolelog/consolelog.js");
-
   /**
    * Knockout needs to know about requirejs if present, and also double wraps their module so we can't lie about
    * the root object to it. For those reasons we embed it out here.
