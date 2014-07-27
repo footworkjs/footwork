@@ -10810,6 +10810,10 @@ var makeViewModel = ko.viewModel = function(configParams) {
       this.__getInitParams = function() {
         return initParams;
       };
+      this.__shutdown = function() {
+        this.$namespace.shutdown();
+        this.$globalNamespace.shutdown();
+      };
     },
     _postInit: function() {
       this.$namespace.request.handler('__footwork_model_reference', function() {
@@ -11082,6 +11086,14 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, i
 ko.virtualElements.allowedBindings.$component = true;
 ko.bindingHandlers.$component = {
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+      _.each( viewModel, function( $namespace ) {
+        if( isNamespace( $namespace ) === true ) {
+          $namespace.shutdown();
+        }
+      });
+    });
+
     var child = ko.virtualElements.firstChild(element);
     if( typeof child !== 'undefined' ) {
       viewModel = ko.dataFor( child );
