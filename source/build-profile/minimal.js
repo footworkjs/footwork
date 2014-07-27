@@ -8,10 +8,6 @@
   }
 }(this, function (_, ko) {
   var windowObject = window;
-
-  // Cross-browser console log() function
-  // http://patik.github.io/console.log-wrapper/
-  //import("../../bower_components/consolelog/consolelog.js");
   
   window.require = typeof require !== 'undefined' ? require : undefined;
   window.define = typeof define !== 'undefined' ? define : undefined;

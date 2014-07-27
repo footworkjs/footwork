@@ -28,18 +28,6 @@ var isPath = function(pathOrLocation) {
 // 2 === notices (very noisy)
 ko.debugLevel = ko.observable(1);
 
-// expose internal logging methods
-ko.log = function() {
-  if(ko.debugLevel() >= 2) {
-    log.apply(null, arguments);
-  }
-};
-ko.logError = function() {
-  if(ko.debugLevel() >= 1) {
-    log.apply(null, arguments);
-  }
-};
-
 // Preserve the original applyBindings method for later use
 var originalApplyBindings = ko.applyBindings;
 
