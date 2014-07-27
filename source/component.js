@@ -142,7 +142,7 @@ function componentTriggerAfterBinding(element, viewModel) {
     var configParams = viewModel.__getConfigParams();
     if( _.isFunction(configParams.afterBinding) === true && configParams.afterBinding.wasCalled === false ) {
       configParams.afterBinding.wasCalled = true;
-      configParams.afterBinding.call(viewModel);
+      configParams.afterBinding.call(viewModel, element);
     }
   }
 }
