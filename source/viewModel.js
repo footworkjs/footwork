@@ -72,6 +72,10 @@ var makeViewModel = ko.viewModel = function(configParams) {
       this.__getInitParams = function() {
         return initParams;
       };
+      this.__shutdown = function() {
+        this.$namespace.shutdown();
+        this.$globalNamespace.shutdown();
+      };
     },
     _postInit: function() {
       this.$namespace.request.handler('__footwork_model_reference', function() {
