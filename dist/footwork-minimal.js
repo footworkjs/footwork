@@ -5610,7 +5610,7 @@ var exitNamespace = ko.exitNamespace = function() {
 viewModelMixins.push({
   _preInit: function( options ) {
     var $configParams = this.__getConfigParams();
-    this.$namespace = enterNamespaceName( indexedNamespaceName($configParams.componentNamespace || $configParams.namespace || _.uniqueId('namespace'), $configParams.autoIncrement) );
+    this.$namespace = enterNamespaceName( indexedNamespaceName($configParams.componentNamespace || $configParams.namespace || $configParams.name || _.uniqueId('namespace'), $configParams.autoIncrement) );
     this.$globalNamespace = makeNamespace();
   },
   mixin: {
@@ -5695,6 +5695,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
 
   configParams = _.extend({
     namespace: undefined,
+    name: undefined,
     componentNamespace: undefined,
     autoIncrement: false,
     mixins: undefined,
@@ -5846,7 +5847,7 @@ var getResourceLocation = ko.getResourceLocation = function(resourceName) {
 // ------------------
 
 var originalComponentRegisterFunc = ko.components.register;
-ko.components.register = function(componentName, options) {
+var registerComponent = ko.components.register = function(componentName, options) {
   var viewModel = options.initialize || options.viewModel;
   
   if(typeof componentName !== 'string') {
@@ -5867,7 +5868,25 @@ ko.components.register = function(componentName, options) {
     viewModel: viewModel,
     template: options.template
   });
-}
+};
+
+var makeComponent = ko.component = function(options) {
+  var viewModel = options.viewModel;
+  var template = options.template;
+
+  var componentDefinition = {
+    viewModel: viewModel,
+    template: template
+  };
+
+  if( typeof viewModel === 'function' && isViewModelCtor(viewModel) === false ) {
+    componentDefinition.viewModel = makeViewModel( _.omit(options, 'template') );
+  } else if( typeof viewModel === 'object' ) {
+    componentDefinition.viewModel = viewModel;
+  }
+
+  return componentDefinition;
+};
 
 // These are tags which are ignored by the custom component loader
 // Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element

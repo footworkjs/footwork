@@ -222,7 +222,7 @@ var exitNamespace = ko.exitNamespace = function() {
 viewModelMixins.push({
   _preInit: function( options ) {
     var $configParams = this.__getConfigParams();
-    this.$namespace = enterNamespaceName( indexedNamespaceName($configParams.componentNamespace || $configParams.namespace || _.uniqueId('namespace'), $configParams.autoIncrement) );
+    this.$namespace = enterNamespaceName( indexedNamespaceName($configParams.componentNamespace || $configParams.namespace || $configParams.name || _.uniqueId('namespace'), $configParams.autoIncrement) );
     this.$globalNamespace = makeNamespace();
   },
   mixin: {
