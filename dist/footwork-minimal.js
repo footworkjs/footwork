@@ -5108,11 +5108,11 @@ return delegate;
     if (typeof module === "object" && module.exports) {
         // Node, or CommonJS-Like environments
         module.exports = function (postal) {
-            factory(require("lodash"), require("conduit"), postal, this);
+            factory(require("lodash"), require("conduitjs"), postal, this);
         };
     } else if (typeof define === "function" && define.amd) {
         // AMD. Register as an anonymous module.
-        define(["lodash", "conduit", "postal"], function (_, Conduit, postal) {
+        define(["lodash", "conduitjs", "postal"], function (_, Conduit, postal) {
             return factory(_, Conduit, postal, root);
         });
     } else {
@@ -5155,7 +5155,6 @@ return delegate;
         var expired = _.filter(plugin.expiring, function (x) {
             return x.expires < dt;
         });
-        console.log("Expired message count: " + expired.length);
         while (expired.length) {
             expired.pop().purge();
         }
