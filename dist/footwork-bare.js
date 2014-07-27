@@ -1065,14 +1065,8 @@ ko.virtualElements.allowedBindings.$component = true;
 ko.bindingHandlers.$component = {
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var child = ko.virtualElements.firstChild(element);
-    var children = [];
-    while (child) {
-      children.push(child);
-      child = ko.virtualElements.nextSibling(child);
-    }
-
-    if( typeof children !== 'undefined' && children.length > 0 ) {
-      viewModel = ko.dataFor( children[0] );
+    if( typeof child !== 'undefined' ) {
+      viewModel = ko.dataFor( child );
       if( isViewModel(viewModel) === true ) {
         var configParams = viewModel.__getConfigParams();
         if( _.isFunction(configParams.afterBinding) === true && typeof configParams.afterBinding.wasCalled === 'undefined' ) {
