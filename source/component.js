@@ -115,9 +115,6 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, i
             resourceLocation = resourceLocation + resourceFileExtensions.viewModel;
           }
 
-          // TODO: figure out why the leading '/' causes a problem here but not on components loaded via require?
-          resourceLocation = resourceLocation.replace(/^\//, '');
-
           require([ resourceLocation ], bindViewModel);
         } else {
           throw 'Uses require, but no AMD loader is present';
