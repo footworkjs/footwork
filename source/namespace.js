@@ -244,23 +244,6 @@ viewModelMixins.push({
   mixin: {
     getNamespaceName: function() {
       return this.$namespace.getName();
-    },
-    broadcastAll: function() {
-      var model = this;
-      _.each( this, function(property, propName) {
-        if( isABroadcastable(property) === true ) {
-          property.broadcast();
-        }
-      });
-      return this;
-    },
-    refreshReceived: function() {
-      _.each( this, function(property, propName) {
-        if( isAReceivable(property) === true ) {
-          property.refresh();
-        }
-      });
-      return this;
     }
   },
   _postInit: function( options ) {
