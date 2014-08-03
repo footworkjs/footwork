@@ -96,7 +96,7 @@ var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponen
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = ko.bindingHandlers.component.init;
 ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, ignored2, bindingContext) {
-  if( element.tagName.toLowerCase() === 'viewmodel' ) {
+  if( typeof element.tagName === 'string' && element.tagName.toLowerCase() === 'viewmodel' ) {
     var values = valueAccessor();
 
     if( typeof values.params.name !== 'undefined' ) {
@@ -268,24 +268,28 @@ ko.components.loaders.push( ko.components.requireLoader = {
 
 ko.virtualElements.allowedBindings.$outlet = true;
 ko.bindingHandlers.$outlet = {
-  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+  init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
     var $parentViewModel = bindingContext.$parent;
-    viewModel.activateRouterFrom($parentViewModel);
-  },
-  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    var $parentRouter = $parentViewModel.$router;
+
+    // make sure this outlet name is registered with the router
+    outletViewModel.target = $parentRouter.$outlet( $parentViewModel.outletName );
+    // outletViewModel.activateRouterFrom($parentViewModel);
   }
 };
+
 // outlets can only exist within parent components
 ko.components.register('outlet', {
   autoIncrement: true,
   viewModel: function(params) {
-    var outlet = this;
-
+    this.outletName = ko.unwrap(params.name);
     this.activateRouterFrom = function($parentViewModel) {
-      if(typeof $parentViewModel.$router !== 'undefined') {
+      console.log('$outlet activateRouterFrom this.$router', $parentViewModel.$router);
+      // this.target() is now an observable which controls which component: and parameters: are expressed to the components viewModel
+      // if(typeof $parentViewModel.$router !== 'undefined') {
 
-      }
-      console.log('$outlet activateRouterFrom $parentViewModel', $parentViewModel);
+      // }
+      // console.log('$outlet activateRouterFrom $parentViewModel', $parentViewModel);
     };
     // var $parentViewModel = this.$parent = params.$parent;
     // this.outletName = params.name;
@@ -304,9 +308,9 @@ ko.components.register('outlet', {
   },
   template: '\
     <!-- ko $outlet -->\
+      <!-- ko component: { name: target().component, params: target().parameters } --><!-- /ko -->\
     <!-- /ko -->'
 });
-//    <!-- ko component: { name: targetComponent, params: { errors: errors } } --><!-- /ko -->\
 
 ko.components.register('empty', {
   viewModel: function(params) {},

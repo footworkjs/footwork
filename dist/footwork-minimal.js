@@ -5850,11 +5850,44 @@ function hasNavItems(routes) {
   return extractNavItems( routes ).length > 0;
 }
 
-var Router = function( routerConfig, viewModel ) {
+var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters ) {
+  var outlets = this.outlets;
+
+  outletName = ko.unwrap( outletName );
+  componentToDisplay = componentToDisplay || 'empty';
+  viewModelParameters = viewModelParameters || {};
+
+  if( isObservable(outlets[outletName]) === false ) {
+    outlets[outletName] = ko.observable({
+      component: 'empty',
+      parameters: {}
+    });
+  }
+
+  var currentOutletDef =  outlets[outletName]();
+  var valueMutated = false;
+
+  if( typeof componentToDisplay !== 'undefined' ) {
+    currentOutletDef.component = componentToDisplay;
+    valueMutated = true;
+  }
+  if( typeof viewModelParameters !== 'undefined' ) {
+    currentOutletDef.parameters = viewModelParameters;
+    valueMutated = true;
+  }
+  if( valueMutated === true ) {
+    outlets[outletName].valueHasMutated();
+  }
+
+  return outlets[outletName];
+};
+
+var Router = ko.router = function( routerConfig, viewModel ) {
   this.$viewModel = viewModel;
 
   this.config = routerConfig = _.extend({}, routerDefaultConfig, routerConfig);
-  this.config.baseRoute = _.result(routerConfig, 'baseRoute');
+  var configBaseRoute = _.result(routerConfig, 'baseRoute');
+  this.config.baseRoute = Router.baseRoute() + (configBaseRoute || '');
 
   this.$namespace = makeNamespace( routerConfig.namespace );
   this.$namespace.enter();
@@ -5863,6 +5896,7 @@ var Router = function( routerConfig, viewModel ) {
   this.currentState = ko.observable().broadcastAs('currentState');
   this.navModelUpdate = ko.observable();
   this.outlets = {};
+  this.$outlet = _.bind( $routerOutlet, this );
 
   this.currentState.subscribe(function(state) {
     console.log('currentState', state);
@@ -5876,6 +5910,7 @@ var Router = function( routerConfig, viewModel ) {
 
   this.$namespace.exit();
 };
+ko.router.baseRoute = ko.observable();
 
 Router.prototype.unknownRoute = function() {
   return (typeof this.config !== 'undefined' ? _.result(this.config.unknownRoute) : undefined);
@@ -5919,14 +5954,8 @@ Router.prototype.setupHistoryAdapter = function() {
 Router.prototype.stateChange = function(url) {
   this.currentState( url = this.normalizeURL( url || (this.historyIsEnabled() === true ? History.getState().url : '#default') ) );
 
-  var $outlet = _.bind( function(outletName, componentToDisplay, viewModelParameters ) {
-    outletName = ko.unwrap( outletName );
-
-    /* do stuff here */
-  }, this );
-
   // get the route if it exists and run the action if one is returned
-  this.getActionFor(url)( this.$viewModel, $outlet );
+  this.getActionFor(url)( this.$viewModel, this.$outlet );
   // this.getActionFor(url)();
 
   return this;
@@ -6095,7 +6124,7 @@ var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponen
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = ko.bindingHandlers.component.init;
 ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, ignored2, bindingContext) {
-  if( element.tagName.toLowerCase() === 'viewmodel' ) {
+  if( typeof element.tagName === 'string' && element.tagName.toLowerCase() === 'viewmodel' ) {
     var values = valueAccessor();
 
     if( typeof values.params.name !== 'undefined' ) {
@@ -6267,24 +6296,28 @@ ko.components.loaders.push( ko.components.requireLoader = {
 
 ko.virtualElements.allowedBindings.$outlet = true;
 ko.bindingHandlers.$outlet = {
-  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+  init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
     var $parentViewModel = bindingContext.$parent;
-    viewModel.activateRouterFrom($parentViewModel);
-  },
-  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    var $parentRouter = $parentViewModel.$router;
+
+    // make sure this outlet name is registered with the router
+    outletViewModel.target = $parentRouter.$outlet( $parentViewModel.outletName );
+    // outletViewModel.activateRouterFrom($parentViewModel);
   }
 };
+
 // outlets can only exist within parent components
 ko.components.register('outlet', {
   autoIncrement: true,
   viewModel: function(params) {
-    var outlet = this;
-
+    this.outletName = ko.unwrap(params.name);
     this.activateRouterFrom = function($parentViewModel) {
-      if(typeof $parentViewModel.$router !== 'undefined') {
+      console.log('$outlet activateRouterFrom this.$router', $parentViewModel.$router);
+      // this.target() is now an observable which controls which component: and parameters: are expressed to the components viewModel
+      // if(typeof $parentViewModel.$router !== 'undefined') {
 
-      }
-      console.log('$outlet activateRouterFrom $parentViewModel', $parentViewModel);
+      // }
+      // console.log('$outlet activateRouterFrom $parentViewModel', $parentViewModel);
     };
     // var $parentViewModel = this.$parent = params.$parent;
     // this.outletName = params.name;
@@ -6303,9 +6336,9 @@ ko.components.register('outlet', {
   },
   template: '\
     <!-- ko $outlet -->\
+      <!-- ko component: { name: target().component, params: target().parameters } --><!-- /ko -->\
     <!-- /ko -->'
 });
-//    <!-- ko component: { name: targetComponent, params: { errors: errors } } --><!-- /ko -->\
 
 ko.components.register('empty', {
   viewModel: function(params) {},
