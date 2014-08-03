@@ -25,19 +25,34 @@ var registerComponent = ko.components.register = function(componentName, options
   });
 };
 
-var makeComponent = ko.component = function(options) {
-  var viewModel = options.viewModel;
-  var template = options.template;
-
-  var componentDefinition = {
-    viewModel: viewModel,
-    template: template
-  };
+var makeComponent = ko.component = function(componentDefinition) {
+  var routerDescription = componentDefinition.router;
+  var viewModel = componentDefinition.viewModel;
+  var mixins = componentDefinition.mixins;
 
   if( typeof viewModel === 'function' && isViewModelCtor(viewModel) === false ) {
-    componentDefinition.viewModel = makeViewModel( _.omit(options, 'template') );
-  } else if( typeof viewModel === 'object' ) {
-    componentDefinition.viewModel = viewModel;
+    componentDefinition.viewModel = makeViewModel( _.omit(componentDefinition, 'template') );
+  }
+
+  if( typeof routerDescription === 'object' && typeof componentDefinition.viewModel.compose === 'function' ) {
+    if( _.isArray(mixins) === false ) {
+      componentDefinition.mixins = [];
+    }
+    // add mixin which creates an instance of $router on the viewModel according to the componentDefinition.router description
+    componentDefinition.viewModel = viewModel.compose({
+      _postInit: function() {
+        this.$router = makeRouter( routerDescription );
+        console.log('componentRouterMixin', this.$router);
+        // this.$router = ko.router({
+        //   baseRoute: 'http://footwork-test.local',
+        //   routes: [
+        //     { route: '/', title: 'Main Page Nav', nav: true, controller: controller },
+        //     { route: '/one/:two/:three', title: 'Nav Route', nav: true, controller: controller },
+        //     { route: '/2014/march/*', title: 'Date Route', controller: controller }
+        //   ]
+        // });
+      }
+    });
   }
 
   return componentDefinition;
@@ -179,12 +194,21 @@ ko.bindingHandlers.$component = {
   }
 };
 
+// Components which footwork will not wrap in the $component custom binding used for lifecycle events
+// Used to keep the wrapper off of internal/natively handled and defined components such as 'outlet'
+var nativeComponents = [
+  'outlet'
+];
+
 // Custom loader used to wrap components with the $component custom binding
 var componentWrapperTemplate = '<!-- ko $component -->COMPONENT_MARKUP<!-- /ko -->';
 ko.components.loaders.unshift( ko.components.componentWrapper = {
   loadTemplate: function(componentName, templateConfig, callback) {
-    if(typeof templateConfig === 'string') {
-      templateConfig = componentWrapperTemplate.replace(/COMPONENT_MARKUP/,templateConfig);
+    if( nativeComponents.indexOf(componentName) === -1 ) {
+      // TODO: Handle different types of templateConfigs
+      if(typeof templateConfig === 'string') {
+        templateConfig = componentWrapperTemplate.replace(/COMPONENT_MARKUP/, templateConfig);
+      }
     }
     ko.components.defaultLoader.loadTemplate(componentName, templateConfig, callback);
   }
@@ -242,30 +266,47 @@ ko.components.loaders.push( ko.components.requireLoader = {
   }
 });
 
+ko.virtualElements.allowedBindings.$outlet = true;
+ko.bindingHandlers.$outlet = {
+  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    var $parentViewModel = bindingContext.$parent;
+    viewModel.activateRouterFrom($parentViewModel);
+  },
+  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+  }
+};
 // outlets can only exist within parent components
 ko.components.register('outlet', {
   autoIncrement: true,
   viewModel: function(params) {
-    var $parentViewModel = this.$parent = params.$parent;
-    this.outletName = params.name;
-    this.$namespace = makeNamespace(this.outletName, $parentViewModel.$namespace);
-    this.outletIsActive = ko.observable(true);
+    var outlet = this;
 
-    // .broadcastAs({ name: this.outletName, namespace: 'outlet.' });
-    this.errors = ko.observableArray();
-    var outletObservable = $parentViewModel[ this.outletName + 'Outlet' ];
-    if(typeof outletObservable !== 'undefined') {
-      this.targetComponent = outletObservable;
-    } else {
-      this.targetComponent = ko.observable('error');
-      this.errors.push('Could not locate outlet observable ($parentViewModel.' + this.outletName + 'Outlet' + ' is undefined).');
-    }
+    this.activateRouterFrom = function($parentViewModel) {
+      if(typeof $parentViewModel.$router !== 'undefined') {
+
+      }
+      console.log('$outlet activateRouterFrom $parentViewModel', $parentViewModel);
+    };
+    // var $parentViewModel = this.$parent = params.$parent;
+    // this.outletName = params.name;
+    // this.$namespace = makeNamespace(this.outletName, $parentViewModel.$namespace);
+    // this.outletIsActive = ko.observable(true);
+
+    // // .broadcastAs({ name: this.outletName, namespace: 'outlet.' });
+    // this.errors = ko.observableArray();
+    // var outletObservable = $parentViewModel[ this.outletName + 'Outlet' ];
+    // if(typeof outletObservable !== 'undefined') {
+    //   this.targetComponent = outletObservable;
+    // } else {
+    //   this.targetComponent = ko.observable('error');
+    //   this.errors.push('Could not locate outlet observable ($parentViewModel.' + this.outletName + 'Outlet' + ' is undefined).');
+    // }
   },
   template: '\
-    <!-- ko if: outletIsActive -->\
-      <!-- ko component: { name: targetComponent, params: { errors: errors } } --><!-- /ko -->\
+    <!-- ko $outlet -->\
     <!-- /ko -->'
 });
+//    <!-- ko component: { name: targetComponent, params: { errors: errors } } --><!-- /ko -->\
 
 ko.components.register('empty', {
   viewModel: function(params) {},

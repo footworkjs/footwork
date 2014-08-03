@@ -40,6 +40,18 @@ var refreshModels = ko.refreshViewModels = function() {
   _.invoke(getViewModels(), 'refreshReceived');
 };
 
+var defaultViewModelConfigParams = {
+  namespace: undefined,
+  name: undefined,
+  componentNamespace: undefined,
+  autoIncrement: false,
+  mixins: undefined,
+  params: undefined,
+  initialize: noop,
+  afterInit: noop,
+  afterBinding: noop,
+  afterDispose: noop
+};
 var makeViewModel = ko.viewModel = function(configParams) {
   var ctor;
   var afterInit;
@@ -51,18 +63,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
   }
   afterInit = { _postInit: afterInit };
 
-  configParams = _.extend({
-    namespace: undefined,
-    name: undefined,
-    componentNamespace: undefined,
-    autoIncrement: false,
-    mixins: undefined,
-    params: undefined,
-    initialize: noop,
-    afterInit: noop,
-    afterBinding: noop,
-    afterDispose: noop
-  }, configParams);
+  configParams = _.extend({}, defaultViewModelConfigParams, configParams);
   configParams.afterBinding.wasCalled = false;
 
   var initViewModelMixin = {

@@ -292,6 +292,10 @@ var isPath = function(pathOrLocation) {
   return pathOrLocation.match(/\/$/i) !== null;
 };
 
+function isObservable(thing) {
+  return typeof thing !== 'undefined' && _.isFunction(thing.notifySubscribers);
+}
+
 // Initialize the debugLevel observable, this controls
 // what level of debug statements are logged to the console
 // 0 === off
@@ -501,6 +505,16 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
   namespace.afterBinding.unregister = _.bind( unregisterNamespaceHandler, namespace );
 
   namespace.getName = _.bind( getNamespaceName, namespace );
+  namespace.enter = function() {
+    return enterNamespace( this );
+  };
+  namespace.exit = function() {
+    if( currentNamespaceName() === this.getName() ) {
+      return exitNamespace();
+    } else if( ko.debugLevel() >= 2 ) {
+      throw 'Attempted to exit namespace [' + this.getName() + '] when currently in namespace [' + currentNamespaceName() +  ']';
+    }
+  };
 
   return namespace;
 };
@@ -527,6 +541,12 @@ var enterNamespaceName = ko.enterNamespaceName = function(namespaceName) {
   var $parentNamespace = currentNamespace();
   namespaceStack.unshift( namespaceName );
   return makeNamespace( currentNamespaceName() );
+};
+
+// enterNamespace() uses a current namespace definition as the one to enter into.
+var enterNamespace = ko.enterNamespace = function(namespace) {
+  namespaceStack.unshift( namespace.getName() );
+  return namespace;
 };
 
 // Called at the after a model constructor function is run. exitNamespace()
@@ -571,6 +591,102 @@ viewModelMixins.push({
     exitNamespace();
   }
 });
+// broadcast-receive.js
+// ----------------
+
+var isAReceivable = ko.isAReceivable = function(thing) {
+  return _.has(thing, '__isReceived') && thing.__isReceived === true;
+};
+
+var isABroadcastable = ko.isABroadcastable = function(thing) {
+  return _.has(thing, '__isBroadcast') && thing.__isBroadcast === true;
+};
+
+//     this.myValue = ko.observable().receiveFrom('NamespaceName' / Namespace, 'varName');
+ko.subscribable.fn.receiveFrom = function(namespace, variable) {
+  var target = this;
+  var observable = this;
+
+  if( isNamespace(namespace) === false ) {
+    if( typeof namespace === 'string') {
+      namespace = makeNamespace( namespace );
+    } else {
+      throw 'Invalid namespace [' + typeof namespace + ']';
+    }
+  }
+
+  observable = ko.computed({
+    read: target,
+    write: function( value ) {
+      namespace.publish( 'change.' + variable, value );
+    }
+  });
+
+  observable.refresh = function() {
+    namespace.publish( 'refresh.' + variable );
+    return this;
+  };
+  namespace.subscribe( variable, function( newValue ) {
+    target( newValue );
+  });
+
+  observable.__isReceived = true;
+  return observable.refresh();
+};
+
+//     this.myValue = ko.observable().broadcastAs('NameOfVar');
+//     this.myValue = ko.observable().broadcastAs('NameOfVar', isWritable);
+//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', writable: true });
+//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', namespace: Namespace });
+//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', namespace: 'NamespaceName' });
+ko.subscribable.fn.broadcastAs = function(varName, option) {
+  var observable = this;
+  var namespace;
+
+  if( _.isObject(varName) === true ) {
+    option = varName;
+  } else {
+    if( typeof option === 'boolean' ) {
+      option = {
+        name: varName,
+        writable: option
+      };
+    } else if( _.isObject(option) === true ) {
+      option = _.extend({
+        name: varName
+      }, option);
+    } else {
+      option = {
+        name: varName
+      };
+    }
+  }
+
+  namespace = option.namespace || currentNamespace();
+  if(typeof namespace === 'string') {
+    namespace = makeNamespace(channel);
+  }
+
+  if( option.writable ) {
+    namespace.subscribe( 'change.' + option.name, function( newValue ) {
+      observable( newValue );
+    });
+  }
+
+  observable.broadcast = function() {
+    namespace.publish( option.name, observable() );
+    return this;
+  };
+  namespace.subscribe( 'refresh.' + option.name, function() {
+    namespace.publish( option.name, observable() );
+  });
+  observable.subscribe(function( newValue ) {
+    namespace.publish( option.name, newValue );
+  });
+
+  observable.__isBroadcast = true;
+  return observable.broadcast();
+};
 // viewModel.js
 // ------------------
 
@@ -613,6 +729,18 @@ var refreshModels = ko.refreshViewModels = function() {
   _.invoke(getViewModels(), 'refreshReceived');
 };
 
+var defaultViewModelConfigParams = {
+  namespace: undefined,
+  name: undefined,
+  componentNamespace: undefined,
+  autoIncrement: false,
+  mixins: undefined,
+  params: undefined,
+  initialize: noop,
+  afterInit: noop,
+  afterBinding: noop,
+  afterDispose: noop
+};
 var makeViewModel = ko.viewModel = function(configParams) {
   var ctor;
   var afterInit;
@@ -624,18 +752,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
   }
   afterInit = { _postInit: afterInit };
 
-  configParams = _.extend({
-    namespace: undefined,
-    name: undefined,
-    componentNamespace: undefined,
-    autoIncrement: false,
-    mixins: undefined,
-    params: undefined,
-    initialize: noop,
-    afterInit: noop,
-    afterBinding: noop,
-    afterDispose: noop
-  }, configParams);
+  configParams = _.extend({}, defaultViewModelConfigParams, configParams);
   configParams.afterBinding.wasCalled = false;
 
   var initViewModelMixin = {
@@ -781,6 +898,196 @@ var registerLocationOfViewModel = ko.viewModel.registerLocationOf = function(vie
 var getResourceLocation = ko.getResourceLocation = function(resourceName) {
   return resourceLocations[resourceName] || defaultResourceLocation;
 };
+// router.js
+// ------------------
+
+/**
+ * Example route:
+ * {
+ *   route: 'test/route(/:optional)',
+ *   title: function() {
+ *     return ko.request('nameSpace', 'broadcast:someVariable');
+ *   },
+ *   nav: true
+ * }
+ */
+
+var routerDefaultConfig = {
+  viewModelNamespaceName: '_router',
+  baseRoute: null,
+  unknownRoute: null,
+  activate: true,
+  routes: []
+};
+
+// Regular expressions used to parse a uri
+var optionalParam = /\((.*?)\)/g;
+var namedParam = /(\(\?)?:\w+/g;
+var splatParam = /\*\w*/g;
+var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
+var hashMatch = /(^\/#)/;
+var routesAreCaseSensitive = false;
+
+// Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
+function routeStringToRegExp(routeString) {
+  routeString = routeString.replace(escapeRegExp, "\\$&")
+    .replace(optionalParam, "(?:$1)?")
+    .replace(namedParam, function(match, optional) {
+      return optional ? match : "([^\/]+)";
+    })
+    .replace(splatParam, "(.*?)");
+
+  return new RegExp('^' + routeString + '$', routesAreCaseSensitive ? undefined : 'i');
+}
+
+function historyReady() {
+  return _.has(History, 'Adapter');
+}
+
+function extractNavItems(routes) {
+  routes = ( _.isArray(routes) ? routes : [routes] );
+  return _.where(routes, { nav: true });
+}
+
+function hasNavItems(routes) {
+  return extractNavItems( routes ).length > 0;
+}
+
+var Router = function( routerConfig ) {
+  this.config = routerConfig = _.extend({}, routerDefaultConfig, routerConfig);
+  this.config.baseRoute = _.result(routerConfig, 'baseRoute');
+
+  this.$namespace = makeNamespace( routerConfig.viewModelNamespaceName );
+  this.$namespace.enter();
+
+  this.historyIsEnabled = ko.observable(false).broadcastAs('historyIsEnabled');
+  this.currentState = ko.observable().broadcastAs('currentState');
+  this.navModelUpdate = ko.observable();
+
+  this.currentState.subscribe(function(state) {
+    console.log('currentState', state);
+  });
+
+  this.setRoutes( routerConfig.routes );
+
+  if(routerConfig.activate === true) {
+    this.activate();
+  }
+
+  this.$namespace.exit();
+};
+
+Router.prototype.unknownRoute = function() {
+  return (typeof this.config !== 'undefined' ? _.result(this.config.unknownRoute) : undefined);
+}
+
+Router.prototype.setRoutes = function(route) {
+  this.addRoutes(route);
+  return this;
+};
+
+Router.prototype.addRoutes = function(route) {
+  route = _.isArray(route) ? route : [route];
+  this.routes.concat(route);
+
+  if( hasNavItems(route) && isObservable(navigationModel) ) {
+    this.navModelUpdate.notifySubscribers(); // tell this.navigationModel to recompute its list
+  }
+
+  return this;
+};
+
+Router.prototype.activate = function() {
+  return this
+    .setupHistoryAdapter()
+    .stateChange();
+};
+
+Router.prototype.setupHistoryAdapter = function() {
+  if(this.historyIsEnabled() !== true) {
+    if( historyReady() === true ) {
+      History.Adapter.bind( window, 'statechange', this.stateChange);
+      this.historyIsEnabled(true);
+    } else {
+      this.historyIsEnabled(false);
+    }
+  }
+
+  return this;
+};
+
+Router.prototype.stateChange = function(url) {
+  this.currentState( url = this.normalizeURL( url || (this.historyIsEnabled() ? History.getState().url : '#default') ) );
+  this.getActionFor(url)(); // get the route if it exists and run the action if one is returned
+
+  return makeRouter;
+};
+
+Router.prototype.normalizeURL = function(url) {
+  if( _.isNull(this.config.baseRoute) === false && url.indexOf(this.config.baseRoute) === 0 ) {
+    url = url.substr(this.config.baseRoute.length);
+    if(url.length > 1) {
+      url = url.replace(hashMatch, '/');
+    }
+  }
+  return url;
+};
+
+Router.prototype.getActionFor = function(url) {
+  var Action = noop;
+  var originalURL = url;
+
+  _.each(this.getRoutes(), function(routeDesc) {
+    var routeString = routeDesc.route;
+    var routeRegex = routeStringToRegExp(routeString);
+    var routeParamValues = url.match(routeRegex);
+
+    if(routeParamValues !== null && Action === noop) {
+      var routeParams = _.map(routeString.match(namedParam), function(param) {
+        return param.replace(':', '');
+      });
+
+      var options = {
+        controller: routeDesc.controller,
+        title: routeDesc.title,
+        url: routeParamValues[0],
+        params: _.reduce(routeParams, function(parameters, parameterName, index) {
+            parameters[parameterName] = routeParamValues[index + 1];
+            return parameters;
+          }, {})
+      };
+      
+      Action = function(params) {
+        options.controller( _.extend(options.params, params), options );
+      };
+      Action.options = options;
+    }
+  });
+
+  if(ko.debugLevel() >= 2 && Action === noop) {
+    throw 'Could not locate associated action for ' + originalURL;
+  }
+
+  return Action;
+};
+
+Router.prototype.getRoutes = function() {
+  return this.routes;
+};
+
+Router.prototype.navigationModel = function(predicate) {
+  if(typeof this.navigationModel === 'undefined') {
+    this.navigationModel = ko.computed(function() {
+      this.navModelUpdate(); // dummy reference used to trigger updates
+      return _.filter(
+        extractNavItems(routes),
+        (predicate || function() { return true; })
+      );
+    }, { navModelUpdate: this.navModelUpdate }).broadcastAs({ name: 'navigationModel', namespace: this.$namespace });
+  }
+
+  return this.navigationModel;
+};
 // component.js
 // ------------------
 
@@ -808,19 +1115,34 @@ var registerComponent = ko.components.register = function(componentName, options
   });
 };
 
-var makeComponent = ko.component = function(options) {
-  var viewModel = options.viewModel;
-  var template = options.template;
-
-  var componentDefinition = {
-    viewModel: viewModel,
-    template: template
-  };
+var makeComponent = ko.component = function(componentDefinition) {
+  var routerDescription = componentDefinition.router;
+  var viewModel = componentDefinition.viewModel;
+  var mixins = componentDefinition.mixins;
 
   if( typeof viewModel === 'function' && isViewModelCtor(viewModel) === false ) {
-    componentDefinition.viewModel = makeViewModel( _.omit(options, 'template') );
-  } else if( typeof viewModel === 'object' ) {
-    componentDefinition.viewModel = viewModel;
+    componentDefinition.viewModel = makeViewModel( _.omit(componentDefinition, 'template') );
+  }
+
+  if( typeof routerDescription === 'object' && typeof componentDefinition.viewModel.compose === 'function' ) {
+    if( _.isArray(mixins) === false ) {
+      componentDefinition.mixins = [];
+    }
+    // add mixin which creates an instance of $router on the viewModel according to the componentDefinition.router description
+    componentDefinition.viewModel = viewModel.compose({
+      _postInit: function() {
+        this.$router = makeRouter( routerDescription );
+        console.log('componentRouterMixin', this.$router);
+        // this.$router = ko.router({
+        //   baseRoute: 'http://footwork-test.local',
+        //   routes: [
+        //     { route: '/', title: 'Main Page Nav', nav: true, controller: controller },
+        //     { route: '/one/:two/:three', title: 'Nav Route', nav: true, controller: controller },
+        //     { route: '/2014/march/*', title: 'Date Route', controller: controller }
+        //   ]
+        // });
+      }
+    });
   }
 
   return componentDefinition;
@@ -962,12 +1284,21 @@ ko.bindingHandlers.$component = {
   }
 };
 
+// Components which footwork will not wrap in the $component custom binding used for lifecycle events
+// Used to keep the wrapper off of internal/natively handled and defined components such as 'outlet'
+var nativeComponents = [
+  'outlet'
+];
+
 // Custom loader used to wrap components with the $component custom binding
 var componentWrapperTemplate = '<!-- ko $component -->COMPONENT_MARKUP<!-- /ko -->';
 ko.components.loaders.unshift( ko.components.componentWrapper = {
   loadTemplate: function(componentName, templateConfig, callback) {
-    if(typeof templateConfig === 'string') {
-      templateConfig = componentWrapperTemplate.replace(/COMPONENT_MARKUP/,templateConfig);
+    if( nativeComponents.indexOf(componentName) === -1 ) {
+      // TODO: Handle different types of templateConfigs
+      if(typeof templateConfig === 'string') {
+        templateConfig = componentWrapperTemplate.replace(/COMPONENT_MARKUP/, templateConfig);
+      }
     }
     ko.components.defaultLoader.loadTemplate(componentName, templateConfig, callback);
   }
@@ -1025,30 +1356,47 @@ ko.components.loaders.push( ko.components.requireLoader = {
   }
 });
 
+ko.virtualElements.allowedBindings.$outlet = true;
+ko.bindingHandlers.$outlet = {
+  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    var $parentViewModel = bindingContext.$parent;
+    viewModel.activateRouterFrom($parentViewModel);
+  },
+  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+  }
+};
 // outlets can only exist within parent components
 ko.components.register('outlet', {
   autoIncrement: true,
   viewModel: function(params) {
-    var $parentViewModel = this.$parent = params.$parent;
-    this.outletName = params.name;
-    this.$namespace = makeNamespace(this.outletName, $parentViewModel.$namespace);
-    this.outletIsActive = ko.observable(true);
+    var outlet = this;
 
-    // .broadcastAs({ name: this.outletName, namespace: 'outlet.' });
-    this.errors = ko.observableArray();
-    var outletObservable = $parentViewModel[ this.outletName + 'Outlet' ];
-    if(typeof outletObservable !== 'undefined') {
-      this.targetComponent = outletObservable;
-    } else {
-      this.targetComponent = ko.observable('error');
-      this.errors.push('Could not locate outlet observable ($parentViewModel.' + this.outletName + 'Outlet' + ' is undefined).');
-    }
+    this.activateRouterFrom = function($parentViewModel) {
+      if(typeof $parentViewModel.$router !== 'undefined') {
+
+      }
+      console.log('$outlet activateRouterFrom $parentViewModel', $parentViewModel);
+    };
+    // var $parentViewModel = this.$parent = params.$parent;
+    // this.outletName = params.name;
+    // this.$namespace = makeNamespace(this.outletName, $parentViewModel.$namespace);
+    // this.outletIsActive = ko.observable(true);
+
+    // // .broadcastAs({ name: this.outletName, namespace: 'outlet.' });
+    // this.errors = ko.observableArray();
+    // var outletObservable = $parentViewModel[ this.outletName + 'Outlet' ];
+    // if(typeof outletObservable !== 'undefined') {
+    //   this.targetComponent = outletObservable;
+    // } else {
+    //   this.targetComponent = ko.observable('error');
+    //   this.errors.push('Could not locate outlet observable ($parentViewModel.' + this.outletName + 'Outlet' + ' is undefined).');
+    // }
   },
   template: '\
-    <!-- ko if: outletIsActive -->\
-      <!-- ko component: { name: targetComponent, params: { errors: errors } } --><!-- /ko -->\
+    <!-- ko $outlet -->\
     <!-- /ko -->'
 });
+//    <!-- ko component: { name: targetComponent, params: { errors: errors } } --><!-- /ko -->\
 
 ko.components.register('empty', {
   viewModel: function(params) {},
@@ -1068,102 +1416,6 @@ ko.components.register('error', {
       </div>\
     </div>'
 });
-// broadcast-receive.js
-// ----------------
-
-var isAReceivable = ko.isAReceivable = function(thing) {
-  return _.has(thing, '__isReceived') && thing.__isReceived === true;
-};
-
-var isABroadcastable = ko.isABroadcastable = function(thing) {
-  return _.has(thing, '__isBroadcast') && thing.__isBroadcast === true;
-};
-
-//     this.myValue = ko.observable().receiveFrom('NamespaceName' / Namespace, 'varName');
-ko.subscribable.fn.receiveFrom = function(namespace, variable) {
-  var target = this;
-  var observable = this;
-
-  if( isNamespace(namespace) === false ) {
-    if( typeof namespace === 'string') {
-      namespace = makeNamespace( namespace );
-    } else {
-      throw 'Invalid namespace [' + typeof namespace + ']';
-    }
-  }
-
-  observable = ko.computed({
-    read: target,
-    write: function( value ) {
-      namespace.publish( 'change.' + variable, value );
-    }
-  });
-
-  observable.refresh = function() {
-    namespace.publish( 'refresh.' + variable );
-    return this;
-  };
-  namespace.subscribe( variable, function( newValue ) {
-    target( newValue );
-  });
-
-  observable.__isReceived = true;
-  return observable.refresh();
-};
-
-//     this.myValue = ko.observable().broadcastAs('NameOfVar');
-//     this.myValue = ko.observable().broadcastAs('NameOfVar', isWritable);
-//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', writable: true });
-//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', namespace: Namespace });
-//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', namespace: 'NamespaceName' });
-ko.subscribable.fn.broadcastAs = function(varName, option) {
-  var observable = this;
-  var namespace;
-
-  if( _.isObject(varName) === true ) {
-    option = varName;
-  } else {
-    if( typeof option === 'boolean' ) {
-      option = {
-        name: varName,
-        writable: option
-      };
-    } else if( _.isObject(option) === true ) {
-      option = _.extend({
-        name: varName
-      }, option);
-    } else {
-      option = {
-        name: varName
-      };
-    }
-  }
-
-  namespace = option.namespace || currentNamespace();
-  if(typeof namespace === 'string') {
-    namespace = makeNamespace(channel);
-  }
-
-  if( option.writable ) {
-    namespace.subscribe( 'change.' + option.name, function( newValue ) {
-      observable( newValue );
-    });
-  }
-
-  observable.broadcast = function() {
-    namespace.publish( option.name, observable() );
-    return this;
-  };
-  namespace.subscribe( 'refresh.' + option.name, function() {
-    namespace.publish( option.name, observable() );
-  });
-  observable.subscribe(function( newValue ) {
-    namespace.publish( option.name, newValue );
-  });
-
-  observable.__isBroadcast = true;
-  return observable.broadcast();
-};
 // bindingHandlers.js
 // ------------------
 
@@ -1331,216 +1583,7 @@ ko.extenders.delayWrite = function( target, options ) {
     }
   });
 };
-// router.js
-// ------------------
 
-/**
- * Example route:
- * {
- *   route: 'test/route(/:optional)',
- *   title: function() {
- *     return ko.request('nameSpace', 'broadcast:someVariable');
- *   },
- *   nav: true
- * }
- */
-
-var routerDefaultConfig = {
-  baseRoute: null,
-  unknownRoute: null,
-  activate: true,
-  routes: []
-};
-
-// Create the main router method. This can be used to both activate the router and setup routes.
-var routerConfig;
-var router = ko.router = function(config) {
-  var router = this.router;
-
-  routerConfig = router.config = _.extend({}, routerDefaultConfig, routerConfig, config);
-  routerConfig.baseRoute = _.result(routerConfig, 'baseRoute');
-
-  return (routerConfig.activate ? setRoutes().activate() : setRoutes());
-};
-
-router.config = _.clone(routerDefaultConfig);
-router.namespace = enterNamespaceName('router');
-
-// Initialize necessary cache and boolean registers
-var routes = [];
-var navigationModel;
-var historyIsEnabled = ko.observable().broadcastAs('historyIsEnabled');
-
-// Declare regular expressions used to parse a uri
-// Sourced: https://github.com/BlueSpire/Durandal/blob/e88fd385fb930d38456e35812b44ecd6ea7d8f4c/platforms/Bower/Durandal/js/plugins/router.js
-var optionalParam = /\((.*?)\)/g;
-var namedParam = /(\(\?)?:\w+/g;
-var splatParam = /\*\w*/g;
-var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
-var routesAreCaseSensitive = false;
-var hashMatch = /(^\/#)/;
-
-// Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
-function routeStringToRegExp(routeString) {
-  routeString = routeString.replace(escapeRegExp, "\\$&")
-    .replace(optionalParam, "(?:$1)?")
-    .replace(namedParam, function(match, optional) {
-      return optional ? match : "([^\/]+)";
-    })
-    .replace(splatParam, "(.*?)");
-
-  return new RegExp('^' + routeString + '$', routesAreCaseSensitive ? undefined : 'i');
-}
-
-function normalizeURL(url) {
-  if(_.isNull(routerConfig.baseRoute) === false && url.indexOf(routerConfig.baseRoute) === 0) {
-    url = url.substr(routerConfig.baseRoute.length);
-    if(url.length > 1) {
-      url = url.replace(hashMatch, '/');
-    }
-  }
-  return url;
-}
-
-function historyReady() {
-  return _.has(History, 'Adapter');
-}
-
-function extractNavItems(routes) {
-  routes = ( _.isArray(routes) ? routes : [routes] );
-  return _.where(routes, { nav: true });
-}
-
-function hasNavItems(routes) {
-  return extractNavItems( routes ).length > 0;
-}
-
-function isObservable(thing) {
-  return typeof thing !== 'undefined' && _.isFunction(thing.notifySubscribers);
-}
-
-function unknownRoute() {
-  return (typeof routerConfig !== 'undefined' ? _.result(routerConfig.unknownRoute) : undefined);
-}
-
-var setRoutes = _.bind(router.setRoutes = function(route) {
-  routes = [];
-  addRoutes(route || this.config.routes);
-
-  return router;
-}, router);
-
-var addRoutes = router.addRoutes = function(route) {
-  route = _.isArray(route) ? route : [route];
-  routes.push.apply(routes, route);
-
-  if( hasNavItems(route) && isObservable(navigationModel) ) {
-    navModelUpdate.notifySubscribers(); // tell router.navigationModel to recompute its list
-  }
-
-  return router;
-};
-
-var navModelUpdate = ko.observable();
-var navPredicate;
-var makeNavigationModel = router.navigationModel = function(predicate) {
-  navPredicate = predicate || navPredicate || function() { return true; };
-
-  if(typeof navigationModel === 'undefined') {
-    navigationModel = ko.computed(function() {
-      this.navModelUpdate(); // dummy reference used to trigger updates
-      return _.filter( extractNavItems( routes ), navPredicate );
-    }, { navModelUpdate: navModelUpdate });
-  }
-
-  return navigationModel.broadcastAs({ name: 'navigationModel', namespace: router.namespace });
-};
-
-var stateChange = router.stateChange = function(url) {
-  currentState( url = normalizeURL( url || (historyIsEnabled() ? History.getState().url : '#default') ) );
-  getActionFor(url)(); // get the route if it exists and run the action if one is returned
-
-  return router;
-};
-
-var currentState = ko.observable().broadcastAs('currentState');
-currentState.subscribe(function(newState) {
-  console.log('New Route:', newState);
-});
-
-var getActionFor = router.getActionFor = function(url) {
-  var Action = noop;
-  var originalURL = url;
-
-  _.each(getRoutes(), function(routeDesc) {
-    var routeString = routeDesc.route;
-    var routeRegex = routeStringToRegExp(routeString);
-    var routeParamValues = url.match(routeRegex);
-
-    if(routeParamValues !== null && Action === noop) {
-      var routeParams = _.map(routeString.match(namedParam), function(param) {
-        return param.replace(':', '');
-      });
-
-      var options = {
-        controller: routeDesc.controller,
-        title: routeDesc.title,
-        url: routeParamValues[0],
-        params: _.reduce(routeParams, function(parameters, parameterName, index) {
-            parameters[parameterName] = routeParamValues[index + 1];
-            return parameters;
-          }, {})
-      };
-      
-      Action = function(params) {
-        options.controller( _.extend(options.params, params), options );
-      };
-      Action.options = options;
-    }
-  });
-
-  if(Action === noop) {
-    throw 'Could not locate associated action for ' + originalURL;
-  }
-
-  return Action;
-};
-
-var getRoutes = router.getRoutes = function() {
-  return routes;
-};
-
-var setupHistoryAdapter = router.setupHistoryAdapter = function() {
-  if(historyIsEnabled() !== true) {
-    if( historyReady() ) {
-      History.Adapter.bind( window, 'statechange', stateChange);
-      historyIsEnabled(true);
-    } else {
-      historyIsEnabled(false);
-    }
-  }
-
-  return router;
-};
-
-router.historyIsEnabled = ko.computed(function() {
-  return this.historyIsEnabled();
-}, { historyIsEnabled: historyIsEnabled });
-
-router.activate = _.once( _.bind(function() {
-  delegate(document)
-    .on('click', 'a', function(event) {
-      console.info('delegateClick-event', event.delegateTarget);
-    });
-  delegate(document)
-    .on('click', '.footwork-link-target', function(event) {
-      console.info('delegateClick-event', event.delegateTarget);
-    });
-
-  return setupHistoryAdapter().stateChange();
-}, router) );
-
-exitNamespace(); // exit from 'router' namespace
       return ko;
     })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.reqwest );
   })();

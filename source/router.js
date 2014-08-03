@@ -13,39 +13,20 @@
  */
 
 var routerDefaultConfig = {
+  viewModelNamespaceName: '_router',
   baseRoute: null,
   unknownRoute: null,
   activate: true,
   routes: []
 };
 
-// Create the main router method. This can be used to both activate the router and setup routes.
-var routerConfig;
-var router = ko.router = function(config) {
-  var router = this.router;
-
-  routerConfig = router.config = _.extend({}, routerDefaultConfig, routerConfig, config);
-  routerConfig.baseRoute = _.result(routerConfig, 'baseRoute');
-
-  return (routerConfig.activate ? setRoutes().activate() : setRoutes());
-};
-
-router.config = _.clone(routerDefaultConfig);
-router.namespace = enterNamespaceName('router');
-
-// Initialize necessary cache and boolean registers
-var routes = [];
-var navigationModel;
-var historyIsEnabled = ko.observable().broadcastAs('historyIsEnabled');
-
-// Declare regular expressions used to parse a uri
-// Sourced: https://github.com/BlueSpire/Durandal/blob/e88fd385fb930d38456e35812b44ecd6ea7d8f4c/platforms/Bower/Durandal/js/plugins/router.js
+// Regular expressions used to parse a uri
 var optionalParam = /\((.*?)\)/g;
 var namedParam = /(\(\?)?:\w+/g;
 var splatParam = /\*\w*/g;
 var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
-var routesAreCaseSensitive = false;
 var hashMatch = /(^\/#)/;
+var routesAreCaseSensitive = false;
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
 function routeStringToRegExp(routeString) {
@@ -57,16 +38,6 @@ function routeStringToRegExp(routeString) {
     .replace(splatParam, "(.*?)");
 
   return new RegExp('^' + routeString + '$', routesAreCaseSensitive ? undefined : 'i');
-}
-
-function normalizeURL(url) {
-  if(_.isNull(routerConfig.baseRoute) === false && url.indexOf(routerConfig.baseRoute) === 0) {
-    url = url.substr(routerConfig.baseRoute.length);
-    if(url.length > 1) {
-      url = url.replace(hashMatch, '/');
-    }
-  }
-  return url;
 }
 
 function historyReady() {
@@ -82,64 +53,91 @@ function hasNavItems(routes) {
   return extractNavItems( routes ).length > 0;
 }
 
-function isObservable(thing) {
-  return typeof thing !== 'undefined' && _.isFunction(thing.notifySubscribers);
+var Router = function( routerConfig ) {
+  this.config = routerConfig = _.extend({}, routerDefaultConfig, routerConfig);
+  this.config.baseRoute = _.result(routerConfig, 'baseRoute');
+
+  this.$namespace = makeNamespace( routerConfig.viewModelNamespaceName );
+  this.$namespace.enter();
+
+  this.historyIsEnabled = ko.observable(false).broadcastAs('historyIsEnabled');
+  this.currentState = ko.observable().broadcastAs('currentState');
+  this.navModelUpdate = ko.observable();
+
+  this.currentState.subscribe(function(state) {
+    console.log('currentState', state);
+  });
+
+  this.setRoutes( routerConfig.routes );
+
+  if(routerConfig.activate === true) {
+    this.activate();
+  }
+
+  this.$namespace.exit();
+};
+
+Router.prototype.unknownRoute = function() {
+  return (typeof this.config !== 'undefined' ? _.result(this.config.unknownRoute) : undefined);
 }
 
-function unknownRoute() {
-  return (typeof routerConfig !== 'undefined' ? _.result(routerConfig.unknownRoute) : undefined);
-}
+Router.prototype.setRoutes = function(route) {
+  this.addRoutes(route);
+  return this;
+};
 
-var setRoutes = _.bind(router.setRoutes = function(route) {
-  routes = [];
-  addRoutes(route || this.config.routes);
-
-  return router;
-}, router);
-
-var addRoutes = router.addRoutes = function(route) {
+Router.prototype.addRoutes = function(route) {
   route = _.isArray(route) ? route : [route];
-  routes.push.apply(routes, route);
+  this.routes.concat(route);
 
   if( hasNavItems(route) && isObservable(navigationModel) ) {
-    navModelUpdate.notifySubscribers(); // tell router.navigationModel to recompute its list
+    this.navModelUpdate.notifySubscribers(); // tell this.navigationModel to recompute its list
   }
 
-  return router;
+  return this;
 };
 
-var navModelUpdate = ko.observable();
-var navPredicate;
-var makeNavigationModel = router.navigationModel = function(predicate) {
-  navPredicate = predicate || navPredicate || function() { return true; };
+Router.prototype.activate = function() {
+  return this
+    .setupHistoryAdapter()
+    .stateChange();
+};
 
-  if(typeof navigationModel === 'undefined') {
-    navigationModel = ko.computed(function() {
-      this.navModelUpdate(); // dummy reference used to trigger updates
-      return _.filter( extractNavItems( routes ), navPredicate );
-    }, { navModelUpdate: navModelUpdate });
+Router.prototype.setupHistoryAdapter = function() {
+  if(this.historyIsEnabled() !== true) {
+    if( historyReady() === true ) {
+      History.Adapter.bind( window, 'statechange', this.stateChange);
+      this.historyIsEnabled(true);
+    } else {
+      this.historyIsEnabled(false);
+    }
   }
 
-  return navigationModel.broadcastAs({ name: 'navigationModel', namespace: router.namespace });
+  return this;
 };
 
-var stateChange = router.stateChange = function(url) {
-  currentState( url = normalizeURL( url || (historyIsEnabled() ? History.getState().url : '#default') ) );
-  getActionFor(url)(); // get the route if it exists and run the action if one is returned
+Router.prototype.stateChange = function(url) {
+  this.currentState( url = this.normalizeURL( url || (this.historyIsEnabled() ? History.getState().url : '#default') ) );
+  this.getActionFor(url)(); // get the route if it exists and run the action if one is returned
 
-  return router;
+  return makeRouter;
 };
 
-var currentState = ko.observable().broadcastAs('currentState');
-currentState.subscribe(function(newState) {
-  console.log('New Route:', newState);
-});
+Router.prototype.normalizeURL = function(url) {
+  if( _.isNull(this.config.baseRoute) === false && url.indexOf(this.config.baseRoute) === 0 ) {
+    url = url.substr(this.config.baseRoute.length);
+    if(url.length > 1) {
+      url = url.replace(hashMatch, '/');
+    }
+  }
+  return url;
+};
 
-var getActionFor = router.getActionFor = function(url) {
+Router.prototype.getActionFor = function(url) {
   var Action = noop;
   var originalURL = url;
 
-  _.each(getRoutes(), function(routeDesc) {
+  _.each(this.getRoutes(), function(routeDesc) {
     var routeString = routeDesc.route;
     var routeRegex = routeStringToRegExp(routeString);
     var routeParamValues = url.match(routeRegex);
@@ -166,45 +164,27 @@ var getActionFor = router.getActionFor = function(url) {
     }
   });
 
-  if(Action === noop) {
+  if(ko.debugLevel() >= 2 && Action === noop) {
     throw 'Could not locate associated action for ' + originalURL;
   }
 
   return Action;
 };
 
-var getRoutes = router.getRoutes = function() {
-  return routes;
+Router.prototype.getRoutes = function() {
+  return this.routes;
 };
 
-var setupHistoryAdapter = router.setupHistoryAdapter = function() {
-  if(historyIsEnabled() !== true) {
-    if( historyReady() ) {
-      History.Adapter.bind( window, 'statechange', stateChange);
-      historyIsEnabled(true);
-    } else {
-      historyIsEnabled(false);
-    }
+Router.prototype.navigationModel = function(predicate) {
+  if(typeof this.navigationModel === 'undefined') {
+    this.navigationModel = ko.computed(function() {
+      this.navModelUpdate(); // dummy reference used to trigger updates
+      return _.filter(
+        extractNavItems(routes),
+        (predicate || function() { return true; })
+      );
+    }, { navModelUpdate: this.navModelUpdate }).broadcastAs({ name: 'navigationModel', namespace: this.$namespace });
   }
 
-  return router;
+  return this.navigationModel;
 };
-
-router.historyIsEnabled = ko.computed(function() {
-  return this.historyIsEnabled();
-}, { historyIsEnabled: historyIsEnabled });
-
-router.activate = _.once( _.bind(function() {
-  delegate(document)
-    .on('click', 'a', function(event) {
-      console.info('delegateClick-event', event.delegateTarget);
-    });
-  delegate(document)
-    .on('click', '.footwork-link-target', function(event) {
-      console.info('delegateClick-event', event.delegateTarget);
-    });
-
-  return setupHistoryAdapter().stateChange();
-}, router) );
-
-exitNamespace(); // exit from 'router' namespace
