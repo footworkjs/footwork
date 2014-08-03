@@ -10310,9 +10310,9 @@ var isPath = function(pathOrLocation) {
   return pathOrLocation.match(/\/$/i) !== null;
 };
 
-function isObservable(thing) {
-  return typeof thing !== 'undefined' && _.isFunction(thing.notifySubscribers);
-}
+var isObservable = function(thing) {
+  return ko.isObservable(thing);
+};
 
 // Initialize the debugLevel observable, this controls
 // what level of debug statements are logged to the console
@@ -10906,7 +10906,7 @@ var getResourceLocation = ko.getResourceLocation = function(resourceName) {
  */
 
 var routerDefaultConfig = {
-  viewModelNamespaceName: '_router',
+  namespace: '_router',
   baseRoute: null,
   unknownRoute: null,
   activate: true,
@@ -10946,16 +10946,19 @@ function hasNavItems(routes) {
   return extractNavItems( routes ).length > 0;
 }
 
-var Router = function( routerConfig ) {
+var Router = function( routerConfig, viewModel ) {
+  this.$viewModel = viewModel;
+
   this.config = routerConfig = _.extend({}, routerDefaultConfig, routerConfig);
   this.config.baseRoute = _.result(routerConfig, 'baseRoute');
 
-  this.$namespace = makeNamespace( routerConfig.viewModelNamespaceName );
+  this.$namespace = makeNamespace( routerConfig.namespace );
   this.$namespace.enter();
 
   this.historyIsEnabled = ko.observable(false).broadcastAs('historyIsEnabled');
   this.currentState = ko.observable().broadcastAs('currentState');
   this.navModelUpdate = ko.observable();
+  this.outlets = {};
 
   this.currentState.subscribe(function(state) {
     console.log('currentState', state);
@@ -10981,9 +10984,9 @@ Router.prototype.setRoutes = function(route) {
 
 Router.prototype.addRoutes = function(route) {
   route = _.isArray(route) ? route : [route];
-  this.routes.concat(route);
+  this.config.routes.concat(route);
 
-  if( hasNavItems(route) && isObservable(navigationModel) ) {
+  if( hasNavItems(route) && isObservable(this.navigationModel) ) {
     this.navModelUpdate.notifySubscribers(); // tell this.navigationModel to recompute its list
   }
 
@@ -11010,8 +11013,17 @@ Router.prototype.setupHistoryAdapter = function() {
 };
 
 Router.prototype.stateChange = function(url) {
-  this.currentState( url = this.normalizeURL( url || (this.historyIsEnabled() ? History.getState().url : '#default') ) );
-  this.getActionFor(url)(); // get the route if it exists and run the action if one is returned
+  this.currentState( url = this.normalizeURL( url || (this.historyIsEnabled() === true ? History.getState().url : '#default') ) );
+
+  var $outlet = _.bind( function(outletName, componentToDisplay, viewModelParameters ) {
+    outletName = ko.unwrap( outletName );
+
+    /* do stuff here */
+  }, this );
+
+  // get the route if it exists and run the action if one is returned
+  this.getActionFor(url)( this.$viewModel, $outlet );
+  // this.getActionFor(url)();
 
   return this;
 };
@@ -11050,8 +11062,8 @@ Router.prototype.getActionFor = function(url) {
           }, {})
       };
       
-      Action = function(params) {
-        options.controller( _.extend(options.params, params), options );
+      Action = function($viewModel, $outlet, params) {
+        options.controller( $viewModel, $outlet, _.extend(options.params, params), options );
       };
       Action.options = options;
     }
@@ -11065,7 +11077,7 @@ Router.prototype.getActionFor = function(url) {
 };
 
 Router.prototype.getRoutes = function() {
-  return this.routes;
+  return this.config.routes;
 };
 
 Router.prototype.navigationModel = function(predicate) {
@@ -11124,7 +11136,7 @@ var makeComponent = ko.component = function(componentDefinition) {
     // add mixin which creates an instance of $router on the viewModel according to the componentDefinition.router description
     componentDefinition.viewModel = viewModel.compose({
       _postInit: function() {
-        this.$router = makeRouter( routerDescription );
+        this.$router = new Router( routerDescription, this );
         console.log('componentRouterMixin', this.$router);
         // this.$router = ko.router({
         //   baseRoute: 'http://footwork-test.local',
@@ -11576,7 +11588,6 @@ ko.extenders.delayWrite = function( target, options ) {
     }
   });
 };
-
       return ko;
     })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.reqwest );
   })();
