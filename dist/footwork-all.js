@@ -11051,9 +11051,8 @@ Router.prototype.setupHistoryAdapter = function() {
 Router.prototype.stateChange = function(url) {
   this.currentState( url = this.normalizeURL( url || (this.historyIsEnabled() === true ? History.getState().url : '#default') ) );
 
-  // get the route if it exists and run the action if one is returned
+  // get and run the action for the specified route
   this.getActionFor(url)( this.$viewModel, this.$outlet );
-  // this.getActionFor(url)();
 
   return this;
 };
@@ -11093,7 +11092,7 @@ Router.prototype.getActionFor = function(url) {
       };
       
       Action = function($viewModel, $outlet, params) {
-        options.controller( $viewModel, $outlet, _.extend(options.params, params), options );
+        options.controller.call( $viewModel, $outlet, _.extend(options.params, params), options );
       };
       Action.options = options;
     }
