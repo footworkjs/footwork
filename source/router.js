@@ -53,11 +53,44 @@ function hasNavItems(routes) {
   return extractNavItems( routes ).length > 0;
 }
 
-var Router = function( routerConfig, viewModel ) {
+var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters ) {
+  var outlets = this.outlets;
+
+  outletName = ko.unwrap( outletName );
+  componentToDisplay = componentToDisplay || 'empty';
+  viewModelParameters = viewModelParameters || {};
+
+  if( isObservable(outlets[outletName]) === false ) {
+    outlets[outletName] = ko.observable({
+      component: 'empty',
+      parameters: {}
+    });
+  }
+
+  var currentOutletDef =  outlets[outletName]();
+  var valueMutated = false;
+
+  if( typeof componentToDisplay !== 'undefined' ) {
+    currentOutletDef.component = componentToDisplay;
+    valueMutated = true;
+  }
+  if( typeof viewModelParameters !== 'undefined' ) {
+    currentOutletDef.parameters = viewModelParameters;
+    valueMutated = true;
+  }
+  if( valueMutated === true ) {
+    outlets[outletName].valueHasMutated();
+  }
+
+  return outlets[outletName];
+};
+
+var Router = ko.router = function( routerConfig, viewModel ) {
   this.$viewModel = viewModel;
 
   this.config = routerConfig = _.extend({}, routerDefaultConfig, routerConfig);
-  this.config.baseRoute = _.result(routerConfig, 'baseRoute');
+  var configBaseRoute = _.result(routerConfig, 'baseRoute');
+  this.config.baseRoute = Router.baseRoute() + (configBaseRoute || '');
 
   this.$namespace = makeNamespace( routerConfig.namespace );
   this.$namespace.enter();
@@ -66,6 +99,7 @@ var Router = function( routerConfig, viewModel ) {
   this.currentState = ko.observable().broadcastAs('currentState');
   this.navModelUpdate = ko.observable();
   this.outlets = {};
+  this.$outlet = _.bind( $routerOutlet, this );
 
   this.currentState.subscribe(function(state) {
     console.log('currentState', state);
@@ -79,6 +113,7 @@ var Router = function( routerConfig, viewModel ) {
 
   this.$namespace.exit();
 };
+ko.router.baseRoute = ko.observable();
 
 Router.prototype.unknownRoute = function() {
   return (typeof this.config !== 'undefined' ? _.result(this.config.unknownRoute) : undefined);
@@ -122,14 +157,8 @@ Router.prototype.setupHistoryAdapter = function() {
 Router.prototype.stateChange = function(url) {
   this.currentState( url = this.normalizeURL( url || (this.historyIsEnabled() === true ? History.getState().url : '#default') ) );
 
-  var $outlet = _.bind( function(outletName, componentToDisplay, viewModelParameters ) {
-    outletName = ko.unwrap( outletName );
-
-    /* do stuff here */
-  }, this );
-
   // get the route if it exists and run the action if one is returned
-  this.getActionFor(url)( this.$viewModel, $outlet );
+  this.getActionFor(url)( this.$viewModel, this.$outlet );
   // this.getActionFor(url)();
 
   return this;
