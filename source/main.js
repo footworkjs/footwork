@@ -21,9 +21,9 @@ var isPath = function(pathOrLocation) {
   return pathOrLocation.match(/\/$/i) !== null;
 };
 
-function isObservable(thing) {
-  return typeof thing !== 'undefined' && _.isFunction(thing.notifySubscribers);
-}
+var isObservable = function(thing) {
+  return ko.isObservable(thing);
+};
 
 // Initialize the debugLevel observable, this controls
 // what level of debug statements are logged to the console

@@ -41,7 +41,7 @@ var makeComponent = ko.component = function(componentDefinition) {
     // add mixin which creates an instance of $router on the viewModel according to the componentDefinition.router description
     componentDefinition.viewModel = viewModel.compose({
       _postInit: function() {
-        this.$router = makeRouter( routerDescription );
+        this.$router = new Router( routerDescription, this );
         console.log('componentRouterMixin', this.$router);
         // this.$router = ko.router({
         //   baseRoute: 'http://footwork-test.local',
