@@ -120,13 +120,14 @@ Router.prototype.unknownRoute = function() {
 };
 
 Router.prototype.setRoutes = function(route) {
+  this.config.routes = [];
   this.addRoutes(route);
   return this;
 };
 
 Router.prototype.addRoutes = function(route) {
   route = _.isArray(route) ? route : [route];
-  this.config.routes.concat(route);
+  this.config.routes = this.config.routes.concat(route);
 
   if( hasNavItems(route) && isObservable(this.navigationModel) ) {
     this.navModelUpdate.notifySubscribers(); // tell this.navigationModel to recompute its list
