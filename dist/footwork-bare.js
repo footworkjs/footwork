@@ -995,13 +995,14 @@ Router.prototype.unknownRoute = function() {
 };
 
 Router.prototype.setRoutes = function(route) {
+  this.config.routes = [];
   this.addRoutes(route);
   return this;
 };
 
 Router.prototype.addRoutes = function(route) {
   route = _.isArray(route) ? route : [route];
-  this.config.routes.concat(route);
+  this.config.routes = this.config.routes.concat(route);
 
   if( hasNavItems(route) && isObservable(this.navigationModel) ) {
     this.navModelUpdate.notifySubscribers(); // tell this.navigationModel to recompute its list
@@ -1377,10 +1378,10 @@ ko.bindingHandlers.$outlet = {
   init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
     var $parentViewModel = bindingContext.$parent;
     var $parentRouter = $parentViewModel.$router;
+    var outletName = outletViewModel.outletName;
 
-    // make sure this outlet name is registered with the router
-    outletViewModel.target = $parentRouter.$outlet( $parentViewModel.outletName );
-    // outletViewModel.activateRouterFrom($parentViewModel);
+    // ensure that this outlet name is registered with the router so that further updates will propagate correctly
+    outletViewModel.target = $parentRouter.$outlet( outletName );
   }
 };
 
@@ -1389,28 +1390,6 @@ ko.components.register('outlet', {
   autoIncrement: true,
   viewModel: function(params) {
     this.outletName = ko.unwrap(params.name);
-    this.activateRouterFrom = function($parentViewModel) {
-      console.log('$outlet activateRouterFrom this.$router', $parentViewModel.$router);
-      // this.target() is now an observable which controls which component: and parameters: are expressed to the components viewModel
-      // if(typeof $parentViewModel.$router !== 'undefined') {
-
-      // }
-      // console.log('$outlet activateRouterFrom $parentViewModel', $parentViewModel);
-    };
-    // var $parentViewModel = this.$parent = params.$parent;
-    // this.outletName = params.name;
-    // this.$namespace = makeNamespace(this.outletName, $parentViewModel.$namespace);
-    // this.outletIsActive = ko.observable(true);
-
-    // // .broadcastAs({ name: this.outletName, namespace: 'outlet.' });
-    // this.errors = ko.observableArray();
-    // var outletObservable = $parentViewModel[ this.outletName + 'Outlet' ];
-    // if(typeof outletObservable !== 'undefined') {
-    //   this.targetComponent = outletObservable;
-    // } else {
-    //   this.targetComponent = ko.observable('error');
-    //   this.errors.push('Could not locate outlet observable ($parentViewModel.' + this.outletName + 'Outlet' + ' is undefined).');
-    // }
   },
   template: '\
     <!-- ko $outlet -->\
