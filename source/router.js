@@ -79,7 +79,7 @@ var Router = function( routerConfig ) {
 
 Router.prototype.unknownRoute = function() {
   return (typeof this.config !== 'undefined' ? _.result(this.config.unknownRoute) : undefined);
-}
+};
 
 Router.prototype.setRoutes = function(route) {
   this.addRoutes(route);
@@ -120,7 +120,7 @@ Router.prototype.stateChange = function(url) {
   this.currentState( url = this.normalizeURL( url || (this.historyIsEnabled() ? History.getState().url : '#default') ) );
   this.getActionFor(url)(); // get the route if it exists and run the action if one is returned
 
-  return makeRouter;
+  return this;
 };
 
 Router.prototype.normalizeURL = function(url) {

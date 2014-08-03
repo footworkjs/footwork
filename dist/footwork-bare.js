@@ -567,23 +567,6 @@ viewModelMixins.push({
   mixin: {
     getNamespaceName: function() {
       return this.$namespace.getName();
-    },
-    broadcastAll: function() {
-      var model = this;
-      _.each( this, function(property, propName) {
-        if( isABroadcastable(property) === true ) {
-          property.broadcast();
-        }
-      });
-      return this;
-    },
-    refreshReceived: function() {
-      _.each( this, function(property, propName) {
-        if( isAReceivable(property) === true ) {
-          property.refresh();
-        }
-      });
-      return this;
     }
   },
   _postInit: function( options ) {
@@ -593,14 +576,6 @@ viewModelMixins.push({
 });
 // broadcast-receive.js
 // ----------------
-
-var isAReceivable = ko.isAReceivable = function(thing) {
-  return _.has(thing, '__isReceived') && thing.__isReceived === true;
-};
-
-var isABroadcastable = ko.isABroadcastable = function(thing) {
-  return _.has(thing, '__isBroadcast') && thing.__isBroadcast === true;
-};
 
 //     this.myValue = ko.observable().receiveFrom('NamespaceName' / Namespace, 'varName');
 ko.subscribable.fn.receiveFrom = function(namespace, variable) {
@@ -979,7 +954,7 @@ var Router = function( routerConfig ) {
 
 Router.prototype.unknownRoute = function() {
   return (typeof this.config !== 'undefined' ? _.result(this.config.unknownRoute) : undefined);
-}
+};
 
 Router.prototype.setRoutes = function(route) {
   this.addRoutes(route);
@@ -1020,7 +995,7 @@ Router.prototype.stateChange = function(url) {
   this.currentState( url = this.normalizeURL( url || (this.historyIsEnabled() ? History.getState().url : '#default') ) );
   this.getActionFor(url)(); // get the route if it exists and run the action if one is returned
 
-  return makeRouter;
+  return this;
 };
 
 Router.prototype.normalizeURL = function(url) {
