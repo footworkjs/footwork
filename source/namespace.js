@@ -182,6 +182,16 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
   namespace.afterBinding.unregister = _.bind( unregisterNamespaceHandler, namespace );
 
   namespace.getName = _.bind( getNamespaceName, namespace );
+  namespace.enter = function() {
+    return enterNamespace( this );
+  };
+  namespace.exit = function() {
+    if( currentNamespaceName() === this.getName() ) {
+      return exitNamespace();
+    } else if( ko.debugLevel() >= 2 ) {
+      throw 'Attempted to exit namespace [' + this.getName() + '] when currently in namespace [' + currentNamespaceName() +  ']';
+    }
+  };
 
   return namespace;
 };
@@ -208,6 +218,12 @@ var enterNamespaceName = ko.enterNamespaceName = function(namespaceName) {
   var $parentNamespace = currentNamespace();
   namespaceStack.unshift( namespaceName );
   return makeNamespace( currentNamespaceName() );
+};
+
+// enterNamespace() uses a current namespace definition as the one to enter into.
+var enterNamespace = ko.enterNamespace = function(namespace) {
+  namespaceStack.unshift( namespace.getName() );
+  return namespace;
 };
 
 // Called at the after a model constructor function is run. exitNamespace()

@@ -21,6 +21,10 @@ var isPath = function(pathOrLocation) {
   return pathOrLocation.match(/\/$/i) !== null;
 };
 
+function isObservable(thing) {
+  return typeof thing !== 'undefined' && _.isFunction(thing.notifySubscribers);
+}
+
 // Initialize the debugLevel observable, this controls
 // what level of debug statements are logged to the console
 // 0 === off
@@ -47,10 +51,10 @@ var applyBindings = ko.applyBindings = function(model, element) {
 var viewModelMixins = [];
 
 //import("namespace.js");
+//import("broadcast-receive.js");
 //import("viewModel.js");
 //import("resource.js");
+//import("router.js");
 //import("component.js");
-//import("broadcast-receive.js");
 //import("bindingHandlers.js");
 //import("extenders.js");
-//import("router.js");
