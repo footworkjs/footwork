@@ -1,14 +1,6 @@
 // broadcast-receive.js
 // ----------------
 
-var isAReceivable = ko.isAReceivable = function(thing) {
-  return _.has(thing, '__isReceived') && thing.__isReceived === true;
-};
-
-var isABroadcastable = ko.isABroadcastable = function(thing) {
-  return _.has(thing, '__isBroadcast') && thing.__isBroadcast === true;
-};
-
 //     this.myValue = ko.observable().receiveFrom('NamespaceName' / Namespace, 'varName');
 ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
