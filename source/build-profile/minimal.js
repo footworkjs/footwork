@@ -40,14 +40,6 @@
     }).call(root, windowObject);
 
     (function() {
-      //import("../../bower_components/matches.js/matches.js");
-    }).call(root);
-
-    (function() {
-      //import("../../bower_components/delegate.js/delegate.js");
-    }).call(root);
-
-    (function() {
       //import("../../bower_components/reqwest/reqwest.js");
     }).call(root);
 
@@ -58,11 +50,11 @@
     }
 
     // list of dependencies to export from the library as .embed properties
-    var embeddedDependencies = [ 'Apollo', 'riveter', 'Conduit', 'postal', 'matches', 'delegate', 'reqwest' ];
+    var embeddedDependencies = [ 'Apollo', 'riveter', 'Conduit', 'postal', 'reqwest' ];
 
-    return (function footwork(embedded, _, ko, postal, Apollo, riveter, delegate, reqwest) {
+    return (function footwork(embedded, windowObject, _, ko, postal, Apollo, riveter, reqwest) {
       //import("../main.js");
       return ko;
-    })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.reqwest );
+    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.Apollo, root.riveter, root.reqwest );
   })();
 }));
