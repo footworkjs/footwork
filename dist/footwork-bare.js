@@ -8,13 +8,15 @@
 
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['lodash', 'knockout', 'postal', 'delegate', 'Apollo', 'reqwest'], factory);
+    define(['lodash', 'knockout', 'postal', 'Apollo', 'reqwest'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory(require('lodash'), require('knockout'), require('postal'), require('delegate'), require('Apollo'), require('reqwest'));
+    module.exports = factory(require('lodash'), require('knockout'), require('postal'), require('Apollo'), require('reqwest'));
   } else {
-    root.ko = factory(_, ko, postal, delegate, Apollo, reqwest);
+    root.ko = factory(_, ko, postal, Apollo, reqwest);
   }
-}(this, function (_, ko, postal, delegate, Apollo, reqwest) {
+}(this, function (_, ko, postal, Apollo, reqwest) {
+  var windowObject = window;
+
   window.require = typeof require !== 'undefined' ? require : undefined;
   window.define = typeof define !== 'undefined' ? define : undefined;
 
@@ -36,9 +38,8 @@ var module = undefined,
       _: _,
       ko: ko,
       postal: postal,
-      delegate: delegate,
       Apollo: Apollo,
-      reqwest: reqwest,
+      reqwest: reqwest
     });
 
     /**
@@ -268,7 +269,7 @@ var module = undefined,
     // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ 'riveter' ];
 
-    return (function footwork(embedded, _, ko, postal, Apollo, riveter, delegate, reqwest) {
+    return (function footwork(embedded, windowObject, _, ko, postal, Apollo, riveter, reqwest) {
       // main.js
 // -----------
 
@@ -932,8 +933,6 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
   var outlets = this.outlets;
 
   outletName = ko.unwrap( outletName );
-  componentToDisplay = componentToDisplay || 'empty';
-  viewModelParameters = viewModelParameters || {};
 
   if( isObservable(outlets[outletName]) === false ) {
     outlets[outletName] = ko.observable({
@@ -942,7 +941,7 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
     });
   }
 
-  var currentOutletDef =  outlets[outletName]();
+  var currentOutletDef = outlets[outletName]();
   var valueMutated = false;
 
   if( typeof componentToDisplay !== 'undefined' ) {
@@ -1020,7 +1019,14 @@ Router.prototype.activate = function() {
 Router.prototype.setupHistoryAdapter = function() {
   if(this.historyIsEnabled() !== true) {
     if( historyReady() === true ) {
-      History.Adapter.bind( window, 'statechange', this.stateChange);
+      var $router = this;
+      History.Adapter.bind( windowObject, 'statechange', this.stateChange = function() {
+        var url = $router.normalizeURL.call($router, History.getState().url);
+        $router.currentState( url );
+        // get and run the action for the specified route
+        $router.getActionFor(url)( $router.$viewModel, $router.$outlet );
+        return $router;
+      });
       this.historyIsEnabled(true);
     } else {
       this.historyIsEnabled(false);
@@ -1030,13 +1036,8 @@ Router.prototype.setupHistoryAdapter = function() {
   return this;
 };
 
-Router.prototype.stateChange = function(url) {
-  this.currentState( url = this.normalizeURL( url || (this.historyIsEnabled() === true ? History.getState().url : '#default') ) );
-
-  // get and run the action for the specified route
-  this.getActionFor(url)( this.$viewModel, this.$outlet );
-
-  return this;
+Router.prototype.shutdown = function() {
+  delete this.stateChange;
 };
 
 Router.prototype.normalizeURL = function(url) {
@@ -1104,6 +1105,20 @@ Router.prototype.navigationModel = function(predicate) {
 
   return this.navigationModel;
 };
+
+var defaultTitle = ko.observable('[No Title]');
+ko.bindingHandlers.$link = {
+  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    ko.utils.registerEventHandler(element, 'click', function( event ) {
+      var destinationURL = element.getAttribute('href');
+      var title = element.getAttribute('data-title');
+
+      History.pushState( null, title || defaultTitle(), destinationURL );
+      event.stopPropagation();
+      event.preventDefault();
+    });
+  }
+};
 // component.js
 // ------------------
 
@@ -1144,19 +1159,11 @@ var makeComponent = ko.component = function(componentDefinition) {
     if( _.isArray(mixins) === false ) {
       componentDefinition.mixins = [];
     }
-    // add mixin which creates an instance of $router on the viewModel according to the componentDefinition.router description
+
+    // create composure of the viewModel which creates an instance of $router on the viewModel according to the componentDefinition.router description
     componentDefinition.viewModel = viewModel.compose({
       _postInit: function() {
         this.$router = new Router( routerDescription, this );
-        console.log('componentRouterMixin', this.$router);
-        // this.$router = ko.router({
-        //   baseRoute: 'http://footwork-test.local',
-        //   routes: [
-        //     { route: '/', title: 'Main Page Nav', nav: true, controller: controller },
-        //     { route: '/one/:two/:three', title: 'Nav Route', nav: true, controller: controller },
-        //     { route: '/2014/march/*', title: 'Date Route', controller: controller }
-        //   ]
-        // });
       }
     });
   }
@@ -1381,6 +1388,7 @@ ko.bindingHandlers.$outlet = {
 
     // ensure that this outlet name is registered with the router so that further updates will propagate correctly
     outletViewModel.target = $parentRouter.$outlet( outletName );
+    console.log('here');
   }
 };
 
@@ -1582,6 +1590,6 @@ ko.extenders.delayWrite = function( target, options ) {
   });
 };
       return ko;
-    })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.reqwest );
+    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.Apollo, root.riveter, root.reqwest );
   })();
 }));

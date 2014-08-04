@@ -9344,247 +9344,6 @@ if (typeof JSON !== 'object') {
     }).call(root, windowObject);
 
     (function() {
-      /*! matches.js v1.0.3 - Nicolas Gallagher - MIT license */
-
-;(function (global) {
-
-'use strict';
-
-/**
- * Vendor-specific implementations of `Element.prototype.matches()`.
- */
-
-var proto = Element.prototype;
-var vendorMatches = proto.matches ||
-    proto.mozMatchesSelector ||
-    proto.msMatchesSelector ||
-    proto.oMatchesSelector ||
-    proto.webkitMatchesSelector;
-
-/**
- * Determine if the browser supports matching orphan elements. IE 9's
- * vendor-specific implementation doesn't work with orphans and neither does
- * the fallback for older browsers.
- */
-
-var matchesOrphans = (function () {
-    return vendorMatches ? vendorMatches.call(document.createElement('a'), 'a') : false;
-}());
-
-/**
- * Determine if a DOM element matches a CSS selector
- *
- * @param {Element} elem
- * @param {String} selector
- * @return {Boolean}
- * @api public
- */
-
-function matches(elem, selector) {
-    var parentElem = elem.parentNode;
-    var nodes;
-    var i;
-
-    // if the element is an orphan, and the browser doesn't support matching
-    // orphans, append it to a documentFragment
-    if (!parentElem && !matchesOrphans) {
-        parentElem = document.createDocumentFragment();
-        parentElem.appendChild(elem);
-    }
-
-    if (vendorMatches) {
-        return vendorMatches.call(elem, selector);
-    }
-
-    // from the parent element's context, get all nodes that match the selector
-    nodes = parentElem.querySelectorAll(selector);
-    i = nodes.length;
-
-    // since support for `matches()` is missing, we need to check to see if
-    // any of the nodes returned by our query match the given element
-    while (i--) {
-        if (nodes[i] === elem) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-/**
- * Expose `matches`
- */
-
-// common js export
-if (typeof exports === 'object') {
-    module.exports = matches;
-}
-// amd export
-else if (typeof define === 'function' && define.amd) {
-    define(function () {
-        return matches;
-    });
-}
-// browser global
-else {
-    global.matches = matches;
-}
-
-}(this));
-
-    }).call(root);
-
-    (function() {
-      /*! delegate.js v1.0.2 - Nicolas Gallagher - MIT license */
-
-;(function (global) { function moduleDefinition(matches) {
-
-// ---------------------------------------------------------------------------
-
-var elem;
-
-/**
- * Specify the event delegate element
- *
- * @param {Element} node
- * @return {delegate}
- * @api public
- */
-
-function delegate(node) {
-    if (!_isElem(node)) {
-        throw new Error('delegate(): The argument must be an Element or Document Node');
-    }
-    elem = node;
-    return delegate;
-}
-
-/**
- * Delegate the handling of an event type to the given ancestor-element of
- * nodes matching a given CSS selector. The callback function is invoked when
- * an event bubbles up through any nodes that delegated their event handling to
- * the ancestor.
- *
- * @param {String} type DOM Event type
- * @param {String} selector
- * @param {Function} callback
- * @param {Boolean} [capture]
- * @return {Function}
- * @api public
- */
-
-delegate.on = function (type, selector, callback, capture, /* private */ once) {
-    function wrapper(e) {
-        // if this event has a delegateTarget, then we add it to the event
-        // object (so that handlers may have a reference to the delegator
-        // element) and fire the callback
-        if (e.delegateTarget = _getDelegateTarget(elem, e.target, selector)) {
-            if (once === true) {
-                delegate(elem).off(type, wrapper);
-            }
-            callback.call(elem, e);
-        }
-    }
-
-    callback._delegateWrapper = wrapper;
-    elem.addEventListener(type, wrapper, capture || false);
-    return callback;
-};
-
-/**
- * Register a one-off callback for an event type. The callback is removed once
- * it has been invoked for the first time.
- *
- * @param {String} type
- * @param {String} selector
- * @param {Function} callback
- * @param {Boolean} [capture]
- * @return {Function}
- * @api public
- */
-
-delegate.once = function (type, selector, callback, capture) {
-    delegate.on(type, selector, callback, capture, true);
-};
-
-/**
- * Remove an event-type callback from the event target.
- *
- * @param {String} type
- * @param {Function} callback
- * @param {Boolean} [capture]
- * @api public
- */
-
-delegate.off = function (type, callback, capture) {
-    if (callback._delegateWrapper) {
-        callback = callback._delegateWrapper;
-    }
-
-    elem.removeEventListener(type, callback, capture || false);
-};
-
-/**
- * Walk up the DOM tree from the `target` element to which the event was
- * dispatched, up to the delegate `elem`. If at any step, a node matches the
- * given CSS `selector` then we know the event bubbled up through the
- * delegator.
- *
- * @param {Element} elem
- * @param {Element} target
- * @param {String} selector
- * @return {Element|null}
- * @api private
- */
-
-function _getDelegateTarget(elem, target, selector) {
-    while (target && target !== elem) {
-        if (matches(target, selector)) {
-            return target;
-        }
-        target = target.parentElement;
-    }
-
-    return null;
-}
-
-/**
- * Determine if a Node is an Element or Document
- *
- * @param {Node} node
- * @return {Boolean}
- * @api private
- */
-
-function _isElem(node) {
-    if (node && node.nodeName && (node.nodeType === 3 || node.nodeType === 9)) {
-        return true;
-    }
-    return false;
-}
-
-/**
- * Expose delegate
- */
-
-return delegate;
-
-// ---------------------------------------------------------------------------
-
-} if (typeof exports === 'object') {
-    // node export
-    module.exports = moduleDefinition(require('matches'));
-} else if (typeof define === 'function' && define.amd) {
-    // amd anonymous module registration
-    define(['matches'], moduleDefinition);
-} else {
-    // browser global
-    global.delegate = moduleDefinition(global.matches);
-}}(this));
-
-    }).call(root);
-
-    (function() {
       /*!
   * Reqwest! A general purpose XHR connection manager
   * license MIT (c) Dustin Diaz 2014
@@ -10284,9 +10043,9 @@ return delegate;
     root.ko = ko; // ick...
 
     // list of dependencies to export from the library as .embed properties
-    var embeddedDependencies = [ '_', 'ko', 'Apollo', 'riveter', 'Conduit', 'postal', 'matches', 'delegate', 'reqwest' ];
+    var embeddedDependencies = [ '_', 'ko', 'Apollo', 'riveter', 'Conduit', 'postal', 'reqwest' ];
 
-    return (function footwork(embedded, _, ko, postal, Apollo, riveter, delegate, reqwest) {
+    return (function footwork(embedded, windowObject, _, ko, postal, Apollo, riveter, reqwest) {
       // main.js
 // -----------
 
@@ -10950,8 +10709,6 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
   var outlets = this.outlets;
 
   outletName = ko.unwrap( outletName );
-  componentToDisplay = componentToDisplay || 'empty';
-  viewModelParameters = viewModelParameters || {};
 
   if( isObservable(outlets[outletName]) === false ) {
     outlets[outletName] = ko.observable({
@@ -10960,7 +10717,7 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
     });
   }
 
-  var currentOutletDef =  outlets[outletName]();
+  var currentOutletDef = outlets[outletName]();
   var valueMutated = false;
 
   if( typeof componentToDisplay !== 'undefined' ) {
@@ -11038,7 +10795,14 @@ Router.prototype.activate = function() {
 Router.prototype.setupHistoryAdapter = function() {
   if(this.historyIsEnabled() !== true) {
     if( historyReady() === true ) {
-      History.Adapter.bind( window, 'statechange', this.stateChange);
+      var $router = this;
+      History.Adapter.bind( windowObject, 'statechange', this.stateChange = function() {
+        var url = $router.normalizeURL.call($router, History.getState().url);
+        $router.currentState( url );
+        // get and run the action for the specified route
+        $router.getActionFor(url)( $router.$viewModel, $router.$outlet );
+        return $router;
+      });
       this.historyIsEnabled(true);
     } else {
       this.historyIsEnabled(false);
@@ -11048,13 +10812,8 @@ Router.prototype.setupHistoryAdapter = function() {
   return this;
 };
 
-Router.prototype.stateChange = function(url) {
-  this.currentState( url = this.normalizeURL( url || (this.historyIsEnabled() === true ? History.getState().url : '#default') ) );
-
-  // get and run the action for the specified route
-  this.getActionFor(url)( this.$viewModel, this.$outlet );
-
-  return this;
+Router.prototype.shutdown = function() {
+  delete this.stateChange;
 };
 
 Router.prototype.normalizeURL = function(url) {
@@ -11122,6 +10881,20 @@ Router.prototype.navigationModel = function(predicate) {
 
   return this.navigationModel;
 };
+
+var defaultTitle = ko.observable('[No Title]');
+ko.bindingHandlers.$link = {
+  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    ko.utils.registerEventHandler(element, 'click', function( event ) {
+      var destinationURL = element.getAttribute('href');
+      var title = element.getAttribute('data-title');
+
+      History.pushState( null, title || defaultTitle(), destinationURL );
+      event.stopPropagation();
+      event.preventDefault();
+    });
+  }
+};
 // component.js
 // ------------------
 
@@ -11162,19 +10935,11 @@ var makeComponent = ko.component = function(componentDefinition) {
     if( _.isArray(mixins) === false ) {
       componentDefinition.mixins = [];
     }
-    // add mixin which creates an instance of $router on the viewModel according to the componentDefinition.router description
+
+    // create composure of the viewModel which creates an instance of $router on the viewModel according to the componentDefinition.router description
     componentDefinition.viewModel = viewModel.compose({
       _postInit: function() {
         this.$router = new Router( routerDescription, this );
-        console.log('componentRouterMixin', this.$router);
-        // this.$router = ko.router({
-        //   baseRoute: 'http://footwork-test.local',
-        //   routes: [
-        //     { route: '/', title: 'Main Page Nav', nav: true, controller: controller },
-        //     { route: '/one/:two/:three', title: 'Nav Route', nav: true, controller: controller },
-        //     { route: '/2014/march/*', title: 'Date Route', controller: controller }
-        //   ]
-        // });
       }
     });
   }
@@ -11399,6 +11164,7 @@ ko.bindingHandlers.$outlet = {
 
     // ensure that this outlet name is registered with the router so that further updates will propagate correctly
     outletViewModel.target = $parentRouter.$outlet( outletName );
+    console.log('here');
   }
 };
 
@@ -11600,6 +11366,6 @@ ko.extenders.delayWrite = function( target, options ) {
   });
 };
       return ko;
-    })( root._.pick(root, embeddedDependencies), root._, root.ko, root.postal, root.Apollo, root.riveter, root.delegate, root.reqwest );
+    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.Apollo, root.riveter, root.reqwest );
   })();
 }));
