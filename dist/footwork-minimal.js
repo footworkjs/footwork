@@ -5695,12 +5695,13 @@ Router.prototype.activate = function() {
     .stateChange();
 };
 
+Router.prototype.stateChange = noop;
 Router.prototype.setupHistoryAdapter = function() {
   if(this.historyIsEnabled() !== true) {
     if( historyReady() === true ) {
       var $router = this;
-      History.Adapter.bind( windowObject, 'statechange', this.stateChange = function() {
-        var url = $router.normalizeURL.call($router, History.getState().url);
+      History.Adapter.bind( windowObject, 'statechange', this.stateChange = function(url) {
+        var url = $router.normalizeURL.call($router, typeof url === 'string' ? url : History.getState().url);
         $router.currentState( url );
         // get and run the action for the specified route
         $router.getActionFor(url)( $router.$viewModel, $router.$outlet );
