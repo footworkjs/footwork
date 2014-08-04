@@ -38,19 +38,11 @@ var makeComponent = ko.component = function(componentDefinition) {
     if( _.isArray(mixins) === false ) {
       componentDefinition.mixins = [];
     }
-    // add mixin which creates an instance of $router on the viewModel according to the componentDefinition.router description
+
+    // create composure of the viewModel which creates an instance of $router on the viewModel according to the componentDefinition.router description
     componentDefinition.viewModel = viewModel.compose({
       _postInit: function() {
         this.$router = new Router( routerDescription, this );
-        console.log('componentRouterMixin', this.$router);
-        // this.$router = ko.router({
-        //   baseRoute: 'http://footwork-test.local',
-        //   routes: [
-        //     { route: '/', title: 'Main Page Nav', nav: true, controller: controller },
-        //     { route: '/one/:two/:three', title: 'Nav Route', nav: true, controller: controller },
-        //     { route: '/2014/march/*', title: 'Date Route', controller: controller }
-        //   ]
-        // });
       }
     });
   }
@@ -275,6 +267,7 @@ ko.bindingHandlers.$outlet = {
 
     // ensure that this outlet name is registered with the router so that further updates will propagate correctly
     outletViewModel.target = $parentRouter.$outlet( outletName );
+    console.log('here');
   }
 };
 

@@ -57,8 +57,6 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
   var outlets = this.outlets;
 
   outletName = ko.unwrap( outletName );
-  componentToDisplay = componentToDisplay || 'empty';
-  viewModelParameters = viewModelParameters || {};
 
   if( isObservable(outlets[outletName]) === false ) {
     outlets[outletName] = ko.observable({
@@ -67,7 +65,7 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
     });
   }
 
-  var currentOutletDef =  outlets[outletName]();
+  var currentOutletDef = outlets[outletName]();
   var valueMutated = false;
 
   if( typeof componentToDisplay !== 'undefined' ) {
@@ -145,7 +143,14 @@ Router.prototype.activate = function() {
 Router.prototype.setupHistoryAdapter = function() {
   if(this.historyIsEnabled() !== true) {
     if( historyReady() === true ) {
-      History.Adapter.bind( window, 'statechange', this.stateChange);
+      var $router = this;
+      History.Adapter.bind( windowObject, 'statechange', this.stateChange = function() {
+        var url = $router.normalizeURL.call($router, History.getState().url);
+        $router.currentState( url );
+        // get and run the action for the specified route
+        $router.getActionFor(url)( $router.$viewModel, $router.$outlet );
+        return $router;
+      });
       this.historyIsEnabled(true);
     } else {
       this.historyIsEnabled(false);
@@ -155,13 +160,8 @@ Router.prototype.setupHistoryAdapter = function() {
   return this;
 };
 
-Router.prototype.stateChange = function(url) {
-  this.currentState( url = this.normalizeURL( url || (this.historyIsEnabled() === true ? History.getState().url : '#default') ) );
-
-  // get and run the action for the specified route
-  this.getActionFor(url)( this.$viewModel, this.$outlet );
-
-  return this;
+Router.prototype.shutdown = function() {
+  delete this.stateChange;
 };
 
 Router.prototype.normalizeURL = function(url) {
@@ -228,4 +228,18 @@ Router.prototype.navigationModel = function(predicate) {
   }
 
   return this.navigationModel;
+};
+
+var defaultTitle = ko.observable('[No Title]');
+ko.bindingHandlers.$link = {
+  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    ko.utils.registerEventHandler(element, 'click', function( event ) {
+      var destinationURL = element.getAttribute('href');
+      var title = element.getAttribute('data-title');
+
+      History.pushState( null, title || defaultTitle(), destinationURL );
+      event.stopPropagation();
+      event.preventDefault();
+    });
+  }
 };
