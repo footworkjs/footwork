@@ -734,6 +734,9 @@ var makeViewModel = ko.viewModel = function(configParams) {
   var initViewModelMixin = {
     _preInit: function( initParams ) {
       this.$params = configParams.params;
+      if( typeof configParams.router === 'object' ) {
+        this.$router = new Router( configParams.router, this );
+      }
       this.__getConfigParams = function() {
         return configParams;
       };
@@ -974,10 +977,6 @@ var Router = ko.router = function( routerConfig, viewModel ) {
   this.navModelUpdate = ko.observable();
   this.outlets = {};
   this.$outlet = _.bind( $routerOutlet, this );
-
-  this.currentState.subscribe(function(state) {
-    console.log('currentState', state);
-  });
 
   this.setRoutes( routerConfig.routes );
 
@@ -1388,7 +1387,6 @@ ko.bindingHandlers.$outlet = {
 
     // ensure that this outlet name is registered with the router so that further updates will propagate correctly
     outletViewModel.target = $parentRouter.$outlet( outletName );
-    console.log('here');
   }
 };
 
