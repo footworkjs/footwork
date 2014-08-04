@@ -99,10 +99,6 @@ var Router = ko.router = function( routerConfig, viewModel ) {
   this.outlets = {};
   this.$outlet = _.bind( $routerOutlet, this );
 
-  this.currentState.subscribe(function(state) {
-    console.log('currentState', state);
-  });
-
   this.setRoutes( routerConfig.routes );
 
   if(routerConfig.activate === true) {

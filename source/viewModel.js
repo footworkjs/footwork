@@ -69,6 +69,9 @@ var makeViewModel = ko.viewModel = function(configParams) {
   var initViewModelMixin = {
     _preInit: function( initParams ) {
       this.$params = configParams.params;
+      if( typeof configParams.router === 'object' ) {
+        this.$router = new Router( configParams.router, this );
+      }
       this.__getConfigParams = function() {
         return configParams;
       };

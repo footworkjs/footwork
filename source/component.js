@@ -267,7 +267,6 @@ ko.bindingHandlers.$outlet = {
 
     // ensure that this outlet name is registered with the router so that further updates will propagate correctly
     outletViewModel.target = $parentRouter.$outlet( outletName );
-    console.log('here');
   }
 };
 
