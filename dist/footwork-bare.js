@@ -939,8 +939,8 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
 
   if( isObservable(outlets[outletName]) === false ) {
     outlets[outletName] = ko.observable({
-      component: 'empty',
-      parameters: {}
+      name: 'empty',
+      params: {}
     });
   }
 
@@ -948,11 +948,11 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
   var valueMutated = false;
 
   if( typeof componentToDisplay !== 'undefined' ) {
-    currentOutletDef.component = componentToDisplay;
+    currentOutletDef.name = componentToDisplay;
     valueMutated = true;
   }
   if( typeof viewModelParameters !== 'undefined' ) {
-    currentOutletDef.parameters = viewModelParameters;
+    currentOutletDef.params = viewModelParameters;
     valueMutated = true;
   }
   if( valueMutated === true ) {
@@ -962,12 +962,14 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
   return outlets[outletName];
 };
 
-var Router = ko.router = function( routerConfig, viewModel ) {
-  this.$viewModel = viewModel;
+var Router = ko.router = function( routerConfig, $viewModel, $context ) {
+  this.$viewModel = $viewModel;
+  this.context = ko.observable();
 
   this.config = routerConfig = _.extend({}, routerDefaultConfig, routerConfig);
   var configBaseRoute = _.result(routerConfig, 'baseRoute');
   this.config.baseRoute = Router.baseRoute() + (configBaseRoute || '');
+  this.parentRoutePath = null;
 
   this.$namespace = makeNamespace( routerConfig.namespace );
   this.$namespace.enter();
@@ -980,13 +982,18 @@ var Router = ko.router = function( routerConfig, viewModel ) {
 
   this.setRoutes( routerConfig.routes );
 
-  if(routerConfig.activate === true) {
-    this.activate();
+  if( routerConfig.activate === true ) {
+    this.context.subscribe(function($context) {
+      if( typeof $context === 'object' ) {
+        this.activate();
+      }
+    }, this);
   }
+  this.context( $viewModel.$context || $context );
 
   this.$namespace.exit();
 };
-ko.router.baseRoute = ko.observable();
+Router.baseRoute = ko.observable();
 
 Router.prototype.unknownRoute = function() {
   return (typeof this.config !== 'undefined' ? _.result(this.config.unknownRoute) : undefined);
@@ -1011,20 +1018,42 @@ Router.prototype.addRoutes = function(route) {
 
 Router.prototype.activate = function() {
   return this
-    .setupHistoryAdapter()
+    .setupHistoryAdapter( this.context() )
     .stateChange();
 };
 
+Router.prototype.getRoutePath = function() {
+  var routePath = this.parentRoutePath || '';
+
+  return 'YO!!!';
+};
+
+var $nullRouter = { getRoutePath: function() { return ''; } };
 Router.prototype.stateChange = noop;
-Router.prototype.setupHistoryAdapter = function() {
+Router.prototype.setupHistoryAdapter = function( $context ) {
+  var $parentRouter = $nullRouter;
+  if(typeof $context === 'object' && typeof $context.$data === 'object') {
+    // Router was instantiated with a specified binding $context
+    var $parentModel = $context.$data;
+    if( isViewModel($parentModel) === true ) {
+      $parentRouter = this.$parent = ($parentModel.$router || $nullRouter);
+      this.parentRoutePath = $parentRouter.getRoutePath();
+      console.log('$context has a model', this.parentRoutePath);
+    }
+  } else {
+    console.log('no parent model found in $context');
+  }
+
   if(this.historyIsEnabled() !== true) {
     if( historyReady() === true ) {
       var $router = this;
       History.Adapter.bind( windowObject, 'statechange', this.stateChange = function(url) {
-        var url = $router.normalizeURL.call($router, typeof url === 'string' ? url : History.getState().url);
+        var url = $router.normalizeURL.call($router, (typeof url === 'string' ? url : History.getState().url), $router.parentRoutePath);
         $router.currentState( url );
+
         // get and run the action for the specified route
-        $router.getActionFor(url)( $router.$viewModel, $router.$outlet );
+        var Action = $router.getActionForURL(url);
+        Action( $router.$viewModel, $router.$outlet );
         return $router;
       });
       this.historyIsEnabled(true);
@@ -1040,7 +1069,8 @@ Router.prototype.shutdown = function() {
   delete this.stateChange;
 };
 
-Router.prototype.normalizeURL = function(url) {
+Router.prototype.normalizeURL = function(url, cancelInitialPath) {
+  console.info('normalizeURL', cancelInitialPath);
   if( _.isNull(this.config.baseRoute) === false && url.indexOf(this.config.baseRoute) === 0 ) {
     url = url.substr(this.config.baseRoute.length);
     if(url.length > 1) {
@@ -1050,21 +1080,19 @@ Router.prototype.normalizeURL = function(url) {
   return url;
 };
 
-Router.prototype.getActionFor = function(url) {
-  var Action = noop;
-  var originalURL = url;
-
+Router.prototype.getRouteFor = function(url) {
+  var route = null;
   _.each(this.getRoutes(), function(routeDesc) {
     var routeString = routeDesc.route;
     var routeRegex = routeStringToRegExp(routeString);
     var routeParamValues = url.match(routeRegex);
 
-    if(routeParamValues !== null && Action === noop) {
+    if(routeParamValues !== null) {
       var routeParams = _.map(routeString.match(namedParam), function(param) {
         return param.replace(':', '');
       });
 
-      var options = {
+      route = {
         controller: routeDesc.controller,
         title: routeDesc.title,
         url: routeParamValues[0],
@@ -1073,13 +1101,22 @@ Router.prototype.getActionFor = function(url) {
             return parameters;
           }, {})
       };
-      
-      Action = function($viewModel, $outlet, params) {
-        options.controller.call( $viewModel, $outlet, _.extend(options.params, params), options );
-      };
-      Action.options = options;
     }
   });
+  return route;
+};
+
+Router.prototype.getActionForURL = function(url) {
+  var Action = noop;
+  var originalURL = url;
+  var route = this.getRouteFor(url);
+
+  if( typeof route === 'object' ) {
+    Action = function($viewModel, $outlet, params) {
+      route.controller.call( $viewModel, $outlet, _.extend(route.params, params), route );
+    };
+    Action.route = route;
+  }
 
   if(ko.debugLevel() >= 2 && Action === noop) {
     throw 'Could not locate associated action for ' + originalURL;
@@ -1147,25 +1184,10 @@ var registerComponent = ko.components.register = function(componentName, options
 };
 
 var makeComponent = ko.component = function(componentDefinition) {
-  var routerDescription = componentDefinition.router;
   var viewModel = componentDefinition.viewModel;
-  var mixins = componentDefinition.mixins;
 
   if( typeof viewModel === 'function' && isViewModelCtor(viewModel) === false ) {
     componentDefinition.viewModel = makeViewModel( _.omit(componentDefinition, 'template') );
-  }
-
-  if( typeof routerDescription === 'object' && typeof componentDefinition.viewModel.compose === 'function' ) {
-    if( _.isArray(mixins) === false ) {
-      componentDefinition.mixins = [];
-    }
-
-    // create composure of the viewModel which creates an instance of $router on the viewModel according to the componentDefinition.router description
-    componentDefinition.viewModel = viewModel.compose({
-      _postInit: function() {
-        this.$router = new Router( routerDescription, this );
-      }
-    });
   }
 
   return componentDefinition;
@@ -1224,7 +1246,17 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, i
       var bindViewModel = function(ViewModel) {
         var viewModel = ViewModel;
         if(typeof ViewModel === 'function') {
+          if( isViewModelCtor(ViewModel) ) {
+            // inject the context into the ViewModel contructor
+            ViewModel = ViewModel.compose({
+              _preInit: function() {
+                this.$context = bindingContext;
+              }
+            });
+          }
           viewModel = new ViewModel(values.params);
+        } else {
+          viewModel = ViewModel;
         }
 
         // binding the viewModel onto each child element is not ideal, need to do this differently
@@ -1257,8 +1289,10 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, i
         }
       }
     }
+
     return { 'controlsDescendantBindings': true };
   }
+
   return originalComponentInit(element, valueAccessor, ignored1, ignored2, bindingContext);
 };
 
@@ -1272,9 +1306,9 @@ function componentTriggerAfterBinding(element, viewModel) {
   }
 }
 
-// Use the $component wrapper binding to provide lifecycle events for components
-ko.virtualElements.allowedBindings.$component = true;
-ko.bindingHandlers.$component = {
+// Use the $compLifeCycle wrapper binding to provide lifecycle events for components
+ko.virtualElements.allowedBindings.$compLifeCycle = true;
+ko.bindingHandlers.$compLifeCycle = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if( isViewModel(viewModel) === true ) {
@@ -1307,14 +1341,14 @@ ko.bindingHandlers.$component = {
   }
 };
 
-// Components which footwork will not wrap in the $component custom binding used for lifecycle events
+// Components which footwork will not wrap in the $compLifeCycle custom binding used for lifecycle events
 // Used to keep the wrapper off of internal/natively handled and defined components such as 'outlet'
 var nativeComponents = [
   'outlet'
 ];
 
-// Custom loader used to wrap components with the $component custom binding
-var componentWrapperTemplate = '<!-- ko $component -->COMPONENT_MARKUP<!-- /ko -->';
+// Custom loader used to wrap components with the $compLifeCycle custom binding
+var componentWrapperTemplate = '<!-- ko $compLifeCycle -->COMPONENT_MARKUP<!-- /ko -->';
 ko.components.loaders.unshift( ko.components.componentWrapper = {
   loadTemplate: function(componentName, templateConfig, callback) {
     if( nativeComponents.indexOf(componentName) === -1 ) {
@@ -1379,15 +1413,15 @@ ko.components.loaders.push( ko.components.requireLoader = {
   }
 });
 
-ko.virtualElements.allowedBindings.$outlet = true;
-ko.bindingHandlers.$outlet = {
+ko.virtualElements.allowedBindings.$outletRouteBinder = true;
+ko.bindingHandlers.$outletRouteBinder = {
   init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
     var $parentViewModel = bindingContext.$parent;
     var $parentRouter = $parentViewModel.$router;
     var outletName = outletViewModel.outletName;
 
     // ensure that this outlet name is registered with the router so that further updates will propagate correctly
-    outletViewModel.target = $parentRouter.$outlet( outletName );
+    outletViewModel.$outletRoute = $parentRouter.$outlet( outletName );
   }
 };
 
@@ -1398,8 +1432,8 @@ ko.components.register('outlet', {
     this.outletName = ko.unwrap(params.name);
   },
   template: '\
-    <!-- ko $outlet -->\
-      <!-- ko component: { name: target().component, params: target().parameters } --><!-- /ko -->\
+    <!-- ko $outletRouteBinder -->\
+      <!-- ko component: $outletRoute --><!-- /ko -->\
     <!-- /ko -->'
 });
 
