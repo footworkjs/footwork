@@ -10708,6 +10708,27 @@ function hasNavItems(routes) {
   return extractNavItems( routes ).length > 0;
 }
 
+function isRouter(thing) {
+  return typeof thing === 'object' && typeof thing.$outlet === 'function';
+};
+
+// Recursive function which will locate the nearest $router from a given ko $context
+// (travels up through $parentContext chain to find the router if not found on the
+// immediate $context). Returns null if none is found.
+function nearestParentRouter($context) {
+  var $parentRouter = null;
+  if( typeof $context === 'object' ) {
+    if( typeof $context.$data === 'object' && isRouter($context.$data.$router) === true ) {
+      // found router in this context
+      $parentRouter = $context.$data.$router;
+    } else if( typeof $context.$parentContext === 'object' ) {
+      // search through next parent up the chain
+      $parentRouter = nearestParentRouter( $context.$parentContext );
+    }
+  }
+  return $parentRouter;
+}
+
 var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters ) {
   var outlets = this.outlets;
 
@@ -10887,7 +10908,7 @@ Router.prototype.getActionForURL = function(url) {
   var originalURL = url;
   var route = this.getRouteFor(url);
 
-  if( typeof route === 'object' ) {
+  if( _.isNull(route) === false ) {
     Action = function($viewModel, $outlet, params) {
       route.controller.call( $viewModel, $outlet, _.extend(route.params, params), route );
     };
@@ -10920,7 +10941,7 @@ Router.prototype.navigationModel = function(predicate) {
 };
 
 var defaultTitle = ko.observable('[No Title]');
-ko.bindingHandlers.$link = {
+ko.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     ko.utils.registerEventHandler(element, 'click', function( event ) {
       var destinationURL = element.getAttribute('href');
@@ -11022,7 +11043,7 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, i
       var bindViewModel = function(ViewModel) {
         var viewModel = ViewModel;
         if(typeof ViewModel === 'function') {
-          if( isViewModelCtor(ViewModel) ) {
+          if( isViewModelCtor(ViewModel) === true ) {
             // inject the context into the ViewModel contructor
             ViewModel = ViewModel.compose({
               _preInit: function() {
@@ -11189,15 +11210,21 @@ ko.components.loaders.push( ko.components.requireLoader = {
   }
 });
 
-ko.virtualElements.allowedBindings.$outletRouteBinder = true;
-ko.bindingHandlers.$outletRouteBinder = {
+var noParentViewModelError = { getNamespaceName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } };
+ko.virtualElements.allowedBindings.$outletBind = true;
+ko.bindingHandlers.$outletBind = {
   init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
-    var $parentViewModel = bindingContext.$parent;
-    var $parentRouter = $parentViewModel.$router;
+    var $parentViewModel = (typeof bindingContext === 'object' ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
+    var $parentRouter = nearestParentRouter(bindingContext);
     var outletName = outletViewModel.outletName;
 
-    // ensure that this outlet name is registered with the router so that further updates will propagate correctly
-    outletViewModel.$outletRoute = $parentRouter.$outlet( outletName );
+    if( isRouter($parentRouter) ) {
+      // register this outlet with the router so that updates will propagate correctly
+      // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
+      outletViewModel.$outletRoute = $parentRouter.$outlet( outletName );
+    } else {
+      throw 'Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.getNamespaceName() + '] but no router was defined.';
+    }
   }
 };
 
@@ -11207,10 +11234,7 @@ ko.components.register('outlet', {
   viewModel: function(params) {
     this.outletName = ko.unwrap(params.name);
   },
-  template: '\
-    <!-- ko $outletRouteBinder -->\
-      <!-- ko component: $outletRoute --><!-- /ko -->\
-    <!-- /ko -->'
+  template: '<!-- ko $outletBind, component: $outletRoute --><!-- /ko -->'
 });
 
 ko.components.register('empty', {
