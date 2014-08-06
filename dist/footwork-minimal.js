@@ -5933,11 +5933,12 @@ var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponen
 // Monkey patch enables the viewModel 'component' to initialize a model and bind to the html as intended
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = ko.bindingHandlers.component.init;
-ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, ignored2, bindingContext) {
+ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
   if( typeof element.tagName === 'string' && element.tagName.toLowerCase() === 'viewmodel' ) {
     var values = valueAccessor();
+    var name = element.getAttribute('name') || element.getAttribute('data-name');
 
-    if( typeof values.params.name !== 'undefined' ) {
+    if( name !== 'undefined' ) {
       var viewModelName = ko.unwrap(values.params.name);
       var resourceLocation = getResourceLocation( viewModelName ).viewModels;
 
@@ -5947,7 +5948,7 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, i
       }
 
       var bindViewModel = function(ViewModel) {
-        var viewModel = ViewModel;
+        var viewModelObj = ViewModel;
         if(typeof ViewModel === 'function') {
           if( isViewModelCtor(ViewModel) === true ) {
             // inject the context into the ViewModel contructor
@@ -5957,22 +5958,22 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, i
               }
             });
           }
-          viewModel = new ViewModel(values.params);
+          viewModelObj = new ViewModel(values.params);
         } else {
-          viewModel = ViewModel;
+          viewModelObj = ViewModel;
         }
 
-        // binding the viewModel onto each child element is not ideal, need to do this differently
+        // binding the viewModelObj onto each child element is not ideal, need to do this differently
         // cannot get component.preprocess() method to work/be called for some reason
         _.each(element.children, function(child) {
-          applyBindings(viewModel, child);
+          applyBindings(viewModelObj, child);
         });
       };
 
       if(typeof resourceLocation === 'string' ) {
         if(typeof require === 'function') {
           if(isPath(resourceLocation) === true) {
-            resourceLocation = resourceLocation + values.params.name;
+            resourceLocation = resourceLocation + name;
           }
           if( resourceLocation !== viewModelName && resourceLocation.match(/\.js$/) === null ) {
             resourceLocation = resourceLocation + resourceFileExtensions.viewModel;
@@ -5996,7 +5997,7 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, ignored1, i
     return { 'controlsDescendantBindings': true };
   }
 
-  return originalComponentInit(element, valueAccessor, ignored1, ignored2, bindingContext);
+  return originalComponentInit(element, valueAccessor, allBindings, viewModel, bindingContext);
 };
 
 function componentTriggerAfterBinding(element, viewModel) {
