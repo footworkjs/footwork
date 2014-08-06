@@ -136,6 +136,11 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.$namespace.exit();
 };
 Router.baseRoute = ko.observable();
+Router.baseRoute.subscribe(function(newBaseRoute) {
+  if( windowObject.location.toString().indexOf(newBaseRoute) !== 0 ) {
+    throw 'baseRoute [' + newBaseRoute + '] not found in URL.';
+  }
+});
 
 Router.prototype.unknownRoute = function() {
   return (typeof this.config !== 'undefined' ? _.result(this.config.unknownRoute) : undefined);
@@ -180,10 +185,7 @@ Router.prototype.setupHistoryAdapter = function( $context ) {
     if( isViewModel($parentModel) === true ) {
       $parentRouter = this.$parent = ($parentModel.$router || $nullRouter);
       this.parentRoutePath = $parentRouter.getRoutePath();
-      console.log('$context has a model', this.parentRoutePath);
     }
-  } else {
-    console.log('no parent model found in $context');
   }
 
   if(this.historyIsEnabled() !== true) {
