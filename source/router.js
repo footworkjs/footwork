@@ -53,6 +53,27 @@ function hasNavItems(routes) {
   return extractNavItems( routes ).length > 0;
 }
 
+function isRouter(thing) {
+  return typeof thing === 'object' && typeof thing.$outlet === 'function';
+};
+
+// Recursive function which will locate the nearest $router from a given ko $context
+// (travels up through $parentContext chain to find the router if not found on the
+// immediate $context). Returns null if none is found.
+function nearestParentRouter($context) {
+  var $parentRouter = null;
+  if( typeof $context === 'object' ) {
+    if( typeof $context.$data === 'object' && isRouter($context.$data.$router) === true ) {
+      // found router in this context
+      $parentRouter = $context.$data.$router;
+    } else if( typeof $context.$parentContext === 'object' ) {
+      // search through next parent up the chain
+      $parentRouter = nearestParentRouter( $context.$parentContext );
+    }
+  }
+  return $parentRouter;
+}
+
 var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters ) {
   var outlets = this.outlets;
 
@@ -232,7 +253,7 @@ Router.prototype.getActionForURL = function(url) {
   var originalURL = url;
   var route = this.getRouteFor(url);
 
-  if( typeof route === 'object' ) {
+  if( _.isNull(route) === false ) {
     Action = function($viewModel, $outlet, params) {
       route.controller.call( $viewModel, $outlet, _.extend(route.params, params), route );
     };
@@ -265,7 +286,7 @@ Router.prototype.navigationModel = function(predicate) {
 };
 
 var defaultTitle = ko.observable('[No Title]');
-ko.bindingHandlers.$link = {
+ko.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     ko.utils.registerEventHandler(element, 'click', function( event ) {
       var destinationURL = element.getAttribute('href');
