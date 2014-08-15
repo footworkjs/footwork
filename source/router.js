@@ -213,8 +213,17 @@ Router.prototype.shutdown = function() {
   delete this.stateChange;
 };
 
+// polyfill for missing window.location.origin
+if( typeof windowObject.location.origin !== 'string' ) {
+  windowObject.location.origin = windowObject.location.protocol + "//" + windowObject.location.hostname + (windowObject.location.port ? ':' + windowObject.location.port: '');
+}
+
 Router.prototype.normalizeURL = function(url, cancelInitialPath) {
   console.info('normalizeURL', cancelInitialPath);
+  if(url.indexOf(windowObject.location.origin) === 0) {
+    url = url.substr(windowObject.location.origin.length);
+  }
+
   if( _.isNull(this.config.baseRoute) === false && url.indexOf(this.config.baseRoute) === 0 ) {
     url = url.substr(this.config.baseRoute.length);
     if(url.length > 1) {
