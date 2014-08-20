@@ -32,7 +32,7 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "knockoutjs": "3.2.0-beta",
+    "knockoutjs": "3.2.0",
     "riveter": "0.1.2",
     "lodash": "2.4.1",
     "postal.js": "0.10.0",
