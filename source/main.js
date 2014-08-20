@@ -52,9 +52,9 @@ var viewModelMixins = [];
 
 //import("namespace.js");
 //import("broadcast-receive.js");
+//import("router.js");
 //import("viewModel.js");
 //import("resource.js");
-//import("router.js");
 //import("component.js");
 //import("bindingHandlers.js");
 //import("extenders.js");
