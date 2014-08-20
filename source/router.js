@@ -55,12 +55,13 @@ function hasNavItems(routes) {
 
 function isRouter(thing) {
   return typeof thing === 'object' && typeof thing.$outlet === 'function';
-};
+}
 
 // Recursive function which will locate the nearest $router from a given ko $context
 // (travels up through $parentContext chain to find the router if not found on the
 // immediate $context). Returns null if none is found.
-function nearestParentRouter($context) {
+function nearestParentRouter($context, level) {
+  level = typeof level === 'undefined' ? -1 : level;
   var $parentRouter = null;
   if( typeof $context === 'object' ) {
     if( typeof $context.$data === 'object' && isRouter($context.$data.$router) === true ) {
@@ -117,7 +118,7 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.$namespace.enter();
 
   this.historyIsEnabled = ko.observable(false).broadcastAs('historyIsEnabled');
-  this.currentState = ko.observable().broadcastAs('currentState');
+  this.currentState = ko.observable('').broadcastAs('currentState');
   this.navModelUpdate = ko.observable();
   this.outlets = {};
   this.$outlet = _.bind( $routerOutlet, this );
@@ -172,7 +173,7 @@ Router.prototype.activate = function() {
 Router.prototype.getRoutePath = function() {
   var routePath = this.parentRoutePath || '';
 
-  return 'YO!!!';
+  return routePath + this.currentState();
 };
 
 var $nullRouter = { getRoutePath: function() { return ''; } };
@@ -300,6 +301,13 @@ var defaultTitle = ko.observable('[No Title]');
 ko.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     ko.utils.registerEventHandler(element, 'click', function( event ) {
+      var $myRouter = nearestParentRouter(bindingContext);
+      var $nearestParentRouter = nearestParentRouter(bindingContext.$parentContext);
+      if( _.isNull($nearestParentRouter) === false ) {
+
+      }
+      console.log(viewModel);
+
       var destinationURL = element.getAttribute('href');
       var title = element.getAttribute('data-title');
 

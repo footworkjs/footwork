@@ -663,220 +663,6 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
   observable.__isBroadcast = true;
   return observable.broadcast();
 };
-// viewModel.js
-// ------------------
-
-// Duck type function for determining whether or not something is a footwork viewModel constructor function
-function isViewModelCtor(thing) {
-  return typeof thing !== 'undefined' && thing.__isViewModelCtor === true;
-}
-
-// Duck type function for determining whether or not something is a footwork viewModel
-function isViewModel(thing) {
-  return typeof thing !== 'undefined' && _.isFunction(thing.__getConfigParams) === true;
-}
-
-// Initialize the viewModels registry
-var viewModels = {};
-
-// Returns the number of created viewModels for each defined namespace
-var viewModelCount = ko.viewModelCount = function() {
-  var counts = _.reduce(namespaceNameCounter, function(viewModelCounts, viewModelCount, viewModelName) {
-    viewModelCounts[viewModelName] = viewModelCount + 1;
-    return viewModelCounts;
-  }, {});
-  counts.__total = _.reduce(_.values(counts), function(summation, num) {
-    return summation + num;
-  }, 0);
-  return counts;
-};
-
-// Returns a reference to the specified viewModels.
-// If no name is supplied, a reference to an array containing all model references is returned.
-var getViewModels = ko.getViewModels = function(namespaceName) {
-  if(namespaceName === undefined) {
-    return viewModels;
-  }
-  return viewModels[namespaceName];
-};
-
-// Tell all viewModels to request the values which it listens for
-var refreshModels = ko.refreshViewModels = function() {
-  _.invoke(getViewModels(), 'refreshReceived');
-};
-
-var defaultViewModelConfigParams = {
-  namespace: undefined,
-  name: undefined,
-  componentNamespace: undefined,
-  autoIncrement: false,
-  mixins: undefined,
-  params: undefined,
-  initialize: noop,
-  afterInit: noop,
-  afterBinding: noop,
-  afterDispose: noop
-};
-var makeViewModel = ko.viewModel = function(configParams) {
-  var ctor;
-  var afterInit;
-
-  configParams = configParams || {};
-  if( typeof configParams !== 'undefined') {
-    ctor = configParams.viewModel || configParams.initialize || noop;
-    afterInit = configParams.afterInit || noop;
-  }
-  afterInit = { _postInit: afterInit };
-
-  configParams = _.extend({}, defaultViewModelConfigParams, configParams);
-  configParams.afterBinding.wasCalled = false;
-
-  var initViewModelMixin = {
-    _preInit: function( initParams ) {
-      this.$params = configParams.params;
-      if( typeof configParams.router === 'object' ) {
-        this.$router = new Router( configParams.router, this );
-      }
-      this.__getConfigParams = function() {
-        return configParams;
-      };
-      this.__getInitParams = function() {
-        return initParams;
-      };
-      this.__shutdown = function() {
-        this.$namespace.shutdown();
-        this.$globalNamespace.shutdown();
-      };
-    },
-    _postInit: function() {
-      this.$namespace.request.handler('__footwork_model_reference', function() {
-        return this;
-      });
-    }
-  };
-
-  var composure = [ ctor, initViewModelMixin ].concat( viewModelMixins, afterInit );
-  if(configParams.mixins !== undefined) {
-    composure = composure.concat(configParams.mixins);
-  }
-
-  var model = riveter.compose.apply( undefined, composure );
-  model.__isViewModelCtor = true;
-  model.__configParams = configParams;
-
-  return model;
-};
-// resource.js
-// ------------------
-
-var resourceFileExtensions = {
-  combined: '.js',
-  viewModel: '.js',
-  template: '.html'
-};
-
-ko.components.setFileExtensions = function(fileType, extension) {
-  if( typeof fileType === 'object' ) {
-    _.extend(resourceFileExtensions, fileType);
-  } else if(typeof resourceFileExtensions[fileType] !== 'undefined') {
-    resourceFileExtensions[fileType] = extension;
-  }
-};
-
-ko.components.getFileExtensions = function() {
-  return _.clone(resourceFileExtensions);
-};
-
-ko.components.getNormalTagList = function() {
-  return normalTags.splice(0);
-};
-
-ko.components.getComponentNameForNode = function(node) {
-  var tagName = node.tagName && node.tagName.toLowerCase();
-
-  if( ko.components.isRegistered(tagName) || _.indexOf(normalTags, tagName) === -1 ) {
-    return tagName;
-  }
-  return null;
-};
-
-var defaultResourceLocation = {
-  combined: null,
-  viewModels: '/viewModel/',
-  templates: '/component/'
-};
-var resourceRelativeLocation = function(rootURL, returnTheValue) {
-  var componentLocation = defaultResourceLocation;
-  if(returnTheValue === true) {
-    componentLocation = _.extend({}, defaultResourceLocation);
-  }
-
-  if( _.isObject(rootURL) === true ) {
-    // assume some combination of defaultResourceLocation and normalize the parameters
-    _.extend(componentLocation, _.reduce(rootURL, function(options, paramValue, paramName) {
-      if(paramName === 'viewModel') {
-        options.viewModels = paramValue;
-        delete options.viewModel;
-      } else if(paramName === 'template') {
-        options.templates = paramValue;
-        delete options.template;
-      } else {
-        options[paramName] = paramValue;
-      }
-      return options;
-    }, {}));
-  } else if( typeof rootURL === 'string' ) {
-    componentLocation = {
-      combined: rootURL,
-      viewModels: null,
-      templates: null
-    };
-  }
-
-  if(returnTheValue === true) {
-    return componentLocation;
-  } else {
-    defaultResourceLocation = componentLocation;
-  }
-};
-
-var componentRelativeLocation = ko.components.loadRelativeTo = function(locations, returnTheValue) {
-  var returnValue = resourceRelativeLocation(locations, returnTheValue);
-  if(returnTheValue === true) {
-    return returnValue;
-  }
-};
-
-var resourceLocations = ko.resourceLocations = {};
-var registerLocationOfComponent = ko.components.registerLocationOf = function(componentName, componentLocation) {
-  if( _.isArray(componentName) === true ) {
-    _.each(componentName, function(name) {
-      registerLocationOfComponent(name, componentLocation);
-    });
-  }
-  resourceLocations[ componentName ] = componentRelativeLocation(componentLocation, true);
-};
-
-var viewModelRelativeLocation = ko.viewModel.loadRelativeTo = function(rootURL, returnTheValue) {
-  var returnValue = resourceRelativeLocation({ viewModel: rootURL }, returnTheValue);
-  if(returnTheValue === true) {
-    return returnValue;
-  }
-};
-
-var registerLocationOfViewModel = ko.viewModel.registerLocationOf = function(viewModelName, viewModelLocation) {
-  if( _.isArray(viewModelName) === true ) {
-    _.each(viewModelName, function(name) {
-      registerLocationOfViewModel(name, viewModelLocation);
-    });
-  }
-  resourceLocations[ viewModelName ] = viewModelRelativeLocation(viewModelLocation, true);
-};
-
-// Return the resource definition for the supplied resourceName
-var getResourceLocation = ko.getResourceLocation = function(resourceName) {
-  return resourceLocations[resourceName] || defaultResourceLocation;
-};
 // router.js
 // ------------------
 
@@ -934,12 +720,13 @@ function hasNavItems(routes) {
 
 function isRouter(thing) {
   return typeof thing === 'object' && typeof thing.$outlet === 'function';
-};
+}
 
 // Recursive function which will locate the nearest $router from a given ko $context
 // (travels up through $parentContext chain to find the router if not found on the
 // immediate $context). Returns null if none is found.
-function nearestParentRouter($context) {
+function nearestParentRouter($context, level) {
+  level = typeof level === 'undefined' ? -1 : level;
   var $parentRouter = null;
   if( typeof $context === 'object' ) {
     if( typeof $context.$data === 'object' && isRouter($context.$data.$router) === true ) {
@@ -996,7 +783,7 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.$namespace.enter();
 
   this.historyIsEnabled = ko.observable(false).broadcastAs('historyIsEnabled');
-  this.currentState = ko.observable().broadcastAs('currentState');
+  this.currentState = ko.observable('').broadcastAs('currentState');
   this.navModelUpdate = ko.observable();
   this.outlets = {};
   this.$outlet = _.bind( $routerOutlet, this );
@@ -1051,7 +838,7 @@ Router.prototype.activate = function() {
 Router.prototype.getRoutePath = function() {
   var routePath = this.parentRoutePath || '';
 
-  return 'YO!!!';
+  return routePath + this.currentState();
 };
 
 var $nullRouter = { getRoutePath: function() { return ''; } };
@@ -1179,6 +966,13 @@ var defaultTitle = ko.observable('[No Title]');
 ko.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     ko.utils.registerEventHandler(element, 'click', function( event ) {
+      var $myRouter = nearestParentRouter(bindingContext);
+      var $nearestParentRouter = nearestParentRouter(bindingContext.$parentContext);
+      if( _.isNull($nearestParentRouter) === false ) {
+
+      }
+      console.log(viewModel);
+
       var destinationURL = element.getAttribute('href');
       var title = element.getAttribute('data-title');
 
@@ -1188,75 +982,108 @@ ko.bindingHandlers.$route = {
     });
   }
 };
-// component.js
+// viewModel.js
 // ------------------
 
-var originalComponentRegisterFunc = ko.components.register;
-var registerComponent = ko.components.register = function(componentName, options) {
-  var viewModel = options.initialize || options.viewModel;
-  
-  if(typeof componentName !== 'string') {
-    throw 'Components must be provided a componentName.';
-  }
+// Duck type function for determining whether or not something is a footwork viewModel constructor function
+function isViewModelCtor(thing) {
+  return typeof thing !== 'undefined' && thing.__isViewModelCtor === true;
+}
 
-  //TODO: determine how mixins from the (optionally) supplied footwork viewModel mix in with the mixins supplied directly in the component options
-  //      as well as others like params, afterBinding. Currently we will just use the viewModel's mixins/etc, only the namespace is overridden
-  //      from the component definition/configuration.
-  if( isViewModelCtor(viewModel) ) {
-    viewModel.__configParams['componentNamespace'] = componentName;
-  } else if( typeof viewModel === 'function' ) {
-    options.namespace = componentName;
-    viewModel = makeViewModel(options);
-  }
+// Duck type function for determining whether or not something is a footwork viewModel
+function isViewModel(thing) {
+  return typeof thing !== 'undefined' && _.isFunction(thing.__getConfigParams) === true;
+}
 
-  originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel,
-    template: options.template
-  });
+// Initialize the viewModels registry
+var viewModels = {};
+
+// Returns the number of created viewModels for each defined namespace
+var viewModelCount = ko.viewModelCount = function() {
+  var counts = _.reduce(namespaceNameCounter, function(viewModelCounts, viewModelCount, viewModelName) {
+    viewModelCounts[viewModelName] = viewModelCount + 1;
+    return viewModelCounts;
+  }, {});
+  counts.__total = _.reduce(_.values(counts), function(summation, num) {
+    return summation + num;
+  }, 0);
+  return counts;
 };
 
-var makeComponent = ko.component = function(componentDefinition) {
-  var viewModel = componentDefinition.viewModel;
-
-  if( typeof viewModel === 'function' && isViewModelCtor(viewModel) === false ) {
-    componentDefinition.viewModel = makeViewModel( _.omit(componentDefinition, 'template') );
+// Returns a reference to the specified viewModels.
+// If no name is supplied, a reference to an array containing all model references is returned.
+var getViewModels = ko.getViewModels = function(namespaceName) {
+  if(namespaceName === undefined) {
+    return viewModels;
   }
-
-  return componentDefinition;
+  return viewModels[namespaceName];
 };
 
-// These are tags which are ignored by the custom component loader
-// Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
-var normalTags = [
-  'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont', 'bdi', 'bgsound',
-  'big', 'blink', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
-  'content', 'data', 'datalist', 'dd', 'decorator', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'element',
-  'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'frameset', 'g', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-  'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'isindex', 'kbd', 'keygen', 'label',
-  'legend', 'li', 'link', 'listing', 'main', 'map', 'mark', 'marquee', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'nobr',
-  'noframes', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture', 'polygon', 'path', 'pre',
-  'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'shadow', 'small', 'source', 'spacer',
-  'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'template', 'textarea',
-  'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp'
-];
-var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponent) {
-  isComponent = (typeof isComponent === 'undefined' ? true : isComponent);
+// Tell all viewModels to request the values which it listens for
+var refreshModels = ko.refreshViewModels = function() {
+  _.invoke(getViewModels(), 'refreshReceived');
+};
 
-  if( _.isArray(tagName) === true ) {
-    _.each(tagName, function(tag) {
-      tagIsComponent(tag, isComponent);
-    });
+var defaultViewModelConfigParams = {
+  namespace: undefined,
+  name: undefined,
+  componentNamespace: undefined,
+  autoIncrement: false,
+  mixins: undefined,
+  params: undefined,
+  initialize: noop,
+  afterInit: noop,
+  afterBinding: noop,
+  afterDispose: noop
+};
+var makeViewModel = ko.viewModel = function(configParams) {
+  var ctor;
+  var afterInit;
+
+  configParams = configParams || {};
+  if( typeof configParams !== 'undefined') {
+    ctor = configParams.viewModel || configParams.initialize || noop;
+    afterInit = configParams.afterInit || noop;
   }
+  afterInit = { _postInit: afterInit };
 
-  if(isComponent !== true) {
-    if( _.contains(normalTags, tagName) === false ) {
-      normalTags.push(tagName);
+  configParams = _.extend({}, defaultViewModelConfigParams, configParams);
+  configParams.afterBinding.wasCalled = false;
+
+  var initViewModelMixin = {
+    _preInit: function( initParams ) {
+      this.$params = configParams.params;
+      if( typeof configParams.router === 'object' ) {
+        this.$router = new Router( configParams.router, this );
+      }
+      this.__getConfigParams = function() {
+        return configParams;
+      };
+      this.__getInitParams = function() {
+        return initParams;
+      };
+      this.__shutdown = function() {
+        this.$namespace.shutdown();
+        this.$globalNamespace.shutdown();
+      };
+    },
+    _postInit: function() {
+      this.$namespace.request.handler('__footwork_model_reference', function() {
+        return this;
+      });
     }
-  } else {
-    normalTags = _.filter(normalTags, function(normalTagName) {
-      return normalTagName !== tagName;
-    });
+  };
+
+  var composure = [ ctor, initViewModelMixin ].concat( viewModelMixins, afterInit );
+  if(configParams.mixins !== undefined) {
+    composure = composure.concat(configParams.mixins);
   }
+
+  var model = riveter.compose.apply( undefined, composure );
+  model.__isViewModelCtor = true;
+  model.__configParams = configParams;
+
+  return model;
 };
 
 // Monkey patch enables the viewModel 'component' to initialize a model and bind to the html as intended
@@ -1327,6 +1154,187 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
   }
 
   return originalComponentInit(element, valueAccessor, allBindings, viewModel, bindingContext);
+};
+// resource.js
+// ------------------
+
+var resourceFileExtensions = {
+  combined: '.js',
+  viewModel: '.js',
+  template: '.html'
+};
+
+ko.components.setFileExtensions = function(fileType, extension) {
+  if( typeof fileType === 'object' ) {
+    _.extend(resourceFileExtensions, fileType);
+  } else if(typeof resourceFileExtensions[fileType] !== 'undefined') {
+    resourceFileExtensions[fileType] = extension;
+  }
+};
+
+ko.components.getFileExtensions = function() {
+  return _.clone(resourceFileExtensions);
+};
+
+ko.components.getNormalTagList = function() {
+  return normalTags.splice(0);
+};
+
+ko.components.getComponentNameForNode = function(node) {
+  var tagName = node.tagName && node.tagName.toLowerCase();
+
+  if( ko.components.isRegistered(tagName) || _.indexOf(normalTags, tagName) === -1 ) {
+    return tagName;
+  }
+  return null;
+};
+
+var defaultResourceLocation = {
+  combined: null,
+  viewModels: '/viewModel/',
+  templates: '/component/'
+};
+var resourceRelativeLocation = function(rootURL, returnTheValue) {
+  var componentLocation = defaultResourceLocation;
+  if(returnTheValue === true) {
+    componentLocation = _.extend({}, defaultResourceLocation);
+  }
+
+  if( _.isObject(rootURL) === true ) {
+    // assume some combination of defaultResourceLocation and normalize the parameters
+    _.extend(componentLocation, _.reduce(rootURL, function(options, paramValue, paramName) {
+      if(paramName === 'viewModel') {
+        options.viewModels = paramValue;
+        delete options.viewModel;
+      } else if(paramName === 'template') {
+        options.templates = paramValue;
+        delete options.template;
+      } else {
+        options[paramName] = paramValue;
+      }
+      return options;
+    }, {}));
+  } else if( typeof rootURL === 'string' ) {
+    componentLocation = {
+      combined: rootURL,
+      viewModels: null,
+      templates: null
+    };
+  }
+
+  if(returnTheValue === true) {
+    return componentLocation;
+  } else {
+    defaultResourceLocation = componentLocation;
+  }
+};
+
+var componentRelativeLocation = ko.components.loadRelativeTo = function(locations, returnTheValue) {
+  var returnValue = resourceRelativeLocation(locations, returnTheValue);
+  if(returnTheValue === true) {
+    return returnValue;
+  }
+};
+
+var resourceLocations = ko.resourceLocations = {};
+var registerLocationOfComponent = ko.components.registerLocationOf = function(componentName, componentLocation) {
+  if( _.isArray(componentName) === true ) {
+    _.each(componentName, function(name) {
+      registerLocationOfComponent(name, componentLocation);
+    });
+  }
+  resourceLocations[ componentName ] = componentRelativeLocation(componentLocation, true);
+};
+
+var viewModelRelativeLocation = ko.viewModel.loadRelativeTo = function(rootURL, returnTheValue) {
+  var returnValue = resourceRelativeLocation({ viewModel: rootURL }, returnTheValue);
+  if(returnTheValue === true) {
+    return returnValue;
+  }
+};
+
+var registerLocationOfViewModel = ko.viewModel.registerLocationOf = function(viewModelName, viewModelLocation) {
+  if( _.isArray(viewModelName) === true ) {
+    _.each(viewModelName, function(name) {
+      registerLocationOfViewModel(name, viewModelLocation);
+    });
+  }
+  resourceLocations[ viewModelName ] = viewModelRelativeLocation(viewModelLocation, true);
+};
+
+// Return the resource definition for the supplied resourceName
+var getResourceLocation = ko.getResourceLocation = function(resourceName) {
+  return resourceLocations[resourceName] || defaultResourceLocation;
+};
+// component.js
+// ------------------
+
+var originalComponentRegisterFunc = ko.components.register;
+var registerComponent = ko.components.register = function(componentName, options) {
+  var viewModel = options.initialize || options.viewModel;
+  
+  if(typeof componentName !== 'string') {
+    throw 'Components must be provided a componentName.';
+  }
+
+  //TODO: determine how mixins from the (optionally) supplied footwork viewModel mix in with the mixins supplied directly in the component options
+  //      as well as others like params, afterBinding. Currently we will just use the viewModel's mixins/etc, only the namespace is overridden
+  //      from the component definition/configuration.
+  if( isViewModelCtor(viewModel) ) {
+    viewModel.__configParams['componentNamespace'] = componentName;
+  } else if( typeof viewModel === 'function' ) {
+    options.namespace = componentName;
+    viewModel = makeViewModel(options);
+  }
+
+  originalComponentRegisterFunc(componentName, {
+    viewModel: viewModel,
+    template: options.template
+  });
+};
+
+var makeComponent = ko.component = function(componentDefinition) {
+  var viewModel = componentDefinition.viewModel;
+
+  if( typeof viewModel === 'function' && isViewModelCtor(viewModel) === false ) {
+    componentDefinition.viewModel = makeViewModel( _.omit(componentDefinition, 'template') );
+  }
+
+  return componentDefinition;
+};
+
+// These are tags which are ignored by the custom component loader
+// Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
+var normalTags = [
+  'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont', 'bdi', 'bgsound',
+  'big', 'blink', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
+  'content', 'data', 'datalist', 'dd', 'decorator', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'element',
+  'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'frameset', 'g', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'isindex', 'kbd', 'keygen', 'label',
+  'legend', 'li', 'link', 'listing', 'main', 'map', 'mark', 'marquee', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'nobr',
+  'noframes', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture', 'polygon', 'path', 'pre',
+  'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'shadow', 'small', 'source', 'spacer',
+  'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'template', 'textarea',
+  'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp'
+];
+var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponent) {
+  isComponent = (typeof isComponent === 'undefined' ? true : isComponent);
+
+  if( _.isArray(tagName) === true ) {
+    _.each(tagName, function(tag) {
+      tagIsComponent(tag, isComponent);
+    });
+  }
+
+  if(isComponent !== true) {
+    if( _.contains(normalTags, tagName) === false ) {
+      normalTags.push(tagName);
+    }
+  } else {
+    normalTags = _.filter(normalTags, function(normalTagName) {
+      return normalTagName !== tagName;
+    });
+  }
 };
 
 function componentTriggerAfterBinding(element, viewModel) {
