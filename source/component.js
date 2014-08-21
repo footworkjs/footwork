@@ -133,6 +133,29 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
       }
     }
     ko.components.defaultLoader.loadTemplate(componentName, templateConfig, callback);
+  },
+  loadViewModel: function(componentName, templateConfig, callback) {
+    var ViewModel = templateConfig.viewModel || templateConfig;
+    console.log(componentName);
+    if( nativeComponents.indexOf(componentName) === -1 ) {
+      callback(function(params, componentInfo) {
+        console.log(ViewModel);
+        var element = componentInfo.element;
+        var $context = ko.contextFor(element);
+
+        if( isViewModelCtor(ViewModel) === true ) {
+          // inject the context into the ViewModel contructor
+          ViewModel = ViewModel.compose({
+            _preInit: function() {
+              this.$context = $context;
+            }
+          });
+        }
+        return new ViewModel(params);
+      });
+    } else {
+      ko.components.defaultLoader.loadViewModel(componentName, templateConfig, callback);
+    }
   }
 });
 

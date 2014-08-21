@@ -199,6 +199,7 @@ Router.prototype.setupHistoryAdapter = function( $context ) {
         // get and run the action for the specified route
         var Action = $router.getActionForURL(url);
         Action( $router.$viewModel, $router.$outlet );
+        $router.currentRoute = Action.route;
         return $router;
       });
       this.historyIsEnabled(true);
@@ -283,6 +284,10 @@ Router.prototype.getRoutes = function() {
   return this.config.routes;
 };
 
+Router.prototype.enableSplatForCurrentRoute = function() {
+  console.log(this.currentRoute);
+};
+
 Router.prototype.navigationModel = function(predicate) {
   if(typeof this.navigationModel === 'undefined') {
     this.navigationModel = ko.computed(function() {
@@ -303,13 +308,13 @@ ko.bindingHandlers.$route = {
     ko.utils.registerEventHandler(element, 'click', function( event ) {
       var $myRouter = nearestParentRouter(bindingContext);
       var $nearestParentRouter = nearestParentRouter(bindingContext.$parentContext);
-      if( _.isNull($nearestParentRouter) === false ) {
-
-      }
-      console.log(viewModel);
-
       var destinationURL = element.getAttribute('href');
       var title = element.getAttribute('data-title');
+
+      if( _.isNull($nearestParentRouter) === false && $myRouter.config.relativeToParent === true ) {
+        destinationURL = $nearestParentRouter.getRoutePath() + destinationURL;
+      }
+      // console.log(viewModel);
 
       History.pushState( null, title || defaultTitle(), destinationURL );
       event.stopPropagation();

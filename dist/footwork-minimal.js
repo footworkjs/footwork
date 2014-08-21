@@ -5544,6 +5544,7 @@ Router.prototype.setupHistoryAdapter = function( $context ) {
         // get and run the action for the specified route
         var Action = $router.getActionForURL(url);
         Action( $router.$viewModel, $router.$outlet );
+        $router.currentRoute = Action.route;
         return $router;
       });
       this.historyIsEnabled(true);
@@ -5628,6 +5629,10 @@ Router.prototype.getRoutes = function() {
   return this.config.routes;
 };
 
+Router.prototype.enableSplatForCurrentRoute = function() {
+  console.log(this.currentRoute);
+};
+
 Router.prototype.navigationModel = function(predicate) {
   if(typeof this.navigationModel === 'undefined') {
     this.navigationModel = ko.computed(function() {
@@ -5648,13 +5653,13 @@ ko.bindingHandlers.$route = {
     ko.utils.registerEventHandler(element, 'click', function( event ) {
       var $myRouter = nearestParentRouter(bindingContext);
       var $nearestParentRouter = nearestParentRouter(bindingContext.$parentContext);
-      if( _.isNull($nearestParentRouter) === false ) {
-
-      }
-      console.log(viewModel);
-
       var destinationURL = element.getAttribute('href');
       var title = element.getAttribute('data-title');
+
+      if( _.isNull($nearestParentRouter) === false && $myRouter.config.relativeToParent === true ) {
+        destinationURL = $nearestParentRouter.getRoutePath() + destinationURL;
+      }
+      // console.log(viewModel);
 
       History.pushState( null, title || defaultTitle(), destinationURL );
       event.stopPropagation();
@@ -6081,6 +6086,29 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
       }
     }
     ko.components.defaultLoader.loadTemplate(componentName, templateConfig, callback);
+  },
+  loadViewModel: function(componentName, templateConfig, callback) {
+    var ViewModel = templateConfig.viewModel || templateConfig;
+    console.log(componentName);
+    if( nativeComponents.indexOf(componentName) === -1 ) {
+      callback(function(params, componentInfo) {
+        console.log(ViewModel);
+        var element = componentInfo.element;
+        var $context = ko.contextFor(element);
+
+        if( isViewModelCtor(ViewModel) === true ) {
+          // inject the context into the ViewModel contructor
+          ViewModel = ViewModel.compose({
+            _preInit: function() {
+              this.$context = $context;
+            }
+          });
+        }
+        return new ViewModel(params);
+      });
+    } else {
+      ko.components.defaultLoader.loadViewModel(componentName, templateConfig, callback);
+    }
   }
 });
 
