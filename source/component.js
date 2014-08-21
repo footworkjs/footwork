@@ -123,19 +123,19 @@ var nativeComponents = [
 // Custom loader used to wrap components with the $compLifeCycle custom binding
 var componentWrapperTemplate = '<!-- ko $compLifeCycle -->COMPONENT_MARKUP<!-- /ko -->';
 ko.components.loaders.unshift( ko.components.componentWrapper = {
-  loadTemplate: function(componentName, templateConfig, callback) {
+  loadTemplate: function(componentName, config, callback) {
     if( nativeComponents.indexOf(componentName) === -1 ) {
-      // TODO: Handle different types of templateConfigs
-      if(typeof templateConfig === 'string') {
-        templateConfig = componentWrapperTemplate.replace(/COMPONENT_MARKUP/, templateConfig);
+      // TODO: Handle different types of configs
+      if(typeof config === 'string') {
+        config = componentWrapperTemplate.replace(/COMPONENT_MARKUP/, config);
       } else {
-        throw 'Unhandled templateConfig type ' + typeof templateConfig + '.';
+        throw 'Unhandled config type ' + typeof config + '.';
       }
     }
     ko.components.defaultLoader.loadTemplate(componentName, templateConfig, callback);
   },
-  loadViewModel: function(componentName, templateConfig, callback) {
-    var ViewModel = templateConfig.viewModel || templateConfig;
+  loadViewModel: function(componentName, config, callback) {
+    var ViewModel = config.viewModel || config;
     console.log(componentName);
     if( nativeComponents.indexOf(componentName) === -1 ) {
       callback(function(params, componentInfo) {
@@ -154,7 +154,7 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
         return new ViewModel(params);
       });
     } else {
-      ko.components.defaultLoader.loadViewModel(componentName, templateConfig, callback);
+      ko.components.defaultLoader.loadViewModel(componentName, config, callback);
     }
   }
 });
