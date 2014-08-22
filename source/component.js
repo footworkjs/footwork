@@ -92,6 +92,9 @@ ko.bindingHandlers.$compLifeCycle = {
         if( _.isFunction(configParams.afterBinding) === true ) {
           configParams.afterBinding.wasCalled = false;
         }
+        if( isRouter( viewModel.$router ) === true ) {
+          viewModel.$router.destroy();
+        }
       }
 
       _.each( viewModel, function( $namespace ) {
