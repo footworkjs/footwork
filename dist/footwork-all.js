@@ -10552,7 +10552,6 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.$parentRouter = $nullRouter;
   this.parentRoutePath = '';
   this.context = ko.observable();
-  this.parentRouter = ko.observable($nullRouter);
 
   this.config = routerConfig = _.extend({}, routerDefaultConfig, routerConfig);
   var configBaseRoute = _.result(routerConfig, 'baseRoute');
@@ -10570,11 +10569,9 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.setRoutes( routerConfig.routes );
 
   if( routerConfig.activate === true ) {
-    ko.computed(function() {
-      var $context = this.context();
-      var $parentRouter = this.parentRouter();
-      if(typeof $context === 'object' || $parentRouter !== $nullRouter) {
-        this.activate();
+    this.context.subscribe(function( $context ) {
+      if(typeof $context === 'object') {
+        this.activate( $context );
       }
     }, this);
   }
@@ -10604,15 +10601,15 @@ Router.prototype.addRoutes = function(route) {
   this.config.routes = this.config.routes.concat(route);
 
   if( hasNavItems(route) && isObservable(this.navigationModel) ) {
-    this.navModelUpdate.notifySubscribers(); // tell this.navigationModel to recompute its list
+    this.navModelUpdate.notifySubscribers();
   }
 
   return this;
 };
 
-Router.prototype.activate = function() {
+Router.prototype.activate = function($context, $parentRouter) {
   return this
-    .setup( this.context(), this.parentRouter() )
+    .setup( $context, $parentRouter )
     .stateChange();
 };
 
@@ -10626,11 +10623,9 @@ Router.prototype.stateChange = noop;
 Router.prototype.setup = function( $context, $parentRouter ) {
   $parentRouter = $parentRouter || $nullRouter;
   if( $parentRouter !== $nullRouter ) {
-    if( this.parentRouter() !== $parentRouter ) {
-      this.parentRouter( $parentRouter );
-    }
-  } else if( typeof $context === 'object' ) {
-    this.parentRouter( $parentRouter = nearestParentRouter($context) );
+    this.$parentRouter = $parentRouter;
+  } else if( _.isObject($context) === true ) {
+    this.$parentRouter = $parentRouter = nearestParentRouter($context);
   }
   this.parentRoutePath = $parentRouter.getRoutePath();
 
@@ -10666,7 +10661,7 @@ if( typeof windowObject.location.origin !== 'string' ) {
 }
 
 Router.prototype.normalizeURL = function(url, cancelInitialPath) {
-  var isRelative = (this.config.relativeToParent === false || this.parentRouter() !== $nullRouter);
+  var isRelative = (this.config.relativeToParent === false || this.$parentRouter !== $nullRouter);
 
   if( isRelative === true && url.indexOf(windowObject.location.origin) === 0 ) {
     url = url.substr(windowObject.location.origin.length);
@@ -10711,6 +10706,7 @@ Router.prototype.getActionForURL = function(url) {
   var Action = noop;
   var originalURL = url;
   var route = this.getRouteFor(url);
+  var $router = this;
 
   if( _.isNull(route) === false ) {
     Action = function($viewModel, $outlet, params) {
@@ -11280,7 +11276,6 @@ ko.bindingHandlers.$outletBind = {
   }
 };
 
-// outlets can only exist within parent components
 ko.components.register('outlet', {
   autoIncrement: true,
   viewModel: function(params) {

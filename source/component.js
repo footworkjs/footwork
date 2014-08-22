@@ -227,7 +227,6 @@ ko.bindingHandlers.$outletBind = {
   }
 };
 
-// outlets can only exist within parent components
 ko.components.register('outlet', {
   autoIncrement: true,
   viewModel: function(params) {
