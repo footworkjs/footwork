@@ -10651,7 +10651,7 @@ Router.prototype.setup = function( $context, $parentRouter ) {
   return this;
 };
 
-Router.prototype.shutdown = function() {
+Router.prototype.destroy = function() {
   delete this.stateChange;
 };
 
@@ -11140,6 +11140,9 @@ ko.bindingHandlers.$compLifeCycle = {
         }
         if( _.isFunction(configParams.afterBinding) === true ) {
           configParams.afterBinding.wasCalled = false;
+        }
+        if( isRouter( viewModel.$router ) === true ) {
+          viewModel.$router.destroy();
         }
       }
 
