@@ -35,15 +35,20 @@ ko.debugLevel = ko.observable(1);
 // Preserve the original applyBindings method for later use
 var originalApplyBindings = ko.applyBindings;
 
-// Override the original applyBindings method to provide and enable 'model' life-cycle hooks/events.
-var applyBindings = ko.applyBindings = function(model, element) {
-  originalApplyBindings(model, element);
+// Override the original applyBindings method to provide and enable 'viewModel' life-cycle hooks/events.
+var applyBindings = ko.applyBindings = function(viewModel, element) {
+  originalApplyBindings(viewModel, element);
 
-  if(isViewModel(model) === true) {
-    var $configParams = model.__getConfigParams();
+  if(isViewModel(viewModel) === true) {
+    var $configParams = viewModel.__getConfigParams();
+    
     if(typeof $configParams.afterBinding === 'function') {
-      $configParams.afterBinding.call(model);
+      $configParams.afterBinding.call(viewModel);
     }
+    
+    ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+      viewModel.__shutdown();
+    });
   }
 };
 

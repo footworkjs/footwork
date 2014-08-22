@@ -73,7 +73,6 @@ function componentTriggerAfterBinding(element, viewModel) {
   if( isViewModel(viewModel) === true ) {
     var configParams = viewModel.__getConfigParams();
     if( _.isFunction(configParams.afterBinding) === true && configParams.afterBinding.wasCalled === false ) {
-      configParams.afterBinding.wasCalled = true;
       configParams.afterBinding.call(viewModel, element);
     }
   }
@@ -85,23 +84,8 @@ ko.bindingHandlers.$compLifeCycle = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if( isViewModel(viewModel) === true ) {
-        var configParams = viewModel.__getConfigParams();
-        if( _.isFunction(configParams.afterDispose) === true ) {
-          configParams.afterDispose.call(viewModel, element);
-        }
-        if( _.isFunction(configParams.afterBinding) === true ) {
-          configParams.afterBinding.wasCalled = false;
-        }
-        if( isRouter( viewModel.$router ) === true ) {
-          viewModel.$router.destroy();
-        }
+        viewModel.__shutdown();
       }
-
-      _.each( viewModel, function( $namespace ) {
-        if( isNamespace( $namespace ) === true ) {
-          $namespace.shutdown();
-        }
-      });
     });
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {

@@ -210,7 +210,7 @@ Router.prototype.setup = function( $context, $parentRouter ) {
   return this;
 };
 
-Router.prototype.destroy = function() {
+Router.prototype.shutdown = function() {
   delete this.stateChange;
 };
 
