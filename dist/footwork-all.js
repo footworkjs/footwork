@@ -10064,14 +10064,11 @@ if (!String.prototype.trim) {
 
 // misc utility functions
 var noop = function() { };
-
+var isObservable = ko.isObservable;
 var isPath = function(pathOrLocation) {
   return pathOrLocation.match(/\/$/i) !== null;
 };
 
-var isObservable = function(thing) {
-  return ko.isObservable(thing);
-};
 
 // Initialize the debugLevel observable, this controls
 // what level of debug statements are logged to the console
@@ -10084,19 +10081,28 @@ ko.debugLevel = ko.observable(1);
 var originalApplyBindings = ko.applyBindings;
 
 // Override the original applyBindings method to provide and enable 'viewModel' life-cycle hooks/events.
-var applyBindings = ko.applyBindings = function(viewModel, element) {
+var doNotSetContextOnRouter = false;
+var setContextOnRouter = true;
+var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetContext) {
   originalApplyBindings(viewModel, element);
+  shouldSetContext = typeof shouldSetContext === 'undefined' ? setContextOnRouter : shouldSetContext;
 
-  if(isViewModel(viewModel) === true) {
+  if( isViewModel(viewModel) === true ) {
     var $configParams = viewModel.__getConfigParams();
     
-    if(typeof $configParams.afterBinding === 'function') {
-      $configParams.afterBinding.call(viewModel);
+    if( typeof $configParams.afterBinding === 'function' ) {
+      $configParams.afterBinding.call(viewModel, element);
+    }
+
+    if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) === true ) {
+      viewModel.$router.context( ko.contextFor(element) );
     }
     
-    ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-      viewModel.__shutdown();
-    });
+    if( typeof element !== 'undefined' ) {
+      ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+        viewModel.__shutdown();
+      });
+    }
   }
 };
 
@@ -10909,14 +10915,6 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
       var bindViewModel = function(ViewModel) {
         var viewModelObj = ViewModel;
         if(typeof ViewModel === 'function') {
-          if( isViewModelCtor(ViewModel) === true ) {
-            // inject the context into the ViewModel contructor
-            ViewModel = ViewModel.compose({
-              _preInit: function() {
-                this.$context = bindingContext;
-              }
-            });
-          }
           viewModelObj = new ViewModel(values.params);
         } else {
           viewModelObj = ViewModel;
@@ -10925,8 +10923,14 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         // binding the viewModelObj onto each child element is not ideal, need to do this differently
         // cannot get component.preprocess() method to work/be called for some reason
         _.each(element.children, function(child) {
-          applyBindings(viewModelObj, child);
+          applyBindings(viewModelObj, child, doNotSetContextOnRouter);
         });
+
+        // we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each
+        // sub-element and must specify the context as being the container element only once
+        if( isRouter( viewModelObj.$router ) === true ) {
+          viewModelObj.$router.context( ko.contextFor(element) );
+        }
       };
 
       if(typeof resourceLocation === 'string' ) {
