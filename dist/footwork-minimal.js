@@ -5407,7 +5407,7 @@ function isRouter(thing) {
 // immediate $context). Returns null if none is found.
 function nearestParentRouter($context, level) {
   level = typeof level === 'undefined' ? -1 : level;
-  var $parentRouter = null;
+  var $parentRouter = $nullRouter;
   if( typeof $context === 'object' ) {
     if( typeof $context.$data === 'object' && isRouter($context.$data.$router) === true ) {
       // found router in this context
@@ -5450,14 +5450,17 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
   return outlets[outletName];
 };
 
+var $nullRouter = { getRoutePath: function() { return ''; } };
 var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.$viewModel = $viewModel;
+  this.$parentRouter = $nullRouter;
+  this.parentRoutePath = '';
   this.context = ko.observable();
+  this.parentRouter = ko.observable($nullRouter);
 
   this.config = routerConfig = _.extend({}, routerDefaultConfig, routerConfig);
   var configBaseRoute = _.result(routerConfig, 'baseRoute');
   this.config.baseRoute = Router.baseRoute() + (configBaseRoute || '');
-  this.parentRoutePath = null;
 
   this.$namespace = makeNamespace( routerConfig.namespace );
   this.$namespace.enter();
@@ -5471,8 +5474,10 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.setRoutes( routerConfig.routes );
 
   if( routerConfig.activate === true ) {
-    this.context.subscribe(function($context) {
-      if( typeof $context === 'object' ) {
+    ko.computed(function() {
+      var $context = this.context();
+      var $parentRouter = this.parentRouter();
+      if(typeof $context === 'object' || $parentRouter !== $nullRouter) {
         this.activate();
       }
     }, this);
@@ -5511,7 +5516,7 @@ Router.prototype.addRoutes = function(route) {
 
 Router.prototype.activate = function() {
   return this
-    .setupHistoryAdapter( this.context() )
+    .setup( this.context(), this.parentRouter() )
     .stateChange();
 };
 
@@ -5521,18 +5526,17 @@ Router.prototype.getRoutePath = function() {
   return routePath + this.currentState();
 };
 
-var $nullRouter = { getRoutePath: function() { return ''; } };
 Router.prototype.stateChange = noop;
-Router.prototype.setupHistoryAdapter = function( $context ) {
-  var $parentRouter = $nullRouter;
-  if(typeof $context === 'object' && typeof $context.$data === 'object') {
-    // Router was instantiated with a specified binding $context
-    var $parentModel = $context.$data;
-    if( isViewModel($parentModel) === true ) {
-      $parentRouter = this.$parent = ($parentModel.$router || $nullRouter);
-      this.parentRoutePath = $parentRouter.getRoutePath();
+Router.prototype.setup = function( $context, $parentRouter ) {
+  $parentRouter = $parentRouter || $nullRouter;
+  if( $parentRouter !== $nullRouter ) {
+    if( this.parentRouter() !== $parentRouter ) {
+      this.parentRouter( $parentRouter );
     }
+  } else if( typeof $context === 'object' ) {
+    this.parentRouter( $parentRouter = nearestParentRouter($context) );
   }
+  this.parentRoutePath = $parentRouter.getRoutePath();
 
   if(this.historyIsEnabled() !== true) {
     if( historyReady() === true ) {
@@ -5566,12 +5570,13 @@ if( typeof windowObject.location.origin !== 'string' ) {
 }
 
 Router.prototype.normalizeURL = function(url, cancelInitialPath) {
-  console.info('normalizeURL', cancelInitialPath);
-  if(url.indexOf(windowObject.location.origin) === 0) {
+  var isRelative = (this.config.relativeToParent === false || this.parentRouter() !== $nullRouter);
+
+  if( isRelative === true && url.indexOf(windowObject.location.origin) === 0 ) {
     url = url.substr(windowObject.location.origin.length);
   }
 
-  if( _.isNull(this.config.baseRoute) === false && url.indexOf(this.config.baseRoute) === 0 ) {
+  if( isRelative === true && _.isNull(this.config.baseRoute) === false && url.indexOf(this.config.baseRoute) === 0 ) {
     url = url.substr(this.config.baseRoute.length);
     if(url.length > 1) {
       url = url.replace(hashMatch, '/');
@@ -5659,7 +5664,6 @@ ko.bindingHandlers.$route = {
       if( _.isNull($nearestParentRouter) === false && $myRouter.config.relativeToParent === true ) {
         destinationURL = $nearestParentRouter.getRoutePath() + destinationURL;
       }
-      // console.log(viewModel);
 
       History.pushState( null, title || defaultTitle(), destinationURL );
       event.stopPropagation();
@@ -6076,23 +6080,21 @@ var nativeComponents = [
 // Custom loader used to wrap components with the $compLifeCycle custom binding
 var componentWrapperTemplate = '<!-- ko $compLifeCycle -->COMPONENT_MARKUP<!-- /ko -->';
 ko.components.loaders.unshift( ko.components.componentWrapper = {
-  loadTemplate: function(componentName, templateConfig, callback) {
+  loadTemplate: function(componentName, config, callback) {
     if( nativeComponents.indexOf(componentName) === -1 ) {
-      // TODO: Handle different types of templateConfigs
-      if(typeof templateConfig === 'string') {
-        templateConfig = componentWrapperTemplate.replace(/COMPONENT_MARKUP/, templateConfig);
+      // TODO: Handle different types of configs
+      if(typeof config === 'string') {
+        config = componentWrapperTemplate.replace(/COMPONENT_MARKUP/, config);
       } else {
-        throw 'Unhandled templateConfig type ' + typeof templateConfig + '.';
+        throw 'Unhandled config type ' + typeof config + '.';
       }
     }
-    ko.components.defaultLoader.loadTemplate(componentName, templateConfig, callback);
+    ko.components.defaultLoader.loadTemplate(componentName, config, callback);
   },
-  loadViewModel: function(componentName, templateConfig, callback) {
-    var ViewModel = templateConfig.viewModel || templateConfig;
-    console.log(componentName);
+  loadViewModel: function(componentName, config, callback) {
+    var ViewModel = config.viewModel || config;
     if( nativeComponents.indexOf(componentName) === -1 ) {
       callback(function(params, componentInfo) {
-        console.log(ViewModel);
         var element = componentInfo.element;
         var $context = ko.contextFor(element);
 
@@ -6107,7 +6109,7 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
         return new ViewModel(params);
       });
     } else {
-      ko.components.defaultLoader.loadViewModel(componentName, templateConfig, callback);
+      ko.components.defaultLoader.loadViewModel(componentName, config, callback);
     }
   }
 });
