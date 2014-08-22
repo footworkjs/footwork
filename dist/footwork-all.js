@@ -10083,15 +10083,20 @@ ko.debugLevel = ko.observable(1);
 // Preserve the original applyBindings method for later use
 var originalApplyBindings = ko.applyBindings;
 
-// Override the original applyBindings method to provide and enable 'model' life-cycle hooks/events.
-var applyBindings = ko.applyBindings = function(model, element) {
-  originalApplyBindings(model, element);
+// Override the original applyBindings method to provide and enable 'viewModel' life-cycle hooks/events.
+var applyBindings = ko.applyBindings = function(viewModel, element) {
+  originalApplyBindings(viewModel, element);
 
-  if(isViewModel(model) === true) {
-    var $configParams = model.__getConfigParams();
+  if(isViewModel(viewModel) === true) {
+    var $configParams = viewModel.__getConfigParams();
+    
     if(typeof $configParams.afterBinding === 'function') {
-      $configParams.afterBinding.call(model);
+      $configParams.afterBinding.call(viewModel);
     }
+    
+    ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+      viewModel.__shutdown();
+    });
   }
 };
 
@@ -10651,7 +10656,7 @@ Router.prototype.setup = function( $context, $parentRouter ) {
   return this;
 };
 
-Router.prototype.destroy = function() {
+Router.prototype.shutdown = function() {
   delete this.stateChange;
 };
 
@@ -10829,6 +10834,12 @@ var makeViewModel = ko.viewModel = function(configParams) {
   afterInit = { _postInit: afterInit };
 
   configParams = _.extend({}, defaultViewModelConfigParams, configParams);
+
+  var originalAfterBinding = configParams.afterBinding;
+  configParams.afterBinding = function() {
+    originalAfterBinding.apply(this, arguments);
+    configParams.afterBinding.wasCalled = true;
+  };
   configParams.afterBinding.wasCalled = false;
 
   var initViewModelMixin = {
@@ -10844,8 +10855,19 @@ var makeViewModel = ko.viewModel = function(configParams) {
         return initParams;
       };
       this.__shutdown = function() {
-        this.$namespace.shutdown();
-        this.$globalNamespace.shutdown();
+        if( _.isFunction(configParams.afterDispose) === true ) {
+          configParams.afterDispose.call(this);
+        }
+
+        _.each(this, function( property ) {
+          if( isNamespace(property) === true || isRouter(property) === true ) {
+            property.shutdown();
+          }
+        });
+
+        if( _.isFunction(configParams.afterBinding) === true ) {
+          configParams.afterBinding.wasCalled = false;
+        }
       };
     },
     _postInit: function() {
@@ -11122,7 +11144,6 @@ function componentTriggerAfterBinding(element, viewModel) {
   if( isViewModel(viewModel) === true ) {
     var configParams = viewModel.__getConfigParams();
     if( _.isFunction(configParams.afterBinding) === true && configParams.afterBinding.wasCalled === false ) {
-      configParams.afterBinding.wasCalled = true;
       configParams.afterBinding.call(viewModel, element);
     }
   }
@@ -11134,23 +11155,8 @@ ko.bindingHandlers.$compLifeCycle = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if( isViewModel(viewModel) === true ) {
-        var configParams = viewModel.__getConfigParams();
-        if( _.isFunction(configParams.afterDispose) === true ) {
-          configParams.afterDispose.call(viewModel, element);
-        }
-        if( _.isFunction(configParams.afterBinding) === true ) {
-          configParams.afterBinding.wasCalled = false;
-        }
-        if( isRouter( viewModel.$router ) === true ) {
-          viewModel.$router.destroy();
-        }
+        viewModel.__shutdown();
       }
-
-      _.each( viewModel, function( $namespace ) {
-        if( isNamespace( $namespace ) === true ) {
-          $namespace.shutdown();
-        }
-      });
     });
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
