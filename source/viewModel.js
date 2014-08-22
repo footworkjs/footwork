@@ -139,14 +139,6 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
       var bindViewModel = function(ViewModel) {
         var viewModelObj = ViewModel;
         if(typeof ViewModel === 'function') {
-          if( isViewModelCtor(ViewModel) === true ) {
-            // inject the context into the ViewModel contructor
-            ViewModel = ViewModel.compose({
-              _preInit: function() {
-                this.$context = bindingContext;
-              }
-            });
-          }
           viewModelObj = new ViewModel(values.params);
         } else {
           viewModelObj = ViewModel;
@@ -155,8 +147,14 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         // binding the viewModelObj onto each child element is not ideal, need to do this differently
         // cannot get component.preprocess() method to work/be called for some reason
         _.each(element.children, function(child) {
-          applyBindings(viewModelObj, child);
+          applyBindings(viewModelObj, child, doNotSetContextOnRouter);
         });
+
+        // we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each
+        // sub-element and must specify the context as being the container element only once
+        if( isRouter( viewModelObj.$router ) === true ) {
+          viewModelObj.$router.context( ko.contextFor(element) );
+        }
       };
 
       if(typeof resourceLocation === 'string' ) {
