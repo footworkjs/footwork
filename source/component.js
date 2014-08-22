@@ -132,14 +132,12 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
         throw 'Unhandled config type ' + typeof config + '.';
       }
     }
-    ko.components.defaultLoader.loadTemplate(componentName, templateConfig, callback);
+    ko.components.defaultLoader.loadTemplate(componentName, config, callback);
   },
   loadViewModel: function(componentName, config, callback) {
     var ViewModel = config.viewModel || config;
-    console.log(componentName);
     if( nativeComponents.indexOf(componentName) === -1 ) {
       callback(function(params, componentInfo) {
-        console.log(ViewModel);
         var element = componentInfo.element;
         var $context = ko.contextFor(element);
 
