@@ -45,7 +45,7 @@ function historyReady() {
 }
 
 function extractNavItems(routes) {
-  routes = ( _.isArray(routes) ? routes : [routes] );
+  routes = ( isArray(routes) ? routes : [routes] );
   return _.where(routes, { nav: true });
 }
 
@@ -54,20 +54,20 @@ function hasNavItems(routes) {
 }
 
 function isRouter(thing) {
-  return _.isObject(thing) === true && thing.__isRouter === true;
+  return isObject(thing) === true && thing.__isRouter === true;
 }
 
 // Recursive function which will locate the nearest $router from a given ko $context
 // (travels up through $parentContext chain to find the router if not found on the
 // immediate $context). Returns null if none is found.
 function nearestParentRouter($context, level) {
-  level = _.isUndefined(level) === true ? -1 : level;
+  level = isUndefined(level) === true ? -1 : level;
   var $parentRouter = $nullRouter;
-  if( _.isObject($context) === true ) {
-    if( _.isObject($context.$data) === true && isRouter($context.$data.$router) === true ) {
+  if( isObject($context) === true ) {
+    if( isObject($context.$data) === true && isRouter($context.$data.$router) === true ) {
       // found router in this context
       $parentRouter = $context.$data.$router;
-    } else if( _.isObject($context.$parentContext) === true ) {
+    } else if( isObject($context.$parentContext) === true ) {
       // search through next parent up the chain
       $parentRouter = nearestParentRouter( $context.$parentContext );
     }
@@ -90,11 +90,11 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
   var currentOutletDef = outlets[outletName]();
   var valueMutated = false;
 
-  if( _.isUndefined(componentToDisplay) === false ) {
+  if( isUndefined(componentToDisplay) === false ) {
     currentOutletDef.name = componentToDisplay;
     valueMutated = true;
   }
-  if( _.isUndefined(viewModelParameters) === false ) {
+  if( isUndefined(viewModelParameters) === false ) {
     currentOutletDef.params = viewModelParameters;
     valueMutated = true;
   }
@@ -130,7 +130,7 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
 
   if( routerConfig.activate === true ) {
     this.context.subscribe(function( $context ) {
-      if( _.isObject($context) === true ) {
+      if( isObject($context) === true ) {
         this.activate( $context );
       }
     }, this);
@@ -147,7 +147,7 @@ Router.baseRoute.subscribe(function(newBaseRoute) {
 });
 
 Router.prototype.unknownRoute = function() {
-  return ( _.isUndefined(this.config) === false ? _.result(this.config.unknownRoute) : undefined);
+  return ( isUndefined(this.config) === false ? _.result(this.config.unknownRoute) : undefined);
 };
 
 Router.prototype.setRoutes = function(route) {
@@ -157,7 +157,7 @@ Router.prototype.setRoutes = function(route) {
 };
 
 Router.prototype.addRoutes = function(route) {
-  route = _.isArray(route) ? route : [route];
+  route = isArray(route) ? route : [route];
   this.config.routes = this.config.routes.concat(route);
 
   if( hasNavItems(route) && isObservable(this.navigationModel) ) {
@@ -184,7 +184,7 @@ Router.prototype.setup = function( $context, $parentRouter ) {
   $parentRouter = $parentRouter || $nullRouter;
   if( $parentRouter !== $nullRouter ) {
     this.$parentRouter = $parentRouter;
-  } else if( _.isObject($context) === true ) {
+  } else if( isObject($context) === true ) {
     this.$parentRouter = $parentRouter = nearestParentRouter($context);
   }
   this.parentRoutePath = $parentRouter.getRoutePath();
@@ -193,7 +193,7 @@ Router.prototype.setup = function( $context, $parentRouter ) {
     if( historyReady() === true ) {
       var $router = this;
       History.Adapter.bind( windowObject, 'statechange', this.stateChange = function(url) {
-        var url = $router.normalizeURL.call($router, ( _.isString(url) === true ? url : History.getState().url ), $router.parentRoutePath);
+        var url = $router.normalizeURL.call($router, ( isString(url) === true ? url : History.getState().url ), $router.parentRoutePath);
         $router.currentState( url );
 
         // get and run the action for the specified route
@@ -216,7 +216,7 @@ Router.prototype.shutdown = function() {
 };
 
 // polyfill for missing window.location.origin
-if( _.isString(windowObject.location.origin) === false ) {
+if( isString(windowObject.location.origin) === false ) {
   windowObject.location.origin = windowObject.location.protocol + "//" + windowObject.location.hostname + (windowObject.location.port ? ':' + windowObject.location.port: '');
 }
 
@@ -227,7 +227,7 @@ Router.prototype.normalizeURL = function(url, cancelInitialPath) {
     url = url.substr(windowObject.location.origin.length);
   }
 
-  if( isRelative === true && _.isNull(this.config.baseRoute) === false && url.indexOf(this.config.baseRoute) === 0 ) {
+  if( isRelative === true && isNull(this.config.baseRoute) === false && url.indexOf(this.config.baseRoute) === 0 ) {
     url = url.substr(this.config.baseRoute.length);
     if(url.length > 1) {
       url = url.replace(hashMatch, '/');
@@ -268,7 +268,7 @@ Router.prototype.getActionForURL = function(url) {
   var route = this.getRouteFor(url);
   var $router = this;
 
-  if( _.isNull(route) === false ) {
+  if( isNull(route) === false ) {
     Action = function($viewModel, $outlet, params) {
       route.controller.call( $viewModel, $outlet, _.extend(route.params, params), route );
     };
@@ -291,7 +291,7 @@ Router.prototype.enableSplatForCurrentRoute = function() {
 };
 
 Router.prototype.navigationModel = function(predicate) {
-  if( _.isUndefined(this.navigationModel) === true ) {
+  if( isUndefined(this.navigationModel) === true ) {
     this.navigationModel = ko.computed(function() {
       this.navModelUpdate(); // dummy reference used to trigger updates
       return _.filter(
@@ -313,7 +313,7 @@ ko.bindingHandlers.$route = {
       var destinationURL = element.getAttribute('href');
       var title = element.getAttribute('data-title');
 
-      if( _.isNull($nearestParentRouter) === false && $myRouter.config.relativeToParent === true ) {
+      if( isNull($nearestParentRouter) === false && $myRouter.config.relativeToParent === true ) {
         destinationURL = $nearestParentRouter.getRoutePath() + destinationURL;
       }
 

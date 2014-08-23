@@ -16,11 +16,21 @@ if (!String.prototype.trim) {
 
 // misc utility functions
 var noop = function() { };
+
 var isObservable = ko.isObservable;
+
 var isPath = function(pathOrLocation) {
   return pathOrLocation.match(/\/$/i) !== null;
 };
 
+var isFunction = _.isFunction;
+var isObject = _.isObject;
+var isString = _.isString;
+var isBoolean = _.isBoolean;
+var isNumber = _.isNumber;
+var isUndefined = _.isUndefined;
+var isArray = _.isArray;
+var isNull = _.isNull;
 
 // Initialize the debugLevel observable, this controls
 // what level of debug statements are logged to the console
@@ -37,12 +47,12 @@ var doNotSetContextOnRouter = false;
 var setContextOnRouter = true;
 var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetContext) {
   originalApplyBindings(viewModel, element);
-  shouldSetContext = _.isUndefined(shouldSetContext) === true ? setContextOnRouter : shouldSetContext;
+  shouldSetContext = isUndefined(shouldSetContext) === true ? setContextOnRouter : shouldSetContext;
 
   if( isViewModel(viewModel) === true ) {
     var $configParams = viewModel.__getConfigParams();
     
-    if( _.isFunction($configParams.afterBinding) === true ) {
+    if( isFunction($configParams.afterBinding) === true ) {
       $configParams.afterBinding.call(viewModel, element);
     }
 
@@ -50,7 +60,7 @@ var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetCon
       viewModel.$router.context( ko.contextFor(element) );
     }
     
-    if( _.isUndefined(element) === false ) {
+    if( isUndefined(element) === false ) {
       ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
         viewModel.__shutdown();
       });
