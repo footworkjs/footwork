@@ -8,9 +8,9 @@ var resourceFileExtensions = {
 };
 
 ko.components.setFileExtensions = function(fileType, extension) {
-  if( typeof fileType === 'object' ) {
+  if( _.isObject(fileType) === true ) {
     _.extend(resourceFileExtensions, fileType);
-  } else if(typeof resourceFileExtensions[fileType] !== 'undefined') {
+  } else if( _.isUndefined(resourceFileExtensions[fileType]) === false ) {
     resourceFileExtensions[fileType] = extension;
   }
 };
@@ -57,7 +57,7 @@ var resourceRelativeLocation = function(rootURL, returnTheValue) {
       }
       return options;
     }, {}));
-  } else if( typeof rootURL === 'string' ) {
+  } else if( _.isString(rootURL) === true ) {
     componentLocation = {
       combined: rootURL,
       viewModels: null,

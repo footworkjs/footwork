@@ -3,12 +3,12 @@
 
 // Duck type function for determining whether or not something is a footwork viewModel constructor function
 function isViewModelCtor(thing) {
-  return typeof thing !== 'undefined' && thing.__isViewModelCtor === true;
+  return _.isFunction(thing) === true && thing.__isViewModelCtor === true;
 }
 
 // Duck type function for determining whether or not something is a footwork viewModel
 function isViewModel(thing) {
-  return typeof thing !== 'undefined' && _.isFunction(thing.__getConfigParams) === true;
+  return _.isObject(thing) === true && thing.__isViewModel === true;
 }
 
 // Initialize the viewModels registry
@@ -29,7 +29,7 @@ var viewModelCount = ko.viewModelCount = function() {
 // Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all model references is returned.
 var getViewModels = ko.getViewModels = function(namespaceName) {
-  if(namespaceName === undefined) {
+  if( _.isUndefined(namespaceName) === true ) {
     return viewModels;
   }
   return viewModels[namespaceName];
@@ -57,12 +57,11 @@ var makeViewModel = ko.viewModel = function(configParams) {
   var afterInit;
 
   configParams = configParams || {};
-  if( typeof configParams !== 'undefined') {
+  if( _.isUndefined(configParams) === false ) {
     ctor = configParams.viewModel || configParams.initialize || noop;
     afterInit = configParams.afterInit || noop;
   }
   afterInit = { _postInit: afterInit };
-
   configParams = _.extend({}, defaultViewModelConfigParams, configParams);
 
   var originalAfterBinding = configParams.afterBinding;
@@ -75,9 +74,10 @@ var makeViewModel = ko.viewModel = function(configParams) {
   var initViewModelMixin = {
     _preInit: function( initParams ) {
       this.$params = configParams.params;
-      if( typeof configParams.router === 'object' ) {
+      if( _.isObject(configParams.router) === true ) {
         this.$router = new Router( configParams.router, this );
       }
+      this.__isViewModel = true;
       this.__getConfigParams = function() {
         return configParams;
       };
@@ -108,7 +108,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
   };
 
   var composure = [ ctor, initViewModelMixin ].concat( viewModelMixins, afterInit );
-  if(configParams.mixins !== undefined) {
+  if( _.isUndefined(configParams.mixins) === false ) {
     composure = composure.concat(configParams.mixins);
   }
 
@@ -123,22 +123,22 @@ var makeViewModel = ko.viewModel = function(configParams) {
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = ko.bindingHandlers.component.init;
 ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-  if( typeof element.tagName === 'string' && element.tagName.toLowerCase() === 'viewmodel' ) {
+  if( _.isString(element.tagName) === true && element.tagName.toLowerCase() === 'viewmodel' ) {
     var values = valueAccessor();
     var name = element.getAttribute('name') || element.getAttribute('data-name');
 
-    if( name !== 'undefined' ) {
+    if( _.isUndefined(name) === false ) {
       var viewModelName = ko.unwrap(values.params.name);
       var resourceLocation = getResourceLocation( viewModelName ).viewModels;
 
-      if( typeof require === 'function' && typeof require.defined === 'function' && require.defined(viewModelName) === true ) {
+      if( _.isFunction(require) === true && _.isFunction(require.defined) === true && require.defined(viewModelName) === true ) {
         // we have found a matching resource that is already cached by require, lets use it
         resourceLocation = viewModelName;
       }
 
       var bindViewModel = function(ViewModel) {
         var viewModelObj = ViewModel;
-        if(typeof ViewModel === 'function') {
+        if( _.isFunction(ViewModel) === true ) {
           viewModelObj = new ViewModel(values.params);
         } else {
           viewModelObj = ViewModel;
@@ -157,9 +157,9 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         }
       };
 
-      if(typeof resourceLocation === 'string' ) {
-        if(typeof require === 'function') {
-          if(isPath(resourceLocation) === true) {
+      if( _.isString(resourceLocation) === true ) {
+        if( _.isFunction(require) === true ) {
+          if( isPath(resourceLocation) === true ) {
             resourceLocation = resourceLocation + name;
           }
           if( resourceLocation !== viewModelName && resourceLocation.match(/\.js$/) === null ) {
@@ -170,12 +170,12 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         } else {
           throw 'Uses require, but no AMD loader is present';
         }
-      } else if( typeof resourceLocation === 'function' ) {
+      } else if( _.isFunction(resourceLocation) === true ) {
         bindViewModel( resourceLocation );
-      } else if( typeof resourceLocation === 'object' ) {
-        if( typeof resourceLocation.instance === 'object' ) {
+      } else if( _.isObject(resourceLocation) === true ) {
+        if( _.isObject(resourceLocation.instance) === true ) {
           bindViewModel( resourceLocation.instance );
-        } else if( typeof resourceLocation.createViewModel === 'function' ) {
+        } else if( _.isFunction(resourceLocation.createViewModel) === true ) {
           bindViewModel( resourceLocation.createViewModel( values.params, { element: element } ) );
         }
       }
