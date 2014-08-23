@@ -1033,8 +1033,8 @@ var defaultViewModelConfigParams = {
   afterDispose: noop
 };
 var makeViewModel = ko.viewModel = function(configParams) {
-  var ctor;
-  var afterInit;
+  var ctor = noop;
+  var afterInit = noop;
 
   configParams = configParams || {};
   if( !isUndefined(configParams) ) {
@@ -1046,8 +1046,10 @@ var makeViewModel = ko.viewModel = function(configParams) {
 
   var originalAfterBinding = configParams.afterBinding;
   configParams.afterBinding = function() {
-    originalAfterBinding.apply(this, arguments);
-    configParams.afterBinding.wasCalled = true;
+    if( configParams.afterBinding.wasCalled !== true ) {
+      originalAfterBinding.apply(this, arguments);
+      configParams.afterBinding.wasCalled = true;
+    }
   };
   configParams.afterBinding.wasCalled = false;
 
@@ -1395,7 +1397,7 @@ var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponen
 function componentTriggerAfterBinding(element, viewModel) {
   if( isViewModel(viewModel) ) {
     var configParams = viewModel.__getConfigParams();
-    if( isFunction(configParams.afterBinding) && configParams.afterBinding.wasCalled === false ) {
+    if( isFunction(configParams.afterBinding) ) {
       configParams.afterBinding.call(viewModel, element);
     }
   }
