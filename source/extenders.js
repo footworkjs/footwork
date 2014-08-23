@@ -76,7 +76,7 @@ ko.extenders.delayTrigger = function( target, options ) {
     write: function( state ) {
       target( state );
 
-      if( trigger !== undefined ) {
+      if( isUndefined(trigger) === false ) {
         clearTrigger();
       }
 
