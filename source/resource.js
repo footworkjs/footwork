@@ -8,9 +8,9 @@ var resourceFileExtensions = {
 };
 
 ko.components.setFileExtensions = function(fileType, extension) {
-  if( _.isObject(fileType) === true ) {
+  if( isObject(fileType) === true ) {
     _.extend(resourceFileExtensions, fileType);
-  } else if( _.isUndefined(resourceFileExtensions[fileType]) === false ) {
+  } else if( isUndefined(resourceFileExtensions[fileType]) === false ) {
     resourceFileExtensions[fileType] = extension;
   }
 };
@@ -43,7 +43,7 @@ var resourceRelativeLocation = function(rootURL, returnTheValue) {
     componentLocation = _.extend({}, defaultResourceLocation);
   }
 
-  if( _.isObject(rootURL) === true ) {
+  if( isObject(rootURL) === true ) {
     // assume some combination of defaultResourceLocation and normalize the parameters
     _.extend(componentLocation, _.reduce(rootURL, function(options, paramValue, paramName) {
       if(paramName === 'viewModel') {
@@ -57,7 +57,7 @@ var resourceRelativeLocation = function(rootURL, returnTheValue) {
       }
       return options;
     }, {}));
-  } else if( _.isString(rootURL) === true ) {
+  } else if( isString(rootURL) === true ) {
     componentLocation = {
       combined: rootURL,
       viewModels: null,
@@ -81,7 +81,7 @@ var componentRelativeLocation = ko.components.loadRelativeTo = function(location
 
 var resourceLocations = ko.resourceLocations = {};
 var registerLocationOfComponent = ko.components.registerLocationOf = function(componentName, componentLocation) {
-  if( _.isArray(componentName) === true ) {
+  if( isArray(componentName) === true ) {
     _.each(componentName, function(name) {
       registerLocationOfComponent(name, componentLocation);
     });
@@ -97,7 +97,7 @@ var viewModelRelativeLocation = ko.viewModel.loadRelativeTo = function(rootURL, 
 };
 
 var registerLocationOfViewModel = ko.viewModel.registerLocationOf = function(viewModelName, viewModelLocation) {
-  if( _.isArray(viewModelName) === true ) {
+  if( isArray(viewModelName) === true ) {
     _.each(viewModelName, function(name) {
       registerLocationOfViewModel(name, viewModelLocation);
     });
