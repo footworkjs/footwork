@@ -53,17 +53,17 @@ var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponen
   isComponent = ( isUndefined(isComponent) ? true : isComponent );
 
   if( isArray(tagName) ) {
-    _.each(tagName, function(tag) {
+    each(tagName, function(tag) {
       tagIsComponent(tag, isComponent);
     });
   }
 
   if(isComponent !== true) {
-    if( _.contains(normalTags, tagName) === false ) {
+    if( contains(normalTags, tagName) === false ) {
       normalTags.push(tagName);
     }
   } else {
-    normalTags = _.filter(normalTags, function(normalTagName) {
+    normalTags = filter(normalTags, function(normalTagName) {
       return normalTagName !== tagName;
     });
   }

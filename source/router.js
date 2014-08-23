@@ -41,12 +41,12 @@ function routeStringToRegExp(routeString) {
 }
 
 function historyIsReady() {
-  return _.has(History, 'Adapter');
+  return has(History, 'Adapter');
 }
 
 function extractNavItems(routes) {
   routes = ( isArray(routes) ? routes : [routes] );
-  return _.where(routes, { nav: true });
+  return where(routes, { nav: true });
 }
 
 function hasNavItems(routes) {
@@ -113,8 +113,8 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.parentRoutePath = '';
   this.context = ko.observable();
 
-  this.config = routerConfig = _.extend({}, routerDefaultConfig, routerConfig);
-  var configBaseRoute = _.result(routerConfig, 'baseRoute');
+  this.config = routerConfig = extend({}, routerDefaultConfig, routerConfig);
+  var configBaseRoute = result(routerConfig, 'baseRoute');
   this.config.baseRoute = Router.baseRoute() + (configBaseRoute || '');
 
   this.$namespace = makeNamespace( routerConfig.namespace );
@@ -124,7 +124,7 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.currentState = ko.observable('').broadcastAs('currentState');
   this.navModelUpdate = ko.observable();
   this.outlets = {};
-  this.$outlet = _.bind( $routerOutlet, this );
+  this.$outlet = bind( $routerOutlet, this );
 
   this.setRoutes( routerConfig.routes );
 
@@ -147,7 +147,7 @@ Router.baseRoute.subscribe(function(newBaseRoute) {
 });
 
 Router.prototype.unknownRoute = function() {
-  return ( !isUndefined(this.config) ? _.result(this.config.unknownRoute) : undefined);
+  return ( !isUndefined(this.config) ? result(this.config.unknownRoute) : undefined);
 };
 
 Router.prototype.setRoutes = function(route) {
@@ -238,7 +238,7 @@ Router.prototype.normalizeURL = function(url, cancelInitialPath) {
 
 Router.prototype.getRouteFor = function(url) {
   var route = null;
-  _.each(this.getRoutes(), function(routeDesc) {
+  each(this.getRoutes(), function(routeDesc) {
     var routeString = routeDesc.route;
     var routeRegex = routeStringToRegExp(routeString);
     var routeParamValues = url.match(routeRegex);
@@ -252,7 +252,7 @@ Router.prototype.getRouteFor = function(url) {
         controller: routeDesc.controller,
         title: routeDesc.title,
         url: routeParamValues[0],
-        params: _.reduce(routeParams, function(parameters, parameterName, index) {
+        params: reduce(routeParams, function(parameters, parameterName, index) {
             parameters[parameterName] = routeParamValues[index + 1];
             return parameters;
           }, {})
@@ -270,7 +270,7 @@ Router.prototype.getActionForURL = function(url) {
 
   if( !isNull(route) ) {
     Action = function($viewModel, $outlet, params) {
-      route.controller.call( $viewModel, $outlet, _.extend(route.params, params), route );
+      route.controller.call( $viewModel, $outlet, extend(route.params, params), route );
     };
     Action.route = route;
   }
@@ -294,7 +294,7 @@ Router.prototype.navigationModel = function(predicate) {
   if( isUndefined(this.navigationModel) ) {
     this.navigationModel = ko.computed(function() {
       this.navModelUpdate(); // dummy reference used to trigger updates
-      return _.filter(
+      return filter(
         extractNavItems(routes),
         (predicate || function() { return true; })
       );
