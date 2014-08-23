@@ -664,6 +664,14 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
  * }
  */
 
+// polyfill for missing window.location.origin
+if( !isString(windowObject.location.origin) ) {
+  windowObject.location.origin = windowObject.location.protocol + "//" + windowObject.location.hostname + (windowObject.location.port ? ':' + windowObject.location.port: '');
+}
+
+// Predicate function that always returns true / 'pass'
+var alwaysPassPredicate = function() { return true; };
+
 var routerDefaultConfig = {
   namespace: '$router',
   baseRoute: null,
@@ -697,7 +705,7 @@ function historyIsReady() {
 }
 
 function extractNavItems(routes) {
-  routes = ( isArray(routes) ? routes : [routes] );
+  routes = isArray(routes) ? routes : [routes];
   return where(routes, { nav: true });
 }
 
@@ -712,8 +720,7 @@ function isRouter(thing) {
 // Recursive function which will locate the nearest $router from a given ko $context
 // (travels up through $parentContext chain to find the router if not found on the
 // immediate $context). Returns null if none is found.
-function nearestParentRouter($context, level) {
-  level = isUndefined(level) ? -1 : level;
+function nearestParentRouter($context) {
   var $parentRouter = $nullRouter;
   if( isObject($context) ) {
     if( isObject($context.$data) && isRouter($context.$data.$router) ) {
@@ -792,11 +799,6 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.$namespace.exit();
 };
 Router.baseRoute = ko.observable();
-Router.baseRoute.subscribe(function(newBaseRoute) {
-  if( windowObject.location.toString().indexOf(newBaseRoute) !== 0 ) {
-    throw 'baseRoute [' + newBaseRoute + '] not found in URL.';
-  }
-});
 
 Router.prototype.unknownRoute = function() {
   return ( !isUndefined(this.config) ? result(this.config.unknownRoute) : undefined);
@@ -821,7 +823,7 @@ Router.prototype.addRoutes = function(route) {
 
 Router.prototype.activate = function($context, $parentRouter) {
   return this
-    .setup( $context, $parentRouter )
+    .startup( $context, $parentRouter )
     .stateChange();
 };
 
@@ -832,7 +834,7 @@ Router.prototype.getRoutePath = function() {
 };
 
 Router.prototype.stateChange = noop;
-Router.prototype.setup = function( $context, $parentRouter ) {
+Router.prototype.startup = function( $context, $parentRouter ) {
   $parentRouter = $parentRouter || $nullRouter;
   if( $parentRouter !== $nullRouter ) {
     this.$parentRouter = $parentRouter;
@@ -866,11 +868,6 @@ Router.prototype.setup = function( $context, $parentRouter ) {
 Router.prototype.shutdown = function() {
   delete this.stateChange;
 };
-
-// polyfill for missing window.location.origin
-if( !isString(windowObject.location.origin) ) {
-  windowObject.location.origin = windowObject.location.protocol + "//" + windowObject.location.hostname + (windowObject.location.port ? ':' + windowObject.location.port: '');
-}
 
 Router.prototype.normalizeURL = function(url, cancelInitialPath) {
   var isRelative = (!this.config.relativeToParent || this.$parentRouter !== $nullRouter);
@@ -948,7 +945,7 @@ Router.prototype.navigationModel = function(predicate) {
       this.navModelUpdate(); // dummy reference used to trigger updates
       return filter(
         extractNavItems(routes),
-        (predicate || function() { return true; })
+        ( predicate || alwaysPassPredicate )
       );
     }, { navModelUpdate: this.navModelUpdate }).broadcastAs({ name: 'navigationModel', namespace: this.$namespace });
   }
