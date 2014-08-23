@@ -8,13 +8,13 @@
 
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['lodash', 'knockout', 'postal', 'Apollo', 'reqwest'], factory);
+    define(['lodash', 'knockout', 'postal', 'reqwest'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory(require('lodash'), require('knockout'), require('postal'), require('Apollo'), require('reqwest'));
+    module.exports = factory(require('lodash'), require('knockout'), require('postal'), require('reqwest'));
   } else {
-    root.ko = factory(_, ko, postal, Apollo, reqwest);
+    root.ko = factory(_, ko, postal, reqwest);
   }
-}(this, function (_, ko, postal, Apollo, reqwest) {
+}(this, function (_, ko, postal, reqwest) {
   var windowObject = window;
 
   window.require = typeof require !== 'undefined' ? require : undefined;
@@ -38,7 +38,6 @@ var module = undefined,
       _: _,
       ko: ko,
       postal: postal,
-      Apollo: Apollo,
       reqwest: reqwest
     });
 
@@ -269,7 +268,7 @@ var module = undefined,
     // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ 'riveter' ];
 
-    return (function footwork(embedded, windowObject, _, ko, postal, Apollo, riveter, reqwest) {
+    return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest) {
       // main.js
 // -----------
 
@@ -1547,59 +1546,11 @@ ko.components.register('error', {
       </div>\
     </div>'
 });
-// bindingHandlers.js
-// ------------------
-
-ko.bindingHandlers.registerElement = {
-  preprocess: function (value, name, addBindingCallback) {
-    return '\'' + value + '\'';
-  },
-  init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-    var elOption = ko.unwrap(valueAccessor()),
-      refresh,
-      defaultOptions = {
-        name: element.getAttribute('id') || element.getAttribute('name'),
-        context: 'relative'
-      };
-
-    if ( isString(elOption) === true ) {
-      elOption = _.extend(defaultOptions, { name: elOption });
-    } else if ( isObject(elOption) === true ) {
-      elOption = _.extend(defaultOptions, elOption);
-    }
-
-    if ( isObject(viewModel.el) === false ) {
-      viewModel.el = {};
-    }
-
-    viewModel.el[ elOption.name ] = element;
-  }
-};
-
-/**
- * Source: https://github.com/SteveSanderson/knockout/wiki/Bindings---class
- */
-ko.bindingHandlers['class'] = {
-  'update': function( element, valueAccessor ) {
-    if( element['__ko__previousClassValue__'] ) {
-      Apollo.removeClass(element, element['__ko__previousClassValue__']);
-    }
-    var value = ko.utils.unwrapObservable(valueAccessor());
-    isUndefined(value) === false && Apollo.addClass(element, value);
-    element['__ko__previousClassValue__'] = value;
-  }
-};
-
-ko.bindingHandlers['stopBinding'] = {
-  init: function() {
-    return { controlsDescendantBindings: true };
-  }
-};
 // extenders.js
 // ----------------
 
 // custom throttle() based on ko v3.0.0 throttle(), allows value to be force()'d to a value at any time
-ko.extenders.throttle = function(target, opt) {
+ko.extenders.throttled = function(target, opt) {
   if( isNumber(opt) === true ) {
     opt = {
       timeout: opt,
@@ -1715,6 +1666,6 @@ ko.extenders.delayWrite = function( target, options ) {
   });
 };
       return ko;
-    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.Apollo, root.riveter, root.reqwest );
+    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.reqwest );
   })();
 }));

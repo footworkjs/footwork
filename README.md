@@ -42,12 +42,10 @@ The following dependencies are considered part of 'core':
 
 * [Knockout](http://knockoutjs.com/)
 * [lodash](http://lodash.com/)
-* [Apollo](https://github.com/toddmotto/apollo)
 * [reqwest](https://github.com/ded/reqwest)
+* [riveter](https://github.com/a2labs/riveter)
 * [postal.js](https://github.com/postaljs/postal.js)
   * [conduitjs](https://github.com/ifandelse/ConduitJS) (needed by postal.js)
-* [delegate](https://github.com/component/delegate)
-  * [matches](https://github.com/necolas/matches.js) (needed by delegate)
 
 More unit tests, documentation, and features coming soon.
 

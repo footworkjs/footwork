@@ -23,12 +23,9 @@
     You will need to provide (via either &lt;script&gt; includes, requirejs, browserify, etc)
     * 'lodash' - http://lodash.com/ (footwork uses lodash.underscore.js natively)
     * 'knockout' - http://knockoutjs.com/
-    * 'Apollo' - https://github.com/toddmotto/apollo,
     * 'reqwest' - https://github.com/ded/reqwest
     * 'postal' - https://github.com/postaljs/postal.js/
-      *   'conduitjs' - https://github.com/ifandelse/ConduitJS
-    * 'delegate' - https://github.com/component/delegate,
-      *   'matches' - https://github.com/necolas/matches.js
+      * 'conduitjs' - https://github.com/ifandelse/ConduitJS
 
 ### I need a different build, can I make others?
 

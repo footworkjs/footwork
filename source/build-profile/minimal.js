@@ -20,10 +20,6 @@
     });
 
     (function() {
-      //import("../../bower_components/apollo/dist/apollo.js");
-    }).call(root);
-
-    (function() {
       //import("../../bower_components/riveter/lib/riveter.js");
     }).call(root);
 
@@ -50,11 +46,11 @@
     }
 
     // list of dependencies to export from the library as .embed properties
-    var embeddedDependencies = [ 'Apollo', 'riveter', 'Conduit', 'postal', 'reqwest' ];
+    var embeddedDependencies = [ 'riveter', 'Conduit', 'postal', 'reqwest' ];
 
-    return (function footwork(embedded, windowObject, _, ko, postal, Apollo, riveter, reqwest) {
+    return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest) {
       //import("../main.js");
       return ko;
-    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.Apollo, root.riveter, root.reqwest );
+    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.reqwest );
   })();
 }));

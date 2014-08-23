@@ -2,7 +2,7 @@
 // ----------------
 
 // custom throttle() based on ko v3.0.0 throttle(), allows value to be force()'d to a value at any time
-ko.extenders.throttle = function(target, opt) {
+ko.extenders.throttled = function(target, opt) {
   if( isNumber(opt) === true ) {
     opt = {
       timeout: opt,

@@ -40,92 +40,6 @@ var module = undefined,
     });
 
     (function() {
-      /*! Apollo v1.6.0 | (c) 2014 @toddmotto | github.com/toddmotto/apollo */
-(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    define(factory);
-  } else if (typeof exports === 'object') {
-    module.exports = factory;
-  } else {
-    root.Apollo = factory();
-  }
-})(this, function () {
-
-  'use strict';
-
-  var exports = {}, _hasClass, _addClass, _removeClass, _toggleClass;
-
-  var _forEach = function (classes, callback) {
-    if (Object.prototype.toString.call(classes) !== '[object Array]') {
-      classes = classes.split(' ');
-    }
-    for (var i = 0; i < classes.length; i++) {
-      callback(classes[i], i);
-    }
-  };
-
-  if (document.documentElement.classList) {
-    _hasClass = function (elem, className) {
-      return elem.classList.contains(className);
-    };
-    _addClass = function (elem, className) {
-      elem.classList.add(className);
-    };
-    _removeClass = function (elem, className) {
-      elem.classList.remove(className);
-    };
-    _toggleClass = function (elem, className) {
-      elem.classList.toggle(className);
-    };
-  } else {
-    _hasClass = function (elem, className) {
-      return new RegExp('(^|\\s)' + className + '(\\s|$)').test(elem.className);
-    };
-    _addClass = function (elem, className) {
-      if (!exports.hasClass(elem, className)) {
-        elem.className += (elem.className ? ' ' : '') + className;
-      }
-    };
-    _removeClass = function (elem, className) {
-      if (exports.hasClass(elem, className)) {
-        elem.className = elem.className.replace(new RegExp('(^|\\s)*' + className + '(\\s|$)*', 'g'), '');
-      }
-    };
-    _toggleClass = function (elem, className) {
-      var toggle = exports.hasClass(elem, className) ? exports.removeClass : exports.addClass;
-      toggle(elem, className);
-    };
-  }
-
-  exports.hasClass = function (elem, className) {
-    return _hasClass(elem, className);
-  };
-
-  exports.addClass = function (elem, classes) {
-    _forEach(classes, function (className) {
-      _addClass(elem, className);
-    });
-  };
-
-  exports.removeClass = function (elem, classes) {
-    _forEach(classes, function (className) {
-      _removeClass(elem, className);
-    });
-  };
-
-  exports.toggleClass = function (elem, classes) {
-    _forEach(classes, function (className) {
-      _toggleClass(elem, className);
-    });
-  };
-
-  return exports;
-
-});
-
-    }).call(root);
-
-    (function() {
       /**
  * riveter - Mix-in, inheritance and constructor extend behavior for your JavaScript enjoyment.
  * © 2012 - Copyright appendTo, LLC 
@@ -4947,9 +4861,9 @@ if (typeof JSON !== 'object') {
     }
 
     // list of dependencies to export from the library as .embed properties
-    var embeddedDependencies = [ 'Apollo', 'riveter', 'Conduit', 'postal', 'reqwest' ];
+    var embeddedDependencies = [ 'riveter', 'Conduit', 'postal', 'reqwest' ];
 
-    return (function footwork(embedded, windowObject, _, ko, postal, Apollo, riveter, reqwest) {
+    return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest) {
       // main.js
 // -----------
 
@@ -6227,59 +6141,11 @@ ko.components.register('error', {
       </div>\
     </div>'
 });
-// bindingHandlers.js
-// ------------------
-
-ko.bindingHandlers.registerElement = {
-  preprocess: function (value, name, addBindingCallback) {
-    return '\'' + value + '\'';
-  },
-  init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-    var elOption = ko.unwrap(valueAccessor()),
-      refresh,
-      defaultOptions = {
-        name: element.getAttribute('id') || element.getAttribute('name'),
-        context: 'relative'
-      };
-
-    if ( isString(elOption) === true ) {
-      elOption = _.extend(defaultOptions, { name: elOption });
-    } else if ( isObject(elOption) === true ) {
-      elOption = _.extend(defaultOptions, elOption);
-    }
-
-    if ( isObject(viewModel.el) === false ) {
-      viewModel.el = {};
-    }
-
-    viewModel.el[ elOption.name ] = element;
-  }
-};
-
-/**
- * Source: https://github.com/SteveSanderson/knockout/wiki/Bindings---class
- */
-ko.bindingHandlers['class'] = {
-  'update': function( element, valueAccessor ) {
-    if( element['__ko__previousClassValue__'] ) {
-      Apollo.removeClass(element, element['__ko__previousClassValue__']);
-    }
-    var value = ko.utils.unwrapObservable(valueAccessor());
-    isUndefined(value) === false && Apollo.addClass(element, value);
-    element['__ko__previousClassValue__'] = value;
-  }
-};
-
-ko.bindingHandlers['stopBinding'] = {
-  init: function() {
-    return { controlsDescendantBindings: true };
-  }
-};
 // extenders.js
 // ----------------
 
 // custom throttle() based on ko v3.0.0 throttle(), allows value to be force()'d to a value at any time
-ko.extenders.throttle = function(target, opt) {
+ko.extenders.throttled = function(target, opt) {
   if( isNumber(opt) === true ) {
     opt = {
       timeout: opt,
@@ -6395,6 +6261,6 @@ ko.extenders.delayWrite = function( target, options ) {
   });
 };
       return ko;
-    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.Apollo, root.riveter, root.reqwest );
+    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.reqwest );
   })();
 }));
