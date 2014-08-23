@@ -17,7 +17,7 @@ var namespaceStack = [];
 // if not present and increment it if it is, then return the name (with the counter appended
 // if autoIncrement === true and the counter is > 0).
 function indexedNamespaceName(name, autoIncrement) {
-  if( isUndefined(namespaceNameCounter[name]) === true ) {
+  if( isUndefined(namespaceNameCounter[name]) ) {
     namespaceNameCounter[name] = 0;
   } else {
     namespaceNameCounter[name]++;
@@ -31,7 +31,7 @@ function createEnvelope(topic, data, expires) {
     data: data
   };
 
-  if( isUndefined(expires) === false ) {
+  if( !isUndefined(expires) ) {
     envelope.headers = {
       preserve: true
     };
@@ -51,7 +51,7 @@ function triggerEventOnNamespace(eventKey, params, expires) {
 
 // Method used to register an event handler on a namespace
 function registerNamespaceEventHandler(eventKey, callback, context) {
-  if( isUndefined(context) === false ) {
+  if( !isUndefined(context) ) {
     callback = _.bind(callback, context);
   }
 
@@ -75,7 +75,7 @@ function sendCommandToNamespace(commandKey, params, expires) {
 
 // Method used to register a command handler on a namespace
 function registerNamespaceCommandHandler(requestKey, callback, context) {
-  if( isUndefined(context) === false ) {
+  if( !isUndefined(context) ) {
     callback = _.bind(callback, context);
   }
 
@@ -92,10 +92,10 @@ function requestResponseFromNamespace(requestKey, params) {
   var responseSubscription;
 
   responseSubscription = this.subscribe('request.' + requestKey + '.response', function(reqResponse) {
-    if( isUndefined(response) === true ) {
+    if( isUndefined(response) ) {
       response = reqResponse;
     } else {
-      if( isArray(response) === true ) {
+      if( isArray(response) ) {
         response.push(reqResponse);
       } else {
         response = [ response, reqResponse ];
@@ -112,7 +112,7 @@ function requestResponseFromNamespace(requestKey, params) {
 // Method used to register a request handler on a namespace.
 // Requests sent using the specified requestKey will be called and passed in any params specified, the return value is passed back to the issuer
 function registerNamespaceRequestHandler(requestKey, callback, context) {
-  if( isUndefined(context) === false ) {
+  if( !isUndefined(context) ) {
     callback = _.bind(callback, context);
   }
 
@@ -136,7 +136,7 @@ function disconnectNamespaceHandlers() {
 }
 
 function onNamespaceTemplateBind(callback, context) {
-  if( isUndefined(context) === false ) {
+  if( !isUndefined(context) ) {
     callback = _.bind(callback, context);
   }
   var handlerSubscription = this.subscribe('__elementIsBound', callback);
@@ -151,15 +151,16 @@ function getNamespaceName() {
 
 // Creates and returns a new namespace instance
 var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
-  if( isUndefined($parentNamespace) === false ) {
-    if( isString($parentNamespace) === true ) {
+  if( !isUndefined($parentNamespace) ) {
+    if( isString($parentNamespace) ) {
       namespaceName = $parentNamespace + '.' + namespaceName;
-    } else if( isUndefined($parentNamespace.channel) === false ) {
+    } else if( !isUndefined($parentNamespace.channel) ) {
       namespaceName = $parentNamespace.channel + '.' + namespaceName;
     }
   }
   var namespace = postal.channel(namespaceName);
 
+  namespace.__isNamespace = true;
   namespace.shutdown = _.bind( disconnectNamespaceHandlers, namespace );
 
   namespace.commandHandlers = [];
@@ -198,7 +199,7 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
 
 // Duck type check for a namespace object
 var isNamespace = ko.isNamespace = function(thing) {
-  return isUndefined(thing) === false && isFunction(thing.subscribe) && isFunction(thing.publish) && isString(thing.channel) === true;
+  return !isUndefined(thing) && thing.__isNamespace;
 };
 
 // Return the current namespace name.
