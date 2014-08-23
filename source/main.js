@@ -37,12 +37,12 @@ var doNotSetContextOnRouter = false;
 var setContextOnRouter = true;
 var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetContext) {
   originalApplyBindings(viewModel, element);
-  shouldSetContext = typeof shouldSetContext === 'undefined' ? setContextOnRouter : shouldSetContext;
+  shouldSetContext = _.isUndefined(shouldSetContext) === true ? setContextOnRouter : shouldSetContext;
 
   if( isViewModel(viewModel) === true ) {
     var $configParams = viewModel.__getConfigParams();
     
-    if( typeof $configParams.afterBinding === 'function' ) {
+    if( _.isFunction($configParams.afterBinding) === true ) {
       $configParams.afterBinding.call(viewModel, element);
     }
 
@@ -50,7 +50,7 @@ var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetCon
       viewModel.$router.context( ko.contextFor(element) );
     }
     
-    if( typeof element !== 'undefined' ) {
+    if( _.isUndefined(element) === false ) {
       ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
         viewModel.__shutdown();
       });
