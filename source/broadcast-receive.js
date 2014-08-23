@@ -6,8 +6,8 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
   var observable = this;
 
-  if( isNamespace(namespace) === false ) {
-    if( isString(namespace) === true ) {
+  if( !isNamespace(namespace) ) {
+    if( isString(namespace) ) {
       namespace = makeNamespace( namespace );
     } else {
       throw 'Invalid namespace [' + typeof namespace + ']';
@@ -42,15 +42,15 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
   var observable = this;
   var namespace;
 
-  if( isObject(varName) === true ) {
+  if( isObject(varName) ) {
     option = varName;
   } else {
-    if( isBoolean(option) === true ) {
+    if( isBoolean(option) ) {
       option = {
         name: varName,
         writable: option
       };
-    } else if( isObject(option) === true ) {
+    } else if( isObject(option) ) {
       option = _.extend({
         name: varName
       }, option);
@@ -62,7 +62,7 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
   }
 
   namespace = option.namespace || currentNamespace();
-  if( isString(namespace) === true ) {
+  if( isString(namespace) ) {
     namespace = makeNamespace(channel);
   }
 

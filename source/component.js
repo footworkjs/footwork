@@ -5,7 +5,7 @@ var originalComponentRegisterFunc = ko.components.register;
 var registerComponent = ko.components.register = function(componentName, options) {
   var viewModel = options.initialize || options.viewModel;
   
-  if( isString(componentName) === false ) {
+  if( !isString(componentName) ) {
     throw 'Components must be provided a componentName.';
   }
 
@@ -14,7 +14,7 @@ var registerComponent = ko.components.register = function(componentName, options
   //      from the component definition/configuration.
   if( isViewModelCtor(viewModel) ) {
     viewModel.__configParams['componentNamespace'] = componentName;
-  } else if( isFunction(viewModel) === true ) {
+  } else if( isFunction(viewModel) ) {
     options.namespace = componentName;
     viewModel = makeViewModel(options);
   }
@@ -28,7 +28,7 @@ var registerComponent = ko.components.register = function(componentName, options
 var makeComponent = ko.component = function(componentDefinition) {
   var viewModel = componentDefinition.viewModel;
 
-  if( isFunction(viewModel) === true && isViewModelCtor(viewModel) === false ) {
+  if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {
     componentDefinition.viewModel = makeViewModel( _.omit(componentDefinition, 'template') );
   }
 
@@ -50,9 +50,9 @@ var normalTags = [
   'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp'
 ];
 var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponent) {
-  isComponent = ( isUndefined(isComponent) === true ? true : isComponent );
+  isComponent = ( isUndefined(isComponent) ? true : isComponent );
 
-  if( isArray(tagName) === true ) {
+  if( isArray(tagName) ) {
     _.each(tagName, function(tag) {
       tagIsComponent(tag, isComponent);
     });
@@ -70,9 +70,9 @@ var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponen
 };
 
 function componentTriggerAfterBinding(element, viewModel) {
-  if( isViewModel(viewModel) === true ) {
+  if( isViewModel(viewModel) ) {
     var configParams = viewModel.__getConfigParams();
-    if( isFunction(configParams.afterBinding) === true && configParams.afterBinding.wasCalled === false ) {
+    if( isFunction(configParams.afterBinding) && configParams.afterBinding.wasCalled === false ) {
       configParams.afterBinding.call(viewModel, element);
     }
   }
@@ -83,18 +83,18 @@ ko.virtualElements.allowedBindings.$compLifeCycle = true;
 ko.bindingHandlers.$compLifeCycle = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-      if( isViewModel(viewModel) === true ) {
+      if( isViewModel(viewModel) ) {
         viewModel.__shutdown();
       }
     });
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    if( isViewModel(viewModel) === true ) {
+    if( isViewModel(viewModel) ) {
       componentTriggerAfterBinding(element, viewModel);
     }
 
     var child = ko.virtualElements.firstChild(element);
-    if( isUndefined(child) === false ) {
+    if( !isUndefined(child) ) {
       viewModel = ko.dataFor( child );
       componentTriggerAfterBinding(element, viewModel);
     }
@@ -113,7 +113,7 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
   loadTemplate: function(componentName, config, callback) {
     if( nativeComponents.indexOf(componentName) === -1 ) {
       // TODO: Handle different types of configs
-      if( isString(config) === true ) {
+      if( isString(config) ) {
         config = componentWrapperTemplate.replace(/COMPONENT_MARKUP/, config);
       } else {
         throw 'Unhandled config type ' + typeof config + '.';
@@ -128,7 +128,7 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
         var element = componentInfo.element;
         var $context = ko.contextFor(element);
 
-        if( isViewModelCtor(ViewModel) === true ) {
+        if( isViewModelCtor(ViewModel) ) {
           // inject the context into the ViewModel contructor
           ViewModel = ViewModel.compose({
             _preInit: function() {
@@ -157,17 +157,17 @@ ko.components.loaders.push( ko.components.requireLoader = {
     var templatePath;
     var combinedPath;
 
-    if( isFunction(require) === true ) {
+    if( isFunction(require) ) {
       // load component using knockouts native support for requirejs
-      if( require.defined(componentName) === true ) {
+      if( require.defined(componentName) ) {
         // component already cached, lets use it
         configOptions = {
           require: componentName
         };
-      } else if( isString(componentLocation.combined) === true ) {
+      } else if( isString(componentLocation.combined) ) {
         combinedPath = componentLocation.combined;
 
-        if( isPath(combinedPath) === true ) {
+        if( isPath(combinedPath) ) {
           combinedPath = combinedPath + combinedFile;
         }
 
@@ -178,10 +178,10 @@ ko.components.loaders.push( ko.components.requireLoader = {
         viewModelPath = componentLocation.viewModels;
         templatePath = 'text!' + componentLocation.templates;
 
-        if( isPath(viewModelPath) === true ) {
+        if( isPath(viewModelPath) ) {
           viewModelPath = viewModelPath + viewModelFile;
         }
-        if( isPath(templatePath) === true ) {
+        if( isPath(templatePath) ) {
           templatePath = templatePath + templateFile;
         }
         
@@ -200,7 +200,7 @@ var noParentViewModelError = { getNamespaceName: function() { return 'NO-VIEWMOD
 ko.virtualElements.allowedBindings.$outletBind = true;
 ko.bindingHandlers.$outletBind = {
   init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
-    var $parentViewModel = ( isObject(bindingContext) === true ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
+    var $parentViewModel = ( isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
     var $parentRouter = nearestParentRouter(bindingContext);
     var outletName = outletViewModel.outletName;
 
