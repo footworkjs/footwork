@@ -45,5 +45,4 @@ ko.debugLevel = ko.observable(1);
 //import("viewModel.js");
 //import("resource.js");
 //import("component.js");
-//import("bindingHandlers.js");
 //import("extenders.js");

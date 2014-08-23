@@ -38,7 +38,6 @@
     "postal.js": "0.10.0",
     "conduitjs": "0.3.2",
     "postal.preserve": "https://github.com/reflectiveSingleton/postal.preserve.git#9f6af9823f748651e543e94a91c9770d17b333bb",
-    "apollo": "https://github.com/toddmotto/apollo.git#1.6.0",
     "consolelog": "*",
     "history.js": "1.8.0",
     "delegate.js": "1.0.2",
