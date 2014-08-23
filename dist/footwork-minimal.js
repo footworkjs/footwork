@@ -4959,13 +4959,6 @@ ko._footworkVersion = '0.2.0';
 // Expose any embedded dependencies
 ko.embed = embedded;
 
-//polyfill from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim
-if (!String.prototype.trim) {
-  String.prototype.trim = function () {
-    return this.replace(/^\s+|\s+$/g, '');
-  };
-}
-
 // misc utility functions
 var noop = function() { };
 
