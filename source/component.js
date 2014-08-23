@@ -72,7 +72,7 @@ var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponen
 function componentTriggerAfterBinding(element, viewModel) {
   if( isViewModel(viewModel) ) {
     var configParams = viewModel.__getConfigParams();
-    if( isFunction(configParams.afterBinding) && configParams.afterBinding.wasCalled === false ) {
+    if( isFunction(configParams.afterBinding) ) {
       configParams.afterBinding.call(viewModel, element);
     }
   }
