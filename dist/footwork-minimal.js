@@ -4281,6 +4281,7 @@ var isPath = function(pathOrLocation) {
   return hasTrailingSlash.test(pathOrLocation) === true;
 };
 
+// Pull out lodash utility function references for better minification and easier implementation swap
 var isFunction = _.isFunction;
 var isObject = _.isObject;
 var isString = _.isString;
@@ -5121,68 +5122,83 @@ var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetCon
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = ko.bindingHandlers.component.init;
 ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-  if( isString(element.tagName) && element.tagName.toLowerCase() === 'viewmodel' ) {
-    var values = valueAccessor();
-    var name = element.getAttribute('name') || element.getAttribute('data-name');
+  var theValueAccessor = valueAccessor;
+  if( isString(element.tagName) ) {
+    if( element.tagName.toLowerCase() === 'viewmodel' ) {
+      var values = valueAccessor();
+      var name = element.getAttribute('name') || element.getAttribute('data-name');
 
-    if( !isUndefined(name) ) {
-      var viewModelName = ko.unwrap(values.params.name);
-      var resourceLocation = getResourceLocation( viewModelName ).viewModels;
+      if( !isUndefined(name) ) {
+        var viewModelName = ko.unwrap(values.params.name);
+        var resourceLocation = getResourceLocation( viewModelName ).viewModels;
 
-      if( isFunction(require) && isFunction(require.defined) && require.defined(viewModelName) ) {
-        // we have found a matching resource that is already cached by require, lets use it
-        resourceLocation = viewModelName;
+        if( isFunction(require) && isFunction(require.defined) && require.defined(viewModelName) ) {
+          // we have found a matching resource that is already cached by require, lets use it
+          resourceLocation = viewModelName;
+        }
+
+        var bindViewModel = function(ViewModel) {
+          var viewModelObj;
+          if( isFunction(ViewModel) ) {
+            viewModelObj = new ViewModel(values.params);
+          } else {
+            viewModelObj = ViewModel;
+          }
+
+          // binding the viewModelObj onto each child element is not ideal, need to do this differently
+          // cannot get component.preprocess() method to work/be called for some reason
+          each(element.children, function(child) {
+            applyBindings(viewModelObj, child, doNotSetContextOnRouter);
+          });
+
+          // we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each
+          // sub-element and must specify the context as being the container element only once
+          if( isRouter(viewModelObj.$router) ) {
+            viewModelObj.$router.context( ko.contextFor(element) );
+          }
+        };
+
+        if( isString(resourceLocation) ) {
+          if( isFunction(require) ) {
+            if( isPath(resourceLocation) ) {
+              resourceLocation = resourceLocation + name;
+            }
+            if( resourceLocation !== viewModelName && endsInDotJS.test(resourceLocation) === false ) {
+              resourceLocation = resourceLocation + resourceFileExtensions.viewModel;
+            }
+
+            require([ resourceLocation ], bindViewModel);
+          } else {
+            throw 'Uses require, but no AMD loader is present';
+          }
+        } else if( isFunction(resourceLocation) ) {
+          bindViewModel( resourceLocation );
+        } else if( isObject(resourceLocation) ) {
+          if( isObject(resourceLocation.instance) ) {
+            bindViewModel( resourceLocation.instance );
+          } else if( isFunction(resourceLocation.createViewModel) ) {
+            bindViewModel( resourceLocation.createViewModel( values.params, { element: element } ) );
+          }
+        }
       }
 
-      var bindViewModel = function(ViewModel) {
-        var viewModelObj;
-        if( isFunction(ViewModel) ) {
-          viewModelObj = new ViewModel(values.params);
-        } else {
-          viewModelObj = ViewModel;
-        }
-
-        // binding the viewModelObj onto each child element is not ideal, need to do this differently
-        // cannot get component.preprocess() method to work/be called for some reason
-        each(element.children, function(child) {
-          applyBindings(viewModelObj, child, doNotSetContextOnRouter);
-        });
-
-        // we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each
-        // sub-element and must specify the context as being the container element only once
-        if( isRouter(viewModelObj.$router) ) {
-          viewModelObj.$router.context( ko.contextFor(element) );
-        }
-      };
-
-      if( isString(resourceLocation) ) {
-        if( isFunction(require) ) {
-          if( isPath(resourceLocation) ) {
-            resourceLocation = resourceLocation + name;
+      return { 'controlsDescendantBindings': true };
+    } else if( element.tagName.toLowerCase() === 'outlet' ) {
+      // we patch in the 'name' of the outlet into the params valueAccessor on the component definition
+      var outletName = element.getAttribute('name');
+      if( outletName ) {
+        theValueAccessor = function() {
+          var valueAccessorResult = valueAccessor();
+          if( isUndefined(valueAccessorResult.params.name) ) {
+            valueAccessorResult.params.name = outletName;
           }
-          if( resourceLocation !== viewModelName && endsInDotJS.test(resourceLocation) === false ) {
-            resourceLocation = resourceLocation + resourceFileExtensions.viewModel;
-          }
-
-          require([ resourceLocation ], bindViewModel);
-        } else {
-          throw 'Uses require, but no AMD loader is present';
-        }
-      } else if( isFunction(resourceLocation) ) {
-        bindViewModel( resourceLocation );
-      } else if( isObject(resourceLocation) ) {
-        if( isObject(resourceLocation.instance) ) {
-          bindViewModel( resourceLocation.instance );
-        } else if( isFunction(resourceLocation.createViewModel) ) {
-          bindViewModel( resourceLocation.createViewModel( values.params, { element: element } ) );
-        }
+          return valueAccessorResult;
+        };
       }
     }
-
-    return { 'controlsDescendantBindings': true };
   }
 
-  return originalComponentInit(element, valueAccessor, allBindings, viewModel, bindingContext);
+  return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);
 };
 // resource.js
 // ------------------
