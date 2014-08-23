@@ -82,7 +82,7 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
 
   if( !isObservable(outlets[outletName]) ) {
     outlets[outletName] = ko.observable({
-      name: 'empty',
+      name: '_noComponentSelected',
       params: {}
     });
   }
