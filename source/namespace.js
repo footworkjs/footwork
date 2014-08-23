@@ -17,7 +17,7 @@ var namespaceStack = [];
 // if not present and increment it if it is, then return the name (with the counter appended
 // if autoIncrement === true and the counter is > 0).
 function indexedNamespaceName(name, autoIncrement) {
-  if(namespaceNameCounter[name] === undefined) {
+  if( isUndefined(namespaceNameCounter[name]) === true ) {
     namespaceNameCounter[name] = 0;
   } else {
     namespaceNameCounter[name]++;
