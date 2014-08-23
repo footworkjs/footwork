@@ -8,9 +8,9 @@ var resourceFileExtensions = {
 };
 
 ko.components.setFileExtensions = function(fileType, extension) {
-  if( isObject(fileType) === true ) {
+  if( isObject(fileType) ) {
     _.extend(resourceFileExtensions, fileType);
-  } else if( isUndefined(resourceFileExtensions[fileType]) === false ) {
+  } else if( !isUndefined(resourceFileExtensions[fileType]) ) {
     resourceFileExtensions[fileType] = extension;
   }
 };
@@ -39,11 +39,11 @@ var defaultResourceLocation = {
 };
 var resourceRelativeLocation = function(rootURL, returnTheValue) {
   var componentLocation = defaultResourceLocation;
-  if(returnTheValue === true) {
+  if( returnTheValue === true ) {
     componentLocation = _.extend({}, defaultResourceLocation);
   }
 
-  if( isObject(rootURL) === true ) {
+  if( isObject(rootURL) ) {
     // assume some combination of defaultResourceLocation and normalize the parameters
     _.extend(componentLocation, _.reduce(rootURL, function(options, paramValue, paramName) {
       if(paramName === 'viewModel') {
@@ -57,7 +57,7 @@ var resourceRelativeLocation = function(rootURL, returnTheValue) {
       }
       return options;
     }, {}));
-  } else if( isString(rootURL) === true ) {
+  } else if( isString(rootURL) ) {
     componentLocation = {
       combined: rootURL,
       viewModels: null,
@@ -65,7 +65,7 @@ var resourceRelativeLocation = function(rootURL, returnTheValue) {
     };
   }
 
-  if(returnTheValue === true) {
+  if( returnTheValue === true ) {
     return componentLocation;
   } else {
     defaultResourceLocation = componentLocation;
@@ -74,14 +74,14 @@ var resourceRelativeLocation = function(rootURL, returnTheValue) {
 
 var componentRelativeLocation = ko.components.loadRelativeTo = function(locations, returnTheValue) {
   var returnValue = resourceRelativeLocation(locations, returnTheValue);
-  if(returnTheValue === true) {
+  if( returnTheValue === true ) {
     return returnValue;
   }
 };
 
 var resourceLocations = ko.resourceLocations = {};
 var registerLocationOfComponent = ko.components.registerLocationOf = function(componentName, componentLocation) {
-  if( isArray(componentName) === true ) {
+  if( isArray(componentName) ) {
     _.each(componentName, function(name) {
       registerLocationOfComponent(name, componentLocation);
     });
@@ -91,13 +91,13 @@ var registerLocationOfComponent = ko.components.registerLocationOf = function(co
 
 var viewModelRelativeLocation = ko.viewModel.loadRelativeTo = function(rootURL, returnTheValue) {
   var returnValue = resourceRelativeLocation({ viewModel: rootURL }, returnTheValue);
-  if(returnTheValue === true) {
+  if( returnTheValue === true ) {
     return returnValue;
   }
 };
 
 var registerLocationOfViewModel = ko.viewModel.registerLocationOf = function(viewModelName, viewModelLocation) {
-  if( isArray(viewModelName) === true ) {
+  if( isArray(viewModelName) ) {
     _.each(viewModelName, function(name) {
       registerLocationOfViewModel(name, viewModelLocation);
     });

@@ -4924,7 +4924,7 @@ var namespaceStack = [];
 // if not present and increment it if it is, then return the name (with the counter appended
 // if autoIncrement === true and the counter is > 0).
 function indexedNamespaceName(name, autoIncrement) {
-  if( isUndefined(namespaceNameCounter[name]) === true ) {
+  if( isUndefined(namespaceNameCounter[name]) ) {
     namespaceNameCounter[name] = 0;
   } else {
     namespaceNameCounter[name]++;
@@ -4938,7 +4938,7 @@ function createEnvelope(topic, data, expires) {
     data: data
   };
 
-  if( isUndefined(expires) === false ) {
+  if( !isUndefined(expires) ) {
     envelope.headers = {
       preserve: true
     };
@@ -4958,7 +4958,7 @@ function triggerEventOnNamespace(eventKey, params, expires) {
 
 // Method used to register an event handler on a namespace
 function registerNamespaceEventHandler(eventKey, callback, context) {
-  if( isUndefined(context) === false ) {
+  if( !isUndefined(context) ) {
     callback = _.bind(callback, context);
   }
 
@@ -4982,7 +4982,7 @@ function sendCommandToNamespace(commandKey, params, expires) {
 
 // Method used to register a command handler on a namespace
 function registerNamespaceCommandHandler(requestKey, callback, context) {
-  if( isUndefined(context) === false ) {
+  if( !isUndefined(context) ) {
     callback = _.bind(callback, context);
   }
 
@@ -4999,10 +4999,10 @@ function requestResponseFromNamespace(requestKey, params) {
   var responseSubscription;
 
   responseSubscription = this.subscribe('request.' + requestKey + '.response', function(reqResponse) {
-    if( isUndefined(response) === true ) {
+    if( isUndefined(response) ) {
       response = reqResponse;
     } else {
-      if( isArray(response) === true ) {
+      if( isArray(response) ) {
         response.push(reqResponse);
       } else {
         response = [ response, reqResponse ];
@@ -5019,7 +5019,7 @@ function requestResponseFromNamespace(requestKey, params) {
 // Method used to register a request handler on a namespace.
 // Requests sent using the specified requestKey will be called and passed in any params specified, the return value is passed back to the issuer
 function registerNamespaceRequestHandler(requestKey, callback, context) {
-  if( isUndefined(context) === false ) {
+  if( !isUndefined(context) ) {
     callback = _.bind(callback, context);
   }
 
@@ -5043,7 +5043,7 @@ function disconnectNamespaceHandlers() {
 }
 
 function onNamespaceTemplateBind(callback, context) {
-  if( isUndefined(context) === false ) {
+  if( !isUndefined(context) ) {
     callback = _.bind(callback, context);
   }
   var handlerSubscription = this.subscribe('__elementIsBound', callback);
@@ -5058,15 +5058,16 @@ function getNamespaceName() {
 
 // Creates and returns a new namespace instance
 var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
-  if( isUndefined($parentNamespace) === false ) {
-    if( isString($parentNamespace) === true ) {
+  if( !isUndefined($parentNamespace) ) {
+    if( isString($parentNamespace) ) {
       namespaceName = $parentNamespace + '.' + namespaceName;
-    } else if( isUndefined($parentNamespace.channel) === false ) {
+    } else if( !isUndefined($parentNamespace.channel) ) {
       namespaceName = $parentNamespace.channel + '.' + namespaceName;
     }
   }
   var namespace = postal.channel(namespaceName);
 
+  namespace.__isNamespace = true;
   namespace.shutdown = _.bind( disconnectNamespaceHandlers, namespace );
 
   namespace.commandHandlers = [];
@@ -5105,7 +5106,7 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
 
 // Duck type check for a namespace object
 var isNamespace = ko.isNamespace = function(thing) {
-  return isUndefined(thing) === false && isFunction(thing.subscribe) && isFunction(thing.publish) && isString(thing.channel) === true;
+  return !isUndefined(thing) && thing.__isNamespace;
 };
 
 // Return the current namespace name.
@@ -5166,8 +5167,8 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
   var observable = this;
 
-  if( isNamespace(namespace) === false ) {
-    if( isString(namespace) === true ) {
+  if( !isNamespace(namespace) ) {
+    if( isString(namespace) ) {
       namespace = makeNamespace( namespace );
     } else {
       throw 'Invalid namespace [' + typeof namespace + ']';
@@ -5202,15 +5203,15 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
   var observable = this;
   var namespace;
 
-  if( isObject(varName) === true ) {
+  if( isObject(varName) ) {
     option = varName;
   } else {
-    if( isBoolean(option) === true ) {
+    if( isBoolean(option) ) {
       option = {
         name: varName,
         writable: option
       };
-    } else if( isObject(option) === true ) {
+    } else if( isObject(option) ) {
       option = _.extend({
         name: varName
       }, option);
@@ -5222,7 +5223,7 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
   }
 
   namespace = option.namespace || currentNamespace();
-  if( isString(namespace) === true ) {
+  if( isString(namespace) ) {
     namespace = makeNamespace(channel);
   }
 
@@ -5288,7 +5289,7 @@ function routeStringToRegExp(routeString) {
   return new RegExp('^' + routeString + '$', routesAreCaseSensitive ? undefined : 'i');
 }
 
-function historyReady() {
+function historyIsReady() {
   return _.has(History, 'Adapter');
 }
 
@@ -5302,20 +5303,20 @@ function hasNavItems(routes) {
 }
 
 function isRouter(thing) {
-  return isObject(thing) === true && thing.__isRouter === true;
+  return isObject(thing) && thing.__isRouter;
 }
 
 // Recursive function which will locate the nearest $router from a given ko $context
 // (travels up through $parentContext chain to find the router if not found on the
 // immediate $context). Returns null if none is found.
 function nearestParentRouter($context, level) {
-  level = isUndefined(level) === true ? -1 : level;
+  level = isUndefined(level) ? -1 : level;
   var $parentRouter = $nullRouter;
-  if( isObject($context) === true ) {
-    if( isObject($context.$data) === true && isRouter($context.$data.$router) === true ) {
+  if( isObject($context) ) {
+    if( isObject($context.$data) && isRouter($context.$data.$router) ) {
       // found router in this context
       $parentRouter = $context.$data.$router;
-    } else if( isObject($context.$parentContext) === true ) {
+    } else if( isObject($context.$parentContext) ) {
       // search through next parent up the chain
       $parentRouter = nearestParentRouter( $context.$parentContext );
     }
@@ -5328,7 +5329,7 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
 
   outletName = ko.unwrap( outletName );
 
-  if( isObservable(outlets[outletName]) === false ) {
+  if( !isObservable(outlets[outletName]) ) {
     outlets[outletName] = ko.observable({
       name: 'empty',
       params: {}
@@ -5338,11 +5339,11 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
   var currentOutletDef = outlets[outletName]();
   var valueMutated = false;
 
-  if( isUndefined(componentToDisplay) === false ) {
+  if( !isUndefined(componentToDisplay) ) {
     currentOutletDef.name = componentToDisplay;
     valueMutated = true;
   }
-  if( isUndefined(viewModelParameters) === false ) {
+  if( !isUndefined(viewModelParameters) ) {
     currentOutletDef.params = viewModelParameters;
     valueMutated = true;
   }
@@ -5378,7 +5379,7 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
 
   if( routerConfig.activate === true ) {
     this.context.subscribe(function( $context ) {
-      if( isObject($context) === true ) {
+      if( isObject($context) ) {
         this.activate( $context );
       }
     }, this);
@@ -5395,7 +5396,7 @@ Router.baseRoute.subscribe(function(newBaseRoute) {
 });
 
 Router.prototype.unknownRoute = function() {
-  return ( isUndefined(this.config) === false ? _.result(this.config.unknownRoute) : undefined);
+  return ( !isUndefined(this.config) ? _.result(this.config.unknownRoute) : undefined);
 };
 
 Router.prototype.setRoutes = function(route) {
@@ -5432,16 +5433,16 @@ Router.prototype.setup = function( $context, $parentRouter ) {
   $parentRouter = $parentRouter || $nullRouter;
   if( $parentRouter !== $nullRouter ) {
     this.$parentRouter = $parentRouter;
-  } else if( isObject($context) === true ) {
+  } else if( isObject($context) ) {
     this.$parentRouter = $parentRouter = nearestParentRouter($context);
   }
   this.parentRoutePath = $parentRouter.getRoutePath();
 
   if( this.historyIsEnabled() !== true ) {
-    if( historyReady() === true ) {
+    if( historyIsReady() ) {
       var $router = this;
       History.Adapter.bind( windowObject, 'statechange', this.stateChange = function(url) {
-        var url = $router.normalizeURL.call($router, ( isString(url) === true ? url : History.getState().url ), $router.parentRoutePath);
+        var url = $router.normalizeURL.call($router, ( isString(url) ? url : History.getState().url ), $router.parentRoutePath);
         $router.currentState( url );
 
         // get and run the action for the specified route
@@ -5464,18 +5465,18 @@ Router.prototype.shutdown = function() {
 };
 
 // polyfill for missing window.location.origin
-if( isString(windowObject.location.origin) === false ) {
+if( !isString(windowObject.location.origin) ) {
   windowObject.location.origin = windowObject.location.protocol + "//" + windowObject.location.hostname + (windowObject.location.port ? ':' + windowObject.location.port: '');
 }
 
 Router.prototype.normalizeURL = function(url, cancelInitialPath) {
-  var isRelative = (this.config.relativeToParent === false || this.$parentRouter !== $nullRouter);
+  var isRelative = (!this.config.relativeToParent || this.$parentRouter !== $nullRouter);
 
-  if( isRelative === true && url.indexOf(windowObject.location.origin) === 0 ) {
+  if( isRelative && url.indexOf(windowObject.location.origin) === 0 ) {
     url = url.substr(windowObject.location.origin.length);
   }
 
-  if( isRelative === true && isNull(this.config.baseRoute) === false && url.indexOf(this.config.baseRoute) === 0 ) {
+  if( isRelative && !isNull(this.config.baseRoute) && url.indexOf(this.config.baseRoute) === 0 ) {
     url = url.substr(this.config.baseRoute.length);
     if(url.length > 1) {
       url = url.replace(hashMatch, '/');
@@ -5491,7 +5492,7 @@ Router.prototype.getRouteFor = function(url) {
     var routeRegex = routeStringToRegExp(routeString);
     var routeParamValues = url.match(routeRegex);
 
-    if( isNull(routeParamValues) === false ) {
+    if( !isNull(routeParamValues) ) {
       var routeParams = _.map(routeString.match(namedParam), function(param) {
         return param.replace(':', '');
       });
@@ -5516,7 +5517,7 @@ Router.prototype.getActionForURL = function(url) {
   var route = this.getRouteFor(url);
   var $router = this;
 
-  if( isNull(route) === false ) {
+  if( !isNull(route) ) {
     Action = function($viewModel, $outlet, params) {
       route.controller.call( $viewModel, $outlet, _.extend(route.params, params), route );
     };
@@ -5539,7 +5540,7 @@ Router.prototype.enableSplatForCurrentRoute = function() {
 };
 
 Router.prototype.navigationModel = function(predicate) {
-  if( isUndefined(this.navigationModel) === true ) {
+  if( isUndefined(this.navigationModel) ) {
     this.navigationModel = ko.computed(function() {
       this.navModelUpdate(); // dummy reference used to trigger updates
       return _.filter(
@@ -5561,7 +5562,7 @@ ko.bindingHandlers.$route = {
       var destinationURL = element.getAttribute('href');
       var title = element.getAttribute('data-title');
 
-      if( isNull($nearestParentRouter) === false && $myRouter.config.relativeToParent === true ) {
+      if( !isNull($nearestParentRouter) && $myRouter.config.relativeToParent === true ) {
         destinationURL = $nearestParentRouter.getRoutePath() + destinationURL;
       }
 
@@ -5576,12 +5577,12 @@ ko.bindingHandlers.$route = {
 
 // Duck type function for determining whether or not something is a footwork viewModel constructor function
 function isViewModelCtor(thing) {
-  return isFunction(thing) === true && thing.__isViewModelCtor === true;
+  return isFunction(thing) && thing.__isViewModelCtor;
 }
 
 // Duck type function for determining whether or not something is a footwork viewModel
 function isViewModel(thing) {
-  return isObject(thing) === true && thing.__isViewModel === true;
+  return isObject(thing) && thing.__isViewModel;
 }
 
 // Initialize the viewModels registry
@@ -5595,20 +5596,20 @@ var doNotSetContextOnRouter = false;
 var setContextOnRouter = true;
 var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetContext) {
   originalApplyBindings(viewModel, element);
-  shouldSetContext = isUndefined(shouldSetContext) === true ? setContextOnRouter : shouldSetContext;
+  shouldSetContext = isUndefined(shouldSetContext) ? setContextOnRouter : shouldSetContext;
 
-  if( isViewModel(viewModel) === true ) {
+  if( isViewModel(viewModel) ) {
     var $configParams = viewModel.__getConfigParams();
     
-    if( isFunction($configParams.afterBinding) === true ) {
+    if( isFunction($configParams.afterBinding) ) {
       $configParams.afterBinding.call(viewModel, element);
     }
 
-    if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) === true ) {
+    if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) ) {
       viewModel.$router.context( ko.contextFor(element) );
     }
     
-    if( isUndefined(element) === false ) {
+    if( !isUndefined(element) ) {
       ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
         viewModel.__shutdown();
       });
@@ -5631,7 +5632,7 @@ var viewModelCount = ko.viewModelCount = function() {
 // Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all model references is returned.
 var getViewModels = ko.getViewModels = function(namespaceName) {
-  if( isUndefined(namespaceName) === true ) {
+  if( isUndefined(namespaceName) ) {
     return viewModels;
   }
   return viewModels[namespaceName];
@@ -5659,7 +5660,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
   var afterInit;
 
   configParams = configParams || {};
-  if( isUndefined(configParams) === false ) {
+  if( !isUndefined(configParams) ) {
     ctor = configParams.viewModel || configParams.initialize || noop;
     afterInit = configParams.afterInit || noop;
   }
@@ -5676,7 +5677,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
   var initViewModelMixin = {
     _preInit: function( initParams ) {
       this.$params = configParams.params;
-      if( isObject(configParams.router) === true ) {
+      if( isObject(configParams.router) ) {
         this.$router = new Router( configParams.router, this );
       }
       this.__isViewModel = true;
@@ -5687,17 +5688,17 @@ var makeViewModel = ko.viewModel = function(configParams) {
         return initParams;
       };
       this.__shutdown = function() {
-        if( isFunction(configParams.afterDispose) === true ) {
+        if( isFunction(configParams.afterDispose) ) {
           configParams.afterDispose.call(this);
         }
 
         _.each(this, function( property ) {
-          if( isNamespace(property) === true || isRouter(property) === true ) {
+          if( isNamespace(property) || isRouter(property) ) {
             property.shutdown();
           }
         });
 
-        if( isFunction(configParams.afterBinding) === true ) {
+        if( isFunction(configParams.afterBinding) ) {
           configParams.afterBinding.wasCalled = false;
         }
       };
@@ -5710,7 +5711,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
   };
 
   var composure = [ ctor, initViewModelMixin ].concat( viewModelMixins, afterInit );
-  if( isUndefined(configParams.mixins) === false ) {
+  if( !isUndefined(configParams.mixins) ) {
     composure = composure.concat(configParams.mixins);
   }
 
@@ -5725,22 +5726,22 @@ var makeViewModel = ko.viewModel = function(configParams) {
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = ko.bindingHandlers.component.init;
 ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-  if( isString(element.tagName) === true && element.tagName.toLowerCase() === 'viewmodel' ) {
+  if( isString(element.tagName) && element.tagName.toLowerCase() === 'viewmodel' ) {
     var values = valueAccessor();
     var name = element.getAttribute('name') || element.getAttribute('data-name');
 
-    if( isUndefined(name) === false ) {
+    if( !isUndefined(name) ) {
       var viewModelName = ko.unwrap(values.params.name);
       var resourceLocation = getResourceLocation( viewModelName ).viewModels;
 
-      if( isFunction(require) === true && isFunction(require.defined) === true && require.defined(viewModelName) === true ) {
+      if( isFunction(require) && isFunction(require.defined) && require.defined(viewModelName) ) {
         // we have found a matching resource that is already cached by require, lets use it
         resourceLocation = viewModelName;
       }
 
       var bindViewModel = function(ViewModel) {
         var viewModelObj = ViewModel;
-        if( isFunction(ViewModel) === true ) {
+        if( isFunction(ViewModel) ) {
           viewModelObj = new ViewModel(values.params);
         } else {
           viewModelObj = ViewModel;
@@ -5754,14 +5755,14 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
 
         // we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each
         // sub-element and must specify the context as being the container element only once
-        if( isRouter( viewModelObj.$router ) === true ) {
+        if( isRouter(viewModelObj.$router) ) {
           viewModelObj.$router.context( ko.contextFor(element) );
         }
       };
 
-      if( isString(resourceLocation) === true ) {
-        if( isFunction(require) === true ) {
-          if( isPath(resourceLocation) === true ) {
+      if( isString(resourceLocation) ) {
+        if( isFunction(require) ) {
+          if( isPath(resourceLocation) ) {
             resourceLocation = resourceLocation + name;
           }
           if( resourceLocation !== viewModelName && endsInDotJS.test(resourceLocation) === false ) {
@@ -5772,12 +5773,12 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         } else {
           throw 'Uses require, but no AMD loader is present';
         }
-      } else if( isFunction(resourceLocation) === true ) {
+      } else if( isFunction(resourceLocation) ) {
         bindViewModel( resourceLocation );
-      } else if( isObject(resourceLocation) === true ) {
-        if( isObject(resourceLocation.instance) === true ) {
+      } else if( isObject(resourceLocation) ) {
+        if( isObject(resourceLocation.instance) ) {
           bindViewModel( resourceLocation.instance );
-        } else if( isFunction(resourceLocation.createViewModel) === true ) {
+        } else if( isFunction(resourceLocation.createViewModel) ) {
           bindViewModel( resourceLocation.createViewModel( values.params, { element: element } ) );
         }
       }
@@ -5798,9 +5799,9 @@ var resourceFileExtensions = {
 };
 
 ko.components.setFileExtensions = function(fileType, extension) {
-  if( isObject(fileType) === true ) {
+  if( isObject(fileType) ) {
     _.extend(resourceFileExtensions, fileType);
-  } else if( isUndefined(resourceFileExtensions[fileType]) === false ) {
+  } else if( !isUndefined(resourceFileExtensions[fileType]) ) {
     resourceFileExtensions[fileType] = extension;
   }
 };
@@ -5829,11 +5830,11 @@ var defaultResourceLocation = {
 };
 var resourceRelativeLocation = function(rootURL, returnTheValue) {
   var componentLocation = defaultResourceLocation;
-  if(returnTheValue === true) {
+  if( returnTheValue === true ) {
     componentLocation = _.extend({}, defaultResourceLocation);
   }
 
-  if( isObject(rootURL) === true ) {
+  if( isObject(rootURL) ) {
     // assume some combination of defaultResourceLocation and normalize the parameters
     _.extend(componentLocation, _.reduce(rootURL, function(options, paramValue, paramName) {
       if(paramName === 'viewModel') {
@@ -5847,7 +5848,7 @@ var resourceRelativeLocation = function(rootURL, returnTheValue) {
       }
       return options;
     }, {}));
-  } else if( isString(rootURL) === true ) {
+  } else if( isString(rootURL) ) {
     componentLocation = {
       combined: rootURL,
       viewModels: null,
@@ -5855,7 +5856,7 @@ var resourceRelativeLocation = function(rootURL, returnTheValue) {
     };
   }
 
-  if(returnTheValue === true) {
+  if( returnTheValue === true ) {
     return componentLocation;
   } else {
     defaultResourceLocation = componentLocation;
@@ -5864,14 +5865,14 @@ var resourceRelativeLocation = function(rootURL, returnTheValue) {
 
 var componentRelativeLocation = ko.components.loadRelativeTo = function(locations, returnTheValue) {
   var returnValue = resourceRelativeLocation(locations, returnTheValue);
-  if(returnTheValue === true) {
+  if( returnTheValue === true ) {
     return returnValue;
   }
 };
 
 var resourceLocations = ko.resourceLocations = {};
 var registerLocationOfComponent = ko.components.registerLocationOf = function(componentName, componentLocation) {
-  if( isArray(componentName) === true ) {
+  if( isArray(componentName) ) {
     _.each(componentName, function(name) {
       registerLocationOfComponent(name, componentLocation);
     });
@@ -5881,13 +5882,13 @@ var registerLocationOfComponent = ko.components.registerLocationOf = function(co
 
 var viewModelRelativeLocation = ko.viewModel.loadRelativeTo = function(rootURL, returnTheValue) {
   var returnValue = resourceRelativeLocation({ viewModel: rootURL }, returnTheValue);
-  if(returnTheValue === true) {
+  if( returnTheValue === true ) {
     return returnValue;
   }
 };
 
 var registerLocationOfViewModel = ko.viewModel.registerLocationOf = function(viewModelName, viewModelLocation) {
-  if( isArray(viewModelName) === true ) {
+  if( isArray(viewModelName) ) {
     _.each(viewModelName, function(name) {
       registerLocationOfViewModel(name, viewModelLocation);
     });
@@ -5906,7 +5907,7 @@ var originalComponentRegisterFunc = ko.components.register;
 var registerComponent = ko.components.register = function(componentName, options) {
   var viewModel = options.initialize || options.viewModel;
   
-  if( isString(componentName) === false ) {
+  if( !isString(componentName) ) {
     throw 'Components must be provided a componentName.';
   }
 
@@ -5915,7 +5916,7 @@ var registerComponent = ko.components.register = function(componentName, options
   //      from the component definition/configuration.
   if( isViewModelCtor(viewModel) ) {
     viewModel.__configParams['componentNamespace'] = componentName;
-  } else if( isFunction(viewModel) === true ) {
+  } else if( isFunction(viewModel) ) {
     options.namespace = componentName;
     viewModel = makeViewModel(options);
   }
@@ -5929,7 +5930,7 @@ var registerComponent = ko.components.register = function(componentName, options
 var makeComponent = ko.component = function(componentDefinition) {
   var viewModel = componentDefinition.viewModel;
 
-  if( isFunction(viewModel) === true && isViewModelCtor(viewModel) === false ) {
+  if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {
     componentDefinition.viewModel = makeViewModel( _.omit(componentDefinition, 'template') );
   }
 
@@ -5951,9 +5952,9 @@ var normalTags = [
   'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp'
 ];
 var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponent) {
-  isComponent = ( isUndefined(isComponent) === true ? true : isComponent );
+  isComponent = ( isUndefined(isComponent) ? true : isComponent );
 
-  if( isArray(tagName) === true ) {
+  if( isArray(tagName) ) {
     _.each(tagName, function(tag) {
       tagIsComponent(tag, isComponent);
     });
@@ -5971,9 +5972,9 @@ var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponen
 };
 
 function componentTriggerAfterBinding(element, viewModel) {
-  if( isViewModel(viewModel) === true ) {
+  if( isViewModel(viewModel) ) {
     var configParams = viewModel.__getConfigParams();
-    if( isFunction(configParams.afterBinding) === true && configParams.afterBinding.wasCalled === false ) {
+    if( isFunction(configParams.afterBinding) && configParams.afterBinding.wasCalled === false ) {
       configParams.afterBinding.call(viewModel, element);
     }
   }
@@ -5984,18 +5985,18 @@ ko.virtualElements.allowedBindings.$compLifeCycle = true;
 ko.bindingHandlers.$compLifeCycle = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-      if( isViewModel(viewModel) === true ) {
+      if( isViewModel(viewModel) ) {
         viewModel.__shutdown();
       }
     });
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    if( isViewModel(viewModel) === true ) {
+    if( isViewModel(viewModel) ) {
       componentTriggerAfterBinding(element, viewModel);
     }
 
     var child = ko.virtualElements.firstChild(element);
-    if( isUndefined(child) === false ) {
+    if( !isUndefined(child) ) {
       viewModel = ko.dataFor( child );
       componentTriggerAfterBinding(element, viewModel);
     }
@@ -6014,7 +6015,7 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
   loadTemplate: function(componentName, config, callback) {
     if( nativeComponents.indexOf(componentName) === -1 ) {
       // TODO: Handle different types of configs
-      if( isString(config) === true ) {
+      if( isString(config) ) {
         config = componentWrapperTemplate.replace(/COMPONENT_MARKUP/, config);
       } else {
         throw 'Unhandled config type ' + typeof config + '.';
@@ -6029,7 +6030,7 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
         var element = componentInfo.element;
         var $context = ko.contextFor(element);
 
-        if( isViewModelCtor(ViewModel) === true ) {
+        if( isViewModelCtor(ViewModel) ) {
           // inject the context into the ViewModel contructor
           ViewModel = ViewModel.compose({
             _preInit: function() {
@@ -6058,17 +6059,17 @@ ko.components.loaders.push( ko.components.requireLoader = {
     var templatePath;
     var combinedPath;
 
-    if( isFunction(require) === true ) {
+    if( isFunction(require) ) {
       // load component using knockouts native support for requirejs
-      if( require.defined(componentName) === true ) {
+      if( require.defined(componentName) ) {
         // component already cached, lets use it
         configOptions = {
           require: componentName
         };
-      } else if( isString(componentLocation.combined) === true ) {
+      } else if( isString(componentLocation.combined) ) {
         combinedPath = componentLocation.combined;
 
-        if( isPath(combinedPath) === true ) {
+        if( isPath(combinedPath) ) {
           combinedPath = combinedPath + combinedFile;
         }
 
@@ -6079,10 +6080,10 @@ ko.components.loaders.push( ko.components.requireLoader = {
         viewModelPath = componentLocation.viewModels;
         templatePath = 'text!' + componentLocation.templates;
 
-        if( isPath(viewModelPath) === true ) {
+        if( isPath(viewModelPath) ) {
           viewModelPath = viewModelPath + viewModelFile;
         }
-        if( isPath(templatePath) === true ) {
+        if( isPath(templatePath) ) {
           templatePath = templatePath + templateFile;
         }
         
@@ -6101,7 +6102,7 @@ var noParentViewModelError = { getNamespaceName: function() { return 'NO-VIEWMOD
 ko.virtualElements.allowedBindings.$outletBind = true;
 ko.bindingHandlers.$outletBind = {
   init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
-    var $parentViewModel = ( isObject(bindingContext) === true ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
+    var $parentViewModel = ( isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
     var $parentRouter = nearestParentRouter(bindingContext);
     var outletName = outletViewModel.outletName;
 
@@ -6146,7 +6147,7 @@ ko.components.register('error', {
 
 // custom throttle() based on ko v3.0.0 throttle(), allows value to be force()'d to a value at any time
 ko.extenders.throttled = function(target, opt) {
-  if( isNumber(opt) === true ) {
+  if( isNumber(opt) ) {
     opt = {
       timeout: opt,
       when: function() { return true; } // default always throttle
@@ -6202,7 +6203,7 @@ ko.extenders.delayTrigger = function( target, options ) {
       triggerFunc = noop,
       trigger;
 
-  if( isObject(options) === true ) {
+  if( isObject(options) ) {
     delay = !isNaN( options.delay ) && parseInt( options.delay, 10 ) || delay;
     triggerFunc = options.trigger || triggerFunc;
   } else {
@@ -6219,7 +6220,7 @@ ko.extenders.delayTrigger = function( target, options ) {
     write: function( state ) {
       target( state );
 
-      if( isUndefined(trigger) === false ) {
+      if( !isUndefined(trigger) ) {
         clearTrigger();
       }
 
@@ -6237,7 +6238,7 @@ ko.extenders.delayTrigger = function( target, options ) {
 ko.extenders.delayWrite = function( target, options ) {
   var filter, delay = 300;
 
-  if( isObject(options) === true ) {
+  if( isObject(options) ) {
     delay = !isNaN( options.delay ) && parseInt( options.delay, 10 ) || delay;
     filter = options.filter || function() { return true; };
   } else {

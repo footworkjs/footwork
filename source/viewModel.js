@@ -3,12 +3,12 @@
 
 // Duck type function for determining whether or not something is a footwork viewModel constructor function
 function isViewModelCtor(thing) {
-  return isFunction(thing) === true && thing.__isViewModelCtor === true;
+  return isFunction(thing) && thing.__isViewModelCtor;
 }
 
 // Duck type function for determining whether or not something is a footwork viewModel
 function isViewModel(thing) {
-  return isObject(thing) === true && thing.__isViewModel === true;
+  return isObject(thing) && thing.__isViewModel;
 }
 
 // Initialize the viewModels registry
@@ -22,20 +22,20 @@ var doNotSetContextOnRouter = false;
 var setContextOnRouter = true;
 var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetContext) {
   originalApplyBindings(viewModel, element);
-  shouldSetContext = isUndefined(shouldSetContext) === true ? setContextOnRouter : shouldSetContext;
+  shouldSetContext = isUndefined(shouldSetContext) ? setContextOnRouter : shouldSetContext;
 
-  if( isViewModel(viewModel) === true ) {
+  if( isViewModel(viewModel) ) {
     var $configParams = viewModel.__getConfigParams();
     
-    if( isFunction($configParams.afterBinding) === true ) {
+    if( isFunction($configParams.afterBinding) ) {
       $configParams.afterBinding.call(viewModel, element);
     }
 
-    if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) === true ) {
+    if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) ) {
       viewModel.$router.context( ko.contextFor(element) );
     }
     
-    if( isUndefined(element) === false ) {
+    if( !isUndefined(element) ) {
       ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
         viewModel.__shutdown();
       });
@@ -58,7 +58,7 @@ var viewModelCount = ko.viewModelCount = function() {
 // Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all model references is returned.
 var getViewModels = ko.getViewModels = function(namespaceName) {
-  if( isUndefined(namespaceName) === true ) {
+  if( isUndefined(namespaceName) ) {
     return viewModels;
   }
   return viewModels[namespaceName];
@@ -86,7 +86,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
   var afterInit;
 
   configParams = configParams || {};
-  if( isUndefined(configParams) === false ) {
+  if( !isUndefined(configParams) ) {
     ctor = configParams.viewModel || configParams.initialize || noop;
     afterInit = configParams.afterInit || noop;
   }
@@ -103,7 +103,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
   var initViewModelMixin = {
     _preInit: function( initParams ) {
       this.$params = configParams.params;
-      if( isObject(configParams.router) === true ) {
+      if( isObject(configParams.router) ) {
         this.$router = new Router( configParams.router, this );
       }
       this.__isViewModel = true;
@@ -114,17 +114,17 @@ var makeViewModel = ko.viewModel = function(configParams) {
         return initParams;
       };
       this.__shutdown = function() {
-        if( isFunction(configParams.afterDispose) === true ) {
+        if( isFunction(configParams.afterDispose) ) {
           configParams.afterDispose.call(this);
         }
 
         _.each(this, function( property ) {
-          if( isNamespace(property) === true || isRouter(property) === true ) {
+          if( isNamespace(property) || isRouter(property) ) {
             property.shutdown();
           }
         });
 
-        if( isFunction(configParams.afterBinding) === true ) {
+        if( isFunction(configParams.afterBinding) ) {
           configParams.afterBinding.wasCalled = false;
         }
       };
@@ -137,7 +137,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
   };
 
   var composure = [ ctor, initViewModelMixin ].concat( viewModelMixins, afterInit );
-  if( isUndefined(configParams.mixins) === false ) {
+  if( !isUndefined(configParams.mixins) ) {
     composure = composure.concat(configParams.mixins);
   }
 
@@ -152,22 +152,22 @@ var makeViewModel = ko.viewModel = function(configParams) {
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = ko.bindingHandlers.component.init;
 ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-  if( isString(element.tagName) === true && element.tagName.toLowerCase() === 'viewmodel' ) {
+  if( isString(element.tagName) && element.tagName.toLowerCase() === 'viewmodel' ) {
     var values = valueAccessor();
     var name = element.getAttribute('name') || element.getAttribute('data-name');
 
-    if( isUndefined(name) === false ) {
+    if( !isUndefined(name) ) {
       var viewModelName = ko.unwrap(values.params.name);
       var resourceLocation = getResourceLocation( viewModelName ).viewModels;
 
-      if( isFunction(require) === true && isFunction(require.defined) === true && require.defined(viewModelName) === true ) {
+      if( isFunction(require) && isFunction(require.defined) && require.defined(viewModelName) ) {
         // we have found a matching resource that is already cached by require, lets use it
         resourceLocation = viewModelName;
       }
 
       var bindViewModel = function(ViewModel) {
         var viewModelObj = ViewModel;
-        if( isFunction(ViewModel) === true ) {
+        if( isFunction(ViewModel) ) {
           viewModelObj = new ViewModel(values.params);
         } else {
           viewModelObj = ViewModel;
@@ -181,14 +181,14 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
 
         // we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each
         // sub-element and must specify the context as being the container element only once
-        if( isRouter( viewModelObj.$router ) === true ) {
+        if( isRouter(viewModelObj.$router) ) {
           viewModelObj.$router.context( ko.contextFor(element) );
         }
       };
 
-      if( isString(resourceLocation) === true ) {
-        if( isFunction(require) === true ) {
-          if( isPath(resourceLocation) === true ) {
+      if( isString(resourceLocation) ) {
+        if( isFunction(require) ) {
+          if( isPath(resourceLocation) ) {
             resourceLocation = resourceLocation + name;
           }
           if( resourceLocation !== viewModelName && endsInDotJS.test(resourceLocation) === false ) {
@@ -199,12 +199,12 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         } else {
           throw 'Uses require, but no AMD loader is present';
         }
-      } else if( isFunction(resourceLocation) === true ) {
+      } else if( isFunction(resourceLocation) ) {
         bindViewModel( resourceLocation );
-      } else if( isObject(resourceLocation) === true ) {
-        if( isObject(resourceLocation.instance) === true ) {
+      } else if( isObject(resourceLocation) ) {
+        if( isObject(resourceLocation.instance) ) {
           bindViewModel( resourceLocation.instance );
-        } else if( isFunction(resourceLocation.createViewModel) === true ) {
+        } else if( isFunction(resourceLocation.createViewModel) ) {
           bindViewModel( resourceLocation.createViewModel( values.params, { element: element } ) );
         }
       }

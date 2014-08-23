@@ -3,7 +3,7 @@
 
 // custom throttle() based on ko v3.0.0 throttle(), allows value to be force()'d to a value at any time
 ko.extenders.throttled = function(target, opt) {
-  if( isNumber(opt) === true ) {
+  if( isNumber(opt) ) {
     opt = {
       timeout: opt,
       when: function() { return true; } // default always throttle
@@ -59,7 +59,7 @@ ko.extenders.delayTrigger = function( target, options ) {
       triggerFunc = noop,
       trigger;
 
-  if( isObject(options) === true ) {
+  if( isObject(options) ) {
     delay = !isNaN( options.delay ) && parseInt( options.delay, 10 ) || delay;
     triggerFunc = options.trigger || triggerFunc;
   } else {
@@ -76,7 +76,7 @@ ko.extenders.delayTrigger = function( target, options ) {
     write: function( state ) {
       target( state );
 
-      if( isUndefined(trigger) === false ) {
+      if( !isUndefined(trigger) ) {
         clearTrigger();
       }
 
@@ -94,7 +94,7 @@ ko.extenders.delayTrigger = function( target, options ) {
 ko.extenders.delayWrite = function( target, options ) {
   var filter, delay = 300;
 
-  if( isObject(options) === true ) {
+  if( isObject(options) ) {
     delay = !isNaN( options.delay ) && parseInt( options.delay, 10 ) || delay;
     filter = options.filter || function() { return true; };
   } else {
