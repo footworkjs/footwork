@@ -19,11 +19,11 @@ var originalApplyBindings = ko.applyBindings;
 
 // Returns the number of created viewModels for each defined namespace
 var viewModelCount = ko.viewModelCount = function() {
-  var counts = _.reduce(namespaceNameCounter, function(viewModelCounts, viewModelCount, viewModelName) {
+  var counts = reduce(namespaceNameCounter, function(viewModelCounts, viewModelCount, viewModelName) {
     viewModelCounts[viewModelName] = viewModelCount + 1;
     return viewModelCounts;
   }, {});
-  counts.__total = _.reduce(_.values(counts), function(summation, num) {
+  counts.__total = reduce(_.values(counts), function(summation, num) {
     return summation + num;
   }, 0);
   return counts;
@@ -40,7 +40,7 @@ var getViewModels = ko.getViewModels = function(namespaceName) {
 
 // Tell all viewModels to request the values which it listens for
 var refreshModels = ko.refreshViewModels = function() {
-  _.invoke(getViewModels(), 'refreshReceived');
+  invoke(getViewModels(), 'refreshReceived');
 };
 
 var defaultViewModelConfigParams = {
@@ -65,7 +65,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
     afterInit = configParams.afterInit || noop;
   }
   afterInit = { _postInit: afterInit };
-  configParams = _.extend({}, defaultViewModelConfigParams, configParams);
+  configParams = extend({}, defaultViewModelConfigParams, configParams);
 
   var originalAfterBinding = configParams.afterBinding;
   configParams.afterBinding = function() {
@@ -94,7 +94,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
           configParams.afterDispose.call(this);
         }
 
-        _.each(this, function( property ) {
+        each(this, function( property ) {
           if( isNamespace(property) || isRouter(property) ) {
             property.shutdown();
           }
@@ -177,7 +177,7 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
 
         // binding the viewModelObj onto each child element is not ideal, need to do this differently
         // cannot get component.preprocess() method to work/be called for some reason
-        _.each(element.children, function(child) {
+        each(element.children, function(child) {
           applyBindings(viewModelObj, child, doNotSetContextOnRouter);
         });
 

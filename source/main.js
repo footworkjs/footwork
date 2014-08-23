@@ -28,6 +28,18 @@ var isNumber = _.isNumber;
 var isUndefined = _.isUndefined;
 var isArray = _.isArray;
 var isNull = _.isNull;
+var contains = _.contains;
+var extend = _.extend;
+var pick = _.pick;
+var each = _.each;
+var filter = _.filter;
+var bind = _.bind;
+var invoke = _.invoke;
+var clone = _.clone;
+var reduce = _.reduce;
+var has = _.has;
+var where = _.where;
+var result = _.result;
 
 // Registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];
