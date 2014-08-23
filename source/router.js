@@ -54,7 +54,7 @@ function hasNavItems(routes) {
 }
 
 function isRouter(thing) {
-  return isObject(thing) && thing.__isRouter;
+  return isObject(thing) && !!thing.__isRouter;
 }
 
 // Recursive function which will locate the nearest $router from a given ko $context
