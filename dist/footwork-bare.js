@@ -1195,11 +1195,11 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
       return { 'controlsDescendantBindings': true };
     } else if( tagName === 'outlet' ) {
       // we patch in the 'name' of the outlet into the params valueAccessor on the component definition (if necessary and available)
-      var outletName = element.getAttribute('name');
+      var outletName = element.getAttribute('name') || element.getAttribute('data-name');
       if( outletName ) {
         theValueAccessor = function() {
           var valueAccessorResult = valueAccessor();
-          if( isUndefined(valueAccessorResult.params.name) ) {
+          if( !isUndefined(valueAccessorResult.params) && isUndefined(valueAccessorResult.params.name) ) {
             valueAccessorResult.params.name = outletName;
           }
           return valueAccessorResult;
