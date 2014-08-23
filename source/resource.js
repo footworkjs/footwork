@@ -24,7 +24,7 @@ ko.components.getNormalTagList = function() {
 };
 
 ko.components.getComponentNameForNode = function(node) {
-  var tagName = node.tagName && node.tagName.toLowerCase();
+  var tagName = isString(node.tagName) && node.tagName.toLowerCase();
 
   if( ko.components.isRegistered(tagName) || _.indexOf(normalTags, tagName) === -1 ) {
     return tagName;

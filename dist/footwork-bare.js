@@ -8,13 +8,13 @@
 
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['lodash', 'knockout', 'postal', 'reqwest'], factory);
+    define(['lodash', 'knockout', 'postal'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory(require('lodash'), require('knockout'), require('postal'), require('reqwest'));
+    module.exports = factory(require('lodash'), require('knockout'), require('postal'));
   } else {
-    root.ko = factory(_, ko, postal, reqwest);
+    root.ko = factory(_, ko, postal);
   }
-}(this, function (_, ko, postal, reqwest) {
+}(this, function (_, ko, postal) {
   var windowObject = window;
 
   window.require = typeof require !== 'undefined' ? require : undefined;
@@ -37,8 +37,7 @@ var module = undefined,
     _.extend(root, {
       _: _,
       ko: ko,
-      postal: postal,
-      reqwest: reqwest
+      postal: postal
     });
 
     /**
@@ -268,7 +267,7 @@ var module = undefined,
     // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ 'riveter' ];
 
-    return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest) {
+    return (function footwork(embedded, windowObject, _, ko, postal, riveter) {
       // main.js
 // -----------
 
@@ -447,16 +446,6 @@ function disconnectNamespaceHandlers() {
   return this;
 }
 
-function onNamespaceTemplateBind(callback, context) {
-  if( !isUndefined(context) ) {
-    callback = _.bind(callback, context);
-  }
-  var handlerSubscription = this.subscribe('__elementIsBound', callback);
-  this.bindingHandlers.push(handlerSubscription);
-
-  return handlerSubscription;
-}
-
 function getNamespaceName() {
   return this.channel;
 }
@@ -490,10 +479,6 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
   namespace.event.handler = _.bind( registerNamespaceEventHandler, namespace );
   namespace.event.handler.unregister = _.bind( unregisterNamespaceHandler, namespace );
 
-  namespace.bindingHandlers = [];
-  namespace.afterBinding = _.bind( onNamespaceTemplateBind, namespace );
-  namespace.afterBinding.unregister = _.bind( unregisterNamespaceHandler, namespace );
-
   namespace.getName = _.bind( getNamespaceName, namespace );
   namespace.enter = function() {
     return enterNamespace( this );
@@ -511,7 +496,7 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
 
 // Duck type check for a namespace object
 var isNamespace = ko.isNamespace = function(thing) {
-  return !isUndefined(thing) && thing.__isNamespace;
+  return !isUndefined(thing) && !!thing.__isNamespace;
 };
 
 // Return the current namespace name.
@@ -708,7 +693,7 @@ function hasNavItems(routes) {
 }
 
 function isRouter(thing) {
-  return isObject(thing) && thing.__isRouter;
+  return isObject(thing) && !!thing.__isRouter;
 }
 
 // Recursive function which will locate the nearest $router from a given ko $context
@@ -982,12 +967,12 @@ ko.bindingHandlers.$route = {
 
 // Duck type function for determining whether or not something is a footwork viewModel constructor function
 function isViewModelCtor(thing) {
-  return isFunction(thing) && thing.__isViewModelCtor;
+  return isFunction(thing) && !!thing.__isViewModelCtor;
 }
 
 // Duck type function for determining whether or not something is a footwork viewModel
 function isViewModel(thing) {
-  return isObject(thing) && thing.__isViewModel;
+  return isObject(thing) && !!thing.__isViewModel;
 }
 
 // Initialize the viewModels registry
@@ -995,32 +980,6 @@ var viewModels = {};
 
 // Preserve the original applyBindings method for later use
 var originalApplyBindings = ko.applyBindings;
-
-// Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.
-var doNotSetContextOnRouter = false;
-var setContextOnRouter = true;
-var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetContext) {
-  originalApplyBindings(viewModel, element);
-  shouldSetContext = isUndefined(shouldSetContext) ? setContextOnRouter : shouldSetContext;
-
-  if( isViewModel(viewModel) ) {
-    var $configParams = viewModel.__getConfigParams();
-    
-    if( isFunction($configParams.afterBinding) ) {
-      $configParams.afterBinding.call(viewModel, element);
-    }
-
-    if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) ) {
-      viewModel.$router.context( ko.contextFor(element) );
-    }
-    
-    if( !isUndefined(element) ) {
-      ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-        viewModel.__shutdown();
-      });
-    }
-  }
-};
 
 // Returns the number of created viewModels for each defined namespace
 var viewModelCount = ko.viewModelCount = function() {
@@ -1081,11 +1040,13 @@ var makeViewModel = ko.viewModel = function(configParams) {
 
   var initViewModelMixin = {
     _preInit: function( initParams ) {
+      this.__isViewModel = true;
       this.$params = configParams.params;
+
       if( isObject(configParams.router) ) {
         this.$router = new Router( configParams.router, this );
       }
-      this.__isViewModel = true;
+      
       this.__getConfigParams = function() {
         return configParams;
       };
@@ -1109,7 +1070,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
       };
     },
     _postInit: function() {
-      this.$namespace.request.handler('__footwork_model_reference', function() {
+      this.$globalNamespace.request.handler('__footwork_model_reference', function() {
         return this;
       });
     }
@@ -1127,7 +1088,33 @@ var makeViewModel = ko.viewModel = function(configParams) {
   return model;
 };
 
-// Monkey patch enables the viewModel 'component' to initialize a model and bind to the html as intended
+// Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.
+var doNotSetContextOnRouter = false;
+var setContextOnRouter = true;
+var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetContext) {
+  originalApplyBindings(viewModel, element);
+  shouldSetContext = isUndefined(shouldSetContext) ? setContextOnRouter : shouldSetContext;
+
+  if( isViewModel(viewModel) ) {
+    var $configParams = viewModel.__getConfigParams();
+    
+    if( isFunction($configParams.afterBinding) ) {
+      $configParams.afterBinding.call(viewModel, element);
+    }
+
+    if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) ) {
+      viewModel.$router.context( ko.contextFor(element) );
+    }
+    
+    if( !isUndefined(element) ) {
+      ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+        viewModel.__shutdown();
+      });
+    }
+  }
+};
+
+// Monkey patch enables the viewModel 'component' to initialize a model and bind to the html as intended (with lifecycle events)
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = ko.bindingHandlers.component.init;
 ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
@@ -1145,7 +1132,7 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
       }
 
       var bindViewModel = function(ViewModel) {
-        var viewModelObj = ViewModel;
+        var viewModelObj;
         if( isFunction(ViewModel) ) {
           viewModelObj = new ViewModel(values.params);
         } else {
@@ -1220,7 +1207,7 @@ ko.components.getNormalTagList = function() {
 };
 
 ko.components.getComponentNameForNode = function(node) {
-  var tagName = node.tagName && node.tagName.toLowerCase();
+  var tagName = isString(node.tagName) && node.tagName.toLowerCase();
 
   if( ko.components.isRegistered(tagName) || _.indexOf(normalTags, tagName) === -1 ) {
     return tagName;
@@ -1667,6 +1654,6 @@ ko.extenders.delayWrite = function( target, options ) {
   });
 };
       return ko;
-    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.reqwest );
+    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter );
   })();
 }));
