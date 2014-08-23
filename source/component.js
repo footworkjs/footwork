@@ -222,9 +222,9 @@ ko.components.register('outlet', {
   template: '<!-- ko $outletBind, component: $outletRoute --><!-- /ko -->'
 });
 
-ko.components.register('empty', {
+ko.components.register('_noComponentSelected', {
   viewModel: function(params) {},
-  template: '<div class="empty component"></div>'
+  template: '<div class="no-component-selected"></div>'
 });
 
 ko.components.register('error', {
