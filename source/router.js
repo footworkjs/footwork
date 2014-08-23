@@ -189,7 +189,7 @@ Router.prototype.setup = function( $context, $parentRouter ) {
   }
   this.parentRoutePath = $parentRouter.getRoutePath();
 
-  if(this.historyIsEnabled() !== true) {
+  if( this.historyIsEnabled() !== true ) {
     if( historyReady() === true ) {
       var $router = this;
       History.Adapter.bind( windowObject, 'statechange', this.stateChange = function(url) {
@@ -243,7 +243,7 @@ Router.prototype.getRouteFor = function(url) {
     var routeRegex = routeStringToRegExp(routeString);
     var routeParamValues = url.match(routeRegex);
 
-    if(routeParamValues !== null) {
+    if( isNull(routeParamValues) === false ) {
       var routeParams = _.map(routeString.match(namedParam), function(param) {
         return param.replace(':', '');
       });

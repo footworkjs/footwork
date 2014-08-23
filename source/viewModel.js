@@ -122,6 +122,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
 // Monkey patch enables the viewModel 'component' to initialize a model and bind to the html as intended
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = ko.bindingHandlers.component.init;
+var endsInJS = /\.js$/;
 ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
   if( isString(element.tagName) === true && element.tagName.toLowerCase() === 'viewmodel' ) {
     var values = valueAccessor();
@@ -162,7 +163,7 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
           if( isPath(resourceLocation) === true ) {
             resourceLocation = resourceLocation + name;
           }
-          if( resourceLocation !== viewModelName && resourceLocation.match(/\.js$/) === null ) {
+          if( resourceLocation !== viewModelName && endsInJS.test(resourceLocation) === false ) {
             resourceLocation = resourceLocation + resourceFileExtensions.viewModel;
           }
 

@@ -12,8 +12,9 @@ var noop = function() { };
 
 var isObservable = ko.isObservable;
 
+var trailingSlash = /\/$/i;
 var isPath = function(pathOrLocation) {
-  return pathOrLocation.match(/\/$/i) !== null;
+  return trailingSlash.test(pathOrLocation) === true;
 };
 
 var isFunction = _.isFunction;

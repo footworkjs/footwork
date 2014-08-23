@@ -4964,8 +4964,9 @@ var noop = function() { };
 
 var isObservable = ko.isObservable;
 
+var trailingSlash = /\/$/i;
 var isPath = function(pathOrLocation) {
-  return pathOrLocation.match(/\/$/i) !== null;
+  return trailingSlash.test(pathOrLocation) === true;
 };
 
 var isFunction = _.isFunction;
@@ -5035,7 +5036,7 @@ var namespaceStack = [];
 // if not present and increment it if it is, then return the name (with the counter appended
 // if autoIncrement === true and the counter is > 0).
 function indexedNamespaceName(name, autoIncrement) {
-  if(namespaceNameCounter[name] === undefined) {
+  if( isUndefined(namespaceNameCounter[name]) === true ) {
     namespaceNameCounter[name] = 0;
   } else {
     namespaceNameCounter[name]++;
@@ -5548,7 +5549,7 @@ Router.prototype.setup = function( $context, $parentRouter ) {
   }
   this.parentRoutePath = $parentRouter.getRoutePath();
 
-  if(this.historyIsEnabled() !== true) {
+  if( this.historyIsEnabled() !== true ) {
     if( historyReady() === true ) {
       var $router = this;
       History.Adapter.bind( windowObject, 'statechange', this.stateChange = function(url) {
@@ -5602,7 +5603,7 @@ Router.prototype.getRouteFor = function(url) {
     var routeRegex = routeStringToRegExp(routeString);
     var routeParamValues = url.match(routeRegex);
 
-    if(routeParamValues !== null) {
+    if( isNull(routeParamValues) === false ) {
       var routeParams = _.map(routeString.match(namedParam), function(param) {
         return param.replace(':', '');
       });
@@ -5806,6 +5807,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
 // Monkey patch enables the viewModel 'component' to initialize a model and bind to the html as intended
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = ko.bindingHandlers.component.init;
+var endsInJS = /\.js$/;
 ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
   if( isString(element.tagName) === true && element.tagName.toLowerCase() === 'viewmodel' ) {
     var values = valueAccessor();
@@ -5846,7 +5848,7 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
           if( isPath(resourceLocation) === true ) {
             resourceLocation = resourceLocation + name;
           }
-          if( resourceLocation !== viewModelName && resourceLocation.match(/\.js$/) === null ) {
+          if( resourceLocation !== viewModelName && endsInJS.test(resourceLocation) === false ) {
             resourceLocation = resourceLocation + resourceFileExtensions.viewModel;
           }
 
@@ -6261,7 +6263,7 @@ ko.bindingHandlers['class'] = {
       Apollo.removeClass(element, element['__ko__previousClassValue__']);
     }
     var value = ko.utils.unwrapObservable(valueAccessor());
-    value !== undefined && Apollo.addClass(element, value);
+    isUndefined(value) === false && Apollo.addClass(element, value);
     element['__ko__previousClassValue__'] = value;
   }
 };
@@ -6349,7 +6351,7 @@ ko.extenders.delayTrigger = function( target, options ) {
     write: function( state ) {
       target( state );
 
-      if( trigger !== undefined ) {
+      if( isUndefined(trigger) === false ) {
         clearTrigger();
       }
 

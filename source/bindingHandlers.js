@@ -36,7 +36,7 @@ ko.bindingHandlers['class'] = {
       Apollo.removeClass(element, element['__ko__previousClassValue__']);
     }
     var value = ko.utils.unwrapObservable(valueAccessor());
-    value !== undefined && Apollo.addClass(element, value);
+    isUndefined(value) === false && Apollo.addClass(element, value);
     element['__ko__previousClassValue__'] = value;
   }
 };
