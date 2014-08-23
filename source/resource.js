@@ -9,14 +9,14 @@ var resourceFileExtensions = {
 
 ko.components.setFileExtensions = function(fileType, extension) {
   if( isObject(fileType) ) {
-    _.extend(resourceFileExtensions, fileType);
+    extend(resourceFileExtensions, fileType);
   } else if( !isUndefined(resourceFileExtensions[fileType]) ) {
     resourceFileExtensions[fileType] = extension;
   }
 };
 
 ko.components.getFileExtensions = function() {
-  return _.clone(resourceFileExtensions);
+  return clone(resourceFileExtensions);
 };
 
 ko.components.getNormalTagList = function() {
@@ -40,12 +40,12 @@ var defaultResourceLocation = {
 var resourceRelativeLocation = function(rootURL, returnTheValue) {
   var componentLocation = defaultResourceLocation;
   if( returnTheValue === true ) {
-    componentLocation = _.extend({}, defaultResourceLocation);
+    componentLocation = extend({}, defaultResourceLocation);
   }
 
   if( isObject(rootURL) ) {
     // assume some combination of defaultResourceLocation and normalize the parameters
-    _.extend(componentLocation, _.reduce(rootURL, function(options, paramValue, paramName) {
+    extend(componentLocation, reduce(rootURL, function(options, paramValue, paramName) {
       if(paramName === 'viewModel') {
         options.viewModels = paramValue;
         delete options.viewModel;
@@ -82,7 +82,7 @@ var componentRelativeLocation = ko.components.loadRelativeTo = function(location
 var resourceLocations = ko.resourceLocations = {};
 var registerLocationOfComponent = ko.components.registerLocationOf = function(componentName, componentLocation) {
   if( isArray(componentName) ) {
-    _.each(componentName, function(name) {
+    each(componentName, function(name) {
       registerLocationOfComponent(name, componentLocation);
     });
   }
@@ -98,7 +98,7 @@ var viewModelRelativeLocation = ko.viewModel.loadRelativeTo = function(rootURL, 
 
 var registerLocationOfViewModel = ko.viewModel.registerLocationOf = function(viewModelName, viewModelLocation) {
   if( isArray(viewModelName) ) {
-    _.each(viewModelName, function(name) {
+    each(viewModelName, function(name) {
       registerLocationOfViewModel(name, viewModelLocation);
     });
   }

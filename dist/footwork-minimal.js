@@ -4289,6 +4289,18 @@ var isNumber = _.isNumber;
 var isUndefined = _.isUndefined;
 var isArray = _.isArray;
 var isNull = _.isNull;
+var contains = _.contains;
+var extend = _.extend;
+var pick = _.pick;
+var each = _.each;
+var filter = _.filter;
+var bind = _.bind;
+var invoke = _.invoke;
+var clone = _.clone;
+var reduce = _.reduce;
+var has = _.has;
+var where = _.where;
+var result = _.result;
 
 // Registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];
@@ -4354,7 +4366,7 @@ function triggerEventOnNamespace(eventKey, params, expires) {
 // Method used to register an event handler on a namespace
 function registerNamespaceEventHandler(eventKey, callback, context) {
   if( !isUndefined(context) ) {
-    callback = _.bind(callback, context);
+    callback = bind(callback, context);
   }
 
   var handlerSubscription = this.subscribe('event.' + eventKey, callback).enlistPreserved();
@@ -4378,7 +4390,7 @@ function sendCommandToNamespace(commandKey, params, expires) {
 // Method used to register a command handler on a namespace
 function registerNamespaceCommandHandler(requestKey, callback, context) {
   if( !isUndefined(context) ) {
-    callback = _.bind(callback, context);
+    callback = bind(callback, context);
   }
 
   var handlerSubscription = this.subscribe('command.' + requestKey, callback).enlistPreserved();
@@ -4415,10 +4427,10 @@ function requestResponseFromNamespace(requestKey, params) {
 // Requests sent using the specified requestKey will be called and passed in any params specified, the return value is passed back to the issuer
 function registerNamespaceRequestHandler(requestKey, callback, context) {
   if( !isUndefined(context) ) {
-    callback = _.bind(callback, context);
+    callback = bind(callback, context);
   }
 
-  var requestHandler = _.bind(function(params) {
+  var requestHandler = bind(function(params) {
     var callbackResponse = callback(params);
     this.publish( createEnvelope('request.' + requestKey + '.response', callbackResponse) );
   }, this);
@@ -4431,9 +4443,9 @@ function registerNamespaceRequestHandler(requestKey, callback, context) {
 
 // This effectively shuts down all requests, commands, and events by unsubscribing all handlers on a discreet namespace object
 function disconnectNamespaceHandlers() {
-  _.invoke(this.requestHandlers, 'unsubscribe');
-  _.invoke(this.commandHandlers, 'unsubscribe');
-  _.invoke(this.eventHandlers, 'unsubscribe');
+  invoke(this.requestHandlers, 'unsubscribe');
+  invoke(this.commandHandlers, 'unsubscribe');
+  invoke(this.eventHandlers, 'unsubscribe');
   return this;
 }
 
@@ -4453,24 +4465,24 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
   var namespace = postal.channel(namespaceName);
 
   namespace.__isNamespace = true;
-  namespace.shutdown = _.bind( disconnectNamespaceHandlers, namespace );
+  namespace.shutdown = bind( disconnectNamespaceHandlers, namespace );
 
   namespace.commandHandlers = [];
-  namespace.command = _.bind( sendCommandToNamespace, namespace );
-  namespace.command.handler = _.bind( registerNamespaceCommandHandler, namespace );
-  namespace.command.handler.unregister = _.bind( unregisterNamespaceHandler, namespace );
+  namespace.command = bind( sendCommandToNamespace, namespace );
+  namespace.command.handler = bind( registerNamespaceCommandHandler, namespace );
+  namespace.command.handler.unregister = bind( unregisterNamespaceHandler, namespace );
 
   namespace.requestHandlers = [];
-  namespace.request = _.bind( requestResponseFromNamespace, namespace );
-  namespace.request.handler = _.bind( registerNamespaceRequestHandler, namespace );
-  namespace.request.handler.unregister = _.bind( unregisterNamespaceHandler, namespace );
+  namespace.request = bind( requestResponseFromNamespace, namespace );
+  namespace.request.handler = bind( registerNamespaceRequestHandler, namespace );
+  namespace.request.handler.unregister = bind( unregisterNamespaceHandler, namespace );
 
   namespace.eventHandlers = [];
-  namespace.event = namespace.triggerEvent = _.bind( triggerEventOnNamespace, namespace );
-  namespace.event.handler = _.bind( registerNamespaceEventHandler, namespace );
-  namespace.event.handler.unregister = _.bind( unregisterNamespaceHandler, namespace );
+  namespace.event = namespace.triggerEvent = bind( triggerEventOnNamespace, namespace );
+  namespace.event.handler = bind( registerNamespaceEventHandler, namespace );
+  namespace.event.handler.unregister = bind( unregisterNamespaceHandler, namespace );
 
-  namespace.getName = _.bind( getNamespaceName, namespace );
+  namespace.getName = bind( getNamespaceName, namespace );
   namespace.enter = function() {
     return enterNamespace( this );
   };
@@ -4593,7 +4605,7 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
         writable: option
       };
     } else if( isObject(option) ) {
-      option = _.extend({
+      option = extend({
         name: varName
       }, option);
     } else {
@@ -4671,12 +4683,12 @@ function routeStringToRegExp(routeString) {
 }
 
 function historyIsReady() {
-  return _.has(History, 'Adapter');
+  return has(History, 'Adapter');
 }
 
 function extractNavItems(routes) {
   routes = ( isArray(routes) ? routes : [routes] );
-  return _.where(routes, { nav: true });
+  return where(routes, { nav: true });
 }
 
 function hasNavItems(routes) {
@@ -4743,8 +4755,8 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.parentRoutePath = '';
   this.context = ko.observable();
 
-  this.config = routerConfig = _.extend({}, routerDefaultConfig, routerConfig);
-  var configBaseRoute = _.result(routerConfig, 'baseRoute');
+  this.config = routerConfig = extend({}, routerDefaultConfig, routerConfig);
+  var configBaseRoute = result(routerConfig, 'baseRoute');
   this.config.baseRoute = Router.baseRoute() + (configBaseRoute || '');
 
   this.$namespace = makeNamespace( routerConfig.namespace );
@@ -4754,7 +4766,7 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.currentState = ko.observable('').broadcastAs('currentState');
   this.navModelUpdate = ko.observable();
   this.outlets = {};
-  this.$outlet = _.bind( $routerOutlet, this );
+  this.$outlet = bind( $routerOutlet, this );
 
   this.setRoutes( routerConfig.routes );
 
@@ -4777,7 +4789,7 @@ Router.baseRoute.subscribe(function(newBaseRoute) {
 });
 
 Router.prototype.unknownRoute = function() {
-  return ( !isUndefined(this.config) ? _.result(this.config.unknownRoute) : undefined);
+  return ( !isUndefined(this.config) ? result(this.config.unknownRoute) : undefined);
 };
 
 Router.prototype.setRoutes = function(route) {
@@ -4868,7 +4880,7 @@ Router.prototype.normalizeURL = function(url, cancelInitialPath) {
 
 Router.prototype.getRouteFor = function(url) {
   var route = null;
-  _.each(this.getRoutes(), function(routeDesc) {
+  each(this.getRoutes(), function(routeDesc) {
     var routeString = routeDesc.route;
     var routeRegex = routeStringToRegExp(routeString);
     var routeParamValues = url.match(routeRegex);
@@ -4882,7 +4894,7 @@ Router.prototype.getRouteFor = function(url) {
         controller: routeDesc.controller,
         title: routeDesc.title,
         url: routeParamValues[0],
-        params: _.reduce(routeParams, function(parameters, parameterName, index) {
+        params: reduce(routeParams, function(parameters, parameterName, index) {
             parameters[parameterName] = routeParamValues[index + 1];
             return parameters;
           }, {})
@@ -4900,7 +4912,7 @@ Router.prototype.getActionForURL = function(url) {
 
   if( !isNull(route) ) {
     Action = function($viewModel, $outlet, params) {
-      route.controller.call( $viewModel, $outlet, _.extend(route.params, params), route );
+      route.controller.call( $viewModel, $outlet, extend(route.params, params), route );
     };
     Action.route = route;
   }
@@ -4924,7 +4936,7 @@ Router.prototype.navigationModel = function(predicate) {
   if( isUndefined(this.navigationModel) ) {
     this.navigationModel = ko.computed(function() {
       this.navModelUpdate(); // dummy reference used to trigger updates
-      return _.filter(
+      return filter(
         extractNavItems(routes),
         (predicate || function() { return true; })
       );
@@ -4974,11 +4986,11 @@ var originalApplyBindings = ko.applyBindings;
 
 // Returns the number of created viewModels for each defined namespace
 var viewModelCount = ko.viewModelCount = function() {
-  var counts = _.reduce(namespaceNameCounter, function(viewModelCounts, viewModelCount, viewModelName) {
+  var counts = reduce(namespaceNameCounter, function(viewModelCounts, viewModelCount, viewModelName) {
     viewModelCounts[viewModelName] = viewModelCount + 1;
     return viewModelCounts;
   }, {});
-  counts.__total = _.reduce(_.values(counts), function(summation, num) {
+  counts.__total = reduce(_.values(counts), function(summation, num) {
     return summation + num;
   }, 0);
   return counts;
@@ -4995,7 +5007,7 @@ var getViewModels = ko.getViewModels = function(namespaceName) {
 
 // Tell all viewModels to request the values which it listens for
 var refreshModels = ko.refreshViewModels = function() {
-  _.invoke(getViewModels(), 'refreshReceived');
+  invoke(getViewModels(), 'refreshReceived');
 };
 
 var defaultViewModelConfigParams = {
@@ -5020,7 +5032,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
     afterInit = configParams.afterInit || noop;
   }
   afterInit = { _postInit: afterInit };
-  configParams = _.extend({}, defaultViewModelConfigParams, configParams);
+  configParams = extend({}, defaultViewModelConfigParams, configParams);
 
   var originalAfterBinding = configParams.afterBinding;
   configParams.afterBinding = function() {
@@ -5049,7 +5061,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
           configParams.afterDispose.call(this);
         }
 
-        _.each(this, function( property ) {
+        each(this, function( property ) {
           if( isNamespace(property) || isRouter(property) ) {
             property.shutdown();
           }
@@ -5132,7 +5144,7 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
 
         // binding the viewModelObj onto each child element is not ideal, need to do this differently
         // cannot get component.preprocess() method to work/be called for some reason
-        _.each(element.children, function(child) {
+        each(element.children, function(child) {
           applyBindings(viewModelObj, child, doNotSetContextOnRouter);
         });
 
@@ -5183,14 +5195,14 @@ var resourceFileExtensions = {
 
 ko.components.setFileExtensions = function(fileType, extension) {
   if( isObject(fileType) ) {
-    _.extend(resourceFileExtensions, fileType);
+    extend(resourceFileExtensions, fileType);
   } else if( !isUndefined(resourceFileExtensions[fileType]) ) {
     resourceFileExtensions[fileType] = extension;
   }
 };
 
 ko.components.getFileExtensions = function() {
-  return _.clone(resourceFileExtensions);
+  return clone(resourceFileExtensions);
 };
 
 ko.components.getNormalTagList = function() {
@@ -5214,12 +5226,12 @@ var defaultResourceLocation = {
 var resourceRelativeLocation = function(rootURL, returnTheValue) {
   var componentLocation = defaultResourceLocation;
   if( returnTheValue === true ) {
-    componentLocation = _.extend({}, defaultResourceLocation);
+    componentLocation = extend({}, defaultResourceLocation);
   }
 
   if( isObject(rootURL) ) {
     // assume some combination of defaultResourceLocation and normalize the parameters
-    _.extend(componentLocation, _.reduce(rootURL, function(options, paramValue, paramName) {
+    extend(componentLocation, reduce(rootURL, function(options, paramValue, paramName) {
       if(paramName === 'viewModel') {
         options.viewModels = paramValue;
         delete options.viewModel;
@@ -5256,7 +5268,7 @@ var componentRelativeLocation = ko.components.loadRelativeTo = function(location
 var resourceLocations = ko.resourceLocations = {};
 var registerLocationOfComponent = ko.components.registerLocationOf = function(componentName, componentLocation) {
   if( isArray(componentName) ) {
-    _.each(componentName, function(name) {
+    each(componentName, function(name) {
       registerLocationOfComponent(name, componentLocation);
     });
   }
@@ -5272,7 +5284,7 @@ var viewModelRelativeLocation = ko.viewModel.loadRelativeTo = function(rootURL, 
 
 var registerLocationOfViewModel = ko.viewModel.registerLocationOf = function(viewModelName, viewModelLocation) {
   if( isArray(viewModelName) ) {
-    _.each(viewModelName, function(name) {
+    each(viewModelName, function(name) {
       registerLocationOfViewModel(name, viewModelLocation);
     });
   }
@@ -5338,17 +5350,17 @@ var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponen
   isComponent = ( isUndefined(isComponent) ? true : isComponent );
 
   if( isArray(tagName) ) {
-    _.each(tagName, function(tag) {
+    each(tagName, function(tag) {
       tagIsComponent(tag, isComponent);
     });
   }
 
   if(isComponent !== true) {
-    if( _.contains(normalTags, tagName) === false ) {
+    if( contains(normalTags, tagName) === false ) {
       normalTags.push(tagName);
     }
   } else {
-    normalTags = _.filter(normalTags, function(normalTagName) {
+    normalTags = filter(normalTags, function(normalTagName) {
       return normalTagName !== tagName;
     });
   }

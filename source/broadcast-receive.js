@@ -51,7 +51,7 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
         writable: option
       };
     } else if( isObject(option) ) {
-      option = _.extend({
+      option = extend({
         name: varName
       }, option);
     } else {
