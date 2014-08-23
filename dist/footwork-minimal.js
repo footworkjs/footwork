@@ -5124,9 +5124,10 @@ var originalComponentInit = ko.bindingHandlers.component.init;
 ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
   var theValueAccessor = valueAccessor;
   if( isString(element.tagName) ) {
-    if( element.tagName.toLowerCase() === 'viewmodel' ) {
+    var tagName = element.tagName.toLowerCase();
+    if( tagName === 'viewmodel' ) {
       var values = valueAccessor();
-      var name = element.getAttribute('name') || element.getAttribute('data-name');
+      var name = element.getAttribute('module') || element.getAttribute('data-module');
 
       if( !isUndefined(name) ) {
         var viewModelName = ko.unwrap(values.params.name);
@@ -5183,8 +5184,8 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
       }
 
       return { 'controlsDescendantBindings': true };
-    } else if( element.tagName.toLowerCase() === 'outlet' ) {
-      // we patch in the 'name' of the outlet into the params valueAccessor on the component definition
+    } else if( tagName === 'outlet' ) {
+      // we patch in the 'name' of the outlet into the params valueAccessor on the component definition (if necessary and available)
       var outletName = element.getAttribute('name');
       if( outletName ) {
         theValueAccessor = function() {
