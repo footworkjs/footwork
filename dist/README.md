@@ -23,7 +23,6 @@
     You will need to provide (via either &lt;script&gt; includes, requirejs, browserify, etc)
     * 'lodash' - http://lodash.com/ (footwork uses lodash.underscore.js natively)
     * 'knockout' - http://knockoutjs.com/
-    * 'reqwest' - https://github.com/ded/reqwest
     * 'postal' - https://github.com/postaljs/postal.js/
       * 'conduitjs' - https://github.com/ifandelse/ConduitJS
 

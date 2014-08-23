@@ -3,12 +3,12 @@
 
 // Duck type function for determining whether or not something is a footwork viewModel constructor function
 function isViewModelCtor(thing) {
-  return isFunction(thing) && thing.__isViewModelCtor;
+  return isFunction(thing) && !!thing.__isViewModelCtor;
 }
 
 // Duck type function for determining whether or not something is a footwork viewModel
 function isViewModel(thing) {
-  return isObject(thing) && thing.__isViewModel;
+  return isObject(thing) && !!thing.__isViewModel;
 }
 
 // Initialize the viewModels registry
@@ -16,32 +16,6 @@ var viewModels = {};
 
 // Preserve the original applyBindings method for later use
 var originalApplyBindings = ko.applyBindings;
-
-// Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.
-var doNotSetContextOnRouter = false;
-var setContextOnRouter = true;
-var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetContext) {
-  originalApplyBindings(viewModel, element);
-  shouldSetContext = isUndefined(shouldSetContext) ? setContextOnRouter : shouldSetContext;
-
-  if( isViewModel(viewModel) ) {
-    var $configParams = viewModel.__getConfigParams();
-    
-    if( isFunction($configParams.afterBinding) ) {
-      $configParams.afterBinding.call(viewModel, element);
-    }
-
-    if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) ) {
-      viewModel.$router.context( ko.contextFor(element) );
-    }
-    
-    if( !isUndefined(element) ) {
-      ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-        viewModel.__shutdown();
-      });
-    }
-  }
-};
 
 // Returns the number of created viewModels for each defined namespace
 var viewModelCount = ko.viewModelCount = function() {
@@ -102,11 +76,13 @@ var makeViewModel = ko.viewModel = function(configParams) {
 
   var initViewModelMixin = {
     _preInit: function( initParams ) {
+      this.__isViewModel = true;
       this.$params = configParams.params;
+
       if( isObject(configParams.router) ) {
         this.$router = new Router( configParams.router, this );
       }
-      this.__isViewModel = true;
+      
       this.__getConfigParams = function() {
         return configParams;
       };
@@ -130,7 +106,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
       };
     },
     _postInit: function() {
-      this.$namespace.request.handler('__footwork_model_reference', function() {
+      this.$globalNamespace.request.handler('__footwork_model_reference', function() {
         return this;
       });
     }
@@ -148,7 +124,33 @@ var makeViewModel = ko.viewModel = function(configParams) {
   return model;
 };
 
-// Monkey patch enables the viewModel 'component' to initialize a model and bind to the html as intended
+// Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.
+var doNotSetContextOnRouter = false;
+var setContextOnRouter = true;
+var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetContext) {
+  originalApplyBindings(viewModel, element);
+  shouldSetContext = isUndefined(shouldSetContext) ? setContextOnRouter : shouldSetContext;
+
+  if( isViewModel(viewModel) ) {
+    var $configParams = viewModel.__getConfigParams();
+    
+    if( isFunction($configParams.afterBinding) ) {
+      $configParams.afterBinding.call(viewModel, element);
+    }
+
+    if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) ) {
+      viewModel.$router.context( ko.contextFor(element) );
+    }
+    
+    if( !isUndefined(element) ) {
+      ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+        viewModel.__shutdown();
+      });
+    }
+  }
+};
+
+// Monkey patch enables the viewModel 'component' to initialize a model and bind to the html as intended (with lifecycle events)
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = ko.bindingHandlers.component.init;
 ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
@@ -166,7 +168,7 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
       }
 
       var bindViewModel = function(ViewModel) {
-        var viewModelObj = ViewModel;
+        var viewModelObj;
         if( isFunction(ViewModel) ) {
           viewModelObj = new ViewModel(values.params);
         } else {

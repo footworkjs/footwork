@@ -135,16 +135,6 @@ function disconnectNamespaceHandlers() {
   return this;
 }
 
-function onNamespaceTemplateBind(callback, context) {
-  if( !isUndefined(context) ) {
-    callback = _.bind(callback, context);
-  }
-  var handlerSubscription = this.subscribe('__elementIsBound', callback);
-  this.bindingHandlers.push(handlerSubscription);
-
-  return handlerSubscription;
-}
-
 function getNamespaceName() {
   return this.channel;
 }
@@ -178,10 +168,6 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
   namespace.event.handler = _.bind( registerNamespaceEventHandler, namespace );
   namespace.event.handler.unregister = _.bind( unregisterNamespaceHandler, namespace );
 
-  namespace.bindingHandlers = [];
-  namespace.afterBinding = _.bind( onNamespaceTemplateBind, namespace );
-  namespace.afterBinding.unregister = _.bind( unregisterNamespaceHandler, namespace );
-
   namespace.getName = _.bind( getNamespaceName, namespace );
   namespace.enter = function() {
     return enterNamespace( this );
@@ -199,7 +185,7 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
 
 // Duck type check for a namespace object
 var isNamespace = ko.isNamespace = function(thing) {
-  return !isUndefined(thing) && thing.__isNamespace;
+  return !isUndefined(thing) && !!thing.__isNamespace;
 };
 
 // Return the current namespace name.

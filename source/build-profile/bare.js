@@ -1,12 +1,12 @@
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['lodash', 'knockout', 'postal', 'reqwest'], factory);
+    define(['lodash', 'knockout', 'postal'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory(require('lodash'), require('knockout'), require('postal'), require('reqwest'));
+    module.exports = factory(require('lodash'), require('knockout'), require('postal'));
   } else {
-    root.ko = factory(_, ko, postal, reqwest);
+    root.ko = factory(_, ko, postal);
   }
-}(this, function (_, ko, postal, reqwest) {
+}(this, function (_, ko, postal) {
   var windowObject = window;
 
   window.require = typeof require !== 'undefined' ? require : undefined;
@@ -17,8 +17,7 @@
     _.extend(root, {
       _: _,
       ko: ko,
-      postal: postal,
-      reqwest: reqwest
+      postal: postal
     });
 
     /**
@@ -39,9 +38,9 @@
     // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ 'riveter' ];
 
-    return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest) {
+    return (function footwork(embedded, windowObject, _, ko, postal, riveter) {
       //import("../main.js");
       return ko;
-    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.reqwest );
+    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter );
   })();
 }));
