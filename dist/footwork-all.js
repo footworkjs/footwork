@@ -10055,14 +10055,17 @@ ko._footworkVersion = '0.2.0';
 // Expose any embedded dependencies
 ko.embed = embedded;
 
+// misc regex patterns
+var hasTrailingSlash = /\/$/i;
+var endsInDotJS = /\.js$/;
+
 // misc utility functions
 var noop = function() { };
 
 var isObservable = ko.isObservable;
 
-var trailingSlash = /\/$/i;
 var isPath = function(pathOrLocation) {
-  return trailingSlash.test(pathOrLocation) === true;
+  return hasTrailingSlash.test(pathOrLocation) === true;
 };
 
 var isFunction = _.isFunction;
@@ -10074,44 +10077,15 @@ var isUndefined = _.isUndefined;
 var isArray = _.isArray;
 var isNull = _.isNull;
 
+// Registry which stores the mixins that are automatically added to each viewModel
+var viewModelMixins = [];
+
 // Initialize the debugLevel observable, this controls
 // what level of debug statements are logged to the console
 // 0 === off
 // 1 === errors / problems only
 // 2 === notices (very noisy)
 ko.debugLevel = ko.observable(1);
-
-// Preserve the original applyBindings method for later use
-var originalApplyBindings = ko.applyBindings;
-
-// Override the original applyBindings method to provide and enable 'viewModel' life-cycle hooks/events.
-var doNotSetContextOnRouter = false;
-var setContextOnRouter = true;
-var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetContext) {
-  originalApplyBindings(viewModel, element);
-  shouldSetContext = isUndefined(shouldSetContext) === true ? setContextOnRouter : shouldSetContext;
-
-  if( isViewModel(viewModel) === true ) {
-    var $configParams = viewModel.__getConfigParams();
-    
-    if( isFunction($configParams.afterBinding) === true ) {
-      $configParams.afterBinding.call(viewModel, element);
-    }
-
-    if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) === true ) {
-      viewModel.$router.context( ko.contextFor(element) );
-    }
-    
-    if( isUndefined(element) === false ) {
-      ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-        viewModel.__shutdown();
-      });
-    }
-  }
-};
-
-// This stores the mixins which are automatically added to each viewModel
-var viewModelMixins = [];
 
 // namespace.js
 // ------------------
@@ -10795,6 +10769,35 @@ function isViewModel(thing) {
 // Initialize the viewModels registry
 var viewModels = {};
 
+// Preserve the original applyBindings method for later use
+var originalApplyBindings = ko.applyBindings;
+
+// Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.
+var doNotSetContextOnRouter = false;
+var setContextOnRouter = true;
+var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetContext) {
+  originalApplyBindings(viewModel, element);
+  shouldSetContext = isUndefined(shouldSetContext) === true ? setContextOnRouter : shouldSetContext;
+
+  if( isViewModel(viewModel) === true ) {
+    var $configParams = viewModel.__getConfigParams();
+    
+    if( isFunction($configParams.afterBinding) === true ) {
+      $configParams.afterBinding.call(viewModel, element);
+    }
+
+    if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) === true ) {
+      viewModel.$router.context( ko.contextFor(element) );
+    }
+    
+    if( isUndefined(element) === false ) {
+      ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+        viewModel.__shutdown();
+      });
+    }
+  }
+};
+
 // Returns the number of created viewModels for each defined namespace
 var viewModelCount = ko.viewModelCount = function() {
   var counts = _.reduce(namespaceNameCounter, function(viewModelCounts, viewModelCount, viewModelName) {
@@ -10903,7 +10906,6 @@ var makeViewModel = ko.viewModel = function(configParams) {
 // Monkey patch enables the viewModel 'component' to initialize a model and bind to the html as intended
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = ko.bindingHandlers.component.init;
-var endsInJS = /\.js$/;
 ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
   if( isString(element.tagName) === true && element.tagName.toLowerCase() === 'viewmodel' ) {
     var values = valueAccessor();
@@ -10944,7 +10946,7 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
           if( isPath(resourceLocation) === true ) {
             resourceLocation = resourceLocation + name;
           }
-          if( resourceLocation !== viewModelName && endsInJS.test(resourceLocation) === false ) {
+          if( resourceLocation !== viewModelName && endsInDotJS.test(resourceLocation) === false ) {
             resourceLocation = resourceLocation + resourceFileExtensions.viewModel;
           }
 
