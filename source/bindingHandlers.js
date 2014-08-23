@@ -13,13 +13,13 @@ ko.bindingHandlers.registerElement = {
         context: 'relative'
       };
 
-    if (typeof elOption === 'string') {
+    if ( _.isString(elOption) === true ) {
       elOption = _.extend(defaultOptions, { name: elOption });
-    } else if (typeof elOption === 'object') {
+    } else if ( _.isObject(elOption) === true ) {
       elOption = _.extend(defaultOptions, elOption);
     }
 
-    if (typeof viewModel.el !== 'object') {
+    if ( _.isObject(viewModel.el) === false ) {
       viewModel.el = {};
     }
 
