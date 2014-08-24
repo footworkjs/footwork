@@ -892,8 +892,7 @@ Router.prototype.startup = function( $context, $parentRouter ) {
     if( historyIsReady() ) {
       var $router = this;
       History.Adapter.bind( windowObject, 'statechange', this.stateChange = function(url) {
-        var url = $router.normalizeURL.call( $router, ( isString(url) ? url : History.getState().url ) );
-        $router.currentState( url );
+        $router.currentState( $router.normalizeURL( ( isString(url) ? url : History.getState().url ) ) );
       });
       this.historyIsEnabled(true);
     } else {
