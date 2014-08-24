@@ -9903,9 +9903,11 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   }, this);
 
   this.currentAction.subscribe(function( Action ) {
-    Action( this.$viewModel, this.$outlet );
+    Action();
   }, this);
   this.currentState('');
+
+  // var isRelative = (this.config.relativeToParent && this.$parentRouter !== $nullRouter);
 
   this.navModelUpdate = ko.observable();
   this.outlets = {};
@@ -9968,7 +9970,7 @@ Router.prototype.stateChange = function(url) {
   if( !isString(url) && this.historyIsEnabled() ) {
     url = History.getState().url;
   }
-  
+
   if( isString(url) ) {
     this.currentState( this.normalizeURL(url) );
   }
@@ -10004,13 +10006,11 @@ Router.prototype.shutdown = function() {
 };
 
 Router.prototype.normalizeURL = function(url) {
-  var isRelative = (!this.config.relativeToParent || this.$parentRouter !== $nullRouter);
-
-  if( isRelative && url.indexOf(windowObject.location.origin) === 0 ) {
+  if( url.indexOf(windowObject.location.origin) === 0 ) {
     url = url.substr(windowObject.location.origin.length);
   }
 
-  if( isRelative && !isNull(this.config.baseRoute) && url.indexOf(this.config.baseRoute) === 0 ) {
+  if( !isNull(this.config.baseRoute) && url.indexOf(this.config.baseRoute) === 0 ) {
     url = url.substr(this.config.baseRoute.length);
     if(url.length > 1) {
       url = url.replace(hashMatch, '/');
@@ -10031,14 +10031,21 @@ Router.prototype.getRouteForURL = function(url) {
         return param.replace(':', '');
       });
 
+      var namedParams = reduce(routeParams, function(parameters, parameterName, index) {
+        parameters[parameterName] = routeParamValues[index + 1];
+        return parameters;
+      }, {});
+
       route = {
         controller: routeDesc.controller,
         title: routeDesc.title,
         url: routeParamValues[0],
-        params: reduce(routeParams, function(parameters, parameterName, index) {
-            parameters[parameterName] = routeParamValues[index + 1];
-            return parameters;
-          }, {})
+        indexedParams: routeParamValues,
+        namedParams: namedParams,
+        allParams: _.extend( {}, namedParams, reduce(routeParamValues, function(params, routeParamValue, index) {
+            params[index] = routeParamValue;
+            return params;
+          }, {}) )
       };
     }
   });
@@ -10047,10 +10054,11 @@ Router.prototype.getRouteForURL = function(url) {
 
 Router.prototype.getActionForRoute = function(route) {
   var Action = noop;
+  var $router = this;
 
   if( route ) {
-    Action = function($viewModel, $outlet, params) {
-      route.controller.call( $viewModel, $outlet, extend(route.params, params), route );
+    Action = function() {
+      route.controller.call( $router.$viewModel, $router.$outlet, route );
     };
   }
 
