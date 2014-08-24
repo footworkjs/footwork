@@ -359,19 +359,19 @@ Router.prototype.getRouteForURL = function(url) {
         return param.replace(':', '');
       } );
 
-      var namedParams = reduce(routeParams, function(parameters, parameterName, index) {
-        parameters[parameterName] = routeParamValues[index + 1];
-        return parameters;
-      }, {});
+      var namedParams = ;
 
       route = _.extend({}, baseRoute, {
         id: routeDesc.id,
         controller: routeDesc.controller,
         title: routeDesc.title,
         url: url,
-        indexedParams: routeParamValues,
-        namedParams: namedParams,
         routeSegment: url.substr(0, url.length - splatResult.length)
+        indexedParams: routeParamValues,
+        namedParams: reduce(routeParams, function(parameters, parameterName, index) {
+            parameters[parameterName] = routeParamValues[index + 1];
+            return parameters;
+          }, {}),
       });
     }
   });
