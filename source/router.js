@@ -200,8 +200,12 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   }, this);
 
   // Automatically trigger the new Action() whenever the currentRoute() updates
+  var oldRoute;
   this.currentRoute.subscribe(function( newRoute ) {
-    this.getActionForRoute( this.currentRoute() )( /* get and call the action for the newRoute */ );
+    if( isUndefined(oldRoute) || oldRoute.id !== newRoute.id ) {
+      this.getActionForRoute( this.currentRoute() )( /* get and call the action for the newRoute */ );
+      oldRoute = newRoute;
+    }
   }, this);
 
   this.childRouters.subscribe(function( childRouters ) {
@@ -361,6 +365,7 @@ Router.prototype.getRouteForURL = function(url) {
       }, {});
 
       route = _.extend({}, baseRoute, {
+        id: routeDesc.id,
         controller: routeDesc.controller,
         title: routeDesc.title,
         url: url,
