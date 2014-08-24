@@ -1009,7 +1009,7 @@ Router.prototype.getRouteForURL = function(url) {
         splatResult = routeParamValues.pop();
       }
 
-      var routeParams = _.map( routeString.match(namedParam), function(param) {
+      var routeParamNames = _.map( routeString.match(namedParam), function(param) {
         return param.replace(':', '');
       } );
 
@@ -1020,9 +1020,9 @@ Router.prototype.getRouteForURL = function(url) {
         url: url,
         routeSegment: url.substr(0, url.length - splatResult.length),
         indexedParams: routeParamValues,
-        namedParams: reduce(routeParams, function(parameters, parameterName, index) {
-            parameters[parameterName] = routeParamValues[index + 1];
-            return parameters;
+        namedParams: reduce(routeParamNames, function(parameterNames, parameterName, index) {
+            parameterNames[parameterName] = routeParamValues[index + 1];
+            return parameterNames;
           }, {})
       });
     }
