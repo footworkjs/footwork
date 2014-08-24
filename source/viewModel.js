@@ -108,7 +108,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
       };
     },
     _postInit: function() {
-      this.$globalNamespace.request.handler('__footwork_model_reference', function() {
+      this.$globalNamespace.request.handler('__model_reference', function() {
         return this;
       });
     }

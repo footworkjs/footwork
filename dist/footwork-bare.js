@@ -764,23 +764,63 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
   return outlets[outletName];
 };
 
+var invalidRoutePathIdentifier = '___invalid-route';
 var $nullRouter = { getRoutePath: function() { return ''; } };
 var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.__isRouter = true;
   this.$viewModel = $viewModel;
   this.$parentRouter = $nullRouter;
-  this.parentRoutePath = '';
+  this.parentRoutePath = ko.observable('');
   this.context = ko.observable();
 
   this.config = routerConfig = extend({}, routerDefaultConfig, routerConfig);
   var configBaseRoute = result(routerConfig, 'baseRoute');
   this.config.baseRoute = Router.baseRoute() + (configBaseRoute || '');
 
+  var $router = this;
+  this.$globalNamespace = makeNamespace();
+  this.$globalNamespace.request.handler('__router_reference', function() {
+    return $router;
+  });
+
   this.$namespace = makeNamespace( routerConfig.namespace );
   this.$namespace.enter();
 
   this.historyIsEnabled = ko.observable(false).broadcastAs('historyIsEnabled');
-  this.currentState = ko.observable('').broadcastAs('currentState');
+  this.currentState = ko.observable().broadcastAs('currentState');
+  
+  this.routePath = ko.computed(function() {
+    var routeIndex;
+    var routePath = this.currentState() || '';
+    var parentRoutePath = this.parentRoutePath();
+
+    if( routePath.length > 0 ) {
+      // must substract parentRoute path
+      if( parentRoutePath.length > 0 ) {
+        if( ( routeIndex = routePath.indexOf(parentRoutePath) ) === 0 ) {
+          routePath = routePath.substr(routeIndex);
+        } else {
+          return invalidRoutePathIdentifier;
+        }
+      }
+    }
+    return routePath;
+  }, this);
+  
+  this.currentRoute = ko.computed(function() {
+    var routePath = this.routePath();
+    return this.getRouteFor(routePath);
+  }, this);
+
+  this.currentAction = ko.computed(function() {
+    return this.getActionForRoute( this.currentRoute() );
+  }, this);
+
+  this.currentAction.subscribe(function( Action ) {
+    Action( this.$viewModel, this.$outlet );
+  }, this);
+  this.currentState('');
+
   this.navModelUpdate = ko.observable();
   this.outlets = {};
   this.$outlet = bind( $routerOutlet, this );
@@ -798,7 +838,12 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
 
   this.$namespace.exit();
 };
-Router.baseRoute = ko.observable();
+Router.baseRoute = ko.observable('');
+
+// Return array of all currently instantiated $router's
+Router.getAllRouters = function() {
+  return makeNamespace().request('__router_reference');
+};
 
 Router.prototype.unknownRoute = function() {
   return ( !isUndefined(this.config) ? result(this.config.unknownRoute) : undefined);
@@ -828,7 +873,7 @@ Router.prototype.activate = function($context, $parentRouter) {
 };
 
 Router.prototype.getRoutePath = function() {
-  var routePath = this.parentRoutePath || '';
+  var routePath = this.parentRoutePath() || '';
 
   return routePath + this.currentState();
 };
@@ -841,20 +886,14 @@ Router.prototype.startup = function( $context, $parentRouter ) {
   } else if( isObject($context) ) {
     this.$parentRouter = $parentRouter = nearestParentRouter($context);
   }
-  this.parentRoutePath = $parentRouter.getRoutePath();
+  this.parentRoutePath($parentRouter.getRoutePath());
 
   if( this.historyIsEnabled() !== true ) {
     if( historyIsReady() ) {
       var $router = this;
       History.Adapter.bind( windowObject, 'statechange', this.stateChange = function(url) {
-        var url = $router.normalizeURL.call($router, ( isString(url) ? url : History.getState().url ), $router.parentRoutePath);
+        var url = $router.normalizeURL.call( $router, ( isString(url) ? url : History.getState().url ) );
         $router.currentState( url );
-
-        // get and run the action for the specified route
-        var Action = $router.getActionForURL(url);
-        Action( $router.$viewModel, $router.$outlet );
-        $router.currentRoute = Action.route;
-        return $router;
       });
       this.historyIsEnabled(true);
     } else {
@@ -867,9 +906,11 @@ Router.prototype.startup = function( $context, $parentRouter ) {
 
 Router.prototype.shutdown = function() {
   delete this.stateChange;
+  this.$namespace.shutdown();
+  this.$globalNamespace.shutdown();
 };
 
-Router.prototype.normalizeURL = function(url, cancelInitialPath) {
+Router.prototype.normalizeURL = function(url) {
   var isRelative = (!this.config.relativeToParent || this.$parentRouter !== $nullRouter);
 
   if( isRelative && url.indexOf(windowObject.location.origin) === 0 ) {
@@ -911,21 +952,17 @@ Router.prototype.getRouteFor = function(url) {
   return route;
 };
 
-Router.prototype.getActionForURL = function(url) {
+Router.prototype.getActionForRoute = function(route) {
   var Action = noop;
-  var originalURL = url;
-  var route = this.getRouteFor(url);
-  var $router = this;
 
-  if( !isNull(route) ) {
+  if( route ) {
     Action = function($viewModel, $outlet, params) {
       route.controller.call( $viewModel, $outlet, extend(route.params, params), route );
     };
-    Action.route = route;
   }
 
   if(ko.debugLevel() >= 2 && Action === noop) {
-    throw 'Could not locate associated action for ' + originalURL;
+    throw 'Could not locate associated action for ' + typeof route + ' route';
   }
 
   return Action;
@@ -936,7 +973,7 @@ Router.prototype.getRoutes = function() {
 };
 
 Router.prototype.enableSplatForCurrentRoute = function() {
-  console.log(this.currentRoute);
+  console.log(this.currentRoute());
 };
 
 Router.prototype.navigationModel = function(predicate) {
@@ -1082,7 +1119,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
       };
     },
     _postInit: function() {
-      this.$globalNamespace.request.handler('__footwork_model_reference', function() {
+      this.$globalNamespace.request.handler('__model_reference', function() {
         return this;
       });
     }
