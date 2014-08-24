@@ -4933,7 +4933,7 @@ Router.prototype.stateChange = function(url) {
 Router.prototype.startup = function( $context, $parentRouter ) {
   $parentRouter = $parentRouter || $nullRouter;
   if( !isNullRouter($parentRouter) ) {
-    this.parentRouter($parentRouter);
+    this.parentRouter( $parentRouter );
   } else if( isObject($context) ) {
     this.parentRouter( $parentRouter = nearestParentRouter($context) );
   }
@@ -5016,10 +5016,6 @@ Router.prototype.getRouteForURL = function(url) {
         url: url,
         indexedParams: routeParamValues,
         namedParams: namedParams,
-        allParams: extend( {}, namedParams, reduce(routeParamValues, function(params, routeParamValue, index) {
-            params[index] = routeParamValue;
-            return params;
-          }, {}) ),
         routeSegment: url.substr(0, url.length - splatResult.length)
       });
     }
