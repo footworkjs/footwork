@@ -113,7 +113,7 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
 };
 
 var invalidRoutePathIdentifier = '___invalid-route';
-var $nullRouter = { getRoutePath: function() { return ''; } };
+var $nullRouter = { routePath: function() { return ''; } };
 var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.__isRouter = true;
 
@@ -159,15 +159,12 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
     return this.getRouteForURL( this.routePath() );
   }, this);
 
-  this.currentAction = ko.computed(function() {
+  // Automatically trigger the new Action() whenever the currentRoute() changes
+  ko.computed(function() {
     return this.getActionForRoute( this.currentRoute() );
-  }, this);
+  }, this).subscribe( function(Action) { Action() }, this );
 
-  this.currentAction.subscribe(function( Action ) {
-    Action();
-  }, this);
   this.currentState('');
-
   // var isRelative = (this.config.relativeToParent && this.$parentRouter !== $nullRouter);
 
   this.navModelUpdate = ko.observable();
@@ -221,12 +218,6 @@ Router.prototype.activate = function($context, $parentRouter) {
     .stateChange();
 };
 
-Router.prototype.getRoutePath = function() {
-  var routePath = this.parentRoutePath() || '';
-
-  return routePath + this.currentState();
-};
-
 Router.prototype.stateChange = function(url) {
   if( !isString(url) && this.historyIsEnabled() ) {
     url = History.getState().url;
@@ -241,10 +232,10 @@ Router.prototype.startup = function( $context, $parentRouter ) {
   $parentRouter = $parentRouter || $nullRouter;
   if( $parentRouter !== $nullRouter ) {
     this.$parentRouter = $parentRouter;
+    this.parentRoutePath( $parentRouter.currentRoute().routeSegment() );
   } else if( isObject($context) ) {
     this.$parentRouter = $parentRouter = nearestParentRouter($context);
   }
-  this.parentRoutePath($parentRouter.getRoutePath());
 
   if( this.historyIsEnabled() !== true ) {
     if( historyIsReady() ) {
@@ -306,7 +297,10 @@ Router.prototype.getRouteForURL = function(url) {
         allParams: _.extend( {}, namedParams, reduce(routeParamValues, function(params, routeParamValue, index) {
             params[index] = routeParamValue;
             return params;
-          }, {}) )
+          }, {}) ),
+        routeSegment: function() {
+          return '';
+        }
       };
     }
   });
