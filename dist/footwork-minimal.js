@@ -4868,7 +4868,16 @@ Router.prototype.getRoutePath = function() {
   return routePath + this.currentState();
 };
 
-Router.prototype.stateChange = noop;
+Router.prototype.stateChange = function(url) {
+  if( !isString(url) && this.historyIsEnabled() ) {
+    url = History.getState().url;
+  }
+  
+  if( isString(url) ) {
+    this.currentState( this.normalizeURL(url) );
+  }
+};
+
 Router.prototype.startup = function( $context, $parentRouter ) {
   $parentRouter = $parentRouter || $nullRouter;
   if( $parentRouter !== $nullRouter ) {
@@ -4880,10 +4889,9 @@ Router.prototype.startup = function( $context, $parentRouter ) {
 
   if( this.historyIsEnabled() !== true ) {
     if( historyIsReady() ) {
-      var $router = this;
-      History.Adapter.bind( windowObject, 'statechange', this.stateChange = function(url) {
-        $router.currentState( $router.normalizeURL( ( isString(url) ? url : History.getState().url ) ) );
-      });
+      History.Adapter.bind( windowObject, 'statechange', bind(function() {
+        this.stateChange( History.getState().url );
+      }, this) );
       this.historyIsEnabled(true);
     } else {
       this.historyIsEnabled(false);
