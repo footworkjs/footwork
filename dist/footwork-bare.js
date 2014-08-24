@@ -768,26 +768,26 @@ var invalidRoutePathIdentifier = '___invalid-route';
 var $nullRouter = { getRoutePath: function() { return ''; } };
 var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.__isRouter = true;
+
+  this.$globalNamespace = makeNamespace();
+  this.$namespace = makeNamespace( routerConfig.namespace );
+  this.$namespace.enter();
+
   this.$viewModel = $viewModel;
   this.$parentRouter = $nullRouter;
   this.parentRoutePath = ko.observable('');
   this.context = ko.observable();
+  this.historyIsEnabled = ko.observable(false).broadcastAs('historyIsEnabled');
+  this.currentState = ko.observable().broadcastAs('currentState');
 
   this.config = routerConfig = extend({}, routerDefaultConfig, routerConfig);
   var configBaseRoute = result(routerConfig, 'baseRoute');
   this.config.baseRoute = Router.baseRoute() + (configBaseRoute || '');
 
   var $router = this;
-  this.$globalNamespace = makeNamespace();
   this.$globalNamespace.request.handler('__router_reference', function() {
     return $router;
   });
-
-  this.$namespace = makeNamespace( routerConfig.namespace );
-  this.$namespace.enter();
-
-  this.historyIsEnabled = ko.observable(false).broadcastAs('historyIsEnabled');
-  this.currentState = ko.observable().broadcastAs('currentState');
   
   this.routePath = ko.computed(function() {
     var routeIndex;
@@ -808,8 +808,7 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   }, this);
   
   this.currentRoute = ko.computed(function() {
-    var routePath = this.routePath();
-    return this.getRouteFor(routePath);
+    return this.getRouteForURL( this.routePath() );
   }, this);
 
   this.currentAction = ko.computed(function() {
@@ -925,7 +924,7 @@ Router.prototype.normalizeURL = function(url) {
   return url;
 };
 
-Router.prototype.getRouteFor = function(url) {
+Router.prototype.getRouteForURL = function(url) {
   var route = null;
   each(this.getRoutes(), function(routeDesc) {
     var routeString = routeDesc.route;
