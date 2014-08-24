@@ -24,6 +24,7 @@ var routerDefaultConfig = {
   namespace: '$router',
   baseRoute: null,
   unknownRoute: null,
+  isRelative: true,
   activate: true,
   routes: []
 };
@@ -82,6 +83,10 @@ function nearestParentRouter($context) {
   return $parentRouter;
 }
 
+function isNullRouter($router) {
+  return !!$router.__isNullRouter;
+}
+
 var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters ) {
   var outlets = this.outlets;
 
@@ -113,38 +118,60 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
 };
 
 var invalidRoutePathIdentifier = '___invalid-route';
-var $nullRouter = { routePath: function() { return ''; } };
+var emptyStringResult = function() { return ''; };
+
+var $baseRouter = {
+  routePath: emptyStringResult,
+  routeSegment: emptyStringResult,
+  childRouters: ko.observableArray(),
+  __isRouter: true
+};
+
+var $nullRouter = extend({}, $baseRouter, {
+  __isNullRouter: true
+});
+
 var Router = ko.router = function( routerConfig, $viewModel, $context ) {
-  this.__isRouter = true;
+  extend(this, $baseRouter);
 
   this.$globalNamespace = makeNamespace();
   this.$namespace = makeNamespace( routerConfig.namespace );
   this.$namespace.enter();
 
   this.$viewModel = $viewModel;
-  this.$parentRouter = $nullRouter;
-  this.parentRoutePath = ko.observable('');
+  this.childRouters = ko.observableArray();
+  this.hasSubRouter = ko.observable(false); // need to dynamically add splat to route def if true
+  this.parentRouter = ko.observable($nullRouter);
   this.context = ko.observable();
   this.historyIsEnabled = ko.observable(false).broadcastAs('historyIsEnabled');
   this.currentState = ko.observable().broadcastAs('currentState');
-
   this.config = routerConfig = extend({}, routerDefaultConfig, routerConfig);
-  var configBaseRoute = result(routerConfig, 'baseRoute');
-  this.config.baseRoute = Router.baseRoute() + (configBaseRoute || '');
+  this.config.baseRoute = Router.baseRoute() + (result(routerConfig, 'baseRoute') || '');
 
-  var $router = this;
-  this.$globalNamespace.request.handler('__router_reference', function() {
-    return $router;
-  });
+  this.isRelative = ko.computed(function() {
+    return routerConfig.isRelative && !isNullRouter( this.parentRouter() );
+  }, this);
+
+  this.parentRoutePath = ko.computed(function() {
+    var $parentRouter = this.parentRouter();
+    var parentRoutePath = '';
+    if( !isNullRouter($parentRouter) ) {
+      var currentRoute = $parentRouter.currentRoute();
+      if( currentRoute ) {
+        parentRoutePath = currentRoute.routeSegment();
+      }
+    }
+    return parentRoutePath;
+  }, this);
   
   this.routePath = ko.computed(function() {
     var routeIndex;
     var routePath = this.currentState() || '';
-    var parentRoutePath = this.parentRoutePath();
+    var parentRoutePath = this.parentRoutePath() || '';
 
     if( routePath.length > 0 ) {
       // must substract parentRoute path
-      if( parentRoutePath.length > 0 ) {
+      if( this.isRelative() && parentRoutePath.length > 0 ) {
         if( ( routeIndex = routePath.indexOf(parentRoutePath) ) === 0 ) {
           routePath = routePath.substr(routeIndex);
         } else {
@@ -159,13 +186,32 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
     return this.getRouteForURL( this.routePath() );
   }, this);
 
-  // Automatically trigger the new Action() whenever the currentRoute() changes
-  ko.computed(function() {
-    return this.getActionForRoute( this.currentRoute() );
-  }, this).subscribe( function(Action) { Action() }, this );
+  var $previousParent = $nullRouter;
+  this.parentRouter.subscribe(function( $parentRouter ) {
+    if( !isNullRouter($previousParent) && $previousParent !== $parentRouter ) {
+      $previousParent.childRouters.remove(this);
+    }
+    $parentRouter.childRouters.push(this);
+    $previousParent = $parentRouter;
+  }, this);
+
+  // Automatically trigger the new Action() whenever the currentRoute() updates
+  this.currentRoute.subscribe(function( newRoute ) {
+    this.getActionForRoute( this.currentRoute() )( /* get and call the action */ );
+  }, this);
+
+  this.childRouters.subscribe(function( childRouters ) {
+    this.hasSubRouter( reduce(childRouters, function(hasSubRouter, childRouter) {
+      return hasSubRouter || childRouter.isRelative();
+    }, false) );
+  }, this);
+
+  var $router = this;
+  this.$globalNamespace.request.handler('__router_reference', function() {
+    return $router;
+  });
 
   this.currentState('');
-  // var isRelative = (this.config.relativeToParent && this.$parentRouter !== $nullRouter);
 
   this.navModelUpdate = ko.observable();
   this.outlets = {};
@@ -230,11 +276,10 @@ Router.prototype.stateChange = function(url) {
 
 Router.prototype.startup = function( $context, $parentRouter ) {
   $parentRouter = $parentRouter || $nullRouter;
-  if( $parentRouter !== $nullRouter ) {
-    this.$parentRouter = $parentRouter;
-    this.parentRoutePath( $parentRouter.currentRoute().routeSegment() );
+  if( !isNullRouter($parentRouter) ) {
+    this.parentRouter($parentRouter);
   } else if( isObject($context) ) {
-    this.$parentRouter = $parentRouter = nearestParentRouter($context);
+    this.parentRouter( $parentRouter = nearestParentRouter($context) );
   }
 
   if( this.historyIsEnabled() !== true ) {
@@ -253,6 +298,7 @@ Router.prototype.startup = function( $context, $parentRouter ) {
 
 Router.prototype.shutdown = function() {
   delete this.stateChange;
+  this.parentRouter().childRouters.remove(this);
   this.$namespace.shutdown();
   this.$globalNamespace.shutdown();
 };
@@ -304,6 +350,11 @@ Router.prototype.getRouteForURL = function(url) {
       };
     }
   });
+
+  if( isNull(route) && ko.debugLevel() >= 2 ) {
+    throw 'Could not locate associated route for [' + url + '].';
+  }
+
   return route;
 };
 
@@ -317,19 +368,11 @@ Router.prototype.getActionForRoute = function(route) {
     };
   }
 
-  if(ko.debugLevel() >= 2 && Action === noop) {
-    throw 'Could not locate associated action for ' + typeof route + ' route';
-  }
-
   return Action;
 };
 
 Router.prototype.getRoutes = function() {
   return this.config.routes;
-};
-
-Router.prototype.enableSplatForCurrentRoute = function() {
-  console.log(this.currentRoute());
 };
 
 Router.prototype.navigationModel = function(predicate) {
@@ -355,8 +398,8 @@ ko.bindingHandlers.$route = {
       var destinationURL = element.getAttribute('href');
       var title = element.getAttribute('data-title');
 
-      if( !isNull($nearestParentRouter) && $myRouter.config.relativeToParent === true ) {
-        destinationURL = $nearestParentRouter.getRoutePath() + destinationURL;
+      if( $myRouter.isRelative() && !isNullRouter($nearestParentRouter) ) {
+        destinationURL = $nearestParentRouter.routePath() + destinationURL;
       }
 
       History.pushState( null, title || defaultTitle(), destinationURL );
