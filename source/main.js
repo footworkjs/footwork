@@ -41,6 +41,7 @@ var reduce = _.reduce;
 var has = _.has;
 var where = _.where;
 var result = _.result;
+var uniqueId = _.uniqueId;
 
 // Registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];

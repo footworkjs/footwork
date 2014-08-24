@@ -66,6 +66,10 @@ function isRouter(thing) {
   return isObject(thing) && !!thing.__isRouter;
 }
 
+function isRoute(thing) {
+  return isObject(thing) && !!thing.__isRoute;
+}
+
 // Recursive function which will locate the nearest $router from a given ko $context
 // (travels up through $parentContext chain to find the router if not found on the
 // immediate $context). Returns null if none is found.
@@ -154,14 +158,14 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
 
   this.parentRoutePath = ko.computed(function() {
     var $parentRouter = this.parentRouter();
-    var parentRoutePath = '';
+    var routePath = '';
     if( !isNullRouter($parentRouter) ) {
-      var currentRoute = $parentRouter.currentRoute();
-      if( currentRoute ) {
-        parentRoutePath = currentRoute.routeSegment();
+      var parentRoute = $parentRouter.currentRoute();
+      if( isRoute(parentRoute) ) {
+        routePath = $parentRouter.parentRoutePath() + parentRoute.routeSegment;
       }
     }
-    return parentRoutePath;
+    return routePath;
   }, this);
   
   this.routePath = ko.computed(function() {
@@ -197,7 +201,7 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
 
   // Automatically trigger the new Action() whenever the currentRoute() updates
   this.currentRoute.subscribe(function( newRoute ) {
-    this.getActionForRoute( this.currentRoute() )( /* get and call the action */ );
+    this.getActionForRoute( this.currentRoute() )( /* get and call the action for the newRoute */ );
   }, this);
 
   this.childRouters.subscribe(function( childRouters ) {
@@ -317,37 +321,54 @@ Router.prototype.normalizeURL = function(url) {
   return url;
 };
 
+var baseRoute = {
+  controller: noop,
+  indexedParams: [],
+  namedParams: {},
+  __isRoute: true
+};
+
 Router.prototype.getRouteForURL = function(url) {
   var route = null;
-  each(this.getRoutes(), function(routeDesc) {
+  var $router = this;
+
+  each(this.getRoutes(), function(routeDesc, routeIndex) {
+    var isRelative = $router.isRelative();
     var routeString = routeDesc.route;
+    var splatResult = '';
+    if( isRelative ) {
+      routeString = routeString + '/*';
+    }
+
     var routeRegex = routeStringToRegExp(routeString);
     var routeParamValues = url.match(routeRegex);
 
     if( !isNull(routeParamValues) ) {
-      var routeParams = _.map(routeString.match(namedParam), function(param) {
+      if( isRelative ) {
+        splatResult = routeParamValues.pop();
+      }
+
+      var routeParams = _.map( routeString.match(namedParam), function(param) {
         return param.replace(':', '');
-      });
+      } );
 
       var namedParams = reduce(routeParams, function(parameters, parameterName, index) {
         parameters[parameterName] = routeParamValues[index + 1];
         return parameters;
       }, {});
 
-      route = {
+      route = _.extend({}, baseRoute, {
         controller: routeDesc.controller,
         title: routeDesc.title,
-        url: routeParamValues[0],
+        url: url,
         indexedParams: routeParamValues,
         namedParams: namedParams,
-        allParams: _.extend( {}, namedParams, reduce(routeParamValues, function(params, routeParamValue, index) {
+        allParams: extend( {}, namedParams, reduce(routeParamValues, function(params, routeParamValue, index) {
             params[index] = routeParamValue;
             return params;
           }, {}) ),
-        routeSegment: function() {
-          return '';
-        }
-      };
+        routeSegment: url.substr(0, url.length - splatResult.length)
+      });
     }
   });
 
