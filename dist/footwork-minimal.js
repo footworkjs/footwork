@@ -4303,6 +4303,7 @@ var has = _.has;
 var where = _.where;
 var result = _.result;
 var uniqueId = _.uniqueId;
+var map = _.map;
 
 // Registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];
@@ -4886,7 +4887,7 @@ Router.getAllRouters = function() {
 };
 
 Router.prototype.unknownRoute = function() {
-  return ( !isUndefined(this.config) ? result(this.config.unknownRoute) : undefined);
+  return !isUndefined(this.config) ? result(this.config.unknownRoute) : undefined;
 };
 
 Router.prototype.setRoutes = function(route) {
@@ -4895,11 +4896,14 @@ Router.prototype.setRoutes = function(route) {
   return this;
 };
 
-Router.prototype.addRoutes = function(route) {
-  route = isArray(route) ? route : [route];
-  this.config.routes = this.config.routes.concat(route);
+Router.prototype.addRoutes = function(routes) {
+  routes = isArray(routes) ? routes : [routes];
+  this.config.routes = this.config.routes.concat( map(routes, function(route) {
+    route.id = uniqueId('route');
+    return route;
+  }) );
 
-  if( hasNavItems(route) && isObservable(this.navigationModel) ) {
+  if( hasNavItems(routes) && isObservable(this.navigationModel) ) {
     this.navModelUpdate.notifySubscribers();
   }
 
