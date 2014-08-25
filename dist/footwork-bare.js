@@ -676,6 +676,8 @@ if( !isString(windowObject.location.origin) ) {
 // Predicate function that always returns true / 'pass'
 var alwaysPassPredicate = function() { return true; };
 
+var emptyStringResult = function() { return ''; };
+
 var routerDefaultConfig = {
   namespace: '$router',
   baseRoute: null,
@@ -691,11 +693,37 @@ var namedParam = /(\(\?)?:\w+/g;
 var splatParam = /\*\w*/g;
 var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatch = /(^\/#)/;
-var routesAreCaseSensitive = false;
+var routesAreCaseSensitive = true;
+
+var invalidRoutePathIdentifier = '___invalid-route';
+
+var $nullRouter = extend({}, $baseRouter, {
+  childRouters: extend( bind(noop), { push: noop } ),
+  __isNullRouter: true
+});
+
+var $baseRouter = {
+  routePath: emptyStringResult,
+  routeSegment: emptyStringResult,
+  childRouters: ko.observableArray(),
+  __isRouter: true
+};
+
+var baseRoute = {
+  controller: noop,
+  indexedParams: [],
+  namedParams: {},
+  __isRoute: true
+};
+
+var baseRouteDescription = {
+  __isRouteDesc: true
+};
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
 function routeStringToRegExp(routeString) {
-  routeString = routeString.replace(escapeRegExp, "\\$&")
+  routeString = routeString
+    .replace(escapeRegExp, "\\$&")
     .replace(optionalParam, "(?:$1)?")
     .replace(namedParam, function(match, optional) {
       return optional ? match : "([^\/]+)";
@@ -705,17 +733,21 @@ function routeStringToRegExp(routeString) {
   return new RegExp('^' + routeString + '$', routesAreCaseSensitive ? undefined : 'i');
 }
 
-function historyIsReady() {
-  return has(History, 'Adapter');
-}
-
 function extractNavItems(routes) {
   routes = isArray(routes) ? routes : [routes];
   return where(routes, { nav: true });
 }
 
+function historyIsReady() {
+  return has(History, 'Adapter');
+}
+
 function hasNavItems(routes) {
   return extractNavItems( routes ).length > 0;
+}
+
+function isNullRouter($router) {
+  return !!$router.__isNullRouter;
 }
 
 function isRouter(thing) {
@@ -743,10 +775,6 @@ function nearestParentRouter($context) {
   return $parentRouter;
 }
 
-function isNullRouter($router) {
-  return !!$router.__isNullRouter;
-}
-
 var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters ) {
   var outlets = this.outlets;
 
@@ -760,36 +788,24 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
   }
 
   var currentOutletDef = outlets[outletName]();
-  var valueMutated = false;
+  var valueHasMutated = false;
 
   if( !isUndefined(componentToDisplay) ) {
     currentOutletDef.name = componentToDisplay;
-    valueMutated = true;
+    valueHasMutated = true;
   }
+
   if( !isUndefined(viewModelParameters) ) {
     currentOutletDef.params = viewModelParameters;
-    valueMutated = true;
+    valueHasMutated = true;
   }
-  if( valueMutated === true ) {
+
+  if( valueHasMutated ) {
     outlets[outletName].valueHasMutated();
   }
 
   return outlets[outletName];
 };
-
-var invalidRoutePathIdentifier = '___invalid-route';
-var emptyStringResult = function() { return ''; };
-
-var $baseRouter = {
-  routePath: emptyStringResult,
-  routeSegment: emptyStringResult,
-  childRouters: ko.observableArray(),
-  __isRouter: true
-};
-
-var $nullRouter = extend({}, $baseRouter, {
-  __isNullRouter: true
-});
 
 var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   extend(this, $baseRouter);
@@ -905,20 +921,19 @@ Router.prototype.unknownRoute = function() {
   return !isUndefined(this.config) ? result(this.config.unknownRoute) : undefined;
 };
 
-Router.prototype.setRoutes = function(route) {
-  this.config.routes = [];
-  this.addRoutes(route);
+Router.prototype.setRoutes = function(routeDesc) {
+  this.routeDescriptions = [];
+  this.addRoutes(routeDesc);
   return this;
 };
 
-Router.prototype.addRoutes = function(routes) {
-  routes = isArray(routes) ? routes : [routes];
-  this.config.routes = this.config.routes.concat( map(routes, function(route) {
-    route.id = uniqueId('route');
-    return route;
+Router.prototype.addRoutes = function(routeDesc) {
+  routeDesc = isArray(routeDesc) ? routeDesc : [routeDesc];
+  this.routeDescriptions = this.routeDescriptions.concat( map(routeDesc, function(routeDesc) {
+    return extend( { id: uniqueId('route') }, baseRouteDescription, routeDesc );
   }) );
 
-  if( hasNavItems(routes) && isObservable(this.navigationModel) ) {
+  if( hasNavItems(routeDesc) && isObservable(this.navigationModel) ) {
     this.navModelUpdate.notifySubscribers();
   }
 
@@ -984,18 +999,11 @@ Router.prototype.normalizeURL = function(url) {
   return url;
 };
 
-var baseRoute = {
-  controller: noop,
-  indexedParams: [],
-  namedParams: {},
-  __isRoute: true
-};
-
 Router.prototype.getRouteForURL = function(url) {
   var isRelative = this.isRelative();
+  var route = null;
 
-  return find(this.getRoutes(), function(routeDesc, routeIndex) {
-    var route = null;
+  find(this.getRouteDescriptions(), function(routeDesc, routeIndex) {
     var routeString = routeDesc.route;
     var splatSegment = '';
     if( isRelative ) {
@@ -1030,30 +1038,30 @@ Router.prototype.getRouteForURL = function(url) {
 
     return route;
   });
+
+  return route;
 };
 
-Router.prototype.getActionForRoute = function(route) {
+Router.prototype.getActionForRoute = function(routeDescription) {
   var Action = noop;
-  var $router = this;
-
-  if( route ) {
-    Action = function() {
-      route.controller.call( $router.$viewModel, $router.$outlet, route );
-    };
+  if( isRoute(routeDescription) ) {
+    Action = bind(function() {
+      document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this) : routeDescription.title;
+      routeDescription.controller.call( this.$viewModel, this.$outlet, routeDescription );
+    }, this);
   }
-
   return Action;
 };
 
-Router.prototype.getRoutes = function() {
-  return this.config.routes;
+Router.prototype.getRouteDescriptions = function() {
+  return this.routeDescriptions;
 };
 
 Router.prototype.navigationModel = function(predicate) {
   if( isUndefined(this.navigationModel) ) {
     this.navigationModel = ko.computed(function() {
       this.navModelUpdate(); // dummy reference used to trigger updates
-      return filter( extractNavItems(this.config.routes), (predicate || alwaysPassPredicate) );
+      return filter( extractNavItems(this.routeDescriptions), (predicate || alwaysPassPredicate) );
     }, { navModelUpdate: this.navModelUpdate }).broadcastAs({ name: 'navigationModel', namespace: this.$namespace });
   }
 
@@ -1067,13 +1075,12 @@ ko.bindingHandlers.$route = {
       var $myRouter = nearestParentRouter(bindingContext);
       var $nearestParentRouter = nearestParentRouter(bindingContext.$parentContext);
       var destinationURL = element.getAttribute('href');
-      var title = element.getAttribute('data-title');
 
       if( $myRouter.isRelative() && !isNullRouter($nearestParentRouter) ) {
         destinationURL = $nearestParentRouter.routePath() + destinationURL;
       }
 
-      History.pushState( null, title || defaultTitle(), destinationURL );
+      History.pushState( null, '', destinationURL );
       event.stopPropagation();
       event.preventDefault();
     });
