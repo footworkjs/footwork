@@ -4850,7 +4850,7 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   var oldRoute;
   this.currentRoute.subscribe(function( newRoute ) {
     if( isUndefined(oldRoute) || oldRoute.id !== newRoute.id ) {
-      this.getActionForRoute( this.currentRoute() )( /* get and call the action for the newRoute */ );
+      this.getActionForRoute( newRoute )( /* get and call the action for the newRoute */ );
       oldRoute = newRoute;
     }
   }, this);
@@ -5044,7 +5044,7 @@ Router.prototype.navigationModel = function(predicate) {
   if( isUndefined(this.navigationModel) ) {
     this.navigationModel = ko.computed(function() {
       this.navModelUpdate(); // dummy reference used to trigger updates
-      return filter( extractNavItems(this.config.routes), ( predicate || alwaysPassPredicate ) );
+      return filter( extractNavItems(this.config.routes), (predicate || alwaysPassPredicate) );
     }, { navModelUpdate: this.navModelUpdate }).broadcastAs({ name: 'navigationModel', namespace: this.$namespace });
   }
 
