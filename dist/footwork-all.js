@@ -10140,10 +10140,7 @@ Router.prototype.navigationModel = function(predicate) {
   if( isUndefined(this.navigationModel) ) {
     this.navigationModel = ko.computed(function() {
       this.navModelUpdate(); // dummy reference used to trigger updates
-      return filter(
-        extractNavItems(routes),
-        ( predicate || alwaysPassPredicate )
-      );
+      return filter( extractNavItems(this.config.routes), ( predicate || alwaysPassPredicate ) );
     }, { navModelUpdate: this.navModelUpdate }).broadcastAs({ name: 'navigationModel', namespace: this.$namespace });
   }
 
