@@ -313,6 +313,7 @@ var where = _.where;
 var result = _.result;
 var uniqueId = _.uniqueId;
 var map = _.map;
+var find = _.find;
 
 // Registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];
@@ -991,12 +992,11 @@ var baseRoute = {
 
 Router.prototype.getRouteForURL = function(url) {
   var route = null;
-  var $router = this;
+  var isRelative = this.isRelative();
 
-  each(this.getRoutes(), function(routeDesc, routeIndex) {
-    var isRelative = $router.isRelative();
+  find(this.getRoutes(), function(routeDesc, routeIndex) {
     var routeString = routeDesc.route;
-    var splatResult = '';
+    var splatSegment = '';
     if( isRelative ) {
       routeString = routeString + '/*';
     }
@@ -1006,7 +1006,7 @@ Router.prototype.getRouteForURL = function(url) {
 
     if( !isNull(routeParamValues) ) {
       if( isRelative ) {
-        splatResult = routeParamValues.pop();
+        splatSegment = routeParamValues.pop();
       }
 
       var routeParamNames = _.map( routeString.match(namedParam), function(param) {
@@ -1018,7 +1018,7 @@ Router.prototype.getRouteForURL = function(url) {
         controller: routeDesc.controller,
         title: routeDesc.title,
         url: url,
-        routeSegment: url.substr(0, url.length - splatResult.length),
+        routeSegment: url.substr(0, url.length - splatSegment.length),
         indexedParams: routeParamValues,
         namedParams: reduce(routeParamNames, function(parameterNames, parameterName, index) {
             parameterNames[parameterName] = routeParamValues[index + 1];
@@ -1026,6 +1026,8 @@ Router.prototype.getRouteForURL = function(url) {
           }, {})
       });
     }
+    
+    return route;
   });
 
   if( isNull(route) && ko.debugLevel() >= 2 ) {
