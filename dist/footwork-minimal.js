@@ -4353,11 +4353,9 @@ function createEnvelope(topic, data, expires) {
   };
 
   if( !isUndefined(expires) ) {
-    envelope.headers = {
-      preserve: true
-    };
+    envelope.headers = { preserve: true };
     if(expires instanceof Date) {
-      envelope.expires = expires
+      envelope.expires = expires;
     }
   }
   
@@ -4985,10 +4983,10 @@ var baseRoute = {
 };
 
 Router.prototype.getRouteForURL = function(url) {
-  var route = null;
   var isRelative = this.isRelative();
 
-  find(this.getRoutes(), function(routeDesc, routeIndex) {
+  return find(this.getRoutes(), function(routeDesc, routeIndex) {
+    var route = null;
     var routeString = routeDesc.route;
     var splatSegment = '';
     if( isRelative ) {
@@ -5020,15 +5018,9 @@ Router.prototype.getRouteForURL = function(url) {
           }, {})
       });
     }
-    
+
     return route;
   });
-
-  if( isNull(route) && ko.debugLevel() >= 2 ) {
-    throw 'Could not locate associated route for [' + url + '].';
-  }
-
-  return route;
 };
 
 Router.prototype.getActionForRoute = function(route) {
