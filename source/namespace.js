@@ -32,11 +32,9 @@ function createEnvelope(topic, data, expires) {
   };
 
   if( !isUndefined(expires) ) {
-    envelope.headers = {
-      preserve: true
-    };
+    envelope.headers = { preserve: true };
     if(expires instanceof Date) {
-      envelope.expires = expires
+      envelope.expires = expires;
     }
   }
   
