@@ -43,6 +43,7 @@ var where = _.where;
 var result = _.result;
 var uniqueId = _.uniqueId;
 var map = _.map;
+var find = _.find;
 
 // Registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];
