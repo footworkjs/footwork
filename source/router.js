@@ -354,11 +354,11 @@ Router.prototype.getRouteForURL = function(url) {
         splatSegment = routeParamValues.pop();
       }
 
-      var routeParamNames = _.map( routeString.match(namedParam), function(param) {
+      var routeParamNames = map( routeString.match(namedParam), function(param) {
         return param.replace(':', '');
       } );
 
-      route = _.extend({}, baseRoute, {
+      route = extend({}, baseRoute, {
         id: routeDesc.id,
         controller: routeDesc.controller,
         title: routeDesc.title,

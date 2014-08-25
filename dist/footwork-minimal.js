@@ -4305,6 +4305,9 @@ var result = _.result;
 var uniqueId = _.uniqueId;
 var map = _.map;
 var find = _.find;
+var omit = _.omit;
+var indexOf = _.indexOf;
+var values = _.values;
 
 // Registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];
@@ -5000,11 +5003,11 @@ Router.prototype.getRouteForURL = function(url) {
         splatSegment = routeParamValues.pop();
       }
 
-      var routeParamNames = _.map( routeString.match(namedParam), function(param) {
+      var routeParamNames = map( routeString.match(namedParam), function(param) {
         return param.replace(':', '');
       } );
 
-      route = _.extend({}, baseRoute, {
+      route = extend({}, baseRoute, {
         id: routeDesc.id,
         controller: routeDesc.controller,
         title: routeDesc.title,
@@ -5103,9 +5106,9 @@ var viewModelCount = ko.viewModelCount = function() {
     viewModelCounts[viewModelName] = viewModelCount + 1;
     return viewModelCounts;
   }, {});
-  counts.__total = reduce(_.values(counts), function(summation, num) {
+  counts.__total = reduce( values(counts), function(summation, num) {
     return summation + num;
-  }, 0);
+  }, 0 );
   return counts;
 };
 
@@ -5343,7 +5346,7 @@ ko.components.getNormalTagList = function() {
 ko.components.getComponentNameForNode = function(node) {
   var tagName = isString(node.tagName) && node.tagName.toLowerCase();
 
-  if( ko.components.isRegistered(tagName) || _.indexOf(normalTags, tagName) === -1 ) {
+  if( ko.components.isRegistered(tagName) || indexOf(normalTags, tagName) === -1 ) {
     return tagName;
   }
   return null;
@@ -5457,7 +5460,7 @@ var makeComponent = ko.component = function(componentDefinition) {
   var viewModel = componentDefinition.viewModel;
 
   if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {
-    componentDefinition.viewModel = makeViewModel( _.omit(componentDefinition, 'template') );
+    componentDefinition.viewModel = makeViewModel( omit(componentDefinition, 'template') );
   }
 
   return componentDefinition;

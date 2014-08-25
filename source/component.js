@@ -29,7 +29,7 @@ var makeComponent = ko.component = function(componentDefinition) {
   var viewModel = componentDefinition.viewModel;
 
   if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {
-    componentDefinition.viewModel = makeViewModel( _.omit(componentDefinition, 'template') );
+    componentDefinition.viewModel = makeViewModel( omit(componentDefinition, 'template') );
   }
 
   return componentDefinition;
