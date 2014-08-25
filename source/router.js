@@ -37,7 +37,7 @@ var namedParam = /(\(\?)?:\w+/g;
 var splatParam = /\*\w*/g;
 var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatch = /(^\/#)/;
-var routesAreCaseSensitive = false;
+var routesAreCaseSensitive = true;
 
 var invalidRoutePathIdentifier = '___invalid-route';
 
@@ -66,7 +66,8 @@ var baseRouteDescription = {
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
 function routeStringToRegExp(routeString) {
-  routeString = routeString.replace(escapeRegExp, "\\$&")
+  routeString = routeString
+    .replace(escapeRegExp, "\\$&")
     .replace(optionalParam, "(?:$1)?")
     .replace(namedParam, function(match, optional) {
       return optional ? match : "([^\/]+)";
@@ -389,6 +390,7 @@ Router.prototype.getActionForRoute = function(routeDescription) {
   var Action = noop;
   if( isRoute(routeDescription) ) {
     Action = bind(function() {
+      document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this) : routeDescription.title;
       routeDescription.controller.call( this.$viewModel, this.$outlet, routeDescription );
     }, this);
   }
@@ -417,13 +419,12 @@ ko.bindingHandlers.$route = {
       var $myRouter = nearestParentRouter(bindingContext);
       var $nearestParentRouter = nearestParentRouter(bindingContext.$parentContext);
       var destinationURL = element.getAttribute('href');
-      var title = element.getAttribute('data-title');
 
       if( $myRouter.isRelative() && !isNullRouter($nearestParentRouter) ) {
         destinationURL = $nearestParentRouter.routePath() + destinationURL;
       }
 
-      History.pushState( null, title || defaultTitle(), destinationURL );
+      History.pushState( null, '', destinationURL );
       event.stopPropagation();
       event.preventDefault();
     });
