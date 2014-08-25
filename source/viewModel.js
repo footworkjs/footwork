@@ -23,9 +23,9 @@ var viewModelCount = ko.viewModelCount = function() {
     viewModelCounts[viewModelName] = viewModelCount + 1;
     return viewModelCounts;
   }, {});
-  counts.__total = reduce(_.values(counts), function(summation, num) {
+  counts.__total = reduce( values(counts), function(summation, num) {
     return summation + num;
-  }, 0);
+  }, 0 );
   return counts;
 };
 
