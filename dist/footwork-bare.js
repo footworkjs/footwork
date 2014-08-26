@@ -1080,12 +1080,11 @@ ko.bindingHandlers.$route = {
 
     var tagName = element.tagName;
     if( setHref && ((isString(tagName) && tagName.toLowerCase() === 'a') || element.hasAttribute('href')) ) {
-      element.href = routePath;
+      element.setAttribute('href', routePath);
     }
 
     ko.utils.registerEventHandler(element, 'click', function( event ) {
-      History.pushState( null, '', routePath );
-      event.stopPropagation();
+      History.pushState( null, '', element.getAttribute('href') || routePath );
       event.preventDefault();
     });
   }
