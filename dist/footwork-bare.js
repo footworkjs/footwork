@@ -1084,7 +1084,7 @@ ko.bindingHandlers.$route = {
     }
 
     ko.utils.registerEventHandler(element, 'click', function( event ) {
-      History.pushState( null, '', element.getAttribute('href') || routePath );
+      History.pushState( null, document.title, element.getAttribute('href') || routePath );
       event.preventDefault();
     });
   }
