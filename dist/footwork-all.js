@@ -9940,7 +9940,7 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
       // must substract parentRoute path
       if( this.isRelative() && parentRoutePath.length > 0 ) {
         if( ( routeIndex = routePath.indexOf(parentRoutePath) ) === 0 ) {
-          routePath = routePath.substr(routeIndex);
+          routePath = routePath.substr( parentRoutePath.length );
         } else {
           return invalidRoutePathIdentifier;
         }
