@@ -28,6 +28,7 @@ var routerDefaultConfig = {
   unknownRoute: null,
   isRelative: true,
   activate: true,
+  setHref: true,
   routes: []
 };
 
@@ -43,6 +44,7 @@ var invalidRoutePathIdentifier = '___invalid-route';
 
 var $nullRouter = extend({}, $baseRouter, {
   childRouters: extend( bind(noop), { push: noop } ),
+  isRelative: function() { return false; },
   __isNullRouter: true
 });
 
@@ -65,7 +67,7 @@ var baseRouteDescription = {
 };
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
-function routeStringToRegExp(routeString) {
+function routeStringToRegExp(routeString, url, hasSubRoute) {
   routeString = routeString
     .replace(escapeRegExp, "\\$&")
     .replace(optionalParam, "(?:$1)?")
@@ -74,7 +76,7 @@ function routeStringToRegExp(routeString) {
     })
     .replace(splatParam, "(.*?)");
 
-  return new RegExp('^' + routeString + '$', routesAreCaseSensitive ? undefined : 'i');
+  return new RegExp('^' + routeString + (hasSubRoute && routeString !== '/' ? '(\\/.*)+' : '$'), routesAreCaseSensitive ? undefined : 'i');
 }
 
 function extractNavItems(routes) {
@@ -160,7 +162,7 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
 
   this.$viewModel = $viewModel;
   this.childRouters = ko.observableArray();
-  this.hasSubRouter = ko.observable(false); // need to dynamically add splat to route def if true
+  this.hasChildRouters = ko.observable(false);
   this.parentRouter = ko.observable($nullRouter);
   this.context = ko.observable();
   this.historyIsEnabled = ko.observable(false).broadcastAs('historyIsEnabled');
@@ -218,15 +220,15 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   // Automatically trigger the new Action() whenever the currentRoute() updates
   var oldRoute;
   this.currentRoute.subscribe(function( newRoute ) {
-    if( isUndefined(oldRoute) || oldRoute.id !== newRoute.id ) {
+    if( !isNull(newRoute) && (isUndefined(oldRoute) || oldRoute.id !== newRoute.id) ) {
       this.getActionForRoute( newRoute )( /* get and call the action for the newRoute */ );
       oldRoute = newRoute;
     }
   }, this);
 
   this.childRouters.subscribe(function( childRouters ) {
-    this.hasSubRouter( reduce(childRouters, function(hasSubRouter, childRouter) {
-      return hasSubRouter || childRouter.isRelative();
+    this.hasChildRouters( reduce(childRouters, function(hasChildRouters, childRouter) {
+      return hasChildRouters || childRouter.isRelative();
     }, false) );
   }, this);
 
@@ -344,21 +346,17 @@ Router.prototype.normalizeURL = function(url) {
 };
 
 Router.prototype.getRouteForURL = function(url) {
-  var isRelative = this.isRelative();
+  var hasSubRoutes = this.hasChildRouters();
   var route = null;
 
   find(this.getRouteDescriptions(), function(routeDesc, routeIndex) {
     var routeString = routeDesc.route;
     var splatSegment = '';
-    if( isRelative ) {
-      routeString = routeString + '/*';
-    }
-
-    var routeRegex = routeStringToRegExp(routeString);
+    var routeRegex = routeStringToRegExp(routeString, url, hasSubRoutes);
     var routeParamValues = url.match(routeRegex);
 
     if( !isNull(routeParamValues) ) {
-      if( isRelative ) {
+      if( hasSubRoutes ) {
         splatSegment = routeParamValues.pop();
       }
 
@@ -390,7 +388,9 @@ Router.prototype.getActionForRoute = function(routeDescription) {
   var Action = noop;
   if( isRoute(routeDescription) ) {
     Action = bind(function() {
-      document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this) : routeDescription.title;
+      if( !isUndefined(routeDescription.title) ) {
+        document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this) : routeDescription.title;
+      }
       routeDescription.controller.call( this.$viewModel, this.$outlet, routeDescription );
     }, this);
   }
@@ -412,19 +412,23 @@ Router.prototype.navigationModel = function(predicate) {
   return this.navigationModel;
 };
 
-var defaultTitle = ko.observable('[No Title]');
 ko.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    var $myRouter = nearestParentRouter(bindingContext);
+    var $nearestParentRouter = nearestParentRouter( $myRouter.context().$parentContext );
+
+    var setHref = !!$myRouter.config.setHref;
+    var prependedRoutePath = ($myRouter.isRelative() && !isNullRouter($nearestParentRouter)) ? $nearestParentRouter.routePath() : '';
+    var suppliedRoutePath = ko.unwrap(valueAccessor()) || '';
+    var routePath = prependedRoutePath + (suppliedRoutePath || element.getAttribute('href'));
+
+    var tagName = element.tagName;
+    if( setHref && ((isString(tagName) && tagName.toLowerCase() === 'a') || element.hasAttribute('href')) ) {
+      element.href = routePath;
+    }
+
     ko.utils.registerEventHandler(element, 'click', function( event ) {
-      var $myRouter = nearestParentRouter(bindingContext);
-      var $nearestParentRouter = nearestParentRouter(bindingContext.$parentContext);
-      var destinationURL = element.getAttribute('href');
-
-      if( $myRouter.isRelative() && !isNullRouter($nearestParentRouter) ) {
-        destinationURL = $nearestParentRouter.routePath() + destinationURL;
-      }
-
-      History.pushState( null, '', destinationURL );
+      History.pushState( null, '', routePath );
       event.stopPropagation();
       event.preventDefault();
     });
