@@ -9821,7 +9821,7 @@ function routeStringToRegExp(routeString, url, hasSubRoute) {
     })
     .replace(splatParam, "(.*?)");
 
-  return new RegExp('^' + routeString + (hasSubRoute && routeString !== '/' ? '(\\/.*)+' : '$'), routesAreCaseSensitive ? undefined : 'i');
+  return new RegExp('^' + routeString + (hasSubRoute && routeString !== '/' ? '(\\/.*)*' : '$'), routesAreCaseSensitive ? undefined : 'i');
 }
 
 function extractNavItems(routes) {
@@ -10076,6 +10076,11 @@ Router.prototype.shutdown = function() {
   this.$namespace.shutdown();
   this.$globalNamespace.shutdown();
   invoke(this.subscriptions, 'dispose');
+  each(this, function(property) {
+    if( !isNull(property) && isFunction(property.dispose) ) {
+      property.dispose();
+    }
+  });
 };
 
 Router.prototype.normalizeURL = function(url) {
@@ -10104,7 +10109,7 @@ Router.prototype.getRouteForURL = function(url) {
 
     if( !isNull(routeParamValues) ) {
       if( hasSubRoutes ) {
-        splatSegment = routeParamValues.pop();
+        splatSegment = routeParamValues.pop() || '';
       }
 
       var routeParamNames = map( routeString.match(namedParam), function(param) {
