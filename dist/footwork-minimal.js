@@ -4732,7 +4732,18 @@ function extractNavItems(routes) {
 }
 
 function historyIsReady() {
-  return has(History, 'Adapter');
+  var isReady = has(History, 'Adapter');
+  if(isReady && isUndefined(History.Adapter.unbind)) {
+    // why .unbind() is not already present in History.js is beyond me
+    History.Adapter.unbind = function(callback) {
+      each(History.Adapter.handlers, function(handler) {
+        handler.statechange = filter(handler.statechange, function(stateChangeHandler) {
+          return stateChangeHandler !== callback;
+        });
+      });
+    };
+  }
+  return isReady;
 }
 
 function hasNavItems(routes) {
@@ -4804,6 +4815,7 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   extend(this, $baseRouter);
   var subscriptions = this.subscriptions = [];
 
+  this.id = uniqueId('router');
   this.$globalNamespace = makeNamespace();
   this.$namespace = makeNamespace( routerConfig.namespace );
   this.$namespace.enter();
@@ -4951,18 +4963,20 @@ Router.prototype.stateChange = function(url) {
 };
 
 Router.prototype.startup = function( $context, $parentRouter ) {
+  var $myRouter = this;
   $parentRouter = $parentRouter || $nullRouter;
+
   if( !isNullRouter($parentRouter) ) {
     this.parentRouter( $parentRouter );
   } else if( isObject($context) ) {
     this.parentRouter( $parentRouter = nearestParentRouter($context) );
   }
 
-  if( this.historyIsEnabled() !== true ) {
+  if( !this.historyIsEnabled() ) {
     if( historyIsReady() ) {
-      History.Adapter.bind( windowObject, 'statechange', bind(function() {
-        this.stateChange( History.getState().url );
-      }, this) );
+      History.Adapter.bind( windowObject, 'statechange', this.onStateChange = function() {
+        $myRouter.stateChange( History.getState().url );
+      } );
       this.historyIsEnabled(true);
     } else {
       this.historyIsEnabled(false);
@@ -4973,13 +4987,21 @@ Router.prototype.startup = function( $context, $parentRouter ) {
 };
 
 Router.prototype.shutdown = function() {
-  delete this.stateChange;
-  this.parentRouter().childRouters.remove(this);
+  var $parentRouter = this.parentRouter();
+  if( !isNullRouter($parentRouter) ) {
+    this.parentRouter().childRouters.remove(this);
+  }
+
+  if( this.historyIsEnabled() && historyIsReady() ) {
+    History.Adapter.unbind( this.onStateChange );
+  }
+
   this.$namespace.shutdown();
   this.$globalNamespace.shutdown();
+
   invoke(this.subscriptions, 'dispose');
   each(this, function(property) {
-    if( !isNull(property) && isFunction(property.dispose) ) {
+    if( property && isFunction(property.dispose) ) {
       property.dispose();
     }
   });
