@@ -4989,7 +4989,7 @@ Router.prototype.startup = function( $context, $parentRouter ) {
 Router.prototype.shutdown = function() {
   var $parentRouter = this.parentRouter();
   if( !isNullRouter($parentRouter) ) {
-    this.parentRouter().childRouters.remove(this);
+    $parentRouter.childRouters.remove(this);
   }
 
   if( this.historyIsEnabled() && historyIsReady() ) {
