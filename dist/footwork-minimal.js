@@ -4802,6 +4802,7 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
 
 var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   extend(this, $baseRouter);
+  var subscriptions = this.subscriptions = [];
 
   this.$globalNamespace = makeNamespace();
   this.$namespace = makeNamespace( routerConfig.namespace );
@@ -4856,28 +4857,28 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   }, this);
 
   var $previousParent = $nullRouter;
-  this.parentRouter.subscribe(function( $parentRouter ) {
+  subscriptions.push(this.parentRouter.subscribe(function( $parentRouter ) {
     if( !isNullRouter($previousParent) && $previousParent !== $parentRouter ) {
       $previousParent.childRouters.remove(this);
     }
     $parentRouter.childRouters.push(this);
     $previousParent = $parentRouter;
-  }, this);
+  }, this));
 
   // Automatically trigger the new Action() whenever the currentRoute() updates
   var oldRoute;
-  this.currentRoute.subscribe(function( newRoute ) {
+  subscriptions.push(this.currentRoute.subscribe(function( newRoute ) {
     if( !isNull(newRoute) && (isUndefined(oldRoute) || oldRoute.id !== newRoute.id) ) {
       this.getActionForRoute( newRoute )( /* get and call the action for the newRoute */ );
       oldRoute = newRoute;
     }
-  }, this);
+  }, this));
 
-  this.childRouters.subscribe(function( childRouters ) {
+  subscriptions.push(this.childRouters.subscribe(function( childRouters ) {
     this.hasChildRouters( reduce(childRouters, function(hasChildRouters, childRouter) {
       return hasChildRouters || childRouter.isRelative();
     }, false) );
-  }, this);
+  }, this));
 
   var $router = this;
   this.$globalNamespace.request.handler('__router_reference', function() {
@@ -4893,11 +4894,11 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.setRoutes( routerConfig.routes );
 
   if( routerConfig.activate === true ) {
-    this.context.subscribe(function( $context ) {
+    subscriptions.push(this.context.subscribe(function( $context ) {
       if( isObject($context) ) {
         this.activate( $context );
       }
-    }, this);
+    }, this));
   }
   this.context( $viewModel.$context || $context );
 
@@ -4976,6 +4977,7 @@ Router.prototype.shutdown = function() {
   this.parentRouter().childRouters.remove(this);
   this.$namespace.shutdown();
   this.$globalNamespace.shutdown();
+  invoke(this.subscriptions, 'dispose');
 };
 
 Router.prototype.normalizeURL = function(url) {
