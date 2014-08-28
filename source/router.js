@@ -103,8 +103,8 @@ function hasNavItems(routes) {
   return extractNavItems( routes ).length > 0;
 }
 
-function isNullRouter($router) {
-  return !!$router.__isNullRouter;
+function isNullRouter(thing) {
+  return isObject(thing) && !!thing.__isNullRouter;
 }
 
 function isRouter(thing) {
