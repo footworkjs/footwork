@@ -224,7 +224,9 @@ ko.components.register('outlet', {
 });
 
 ko.components.register('_noComponentSelected', {
-  viewModel: function(params) {},
+  viewModel: function(params) {
+    this.__assertPresence = false;
+  },
   template: '<div class="no-component-selected"></div>'
 });
 

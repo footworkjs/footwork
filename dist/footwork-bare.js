@@ -1237,11 +1237,13 @@ var makeViewModel = ko.viewModel = function(configParams) {
       };
     },
     _postInit: function() {
-      this.$globalNamespace.request.handler('__model_reference', bind(function(options) {
-        if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
-          return this;
-        }
-      }, this));
+      if( this.__assertPresence !== false ) {
+        this.$globalNamespace.request.handler('__model_reference', bind(function(options) {
+          if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
+            return this;
+          }
+        }, this));
+      }
     }
   };
 
@@ -1703,7 +1705,9 @@ ko.components.register('outlet', {
 });
 
 ko.components.register('_noComponentSelected', {
-  viewModel: function(params) {},
+  viewModel: function(params) {
+    this.__assertPresence = false;
+  },
   template: '<div class="no-component-selected"></div>'
 });
 
