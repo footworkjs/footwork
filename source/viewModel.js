@@ -95,7 +95,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
         }
 
         each(this, function( property ) {
-          if( isNamespace(property) || isRouter(property) ) {
+          if( isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) ) {
             property.shutdown();
           }
         });

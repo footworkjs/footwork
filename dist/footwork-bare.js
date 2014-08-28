@@ -568,14 +568,25 @@ viewModelMixins.push({
 // broadcast-receive.js
 // ----------------
 
+function isReceiver(thing) {
+  return !!thing.__isReceiver;
+}
+
+function isBroadcaster(thing) {
+  return !!thing.__isBroadcaster;
+}
+
 //     this.myValue = ko.observable().receiveFrom('NamespaceName' / Namespace, 'varName');
 ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
   var observable = this;
+  var subscriptions = [];
+  var isLocalNamespace = false;
 
   if( !isNamespace(namespace) ) {
     if( isString(namespace) ) {
       namespace = makeNamespace( namespace );
+      isLocalNamespace = true;
     } else {
       throw 'Invalid namespace [' + typeof namespace + ']';
     }
@@ -592,11 +603,18 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
     namespace.publish( 'refresh.' + variable );
     return this;
   };
-  namespace.subscribe( variable, function( newValue ) {
+  subscriptions.push( namespace.subscribe( variable, function( newValue ) {
     target( newValue );
-  });
+  }) );
 
-  observable.__isReceived = true;
+  observable.dispose = observable.shutdown = function() {
+    invoke(subscriptions, 'dispose');
+    if( isLocalNamespace ) {
+      namespace.shutdown();
+    }
+  };
+
+  observable.__isReceiver = true;
   return observable.refresh();
 };
 
@@ -608,6 +626,8 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
 ko.subscribable.fn.broadcastAs = function(varName, option) {
   var observable = this;
   var namespace;
+  var subscriptions = [];
+  var isLocalNamespace = false;
 
   if( isObject(varName) ) {
     option = varName;
@@ -630,27 +650,35 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
 
   namespace = option.namespace || currentNamespace();
   if( isString(namespace) ) {
-    namespace = makeNamespace(channel);
+    namespace = makeNamespace(namespace);
+    isLocalNamespace = true;
   }
 
   if( option.writable ) {
-    namespace.subscribe( 'change.' + option.name, function( newValue ) {
+    subscriptions.push( namespace.subscribe( 'change.' + option.name, function( newValue ) {
       observable( newValue );
-    });
+    }) );
   }
 
   observable.broadcast = function() {
     namespace.publish( option.name, observable() );
     return this;
   };
-  namespace.subscribe( 'refresh.' + option.name, function() {
+  subscriptions.push( namespace.subscribe( 'refresh.' + option.name, function() {
     namespace.publish( option.name, observable() );
-  });
-  observable.subscribe(function( newValue ) {
+  }) );
+  subscriptions.push( observable.subscribe(function( newValue ) {
     namespace.publish( option.name, newValue );
-  });
+  }) );
 
-  observable.__isBroadcast = true;
+  observable.dispose = observable.shutdown = function() {
+    invoke(subscriptions, 'dispose');
+    if( isLocalNamespace ) {
+      namespace.shutdown();
+    }
+  };
+
+  observable.__isBroadcaster = true;
   return observable.broadcast();
 };
 // router.js
@@ -1214,7 +1242,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
         }
 
         each(this, function( property ) {
-          if( isNamespace(property) || isRouter(property) ) {
+          if( isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) ) {
             property.shutdown();
           }
         });
