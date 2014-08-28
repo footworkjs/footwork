@@ -14,18 +14,6 @@ function isViewModel(thing) {
 // Preserve the original applyBindings method for later use
 var originalApplyBindings = ko.applyBindings;
 
-// Returns the number of created viewModels for each defined namespace
-var viewModelCount = ko.viewModelCount = function() {
-  var counts = reduce(namespaceNameCounter, function(viewModelCounts, viewModelCount, viewModelName) {
-    viewModelCounts[viewModelName] = viewModelCount + 1;
-    return viewModelCounts;
-  }, {});
-  counts.__total = reduce( values(counts), function(summation, num) {
-    return summation + num;
-  }, 0 );
-  return counts;
-};
-
 // Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all model references is returned.
 var getViewModels = ko.getViewModels = function(includeOutlets) {
