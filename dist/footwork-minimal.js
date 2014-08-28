@@ -4787,8 +4787,8 @@ function hasNavItems(routes) {
   return extractNavItems( routes ).length > 0;
 }
 
-function isNullRouter($router) {
-  return !!$router.__isNullRouter;
+function isNullRouter(thing) {
+  return isObject(thing) && !!thing.__isNullRouter;
 }
 
 function isRouter(thing) {
@@ -5616,15 +5616,16 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
       } else {
         throw 'Unhandled config type ' + typeof config + '.';
       }
+      ko.components.defaultLoader.loadTemplate(componentName, config, callback);
+    } else {
+      callback(null);
     }
-    ko.components.defaultLoader.loadTemplate(componentName, config, callback);
   },
   loadViewModel: function(componentName, config, callback) {
     var ViewModel = config.viewModel || config;
     if( nativeComponents.indexOf(componentName) === -1 ) {
       callback(function(params, componentInfo) {
-        var element = componentInfo.element;
-        var $context = ko.contextFor(element);
+        var $context = ko.contextFor(componentInfo.element);
 
         if( isViewModelCtor(ViewModel) ) {
           // inject the context into the ViewModel contructor
@@ -5637,7 +5638,7 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
         return new ViewModel(params);
       });
     } else {
-      ko.components.defaultLoader.loadViewModel(componentName, config, callback);
+      callback(null);
     }
   }
 });
