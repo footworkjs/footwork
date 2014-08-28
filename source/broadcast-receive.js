@@ -16,13 +16,13 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   var subscriptions = [];
   var isLocalNamespace = false;
 
+  if( isString(namespace) ) {
+    namespace = makeNamespace( namespace );
+    isLocalNamespace = true;
+  }
+
   if( !isNamespace(namespace) ) {
-    if( isString(namespace) ) {
-      namespace = makeNamespace( namespace );
-      isLocalNamespace = true;
-    } else {
-      throw 'Invalid namespace [' + typeof namespace + ']';
-    }
+    throw 'Invalid namespace provided for receiveFrom() observable.';
   }
 
   observable = ko.computed({
@@ -85,6 +85,10 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
   if( isString(namespace) ) {
     namespace = makeNamespace(namespace);
     isLocalNamespace = true;
+  }
+
+  if( !isNamespace(namespace) ) {
+    throw 'Invalid namespace provided for broadcastAs() observable.';
   }
 
   if( option.writable ) {
