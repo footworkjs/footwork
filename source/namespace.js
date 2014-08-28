@@ -101,7 +101,7 @@ function requestResponseFromNamespace(requestKey, params) {
     }
   });
 
-  this.publish( createEnvelope('request.' + requestKey, response) );
+  this.publish( createEnvelope('request.' + requestKey, params) );
   responseSubscription.unsubscribe();
 
   return response;
@@ -232,7 +232,6 @@ viewModelMixins.push({
     }
   },
   _postInit: function( options ) {
-    viewModels[ this.getNamespaceName() ] = this;
     exitNamespace();
   }
 });
