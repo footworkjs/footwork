@@ -234,6 +234,7 @@ ko.components.register('error', {
   viewModel: function(params) {
     this.message = ko.observable(params.message);
     this.errors = params.errors;
+    this.__assertPresence = false;
   },
   template: '\
     <div class="component error" data-bind="foreach: errors">\
