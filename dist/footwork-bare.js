@@ -569,18 +569,18 @@ viewModelMixins.push({
 // ----------------
 
 function isReceiver(thing) {
-  return !!thing.__isReceiver;
+  return isObject(thing) && !!thing.__isReceiver;
 }
 
 function isBroadcaster(thing) {
-  return !!thing.__isBroadcaster;
+  return isObject(thing) && !!thing.__isBroadcaster;
 }
 
 //     this.myValue = ko.observable().receiveFrom('NamespaceName' / Namespace, 'varName');
 ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
   var observable = this;
-  var subscriptions = [];
+  var namespaceSubscriptions = [];
   var isLocalNamespace = false;
 
   if( isString(namespace) ) {
@@ -595,23 +595,26 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   observable = ko.computed({
     read: target,
     write: function( value ) {
-      namespace.publish( 'change.' + variable, value );
+      namespace.publish( '__change.' + variable, value );
     }
   });
 
   observable.refresh = function() {
-    namespace.publish( 'refresh.' + variable );
+    namespace.publish( '__refresh.' + variable );
     return this;
   };
-  subscriptions.push( namespace.subscribe( variable, function( newValue ) {
+
+  namespaceSubscriptions.push( namespace.subscribe( variable, function( newValue ) {
     target( newValue );
   }) );
 
+  var observableDispose = observable.dispose;
   observable.dispose = observable.shutdown = function() {
-    invoke(subscriptions, 'dispose');
+    invoke(namespaceSubscriptions, 'unsubscribe');
     if( isLocalNamespace ) {
       namespace.shutdown();
     }
+    observableDispose.call(observable);
   };
 
   observable.__isReceiver = true;
@@ -627,6 +630,7 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
   var observable = this;
   var namespace;
   var subscriptions = [];
+  var namespaceSubscriptions = [];
   var isLocalNamespace = false;
 
   if( isObject(varName) ) {
@@ -659,7 +663,7 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
   }
 
   if( option.writable ) {
-    subscriptions.push( namespace.subscribe( 'change.' + option.name, function( newValue ) {
+    namespaceSubscriptions.push( namespace.subscribe( '__change.' + option.name, function( newValue ) {
       observable( newValue );
     }) );
   }
@@ -668,7 +672,8 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
     namespace.publish( option.name, observable() );
     return this;
   };
-  subscriptions.push( namespace.subscribe( 'refresh.' + option.name, function() {
+
+  namespaceSubscriptions.push( namespace.subscribe( '__refresh.' + option.name, function() {
     namespace.publish( option.name, observable() );
   }) );
   subscriptions.push( observable.subscribe(function( newValue ) {
@@ -676,6 +681,7 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
   }) );
 
   observable.dispose = observable.shutdown = function() {
+    invoke(namespaceSubscriptions, 'unsubscribe');
     invoke(subscriptions, 'dispose');
     if( isLocalNamespace ) {
       namespace.shutdown();
