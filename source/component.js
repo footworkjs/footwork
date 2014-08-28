@@ -218,6 +218,7 @@ ko.components.register('outlet', {
   autoIncrement: true,
   viewModel: function(params) {
     this.outletName = ko.unwrap(params.name);
+    this.__isOutlet = true;
   },
   template: '<!-- ko $outletBind, component: $outletRoute --><!-- /ko -->'
 });

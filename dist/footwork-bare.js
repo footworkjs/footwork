@@ -431,7 +431,7 @@ function requestResponseFromNamespace(requestKey, params) {
     }
   });
 
-  this.publish( createEnvelope('request.' + requestKey, response) );
+  this.publish( createEnvelope('request.' + requestKey, params) );
   responseSubscription.unsubscribe();
 
   return response;
@@ -562,7 +562,6 @@ viewModelMixins.push({
     }
   },
   _postInit: function( options ) {
-    viewModels[ this.getNamespaceName() ] = this;
     exitNamespace();
   }
 });
@@ -983,7 +982,7 @@ Router.prototype.startup = function( $context, $parentRouter ) {
 
   if( !this.historyIsEnabled() ) {
     if( historyIsReady() ) {
-      History.Adapter.bind( windowObject, 'statechange', this.onStateChange = function() {
+      History.Adapter.bind( windowObject, 'statechange', this.stateChangeHandler = function() {
         $myRouter.stateChange( History.getState().url );
       } );
       this.historyIsEnabled(true);
@@ -1002,7 +1001,7 @@ Router.prototype.shutdown = function() {
   }
 
   if( this.historyIsEnabled() && historyIsReady() ) {
-    History.Adapter.unbind( this.onStateChange );
+    History.Adapter.unbind( this.stateChangeHandler );
   }
 
   this.$namespace.shutdown();
@@ -1131,9 +1130,6 @@ function isViewModel(thing) {
   return isObject(thing) && !!thing.__isViewModel;
 }
 
-// Initialize the viewModels registry
-var viewModels = {};
-
 // Preserve the original applyBindings method for later use
 var originalApplyBindings = ko.applyBindings;
 
@@ -1151,11 +1147,24 @@ var viewModelCount = ko.viewModelCount = function() {
 
 // Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all model references is returned.
-var getViewModels = ko.getViewModels = function(namespaceName) {
-  if( isUndefined(namespaceName) ) {
+var getViewModels = ko.getViewModels = function(includeOutlets) {
+  return reduce( [].concat( makeNamespace().request('__model_reference', (includeOutlets ? { includeOutlets: true } : undefined)) ), function(viewModels, viewModel) {
+    if( !isUndefined(viewModel) ) {
+      var namespaceName = isNamespace(viewModel.$namespace) ? viewModel.$namespace.getName() : null;
+
+      if( !isNull(namespaceName) ) {
+        if( isUndefined(viewModels[namespaceName]) ) {
+          viewModels[namespaceName] = viewModel;
+        } else {
+          if( !isArray(viewModels[namespaceName]) ) {
+            viewModels[namespaceName] = [ viewModels[namespaceName] ];
+          }
+          viewModels[namespaceName].push(viewModel);
+        }
+      }
+    }
     return viewModels;
-  }
-  return viewModels[namespaceName];
+  }, {});
 };
 
 // Tell all viewModels to request the values which it listens for
@@ -1228,9 +1237,11 @@ var makeViewModel = ko.viewModel = function(configParams) {
       };
     },
     _postInit: function() {
-      this.$globalNamespace.request.handler('__model_reference', function() {
-        return this;
-      });
+      this.$globalNamespace.request.handler('__model_reference', bind(function(options) {
+        if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
+          return this;
+        }
+      }, this));
     }
   };
 
@@ -1686,6 +1697,7 @@ ko.components.register('outlet', {
   autoIncrement: true,
   viewModel: function(params) {
     this.outletName = ko.unwrap(params.name);
+    this.__isOutlet = true;
   },
   template: '<!-- ko $outletBind, component: $outletRoute --><!-- /ko -->'
 });
