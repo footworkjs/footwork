@@ -327,7 +327,7 @@ Router.prototype.startup = function( $context, $parentRouter ) {
 
   if( !this.historyIsEnabled() ) {
     if( historyIsReady() ) {
-      History.Adapter.bind( windowObject, 'statechange', this.onStateChange = function() {
+      History.Adapter.bind( windowObject, 'statechange', this.stateChangeHandler = function() {
         $myRouter.stateChange( History.getState().url );
       } );
       this.historyIsEnabled(true);
@@ -346,7 +346,7 @@ Router.prototype.shutdown = function() {
   }
 
   if( this.historyIsEnabled() && historyIsReady() ) {
-    History.Adapter.unbind( this.onStateChange );
+    History.Adapter.unbind( this.stateChangeHandler );
   }
 
   this.$namespace.shutdown();
