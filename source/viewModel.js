@@ -118,11 +118,13 @@ var makeViewModel = ko.viewModel = function(configParams) {
       };
     },
     _postInit: function() {
-      this.$globalNamespace.request.handler('__model_reference', bind(function(options) {
-        if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
-          return this;
-        }
-      }, this));
+      if( this.__assertPresence !== false ) {
+        this.$globalNamespace.request.handler('__model_reference', bind(function(options) {
+          if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
+            return this;
+          }
+        }, this));
+      }
     }
   };
 
