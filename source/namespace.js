@@ -162,7 +162,7 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
   namespace.request.handler.unregister = bind( unregisterNamespaceHandler, namespace );
 
   namespace.eventHandlers = [];
-  namespace.event = namespace.triggerEvent = bind( triggerEventOnNamespace, namespace );
+  namespace.event = namespace.trigger = bind( triggerEventOnNamespace, namespace );
   namespace.event.handler = bind( registerNamespaceEventHandler, namespace );
   namespace.event.handler.unregister = bind( unregisterNamespaceHandler, namespace );
 

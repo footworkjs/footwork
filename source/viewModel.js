@@ -14,10 +14,16 @@ function isViewModel(thing) {
 // Preserve the original applyBindings method for later use
 var originalApplyBindings = ko.applyBindings;
 
+var defaultGetViewModelOptions = {
+  includeOutlets: false
+};
+
+ko.viewModels = {};
+
 // Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all model references is returned.
-var getViewModels = ko.getViewModels = function(includeOutlets) {
-  return reduce( [].concat( makeNamespace().request('__model_reference', (includeOutlets ? { includeOutlets: true } : undefined)) ), function(viewModels, viewModel) {
+var getViewModels = ko.viewModels.getAll = function(options) {
+  return reduce( [].concat( $globalNamespace.request('__model_reference', extend({}, defaultGetViewModelOptions, options)) ), function(viewModels, viewModel) {
     if( !isUndefined(viewModel) ) {
       var namespaceName = isNamespace(viewModel.$namespace) ? viewModel.$namespace.getName() : null;
 
@@ -37,8 +43,8 @@ var getViewModels = ko.getViewModels = function(includeOutlets) {
 };
 
 // Tell all viewModels to request the values which it listens for
-var refreshModels = ko.refreshViewModels = function() {
-  invoke(getViewModels(), 'refreshReceived');
+var refreshViewModels = ko.viewModels.refresh = function() {
+  $globalNamespace.trigger('__refreshViewModels');
 };
 
 var defaultViewModelConfigParams = {
