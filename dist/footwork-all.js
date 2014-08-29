@@ -10375,6 +10375,13 @@ var makeViewModel = ko.viewModel = function(configParams) {
             return this;
           }
         }, this));
+        this.$globalNamespace.event.handler('__refreshViewModels', bind(function() {
+          each(this, function(property) {
+            if( isReceiver(property) ) {
+              property.refresh();
+            }
+          });
+        }, this));
       }
     }
   };
