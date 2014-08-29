@@ -492,7 +492,7 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
   namespace.request.handler.unregister = bind( unregisterNamespaceHandler, namespace );
 
   namespace.eventHandlers = [];
-  namespace.event = namespace.triggerEvent = bind( triggerEventOnNamespace, namespace );
+  namespace.event = namespace.trigger = bind( triggerEventOnNamespace, namespace );
   namespace.event.handler = bind( registerNamespaceEventHandler, namespace );
   namespace.event.handler.unregister = bind( unregisterNamespaceHandler, namespace );
 
@@ -565,6 +565,9 @@ viewModelMixins.push({
     exitNamespace();
   }
 });
+
+var $globalNamespace = makeNamespace();
+
 // broadcast-receive.js
 // ----------------
 
@@ -857,7 +860,43 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
   return outlets[outletName];
 };
 
-var Router = ko.router = function( routerConfig, $viewModel, $context ) {
+ko.routers = {
+  // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
+  baseRoute: ko.observable(''),
+  
+  // Return array of all currently instantiated $router's
+  getAll: function() {
+    return $globalNamespace.request('__router_reference');
+  }
+};
+
+ko.router = function( routerConfig, $viewModel, $context ) {
+  return new Router( routerConfig, $viewModel, $context );
+};
+
+ko.bindingHandlers.$route = {
+  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    var $myRouter = nearestParentRouter(bindingContext);
+    var $nearestParentRouter = nearestParentRouter( $myRouter.context().$parentContext );
+
+    var setHref = !!$myRouter.config.setHref;
+    var prependedRoutePath = ($myRouter.isRelative() && !isNullRouter($nearestParentRouter)) ? $nearestParentRouter.routePath() : '';
+    var suppliedRoutePath = ko.unwrap(valueAccessor()) || '';
+    var routePath = prependedRoutePath + (suppliedRoutePath || element.getAttribute('href'));
+
+    var tagName = element.tagName;
+    if( setHref && ((isString(tagName) && tagName.toLowerCase() === 'a') || element.hasAttribute('href')) ) {
+      element.setAttribute('href', routePath);
+    }
+
+    ko.utils.registerEventHandler(element, 'click', function( event ) {
+      History.pushState( null, document.title, element.getAttribute('href') || routePath );
+      event.preventDefault();
+    });
+  }
+};
+
+var Router = function( routerConfig, $viewModel, $context ) {
   extend(this, $baseRouter);
   var subscriptions = this.subscriptions = [];
 
@@ -874,7 +913,7 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.historyIsEnabled = ko.observable(false).broadcastAs('historyIsEnabled');
   this.currentState = ko.observable().broadcastAs('currentState');
   this.config = routerConfig = extend({}, routerDefaultConfig, routerConfig);
-  this.config.baseRoute = Router.baseRoute() + (result(routerConfig, 'baseRoute') || '');
+  this.config.baseRoute = ko.routers.baseRoute() + (result(routerConfig, 'baseRoute') || '');
 
   this.isRelative = ko.computed(function() {
     return routerConfig.isRelative && !isNullRouter( this.parentRouter() );
@@ -961,12 +1000,6 @@ var Router = ko.router = function( routerConfig, $viewModel, $context ) {
   this.context( $viewModel.$context || $context );
 
   this.$namespace.exit();
-};
-Router.baseRoute = ko.observable('');
-
-// Return array of all currently instantiated $router's
-Router.getAllRouters = function() {
-  return makeNamespace().request('__router_reference');
 };
 
 Router.prototype.unknownRoute = function() {
@@ -1133,28 +1166,6 @@ Router.prototype.navigationModel = function(predicate) {
 
   return this.navigationModel;
 };
-
-ko.bindingHandlers.$route = {
-  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    var $myRouter = nearestParentRouter(bindingContext);
-    var $nearestParentRouter = nearestParentRouter( $myRouter.context().$parentContext );
-
-    var setHref = !!$myRouter.config.setHref;
-    var prependedRoutePath = ($myRouter.isRelative() && !isNullRouter($nearestParentRouter)) ? $nearestParentRouter.routePath() : '';
-    var suppliedRoutePath = ko.unwrap(valueAccessor()) || '';
-    var routePath = prependedRoutePath + (suppliedRoutePath || element.getAttribute('href'));
-
-    var tagName = element.tagName;
-    if( setHref && ((isString(tagName) && tagName.toLowerCase() === 'a') || element.hasAttribute('href')) ) {
-      element.setAttribute('href', routePath);
-    }
-
-    ko.utils.registerEventHandler(element, 'click', function( event ) {
-      History.pushState( null, document.title, element.getAttribute('href') || routePath );
-      event.preventDefault();
-    });
-  }
-};
 // viewModel.js
 // ------------------
 
@@ -1171,10 +1182,16 @@ function isViewModel(thing) {
 // Preserve the original applyBindings method for later use
 var originalApplyBindings = ko.applyBindings;
 
+var defaultGetViewModelOptions = {
+  includeOutlets: false
+};
+
+ko.viewModels = {};
+
 // Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all model references is returned.
-var getViewModels = ko.getViewModels = function(includeOutlets) {
-  return reduce( [].concat( makeNamespace().request('__model_reference', (includeOutlets ? { includeOutlets: true } : undefined)) ), function(viewModels, viewModel) {
+var getViewModels = ko.viewModels.getAll = function(options) {
+  return reduce( [].concat( $globalNamespace.request('__model_reference', extend({}, defaultGetViewModelOptions, options)) ), function(viewModels, viewModel) {
     if( !isUndefined(viewModel) ) {
       var namespaceName = isNamespace(viewModel.$namespace) ? viewModel.$namespace.getName() : null;
 
@@ -1194,8 +1211,8 @@ var getViewModels = ko.getViewModels = function(includeOutlets) {
 };
 
 // Tell all viewModels to request the values which it listens for
-var refreshModels = ko.refreshViewModels = function() {
-  invoke(getViewModels(), 'refreshReceived');
+var refreshViewModels = ko.viewModels.refresh = function() {
+  $globalNamespace.trigger('__refreshViewModels');
 };
 
 var defaultViewModelConfigParams = {
@@ -1635,7 +1652,6 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
     if( nativeComponents.indexOf(componentName) === -1 ) {
       callback(function(params, componentInfo) {
         var $context = ko.contextFor(componentInfo.element);
-
         if( isViewModelCtor(ViewModel) ) {
           // inject the context into the ViewModel contructor
           ViewModel = ViewModel.compose({
