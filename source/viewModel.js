@@ -62,6 +62,7 @@ var defaultViewModelConfigParams = {
 var makeViewModel = ko.viewModel = function(configParams) {
   var ctor = noop;
   var afterInit = noop;
+  var parentViewModel = configParams.parent;
 
   configParams = configParams || {};
   if( !isUndefined(configParams) ) {
@@ -129,14 +130,23 @@ var makeViewModel = ko.viewModel = function(configParams) {
     }
   };
 
-  var composure = [ ctor, initViewModelMixin ].concat( viewModelMixins, afterInit );
-  if( !isUndefined(configParams.mixins) ) {
-    composure = composure.concat(configParams.mixins);
+  if( !isViewModelCtor(ctor) ) {
+    var composure = [ ctor, initViewModelMixin ].concat( viewModelMixins, afterInit );
+    if( !isUndefined(configParams.mixins) ) {
+      composure = composure.concat(configParams.mixins);
+    }
+
+    var model = riveter.compose.apply( undefined, composure );
+    model.__isViewModelCtor = true;
+    model.__configParams = configParams;
+  } else {
+    // user has specified another viewModel constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain
+    model = ctor;
   }
 
-  var model = riveter.compose.apply( undefined, composure );
-  model.__isViewModelCtor = true;
-  model.__configParams = configParams;
+  if( !isUndefined(parentViewModel) ) {
+    model.inherits(parentViewModel);
+  }
 
   return model;
 };
