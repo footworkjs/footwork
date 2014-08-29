@@ -72,12 +72,12 @@ function sendCommandToNamespace(commandKey, params, expires) {
 }
 
 // Method used to register a command handler on a namespace
-function registerNamespaceCommandHandler(requestKey, callback, context) {
+function registerNamespaceCommandHandler(commandKey, callback, context) {
   if( !isUndefined(context) ) {
     callback = bind(callback, context);
   }
 
-  var handlerSubscription = this.subscribe('command.' + requestKey, callback).enlistPreserved();
+  var handlerSubscription = this.subscribe('command.' + commandKey, callback).enlistPreserved();
   this.commandHandlers.push(handlerSubscription);
 
   return handlerSubscription;
@@ -173,8 +173,6 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
   namespace.exit = function() {
     if( currentNamespaceName() === this.getName() ) {
       return exitNamespace();
-    } else if( ko.debugLevel() >= 2 ) {
-      throw 'Attempted to exit namespace [' + this.getName() + '] when currently in namespace [' + currentNamespaceName() +  ']';
     }
   };
 
