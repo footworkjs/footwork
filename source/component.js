@@ -128,7 +128,6 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
     if( nativeComponents.indexOf(componentName) === -1 ) {
       callback(function(params, componentInfo) {
         var $context = ko.contextFor(componentInfo.element);
-
         if( isViewModelCtor(ViewModel) ) {
           // inject the context into the ViewModel contructor
           ViewModel = ViewModel.compose({

@@ -59,6 +59,9 @@ var viewModelMixins = [];
 ko.debugLevel = ko.observable(1);
 
 //import("namespace.js");
+
+var $globalNamespace = makeNamespace();
+
 //import("broadcast-receive.js");
 //import("router.js");
 //import("viewModel.js");
