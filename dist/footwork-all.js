@@ -9345,6 +9345,7 @@ if (typeof JSON !== 'object') {
                 }
             });
         }
+        return this;
     };
     return postal;
 }));
@@ -9473,7 +9474,7 @@ function registerNamespaceEventHandler(eventKey, callback, context) {
   }
 
   var handlerSubscription = this.subscribe('event.' + eventKey, callback).enlistPreserved();
-  this.commandHandlers.push(handlerSubscription);
+  this.eventHandlers.push(handlerSubscription);
 
   return handlerSubscription;
 }
