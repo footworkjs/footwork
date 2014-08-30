@@ -5678,17 +5678,18 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
   loadViewModel: function(componentName, config, callback) {
     var ViewModel = config.viewModel || config;
     if( nativeComponents.indexOf(componentName) === -1 ) {
-      callback(function(params, componentInfo) {
+      callback(function(params, componentInfo) { componentName;
         var $context = ko.contextFor(componentInfo.element);
+        var theViewModel = ViewModel;
         if( isViewModelCtor(ViewModel) ) {
           // inject the context into the ViewModel contructor
-          ViewModel = ViewModel.compose({
+          theViewModel = ViewModel.compose({
             _preInit: function() {
               this.$context = $context;
             }
           });
         }
-        return new ViewModel(params);
+        return new theViewModel(params);
       });
     } else {
       callback(null);
