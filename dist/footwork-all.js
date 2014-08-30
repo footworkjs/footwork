@@ -9830,6 +9830,7 @@ var invalidRoutePathIdentifier = '___invalid-route';
 
 var $nullRouter = extend({}, $baseRouter, {
   childRouters: extend( bind(noop), { push: noop } ),
+  routePath: function() { return ''; },
   isRelative: function() { return false; },
   __isNullRouter: true
 });
@@ -9853,7 +9854,7 @@ var baseRouteDescription = {
 };
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
-function routeStringToRegExp(routeString, url, hasSubRoute) {
+function routeStringToRegExp(routeString, url) {
   routeString = routeString
     .replace(escapeRegExp, "\\$&")
     .replace(optionalParam, "(?:$1)?")
@@ -9862,7 +9863,7 @@ function routeStringToRegExp(routeString, url, hasSubRoute) {
     })
     .replace(splatParam, "(.*?)");
 
-  return new RegExp('^' + routeString + (true && routeString !== '/' ? '(\\/.*)*' : '$'), routesAreCaseSensitive ? undefined : 'i');
+  return new RegExp('^' + routeString + (routeString !== '/' ? '(\\/.*)*' : '$'), routesAreCaseSensitive ? undefined : 'i');
 }
 
 function extractNavItems(routes) {
@@ -10000,7 +10001,6 @@ var Router = function( routerConfig, $viewModel, $context ) {
 
   this.$viewModel = $viewModel;
   this.childRouters = ko.observableArray();
-  this.hasChildRouters = ko.observable(false);
   this.parentRouter = ko.observable($nullRouter);
   this.context = ko.observable();
   this.historyIsEnabled = ko.observable(false).broadcastAs('historyIsEnabled');
@@ -10011,44 +10011,20 @@ var Router = function( routerConfig, $viewModel, $context ) {
   this.isRelative = ko.computed(function() {
     return routerConfig.isRelative && !isNullRouter( this.parentRouter() );
   }, this);
-
-  this.parentRoutePath = ko.computed(function() {
-    var $parentRouter = this.parentRouter();
-    var routePath = '';
-    if( !isNullRouter($parentRouter) ) {
-      var parentRoute = $parentRouter.currentRoute();
-      if( isRoute(parentRoute) ) {
-        routePath = $parentRouter.parentRoutePath() + parentRoute.routeSegment;
-      }
-    }
-    return routePath;
+  
+  this.currentRoute = ko.computed(function() {
+    return this.getRouteForURL( this.currentState() );
   }, this);
   
   this.routePath = ko.computed(function() {
-    var routeIndex;
-    var routePath = this.currentState() || '';
-    var parentRoutePath = this.parentRoutePath() || '';
+    var currentRoute = this.currentRoute();
+    var parentRouter = this.parentRouter();
+    var routePath = this.parentRouter().routePath();
 
-    if( routePath.length > 0 ) {
-      // must substract parentRoute path
-      if( this.isRelative() && parentRoutePath.length > 0 ) {
-        if( ( routeIndex = routePath.indexOf(parentRoutePath) ) === 0 ) {
-          routePath = routePath.substr( parentRoutePath.length );
-        } else {
-          return invalidRoutePathIdentifier;
-        }
-      }
-
-      var currentRoute = this.currentRoute();
-      if( currentRoute ) {
-        console.log(this, this.currentRoute.routeSegment);
-      }
+    if( isRoute(currentRoute) ) {
+      routePath = routePath + currentRoute.routeSegment;
     }
     return routePath;
-  }, this);
-  
-  this.currentRoute = ko.computed(function() {
-    return this.getRouteForURL( this.routePath() );
   }, this);
 
   var $previousParent = $nullRouter;
@@ -10068,12 +10044,6 @@ var Router = function( routerConfig, $viewModel, $context ) {
       oldRoute = newRoute;
     }
   }, this) );
-
-  subscriptions.push(this.childRouters.subscribe(function( childRouters ) {
-    this.hasChildRouters( reduce(childRouters, function(hasChildRouters, childRouter) {
-      return hasChildRouters || childRouter.isRelative();
-    }, false) );
-  }, this));
 
   var $router = this;
   this.$globalNamespace.request.handler('__router_reference', function() {
@@ -10204,13 +10174,25 @@ Router.prototype.normalizeURL = function(url) {
 };
 
 Router.prototype.getRouteForURL = function(url) {
-  var hasSubRoutes = this.hasChildRouters();
-  var route = null; var $router = this;
+  var route = null;
+  var parentRoutePath = this.parentRouter().routePath() || '';
+
+  if( this.isRelative() ) {
+    if( parentRoutePath.length > 0 ) {
+      if( ( routeIndex = url.indexOf(parentRoutePath) ) === 0 ) {
+        url = url.substr( parentRoutePath.length );
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
 
   find(this.getRouteDescriptions(), function(routeDesc, routeIndex) {
-    var routeString = routeDesc.route; $router;
+    var routeString = routeDesc.route;
     var splatSegment = '';
-    var routeRegex = routeStringToRegExp(routeString, url, hasSubRoutes);
+    var routeRegex = routeStringToRegExp(routeString, url);
     var routeParamValues = url.match(routeRegex);
 
     if( !isNull(routeParamValues) ) {
