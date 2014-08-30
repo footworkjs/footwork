@@ -10037,12 +10037,11 @@ var Router = function( routerConfig, $viewModel, $context ) {
   }, this));
 
   // Automatically trigger the new Action() whenever the currentRoute() updates
-  var oldRoute;
   subscriptions.push( this.currentRoute.subscribe(function( newRoute ) {
-    if( isNull(newRoute) || (!isObject(oldRoute) || oldRoute.id !== newRoute.id) ) {
+    // if( isNull(newRoute) || (!isObject(oldRoute) || oldRoute.id !== newRoute.id) ) {
       this.getActionForRoute( newRoute )( /* get and call the action for the newRoute */ );
-      oldRoute = newRoute;
-    }
+      // oldRoute = newRoute;
+    // }
   }, this) );
 
   var $router = this;
@@ -10234,9 +10233,14 @@ Router.prototype.getActionForRoute = function(routeDescription) {
       if( !isUndefined(routeDescription.title) ) {
         document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this) : routeDescription.title;
       }
-      routeDescription.controller.call( this.$viewModel, this.$outlet, routeDescription );
+
+      if( isUndefined(this.oldRouteDescription) || this.oldRouteDescription.id !== routeDescription.id ) {
+        routeDescription.controller.call( this.$viewModel, this.$outlet, routeDescription );
+      }
+      this.oldRouteDescription = routeDescription;
     }, this);
   }
+
   return Action;
 };
 
@@ -10776,7 +10780,7 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
   loadViewModel: function(componentName, config, callback) {
     var ViewModel = config.viewModel || config;
     if( nativeComponents.indexOf(componentName) === -1 ) {
-      callback(function(params, componentInfo) { componentName;
+      callback(function(params, componentInfo) {
         var $context = ko.contextFor(componentInfo.element);
         var LoadedViewModel = ViewModel;
         if( isViewModelCtor(ViewModel) ) {
