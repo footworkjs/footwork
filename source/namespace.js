@@ -219,6 +219,7 @@ var exitNamespace = ko.exitNamespace = function() {
 
 // mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
 viewModelMixins.push({
+  runBeforeInit: true,
   _preInit: function( options ) {
     var $configParams = this.__getConfigParams();
     this.$namespace = enterNamespaceName( indexedNamespaceName($configParams.componentNamespace || $configParams.namespace || $configParams.name || _.uniqueId('namespace'), $configParams.autoIncrement) );
