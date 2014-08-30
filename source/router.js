@@ -439,6 +439,7 @@ Router.prototype.getRouteForURL = function(url) {
 
 Router.prototype.getActionForRoute = function(routeDescription) {
   var Action = bind( function() {
+    delete this.oldRouteDescription;
     this.$outlet.reset();
   }, this );
 
