@@ -4309,6 +4309,7 @@ var find = _.find;
 var omit = _.omit;
 var indexOf = _.indexOf;
 var values = _.values;
+var reject = _.reject;
 
 // Registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];
@@ -4541,6 +4542,7 @@ var exitNamespace = ko.exitNamespace = function() {
 
 // mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
 viewModelMixins.push({
+  runBeforeInit: true,
   _preInit: function( options ) {
     var $configParams = this.__getConfigParams();
     this.$namespace = enterNamespaceName( indexedNamespaceName($configParams.componentNamespace || $configParams.namespace || $configParams.name || _.uniqueId('namespace'), $configParams.autoIncrement) );
@@ -4762,7 +4764,7 @@ function routeStringToRegExp(routeString, url, hasSubRoute) {
     })
     .replace(splatParam, "(.*?)");
 
-  return new RegExp('^' + routeString + (hasSubRoute && routeString !== '/' ? '(\\/.*)*' : '$'), routesAreCaseSensitive ? undefined : 'i');
+  return new RegExp('^' + routeString + (true && routeString !== '/' ? '(\\/.*)*' : '$'), routesAreCaseSensitive ? undefined : 'i');
 }
 
 function extractNavItems(routes) {
@@ -4887,10 +4889,15 @@ ko.bindingHandlers.$route = {
 var Router = function( routerConfig, $viewModel, $context ) {
   extend(this, $baseRouter);
   var subscriptions = this.subscriptions = [];
+  var viewModelNamespaceName;
+
+  if( isViewModel($viewModel) ) {
+    viewModelNamespaceName = $viewModel.getNamespaceName();
+  }
 
   this.id = uniqueId('router');
   this.$globalNamespace = makeNamespace();
-  this.$namespace = makeNamespace( routerConfig.namespace );
+  this.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + 'Router') );
   this.$namespace.enter();
 
   this.$viewModel = $viewModel;
@@ -4932,6 +4939,11 @@ var Router = function( routerConfig, $viewModel, $context ) {
         } else {
           return invalidRoutePathIdentifier;
         }
+      }
+
+      var currentRoute = this.currentRoute();
+      if( currentRoute ) {
+        console.log(this, this.currentRoute.routeSegment);
       }
     }
     return routePath;
@@ -5095,16 +5107,16 @@ Router.prototype.normalizeURL = function(url) {
 
 Router.prototype.getRouteForURL = function(url) {
   var hasSubRoutes = this.hasChildRouters();
-  var route = null;
+  var route = null; var $router = this;
 
   find(this.getRouteDescriptions(), function(routeDesc, routeIndex) {
-    var routeString = routeDesc.route;
+    var routeString = routeDesc.route; $router;
     var splatSegment = '';
     var routeRegex = routeStringToRegExp(routeString, url, hasSubRoutes);
     var routeParamValues = url.match(routeRegex);
 
     if( !isNull(routeParamValues) ) {
-      if( hasSubRoutes ) {
+      if( true ) {
         splatSegment = routeParamValues.pop() || '';
       }
 
@@ -5223,6 +5235,11 @@ var defaultViewModelConfigParams = {
   afterBinding: noop,
   afterDispose: noop
 };
+
+function beforeInitMixins(mixin) {
+  return !!mixin.runBeforeInit;
+}
+
 var makeViewModel = ko.viewModel = function(configParams) {
   configParams = configParams || {};
 
@@ -5255,12 +5272,6 @@ var makeViewModel = ko.viewModel = function(configParams) {
         this.$router = new Router( configParams.router, this );
       }
       
-      this.__getConfigParams = function() {
-        return configParams;
-      };
-      this.__getInitParams = function() {
-        return initParams;
-      };
       this.__shutdown = function() {
         if( isFunction(configParams.afterDispose) ) {
           configParams.afterDispose.call(this);
@@ -5276,6 +5287,14 @@ var makeViewModel = ko.viewModel = function(configParams) {
           configParams.afterBinding.wasCalled = false;
         }
       };
+    },
+    mixin: {
+      __getConfigParams: function() {
+        return configParams;
+      },
+      __getInitParams: function() {
+        return initParams;
+      }
     },
     _postInit: function() {
       if( this.__assertPresence !== false ) {
@@ -5296,10 +5315,23 @@ var makeViewModel = ko.viewModel = function(configParams) {
   };
 
   if( !isViewModelCtor(ctor) ) {
-    var composure = [ ctor, initViewModelMixin ].concat( viewModelMixins, afterInit );
+    var composure = [ ctor ];
+    var beforeInitMixins = filter(viewModelMixins, beforeInitMixins);
+
+    if( beforeInitMixins.length ) {
+      composure = composure.concat( beforeInitMixins );
+    }
+    
+    composure = composure.concat( initViewModelMixin, reject(viewModelMixins, beforeInitMixins), afterInit );
     if( !isUndefined(configParams.mixins) ) {
       composure = composure.concat(configParams.mixins);
     }
+
+    each(composure, function(element) {
+      if( !isUndefined(element['runBeforeInit']) ) {
+        delete element.runBeforeInit;
+      }
+    });
 
     var model = riveter.compose.apply( undefined, composure );
     model.__isViewModelCtor = true;

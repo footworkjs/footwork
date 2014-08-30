@@ -59,6 +59,11 @@ var defaultViewModelConfigParams = {
   afterBinding: noop,
   afterDispose: noop
 };
+
+function beforeInitMixins(mixin) {
+  return !!mixin.runBeforeInit;
+}
+
 var makeViewModel = ko.viewModel = function(configParams) {
   configParams = configParams || {};
 
@@ -91,12 +96,6 @@ var makeViewModel = ko.viewModel = function(configParams) {
         this.$router = new Router( configParams.router, this );
       }
       
-      this.__getConfigParams = function() {
-        return configParams;
-      };
-      this.__getInitParams = function() {
-        return initParams;
-      };
       this.__shutdown = function() {
         if( isFunction(configParams.afterDispose) ) {
           configParams.afterDispose.call(this);
@@ -112,6 +111,14 @@ var makeViewModel = ko.viewModel = function(configParams) {
           configParams.afterBinding.wasCalled = false;
         }
       };
+    },
+    mixin: {
+      __getConfigParams: function() {
+        return configParams;
+      },
+      __getInitParams: function() {
+        return initParams;
+      }
     },
     _postInit: function() {
       if( this.__assertPresence !== false ) {
@@ -132,10 +139,23 @@ var makeViewModel = ko.viewModel = function(configParams) {
   };
 
   if( !isViewModelCtor(ctor) ) {
-    var composure = [ ctor, initViewModelMixin ].concat( viewModelMixins, afterInit );
+    var composure = [ ctor ];
+    var beforeInitMixins = filter(viewModelMixins, beforeInitMixins);
+
+    if( beforeInitMixins.length ) {
+      composure = composure.concat( beforeInitMixins );
+    }
+    
+    composure = composure.concat( initViewModelMixin, reject(viewModelMixins, beforeInitMixins), afterInit );
     if( !isUndefined(configParams.mixins) ) {
       composure = composure.concat(configParams.mixins);
     }
+
+    each(composure, function(element) {
+      if( !isUndefined(element['runBeforeInit']) ) {
+        delete element.runBeforeInit;
+      }
+    });
 
     var model = riveter.compose.apply( undefined, composure );
     model.__isViewModelCtor = true;

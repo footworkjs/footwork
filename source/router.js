@@ -76,7 +76,7 @@ function routeStringToRegExp(routeString, url, hasSubRoute) {
     })
     .replace(splatParam, "(.*?)");
 
-  return new RegExp('^' + routeString + (hasSubRoute && routeString !== '/' ? '(\\/.*)*' : '$'), routesAreCaseSensitive ? undefined : 'i');
+  return new RegExp('^' + routeString + (true && routeString !== '/' ? '(\\/.*)*' : '$'), routesAreCaseSensitive ? undefined : 'i');
 }
 
 function extractNavItems(routes) {
@@ -201,10 +201,15 @@ ko.bindingHandlers.$route = {
 var Router = function( routerConfig, $viewModel, $context ) {
   extend(this, $baseRouter);
   var subscriptions = this.subscriptions = [];
+  var viewModelNamespaceName;
+
+  if( isViewModel($viewModel) ) {
+    viewModelNamespaceName = $viewModel.getNamespaceName();
+  }
 
   this.id = uniqueId('router');
   this.$globalNamespace = makeNamespace();
-  this.$namespace = makeNamespace( routerConfig.namespace );
+  this.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + 'Router') );
   this.$namespace.enter();
 
   this.$viewModel = $viewModel;
@@ -246,6 +251,11 @@ var Router = function( routerConfig, $viewModel, $context ) {
         } else {
           return invalidRoutePathIdentifier;
         }
+      }
+
+      var currentRoute = this.currentRoute();
+      if( currentRoute ) {
+        console.log(this, this.currentRoute.routeSegment);
       }
     }
     return routePath;
@@ -409,16 +419,16 @@ Router.prototype.normalizeURL = function(url) {
 
 Router.prototype.getRouteForURL = function(url) {
   var hasSubRoutes = this.hasChildRouters();
-  var route = null;
+  var route = null; var $router = this;
 
   find(this.getRouteDescriptions(), function(routeDesc, routeIndex) {
-    var routeString = routeDesc.route;
+    var routeString = routeDesc.route; $router;
     var splatSegment = '';
     var routeRegex = routeStringToRegExp(routeString, url, hasSubRoutes);
     var routeParamValues = url.match(routeRegex);
 
     if( !isNull(routeParamValues) ) {
-      if( hasSubRoutes ) {
+      if( true ) {
         splatSegment = routeParamValues.pop() || '';
       }
 
