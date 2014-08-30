@@ -5680,16 +5680,16 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
     if( nativeComponents.indexOf(componentName) === -1 ) {
       callback(function(params, componentInfo) { componentName;
         var $context = ko.contextFor(componentInfo.element);
-        var theViewModel = ViewModel;
+        var LoadedViewModel = ViewModel;
         if( isViewModelCtor(ViewModel) ) {
           // inject the context into the ViewModel contructor
-          theViewModel = ViewModel.compose({
+          LoadedViewModel = ViewModel.compose({
             _preInit: function() {
               this.$context = $context;
             }
           });
         }
-        return new theViewModel(params);
+        return new LoadedViewModel(params);
       });
     } else {
       callback(null);
