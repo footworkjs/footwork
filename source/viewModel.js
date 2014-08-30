@@ -60,11 +60,12 @@ var defaultViewModelConfigParams = {
   afterDispose: noop
 };
 var makeViewModel = ko.viewModel = function(configParams) {
+  configParams = configParams || {};
+
   var ctor = noop;
   var afterInit = noop;
   var parentViewModel = configParams.parent;
 
-  configParams = configParams || {};
   if( !isUndefined(configParams) ) {
     ctor = configParams.viewModel || configParams.initialize || noop;
     afterInit = configParams.afterInit || noop;
