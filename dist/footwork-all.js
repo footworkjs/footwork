@@ -10038,10 +10038,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
 
   // Automatically trigger the new Action() whenever the currentRoute() updates
   subscriptions.push( this.currentRoute.subscribe(function( newRoute ) {
-    // if( isNull(newRoute) || (!isObject(oldRoute) || oldRoute.id !== newRoute.id) ) {
-      this.getActionForRoute( newRoute )( /* get and call the action for the newRoute */ );
-      // oldRoute = newRoute;
-    // }
+    this.getActionForRoute( newRoute )( /* get and call the action for the newRoute */ );
   }, this) );
 
   var $router = this;
@@ -10225,7 +10222,7 @@ Router.prototype.getRouteForURL = function(url) {
 
 Router.prototype.getActionForRoute = function(routeDescription) {
   var Action = bind( function() {
-    delete this.oldRouteDescription;
+    delete this.__currentRouteDescription;
     this.$outlet.reset();
   }, this );
 
@@ -10235,10 +10232,10 @@ Router.prototype.getActionForRoute = function(routeDescription) {
         document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this) : routeDescription.title;
       }
 
-      if( isUndefined(this.oldRouteDescription) || this.oldRouteDescription.id !== routeDescription.id ) {
+      if( isUndefined(this.__currentRouteDescription) || this.__currentRouteDescription.id !== routeDescription.id ) {
         routeDescription.controller.call( this.$viewModel, this.$outlet, routeDescription );
       }
-      this.oldRouteDescription = routeDescription;
+      this.__currentRouteDescription = routeDescription;
     }, this);
   }
 
