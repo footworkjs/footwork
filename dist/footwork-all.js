@@ -9916,19 +9916,17 @@ function nearestParentRouter($context) {
   return $parentRouter;
 }
 
+var noComponentSelected = '_noComponentSelected';
 var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters ) {
   var outlets = this.outlets;
 
   outletName = ko.unwrap( outletName );
-
   if( !isObservable(outlets[outletName]) ) {
-    outlets[outletName] = ko.observable({
-      name: '_noComponentSelected',
-      params: {}
-    });
+    outlets[outletName] = ko.observable({ name: noComponentSelected, params: {} });
   }
 
-  var currentOutletDef = outlets[outletName]();
+  var outlet = outlets[outletName];
+  var currentOutletDef = outlet();
   var valueHasMutated = false;
 
   if( !isUndefined(componentToDisplay) ) {
@@ -9942,10 +9940,10 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
   }
 
   if( valueHasMutated ) {
-    outlets[outletName].valueHasMutated();
+    outlet.valueHasMutated();
   }
 
-  return outlets[outletName];
+  return outlet;
 };
 
 ko.routers = {
@@ -10052,12 +10050,12 @@ var Router = function( routerConfig, $viewModel, $context ) {
 
   // Automatically trigger the new Action() whenever the currentRoute() updates
   var oldRoute;
-  subscriptions.push(this.currentRoute.subscribe(function( newRoute ) {
-    if( !isNull(newRoute) && (isUndefined(oldRoute) || oldRoute.id !== newRoute.id) ) {
+  subscriptions.push( this.currentRoute.subscribe(function( newRoute ) {
+    if( isNull(newRoute) || (!isObject(oldRoute) || oldRoute.id !== newRoute.id) ) {
       this.getActionForRoute( newRoute )( /* get and call the action for the newRoute */ );
       oldRoute = newRoute;
     }
-  }, this));
+  }, this) );
 
   subscriptions.push(this.childRouters.subscribe(function( childRouters ) {
     this.hasChildRouters( reduce(childRouters, function(hasChildRouters, childRouter) {
@@ -10075,6 +10073,11 @@ var Router = function( routerConfig, $viewModel, $context ) {
   this.navModelUpdate = ko.observable();
   this.outlets = {};
   this.$outlet = bind( $routerOutlet, this );
+  this.$outlet.reset = bind( function() {
+    each( this.outlets, function(outlet) {
+      outlet({ name: noComponentSelected, params: {} });
+    });
+  }, this);
 
   this.setRoutes( routerConfig.routes );
 
@@ -10228,7 +10231,10 @@ Router.prototype.getRouteForURL = function(url) {
 };
 
 Router.prototype.getActionForRoute = function(routeDescription) {
-  var Action = noop;
+  var Action = bind( function() {
+    this.$outlet.reset();
+  }, this );
+
   if( isRoute(routeDescription) ) {
     Action = bind(function() {
       if( !isUndefined(routeDescription.title) ) {
@@ -10316,11 +10322,12 @@ var defaultViewModelConfigParams = {
   afterDispose: noop
 };
 var makeViewModel = ko.viewModel = function(configParams) {
+  configParams = configParams || {};
+
   var ctor = noop;
   var afterInit = noop;
   var parentViewModel = configParams.parent;
 
-  configParams = configParams || {};
   if( !isUndefined(configParams) ) {
     ctor = configParams.viewModel || configParams.initialize || noop;
     afterInit = configParams.afterInit || noop;
