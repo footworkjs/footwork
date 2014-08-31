@@ -80,8 +80,7 @@ function routeStringToRegExp(routeString) {
 }
 
 function extractNavItems(routes) {
-  routes = isArray(routes) ? routes : [routes];
-  return where(routes, { nav: true });
+  return where( isArray(routes) ? routes : [routes], { nav: true } );
 }
 
 function historyIsReady() {
@@ -292,6 +291,7 @@ Router.prototype.setRoutes = function(routeDesc) {
 
 Router.prototype.addRoutes = function(routeDesc) {
   routeDesc = isArray(routeDesc) ? routeDesc : [routeDesc];
+
   this.routeDescriptions = this.routeDescriptions.concat( map(routeDesc, function(routeDesc) {
     return extend( { id: uniqueId('route') }, baseRouteDescription, routeDesc );
   }) );
