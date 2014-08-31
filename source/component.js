@@ -25,6 +25,19 @@ var registerComponent = ko.components.register = function(componentName, options
   });
 };
 
+ko.components.getNormalTagList = function() {
+  return nonComponentTags.splice(0);
+};
+
+ko.components.getComponentNameForNode = function(node) {
+  var tagName = isString(node.tagName) && node.tagName.toLowerCase();
+
+  if( ko.components.isRegistered(tagName) || indexOf(nonComponentTags, tagName) === -1 ) {
+    return tagName;
+  }
+  return null;
+};
+
 var makeComponent = ko.component = function(componentDefinition) {
   var viewModel = componentDefinition.viewModel;
 
@@ -37,7 +50,7 @@ var makeComponent = ko.component = function(componentDefinition) {
 
 // These are tags which are ignored by the custom component loader
 // Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
-var normalTags = [
+var nonComponentTags = [
   'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont', 'bdi', 'bgsound',
   'big', 'blink', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
   'content', 'data', 'datalist', 'dd', 'decorator', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'element',
@@ -59,12 +72,12 @@ var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponen
   }
 
   if(isComponent !== true) {
-    if( contains(normalTags, tagName) === false ) {
-      normalTags.push(tagName);
+    if( contains(nonComponentTags, tagName) === false ) {
+      nonComponentTags.push(tagName);
     }
   } else {
-    normalTags = filter(normalTags, function(normalTagName) {
-      return normalTagName !== tagName;
+    nonComponentTags = filter(nonComponentTags, function(nonComponentTagName) {
+      return nonComponentTagName !== tagName;
     });
   }
 };
@@ -149,9 +162,9 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
 // The loader will attempt to use requirejs via knockouts integrated support if it is available.
 ko.components.loaders.push( ko.components.requireLoader = {
   getConfig: function(componentName, callback) {
-    var combinedFile = componentName + resourceFileExtensions.combined;
-    var viewModelFile = componentName + resourceFileExtensions.viewModel;
-    var templateFile = componentName + resourceFileExtensions.template;
+    var combinedFile = getComponentFileName(componentName, 'combined');
+    var viewModelFile = getComponentFileName(componentName, 'viewModel');
+    var templateFile = getComponentFileName(componentName, 'template');
     var componentLocation = getComponentResourceLocation(componentName);
     var configOptions = null;
     var viewModelPath;

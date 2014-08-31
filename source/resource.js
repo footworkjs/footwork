@@ -1,35 +1,30 @@
 // resource.js
 // ------------------
 
-var resourceFileExtensions = {
+// component resource section
+var defaultComponentFileExtensions = {
   combined: '.js',
   viewModel: '.js',
   template: '.html'
 };
 
-ko.components.setFileExtensions = function(fileType, extension) {
-  if( isObject(fileType) ) {
-    extend(resourceFileExtensions, fileType);
-  } else if( !isUndefined(resourceFileExtensions[fileType]) ) {
-    resourceFileExtensions[fileType] = extension;
+var componentFileExtensions = ko.components.fileExtensions = ko.observable( clone(defaultComponentFileExtensions) );
+
+var getComponentFileName = ko.components.getFileName = function(componentName, fileType) {
+  var componentExtensions = componentFileExtensions();
+  var fileName = componentName;
+
+  if( isFunction(componentExtensions) ) {
+    fileName += componentExtensions(componentName)[fileType];
+  } else if( isObject(componentExtensions) ) {
+    if( isFunction(componentExtensions[fileType]) ) {
+      fileName += componentExtensions[fileType](componentName);
+    } else {
+      fileName += componentExtensions[fileType] || '';
+    }
   }
-};
 
-ko.components.getFileExtensions = function() {
-  return clone(resourceFileExtensions);
-};
-
-ko.components.getNormalTagList = function() {
-  return normalTags.splice(0);
-};
-
-ko.components.getComponentNameForNode = function(node) {
-  var tagName = isString(node.tagName) && node.tagName.toLowerCase();
-
-  if( ko.components.isRegistered(tagName) || indexOf(normalTags, tagName) === -1 ) {
-    return tagName;
-  }
-  return null;
+  return fileName;
 };
 
 var defaultComponentLocation = {
@@ -37,6 +32,7 @@ var defaultComponentLocation = {
   viewModels: '/viewModel/',
   templates: '/component/'
 };
+var componentResourceLocations = ko.components.resourceLocations = {};
 var componentRelativeLocation = ko.components.loadRelativeTo = function(root, updateDefault) {
   var componentLocation = (isUndefined(updateDefault) || updateDefault === true) ? defaultComponentLocation : clone(defaultComponentLocation);
 
@@ -65,7 +61,6 @@ var componentRelativeLocation = ko.components.loadRelativeTo = function(root, up
   return componentLocation;
 };
 
-var componentResourceLocations = ko.components.resourceLocations = {};
 var registerLocationOfComponent = ko.components.registerLocationOf = function(componentName, componentLocation) {
   if( isArray(componentName) ) {
     each(componentName, function(name) {
@@ -83,7 +78,26 @@ var getComponentResourceLocation = ko.components.getResourceLocation = function(
   return componentResourceLocations[componentName] || defaultComponentLocation;
 };
 
+
+// viewModel resource section
+var defaultViewModelFileExtensions = '.js';
+var viewModelFileExtensions = ko.viewModels.fileExtensions = ko.observable( defaultViewModelFileExtensions );
+
+var getViewModelFileName = ko.viewModels.getFileName = function(viewModelName) {
+  var viewModelExtensions = viewModelFileExtensions();
+  var fileName = viewModelName;
+
+  if( isFunction(viewModelExtensions) ) {
+    fileName += viewModelExtensions(viewModelName);
+  } else if( isString(viewModelExtensions) ) {
+    fileName += viewModelExtensions;
+  }
+
+  return fileName;
+};
+
 var defaultViewModelLocation = '/viewModel/';
+var viewModelResourceLocations = ko.viewModels.resourceLocations = {};
 var viewModelRelativeLocation = ko.viewModels.loadRelativeTo = function(root, updateDefault) {
   var viewModelLocation = defaultViewModelLocation;
 
@@ -98,7 +112,6 @@ var viewModelRelativeLocation = ko.viewModels.loadRelativeTo = function(root, up
   return viewModelLocation;
 };
 
-var viewModelResourceLocations = ko.viewModels.resourceLocations = {};
 var registerLocationOfViewModel = ko.viewModels.registerLocationOf = function(viewModelName, viewModelLocation) {
   if( isArray(viewModelName) ) {
     each(viewModelName, function(name) {

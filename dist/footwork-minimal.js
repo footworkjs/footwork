@@ -5407,10 +5407,7 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         if( isString(resourceLocation) ) {
           if( isFunction(require) ) {
             if( isPath(resourceLocation) ) {
-              resourceLocation = resourceLocation + viewModelName;
-            }
-            if( resourceLocation !== viewModelName && endsInDotJS.test(resourceLocation) === false ) {
-              resourceLocation = resourceLocation + resourceFileExtensions.viewModel;
+              resourceLocation = resourceLocation + getViewModelFileName(viewModelName);
             }
 
             require([ resourceLocation ], bindViewModel);
@@ -5473,6 +5470,19 @@ var registerComponent = ko.components.register = function(componentName, options
   });
 };
 
+ko.components.getNormalTagList = function() {
+  return nonComponentTags.splice(0);
+};
+
+ko.components.getComponentNameForNode = function(node) {
+  var tagName = isString(node.tagName) && node.tagName.toLowerCase();
+
+  if( ko.components.isRegistered(tagName) || indexOf(nonComponentTags, tagName) === -1 ) {
+    return tagName;
+  }
+  return null;
+};
+
 var makeComponent = ko.component = function(componentDefinition) {
   var viewModel = componentDefinition.viewModel;
 
@@ -5485,7 +5495,7 @@ var makeComponent = ko.component = function(componentDefinition) {
 
 // These are tags which are ignored by the custom component loader
 // Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
-var normalTags = [
+var nonComponentTags = [
   'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont', 'bdi', 'bgsound',
   'big', 'blink', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
   'content', 'data', 'datalist', 'dd', 'decorator', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'element',
@@ -5507,12 +5517,12 @@ var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponen
   }
 
   if(isComponent !== true) {
-    if( contains(normalTags, tagName) === false ) {
-      normalTags.push(tagName);
+    if( contains(nonComponentTags, tagName) === false ) {
+      nonComponentTags.push(tagName);
     }
   } else {
-    normalTags = filter(normalTags, function(normalTagName) {
-      return normalTagName !== tagName;
+    nonComponentTags = filter(nonComponentTags, function(nonComponentTagName) {
+      return nonComponentTagName !== tagName;
     });
   }
 };
@@ -5597,9 +5607,9 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
 // The loader will attempt to use requirejs via knockouts integrated support if it is available.
 ko.components.loaders.push( ko.components.requireLoader = {
   getConfig: function(componentName, callback) {
-    var combinedFile = componentName + resourceFileExtensions.combined;
-    var viewModelFile = componentName + resourceFileExtensions.viewModel;
-    var templateFile = componentName + resourceFileExtensions.template;
+    var combinedFile = getComponentFileName(componentName, 'combined');
+    var viewModelFile = getComponentFileName(componentName, 'viewModel');
+    var templateFile = getComponentFileName(componentName, 'template');
     var componentLocation = getComponentResourceLocation(componentName);
     var configOptions = null;
     var viewModelPath;
@@ -5696,35 +5706,30 @@ ko.components.register('error', {
 // resource.js
 // ------------------
 
-var resourceFileExtensions = {
+// component resource section
+var defaultComponentFileExtensions = {
   combined: '.js',
   viewModel: '.js',
   template: '.html'
 };
 
-ko.components.setFileExtensions = function(fileType, extension) {
-  if( isObject(fileType) ) {
-    extend(resourceFileExtensions, fileType);
-  } else if( !isUndefined(resourceFileExtensions[fileType]) ) {
-    resourceFileExtensions[fileType] = extension;
+var componentFileExtensions = ko.components.fileExtensions = ko.observable( clone(defaultComponentFileExtensions) );
+
+var getComponentFileName = ko.components.getFileName = function(componentName, fileType) {
+  var componentExtensions = componentFileExtensions();
+  var fileName = componentName;
+
+  if( isFunction(componentExtensions) ) {
+    fileName += componentExtensions(componentName)[fileType];
+  } else if( isObject(componentExtensions) ) {
+    if( isFunction(componentExtensions[fileType]) ) {
+      fileName += componentExtensions[fileType](componentName);
+    } else {
+      fileName += componentExtensions[fileType] || '';
+    }
   }
-};
 
-ko.components.getFileExtensions = function() {
-  return clone(resourceFileExtensions);
-};
-
-ko.components.getNormalTagList = function() {
-  return normalTags.splice(0);
-};
-
-ko.components.getComponentNameForNode = function(node) {
-  var tagName = isString(node.tagName) && node.tagName.toLowerCase();
-
-  if( ko.components.isRegistered(tagName) || indexOf(normalTags, tagName) === -1 ) {
-    return tagName;
-  }
-  return null;
+  return fileName;
 };
 
 var defaultComponentLocation = {
@@ -5732,6 +5737,7 @@ var defaultComponentLocation = {
   viewModels: '/viewModel/',
   templates: '/component/'
 };
+var componentResourceLocations = ko.components.resourceLocations = {};
 var componentRelativeLocation = ko.components.loadRelativeTo = function(root, updateDefault) {
   var componentLocation = (isUndefined(updateDefault) || updateDefault === true) ? defaultComponentLocation : clone(defaultComponentLocation);
 
@@ -5760,7 +5766,6 @@ var componentRelativeLocation = ko.components.loadRelativeTo = function(root, up
   return componentLocation;
 };
 
-var componentResourceLocations = ko.components.resourceLocations = {};
 var registerLocationOfComponent = ko.components.registerLocationOf = function(componentName, componentLocation) {
   if( isArray(componentName) ) {
     each(componentName, function(name) {
@@ -5778,7 +5783,26 @@ var getComponentResourceLocation = ko.components.getResourceLocation = function(
   return componentResourceLocations[componentName] || defaultComponentLocation;
 };
 
+
+// viewModel resource section
+var defaultViewModelFileExtensions = '.js';
+var viewModelFileExtensions = ko.viewModels.fileExtensions = ko.observable( defaultViewModelFileExtensions );
+
+var getViewModelFileName = ko.viewModels.getFileName = function(viewModelName) {
+  var viewModelExtensions = viewModelFileExtensions();
+  var fileName = viewModelName;
+
+  if( isFunction(viewModelExtensions) ) {
+    fileName += viewModelExtensions(viewModelName);
+  } else if( isString(viewModelExtensions) ) {
+    fileName += viewModelExtensions;
+  }
+
+  return fileName;
+};
+
 var defaultViewModelLocation = '/viewModel/';
+var viewModelResourceLocations = ko.viewModels.resourceLocations = {};
 var viewModelRelativeLocation = ko.viewModels.loadRelativeTo = function(root, updateDefault) {
   var viewModelLocation = defaultViewModelLocation;
 
@@ -5793,7 +5817,6 @@ var viewModelRelativeLocation = ko.viewModels.loadRelativeTo = function(root, up
   return viewModelLocation;
 };
 
-var viewModelResourceLocations = ko.viewModels.resourceLocations = {};
 var registerLocationOfViewModel = ko.viewModels.registerLocationOf = function(viewModelName, viewModelLocation) {
   if( isArray(viewModelName) ) {
     each(viewModelName, function(name) {
