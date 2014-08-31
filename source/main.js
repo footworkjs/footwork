@@ -67,6 +67,6 @@ var $globalNamespace = makeNamespace();
 //import("broadcast-receive.js");
 //import("router.js");
 //import("viewModel.js");
-//import("resource.js");
 //import("component.js");
+//import("resource.js");
 //import("extenders.js");

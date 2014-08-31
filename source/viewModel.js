@@ -202,11 +202,10 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
     var tagName = element.tagName.toLowerCase();
     if( tagName === 'viewmodel' ) {
       var values = valueAccessor();
-      var name = element.getAttribute('module') || element.getAttribute('data-module');
+      var viewModelName = ( !isUndefined(values.params) ? ko.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
 
-      if( !isUndefined(name) ) {
-        var viewModelName = ko.unwrap(values.params.name);
-        var resourceLocation = getResourceLocation( viewModelName ).viewModels;
+      if( !isUndefined(viewModelName) ) {
+        var resourceLocation = getViewModelResourceLocation( viewModelName );
 
         if( isFunction(require) && isFunction(require.defined) && require.defined(viewModelName) ) {
           // we have found a matching resource that is already cached by require, lets use it
@@ -237,7 +236,7 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         if( isString(resourceLocation) ) {
           if( isFunction(require) ) {
             if( isPath(resourceLocation) ) {
-              resourceLocation = resourceLocation + name;
+              resourceLocation = resourceLocation + viewModelName;
             }
             if( resourceLocation !== viewModelName && endsInDotJS.test(resourceLocation) === false ) {
               resourceLocation = resourceLocation + resourceFileExtensions.viewModel;
