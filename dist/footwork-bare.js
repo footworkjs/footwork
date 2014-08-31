@@ -1094,6 +1094,7 @@ Router.prototype.getUnknownRoute = function() {
 Router.prototype.getRouteForURL = function(url) {
   var route = null;
   var parentRoutePath = this.parentRouter().routePath() || '';
+  var unknownRoute = bind(this.getUnknownRoute, this);
 
   if( this.isRelative() ) {
     // since this is a relative router, we need to remove the leading parentRoutePath section of the URL
@@ -1101,10 +1102,10 @@ Router.prototype.getRouteForURL = function(url) {
       if( ( routeIndex = url.indexOf(parentRoutePath) ) === 0 ) {
         url = url.substr( parentRoutePath.length );
       } else {
-        return this.getUnknownRoute();
+        return unknownRoute();
       }
     } else {
-      return this.getUnknownRoute();
+      return unknownRoute();
     }
   }
 
@@ -1143,7 +1144,7 @@ Router.prototype.getRouteForURL = function(url) {
     return route;
   });
 
-  return route || this.getUnknownRoute();
+  return route || unknownRoute();
 };
 
 Router.prototype.getActionForRoute = function(routeDescription) {
@@ -1159,7 +1160,7 @@ Router.prototype.getActionForRoute = function(routeDescription) {
       }
 
       if( isUndefined(this.__currentRouteDescription) || this.__currentRouteDescription.id !== routeDescription.id ) {
-        routeDescription.controller.call( this.$viewModel, this.$outlet, routeDescription );
+        routeDescription.controller.call( this.$viewModel, this.$outlet, routeDescription.namedParams );
       }
       this.__currentRouteDescription = routeDescription;
     }, this);
