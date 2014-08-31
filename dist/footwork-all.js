@@ -10358,14 +10358,17 @@ var makeViewModel = ko.viewModel = function(configParams) {
 
   var initViewModelMixin = {
     _preInit: function( initParams ) {
-      this.__isViewModel = true;
-      this.$params = configParams.params;
-
       if( isObject(configParams.router) ) {
         this.$router = new Router( configParams.router, this );
       }
-      
-      this.__shutdown = function() {
+    },
+    mixin: {
+      __isViewModel: true,
+      $params: configParams.params,
+      __getConfigParams: function() {
+        return configParams;
+      },
+      __shutdown: function() {
         if( isFunction(configParams.afterDispose) ) {
           configParams.afterDispose.call(this);
         }
@@ -10379,14 +10382,6 @@ var makeViewModel = ko.viewModel = function(configParams) {
         if( isFunction(configParams.afterBinding) ) {
           configParams.afterBinding.wasCalled = false;
         }
-      };
-    },
-    mixin: {
-      __getConfigParams: function() {
-        return configParams;
-      },
-      __getInitParams: function() {
-        return initParams;
       }
     },
     _postInit: function() {
