@@ -236,10 +236,7 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         if( isString(resourceLocation) ) {
           if( isFunction(require) ) {
             if( isPath(resourceLocation) ) {
-              resourceLocation = resourceLocation + viewModelName;
-            }
-            if( resourceLocation !== viewModelName && endsInDotJS.test(resourceLocation) === false ) {
-              resourceLocation = resourceLocation + resourceFileExtensions.viewModel;
+              resourceLocation = resourceLocation + getViewModelFileName(viewModelName);
             }
 
             require([ resourceLocation ], bindViewModel);
