@@ -37,11 +37,8 @@ var defaultResourceLocation = {
   viewModels: '/viewModel/',
   templates: '/component/'
 };
-var resourceRelativeLocation = function(rootURL, returnTheValue) {
-  var componentLocation = defaultResourceLocation;
-  if( returnTheValue === true ) {
-    componentLocation = extend({}, defaultResourceLocation);
-  }
+var resourceRelativeLocation = function(rootURL, updateConfig) {
+  var componentLocation = (isUndefined(updateConfig) || updateConfig === true) ? defaultResourceLocation : clone(defaultResourceLocation);
 
   if( isObject(rootURL) ) {
     // assume some combination of defaultResourceLocation and normalize the parameters
@@ -65,18 +62,11 @@ var resourceRelativeLocation = function(rootURL, returnTheValue) {
     };
   }
 
-  if( returnTheValue === true ) {
-    return componentLocation;
-  } else {
-    defaultResourceLocation = componentLocation;
-  }
+  return componentLocation;
 };
 
-var componentRelativeLocation = ko.components.loadRelativeTo = function(locations, returnTheValue) {
-  var returnValue = resourceRelativeLocation(locations, returnTheValue);
-  if( returnTheValue === true ) {
-    return returnValue;
-  }
+var componentRelativeLocation = ko.components.loadRelativeTo = function(locations, updateConfig) {
+  return resourceRelativeLocation(locations, updateConfig);
 };
 
 var resourceLocations = ko.resourceLocations = {};
@@ -86,14 +76,11 @@ var registerLocationOfComponent = ko.components.registerLocationOf = function(co
       registerLocationOfComponent(name, componentLocation);
     });
   }
-  resourceLocations[ componentName ] = componentRelativeLocation(componentLocation, true);
+  resourceLocations[ componentName ] = componentRelativeLocation(componentLocation, false);
 };
 
-var viewModelRelativeLocation = ko.viewModel.loadRelativeTo = function(rootURL, returnTheValue) {
-  var returnValue = resourceRelativeLocation({ viewModel: rootURL }, returnTheValue);
-  if( returnTheValue === true ) {
-    return returnValue;
-  }
+var viewModelRelativeLocation = ko.viewModel.loadRelativeTo = function(rootURL, updateConfig) {
+  return resourceRelativeLocation({ viewModel: rootURL }, updateConfig);
 };
 
 var registerLocationOfViewModel = ko.viewModel.registerLocationOf = function(viewModelName, viewModelLocation) {
@@ -102,7 +89,7 @@ var registerLocationOfViewModel = ko.viewModel.registerLocationOf = function(vie
       registerLocationOfViewModel(name, viewModelLocation);
     });
   }
-  resourceLocations[ viewModelName ] = viewModelRelativeLocation(viewModelLocation, true);
+  resourceLocations[ viewModelName ] = viewModelRelativeLocation(viewModelLocation, false);
 };
 
 // Return the resource definition for the supplied resourceName
