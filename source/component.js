@@ -152,7 +152,7 @@ ko.components.loaders.push( ko.components.requireLoader = {
     var combinedFile = componentName + resourceFileExtensions.combined;
     var viewModelFile = componentName + resourceFileExtensions.viewModel;
     var templateFile = componentName + resourceFileExtensions.template;
-    var componentLocation = getResourceLocation(componentName);
+    var componentLocation = getComponentResourceLocation(componentName);
     var configOptions = null;
     var viewModelPath;
     var templatePath;

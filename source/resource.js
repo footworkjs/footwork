@@ -32,17 +32,17 @@ ko.components.getComponentNameForNode = function(node) {
   return null;
 };
 
-var defaultResourceLocation = {
+var defaultComponentLocation = {
   combined: null,
   viewModels: '/viewModel/',
   templates: '/component/'
 };
-var resourceRelativeLocation = function(rootURL, updateConfig) {
-  var componentLocation = (isUndefined(updateConfig) || updateConfig === true) ? defaultResourceLocation : clone(defaultResourceLocation);
+var componentRelativeLocation = ko.components.loadRelativeTo = function(root, updateDefault) {
+  var componentLocation = (isUndefined(updateDefault) || updateDefault === true) ? defaultComponentLocation : clone(defaultComponentLocation);
 
-  if( isObject(rootURL) ) {
-    // assume some combination of defaultResourceLocation and normalize the parameters
-    extend(componentLocation, reduce(rootURL, function(options, paramValue, paramName) {
+  if( isObject(root) ) {
+    // assume some combination of defaultComponentLocation and normalize the parameters
+    extend(componentLocation, reduce(root, function(options, paramValue, paramName) {
       if(paramName === 'viewModel') {
         options.viewModels = paramValue;
         delete options.viewModel;
@@ -54,7 +54,7 @@ var resourceRelativeLocation = function(rootURL, updateConfig) {
       }
       return options;
     }, {}));
-  } else if( isString(rootURL) ) {
+  } else if( isString(root) ) {
     componentLocation = {
       combined: rootURL,
       viewModels: null,
@@ -65,34 +65,53 @@ var resourceRelativeLocation = function(rootURL, updateConfig) {
   return componentLocation;
 };
 
-var componentRelativeLocation = ko.components.loadRelativeTo = function(locations, updateConfig) {
-  return resourceRelativeLocation(locations, updateConfig);
-};
-
-var resourceLocations = ko.resourceLocations = {};
+var componentResourceLocations = ko.components.resourceLocations = {};
 var registerLocationOfComponent = ko.components.registerLocationOf = function(componentName, componentLocation) {
   if( isArray(componentName) ) {
     each(componentName, function(name) {
       registerLocationOfComponent(name, componentLocation);
     });
   }
-  resourceLocations[ componentName ] = componentRelativeLocation(componentLocation, false);
+  componentResourceLocations[ componentName ] = componentRelativeLocation(componentLocation, false);
 };
 
-var viewModelRelativeLocation = ko.viewModel.loadRelativeTo = function(rootURL, updateConfig) {
-  return resourceRelativeLocation({ viewModel: rootURL }, updateConfig);
+// Return the component resource definition for the supplied componentName
+var getComponentResourceLocation = ko.components.getResourceLocation = function(componentName) {
+  if( isUndefined(componentName) ) {
+    return componentResourceLocations;
+  }
+  return componentResourceLocations[componentName] || defaultComponentLocation;
 };
 
-var registerLocationOfViewModel = ko.viewModel.registerLocationOf = function(viewModelName, viewModelLocation) {
+var defaultViewModelLocation = '/viewModel/';
+var viewModelRelativeLocation = ko.viewModels.loadRelativeTo = function(root, updateDefault) {
+  var viewModelLocation = defaultViewModelLocation;
+
+  if( isString(root) ) {
+    viewModelLocation = root;
+  }
+
+  if(updateDefault) {
+    defaultViewModelLocation = viewModelLocation;
+  }
+
+  return viewModelLocation;
+};
+
+var viewModelResourceLocations = ko.components.resourceLocations = {};
+var registerLocationOfViewModel = ko.viewModels.registerLocationOf = function(viewModelName, viewModelLocation) {
   if( isArray(viewModelName) ) {
     each(viewModelName, function(name) {
       registerLocationOfViewModel(name, viewModelLocation);
     });
   }
-  resourceLocations[ viewModelName ] = viewModelRelativeLocation(viewModelLocation, false);
+  viewModelResourceLocations[ viewModelName ] = viewModelRelativeLocation(viewModelLocation, false);
 };
 
-// Return the resource definition for the supplied resourceName
-var getResourceLocation = ko.getResourceLocation = function(resourceName) {
-  return resourceLocations[resourceName] || defaultResourceLocation;
+// Return the viewModel resource definition for the supplied viewModelName
+var getViewModelResourceLocation = ko.viewModels.getResourceLocation = function(viewModelName) {
+  if( isUndefined(viewModelName) ) {
+    return viewModelResourceLocations;
+  }
+  return viewModelResourceLocations[viewModelName] || getComponentResourceLocation(viewModelName).viewModels || defaultViewModelLocation;
 };
