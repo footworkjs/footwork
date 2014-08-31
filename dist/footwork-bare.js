@@ -1802,7 +1802,7 @@ var viewModelRelativeLocation = ko.viewModels.loadRelativeTo = function(root, up
   return viewModelLocation;
 };
 
-var viewModelResourceLocations = ko.components.resourceLocations = {};
+var viewModelResourceLocations = ko.viewModels.resourceLocations = {};
 var registerLocationOfViewModel = ko.viewModels.registerLocationOf = function(viewModelName, viewModelLocation) {
   if( isArray(viewModelName) ) {
     each(viewModelName, function(name) {
