@@ -48,6 +48,7 @@ var omit = _.omit;
 var indexOf = _.indexOf;
 var values = _.values;
 var reject = _.reject;
+var findWhere = _.findWhere;
 
 // Registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];
