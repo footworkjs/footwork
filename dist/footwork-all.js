@@ -10202,15 +10202,10 @@ Router.prototype.getRouteForURL = function(url) {
     var routeString = routeDesc.route;
 
     if( isString(routeString) ) {
-      var splatSegment = '';
-      var routeRegex = routeStringToRegExp(routeString, url);
-      var routeParamValues = url.match(routeRegex);
+      var routeParamValues = url.match( routeStringToRegExp(routeString, url) );
 
       if( !isNull(routeParamValues) ) {
-        if( true ) {
-          splatSegment = routeParamValues.pop() || '';
-        }
-
+        var splatSegment = routeParamValues.pop() || '';
         var routeParamNames = map( routeString.match(namedParam), function(param) {
           return param.replace(':', '');
         } );
