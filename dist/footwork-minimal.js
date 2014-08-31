@@ -4310,6 +4310,7 @@ var omit = _.omit;
 var indexOf = _.indexOf;
 var values = _.values;
 var reject = _.reject;
+var findWhere = _.findWhere;
 
 // Registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];
@@ -4713,7 +4714,6 @@ var emptyStringResult = function() { return ''; };
 var routerDefaultConfig = {
   namespace: '$router',
   baseRoute: null,
-  unknownRoute: null,
   isRelative: true,
   activate: true,
   setHref: true,
@@ -4973,10 +4973,6 @@ var Router = function( routerConfig, $viewModel, $context ) {
   this.$namespace.exit();
 };
 
-Router.prototype.unknownRoute = function() {
-  return !isUndefined(this.config) ? result(this.config.unknownRoute) : undefined;
-};
-
 Router.prototype.setRoutes = function(routeDesc) {
   this.routeDescriptions = [];
   this.addRoutes(routeDesc);
@@ -5071,11 +5067,27 @@ Router.prototype.normalizeURL = function(url) {
   return url;
 };
 
+Router.prototype.getUnknownRoute = function() {
+  var unknownRoute = findWhere(this.getRouteDescriptions(), { unknown: true }) || null;
+
+  if( !isNull(unknownRoute) ) {
+    unknownRoute = extend({}, baseRoute, {
+      id: unknownRoute.id,
+      controller: unknownRoute.controller,
+      title: unknownRoute.title,
+      routeSegment: ''
+    });
+  }
+  
+  return unknownRoute;
+};
+
 Router.prototype.getRouteForURL = function(url) {
   var route = null;
   var parentRoutePath = this.parentRouter().routePath() || '';
 
   if( this.isRelative() ) {
+    // since this is a relative router, we need to remove the leading parentRoutePath section of the URL
     if( parentRoutePath.length > 0 ) {
       if( ( routeIndex = url.indexOf(parentRoutePath) ) === 0 ) {
         url = url.substr( parentRoutePath.length );
@@ -5089,35 +5101,42 @@ Router.prototype.getRouteForURL = function(url) {
 
   find(this.getRouteDescriptions(), function(routeDesc, routeIndex) {
     var routeString = routeDesc.route;
-    var splatSegment = '';
-    var routeRegex = routeStringToRegExp(routeString, url);
-    var routeParamValues = url.match(routeRegex);
 
-    if( !isNull(routeParamValues) ) {
-      if( true ) {
-        splatSegment = routeParamValues.pop() || '';
+    if( isString(routeString) ) {
+      var splatSegment = '';
+      var routeRegex = routeStringToRegExp(routeString, url);
+      var routeParamValues = url.match(routeRegex);
+
+      if( !isNull(routeParamValues) ) {
+        if( true ) {
+          splatSegment = routeParamValues.pop() || '';
+        }
+
+        var routeParamNames = map( routeString.match(namedParam), function(param) {
+          return param.replace(':', '');
+        } );
+
+        route = extend({}, baseRoute, {
+          id: routeDesc.id,
+          controller: routeDesc.controller,
+          title: routeDesc.title,
+          url: url,
+          routeSegment: url.substr(0, url.length - splatSegment.length),
+          indexedParams: routeParamValues,
+          namedParams: reduce(routeParamNames, function(parameterNames, parameterName, index) {
+              parameterNames[parameterName] = routeParamValues[index + 1];
+              return parameterNames;
+            }, {})
+        });
       }
-
-      var routeParamNames = map( routeString.match(namedParam), function(param) {
-        return param.replace(':', '');
-      } );
-
-      route = extend({}, baseRoute, {
-        id: routeDesc.id,
-        controller: routeDesc.controller,
-        title: routeDesc.title,
-        url: url,
-        routeSegment: url.substr(0, url.length - splatSegment.length),
-        indexedParams: routeParamValues,
-        namedParams: reduce(routeParamNames, function(parameterNames, parameterName, index) {
-            parameterNames[parameterName] = routeParamValues[index + 1];
-            return parameterNames;
-          }, {})
-      });
     }
 
     return route;
   });
+
+  if( isNull(route) ) {
+    return this.getUnknownRoute();
+  }
 
   return route;
 };
