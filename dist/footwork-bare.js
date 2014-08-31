@@ -1087,7 +1087,7 @@ Router.prototype.getUnknownRoute = function() {
       routeSegment: ''
     });
   }
-  
+
   return unknownRoute;
 };
 
@@ -1101,10 +1101,10 @@ Router.prototype.getRouteForURL = function(url) {
       if( ( routeIndex = url.indexOf(parentRoutePath) ) === 0 ) {
         url = url.substr( parentRoutePath.length );
       } else {
-        return null;
+        return this.getUnknownRoute();
       }
     } else {
-      return null;
+      return this.getUnknownRoute();
     }
   }
 
@@ -1143,11 +1143,7 @@ Router.prototype.getRouteForURL = function(url) {
     return route;
   });
 
-  if( isNull(route) ) {
-    return this.getUnknownRoute();
-  }
-
-  return route;
+  return route || this.getUnknownRoute();
 };
 
 Router.prototype.getActionForRoute = function(routeDescription) {
