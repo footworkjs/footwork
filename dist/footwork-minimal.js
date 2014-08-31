@@ -4756,7 +4756,7 @@ var baseRouteDescription = {
 };
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
-function routeStringToRegExp(routeString, url) {
+function routeStringToRegExp(routeString) {
   routeString = routeString
     .replace(escapeRegExp, "\\$&")
     .replace(optionalParam, "(?:$1)?")
@@ -4765,7 +4765,7 @@ function routeStringToRegExp(routeString, url) {
     })
     .replace(splatParam, "(.*?)");
 
-  return new RegExp('^' + routeString + (routeString !== '/' ? '(\\/.*)*' : '$'), routesAreCaseSensitive ? undefined : 'i');
+  return new RegExp('^' + routeString + (routeString !== '/' ? '(\\/.*)*$' : '$'), routesAreCaseSensitive ? undefined : 'i');
 }
 
 function extractNavItems(routes) {
@@ -5100,11 +5100,11 @@ Router.prototype.getRouteForURL = function(url) {
     }
   }
 
-  find(this.getRouteDescriptions(), function(routeDesc, routeIndex) {
-    var routeString = routeDesc.route;
+  find(this.getRouteDescriptions(), function(routeDescription) {
+    var routeString = routeDescription.route;
 
     if( isString(routeString) ) {
-      var routeParamValues = url.match( routeStringToRegExp(routeString, url) );
+      var routeParamValues = url.match( routeStringToRegExp(routeString) );
 
       if( !isNull(routeParamValues) ) {
         var splatSegment = routeParamValues.pop() || '';
@@ -5113,9 +5113,9 @@ Router.prototype.getRouteForURL = function(url) {
         } );
 
         route = extend({}, baseRoute, {
-          id: routeDesc.id,
-          controller: routeDesc.controller,
-          title: routeDesc.title,
+          id: routeDescription.id,
+          controller: routeDescription.controller,
+          title: routeDescription.title,
           url: url,
           routeSegment: url.substr(0, url.length - splatSegment.length),
           indexedParams: routeParamValues,
