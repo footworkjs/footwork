@@ -43,10 +43,9 @@
 
     /**
      * Knockout needs to know about requirejs if present, and also double wraps their module so we can't lie about
-     * the root object to it. For those reasons we embed it out here.
+     * the root object to it. For those reasons we embed it here.
      */
     //import("../../bower_components/knockoutjs/dist/knockout.js");
-
     root.ko = ko; // ick...
 
     // list of dependencies to export from the library as .embed properties
