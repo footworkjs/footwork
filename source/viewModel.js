@@ -233,7 +233,11 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
 
       if( !isUndefined(viewModelName) ) {
         var resourceLocation = null;
-        if( isFunction(require) && isFunction(require.defined) && require.defined(viewModelName) ) {
+
+        if( isRegisteredViewModel(viewModelName) ) {
+          // viewModel was manually registered, we preferentially use it
+          resourceLocation = getRegisteredViewModel(viewModelName);
+        } else if( isFunction(require) && isFunction(require.defined) && require.defined(viewModelName) ) {
           // we have found a matching resource that is already cached by require, lets use it
           resourceLocation = viewModelName;
         } else {
