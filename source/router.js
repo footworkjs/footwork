@@ -52,6 +52,7 @@ var $baseRouter = {
   routePath: emptyStringResult,
   routeSegment: emptyStringResult,
   childRouters: ko.observableArray(),
+  context: noop,
   __isRouter: true
 };
 
