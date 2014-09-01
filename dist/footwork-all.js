@@ -10500,7 +10500,11 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
 
       if( !isUndefined(viewModelName) ) {
         var resourceLocation = null;
-        if( isFunction(require) && isFunction(require.defined) && require.defined(viewModelName) ) {
+
+        if( isRegisteredViewModel(viewModelName) ) {
+          // viewModel was manually registered, we preferentially use it
+          resourceLocation = getRegisteredViewModel(viewModelName);
+        } else if( isFunction(require) && isFunction(require.defined) && require.defined(viewModelName) ) {
           // we have found a matching resource that is already cached by require, lets use it
           resourceLocation = viewModelName;
         } else {
@@ -10906,11 +10910,11 @@ var getViewModelFileName = ko.viewModels.getFileName = function(viewModelName) {
 
 var defaultViewModelLocation = '/viewModel/';
 var viewModelResourceLocations = ko.viewModels.resourceLocations = {};
-var viewModelDefaultLocation = ko.viewModels.defaultLocation = function(root, updateDefault) {
+var viewModelDefaultLocation = ko.viewModels.defaultLocation = function(path, updateDefault) {
   var viewModelLocation = defaultViewModelLocation;
 
-  if( isString(root) ) {
-    viewModelLocation = root;
+  if( isString(path) ) {
+    viewModelLocation = path;
   }
 
   if(updateDefault) {
@@ -10918,6 +10922,19 @@ var viewModelDefaultLocation = ko.viewModels.defaultLocation = function(root, up
   }
 
   return viewModelLocation;
+};
+
+var registeredViewModels = {};
+var registerViewModel = ko.viewModels.register = function(viewModelName, viewModel) {
+  registeredViewModels[viewModelName] = viewModel;
+};
+
+var isRegisteredViewModel = ko.viewModels.isRegistered = function(viewModelName) {
+  return !isUndefined( registeredViewModels[viewModelName] );
+};
+
+var getRegisteredViewModel = ko.viewModels.getRegistered = function(viewModelName) {
+  return registeredViewModels[viewModelName];
 };
 
 var registerLocationOfViewModel = ko.viewModels.registerLocation = function(viewModelName, viewModelLocation) {
