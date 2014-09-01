@@ -193,6 +193,27 @@ var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetCon
   }
 };
 
+function bindComponentViewModel(element, params, ViewModel) {
+  var viewModelObj;
+  if( isFunction(ViewModel) ) {
+    viewModelObj = new ViewModel(values.params);
+  } else {
+    viewModelObj = ViewModel;
+  }
+
+  // binding the viewModelObj onto each child element is not ideal, need to do this differently
+  // cannot get component.preprocess() method to work/be called for some reason
+  each(element.children, function(child) {
+    applyBindings(viewModelObj, child, doNotSetContextOnRouter);
+  });
+
+  // we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each
+  // sub-element and must specify the context as being the container element only once
+  if( isRouter(viewModelObj.$router) ) {
+    viewModelObj.$router.context( ko.contextFor(element) );
+  }
+};
+
 // Monkey patch enables the viewModel 'component' to initialize a model and bind to the html as intended (with lifecycle events)
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = ko.bindingHandlers.component.init;
@@ -203,29 +224,9 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
     if( tagName === 'viewmodel' ) {
       var values = valueAccessor();
       var viewModelName = ( !isUndefined(values.params) ? ko.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
+      var bindViewModel = bind(bindComponentViewModel, null, element, values.params);
 
       if( !isUndefined(viewModelName) ) {
-        function bindViewModel(ViewModel) {
-          var viewModelObj;
-          if( isFunction(ViewModel) ) {
-            viewModelObj = new ViewModel(values.params);
-          } else {
-            viewModelObj = ViewModel;
-          }
-
-          // binding the viewModelObj onto each child element is not ideal, need to do this differently
-          // cannot get component.preprocess() method to work/be called for some reason
-          each(element.children, function(child) {
-            applyBindings(viewModelObj, child, doNotSetContextOnRouter);
-          });
-
-          // we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each
-          // sub-element and must specify the context as being the container element only once
-          if( isRouter(viewModelObj.$router) ) {
-            viewModelObj.$router.context( ko.contextFor(element) );
-          }
-        };
-
         var resourceLocation = null;
         if( isFunction(require) && isFunction(require.defined) && require.defined(viewModelName) ) {
           // we have found a matching resource that is already cached by require, lets use it
