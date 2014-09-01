@@ -9836,6 +9836,7 @@ var $baseRouter = {
   routePath: emptyStringResult,
   routeSegment: emptyStringResult,
   childRouters: ko.observableArray(),
+  context: noop,
   __isRouter: true
 };
 
@@ -10401,13 +10402,18 @@ var makeViewModel = ko.viewModel = function(configParams) {
 
   if( !isViewModelCtor(ctor) ) {
     var composure = [ ctor ];
+    var afterInitMixins = reject(viewModelMixins, beforeInitMixins);
     var beforeInitMixins = filter(viewModelMixins, beforeInitMixins);
 
     if( beforeInitMixins.length ) {
-      composure = composure.concat( beforeInitMixins );
+      composure = composure.concat(beforeInitMixins);
+    }
+    composure = composure.concat(initViewModelMixin);
+    if( afterInitMixins.length ) {
+      composure = composure.concat(afterInitMixins);
     }
     
-    composure = composure.concat( initViewModelMixin, reject(viewModelMixins, beforeInitMixins), afterInit );
+    composure = composure.concat(afterInit);
     if( !isUndefined(configParams.mixins) ) {
       composure = composure.concat(configParams.mixins);
     }
