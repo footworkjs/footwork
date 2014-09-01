@@ -4557,7 +4557,6 @@ viewModelMixins.push({
     exitNamespace();
   }
 });
-
 var $globalNamespace = makeNamespace();
 
 // broadcast-receive.js
@@ -5375,14 +5374,7 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
       var viewModelName = ( !isUndefined(values.params) ? ko.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
 
       if( !isUndefined(viewModelName) ) {
-        var resourceLocation = getViewModelResourceLocation( viewModelName );
-
-        if( isFunction(require) && isFunction(require.defined) && require.defined(viewModelName) ) {
-          // we have found a matching resource that is already cached by require, lets use it
-          resourceLocation = viewModelName;
-        }
-
-        var bindViewModel = function(ViewModel) {
+        function bindViewModel(ViewModel) {
           var viewModelObj;
           if( isFunction(ViewModel) ) {
             viewModelObj = new ViewModel(values.params);
@@ -5402,6 +5394,14 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
             viewModelObj.$router.context( ko.contextFor(element) );
           }
         };
+
+        var resourceLocation = null;
+        if( isFunction(require) && isFunction(require.defined) && require.defined(viewModelName) ) {
+          // we have found a matching resource that is already cached by require, lets use it
+          resourceLocation = viewModelName;
+        } else {
+          resourceLocation = getViewModelResourceLocation( viewModelName );
+        }
 
         if( isString(resourceLocation) ) {
           if( isFunction(require) ) {
