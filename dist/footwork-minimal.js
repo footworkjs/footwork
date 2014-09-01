@@ -4271,7 +4271,6 @@ ko.embed = embedded;
 
 // misc regex patterns
 var hasTrailingSlash = /\/$/i;
-var endsInDotJS = /\.js$/;
 
 // misc utility functions
 var noop = function() { };
