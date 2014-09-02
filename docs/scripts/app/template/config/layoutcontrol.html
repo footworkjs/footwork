@@ -1,0 +1,13 @@
+<div class="layout-controls">
+  <div class="header has-layout-trans" data-bind="css: { mutable: headerMutable, focused: active.header }, style: { top: headerTopPos }, transform: headerTopTransform">
+    <div class="panel gripper has-layout-trans" data-bind="event: { mousedown: enable }, style: { width: cornerLeftOffset }" data-control="header"></div>
+    <div class="nav gripper" data-bind="event: { mousedown: enable }, style: { paddingLeft: cornerLeftOffset }" data-control="header"></div>
+  </div>
+  <div class="corner has-layout-trans" data-bind="css: { mutable: cornerMutable, focused: active.corner }, transform: cornerTransform, style: { top: cornerTopPos, left: cornerLeftPos }">
+    <div class="gripper" data-bind="event: { mousedown: enable }" data-control="corner"></div>
+  </div>
+  <div class="column has-layout-trans" data-bind="css: { mutable: columnMutable, focused: active.column }, style: { left: columnLeftPos }, transform: columnTransform">
+    <div class="header gripper" data-bind="event: { mousedown: enable }, style: { height: visibleHeaderHeight }, css: { visible: headerMutable }" data-control="column"></div>
+    <div class="body gripper" data-bind="event: { mousedown: enable }, style: { paddingTop: visibleHeaderHeight }" data-control="column"></div>
+  </div>
+</div>

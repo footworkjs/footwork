@@ -53,5 +53,26 @@ define(["jquery", "lodash", "knockout", "postal" ],
         }
       }
     };
+
+    /**
+     * Source: https://github.com/SteveSanderson/knockout/wiki/Bindings---class
+     */
+    ko.bindingHandlers['class'] = {
+      'update': function( element, valueAccessor ) {
+        var $element = $(element);
+        if( element['__ko__previousClassValue__'] ) {
+          $element.removeClass(element['__ko__previousClassValue__']);
+        }
+        var value = ko.utils.unwrapObservable(valueAccessor());
+        typeof value !== 'undefined' && $element.addClass(value);
+        element['__ko__previousClassValue__'] = value;
+      }
+    };
+
+    ko.bindingHandlers['stopBinding'] = {
+      init: function() {
+        return { controlsDescendantBindings: true };
+      }
+    };
   }
 );

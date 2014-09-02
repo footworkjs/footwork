@@ -1,0 +1,55 @@
+<div class="row theme-row" data-bind="class: currentTab">
+  <div class="labels">
+    <label data-bind="click: setVisible" class="choose" data-tab="choose">Choose Theme</label>
+    <label data-bind="click: setVisible" class="customize" data-tab="customize">Customize Theme</label>
+  </div>
+  <div class="themes" data-bind="css: { loading: loading }">
+    <div class="tab-contents choose" data-bind="foreach: currentThemes">
+      <div class="theme-container">
+        <div class="theme preview" data-bind="css: { active: active }, click: choose">
+          <div class="background" data-bind="style: { backgroundColor: bodyBG }"></div>
+          <div class="pane" data-bind="style: { backgroundColor: paneBG }"></div>
+          <div class="header" data-bind="style: { backgroundColor: headerBG }"></div>
+          <div class="dialog" data-bind="style: { backgroundColor: controlsBG }"></div>
+          <div class="footer" data-bind="style: { backgroundColor: headerBG }"></div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-contents customize" data-bind="css: { ready: customizeAssetsLoaded }">
+      <div class="theme-container">
+        <div class="save-box">
+          <div class="help">Click an area to change its color.</div>
+          <button class="button" data-bind="css: { visible: customizeModified }, click: useTheme">Use this theme</button>
+        </div>
+        <div class="theme customize" data-bind="with: customizedTheme">
+          <div class="background" data-bind="style: { backgroundColor: bodyBG }, click: $parent.chooseColor" data-theme-property="bodyBG"></div>
+          <div class="pane" data-bind="style: { backgroundColor: paneBG }, click: $parent.chooseColor" data-theme-property="paneBG"></div>
+          <div class="header" data-bind="style: { backgroundColor: headerBG }, click: $parent.chooseColor" data-theme-property="headerBG"></div>
+          <div class="dialog" data-bind="style: { backgroundColor: controlsBG }, click: $parent.chooseColor" data-theme-property="controlsBG"></div>
+          <div class="footer" data-bind="style: { backgroundColor: headerBG }, click: $parent.chooseColor" data-theme-property="headerBG"></div>
+        </div>
+        <div class="inputs">
+          <label>
+            <input type="text" class="js-theme-color-input" data-theme-property="bodyBG" />
+            <span class="label">Background</span>
+          </label>
+          <label>
+            <input type="text" class="js-theme-color-input" data-theme-property="headerBG" />
+            <span class="label">Header</span>
+          </label>
+          <label>
+            <input type="text" class="js-theme-color-input" data-theme-property="paneBG" />
+            <span class="label">Pane</span>
+          </label>
+          <label>
+            <input type="text" class="js-theme-color-input" data-theme-property="controlsBG" />
+            <span class="label">Configuration</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="load-bar loaded" data-bind="class: loader.state">
+      <div class="message" data-bind="text: loader.message"></div>
+    </div>
+  </div>
+</div>

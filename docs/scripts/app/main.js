@@ -11,12 +11,12 @@ require.config({
   paths: {
     "jquery":            "../components/jquery/dist/jquery",
     "postal":            "../components/postal.js/lib/postal",
-    "jwerty":            "lib/jwerty", // jwerty does not provide an AMD build, this is a custom wrapped version
-    "knockout":          "../components/knockoutjs/dist/knockout",
-    "knockout-footwork": "../../dist/footwork-bare",
+    "knockout":          "../components/knockoutjs/dist/knockout.debug",
+    "footwork":          "../../dist/footwork-bare",
     "storage":           "../components/store-js/store",
     "lodash":            "../components/lodash/dist/lodash.underscore",
     "history":           "../components/history.js/scripts/bundled/html5/native.history",
+    "jwerty":            "lib/jwerty", // jwerty does not provide an AMD build, this is a custom wrapped version
     "conduitjs":         "lib/conduit", // ConduitJS currently has a broken UMD wrapper, this is a forked and fixed version
     "jquery.touchy":     "lib/jquery-plugins/jquery.touchy",
     "jquery.pulse":      "lib/jquery-plugins/jquery.pulse",
@@ -31,83 +31,64 @@ require.config({
     "noconflict-jquery": "app/misc/noconflict-jquery",
     "LoadProfile":       "app/helper/LoadProfile",
     "LoadState":         "app/helper/LoadState",
-    "PaneDragManager":   "app/factory/PaneDragManager",
-    "ViewPort":          "app/factory/ViewPort",
-    "Header":            "app/factory/Header",
-    "Navigation":        "app/factory/Navigation",
-    "Body":              "app/factory/Body",
-    "Page":              "app/factory/Page",
-    "Pane":              "app/factory/Pane",
-    "Footer":            "app/factory/Footer",
-    "PaneLinks":         "app/factory/pane/PaneLinks",
-    "Github":            "app/factory/pane/Github",
-    "Reddit":            "app/factory/pane/Reddit",
-    "Twitter":           "app/factory/pane/Twitter",
-    "MainMenu":          "app/factory/pane/MainMenu",
-    "PageSections":      "app/factory/pane/PageSections",
-    "Configuration":     "app/factory/config/Configuration",
-    "ConfigManagement":  "app/factory/config/ConfigManagement",
-    "LayoutControl":     "app/factory/config/LayoutControl",
-    "Themes":            "app/factory/config/Themes"
+    "resourceHelper":    "app/helper/resourceHelper",
+
+    "Footer":            "app/viewModel/Footer",
+    "PaneDragManager":   "app/viewModel/PaneDragManager",
+    "ViewPort":          "app/viewModel/ViewPort",
+    "Header":            "app/viewModel/Header",
+    "Navigation":        "app/viewModel/Navigation",
+    "Body":              "app/viewModel/Body",
+    "Page":              "app/viewModel/Page"
   },
   waitSeconds: 1500
 });
 
 require([
-  "jquery", "lodash", "knockout-footwork", "jwerty", "PaneDragManager",
-  "Page", "Header", "Body", "Footer", "Navigation", "Pane", "PaneLinks", "MainMenu", "PageSections", "ViewPort", "Configuration", "Themes", "LayoutControl",
+  "jquery", "lodash", "footwork", "jwerty", "resourceHelper",
+  "Page", "Body", "ViewPort",
   "koBindings", "koExtenders", "jquery.touchy", "jquery.mousewheel", "jquery.easing" ],
   function(
-      $, _, ko, jwerty, PaneDragManager,
-      Page, Header, Body, Footer, Navigation, Pane, PaneLinks, MainMenu, PageSections, ViewPort, Configuration, Themes, LayoutControl ) {
+      $, _, ko, jwerty, resourceHelper,
+      Page, Body, ViewPort ) {
+
+    resourceHelper();
 
     if( window.isCrappyBrowser === true ) {
       return false;
     }
 
-    var $window = $(window),
-        $document = $(document),
-        $body = $('body'),
-        globalNamespace = ko.namespace(),
-        pageNamespace = ko.namespace('Page'),
-        layoutControlNamespace = ko.namespace('LayoutControl'),
-        navigationNamespace = ko.namespace('Navigation'),
-        configurationNamespace = ko.namespace('Configuration'),
-        bodyNamespace = ko.namespace('Body'),
-        pageHashURL = ko.observable().receiveFrom('Page', 'hashURL'),
-        bodyHeight = ko.observable().receiveFrom('Body', 'height'),
-        scrollPosition = ko.observable().receiveFrom('ViewPort', 'scrollPosition'),
-        viewPortDim = ko.observable().receiveFrom('ViewPort', 'dimensions'),
-        configVisible = ko.observable().receiveFrom('Configuration', 'visible'),
-        paneContentMaxHeight = ko.observable().receiveFrom('Pane', 'contentMaxHeight'),
-        paneScrolling = ko.observable().receiveFrom('Pane', 'scrolling'),
-        viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode'),
-        refreshDocSize,
-        models = [];
+    var $window = $(window);
+    var $document = $(document);
+    var $body = $('body');
+    var globalNamespace = ko.namespace();
+    var pageNamespace = ko.namespace('Page');
+    var layoutControlNamespace = ko.namespace('LayoutControl');
+    var navigationNamespace = ko.namespace('Navigation');
+    var configurationNamespace = ko.namespace('Configuration');
+    var bodyNamespace = ko.namespace('Body');
+    var pageHashURL = ko.observable().receiveFrom('Page', 'hashURL');
+    var bodyHeight = ko.observable().receiveFrom('Body', 'height');
+    var scrollPosition = ko.observable().receiveFrom('ViewPort', 'scrollPosition');
+    var viewPortDim = ko.observable().receiveFrom('ViewPort', 'dimensions');
+    var configVisible = ko.observable().receiveFrom('Configuration', 'visible');
+    var paneContentMaxHeight = ko.observable().receiveFrom('Pane', 'contentMaxHeight');
+    var paneScrolling = ko.observable().receiveFrom('Pane', 'scrolling');
+    var viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
+    var refreshDocSize;
 
     window.ko = ko;
-    _.each([ { Factory: LayoutControl, target: '.js-layoutControl' },
-             { Factory: Configuration, target: '.js-configuration' },
-             { Factory: Header, target: '.js-header' },
-             { Factory: Body, target: '.js-body' },
-             { Factory: Footer, target: '.js-footer' },
-             { Factory: Navigation, target: '.js-navigation' },
-             { Factory: Pane, target: '.js-pane' },
-             { Factory: PaneLinks, target: '.js-paneLinks' },
-             { Factory: PageSections, target: '.js-pageSections' },
-             { Factory: ViewPort },
-             { Factory: Page },
-             { Factory: PaneDragManager, useWhen: function() { return Modernizr.touch === true; } } ],
-    function( theModel ) {
-      theModel = _.extend({ useWhen: function() { return true; } }, theModel);
-      if( theModel.useWhen() === true ) {
-        var model = new theModel.Factory();
-        _.each($(theModel.target), function( element ) {
-          ko.applyBindings( model, element );
-        });
-        models.push(model);
-      }
-    });
+
+    (new ViewPort());
+    (new Page());
+
+    if( Modernizr.touch === true ) {
+      require( ['PaneDragManager'], function(PaneDragManager) {
+        (new PaneDragManager());
+      });
+    }
+
+    ko.applyBindings( new Body() );
 
     $window.scroll( function() {
       scrollPosition( $document.scrollTop() );
@@ -118,8 +99,6 @@ require([
     }).on('hashchange', function() {
       pageHashURL(location.hash);
     }).trigger('scroll').trigger('resize');
-
-    _.invoke( models, 'startup' );
 
     globalNamespace.subscribe('refreshDocSize', refreshDocSize = function() {
       bodyHeight( $document.height() );

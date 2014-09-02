@@ -1,4 +1,4 @@
-define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
+define([ "jquery", "lodash", "footwork", "LoadState" ],
   function( $, _, ko, LoadState ) {
     return {
       _preInit: function() {
@@ -17,11 +17,11 @@ define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
         this.entries = ko.observableArray([]);
         this.currentPage = ko.observable(1);
         this.description = ko.observable();
-        this.descriptionVisible = ko.computed(function() {
-          return this.description() !== undefined && this.description().length > 0;
-        }, this);
         this.moreUnavailable = ko.observable(false);
         this.moreEntriesButtonText = this.loader.message;
+        this.initialized = ko.computed(function() {
+          return !!this.entries().length;
+        }, this);
 
         this.loadEntries = function() {
           var currentPage = this.currentPage();
@@ -29,13 +29,13 @@ define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
 
           if(this.$params !== undefined && this.$params.url !== undefined) {
             this.loader
-              .watch( $.ajax({ url: this.$viewModelOptions.params.url + currentPage, dataType: 'json' }) )
+              .watch( $.ajax({ url: this.$params.url + currentPage, dataType: 'json' }) )
               .done(function( entries ) {
                 if( entries.length ) {
                   var observedEntries = this.entries();
                   this.moreUnavailable( false );
                   _.each( entries, function( entryData ) {
-                    observedEntries.push( (new this.$viewModelOptions.params.EntryFactory({ namespace: this.$namespace, entryData: entryData })) );
+                    observedEntries.push( (new this.$params.EntryInitialize({ namespace: this.$namespace, entryData: entryData })) );
                   }.bind(this) );
                   this.entries.valueHasMutated();
                 } else {
@@ -44,10 +44,6 @@ define([ "jquery", "lodash", "knockout-footwork", "LoadState" ],
               }.bind(this));
           }
         }.bind(this);
-        
-        this.initialized = ko.computed(function() {
-          return !!this.entries().length;
-        }, this);
 
         this.visible = ko.computed(function() {
           if( this.currentSelection() === this.getNamespaceName() ) {

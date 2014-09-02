@@ -164,7 +164,8 @@ define([ "jquery", "lodash", "knockout", "postal" ],
         },
         write: target
       });
-
+      _.extend( observable, _.pick( target, ['refresh', '__isReceived', 'broadcast', '__isBroadcast'] ) );
+      
       return observable;
     };
 

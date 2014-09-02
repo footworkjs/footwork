@@ -1,0 +1,22 @@
+<div class="pageSections pane-component" data-bind="css: { visible: visible, initialized: initialized }">
+  <div class="title no-mobile">
+    <span class="label">
+      <span class="text" data-bind="text: title"></span>
+    </span>
+  </div>
+  <div class="content" data-bind="css: { hasContent: sectionCount }, style: { height: paneContentMaxHeight }">
+    <div class="title mobile-only">
+      <span class="label">
+        <span class="text" data-bind="text: title"></span>
+      </span>
+    </div>
+    <div class="description" data-bind="text: description"></div>
+    <div data-bind="foreach: sections">
+      <a class="section-label entry-row" data-bind="click: chooseSection, css: { active: active, visible: visible }, attr: { href: anchorAddress }">
+        <div class="title" data-bind="text: title"></div>
+        <span class="description" data-bind="text: description"></span>
+        <div class="arrow"></div>
+      </a>
+    </div>
+  </div>
+</div>

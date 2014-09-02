@@ -1,4 +1,4 @@
-define(["lodash", "jquery", "knockout-footwork"], function(_, $, ko) {
+define(["lodash", "jquery", "footwork"], function(_, $, ko) {
   return function LoadProfile(options) {
     var profiles = [
       [[ 120, { point: 25, duration: 120 } ],

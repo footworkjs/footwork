@@ -1,0 +1,37 @@
+<div class="github pane-component" data-bind="css: state">
+  <div class="not-initialized">
+    <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }">
+      <div class="message" data-bind="text: loader.message">Loading ...</div>
+    </div>
+  </div>
+  <div class="small title no-mobile">
+    <a class="label" target="_blank" href="https://github.com/reflectiveSingleton">
+      <span class="icon icon-github"></span>&nbsp;&nbsp;<span class="text">github.com/reflectiveSingleton</span>
+    </a>
+  </div>
+  <div class="content hasContent" data-bind="css: { unavailable: moreUnavailable }, style: { height: paneContentMaxHeight }">
+    <div class="small title mobile-only">
+      <a class="label" href="https://github.com/reflectiveSingleton">
+        <span class="icon icon-github"></span>&nbsp;&nbsp;<span class="text">github.com/reflectiveSingleton</span>
+      </a>
+    </div>
+    <div class="entries" data-bind="foreach: entries">
+      <div class="entry-row" data-bind="css: state, event: { mouseover: activate }">
+        <div class="title">
+          <span class="icon" data-bind="class: iconType"></span>
+          <div class="date" data-bind="text: dateRelative"></div>
+        </div>
+        <div class="content" data-bind="html: html"></div>
+      </div>
+    </div>
+    <div class="available">
+      <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }"></div>
+      <button class="button" data-bind="click: loadEntries">
+        <span data-bind="text: loader.message">View more ...</span>
+      </button>
+    </div>
+    <div class="unavailable">
+      <div class="message">...there doesn't appear to be anything else...</div>
+    </div>
+  </div>
+</div>

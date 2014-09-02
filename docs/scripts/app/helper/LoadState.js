@@ -1,4 +1,4 @@
-define([ "jquery", "lodash", "knockout-footwork", "LoadProfile" ],
+define([ "jquery", "lodash", "footwork", "LoadProfile" ],
   function( $, _, ko, LoadProfile ) {
     var LOADING_STATE = true,
         DONE_STATE = false;

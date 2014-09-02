@@ -1,4 +1,4 @@
-define([ "knockout-footwork", "lodash" ],
+define([ "footwork", "lodash" ],
   function( ko, _ ) {
     return {
       _preInit: function( options ) {
@@ -55,7 +55,7 @@ define([ "knockout-footwork", "lodash" ],
         this.activate = function() {
           if( this.paneScrolling() === false ) {
             this.active(true);
-            this.namespace.publish('deactivate', this);
+            this.$namespace.publish('deactivate', this);
           }
         };
 

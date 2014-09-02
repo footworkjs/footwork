@@ -1,0 +1,56 @@
+<div class="reddit pane-component" data-bind="css: state">
+  <div class="not-initialized">
+    <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }">
+      <div class="message" data-bind="text: loader.message">Loading ...</div>
+    </div>
+  </div>
+  <div class="small title no-mobile">
+    <a class="label" href="http://www.reddit.com/user/reflectiveSingleton/">
+      <span class="icon icon-reddit"></span>&nbsp;&nbsp;<span class="text">/user/reflectiveSingleton</span>
+    </a>
+  </div>
+  <div class="content hasContent" data-bind="css: { unavailable: moreUnavailable }, style: { height: paneContentMaxHeight }">
+    <div class="small title mobile-only">
+      <a class="label" href="http://www.reddit.com/user/reflectiveSingleton/">
+        <span class="icon icon-reddit"></span>&nbsp;&nbsp;<span class="text">/user/reflectiveSingleton</span>
+      </a>
+    </div>
+
+    <script type="text/html" id="reddit-post">
+      <div class="title">
+        <span class="icon" data-bind="class: entryIcon" title="post"></span>
+        <div class="score">
+          <span class="text" data-bind="text: offsetScore"></span>
+          <div class="corner"></div>
+        </div>
+        <a class="content" data-bind="text: postTitle, attr: { href: relevantURL, title: postTitle }"></a>
+      </div>
+    </script>
+
+    <script type="text/html" id="reddit-comment">
+      <div class="title">
+        <span class="icon" data-bind="class: entryIcon" title="comment"></span>
+        <a class="content" data-bind="text: postTitle, attr: { href: relevantURL, title: postTitle }"></a>
+      </div>
+      <div class="content" data-bind="html: postHTML"></div>
+      <div class="score">
+        <span class="text" data-bind="text: offsetScore"></span>
+        <div class="corner"></div>
+      </div>
+    </script>
+
+    <div class="entries" data-bind="foreach: entries">
+      <div class="entry-row" data-bind="css: state, class: type, event: { mouseover: activate }, template: { name: entryTemplate }"></div>
+    </div>
+
+    <div class="available">
+      <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }"></div>
+      <button class="button" data-bind="click: loadEntries">
+        <span data-bind="text: moreEntriesButtonText">View more ...</span>
+      </button>
+    </div>
+    <div class="unavailable">
+      <div class="message">...there doesn't appear to be anything else...</div>
+    </div>
+  </div>
+</div>

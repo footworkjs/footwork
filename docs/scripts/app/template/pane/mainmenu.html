@@ -1,0 +1,12 @@
+<div class="mainMenu pane-component initialized" data-bind="css: { visible: visible }">
+  <div class="content" data-bind="style: { height: paneContentMaxHeight }">
+    <div class="title" data-bind="style: { width: mobileWidth }">
+      <span class="label">
+        <span class="text">Main Menu</span>
+      </span>
+    </div>
+    <nav data-bind="style: { width: mobileWidth }, foreach: entries">
+      <a class="internal" data-bind="css: { visible: visible }, attr: { 'data-title': labelText, href: url }, text: labelText"></a>
+    </nav>
+  </div>
+</div>
