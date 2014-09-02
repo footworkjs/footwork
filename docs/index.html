@@ -42,98 +42,58 @@
     </div>
     <![endif]-->
 
-    <div class="stop-binding" data-bind="stopBinding: true">
-      <div class="js-pane pane-bg has-layout-trans" data-bind="transition: transition, transform: leftTransform,
-                                                                    style: { width: width, left: leftOffset }"></div>
-    </div> <!-- /stopBinding -->
+    <!--[if gt IE 7]><!-->
+    <configuration></configuration>
+    <panebackground></panebackground>
 
     <div class="main-wrapper">
-      <div class="stop-binding" data-bind="stopBinding: true">
-        <header class="js-header main-header" data-bind="css: { navReflowing: navReflowing }, transform: closedTransform,
-                                                       style: { height: visibleHeight, top: topOffset, borderBottomWidth: borderWidth }">
+      <viewModel module="Header">
+        <header class="main-header desktop-only" data-bind="css: { navReflowing: navReflowing }, transform: closedTransform,
+                                                          style: { height: visibleHeight, top: topOffset, borderBottomWidth: borderWidth }">
           <div class="source-link has-trans" data-bind="css: { visible: sourceLinkVisible, forceHidden: sourceLinkHidden }">
-            <a class="button" target="_blank" href="https://github.com/reflectiveSingleton/footwork">
+            <a class="button" target="_blank" href="https://github.com/reflectiveSingleton/staticty.pe-UI">
               <span class="icon icon-github"></span>
-              <span>View footwork.js on Github</span>
+              <span>View source on Github</span>
             </a>
           </div>
           <div class="bottom-highlight"></div>
 
           <div class="header-bar" data-bind="style: { height: contentHeight }">
-            <div class="stop-binding" data-bind="stopBinding: true">
-              <div class="js-paneLinks pane-links" data-bind="style: { width: columnWidth }, css: { pageHasSections: pageHasSections }">
+            <panelinks params="inHeader: true">
+              <div class="pane-links">
                 <div class="logo">
                   <a href="/" class="internal">
                     <div class="img-logo no-svg-only"></div>
                     <div class="svg-only">
-                      <svg class="page-logo" width="161px" height="30px" viewBox="0 0 161 30">
-                        <path fill="none" d="M158.2,27.9c-7,0-14,0-21.1,0c0-8.6,0-17.2,0-25.8c7,0,14,0,21.1,0C158.2,10.7,158.2,19.3,158.2,27.9z
-                           M155.1,16.3c0-1-0.2-1.8-0.5-2.5c-0.5-1.3-1.3-2.4-2.2-3.4c-0.7-0.8-1.4-1.5-2.4-1.9c-0.7-0.3-1.4-0.3-2.2,0.1
-                          c-0.6,0.3-1,0.8-1.3,1.4c-0.5,0.9-0.5,1.9-0.3,2.9c0.1,0.9,0.4,1.9,0.3,2.8c-0.1,1.4-0.8,2.5-1.9,3.3c-0.7,0.5-1.5,0.6-2.3,0.7
-                          c-0.8,0.1-1.6,0.2-2.3,0.6c-1.3,0.6-2.1,1.6-2.5,2.9c-0.3,0.7-0.2,1.5,0.1,2.2c0.4,0.8,1,1.3,1.6,1.8c0.5,0.4,1,0.5,1.6,0.5
-                          c1.3,0.1,2.4-0.5,3.2-1.4c1.1-1.3,2.3-2.3,3.8-3c0.8-0.4,1.6-0.7,2.4-1.1c1.5-0.7,2.8-1.7,3.8-3C154.6,18.4,155.1,17.4,155.1,16.3
-                          z M149.6,5.4c0,1.3,0.8,1.9,1.9,1.5c1.3-0.5,2.4-2.3,2-3.7c-0.2-0.9-1-1.3-1.8-1C150.6,2.7,149.7,4,149.6,5.4z M155.8,7.1
-                          c0.1-1.1-0.5-1.6-1.4-1.4c-0.8,0.2-1.6,1.4-1.5,2.3c0.1,0.9,0.8,1.3,1.6,0.9C155.3,8.5,155.7,7.8,155.8,7.1z M157.4,9.3
-                          c0-0.6-0.4-0.9-1-0.8c-0.8,0.1-1.5,1-1.5,1.8c0,0.6,0.4,1,1,0.8C156.7,11,157.4,10.1,157.4,9.3z M156.7,13c0.6,0,1.2-0.5,1.4-1.1
-                          c0.1-0.5-0.2-0.9-0.7-0.9c-0.6,0-1.3,0.5-1.4,1.1C155.9,12.6,156.1,13,156.7,13z M156.3,14.3c0,0.4,0.3,0.6,0.7,0.5
-                          c0.5-0.1,0.9-0.6,0.9-1.1c0-0.4-0.3-0.7-0.7-0.6C156.8,13.3,156.3,13.8,156.3,14.3z"/>
-                        <g class="foot">
-                          <path d="M155.1,16.3c0,1-0.4,2.1-1.1,3c-1,1.3-2.3,2.3-3.8,3c-0.8,0.4-1.6,0.7-2.4,1.1c-1.5,0.7-2.7,1.8-3.8,3
-                            c-0.8,0.9-1.9,1.4-3.2,1.4c-0.6,0-1.1-0.2-1.6-0.5c-0.7-0.5-1.3-1.1-1.6-1.8c-0.4-0.7-0.4-1.5-0.1-2.2c0.5-1.3,1.3-2.3,2.5-2.9
-                            c0.7-0.4,1.5-0.4,2.3-0.6c0.8-0.1,1.6-0.3,2.3-0.7c1.1-0.8,1.8-1.9,1.9-3.3c0.1-1-0.2-1.9-0.3-2.8c-0.1-1-0.2-2,0.3-2.9
-                            c0.3-0.6,0.7-1.1,1.3-1.4c0.7-0.4,1.4-0.4,2.2-0.1c1,0.4,1.7,1.1,2.4,1.9c0.9,1,1.7,2.1,2.2,3.4C154.9,14.6,155.1,15.4,155.1,16.3
-                            z"/>
-                          <path d="M149.6,5.4c0-1.3,0.9-2.7,2.1-3.1c0.8-0.3,1.6,0.1,1.8,1c0.3,1.3-0.7,3.2-2,3.7C150.4,7.3,149.6,6.6,149.6,5.4z"/>
-                          <path d="M155.8,7.1c-0.1,0.7-0.5,1.4-1.4,1.8c-0.8,0.4-1.5,0-1.6-0.9c-0.1-0.9,0.7-2,1.5-2.3C155.3,5.5,155.9,6,155.8,7.1z"/>
-                          <path d="M157.4,9.3c0,0.8-0.7,1.7-1.5,1.8c-0.6,0.1-1-0.2-1-0.8c0-0.8,0.7-1.6,1.5-1.8C157,8.4,157.4,8.7,157.4,9.3z"/>
-                          <path d="M156.7,13c-0.5,0-0.8-0.4-0.7-0.8c0.1-0.6,0.8-1.1,1.4-1.1c0.5,0,0.8,0.4,0.7,0.9C157.9,12.4,157.3,13,156.7,13z"/>
-                          <path d="M156.3,14.3c0-0.5,0.4-1.1,0.9-1.1c0.4-0.1,0.7,0.2,0.7,0.6c0,0.5-0.4,1-0.9,1.1C156.6,15,156.3,14.7,156.3,14.3z"/>
-                          <path d="M111.7,22.1c0-1,0.7-1.8,1.7-1.8c1,0,1.7,0.7,1.7,1.8c0,1-0.6,1.8-1.7,1.8C112.4,23.9,111.7,23.1,111.7,22.1z"/>
+                      <svg id="page-logo" class="page-logo" width="161px" height="30px" viewBox="0 0 161 30">
+                        <g class="static">
+                          <path class="s" d="M5.217,8.583C4.873,8.921,4.701,9.369,4.701,9.926c0,0.558,0.21,1.001,0.63,1.33 c0.42,0.329,1.39,0.718,2.91,1.166c1.52,0.448,2.7,1.12,3.54,2.015c0.84,0.896,1.26,2.202,1.26,3.92 c0,1.719-0.539,3.112-1.615,4.181c-1.077,1.069-2.494,1.604-4.25,1.604c-2.536,0-4.819-1.124-6.851-3.372l2.131-3.125 c1.726,1.809,3.323,2.714,4.789,2.714c0.656,0,1.172-0.169,1.546-0.508c0.374-0.338,0.562-0.795,0.562-1.37 c0-0.576-0.199-1.032-0.596-1.371c-0.397-0.338-1.184-0.681-2.36-1.028c-1.864-0.529-3.228-1.22-4.09-2.069 c-0.863-0.85-1.294-2.184-1.294-4.002c0-1.818,0.546-3.221,1.638-4.208s2.456-1.48,4.09-1.48c1.069,0,2.139,0.219,3.208,0.658 c1.069,0.439,2.001,1.061,2.795,1.864l-1.81,3.125c-1.39-1.261-2.826-1.892-4.308-1.892C6.03,8.076,5.561,8.245,5.217,8.583z"/>
+                          <path class="t" d="M22.871,8.459v15.461h-3.574V8.459H14.76V4.758h12.648v3.701H22.871z"/>
+                          <path class="a" d="M41.43,23.921l-1.489-4.14h-6.713l-1.489,4.14h-3.804l6.92-19.163h3.46l6.919,19.163H41.43z M36.595,10.46 l-2.016,5.565h4.01L36.595,10.46z"/>
+                          <path class="t2" d="M53.871,8.459v15.461h-3.574V8.459H45.76V4.758h12.648v3.701H53.871z"/>
+                          <path class="i" d="M61.02,4.758h3.574v19.163H61.02V4.758z"/>
+                          <path class="c" d="M75.89,20.138c1.756,0,3.192-0.831,4.308-2.494l2.291,2.823c-1.818,2.449-3.96,3.674-6.427,3.674 c-2.467,0-4.499-0.933-6.095-2.797s-2.394-4.217-2.394-7.059c0-2.841,0.813-5.213,2.44-7.114c1.627-1.9,3.616-2.851,5.969-2.851 c2.627,0,4.827,1.197,6.599,3.591l-2.223,3.016c-1.13-1.681-2.536-2.522-4.216-2.522c-1.344,0-2.494,0.526-3.448,1.577 c-0.955,1.051-1.432,2.467-1.432,4.249s0.45,3.212,1.352,4.291S74.606,20.138,75.89,20.138z"/>
                         </g>
-                        <g class="footwork">
-                          <path d="M6,23.6V11.9H4.1V10H6V9.4c0-1.9,0.4-3.6,1.6-4.7c0.9-0.9,2.2-1.3,3.3-1.3c0.9,0,1.6,0.2,2.1,0.4l-0.3,1.9
-                            c-0.4-0.2-0.9-0.3-1.6-0.3c-2.1,0-2.6,1.8-2.6,3.9V10h3.3v1.9H8.4v11.7H6z"/>
-                          <path d="M25.8,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C23.1,9.7,25.8,12.5,25.8,16.7z M15,16.8
-                            c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2S15,14.3,15,16.8z"/>
-                          <path d="M41.2,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C38.5,9.7,41.2,12.5,41.2,16.7z M30.4,16.8
-                            c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2S30.4,14.3,30.4,16.8z"/>
-                          <path d="M47.2,6.1V10h3.5v1.9h-3.5v7.3c0,1.7,0.5,2.6,1.8,2.6c0.6,0,1.1-0.1,1.4-0.2l0.1,1.8c-0.5,0.2-1.2,0.3-2.2,0.3
-                            c-1.1,0-2.1-0.4-2.7-1c-0.7-0.7-1-1.9-1-3.5v-7.4h-2.1V10h2.1V6.8L47.2,6.1z"/>
-                          <path d="M54.8,10l1.8,6.9c0.4,1.5,0.8,2.9,1,4.3h0.1c0.3-1.4,0.8-2.8,1.2-4.3l2.2-6.9h2.1l2.1,6.8c0.5,1.6,0.9,3.1,1.2,4.4h0.1
-                            c0.2-1.4,0.6-2.8,1-4.4l1.9-6.8h2.4l-4.4,13.6h-2.2l-2.1-6.5c-0.5-1.5-0.9-2.9-1.2-4.5H62c-0.3,1.6-0.8,3-1.2,4.5l-2.2,6.4h-2.2
-                            L52.2,10H54.8z"/>
-                          <path d="M86.4,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C83.7,9.7,86.4,12.5,86.4,16.7z M75.6,16.8
-                            c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2C76.9,11.6,75.6,14.3,75.6,16.8z"/>
-                          <path d="M89.5,14.3c0-1.6,0-3-0.1-4.2h2.2l0.1,2.7h0.1c0.6-1.8,2.1-3,3.8-3c0.3,0,0.5,0,0.7,0.1v2.3c-0.3-0.1-0.5-0.1-0.8-0.1
-                            c-1.7,0-3,1.3-3.3,3.2c-0.1,0.3-0.1,0.7-0.1,1.1v7.2h-2.4V14.3z"/>
-                          <path d="M101.2,16.2L101.2,16.2c0.4-0.5,0.9-1.1,1.3-1.5l4-4.7h3l-5.2,5.6l6,8h-3l-4.7-6.5l-1.3,1.4v5.1h-2.4V3.7h2.4V16.2z"/>
+                        <g class="type">
+                          <path class="t" d="M92.456,8.459v15.461h-3.574V8.459h-4.537V4.758h12.647v3.701H92.456z"/>
+                          <path class="y" d="M107.485,23.921h-3.574v-7.566L98.366,4.758h3.872l3.46,7.128l3.46-7.128h3.872 l-5.545,11.596V23.921z"/>
+                          <path class="dot" d="M110.041,23.605c-0.256-0.306-0.384-0.681-0.384-1.125c0-0.443,0.128-0.818,0.384-1.125 c0.255-0.306,0.568-0.459,0.939-0.459s0.685,0.153,0.94,0.459c0.256,0.307,0.384,0.682,0.384,1.125 c0,0.444-0.128,0.819-0.384,1.125c-0.256,0.307-0.569,0.459-0.94,0.459S110.296,23.912,110.041,23.605z"/>
+                          <path class="p" d="M125.418,6.472c1.123,1.143,1.685,2.897,1.685,5.264c0,2.367-0.577,4.099-1.73,5.195 s-2.914,1.645-5.281,1.645h-2.131v5.346h-3.574V4.758h5.659C122.504,4.758,124.295,5.33,125.418,6.472z M122.795,14.011 c0.427-0.576,0.642-1.416,0.642-2.522c0-1.105-0.279-1.892-0.837-2.358c-0.558-0.466-1.425-0.699-2.601-0.699h-2.039v6.442h2.406 C121.558,14.874,122.366,14.586,122.795,14.011z"/>
+                          <path class="e" d="M141.445,4.758v3.811h-7.974v3.948h7.172v3.646h-7.172v3.975h8.226v3.783h-11.8V4.758 H141.445z"/>
                         </g>
-                        <g class="js">
-                          <path d="M114.8,27.5c1.1-0.1,2.1-0.4,2.7-1c0.7-0.8,0.9-1.8,0.9-5.1V10h2.5v12.3c0,2.6-0.4,4.3-1.6,5.6c-1.1,1.1-2.9,1.5-4.2,1.5
-                            L114.8,27.5z M121.1,6.2c0,0.8-0.6,1.5-1.5,1.5c-0.9,0-1.5-0.7-1.5-1.5c0-0.9,0.6-1.5,1.6-1.5C120.5,4.7,121.1,5.3,121.1,6.2z"/>
-                          <path d="M124.5,21.1c0.7,0.5,2,1,3.2,1c1.8,0,2.6-0.9,2.6-2c0-1.2-0.7-1.8-2.5-2.5c-2.4-0.9-3.6-2.2-3.6-3.8c0-2.2,1.8-4,4.7-4
-                            c1.4,0,2.6,0.4,3.3,0.8l-0.6,1.8c-0.5-0.3-1.5-0.8-2.8-0.8c-1.5,0-2.3,0.8-2.3,1.8c0,1.1,0.8,1.6,2.6,2.3c2.4,0.9,3.6,2.1,3.6,4.1
-                            c0,2.4-1.8,4.1-5.1,4.1c-1.5,0-2.9-0.4-3.8-0.9L124.5,21.1z"/>
+                        <g class="parens">
+                          <path class="open" d="M148.308,8.024c-0.634,2.257-0.95,4.368-0.95,6.333s0.316,4.081,0.95,6.346 s1.409,4.176,2.326,5.729h-3.712c-0.749-1.261-1.432-3.038-2.051-5.332c-0.618-2.293-0.928-4.537-0.928-6.73 c0-2.193,0.31-4.441,0.928-6.744c0.619-2.303,1.302-4.084,2.051-5.346h3.712C149.717,3.853,148.941,5.767,148.308,8.024z"/>
+                          <path class="close" d="M154.104,20.703c0.634-2.266,0.951-4.382,0.951-6.346s-0.317-4.075-0.951-6.333 s-1.409-4.171-2.325-5.744h3.712c0.748,1.261,1.432,3.043,2.05,5.346c0.619,2.303,0.929,4.551,0.929,6.744 c0,2.193-0.31,4.437-0.929,6.73c-0.618,2.294-1.302,4.071-2.05,5.332h-3.712C152.695,24.879,153.471,22.969,154.104,20.703z"/>
                         </g>
                       </svg>
                     </div>
                   </a>
                 </div>
-                
-                <div class="areas" data-bind="style: { width: headerWidth }, class: currentSelection">
-                  <div class="primary">
-                    <a href="https://github.com/reflectiveSingleton" class="icon-github Github" title="Github"
-                       data-bind="click: chooseSection, style: { lineHeight: height }" data-section="Github"></a>
-                  </div>
-                  <div class="alternate">
-                    <span class="icon-page-sections PageSections link" title="Page Sections" data-bind="click: chooseSection, style: { lineHeight: height }" data-section="PageSections"></span>
-                  </div>
-                </div>
               </div>
-            </div> <!-- /stopBinding -->
+            </panelinks>
 
-            <div class="stop-binding" data-bind="stopBinding: true">
-              <nav class="js-navigation" data-bind="style: { marginLeft: offsetMargin }">
+            <viewModel module="Navigation">
+              <nav data-bind="style: { marginLeft: offsetMargin }">
                 <div class="main-load-bar">
 
                   <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { top: loadBarTopPos, width: loader.percentComplete }">
@@ -142,9 +102,50 @@
                   </div>
                 </div>
 
-                <div class="menu-item">
+                <div class="menu-item first js-only initialized-only">
+                  <div class="icon icon-cog title desktop-only" title="Click to adjust layout" id="settings"
+                    data-bind="css: { active: configVisible }, style: { lineHeight: headerContentHeight }, click: toggleConfigView"></div>
+                </div>
+
+                <div class="menu-item" data-menu-id="code">
                   <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    A solid footing for knockout applications.
+                    <a href="/code" class="internal" data-menu-id="code" data-title="Code">
+                      <span></span>code<span>()</span>
+                    </a>
+                  </div>
+                  <div class="drop-down">
+                    <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
+                      <a href="/code" class="internal" data-menu-id="code" data-title="Code">
+                        <span></span>code<span>()</span>
+                      </a>
+                    </div>
+
+                    <div class="content">
+                      <div class="row">
+                        <a class="item" href="http://footworkjs.com" target="_blank">footwork.js</a>
+                      </div>
+                      <div class="row">
+                        <a class="item internal" data-menu-id="code" data-title="Floaties.js" href="/code/floaties.js">floaties.js</a>
+                      </div>
+                      <div class="row">
+                        <a class="item internal" data-menu-id="code" data-title="Stylesheet.js" href="/code/stylesheet.js">stylesheet.js</a>
+                      </div>
+                      <div class="row">
+                        <a class="item internal" data-menu-id="code" data-title="Proximity.js" href="/code/proximity.js">proximity.js</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="menu-item blog">
+                  <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
+                    <a href="/blog" class="internal" data-id="blog" data-title="Blog">blog</a>
+                  </div>
+                </div>
+
+                <div class="aside menu-item about" data-bind="style: { height: headerContentHeight }">
+                  <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
+                    <a href="/about" class="internal" data-id="about" data-title="About">about</a>
                   </div>
                 </div>
 
@@ -153,1911 +154,91 @@
                   <div class="info" data-bind="html: dropInfoText">Click to expand the header. <span class="shortcut">ctrl + x</span></div>
                 </div>
               </nav>
-            </div> <!-- /stopBinding -->
+            </viewModel>
           </div>
         </header>
-      </div> <!-- /stopBinding -->
+      </viewModel>
 
-
-      <div class="stop-binding" data-bind="stopBinding: true">
+      <viewModel module="Navigation">
         <nav class="mobile-header js-navigation">
           <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }">
             <div class="message" data-bind="text: loader.message">Loading...</div>
           </div>
           <a class="page-logo internal" href="/">
-            <svg width="161px" height="30px" viewBox="0 0 161 30">
-              <path fill="none" d="M158.2,27.9c-7,0-14,0-21.1,0c0-8.6,0-17.2,0-25.8c7,0,14,0,21.1,0C158.2,10.7,158.2,19.3,158.2,27.9z
-                 M155.1,16.3c0-1-0.2-1.8-0.5-2.5c-0.5-1.3-1.3-2.4-2.2-3.4c-0.7-0.8-1.4-1.5-2.4-1.9c-0.7-0.3-1.4-0.3-2.2,0.1
-                c-0.6,0.3-1,0.8-1.3,1.4c-0.5,0.9-0.5,1.9-0.3,2.9c0.1,0.9,0.4,1.9,0.3,2.8c-0.1,1.4-0.8,2.5-1.9,3.3c-0.7,0.5-1.5,0.6-2.3,0.7
-                c-0.8,0.1-1.6,0.2-2.3,0.6c-1.3,0.6-2.1,1.6-2.5,2.9c-0.3,0.7-0.2,1.5,0.1,2.2c0.4,0.8,1,1.3,1.6,1.8c0.5,0.4,1,0.5,1.6,0.5
-                c1.3,0.1,2.4-0.5,3.2-1.4c1.1-1.3,2.3-2.3,3.8-3c0.8-0.4,1.6-0.7,2.4-1.1c1.5-0.7,2.8-1.7,3.8-3C154.6,18.4,155.1,17.4,155.1,16.3
-                z M149.6,5.4c0,1.3,0.8,1.9,1.9,1.5c1.3-0.5,2.4-2.3,2-3.7c-0.2-0.9-1-1.3-1.8-1C150.6,2.7,149.7,4,149.6,5.4z M155.8,7.1
-                c0.1-1.1-0.5-1.6-1.4-1.4c-0.8,0.2-1.6,1.4-1.5,2.3c0.1,0.9,0.8,1.3,1.6,0.9C155.3,8.5,155.7,7.8,155.8,7.1z M157.4,9.3
-                c0-0.6-0.4-0.9-1-0.8c-0.8,0.1-1.5,1-1.5,1.8c0,0.6,0.4,1,1,0.8C156.7,11,157.4,10.1,157.4,9.3z M156.7,13c0.6,0,1.2-0.5,1.4-1.1
-                c0.1-0.5-0.2-0.9-0.7-0.9c-0.6,0-1.3,0.5-1.4,1.1C155.9,12.6,156.1,13,156.7,13z M156.3,14.3c0,0.4,0.3,0.6,0.7,0.5
-                c0.5-0.1,0.9-0.6,0.9-1.1c0-0.4-0.3-0.7-0.7-0.6C156.8,13.3,156.3,13.8,156.3,14.3z"/>
-              <g class="foot">
-                <path d="M155.1,16.3c0,1-0.4,2.1-1.1,3c-1,1.3-2.3,2.3-3.8,3c-0.8,0.4-1.6,0.7-2.4,1.1c-1.5,0.7-2.7,1.8-3.8,3
-                  c-0.8,0.9-1.9,1.4-3.2,1.4c-0.6,0-1.1-0.2-1.6-0.5c-0.7-0.5-1.3-1.1-1.6-1.8c-0.4-0.7-0.4-1.5-0.1-2.2c0.5-1.3,1.3-2.3,2.5-2.9
-                  c0.7-0.4,1.5-0.4,2.3-0.6c0.8-0.1,1.6-0.3,2.3-0.7c1.1-0.8,1.8-1.9,1.9-3.3c0.1-1-0.2-1.9-0.3-2.8c-0.1-1-0.2-2,0.3-2.9
-                  c0.3-0.6,0.7-1.1,1.3-1.4c0.7-0.4,1.4-0.4,2.2-0.1c1,0.4,1.7,1.1,2.4,1.9c0.9,1,1.7,2.1,2.2,3.4C154.9,14.6,155.1,15.4,155.1,16.3
-                  z"/>
-                <path d="M149.6,5.4c0-1.3,0.9-2.7,2.1-3.1c0.8-0.3,1.6,0.1,1.8,1c0.3,1.3-0.7,3.2-2,3.7C150.4,7.3,149.6,6.6,149.6,5.4z"/>
-                <path d="M155.8,7.1c-0.1,0.7-0.5,1.4-1.4,1.8c-0.8,0.4-1.5,0-1.6-0.9c-0.1-0.9,0.7-2,1.5-2.3C155.3,5.5,155.9,6,155.8,7.1z"/>
-                <path d="M157.4,9.3c0,0.8-0.7,1.7-1.5,1.8c-0.6,0.1-1-0.2-1-0.8c0-0.8,0.7-1.6,1.5-1.8C157,8.4,157.4,8.7,157.4,9.3z"/>
-                <path d="M156.7,13c-0.5,0-0.8-0.4-0.7-0.8c0.1-0.6,0.8-1.1,1.4-1.1c0.5,0,0.8,0.4,0.7,0.9C157.9,12.4,157.3,13,156.7,13z"/>
-                <path d="M156.3,14.3c0-0.5,0.4-1.1,0.9-1.1c0.4-0.1,0.7,0.2,0.7,0.6c0,0.5-0.4,1-0.9,1.1C156.6,15,156.3,14.7,156.3,14.3z"/>
-                <path d="M111.7,22.1c0-1,0.7-1.8,1.7-1.8c1,0,1.7,0.7,1.7,1.8c0,1-0.6,1.8-1.7,1.8C112.4,23.9,111.7,23.1,111.7,22.1z"/>
+            <svg width="161px" height="30px" viewBox="0 0 161 30" class="mobile-only page-logo">
+              <g class="static">
+                <path class="s" d="M5.217,8.583C4.873,8.921,4.701,9.369,4.701,9.926c0,0.558,0.21,1.001,0.63,1.33 c0.42,0.329,1.39,0.718,2.91,1.166c1.52,0.448,2.7,1.12,3.54,2.015c0.84,0.896,1.26,2.202,1.26,3.92 c0,1.719-0.539,3.112-1.615,4.181c-1.077,1.069-2.494,1.604-4.25,1.604c-2.536,0-4.819-1.124-6.851-3.372l2.131-3.125 c1.726,1.809,3.323,2.714,4.789,2.714c0.656,0,1.172-0.169,1.546-0.508c0.374-0.338,0.562-0.795,0.562-1.37 c0-0.576-0.199-1.032-0.596-1.371c-0.397-0.338-1.184-0.681-2.36-1.028c-1.864-0.529-3.228-1.22-4.09-2.069 c-0.863-0.85-1.294-2.184-1.294-4.002c0-1.818,0.546-3.221,1.638-4.208s2.456-1.48,4.09-1.48c1.069,0,2.139,0.219,3.208,0.658 c1.069,0.439,2.001,1.061,2.795,1.864l-1.81,3.125c-1.39-1.261-2.826-1.892-4.308-1.892C6.03,8.076,5.561,8.245,5.217,8.583z"/>
+                <path class="t" d="M22.871,8.459v15.461h-3.574V8.459H14.76V4.758h12.648v3.701H22.871z"/>
+                <path class="a" d="M41.43,23.921l-1.489-4.14h-6.713l-1.489,4.14h-3.804l6.92-19.163h3.46l6.919,19.163H41.43z M36.595,10.46 l-2.016,5.565h4.01L36.595,10.46z"/>
+                <path class="t2" d="M53.871,8.459v15.461h-3.574V8.459H45.76V4.758h12.648v3.701H53.871z"/>
+                <path class="i" d="M61.02,4.758h3.574v19.163H61.02V4.758z"/>
+                <path class="c" d="M75.89,20.138c1.756,0,3.192-0.831,4.308-2.494l2.291,2.823c-1.818,2.449-3.96,3.674-6.427,3.674 c-2.467,0-4.499-0.933-6.095-2.797s-2.394-4.217-2.394-7.059c0-2.841,0.813-5.213,2.44-7.114c1.627-1.9,3.616-2.851,5.969-2.851 c2.627,0,4.827,1.197,6.599,3.591l-2.223,3.016c-1.13-1.681-2.536-2.522-4.216-2.522c-1.344,0-2.494,0.526-3.448,1.577 c-0.955,1.051-1.432,2.467-1.432,4.249s0.45,3.212,1.352,4.291S74.606,20.138,75.89,20.138z"/>
               </g>
-              <g class="footwork">
-                <path d="M6,23.6V11.9H4.1V10H6V9.4c0-1.9,0.4-3.6,1.6-4.7c0.9-0.9,2.2-1.3,3.3-1.3c0.9,0,1.6,0.2,2.1,0.4l-0.3,1.9
-                  c-0.4-0.2-0.9-0.3-1.6-0.3c-2.1,0-2.6,1.8-2.6,3.9V10h3.3v1.9H8.4v11.7H6z"/>
-                <path d="M25.8,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C23.1,9.7,25.8,12.5,25.8,16.7z M15,16.8
-                  c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2S15,14.3,15,16.8z"/>
-                <path d="M41.2,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C38.5,9.7,41.2,12.5,41.2,16.7z M30.4,16.8
-                  c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2S30.4,14.3,30.4,16.8z"/>
-                <path d="M47.2,6.1V10h3.5v1.9h-3.5v7.3c0,1.7,0.5,2.6,1.8,2.6c0.6,0,1.1-0.1,1.4-0.2l0.1,1.8c-0.5,0.2-1.2,0.3-2.2,0.3
-                  c-1.1,0-2.1-0.4-2.7-1c-0.7-0.7-1-1.9-1-3.5v-7.4h-2.1V10h2.1V6.8L47.2,6.1z"/>
-                <path d="M54.8,10l1.8,6.9c0.4,1.5,0.8,2.9,1,4.3h0.1c0.3-1.4,0.8-2.8,1.2-4.3l2.2-6.9h2.1l2.1,6.8c0.5,1.6,0.9,3.1,1.2,4.4h0.1
-                  c0.2-1.4,0.6-2.8,1-4.4l1.9-6.8h2.4l-4.4,13.6h-2.2l-2.1-6.5c-0.5-1.5-0.9-2.9-1.2-4.5H62c-0.3,1.6-0.8,3-1.2,4.5l-2.2,6.4h-2.2
-                  L52.2,10H54.8z"/>
-                <path d="M86.4,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C83.7,9.7,86.4,12.5,86.4,16.7z M75.6,16.8
-                  c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2C76.9,11.6,75.6,14.3,75.6,16.8z"/>
-                <path d="M89.5,14.3c0-1.6,0-3-0.1-4.2h2.2l0.1,2.7h0.1c0.6-1.8,2.1-3,3.8-3c0.3,0,0.5,0,0.7,0.1v2.3c-0.3-0.1-0.5-0.1-0.8-0.1
-                  c-1.7,0-3,1.3-3.3,3.2c-0.1,0.3-0.1,0.7-0.1,1.1v7.2h-2.4V14.3z"/>
-                <path d="M101.2,16.2L101.2,16.2c0.4-0.5,0.9-1.1,1.3-1.5l4-4.7h3l-5.2,5.6l6,8h-3l-4.7-6.5l-1.3,1.4v5.1h-2.4V3.7h2.4V16.2z"/>
+              <g class="type">
+                <path class="t" d="M92.456,8.459v15.461h-3.574V8.459h-4.537V4.758h12.647v3.701H92.456z"/>
+                <path class="y" d="M107.485,23.921h-3.574v-7.566L98.366,4.758h3.872l3.46,7.128l3.46-7.128h3.872 l-5.545,11.596V23.921z"/>
+                <path class="dot" d="M110.041,23.605c-0.256-0.306-0.384-0.681-0.384-1.125c0-0.443,0.128-0.818,0.384-1.125 c0.255-0.306,0.568-0.459,0.939-0.459s0.685,0.153,0.94,0.459c0.256,0.307,0.384,0.682,0.384,1.125 c0,0.444-0.128,0.819-0.384,1.125c-0.256,0.307-0.569,0.459-0.94,0.459S110.296,23.912,110.041,23.605z"/>
+                <path class="p" d="M125.418,6.472c1.123,1.143,1.685,2.897,1.685,5.264c0,2.367-0.577,4.099-1.73,5.195 s-2.914,1.645-5.281,1.645h-2.131v5.346h-3.574V4.758h5.659C122.504,4.758,124.295,5.33,125.418,6.472z M122.795,14.011 c0.427-0.576,0.642-1.416,0.642-2.522c0-1.105-0.279-1.892-0.837-2.358c-0.558-0.466-1.425-0.699-2.601-0.699h-2.039v6.442h2.406 C121.558,14.874,122.366,14.586,122.795,14.011z"/>
+                <path class="e" d="M141.445,4.758v3.811h-7.974v3.948h7.172v3.646h-7.172v3.975h8.226v3.783h-11.8V4.758 H141.445z"/>
               </g>
-              <g class="js">
-                <path d="M114.8,27.5c1.1-0.1,2.1-0.4,2.7-1c0.7-0.8,0.9-1.8,0.9-5.1V10h2.5v12.3c0,2.6-0.4,4.3-1.6,5.6c-1.1,1.1-2.9,1.5-4.2,1.5
-                  L114.8,27.5z M121.1,6.2c0,0.8-0.6,1.5-1.5,1.5c-0.9,0-1.5-0.7-1.5-1.5c0-0.9,0.6-1.5,1.6-1.5C120.5,4.7,121.1,5.3,121.1,6.2z"/>
-                <path d="M124.5,21.1c0.7,0.5,2,1,3.2,1c1.8,0,2.6-0.9,2.6-2c0-1.2-0.7-1.8-2.5-2.5c-2.4-0.9-3.6-2.2-3.6-3.8c0-2.2,1.8-4,4.7-4
-                  c1.4,0,2.6,0.4,3.3,0.8l-0.6,1.8c-0.5-0.3-1.5-0.8-2.8-0.8c-1.5,0-2.3,0.8-2.3,1.8c0,1.1,0.8,1.6,2.6,2.3c2.4,0.9,3.6,2.1,3.6,4.1
-                  c0,2.4-1.8,4.1-5.1,4.1c-1.5,0-2.9-0.4-3.8-0.9L124.5,21.1z"/>
+              <g class="parens">
+                <path class="open" d="M148.308,8.024c-0.634,2.257-0.95,4.368-0.95,6.333s0.316,4.081,0.95,6.346 s1.409,4.176,2.326,5.729h-3.712c-0.749-1.261-1.432-3.038-2.051-5.332c-0.618-2.293-0.928-4.537-0.928-6.73 c0-2.193,0.31-4.441,0.928-6.744c0.619-2.303,1.302-4.084,2.051-5.346h3.712C149.717,3.853,148.941,5.767,148.308,8.024z"/>
+                <path class="close" d="M154.104,20.703c0.634-2.266,0.951-4.382,0.951-6.346s-0.317-4.075-0.951-6.333 s-1.409-4.171-2.325-5.744h3.712c0.748,1.261,1.432,3.043,2.05,5.346c0.619,2.303,0.929,4.551,0.929,6.744 c0,2.193-0.31,4.437-0.929,6.73c-0.618,2.294-1.302,4.071-2.05,5.332h-3.712C152.695,24.879,153.471,22.969,154.104,20.703z"/>
               </g>
             </svg>
           </a>
         </nav>
-      </div> <!-- /stopBinding -->
+      </viewModel>
 
       <div class="main-content" data-bind="style: { paddingTop: mainContentTopOffset }">
-        <div class="stop-binding" data-bind="stopBinding: true">
-          <div class="js-pane pane has-layout-trans" data-bind="style: { width: width, top: topOffset, left: leftOffset }, transition: transition, transform: transform">
-            <div class="mobile-only gripper"></div>
-
-            <div class="mobile-only page-logo js-only">
-              <a class="internal" href="/">
-                <svg width="161px" height="30px" viewBox="0 0 161 30" class="mobile-only">
-                  <path fill="none" d="M158.2,27.9c-7,0-14,0-21.1,0c0-8.6,0-17.2,0-25.8c7,0,14,0,21.1,0C158.2,10.7,158.2,19.3,158.2,27.9z
-                     M155.1,16.3c0-1-0.2-1.8-0.5-2.5c-0.5-1.3-1.3-2.4-2.2-3.4c-0.7-0.8-1.4-1.5-2.4-1.9c-0.7-0.3-1.4-0.3-2.2,0.1
-                    c-0.6,0.3-1,0.8-1.3,1.4c-0.5,0.9-0.5,1.9-0.3,2.9c0.1,0.9,0.4,1.9,0.3,2.8c-0.1,1.4-0.8,2.5-1.9,3.3c-0.7,0.5-1.5,0.6-2.3,0.7
-                    c-0.8,0.1-1.6,0.2-2.3,0.6c-1.3,0.6-2.1,1.6-2.5,2.9c-0.3,0.7-0.2,1.5,0.1,2.2c0.4,0.8,1,1.3,1.6,1.8c0.5,0.4,1,0.5,1.6,0.5
-                    c1.3,0.1,2.4-0.5,3.2-1.4c1.1-1.3,2.3-2.3,3.8-3c0.8-0.4,1.6-0.7,2.4-1.1c1.5-0.7,2.8-1.7,3.8-3C154.6,18.4,155.1,17.4,155.1,16.3
-                    z M149.6,5.4c0,1.3,0.8,1.9,1.9,1.5c1.3-0.5,2.4-2.3,2-3.7c-0.2-0.9-1-1.3-1.8-1C150.6,2.7,149.7,4,149.6,5.4z M155.8,7.1
-                    c0.1-1.1-0.5-1.6-1.4-1.4c-0.8,0.2-1.6,1.4-1.5,2.3c0.1,0.9,0.8,1.3,1.6,0.9C155.3,8.5,155.7,7.8,155.8,7.1z M157.4,9.3
-                    c0-0.6-0.4-0.9-1-0.8c-0.8,0.1-1.5,1-1.5,1.8c0,0.6,0.4,1,1,0.8C156.7,11,157.4,10.1,157.4,9.3z M156.7,13c0.6,0,1.2-0.5,1.4-1.1
-                    c0.1-0.5-0.2-0.9-0.7-0.9c-0.6,0-1.3,0.5-1.4,1.1C155.9,12.6,156.1,13,156.7,13z M156.3,14.3c0,0.4,0.3,0.6,0.7,0.5
-                    c0.5-0.1,0.9-0.6,0.9-1.1c0-0.4-0.3-0.7-0.7-0.6C156.8,13.3,156.3,13.8,156.3,14.3z"/>
-                  <g class="foot">
-                    <path d="M155.1,16.3c0,1-0.4,2.1-1.1,3c-1,1.3-2.3,2.3-3.8,3c-0.8,0.4-1.6,0.7-2.4,1.1c-1.5,0.7-2.7,1.8-3.8,3
-                      c-0.8,0.9-1.9,1.4-3.2,1.4c-0.6,0-1.1-0.2-1.6-0.5c-0.7-0.5-1.3-1.1-1.6-1.8c-0.4-0.7-0.4-1.5-0.1-2.2c0.5-1.3,1.3-2.3,2.5-2.9
-                      c0.7-0.4,1.5-0.4,2.3-0.6c0.8-0.1,1.6-0.3,2.3-0.7c1.1-0.8,1.8-1.9,1.9-3.3c0.1-1-0.2-1.9-0.3-2.8c-0.1-1-0.2-2,0.3-2.9
-                      c0.3-0.6,0.7-1.1,1.3-1.4c0.7-0.4,1.4-0.4,2.2-0.1c1,0.4,1.7,1.1,2.4,1.9c0.9,1,1.7,2.1,2.2,3.4C154.9,14.6,155.1,15.4,155.1,16.3
-                      z"/>
-                    <path d="M149.6,5.4c0-1.3,0.9-2.7,2.1-3.1c0.8-0.3,1.6,0.1,1.8,1c0.3,1.3-0.7,3.2-2,3.7C150.4,7.3,149.6,6.6,149.6,5.4z"/>
-                    <path d="M155.8,7.1c-0.1,0.7-0.5,1.4-1.4,1.8c-0.8,0.4-1.5,0-1.6-0.9c-0.1-0.9,0.7-2,1.5-2.3C155.3,5.5,155.9,6,155.8,7.1z"/>
-                    <path d="M157.4,9.3c0,0.8-0.7,1.7-1.5,1.8c-0.6,0.1-1-0.2-1-0.8c0-0.8,0.7-1.6,1.5-1.8C157,8.4,157.4,8.7,157.4,9.3z"/>
-                    <path d="M156.7,13c-0.5,0-0.8-0.4-0.7-0.8c0.1-0.6,0.8-1.1,1.4-1.1c0.5,0,0.8,0.4,0.7,0.9C157.9,12.4,157.3,13,156.7,13z"/>
-                    <path d="M156.3,14.3c0-0.5,0.4-1.1,0.9-1.1c0.4-0.1,0.7,0.2,0.7,0.6c0,0.5-0.4,1-0.9,1.1C156.6,15,156.3,14.7,156.3,14.3z"/>
-                    <path d="M111.7,22.1c0-1,0.7-1.8,1.7-1.8c1,0,1.7,0.7,1.7,1.8c0,1-0.6,1.8-1.7,1.8C112.4,23.9,111.7,23.1,111.7,22.1z"/>
-                  </g>
-                  <g class="footwork">
-                    <path d="M6,23.6V11.9H4.1V10H6V9.4c0-1.9,0.4-3.6,1.6-4.7c0.9-0.9,2.2-1.3,3.3-1.3c0.9,0,1.6,0.2,2.1,0.4l-0.3,1.9
-                      c-0.4-0.2-0.9-0.3-1.6-0.3c-2.1,0-2.6,1.8-2.6,3.9V10h3.3v1.9H8.4v11.7H6z"/>
-                    <path d="M25.8,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C23.1,9.7,25.8,12.5,25.8,16.7z M15,16.8
-                      c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2S15,14.3,15,16.8z"/>
-                    <path d="M41.2,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C38.5,9.7,41.2,12.5,41.2,16.7z M30.4,16.8
-                      c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2S30.4,14.3,30.4,16.8z"/>
-                    <path d="M47.2,6.1V10h3.5v1.9h-3.5v7.3c0,1.7,0.5,2.6,1.8,2.6c0.6,0,1.1-0.1,1.4-0.2l0.1,1.8c-0.5,0.2-1.2,0.3-2.2,0.3
-                      c-1.1,0-2.1-0.4-2.7-1c-0.7-0.7-1-1.9-1-3.5v-7.4h-2.1V10h2.1V6.8L47.2,6.1z"/>
-                    <path d="M54.8,10l1.8,6.9c0.4,1.5,0.8,2.9,1,4.3h0.1c0.3-1.4,0.8-2.8,1.2-4.3l2.2-6.9h2.1l2.1,6.8c0.5,1.6,0.9,3.1,1.2,4.4h0.1
-                      c0.2-1.4,0.6-2.8,1-4.4l1.9-6.8h2.4l-4.4,13.6h-2.2l-2.1-6.5c-0.5-1.5-0.9-2.9-1.2-4.5H62c-0.3,1.6-0.8,3-1.2,4.5l-2.2,6.4h-2.2
-                      L52.2,10H54.8z"/>
-                    <path d="M86.4,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C83.7,9.7,86.4,12.5,86.4,16.7z M75.6,16.8
-                      c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2C76.9,11.6,75.6,14.3,75.6,16.8z"/>
-                    <path d="M89.5,14.3c0-1.6,0-3-0.1-4.2h2.2l0.1,2.7h0.1c0.6-1.8,2.1-3,3.8-3c0.3,0,0.5,0,0.7,0.1v2.3c-0.3-0.1-0.5-0.1-0.8-0.1
-                      c-1.7,0-3,1.3-3.3,3.2c-0.1,0.3-0.1,0.7-0.1,1.1v7.2h-2.4V14.3z"/>
-                    <path d="M101.2,16.2L101.2,16.2c0.4-0.5,0.9-1.1,1.3-1.5l4-4.7h3l-5.2,5.6l6,8h-3l-4.7-6.5l-1.3,1.4v5.1h-2.4V3.7h2.4V16.2z"/>
-                  </g>
-                  <g class="js">
-                    <path d="M114.8,27.5c1.1-0.1,2.1-0.4,2.7-1c0.7-0.8,0.9-1.8,0.9-5.1V10h2.5v12.3c0,2.6-0.4,4.3-1.6,5.6c-1.1,1.1-2.9,1.5-4.2,1.5
-                      L114.8,27.5z M121.1,6.2c0,0.8-0.6,1.5-1.5,1.5c-0.9,0-1.5-0.7-1.5-1.5c0-0.9,0.6-1.5,1.6-1.5C120.5,4.7,121.1,5.3,121.1,6.2z"/>
-                    <path d="M124.5,21.1c0.7,0.5,2,1,3.2,1c1.8,0,2.6-0.9,2.6-2c0-1.2-0.7-1.8-2.5-2.5c-2.4-0.9-3.6-2.2-3.6-3.8c0-2.2,1.8-4,4.7-4
-                      c1.4,0,2.6,0.4,3.3,0.8l-0.6,1.8c-0.5-0.3-1.5-0.8-2.8-0.8c-1.5,0-2.3,0.8-2.3,1.8c0,1.1,0.8,1.6,2.6,2.3c2.4,0.9,3.6,2.1,3.6,4.1
-                      c0,2.4-1.8,4.1-5.1,4.1c-1.5,0-2.9-0.4-3.8-0.9L124.5,21.1z"/>
-                  </g>
-                </svg>
-              </a>
-            </div>
-
-            <div class="stop-binding" data-bind="stopBinding: true">
-              <div class="js-paneLinks pane-links" data-bind="css: { pageHasSections: pageHasSections }">
-                <div class="areas" data-bind="class: currentSelection">
-                  <div class="primary">
-                    <a href="https://github.com/reflectiveSingleton/footwork" title="View footwork.js on Github" data-bind="html: versionLabel"></a>
-                  </div>
-                </div>
-              </div>
-            </div> <!-- /stopBinding -->
-
-            <div class="content">
-              <div class="stop-binding" data-bind="stopBinding: true">
-                <div class="js-mainMenu mainMenu pane-component initialized" data-bind="css: { visible: visible }">
-                  <div class="content" data-bind="style: { height: paneContentMaxHeight }">
-                    <div class="title" data-bind="style: { width: mobileWidth }">
-                      <span class="label">
-                        <span class="text">Main Menu</span>
-                      </span>
-                    </div>
-                    <nav data-bind="style: { width: mobileWidth }, foreach: entries">
-                      <a class="internal" data-bind="css: { visible: visible }, attr: { 'data-title': labelText, href: url }, text: labelText"></a>
-                    </nav>
-                  </div>
-                </div>
-              </div> <!-- /stopBinding -->
-
-              <div class="stop-binding" data-bind="stopBinding: true">
-                <div class="js-pageSections pageSections pane-component" data-bind="css: { visible: visible, initialized: initialized }">
-                  <div class="title no-mobile">
-                    <span class="label">
-                      <span class="text" data-bind="html: title"></span>
-                    </span>
-                  </div>
-                  <div class="content" data-bind="css: { hasContent: sectionCount }, style: { height: paneContentMaxHeight }">
-                    <div class="title mobile-only">
-                      <span class="label">
-                        <span class="text" data-bind="text: title"></span>
-                      </span>
-                    </div>
-                    <div class="description" data-bind="text: description, css: { visible: descriptionVisible }"></div>
-                    <div data-bind="foreach: sections">
-                      <a class="section-label entry-row" data-bind="click: chooseSection, css: { active: active, visible: visible }, attr: { href: anchorAddress }">
-                        <div class="title" data-bind="text: title"></div>
-                        <span class="description" data-bind="text: description"></span>
-                        <div class="arrow"></div>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div> <!-- /stopBinding -->
-
-              <div class="stop-binding" data-bind="stopBinding: true">
-                <div class="js-reddit reddit pane-component" data-bind="css: state">
-                  <div class="not-initialized">
-                    <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }">
-                      <div class="message" data-bind="text: loader.message">Loading ...</div>
-                    </div>
-                  </div>
-                  <div class="small title no-mobile">
-                    <a class="label" href="http://www.reddit.com/user/reflectiveSingleton/">
-                      <span class="icon icon-reddit"></span>&nbsp;&nbsp;<span class="text">/user/reflectiveSingleton</span>
-                    </a>
-                  </div>
-                  <div class="content hasContent" data-bind="css: { unavailable: moreUnavailable }, style: { height: paneContentMaxHeight }">
-                    <div class="small title mobile-only">
-                      <a class="label" href="http://www.reddit.com/user/reflectiveSingleton/">
-                        <span class="icon icon-reddit"></span>&nbsp;&nbsp;<span class="text">/user/reflectiveSingleton</span>
-                      </a>
-                    </div>
-
-                    <script type="text/html" id="reddit-post">
-                      <div class="title">
-                        <span class="icon" data-bind="class: entryIcon" title="post"></span>
-                        <div class="score">
-                          <span class="text" data-bind="text: offsetScore"></span>
-                          <div class="corner"></div>
-                        </div>
-                        <a class="content" data-bind="text: postTitle, attr: { href: relevantURL, title: postTitle }"></a>
-                      </div>
-                    </script>
-
-                    <script type="text/html" id="reddit-comment">
-                      <div class="title">
-                        <span class="icon" data-bind="class: entryIcon" title="comment"></span>
-                        <a class="content" data-bind="text: postTitle, attr: { href: relevantURL, title: postTitle }"></a>
-                      </div>
-                      <div class="content" data-bind="html: postHTML"></div>
-                      <div class="score">
-                        <span class="text" data-bind="text: offsetScore"></span>
-                        <div class="corner"></div>
-                      </div>
-                    </script>
-
-                    <div class="entries" data-bind="foreach: entries">
-                      <div class="entry-row" data-bind="css: state, class: type, event: { mouseover: activate }, template: { name: entryTemplate }"></div>
-                    </div>
-
-                    <div class="available">
-                      <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }"></div>
-                      <button class="button" data-bind="click: loadEntries">
-                        <span data-bind="text: moreEntriesButtonText">View more ...</span>
-                      </button>
-                    </div>
-                    <div class="unavailable">
-                      <div class="message">...there doesn't appear to be anything else...</div>
-                    </div>
-                  </div>
-                </div>
-              </div> <!-- /stopBinding -->
-
-              <div class="stop-binding" data-bind="stopBinding: true">
-                <div class="js-twitter twitter pane-component" data-bind="css: state">
-                  <div class="not-initialized">
-                    <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }">
-                      <div class="message" data-bind="text: loader.message">Loading ...</div>
-                    </div>
-                  </div>
-                  <div class="small title no-mobile">
-                    <a class="label" href="https://twitter.com/overfocus">
-                      <span class="icon icon-twitter"></span>&nbsp;&nbsp;<span class="text">overfocus</span>
-                    </a>
-                  </div>
-                  <div class="content hasContent" data-bind="css: { unavailable: moreUnavailable }, style: { height: paneContentMaxHeight }">
-                    <div class="small title mobile-only">
-                      <a class="label" href="https://twitter.com/overfocus">
-                        <span class="icon icon-twitter"></span>&nbsp;&nbsp;<span class="text">overfocus</span>
-                      </a>
-                    </div>
-                    <div data-bind="foreach: entries">
-                      <div class="entry-row" data-bind="css: { visible: visible }">
-                        <div data-bind="html: html"></div>
-                      </div>
-                    </div>
-                    <div class="available">
-                      <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }"></div>
-                      <button class="button" data-bind="click: loadEntries">
-                        <span data-bind="text: moreEntriesButtonText">View more ...</span>
-                      </button>
-                    </div>
-                    <div class="unavailable">
-                      <div class="message">...there doesn't appear to be anything else...</div>
-                    </div>
-                  </div>
-                </div>
-              </div> <!-- /stopBinding -->
-
-              <div class="stop-binding" data-bind="stopBinding: true">
-                <div class="js-github github pane-component" data-bind="css: state">
-                  <div class="not-initialized">
-                    <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }">
-                      <div class="message" data-bind="text: loader.message">Loading ...</div>
-                    </div>
-                  </div>
-                  <div class="small title no-mobile">
-                    <a class="label" target="_blank" href="https://github.com/reflectiveSingleton">
-                      <span class="icon icon-github"></span>&nbsp;&nbsp;<span class="text">github.com/reflectiveSingleton</span>
-                    </a>
-                  </div>
-                  <div class="content hasContent" data-bind="css: { unavailable: moreUnavailable }, style: { height: paneContentMaxHeight }">
-                    <div class="small title mobile-only">
-                      <a class="label" href="https://github.com/reflectiveSingleton">
-                        <span class="icon icon-github"></span>&nbsp;&nbsp;<span class="text">github.com/reflectiveSingleton</span>
-                      </a>
-                    </div>
-                    <div class="entries" data-bind="foreach: entries">
-                      <div class="entry-row" data-bind="css: state, event: { mouseover: activate }">
-                        <div class="title">
-                          <span class="icon" data-bind="class: iconType"></span>
-                          <div class="date" data-bind="text: dateRelative"></div>
-                        </div>
-                        <div class="content" data-bind="html: html"></div>
-                      </div>
-                    </div>
-                    <div class="available">
-                      <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }"></div>
-                      <button class="button" data-bind="click: loadEntries">
-                        <span data-bind="text: loader.message">View more ...</span>
-                      </button>
-                    </div>
-                    <div class="unavailable">
-                      <div class="message">...there doesn't appear to be anything else...</div>
-                    </div>
-                  </div>
-                </div>
-              </div> <!-- /stopBinding -->
-            </div>
-          </div>
-        </div> <!-- /stopBinding -->
+        <pane></pane>
 
         <div class="main-pane has-layout-trans" data-bind="css: { configVisible: configVisible }, style: { marginLeft: mainContentOffset }">
           <div class="stop-binding" data-bind="stopBinding: true">
             <main class="js-main">
-              <div class="hljs"><ul class="sections">
-    
-    
-    <li id="section-1" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-1">&#182;</a>
-          </div>
-          <h2 id="footwork-js">footwork.js</h2>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-    </li>
-    
-    
-    <li id="section-2" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-2">&#182;</a>
-          </div>
-          <p>v0.2.0</p>
-<p>Copyright (c)2014 Jonathan Newman (<a href="http://staticty.pe">http://staticty.pe</a>).
-Distributed under MIT license</p>
-<p><a href="http://footworkjs.com">http://footworkjs.com</a></p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>
-<span class="hljs-comment">/**
- * footwork.js - A solid footing for knockout applications.
- * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.2.0
- * Url: http://footworkjs.com
- * License(s): MIT
- */</span></pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-3" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-3">&#182;</a>
-          </div>
-          <h2 id="main-js">main.js</h2>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-    </li>
-    
-    
-    <li id="section-4" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-4">&#182;</a>
-          </div>
-          <p>Record the footwork version as of this build.</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>ko._footworkVersion = <span class="hljs-string">'0.2.0'</span>;</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-5" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-5">&#182;</a>
-          </div>
-          <p>Expose any embedded dependencies</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>ko.embed = embedded;</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-6" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-6">&#182;</a>
-          </div>
-          <p>polyfill from <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim</a></p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">if</span> (!<span class="hljs-built_in">String</span>.prototype.trim) {
-  <span class="hljs-built_in">String</span>.prototype.trim = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span>
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.replace(<span class="hljs-regexp">/^\s+|\s+$/g</span>, <span class="hljs-string">''</span>);
-  };
-}</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-7" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-7">&#182;</a>
-          </div>
-          <p>misc utility functions</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> noop = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span> };</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-8" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-8">&#182;</a>
-          </div>
-          <p>Initialize the debugLevel observable, this controls
-what level of debug statements are logged to the console
-0 === off
-1 === errors / problems only
-2 === notices (very noisy)</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>ko.debugLevel = ko.observable(<span class="hljs-number">1</span>);</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-9" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-9">&#182;</a>
-          </div>
-          <p>expose internal logging methods</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>ko.log = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-  <span class="hljs-keyword">if</span>(ko.debugLevel() &gt;= <span class="hljs-number">2</span>) {
-    log.apply(<span class="hljs-literal">null</span>, <span class="hljs-built_in">arguments</span>);
-  }
-};
-ko.logError = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-  <span class="hljs-keyword">if</span>(ko.debugLevel() &gt;= <span class="hljs-number">1</span>) {
-    log.apply(<span class="hljs-literal">null</span>, <span class="hljs-built_in">arguments</span>);
-  }
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-10" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-10">&#182;</a>
-          </div>
-          <p>Preserve the original applyBindings method for later use</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> applyBindings = ko.applyBindings;</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-11" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-11">&#182;</a>
-          </div>
-          <p>Override the original applyBindings method to provide and enable ‘model’ life-cycle hooks/events.</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>ko.applyBindings = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(model, element)</span> {</span>
-  applyBindings(model, element);
-
-  <span class="hljs-keyword">if</span>(isViewModel(model) === <span class="hljs-literal">true</span>) {
-    <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> model.$initParams !== <span class="hljs-string">'undefined'</span> &amp;&amp; _.isFunction(model.$initParams.startup) === <span class="hljs-literal">true</span>) {
-      model.$initParams.startup();
-    }
-    <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> model.$configParams.afterBinding === <span class="hljs-string">'function'</span>) {
-      model.$configParams.afterBinding.call(model);
-    }
-  }
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-12" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-12">&#182;</a>
-          </div>
-          <p>This stores the mixins which are automatically added to each viewModel</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> viewModelMixins = [];</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-13" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-13">&#182;</a>
-          </div>
-          <h2 id="namespace-js">namespace.js</h2>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-    </li>
-    
-    
-    <li id="section-14" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-14">&#182;</a>
-          </div>
-          <p>This counter is used when model options { autoIncrement: true } and more than one model
-having the same namespace is instantiated. This is used in the event you do not want
-multiple copies of the same model to share the same namespace (if they do share a
-namespace, they receive all of the same events/messages/commands/etc).</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> namespaceNameCounter = {};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-15" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-15">&#182;</a>
-          </div>
-          <p>Prepare an empty namespace stack.
-This is where footwork registers its current working namespace name. Each new namespace is
-‘unshifted’ and ‘shifted’ as they are entered and exited, keeping the most current at
-index 0.</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> namespaceStack = [];</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-16" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-16">&#182;</a>
-          </div>
-          <p>Returns a normalized namespace name based off of ‘name’. It will register the name counter
-if not present and increment it if it is, then return the name (with the counter appended
-if autoIncrement === true and the counter is &gt; 0).</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">indexedNamespaceName</span><span class="hljs-params">(name, autoIncrement)</span> {</span>
-  <span class="hljs-keyword">if</span>(namespaceNameCounter[name] === <span class="hljs-literal">undefined</span>) {
-    namespaceNameCounter[name] = <span class="hljs-number">0</span>;
-  } <span class="hljs-keyword">else</span> {
-    namespaceNameCounter[name]++;
-  }
-  <span class="hljs-keyword">return</span> name + (autoIncrement === <span class="hljs-literal">true</span> ? namespaceNameCounter[name] : <span class="hljs-string">''</span>);
-}</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-17" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-17">&#182;</a>
-          </div>
-          <p>Method used to trigger an event on a namespace</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">triggerEventOnNamespace</span><span class="hljs-params">(eventKey, params)</span> {</span>
-  <span class="hljs-keyword">this</span>.publish(<span class="hljs-string">'event.'</span> + eventKey, params);
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
-}</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-18" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-18">&#182;</a>
-          </div>
-          <p>Method used to register an event handler on a namespace</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">registerNamespaceEventHandler</span><span class="hljs-params">(eventKey, callback)</span> {</span>
-  <span class="hljs-keyword">var</span> handlerSubscription = <span class="hljs-keyword">this</span>.subscribe(<span class="hljs-string">'event.'</span> + eventKey, callback);
-  <span class="hljs-keyword">this</span>.commandHandlers.push(handlerSubscription);
-
-  <span class="hljs-keyword">return</span> handlerSubscription;
-}</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-19" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-19">&#182;</a>
-          </div>
-          <p>Method used to unregister an event handler on a namespace</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">unregisterNamespaceEventHandler</span><span class="hljs-params">(handlerSubscription)</span> {</span>
-  handlerSubscription.unsubscribe();
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
-}</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-20" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-20">&#182;</a>
-          </div>
-          <p>Method used to send a command to a namespace</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sendCommandToNamespace</span><span class="hljs-params">(commandKey, params)</span> {</span>
-  <span class="hljs-keyword">this</span>.publish(<span class="hljs-string">'command.'</span> + commandKey, params);
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
-}</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-21" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-21">&#182;</a>
-          </div>
-          <p>Method used to register a command handler on a namespace</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">registerNamespaceCommandHandler</span><span class="hljs-params">(requestKey, callback)</span> {</span>
-  <span class="hljs-keyword">var</span> handlerSubscription = <span class="hljs-keyword">this</span>.subscribe(<span class="hljs-string">'command.'</span> + requestKey, callback);
-  <span class="hljs-keyword">this</span>.commandHandlers.push(handlerSubscription);
-
-  <span class="hljs-keyword">return</span> handlerSubscription;
-}</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-22" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-22">&#182;</a>
-          </div>
-          <p>Method used to unregister a command handler on a namespace</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">unregisterNamespaceCommandHandler</span><span class="hljs-params">(handlerSubscription)</span> {</span>
-  handlerSubscription.unsubscribe();
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
-}</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-23" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-23">&#182;</a>
-          </div>
-          <p>Method used to is a request for data from a namespace, returning the response (or undefined if no response)
-This method will return an array of responses if more than one is received.</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">requestResponseFromNamespace</span><span class="hljs-params">(requestKey, params)</span> {</span>
-  <span class="hljs-keyword">var</span> response = <span class="hljs-literal">undefined</span>;
-  <span class="hljs-keyword">var</span> responseSubscription;
-
-  responseSubscription = <span class="hljs-keyword">this</span>.subscribe(<span class="hljs-string">'request.'</span> + requestKey + <span class="hljs-string">'.response'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(reqResponse)</span> {</span>
-    <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> response === <span class="hljs-string">'undefined'</span>) {
-      response = reqResponse;
-    } <span class="hljs-keyword">else</span> {
-      <span class="hljs-keyword">if</span>( _.isArray(response) === <span class="hljs-literal">true</span> ) {
-        response.push(reqResponse);
-      } <span class="hljs-keyword">else</span> {
-        response = [ response, reqResponse ];
-      }
-    }
-  });
-  <span class="hljs-keyword">this</span>.publish(<span class="hljs-string">'request.'</span> + requestKey, params);
-  responseSubscription.unsubscribe();
-
-  <span class="hljs-keyword">return</span> response;
-}</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-24" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-24">&#182;</a>
-          </div>
-          <p>Method used to register a request handler on a namespace.
-Requests sent using the specified requestKey will be called and passed in any params specified, the return value is passed back to the issuer</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">registerNamespaceRequestHandler</span><span class="hljs-params">(requestKey, callback)</span> {</span>
-  <span class="hljs-keyword">var</span> requestHandler = _.bind(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(params)</span> {</span>
-    <span class="hljs-keyword">var</span> callbackResponse = callback(params);
-    <span class="hljs-keyword">this</span>.publish(<span class="hljs-string">'request.'</span> + requestKey + <span class="hljs-string">'.response'</span>, callbackResponse);
-  }, <span class="hljs-keyword">this</span>);
-
-  <span class="hljs-keyword">var</span> handlerSubscription = <span class="hljs-keyword">this</span>.subscribe(<span class="hljs-string">'request.'</span> + requestKey, requestHandler);
-  <span class="hljs-keyword">this</span>.requestHandlers.push(handlerSubscription);
-
-  <span class="hljs-keyword">return</span> handlerSubscription;
-}</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-25" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-25">&#182;</a>
-          </div>
-          <p>Method used to unregister a request-response handler on a namespace</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">unregisterNamespaceRequestHandler</span><span class="hljs-params">(handlerSubscription)</span> {</span>
-  handlerSubscription.unsubscribe();
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
-}</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-26" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-26">&#182;</a>
-          </div>
-          <p>This effectively shuts down all requests, commands, and events by unsubscribing all handlers on a discreet namespace object</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">disconnectNamespaceHandlers</span><span class="hljs-params">()</span> {</span>
-  _.invoke(<span class="hljs-keyword">this</span>.requestHandlers, <span class="hljs-string">'unsubscribe'</span>);
-  _.invoke(<span class="hljs-keyword">this</span>.commandHandlers, <span class="hljs-string">'unsubscribe'</span>);
-  _.invoke(<span class="hljs-keyword">this</span>.eventHandlers, <span class="hljs-string">'unsubscribe'</span>);
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
-}</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-27" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-27">&#182;</a>
-          </div>
-          <p>Creates and returns a new namespace instance</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> makeNamespace = ko.namespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName, $parentNamespace)</span> {</span>
-  <span class="hljs-keyword">var</span> namespace = postal.channel(namespaceName);
-
-  namespace.shutdown = _.bind( disconnectNamespaceHandlers, namespace );
-
-  namespace.commandHandlers = [];
-  namespace.command = _.bind( sendCommandToNamespace, namespace );
-  namespace.command.handler = _.bind( registerNamespaceCommandHandler, namespace );
-  namespace.command.handler.unregister = _.bind( unregisterNamespaceCommandHandler, namespace );
-
-  namespace.requestHandlers = [];
-  namespace.request = _.bind( requestResponseFromNamespace, namespace );
-  namespace.request.handler = _.bind( registerNamespaceRequestHandler, namespace );
-  namespace.request.handler.unregister = _.bind( unregisterNamespaceRequestHandler, namespace );
-
-  namespace.eventHandlers = [];
-  namespace.event = namespace.triggerEvent = _.bind( triggerEventOnNamespace, namespace );
-  namespace.event.handler = _.bind( registerNamespaceEventHandler, namespace );
-  namespace.event.handler.unregister = _.bind( unregisterNamespaceEventHandler, namespace );
-
-  namespace.$parentNamespace = $parentNamespace;
-  <span class="hljs-keyword">return</span> namespace;
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-28" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-28">&#182;</a>
-          </div>
-          <p>Duck type check for a namespace object</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> isNamespace = ko.isNamespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(thing)</span> {</span>
-  <span class="hljs-keyword">return</span> _.isFunction(thing.subscribe) &amp;&amp; _.isFunction(thing.publish) &amp;&amp; <span class="hljs-keyword">typeof</span> thing.channel === <span class="hljs-string">'string'</span>;
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-29" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-29">&#182;</a>
-          </div>
-          <p>Return the current namespace name.</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> currentNamespaceName = ko.currentNamespaceName = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-  <span class="hljs-keyword">return</span> namespaceStack[<span class="hljs-number">0</span>];
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-30" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-30">&#182;</a>
-          </div>
-          <p>Return the current namespace channel.</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> currentNamespace = ko.currentNamespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-  <span class="hljs-keyword">return</span> makeNamespace( currentNamespaceName() );
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-31" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-31">&#182;</a>
-          </div>
-          <p>enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
-‘entering’ into that namespace (it is now the currentNamespace).
-The namespace object returned from this method also has a pointer to its parent</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> enterNamespaceName = ko.enterNamespaceName = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName)</span> {</span>
-  <span class="hljs-keyword">var</span> $parentNamespace = currentNamespace();
-  namespaceStack.unshift( namespaceName );
-  <span class="hljs-keyword">return</span> makeNamespace( currentNamespaceName(), $parentNamespace );
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-32" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-32">&#182;</a>
-          </div>
-          <p>Called at the after a model constructor function is run. exitNamespace()
-will shift the current namespace off of the stack, ‘exiting’ to the
-next namespace in the stack</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> exitNamespace = ko.exitNamespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-  namespaceStack.shift();
-  <span class="hljs-keyword">return</span> currentNamespace();
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-33" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-33">&#182;</a>
-          </div>
-          <p>mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>viewModelMixins.push({
-  _preInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( options )</span> {</span>
-    <span class="hljs-keyword">this</span>.$namespace = enterNamespaceName( indexedNamespaceName(<span class="hljs-keyword">this</span>.$configParams.componentNamespace || <span class="hljs-keyword">this</span>.$configParams.namespace || _.uniqueId(<span class="hljs-string">'namespace'</span>), <span class="hljs-keyword">this</span>.$configParams.autoIncrement) );
-    <span class="hljs-keyword">this</span>.$globalNamespace = makeNamespace();
-  },
-  mixin: {
-    getNamespaceName: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.$namespace.channel;
-    },
-    broadcastAll: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-      <span class="hljs-keyword">var</span> model = <span class="hljs-keyword">this</span>;
-      _.each( <span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(property, propName)</span> {</span>
-        <span class="hljs-keyword">if</span>( isABroadcastable(property) === <span class="hljs-literal">true</span> ) {
-          property.broadcast();
-        }
-      });
-      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
-    },
-    refreshReceived: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-      _.each( <span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(property, propName)</span> {</span>
-        <span class="hljs-keyword">if</span>( isAReceivable(property) === <span class="hljs-literal">true</span> ) {
-          property.refresh();
-        }
-      });
-      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
-    },
-    startup: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-      <span class="hljs-keyword">this</span>.refreshReceived().broadcastAll();
-      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
-    }
-  },
-  _postInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( options )</span> {</span>
-    viewModels[ <span class="hljs-keyword">this</span>.getNamespaceName() ] = <span class="hljs-keyword">this</span>;
-    exitNamespace();
-
-    <span class="hljs-keyword">this</span>.startup();
-    _.isFunction(<span class="hljs-keyword">this</span>.$configParams.afterCreating) &amp;&amp; <span class="hljs-keyword">this</span>.$configParams.afterCreating.call(<span class="hljs-keyword">this</span>);
-  }
-});</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-34" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-34">&#182;</a>
-          </div>
-          <h2 id="viewmodel-js">viewModel.js</h2>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-    </li>
-    
-    
-    <li id="section-35" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-35">&#182;</a>
-          </div>
-          <p>Duck type function for determining whether or not something is a footwork viewModel constructor function</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isViewModelCtor</span><span class="hljs-params">(thing)</span> {</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> thing !== <span class="hljs-string">'undefined'</span> &amp;&amp; thing.__isViewModelCtor === <span class="hljs-literal">true</span>;
-}</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-36" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-36">&#182;</a>
-          </div>
-          <p>Duck type function for determining whether or not something is a footwork viewModel</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isViewModel</span><span class="hljs-params">(thing)</span> {</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> thing !== <span class="hljs-string">'undefined'</span> &amp;&amp; _.isObject(thing.$configParams) === <span class="hljs-literal">true</span>;
-}</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-37" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-37">&#182;</a>
-          </div>
-          <p>Initialize the viewModels registry</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> viewModels = {};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-38" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-38">&#182;</a>
-          </div>
-          <p>Returns the number of created viewModels for each defined namespace</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> viewModelCount = ko.viewModelCount = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-  <span class="hljs-keyword">var</span> counts = _.reduce(namespaceNameCounter, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(viewModelCounts, viewModelCount, viewModelName)</span> {</span>
-    viewModelCounts[viewModelName] = viewModelCount + <span class="hljs-number">1</span>;
-    <span class="hljs-keyword">return</span> viewModelCounts;
-  }, {});
-  counts.__total = _.reduce(_.values(counts), <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(summation, num)</span> {</span>
-    <span class="hljs-keyword">return</span> summation + num;
-  }, <span class="hljs-number">0</span>);
-  <span class="hljs-keyword">return</span> counts;
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-39" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-39">&#182;</a>
-          </div>
-          <p>Returns a reference to the specified viewModels.
-If no name is supplied, a reference to an array containing all model references is returned.</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> getViewModels = ko.getViewModels = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName)</span> {</span>
-  <span class="hljs-keyword">if</span>(namespaceName === <span class="hljs-literal">undefined</span>) {
-    <span class="hljs-keyword">return</span> viewModels;
-  }
-  <span class="hljs-keyword">return</span> viewModels[namespaceName];
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-40" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-40">&#182;</a>
-          </div>
-          <p>Tell all viewModels to request the values which it listens for</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> refreshModels = ko.refreshViewModels = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-  _.invoke(getViewModels(), <span class="hljs-string">'refreshReceived'</span>);
-};
-
-<span class="hljs-keyword">var</span> makeViewModel = ko.viewModel = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(configParams)</span> {</span>
-  <span class="hljs-keyword">var</span> ctor = noop;
-  <span class="hljs-keyword">if</span>( <span class="hljs-keyword">typeof</span> configParams !== <span class="hljs-string">'undefined'</span>) {
-    ctor = configParams.viewModel || configParams.initialize || ctor;
-  }
-
-  configParams = _.extend({
-    namespace: <span class="hljs-literal">undefined</span>,
-    componentNamespace: <span class="hljs-literal">undefined</span>,
-    autoIncrement: <span class="hljs-literal">false</span>,
-    mixins: <span class="hljs-literal">undefined</span>,
-    params: <span class="hljs-literal">undefined</span>,
-    afterBinding: noop,
-    initialize: noop
-  }, configParams);
-
-  <span class="hljs-keyword">var</span> initViewModelMixin = {
-    _preInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( initParams )</span> {</span>
-      <span class="hljs-keyword">this</span>.$initParams = initParams;
-      <span class="hljs-keyword">this</span>.$params = configParams.params;
-      <span class="hljs-keyword">this</span>.$configParams = configParams;
-      <span class="hljs-keyword">this</span>.getConfigParams = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-        <span class="hljs-keyword">return</span> configParams;
-      };
-    },
-    _postInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-      <span class="hljs-keyword">this</span>.$namespace.request.handler(<span class="hljs-string">'__footwork_model_reference'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
-      });
-    }
-  };
-
-  <span class="hljs-keyword">var</span> composure = [ ctor, initViewModelMixin ].concat( viewModelMixins );
-  <span class="hljs-keyword">if</span>(configParams.mixins !== <span class="hljs-literal">undefined</span>) {
-    composure = composure.concat(configParams.mixins);
-  }
-
-  <span class="hljs-keyword">var</span> model = riveter.compose.apply( <span class="hljs-literal">undefined</span>, composure );
-  model.__isViewModelCtor = <span class="hljs-literal">true</span>;
-
-  <span class="hljs-keyword">return</span> model;
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-41" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-41">&#182;</a>
-          </div>
-          <h2 id="component-js">component.js</h2>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>
-ko.component = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> {</span>
-  <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> options.name !== <span class="hljs-string">'string'</span>) {
-    ko.logError(<span class="hljs-string">'Components must be provided a name (namespace).'</span>);
-  }
-
-  <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> options.template !== <span class="hljs-string">'string'</span>) {
-    ko.logError(<span class="hljs-string">'Components must be provided a template.'</span>);
-  }
-
-  options.namespace = options.name = _.result(options, <span class="hljs-string">'name'</span>);
-  <span class="hljs-keyword">var</span> viewModel = options.initialize || options.viewModel;
-  <span class="hljs-keyword">if</span>( isViewModelCtor(viewModel) ) {
-    viewModel.options.componentNamespace = options.namespace;
-  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( _.isFunction(viewModel) ) {
-    viewModel = makeViewModel(options);
-  }</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-42" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-42">&#182;</a>
-          </div>
-          <p>TODO: determine how mixins from the (optionally) supplied footwork model mix in with the mixins supplied directly in the component options
-     as well as others like params, afterBinding. Currently we will just use the viewModel’s mixins/etc, only the namespace is overridden
-     from the template definition.</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>
-  ko.components.register(options.name, {
-    viewModel: viewModel,
-    template: options.template
-  });
-}
-
-ko.component({
-  name: <span class="hljs-string">'outlet'</span>,
-  viewModel: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-    <span class="hljs-keyword">this</span>.outletIsActive = ko.observable(<span class="hljs-literal">false</span>);
-    <span class="hljs-keyword">this</span>.targetComponent = ko.observable();
-  },</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-43" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-43">&#182;</a>
-          </div>
-          <p>use comment bindings!</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>  template: <span class="hljs-string">'&lt;div data-bind="if: outletIsActive"&gt;[OUTLET]&lt;div data-bind="component: { name: targetComponent, params: { parentNamespace: namespace, parentViewModel: $data } }"&gt;&lt;/div&gt;&lt;/div&gt;'</span>
-});</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-44" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-44">&#182;</a>
-          </div>
-          <h2 id="broadcast-receive-js">broadcast-receive.js</h2>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>
-<span class="hljs-keyword">var</span> isAReceivable = ko.isAReceivable = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(thing)</span> {</span>
-  <span class="hljs-keyword">return</span> _.has(thing, <span class="hljs-string">'__isReceived'</span>) &amp;&amp; thing.__isReceived === <span class="hljs-literal">true</span>;
-};
-
-<span class="hljs-keyword">var</span> isABroadcastable = ko.isABroadcastable = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(thing)</span> {</span>
-  <span class="hljs-keyword">return</span> _.has(thing, <span class="hljs-string">'__isBroadcast'</span>) &amp;&amp; thing.__isBroadcast === <span class="hljs-literal">true</span>;
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-45" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-45">&#182;</a>
-          </div>
-          <pre><code><span class="hljs-keyword">this</span>.myValue = ko.observable().receiveFrom(<span class="hljs-string">'NamespaceName'</span> / Namespace, <span class="hljs-string">'varName'</span>);
-</code></pre>
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>ko.subscribable.fn.receiveFrom = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespace, variable)</span> {</span>
-  <span class="hljs-keyword">var</span> target = <span class="hljs-keyword">this</span>;
-  <span class="hljs-keyword">var</span> observable = <span class="hljs-keyword">this</span>;
-
-  <span class="hljs-keyword">if</span>(isNamespace(namespace) === <span class="hljs-literal">false</span>) {
-    <span class="hljs-keyword">if</span>( <span class="hljs-keyword">typeof</span> namespace === <span class="hljs-string">'string'</span>) {
-      namespace = makeNamespace( namespace );
-    } <span class="hljs-keyword">else</span> {
-      ko.logError(<span class="hljs-string">'Invalid namespace ['</span> + <span class="hljs-keyword">typeof</span> namespace + <span class="hljs-string">']'</span>);
-      <span class="hljs-keyword">return</span> observable;
-    }
-  }
-
-  observable = ko.computed({
-    read: target,
-    write: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( value )</span> {</span>
-      namespace.publish( <span class="hljs-string">'change.'</span> + variable, value );
-    }
-  });
-
-  observable.refresh = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-    namespace.publish( <span class="hljs-string">'refresh.'</span> + variable );
-  };
-  namespace.subscribe( variable, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( newValue )</span> {</span>
-    target( newValue );
-  });
-
-  observable.__isReceived = <span class="hljs-literal">true</span>;
-  <span class="hljs-keyword">return</span> observable;
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-46" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-46">&#182;</a>
-          </div>
-          <pre><code><span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs(<span class="hljs-string">'NameOfVar'</span>);
-<span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs(<span class="hljs-string">'NameOfVar'</span>, isWritable);
-<span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs({ name: <span class="hljs-string">'NameOfVar'</span>, writable: <span class="hljs-literal">true</span> });
-<span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs({ name: <span class="hljs-string">'NameOfVar'</span>, namespace: Namespace });
-<span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs({ name: <span class="hljs-string">'NameOfVar'</span>, namespace: <span class="hljs-string">'NamespaceName'</span> });
-</code></pre>
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>ko.subscribable.fn.broadcastAs = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(varName, option)</span> {</span>
-  <span class="hljs-keyword">var</span> observable = <span class="hljs-keyword">this</span>;
-  <span class="hljs-keyword">var</span> namespace;
-
-  <span class="hljs-keyword">if</span>(_.isObject(varName) === <span class="hljs-literal">true</span>) {
-    option = varName;
-  } <span class="hljs-keyword">else</span> {
-    <span class="hljs-keyword">if</span>( <span class="hljs-keyword">typeof</span> option === <span class="hljs-string">'boolean'</span> ) {
-      option = {
-        name: varName,
-        writable: option
-      };
-    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( _.isObject(option) === <span class="hljs-literal">true</span> ) {
-      option = _.extend({
-        name: varName
-      }, option);
-    } <span class="hljs-keyword">else</span> {
-      option = {
-        name: varName
-      };
-    }
-  }
-
-  namespace = option.namespace || currentNamespace();
-  <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> namespace === <span class="hljs-string">'string'</span>) {
-    namespace = makeNamespace(channel);
-  }
-
-  <span class="hljs-keyword">if</span>( option.writable ) {
-    namespace.subscribe( <span class="hljs-string">'change.'</span> + option.name, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( newValue )</span> {</span>
-      observable( newValue );
-    });
-  }
-
-  observable.broadcast = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-    namespace.publish( option.name, observable() );
-  };
-  namespace.subscribe( <span class="hljs-string">'refresh.'</span> + option.name, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-    namespace.publish( option.name, observable() );
-  });
-  observable.subscribe(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( newValue )</span> {</span>
-    namespace.publish( option.name, newValue );
-  });
-
-  observable.__isBroadcast = <span class="hljs-literal">true</span>;
-  <span class="hljs-keyword">return</span> observable;
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-47" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-47">&#182;</a>
-          </div>
-          <h2 id="bindinghandlers-js">bindingHandlers.js</h2>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>
-ko.bindingHandlers.registerElement = {
-  preprocess: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(value, name, addBindingCallback)</span> {</span>
-    <span class="hljs-keyword">return</span> <span class="hljs-string">'\''</span> + value + <span class="hljs-string">'\''</span>;
-  },
-  init: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext)</span> {</span>
-    <span class="hljs-keyword">var</span> elOption = ko.unwrap(valueAccessor()),
-      refresh,
-      defaultOptions = {
-        name: element.getAttribute(<span class="hljs-string">'id'</span>) || element.getAttribute(<span class="hljs-string">'name'</span>),
-        context: <span class="hljs-string">'relative'</span>
-      };
-
-    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> elOption === <span class="hljs-string">'string'</span>) {
-      elOption = _.extend(defaultOptions, { name: elOption });
-    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> elOption === <span class="hljs-string">'object'</span>) {
-      elOption = _.extend(defaultOptions, elOption);
-    }
-
-    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> viewModel.el !== <span class="hljs-string">'object'</span>) {
-      viewModel.el = {};
-    }
-
-    viewModel.el[ elOption.name ] = element;
-  }
-};
-
-<span class="hljs-comment">/**
- * Source: https://github.com/SteveSanderson/knockout/wiki/Bindings---class
- */</span>
-ko.bindingHandlers[<span class="hljs-string">'class'</span>] = {
-  <span class="hljs-string">'update'</span>: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( element, valueAccessor )</span> {</span>
-    <span class="hljs-keyword">if</span>( element[<span class="hljs-string">'__ko__previousClassValue__'</span>] ) {
-      Apollo.removeClass(element, element[<span class="hljs-string">'__ko__previousClassValue__'</span>]);
-    }
-    <span class="hljs-keyword">var</span> value = ko.utils.unwrapObservable(valueAccessor());
-    value !== <span class="hljs-literal">undefined</span> &amp;&amp; Apollo.addClass(element, value);
-    element[<span class="hljs-string">'__ko__previousClassValue__'</span>] = value;
-  }
-};
-
-ko.bindingHandlers[<span class="hljs-string">'stopBinding'</span>] = {
-  init: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-    <span class="hljs-keyword">return</span> { controlsDescendantBindings: <span class="hljs-literal">true</span> };
-  }
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-48" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-48">&#182;</a>
-          </div>
-          <h2 id="extenders-js">extenders.js</h2>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-    </li>
-    
-    
-    <li id="section-49" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-49">&#182;</a>
-          </div>
-          <p>custom throttle() based on ko v3.0.0 throttle(), allows value to be force()’d to a value at any time</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>ko.extenders.throttle = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(target, opt)</span> {</span>
-  <span class="hljs-keyword">if</span>( <span class="hljs-keyword">typeof</span> opt === <span class="hljs-string">'number'</span> ) {
-    opt = {
-      timeout: opt,
-      when: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span> <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>; } <span class="hljs-comment">// default always throttle</span>
-    };
-  }
-
-  target.throttleEvaluation = opt.timeout;
-
-  <span class="hljs-keyword">var</span> writeTimeoutInstance = <span class="hljs-literal">null</span>,
-      throttledTarget = ko.dependentObservable({
-          <span class="hljs-string">'read'</span>: target,
-          <span class="hljs-string">'write'</span>: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(value)</span> {</span>
-            <span class="hljs-keyword">if</span>( opt.when(value) ) {
-              clearTimeout(writeTimeoutInstance);
-              writeTimeoutInstance = setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-                target(value);
-              }, opt.timeout);
-            } <span class="hljs-keyword">else</span> {
-              clearTimeout(writeTimeoutInstance);
-              target(value);
-            }
-          }
-      });
-
-  throttledTarget.force = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( value )</span> {</span>
-    clearTimeout(writeTimeoutInstance);
-    target(value);
-  };
-
-  <span class="hljs-keyword">return</span> throttledTarget;
-};
-
-ko.extenders.autoDisable = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( target, delay )</span> {</span>
-  <span class="hljs-keyword">return</span> target.extend({
-    delayTrigger: {
-      delay: delay || <span class="hljs-number">0</span>,
-      trigger: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( target )</span> {</span> target( <span class="hljs-literal">false</span> ); }
-    }
-  });
-};
-
-ko.extenders.autoEnable = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( target, delay )</span> {</span>
-  <span class="hljs-keyword">return</span> target.extend({
-    delayTrigger: {
-      delay: delay || <span class="hljs-number">0</span>,
-      trigger: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( target )</span> {</span> target( <span class="hljs-literal">true</span> ); }
-    }
-  });
-};
-
-ko.extenders.delayTrigger = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( target, options )</span> {</span>
-  <span class="hljs-keyword">var</span> delay = <span class="hljs-number">300</span>,
-      triggerFunc = noop,
-      trigger;
-
-  <span class="hljs-keyword">if</span>( <span class="hljs-keyword">typeof</span> options === <span class="hljs-string">'object'</span> ) {
-    delay = !<span class="hljs-built_in">isNaN</span>( options.delay ) &amp;&amp; <span class="hljs-built_in">parseInt</span>( options.delay, <span class="hljs-number">10</span> ) || delay;
-    triggerFunc = options.trigger || triggerFunc;
-  } <span class="hljs-keyword">else</span> {
-    delay = !<span class="hljs-built_in">isNaN</span>( options ) &amp;&amp; <span class="hljs-built_in">parseInt</span>( options, <span class="hljs-number">10</span> ) || delay;
-  }
-
-  <span class="hljs-keyword">var</span> clearTrigger = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-    clearTimeout( trigger );
-    trigger = <span class="hljs-literal">undefined</span>;
-  };
-
-  <span class="hljs-keyword">var</span> delayedObservable = ko.computed({
-    read: target,
-    write: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( state )</span> {</span>
-      target( state );
-
-      <span class="hljs-keyword">if</span>( trigger !== <span class="hljs-literal">undefined</span> ) {
-        clearTrigger();
-      }
-
-      trigger = setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-        triggerFunc( target, options );
-      }.bind(target), delayedObservable.triggerDelay);
-    }
-  });
-  delayedObservable.clearTrigger = clearTrigger;
-  delayedObservable.triggerDelay = delay;
-
-  <span class="hljs-keyword">return</span> delayedObservable;
-};
-
-ko.extenders.delayWrite = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( target, options )</span> {</span>
-  <span class="hljs-keyword">var</span> filter, delay = <span class="hljs-number">300</span>;
-
-  <span class="hljs-keyword">if</span>( <span class="hljs-keyword">typeof</span> options === <span class="hljs-string">'object'</span> ) {
-    delay = !<span class="hljs-built_in">isNaN</span>( options.delay ) &amp;&amp; <span class="hljs-built_in">parseInt</span>( options.delay, <span class="hljs-number">10</span> ) || delay;
-    filter = options.filter || <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span> <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>; };
-  } <span class="hljs-keyword">else</span> {
-    delay = !<span class="hljs-built_in">isNaN</span>( options ) &amp;&amp; <span class="hljs-built_in">parseInt</span>( options, <span class="hljs-number">10</span> ) || delay;
-  }
-
-  <span class="hljs-keyword">return</span> ko.computed({
-    read: target,
-    write: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( writeValue )</span> {</span>
-      <span class="hljs-keyword">if</span>( filter( writeValue ) ) {
-        <span class="hljs-keyword">if</span>(target._delayWriteTimer) {
-          clearTimeout( <span class="hljs-keyword">this</span>._delayWriteTimer );
-        }
-        target._delayWriteTimer = setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-          target( writeValue );
-        }, delay);
-      } <span class="hljs-keyword">else</span> {
-        target( writeValue );
-      }
-    }
-  });
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-50" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-50">&#182;</a>
-          </div>
-          <h2 id="router-js">router.js</h2>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>
-<span class="hljs-comment">/**
- * Example route:
- * {
- *   route: 'test/route(/:optional)',
- *   title: function() {
- *     return ko.request('nameSpace', 'broadcast:someVariable');
- *   },
- *   nav: true
- * }
- */</span>
-
-<span class="hljs-keyword">var</span> routerDefaultConfig = {
-  baseRoute: <span class="hljs-literal">null</span>,
-  unknownRoute: <span class="hljs-literal">null</span>,
-  activate: <span class="hljs-literal">true</span>,
-  routes: []
-};</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-51" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-51">&#182;</a>
-          </div>
-          <p>Create the main router method. This can be used to both activate the router and setup routes.</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> routerConfig;
-<span class="hljs-keyword">var</span> router = ko.router = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(config)</span> {</span>
-  <span class="hljs-keyword">var</span> router = <span class="hljs-keyword">this</span>.router;
-
-  routerConfig = router.config = _.extend({}, routerDefaultConfig, routerConfig, config);
-  routerConfig.baseRoute = _.result(routerConfig, <span class="hljs-string">'baseRoute'</span>);
-
-  <span class="hljs-keyword">return</span> (routerConfig.activate ? setRoutes().activate() : setRoutes());
-};
-
-router.config = _.clone(routerDefaultConfig);
-router.namespace = enterNamespaceName(<span class="hljs-string">'router'</span>);</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-52" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-52">&#182;</a>
-          </div>
-          <p>Initialize necessary cache and boolean registers</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> routes = [];
-<span class="hljs-keyword">var</span> navigationModel;
-<span class="hljs-keyword">var</span> historyIsEnabled = ko.observable().broadcastAs(<span class="hljs-string">'historyIsEnabled'</span>);</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-53" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-53">&#182;</a>
-          </div>
-          <p>Declare regular expressions used to parse a uri
-Sourced: <a href="https://github.com/BlueSpire/Durandal/blob/e88fd385fb930d38456e35812b44ecd6ea7d8f4c/platforms/Bower/Durandal/js/plugins/router.js">https://github.com/BlueSpire/Durandal/blob/e88fd385fb930d38456e35812b44ecd6ea7d8f4c/platforms/Bower/Durandal/js/plugins/router.js</a></p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> optionalParam = <span class="hljs-regexp">/\((.*?)\)/g</span>;
-<span class="hljs-keyword">var</span> namedParam = <span class="hljs-regexp">/(\(\?)?:\w+/g</span>;
-<span class="hljs-keyword">var</span> splatParam = <span class="hljs-regexp">/\*\w*/g</span>;
-<span class="hljs-keyword">var</span> escapeRegExp = <span class="hljs-regexp">/[\-{}\[\]+?.,\\\^$|#\s]/g</span>;
-<span class="hljs-keyword">var</span> routesAreCaseSensitive = <span class="hljs-literal">false</span>;
-<span class="hljs-keyword">var</span> hashMatch = <span class="hljs-regexp">/(^\/#)/</span>;</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-54" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-54">&#182;</a>
-          </div>
-          <p>Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">routeStringToRegExp</span><span class="hljs-params">(routeString)</span> {</span>
-  routeString = routeString.replace(escapeRegExp, <span class="hljs-string">"\\$&amp;"</span>)
-    .replace(optionalParam, <span class="hljs-string">"(?:$1)?"</span>)
-    .replace(namedParam, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(match, optional)</span> {</span>
-      <span class="hljs-keyword">return</span> optional ? match : <span class="hljs-string">"([^\/]+)"</span>;
-    })
-    .replace(splatParam, <span class="hljs-string">"(.*?)"</span>);
-
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">'^'</span> + routeString + <span class="hljs-string">'$'</span>, routesAreCaseSensitive ? <span class="hljs-literal">undefined</span> : <span class="hljs-string">'i'</span>);
-}
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">normalizeURL</span><span class="hljs-params">(url)</span> {</span>
-  <span class="hljs-keyword">if</span>(_.isNull(routerConfig.baseRoute) === <span class="hljs-literal">false</span> &amp;&amp; url.indexOf(routerConfig.baseRoute) === <span class="hljs-number">0</span>) {
-    url = url.substr(routerConfig.baseRoute.length);
-    <span class="hljs-keyword">if</span>(url.length &gt; <span class="hljs-number">1</span>) {
-      url = url.replace(hashMatch, <span class="hljs-string">'/'</span>);
-    }
-  }
-  <span class="hljs-keyword">return</span> url;
-}
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">historyReady</span><span class="hljs-params">()</span> {</span>
-  <span class="hljs-keyword">var</span> isReady = _.has(History, <span class="hljs-string">'Adapter'</span>);
-  isReady === <span class="hljs-literal">false</span> &amp;&amp; ko.logError(<span class="hljs-string">'History.js is not loaded.'</span>);
-
-  <span class="hljs-keyword">return</span> isReady;
-}
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">extractNavItems</span><span class="hljs-params">(routes)</span> {</span>
-  routes = ( _.isArray(routes) ? routes : [routes] );
-  <span class="hljs-keyword">return</span> _.where(routes, { nav: <span class="hljs-literal">true</span> });
-}
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">hasNavItems</span><span class="hljs-params">(routes)</span> {</span>
-  <span class="hljs-keyword">return</span> extractNavItems( routes ).length &gt; <span class="hljs-number">0</span>;
-}
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isObservable</span><span class="hljs-params">(thing)</span> {</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> thing !== <span class="hljs-string">'undefined'</span> &amp;&amp; _.isFunction(thing.notifySubscribers);
-}
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">unknownRoute</span><span class="hljs-params">()</span> {</span>
-  <span class="hljs-keyword">return</span> (<span class="hljs-keyword">typeof</span> routerConfig !== <span class="hljs-string">'undefined'</span> ? _.result(routerConfig.unknownRoute) : <span class="hljs-literal">undefined</span>);
-}
-
-<span class="hljs-keyword">var</span> setRoutes = _.bind(router.setRoutes = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(route)</span> {</span>
-  routes = [];
-  addRoutes(route || <span class="hljs-keyword">this</span>.config.routes);
-
-  <span class="hljs-keyword">return</span> router;
-}, router);
-
-<span class="hljs-keyword">var</span> addRoutes = router.addRoutes = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(route)</span> {</span>
-  route = _.isArray(route) ? route : [route];
-  routes.push.apply(routes, route);
-
-  <span class="hljs-keyword">if</span>( hasNavItems(route) &amp;&amp; isObservable(navigationModel) ) {
-    navModelUpdate.notifySubscribers(); <span class="hljs-comment">// tell router.navigationModel to recompute its list</span>
-  }
-
-  <span class="hljs-keyword">return</span> router;
-};
-
-<span class="hljs-keyword">var</span> navModelUpdate = ko.observable();
-<span class="hljs-keyword">var</span> navPredicate;
-<span class="hljs-keyword">var</span> makeNavigationModel = router.navigationModel = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(predicate)</span> {</span>
-  navPredicate = predicate || navPredicate || <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span> <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>; };
-
-  <span class="hljs-keyword">if</span>(<span class="hljs-keyword">typeof</span> navigationModel === <span class="hljs-string">'undefined'</span>) {
-    navigationModel = ko.computed(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-      <span class="hljs-keyword">this</span>.navModelUpdate(); <span class="hljs-comment">// dummy reference used to trigger updates</span>
-      <span class="hljs-keyword">return</span> _.filter( extractNavItems( routes ), navPredicate );
-    }, { navModelUpdate: navModelUpdate });
-  }
-
-  <span class="hljs-keyword">return</span> navigationModel.broadcastAs({ name: <span class="hljs-string">'navigationModel'</span>, namespace: router.namespace });
-};
-
-<span class="hljs-keyword">var</span> stateChange = router.stateChange = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(url)</span> {</span>
-  currentState( url = normalizeURL( url || (historyIsEnabled() ? History.getState().url : <span class="hljs-string">'#default'</span>) ) );
-  getActionFor(url)(); <span class="hljs-comment">// get the route if it exists and run the action if one is returned</span>
-
-  <span class="hljs-keyword">return</span> router;
-};
-
-<span class="hljs-keyword">var</span> currentState = ko.observable().broadcastAs(<span class="hljs-string">'currentState'</span>);
-currentState.subscribe(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(newState)</span> {</span>
-  ko.log(<span class="hljs-string">'New Route:'</span>, newState);
-});
-
-<span class="hljs-keyword">var</span> getActionFor = router.getActionFor = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(url)</span> {</span>
-  <span class="hljs-keyword">var</span> Action = noop;
-  <span class="hljs-keyword">var</span> originalURL = url;
-
-  _.each(getRoutes(), <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeDesc)</span> {</span>
-    <span class="hljs-keyword">var</span> routeString = routeDesc.route;
-    <span class="hljs-keyword">var</span> routeRegex = routeStringToRegExp(routeString);
-    <span class="hljs-keyword">var</span> routeParamValues = url.match(routeRegex);
-
-    <span class="hljs-keyword">if</span>(routeParamValues !== <span class="hljs-literal">null</span> &amp;&amp; Action === noop) {
-      <span class="hljs-keyword">var</span> routeParams = _.map(routeString.match(namedParam), <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(param)</span> {</span>
-        <span class="hljs-keyword">return</span> param.replace(<span class="hljs-string">':'</span>, <span class="hljs-string">''</span>);
-      });
-
-      <span class="hljs-keyword">var</span> options = {
-        controller: routeDesc.controller,
-        title: routeDesc.title,
-        url: routeParamValues[<span class="hljs-number">0</span>],
-        params: _.reduce(routeParams, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(parameters, parameterName, index)</span> {</span>
-            parameters[parameterName] = routeParamValues[index + <span class="hljs-number">1</span>];
-            <span class="hljs-keyword">return</span> parameters;
-          }, {})
-      };
-      
-      Action = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(params)</span> {</span>
-        options.controller( _.extend(options.params, params), options );
-      };
-      Action.options = options;
-    }
-  });
-
-  <span class="hljs-keyword">if</span>(Action === noop) {
-    ko.logError(<span class="hljs-string">'Could not locate associated action for '</span>, originalURL);
-  }
-
-  <span class="hljs-keyword">return</span> Action;
-};
-
-<span class="hljs-keyword">var</span> getRoutes = router.getRoutes = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-  <span class="hljs-keyword">return</span> routes;
-};
-
-<span class="hljs-keyword">var</span> setupHistoryAdapter = router.setupHistoryAdapter = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-  <span class="hljs-keyword">if</span>(historyIsEnabled() !== <span class="hljs-literal">true</span>) {
-    <span class="hljs-keyword">if</span>( historyReady() ) {
-      History.Adapter.bind( window, <span class="hljs-string">'statechange'</span>, stateChange);
-      historyIsEnabled(<span class="hljs-literal">true</span>);
-    } <span class="hljs-keyword">else</span> {
-      historyIsEnabled(<span class="hljs-literal">false</span>);
-    }
-  }
-
-  <span class="hljs-keyword">return</span> router;
-};
-
-router.historyIsEnabled = ko.computed(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.historyIsEnabled();
-}, { historyIsEnabled: historyIsEnabled });
-
-router.activate = _.once( _.bind(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> {</span>
-  delegate(document)
-    .on(<span class="hljs-string">'click'</span>, <span class="hljs-string">'a'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(event)</span> {</span>
-      console.info(<span class="hljs-string">'delegateClick-event'</span>, event.delegateTarget);
-    });
-  delegate(document)
-    .on(<span class="hljs-string">'click'</span>, <span class="hljs-string">'.footwork-link-target'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(event)</span> {</span>
-      console.info(<span class="hljs-string">'delegateClick-event'</span>, event.delegateTarget);
-    });
-
-  <span class="hljs-keyword">return</span> setupHistoryAdapter().stateChange();
-}, router) );
-
-exitNamespace(); <span class="hljs-comment">// exit from 'router' namespace</span></pre></div></div>
-        
-    </li>
-    
-</ul></div>
-            </main>
+              <article id="js-page" class="page-code" data-name="Home">
+  <section name="home" class="main">
+    <div class="content block-font">
+      Recent activity ...
+    </div>
+  </section>
+
+  <a id="post1" class="section-anchor"></a>
+  <section name="post1">
+    <div class="highlight"></div>
+    <header>
+      <span class="sub title">Blog Post 1</span>
+    </header>
+    <div class="content block-font">
+      <p>Praesent euismod tempus nisi, nec lobortis lacus semper ac. Suspendisse non placerat neque. Phasellus eget mollis enim. Aliquam dictum placerat vehicula. Suspendisse ac iaculis magna. Pellentesque dignissim neque a accumsan scelerisque. Pellentesque et orci eu orci aliquet sodales. Cras ultricies at tellus eu mollis. Morbi luctus mauris pretium enim consectetur faucibus. Praesent vestibulum, libero eu vulputate faucibus, odio turpis pellentesque est, a adipiscing risus ligula et elit. Pellentesque iaculis varius eros id malesuada. Integer dapibus ligula nunc, vel tristique justo tempus eu. Integer et elit non quam molestie ultricies. Nulla ac hendrerit lacus.</p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque euismod ante lectus, eget dictum nunc volutpat quis. Curabitur odio dolor, placerat ornare massa venenatis, mattis varius quam. Praesent non est a nunc lacinia luctus. Cras malesuada sed dui sit amet egestas. Nunc dictum lacus at venenatis vulputate. Aliquam urna neque, dictum eu mattis vel, blandit et elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus at scelerisque erat. Nulla facilisi. Mauris ultrices rutrum bibendum. Etiam at arcu feugiat, hendrerit neque ac, semper urna. Phasellus odio dolor, congue at massa quis, auctor dignissim lacus.</p>
+    </div>
+  </section>
+
+  <a id="post2" class="section-anchor"></a>
+  <section name="post2">
+    <div class="highlight"></div>
+    <header>
+      <span class="sub title">Blog Post 2</span>
+    </header>
+    <div class="content block-font">
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque euismod ante lectus, eget dictum nunc volutpat quis. Curabitur odio dolor, placerat ornare massa venenatis, mattis varius quam. Praesent non est a nunc lacinia luctus. Cras malesuada sed dui sit amet egestas. Nunc dictum lacus at venenatis vulputate. Aliquam urna neque, dictum eu mattis vel, blandit et elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus at scelerisque erat. Nulla facilisi. Mauris ultrices rutrum bibendum. Etiam at arcu feugiat, hendrerit neque ac, semper urna. Phasellus odio dolor, congue at massa quis, auctor dignissim lacus.</p>
+    </div>
+  </section>
+</article>
+
+<script>
+  window._pageMeta = { title: document.getElementById('js-page').getAttribute('data-name'),
+                       description: 'Blog / Experiment site of Jonathan Newman.',
+                       sections: [
+                         { anchor: 'post1',
+                           title: 'Blog Post 1' },
+                         { anchor: 'post2',
+                           title: 'Blog Post 2' }
+                       ]
+                     };
+  window._initMeta && window._initMeta( window._pageMeta );
+</script>            </main>
           </div> <!-- /stopBinding -->
           <div id="collapse-button" class="has-layout-trans js-only"
                data-bind="click: togglePaneCollapse,
@@ -2068,13 +249,13 @@ exitNamespace(); <span class="hljs-comment">// exit from 'router' namespace</spa
         </div>
       </div>
 
-      <div class="stop-binding" data-bind="stopBinding: true">
-        <div class="js-footer push" data-bind="style: { height: height }"></div>
-      </div> <!-- /stopBinding -->
+      <viewModel module="Footer">
+        <div class="push" data-bind="style: { height: height }"></div>
+      </viewModel>
     </div>
 
-    <div class="stop-binding" data-bind="stopBinding: true">
-      <footer class="js-footer">
+    <viewModel module="Footer">
+      <footer>
         <div class="content has-layout-trans" data-bind="style: { marginLeft: columnWidth }">
           <div class="layout-mode js-only" data-bind="class: viewPortLayoutMode">
             <div class="icon desktop icon-screen" data-bind="click: setMode" data-mode="desktop"></div>
@@ -2216,7 +397,7 @@ exitNamespace(); <span class="hljs-comment">// exit from 'router' namespace</spa
           </div>
         </div>
       </footer>
-    </div> <!-- /stopBinding -->
+    </viewModel>
 
     <script>
       window.footworkVersionAtCreation = '0.2.0';
@@ -2227,14 +408,13 @@ exitNamespace(); <span class="hljs-comment">// exit from 'router' namespace</spa
                              { anchor: 'viewmodel-js', title: 'viewModel.js' },
                              { anchor: 'component-js', title: 'component.js' },
                              { anchor: 'broadcast-receive-js', title: 'broadcast-receive.js' },
-                             { anchor: 'bindinghandlers-js', title: 'bindingHandlers.js' },
                              { anchor: 'extenders-js', title: 'extenders.js' },
                              { anchor: 'router-js', title: 'router.js' }
                            ]
                          };
       window._initMeta && window._initMeta( window._pageMeta );
     </script>
-    <script src="scripts/require.js" data-main="scripts/app/main"></script>
+    <script src="scripts/build/main.js"></script>
     <![endif]-->
   </body>
 </html>

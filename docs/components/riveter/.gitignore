@@ -1,9 +1,0 @@
-.DS_Store
-desktop.ini
-.eprj
-.idea
-.anvil
-*node_modules*
-*npm-debug*
-bower/*
-report/*
