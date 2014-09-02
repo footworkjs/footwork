@@ -95,7 +95,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
     },
     mixin: {
       __isViewModel: true,
-      $params: configParams.params,
+      $params: result(configParams, 'params'),
       __getConfigParams: function() {
         return configParams;
       },
