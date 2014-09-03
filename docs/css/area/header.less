@@ -369,8 +369,9 @@
 
     .menu-item {
       float: left;
-      margin-left: 20px;
+      margin-left: 10px;
       position: relative;
+      cursor: pointer;
       z-index: 1;
 
       &.aside {
@@ -394,11 +395,11 @@
         }
 
         &:hover, &.active {
-          // color: @header-fg-hover;
+          color: @header-fg-hover;
 
-          // a {
-          //   color: @header-fg-hover;
-          // }
+          a {
+            color: @header-fg-hover;
+          }
         }
 
         a {

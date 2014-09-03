@@ -13,22 +13,26 @@
 }
 
 
-.logo-color(@footwork-color, @js-color, @foot-color) {
-  .footwork {
+.logo-color(@static-color, @type-color, @parens-color) {
+  .static {
     path {
-      fill: @footwork-color;
+      fill: @static-color;
       .transition(fill 0s linear);
     }
   }
-  .js {
+  .type {
     path {
-      fill: @js-color;
+      &.dot {
+        fill: @parens-color;
+      }
+
+      fill: @type-color;
       .transition(fill 0s linear);
     }
   }
-  .foot {
+  .parens {
     path {
-      fill: @foot-color;
+      fill: @parens-color;
       .transition(fill 0s linear);
     }
   }

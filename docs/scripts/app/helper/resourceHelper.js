@@ -2,7 +2,6 @@ define([ "footwork",
     "app/viewModel/config/Configuration", "text!app/template/config/configuration.html",
     "app/viewModel/config/ConfigManagement", "text!app/template/config/configmanagement.html",
     "app/viewModel/config/LayoutControl", "text!app/template/config/layoutcontrol.html",
-    "app/viewModel/config/Themes", "text!app/template/config/themes.html",
     "app/viewModel/Pane", "text!app/template/pane.html",
     "app/viewModel/pane/PaneLinks", "text!app/template/pane/panelinks.html",
     "app/viewModel/pane/MainMenu", "text!app/template/pane/mainmenu.html",
@@ -19,7 +18,6 @@ define([ "footwork",
     configurationViewModel, configurationTemplate,
     configManagementViewModel, configManagementTemplate,
     layoutControlViewModel, layoutControlTemplate,
-    themesViewModel, themesTemplate,
     paneViewModel, paneTemplate,
     paneLinksViewModel, paneLinksTemplate,
     mainMenuViewModel, mainMenuTemplate,
@@ -46,11 +44,6 @@ define([ "footwork",
       ko.components.register('layoutcontrol', {
         viewModel: layoutControlViewModel,
         template: layoutControlTemplate
-      });
-
-      ko.components.register('themes', {
-        viewModel: themesViewModel,
-        template: themesTemplate
       });
       
       ko.components.register('pane', {

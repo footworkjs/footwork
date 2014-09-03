@@ -9,12 +9,7 @@ var registerComponent = ko.components.register = function(componentName, options
     throw 'Components must be provided a componentName.';
   }
 
-  //TODO: determine how mixins from the (optionally) supplied footwork viewModel mix in with the mixins supplied directly in the component options
-  //      as well as others like params, afterBinding. Currently we will just use the viewModel's mixins/etc, only the namespace is overridden
-  //      from the component definition/configuration.
-  if( isViewModelCtor(viewModel) ) {
-    viewModel.__configParams['componentNamespace'] = componentName;
-  } else if( isFunction(viewModel) ) {
+  if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {
     options.namespace = componentName;
     viewModel = makeViewModel(options);
   }
@@ -102,15 +97,11 @@ ko.bindingHandlers.$compLifeCycle = {
     });
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    if( isViewModel(viewModel) ) {
-      componentTriggerAfterBinding(element, viewModel);
-    }
-
     var child = ko.virtualElements.firstChild(element);
     if( !isUndefined(child) ) {
       viewModel = ko.dataFor( child );
-      componentTriggerAfterBinding(element, viewModel);
     }
+    componentTriggerAfterBinding(element, viewModel);
   }
 };
 

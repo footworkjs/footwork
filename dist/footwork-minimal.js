@@ -5248,15 +5248,6 @@ var makeViewModel = ko.viewModel = function(configParams) {
   afterInit = { _postInit: afterInit };
   configParams = extend({}, defaultViewModelConfigParams, configParams);
 
-  var originalAfterBinding = configParams.afterBinding;
-  configParams.afterBinding = function() {
-    if( configParams.afterBinding.wasCalled !== true ) {
-      originalAfterBinding.apply(this, arguments);
-      configParams.afterBinding.wasCalled = true;
-    }
-  };
-  configParams.afterBinding.wasCalled = false;
-
   var initViewModelMixin = {
     _preInit: function( initParams ) {
       if( isObject(configParams.router) ) {
@@ -5265,7 +5256,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
     },
     mixin: {
       __isViewModel: true,
-      $params: configParams.params,
+      $params: result(configParams, 'params'),
       __getConfigParams: function() {
         return configParams;
       },
@@ -5464,12 +5455,7 @@ var registerComponent = ko.components.register = function(componentName, options
     throw 'Components must be provided a componentName.';
   }
 
-  //TODO: determine how mixins from the (optionally) supplied footwork viewModel mix in with the mixins supplied directly in the component options
-  //      as well as others like params, afterBinding. Currently we will just use the viewModel's mixins/etc, only the namespace is overridden
-  //      from the component definition/configuration.
-  if( isViewModelCtor(viewModel) ) {
-    viewModel.__configParams['componentNamespace'] = componentName;
-  } else if( isFunction(viewModel) ) {
+  if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {
     options.namespace = componentName;
     viewModel = makeViewModel(options);
   }
@@ -5557,15 +5543,11 @@ ko.bindingHandlers.$compLifeCycle = {
     });
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    if( isViewModel(viewModel) ) {
-      componentTriggerAfterBinding(element, viewModel);
-    }
-
     var child = ko.virtualElements.firstChild(element);
     if( !isUndefined(child) ) {
       viewModel = ko.dataFor( child );
-      componentTriggerAfterBinding(element, viewModel);
     }
+    componentTriggerAfterBinding(element, viewModel);
   }
 };
 
