@@ -78,15 +78,6 @@ var makeViewModel = ko.viewModel = function(configParams) {
   afterInit = { _postInit: afterInit };
   configParams = extend({}, defaultViewModelConfigParams, configParams);
 
-  var originalAfterBinding = configParams.afterBinding;
-  configParams.afterBinding = function() {
-    if( configParams.afterBinding.wasCalled !== true ) {
-      originalAfterBinding.apply(this, arguments);
-      configParams.afterBinding.wasCalled = true;
-    }
-  };
-  configParams.afterBinding.wasCalled = false;
-
   var initViewModelMixin = {
     _preInit: function( initParams ) {
       if( isObject(configParams.router) ) {
