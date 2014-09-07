@@ -6,6 +6,12 @@
   .transition(@pane-collapse);
   position: relative;
   background-color: @body-bg-color;
+
+  &.configVisible {
+    #collapse-button {
+      /*display: none;*/
+    }
+  }
 }
 
 .main-content {
@@ -14,10 +20,43 @@
 
 main {
   position: relative;
-  padding: 20px 10px 20px 20px;
+  padding: 0px 10px 0px 10px;
   opacity: 1;
-  .transition(opacity 0.2s ease, transform 0.3s ease);
+  .transition(opacity 0.2s ease);
   font-size: 15px;
+
+  @linkColor: #485ecf;
+  a {
+    color: @linkColor;
+    cursor: pointer;
+    &:hover {
+      color: darken(@linkColor, 10%);
+    }
+  }
+
+  #section-1 {
+    padding-top: 20px;
+  }
+  #section-3 {
+    .annotation-bg {
+      .border-radius(50px 0 0 0);
+    }
+  }
+
+  #section-3, #section-8, #section-18, #section-21, #section-22 {
+    padding-top: 20px;
+  }
+
+  .annotation-bg {
+    background: #eee;
+  }
+
+  .section .annotation h2 {
+    margin-top: 50px;
+  }
+  #section-3 .annotation h2 {
+    margin-top: 30px;
+  }
 
   p + p {
     margin-top: 10px;

@@ -51,7 +51,7 @@
       @mask-size: 19px;
       position: absolute;
       top: 50%;
-      margin-top: -@mask-size;
+      margin-top: -@mask-size + 1px;
       width: 0px;
       height: 0px;
       border-style: solid;
@@ -100,6 +100,10 @@
   z-index: 2;
   color: @pane-fg-color;
   left: -500px;
+
+  .version {
+    color: mix(@pane-bg-color, @pane-fg-color);    
+  }
 
   .page-logo {
     .clearblock;
@@ -338,7 +342,11 @@
         }
 
         & > .description {
-          padding: 5px @accent-padding 5px 5px;
+          &.visible {
+            padding: 5px @accent-padding 5px 5px;
+          }
+
+          padding: 0;
           .box-sizing(border-box);
           text-align: right;
           border-bottom: 1px solid darken(@pane-bg-color, 10%);

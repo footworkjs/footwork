@@ -1,5 +1,5 @@
 require.config({
-  baseUrl: "./scripts",
+  baseUrl: "/docs/scripts",
   map: {
     "*": {
       "jquery": "noconflict-jquery"
@@ -12,7 +12,7 @@ require.config({
     "jquery":            "../components/jquery/dist/jquery",
     "postal":            "../components/postal.js/lib/postal",
     "knockout":          "../components/knockoutjs/dist/knockout.debug",
-    "footwork":          "../../dist/footwork-bare",
+    "footwork":          "../components/footwork/dist/footwork-bare",
     "storage":           "../components/store-js/store",
     "lodash":            "../components/lodash/dist/lodash.underscore",
     "history":           "../components/history.js/scripts/bundled/html5/native.history",
