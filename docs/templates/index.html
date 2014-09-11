@@ -21,6 +21,7 @@
     <![endif]-->
 
     <script>
+      footworkVersion = 'FOOTWORK_VERSION';
       /* Modernizr 2.7.1 (Custom Build) | MIT & BSD
        * Build: http://modernizr.com/download/#-csstransforms3d-svg-touch-cssclasses-teststyles-testprop-testallprops-prefixes-domprefixes
        */
@@ -51,9 +52,9 @@
         <header class="main-header desktop-only" data-bind="css: { navReflowing: navReflowing }, transform: closedTransform,
                                                           style: { height: visibleHeight, top: topOffset, borderBottomWidth: borderWidth }">
           <div class="source-link has-trans" data-bind="css: { visible: sourceLinkVisible, forceHidden: sourceLinkHidden }">
-            <a class="button" target="_blank" href="https://github.com/reflectiveSingleton/staticty.pe-UI">
+            <a class="button" target="_blank" href="https://github.com/reflectiveSingleton/footwork">
               <span class="icon icon-github"></span>
-              <span>View source on Github</span>
+              <span>View on Github</span>
             </a>
           </div>
           <div class="bottom-highlight"></div>
@@ -136,39 +137,44 @@
                     data-bind="css: { active: configVisible }, style: { lineHeight: headerContentHeight }, click: toggleConfigView"></div>
                 </div>
 
-                <div class="menu-item" data-menu-id="code">
+                <div class="menu-item">
                   <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    <a href="/code" class="internal" data-menu-id="code" data-title="Code">
-                      <span></span>code<span>()</span>
-                    </a>
+                    <a href="/api" class="internal"><span>API Docs</span></a>
                   </div>
                   <div class="drop-down">
                     <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                      <a href="/code" class="internal" data-menu-id="code" data-title="Code">
-                        <span></span>code<span>()</span>
-                      </a>
+                      <a href="/api" class="internal"><span>API Docs</span></a>
                     </div>
 
                     <div class="content">
                       <div class="row">
-                        <a class="item" href="http://footworkjs.com" target="_blank">footwork.js</a>
+                        <a class="item internal" href="/api/viewModel" target="_blank">viewModel</a>
                       </div>
                       <div class="row">
-                        <a class="item internal" data-menu-id="code" data-title="Floaties.js" href="/code/floaties.js">floaties.js</a>
+                        <a class="item internal" href="/api/namespace">Namespace</a>
                       </div>
                       <div class="row">
-                        <a class="item internal" data-menu-id="code" data-title="Stylesheet.js" href="/code/stylesheet.js">stylesheet.js</a>
+                        <a class="item internal" href="/api/component">Components</a>
                       </div>
                       <div class="row">
-                        <a class="item internal" data-menu-id="code" data-title="Proximity.js" href="/code/proximity.js">proximity.js</a>
+                        <a class="item internal" href="/api/broadcast-receive">Broadcastable / Receivable</a>
+                      </div>
+                      <div class="row">
+                        <a class="item internal" href="/api/routing">Router</a>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div class="menu-item blog">
+                <div class="menu-item tutorial">
                   <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    <a href="/blog" class="internal" data-id="blog" data-title="Blog">blog</a>
+                    <a href="/tutorial" class="internal" data-title="Blog">Tutorial</a>
+                  </div>
+                </div>
+
+                <div class="menu-item annotated-source">
+                  <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
+                    <a href="/annotated-source" class="internal" data-title="Blog">Annotated Source</a>
                   </div>
                 </div>
 
@@ -254,49 +260,8 @@
         <div class="main-pane has-layout-trans" data-bind="css: { configVisible: configVisible }, style: { marginLeft: mainContentOffset }">
           <div class="stop-binding" data-bind="stopBinding: true">
             <main class="js-main">
-              <article id="js-page" class="page-code" data-name="Home">
-  <section name="home" class="main">
-    <div class="content block-font">
-      Recent activity ...
-    </div>
-  </section>
-
-  <a id="post1" class="section-anchor"></a>
-  <section name="post1">
-    <div class="highlight"></div>
-    <header>
-      <span class="sub title">Blog Post 1</span>
-    </header>
-    <div class="content block-font">
-      <p>Praesent euismod tempus nisi, nec lobortis lacus semper ac. Suspendisse non placerat neque. Phasellus eget mollis enim. Aliquam dictum placerat vehicula. Suspendisse ac iaculis magna. Pellentesque dignissim neque a accumsan scelerisque. Pellentesque et orci eu orci aliquet sodales. Cras ultricies at tellus eu mollis. Morbi luctus mauris pretium enim consectetur faucibus. Praesent vestibulum, libero eu vulputate faucibus, odio turpis pellentesque est, a adipiscing risus ligula et elit. Pellentesque iaculis varius eros id malesuada. Integer dapibus ligula nunc, vel tristique justo tempus eu. Integer et elit non quam molestie ultricies. Nulla ac hendrerit lacus.</p>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque euismod ante lectus, eget dictum nunc volutpat quis. Curabitur odio dolor, placerat ornare massa venenatis, mattis varius quam. Praesent non est a nunc lacinia luctus. Cras malesuada sed dui sit amet egestas. Nunc dictum lacus at venenatis vulputate. Aliquam urna neque, dictum eu mattis vel, blandit et elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus at scelerisque erat. Nulla facilisi. Mauris ultrices rutrum bibendum. Etiam at arcu feugiat, hendrerit neque ac, semper urna. Phasellus odio dolor, congue at massa quis, auctor dignissim lacus.</p>
-    </div>
-  </section>
-
-  <a id="post2" class="section-anchor"></a>
-  <section name="post2">
-    <div class="highlight"></div>
-    <header>
-      <span class="sub title">Blog Post 2</span>
-    </header>
-    <div class="content block-font">
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque euismod ante lectus, eget dictum nunc volutpat quis. Curabitur odio dolor, placerat ornare massa venenatis, mattis varius quam. Praesent non est a nunc lacinia luctus. Cras malesuada sed dui sit amet egestas. Nunc dictum lacus at venenatis vulputate. Aliquam urna neque, dictum eu mattis vel, blandit et elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus at scelerisque erat. Nulla facilisi. Mauris ultrices rutrum bibendum. Etiam at arcu feugiat, hendrerit neque ac, semper urna. Phasellus odio dolor, congue at massa quis, auctor dignissim lacus.</p>
-    </div>
-  </section>
-</article>
-
-<script>
-  window._pageMeta = { title: document.getElementById('js-page').getAttribute('data-name'),
-                       description: 'Blog / Experiment site of Jonathan Newman.',
-                       sections: [
-                         { anchor: 'post1',
-                           title: 'Blog Post 1' },
-                         { anchor: 'post2',
-                           title: 'Blog Post 2' }
-                       ]
-                     };
-  window._initMeta && window._initMeta( window._pageMeta );
-</script>            </main>
+              <div class="content">Welcome</div>
+            </main>
           </div> <!-- /stopBinding -->
           <div id="collapse-button" class="has-layout-trans js-only"
                data-bind="click: togglePaneCollapse,
@@ -457,22 +422,6 @@
       </footer>
     </viewModel>
 
-    <script>
-      window.footworkVersionAtCreation = 'FOOTWORK_VERSION';
-      window._pageMeta = { title: 'Documentation Index',
-                           sections: [
-                             { anchor: 'main-js', title: 'main.js' },
-                             { anchor: 'namespace-js', title: 'namespace.js' },
-                             { anchor: 'viewmodel-js', title: 'viewModel.js' },
-                             { anchor: 'component-js', title: 'component.js' },
-                             { anchor: 'broadcast-receive-js', title: 'broadcast-receive.js' },
-                             { anchor: 'extenders-js', title: 'extenders.js' },
-                             { anchor: 'router-js', title: 'router.js' }
-                           ]
-                         };
-      window._initMeta && window._initMeta( window._pageMeta );
-    </script>
-    <!--<script src="scripts/build/main.js"></script>-->
     <script src="scripts/require.js" data-main="scripts/app/main"></script>
     <![endif]-->
   </body>

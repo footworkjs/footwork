@@ -20,7 +20,7 @@ define([ "jquery", "lodash", "footwork", "history" ],
         var paneElementsNamespace = ko.namespace('PaneElements');
         var $mainContent = $('.js-main');
 
-        this.defaultTitle = ko.observable('staticty.pe');
+        this.defaultTitle = ko.observable('v' + window.footworkVersion);
 
         this.transitionsEnabled = ko.observable(false).receiveFrom('ViewPort', 'transitionsEnabled');
         this.scrollPosition = ko.observable().receiveFrom('ViewPort', 'scrollPosition');

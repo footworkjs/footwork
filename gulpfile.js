@@ -20,14 +20,7 @@ var pkg = require('./package.json');
 var reporter = 'list';
 var statement = 'A solid footing for knockout applications.';
 var args   = require('yargs').argv;
-
-var sourceFiles = [
-  'main',
-  'model-namespace',
-  'broadcast-receive',
-  'bindingHandlers',
-  'extenders'
-];
+var annotatedPageMetaData = fs.readFileSync('docs/templates/annotated-metadata.html','utf8').replace('FOOTWORK_VERSION', pkg.version, 'g');
 
 var banner = ['/**',
   ' * <%= pkg.name %> - <%= pkg.description %>',
@@ -163,15 +156,15 @@ gulp.task('doc_js', function() {
       // layout: 'parallel'
       template: 'docs/templates/docco.jst'
     }))
+    .pipe(footer(annotatedPageMetaData))
+    .pipe(rename('annotated-source.html'))
     .pipe(gulp.dest('docs/pages'));
 });
 
 gulp.task('doc_index', function() {
   return gulp.src('docs/templates/index.html')
     .pipe( replace('FOOTWORK_VERSION', pkg.version, 'g') )
-    .pipe( replace('FOOTWORK_SOURCEFILES', JSON.stringify(sourceFiles), 'g') )
     .pipe( replace('FOOTWORK_STATEMENT', statement, 'g') )
-    .pipe( replace('FOOTWORK_PAGECONTENT', fs.readFileSync('docs/pages/footwork-raw.html', 'utf8').replace('FOOTWORK_VERSION', pkg.version, 'g')) )
     .pipe(gulp.dest('./docs'));
 });
 
