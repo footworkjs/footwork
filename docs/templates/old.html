@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
 
-    <title>footwork.js - A solid footing for knockout applications.</title>
+    <title>footwork.js - FOOTWORK_STATEMENT</title>
     <meta name="description" content="A solid footing for large knockout applications.">
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -12,7 +12,7 @@
 
     <link id="default-style" rel="stylesheet" href="css/style.css" type="text/css">
     <link id="docco-style" rel="stylesheet" href="css/docco.css" type="text/css">
-    <link rel="icon" href="images/favicon.png">
+    <link rel="icon" href="./images/favicon.png">
 
     <!--[if IE 8]>
       <link rel="stylesheet" href="/css/style-ie.css" type="text/css">
@@ -21,7 +21,6 @@
     <![endif]-->
 
     <script>
-      footworkVersion = '0.2.0';
       /* Modernizr 2.7.1 (Custom Build) | MIT & BSD
        * Build: http://modernizr.com/download/#-csstransforms3d-svg-touch-cssclasses-teststyles-testprop-testallprops-prefixes-domprefixes
        */
@@ -43,25 +42,26 @@
     </div>
     <![endif]-->
 
-    <!--[if gt IE 7]><!-->
-    <configuration></configuration>
-    <panebackground></panebackground>
+    <div class="stop-binding" data-bind="stopBinding: true">
+      <div class="js-pane pane-bg has-layout-trans" data-bind="transition: transition, transform: leftTransform,
+                                                                    style: { width: width, left: leftOffset }"></div>
+    </div> <!-- /stopBinding -->
 
     <div class="main-wrapper">
-      <viewModel module="Header">
-        <header class="main-header desktop-only" data-bind="css: { navReflowing: navReflowing }, transform: closedTransform,
-                                                          style: { height: visibleHeight, top: topOffset, borderBottomWidth: borderWidth }">
+      <div class="stop-binding" data-bind="stopBinding: true">
+        <header class="js-header main-header" data-bind="css: { navReflowing: navReflowing }, transform: closedTransform,
+                                                       style: { height: visibleHeight, top: topOffset, borderBottomWidth: borderWidth }">
           <div class="source-link has-trans" data-bind="css: { visible: sourceLinkVisible, forceHidden: sourceLinkHidden }">
             <a class="button" target="_blank" href="https://github.com/reflectiveSingleton/footwork">
               <span class="icon icon-github"></span>
-              <span>View on Github</span>
+              <span>View footwork.js on Github</span>
             </a>
           </div>
           <div class="bottom-highlight"></div>
 
           <div class="header-bar" data-bind="style: { height: contentHeight }">
-            <panelinks params="inHeader: true">
-              <div class="pane-links">
+            <div class="stop-binding" data-bind="stopBinding: true">
+              <div class="js-paneLinks pane-links" data-bind="style: { width: columnWidth }, css: { pageHasSections: pageHasSections }">
                 <div class="logo">
                   <a href="/" class="internal">
                     <div class="img-logo no-svg-only"></div>
@@ -119,7 +119,7 @@
                     </div>
                   </a>
                 </div>
-
+                
                 <div class="areas" data-bind="style: { width: headerWidth }, class: currentSelection">
                   <div class="primary">
                     <a href="https://github.com/reflectiveSingleton" class="icon-github Github" title="Github"
@@ -129,12 +129,11 @@
                     <span class="icon-page-sections PageSections link" title="Page Sections" data-bind="click: chooseSection, style: { lineHeight: height }" data-section="PageSections"></span>
                   </div>
                 </div>
-                
               </div>
-            </panelinks>
+            </div> <!-- /stopBinding -->
 
-            <viewModel module="Navigation">
-              <nav data-bind="style: { marginLeft: offsetMargin }">
+            <div class="stop-binding" data-bind="stopBinding: true">
+              <nav class="js-navigation" data-bind="style: { marginLeft: offsetMargin }">
                 <div class="main-load-bar">
 
                   <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { top: loadBarTopPos, width: loader.percentComplete }">
@@ -143,55 +142,9 @@
                   </div>
                 </div>
 
-                <div class="menu-item first js-only initialized-only">
-                  <div class="icon icon-cog title desktop-only" title="Click to adjust layout" id="settings"
-                    data-bind="css: { active: configVisible }, style: { lineHeight: headerContentHeight }, click: toggleConfigView"></div>
-                </div>
-
                 <div class="menu-item">
                   <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    <a href="/api" class="internal"><span>API Docs</span></a>
-                  </div>
-                  <div class="drop-down">
-                    <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                      <a href="/api" class="internal"><span>API Docs</span></a>
-                    </div>
-
-                    <div class="content">
-                      <div class="row">
-                        <a class="item internal" href="/api/viewModel" target="_blank">viewModel</a>
-                      </div>
-                      <div class="row">
-                        <a class="item internal" href="/api/namespace">Namespace</a>
-                      </div>
-                      <div class="row">
-                        <a class="item internal" href="/api/component">Components</a>
-                      </div>
-                      <div class="row">
-                        <a class="item internal" href="/api/broadcast-receive">Broadcastable / Receivable</a>
-                      </div>
-                      <div class="row">
-                        <a class="item internal" href="/api/routing">Router</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="menu-item tutorial">
-                  <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    <a href="/tutorial" class="internal" data-title="Blog">Tutorial</a>
-                  </div>
-                </div>
-
-                <div class="menu-item annotated-source">
-                  <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    <a href="/annotated-source" class="internal" data-title="Blog">Annotated Source</a>
-                  </div>
-                </div>
-
-                <div class="aside menu-item about" data-bind="style: { height: headerContentHeight }">
-                  <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    <a href="/about" class="internal" data-id="about" data-title="About">about</a>
+                    FOOTWORK_STATEMENT
                   </div>
                 </div>
 
@@ -200,12 +153,13 @@
                   <div class="info" data-bind="html: dropInfoText">Click to expand the header. <span class="shortcut">ctrl + x</span></div>
                 </div>
               </nav>
-            </viewModel>
+            </div> <!-- /stopBinding -->
           </div>
         </header>
-      </viewModel>
+      </div> <!-- /stopBinding -->
 
-      <viewModel module="Navigation">
+
+      <div class="stop-binding" data-bind="stopBinding: true">
         <nav class="mobile-header js-navigation">
           <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }">
             <div class="message" data-bind="text: loader.message">Loading...</div>
@@ -263,15 +217,261 @@
             </svg>
           </a>
         </nav>
-      </viewModel>
+      </div> <!-- /stopBinding -->
 
       <div class="main-content" data-bind="style: { paddingTop: mainContentTopOffset }">
-        <pane></pane>
+        <div class="stop-binding" data-bind="stopBinding: true">
+          <div class="js-pane pane has-layout-trans" data-bind="style: { width: width, top: topOffset, left: leftOffset }, transition: transition, transform: transform">
+            <div class="mobile-only gripper"></div>
+
+            <div class="mobile-only page-logo js-only">
+              <a class="internal" href="/">
+                <svg width="161px" height="30px" viewBox="0 0 161 30" class="mobile-only">
+                  <path fill="none" d="M158.2,27.9c-7,0-14,0-21.1,0c0-8.6,0-17.2,0-25.8c7,0,14,0,21.1,0C158.2,10.7,158.2,19.3,158.2,27.9z
+                     M155.1,16.3c0-1-0.2-1.8-0.5-2.5c-0.5-1.3-1.3-2.4-2.2-3.4c-0.7-0.8-1.4-1.5-2.4-1.9c-0.7-0.3-1.4-0.3-2.2,0.1
+                    c-0.6,0.3-1,0.8-1.3,1.4c-0.5,0.9-0.5,1.9-0.3,2.9c0.1,0.9,0.4,1.9,0.3,2.8c-0.1,1.4-0.8,2.5-1.9,3.3c-0.7,0.5-1.5,0.6-2.3,0.7
+                    c-0.8,0.1-1.6,0.2-2.3,0.6c-1.3,0.6-2.1,1.6-2.5,2.9c-0.3,0.7-0.2,1.5,0.1,2.2c0.4,0.8,1,1.3,1.6,1.8c0.5,0.4,1,0.5,1.6,0.5
+                    c1.3,0.1,2.4-0.5,3.2-1.4c1.1-1.3,2.3-2.3,3.8-3c0.8-0.4,1.6-0.7,2.4-1.1c1.5-0.7,2.8-1.7,3.8-3C154.6,18.4,155.1,17.4,155.1,16.3
+                    z M149.6,5.4c0,1.3,0.8,1.9,1.9,1.5c1.3-0.5,2.4-2.3,2-3.7c-0.2-0.9-1-1.3-1.8-1C150.6,2.7,149.7,4,149.6,5.4z M155.8,7.1
+                    c0.1-1.1-0.5-1.6-1.4-1.4c-0.8,0.2-1.6,1.4-1.5,2.3c0.1,0.9,0.8,1.3,1.6,0.9C155.3,8.5,155.7,7.8,155.8,7.1z M157.4,9.3
+                    c0-0.6-0.4-0.9-1-0.8c-0.8,0.1-1.5,1-1.5,1.8c0,0.6,0.4,1,1,0.8C156.7,11,157.4,10.1,157.4,9.3z M156.7,13c0.6,0,1.2-0.5,1.4-1.1
+                    c0.1-0.5-0.2-0.9-0.7-0.9c-0.6,0-1.3,0.5-1.4,1.1C155.9,12.6,156.1,13,156.7,13z M156.3,14.3c0,0.4,0.3,0.6,0.7,0.5
+                    c0.5-0.1,0.9-0.6,0.9-1.1c0-0.4-0.3-0.7-0.7-0.6C156.8,13.3,156.3,13.8,156.3,14.3z"/>
+                  <g class="foot">
+                    <path d="M155.1,16.3c0,1-0.4,2.1-1.1,3c-1,1.3-2.3,2.3-3.8,3c-0.8,0.4-1.6,0.7-2.4,1.1c-1.5,0.7-2.7,1.8-3.8,3
+                      c-0.8,0.9-1.9,1.4-3.2,1.4c-0.6,0-1.1-0.2-1.6-0.5c-0.7-0.5-1.3-1.1-1.6-1.8c-0.4-0.7-0.4-1.5-0.1-2.2c0.5-1.3,1.3-2.3,2.5-2.9
+                      c0.7-0.4,1.5-0.4,2.3-0.6c0.8-0.1,1.6-0.3,2.3-0.7c1.1-0.8,1.8-1.9,1.9-3.3c0.1-1-0.2-1.9-0.3-2.8c-0.1-1-0.2-2,0.3-2.9
+                      c0.3-0.6,0.7-1.1,1.3-1.4c0.7-0.4,1.4-0.4,2.2-0.1c1,0.4,1.7,1.1,2.4,1.9c0.9,1,1.7,2.1,2.2,3.4C154.9,14.6,155.1,15.4,155.1,16.3
+                      z"/>
+                    <path d="M149.6,5.4c0-1.3,0.9-2.7,2.1-3.1c0.8-0.3,1.6,0.1,1.8,1c0.3,1.3-0.7,3.2-2,3.7C150.4,7.3,149.6,6.6,149.6,5.4z"/>
+                    <path d="M155.8,7.1c-0.1,0.7-0.5,1.4-1.4,1.8c-0.8,0.4-1.5,0-1.6-0.9c-0.1-0.9,0.7-2,1.5-2.3C155.3,5.5,155.9,6,155.8,7.1z"/>
+                    <path d="M157.4,9.3c0,0.8-0.7,1.7-1.5,1.8c-0.6,0.1-1-0.2-1-0.8c0-0.8,0.7-1.6,1.5-1.8C157,8.4,157.4,8.7,157.4,9.3z"/>
+                    <path d="M156.7,13c-0.5,0-0.8-0.4-0.7-0.8c0.1-0.6,0.8-1.1,1.4-1.1c0.5,0,0.8,0.4,0.7,0.9C157.9,12.4,157.3,13,156.7,13z"/>
+                    <path d="M156.3,14.3c0-0.5,0.4-1.1,0.9-1.1c0.4-0.1,0.7,0.2,0.7,0.6c0,0.5-0.4,1-0.9,1.1C156.6,15,156.3,14.7,156.3,14.3z"/>
+                    <path d="M111.7,22.1c0-1,0.7-1.8,1.7-1.8c1,0,1.7,0.7,1.7,1.8c0,1-0.6,1.8-1.7,1.8C112.4,23.9,111.7,23.1,111.7,22.1z"/>
+                  </g>
+                  <g class="footwork">
+                    <path d="M6,23.6V11.9H4.1V10H6V9.4c0-1.9,0.4-3.6,1.6-4.7c0.9-0.9,2.2-1.3,3.3-1.3c0.9,0,1.6,0.2,2.1,0.4l-0.3,1.9
+                      c-0.4-0.2-0.9-0.3-1.6-0.3c-2.1,0-2.6,1.8-2.6,3.9V10h3.3v1.9H8.4v11.7H6z"/>
+                    <path d="M25.8,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C23.1,9.7,25.8,12.5,25.8,16.7z M15,16.8
+                      c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2S15,14.3,15,16.8z"/>
+                    <path d="M41.2,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C38.5,9.7,41.2,12.5,41.2,16.7z M30.4,16.8
+                      c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2S30.4,14.3,30.4,16.8z"/>
+                    <path d="M47.2,6.1V10h3.5v1.9h-3.5v7.3c0,1.7,0.5,2.6,1.8,2.6c0.6,0,1.1-0.1,1.4-0.2l0.1,1.8c-0.5,0.2-1.2,0.3-2.2,0.3
+                      c-1.1,0-2.1-0.4-2.7-1c-0.7-0.7-1-1.9-1-3.5v-7.4h-2.1V10h2.1V6.8L47.2,6.1z"/>
+                    <path d="M54.8,10l1.8,6.9c0.4,1.5,0.8,2.9,1,4.3h0.1c0.3-1.4,0.8-2.8,1.2-4.3l2.2-6.9h2.1l2.1,6.8c0.5,1.6,0.9,3.1,1.2,4.4h0.1
+                      c0.2-1.4,0.6-2.8,1-4.4l1.9-6.8h2.4l-4.4,13.6h-2.2l-2.1-6.5c-0.5-1.5-0.9-2.9-1.2-4.5H62c-0.3,1.6-0.8,3-1.2,4.5l-2.2,6.4h-2.2
+                      L52.2,10H54.8z"/>
+                    <path d="M86.4,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C83.7,9.7,86.4,12.5,86.4,16.7z M75.6,16.8
+                      c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2C76.9,11.6,75.6,14.3,75.6,16.8z"/>
+                    <path d="M89.5,14.3c0-1.6,0-3-0.1-4.2h2.2l0.1,2.7h0.1c0.6-1.8,2.1-3,3.8-3c0.3,0,0.5,0,0.7,0.1v2.3c-0.3-0.1-0.5-0.1-0.8-0.1
+                      c-1.7,0-3,1.3-3.3,3.2c-0.1,0.3-0.1,0.7-0.1,1.1v7.2h-2.4V14.3z"/>
+                    <path d="M101.2,16.2L101.2,16.2c0.4-0.5,0.9-1.1,1.3-1.5l4-4.7h3l-5.2,5.6l6,8h-3l-4.7-6.5l-1.3,1.4v5.1h-2.4V3.7h2.4V16.2z"/>
+                  </g>
+                  <g class="js">
+                    <path d="M114.8,27.5c1.1-0.1,2.1-0.4,2.7-1c0.7-0.8,0.9-1.8,0.9-5.1V10h2.5v12.3c0,2.6-0.4,4.3-1.6,5.6c-1.1,1.1-2.9,1.5-4.2,1.5
+                      L114.8,27.5z M121.1,6.2c0,0.8-0.6,1.5-1.5,1.5c-0.9,0-1.5-0.7-1.5-1.5c0-0.9,0.6-1.5,1.6-1.5C120.5,4.7,121.1,5.3,121.1,6.2z"/>
+                    <path d="M124.5,21.1c0.7,0.5,2,1,3.2,1c1.8,0,2.6-0.9,2.6-2c0-1.2-0.7-1.8-2.5-2.5c-2.4-0.9-3.6-2.2-3.6-3.8c0-2.2,1.8-4,4.7-4
+                      c1.4,0,2.6,0.4,3.3,0.8l-0.6,1.8c-0.5-0.3-1.5-0.8-2.8-0.8c-1.5,0-2.3,0.8-2.3,1.8c0,1.1,0.8,1.6,2.6,2.3c2.4,0.9,3.6,2.1,3.6,4.1
+                      c0,2.4-1.8,4.1-5.1,4.1c-1.5,0-2.9-0.4-3.8-0.9L124.5,21.1z"/>
+                  </g>
+                </svg>
+              </a>
+            </div>
+
+            <div class="stop-binding" data-bind="stopBinding: true">
+              <div class="js-paneLinks pane-links" data-bind="css: { pageHasSections: pageHasSections }">
+                <div class="areas" data-bind="class: currentSelection">
+                  <div class="primary">
+                    <a href="https://github.com/reflectiveSingleton/footwork" title="View footwork.js on Github" data-bind="html: versionLabel"></a>
+                  </div>
+                </div>
+              </div>
+            </div> <!-- /stopBinding -->
+
+            <div class="content">
+              <div class="stop-binding" data-bind="stopBinding: true">
+                <div class="js-mainMenu mainMenu pane-component initialized" data-bind="css: { visible: visible }">
+                  <div class="content" data-bind="style: { height: paneContentMaxHeight }">
+                    <div class="title" data-bind="style: { width: mobileWidth }">
+                      <span class="label">
+                        <span class="text">Main Menu</span>
+                      </span>
+                    </div>
+                    <nav data-bind="style: { width: mobileWidth }, foreach: entries">
+                      <a class="internal" data-bind="css: { visible: visible }, attr: { 'data-title': labelText, href: url }, text: labelText"></a>
+                    </nav>
+                  </div>
+                </div>
+              </div> <!-- /stopBinding -->
+
+              <div class="stop-binding" data-bind="stopBinding: true">
+                <div class="js-pageSections pageSections pane-component" data-bind="css: { visible: visible, initialized: initialized }">
+                  <div class="title no-mobile">
+                    <span class="label">
+                      <span class="text" data-bind="html: title"></span>
+                    </span>
+                  </div>
+                  <div class="content" data-bind="css: { hasContent: sectionCount }, style: { height: paneContentMaxHeight }">
+                    <div class="title mobile-only">
+                      <span class="label">
+                        <span class="text" data-bind="text: title"></span>
+                      </span>
+                    </div>
+                    <div class="description" data-bind="text: description, css: { visible: descriptionVisible }"></div>
+                    <div data-bind="foreach: sections">
+                      <a class="section-label entry-row" data-bind="click: chooseSection, css: { active: active, visible: visible }, attr: { href: anchorAddress }">
+                        <div class="title" data-bind="text: title"></div>
+                        <span class="description" data-bind="text: description"></span>
+                        <div class="arrow"></div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div> <!-- /stopBinding -->
+
+              <div class="stop-binding" data-bind="stopBinding: true">
+                <div class="js-reddit reddit pane-component" data-bind="css: state">
+                  <div class="not-initialized">
+                    <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }">
+                      <div class="message" data-bind="text: loader.message">Loading ...</div>
+                    </div>
+                  </div>
+                  <div class="small title no-mobile">
+                    <a class="label" href="http://www.reddit.com/user/reflectiveSingleton/">
+                      <span class="icon icon-reddit"></span>&nbsp;&nbsp;<span class="text">/user/reflectiveSingleton</span>
+                    </a>
+                  </div>
+                  <div class="content hasContent" data-bind="css: { unavailable: moreUnavailable }, style: { height: paneContentMaxHeight }">
+                    <div class="small title mobile-only">
+                      <a class="label" href="http://www.reddit.com/user/reflectiveSingleton/">
+                        <span class="icon icon-reddit"></span>&nbsp;&nbsp;<span class="text">/user/reflectiveSingleton</span>
+                      </a>
+                    </div>
+
+                    <script type="text/html" id="reddit-post">
+                      <div class="title">
+                        <span class="icon" data-bind="class: entryIcon" title="post"></span>
+                        <div class="score">
+                          <span class="text" data-bind="text: offsetScore"></span>
+                          <div class="corner"></div>
+                        </div>
+                        <a class="content" data-bind="text: postTitle, attr: { href: relevantURL, title: postTitle }"></a>
+                      </div>
+                    </script>
+
+                    <script type="text/html" id="reddit-comment">
+                      <div class="title">
+                        <span class="icon" data-bind="class: entryIcon" title="comment"></span>
+                        <a class="content" data-bind="text: postTitle, attr: { href: relevantURL, title: postTitle }"></a>
+                      </div>
+                      <div class="content" data-bind="html: postHTML"></div>
+                      <div class="score">
+                        <span class="text" data-bind="text: offsetScore"></span>
+                        <div class="corner"></div>
+                      </div>
+                    </script>
+
+                    <div class="entries" data-bind="foreach: entries">
+                      <div class="entry-row" data-bind="css: state, class: type, event: { mouseover: activate }, template: { name: entryTemplate }"></div>
+                    </div>
+
+                    <div class="available">
+                      <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }"></div>
+                      <button class="button" data-bind="click: loadEntries">
+                        <span data-bind="text: moreEntriesButtonText">View more ...</span>
+                      </button>
+                    </div>
+                    <div class="unavailable">
+                      <div class="message">...there doesn't appear to be anything else...</div>
+                    </div>
+                  </div>
+                </div>
+              </div> <!-- /stopBinding -->
+
+              <div class="stop-binding" data-bind="stopBinding: true">
+                <div class="js-twitter twitter pane-component" data-bind="css: state">
+                  <div class="not-initialized">
+                    <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }">
+                      <div class="message" data-bind="text: loader.message">Loading ...</div>
+                    </div>
+                  </div>
+                  <div class="small title no-mobile">
+                    <a class="label" href="https://twitter.com/overfocus">
+                      <span class="icon icon-twitter"></span>&nbsp;&nbsp;<span class="text">overfocus</span>
+                    </a>
+                  </div>
+                  <div class="content hasContent" data-bind="css: { unavailable: moreUnavailable }, style: { height: paneContentMaxHeight }">
+                    <div class="small title mobile-only">
+                      <a class="label" href="https://twitter.com/overfocus">
+                        <span class="icon icon-twitter"></span>&nbsp;&nbsp;<span class="text">overfocus</span>
+                      </a>
+                    </div>
+                    <div data-bind="foreach: entries">
+                      <div class="entry-row" data-bind="css: { visible: visible }">
+                        <div data-bind="html: html"></div>
+                      </div>
+                    </div>
+                    <div class="available">
+                      <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }"></div>
+                      <button class="button" data-bind="click: loadEntries">
+                        <span data-bind="text: moreEntriesButtonText">View more ...</span>
+                      </button>
+                    </div>
+                    <div class="unavailable">
+                      <div class="message">...there doesn't appear to be anything else...</div>
+                    </div>
+                  </div>
+                </div>
+              </div> <!-- /stopBinding -->
+
+              <div class="stop-binding" data-bind="stopBinding: true">
+                <div class="js-github github pane-component" data-bind="css: state">
+                  <div class="not-initialized">
+                    <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }">
+                      <div class="message" data-bind="text: loader.message">Loading ...</div>
+                    </div>
+                  </div>
+                  <div class="small title no-mobile">
+                    <a class="label" target="_blank" href="https://github.com/reflectiveSingleton">
+                      <span class="icon icon-github"></span>&nbsp;&nbsp;<span class="text">github.com/reflectiveSingleton</span>
+                    </a>
+                  </div>
+                  <div class="content hasContent" data-bind="css: { unavailable: moreUnavailable }, style: { height: paneContentMaxHeight }">
+                    <div class="small title mobile-only">
+                      <a class="label" href="https://github.com/reflectiveSingleton">
+                        <span class="icon icon-github"></span>&nbsp;&nbsp;<span class="text">github.com/reflectiveSingleton</span>
+                      </a>
+                    </div>
+                    <div class="entries" data-bind="foreach: entries">
+                      <div class="entry-row" data-bind="css: state, event: { mouseover: activate }">
+                        <div class="title">
+                          <span class="icon" data-bind="class: iconType"></span>
+                          <div class="date" data-bind="text: dateRelative"></div>
+                        </div>
+                        <div class="content" data-bind="html: html"></div>
+                      </div>
+                    </div>
+                    <div class="available">
+                      <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }"></div>
+                      <button class="button" data-bind="click: loadEntries">
+                        <span data-bind="text: loader.message">View more ...</span>
+                      </button>
+                    </div>
+                    <div class="unavailable">
+                      <div class="message">...there doesn't appear to be anything else...</div>
+                    </div>
+                  </div>
+                </div>
+              </div> <!-- /stopBinding -->
+            </div>
+          </div>
+        </div> <!-- /stopBinding -->
 
         <div class="main-pane has-layout-trans" data-bind="css: { configVisible: configVisible }, style: { marginLeft: mainContentOffset }">
           <div class="stop-binding" data-bind="stopBinding: true">
             <main class="js-main">
-              <div class="content">Welcome</div>
+              <div class="hljs">FOOTWORK_PAGECONTENT</div>
             </main>
           </div> <!-- /stopBinding -->
           <div id="collapse-button" class="has-layout-trans js-only"
@@ -283,13 +483,13 @@
         </div>
       </div>
 
-      <viewModel module="Footer">
-        <div class="push" data-bind="style: { height: height }"></div>
-      </viewModel>
+      <div class="stop-binding" data-bind="stopBinding: true">
+        <div class="js-footer push" data-bind="style: { height: height }"></div>
+      </div> <!-- /stopBinding -->
     </div>
 
-    <viewModel module="Footer">
-      <footer>
+    <div class="stop-binding" data-bind="stopBinding: true">
+      <footer class="js-footer">
         <div class="content has-layout-trans" data-bind="style: { marginLeft: columnWidth }">
           <div class="layout-mode js-only" data-bind="class: viewPortLayoutMode">
             <div class="icon desktop icon-screen" data-bind="click: setMode" data-mode="desktop"></div>
@@ -431,8 +631,24 @@
           </div>
         </div>
       </footer>
-    </viewModel>
+    </div> <!-- /stopBinding -->
 
+    <script>
+      window.footworkVersionAtCreation = 'FOOTWORK_VERSION';
+      window._pageMeta = { title: 'Documentation Index',
+                           sections: [
+                             { anchor: 'main-js', title: 'main.js' },
+                             { anchor: 'namespace-js', title: 'namespace.js' },
+                             { anchor: 'viewmodel-js', title: 'viewModel.js' },
+                             { anchor: 'component-js', title: 'component.js' },
+                             { anchor: 'broadcast-receive-js', title: 'broadcast-receive.js' },
+                             { anchor: 'bindinghandlers-js', title: 'bindingHandlers.js' },
+                             { anchor: 'extenders-js', title: 'extenders.js' },
+                             { anchor: 'router-js', title: 'router.js' }
+                           ]
+                         };
+      window._initMeta && window._initMeta( window._pageMeta );
+    </script>
     <script src="scripts/require.js" data-main="scripts/app/main"></script>
     <![endif]-->
   </body>
