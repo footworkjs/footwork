@@ -2,32 +2,6 @@ define([ "jquery", "lodash", "footwork", "LoadState" ],
   function( $, _, ko, LoadState ) {
     return ko.viewModel({
       namespace: 'Navigation',
-      router: {
-        relativeToParent: false,
-        routes: [
-          {
-            route: '/api',
-            title: 'API Page',
-            nav: true,
-            controller: function($outlet, routeParams) {
-              // this === viewModel
-              console.info('API Page');
-            }
-          }, {
-            route: '/api/viewModel',
-            title: 'viewModel Page',
-            nav: true,
-            controller: function($outlet, routeParams) {
-              console.info('viewModel Page');
-            }
-          }, {
-            unknown: true,
-            controller: function($outlet, routeParams) {
-              console.info('UNKNOWN Page');
-            }
-          }
-        ]
-      },
       initialize: function() {
         this.viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
         this.configVisible = ko.observable().receiveFrom('Configuration', 'visible');

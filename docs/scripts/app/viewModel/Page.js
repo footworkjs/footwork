@@ -14,6 +14,7 @@ define([ "jquery", "lodash", "footwork", "history" ],
             pageSectionNamespace.publish( 'scrollToSection', location.hash.slice( location.hash.indexOf('#') + 1 ) );
           }
         }
+        this.loadState('/');
       },
       initialize: function() {
         var pageSectionsNamespace = ko.namespace('PageSections');
@@ -50,8 +51,8 @@ define([ "jquery", "lodash", "footwork", "history" ],
         this.shortTitle = ko.observable( this.defaultTitle() ).broadcastAs('shortTitle');
         this.loading = ko.observable().broadcastAs('loading');
 
-        History.Adapter.bind( window, 'statechange', this.loadState = function() {
-          var url = window.location.pathname; //History.getState().url;
+        History.Adapter.bind( window, 'statechange', this.loadState = function(state) {
+          var url = ( _.isString(state) && state ) || window.location.pathname; //History.getState().url;
           this.url( url );
 
           window._pageMeta = undefined;

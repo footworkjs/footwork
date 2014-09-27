@@ -14,6 +14,7 @@ define([ "footwork",
     "app/viewModel/Navigation",
     "app/viewModel/Footer",
 
+    "text!../pages/index.html",
     "text!../pages/viewModel.html"
   ],
   function( ko,
@@ -32,12 +33,15 @@ define([ "footwork",
     NavigationViewModel,
     FooterViewModel,
 
+    indexPage,
     viewModelPage
   ) {
     return function resourceHelper() {
       define('text!/api/viewModel', [], function() {
-        console.info('w00t!!!!!!!');
         return viewModelPage;
+      });
+      define('text!/', [], function() {
+        return indexPage;
       });
 
       ko.components.register('configuration', {
