@@ -22,13 +22,13 @@
     "url": "git://github.com/reflectiveSingleton/footwork.git"
   },
   "devDependencies": {
-    "bower": "~1.2.8",
+    "bower": "*",
+    "gulp": "*",
+    "yargs": "*",
     "mocha": "~1.17.1",
     "mocha-phantomjs": "~3.4.1",
     "merge-stream": "~0.1.1",
     "lodash": "~2.4.1",
-    "gulp": "~3.6.2",
-    "yargs": "*",
     "run-sequence": "*",
     "gulp-ignore": "~1.1.0",
     "gulp-rimraf": "~0.1.0",
