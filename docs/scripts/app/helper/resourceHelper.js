@@ -12,7 +12,9 @@ define([ "footwork",
     "app/viewModel/pane/Twitter", "text!app/template/pane/twitter.html",
     "app/viewModel/Header",
     "app/viewModel/Navigation",
-    "app/viewModel/Footer"
+    "app/viewModel/Footer",
+
+    "text!../pages/viewModel.html"
   ],
   function( ko,
     configurationViewModel, configurationTemplate,
@@ -28,9 +30,16 @@ define([ "footwork",
     twitterViewModel, twitterTemplate,
     HeaderViewModel,
     NavigationViewModel,
-    FooterViewModel 
+    FooterViewModel,
+
+    viewModelPage
   ) {
     return function resourceHelper() {
+      define('text!/api/viewModel', [], function() {
+        console.info('w00t!!!!!!!');
+        return viewModelPage;
+      });
+
       ko.components.register('configuration', {
         viewModel: configurationViewModel,
         template: configurationTemplate

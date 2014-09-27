@@ -30,7 +30,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
           },
           pane: {
             min: { width: 161 },
-            max: { width: 440 },
+            max: { width: 340 },
             collapsed: (ko.namespace('ViewPort').request('layoutMode') === 'mobile'),
             accentPadding: 20
           },

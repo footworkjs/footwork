@@ -51,13 +51,13 @@ define([ "jquery", "lodash", "footwork", "history" ],
         this.loading = ko.observable().broadcastAs('loading');
 
         History.Adapter.bind( window, 'statechange', this.loadState = function() {
-          var url = History.getState().url;
+          var url = window.location.pathname; //History.getState().url;
           this.url( url );
 
           window._pageMeta = undefined;
           var pagePromise = $.Deferred();
           
-          require( ['text!' + url + '?content-only'], function(templateContent) {
+          require( ['text!' + url], function(templateContent) {
             pagePromise.resolve(templateContent);
           }, function(response) {
             pagePromise.reject(response.xhr);

@@ -13,7 +13,7 @@ define([ "footwork", "lodash" ],
         this.configReflowing = ko.observable().receiveFrom('Configuration', 'reflowing');
         this.viewPortDim = ko.observable({}).receiveFrom('ViewPort', 'dimensions');
         this.viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
-        this.viewPortSmall = ko.observable().receiveFrom('ViewPort', 'isSmall');
+        this.viewPortSmall = ko.observable(true).receiveFrom('ViewPort', 'isSmall');
         this.logoWidth = ko.observable(161).receiveFrom('ViewPort', 'logoWidth');
         this.viewPortHas3dTransforms = ko.observable(true).receiveFrom('ViewPort', 'has3dTransforms');
         this.headerVisibleHeight = ko.observable().receiveFrom('Header', 'visibleHeight');
