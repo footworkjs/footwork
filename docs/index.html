@@ -282,45 +282,75 @@
                     <div class="content block-font">
                       <p>
                         footwork.js is a front-end javascript framework based off of several open source libraries, most notably including 
-                        <a href="http://knockoutjs.com/">knockout.js</a>,
-                        <a href="https://github.com/postaljs">postal.js</a>,
-                        <a href="http://lodash.com/">lodash</a>,
-                        <a href="https://github.com/a2labs/riveter">riveter</a>,
-                        and <a href="http://requirejs.org/">requirejs</a>.
+                        <a href="http://knockoutjs.com/" target="_blank">knockout.js</a>,
+                        <a href="https://github.com/postaljs" target="_blank">postal.js</a>,
+                        <a href="http://lodash.com/" target="_blank">lodash</a>,
+                        <a href="https://github.com/a2labs/riveter" target="_blank">riveter</a>,
+                        and <a href="http://requirejs.org/" target="_blank">requirejs</a>.
                       </p>
 
                       <p>
                         It can be thought of (feature wise) to be in the same realm as
-                        <a href="https://angularjs.org/">Angular</a>, <a href="http://emberjs.com/">Ember</a>,
-                        <a href="http://marionettejs.com/">Marionnette</a>,
-                        <a href="http://durandaljs.com/">Durandal</a>,
+                        <a href="https://angularjs.org/" target="_blank">Angular</a>,
+                        <a href="http://emberjs.com/" target="_blank">Ember</a>,
+                        <a href="http://marionettejs.com/" target="_blank">Marionnette</a>,
+                        <a href="http://durandaljs.com/" target="_blank">Durandal</a>,
                         and others. It is meant to provide a basis (the footing, if you will) of a large/ambitious web application, based
-                        on a combination of several well known open source libraries and frameworks.
+                        on a combination of several well known open source libraries and design patterns.
                       </p>
                       
                       <p>A broad overview of features included with footwork:</p>
                       <ul>
+                        
                         <li>
-                          Automatic and fully configurable loading of custom components based on their tag/component name.
+                          Custom components (based on knockout 3.2+ components).
                           <ul>
                             <li>Automatic lazy loading of components.</li>
                             <li>Registered pre-caching of components.</li>
-                            <li>Full native knockout component registration.</li>
+                            <li>Lifecycle management.</li>
+                            <li>Retains support for native/standard knockout component registration.</li>
+                            <li>Integrated namespace based <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" title="Command Query Responsibility Segregation">CQRS</a>.</li>
                           </ul>
                         </li>
+                        
                         <li>
-                          Full CQRS with custom namespace support on a per-viewModel and per-component basis.
+                          Formalized viewModel concept with automatic scope wrapping.
                           <ul>
-                            <li>Automatic namespace assignment for newly created viewModels and components.</li>
-                            <li>Custom namespace creation and registration upon demand.</li>
-                            <li>Fully managed lifecycle. No need to explicitly shutdown listeners.</li>
-                            <li>Natively supports commands, requests, events, and pub/sub.</li>
+                            <li>Automatic lazy loading of viewModels.</li>
+                            <li>Registered pre-caching of viewModels.</li>
+                            <li>Lifecycle management.</li>
+                            <li>Context binding management via embedded custom &lt;viewModel /&gt; component or direct applyBindings() calls.</li>
+                            <li>Integrated namespace based <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" title="Command Query Responsibility Segregation">CQRS</a>.</li>
+                          </ul>
+                        </li>
+
+                        <li>
+                           Namespace based <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" title="Command Query Responsibility Segregation">CQRS</a> support on a per-viewModel, per-component, or custom basis.
+                          <ul>
+                            <li>Lifecycle management for all handlers.</li>
+                            <li>Configurable automatic namespace assignment for newly created viewModels and components.</li>
+                            <li>Support for commands, requests, events, and pub/sub.</li>
                             <li>Supports 'durable' (long living) commands and events based on either a time based expiration, raw count, or a permanent basis.</li>
                           </ul>
                         </li>
-                        <li>Formalized viewModel type with automatic scope wrapping via context awareness.</li>
-                        <li>Fully configurable Routing, including nested outlet (component) support.</li>
-                        <li>Integrated inter-model / inter-module dependency tracking and resolution.</li>
+
+                        <li>
+                          Routing, including nested routing support.
+                          <ul>
+                            <li>Infinitely nested and context aware router/child-router support.</li>
+                            <li>Custom named outlet support (analogous to emberjs outlet support).</li>
+                            <li>Named parameters in route definitions.</li>
+                          </ul>
+                        </li>
+
+                        <li>
+                          Namespace based inter-viewModel / inter-component dependency tracking and communication.
+                          <ul>
+                            <li>Share state and information between viewModels and components cleanly.</li>
+                            <li>Track dependencies between viewModels and components via namespaces.</li>
+                            <li>Configurable as read-only or writable shared observables/computeds.</li>
+                          </ul>
+                        </li>
                       </ul>
                     </div>
                   </section>
