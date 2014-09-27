@@ -9,6 +9,7 @@ define([ "jquery", "lodash", "footwork" ],
     var FRAME_RATE_MS = 1000 / 60;
     var CLICK_TIMEOUT = 170;
     var ABORT_MAX_DURATION = 70;
+    var defaultDragState = { movePoint: { x: 0 } };
 
     return ko.viewModel({
       namespace: 'PaneDragManager',
@@ -87,7 +88,7 @@ define([ "jquery", "lodash", "footwork" ],
             var currentOpenOffset = this.openOffset();
             var PANE_OPEN = false;
             var PANE_CLOSED = true;
-            
+
             if( this.paneCollapsed() === false ) {
               delta = delta < 0 ? 0 : delta;
               delta = delta < currentClosedOffset ? delta : currentClosedOffset;
@@ -105,15 +106,16 @@ define([ "jquery", "lodash", "footwork" ],
               dragPointers.push(touchData);
             } else if( phase === 'end' ) {
               this.dragActive(false);
+
               var moveDifferential = _.reduce(dragPointers.reverse(), function(diffObj, dragPointer) {
-                var prevDragPointer = diffObj[0] || { movePoint: { x: 0 } };
+                var prevDragPointer = diffObj[0] || defaultDragState;
                 if( diffObj.length === 0 || (diffObj.length < 2 && dragPointer.movePoint.x !== prevDragPointer.movePoint.x) ) {
                   diffObj.push(dragPointer);
                 }
                 return diffObj;
               }, []);
-              var thisMove = moveDifferential[0];
-              var lastMove = moveDifferential[1];
+              var thisMove = moveDifferential[0] || defaultDragState;
+              var lastMove = moveDifferential[1] || defaultDragState;
               var newState = this.paneCollapsed();
               var dragIntent = this.paneCollapsed();
               var currentpaneState = this.paneCollapsed();
