@@ -39,9 +39,9 @@
     "conduitjs": "0.3.2",
     "postal.preserve": "https://github.com/reflectiveSingleton/postal.preserve.git#ab559a6a06bafd2e6433b167cf0a6fa068186fc3",
     "history.js": "1.8.0",
-    "requirejs": "~2.1.10",
+    "requirejs": "*",
     "expect": "0.1.2",
-    "mocha": "~1.17.1",
+    "mocha": "*",
     "jquery": ">=2.1.1"
   },
   "resolutions": {
