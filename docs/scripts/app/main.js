@@ -16,12 +16,12 @@ require.config({
     "storage":           "../components/store-js/store",
     "lodash":            "../components/lodash/dist/lodash.underscore",
     "history":           "../components/history.js/scripts/bundled/html5/native.history",
+    "jquery.touchy":     "../components/touchy/jquery.touchy",
+    "jquery.spectrum":   "../components/spectrum/spectrum",
     "jwerty":            "lib/jwerty", // jwerty does not provide an AMD build, this is a custom wrapped version
     "conduitjs":         "lib/conduit", // ConduitJS currently has a broken UMD wrapper, this is a forked and fixed version
-    "jquery.touchy":     "lib/jquery-plugins/jquery.touchy",
     "jquery.pulse":      "lib/jquery-plugins/jquery.pulse",
     "jquery.mousewheel": "lib/jquery-plugins/jquery.mousewheel",
-    "jquery.spectrum":   "lib/jquery-plugins/jquery.spectrum",
     "jquery.easing":     "lib/jquery-plugins/jquery.easing",
 
     "paneEntry":         "app/mixin/paneEntry",

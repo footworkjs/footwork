@@ -300,16 +300,16 @@
                       </p>
                       
                       <p>A broad overview of features included with footwork:</p>
-                      <ul>
+                      <ul class="js-collapsable">
                         
                         <li>
-                          Custom components (based on knockout 3.2+ components).
+                          Custom components.
                           <ul>
                             <li>Automatic lazy loading of components.</li>
                             <li>Registered pre-caching of components.</li>
                             <li>Lifecycle management.</li>
-                            <li>Retains support for native/standard knockout component registration.</li>
                             <li>Integrated namespace based <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" title="Command Query Responsibility Segregation">CQRS</a>.</li>
+                            <li>Retains support for native/standard knockout component registration.</li>
                           </ul>
                         </li>
                         
@@ -319,8 +319,8 @@
                             <li>Automatic lazy loading of viewModels.</li>
                             <li>Registered pre-caching of viewModels.</li>
                             <li>Lifecycle management.</li>
-                            <li>Context binding management via embedded custom &lt;viewModel /&gt; component or direct applyBindings() calls.</li>
                             <li>Integrated namespace based <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" title="Command Query Responsibility Segregation">CQRS</a>.</li>
+                            <li>Context binding management via embedded custom &lt;viewModel /&gt; component or direct applyBindings() calls.</li>
                           </ul>
                         </li>
 
@@ -344,11 +344,19 @@
                         </li>
 
                         <li>
-                          Namespace based inter-viewModel / inter-component dependency tracking and communication.
+                          inter-viewModel / inter-component dependency tracking and communication.
                           <ul>
-                            <li>Share state and information between viewModels and components cleanly.</li>
-                            <li>Track dependencies between viewModels and components via namespaces.</li>
-                            <li>Configurable as read-only or writable shared observables/computeds.</li>
+                            <li>Based on integrated namespace support.</li>
+                            <li>Track dependencies, share state and information between viewModels and components cleanly.</li>
+                            <li>Configurable as read-only or writable shared data.</li>
+                          </ul>
+                        </li>
+
+                        <li>
+                          Behavioral mixins, and inheritance.
+                          <ul>
+                            <li>Reusable behaviors and logic expressed through an easy to use mixin syntax.</li>
+                            <li>viewModel inheritance.</li>
                           </ul>
                         </li>
                       </ul>

@@ -14,7 +14,6 @@ define([ "jquery", "lodash", "footwork" ],
       namespace: 'PaneDragManager',
       initialize: function() {
         var dragPointers = [];
-        var lastMove = { movePoint: { x: 0 } };
         var customTransitionTimeout;
         this.clickTimeout = undefined;
 
@@ -48,6 +47,7 @@ define([ "jquery", "lodash", "footwork" ],
         this.paneWidth = ko.observable(0).receiveFrom('Pane', 'width');
         this.closedOffset = ko.observable().receiveFrom('ViewPort', 'closedOffset');
         this.openOffset = ko.observable().receiveFrom('ViewPort', 'openOffset');
+        this.dragActive = ko.observable(false);
 
         this.touchHandler = function(event, phase, $target, touchData) {
           this.paneCollapsed( !this.paneCollapsed() );
@@ -63,6 +63,7 @@ define([ "jquery", "lodash", "footwork" ],
           var currentOpenOffset = this.openOffset();
           var PANE_OPEN = false;
           var PANE_CLOSED = true;
+          var dragActive = this.dragActive();
 
           if( this.paneCollapsed() === false ) {
             delta = delta < 0 ? 0 : delta;
@@ -72,8 +73,9 @@ define([ "jquery", "lodash", "footwork" ],
             delta = delta > currentOpenOffset ? delta : currentOpenOffset;
           }
 
-          if( phase === 'start' ) {
+          if( phase === 'start' && !dragActive ) {
             this.paneDragging(true);
+            this.dragActive(true);
             dragPointers = [];
 
             if( $target.attr('id') === 'collapse-button' ) {
@@ -82,7 +84,7 @@ define([ "jquery", "lodash", "footwork" ],
                 this.paneCollapsed( !this.paneCollapsed() );
               }.bind(this), CLICK_TIMEOUT);
             }
-          } else {
+          } else if(dragActive) {
             if( this.clickTimeout !== undefined ) {
               clearTimeout(this.clickTimeout);
               this.clickTimeout = undefined;
@@ -93,21 +95,27 @@ define([ "jquery", "lodash", "footwork" ],
             }
           }
 
-          if( phase === 'move' || phase === 'end' ) {
+          if( dragActive && (phase === 'move' || phase === 'end') ) {
             this.paneDragOffset(delta);
           }
 
-          if( phase === 'start' || phase === 'move' ) {
-            touchData.timestamp = new Date().getTime();
+          if( dragActive && (phase === 'start' || phase === 'move') ) {
+            touchData.timestamp = (new Date()).getTime();
             dragPointers.push(touchData);
-            if( dragPointers.length > 2 ) {
-              lastMove = dragPointers[ dragPointers.length - 2 ];
-            }
-          } else if( phase === 'end' ) {
+          } else if( dragActive && phase === 'end' ) {
+            this.dragActive(false);
+            var moveDifferential = _.reduce(dragPointers.reverse(), function(diffObj, dragPointer) {
+              var prevDragPointer = diffObj[0] || { movePoint: { x: 0 } };
+              if( diffObj.length === 0 || (diffObj.length < 2 && dragPointer.movePoint.x !== prevDragPointer.movePoint.x) ) {
+                diffObj.push(dragPointer);
+              }
+              return diffObj;
+            }, []);
+            var thisMove = moveDifferential[0];
+            var lastMove = moveDifferential[1];
             var newState = this.paneCollapsed();
-            var thisMove = dragPointers[ dragPointers.length - 1 ];
             var dragIntent = this.paneCollapsed();
-            var paneState = this.paneCollapsed();
+            var currentpaneState = this.paneCollapsed();
             var dragPeriod = thisMove.timestamp - dragPointers[dragPointers.length - 2].timestamp;
             var recentVelocity = thisMove.velocity;
 
@@ -122,8 +130,8 @@ define([ "jquery", "lodash", "footwork" ],
               var destinationOffset = ( newState === PANE_CLOSED ? currentClosedOffset : currentOpenOffset );
               var animationDuration = Math.floor( Math.abs( (dragPeriod * destinationOffset) / (recentVelocity * FRAME_RATE_MS) ) ) + INTENT_DURATION_OFFSET;
 
-              if( (paneState === PANE_CLOSED && dragIntent === PANE_CLOSED) ||
-                  (paneState === PANE_OPEN && dragIntent === PANE_OPEN) ) {
+              if( (currentpaneState === PANE_CLOSED && dragIntent === PANE_CLOSED) ||
+                  (currentpaneState === PANE_OPEN && dragIntent === PANE_OPEN) ) {
                 destinationOffset = 0;
               }
               animationDuration = ( animationDuration > MAX_COMPLETION_DURATION ? MAX_COMPLETION_DURATION : animationDuration );
@@ -137,21 +145,21 @@ define([ "jquery", "lodash", "footwork" ],
               this.paneDragOffset(destinationOffset);
               customTransitionTimeout = setTimeout(function() {
                 this.paneTransition('none');
-                this.paneCollapsed(newState);
                 this.paneDragging(false);
                 this.paneDragOffset(0);
+                this.paneCollapsed(newState);
               }.bind(this), animationDuration);
             } else {
-              if( paneState === PANE_CLOSED && parseInt(this.paneTrueLeftOffset(), 10) < parseInt( this.paneWidth(), 10 ) / 2 ) {
+              if( currentpaneState === PANE_CLOSED && parseInt(this.paneTrueLeftOffset(), 10) < parseInt( this.paneWidth(), 10 ) / 2 ) {
                 newState = PANE_OPEN;
-              } else if( paneState === PANE_OPEN && parseInt(this.paneTrueLeftOffset(), 10) > parseInt( this.paneWidth(), 10 ) / 2 ) {
+              } else if( currentpaneState === PANE_OPEN && parseInt(this.paneTrueLeftOffset(), 10) > parseInt( this.paneWidth(), 10 ) / 2 ) {
                 newState = PANE_CLOSED;
               }
 
               this.paneDragging(false);
               this.paneMoving(true);
-              this.paneCollapsed(newState);
               this.paneDragOffset(0);
+              this.paneCollapsed(newState);
             }
           }
         }.bind(this);
