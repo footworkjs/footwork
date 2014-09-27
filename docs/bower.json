@@ -14,7 +14,7 @@
     "spectrum": "https://github.com/reflectiveSingleton/spectrum.git#*",
     "riveter": "0.1.2",
     "postal.js": "0.10.0",
-    "conduitjs": "0.3.2",
+    "conduitjs": "0.3.3",
     "consolelog": "*",
     "store-js": "*",
     "moment": "*",

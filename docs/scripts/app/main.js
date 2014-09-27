@@ -11,6 +11,7 @@ require.config({
   paths: {
     "jquery":            "../components/jquery/dist/jquery",
     "postal":            "../components/postal.js/lib/postal",
+    "conduitjs":         "../components/conduitjs/lib/conduit",
     "knockout":          "../components/knockoutjs/dist/knockout.debug",
     "footwork":          "../components/footwork/dist/footwork-bare",
     "storage":           "../components/store-js/store",
@@ -19,7 +20,6 @@ require.config({
     "jquery.touchy":     "../components/touchy/jquery.touchy",
     "jquery.spectrum":   "../components/spectrum/spectrum",
     "jwerty":            "lib/jwerty", // jwerty does not provide an AMD build, this is a custom wrapped version
-    "conduitjs":         "lib/conduit", // ConduitJS currently has a broken UMD wrapper, this is a forked and fixed version
     "jquery.pulse":      "lib/jquery-plugins/jquery.pulse",
     "jquery.mousewheel": "lib/jquery-plugins/jquery.mousewheel",
     "jquery.easing":     "lib/jquery-plugins/jquery.easing",
