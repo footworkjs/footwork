@@ -54,26 +54,12 @@ define([ "jquery", "lodash", "footwork" ],
         }.bind(this);
 
         this.dragHandler = function (event, phase, $target, touchData) {
+          var dragActive = this.dragActive();
           if( this.paneMoving() === true ) {
             return false;
           }
 
-          var delta = touchData.startPoint.x - touchData.movePoint.x;
-          var currentClosedOffset = this.closedOffset();
-          var currentOpenOffset = this.openOffset();
-          var PANE_OPEN = false;
-          var PANE_CLOSED = true;
-          var dragActive = this.dragActive();
-
-          if( this.paneCollapsed() === false ) {
-            delta = delta < 0 ? 0 : delta;
-            delta = delta < currentClosedOffset ? delta : currentClosedOffset;
-          } else {
-            delta = delta > 0 ? 0 : delta;
-            delta = delta > currentOpenOffset ? delta : currentOpenOffset;
-          }
-
-          if( phase === 'start' && !dragActive ) {
+          if( !dragActive && phase === 'start' ) {
             this.paneDragging(true);
             this.dragActive(true);
             dragPointers = [];
@@ -95,71 +81,87 @@ define([ "jquery", "lodash", "footwork" ],
             }
           }
 
-          if( dragActive && (phase === 'move' || phase === 'end') ) {
-            this.paneDragOffset(delta);
-          }
-
-          if( dragActive && (phase === 'start' || phase === 'move') ) {
-            touchData.timestamp = (new Date()).getTime();
-            dragPointers.push(touchData);
-          } else if( dragActive && phase === 'end' ) {
-            this.dragActive(false);
-            var moveDifferential = _.reduce(dragPointers.reverse(), function(diffObj, dragPointer) {
-              var prevDragPointer = diffObj[0] || { movePoint: { x: 0 } };
-              if( diffObj.length === 0 || (diffObj.length < 2 && dragPointer.movePoint.x !== prevDragPointer.movePoint.x) ) {
-                diffObj.push(dragPointer);
-              }
-              return diffObj;
-            }, []);
-            var thisMove = moveDifferential[0];
-            var lastMove = moveDifferential[1];
-            var newState = this.paneCollapsed();
-            var dragIntent = this.paneCollapsed();
-            var currentpaneState = this.paneCollapsed();
-            var dragPeriod = thisMove.timestamp - dragPointers[dragPointers.length - 2].timestamp;
-            var recentVelocity = thisMove.velocity;
-
-            if( thisMove.movePoint.x < lastMove.movePoint.x ) {
-              dragIntent = PANE_CLOSED;
-            } else if( thisMove.movePoint.x > lastMove.movePoint.x ) {
-              dragIntent = PANE_OPEN;
+          if( dragActive ) {
+            var delta = touchData.startPoint.x - touchData.movePoint.x;
+            var currentClosedOffset = this.closedOffset();
+            var currentOpenOffset = this.openOffset();
+            var PANE_OPEN = false;
+            var PANE_CLOSED = true;
+            
+            if( this.paneCollapsed() === false ) {
+              delta = delta < 0 ? 0 : delta;
+              delta = delta < currentClosedOffset ? delta : currentClosedOffset;
+            } else {
+              delta = delta > 0 ? 0 : delta;
+              delta = delta > currentOpenOffset ? delta : currentOpenOffset;
             }
 
-            if( recentVelocity > DRAG_VELOCITY_TRIGGER ) {
-              newState = dragIntent;
-              var destinationOffset = ( newState === PANE_CLOSED ? currentClosedOffset : currentOpenOffset );
-              var animationDuration = Math.floor( Math.abs( (dragPeriod * destinationOffset) / (recentVelocity * FRAME_RATE_MS) ) ) + INTENT_DURATION_OFFSET;
+            if( (phase === 'move' || phase === 'end') ) {
+              this.paneDragOffset(delta);
+            }
 
-              if( (currentpaneState === PANE_CLOSED && dragIntent === PANE_CLOSED) ||
-                  (currentpaneState === PANE_OPEN && dragIntent === PANE_OPEN) ) {
-                destinationOffset = 0;
+            if( (phase === 'start' || phase === 'move') ) {
+              touchData.timestamp = (new Date()).getTime();
+              dragPointers.push(touchData);
+            } else if( phase === 'end' ) {
+              this.dragActive(false);
+              var moveDifferential = _.reduce(dragPointers.reverse(), function(diffObj, dragPointer) {
+                var prevDragPointer = diffObj[0] || { movePoint: { x: 0 } };
+                if( diffObj.length === 0 || (diffObj.length < 2 && dragPointer.movePoint.x !== prevDragPointer.movePoint.x) ) {
+                  diffObj.push(dragPointer);
+                }
+                return diffObj;
+              }, []);
+              var thisMove = moveDifferential[0];
+              var lastMove = moveDifferential[1];
+              var newState = this.paneCollapsed();
+              var dragIntent = this.paneCollapsed();
+              var currentpaneState = this.paneCollapsed();
+              var dragPeriod = thisMove.timestamp - dragPointers[dragPointers.length - 2].timestamp;
+              var recentVelocity = thisMove.velocity;
+
+              if( thisMove.movePoint.x < lastMove.movePoint.x ) {
+                dragIntent = PANE_CLOSED;
+              } else if( thisMove.movePoint.x > lastMove.movePoint.x ) {
+                dragIntent = PANE_OPEN;
               }
-              animationDuration = ( animationDuration > MAX_COMPLETION_DURATION ? MAX_COMPLETION_DURATION : animationDuration );
-              animationDuration = ( animationDuration < MIN_COMPLETION_DURATION ? MIN_COMPLETION_DURATION : animationDuration );
 
-              if( newState === this.paneCollapsed() ) {
-                animationDuration = ( animationDuration > ABORT_MAX_DURATION ? ABORT_MAX_DURATION : animationDuration );
-              }
+              if( recentVelocity > DRAG_VELOCITY_TRIGGER ) {
+                newState = dragIntent;
+                var destinationOffset = ( newState === PANE_CLOSED ? currentClosedOffset : currentOpenOffset );
+                var animationDuration = Math.floor( Math.abs( (dragPeriod * destinationOffset) / (recentVelocity * FRAME_RATE_MS) ) ) + INTENT_DURATION_OFFSET;
 
-              this.paneTransition('transform ' + animationDuration + 'ms linear, left ' + animationDuration + 'ms linear');
-              this.paneDragOffset(destinationOffset);
-              customTransitionTimeout = setTimeout(function() {
-                this.paneTransition('none');
+                if( (currentpaneState === PANE_CLOSED && dragIntent === PANE_CLOSED) ||
+                    (currentpaneState === PANE_OPEN && dragIntent === PANE_OPEN) ) {
+                  destinationOffset = 0;
+                }
+                animationDuration = ( animationDuration > MAX_COMPLETION_DURATION ? MAX_COMPLETION_DURATION : animationDuration );
+                animationDuration = ( animationDuration < MIN_COMPLETION_DURATION ? MIN_COMPLETION_DURATION : animationDuration );
+
+                if( newState === this.paneCollapsed() ) {
+                  animationDuration = ( animationDuration > ABORT_MAX_DURATION ? ABORT_MAX_DURATION : animationDuration );
+                }
+
+                this.paneTransition('transform ' + animationDuration + 'ms linear, left ' + animationDuration + 'ms linear');
+                this.paneDragOffset(destinationOffset);
+                customTransitionTimeout = setTimeout(function() {
+                  this.paneTransition('none');
+                  this.paneDragging(false);
+                  this.paneDragOffset(0);
+                  this.paneCollapsed(newState);
+                }.bind(this), animationDuration);
+              } else {
+                if( currentpaneState === PANE_CLOSED && parseInt(this.paneTrueLeftOffset(), 10) < parseInt( this.paneWidth(), 10 ) / 2 ) {
+                  newState = PANE_OPEN;
+                } else if( currentpaneState === PANE_OPEN && parseInt(this.paneTrueLeftOffset(), 10) > parseInt( this.paneWidth(), 10 ) / 2 ) {
+                  newState = PANE_CLOSED;
+                }
+
                 this.paneDragging(false);
+                this.paneMoving(true);
                 this.paneDragOffset(0);
                 this.paneCollapsed(newState);
-              }.bind(this), animationDuration);
-            } else {
-              if( currentpaneState === PANE_CLOSED && parseInt(this.paneTrueLeftOffset(), 10) < parseInt( this.paneWidth(), 10 ) / 2 ) {
-                newState = PANE_OPEN;
-              } else if( currentpaneState === PANE_OPEN && parseInt(this.paneTrueLeftOffset(), 10) > parseInt( this.paneWidth(), 10 ) / 2 ) {
-                newState = PANE_CLOSED;
               }
-
-              this.paneDragging(false);
-              this.paneMoving(true);
-              this.paneDragOffset(0);
-              this.paneCollapsed(newState);
             }
           }
         }.bind(this);
