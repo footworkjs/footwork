@@ -1,0 +1,40 @@
+.page-build-info {
+  section > * {
+    position: relative;
+  }
+
+  contributors .title {
+    margin-top: 20px;
+    font-weight: bold;
+    font-size: 120%;
+  }
+
+  section[name="buildInfo"] viewModel > .content {
+    margin-top: 10px;
+    line-height: 25px;
+
+    label + .content {
+      color: black;
+    }
+
+    ul {
+      li + li {
+        margin-top: 10px;
+      }
+    }
+  }
+
+  .row {
+    clear: both;
+    label {
+      float: left;
+      width: 120px;
+      text-align: right;
+      margin-right: 5px;
+    }
+    .content {
+      float: left;
+    }
+    .clearblock;
+  }
+}

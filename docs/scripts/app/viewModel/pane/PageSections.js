@@ -83,7 +83,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
         this._paneContentMaxHeight = ko.observable().receiveFrom('Pane', 'contentMaxHeight');
         this.paneContentMaxHeight = this._paneContentMaxHeight.extend({ units: 'px' });
         this.defaultPaneSelection = ko.observable().receiveFrom('PaneLinks', 'defaultSelection');
-        this.title = ko.observable().receiveFrom('Page', 'shortTitle');
+        this.title = ko.observable();
         this.viewPortScrollPos = ko.observable().receiveFrom('ViewPort', 'scrollPosition');
         this.viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
 
@@ -142,6 +142,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           if( pageData ) {
             pageData.description && this.description( pageData.description );
             this.loadSections( pageData.sections );
+            this.title(pageData.title);
           }
         }.bind(this);
         loadMetaData( ko.namespace('Page').request('metaData') );

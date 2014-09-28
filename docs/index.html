@@ -2,10 +2,6 @@
 <html class="no-js">
   <head>
     <meta charset="utf-8">
-
-    <title>docs - footworkjs</title>
-    <meta name="description" content="A solid footing for large knockout applications.">
-
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
     <meta name="generator" content="gulp">
@@ -21,6 +17,7 @@
     <![endif]-->
 
     <script src="build-info.js"></script>
+    <script>document.title = 'docs - footworkjs (v' + footworkBuild.version + ')'</script>
     <script>
       /* Modernizr 2.7.1 (Custom Build) | MIT & BSD
        * Build: http://modernizr.com/download/#-csstransforms3d-svg-touch-cssclasses-teststyles-testprop-testallprops-prefixes-domprefixes
@@ -179,19 +176,19 @@
 
                 <div class="menu-item tutorial">
                   <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    <a href="/tutorial" class="internal" data-title="Blog">Tutorial</a>
+                    <a href="/tutorial" class="internal">Tutorial</a>
                   </div>
                 </div>
 
                 <div class="menu-item annotated-source">
                   <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    <a href="/annotated-source" class="internal" data-title="Blog">Annotated Source</a>
+                    <a href="/annotated-source" class="internal">Annotated Source</a>
                   </div>
                 </div>
 
-                <div class="aside menu-item about" data-bind="style: { height: headerContentHeight }">
+                <div class="aside menu-item build-info" data-bind="style: { height: headerContentHeight }">
                   <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    <a href="/about" class="internal" data-id="about" data-title="About">about</a>
+                    <a href="/build-info" class="internal" data-id="build-info" title="Build Information"></a>
                   </div>
                 </div>
 
@@ -269,13 +266,11 @@
         <pane></pane>
 
         <div class="main-pane has-layout-trans" data-bind="css: { configVisible: configVisible }, style: { marginLeft: mainContentOffset }">
-          <div class="stop-binding" data-bind="stopBinding: true">
-            <main class="js-main">
-              <div class="content">
-                Loading, please wait...
-              </div>
-            </main>
-          </div> <!-- /stopBinding -->
+          <main class="js-main">
+            <div class="content">
+              Loading, please wait...
+            </div>
+          </main>
           <div id="collapse-button" class="has-layout-trans js-only"
                data-bind="click: togglePaneCollapse,
                           style: { top: topOffset, left: leftOffset }, transition: paneTransition, transform: transform">
@@ -436,6 +431,7 @@
     </viewModel>
 
     <script src="scripts/require.js" data-main="scripts/app/main"></script>
+    <script>document.querySelector('.build-info a').innerHTML = 'v' + footworkBuild.version</script>
     <![endif]-->
   </body>
 </html>

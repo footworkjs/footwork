@@ -2,14 +2,6 @@
   "name": "footwork.js-docs",
   "description": "Documentation for footwork.js.",
   "author": "Jonathan Newman (http://staticty.pe)",
-  "contributors": [
-    {
-      "name": "Jonathan Newman",
-      "email": "jonathan@staticty.pe",
-      "url": "http://staticty.pe"
-    }
-  ],
-  "version": "0.2.0",
   "homepage": "http://footworkjs.com",
   "licenses": [
     {

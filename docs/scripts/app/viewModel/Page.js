@@ -7,8 +7,12 @@ define([ "jquery", "lodash", "footwork", "history" ],
         var pageSectionNamespace = ko.namespace('PageSection');
 
         this.url( document.URL );
-        if( metaData ) {
-          this.loadMeta( metaData );
+        if( !_.isUndefined(metaData) ) {
+          if( _.isFunction(metaData) ) {
+            this.loadMeta(metaData());
+          } else if( _.isObject(metaData) ) {
+            this.loadMeta(metaData);
+          }
 
           if( metaData.sections !== undefined && metaData.sections.length && location.hash.length ) {
             pageSectionNamespace.publish( 'scrollToSection', location.hash.slice( location.hash.indexOf('#') + 1 ) );
@@ -21,7 +25,7 @@ define([ "jquery", "lodash", "footwork", "history" ],
         var paneElementsNamespace = ko.namespace('PaneElements');
         var $mainContent = $('.js-main');
 
-        this.defaultTitle = ko.observable('v' + window.footworkVersion);
+        // this.defaultTitle = ko.observable('v' + window.footworkBuild.version);
 
         this.transitionsEnabled = ko.observable(false).receiveFrom('ViewPort', 'transitionsEnabled');
         this.scrollPosition = ko.observable().receiveFrom('ViewPort', 'scrollPosition');
@@ -47,8 +51,6 @@ define([ "jquery", "lodash", "footwork", "history" ],
         }).broadcastAs('url');
         this.baseURL = ko.observable().broadcastAs('baseURL');
         this.hashURL = ko.observable().broadcastAs('hashURL', true);
-        this.title = ko.observable( this.defaultTitle() ).broadcastAs('title');
-        this.shortTitle = ko.observable( this.defaultTitle() ).broadcastAs('shortTitle');
         this.loading = ko.observable().broadcastAs('loading');
 
         History.Adapter.bind( window, 'statechange', this.loadState = function(state) {
@@ -97,8 +99,6 @@ define([ "jquery", "lodash", "footwork", "history" ],
           if( metaData !== undefined ) {
             pageSectionsNamespace.publish( 'loadMetaData', metaData );
             pageMetaData = metaData;
-            this.title( metaData.title + ' - ' + this.defaultTitle() );
-            this.shortTitle( metaData.title || this.defaultTitle() );
           }
         }.bind(this);
 
@@ -116,7 +116,7 @@ define([ "jquery", "lodash", "footwork", "history" ],
               this.paneCollapsed(true);
             }
 
-            History.pushState( null, (title && (title + ' - ' + this.defaultTitle())) || this.defaultTitle(), url );
+            History.pushState( null, title || document.title, url );
           } else {
             window.location = url;
             return false;

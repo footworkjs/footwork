@@ -1,4 +1,5 @@
 define([ "footwork",
+    "app/viewModel/Contributors", "text!app/template/contributors.html",
     "app/viewModel/config/Configuration", "text!app/template/config/configuration.html",
     "app/viewModel/config/ConfigManagement", "text!app/template/config/configmanagement.html",
     "app/viewModel/config/LayoutControl", "text!app/template/config/layoutcontrol.html",
@@ -13,11 +14,14 @@ define([ "footwork",
     "app/viewModel/Header",
     "app/viewModel/Navigation",
     "app/viewModel/Footer",
+    "app/viewModel/BuildInfo",
 
     "text!../pages/index.html",
+    "text!../pages/build-info.html",
     "text!../pages/viewModel.html"
   ],
   function( ko,
+    contributorsViewModel, contributorsTemplate,
     configurationViewModel, configurationTemplate,
     configManagementViewModel, configManagementTemplate,
     layoutControlViewModel, layoutControlTemplate,
@@ -32,16 +36,27 @@ define([ "footwork",
     HeaderViewModel,
     NavigationViewModel,
     FooterViewModel,
+    BuildInfoViewModel,
 
     indexPage,
+    buildInfoPage,
     viewModelPage
   ) {
     return function resourceHelper() {
+
+      define('text!/', [], function() {
+        return indexPage;
+      });
+      define('text!/build-info', [], function() {
+        return buildInfoPage;
+      });
       define('text!/api/viewModel', [], function() {
         return viewModelPage;
       });
-      define('text!/', [], function() {
-        return indexPage;
+
+      ko.components.register('contributors', {
+        viewModel: contributorsViewModel,
+        template: contributorsTemplate
       });
 
       ko.components.register('configuration', {
@@ -102,6 +117,7 @@ define([ "footwork",
       ko.viewModels.register('Header', HeaderViewModel);
       ko.viewModels.register('Navigation', NavigationViewModel);
       ko.viewModels.register('Footer', FooterViewModel);
+      ko.viewModels.register('BuildInfo', BuildInfoViewModel);
     };
   }
 );
