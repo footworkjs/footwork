@@ -199,11 +199,14 @@ gulp.task('transformDocIndex', function(callback) {
 gulp.task('removeDocIndexHTML', function() {
   return gulp.src('docs/index.html', { read: false }).pipe(rimraf());
 });
+gulp.task('removeDocTemplateHTML', function() {
+  return gulp.src('docs/pages/*.html', { read: false }).pipe(rimraf());
+});
 gulp.task('changeDocTemplateExt', function() {
   return gulp.src('docs/pages/*.html')
     .pipe(extReplace('.php'))
     .pipe(gulp.dest('docs/pages'))
 });
 gulp.task('readyDocServ', function(callback) {
-  runSequence('transformDocIndex', 'removeDocIndexHTML', 'changeDocTemplateExt');
+  runSequence('transformDocIndex', 'removeDocIndexHTML', 'changeDocTemplateExt', 'removeDocTemplateHTML');
 });
