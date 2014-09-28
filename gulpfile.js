@@ -12,6 +12,7 @@ var docco = require('gulp-docco');
 var merge = require('merge-stream');
 var ignore = require('gulp-ignore');
 var rimraf = require('gulp-rimraf');
+var moment = require('moment');
 var _ = require('lodash');
 var runSequence = require('run-sequence');
 var fs = require('fs');
@@ -164,6 +165,8 @@ gulp.task('doc_js_build_info', function() {
   return gulp.src('docs/templates/build-info.js')
     .pipe( replace('FOOTWORK_VERSION', pkg.version, 'g') )
     .pipe( replace('FOOTWORK_STATEMENT', statement, 'g') )
+    .pipe( replace('FOOTWORK_BUILD_TIMESTAMP', moment().format(), 'g') )
+    .pipe( replace('FOOTWORK_CONTRIBUTORS', JSON.stringify(pkg.contributors), 'g') )
     .pipe(gulp.dest('./docs'));
 });
 

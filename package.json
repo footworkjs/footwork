@@ -6,7 +6,16 @@
     {
       "name": "Jonathan Newman",
       "email": "jonathan@staticty.pe",
-      "url": "http://staticty.pe"
+      "urls": [
+        { "url": "https://github.com/reflectiveSingleton" },
+        { "url": "http://staticty.pe" }
+      ]
+    }, {
+      "name": "Travis Miller",
+      "email": "travis@travisamiller.com",
+      "urls": [
+        { "url": "http://travisamiller.com" }
+      ]
     }
   ],
   "version": "0.2.0",
@@ -30,6 +39,7 @@
     "merge-stream": "~0.1.1",
     "lodash": "~2.4.1",
     "run-sequence": "*",
+    "moment": "*",
     "gulp-ignore": "~1.1.0",
     "gulp-rimraf": "~0.1.0",
     "gulp-docco": "*",
