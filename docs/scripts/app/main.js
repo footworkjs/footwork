@@ -1,5 +1,5 @@
 require.config({
-  baseUrl: "/docs/scripts",
+  baseUrl: "/scripts",
   map: {
     "*": {
       "jquery": "noconflict-jquery"
@@ -9,16 +9,16 @@ require.config({
     }
   },
   paths: {
-    "jquery":            "../components/jquery/dist/jquery",
-    "postal":            "../components/postal.js/lib/postal",
-    "conduitjs":         "../components/conduitjs/lib/conduit",
-    "knockout":          "../components/knockoutjs/dist/knockout.debug",
-    "footwork":          "../components/footwork/dist/footwork-bare",
-    "storage":           "../components/store-js/store",
-    "lodash":            "../components/lodash/dist/lodash.underscore",
-    "history":           "../components/history.js/scripts/bundled/html5/native.history",
-    "jquery.touchy":     "../components/touchy/jquery.touchy",
-    "jquery.spectrum":   "../components/spectrum/spectrum",
+    "jquery":            "../bower_components/jquery/dist/jquery",
+    "postal":            "../bower_components/postal.js/lib/postal",
+    "conduitjs":         "../bower_components/conduitjs/lib/conduit",
+    "knockout":          "../bower_components/knockoutjs/dist/knockout.debug",
+    "footwork":          "../bower_components/footwork/dist/footwork-bare",
+    "storage":           "../bower_components/store-js/store",
+    "lodash":            "../bower_components/lodash/dist/lodash.underscore",
+    "history":           "../bower_components/history.js/scripts/bundled/html5/native.history",
+    "jquery.touchy":     "../bower_components/touchy/jquery.touchy",
+    "jquery.spectrum":   "../bower_components/spectrum/spectrum",
     "jwerty":            "lib/jwerty", // jwerty does not provide an AMD build, this is a custom wrapped version
     "jquery.pulse":      "lib/jquery-plugins/jquery.pulse",
     "jquery.mousewheel": "lib/jquery-plugins/jquery.mousewheel",

@@ -1,0 +1,40 @@
+<article id="js-page" class="page-build-info" data-name="Build Info">
+  <a id="buildInfo" class="section-anchor"></a>
+  <section name="buildInfo">
+    <div class="highlight"></div>
+    <viewModel module="BuildInfo">
+      <header>
+        <span class="sub title">Build Info - footwork v<span data-bind="text: version"></span></span>
+      </header>
+
+      <div data-bind="text: statement"></div>
+
+      <div class="content">
+        <div class="row">
+          <label>Version:</label>
+          <div class="content" data-bind="text: version"></div>
+        </div>
+        <div class="row">
+          <label>Build Timestamp:</label>
+          <div class="content" data-bind="text: timestamp"></div>
+        </div>
+
+        <contributors></contributors>
+      </div>
+    </viewModel>
+  </section>
+</article>
+
+<script>
+  require(['footwork'], function(fw) {
+    var pageContainer = document.getElementById('js-page');
+
+    fw.applyBindings(undefined, pageContainer);
+    window._pageMeta = function() {
+      return { title: pageContainer.getAttribute('data-name'),
+               description: 'Footwork.js v' + footworkBuild.version
+             };
+    };
+    window._initMeta && window._initMeta( window._pageMeta() );
+  });
+</script>
