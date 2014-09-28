@@ -107,14 +107,12 @@
 
   .page-logo {
     .clearblock;
+    display: none;
+    position: relative;
     width: 100%;
     height: @pane-links-height;
-    background-color: @pane-bg-color;
     /*.logo-color(@body-bg-color, @pane-bg-color, @body-bg-color);*/
-    display: none;
     .box-sizing(border-box);
-    border-bottom: 1px solid darken(@pane-bg-color, 10%);
-    position: relative;
 
     a {
       display: block;
@@ -123,7 +121,7 @@
       height: 30px;
       top: 50%;
       right: 0;
-      margin: -(@default-logo-height/2) (@accent-padding + 10px) 0 0;
+      margin: -(@pane-links-height/2) (@accent-padding + 10px) 0 0;
     }
 
     svg, img {
