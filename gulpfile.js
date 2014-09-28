@@ -140,17 +140,16 @@ gulp.task('readyRelease', function(callback) {
   runSequence('set_version', 'build-everything', 'docs', callback);
 });
 gulp.task('docs', function(callback) {
-  runSequence('docs_clean', 'doc_js', 'doc_index', callback);
+  runSequence('docs_clean', 'doc_source_annotation', 'doc_js_build_info', callback);
 });
 
 gulp.task('docs_clean', function() {
   return merge(
-    gulp.src('./docs/*.html', { read: false }).pipe(rimraf()),
-    gulp.src('./docs/pages/*', { read: false }).pipe(rimraf())
+    gulp.src('./docs/pages/annotated-source.html', { read: false }).pipe(rimraf())
   );
 });
 
-gulp.task('doc_js', function() {
+gulp.task('doc_source_annotation', function() {
   return gulp.src('dist/footwork-raw.js')
     .pipe(docco({
       // layout: 'parallel'
@@ -161,8 +160,8 @@ gulp.task('doc_js', function() {
     .pipe(gulp.dest('docs/pages'));
 });
 
-gulp.task('doc_index', function() {
-  return gulp.src('docs/templates/index.html')
+gulp.task('doc_js_build_info', function() {
+  return gulp.src('docs/templates/build-info.js')
     .pipe( replace('FOOTWORK_VERSION', pkg.version, 'g') )
     .pipe( replace('FOOTWORK_STATEMENT', statement, 'g') )
     .pipe(gulp.dest('./docs'));
