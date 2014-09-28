@@ -1,5 +1,4 @@
 node_modules
 bower_components
-docs/pages
-docs/components
+docs/bower_components
 docs/scripts/build
