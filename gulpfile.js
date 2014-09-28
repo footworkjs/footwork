@@ -192,7 +192,7 @@ gulp.task('set_version', function() {
 // tasks used to setup documentation page on server after new release
 gulp.task('transformDocIndex', function(callback) {
   return gulp.src('docs/index.html')
-    .pipe( replace('%LOADING%', '<?php App::loadView( isset( $bodyView ) ? $bodyView : DEFAULT_BODY_VIEW ); ?>', 'g') )
+    .pipe( replace('<!--FOOTWORK_CONTENT-->', '<?php App::loadView( isset( $bodyView ) ? $bodyView : DEFAULT_BODY_VIEW ); ?>') )
     .pipe(rename('index.php'))
     .pipe(gulp.dest('docs'));
 });
@@ -205,7 +205,7 @@ gulp.task('removeDocTemplateHTML', function() {
 gulp.task('changeDocTemplateExt', function() {
   return gulp.src('docs/pages/*.html')
     .pipe(extReplace('.php'))
-    .pipe(gulp.dest('docs/pages'))
+    .pipe(gulp.dest('docs/pages'));
 });
 gulp.task('readyDocServ', function(callback) {
   runSequence('transformDocIndex', 'removeDocIndexHTML', 'changeDocTemplateExt', 'removeDocTemplateHTML');
