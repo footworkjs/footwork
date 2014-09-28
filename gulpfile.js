@@ -140,6 +140,14 @@ gulp.task('build_raw', ['build_prep'], function() {
 gulp.task('readyRelease', function(callback) {
   runSequence('set_version', 'build-everything', 'docs', callback);
 });
+
+gulp.task('readyDocServ', function(callback) {
+  return gulp.src('docs/index.html')
+    .pipe( replace('%LOADING%', '<?php App::loadView( isset( $bodyView ) ? $bodyView : DEFAULT_BODY_VIEW ); ?>', 'g') )
+    .pipe(rename('index.php'))
+    .pipe(gulp.dest('docs'));
+});
+
 gulp.task('docs', function(callback) {
   runSequence('docs_clean', 'doc_source_annotation', 'doc_js_build_info', callback);
 });
