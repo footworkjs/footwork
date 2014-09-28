@@ -141,11 +141,17 @@ gulp.task('readyRelease', function(callback) {
   runSequence('set_version', 'build-everything', 'docs', callback);
 });
 
-gulp.task('readyDocServ', function(callback) {
+gulp.task('transformDocIndex', function(callback) {
   return gulp.src('docs/index.html')
     .pipe( replace('%LOADING%', '<?php App::loadView( isset( $bodyView ) ? $bodyView : DEFAULT_BODY_VIEW ); ?>', 'g') )
     .pipe(rename('index.php'))
     .pipe(gulp.dest('docs'));
+});
+gulp.task('removeDocIndexHTML', function() {
+  return gulp.src('docs/index.html', { read: false }).pipe(rimraf())
+});
+gulp.task('readyDocServ', function(callback) {
+  runSequence('transformDocIndex', 'removeDocIndexHTML');
 });
 
 gulp.task('docs', function(callback) {
