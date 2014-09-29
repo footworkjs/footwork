@@ -17,7 +17,7 @@ define([ "footwork",
     "app/viewModel/BuildInfo",
 
     "text!../pages/index.html",
-    "text!../pages/build-info.html",
+    "text!../pages/build.html",
     "text!../pages/viewModel.html"
   ],
   function( ko,

@@ -26,15 +26,16 @@
 </article>
 
 <script>
-  require(['footwork'], function(fw) {
-    var pageContainer = document.getElementById('js-page');
-
-    fw.applyBindings(undefined, pageContainer);
     window._pageMeta = function() {
+      require(['footwork'], function(fw) {
+        var pageContainer = document.getElementById('js-page');
+
+        fw.applyBindings(undefined, pageContainer);
+        window._initMeta && window._initMeta( window._pageMeta() );
+      });
+      
       return { title: pageContainer.getAttribute('data-name'),
                description: 'Footwork.js v' + footworkBuild.version
              };
     };
-    window._initMeta && window._initMeta( window._pageMeta() );
-  });
 </script>
