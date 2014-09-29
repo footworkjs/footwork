@@ -208,5 +208,5 @@ gulp.task('changeDocTemplateExt', function() {
     .pipe(gulp.dest('docs/pages'));
 });
 gulp.task('readyDocServ', function(callback) {
-  runSequence('transformDocIndex', 'removeDocIndexHTML', 'changeDocTemplateExt', 'removeDocTemplateHTML');
+  runSequence('transformDocIndex', 'removeDocIndexHTML', 'changeDocTemplateExt');
 });
