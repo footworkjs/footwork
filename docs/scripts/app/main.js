@@ -12,7 +12,7 @@ require.config({
     "jquery":            "../bower_components/jquery/dist/jquery",
     "postal":            "../bower_components/postal.js/lib/postal",
     "conduitjs":         "../bower_components/conduitjs/lib/conduit",
-    "knockout":          "../bower_components/knockoutjs/dist/knockout.debug",
+    "knockout":          "../bower_components/knockoutjs/dist/knockout",
     "footwork":          "../bower_components/footwork/dist/footwork-bare",
     "storage":           "../bower_components/store-js/store",
     "lodash":            "../bower_components/lodash/dist/lodash.underscore",
@@ -78,6 +78,9 @@ require([
     var refreshDocSize;
 
     window.ko = ko;
+    window._initMeta = function( metaData ) {
+      pageNamespace.publish( 'initMeta', metaData );
+    };
 
     (new ViewPort());
     (new Page());
@@ -111,10 +114,6 @@ require([
     globalNamespace.subscribe( 'disableControl', function( controlHandler ) {
       $window.unbind( 'mousemove', controlHandler );
     });
-
-    window._initMeta = function( metaData ) {
-      pageNamespace.publish( 'initMeta', metaData );
-    };
 
     _.each({
       'alt+r': function() { viewPortLayoutMode() !== 'mobile' && configurationNamespace.publish('reset'); },

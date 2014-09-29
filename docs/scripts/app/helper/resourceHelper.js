@@ -16,9 +16,9 @@ define([ "footwork",
     "app/viewModel/Footer",
     "app/viewModel/BuildInfo",
 
-    "text!../pages/index.html",
-    "text!../pages/build.html",
-    "text!../pages/viewModel.html"
+    "text!../../pages/index.html",
+    "text!../../pages/build.html",
+    "text!../../pages/viewModel.html"
   ],
   function( ko,
     contributorsViewModel, contributorsTemplate,

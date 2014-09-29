@@ -3,22 +3,15 @@ define([ "jquery", "lodash", "footwork", "history" ],
     return ko.viewModel({
       namespace: 'Page',
       afterInit: function() {
-        var metaData = window._pageMeta;
         var pageSectionNamespace = ko.namespace('PageSection');
 
         this.url( document.URL );
-        if( !_.isUndefined(metaData) ) {
-          if( _.isFunction(metaData) ) {
-            this.loadMeta(metaData());
-          } else if( _.isObject(metaData) ) {
-            this.loadMeta(metaData);
-          }
+        var initPage = ( _.isObject(window._page) && _.isFunction(window._page.init) ? window._page.init : function() {} );
+        initPage();
 
-          if( metaData.sections !== undefined && metaData.sections.length && location.hash.length ) {
-            pageSectionNamespace.publish( 'scrollToSection', location.hash.slice( location.hash.indexOf('#') + 1 ) );
-          }
+        if( _.isNull(window.location.protocol.match('^http')) ) {
+          this.loadState('/');
         }
-        this.loadState('/');
       },
       initialize: function() {
         var pageSectionsNamespace = ko.namespace('PageSections');
@@ -57,7 +50,7 @@ define([ "jquery", "lodash", "footwork", "history" ],
           var url = ( _.isString(state) && state ) || window.location.pathname; //History.getState().url;
           this.url( url );
 
-          window._pageMeta = undefined;
+          window._page = undefined;
           var pagePromise = $.Deferred();
           
           require( ['text!' + url], function(templateContent) {
@@ -77,7 +70,9 @@ define([ "jquery", "lodash", "footwork", "history" ],
               if( this.scrollPosition() > maxScrollResetPos ) {
                 window.scrollTo( 0, maxScrollResetPos );
               }
-              this.loadMeta( window._pageMeta );
+
+              var initPage = ( _.isObject(window._page) && _.isFunction(window._page.init) ? window._page.init : function() {} );
+              initPage();
             }.bind(this))
             .fail(function(xhr) {
               $mainContent.html(xhr.responseText);
