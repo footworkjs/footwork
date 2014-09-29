@@ -7,14 +7,21 @@
       "name": "Jonathan Newman",
       "email": "jonathan@staticty.pe",
       "urls": [
-        { "url": "https://github.com/reflectiveSingleton" },
-        { "url": "http://staticty.pe" }
+        {
+          "url": "https://github.com/reflectiveSingleton"
+        },
+        {
+          "url": "http://staticty.pe"
+        }
       ]
-    }, {
+    },
+    {
       "name": "Travis Miller",
       "email": "travis@travisamiller.com",
       "urls": [
-        { "url": "http://travisamiller.com" }
+        {
+          "url": "http://travisamiller.com"
+        }
       ]
     }
   ],
