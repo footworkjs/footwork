@@ -47,7 +47,7 @@ define([ "footwork",
       define('text!/', [], function() {
         return indexPage;
       });
-      define('text!/build-info', [], function() {
+      define('text!/build', [], function() {
         return buildInfoPage;
       });
       define('text!/api/viewModel', [], function() {
