@@ -139,7 +139,7 @@ gulp.task('build_raw', ['build_prep'], function() {
 
 // Documentation / release oriented tasks
 gulp.task('readyRelease', function(callback) {
-  runSequence('set_version', 'generateBuildInfo', 'build-everything', 'docs', callback);
+  runSequence('set_version', 'build-everything', 'docs', callback);
 });
 
 gulp.task('docs', function(callback) {

@@ -1,5 +1,5 @@
 /**
- * footwork.js - A solid footing for knockout applications.
+ * footwork.js - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
  * Version: v0.2.0-all
  * Url: http://footworkjs.com
