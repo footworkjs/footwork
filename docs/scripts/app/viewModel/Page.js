@@ -1,17 +1,29 @@
 define([ "jquery", "lodash", "footwork", "history" ],
   function( $, _, ko ) {
+    var $pageNamespace = ko.namespace('Page');
+
+    function noop() {};
+    function initPage() {
+      $pageNamespace.publish( 'initMeta', window._page.meta );
+      ko.applyBindings((window._page.init || noop)(), document.getElementById('js-page'));
+    }
+
     return ko.viewModel({
       namespace: 'Page',
       afterInit: function() {
         var pageSectionNamespace = ko.namespace('PageSection');
 
         this.url( document.URL );
-        var initPage = ( _.isObject(window._page) && _.isFunction(window._page.init) ? window._page.init : function() {} );
-        initPage();
 
         if( _.isNull(window.location.protocol.match('^http')) ) {
           this.loadState('/');
         }
+        
+        if( location.hash.length ) {
+          pageSectionNamespace.publish( 'scrollToSection', location.hash.slice( location.hash.indexOf('#') + 1 ) );
+        }
+
+        _.isObject(window._page) && initPage();
       },
       initialize: function() {
         var pageSectionsNamespace = ko.namespace('PageSections');
@@ -71,8 +83,7 @@ define([ "jquery", "lodash", "footwork", "history" ],
                 window.scrollTo( 0, maxScrollResetPos );
               }
 
-              var initPage = ( _.isObject(window._page) && _.isFunction(window._page.init) ? window._page.init : function() {} );
-              initPage();
+              _.isObject(window._page) && initPage();
             }.bind(this))
             .fail(function(xhr) {
               $mainContent.html(xhr.responseText);

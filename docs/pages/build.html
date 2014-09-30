@@ -26,22 +26,10 @@
 </article>
 
 <script>
-  (function() {
-    var pageContainer = document.getElementById('js-page');
-    window._page = {
-      initialized: false,
-      meta: {
-       title: pageContainer.getAttribute('data-name'),
-        description: 'Footwork.js v' + footworkBuild.version
-      },
-      init: function() {
-        window._page.initialized = true;
-        window._initMeta( window._page.meta );
-        require(['footwork'], function(fw) {
-          fw.applyBindings(undefined, pageContainer);
-        });
-        console.info('initialized');
-      }
-    };
-  })();
+  window._page = {
+    meta: {
+     title: pageContainer.getAttribute('data-name'),
+      description: 'Footwork.js v' + footworkBuild.version
+    }
+  };
 </script>

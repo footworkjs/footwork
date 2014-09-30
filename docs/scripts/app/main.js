@@ -78,9 +78,6 @@ require([
     var refreshDocSize;
 
     window.ko = ko;
-    window._initMeta = function( metaData ) {
-      pageNamespace.publish( 'initMeta', metaData );
-    };
 
     (new ViewPort());
     (new Page());

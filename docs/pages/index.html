@@ -91,8 +91,10 @@
 </article>
 
 <script>
-  window._pageMeta = { title: document.getElementById('js-page').getAttribute('data-name'),
-                       description: 'Footwork.js v' + footworkBuild.version
-                     };
-  window._initMeta && window._initMeta( window._pageMeta );
+  window._page = {
+    meta: {
+      title: document.getElementById('js-page').getAttribute('data-name'),
+      description: 'Footwork.js v' + footworkBuild.version
+    }
+  };
 </script>

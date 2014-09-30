@@ -20,7 +20,7 @@ var extReplace = require('gulp-ext-replace');
 
 var pkg = require('./package.json');
 var reporter = 'list';
-var statement = 'A solid footing for knockout applications.';
+var statement = 'A solid footing for web applications.';
 var args   = require('yargs').argv;
 var annotatedPageMetaData = fs.readFileSync('docs/templates/annotated-metadata.html','utf8').replace('FOOTWORK_VERSION', pkg.version, 'g');
 
@@ -139,11 +139,11 @@ gulp.task('build_raw', ['build_prep'], function() {
 
 // Documentation / release oriented tasks
 gulp.task('readyRelease', function(callback) {
-  runSequence('set_version', 'build-everything', 'docs', callback);
+  runSequence('set_version', 'generateBuildInfo', 'build-everything', 'docs', callback);
 });
 
 gulp.task('docs', function(callback) {
-  runSequence('docs_clean', 'doc_source_annotation', 'doc_js_build_info', callback);
+  runSequence('docs_clean', 'doc_source_annotation', 'build_info', callback);
 });
 
 gulp.task('docs_clean', function() {
@@ -163,7 +163,7 @@ gulp.task('doc_source_annotation', function() {
     .pipe(gulp.dest('docs/pages'));
 });
 
-gulp.task('doc_js_build_info', function() {
+gulp.task('build_info', function() {
   return gulp.src('docs/templates/build-info.js')
     .pipe( replace('FOOTWORK_VERSION', pkg.version, 'g') )
     .pipe( replace('FOOTWORK_STATEMENT', statement, 'g') )

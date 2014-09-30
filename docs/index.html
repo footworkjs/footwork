@@ -266,11 +266,13 @@
         <pane></pane>
 
         <div class="main-pane has-layout-trans" data-bind="css: { configVisible: configVisible }, style: { marginLeft: mainContentOffset }">
-          <main class="js-main">
-            <div class="content">
-              <!--FOOTWORK_CONTENT-->
-            </div>
-          </main>
+          <div class="stop-binding" data-bind="stopBinding: true">
+            <main class="js-main">
+              <div class="content">
+                <!--FOOTWORK_CONTENT-->
+              </div>
+            </main>
+          </div>
           <div id="collapse-button" class="has-layout-trans js-only"
                data-bind="click: togglePaneCollapse,
                           style: { top: topOffset, left: leftOffset }, transition: paneTransition, transform: transform">
