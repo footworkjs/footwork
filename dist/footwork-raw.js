@@ -8,7 +8,7 @@
 // http://footworkjs.com
 
 /**
- * footwork.js - A solid footing for knockout applications.
+ * footwork.js - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
  * Version: v0.2.0
  * Url: http://footworkjs.com
