@@ -13,7 +13,7 @@
       create: true }
   ],
   optimize: "uglify2",
-  generateSourceMaps: true,
+  generateSourceMaps: false,
   map: {
     "*": {
       "jquery": "noconflict-jquery"
