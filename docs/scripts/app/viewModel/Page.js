@@ -1,6 +1,7 @@
 define([ "jquery", "lodash", "footwork", "history" ],
   function( $, _, ko ) {
     var $pageNamespace = ko.namespace('Page');
+    var isRunningLocally = _.isNull(window.location.protocol.match('^http'));
 
     function noop() {};
     function initPage() {
@@ -15,7 +16,7 @@ define([ "jquery", "lodash", "footwork", "history" ],
 
         this.url( document.URL );
 
-        if( _.isNull(window.location.protocol.match('^http')) ) {
+        if( isRunningLocally ) {
           this.loadState('/');
         }
         
@@ -122,7 +123,11 @@ define([ "jquery", "lodash", "footwork", "history" ],
               this.paneCollapsed(true);
             }
 
-            History.pushState( null, title || document.title, url );
+            if( isRunningLocally ) {
+              this.loadState(url);
+            } else {
+              History.pushState( null, title || document.title, url );
+            }
           } else {
             window.location = url;
             return false;
