@@ -8,7 +8,7 @@ define([ "footwork", "lodash" ],
         this.headerClosed = ko.observable().receiveFrom('Header', 'closed');
         this.columnWidth = ko.observable(0).receiveFrom('Pane', 'columnWidth');
         this.bodyHeight = ko.observable(0).receiveFrom('Body', 'height');
-        this.viewPortIsMobile = ko.observable().receiveFrom('ViewPort', 'isMobile');
+        this.viewPortIsMobile = ko.observable().receiveFrom('Configuration', 'isMobile');
         this.viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
         this.viewPortNoTransitions = ko.observable().receiveFrom('ViewPort', 'noTransitions');
         this.paneCollapsed = ko.observable().receiveFrom('Configuration', 'paneCollapsed');

@@ -16,6 +16,7 @@ define([ "jquery", "lodash", "footwork" ],
         this.paneCollapsed = ko.observable().receiveFrom('Configuration', 'paneCollapsed');
         this.configIsMobile = ko.observable().receiveFrom('Configuration', 'isMobile');
         this.visible = ko.observable(false).receiveFrom('Configuration', 'visible');
+        this.mobileWidthCutoff = ko.observable(0).receiveFrom('Configuration', 'mobileWidthCutoff');
         this.headerHeight = ko.observable().receiveFrom('Header', 'height');
         this.headerMinHeight = ko.observable().receiveFrom('Header', 'minHeight');
 
@@ -31,7 +32,9 @@ define([ "jquery", "lodash", "footwork" ],
           }.bind( this )
         }).broadcastAs('dimensions', true);
         this.isTablet = ko.observable( window.isTablet ).broadcastAs('isTablet', true);
-        this.isMobile = this.configIsMobile.broadcastAs('isMobile', true);
+        this.isMobile = ko.computed(function() {
+          return this.configIsMobile() || (this.dimensions().width || 9000) < this.mobileWidthCutoff();
+        }, this);
         this.noTransitions = ko.observable(false).broadcastAs('noTransitions', true);
         this.closedOffset = ko.computed(function() {
           return this.dimensions().width - ( parseInt(this.paneAccentPadding(), 10) * 2 );
@@ -59,7 +62,7 @@ define([ "jquery", "lodash", "footwork" ],
         }, this);
 
         this.isSmall = ko.computed(function() {
-          if( this.dimensions().width !== null ) {
+          if( _.isNull(this.dimensions().width) === false ) {
             return this.dimensions().width <= 768;
           }
           return null;

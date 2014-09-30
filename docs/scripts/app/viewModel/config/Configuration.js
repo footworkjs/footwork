@@ -75,6 +75,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
           return ( this.visible() && ( !this.headerFixed() || this.scrollPosition() === 0 ) );
         }, this ).broadcastAs('heightMutable');
         this.isMobile = ko.observable( storage.get('viewPortIsMobile') || window.isMobile ).broadcastAs('isMobile', true);
+        this.mobileWidthCutoff = ko.observable(495).broadcastAs('mobileWidthCutoff');
         this.defaultHeaderMaxHeight = ko.computed(function() {
           return defaultConfig().header.max.height;
         }, this ).broadcastAs('defaultHeaderMaxHeight');

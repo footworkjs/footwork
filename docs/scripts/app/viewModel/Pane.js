@@ -26,7 +26,12 @@ define([ "footwork", "lodash" ],
         this.maxWidth = ko.computed(function() {
           var viewPortDim = this.viewPortDim();
           if( viewPortDim !== undefined && viewPortDim.width !== undefined ) {
-            return Math.floor( viewPortDim.width / 2.66 );
+            var computedWidth = Math.floor( viewPortDim.width / 2.66 );
+            var logoBasedWidth = 9000;
+            if( this.viewPortSmall() ) {
+              logoBasedWidth = this.logoWidth() + 10;
+            }
+            return (computedWidth < logoBasedWidth ? computedWidth : logoBasedWidth);
           }
           return 0;
         }, this).broadcastAs('maxWidth');

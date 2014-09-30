@@ -52,11 +52,19 @@
 }
 
 @media screen and (max-width: 600px) {
-  nav {
-    .menu-item {
-      margin-left: 10px !important;
-      .title {
-        font-size: 12px;
+  body {
+    .main-header {
+      nav {
+        .menu-item {
+          margin-left: 0;
+
+          &.aside .title a {
+            padding-left: 0;
+          }
+          .title {
+            font-size: 12px;
+          }
+        }
       }
     }
   }
