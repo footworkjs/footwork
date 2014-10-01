@@ -16,6 +16,7 @@ define([ "footwork",
     "app/viewModel/Footer",
     "app/viewModel/BuildInfo",
 
+    "text!../../pages/404.html",
     "text!../../pages/index.html",
     "text!../../pages/build.html",
     "text!../../pages/viewModel.html"
@@ -38,21 +39,29 @@ define([ "footwork",
     FooterViewModel,
     BuildInfoViewModel,
 
+    _404Page,
     indexPage,
     buildInfoPage,
     viewModelPage
   ) {
     return function resourceHelper() {
+      var $resourceNamespace = ko.namespace('Resource');
 
-      define('text!/', [], function() {
-        return indexPage;
+      var pageResources = [];
+      var registerPage = function(pageResourcePath, resource) {
+        pageResources.push(pageResourcePath);
+        define.call(null, pageResourcePath, [], function() {
+          return resource;
+        });
+      };
+      $resourceNamespace.request.handler('isPageRegistered', function(templateName) {
+        return pageResources.indexOf(templateName) !== -1;
       });
-      define('text!/build', [], function() {
-        return buildInfoPage;
-      });
-      define('text!/api/viewModel', [], function() {
-        return viewModelPage;
-      });
+
+      registerPage('text!/404', _404Page );
+      registerPage('text!/', indexPage );
+      registerPage('text!/build', buildInfoPage );
+      registerPage('text!/api/viewModel', viewModelPage );
 
       ko.components.register('contributors', {
         viewModel: contributorsViewModel,

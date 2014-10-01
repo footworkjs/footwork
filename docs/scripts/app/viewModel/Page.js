@@ -30,6 +30,7 @@ define([ "jquery", "lodash", "footwork", "history" ],
         var pageSectionsNamespace = ko.namespace('PageSections');
         var paneElementsNamespace = ko.namespace('PaneElements');
         var $mainContent = $('.js-main');
+        this.$resourceNamespace = ko.namespace('Resource');
 
         // this.defaultTitle = ko.observable('v' + window.footworkBuild.version);
 
@@ -60,12 +61,16 @@ define([ "jquery", "lodash", "footwork", "history" ],
         this.loading = ko.observable().broadcastAs('loading');
 
         History.Adapter.bind( window, 'statechange', this.loadState = function(state) {
-          var url = ( _.isString(state) && state ) || window.location.pathname; //History.getState().url;
+          var url = ( _.isString(state) && state ) || window.location.pathname;
           this.url( url );
 
           window._page = undefined;
           var pagePromise = $.Deferred();
           
+          if( this.$resourceNamespace.request('isPageRegistered', 'text!' + url) !== true ) {
+            url = '/404';
+          }
+
           require( ['text!' + url], function(templateContent) {
             pagePromise.resolve(templateContent);
           }, function(response) {
