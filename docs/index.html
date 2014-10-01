@@ -188,7 +188,8 @@
 
                 <div class="aside menu-item build" data-bind="style: { height: headerContentHeight }">
                   <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    <a href="/build" class="internal" data-id="build" title="Build Information"></a>
+                    <releases></releases>
+                    <!-- <a href="/build" class="internal" data-id="build" title="Build Information"></a> -->
                   </div>
                 </div>
 
@@ -433,7 +434,6 @@
     </viewModel>
 
     <script src="scripts/build/main.js"></script>
-    <script>document.querySelector('.build a').innerHTML = 'v' + footworkBuild.version</script>
     <![endif]-->
   </body>
 </html>
