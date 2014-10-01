@@ -44,7 +44,7 @@ define([ "footwork",
 
     function registerPage(pageResourcePath, resource) {
       pageResources.push(pageResourcePath);
-      define.call(null, pageResourcePath, [], function() {
+      define(pageResourcePath, [], function() {
         return resource;
       });
     };
