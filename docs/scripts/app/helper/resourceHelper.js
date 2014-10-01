@@ -1,17 +1,13 @@
 define([ "footwork",
     "app/viewModel/Contributors", "text!app/template/contributors.html",
-    "text!app/template/widget/showversion.html",
+    "text!app/template/showversion.html",
     "app/viewModel/config/Configuration", "text!app/template/config/configuration.html",
-    "app/viewModel/config/ConfigManagement", "text!app/template/config/configmanagement.html",
     "app/viewModel/config/LayoutControl", "text!app/template/config/layoutcontrol.html",
     "app/viewModel/Pane", "text!app/template/pane.html",
     "app/viewModel/pane/PaneLinks", "text!app/template/pane/panelinks.html",
     "app/viewModel/pane/MainMenu", "text!app/template/pane/mainmenu.html",
     "app/viewModel/pane/PageSections", "text!app/template/pane/pagesections.html",
     "app/viewModel/pane/PaneBackground", "text!app/template/pane/panebackground.html",
-    "app/viewModel/pane/Reddit", "text!app/template/pane/reddit.html",
-    "app/viewModel/pane/Github", "text!app/template/pane/github.html",
-    "app/viewModel/pane/Twitter", "text!app/template/pane/twitter.html",
     "app/viewModel/Header",
     "app/viewModel/Navigation",
     "app/viewModel/Footer",
@@ -27,16 +23,12 @@ define([ "footwork",
     contributorsViewModel, contributorsTemplate,
     showVersionTemplate,
     configurationViewModel, configurationTemplate,
-    configManagementViewModel, configManagementTemplate,
     layoutControlViewModel, layoutControlTemplate,
     paneViewModel, paneTemplate,
     paneLinksViewModel, paneLinksTemplate,
     mainMenuViewModel, mainMenuTemplate,
     pageSectionsViewModel, pageSectionsTemplate,
     paneBackgroundViewModel, paneBackgroundTemplate,
-    redditViewModel, redditTemplate,
-    githubViewModel, githubTemplate,
-    twitterViewModel, twitterTemplate,
     HeaderViewModel,
     NavigationViewModel,
     FooterViewModel,
@@ -83,11 +75,6 @@ define([ "footwork",
         template: configurationTemplate
       });
 
-      ko.components.register('configmanagement', {
-        viewModel: configManagementViewModel,
-        template: configManagementTemplate
-      });
-
       ko.components.register('layoutcontrol', {
         viewModel: layoutControlViewModel,
         template: layoutControlTemplate
@@ -116,21 +103,6 @@ define([ "footwork",
       ko.components.register('panebackground', {
         viewModel: paneBackgroundViewModel,
         template: paneBackgroundTemplate
-      });
-
-      ko.components.register('reddit', {
-        viewModel: redditViewModel,
-        template: redditTemplate
-      });
-
-      ko.components.register('github', {
-        viewModel: githubViewModel,
-        template: githubTemplate
-      });
-
-      ko.components.register('twitter', {
-        viewModel: twitterViewModel,
-        template: twitterTemplate
       });
 
       ko.viewModels.register('Header', HeaderViewModel);

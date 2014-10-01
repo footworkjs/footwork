@@ -12,7 +12,7 @@
       include: ["requireLib", "app/main"],
       create: true }
   ],
-  optimize: "none",
+  optimize: "uglify2",
   generateSourceMaps: false,
   map: {
     "*": {
@@ -30,7 +30,7 @@
     "jquery":            "../bower_components/jquery/dist/jquery",
     "postal":            "../bower_components/postal.js/lib/postal",
     "conduitjs":         "../bower_components/conduitjs/lib/conduit",
-    "knockout":          "../bower_components/knockoutjs/dist/knockout.debug",
+    "knockout":          "../bower_components/knockoutjs/dist/knockout",
     "footwork":          "../../dist/footwork-bare",
     "storage":           "../bower_components/store-js/store",
     "lodash":            "../bower_components/lodash/dist/lodash.underscore",
