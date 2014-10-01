@@ -34,27 +34,27 @@ define([ "footwork",
     FooterViewModel,
     BuildInfoViewModel,
 
-    _404Page,
+    pageNotFound,
     indexPage,
     buildInfoPage,
     viewModelPage,
     annotatedPage
   ) {
-    return function resourceHelper() {
-      var $resourceNamespace = ko.namespace('Resource');
+    var pageResources = [];
 
-      var pageResources = [];
-      var registerPage = function(pageResourcePath, resource) {
-        pageResources.push(pageResourcePath);
-        define.call(null, pageResourcePath, [], function() {
-          return resource;
-        });
-      };
-      $resourceNamespace.request.handler('isPageRegistered', function(templateName) {
-        return pageResources.indexOf(templateName) !== -1;
+    function registerPage(pageResourcePath, resource) {
+      pageResources.push(pageResourcePath);
+      define.call(null, pageResourcePath, [], function() {
+        return resource;
       });
+    };
 
-      registerPage('text!/404', _404Page);
+    ko.namespace('Resource').request.handler('isPageRegistered', function(templateName) {
+      return pageResources.indexOf(templateName) !== -1;
+    });
+
+    return function resourceHelper() {
+      registerPage('text!/404', pageNotFound);
       registerPage('text!/', indexPage);
       registerPage('text!/build', buildInfoPage);
       registerPage('text!/annotated', annotatedPage);
