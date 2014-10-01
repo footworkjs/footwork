@@ -54,11 +54,11 @@ define([ "footwork",
     });
 
     return function resourceHelper() {
-      registerPage('text!/404', pageNotFound);
-      registerPage('text!/', indexPage);
-      registerPage('text!/build', buildInfoPage);
-      registerPage('text!/annotated', annotatedPage);
-      registerPage('text!/api/viewModel', viewModelPage);
+      registerPage('/404', pageNotFound);
+      registerPage('/', indexPage);
+      registerPage('/build', buildInfoPage);
+      registerPage('/annotated', annotatedPage);
+      registerPage('/api/viewModel', viewModelPage);
 
       ko.components.register('showversion', {
         viewModel: BuildInfoViewModel,

@@ -70,11 +70,11 @@ define([ "jquery", "lodash", "footwork", "history" ],
           window._page = undefined;
           var pagePromise = $.Deferred();
           
-          if( this.$resourceNamespace.request('isPageRegistered', 'text!' + url) !== true ) {
+          if( this.$resourceNamespace.request('isPageRegistered', url) !== true ) {
             url = '/404';
           }
 
-          require( ['text!' + url], function(templateContent) {
+          require( [url], function(templateContent) {
             pagePromise.resolve(templateContent);
           }, function(response) {
             pagePromise.reject(response.xhr);
