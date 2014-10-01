@@ -9,7 +9,6 @@
   "devDependencies": {
     "knockoutjs": "3.2.0",
     "lodash": "*",
-    "footwork": "https://github.com/reflectiveSingleton/footwork.git#08e1fa505573382a39165bf8291305e212c3a0a0",
     "touchy": "https://github.com/reflectiveSingleton/touchy.git#*",
     "spectrum": "https://github.com/reflectiveSingleton/spectrum.git#*",
     "riveter": "0.1.2",

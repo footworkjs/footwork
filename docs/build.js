@@ -31,7 +31,7 @@
     "postal":            "../bower_components/postal.js/lib/postal",
     "conduitjs":         "../bower_components/conduitjs/lib/conduit",
     "knockout":          "../bower_components/knockoutjs/dist/knockout",
-    "footwork":          "../bower_components/footwork/dist/footwork-bare",
+    "footwork":          "../../dist/footwork-bare",
     "storage":           "../bower_components/store-js/store",
     "lodash":            "../bower_components/lodash/dist/lodash.underscore",
     "history":           "../bower_components/history.js/scripts/bundled/html5/native.history",
