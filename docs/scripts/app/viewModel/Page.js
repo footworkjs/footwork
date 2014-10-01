@@ -6,7 +6,10 @@ define([ "jquery", "lodash", "footwork", "history" ],
     function noop() {};
     function initPage() {
       $pageNamespace.publish( 'initMeta', window._page.meta );
-      ko.applyBindings((window._page.init || noop)(), document.getElementById('js-page'));
+      var pageContainer = document.getElementById('js-page');
+      if( _.isNull(pageContainer) === false ) {
+        ko.applyBindings((window._page.init || noop)(), pageContainer);
+      }
     }
 
     return ko.viewModel({

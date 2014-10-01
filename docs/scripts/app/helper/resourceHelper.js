@@ -1,5 +1,6 @@
 define([ "footwork",
     "app/viewModel/Contributors", "text!app/template/contributors.html",
+    "text!app/template/widget/showversion.html",
     "app/viewModel/config/Configuration", "text!app/template/config/configuration.html",
     "app/viewModel/config/ConfigManagement", "text!app/template/config/configmanagement.html",
     "app/viewModel/config/LayoutControl", "text!app/template/config/layoutcontrol.html",
@@ -19,10 +20,12 @@ define([ "footwork",
     "text!../../pages/404.html",
     "text!../../pages/index.html",
     "text!../../pages/build.html",
-    "text!../../pages/viewModel.html"
+    "text!../../pages/viewModel.html",
+    "text!../../pages/annotated.html"
   ],
   function( ko,
     contributorsViewModel, contributorsTemplate,
+    showVersionTemplate,
     configurationViewModel, configurationTemplate,
     configManagementViewModel, configManagementTemplate,
     layoutControlViewModel, layoutControlTemplate,
@@ -42,7 +45,8 @@ define([ "footwork",
     _404Page,
     indexPage,
     buildInfoPage,
-    viewModelPage
+    viewModelPage,
+    annotatedPage
   ) {
     return function resourceHelper() {
       var $resourceNamespace = ko.namespace('Resource');
@@ -58,10 +62,16 @@ define([ "footwork",
         return pageResources.indexOf(templateName) !== -1;
       });
 
-      registerPage('text!/404', _404Page );
-      registerPage('text!/', indexPage );
-      registerPage('text!/build', buildInfoPage );
-      registerPage('text!/api/viewModel', viewModelPage );
+      registerPage('text!/404', _404Page);
+      registerPage('text!/', indexPage);
+      registerPage('text!/build', buildInfoPage);
+      registerPage('text!/annotated', annotatedPage);
+      registerPage('text!/api/viewModel', viewModelPage);
+
+      ko.components.register('showversion', {
+        viewModel: BuildInfoViewModel,
+        template: showVersionTemplate
+      });
 
       ko.components.register('contributors', {
         viewModel: contributorsViewModel,
