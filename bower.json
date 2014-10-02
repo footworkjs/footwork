@@ -35,16 +35,13 @@
     "knockoutjs": "3.2.0",
     "riveter": "0.1.2",
     "lodash": "2.4.1",
-    "postal.js": "0.10.0",
-    "conduitjs": "0.3.2",
-    "postal.preserve": "https://github.com/reflectiveSingleton/postal.preserve.git#ab559a6a06bafd2e6433b167cf0a6fa068186fc3",
+    "postal.js": "0.10.3",
+    "conduitjs": "0.3.3",
+    "postal.preserve": "https://github.com/reflectiveSingleton/postal.preserve.git#33e87592d28d0a0bbb58f74415b949135a1ff446",
     "history.js": "1.8.0",
     "requirejs": "*",
     "expect": "0.1.2",
     "mocha": "*",
     "jquery": ">=2.1.1"
-  },
-  "resolutions": {
-    "postal.js": "0.10.0"
   }
 }
