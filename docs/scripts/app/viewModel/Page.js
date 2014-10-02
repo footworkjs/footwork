@@ -1,7 +1,7 @@
 define([ "jquery", "lodash", "footwork", "history" ],
   function( $, _, ko ) {
     var $pageNamespace = ko.namespace('Page');
-    var isRunningLocally = _.isNull(window.location.protocol.match('^http'));
+    var isRunningLocally = ko.namespace().request('isRunningLocally');
 
     function noop() {};
     function initPage() {

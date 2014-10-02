@@ -76,6 +76,10 @@ require([
     var paneScrolling = ko.observable().receiveFrom('Pane', 'scrolling');
     var viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
     var refreshDocSize;
+    
+    globalNamespace.request.handler('isRunningLocally', function() {
+      return _.isNull(window.location.protocol.match('^http'));
+    });
 
     window.ko = ko;
 
