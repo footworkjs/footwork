@@ -20689,9 +20689,15 @@ define('text!app/template/showversion.html',[],function () { return '<span class
 
 define('app/viewModel/Releases',[ "jquery", "lodash", "footwork" ],
   function( $, _, ko ) {
-    var releaseAddressPostfix = '-docs.footworkjs.com';
+    var releaseAddressPostfix;
     var startsWithNumber = RegExp('^[0-9]+');
     var isRunningLocally = ko.namespace().request('isRunningLocally');
+
+    if(isRunningLocally) {
+      releaseAddressPostfix = '-docs.footworkjs.com';
+    } else {
+      releaseAddressPostfix = '-docs.' + window.location.hostname.match('(.+)-docs\.([0-9a-zA-Z\-\.]+)')[2];
+    }
 
     return ko.viewModel({
       namespace: 'Releases',
