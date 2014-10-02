@@ -16,7 +16,6 @@ var moment = require('moment');
 var _ = require('lodash');
 var runSequence = require('run-sequence');
 var fs = require('fs');
-var extReplace = require('gulp-ext-replace');
 
 var pkg = require('./package.json');
 var reporter = 'list';
@@ -190,23 +189,9 @@ gulp.task('set_version', function() {
 });
 
 // tasks used to setup documentation page on server after new release
-gulp.task('transformDocIndex', function(callback) {
+gulp.task('readyDocServ', function(callback) {
   return gulp.src('docs/index.html')
     .pipe( replace('<!--FOOTWORK_CONTENT-->', '<?php App::loadView( isset( $bodyView ) ? $bodyView : DEFAULT_BODY_VIEW ); ?>') )
     .pipe(rename('index.php'))
     .pipe(gulp.dest('docs'));
-});
-gulp.task('removeDocIndexHTML', function() {
-  return gulp.src('docs/index.html', { read: false }).pipe(rimraf());
-});
-gulp.task('removeDocTemplateHTML', function() {
-  return gulp.src('docs/pages/*.html', { read: false }).pipe(rimraf());
-});
-gulp.task('changeDocTemplateExt', function() {
-  return gulp.src('docs/pages/*.html')
-    .pipe(extReplace('.php'))
-    .pipe(gulp.dest('docs/pages'));
-});
-gulp.task('readyDocServ', function(callback) {
-  runSequence('transformDocIndex', 'removeDocIndexHTML', 'changeDocTemplateExt');
 });
