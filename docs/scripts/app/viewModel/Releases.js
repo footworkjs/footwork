@@ -1,5 +1,6 @@
 define([ "jquery", "lodash", "footwork" ],
   function( $, _, ko ) {
+    var protocol = 'http://';
     var host = 'footworkjs.com';
     var releaseAddressPostfix = '-docs.' + host;
     var startsWithNumber = RegExp('^[0-9]+');
@@ -22,12 +23,13 @@ define([ "jquery", "lodash", "footwork" ],
         this.thisRelease = ('v' + window.footworkBuild.version);
         this.headerContentHeight = ko.observable().receiveFrom('Header', 'contentHeight');
         this.releaseList = ko.observableArray(['latest']);
-        this.myURL = ko.observable('http://' + window.footworkBuild.version + releaseAddressPostfix);
+        this.myURL = ko.observable(protocol + window.footworkBuild.version + releaseAddressPostfix);
         this.releases = ko.computed(function() {
           return _.reduce(this.releaseList(), function(releaseList, release) {
             releaseList.push({
               version: (startsWithNumber.test(release) ? 'v' : '') + release,
-              href: 'http://' + release + releaseAddressPostfix
+              href: protocol + release + releaseAddressPostfix,
+              myRelease: release === window.footworkBuild.version
             });
             return releaseList;
           }, []);

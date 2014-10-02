@@ -20689,6 +20689,7 @@ define('text!app/template/showversion.html',[],function () { return '<span class
 
 define('app/viewModel/Releases',[ "jquery", "lodash", "footwork" ],
   function( $, _, ko ) {
+    var protocol = 'http://';
     var host = 'footworkjs.com';
     var releaseAddressPostfix = '-docs.' + host;
     var startsWithNumber = RegExp('^[0-9]+');
@@ -20711,12 +20712,13 @@ define('app/viewModel/Releases',[ "jquery", "lodash", "footwork" ],
         this.thisRelease = ('v' + window.footworkBuild.version);
         this.headerContentHeight = ko.observable().receiveFrom('Header', 'contentHeight');
         this.releaseList = ko.observableArray(['latest']);
-        this.myURL = ko.observable('http://' + window.footworkBuild.version + releaseAddressPostfix);
+        this.myURL = ko.observable(protocol + window.footworkBuild.version + releaseAddressPostfix);
         this.releases = ko.computed(function() {
           return _.reduce(this.releaseList(), function(releaseList, release) {
             releaseList.push({
               version: (startsWithNumber.test(release) ? 'v' : '') + release,
-              href: 'http://' + release + releaseAddressPostfix
+              href: protocol + release + releaseAddressPostfix,
+              myRelease: release === window.footworkBuild.version
             });
             return releaseList;
           }, []);
@@ -20732,7 +20734,7 @@ define('app/viewModel/Releases',[ "jquery", "lodash", "footwork" ],
   }
 );
 
-define('text!app/template/releases.html',[],function () { return '<div class="releases">\r\n  <div class="menu-item">\r\n    <div class="title" data-bind="style: { lineHeight: headerContentHeight }">\r\n      <a data-bind="attr: { href: myURL }"><span data-bind="text: thisRelease"></span></a>\r\n    </div>\r\n    <div class="drop-down">\r\n      <div class="title" data-bind="style: { lineHeight: headerContentHeight }">\r\n        <a data-bind="attr: { href: myURL }"><span data-bind="text: thisRelease"></span></a>\r\n      </div>\r\n\r\n      <div class="content" data-bind="foreach: releases">\r\n        <div class="row">\r\n          <a class="item" data-bind="text: version, attr: { href: href }"></a>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n</div>';});
+define('text!app/template/releases.html',[],function () { return '<div class="releases">\r\n  <div class="menu-item">\r\n    <div class="title" data-bind="style: { lineHeight: headerContentHeight }">\r\n      <a data-bind="attr: { href: myURL }"><span data-bind="text: thisRelease"></span></a>\r\n    </div>\r\n    <div class="drop-down">\r\n      <div class="title" data-bind="style: { lineHeight: headerContentHeight }">\r\n        <a data-bind="attr: { href: myURL }"><span data-bind="text: thisRelease"></span></a>\r\n      </div>\r\n\r\n      <div class="content" data-bind="foreach: releases">\r\n        <div class="row" data-bind="css: { isMyRelease: myRelease }">\r\n          <a class="item" data-bind="text: version, attr: { href: href }"></a>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n</div>';});
 
 ;(function(win){
 	var store = {},
