@@ -1,11 +1,11 @@
 <div class="releases">
   <div class="menu-item">
     <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-      <a href="/"><span data-bind="text: thisRelease"></span></a>
+      <a data-bind="attr: { href: myURL }"><span data-bind="text: thisRelease"></span></a>
     </div>
     <div class="drop-down">
       <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-        <a href="/"><span data-bind="text: thisRelease"></span></a>
+        <a data-bind="attr: { href: myURL }"><span data-bind="text: thisRelease"></span></a>
       </div>
 
       <div class="content" data-bind="foreach: releases">
