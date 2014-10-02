@@ -20687,23 +20687,30 @@ define('text!app/template/contributors.html',[],function () { return '<h2>Contri
 
 define('text!app/template/showversion.html',[],function () { return '<span class="version" data-bind="text: version"></span>';});
 
-define('app/viewModel/Releases',[ "jquery", "footwork" ],
-  function( $, ko ) {
+define('app/viewModel/Releases',[ "jquery", "lodash", "footwork" ],
+  function( $, _, ko ) {
     return ko.viewModel({
       namespace: 'Releases',
       initialize: function() {
         this.thisRelease = window.footworkBuild.version;
-        this.releases = ko.observableArray();
+        this.headerContentHeight = ko.observable().receiveFrom('Header', 'contentHeight');
+        this.releaseList = ko.observableArray();
+        this.releases = ko.computed(function() {
+          return _.reduce(this.releaseList(), function(releaseList, release) {
+            releaseList.push({ version: release, href: 'http://' + release + '-docs.footwork.local' });
+            return releaseList;
+          }, []);
+        }, this);
 
         $.get('/release/listAll').done(function(releaseList) {
-          this.releases(releaseList);
+          this.releaseList(releaseList);
         }.bind(this));
       }
     });
   }
 );
 
-define('text!app/template/releases.html',[],function () { return '<div class="releases">\r\n  <div class="this-release" data-bind="text: thisRelease"></div>\r\n  <div class="list" data-bind="foreach: releases">\r\n    <div class="release" data-bind="text: $data"></div>\r\n  </div>\r\n</div>';});
+define('text!app/template/releases.html',[],function () { return '<div class="releases">\r\n  <div class="menu-item">\r\n    <div class="title" data-bind="style: { lineHeight: headerContentHeight }">\r\n      <a href="/"><span data-bind="text: thisRelease"></span></a>\r\n    </div>\r\n    <div class="drop-down">\r\n      <div class="title" data-bind="style: { lineHeight: headerContentHeight }">\r\n        <a href="/"><span data-bind="text: thisRelease"></span></a>\r\n      </div>\r\n\r\n      <div class="content" data-bind="foreach: releases">\r\n        <div class="row">\r\n          <a class="item" data-bind="text: version, attr: { href: href }"></a>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n</div>';});
 
 ;(function(win){
 	var store = {},
@@ -22405,7 +22412,9 @@ define('app/viewModel/Navigation',[ "jquery", "lodash", "footwork", "LoadState" 
         this.defaultHeaderMaxHeight = ko.observable().receiveFrom('Configuration', 'defaultHeaderMaxHeight');
         this.configReflowing = ko.observable().receiveFrom('Configuration', 'reflowing');
         this.headerFixed = ko.observable().receiveFrom('Header', 'fixed');
-        this.headerContentHeight = ko.observable().receiveFrom('Header', 'contentHeight');
+        this.headerContentHeight = ko.computed(function() {
+          return (parseInt( this.headerContentHeight(), 10 ) - 1 + 'px');
+        }, { headerContentHeight: ko.observable().receiveFrom('Header', 'contentHeight') });
         this.toggleButtonMinHeight = ko.observable().receiveFrom('Header', 'sourceLinkVisibleMinHeight');
         this.sourceLinkVisible = ko.observable().receiveFrom('Header', 'sourceLinkVisible');
         this.loadBarTopPos = ko.observable(0).receiveFrom('Header', 'visibleHeight');

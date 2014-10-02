@@ -11,7 +11,9 @@ define([ "jquery", "lodash", "footwork", "LoadState" ],
         this.defaultHeaderMaxHeight = ko.observable().receiveFrom('Configuration', 'defaultHeaderMaxHeight');
         this.configReflowing = ko.observable().receiveFrom('Configuration', 'reflowing');
         this.headerFixed = ko.observable().receiveFrom('Header', 'fixed');
-        this.headerContentHeight = ko.observable().receiveFrom('Header', 'contentHeight');
+        this.headerContentHeight = ko.computed(function() {
+          return (parseInt( this.headerContentHeight(), 10 ) - 1 + 'px');
+        }, { headerContentHeight: ko.observable().receiveFrom('Header', 'contentHeight') });
         this.toggleButtonMinHeight = ko.observable().receiveFrom('Header', 'sourceLinkVisibleMinHeight');
         this.sourceLinkVisible = ko.observable().receiveFrom('Header', 'sourceLinkVisible');
         this.loadBarTopPos = ko.observable(0).receiveFrom('Header', 'visibleHeight');
