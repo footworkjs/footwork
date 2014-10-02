@@ -170,7 +170,7 @@ var module = undefined,
       /**
  * conduitjs - Give any method a pre/post invocation pipeline....
  * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
- * Version: v0.3.2
+ * Version: v0.3.3
  * Url: http://github.com/ifandelse/ConduitJS
  * License: MIT
  */
@@ -180,7 +180,7 @@ var module = undefined,
         module.exports = factory();
     } else if (typeof define === "function" && define.amd) {
         // AMD. Register as an anonymous module.
-        define(factory(root));
+        define([], factory(root));
     } else {
         // Browser globals
         root.Conduit = factory(root);
