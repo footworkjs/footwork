@@ -3,7 +3,7 @@ define([ "jquery", "lodash", "footwork" ],
     return ko.viewModel({
       namespace: 'Releases',
       initialize: function() {
-        this.thisRelease = window.footworkBuild.version;
+        this.thisRelease = ('v' + window.footworkBuild.version);
         this.headerContentHeight = ko.observable().receiveFrom('Header', 'contentHeight');
         this.releaseList = ko.observableArray();
         this.releases = ko.computed(function() {

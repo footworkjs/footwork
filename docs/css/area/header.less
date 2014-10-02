@@ -99,6 +99,33 @@
     }
   }
 
+  .releases {
+    position: relative;
+    text-align: center;
+    margin-right: 5px;
+    .menu-item {
+      min-width: 75px;
+      .drop-down{
+        min-width: 100%;
+        .content {
+          left: auto;
+          right: 0;
+          line-height: 25px;
+          max-height: 300px;
+          overflow-y: auto;
+          overflow-x: hidden;
+          .row {
+            margin: 0;
+            padding: 0;
+            .item {
+              padding: 5px 10px;
+            }
+          }
+        }
+      }
+    }
+  }
+
   .source-link {
     position: fixed;
     top: 20px;

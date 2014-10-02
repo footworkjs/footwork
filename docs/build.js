@@ -12,7 +12,7 @@
       include: ["requireLib", "app/main"],
       create: true }
   ],
-  optimize: "none",
+  optimize: "uglify2",
   generateSourceMaps: false,
   map: {
     "*": {
