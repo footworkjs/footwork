@@ -22,7 +22,7 @@ var pkg = require('./package.json');
 var reporter = 'list';
 var statement = 'A solid footing for web applications.';
 var args   = require('yargs').argv;
-var annotatedPageMetaData = fs.readFileSync('docs/templates/annotated-metadata.html','utf8').replace('FOOTWORK_VERSION', pkg.version, 'g');
+var annotatedPageMetaData = fs.readFileSync('templates/annotated-metadata.html','utf8').replace('FOOTWORK_VERSION', pkg.version, 'g');
 
 var banner = ['/**',
   ' * <%= pkg.name %> - <%= pkg.description %>',
