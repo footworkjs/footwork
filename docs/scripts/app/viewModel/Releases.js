@@ -1,14 +1,20 @@
 define([ "jquery", "lodash", "footwork" ],
   function( $, _, ko ) {
-    var releaseAddressPostfix;
+    var host = '.footworkjs.com';
+    var releaseAddressPostfix = '-docs' + host;
     var startsWithNumber = RegExp('^[0-9]+');
-    var isRunningLocally = ko.namespace().request('isRunningLocally');
+    var isRunningLocally = true;
 
-    if(isRunningLocally) {
-      releaseAddressPostfix = '-docs.footworkjs.com';
-    } else {
-      releaseAddressPostfix = '-docs.' + window.location.hostname.match('(.+)-docs\.([0-9a-zA-Z\-\.]+)')[2];
-    }
+    ko.observable(false).receiveFrom('Configuration', 'initialized').subscribe(function(isInitialized) {
+      if(isInitialized) {
+        isRunningLocally = ko.namespace().request('isRunningLocally');
+
+        if(!isRunningLocally) {
+          host = window.location.hostname.match('(.+)-docs\.([0-9a-zA-Z\-\.]+)')[2];
+          releaseAddressPostfix = '-docs.' + host;
+        }
+      }
+    });
 
     return ko.viewModel({
       namespace: 'Releases',
@@ -27,7 +33,7 @@ define([ "jquery", "lodash", "footwork" ],
         }, this);
 
         if( !isRunningLocally ) {
-          $.get('/release/listAll').done(function(releaseList) {
+          $.get((isRunningLocally ? ('http://latest-docs.' + host) : '') + '/release/listAll').done(function(releaseList) {
             this.releaseList(releaseList);
           }.bind(this));
         }
