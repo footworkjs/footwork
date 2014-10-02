@@ -1,6 +1,7 @@
 define([ "footwork",
     "app/viewModel/Contributors", "text!app/template/contributors.html",
     "text!app/template/showversion.html",
+    "app/viewModel/Releases", "text!app/template/releases.html",
     "app/viewModel/config/Configuration", "text!app/template/config/configuration.html",
     "app/viewModel/config/LayoutControl", "text!app/template/config/layoutcontrol.html",
     "app/viewModel/Pane", "text!app/template/pane.html",
@@ -22,6 +23,7 @@ define([ "footwork",
   function( ko,
     contributorsViewModel, contributorsTemplate,
     showVersionTemplate,
+    releasesViewModel, releasesTemplate,
     configurationViewModel, configurationTemplate,
     layoutControlViewModel, layoutControlTemplate,
     paneViewModel, paneTemplate,
@@ -63,6 +65,11 @@ define([ "footwork",
       ko.components.register('showversion', {
         viewModel: BuildInfoViewModel,
         template: showVersionTemplate
+      });
+
+      ko.components.register('releases', {
+        viewModel: releasesViewModel,
+        template: releasesTemplate
       });
 
       ko.components.register('contributors', {
