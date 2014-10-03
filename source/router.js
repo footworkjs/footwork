@@ -489,7 +489,7 @@ Router.prototype.navigationModel = function(predicate) {
     this.navigationModel = ko.computed(function() {
       this.navModelUpdate(); // dummy reference used to trigger updates
       return filter( extractNavItems(this.routeDescriptions), (predicate || alwaysPassPredicate) );
-    }, { navModelUpdate: this.navModelUpdate }).broadcastAs({ name: 'navigationModel', namespace: this.$namespace });
+    }, { navModelUpdate: this.navModelUpdate });
   }
 
   return this.navigationModel;

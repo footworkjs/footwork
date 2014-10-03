@@ -1185,7 +1185,7 @@ Router.prototype.navigationModel = function(predicate) {
     this.navigationModel = ko.computed(function() {
       this.navModelUpdate(); // dummy reference used to trigger updates
       return filter( extractNavItems(this.routeDescriptions), (predicate || alwaysPassPredicate) );
-    }, { navModelUpdate: this.navModelUpdate }).broadcastAs({ name: 'navigationModel', namespace: this.$namespace });
+    }, { navModelUpdate: this.navModelUpdate });
   }
 
   return this.navigationModel;
@@ -1259,7 +1259,6 @@ var makeViewModel = ko.viewModel = function(configParams) {
   var ctor = noop;
   var afterInit = noop;
   var parentViewModel = configParams.parent;
-  var initParams;
 
   if( !isUndefined(configParams) ) {
     ctor = configParams.viewModel || configParams.initialize || noop;
@@ -1270,7 +1269,11 @@ var makeViewModel = ko.viewModel = function(configParams) {
 
   var initViewModelMixin = {
     _preInit: function( params ) {
-      initParams = params;
+      var initParams = params;
+      this.__getInitParams = function() {
+        return initParams;
+      };
+
       if( isObject(configParams.router) ) {
         this.$router = new Router( configParams.router, this );
       }
@@ -1280,9 +1283,6 @@ var makeViewModel = ko.viewModel = function(configParams) {
       $params: result(configParams, 'params'),
       __getConfigParams: function() {
         return configParams;
-      },
-      __getInitParams: function() {
-        return initParams;
       },
       __shutdown: function() {
         if( isFunction(configParams.afterDispose) ) {

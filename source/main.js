@@ -15,8 +15,8 @@ var noop = function() { };
 
 var isObservable = ko.isObservable;
 
-var isPath = function(pathOrLocation) {
-  return hasTrailingSlash.test(pathOrLocation) === true;
+var isPath = function(pathOrFile) {
+  return hasTrailingSlash.test(pathOrFile);
 };
 
 // Pull out lodash utility function references for better minification and easier implementation swap
