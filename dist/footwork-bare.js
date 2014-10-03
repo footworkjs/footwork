@@ -286,8 +286,8 @@ var noop = function() { };
 
 var isObservable = ko.isObservable;
 
-var isPath = function(pathOrLocation) {
-  return hasTrailingSlash.test(pathOrLocation) === true;
+var isPath = function(pathOrFile) {
+  return hasTrailingSlash.test(pathOrFile);
 };
 
 // Pull out lodash utility function references for better minification and easier implementation swap
@@ -855,7 +855,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   }
 
   if( isFunction(onComplete) ) {
-    currentOutletDef.params = extend(viewModelParameters || {}, {
+    currentOutletDef.params = extend(currentOutletDef.params || {}, {
       ___$onComplete: onComplete
     });
     valueHasMutated = true;
@@ -1269,9 +1269,8 @@ var makeViewModel = ko.viewModel = function(configParams) {
 
   var initViewModelMixin = {
     _preInit: function( params ) {
-      var initParams = params;
       this.__getInitParams = function() {
-        return initParams;
+        return params;
       };
 
       if( isObject(configParams.router) ) {
@@ -1406,7 +1405,7 @@ function bindComponentViewModel(element, params, ViewModel) {
   }
 };
 
-// Monkey patch enables the viewModel 'component' to initialize a model and bind to the html as intended (with lifecycle events)
+// Monkey patch enables the viewModel component to initialize a model and bind to the html as intended (with lifecycle events)
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = ko.bindingHandlers.component.init;
 ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
@@ -1580,8 +1579,12 @@ function isNativeComponent(componentName) {
 function componentTriggerAfterBinding(element, viewModel) {
   if( isViewModel(viewModel) ) {
     var configParams = viewModel.__getConfigParams();
+    var initParams = viewModel.__getInitParams();
     if( isFunction(configParams.afterBinding) ) {
       configParams.afterBinding.call(viewModel, element);
+    }
+    if( isObject(initParams) && isFunction(initParams.___$afterBinding) ) {
+      initParams.___$afterBinding.call(viewModel, element);
     }
   }
 }
@@ -1631,7 +1634,7 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
           if( !isViewModelCtor(ViewModel) ) {
             ViewModel = makeViewModel({ initialize: ViewModel });
           }
-          
+
           // inject the context into the ViewModel contructor
           LoadedViewModel = ViewModel.compose({
             _preInit: function() {
