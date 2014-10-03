@@ -11,9 +11,6 @@ function isViewModel(thing) {
   return isObject(thing) && !!thing.__isViewModel;
 }
 
-// Preserve the original applyBindings method for later use
-var originalApplyBindings = ko.applyBindings;
-
 var defaultGetViewModelOptions = {
   includeOutlets: false
 };
@@ -164,6 +161,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
 };
 
 // Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.
+var originalApplyBindings = ko.applyBindings;
 var doNotSetContextOnRouter = false;
 var setContextOnRouter = true;
 var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetContext) {
@@ -178,7 +176,7 @@ var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetCon
     }
 
     if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) ) {
-      viewModel.$router.context( ko.contextFor(element) );
+      viewModel.$router.context( ko.contextFor(element || document.body) );
     }
     
     if( !isUndefined(element) ) {

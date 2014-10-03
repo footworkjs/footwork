@@ -327,7 +327,10 @@ Router.prototype.startup = function( $context, $parentRouter ) {
   if( !isNullRouter($parentRouter) ) {
     this.parentRouter( $parentRouter );
   } else if( isObject($context) ) {
-    this.parentRouter( $parentRouter = nearestParentRouter($context) );
+    $parentRouter = nearestParentRouter($context);
+    if( $parentRouter.id !== this.id ) {
+      this.parentRouter( $parentRouter.id );
+    }
   }
 
   if( !this.historyIsEnabled() ) {
