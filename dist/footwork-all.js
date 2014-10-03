@@ -10118,7 +10118,10 @@ Router.prototype.startup = function( $context, $parentRouter ) {
   if( !isNullRouter($parentRouter) ) {
     this.parentRouter( $parentRouter );
   } else if( isObject($context) ) {
-    this.parentRouter( $parentRouter = nearestParentRouter($context) );
+    $parentRouter = nearestParentRouter($context);
+    if( $parentRouter.id !== this.id ) {
+      this.parentRouter( $parentRouter.id );
+    }
   }
 
   if( !this.historyIsEnabled() ) {
@@ -10285,9 +10288,6 @@ function isViewModel(thing) {
   return isObject(thing) && !!thing.__isViewModel;
 }
 
-// Preserve the original applyBindings method for later use
-var originalApplyBindings = ko.applyBindings;
-
 var defaultGetViewModelOptions = {
   includeOutlets: false
 };
@@ -10438,6 +10438,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
 };
 
 // Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.
+var originalApplyBindings = ko.applyBindings;
 var doNotSetContextOnRouter = false;
 var setContextOnRouter = true;
 var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetContext) {
@@ -10452,7 +10453,7 @@ var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetCon
     }
 
     if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) ) {
-      viewModel.$router.context( ko.contextFor(element) );
+      viewModel.$router.context( ko.contextFor(element || document.body) );
     }
     
     if( !isUndefined(element) ) {
@@ -10565,7 +10566,7 @@ var registerComponent = ko.components.register = function(componentName, options
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel,
+    viewModel: viewModel || function() {},
     template: options.template
   });
 };
@@ -10577,7 +10578,7 @@ ko.components.getNormalTagList = function() {
 ko.components.getComponentNameForNode = function(node) {
   var tagName = isString(node.tagName) && node.tagName.toLowerCase();
 
-  if( ko.components.isRegistered(tagName) || indexOf(nonComponentTags, tagName) === -1 ) {
+  if( ko.components.isRegistered(tagName) || tagIsComponent(tagName) ) {
     return tagName;
   }
   return null;
@@ -10591,6 +10592,23 @@ var makeComponent = ko.component = function(componentDefinition) {
   }
 
   return componentDefinition;
+};
+
+// Register a component as consisting of a template only.
+// This will cause footwork to load only the template when this component is used.
+var componentTemplateOnlyRegister = [];
+var registerComponentAsTemplateOnly = ko.components.templateOnly = function(componentName, isTemplateOnly) {
+  isTemplateOnly = (isUndefined(isTemplateOnly) ? true : isTemplateOnly);
+  if( isArray(componentName) ) {
+    each(componentName, function(compName) {
+      registerComponentAsTemplateOnly(compName, isTemplateOnly);
+    });
+  }
+
+  componentTemplateOnlyRegister[componentName] = isTemplateOnly;
+  if( !isArray(componentName) ) {
+    return componentTemplateOnlyRegister[componentName] || 'normal';
+  }
 };
 
 // These are tags which are ignored by the custom component loader
@@ -10608,7 +10626,9 @@ var nonComponentTags = [
   'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp'
 ];
 var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponent) {
-  isComponent = ( isUndefined(isComponent) ? true : isComponent );
+  if( isUndefined(isComponent) ) {
+    return indexOf(nonComponentTags, tagName) === -1;
+  }
 
   if( isArray(tagName) ) {
     each(tagName, function(tag) {
@@ -10626,6 +10646,15 @@ var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponen
     });
   }
 };
+
+// Components which footwork will not wrap in the $compLifeCycle custom binding used for lifecycle events
+// Used to keep the wrapper off of internal/natively handled and defined components such as 'outlet'
+var nativeComponents = [
+  'outlet'
+];
+function isNativeComponent(componentName) {
+  return indexOf(nativeComponents, componentName) !== -1;
+}
 
 function componentTriggerAfterBinding(element, viewModel) {
   if( isViewModel(viewModel) ) {
@@ -10655,17 +10684,11 @@ ko.bindingHandlers.$compLifeCycle = {
   }
 };
 
-// Components which footwork will not wrap in the $compLifeCycle custom binding used for lifecycle events
-// Used to keep the wrapper off of internal/natively handled and defined components such as 'outlet'
-var nativeComponents = [
-  'outlet'
-];
-
 // Custom loader used to wrap components with the $compLifeCycle custom binding
 var componentWrapperTemplate = '<!-- ko $compLifeCycle -->COMPONENT_MARKUP<!-- /ko -->';
 ko.components.loaders.unshift( ko.components.componentWrapper = {
   loadTemplate: function(componentName, config, callback) {
-    if( nativeComponents.indexOf(componentName) === -1 ) {
+    if( !isNativeComponent(componentName) ) {
       // TODO: Handle different types of configs
       if( isString(config) ) {
         config = componentWrapperTemplate.replace(/COMPONENT_MARKUP/, config);
@@ -10679,7 +10702,7 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
   },
   loadViewModel: function(componentName, config, callback) {
     var ViewModel = config.viewModel || config;
-    if( nativeComponents.indexOf(componentName) === -1 ) {
+    if( !isNativeComponent(componentName) ) {
       callback(function(params, componentInfo) {
         var $context = ko.contextFor(componentInfo.element);
         var LoadedViewModel = ViewModel;
@@ -10740,8 +10763,14 @@ ko.components.loaders.push( ko.components.requireLoader = {
           templatePath = templatePath + templateFile;
         }
         
+        // check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)
+        var viewModelConfig = { require: viewModelPath };
+        if( componentTemplateOnlyRegister[componentName] ) {
+          viewModelConfig = { instance: {} };
+        }
+
         configOptions = {
-          viewModel: { require: viewModelPath },
+          viewModel: viewModelConfig,
           template: { require: templatePath }
         };
       }
