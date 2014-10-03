@@ -108,12 +108,8 @@ function isNativeComponent(componentName) {
 function componentTriggerAfterBinding(element, viewModel) {
   if( isViewModel(viewModel) ) {
     var configParams = viewModel.__getConfigParams();
-    var initParams = viewModel.__getInitParams();
     if( isFunction(configParams.afterBinding) ) {
       configParams.afterBinding.call(viewModel, element);
-    }
-    if( isObject(initParams) && isFunction(initParams.___$afterBinding) ) {
-      initParams.___$afterBinding.call(viewModel, element);
     }
   }
 }
@@ -129,11 +125,19 @@ ko.bindingHandlers.$compLifeCycle = {
     });
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    var child = ko.virtualElements.firstChild(element);
-    if( !isUndefined(child) ) {
-      viewModel = ko.dataFor( child );
+    var $parent = bindingContext.$parent;
+    if( isObject($parent) && $parent.__isOutlet ) {
+      var $outletRoute = $parent.$outletRoute();
+      if( isFunction($outletRoute.onComplete) ) {
+        $outletRoute.onComplete(element);
+      }
+    } else {
+      var child = ko.virtualElements.firstChild(element);
+      if( !isUndefined(child) ) {
+        viewModel = ko.dataFor( child );
+      }
+      componentTriggerAfterBinding(element, viewModel);
     }
-    componentTriggerAfterBinding(element, viewModel);
   }
 };
 

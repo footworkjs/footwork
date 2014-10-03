@@ -319,6 +319,7 @@ var indexOf = _.indexOf;
 var values = _.values;
 var reject = _.reject;
 var findWhere = _.findWhere;
+var once = _.once;
 
 // Registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];
@@ -831,6 +832,10 @@ function nearestParentRouter($context) {
 var noComponentSelected = '_noComponentSelected';
 var $routerOutlet = function(outletName, componentToDisplay, options ) {
   options = options || {};
+  if( isFunction(options) ) {
+    options = { onComplete: options };
+  }
+  
   var viewModelParameters = options.params;
   var onComplete = options.onComplete;
   var outlets = this.outlets;
@@ -855,10 +860,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   }
 
   if( isFunction(onComplete) ) {
-    currentOutletDef.params = extend(currentOutletDef.params || {}, {
-      ___$onComplete: onComplete
-    });
-    valueHasMutated = true;
+    currentOutletDef.onComplete = once(onComplete);
   }
 
   if( valueHasMutated ) {
@@ -1269,8 +1271,9 @@ var makeViewModel = ko.viewModel = function(configParams) {
 
   var initViewModelMixin = {
     _preInit: function( params ) {
+      var initParams = params;
       this.__getInitParams = function() {
-        return params;
+        return initParams;
       };
 
       if( isObject(configParams.router) ) {
@@ -1579,12 +1582,8 @@ function isNativeComponent(componentName) {
 function componentTriggerAfterBinding(element, viewModel) {
   if( isViewModel(viewModel) ) {
     var configParams = viewModel.__getConfigParams();
-    var initParams = viewModel.__getInitParams();
     if( isFunction(configParams.afterBinding) ) {
       configParams.afterBinding.call(viewModel, element);
-    }
-    if( isObject(initParams) && isFunction(initParams.___$afterBinding) ) {
-      initParams.___$afterBinding.call(viewModel, element);
     }
   }
 }
@@ -1600,11 +1599,19 @@ ko.bindingHandlers.$compLifeCycle = {
     });
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    var child = ko.virtualElements.firstChild(element);
-    if( !isUndefined(child) ) {
-      viewModel = ko.dataFor( child );
+    var $parent = bindingContext.$parent;
+    if( isObject($parent) && $parent.__isOutlet ) {
+      var $outletRoute = $parent.$outletRoute();
+      if( isFunction($outletRoute.onComplete) ) {
+        $outletRoute.onComplete(element);
+      }
+    } else {
+      var child = ko.virtualElements.firstChild(element);
+      if( !isUndefined(child) ) {
+        viewModel = ko.dataFor( child );
+      }
+      componentTriggerAfterBinding(element, viewModel);
     }
-    componentTriggerAfterBinding(element, viewModel);
   }
 };
 
