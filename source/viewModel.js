@@ -67,7 +67,6 @@ var makeViewModel = ko.viewModel = function(configParams) {
   var ctor = noop;
   var afterInit = noop;
   var parentViewModel = configParams.parent;
-  var initParams;
 
   if( !isUndefined(configParams) ) {
     ctor = configParams.viewModel || configParams.initialize || noop;
@@ -78,7 +77,11 @@ var makeViewModel = ko.viewModel = function(configParams) {
 
   var initViewModelMixin = {
     _preInit: function( params ) {
-      initParams = params;
+      var initParams = params;
+      this.__getInitParams = function() {
+        return initParams;
+      };
+
       if( isObject(configParams.router) ) {
         this.$router = new Router( configParams.router, this );
       }
@@ -88,9 +91,6 @@ var makeViewModel = ko.viewModel = function(configParams) {
       $params: result(configParams, 'params'),
       __getConfigParams: function() {
         return configParams;
-      },
-      __getInitParams: function() {
-        return initParams;
       },
       __shutdown: function() {
         if( isFunction(configParams.afterDispose) ) {
@@ -214,7 +214,7 @@ function bindComponentViewModel(element, params, ViewModel) {
   }
 };
 
-// Monkey patch enables the viewModel 'component' to initialize a model and bind to the html as intended (with lifecycle events)
+// Monkey patch enables the viewModel component to initialize a model and bind to the html as intended (with lifecycle events)
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = ko.bindingHandlers.component.init;
 ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
