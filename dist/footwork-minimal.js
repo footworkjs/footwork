@@ -170,7 +170,7 @@ var module = undefined,
       /**
  * conduitjs - Give any method a pre/post invocation pipeline....
  * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
- * Version: v0.3.3
+ * Version: v0.3.2
  * Url: http://github.com/ifandelse/ConduitJS
  * License: MIT
  */
@@ -180,7 +180,7 @@ var module = undefined,
         module.exports = factory();
     } else if (typeof define === "function" && define.amd) {
         // AMD. Register as an anonymous module.
-        define([], factory(root));
+        define(factory(root));
     } else {
         // Browser globals
         root.Conduit = factory(root);
@@ -309,7 +309,7 @@ var module = undefined,
       /**
  * postal - Pub/Sub library providing wildcard subscriptions, complex message handling, etc.  Works server and client-side.
  * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
- * Version: v0.10.3
+ * Version: v0.10.0
  * Url: http://github.com/postaljs/postal.js
  * License(s): MIT, GPL
  */
@@ -487,7 +487,7 @@ var module = undefined,
             this.callback.before.apply(this, arguments);
             return this;
         },
-        "catch": function (errorHandler) {
+        catch: function (errorHandler) {
             var original = this.callback.target();
             var safeTarget = function () {
                 try {
@@ -528,7 +528,8 @@ var module = undefined,
                 } else {
                     report = console.log;
                 }
-                this["catch"](report);
+                this.
+                catch (report);
             }
             return this;
         },
@@ -680,7 +681,7 @@ var module = undefined,
         envelope.channel = envelope.channel || this.configuration.DEFAULT_CHANNEL;
         envelope.timeStamp = new Date();
         _.each(this.wireTaps, function (tap) {
-            tap(envelope.data, envelope, pubInProgress);
+            tap(envelope.data, envelope);
         });
         if (this.subscriptions[envelope.channel]) {
             _.each(this.subscriptions[envelope.channel], function (subscribers) {
@@ -701,29 +702,21 @@ var module = undefined,
     function unsubscribe() {
         var idx = 0;
         var subs = Array.prototype.slice.call(arguments, 0);
-        var subDef, channelSubs, topicSubs;
+        var subDef;
         while (subDef = subs.shift()) {
             if (pubInProgress) {
                 unSubQueue.push(subDef);
                 return;
             }
-            channelSubs = this.subscriptions[subDef.channel];
-            topicSubs = channelSubs && channelSubs[subDef.topic];
-            if (topicSubs) {
-                var len = topicSubs.length;
+            if (this.subscriptions[subDef.channel] && this.subscriptions[subDef.channel][subDef.topic]) {
+                var len = this.subscriptions[subDef.channel][subDef.topic].length;
                 idx = 0;
                 while (idx < len) {
-                    if (topicSubs[idx] === subDef) {
-                        topicSubs.splice(idx, 1);
+                    if (this.subscriptions[subDef.channel][subDef.topic][idx] === subDef) {
+                        this.subscriptions[subDef.channel][subDef.topic].splice(idx, 1);
                         break;
                     }
                     idx += 1;
-                }
-                if (topicSubs.length === 0) {
-                    delete channelSubs[subDef.topic];
-                    if (_.isEmpty(channelSubs)) {
-                        delete this.subscriptions[subDef.channel];
-                    }
                 }
             }
             _postal.publish(getSystemMessage("removed", subDef));
@@ -4317,6 +4310,7 @@ var indexOf = _.indexOf;
 var values = _.values;
 var reject = _.reject;
 var findWhere = _.findWhere;
+var once = _.once;
 
 // Registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];
@@ -4829,6 +4823,10 @@ function nearestParentRouter($context) {
 var noComponentSelected = '_noComponentSelected';
 var $routerOutlet = function(outletName, componentToDisplay, options ) {
   options = options || {};
+  if( isFunction(options) ) {
+    options = { onComplete: options };
+  }
+  
   var viewModelParameters = options.params;
   var onComplete = options.onComplete;
   var outlets = this.outlets;
@@ -4853,10 +4851,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   }
 
   if( isFunction(onComplete) ) {
-    currentOutletDef.params = extend(currentOutletDef.params || {}, {
-      ___$onComplete: onComplete
-    });
-    valueHasMutated = true;
+    currentOutletDef.onComplete = once(onComplete);
   }
 
   if( valueHasMutated ) {
@@ -5267,8 +5262,9 @@ var makeViewModel = ko.viewModel = function(configParams) {
 
   var initViewModelMixin = {
     _preInit: function( params ) {
+      var initParams = params;
       this.__getInitParams = function() {
-        return params;
+        return initParams;
       };
 
       if( isObject(configParams.router) ) {
@@ -5577,12 +5573,8 @@ function isNativeComponent(componentName) {
 function componentTriggerAfterBinding(element, viewModel) {
   if( isViewModel(viewModel) ) {
     var configParams = viewModel.__getConfigParams();
-    var initParams = viewModel.__getInitParams();
     if( isFunction(configParams.afterBinding) ) {
       configParams.afterBinding.call(viewModel, element);
-    }
-    if( isObject(initParams) && isFunction(initParams.___$afterBinding) ) {
-      initParams.___$afterBinding.call(viewModel, element);
     }
   }
 }
@@ -5598,11 +5590,19 @@ ko.bindingHandlers.$compLifeCycle = {
     });
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    var child = ko.virtualElements.firstChild(element);
-    if( !isUndefined(child) ) {
-      viewModel = ko.dataFor( child );
+    var $parent = bindingContext.$parent;
+    if( isObject($parent) && $parent.__isOutlet ) {
+      var $outletRoute = $parent.$outletRoute();
+      if( isFunction($outletRoute.onComplete) ) {
+        $outletRoute.onComplete(element);
+      }
+    } else {
+      var child = ko.virtualElements.firstChild(element);
+      if( !isUndefined(child) ) {
+        viewModel = ko.dataFor( child );
+      }
+      componentTriggerAfterBinding(element, viewModel);
     }
-    componentTriggerAfterBinding(element, viewModel);
   }
 };
 

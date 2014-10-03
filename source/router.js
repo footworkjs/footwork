@@ -135,6 +135,10 @@ function nearestParentRouter($context) {
 var noComponentSelected = '_noComponentSelected';
 var $routerOutlet = function(outletName, componentToDisplay, options ) {
   options = options || {};
+  if( isFunction(options) ) {
+    options = { onComplete: options };
+  }
+  
   var viewModelParameters = options.params;
   var onComplete = options.onComplete;
   var outlets = this.outlets;
@@ -159,10 +163,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   }
 
   if( isFunction(onComplete) ) {
-    currentOutletDef.params = extend(currentOutletDef.params || {}, {
-      ___$onComplete: onComplete
-    });
-    valueHasMutated = true;
+    currentOutletDef.onComplete = once(onComplete);
   }
 
   if( valueHasMutated ) {
