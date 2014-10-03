@@ -159,7 +159,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   }
 
   if( isFunction(onComplete) ) {
-    currentOutletDef.params = extend(viewModelParameters || {}, {
+    currentOutletDef.params = extend(currentOutletDef.params || {}, {
       ___$onComplete: onComplete
     });
     valueHasMutated = true;

@@ -108,8 +108,12 @@ function isNativeComponent(componentName) {
 function componentTriggerAfterBinding(element, viewModel) {
   if( isViewModel(viewModel) ) {
     var configParams = viewModel.__getConfigParams();
+    var initParams = viewModel.__getInitParams();
     if( isFunction(configParams.afterBinding) ) {
       configParams.afterBinding.call(viewModel, element);
+    }
+    if( isObject(initParams) && isFunction(initParams.___$afterBinding) ) {
+      initParams.___$afterBinding.call(viewModel, element);
     }
   }
 }
@@ -159,7 +163,7 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
           if( !isViewModelCtor(ViewModel) ) {
             ViewModel = makeViewModel({ initialize: ViewModel });
           }
-          
+
           // inject the context into the ViewModel contructor
           LoadedViewModel = ViewModel.compose({
             _preInit: function() {
