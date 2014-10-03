@@ -15,7 +15,7 @@ var registerComponent = ko.components.register = function(componentName, options
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || function() {},
+    viewModel: viewModel || ko.viewModel(),
     template: options.template
   });
 };
@@ -155,15 +155,20 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
       callback(function(params, componentInfo) {
         var $context = ko.contextFor(componentInfo.element);
         var LoadedViewModel = ViewModel;
-        if( isViewModelCtor(ViewModel) ) {
+        if( isFunction(ViewModel) ) {
+          if( !isViewModelCtor(ViewModel) ) {
+            ViewModel = makeViewModel({ initialize: ViewModel });
+          }
+          
           // inject the context into the ViewModel contructor
           LoadedViewModel = ViewModel.compose({
             _preInit: function() {
               this.$context = $context;
             }
           });
+          return new LoadedViewModel(params);
         }
-        return new LoadedViewModel(params);
+        return LoadedViewModel;
       });
     } else {
       callback(null);
