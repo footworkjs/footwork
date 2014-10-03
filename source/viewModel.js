@@ -67,6 +67,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
   var ctor = noop;
   var afterInit = noop;
   var parentViewModel = configParams.parent;
+  var initParams;
 
   if( !isUndefined(configParams) ) {
     ctor = configParams.viewModel || configParams.initialize || noop;
@@ -76,7 +77,8 @@ var makeViewModel = ko.viewModel = function(configParams) {
   configParams = extend({}, defaultViewModelConfigParams, configParams);
 
   var initViewModelMixin = {
-    _preInit: function( initParams ) {
+    _preInit: function( params ) {
+      initParams = params;
       if( isObject(configParams.router) ) {
         this.$router = new Router( configParams.router, this );
       }
@@ -86,6 +88,9 @@ var makeViewModel = ko.viewModel = function(configParams) {
       $params: result(configParams, 'params'),
       __getConfigParams: function() {
         return configParams;
+      },
+      __getInitParams: function() {
+        return initParams;
       },
       __shutdown: function() {
         if( isFunction(configParams.afterDispose) ) {
@@ -97,10 +102,6 @@ var makeViewModel = ko.viewModel = function(configParams) {
             property.shutdown();
           }
         });
-
-        if( isFunction(configParams.afterBinding) ) {
-          configParams.afterBinding.wasCalled = false;
-        }
       }
     },
     _postInit: function() {
@@ -170,9 +171,14 @@ var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetCon
 
   if( isViewModel(viewModel) ) {
     var $configParams = viewModel.__getConfigParams();
+    var $initParams = viewModel.__getInitParams();
     
     if( isFunction($configParams.afterBinding) ) {
       $configParams.afterBinding.call(viewModel, element);
+    }
+
+    if( isObject($initParams) && isFunction($initParams.___$afterBinding) ) {
+      $initParams.___$afterBinding.call(viewModel, element);
     }
 
     if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) ) {
