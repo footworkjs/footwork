@@ -4827,7 +4827,10 @@ function nearestParentRouter($context) {
 }
 
 var noComponentSelected = '_noComponentSelected';
-var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters ) {
+var $routerOutlet = function(outletName, componentToDisplay, options ) {
+  options = options || {};
+  var viewModelParameters = options.params;
+  var onComplete = options.onComplete;
   var outlets = this.outlets;
 
   outletName = ko.unwrap( outletName );
@@ -4846,6 +4849,13 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
 
   if( !isUndefined(viewModelParameters) ) {
     currentOutletDef.params = viewModelParameters;
+    valueHasMutated = true;
+  }
+
+  if( isFunction(onComplete) ) {
+    currentOutletDef.params = extend(viewModelParameters || {}, {
+      ___$onComplete: onComplete
+    });
     valueHasMutated = true;
   }
 
@@ -5247,6 +5257,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
   var ctor = noop;
   var afterInit = noop;
   var parentViewModel = configParams.parent;
+  var initParams;
 
   if( !isUndefined(configParams) ) {
     ctor = configParams.viewModel || configParams.initialize || noop;
@@ -5256,7 +5267,8 @@ var makeViewModel = ko.viewModel = function(configParams) {
   configParams = extend({}, defaultViewModelConfigParams, configParams);
 
   var initViewModelMixin = {
-    _preInit: function( initParams ) {
+    _preInit: function( params ) {
+      initParams = params;
       if( isObject(configParams.router) ) {
         this.$router = new Router( configParams.router, this );
       }
@@ -5266,6 +5278,9 @@ var makeViewModel = ko.viewModel = function(configParams) {
       $params: result(configParams, 'params'),
       __getConfigParams: function() {
         return configParams;
+      },
+      __getInitParams: function() {
+        return initParams;
       },
       __shutdown: function() {
         if( isFunction(configParams.afterDispose) ) {
@@ -5277,10 +5292,6 @@ var makeViewModel = ko.viewModel = function(configParams) {
             property.shutdown();
           }
         });
-
-        if( isFunction(configParams.afterBinding) ) {
-          configParams.afterBinding.wasCalled = false;
-        }
       }
     },
     _postInit: function() {
@@ -5350,9 +5361,14 @@ var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetCon
 
   if( isViewModel(viewModel) ) {
     var $configParams = viewModel.__getConfigParams();
+    var $initParams = viewModel.__getInitParams();
     
     if( isFunction($configParams.afterBinding) ) {
       $configParams.afterBinding.call(viewModel, element);
+    }
+
+    if( isObject($initParams) && isFunction($initParams.___$afterBinding) ) {
+      $initParams.___$afterBinding.call(viewModel, element);
     }
 
     if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) ) {
@@ -5469,7 +5485,7 @@ var registerComponent = ko.components.register = function(componentName, options
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || function() {},
+    viewModel: viewModel || ko.viewModel(),
     template: options.template
   });
 };
@@ -5609,15 +5625,20 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
       callback(function(params, componentInfo) {
         var $context = ko.contextFor(componentInfo.element);
         var LoadedViewModel = ViewModel;
-        if( isViewModelCtor(ViewModel) ) {
+        if( isFunction(ViewModel) ) {
+          if( !isViewModelCtor(ViewModel) ) {
+            ViewModel = makeViewModel({ initialize: ViewModel });
+          }
+          
           // inject the context into the ViewModel contructor
           LoadedViewModel = ViewModel.compose({
             _preInit: function() {
               this.$context = $context;
             }
           });
+          return new LoadedViewModel(params);
         }
-        return new LoadedViewModel(params);
+        return LoadedViewModel;
       });
     } else {
       callback(null);
