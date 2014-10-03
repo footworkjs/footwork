@@ -43,9 +43,21 @@ var makeComponent = ko.component = function(componentDefinition) {
   return componentDefinition;
 };
 
-var componentTypes = [];
-makeComponent.type = function(componentName, setType) {
-  componentTypes[componentName] = setType;
+// Register a component as consisting of a template only.
+// This will cause footwork to load only the template when this component is used.
+var componentTemplateOnlyRegister = [];
+var registerComponentAsTemplateOnly = ko.components.templateOnly = function(componentName, isTemplateOnly) {
+  isTemplateOnly = (isUndefined(isTemplateOnly) ? true : isTemplateOnly);
+  if( isArray(componentName) ) {
+    each(componentName, function(compName) {
+      registerComponentAsTemplateOnly(compName, isTemplateOnly);
+    });
+  }
+
+  componentTemplateOnlyRegister[componentName] = isTemplateOnly;
+  if( !isArray(componentName) ) {
+    return componentTemplateOnlyRegister[componentName] || 'normal';
+  }
 };
 
 // These are tags which are ignored by the custom component loader
@@ -200,10 +212,9 @@ ko.components.loaders.push( ko.components.requireLoader = {
           templatePath = templatePath + templateFile;
         }
         
-        // check to see if the requested component is templateOnly and should not request a viewModel
-        var componentType = componentTypes[componentName];
+        // check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)
         var viewModelConfig = { require: viewModelPath };
-        if( !isUndefined(componentType) && componentType === 'templateOnly' ) {
+        if( componentTemplateOnlyRegister[componentName] ) {
           viewModelConfig = { instance: {} };
         }
 
