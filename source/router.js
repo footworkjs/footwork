@@ -304,6 +304,12 @@ var Router = function( routerConfig, $viewModel, $context ) {
     });
   }, this);
 
+  if( !isUndefined(routerConfig.unknownRoute) ) {
+    if( isFunction(routerConfig.unknownRoute) ) {
+      routerConfig.unknownRoute = { controller: routerConfig.unknownRoute };
+    }
+    routerConfig.routes.push( extend( routerConfig.unknownRoute, { unknown: true } ) );
+  }
   this.setRoutes( routerConfig.routes );
 
   if( routerConfig.activate === true ) {
