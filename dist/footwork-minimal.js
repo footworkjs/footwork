@@ -170,7 +170,7 @@ var module = undefined,
       /**
  * conduitjs - Give any method a pre/post invocation pipeline....
  * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
- * Version: v0.3.2
+ * Version: v0.3.3
  * Url: http://github.com/ifandelse/ConduitJS
  * License: MIT
  */
@@ -180,7 +180,7 @@ var module = undefined,
         module.exports = factory();
     } else if (typeof define === "function" && define.amd) {
         // AMD. Register as an anonymous module.
-        define(factory(root));
+        define([], factory(root));
     } else {
         // Browser globals
         root.Conduit = factory(root);
@@ -309,7 +309,7 @@ var module = undefined,
       /**
  * postal - Pub/Sub library providing wildcard subscriptions, complex message handling, etc.  Works server and client-side.
  * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
- * Version: v0.10.0
+ * Version: v0.10.3
  * Url: http://github.com/postaljs/postal.js
  * License(s): MIT, GPL
  */
@@ -487,7 +487,7 @@ var module = undefined,
             this.callback.before.apply(this, arguments);
             return this;
         },
-        catch: function (errorHandler) {
+        "catch": function (errorHandler) {
             var original = this.callback.target();
             var safeTarget = function () {
                 try {
@@ -528,8 +528,7 @@ var module = undefined,
                 } else {
                     report = console.log;
                 }
-                this.
-                catch (report);
+                this["catch"](report);
             }
             return this;
         },
@@ -681,7 +680,7 @@ var module = undefined,
         envelope.channel = envelope.channel || this.configuration.DEFAULT_CHANNEL;
         envelope.timeStamp = new Date();
         _.each(this.wireTaps, function (tap) {
-            tap(envelope.data, envelope);
+            tap(envelope.data, envelope, pubInProgress);
         });
         if (this.subscriptions[envelope.channel]) {
             _.each(this.subscriptions[envelope.channel], function (subscribers) {
@@ -702,21 +701,29 @@ var module = undefined,
     function unsubscribe() {
         var idx = 0;
         var subs = Array.prototype.slice.call(arguments, 0);
-        var subDef;
+        var subDef, channelSubs, topicSubs;
         while (subDef = subs.shift()) {
             if (pubInProgress) {
                 unSubQueue.push(subDef);
                 return;
             }
-            if (this.subscriptions[subDef.channel] && this.subscriptions[subDef.channel][subDef.topic]) {
-                var len = this.subscriptions[subDef.channel][subDef.topic].length;
+            channelSubs = this.subscriptions[subDef.channel];
+            topicSubs = channelSubs && channelSubs[subDef.topic];
+            if (topicSubs) {
+                var len = topicSubs.length;
                 idx = 0;
                 while (idx < len) {
-                    if (this.subscriptions[subDef.channel][subDef.topic][idx] === subDef) {
-                        this.subscriptions[subDef.channel][subDef.topic].splice(idx, 1);
+                    if (topicSubs[idx] === subDef) {
+                        topicSubs.splice(idx, 1);
                         break;
                     }
                     idx += 1;
+                }
+                if (topicSubs.length === 0) {
+                    delete channelSubs[subDef.topic];
+                    if (_.isEmpty(channelSubs)) {
+                        delete this.subscriptions[subDef.channel];
+                    }
                 }
             }
             _postal.publish(getSystemMessage("removed", subDef));
@@ -4830,10 +4837,12 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   var viewModelParameters = options.params;
   var onComplete = options.onComplete;
   var outlets = this.outlets;
+  var isInitialLoad = false;
 
   outletName = ko.unwrap( outletName );
   if( !isObservable(outlets[outletName]) ) {
     outlets[outletName] = ko.observable({ name: noComponentSelected, params: {} });
+    isInitialLoad = true;
   }
 
   var outlet = outlets[outletName];
@@ -4850,11 +4859,28 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
     valueHasMutated = true;
   }
 
-  if( isFunction(onComplete) ) {
-    currentOutletDef.onComplete = once(onComplete);
-  }
-
   if( valueHasMutated ) {
+    if( isFunction(onComplete) ) {
+      // Return the onComplete callback once the DOM is injected in the page.
+      // For some reason, on initial outlet binding only calls update once. Subsequent
+      // changes get called twice (correct per docs, once upon initial binding, and once
+      // upon injection into the DOM).
+      var callCounter = (isInitialLoad ? 0 : 1);
+      
+      currentOutletDef.getOnCompleteCallback = function() {
+        var isComplete = callCounter === 0;
+        callCounter--;
+        if( isComplete ) {
+          return onComplete;
+        }
+        return noop;
+      };
+    } else {
+      currentOutletDef.getOnCompleteCallback = function() {
+        return noop;
+      };
+    }
+
     outlet.valueHasMutated();
   }
 
@@ -5028,7 +5054,7 @@ Router.prototype.startup = function( $context, $parentRouter ) {
   } else if( isObject($context) ) {
     $parentRouter = nearestParentRouter($context);
     if( $parentRouter.id !== this.id ) {
-      this.parentRouter( $parentRouter.id );
+      this.parentRouter( $parentRouter );
     }
   }
 
@@ -5282,7 +5308,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
           configParams.afterDispose.call(this);
         }
 
-        each(this, function( property ) {
+        each(this, function( property, name ) {
           if( isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) ) {
             property.shutdown();
           }
@@ -5592,10 +5618,7 @@ ko.bindingHandlers.$compLifeCycle = {
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $parent = bindingContext.$parent;
     if( isObject($parent) && $parent.__isOutlet ) {
-      var $outletRoute = $parent.$outletRoute();
-      if( isFunction($outletRoute.onComplete) ) {
-        $outletRoute.onComplete(element);
-      }
+      $parent.$outletRoute().getOnCompleteCallback()(element);
     } else {
       var child = ko.virtualElements.firstChild(element);
       if( !isUndefined(child) ) {

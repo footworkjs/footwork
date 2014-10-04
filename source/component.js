@@ -127,10 +127,7 @@ ko.bindingHandlers.$compLifeCycle = {
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $parent = bindingContext.$parent;
     if( isObject($parent) && $parent.__isOutlet ) {
-      var $outletRoute = $parent.$outletRoute();
-      if( isFunction($outletRoute.onComplete) ) {
-        $outletRoute.onComplete(element);
-      }
+      $parent.$outletRoute().getOnCompleteCallback()(element);
     } else {
       var child = ko.virtualElements.firstChild(element);
       if( !isUndefined(child) ) {
