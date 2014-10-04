@@ -764,6 +764,10 @@ var baseRouteDescription = {
   __isRouteDesc: true
 };
 
+function transformRouteConfigToDesc(routeDesc) {
+  return extend( { id: uniqueId('route') }, baseRouteDescription, routeDesc );
+}
+
 // Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
 function routeStringToRegExp(routeString) {
   routeString = routeString
@@ -866,9 +870,9 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
       // Return the onComplete callback once the DOM is injected in the page.
       // For some reason, on initial outlet binding only calls update once. Subsequent
       // changes get called twice (correct per docs, once upon initial binding, and once
-      // upon injection into the DOM).
+      // upon injection into the DOM). Perhaps due to usage of virtual DOM for the component?
       var callCounter = (isInitialLoad ? 0 : 1);
-      
+
       currentOutletDef.getOnCompleteCallback = function() {
         var isComplete = callCounter === 0;
         callCounter--;
@@ -1017,14 +1021,12 @@ Router.prototype.setRoutes = function(routeDesc) {
   return this;
 };
 
-Router.prototype.addRoutes = function(routeDesc) {
-  routeDesc = isArray(routeDesc) ? routeDesc : [routeDesc];
+Router.prototype.addRoutes = function(routeConfig) {
+  routeConfig = isArray(routeConfig) ? routeConfig : [routeConfig];
 
-  this.routeDescriptions = this.routeDescriptions.concat( map(routeDesc, function(routeDesc) {
-    return extend( { id: uniqueId('route') }, baseRouteDescription, routeDesc );
-  }) );
+  this.routeDescriptions = this.routeDescriptions.concat( map(routeConfig, transformRouteConfigToDesc) );
 
-  if( hasNavItems(routeDesc) && isObservable(this.navigationModel) ) {
+  if( hasNavItems(routeConfig) && isObservable(this.navigationModel) ) {
     this.navModelUpdate.notifySubscribers();
   }
 
@@ -1127,7 +1129,7 @@ Router.prototype.getUnknownRoute = function() {
 Router.prototype.getRouteForURL = function(url) {
   var route = null;
   var parentRoutePath = this.parentRouter().routePath() || '';
-  var unknownRoute = bind(this.getUnknownRoute, this);
+  var unknownRoute = this.getUnknownRoute();
 
   if( this.isRelative() ) {
     // since this is a relative router, we need to remove the leading parentRoutePath section of the URL
@@ -1135,10 +1137,10 @@ Router.prototype.getRouteForURL = function(url) {
       if( ( routeIndex = url.indexOf(parentRoutePath) ) === 0 ) {
         url = url.substr( parentRoutePath.length );
       } else {
-        return unknownRoute();
+        return unknownRoute;
       }
     } else {
-      return unknownRoute();
+      return unknownRoute;
     }
   }
 
@@ -1172,7 +1174,7 @@ Router.prototype.getRouteForURL = function(url) {
     return route;
   });
 
-  return route || unknownRoute();
+  return route || unknownRoute;
 };
 
 Router.prototype.getActionForRoute = function(routeDescription) {
