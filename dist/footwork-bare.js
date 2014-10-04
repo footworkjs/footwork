@@ -1118,7 +1118,7 @@ Router.prototype.normalizeURL = function(url) {
 };
 
 Router.prototype.getUnknownRoute = function() {
-  var unknownRoute = findWhere(this.getRouteDescriptions(), { unknown: true }) || null;
+  var unknownRoute = findWhere((this.getRouteDescriptions() || []).reverse(), { unknown: true }) || null;
 
   if( !isNull(unknownRoute) ) {
     unknownRoute = extend({}, baseRoute, {
