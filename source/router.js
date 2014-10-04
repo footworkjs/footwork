@@ -142,10 +142,12 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   var viewModelParameters = options.params;
   var onComplete = options.onComplete;
   var outlets = this.outlets;
+  var isInitialLoad = false;
 
   outletName = ko.unwrap( outletName );
   if( !isObservable(outlets[outletName]) ) {
     outlets[outletName] = ko.observable({ name: noComponentSelected, params: {} });
+    isInitialLoad = true;
   }
 
   var outlet = outlets[outletName];
@@ -162,11 +164,28 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
     valueHasMutated = true;
   }
 
-  if( isFunction(onComplete) ) {
-    currentOutletDef.onComplete = once(onComplete);
-  }
-
   if( valueHasMutated ) {
+    if( isFunction(onComplete) ) {
+      // Return the onComplete callback once the DOM is injected in the page.
+      // For some reason, on initial outlet binding only calls update once. Subsequent
+      // changes get called twice (correct per docs, once upon initial binding, and once
+      // upon injection into the DOM).
+      var callCounter = (isInitialLoad ? 0 : 1);
+      
+      currentOutletDef.getOnCompleteCallback = function() {
+        var isComplete = callCounter === 0;
+        callCounter--;
+        if( isComplete ) {
+          return onComplete;
+        }
+        return noop;
+      };
+    } else {
+      currentOutletDef.getOnCompleteCallback = function() {
+        return noop;
+      };
+    }
+
     outlet.valueHasMutated();
   }
 
@@ -340,7 +359,7 @@ Router.prototype.startup = function( $context, $parentRouter ) {
   } else if( isObject($context) ) {
     $parentRouter = nearestParentRouter($context);
     if( $parentRouter.id !== this.id ) {
-      this.parentRouter( $parentRouter.id );
+      this.parentRouter( $parentRouter );
     }
   }
 
