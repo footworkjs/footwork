@@ -118,8 +118,8 @@ Distributed under MIT license</p>
 
 <span class="hljs-keyword">var</span> isObservable = ko.isObservable;
 
-<span class="hljs-keyword">var</span> isPath = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(pathOrLocation)</span> </span>{
-  <span class="hljs-keyword">return</span> hasTrailingSlash.test(pathOrLocation) === <span class="hljs-literal">true</span>;
+<span class="hljs-keyword">var</span> isPath = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(pathOrFile)</span> </span>{
+  <span class="hljs-keyword">return</span> hasTrailingSlash.test(pathOrFile);
 };</pre></div></div>
         
     </li>
@@ -163,7 +163,8 @@ Distributed under MIT license</p>
 <span class="hljs-keyword">var</span> indexOf = _.indexOf;
 <span class="hljs-keyword">var</span> values = _.values;
 <span class="hljs-keyword">var</span> reject = _.reject;
-<span class="hljs-keyword">var</span> findWhere = _.findWhere;</pre></div></div>
+<span class="hljs-keyword">var</span> findWhere = _.findWhere;
+<span class="hljs-keyword">var</span> once = _.once;</pre></div></div>
         
     </li>
     
@@ -224,19 +225,6 @@ what level of debug statements are logged to the console
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-12">&#182;</a>
           </div>
-          
-          <div class="annotation-bg"></div>
-        </div>
-        
-    </li>
-    
-    
-    <li id="section-13" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-13">&#182;</a>
-          </div>
           <p>This counter is used when model options { autoIncrement: true } and more than one model
 having the same namespace is instantiated. This is used in the event you do not want
 multiple copies of the same model to share the same namespace (if they do share a
@@ -250,11 +238,11 @@ namespace, they receive all of the same events/messages/commands/etc).</p>
     </li>
     
     
-    <li id="section-14" class="section">
+    <li id="section-13" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-14">&#182;</a>
+            <a class="pilcrow" href="#section-13">&#182;</a>
           </div>
           <p>Prepare an empty namespace stack.
 This is where footwork registers its current working namespace name. Each new namespace is
@@ -269,11 +257,11 @@ index 0.</p>
     </li>
     
     
-    <li id="section-15" class="section">
+    <li id="section-14" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-15">&#182;</a>
+            <a class="pilcrow" href="#section-14">&#182;</a>
           </div>
           <p>Returns a normalized namespace name based off of ‘name’. It will register the name counter
 if not present and increment it if it is, then return the name (with the counter appended
@@ -310,11 +298,11 @@ if autoIncrement === true and the counter is &gt; 0).</p>
     </li>
     
     
-    <li id="section-16" class="section">
+    <li id="section-15" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-16">&#182;</a>
+            <a class="pilcrow" href="#section-15">&#182;</a>
           </div>
           <p>Method used to trigger an event on a namespace</p>
 
@@ -329,11 +317,11 @@ if autoIncrement === true and the counter is &gt; 0).</p>
     </li>
     
     
-    <li id="section-17" class="section">
+    <li id="section-16" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-17">&#182;</a>
+            <a class="pilcrow" href="#section-16">&#182;</a>
           </div>
           <p>Method used to register an event handler on a namespace</p>
 
@@ -354,11 +342,11 @@ if autoIncrement === true and the counter is &gt; 0).</p>
     </li>
     
     
-    <li id="section-18" class="section">
+    <li id="section-17" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-18">&#182;</a>
+            <a class="pilcrow" href="#section-17">&#182;</a>
           </div>
           <p>Method used to unregister an event handler on a namespace</p>
 
@@ -373,11 +361,11 @@ if autoIncrement === true and the counter is &gt; 0).</p>
     </li>
     
     
-    <li id="section-19" class="section">
+    <li id="section-18" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-19">&#182;</a>
+            <a class="pilcrow" href="#section-18">&#182;</a>
           </div>
           <p>Method used to send a command to a namespace</p>
 
@@ -392,11 +380,11 @@ if autoIncrement === true and the counter is &gt; 0).</p>
     </li>
     
     
-    <li id="section-20" class="section">
+    <li id="section-19" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-20">&#182;</a>
+            <a class="pilcrow" href="#section-19">&#182;</a>
           </div>
           <p>Method used to register a command handler on a namespace</p>
 
@@ -417,11 +405,11 @@ if autoIncrement === true and the counter is &gt; 0).</p>
     </li>
     
     
-    <li id="section-21" class="section">
+    <li id="section-20" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-21">&#182;</a>
+            <a class="pilcrow" href="#section-20">&#182;</a>
           </div>
           <p>Method used to issue a request for data from a namespace, returning the response (or undefined if no response)
 This method will return an array of responses if more than one is received.</p>
@@ -454,11 +442,11 @@ This method will return an array of responses if more than one is received.</p>
     </li>
     
     
-    <li id="section-22" class="section">
+    <li id="section-21" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-22">&#182;</a>
+            <a class="pilcrow" href="#section-21">&#182;</a>
           </div>
           <p>Method used to register a request handler on a namespace.
 Requests sent using the specified requestKey will be called and passed in any params specified, the return value is passed back to the issuer</p>
@@ -485,11 +473,11 @@ Requests sent using the specified requestKey will be called and passed in any pa
     </li>
     
     
-    <li id="section-23" class="section">
+    <li id="section-22" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-23">&#182;</a>
+            <a class="pilcrow" href="#section-22">&#182;</a>
           </div>
           <p>This effectively shuts down all requests, commands, and events by unsubscribing all handlers on a discreet namespace object</p>
 
@@ -510,11 +498,11 @@ Requests sent using the specified requestKey will be called and passed in any pa
     </li>
     
     
-    <li id="section-24" class="section">
+    <li id="section-23" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-24">&#182;</a>
+            <a class="pilcrow" href="#section-23">&#182;</a>
           </div>
           <p>Creates and returns a new namespace instance</p>
 
@@ -565,11 +553,11 @@ Requests sent using the specified requestKey will be called and passed in any pa
     </li>
     
     
-    <li id="section-25" class="section">
+    <li id="section-24" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-25">&#182;</a>
+            <a class="pilcrow" href="#section-24">&#182;</a>
           </div>
           <p>Duck type check for a namespace object</p>
 
@@ -583,11 +571,11 @@ Requests sent using the specified requestKey will be called and passed in any pa
     </li>
     
     
-    <li id="section-26" class="section">
+    <li id="section-25" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-26">&#182;</a>
+            <a class="pilcrow" href="#section-25">&#182;</a>
           </div>
           <p>Return the current namespace name.</p>
 
@@ -601,11 +589,11 @@ Requests sent using the specified requestKey will be called and passed in any pa
     </li>
     
     
-    <li id="section-27" class="section">
+    <li id="section-26" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-27">&#182;</a>
+            <a class="pilcrow" href="#section-26">&#182;</a>
           </div>
           <p>Return the current namespace channel.</p>
 
@@ -619,11 +607,11 @@ Requests sent using the specified requestKey will be called and passed in any pa
     </li>
     
     
-    <li id="section-28" class="section">
+    <li id="section-27" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-28">&#182;</a>
+            <a class="pilcrow" href="#section-27">&#182;</a>
           </div>
           <p>enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
 ‘entering’ into that namespace (it is now the currentNamespace).
@@ -641,11 +629,11 @@ The namespace object returned from this method also has a pointer to its parent<
     </li>
     
     
-    <li id="section-29" class="section">
+    <li id="section-28" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-29">&#182;</a>
+            <a class="pilcrow" href="#section-28">&#182;</a>
           </div>
           <p>enterNamespace() uses a current namespace definition as the one to enter into.</p>
 
@@ -660,11 +648,11 @@ The namespace object returned from this method also has a pointer to its parent<
     </li>
     
     
-    <li id="section-30" class="section">
+    <li id="section-29" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-30">&#182;</a>
+            <a class="pilcrow" href="#section-29">&#182;</a>
           </div>
           <p>Called at the after a model constructor function is run. exitNamespace()
 will shift the current namespace off of the stack, ‘exiting’ to the
@@ -681,11 +669,11 @@ next namespace in the stack</p>
     </li>
     
     
-    <li id="section-31" class="section">
+    <li id="section-30" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-31">&#182;</a>
+            <a class="pilcrow" href="#section-30">&#182;</a>
           </div>
           <p>mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc</p>
 
@@ -713,11 +701,11 @@ next namespace in the stack</p>
     </li>
     
     
-    <li id="section-32" class="section">
+    <li id="section-31" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-32">&#182;</a>
+            <a class="pilcrow" href="#section-31">&#182;</a>
           </div>
           <h2 id="broadcast-receive-js">broadcast-receive.js</h2>
 
@@ -736,11 +724,11 @@ next namespace in the stack</p>
     </li>
     
     
-    <li id="section-33" class="section">
+    <li id="section-32" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-33">&#182;</a>
+            <a class="pilcrow" href="#section-32">&#182;</a>
           </div>
           <pre><code><span class="hljs-keyword">this</span>.myValue = ko.observable().receiveFrom(<span class="hljs-string">'NamespaceName'</span> / Namespace, <span class="hljs-string">'varName'</span>);
 </code></pre>
@@ -794,11 +782,11 @@ next namespace in the stack</p>
     </li>
     
     
-    <li id="section-34" class="section">
+    <li id="section-33" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-34">&#182;</a>
+            <a class="pilcrow" href="#section-33">&#182;</a>
           </div>
           <pre><code><span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs(<span class="hljs-string">'NameOfVar'</span>);
 <span class="hljs-keyword">this</span>.myValue = ko.observable().broadcastAs(<span class="hljs-string">'NameOfVar'</span>, isWritable);
@@ -878,27 +866,14 @@ next namespace in the stack</p>
     </li>
     
     
-    <li id="section-35" class="section">
+    <li id="section-34" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-35">&#182;</a>
+            <a class="pilcrow" href="#section-34">&#182;</a>
           </div>
           <h2 id="router-js">router.js</h2>
 
-          <div class="annotation-bg"></div>
-        </div>
-        
-    </li>
-    
-    
-    <li id="section-36" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-36">&#182;</a>
-          </div>
-          
           <div class="annotation-bg"></div>
         </div>
         
@@ -917,11 +892,11 @@ next namespace in the stack</p>
     </li>
     
     
-    <li id="section-37" class="section">
+    <li id="section-35" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-37">&#182;</a>
+            <a class="pilcrow" href="#section-35">&#182;</a>
           </div>
           <p>polyfill for missing window.location.origin</p>
 
@@ -935,11 +910,11 @@ next namespace in the stack</p>
     </li>
     
     
-    <li id="section-38" class="section">
+    <li id="section-36" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-38">&#182;</a>
+            <a class="pilcrow" href="#section-36">&#182;</a>
           </div>
           <p>Predicate function that always returns true / ‘pass’</p>
 
@@ -962,11 +937,11 @@ next namespace in the stack</p>
     </li>
     
     
-    <li id="section-39" class="section">
+    <li id="section-37" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-39">&#182;</a>
+            <a class="pilcrow" href="#section-37">&#182;</a>
           </div>
           <p>Regular expressions used to parse a uri</p>
 
@@ -1006,16 +981,20 @@ next namespace in the stack</p>
 
 <span class="hljs-keyword">var</span> baseRouteDescription = {
   __isRouteDesc: <span class="hljs-literal">true</span>
-};</pre></div></div>
+};
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">transformRouteConfigToDesc</span><span class="hljs-params">(routeDesc)</span> </span>{
+  <span class="hljs-keyword">return</span> extend( { id: uniqueId(<span class="hljs-string">'route'</span>) }, baseRouteDescription, routeDesc );
+}</pre></div></div>
         
     </li>
     
     
-    <li id="section-40" class="section">
+    <li id="section-38" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-40">&#182;</a>
+            <a class="pilcrow" href="#section-38">&#182;</a>
           </div>
           <p>Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens</p>
 
@@ -1045,11 +1024,11 @@ next namespace in the stack</p>
     </li>
     
     
-    <li id="section-41" class="section">
+    <li id="section-39" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-41">&#182;</a>
+            <a class="pilcrow" href="#section-39">&#182;</a>
           </div>
           <p>why .unbind() is not already present in History.js is beyond me</p>
 
@@ -1086,11 +1065,11 @@ next namespace in the stack</p>
     </li>
     
     
-    <li id="section-42" class="section">
+    <li id="section-40" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-42">&#182;</a>
+            <a class="pilcrow" href="#section-40">&#182;</a>
           </div>
           <p>Recursive function which will locate the nearest $router from a given ko $context
 (travels up through $parentContext chain to find the router if not found on the
@@ -1107,11 +1086,11 @@ immediate $context). Returns null if none is found.</p>
     </li>
     
     
-    <li id="section-43" class="section">
+    <li id="section-41" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-43">&#182;</a>
+            <a class="pilcrow" href="#section-41">&#182;</a>
           </div>
           <p>found router in this context</p>
 
@@ -1124,11 +1103,11 @@ immediate $context). Returns null if none is found.</p>
     </li>
     
     
-    <li id="section-44" class="section">
+    <li id="section-42" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-44">&#182;</a>
+            <a class="pilcrow" href="#section-42">&#182;</a>
           </div>
           <p>search through next parent up the chain</p>
 
@@ -1142,12 +1121,21 @@ immediate $context). Returns null if none is found.</p>
 }
 
 <span class="hljs-keyword">var</span> noComponentSelected = <span class="hljs-string">'_noComponentSelected'</span>;
-<span class="hljs-keyword">var</span> $routerOutlet = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(outletName, componentToDisplay, viewModelParameters )</span> </span>{
+<span class="hljs-keyword">var</span> $routerOutlet = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(outletName, componentToDisplay, options )</span> </span>{
+  options = options || {};
+  <span class="hljs-keyword">if</span>( isFunction(options) ) {
+    options = { onComplete: options };
+  }
+  
+  <span class="hljs-keyword">var</span> viewModelParameters = options.params;
+  <span class="hljs-keyword">var</span> onComplete = options.onComplete;
   <span class="hljs-keyword">var</span> outlets = <span class="hljs-keyword">this</span>.outlets;
+  <span class="hljs-keyword">var</span> isInitialLoad = <span class="hljs-literal">false</span>;
 
   outletName = ko.unwrap( outletName );
   <span class="hljs-keyword">if</span>( !isObservable(outlets[outletName]) ) {
     outlets[outletName] = ko.observable({ name: noComponentSelected, params: {} });
+    isInitialLoad = <span class="hljs-literal">true</span>;
   }
 
   <span class="hljs-keyword">var</span> outlet = outlets[outletName];
@@ -1165,6 +1153,41 @@ immediate $context). Returns null if none is found.</p>
   }
 
   <span class="hljs-keyword">if</span>( valueHasMutated ) {
+    <span class="hljs-keyword">if</span>( isFunction(onComplete) ) {</pre></div></div>
+        
+    </li>
+    
+    
+    <li id="section-43" class="section">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-43">&#182;</a>
+          </div>
+          <p>Return the onComplete callback once the DOM is injected in the page.
+For some reason, on initial outlet binding only calls update once. Subsequent
+changes get called twice (correct per docs, once upon initial binding, and once
+upon injection into the DOM). Perhaps due to usage of virtual DOM for the component?</p>
+
+          <div class="annotation-bg"></div>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">var</span> callCounter = (isInitialLoad ? <span class="hljs-number">0</span> : <span class="hljs-number">1</span>);
+
+      currentOutletDef.getOnCompleteCallback = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">var</span> isComplete = callCounter === <span class="hljs-number">0</span>;
+        callCounter--;
+        <span class="hljs-keyword">if</span>( isComplete ) {
+          <span class="hljs-keyword">return</span> onComplete;
+        }
+        <span class="hljs-keyword">return</span> noop;
+      };
+    } <span class="hljs-keyword">else</span> {
+      currentOutletDef.getOnCompleteCallback = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">return</span> noop;
+      };
+    }
+
     outlet.valueHasMutated();
   }
 
@@ -1176,11 +1199,11 @@ ko.routers = {</pre></div></div>
     </li>
     
     
-    <li id="section-45" class="section">
+    <li id="section-44" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-45">&#182;</a>
+            <a class="pilcrow" href="#section-44">&#182;</a>
           </div>
           <p>Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route</p>
 
@@ -1192,11 +1215,11 @@ ko.routers = {</pre></div></div>
     </li>
     
     
-    <li id="section-46" class="section">
+    <li id="section-45" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-46">&#182;</a>
+            <a class="pilcrow" href="#section-45">&#182;</a>
           </div>
           <p>Return array of all currently instantiated $router’s</p>
 
@@ -1288,11 +1311,11 @@ ko.bindingHandlers.$route = {
     </li>
     
     
-    <li id="section-47" class="section">
+    <li id="section-46" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-47">&#182;</a>
+            <a class="pilcrow" href="#section-46">&#182;</a>
           </div>
           <p>Automatically trigger the new Action() whenever the currentRoute() updates</p>
 
@@ -1319,6 +1342,12 @@ ko.bindingHandlers.$route = {
     });
   }, <span class="hljs-keyword">this</span>);
 
+  <span class="hljs-keyword">if</span>( !isUndefined(routerConfig.unknownRoute) ) {
+    <span class="hljs-keyword">if</span>( isFunction(routerConfig.unknownRoute) ) {
+      routerConfig.unknownRoute = { controller: routerConfig.unknownRoute };
+    }
+    routerConfig.routes.push( extend( routerConfig.unknownRoute, { unknown: <span class="hljs-literal">true</span> } ) );
+  }
   <span class="hljs-keyword">this</span>.setRoutes( routerConfig.routes );
 
   <span class="hljs-keyword">if</span>( routerConfig.activate === <span class="hljs-literal">true</span> ) {
@@ -1339,14 +1368,12 @@ Router.prototype.setRoutes = <span class="hljs-function"><span class="hljs-keywo
   <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
 };
 
-Router.prototype.addRoutes = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeDesc)</span> </span>{
-  routeDesc = isArray(routeDesc) ? routeDesc : [routeDesc];
+Router.prototype.addRoutes = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeConfig)</span> </span>{
+  routeConfig = isArray(routeConfig) ? routeConfig : [routeConfig];
 
-  <span class="hljs-keyword">this</span>.routeDescriptions = <span class="hljs-keyword">this</span>.routeDescriptions.concat( map(routeDesc, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeDesc)</span> </span>{
-    <span class="hljs-keyword">return</span> extend( { id: uniqueId(<span class="hljs-string">'route'</span>) }, baseRouteDescription, routeDesc );
-  }) );
+  <span class="hljs-keyword">this</span>.routeDescriptions = <span class="hljs-keyword">this</span>.routeDescriptions.concat( map(routeConfig, transformRouteConfigToDesc) );
 
-  <span class="hljs-keyword">if</span>( hasNavItems(routeDesc) &amp;&amp; isObservable(<span class="hljs-keyword">this</span>.navigationModel) ) {
+  <span class="hljs-keyword">if</span>( hasNavItems(routeConfig) &amp;&amp; isObservable(<span class="hljs-keyword">this</span>.navigationModel) ) {
     <span class="hljs-keyword">this</span>.navModelUpdate.notifySubscribers();
   }
 
@@ -1376,7 +1403,10 @@ Router.prototype.startup = <span class="hljs-function"><span class="hljs-keyword
   <span class="hljs-keyword">if</span>( !isNullRouter($parentRouter) ) {
     <span class="hljs-keyword">this</span>.parentRouter( $parentRouter );
   } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isObject($context) ) {
-    <span class="hljs-keyword">this</span>.parentRouter( $parentRouter = nearestParentRouter($context) );
+    $parentRouter = nearestParentRouter($context);
+    <span class="hljs-keyword">if</span>( $parentRouter.id !== <span class="hljs-keyword">this</span>.id ) {
+      <span class="hljs-keyword">this</span>.parentRouter( $parentRouter );
+    }
   }
 
   <span class="hljs-keyword">if</span>( !<span class="hljs-keyword">this</span>.historyIsEnabled() ) {
@@ -1429,7 +1459,7 @@ Router.prototype.normalizeURL = <span class="hljs-function"><span class="hljs-ke
 };
 
 Router.prototype.getUnknownRoute = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-  <span class="hljs-keyword">var</span> unknownRoute = findWhere(<span class="hljs-keyword">this</span>.getRouteDescriptions(), { unknown: <span class="hljs-literal">true</span> }) || <span class="hljs-literal">null</span>;
+  <span class="hljs-keyword">var</span> unknownRoute = findWhere((<span class="hljs-keyword">this</span>.getRouteDescriptions() || []).reverse(), { unknown: <span class="hljs-literal">true</span> }) || <span class="hljs-literal">null</span>;
 
   <span class="hljs-keyword">if</span>( !isNull(unknownRoute) ) {
     unknownRoute = extend({}, baseRoute, {
@@ -1446,18 +1476,18 @@ Router.prototype.getUnknownRoute = <span class="hljs-function"><span class="hljs
 Router.prototype.getRouteForURL = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(url)</span> </span>{
   <span class="hljs-keyword">var</span> route = <span class="hljs-literal">null</span>;
   <span class="hljs-keyword">var</span> parentRoutePath = <span class="hljs-keyword">this</span>.parentRouter().routePath() || <span class="hljs-string">''</span>;
-  <span class="hljs-keyword">var</span> unknownRoute = bind(<span class="hljs-keyword">this</span>.getUnknownRoute, <span class="hljs-keyword">this</span>);
+  <span class="hljs-keyword">var</span> unknownRoute = <span class="hljs-keyword">this</span>.getUnknownRoute();
 
   <span class="hljs-keyword">if</span>( <span class="hljs-keyword">this</span>.isRelative() ) {</pre></div></div>
         
     </li>
     
     
-    <li id="section-48" class="section">
+    <li id="section-47" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-48">&#182;</a>
+            <a class="pilcrow" href="#section-47">&#182;</a>
           </div>
           <p>since this is a relative router, we need to remove the leading parentRoutePath section of the URL</p>
 
@@ -1468,10 +1498,10 @@ Router.prototype.getRouteForURL = <span class="hljs-function"><span class="hljs-
       <span class="hljs-keyword">if</span>( ( routeIndex = url.indexOf(parentRoutePath) ) === <span class="hljs-number">0</span> ) {
         url = url.substr( parentRoutePath.length );
       } <span class="hljs-keyword">else</span> {
-        <span class="hljs-keyword">return</span> unknownRoute();
+        <span class="hljs-keyword">return</span> unknownRoute;
       }
     } <span class="hljs-keyword">else</span> {
-      <span class="hljs-keyword">return</span> unknownRoute();
+      <span class="hljs-keyword">return</span> unknownRoute;
     }
   }
 
@@ -1505,7 +1535,7 @@ Router.prototype.getRouteForURL = <span class="hljs-function"><span class="hljs-
     <span class="hljs-keyword">return</span> route;
   });
 
-  <span class="hljs-keyword">return</span> route || unknownRoute();
+  <span class="hljs-keyword">return</span> route || unknownRoute;
 };
 
 Router.prototype.getActionForRoute = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeDescription)</span> </span>{
@@ -1539,7 +1569,7 @@ Router.prototype.navigationModel = <span class="hljs-function"><span class="hljs
     <span class="hljs-keyword">this</span>.navigationModel = ko.computed(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
       <span class="hljs-keyword">this</span>.navModelUpdate(); <span class="hljs-comment">// dummy reference used to trigger updates</span>
       <span class="hljs-keyword">return</span> filter( extractNavItems(<span class="hljs-keyword">this</span>.routeDescriptions), (predicate || alwaysPassPredicate) );
-    }, { navModelUpdate: <span class="hljs-keyword">this</span>.navModelUpdate }).broadcastAs({ name: <span class="hljs-string">'navigationModel'</span>, namespace: <span class="hljs-keyword">this</span>.$namespace });
+    }, { navModelUpdate: <span class="hljs-keyword">this</span>.navModelUpdate });
   }
 
   <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.navigationModel;
@@ -1548,11 +1578,11 @@ Router.prototype.navigationModel = <span class="hljs-function"><span class="hljs
     </li>
     
     
-    <li id="section-49" class="section">
+    <li id="section-48" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-49">&#182;</a>
+            <a class="pilcrow" href="#section-48">&#182;</a>
           </div>
           <h2 id="viewmodel-js">viewModel.js</h2>
 
@@ -1562,11 +1592,11 @@ Router.prototype.navigationModel = <span class="hljs-function"><span class="hljs
     </li>
     
     
-    <li id="section-50" class="section">
+    <li id="section-49" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-50">&#182;</a>
+            <a class="pilcrow" href="#section-49">&#182;</a>
           </div>
           <p>Duck type function for determining whether or not something is a footwork viewModel constructor function</p>
 
@@ -1580,11 +1610,11 @@ Router.prototype.navigationModel = <span class="hljs-function"><span class="hljs
     </li>
     
     
-    <li id="section-51" class="section">
+    <li id="section-50" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-51">&#182;</a>
+            <a class="pilcrow" href="#section-50">&#182;</a>
           </div>
           <p>Duck type function for determining whether or not something is a footwork viewModel</p>
 
@@ -1593,23 +1623,7 @@ Router.prototype.navigationModel = <span class="hljs-function"><span class="hljs
         
         <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isViewModel</span><span class="hljs-params">(thing)</span> </span>{
   <span class="hljs-keyword">return</span> isObject(thing) &amp;&amp; !!thing.__isViewModel;
-}</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-52" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-52">&#182;</a>
-          </div>
-          <p>Preserve the original applyBindings method for later use</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> originalApplyBindings = ko.applyBindings;
+}
 
 <span class="hljs-keyword">var</span> defaultGetViewModelOptions = {
   includeOutlets: <span class="hljs-literal">false</span>
@@ -1620,11 +1634,11 @@ ko.viewModels = {};</pre></div></div>
     </li>
     
     
-    <li id="section-53" class="section">
+    <li id="section-51" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-53">&#182;</a>
+            <a class="pilcrow" href="#section-51">&#182;</a>
           </div>
           <p>Returns a reference to the specified viewModels.
 If no name is supplied, a reference to an array containing all model references is returned.</p>
@@ -1655,11 +1669,11 @@ If no name is supplied, a reference to an array containing all model references 
     </li>
     
     
-    <li id="section-54" class="section">
+    <li id="section-52" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-54">&#182;</a>
+            <a class="pilcrow" href="#section-52">&#182;</a>
           </div>
           <p>Tell all viewModels to request the values which it listens for</p>
 
@@ -1702,7 +1716,12 @@ If no name is supplied, a reference to an array containing all model references 
   configParams = extend({}, defaultViewModelConfigParams, configParams);
 
   <span class="hljs-keyword">var</span> initViewModelMixin = {
-    _preInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( initParams )</span> </span>{
+    _preInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( params )</span> </span>{
+      <span class="hljs-keyword">var</span> initParams = params;
+      <span class="hljs-keyword">this</span>.__getInitParams = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">return</span> initParams;
+      };
+
       <span class="hljs-keyword">if</span>( isObject(configParams.router) ) {
         <span class="hljs-keyword">this</span>.$router = <span class="hljs-keyword">new</span> Router( configParams.router, <span class="hljs-keyword">this</span> );
       }
@@ -1718,15 +1737,11 @@ If no name is supplied, a reference to an array containing all model references 
           configParams.afterDispose.call(<span class="hljs-keyword">this</span>);
         }
 
-        each(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( property )</span> </span>{
+        each(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( property, name )</span> </span>{
           <span class="hljs-keyword">if</span>( isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) ) {
             property.shutdown();
           }
         });
-
-        <span class="hljs-keyword">if</span>( isFunction(configParams.afterBinding) ) {
-          configParams.afterBinding.wasCalled = <span class="hljs-literal">false</span>;
-        }
       }
     },
     _postInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
@@ -1779,11 +1794,11 @@ If no name is supplied, a reference to an array containing all model references 
     </li>
     
     
-    <li id="section-55" class="section">
+    <li id="section-53" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-55">&#182;</a>
+            <a class="pilcrow" href="#section-53">&#182;</a>
           </div>
           <p>user has specified another viewModel constructor as the ‘initialize’ function, we extend it with the current constructor to create an inheritance chain</p>
 
@@ -1803,18 +1818,19 @@ If no name is supplied, a reference to an array containing all model references 
     </li>
     
     
-    <li id="section-56" class="section">
+    <li id="section-54" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-56">&#182;</a>
+            <a class="pilcrow" href="#section-54">&#182;</a>
           </div>
           <p>Override the original applyBindings method to provide ‘viewModel’ life-cycle hooks/events and to provide the $context to the $router if present.</p>
 
           <div class="annotation-bg"></div>
         </div>
         
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> doNotSetContextOnRouter = <span class="hljs-literal">false</span>;
+        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> originalApplyBindings = ko.applyBindings;
+<span class="hljs-keyword">var</span> doNotSetContextOnRouter = <span class="hljs-literal">false</span>;
 <span class="hljs-keyword">var</span> setContextOnRouter = <span class="hljs-literal">true</span>;
 <span class="hljs-keyword">var</span> applyBindings = ko.applyBindings = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(viewModel, element, shouldSetContext)</span> </span>{
   originalApplyBindings(viewModel, element);
@@ -1822,13 +1838,18 @@ If no name is supplied, a reference to an array containing all model references 
 
   <span class="hljs-keyword">if</span>( isViewModel(viewModel) ) {
     <span class="hljs-keyword">var</span> $configParams = viewModel.__getConfigParams();
+    <span class="hljs-keyword">var</span> $initParams = viewModel.__getInitParams();
     
     <span class="hljs-keyword">if</span>( isFunction($configParams.afterBinding) ) {
       $configParams.afterBinding.call(viewModel, element);
     }
 
+    <span class="hljs-keyword">if</span>( isObject($initParams) &amp;&amp; isFunction($initParams.___$afterBinding) ) {
+      $initParams.___$afterBinding.call(viewModel, element);
+    }
+
     <span class="hljs-keyword">if</span>( shouldSetContext === setContextOnRouter &amp;&amp; isRouter( viewModel.$router ) ) {
-      viewModel.$router.context( ko.contextFor(element) );
+      viewModel.$router.context( ko.contextFor(element || <span class="hljs-built_in">document</span>.body) );
     }
     
     <span class="hljs-keyword">if</span>( !isUndefined(element) ) {
@@ -1850,11 +1871,11 @@ If no name is supplied, a reference to an array containing all model references 
     </li>
     
     
-    <li id="section-57" class="section">
+    <li id="section-55" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-57">&#182;</a>
+            <a class="pilcrow" href="#section-55">&#182;</a>
           </div>
           <p>binding the viewModelObj onto each child element is not ideal, need to do this differently
 cannot get component.preprocess() method to work/be called for some reason</p>
@@ -1869,11 +1890,11 @@ cannot get component.preprocess() method to work/be called for some reason</p>
     </li>
     
     
-    <li id="section-58" class="section">
+    <li id="section-56" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-58">&#182;</a>
+            <a class="pilcrow" href="#section-56">&#182;</a>
           </div>
           <p>we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each
 sub-element and must specify the context as being the container element only once</p>
@@ -1889,13 +1910,13 @@ sub-element and must specify the context as being the container element only onc
     </li>
     
     
-    <li id="section-59" class="section">
+    <li id="section-57" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-59">&#182;</a>
+            <a class="pilcrow" href="#section-57">&#182;</a>
           </div>
-          <p>Monkey patch enables the viewModel ‘component’ to initialize a model and bind to the html as intended (with lifecycle events)
+          <p>Monkey patch enables the viewModel component to initialize a model and bind to the html as intended (with lifecycle events)
 TODO: Do this differently once this is resolved: <a href="https://github.com/knockout/knockout/issues/1463">https://github.com/knockout/knockout/issues/1463</a></p>
 
           <div class="annotation-bg"></div>
@@ -1919,11 +1940,11 @@ ko.bindingHandlers.component.init = <span class="hljs-function"><span class="hlj
     </li>
     
     
-    <li id="section-60" class="section">
+    <li id="section-58" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-60">&#182;</a>
+            <a class="pilcrow" href="#section-58">&#182;</a>
           </div>
           <p>viewModel was manually registered, we preferentially use it</p>
 
@@ -1936,11 +1957,11 @@ ko.bindingHandlers.component.init = <span class="hljs-function"><span class="hlj
     </li>
     
     
-    <li id="section-61" class="section">
+    <li id="section-59" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-61">&#182;</a>
+            <a class="pilcrow" href="#section-59">&#182;</a>
           </div>
           <p>we have found a matching resource that is already cached by require, lets use it</p>
 
@@ -1979,11 +2000,11 @@ ko.bindingHandlers.component.init = <span class="hljs-function"><span class="hlj
     </li>
     
     
-    <li id="section-62" class="section">
+    <li id="section-60" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-62">&#182;</a>
+            <a class="pilcrow" href="#section-60">&#182;</a>
           </div>
           <p>we patch in the ‘name’ of the outlet into the params valueAccessor on the component definition (if necessary and available)</p>
 
@@ -2009,27 +2030,14 @@ ko.bindingHandlers.component.init = <span class="hljs-function"><span class="hlj
     </li>
     
     
-    <li id="section-63" class="section">
+    <li id="section-61" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-63">&#182;</a>
+            <a class="pilcrow" href="#section-61">&#182;</a>
           </div>
           <h2 id="component-js">component.js</h2>
 
-          <div class="annotation-bg"></div>
-        </div>
-        
-    </li>
-    
-    
-    <li id="section-64" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-64">&#182;</a>
-          </div>
-          
           <div class="annotation-bg"></div>
         </div>
         
@@ -2048,7 +2056,7 @@ ko.bindingHandlers.component.init = <span class="hljs-function"><span class="hlj
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel,
+    viewModel: viewModel || ko.viewModel(),
     template: options.template
   });
 };
@@ -2060,7 +2068,7 @@ ko.components.getNormalTagList = <span class="hljs-function"><span class="hljs-k
 ko.components.getComponentNameForNode = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(node)</span> </span>{
   <span class="hljs-keyword">var</span> tagName = isString(node.tagName) &amp;&amp; node.tagName.toLowerCase();
 
-  <span class="hljs-keyword">if</span>( ko.components.isRegistered(tagName) || indexOf(nonComponentTags, tagName) === -<span class="hljs-number">1</span> ) {
+  <span class="hljs-keyword">if</span>( ko.components.isRegistered(tagName) || tagIsComponent(tagName) ) {
     <span class="hljs-keyword">return</span> tagName;
   }
   <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
@@ -2079,11 +2087,41 @@ ko.components.getComponentNameForNode = <span class="hljs-function"><span class=
     </li>
     
     
-    <li id="section-65" class="section">
+    <li id="section-62" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-65">&#182;</a>
+            <a class="pilcrow" href="#section-62">&#182;</a>
+          </div>
+          <p>Register a component as consisting of a template only.
+This will cause footwork to load only the template when this component is used.</p>
+
+          <div class="annotation-bg"></div>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> componentTemplateOnlyRegister = [];
+<span class="hljs-keyword">var</span> registerComponentAsTemplateOnly = ko.components.templateOnly = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(componentName, isTemplateOnly)</span> </span>{
+  isTemplateOnly = (isUndefined(isTemplateOnly) ? <span class="hljs-literal">true</span> : isTemplateOnly);
+  <span class="hljs-keyword">if</span>( isArray(componentName) ) {
+    each(componentName, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(compName)</span> </span>{
+      registerComponentAsTemplateOnly(compName, isTemplateOnly);
+    });
+  }
+
+  componentTemplateOnlyRegister[componentName] = isTemplateOnly;
+  <span class="hljs-keyword">if</span>( !isArray(componentName) ) {
+    <span class="hljs-keyword">return</span> componentTemplateOnlyRegister[componentName] || <span class="hljs-string">'normal'</span>;
+  }
+};</pre></div></div>
+        
+    </li>
+    
+    
+    <li id="section-63" class="section">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-63">&#182;</a>
           </div>
           <p>These are tags which are ignored by the custom component loader
 Sourced from: <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element">https://developer.mozilla.org/en-US/docs/Web/HTML/Element</a></p>
@@ -2104,7 +2142,9 @@ Sourced from: <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element
   <span class="hljs-string">'tfoot'</span>, <span class="hljs-string">'th'</span>, <span class="hljs-string">'thead'</span>, <span class="hljs-string">'time'</span>, <span class="hljs-string">'title'</span>, <span class="hljs-string">'tr'</span>, <span class="hljs-string">'track'</span>, <span class="hljs-string">'u'</span>, <span class="hljs-string">'ul'</span>, <span class="hljs-string">'var'</span>, <span class="hljs-string">'video'</span>, <span class="hljs-string">'wbr'</span>, <span class="hljs-string">'xmp'</span>
 ];
 <span class="hljs-keyword">var</span> tagIsComponent = ko.components.tagIsComponent = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(tagName, isComponent)</span> </span>{
-  isComponent = ( isUndefined(isComponent) ? <span class="hljs-literal">true</span> : isComponent );
+  <span class="hljs-keyword">if</span>( isUndefined(isComponent) ) {
+    <span class="hljs-keyword">return</span> indexOf(nonComponentTags, tagName) === -<span class="hljs-number">1</span>;
+  }
 
   <span class="hljs-keyword">if</span>( isArray(tagName) ) {
     each(tagName, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(tag)</span> </span>{
@@ -2121,7 +2161,29 @@ Sourced from: <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element
       <span class="hljs-keyword">return</span> nonComponentTagName !== tagName;
     });
   }
-};
+};</pre></div></div>
+        
+    </li>
+    
+    
+    <li id="section-64" class="section">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-64">&#182;</a>
+          </div>
+          <p>Components which footwork will not wrap in the $compLifeCycle custom binding used for lifecycle events
+Used to keep the wrapper off of internal/natively handled and defined components such as ‘outlet’</p>
+
+          <div class="annotation-bg"></div>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> nativeComponents = [
+  <span class="hljs-string">'outlet'</span>
+];
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isNativeComponent</span><span class="hljs-params">(componentName)</span> </span>{
+  <span class="hljs-keyword">return</span> indexOf(nativeComponents, componentName) !== -<span class="hljs-number">1</span>;
+}
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">componentTriggerAfterBinding</span><span class="hljs-params">(element, viewModel)</span> </span>{
   <span class="hljs-keyword">if</span>( isViewModel(viewModel) ) {
@@ -2135,11 +2197,11 @@ Sourced from: <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element
     </li>
     
     
-    <li id="section-66" class="section">
+    <li id="section-65" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-66">&#182;</a>
+            <a class="pilcrow" href="#section-65">&#182;</a>
           </div>
           <p>Use the $compLifeCycle wrapper binding to provide lifecycle events for components</p>
 
@@ -2156,41 +2218,27 @@ ko.bindingHandlers.$compLifeCycle = {
     });
   },
   update: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(element, valueAccessor, allBindings, viewModel, bindingContext)</span> </span>{
-    <span class="hljs-keyword">var</span> child = ko.virtualElements.firstChild(element);
-    <span class="hljs-keyword">if</span>( !isUndefined(child) ) {
-      viewModel = ko.dataFor( child );
+    <span class="hljs-keyword">var</span> $parent = bindingContext.$parent;
+    <span class="hljs-keyword">if</span>( isObject($parent) &amp;&amp; $parent.__isOutlet ) {
+      $parent.$outletRoute().getOnCompleteCallback()(element);
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">var</span> child = ko.virtualElements.firstChild(element);
+      <span class="hljs-keyword">if</span>( !isUndefined(child) ) {
+        viewModel = ko.dataFor( child );
+      }
+      componentTriggerAfterBinding(element, viewModel);
     }
-    componentTriggerAfterBinding(element, viewModel);
   }
 };</pre></div></div>
         
     </li>
     
     
-    <li id="section-67" class="section">
+    <li id="section-66" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-67">&#182;</a>
-          </div>
-          <p>Components which footwork will not wrap in the $compLifeCycle custom binding used for lifecycle events
-Used to keep the wrapper off of internal/natively handled and defined components such as ‘outlet’</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> nativeComponents = [
-  <span class="hljs-string">'outlet'</span>
-];</pre></div></div>
-        
-    </li>
-    
-    
-    <li id="section-68" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-68">&#182;</a>
+            <a class="pilcrow" href="#section-66">&#182;</a>
           </div>
           <p>Custom loader used to wrap components with the $compLifeCycle custom binding</p>
 
@@ -2200,16 +2248,16 @@ Used to keep the wrapper off of internal/natively handled and defined components
         <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> componentWrapperTemplate = <span class="hljs-string">'&lt;!-- ko $compLifeCycle --&gt;COMPONENT_MARKUP&lt;!-- /ko --&gt;'</span>;
 ko.components.loaders.unshift( ko.components.componentWrapper = {
   loadTemplate: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(componentName, config, callback)</span> </span>{
-    <span class="hljs-keyword">if</span>( nativeComponents.indexOf(componentName) === -<span class="hljs-number">1</span> ) {</pre></div></div>
+    <span class="hljs-keyword">if</span>( !isNativeComponent(componentName) ) {</pre></div></div>
         
     </li>
     
     
-    <li id="section-69" class="section">
+    <li id="section-67" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-69">&#182;</a>
+            <a class="pilcrow" href="#section-67">&#182;</a>
           </div>
           <p>TODO: Handle different types of configs</p>
 
@@ -2228,20 +2276,23 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
   },
   loadViewModel: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(componentName, config, callback)</span> </span>{
     <span class="hljs-keyword">var</span> ViewModel = config.viewModel || config;
-    <span class="hljs-keyword">if</span>( nativeComponents.indexOf(componentName) === -<span class="hljs-number">1</span> ) {
+    <span class="hljs-keyword">if</span>( !isNativeComponent(componentName) ) {
       callback(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(params, componentInfo)</span> </span>{
         <span class="hljs-keyword">var</span> $context = ko.contextFor(componentInfo.element);
         <span class="hljs-keyword">var</span> LoadedViewModel = ViewModel;
-        <span class="hljs-keyword">if</span>( isViewModelCtor(ViewModel) ) {</pre></div></div>
+        <span class="hljs-keyword">if</span>( isFunction(ViewModel) ) {
+          <span class="hljs-keyword">if</span>( !isViewModelCtor(ViewModel) ) {
+            ViewModel = makeViewModel({ initialize: ViewModel });
+          }</pre></div></div>
         
     </li>
     
     
-    <li id="section-70" class="section">
+    <li id="section-68" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-70">&#182;</a>
+            <a class="pilcrow" href="#section-68">&#182;</a>
           </div>
           <p>inject the context into the ViewModel contructor</p>
 
@@ -2253,8 +2304,9 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
               <span class="hljs-keyword">this</span>.$context = $context;
             }
           });
+          <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> LoadedViewModel(params);
         }
-        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> LoadedViewModel(params);
+        <span class="hljs-keyword">return</span> LoadedViewModel;
       });
     } <span class="hljs-keyword">else</span> {
       callback(<span class="hljs-literal">null</span>);
@@ -2265,11 +2317,11 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
     </li>
     
     
-    <li id="section-71" class="section">
+    <li id="section-69" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-71">&#182;</a>
+            <a class="pilcrow" href="#section-69">&#182;</a>
           </div>
           <p>The footwork getConfig loader is a catch-all in the instance a registered component cannot be found.
 The loader will attempt to use requirejs via knockouts integrated support if it is available.</p>
@@ -2293,11 +2345,11 @@ The loader will attempt to use requirejs via knockouts integrated support if it 
     </li>
     
     
-    <li id="section-72" class="section">
+    <li id="section-70" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-72">&#182;</a>
+            <a class="pilcrow" href="#section-70">&#182;</a>
           </div>
           <p>load component using knockouts native support for requirejs</p>
 
@@ -2309,11 +2361,11 @@ The loader will attempt to use requirejs via knockouts integrated support if it 
     </li>
     
     
-    <li id="section-73" class="section">
+    <li id="section-71" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-73">&#182;</a>
+            <a class="pilcrow" href="#section-71">&#182;</a>
           </div>
           <p>component already cached, lets use it</p>
 
@@ -2342,10 +2394,29 @@ The loader will attempt to use requirejs via knockouts integrated support if it 
         }
         <span class="hljs-keyword">if</span>( isPath(templatePath) ) {
           templatePath = templatePath + templateFile;
-        }
+        }</pre></div></div>
         
+    </li>
+    
+    
+    <li id="section-72" class="section">
+        <div class="annotation">
+          
+          <div class="pilwrap ">
+            <a class="pilcrow" href="#section-72">&#182;</a>
+          </div>
+          <p>check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)</p>
+
+          <div class="annotation-bg"></div>
+        </div>
+        
+        <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> viewModelConfig = { <span class="hljs-built_in">require</span>: viewModelPath };
+        <span class="hljs-keyword">if</span>( componentTemplateOnlyRegister[componentName] ) {
+          viewModelConfig = { instance: {} };
+        }
+
         configOptions = {
-          viewModel: { <span class="hljs-built_in">require</span>: viewModelPath },
+          viewModel: viewModelConfig,
           template: { <span class="hljs-built_in">require</span>: templatePath }
         };
       }
@@ -2368,11 +2439,11 @@ ko.bindingHandlers.$outletBind = {
     </li>
     
     
-    <li id="section-74" class="section">
+    <li id="section-73" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-74">&#182;</a>
+            <a class="pilcrow" href="#section-73">&#182;</a>
           </div>
           <p>register this outlet with the router so that updates will propagate correctly
 take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view</p>
@@ -2381,51 +2452,51 @@ take the observable returned and define it on the outletViewModel so that outlet
         </div>
         
         <div class="content"><div class='highlight'><pre>      outletViewModel.$outletRoute = $parentRouter.$outlet( outletName );
-    } <span class="hljs-keyword">else</span> {
-      <span class="hljs-keyword">throw</span> <span class="hljs-string">'Outlet ['</span> + outletName + <span class="hljs-string">'] defined inside of viewModel ['</span> + $parentViewModel.getNamespaceName() + <span class="hljs-string">'] but no router was defined.'</span>;
+    } else {
+      throw 'Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.getNamespaceName() + '] but no router was defined.';
     }
   }
 };
 
-ko.components.register(<span class="hljs-string">'outlet'</span>, {
-  autoIncrement: <span class="hljs-literal">true</span>,
-  viewModel: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(params)</span> </span>{
-    <span class="hljs-keyword">this</span>.outletName = ko.unwrap(params.name);
-    <span class="hljs-keyword">this</span>.__isOutlet = <span class="hljs-literal">true</span>;
+ko.components.register('outlet', {
+  autoIncrement: true,
+  viewModel: function(params) {
+    this.outletName = ko.unwrap(params.name);
+    this.__isOutlet = true;
   },
-  template: <span class="hljs-string">'&lt;!-- ko $outletBind, component: $outletRoute --&gt;&lt;!-- /ko --&gt;'</span>
+  template: '&lt;!-- ko $outletBind, component: $outletRoute --&gt;&lt;!-- /ko --&gt;'
 });
 
-ko.components.register(<span class="hljs-string">'_noComponentSelected'</span>, {
-  viewModel: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(params)</span> </span>{
-    <span class="hljs-keyword">this</span>.__assertPresence = <span class="hljs-literal">false</span>;
+ko.components.register('_noComponentSelected', {
+  viewModel: function(params) {
+    this.__assertPresence = false;
   },
-  template: <span class="hljs-string">'&lt;div class="no-component-selected"&gt;&lt;/div&gt;'</span>
+  template: '&lt;div class="no-component-selected"&gt;&lt;/div&gt;'
 });
 
-ko.components.register(<span class="hljs-string">'error'</span>, {
-  viewModel: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(params)</span> </span>{
-    <span class="hljs-keyword">this</span>.message = ko.observable(params.message);
-    <span class="hljs-keyword">this</span>.errors = params.errors;
-    <span class="hljs-keyword">this</span>.__assertPresence = <span class="hljs-literal">false</span>;
+ko.components.register('error', {
+  viewModel: function(params) {
+    this.message = ko.observable(params.message);
+    this.errors = params.errors;
+    this.__assertPresence = false;
   },
-  template: <span class="hljs-string">'\
+  template: '\
     &lt;div class="component error" data-bind="foreach: errors"&gt;\
       &lt;div class="error"&gt;\
         &lt;span class="number" data-bind="text: $index() + 1"&gt;&lt;/span&gt;\
         &lt;span class="message" data-bind="text: $data"&gt;&lt;/span&gt;\
       &lt;/div&gt;\
-    &lt;/div&gt;'</span>
+    &lt;/div&gt;'
 });</pre></div></div>
         
     </li>
     
     
-    <li id="section-75" class="section">
+    <li id="section-74" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-75">&#182;</a>
+            <a class="pilcrow" href="#section-74">&#182;</a>
           </div>
           <h2 id="resource-js">resource.js</h2>
 
@@ -2435,24 +2506,11 @@ ko.components.register(<span class="hljs-string">'error'</span>, {
     </li>
     
     
-    <li id="section-76" class="section">
+    <li id="section-75" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-76">&#182;</a>
-          </div>
-          
-          <div class="annotation-bg"></div>
-        </div>
-        
-    </li>
-    
-    
-    <li id="section-77" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-77">&#182;</a>
+            <a class="pilcrow" href="#section-75">&#182;</a>
           </div>
           <p>component resource section</p>
 
@@ -2498,11 +2556,11 @@ ko.components.register(<span class="hljs-string">'error'</span>, {
     </li>
     
     
-    <li id="section-78" class="section">
+    <li id="section-76" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-78">&#182;</a>
+            <a class="pilcrow" href="#section-76">&#182;</a>
           </div>
           <p>assume some combination of defaultComponentLocation and normalize the parameters</p>
 
@@ -2544,11 +2602,11 @@ ko.components.register(<span class="hljs-string">'error'</span>, {
     </li>
     
     
-    <li id="section-79" class="section">
+    <li id="section-77" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-79">&#182;</a>
+            <a class="pilcrow" href="#section-77">&#182;</a>
           </div>
           <p>Return the component resource definition for the supplied componentName</p>
 
@@ -2565,11 +2623,11 @@ ko.components.register(<span class="hljs-string">'error'</span>, {
     </li>
     
     
-    <li id="section-80" class="section">
+    <li id="section-78" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-80">&#182;</a>
+            <a class="pilcrow" href="#section-78">&#182;</a>
           </div>
           <p>viewModel resource section</p>
 
@@ -2633,11 +2691,11 @@ ko.components.register(<span class="hljs-string">'error'</span>, {
     </li>
     
     
-    <li id="section-81" class="section">
+    <li id="section-79" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-81">&#182;</a>
+            <a class="pilcrow" href="#section-79">&#182;</a>
           </div>
           <p>Return the viewModel resource definition for the supplied viewModelName</p>
 
@@ -2654,11 +2712,11 @@ ko.components.register(<span class="hljs-string">'error'</span>, {
     </li>
     
     
-    <li id="section-82" class="section">
+    <li id="section-80" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-82">&#182;</a>
+            <a class="pilcrow" href="#section-80">&#182;</a>
           </div>
           <h2 id="extenders-js">extenders.js</h2>
 
@@ -2668,11 +2726,11 @@ ko.components.register(<span class="hljs-string">'error'</span>, {
     </li>
     
     
-    <li id="section-83" class="section">
+    <li id="section-81" class="section">
         <div class="annotation">
           
           <div class="pilwrap ">
-            <a class="pilcrow" href="#section-83">&#182;</a>
+            <a class="pilcrow" href="#section-81">&#182;</a>
           </div>
           <p>custom throttle() based on ko v3.0.0 throttle(), allows value to be force()’d to a value at any time</p>
 

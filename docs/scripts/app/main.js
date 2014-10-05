@@ -18,7 +18,6 @@ require.config({
     "lodash":            "../bower_components/lodash/dist/lodash.underscore",
     "history":           "../bower_components/history.js/scripts/bundled/html5/native.history",
     "jquery.touchy":     "../bower_components/touchy/jquery.touchy",
-    "jquery.spectrum":   "../bower_components/spectrum/spectrum",
     "jwerty":            "lib/jwerty", // jwerty does not provide an AMD build, this is a custom wrapped version
     "jquery.pulse":      "lib/jquery-plugins/jquery.pulse",
     "jquery.mousewheel": "lib/jquery-plugins/jquery.mousewheel",
