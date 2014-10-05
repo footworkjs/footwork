@@ -32,8 +32,8 @@ var noop = function() { };
 
 var isObservable = ko.isObservable;
 
-var isPath = function(pathOrLocation) {
-  return hasTrailingSlash.test(pathOrLocation) === true;
+var isPath = function(pathOrFile) {
+  return hasTrailingSlash.test(pathOrFile);
 };
 
 // Pull out lodash utility function references for better minification and easier implementation swap
@@ -65,6 +65,7 @@ var indexOf = _.indexOf;
 var values = _.values;
 var reject = _.reject;
 var findWhere = _.findWhere;
+var once = _.once;
 
 // Registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];
@@ -509,6 +510,10 @@ var baseRouteDescription = {
   __isRouteDesc: true
 };
 
+function transformRouteConfigToDesc(routeDesc) {
+  return extend( { id: uniqueId('route') }, baseRouteDescription, routeDesc );
+}
+
 // Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
 function routeStringToRegExp(routeString) {
   routeString = routeString
@@ -575,12 +580,21 @@ function nearestParentRouter($context) {
 }
 
 var noComponentSelected = '_noComponentSelected';
-var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters ) {
+var $routerOutlet = function(outletName, componentToDisplay, options ) {
+  options = options || {};
+  if( isFunction(options) ) {
+    options = { onComplete: options };
+  }
+  
+  var viewModelParameters = options.params;
+  var onComplete = options.onComplete;
   var outlets = this.outlets;
+  var isInitialLoad = false;
 
   outletName = ko.unwrap( outletName );
   if( !isObservable(outlets[outletName]) ) {
     outlets[outletName] = ko.observable({ name: noComponentSelected, params: {} });
+    isInitialLoad = true;
   }
 
   var outlet = outlets[outletName];
@@ -598,6 +612,27 @@ var $routerOutlet = function(outletName, componentToDisplay, viewModelParameters
   }
 
   if( valueHasMutated ) {
+    if( isFunction(onComplete) ) {
+      // Return the onComplete callback once the DOM is injected in the page.
+      // For some reason, on initial outlet binding only calls update once. Subsequent
+      // changes get called twice (correct per docs, once upon initial binding, and once
+      // upon injection into the DOM). Perhaps due to usage of virtual DOM for the component?
+      var callCounter = (isInitialLoad ? 0 : 1);
+
+      currentOutletDef.getOnCompleteCallback = function() {
+        var isComplete = callCounter === 0;
+        callCounter--;
+        if( isComplete ) {
+          return onComplete;
+        }
+        return noop;
+      };
+    } else {
+      currentOutletDef.getOnCompleteCallback = function() {
+        return noop;
+      };
+    }
+
     outlet.valueHasMutated();
   }
 
@@ -712,6 +747,12 @@ var Router = function( routerConfig, $viewModel, $context ) {
     });
   }, this);
 
+  if( !isUndefined(routerConfig.unknownRoute) ) {
+    if( isFunction(routerConfig.unknownRoute) ) {
+      routerConfig.unknownRoute = { controller: routerConfig.unknownRoute };
+    }
+    routerConfig.routes.push( extend( routerConfig.unknownRoute, { unknown: true } ) );
+  }
   this.setRoutes( routerConfig.routes );
 
   if( routerConfig.activate === true ) {
@@ -732,14 +773,12 @@ Router.prototype.setRoutes = function(routeDesc) {
   return this;
 };
 
-Router.prototype.addRoutes = function(routeDesc) {
-  routeDesc = isArray(routeDesc) ? routeDesc : [routeDesc];
+Router.prototype.addRoutes = function(routeConfig) {
+  routeConfig = isArray(routeConfig) ? routeConfig : [routeConfig];
 
-  this.routeDescriptions = this.routeDescriptions.concat( map(routeDesc, function(routeDesc) {
-    return extend( { id: uniqueId('route') }, baseRouteDescription, routeDesc );
-  }) );
+  this.routeDescriptions = this.routeDescriptions.concat( map(routeConfig, transformRouteConfigToDesc) );
 
-  if( hasNavItems(routeDesc) && isObservable(this.navigationModel) ) {
+  if( hasNavItems(routeConfig) && isObservable(this.navigationModel) ) {
     this.navModelUpdate.notifySubscribers();
   }
 
@@ -769,7 +808,10 @@ Router.prototype.startup = function( $context, $parentRouter ) {
   if( !isNullRouter($parentRouter) ) {
     this.parentRouter( $parentRouter );
   } else if( isObject($context) ) {
-    this.parentRouter( $parentRouter = nearestParentRouter($context) );
+    $parentRouter = nearestParentRouter($context);
+    if( $parentRouter.id !== this.id ) {
+      this.parentRouter( $parentRouter );
+    }
   }
 
   if( !this.historyIsEnabled() ) {
@@ -822,7 +864,7 @@ Router.prototype.normalizeURL = function(url) {
 };
 
 Router.prototype.getUnknownRoute = function() {
-  var unknownRoute = findWhere(this.getRouteDescriptions(), { unknown: true }) || null;
+  var unknownRoute = findWhere((this.getRouteDescriptions() || []).reverse(), { unknown: true }) || null;
 
   if( !isNull(unknownRoute) ) {
     unknownRoute = extend({}, baseRoute, {
@@ -839,7 +881,7 @@ Router.prototype.getUnknownRoute = function() {
 Router.prototype.getRouteForURL = function(url) {
   var route = null;
   var parentRoutePath = this.parentRouter().routePath() || '';
-  var unknownRoute = bind(this.getUnknownRoute, this);
+  var unknownRoute = this.getUnknownRoute();
 
   if( this.isRelative() ) {
     // since this is a relative router, we need to remove the leading parentRoutePath section of the URL
@@ -847,10 +889,10 @@ Router.prototype.getRouteForURL = function(url) {
       if( ( routeIndex = url.indexOf(parentRoutePath) ) === 0 ) {
         url = url.substr( parentRoutePath.length );
       } else {
-        return unknownRoute();
+        return unknownRoute;
       }
     } else {
-      return unknownRoute();
+      return unknownRoute;
     }
   }
 
@@ -884,7 +926,7 @@ Router.prototype.getRouteForURL = function(url) {
     return route;
   });
 
-  return route || unknownRoute();
+  return route || unknownRoute;
 };
 
 Router.prototype.getActionForRoute = function(routeDescription) {
@@ -918,7 +960,7 @@ Router.prototype.navigationModel = function(predicate) {
     this.navigationModel = ko.computed(function() {
       this.navModelUpdate(); // dummy reference used to trigger updates
       return filter( extractNavItems(this.routeDescriptions), (predicate || alwaysPassPredicate) );
-    }, { navModelUpdate: this.navModelUpdate }).broadcastAs({ name: 'navigationModel', namespace: this.$namespace });
+    }, { navModelUpdate: this.navModelUpdate });
   }
 
   return this.navigationModel;
@@ -935,9 +977,6 @@ function isViewModelCtor(thing) {
 function isViewModel(thing) {
   return isObject(thing) && !!thing.__isViewModel;
 }
-
-// Preserve the original applyBindings method for later use
-var originalApplyBindings = ko.applyBindings;
 
 var defaultGetViewModelOptions = {
   includeOutlets: false
@@ -1004,7 +1043,12 @@ var makeViewModel = ko.viewModel = function(configParams) {
   configParams = extend({}, defaultViewModelConfigParams, configParams);
 
   var initViewModelMixin = {
-    _preInit: function( initParams ) {
+    _preInit: function( params ) {
+      var initParams = params;
+      this.__getInitParams = function() {
+        return initParams;
+      };
+
       if( isObject(configParams.router) ) {
         this.$router = new Router( configParams.router, this );
       }
@@ -1020,15 +1064,11 @@ var makeViewModel = ko.viewModel = function(configParams) {
           configParams.afterDispose.call(this);
         }
 
-        each(this, function( property ) {
+        each(this, function( property, name ) {
           if( isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) ) {
             property.shutdown();
           }
         });
-
-        if( isFunction(configParams.afterBinding) ) {
-          configParams.afterBinding.wasCalled = false;
-        }
       }
     },
     _postInit: function() {
@@ -1089,6 +1129,7 @@ var makeViewModel = ko.viewModel = function(configParams) {
 };
 
 // Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.
+var originalApplyBindings = ko.applyBindings;
 var doNotSetContextOnRouter = false;
 var setContextOnRouter = true;
 var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetContext) {
@@ -1097,13 +1138,18 @@ var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetCon
 
   if( isViewModel(viewModel) ) {
     var $configParams = viewModel.__getConfigParams();
+    var $initParams = viewModel.__getInitParams();
     
     if( isFunction($configParams.afterBinding) ) {
       $configParams.afterBinding.call(viewModel, element);
     }
 
+    if( isObject($initParams) && isFunction($initParams.___$afterBinding) ) {
+      $initParams.___$afterBinding.call(viewModel, element);
+    }
+
     if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) ) {
-      viewModel.$router.context( ko.contextFor(element) );
+      viewModel.$router.context( ko.contextFor(element || document.body) );
     }
     
     if( !isUndefined(element) ) {
@@ -1135,7 +1181,7 @@ function bindComponentViewModel(element, params, ViewModel) {
   }
 };
 
-// Monkey patch enables the viewModel 'component' to initialize a model and bind to the html as intended (with lifecycle events)
+// Monkey patch enables the viewModel component to initialize a model and bind to the html as intended (with lifecycle events)
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = ko.bindingHandlers.component.init;
 ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
@@ -1216,7 +1262,7 @@ var registerComponent = ko.components.register = function(componentName, options
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel,
+    viewModel: viewModel || ko.viewModel(),
     template: options.template
   });
 };
@@ -1228,7 +1274,7 @@ ko.components.getNormalTagList = function() {
 ko.components.getComponentNameForNode = function(node) {
   var tagName = isString(node.tagName) && node.tagName.toLowerCase();
 
-  if( ko.components.isRegistered(tagName) || indexOf(nonComponentTags, tagName) === -1 ) {
+  if( ko.components.isRegistered(tagName) || tagIsComponent(tagName) ) {
     return tagName;
   }
   return null;
@@ -1242,6 +1288,23 @@ var makeComponent = ko.component = function(componentDefinition) {
   }
 
   return componentDefinition;
+};
+
+// Register a component as consisting of a template only.
+// This will cause footwork to load only the template when this component is used.
+var componentTemplateOnlyRegister = [];
+var registerComponentAsTemplateOnly = ko.components.templateOnly = function(componentName, isTemplateOnly) {
+  isTemplateOnly = (isUndefined(isTemplateOnly) ? true : isTemplateOnly);
+  if( isArray(componentName) ) {
+    each(componentName, function(compName) {
+      registerComponentAsTemplateOnly(compName, isTemplateOnly);
+    });
+  }
+
+  componentTemplateOnlyRegister[componentName] = isTemplateOnly;
+  if( !isArray(componentName) ) {
+    return componentTemplateOnlyRegister[componentName] || 'normal';
+  }
 };
 
 // These are tags which are ignored by the custom component loader
@@ -1259,7 +1322,9 @@ var nonComponentTags = [
   'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp'
 ];
 var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponent) {
-  isComponent = ( isUndefined(isComponent) ? true : isComponent );
+  if( isUndefined(isComponent) ) {
+    return indexOf(nonComponentTags, tagName) === -1;
+  }
 
   if( isArray(tagName) ) {
     each(tagName, function(tag) {
@@ -1277,6 +1342,15 @@ var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponen
     });
   }
 };
+
+// Components which footwork will not wrap in the $compLifeCycle custom binding used for lifecycle events
+// Used to keep the wrapper off of internal/natively handled and defined components such as 'outlet'
+var nativeComponents = [
+  'outlet'
+];
+function isNativeComponent(componentName) {
+  return indexOf(nativeComponents, componentName) !== -1;
+}
 
 function componentTriggerAfterBinding(element, viewModel) {
   if( isViewModel(viewModel) ) {
@@ -1298,25 +1372,24 @@ ko.bindingHandlers.$compLifeCycle = {
     });
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    var child = ko.virtualElements.firstChild(element);
-    if( !isUndefined(child) ) {
-      viewModel = ko.dataFor( child );
+    var $parent = bindingContext.$parent;
+    if( isObject($parent) && $parent.__isOutlet ) {
+      $parent.$outletRoute().getOnCompleteCallback()(element);
+    } else {
+      var child = ko.virtualElements.firstChild(element);
+      if( !isUndefined(child) ) {
+        viewModel = ko.dataFor( child );
+      }
+      componentTriggerAfterBinding(element, viewModel);
     }
-    componentTriggerAfterBinding(element, viewModel);
   }
 };
-
-// Components which footwork will not wrap in the $compLifeCycle custom binding used for lifecycle events
-// Used to keep the wrapper off of internal/natively handled and defined components such as 'outlet'
-var nativeComponents = [
-  'outlet'
-];
 
 // Custom loader used to wrap components with the $compLifeCycle custom binding
 var componentWrapperTemplate = '<!-- ko $compLifeCycle -->COMPONENT_MARKUP<!-- /ko -->';
 ko.components.loaders.unshift( ko.components.componentWrapper = {
   loadTemplate: function(componentName, config, callback) {
-    if( nativeComponents.indexOf(componentName) === -1 ) {
+    if( !isNativeComponent(componentName) ) {
       // TODO: Handle different types of configs
       if( isString(config) ) {
         config = componentWrapperTemplate.replace(/COMPONENT_MARKUP/, config);
@@ -1330,19 +1403,24 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
   },
   loadViewModel: function(componentName, config, callback) {
     var ViewModel = config.viewModel || config;
-    if( nativeComponents.indexOf(componentName) === -1 ) {
+    if( !isNativeComponent(componentName) ) {
       callback(function(params, componentInfo) {
         var $context = ko.contextFor(componentInfo.element);
         var LoadedViewModel = ViewModel;
-        if( isViewModelCtor(ViewModel) ) {
+        if( isFunction(ViewModel) ) {
+          if( !isViewModelCtor(ViewModel) ) {
+            ViewModel = makeViewModel({ initialize: ViewModel });
+          }
+
           // inject the context into the ViewModel contructor
           LoadedViewModel = ViewModel.compose({
             _preInit: function() {
               this.$context = $context;
             }
           });
+          return new LoadedViewModel(params);
         }
-        return new LoadedViewModel(params);
+        return LoadedViewModel;
       });
     } else {
       callback(null);
@@ -1391,8 +1469,14 @@ ko.components.loaders.push( ko.components.requireLoader = {
           templatePath = templatePath + templateFile;
         }
         
+        // check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)
+        var viewModelConfig = { require: viewModelPath };
+        if( componentTemplateOnlyRegister[componentName] ) {
+          viewModelConfig = { instance: {} };
+        }
+
         configOptions = {
-          viewModel: { require: viewModelPath },
+          viewModel: viewModelConfig,
           template: { require: templatePath }
         };
       }
