@@ -1104,6 +1104,7 @@ Router.prototype.shutdown = function() {
 };
 
 Router.prototype.normalizeURL = function(url) {
+  url = url.match('([a-zA-Z\.\/:]*)\?')[0]; // remove the query string
   if( url.indexOf(windowObject.location.origin) === 0 ) {
     url = url.substr(windowObject.location.origin.length);
   }
