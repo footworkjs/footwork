@@ -12,10 +12,39 @@
  * }
  */
 
-// polyfill for missing window.location.origin
-if( !isString(windowObject.location.origin) ) {
-  windowObject.location.origin = windowObject.location.protocol + "//" + windowObject.location.hostname + (windowObject.location.port ? ':' + windowObject.location.port: '');
-}
+// parseUri() originally sourced from: http://blog.stevenlevithan.com/archives/parseuri
+function parseUri(str) {
+  var options = parseUri.options;
+  var matchParts = options.parser[ options.strictMode ? "strict" : "loose" ].exec(str);
+  var uri = {};
+  var i = 14;
+
+  while (i--) {
+    uri[ options.key[i] ] = matchParts[i] || "";
+  }
+
+  uri[ options.q.name ] = {};
+  uri[ options.key[12] ].replace(options.q.parser, function ($0, $1, $2) {
+    if($1) {
+      uri[options.q.name][$1] = $2;
+    }
+  });
+
+  return uri;
+};
+
+parseUri.options = {
+  strictMode: false,
+  key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+  q: {
+    name:   "queryKey",
+    parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+  },
+  parser: {
+    strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+    loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+  }
+};
 
 // Predicate function that always returns true / 'pass'
 var alwaysPassPredicate = function() { return true; };
@@ -64,11 +93,12 @@ var baseRoute = {
 };
 
 var baseRouteDescription = {
-  __isRouteDesc: true
+  __isRouteDesc: true,
+  filter: alwaysPassPredicate
 };
 
 function transformRouteConfigToDesc(routeDesc) {
-  return extend( { id: uniqueId('route') }, baseRouteDescription, routeDesc );
+  return extend({ id: uniqueId('route') }, baseRouteDescription, routeDesc );
 }
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
@@ -247,6 +277,8 @@ var Router = function( routerConfig, $viewModel, $context ) {
   this.$namespace.enter();
 
   this.$viewModel = $viewModel;
+  this.urlParts = ko.observable();
+  this.currentRouteParams = ko.observable({});
   this.childRouters = ko.observableArray();
   this.parentRouter = ko.observable($nullRouter);
   this.context = ko.observable();
@@ -407,10 +439,9 @@ Router.prototype.shutdown = function() {
 };
 
 Router.prototype.normalizeURL = function(url) {
-  url = url.match('([a-zA-Z\.\/:]*)\?')[0]; // remove the query string
-  if( url.indexOf(windowObject.location.origin) === 0 ) {
-    url = url.substr(windowObject.location.origin.length);
-  }
+  var urlParts = parseUri(url);
+  this.urlParts(urlParts);
+  url = urlParts.path;
 
   if( !isNull(this.config.baseRoute) && url.indexOf(this.config.baseRoute) === 0 ) {
     url = url.substr(this.config.baseRoute.length);
@@ -440,6 +471,7 @@ Router.prototype.getRouteForURL = function(url) {
   var route = null;
   var parentRoutePath = this.parentRouter().routePath() || '';
   var unknownRoute = this.getUnknownRoute();
+  var $myRouter = this;
 
   if( this.isRelative() ) {
     // since this is a relative router, we need to remove the leading parentRoutePath section of the URL
@@ -456,12 +488,13 @@ Router.prototype.getRouteForURL = function(url) {
 
   find(this.getRouteDescriptions(), function(routeDescription) {
     var routeString = routeDescription.route;
+    var routeParams = [];
 
     if( isString(routeString) ) {
-      var routeParamValues = url.match( routeStringToRegExp(routeString) );
+      $myRouter.currentRouteParams( routeParams = url.match( routeStringToRegExp(routeString) ) );
 
-      if( !isNull(routeParamValues) ) {
-        var splatSegment = routeParamValues.pop() || '';
+      if( !isNull(routeParams) && routeDescription.filter.call($myRouter, { params: routeParams, urlParts: $myRouter.urlParts() }) ) {
+        var splatSegment = routeParams.pop() || '';
         var routeParamNames = map( routeString.match(namedParam), function(param) {
           return param.replace(':', '');
         } );
@@ -472,9 +505,9 @@ Router.prototype.getRouteForURL = function(url) {
           title: routeDescription.title,
           url: url,
           routeSegment: url.substr(0, url.length - splatSegment.length),
-          indexedParams: routeParamValues,
+          indexedParams: routeParams,
           namedParams: reduce(routeParamNames, function(parameterNames, parameterName, index) {
-              parameterNames[parameterName] = routeParamValues[index + 1];
+              parameterNames[parameterName] = routeParams[index + 1];
               return parameterNames;
             }, {})
         });
@@ -500,7 +533,7 @@ Router.prototype.getActionForRoute = function(routeDescription) {
       }
 
       if( isUndefined(this.__currentRouteDescription) || this.__currentRouteDescription.id !== routeDescription.id ) {
-        routeDescription.controller.call( this.$viewModel, this.$outlet, routeDescription.namedParams );
+        routeDescription.controller.call( this, routeDescription.namedParams );
       }
       this.__currentRouteDescription = routeDescription;
     }, this);
