@@ -127,13 +127,13 @@ ko.bindingHandlers.$compLifeCycle = {
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $parent = bindingContext.$parent;
     if( isObject($parent) && $parent.__isOutlet ) {
-      $parent.$outletRoute().getOnCompleteCallback()(element);
+      $parent.$outletRoute().getOnCompleteCallback()(element.parentElement);
     } else {
       var child = ko.virtualElements.firstChild(element);
       if( !isUndefined(child) ) {
         viewModel = ko.dataFor( child );
       }
-      componentTriggerAfterBinding(element, viewModel);
+      componentTriggerAfterBinding(element.parentElement, viewModel);
     }
   }
 };
