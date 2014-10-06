@@ -77,11 +77,6 @@ var makeViewModel = ko.viewModel = function(configParams) {
 
   var initViewModelMixin = {
     _preInit: function( params ) {
-      var initParams = params;
-      this.__getInitParams = function() {
-        return initParams;
-      };
-
       if( isObject(configParams.router) ) {
         this.$router = new Router( configParams.router, this );
       }
@@ -171,14 +166,9 @@ var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetCon
 
   if( isViewModel(viewModel) ) {
     var $configParams = viewModel.__getConfigParams();
-    var $initParams = viewModel.__getInitParams();
     
     if( isFunction($configParams.afterBinding) ) {
       $configParams.afterBinding.call(viewModel, element);
-    }
-
-    if( isObject($initParams) && isFunction($initParams.___$afterBinding) ) {
-      $initParams.___$afterBinding.call(viewModel, element);
     }
 
     if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) ) {
