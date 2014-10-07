@@ -168,7 +168,7 @@ var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetCon
     var $configParams = viewModel.__getConfigParams();
     
     if( isFunction($configParams.afterBinding) ) {
-      $configParams.afterBinding.call(viewModel, element);
+      $configParams.afterBinding.call(viewModel, element || document.body);
     }
 
     if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) ) {

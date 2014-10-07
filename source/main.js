@@ -2,7 +2,7 @@
 // -----------
 
 // Record the footwork version as of this build.
-ko._footworkVersion = 'FOOTWORK_VERSION';
+ko.footworkVersion = 'FOOTWORK_VERSION';
 
 // Expose any embedded dependencies
 ko.embed = embedded;

@@ -46,7 +46,7 @@ var makeComponent = ko.component = function(componentDefinition) {
 // Register a component as consisting of a template only.
 // This will cause footwork to load only the template when this component is used.
 var componentTemplateOnlyRegister = [];
-var registerComponentAsTemplateOnly = ko.components.templateOnly = function(componentName, isTemplateOnly) {
+var registerComponentAsTemplateOnly = ko.components.isTemplateOnly = function(componentName, isTemplateOnly) {
   isTemplateOnly = (isUndefined(isTemplateOnly) ? true : isTemplateOnly);
   if( isArray(componentName) ) {
     each(componentName, function(compName) {
@@ -129,11 +129,7 @@ ko.bindingHandlers.$compLifeCycle = {
     if( isObject($parent) && $parent.__isOutlet ) {
       $parent.$outletRoute().getOnCompleteCallback()(element.parentElement);
     } else {
-      var child = ko.virtualElements.firstChild(element);
-      if( !isUndefined(child) ) {
-        viewModel = ko.dataFor( child );
-      }
-      componentTriggerAfterBinding(element.parentElement, viewModel);
+      componentTriggerAfterBinding(element.parentElement, bindingContext.$data);
     }
   }
 };
