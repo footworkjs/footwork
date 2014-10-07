@@ -156,14 +156,8 @@ var makeViewModel = ko.viewModel = function(configParams) {
   return model;
 };
 
-// Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.
-var originalApplyBindings = ko.applyBindings;
-var doNotSetContextOnRouter = false;
-var setContextOnRouter = true;
-var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetContext) {
-  originalApplyBindings(viewModel, element);
-  shouldSetContext = isUndefined(shouldSetContext) ? setContextOnRouter : shouldSetContext;
-
+// Provides lifecycle functionality and $context for a given viewModel and element
+function applyContextAndLifeCycle(viewModel, element) {
   if( isViewModel(viewModel) ) {
     var $configParams = viewModel.__getConfigParams();
     
@@ -171,7 +165,7 @@ var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetCon
       $configParams.afterBinding.call(viewModel, element || document.body);
     }
 
-    if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) ) {
+    if( isRouter(viewModel.$router) ) {
       viewModel.$router.context( ko.contextFor(element || document.body) );
     }
     
@@ -181,6 +175,13 @@ var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetCon
       });
     }
   }
+}
+
+// Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.
+var originalApplyBindings = ko.applyBindings;
+var applyBindings = ko.applyBindings = function(viewModel, element) {
+  originalApplyBindings(viewModel, element);
+  applyContextAndLifeCycle(viewModel, element);
 };
 
 function bindComponentViewModel(element, params, ViewModel) {
@@ -194,8 +195,9 @@ function bindComponentViewModel(element, params, ViewModel) {
   // binding the viewModelObj onto each child element is not ideal, need to do this differently
   // cannot get component.preprocess() method to work/be called for some reason
   each(element.children, function(child) {
-    applyBindings(viewModelObj, child, doNotSetContextOnRouter);
+    originalApplyBindings(viewModelObj, child);
   });
+  applyContextAndLifeCycle(viewModelObj, element);
 
   // we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each
   // sub-element and must specify the context as being the container element only once
