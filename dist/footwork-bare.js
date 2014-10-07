@@ -273,7 +273,7 @@ var module = undefined,
 // -----------
 
 // Record the footwork version as of this build.
-ko._footworkVersion = '0.2.0';
+ko.footworkVersion = '0.2.0';
 
 // Expose any embedded dependencies
 ko.embed = embedded;
@@ -709,10 +709,39 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
  * }
  */
 
-// polyfill for missing window.location.origin
-if( !isString(windowObject.location.origin) ) {
-  windowObject.location.origin = windowObject.location.protocol + "//" + windowObject.location.hostname + (windowObject.location.port ? ':' + windowObject.location.port: '');
-}
+// parseUri() originally sourced from: http://blog.stevenlevithan.com/archives/parseuri
+function parseUri(str) {
+  var options = parseUri.options;
+  var matchParts = options.parser[ options.strictMode ? "strict" : "loose" ].exec(str);
+  var uri = {};
+  var i = 14;
+
+  while (i--) {
+    uri[ options.key[i] ] = matchParts[i] || "";
+  }
+
+  uri[ options.q.name ] = {};
+  uri[ options.key[12] ].replace(options.q.parser, function ($0, $1, $2) {
+    if($1) {
+      uri[options.q.name][$1] = $2;
+    }
+  });
+
+  return uri;
+};
+
+parseUri.options = {
+  strictMode: false,
+  key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+  q: {
+    name:   "queryKey",
+    parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+  },
+  parser: {
+    strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+    loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+  }
+};
 
 // Predicate function that always returns true / 'pass'
 var alwaysPassPredicate = function() { return true; };
@@ -761,11 +790,12 @@ var baseRoute = {
 };
 
 var baseRouteDescription = {
-  __isRouteDesc: true
+  __isRouteDesc: true,
+  filter: alwaysPassPredicate
 };
 
 function transformRouteConfigToDesc(routeDesc) {
-  return extend( { id: uniqueId('route') }, baseRouteDescription, routeDesc );
+  return extend({ id: uniqueId('route') }, baseRouteDescription, routeDesc );
 }
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
@@ -944,6 +974,8 @@ var Router = function( routerConfig, $viewModel, $context ) {
   this.$namespace.enter();
 
   this.$viewModel = $viewModel;
+  this.urlParts = ko.observable();
+  this.currentRouteParams = ko.observable({});
   this.childRouters = ko.observableArray();
   this.parentRouter = ko.observable($nullRouter);
   this.context = ko.observable();
@@ -1104,10 +1136,9 @@ Router.prototype.shutdown = function() {
 };
 
 Router.prototype.normalizeURL = function(url) {
-  url = url.match('([a-zA-Z\.\/:]*)\?')[0]; // remove the query string
-  if( url.indexOf(windowObject.location.origin) === 0 ) {
-    url = url.substr(windowObject.location.origin.length);
-  }
+  var urlParts = parseUri(url);
+  this.urlParts(urlParts);
+  url = urlParts.path;
 
   if( !isNull(this.config.baseRoute) && url.indexOf(this.config.baseRoute) === 0 ) {
     url = url.substr(this.config.baseRoute.length);
@@ -1137,6 +1168,7 @@ Router.prototype.getRouteForURL = function(url) {
   var route = null;
   var parentRoutePath = this.parentRouter().routePath() || '';
   var unknownRoute = this.getUnknownRoute();
+  var $myRouter = this;
 
   if( this.isRelative() ) {
     // since this is a relative router, we need to remove the leading parentRoutePath section of the URL
@@ -1153,12 +1185,13 @@ Router.prototype.getRouteForURL = function(url) {
 
   find(this.getRouteDescriptions(), function(routeDescription) {
     var routeString = routeDescription.route;
+    var routeParams = [];
 
     if( isString(routeString) ) {
-      var routeParamValues = url.match( routeStringToRegExp(routeString) );
+      $myRouter.currentRouteParams( routeParams = url.match( routeStringToRegExp(routeString) ) );
 
-      if( !isNull(routeParamValues) ) {
-        var splatSegment = routeParamValues.pop() || '';
+      if( !isNull(routeParams) && routeDescription.filter.call($myRouter, { params: routeParams, urlParts: $myRouter.urlParts() }) ) {
+        var splatSegment = routeParams.pop() || '';
         var routeParamNames = map( routeString.match(namedParam), function(param) {
           return param.replace(':', '');
         } );
@@ -1169,9 +1202,9 @@ Router.prototype.getRouteForURL = function(url) {
           title: routeDescription.title,
           url: url,
           routeSegment: url.substr(0, url.length - splatSegment.length),
-          indexedParams: routeParamValues,
+          indexedParams: routeParams,
           namedParams: reduce(routeParamNames, function(parameterNames, parameterName, index) {
-              parameterNames[parameterName] = routeParamValues[index + 1];
+              parameterNames[parameterName] = routeParams[index + 1];
               return parameterNames;
             }, {})
         });
@@ -1197,7 +1230,7 @@ Router.prototype.getActionForRoute = function(routeDescription) {
       }
 
       if( isUndefined(this.__currentRouteDescription) || this.__currentRouteDescription.id !== routeDescription.id ) {
-        routeDescription.controller.call( this.$viewModel, this.$outlet, routeDescription.namedParams );
+        routeDescription.controller.call( this, routeDescription.namedParams );
       }
       this.__currentRouteDescription = routeDescription;
     }, this);
@@ -1299,11 +1332,6 @@ var makeViewModel = ko.viewModel = function(configParams) {
 
   var initViewModelMixin = {
     _preInit: function( params ) {
-      var initParams = params;
-      this.__getInitParams = function() {
-        return initParams;
-      };
-
       if( isObject(configParams.router) ) {
         this.$router = new Router( configParams.router, this );
       }
@@ -1393,14 +1421,9 @@ var applyBindings = ko.applyBindings = function(viewModel, element, shouldSetCon
 
   if( isViewModel(viewModel) ) {
     var $configParams = viewModel.__getConfigParams();
-    var $initParams = viewModel.__getInitParams();
     
     if( isFunction($configParams.afterBinding) ) {
-      $configParams.afterBinding.call(viewModel, element);
-    }
-
-    if( isObject($initParams) && isFunction($initParams.___$afterBinding) ) {
-      $initParams.___$afterBinding.call(viewModel, element);
+      $configParams.afterBinding.call(viewModel, element || document.body);
     }
 
     if( shouldSetContext === setContextOnRouter && isRouter( viewModel.$router ) ) {
@@ -1548,7 +1571,7 @@ var makeComponent = ko.component = function(componentDefinition) {
 // Register a component as consisting of a template only.
 // This will cause footwork to load only the template when this component is used.
 var componentTemplateOnlyRegister = [];
-var registerComponentAsTemplateOnly = ko.components.templateOnly = function(componentName, isTemplateOnly) {
+var registerComponentAsTemplateOnly = ko.components.isTemplateOnly = function(componentName, isTemplateOnly) {
   isTemplateOnly = (isUndefined(isTemplateOnly) ? true : isTemplateOnly);
   if( isArray(componentName) ) {
     each(componentName, function(compName) {
@@ -1598,7 +1621,7 @@ var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponen
   }
 };
 
-// Components which footwork will not wrap in the $compLifeCycle custom binding used for lifecycle events
+// Components which footwork will not wrap in the $life custom binding used for lifecycle events
 // Used to keep the wrapper off of internal/natively handled and defined components such as 'outlet'
 var nativeComponents = [
   'outlet'
@@ -1616,9 +1639,9 @@ function componentTriggerAfterBinding(element, viewModel) {
   }
 }
 
-// Use the $compLifeCycle wrapper binding to provide lifecycle events for components
-ko.virtualElements.allowedBindings.$compLifeCycle = true;
-ko.bindingHandlers.$compLifeCycle = {
+// Use the $life wrapper binding to provide lifecycle events for components
+ko.virtualElements.allowedBindings.$life = true;
+ko.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if( isViewModel(viewModel) ) {
@@ -1629,19 +1652,15 @@ ko.bindingHandlers.$compLifeCycle = {
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $parent = bindingContext.$parent;
     if( isObject($parent) && $parent.__isOutlet ) {
-      $parent.$outletRoute().getOnCompleteCallback()(element);
+      $parent.$route().getOnCompleteCallback()(element.parentElement);
     } else {
-      var child = ko.virtualElements.firstChild(element);
-      if( !isUndefined(child) ) {
-        viewModel = ko.dataFor( child );
-      }
-      componentTriggerAfterBinding(element, viewModel);
+      componentTriggerAfterBinding(element.parentElement, bindingContext.$data);
     }
   }
 };
 
-// Custom loader used to wrap components with the $compLifeCycle custom binding
-var componentWrapperTemplate = '<!-- ko $compLifeCycle -->COMPONENT_MARKUP<!-- /ko -->';
+// Custom loader used to wrap components with the $life custom binding
+var componentWrapperTemplate = '<!-- ko $life -->COMPONENT_MARKUP<!-- /ko -->';
 ko.components.loaders.unshift( ko.components.componentWrapper = {
   loadTemplate: function(componentName, config, callback) {
     if( !isNativeComponent(componentName) ) {
@@ -1742,8 +1761,11 @@ ko.components.loaders.push( ko.components.requireLoader = {
 });
 
 var noParentViewModelError = { getNamespaceName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } };
-ko.virtualElements.allowedBindings.$outletBind = true;
-ko.bindingHandlers.$outletBind = {
+
+// This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied
+// to the UI and load in various views
+ko.virtualElements.allowedBindings.$bind = true;
+ko.bindingHandlers.$bind = {
   init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
     var $parentViewModel = ( isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
     var $parentRouter = nearestParentRouter(bindingContext);
@@ -1752,7 +1774,7 @@ ko.bindingHandlers.$outletBind = {
     if( isRouter($parentRouter) ) {
       // register this outlet with the router so that updates will propagate correctly
       // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
-      outletViewModel.$outletRoute = $parentRouter.$outlet( outletName );
+      outletViewModel.$route = $parentRouter.$outlet( outletName );
     } else {
       throw 'Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.getNamespaceName() + '] but no router was defined.';
     }
@@ -1765,7 +1787,7 @@ ko.components.register('outlet', {
     this.outletName = ko.unwrap(params.name);
     this.__isOutlet = true;
   },
-  template: '<!-- ko $outletBind, component: $outletRoute --><!-- /ko -->'
+  template: '<!-- ko $bind, component: $route --><!-- /ko -->'
 });
 
 ko.components.register('_noComponentSelected', {

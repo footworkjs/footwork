@@ -96,7 +96,7 @@ var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponen
   }
 };
 
-// Components which footwork will not wrap in the $compLifeCycle custom binding used for lifecycle events
+// Components which footwork will not wrap in the $life custom binding used for lifecycle events
 // Used to keep the wrapper off of internal/natively handled and defined components such as 'outlet'
 var nativeComponents = [
   'outlet'
@@ -114,9 +114,9 @@ function componentTriggerAfterBinding(element, viewModel) {
   }
 }
 
-// Use the $compLifeCycle wrapper binding to provide lifecycle events for components
-ko.virtualElements.allowedBindings.$compLifeCycle = true;
-ko.bindingHandlers.$compLifeCycle = {
+// Use the $life wrapper binding to provide lifecycle events for components
+ko.virtualElements.allowedBindings.$life = true;
+ko.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if( isViewModel(viewModel) ) {
@@ -127,15 +127,15 @@ ko.bindingHandlers.$compLifeCycle = {
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $parent = bindingContext.$parent;
     if( isObject($parent) && $parent.__isOutlet ) {
-      $parent.$outletRoute().getOnCompleteCallback()(element.parentElement);
+      $parent.$route().getOnCompleteCallback()(element.parentElement);
     } else {
       componentTriggerAfterBinding(element.parentElement, bindingContext.$data);
     }
   }
 };
 
-// Custom loader used to wrap components with the $compLifeCycle custom binding
-var componentWrapperTemplate = '<!-- ko $compLifeCycle -->COMPONENT_MARKUP<!-- /ko -->';
+// Custom loader used to wrap components with the $life custom binding
+var componentWrapperTemplate = '<!-- ko $life -->COMPONENT_MARKUP<!-- /ko -->';
 ko.components.loaders.unshift( ko.components.componentWrapper = {
   loadTemplate: function(componentName, config, callback) {
     if( !isNativeComponent(componentName) ) {
@@ -236,8 +236,11 @@ ko.components.loaders.push( ko.components.requireLoader = {
 });
 
 var noParentViewModelError = { getNamespaceName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } };
-ko.virtualElements.allowedBindings.$outletBind = true;
-ko.bindingHandlers.$outletBind = {
+
+// This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied
+// to the UI and load in various views
+ko.virtualElements.allowedBindings.$bind = true;
+ko.bindingHandlers.$bind = {
   init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
     var $parentViewModel = ( isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
     var $parentRouter = nearestParentRouter(bindingContext);
@@ -246,7 +249,7 @@ ko.bindingHandlers.$outletBind = {
     if( isRouter($parentRouter) ) {
       // register this outlet with the router so that updates will propagate correctly
       // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
-      outletViewModel.$outletRoute = $parentRouter.$outlet( outletName );
+      outletViewModel.$route = $parentRouter.$outlet( outletName );
     } else {
       throw 'Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.getNamespaceName() + '] but no router was defined.';
     }
@@ -259,7 +262,7 @@ ko.components.register('outlet', {
     this.outletName = ko.unwrap(params.name);
     this.__isOutlet = true;
   },
-  template: '<!-- ko $outletBind, component: $outletRoute --><!-- /ko -->'
+  template: '<!-- ko $bind, component: $route --><!-- /ko -->'
 });
 
 ko.components.register('_noComponentSelected', {
