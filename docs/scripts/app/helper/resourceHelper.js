@@ -14,11 +14,11 @@ define([ "footwork",
     "app/viewModel/Footer",
     "app/viewModel/BuildInfo",
 
-    "text!../../pages/404.html",
-    "text!../../pages/index.html",
-    "text!../../pages/build.html",
-    "text!../../pages/viewModel.html",
-    "text!../../pages/annotated.html"
+    "text!../../pages/index-page.html",
+    "text!../../pages/not-found-page.html",
+    "text!../../pages/build-page.html",
+    "text!../../pages/annotated-page.html",
+    "text!../../pages/api-viewModel-page.html"
   ],
   function( ko,
     contributorsViewModel, contributorsTemplate,
@@ -36,31 +36,18 @@ define([ "footwork",
     FooterViewModel,
     BuildInfoViewModel,
 
-    pageNotFound,
     indexPage,
+    notFoundPage,
     buildInfoPage,
-    viewModelPage,
-    annotatedPage
+    annotatedPage,
+    viewModelPage
   ) {
-    var pageResources = [];
-
-    function registerPage(pageResourcePath, resource) {
-      pageResources.push(pageResourcePath);
-      define(pageResourcePath, [], function() {
-        return resource;
-      });
-    };
-
-    ko.namespace('Resource').request.handler('isPageRegistered', function(templateName) {
-      return pageResources.indexOf(templateName) !== -1;
-    });
-
     return function resourceHelper() {
-      registerPage('/404', pageNotFound);
-      registerPage('/', indexPage);
-      registerPage('/build', buildInfoPage);
-      registerPage('/annotated', annotatedPage);
-      registerPage('/api/viewModel', viewModelPage);
+      ko.components.register('index-page', { template: indexPage });
+      ko.components.register('not-found-page', { template: notFoundPage });
+      ko.components.register('build-info-page', { template: buildInfoPage });
+      ko.components.register('annotated-page', { template: annotatedPage });
+      ko.components.register('api-viewModel-page', { template: viewModelPage });
 
       ko.components.register('showversion', {
         viewModel: BuildInfoViewModel,

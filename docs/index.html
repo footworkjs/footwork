@@ -266,13 +266,9 @@
         <pane></pane>
 
         <div class="main-pane has-layout-trans" data-bind="css: { configVisible: configVisible }, style: { marginLeft: mainContentOffset }">
-          <div class="stop-binding" data-bind="stopBinding: true">
-            <main class="js-main">
-              <div class="content">
-                <!--FOOTWORK_CONTENT-->
-              </div>
-            </main>
-          </div>
+          <main class="js-main">
+            <outlet name="mainContent"><!--FOOTWORK_CONTENT--></outlet>
+          </main>
           <div id="collapse-button" class="has-layout-trans js-only"
                data-bind="click: togglePaneCollapse,
                           style: { top: topOffset, left: leftOffset }, transition: paneTransition, transform: transform">
@@ -432,7 +428,7 @@
       </footer>
     </viewModel>
 
-    <script src="scripts/build/main.js"></script>
+    <script src="scripts/require.js" data-main="scripts/app/main"></script>
     <![endif]-->
   </body>
 </html>

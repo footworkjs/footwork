@@ -27,6 +27,7 @@
   inlineText: true,
   paths: {
     "requireLib":        "../bower_components/requirejs/require",
+
     "jquery":            "../bower_components/jquery/dist/jquery",
     "postal":            "../bower_components/postal.js/lib/postal",
     "conduitjs":         "../bower_components/conduitjs/lib/conduit",
@@ -35,7 +36,6 @@
     "storage":           "../bower_components/store-js/store",
     "lodash":            "../bower_components/lodash/dist/lodash.underscore",
     "history":           "../bower_components/history.js/scripts/bundled/html5/native.history",
-    "jquery.touchy":     "../bower_components/touchy/jquery.touchy",
     "jwerty":            "lib/jwerty", // jwerty does not provide an AMD build, this is a custom wrapped version
     "jquery.pulse":      "lib/jquery-plugins/jquery.pulse",
     "jquery.mousewheel": "lib/jquery-plugins/jquery.mousewheel",
@@ -49,6 +49,7 @@
     "LoadProfile":       "app/helper/LoadProfile",
     "LoadState":         "app/helper/LoadState",
     "resourceHelper":    "app/helper/resourceHelper",
+    "router":            "app/router",
 
     "Footer":            "app/viewModel/Footer",
     "PaneDragManager":   "app/viewModel/PaneDragManager",

@@ -9,12 +9,9 @@
   "devDependencies": {
     "knockoutjs": "3.2.0",
     "lodash": "*",
-    "touchy": "https://github.com/reflectiveSingleton/touchy.git#*",
-    "spectrum": "https://github.com/reflectiveSingleton/spectrum.git#*",
     "riveter": "0.1.2",
     "postal.js": "0.10.0",
     "conduitjs": "0.3.3",
-    "consolelog": "*",
     "store-js": "*",
     "moment": "*",
     "jwerty": "*",

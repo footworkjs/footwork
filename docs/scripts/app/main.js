@@ -17,7 +17,6 @@ require.config({
     "storage":           "../bower_components/store-js/store",
     "lodash":            "../bower_components/lodash/dist/lodash.underscore",
     "history":           "../bower_components/history.js/scripts/bundled/html5/native.history",
-    "jquery.touchy":     "../bower_components/touchy/jquery.touchy",
     "jwerty":            "lib/jwerty", // jwerty does not provide an AMD build, this is a custom wrapped version
     "jquery.pulse":      "lib/jquery-plugins/jquery.pulse",
     "jquery.mousewheel": "lib/jquery-plugins/jquery.mousewheel",
@@ -31,6 +30,7 @@ require.config({
     "LoadProfile":       "app/helper/LoadProfile",
     "LoadState":         "app/helper/LoadState",
     "resourceHelper":    "app/helper/resourceHelper",
+    "router":            "app/router",
 
     "Footer":            "app/viewModel/Footer",
     "PaneDragManager":   "app/viewModel/PaneDragManager",
@@ -46,7 +46,7 @@ require.config({
 require([
   "jquery", "lodash", "footwork", "jwerty", "resourceHelper",
   "Page", "Body", "ViewPort",
-  "koBindings", "koExtenders", "jquery.touchy", "jquery.mousewheel", "jquery.easing" ],
+  "koBindings", "koExtenders", "jquery.mousewheel", "jquery.easing" ],
   function(
       $, _, ko, jwerty, resourceHelper,
       Page, Body, ViewPort ) {
@@ -67,13 +67,17 @@ require([
     var configurationNamespace = ko.namespace('Configuration');
     var bodyNamespace = ko.namespace('Body');
     var pageHashURL = ko.observable().receiveFrom('Page', 'hashURL');
+    var pageLoading = ko.observable().receiveFrom('Body', 'pageLoading');
     var bodyHeight = ko.observable().receiveFrom('Body', 'height');
+    var overlapPane = ko.observable().receiveFrom('Body', 'overlapPane');
     var scrollPosition = ko.observable().receiveFrom('ViewPort', 'scrollPosition');
     var viewPortDim = ko.observable().receiveFrom('ViewPort', 'dimensions');
     var configVisible = ko.observable().receiveFrom('Configuration', 'visible');
     var paneContentMaxHeight = ko.observable().receiveFrom('Pane', 'contentMaxHeight');
     var paneScrolling = ko.observable().receiveFrom('Pane', 'scrolling');
+    var paneCollapsed = ko.observable().receiveFrom('Pane', 'collapsed');
     var viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
+    var pageSectionsNamespace = ko.namespace('PageSections');
     var refreshDocSize;
     
     globalNamespace.request.handler('isRunningLocally', function() {
@@ -91,7 +95,7 @@ require([
       });
     }
 
-    ko.applyBindings( new Body() );
+    ko.applyBindings( new Body() ); // start the app and apply bindings to the primary body viewModel
 
     $window.scroll( function() {
       scrollPosition( $document.scrollTop() );
@@ -132,7 +136,25 @@ require([
         $el = $el.parents('.internal');
       }
 
-      pageNamespace.publish('loadURL', { url: $el.attr('href'), title: $el.data('title') });
+      var url = $el.attr('href');
+      if( History.enabled ) {
+        if( History.getState().url.split('').reverse().join('').substring( 0, url.length ) !== url.split('').reverse().join('') ) {
+          // user did not click the same page, clear the current PageSections list
+          pageSectionsNamespace.publish('clear');
+        } else {
+          pageLoading(true);
+          setTimeout(function() { pageLoading(false); }, 40);
+        }
+
+        if( overlapPane() === true && paneCollapsed() === false ) {
+          paneCollapsed(true);
+        }
+
+        History.pushState(null, '', url);
+      } else {
+        window.location = url;
+        return false;
+      }
       event.preventDefault();
     });
 

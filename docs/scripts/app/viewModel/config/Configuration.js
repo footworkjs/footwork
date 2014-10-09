@@ -223,7 +223,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
               var session = {},
                   currentTheme = this.currentTheme();
 
-              if( typeof currentTheme === 'object' && currentTheme.params !== undefined ) {
+              if( typeof currentTheme === 'object' && !_.isUndefined(currentTheme.params) ) {
                 session.theme = currentTheme.params();
               }
               if( _.size(session) > 0 ) {

@@ -1,7 +1,8 @@
-define([ "footwork", "lodash" ],
-  function( ko, _ ) {
+define([ "footwork", "lodash", "router" ],
+  function( ko, _, router ) {
     return ko.viewModel({
       namespace: 'Body',
+      router: router,
       afterBinding: function() {
         this.initialized( true );
       },
@@ -38,10 +39,11 @@ define([ "footwork", "lodash" ],
         this.paneDragging = ko.observable(false).receiveFrom('Pane', 'dragging');
         this.paneDragOffset = ko.observable(0).receiveFrom('Pane', 'dragOffset');
         this.paneTransition = ko.observable(undefined).receiveFrom('Pane', 'transition');
-        this.pageLoading = ko.observable(false).receiveFrom('Page', 'loading');
+        this.pageLoading = ko.observable().receiveFrom('mainRouter', 'pageLoading');
         this.paneColumnWidth = ko.observable().receiveFrom('Pane', 'columnWidth');
         this.controlEnabled = ko.observable(false).receiveFrom('LayoutControl', 'enabled');
         this.currentControl = ko.observable().receiveFrom('LayoutControl', 'currentControl');
+        this.$touchPaneManagerNamespace = ko.namespace('PaneDragManager');
 
         this.width = ko.computed(function() {
           if( typeof this.viewPortDim() === 'object' ) {
@@ -168,7 +170,9 @@ define([ "footwork", "lodash" ],
         }, this);
 
         this.togglePaneCollapse = function() {
-          this.paneCollapsed( !this.paneCollapsed() );
+          if( _.isUndefined(this.$touchPaneManagerNamespace.request('ping')) || !this.isMobile() ) {
+            this.paneCollapsed( !this.paneCollapsed() );
+          }
         }.bind( this );
         this.$namespace.subscribe('togglePane', this.togglePaneCollapse);
       }

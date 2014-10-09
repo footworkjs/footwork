@@ -142,11 +142,10 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           if( pageData ) {
             pageData.description && this.description( pageData.description );
             this.loadSections( pageData.sections );
-            this.title(pageData.title);
           }
         }.bind(this);
         loadMetaData( ko.namespace('Page').request('metaData') );
-        this.$namespace.subscribe('loadMetaData', loadMetaData).withContext(this);
+        this.$namespace.subscribe('pageMetaData', loadMetaData).withContext(this);
 
         this.checkSelection = function(newSelection) {
           newSelection = newSelection || this.currentSelection();
