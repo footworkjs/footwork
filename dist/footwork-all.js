@@ -9960,7 +9960,6 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   var viewModelParameters = options.params;
   var onComplete = options.onComplete;
   var outlets = this.outlets;
-  var isInitialLoad = false;
 
   outletName = ko.unwrap( outletName );
   if( !isObservable(outlets[outletName]) ) {
@@ -9969,12 +9968,12 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
       params: {},
       getOnCompleteCallback: function() { return noop; }
     });
-    isInitialLoad = true;
   }
 
   var outlet = outlets[outletName];
   var currentOutletDef = outlet();
   var valueHasMutated = false;
+  var isInitialLoad = outlet().name === noComponentSelected;
 
   if( !isUndefined(componentToDisplay) ) {
     currentOutletDef.name = componentToDisplay;
@@ -10030,31 +10029,9 @@ ko.router = function( routerConfig, $viewModel, $context ) {
 
 ko.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    var $myRouter = nearestParentRouter(bindingContext);
-    var $nearestParentRouter = nearestParentRouter( $myRouter.context().$parentContext );
-
-    var setHref = !!$myRouter.config.setHref;
-    var prependedRoutePath = ($myRouter.isRelative() && !isNullRouter($nearestParentRouter)) ? $nearestParentRouter.routePath() : '';
-    var suppliedRoutePath = ko.unwrap(valueAccessor()) || '';
-    var routePath = prependedRoutePath + (suppliedRoutePath || element.getAttribute('href'));
-
-    var tagName = element.tagName;
-    if( setHref && ((isString(tagName) && tagName.toLowerCase() === 'a') || element.hasAttribute('href')) ) {
-      element.setAttribute('href', routePath);
-    }
-
-    ko.utils.registerEventHandler(element, 'click', function( event ) {
-      History.pushState( null, document.title, element.getAttribute('href') || routePath );
-      event.preventDefault();
-    });
-  }
-};
-
-ko.bindingHandlers.$link = {
-  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var parentRoutePath = '';
     var $myRouter = nearestParentRouter(bindingContext);
-    var myLinkPath = ko.unwrap(valueAccessor());
+    var myLinkPath = ko.unwrap(valueAccessor()) || element.getAttribute('href') || '';
     if( !isNullRouter($myRouter) ) {
       parentRoutePath = $myRouter.parentRouter().routePath();
     }
@@ -10070,9 +10047,6 @@ ko.bindingHandlers.$link = {
       $myRouter.setState(myLinkPath);
       event.preventDefault();
     });
-  },
-  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    console.info('$link update', arguments);
   }
 };
 
