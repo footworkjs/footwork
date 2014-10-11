@@ -32,8 +32,11 @@ define([ "jquery", "lodash", "footwork" ],
           }.bind( this )
         }).broadcastAs('dimensions', true);
         this.isTablet = ko.observable( window.isTablet ).broadcastAs('isTablet', true);
+        this.forceMobileLayout = ko.computed(function() {
+          return (this.dimensions().width || 9000) < this.mobileWidthCutoff();
+        }, this).broadcastAs('forceMobileLayout');
         this.isMobile = ko.computed(function() {
-          return this.configIsMobile() || (this.dimensions().width || 9000) < this.mobileWidthCutoff();
+          return this.configIsMobile() || this.forceMobileLayout();
         }, this);
         this.noTransitions = ko.observable(false).broadcastAs('noTransitions', true);
         this.closedOffset = ko.computed(function() {
