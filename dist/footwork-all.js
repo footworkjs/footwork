@@ -10168,9 +10168,18 @@ Router.prototype.addRoutes = function(routeConfig) {
 };
 
 Router.prototype.activate = function($context, $parentRouter) {
-  return this
-    .startup( $context, $parentRouter )
-    .setState();
+  var setTheState = false;
+  if( this.currentState() === '' ) {
+    setTheState = true;
+    // this.activated = true;
+  }
+
+  this.startup( $context, $parentRouter );
+
+  if( setTheState ) {
+    this.setState();
+  }
+  return this;
 };
 
 Router.prototype.setState = function(url) {
