@@ -380,14 +380,8 @@ Router.prototype.addRoutes = function(routeConfig) {
 };
 
 Router.prototype.activate = function($context, $parentRouter) {
-  var setTheState = false;
-  if( this.currentState() === '' ) {
-    setTheState = true;
-  }
-
   this.startup( $context, $parentRouter );
-
-  if( setTheState ) {
+  if( this.currentState() === '' ) {
     this.setState();
   }
   return this;
