@@ -4278,6 +4278,7 @@ ko.embed = embedded;
 
 // misc regex patterns
 var hasTrailingSlash = /\/$/i;
+var hasStartingSlash = /^\//i;
 
 // misc utility functions
 var noop = function() { };
@@ -4286,6 +4287,10 @@ var isObservable = ko.isObservable;
 
 var isPath = function(pathOrFile) {
   return hasTrailingSlash.test(pathOrFile);
+};
+
+var hasPathStart = function(path) {
+  return hasStartingSlash.test(path);
 };
 
 // Pull out lodash utility function references for better minification and easier implementation swap
@@ -4698,8 +4703,7 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
  *   route: 'test/route(/:optional)',
  *   title: function() {
  *     return ko.request('nameSpace', 'broadcast:someVariable');
- *   },
- *   nav: true
+ *   }
  * }
  */
 
@@ -4805,10 +4809,6 @@ function routeStringToRegExp(routeString) {
   return new RegExp('^' + routeString + (routeString !== '/' ? '(\\/.*)*$' : '$'), routesAreCaseSensitive ? undefined : 'i');
 }
 
-function extractNavItems(routes) {
-  return where( isArray(routes) ? routes : [routes], { nav: true } );
-}
-
 function historyIsReady() {
   var isReady = has(History, 'Adapter');
   if(isReady && isUndefined(History.Adapter.unbind)) {
@@ -4822,10 +4822,6 @@ function historyIsReady() {
     };
   }
   return isReady;
-}
-
-function hasNavItems(routes) {
-  return extractNavItems( routes ).length > 0;
 }
 
 function isNullRouter(thing) {
@@ -4849,9 +4845,9 @@ function nearestParentRouter($context) {
     if( isObject($context.$data) && isRouter($context.$data.$router) ) {
       // found router in this context
       $parentRouter = $context.$data.$router;
-    } else if( isObject($context.$parentContext) ) {
+    } else if( isObject($context.$parentContext) || (isObject($context.$data) && isObject($context.$data.___$parentContext)) ) {
       // search through next parent up the chain
-      $parentRouter = nearestParentRouter( $context.$parentContext );
+      $parentRouter = nearestParentRouter( $context.$parentContext || $context.$data.___$parentContext );
     }
   }
   return $parentRouter;
@@ -4957,6 +4953,32 @@ ko.bindingHandlers.$route = {
   }
 };
 
+ko.bindingHandlers.$link = {
+  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    var parentRoutePath = '';
+    var $myRouter = nearestParentRouter(bindingContext);
+    var myLinkPath = ko.unwrap(valueAccessor());
+    if( !isNullRouter($myRouter) ) {
+      parentRoutePath = $myRouter.parentRouter().routePath();
+    }
+
+    // add prefix '/' if necessary
+    if( !hasPathStart(myLinkPath) ) {
+      myLinkPath = '/' + myLinkPath;
+    }
+    if( element.tagName.toLowerCase() === 'a' ) {
+      element.href = parentRoutePath + myLinkPath;
+    }
+    ko.utils.registerEventHandler(element, 'click', function(event) {
+      $myRouter.setState(myLinkPath);
+      event.preventDefault();
+    });
+  },
+  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    console.info('$link update', arguments);
+  }
+};
+
 var Router = function( routerConfig, $viewModel, $context ) {
   extend(this, $baseRouter);
   var subscriptions = this.subscriptions = [];
@@ -5023,7 +5045,6 @@ var Router = function( routerConfig, $viewModel, $context ) {
 
   this.currentState('');
 
-  this.navModelUpdate = ko.observable();
   this.outlets = {};
   this.$outlet = bind( $routerOutlet, this );
   this.$outlet.reset = bind( function() {
@@ -5059,35 +5080,26 @@ Router.prototype.setRoutes = function(routeDesc) {
 };
 
 Router.prototype.addRoutes = function(routeConfig) {
-  routeConfig = isArray(routeConfig) ? routeConfig : [routeConfig];
-
-  this.routeDescriptions = this.routeDescriptions.concat( map(routeConfig, transformRouteConfigToDesc) );
-
-  if( hasNavItems(routeConfig) && isObservable(this.navigationModel) ) {
-    this.navModelUpdate.notifySubscribers();
-  }
-
+  this.routeDescriptions = this.routeDescriptions.concat( map(isArray(routeConfig) ? routeConfig : [routeConfig], transformRouteConfigToDesc) );
   return this;
 };
 
 Router.prototype.activate = function($context, $parentRouter) {
-  var setTheState = false;
-  if( this.currentState() === '' ) {
-    setTheState = true;
-    // this.activated = true;
-  }
-
   this.startup( $context, $parentRouter );
-
-  if( setTheState ) {
+  if( this.currentState() === '' ) {
     this.setState();
   }
   return this;
 };
 
-Router.prototype.setState = function(url) {
-  if( !isString(url) && this.historyIsEnabled() ) {
-    url = History.getState().url;
+Router.prototype.setState = function(url, noHistoryInjection) {
+  if( this.historyIsEnabled() ) {
+    if(!noHistoryInjection && isString(url)) {
+      History.pushState(null, '', this.parentRouter().routePath() + url);
+      return;
+    } else {
+      url = History.getState().url;
+    }
   }
 
   if( isString(url) ) {
@@ -5112,7 +5124,7 @@ Router.prototype.startup = function( $context, $parentRouter ) {
   if( !this.historyIsEnabled() ) {
     if( historyIsReady() ) {
       History.Adapter.bind( windowObject, 'statechange', this.stateChangeHandler = function() {
-        $myRouter.setState( History.getState().url );
+        $myRouter.setState( History.getState().url, true );
       } );
       this.historyIsEnabled(true);
     } else {
@@ -5250,17 +5262,6 @@ Router.prototype.getActionForRoute = function(routeDescription) {
 
 Router.prototype.getRouteDescriptions = function() {
   return this.routeDescriptions;
-};
-
-Router.prototype.navigationModel = function(predicate) {
-  if( isUndefined(this.navigationModel) ) {
-    this.navigationModel = ko.computed(function() {
-      this.navModelUpdate(); // dummy reference used to trigger updates
-      return filter( extractNavItems(this.routeDescriptions), (predicate || alwaysPassPredicate) );
-    }, { navModelUpdate: this.navModelUpdate });
-  }
-
-  return this.navigationModel;
 };
 // viewModel.js
 // ------------------
@@ -5455,6 +5456,7 @@ function bindComponentViewModel(element, params, ViewModel) {
   } else {
     viewModelObj = ViewModel;
   }
+  viewModelObj.___$parentContext = ko.contextFor(element.parentElement);
 
   // binding the viewModelObj onto each child element is not ideal, need to do this differently
   // cannot get component.preprocess() method to work/be called for some reason
