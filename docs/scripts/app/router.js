@@ -101,13 +101,13 @@ define([ "jquery", "footwork", "lodash" ],
         }
       ],
       unknownRoute: function($routeParams) {
-        if(isInitialRun && this.$globalNamespace.request('isRunningLocally')) {
-          isInitialRun = false;
-          this.setState('/');
-        } else {
+        // if(isInitialRun && this.$globalNamespace.request('isRunningLocally')) {
+          // isInitialRun = false;
+          // this.setState('/');
+        // } else {
           pageLoading(true);
           this.$outlet('mainContent', 'not-found-page', _.bind(resolvePage, this, getPageLoadPromise()));
-        }
+        // }
       }
     };
   }

@@ -7,6 +7,10 @@ define([ "footwork", "lodash", "router" ],
         this.initialized( true );
       },
       initialize: function() {
+        if( this.$globalNamespace.request('isRunningLocally') ) {
+          this.$router.setState('/');
+        }
+        
         this.initialized = ko.observable(false);
         this.configIsInitialized = ko.observable(false).receiveFrom('Configuration', 'initialized');
         this.configVisible = ko.observable().receiveFrom('Configuration', 'visible');
