@@ -127,7 +127,7 @@ ko.bindingHandlers.$life = {
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $parent = bindingContext.$parent;
     if( isObject($parent) && $parent.__isOutlet ) {
-      $parent.$route().getOnCompleteCallback()(element.parentElement);
+      $parent.$route().__getOnCompleteCallback()(element.parentElement);
     } else {
       componentTriggerAfterBinding(element.parentElement, bindingContext.$data);
     }

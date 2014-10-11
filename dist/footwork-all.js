@@ -9966,7 +9966,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
     outlets[outletName] = ko.observable({
       name: noComponentSelected,
       params: {},
-      getOnCompleteCallback: function() { return noop; }
+      __getOnCompleteCallback: function() { return noop; }
     });
   }
 
@@ -9993,7 +9993,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
       // upon injection into the DOM). Perhaps due to usage of virtual DOM for the component?
       var callCounter = (isInitialLoad ? 0 : 1);
 
-      currentOutletDef.getOnCompleteCallback = function() {
+      currentOutletDef.__getOnCompleteCallback = function() {
         var isComplete = callCounter === 0;
         callCounter--;
         if( isComplete ) {
@@ -10002,7 +10002,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
         return noop;
       };
     } else {
-      currentOutletDef.getOnCompleteCallback = function() {
+      currentOutletDef.__getOnCompleteCallback = function() {
         return noop;
       };
     }
@@ -10166,8 +10166,16 @@ Router.prototype.activate = function($context, $parentRouter) {
 Router.prototype.setState = function(url, noHistoryInjection) {
   if( this.historyIsEnabled() ) {
     if(!noHistoryInjection && isString(url)) {
-      History.pushState(null, '', this.parentRouter().routePath() + url);
-      return;
+      var historyAPIWorked = true;
+      try {
+        historyAPIWorked = History.pushState(null, '', this.parentRouter().routePath() + url);
+      } catch(error) {
+        historyAPIWorked = false;
+      } finally {
+        if(historyAPIWorked) {
+          return;
+        }
+      }
     } else {
       url = History.getState().url;
     }
@@ -10736,7 +10744,7 @@ ko.bindingHandlers.$life = {
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $parent = bindingContext.$parent;
     if( isObject($parent) && $parent.__isOutlet ) {
-      $parent.$route().getOnCompleteCallback()(element.parentElement);
+      $parent.$route().__getOnCompleteCallback()(element.parentElement);
     } else {
       componentTriggerAfterBinding(element.parentElement, bindingContext.$data);
     }
