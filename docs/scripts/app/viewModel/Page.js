@@ -12,8 +12,6 @@ define([ "jquery", "lodash", "footwork", "history" ],
         if( location.hash.length ) {
           pageSectionNamespace.publish( 'scrollToSection', location.hash.slice( location.hash.indexOf('#') + 1 ) );
         }
-
-        _.isObject(window._page) && initPage();
       },
       initialize: function() {
         this.$pageSections = ko.namespace('PageSections');

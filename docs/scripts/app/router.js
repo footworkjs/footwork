@@ -7,6 +7,7 @@ define([ "jquery", "footwork", "lodash" ],
     var maxScrollResetPosition = ko.observable().receiveFrom('ViewPort', 'maxScrollResetPosition');
     var pageLoading = ko.observable().broadcastAs({ name: 'pageLoading', namespace: 'mainRouter' });
     var viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
+    var isInitialRun = true;
 
     function initPage(metaData) {
       $pageNamespace.publish( 'initMeta', metaData );
@@ -100,8 +101,13 @@ define([ "jquery", "footwork", "lodash" ],
         }
       ],
       unknownRoute: function($routeParams) {
-        pageLoading(true);
-        this.$outlet('mainContent', 'not-found-page', _.bind(resolvePage, this, getPageLoadPromise()));
+        if(isInitialRun && this.$globalNamespace.request('isRunningLocally')) {
+          isInitialRun = false;
+          this.stateChange('/');
+        } else {
+          pageLoading(true);
+          this.$outlet('mainContent', 'not-found-page', _.bind(resolvePage, this, getPageLoadPromise()));
+        }
       }
     };
   }

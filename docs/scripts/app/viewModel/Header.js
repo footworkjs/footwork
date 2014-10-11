@@ -163,8 +163,10 @@ define([ "footwork", "lodash" ],
         this.headerStateCheck = ko.computed(function() {
           var viewPortLayoutMode = this.viewPortLayoutMode();
 
-          if( viewPortLayoutMode !== 'mobile' && this.pastClosePoint() === false && this.paneMoving() === false && this.paneCollapsed() === true) {
-            this.closed(false);
+          if( viewPortLayoutMode !== 'mobile' ) {
+            if( !this.closable() || (this.pastClosePoint() === false && this.paneMoving() === false && this.paneCollapsed() === true) ) {
+              this.closed(false);
+            }
           } else if( viewPortLayoutMode === 'mobile' ) {
             this.closed(true);
           }

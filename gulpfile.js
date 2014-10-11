@@ -143,7 +143,7 @@ gulp.task('docs', function(callback) {
 
 gulp.task('docs_clean', function() {
   return merge(
-    gulp.src('./docs/pages/annotated.html', { read: false }).pipe(rimraf())
+    gulp.src('./docs/pages/annotated-page.html', { read: false }).pipe(rimraf())
   );
 });
 
@@ -154,7 +154,7 @@ gulp.task('doc_source_annotation', function() {
       template: 'docs/templates/docco.jst'
     }))
     .pipe(footer(annotatedPageMetaData))
-    .pipe(rename('annotated.html'))
+    .pipe(rename('annotated-page.html'))
     .pipe(gulp.dest('docs/pages'));
 });
 

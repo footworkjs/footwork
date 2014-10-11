@@ -87,7 +87,7 @@ header .pane-links {
       position: relative;
       float: right;
       height: 100%;
-      width: 30%;
+      width: 33.333%;
       cursor: pointer;
       color: darken( @header-bg, 10% );
       line-height: @pane-links-height;
@@ -96,12 +96,12 @@ header .pane-links {
       text-align: center;
       .box-sizing(border-box);
 
-      &:hover span {
+      &:hover {
         color: @header-fg-hover;
         text-decoration: none;
       }
 
-      &:active span, &:focus span {
+      &:active, &:focus {
         color: darken(@header-fg-hover, 10%);
         top: 1px;
       }

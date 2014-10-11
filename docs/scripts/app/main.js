@@ -137,23 +137,26 @@ require([
       }
 
       var url = $el.attr('href');
-      if( History.enabled ) {
-        if( History.getState().url.split('').reverse().join('').substring( 0, url.length ) !== url.split('').reverse().join('') ) {
-          // user did not click the same page, clear the current PageSections list
-          pageSectionsNamespace.publish('clear');
+      if( !ko.namespace().request('isRunningLocally') ) {
+        if( History.enabled ) {
+          if( History.getState().url.split('').reverse().join('').substring( 0, url.length ) !== url.split('').reverse().join('') ) {
+            // user did not click the same page, clear the current PageSections list
+            pageSectionsNamespace.publish('clear');
+          } else {
+            pageLoading(true);
+            setTimeout(function() { pageLoading(false); }, 40);
+          }
+
+          if( overlapPane() === true && paneCollapsed() === false ) {
+            paneCollapsed(true);
+          }
+
+          History.pushState(null, '', url);
         } else {
-          pageLoading(true);
-          setTimeout(function() { pageLoading(false); }, 40);
+          window.location = url;
+          return false;
         }
-
-        if( overlapPane() === true && paneCollapsed() === false ) {
-          paneCollapsed(true);
-        }
-
-        History.pushState(null, '', url);
       } else {
-        window.location = url;
-        return false;
       }
       event.preventDefault();
     });
