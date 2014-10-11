@@ -60,25 +60,19 @@ require([
     var $window = $(window);
     var $document = $(document);
     var $body = $('body');
-    var routerNamespace = ko.namespace('Body.router');
     var globalNamespace = ko.namespace();
-    var pageNamespace = ko.namespace('Page');
     var layoutControlNamespace = ko.namespace('LayoutControl');
     var navigationNamespace = ko.namespace('Navigation');
     var configurationNamespace = ko.namespace('Configuration');
     var bodyNamespace = ko.namespace('Body');
     var pageHashURL = ko.observable().receiveFrom('Page', 'hashURL');
-    var pageLoading = ko.observable().receiveFrom('Body', 'pageLoading');
     var bodyHeight = ko.observable().receiveFrom('Body', 'height');
-    var overlapPane = ko.observable().receiveFrom('Body', 'overlapPane');
     var scrollPosition = ko.observable().receiveFrom('ViewPort', 'scrollPosition');
     var viewPortDim = ko.observable().receiveFrom('ViewPort', 'dimensions');
     var configVisible = ko.observable().receiveFrom('Configuration', 'visible');
     var paneContentMaxHeight = ko.observable().receiveFrom('Pane', 'contentMaxHeight');
     var paneScrolling = ko.observable().receiveFrom('Pane', 'scrolling');
-    var paneCollapsed = ko.observable().receiveFrom('Pane', 'collapsed');
     var viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
-    var pageSectionsNamespace = ko.namespace('PageSections');
     var refreshDocSize;
     
     globalNamespace.request.handler('isRunningLocally', function() {
@@ -131,36 +125,6 @@ require([
 
     $body.on('keydown', 'article', function(event) {
       event.stopPropagation();
-    }).on('click', 'a.internal', function(event) {
-      var $el = $(event.target);
-      if( $el.hasClass('internal') === false ) {
-        $el = $el.parents('.internal');
-      }
-
-      var url = $el.attr('href');
-      if( !ko.namespace().request('isRunningLocally') ) {
-        if( History.enabled ) {
-          if( History.getState().url.split('').reverse().join('').substring( 0, url.length ) !== url.split('').reverse().join('') ) {
-            // user did not click the same page, clear the current PageSections list
-            pageSectionsNamespace.publish('clear');
-          } else {
-            pageLoading(true);
-            setTimeout(function() { pageLoading(false); }, 40);
-          }
-
-          if( overlapPane() === true && paneCollapsed() === false ) {
-            paneCollapsed(true);
-          }
-
-          History.pushState(null, '', url);
-        } else {
-          window.location = url;
-          return false;
-        }
-      } else {
-        routerNamespace.command('setState', url);
-      }
-      event.preventDefault();
     });
 
     $('.pane-component > .content').on('mousewheel', function(event, direction) {

@@ -3,14 +3,8 @@ define([ "jquery", "lodash", "footwork", "history" ],
     return ko.viewModel({
       namespace: 'Page',
       afterInit: function() {
-        var pageSectionNamespace = ko.namespace('PageSection');
-
-        // if( isRunningLocally = ko.namespace().request('isRunningLocally') ) {
-        //   this.loadState('/');
-        // }
-        
         if( location.hash.length ) {
-          pageSectionNamespace.publish( 'scrollToSection', location.hash.slice( location.hash.indexOf('#') + 1 ) );
+          ko.namespace('PageSection').publish( 'scrollToSection', location.hash.slice( location.hash.indexOf('#') + 1 ) );
         }
       },
       initialize: function() {
@@ -31,9 +25,7 @@ define([ "jquery", "lodash", "footwork", "history" ],
             pageMetaData = metaData;
             this.shortTitle(metaData.title);
           }
-
-          return true;
-        }.bind( this );
+        }.bind(this);
 
         this.$namespace.subscribe( 'initMeta', function( metaData ) {
           this.loadPageMeta( metaData );

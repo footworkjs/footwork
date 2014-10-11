@@ -27,7 +27,6 @@
   inlineText: true,
   paths: {
     "requireLib":        "../bower_components/requirejs/require",
-
     "jquery":            "../bower_components/jquery/dist/jquery",
     "postal":            "../bower_components/postal.js/lib/postal",
     "conduitjs":         "../bower_components/conduitjs/lib/conduit",

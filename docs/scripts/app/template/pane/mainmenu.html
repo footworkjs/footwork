@@ -6,7 +6,7 @@
       </span>
     </div>
     <nav data-bind="style: { width: mobileWidth }, foreach: entries">
-      <a class="internal" data-bind="css: { visible: visible }, attr: { 'data-title': labelText, href: url }, text: labelText"></a>
+      <a data-bind="css: { visible: visible }, attr: { 'data-title': labelText }, $route: url, text: labelText"></a>
     </nav>
   </div>
 </div>

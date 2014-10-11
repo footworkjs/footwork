@@ -3,7 +3,7 @@ define([ "footwork", "lodash" ],
     return ko.viewModel({
       namespace: 'Pane',
       afterBinding: function() {
-        ko.namespace('PaneDragManager').trigger('PaneInitialized', true, false);
+        this.$namespace.trigger('initialized', true, false);
       },
       initialize: function() {
         this.paneMaxWidth = ko.observable().receiveFrom('Configuration', 'paneMaxWidth');
@@ -25,7 +25,7 @@ define([ "footwork", "lodash" ],
         this.movingTimer = ko.observable(false).extend({ autoDisable: 400 }).broadcastAs('movingTimer', true);
         this.maxWidth = ko.computed(function() {
           var viewPortDim = this.viewPortDim();
-          if( viewPortDim !== undefined && viewPortDim.width !== undefined ) {
+          if( _.isObject(viewPortDim) && !_.isUndefined(viewPortDim.width) ) {
             var computedWidth = Math.floor( viewPortDim.width / 2.66 );
             var logoBasedWidth = 9000;
             if( this.viewPortSmall() ) {
@@ -62,7 +62,7 @@ define([ "footwork", "lodash" ],
         this.dragging = ko.observable(false).broadcastAs('dragging', true);
         this.dragOffset = ko.observable(0).broadcastAs('dragOffset', true);
         this.moving = ko.computed(function() {
-          return this.movingTimer() === true && this.transition() === undefined;
+          return this.movingTimer() === true && _.isUndefined(this.transition());
         }, this).broadcastAs('moving');
         this.scrolling = ko.observable(false).extend({
           autoDisable: 500,
@@ -88,7 +88,7 @@ define([ "footwork", "lodash" ],
             heightOffset = heightOffset + 30; // mobile menu selection height
           }
 
-          if( viewPortDim !== undefined ) {
+          if( !_.isUndefined(viewPortDim) ) {
             return viewPortDim.height - heightOffset;
           }
           

@@ -59,7 +59,7 @@
             <panelinks params="inHeader: true">
               <div class="pane-links">
                 <div class="logo">
-                  <a href="/" class="internal">
+                  <a data-bind="$route: '/'">
                     <div class="img-logo no-svg-only"></div>
                     <div class="svg-only">
                       <svg class="page-logo" width="161px" height="30px" viewBox="0 0 161 30">
@@ -146,28 +146,28 @@
 
                 <div class="menu-item">
                   <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    <a href="/api" class="internal"><span>API Docs</span></a>
+                    <a data-bind="$route: '/api'"><span>API Docs</span></a>
                   </div>
                   <div class="drop-down">
                     <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                      <a href="/api" class="internal"><span>API Docs</span></a>
+                      <a data-bind="$route: '/api'"><span>API Docs</span></a>
                     </div>
 
                     <div class="content">
                       <div class="row">
-                        <a class="item internal" href="/api/viewModel" target="_blank">viewModel</a>
+                        <a class="item" data-bind="$route: '/api/viewModel'">viewModel</a>
                       </div>
                       <div class="row">
-                        <a class="item internal" href="/api/namespace">Namespace</a>
+                        <a class="item" data-bind="$route: '/api/namespace'">Namespace</a>
                       </div>
                       <div class="row">
-                        <a class="item internal" href="/api/component">Components</a>
+                        <a class="item" data-bind="$route: '/api/component'">Components</a>
                       </div>
                       <div class="row">
-                        <a class="item internal" href="/api/broadcast-receive">Broadcastable / Receivable</a>
+                        <a class="item" data-bind="$route: '/api/broadcast-receive'">Broadcastable / Receivable</a>
                       </div>
                       <div class="row">
-                        <a class="item internal" href="/api/routing">Router</a>
+                        <a class="item" data-bind="$route: '/api/routing'">Router</a>
                       </div>
                     </div>
                   </div>
@@ -175,20 +175,19 @@
 
                 <div class="menu-item tutorial">
                   <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    <a href="/tutorial" class="internal">Tutorial</a>
+                    <a data-bind="$route: '/tutorial'">Tutorial</a>
                   </div>
                 </div>
 
                 <div class="menu-item annotated-source">
                   <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    <a href="/annotated" class="internal">Annotated Source</a>
+                    <a data-bind="$route: '/annotated'">Annotated Source</a>
                   </div>
                 </div>
 
                 <div class="aside menu-item build" data-bind="style: { height: headerContentHeight }">
                   <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
                     <releases></releases>
-                    <!-- <a href="/build" class="internal" data-id="build" title="Build Information"></a> -->
                   </div>
                 </div>
 
@@ -207,7 +206,7 @@
           <div class="load-bar loaded" data-bind="class: loader.state, transition: loader.stepTransition, style: { width: loader.percentComplete }">
             <div class="message" data-bind="text: loader.message">Loading...</div>
           </div>
-          <a class="page-logo internal" href="/">
+          <a class="page-logo" data-bind="$route: '/'">
             <svg width="161px" height="30px" viewBox="0 0 161 30">
               <path fill="none" d="M158.2,27.9c-7,0-14,0-21.1,0c0-8.6,0-17.2,0-25.8c7,0,14,0,21.1,0C158.2,10.7,158.2,19.3,158.2,27.9z
                  M155.1,16.3c0-1-0.2-1.8-0.5-2.5c-0.5-1.3-1.3-2.4-2.2-3.4c-0.7-0.8-1.4-1.5-2.4-1.9c-0.7-0.3-1.4-0.3-2.2,0.1

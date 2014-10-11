@@ -179,6 +179,13 @@ define([ "footwork", "lodash", "router" ],
           }
         }.bind( this );
         this.$namespace.subscribe('togglePane', this.togglePaneCollapse);
+
+        // ensure the pane is in the correct state when a new page is loaded via the $router
+        this.$router.$outlet('mainContent').subscribe(function() {
+          if( this.overlapPane() === true && this.paneCollapsed() === false ) {
+            this.paneCollapsed(true);
+          }
+        }.bind(this));
       }
     });
   }

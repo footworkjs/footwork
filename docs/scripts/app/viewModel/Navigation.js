@@ -22,7 +22,7 @@ define([ "jquery", "lodash", "footwork", "LoadState" ],
         this.paneAnimate3d = ko.observable().receiveFrom('Pane', 'animate3d');
         this.paneMoving = ko.observable().receiveFrom('Pane', 'moving');
         this.overlapPane = ko.observable().receiveFrom('Body', 'overlapPane');
-        this.pageLoading = ko.observable().receiveFrom('Page', 'loading');
+        this.pageLoading = ko.observable().receiveFrom('mainRouter', 'pageLoading');
         this.reflowing = ko.observable(false).broadcastAs('reflowing');
         this.headerOpen = ko.observable(false);
 
