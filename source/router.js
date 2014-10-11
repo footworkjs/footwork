@@ -277,8 +277,9 @@ var Router = function( routerConfig, $viewModel, $context ) {
 
   this.id = uniqueId('router');
   this.$globalNamespace = makeNamespace();
-  this.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + 'Router') );
+  this.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + '.router') );
   this.$namespace.enter();
+  this.$namespace.command.handler('setState', bind(this.setState, this));
 
   this.$viewModel = $viewModel;
   this.urlParts = ko.observable();
@@ -381,10 +382,10 @@ Router.prototype.addRoutes = function(routeConfig) {
 Router.prototype.activate = function($context, $parentRouter) {
   return this
     .startup( $context, $parentRouter )
-    .stateChange();
+    .setState();
 };
 
-Router.prototype.stateChange = function(url) {
+Router.prototype.setState = function(url) {
   if( !isString(url) && this.historyIsEnabled() ) {
     url = History.getState().url;
   }
@@ -411,7 +412,7 @@ Router.prototype.startup = function( $context, $parentRouter ) {
   if( !this.historyIsEnabled() ) {
     if( historyIsReady() ) {
       History.Adapter.bind( windowObject, 'statechange', this.stateChangeHandler = function() {
-        $myRouter.stateChange( History.getState().url );
+        $myRouter.setState( History.getState().url );
       } );
       this.historyIsEnabled(true);
     } else {

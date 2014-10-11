@@ -60,6 +60,7 @@ require([
     var $window = $(window);
     var $document = $(document);
     var $body = $('body');
+    var routerNamespace = ko.namespace('Body.router');
     var globalNamespace = ko.namespace();
     var pageNamespace = ko.namespace('Page');
     var layoutControlNamespace = ko.namespace('LayoutControl');
@@ -157,6 +158,7 @@ require([
           return false;
         }
       } else {
+        routerNamespace.command('setState', url);
       }
       event.preventDefault();
     });
