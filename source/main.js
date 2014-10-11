@@ -9,6 +9,7 @@ ko.embed = embedded;
 
 // misc regex patterns
 var hasTrailingSlash = /\/$/i;
+var hasStartingSlash = /^\//i;
 
 // misc utility functions
 var noop = function() { };
@@ -17,6 +18,10 @@ var isObservable = ko.isObservable;
 
 var isPath = function(pathOrFile) {
   return hasTrailingSlash.test(pathOrFile);
+};
+
+var hasPathStart = function(path) {
+  return hasStartingSlash.test(path);
 };
 
 // Pull out lodash utility function references for better minification and easier implementation swap
