@@ -85,19 +85,15 @@ function registerNamespaceCommandHandler(commandKey, callback, context) {
 
 // Method used to issue a request for data from a namespace, returning the response (or undefined if no response)
 // This method will return an array of responses if more than one is received.
-function requestResponseFromNamespace(requestKey, params) {
+function requestResponseFromNamespace(requestKey, params, allowMultipleResponses) {
   var response = undefined;
   var responseSubscription;
 
   responseSubscription = this.subscribe('request.' + requestKey + '.response', function(reqResponse) {
     if( isUndefined(response) ) {
-      response = reqResponse;
-    } else {
-      if( isArray(response) ) {
-        response.push(reqResponse);
-      } else {
-        response = [ response, reqResponse ];
-      }
+      response = allowMultipleResponses ? [reqResponse] : reqResponse;
+    } else if(allowMultipleResponses) {
+      response.push(reqResponse);
     }
   });
 
