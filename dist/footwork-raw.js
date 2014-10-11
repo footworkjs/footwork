@@ -26,6 +26,7 @@ ko.embed = embedded;
 
 // misc regex patterns
 var hasTrailingSlash = /\/$/i;
+var hasStartingSlash = /^\//i;
 
 // misc utility functions
 var noop = function() { };
@@ -34,6 +35,10 @@ var isObservable = ko.isObservable;
 
 var isPath = function(pathOrFile) {
   return hasTrailingSlash.test(pathOrFile);
+};
+
+var hasPathStart = function(path) {
+  return hasStartingSlash.test(path);
 };
 
 // Pull out lodash utility function references for better minification and easier implementation swap
@@ -164,19 +169,15 @@ function registerNamespaceCommandHandler(commandKey, callback, context) {
 
 // Method used to issue a request for data from a namespace, returning the response (or undefined if no response)
 // This method will return an array of responses if more than one is received.
-function requestResponseFromNamespace(requestKey, params) {
+function requestResponseFromNamespace(requestKey, params, allowMultipleResponses) {
   var response = undefined;
   var responseSubscription;
 
   responseSubscription = this.subscribe('request.' + requestKey + '.response', function(reqResponse) {
     if( isUndefined(response) ) {
-      response = reqResponse;
-    } else {
-      if( isArray(response) ) {
-        response.push(reqResponse);
-      } else {
-        response = [ response, reqResponse ];
-      }
+      response = allowMultipleResponses ? [reqResponse] : reqResponse;
+    } else if(allowMultipleResponses) {
+      response.push(reqResponse);
     }
   });
 
@@ -450,8 +451,7 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
  *   route: 'test/route(/:optional)',
  *   title: function() {
  *     return ko.request('nameSpace', 'broadcast:someVariable');
- *   },
- *   nav: true
+ *   }
  * }
  */
 
@@ -557,10 +557,6 @@ function routeStringToRegExp(routeString) {
   return new RegExp('^' + routeString + (routeString !== '/' ? '(\\/.*)*$' : '$'), routesAreCaseSensitive ? undefined : 'i');
 }
 
-function extractNavItems(routes) {
-  return where( isArray(routes) ? routes : [routes], { nav: true } );
-}
-
 function historyIsReady() {
   var isReady = has(History, 'Adapter');
   if(isReady && isUndefined(History.Adapter.unbind)) {
@@ -574,10 +570,6 @@ function historyIsReady() {
     };
   }
   return isReady;
-}
-
-function hasNavItems(routes) {
-  return extractNavItems( routes ).length > 0;
 }
 
 function isNullRouter(thing) {
@@ -601,9 +593,9 @@ function nearestParentRouter($context) {
     if( isObject($context.$data) && isRouter($context.$data.$router) ) {
       // found router in this context
       $parentRouter = $context.$data.$router;
-    } else if( isObject($context.$parentContext) ) {
+    } else if( isObject($context.$parentContext) || (isObject($context.$data) && isObject($context.$data.___$parentContext)) ) {
       // search through next parent up the chain
-      $parentRouter = nearestParentRouter( $context.$parentContext );
+      $parentRouter = nearestParentRouter( $context.$parentContext || $context.$data.___$parentContext );
     }
   }
   return $parentRouter;
@@ -619,17 +611,20 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   var viewModelParameters = options.params;
   var onComplete = options.onComplete;
   var outlets = this.outlets;
-  var isInitialLoad = false;
 
   outletName = ko.unwrap( outletName );
   if( !isObservable(outlets[outletName]) ) {
-    outlets[outletName] = ko.observable({ name: noComponentSelected, params: {} });
-    isInitialLoad = true;
+    outlets[outletName] = ko.observable({
+      name: noComponentSelected,
+      params: {},
+      __getOnCompleteCallback: function() { return noop; }
+    });
   }
 
   var outlet = outlets[outletName];
   var currentOutletDef = outlet();
   var valueHasMutated = false;
+  var isInitialLoad = outlet().name === noComponentSelected;
 
   if( !isUndefined(componentToDisplay) ) {
     currentOutletDef.name = componentToDisplay;
@@ -649,7 +644,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
       // upon injection into the DOM). Perhaps due to usage of virtual DOM for the component?
       var callCounter = (isInitialLoad ? 0 : 1);
 
-      currentOutletDef.getOnCompleteCallback = function() {
+      currentOutletDef.__getOnCompleteCallback = function() {
         var isComplete = callCounter === 0;
         callCounter--;
         if( isComplete ) {
@@ -658,7 +653,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
         return noop;
       };
     } else {
-      currentOutletDef.getOnCompleteCallback = function() {
+      currentOutletDef.__getOnCompleteCallback = function() {
         return noop;
       };
     }
@@ -675,7 +670,7 @@ ko.routers = {
   
   // Return array of all currently instantiated $router's
   getAll: function() {
-    return $globalNamespace.request('__router_reference');
+    return $globalNamespace.request('__router_reference', undefined, true);
   }
 };
 
@@ -685,21 +680,22 @@ ko.router = function( routerConfig, $viewModel, $context ) {
 
 ko.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    var parentRoutePath = '';
     var $myRouter = nearestParentRouter(bindingContext);
-    var $nearestParentRouter = nearestParentRouter( $myRouter.context().$parentContext );
-
-    var setHref = !!$myRouter.config.setHref;
-    var prependedRoutePath = ($myRouter.isRelative() && !isNullRouter($nearestParentRouter)) ? $nearestParentRouter.routePath() : '';
-    var suppliedRoutePath = ko.unwrap(valueAccessor()) || '';
-    var routePath = prependedRoutePath + (suppliedRoutePath || element.getAttribute('href'));
-
-    var tagName = element.tagName;
-    if( setHref && ((isString(tagName) && tagName.toLowerCase() === 'a') || element.hasAttribute('href')) ) {
-      element.setAttribute('href', routePath);
+    var myLinkPath = ko.unwrap(valueAccessor()) || element.getAttribute('href') || '';
+    if( !isNullRouter($myRouter) ) {
+      parentRoutePath = $myRouter.parentRouter().routePath();
     }
 
-    ko.utils.registerEventHandler(element, 'click', function( event ) {
-      History.pushState( null, document.title, element.getAttribute('href') || routePath );
+    // add prefix '/' if necessary
+    if( !hasPathStart(myLinkPath) ) {
+      myLinkPath = '/' + myLinkPath;
+    }
+    if( element.tagName.toLowerCase() === 'a' ) {
+      element.href = parentRoutePath + myLinkPath;
+    }
+    ko.utils.registerEventHandler(element, 'click', function(event) {
+      $myRouter.setState(myLinkPath);
       event.preventDefault();
     });
   }
@@ -716,8 +712,9 @@ var Router = function( routerConfig, $viewModel, $context ) {
 
   this.id = uniqueId('router');
   this.$globalNamespace = makeNamespace();
-  this.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + 'Router') );
+  this.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + '.router') );
   this.$namespace.enter();
+  this.$namespace.command.handler('setState', bind(this.setState, this));
 
   this.$viewModel = $viewModel;
   this.urlParts = ko.observable();
@@ -770,7 +767,6 @@ var Router = function( routerConfig, $viewModel, $context ) {
 
   this.currentState('');
 
-  this.navModelUpdate = ko.observable();
   this.outlets = {};
   this.$outlet = bind( $routerOutlet, this );
   this.$outlet.reset = bind( function() {
@@ -806,30 +802,39 @@ Router.prototype.setRoutes = function(routeDesc) {
 };
 
 Router.prototype.addRoutes = function(routeConfig) {
-  routeConfig = isArray(routeConfig) ? routeConfig : [routeConfig];
-
-  this.routeDescriptions = this.routeDescriptions.concat( map(routeConfig, transformRouteConfigToDesc) );
-
-  if( hasNavItems(routeConfig) && isObservable(this.navigationModel) ) {
-    this.navModelUpdate.notifySubscribers();
-  }
-
+  this.routeDescriptions = this.routeDescriptions.concat( map(isArray(routeConfig) ? routeConfig : [routeConfig], transformRouteConfigToDesc) );
   return this;
 };
 
 Router.prototype.activate = function($context, $parentRouter) {
-  return this
-    .startup( $context, $parentRouter )
-    .stateChange();
+  this.startup( $context, $parentRouter );
+  if( this.currentState() === '' ) {
+    this.setState();
+  }
+  return this;
 };
 
-Router.prototype.stateChange = function(url) {
-  if( !isString(url) && this.historyIsEnabled() ) {
-    url = History.getState().url;
+Router.prototype.setState = function(url, noHistoryInjection) {
+  if( this.historyIsEnabled() ) {
+    if(!noHistoryInjection && isString(url)) {
+      var historyAPIWorked = true;
+      try {
+        historyAPIWorked = History.pushState(null, '', this.parentRouter().routePath() + url);
+      } catch(error) {
+        historyAPIWorked = false;
+      } finally {
+        if(historyAPIWorked) {
+          return;
+        }
+      }
+    } else {
+      url = History.getState().url;
+    }
   }
 
   if( isString(url) ) {
     this.currentState( this.normalizeURL(url) );
+    this.currentState.notifySubscribers(); // for some reason not doing this will break being able to set a route from a route (see docs/scripts/app/router.js)
   }
 };
 
@@ -849,7 +854,7 @@ Router.prototype.startup = function( $context, $parentRouter ) {
   if( !this.historyIsEnabled() ) {
     if( historyIsReady() ) {
       History.Adapter.bind( windowObject, 'statechange', this.stateChangeHandler = function() {
-        $myRouter.stateChange( History.getState().url );
+        $myRouter.setState( History.getState().url, true );
       } );
       this.historyIsEnabled(true);
     } else {
@@ -988,17 +993,6 @@ Router.prototype.getActionForRoute = function(routeDescription) {
 Router.prototype.getRouteDescriptions = function() {
   return this.routeDescriptions;
 };
-
-Router.prototype.navigationModel = function(predicate) {
-  if( isUndefined(this.navigationModel) ) {
-    this.navigationModel = ko.computed(function() {
-      this.navModelUpdate(); // dummy reference used to trigger updates
-      return filter( extractNavItems(this.routeDescriptions), (predicate || alwaysPassPredicate) );
-    }, { navModelUpdate: this.navModelUpdate });
-  }
-
-  return this.navigationModel;
-};
 // viewModel.js
 // ------------------
 
@@ -1021,7 +1015,7 @@ ko.viewModels = {};
 // Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all model references is returned.
 var getViewModels = ko.viewModels.getAll = function(options) {
-  return reduce( [].concat( $globalNamespace.request('__model_reference', extend({}, defaultGetViewModelOptions, options)) ), function(viewModels, viewModel) {
+  return reduce( [].concat( $globalNamespace.request('__model_reference', extend({}, defaultGetViewModelOptions, options), true) ), function(viewModels, viewModel) {
     if( !isUndefined(viewModel) ) {
       var namespaceName = isNamespace(viewModel.$namespace) ? viewModel.$namespace.getName() : null;
 
@@ -1192,6 +1186,7 @@ function bindComponentViewModel(element, params, ViewModel) {
   } else {
     viewModelObj = ViewModel;
   }
+  viewModelObj.___$parentContext = ko.contextFor(element.parentElement);
 
   // binding the viewModelObj onto each child element is not ideal, need to do this differently
   // cannot get component.preprocess() method to work/be called for some reason
@@ -1400,7 +1395,7 @@ ko.bindingHandlers.$life = {
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $parent = bindingContext.$parent;
     if( isObject($parent) && $parent.__isOutlet ) {
-      $parent.$route().getOnCompleteCallback()(element.parentElement);
+      $parent.$route().__getOnCompleteCallback()(element.parentElement);
     } else {
       componentTriggerAfterBinding(element.parentElement, bindingContext.$data);
     }
