@@ -9513,19 +9513,15 @@ function registerNamespaceCommandHandler(commandKey, callback, context) {
 
 // Method used to issue a request for data from a namespace, returning the response (or undefined if no response)
 // This method will return an array of responses if more than one is received.
-function requestResponseFromNamespace(requestKey, params) {
+function requestResponseFromNamespace(requestKey, params, allowMultipleResponses) {
   var response = undefined;
   var responseSubscription;
 
   responseSubscription = this.subscribe('request.' + requestKey + '.response', function(reqResponse) {
     if( isUndefined(response) ) {
-      response = reqResponse;
-    } else {
-      if( isArray(response) ) {
-        response.push(reqResponse);
-      } else {
-        response = [ response, reqResponse ];
-      }
+      response = allowMultipleResponses ? [reqResponse] : reqResponse;
+    } else if(allowMultipleResponses) {
+      response.push(reqResponse);
     }
   });
 
@@ -9972,7 +9968,11 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
 
   outletName = ko.unwrap( outletName );
   if( !isObservable(outlets[outletName]) ) {
-    outlets[outletName] = ko.observable({ name: noComponentSelected, params: {} });
+    outlets[outletName] = ko.observable({
+      name: noComponentSelected,
+      params: {},
+      getOnCompleteCallback: function() { return noop; }
+    });
     isInitialLoad = true;
   }
 
@@ -10024,7 +10024,7 @@ ko.routers = {
   
   // Return array of all currently instantiated $router's
   getAll: function() {
-    return $globalNamespace.request('__router_reference');
+    return $globalNamespace.request('__router_reference', undefined, true);
   }
 };
 
@@ -10179,6 +10179,7 @@ Router.prototype.stateChange = function(url) {
 
   if( isString(url) ) {
     this.currentState( this.normalizeURL(url) );
+    this.currentState.notifySubscribers(); // for some reason not doing this will break being able to set a route from a route (see docs/scripts/app/router.js)
   }
 };
 
@@ -10370,7 +10371,7 @@ ko.viewModels = {};
 // Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all model references is returned.
 var getViewModels = ko.viewModels.getAll = function(options) {
-  return reduce( [].concat( $globalNamespace.request('__model_reference', extend({}, defaultGetViewModelOptions, options)) ), function(viewModels, viewModel) {
+  return reduce( [].concat( $globalNamespace.request('__model_reference', extend({}, defaultGetViewModelOptions, options), true) ), function(viewModels, viewModel) {
     if( !isUndefined(viewModel) ) {
       var namespaceName = isNamespace(viewModel.$namespace) ? viewModel.$namespace.getName() : null;
 

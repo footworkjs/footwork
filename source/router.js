@@ -180,7 +180,11 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
 
   outletName = ko.unwrap( outletName );
   if( !isObservable(outlets[outletName]) ) {
-    outlets[outletName] = ko.observable({ name: noComponentSelected, params: {} });
+    outlets[outletName] = ko.observable({
+      name: noComponentSelected,
+      params: {},
+      getOnCompleteCallback: function() { return noop; }
+    });
     isInitialLoad = true;
   }
 
@@ -232,7 +236,7 @@ ko.routers = {
   
   // Return array of all currently instantiated $router's
   getAll: function() {
-    return $globalNamespace.request('__router_reference');
+    return $globalNamespace.request('__router_reference', undefined, true);
   }
 };
 
@@ -387,6 +391,7 @@ Router.prototype.stateChange = function(url) {
 
   if( isString(url) ) {
     this.currentState( this.normalizeURL(url) );
+    this.currentState.notifySubscribers(); // for some reason not doing this will break being able to set a route from a route (see docs/scripts/app/router.js)
   }
 };
 
