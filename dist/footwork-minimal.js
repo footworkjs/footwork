@@ -4697,16 +4697,6 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
 // router.js
 // ------------------
 
-/**
- * Example route:
- * {
- *   route: 'test/route(/:optional)',
- *   title: function() {
- *     return ko.request('nameSpace', 'broadcast:someVariable');
- *   }
- * }
- */
-
 // parseUri() originally sourced from: http://blog.stevenlevithan.com/archives/parseuri
 function parseUri(str) {
   var options = parseUri.options;
@@ -4975,7 +4965,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
   this.parentRouter = ko.observable($nullRouter);
   this.context = ko.observable();
   this.historyIsEnabled = ko.observable(false).broadcastAs('historyIsEnabled');
-  this.currentState = ko.observable().broadcastAs('currentState');
+  this.currentState = ko.observable('').broadcastAs('currentState');
   this.config = routerConfig = extend({}, routerDefaultConfig, routerConfig);
   this.config.baseRoute = ko.routers.baseRoute() + (result(routerConfig, 'baseRoute') || '');
 
@@ -5008,7 +4998,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
   }, this));
 
   // Automatically trigger the new Action() whenever the currentRoute() updates
-  subscriptions.push( this.currentRoute.subscribe(function( newRoute ) {
+  subscriptions.push( this.currentRoute.subscribe(function getActionForRouteAndTrigger( newRoute ) {
     this.getActionForRoute( newRoute )( /* get and call the action for the newRoute */ );
   }, this) );
 
@@ -5016,8 +5006,6 @@ var Router = function( routerConfig, $viewModel, $context ) {
   this.$globalNamespace.request.handler('__router_reference', function() {
     return $router;
   });
-
-  this.currentState('');
 
   this.outlets = {};
   this.$outlet = bind( $routerOutlet, this );
@@ -5036,7 +5024,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
   this.setRoutes( routerConfig.routes );
 
   if( routerConfig.activate === true ) {
-    subscriptions.push(this.context.subscribe(function( $context ) {
+    subscriptions.push(this.context.subscribe(function activateRouterAfterNewContext( $context ) {
       if( isObject($context) ) {
         this.activate( $context );
       }
@@ -5086,7 +5074,7 @@ Router.prototype.setState = function(url, noHistoryInjection) {
 
   if( isString(url) ) {
     this.currentState( this.normalizeURL(url) );
-    this.currentState.notifySubscribers(); // for some reason not doing this will break being able to set a route from a route (see docs/scripts/app/router.js)
+    // this.currentState.notifySubscribers(); // for some reason not doing this will break being able to set a route from a route (see docs/scripts/app/router.js)
   }
 };
 
@@ -5234,8 +5222,8 @@ Router.prototype.getActionForRoute = function(routeDescription) {
 
       if( isUndefined(this.__currentRouteDescription) || this.__currentRouteDescription.id !== routeDescription.id ) {
         routeDescription.controller.call( this, routeDescription.namedParams );
+        this.__currentRouteDescription = routeDescription;
       }
-      this.__currentRouteDescription = routeDescription;
     }, this);
   }
 
