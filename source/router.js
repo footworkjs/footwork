@@ -55,6 +55,7 @@ var namedParamRegex = /(\(\?)?:\w+/g;
 var splatParamRegex = /\*\w*/g;
 var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatchRegex = /(^\/#)/;
+var isFullURLRegex = /(^[a-z]+:\/\/|\/\/)/i;
 var routesAreCaseSensitive = true;
 
 var invalidRoutePathIdentifier = '___invalid-route';
@@ -238,26 +239,31 @@ ko.router = function( routerConfig, $viewModel, $context ) {
   return new Router( routerConfig, $viewModel, $context );
 };
 
+
 ko.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var parentRoutePath = '';
     var $myRouter = nearestParentRouter(bindingContext);
     var myLinkPath = ko.unwrap(valueAccessor()) || element.getAttribute('href') || '';
-    if( !isNullRouter($myRouter) ) {
-      parentRoutePath = $myRouter.parentRouter().routePath();
-    }
 
-    // add prefix '/' if necessary
-    if( !hasPathStart(myLinkPath) ) {
-      myLinkPath = '/' + myLinkPath;
+    if( !isFullURLRegex.test(myLinkPath) ) {
+      if( !isNullRouter($myRouter) ) {
+        parentRoutePath = $myRouter.parentRouter().routePath();
+      }
+
+      // add prefix '/' if necessary
+      if( !hasPathStart(myLinkPath) ) {
+        myLinkPath = '/' + myLinkPath;
+      }
+      ko.utils.registerEventHandler(element, 'click', function(event) {
+        $myRouter.setState(myLinkPath);
+        event.preventDefault();
+      });
     }
+    
     if( element.tagName.toLowerCase() === 'a' ) {
       element.href = parentRoutePath + myLinkPath;
     }
-    ko.utils.registerEventHandler(element, 'click', function(event) {
-      $myRouter.setState(myLinkPath);
-      event.preventDefault();
-    });
   }
 };
 
