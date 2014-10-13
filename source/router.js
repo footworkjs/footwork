@@ -500,9 +500,8 @@ Router.prototype.getRouteForURL = function(url) {
   // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
   // and convert it into the actual route
   if(matchedRoutes.length) {
-    var highestSpecificity = 0;
     var matchedRoute = reduce(matchedRoutes, function(matchedRoute, foundRoute) {
-      if( foundRoute.specificity > highestSpecificity ) {
+      if( isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity ) {
         matchedRoute = foundRoute;
       }
       return matchedRoute;
