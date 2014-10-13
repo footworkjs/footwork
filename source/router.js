@@ -50,11 +50,11 @@ var routerDefaultConfig = {
 };
 
 // Regular expressions used to parse a uri
-var optionalParam = /\((.*?)\)/g;
-var namedParam = /(\(\?)?:\w+/g;
-var splatParam = /\*\w*/g;
-var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
-var hashMatch = /(^\/#)/;
+var optionalParamRegex = /\((.*?)\)/g;
+var namedParamRegex = /(\(\?)?:\w+/g;
+var splatParamRegex = /\*\w*/g;
+var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
+var hashMatchRegex = /(^\/#)/;
 var routesAreCaseSensitive = true;
 
 var invalidRoutePathIdentifier = '___invalid-route';
@@ -93,12 +93,12 @@ function transformRouteConfigToDesc(routeDesc) {
 // Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
 function routeStringToRegExp(routeString) {
   routeString = routeString
-    .replace(escapeRegExp, "\\$&")
-    .replace(optionalParam, "(?:$1)?")
-    .replace(namedParam, function(match, optional) {
+    .replace(escapeRegex, "\\$&")
+    .replace(optionalParamRegex, "(?:$1)?")
+    .replace(namedParamRegex, function(match, optional) {
       return optional ? match : "([^\/]+)";
     })
-    .replace(splatParam, "(.*?)");
+    .replace(splatParamRegex, "(.*?)");
 
   return new RegExp('^' + routeString + (routeString !== '/' ? '(\\/.*)*$' : '$'), routesAreCaseSensitive ? undefined : 'i');
 }
@@ -436,7 +436,7 @@ Router.prototype.normalizeURL = function(url) {
   if( !isNull(this.config.baseRoute) && url.indexOf(this.config.baseRoute) === 0 ) {
     url = url.substr(this.config.baseRoute.length);
     if(url.length > 1) {
-      url = url.replace(hashMatch, '/');
+      url = url.replace(hashMatchRegex, '/');
     }
   }
   return url;
@@ -487,7 +487,7 @@ Router.prototype.getRouteForURL = function(url) {
       if( !isNull(routeParams) && routeDescription.filter.call($myRouter, { params: routeParams, urlParts: $myRouter.urlParts() }) ) {
         matchedRoutes.push({
           routeString: routeString,
-          specificity: routeString.replace(/:[a-z0-9-_]+/gi, "*").length,
+          specificity: routeString.replace(namedParamRegex, "*").length,
           routeDescription: routeDescription,
           routeParams: routeParams
         });
@@ -507,12 +507,16 @@ Router.prototype.getRouteForURL = function(url) {
       return matchedRoute;
     }, null);
     var routeDescription = matchedRoute.routeDescription;
-    var routeParams = matchedRoute.routeParams;
     var routeString = matchedRoute.routeString;
+    var routeParams = clone(matchedRoute.routeParams);
     var splatSegment = routeParams.pop() || '';
-    var routeParamNames = map( routeString.match(namedParam), function(param) {
+    var routeParamNames = map(routeString.match(namedParamRegex), function(param) {
       return param.replace(':', '');
-    } );
+    });
+    var namedParams = reduce(routeParamNames, function(parameterNames, parameterName, index) {
+      parameterNames[parameterName] = routeParams[index + 1];
+      return parameterNames;
+    }, {});
 
     route = extend({}, baseRoute, {
       id: routeDescription.id,
@@ -521,10 +525,7 @@ Router.prototype.getRouteForURL = function(url) {
       url: url,
       routeSegment: url.substr(0, url.length - splatSegment.length),
       indexedParams: routeParams,
-      namedParams: reduce(routeParamNames, function(parameterNames, parameterName, index) {
-          parameterNames[parameterName] = routeParams[index + 1];
-          return parameterNames;
-        }, {})
+      namedParams: namedParams
     });
   }
 
