@@ -264,7 +264,6 @@ var Router = function( routerConfig, $viewModel, $context ) {
 
   this.$viewModel = $viewModel;
   this.urlParts = ko.observable();
-  this.currentRouteParams = ko.observable({});
   this.childRouters = ko.observableArray();
   this.parentRouter = ko.observable($nullRouter);
   this.context = ko.observable();
@@ -477,36 +476,60 @@ Router.prototype.getRouteForURL = function(url) {
     }
   }
 
+  // find all routes with a matching routeString
+  var matchedRoutes = [];
   find(this.getRouteDescriptions(), function(routeDescription) {
     var routeString = routeDescription.route;
     var routeParams = [];
 
     if( isString(routeString) ) {
-      $myRouter.currentRouteParams( routeParams = url.match( routeStringToRegExp(routeString) ) );
-
+      routeParams = url.match(routeStringToRegExp(routeString));
       if( !isNull(routeParams) && routeDescription.filter.call($myRouter, { params: routeParams, urlParts: $myRouter.urlParts() }) ) {
-        var splatSegment = routeParams.pop() || '';
-        var routeParamNames = map( routeString.match(namedParam), function(param) {
-          return param.replace(':', '');
-        } );
-
-        route = extend({}, baseRoute, {
-          id: routeDescription.id,
-          controller: routeDescription.controller,
-          title: routeDescription.title,
-          url: url,
-          routeSegment: url.substr(0, url.length - splatSegment.length),
-          indexedParams: routeParams,
-          namedParams: reduce(routeParamNames, function(parameterNames, parameterName, index) {
-              parameterNames[parameterName] = routeParams[index + 1];
-              return parameterNames;
-            }, {})
+        matchedRoutes.push({
+          routeString: routeString,
+          specificity: routeString.replace(/:[a-z0-9-_]+/gi, "*").length,
+          routeDescription: routeDescription,
+          routeParams: routeParams
         });
       }
     }
 
     return route;
   });
+
+  // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
+  if(matchedRoutes.length) {
+    var highestSpecificity = 0;
+    var matchedRoute = reduce(matchedRoutes, function(matchedRoute, foundRoute) {
+      if( foundRoute.specificity > highestSpecificity ) {
+        matchedRoute = foundRoute;
+      }
+      return matchedRoute;
+    }, null);
+
+    if(!isNull(matchedRoute)) {
+      var routeDescription = matchedRoute.routeDescription;
+      var routeParams = matchedRoute.routeParams;
+      var routeString = matchedRoute.routeString;
+      var splatSegment = routeParams.pop() || '';
+      var routeParamNames = map( routeString.match(namedParam), function(param) {
+        return param.replace(':', '');
+      } );
+
+      route = extend({}, baseRoute, {
+        id: routeDescription.id,
+        controller: routeDescription.controller,
+        title: routeDescription.title,
+        url: url,
+        routeSegment: url.substr(0, url.length - splatSegment.length),
+        indexedParams: routeParams,
+        namedParams: reduce(routeParamNames, function(parameterNames, parameterName, index) {
+            parameterNames[parameterName] = routeParams[index + 1];
+            return parameterNames;
+          }, {})
+      });
+    }
+  }
 
   return route || unknownRoute;
 };
