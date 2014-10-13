@@ -20,10 +20,9 @@ ko.viewModels = {};
 // Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all model references is returned.
 var getViewModels = ko.viewModels.getAll = function(options) {
-  return reduce( [].concat( $globalNamespace.request('__model_reference', extend({}, defaultGetViewModelOptions, options), true) ), function(viewModels, viewModel) {
+  return reduce( $globalNamespace.request('__model_reference', extend({}, defaultGetViewModelOptions, options), true), function(viewModels, viewModel) {
     if( !isUndefined(viewModel) ) {
       var namespaceName = isNamespace(viewModel.$namespace) ? viewModel.$namespace.getName() : null;
-
       if( !isNull(namespaceName) ) {
         if( isUndefined(viewModels[namespaceName]) ) {
           viewModels[namespaceName] = viewModel;
