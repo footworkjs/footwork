@@ -55,7 +55,7 @@ var namedParamRegex = /(\(\?)?:\w+/g;
 var splatParamRegex = /\*\w*/g;
 var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatchRegex = /(^\/#)/;
-var isFullURLRegex = /(^[a-z]+:\/\/|\/\/)/i;
+var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
 var routesAreCaseSensitive = true;
 
 var invalidRoutePathIdentifier = '___invalid-route';
@@ -246,7 +246,7 @@ ko.bindingHandlers.$route = {
     var linkTo = valueAccessor();
     var eventHandlerNotBound = true;
 
-    function getLink(doNotIncludeParent) {
+    function getRouteURL(includeParentPath) {
       var parentRoutePath = '';
       var myLinkPath = ko.unwrap(linkTo) || element.getAttribute('href') || '';
       if( isUndefined(linkTo) ) {
@@ -258,25 +258,27 @@ ko.bindingHandlers.$route = {
           myLinkPath = '/' + myLinkPath;
         }
 
-        if( !doNotIncludeParent && !isNullRouter($myRouter) ) {
+        if( includeParentPath && !isNullRouter($myRouter) ) {
           myLinkPath = $myRouter.parentRouter().routePath() + myLinkPath;
         }
       }
 
       return myLinkPath;
     };
+    var routeURLWithParentPath = bind(getRouteURL, null, true);
+    var routeURLWithoutParentPath = bind(getRouteURL, null, false);
 
     function setUpElement() {
       if(eventHandlerNotBound) {
         eventHandlerNotBound = false;
         ko.utils.registerEventHandler(element, 'click', function(event) {
-          $myRouter.setState(getLink(true));
+          $myRouter.setState( routeURLWithoutParentPath() );
           event.preventDefault();
         });
       }
 
       if( element.tagName.toLowerCase() === 'a' ) {
-        element.href = getLink();
+        element.href = routeURLWithParentPath();
       }
     }
 
