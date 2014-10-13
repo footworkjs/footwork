@@ -10291,6 +10291,7 @@ Router.prototype.getRouteForURL = function(url) {
   });
 
   // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
+  // and convert it into the actual route
   if(matchedRoutes.length) {
     var highestSpecificity = 0;
     var matchedRoute = reduce(matchedRoutes, function(matchedRoute, foundRoute) {
@@ -10299,29 +10300,26 @@ Router.prototype.getRouteForURL = function(url) {
       }
       return matchedRoute;
     }, null);
+    var routeDescription = matchedRoute.routeDescription;
+    var routeParams = matchedRoute.routeParams;
+    var routeString = matchedRoute.routeString;
+    var splatSegment = routeParams.pop() || '';
+    var routeParamNames = map( routeString.match(namedParam), function(param) {
+      return param.replace(':', '');
+    } );
 
-    if(!isNull(matchedRoute)) {
-      var routeDescription = matchedRoute.routeDescription;
-      var routeParams = matchedRoute.routeParams;
-      var routeString = matchedRoute.routeString;
-      var splatSegment = routeParams.pop() || '';
-      var routeParamNames = map( routeString.match(namedParam), function(param) {
-        return param.replace(':', '');
-      } );
-
-      route = extend({}, baseRoute, {
-        id: routeDescription.id,
-        controller: routeDescription.controller,
-        title: routeDescription.title,
-        url: url,
-        routeSegment: url.substr(0, url.length - splatSegment.length),
-        indexedParams: routeParams,
-        namedParams: reduce(routeParamNames, function(parameterNames, parameterName, index) {
-            parameterNames[parameterName] = routeParams[index + 1];
-            return parameterNames;
-          }, {})
-      });
-    }
+    route = extend({}, baseRoute, {
+      id: routeDescription.id,
+      controller: routeDescription.controller,
+      title: routeDescription.title,
+      url: url,
+      routeSegment: url.substr(0, url.length - splatSegment.length),
+      indexedParams: routeParams,
+      namedParams: reduce(routeParamNames, function(parameterNames, parameterName, index) {
+          parameterNames[parameterName] = routeParams[index + 1];
+          return parameterNames;
+        }, {})
+    });
   }
 
   return route || unknownRoute;
