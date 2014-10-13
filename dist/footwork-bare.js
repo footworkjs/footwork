@@ -748,11 +748,12 @@ var routerDefaultConfig = {
 };
 
 // Regular expressions used to parse a uri
-var optionalParam = /\((.*?)\)/g;
-var namedParam = /(\(\?)?:\w+/g;
-var splatParam = /\*\w*/g;
-var escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
-var hashMatch = /(^\/#)/;
+var optionalParamRegex = /\((.*?)\)/g;
+var namedParamRegex = /(\(\?)?:\w+/g;
+var splatParamRegex = /\*\w*/g;
+var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
+var hashMatchRegex = /(^\/#)/;
+var isFullURLRegex = /(^[a-z]+:\/\/|\/\/)/i;
 var routesAreCaseSensitive = true;
 
 var invalidRoutePathIdentifier = '___invalid-route';
@@ -791,12 +792,12 @@ function transformRouteConfigToDesc(routeDesc) {
 // Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
 function routeStringToRegExp(routeString) {
   routeString = routeString
-    .replace(escapeRegExp, "\\$&")
-    .replace(optionalParam, "(?:$1)?")
-    .replace(namedParam, function(match, optional) {
+    .replace(escapeRegex, "\\$&")
+    .replace(optionalParamRegex, "(?:$1)?")
+    .replace(namedParamRegex, function(match, optional) {
       return optional ? match : "([^\/]+)";
     })
-    .replace(splatParam, "(.*?)");
+    .replace(splatParamRegex, "(.*?)");
 
   return new RegExp('^' + routeString + (routeString !== '/' ? '(\\/.*)*$' : '$'), routesAreCaseSensitive ? undefined : 'i');
 }
@@ -914,7 +915,21 @@ ko.routers = {
   
   // Return array of all currently instantiated $router's
   getAll: function() {
-    return $globalNamespace.request('__router_reference', undefined, true);
+    return reduce( $globalNamespace.request('__router_reference', undefined, true), function(routers, router) {
+      var namespaceName = isNamespace(router.$namespace) ? router.$namespace.getName() : null;
+
+      if( !isNull(namespaceName) ) {
+        if( isUndefined(routers[namespaceName]) ) {
+          routers[namespaceName] = router;
+        } else {
+          if( !isArray(routers[namespaceName]) ) {
+            routers[namespaceName] = [ routers[namespaceName] ];
+          }
+          routers[namespaceName].push(router);
+        }
+      }
+      return routers;
+    }, {});
   }
 };
 
@@ -922,26 +937,31 @@ ko.router = function( routerConfig, $viewModel, $context ) {
   return new Router( routerConfig, $viewModel, $context );
 };
 
+
 ko.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var parentRoutePath = '';
     var $myRouter = nearestParentRouter(bindingContext);
     var myLinkPath = ko.unwrap(valueAccessor()) || element.getAttribute('href') || '';
-    if( !isNullRouter($myRouter) ) {
-      parentRoutePath = $myRouter.parentRouter().routePath();
-    }
 
-    // add prefix '/' if necessary
-    if( !hasPathStart(myLinkPath) ) {
-      myLinkPath = '/' + myLinkPath;
+    if( !isFullURLRegex.test(myLinkPath) ) {
+      if( !isNullRouter($myRouter) ) {
+        parentRoutePath = $myRouter.parentRouter().routePath();
+      }
+
+      // add prefix '/' if necessary
+      if( !hasPathStart(myLinkPath) ) {
+        myLinkPath = '/' + myLinkPath;
+      }
+      ko.utils.registerEventHandler(element, 'click', function(event) {
+        $myRouter.setState(myLinkPath);
+        event.preventDefault();
+      });
     }
+    
     if( element.tagName.toLowerCase() === 'a' ) {
       element.href = parentRoutePath + myLinkPath;
     }
-    ko.utils.registerEventHandler(element, 'click', function(event) {
-      $myRouter.setState(myLinkPath);
-      event.preventDefault();
-    });
   }
 };
 
@@ -956,7 +976,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
 
   this.id = uniqueId('router');
   this.$globalNamespace = makeNamespace();
-  this.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + '.router') );
+  this.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + 'Router') );
   this.$namespace.enter();
   this.$namespace.command.handler('setState', bind(this.setState, this));
 
@@ -1134,7 +1154,7 @@ Router.prototype.normalizeURL = function(url) {
   if( !isNull(this.config.baseRoute) && url.indexOf(this.config.baseRoute) === 0 ) {
     url = url.substr(this.config.baseRoute.length);
     if(url.length > 1) {
-      url = url.replace(hashMatch, '/');
+      url = url.replace(hashMatchRegex, '/');
     }
   }
   return url;
@@ -1185,7 +1205,7 @@ Router.prototype.getRouteForURL = function(url) {
       if( !isNull(routeParams) && routeDescription.filter.call($myRouter, { params: routeParams, urlParts: $myRouter.urlParts() }) ) {
         matchedRoutes.push({
           routeString: routeString,
-          specificity: routeString.replace(/:[a-z0-9-_]+/gi, "*").length,
+          specificity: routeString.replace(namedParamRegex, "*").length,
           routeDescription: routeDescription,
           routeParams: routeParams
         });
@@ -1198,20 +1218,23 @@ Router.prototype.getRouteForURL = function(url) {
   // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
   // and convert it into the actual route
   if(matchedRoutes.length) {
-    var highestSpecificity = 0;
     var matchedRoute = reduce(matchedRoutes, function(matchedRoute, foundRoute) {
-      if( foundRoute.specificity > highestSpecificity ) {
+      if( isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity ) {
         matchedRoute = foundRoute;
       }
       return matchedRoute;
     }, null);
     var routeDescription = matchedRoute.routeDescription;
-    var routeParams = matchedRoute.routeParams;
     var routeString = matchedRoute.routeString;
+    var routeParams = clone(matchedRoute.routeParams);
     var splatSegment = routeParams.pop() || '';
-    var routeParamNames = map( routeString.match(namedParam), function(param) {
+    var routeParamNames = map(routeString.match(namedParamRegex), function(param) {
       return param.replace(':', '');
-    } );
+    });
+    var namedParams = reduce(routeParamNames, function(parameterNames, parameterName, index) {
+      parameterNames[parameterName] = routeParams[index + 1];
+      return parameterNames;
+    }, {});
 
     route = extend({}, baseRoute, {
       id: routeDescription.id,
@@ -1220,10 +1243,7 @@ Router.prototype.getRouteForURL = function(url) {
       url: url,
       routeSegment: url.substr(0, url.length - splatSegment.length),
       indexedParams: routeParams,
-      namedParams: reduce(routeParamNames, function(parameterNames, parameterName, index) {
-          parameterNames[parameterName] = routeParams[index + 1];
-          return parameterNames;
-        }, {})
+      namedParams: namedParams
     });
   }
 
@@ -1277,10 +1297,9 @@ ko.viewModels = {};
 // Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all model references is returned.
 var getViewModels = ko.viewModels.getAll = function(options) {
-  return reduce( [].concat( $globalNamespace.request('__model_reference', extend({}, defaultGetViewModelOptions, options), true) ), function(viewModels, viewModel) {
+  return reduce( $globalNamespace.request('__model_reference', extend({}, defaultGetViewModelOptions, options), true), function(viewModels, viewModel) {
     if( !isUndefined(viewModel) ) {
       var namespaceName = isNamespace(viewModel.$namespace) ? viewModel.$namespace.getName() : null;
-
       if( !isNull(namespaceName) ) {
         if( isUndefined(viewModels[namespaceName]) ) {
           viewModels[namespaceName] = viewModel;
