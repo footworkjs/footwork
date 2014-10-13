@@ -216,7 +216,21 @@ ko.routers = {
   
   // Return array of all currently instantiated $router's
   getAll: function() {
-    return $globalNamespace.request('__router_reference', undefined, true);
+    return reduce( $globalNamespace.request('__router_reference', undefined, true), function(routers, router) {
+      var namespaceName = isNamespace(router.$namespace) ? router.$namespace.getName() : null;
+
+      if( !isNull(namespaceName) ) {
+        if( isUndefined(routers[namespaceName]) ) {
+          routers[namespaceName] = router;
+        } else {
+          if( !isArray(routers[namespaceName]) ) {
+            routers[namespaceName] = [ routers[namespaceName] ];
+          }
+          routers[namespaceName].push(router);
+        }
+      }
+      return routers;
+    }, {});
   }
 };
 
@@ -258,7 +272,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
 
   this.id = uniqueId('router');
   this.$globalNamespace = makeNamespace();
-  this.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + '.router') );
+  this.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + 'Router') );
   this.$namespace.enter();
   this.$namespace.command.handler('setState', bind(this.setState, this));
 
