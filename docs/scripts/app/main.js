@@ -32,8 +32,7 @@ require.config({
     "resourceHelper":    "app/helper/resourceHelper",
     "router":            "app/router",
 
-    "Footer":            "app/viewModel/Footer",
-    "PaneDragManager":   "app/viewModel/PaneDragManager",
+    "PaneTouchManager":  "app/viewModel/PaneTouchManager",
     "ViewPort":          "app/viewModel/ViewPort",
     "Header":            "app/viewModel/Header",
     "Navigation":        "app/viewModel/Navigation",
@@ -85,8 +84,8 @@ require([
     (new Page());
 
     if( Modernizr.touch === true ) {
-      require( ['PaneDragManager'], function(PaneDragManager) {
-        (new PaneDragManager());
+      require( ['PaneTouchManager'], function(PaneTouchManager) {
+        (new PaneTouchManager());
       });
     }
 

@@ -48,6 +48,10 @@ header .pane-links {
 
   &.pageHasSections {
     & > .areas {
+      .primary {
+        right: @page-section-width + @page-section-margin;
+      }
+
       .alternate {
         display: block;
         text-align: center;
@@ -78,7 +82,7 @@ header .pane-links {
     border-bottom: 1px solid darken(@pane-bg-color, 15%);
     .box-sizing(border-box);
 
-    &.Github .Github, &.Reddit .Reddit, &.Twitter .Twitter, &.PageSections .PageSections.link, &.MainMenu .MainMenu.link {
+    &.Github .Github, &.PageSections .PageSections.link, &.NavMenu .NavMenu.link {
       color: @pane-fg-color;
     }
 
@@ -134,7 +138,7 @@ header .pane-links {
         font-size: 17px;
         float: none;
 
-        &.MainMenu {
+        &.NavMenu {
           display: none;
         }
 

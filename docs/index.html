@@ -139,57 +139,7 @@
                   </div>
                 </div>
 
-                <div class="menu-item first js-only initialized-only">
-                  <div class="icon icon-cog title desktop-only" title="Click to adjust layout" id="settings"
-                    data-bind="css: { active: configVisible }, style: { lineHeight: headerContentHeight }, click: toggleConfigView"></div>
-                </div>
-
-                <div class="menu-item">
-                  <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    <a data-bind="$route: '/api'"><span>API Docs</span></a>
-                  </div>
-                  <div class="drop-down">
-                    <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                      <a data-bind="$route: '/api'"><span>API Docs</span></a>
-                    </div>
-
-                    <div class="content">
-                      <div class="row">
-                        <a class="item" data-bind="$route: '/api/viewModel'">viewModel</a>
-                      </div>
-                      <div class="row">
-                        <a class="item" data-bind="$route: '/api/namespace'">Namespace</a>
-                      </div>
-                      <div class="row">
-                        <a class="item" data-bind="$route: '/api/component'">Components</a>
-                      </div>
-                      <div class="row">
-                        <a class="item" data-bind="$route: '/api/broadcast-receive'">Broadcastable / Receivable</a>
-                      </div>
-                      <div class="row">
-                        <a class="item" data-bind="$route: '/api/routing'">Router</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="menu-item tutorial">
-                  <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    <a data-bind="$route: '/tutorial'">Tutorial</a>
-                  </div>
-                </div>
-
-                <div class="menu-item annotated-source">
-                  <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    <a data-bind="$route: '/annotated'">Annotated Source</a>
-                  </div>
-                </div>
-
-                <div class="aside menu-item build" data-bind="style: { height: headerContentHeight }">
-                  <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-                    <releases></releases>
-                  </div>
-                </div>
+                <navmenu></navmenu>
 
                 <div class="drop-top js-only has-trans" data-bind="css: { visible: headerDropVisible, active: headerOpen, hidden: dropHidden }, click: toggleHeader">
                   <span class="icon" data-bind="class: arrowIcon"></span>

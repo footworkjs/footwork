@@ -27,7 +27,7 @@ define([ "footwork", "lodash" ],
 
         this.defaultSelection = ko.computed(function() {
           if( this.viewPortLayoutMode() === 'mobile' ) {
-            return 'MainMenu';
+            return 'NavMenu';
           }
           return 'PageSections';
         }, this).broadcastAs('defaultSelection');

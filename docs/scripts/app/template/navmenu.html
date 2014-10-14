@@ -1,0 +1,47 @@
+<div class="pane-component NavMenu initialized" data-bind="css: { visible: visible }">
+  <div class="content" data-bind="style: { height: paneContentMaxHeight }">
+    <div class="title" data-bind="style: { width: mobileWidth }">
+      <span class="label">
+        <span class="text">Main Menu</span>
+      </span>
+    </div>
+    <nav data-bind="style: { width: mobileWidth }, foreach: entries">
+      <a data-bind="css: { visible: visible }, attr: { title: labelText, target: target }, $route: url, text: labelText"></a>
+    </nav>
+  </div>
+</div>
+
+<div class="header-component">
+  <div class="menu-item first js-only initialized-only">
+    <div class="icon icon-cog title desktop-only" title="Click to adjust layout" id="settings"
+      data-bind="css: { active: configVisible }, style: { lineHeight: headerContentHeight }, click: toggleConfigView"></div>
+  </div>
+
+  <!-- ko foreach: entries -->
+    <div class="menu-item" data-bind="css: { visible: visible, aside: options.aside }, style: { height: headerContentHeight }">
+      <div class="title" data-bind="style: { lineHeight: $parent.headerContentHeight }">
+        <a data-bind="$route: url, attr: { target: target }, text: labelText"></a>
+      </div>
+      <!-- ko if: hasSubMenu -->
+        <div class="drop-down">
+          <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
+            <a data-bind="$route: url, attr: { target: target }">
+              <span data-bind="text: labelText"></span>
+            </a>
+          </div>
+          <div class="content" data-bind="foreach: subMenuItems">
+            <div class="row">
+              <a class="item" data-bind="attr: { target: target }, text: labelText, $route: url"></a>
+            </div>
+          </div>
+        </div>
+      <!-- /ko -->
+    </div>
+  <!-- /ko -->
+  
+  <div class="aside menu-item build" data-bind="style: { height: headerContentHeight }">
+    <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
+      <releases></releases>
+    </div>
+  </div>
+</div>

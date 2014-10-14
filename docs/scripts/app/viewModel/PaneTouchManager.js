@@ -147,7 +147,7 @@ define([ "jquery", "lodash", "footwork" ],
     }
 
     return ko.viewModel({
-      namespace: 'PaneDragManager',
+      namespace: 'PaneTouchManager',
       initialize: function() {
         this.$paneNamespace = ko.namespace('Pane');
         this.$paneNamespace.event.handler('initialized', function() {

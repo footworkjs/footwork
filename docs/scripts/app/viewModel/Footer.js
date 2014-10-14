@@ -36,11 +36,11 @@ define([ "footwork", "lodash" ],
             this.viewPortNoTransitions(true);
             var newMode = event.target.getAttribute('data-mode');
             if( newMode === 'mobile' ) {
-              this.paneCurrentSelection( 'MainMenu' );
+              this.paneCurrentSelection( 'NavMenu' );
               this.viewPortIsMobile(true);
               this.paneCollapsed(true);
             } else {
-              if( this.viewPortLayoutMode() === 'mobile' && (this.paneCurrentSelection() === 'MainMenu' || _.isUndefined(this.paneCurrentSelection()) ) ) {
+              if( this.viewPortLayoutMode() === 'mobile' && (this.paneCurrentSelection() === 'NavMenu' || _.isUndefined(this.paneCurrentSelection()) ) ) {
                 this.paneCurrentSelection( 'PageSections' );
               }
               this.paneCollapsed( this.paneShouldBeCollapsed() );

@@ -43,13 +43,6 @@ define([ "jquery", "lodash", "footwork", "LoadState" ],
           }.bind(this));
         }).withContext(this);
 
-        this.toggleConfigView = function() {
-          this.configVisible( !this.configVisible() );
-          if( this.configVisible() && this.paneCollapsed() ) {
-            this.paneCollapsed(false);
-          }
-        }.bind( this );
-
         this.toggleHeader = function() {
           if( ( (this.paneAnimate3d() === true && this.paneMoving() === true) ||
                this.configReflowing() === true || this.headerMoving() === true ) === false ) {

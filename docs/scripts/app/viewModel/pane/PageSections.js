@@ -80,8 +80,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
         this.description = ko.observable();
         this.initialized = ko.observable(true);
         this.currentSelection = ko.observable().receiveFrom('PaneLinks', 'currentSelection');
-        this._paneContentMaxHeight = ko.observable().receiveFrom('Pane', 'contentMaxHeight');
-        this.paneContentMaxHeight = this._paneContentMaxHeight.extend({ units: 'px' });
+        this.paneContentMaxHeight = ko.observable().receiveFrom('Pane', 'contentMaxHeight').extend({ units: 'px' });
         this.defaultPaneSelection = ko.observable().receiveFrom('PaneLinks', 'defaultSelection');
         this.title = ko.observable();
         this.viewPortScrollPos = ko.observable().receiveFrom('ViewPort', 'scrollPosition');

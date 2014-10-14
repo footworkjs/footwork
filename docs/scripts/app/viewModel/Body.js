@@ -47,7 +47,7 @@ define([ "footwork", "lodash", "router" ],
         this.paneColumnWidth = ko.observable().receiveFrom('Pane', 'columnWidth');
         this.controlEnabled = ko.observable(false).receiveFrom('LayoutControl', 'enabled');
         this.currentControl = ko.observable().receiveFrom('LayoutControl', 'currentControl');
-        this.$touchPaneManagerNamespace = ko.namespace('PaneDragManager');
+        this.$paneTouchManagerNamespace = ko.namespace('PaneTouchManager');
 
         this.width = ko.computed(function() {
           if( typeof this.viewPortDim() === 'object' ) {
@@ -174,7 +174,7 @@ define([ "footwork", "lodash", "router" ],
         }, this);
 
         this.togglePaneCollapse = function() {
-          if( _.isUndefined(this.$touchPaneManagerNamespace.request('ping')) || !this.isMobile() ) {
+          if( _.isUndefined(this.$paneTouchManagerNamespace.request('ping')) || !this.isMobile() ) {
             this.paneCollapsed( !this.paneCollapsed() );
           }
         }.bind( this );

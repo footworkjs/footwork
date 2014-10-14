@@ -19,6 +19,7 @@ define([ "jquery", "lodash", "footwork" ],
         this.mobileWidthCutoff = ko.observable(0).receiveFrom('Configuration', 'mobileWidthCutoff');
         this.headerHeight = ko.observable().receiveFrom('Header', 'height');
         this.headerMinHeight = ko.observable().receiveFrom('Header', 'minHeight');
+        this.currentSelection = ko.observable().receiveFrom('PaneLinks', 'currentSelection');
 
         this.resizing = ko.observable( false ).extend({ autoDisable: 200 }).broadcastAs('resizing');
         this.initialLoad = ko.observable( true ).broadcastAs('initialLoad');
@@ -37,7 +38,7 @@ define([ "jquery", "lodash", "footwork" ],
         }, this).broadcastAs('forceMobileLayout');
         this.isMobile = ko.computed(function() {
           return this.configIsMobile() || this.forceMobileLayout();
-        }, this);
+        }, this).broadcastAs('isMobile');
         this.noTransitions = ko.observable(false).broadcastAs('noTransitions', true);
         this.closedOffset = ko.computed(function() {
           return this.dimensions().width - ( parseInt(this.paneAccentPadding(), 10) * 2 );
@@ -59,6 +60,24 @@ define([ "jquery", "lodash", "footwork" ],
           }
           return 'desktop';
         }, this).broadcastAs('layoutMode');
+
+        var wasMobile = false;
+        this.isMobile.subscribe(function(isMobile) {
+          if(wasMobile && !isMobile) {
+            if(this.currentSelection() === 'NavMenu') {
+              this.currentSelection('PageSections');
+            }
+            if(this.paneCollapsed() === false) {
+              this.paneCollapsed(true);
+            }
+          } else if(!wasMobile && isMobile) {
+            if(this.paneCollapsed() === false) {
+              this.paneCollapsed(true);
+            }
+            this.currentSelection('NavMenu');
+          }
+          wasMobile = isMobile;
+        }, this);
 
         this.$namespace.request.handler('layoutMode', function() {
           return this.layoutMode();

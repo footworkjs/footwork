@@ -6,7 +6,7 @@ define([ "footwork",
     "app/viewModel/config/LayoutControl", "text!app/template/config/layoutcontrol.html",
     "app/viewModel/Pane", "text!app/template/pane.html",
     "app/viewModel/pane/PaneLinks", "text!app/template/pane/panelinks.html",
-    "app/viewModel/pane/MainMenu", "text!app/template/pane/mainmenu.html",
+    "app/viewModel/NavMenu", "text!app/template/navmenu.html",
     "app/viewModel/pane/PageSections", "text!app/template/pane/pagesections.html",
     "app/viewModel/pane/PaneBackground", "text!app/template/pane/panebackground.html",
     "app/viewModel/Header",
@@ -28,7 +28,7 @@ define([ "footwork",
     layoutControlViewModel, layoutControlTemplate,
     paneViewModel, paneTemplate,
     paneLinksViewModel, paneLinksTemplate,
-    mainMenuViewModel, mainMenuTemplate,
+    navMenuViewModel, navMenuTemplate,
     pageSectionsViewModel, pageSectionsTemplate,
     paneBackgroundViewModel, paneBackgroundTemplate,
     HeaderViewModel,
@@ -84,9 +84,9 @@ define([ "footwork",
         template: paneLinksTemplate
       });
       
-      ko.components.register('mainmenu', {
-        viewModel: mainMenuViewModel,
-        template: mainMenuTemplate
+      ko.components.register('navmenu', {
+        viewModel: navMenuViewModel,
+        template: navMenuTemplate
       });
       
       ko.components.register('pagesections', {
