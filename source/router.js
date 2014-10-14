@@ -272,8 +272,11 @@ ko.bindingHandlers.$route = {
       if(eventHandlerNotBound) {
         eventHandlerNotBound = false;
         ko.utils.registerEventHandler(element, 'click', function(event) {
-          $myRouter.setState( routeURLWithoutParentPath() );
-          event.preventDefault();
+          var routeURL = routeURLWithoutParentPath();
+          if( !isFullURLRegex.test( routeURL ) ) {
+            $myRouter.setState( routeURLWithoutParentPath() );
+            event.preventDefault();
+          }
         });
       }
 
