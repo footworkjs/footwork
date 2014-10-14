@@ -55,15 +55,42 @@ var reject = _.reject;
 var findWhere = _.findWhere;
 var once = _.once;
 
-// Registry which stores the mixins that are automatically added to each viewModel
+// Internal registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];
 
-// Initialize the debugLevel observable, this controls
-// what level of debug statements are logged to the console
-// 0 === off
-// 1 === errors / problems only
-// 2 === notices (very noisy)
-ko.debugLevel = ko.observable(1);
+// parseUri() originally sourced from: http://blog.stevenlevithan.com/archives/parseuri
+function parseUri(str) {
+  var options = parseUri.options;
+  var matchParts = options.parser[ options.strictMode ? "strict" : "loose" ].exec(str);
+  var uri = {};
+  var i = 14;
+
+  while (i--) {
+    uri[ options.key[i] ] = matchParts[i] || "";
+  }
+
+  uri[ options.q.name ] = {};
+  uri[ options.key[12] ].replace(options.q.parser, function ($0, $1, $2) {
+    if($1) {
+      uri[options.q.name][$1] = $2;
+    }
+  });
+
+  return uri;
+};
+
+parseUri.options = {
+  strictMode: false,
+  key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+  q: {
+    name:   "queryKey",
+    parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+  },
+  parser: {
+    strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+    loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+  }
+};
 
 //import("namespace.js");
 var $globalNamespace = makeNamespace();

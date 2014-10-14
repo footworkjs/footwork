@@ -1,40 +1,6 @@
 // router.js
 // ------------------
 
-// parseUri() originally sourced from: http://blog.stevenlevithan.com/archives/parseuri
-function parseUri(str) {
-  var options = parseUri.options;
-  var matchParts = options.parser[ options.strictMode ? "strict" : "loose" ].exec(str);
-  var uri = {};
-  var i = 14;
-
-  while (i--) {
-    uri[ options.key[i] ] = matchParts[i] || "";
-  }
-
-  uri[ options.q.name ] = {};
-  uri[ options.key[12] ].replace(options.q.parser, function ($0, $1, $2) {
-    if($1) {
-      uri[options.q.name][$1] = $2;
-    }
-  });
-
-  return uri;
-};
-
-parseUri.options = {
-  strictMode: false,
-  key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
-  q: {
-    name:   "queryKey",
-    parser: /(?:^|&)([^&=]*)=?([^&]*)/g
-  },
-  parser: {
-    strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
-    loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
-  }
-};
-
 // Predicate function that always returns true / 'pass'
 var alwaysPassPredicate = function() { return true; };
 
@@ -274,7 +240,7 @@ ko.bindingHandlers.$route = {
         ko.utils.registerEventHandler(element, 'click', function(event) {
           var routeURL = routeURLWithoutParentPath();
           if( !isFullURLRegex.test( routeURL ) ) {
-            $myRouter.setState( routeURL );
+            $myRouter.setState( routeURLWithoutParentPath() );
             event.preventDefault();
           }
         });
@@ -508,8 +474,8 @@ Router.prototype.getRouteForURL = function(url) {
   var unknownRoute = this.getUnknownRoute();
   var $myRouter = this;
 
+  // If this is a relative router we need to remove the leading parentRoutePath section of the URL
   if( this.isRelative() ) {
-    // since this is a relative router, we need to remove the leading parentRoutePath section of the URL
     if( parentRoutePath.length > 0 ) {
       if( ( routeIndex = url.indexOf(parentRoutePath) ) === 0 ) {
         url = url.substr( parentRoutePath.length );
@@ -538,7 +504,6 @@ Router.prototype.getRouteForURL = function(url) {
         });
       }
     }
-
     return route;
   });
 
