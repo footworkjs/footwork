@@ -2,16 +2,13 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
   function( $, _, ko ) {
     var PageSection = ko.viewModel({
       namespace: 'PageSection',
-      afterInit: function() {
-        this.visible( false );
-      },
       initialize: function(pageSectionData) {
         var paneElementsNamespace = ko.namespace('PaneElements');
         var computeAnchorPos, anchorComputeDelay = 100;
 
         pageSectionData = pageSectionData || {};
 
-        this.pageBaseURL = ko.observable().receiveFrom('Page', 'baseURL');
+        var pageBaseURL = ko.namespace('BodyRouter').request('currentRoute').url;
         this.currentSection = ko.observable().receiveFrom('PageSections', 'currentSection');
         this.chosenSection = ko.observable().receiveFrom('PageSections', 'chosenSection');
         this.paneCollapsed = ko.observable().receiveFrom('Pane', 'collapsed');
@@ -25,7 +22,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           return this.currentSection() === this.anchor();
         }, this);
         this.anchorAddress = ko.computed(function() {
-          return this.pageBaseURL() + '#' + this.anchor();
+          return pageBaseURL + '#' + this.anchor();
         }, this);
 
         this.anchorPosition = ko.observable();
@@ -67,15 +64,19 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           }
           return true;
         }.bind(this);
+
+        this.visible( false );
       }
     });
 
     return ko.viewModel({
       namespace: 'PageSections',
-      afterInit: function() {
+      afterBinding: function() {
         this.checkSelection();
       },
       initialize: function() {
+        var isInitialLoad = true;
+
         this.visible = ko.observable(false);
         this.description = ko.observable();
         this.initialized = ko.observable(true);
@@ -85,6 +86,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
         this.title = ko.observable();
         this.viewPortScrollPos = ko.observable().receiveFrom('ViewPort', 'scrollPosition');
         this.viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
+        this.headerVisibleHeight = ko.observable().receiveFrom('Header','visibleHeight');
 
         this.sections = ko.observable().broadcastAs('sections');
         this.highlightSection = ko.observable().broadcastAs('highlightSection').extend({ autoDisable: 300 });
@@ -112,11 +114,11 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           this._chosenRead = true;
 
           return ( chosenRead !== true && chosenSection ) || _.reduce( sections, function(currentSection, section) {
-            if( typeof section.anchorPosition() === 'object' && scrollPosition >= section.anchorPosition().top ) {
+            if( _.isObject(section.anchorPosition()) && scrollPosition >= (section.anchorPosition().top - parseInt(this.headerVisibleHeight()) - 10) ) {
               return section.anchor();
             }
             return currentSection;
-          }, false );
+          }.bind(this), false );
         }, this).broadcastAs('currentSection');
 
         this.loadSections = function( sections ) {
@@ -141,6 +143,10 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           if( pageData ) {
             pageData.description && this.description( pageData.description );
             this.loadSections( pageData.sections );
+            if(isInitialLoad) {
+              isInitialLoad = false;
+              ko.namespace('PageSection').publish( 'scrollToSection', ko.namespace('BodyRouter').request('urlParts').anchor );
+            }
           }
         }.bind(this);
         loadMetaData( ko.namespace('Page').request('metaData') );

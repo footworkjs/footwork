@@ -22,9 +22,6 @@ define([ "jquery", "lodash", "footwork" ],
 
     return ko.viewModel({
       namespace: 'NavMenu',
-      afterInit: function() {
-        this.checkSelection();
-      },
       initialize: function() {
         this.visible = ko.observable(false);
         this.paneWidth = ko.observable().receiveFrom('Pane', 'width');
@@ -62,6 +59,8 @@ define([ "jquery", "lodash", "footwork" ],
           this.visible( newSelection === this.getNamespaceName() );
         };
         this.currentSelection.subscribe(this.checkSelection, this);
+        
+        this.checkSelection();
       }
     });
   }

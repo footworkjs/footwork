@@ -2,11 +2,6 @@ define([ "jquery", "lodash", "footwork", "history" ],
   function( $, _, ko ) {
     return ko.viewModel({
       namespace: 'Page',
-      afterInit: function() {
-        if( location.hash.length ) {
-          ko.namespace('PageSection').publish( 'scrollToSection', location.hash.slice( location.hash.indexOf('#') + 1 ) );
-        }
-      },
       initialize: function() {
         this.$pageSections = ko.namespace('PageSections');
         this.defaultTitle = ko.observable('staticty.pe');

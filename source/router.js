@@ -273,6 +273,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
   this.$namespace.enter();
   this.$namespace.command.handler('setState', bind(this.setState, this));
   this.$namespace.request.handler('currentRoute', bind(function() { return this.currentRoute(); }, this));
+  this.$namespace.request.handler('urlParts', bind(function() { return this.urlParts(); }, this));
 
   this.$viewModel = $viewModel;
   this.urlParts = ko.observable();

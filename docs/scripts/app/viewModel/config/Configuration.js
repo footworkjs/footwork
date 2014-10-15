@@ -2,12 +2,6 @@ define([ "jquery", "lodash", "footwork", "storage" ],
   function( $, _, ko, storage ) {
     return ko.viewModel({
       namespace: 'Configuration',
-      afterInit: function() {
-        if( this.isMobile() === true || this.viewPortSmall() === true) {
-          this.paneCollapsed(true);
-        }
-        this.initialized(true);
-      },
       initialize: function() {
         var headerOverallMin = 35;
         var setConfig;
@@ -303,6 +297,11 @@ define([ "jquery", "lodash", "footwork", "storage" ],
             this.updateSession();
           }
         }, this);
+        
+        if( this.isMobile() === true || this.viewPortSmall() === true) {
+          this.paneCollapsed(true);
+        }
+        this.initialized(true);
 
         return this;
       }
