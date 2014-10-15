@@ -240,7 +240,7 @@ ko.bindingHandlers.$route = {
         ko.utils.registerEventHandler(element, 'click', function(event) {
           var routeURL = routeURLWithoutParentPath();
           if( !isFullURLRegex.test( routeURL ) ) {
-            $myRouter.setState( routeURLWithoutParentPath() );
+            $myRouter.setState( routeURL );
             event.preventDefault();
           }
         });
