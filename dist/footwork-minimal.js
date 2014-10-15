@@ -4324,15 +4324,42 @@ var reject = _.reject;
 var findWhere = _.findWhere;
 var once = _.once;
 
-// Registry which stores the mixins that are automatically added to each viewModel
+// Internal registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];
 
-// Initialize the debugLevel observable, this controls
-// what level of debug statements are logged to the console
-// 0 === off
-// 1 === errors / problems only
-// 2 === notices (very noisy)
-ko.debugLevel = ko.observable(1);
+// parseUri() originally sourced from: http://blog.stevenlevithan.com/archives/parseuri
+function parseUri(str) {
+  var options = parseUri.options;
+  var matchParts = options.parser[ options.strictMode ? "strict" : "loose" ].exec(str);
+  var uri = {};
+  var i = 14;
+
+  while (i--) {
+    uri[ options.key[i] ] = matchParts[i] || "";
+  }
+
+  uri[ options.q.name ] = {};
+  uri[ options.key[12] ].replace(options.q.parser, function ($0, $1, $2) {
+    if($1) {
+      uri[options.q.name][$1] = $2;
+    }
+  });
+
+  return uri;
+};
+
+parseUri.options = {
+  strictMode: false,
+  key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+  q: {
+    name:   "queryKey",
+    parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+  },
+  parser: {
+    strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+    loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+  }
+};
 
 // namespace.js
 // ------------------
@@ -4697,40 +4724,6 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
 // router.js
 // ------------------
 
-// parseUri() originally sourced from: http://blog.stevenlevithan.com/archives/parseuri
-function parseUri(str) {
-  var options = parseUri.options;
-  var matchParts = options.parser[ options.strictMode ? "strict" : "loose" ].exec(str);
-  var uri = {};
-  var i = 14;
-
-  while (i--) {
-    uri[ options.key[i] ] = matchParts[i] || "";
-  }
-
-  uri[ options.q.name ] = {};
-  uri[ options.key[12] ].replace(options.q.parser, function ($0, $1, $2) {
-    if($1) {
-      uri[options.q.name][$1] = $2;
-    }
-  });
-
-  return uri;
-};
-
-parseUri.options = {
-  strictMode: false,
-  key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
-  q: {
-    name:   "queryKey",
-    parser: /(?:^|&)([^&=]*)=?([^&]*)/g
-  },
-  parser: {
-    strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
-    loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
-  }
-};
-
 // Predicate function that always returns true / 'pass'
 var alwaysPassPredicate = function() { return true; };
 
@@ -5002,6 +4995,8 @@ var Router = function( routerConfig, $viewModel, $context ) {
   this.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + 'Router') );
   this.$namespace.enter();
   this.$namespace.command.handler('setState', bind(this.setState, this));
+  this.$namespace.request.handler('currentRoute', bind(function() { return this.currentRoute(); }, this));
+  this.$namespace.request.handler('urlParts', bind(function() { return this.urlParts(); }, this));
 
   this.$viewModel = $viewModel;
   this.urlParts = ko.observable();
@@ -5204,8 +5199,8 @@ Router.prototype.getRouteForURL = function(url) {
   var unknownRoute = this.getUnknownRoute();
   var $myRouter = this;
 
+  // If this is a relative router we need to remove the leading parentRoutePath section of the URL
   if( this.isRelative() ) {
-    // since this is a relative router, we need to remove the leading parentRoutePath section of the URL
     if( parentRoutePath.length > 0 ) {
       if( ( routeIndex = url.indexOf(parentRoutePath) ) === 0 ) {
         url = url.substr( parentRoutePath.length );
@@ -5234,7 +5229,6 @@ Router.prototype.getRouteForURL = function(url) {
         });
       }
     }
-
     return route;
   });
 
