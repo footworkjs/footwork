@@ -134,7 +134,7 @@ function getNamespaceName() {
 }
 
 // Creates and returns a new namespace instance
-var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
+var makeNamespace = fw.namespace = function(namespaceName, $parentNamespace) {
   if( !isUndefined($parentNamespace) ) {
     if( isString($parentNamespace) ) {
       namespaceName = $parentNamespace + '.' + namespaceName;
@@ -176,31 +176,31 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
 };
 
 // Duck type check for a namespace object
-var isNamespace = ko.isNamespace = function(thing) {
+var isNamespace = fw.isNamespace = function(thing) {
   return !isUndefined(thing) && !!thing.__isNamespace;
 };
 
 // Return the current namespace name.
-var currentNamespaceName = ko.currentNamespaceName = function() {
+var currentNamespaceName = fw.currentNamespaceName = function() {
   return namespaceStack[0];
 };
 
 // Return the current namespace channel.
-var currentNamespace = ko.currentNamespace = function() {
+var currentNamespace = fw.currentNamespace = function() {
   return makeNamespace( currentNamespaceName() );
 };
 
 // enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
 // 'entering' into that namespace (it is now the currentNamespace).
 // The namespace object returned from this method also has a pointer to its parent
-var enterNamespaceName = ko.enterNamespaceName = function(namespaceName) {
+var enterNamespaceName = fw.enterNamespaceName = function(namespaceName) {
   var $parentNamespace = currentNamespace();
   namespaceStack.unshift( namespaceName );
   return makeNamespace( currentNamespaceName() );
 };
 
 // enterNamespace() uses a current namespace definition as the one to enter into.
-var enterNamespace = ko.enterNamespace = function(namespace) {
+var enterNamespace = fw.enterNamespace = function(namespace) {
   namespaceStack.unshift( namespace.getName() );
   return namespace;
 };
@@ -208,7 +208,7 @@ var enterNamespace = ko.enterNamespace = function(namespace) {
 // Called at the after a model constructor function is run. exitNamespace()
 // will shift the current namespace off of the stack, 'exiting' to the
 // next namespace in the stack
-var exitNamespace = ko.exitNamespace = function() {
+var exitNamespace = fw.exitNamespace = function() {
   namespaceStack.shift();
   return currentNamespace();
 };

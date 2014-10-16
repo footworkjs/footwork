@@ -36,7 +36,7 @@ var $nullRouter = extend({}, $baseRouter, {
 var $baseRouter = {
   routePath: emptyStringResult,
   routeSegment: emptyStringResult,
-  childRouters: ko.observableArray(),
+  childRouters: fw.observableArray(),
   context: noop,
   __isRouter: true
 };
@@ -125,9 +125,9 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   var onComplete = options.onComplete;
   var outlets = this.outlets;
 
-  outletName = ko.unwrap( outletName );
+  outletName = fw.unwrap( outletName );
   if( !isObservable(outlets[outletName]) ) {
-    outlets[outletName] = ko.observable({
+    outlets[outletName] = fw.observable({
       name: noComponentSelected,
       params: {},
       __getOnCompleteCallback: function() { return noop; }
@@ -177,9 +177,9 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   return outlet;
 };
 
-ko.routers = {
+fw.routers = {
   // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
-  baseRoute: ko.observable(''),
+  baseRoute: fw.observable(''),
   
   // Return array of all currently instantiated $router's
   getAll: function() {
@@ -201,12 +201,12 @@ ko.routers = {
   }
 };
 
-ko.router = function( routerConfig, $viewModel, $context ) {
+fw.router = function( routerConfig, $viewModel, $context ) {
   return new Router( routerConfig, $viewModel, $context );
 };
 
 
-ko.bindingHandlers.$route = {
+fw.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $myRouter = nearestParentRouter(bindingContext);
     var linkTo = valueAccessor();
@@ -214,7 +214,7 @@ ko.bindingHandlers.$route = {
 
     function getRouteURL(includeParentPath) {
       var parentRoutePath = '';
-      var myLinkPath = ko.unwrap(linkTo) || element.getAttribute('href') || '';
+      var myLinkPath = fw.unwrap(linkTo) || element.getAttribute('href') || '';
       if( isUndefined(linkTo) ) {
         linkTo = myLinkPath;
       }
@@ -237,7 +237,7 @@ ko.bindingHandlers.$route = {
     function setUpElement() {
       if(eventHandlerNotBound) {
         eventHandlerNotBound = false;
-        ko.utils.registerEventHandler(element, 'click', function(event) {
+        fw.utils.registerEventHandler(element, 'click', function(event) {
           var routeURL = routeURLWithoutParentPath();
           if( !isFullURLRegex.test( routeURL ) ) {
             $myRouter.setState( routeURL );
@@ -276,24 +276,24 @@ var Router = function( routerConfig, $viewModel, $context ) {
   this.$namespace.request.handler('urlParts', bind(function() { return this.urlParts(); }, this));
 
   this.$viewModel = $viewModel;
-  this.urlParts = ko.observable();
-  this.childRouters = ko.observableArray();
-  this.parentRouter = ko.observable($nullRouter);
-  this.context = ko.observable();
-  this.historyIsEnabled = ko.observable(false).broadcastAs('historyIsEnabled');
-  this.currentState = ko.observable('').broadcastAs('currentState');
+  this.urlParts = fw.observable();
+  this.childRouters = fw.observableArray();
+  this.parentRouter = fw.observable($nullRouter);
+  this.context = fw.observable();
+  this.historyIsEnabled = fw.observable(false).broadcastAs('historyIsEnabled');
+  this.currentState = fw.observable('').broadcastAs('currentState');
   this.config = routerConfig = extend({}, routerDefaultConfig, routerConfig);
-  this.config.baseRoute = ko.routers.baseRoute() + (result(routerConfig, 'baseRoute') || '');
+  this.config.baseRoute = fw.routers.baseRoute() + (result(routerConfig, 'baseRoute') || '');
 
-  this.isRelative = ko.computed(function() {
+  this.isRelative = fw.computed(function() {
     return routerConfig.isRelative && !isNullRouter( this.parentRouter() );
   }, this);
   
-  this.currentRoute = ko.computed(function() {
+  this.currentRoute = fw.computed(function() {
     return this.getRouteForURL( this.currentState() );
   }, this);
   
-  this.routePath = ko.computed(function() {
+  this.routePath = fw.computed(function() {
     var currentRoute = this.currentRoute();
     var parentRouter = this.parentRouter();
     var routePath = this.parentRouter().routePath();

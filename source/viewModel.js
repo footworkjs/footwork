@@ -15,11 +15,11 @@ var defaultGetViewModelOptions = {
   includeOutlets: false
 };
 
-ko.viewModels = {};
+fw.viewModels = {};
 
 // Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all model references is returned.
-var getViewModels = ko.viewModels.getAll = function(options) {
+var getViewModels = fw.viewModels.getAll = function(options) {
   return reduce( $globalNamespace.request('__model_reference', extend({}, defaultGetViewModelOptions, options), true), function(viewModels, viewModel) {
     if( !isUndefined(viewModel) ) {
       var namespaceName = isNamespace(viewModel.$namespace) ? viewModel.$namespace.getName() : null;
@@ -39,7 +39,7 @@ var getViewModels = ko.viewModels.getAll = function(options) {
 };
 
 // Tell all viewModels to request the values which it listens for
-var refreshViewModels = ko.viewModels.refresh = function() {
+var refreshViewModels = fw.viewModels.refresh = function() {
   $globalNamespace.trigger('__refreshViewModels');
 };
 
@@ -60,7 +60,7 @@ function beforeInitMixins(mixin) {
   return !!mixin.runBeforeInit;
 }
 
-var makeViewModel = ko.viewModel = function(configParams) {
+var makeViewModel = fw.viewModel = function(configParams) {
   configParams = configParams || {};
 
   var ctor = noop;
@@ -165,11 +165,11 @@ function applyContextAndLifeCycle(viewModel, element) {
     }
 
     if( isRouter(viewModel.$router) ) {
-      viewModel.$router.context( ko.contextFor(element || document.body) );
+      viewModel.$router.context( fw.contextFor(element || document.body) );
     }
     
     if( !isUndefined(element) ) {
-      ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
         viewModel.__shutdown();
       });
     }
@@ -177,8 +177,8 @@ function applyContextAndLifeCycle(viewModel, element) {
 }
 
 // Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.
-var originalApplyBindings = ko.applyBindings;
-var applyBindings = ko.applyBindings = function(viewModel, element) {
+var originalApplyBindings = fw.applyBindings;
+var applyBindings = fw.applyBindings = function(viewModel, element) {
   originalApplyBindings(viewModel, element);
   applyContextAndLifeCycle(viewModel, element);
 };
@@ -190,7 +190,7 @@ function bindComponentViewModel(element, params, ViewModel) {
   } else {
     viewModelObj = ViewModel;
   }
-  viewModelObj.___$parentContext = ko.contextFor(element.parentElement);
+  viewModelObj.___$parentContext = fw.contextFor(element.parentElement);
 
   // binding the viewModelObj onto each child element is not ideal, need to do this differently
   // cannot get component.preprocess() method to work/be called for some reason
@@ -202,20 +202,20 @@ function bindComponentViewModel(element, params, ViewModel) {
   // we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each
   // sub-element and must specify the context as being the container element only once
   if( isRouter(viewModelObj.$router) ) {
-    viewModelObj.$router.context( ko.contextFor(element) );
+    viewModelObj.$router.context( fw.contextFor(element) );
   }
 };
 
 // Monkey patch enables the viewModel component to initialize a model and bind to the html as intended (with lifecycle events)
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
-var originalComponentInit = ko.bindingHandlers.component.init;
-ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+var originalComponentInit = fw.bindingHandlers.component.init;
+fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
   var theValueAccessor = valueAccessor;
   if( isString(element.tagName) ) {
     var tagName = element.tagName.toLowerCase();
     if( tagName === 'viewmodel' ) {
       var values = valueAccessor();
-      var viewModelName = ( !isUndefined(values.params) ? ko.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
+      var viewModelName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
       var bindViewModel = bind(bindComponentViewModel, null, element, values.params);
 
       if( !isUndefined(viewModelName) ) {
