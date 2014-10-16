@@ -1,14 +1,14 @@
 define(["jquery", "lodash", "knockout", "postal" ],
-  function( $, _, ko, postal ) {
+  function( $, _, fw, postal ) {
     /**
      * Trigger remote events
      */
-    ko.bindingHandlers['command'] = {
+    fw.bindingHandlers['command'] = {
       init: function ( element, valueAccessor, allBindings, viewModel, bindingContext ) {
         var eventsToHandle = valueAccessor() || {};
 
         _.each( eventsToHandle, function( eventOptions, eventName ) {
-          ko.utils.registerEventHandler( element, eventName, function ( event ) {
+          fw.utils.registerEventHandler( element, eventName, function ( event ) {
             if( eventOptions.ns ) {
               postal.channel( eventOptions.ns ).publish( eventOptions.order, eventOptions.value );
             }
@@ -17,9 +17,9 @@ define(["jquery", "lodash", "knockout", "postal" ],
       }
     };
 
-    ko.bindingHandlers['transition'] = {
+    fw.bindingHandlers['transition'] = {
       'update': function( element, valueAccessor ) {
-        var transitionDefinition = ko.utils.unwrapObservable(valueAccessor());
+        var transitionDefinition = fw.utils.unwrapObservable(valueAccessor());
         $(element).css({ WebkitTransition : transitionDefinition,
                              MozTransition: transitionDefinition,
                               MsTransition: transitionDefinition,
@@ -28,9 +28,9 @@ define(["jquery", "lodash", "knockout", "postal" ],
       }
     };
 
-    ko.bindingHandlers['transform'] = {
+    fw.bindingHandlers['transform'] = {
       'update': function( element, valueAccessor ) {
-        var transformDefinition = ko.utils.unwrapObservable(valueAccessor());
+        var transformDefinition = fw.utils.unwrapObservable(valueAccessor());
         $(element).css({ WebkitTransform : transformDefinition,
                              MozTransform: transformDefinition,
                               MsTransform: transformDefinition,
@@ -40,13 +40,13 @@ define(["jquery", "lodash", "knockout", "postal" ],
     };
 
     // credit: http://www.knockmeout.net/
-    ko.bindingHandlers['logger'] = {
+    fw.bindingHandlers['logger'] = {
       update: function( element, valueAccessor, allBindings ) {
         //store a counter with this element
-        var count = ko.utils.domData.get( element, "_ko_logger" ) || 0,
-        data = ko.toJS( valueAccessor() || allBindings() );
+        var count = fw.utils.domData.get( element, "_ko_logger" ) || 0,
+        data = fw.toJS( valueAccessor() || allBindings() );
 
-        ko.utils.domData.set(element, "_ko_logger", ++count);
+        fw.utils.domData.set(element, "_ko_logger", ++count);
 
         if( console && console.log ) {
           console.log(count, element, data);
@@ -57,19 +57,19 @@ define(["jquery", "lodash", "knockout", "postal" ],
     /**
      * Source: https://github.com/SteveSanderson/knockout/wiki/Bindings---class
      */
-    ko.bindingHandlers['class'] = {
+    fw.bindingHandlers['class'] = {
       'update': function( element, valueAccessor ) {
         var $element = $(element);
         if( element['__ko__previousClassValue__'] ) {
           $element.removeClass(element['__ko__previousClassValue__']);
         }
-        var value = ko.utils.unwrapObservable(valueAccessor());
+        var value = fw.utils.unwrapObservable(valueAccessor());
         typeof value !== 'undefined' && $element.addClass(value);
         element['__ko__previousClassValue__'] = value;
       }
     };
 
-    ko.bindingHandlers['stopBinding'] = {
+    fw.bindingHandlers['stopBinding'] = {
       init: function() {
         return { controlsDescendantBindings: true };
       }

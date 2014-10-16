@@ -1,29 +1,29 @@
 define([ "footwork", "lodash" ],
-  function( ko, _ ) {
-    return ko.viewModel({
+  function( fw, _ ) {
+    return fw.viewModel({
       namespace: 'Pane',
       afterBinding: function() {
         this.$namespace.trigger('initialized', true, false);
       },
       initialize: function() {
-        this.paneMaxWidth = ko.observable().receiveFrom('Configuration', 'paneMaxWidth');
-        this.paneCollapsed = ko.observable().receiveFrom('Configuration', 'paneCollapsed');
-        this.paneAccentPadding = ko.observable().receiveFrom('Configuration', 'paneAccentPadding');
-        this.linksMinWidth = ko.observable().receiveFrom('Configuration', 'linksMinWidth');
-        this.configReflowing = ko.observable().receiveFrom('Configuration', 'reflowing');
-        this.viewPortDim = ko.observable({}).receiveFrom('ViewPort', 'dimensions');
-        this.viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
-        this.viewPortSmall = ko.observable(true).receiveFrom('ViewPort', 'isSmall');
-        this.logoWidth = ko.observable(161).receiveFrom('ViewPort', 'logoWidth');
-        this.viewPortHas3dTransforms = ko.observable(true).receiveFrom('ViewPort', 'has3dTransforms');
-        this.headerVisibleHeight = ko.observable().receiveFrom('Header', 'visibleHeight');
-        this.headerClosed = ko.observable().receiveFrom('Header', 'closed');
-        this.headerTopOffset = ko.observable().receiveFrom('Header', 'topOffset');
-        this.headerClosedTopOffset = ko.observable().receiveFrom('Header', 'closedTopOffset');
-        this.overlapPane = ko.observable().receiveFrom('Body', 'overlapPane');
+        this.paneMaxWidth = fw.observable().receiveFrom('Configuration', 'paneMaxWidth');
+        this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed');
+        this.paneAccentPadding = fw.observable().receiveFrom('Configuration', 'paneAccentPadding');
+        this.linksMinWidth = fw.observable().receiveFrom('Configuration', 'linksMinWidth');
+        this.configReflowing = fw.observable().receiveFrom('Configuration', 'reflowing');
+        this.viewPortDim = fw.observable({}).receiveFrom('ViewPort', 'dimensions');
+        this.viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
+        this.viewPortSmall = fw.observable(true).receiveFrom('ViewPort', 'isSmall');
+        this.logoWidth = fw.observable(161).receiveFrom('ViewPort', 'logoWidth');
+        this.viewPortHas3dTransforms = fw.observable(true).receiveFrom('ViewPort', 'has3dTransforms');
+        this.headerVisibleHeight = fw.observable().receiveFrom('Header', 'visibleHeight');
+        this.headerClosed = fw.observable().receiveFrom('Header', 'closed');
+        this.headerTopOffset = fw.observable().receiveFrom('Header', 'topOffset');
+        this.headerClosedTopOffset = fw.observable().receiveFrom('Header', 'closedTopOffset');
+        this.overlapPane = fw.observable().receiveFrom('Body', 'overlapPane');
 
-        this.movingTimer = ko.observable(false).extend({ autoDisable: 400 }).broadcastAs('movingTimer', true);
-        this.maxWidth = ko.computed(function() {
+        this.movingTimer = fw.observable(false).extend({ autoDisable: 400 }).broadcastAs('movingTimer', true);
+        this.maxWidth = fw.computed(function() {
           var viewPortDim = this.viewPortDim();
           if( _.isObject(viewPortDim) && !_.isUndefined(viewPortDim.width) ) {
             var computedWidth = Math.floor( viewPortDim.width / 2.66 );
@@ -35,7 +35,7 @@ define([ "footwork", "lodash" ],
           }
           return 0;
         }, this).broadcastAs('maxWidth');
-        this.columnWidth = ko.computed(function() {
+        this.columnWidth = fw.computed(function() {
           var configMaxWidth = this.paneMaxWidth(),
               maxWidth = this.maxWidth();
 
@@ -48,10 +48,10 @@ define([ "footwork", "lodash" ],
           }
           return 9000;
         }, this).broadcastAs('columnWidth');
-        this.shouldBeCollapsed = ko.computed(function() {
+        this.shouldBeCollapsed = fw.computed(function() {
           return this.viewPortSmall();
         }, this).broadcastAs('shouldBeCollapsed');
-        this.narrow = ko.computed(function() {
+        this.narrow = fw.computed(function() {
           if( this.viewPortLayoutMode() === 'desktop' || this.viewPortLayoutMode() === 'tablet' ) {
             return parseInt(this.columnWidth(), 10) - this.logoWidth() - (this.paneAccentPadding() * 2) <= this.linksMinWidth();
           }
@@ -59,23 +59,23 @@ define([ "footwork", "lodash" ],
           return true;
         }, this).broadcastAs('narrow');
         this.collapsed = this.paneCollapsed.broadcastAs('collapsed', true);
-        this.dragging = ko.observable(false).broadcastAs('dragging', true);
-        this.dragOffset = ko.observable(0).broadcastAs('dragOffset', true);
-        this.moving = ko.computed(function() {
+        this.dragging = fw.observable(false).broadcastAs('dragging', true);
+        this.dragOffset = fw.observable(0).broadcastAs('dragOffset', true);
+        this.moving = fw.computed(function() {
           return this.movingTimer() === true && _.isUndefined(this.transition());
         }, this).broadcastAs('moving');
-        this.scrolling = ko.observable(false).extend({
+        this.scrolling = fw.observable(false).extend({
           autoDisable: 500,
         }).broadcastAs('scrolling', true);
-        this.transition = ko.observable(undefined).broadcastAs('transition', true);
-        this.width = ko.computed(function() {
+        this.transition = fw.observable(undefined).broadcastAs('transition', true);
+        this.width = fw.computed(function() {
           if( this.overlapPane() === true ) {
             return this.viewPortDim().width - this.paneAccentPadding() + 'px';
           }
 
           return this.columnWidth();
         }, this).broadcastAs('width');
-        this.contentMaxHeight = ko.computed(function() {
+        this.contentMaxHeight = fw.computed(function() {
           var viewPortDim = this.viewPortDim();
           var headerVisibleHeight = parseInt( this.headerVisibleHeight(), 10 );
           var topRowHeight = 50;
@@ -94,7 +94,7 @@ define([ "footwork", "lodash" ],
           
           return 0;
         }, this).broadcastAs('contentMaxHeight');
-        this.animate3d = ko.computed(function() {
+        this.animate3d = fw.computed(function() {
           return this.viewPortHas3dTransforms() === true && this.overlapPane() === true;
         }, this).broadcastAs('animate3d');
 
@@ -112,7 +112,7 @@ define([ "footwork", "lodash" ],
           }
         }, this);
 
-        this.topOffset = ko.computed(function() {
+        this.topOffset = fw.computed(function() {
           if( this.animate3d() === true ) {
             return '0px';
           }
@@ -122,7 +122,7 @@ define([ "footwork", "lodash" ],
           return '0px';
         }, this);
 
-        this.trueLeftOffset = ko.computed(function() {
+        this.trueLeftOffset = fw.computed(function() {
           var offset = 0;
           if( this.collapsed() === true ) {
             offset = ( parseInt(this.width(), 10) - parseInt(this.paneAccentPadding(), 10) );
@@ -135,14 +135,14 @@ define([ "footwork", "lodash" ],
           return offset + 'px';
         }, this).broadcastAs('trueLeftOffset');
 
-        this.leftOffset = ko.computed(function() {
+        this.leftOffset = fw.computed(function() {
           if( this.animate3d() === true ) {
             return '0px';
           }
           return '-' + this.trueLeftOffset();
         }, this).broadcastAs('leftOffset');
 
-        this.transform = ko.computed(function() {
+        this.transform = fw.computed(function() {
           var xTranslation, yTranslation;
 
           if( this.animate3d() === true ) {
@@ -157,7 +157,7 @@ define([ "footwork", "lodash" ],
           return 'none';
         }, this).broadcastAs('transform');
 
-        this.leftTransform = ko.computed(function() {
+        this.leftTransform = fw.computed(function() {
           if( this.animate3d() === true ) {
             return 'translate3d(-' + this.trueLeftOffset() + ',0px,0px)';
           }

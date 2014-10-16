@@ -1,24 +1,24 @@
 define([ "footwork", "lodash" ],
-  function( ko, _ ) {
-    return ko.viewModel({
+  function( fw, _ ) {
+    return fw.viewModel({
       namespace: 'Footer',
       initialize: function() {
-        this.viewPortDim = ko.observable().receiveFrom('ViewPort', 'dimensions');
-        this.bottomScrollPosition = ko.observable().receiveFrom('ViewPort', 'bottomScrollPosition');
-        this.headerClosed = ko.observable().receiveFrom('Header', 'closed');
-        this.columnWidth = ko.observable(0).receiveFrom('Pane', 'columnWidth');
-        this.bodyHeight = ko.observable(0).receiveFrom('Body', 'height');
-        this.viewPortIsMobile = ko.observable().receiveFrom('Configuration', 'isMobile');
-        this.viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
-        this.viewPortNoTransitions = ko.observable().receiveFrom('ViewPort', 'noTransitions');
-        this.paneCollapsed = ko.observable().receiveFrom('Configuration', 'paneCollapsed');
-        this.paneShouldBeCollapsed = ko.observable(false).receiveFrom('Pane', 'shouldBeCollapsed');
-        this.paneDefaultSelection = ko.observable().receiveFrom('PaneLinks', 'defaultSelection');
-        this.paneCurrentSelection = ko.observable().receiveFrom('PaneLinks', 'currentSelection');
-        this.forceMobileLayout = ko.observable(0).receiveFrom('ViewPort', 'forceMobileLayout');
+        this.viewPortDim = fw.observable().receiveFrom('ViewPort', 'dimensions');
+        this.bottomScrollPosition = fw.observable().receiveFrom('ViewPort', 'bottomScrollPosition');
+        this.headerClosed = fw.observable().receiveFrom('Header', 'closed');
+        this.columnWidth = fw.observable(0).receiveFrom('Pane', 'columnWidth');
+        this.bodyHeight = fw.observable(0).receiveFrom('Body', 'height');
+        this.viewPortIsMobile = fw.observable().receiveFrom('Configuration', 'isMobile');
+        this.viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
+        this.viewPortNoTransitions = fw.observable().receiveFrom('ViewPort', 'noTransitions');
+        this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed');
+        this.paneShouldBeCollapsed = fw.observable(false).receiveFrom('Pane', 'shouldBeCollapsed');
+        this.paneDefaultSelection = fw.observable().receiveFrom('PaneLinks', 'defaultSelection');
+        this.paneCurrentSelection = fw.observable().receiveFrom('PaneLinks', 'currentSelection');
+        this.forceMobileLayout = fw.observable(0).receiveFrom('ViewPort', 'forceMobileLayout');
 
-        this.height = ko.observable(70).broadcastAs('height');
-        this.visibleHeight = ko.computed(function() {
+        this.height = fw.observable(70).broadcastAs('height');
+        this.visibleHeight = fw.computed(function() {
           var viewPortDim = this.viewPortDim();
           var bodyHeight = this.bodyHeight();
           var bottomScrollPosition = this.bottomScrollPosition();

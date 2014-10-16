@@ -1,8 +1,8 @@
 define([ "jquery", "lodash", "knockout", "postal" ],
-  function( $, _, ko, postal ) {
+  function( $, _, fw, postal ) {
 
-    // custom throttle() based on ko v3.0.0 throttle(), allows value to be force()'d to a value at any time
-    ko.extenders.throttle = function(target, opt) {
+    // custom throttle() based on fw v3.0.0 throttle(), allows value to be force()'d to a value at any time
+    fw.extenders.throttle = function(target, opt) {
       if( typeof opt === 'number' ) {
         opt = {
           timeout: opt,
@@ -13,7 +13,7 @@ define([ "jquery", "lodash", "knockout", "postal" ],
       target.throttleEvaluation = opt.timeout;
 
       var writeTimeoutInstance = null,
-          throttledTarget = ko.dependentObservable({
+          throttledTarget = fw.dependentObservable({
               'read': target,
               'write': function(value) {
                 if( opt.when(value) ) {
@@ -36,8 +36,8 @@ define([ "jquery", "lodash", "knockout", "postal" ],
       return throttledTarget;
     };
 
-    ko.extenders.read = function( target, readOpCallback ) {
-      return ko.computed({
+    fw.extenders.read = function( target, readOpCallback ) {
+      return fw.computed({
         write: target,
         read: function() {
           return readOpCallback( target );
@@ -45,8 +45,8 @@ define([ "jquery", "lodash", "knockout", "postal" ],
       });
     };
 
-    ko.extenders.write = function( target, writeOpCallback ) {
-      return ko.computed({
+    fw.extenders.write = function( target, writeOpCallback ) {
+      return fw.computed({
         read: target,
         write: function( value ) {
           writeOpCallback( target, value );
@@ -54,7 +54,7 @@ define([ "jquery", "lodash", "knockout", "postal" ],
       });
     };
 
-    ko.extenders.autoDisable = function( target, delay ) {
+    fw.extenders.autoDisable = function( target, delay ) {
       return target.extend({
         delayTrigger: {
           delay: delay || 0,
@@ -63,7 +63,7 @@ define([ "jquery", "lodash", "knockout", "postal" ],
       });
     };
 
-    ko.extenders.autoEnable = function( target, delay ) {
+    fw.extenders.autoEnable = function( target, delay ) {
       return target.extend({
         delayTrigger: {
           delay: delay || 0,
@@ -72,7 +72,7 @@ define([ "jquery", "lodash", "knockout", "postal" ],
       });
     };
 
-    ko.extenders.delayTrigger = function( target, options ) {
+    fw.extenders.delayTrigger = function( target, options ) {
       var delay = 300,
           triggerFunc = function() {},
           trigger;
@@ -89,7 +89,7 @@ define([ "jquery", "lodash", "knockout", "postal" ],
         trigger = undefined;
       };
 
-      var delayedObservable = ko.computed({
+      var delayedObservable = fw.computed({
         read: target,
         write: function( state ) {
           target( state );
@@ -109,7 +109,7 @@ define([ "jquery", "lodash", "knockout", "postal" ],
       return delayedObservable;
     };
 
-    ko.extenders.delayWrite = function( target, options ) {
+    fw.extenders.delayWrite = function( target, options ) {
       var filter, delay = 300;
 
       if( typeof options === 'object' ) {
@@ -119,7 +119,7 @@ define([ "jquery", "lodash", "knockout", "postal" ],
         delay = !isNaN( options ) && parseInt( options, 10 ) || delay;
       }
 
-      return ko.computed({
+      return fw.computed({
         read: target,
         write: function( writeValue ) {
           if( filter( writeValue ) ) {
@@ -136,7 +136,7 @@ define([ "jquery", "lodash", "knockout", "postal" ],
       });
     };
 
-    ko.extenders.units = function( target, units ) {
+    fw.extenders.units = function( target, units ) {
       var defaultOptions = {
         cast: 'none',
         postfix: ''
@@ -148,7 +148,7 @@ define([ "jquery", "lodash", "knockout", "postal" ],
         options = _.extend( defaultOptions, units );
       }
 
-      observable = ko.computed({
+      observable = fw.computed({
         read: function() {
           var value;
           switch(options.cast) {

@@ -1,60 +1,60 @@
 define([ "footwork", "lodash" ],
-  function( ko, _ ) {
-    return ko.viewModel({
+  function( fw, _ ) {
+    return fw.viewModel({
       namespace: 'LayoutControl',
       initialize: function() {
         this.active = {
-          header: ko.observable(),
-          column: ko.observable(),
-          corner: ko.observable()
+          header: fw.observable(),
+          column: fw.observable(),
+          corner: fw.observable()
         };
 
-        this.defaultPaneMaxWidth = ko.observable().receiveFrom('Configuration', 'defaultPaneMaxWidth');
-        this.transitionsEnabled = ko.observable().receiveFrom('Configuration', 'transitionsEnabled');
-        this.headerMinHeight = ko.observable().receiveFrom('Configuration', 'headerMinHeight');
-        this.headerMaxHeight = ko.observable().receiveFrom('Configuration', 'headerMaxHeight');
-        this.configPaneMinWidth = ko.observable().receiveFrom('Configuration', 'paneMinWidth');
-        this.configPaneMaxWidth = ko.observable().receiveFrom('Configuration', 'paneMaxWidth');
-        this.headerLimitHeight = ko.observable().receiveFrom('Configuration', 'headerLimitHeight');
-        this.heightMutable = ko.observable().receiveFrom('Configuration', 'heightMutable');
-        this.reflowing = ko.observable().receiveFrom('Configuration', 'reflowing');
-        this.visible = ko.observable(false).receiveFrom('Configuration', 'visible');
-        this.visibleHeaderHeight = ko.observable(0).receiveFrom('Header', 'visibleHeight');
-        this.paneCollapsed = ko.observable(0).receiveFrom('Pane', 'collapsed');
-        this.columnWidth = ko.observable(0).receiveFrom('Pane', 'columnWidth');
-        this.paneMaxWidth = ko.observable(0).receiveFrom('Pane', 'maxWidth');
-        this.scrollPosition = ko.observable(false).receiveFrom('ViewPort', 'scrollPosition');
-        this.viewPortHas3dTransforms = ko.observable(false).receiveFrom('ViewPort', 'has3dTransforms');
+        this.defaultPaneMaxWidth = fw.observable().receiveFrom('Configuration', 'defaultPaneMaxWidth');
+        this.transitionsEnabled = fw.observable().receiveFrom('Configuration', 'transitionsEnabled');
+        this.headerMinHeight = fw.observable().receiveFrom('Configuration', 'headerMinHeight');
+        this.headerMaxHeight = fw.observable().receiveFrom('Configuration', 'headerMaxHeight');
+        this.configPaneMinWidth = fw.observable().receiveFrom('Configuration', 'paneMinWidth');
+        this.configPaneMaxWidth = fw.observable().receiveFrom('Configuration', 'paneMaxWidth');
+        this.headerLimitHeight = fw.observable().receiveFrom('Configuration', 'headerLimitHeight');
+        this.heightMutable = fw.observable().receiveFrom('Configuration', 'heightMutable');
+        this.reflowing = fw.observable().receiveFrom('Configuration', 'reflowing');
+        this.visible = fw.observable(false).receiveFrom('Configuration', 'visible');
+        this.visibleHeaderHeight = fw.observable(0).receiveFrom('Header', 'visibleHeight');
+        this.paneCollapsed = fw.observable(0).receiveFrom('Pane', 'collapsed');
+        this.columnWidth = fw.observable(0).receiveFrom('Pane', 'columnWidth');
+        this.paneMaxWidth = fw.observable(0).receiveFrom('Pane', 'maxWidth');
+        this.scrollPosition = fw.observable(false).receiveFrom('ViewPort', 'scrollPosition');
+        this.viewPortHas3dTransforms = fw.observable(false).receiveFrom('ViewPort', 'has3dTransforms');
 
-        this.enabled = ko.computed(function() {
+        this.enabled = fw.computed(function() {
           return this.active.header() || this.active.column() || this.active.corner();
         }, this).broadcastAs('enabled');
-        this.currentControl = ko.observable(false).broadcastAs('currentControl');
+        this.currentControl = fw.observable(false).broadcastAs('currentControl');
         this.headerMutable = this.heightMutable.broadcastAs('headerMutable');
 
-        this.containerTop = ko.observable();
-        this.containerMarginLeft = ko.observable();
+        this.containerTop = fw.observable();
+        this.containerMarginLeft = fw.observable();
 
-        this.columnMutable = ko.computed(function() {
+        this.columnMutable = fw.computed(function() {
           return this.paneCollapsed() === false && this.visible();
         }, this);
 
-        this.cornerMutable = ko.computed(function() {
+        this.cornerMutable = fw.computed(function() {
           return this.headerMutable() && this.columnMutable();
         }, this);
 
         // string/css observables
-        this.headerTopOffset = ko.computed(function() {
+        this.headerTopOffset = fw.computed(function() {
           return ( this.headerMaxHeight() - this.scrollPosition() ) + 'px';
         }, this);
-        this.headerTopPos = ko.computed(function() {
+        this.headerTopPos = fw.computed(function() {
           var pos = '0px';
           if( this.viewPortHas3dTransforms() === false ) {
             pos = this.headerTopOffset();
           }
           return pos;
         }, this);
-        this.headerTopTransform = ko.computed(function() {
+        this.headerTopTransform = fw.computed(function() {
           var transform = 'none';
           if( this.viewPortHas3dTransforms() === true ) {
             transform = 'translateY(' + this.headerTopOffset() + ')';
@@ -62,18 +62,18 @@ define([ "footwork", "lodash" ],
           return transform;
         }, this);
 
-        this.columnLeftOffset = ko.computed(function() {
+        this.columnLeftOffset = fw.computed(function() {
           return ( parseInt(this.columnWidth(), 10) - 10 ) + 'px';
         }, this);
 
-        this.columnLeftPos = ko.computed(function() {
+        this.columnLeftPos = fw.computed(function() {
           var pos = '0px';
           if( this.viewPortHas3dTransforms() === false ) {
             pos = this.columnLeftOffset();
           }
           return pos;
         }, this);
-        this.columnTransform = ko.computed(function() {
+        this.columnTransform = fw.computed(function() {
           var transform = 'none';
           if( this.viewPortHas3dTransforms() === true ) {
             transform = 'translateX(' + this.columnLeftOffset() + ')';
@@ -81,15 +81,15 @@ define([ "footwork", "lodash" ],
           return transform;
         }, this);
 
-        this.cornerTopOffset = ko.computed(function() {
+        this.cornerTopOffset = fw.computed(function() {
           return ( this.headerMaxHeight() - this.scrollPosition() - 5 ) + 'px';
         }, this);
 
-        this.cornerLeftOffset = ko.computed(function() {
+        this.cornerLeftOffset = fw.computed(function() {
           return ( parseInt(this.columnWidth()) - 15 ) + 'px';
         }, this);
 
-        this.cornerTopPos = ko.computed(function() {
+        this.cornerTopPos = fw.computed(function() {
           var pos = '0px';
           if( this.viewPortHas3dTransforms() === false ) {
             pos = this.cornerTopOffset();
@@ -97,7 +97,7 @@ define([ "footwork", "lodash" ],
           return pos;
         }, this);
 
-        this.cornerLeftPos = ko.computed(function() {
+        this.cornerLeftPos = fw.computed(function() {
           var pos = '0px';
           if( this.viewPortHas3dTransforms() === false ) {
             pos = this.cornerLeftOffset();
@@ -105,7 +105,7 @@ define([ "footwork", "lodash" ],
           return pos;
         }, this);
 
-        this.cornerTransform = ko.computed(function() {
+        this.cornerTransform = fw.computed(function() {
           var transform = 'none';
           if( this.viewPortHas3dTransforms() === true ) {
             transform = 'translate3d(' + this.cornerLeftOffset() + ',' + this.cornerTopOffset() + ',0px)';

@@ -1,8 +1,8 @@
 // component.js
 // ------------------
 
-var originalComponentRegisterFunc = ko.components.register;
-var registerComponent = ko.components.register = function(componentName, options) {
+var originalComponentRegisterFunc = fw.components.register;
+var registerComponent = fw.components.register = function(componentName, options) {
   var viewModel = options.initialize || options.viewModel;
   
   if( !isString(componentName) ) {
@@ -15,25 +15,25 @@ var registerComponent = ko.components.register = function(componentName, options
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || ko.viewModel(),
+    viewModel: viewModel || fw.viewModel(),
     template: options.template
   });
 };
 
-ko.components.getNormalTagList = function() {
+fw.components.getNormalTagList = function() {
   return nonComponentTags.splice(0);
 };
 
-ko.components.getComponentNameForNode = function(node) {
+fw.components.getComponentNameForNode = function(node) {
   var tagName = isString(node.tagName) && node.tagName.toLowerCase();
 
-  if( ko.components.isRegistered(tagName) || tagIsComponent(tagName) ) {
+  if( fw.components.isRegistered(tagName) || tagIsComponent(tagName) ) {
     return tagName;
   }
   return null;
 };
 
-var makeComponent = ko.component = function(componentDefinition) {
+var makeComponent = fw.component = function(componentDefinition) {
   var viewModel = componentDefinition.viewModel;
 
   if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {
@@ -46,7 +46,7 @@ var makeComponent = ko.component = function(componentDefinition) {
 // Register a component as consisting of a template only.
 // This will cause footwork to load only the template when this component is used.
 var componentTemplateOnlyRegister = [];
-var registerComponentAsTemplateOnly = ko.components.isTemplateOnly = function(componentName, isTemplateOnly) {
+var registerComponentAsTemplateOnly = fw.components.isTemplateOnly = function(componentName, isTemplateOnly) {
   isTemplateOnly = (isUndefined(isTemplateOnly) ? true : isTemplateOnly);
   if( isArray(componentName) ) {
     each(componentName, function(compName) {
@@ -74,7 +74,7 @@ var nonComponentTags = [
   'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'template', 'textarea',
   'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp'
 ];
-var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponent) {
+var tagIsComponent = fw.components.tagIsComponent = function(tagName, isComponent) {
   if( isUndefined(isComponent) ) {
     return indexOf(nonComponentTags, tagName) === -1;
   }
@@ -115,10 +115,10 @@ function componentTriggerAfterBinding(element, viewModel) {
 }
 
 // Use the $life wrapper binding to provide lifecycle events for components
-ko.virtualElements.allowedBindings.$life = true;
-ko.bindingHandlers.$life = {
+fw.virtualElements.allowedBindings.$life = true;
+fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+    fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if( isViewModel(viewModel) ) {
         viewModel.__shutdown();
       }
@@ -136,7 +136,7 @@ ko.bindingHandlers.$life = {
 
 // Custom loader used to wrap components with the $life custom binding
 var componentWrapperTemplate = '<!-- ko $life -->COMPONENT_MARKUP<!-- /ko -->';
-ko.components.loaders.unshift( ko.components.componentWrapper = {
+fw.components.loaders.unshift( fw.components.componentWrapper = {
   loadTemplate: function(componentName, config, callback) {
     if( !isNativeComponent(componentName) ) {
       // TODO: Handle different types of configs
@@ -145,7 +145,7 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
       } else {
         throw 'Unhandled config type ' + typeof config + '.';
       }
-      ko.components.defaultLoader.loadTemplate(componentName, config, callback);
+      fw.components.defaultLoader.loadTemplate(componentName, config, callback);
     } else {
       callback(null);
     }
@@ -154,7 +154,7 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
     var ViewModel = config.viewModel || config;
     if( !isNativeComponent(componentName) ) {
       callback(function(params, componentInfo) {
-        var $context = ko.contextFor(componentInfo.element);
+        var $context = fw.contextFor(componentInfo.element);
         var LoadedViewModel = ViewModel;
         if( isFunction(ViewModel) ) {
           if( !isViewModelCtor(ViewModel) ) {
@@ -179,7 +179,7 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
 
 // The footwork getConfig loader is a catch-all in the instance a registered component cannot be found.
 // The loader will attempt to use requirejs via knockouts integrated support if it is available.
-ko.components.loaders.push( ko.components.requireLoader = {
+fw.components.loaders.push( fw.components.requireLoader = {
   getConfig: function(componentName, callback) {
     var combinedFile = getComponentFileName(componentName, 'combined');
     var viewModelFile = getComponentFileName(componentName, 'viewModel');
@@ -239,8 +239,8 @@ var noParentViewModelError = { getNamespaceName: function() { return 'NO-VIEWMOD
 
 // This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied
 // to the UI and load in various views
-ko.virtualElements.allowedBindings.$bind = true;
-ko.bindingHandlers.$bind = {
+fw.virtualElements.allowedBindings.$bind = true;
+fw.bindingHandlers.$bind = {
   init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
     var $parentViewModel = ( isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
     var $parentRouter = nearestParentRouter(bindingContext);
@@ -256,25 +256,25 @@ ko.bindingHandlers.$bind = {
   }
 };
 
-ko.components.register('outlet', {
+fw.components.register('outlet', {
   autoIncrement: true,
   viewModel: function(params) {
-    this.outletName = ko.unwrap(params.name);
+    this.outletName = fw.unwrap(params.name);
     this.__isOutlet = true;
   },
   template: '<!-- ko $bind, component: $route --><!-- /ko -->'
 });
 
-ko.components.register('_noComponentSelected', {
+fw.components.register('_noComponentSelected', {
   viewModel: function(params) {
     this.__assertPresence = false;
   },
   template: '<div class="no-component-selected"></div>'
 });
 
-ko.components.register('error', {
+fw.components.register('error', {
   viewModel: function(params) {
-    this.message = ko.observable(params.message);
+    this.message = fw.observable(params.message);
     this.errors = params.errors;
     this.__assertPresence = false;
   },

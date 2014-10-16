@@ -1,17 +1,17 @@
 define([ "jquery", "lodash", "footwork", "LoadProfile" ],
-  function( $, _, ko, LoadProfile ) {
+  function( $, _, fw, LoadProfile ) {
     var LOADING_STATE = true,
         DONE_STATE = false;
 
     return function LoadState(options) {
-      this.watchState = ko.observable();
-      this.loading = ko.observable();
-      this.message = ko.observable('[*]');
-      this.oldState = ko.observable();
-      this.failReason = ko.observable('');
-      this.percentComplete = ko.observable(0).extend({ read: function(observable) { return observable() + '%'; } });
-      this.stepTransitionDuration = ko.observable(0).extend({ read: function(observable) { return observable() + 'ms'; } });
-      this.stepTransition = ko.computed(function() {
+      this.watchState = fw.observable();
+      this.loading = fw.observable();
+      this.message = fw.observable('[*]');
+      this.oldState = fw.observable();
+      this.failReason = fw.observable('');
+      this.percentComplete = fw.observable(0).extend({ read: function(observable) { return observable() + '%'; } });
+      this.stepTransitionDuration = fw.observable(0).extend({ read: function(observable) { return observable() + 'ms'; } });
+      this.stepTransition = fw.computed(function() {
         var state = this.loading();
         if( state === LOADING_STATE ) {
           return 'opacity 0ms 20ms linear, width ' + this.stepTransitionDuration() + ' 0ms linear';
@@ -69,7 +69,7 @@ define([ "jquery", "lodash", "footwork", "LoadProfile" ],
       }.bind(this);
       this.loading(this.options.isLoading);
 
-      this.state = ko.computed(function() {
+      this.state = fw.computed(function() {
         var state = [];
         if(this.oldState() === 'fail') {
           state.push('fail');

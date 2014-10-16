@@ -1,6 +1,6 @@
 define([ "footwork", "lodash", "router" ],
-  function( ko, _, router ) {
-    return ko.viewModel({
+  function( fw, _, router ) {
+    return fw.viewModel({
       namespace: 'Body',
       router: router,
       afterBinding: function() {
@@ -11,86 +11,86 @@ define([ "footwork", "lodash", "router" ],
           this.$router.setState('/');
         }
         
-        this.initialized = ko.observable(false);
-        this.configIsInitialized = ko.observable(false).receiveFrom('Configuration', 'initialized');
-        this.configVisible = ko.observable().receiveFrom('Configuration', 'visible');
-        this.configReflowing = ko.observable().receiveFrom('Configuration', 'reflowing');
-        this.paneAccentPadding = ko.observable().receiveFrom('Configuration', 'paneAccentPadding');
-        this.paneMinWidth = ko.observable().receiveFrom('Configuration', 'paneMinWidth');
-        this.transitionsEnabled = ko.observable(false).receiveFrom('ViewPort', 'transitionsEnabled');
-        this.viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
-        this.viewPortIsTablet = ko.observable().receiveFrom('ViewPort', 'isTablet');
-        this.viewPortSmall = ko.observable().receiveFrom('ViewPort', 'isSmall');
-        this.viewPortDim = ko.observable().receiveFrom('ViewPort', 'dimensions');
-        this.scrollPosition = ko.observable().receiveFrom('ViewPort', 'scrollPosition');
-        this.maxScrollResetPosition = ko.observable().receiveFrom('ViewPort', 'maxScrollResetPosition');
-        this.viewPortHas3dTransforms = ko.observable(true).receiveFrom('ViewPort', 'has3dTransforms');
-        this.mainContentTopOffset = ko.observable(0).receiveFrom('Header', 'height');
-        this.visibleHeaderHeight = ko.observable(0).receiveFrom('Header', 'visibleHeight');
-        this.headerHeight = ko.observable(0).receiveFrom('Header', 'height');
-        this.headerReflowing = ko.observable(false).receiveFrom('Header', 'reflowing');
-        this.headerMoving = ko.observable(false).receiveFrom('Header', 'moving');
-        this.headerTopOffset = ko.observable().receiveFrom('Header', 'topOffset');
-        this.headerClosed = ko.observable().receiveFrom('Header', 'closed');
-        this.visibleFooterHeight = ko.observable(0).receiveFrom('Footer', 'visibleHeight');
-        this.footerHeight = ko.observable(0).receiveFrom('Footer', 'height');
-        this.transform = ko.observable().receiveFrom('Pane', 'transform');
-        this.paneWidth = ko.observable(0).receiveFrom('Pane', 'width');
-        this.narrowPane = ko.observable(false).receiveFrom('Pane', 'narrow');
-        this.paneCollapsed = ko.observable(false).receiveFrom('Pane', 'collapsed');
-        this.paneMoving = ko.observable(false).receiveFrom('Pane', 'moving');
-        this.paneAnimate3d = ko.observable(false).receiveFrom('Pane', 'animate3d');
-        this.paneDragging = ko.observable(false).receiveFrom('Pane', 'dragging');
-        this.paneDragOffset = ko.observable(0).receiveFrom('Pane', 'dragOffset');
-        this.paneTransition = ko.observable(undefined).receiveFrom('Pane', 'transition');
-        this.pageLoading = ko.observable().receiveFrom('mainRouter', 'pageLoading');
-        this.paneColumnWidth = ko.observable().receiveFrom('Pane', 'columnWidth');
-        this.controlEnabled = ko.observable(false).receiveFrom('LayoutControl', 'enabled');
-        this.currentControl = ko.observable().receiveFrom('LayoutControl', 'currentControl');
-        this.$paneTouchManagerNamespace = ko.namespace('PaneTouchManager');
+        this.initialized = fw.observable(false);
+        this.configIsInitialized = fw.observable(false).receiveFrom('Configuration', 'initialized');
+        this.configVisible = fw.observable().receiveFrom('Configuration', 'visible');
+        this.configReflowing = fw.observable().receiveFrom('Configuration', 'reflowing');
+        this.paneAccentPadding = fw.observable().receiveFrom('Configuration', 'paneAccentPadding');
+        this.paneMinWidth = fw.observable().receiveFrom('Configuration', 'paneMinWidth');
+        this.transitionsEnabled = fw.observable(false).receiveFrom('ViewPort', 'transitionsEnabled');
+        this.viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
+        this.viewPortIsTablet = fw.observable().receiveFrom('ViewPort', 'isTablet');
+        this.viewPortSmall = fw.observable().receiveFrom('ViewPort', 'isSmall');
+        this.viewPortDim = fw.observable().receiveFrom('ViewPort', 'dimensions');
+        this.scrollPosition = fw.observable().receiveFrom('ViewPort', 'scrollPosition');
+        this.maxScrollResetPosition = fw.observable().receiveFrom('ViewPort', 'maxScrollResetPosition');
+        this.viewPortHas3dTransforms = fw.observable(true).receiveFrom('ViewPort', 'has3dTransforms');
+        this.mainContentTopOffset = fw.observable(0).receiveFrom('Header', 'height');
+        this.visibleHeaderHeight = fw.observable(0).receiveFrom('Header', 'visibleHeight');
+        this.headerHeight = fw.observable(0).receiveFrom('Header', 'height');
+        this.headerReflowing = fw.observable(false).receiveFrom('Header', 'reflowing');
+        this.headerMoving = fw.observable(false).receiveFrom('Header', 'moving');
+        this.headerTopOffset = fw.observable().receiveFrom('Header', 'topOffset');
+        this.headerClosed = fw.observable().receiveFrom('Header', 'closed');
+        this.visibleFooterHeight = fw.observable(0).receiveFrom('Footer', 'visibleHeight');
+        this.footerHeight = fw.observable(0).receiveFrom('Footer', 'height');
+        this.transform = fw.observable().receiveFrom('Pane', 'transform');
+        this.paneWidth = fw.observable(0).receiveFrom('Pane', 'width');
+        this.narrowPane = fw.observable(false).receiveFrom('Pane', 'narrow');
+        this.paneCollapsed = fw.observable(false).receiveFrom('Pane', 'collapsed');
+        this.paneMoving = fw.observable(false).receiveFrom('Pane', 'moving');
+        this.paneAnimate3d = fw.observable(false).receiveFrom('Pane', 'animate3d');
+        this.paneDragging = fw.observable(false).receiveFrom('Pane', 'dragging');
+        this.paneDragOffset = fw.observable(0).receiveFrom('Pane', 'dragOffset');
+        this.paneTransition = fw.observable(undefined).receiveFrom('Pane', 'transition');
+        this.pageLoading = fw.observable().receiveFrom('mainRouter', 'pageLoading');
+        this.paneColumnWidth = fw.observable().receiveFrom('Pane', 'columnWidth');
+        this.controlEnabled = fw.observable(false).receiveFrom('LayoutControl', 'enabled');
+        this.currentControl = fw.observable().receiveFrom('LayoutControl', 'currentControl');
+        this.$paneTouchManagerNamespace = fw.namespace('PaneTouchManager');
 
-        this.width = ko.computed(function() {
+        this.width = fw.computed(function() {
           if( typeof this.viewPortDim() === 'object' ) {
             return this.viewPortDim().width - this.paneWidth() + 'px';
           }
 
           return '0px';
         }, this).broadcastAs('width');
-        this.overlapPane = ko.computed(function() {
+        this.overlapPane = fw.computed(function() {
           return this.viewPortSmall() || this.viewPortLayoutMode() === 'mobile';
         }, this).broadcastAs('overlapPane');
-        this.height = ko.observable().broadcastAs('height', true);
+        this.height = fw.observable().broadcastAs('height', true);
 
-        this.bodyState = ko.computed(function() {
+        this.bodyState = fw.computed(function() {
           var currentControl = this.currentControl();
           return this.viewPortLayoutMode() + ( currentControl ? (' ' + currentControl + '-control') : '' );
         }, this);
 
-        this.isSmallViewport = ko.computed(function() {
+        this.isSmallViewport = fw.computed(function() {
           return parseInt( this.paneColumnWidth(), 10 ) < parseInt( this.paneMinWidth(), 10 );
         }, this);
 
-        this.transitionsDisabled = ko.computed(function() {
+        this.transitionsDisabled = fw.computed(function() {
           return this.configIsInitialized() === false || this.transitionsEnabled() === false;
         }, this);
 
-        this.layoutTransitionsDisabled = ko.computed(function() {
+        this.layoutTransitionsDisabled = fw.computed(function() {
           return this.transitionsDisabled() || this.controlEnabled() || this.configReflowing();
         }, this);
 
-        this.isMobile = ko.computed(function() {
+        this.isMobile = fw.computed(function() {
           return this.viewPortLayoutMode() === 'mobile';
         }, this);
 
-        this.isTablet = ko.computed(function() {
+        this.isTablet = fw.computed(function() {
           return this.viewPortIsTablet();
         }, this);
 
-        this.mainContentOffset = ko.computed(function() {
+        this.mainContentOffset = fw.computed(function() {
           return parseInt( this.paneWidth(), 10 ) + 'px';
         }, this);
 
-        this.calculatedOffset = ko.computed(function() {
+        this.calculatedOffset = fw.computed(function() {
           var offset = parseInt(this.paneWidth(), 10);
 
           if( this.paneCollapsed() === true ) {
@@ -104,21 +104,21 @@ define([ "footwork", "lodash", "router" ],
           return offset;
         }, this);
 
-        this.leftOffset = ko.computed(function() {
+        this.leftOffset = fw.computed(function() {
           if( this.paneAnimate3d() === false ) {
             return this.calculatedOffset() + 'px';
           }
           return '0px';
         }, this);
 
-        this.topOffset = ko.computed(function() {
+        this.topOffset = fw.computed(function() {
           if( this.headerClosed() ) {
             return '0px';
           }
           return parseInt(this.visibleHeaderHeight(), 10) + 'px';
         }, this);
 
-        this.transform = ko.computed(function() {
+        this.transform = fw.computed(function() {
           var xTranslation = 0;
 
           if( this.paneAnimate3d() === true ) {
@@ -127,7 +127,7 @@ define([ "footwork", "lodash", "router" ],
           return 'translate3d(' + xTranslation + 'px,0px,0px)';
         }, this);
 
-        this.minHeight = ko.computed(function() {
+        this.minHeight = fw.computed(function() {
           var scrollPosition = this.scrollPosition();
           var maxScrollResetPosition = this.maxScrollResetPosition();
           var viewPortDim = this.viewPortDim();
@@ -156,7 +156,7 @@ define([ "footwork", "lodash", "router" ],
             this.$globalNamespace.publish('refreshDocSize');
           }, this);
 
-        this.uiState = ko.computed(function() {
+        this.uiState = fw.computed(function() {
           return {
             initialized: this.initialized(),
             loading: this.pageLoading(),

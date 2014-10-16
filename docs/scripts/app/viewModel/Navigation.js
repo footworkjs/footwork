@@ -1,30 +1,30 @@
 define([ "jquery", "lodash", "footwork", "LoadState" ],
-  function( $, _, ko, LoadState ) {
-    return ko.viewModel({
+  function( $, _, fw, LoadState ) {
+    return fw.viewModel({
       namespace: 'Navigation',
       initialize: function() {
-        this.viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
-        this.configVisible = ko.observable().receiveFrom('Configuration', 'visible');
-        this.headerMaxHeight = ko.observable().receiveFrom('Configuration', 'headerMaxHeight');
-        this.paneCollapsed = ko.observable().receiveFrom('Configuration', 'paneCollapsed');
-        this.transitionsEnabled = ko.observable().receiveFrom('Configuration', 'transitionsEnabled');
-        this.defaultHeaderMaxHeight = ko.observable().receiveFrom('Configuration', 'defaultHeaderMaxHeight');
-        this.configReflowing = ko.observable().receiveFrom('Configuration', 'reflowing');
-        this.headerFixed = ko.observable().receiveFrom('Header', 'fixed');
-        this.headerContentHeight = ko.computed(function() {
+        this.viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
+        this.configVisible = fw.observable().receiveFrom('Configuration', 'visible');
+        this.headerMaxHeight = fw.observable().receiveFrom('Configuration', 'headerMaxHeight');
+        this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed');
+        this.transitionsEnabled = fw.observable().receiveFrom('Configuration', 'transitionsEnabled');
+        this.defaultHeaderMaxHeight = fw.observable().receiveFrom('Configuration', 'defaultHeaderMaxHeight');
+        this.configReflowing = fw.observable().receiveFrom('Configuration', 'reflowing');
+        this.headerFixed = fw.observable().receiveFrom('Header', 'fixed');
+        this.headerContentHeight = fw.computed(function() {
           return (parseInt( this.headerContentHeight(), 10 ) - 1 + 'px');
-        }, { headerContentHeight: ko.observable().receiveFrom('Header', 'contentHeight') });
-        this.toggleButtonMinHeight = ko.observable().receiveFrom('Header', 'sourceLinkVisibleMinHeight');
-        this.sourceLinkVisible = ko.observable().receiveFrom('Header', 'sourceLinkVisible');
-        this.loadBarTopPos = ko.observable(0).receiveFrom('Header', 'visibleHeight');
-        this.headerMoving = ko.observable(false).receiveFrom('Header', 'moving');
-        this.offsetMargin = ko.observable().receiveFrom('Pane', 'columnWidth');
-        this.paneAnimate3d = ko.observable().receiveFrom('Pane', 'animate3d');
-        this.paneMoving = ko.observable().receiveFrom('Pane', 'moving');
-        this.overlapPane = ko.observable().receiveFrom('Body', 'overlapPane');
-        this.pageLoading = ko.observable().receiveFrom('mainRouter', 'pageLoading');
-        this.reflowing = ko.observable(false).broadcastAs('reflowing');
-        this.headerOpen = ko.observable(false);
+        }, { headerContentHeight: fw.observable().receiveFrom('Header', 'contentHeight') });
+        this.toggleButtonMinHeight = fw.observable().receiveFrom('Header', 'sourceLinkVisibleMinHeight');
+        this.sourceLinkVisible = fw.observable().receiveFrom('Header', 'sourceLinkVisible');
+        this.loadBarTopPos = fw.observable(0).receiveFrom('Header', 'visibleHeight');
+        this.headerMoving = fw.observable(false).receiveFrom('Header', 'moving');
+        this.offsetMargin = fw.observable().receiveFrom('Pane', 'columnWidth');
+        this.paneAnimate3d = fw.observable().receiveFrom('Pane', 'animate3d');
+        this.paneMoving = fw.observable().receiveFrom('Pane', 'moving');
+        this.overlapPane = fw.observable().receiveFrom('Body', 'overlapPane');
+        this.pageLoading = fw.observable().receiveFrom('mainRouter', 'pageLoading');
+        this.reflowing = fw.observable(false).broadcastAs('reflowing');
+        this.headerOpen = fw.observable(false);
 
         this.loader = new LoadState({ ignoreStatus: 404 });
 
@@ -32,7 +32,7 @@ define([ "jquery", "lodash", "footwork", "LoadState" ],
           this.headerOpen(false);
         }).withContext(this);
 
-        var pageNamespace = ko.namespace('Page');
+        var pageNamespace = fw.namespace('Page');
         pageNamespace.subscribe('loadingPage', function(promise) {
           this.loader.watch( promise, (this.viewPortLayoutMode() === 'mobile' ? 400 : 300), function() {
             this.$globalNamespace.publish( 'refreshDocSize' );
@@ -54,11 +54,11 @@ define([ "jquery", "lodash", "footwork", "LoadState" ],
           this.toggleHeader();
         }.bind(this));
 
-        this.dropHidden = ko.computed(function() {
+        this.dropHidden = fw.computed(function() {
           return this.overlapPane() && this.paneCollapsed() === false;
         }, this);
         
-        this.headerDropVisible = ko.computed(function() {
+        this.headerDropVisible = fw.computed(function() {
           if( (this.headerFixed() === true && this.reflowing() === false) || (this.overlapPane() && this.paneCollapsed() === false) ) {
             return false;
           }
@@ -101,11 +101,11 @@ define([ "jquery", "lodash", "footwork", "LoadState" ],
           });
         }.bind(this));
 
-        this.arrowIcon = ko.computed(function() {
+        this.arrowIcon = fw.computed(function() {
           return this.headerOpen() && 'icon-arrow-up' || 'icon-arrow-down';
         }, this);
 
-        this.dropInfoText = ko.computed(function() {
+        this.dropInfoText = fw.computed(function() {
           if( this.headerOpen() ) {
             return 'Click to <strong>collapse</strong> the header. <span class="shortcut">ctrl + x</span>';
           }

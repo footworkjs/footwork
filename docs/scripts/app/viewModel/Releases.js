@@ -1,14 +1,14 @@
 define([ "jquery", "lodash", "footwork" ],
-  function( $, _, ko ) {
+  function( $, _, fw ) {
     var protocol = 'http://';
     var host = 'footworkjs.com';
     var releaseAddressPostfix = '-docs.' + host;
     var startsWithNumber = RegExp('^[0-9]+');
     var isRunningLocally = true;
 
-    ko.observable(false).receiveFrom('Configuration', 'initialized').subscribe(function(isInitialized) {
+    fw.observable(false).receiveFrom('Configuration', 'initialized').subscribe(function(isInitialized) {
       if(isInitialized) {
-        isRunningLocally = ko.namespace().request('isRunningLocally');
+        isRunningLocally = fw.namespace().request('isRunningLocally');
 
         if(!isRunningLocally) {
           host = window.location.hostname.match('(.+)-docs\.([0-9a-zA-Z\-\.]+)')[2];
@@ -17,14 +17,14 @@ define([ "jquery", "lodash", "footwork" ],
       }
     });
 
-    return ko.viewModel({
+    return fw.viewModel({
       namespace: 'Releases',
       initialize: function() {
         this.thisRelease = ('v' + window.footworkBuild.version);
-        this.headerContentHeight = ko.observable().receiveFrom('Header', 'contentHeight');
-        this.releaseList = ko.observableArray(['latest']);
-        this.myURL = ko.observable(protocol + window.footworkBuild.version + releaseAddressPostfix);
-        this.releases = ko.computed(function() {
+        this.headerContentHeight = fw.observable().receiveFrom('Header', 'contentHeight');
+        this.releaseList = fw.observableArray(['latest']);
+        this.myURL = fw.observable(protocol + window.footworkBuild.version + releaseAddressPostfix);
+        this.releases = fw.computed(function() {
           return _.reduce(this.releaseList(), function(releaseList, release) {
             releaseList.push({
               version: (startsWithNumber.test(release) ? 'v' : '') + release,

@@ -1,12 +1,12 @@
 define([ "footwork" ],
-  function( ko ) {
-    return ko.viewModel({
+  function( fw ) {
+    return fw.viewModel({
       namespace: 'PaneBackground',
       initialize: function() {
-        this.leftOffset = ko.observable().receiveFrom('Pane', 'leftOffset');
-        this.leftTransform = ko.observable().receiveFrom('Pane', 'leftTransform');        
-        this.transition = ko.observable().receiveFrom('Pane', 'transition');
-        this.width = ko.observable().receiveFrom('Pane', 'width');
+        this.leftOffset = fw.observable().receiveFrom('Pane', 'leftOffset');
+        this.leftTransform = fw.observable().receiveFrom('Pane', 'leftTransform');        
+        this.transition = fw.observable().receiveFrom('Pane', 'transition');
+        this.width = fw.observable().receiveFrom('Pane', 'width');
       }
     });
   }

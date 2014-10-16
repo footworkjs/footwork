@@ -1,5 +1,5 @@
 define([ "jquery", "lodash", "footwork" ],
-  function( $, _, ko ) {
+  function( $, _, fw ) {
     var MIN_COMPLETION_DURATION = 80;
     var MAX_COMPLETION_DURATION = 180;
     var NO_INTENT_DURATION = 200;
@@ -146,10 +146,10 @@ define([ "jquery", "lodash", "footwork" ],
       }
     }
 
-    return ko.viewModel({
+    return fw.viewModel({
       namespace: 'PaneTouchManager',
       initialize: function() {
-        this.$paneNamespace = ko.namespace('Pane');
+        this.$paneNamespace = fw.namespace('Pane');
         this.$paneNamespace.event.handler('initialized', function() {
           var $mobileGripper = $('.mobile-only.gripper');
           var $collapseButton = $('#collapse-button');
@@ -200,17 +200,17 @@ define([ "jquery", "lodash", "footwork" ],
           return parseInt(this.paneTrueLeftOffset(), 10) < (parseInt( this.paneWidth(), 10 ) / 2);
         };
 
-        this.paneMoving = ko.observable().receiveFrom('Pane', 'movingTimer');
-        this.paneCollapsed = ko.observable().receiveFrom('Pane', 'collapsed');
-        this.paneDragging = ko.observable().receiveFrom('Pane', 'dragging');
-        this.paneDragOffset = ko.observable(0).receiveFrom('Pane', 'dragOffset');
-        this.paneTransition = ko.observable(undefined).receiveFrom('Pane', 'transition');
-        this.paneTrueLeftOffset = ko.observable(0).receiveFrom('Pane', 'trueLeftOffset');
-        this.paneWidth = ko.observable(0).receiveFrom('Pane', 'width');
-        this.closedOffset = ko.observable().receiveFrom('ViewPort', 'closedOffset');
-        this.openOffset = ko.observable().receiveFrom('ViewPort', 'openOffset');
-        this.viewPortDimensions = ko.observable().receiveFrom('ViewPort', 'dimensions');
-        this.dragActive = ko.observable(false);
+        this.paneMoving = fw.observable().receiveFrom('Pane', 'movingTimer');
+        this.paneCollapsed = fw.observable().receiveFrom('Pane', 'collapsed');
+        this.paneDragging = fw.observable().receiveFrom('Pane', 'dragging');
+        this.paneDragOffset = fw.observable(0).receiveFrom('Pane', 'dragOffset');
+        this.paneTransition = fw.observable(undefined).receiveFrom('Pane', 'transition');
+        this.paneTrueLeftOffset = fw.observable(0).receiveFrom('Pane', 'trueLeftOffset');
+        this.paneWidth = fw.observable(0).receiveFrom('Pane', 'width');
+        this.closedOffset = fw.observable().receiveFrom('ViewPort', 'closedOffset');
+        this.openOffset = fw.observable().receiveFrom('ViewPort', 'openOffset');
+        this.viewPortDimensions = fw.observable().receiveFrom('ViewPort', 'dimensions');
+        this.dragActive = fw.observable(false);
 
         this.paneMoving.subscribe(function(isMoving) {
           if( isMoving === true ) {

@@ -47,7 +47,7 @@ require([
   "Page", "Body", "ViewPort",
   "koBindings", "koExtenders", "jquery.mousewheel", "jquery.easing" ],
   function(
-      $, _, ko, jwerty, resourceHelper,
+      $, _, fw, jwerty, resourceHelper,
       Page, Body, ViewPort ) {
 
     resourceHelper();
@@ -59,26 +59,26 @@ require([
     var $window = $(window);
     var $document = $(document);
     var $body = $('body');
-    var globalNamespace = ko.namespace();
-    var layoutControlNamespace = ko.namespace('LayoutControl');
-    var navigationNamespace = ko.namespace('Navigation');
-    var configurationNamespace = ko.namespace('Configuration');
-    var bodyNamespace = ko.namespace('Body');
-    var pageHashURL = ko.observable().receiveFrom('Page', 'hashURL');
-    var bodyHeight = ko.observable().receiveFrom('Body', 'height');
-    var scrollPosition = ko.observable().receiveFrom('ViewPort', 'scrollPosition');
-    var viewPortDim = ko.observable().receiveFrom('ViewPort', 'dimensions');
-    var configVisible = ko.observable().receiveFrom('Configuration', 'visible');
-    var paneContentMaxHeight = ko.observable().receiveFrom('Pane', 'contentMaxHeight');
-    var paneScrolling = ko.observable().receiveFrom('Pane', 'scrolling');
-    var viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
+    var globalNamespace = fw.namespace();
+    var layoutControlNamespace = fw.namespace('LayoutControl');
+    var navigationNamespace = fw.namespace('Navigation');
+    var configurationNamespace = fw.namespace('Configuration');
+    var bodyNamespace = fw.namespace('Body');
+    var pageHashURL = fw.observable().receiveFrom('Page', 'hashURL');
+    var bodyHeight = fw.observable().receiveFrom('Body', 'height');
+    var scrollPosition = fw.observable().receiveFrom('ViewPort', 'scrollPosition');
+    var viewPortDim = fw.observable().receiveFrom('ViewPort', 'dimensions');
+    var configVisible = fw.observable().receiveFrom('Configuration', 'visible');
+    var paneContentMaxHeight = fw.observable().receiveFrom('Pane', 'contentMaxHeight');
+    var paneScrolling = fw.observable().receiveFrom('Pane', 'scrolling');
+    var viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
     var refreshDocSize;
     
     globalNamespace.request.handler('isRunningLocally', function() {
       return _.isNull(window.location.protocol.match('^http'));
     });
 
-    window.ko = ko;
+    window.ko = fw;
 
     (new ViewPort());
     (new Page());
@@ -89,7 +89,7 @@ require([
       });
     }
 
-    ko.applyBindings( new Body() ); // start the app and apply bindings to the primary body viewModel
+    fw.applyBindings( new Body() ); // start the app and apply bindings to the primary body viewModel
 
     $window.scroll( function() {
       scrollPosition( $document.scrollTop() );

@@ -2,7 +2,7 @@
 // ----------------
 
 // custom throttle() based on ko v3.0.0 throttle(), allows value to be force()'d to a value at any time
-ko.extenders.throttled = function(target, opt) {
+fw.extenders.throttled = function(target, opt) {
   if( isNumber(opt) ) {
     opt = {
       timeout: opt,
@@ -13,7 +13,7 @@ ko.extenders.throttled = function(target, opt) {
   target.throttleEvaluation = opt.timeout;
 
   var writeTimeoutInstance = null,
-      throttledTarget = ko.dependentObservable({
+      throttledTarget = fw.dependentObservable({
           'read': target,
           'write': function(value) {
             if( opt.when(value) ) {
@@ -36,7 +36,7 @@ ko.extenders.throttled = function(target, opt) {
   return throttledTarget;
 };
 
-ko.extenders.autoDisable = function( target, delay ) {
+fw.extenders.autoDisable = function( target, delay ) {
   return target.extend({
     delayTrigger: {
       delay: delay || 0,
@@ -45,7 +45,7 @@ ko.extenders.autoDisable = function( target, delay ) {
   });
 };
 
-ko.extenders.autoEnable = function( target, delay ) {
+fw.extenders.autoEnable = function( target, delay ) {
   return target.extend({
     delayTrigger: {
       delay: delay || 0,
@@ -54,7 +54,7 @@ ko.extenders.autoEnable = function( target, delay ) {
   });
 };
 
-ko.extenders.delayTrigger = function( target, options ) {
+fw.extenders.delayTrigger = function( target, options ) {
   var delay = 300,
       triggerFunc = noop,
       trigger;
@@ -71,7 +71,7 @@ ko.extenders.delayTrigger = function( target, options ) {
     trigger = undefined;
   };
 
-  var delayedObservable = ko.computed({
+  var delayedObservable = fw.computed({
     read: target,
     write: function( state ) {
       target( state );
@@ -91,7 +91,7 @@ ko.extenders.delayTrigger = function( target, options ) {
   return delayedObservable;
 };
 
-ko.extenders.delayWrite = function( target, options ) {
+fw.extenders.delayWrite = function( target, options ) {
   var filter, delay = 300;
 
   if( isObject(options) ) {
@@ -101,7 +101,7 @@ ko.extenders.delayWrite = function( target, options ) {
     delay = !isNaN( options ) && parseInt( options, 10 ) || delay;
   }
 
-  return ko.computed({
+  return fw.computed({
     read: target,
     write: function( writeValue ) {
       if( filter( writeValue ) ) {

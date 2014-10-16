@@ -1,6 +1,6 @@
 define([ "footwork" ],
-  function( ko ) {
-    return ko.viewModel({
+  function( fw ) {
+    return fw.viewModel({
       namespace: 'Contributors',
       initialize: function() {
         this.contributors = footworkBuild.contributors;

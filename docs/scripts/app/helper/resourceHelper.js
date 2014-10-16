@@ -20,7 +20,7 @@ define([ "footwork",
     "text!../../pages/annotated-page.html",
     "text!../../pages/api-viewModel-page.html"
   ],
-  function( ko,
+  function( fw,
     contributorsViewModel, contributorsTemplate,
     showVersionTemplate,
     releasesViewModel, releasesTemplate,
@@ -43,66 +43,66 @@ define([ "footwork",
     viewModelPage
   ) {
     return function resourceHelper() {
-      ko.components.register('index-page', { template: indexPage });
-      ko.components.register('not-found-page', { template: notFoundPage });
-      ko.components.register('build-info-page', { template: buildInfoPage });
-      ko.components.register('annotated-page', { template: annotatedPage });
-      ko.components.register('api-viewModel-page', { template: viewModelPage });
+      fw.components.register('index-page', { template: indexPage });
+      fw.components.register('not-found-page', { template: notFoundPage });
+      fw.components.register('build-info-page', { template: buildInfoPage });
+      fw.components.register('annotated-page', { template: annotatedPage });
+      fw.components.register('api-viewModel-page', { template: viewModelPage });
 
-      ko.components.register('showversion', {
+      fw.components.register('showversion', {
         viewModel: BuildInfoViewModel,
         template: showVersionTemplate
       });
 
-      ko.components.register('releases', {
+      fw.components.register('releases', {
         viewModel: releasesViewModel,
         template: releasesTemplate
       });
 
-      ko.components.register('contributors', {
+      fw.components.register('contributors', {
         viewModel: contributorsViewModel,
         template: contributorsTemplate
       });
 
-      ko.components.register('configuration', {
+      fw.components.register('configuration', {
         viewModel: configurationViewModel,
         template: configurationTemplate
       });
 
-      ko.components.register('layoutcontrol', {
+      fw.components.register('layoutcontrol', {
         viewModel: layoutControlViewModel,
         template: layoutControlTemplate
       });
       
-      ko.components.register('pane', {
+      fw.components.register('pane', {
         viewModel: paneViewModel,
         template: paneTemplate
       });
       
-      ko.components.register('panelinks', {
+      fw.components.register('panelinks', {
         viewModel: paneLinksViewModel,
         template: paneLinksTemplate
       });
       
-      ko.components.register('navmenu', {
+      fw.components.register('navmenu', {
         viewModel: navMenuViewModel,
         template: navMenuTemplate
       });
       
-      ko.components.register('pagesections', {
+      fw.components.register('pagesections', {
         viewModel: pageSectionsViewModel,
         template: pageSectionsTemplate
       });
 
-      ko.components.register('panebackground', {
+      fw.components.register('panebackground', {
         viewModel: paneBackgroundViewModel,
         template: paneBackgroundTemplate
       });
 
-      ko.viewModels.register('Header', HeaderViewModel);
-      ko.viewModels.register('Navigation', NavigationViewModel);
-      ko.viewModels.register('Footer', FooterViewModel);
-      ko.viewModels.register('BuildInfo', BuildInfoViewModel);
+      fw.viewModels.register('Header', HeaderViewModel);
+      fw.viewModels.register('Navigation', NavigationViewModel);
+      fw.viewModels.register('Footer', FooterViewModel);
+      fw.viewModels.register('BuildInfo', BuildInfoViewModel);
     };
   }
 );

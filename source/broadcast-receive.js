@@ -9,8 +9,8 @@ function isBroadcaster(thing) {
   return isObject(thing) && !!thing.__isBroadcaster;
 }
 
-//     this.myValue = ko.observable().receiveFrom('NamespaceName' / Namespace, 'varName');
-ko.subscribable.fn.receiveFrom = function(namespace, variable) {
+//     this.myValue = fw.observable().receiveFrom('NamespaceName' / Namespace, 'varName');
+fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
   var observable = this;
   var namespaceSubscriptions = [];
@@ -25,7 +25,7 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
     throw 'Invalid namespace provided for receiveFrom() observable.';
   }
 
-  observable = ko.computed({
+  observable = fw.computed({
     read: target,
     write: function( value ) {
       namespace.publish( '__change.' + variable, value );
@@ -54,12 +54,12 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   return observable.refresh();
 };
 
-//     this.myValue = ko.observable().broadcastAs('NameOfVar');
-//     this.myValue = ko.observable().broadcastAs('NameOfVar', isWritable);
-//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', writable: true });
-//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', namespace: Namespace });
-//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', namespace: 'NamespaceName' });
-ko.subscribable.fn.broadcastAs = function(varName, option) {
+//     this.myValue = fw.observable().broadcastAs('NameOfVar');
+//     this.myValue = fw.observable().broadcastAs('NameOfVar', isWritable);
+//     this.myValue = fw.observable().broadcastAs({ name: 'NameOfVar', writable: true });
+//     this.myValue = fw.observable().broadcastAs({ name: 'NameOfVar', namespace: Namespace });
+//     this.myValue = fw.observable().broadcastAs({ name: 'NameOfVar', namespace: 'NamespaceName' });
+fw.subscribable.fn.broadcastAs = function(varName, option) {
   var observable = this;
   var namespace;
   var subscriptions = [];

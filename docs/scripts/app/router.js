@@ -1,12 +1,12 @@
 define([ "jquery", "footwork", "lodash" ],
-  function( $, ko, _ ) {
-    var $pageNamespace = ko.namespace('Page');
-    var $pageSectionNamespace = ko.namespace('PageSection');
-    var $paneElementsNamespace = ko.namespace('PaneElements');
-    var scrollPosition = ko.observable().receiveFrom('ViewPort', 'scrollPosition');
-    var maxScrollResetPosition = ko.observable().receiveFrom('ViewPort', 'maxScrollResetPosition');
-    var pageLoading = ko.observable().broadcastAs({ name: 'pageLoading', namespace: 'mainRouter' });
-    var viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
+  function( $, fw, _ ) {
+    var $pageNamespace = fw.namespace('Page');
+    var $pageSectionNamespace = fw.namespace('PageSection');
+    var $paneElementsNamespace = fw.namespace('PaneElements');
+    var scrollPosition = fw.observable().receiveFrom('ViewPort', 'scrollPosition');
+    var maxScrollResetPosition = fw.observable().receiveFrom('ViewPort', 'maxScrollResetPosition');
+    var pageLoading = fw.observable().broadcastAs({ name: 'pageLoading', namespace: 'mainRouter' });
+    var viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
 
     function initPage(metaData) {
       $pageNamespace.publish( 'initMeta', metaData );
@@ -49,15 +49,15 @@ define([ "jquery", "footwork", "lodash" ],
       routes: [
         {
           route: '/',
-          title: 'Index Page',
+          title: 'footworkjs',
           controller: function($routeParams) {
             this.$outlet('mainContent', 'index-page', _.bind(resolvePage, this, getPageLoadPromise()));
           }
         }, {
-          route: '/about',
-          title: 'about - staticty.pe',
+          route: '/annotated',
+          title: 'footworkjs - Annotated Source',
           controller: function($routeParams) {
-            this.$outlet('mainContent', 'about-page', _.bind(resolvePage, this, getPageLoadPromise()));
+            this.$outlet('mainContent', 'annotated-page', _.bind(resolvePage, this, getPageLoadPromise()));
           }
         }, {
           route: '/blog',

@@ -1,12 +1,12 @@
 define([ "jquery", "lodash", "footwork" ],
-  function( $, _, ko ) {
-    var Entry = ko.viewModel({
+  function( $, _, fw ) {
+    var Entry = fw.viewModel({
       namespace: 'PaneElements',
       initialize: function(entryData) {
-        this.headerContentHeight = ko.observable().receiveFrom('Header', 'contentHeight');
-        this.visible = ko.observable( null ).extend({ autoEnable: _.random( 200, 600 ) });
-        this.labelText = ko.observable( entryData.label );
-        this.url = ko.observable( entryData.url );
+        this.headerContentHeight = fw.observable().receiveFrom('Header', 'contentHeight');
+        this.visible = fw.observable( null ).extend({ autoEnable: _.random( 200, 600 ) });
+        this.labelText = fw.observable( entryData.label );
+        this.url = fw.observable( entryData.url );
         this.options = entryData;
         this.subMenuItems = entryData.subMenu;
         this.hasSubMenu = _.isArray(entryData.subMenu) && !!entryData.subMenu.length;
@@ -20,16 +20,16 @@ define([ "jquery", "lodash", "footwork" ],
       }
     });
 
-    return ko.viewModel({
+    return fw.viewModel({
       namespace: 'NavMenu',
       initialize: function() {
-        this.visible = ko.observable(false);
-        this.paneWidth = ko.observable().receiveFrom('Pane', 'width');
-        this.currentSelection = ko.observable().receiveFrom('PaneLinks', 'currentSelection');
-        this.paneContentMaxHeight = ko.observable().receiveFrom('Pane', 'contentMaxHeight').extend({ units: 'px' });
-        this.headerContentHeight = ko.observable().receiveFrom('Header', 'contentHeight');
-        this.configVisible = ko.observable().receiveFrom('Configuration', 'visible');
-        this.paneCollapsed = ko.observable().receiveFrom('Configuration', 'paneCollapsed');
+        this.visible = fw.observable(false);
+        this.paneWidth = fw.observable().receiveFrom('Pane', 'width');
+        this.currentSelection = fw.observable().receiveFrom('PaneLinks', 'currentSelection');
+        this.paneContentMaxHeight = fw.observable().receiveFrom('Pane', 'contentMaxHeight').extend({ units: 'px' });
+        this.headerContentHeight = fw.observable().receiveFrom('Header', 'contentHeight');
+        this.configVisible = fw.observable().receiveFrom('Configuration', 'visible');
+        this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed');
 
         this.toggleConfigView = function() {
           this.configVisible( !this.configVisible() );
@@ -38,11 +38,11 @@ define([ "jquery", "lodash", "footwork" ],
           }
         }.bind( this );
 
-        this.mobileWidth = ko.computed(function() {
+        this.mobileWidth = fw.computed(function() {
           return (parseInt(this.paneWidth(), 10) - 20) + 'px';
         }, this);
-        this.visible = ko.observable(false);
-        this.entries = ko.observableArray([
+        this.visible = fw.observable(false);
+        this.entries = fw.observableArray([
           new Entry({ label: 'API Docs', url: '/api', subMenu: [
             new Entry({ label: 'viewModel', url: '/api/viewModel' }),
             new Entry({ label: 'Namespace', url: '/api/namespace' }),

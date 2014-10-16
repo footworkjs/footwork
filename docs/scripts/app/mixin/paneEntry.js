@@ -1,18 +1,18 @@
 define([ "footwork", "lodash" ],
-  function( ko, _ ) {
+  function( fw, _ ) {
     return {
       _preInit: function( options ) {
         var activeTimeout;
-        var paneElementsChannel = ko.namespace('PaneElements');
+        var paneElementsChannel = fw.namespace('PaneElements');
 
-        this.visible = ko.observable( null ).extend({ autoEnable: _.random( 200, 600 ) });
-        this.active = ko.observable(false);
-        this.clickable = ko.observable(false);
-        this.viewportIsMobile = ko.observable().receiveFrom('ViewPort', 'isMobile');
-        this.viewportIsTablet = ko.observable().receiveFrom('ViewPort', 'isTablet');
-        this.paneScrolling = ko.observable(false).receiveFrom('Pane', 'scrolling');
+        this.visible = fw.observable( null ).extend({ autoEnable: _.random( 200, 600 ) });
+        this.active = fw.observable(false);
+        this.clickable = fw.observable(false);
+        this.viewportIsMobile = fw.observable().receiveFrom('ViewPort', 'isMobile');
+        this.viewportIsTablet = fw.observable().receiveFrom('ViewPort', 'isTablet');
+        this.paneScrolling = fw.observable(false).receiveFrom('Pane', 'scrolling');
 
-        this.state = ko.computed(function() {
+        this.state = fw.computed(function() {
           return {
             visible: this.visible(),
             active: this.active()

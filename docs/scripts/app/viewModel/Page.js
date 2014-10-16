@@ -1,18 +1,18 @@
 define([ "jquery", "lodash", "footwork", "history" ],
-  function( $, _, ko ) {
-    return ko.viewModel({
+  function( $, _, fw ) {
+    return fw.viewModel({
       namespace: 'Page',
       initialize: function() {
-        this.$pageSections = ko.namespace('PageSections');
-        this.defaultTitle = ko.observable('staticty.pe');
-        this.transitionsEnabled = ko.observable(false).receiveFrom('ViewPort', 'transitionsEnabled');
-        this.scrollPosition = ko.observable().receiveFrom('ViewPort', 'scrollPosition');
-        this.maxScrollResetPosition = ko.observable().receiveFrom('ViewPort', 'maxScrollResetPosition');
-        this.viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
+        this.$pageSections = fw.namespace('PageSections');
+        this.defaultTitle = fw.observable('staticty.pe');
+        this.transitionsEnabled = fw.observable(false).receiveFrom('ViewPort', 'transitionsEnabled');
+        this.scrollPosition = fw.observable().receiveFrom('ViewPort', 'scrollPosition');
+        this.maxScrollResetPosition = fw.observable().receiveFrom('ViewPort', 'maxScrollResetPosition');
+        this.viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
 
-        this.shortTitle = ko.observable().broadcastAs('shortTitle', true);
-        this.baseURL = ko.observable().broadcastAs('baseURL');
-        this.hashURL = ko.observable().broadcastAs('hashURL', true);
+        this.shortTitle = fw.observable().broadcastAs('shortTitle', true);
+        this.baseURL = fw.observable().broadcastAs('baseURL');
+        this.hashURL = fw.observable().broadcastAs('hashURL', true);
 
         this.loadPageMeta = function( metaData ) {
           if( !_.isUndefined(metaData) ) {

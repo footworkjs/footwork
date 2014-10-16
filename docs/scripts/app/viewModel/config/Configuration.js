@@ -1,6 +1,6 @@
 define([ "jquery", "lodash", "footwork", "storage" ],
-  function( $, _, ko, storage ) {
-    return ko.viewModel({
+  function( $, _, fw, storage ) {
+    return fw.viewModel({
       namespace: 'Configuration',
       initialize: function() {
         var headerOverallMin = 35;
@@ -8,7 +8,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
         var reset;
         var writeConfig;
         var sessionUpdateTimeout;
-        var defaultConfig = ko.observable({
+        var defaultConfig = fw.observable({
           revision: 6,
           header: {
             min: { height: headerOverallMin },
@@ -25,7 +25,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
           pane: {
             min: { width: 161 },
             max: { width: 340 },
-            collapsed: (ko.namespace('ViewPort').request('layoutMode') === 'mobile'),
+            collapsed: (fw.namespace('ViewPort').request('layoutMode') === 'mobile'),
             accentPadding: 20
           },
           dialog: {
@@ -35,22 +35,22 @@ define([ "jquery", "lodash", "footwork", "storage" ],
           transitions: true
         });
 
-        this.scrollPosition = ko.observable(0).receiveFrom('ViewPort', 'scrollPosition');
-        this.headerFixed = ko.observable(false).receiveFrom('Header', 'fixed');
-        this.headerClosed = ko.observable(false).receiveFrom('Header', 'closed');
-        this.headerMoving = ko.observable(false).receiveFrom('Header', 'moving');
-        this.navReflowing = ko.observable(false).receiveFrom('Navigation', 'reflowing');
-        this.paneAbsoluteMaxWidth = ko.observable().receiveFrom('Pane', 'maxWidth');
-        this.paneAnimate3d = ko.observable().receiveFrom('Pane', 'animate3d');
-        this.paneMoving = ko.observable().receiveFrom('Pane', 'moving');
-        this.viewPortLayoutMode = ko.observable().receiveFrom('ViewPort', 'layoutMode');
-        this.viewPortSmall = ko.observable().receiveFrom('ViewPort', 'isSmall');
-        this.currentTheme = ko.observable().receiveFrom('Themes', 'currentTheme');
-        this.saveSession = ko.observable( storage.get('saveSession') ).broadcastAs('saveSession', true);
+        this.scrollPosition = fw.observable(0).receiveFrom('ViewPort', 'scrollPosition');
+        this.headerFixed = fw.observable(false).receiveFrom('Header', 'fixed');
+        this.headerClosed = fw.observable(false).receiveFrom('Header', 'closed');
+        this.headerMoving = fw.observable(false).receiveFrom('Header', 'moving');
+        this.navReflowing = fw.observable(false).receiveFrom('Navigation', 'reflowing');
+        this.paneAbsoluteMaxWidth = fw.observable().receiveFrom('Pane', 'maxWidth');
+        this.paneAnimate3d = fw.observable().receiveFrom('Pane', 'animate3d');
+        this.paneMoving = fw.observable().receiveFrom('Pane', 'moving');
+        this.viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
+        this.viewPortSmall = fw.observable().receiveFrom('ViewPort', 'isSmall');
+        this.currentTheme = fw.observable().receiveFrom('Themes', 'currentTheme');
+        this.saveSession = fw.observable( storage.get('saveSession') ).broadcastAs('saveSession', true);
 
-        this.config = ko.observable( ( this.saveSession() === true && storage.get('configuration') ) || $.extend( true, {}, defaultConfig() ) );
+        this.config = fw.observable( ( this.saveSession() === true && storage.get('configuration') ) || $.extend( true, {}, defaultConfig() ) );
 
-        this.savePulse = ko.observable(false).extend({ autoDisable: 1000 }).broadcastAs('savePulse');
+        this.savePulse = fw.observable(false).extend({ autoDisable: 1000 }).broadcastAs('savePulse');
         this.throttledConfig = this.config.extend({ throttle: 300 });
         this.throttledConfig.extend({ throttle: 300 }).subscribe(
           writeConfig = function( configuration ) {
@@ -63,20 +63,20 @@ define([ "jquery", "lodash", "footwork", "storage" ],
           }.bind(this)
         );
 
-        this.initialized = ko.observable(false).broadcastAs('initialized');
-        this.visible = ko.observable(false).broadcastAs('visible', true);
-        this.heightMutable = ko.computed(function() {
+        this.initialized = fw.observable(false).broadcastAs('initialized');
+        this.visible = fw.observable(false).broadcastAs('visible', true);
+        this.heightMutable = fw.computed(function() {
           return ( this.visible() && ( !this.headerFixed() || this.scrollPosition() === 0 ) );
         }, this ).broadcastAs('heightMutable');
-        this.isMobile = ko.observable( storage.get('viewPortIsMobile') || window.isMobile ).broadcastAs('isMobile', true);
-        this.mobileWidthCutoff = ko.observable(495).broadcastAs('mobileWidthCutoff');
-        this.defaultHeaderMaxHeight = ko.computed(function() {
+        this.isMobile = fw.observable( storage.get('viewPortIsMobile') || window.isMobile ).broadcastAs('isMobile', true);
+        this.mobileWidthCutoff = fw.observable(495).broadcastAs('mobileWidthCutoff');
+        this.defaultHeaderMaxHeight = fw.computed(function() {
           return defaultConfig().header.max.height;
         }, this ).broadcastAs('defaultHeaderMaxHeight');
-        this.defaultPaneMaxWidth = ko.computed(function() {
+        this.defaultPaneMaxWidth = fw.computed(function() {
           return defaultConfig().pane.max.width;
         }, this ).broadcastAs('defaultPaneMaxWidth');
-        this.transitionsEnabled = ko.computed({
+        this.transitionsEnabled = fw.computed({
           read: function() {
             return this.config().transitions;
           },
@@ -84,7 +84,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
             setConfig({ transitions: transitionState });
           }
         }, this ).broadcastAs('transitionsEnabled', true);
-        this.headerMinHeight = ko.computed({
+        this.headerMinHeight = fw.computed({
           read: function() {
             return this.config().header.min.height;
           },
@@ -92,7 +92,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
             setConfig({ header: { min: { height: minHeight } } });
           }
         }, this ).broadcastAs('headerMinHeight', true);
-        this.headerMaxHeight = ko.computed({
+        this.headerMaxHeight = fw.computed({
           read: function() {
             if( this.viewPortLayoutMode() === 'desktop' || this.viewPortLayoutMode() === 'tablet' ) {
               return this.config().header.max.height;
@@ -104,7 +104,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
             setConfig({ header: { max: { height: maxHeight } } });
           }
         }, this ).broadcastAs('headerMaxHeight', true);
-        this.headerContentMaxHeight = ko.computed({
+        this.headerContentMaxHeight = fw.computed({
           read: function() {
             return this.config().header.contentMaxHeight;
           },
@@ -112,7 +112,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
             setConfig({ header: { contentMaxHeight: maxHeight } });
           }
         }, this ).broadcastAs('headerContentMaxHeight', true);
-        this.headerBorderWidth = ko.computed({
+        this.headerBorderWidth = fw.computed({
           read: function() {
             return this.config().header.borderWidth;
           },
@@ -120,7 +120,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
             setConfig({ header: { borderWidth: borderWidth } });
           }
         }, this ).broadcastAs('headerBorderWidth', true);
-        this.headerLimitHeight = ko.computed({
+        this.headerLimitHeight = fw.computed({
           read: function() {
             return this.config().header.limit.height;
           },
@@ -128,7 +128,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
             setConfig({ header: { limit: { height: heightLimit } } });
           }
         }, this ).broadcastAs('headerLimitHeight', true);
-        this.paneMinWidth = ko.computed({
+        this.paneMinWidth = fw.computed({
           read: function() {
             return this.config().pane.min.width;
           },
@@ -136,7 +136,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
             setConfig({ pane: { min: { width: minWidth } } });
           }
         }, this ).broadcastAs('paneMinWidth', true);
-        this.paneMaxWidth = ko.computed({
+        this.paneMaxWidth = fw.computed({
           read: function() {
             return this.config().pane.max.width;
           },
@@ -144,7 +144,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
             setConfig({ pane: { max: { width: maxWidth } } });
           }
         }, this ).broadcastAs('paneMaxWidth', true);
-        this.paneCollapsed = ko.computed({
+        this.paneCollapsed = fw.computed({
           read: function() {
             return this.config().pane.collapsed;
           },
@@ -156,7 +156,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
             }
           }
         }, this ).broadcastAs('paneCollapsed', true);
-        this.paneAccentPadding = ko.computed({
+        this.paneAccentPadding = fw.computed({
           read: function() {
             return this.config().pane.accentPadding;
           },
@@ -164,7 +164,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
             setConfig({ pane: { accentPadding: paddingSize } });
           }
         }, this ).broadcastAs('paneAccentPadding', true);
-        this.linksMinWidth = ko.computed({
+        this.linksMinWidth = fw.computed({
           read: function() {
             return this.config().links.min.width;
           },
@@ -172,7 +172,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
             setConfig({ links: { min: { width: linksMinWidth } } });
           }
         }, this ).broadcastAs('linksMinWidth', true);
-        this.linksMaxWidth = ko.computed({
+        this.linksMaxWidth = fw.computed({
           read: function() {
             return this.config().links.max.width;
           },
@@ -180,7 +180,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
             setConfig({ links: { min: { width: linksMaxWidth } } });
           }
         }, this ).broadcastAs('linksMaxWidth', true);
-        this.helpDialog = ko.computed({
+        this.helpDialog = fw.computed({
           read: function() {
             return this.config().dialog.help;
           },
@@ -188,7 +188,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
             setConfig({ dialog: { help: helpDialogState } });
           }
         }, this ).broadcastAs('helpDialog', true);
-        this.noticeDialog = ko.computed({
+        this.noticeDialog = fw.computed({
           read: function() {
             return this.config().dialog.notice;
           },
@@ -196,7 +196,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
             setConfig({ dialog: { notice: noticeDialogState } });
           }
         }, this ).broadcastAs('noticeDialog', true);
-        this.autoHideHeader = ko.computed({
+        this.autoHideHeader = fw.computed({
           read: function() {
             return this.config().header.autoHide;
           },
@@ -204,7 +204,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
             setConfig({ header: { autoHide: autoHideState } });
           }
         }, this ).broadcastAs('autoHideHeader', true);
-        this.reflowing = ko.observable(false).broadcastAs('reflowing');
+        this.reflowing = fw.observable(false).broadcastAs('reflowing');
 
         setConfig = this.setConfig = function( mergeObj ) {
           this.config( $.extend( true, {}, this.config(), mergeObj ) );
@@ -280,7 +280,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
           });
         }.bind(this));
 
-        this.configVersionCheck = ko.computed(function() {
+        this.configVersionCheck = fw.computed(function() {
           if( ( this.config().revision || 0 ) !== defaultConfig().revision ) {
             reset( true );
           }

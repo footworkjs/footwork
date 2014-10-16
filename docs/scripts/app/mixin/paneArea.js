@@ -1,9 +1,9 @@
 define([ "jquery", "lodash", "footwork", "LoadState" ],
-  function( $, _, ko, LoadState ) {
+  function( $, _, fw, LoadState ) {
     return {
       _preInit: function() {
-        this.currentSelection = ko.observable().receiveFrom('PaneLinks', 'currentSelection');
-        this.paneContentMaxHeight = ko.observable().receiveFrom('Pane', 'contentMaxHeight').extend({ units: 'px' });
+        this.currentSelection = fw.observable().receiveFrom('PaneLinks', 'currentSelection');
+        this.paneContentMaxHeight = fw.observable().receiveFrom('Pane', 'contentMaxHeight').extend({ units: 'px' });
 
         this.loader = new LoadState({
           messageStates: {
@@ -14,12 +14,12 @@ define([ "jquery", "lodash", "footwork", "LoadState" ],
           }
         });
 
-        this.entries = ko.observableArray([]);
-        this.currentPage = ko.observable(1);
-        this.description = ko.observable();
-        this.moreUnavailable = ko.observable(false);
+        this.entries = fw.observableArray([]);
+        this.currentPage = fw.observable(1);
+        this.description = fw.observable();
+        this.moreUnavailable = fw.observable(false);
         this.moreEntriesButtonText = this.loader.message;
-        this.initialized = ko.computed(function() {
+        this.initialized = fw.computed(function() {
           return !!this.entries().length;
         }, this);
 
@@ -45,7 +45,7 @@ define([ "jquery", "lodash", "footwork", "LoadState" ],
           }
         }.bind(this);
 
-        this.visible = ko.computed(function() {
+        this.visible = fw.computed(function() {
           if( this.currentSelection() === this.getNamespaceName() ) {
             if( this.entries().length === 0 ) {
               this.loadEntries();
@@ -55,7 +55,7 @@ define([ "jquery", "lodash", "footwork", "LoadState" ],
           return false;
         }, this);
 
-        this.state = ko.computed(function() {
+        this.state = fw.computed(function() {
           return {
             initialized: this.initialized(),
             visible: this.visible(),
