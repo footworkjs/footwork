@@ -18,11 +18,15 @@
 // main.js
 // -----------
 
+// Map ko to the variable 'fw' internally to make it clear this is the 'footwork' flavored version of knockout we are dealing with.
+// Footwork will also map itself to 'fw' on the global object when no script loader is used.
+var fw = ko;
+
 // Record the footwork version as of this build.
-ko.footworkVersion = '0.2.0';
+fw.footworkVersion = '0.2.0';
 
 // Expose any embedded dependencies
-ko.embed = embedded;
+fw.embed = embedded;
 
 // misc regex patterns
 var hasTrailingSlash = /\/$/i;
@@ -31,7 +35,7 @@ var hasStartingSlash = /^\//i;
 // misc utility functions
 var noop = function() { };
 
-var isObservable = ko.isObservable;
+var isObservable = fw.isObservable;
 
 var isPath = function(pathOrFile) {
   return hasTrailingSlash.test(pathOrFile);
@@ -72,15 +76,42 @@ var reject = _.reject;
 var findWhere = _.findWhere;
 var once = _.once;
 
-// Registry which stores the mixins that are automatically added to each viewModel
+// Internal registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];
 
-// Initialize the debugLevel observable, this controls
-// what level of debug statements are logged to the console
-// 0 === off
-// 1 === errors / problems only
-// 2 === notices (very noisy)
-ko.debugLevel = ko.observable(1);
+// parseUri() originally sourced from: http://blog.stevenlevithan.com/archives/parseuri
+function parseUri(str) {
+  var options = parseUri.options;
+  var matchParts = options.parser[ options.strictMode ? "strict" : "loose" ].exec(str);
+  var uri = {};
+  var i = 14;
+
+  while (i--) {
+    uri[ options.key[i] ] = matchParts[i] || "";
+  }
+
+  uri[ options.q.name ] = {};
+  uri[ options.key[12] ].replace(options.q.parser, function ($0, $1, $2) {
+    if($1) {
+      uri[options.q.name][$1] = $2;
+    }
+  });
+
+  return uri;
+};
+
+parseUri.options = {
+  strictMode: false,
+  key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+  q: {
+    name:   "queryKey",
+    parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+  },
+  parser: {
+    strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+    loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+  }
+};
 
 // namespace.js
 // ------------------
@@ -218,7 +249,7 @@ function getNamespaceName() {
 }
 
 // Creates and returns a new namespace instance
-var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
+var makeNamespace = fw.namespace = function(namespaceName, $parentNamespace) {
   if( !isUndefined($parentNamespace) ) {
     if( isString($parentNamespace) ) {
       namespaceName = $parentNamespace + '.' + namespaceName;
@@ -260,31 +291,31 @@ var makeNamespace = ko.namespace = function(namespaceName, $parentNamespace) {
 };
 
 // Duck type check for a namespace object
-var isNamespace = ko.isNamespace = function(thing) {
+var isNamespace = fw.isNamespace = function(thing) {
   return !isUndefined(thing) && !!thing.__isNamespace;
 };
 
 // Return the current namespace name.
-var currentNamespaceName = ko.currentNamespaceName = function() {
+var currentNamespaceName = fw.currentNamespaceName = function() {
   return namespaceStack[0];
 };
 
 // Return the current namespace channel.
-var currentNamespace = ko.currentNamespace = function() {
+var currentNamespace = fw.currentNamespace = function() {
   return makeNamespace( currentNamespaceName() );
 };
 
 // enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
 // 'entering' into that namespace (it is now the currentNamespace).
 // The namespace object returned from this method also has a pointer to its parent
-var enterNamespaceName = ko.enterNamespaceName = function(namespaceName) {
+var enterNamespaceName = fw.enterNamespaceName = function(namespaceName) {
   var $parentNamespace = currentNamespace();
   namespaceStack.unshift( namespaceName );
   return makeNamespace( currentNamespaceName() );
 };
 
 // enterNamespace() uses a current namespace definition as the one to enter into.
-var enterNamespace = ko.enterNamespace = function(namespace) {
+var enterNamespace = fw.enterNamespace = function(namespace) {
   namespaceStack.unshift( namespace.getName() );
   return namespace;
 };
@@ -292,7 +323,7 @@ var enterNamespace = ko.enterNamespace = function(namespace) {
 // Called at the after a model constructor function is run. exitNamespace()
 // will shift the current namespace off of the stack, 'exiting' to the
 // next namespace in the stack
-var exitNamespace = ko.exitNamespace = function() {
+var exitNamespace = fw.exitNamespace = function() {
   namespaceStack.shift();
   return currentNamespace();
 };
@@ -327,8 +358,8 @@ function isBroadcaster(thing) {
   return isObject(thing) && !!thing.__isBroadcaster;
 }
 
-//     this.myValue = ko.observable().receiveFrom('NamespaceName' / Namespace, 'varName');
-ko.subscribable.fn.receiveFrom = function(namespace, variable) {
+//     this.myValue = fw.observable().receiveFrom('NamespaceName' / Namespace, 'varName');
+fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
   var observable = this;
   var namespaceSubscriptions = [];
@@ -343,7 +374,7 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
     throw 'Invalid namespace provided for receiveFrom() observable.';
   }
 
-  observable = ko.computed({
+  observable = fw.computed({
     read: target,
     write: function( value ) {
       namespace.publish( '__change.' + variable, value );
@@ -372,12 +403,12 @@ ko.subscribable.fn.receiveFrom = function(namespace, variable) {
   return observable.refresh();
 };
 
-//     this.myValue = ko.observable().broadcastAs('NameOfVar');
-//     this.myValue = ko.observable().broadcastAs('NameOfVar', isWritable);
-//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', writable: true });
-//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', namespace: Namespace });
-//     this.myValue = ko.observable().broadcastAs({ name: 'NameOfVar', namespace: 'NamespaceName' });
-ko.subscribable.fn.broadcastAs = function(varName, option) {
+//     this.myValue = fw.observable().broadcastAs('NameOfVar');
+//     this.myValue = fw.observable().broadcastAs('NameOfVar', isWritable);
+//     this.myValue = fw.observable().broadcastAs({ name: 'NameOfVar', writable: true });
+//     this.myValue = fw.observable().broadcastAs({ name: 'NameOfVar', namespace: Namespace });
+//     this.myValue = fw.observable().broadcastAs({ name: 'NameOfVar', namespace: 'NamespaceName' });
+fw.subscribable.fn.broadcastAs = function(varName, option) {
   var observable = this;
   var namespace;
   var subscriptions = [];
@@ -445,40 +476,6 @@ ko.subscribable.fn.broadcastAs = function(varName, option) {
 // router.js
 // ------------------
 
-// parseUri() originally sourced from: http://blog.stevenlevithan.com/archives/parseuri
-function parseUri(str) {
-  var options = parseUri.options;
-  var matchParts = options.parser[ options.strictMode ? "strict" : "loose" ].exec(str);
-  var uri = {};
-  var i = 14;
-
-  while (i--) {
-    uri[ options.key[i] ] = matchParts[i] || "";
-  }
-
-  uri[ options.q.name ] = {};
-  uri[ options.key[12] ].replace(options.q.parser, function ($0, $1, $2) {
-    if($1) {
-      uri[options.q.name][$1] = $2;
-    }
-  });
-
-  return uri;
-};
-
-parseUri.options = {
-  strictMode: false,
-  key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
-  q: {
-    name:   "queryKey",
-    parser: /(?:^|&)([^&=]*)=?([^&]*)/g
-  },
-  parser: {
-    strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
-    loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
-  }
-};
-
 // Predicate function that always returns true / 'pass'
 var alwaysPassPredicate = function() { return true; };
 
@@ -514,7 +511,7 @@ var $nullRouter = extend({}, $baseRouter, {
 var $baseRouter = {
   routePath: emptyStringResult,
   routeSegment: emptyStringResult,
-  childRouters: ko.observableArray(),
+  childRouters: fw.observableArray(),
   context: noop,
   __isRouter: true
 };
@@ -603,9 +600,9 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   var onComplete = options.onComplete;
   var outlets = this.outlets;
 
-  outletName = ko.unwrap( outletName );
+  outletName = fw.unwrap( outletName );
   if( !isObservable(outlets[outletName]) ) {
-    outlets[outletName] = ko.observable({
+    outlets[outletName] = fw.observable({
       name: noComponentSelected,
       params: {},
       __getOnCompleteCallback: function() { return noop; }
@@ -655,9 +652,9 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   return outlet;
 };
 
-ko.routers = {
+fw.routers = {
   // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
-  baseRoute: ko.observable(''),
+  baseRoute: fw.observable(''),
   
   // Return array of all currently instantiated $router's
   getAll: function() {
@@ -679,12 +676,12 @@ ko.routers = {
   }
 };
 
-ko.router = function( routerConfig, $viewModel, $context ) {
+fw.router = function( routerConfig, $viewModel, $context ) {
   return new Router( routerConfig, $viewModel, $context );
 };
 
 
-ko.bindingHandlers.$route = {
+fw.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $myRouter = nearestParentRouter(bindingContext);
     var linkTo = valueAccessor();
@@ -692,7 +689,7 @@ ko.bindingHandlers.$route = {
 
     function getRouteURL(includeParentPath) {
       var parentRoutePath = '';
-      var myLinkPath = ko.unwrap(linkTo) || element.getAttribute('href') || '';
+      var myLinkPath = fw.unwrap(linkTo) || element.getAttribute('href') || '';
       if( isUndefined(linkTo) ) {
         linkTo = myLinkPath;
       }
@@ -715,10 +712,10 @@ ko.bindingHandlers.$route = {
     function setUpElement() {
       if(eventHandlerNotBound) {
         eventHandlerNotBound = false;
-        ko.utils.registerEventHandler(element, 'click', function(event) {
+        fw.utils.registerEventHandler(element, 'click', function(event) {
           var routeURL = routeURLWithoutParentPath();
           if( !isFullURLRegex.test( routeURL ) ) {
-            $myRouter.setState( routeURLWithoutParentPath() );
+            $myRouter.setState( routeURL );
             event.preventDefault();
           }
         });
@@ -750,26 +747,28 @@ var Router = function( routerConfig, $viewModel, $context ) {
   this.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + 'Router') );
   this.$namespace.enter();
   this.$namespace.command.handler('setState', bind(this.setState, this));
+  this.$namespace.request.handler('currentRoute', bind(function() { return this.currentRoute(); }, this));
+  this.$namespace.request.handler('urlParts', bind(function() { return this.urlParts(); }, this));
 
   this.$viewModel = $viewModel;
-  this.urlParts = ko.observable();
-  this.childRouters = ko.observableArray();
-  this.parentRouter = ko.observable($nullRouter);
-  this.context = ko.observable();
-  this.historyIsEnabled = ko.observable(false).broadcastAs('historyIsEnabled');
-  this.currentState = ko.observable('').broadcastAs('currentState');
+  this.urlParts = fw.observable();
+  this.childRouters = fw.observableArray();
+  this.parentRouter = fw.observable($nullRouter);
+  this.context = fw.observable();
+  this.historyIsEnabled = fw.observable(false).broadcastAs('historyIsEnabled');
+  this.currentState = fw.observable('').broadcastAs('currentState');
   this.config = routerConfig = extend({}, routerDefaultConfig, routerConfig);
-  this.config.baseRoute = ko.routers.baseRoute() + (result(routerConfig, 'baseRoute') || '');
+  this.config.baseRoute = fw.routers.baseRoute() + (result(routerConfig, 'baseRoute') || '');
 
-  this.isRelative = ko.computed(function() {
+  this.isRelative = fw.computed(function() {
     return routerConfig.isRelative && !isNullRouter( this.parentRouter() );
   }, this);
   
-  this.currentRoute = ko.computed(function() {
+  this.currentRoute = fw.computed(function() {
     return this.getRouteForURL( this.currentState() );
   }, this);
   
-  this.routePath = ko.computed(function() {
+  this.routePath = fw.computed(function() {
     var currentRoute = this.currentRoute();
     var parentRouter = this.parentRouter();
     var routePath = this.parentRouter().routePath();
@@ -952,8 +951,8 @@ Router.prototype.getRouteForURL = function(url) {
   var unknownRoute = this.getUnknownRoute();
   var $myRouter = this;
 
+  // If this is a relative router we need to remove the leading parentRoutePath section of the URL
   if( this.isRelative() ) {
-    // since this is a relative router, we need to remove the leading parentRoutePath section of the URL
     if( parentRoutePath.length > 0 ) {
       if( ( routeIndex = url.indexOf(parentRoutePath) ) === 0 ) {
         url = url.substr( parentRoutePath.length );
@@ -982,7 +981,6 @@ Router.prototype.getRouteForURL = function(url) {
         });
       }
     }
-
     return route;
   });
 
@@ -1063,11 +1061,11 @@ var defaultGetViewModelOptions = {
   includeOutlets: false
 };
 
-ko.viewModels = {};
+fw.viewModels = {};
 
 // Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all model references is returned.
-var getViewModels = ko.viewModels.getAll = function(options) {
+var getViewModels = fw.viewModels.getAll = function(options) {
   return reduce( $globalNamespace.request('__model_reference', extend({}, defaultGetViewModelOptions, options), true), function(viewModels, viewModel) {
     if( !isUndefined(viewModel) ) {
       var namespaceName = isNamespace(viewModel.$namespace) ? viewModel.$namespace.getName() : null;
@@ -1087,7 +1085,7 @@ var getViewModels = ko.viewModels.getAll = function(options) {
 };
 
 // Tell all viewModels to request the values which it listens for
-var refreshViewModels = ko.viewModels.refresh = function() {
+var refreshViewModels = fw.viewModels.refresh = function() {
   $globalNamespace.trigger('__refreshViewModels');
 };
 
@@ -1108,7 +1106,7 @@ function beforeInitMixins(mixin) {
   return !!mixin.runBeforeInit;
 }
 
-var makeViewModel = ko.viewModel = function(configParams) {
+var makeViewModel = fw.viewModel = function(configParams) {
   configParams = configParams || {};
 
   var ctor = noop;
@@ -1213,11 +1211,11 @@ function applyContextAndLifeCycle(viewModel, element) {
     }
 
     if( isRouter(viewModel.$router) ) {
-      viewModel.$router.context( ko.contextFor(element || document.body) );
+      viewModel.$router.context( fw.contextFor(element || document.body) );
     }
     
     if( !isUndefined(element) ) {
-      ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
         viewModel.__shutdown();
       });
     }
@@ -1225,8 +1223,8 @@ function applyContextAndLifeCycle(viewModel, element) {
 }
 
 // Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.
-var originalApplyBindings = ko.applyBindings;
-var applyBindings = ko.applyBindings = function(viewModel, element) {
+var originalApplyBindings = fw.applyBindings;
+var applyBindings = fw.applyBindings = function(viewModel, element) {
   originalApplyBindings(viewModel, element);
   applyContextAndLifeCycle(viewModel, element);
 };
@@ -1238,7 +1236,7 @@ function bindComponentViewModel(element, params, ViewModel) {
   } else {
     viewModelObj = ViewModel;
   }
-  viewModelObj.___$parentContext = ko.contextFor(element.parentElement);
+  viewModelObj.___$parentContext = fw.contextFor(element.parentElement);
 
   // binding the viewModelObj onto each child element is not ideal, need to do this differently
   // cannot get component.preprocess() method to work/be called for some reason
@@ -1250,20 +1248,20 @@ function bindComponentViewModel(element, params, ViewModel) {
   // we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each
   // sub-element and must specify the context as being the container element only once
   if( isRouter(viewModelObj.$router) ) {
-    viewModelObj.$router.context( ko.contextFor(element) );
+    viewModelObj.$router.context( fw.contextFor(element) );
   }
 };
 
 // Monkey patch enables the viewModel component to initialize a model and bind to the html as intended (with lifecycle events)
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
-var originalComponentInit = ko.bindingHandlers.component.init;
-ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+var originalComponentInit = fw.bindingHandlers.component.init;
+fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
   var theValueAccessor = valueAccessor;
   if( isString(element.tagName) ) {
     var tagName = element.tagName.toLowerCase();
     if( tagName === 'viewmodel' ) {
       var values = valueAccessor();
-      var viewModelName = ( !isUndefined(values.params) ? ko.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
+      var viewModelName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
       var bindViewModel = bind(bindComponentViewModel, null, element, values.params);
 
       if( !isUndefined(viewModelName) ) {
@@ -1321,8 +1319,8 @@ ko.bindingHandlers.component.init = function(element, valueAccessor, allBindings
 // component.js
 // ------------------
 
-var originalComponentRegisterFunc = ko.components.register;
-var registerComponent = ko.components.register = function(componentName, options) {
+var originalComponentRegisterFunc = fw.components.register;
+var registerComponent = fw.components.register = function(componentName, options) {
   var viewModel = options.initialize || options.viewModel;
   
   if( !isString(componentName) ) {
@@ -1335,25 +1333,25 @@ var registerComponent = ko.components.register = function(componentName, options
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || ko.viewModel(),
+    viewModel: viewModel || fw.viewModel(),
     template: options.template
   });
 };
 
-ko.components.getNormalTagList = function() {
+fw.components.getNormalTagList = function() {
   return nonComponentTags.splice(0);
 };
 
-ko.components.getComponentNameForNode = function(node) {
+fw.components.getComponentNameForNode = function(node) {
   var tagName = isString(node.tagName) && node.tagName.toLowerCase();
 
-  if( ko.components.isRegistered(tagName) || tagIsComponent(tagName) ) {
+  if( fw.components.isRegistered(tagName) || tagIsComponent(tagName) ) {
     return tagName;
   }
   return null;
 };
 
-var makeComponent = ko.component = function(componentDefinition) {
+var makeComponent = fw.component = function(componentDefinition) {
   var viewModel = componentDefinition.viewModel;
 
   if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {
@@ -1366,7 +1364,7 @@ var makeComponent = ko.component = function(componentDefinition) {
 // Register a component as consisting of a template only.
 // This will cause footwork to load only the template when this component is used.
 var componentTemplateOnlyRegister = [];
-var registerComponentAsTemplateOnly = ko.components.isTemplateOnly = function(componentName, isTemplateOnly) {
+var registerComponentAsTemplateOnly = fw.components.isTemplateOnly = function(componentName, isTemplateOnly) {
   isTemplateOnly = (isUndefined(isTemplateOnly) ? true : isTemplateOnly);
   if( isArray(componentName) ) {
     each(componentName, function(compName) {
@@ -1394,7 +1392,7 @@ var nonComponentTags = [
   'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'template', 'textarea',
   'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp'
 ];
-var tagIsComponent = ko.components.tagIsComponent = function(tagName, isComponent) {
+var tagIsComponent = fw.components.tagIsComponent = function(tagName, isComponent) {
   if( isUndefined(isComponent) ) {
     return indexOf(nonComponentTags, tagName) === -1;
   }
@@ -1435,10 +1433,10 @@ function componentTriggerAfterBinding(element, viewModel) {
 }
 
 // Use the $life wrapper binding to provide lifecycle events for components
-ko.virtualElements.allowedBindings.$life = true;
-ko.bindingHandlers.$life = {
+fw.virtualElements.allowedBindings.$life = true;
+fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+    fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if( isViewModel(viewModel) ) {
         viewModel.__shutdown();
       }
@@ -1456,7 +1454,7 @@ ko.bindingHandlers.$life = {
 
 // Custom loader used to wrap components with the $life custom binding
 var componentWrapperTemplate = '<!-- ko $life -->COMPONENT_MARKUP<!-- /ko -->';
-ko.components.loaders.unshift( ko.components.componentWrapper = {
+fw.components.loaders.unshift( fw.components.componentWrapper = {
   loadTemplate: function(componentName, config, callback) {
     if( !isNativeComponent(componentName) ) {
       // TODO: Handle different types of configs
@@ -1465,7 +1463,7 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
       } else {
         throw 'Unhandled config type ' + typeof config + '.';
       }
-      ko.components.defaultLoader.loadTemplate(componentName, config, callback);
+      fw.components.defaultLoader.loadTemplate(componentName, config, callback);
     } else {
       callback(null);
     }
@@ -1474,7 +1472,7 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
     var ViewModel = config.viewModel || config;
     if( !isNativeComponent(componentName) ) {
       callback(function(params, componentInfo) {
-        var $context = ko.contextFor(componentInfo.element);
+        var $context = fw.contextFor(componentInfo.element);
         var LoadedViewModel = ViewModel;
         if( isFunction(ViewModel) ) {
           if( !isViewModelCtor(ViewModel) ) {
@@ -1499,7 +1497,7 @@ ko.components.loaders.unshift( ko.components.componentWrapper = {
 
 // The footwork getConfig loader is a catch-all in the instance a registered component cannot be found.
 // The loader will attempt to use requirejs via knockouts integrated support if it is available.
-ko.components.loaders.push( ko.components.requireLoader = {
+fw.components.loaders.push( fw.components.requireLoader = {
   getConfig: function(componentName, callback) {
     var combinedFile = getComponentFileName(componentName, 'combined');
     var viewModelFile = getComponentFileName(componentName, 'viewModel');
@@ -1559,8 +1557,8 @@ var noParentViewModelError = { getNamespaceName: function() { return 'NO-VIEWMOD
 
 // This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied
 // to the UI and load in various views
-ko.virtualElements.allowedBindings.$bind = true;
-ko.bindingHandlers.$bind = {
+fw.virtualElements.allowedBindings.$bind = true;
+fw.bindingHandlers.$bind = {
   init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
     var $parentViewModel = ( isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
     var $parentRouter = nearestParentRouter(bindingContext);
@@ -1576,25 +1574,25 @@ ko.bindingHandlers.$bind = {
   }
 };
 
-ko.components.register('outlet', {
+fw.components.register('outlet', {
   autoIncrement: true,
   viewModel: function(params) {
-    this.outletName = ko.unwrap(params.name);
+    this.outletName = fw.unwrap(params.name);
     this.__isOutlet = true;
   },
   template: '<!-- ko $bind, component: $route --><!-- /ko -->'
 });
 
-ko.components.register('_noComponentSelected', {
+fw.components.register('_noComponentSelected', {
   viewModel: function(params) {
     this.__assertPresence = false;
   },
   template: '<div class="no-component-selected"></div>'
 });
 
-ko.components.register('error', {
+fw.components.register('error', {
   viewModel: function(params) {
-    this.message = ko.observable(params.message);
+    this.message = fw.observable(params.message);
     this.errors = params.errors;
     this.__assertPresence = false;
   },
@@ -1616,9 +1614,9 @@ var defaultComponentFileExtensions = {
   template: '.html'
 };
 
-var componentFileExtensions = ko.components.fileExtensions = ko.observable( clone(defaultComponentFileExtensions) );
+var componentFileExtensions = fw.components.fileExtensions = fw.observable( clone(defaultComponentFileExtensions) );
 
-var getComponentFileName = ko.components.getFileName = function(componentName, fileType) {
+var getComponentFileName = fw.components.getFileName = function(componentName, fileType) {
   var componentExtensions = componentFileExtensions();
   var fileName = componentName;
 
@@ -1640,8 +1638,8 @@ var defaultComponentLocation = {
   viewModels: '/viewModel/',
   templates: '/component/'
 };
-var componentResourceLocations = ko.components.resourceLocations = {};
-var componentDefaultLocation = ko.components.defaultLocation = function(root, updateDefault) {
+var componentResourceLocations = fw.components.resourceLocations = {};
+var componentDefaultLocation = fw.components.defaultLocation = function(root, updateDefault) {
   var componentLocation = (isUndefined(updateDefault) || updateDefault === true) ? defaultComponentLocation : clone(defaultComponentLocation);
 
   if( isObject(root) ) {
@@ -1669,7 +1667,7 @@ var componentDefaultLocation = ko.components.defaultLocation = function(root, up
   return componentLocation;
 };
 
-var registerLocationOfComponent = ko.components.registerLocation = function(componentName, componentLocation) {
+var registerLocationOfComponent = fw.components.registerLocation = function(componentName, componentLocation) {
   if( isArray(componentName) ) {
     each(componentName, function(name) {
       registerLocationOfComponent(name, componentLocation);
@@ -1679,7 +1677,7 @@ var registerLocationOfComponent = ko.components.registerLocation = function(comp
 };
 
 // Return the component resource definition for the supplied componentName
-var getComponentResourceLocation = ko.components.getResourceLocation = function(componentName) {
+var getComponentResourceLocation = fw.components.getResourceLocation = function(componentName) {
   if( isUndefined(componentName) ) {
     return componentResourceLocations;
   }
@@ -1689,9 +1687,9 @@ var getComponentResourceLocation = ko.components.getResourceLocation = function(
 
 // viewModel resource section
 var defaultViewModelFileExtensions = '.js';
-var viewModelFileExtensions = ko.viewModels.fileExtensions = ko.observable( defaultViewModelFileExtensions );
+var viewModelFileExtensions = fw.viewModels.fileExtensions = fw.observable( defaultViewModelFileExtensions );
 
-var getViewModelFileName = ko.viewModels.getFileName = function(viewModelName) {
+var getViewModelFileName = fw.viewModels.getFileName = function(viewModelName) {
   var viewModelExtensions = viewModelFileExtensions();
   var fileName = viewModelName;
 
@@ -1705,8 +1703,8 @@ var getViewModelFileName = ko.viewModels.getFileName = function(viewModelName) {
 };
 
 var defaultViewModelLocation = '/viewModel/';
-var viewModelResourceLocations = ko.viewModels.resourceLocations = {};
-var viewModelDefaultLocation = ko.viewModels.defaultLocation = function(path, updateDefault) {
+var viewModelResourceLocations = fw.viewModels.resourceLocations = {};
+var viewModelDefaultLocation = fw.viewModels.defaultLocation = function(path, updateDefault) {
   var viewModelLocation = defaultViewModelLocation;
 
   if( isString(path) ) {
@@ -1721,19 +1719,19 @@ var viewModelDefaultLocation = ko.viewModels.defaultLocation = function(path, up
 };
 
 var registeredViewModels = {};
-var registerViewModel = ko.viewModels.register = function(viewModelName, viewModel) {
+var registerViewModel = fw.viewModels.register = function(viewModelName, viewModel) {
   registeredViewModels[viewModelName] = viewModel;
 };
 
-var isRegisteredViewModel = ko.viewModels.isRegistered = function(viewModelName) {
+var isRegisteredViewModel = fw.viewModels.isRegistered = function(viewModelName) {
   return !isUndefined( registeredViewModels[viewModelName] );
 };
 
-var getRegisteredViewModel = ko.viewModels.getRegistered = function(viewModelName) {
+var getRegisteredViewModel = fw.viewModels.getRegistered = function(viewModelName) {
   return registeredViewModels[viewModelName];
 };
 
-var registerLocationOfViewModel = ko.viewModels.registerLocation = function(viewModelName, viewModelLocation) {
+var registerLocationOfViewModel = fw.viewModels.registerLocation = function(viewModelName, viewModelLocation) {
   if( isArray(viewModelName) ) {
     each(viewModelName, function(name) {
       registerLocationOfViewModel(name, viewModelLocation);
@@ -1743,7 +1741,7 @@ var registerLocationOfViewModel = ko.viewModels.registerLocation = function(view
 };
 
 // Return the viewModel resource definition for the supplied viewModelName
-var getViewModelResourceLocation = ko.viewModels.getResourceLocation = function(viewModelName) {
+var getViewModelResourceLocation = fw.viewModels.getResourceLocation = function(viewModelName) {
   if( isUndefined(viewModelName) ) {
     return viewModelResourceLocations;
   }
@@ -1753,7 +1751,7 @@ var getViewModelResourceLocation = ko.viewModels.getResourceLocation = function(
 // ----------------
 
 // custom throttle() based on ko v3.0.0 throttle(), allows value to be force()'d to a value at any time
-ko.extenders.throttled = function(target, opt) {
+fw.extenders.throttled = function(target, opt) {
   if( isNumber(opt) ) {
     opt = {
       timeout: opt,
@@ -1764,7 +1762,7 @@ ko.extenders.throttled = function(target, opt) {
   target.throttleEvaluation = opt.timeout;
 
   var writeTimeoutInstance = null,
-      throttledTarget = ko.dependentObservable({
+      throttledTarget = fw.dependentObservable({
           'read': target,
           'write': function(value) {
             if( opt.when(value) ) {
@@ -1787,7 +1785,7 @@ ko.extenders.throttled = function(target, opt) {
   return throttledTarget;
 };
 
-ko.extenders.autoDisable = function( target, delay ) {
+fw.extenders.autoDisable = function( target, delay ) {
   return target.extend({
     delayTrigger: {
       delay: delay || 0,
@@ -1796,7 +1794,7 @@ ko.extenders.autoDisable = function( target, delay ) {
   });
 };
 
-ko.extenders.autoEnable = function( target, delay ) {
+fw.extenders.autoEnable = function( target, delay ) {
   return target.extend({
     delayTrigger: {
       delay: delay || 0,
@@ -1805,7 +1803,7 @@ ko.extenders.autoEnable = function( target, delay ) {
   });
 };
 
-ko.extenders.delayTrigger = function( target, options ) {
+fw.extenders.delayTrigger = function( target, options ) {
   var delay = 300,
       triggerFunc = noop,
       trigger;
@@ -1822,7 +1820,7 @@ ko.extenders.delayTrigger = function( target, options ) {
     trigger = undefined;
   };
 
-  var delayedObservable = ko.computed({
+  var delayedObservable = fw.computed({
     read: target,
     write: function( state ) {
       target( state );
@@ -1842,7 +1840,7 @@ ko.extenders.delayTrigger = function( target, options ) {
   return delayedObservable;
 };
 
-ko.extenders.delayWrite = function( target, options ) {
+fw.extenders.delayWrite = function( target, options ) {
   var filter, delay = 300;
 
   if( isObject(options) ) {
@@ -1852,7 +1850,7 @@ ko.extenders.delayWrite = function( target, options ) {
     delay = !isNaN( options ) && parseInt( options, 10 ) || delay;
   }
 
-  return ko.computed({
+  return fw.computed({
     read: target,
     write: function( writeValue ) {
       if( filter( writeValue ) ) {

@@ -8,9 +8,9 @@ var defaultComponentFileExtensions = {
   template: '.html'
 };
 
-var componentFileExtensions = ko.components.fileExtensions = ko.observable( clone(defaultComponentFileExtensions) );
+var componentFileExtensions = fw.components.fileExtensions = fw.observable( clone(defaultComponentFileExtensions) );
 
-var getComponentFileName = ko.components.getFileName = function(componentName, fileType) {
+var getComponentFileName = fw.components.getFileName = function(componentName, fileType) {
   var componentExtensions = componentFileExtensions();
   var fileName = componentName;
 
@@ -32,8 +32,8 @@ var defaultComponentLocation = {
   viewModels: '/viewModel/',
   templates: '/component/'
 };
-var componentResourceLocations = ko.components.resourceLocations = {};
-var componentDefaultLocation = ko.components.defaultLocation = function(root, updateDefault) {
+var componentResourceLocations = fw.components.resourceLocations = {};
+var componentDefaultLocation = fw.components.defaultLocation = function(root, updateDefault) {
   var componentLocation = (isUndefined(updateDefault) || updateDefault === true) ? defaultComponentLocation : clone(defaultComponentLocation);
 
   if( isObject(root) ) {
@@ -61,7 +61,7 @@ var componentDefaultLocation = ko.components.defaultLocation = function(root, up
   return componentLocation;
 };
 
-var registerLocationOfComponent = ko.components.registerLocation = function(componentName, componentLocation) {
+var registerLocationOfComponent = fw.components.registerLocation = function(componentName, componentLocation) {
   if( isArray(componentName) ) {
     each(componentName, function(name) {
       registerLocationOfComponent(name, componentLocation);
@@ -71,7 +71,7 @@ var registerLocationOfComponent = ko.components.registerLocation = function(comp
 };
 
 // Return the component resource definition for the supplied componentName
-var getComponentResourceLocation = ko.components.getResourceLocation = function(componentName) {
+var getComponentResourceLocation = fw.components.getResourceLocation = function(componentName) {
   if( isUndefined(componentName) ) {
     return componentResourceLocations;
   }
@@ -81,9 +81,9 @@ var getComponentResourceLocation = ko.components.getResourceLocation = function(
 
 // viewModel resource section
 var defaultViewModelFileExtensions = '.js';
-var viewModelFileExtensions = ko.viewModels.fileExtensions = ko.observable( defaultViewModelFileExtensions );
+var viewModelFileExtensions = fw.viewModels.fileExtensions = fw.observable( defaultViewModelFileExtensions );
 
-var getViewModelFileName = ko.viewModels.getFileName = function(viewModelName) {
+var getViewModelFileName = fw.viewModels.getFileName = function(viewModelName) {
   var viewModelExtensions = viewModelFileExtensions();
   var fileName = viewModelName;
 
@@ -97,8 +97,8 @@ var getViewModelFileName = ko.viewModels.getFileName = function(viewModelName) {
 };
 
 var defaultViewModelLocation = '/viewModel/';
-var viewModelResourceLocations = ko.viewModels.resourceLocations = {};
-var viewModelDefaultLocation = ko.viewModels.defaultLocation = function(path, updateDefault) {
+var viewModelResourceLocations = fw.viewModels.resourceLocations = {};
+var viewModelDefaultLocation = fw.viewModels.defaultLocation = function(path, updateDefault) {
   var viewModelLocation = defaultViewModelLocation;
 
   if( isString(path) ) {
@@ -113,19 +113,19 @@ var viewModelDefaultLocation = ko.viewModels.defaultLocation = function(path, up
 };
 
 var registeredViewModels = {};
-var registerViewModel = ko.viewModels.register = function(viewModelName, viewModel) {
+var registerViewModel = fw.viewModels.register = function(viewModelName, viewModel) {
   registeredViewModels[viewModelName] = viewModel;
 };
 
-var isRegisteredViewModel = ko.viewModels.isRegistered = function(viewModelName) {
+var isRegisteredViewModel = fw.viewModels.isRegistered = function(viewModelName) {
   return !isUndefined( registeredViewModels[viewModelName] );
 };
 
-var getRegisteredViewModel = ko.viewModels.getRegistered = function(viewModelName) {
+var getRegisteredViewModel = fw.viewModels.getRegistered = function(viewModelName) {
   return registeredViewModels[viewModelName];
 };
 
-var registerLocationOfViewModel = ko.viewModels.registerLocation = function(viewModelName, viewModelLocation) {
+var registerLocationOfViewModel = fw.viewModels.registerLocation = function(viewModelName, viewModelLocation) {
   if( isArray(viewModelName) ) {
     each(viewModelName, function(name) {
       registerLocationOfViewModel(name, viewModelLocation);
@@ -135,7 +135,7 @@ var registerLocationOfViewModel = ko.viewModels.registerLocation = function(view
 };
 
 // Return the viewModel resource definition for the supplied viewModelName
-var getViewModelResourceLocation = ko.viewModels.getResourceLocation = function(viewModelName) {
+var getViewModelResourceLocation = fw.viewModels.getResourceLocation = function(viewModelName) {
   if( isUndefined(viewModelName) ) {
     return viewModelResourceLocations;
   }

@@ -4,7 +4,7 @@
   } else if (typeof exports === 'object') {
     module.exports = factory();
   } else {
-    root.ko = factory();
+    root.fw = factory();
   }
 }(this, function () {
   var windowObject = window;

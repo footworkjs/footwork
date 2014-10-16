@@ -4,7 +4,7 @@
   } else if (typeof exports === 'object') {
     module.exports = factory(require('lodash'), require('knockout'), require('postal'));
   } else {
-    root.ko = factory(_, ko, postal);
+    root.fw = factory(_, ko, postal);
   }
 }(this, function (_, ko, postal) {
   var windowObject = window;

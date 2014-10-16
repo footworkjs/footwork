@@ -1,11 +1,15 @@
 // main.js
 // -----------
 
+// Map ko to the variable 'fw' internally to make it clear this is the 'footwork' flavored version of knockout we are dealing with.
+// Footwork will also map itself to 'fw' on the global object when no script loader is used.
+var fw = ko;
+
 // Record the footwork version as of this build.
-ko.footworkVersion = 'FOOTWORK_VERSION';
+fw.footworkVersion = 'FOOTWORK_VERSION';
 
 // Expose any embedded dependencies
-ko.embed = embedded;
+fw.embed = embedded;
 
 // misc regex patterns
 var hasTrailingSlash = /\/$/i;
@@ -14,7 +18,7 @@ var hasStartingSlash = /^\//i;
 // misc utility functions
 var noop = function() { };
 
-var isObservable = ko.isObservable;
+var isObservable = fw.isObservable;
 
 var isPath = function(pathOrFile) {
   return hasTrailingSlash.test(pathOrFile);
