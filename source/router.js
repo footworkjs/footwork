@@ -180,6 +180,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
 fw.routers = {
   // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
   baseRoute: fw.observable(''),
+  getNearestParent: nearestParentRouter,
   
   // Return array of all currently instantiated $router's
   getAll: function() {
