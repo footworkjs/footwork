@@ -159,13 +159,16 @@ var makeViewModel = fw.viewModel = function(configParams) {
 function applyContextAndLifeCycle(viewModel, element) {
   if( isViewModel(viewModel) ) {
     var $configParams = viewModel.__getConfigParams();
+    var context;
+    element = element || document.body;
+    viewModel.$context = elementContext = fw.contextFor(element);
     
     if( isFunction($configParams.afterBinding) ) {
-      $configParams.afterBinding.call(viewModel, element || document.body);
+      $configParams.afterBinding.call(viewModel, element);
     }
 
     if( isRouter(viewModel.$router) ) {
-      viewModel.$router.context( fw.contextFor(element || document.body) );
+      viewModel.$router.context( elementContext );
     }
     
     if( !isUndefined(element) ) {
