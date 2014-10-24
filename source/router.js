@@ -209,22 +209,19 @@ fw.router = function( routerConfig, $viewModel, $context ) {
   return new Router( routerConfig, $viewModel, $context );
 };
 
-
 fw.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $myRouter = nearestParentRouter(bindingContext);
     var urlValue = valueAccessor();
     var eventHandlerNotBound = true;
 
-    function defaultClickHandlerForRoute(event) {
-      event.preventDefault();
-      return true;
-    }
-
     var routeHandlerDescription = {
       url: null,
       eventType: 'click',
-      handler: defaultClickHandlerForRoute
+      handler: function defaultClickHandlerForRoute(event) {
+        event.preventDefault();
+        return true;
+      }
     };
 
     if( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
@@ -309,9 +306,9 @@ var Router = function( routerConfig, $viewModel, $context ) {
   this.$globalNamespace = makeNamespace();
   this.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + 'Router') );
   this.$namespace.enter();
-  this.$namespace.command.handler('setState', bind(this.setState, this));
-  this.$namespace.request.handler('currentRoute', bind(function() { return this.currentRoute(); }, this));
-  this.$namespace.request.handler('urlParts', bind(function() { return this.urlParts(); }, this));
+  this.$namespace.command.handler('setState', this.setState, this);
+  this.$namespace.request.handler('currentRoute', function() { return this.currentRoute(); }, this);
+  this.$namespace.request.handler('urlParts', function() { return this.urlParts(); }, this);
 
   this.$viewModel = $viewModel;
   this.urlParts = fw.observable();
