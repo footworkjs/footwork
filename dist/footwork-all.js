@@ -10045,14 +10045,10 @@ fw.bindingHandlers.$route = {
 
     function getRouteURL(includeParentPath) {
       var parentRoutePath = '';
-      var routeURL = fw.unwrap(routeHandlerDescription.url);
-
-      if(isNull(routeURL)) {
-        routeURL = routeHandlerDescription.handler.call(viewModel, null);
-      }
+      var routeURL = routeHandlerDescription.url();
+      var myLinkPath = routeURL || element.getAttribute('href') || '';
 
       if(!isNull(routeURL)) {
-        var myLinkPath = routeURL || element.getAttribute('href') || '';
         if( isUndefined(routeURL) ) {
           routeURL = myLinkPath;
         }
@@ -10076,26 +10072,30 @@ fw.bindingHandlers.$route = {
     var routeURLWithoutParentPath = bind(getRouteURL, null, false);
 
     var routeHandlerDescription = {
-      url: null,
       eventType: 'click',
-      handler: function defaultClickHandlerForRoute(event) {
-        var routeURL = routeURLWithoutParentPath();
-        if( !isFullURL(routeURL) ) {
+      url: function() { return null; },
+      handler: function defaultHandlerForRoute(event, url) {
+        if( !isFullURL(url) ) {
           event.preventDefault();
-          return routeURL;
+          return true;
         }
-        return null;
+        return false;
       }
     };
 
     if( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
-      routeHandlerDescription.url = ko.unwrap(urlValue);
+      routeHandlerDescription.url = urlValue;
     } else if( isObject(urlValue) ) {
       extend(routeHandlerDescription, urlValue);
     } else if( isUndefined(urlValue) ) {
-      routeHandlerDescription.url = element.getAttribute('href');
+      routeHandlerDescription.url = element.getAttribute('href');;
     } else {
       throw 'Unknown type of url value provided to $route [' + typeof urlValue + ']';
+    }
+
+    var routeHandlerDescriptionURL = routeHandlerDescription.url;
+    if( isString(routeHandlerDescriptionURL) ) {
+      routeHandlerDescription.url = function() { return routeHandlerDescriptionURL; };
     }
 
     function setUpElement() {
@@ -10103,7 +10103,7 @@ fw.bindingHandlers.$route = {
         eventHandlerNotBound = false;
 
         fw.utils.registerEventHandler(element, routeHandlerDescription.eventType, function(event) {
-          var routeURL = routeHandlerDescription.handler.call(viewModel, event);
+          var routeURL = routeHandlerDescription.handler.call(viewModel, event, routeHandlerDescription.url());
           if( routeURL === true ) {
             routeURL = routeURLWithoutParentPath();
           }
