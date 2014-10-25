@@ -217,7 +217,7 @@ fw.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $myRouter = nearestParentRouter(bindingContext);
     var urlValue = valueAccessor();
-    var eventHandlerNotBound = true;
+    var eventHandlerIsBound = false;
 
     function getRouteURL(includeParentPath) {
       var parentRoutePath = '';
@@ -248,8 +248,8 @@ fw.bindingHandlers.$route = {
     var routeURLWithoutParentPath = bind(getRouteURL, null, false);
 
     var routeHandlerDescription = {
-      eventType: 'click',
-      url: function() { return null; },
+      on: 'click',
+      url: function defaultURLForRoute() { return null; },
       handler: function defaultHandlerForRoute(event, url) {
         if( !isFullURL(url) ) {
           event.preventDefault();
@@ -275,10 +275,9 @@ fw.bindingHandlers.$route = {
     }
 
     function setUpElement() {
-      if(eventHandlerNotBound) {
-        eventHandlerNotBound = false;
-
-        fw.utils.registerEventHandler(element, routeHandlerDescription.eventType, function(event) {
+      if(eventHandlerIsBound === false) {
+        eventHandlerIsBound = true;
+        fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
           var routeURL = routeHandlerDescription.handler.call(viewModel, event, routeHandlerDescription.url());
           if( routeURL === true ) {
             routeURL = routeURLWithoutParentPath();
