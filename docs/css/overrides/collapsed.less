@@ -31,31 +31,28 @@ body {
       }
 
       &:hover {
-        .mouse-action {
-          left: 18px;
+        .inner-arrow {
+          left: 0px;
           .transition(left 0.1s ease);
         }
       }
 
       &:active, &:focus {
-        .mouse-action {
-          left: 19px;
-          border-left-color: darken(@body-bg-color, 10%);
+        .inner-arrow {
+          left: 1px;
           .transition(left 0s ease);
         }
       }
 
-      .mouse-action {
-        border-style: solid;
-        border-width: 20px 0 20px 12px;
-        border-color: transparent transparent transparent @body-bg-color;
+      .inner-arrow {
+        left: -5px;
         .transition(opacity 0.4 0.2 ease, left 0.1 0 ease);
 
-        .mask {
-          @mask-size: 19px;
-          border-width: @mask-size 0 @mask-size 9px;
-          border-color: transparent transparent transparent @pane-bg-color;
-          left: -13px;
+        .open {
+          visibility: hidden;
+        }
+        .collapsed {
+          visibility: visible;
         }
       }
     }

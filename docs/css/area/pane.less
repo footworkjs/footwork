@@ -1,12 +1,14 @@
 @page-section-width: 30px;
 @alternate-padding: 10px;
 @page-section-margin: 30px;
+@collapse-button-width: 40px;
+@collapse-button-height: 50px;
 
 #collapse-button {
   position: fixed;
   z-index: 2;
-  width: 40px;
-  height: 50px;
+  width: @collapse-button-width;
+  height: @collapse-button-height;
   margin-left: -20px;
   cursor: pointer;
   top: 0;
@@ -14,50 +16,49 @@
   display: none;
 
   &:hover {
-    .mouse-action {
+    .inner-arrow {
       .transition(all 0.13s ease);
       opacity: 1;
       visibility: visible;
-      left: 10px;
+      left: -1px;
     }
   }
 
   &:active, &:focus {
-    .mouse-action {
+    .inner-arrow {
       .transition(all 0s ease);
       opacity: 1;
       visibility: visible;
-      left: 9px;
-      border-right-color: darken(@pane-bg-color, 10%);
+      left: -2px;
+
+      .open {
+        visibility: visible;
+        fill: darken(@pane-bg-color, 5%);
+      }
+      .collapsed {
+        visibility: hidden;
+        fill: darken(@body-bg-color, 5%);
+      }
     }
   }
 
-  .mouse-action {
-    @size: 20px;
+  .inner-arrow {
     position: absolute;
     visibility: hidden;
-    top: 50%;
-    left: 15px;
-    width: 0px;
-    height: 0px;
-    border-style: solid;
-    border-width: @size 12px @size 0;
-    border-color: transparent @pane-bg-color transparent transparent;
+    top: 0;
+    left: 5px;
+    width: @collapse-button-width;
+    height: @collapse-button-height;
     opacity: 0;
     .transition(left 0.1s 0.2s linear, opacity 0.1s 0.2s linear);
-    margin-top: -@size;
 
-    .mask {
-      @mask-size: 19px;
-      position: absolute;
-      top: 50%;
-      margin-top: -@mask-size + 1px;
-      width: 0px;
-      height: 0px;
-      border-style: solid;
-      border-width: @mask-size 9px @mask-size 0;
-      border-color: transparent @body-bg-color transparent transparent;
-      left: 4px;
+    .open {
+      visibility: visible;
+      fill: @pane-bg-color;
+    }
+    .collapsed {
+      visibility: hidden;
+      fill: @body-bg-color;
     }
   }
 

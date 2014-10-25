@@ -1022,8 +1022,8 @@ next namespace in the stack</p>
 };
 
 <span class="hljs-keyword">var</span> baseRouteDescription = {
-  __isRouteDesc: <span class="hljs-literal">true</span>,
-  filter: alwaysPassPredicate
+  filter: alwaysPassPredicate,
+  __isRouteDesc: <span class="hljs-literal">true</span>
 };
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">transformRouteConfigToDesc</span><span class="hljs-params">(routeDesc)</span> </span>{
@@ -1108,7 +1108,7 @@ next namespace in the stack</p>
           </div>
           <p>Recursive function which will locate the nearest $router from a given ko $context
 (travels up through $parentContext chain to find the router if not found on the
-immediate $context). Returns null if none is found.</p>
+immediate $context). Returns $nullRouter if none is found.</p>
 
           <div class="annotation-bg"></div>
         </div>
@@ -1299,7 +1299,34 @@ fw.bindingHandlers.$route = {
   init: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(element, valueAccessor, allBindings, viewModel, bindingContext)</span> </span>{
     <span class="hljs-keyword">var</span> $myRouter = nearestParentRouter(bindingContext);
     <span class="hljs-keyword">var</span> urlValue = valueAccessor();
-    <span class="hljs-keyword">var</span> eventHandlerNotBound = <span class="hljs-literal">true</span>;
+    <span class="hljs-keyword">var</span> eventHandlerIsBound = <span class="hljs-literal">false</span>;
+
+    <span class="hljs-keyword">var</span> routeHandlerDescription = {
+      on: <span class="hljs-string">'click'</span>,
+      url: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">defaultURLForRoute</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>; },
+      handler: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">defaultHandlerForRoute</span><span class="hljs-params">(event, url)</span> </span>{
+        <span class="hljs-keyword">if</span>( !isFullURL(url) ) {
+          event.preventDefault();
+          <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+      }
+    };
+
+    <span class="hljs-keyword">if</span>( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
+      routeHandlerDescription.url = urlValue;
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isObject(urlValue) ) {
+      extend(routeHandlerDescription, urlValue);
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( !urlValue ) {
+      routeHandlerDescription.url = element.getAttribute(<span class="hljs-string">'href'</span>);
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">throw</span> <span class="hljs-string">'Unknown type of url value provided to $route ['</span> + <span class="hljs-keyword">typeof</span> urlValue + <span class="hljs-string">']'</span>;
+    }
+
+    <span class="hljs-keyword">var</span> routeHandlerDescriptionURL = routeHandlerDescription.url;
+    <span class="hljs-keyword">if</span>( !isFunction(routeHandlerDescriptionURL) ) {
+      routeHandlerDescription.url = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> routeHandlerDescriptionURL; };
+    }
 
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getRouteURL</span><span class="hljs-params">(includeParentPath)</span> </span>{
       <span class="hljs-keyword">var</span> parentRoutePath = <span class="hljs-string">''</span>;
@@ -1329,44 +1356,19 @@ fw.bindingHandlers.$route = {
     <span class="hljs-keyword">var</span> routeURLWithParentPath = bind(getRouteURL, <span class="hljs-literal">null</span>, <span class="hljs-literal">true</span>);
     <span class="hljs-keyword">var</span> routeURLWithoutParentPath = bind(getRouteURL, <span class="hljs-literal">null</span>, <span class="hljs-literal">false</span>);
 
-    <span class="hljs-keyword">var</span> routeHandlerDescription = {
-      eventType: <span class="hljs-string">'click'</span>,
-      url: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>; },
-      handler: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">defaultHandlerForRoute</span><span class="hljs-params">(event, url)</span> </span>{
-        <span class="hljs-keyword">if</span>( !isFullURL(url) ) {
-          event.preventDefault();
-          <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
-        }
-        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
-      }
-    };
-
-    <span class="hljs-keyword">if</span>( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
-      routeHandlerDescription.url = urlValue;
-    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isObject(urlValue) ) {
-      extend(routeHandlerDescription, urlValue);
-    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isUndefined(urlValue) ) {
-      routeHandlerDescription.url = element.getAttribute(<span class="hljs-string">'href'</span>);;
-    } <span class="hljs-keyword">else</span> {
-      <span class="hljs-keyword">throw</span> <span class="hljs-string">'Unknown type of url value provided to $route ['</span> + <span class="hljs-keyword">typeof</span> urlValue + <span class="hljs-string">']'</span>;
-    }
-
-    <span class="hljs-keyword">var</span> routeHandlerDescriptionURL = routeHandlerDescription.url;
-    <span class="hljs-keyword">if</span>( !isFunction(routeHandlerDescriptionURL) ) {
-      routeHandlerDescription.url = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> routeHandlerDescriptionURL; };
-    }
-
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">setUpElement</span><span class="hljs-params">()</span> </span>{
-      <span class="hljs-keyword">if</span>(eventHandlerNotBound) {
-        eventHandlerNotBound = <span class="hljs-literal">false</span>;
-
-        fw.utils.registerEventHandler(element, routeHandlerDescription.eventType, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(event)</span> </span>{
-          <span class="hljs-keyword">var</span> routeURL = routeHandlerDescription.handler.call(viewModel, event, routeHandlerDescription.url());
-          <span class="hljs-keyword">if</span>( routeURL === <span class="hljs-literal">true</span> ) {
-            routeURL = routeURLWithoutParentPath();
-          }
-          <span class="hljs-keyword">if</span>( isString(routeURL) &amp;&amp; !isFullURL( routeURL ) ) {
-            $myRouter.setState(routeURL);
+      <span class="hljs-keyword">if</span>(eventHandlerIsBound === <span class="hljs-literal">false</span>) {
+        eventHandlerIsBound = <span class="hljs-literal">true</span>;
+        fw.utils.registerEventHandler(element, routeHandlerDescription.on, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(event)</span> </span>{
+          <span class="hljs-keyword">var</span> currentRouteURL = routeURLWithoutParentPath();
+          <span class="hljs-keyword">var</span> handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
+          <span class="hljs-keyword">if</span>( handlerResult ) {
+            <span class="hljs-keyword">if</span>( isString(handlerResult) ) {
+              currentRouteURL = handlerResult;
+            }
+            <span class="hljs-keyword">if</span>( isString(currentRouteURL) &amp;&amp; !isFullURL( currentRouteURL ) ) {
+              $myRouter.setState(currentRouteURL);
+            }
           }
         });
       }
@@ -1379,7 +1381,6 @@ fw.bindingHandlers.$route = {
     <span class="hljs-keyword">if</span>( isObservable(routeHandlerDescription.url) ) {
       routeHandlerDescription.url.subscribe(setUpElement);
     }
-
     setUpElement();
   }
 };

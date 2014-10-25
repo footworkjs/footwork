@@ -4776,8 +4776,8 @@ var baseRoute = {
 };
 
 var baseRouteDescription = {
-  __isRouteDesc: true,
-  filter: alwaysPassPredicate
+  filter: alwaysPassPredicate,
+  __isRouteDesc: true
 };
 
 function transformRouteConfigToDesc(routeDesc) {
@@ -4826,7 +4826,7 @@ function isRoute(thing) {
 
 // Recursive function which will locate the nearest $router from a given ko $context
 // (travels up through $parentContext chain to find the router if not found on the
-// immediate $context). Returns null if none is found.
+// immediate $context). Returns $nullRouter if none is found.
 function nearestParentRouter($context) {
   var $parentRouter = $nullRouter;
   if( isObject($context) ) {
@@ -4944,7 +4944,34 @@ fw.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $myRouter = nearestParentRouter(bindingContext);
     var urlValue = valueAccessor();
-    var eventHandlerNotBound = true;
+    var eventHandlerIsBound = false;
+
+    var routeHandlerDescription = {
+      on: 'click',
+      url: function defaultURLForRoute() { return null; },
+      handler: function defaultHandlerForRoute(event, url) {
+        if( !isFullURL(url) ) {
+          event.preventDefault();
+          return true;
+        }
+        return false;
+      }
+    };
+
+    if( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
+      routeHandlerDescription.url = urlValue;
+    } else if( isObject(urlValue) ) {
+      extend(routeHandlerDescription, urlValue);
+    } else if( !urlValue ) {
+      routeHandlerDescription.url = element.getAttribute('href');
+    } else {
+      throw 'Unknown type of url value provided to $route [' + typeof urlValue + ']';
+    }
+
+    var routeHandlerDescriptionURL = routeHandlerDescription.url;
+    if( !isFunction(routeHandlerDescriptionURL) ) {
+      routeHandlerDescription.url = function() { return routeHandlerDescriptionURL; };
+    }
 
     function getRouteURL(includeParentPath) {
       var parentRoutePath = '';
@@ -4974,44 +5001,19 @@ fw.bindingHandlers.$route = {
     var routeURLWithParentPath = bind(getRouteURL, null, true);
     var routeURLWithoutParentPath = bind(getRouteURL, null, false);
 
-    var routeHandlerDescription = {
-      eventType: 'click',
-      url: function() { return null; },
-      handler: function defaultHandlerForRoute(event, url) {
-        if( !isFullURL(url) ) {
-          event.preventDefault();
-          return true;
-        }
-        return false;
-      }
-    };
-
-    if( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
-      routeHandlerDescription.url = urlValue;
-    } else if( isObject(urlValue) ) {
-      extend(routeHandlerDescription, urlValue);
-    } else if( isUndefined(urlValue) ) {
-      routeHandlerDescription.url = element.getAttribute('href');;
-    } else {
-      throw 'Unknown type of url value provided to $route [' + typeof urlValue + ']';
-    }
-
-    var routeHandlerDescriptionURL = routeHandlerDescription.url;
-    if( !isFunction(routeHandlerDescriptionURL) ) {
-      routeHandlerDescription.url = function() { return routeHandlerDescriptionURL; };
-    }
-
     function setUpElement() {
-      if(eventHandlerNotBound) {
-        eventHandlerNotBound = false;
-
-        fw.utils.registerEventHandler(element, routeHandlerDescription.eventType, function(event) {
-          var routeURL = routeHandlerDescription.handler.call(viewModel, event, routeHandlerDescription.url());
-          if( routeURL === true ) {
-            routeURL = routeURLWithoutParentPath();
-          }
-          if( isString(routeURL) && !isFullURL( routeURL ) ) {
-            $myRouter.setState(routeURL);
+      if(eventHandlerIsBound === false) {
+        eventHandlerIsBound = true;
+        fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
+          var currentRouteURL = routeURLWithoutParentPath();
+          var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
+          if( handlerResult ) {
+            if( isString(handlerResult) ) {
+              currentRouteURL = handlerResult;
+            }
+            if( isString(currentRouteURL) && !isFullURL( currentRouteURL ) ) {
+              $myRouter.setState(currentRouteURL);
+            }
           }
         });
       }
@@ -5024,7 +5026,6 @@ fw.bindingHandlers.$route = {
     if( isObservable(routeHandlerDescription.url) ) {
       routeHandlerDescription.url.subscribe(setUpElement);
     }
-
     setUpElement();
   }
 };
