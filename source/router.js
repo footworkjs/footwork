@@ -270,7 +270,7 @@ fw.bindingHandlers.$route = {
     }
 
     var routeHandlerDescriptionURL = routeHandlerDescription.url;
-    if( isString(routeHandlerDescriptionURL) ) {
+    if( !isFunction(routeHandlerDescriptionURL) ) {
       routeHandlerDescription.url = function() { return routeHandlerDescriptionURL; };
     }
 
