@@ -278,11 +278,10 @@ fw.bindingHandlers.$route = {
       if(eventHandlerIsBound === false) {
         eventHandlerIsBound = true;
         fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
-          var routeURL = routeHandlerDescription.handler.call(viewModel, event, routeHandlerDescription.url());
-          if( routeURL === true ) {
-            routeURL = routeURLWithoutParentPath();
-            if( isString(routeURL) && !isFullURL( routeURL ) ) {
-              $myRouter.setState(routeURL);
+          var currentRouteURL = routeURLWithoutParentPath();
+          if( routeHandlerDescription.handler.call(viewModel, event, currentRouteURL) ) {
+            if( isString(currentRouteURL) && !isFullURL( currentRouteURL ) ) {
+              $myRouter.setState(currentRouteURL);
             }
           }
         });
