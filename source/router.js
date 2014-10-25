@@ -219,6 +219,33 @@ fw.bindingHandlers.$route = {
     var urlValue = valueAccessor();
     var eventHandlerIsBound = false;
 
+    var routeHandlerDescription = {
+      on: 'click',
+      url: function defaultURLForRoute() { return null; },
+      handler: function defaultHandlerForRoute(event, url) {
+        if( !isFullURL(url) ) {
+          event.preventDefault();
+          return true;
+        }
+        return false;
+      }
+    };
+
+    if( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
+      routeHandlerDescription.url = urlValue;
+    } else if( isObject(urlValue) ) {
+      extend(routeHandlerDescription, urlValue);
+    } else if( !urlValue ) {
+      routeHandlerDescription.url = element.getAttribute('href');
+    } else {
+      throw 'Unknown type of url value provided to $route [' + typeof urlValue + ']';
+    }
+
+    var routeHandlerDescriptionURL = routeHandlerDescription.url;
+    if( !isFunction(routeHandlerDescriptionURL) ) {
+      routeHandlerDescription.url = function() { return routeHandlerDescriptionURL; };
+    }
+
     function getRouteURL(includeParentPath) {
       var parentRoutePath = '';
       var routeURL = routeHandlerDescription.url();
@@ -246,33 +273,6 @@ fw.bindingHandlers.$route = {
     };
     var routeURLWithParentPath = bind(getRouteURL, null, true);
     var routeURLWithoutParentPath = bind(getRouteURL, null, false);
-
-    var routeHandlerDescription = {
-      on: 'click',
-      url: function defaultURLForRoute() { return null; },
-      handler: function defaultHandlerForRoute(event, url) {
-        if( !isFullURL(url) ) {
-          event.preventDefault();
-          return true;
-        }
-        return false;
-      }
-    };
-
-    if( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
-      routeHandlerDescription.url = urlValue;
-    } else if( isObject(urlValue) ) {
-      extend(routeHandlerDescription, urlValue);
-    } else if( !urlValue ) {
-      routeHandlerDescription.url = element.getAttribute('href');
-    } else {
-      throw 'Unknown type of url value provided to $route [' + typeof urlValue + ']';
-    }
-
-    var routeHandlerDescriptionURL = routeHandlerDescription.url;
-    if( !isFunction(routeHandlerDescriptionURL) ) {
-      routeHandlerDescription.url = function() { return routeHandlerDescriptionURL; };
-    }
 
     function setUpElement() {
       if(eventHandlerIsBound === false) {
