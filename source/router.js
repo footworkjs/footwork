@@ -99,7 +99,7 @@ function isRoute(thing) {
 
 // Recursive function which will locate the nearest $router from a given ko $context
 // (travels up through $parentContext chain to find the router if not found on the
-// immediate $context). Returns null if none is found.
+// immediate $context). Returns $nullRouter if none is found.
 function nearestParentRouter($context) {
   var $parentRouter = $nullRouter;
   if( isObject($context) ) {
@@ -279,7 +279,11 @@ fw.bindingHandlers.$route = {
         eventHandlerIsBound = true;
         fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
           var currentRouteURL = routeURLWithoutParentPath();
-          if( routeHandlerDescription.handler.call(viewModel, event, currentRouteURL) ) {
+          var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
+          if( handlerResult ) {
+            if( isString(handlerResult) ) {
+              currentRouteURL = handlerResult;
+            }
             if( isString(currentRouteURL) && !isFullURL( currentRouteURL ) ) {
               $myRouter.setState(currentRouteURL);
             }
