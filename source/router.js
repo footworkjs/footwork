@@ -49,8 +49,8 @@ var baseRoute = {
 };
 
 var baseRouteDescription = {
-  __isRouteDesc: true,
-  filter: alwaysPassPredicate
+  filter: alwaysPassPredicate,
+  __isRouteDesc: true
 };
 
 function transformRouteConfigToDesc(routeDesc) {
@@ -299,7 +299,6 @@ fw.bindingHandlers.$route = {
     if( isObservable(routeHandlerDescription.url) ) {
       routeHandlerDescription.url.subscribe(setUpElement);
     }
-
     setUpElement();
   }
 };
