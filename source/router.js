@@ -177,6 +177,10 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   return outlet;
 };
 
+var isFullURL = fw.isFullURL = function(thing) {
+  return isString(thing) && isFullURLRegex.test(thing);
+};
+
 fw.routers = {
   // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
   baseRoute: fw.observable(''),
@@ -215,37 +219,21 @@ fw.bindingHandlers.$route = {
     var urlValue = valueAccessor();
     var eventHandlerNotBound = true;
 
-    var routeHandlerDescription = {
-      url: null,
-      eventType: 'click',
-      handler: function defaultClickHandlerForRoute(event) {
-        event.preventDefault();
-        return true;
-      }
-    };
-
-    if( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
-      routeHandlerDescription.url = ko.unwrap(urlValue);
-    } else if( isObject(urlValue) ) {
-      extend(routeHandlerDescription, urlValue);
-    } else if( isUndefined(urlValue) ) {
-      routeHandlerDescription.url = element.getAttribute('href');
-    } else {
-      throw 'Unknown type of url value provided to $route [' + typeof urlValue + ']';
-    }
-
     function getRouteURL(includeParentPath) {
       var parentRoutePath = '';
-      var urlValue = routeHandlerDescription.url;
-      var unwrappedURL = fw.unwrap(urlValue);
+      var routeURL = fw.unwrap(routeHandlerDescription.url);
 
-      if(!isNull(unwrappedURL)) {
-        var myLinkPath = unwrappedURL || element.getAttribute('href') || '';
-        if( isUndefined(urlValue) ) {
-          urlValue = myLinkPath;
+      if(isNull(routeURL)) {
+        routeURL = routeHandlerDescription.handler.call(viewModel, null);
+      }
+
+      if(!isNull(routeURL)) {
+        var myLinkPath = routeURL || element.getAttribute('href') || '';
+        if( isUndefined(routeURL) ) {
+          routeURL = myLinkPath;
         }
 
-        if( !isFullURLRegex.test(myLinkPath) ) {
+        if( !isFullURL(myLinkPath) ) {
           if( !hasPathStart(myLinkPath) ) {
             myLinkPath = '/' + myLinkPath;
           }
@@ -263,19 +251,40 @@ fw.bindingHandlers.$route = {
     var routeURLWithParentPath = bind(getRouteURL, null, true);
     var routeURLWithoutParentPath = bind(getRouteURL, null, false);
 
+    var routeHandlerDescription = {
+      url: null,
+      eventType: 'click',
+      handler: function defaultClickHandlerForRoute(event) {
+        var routeURL = routeURLWithoutParentPath();
+        if( !isFullURL(routeURL) ) {
+          event.preventDefault();
+          return routeURL;
+        }
+        return null;
+      }
+    };
+
+    if( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
+      routeHandlerDescription.url = ko.unwrap(urlValue);
+    } else if( isObject(urlValue) ) {
+      extend(routeHandlerDescription, urlValue);
+    } else if( isUndefined(urlValue) ) {
+      routeHandlerDescription.url = element.getAttribute('href');
+    } else {
+      throw 'Unknown type of url value provided to $route [' + typeof urlValue + ']';
+    }
+
     function setUpElement() {
       if(eventHandlerNotBound) {
         eventHandlerNotBound = false;
 
         fw.utils.registerEventHandler(element, routeHandlerDescription.eventType, function(event) {
-          var handlerResult = routeHandlerDescription.handler.call(viewModel, event);
-          if( isString(handlerResult) ) {
-            $myRouter.setState(handlerResult);
-          } else if( handlerResult === true ) {
-            var routeURL = routeURLWithoutParentPath();
-            if( !isFullURLRegex.test( routeURL ) ) {
-              $myRouter.setState(routeURL);
-            }
+          var routeURL = routeHandlerDescription.handler.call(viewModel, event);
+          if( routeURL === true ) {
+            routeURL = routeURLWithoutParentPath();
+          }
+          if( isString(routeURL) && !isFullURL( routeURL ) ) {
+            $myRouter.setState(routeURL);
           }
         });
       }
