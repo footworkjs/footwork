@@ -263,8 +263,8 @@ fw.bindingHandlers.$route = {
       routeHandlerDescription.url = urlValue;
     } else if( isObject(urlValue) ) {
       extend(routeHandlerDescription, urlValue);
-    } else if( isUndefined(urlValue) ) {
-      routeHandlerDescription.url = element.getAttribute('href');;
+    } else if( !urlValue ) {
+      routeHandlerDescription.url = element.getAttribute('href');
     } else {
       throw 'Unknown type of url value provided to $route [' + typeof urlValue + ']';
     }
@@ -282,9 +282,9 @@ fw.bindingHandlers.$route = {
           var routeURL = routeHandlerDescription.handler.call(viewModel, event, routeHandlerDescription.url());
           if( routeURL === true ) {
             routeURL = routeURLWithoutParentPath();
-          }
-          if( isString(routeURL) && !isFullURL( routeURL ) ) {
-            $myRouter.setState(routeURL);
+            if( isString(routeURL) && !isFullURL( routeURL ) ) {
+              $myRouter.setState(routeURL);
+            }
           }
         });
       }
