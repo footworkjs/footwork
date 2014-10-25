@@ -4,12 +4,11 @@
     <li id="section-1" class="section">
         <div class="annotation">
           
-          
-            <a id="footwork-js">footwork.js</a>
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-1">&#182;</a>
           </div>
+          <h2 id="footwork-js">footwork.js</h2>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -19,10 +18,14 @@
     <li id="section-2" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-2">&#182;</a>
           </div>
+          <p>v0.2.0</p>
+<p>Copyright (c)2014 Jonathan Newman (<a href="http://staticty.pe">http://staticty.pe</a>).
+Distributed under MIT license</p>
+<p><a href="http://footworkjs.com">http://footworkjs.com</a></p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -41,12 +44,11 @@
     <li id="section-3" class="section">
         <div class="annotation">
           
-          
-            <a id="main-js">main.js</a>
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-3">&#182;</a>
           </div>
+          <h2 id="main-js">main.js</h2>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -56,10 +58,12 @@
     <li id="section-4" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-4">&#182;</a>
           </div>
+          <p>Map ko to the variable ‘fw’ internally to make it clear this is the ‘footwork’ flavored version of knockout we are dealing with.
+Footwork will also map itself to ‘fw’ on the global object when no script loader is used.</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -71,10 +75,11 @@
     <li id="section-5" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-5">&#182;</a>
           </div>
+          <p>Record the footwork version as of this build.</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -86,10 +91,11 @@
     <li id="section-6" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-6">&#182;</a>
           </div>
+          <p>Expose any embedded dependencies</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -101,10 +107,11 @@
     <li id="section-7" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-7">&#182;</a>
           </div>
+          <p>misc regex patterns</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -117,10 +124,11 @@
     <li id="section-8" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-8">&#182;</a>
           </div>
+          <p>misc utility functions</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -142,10 +150,11 @@
     <li id="section-9" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-9">&#182;</a>
           </div>
+          <p>Pull out lodash utility function references for better minification and easier implementation swap</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -185,10 +194,11 @@
     <li id="section-10" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-10">&#182;</a>
           </div>
+          <p>Internal registry which stores the mixins that are automatically added to each viewModel</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -200,10 +210,11 @@
     <li id="section-11" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-11">&#182;</a>
           </div>
+          <p>parseUri() originally sourced from: <a href="http://blog.stevenlevithan.com/archives/parseuri">http://blog.stevenlevithan.com/archives/parseuri</a></p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -246,12 +257,11 @@ parseUri.options = {
     <li id="section-12" class="section">
         <div class="annotation">
           
-          
-            <a id="namespace-js">namespace.js</a>
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-12">&#182;</a>
           </div>
+          <h2 id="namespace-js">namespace.js</h2>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -261,10 +271,10 @@ parseUri.options = {
     <li id="section-13" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-13">&#182;</a>
           </div>
+          
           <div class="annotation-bg"></div>
         </div>
         
@@ -274,10 +284,14 @@ parseUri.options = {
     <li id="section-14" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-14">&#182;</a>
           </div>
+          <p>This counter is used when model options { autoIncrement: true } and more than one model
+having the same namespace is instantiated. This is used in the event you do not want
+multiple copies of the same model to share the same namespace (if they do share a
+namespace, they receive all of the same events/messages/commands/etc).</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -289,10 +303,14 @@ parseUri.options = {
     <li id="section-15" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-15">&#182;</a>
           </div>
+          <p>Prepare an empty namespace stack.
+This is where footwork registers its current working namespace name. Each new namespace is
+‘unshifted’ and ‘shifted’ as they are entered and exited, keeping the most current at
+index 0.</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -304,10 +322,13 @@ parseUri.options = {
     <li id="section-16" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-16">&#182;</a>
           </div>
+          <p>Returns a normalized namespace name based off of ‘name’. It will register the name counter
+if not present and increment it if it is, then return the name (with the counter appended
+if autoIncrement === true and the counter is &gt; 0).</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -342,10 +363,11 @@ parseUri.options = {
     <li id="section-17" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-17">&#182;</a>
           </div>
+          <p>Method used to trigger an event on a namespace</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -360,10 +382,11 @@ parseUri.options = {
     <li id="section-18" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-18">&#182;</a>
           </div>
+          <p>Method used to register an event handler on a namespace</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -384,10 +407,11 @@ parseUri.options = {
     <li id="section-19" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-19">&#182;</a>
           </div>
+          <p>Method used to unregister an event handler on a namespace</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -402,10 +426,11 @@ parseUri.options = {
     <li id="section-20" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-20">&#182;</a>
           </div>
+          <p>Method used to send a command to a namespace</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -420,10 +445,11 @@ parseUri.options = {
     <li id="section-21" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-21">&#182;</a>
           </div>
+          <p>Method used to register a command handler on a namespace</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -444,10 +470,12 @@ parseUri.options = {
     <li id="section-22" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-22">&#182;</a>
           </div>
+          <p>Method used to issue a request for data from a namespace, returning the response (or undefined if no response)
+This method will return an array of responses if more than one is received.</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -475,10 +503,12 @@ parseUri.options = {
     <li id="section-23" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-23">&#182;</a>
           </div>
+          <p>Method used to register a request handler on a namespace.
+Requests sent using the specified requestKey will be called and passed in any params specified, the return value is passed back to the issuer</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -504,10 +534,11 @@ parseUri.options = {
     <li id="section-24" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-24">&#182;</a>
           </div>
+          <p>This effectively shuts down all requests, commands, and events by unsubscribing all handlers on a discreet namespace object</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -528,10 +559,11 @@ parseUri.options = {
     <li id="section-25" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-25">&#182;</a>
           </div>
+          <p>Creates and returns a new namespace instance</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -582,10 +614,11 @@ parseUri.options = {
     <li id="section-26" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-26">&#182;</a>
           </div>
+          <p>Duck type check for a namespace object</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -599,10 +632,11 @@ parseUri.options = {
     <li id="section-27" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-27">&#182;</a>
           </div>
+          <p>Return the current namespace name.</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -616,10 +650,11 @@ parseUri.options = {
     <li id="section-28" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-28">&#182;</a>
           </div>
+          <p>Return the current namespace channel.</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -633,10 +668,13 @@ parseUri.options = {
     <li id="section-29" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-29">&#182;</a>
           </div>
+          <p>enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
+‘entering’ into that namespace (it is now the currentNamespace).
+The namespace object returned from this method also has a pointer to its parent</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -652,10 +690,11 @@ parseUri.options = {
     <li id="section-30" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-30">&#182;</a>
           </div>
+          <p>enterNamespace() uses a current namespace definition as the one to enter into.</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -670,10 +709,13 @@ parseUri.options = {
     <li id="section-31" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-31">&#182;</a>
           </div>
+          <p>Called at the after a model constructor function is run. exitNamespace()
+will shift the current namespace off of the stack, ‘exiting’ to the
+next namespace in the stack</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -688,10 +730,11 @@ parseUri.options = {
     <li id="section-32" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-32">&#182;</a>
           </div>
+          <p>mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -719,12 +762,11 @@ parseUri.options = {
     <li id="section-33" class="section">
         <div class="annotation">
           
-          
-            <a id="broadcast-receive-js">broadcast-receive.js</a>
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-33">&#182;</a>
           </div>
+          <h2 id="broadcast-receive-js">broadcast-receive.js</h2>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -743,10 +785,11 @@ parseUri.options = {
     <li id="section-34" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-34">&#182;</a>
           </div>
+          <pre><code><span class="hljs-keyword">this</span>.myValue = fw.observable().receiveFrom(<span class="hljs-string">'NamespaceName'</span> / Namespace, <span class="hljs-string">'varName'</span>);
+</code></pre>
           <div class="annotation-bg"></div>
         </div>
         
@@ -800,10 +843,15 @@ parseUri.options = {
     <li id="section-35" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-35">&#182;</a>
           </div>
+          <pre><code><span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs(<span class="hljs-string">'NameOfVar'</span>);
+<span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs(<span class="hljs-string">'NameOfVar'</span>, isWritable);
+<span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs({ name: <span class="hljs-string">'NameOfVar'</span>, writable: <span class="hljs-literal">true</span> });
+<span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs({ name: <span class="hljs-string">'NameOfVar'</span>, namespace: Namespace });
+<span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs({ name: <span class="hljs-string">'NameOfVar'</span>, namespace: <span class="hljs-string">'NamespaceName'</span> });
+</code></pre>
           <div class="annotation-bg"></div>
         </div>
         
@@ -879,12 +927,11 @@ parseUri.options = {
     <li id="section-36" class="section">
         <div class="annotation">
           
-          
-            <a id="router-js">router.js</a>
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-36">&#182;</a>
           </div>
+          <h2 id="router-js">router.js</h2>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -894,10 +941,10 @@ parseUri.options = {
     <li id="section-37" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-37">&#182;</a>
           </div>
+          
           <div class="annotation-bg"></div>
         </div>
         
@@ -907,10 +954,11 @@ parseUri.options = {
     <li id="section-38" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-38">&#182;</a>
           </div>
+          <p>Predicate function that always returns true / ‘pass’</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -933,10 +981,11 @@ parseUri.options = {
     <li id="section-39" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-39">&#182;</a>
           </div>
+          <p>Regular expressions used to parse a uri</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -987,10 +1036,11 @@ parseUri.options = {
     <li id="section-40" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-40">&#182;</a>
           </div>
+          <p>Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1016,10 +1066,11 @@ parseUri.options = {
     <li id="section-41" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-41">&#182;</a>
           </div>
+          <p>why .unbind() is not already present in History.js is beyond me</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1052,10 +1103,13 @@ parseUri.options = {
     <li id="section-42" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-42">&#182;</a>
           </div>
+          <p>Recursive function which will locate the nearest $router from a given ko $context
+(travels up through $parentContext chain to find the router if not found on the
+immediate $context). Returns null if none is found.</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1070,15 +1124,16 @@ parseUri.options = {
     <li id="section-43" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-43">&#182;</a>
           </div>
+          <p>found router in this context</p>
+
           <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre>      $parentRouter = $context.$data.$router;
-    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isObject($context.$parentContext) || (isObject($context.$data) &amp;&amp; isObject($context.$data.___$parentContext)) ) {</pre></div></div>
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isObject($context.$parentContext) || (isObject($context.$data) &amp;&amp; isObject($context.$data.$parentContext)) ) {</pre></div></div>
         
     </li>
     
@@ -1086,14 +1141,15 @@ parseUri.options = {
     <li id="section-44" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-44">&#182;</a>
           </div>
+          <p>search through next parent up the chain</p>
+
           <div class="annotation-bg"></div>
         </div>
         
-        <div class="content"><div class='highlight'><pre>      $parentRouter = nearestParentRouter( $context.$parentContext || $context.$data.___$parentContext );
+        <div class="content"><div class='highlight'><pre>      $parentRouter = nearestParentRouter( $context.$parentContext || $context.$data.$parentContext );
     }
   }
   <span class="hljs-keyword">return</span> $parentRouter;
@@ -1143,10 +1199,14 @@ parseUri.options = {
     <li id="section-45" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-45">&#182;</a>
           </div>
+          <p>Return the onComplete callback once the DOM is injected in the page.
+For some reason, on initial outlet binding only calls update once. Subsequent
+changes get called twice (correct per docs, once upon initial binding, and once
+upon injection into the DOM). Perhaps due to usage of virtual DOM for the component?</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1172,6 +1232,10 @@ parseUri.options = {
   <span class="hljs-keyword">return</span> outlet;
 };
 
+<span class="hljs-keyword">var</span> isFullURL = fw.isFullURL = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(thing)</span> </span>{
+  <span class="hljs-keyword">return</span> isString(thing) &amp;&amp; isFullURLRegex.test(thing);
+};
+
 fw.routers = {</pre></div></div>
         
     </li>
@@ -1180,14 +1244,19 @@ fw.routers = {</pre></div></div>
     <li id="section-46" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-46">&#182;</a>
           </div>
+          <p>Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route</p>
+
           <div class="annotation-bg"></div>
         </div>
         
-        <div class="content"><div class='highlight'><pre>  baseRoute: fw.observable(<span class="hljs-string">''</span>),</pre></div></div>
+        <div class="content"><div class='highlight'><pre>  baseRoute: fw.observable(<span class="hljs-string">''</span>),
+  getNearestParent: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">($context)</span> </span>{
+    <span class="hljs-keyword">var</span> $parentRouter = nearestParentRouter($context);
+    <span class="hljs-keyword">return</span> (!isNullRouter($parentRouter) ? $parentRouter : <span class="hljs-literal">null</span>);
+  },</pre></div></div>
         
     </li>
     
@@ -1195,10 +1264,11 @@ fw.routers = {</pre></div></div>
     <li id="section-47" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-47">&#182;</a>
           </div>
+          <p>Return array of all currently instantiated $router’s</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1225,43 +1295,78 @@ fw.router = <span class="hljs-function"><span class="hljs-keyword">function</spa
   <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Router( routerConfig, $viewModel, $context );
 };
 
-
 fw.bindingHandlers.$route = {
   init: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(element, valueAccessor, allBindings, viewModel, bindingContext)</span> </span>{
     <span class="hljs-keyword">var</span> $myRouter = nearestParentRouter(bindingContext);
-    <span class="hljs-keyword">var</span> linkTo = valueAccessor();
+    <span class="hljs-keyword">var</span> urlValue = valueAccessor();
     <span class="hljs-keyword">var</span> eventHandlerNotBound = <span class="hljs-literal">true</span>;
 
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getRouteURL</span><span class="hljs-params">(includeParentPath)</span> </span>{
       <span class="hljs-keyword">var</span> parentRoutePath = <span class="hljs-string">''</span>;
-      <span class="hljs-keyword">var</span> myLinkPath = fw.unwrap(linkTo) || element.getAttribute(<span class="hljs-string">'href'</span>) || <span class="hljs-string">''</span>;
-      <span class="hljs-keyword">if</span>( isUndefined(linkTo) ) {
-        linkTo = myLinkPath;
-      }
+      <span class="hljs-keyword">var</span> routeURL = routeHandlerDescription.url();
+      <span class="hljs-keyword">var</span> myLinkPath = routeURL || element.getAttribute(<span class="hljs-string">'href'</span>) || <span class="hljs-string">''</span>;
 
-      <span class="hljs-keyword">if</span>( !isFullURLRegex.test(myLinkPath) ) {
-        <span class="hljs-keyword">if</span>( !hasPathStart(myLinkPath) ) {
-          myLinkPath = <span class="hljs-string">'/'</span> + myLinkPath;
+      <span class="hljs-keyword">if</span>(!isNull(routeURL)) {
+        <span class="hljs-keyword">if</span>( isUndefined(routeURL) ) {
+          routeURL = myLinkPath;
         }
 
-        <span class="hljs-keyword">if</span>( includeParentPath &amp;&amp; !isNullRouter($myRouter) ) {
-          myLinkPath = $myRouter.parentRouter().routePath() + myLinkPath;
+        <span class="hljs-keyword">if</span>( !isFullURL(myLinkPath) ) {
+          <span class="hljs-keyword">if</span>( !hasPathStart(myLinkPath) ) {
+            myLinkPath = <span class="hljs-string">'/'</span> + myLinkPath;
+          }
+
+          <span class="hljs-keyword">if</span>( includeParentPath &amp;&amp; !isNullRouter($myRouter) ) {
+            myLinkPath = $myRouter.parentRouter().routePath() + myLinkPath;
+          }
         }
+
+        <span class="hljs-keyword">return</span> myLinkPath;
       }
 
-      <span class="hljs-keyword">return</span> myLinkPath;
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
     };
     <span class="hljs-keyword">var</span> routeURLWithParentPath = bind(getRouteURL, <span class="hljs-literal">null</span>, <span class="hljs-literal">true</span>);
     <span class="hljs-keyword">var</span> routeURLWithoutParentPath = bind(getRouteURL, <span class="hljs-literal">null</span>, <span class="hljs-literal">false</span>);
 
+    <span class="hljs-keyword">var</span> routeHandlerDescription = {
+      eventType: <span class="hljs-string">'click'</span>,
+      url: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>; },
+      handler: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">defaultHandlerForRoute</span><span class="hljs-params">(event, url)</span> </span>{
+        <span class="hljs-keyword">if</span>( !isFullURL(url) ) {
+          event.preventDefault();
+          <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+      }
+    };
+
+    <span class="hljs-keyword">if</span>( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
+      routeHandlerDescription.url = urlValue;
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isObject(urlValue) ) {
+      extend(routeHandlerDescription, urlValue);
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isUndefined(urlValue) ) {
+      routeHandlerDescription.url = element.getAttribute(<span class="hljs-string">'href'</span>);;
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">throw</span> <span class="hljs-string">'Unknown type of url value provided to $route ['</span> + <span class="hljs-keyword">typeof</span> urlValue + <span class="hljs-string">']'</span>;
+    }
+
+    <span class="hljs-keyword">var</span> routeHandlerDescriptionURL = routeHandlerDescription.url;
+    <span class="hljs-keyword">if</span>( !isFunction(routeHandlerDescriptionURL) ) {
+      routeHandlerDescription.url = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> routeHandlerDescriptionURL; };
+    }
+
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">setUpElement</span><span class="hljs-params">()</span> </span>{
       <span class="hljs-keyword">if</span>(eventHandlerNotBound) {
         eventHandlerNotBound = <span class="hljs-literal">false</span>;
-        fw.utils.registerEventHandler(element, <span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(event)</span> </span>{
-          <span class="hljs-keyword">var</span> routeURL = routeURLWithoutParentPath();
-          <span class="hljs-keyword">if</span>( !isFullURLRegex.test( routeURL ) ) {
-            $myRouter.setState( routeURL );
-            event.preventDefault();
+
+        fw.utils.registerEventHandler(element, routeHandlerDescription.eventType, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(event)</span> </span>{
+          <span class="hljs-keyword">var</span> routeURL = routeHandlerDescription.handler.call(viewModel, event, routeHandlerDescription.url());
+          <span class="hljs-keyword">if</span>( routeURL === <span class="hljs-literal">true</span> ) {
+            routeURL = routeURLWithoutParentPath();
+          }
+          <span class="hljs-keyword">if</span>( isString(routeURL) &amp;&amp; !isFullURL( routeURL ) ) {
+            $myRouter.setState(routeURL);
           }
         });
       }
@@ -1271,9 +1376,10 @@ fw.bindingHandlers.$route = {
       }
     }
 
-    <span class="hljs-keyword">if</span>(isObservable(linkTo)) {
-      linkTo.subscribe(setUpElement);
+    <span class="hljs-keyword">if</span>( isObservable(routeHandlerDescription.url) ) {
+      routeHandlerDescription.url.subscribe(setUpElement);
     }
+
     setUpElement();
   }
 };
@@ -1291,9 +1397,9 @@ fw.bindingHandlers.$route = {
   <span class="hljs-keyword">this</span>.$globalNamespace = makeNamespace();
   <span class="hljs-keyword">this</span>.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + <span class="hljs-string">'Router'</span>) );
   <span class="hljs-keyword">this</span>.$namespace.enter();
-  <span class="hljs-keyword">this</span>.$namespace.command.handler(<span class="hljs-string">'setState'</span>, bind(<span class="hljs-keyword">this</span>.setState, <span class="hljs-keyword">this</span>));
-  <span class="hljs-keyword">this</span>.$namespace.request.handler(<span class="hljs-string">'currentRoute'</span>, bind(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.currentRoute(); }, <span class="hljs-keyword">this</span>));
-  <span class="hljs-keyword">this</span>.$namespace.request.handler(<span class="hljs-string">'urlParts'</span>, bind(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.urlParts(); }, <span class="hljs-keyword">this</span>));
+  <span class="hljs-keyword">this</span>.$namespace.command.handler(<span class="hljs-string">'setState'</span>, <span class="hljs-keyword">this</span>.setState, <span class="hljs-keyword">this</span>);
+  <span class="hljs-keyword">this</span>.$namespace.request.handler(<span class="hljs-string">'currentRoute'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.currentRoute(); }, <span class="hljs-keyword">this</span>);
+  <span class="hljs-keyword">this</span>.$namespace.request.handler(<span class="hljs-string">'urlParts'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.urlParts(); }, <span class="hljs-keyword">this</span>);
 
   <span class="hljs-keyword">this</span>.$viewModel = $viewModel;
   <span class="hljs-keyword">this</span>.urlParts = fw.observable();
@@ -1339,10 +1445,11 @@ fw.bindingHandlers.$route = {
     <li id="section-48" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-48">&#182;</a>
           </div>
+          <p>Automatically trigger the new Action() whenever the currentRoute() updates</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1514,10 +1621,11 @@ Router.prototype.getRouteForURL = <span class="hljs-function"><span class="hljs-
     <li id="section-49" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-49">&#182;</a>
           </div>
+          <p>If this is a relative router we need to remove the leading parentRoutePath section of the URL</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1539,10 +1647,11 @@ Router.prototype.getRouteForURL = <span class="hljs-function"><span class="hljs-
     <li id="section-50" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-50">&#182;</a>
           </div>
+          <p>find all routes with a matching routeString</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1571,10 +1680,12 @@ Router.prototype.getRouteForURL = <span class="hljs-function"><span class="hljs-
     <li id="section-51" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-51">&#182;</a>
           </div>
+          <p>If there are matchedRoutes, find the one with the highest ‘specificity’ (longest normalized matching routeString)
+and convert it into the actual route</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1643,12 +1754,11 @@ Router.prototype.getRouteDescriptions = <span class="hljs-function"><span class=
     <li id="section-52" class="section">
         <div class="annotation">
           
-          
-            <a id="viewmodel-js">viewModel.js</a>
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-52">&#182;</a>
           </div>
+          <h2 id="viewmodel-js">viewModel.js</h2>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1658,10 +1768,11 @@ Router.prototype.getRouteDescriptions = <span class="hljs-function"><span class=
     <li id="section-53" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-53">&#182;</a>
           </div>
+          <p>Duck type function for determining whether or not something is a footwork viewModel constructor function</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1675,10 +1786,11 @@ Router.prototype.getRouteDescriptions = <span class="hljs-function"><span class=
     <li id="section-54" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-54">&#182;</a>
           </div>
+          <p>Duck type function for determining whether or not something is a footwork viewModel</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1698,10 +1810,12 @@ fw.viewModels = {};</pre></div></div>
     <li id="section-55" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-55">&#182;</a>
           </div>
+          <p>Returns a reference to the specified viewModels.
+If no name is supplied, a reference to an array containing all model references is returned.</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1730,10 +1844,11 @@ fw.viewModels = {};</pre></div></div>
     <li id="section-56" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-56">&#182;</a>
           </div>
+          <p>Tell all viewModels to request the values which it listens for</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1849,10 +1964,11 @@ fw.viewModels = {};</pre></div></div>
     <li id="section-57" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-57">&#182;</a>
           </div>
+          <p>user has specified another viewModel constructor as the ‘initialize’ function, we extend it with the current constructor to create an inheritance chain</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1872,23 +1988,27 @@ fw.viewModels = {};</pre></div></div>
     <li id="section-58" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-58">&#182;</a>
           </div>
+          <p>Provides lifecycle functionality and $context for a given viewModel and element</p>
+
           <div class="annotation-bg"></div>
         </div>
         
         <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">applyContextAndLifeCycle</span><span class="hljs-params">(viewModel, element)</span> </span>{
   <span class="hljs-keyword">if</span>( isViewModel(viewModel) ) {
     <span class="hljs-keyword">var</span> $configParams = viewModel.__getConfigParams();
+    <span class="hljs-keyword">var</span> context;
+    element = element || <span class="hljs-built_in">document</span>.body;
+    viewModel.$context = elementContext = fw.contextFor(element);
     
     <span class="hljs-keyword">if</span>( isFunction($configParams.afterBinding) ) {
-      $configParams.afterBinding.call(viewModel, element || <span class="hljs-built_in">document</span>.body);
+      $configParams.afterBinding.call(viewModel, element);
     }
 
     <span class="hljs-keyword">if</span>( isRouter(viewModel.$router) ) {
-      viewModel.$router.context( fw.contextFor(element || <span class="hljs-built_in">document</span>.body) );
+      viewModel.$router.context( elementContext );
     }
     
     <span class="hljs-keyword">if</span>( !isUndefined(element) ) {
@@ -1905,10 +2025,11 @@ fw.viewModels = {};</pre></div></div>
     <li id="section-59" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-59">&#182;</a>
           </div>
+          <p>Override the original applyBindings method to provide ‘viewModel’ life-cycle hooks/events and to provide the $context to the $router if present.</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1925,7 +2046,7 @@ fw.viewModels = {};</pre></div></div>
   } <span class="hljs-keyword">else</span> {
     viewModelObj = ViewModel;
   }
-  viewModelObj.___$parentContext = fw.contextFor(element.parentElement);</pre></div></div>
+  viewModelObj.$parentContext = fw.contextFor(element.parentElement);</pre></div></div>
         
     </li>
     
@@ -1933,10 +2054,12 @@ fw.viewModels = {};</pre></div></div>
     <li id="section-60" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-60">&#182;</a>
           </div>
+          <p>binding the viewModelObj onto each child element is not ideal, need to do this differently
+cannot get component.preprocess() method to work/be called for some reason</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1951,10 +2074,12 @@ fw.viewModels = {};</pre></div></div>
     <li id="section-61" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-61">&#182;</a>
           </div>
+          <p>we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each
+sub-element and must specify the context as being the container element only once</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1969,10 +2094,12 @@ fw.viewModels = {};</pre></div></div>
     <li id="section-62" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-62">&#182;</a>
           </div>
+          <p>Monkey patch enables the viewModel component to initialize a model and bind to the html as intended (with lifecycle events)
+TODO: Do this differently once this is resolved: <a href="https://github.com/knockout/knockout/issues/1463">https://github.com/knockout/knockout/issues/1463</a></p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -1997,10 +2124,11 @@ fw.bindingHandlers.component.init = <span class="hljs-function"><span class="hlj
     <li id="section-63" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-63">&#182;</a>
           </div>
+          <p>viewModel was manually registered, we preferentially use it</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2013,10 +2141,11 @@ fw.bindingHandlers.component.init = <span class="hljs-function"><span class="hlj
     <li id="section-64" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-64">&#182;</a>
           </div>
+          <p>we have found a matching resource that is already cached by require, lets use it</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2055,10 +2184,11 @@ fw.bindingHandlers.component.init = <span class="hljs-function"><span class="hlj
     <li id="section-65" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-65">&#182;</a>
           </div>
+          <p>we patch in the ‘name’ of the outlet into the params valueAccessor on the component definition (if necessary and available)</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2084,12 +2214,11 @@ fw.bindingHandlers.component.init = <span class="hljs-function"><span class="hlj
     <li id="section-66" class="section">
         <div class="annotation">
           
-          
-            <a id="component-js">component.js</a>
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-66">&#182;</a>
           </div>
+          <h2 id="component-js">component.js</h2>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2099,10 +2228,10 @@ fw.bindingHandlers.component.init = <span class="hljs-function"><span class="hlj
     <li id="section-67" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-67">&#182;</a>
           </div>
+          
           <div class="annotation-bg"></div>
         </div>
         
@@ -2155,10 +2284,12 @@ fw.components.getComponentNameForNode = <span class="hljs-function"><span class=
     <li id="section-68" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-68">&#182;</a>
           </div>
+          <p>Register a component as consisting of a template only.
+This will cause footwork to load only the template when this component is used.</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2183,10 +2314,12 @@ fw.components.getComponentNameForNode = <span class="hljs-function"><span class=
     <li id="section-69" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-69">&#182;</a>
           </div>
+          <p>These are tags which are ignored by the custom component loader
+Sourced from: <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element">https://developer.mozilla.org/en-US/docs/Web/HTML/Element</a></p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2230,10 +2363,12 @@ fw.components.getComponentNameForNode = <span class="hljs-function"><span class=
     <li id="section-70" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-70">&#182;</a>
           </div>
+          <p>Components which footwork will not wrap in the $life custom binding used for lifecycle events
+Used to keep the wrapper off of internal/natively handled and defined components such as ‘outlet’</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2259,10 +2394,11 @@ fw.components.getComponentNameForNode = <span class="hljs-function"><span class=
     <li id="section-71" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-71">&#182;</a>
           </div>
+          <p>Use the $life wrapper binding to provide lifecycle events for components</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2291,10 +2427,11 @@ fw.bindingHandlers.$life = {
     <li id="section-72" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-72">&#182;</a>
           </div>
+          <p>Custom loader used to wrap components with the $life custom binding</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2309,10 +2446,11 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     <li id="section-73" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-73">&#182;</a>
           </div>
+          <p>TODO: Handle different types of configs</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2343,10 +2481,11 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     <li id="section-74" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-74">&#182;</a>
           </div>
+          <p>inject the context into the ViewModel contructor</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2371,10 +2510,12 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     <li id="section-75" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-75">&#182;</a>
           </div>
+          <p>The footwork getConfig loader is a catch-all in the instance a registered component cannot be found.
+The loader will attempt to use requirejs via knockouts integrated support if it is available.</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2397,10 +2538,11 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     <li id="section-76" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-76">&#182;</a>
           </div>
+          <p>load component using knockouts native support for requirejs</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2412,10 +2554,11 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     <li id="section-77" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-77">&#182;</a>
           </div>
+          <p>component already cached, lets use it</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2449,10 +2592,11 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     <li id="section-78" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-78">&#182;</a>
           </div>
+          <p>check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2480,10 +2624,12 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     <li id="section-79" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-79">&#182;</a>
           </div>
+          <p>This custom binding binds the outlet element to the $outlet on the router, changes on its ‘route’ (component definition observable) will be applied
+to the UI and load in various views</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2502,10 +2648,12 @@ fw.bindingHandlers.$bind = {
     <li id="section-80" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-80">&#182;</a>
           </div>
+          <p>register this outlet with the router so that updates will propagate correctly
+take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2553,12 +2701,11 @@ fw.components.register(<span class="hljs-string">'error'</span>, {
     <li id="section-81" class="section">
         <div class="annotation">
           
-          
-            <a id="resource-js">resource.js</a>
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-81">&#182;</a>
           </div>
+          <h2 id="resource-js">resource.js</h2>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2568,10 +2715,10 @@ fw.components.register(<span class="hljs-string">'error'</span>, {
     <li id="section-82" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-82">&#182;</a>
           </div>
+          
           <div class="annotation-bg"></div>
         </div>
         
@@ -2581,10 +2728,11 @@ fw.components.register(<span class="hljs-string">'error'</span>, {
     <li id="section-83" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-83">&#182;</a>
           </div>
+          <p>component resource section</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2630,10 +2778,11 @@ fw.components.register(<span class="hljs-string">'error'</span>, {
     <li id="section-84" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-84">&#182;</a>
           </div>
+          <p>assume some combination of defaultComponentLocation and normalize the parameters</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2675,10 +2824,11 @@ fw.components.register(<span class="hljs-string">'error'</span>, {
     <li id="section-85" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-85">&#182;</a>
           </div>
+          <p>Return the component resource definition for the supplied componentName</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2695,10 +2845,11 @@ fw.components.register(<span class="hljs-string">'error'</span>, {
     <li id="section-86" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-86">&#182;</a>
           </div>
+          <p>viewModel resource section</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2762,10 +2913,11 @@ fw.components.register(<span class="hljs-string">'error'</span>, {
     <li id="section-87" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-87">&#182;</a>
           </div>
+          <p>Return the viewModel resource definition for the supplied viewModelName</p>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2782,12 +2934,11 @@ fw.components.register(<span class="hljs-string">'error'</span>, {
     <li id="section-88" class="section">
         <div class="annotation">
           
-          
-            <a id="extenders-js">extenders.js</a>
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-88">&#182;</a>
           </div>
+          <h2 id="extenders-js">extenders.js</h2>
+
           <div class="annotation-bg"></div>
         </div>
         
@@ -2797,10 +2948,11 @@ fw.components.register(<span class="hljs-string">'error'</span>, {
     <li id="section-89" class="section">
         <div class="annotation">
           
-          
           <div class="pilwrap ">
             <a class="pilcrow" href="#section-89">&#182;</a>
           </div>
+          <p>custom throttle() based on ko v3.0.0 throttle(), allows value to be force()’d to a value at any time</p>
+
           <div class="annotation-bg"></div>
         </div>
         

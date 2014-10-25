@@ -1,16 +1,30 @@
 define([ "jquery", "lodash", "footwork" ],
   function( $, _, fw ) {
+    var viewPortIsMobile = fw.observable().receiveFrom('ViewPort', 'isMobile');
+
     var Entry = fw.viewModel({
       namespace: 'PaneElements',
       initialize: function(entryData) {
         this.headerContentHeight = fw.observable().receiveFrom('Header', 'contentHeight');
         this.visible = fw.observable( null ).extend({ autoEnable: _.random( 200, 600 ) });
+        this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed');
         this.labelText = fw.observable( entryData.label );
         this.url = fw.observable( entryData.url );
-        this.options = entryData;
+        this.options = entryData || {};
         this.subMenuItems = entryData.subMenu;
         this.hasSubMenu = _.isArray(entryData.subMenu) && !!entryData.subMenu.length;
         this.target = entryData.target;
+
+        this.clickHandler = function(event, url) {
+          var routeToURL = false;
+          if(!viewPortIsMobile() || !this.paneCollapsed()) {
+            routeToURL = true;
+          }
+          if( !fw.isFullURL(url) ) {
+            event.preventDefault();
+          }
+          return routeToURL;
+        };
 
         this.$namespace.subscribe('hideAll', function() {
           this.visible( false );

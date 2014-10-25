@@ -6,7 +6,7 @@
       </span>
     </div>
     <nav data-bind="style: { width: mobileWidth }, foreach: entries">
-      <a data-bind="css: { visible: visible }, attr: { title: labelText, target: target }, $route: url, text: labelText"></a>
+      <a data-bind="css: { visible: visible }, attr: { title: labelText, target: target }, $route: { url: url, handler: clickHandler }, text: labelText"></a>
     </nav>
   </div>
 </div>
@@ -20,18 +20,18 @@
   <!-- ko foreach: entries -->
     <div class="menu-item" data-bind="css: { visible: visible, aside: options.aside }, style: { height: headerContentHeight }">
       <div class="title" data-bind="style: { lineHeight: $parent.headerContentHeight }">
-        <a data-bind="$route: url, attr: { target: target }, text: labelText"></a>
+        <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }, text: labelText"></a>
       </div>
       <!-- ko if: hasSubMenu -->
         <div class="drop-down">
           <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
-            <a data-bind="$route: url, attr: { target: target }">
+            <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }">
               <span data-bind="text: labelText"></span>
             </a>
           </div>
           <div class="content" data-bind="foreach: subMenuItems">
             <div class="row">
-              <a class="item" data-bind="attr: { target: target }, text: labelText, $route: url"></a>
+              <a class="item" data-bind="attr: { target: target }, text: labelText, $route: { url: url, handler: clickHandler }"></a>
             </div>
           </div>
         </div>

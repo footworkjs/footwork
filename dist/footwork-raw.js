@@ -581,9 +581,9 @@ function nearestParentRouter($context) {
     if( isObject($context.$data) && isRouter($context.$data.$router) ) {
       // found router in this context
       $parentRouter = $context.$data.$router;
-    } else if( isObject($context.$parentContext) || (isObject($context.$data) && isObject($context.$data.___$parentContext)) ) {
+    } else if( isObject($context.$parentContext) || (isObject($context.$data) && isObject($context.$data.$parentContext)) ) {
       // search through next parent up the chain
-      $parentRouter = nearestParentRouter( $context.$parentContext || $context.$data.___$parentContext );
+      $parentRouter = nearestParentRouter( $context.$parentContext || $context.$data.$parentContext );
     }
   }
   return $parentRouter;
@@ -652,9 +652,17 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   return outlet;
 };
 
+var isFullURL = fw.isFullURL = function(thing) {
+  return isString(thing) && isFullURLRegex.test(thing);
+};
+
 fw.routers = {
   // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
   baseRoute: fw.observable(''),
+  getNearestParent: function($context) {
+    var $parentRouter = nearestParentRouter($context);
+    return (!isNullRouter($parentRouter) ? $parentRouter : null);
+  },
   
   // Return array of all currently instantiated $router's
   getAll: function() {
@@ -680,43 +688,78 @@ fw.router = function( routerConfig, $viewModel, $context ) {
   return new Router( routerConfig, $viewModel, $context );
 };
 
-
 fw.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $myRouter = nearestParentRouter(bindingContext);
-    var linkTo = valueAccessor();
+    var urlValue = valueAccessor();
     var eventHandlerNotBound = true;
 
     function getRouteURL(includeParentPath) {
       var parentRoutePath = '';
-      var myLinkPath = fw.unwrap(linkTo) || element.getAttribute('href') || '';
-      if( isUndefined(linkTo) ) {
-        linkTo = myLinkPath;
-      }
+      var routeURL = routeHandlerDescription.url();
+      var myLinkPath = routeURL || element.getAttribute('href') || '';
 
-      if( !isFullURLRegex.test(myLinkPath) ) {
-        if( !hasPathStart(myLinkPath) ) {
-          myLinkPath = '/' + myLinkPath;
+      if(!isNull(routeURL)) {
+        if( isUndefined(routeURL) ) {
+          routeURL = myLinkPath;
         }
 
-        if( includeParentPath && !isNullRouter($myRouter) ) {
-          myLinkPath = $myRouter.parentRouter().routePath() + myLinkPath;
+        if( !isFullURL(myLinkPath) ) {
+          if( !hasPathStart(myLinkPath) ) {
+            myLinkPath = '/' + myLinkPath;
+          }
+
+          if( includeParentPath && !isNullRouter($myRouter) ) {
+            myLinkPath = $myRouter.parentRouter().routePath() + myLinkPath;
+          }
         }
+
+        return myLinkPath;
       }
 
-      return myLinkPath;
+      return null;
     };
     var routeURLWithParentPath = bind(getRouteURL, null, true);
     var routeURLWithoutParentPath = bind(getRouteURL, null, false);
 
+    var routeHandlerDescription = {
+      eventType: 'click',
+      url: function() { return null; },
+      handler: function defaultHandlerForRoute(event, url) {
+        if( !isFullURL(url) ) {
+          event.preventDefault();
+          return true;
+        }
+        return false;
+      }
+    };
+
+    if( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
+      routeHandlerDescription.url = urlValue;
+    } else if( isObject(urlValue) ) {
+      extend(routeHandlerDescription, urlValue);
+    } else if( isUndefined(urlValue) ) {
+      routeHandlerDescription.url = element.getAttribute('href');;
+    } else {
+      throw 'Unknown type of url value provided to $route [' + typeof urlValue + ']';
+    }
+
+    var routeHandlerDescriptionURL = routeHandlerDescription.url;
+    if( !isFunction(routeHandlerDescriptionURL) ) {
+      routeHandlerDescription.url = function() { return routeHandlerDescriptionURL; };
+    }
+
     function setUpElement() {
       if(eventHandlerNotBound) {
         eventHandlerNotBound = false;
-        fw.utils.registerEventHandler(element, 'click', function(event) {
-          var routeURL = routeURLWithoutParentPath();
-          if( !isFullURLRegex.test( routeURL ) ) {
-            $myRouter.setState( routeURL );
-            event.preventDefault();
+
+        fw.utils.registerEventHandler(element, routeHandlerDescription.eventType, function(event) {
+          var routeURL = routeHandlerDescription.handler.call(viewModel, event, routeHandlerDescription.url());
+          if( routeURL === true ) {
+            routeURL = routeURLWithoutParentPath();
+          }
+          if( isString(routeURL) && !isFullURL( routeURL ) ) {
+            $myRouter.setState(routeURL);
           }
         });
       }
@@ -726,9 +769,10 @@ fw.bindingHandlers.$route = {
       }
     }
 
-    if(isObservable(linkTo)) {
-      linkTo.subscribe(setUpElement);
+    if( isObservable(routeHandlerDescription.url) ) {
+      routeHandlerDescription.url.subscribe(setUpElement);
     }
+
     setUpElement();
   }
 };
@@ -746,9 +790,9 @@ var Router = function( routerConfig, $viewModel, $context ) {
   this.$globalNamespace = makeNamespace();
   this.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + 'Router') );
   this.$namespace.enter();
-  this.$namespace.command.handler('setState', bind(this.setState, this));
-  this.$namespace.request.handler('currentRoute', bind(function() { return this.currentRoute(); }, this));
-  this.$namespace.request.handler('urlParts', bind(function() { return this.urlParts(); }, this));
+  this.$namespace.command.handler('setState', this.setState, this);
+  this.$namespace.request.handler('currentRoute', function() { return this.currentRoute(); }, this);
+  this.$namespace.request.handler('urlParts', function() { return this.urlParts(); }, this);
 
   this.$viewModel = $viewModel;
   this.urlParts = fw.observable();
@@ -1205,13 +1249,16 @@ var makeViewModel = fw.viewModel = function(configParams) {
 function applyContextAndLifeCycle(viewModel, element) {
   if( isViewModel(viewModel) ) {
     var $configParams = viewModel.__getConfigParams();
+    var context;
+    element = element || document.body;
+    viewModel.$context = elementContext = fw.contextFor(element);
     
     if( isFunction($configParams.afterBinding) ) {
-      $configParams.afterBinding.call(viewModel, element || document.body);
+      $configParams.afterBinding.call(viewModel, element);
     }
 
     if( isRouter(viewModel.$router) ) {
-      viewModel.$router.context( fw.contextFor(element || document.body) );
+      viewModel.$router.context( elementContext );
     }
     
     if( !isUndefined(element) ) {
@@ -1236,7 +1283,7 @@ function bindComponentViewModel(element, params, ViewModel) {
   } else {
     viewModelObj = ViewModel;
   }
-  viewModelObj.___$parentContext = fw.contextFor(element.parentElement);
+  viewModelObj.$parentContext = fw.contextFor(element.parentElement);
 
   // binding the viewModelObj onto each child element is not ideal, need to do this differently
   // cannot get component.preprocess() method to work/be called for some reason
