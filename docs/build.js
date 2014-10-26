@@ -51,7 +51,7 @@
     "router":            "app/router",
 
     "Footer":            "app/viewModel/Footer",
-    "PaneDragManager":   "app/viewModel/PaneDragManager",
+    "PaneTouchManager":  "app/viewModel/PaneTouchManager",
     "ViewPort":          "app/viewModel/ViewPort",
     "Header":            "app/viewModel/Header",
     "Navigation":        "app/viewModel/Navigation",

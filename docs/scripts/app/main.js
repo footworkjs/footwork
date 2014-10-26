@@ -44,11 +44,11 @@ require.config({
 
 require([
   "jquery", "lodash", "footwork", "jwerty", "resourceHelper",
-  "Page", "Body", "ViewPort",
+  "Page", "Body", "ViewPort", "PaneTouchManager",
   "koBindings", "koExtenders", "jquery.mousewheel", "jquery.easing" ],
   function(
       $, _, fw, jwerty, resourceHelper,
-      Page, Body, ViewPort ) {
+      Page, Body, ViewPort, PaneTouchManager ) {
 
     resourceHelper();
 
@@ -84,9 +84,7 @@ require([
     (new Page());
 
     if( Modernizr.touch === true ) {
-      require( ['PaneTouchManager'], function(PaneTouchManager) {
-        (new PaneTouchManager());
-      });
+      (new PaneTouchManager());
     }
 
     fw.applyBindings( new Body() ); // start the app and apply bindings to the primary body viewModel
