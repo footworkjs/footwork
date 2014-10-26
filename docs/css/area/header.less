@@ -122,7 +122,7 @@
           right: 0;
           line-height: 25px;
           max-height: 300px;
-          overflow-y: auto;
+          overflow-y: hidden;
           overflow-x: hidden;
           .row {
             margin: 0;
@@ -401,6 +401,30 @@
       &.visible {
         visibility: visible;
         opacity: 1;
+      }
+    }
+
+    .releases, .aside {
+      .icon {
+        padding-right: 5px;
+      }
+      .menu-item {
+        &:hover {
+          .drop-down {
+            top: -500px;
+            opacity: 0;
+          }
+        }
+        &.active {
+          .drop-down {
+            top: 0;
+            opacity: 1;
+            .transition(none);
+          }
+        }
+        .drop-down {
+          .transition(none);
+        }
       }
     }
 

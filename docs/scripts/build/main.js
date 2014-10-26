@@ -20911,6 +20911,7 @@ define('app/viewModel/Releases',[ "jquery", "lodash", "footwork" ],
     return fw.viewModel({
       namespace: 'Releases',
       initialize: function() {
+        this.menuActive = fw.observable(false);
         this.thisRelease = ('v' + window.footworkBuild.version);
         this.headerContentHeight = fw.observable().receiveFrom('Header', 'contentHeight');
         this.releaseList = fw.observableArray(['latest']);
@@ -20926,6 +20927,18 @@ define('app/viewModel/Releases',[ "jquery", "lodash", "footwork" ],
           }, []);
         }, this);
 
+        this.toggleMenu = function(viewModel, event) {
+          this.menuActive(!this.menuActive());
+          event.stopPropagation();
+          var $parent = $(event.currentTarget).parent();
+          if( !$parent.hasClass('aside') && !$parent.hasClass('drop-down') ) {
+            return true;
+          }
+        };
+        this.$globalNamespace.subscribe('clear', _.bind(function() {
+          this.menuActive(false);
+        }, this));
+
         if( !isRunningLocally ) {
           $.get((isRunningLocally ? ('http://latest-docs.' + host) : '') + '/release/listAll').done(function(releaseList) {
             this.releaseList(releaseList);
@@ -20936,7 +20949,7 @@ define('app/viewModel/Releases',[ "jquery", "lodash", "footwork" ],
   }
 );
 
-define('text!app/template/releases.html',[],function () { return '<div class="releases">\r\n  <div class="menu-item">\r\n    <div class="title" data-bind="style: { lineHeight: headerContentHeight }">\r\n      <a data-bind="attr: { href: myURL }"><span data-bind="text: thisRelease"></span></a>\r\n    </div>\r\n    <div class="drop-down">\r\n      <div class="title" data-bind="style: { lineHeight: headerContentHeight }">\r\n        <a data-bind="attr: { href: myURL }"><span data-bind="text: thisRelease"></span></a>\r\n      </div>\r\n\r\n      <div class="content" data-bind="foreach: releases">\r\n        <div class="row" data-bind="css: { isMyRelease: myRelease }">\r\n          <a class="item" data-bind="text: version, attr: { href: href }"></a>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n</div>';});
+define('text!app/template/releases.html',[],function () { return '<div class="releases">\r\n  <div class="aside menu-item" data-bind="css: { active: menuActive }">\r\n    <div class="title" data-bind="click: toggleMenu, style: { lineHeight: headerContentHeight }">\r\n      <a data-bind="attr: { href: myURL }"><span class="icon icon-chevron-down"></span> <span data-bind="text: thisRelease"></span></a>\r\n    </div>\r\n    <div class="drop-down">\r\n      <div class="title" data-bind="click: toggleMenu, style: { lineHeight: headerContentHeight }">\r\n        <a data-bind="attr: { href: myURL }"><span class="icon icon-chevron-down"></span> <span data-bind="text: thisRelease"></span></a>\r\n      </div>\r\n\r\n      <div class="content" data-bind="foreach: releases">\r\n        <div class="row" data-bind="css: { isMyRelease: myRelease }">\r\n          <a class="item" data-bind="text: version, attr: { href: href }"></a>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n</div>';});
 
 ;(function(win){
 	var store = {},
@@ -21938,7 +21951,7 @@ define('app/viewModel/NavMenu',[ "jquery", "lodash", "footwork" ],
   }
 );
 
-define('text!app/template/navmenu.html',[],function () { return '<div class="pane-component NavMenu initialized" data-bind="css: { visible: visible }">\r\n  <div class="content" data-bind="style: { height: paneContentMaxHeight }">\r\n    <div class="title" data-bind="style: { width: mobileWidth }">\r\n      <span class="label">\r\n        <span class="text">Main Menu</span>\r\n      </span>\r\n    </div>\r\n    <nav data-bind="style: { width: mobileWidth }, foreach: entries">\r\n      <a data-bind="css: { visible: visible }, attr: { title: labelText, target: target }, $route: { url: url, handler: clickHandler }, text: labelText"></a>\r\n    </nav>\r\n  </div>\r\n</div>\r\n\r\n<div class="header-component">\r\n  <div class="menu-item first js-only initialized-only">\r\n    <div class="icon icon-cog title desktop-only" title="Click to adjust layout" id="settings"\r\n      data-bind="css: { active: configVisible }, style: { lineHeight: headerContentHeight }, click: toggleConfigView"></div>\r\n  </div>\r\n\r\n  <!-- ko foreach: entries -->\r\n    <div class="menu-item" data-bind="css: { visible: visible, aside: options.aside }, style: { height: headerContentHeight }">\r\n      <div class="title" data-bind="style: { lineHeight: $parent.headerContentHeight }">\r\n        <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }, text: labelText"></a>\r\n      </div>\r\n      <!-- ko if: hasSubMenu -->\r\n        <div class="drop-down">\r\n          <div class="title" data-bind="style: { lineHeight: headerContentHeight }">\r\n            <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }">\r\n              <span data-bind="text: labelText"></span>\r\n            </a>\r\n          </div>\r\n          <div class="content" data-bind="foreach: subMenuItems">\r\n            <div class="row">\r\n              <a class="item" data-bind="attr: { target: target }, text: labelText, $route: { url: url, handler: clickHandler }"></a>\r\n            </div>\r\n          </div>\r\n        </div>\r\n      <!-- /ko -->\r\n    </div>\r\n  <!-- /ko -->\r\n  \r\n  <div class="aside menu-item build" data-bind="style: { height: headerContentHeight }">\r\n    <div class="title" data-bind="style: { lineHeight: headerContentHeight }">\r\n      <releases></releases>\r\n    </div>\r\n  </div>\r\n</div>';});
+define('text!app/template/navmenu.html',[],function () { return '<div class="pane-component NavMenu initialized" data-bind="css: { visible: visible }">\r\n  <div class="content" data-bind="style: { height: paneContentMaxHeight }">\r\n    <div class="title" data-bind="style: { width: mobileWidth }">\r\n      <span class="label">\r\n        <span class="text">Main Menu</span>\r\n      </span>\r\n    </div>\r\n    <nav data-bind="style: { width: mobileWidth }, foreach: entries">\r\n      <a data-bind="css: { visible: visible }, attr: { title: labelText, target: target }, $route: { url: url, handler: clickHandler }, text: labelText"></a>\r\n    </nav>\r\n  </div>\r\n</div>\r\n\r\n<div class="header-component">\r\n  <div class="menu-item first js-only initialized-only">\r\n    <div class="icon icon-cog title desktop-only" title="Click to adjust layout" id="settings"\r\n      data-bind="css: { active: configVisible }, style: { lineHeight: headerContentHeight }, click: toggleConfigView"></div>\r\n  </div>\r\n\r\n  <!-- ko foreach: entries -->\r\n    <div class="menu-item" data-bind="css: { visible: visible, aside: options.aside }, style: { height: headerContentHeight }">\r\n      <div class="title" data-bind="style: { lineHeight: $parent.headerContentHeight }">\r\n        <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }, text: labelText"></a>\r\n      </div>\r\n      <!-- ko if: hasSubMenu -->\r\n        <div class="drop-down">\r\n          <div class="title" data-bind="style: { lineHeight: headerContentHeight }">\r\n            <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }">\r\n              <span data-bind="text: labelText"></span>\r\n            </a>\r\n          </div>\r\n          <div class="content" data-bind="foreach: subMenuItems">\r\n            <div class="row">\r\n              <a class="item" data-bind="attr: { target: target }, text: labelText, $route: { url: url, handler: clickHandler }"></a>\r\n            </div>\r\n          </div>\r\n        </div>\r\n      <!-- /ko -->\r\n    </div>\r\n  <!-- /ko -->\r\n  \r\n  <releases></releases>\r\n</div>';});
 
 ;(function () {
   /*
@@ -23299,6 +23312,11 @@ define('Body',[ "footwork", "lodash", "router" ],
           };
         }, this);
 
+        this.bodyClick = function() {
+          this.$globalNamespace.publish('clear');
+          return true;
+        };
+
         this.togglePaneCollapse = function() {
           if( _.isUndefined(this.$paneTouchManagerNamespace.request('ping')) || !this.isMobile() ) {
             this.paneCollapsed( !this.paneCollapsed() );
@@ -24138,7 +24156,7 @@ require([
       'alt+r': function() { viewPortLayoutMode() !== 'mobile' && configurationNamespace.publish('reset'); },
       'ctrl+x': function() { navigationNamespace.publish('toggleHeader'); },
       'ctrl+z': function() { bodyNamespace.publish('togglePane'); },
-      'esc': function() { configVisible( false ); }
+      'esc': function() { globalNamespace.publish('clear'); configVisible( false ); }
     }, function(handler, keyCombo) {
       jwerty.key( keyCombo, handler );
     });

@@ -20,6 +20,7 @@ define([ "jquery", "lodash", "footwork" ],
     return fw.viewModel({
       namespace: 'Releases',
       initialize: function() {
+        this.menuActive = fw.observable(false);
         this.thisRelease = ('v' + window.footworkBuild.version);
         this.headerContentHeight = fw.observable().receiveFrom('Header', 'contentHeight');
         this.releaseList = fw.observableArray(['latest']);
@@ -34,6 +35,18 @@ define([ "jquery", "lodash", "footwork" ],
             return releaseList;
           }, []);
         }, this);
+
+        this.toggleMenu = function(viewModel, event) {
+          this.menuActive(!this.menuActive());
+          event.stopPropagation();
+          var $parent = $(event.currentTarget).parent();
+          if( !$parent.hasClass('aside') && !$parent.hasClass('drop-down') ) {
+            return true;
+          }
+        };
+        this.$globalNamespace.subscribe('clear', _.bind(function() {
+          this.menuActive(false);
+        }, this));
 
         if( !isRunningLocally ) {
           $.get((isRunningLocally ? ('http://latest-docs.' + host) : '') + '/release/listAll').done(function(releaseList) {

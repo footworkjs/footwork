@@ -117,7 +117,7 @@ require([
       'alt+r': function() { viewPortLayoutMode() !== 'mobile' && configurationNamespace.publish('reset'); },
       'ctrl+x': function() { navigationNamespace.publish('toggleHeader'); },
       'ctrl+z': function() { bodyNamespace.publish('togglePane'); },
-      'esc': function() { configVisible( false ); }
+      'esc': function() { globalNamespace.publish('clear'); configVisible( false ); }
     }, function(handler, keyCombo) {
       jwerty.key( keyCombo, handler );
     });

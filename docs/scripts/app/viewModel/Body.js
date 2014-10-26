@@ -173,6 +173,11 @@ define([ "footwork", "lodash", "router" ],
           };
         }, this);
 
+        this.bodyClick = function() {
+          this.$globalNamespace.publish('clear');
+          return true;
+        };
+
         this.togglePaneCollapse = function() {
           if( _.isUndefined(this.$paneTouchManagerNamespace.request('ping')) || !this.isMobile() ) {
             this.paneCollapsed( !this.paneCollapsed() );
