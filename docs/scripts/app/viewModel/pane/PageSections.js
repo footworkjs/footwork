@@ -1,5 +1,7 @@
 define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
   function( $, _, fw ) {
+    var anchorOffset;
+
     var PageSection = fw.viewModel({
       namespace: 'PageSection',
       initialize: function(pageSectionData) {
@@ -8,7 +10,10 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
 
         pageSectionData = pageSectionData || {};
 
-        var pageBaseURL = fw.namespace('BodyRouter').request('currentRoute').url;
+        var pageBaseURL = '';
+        if( !this.$globalNamespace.request('isRunningLocally') ) {
+          pageBaseURL = fw.namespace('BodyRouter').request('currentRoute').url;
+        }
         this.currentSection = fw.observable().receiveFrom('PageSections', 'currentSection');
         this.chosenSection = fw.observable().receiveFrom('PageSections', 'chosenSection');
         this.paneCollapsed = fw.observable().receiveFrom('Pane', 'collapsed');
@@ -27,7 +32,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
 
         this.anchorPosition = fw.observable();
         computeAnchorPos = function() {
-          this.anchorPosition( $( '[name=' + this.anchor() + ']' ).offset() );
+          this.anchorPosition( $( '#' + this.anchor() ).offset() );
         }.bind(this);
         computeAnchorPos();
 
@@ -45,8 +50,8 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           var $anchor;
           if( sectionName === this.anchor() ) {
             this.chooseSection();
-            $anchor = $( '[name=' + this.anchor() + ']' );
-            $anchor.length && window.scrollTo( 0, $anchor.offset().top );
+            $anchor = $( '#' + this.anchor() );
+            $anchor.length && window.scrollTo( 0, $anchor.offset().top - anchorOffset );
           }
         }).withContext(this);
 
@@ -58,7 +63,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           var anchorName = this.anchor();
           this.chosenSection( '' );
           this.chosenSection( anchorName );
-          $('section[name=' + anchorName + ']').pulse({ className: 'active', duration: 1000 });
+          $('[name=' + anchorName + ']').pulse({ className: 'active', duration: 1000 });
           if(this.viewPortLayoutMode() === 'mobile') {
             this.paneCollapsed(true);
           }
@@ -79,6 +84,10 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
 
         this.visible = fw.observable(false);
         this.description = fw.observable();
+        this.hasDescription = fw.computed(function() {
+          var description = this.description();
+          return _.isString(description) && description.length;
+        }, this);
         this.initialized = fw.observable(true);
         this.currentSelection = fw.observable().receiveFrom('PaneLinks', 'currentSelection');
         this.paneContentMaxHeight = fw.observable().receiveFrom('Pane', 'contentMaxHeight').extend({ units: 'px' });
@@ -114,7 +123,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           this._chosenRead = true;
 
           return ( chosenRead !== true && chosenSection ) || _.reduce( sections, function(currentSection, section) {
-            if( _.isObject(section.anchorPosition()) && scrollPosition >= (section.anchorPosition().top - parseInt(this.headerVisibleHeight()) - 10) ) {
+            if( _.isObject(section.anchorPosition()) && scrollPosition >= (section.anchorPosition().top - anchorOffset) ) {
               return section.anchor();
             }
             return currentSection;
@@ -141,8 +150,10 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
 
         var loadMetaData = function( pageData ) {
           if( pageData ) {
-            pageData.description && this.description( pageData.description );
-            this.loadSections( pageData.sections );
+            anchorOffset = pageData.anchorOffset || 0;
+            pageData.title && this.title(pageData.title);
+            pageData.description && this.description(pageData.description);
+            this.loadSections(pageData.sections);
             if(isInitialLoad) {
               isInitialLoad = false;
               fw.namespace('PageSection').publish( 'scrollToSection', fw.namespace('BodyRouter').request('urlParts').anchor );

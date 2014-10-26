@@ -10,7 +10,7 @@
         <span class="text" data-bind="text: title"></span>
       </span>
     </div>
-    <div class="description" data-bind="text: description"></div>
+    <div class="description" data-bind="text: description, css: { visible: hasDescription }"></div>
     <div data-bind="foreach: sections">
       <a class="section-label entry-row" data-bind="click: chooseSection, css: { active: active, visible: visible }, attr: { href: anchorAddress }">
         <div class="title" data-bind="text: title"></div>
