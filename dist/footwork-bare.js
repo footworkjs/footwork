@@ -2052,8 +2052,7 @@ var getViewModelResourceLocation = fw.viewModels.getResourceLocation = function(
 // extenders.js
 // ----------------
 
-// custom throttle() based on ko v3.0.0 throttle(), allows value to be force()'d to a value at any time
-fw.extenders.throttled = function(target, opt) {
+fw.extenders.debounce = function(target, opt) {
   if( isNumber(opt) ) {
     opt = {
       timeout: opt,
@@ -2063,21 +2062,21 @@ fw.extenders.throttled = function(target, opt) {
 
   target.throttleEvaluation = opt.timeout;
 
-  var writeTimeoutInstance = null,
-      throttledTarget = fw.dependentObservable({
-          'read': target,
-          'write': function(value) {
-            if( opt.when(value) ) {
-              clearTimeout(writeTimeoutInstance);
-              writeTimeoutInstance = setTimeout(function() {
-                target(value);
-              }, opt.timeout);
-            } else {
-              clearTimeout(writeTimeoutInstance);
-              target(value);
-            }
-          }
-      });
+  var writeTimeoutInstance = null;
+  var throttledTarget = fw.computed({
+    'read': target,
+    'write': function(value) {
+      if( opt.when(value) ) {
+        clearTimeout(writeTimeoutInstance);
+        writeTimeoutInstance = setTimeout(function() {
+          target(value);
+        }, opt.timeout);
+      } else {
+        clearTimeout(writeTimeoutInstance);
+        target(value);
+      }
+    }
+  });
 
   throttledTarget.force = function( value ) {
     clearTimeout(writeTimeoutInstance);
@@ -2106,9 +2105,9 @@ fw.extenders.autoEnable = function( target, delay ) {
 };
 
 fw.extenders.delayTrigger = function( target, options ) {
-  var delay = 300,
-      triggerFunc = noop,
-      trigger;
+  var delay = 300;
+  var triggerFunc = noop;
+  var trigger;
 
   if( isObject(options) ) {
     delay = !isNaN( options.delay ) && parseInt( options.delay, 10 ) || delay;
@@ -2143,7 +2142,8 @@ fw.extenders.delayTrigger = function( target, options ) {
 };
 
 fw.extenders.delayWrite = function( target, options ) {
-  var filter, delay = 300;
+  var filter;
+  var delay = 300;
 
   if( isObject(options) ) {
     delay = !isNaN( options.delay ) && parseInt( options.delay, 10 ) || delay;
