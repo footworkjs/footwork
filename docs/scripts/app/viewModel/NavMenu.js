@@ -7,7 +7,7 @@ define([ "jquery", "lodash", "footwork" ],
       initialize: function(entryData) {
         this.headerContentHeight = fw.observable().receiveFrom('Header', 'contentHeight');
         this.visible = fw.observable( null ).extend({ autoEnable: _.random( 200, 600 ) });
-        this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed');
+        this.paneCollapsed = fw.observable().receiveFrom('Pane', 'collapsed').extend({ debounce: { timeout: 200, when: function(collapsed) { return collapsed === false; } } });
         this.labelText = fw.observable( entryData.label );
         this.url = fw.observable( entryData.url );
         this.options = entryData || {};

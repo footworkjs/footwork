@@ -61,7 +61,7 @@ define([ "footwork", "lodash" ],
           return parseInt( this.height(), 10 );
         }, this).broadcastAs('closePoint');
 
-        var throttledMoving = fw.observable(false).extend({ throttle: { timeout: 300, when: function(moving) { return moving === false; } } });
+        var throttledMoving = fw.observable(false).extend({ debounce: { timeout: 300, when: function(moving) { return moving === false; } } });
         this.contentHeight = fw.computed(function() {
           var headerContentMaxHeight = this.headerContentMaxHeight();
           var visibleHeight = parseInt( this.visibleHeight(), 10 );

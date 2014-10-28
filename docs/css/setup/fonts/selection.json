@@ -17,7 +17,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 22,
-				"order": 3,
+				"order": 5,
 				"prevSize": 32,
 				"code": 61603,
 				"name": "chevron-down",
@@ -42,7 +42,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 25,
-				"order": 4,
+				"order": 8,
 				"prevSize": 32,
 				"code": 61602,
 				"name": "chevron-up",
@@ -50,6 +50,55 @@
 			},
 			"setIdx": 0,
 			"iconIdx": 25
+		},
+		{
+			"icon": {
+				"paths": [
+					"M288 384l-160 160 160 160 64-64-96-96 96-96-64-64zM416 448l96 96-96 96 64 64 160-160-160-160-64 64zM576 64h-576v896h768v-704l-192-192zM704 896h-640v-768h448l192 192v576z"
+				],
+				"width": 768,
+				"attrs": [],
+				"tags": [
+					"file-code"
+				],
+				"defaultCode": 61456,
+				"grid": 16
+			},
+			"attrs": [],
+			"properties": {
+				"id": 53,
+				"order": 56,
+				"prevSize": 32,
+				"code": 61457,
+				"name": "doc-page",
+				"ligatures": ""
+			},
+			"setIdx": 0,
+			"iconIdx": 53
+		},
+		{
+			"icon": {
+				"paths": [
+					"M512 128c-212.077 0-384 171.923-384 384s171.923 384 384 384c25.953 0 51.303-2.582 75.812-7.49-9.879-4.725-10.957-40.174-1.188-60.385 10.875-22.5 45-79.5 11.25-98.625s-24.375-27.75-45-49.875-12.19-25.451-13.5-31.125c-4.5-19.5 19.875-48.75 21-51.75s1.125-14.25 0.75-17.625-15.374-12.375-19.124-12.75-5.625 6-10.875 6.375-28.125-13.875-33-17.625-7.125-12.75-13.875-19.5-7.5-1.5-18-5.625-44.25-16.5-70.125-27-28.125-25.219-28.5-35.625-15.75-25.5-22.961-36.375c-7.209-10.875-8.539-25.875-11.164-22.5s13.5 42.75 10.875 43.875-8.25-10.875-15.75-20.625 7.875-4.5-16.125-51.75 7.5-71.344 9-96 20.25 9 10.5-6.75 0.75-48.75-6.75-60.75-50.25 13.5-50.25 13.5c1.125-11.625 37.5-31.5 63.75-49.875s42.281-4.125 63.375 2.625 22.5 4.5 15.375-2.25 3-10.125 19.5-7.5 21 22.5 46.125 20.625 2.625 4.875 6 11.25-3.75 5.625-20.25 16.875 0.375 11.25 29.625 32.625 20.25-14.25 17.25-30 21.375-3.375 21.375-3.375c18 12 14.674 0.66 27.799 4.785s48.701 34.215 48.701 34.215c-44.625 24.375-16.5 27-9 32.625s-15.375 16.5-15.375 16.5c-9.375-9.375-10.875 0.375-16.875 3.75s-0.375 12-0.375 12c-31.031 4.875-24 37.5-23.625 45.375s-19.875 19.875-25.125 31.125 13.5 35.625 3.75 37.125-19.5-36.75-72-22.5c-15.828 4.297-51 22.5-32.25 59.625s49.875-10.5 60.375-5.25-3 28.875-0.75 29.25 29.625 1.031 31.125 33 41.625 29.25 50.25 30 37.5-23.625 41.625-24.75 20.625-15 56.625 5.625 54.375 17.625 66.75 26.25 3.75 25.875 15.375 31.5 58.125-1.875 69.75 17.25-48 115.125-66.75 125.625-27.375 34.5-46.125 49.875-45 34.406-69.75 49.125c-21.908 13.027-25.85 36.365-35.609 43.732 171.855-38.177 300.359-191.507 300.359-374.857 0-212.077-171.923-384-384-384zM602 488.375c-5.25 1.5-16.125 11.25-42.75-4.5s-45-12.75-47.25-15.375c0 0-2.25-6.375 9.375-7.5 23.871-2.311 54 22.125 60.75 22.5s10.125-6.75 22.125-2.883c12 3.863 3 6.258-2.25 7.758zM476.375 166.25c-2.615-1.902 2.166-4.092 5.016-7.875 1.645-2.186 0.425-5.815 2.484-7.875 5.625-5.625 33.375-13.5 27.949 1.875-5.424 15.375-31.324 16.875-35.449 13.875zM543.5 215c-9.375-0.375-31.443-2.707-27.375-6.75 15.844-15.75-6-20.25-19.5-21.375s-19.125-8.625-12.375-9.375 33.75 0.375 38.25 4.125 28.875 13.5 30.375 20.625 0 13.125-9.375 12.75zM624.875 212.375c-7.5 6-45.24-21.529-52.5-27.75-31.5-27-48.375-18-54.99-22.5-6.617-4.5-4.26-10.5 5.865-19.5s38.625 3 55.125 4.875 35.625 14.625 36 29.781c0.375 15.155 18 29.094 10.5 35.094z"
+				],
+				"attrs": [],
+				"tags": [
+					"globe"
+				],
+				"defaultCode": 61622,
+				"grid": 16
+			},
+			"attrs": [],
+			"properties": {
+				"id": 73,
+				"order": 53,
+				"prevSize": 32,
+				"code": 61622,
+				"name": "web-page",
+				"ligatures": ""
+			},
+			"setIdx": 0,
+			"iconIdx": 73
 		},
 		{
 			"icon": {
@@ -92,7 +141,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 2,
+				"order": 4,
 				"id": 95,
 				"prevSize": 32,
 				"code": 58883,
@@ -119,7 +168,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 3,
+				"order": 6,
 				"id": 254,
 				"prevSize": 32,
 				"code": 58886,
@@ -145,7 +194,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 4,
+				"order": 7,
 				"id": 313,
 				"prevSize": 32,
 				"code": 58887,
@@ -170,7 +219,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 5,
+				"order": 9,
 				"id": 314,
 				"prevSize": 32,
 				"code": 58888,
@@ -194,7 +243,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 6,
+				"order": 10,
 				"id": 315,
 				"prevSize": 32,
 				"code": 58889,
@@ -221,7 +270,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 11,
+				"order": 15,
 				"id": 83,
 				"prevSize": 32,
 				"code": 58894,
@@ -246,7 +295,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 12,
+				"order": 16,
 				"id": 85,
 				"prevSize": 32,
 				"code": 58895,
@@ -270,7 +319,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 15,
+				"order": 19,
 				"id": 415,
 				"prevSize": 32,
 				"code": 58882,
@@ -294,7 +343,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 16,
+				"order": 20,
 				"id": 416,
 				"prevSize": 32,
 				"code": 58884,
@@ -318,7 +367,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 1390,
-				"order": 17,
+				"order": 21,
 				"prevSize": 32,
 				"code": 58900,
 				"name": "fourohfour",
@@ -342,7 +391,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 32,
+				"order": 36,
 				"id": 393,
 				"prevSize": 32,
 				"code": 58880,
@@ -366,7 +415,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 1247,
-				"order": 18,
+				"order": 22,
 				"prevSize": 32,
 				"code": 58901,
 				"name": "cog",
@@ -389,7 +438,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 48,
-				"order": 19,
+				"order": 23,
 				"prevSize": 32,
 				"code": 58885,
 				"name": "warning-sign",
@@ -408,7 +457,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 1,
+				"order": 2,
 				"id": 1,
 				"prevSize": 24,
 				"code": 58898,
@@ -428,7 +477,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 2,
+				"order": 3,
 				"id": 0,
 				"prevSize": 24,
 				"code": 58899,
@@ -454,7 +503,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 33,
-				"order": 38,
+				"order": 42,
 				"prevSize": 32,
 				"code": 61483,
 				"name": "comment",
@@ -479,7 +528,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 34,
-				"order": 39,
+				"order": 43,
 				"prevSize": 32,
 				"code": 61551,
 				"name": "comment-add",
@@ -504,7 +553,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 35,
-				"order": 37,
+				"order": 41,
 				"prevSize": 32,
 				"code": 61519,
 				"name": "repo-issue-commented",
@@ -528,7 +577,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 51,
-				"order": 29,
+				"order": 33,
 				"prevSize": 32,
 				"code": 61518,
 				"name": "eye",
@@ -552,7 +601,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 52,
-				"order": 34,
+				"order": 38,
 				"prevSize": 32,
 				"code": 61470,
 				"name": "eye-unwatch",
@@ -576,7 +625,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 53,
-				"order": 33,
+				"order": 37,
 				"prevSize": 32,
 				"code": 61469,
 				"name": "eye-watch",
@@ -601,7 +650,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 54,
-				"order": 47,
+				"order": 51,
 				"prevSize": 32,
 				"code": 61574,
 				"name": "file-add",
@@ -626,7 +675,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 55,
-				"order": 30,
+				"order": 34,
 				"prevSize": 32,
 				"code": 61588,
 				"name": "file-binary",
@@ -651,10 +700,10 @@
 			"attrs": [],
 			"properties": {
 				"id": 56,
-				"order": 31,
+				"order": 35,
 				"prevSize": 32,
 				"code": 61456,
-				"name": "file-code",
+				"name": "file-code2",
 				"ligatures": ""
 			},
 			"setIdx": 1,
@@ -676,7 +725,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 75,
-				"order": 20,
+				"order": 24,
 				"prevSize": 32,
 				"code": 61472,
 				"name": "git-branch",
@@ -701,7 +750,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 76,
-				"order": 21,
+				"order": 25,
 				"prevSize": 32,
 				"code": 61592,
 				"name": "repo-created-branch",
@@ -726,7 +775,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 77,
-				"order": 22,
+				"order": 26,
 				"prevSize": 32,
 				"code": 61595,
 				"name": "repo-deleted-branch",
@@ -751,7 +800,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 78,
-				"order": 23,
+				"order": 27,
 				"prevSize": 32,
 				"code": 61471,
 				"name": "git-misc",
@@ -776,7 +825,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 79,
-				"order": 24,
+				"order": 28,
 				"prevSize": 32,
 				"code": 61612,
 				"name": "git-compare",
@@ -801,7 +850,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 80,
-				"order": 25,
+				"order": 29,
 				"prevSize": 32,
 				"code": 61473,
 				"name": "git-fork-private",
@@ -826,7 +875,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 81,
-				"order": 26,
+				"order": 30,
 				"prevSize": 32,
 				"code": 61475,
 				"name": "git-merge",
@@ -851,7 +900,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 82,
-				"order": 27,
+				"order": 31,
 				"prevSize": 32,
 				"code": 61449,
 				"name": "repo-pull-opened",
@@ -876,7 +925,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 83,
-				"order": 28,
+				"order": 32,
 				"prevSize": 32,
 				"code": 61584,
 				"name": "repo-pull-request-abandoned",
@@ -901,7 +950,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 160,
-				"order": 46,
+				"order": 50,
 				"prevSize": 32,
 				"code": 61441,
 				"name": "repo",
@@ -925,7 +974,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 161,
-				"order": 41,
+				"order": 45,
 				"prevSize": 32,
 				"code": 61516,
 				"name": "repo-clone",
@@ -950,7 +999,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 162,
-				"order": 40,
+				"order": 44,
 				"prevSize": 32,
 				"code": 61443,
 				"name": "repo-created",
@@ -975,7 +1024,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 163,
-				"order": 42,
+				"order": 46,
 				"prevSize": 32,
 				"code": 61444,
 				"name": "repo-deleted",
@@ -1000,7 +1049,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 164,
-				"order": 43,
+				"order": 47,
 				"prevSize": 32,
 				"code": 61514,
 				"name": "repo-force-pushed",
@@ -1025,7 +1074,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 165,
-				"order": 44,
+				"order": 48,
 				"prevSize": 32,
 				"code": 61442,
 				"name": "repo-forked",
@@ -1049,7 +1098,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 166,
-				"order": 45,
+				"order": 49,
 				"prevSize": 32,
 				"code": 61446,
 				"name": "repo-pulled",
@@ -1074,7 +1123,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 167,
-				"order": 48,
+				"order": 52,
 				"prevSize": 32,
 				"code": 61445,
 				"name": "repo-pushed",
@@ -1099,7 +1148,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 180,
-				"order": 35,
+				"order": 39,
 				"prevSize": 32,
 				"code": 61482,
 				"name": "starred",
@@ -1124,7 +1173,7 @@
 			"attrs": [],
 			"properties": {
 				"id": 182,
-				"order": 36,
+				"order": 40,
 				"prevSize": 32,
 				"code": 61571,
 				"name": "starred-delete",
@@ -1151,7 +1200,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 7,
+				"order": 11,
 				"id": 30,
 				"prevSize": 42,
 				"code": 58890,
@@ -1177,7 +1226,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 8,
+				"order": 12,
 				"id": 236,
 				"prevSize": 42,
 				"code": 58891,
@@ -1203,7 +1252,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 9,
+				"order": 13,
 				"id": 235,
 				"prevSize": 42,
 				"code": 58892,
@@ -1228,7 +1277,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 10,
+				"order": 14,
 				"id": 291,
 				"prevSize": 42,
 				"code": 58893,
@@ -1255,7 +1304,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 13,
+				"order": 17,
 				"id": 178,
 				"prevSize": 42,
 				"name": "main-menu",
@@ -1281,7 +1330,7 @@
 			},
 			"attrs": [],
 			"properties": {
-				"order": 14,
+				"order": 18,
 				"id": 135,
 				"prevSize": 42,
 				"code": 58897,

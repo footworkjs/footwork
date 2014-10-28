@@ -2943,21 +2943,8 @@ fw.components.register(<span class="hljs-string">'error'</span>, {
           <div class="annotation-bg"></div>
         </div>
         
-    </li>
-    
-    
-    <li id="section-89" class="section">
-        <div class="annotation">
-          
-          <div class="pilwrap ">
-            <a class="pilcrow" href="#section-89">&#182;</a>
-          </div>
-          <p>custom throttle() based on ko v3.0.0 throttle(), allows value to be force()’d to a value at any time</p>
-
-          <div class="annotation-bg"></div>
-        </div>
-        
-        <div class="content"><div class='highlight'><pre>fw.extenders.throttled = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(target, opt)</span> </span>{
+        <div class="content"><div class='highlight'><pre>
+fw.extenders.debounce = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(target, opt)</span> </span>{
   <span class="hljs-keyword">if</span>( isNumber(opt) ) {
     opt = {
       timeout: opt,
@@ -2967,21 +2954,21 @@ fw.components.register(<span class="hljs-string">'error'</span>, {
 
   target.throttleEvaluation = opt.timeout;
 
-  <span class="hljs-keyword">var</span> writeTimeoutInstance = <span class="hljs-literal">null</span>,
-      throttledTarget = fw.dependentObservable({
-          <span class="hljs-string">'read'</span>: target,
-          <span class="hljs-string">'write'</span>: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(value)</span> </span>{
-            <span class="hljs-keyword">if</span>( opt.when(value) ) {
-              clearTimeout(writeTimeoutInstance);
-              writeTimeoutInstance = setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-                target(value);
-              }, opt.timeout);
-            } <span class="hljs-keyword">else</span> {
-              clearTimeout(writeTimeoutInstance);
-              target(value);
-            }
-          }
-      });
+  <span class="hljs-keyword">var</span> writeTimeoutInstance = <span class="hljs-literal">null</span>;
+  <span class="hljs-keyword">var</span> throttledTarget = fw.computed({
+    <span class="hljs-string">'read'</span>: target,
+    <span class="hljs-string">'write'</span>: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(value)</span> </span>{
+      <span class="hljs-keyword">if</span>( opt.when(value) ) {
+        clearTimeout(writeTimeoutInstance);
+        writeTimeoutInstance = setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+          target(value);
+        }, opt.timeout);
+      } <span class="hljs-keyword">else</span> {
+        clearTimeout(writeTimeoutInstance);
+        target(value);
+      }
+    }
+  });
 
   throttledTarget.force = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( value )</span> </span>{
     clearTimeout(writeTimeoutInstance);
@@ -3010,9 +2997,9 @@ fw.extenders.autoEnable = <span class="hljs-function"><span class="hljs-keyword"
 };
 
 fw.extenders.delayTrigger = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( target, options )</span> </span>{
-  <span class="hljs-keyword">var</span> delay = <span class="hljs-number">300</span>,
-      triggerFunc = noop,
-      trigger;
+  <span class="hljs-keyword">var</span> delay = <span class="hljs-number">300</span>;
+  <span class="hljs-keyword">var</span> triggerFunc = noop;
+  <span class="hljs-keyword">var</span> trigger;
 
   <span class="hljs-keyword">if</span>( isObject(options) ) {
     delay = !<span class="hljs-built_in">isNaN</span>( options.delay ) &amp;&amp; <span class="hljs-built_in">parseInt</span>( options.delay, <span class="hljs-number">10</span> ) || delay;
@@ -3047,7 +3034,8 @@ fw.extenders.delayTrigger = <span class="hljs-function"><span class="hljs-keywor
 };
 
 fw.extenders.delayWrite = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( target, options )</span> </span>{
-  <span class="hljs-keyword">var</span> filter, delay = <span class="hljs-number">300</span>;
+  <span class="hljs-keyword">var</span> filter;
+  <span class="hljs-keyword">var</span> delay = <span class="hljs-number">300</span>;
 
   <span class="hljs-keyword">if</span>( isObject(options) ) {
     delay = !<span class="hljs-built_in">isNaN</span>( options.delay ) &amp;&amp; <span class="hljs-built_in">parseInt</span>( options.delay, <span class="hljs-number">10</span> ) || delay;
