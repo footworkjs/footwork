@@ -16,7 +16,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
         }
         this.currentSection = fw.observable().receiveFrom('PageSections', 'currentSection');
         this.chosenSection = fw.observable().receiveFrom('PageSections', 'chosenSection');
-        this.paneCollapsed = fw.observable().receiveFrom('Pane', 'collapsed');
+        this.paneCollapsed = fw.observable().receiveFrom('Pane', 'collapsed').extend({ debounce: 200 });
         this.viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
 
         this.visible = fw.observable( null ).extend({ autoEnable: _.random( 200, 600 ) });
@@ -60,14 +60,14 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
         }).withContext(this);
 
         this.chooseSection = function() {
-          var anchorName = this.anchor();
-          this.chosenSection( '' );
-          this.chosenSection( anchorName );
-          $('[name=' + anchorName + ']').pulse({ className: 'active', duration: 1000 });
-          if(this.viewPortLayoutMode() === 'mobile') {
+          if(this.viewPortLayoutMode() === 'mobile' && !this.paneCollapsed()) {
+            var anchorName = this.anchor();
+            this.chosenSection( '' );
+            this.chosenSection( anchorName );
+            $('[name=' + anchorName + ']').pulse({ className: 'active', duration: 1000 });
             this.paneCollapsed(true);
+            return true;
           }
-          return true;
         }.bind(this);
 
         this.visible( false );
