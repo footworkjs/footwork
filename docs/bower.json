@@ -17,6 +17,7 @@
     "jwerty": "*",
     "history.js": "*",
     "requirejs": "*",
+    "requirejs-text": "*",
     "highlight": "*",
     "jquery": "1.11.0"
   }
