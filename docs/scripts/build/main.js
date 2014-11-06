@@ -24262,50 +24262,6 @@ define('koExtenders',[ "jquery", "lodash", "knockout", "postal" ],
   }
 }.call(this));
 
-require.config({
-  baseUrl: "/scripts",
-  map: {
-    "*": {
-      "jquery": "noconflict-jquery"
-    },
-    "noconflict-jquery": {
-      "jquery": "jquery"
-    }
-  },
-  paths: {
-    "jquery":            "../bower_components/jquery/dist/jquery",
-    "postal":            "../bower_components/postal.js/lib/postal",
-    "conduitjs":         "../bower_components/conduitjs/lib/conduit",
-    "knockout":          "../bower_components/knockoutjs/dist/knockout",
-    "footwork":          "../../dist/footwork-bare",
-    "storage":           "../bower_components/store-js/store",
-    "lodash":            "../bower_components/lodash/dist/lodash.underscore",
-    "history":           "../bower_components/history.js/scripts/bundled/html5/native.history",
-    "jwerty":            "lib/jwerty", // jwerty does not provide an AMD build, this is a custom wrapped version
-    "jquery.pulse":      "lib/jquery-plugins/jquery.pulse",
-    "jquery.mousewheel": "lib/jquery-plugins/jquery.mousewheel",
-    "jquery.easing":     "lib/jquery-plugins/jquery.easing",
-
-    "paneEntry":         "app/mixin/paneEntry",
-    "paneArea":          "app/mixin/paneArea",
-    "koExtenders":       "app/misc/extenders",
-    "koBindings":        "app/misc/bindingHandlers",
-    "noconflict-jquery": "app/misc/noconflict-jquery",
-    "LoadProfile":       "app/helper/LoadProfile",
-    "LoadState":         "app/helper/LoadState",
-    "resourceHelper":    "app/helper/resourceHelper",
-    "router":            "app/router",
-
-    "PaneTouchManager":  "app/viewModel/PaneTouchManager",
-    "ViewPort":          "app/viewModel/ViewPort",
-    "Header":            "app/viewModel/Header",
-    "Navigation":        "app/viewModel/Navigation",
-    "Body":              "app/viewModel/Body",
-    "Page":              "app/viewModel/Page"
-  },
-  waitSeconds: 1500
-});
-
 require([
   "jquery", "lodash", "footwork", "jwerty", "resourceHelper",
   "Page", "Body", "ViewPort", "PaneTouchManager",

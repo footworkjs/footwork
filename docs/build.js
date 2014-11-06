@@ -1,4 +1,3 @@
-// r.js -o build.js
 ({
   baseUrl: "scripts/",
   preserveLicenseComments: false,
