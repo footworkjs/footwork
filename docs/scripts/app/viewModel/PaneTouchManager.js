@@ -201,7 +201,7 @@ define([ "jquery", "lodash", "footwork" ],
         };
 
         this.paneMoving = fw.observable().receiveFrom('Pane', 'movingTimer');
-        this.paneCollapsed = fw.observable().receiveFrom('Pane', 'collapsed');
+        this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed');
         this.paneDragging = fw.observable().receiveFrom('Pane', 'dragging');
         this.paneDragOffset = fw.observable(0).receiveFrom('Pane', 'dragOffset');
         this.paneTransition = fw.observable(undefined).receiveFrom('Pane', 'transition');

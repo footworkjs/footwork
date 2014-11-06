@@ -58,7 +58,7 @@ define([ "footwork", "lodash" ],
 
           return true;
         }, this).broadcastAs('narrow');
-        this.collapsed = this.paneCollapsed.broadcastAs('collapsed', true);
+        this.collapsed = this.paneCollapsed;
         this.dragging = fw.observable(false).broadcastAs('dragging', true);
         this.dragOffset = fw.observable(0).broadcastAs('dragOffset', true);
         this.moving = fw.computed(function() {

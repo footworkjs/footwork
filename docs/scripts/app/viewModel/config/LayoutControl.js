@@ -20,7 +20,7 @@ define([ "footwork", "lodash" ],
         this.reflowing = fw.observable().receiveFrom('Configuration', 'reflowing');
         this.visible = fw.observable(false).receiveFrom('Configuration', 'visible');
         this.visibleHeaderHeight = fw.observable(0).receiveFrom('Header', 'visibleHeight');
-        this.paneCollapsed = fw.observable(0).receiveFrom('Pane', 'collapsed');
+        this.paneCollapsed = fw.observable(0).receiveFrom('Configuration', 'paneCollapsed');
         this.columnWidth = fw.observable(0).receiveFrom('Pane', 'columnWidth');
         this.paneMaxWidth = fw.observable(0).receiveFrom('Pane', 'maxWidth');
         this.scrollPosition = fw.observable(false).receiveFrom('ViewPort', 'scrollPosition');

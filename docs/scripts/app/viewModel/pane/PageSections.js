@@ -16,7 +16,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
         }
         this.currentSection = fw.observable().receiveFrom('PageSections', 'currentSection');
         this.chosenSection = fw.observable().receiveFrom('PageSections', 'chosenSection');
-        this.paneCollapsed = fw.observable().receiveFrom('Pane', 'collapsed').extend({ debounce: 200 });
+        this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed').extend({ debounce: 200 });
         this.viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
 
         this.visible = fw.observable( null ).extend({ autoEnable: _.random( 200, 600 ) });
@@ -40,7 +40,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
         fw.observable().extend({ throttle: anchorComputeDelay }).receiveFrom('ViewPort', 'dimensions').subscribe( computeAnchorPos );
         fw.observable().extend({ throttle: anchorComputeDelay }).receiveFrom('Header', 'height').subscribe( computeAnchorPos );
         fw.observable().extend({ throttle: anchorComputeDelay }).receiveFrom('Pane', 'width').subscribe( computeAnchorPos );
-        fw.observable().extend({ throttle: anchorComputeDelay + 1000 }).receiveFrom('Pane', 'collapsed').subscribe( computeAnchorPos );
+        fw.observable().extend({ throttle: anchorComputeDelay + 1000 }).receiveFrom('Configuration', 'paneCollapsed').subscribe( computeAnchorPos );
 
         this.$namespace.subscribe('chooseSection', function( sectionName ) {
           sectionName === this.anchor() && this.chooseSection();

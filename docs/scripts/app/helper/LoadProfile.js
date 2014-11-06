@@ -1,4 +1,4 @@
-define(["lodash", "jquery", "footwork"], function(_, $, ko) {
+define(["lodash", "jquery", "footwork"], function(_, $) {
   return function LoadProfile(options) {
     var profiles = [
       [[ 120, { point: 25, duration: 120 } ],
@@ -46,16 +46,16 @@ define(["lodash", "jquery", "footwork"], function(_, $, ko) {
     var step = function() {
       var stepDefinition;
 
-      if(stepIndex === undefined) {
+      if( _.isUndefined(stepIndex) ) {
         stepIndex = 0;
       }
 
-      if(thisProfileStep === undefined || thisProfileStep[stepIndex] === undefined) {
+      if( _.isUndefined(thisProfileStep) || _.isUndefined(thisProfileStep[stepIndex]) ) {
         thisProfileStep = runningProfile.shift();
         stepIndex = 0;
       }
 
-      if(thisProfileStep !== undefined) {
+      if( !_.isUndefined(thisProfileStep) ) {
         if(stepIndex < thisProfileStep.length) {
           stepDefinition = thisProfileStep[stepIndex];
 
@@ -85,7 +85,7 @@ define(["lodash", "jquery", "footwork"], function(_, $, ko) {
 
     this.unbind = function(eventName, callbackToUnbind) {
       var event = proper(eventName);
-      if(options[event] !== undefined) {
+      if( !_.isUndefined(options[event]) ) {
         options[event] = _.reject(options[event], function(registeredCallback) {
           return registeredCallback === callbackToUnbind;
         });

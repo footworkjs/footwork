@@ -21,7 +21,7 @@ define([ "footwork", "lodash" ],
         this.viewPortIsMobile = fw.observable().receiveFrom('ViewPort', 'isMobile');
         this.viewPortHas3dTransforms = fw.observable(true).receiveFrom('ViewPort', 'has3dTransforms');
         this.columnWidth = fw.observable(0).receiveFrom('Pane', 'columnWidth');
-        this.paneCollapsed = fw.observable().receiveFrom('Pane', 'collapsed');
+        this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed');
         this.paneMoving = fw.observable().receiveFrom('Pane', 'moving');
         this.navReflowing = fw.observable().receiveFrom('Navigation', 'reflowing');
         this.overlapPane = fw.observable().receiveFrom('Body', 'overlapPane');

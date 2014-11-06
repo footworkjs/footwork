@@ -21454,7 +21454,7 @@ define('app/viewModel/config/LayoutControl',[ "footwork", "lodash" ],
         this.reflowing = fw.observable().receiveFrom('Configuration', 'reflowing');
         this.visible = fw.observable(false).receiveFrom('Configuration', 'visible');
         this.visibleHeaderHeight = fw.observable(0).receiveFrom('Header', 'visibleHeight');
-        this.paneCollapsed = fw.observable(0).receiveFrom('Pane', 'collapsed');
+        this.paneCollapsed = fw.observable(0).receiveFrom('Configuration', 'paneCollapsed');
         this.columnWidth = fw.observable(0).receiveFrom('Pane', 'columnWidth');
         this.paneMaxWidth = fw.observable(0).receiveFrom('Pane', 'maxWidth');
         this.scrollPosition = fw.observable(false).receiveFrom('ViewPort', 'scrollPosition');
@@ -21687,7 +21687,7 @@ define('app/viewModel/Pane',[ "footwork", "lodash" ],
 
           return true;
         }, this).broadcastAs('narrow');
-        this.collapsed = this.paneCollapsed.broadcastAs('collapsed', true);
+        this.collapsed = this.paneCollapsed;
         this.dragging = fw.observable(false).broadcastAs('dragging', true);
         this.dragOffset = fw.observable(0).broadcastAs('dragOffset', true);
         this.moving = fw.computed(function() {
@@ -21878,7 +21878,7 @@ define('app/viewModel/NavMenu',[ "jquery", "lodash", "footwork" ],
       initialize: function(entryData) {
         this.headerContentHeight = fw.observable().receiveFrom('Header', 'contentHeight');
         this.visible = fw.observable( null ).extend({ autoEnable: _.random( 200, 600 ) });
-        this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed');
+        this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed').extend({ debounce: { timeout: 200, when: function(collapsed) { return collapsed === false; } } });
         this.labelText = fw.observable( entryData.label );
         this.url = fw.observable( entryData.url );
         this.options = entryData || {};
@@ -22012,7 +22012,7 @@ define('app/viewModel/pane/PageSections',[ "jquery", "lodash", "footwork", "jque
         }
         this.currentSection = fw.observable().receiveFrom('PageSections', 'currentSection');
         this.chosenSection = fw.observable().receiveFrom('PageSections', 'chosenSection');
-        this.paneCollapsed = fw.observable().receiveFrom('Pane', 'collapsed');
+        this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed').extend({ debounce: 200 });
         this.viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
 
         this.visible = fw.observable( null ).extend({ autoEnable: _.random( 200, 600 ) });
@@ -22036,7 +22036,7 @@ define('app/viewModel/pane/PageSections',[ "jquery", "lodash", "footwork", "jque
         fw.observable().extend({ throttle: anchorComputeDelay }).receiveFrom('ViewPort', 'dimensions').subscribe( computeAnchorPos );
         fw.observable().extend({ throttle: anchorComputeDelay }).receiveFrom('Header', 'height').subscribe( computeAnchorPos );
         fw.observable().extend({ throttle: anchorComputeDelay }).receiveFrom('Pane', 'width').subscribe( computeAnchorPos );
-        fw.observable().extend({ throttle: anchorComputeDelay + 1000 }).receiveFrom('Pane', 'collapsed').subscribe( computeAnchorPos );
+        fw.observable().extend({ throttle: anchorComputeDelay + 1000 }).receiveFrom('Configuration', 'paneCollapsed').subscribe( computeAnchorPos );
 
         this.$namespace.subscribe('chooseSection', function( sectionName ) {
           sectionName === this.anchor() && this.chooseSection();
@@ -22056,14 +22056,14 @@ define('app/viewModel/pane/PageSections',[ "jquery", "lodash", "footwork", "jque
         }).withContext(this);
 
         this.chooseSection = function() {
-          var anchorName = this.anchor();
-          this.chosenSection( '' );
-          this.chosenSection( anchorName );
-          $('[name=' + anchorName + ']').pulse({ className: 'active', duration: 1000 });
-          if(this.viewPortLayoutMode() === 'mobile') {
+          if(this.viewPortLayoutMode() === 'mobile' && !this.paneCollapsed()) {
+            var anchorName = this.anchor();
+            this.chosenSection( '' );
+            this.chosenSection( anchorName );
+            $('[name=' + anchorName + ']').pulse({ className: 'active', duration: 1000 });
             this.paneCollapsed(true);
+            return true;
           }
-          return true;
         }.bind(this);
 
         this.visible( false );
@@ -22210,7 +22210,7 @@ define('app/viewModel/Header',[ "footwork", "lodash" ],
         this.viewPortIsMobile = fw.observable().receiveFrom('ViewPort', 'isMobile');
         this.viewPortHas3dTransforms = fw.observable(true).receiveFrom('ViewPort', 'has3dTransforms');
         this.columnWidth = fw.observable(0).receiveFrom('Pane', 'columnWidth');
-        this.paneCollapsed = fw.observable().receiveFrom('Pane', 'collapsed');
+        this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed');
         this.paneMoving = fw.observable().receiveFrom('Pane', 'moving');
         this.navReflowing = fw.observable().receiveFrom('Navigation', 'reflowing');
         this.overlapPane = fw.observable().receiveFrom('Body', 'overlapPane');
@@ -22250,7 +22250,7 @@ define('app/viewModel/Header',[ "footwork", "lodash" ],
           return parseInt( this.height(), 10 );
         }, this).broadcastAs('closePoint');
 
-        var throttledMoving = fw.observable(false).extend({ throttle: { timeout: 300, when: function(moving) { return moving === false; } } });
+        var throttledMoving = fw.observable(false).extend({ debounce: { timeout: 300, when: function(moving) { return moving === false; } } });
         this.contentHeight = fw.computed(function() {
           var headerContentMaxHeight = this.headerContentMaxHeight();
           var visibleHeight = parseInt( this.visibleHeight(), 10 );
@@ -22364,7 +22364,7 @@ define('app/viewModel/Header',[ "footwork", "lodash" ],
     });
   }
 );
-define('LoadProfile',["lodash", "jquery", "footwork"], function(_, $, ko) {
+define('LoadProfile',["lodash", "jquery", "footwork"], function(_, $) {
   return function LoadProfile(options) {
     var profiles = [
       [[ 120, { point: 25, duration: 120 } ],
@@ -22412,16 +22412,16 @@ define('LoadProfile',["lodash", "jquery", "footwork"], function(_, $, ko) {
     var step = function() {
       var stepDefinition;
 
-      if(stepIndex === undefined) {
+      if( _.isUndefined(stepIndex) ) {
         stepIndex = 0;
       }
 
-      if(thisProfileStep === undefined || thisProfileStep[stepIndex] === undefined) {
+      if( _.isUndefined(thisProfileStep) || _.isUndefined(thisProfileStep[stepIndex]) ) {
         thisProfileStep = runningProfile.shift();
         stepIndex = 0;
       }
 
-      if(thisProfileStep !== undefined) {
+      if( !_.isUndefined(thisProfileStep) ) {
         if(stepIndex < thisProfileStep.length) {
           stepDefinition = thisProfileStep[stepIndex];
 
@@ -22451,7 +22451,7 @@ define('LoadProfile',["lodash", "jquery", "footwork"], function(_, $, ko) {
 
     this.unbind = function(eventName, callbackToUnbind) {
       var event = proper(eventName);
-      if(options[event] !== undefined) {
+      if( !_.isUndefined(options[event]) ) {
         options[event] = _.reject(options[event], function(registeredCallback) {
           return registeredCallback === callbackToUnbind;
         });
@@ -22516,7 +22516,7 @@ define('LoadState',[ "jquery", "lodash", "footwork", "LoadProfile" ],
         return 'opacity 350ms 500ms linear, width ' + this.stepTransitionDuration() + ' 0ms linear';
       }, this);
 
-      if( options !== undefined && options.ignoreStatus !== undefined && options.ignoreStatus instanceof Array === false ) {
+      if( !_.isUndefined(options) && !_.isUndefined(options.ignoreStatus) && options.ignoreStatus instanceof Array === false ) {
         options.ignoreStatus = [ options.ignoreStatus ];
       }
 
@@ -22609,7 +22609,7 @@ define('LoadState',[ "jquery", "lodash", "footwork", "LoadProfile" ],
       this.setState = function(state) {
         var origState = state;
 
-        if( state === undefined ) {
+        if( _.isUndefined(state) ) {
           state = this.oldState();
         }
         this.oldState(state);
@@ -22841,17 +22841,16 @@ define('app/viewModel/Footer',[ "footwork", "lodash" ],
         this.setMode = function( viewModel, event ) {
           if(!this.forceMobileLayout()) {
             this.viewPortNoTransitions(true);
-            var newMode = event.target.getAttribute('data-mode');
-            if( newMode === 'mobile' ) {
+            var setAsMobile = event.target.getAttribute('data-mode') === 'mobile';
+            this.viewPortIsMobile(setAsMobile);
+            if( setAsMobile ) {
               this.paneCurrentSelection( 'NavMenu' );
-              this.viewPortIsMobile(true);
               this.paneCollapsed(true);
             } else {
               if( this.viewPortLayoutMode() === 'mobile' && (this.paneCurrentSelection() === 'NavMenu' || _.isUndefined(this.paneCurrentSelection()) ) ) {
                 this.paneCurrentSelection( 'PageSections' );
               }
               this.paneCollapsed( this.paneShouldBeCollapsed() );
-              this.viewPortIsMobile(false);
               this.headerClosed(false);
             }
 
@@ -23176,7 +23175,7 @@ define('Body',[ "footwork", "lodash", "router" ],
         this.transform = fw.observable().receiveFrom('Pane', 'transform');
         this.paneWidth = fw.observable(0).receiveFrom('Pane', 'width');
         this.narrowPane = fw.observable(false).receiveFrom('Pane', 'narrow');
-        this.paneCollapsed = fw.observable(false).receiveFrom('Pane', 'collapsed');
+        this.paneCollapsed = fw.observable(false).receiveFrom('Configuration', 'paneCollapsed');
         this.paneMoving = fw.observable(false).receiveFrom('Pane', 'moving');
         this.paneAnimate3d = fw.observable(false).receiveFrom('Pane', 'animate3d');
         this.paneDragging = fw.observable(false).receiveFrom('Pane', 'dragging');
@@ -23655,7 +23654,7 @@ define('PaneTouchManager',[ "jquery", "lodash", "footwork" ],
         };
 
         this.paneMoving = fw.observable().receiveFrom('Pane', 'movingTimer');
-        this.paneCollapsed = fw.observable().receiveFrom('Pane', 'collapsed');
+        this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed');
         this.paneDragging = fw.observable().receiveFrom('Pane', 'dragging');
         this.paneDragOffset = fw.observable(0).receiveFrom('Pane', 'dragOffset');
         this.paneTransition = fw.observable(undefined).receiveFrom('Pane', 'transition');

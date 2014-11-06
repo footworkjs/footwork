@@ -34,17 +34,16 @@ define([ "footwork", "lodash" ],
         this.setMode = function( viewModel, event ) {
           if(!this.forceMobileLayout()) {
             this.viewPortNoTransitions(true);
-            var newMode = event.target.getAttribute('data-mode');
-            if( newMode === 'mobile' ) {
+            var setAsMobile = event.target.getAttribute('data-mode') === 'mobile';
+            this.viewPortIsMobile(setAsMobile);
+            if( setAsMobile ) {
               this.paneCurrentSelection( 'NavMenu' );
-              this.viewPortIsMobile(true);
               this.paneCollapsed(true);
             } else {
               if( this.viewPortLayoutMode() === 'mobile' && (this.paneCurrentSelection() === 'NavMenu' || _.isUndefined(this.paneCurrentSelection()) ) ) {
                 this.paneCurrentSelection( 'PageSections' );
               }
               this.paneCollapsed( this.paneShouldBeCollapsed() );
-              this.viewPortIsMobile(false);
               this.headerClosed(false);
             }
 

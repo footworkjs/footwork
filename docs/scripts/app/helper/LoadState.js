@@ -19,7 +19,7 @@ define([ "jquery", "lodash", "footwork", "LoadProfile" ],
         return 'opacity 350ms 500ms linear, width ' + this.stepTransitionDuration() + ' 0ms linear';
       }, this);
 
-      if( options !== undefined && options.ignoreStatus !== undefined && options.ignoreStatus instanceof Array === false ) {
+      if( !_.isUndefined(options) && !_.isUndefined(options.ignoreStatus) && options.ignoreStatus instanceof Array === false ) {
         options.ignoreStatus = [ options.ignoreStatus ];
       }
 
@@ -112,7 +112,7 @@ define([ "jquery", "lodash", "footwork", "LoadProfile" ],
       this.setState = function(state) {
         var origState = state;
 
-        if( state === undefined ) {
+        if( _.isUndefined(state) ) {
           state = this.oldState();
         }
         this.oldState(state);

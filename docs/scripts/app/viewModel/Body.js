@@ -37,7 +37,7 @@ define([ "footwork", "lodash", "router" ],
         this.transform = fw.observable().receiveFrom('Pane', 'transform');
         this.paneWidth = fw.observable(0).receiveFrom('Pane', 'width');
         this.narrowPane = fw.observable(false).receiveFrom('Pane', 'narrow');
-        this.paneCollapsed = fw.observable(false).receiveFrom('Pane', 'collapsed');
+        this.paneCollapsed = fw.observable(false).receiveFrom('Configuration', 'paneCollapsed');
         this.paneMoving = fw.observable(false).receiveFrom('Pane', 'moving');
         this.paneAnimate3d = fw.observable(false).receiveFrom('Pane', 'animate3d');
         this.paneDragging = fw.observable(false).receiveFrom('Pane', 'dragging');
