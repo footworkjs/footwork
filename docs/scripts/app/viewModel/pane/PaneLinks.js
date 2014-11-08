@@ -1,5 +1,5 @@
-define([ "footwork", "lodash" ],
-  function( fw, _ ) {
+define([ "footwork", "lodash", "jquery" ],
+  function( fw, _, $ ) {
     return fw.viewModel({
       namespace: 'PaneLinks',
       initialize: function(params) {
@@ -14,6 +14,7 @@ define([ "footwork", "lodash" ],
         this.headerContentHeight = fw.observable().receiveFrom('Header', 'contentHeight');
         this.narrowPane = fw.observable().receiveFrom('Pane', 'narrow');
         this.columnWidth = fw.observable(null);
+        this.inHeader = ko.observable(params.inHeader);
         if(params.inHeader === true) {
           this.columnWidth = fw.observable().receiveFrom('Pane', 'columnWidth');
         }
@@ -49,16 +50,17 @@ define([ "footwork", "lodash" ],
 
         this.headerWidth = fw.computed(function() {
           if(params.inHeader === true) {
-            var linksMaxWidth = this.linksMaxWidth();
-            var width = (parseInt( this.columnWidth(), 10) - this.logoWidth()) - (this.paneAccentPadding() * 2);
-            width = ( width < linksMaxWidth ? width : linksMaxWidth );
-            return width + 'px';
+            return parseInt( this.columnWidth(), 10) - this.logoWidth() - (this.paneAccentPadding() * 2) + 'px';
           }
           return null;
         }, this);
 
         this.chooseSection = function( model, event ) {
-          this.currentSelection( event.target.getAttribute('data-section') || this.defaultSelection() );
+          var target = event.target.getAttribute('data-section');
+          if( _.isNull(target) ) {
+            target = $(event.target).parents('[data-section]')[0].getAttribute('data-section');
+          }
+          this.currentSelection( target || this.defaultSelection() );
           paneElementsNamespace.publish('hideAll');
         }.bind( this );
       }

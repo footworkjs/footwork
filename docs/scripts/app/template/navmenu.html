@@ -1,10 +1,5 @@
 <div class="pane-component NavMenu initialized" data-bind="css: { visible: visible }">
   <div class="content" data-bind="style: { height: paneContentMaxHeight }">
-    <div class="title" data-bind="style: { width: mobileWidth }">
-      <span class="label">
-        <span class="text">Main Menu</span>
-      </span>
-    </div>
     <nav data-bind="style: { width: mobileWidth }, foreach: entries">
       <a data-bind="css: { visible: visible }, attr: { title: labelText, target: target }, $route: { url: url, handler: clickHandler }, text: labelText"></a>
     </nav>

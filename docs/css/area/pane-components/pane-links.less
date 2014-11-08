@@ -26,6 +26,21 @@ header .pane-links {
     color: @header-fg-default;
     border-bottom: none;
 
+    .message {
+      display: table;
+      height: 100%;
+      width: 100%;
+
+      p {
+        opacity: 0.45;
+        display: table-cell;
+        vertical-align: middle; 
+        text-align: center;
+        padding: 0 10px;
+        .transition(all 0.5s ease);
+      }
+    }
+
     &.Github .Github, &.Reddit .Reddit, &.Twitter .Twitter, &.PageSections .PageSections.link {
       color: @header-fg-hover;
     }
@@ -45,6 +60,8 @@ header .pane-links {
   width: 100%;
   height: @pane-links-height;
   background-color: @pane-bg-color;
+  border-bottom: 1px solid darken(@pane-bg-color, 15%);
+  .box-sizing(border-box);
 
   &.pageHasSections {
     & > .areas {
@@ -86,12 +103,12 @@ header .pane-links {
       color: @pane-fg-color;
     }
 
-    a, .link {
+    .link {
       display: block;
       position: relative;
       float: right;
       height: 100%;
-      width: 33.333%;
+      width: 60px;
       cursor: pointer;
       color: darken( @header-bg, 10% );
       line-height: @pane-links-height;
@@ -99,15 +116,33 @@ header .pane-links {
       text-decoration: none;
       text-align: center;
       .box-sizing(border-box);
+      span {
+        line-height: inherit;
+      }
 
       &:hover {
         color: @header-fg-hover;
         text-decoration: none;
       }
+      
+      .icon {
+        line-height: inherit;
+      }
 
       &:active, &:focus {
         color: darken(@header-fg-hover, 10%);
         top: 1px;
+      }
+
+      .content {
+        width: 180px;
+        height: 100%;
+        margin: 0 auto;
+
+        .icon, .label {
+          float: left;
+          margin-left: 10px;
+        }
       }
     }
 

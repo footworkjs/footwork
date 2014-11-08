@@ -18176,7 +18176,7 @@ b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJava
   } else if (typeof exports === 'object') {
     module.exports = factory(require('lodash'), require('knockout'), require('postal'));
   } else {
-    root.fw = factory(_, ko, postal);
+    root.fw = factory(root._, root.ko, root.postal);
   }
 }(this, function (_, ko, postal) {
   var windowObject = window;
@@ -21431,7 +21431,102 @@ define('app/viewModel/config/Configuration',[ "jquery", "lodash", "footwork", "s
   }
 );
 
-define('text!app/template/config/configuration.html',[],function () { return '<div class="configuration" data-bind="css: { visible: visible }">\r\n  <layoutcontrol></layoutcontrol>\r\n</div>';});
+define('text!app/template/config/configuration.html',[],function () { return '<div class="configuration" data-bind="css: { visible: visible }">\r\n  <layoutcontrol></layoutcontrol>\r\n  <configmanagement></configmanagement>\r\n</div>';});
+
+define('app/viewModel/config/ConfigManagement',[ "footwork", "lodash" ],
+  function( fw, _ ) {
+    return fw.viewModel({
+      namespace: 'ConfigManagement',
+      initialize: function() {
+        var Configuration = fw.namespace('Configuration');
+
+        this.transitionsEnabled = fw.observable().receiveFrom('Configuration', 'transitionsEnabled');
+        this.helpDialog = fw.observable({}).receiveFrom('Configuration', 'helpDialog');
+        this.noticeDialog = fw.observable({}).receiveFrom('Configuration', 'noticeDialog');
+        this.autoHideHeader = fw.observable(false).receiveFrom('Configuration', 'autoHideHeader');
+        this.savePulse = fw.observable().receiveFrom('Configuration', 'savePulse');
+        this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed');
+        this.saveSession = fw.observable().receiveFrom('Configuration', 'saveSession');
+        this.configVisible = fw.observable().receiveFrom('Configuration', 'visible');
+        this.headerControlMutable = fw.observable().receiveFrom('LayoutControl', 'headerMutable');
+        this.visibleHeaderHeight = fw.observable(60).receiveFrom('Header', 'visibleHeight');
+        this.headerFixed = fw.observable(60).receiveFrom('Header', 'fixed');
+        this.headerClosed = fw.observable(60).receiveFrom('Header', 'closed');
+        this.pastHeaderClosePoint = fw.observable(false).receiveFrom('Header', 'pastClosePoint');
+        this.headerMoving = fw.observable(false).receiveFrom('Header', 'moving');
+        this.headerTopOffset = fw.observable().receiveFrom('Header', 'topOffset');
+        this.headerClosedTransform = fw.observable().receiveFrom('Header', 'closedTransform');
+        this.navReflowing = fw.observable(false).receiveFrom('Navigation', 'reflowing');
+        this.columnWidth = fw.observable(0).receiveFrom('Pane', 'columnWidth');
+        this.viewScrolling = fw.observable(false).receiveFrom('ViewPort', 'scrolling');
+
+        this.pulse = this.savePulse;
+        this.helpVisible = this.helpDialog;
+
+        this.noTransition = fw.computed(function() {
+          return (this.viewScrolling() || this.navReflowing()) && this.headerMoving() === false;
+        }, this);
+
+        this.containerTop = fw.computed(function() {
+          return ( parseInt(this.visibleHeaderHeight(), 10) + parseInt(this.headerTopOffset(), 10) ) + 'px';
+        }, this);
+
+        this.containerMarginLeft = fw.computed(function() {
+          return ( parseInt(this.columnWidth(), 10) + 5 ) + 'px';
+        }, this);
+
+        this.autoHideHeaderState = fw.computed(function() {
+          return this.autoHideHeader() ? 'checked' : 'unchecked';
+        }, this);
+
+        this.paneState = fw.computed(function() {
+          return this.paneCollapsed() ? 'checked' : 'unchecked';
+        }, this);
+
+        this.transitionState = fw.computed(function() {
+          return this.transitionsEnabled() ? 'checked' : 'unchecked';
+        }, this);
+
+        this.saveSessionState = fw.computed(function() {
+          return this.saveSession() === true ? 'partial' : 'unchecked';
+        }, this);
+
+        this.togglePane = function() {
+          this.paneCollapsed( !this.paneCollapsed() );
+        };
+
+        this.toggleTransitions = function() {
+          this.transitionsEnabled( !this.transitionsEnabled() );
+        };
+
+        this.toggleConfiguration = function() {
+          this.configVisible( !this.configVisible() );
+        }.bind( this );
+
+        this.toggleSaveSession = function() {
+          this.saveSession( !this.saveSession() );
+        }.bind( this );
+
+        this.toggleAutoHideHeader = function() {
+          if( this.autoHideHeader() === true ) {
+            this.headerClosed(false);
+          } else if( this.pastHeaderClosePoint() ) {
+            this.headerClosed(true);
+          }
+          this.autoHideHeader( !this.autoHideHeader() );
+        };
+
+        this.reset = function() {
+          Configuration.publish('reset');
+        }.bind( this );
+
+        return this;
+      }
+    });
+  }
+);
+
+define('text!app/template/config/configmanagement.html',[],function () { return '<div class="management has-layout-trans" data-bind="css: { noTransition: noTransition }, style: { top: containerTop }, transform: headerClosedTransform">\r\n  <div class="content has-layout-trans" data-bind="style: { marginLeft: containerMarginLeft }, css: { headerControlVisible: headerControlMutable }">\r\n    <div class="manage dialog has-trans">\r\n      <div class="header">\r\n        <div class="title">Settings</div>\r\n        <a class="toggle-config control icon-close" data-bind="click: toggleConfiguration"></a>\r\n        <div class="save-notice has-trans" data-bind="css: { pulse: pulse }">\r\n          <span class="icon icon-download"></span> session saved ...\r\n        </div>\r\n      </div>\r\n\r\n      <div class="content">\r\n        <div class="row">\r\n          <label data-bind="click: togglePane">Collapse Panel</label>\r\n          <div class="checkbox" data-bind="class: paneState, click: togglePane">\r\n            <div class="checked icon-checkbox-checked icon"></div>\r\n            <div class="unchecked icon-checkbox-unchecked icon"></div>\r\n          </div>\r\n          <span class="shortcut" data-bind="click: togglePane">ctrl + z</span>\r\n        </div>\r\n\r\n        <div class="row">\r\n          <label data-bind="click: toggleAutoHideHeader">Auto-hide header</label>\r\n          <div class="checkbox" data-bind="class: autoHideHeaderState, click: toggleAutoHideHeader">\r\n            <div class="checked icon-checkbox-checked icon"></div>\r\n            <div class="unchecked icon-checkbox-unchecked icon"></div>\r\n          </div>\r\n        </div>\r\n\r\n        <div class="row">\r\n          <label data-bind="click: toggleTransitions">Animations</label>\r\n          <div class="checkbox" data-bind="class: transitionState, click: toggleTransitions">\r\n            <div class="checked icon-checkbox-checked icon"></div>\r\n            <div class="unchecked icon-checkbox-unchecked icon"></div>\r\n          </div>\r\n        </div>\r\n\r\n        <div class="bottom row">\r\n          <button class="button" data-bind="click: toggleConfiguration"><span>Done</span></button>\r\n\r\n          <div class="utility-row">\r\n            <div class="auto-save">\r\n              <div class="checkbox" data-bind="class: saveSessionState, click: toggleSaveSession">\r\n                <div class="partial icon-checkbox-partial icon"></div>\r\n                <div class="unchecked icon-checkbox-unchecked icon"></div>\r\n              </div>\r\n              <label data-bind="click: toggleSaveSession">Preserve settings</label>\r\n            </div>\r\n            <a data-bind="click: reset"><span>Reset Interface</span><span class="shortcut">alt + r</span></a>\r\n          </div>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n</div>';});
 
 define('app/viewModel/config/LayoutControl',[ "footwork", "lodash" ],
   function( fw, _ ) {
@@ -21800,8 +21895,8 @@ define('app/viewModel/Pane',[ "footwork", "lodash" ],
 
 define('text!app/template/pane.html',[],function () { return '<div class="pane has-layout-trans" data-bind="style: { width: width, top: topOffset, left: leftOffset }, transition: transition, transform: transform">\r\n  <div class="mobile-only gripper"></div>\r\n\r\n  <div class="mobile-only page-logo js-only">\r\n    <a data-bind="$route: \'/\'">\r\n      <svg class="page-logo" width="161px" height="30px" viewBox="0 0 161 30">\r\n        <path fill="none" d="M158.2,27.9c-7,0-14,0-21.1,0c0-8.6,0-17.2,0-25.8c7,0,14,0,21.1,0C158.2,10.7,158.2,19.3,158.2,27.9z\r\n           M155.1,16.3c0-1-0.2-1.8-0.5-2.5c-0.5-1.3-1.3-2.4-2.2-3.4c-0.7-0.8-1.4-1.5-2.4-1.9c-0.7-0.3-1.4-0.3-2.2,0.1\r\n          c-0.6,0.3-1,0.8-1.3,1.4c-0.5,0.9-0.5,1.9-0.3,2.9c0.1,0.9,0.4,1.9,0.3,2.8c-0.1,1.4-0.8,2.5-1.9,3.3c-0.7,0.5-1.5,0.6-2.3,0.7\r\n          c-0.8,0.1-1.6,0.2-2.3,0.6c-1.3,0.6-2.1,1.6-2.5,2.9c-0.3,0.7-0.2,1.5,0.1,2.2c0.4,0.8,1,1.3,1.6,1.8c0.5,0.4,1,0.5,1.6,0.5\r\n          c1.3,0.1,2.4-0.5,3.2-1.4c1.1-1.3,2.3-2.3,3.8-3c0.8-0.4,1.6-0.7,2.4-1.1c1.5-0.7,2.8-1.7,3.8-3C154.6,18.4,155.1,17.4,155.1,16.3\r\n          z M149.6,5.4c0,1.3,0.8,1.9,1.9,1.5c1.3-0.5,2.4-2.3,2-3.7c-0.2-0.9-1-1.3-1.8-1C150.6,2.7,149.7,4,149.6,5.4z M155.8,7.1\r\n          c0.1-1.1-0.5-1.6-1.4-1.4c-0.8,0.2-1.6,1.4-1.5,2.3c0.1,0.9,0.8,1.3,1.6,0.9C155.3,8.5,155.7,7.8,155.8,7.1z M157.4,9.3\r\n          c0-0.6-0.4-0.9-1-0.8c-0.8,0.1-1.5,1-1.5,1.8c0,0.6,0.4,1,1,0.8C156.7,11,157.4,10.1,157.4,9.3z M156.7,13c0.6,0,1.2-0.5,1.4-1.1\r\n          c0.1-0.5-0.2-0.9-0.7-0.9c-0.6,0-1.3,0.5-1.4,1.1C155.9,12.6,156.1,13,156.7,13z M156.3,14.3c0,0.4,0.3,0.6,0.7,0.5\r\n          c0.5-0.1,0.9-0.6,0.9-1.1c0-0.4-0.3-0.7-0.7-0.6C156.8,13.3,156.3,13.8,156.3,14.3z"/>\r\n        <g class="foot">\r\n          <path d="M155.1,16.3c0,1-0.4,2.1-1.1,3c-1,1.3-2.3,2.3-3.8,3c-0.8,0.4-1.6,0.7-2.4,1.1c-1.5,0.7-2.7,1.8-3.8,3\r\n            c-0.8,0.9-1.9,1.4-3.2,1.4c-0.6,0-1.1-0.2-1.6-0.5c-0.7-0.5-1.3-1.1-1.6-1.8c-0.4-0.7-0.4-1.5-0.1-2.2c0.5-1.3,1.3-2.3,2.5-2.9\r\n            c0.7-0.4,1.5-0.4,2.3-0.6c0.8-0.1,1.6-0.3,2.3-0.7c1.1-0.8,1.8-1.9,1.9-3.3c0.1-1-0.2-1.9-0.3-2.8c-0.1-1-0.2-2,0.3-2.9\r\n            c0.3-0.6,0.7-1.1,1.3-1.4c0.7-0.4,1.4-0.4,2.2-0.1c1,0.4,1.7,1.1,2.4,1.9c0.9,1,1.7,2.1,2.2,3.4C154.9,14.6,155.1,15.4,155.1,16.3\r\n            z"/>\r\n          <path d="M149.6,5.4c0-1.3,0.9-2.7,2.1-3.1c0.8-0.3,1.6,0.1,1.8,1c0.3,1.3-0.7,3.2-2,3.7C150.4,7.3,149.6,6.6,149.6,5.4z"/>\r\n          <path d="M155.8,7.1c-0.1,0.7-0.5,1.4-1.4,1.8c-0.8,0.4-1.5,0-1.6-0.9c-0.1-0.9,0.7-2,1.5-2.3C155.3,5.5,155.9,6,155.8,7.1z"/>\r\n          <path d="M157.4,9.3c0,0.8-0.7,1.7-1.5,1.8c-0.6,0.1-1-0.2-1-0.8c0-0.8,0.7-1.6,1.5-1.8C157,8.4,157.4,8.7,157.4,9.3z"/>\r\n          <path d="M156.7,13c-0.5,0-0.8-0.4-0.7-0.8c0.1-0.6,0.8-1.1,1.4-1.1c0.5,0,0.8,0.4,0.7,0.9C157.9,12.4,157.3,13,156.7,13z"/>\r\n          <path d="M156.3,14.3c0-0.5,0.4-1.1,0.9-1.1c0.4-0.1,0.7,0.2,0.7,0.6c0,0.5-0.4,1-0.9,1.1C156.6,15,156.3,14.7,156.3,14.3z"/>\r\n          <path d="M111.7,22.1c0-1,0.7-1.8,1.7-1.8c1,0,1.7,0.7,1.7,1.8c0,1-0.6,1.8-1.7,1.8C112.4,23.9,111.7,23.1,111.7,22.1z"/>\r\n        </g>\r\n        <g class="footwork">\r\n          <path d="M6,23.6V11.9H4.1V10H6V9.4c0-1.9,0.4-3.6,1.6-4.7c0.9-0.9,2.2-1.3,3.3-1.3c0.9,0,1.6,0.2,2.1,0.4l-0.3,1.9\r\n            c-0.4-0.2-0.9-0.3-1.6-0.3c-2.1,0-2.6,1.8-2.6,3.9V10h3.3v1.9H8.4v11.7H6z"/>\r\n          <path d="M25.8,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C23.1,9.7,25.8,12.5,25.8,16.7z M15,16.8\r\n            c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2S15,14.3,15,16.8z"/>\r\n          <path d="M41.2,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C38.5,9.7,41.2,12.5,41.2,16.7z M30.4,16.8\r\n            c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2S30.4,14.3,30.4,16.8z"/>\r\n          <path d="M47.2,6.1V10h3.5v1.9h-3.5v7.3c0,1.7,0.5,2.6,1.8,2.6c0.6,0,1.1-0.1,1.4-0.2l0.1,1.8c-0.5,0.2-1.2,0.3-2.2,0.3\r\n            c-1.1,0-2.1-0.4-2.7-1c-0.7-0.7-1-1.9-1-3.5v-7.4h-2.1V10h2.1V6.8L47.2,6.1z"/>\r\n          <path d="M54.8,10l1.8,6.9c0.4,1.5,0.8,2.9,1,4.3h0.1c0.3-1.4,0.8-2.8,1.2-4.3l2.2-6.9h2.1l2.1,6.8c0.5,1.6,0.9,3.1,1.2,4.4h0.1\r\n            c0.2-1.4,0.6-2.8,1-4.4l1.9-6.8h2.4l-4.4,13.6h-2.2l-2.1-6.5c-0.5-1.5-0.9-2.9-1.2-4.5H62c-0.3,1.6-0.8,3-1.2,4.5l-2.2,6.4h-2.2\r\n            L52.2,10H54.8z"/>\r\n          <path d="M86.4,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C83.7,9.7,86.4,12.5,86.4,16.7z M75.6,16.8\r\n            c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2C76.9,11.6,75.6,14.3,75.6,16.8z"/>\r\n          <path d="M89.5,14.3c0-1.6,0-3-0.1-4.2h2.2l0.1,2.7h0.1c0.6-1.8,2.1-3,3.8-3c0.3,0,0.5,0,0.7,0.1v2.3c-0.3-0.1-0.5-0.1-0.8-0.1\r\n            c-1.7,0-3,1.3-3.3,3.2c-0.1,0.3-0.1,0.7-0.1,1.1v7.2h-2.4V14.3z"/>\r\n          <path d="M101.2,16.2L101.2,16.2c0.4-0.5,0.9-1.1,1.3-1.5l4-4.7h3l-5.2,5.6l6,8h-3l-4.7-6.5l-1.3,1.4v5.1h-2.4V3.7h2.4V16.2z"/>\r\n        </g>\r\n        <g class="js">\r\n          <path d="M114.8,27.5c1.1-0.1,2.1-0.4,2.7-1c0.7-0.8,0.9-1.8,0.9-5.1V10h2.5v12.3c0,2.6-0.4,4.3-1.6,5.6c-1.1,1.1-2.9,1.5-4.2,1.5\r\n            L114.8,27.5z M121.1,6.2c0,0.8-0.6,1.5-1.5,1.5c-0.9,0-1.5-0.7-1.5-1.5c0-0.9,0.6-1.5,1.6-1.5C120.5,4.7,121.1,5.3,121.1,6.2z"/>\r\n          <path d="M124.5,21.1c0.7,0.5,2,1,3.2,1c1.8,0,2.6-0.9,2.6-2c0-1.2-0.7-1.8-2.5-2.5c-2.4-0.9-3.6-2.2-3.6-3.8c0-2.2,1.8-4,4.7-4\r\n            c1.4,0,2.6,0.4,3.3,0.8l-0.6,1.8c-0.5-0.3-1.5-0.8-2.8-0.8c-1.5,0-2.3,0.8-2.3,1.8c0,1.1,0.8,1.6,2.6,2.3c2.4,0.9,3.6,2.1,3.6,4.1\r\n            c0,2.4-1.8,4.1-5.1,4.1c-1.5,0-2.9-0.4-3.8-0.9L124.5,21.1z"/>\r\n        </g>\r\n      </svg>\r\n    </a>\r\n  </div>\r\n\r\n  <panelinks></panelinks>\r\n\r\n  <div class="content">\r\n    <navmenu></navmenu>\r\n    <pagesections></pagesections>\r\n  </div>\r\n</div>';});
 
-define('app/viewModel/pane/PaneLinks',[ "footwork", "lodash" ],
-  function( fw, _ ) {
+define('app/viewModel/pane/PaneLinks',[ "footwork", "lodash", "jquery" ],
+  function( fw, _, $ ) {
     return fw.viewModel({
       namespace: 'PaneLinks',
       initialize: function(params) {
@@ -21816,6 +21911,7 @@ define('app/viewModel/pane/PaneLinks',[ "footwork", "lodash" ],
         this.headerContentHeight = fw.observable().receiveFrom('Header', 'contentHeight');
         this.narrowPane = fw.observable().receiveFrom('Pane', 'narrow');
         this.columnWidth = fw.observable(null);
+        this.inHeader = ko.observable(params.inHeader);
         if(params.inHeader === true) {
           this.columnWidth = fw.observable().receiveFrom('Pane', 'columnWidth');
         }
@@ -21851,16 +21947,17 @@ define('app/viewModel/pane/PaneLinks',[ "footwork", "lodash" ],
 
         this.headerWidth = fw.computed(function() {
           if(params.inHeader === true) {
-            var linksMaxWidth = this.linksMaxWidth();
-            var width = (parseInt( this.columnWidth(), 10) - this.logoWidth()) - (this.paneAccentPadding() * 2);
-            width = ( width < linksMaxWidth ? width : linksMaxWidth );
-            return width + 'px';
+            return parseInt( this.columnWidth(), 10) - this.logoWidth() - (this.paneAccentPadding() * 2) + 'px';
           }
           return null;
         }, this);
 
         this.chooseSection = function( model, event ) {
-          this.currentSelection( event.target.getAttribute('data-section') || this.defaultSelection() );
+          var target = event.target.getAttribute('data-section');
+          if( _.isNull(target) ) {
+            target = $(event.target).parents('[data-section]')[0].getAttribute('data-section');
+          }
+          this.currentSelection( target || this.defaultSelection() );
           paneElementsNamespace.publish('hideAll');
         }.bind( this );
       }
@@ -21868,7 +21965,7 @@ define('app/viewModel/pane/PaneLinks',[ "footwork", "lodash" ],
   }
 );
 
-define('text!app/template/pane/panelinks.html',[],function () { return '<div class="pane-links" data-bind="style: { width: columnWidth }, css: { pageHasSections: pageHasSections }">\r\n  <div class="logo">\r\n    <a data-bind="$route: \'/\'">\r\n      <div class="img-logo no-svg-only"></div>\r\n      <div class="svg-only">\r\n        <svg class="page-logo" width="161px" height="30px" viewBox="0 0 161 30">\r\n          <path fill="none" d="M158.2,27.9c-7,0-14,0-21.1,0c0-8.6,0-17.2,0-25.8c7,0,14,0,21.1,0C158.2,10.7,158.2,19.3,158.2,27.9z\r\n             M155.1,16.3c0-1-0.2-1.8-0.5-2.5c-0.5-1.3-1.3-2.4-2.2-3.4c-0.7-0.8-1.4-1.5-2.4-1.9c-0.7-0.3-1.4-0.3-2.2,0.1\r\n            c-0.6,0.3-1,0.8-1.3,1.4c-0.5,0.9-0.5,1.9-0.3,2.9c0.1,0.9,0.4,1.9,0.3,2.8c-0.1,1.4-0.8,2.5-1.9,3.3c-0.7,0.5-1.5,0.6-2.3,0.7\r\n            c-0.8,0.1-1.6,0.2-2.3,0.6c-1.3,0.6-2.1,1.6-2.5,2.9c-0.3,0.7-0.2,1.5,0.1,2.2c0.4,0.8,1,1.3,1.6,1.8c0.5,0.4,1,0.5,1.6,0.5\r\n            c1.3,0.1,2.4-0.5,3.2-1.4c1.1-1.3,2.3-2.3,3.8-3c0.8-0.4,1.6-0.7,2.4-1.1c1.5-0.7,2.8-1.7,3.8-3C154.6,18.4,155.1,17.4,155.1,16.3\r\n            z M149.6,5.4c0,1.3,0.8,1.9,1.9,1.5c1.3-0.5,2.4-2.3,2-3.7c-0.2-0.9-1-1.3-1.8-1C150.6,2.7,149.7,4,149.6,5.4z M155.8,7.1\r\n            c0.1-1.1-0.5-1.6-1.4-1.4c-0.8,0.2-1.6,1.4-1.5,2.3c0.1,0.9,0.8,1.3,1.6,0.9C155.3,8.5,155.7,7.8,155.8,7.1z M157.4,9.3\r\n            c0-0.6-0.4-0.9-1-0.8c-0.8,0.1-1.5,1-1.5,1.8c0,0.6,0.4,1,1,0.8C156.7,11,157.4,10.1,157.4,9.3z M156.7,13c0.6,0,1.2-0.5,1.4-1.1\r\n            c0.1-0.5-0.2-0.9-0.7-0.9c-0.6,0-1.3,0.5-1.4,1.1C155.9,12.6,156.1,13,156.7,13z M156.3,14.3c0,0.4,0.3,0.6,0.7,0.5\r\n            c0.5-0.1,0.9-0.6,0.9-1.1c0-0.4-0.3-0.7-0.7-0.6C156.8,13.3,156.3,13.8,156.3,14.3z"/>\r\n          <g class="foot">\r\n            <path d="M155.1,16.3c0,1-0.4,2.1-1.1,3c-1,1.3-2.3,2.3-3.8,3c-0.8,0.4-1.6,0.7-2.4,1.1c-1.5,0.7-2.7,1.8-3.8,3\r\n              c-0.8,0.9-1.9,1.4-3.2,1.4c-0.6,0-1.1-0.2-1.6-0.5c-0.7-0.5-1.3-1.1-1.6-1.8c-0.4-0.7-0.4-1.5-0.1-2.2c0.5-1.3,1.3-2.3,2.5-2.9\r\n              c0.7-0.4,1.5-0.4,2.3-0.6c0.8-0.1,1.6-0.3,2.3-0.7c1.1-0.8,1.8-1.9,1.9-3.3c0.1-1-0.2-1.9-0.3-2.8c-0.1-1-0.2-2,0.3-2.9\r\n              c0.3-0.6,0.7-1.1,1.3-1.4c0.7-0.4,1.4-0.4,2.2-0.1c1,0.4,1.7,1.1,2.4,1.9c0.9,1,1.7,2.1,2.2,3.4C154.9,14.6,155.1,15.4,155.1,16.3\r\n              z"/>\r\n            <path d="M149.6,5.4c0-1.3,0.9-2.7,2.1-3.1c0.8-0.3,1.6,0.1,1.8,1c0.3,1.3-0.7,3.2-2,3.7C150.4,7.3,149.6,6.6,149.6,5.4z"/>\r\n            <path d="M155.8,7.1c-0.1,0.7-0.5,1.4-1.4,1.8c-0.8,0.4-1.5,0-1.6-0.9c-0.1-0.9,0.7-2,1.5-2.3C155.3,5.5,155.9,6,155.8,7.1z"/>\r\n            <path d="M157.4,9.3c0,0.8-0.7,1.7-1.5,1.8c-0.6,0.1-1-0.2-1-0.8c0-0.8,0.7-1.6,1.5-1.8C157,8.4,157.4,8.7,157.4,9.3z"/>\r\n            <path d="M156.7,13c-0.5,0-0.8-0.4-0.7-0.8c0.1-0.6,0.8-1.1,1.4-1.1c0.5,0,0.8,0.4,0.7,0.9C157.9,12.4,157.3,13,156.7,13z"/>\r\n            <path d="M156.3,14.3c0-0.5,0.4-1.1,0.9-1.1c0.4-0.1,0.7,0.2,0.7,0.6c0,0.5-0.4,1-0.9,1.1C156.6,15,156.3,14.7,156.3,14.3z"/>\r\n            <path d="M111.7,22.1c0-1,0.7-1.8,1.7-1.8c1,0,1.7,0.7,1.7,1.8c0,1-0.6,1.8-1.7,1.8C112.4,23.9,111.7,23.1,111.7,22.1z"/>\r\n          </g>\r\n          <g class="footwork">\r\n            <path d="M6,23.6V11.9H4.1V10H6V9.4c0-1.9,0.4-3.6,1.6-4.7c0.9-0.9,2.2-1.3,3.3-1.3c0.9,0,1.6,0.2,2.1,0.4l-0.3,1.9\r\n              c-0.4-0.2-0.9-0.3-1.6-0.3c-2.1,0-2.6,1.8-2.6,3.9V10h3.3v1.9H8.4v11.7H6z"/>\r\n            <path d="M25.8,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C23.1,9.7,25.8,12.5,25.8,16.7z M15,16.8\r\n              c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2S15,14.3,15,16.8z"/>\r\n            <path d="M41.2,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C38.5,9.7,41.2,12.5,41.2,16.7z M30.4,16.8\r\n              c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2S30.4,14.3,30.4,16.8z"/>\r\n            <path d="M47.2,6.1V10h3.5v1.9h-3.5v7.3c0,1.7,0.5,2.6,1.8,2.6c0.6,0,1.1-0.1,1.4-0.2l0.1,1.8c-0.5,0.2-1.2,0.3-2.2,0.3\r\n              c-1.1,0-2.1-0.4-2.7-1c-0.7-0.7-1-1.9-1-3.5v-7.4h-2.1V10h2.1V6.8L47.2,6.1z"/>\r\n            <path d="M54.8,10l1.8,6.9c0.4,1.5,0.8,2.9,1,4.3h0.1c0.3-1.4,0.8-2.8,1.2-4.3l2.2-6.9h2.1l2.1,6.8c0.5,1.6,0.9,3.1,1.2,4.4h0.1\r\n              c0.2-1.4,0.6-2.8,1-4.4l1.9-6.8h2.4l-4.4,13.6h-2.2l-2.1-6.5c-0.5-1.5-0.9-2.9-1.2-4.5H62c-0.3,1.6-0.8,3-1.2,4.5l-2.2,6.4h-2.2\r\n              L52.2,10H54.8z"/>\r\n            <path d="M86.4,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C83.7,9.7,86.4,12.5,86.4,16.7z M75.6,16.8\r\n              c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2C76.9,11.6,75.6,14.3,75.6,16.8z"/>\r\n            <path d="M89.5,14.3c0-1.6,0-3-0.1-4.2h2.2l0.1,2.7h0.1c0.6-1.8,2.1-3,3.8-3c0.3,0,0.5,0,0.7,0.1v2.3c-0.3-0.1-0.5-0.1-0.8-0.1\r\n              c-1.7,0-3,1.3-3.3,3.2c-0.1,0.3-0.1,0.7-0.1,1.1v7.2h-2.4V14.3z"/>\r\n            <path d="M101.2,16.2L101.2,16.2c0.4-0.5,0.9-1.1,1.3-1.5l4-4.7h3l-5.2,5.6l6,8h-3l-4.7-6.5l-1.3,1.4v5.1h-2.4V3.7h2.4V16.2z"/>\r\n          </g>\r\n          <g class="js">\r\n            <path d="M114.8,27.5c1.1-0.1,2.1-0.4,2.7-1c0.7-0.8,0.9-1.8,0.9-5.1V10h2.5v12.3c0,2.6-0.4,4.3-1.6,5.6c-1.1,1.1-2.9,1.5-4.2,1.5\r\n              L114.8,27.5z M121.1,6.2c0,0.8-0.6,1.5-1.5,1.5c-0.9,0-1.5-0.7-1.5-1.5c0-0.9,0.6-1.5,1.6-1.5C120.5,4.7,121.1,5.3,121.1,6.2z"/>\r\n            <path d="M124.5,21.1c0.7,0.5,2,1,3.2,1c1.8,0,2.6-0.9,2.6-2c0-1.2-0.7-1.8-2.5-2.5c-2.4-0.9-3.6-2.2-3.6-3.8c0-2.2,1.8-4,4.7-4\r\n              c1.4,0,2.6,0.4,3.3,0.8l-0.6,1.8c-0.5-0.3-1.5-0.8-2.8-0.8c-1.5,0-2.3,0.8-2.3,1.8c0,1.1,0.8,1.6,2.6,2.3c2.4,0.9,3.6,2.1,3.6,4.1\r\n              c0,2.4-1.8,4.1-5.1,4.1c-1.5,0-2.9-0.4-3.8-0.9L124.5,21.1z"/>\r\n          </g>\r\n        </svg>\r\n      </div>\r\n    </a>\r\n  </div>\r\n  <div class="areas" data-bind="style: { width: headerWidth }, class: currentSelection">\r\n    <div class="primary">\r\n      <a href="https://github.com/reflectiveSingleton" class="icon-github Github" title="Github"\r\n         data-bind="click: chooseSection, style: { lineHeight: height }" data-section="Github"></a>\r\n    </div>\r\n    <div class="alternate">\r\n      <span class="icon-page-sections PageSections link" title="Page Sections" data-bind="click: chooseSection, style: { lineHeight: height }" data-section="PageSections"></span>\r\n      <span class="icon-main-menu NavMenu link" title="Main Menu" data-bind="click: chooseSection, style: { lineHeight: height }" data-section="NavMenu"></span>\r\n    </div>\r\n  </div>\r\n</div>';});
+define('text!app/template/pane/panelinks.html',[],function () { return '<div class="pane-links" data-bind="style: { width: columnWidth }, css: { pageHasSections: pageHasSections }">\r\n  <div class="logo">\r\n    <a data-bind="$route: \'/\'">\r\n      <div class="img-logo no-svg-only"></div>\r\n      <div class="svg-only">\r\n        <svg class="page-logo" width="161px" height="30px" viewBox="0 0 161 30">\r\n          <path fill="none" d="M158.2,27.9c-7,0-14,0-21.1,0c0-8.6,0-17.2,0-25.8c7,0,14,0,21.1,0C158.2,10.7,158.2,19.3,158.2,27.9z\r\n             M155.1,16.3c0-1-0.2-1.8-0.5-2.5c-0.5-1.3-1.3-2.4-2.2-3.4c-0.7-0.8-1.4-1.5-2.4-1.9c-0.7-0.3-1.4-0.3-2.2,0.1\r\n            c-0.6,0.3-1,0.8-1.3,1.4c-0.5,0.9-0.5,1.9-0.3,2.9c0.1,0.9,0.4,1.9,0.3,2.8c-0.1,1.4-0.8,2.5-1.9,3.3c-0.7,0.5-1.5,0.6-2.3,0.7\r\n            c-0.8,0.1-1.6,0.2-2.3,0.6c-1.3,0.6-2.1,1.6-2.5,2.9c-0.3,0.7-0.2,1.5,0.1,2.2c0.4,0.8,1,1.3,1.6,1.8c0.5,0.4,1,0.5,1.6,0.5\r\n            c1.3,0.1,2.4-0.5,3.2-1.4c1.1-1.3,2.3-2.3,3.8-3c0.8-0.4,1.6-0.7,2.4-1.1c1.5-0.7,2.8-1.7,3.8-3C154.6,18.4,155.1,17.4,155.1,16.3\r\n            z M149.6,5.4c0,1.3,0.8,1.9,1.9,1.5c1.3-0.5,2.4-2.3,2-3.7c-0.2-0.9-1-1.3-1.8-1C150.6,2.7,149.7,4,149.6,5.4z M155.8,7.1\r\n            c0.1-1.1-0.5-1.6-1.4-1.4c-0.8,0.2-1.6,1.4-1.5,2.3c0.1,0.9,0.8,1.3,1.6,0.9C155.3,8.5,155.7,7.8,155.8,7.1z M157.4,9.3\r\n            c0-0.6-0.4-0.9-1-0.8c-0.8,0.1-1.5,1-1.5,1.8c0,0.6,0.4,1,1,0.8C156.7,11,157.4,10.1,157.4,9.3z M156.7,13c0.6,0,1.2-0.5,1.4-1.1\r\n            c0.1-0.5-0.2-0.9-0.7-0.9c-0.6,0-1.3,0.5-1.4,1.1C155.9,12.6,156.1,13,156.7,13z M156.3,14.3c0,0.4,0.3,0.6,0.7,0.5\r\n            c0.5-0.1,0.9-0.6,0.9-1.1c0-0.4-0.3-0.7-0.7-0.6C156.8,13.3,156.3,13.8,156.3,14.3z"/>\r\n          <g class="foot">\r\n            <path d="M155.1,16.3c0,1-0.4,2.1-1.1,3c-1,1.3-2.3,2.3-3.8,3c-0.8,0.4-1.6,0.7-2.4,1.1c-1.5,0.7-2.7,1.8-3.8,3\r\n              c-0.8,0.9-1.9,1.4-3.2,1.4c-0.6,0-1.1-0.2-1.6-0.5c-0.7-0.5-1.3-1.1-1.6-1.8c-0.4-0.7-0.4-1.5-0.1-2.2c0.5-1.3,1.3-2.3,2.5-2.9\r\n              c0.7-0.4,1.5-0.4,2.3-0.6c0.8-0.1,1.6-0.3,2.3-0.7c1.1-0.8,1.8-1.9,1.9-3.3c0.1-1-0.2-1.9-0.3-2.8c-0.1-1-0.2-2,0.3-2.9\r\n              c0.3-0.6,0.7-1.1,1.3-1.4c0.7-0.4,1.4-0.4,2.2-0.1c1,0.4,1.7,1.1,2.4,1.9c0.9,1,1.7,2.1,2.2,3.4C154.9,14.6,155.1,15.4,155.1,16.3\r\n              z"/>\r\n            <path d="M149.6,5.4c0-1.3,0.9-2.7,2.1-3.1c0.8-0.3,1.6,0.1,1.8,1c0.3,1.3-0.7,3.2-2,3.7C150.4,7.3,149.6,6.6,149.6,5.4z"/>\r\n            <path d="M155.8,7.1c-0.1,0.7-0.5,1.4-1.4,1.8c-0.8,0.4-1.5,0-1.6-0.9c-0.1-0.9,0.7-2,1.5-2.3C155.3,5.5,155.9,6,155.8,7.1z"/>\r\n            <path d="M157.4,9.3c0,0.8-0.7,1.7-1.5,1.8c-0.6,0.1-1-0.2-1-0.8c0-0.8,0.7-1.6,1.5-1.8C157,8.4,157.4,8.7,157.4,9.3z"/>\r\n            <path d="M156.7,13c-0.5,0-0.8-0.4-0.7-0.8c0.1-0.6,0.8-1.1,1.4-1.1c0.5,0,0.8,0.4,0.7,0.9C157.9,12.4,157.3,13,156.7,13z"/>\r\n            <path d="M156.3,14.3c0-0.5,0.4-1.1,0.9-1.1c0.4-0.1,0.7,0.2,0.7,0.6c0,0.5-0.4,1-0.9,1.1C156.6,15,156.3,14.7,156.3,14.3z"/>\r\n            <path d="M111.7,22.1c0-1,0.7-1.8,1.7-1.8c1,0,1.7,0.7,1.7,1.8c0,1-0.6,1.8-1.7,1.8C112.4,23.9,111.7,23.1,111.7,22.1z"/>\r\n          </g>\r\n          <g class="footwork">\r\n            <path d="M6,23.6V11.9H4.1V10H6V9.4c0-1.9,0.4-3.6,1.6-4.7c0.9-0.9,2.2-1.3,3.3-1.3c0.9,0,1.6,0.2,2.1,0.4l-0.3,1.9\r\n              c-0.4-0.2-0.9-0.3-1.6-0.3c-2.1,0-2.6,1.8-2.6,3.9V10h3.3v1.9H8.4v11.7H6z"/>\r\n            <path d="M25.8,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C23.1,9.7,25.8,12.5,25.8,16.7z M15,16.8\r\n              c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2S15,14.3,15,16.8z"/>\r\n            <path d="M41.2,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C38.5,9.7,41.2,12.5,41.2,16.7z M30.4,16.8\r\n              c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2S30.4,14.3,30.4,16.8z"/>\r\n            <path d="M47.2,6.1V10h3.5v1.9h-3.5v7.3c0,1.7,0.5,2.6,1.8,2.6c0.6,0,1.1-0.1,1.4-0.2l0.1,1.8c-0.5,0.2-1.2,0.3-2.2,0.3\r\n              c-1.1,0-2.1-0.4-2.7-1c-0.7-0.7-1-1.9-1-3.5v-7.4h-2.1V10h2.1V6.8L47.2,6.1z"/>\r\n            <path d="M54.8,10l1.8,6.9c0.4,1.5,0.8,2.9,1,4.3h0.1c0.3-1.4,0.8-2.8,1.2-4.3l2.2-6.9h2.1l2.1,6.8c0.5,1.6,0.9,3.1,1.2,4.4h0.1\r\n              c0.2-1.4,0.6-2.8,1-4.4l1.9-6.8h2.4l-4.4,13.6h-2.2l-2.1-6.5c-0.5-1.5-0.9-2.9-1.2-4.5H62c-0.3,1.6-0.8,3-1.2,4.5l-2.2,6.4h-2.2\r\n              L52.2,10H54.8z"/>\r\n            <path d="M86.4,16.7c0,5-3.5,7.2-6.7,7.2c-3.7,0-6.5-2.7-6.5-7c0-4.5,3-7.2,6.7-7.2C83.7,9.7,86.4,12.5,86.4,16.7z M75.6,16.8\r\n              c0,3,1.7,5.2,4.1,5.2c2.4,0,4.1-2.2,4.1-5.3c0-2.3-1.1-5.2-4.1-5.2C76.9,11.6,75.6,14.3,75.6,16.8z"/>\r\n            <path d="M89.5,14.3c0-1.6,0-3-0.1-4.2h2.2l0.1,2.7h0.1c0.6-1.8,2.1-3,3.8-3c0.3,0,0.5,0,0.7,0.1v2.3c-0.3-0.1-0.5-0.1-0.8-0.1\r\n              c-1.7,0-3,1.3-3.3,3.2c-0.1,0.3-0.1,0.7-0.1,1.1v7.2h-2.4V14.3z"/>\r\n            <path d="M101.2,16.2L101.2,16.2c0.4-0.5,0.9-1.1,1.3-1.5l4-4.7h3l-5.2,5.6l6,8h-3l-4.7-6.5l-1.3,1.4v5.1h-2.4V3.7h2.4V16.2z"/>\r\n          </g>\r\n          <g class="js">\r\n            <path d="M114.8,27.5c1.1-0.1,2.1-0.4,2.7-1c0.7-0.8,0.9-1.8,0.9-5.1V10h2.5v12.3c0,2.6-0.4,4.3-1.6,5.6c-1.1,1.1-2.9,1.5-4.2,1.5\r\n              L114.8,27.5z M121.1,6.2c0,0.8-0.6,1.5-1.5,1.5c-0.9,0-1.5-0.7-1.5-1.5c0-0.9,0.6-1.5,1.6-1.5C120.5,4.7,121.1,5.3,121.1,6.2z"/>\r\n            <path d="M124.5,21.1c0.7,0.5,2,1,3.2,1c1.8,0,2.6-0.9,2.6-2c0-1.2-0.7-1.8-2.5-2.5c-2.4-0.9-3.6-2.2-3.6-3.8c0-2.2,1.8-4,4.7-4\r\n              c1.4,0,2.6,0.4,3.3,0.8l-0.6,1.8c-0.5-0.3-1.5-0.8-2.8-0.8c-1.5,0-2.3,0.8-2.3,1.8c0,1.1,0.8,1.6,2.6,2.3c2.4,0.9,3.6,2.1,3.6,4.1\r\n              c0,2.4-1.8,4.1-5.1,4.1c-1.5,0-2.9-0.4-3.8-0.9L124.5,21.1z"/>\r\n          </g>\r\n        </svg>\r\n      </div>\r\n    </a>\r\n  </div>\r\n  <div class="areas" data-bind="style: { width: headerWidth }, class: currentSelection">\r\n    <!-- ko if: inHeader -->\r\n      <div class="message">\r\n        <p>A solid footing for web applications.</p>\r\n      </div>\r\n    <!-- /ko -->\r\n    <!-- ko ifnot: inHeader -->\r\n      <div class="alternate">\r\n        <div class="PageSections link" title="Page Sections" data-bind="click: chooseSection, style: { lineHeight: height }" data-section="PageSections">\r\n          <div class="content">\r\n            <div class="icon icon-page-sections"></div>\r\n            <div class="label">Page Sections</div>\r\n          </div>\r\n        </div>\r\n        <div class="NavMenu link" title="Main Menu" data-bind="click: chooseSection, style: { lineHeight: height }" data-section="NavMenu">\r\n          <div class="content">\r\n            <div class="icon icon-main-menu"></div>\r\n            <div class="label">Navigation</div>\r\n          </div>\r\n        </div>\r\n      </div>\r\n    <!-- /ko -->\r\n  </div>\r\n</div>';});
 
 define('app/viewModel/NavMenu',[ "jquery", "lodash", "footwork" ],
   function( $, _, fw ) {
@@ -21952,7 +22049,7 @@ define('app/viewModel/NavMenu',[ "jquery", "lodash", "footwork" ],
   }
 );
 
-define('text!app/template/navmenu.html',[],function () { return '<div class="pane-component NavMenu initialized" data-bind="css: { visible: visible }">\r\n  <div class="content" data-bind="style: { height: paneContentMaxHeight }">\r\n    <div class="title" data-bind="style: { width: mobileWidth }">\r\n      <span class="label">\r\n        <span class="text">Main Menu</span>\r\n      </span>\r\n    </div>\r\n    <nav data-bind="style: { width: mobileWidth }, foreach: entries">\r\n      <a data-bind="css: { visible: visible }, attr: { title: labelText, target: target }, $route: { url: url, handler: clickHandler }, text: labelText"></a>\r\n    </nav>\r\n  </div>\r\n</div>\r\n\r\n<div class="header-component">\r\n  <div class="menu-item first js-only initialized-only">\r\n    <div class="icon icon-cog title desktop-only" title="Click to adjust layout" id="settings"\r\n      data-bind="css: { active: configVisible }, style: { lineHeight: headerContentHeight }, click: toggleConfigView"></div>\r\n  </div>\r\n\r\n  <!-- ko foreach: entries -->\r\n    <div class="menu-item" data-bind="css: { visible: visible, aside: options.aside }, style: { height: headerContentHeight }">\r\n      <div class="title" data-bind="style: { lineHeight: $parent.headerContentHeight }">\r\n        <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }, text: labelText"></a>\r\n      </div>\r\n      <!-- ko if: hasSubMenu -->\r\n        <div class="drop-down">\r\n          <div class="title" data-bind="style: { lineHeight: headerContentHeight }">\r\n            <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }">\r\n              <span data-bind="text: labelText"></span>\r\n            </a>\r\n          </div>\r\n          <div class="content" data-bind="foreach: subMenuItems">\r\n            <div class="row">\r\n              <a class="item" data-bind="attr: { target: target }, text: labelText, $route: { url: url, handler: clickHandler }"></a>\r\n            </div>\r\n          </div>\r\n        </div>\r\n      <!-- /ko -->\r\n    </div>\r\n  <!-- /ko -->\r\n  \r\n  <releases></releases>\r\n</div>';});
+define('text!app/template/navmenu.html',[],function () { return '<div class="pane-component NavMenu initialized" data-bind="css: { visible: visible }">\r\n  <div class="content" data-bind="style: { height: paneContentMaxHeight }">\r\n    <nav data-bind="style: { width: mobileWidth }, foreach: entries">\r\n      <a data-bind="css: { visible: visible }, attr: { title: labelText, target: target }, $route: { url: url, handler: clickHandler }, text: labelText"></a>\r\n    </nav>\r\n  </div>\r\n</div>\r\n\r\n<div class="header-component">\r\n  <div class="menu-item first js-only initialized-only">\r\n    <div class="icon icon-cog title desktop-only" title="Click to adjust layout" id="settings"\r\n      data-bind="css: { active: configVisible }, style: { lineHeight: headerContentHeight }, click: toggleConfigView"></div>\r\n  </div>\r\n\r\n  <!-- ko foreach: entries -->\r\n    <div class="menu-item" data-bind="css: { visible: visible, aside: options.aside }, style: { height: headerContentHeight }">\r\n      <div class="title" data-bind="style: { lineHeight: $parent.headerContentHeight }">\r\n        <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }, text: labelText"></a>\r\n      </div>\r\n      <!-- ko if: hasSubMenu -->\r\n        <div class="drop-down">\r\n          <div class="title" data-bind="style: { lineHeight: headerContentHeight }">\r\n            <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }">\r\n              <span data-bind="text: labelText"></span>\r\n            </a>\r\n          </div>\r\n          <div class="content" data-bind="foreach: subMenuItems">\r\n            <div class="row">\r\n              <a class="item" data-bind="attr: { target: target }, text: labelText, $route: { url: url, handler: clickHandler }"></a>\r\n            </div>\r\n          </div>\r\n        </div>\r\n      <!-- /ko -->\r\n    </div>\r\n  <!-- /ko -->\r\n  \r\n  <releases></releases>\r\n</div>';});
 
 ;(function () {
   /*
@@ -22895,6 +22992,7 @@ define('resourceHelper',[ "footwork",
     "text!app/template/showversion.html",
     "app/viewModel/Releases", "text!app/template/releases.html",
     "app/viewModel/config/Configuration", "text!app/template/config/configuration.html",
+    "app/viewModel/config/ConfigManagement", "text!app/template/config/configmanagement.html",
     "app/viewModel/config/LayoutControl", "text!app/template/config/layoutcontrol.html",
     "app/viewModel/Pane", "text!app/template/pane.html",
     "app/viewModel/pane/PaneLinks", "text!app/template/pane/panelinks.html",
@@ -22917,6 +23015,7 @@ define('resourceHelper',[ "footwork",
     showVersionTemplate,
     releasesViewModel, releasesTemplate,
     configurationViewModel, configurationTemplate,
+    configManagementViewModel, configManagementTemplate,
     layoutControlViewModel, layoutControlTemplate,
     paneViewModel, paneTemplate,
     paneLinksViewModel, paneLinksTemplate,
@@ -22959,6 +23058,11 @@ define('resourceHelper',[ "footwork",
       fw.components.register('configuration', {
         viewModel: configurationViewModel,
         template: configurationTemplate
+      });
+
+      fw.components.register('configmanagement', {
+        viewModel: configManagementViewModel,
+        template: configManagementTemplate
       });
 
       fw.components.register('layoutcontrol', {

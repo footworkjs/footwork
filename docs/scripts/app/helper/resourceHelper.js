@@ -3,6 +3,7 @@ define([ "footwork",
     "text!app/template/showversion.html",
     "app/viewModel/Releases", "text!app/template/releases.html",
     "app/viewModel/config/Configuration", "text!app/template/config/configuration.html",
+    "app/viewModel/config/ConfigManagement", "text!app/template/config/configmanagement.html",
     "app/viewModel/config/LayoutControl", "text!app/template/config/layoutcontrol.html",
     "app/viewModel/Pane", "text!app/template/pane.html",
     "app/viewModel/pane/PaneLinks", "text!app/template/pane/panelinks.html",
@@ -25,6 +26,7 @@ define([ "footwork",
     showVersionTemplate,
     releasesViewModel, releasesTemplate,
     configurationViewModel, configurationTemplate,
+    configManagementViewModel, configManagementTemplate,
     layoutControlViewModel, layoutControlTemplate,
     paneViewModel, paneTemplate,
     paneLinksViewModel, paneLinksTemplate,
@@ -67,6 +69,11 @@ define([ "footwork",
       fw.components.register('configuration', {
         viewModel: configurationViewModel,
         template: configurationTemplate
+      });
+
+      fw.components.register('configmanagement', {
+        viewModel: configManagementViewModel,
+        template: configManagementTemplate
       });
 
       fw.components.register('layoutcontrol', {

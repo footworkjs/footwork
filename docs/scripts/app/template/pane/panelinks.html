@@ -57,13 +57,26 @@
     </a>
   </div>
   <div class="areas" data-bind="style: { width: headerWidth }, class: currentSelection">
-    <div class="primary">
-      <a href="https://github.com/reflectiveSingleton" class="icon-github Github" title="Github"
-         data-bind="click: chooseSection, style: { lineHeight: height }" data-section="Github"></a>
-    </div>
-    <div class="alternate">
-      <span class="icon-page-sections PageSections link" title="Page Sections" data-bind="click: chooseSection, style: { lineHeight: height }" data-section="PageSections"></span>
-      <span class="icon-main-menu NavMenu link" title="Main Menu" data-bind="click: chooseSection, style: { lineHeight: height }" data-section="NavMenu"></span>
-    </div>
+    <!-- ko if: inHeader -->
+      <div class="message">
+        <p>A solid footing for web applications.</p>
+      </div>
+    <!-- /ko -->
+    <!-- ko ifnot: inHeader -->
+      <div class="alternate">
+        <div class="PageSections link" title="Page Sections" data-bind="click: chooseSection, style: { lineHeight: height }" data-section="PageSections">
+          <div class="content">
+            <div class="icon icon-page-sections"></div>
+            <div class="label">Page Sections</div>
+          </div>
+        </div>
+        <div class="NavMenu link" title="Main Menu" data-bind="click: chooseSection, style: { lineHeight: height }" data-section="NavMenu">
+          <div class="content">
+            <div class="icon icon-main-menu"></div>
+            <div class="label">Navigation</div>
+          </div>
+        </div>
+      </div>
+    <!-- /ko -->
   </div>
 </div>

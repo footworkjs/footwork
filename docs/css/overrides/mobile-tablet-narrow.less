@@ -91,11 +91,11 @@ body {
           top: 0;
         }
         a, .link {
-          line-height: @pane-tabs-height + 1px;
+          line-height: @pane-tabs-height;
         }
         .alternate {
           right: 0;
-          width: 60px;
+          width: 100%;
           z-index: 11;
           .link {
             float: left;
@@ -196,6 +196,20 @@ body {
     }
   }
 
+  &.mobile {
+    .pane-links {
+      display: block;
+
+      & > .areas {
+        display: block;
+      }
+    }
+
+    .pane-links {
+      display: block;
+    }
+  }
+
   &.narrow, &.mobile {
     .main-header {
       .pane-links {
@@ -220,8 +234,8 @@ body {
     }
 
     .pane .content .pane-component {
-      background-position: right -76px;
-      & > .title, & .content > .title {
+      background-position: right -75px;
+      & .content > .title {
         background-color: transparent;
         & > .label {
           line-height: 30px;
@@ -236,20 +250,9 @@ body {
       }
     }
 
-    .pane-links {
-      display: block;
-
-      & > .areas {
-        display: block;
-      }
-    }
-
     .pane > .content {
       .pane-component {
         &.pageSections {
-          & > .title {
-            border-bottom: none;
-          }
           & > .content {
             padding-top: 0;
           }
@@ -257,14 +260,6 @@ body {
 
         .not-initialized {
           top: @pane-links-height + 30px;
-        }
-
-        & > .title {
-          font-size: 15px;
-          line-height: 30px;
-          height: 30px;
-          border-bottom: 1px solid darken(@pane-bg-color, 15%);
-          .box-sizing(border-box);
         }
 
         & > .content {

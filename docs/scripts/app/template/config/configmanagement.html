@@ -1,0 +1,55 @@
+<div class="management has-layout-trans" data-bind="css: { noTransition: noTransition }, style: { top: containerTop }, transform: headerClosedTransform">
+  <div class="content has-layout-trans" data-bind="style: { marginLeft: containerMarginLeft }, css: { headerControlVisible: headerControlMutable }">
+    <div class="manage dialog has-trans">
+      <div class="header">
+        <div class="title">Settings</div>
+        <a class="toggle-config control icon-close" data-bind="click: toggleConfiguration"></a>
+        <div class="save-notice has-trans" data-bind="css: { pulse: pulse }">
+          <span class="icon icon-download"></span> session saved ...
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="row">
+          <label data-bind="click: togglePane">Collapse Panel</label>
+          <div class="checkbox" data-bind="class: paneState, click: togglePane">
+            <div class="checked icon-checkbox-checked icon"></div>
+            <div class="unchecked icon-checkbox-unchecked icon"></div>
+          </div>
+          <span class="shortcut" data-bind="click: togglePane">ctrl + z</span>
+        </div>
+
+        <div class="row">
+          <label data-bind="click: toggleAutoHideHeader">Auto-hide header</label>
+          <div class="checkbox" data-bind="class: autoHideHeaderState, click: toggleAutoHideHeader">
+            <div class="checked icon-checkbox-checked icon"></div>
+            <div class="unchecked icon-checkbox-unchecked icon"></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <label data-bind="click: toggleTransitions">Animations</label>
+          <div class="checkbox" data-bind="class: transitionState, click: toggleTransitions">
+            <div class="checked icon-checkbox-checked icon"></div>
+            <div class="unchecked icon-checkbox-unchecked icon"></div>
+          </div>
+        </div>
+
+        <div class="bottom row">
+          <button class="button" data-bind="click: toggleConfiguration"><span>Done</span></button>
+
+          <div class="utility-row">
+            <div class="auto-save">
+              <div class="checkbox" data-bind="class: saveSessionState, click: toggleSaveSession">
+                <div class="partial icon-checkbox-partial icon"></div>
+                <div class="unchecked icon-checkbox-unchecked icon"></div>
+              </div>
+              <label data-bind="click: toggleSaveSession">Preserve settings</label>
+            </div>
+            <a data-bind="click: reset"><span>Reset Interface</span><span class="shortcut">alt + r</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
