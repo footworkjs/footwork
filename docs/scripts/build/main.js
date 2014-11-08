@@ -22153,15 +22153,22 @@ define('app/viewModel/pane/PageSections',[ "jquery", "lodash", "footwork", "jque
           this.visible( false );
         }).withContext(this);
 
+        this.goToSection = function(anchorName) {
+          this.chosenSection( '' );
+          this.chosenSection( anchorName );
+          $('[name=' + anchorName + ']').pulse({ className: 'active', duration: 1000 });
+        };
+
         this.chooseSection = function() {
-          if(this.viewPortLayoutMode() === 'mobile' && !this.paneCollapsed()) {
-            var anchorName = this.anchor();
-            this.chosenSection( '' );
-            this.chosenSection( anchorName );
-            $('[name=' + anchorName + ']').pulse({ className: 'active', duration: 1000 });
-            this.paneCollapsed(true);
-            return true;
+          if(this.viewPortLayoutMode() === 'mobile') {
+            if(!this.paneCollapsed()) {
+              this.goToSection( this.anchor() );
+              this.paneCollapsed(true);
+            }
+          } else {
+            this.goToSection( this.anchor() );
           }
+          return true;
         }.bind(this);
 
         this.visible( false );
