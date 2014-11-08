@@ -1,0 +1,143 @@
+.main-pane {
+  max-width: 1100px;
+  margin-left: @accent-padding;
+  overflow: hidden;
+  position: relative;
+  .transition(@pane-collapse);
+  position: relative;
+  background-color: @body-bg-color;
+
+  &.configVisible {
+    #collapse-button {
+      /*display: none;*/
+    }
+  }
+}
+
+.main-content {
+  padding-top: @default-header-height + @header-border-width;
+}
+
+main {
+  position: relative;
+  padding: 20px 10px 0px 10px;
+  opacity: 1;
+  .transition(opacity 0.2s ease);
+  font-size: 15px;
+
+  @linkColor: #485ecf;
+  a {
+    color: @linkColor;
+    cursor: pointer;
+    &:hover {
+      color: darken(@linkColor, 10%);
+    }
+  }
+
+  #section-1 {
+    padding-top: 20px;
+  }
+  #section-3 {
+    .annotation-bg {
+      .border-radius(50px 0 0 0);
+    }
+  }
+
+  #section-3, #section-8, #section-18, #section-21, #section-22 {
+    padding-top: 20px;
+  }
+
+  .annotation-bg {
+    background: #eee;
+  }
+
+  .section .annotation h2 {
+    margin-top: 0px;
+    padding-top: 60px;
+  }
+  #section-1 .annotation h2 {
+    padding-top: 0px !important;
+  }
+
+  p + p {
+    margin-top: 10px;
+  }
+
+  .section-anchor {
+    position: relative;
+    display: block;
+    top: -(@header-min-height + @header-border-width + 20px);
+  }
+
+  ul {
+    list-style: disc;
+    margin: 10px 0;
+    li {
+      margin-left: 30px;
+    }
+  }
+
+  article {
+    section {
+      position: relative;
+      top: -10px;
+      padding: 10px;
+      line-height: 20px;
+      .box-sizing(border-box);
+      z-index: 1;
+
+      &.main {
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+        padding-bottom: 20px;
+        header {
+          margin-bottom: 15px;
+          color: contrast(@body-bg-color, white, black, 60%);
+        }
+      }
+
+      & > div, & > header, & > footer {
+        position: relative;
+      }
+
+      &.active {
+        .highlight {
+          opacity: 1;
+          .transition(opacity 0s linear);
+        }
+      }
+
+      .highlight {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        border: 1px solid @controls-bg;
+        .box-shadow(0 0 8px -5px rgba(0,0,0,0.4) inset);
+        opacity: 0;
+        background: lighten(@controls-bg, 40%);
+        .transition(opacity 1.3s linear);
+      }
+
+      header {
+        margin-bottom: 10px;
+        .title {
+          font: 30px/30px 'Arial Bold', sans-serif;
+
+          &.sub {
+            font-size: 18px;
+            color: mix(contrast(@body-bg-color, white, black, 60%), @body-bg-color, 60% );
+          }
+          
+          &:hover {
+            text-decoration: none;
+          }
+        }
+      }
+    }
+
+    section + a.section-anchor {
+      margin-top: 20px;
+    }
+  }
+}

@@ -1,0 +1,188 @@
+header .pane-links {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: @default-pane-width;
+  height: @pane-links-height;
+
+  &.pageHasSections {
+    & > .areas {
+      .primary {
+        right: @page-section-width;
+      }
+
+      .alternate {
+        right: 0;
+
+        .link {
+          color: lighten(@header-bg, 20%);
+        }
+      }
+    }
+  }
+
+  & > .areas {
+    width: @default-pane-width - @accent-padding - @default-logo-width;
+    color: @header-fg-default;
+    border-bottom: none;
+
+    .message {
+      display: table;
+      height: 100%;
+      width: 100%;
+      font-size: 13px;
+      line-height: 16px;
+
+      p {
+        opacity: 0.45;
+        display: table-cell;
+        vertical-align: middle; 
+        text-align: center;
+        padding: 0 10px;
+        .transition(all 0.5s ease);
+      }
+    }
+
+    &.Github .Github, &.Reddit .Reddit, &.Twitter .Twitter, &.PageSections .PageSections.link {
+      color: @header-fg-hover;
+    }
+
+    a, .link {
+      color: @header-fg-default;
+      line-height: @default-header-height;
+    }
+
+    .primary {
+      right: 0;
+    }
+  }
+}
+
+.pane-links {
+  width: 100%;
+  height: @pane-links-height;
+  background-color: @pane-bg-color;
+  border-bottom: 1px solid darken(@pane-bg-color, 15%);
+  .box-sizing(border-box);
+
+  &.pageHasSections {
+    & > .areas {
+      .primary {
+        right: @page-section-width + @page-section-margin;
+      }
+
+      .alternate {
+        display: block;
+        text-align: center;
+
+        .link {
+          color: lighten(@pane-bg-color, 20%);
+          .no-select;
+
+          &:hover {
+            color: @pane-fg-color;
+          }
+
+          &:active, &:focus {
+            color: darken(@pane-fg-color, 10%);
+          }
+        }
+      }
+    }
+  }
+
+  & > .areas {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    color: lighten(@pane-bg-color, 30%);
+    .transition(opacity 0.3s 0.1s ease, left 0s 0.4s linear);
+    opacity: 1;
+    border-bottom: 1px solid darken(@pane-bg-color, 15%);
+    .box-sizing(border-box);
+
+    &.Github .Github, &.PageSections .PageSections.link, &.NavMenu .NavMenu.link {
+      color: @pane-fg-color;
+    }
+
+    .link {
+      display: block;
+      position: relative;
+      float: right;
+      height: 100%;
+      width: 60px;
+      cursor: pointer;
+      color: darken( @header-bg, 10% );
+      line-height: @pane-links-height;
+      font-size: 20px;
+      text-decoration: none;
+      text-align: center;
+      .box-sizing(border-box);
+      span {
+        line-height: inherit;
+      }
+
+      &:hover {
+        color: @header-fg-hover;
+        text-decoration: none;
+      }
+      
+      .icon {
+        line-height: inherit;
+      }
+
+      &:active, &:focus {
+        color: darken(@header-fg-hover, 10%);
+        top: 1px;
+      }
+
+      .content {
+        width: 180px;
+        height: 100%;
+        margin: 0 auto;
+
+        .icon, .label {
+          float: left;
+          margin-left: 10px;
+        }
+      }
+    }
+
+    .primary {
+      position: absolute;
+      left: 0;
+      right: @accent-padding + 30px;
+      top: -2px;
+      height: 100%;
+
+      a:before {
+        margin-right: 5px;
+      }
+    }
+
+    .alternate {
+      position: absolute;
+      display: none;
+      right: @page-section-margin;
+      bottom: 0;
+      width: @page-section-width;
+      height: 100%;
+      .box-sizing(border-box);
+
+      .link {
+        position: relative;
+        width: auto;
+        font-size: 17px;
+        float: none;
+
+        &.NavMenu {
+          display: none;
+        }
+
+        &:active {
+          top: 1px;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+.configuration {
+  width: 0;
+  height: 0;
+  position: relative;
+  z-index: 4;
+  overflow: hidden;
+
+  &.visible {
+    top: auto;
+    overflow: visible;
+    
+    .management {
+      position: fixed;
+    }
+
+    .layout-controls {
+      position: fixed;
+
+      & > .column, & > .corner, & > .header {
+        position: fixed;
+      }
+    }
+  }
+}

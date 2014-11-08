@@ -1,0 +1,294 @@
+.shadow {
+    -webkit-filter: drop-shadow( -5px -5px 5px #000 );
+    filter: drop-shadow( -5px -5px 5px #000 );
+}
+
+footer {
+  position: relative;
+  float: right;
+  width: 100%;
+  background-color: @footer-bg;
+
+  .layout-mode {
+    margin-left: 10px;
+  }
+
+  #no-js-hidden:checked + .notice {
+    opacity: 0;
+    visibility: hidden;
+    .transition(all 0.6s ease);
+  }
+
+  .no-js.notice {
+    position: absolute;
+    display: none;
+    max-width: 60%;
+    left: 0;
+    top: 0;
+    color: @header-fg-hover;
+    .box-sizing(border-box);
+    padding: 10px;
+    height: 100%;
+    text-shadow: 0 2px 1px black;
+    .transition(all 0.6s ease);
+
+    .button {
+      .no-select;
+      position: absolute;
+      right: 0;
+      bottom: 10px;
+      line-height: 20px;
+      text-align: center;
+    }
+
+    @icon-size: 30px;
+    .icon {
+      float: left;
+      position: relative;
+      width: @icon-size;
+      margin-right: 10px;
+      height: 100%;
+      
+      &:before {
+        color: #d7db63;
+        font-size: @icon-size;
+        position: absolute;
+        top: 50%;
+        margin-top: -(@icon-size / 2);
+      }
+    }
+    
+    @line-height: 20px;
+    p {
+      float: left;
+      width: 300px;
+      font-size: 13px;
+      line-height: @line-height;
+      position: relative;
+      top: 50%;
+      margin-top: -@line-height;
+    }
+  }
+
+  & > .content {
+    height: 100%;
+    .transition(margin-left @pane-collapse-time @pane-collapse-func);
+    .box-sizing(border-box);
+    margin-left: @accent-padding;
+    position: relative;
+  }
+
+  .display-control {
+    float: right;
+    height: 100%;
+    margin-right: 10px;
+
+    span {
+      line-height: @footer-height;
+    }
+  }
+
+  .layout-mode {
+    &.desktop .desktop {
+      color: @header-fg-hover;
+    }
+    &.mobile .mobile {
+      color: @header-fg-hover;
+    }
+    &.tablet .tablet {
+      color: @header-fg-hover;
+    }
+
+    .icon {
+      color: @header-fg-default;
+      float: left;
+      line-height: @footer-height;
+      font-size: 20px;
+      padding: 0 7px;
+      margin-left: 5px;
+      cursor: pointer;
+      display: block;
+
+      &:hover {
+        color: @header-fg-hover;
+      }
+    }
+  }
+
+  @html5-badge-height: 45px;
+  @html5-badge-width: 192px;
+  #html5-badge {
+    height: @html5-badge-height;
+    width: @html5-badge-width;
+    float: right;
+    margin: -(@html5-badge-height / 2) 10px 0 0;
+    position: relative;
+    top: 50%;
+    .perspective(200px);
+    .transform-style(preserve-3d);
+    display: block;
+
+    svg {
+      position: absolute;
+    }
+
+    .controls {
+      width: 98%;
+      height: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature, .spacer {
+      float: right;
+      height: 100%;
+    }
+
+    .spacer {
+      width: 13px;
+    }
+
+    @feature-height: 28px;
+    @feature-width: 22px;
+    @primary-bg: #d9d9d9;
+    @transition-duration: 0.5s;
+    @transition-reset-delay: 0.3s;
+    .feature {
+      position: relative;
+      width: @feature-width;
+      height: @feature-height;
+      top: 23px;
+      margin-top: -15px;
+      .transform(translate3d(0, 0, @feature-height/2));
+      .transform-style(preserve-3d);
+      .transition(all @transition-duration @transition-reset-delay ease);
+
+      &:first-child {
+        margin-right: 10px;
+      }
+
+      &:hover, &.active {
+        .transform(rotateX(-90deg) translateY(0px) translateX(0px) translateZ(14px));
+        .transition(all @transition-duration ease);
+
+        svg {
+          path, polygon  {
+            fill: black;
+          }
+        }
+        .face {
+          background-color: @body-text !important;
+          .transition(all @transition-duration ease);
+        }
+        .top {
+          background-color: @primary-bg !important;
+          .transition(all 0s ease);
+        }
+        .pop-up {
+          top: auto;
+          opacity: 1;
+          visibility: visible;
+          .transition(opacity @transition-duration ease);
+        }
+        .facet {
+          &.left {
+            display: block;
+          }
+          &.right {
+            display: block;
+          }
+        }
+      }
+
+      .facet {
+        width: inherit;
+        height: inherit;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+
+        &.face {
+          background-color: @primary-bg;
+          position: absolute;
+          top: 0;
+          left: 0;
+          .transform(translate3d(0, 0, 0));
+        }
+        &.top {
+          background-color: white;
+          position: absolute;
+          bottom: 100%;
+          top: auto;
+          left: 0;
+          content: ' ';
+          .transform(rotateX(90deg) translate3d(0, -(@feature-width/2) - 3px, -(@feature-height/2) - 2px ));
+          .transition(all @transition-duration @transition-reset-delay ease);
+        }
+        &.left {
+          display: none;
+          background: darken( @primary-bg, 30% );
+          position: absolute;
+          width: @feature-height;
+          top: 0;
+          left: 0;
+          .transform(rotateY(-90deg) translate3d(-(@feature-width/2),0, (@feature-width/2)));
+        }
+        &.right {
+          display: none;
+          background: darken( @primary-bg, 30% );
+          position: absolute;
+          width: @feature-width;
+          top: 0;
+          left: 0;
+          .transform(rotateY(-90deg) translate3d(-(@feature-width/2),0, -(@feature-width/2)));
+        }
+      }
+
+      @svg-width: 60%;
+      svg {
+        position: absolute;
+        top: 50%;
+        width: @svg-width;
+        height: 18px;
+        margin: -9px 0 0 ((100% - @svg-width) / 2);
+      }
+
+      &.device svg {
+        margin-top: -9px;
+      }
+
+      .pop-up {
+        position: absolute;
+        bottom: @feature-height + 10px;
+        right: -10px;
+        visibility: hidden;
+        opacity: 0;
+        background: @pane-bg-color;
+        color: @pane-fg-color;
+        .transition(opacity 0.2s ease);
+        .box-shadow(0 1px 3px -1px black);
+
+        & > div {
+          .box-sizing(border-box);
+          margin: 10px;
+
+          &.title {
+            font-weight: bold;
+            white-space: nowrap;
+          }
+
+          &.arrow {
+            position: absolute;
+            margin: 0;
+            right: 7px;
+            top: 100%;
+            border: 15px solid @pane-bg-color;
+            border-left-color: transparent;
+            border-right-color: transparent;
+            border-bottom-color: transparent;
+          }
+        }
+      }
+    }
+  }
+}
