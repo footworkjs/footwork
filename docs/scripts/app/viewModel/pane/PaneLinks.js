@@ -14,7 +14,7 @@ define([ "footwork", "lodash", "jquery" ],
         this.headerContentHeight = fw.observable().receiveFrom('Header', 'contentHeight');
         this.narrowPane = fw.observable().receiveFrom('Pane', 'narrow');
         this.columnWidth = fw.observable(null);
-        this.inHeader = ko.observable(params.inHeader);
+        this.inHeader = fw.observable(params.inHeader);
         if(params.inHeader === true) {
           this.columnWidth = fw.observable().receiveFrom('Pane', 'columnWidth');
         }

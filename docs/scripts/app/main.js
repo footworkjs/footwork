@@ -34,7 +34,7 @@ require([
       return _.isNull(window.location.protocol.match('^http'));
     });
 
-    window.ko = fw;
+    window.fw = fw;
 
     (new ViewPort());
     (new Page());
