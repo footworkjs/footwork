@@ -223,7 +223,7 @@ fw.bindingHandlers.$route = {
       on: 'click',
       url: function defaultURLForRoute() { return null; },
       handler: function defaultHandlerForRoute(event, url) {
-        if( !isFullURL(url) && !event.which === 2 ) {
+        if( !isFullURL(url) && event.which !== 2 ) {
           event.preventDefault();
           return true;
         }
