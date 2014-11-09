@@ -1576,7 +1576,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
           // we have found a matching resource that is already cached by require, lets use it
           resourceLocation = viewModelName;
         } else {
-          resourceLocation = getViewModelResourceLocation( viewModelName );
+          resourceLocation = getViewModelResourceLocation(viewModelName);
         }
 
         if( isString(resourceLocation) ) {
