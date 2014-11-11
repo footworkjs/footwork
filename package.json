@@ -6,7 +6,11 @@
     {
       "name": "Jonathan Newman",
       "email": "jonathan@staticty.pe",
-      "contribution": ["code", "documentation"],
+      "contribution": [
+        "creator",
+        "code",
+        "documentation"
+      ],
       "urls": [
         {
           "url": "https://github.com/reflectiveSingleton"
@@ -19,7 +23,9 @@
     {
       "name": "Travis Miller",
       "email": "travis@travisamiller.com",
-      "contribution": ["framework name"],
+      "contribution": [
+        "framework name"
+      ],
       "urls": [
         {
           "url": "http://travisamiller.com"
