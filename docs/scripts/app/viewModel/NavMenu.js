@@ -20,7 +20,7 @@ define([ "jquery", "lodash", "footwork" ],
           if(!viewPortIsMobile() || !this.paneCollapsed()) {
             routeToURL = true;
           }
-          if( !fw.isFullURL(url) ) {
+          if( !fw.isFullURL(url) && event.which !== 2 ) {
             event.preventDefault();
           }
           return routeToURL;

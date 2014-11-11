@@ -1305,7 +1305,7 @@ fw.bindingHandlers.$route = {
       on: <span class="hljs-string">'click'</span>,
       url: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">defaultURLForRoute</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>; },
       handler: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">defaultHandlerForRoute</span><span class="hljs-params">(event, url)</span> </span>{
-        <span class="hljs-keyword">if</span>( !isFullURL(url) ) {
+        <span class="hljs-keyword">if</span>( !isFullURL(url) &amp;&amp; event.which !== <span class="hljs-number">2</span> ) {
           event.preventDefault();
           <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
         }

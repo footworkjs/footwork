@@ -1,7 +1,7 @@
 require([
   "jquery", "lodash", "footwork", "jwerty", "resourceHelper",
   "Page", "Body", "ViewPort", "PaneTouchManager",
-  "koBindings", "koExtenders", "jquery.mousewheel", "jquery.easing" ],
+  "koBindings", "koExtenders", "jquery.easing" ],
   function(
       $, _, fw, jwerty, resourceHelper,
       Page, Body, ViewPort, PaneTouchManager ) {
@@ -78,15 +78,6 @@ require([
 
     $body.on('keydown', 'article', function(event) {
       event.stopPropagation();
-    });
-
-    $('.pane-component > .content').on('mousewheel', function(event, direction) {
-      var maxHeight = paneContentMaxHeight();
-
-      if( !isNaN(maxHeight) && maxHeight !== this.scrollHeight && (( this.scrollTop === ( this.scrollHeight - maxHeight ) && direction < 0 ) || ( this.scrollTop === 0 && direction > 0 )) ) {
-        event.preventDefault();
-        paneScrolling(true);
-      }
     });
   }
 );

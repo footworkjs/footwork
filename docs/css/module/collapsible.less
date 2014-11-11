@@ -1,0 +1,103 @@
+.collapsible {
+  & > li + li {
+    margin-top: 10px;
+  }
+
+  @radius: 3px;
+  @rowHeight: 35px;
+  @chevronWidth: 30px;
+  @rowBackgroundColor: @body-text;
+  @rowTextColor: mix(@body-bg-color, @body-text);
+  & > li {
+    cursor: pointer;
+    list-style: none;
+    .border-radius(@radius);
+    margin-left: 0;
+    background: @rowBackgroundColor;
+    color: @rowTextColor;
+
+    &:hover, &.expanded {
+      background: lighten(@rowBackgroundColor, 10%);
+    }
+
+    & > .title {
+      padding-left: 10px;
+      line-height: @rowHeight;
+      position: relative;
+      font-size: 13px;
+      .border-radius(@radius);
+
+      &:active, &:focus {
+        background: darken(@rowBackgroundColor, 10%);
+      }
+
+      a {
+        color: mix(@body-bg-color, @body-text, 70%);
+        font-weight: bold;
+
+        &:hover {
+          color: @body-bg-color;
+        }
+      }
+
+      & > .content {
+        display: block;
+        padding-right: @chevronWidth;
+      }
+
+      .icon {
+        position: absolute;
+        right: 0;
+        top: 0;
+        height: @rowHeight;
+        font-size: 18px;
+        line-height: @rowHeight;
+        width: @chevronWidth;
+        text-align: center;
+      }
+      .icon-chevron-up {
+        display: none;
+      }
+    }
+
+    &.expanded {
+      & > .title {
+        color: white;
+      }
+      & > .content {
+        height: auto;
+        border: 1px solid @rowBackgroundColor;
+        border-top-color: darken(@rowBackgroundColor, 30%);
+        & > * {
+          opacity: 1;
+          .transition(opacity 0.6s ease);
+        }
+      }
+
+      .icon-chevron-down {
+        display: none;
+      }
+      .icon-chevron-up {
+        display: block;
+      }
+    }
+
+    & > .content {
+      height: 0;
+      overflow: hidden;
+      margin: 0;
+      cursor: auto;
+      background: mix(@body-bg-color, @rowBackgroundColor, 95%);
+      color: #666;
+      .border-radius(0 0 @radius @radius);
+
+      & > * {
+        opacity: 0;
+      }
+
+      li + li {
+        margin-top: 10px;
+      }
+    }
+  }
+}

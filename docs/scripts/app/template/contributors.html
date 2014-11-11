@@ -1,10 +1,12 @@
-<h2>Contributors</h2>
-<ul data-bind="foreach: contributors">
-  <li class="contributor">
-    <div class="name" data-bind="text: name"></div>
-    <div class="email"><a data-bind="attr: { href: 'mailto:' + email }, text: email"></a></div>
-    <div class="urls" data-bind="foreach: urls">
-      <div class="url"><a data-bind="attr: { href: url }, text: url"></a></div>
-    </div>
-  </li>
-</ul>
+<div class="contributors">
+  <h2>Current contributors</h2>
+  <ul data-bind="foreach: contributors">
+    <li class="contributor">
+      <div class="name"><span data-bind="text: name"></span> (<span data-bind="text: contribution"></span>)</div>
+      <div class="email"><a data-bind="attr: { href: 'mailto:' + email }, text: email"></a></div>
+      <div class="urls" data-bind="foreach: urls">
+        <div class="url"><a data-bind="attr: { href: url }, text: url" target="_blank"></a></div>
+      </div>
+    </li>
+  </ul>  
+</div>

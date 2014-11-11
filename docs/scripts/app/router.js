@@ -1,4 +1,4 @@
-define([ "jquery", "footwork", "lodash" ],
+define([ "jquery", "footwork", "lodash", "jquery.collapsible" ],
   function( $, fw, _ ) {
     var $pageNamespace = fw.namespace('Page');
     var $pageSectionNamespace = fw.namespace('PageSection');
@@ -15,7 +15,7 @@ define([ "jquery", "footwork", "lodash" ],
     function getPageLoadPromise() {
       var pagePromise = $.Deferred();
       pageLoading(true);
-      pagePromise.done(function(metaData) {
+      pagePromise.done(function(metaData, article) {
         var maxScrollResetPos = maxScrollResetPosition();
         if( metaData.length ) {
           metaData = JSON.parse(metaData);
@@ -32,6 +32,7 @@ define([ "jquery", "footwork", "lodash" ],
         if( location.hash.length ) {
           $pageSectionNamespace.publish( 'scrollToSection', location.hash.slice( location.hash.indexOf('#') + 1 ) );
         }
+        $(article).find('.collapsible').collapsible();
 
         pageLoading(false);
       });
@@ -40,8 +41,8 @@ define([ "jquery", "footwork", "lodash" ],
       return pagePromise;
     }
 
-    function resolvePage(pageLoadPromise) {
-      pageLoadPromise.resolve( $('#metaData').text() );
+    function resolvePage(pageLoadPromise, element) {
+      pageLoadPromise.resolve( $('#metaData').text(), element.children[0] );
     }
 
     return {
@@ -49,7 +50,7 @@ define([ "jquery", "footwork", "lodash" ],
       routes: [
         {
           route: '/',
-          title: 'footworkjs',
+          title: 'footwork.js',
           controller: function($routeParams) {
             this.$outlet('mainContent', 'index-page', _.bind(resolvePage, this, getPageLoadPromise()));
           }
@@ -59,40 +60,13 @@ define([ "jquery", "footwork", "lodash" ],
           controller: function($routeParams) {
             this.$outlet('mainContent', 'annotated-page', _.bind(resolvePage, this, getPageLoadPromise()));
           }
-        }, {
-          route: '/blog',
-          title: 'blog - staticty.pe',
-          controller: function($routeParams) {
-            this.$outlet('mainContent', 'blog-page', _.bind(resolvePage, this, getPageLoadPromise()));
-          }
-        }, {
-          route: '/code',
-          title: 'Code Page',
-          controller: function($routeParams) {
-            this.$outlet('mainContent', 'code-page', _.bind(resolvePage, this, getPageLoadPromise()));
-          }
-        }, {
-          route: '/code/floaties.js',
-          title: 'floaties.js - staticty.pe',
-          controller: function($routeParams) {
-            this.$outlet('mainContent', 'floaties-page', _.bind(resolvePage, this, getPageLoadPromise()));
-          }
-        }, {
-          route: '/code/stylesheet.js',
-          title: 'stylesheet.js - staticty.pe',
-          controller: function($routeParams) {
-            this.$outlet('mainContent', 'stylesheet-page', _.bind(resolvePage, this, getPageLoadPromise()));
-          }
-        }, {
-          route: '/code/proximity.js',
-          title: 'proximity.js - staticty.pe',
-          controller: function($routeParams) {
-            this.$outlet('mainContent', 'proximity-page', _.bind(resolvePage, this, getPageLoadPromise()));
-          }
         }
       ],
-      unknownRoute: function($routeParams) {
-        this.$outlet('mainContent', 'not-found-page', _.bind(resolvePage, this, getPageLoadPromise()));
+      unknownRoute: {
+        title: '404 not found',
+        controller: function($routeParams) {
+          this.$outlet('mainContent', 'not-found-page', _.bind(resolvePage, this, getPageLoadPromise()));
+        }
       }
     };
   }
