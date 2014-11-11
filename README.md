@@ -4,7 +4,7 @@
 
 [![Build Status](https://travis-ci.org/reflectiveSingleton/footwork.png?branch=master)](https://travis-ci.org/reflectiveSingleton/footwork) [![Bower version](https://badge.fury.io/bo/footwork.png)](http://badge.fury.io/bo/footwork)
 
-A solid footing for knockout applications.
+A solid footing for web applications.
 
 ## What is footwork?
 
