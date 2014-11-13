@@ -28,14 +28,14 @@ var invalidRoutePathIdentifier = '___invalid-route';
 
 var $nullRouter = extend({}, $baseRouter, {
   childRouters: extend( bind(noop), { push: noop } ),
-  routePath: function() { return ''; },
+  path: function() { return ''; },
   isRelative: function() { return false; },
   __isNullRouter: true
 });
 
 var $baseRouter = {
-  routePath: emptyStringResult,
-  routeSegment: emptyStringResult,
+  path: emptyStringResult,
+  segment: emptyStringResult,
   childRouters: fw.observableArray(),
   context: noop,
   __isRouter: true
@@ -264,7 +264,7 @@ fw.bindingHandlers.$route = {
           }
 
           if( includeParentPath && !isNullRouter($myRouter) ) {
-            myLinkPath = $myRouter.parentRouter().routePath() + myLinkPath;
+            myLinkPath = $myRouter.parentRouter().path() + myLinkPath;
           }
         }
 
@@ -281,10 +281,10 @@ fw.bindingHandlers.$route = {
         mySegment = '';
       }
       
-      if(newRoute.routeSegment === mySegment && isString(fwRouters.activeRouteClassName) && fwRouters.activeRouteClassName.length) {
-        // newRoute.routeSegment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
+      if(newRoute.segment === mySegment && isString(fwRouters.activeRouteClassName) && fwRouters.activeRouteClassName.length) {
+        // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
         addClass(element, fwRouters.activeRouteClassName);
-      } else if (hasClass(element, fwRouters.activeRouteClassName)) {
+      } else if( hasClass(element, fwRouters.activeRouteClassName) ) {
         removeClass(element, fwRouters.activeRouteClassName);
       }
     };
@@ -360,13 +360,13 @@ var Router = function( routerConfig, $viewModel, $context ) {
     return this.getRouteForURL( this.currentState() );
   }, this);
   
-  this.routePath = fw.computed(function() {
+  this.path = fw.computed(function() {
     var currentRoute = this.currentRoute();
     var parentRouter = this.parentRouter();
-    var routePath = this.parentRouter().routePath();
+    var routePath = this.parentRouter().path();
 
     if( isRoute(currentRoute) ) {
-      routePath = routePath + currentRoute.routeSegment;
+      routePath = routePath + currentRoute.segment;
     }
     return routePath;
   }, this);
@@ -442,7 +442,7 @@ Router.prototype.setState = function(url, noHistoryInjection) {
     if(!noHistoryInjection && isString(url)) {
       var historyAPIWorked = true;
       try {
-        historyAPIWorked = History.pushState(null, '', this.parentRouter().routePath() + url);
+        historyAPIWorked = History.pushState(null, '', this.parentRouter().path() + url);
       } catch(error) {
         historyAPIWorked = false;
       } finally {
@@ -530,7 +530,7 @@ Router.prototype.getUnknownRoute = function() {
       id: unknownRoute.id,
       controller: unknownRoute.controller,
       title: unknownRoute.title,
-      routeSegment: ''
+      segment: ''
     });
   }
 
@@ -539,7 +539,7 @@ Router.prototype.getUnknownRoute = function() {
 
 Router.prototype.getRouteForURL = function(url) {
   var route = null;
-  var parentRoutePath = this.parentRouter().routePath() || '';
+  var parentRoutePath = this.parentRouter().path() || '';
   var unknownRoute = this.getUnknownRoute();
   var $myRouter = this;
 
@@ -602,7 +602,7 @@ Router.prototype.getRouteForURL = function(url) {
       controller: routeDescription.controller,
       title: routeDescription.title,
       url: url,
-      routeSegment: url.substr(0, url.length - splatSegment.length),
+      segment: url.substr(0, url.length - splatSegment.length),
       indexedParams: routeParams,
       namedParams: namedParams
     });
