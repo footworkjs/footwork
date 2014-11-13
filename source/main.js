@@ -28,6 +28,23 @@ var hasPathStart = function(path) {
   return hasStartingSlash.test(path);
 };
 
+function hasClass(element, className) {
+  return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
+}
+
+function addClass(element, className) {
+  if( !hasClass(element, className) ) {
+    element.className += (element.className.length ? ' ' : '') + className;
+  }
+}
+
+function removeClass(element, className) {
+  if( hasClass(element, className) ) {
+    var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)');
+    element.className = element.className.replace(classNameRegex, ' ');
+  }
+}
+
 // Pull out lodash utility function references for better minification and easier implementation swap
 var isFunction = _.isFunction;
 var isObject = _.isObject;
