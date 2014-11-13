@@ -4297,6 +4297,23 @@ var hasPathStart = function(path) {
   return hasStartingSlash.test(path);
 };
 
+function hasClass(element, className) {
+  return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
+}
+
+function addClass(element, className) {
+  if( !hasClass(element, className) ) {
+    element.className += (element.className.length ? ' ' : '') + className;
+  }
+}
+
+function removeClass(element, className) {
+  if( hasClass(element, className) ) {
+    var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)');
+    element.className = element.className.replace(classNameRegex, ' ');
+  }
+}
+
 // Pull out lodash utility function references for better minification and easier implementation swap
 var isFunction = _.isFunction;
 var isObject = _.isObject;
@@ -4908,13 +4925,14 @@ var isFullURL = fw.isFullURL = function(thing) {
   return isString(thing) && isFullURLRegex.test(thing);
 };
 
-fw.routers = {
+var fwRouters = fw.routers = {
   // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
   baseRoute: fw.observable(''),
   getNearestParent: function($context) {
     var $parentRouter = nearestParentRouter($context);
     return (!isNullRouter($parentRouter) ? $parentRouter : null);
   },
+  activeRouteClassName: 'active',
   
   // Return array of all currently instantiated $router's
   getAll: function() {
@@ -4944,7 +4962,8 @@ fw.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $myRouter = nearestParentRouter(bindingContext);
     var urlValue = valueAccessor();
-    var eventHandlerIsBound = false;
+    var elementIsSetup = false;
+    var stateTracker = null;
 
     var routeHandlerDescription = {
       on: 'click',
@@ -5001,9 +5020,33 @@ fw.bindingHandlers.$route = {
     var routeURLWithParentPath = bind(getRouteURL, null, true);
     var routeURLWithoutParentPath = bind(getRouteURL, null, false);
 
+    function checkForMatchingSegment(mySegment, newRoute) {
+      if(mySegment === '/') {
+        mySegment = '';
+      }
+      
+      if(newRoute.routeSegment === mySegment && isString(fwRouters.activeRouteClassName) && fwRouters.activeRouteClassName.length) {
+        // newRoute.routeSegment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
+        addClass(element, fwRouters.activeRouteClassName);
+      } else if (hasClass(element, fwRouters.activeRouteClassName)) {
+        removeClass(element, fwRouters.activeRouteClassName);
+      }
+    };
+
     function setUpElement() {
-      if(eventHandlerIsBound === false) {
-        eventHandlerIsBound = true;
+      var myCurrentSegment = routeURLWithoutParentPath();
+      if( element.tagName.toLowerCase() === 'a' ) {
+        element.href = routeURLWithParentPath();
+      }
+
+      if( !isNull(stateTracker) ) {
+        stateTracker.unsubscribe();
+      }
+      stateTracker = $myRouter.currentRoute.subscribe( bind(checkForMatchingSegment, null, myCurrentSegment) );
+
+      if(elementIsSetup === false) {
+        elementIsSetup = true;
+        checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
         fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
           var currentRouteURL = routeURLWithoutParentPath();
           var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
@@ -5016,10 +5059,6 @@ fw.bindingHandlers.$route = {
             }
           }
         });
-      }
-
-      if( element.tagName.toLowerCase() === 'a' ) {
-        element.href = routeURLWithParentPath();
       }
     }
 
