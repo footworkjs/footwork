@@ -11,7 +11,7 @@
       include: ["requireLib", "app/main"],
       create: true }
   ],
-  optimize: "uglify2",
+  optimize: "none",
   generateSourceMaps: false,
   map: {
     "*": {
@@ -35,7 +35,8 @@
     "storage":            "../bower_components/store-js/store",
     "lodash":             "../bower_components/lodash/dist/lodash.underscore",
     "history":            "../bower_components/history.js/scripts/bundled/html5/native.history",
-    "jwerty":             "lib/jwerty", // jwerty does not provide an AMD build, this is a custom wrapped version
+    "Rainbow":            "../bower_components/rainbow/js/rainbow",
+    "jwerty":             "lib/jwerty",
     "jquery.pulse":       "lib/jquery-plugins/jquery.pulse",
     "jquery.easing":      "lib/jquery-plugins/jquery.easing",
     "jquery.collapsible": "lib/jquery-plugins/jquery.collapsible",

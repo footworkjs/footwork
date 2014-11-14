@@ -5,20 +5,25 @@
       border-bottom: 1px solid transparent;
 
       .title {
-        font: bold 18px/25px 'Arial', sans-serif;
+        font: bold 15px/25px 'Arial', sans-serif;
         padding-bottom: 0;
       }
     }
     
+    @sectionColor: mix(@pane-bg-color, @pane-fg-color, 50%);
     .section-label {
       position: relative;
       cursor: pointer;
       text-decoration: none;
       overflow: hidden;
       padding-right: @accent-padding;
-      color: lighten(@pane-bg-color, 30%);
+      color: @sectionColor;
       margin: 10px 0;
-      .transform(scale(1));
+
+      &:hover {
+        color: lighten(@sectionColor, 10%);
+        .transition(color 0s linear);
+      }
 
       .arrow {
         @height: 20px;

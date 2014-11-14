@@ -10,7 +10,7 @@
     "knockoutjs": "3.2.0",
     "lodash": "*",
     "riveter": "0.1.2",
-    "postal.js": "0.10.0",
+    "postal.js": "0.10.3",
     "conduitjs": "0.3.3",
     "store-js": "*",
     "moment": "*",
@@ -19,6 +19,7 @@
     "requirejs": "*",
     "requirejs-text": "*",
     "highlight": "*",
-    "jquery": "1.11.0"
+    "jquery": "1.11.1",
+    "rainbow": "https://github.com/reflectiveSingleton/rainbow.git#8bbada4cce330a0bf6841cbc309e0b7101a97ee6"
   }
 }

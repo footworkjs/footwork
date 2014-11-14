@@ -45,6 +45,23 @@ var hasPathStart = function(path) {
   return hasStartingSlash.test(path);
 };
 
+function hasClass(element, className) {
+  return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
+}
+
+function addClass(element, className) {
+  if( !hasClass(element, className) ) {
+    element.className += (element.className.length ? ' ' : '') + className;
+  }
+}
+
+function removeClass(element, className) {
+  if( hasClass(element, className) ) {
+    var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)');
+    element.className = element.className.replace(classNameRegex, ' ');
+  }
+}
+
 // Pull out lodash utility function references for better minification and easier implementation swap
 var isFunction = _.isFunction;
 var isObject = _.isObject;
@@ -503,14 +520,14 @@ var invalidRoutePathIdentifier = '___invalid-route';
 
 var $nullRouter = extend({}, $baseRouter, {
   childRouters: extend( bind(noop), { push: noop } ),
-  routePath: function() { return ''; },
+  path: function() { return ''; },
   isRelative: function() { return false; },
   __isNullRouter: true
 });
 
 var $baseRouter = {
-  routePath: emptyStringResult,
-  routeSegment: emptyStringResult,
+  path: emptyStringResult,
+  segment: emptyStringResult,
   childRouters: fw.observableArray(),
   context: noop,
   __isRouter: true
@@ -532,7 +549,8 @@ function transformRouteConfigToDesc(routeDesc) {
   return extend({ id: uniqueId('route') }, baseRouteDescription, routeDesc );
 }
 
-// Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
+// Convert a route string to a regular expression which is then used to match a uri against it and determine
+// whether that uri matches the described route as well as parse and retrieve its tokens
 function routeStringToRegExp(routeString) {
   routeString = routeString
     .replace(escapeRegex, "\\$&")
@@ -656,13 +674,14 @@ var isFullURL = fw.isFullURL = function(thing) {
   return isString(thing) && isFullURLRegex.test(thing);
 };
 
-fw.routers = {
+var fwRouters = fw.routers = {
   // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
   baseRoute: fw.observable(''),
   getNearestParent: function($context) {
     var $parentRouter = nearestParentRouter($context);
     return (!isNullRouter($parentRouter) ? $parentRouter : null);
   },
+  activeRouteClassName: 'active',
   
   // Return array of all currently instantiated $router's
   getAll: function() {
@@ -692,7 +711,8 @@ fw.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $myRouter = nearestParentRouter(bindingContext);
     var urlValue = valueAccessor();
-    var eventHandlerIsBound = false;
+    var elementIsSetup = false;
+    var stateTracker = null;
 
     var routeHandlerDescription = {
       on: 'click',
@@ -737,7 +757,7 @@ fw.bindingHandlers.$route = {
           }
 
           if( includeParentPath && !isNullRouter($myRouter) ) {
-            myLinkPath = $myRouter.parentRouter().routePath() + myLinkPath;
+            myLinkPath = $myRouter.parentRouter().path() + myLinkPath;
           }
         }
 
@@ -749,9 +769,33 @@ fw.bindingHandlers.$route = {
     var routeURLWithParentPath = bind(getRouteURL, null, true);
     var routeURLWithoutParentPath = bind(getRouteURL, null, false);
 
+    function checkForMatchingSegment(mySegment, newRoute) {
+      if(mySegment === '/') {
+        mySegment = '';
+      }
+      
+      if(!isNull(newRoute) && newRoute.segment === mySegment && isString(fwRouters.activeRouteClassName) && fwRouters.activeRouteClassName.length) {
+        // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
+        addClass(element, fwRouters.activeRouteClassName);
+      } else if( hasClass(element, fwRouters.activeRouteClassName) ) {
+        removeClass(element, fwRouters.activeRouteClassName);
+      }
+    };
+
     function setUpElement() {
-      if(eventHandlerIsBound === false) {
-        eventHandlerIsBound = true;
+      var myCurrentSegment = routeURLWithoutParentPath();
+      if( element.tagName.toLowerCase() === 'a' ) {
+        element.href = routeURLWithParentPath();
+      }
+
+      if( !isNull(stateTracker) ) {
+        stateTracker.unsubscribe();
+      }
+      stateTracker = $myRouter.currentRoute.subscribe( bind(checkForMatchingSegment, null, myCurrentSegment) );
+
+      if(elementIsSetup === false) {
+        elementIsSetup = true;
+        checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
         fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
           var currentRouteURL = routeURLWithoutParentPath();
           var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
@@ -764,10 +808,6 @@ fw.bindingHandlers.$route = {
             }
           }
         });
-      }
-
-      if( element.tagName.toLowerCase() === 'a' ) {
-        element.href = routeURLWithParentPath();
       }
     }
 
@@ -813,13 +853,13 @@ var Router = function( routerConfig, $viewModel, $context ) {
     return this.getRouteForURL( this.currentState() );
   }, this);
   
-  this.routePath = fw.computed(function() {
+  this.path = fw.computed(function() {
     var currentRoute = this.currentRoute();
     var parentRouter = this.parentRouter();
-    var routePath = this.parentRouter().routePath();
+    var routePath = this.parentRouter().path();
 
     if( isRoute(currentRoute) ) {
-      routePath = routePath + currentRoute.routeSegment;
+      routePath = routePath + currentRoute.segment;
     }
     return routePath;
   }, this);
@@ -895,7 +935,7 @@ Router.prototype.setState = function(url, noHistoryInjection) {
     if(!noHistoryInjection && isString(url)) {
       var historyAPIWorked = true;
       try {
-        historyAPIWorked = History.pushState(null, '', this.parentRouter().routePath() + url);
+        historyAPIWorked = History.pushState(null, '', this.parentRouter().path() + url);
       } catch(error) {
         historyAPIWorked = false;
       } finally {
@@ -983,7 +1023,7 @@ Router.prototype.getUnknownRoute = function() {
       id: unknownRoute.id,
       controller: unknownRoute.controller,
       title: unknownRoute.title,
-      routeSegment: ''
+      segment: ''
     });
   }
 
@@ -992,7 +1032,7 @@ Router.prototype.getUnknownRoute = function() {
 
 Router.prototype.getRouteForURL = function(url) {
   var route = null;
-  var parentRoutePath = this.parentRouter().routePath() || '';
+  var parentRoutePath = this.parentRouter().path() || '';
   var unknownRoute = this.getUnknownRoute();
   var $myRouter = this;
 
@@ -1055,7 +1095,7 @@ Router.prototype.getRouteForURL = function(url) {
       controller: routeDescription.controller,
       title: routeDescription.title,
       url: url,
-      routeSegment: url.substr(0, url.length - splatSegment.length),
+      segment: url.substr(0, url.length - splatSegment.length),
       indexedParams: routeParams,
       namedParams: namedParams
     });

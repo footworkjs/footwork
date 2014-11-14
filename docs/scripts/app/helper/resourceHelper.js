@@ -19,7 +19,13 @@ define([ "footwork",
     "text!../../pages/not-found-page.html",
     "text!../../pages/build-page.html",
     "text!../../pages/annotated-page.html",
-    "text!../../pages/api-viewModel-page.html"
+    "text!../../pages/api-page.html",
+    "text!../../pages/api/viewModel-page.html",
+    "text!../../pages/api/namespacing-page.html",
+    "text!../../pages/api/components-page.html",
+    "text!../../pages/api/broadcastable-receivable-page.html",
+    "text!../../pages/api/routing-page.html",
+    "text!../../pages/tutorial-page.html"
   ],
   function( fw,
     contributorsViewModel, contributorsTemplate,
@@ -42,14 +48,26 @@ define([ "footwork",
     notFoundPage,
     buildInfoPage,
     annotatedPage,
-    viewModelPage
+    apiPage,
+    viewModelPage,
+    namespacingPage,
+    componentsPage,
+    broadcastableReceivablePage,
+    routingPage,
+    tutorialPage
   ) {
     return function resourceHelper() {
       fw.components.register('index-page', { template: indexPage });
       fw.components.register('not-found-page', { template: notFoundPage });
       fw.components.register('build-info-page', { template: buildInfoPage });
       fw.components.register('annotated-page', { template: annotatedPage });
+      fw.components.register('api-page', { template: apiPage });
       fw.components.register('api-viewModel-page', { template: viewModelPage });
+      fw.components.register('api-namespacing-page', { template: namespacingPage });
+      fw.components.register('api-components-page', { template: componentsPage });
+      fw.components.register('api-broadcastable-receivable-page', { template: broadcastableReceivablePage });
+      fw.components.register('api-routing-page', { template: routingPage });
+      fw.components.register('tutorial-page', { template: tutorialPage });
 
       fw.components.register('showversion', {
         viewModel: BuildInfoViewModel,
