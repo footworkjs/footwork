@@ -3,9 +3,9 @@
       <% for (var i=0, l=sections.length; i<l; i++) { %>
         <% var section = sections[i]; %>
         <li id="section-<%= i + 1 %>" class="section">
+            <div class="annotation-bg"></div>
             <div class="annotation">
               <%= section.docsHtml %>
-              <div class="annotation-bg"></div>
             </div>
             <% if (section.codeText.replace(/\s/gm, '') != '') { %>
             <div class="content"><pre><code data-language="javascript"><%= section.codeText.replace(/^\s+|\s+$/g,"") %></code></pre></div>

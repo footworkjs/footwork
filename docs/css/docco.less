@@ -14,7 +14,7 @@
     line-height: 1em;
     font-weight: bold;
     text-transform: uppercase;
-    margin: 30px 0 15px 0;
+    padding: 30px 0 15px 0;
   }
 
   h1 {
@@ -28,11 +28,6 @@
     margin: 20px 0;
   }
 
-  // pre, tt, code {
-  //   font-size: 12px; line-height: 16px;
-  //   font-family: Menlo, Monaco, Consolas, "Lucida Console", monospace;
-  //   margin: 0; padding: 0;
-  // }
   .annotation pre {
     display: block;
     margin: 0;
@@ -73,6 +68,11 @@
     z-index: 2;
   }
 
+  .sections > .section {
+    position: relative;
+    padding: 10px 0;
+  }
+
   #section-1 {
     padding-top: 0px;
   }
@@ -87,69 +87,61 @@
 
   .annotation-bg {
     background: #eee;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 1;
+    border-right: 1px solid #ddd;
   }
 
   #section-1 .annotation-bg, #section-2 .annotation-bg {
     background: transparent;
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
-    -ms-box-shadow: none;
-    box-shadow: none;
-  }
-
-  #section-3 .annotation-bg {
-    -webkit-box-shadow: 0px 5px 15px -8px black inset;
-    -moz-box-shadow: 0px 5px 15px -8px black inset;
-    -ms-box-shadow: 0px 5px 15px -8px black inset;
-    box-shadow: 0px 5px 15px -8px black inset;
   }
 
   #section-2 .annotation {
     padding-bottom: 10px;
   }
 
-  /*
-    Force border-box so that % widths fit the parent
-    container without overlap because of margin/padding.
-
-    More Info : http://www.quirksmode.org/css/box.html
-  */
   ul.sections > li > div {
-    -moz-box-sizing: border-box;    /* firefox */
-    -ms-box-sizing: border-box;     /* ie */
-    -webkit-box-sizing: border-box; /* webkit */
-    -khtml-box-sizing: border-box;  /* konqueror */
-    box-sizing: border-box;         /* css3 */
+    .box-sizing(border-box);
   }
-}
 
-@media only screen and (min-width: 320px) {
-  .docco {
-    ul.sections > li > div {
-      display: block;
-      padding:5px 10px 0 10px;
-    }
+  ul.sections > li > div {
+    display: block;
+    padding: 5px 20px 0;
+  }
 
-    ul.sections > li > div.annotation ul, ul.sections > li > div.annotation ol {
-      padding-left: 30px;
-    }
+  ul.sections > li > div.annotation ul, ul.sections > li > div.annotation ol {
+    padding-left: 30px;
+  }
 
-    ul.sections > li > div.content {
-      overflow-x:auto;
-      margin: 5px 0 10px 0;
-    }
+  ul.sections > li > div.content {
+    background: #1D1F21;
+    overflow-x: auto;
+    margin: 10px 20px;
+    position: relative;
+    z-index: 2;
+    padding: 0;
+    .border-radius(3px);
+  }
 
-    ul.sections > li > div.annotation pre {
-      margin: 7px 0 7px;
-      padding-left: 15px;
-    }
+  ul.sections > li > div.annotation pre {
+    margin: 7px 0 7px;
+    padding-left: 15px;
+  }
 
-    ul.sections > li > div.annotation p tt, .annotation code {
-      background: #f8f8ff;
-      border: 1px solid #dedede;
-      font-size: 12px;
-      padding: 0 0.2em;
-    }
+  ul.sections > li > div.annotation p tt, .annotation code {
+    background: #f8f8ff;
+    border: 1px solid #dedede;
+    font-size: 12px;
+    padding: 0 0.2em;
+  }
+
+  ul.sections .annotation-bg {
+    display: block;
+    width: 100%;
   }
 }
 
@@ -158,19 +150,6 @@
     ul.sections > li {
       position: relative;
       margin-left: 10px;
-    }
-    ul.sections li .annotation-bg {
-      position: absolute;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      width: 250px;
-      z-index: 1;
-      -webkit-box-shadow: 6px 0px 15px -13px black inset, -6px 0px 15px -13px black inset;
-      -moz-box-shadow: 6px 0px 15px -13px black inset, -6px 0px 15px -13px black inset;
-      -ms-box-shadow: 6px 0px 15px -13px black inset, -6px 0px 15px -13px black inset;
-      box-shadow: 6px 0px 15px -13px black inset, -6px 0px 15px -13px black inset;
-      border-right: 1px solid #ddd;
     }
 
     section ul.sections {
@@ -183,22 +162,32 @@
     }
 
     ul.sections > li {
+      .clearblock;
+      clear: both;
       white-space: nowrap;
     }
 
     ul.sections > li > div {
-      display: inline-block;
+      display: block;
+      float: left;
+
+      &.annotation {
+        width: 30%;
+      }
+      &.content {
+        width: 70%;
+      }
     }
 
     ul.sections > li > div.annotation {
-      max-width: 250px;
-      min-width: 250px;
+      width: 250px;
       min-height: 5px;
       padding: 13px;
       overflow-x: hidden;
       white-space: normal;
       vertical-align: top;
       text-align: left;
+      position: relative;
     }
     ul.sections > li > div.annotation pre {
       margin: 15px 0 15px;
@@ -206,11 +195,15 @@
     }
 
     ul.sections > li > div.content {
-      padding: 13px;
       vertical-align: top;
       border: none;
-      -webkit-box-shadow: none;
-      box-shadow: none;
+      .border-radius(0 3px 3px 0);
+      margin: 0;
+    }
+    
+    ul.sections .annotation-bg {
+      width: 250px;
+      border-right: 1px solid #ddd;
     }
   }
 }
@@ -218,10 +211,7 @@
 @media only screen and (min-width: 1225px) {
   .docco {
     ul.sections > li > div.annotation {
-      padding: 10px 25px 1px 35px;
-    }
-    ul.sections > li > div.content {
-      padding: 9px 15px 16px 25px;
+      padding: 10px 25px 1px 30px;
     }
   }
 }
