@@ -20,6 +20,6 @@
     "requirejs-text": "*",
     "highlight": "*",
     "jquery": "1.11.1",
-    "rainbow": "https://github.com/reflectiveSingleton/rainbow.git#8bbada4cce330a0bf6841cbc309e0b7101a97ee6"
+    "rainbow": "https://github.com/reflectiveSingleton/rainbow.git#aa054eb9b413d82bd89f10249654f70d2c65656d"
   }
 }

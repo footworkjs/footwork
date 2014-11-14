@@ -184,9 +184,13 @@ gulp.task('set_version', function() {
   );
 });
 
-// tasks used to setup documentation page on server after new release
+// Used to setup documentation on remote server after a release
 gulp.task('readyDocServ', function(callback) {
   return gulp.src('docs/index.html')
     .pipe( replace('<!--FOOTWORK_CONTENT-->', '<?php App::loadView( isset( $bodyView ) ? $bodyView : DEFAULT_BODY_VIEW ); ?>') )
+    .pipe( replace('src="scripts', 'src="/scripts') )
+    .pipe( replace('src="build', 'src="/build') )
+    .pipe( replace('href="css', 'href="/css') )
+    .pipe( replace('href="images', 'href="/images') )
     .pipe(gulp.dest('docs'));
 });

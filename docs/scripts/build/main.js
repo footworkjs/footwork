@@ -2078,7 +2078,7 @@ var requirejs, require, define;
 define("requireLib", function(){});
 
 /*!
- * jQuery JavaScript Library v1.11.0
+ * jQuery JavaScript Library v1.11.1
  * http://jquery.com/
  *
  * Includes Sizzle.js
@@ -2088,7 +2088,7 @@ define("requireLib", function(){});
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2014-01-23T21:02Z
+ * Date: 2014-05-01T17:42Z
  */
 
 (function( global, factory ) {
@@ -2138,14 +2138,12 @@ var toString = class2type.toString;
 
 var hasOwn = class2type.hasOwnProperty;
 
-var trim = "".trim;
-
 var support = {};
 
 
 
 var
-	version = "1.11.0",
+	version = "1.11.1",
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -2154,7 +2152,8 @@ var
 		return new jQuery.fn.init( selector, context );
 	},
 
-	// Make sure we trim BOM and NBSP (here's looking at you, Safari 5.0 and IE)
+	// Support: Android<4.1, IE<9
+	// Make sure we trim BOM and NBSP
 	rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g,
 
 	// Matches dashed string for camelizing
@@ -2187,10 +2186,10 @@ jQuery.fn = jQuery.prototype = {
 	get: function( num ) {
 		return num != null ?
 
-			// Return a 'clean' array
+			// Return just the one element from the set
 			( num < 0 ? this[ num + this.length ] : this[ num ] ) :
 
-			// Return just the object
+			// Return all the elements in a clean array
 			slice.call( this );
 	},
 
@@ -2349,7 +2348,7 @@ jQuery.extend({
 		// parseFloat NaNs numeric-cast false positives (null|true|false|"")
 		// ...but misinterprets leading-number strings, particularly hex literals ("0x...")
 		// subtraction forces infinities to NaN
-		return obj - parseFloat( obj ) >= 0;
+		return !jQuery.isArray( obj ) && obj - parseFloat( obj ) >= 0;
 	},
 
 	isEmptyObject: function( obj ) {
@@ -2480,20 +2479,12 @@ jQuery.extend({
 		return obj;
 	},
 
-	// Use native String.trim function wherever possible
-	trim: trim && !trim.call("\uFEFF\xA0") ?
-		function( text ) {
-			return text == null ?
-				"" :
-				trim.call( text );
-		} :
-
-		// Otherwise use our own trimming functionality
-		function( text ) {
-			return text == null ?
-				"" :
-				( text + "" ).replace( rtrim, "" );
-		},
+	// Support: Android<4.1, IE<9
+	trim: function( text ) {
+		return text == null ?
+			"" :
+			( text + "" ).replace( rtrim, "" );
+	},
 
 	// results is for internal usage only
 	makeArray: function( arr, results ) {
@@ -2672,14 +2663,14 @@ function isArraylike( obj ) {
 }
 var Sizzle =
 /*!
- * Sizzle CSS Selector Engine v1.10.16
+ * Sizzle CSS Selector Engine v1.10.19
  * http://sizzlejs.com/
  *
  * Copyright 2013 jQuery Foundation, Inc. and other contributors
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2014-01-13
+ * Date: 2014-04-18
  */
 (function( window ) {
 
@@ -2688,7 +2679,9 @@ var i,
 	Expr,
 	getText,
 	isXML,
+	tokenize,
 	compile,
+	select,
 	outermostContext,
 	sortInput,
 	hasDuplicate,
@@ -2755,17 +2748,23 @@ var i,
 	// Proper syntax: http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier
 	identifier = characterEncoding.replace( "w", "w#" ),
 
-	// Acceptable operators http://www.w3.org/TR/selectors/#attribute-selectors
-	attributes = "\\[" + whitespace + "*(" + characterEncoding + ")" + whitespace +
-		"*(?:([*^$|!~]?=)" + whitespace + "*(?:(['\"])((?:\\\\.|[^\\\\])*?)\\3|(" + identifier + ")|)|)" + whitespace + "*\\]",
+	// Attribute selectors: http://www.w3.org/TR/selectors/#attribute-selectors
+	attributes = "\\[" + whitespace + "*(" + characterEncoding + ")(?:" + whitespace +
+		// Operator (capture 2)
+		"*([*^$|!~]?=)" + whitespace +
+		// "Attribute values must be CSS identifiers [capture 5] or strings [capture 3 or capture 4]"
+		"*(?:'((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\"|(" + identifier + "))|)" + whitespace +
+		"*\\]",
 
-	// Prefer arguments quoted,
-	//   then not containing pseudos/brackets,
-	//   then attribute selectors/non-parenthetical expressions,
-	//   then anything else
-	// These preferences are here to reduce the number of selectors
-	//   needing tokenize in the PSEUDO preFilter
-	pseudos = ":(" + characterEncoding + ")(?:\\(((['\"])((?:\\\\.|[^\\\\])*?)\\3|((?:\\\\.|[^\\\\()[\\]]|" + attributes.replace( 3, 8 ) + ")*)|.*)\\)|)",
+	pseudos = ":(" + characterEncoding + ")(?:\\((" +
+		// To reduce the number of selectors needing tokenize in the preFilter, prefer arguments:
+		// 1. quoted (capture 3; capture 4 or capture 5)
+		"('((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\")|" +
+		// 2. simple (capture 6)
+		"((?:\\\\.|[^\\\\()[\\]]|" + attributes + ")*)|" +
+		// 3. anything else (capture 2)
+		".*" +
+		")\\)|)",
 
 	// Leading and non-escaped trailing whitespace, capturing some non-whitespace characters preceding the latter
 	rtrim = new RegExp( "^" + whitespace + "+|((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$", "g" ),
@@ -2810,7 +2809,7 @@ var i,
 	funescape = function( _, escaped, escapedWhitespace ) {
 		var high = "0x" + escaped - 0x10000;
 		// NaN means non-codepoint
-		// Support: Firefox
+		// Support: Firefox<24
 		// Workaround erroneous numeric interpretation of +"0x"
 		return high !== high || escapedWhitespace ?
 			escaped :
@@ -3206,7 +3205,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 				var m = context.getElementById( id );
 				// Check parentNode to catch when Blackberry 4.6 returns
 				// nodes that are no longer in the document #6963
-				return m && m.parentNode ? [m] : [];
+				return m && m.parentNode ? [ m ] : [];
 			}
 		};
 		Expr.filter["ID"] = function( id ) {
@@ -3286,11 +3285,13 @@ setDocument = Sizzle.setDocument = function( node ) {
 			// setting a boolean content attribute,
 			// since its presence should be enough
 			// http://bugs.jquery.com/ticket/12359
-			div.innerHTML = "<select t=''><option selected=''></option></select>";
+			div.innerHTML = "<select msallowclip=''><option selected=''></option></select>";
 
-			// Support: IE8, Opera 10-12
+			// Support: IE8, Opera 11-12.16
 			// Nothing should be selected when empty strings follow ^= or $= or *=
-			if ( div.querySelectorAll("[t^='']").length ) {
+			// The test attribute must be unknown in Opera but "safe" for WinRT
+			// http://msdn.microsoft.com/en-us/library/ie/hh465388.aspx#attribute_section
+			if ( div.querySelectorAll("[msallowclip^='']").length ) {
 				rbuggyQSA.push( "[*^$]=" + whitespace + "*(?:''|\"\")" );
 			}
 
@@ -3333,7 +3334,8 @@ setDocument = Sizzle.setDocument = function( node ) {
 		});
 	}
 
-	if ( (support.matchesSelector = rnative.test( (matches = docElem.webkitMatchesSelector ||
+	if ( (support.matchesSelector = rnative.test( (matches = docElem.matches ||
+		docElem.webkitMatchesSelector ||
 		docElem.mozMatchesSelector ||
 		docElem.oMatchesSelector ||
 		docElem.msMatchesSelector) )) ) {
@@ -3514,7 +3516,7 @@ Sizzle.matchesSelector = function( elem, expr ) {
 		} catch(e) {}
 	}
 
-	return Sizzle( expr, document, null, [elem] ).length > 0;
+	return Sizzle( expr, document, null, [ elem ] ).length > 0;
 };
 
 Sizzle.contains = function( context, elem ) {
@@ -3643,7 +3645,7 @@ Expr = Sizzle.selectors = {
 			match[1] = match[1].replace( runescape, funescape );
 
 			// Move the given value to match[3] whether quoted or unquoted
-			match[3] = ( match[4] || match[5] || "" ).replace( runescape, funescape );
+			match[3] = ( match[3] || match[4] || match[5] || "" ).replace( runescape, funescape );
 
 			if ( match[2] === "~=" ) {
 				match[3] = " " + match[3] + " ";
@@ -3686,15 +3688,15 @@ Expr = Sizzle.selectors = {
 
 		"PSEUDO": function( match ) {
 			var excess,
-				unquoted = !match[5] && match[2];
+				unquoted = !match[6] && match[2];
 
 			if ( matchExpr["CHILD"].test( match[0] ) ) {
 				return null;
 			}
 
 			// Accept quoted arguments as-is
-			if ( match[3] && match[4] !== undefined ) {
-				match[2] = match[4];
+			if ( match[3] ) {
+				match[2] = match[4] || match[5] || "";
 
 			// Strip excess characters from unquoted arguments
 			} else if ( unquoted && rpseudo.test( unquoted ) &&
@@ -4099,7 +4101,7 @@ function setFilters() {}
 setFilters.prototype = Expr.filters = Expr.pseudos;
 Expr.setFilters = new setFilters();
 
-function tokenize( selector, parseOnly ) {
+tokenize = Sizzle.tokenize = function( selector, parseOnly ) {
 	var matched, match, tokens, type,
 		soFar, groups, preFilters,
 		cached = tokenCache[ selector + " " ];
@@ -4164,7 +4166,7 @@ function tokenize( selector, parseOnly ) {
 			Sizzle.error( selector ) :
 			// Cache the tokens
 			tokenCache( selector, groups ).slice( 0 );
-}
+};
 
 function toSelector( tokens ) {
 	var i = 0,
@@ -4241,6 +4243,15 @@ function elementMatcher( matchers ) {
 			return true;
 		} :
 		matchers[0];
+}
+
+function multipleContexts( selector, contexts, results ) {
+	var i = 0,
+		len = contexts.length;
+	for ( ; i < len; i++ ) {
+		Sizzle( selector, contexts[i], results );
+	}
+	return results;
 }
 
 function condense( unmatched, map, filter, context, xml ) {
@@ -4511,7 +4522,7 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 		superMatcher;
 }
 
-compile = Sizzle.compile = function( selector, group /* Internal Use Only */ ) {
+compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
 	var i,
 		setMatchers = [],
 		elementMatchers = [],
@@ -4519,12 +4530,12 @@ compile = Sizzle.compile = function( selector, group /* Internal Use Only */ ) {
 
 	if ( !cached ) {
 		// Generate a function of recursive functions that can be used to check each element
-		if ( !group ) {
-			group = tokenize( selector );
+		if ( !match ) {
+			match = tokenize( selector );
 		}
-		i = group.length;
+		i = match.length;
 		while ( i-- ) {
-			cached = matcherFromTokens( group[i] );
+			cached = matcherFromTokens( match[i] );
 			if ( cached[ expando ] ) {
 				setMatchers.push( cached );
 			} else {
@@ -4534,74 +4545,83 @@ compile = Sizzle.compile = function( selector, group /* Internal Use Only */ ) {
 
 		// Cache the compiled function
 		cached = compilerCache( selector, matcherFromGroupMatchers( elementMatchers, setMatchers ) );
+
+		// Save selector and tokenization
+		cached.selector = selector;
 	}
 	return cached;
 };
 
-function multipleContexts( selector, contexts, results ) {
-	var i = 0,
-		len = contexts.length;
-	for ( ; i < len; i++ ) {
-		Sizzle( selector, contexts[i], results );
-	}
-	return results;
-}
-
-function select( selector, context, results, seed ) {
+/**
+ * A low-level selection function that works with Sizzle's compiled
+ *  selector functions
+ * @param {String|Function} selector A selector or a pre-compiled
+ *  selector function built with Sizzle.compile
+ * @param {Element} context
+ * @param {Array} [results]
+ * @param {Array} [seed] A set of elements to match against
+ */
+select = Sizzle.select = function( selector, context, results, seed ) {
 	var i, tokens, token, type, find,
-		match = tokenize( selector );
+		compiled = typeof selector === "function" && selector,
+		match = !seed && tokenize( (selector = compiled.selector || selector) );
 
-	if ( !seed ) {
-		// Try to minimize operations if there is only one group
-		if ( match.length === 1 ) {
+	results = results || [];
 
-			// Take a shortcut and set the context if the root selector is an ID
-			tokens = match[0] = match[0].slice( 0 );
-			if ( tokens.length > 2 && (token = tokens[0]).type === "ID" &&
-					support.getById && context.nodeType === 9 && documentIsHTML &&
-					Expr.relative[ tokens[1].type ] ) {
+	// Try to minimize operations if there is no seed and only one group
+	if ( match.length === 1 ) {
 
-				context = ( Expr.find["ID"]( token.matches[0].replace(runescape, funescape), context ) || [] )[0];
-				if ( !context ) {
-					return results;
-				}
-				selector = selector.slice( tokens.shift().value.length );
+		// Take a shortcut and set the context if the root selector is an ID
+		tokens = match[0] = match[0].slice( 0 );
+		if ( tokens.length > 2 && (token = tokens[0]).type === "ID" &&
+				support.getById && context.nodeType === 9 && documentIsHTML &&
+				Expr.relative[ tokens[1].type ] ) {
+
+			context = ( Expr.find["ID"]( token.matches[0].replace(runescape, funescape), context ) || [] )[0];
+			if ( !context ) {
+				return results;
+
+			// Precompiled matchers will still verify ancestry, so step up a level
+			} else if ( compiled ) {
+				context = context.parentNode;
 			}
 
-			// Fetch a seed set for right-to-left matching
-			i = matchExpr["needsContext"].test( selector ) ? 0 : tokens.length;
-			while ( i-- ) {
-				token = tokens[i];
+			selector = selector.slice( tokens.shift().value.length );
+		}
 
-				// Abort if we hit a combinator
-				if ( Expr.relative[ (type = token.type) ] ) {
-					break;
-				}
-				if ( (find = Expr.find[ type ]) ) {
-					// Search, expanding context for leading sibling combinators
-					if ( (seed = find(
-						token.matches[0].replace( runescape, funescape ),
-						rsibling.test( tokens[0].type ) && testContext( context.parentNode ) || context
-					)) ) {
+		// Fetch a seed set for right-to-left matching
+		i = matchExpr["needsContext"].test( selector ) ? 0 : tokens.length;
+		while ( i-- ) {
+			token = tokens[i];
 
-						// If seed is empty or no tokens remain, we can return early
-						tokens.splice( i, 1 );
-						selector = seed.length && toSelector( tokens );
-						if ( !selector ) {
-							push.apply( results, seed );
-							return results;
-						}
+			// Abort if we hit a combinator
+			if ( Expr.relative[ (type = token.type) ] ) {
+				break;
+			}
+			if ( (find = Expr.find[ type ]) ) {
+				// Search, expanding context for leading sibling combinators
+				if ( (seed = find(
+					token.matches[0].replace( runescape, funescape ),
+					rsibling.test( tokens[0].type ) && testContext( context.parentNode ) || context
+				)) ) {
 
-						break;
+					// If seed is empty or no tokens remain, we can return early
+					tokens.splice( i, 1 );
+					selector = seed.length && toSelector( tokens );
+					if ( !selector ) {
+						push.apply( results, seed );
+						return results;
 					}
+
+					break;
 				}
 			}
 		}
 	}
 
-	// Compile and execute a filtering function
+	// Compile and execute a filtering function if one is not provided
 	// Provide `match` to avoid retokenization if we modified the selector above
-	compile( selector, match )(
+	( compiled || compile( selector, match ) )(
 		seed,
 		context,
 		!documentIsHTML,
@@ -4609,7 +4629,7 @@ function select( selector, context, results, seed ) {
 		rsibling.test( selector ) && testContext( context.parentNode ) || context
 	);
 	return results;
-}
+};
 
 // One-time assignments
 
@@ -5502,8 +5522,9 @@ jQuery.extend({
 		readyList.resolveWith( document, [ jQuery ] );
 
 		// Trigger any bound ready events
-		if ( jQuery.fn.trigger ) {
-			jQuery( document ).trigger("ready").off("ready");
+		if ( jQuery.fn.triggerHandler ) {
+			jQuery( document ).triggerHandler( "ready" );
+			jQuery( document ).off( "ready" );
 		}
 	}
 });
@@ -5611,23 +5632,21 @@ support.ownLast = i !== "0";
 // false until the test is run
 support.inlineBlockNeedsLayout = false;
 
+// Execute ASAP in case we need to set body.style.zoom
 jQuery(function() {
-	// We need to execute this one support test ASAP because we need to know
-	// if body.style.zoom needs to be set.
+	// Minified: var a,b,c,d
+	var val, div, body, container;
 
-	var container, div,
-		body = document.getElementsByTagName("body")[0];
-
-	if ( !body ) {
+	body = document.getElementsByTagName( "body" )[ 0 ];
+	if ( !body || !body.style ) {
 		// Return for frameset docs that don't have a body
 		return;
 	}
 
 	// Setup
-	container = document.createElement( "div" );
-	container.style.cssText = "border:0;width:0;height:0;position:absolute;top:0;left:-9999px;margin-top:1px";
-
 	div = document.createElement( "div" );
+	container = document.createElement( "div" );
+	container.style.cssText = "position:absolute;border:0;width:0;height:0;top:0;left:-9999px";
 	body.appendChild( container ).appendChild( div );
 
 	if ( typeof div.style.zoom !== strundefined ) {
@@ -5635,9 +5654,10 @@ jQuery(function() {
 		// Check if natively block-level elements act like inline-block
 		// elements when setting their display to 'inline' and giving
 		// them layout
-		div.style.cssText = "border:0;margin:0;width:1px;padding:1px;display:inline;zoom:1";
+		div.style.cssText = "display:inline;margin:0;border:0;padding:1px;width:1px;zoom:1";
 
-		if ( (support.inlineBlockNeedsLayout = ( div.offsetWidth === 3 )) ) {
+		support.inlineBlockNeedsLayout = val = div.offsetWidth === 3;
+		if ( val ) {
 			// Prevent IE 6 from affecting layout for positioned elements #11048
 			// Prevent IE from shrinking the body in IE 7 mode #12869
 			// Support: IE<8
@@ -5646,9 +5666,6 @@ jQuery(function() {
 	}
 
 	body.removeChild( container );
-
-	// Null elements to avoid leaks in IE
-	container = div = null;
 });
 
 
@@ -5971,12 +5988,15 @@ jQuery.fn.extend({
 				if ( elem.nodeType === 1 && !jQuery._data( elem, "parsedAttrs" ) ) {
 					i = attrs.length;
 					while ( i-- ) {
-						name = attrs[i].name;
 
-						if ( name.indexOf("data-") === 0 ) {
-							name = jQuery.camelCase( name.slice(5) );
-
-							dataAttr( elem, name, data[ name ] );
+						// Support: IE11+
+						// The attrs elements can be null (#14894)
+						if ( attrs[ i ] ) {
+							name = attrs[ i ].name;
+							if ( name.indexOf( "data-" ) === 0 ) {
+								name = jQuery.camelCase( name.slice(5) );
+								dataAttr( elem, name, data[ name ] );
+							}
 						}
 					}
 					jQuery._data( elem, "parsedAttrs", true );
@@ -6216,13 +6236,13 @@ var rcheckableType = (/^(?:checkbox|radio)$/i);
 
 
 (function() {
-	var fragment = document.createDocumentFragment(),
-		div = document.createElement("div"),
-		input = document.createElement("input");
+	// Minified: var a,b,c
+	var input = document.createElement( "input" ),
+		div = document.createElement( "div" ),
+		fragment = document.createDocumentFragment();
 
 	// Setup
-	div.setAttribute( "className", "t" );
-	div.innerHTML = "  <link/><table></table><a href='/a'>a</a>";
+	div.innerHTML = "  <link/><table></table><a href='/a'>a</a><input type='checkbox'/>";
 
 	// IE strips leading whitespace when .innerHTML is used
 	support.leadingWhitespace = div.firstChild.nodeType === 3;
@@ -6282,9 +6302,6 @@ var rcheckableType = (/^(?:checkbox|radio)$/i);
 			support.deleteExpando = false;
 		}
 	}
-
-	// Null elements to avoid leaks in IE.
-	fragment = div = input = null;
 })();
 
 
@@ -6310,7 +6327,7 @@ var rcheckableType = (/^(?:checkbox|radio)$/i);
 
 var rformElems = /^(?:input|select|textarea)$/i,
 	rkeyEvent = /^key/,
-	rmouseEvent = /^(?:mouse|contextmenu)|click/,
+	rmouseEvent = /^(?:mouse|pointer|contextmenu)|click/,
 	rfocusMorph = /^(?:focusinfocus|focusoutblur)$/,
 	rtypenamespace = /^([^.]*)(?:\.(.+)|)$/;
 
@@ -6913,8 +6930,9 @@ jQuery.event = {
 		beforeunload: {
 			postDispatch: function( event ) {
 
-				// Even when returnValue equals to undefined Firefox will still show alert
-				if ( event.result !== undefined ) {
+				// Support: Firefox 20+
+				// Firefox doesn't alert if the returnValue field is not set.
+				if ( event.result !== undefined && event.originalEvent ) {
 					event.originalEvent.returnValue = event.result;
 				}
 			}
@@ -6980,11 +6998,9 @@ jQuery.Event = function( src, props ) {
 		// Events bubbling up the document may have been marked as prevented
 		// by a handler lower down the tree; reflect the correct value.
 		this.isDefaultPrevented = src.defaultPrevented ||
-				src.defaultPrevented === undefined && (
-				// Support: IE < 9
-				src.returnValue === false ||
-				// Support: Android < 4.0
-				src.getPreventDefault && src.getPreventDefault() ) ?
+				src.defaultPrevented === undefined &&
+				// Support: IE < 9, Android < 4.0
+				src.returnValue === false ?
 			returnTrue :
 			returnFalse;
 
@@ -7047,7 +7063,14 @@ jQuery.Event.prototype = {
 		e.cancelBubble = true;
 	},
 	stopImmediatePropagation: function() {
+		var e = this.originalEvent;
+
 		this.isImmediatePropagationStopped = returnTrue;
+
+		if ( e && e.stopImmediatePropagation ) {
+			e.stopImmediatePropagation();
+		}
+
 		this.stopPropagation();
 	}
 };
@@ -7055,7 +7078,9 @@ jQuery.Event.prototype = {
 // Create mouseenter/leave events using mouseover/out and event-time checks
 jQuery.each({
 	mouseenter: "mouseover",
-	mouseleave: "mouseout"
+	mouseleave: "mouseout",
+	pointerenter: "pointerover",
+	pointerleave: "pointerout"
 }, function( orig, fix ) {
 	jQuery.event.special[ orig ] = {
 		delegateType: fix,
@@ -8059,14 +8084,15 @@ var iframe,
  */
 // Called only from within defaultDisplay
 function actualDisplay( name, doc ) {
-	var elem = jQuery( doc.createElement( name ) ).appendTo( doc.body ),
+	var style,
+		elem = jQuery( doc.createElement( name ) ).appendTo( doc.body ),
 
 		// getDefaultComputedStyle might be reliably used only on attached element
-		display = window.getDefaultComputedStyle ?
+		display = window.getDefaultComputedStyle && ( style = window.getDefaultComputedStyle( elem[ 0 ] ) ) ?
 
 			// Use of this method is a temporary fix (more like optmization) until something better comes along,
 			// since it was removed from specification and supported only in FF
-			window.getDefaultComputedStyle( elem[ 0 ] ).display : jQuery.css( elem[ 0 ], "display" );
+			style.display : jQuery.css( elem[ 0 ], "display" );
 
 	// We don't have any data stored on the element,
 	// so use "detach" method as fast way to get rid of the element
@@ -8112,67 +8138,46 @@ function defaultDisplay( nodeName ) {
 
 
 (function() {
-	var a, shrinkWrapBlocksVal,
-		div = document.createElement( "div" ),
-		divReset =
-			"-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box;" +
-			"display:block;padding:0;margin:0;border:0";
-
-	// Setup
-	div.innerHTML = "  <link/><table></table><a href='/a'>a</a><input type='checkbox'/>";
-	a = div.getElementsByTagName( "a" )[ 0 ];
-
-	a.style.cssText = "float:left;opacity:.5";
-
-	// Make sure that element opacity exists
-	// (IE uses filter instead)
-	// Use a regex to work around a WebKit issue. See #5145
-	support.opacity = /^0.5/.test( a.style.opacity );
-
-	// Verify style float existence
-	// (IE uses styleFloat instead of cssFloat)
-	support.cssFloat = !!a.style.cssFloat;
-
-	div.style.backgroundClip = "content-box";
-	div.cloneNode( true ).style.backgroundClip = "";
-	support.clearCloneStyle = div.style.backgroundClip === "content-box";
-
-	// Null elements to avoid leaks in IE.
-	a = div = null;
+	var shrinkWrapBlocksVal;
 
 	support.shrinkWrapBlocks = function() {
-		var body, container, div, containerStyles;
-
-		if ( shrinkWrapBlocksVal == null ) {
-			body = document.getElementsByTagName( "body" )[ 0 ];
-			if ( !body ) {
-				// Test fired too early or in an unsupported environment, exit.
-				return;
-			}
-
-			containerStyles = "border:0;width:0;height:0;position:absolute;top:0;left:-9999px";
-			container = document.createElement( "div" );
-			div = document.createElement( "div" );
-
-			body.appendChild( container ).appendChild( div );
-
-			// Will be changed later if needed.
-			shrinkWrapBlocksVal = false;
-
-			if ( typeof div.style.zoom !== strundefined ) {
-				// Support: IE6
-				// Check if elements with layout shrink-wrap their children
-				div.style.cssText = divReset + ";width:1px;padding:1px;zoom:1";
-				div.innerHTML = "<div></div>";
-				div.firstChild.style.width = "5px";
-				shrinkWrapBlocksVal = div.offsetWidth !== 3;
-			}
-
-			body.removeChild( container );
-
-			// Null elements to avoid leaks in IE.
-			body = container = div = null;
+		if ( shrinkWrapBlocksVal != null ) {
+			return shrinkWrapBlocksVal;
 		}
+
+		// Will be changed later if needed.
+		shrinkWrapBlocksVal = false;
+
+		// Minified: var b,c,d
+		var div, body, container;
+
+		body = document.getElementsByTagName( "body" )[ 0 ];
+		if ( !body || !body.style ) {
+			// Test fired too early or in an unsupported environment, exit.
+			return;
+		}
+
+		// Setup
+		div = document.createElement( "div" );
+		container = document.createElement( "div" );
+		container.style.cssText = "position:absolute;border:0;width:0;height:0;top:0;left:-9999px";
+		body.appendChild( container ).appendChild( div );
+
+		// Support: IE6
+		// Check if elements with layout shrink-wrap their children
+		if ( typeof div.style.zoom !== strundefined ) {
+			// Reset CSS: box-sizing; display; margin; border
+			div.style.cssText =
+				// Support: Firefox<29, Android 2.3
+				// Vendor-prefix box-sizing
+				"-webkit-box-sizing:content-box;-moz-box-sizing:content-box;" +
+				"box-sizing:content-box;display:block;margin:0;border:0;" +
+				"padding:1px;width:1px;zoom:1";
+			div.appendChild( document.createElement( "div" ) ).style.width = "5px";
+			shrinkWrapBlocksVal = div.offsetWidth !== 3;
+		}
+
+		body.removeChild( container );
 
 		return shrinkWrapBlocksVal;
 	};
@@ -8321,92 +8326,46 @@ function addGetHookIf( conditionFn, hookFn ) {
 
 
 (function() {
-	var a, reliableHiddenOffsetsVal, boxSizingVal, boxSizingReliableVal,
-		pixelPositionVal, reliableMarginRightVal,
-		div = document.createElement( "div" ),
-		containerStyles = "border:0;width:0;height:0;position:absolute;top:0;left:-9999px",
-		divReset =
-			"-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box;" +
-			"display:block;padding:0;margin:0;border:0";
+	// Minified: var b,c,d,e,f,g, h,i
+	var div, style, a, pixelPositionVal, boxSizingReliableVal,
+		reliableHiddenOffsetsVal, reliableMarginRightVal;
 
 	// Setup
+	div = document.createElement( "div" );
 	div.innerHTML = "  <link/><table></table><a href='/a'>a</a><input type='checkbox'/>";
 	a = div.getElementsByTagName( "a" )[ 0 ];
+	style = a && a.style;
 
-	a.style.cssText = "float:left;opacity:.5";
+	// Finish early in limited (non-browser) environments
+	if ( !style ) {
+		return;
+	}
 
-	// Make sure that element opacity exists
-	// (IE uses filter instead)
-	// Use a regex to work around a WebKit issue. See #5145
-	support.opacity = /^0.5/.test( a.style.opacity );
+	style.cssText = "float:left;opacity:.5";
+
+	// Support: IE<9
+	// Make sure that element opacity exists (as opposed to filter)
+	support.opacity = style.opacity === "0.5";
 
 	// Verify style float existence
 	// (IE uses styleFloat instead of cssFloat)
-	support.cssFloat = !!a.style.cssFloat;
+	support.cssFloat = !!style.cssFloat;
 
 	div.style.backgroundClip = "content-box";
 	div.cloneNode( true ).style.backgroundClip = "";
 	support.clearCloneStyle = div.style.backgroundClip === "content-box";
 
-	// Null elements to avoid leaks in IE.
-	a = div = null;
+	// Support: Firefox<29, Android 2.3
+	// Vendor-prefix box-sizing
+	support.boxSizing = style.boxSizing === "" || style.MozBoxSizing === "" ||
+		style.WebkitBoxSizing === "";
 
 	jQuery.extend(support, {
 		reliableHiddenOffsets: function() {
-			if ( reliableHiddenOffsetsVal != null ) {
-				return reliableHiddenOffsetsVal;
-			}
-
-			var container, tds, isSupported,
-				div = document.createElement( "div" ),
-				body = document.getElementsByTagName( "body" )[ 0 ];
-
-			if ( !body ) {
-				// Return for frameset docs that don't have a body
-				return;
-			}
-
-			// Setup
-			div.setAttribute( "className", "t" );
-			div.innerHTML = "  <link/><table></table><a href='/a'>a</a><input type='checkbox'/>";
-
-			container = document.createElement( "div" );
-			container.style.cssText = containerStyles;
-
-			body.appendChild( container ).appendChild( div );
-
-			// Support: IE8
-			// Check if table cells still have offsetWidth/Height when they are set
-			// to display:none and there are still other visible table cells in a
-			// table row; if so, offsetWidth/Height are not reliable for use when
-			// determining if an element has been hidden directly using
-			// display:none (it is still safe to use offsets if a parent element is
-			// hidden; don safety goggles and see bug #4512 for more information).
-			div.innerHTML = "<table><tr><td></td><td>t</td></tr></table>";
-			tds = div.getElementsByTagName( "td" );
-			tds[ 0 ].style.cssText = "padding:0;margin:0;border:0;display:none";
-			isSupported = ( tds[ 0 ].offsetHeight === 0 );
-
-			tds[ 0 ].style.display = "";
-			tds[ 1 ].style.display = "none";
-
-			// Support: IE8
-			// Check if empty table cells still have offsetWidth/Height
-			reliableHiddenOffsetsVal = isSupported && ( tds[ 0 ].offsetHeight === 0 );
-
-			body.removeChild( container );
-
-			// Null elements to avoid leaks in IE.
-			div = body = null;
-
-			return reliableHiddenOffsetsVal;
-		},
-
-		boxSizing: function() {
-			if ( boxSizingVal == null ) {
+			if ( reliableHiddenOffsetsVal == null ) {
 				computeStyleTests();
 			}
-			return boxSizingVal;
+			return reliableHiddenOffsetsVal;
 		},
 
 		boxSizingReliable: function() {
@@ -8423,84 +8382,86 @@ function addGetHookIf( conditionFn, hookFn ) {
 			return pixelPositionVal;
 		},
 
+		// Support: Android 2.3
 		reliableMarginRight: function() {
-			var body, container, div, marginDiv;
-
-			// Use window.getComputedStyle because jsdom on node.js will break without it.
-			if ( reliableMarginRightVal == null && window.getComputedStyle ) {
-				body = document.getElementsByTagName( "body" )[ 0 ];
-				if ( !body ) {
-					// Test fired too early or in an unsupported environment, exit.
-					return;
-				}
-
-				container = document.createElement( "div" );
-				div = document.createElement( "div" );
-				container.style.cssText = containerStyles;
-
-				body.appendChild( container ).appendChild( div );
-
-				// Check if div with explicit width and no margin-right incorrectly
-				// gets computed margin-right based on width of container. (#3333)
-				// Fails in WebKit before Feb 2011 nightlies
-				// WebKit Bug 13343 - getComputedStyle returns wrong value for margin-right
-				marginDiv = div.appendChild( document.createElement( "div" ) );
-				marginDiv.style.cssText = div.style.cssText = divReset;
-				marginDiv.style.marginRight = marginDiv.style.width = "0";
-				div.style.width = "1px";
-
-				reliableMarginRightVal =
-					!parseFloat( ( window.getComputedStyle( marginDiv, null ) || {} ).marginRight );
-
-				body.removeChild( container );
+			if ( reliableMarginRightVal == null ) {
+				computeStyleTests();
 			}
-
 			return reliableMarginRightVal;
 		}
 	});
 
 	function computeStyleTests() {
-		var container, div,
-			body = document.getElementsByTagName( "body" )[ 0 ];
+		// Minified: var b,c,d,j
+		var div, body, container, contents;
 
-		if ( !body ) {
+		body = document.getElementsByTagName( "body" )[ 0 ];
+		if ( !body || !body.style ) {
 			// Test fired too early or in an unsupported environment, exit.
 			return;
 		}
 
-		container = document.createElement( "div" );
+		// Setup
 		div = document.createElement( "div" );
-		container.style.cssText = containerStyles;
-
+		container = document.createElement( "div" );
+		container.style.cssText = "position:absolute;border:0;width:0;height:0;top:0;left:-9999px";
 		body.appendChild( container ).appendChild( div );
 
 		div.style.cssText =
-			"-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;" +
-				"position:absolute;display:block;padding:1px;border:1px;width:4px;" +
-				"margin-top:1%;top:1%";
+			// Support: Firefox<29, Android 2.3
+			// Vendor-prefix box-sizing
+			"-webkit-box-sizing:border-box;-moz-box-sizing:border-box;" +
+			"box-sizing:border-box;display:block;margin-top:1%;top:1%;" +
+			"border:1px;padding:1px;width:4px;position:absolute";
 
-		// Workaround failing boxSizing test due to offsetWidth returning wrong value
-		// with some non-1 values of body zoom, ticket #13543
-		jQuery.swap( body, body.style.zoom != null ? { zoom: 1 } : {}, function() {
-			boxSizingVal = div.offsetWidth === 4;
-		});
-
-		// Will be changed later if needed.
-		boxSizingReliableVal = true;
-		pixelPositionVal = false;
+		// Support: IE<9
+		// Assume reasonable values in the absence of getComputedStyle
+		pixelPositionVal = boxSizingReliableVal = false;
 		reliableMarginRightVal = true;
 
-		// Use window.getComputedStyle because jsdom on node.js will break without it.
+		// Check for getComputedStyle so that this code is not run in IE<9.
 		if ( window.getComputedStyle ) {
 			pixelPositionVal = ( window.getComputedStyle( div, null ) || {} ).top !== "1%";
 			boxSizingReliableVal =
 				( window.getComputedStyle( div, null ) || { width: "4px" } ).width === "4px";
+
+			// Support: Android 2.3
+			// Div with explicit width and no margin-right incorrectly
+			// gets computed margin-right based on width of container (#3333)
+			// WebKit Bug 13343 - getComputedStyle returns wrong value for margin-right
+			contents = div.appendChild( document.createElement( "div" ) );
+
+			// Reset CSS: box-sizing; display; margin; border; padding
+			contents.style.cssText = div.style.cssText =
+				// Support: Firefox<29, Android 2.3
+				// Vendor-prefix box-sizing
+				"-webkit-box-sizing:content-box;-moz-box-sizing:content-box;" +
+				"box-sizing:content-box;display:block;margin:0;border:0;padding:0";
+			contents.style.marginRight = contents.style.width = "0";
+			div.style.width = "1px";
+
+			reliableMarginRightVal =
+				!parseFloat( ( window.getComputedStyle( contents, null ) || {} ).marginRight );
+		}
+
+		// Support: IE8
+		// Check if table cells still have offsetWidth/Height when they are set
+		// to display:none and there are still other visible table cells in a
+		// table row; if so, offsetWidth/Height are not reliable for use when
+		// determining if an element has been hidden directly using
+		// display:none (it is still safe to use offsets if a parent element is
+		// hidden; don safety goggles and see bug #4512 for more information).
+		div.innerHTML = "<table><tr><td></td><td>t</td></tr></table>";
+		contents = div.getElementsByTagName( "td" );
+		contents[ 0 ].style.cssText = "margin:0;border:0;padding:0;display:none";
+		reliableHiddenOffsetsVal = contents[ 0 ].offsetHeight === 0;
+		if ( reliableHiddenOffsetsVal ) {
+			contents[ 0 ].style.display = "";
+			contents[ 1 ].style.display = "none";
+			reliableHiddenOffsetsVal = contents[ 0 ].offsetHeight === 0;
 		}
 
 		body.removeChild( container );
-
-		// Null elements to avoid leaks in IE.
-		div = body = null;
 	}
 
 })();
@@ -8540,8 +8501,8 @@ var
 
 	cssShow = { position: "absolute", visibility: "hidden", display: "block" },
 	cssNormalTransform = {
-		letterSpacing: 0,
-		fontWeight: 400
+		letterSpacing: "0",
+		fontWeight: "400"
 	},
 
 	cssPrefixes = [ "Webkit", "O", "Moz", "ms" ];
@@ -8598,13 +8559,10 @@ function showHide( elements, show ) {
 				values[ index ] = jQuery._data( elem, "olddisplay", defaultDisplay(elem.nodeName) );
 			}
 		} else {
+			hidden = isHidden( elem );
 
-			if ( !values[ index ] ) {
-				hidden = isHidden( elem );
-
-				if ( display && display !== "none" || !hidden ) {
-					jQuery._data( elem, "olddisplay", hidden ? display : jQuery.css( elem, "display" ) );
-				}
+			if ( display && display !== "none" || !hidden ) {
+				jQuery._data( elem, "olddisplay", hidden ? display : jQuery.css( elem, "display" ) );
 			}
 		}
 	}
@@ -8677,7 +8635,7 @@ function getWidthOrHeight( elem, name, extra ) {
 	var valueIsBorderBox = true,
 		val = name === "width" ? elem.offsetWidth : elem.offsetHeight,
 		styles = getStyles( elem ),
-		isBorderBox = support.boxSizing() && jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
+		isBorderBox = support.boxSizing && jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
 
 	// some non-html elements return undefined for offsetWidth, so check for null/undefined
 	// svg - https://bugzilla.mozilla.org/show_bug.cgi?id=649285
@@ -8733,6 +8691,8 @@ jQuery.extend({
 	cssNumber: {
 		"columnCount": true,
 		"fillOpacity": true,
+		"flexGrow": true,
+		"flexShrink": true,
 		"fontWeight": true,
 		"lineHeight": true,
 		"opacity": true,
@@ -8801,9 +8761,6 @@ jQuery.extend({
 				// Support: IE
 				// Swallow errors from 'invalid' CSS values (#5509)
 				try {
-					// Support: Chrome, Safari
-					// Setting style to blank string required to delete "style: x !important;"
-					style[ name ] = "";
 					style[ name ] = value;
 				} catch(e) {}
 			}
@@ -8860,7 +8817,7 @@ jQuery.each([ "height", "width" ], function( i, name ) {
 			if ( computed ) {
 				// certain elements can have dimension info if we invisibly show them
 				// however, it must have a current display style that would benefit from this
-				return elem.offsetWidth === 0 && rdisplayswap.test( jQuery.css( elem, "display" ) ) ?
+				return rdisplayswap.test( jQuery.css( elem, "display" ) ) && elem.offsetWidth === 0 ?
 					jQuery.swap( elem, cssShow, function() {
 						return getWidthOrHeight( elem, name, extra );
 					}) :
@@ -8875,7 +8832,7 @@ jQuery.each([ "height", "width" ], function( i, name ) {
 					elem,
 					name,
 					extra,
-					support.boxSizing() && jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
+					support.boxSizing && jQuery.css( elem, "boxSizing", false, styles ) === "border-box",
 					styles
 				) : 0
 			);
@@ -9224,7 +9181,7 @@ function createTween( value, prop, animation ) {
 
 function defaultPrefilter( elem, props, opts ) {
 	/* jshint validthis: true */
-	var prop, value, toggle, tween, hooks, oldfire, display, dDisplay,
+	var prop, value, toggle, tween, hooks, oldfire, display, checkDisplay,
 		anim = this,
 		orig = {},
 		style = elem.style,
@@ -9268,16 +9225,16 @@ function defaultPrefilter( elem, props, opts ) {
 		// Set display property to inline-block for height/width
 		// animations on inline elements that are having width/height animated
 		display = jQuery.css( elem, "display" );
-		dDisplay = defaultDisplay( elem.nodeName );
-		if ( display === "none" ) {
-			display = dDisplay;
-		}
-		if ( display === "inline" &&
-				jQuery.css( elem, "float" ) === "none" ) {
+
+		// Test default display if display is currently "none"
+		checkDisplay = display === "none" ?
+			jQuery._data( elem, "olddisplay" ) || defaultDisplay( elem.nodeName ) : display;
+
+		if ( checkDisplay === "inline" && jQuery.css( elem, "float" ) === "none" ) {
 
 			// inline-level elements accept inline-block;
 			// block-level elements need to be inline with layout
-			if ( !support.inlineBlockNeedsLayout || dDisplay === "inline" ) {
+			if ( !support.inlineBlockNeedsLayout || defaultDisplay( elem.nodeName ) === "inline" ) {
 				style.display = "inline-block";
 			} else {
 				style.zoom = 1;
@@ -9312,6 +9269,10 @@ function defaultPrefilter( elem, props, opts ) {
 				}
 			}
 			orig[ prop ] = dataShow && dataShow[ prop ] || jQuery.style( elem, prop );
+
+		// Any non-fx value stops us from restoring the original display value
+		} else {
+			display = undefined;
 		}
 	}
 
@@ -9353,6 +9314,10 @@ function defaultPrefilter( elem, props, opts ) {
 				}
 			}
 		}
+
+	// If this is a noop like .hide().hide(), restore an overwritten display value
+	} else if ( (display === "none" ? defaultDisplay( elem.nodeName ) : display) === "inline" ) {
+		style.display = display;
 	}
 }
 
@@ -9769,10 +9734,11 @@ jQuery.fn.delay = function( time, type ) {
 
 
 (function() {
-	var a, input, select, opt,
-		div = document.createElement("div" );
+	// Minified: var a,b,c,d,e
+	var input, div, select, a, opt;
 
 	// Setup
+	div = document.createElement( "div" );
 	div.setAttribute( "className", "t" );
 	div.innerHTML = "  <link/><table></table><a href='/a'>a</a><input type='checkbox'/>";
 	a = div.getElementsByTagName("a")[ 0 ];
@@ -9820,9 +9786,6 @@ jQuery.fn.delay = function( time, type ) {
 	input.value = "t";
 	input.setAttribute( "type", "radio" );
 	support.radioValue = input.value === "t";
-
-	// Null elements to avoid leaks in IE.
-	a = input = select = opt = div = null;
 })();
 
 
@@ -9896,7 +9859,9 @@ jQuery.extend({
 				var val = jQuery.find.attr( elem, "value" );
 				return val != null ?
 					val :
-					jQuery.text( elem );
+					// Support: IE10-11+
+					// option.text throws exceptions (#14686, #14858)
+					jQuery.trim( jQuery.text( elem ) );
 			}
 		},
 		select: {
@@ -12060,7 +12025,7 @@ jQuery.fn.load = function( url, params, callback ) {
 		off = url.indexOf(" ");
 
 	if ( off >= 0 ) {
-		selector = url.slice( off, url.length );
+		selector = jQuery.trim( url.slice( off, url.length ) );
 		url = url.slice( 0, off );
 	}
 
@@ -12373,6 +12338,12 @@ jQuery.fn.andSelf = jQuery.fn.addBack;
 // derived from file names, and jQuery is normally delivered in a lowercase
 // file name. Do this after creating the global so that if an AMD module wants
 // to call noConflict to hide this version of jQuery, it will work.
+
+// Note that for maximum portability, libraries that are not jQuery should
+// declare themselves as anonymous modules, and avoid setting a global if an
+// AMD loader is present. jQuery is a special case. For more information, see
+// https://github.com/jrburke/requirejs/wiki/Updating-existing-libraries#wiki-anon
+
 if ( typeof define === "function" && define.amd ) {
 	define( "jquery", [], function() {
 		return jQuery;
@@ -17649,7 +17620,7 @@ b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJava
 /**
  * postal - Pub/Sub library providing wildcard subscriptions, complex message handling, etc.  Works server and client-side.
  * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
- * Version: v0.10.0
+ * Version: v0.10.3
  * Url: http://github.com/postaljs/postal.js
  * License(s): MIT, GPL
  */
@@ -17827,7 +17798,7 @@ b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJava
             this.callback.before.apply(this, arguments);
             return this;
         },
-        catch: function (errorHandler) {
+        "catch": function (errorHandler) {
             var original = this.callback.target();
             var safeTarget = function () {
                 try {
@@ -17868,8 +17839,7 @@ b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJava
                 } else {
                     report = console.log;
                 }
-                this.
-                catch (report);
+                this["catch"](report);
             }
             return this;
         },
@@ -18021,7 +17991,7 @@ b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJava
         envelope.channel = envelope.channel || this.configuration.DEFAULT_CHANNEL;
         envelope.timeStamp = new Date();
         _.each(this.wireTaps, function (tap) {
-            tap(envelope.data, envelope);
+            tap(envelope.data, envelope, pubInProgress);
         });
         if (this.subscriptions[envelope.channel]) {
             _.each(this.subscriptions[envelope.channel], function (subscribers) {
@@ -18042,21 +18012,29 @@ b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJava
     function unsubscribe() {
         var idx = 0;
         var subs = Array.prototype.slice.call(arguments, 0);
-        var subDef;
+        var subDef, channelSubs, topicSubs;
         while (subDef = subs.shift()) {
             if (pubInProgress) {
                 unSubQueue.push(subDef);
                 return;
             }
-            if (this.subscriptions[subDef.channel] && this.subscriptions[subDef.channel][subDef.topic]) {
-                var len = this.subscriptions[subDef.channel][subDef.topic].length;
+            channelSubs = this.subscriptions[subDef.channel];
+            topicSubs = channelSubs && channelSubs[subDef.topic];
+            if (topicSubs) {
+                var len = topicSubs.length;
                 idx = 0;
                 while (idx < len) {
-                    if (this.subscriptions[subDef.channel][subDef.topic][idx] === subDef) {
-                        this.subscriptions[subDef.channel][subDef.topic].splice(idx, 1);
+                    if (topicSubs[idx] === subDef) {
+                        topicSubs.splice(idx, 1);
                         break;
                     }
                     idx += 1;
+                }
+                if (topicSubs.length === 0) {
+                    delete channelSubs[subDef.topic];
+                    if (_.isEmpty(channelSubs)) {
+                        delete this.subscriptions[subDef.channel];
+                    }
                 }
             }
             _postal.publish(getSystemMessage("removed", subDef));
@@ -23032,13 +23010,13 @@ define('text!../../pages/not-found-page.html',[],function () { return '<article 
 define('text!../../pages/build-page.html',[],function () { return '<article id="js-page" class="page-build-info">\r\n  <a id="buildInfo" class="section-anchor"></a>\r\n  <section name="buildInfo">\r\n    <div class="highlight"></div>\r\n    <viewModel module="BuildInfo">\r\n      <header>\r\n        <span class="sub title">Build Info - footwork v<span data-bind="text: version"></span></span>\r\n      </header>\r\n\r\n      <div data-bind="text: statement"></div>\r\n\r\n      <div class="content">\r\n        <div class="row">\r\n          <label>Version:</label>\r\n          <div class="content" data-bind="text: version"></div>\r\n        </div>\r\n        <div class="row">\r\n          <label>Build Timestamp:</label>\r\n          <div class="content" data-bind="text: timestamp"></div>\r\n        </div>\r\n\r\n        <contributors></contributors>\r\n      </div>\r\n    </viewModel>\r\n  </section>\r\n</article>\r\n\r\n<div id="metaData">\r\n{\r\n  "title": \'Build Info\'\r\n}\r\n</div>';});
 
 
-define('text!../../pages/annotated-page.html',[],function () { return '<ul class="sections">\r\n    \r\n    \r\n    <li id="section-1" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-1">&#182;</a>\r\n          </div>\r\n          <h2 id="footwork-js">footwork.js</h2>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-2" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-2">&#182;</a>\r\n          </div>\r\n          <p>v0.2.0</p>\n<p>Copyright (c)2014 Jonathan Newman (<a href="http://staticty.pe">http://staticty.pe</a>).\nDistributed under MIT license</p>\n<p><a href="http://footworkjs.com">http://footworkjs.com</a></p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>\n<span class="hljs-comment">/**\n * footwork.js - A solid footing for web applications.\n * Author: Jonathan Newman (http://staticty.pe)\n * Version: v0.2.0\n * Url: http://footworkjs.com\n * License(s): MIT\n */</span></pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-3" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-3">&#182;</a>\r\n          </div>\r\n          <h2 id="main-js">main.js</h2>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-4" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-4">&#182;</a>\r\n          </div>\r\n          <p>Map ko to the variable ‘fw’ internally to make it clear this is the ‘footwork’ flavored version of knockout we are dealing with.\nFootwork will also map itself to ‘fw’ on the global object when no script loader is used.</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> fw = ko;</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-5" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-5">&#182;</a>\r\n          </div>\r\n          <p>Record the footwork version as of this build.</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>fw.footworkVersion = <span class="hljs-string">\'0.2.0\'</span>;</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-6" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-6">&#182;</a>\r\n          </div>\r\n          <p>Expose any embedded dependencies</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>fw.embed = embedded;</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-7" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-7">&#182;</a>\r\n          </div>\r\n          <p>misc regex patterns</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> hasTrailingSlash = <span class="hljs-regexp">/\\/$/i</span>;\r\n<span class="hljs-keyword">var</span> hasStartingSlash = <span class="hljs-regexp">/^\\//i</span>;</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-8" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-8">&#182;</a>\r\n          </div>\r\n          <p>misc utility functions</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> noop = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ };\r\n\r\n<span class="hljs-keyword">var</span> isObservable = fw.isObservable;\r\n\r\n<span class="hljs-keyword">var</span> isPath = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(pathOrFile)</span> </span>{\r\n  <span class="hljs-keyword">return</span> hasTrailingSlash.test(pathOrFile);\r\n};\r\n\r\n<span class="hljs-keyword">var</span> hasPathStart = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(path)</span> </span>{\r\n  <span class="hljs-keyword">return</span> hasStartingSlash.test(path);\r\n};\r\n\r\n<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">hasClass</span><span class="hljs-params">(element, className)</span> </span>{\r\n  <span class="hljs-keyword">return</span> element.className.match( <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">\'(\\\\s|^)\'</span> + className + <span class="hljs-string">\'(\\\\s|$)\'</span>) );\r\n}\r\n\r\n<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">addClass</span><span class="hljs-params">(element, className)</span> </span>{\r\n  <span class="hljs-keyword">if</span>( !hasClass(element, className) ) {\r\n    element.className += (element.className.length ? <span class="hljs-string">\' \'</span> : <span class="hljs-string">\'\'</span>) + className;\r\n  }\r\n}\r\n\r\n<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">removeClass</span><span class="hljs-params">(element, className)</span> </span>{\r\n  <span class="hljs-keyword">if</span>( hasClass(element, className) ) {\r\n    <span class="hljs-keyword">var</span> classNameRegex = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">\'(\\\\s|^)\'</span> + className + <span class="hljs-string">\'(\\\\s|$)\'</span>);\r\n    element.className = element.className.replace(classNameRegex, <span class="hljs-string">\' \'</span>);\r\n  }\r\n}</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-9" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-9">&#182;</a>\r\n          </div>\r\n          <p>Pull out lodash utility function references for better minification and easier implementation swap</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> isFunction = _.isFunction;\r\n<span class="hljs-keyword">var</span> isObject = _.isObject;\r\n<span class="hljs-keyword">var</span> isString = _.isString;\r\n<span class="hljs-keyword">var</span> isBoolean = _.isBoolean;\r\n<span class="hljs-keyword">var</span> isNumber = _.isNumber;\r\n<span class="hljs-keyword">var</span> isUndefined = _.isUndefined;\r\n<span class="hljs-keyword">var</span> isArray = _.isArray;\r\n<span class="hljs-keyword">var</span> isNull = _.isNull;\r\n<span class="hljs-keyword">var</span> contains = _.contains;\r\n<span class="hljs-keyword">var</span> extend = _.extend;\r\n<span class="hljs-keyword">var</span> pick = _.pick;\r\n<span class="hljs-keyword">var</span> each = _.each;\r\n<span class="hljs-keyword">var</span> filter = _.filter;\r\n<span class="hljs-keyword">var</span> bind = _.bind;\r\n<span class="hljs-keyword">var</span> invoke = _.invoke;\r\n<span class="hljs-keyword">var</span> clone = _.clone;\r\n<span class="hljs-keyword">var</span> reduce = _.reduce;\r\n<span class="hljs-keyword">var</span> has = _.has;\r\n<span class="hljs-keyword">var</span> where = _.where;\r\n<span class="hljs-keyword">var</span> result = _.result;\r\n<span class="hljs-keyword">var</span> uniqueId = _.uniqueId;\r\n<span class="hljs-keyword">var</span> map = _.map;\r\n<span class="hljs-keyword">var</span> find = _.find;\r\n<span class="hljs-keyword">var</span> omit = _.omit;\r\n<span class="hljs-keyword">var</span> indexOf = _.indexOf;\r\n<span class="hljs-keyword">var</span> values = _.values;\r\n<span class="hljs-keyword">var</span> reject = _.reject;\r\n<span class="hljs-keyword">var</span> findWhere = _.findWhere;\r\n<span class="hljs-keyword">var</span> once = _.once;</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-10" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-10">&#182;</a>\r\n          </div>\r\n          <p>Internal registry which stores the mixins that are automatically added to each viewModel</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> viewModelMixins = [];</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-11" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-11">&#182;</a>\r\n          </div>\r\n          <p>parseUri() originally sourced from: <a href="http://blog.stevenlevithan.com/archives/parseuri">http://blog.stevenlevithan.com/archives/parseuri</a></p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">parseUri</span><span class="hljs-params">(str)</span> </span>{\r\n  <span class="hljs-keyword">var</span> options = parseUri.options;\r\n  <span class="hljs-keyword">var</span> matchParts = options.parser[ options.strictMode ? <span class="hljs-string">"strict"</span> : <span class="hljs-string">"loose"</span> ].exec(str);\r\n  <span class="hljs-keyword">var</span> uri = {};\r\n  <span class="hljs-keyword">var</span> i = <span class="hljs-number">14</span>;\r\n\r\n  <span class="hljs-keyword">while</span> (i--) {\r\n    uri[ options.key[i] ] = matchParts[i] || <span class="hljs-string">""</span>;\r\n  }\r\n\r\n  uri[ options.q.name ] = {};\r\n  uri[ options.key[<span class="hljs-number">12</span>] ].replace(options.q.parser, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">($0, $1, $2)</span> </span>{\r\n    <span class="hljs-keyword">if</span>($<span class="hljs-number">1</span>) {\r\n      uri[options.q.name][$<span class="hljs-number">1</span>] = $<span class="hljs-number">2</span>;\r\n    }\r\n  });\r\n\r\n  <span class="hljs-keyword">return</span> uri;\r\n};\r\n\r\nparseUri.options = {\r\n  strictMode: <span class="hljs-literal">false</span>,\r\n  key: [<span class="hljs-string">"source"</span>,<span class="hljs-string">"protocol"</span>,<span class="hljs-string">"authority"</span>,<span class="hljs-string">"userInfo"</span>,<span class="hljs-string">"user"</span>,<span class="hljs-string">"password"</span>,<span class="hljs-string">"host"</span>,<span class="hljs-string">"port"</span>,<span class="hljs-string">"relative"</span>,<span class="hljs-string">"path"</span>,<span class="hljs-string">"directory"</span>,<span class="hljs-string">"file"</span>,<span class="hljs-string">"query"</span>,<span class="hljs-string">"anchor"</span>],\r\n  q: {\r\n    name:   <span class="hljs-string">"queryKey"</span>,\r\n    parser: <span class="hljs-regexp">/(?:^|&amp;)([^&amp;=]*)=?([^&amp;]*)/g</span>\r\n  },\r\n  parser: {\r\n    strict: <span class="hljs-regexp">/^(?:([^:\\/?#]+):)?(?:\\/\\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\\/?#]*)(?::(\\d*))?))?((((?:[^?#\\/]*\\/)*)([^?#]*))(?:\\?([^#]*))?(?:#(.*))?)/</span>,\r\n    loose:  <span class="hljs-regexp">/^(?:(?![^:@]+:[^:@\\/]*@)([^:\\/?#.]+):)?(?:\\/\\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\\/?#]*)(?::(\\d*))?)(((\\/(?:[^?#](?![^?#\\/]*\\.[^?#\\/.]+(?:[?#]|$)))*\\/?)?([^?#\\/]*))(?:\\?([^#]*))?(?:#(.*))?)/</span>\r\n  }\r\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-12" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-12">&#182;</a>\r\n          </div>\r\n          <h2 id="namespace-js">namespace.js</h2>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-13" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-13">&#182;</a>\r\n          </div>\r\n          \r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-14" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-14">&#182;</a>\r\n          </div>\r\n          <p>This counter is used when model options { autoIncrement: true } and more than one model\nhaving the same namespace is instantiated. This is used in the event you do not want\nmultiple copies of the same model to share the same namespace (if they do share a\nnamespace, they receive all of the same events/messages/commands/etc).</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> namespaceNameCounter = {};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-15" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-15">&#182;</a>\r\n          </div>\r\n          <p>Prepare an empty namespace stack.\nThis is where footwork registers its current working namespace name. Each new namespace is\n‘unshifted’ and ‘shifted’ as they are entered and exited, keeping the most current at\nindex 0.</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> namespaceStack = [];</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-16" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-16">&#182;</a>\r\n          </div>\r\n          <p>Returns a normalized namespace name based off of ‘name’. It will register the name counter\nif not present and increment it if it is, then return the name (with the counter appended\nif autoIncrement === true and the counter is &gt; 0).</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">indexedNamespaceName</span><span class="hljs-params">(name, autoIncrement)</span> </span>{\n  <span class="hljs-keyword">if</span>( isUndefined(namespaceNameCounter[name]) ) {\n    namespaceNameCounter[name] = <span class="hljs-number">0</span>;\n  } <span class="hljs-keyword">else</span> {\n    namespaceNameCounter[name]++;\n  }\n  <span class="hljs-keyword">return</span> name + (autoIncrement === <span class="hljs-literal">true</span> ? namespaceNameCounter[name] : <span class="hljs-string">\'\'</span>);\n}\n\n<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createEnvelope</span><span class="hljs-params">(topic, data, expires)</span> </span>{\n  <span class="hljs-keyword">var</span> envelope = {\n    topic: topic,\n    data: data\n  };\n\n  <span class="hljs-keyword">if</span>( !isUndefined(expires) ) {\n    envelope.headers = { preserve: <span class="hljs-literal">true</span> };\n    <span class="hljs-keyword">if</span>(expires <span class="hljs-keyword">instanceof</span> <span class="hljs-built_in">Date</span>) {\n      envelope.expires = expires;\n    }\n  }\n  \n  <span class="hljs-keyword">return</span> envelope;\n}</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-17" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-17">&#182;</a>\r\n          </div>\r\n          <p>Method used to trigger an event on a namespace</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">triggerEventOnNamespace</span><span class="hljs-params">(eventKey, params, expires)</span> </span>{\n  <span class="hljs-keyword">this</span>.publish( createEnvelope(<span class="hljs-string">\'event.\'</span> + eventKey, params, expires) );\n  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;\n}</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-18" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-18">&#182;</a>\r\n          </div>\r\n          <p>Method used to register an event handler on a namespace</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">registerNamespaceEventHandler</span><span class="hljs-params">(eventKey, callback, context)</span> </span>{\n  <span class="hljs-keyword">if</span>( !isUndefined(context) ) {\n    callback = bind(callback, context);\n  }\n\n  <span class="hljs-keyword">var</span> handlerSubscription = <span class="hljs-keyword">this</span>.subscribe(<span class="hljs-string">\'event.\'</span> + eventKey, callback).enlistPreserved();\n  <span class="hljs-keyword">this</span>.eventHandlers.push(handlerSubscription);\n\n  <span class="hljs-keyword">return</span> handlerSubscription;\n}</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-19" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-19">&#182;</a>\r\n          </div>\r\n          <p>Method used to unregister an event handler on a namespace</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">unregisterNamespaceHandler</span><span class="hljs-params">(handlerSubscription)</span> </span>{\n  handlerSubscription.unsubscribe();\n  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;\n}</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-20" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-20">&#182;</a>\r\n          </div>\r\n          <p>Method used to send a command to a namespace</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sendCommandToNamespace</span><span class="hljs-params">(commandKey, params, expires)</span> </span>{\n  <span class="hljs-keyword">this</span>.publish( createEnvelope(<span class="hljs-string">\'command.\'</span> + commandKey, params, expires) );\n  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;\n}</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-21" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-21">&#182;</a>\r\n          </div>\r\n          <p>Method used to register a command handler on a namespace</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">registerNamespaceCommandHandler</span><span class="hljs-params">(commandKey, callback, context)</span> </span>{\n  <span class="hljs-keyword">if</span>( !isUndefined(context) ) {\n    callback = bind(callback, context);\n  }\n\n  <span class="hljs-keyword">var</span> handlerSubscription = <span class="hljs-keyword">this</span>.subscribe(<span class="hljs-string">\'command.\'</span> + commandKey, callback).enlistPreserved();\n  <span class="hljs-keyword">this</span>.commandHandlers.push(handlerSubscription);\n\n  <span class="hljs-keyword">return</span> handlerSubscription;\n}</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-22" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-22">&#182;</a>\r\n          </div>\r\n          <p>Method used to issue a request for data from a namespace, returning the response (or undefined if no response)\nThis method will return an array of responses if more than one is received.</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">requestResponseFromNamespace</span><span class="hljs-params">(requestKey, params, allowMultipleResponses)</span> </span>{\n  <span class="hljs-keyword">var</span> response = <span class="hljs-literal">undefined</span>;\n  <span class="hljs-keyword">var</span> responseSubscription;\n\n  responseSubscription = <span class="hljs-keyword">this</span>.subscribe(<span class="hljs-string">\'request.\'</span> + requestKey + <span class="hljs-string">\'.response\'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(reqResponse)</span> </span>{\n    <span class="hljs-keyword">if</span>( isUndefined(response) ) {\n      response = allowMultipleResponses ? [reqResponse] : reqResponse;\n    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(allowMultipleResponses) {\n      response.push(reqResponse);\n    }\n  });\n\n  <span class="hljs-keyword">this</span>.publish( createEnvelope(<span class="hljs-string">\'request.\'</span> + requestKey, params) );\n  responseSubscription.unsubscribe();\n\n  <span class="hljs-keyword">return</span> response;\n}</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-23" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-23">&#182;</a>\r\n          </div>\r\n          <p>Method used to register a request handler on a namespace.\nRequests sent using the specified requestKey will be called and passed in any params specified, the return value is passed back to the issuer</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">registerNamespaceRequestHandler</span><span class="hljs-params">(requestKey, callback, context)</span> </span>{\n  <span class="hljs-keyword">if</span>( !isUndefined(context) ) {\n    callback = bind(callback, context);\n  }\n\n  <span class="hljs-keyword">var</span> requestHandler = bind(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(params)</span> </span>{\n    <span class="hljs-keyword">var</span> callbackResponse = callback(params);\n    <span class="hljs-keyword">this</span>.publish( createEnvelope(<span class="hljs-string">\'request.\'</span> + requestKey + <span class="hljs-string">\'.response\'</span>, callbackResponse) );\n  }, <span class="hljs-keyword">this</span>);\n\n  <span class="hljs-keyword">var</span> handlerSubscription = <span class="hljs-keyword">this</span>.subscribe(<span class="hljs-string">\'request.\'</span> + requestKey, requestHandler);\n  <span class="hljs-keyword">this</span>.requestHandlers.push(handlerSubscription);\n\n  <span class="hljs-keyword">return</span> handlerSubscription;\n}</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-24" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-24">&#182;</a>\r\n          </div>\r\n          <p>This effectively shuts down all requests, commands, and events by unsubscribing all handlers on a discreet namespace object</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">disconnectNamespaceHandlers</span><span class="hljs-params">()</span> </span>{\n  invoke(<span class="hljs-keyword">this</span>.requestHandlers, <span class="hljs-string">\'unsubscribe\'</span>);\n  invoke(<span class="hljs-keyword">this</span>.commandHandlers, <span class="hljs-string">\'unsubscribe\'</span>);\n  invoke(<span class="hljs-keyword">this</span>.eventHandlers, <span class="hljs-string">\'unsubscribe\'</span>);\n  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;\n}\n\n<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getNamespaceName</span><span class="hljs-params">()</span> </span>{\n  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.channel;\n}</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-25" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-25">&#182;</a>\r\n          </div>\r\n          <p>Creates and returns a new namespace instance</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> makeNamespace = fw.namespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName, $parentNamespace)</span> </span>{\n  <span class="hljs-keyword">if</span>( !isUndefined($parentNamespace) ) {\n    <span class="hljs-keyword">if</span>( isString($parentNamespace) ) {\n      namespaceName = $parentNamespace + <span class="hljs-string">\'.\'</span> + namespaceName;\n    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( !isUndefined($parentNamespace.channel) ) {\n      namespaceName = $parentNamespace.channel + <span class="hljs-string">\'.\'</span> + namespaceName;\n    }\n  }\n  <span class="hljs-keyword">var</span> namespace = postal.channel(namespaceName);\n\n  namespace.__isNamespace = <span class="hljs-literal">true</span>;\n  namespace.shutdown = bind( disconnectNamespaceHandlers, namespace );\n\n  namespace.commandHandlers = [];\n  namespace.command = bind( sendCommandToNamespace, namespace );\n  namespace.command.handler = bind( registerNamespaceCommandHandler, namespace );\n  namespace.command.handler.unregister = bind( unregisterNamespaceHandler, namespace );\n\n  namespace.requestHandlers = [];\n  namespace.request = bind( requestResponseFromNamespace, namespace );\n  namespace.request.handler = bind( registerNamespaceRequestHandler, namespace );\n  namespace.request.handler.unregister = bind( unregisterNamespaceHandler, namespace );\n\n  namespace.eventHandlers = [];\n  namespace.event = namespace.trigger = bind( triggerEventOnNamespace, namespace );\n  namespace.event.handler = bind( registerNamespaceEventHandler, namespace );\n  namespace.event.handler.unregister = bind( unregisterNamespaceHandler, namespace );\n\n  namespace.getName = bind( getNamespaceName, namespace );\n  namespace.enter = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n    <span class="hljs-keyword">return</span> enterNamespace( <span class="hljs-keyword">this</span> );\n  };\n  namespace.exit = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n    <span class="hljs-keyword">if</span>( currentNamespaceName() === <span class="hljs-keyword">this</span>.getName() ) {\n      <span class="hljs-keyword">return</span> exitNamespace();\n    }\n  };\n\n  <span class="hljs-keyword">return</span> namespace;\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-26" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-26">&#182;</a>\r\n          </div>\r\n          <p>Duck type check for a namespace object</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> isNamespace = fw.isNamespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(thing)</span> </span>{\n  <span class="hljs-keyword">return</span> !isUndefined(thing) &amp;&amp; !!thing.__isNamespace;\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-27" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-27">&#182;</a>\r\n          </div>\r\n          <p>Return the current namespace name.</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> currentNamespaceName = fw.currentNamespaceName = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n  <span class="hljs-keyword">return</span> namespaceStack[<span class="hljs-number">0</span>];\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-28" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-28">&#182;</a>\r\n          </div>\r\n          <p>Return the current namespace channel.</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> currentNamespace = fw.currentNamespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n  <span class="hljs-keyword">return</span> makeNamespace( currentNamespaceName() );\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-29" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-29">&#182;</a>\r\n          </div>\r\n          <p>enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, \n‘entering’ into that namespace (it is now the currentNamespace).\nThe namespace object returned from this method also has a pointer to its parent</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> enterNamespaceName = fw.enterNamespaceName = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespaceName)</span> </span>{\n  <span class="hljs-keyword">var</span> $parentNamespace = currentNamespace();\n  namespaceStack.unshift( namespaceName );\n  <span class="hljs-keyword">return</span> makeNamespace( currentNamespaceName() );\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-30" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-30">&#182;</a>\r\n          </div>\r\n          <p>enterNamespace() uses a current namespace definition as the one to enter into.</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> enterNamespace = fw.enterNamespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespace)</span> </span>{\n  namespaceStack.unshift( namespace.getName() );\n  <span class="hljs-keyword">return</span> namespace;\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-31" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-31">&#182;</a>\r\n          </div>\r\n          <p>Called at the after a model constructor function is run. exitNamespace()\nwill shift the current namespace off of the stack, ‘exiting’ to the\nnext namespace in the stack</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> exitNamespace = fw.exitNamespace = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n  namespaceStack.shift();\n  <span class="hljs-keyword">return</span> currentNamespace();\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-32" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-32">&#182;</a>\r\n          </div>\r\n          <p>mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>viewModelMixins.push({\n  runBeforeInit: <span class="hljs-literal">true</span>,\n  _preInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( options )</span> </span>{\n    <span class="hljs-keyword">var</span> $configParams = <span class="hljs-keyword">this</span>.__getConfigParams();\n    <span class="hljs-keyword">this</span>.$namespace = enterNamespaceName( indexedNamespaceName($configParams.componentNamespace || $configParams.namespace || $configParams.name || _.uniqueId(<span class="hljs-string">\'namespace\'</span>), $configParams.autoIncrement) );\n    <span class="hljs-keyword">this</span>.$globalNamespace = makeNamespace();\n  },\n  mixin: {\n    getNamespaceName: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n      <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.$namespace.getName();\n    }\n  },\n  _postInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( options )</span> </span>{\n    exitNamespace();\n  }\n});\r\n<span class="hljs-keyword">var</span> $globalNamespace = makeNamespace();</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-33" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-33">&#182;</a>\r\n          </div>\r\n          <h2 id="broadcast-receive-js">broadcast-receive.js</h2>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>\r\n<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isReceiver</span><span class="hljs-params">(thing)</span> </span>{\r\n  <span class="hljs-keyword">return</span> isObject(thing) &amp;&amp; !!thing.__isReceiver;\r\n}\r\n\r\n<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isBroadcaster</span><span class="hljs-params">(thing)</span> </span>{\r\n  <span class="hljs-keyword">return</span> isObject(thing) &amp;&amp; !!thing.__isBroadcaster;\r\n}</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-34" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-34">&#182;</a>\r\n          </div>\r\n          <pre><code><span class="hljs-keyword">this</span>.myValue = fw.observable().receiveFrom(<span class="hljs-string">\'NamespaceName\'</span> / Namespace, <span class="hljs-string">\'varName\'</span>);\n</code></pre>\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>fw.subscribable.fn.receiveFrom = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(namespace, variable)</span> </span>{\r\n  <span class="hljs-keyword">var</span> target = <span class="hljs-keyword">this</span>;\r\n  <span class="hljs-keyword">var</span> observable = <span class="hljs-keyword">this</span>;\r\n  <span class="hljs-keyword">var</span> namespaceSubscriptions = [];\r\n  <span class="hljs-keyword">var</span> isLocalNamespace = <span class="hljs-literal">false</span>;\r\n\r\n  <span class="hljs-keyword">if</span>( isString(namespace) ) {\r\n    namespace = makeNamespace( namespace );\r\n    isLocalNamespace = <span class="hljs-literal">true</span>;\r\n  }\r\n\r\n  <span class="hljs-keyword">if</span>( !isNamespace(namespace) ) {\r\n    <span class="hljs-keyword">throw</span> <span class="hljs-string">\'Invalid namespace provided for receiveFrom() observable.\'</span>;\r\n  }\r\n\r\n  observable = fw.computed({\r\n    read: target,\r\n    write: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( value )</span> </span>{\r\n      namespace.publish( <span class="hljs-string">\'__change.\'</span> + variable, value );\r\n    }\r\n  });\r\n\r\n  observable.refresh = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\r\n    namespace.publish( <span class="hljs-string">\'__refresh.\'</span> + variable );\r\n    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;\r\n  };\r\n\r\n  namespaceSubscriptions.push( namespace.subscribe( variable, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( newValue )</span> </span>{\r\n    target( newValue );\r\n  }) );\r\n\r\n  <span class="hljs-keyword">var</span> observableDispose = observable.dispose;\r\n  observable.dispose = observable.shutdown = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\r\n    invoke(namespaceSubscriptions, <span class="hljs-string">\'unsubscribe\'</span>);\r\n    <span class="hljs-keyword">if</span>( isLocalNamespace ) {\r\n      namespace.shutdown();\r\n    }\r\n    observableDispose.call(observable);\r\n  };\r\n\r\n  observable.__isReceiver = <span class="hljs-literal">true</span>;\r\n  <span class="hljs-keyword">return</span> observable.refresh();\r\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-35" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-35">&#182;</a>\r\n          </div>\r\n          <pre><code><span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs(<span class="hljs-string">\'NameOfVar\'</span>);\n<span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs(<span class="hljs-string">\'NameOfVar\'</span>, isWritable);\n<span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs({ name: <span class="hljs-string">\'NameOfVar\'</span>, writable: <span class="hljs-literal">true</span> });\n<span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs({ name: <span class="hljs-string">\'NameOfVar\'</span>, namespace: Namespace });\n<span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs({ name: <span class="hljs-string">\'NameOfVar\'</span>, namespace: <span class="hljs-string">\'NamespaceName\'</span> });\n</code></pre>\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>fw.subscribable.fn.broadcastAs = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(varName, option)</span> </span>{\r\n  <span class="hljs-keyword">var</span> observable = <span class="hljs-keyword">this</span>;\r\n  <span class="hljs-keyword">var</span> namespace;\r\n  <span class="hljs-keyword">var</span> subscriptions = [];\r\n  <span class="hljs-keyword">var</span> namespaceSubscriptions = [];\r\n  <span class="hljs-keyword">var</span> isLocalNamespace = <span class="hljs-literal">false</span>;\r\n\r\n  <span class="hljs-keyword">if</span>( isObject(varName) ) {\r\n    option = varName;\r\n  } <span class="hljs-keyword">else</span> {\r\n    <span class="hljs-keyword">if</span>( isBoolean(option) ) {\r\n      option = {\r\n        name: varName,\r\n        writable: option\r\n      };\r\n    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isObject(option) ) {\r\n      option = extend({\r\n        name: varName\r\n      }, option);\r\n    } <span class="hljs-keyword">else</span> {\r\n      option = {\r\n        name: varName\r\n      };\r\n    }\r\n  }\r\n\r\n  namespace = option.namespace || currentNamespace();\r\n  <span class="hljs-keyword">if</span>( isString(namespace) ) {\r\n    namespace = makeNamespace(namespace);\r\n    isLocalNamespace = <span class="hljs-literal">true</span>;\r\n  }\r\n\r\n  <span class="hljs-keyword">if</span>( !isNamespace(namespace) ) {\r\n    <span class="hljs-keyword">throw</span> <span class="hljs-string">\'Invalid namespace provided for broadcastAs() observable.\'</span>;\r\n  }\r\n\r\n  <span class="hljs-keyword">if</span>( option.writable ) {\r\n    namespaceSubscriptions.push( namespace.subscribe( <span class="hljs-string">\'__change.\'</span> + option.name, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( newValue )</span> </span>{\r\n      observable( newValue );\r\n    }) );\r\n  }\r\n\r\n  observable.broadcast = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\r\n    namespace.publish( option.name, observable() );\r\n    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;\r\n  };\r\n\r\n  namespaceSubscriptions.push( namespace.subscribe( <span class="hljs-string">\'__refresh.\'</span> + option.name, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\r\n    namespace.publish( option.name, observable() );\r\n  }) );\r\n  subscriptions.push( observable.subscribe(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( newValue )</span> </span>{\r\n    namespace.publish( option.name, newValue );\r\n  }) );\r\n\r\n  observable.dispose = observable.shutdown = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\r\n    invoke(namespaceSubscriptions, <span class="hljs-string">\'unsubscribe\'</span>);\r\n    invoke(subscriptions, <span class="hljs-string">\'dispose\'</span>);\r\n    <span class="hljs-keyword">if</span>( isLocalNamespace ) {\r\n      namespace.shutdown();\r\n    }\r\n  };\r\n\r\n  observable.__isBroadcaster = <span class="hljs-literal">true</span>;\r\n  <span class="hljs-keyword">return</span> observable.broadcast();\r\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-36" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-36">&#182;</a>\r\n          </div>\r\n          <h2 id="router-js">router.js</h2>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-37" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-37">&#182;</a>\r\n          </div>\r\n          \r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-38" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-38">&#182;</a>\r\n          </div>\r\n          <p>Predicate function that always returns true / ‘pass’</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> alwaysPassPredicate = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>; };\n\n<span class="hljs-keyword">var</span> emptyStringResult = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-string">\'\'</span>; };\n\n<span class="hljs-keyword">var</span> routerDefaultConfig = {\n  namespace: <span class="hljs-string">\'$router\'</span>,\n  baseRoute: <span class="hljs-literal">null</span>,\n  isRelative: <span class="hljs-literal">true</span>,\n  activate: <span class="hljs-literal">true</span>,\n  setHref: <span class="hljs-literal">true</span>,\n  routes: []\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-39" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-39">&#182;</a>\r\n          </div>\r\n          <p>Regular expressions used to parse a uri</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> optionalParamRegex = <span class="hljs-regexp">/\\((.*?)\\)/g</span>;\n<span class="hljs-keyword">var</span> namedParamRegex = <span class="hljs-regexp">/(\\(\\?)?:\\w+/g</span>;\n<span class="hljs-keyword">var</span> splatParamRegex = <span class="hljs-regexp">/\\*\\w*/g</span>;\n<span class="hljs-keyword">var</span> escapeRegex = <span class="hljs-regexp">/[\\-{}\\[\\]+?.,\\\\\\^$|#\\s]/g</span>;\n<span class="hljs-keyword">var</span> hashMatchRegex = <span class="hljs-regexp">/(^\\/#)/</span>;\n<span class="hljs-keyword">var</span> isFullURLRegex = <span class="hljs-regexp">/(^[a-z]+:\\/\\/|^\\/\\/)/i</span>;\n<span class="hljs-keyword">var</span> routesAreCaseSensitive = <span class="hljs-literal">true</span>;\n\n<span class="hljs-keyword">var</span> invalidRoutePathIdentifier = <span class="hljs-string">\'___invalid-route\'</span>;\n\n<span class="hljs-keyword">var</span> $nullRouter = extend({}, $baseRouter, {\n  childRouters: extend( bind(noop), { push: noop } ),\n  path: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-string">\'\'</span>; },\n  isRelative: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>; },\n  __isNullRouter: <span class="hljs-literal">true</span>\n});\n\n<span class="hljs-keyword">var</span> $baseRouter = {\n  path: emptyStringResult,\n  segment: emptyStringResult,\n  childRouters: fw.observableArray(),\n  context: noop,\n  __isRouter: <span class="hljs-literal">true</span>\n};\n\n<span class="hljs-keyword">var</span> baseRoute = {\n  controller: noop,\n  indexedParams: [],\n  namedParams: {},\n  __isRoute: <span class="hljs-literal">true</span>\n};\n\n<span class="hljs-keyword">var</span> baseRouteDescription = {\n  filter: alwaysPassPredicate,\n  __isRouteDesc: <span class="hljs-literal">true</span>\n};\n\n<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">transformRouteConfigToDesc</span><span class="hljs-params">(routeDesc)</span> </span>{\n  <span class="hljs-keyword">return</span> extend({ id: uniqueId(<span class="hljs-string">\'route\'</span>) }, baseRouteDescription, routeDesc );\n}</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-40" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-40">&#182;</a>\r\n          </div>\r\n          <p>Convert a route string to a regular expression which is then used to match a uri against it and determine\nwhether that uri matches the described route as well as parse and retrieve its tokens</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">routeStringToRegExp</span><span class="hljs-params">(routeString)</span> </span>{\n  routeString = routeString\n    .replace(escapeRegex, <span class="hljs-string">"\\\\$&amp;"</span>)\n    .replace(optionalParamRegex, <span class="hljs-string">"(?:$1)?"</span>)\n    .replace(namedParamRegex, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(match, optional)</span> </span>{\n      <span class="hljs-keyword">return</span> optional ? match : <span class="hljs-string">"([^\\/]+)"</span>;\n    })\n    .replace(splatParamRegex, <span class="hljs-string">"(.*?)"</span>);\n\n  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">\'^\'</span> + routeString + (routeString !== <span class="hljs-string">\'/\'</span> ? <span class="hljs-string">\'(\\\\/.*)*$\'</span> : <span class="hljs-string">\'$\'</span>), routesAreCaseSensitive ? <span class="hljs-literal">undefined</span> : <span class="hljs-string">\'i\'</span>);\n}\n\n<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">historyIsReady</span><span class="hljs-params">()</span> </span>{\n  <span class="hljs-keyword">var</span> isReady = has(History, <span class="hljs-string">\'Adapter\'</span>);\n  <span class="hljs-keyword">if</span>(isReady &amp;&amp; isUndefined(History.Adapter.unbind)) {</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-41" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-41">&#182;</a>\r\n          </div>\r\n          <p>why .unbind() is not already present in History.js is beyond me</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>    History.Adapter.unbind = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(callback)</span> </span>{\n      each(History.Adapter.handlers, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(handler)</span> </span>{\n        handler.statechange = filter(handler.statechange, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(stateChangeHandler)</span> </span>{\n          <span class="hljs-keyword">return</span> stateChangeHandler !== callback;\n        });\n      });\n    };\n  }\n  <span class="hljs-keyword">return</span> isReady;\n}\n\n<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isNullRouter</span><span class="hljs-params">(thing)</span> </span>{\n  <span class="hljs-keyword">return</span> isObject(thing) &amp;&amp; !!thing.__isNullRouter;\n}\n\n<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isRouter</span><span class="hljs-params">(thing)</span> </span>{\n  <span class="hljs-keyword">return</span> isObject(thing) &amp;&amp; !!thing.__isRouter;\n}\n\n<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isRoute</span><span class="hljs-params">(thing)</span> </span>{\n  <span class="hljs-keyword">return</span> isObject(thing) &amp;&amp; !!thing.__isRoute;\n}</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-42" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-42">&#182;</a>\r\n          </div>\r\n          <p>Recursive function which will locate the nearest $router from a given ko $context\n(travels up through $parentContext chain to find the router if not found on the\nimmediate $context). Returns $nullRouter if none is found.</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">nearestParentRouter</span><span class="hljs-params">($context)</span> </span>{\n  <span class="hljs-keyword">var</span> $parentRouter = $nullRouter;\n  <span class="hljs-keyword">if</span>( isObject($context) ) {\n    <span class="hljs-keyword">if</span>( isObject($context.$data) &amp;&amp; isRouter($context.$data.$router) ) {</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-43" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-43">&#182;</a>\r\n          </div>\r\n          <p>found router in this context</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>      $parentRouter = $context.$data.$router;\n    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isObject($context.$parentContext) || (isObject($context.$data) &amp;&amp; isObject($context.$data.$parentContext)) ) {</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-44" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-44">&#182;</a>\r\n          </div>\r\n          <p>search through next parent up the chain</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>      $parentRouter = nearestParentRouter( $context.$parentContext || $context.$data.$parentContext );\n    }\n  }\n  <span class="hljs-keyword">return</span> $parentRouter;\n}\n\n<span class="hljs-keyword">var</span> noComponentSelected = <span class="hljs-string">\'_noComponentSelected\'</span>;\n<span class="hljs-keyword">var</span> $routerOutlet = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(outletName, componentToDisplay, options )</span> </span>{\n  options = options || {};\n  <span class="hljs-keyword">if</span>( isFunction(options) ) {\n    options = { onComplete: options };\n  }\n  \n  <span class="hljs-keyword">var</span> viewModelParameters = options.params;\n  <span class="hljs-keyword">var</span> onComplete = options.onComplete;\n  <span class="hljs-keyword">var</span> outlets = <span class="hljs-keyword">this</span>.outlets;\n\n  outletName = fw.unwrap( outletName );\n  <span class="hljs-keyword">if</span>( !isObservable(outlets[outletName]) ) {\n    outlets[outletName] = fw.observable({\n      name: noComponentSelected,\n      params: {},\n      __getOnCompleteCallback: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> noop; }\n    });\n  }\n\n  <span class="hljs-keyword">var</span> outlet = outlets[outletName];\n  <span class="hljs-keyword">var</span> currentOutletDef = outlet();\n  <span class="hljs-keyword">var</span> valueHasMutated = <span class="hljs-literal">false</span>;\n  <span class="hljs-keyword">var</span> isInitialLoad = outlet().name === noComponentSelected;\n\n  <span class="hljs-keyword">if</span>( !isUndefined(componentToDisplay) ) {\n    currentOutletDef.name = componentToDisplay;\n    valueHasMutated = <span class="hljs-literal">true</span>;\n  }\n\n  <span class="hljs-keyword">if</span>( !isUndefined(viewModelParameters) ) {\n    currentOutletDef.params = viewModelParameters;\n    valueHasMutated = <span class="hljs-literal">true</span>;\n  }\n\n  <span class="hljs-keyword">if</span>( valueHasMutated ) {\n    <span class="hljs-keyword">if</span>( isFunction(onComplete) ) {</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-45" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-45">&#182;</a>\r\n          </div>\r\n          <p>Return the onComplete callback once the DOM is injected in the page.\nFor some reason, on initial outlet binding only calls update once. Subsequent\nchanges get called twice (correct per docs, once upon initial binding, and once\nupon injection into the DOM). Perhaps due to usage of virtual DOM for the component?</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>      <span class="hljs-keyword">var</span> callCounter = (isInitialLoad ? <span class="hljs-number">0</span> : <span class="hljs-number">1</span>);\n\n      currentOutletDef.__getOnCompleteCallback = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n        <span class="hljs-keyword">var</span> isComplete = callCounter === <span class="hljs-number">0</span>;\n        callCounter--;\n        <span class="hljs-keyword">if</span>( isComplete ) {\n          <span class="hljs-keyword">return</span> onComplete;\n        }\n        <span class="hljs-keyword">return</span> noop;\n      };\n    } <span class="hljs-keyword">else</span> {\n      currentOutletDef.__getOnCompleteCallback = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n        <span class="hljs-keyword">return</span> noop;\n      };\n    }\n\n    outlet.valueHasMutated();\n  }\n\n  <span class="hljs-keyword">return</span> outlet;\n};\n\n<span class="hljs-keyword">var</span> isFullURL = fw.isFullURL = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(thing)</span> </span>{\n  <span class="hljs-keyword">return</span> isString(thing) &amp;&amp; isFullURLRegex.test(thing);\n};\n\n<span class="hljs-keyword">var</span> fwRouters = fw.routers = {</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-46" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-46">&#182;</a>\r\n          </div>\r\n          <p>Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>  baseRoute: fw.observable(<span class="hljs-string">\'\'</span>),\n  getNearestParent: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">($context)</span> </span>{\n    <span class="hljs-keyword">var</span> $parentRouter = nearestParentRouter($context);\n    <span class="hljs-keyword">return</span> (!isNullRouter($parentRouter) ? $parentRouter : <span class="hljs-literal">null</span>);\n  },\n  activeRouteClassName: <span class="hljs-string">\'active\'</span>,</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-47" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-47">&#182;</a>\r\n          </div>\r\n          <p>Return array of all currently instantiated $router’s</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>  getAll: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n    <span class="hljs-keyword">return</span> reduce( $globalNamespace.request(<span class="hljs-string">\'__router_reference\'</span>, <span class="hljs-literal">undefined</span>, <span class="hljs-literal">true</span>), <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routers, router)</span> </span>{\n      <span class="hljs-keyword">var</span> namespaceName = isNamespace(router.$namespace) ? router.$namespace.getName() : <span class="hljs-literal">null</span>;\n\n      <span class="hljs-keyword">if</span>( !isNull(namespaceName) ) {\n        <span class="hljs-keyword">if</span>( isUndefined(routers[namespaceName]) ) {\n          routers[namespaceName] = router;\n        } <span class="hljs-keyword">else</span> {\n          <span class="hljs-keyword">if</span>( !isArray(routers[namespaceName]) ) {\n            routers[namespaceName] = [ routers[namespaceName] ];\n          }\n          routers[namespaceName].push(router);\n        }\n      }\n      <span class="hljs-keyword">return</span> routers;\n    }, {});\n  }\n};\n\nfw.router = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( routerConfig, $viewModel, $context )</span> </span>{\n  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Router( routerConfig, $viewModel, $context );\n};\n\nfw.bindingHandlers.$route = {\n  init: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(element, valueAccessor, allBindings, viewModel, bindingContext)</span> </span>{\n    <span class="hljs-keyword">var</span> $myRouter = nearestParentRouter(bindingContext);\n    <span class="hljs-keyword">var</span> urlValue = valueAccessor();\n    <span class="hljs-keyword">var</span> elementIsSetup = <span class="hljs-literal">false</span>;\n    <span class="hljs-keyword">var</span> stateTracker = <span class="hljs-literal">null</span>;\n\n    <span class="hljs-keyword">var</span> routeHandlerDescription = {\n      on: <span class="hljs-string">\'click\'</span>,\n      url: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">defaultURLForRoute</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>; },\n      handler: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">defaultHandlerForRoute</span><span class="hljs-params">(event, url)</span> </span>{\n        <span class="hljs-keyword">if</span>( !isFullURL(url) &amp;&amp; event.which !== <span class="hljs-number">2</span> ) {\n          event.preventDefault();\n          <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;\n        }\n        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;\n      }\n    };\n\n    <span class="hljs-keyword">if</span>( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {\n      routeHandlerDescription.url = urlValue;\n    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isObject(urlValue) ) {\n      extend(routeHandlerDescription, urlValue);\n    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( !urlValue ) {\n      routeHandlerDescription.url = element.getAttribute(<span class="hljs-string">\'href\'</span>);\n    } <span class="hljs-keyword">else</span> {\n      <span class="hljs-keyword">throw</span> <span class="hljs-string">\'Unknown type of url value provided to $route [\'</span> + <span class="hljs-keyword">typeof</span> urlValue + <span class="hljs-string">\']\'</span>;\n    }\n\n    <span class="hljs-keyword">var</span> routeHandlerDescriptionURL = routeHandlerDescription.url;\n    <span class="hljs-keyword">if</span>( !isFunction(routeHandlerDescriptionURL) ) {\n      routeHandlerDescription.url = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> routeHandlerDescriptionURL; };\n    }\n\n    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getRouteURL</span><span class="hljs-params">(includeParentPath)</span> </span>{\n      <span class="hljs-keyword">var</span> parentRoutePath = <span class="hljs-string">\'\'</span>;\n      <span class="hljs-keyword">var</span> routeURL = routeHandlerDescription.url();\n      <span class="hljs-keyword">var</span> myLinkPath = routeURL || element.getAttribute(<span class="hljs-string">\'href\'</span>) || <span class="hljs-string">\'\'</span>;\n\n      <span class="hljs-keyword">if</span>(!isNull(routeURL)) {\n        <span class="hljs-keyword">if</span>( isUndefined(routeURL) ) {\n          routeURL = myLinkPath;\n        }\n\n        <span class="hljs-keyword">if</span>( !isFullURL(myLinkPath) ) {\n          <span class="hljs-keyword">if</span>( !hasPathStart(myLinkPath) ) {\n            myLinkPath = <span class="hljs-string">\'/\'</span> + myLinkPath;\n          }\n\n          <span class="hljs-keyword">if</span>( includeParentPath &amp;&amp; !isNullRouter($myRouter) ) {\n            myLinkPath = $myRouter.parentRouter().path() + myLinkPath;\n          }\n        }\n\n        <span class="hljs-keyword">return</span> myLinkPath;\n      }\n\n      <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;\n    };\n    <span class="hljs-keyword">var</span> routeURLWithParentPath = bind(getRouteURL, <span class="hljs-literal">null</span>, <span class="hljs-literal">true</span>);\n    <span class="hljs-keyword">var</span> routeURLWithoutParentPath = bind(getRouteURL, <span class="hljs-literal">null</span>, <span class="hljs-literal">false</span>);\n\n    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">checkForMatchingSegment</span><span class="hljs-params">(mySegment, newRoute)</span> </span>{\n      <span class="hljs-keyword">if</span>(mySegment === <span class="hljs-string">\'/\'</span>) {\n        mySegment = <span class="hljs-string">\'\'</span>;\n      }\n      \n      <span class="hljs-keyword">if</span>(!isNull(newRoute) &amp;&amp; newRoute.segment === mySegment &amp;&amp; isString(fwRouters.activeRouteClassName) &amp;&amp; fwRouters.activeRouteClassName.length) {</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-48" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-48">&#182;</a>\r\n          </div>\r\n          <p>newRoute.segment is the same as this routers segment…add the activeRouteClassName to the element to indicate it is active</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>        addClass(element, fwRouters.activeRouteClassName);\n      } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( hasClass(element, fwRouters.activeRouteClassName) ) {\n        removeClass(element, fwRouters.activeRouteClassName);\n      }\n    };\n\n    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">setUpElement</span><span class="hljs-params">()</span> </span>{\n      <span class="hljs-keyword">var</span> myCurrentSegment = routeURLWithoutParentPath();\n      <span class="hljs-keyword">if</span>( element.tagName.toLowerCase() === <span class="hljs-string">\'a\'</span> ) {\n        element.href = routeURLWithParentPath();\n      }\n\n      <span class="hljs-keyword">if</span>( !isNull(stateTracker) ) {\n        stateTracker.unsubscribe();\n      }\n      stateTracker = $myRouter.currentRoute.subscribe( bind(checkForMatchingSegment, <span class="hljs-literal">null</span>, myCurrentSegment) );\n\n      <span class="hljs-keyword">if</span>(elementIsSetup === <span class="hljs-literal">false</span>) {\n        elementIsSetup = <span class="hljs-literal">true</span>;\n        checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());\n        fw.utils.registerEventHandler(element, routeHandlerDescription.on, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(event)</span> </span>{\n          <span class="hljs-keyword">var</span> currentRouteURL = routeURLWithoutParentPath();\n          <span class="hljs-keyword">var</span> handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);\n          <span class="hljs-keyword">if</span>( handlerResult ) {\n            <span class="hljs-keyword">if</span>( isString(handlerResult) ) {\n              currentRouteURL = handlerResult;\n            }\n            <span class="hljs-keyword">if</span>( isString(currentRouteURL) &amp;&amp; !isFullURL( currentRouteURL ) ) {\n              $myRouter.setState(currentRouteURL);\n            }\n          }\n        });\n      }\n    }\n\n    <span class="hljs-keyword">if</span>( isObservable(routeHandlerDescription.url) ) {\n      routeHandlerDescription.url.subscribe(setUpElement);\n    }\n    setUpElement();\n  }\n};\n\n<span class="hljs-keyword">var</span> Router = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( routerConfig, $viewModel, $context )</span> </span>{\n  extend(<span class="hljs-keyword">this</span>, $baseRouter);\n  <span class="hljs-keyword">var</span> subscriptions = <span class="hljs-keyword">this</span>.subscriptions = [];\n  <span class="hljs-keyword">var</span> viewModelNamespaceName;\n\n  <span class="hljs-keyword">if</span>( isViewModel($viewModel) ) {\n    viewModelNamespaceName = $viewModel.getNamespaceName();\n  }\n\n  <span class="hljs-keyword">this</span>.id = uniqueId(<span class="hljs-string">\'router\'</span>);\n  <span class="hljs-keyword">this</span>.$globalNamespace = makeNamespace();\n  <span class="hljs-keyword">this</span>.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + <span class="hljs-string">\'Router\'</span>) );\n  <span class="hljs-keyword">this</span>.$namespace.enter();\n  <span class="hljs-keyword">this</span>.$namespace.command.handler(<span class="hljs-string">\'setState\'</span>, <span class="hljs-keyword">this</span>.setState, <span class="hljs-keyword">this</span>);\n  <span class="hljs-keyword">this</span>.$namespace.request.handler(<span class="hljs-string">\'currentRoute\'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.currentRoute(); }, <span class="hljs-keyword">this</span>);\n  <span class="hljs-keyword">this</span>.$namespace.request.handler(<span class="hljs-string">\'urlParts\'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.urlParts(); }, <span class="hljs-keyword">this</span>);\n\n  <span class="hljs-keyword">this</span>.$viewModel = $viewModel;\n  <span class="hljs-keyword">this</span>.urlParts = fw.observable();\n  <span class="hljs-keyword">this</span>.childRouters = fw.observableArray();\n  <span class="hljs-keyword">this</span>.parentRouter = fw.observable($nullRouter);\n  <span class="hljs-keyword">this</span>.context = fw.observable();\n  <span class="hljs-keyword">this</span>.historyIsEnabled = fw.observable(<span class="hljs-literal">false</span>).broadcastAs(<span class="hljs-string">\'historyIsEnabled\'</span>);\n  <span class="hljs-keyword">this</span>.currentState = fw.observable(<span class="hljs-string">\'\'</span>).broadcastAs(<span class="hljs-string">\'currentState\'</span>);\n  <span class="hljs-keyword">this</span>.config = routerConfig = extend({}, routerDefaultConfig, routerConfig);\n  <span class="hljs-keyword">this</span>.config.baseRoute = fw.routers.baseRoute() + (result(routerConfig, <span class="hljs-string">\'baseRoute\'</span>) || <span class="hljs-string">\'\'</span>);\n\n  <span class="hljs-keyword">this</span>.isRelative = fw.computed(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n    <span class="hljs-keyword">return</span> routerConfig.isRelative &amp;&amp; !isNullRouter( <span class="hljs-keyword">this</span>.parentRouter() );\n  }, <span class="hljs-keyword">this</span>);\n  \n  <span class="hljs-keyword">this</span>.currentRoute = fw.computed(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.getRouteForURL( <span class="hljs-keyword">this</span>.currentState() );\n  }, <span class="hljs-keyword">this</span>);\n  \n  <span class="hljs-keyword">this</span>.path = fw.computed(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n    <span class="hljs-keyword">var</span> currentRoute = <span class="hljs-keyword">this</span>.currentRoute();\n    <span class="hljs-keyword">var</span> parentRouter = <span class="hljs-keyword">this</span>.parentRouter();\n    <span class="hljs-keyword">var</span> routePath = <span class="hljs-keyword">this</span>.parentRouter().path();\n\n    <span class="hljs-keyword">if</span>( isRoute(currentRoute) ) {\n      routePath = routePath + currentRoute.segment;\n    }\n    <span class="hljs-keyword">return</span> routePath;\n  }, <span class="hljs-keyword">this</span>);\n\n  <span class="hljs-keyword">var</span> $previousParent = $nullRouter;\n  subscriptions.push(<span class="hljs-keyword">this</span>.parentRouter.subscribe(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( $parentRouter )</span> </span>{\n    <span class="hljs-keyword">if</span>( !isNullRouter($previousParent) &amp;&amp; $previousParent !== $parentRouter ) {\n      $previousParent.childRouters.remove(<span class="hljs-keyword">this</span>);\n    }\n    $parentRouter.childRouters.push(<span class="hljs-keyword">this</span>);\n    $previousParent = $parentRouter;\n  }, <span class="hljs-keyword">this</span>));</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-49" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-49">&#182;</a>\r\n          </div>\r\n          <p>Automatically trigger the new Action() whenever the currentRoute() updates</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>  subscriptions.push( <span class="hljs-keyword">this</span>.currentRoute.subscribe(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getActionForRouteAndTrigger</span><span class="hljs-params">( newRoute )</span> </span>{\n    <span class="hljs-keyword">this</span>.getActionForRoute( newRoute )( <span class="hljs-comment">/* get and call the action for the newRoute */</span> );\n  }, <span class="hljs-keyword">this</span>) );\n\n  <span class="hljs-keyword">var</span> $router = <span class="hljs-keyword">this</span>;\n  <span class="hljs-keyword">this</span>.$globalNamespace.request.handler(<span class="hljs-string">\'__router_reference\'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n    <span class="hljs-keyword">return</span> $router;\n  });\n\n  <span class="hljs-keyword">this</span>.outlets = {};\n  <span class="hljs-keyword">this</span>.$outlet = bind( $routerOutlet, <span class="hljs-keyword">this</span> );\n  <span class="hljs-keyword">this</span>.$outlet.reset = bind( <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n    each( <span class="hljs-keyword">this</span>.outlets, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(outlet)</span> </span>{\n      outlet({ name: noComponentSelected, params: {} });\n    });\n  }, <span class="hljs-keyword">this</span>);\n\n  <span class="hljs-keyword">if</span>( !isUndefined(routerConfig.unknownRoute) ) {\n    <span class="hljs-keyword">if</span>( isFunction(routerConfig.unknownRoute) ) {\n      routerConfig.unknownRoute = { controller: routerConfig.unknownRoute };\n    }\n    routerConfig.routes.push( extend( routerConfig.unknownRoute, { unknown: <span class="hljs-literal">true</span> } ) );\n  }\n  <span class="hljs-keyword">this</span>.setRoutes( routerConfig.routes );\n\n  <span class="hljs-keyword">if</span>( routerConfig.activate === <span class="hljs-literal">true</span> ) {\n    subscriptions.push(<span class="hljs-keyword">this</span>.context.subscribe(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">activateRouterAfterNewContext</span><span class="hljs-params">( $context )</span> </span>{\n      <span class="hljs-keyword">if</span>( isObject($context) ) {\n        <span class="hljs-keyword">this</span>.activate( $context );\n      }\n    }, <span class="hljs-keyword">this</span>));\n  }\n  <span class="hljs-keyword">this</span>.context( $viewModel.$context || $context );\n\n  <span class="hljs-keyword">this</span>.$namespace.exit();\n};\n\nRouter.prototype.setRoutes = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeDesc)</span> </span>{\n  <span class="hljs-keyword">this</span>.routeDescriptions = [];\n  <span class="hljs-keyword">this</span>.addRoutes(routeDesc);\n  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;\n};\n\nRouter.prototype.addRoutes = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeConfig)</span> </span>{\n  <span class="hljs-keyword">this</span>.routeDescriptions = <span class="hljs-keyword">this</span>.routeDescriptions.concat( map(isArray(routeConfig) ? routeConfig : [routeConfig], transformRouteConfigToDesc) );\n  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;\n};\n\nRouter.prototype.activate = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">($context, $parentRouter)</span> </span>{\n  <span class="hljs-keyword">this</span>.startup( $context, $parentRouter );\n  <span class="hljs-keyword">if</span>( <span class="hljs-keyword">this</span>.currentState() === <span class="hljs-string">\'\'</span> ) {\n    <span class="hljs-keyword">this</span>.setState();\n  }\n  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;\n};\n\nRouter.prototype.setState = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(url, noHistoryInjection)</span> </span>{\n  <span class="hljs-keyword">if</span>( <span class="hljs-keyword">this</span>.historyIsEnabled() ) {\n    <span class="hljs-keyword">if</span>(!noHistoryInjection &amp;&amp; isString(url)) {\n      <span class="hljs-keyword">var</span> historyAPIWorked = <span class="hljs-literal">true</span>;\n      <span class="hljs-keyword">try</span> {\n        historyAPIWorked = History.pushState(<span class="hljs-literal">null</span>, <span class="hljs-string">\'\'</span>, <span class="hljs-keyword">this</span>.parentRouter().path() + url);\n      } <span class="hljs-keyword">catch</span>(error) {\n        historyAPIWorked = <span class="hljs-literal">false</span>;\n      } <span class="hljs-keyword">finally</span> {\n        <span class="hljs-keyword">if</span>(historyAPIWorked) {\n          <span class="hljs-keyword">return</span>;\n        }\n      }\n    } <span class="hljs-keyword">else</span> {\n      url = History.getState().url;\n    }\n  }\n\n  <span class="hljs-keyword">if</span>( isString(url) ) {\n    <span class="hljs-keyword">this</span>.currentState( <span class="hljs-keyword">this</span>.normalizeURL(url) );\n  }\n};\n\nRouter.prototype.startup = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( $context, $parentRouter )</span> </span>{\n  <span class="hljs-keyword">var</span> $myRouter = <span class="hljs-keyword">this</span>;\n  $parentRouter = $parentRouter || $nullRouter;\n\n  <span class="hljs-keyword">if</span>( !isNullRouter($parentRouter) ) {\n    <span class="hljs-keyword">this</span>.parentRouter( $parentRouter );\n  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isObject($context) ) {\n    $parentRouter = nearestParentRouter($context);\n    <span class="hljs-keyword">if</span>( $parentRouter.id !== <span class="hljs-keyword">this</span>.id ) {\n      <span class="hljs-keyword">this</span>.parentRouter( $parentRouter );\n    }\n  }\n\n  <span class="hljs-keyword">if</span>( !<span class="hljs-keyword">this</span>.historyIsEnabled() ) {\n    <span class="hljs-keyword">if</span>( historyIsReady() ) {\n      History.Adapter.bind( windowObject, <span class="hljs-string">\'statechange\'</span>, <span class="hljs-keyword">this</span>.stateChangeHandler = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n        $myRouter.setState( History.getState().url, <span class="hljs-literal">true</span> );\n      } );\n      <span class="hljs-keyword">this</span>.historyIsEnabled(<span class="hljs-literal">true</span>);\n    } <span class="hljs-keyword">else</span> {\n      <span class="hljs-keyword">this</span>.historyIsEnabled(<span class="hljs-literal">false</span>);\n    }\n  }\n\n  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;\n};\n\nRouter.prototype.shutdown = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n  <span class="hljs-keyword">var</span> $parentRouter = <span class="hljs-keyword">this</span>.parentRouter();\n  <span class="hljs-keyword">if</span>( !isNullRouter($parentRouter) ) {\n    $parentRouter.childRouters.remove(<span class="hljs-keyword">this</span>);\n  }\n\n  <span class="hljs-keyword">if</span>( <span class="hljs-keyword">this</span>.historyIsEnabled() &amp;&amp; historyIsReady() ) {\n    History.Adapter.unbind( <span class="hljs-keyword">this</span>.stateChangeHandler );\n  }\n\n  <span class="hljs-keyword">this</span>.$namespace.shutdown();\n  <span class="hljs-keyword">this</span>.$globalNamespace.shutdown();\n\n  invoke(<span class="hljs-keyword">this</span>.subscriptions, <span class="hljs-string">\'dispose\'</span>);\n  each(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(property)</span> </span>{\n    <span class="hljs-keyword">if</span>( property &amp;&amp; isFunction(property.dispose) ) {\n      property.dispose();\n    }\n  });\n};\n\nRouter.prototype.normalizeURL = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(url)</span> </span>{\n  <span class="hljs-keyword">var</span> urlParts = parseUri(url);\n  <span class="hljs-keyword">this</span>.urlParts(urlParts);\n  url = urlParts.path;\n\n  <span class="hljs-keyword">if</span>( !isNull(<span class="hljs-keyword">this</span>.config.baseRoute) &amp;&amp; url.indexOf(<span class="hljs-keyword">this</span>.config.baseRoute) === <span class="hljs-number">0</span> ) {\n    url = url.substr(<span class="hljs-keyword">this</span>.config.baseRoute.length);\n    <span class="hljs-keyword">if</span>(url.length &gt; <span class="hljs-number">1</span>) {\n      url = url.replace(hashMatchRegex, <span class="hljs-string">\'/\'</span>);\n    }\n  }\n  <span class="hljs-keyword">return</span> url;\n};\n\nRouter.prototype.getUnknownRoute = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n  <span class="hljs-keyword">var</span> unknownRoute = findWhere((<span class="hljs-keyword">this</span>.getRouteDescriptions() || []).reverse(), { unknown: <span class="hljs-literal">true</span> }) || <span class="hljs-literal">null</span>;\n\n  <span class="hljs-keyword">if</span>( !isNull(unknownRoute) ) {\n    unknownRoute = extend({}, baseRoute, {\n      id: unknownRoute.id,\n      controller: unknownRoute.controller,\n      title: unknownRoute.title,\n      segment: <span class="hljs-string">\'\'</span>\n    });\n  }\n\n  <span class="hljs-keyword">return</span> unknownRoute;\n};\n\nRouter.prototype.getRouteForURL = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(url)</span> </span>{\n  <span class="hljs-keyword">var</span> route = <span class="hljs-literal">null</span>;\n  <span class="hljs-keyword">var</span> parentRoutePath = <span class="hljs-keyword">this</span>.parentRouter().path() || <span class="hljs-string">\'\'</span>;\n  <span class="hljs-keyword">var</span> unknownRoute = <span class="hljs-keyword">this</span>.getUnknownRoute();\n  <span class="hljs-keyword">var</span> $myRouter = <span class="hljs-keyword">this</span>;</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-50" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-50">&#182;</a>\r\n          </div>\r\n          <p>If this is a relative router we need to remove the leading parentRoutePath section of the URL</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>  <span class="hljs-keyword">if</span>( <span class="hljs-keyword">this</span>.isRelative() ) {\n    <span class="hljs-keyword">if</span>( parentRoutePath.length &gt; <span class="hljs-number">0</span> ) {\n      <span class="hljs-keyword">if</span>( ( routeIndex = url.indexOf(parentRoutePath) ) === <span class="hljs-number">0</span> ) {\n        url = url.substr( parentRoutePath.length );\n      } <span class="hljs-keyword">else</span> {\n        <span class="hljs-keyword">return</span> unknownRoute;\n      }\n    } <span class="hljs-keyword">else</span> {\n      <span class="hljs-keyword">return</span> unknownRoute;\n    }\n  }</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-51" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-51">&#182;</a>\r\n          </div>\r\n          <p>find all routes with a matching routeString</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>  <span class="hljs-keyword">var</span> matchedRoutes = [];\n  find(<span class="hljs-keyword">this</span>.getRouteDescriptions(), <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeDescription)</span> </span>{\n    <span class="hljs-keyword">var</span> routeString = routeDescription.route;\n    <span class="hljs-keyword">var</span> routeParams = [];\n\n    <span class="hljs-keyword">if</span>( isString(routeString) ) {\n      routeParams = url.match(routeStringToRegExp(routeString));\n      <span class="hljs-keyword">if</span>( !isNull(routeParams) &amp;&amp; routeDescription.filter.call($myRouter, { params: routeParams, urlParts: $myRouter.urlParts() }) ) {\n        matchedRoutes.push({\n          routeString: routeString,\n          specificity: routeString.replace(namedParamRegex, <span class="hljs-string">"*"</span>).length,\n          routeDescription: routeDescription,\n          routeParams: routeParams\n        });\n      }\n    }\n    <span class="hljs-keyword">return</span> route;\n  });</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-52" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-52">&#182;</a>\r\n          </div>\r\n          <p>If there are matchedRoutes, find the one with the highest ‘specificity’ (longest normalized matching routeString)\nand convert it into the actual route</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>  <span class="hljs-keyword">if</span>(matchedRoutes.length) {\n    <span class="hljs-keyword">var</span> matchedRoute = reduce(matchedRoutes, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(matchedRoute, foundRoute)</span> </span>{\n      <span class="hljs-keyword">if</span>( isNull(matchedRoute) || foundRoute.specificity &gt; matchedRoute.specificity ) {\n        matchedRoute = foundRoute;\n      }\n      <span class="hljs-keyword">return</span> matchedRoute;\n    }, <span class="hljs-literal">null</span>);\n    <span class="hljs-keyword">var</span> routeDescription = matchedRoute.routeDescription;\n    <span class="hljs-keyword">var</span> routeString = matchedRoute.routeString;\n    <span class="hljs-keyword">var</span> routeParams = clone(matchedRoute.routeParams);\n    <span class="hljs-keyword">var</span> splatSegment = routeParams.pop() || <span class="hljs-string">\'\'</span>;\n    <span class="hljs-keyword">var</span> routeParamNames = map(routeString.match(namedParamRegex), <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(param)</span> </span>{\n      <span class="hljs-keyword">return</span> param.replace(<span class="hljs-string">\':\'</span>, <span class="hljs-string">\'\'</span>);\n    });\n    <span class="hljs-keyword">var</span> namedParams = reduce(routeParamNames, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(parameterNames, parameterName, index)</span> </span>{\n      parameterNames[parameterName] = routeParams[index + <span class="hljs-number">1</span>];\n      <span class="hljs-keyword">return</span> parameterNames;\n    }, {});\n\n    route = extend({}, baseRoute, {\n      id: routeDescription.id,\n      controller: routeDescription.controller,\n      title: routeDescription.title,\n      url: url,\n      segment: url.substr(<span class="hljs-number">0</span>, url.length - splatSegment.length),\n      indexedParams: routeParams,\n      namedParams: namedParams\n    });\n  }\n\n  <span class="hljs-keyword">return</span> route || unknownRoute;\n};\n\nRouter.prototype.getActionForRoute = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeDescription)</span> </span>{\n  <span class="hljs-keyword">var</span> Action = bind( <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n    <span class="hljs-keyword">delete</span> <span class="hljs-keyword">this</span>.__currentRouteDescription;\n    <span class="hljs-keyword">this</span>.$outlet.reset();\n  }, <span class="hljs-keyword">this</span> );\n\n  <span class="hljs-keyword">if</span>( isRoute(routeDescription) ) {\n    Action = bind(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n      <span class="hljs-keyword">if</span>( !isUndefined(routeDescription.title) ) {\n        <span class="hljs-built_in">document</span>.title = isFunction(routeDescription.title) ? routeDescription.title.call(<span class="hljs-keyword">this</span>) : routeDescription.title;\n      }\n\n      <span class="hljs-keyword">if</span>( isUndefined(<span class="hljs-keyword">this</span>.__currentRouteDescription) || <span class="hljs-keyword">this</span>.__currentRouteDescription.id !== routeDescription.id ) {\n        routeDescription.controller.call( <span class="hljs-keyword">this</span>, routeDescription.namedParams );\n        <span class="hljs-keyword">this</span>.__currentRouteDescription = routeDescription;\n      }\n    }, <span class="hljs-keyword">this</span>);\n  }\n\n  <span class="hljs-keyword">return</span> Action;\n};\n\nRouter.prototype.getRouteDescriptions = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n  <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.routeDescriptions;\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-53" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-53">&#182;</a>\r\n          </div>\r\n          <h2 id="viewmodel-js">viewModel.js</h2>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-54" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-54">&#182;</a>\r\n          </div>\r\n          <p>Duck type function for determining whether or not something is a footwork viewModel constructor function</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isViewModelCtor</span><span class="hljs-params">(thing)</span> </span>{\r\n  <span class="hljs-keyword">return</span> isFunction(thing) &amp;&amp; !!thing.__isViewModelCtor;\r\n}</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-55" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-55">&#182;</a>\r\n          </div>\r\n          <p>Duck type function for determining whether or not something is a footwork viewModel</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isViewModel</span><span class="hljs-params">(thing)</span> </span>{\r\n  <span class="hljs-keyword">return</span> isObject(thing) &amp;&amp; !!thing.__isViewModel;\r\n}\r\n\r\n<span class="hljs-keyword">var</span> defaultGetViewModelOptions = {\r\n  includeOutlets: <span class="hljs-literal">false</span>\r\n};\r\n\r\nfw.viewModels = {};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-56" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-56">&#182;</a>\r\n          </div>\r\n          <p>Returns a reference to the specified viewModels.\nIf no name is supplied, a reference to an array containing all model references is returned.</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> getViewModels = fw.viewModels.getAll = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> </span>{\r\n  <span class="hljs-keyword">return</span> reduce( $globalNamespace.request(<span class="hljs-string">\'__model_reference\'</span>, extend({}, defaultGetViewModelOptions, options), <span class="hljs-literal">true</span>), <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(viewModels, viewModel)</span> </span>{\r\n    <span class="hljs-keyword">if</span>( !isUndefined(viewModel) ) {\r\n      <span class="hljs-keyword">var</span> namespaceName = isNamespace(viewModel.$namespace) ? viewModel.$namespace.getName() : <span class="hljs-literal">null</span>;\r\n      <span class="hljs-keyword">if</span>( !isNull(namespaceName) ) {\r\n        <span class="hljs-keyword">if</span>( isUndefined(viewModels[namespaceName]) ) {\r\n          viewModels[namespaceName] = viewModel;\r\n        } <span class="hljs-keyword">else</span> {\r\n          <span class="hljs-keyword">if</span>( !isArray(viewModels[namespaceName]) ) {\r\n            viewModels[namespaceName] = [ viewModels[namespaceName] ];\r\n          }\r\n          viewModels[namespaceName].push(viewModel);\r\n        }\r\n      }\r\n    }\r\n    <span class="hljs-keyword">return</span> viewModels;\r\n  }, {});\r\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-57" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-57">&#182;</a>\r\n          </div>\r\n          <p>Tell all viewModels to request the values which it listens for</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> refreshViewModels = fw.viewModels.refresh = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\r\n  $globalNamespace.trigger(<span class="hljs-string">\'__refreshViewModels\'</span>);\r\n};\r\n\r\n<span class="hljs-keyword">var</span> defaultViewModelConfigParams = {\r\n  namespace: <span class="hljs-literal">undefined</span>,\r\n  name: <span class="hljs-literal">undefined</span>,\r\n  componentNamespace: <span class="hljs-literal">undefined</span>,\r\n  autoIncrement: <span class="hljs-literal">false</span>,\r\n  mixins: <span class="hljs-literal">undefined</span>,\r\n  params: <span class="hljs-literal">undefined</span>,\r\n  initialize: noop,\r\n  afterInit: noop,\r\n  afterBinding: noop,\r\n  afterDispose: noop\r\n};\r\n\r\n<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">beforeInitMixins</span><span class="hljs-params">(mixin)</span> </span>{\r\n  <span class="hljs-keyword">return</span> !!mixin.runBeforeInit;\r\n}\r\n\r\n<span class="hljs-keyword">var</span> makeViewModel = fw.viewModel = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(configParams)</span> </span>{\r\n  configParams = configParams || {};\r\n\r\n  <span class="hljs-keyword">var</span> ctor = noop;\r\n  <span class="hljs-keyword">var</span> afterInit = noop;\r\n  <span class="hljs-keyword">var</span> parentViewModel = configParams.parent;\r\n\r\n  <span class="hljs-keyword">if</span>( !isUndefined(configParams) ) {\r\n    ctor = configParams.viewModel || configParams.initialize || noop;\r\n    afterInit = configParams.afterInit || noop;\r\n  }\r\n  afterInit = { _postInit: afterInit };\r\n  configParams = extend({}, defaultViewModelConfigParams, configParams);\r\n\r\n  <span class="hljs-keyword">var</span> initViewModelMixin = {\r\n    _preInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( params )</span> </span>{\r\n      <span class="hljs-keyword">if</span>( isObject(configParams.router) ) {\r\n        <span class="hljs-keyword">this</span>.$router = <span class="hljs-keyword">new</span> Router( configParams.router, <span class="hljs-keyword">this</span> );\r\n      }\r\n    },\r\n    mixin: {\r\n      __isViewModel: <span class="hljs-literal">true</span>,\r\n      $params: result(configParams, <span class="hljs-string">\'params\'</span>),\r\n      __getConfigParams: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\r\n        <span class="hljs-keyword">return</span> configParams;\r\n      },\r\n      __shutdown: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\r\n        <span class="hljs-keyword">if</span>( isFunction(configParams.afterDispose) ) {\r\n          configParams.afterDispose.call(<span class="hljs-keyword">this</span>);\r\n        }\r\n\r\n        each(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( property, name )</span> </span>{\r\n          <span class="hljs-keyword">if</span>( isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) ) {\r\n            property.shutdown();\r\n          }\r\n        });\r\n      }\r\n    },\r\n    _postInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\r\n      <span class="hljs-keyword">if</span>( <span class="hljs-keyword">this</span>.__assertPresence !== <span class="hljs-literal">false</span> ) {\r\n        <span class="hljs-keyword">this</span>.$globalNamespace.request.handler(<span class="hljs-string">\'__model_reference\'</span>, bind(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> </span>{\r\n          <span class="hljs-keyword">if</span>( !<span class="hljs-keyword">this</span>.__isOutlet || (isObject(options) &amp;&amp; options.includeOutlets) ) {\r\n            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;\r\n          }\r\n        }, <span class="hljs-keyword">this</span>));\r\n        <span class="hljs-keyword">this</span>.$globalNamespace.event.handler(<span class="hljs-string">\'__refreshViewModels\'</span>, bind(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\r\n          each(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(property)</span> </span>{\r\n            <span class="hljs-keyword">if</span>( isReceiver(property) ) {\r\n              property.refresh();\r\n            }\r\n          });\r\n        }, <span class="hljs-keyword">this</span>));\r\n      }\r\n    }\r\n  };\r\n\r\n  <span class="hljs-keyword">if</span>( !isViewModelCtor(ctor) ) {\r\n    <span class="hljs-keyword">var</span> composure = [ ctor ];\r\n    <span class="hljs-keyword">var</span> afterInitMixins = reject(viewModelMixins, beforeInitMixins);\r\n    <span class="hljs-keyword">var</span> beforeInitMixins = filter(viewModelMixins, beforeInitMixins);\r\n\r\n    <span class="hljs-keyword">if</span>( beforeInitMixins.length ) {\r\n      composure = composure.concat(beforeInitMixins);\r\n    }\r\n    composure = composure.concat(initViewModelMixin);\r\n    <span class="hljs-keyword">if</span>( afterInitMixins.length ) {\r\n      composure = composure.concat(afterInitMixins);\r\n    }\r\n    \r\n    composure = composure.concat(afterInit);\r\n    <span class="hljs-keyword">if</span>( !isUndefined(configParams.mixins) ) {\r\n      composure = composure.concat(configParams.mixins);\r\n    }\r\n\r\n    each(composure, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(element)</span> </span>{\r\n      <span class="hljs-keyword">if</span>( !isUndefined(element[<span class="hljs-string">\'runBeforeInit\'</span>]) ) {\r\n        <span class="hljs-keyword">delete</span> element.runBeforeInit;\r\n      }\r\n    });\r\n\r\n    <span class="hljs-keyword">var</span> model = riveter.compose.apply( <span class="hljs-literal">undefined</span>, composure );\r\n    model.__isViewModelCtor = <span class="hljs-literal">true</span>;\r\n    model.__configParams = configParams;\r\n  } <span class="hljs-keyword">else</span> {</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-58" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-58">&#182;</a>\r\n          </div>\r\n          <p>user has specified another viewModel constructor as the ‘initialize’ function, we extend it with the current constructor to create an inheritance chain</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>    model = ctor;\r\n  }\r\n\r\n  <span class="hljs-keyword">if</span>( !isUndefined(parentViewModel) ) {\r\n    model.inherits(parentViewModel);\r\n  }\r\n\r\n  <span class="hljs-keyword">return</span> model;\r\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-59" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-59">&#182;</a>\r\n          </div>\r\n          <p>Provides lifecycle functionality and $context for a given viewModel and element</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">applyContextAndLifeCycle</span><span class="hljs-params">(viewModel, element)</span> </span>{\r\n  <span class="hljs-keyword">if</span>( isViewModel(viewModel) ) {\r\n    <span class="hljs-keyword">var</span> $configParams = viewModel.__getConfigParams();\r\n    <span class="hljs-keyword">var</span> context;\r\n    element = element || <span class="hljs-built_in">document</span>.body;\r\n    viewModel.$context = elementContext = fw.contextFor(element);\r\n    \r\n    <span class="hljs-keyword">if</span>( isFunction($configParams.afterBinding) ) {\r\n      $configParams.afterBinding.call(viewModel, element);\r\n    }\r\n\r\n    <span class="hljs-keyword">if</span>( isRouter(viewModel.$router) ) {\r\n      viewModel.$router.context( elementContext );\r\n    }\r\n    \r\n    <span class="hljs-keyword">if</span>( !isUndefined(element) ) {\r\n      fw.utils.domNodeDisposal.addDisposeCallback(element, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\r\n        viewModel.__shutdown();\r\n      });\r\n    }\r\n  }\r\n}</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-60" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-60">&#182;</a>\r\n          </div>\r\n          <p>Override the original applyBindings method to provide ‘viewModel’ life-cycle hooks/events and to provide the $context to the $router if present.</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> originalApplyBindings = fw.applyBindings;\r\n<span class="hljs-keyword">var</span> applyBindings = fw.applyBindings = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(viewModel, element)</span> </span>{\r\n  originalApplyBindings(viewModel, element);\r\n  applyContextAndLifeCycle(viewModel, element);\r\n};\r\n\r\n<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">bindComponentViewModel</span><span class="hljs-params">(element, params, ViewModel)</span> </span>{\r\n  <span class="hljs-keyword">var</span> viewModelObj;\r\n  <span class="hljs-keyword">if</span>( isFunction(ViewModel) ) {\r\n    viewModelObj = <span class="hljs-keyword">new</span> ViewModel(values.params);\r\n  } <span class="hljs-keyword">else</span> {\r\n    viewModelObj = ViewModel;\r\n  }\r\n  viewModelObj.$parentContext = fw.contextFor(element.parentElement);</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-61" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-61">&#182;</a>\r\n          </div>\r\n          <p>binding the viewModelObj onto each child element is not ideal, need to do this differently\ncannot get component.preprocess() method to work/be called for some reason</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>  each(element.children, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(child)</span> </span>{\r\n    originalApplyBindings(viewModelObj, child);\r\n  });\r\n  applyContextAndLifeCycle(viewModelObj, element);</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-62" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-62">&#182;</a>\r\n          </div>\r\n          <p>we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each\nsub-element and must specify the context as being the container element only once</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>  <span class="hljs-keyword">if</span>( isRouter(viewModelObj.$router) ) {\r\n    viewModelObj.$router.context( fw.contextFor(element) );\r\n  }\r\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-63" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-63">&#182;</a>\r\n          </div>\r\n          <p>Monkey patch enables the viewModel component to initialize a model and bind to the html as intended (with lifecycle events)\nTODO: Do this differently once this is resolved: <a href="https://github.com/knockout/knockout/issues/1463">https://github.com/knockout/knockout/issues/1463</a></p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> originalComponentInit = fw.bindingHandlers.component.init;\r\nfw.bindingHandlers.component.init = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(element, valueAccessor, allBindings, viewModel, bindingContext)</span> </span>{\r\n  <span class="hljs-keyword">var</span> theValueAccessor = valueAccessor;\r\n  <span class="hljs-keyword">if</span>( isString(element.tagName) ) {\r\n    <span class="hljs-keyword">var</span> tagName = element.tagName.toLowerCase();\r\n    <span class="hljs-keyword">if</span>( tagName === <span class="hljs-string">\'viewmodel\'</span> ) {\r\n      <span class="hljs-keyword">var</span> values = valueAccessor();\r\n      <span class="hljs-keyword">var</span> viewModelName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : <span class="hljs-literal">undefined</span> ) || element.getAttribute(<span class="hljs-string">\'module\'</span>) || element.getAttribute(<span class="hljs-string">\'data-module\'</span>);\r\n      <span class="hljs-keyword">var</span> bindViewModel = bind(bindComponentViewModel, <span class="hljs-literal">null</span>, element, values.params);\r\n\r\n      <span class="hljs-keyword">if</span>( !isUndefined(viewModelName) ) {\r\n        <span class="hljs-keyword">var</span> resourceLocation = <span class="hljs-literal">null</span>;\r\n\r\n        <span class="hljs-keyword">if</span>( isRegisteredViewModel(viewModelName) ) {</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-64" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-64">&#182;</a>\r\n          </div>\r\n          <p>viewModel was manually registered, we preferentially use it</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>          resourceLocation = getRegisteredViewModel(viewModelName);\r\n        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isFunction(<span class="hljs-built_in">require</span>) &amp;&amp; isFunction(<span class="hljs-built_in">require</span>.defined) &amp;&amp; <span class="hljs-built_in">require</span>.defined(viewModelName) ) {</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-65" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-65">&#182;</a>\r\n          </div>\r\n          <p>we have found a matching resource that is already cached by require, lets use it</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>          resourceLocation = viewModelName;\r\n        } <span class="hljs-keyword">else</span> {\r\n          resourceLocation = getViewModelResourceLocation(viewModelName);\r\n        }\r\n\r\n        <span class="hljs-keyword">if</span>( isString(resourceLocation) ) {\r\n          <span class="hljs-keyword">if</span>( isFunction(<span class="hljs-built_in">require</span>) ) {\r\n            <span class="hljs-keyword">if</span>( isPath(resourceLocation) ) {\r\n              resourceLocation = resourceLocation + getViewModelFileName(viewModelName);\r\n            }\r\n\r\n            <span class="hljs-built_in">require</span>([ resourceLocation ], bindViewModel);\r\n          } <span class="hljs-keyword">else</span> {\r\n            <span class="hljs-keyword">throw</span> <span class="hljs-string">\'Uses require, but no AMD loader is present\'</span>;\r\n          }\r\n        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isFunction(resourceLocation) ) {\r\n          bindViewModel( resourceLocation );\r\n        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isObject(resourceLocation) ) {\r\n          <span class="hljs-keyword">if</span>( isObject(resourceLocation.instance) ) {\r\n            bindViewModel( resourceLocation.instance );\r\n          } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isFunction(resourceLocation.createViewModel) ) {\r\n            bindViewModel( resourceLocation.createViewModel( values.params, { element: element } ) );\r\n          }\r\n        }\r\n      }\r\n\r\n      <span class="hljs-keyword">return</span> { <span class="hljs-string">\'controlsDescendantBindings\'</span>: <span class="hljs-literal">true</span> };\r\n    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( tagName === <span class="hljs-string">\'outlet\'</span> ) {</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-66" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-66">&#182;</a>\r\n          </div>\r\n          <p>we patch in the ‘name’ of the outlet into the params valueAccessor on the component definition (if necessary and available)</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>      <span class="hljs-keyword">var</span> outletName = element.getAttribute(<span class="hljs-string">\'name\'</span>) || element.getAttribute(<span class="hljs-string">\'data-name\'</span>);\r\n      <span class="hljs-keyword">if</span>( outletName ) {\r\n        theValueAccessor = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\r\n          <span class="hljs-keyword">var</span> valueAccessorResult = valueAccessor();\r\n          <span class="hljs-keyword">if</span>( !isUndefined(valueAccessorResult.params) &amp;&amp; isUndefined(valueAccessorResult.params.name) ) {\r\n            valueAccessorResult.params.name = outletName;\r\n          }\r\n          <span class="hljs-keyword">return</span> valueAccessorResult;\r\n        };\r\n      }\r\n    }\r\n  }\r\n\r\n  <span class="hljs-keyword">return</span> originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);\r\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-67" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-67">&#182;</a>\r\n          </div>\r\n          <h2 id="component-js">component.js</h2>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-68" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-68">&#182;</a>\r\n          </div>\r\n          \r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>\n<span class="hljs-keyword">var</span> originalComponentRegisterFunc = fw.components.register;\n<span class="hljs-keyword">var</span> registerComponent = fw.components.register = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(componentName, options)</span> </span>{\n  <span class="hljs-keyword">var</span> viewModel = options.initialize || options.viewModel;\n  \n  <span class="hljs-keyword">if</span>( !isString(componentName) ) {\n    <span class="hljs-keyword">throw</span> <span class="hljs-string">\'Components must be provided a componentName.\'</span>;\n  }\n\n  <span class="hljs-keyword">if</span>( isFunction(viewModel) &amp;&amp; !isViewModelCtor(viewModel) ) {\n    options.namespace = componentName;\n    viewModel = makeViewModel(options);\n  }\n\n  originalComponentRegisterFunc(componentName, {\n    viewModel: viewModel || fw.viewModel(),\n    template: options.template\n  });\n};\n\nfw.components.getNormalTagList = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n  <span class="hljs-keyword">return</span> nonComponentTags.splice(<span class="hljs-number">0</span>);\n};\n\nfw.components.getComponentNameForNode = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(node)</span> </span>{\n  <span class="hljs-keyword">var</span> tagName = isString(node.tagName) &amp;&amp; node.tagName.toLowerCase();\n\n  <span class="hljs-keyword">if</span>( fw.components.isRegistered(tagName) || tagIsComponent(tagName) ) {\n    <span class="hljs-keyword">return</span> tagName;\n  }\n  <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;\n};\n\n<span class="hljs-keyword">var</span> makeComponent = fw.component = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(componentDefinition)</span> </span>{\n  <span class="hljs-keyword">var</span> viewModel = componentDefinition.viewModel;\n\n  <span class="hljs-keyword">if</span>( isFunction(viewModel) &amp;&amp; !isViewModelCtor(viewModel) ) {\n    componentDefinition.viewModel = makeViewModel( omit(componentDefinition, <span class="hljs-string">\'template\'</span>) );\n  }\n\n  <span class="hljs-keyword">return</span> componentDefinition;\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-69" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-69">&#182;</a>\r\n          </div>\r\n          <p>Register a component as consisting of a template only.\nThis will cause footwork to load only the template when this component is used.</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> componentTemplateOnlyRegister = [];\n<span class="hljs-keyword">var</span> registerComponentAsTemplateOnly = fw.components.isTemplateOnly = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(componentName, isTemplateOnly)</span> </span>{\n  isTemplateOnly = (isUndefined(isTemplateOnly) ? <span class="hljs-literal">true</span> : isTemplateOnly);\n  <span class="hljs-keyword">if</span>( isArray(componentName) ) {\n    each(componentName, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(compName)</span> </span>{\n      registerComponentAsTemplateOnly(compName, isTemplateOnly);\n    });\n  }\n\n  componentTemplateOnlyRegister[componentName] = isTemplateOnly;\n  <span class="hljs-keyword">if</span>( !isArray(componentName) ) {\n    <span class="hljs-keyword">return</span> componentTemplateOnlyRegister[componentName] || <span class="hljs-string">\'normal\'</span>;\n  }\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-70" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-70">&#182;</a>\r\n          </div>\r\n          <p>These are tags which are ignored by the custom component loader\nSourced from: <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element">https://developer.mozilla.org/en-US/docs/Web/HTML/Element</a></p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> nonComponentTags = [\n  <span class="hljs-string">\'a\'</span>, <span class="hljs-string">\'abbr\'</span>, <span class="hljs-string">\'acronym\'</span>, <span class="hljs-string">\'address\'</span>, <span class="hljs-string">\'applet\'</span>, <span class="hljs-string">\'area\'</span>, <span class="hljs-string">\'article\'</span>, <span class="hljs-string">\'aside\'</span>, <span class="hljs-string">\'audio\'</span>, <span class="hljs-string">\'b\'</span>, <span class="hljs-string">\'base\'</span>, <span class="hljs-string">\'basefont\'</span>, <span class="hljs-string">\'bdi\'</span>, <span class="hljs-string">\'bgsound\'</span>,\n  <span class="hljs-string">\'big\'</span>, <span class="hljs-string">\'blink\'</span>, <span class="hljs-string">\'blockquote\'</span>, <span class="hljs-string">\'body\'</span>, <span class="hljs-string">\'br\'</span>, <span class="hljs-string">\'button\'</span>, <span class="hljs-string">\'canvas\'</span>, <span class="hljs-string">\'caption\'</span>, <span class="hljs-string">\'center\'</span>, <span class="hljs-string">\'cite\'</span>, <span class="hljs-string">\'code\'</span>, <span class="hljs-string">\'col\'</span>, <span class="hljs-string">\'colgroup\'</span>,\n  <span class="hljs-string">\'content\'</span>, <span class="hljs-string">\'data\'</span>, <span class="hljs-string">\'datalist\'</span>, <span class="hljs-string">\'dd\'</span>, <span class="hljs-string">\'decorator\'</span>, <span class="hljs-string">\'del\'</span>, <span class="hljs-string">\'details\'</span>, <span class="hljs-string">\'dfn\'</span>, <span class="hljs-string">\'dialog\'</span>, <span class="hljs-string">\'dir\'</span>, <span class="hljs-string">\'div\'</span>, <span class="hljs-string">\'dl\'</span>, <span class="hljs-string">\'dt\'</span>, <span class="hljs-string">\'element\'</span>,\n  <span class="hljs-string">\'em\'</span>, <span class="hljs-string">\'embed\'</span>, <span class="hljs-string">\'fieldset\'</span>, <span class="hljs-string">\'figcaption\'</span>, <span class="hljs-string">\'figure\'</span>, <span class="hljs-string">\'footer\'</span>, <span class="hljs-string">\'form\'</span>, <span class="hljs-string">\'frameset\'</span>, <span class="hljs-string">\'g\'</span>, <span class="hljs-string">\'h1\'</span>, <span class="hljs-string">\'h2\'</span>, <span class="hljs-string">\'h3\'</span>, <span class="hljs-string">\'h4\'</span>, <span class="hljs-string">\'h5\'</span>, <span class="hljs-string">\'h6\'</span>,\n  <span class="hljs-string">\'head\'</span>, <span class="hljs-string">\'header\'</span>, <span class="hljs-string">\'hgroup\'</span>, <span class="hljs-string">\'hr\'</span>, <span class="hljs-string">\'html\'</span>, <span class="hljs-string">\'i\'</span>, <span class="hljs-string">\'iframe\'</span>, <span class="hljs-string">\'img\'</span>, <span class="hljs-string">\'input\'</span>, <span class="hljs-string">\'ins\'</span>, <span class="hljs-string">\'isindex\'</span>, <span class="hljs-string">\'kbd\'</span>, <span class="hljs-string">\'keygen\'</span>, <span class="hljs-string">\'label\'</span>,\n  <span class="hljs-string">\'legend\'</span>, <span class="hljs-string">\'li\'</span>, <span class="hljs-string">\'link\'</span>, <span class="hljs-string">\'listing\'</span>, <span class="hljs-string">\'main\'</span>, <span class="hljs-string">\'map\'</span>, <span class="hljs-string">\'mark\'</span>, <span class="hljs-string">\'marquee\'</span>, <span class="hljs-string">\'menu\'</span>, <span class="hljs-string">\'menuitem\'</span>, <span class="hljs-string">\'meta\'</span>, <span class="hljs-string">\'meter\'</span>, <span class="hljs-string">\'nav\'</span>, <span class="hljs-string">\'nobr\'</span>,\n  <span class="hljs-string">\'noframes\'</span>, <span class="hljs-string">\'noscript\'</span>, <span class="hljs-string">\'object\'</span>, <span class="hljs-string">\'ol\'</span>, <span class="hljs-string">\'optgroup\'</span>, <span class="hljs-string">\'option\'</span>, <span class="hljs-string">\'output\'</span>, <span class="hljs-string">\'p\'</span>, <span class="hljs-string">\'param\'</span>, <span class="hljs-string">\'picture\'</span>, <span class="hljs-string">\'polygon\'</span>, <span class="hljs-string">\'path\'</span>, <span class="hljs-string">\'pre\'</span>,\n  <span class="hljs-string">\'progress\'</span>, <span class="hljs-string">\'q\'</span>, <span class="hljs-string">\'rp\'</span>, <span class="hljs-string">\'rt\'</span>, <span class="hljs-string">\'ruby\'</span>, <span class="hljs-string">\'s\'</span>, <span class="hljs-string">\'samp\'</span>, <span class="hljs-string">\'script\'</span>, <span class="hljs-string">\'section\'</span>, <span class="hljs-string">\'select\'</span>, <span class="hljs-string">\'shadow\'</span>, <span class="hljs-string">\'small\'</span>, <span class="hljs-string">\'source\'</span>, <span class="hljs-string">\'spacer\'</span>,\n  <span class="hljs-string">\'span\'</span>, <span class="hljs-string">\'strike\'</span>, <span class="hljs-string">\'strong\'</span>, <span class="hljs-string">\'style\'</span>, <span class="hljs-string">\'sub\'</span>, <span class="hljs-string">\'summary\'</span>, <span class="hljs-string">\'sup\'</span>, <span class="hljs-string">\'svg\'</span>, <span class="hljs-string">\'table\'</span>, <span class="hljs-string">\'tbody\'</span>, <span class="hljs-string">\'td\'</span>, <span class="hljs-string">\'template\'</span>, <span class="hljs-string">\'textarea\'</span>,\n  <span class="hljs-string">\'tfoot\'</span>, <span class="hljs-string">\'th\'</span>, <span class="hljs-string">\'thead\'</span>, <span class="hljs-string">\'time\'</span>, <span class="hljs-string">\'title\'</span>, <span class="hljs-string">\'tr\'</span>, <span class="hljs-string">\'track\'</span>, <span class="hljs-string">\'u\'</span>, <span class="hljs-string">\'ul\'</span>, <span class="hljs-string">\'var\'</span>, <span class="hljs-string">\'video\'</span>, <span class="hljs-string">\'wbr\'</span>, <span class="hljs-string">\'xmp\'</span>, <span class="hljs-string">\'rect\'</span>, <span class="hljs-string">\'image\'</span>,\n  <span class="hljs-string">\'lineargradient\'</span>, <span class="hljs-string">\'stop\'</span>, <span class="hljs-string">\'line\'</span>\n];\n<span class="hljs-keyword">var</span> tagIsComponent = fw.components.tagIsComponent = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(tagName, isComponent)</span> </span>{\n  <span class="hljs-keyword">if</span>( isUndefined(isComponent) ) {\n    <span class="hljs-keyword">return</span> indexOf(nonComponentTags, tagName) === -<span class="hljs-number">1</span>;\n  }\n\n  <span class="hljs-keyword">if</span>( isArray(tagName) ) {\n    each(tagName, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(tag)</span> </span>{\n      tagIsComponent(tag, isComponent);\n    });\n  }\n\n  <span class="hljs-keyword">if</span>(isComponent !== <span class="hljs-literal">true</span>) {\n    <span class="hljs-keyword">if</span>( contains(nonComponentTags, tagName) === <span class="hljs-literal">false</span> ) {\n      nonComponentTags.push(tagName);\n    }\n  } <span class="hljs-keyword">else</span> {\n    nonComponentTags = filter(nonComponentTags, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(nonComponentTagName)</span> </span>{\n      <span class="hljs-keyword">return</span> nonComponentTagName !== tagName;\n    });\n  }\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-71" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-71">&#182;</a>\r\n          </div>\r\n          <p>Components which footwork will not wrap in the $life custom binding used for lifecycle events\nUsed to keep the wrapper off of internal/natively handled and defined components such as ‘outlet’</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> nativeComponents = [\n  <span class="hljs-string">\'outlet\'</span>\n];\n<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isNativeComponent</span><span class="hljs-params">(componentName)</span> </span>{\n  <span class="hljs-keyword">return</span> indexOf(nativeComponents, componentName) !== -<span class="hljs-number">1</span>;\n}\n\n<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">componentTriggerAfterBinding</span><span class="hljs-params">(element, viewModel)</span> </span>{\n  <span class="hljs-keyword">if</span>( isViewModel(viewModel) ) {\n    <span class="hljs-keyword">var</span> configParams = viewModel.__getConfigParams();\n    <span class="hljs-keyword">if</span>( isFunction(configParams.afterBinding) ) {\n      configParams.afterBinding.call(viewModel, element);\n    }\n  }\n}</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-72" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-72">&#182;</a>\r\n          </div>\r\n          <p>Use the $life wrapper binding to provide lifecycle events for components</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>fw.virtualElements.allowedBindings.$life = <span class="hljs-literal">true</span>;\nfw.bindingHandlers.$life = {\n  init: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(element, valueAccessor, allBindings, viewModel, bindingContext)</span> </span>{\n    fw.utils.domNodeDisposal.addDisposeCallback(element, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n      <span class="hljs-keyword">if</span>( isViewModel(viewModel) ) {\n        viewModel.__shutdown();\n      }\n    });\n  },\n  update: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(element, valueAccessor, allBindings, viewModel, bindingContext)</span> </span>{\n    <span class="hljs-keyword">var</span> $parent = bindingContext.$parent;\n    <span class="hljs-keyword">if</span>( isObject($parent) &amp;&amp; $parent.__isOutlet ) {\n      $parent.$route().__getOnCompleteCallback()(element.parentElement);\n    } <span class="hljs-keyword">else</span> {\n      componentTriggerAfterBinding(element.parentElement, bindingContext.$data);\n    }\n  }\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-73" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-73">&#182;</a>\r\n          </div>\r\n          <p>Custom loader used to wrap components with the $life custom binding</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> componentWrapperTemplate = <span class="hljs-string">\'&lt;!-- ko $life --&gt;COMPONENT_MARKUP&lt;!-- /ko --&gt;\'</span>;\nfw.components.loaders.unshift( fw.components.componentWrapper = {\n  loadTemplate: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(componentName, config, callback)</span> </span>{\n    <span class="hljs-keyword">if</span>( !isNativeComponent(componentName) ) {</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-74" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-74">&#182;</a>\r\n          </div>\r\n          <p>TODO: Handle different types of configs</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>      <span class="hljs-keyword">if</span>( isString(config) ) {\n        config = componentWrapperTemplate.replace(<span class="hljs-regexp">/COMPONENT_MARKUP/</span>, config);\n      } <span class="hljs-keyword">else</span> {\n        <span class="hljs-keyword">throw</span> <span class="hljs-string">\'Unhandled config type \'</span> + <span class="hljs-keyword">typeof</span> config + <span class="hljs-string">\'.\'</span>;\n      }\n      fw.components.defaultLoader.loadTemplate(componentName, config, callback);\n    } <span class="hljs-keyword">else</span> {\n      callback(<span class="hljs-literal">null</span>);\n    }\n  },\n  loadViewModel: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(componentName, config, callback)</span> </span>{\n    <span class="hljs-keyword">var</span> ViewModel = config.viewModel || config;\n    <span class="hljs-keyword">if</span>( !isNativeComponent(componentName) ) {\n      callback(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(params, componentInfo)</span> </span>{\n        <span class="hljs-keyword">var</span> $context = fw.contextFor(componentInfo.element);\n        <span class="hljs-keyword">var</span> LoadedViewModel = ViewModel;\n        <span class="hljs-keyword">if</span>( isFunction(ViewModel) ) {\n          <span class="hljs-keyword">if</span>( !isViewModelCtor(ViewModel) ) {\n            ViewModel = makeViewModel({ initialize: ViewModel });\n          }</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-75" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-75">&#182;</a>\r\n          </div>\r\n          <p>inject the context into the ViewModel contructor</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>          LoadedViewModel = ViewModel.compose({\n            _preInit: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\n              <span class="hljs-keyword">this</span>.$context = $context;\n            }\n          });\n          <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> LoadedViewModel(params);\n        }\n        <span class="hljs-keyword">return</span> LoadedViewModel;\n      });\n    } <span class="hljs-keyword">else</span> {\n      callback(<span class="hljs-literal">null</span>);\n    }\n  }\n});</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-76" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-76">&#182;</a>\r\n          </div>\r\n          <p>The footwork getConfig loader is a catch-all in the instance a registered component cannot be found.\nThe loader will attempt to use requirejs via knockouts integrated support if it is available.</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>fw.components.loaders.push( fw.components.requireLoader = {\n  getConfig: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(componentName, callback)</span> </span>{\n    <span class="hljs-keyword">var</span> combinedFile = getComponentFileName(componentName, <span class="hljs-string">\'combined\'</span>);\n    <span class="hljs-keyword">var</span> viewModelFile = getComponentFileName(componentName, <span class="hljs-string">\'viewModel\'</span>);\n    <span class="hljs-keyword">var</span> templateFile = getComponentFileName(componentName, <span class="hljs-string">\'template\'</span>);\n    <span class="hljs-keyword">var</span> componentLocation = getComponentResourceLocation(componentName);\n    <span class="hljs-keyword">var</span> configOptions = <span class="hljs-literal">null</span>;\n    <span class="hljs-keyword">var</span> viewModelPath;\n    <span class="hljs-keyword">var</span> templatePath;\n    <span class="hljs-keyword">var</span> combinedPath;\n\n    <span class="hljs-keyword">if</span>( isFunction(<span class="hljs-built_in">require</span>) ) {</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-77" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-77">&#182;</a>\r\n          </div>\r\n          <p>load component using knockouts native support for requirejs</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>      <span class="hljs-keyword">if</span>( <span class="hljs-built_in">require</span>.defined(componentName) ) {</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-78" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-78">&#182;</a>\r\n          </div>\r\n          <p>component already cached, lets use it</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>        configOptions = {\n          <span class="hljs-built_in">require</span>: componentName\n        };\n      } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isString(componentLocation.combined) ) {\n        combinedPath = componentLocation.combined;\n\n        <span class="hljs-keyword">if</span>( isPath(combinedPath) ) {\n          combinedPath = combinedPath + combinedFile;\n        }\n\n        configOptions = {\n          <span class="hljs-built_in">require</span>: combinedPath\n        };\n      } <span class="hljs-keyword">else</span> {\n        viewModelPath = componentLocation.viewModels;\n        templatePath = <span class="hljs-string">\'text!\'</span> + componentLocation.templates;\n\n        <span class="hljs-keyword">if</span>( isPath(viewModelPath) ) {\n          viewModelPath = viewModelPath + viewModelFile;\n        }\n        <span class="hljs-keyword">if</span>( isPath(templatePath) ) {\n          templatePath = templatePath + templateFile;\n        }</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-79" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-79">&#182;</a>\r\n          </div>\r\n          <p>check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>        <span class="hljs-keyword">var</span> viewModelConfig = { <span class="hljs-built_in">require</span>: viewModelPath };\n        <span class="hljs-keyword">if</span>( componentTemplateOnlyRegister[componentName] ) {\n          viewModelConfig = { instance: {} };\n        }\n\n        configOptions = {\n          viewModel: viewModelConfig,\n          template: { <span class="hljs-built_in">require</span>: templatePath }\n        };\n      }\n    }\n\n    callback(configOptions);\n  }\n});\n\n<span class="hljs-keyword">var</span> noParentViewModelError = { getNamespaceName: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-string">\'NO-VIEWMODEL-IN-CONTEXT\'</span>; } };</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-80" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-80">&#182;</a>\r\n          </div>\r\n          <p>This custom binding binds the outlet element to the $outlet on the router, changes on its ‘route’ (component definition observable) will be applied\nto the UI and load in various views</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>fw.virtualElements.allowedBindings.$bind = <span class="hljs-literal">true</span>;\nfw.bindingHandlers.$bind = {\n  init: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(element, valueAccessor, allBindings, outletViewModel, bindingContext)</span> </span>{\n    <span class="hljs-keyword">var</span> $parentViewModel = ( isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);\n    <span class="hljs-keyword">var</span> $parentRouter = nearestParentRouter(bindingContext);\n    <span class="hljs-keyword">var</span> outletName = outletViewModel.outletName;\n\n    <span class="hljs-keyword">if</span>( isRouter($parentRouter) ) {</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-81" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-81">&#182;</a>\r\n          </div>\r\n          <p>register this outlet with the router so that updates will propagate correctly\ntake the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>      outletViewModel.$route = $parentRouter.$outlet( outletName );\n    } <span class="hljs-keyword">else</span> {\n      <span class="hljs-keyword">throw</span> <span class="hljs-string">\'Outlet [\'</span> + outletName + <span class="hljs-string">\'] defined inside of viewModel [\'</span> + $parentViewModel.getNamespaceName() + <span class="hljs-string">\'] but no router was defined.\'</span>;\n    }\n  }\n};\n\nfw.components.register(<span class="hljs-string">\'outlet\'</span>, {\n  autoIncrement: <span class="hljs-literal">true</span>,\n  viewModel: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(params)</span> </span>{\n    <span class="hljs-keyword">this</span>.outletName = fw.unwrap(params.name);\n    <span class="hljs-keyword">this</span>.__isOutlet = <span class="hljs-literal">true</span>;\n  },\n  template: <span class="hljs-string">\'&lt;!-- ko $bind, component: $route --&gt;&lt;!-- /ko --&gt;\'</span>\n});\n\nfw.components.register(<span class="hljs-string">\'_noComponentSelected\'</span>, {\n  viewModel: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(params)</span> </span>{\n    <span class="hljs-keyword">this</span>.__assertPresence = <span class="hljs-literal">false</span>;\n  },\n  template: <span class="hljs-string">\'&lt;div class="no-component-selected"&gt;&lt;/div&gt;\'</span>\n});\n\nfw.components.register(<span class="hljs-string">\'error\'</span>, {\n  viewModel: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(params)</span> </span>{\n    <span class="hljs-keyword">this</span>.message = fw.observable(params.message);\n    <span class="hljs-keyword">this</span>.errors = params.errors;\n    <span class="hljs-keyword">this</span>.__assertPresence = <span class="hljs-literal">false</span>;\n  },\n  template: <span class="hljs-string">\'\\\n    &lt;div class="component error" data-bind="foreach: errors"&gt;\\\n      &lt;div class="error"&gt;\\\n        &lt;span class="number" data-bind="text: $index() + 1"&gt;&lt;/span&gt;\\\n        &lt;span class="message" data-bind="text: $data"&gt;&lt;/span&gt;\\\n      &lt;/div&gt;\\\n    &lt;/div&gt;\'</span>\n});</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-82" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-82">&#182;</a>\r\n          </div>\r\n          <h2 id="resource-js">resource.js</h2>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-83" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-83">&#182;</a>\r\n          </div>\r\n          \r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-84" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-84">&#182;</a>\r\n          </div>\r\n          <p>component resource section</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> defaultComponentFileExtensions = {\n  combined: <span class="hljs-string">\'.js\'</span>,\n  viewModel: <span class="hljs-string">\'.js\'</span>,\n  template: <span class="hljs-string">\'.html\'</span>\n};\n\n<span class="hljs-keyword">var</span> componentFileExtensions = fw.components.fileExtensions = fw.observable( clone(defaultComponentFileExtensions) );\n\n<span class="hljs-keyword">var</span> getComponentFileName = fw.components.getFileName = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(componentName, fileType)</span> </span>{\n  <span class="hljs-keyword">var</span> componentExtensions = componentFileExtensions();\n  <span class="hljs-keyword">var</span> fileName = componentName;\n\n  <span class="hljs-keyword">if</span>( isFunction(componentExtensions) ) {\n    fileName += componentExtensions(componentName)[fileType];\n  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isObject(componentExtensions) ) {\n    <span class="hljs-keyword">if</span>( isFunction(componentExtensions[fileType]) ) {\n      fileName += componentExtensions[fileType](componentName);\n    } <span class="hljs-keyword">else</span> {\n      fileName += componentExtensions[fileType] || <span class="hljs-string">\'\'</span>;\n    }\n  }\n\n  <span class="hljs-keyword">return</span> fileName;\n};\n\n<span class="hljs-keyword">var</span> defaultComponentLocation = {\n  combined: <span class="hljs-literal">null</span>,\n  viewModels: <span class="hljs-string">\'/viewModel/\'</span>,\n  templates: <span class="hljs-string">\'/component/\'</span>\n};\n<span class="hljs-keyword">var</span> componentResourceLocations = fw.components.resourceLocations = {};\n<span class="hljs-keyword">var</span> componentDefaultLocation = fw.components.defaultLocation = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(root, updateDefault)</span> </span>{\n  <span class="hljs-keyword">var</span> componentLocation = (isUndefined(updateDefault) || updateDefault === <span class="hljs-literal">true</span>) ? defaultComponentLocation : clone(defaultComponentLocation);\n\n  <span class="hljs-keyword">if</span>( isObject(root) ) {</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-85" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-85">&#182;</a>\r\n          </div>\r\n          <p>assume some combination of defaultComponentLocation and normalize the parameters</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>    extend(componentLocation, reduce(root, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options, paramValue, paramName)</span> </span>{\n      <span class="hljs-keyword">if</span>(paramName === <span class="hljs-string">\'viewModel\'</span>) {\n        options.viewModels = paramValue;\n        <span class="hljs-keyword">delete</span> options.viewModel;\n      } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(paramName === <span class="hljs-string">\'template\'</span>) {\n        options.templates = paramValue;\n        <span class="hljs-keyword">delete</span> options.template;\n      } <span class="hljs-keyword">else</span> {\n        options[paramName] = paramValue;\n      }\n      <span class="hljs-keyword">return</span> options;\n    }, {}));\n  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isString(root) ) {\n    componentLocation = {\n      combined: rootURL,\n      viewModels: <span class="hljs-literal">null</span>,\n      templates: <span class="hljs-literal">null</span>\n    };\n  }\n\n  <span class="hljs-keyword">return</span> componentLocation;\n};\n\n<span class="hljs-keyword">var</span> registerLocationOfComponent = fw.components.registerLocation = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(componentName, componentLocation)</span> </span>{\n  <span class="hljs-keyword">if</span>( isArray(componentName) ) {\n    each(componentName, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(name)</span> </span>{\n      registerLocationOfComponent(name, componentLocation);\n    });\n  }\n  componentResourceLocations[ componentName ] = componentDefaultLocation(componentLocation, <span class="hljs-literal">false</span>);\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-86" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-86">&#182;</a>\r\n          </div>\r\n          <p>Return the component resource definition for the supplied componentName</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> getComponentResourceLocation = fw.components.getResourceLocation = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(componentName)</span> </span>{\n  <span class="hljs-keyword">if</span>( isUndefined(componentName) ) {\n    <span class="hljs-keyword">return</span> componentResourceLocations;\n  }\n  <span class="hljs-keyword">return</span> componentResourceLocations[componentName] || defaultComponentLocation;\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-87" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-87">&#182;</a>\r\n          </div>\r\n          <p>viewModel resource section</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> defaultViewModelFileExtensions = <span class="hljs-string">\'.js\'</span>;\n<span class="hljs-keyword">var</span> viewModelFileExtensions = fw.viewModels.fileExtensions = fw.observable( defaultViewModelFileExtensions );\n\n<span class="hljs-keyword">var</span> getViewModelFileName = fw.viewModels.getFileName = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(viewModelName)</span> </span>{\n  <span class="hljs-keyword">var</span> viewModelExtensions = viewModelFileExtensions();\n  <span class="hljs-keyword">var</span> fileName = viewModelName;\n\n  <span class="hljs-keyword">if</span>( isFunction(viewModelExtensions) ) {\n    fileName += viewModelExtensions(viewModelName);\n  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( isString(viewModelExtensions) ) {\n    fileName += viewModelExtensions;\n  }\n\n  <span class="hljs-keyword">return</span> fileName;\n};\n\n<span class="hljs-keyword">var</span> defaultViewModelLocation = <span class="hljs-string">\'/viewModel/\'</span>;\n<span class="hljs-keyword">var</span> viewModelResourceLocations = fw.viewModels.resourceLocations = {};\n<span class="hljs-keyword">var</span> viewModelDefaultLocation = fw.viewModels.defaultLocation = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(path, updateDefault)</span> </span>{\n  <span class="hljs-keyword">var</span> viewModelLocation = defaultViewModelLocation;\n\n  <span class="hljs-keyword">if</span>( isString(path) ) {\n    viewModelLocation = path;\n  }\n\n  <span class="hljs-keyword">if</span>(updateDefault) {\n    defaultViewModelLocation = viewModelLocation;\n  }\n\n  <span class="hljs-keyword">return</span> viewModelLocation;\n};\n\n<span class="hljs-keyword">var</span> registeredViewModels = {};\n<span class="hljs-keyword">var</span> registerViewModel = fw.viewModels.register = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(viewModelName, viewModel)</span> </span>{\n  registeredViewModels[viewModelName] = viewModel;\n};\n\n<span class="hljs-keyword">var</span> isRegisteredViewModel = fw.viewModels.isRegistered = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(viewModelName)</span> </span>{\n  <span class="hljs-keyword">return</span> !isUndefined( registeredViewModels[viewModelName] );\n};\n\n<span class="hljs-keyword">var</span> getRegisteredViewModel = fw.viewModels.getRegistered = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(viewModelName)</span> </span>{\n  <span class="hljs-keyword">return</span> registeredViewModels[viewModelName];\n};\n\n<span class="hljs-keyword">var</span> registerLocationOfViewModel = fw.viewModels.registerLocation = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(viewModelName, viewModelLocation)</span> </span>{\n  <span class="hljs-keyword">if</span>( isArray(viewModelName) ) {\n    each(viewModelName, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(name)</span> </span>{\n      registerLocationOfViewModel(name, viewModelLocation);\n    });\n  }\n  viewModelResourceLocations[ viewModelName ] = viewModelDefaultLocation(viewModelLocation, <span class="hljs-literal">false</span>);\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-88" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-88">&#182;</a>\r\n          </div>\r\n          <p>Return the viewModel resource definition for the supplied viewModelName</p>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre><span class="hljs-keyword">var</span> getViewModelResourceLocation = fw.viewModels.getResourceLocation = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(viewModelName)</span> </span>{\n  <span class="hljs-keyword">if</span>( isUndefined(viewModelName) ) {\n    <span class="hljs-keyword">return</span> viewModelResourceLocations;\n  }\n  <span class="hljs-keyword">return</span> viewModelResourceLocations[viewModelName] || getComponentResourceLocation(viewModelName).viewModels || defaultViewModelLocation;\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n    \r\n    <li id="section-89" class="section">\r\n        <div class="annotation">\r\n          \r\n          <div class="pilwrap ">\r\n            <a class="pilcrow" href="#section-89">&#182;</a>\r\n          </div>\r\n          <h2 id="extenders-js">extenders.js</h2>\n\r\n          <div class="annotation-bg"></div>\r\n        </div>\r\n        \r\n        <div class="content"><div class=\'highlight\'><pre>\r\nfw.extenders.debounce = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(target, opt)</span> </span>{\r\n  <span class="hljs-keyword">if</span>( isNumber(opt) ) {\r\n    opt = {\r\n      timeout: opt,\r\n      when: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>; } <span class="hljs-comment">// default always throttle</span>\r\n    };\r\n  }\r\n\r\n  target.throttleEvaluation = opt.timeout;\r\n\r\n  <span class="hljs-keyword">var</span> writeTimeoutInstance = <span class="hljs-literal">null</span>;\r\n  <span class="hljs-keyword">var</span> throttledTarget = fw.computed({\r\n    <span class="hljs-string">\'read\'</span>: target,\r\n    <span class="hljs-string">\'write\'</span>: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(value)</span> </span>{\r\n      <span class="hljs-keyword">if</span>( opt.when(value) ) {\r\n        clearTimeout(writeTimeoutInstance);\r\n        writeTimeoutInstance = setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\r\n          target(value);\r\n        }, opt.timeout);\r\n      } <span class="hljs-keyword">else</span> {\r\n        clearTimeout(writeTimeoutInstance);\r\n        target(value);\r\n      }\r\n    }\r\n  });\r\n\r\n  throttledTarget.force = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( value )</span> </span>{\r\n    clearTimeout(writeTimeoutInstance);\r\n    target(value);\r\n  };\r\n\r\n  <span class="hljs-keyword">return</span> throttledTarget;\r\n};\r\n\r\nfw.extenders.autoDisable = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( target, delay )</span> </span>{\r\n  <span class="hljs-keyword">return</span> target.extend({\r\n    delayTrigger: {\r\n      delay: delay || <span class="hljs-number">0</span>,\r\n      trigger: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( target )</span> </span>{ target( <span class="hljs-literal">false</span> ); }\r\n    }\r\n  });\r\n};\r\n\r\nfw.extenders.autoEnable = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( target, delay )</span> </span>{\r\n  <span class="hljs-keyword">return</span> target.extend({\r\n    delayTrigger: {\r\n      delay: delay || <span class="hljs-number">0</span>,\r\n      trigger: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( target )</span> </span>{ target( <span class="hljs-literal">true</span> ); }\r\n    }\r\n  });\r\n};\r\n\r\nfw.extenders.delayTrigger = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( target, options )</span> </span>{\r\n  <span class="hljs-keyword">var</span> delay = <span class="hljs-number">300</span>;\r\n  <span class="hljs-keyword">var</span> triggerFunc = noop;\r\n  <span class="hljs-keyword">var</span> trigger;\r\n\r\n  <span class="hljs-keyword">if</span>( isObject(options) ) {\r\n    delay = !<span class="hljs-built_in">isNaN</span>( options.delay ) &amp;&amp; <span class="hljs-built_in">parseInt</span>( options.delay, <span class="hljs-number">10</span> ) || delay;\r\n    triggerFunc = options.trigger || triggerFunc;\r\n  } <span class="hljs-keyword">else</span> {\r\n    delay = !<span class="hljs-built_in">isNaN</span>( options ) &amp;&amp; <span class="hljs-built_in">parseInt</span>( options, <span class="hljs-number">10</span> ) || delay;\r\n  }\r\n\r\n  <span class="hljs-keyword">var</span> clearTrigger = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\r\n    clearTimeout( trigger );\r\n    trigger = <span class="hljs-literal">undefined</span>;\r\n  };\r\n\r\n  <span class="hljs-keyword">var</span> delayedObservable = fw.computed({\r\n    read: target,\r\n    write: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( state )</span> </span>{\r\n      target( state );\r\n\r\n      <span class="hljs-keyword">if</span>( !isUndefined(trigger) ) {\r\n        clearTrigger();\r\n      }\r\n\r\n      trigger = setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\r\n        triggerFunc( target, options );\r\n      }.bind(target), delayedObservable.triggerDelay);\r\n    }\r\n  });\r\n  delayedObservable.clearTrigger = clearTrigger;\r\n  delayedObservable.triggerDelay = delay;\r\n\r\n  <span class="hljs-keyword">return</span> delayedObservable;\r\n};\r\n\r\nfw.extenders.delayWrite = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( target, options )</span> </span>{\r\n  <span class="hljs-keyword">var</span> filter;\r\n  <span class="hljs-keyword">var</span> delay = <span class="hljs-number">300</span>;\r\n\r\n  <span class="hljs-keyword">if</span>( isObject(options) ) {\r\n    delay = !<span class="hljs-built_in">isNaN</span>( options.delay ) &amp;&amp; <span class="hljs-built_in">parseInt</span>( options.delay, <span class="hljs-number">10</span> ) || delay;\r\n    filter = options.filter || <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>; };\r\n  } <span class="hljs-keyword">else</span> {\r\n    delay = !<span class="hljs-built_in">isNaN</span>( options ) &amp;&amp; <span class="hljs-built_in">parseInt</span>( options, <span class="hljs-number">10</span> ) || delay;\r\n  }\r\n\r\n  <span class="hljs-keyword">return</span> fw.computed({\r\n    read: target,\r\n    write: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( writeValue )</span> </span>{\r\n      <span class="hljs-keyword">if</span>( filter( writeValue ) ) {\r\n        <span class="hljs-keyword">if</span>(target._delayWriteTimer) {\r\n          clearTimeout( <span class="hljs-keyword">this</span>._delayWriteTimer );\r\n        }\r\n        target._delayWriteTimer = setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{\r\n          target( writeValue );\r\n        }, delay);\r\n      } <span class="hljs-keyword">else</span> {\r\n        target( writeValue );\r\n      }\r\n    }\r\n  });\r\n};</pre></div></div>\r\n        \r\n    </li>\r\n    \r\n</ul><div id="metaData">\r\n{\r\n  "title": "Annotated Source",\r\n  "sections": [\r\n    { "anchor": "main-js", "title": "main.js" },\r\n    { "anchor": "namespace-js", "title": "namespace.js" },\r\n    { "anchor": "broadcast-receive-js", "title": "broadcast-receive.js" },\r\n    { "anchor": "router-js", "title": "router.js" },\r\n    { "anchor": "viewmodel-js", "title": "viewModel.js" },\r\n    { "anchor": "component-js", "title": "component.js" },\r\n    { "anchor": "extenders-js", "title": "extenders.js" }\r\n  ],\r\n  "anchorOffset": 60\r\n}\r\n</div>';});
+define('text!../../pages/annotated-page.html',[],function () { return '<div class="docco" data-bind="stopBinding: true">\r\n  <ul class="sections">\r\n      \r\n        \r\n        <li id="section-1" class="section">\r\n            <div class="annotation">\r\n              <h2 id="footwork-js">footwork.js</h2>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-2" class="section">\r\n            <div class="annotation">\r\n              <p>v0.2.0</p>\n<p>Copyright (c)2014 Jonathan Newman (<a href="http://staticty.pe">http://staticty.pe</a>).\nDistributed under MIT license</p>\n<p><a href="http://footworkjs.com">http://footworkjs.com</a></p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">/**\n * footwork.js - A solid footing for web applications.\n * Author: Jonathan Newman (http://staticty.pe)\n * Version: v0.2.0\n * Url: http://footworkjs.com\n * License(s): MIT\n */</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-3" class="section">\r\n            <div class="annotation">\r\n              <h2 id="main-js">main.js</h2>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-4" class="section">\r\n            <div class="annotation">\r\n              <p>Map ko to the variable ‘fw’ internally to make it clear this is the ‘footwork’ flavored version of knockout we are dealing with.\nFootwork will also map itself to ‘fw’ on the global object when no script loader is used.</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var fw = ko;</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-5" class="section">\r\n            <div class="annotation">\r\n              <p>Record the footwork version as of this build.</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">fw.footworkVersion = \'0.2.0\';</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-6" class="section">\r\n            <div class="annotation">\r\n              <p>Expose any embedded dependencies</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">fw.embed = embedded;</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-7" class="section">\r\n            <div class="annotation">\r\n              <p>misc regex patterns</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var hasTrailingSlash = /\\/$/i;\r\nvar hasStartingSlash = /^\\//i;</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-8" class="section">\r\n            <div class="annotation">\r\n              <p>misc utility functions</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var noop = function() { };\r\n\r\nvar isObservable = fw.isObservable;\r\n\r\nvar isPath = function(pathOrFile) {\r\n  return hasTrailingSlash.test(pathOrFile);\r\n};\r\n\r\nvar hasPathStart = function(path) {\r\n  return hasStartingSlash.test(path);\r\n};\r\n\r\nfunction hasClass(element, className) {\r\n  return element.className.match( new RegExp(\'(\\\\s|^)\' + className + \'(\\\\s|$)\') );\r\n}\r\n\r\nfunction addClass(element, className) {\r\n  if( !hasClass(element, className) ) {\r\n    element.className += (element.className.length ? \' \' : \'\') + className;\r\n  }\r\n}\r\n\r\nfunction removeClass(element, className) {\r\n  if( hasClass(element, className) ) {\r\n    var classNameRegex = new RegExp(\'(\\\\s|^)\' + className + \'(\\\\s|$)\');\r\n    element.className = element.className.replace(classNameRegex, \' \');\r\n  }\r\n}</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-9" class="section">\r\n            <div class="annotation">\r\n              <p>Pull out lodash utility function references for better minification and easier implementation swap</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var isFunction = _.isFunction;\r\nvar isObject = _.isObject;\r\nvar isString = _.isString;\r\nvar isBoolean = _.isBoolean;\r\nvar isNumber = _.isNumber;\r\nvar isUndefined = _.isUndefined;\r\nvar isArray = _.isArray;\r\nvar isNull = _.isNull;\r\nvar contains = _.contains;\r\nvar extend = _.extend;\r\nvar pick = _.pick;\r\nvar each = _.each;\r\nvar filter = _.filter;\r\nvar bind = _.bind;\r\nvar invoke = _.invoke;\r\nvar clone = _.clone;\r\nvar reduce = _.reduce;\r\nvar has = _.has;\r\nvar where = _.where;\r\nvar result = _.result;\r\nvar uniqueId = _.uniqueId;\r\nvar map = _.map;\r\nvar find = _.find;\r\nvar omit = _.omit;\r\nvar indexOf = _.indexOf;\r\nvar values = _.values;\r\nvar reject = _.reject;\r\nvar findWhere = _.findWhere;\r\nvar once = _.once;</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-10" class="section">\r\n            <div class="annotation">\r\n              <p>Internal registry which stores the mixins that are automatically added to each viewModel</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var viewModelMixins = [];</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-11" class="section">\r\n            <div class="annotation">\r\n              <p>parseUri() originally sourced from: <a href="http://blog.stevenlevithan.com/archives/parseuri">http://blog.stevenlevithan.com/archives/parseuri</a></p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">function parseUri(str) {\r\n  var options = parseUri.options;\r\n  var matchParts = options.parser[ options.strictMode ? "strict" : "loose" ].exec(str);\r\n  var uri = {};\r\n  var i = 14;\r\n\r\n  while (i--) {\r\n    uri[ options.key[i] ] = matchParts[i] || "";\r\n  }\r\n\r\n  uri[ options.q.name ] = {};\r\n  uri[ options.key[12] ].replace(options.q.parser, function ($0, $1, $2) {\r\n    if($1) {\r\n      uri[options.q.name][$1] = $2;\r\n    }\r\n  });\r\n\r\n  return uri;\r\n};\r\n\r\nparseUri.options = {\r\n  strictMode: false,\r\n  key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],\r\n  q: {\r\n    name:   "queryKey",\r\n    parser: /(?:^|&)([^&=]*)=?([^&]*)/g\r\n  },\r\n  parser: {\r\n    strict: /^(?:([^:\\/?#]+):)?(?:\\/\\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\\/?#]*)(?::(\\d*))?))?((((?:[^?#\\/]*\\/)*)([^?#]*))(?:\\?([^#]*))?(?:#(.*))?)/,\r\n    loose:  /^(?:(?![^:@]+:[^:@\\/]*@)([^:\\/?#.]+):)?(?:\\/\\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\\/?#]*)(?::(\\d*))?)(((\\/(?:[^?#](?![^?#\\/]*\\.[^?#\\/.]+(?:[?#]|$)))*\\/?)?([^?#\\/]*))(?:\\?([^#]*))?(?:#(.*))?)/\r\n  }\r\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-12" class="section">\r\n            <div class="annotation">\r\n              <h2 id="namespace-js">namespace.js</h2>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-13" class="section">\r\n            <div class="annotation">\r\n              \r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-14" class="section">\r\n            <div class="annotation">\r\n              <p>This counter is used when model options { autoIncrement: true } and more than one model\nhaving the same namespace is instantiated. This is used in the event you do not want\nmultiple copies of the same model to share the same namespace (if they do share a\nnamespace, they receive all of the same events/messages/commands/etc).</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var namespaceNameCounter = {};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-15" class="section">\r\n            <div class="annotation">\r\n              <p>Prepare an empty namespace stack.\nThis is where footwork registers its current working namespace name. Each new namespace is\n‘unshifted’ and ‘shifted’ as they are entered and exited, keeping the most current at\nindex 0.</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var namespaceStack = [];</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-16" class="section">\r\n            <div class="annotation">\r\n              <p>Returns a normalized namespace name based off of ‘name’. It will register the name counter\nif not present and increment it if it is, then return the name (with the counter appended\nif autoIncrement === true and the counter is &gt; 0).</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">function indexedNamespaceName(name, autoIncrement) {\n  if( isUndefined(namespaceNameCounter[name]) ) {\n    namespaceNameCounter[name] = 0;\n  } else {\n    namespaceNameCounter[name]++;\n  }\n  return name + (autoIncrement === true ? namespaceNameCounter[name] : \'\');\n}\n\nfunction createEnvelope(topic, data, expires) {\n  var envelope = {\n    topic: topic,\n    data: data\n  };\n\n  if( !isUndefined(expires) ) {\n    envelope.headers = { preserve: true };\n    if(expires instanceof Date) {\n      envelope.expires = expires;\n    }\n  }\n  \n  return envelope;\n}</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-17" class="section">\r\n            <div class="annotation">\r\n              <p>Method used to trigger an event on a namespace</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">function triggerEventOnNamespace(eventKey, params, expires) {\n  this.publish( createEnvelope(\'event.\' + eventKey, params, expires) );\n  return this;\n}</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-18" class="section">\r\n            <div class="annotation">\r\n              <p>Method used to register an event handler on a namespace</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">function registerNamespaceEventHandler(eventKey, callback, context) {\n  if( !isUndefined(context) ) {\n    callback = bind(callback, context);\n  }\n\n  var handlerSubscription = this.subscribe(\'event.\' + eventKey, callback).enlistPreserved();\n  this.eventHandlers.push(handlerSubscription);\n\n  return handlerSubscription;\n}</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-19" class="section">\r\n            <div class="annotation">\r\n              <p>Method used to unregister an event handler on a namespace</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">function unregisterNamespaceHandler(handlerSubscription) {\n  handlerSubscription.unsubscribe();\n  return this;\n}</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-20" class="section">\r\n            <div class="annotation">\r\n              <p>Method used to send a command to a namespace</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">function sendCommandToNamespace(commandKey, params, expires) {\n  this.publish( createEnvelope(\'command.\' + commandKey, params, expires) );\n  return this;\n}</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-21" class="section">\r\n            <div class="annotation">\r\n              <p>Method used to register a command handler on a namespace</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">function registerNamespaceCommandHandler(commandKey, callback, context) {\n  if( !isUndefined(context) ) {\n    callback = bind(callback, context);\n  }\n\n  var handlerSubscription = this.subscribe(\'command.\' + commandKey, callback).enlistPreserved();\n  this.commandHandlers.push(handlerSubscription);\n\n  return handlerSubscription;\n}</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-22" class="section">\r\n            <div class="annotation">\r\n              <p>Method used to issue a request for data from a namespace, returning the response (or undefined if no response)\nThis method will return an array of responses if more than one is received.</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">function requestResponseFromNamespace(requestKey, params, allowMultipleResponses) {\n  var response = undefined;\n  var responseSubscription;\n\n  responseSubscription = this.subscribe(\'request.\' + requestKey + \'.response\', function(reqResponse) {\n    if( isUndefined(response) ) {\n      response = allowMultipleResponses ? [reqResponse] : reqResponse;\n    } else if(allowMultipleResponses) {\n      response.push(reqResponse);\n    }\n  });\n\n  this.publish( createEnvelope(\'request.\' + requestKey, params) );\n  responseSubscription.unsubscribe();\n\n  return response;\n}</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-23" class="section">\r\n            <div class="annotation">\r\n              <p>Method used to register a request handler on a namespace.\nRequests sent using the specified requestKey will be called and passed in any params specified, the return value is passed back to the issuer</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">function registerNamespaceRequestHandler(requestKey, callback, context) {\n  if( !isUndefined(context) ) {\n    callback = bind(callback, context);\n  }\n\n  var requestHandler = bind(function(params) {\n    var callbackResponse = callback(params);\n    this.publish( createEnvelope(\'request.\' + requestKey + \'.response\', callbackResponse) );\n  }, this);\n\n  var handlerSubscription = this.subscribe(\'request.\' + requestKey, requestHandler);\n  this.requestHandlers.push(handlerSubscription);\n\n  return handlerSubscription;\n}</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-24" class="section">\r\n            <div class="annotation">\r\n              <p>This effectively shuts down all requests, commands, and events by unsubscribing all handlers on a discreet namespace object</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">function disconnectNamespaceHandlers() {\n  invoke(this.requestHandlers, \'unsubscribe\');\n  invoke(this.commandHandlers, \'unsubscribe\');\n  invoke(this.eventHandlers, \'unsubscribe\');\n  return this;\n}\n\nfunction getNamespaceName() {\n  return this.channel;\n}</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-25" class="section">\r\n            <div class="annotation">\r\n              <p>Creates and returns a new namespace instance</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var makeNamespace = fw.namespace = function(namespaceName, $parentNamespace) {\n  if( !isUndefined($parentNamespace) ) {\n    if( isString($parentNamespace) ) {\n      namespaceName = $parentNamespace + \'.\' + namespaceName;\n    } else if( !isUndefined($parentNamespace.channel) ) {\n      namespaceName = $parentNamespace.channel + \'.\' + namespaceName;\n    }\n  }\n  var namespace = postal.channel(namespaceName);\n\n  namespace.__isNamespace = true;\n  namespace.shutdown = bind( disconnectNamespaceHandlers, namespace );\n\n  namespace.commandHandlers = [];\n  namespace.command = bind( sendCommandToNamespace, namespace );\n  namespace.command.handler = bind( registerNamespaceCommandHandler, namespace );\n  namespace.command.handler.unregister = bind( unregisterNamespaceHandler, namespace );\n\n  namespace.requestHandlers = [];\n  namespace.request = bind( requestResponseFromNamespace, namespace );\n  namespace.request.handler = bind( registerNamespaceRequestHandler, namespace );\n  namespace.request.handler.unregister = bind( unregisterNamespaceHandler, namespace );\n\n  namespace.eventHandlers = [];\n  namespace.event = namespace.trigger = bind( triggerEventOnNamespace, namespace );\n  namespace.event.handler = bind( registerNamespaceEventHandler, namespace );\n  namespace.event.handler.unregister = bind( unregisterNamespaceHandler, namespace );\n\n  namespace.getName = bind( getNamespaceName, namespace );\n  namespace.enter = function() {\n    return enterNamespace( this );\n  };\n  namespace.exit = function() {\n    if( currentNamespaceName() === this.getName() ) {\n      return exitNamespace();\n    }\n  };\n\n  return namespace;\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-26" class="section">\r\n            <div class="annotation">\r\n              <p>Duck type check for a namespace object</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var isNamespace = fw.isNamespace = function(thing) {\n  return !isUndefined(thing) && !!thing.__isNamespace;\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-27" class="section">\r\n            <div class="annotation">\r\n              <p>Return the current namespace name.</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var currentNamespaceName = fw.currentNamespaceName = function() {\n  return namespaceStack[0];\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-28" class="section">\r\n            <div class="annotation">\r\n              <p>Return the current namespace channel.</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var currentNamespace = fw.currentNamespace = function() {\n  return makeNamespace( currentNamespaceName() );\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-29" class="section">\r\n            <div class="annotation">\r\n              <p>enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, \n‘entering’ into that namespace (it is now the currentNamespace).\nThe namespace object returned from this method also has a pointer to its parent</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var enterNamespaceName = fw.enterNamespaceName = function(namespaceName) {\n  var $parentNamespace = currentNamespace();\n  namespaceStack.unshift( namespaceName );\n  return makeNamespace( currentNamespaceName() );\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-30" class="section">\r\n            <div class="annotation">\r\n              <p>enterNamespace() uses a current namespace definition as the one to enter into.</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var enterNamespace = fw.enterNamespace = function(namespace) {\n  namespaceStack.unshift( namespace.getName() );\n  return namespace;\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-31" class="section">\r\n            <div class="annotation">\r\n              <p>Called at the after a model constructor function is run. exitNamespace()\nwill shift the current namespace off of the stack, ‘exiting’ to the\nnext namespace in the stack</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var exitNamespace = fw.exitNamespace = function() {\n  namespaceStack.shift();\n  return currentNamespace();\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-32" class="section">\r\n            <div class="annotation">\r\n              <p>mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">viewModelMixins.push({\n  runBeforeInit: true,\n  _preInit: function( options ) {\n    var $configParams = this.__getConfigParams();\n    this.$namespace = enterNamespaceName( indexedNamespaceName($configParams.componentNamespace || $configParams.namespace || $configParams.name || _.uniqueId(\'namespace\'), $configParams.autoIncrement) );\n    this.$globalNamespace = makeNamespace();\n  },\n  mixin: {\n    getNamespaceName: function() {\n      return this.$namespace.getName();\n    }\n  },\n  _postInit: function( options ) {\n    exitNamespace();\n  }\n});\r\nvar $globalNamespace = makeNamespace();</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-33" class="section">\r\n            <div class="annotation">\r\n              <h2 id="broadcast-receive-js">broadcast-receive.js</h2>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">function isReceiver(thing) {\r\n  return isObject(thing) && !!thing.__isReceiver;\r\n}\r\n\r\nfunction isBroadcaster(thing) {\r\n  return isObject(thing) && !!thing.__isBroadcaster;\r\n}</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-34" class="section">\r\n            <div class="annotation">\r\n              <pre><code><span class="hljs-keyword">this</span>.myValue = fw.observable().receiveFrom(<span class="hljs-string">\'NamespaceName\'</span> / Namespace, <span class="hljs-string">\'varName\'</span>);\n</code></pre>\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">fw.subscribable.fn.receiveFrom = function(namespace, variable) {\r\n  var target = this;\r\n  var observable = this;\r\n  var namespaceSubscriptions = [];\r\n  var isLocalNamespace = false;\r\n\r\n  if( isString(namespace) ) {\r\n    namespace = makeNamespace( namespace );\r\n    isLocalNamespace = true;\r\n  }\r\n\r\n  if( !isNamespace(namespace) ) {\r\n    throw \'Invalid namespace provided for receiveFrom() observable.\';\r\n  }\r\n\r\n  observable = fw.computed({\r\n    read: target,\r\n    write: function( value ) {\r\n      namespace.publish( \'__change.\' + variable, value );\r\n    }\r\n  });\r\n\r\n  observable.refresh = function() {\r\n    namespace.publish( \'__refresh.\' + variable );\r\n    return this;\r\n  };\r\n\r\n  namespaceSubscriptions.push( namespace.subscribe( variable, function( newValue ) {\r\n    target( newValue );\r\n  }) );\r\n\r\n  var observableDispose = observable.dispose;\r\n  observable.dispose = observable.shutdown = function() {\r\n    invoke(namespaceSubscriptions, \'unsubscribe\');\r\n    if( isLocalNamespace ) {\r\n      namespace.shutdown();\r\n    }\r\n    observableDispose.call(observable);\r\n  };\r\n\r\n  observable.__isReceiver = true;\r\n  return observable.refresh();\r\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-35" class="section">\r\n            <div class="annotation">\r\n              <pre><code><span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs(<span class="hljs-string">\'NameOfVar\'</span>);\n<span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs(<span class="hljs-string">\'NameOfVar\'</span>, isWritable);\n<span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs({ name: <span class="hljs-string">\'NameOfVar\'</span>, writable: <span class="hljs-literal">true</span> });\n<span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs({ name: <span class="hljs-string">\'NameOfVar\'</span>, namespace: Namespace });\n<span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs({ name: <span class="hljs-string">\'NameOfVar\'</span>, namespace: <span class="hljs-string">\'NamespaceName\'</span> });\n</code></pre>\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">fw.subscribable.fn.broadcastAs = function(varName, option) {\r\n  var observable = this;\r\n  var namespace;\r\n  var subscriptions = [];\r\n  var namespaceSubscriptions = [];\r\n  var isLocalNamespace = false;\r\n\r\n  if( isObject(varName) ) {\r\n    option = varName;\r\n  } else {\r\n    if( isBoolean(option) ) {\r\n      option = {\r\n        name: varName,\r\n        writable: option\r\n      };\r\n    } else if( isObject(option) ) {\r\n      option = extend({\r\n        name: varName\r\n      }, option);\r\n    } else {\r\n      option = {\r\n        name: varName\r\n      };\r\n    }\r\n  }\r\n\r\n  namespace = option.namespace || currentNamespace();\r\n  if( isString(namespace) ) {\r\n    namespace = makeNamespace(namespace);\r\n    isLocalNamespace = true;\r\n  }\r\n\r\n  if( !isNamespace(namespace) ) {\r\n    throw \'Invalid namespace provided for broadcastAs() observable.\';\r\n  }\r\n\r\n  if( option.writable ) {\r\n    namespaceSubscriptions.push( namespace.subscribe( \'__change.\' + option.name, function( newValue ) {\r\n      observable( newValue );\r\n    }) );\r\n  }\r\n\r\n  observable.broadcast = function() {\r\n    namespace.publish( option.name, observable() );\r\n    return this;\r\n  };\r\n\r\n  namespaceSubscriptions.push( namespace.subscribe( \'__refresh.\' + option.name, function() {\r\n    namespace.publish( option.name, observable() );\r\n  }) );\r\n  subscriptions.push( observable.subscribe(function( newValue ) {\r\n    namespace.publish( option.name, newValue );\r\n  }) );\r\n\r\n  observable.dispose = observable.shutdown = function() {\r\n    invoke(namespaceSubscriptions, \'unsubscribe\');\r\n    invoke(subscriptions, \'dispose\');\r\n    if( isLocalNamespace ) {\r\n      namespace.shutdown();\r\n    }\r\n  };\r\n\r\n  observable.__isBroadcaster = true;\r\n  return observable.broadcast();\r\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-36" class="section">\r\n            <div class="annotation">\r\n              <h2 id="router-js">router.js</h2>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-37" class="section">\r\n            <div class="annotation">\r\n              \r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-38" class="section">\r\n            <div class="annotation">\r\n              <p>Predicate function that always returns true / ‘pass’</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var alwaysPassPredicate = function() { return true; };\n\nvar emptyStringResult = function() { return \'\'; };\n\nvar routerDefaultConfig = {\n  namespace: \'$router\',\n  baseRoute: null,\n  isRelative: true,\n  activate: true,\n  setHref: true,\n  routes: []\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-39" class="section">\r\n            <div class="annotation">\r\n              <p>Regular expressions used to parse a uri</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var optionalParamRegex = /\\((.*?)\\)/g;\nvar namedParamRegex = /(\\(\\?)?:\\w+/g;\nvar splatParamRegex = /\\*\\w*/g;\nvar escapeRegex = /[\\-{}\\[\\]+?.,\\\\\\^$|#\\s]/g;\nvar hashMatchRegex = /(^\\/#)/;\nvar isFullURLRegex = /(^[a-z]+:\\/\\/|^\\/\\/)/i;\nvar routesAreCaseSensitive = true;\n\nvar invalidRoutePathIdentifier = \'___invalid-route\';\n\nvar $nullRouter = extend({}, $baseRouter, {\n  childRouters: extend( bind(noop), { push: noop } ),\n  path: function() { return \'\'; },\n  isRelative: function() { return false; },\n  __isNullRouter: true\n});\n\nvar $baseRouter = {\n  path: emptyStringResult,\n  segment: emptyStringResult,\n  childRouters: fw.observableArray(),\n  context: noop,\n  __isRouter: true\n};\n\nvar baseRoute = {\n  controller: noop,\n  indexedParams: [],\n  namedParams: {},\n  __isRoute: true\n};\n\nvar baseRouteDescription = {\n  filter: alwaysPassPredicate,\n  __isRouteDesc: true\n};\n\nfunction transformRouteConfigToDesc(routeDesc) {\n  return extend({ id: uniqueId(\'route\') }, baseRouteDescription, routeDesc );\n}</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-40" class="section">\r\n            <div class="annotation">\r\n              <p>Convert a route string to a regular expression which is then used to match a uri against it and determine\nwhether that uri matches the described route as well as parse and retrieve its tokens</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">function routeStringToRegExp(routeString) {\n  routeString = routeString\n    .replace(escapeRegex, "\\\\$&")\n    .replace(optionalParamRegex, "(?:$1)?")\n    .replace(namedParamRegex, function(match, optional) {\n      return optional ? match : "([^\\/]+)";\n    })\n    .replace(splatParamRegex, "(.*?)");\n\n  return new RegExp(\'^\' + routeString + (routeString !== \'/\' ? \'(\\\\/.*)*$\' : \'$\'), routesAreCaseSensitive ? undefined : \'i\');\n}\n\nfunction historyIsReady() {\n  var isReady = has(History, \'Adapter\');\n  if(isReady && isUndefined(History.Adapter.unbind)) {</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-41" class="section">\r\n            <div class="annotation">\r\n              <p>why .unbind() is not already present in History.js is beyond me</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">History.Adapter.unbind = function(callback) {\n      each(History.Adapter.handlers, function(handler) {\n        handler.statechange = filter(handler.statechange, function(stateChangeHandler) {\n          return stateChangeHandler !== callback;\n        });\n      });\n    };\n  }\n  return isReady;\n}\n\nfunction isNullRouter(thing) {\n  return isObject(thing) && !!thing.__isNullRouter;\n}\n\nfunction isRouter(thing) {\n  return isObject(thing) && !!thing.__isRouter;\n}\n\nfunction isRoute(thing) {\n  return isObject(thing) && !!thing.__isRoute;\n}</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-42" class="section">\r\n            <div class="annotation">\r\n              <p>Recursive function which will locate the nearest $router from a given ko $context\n(travels up through $parentContext chain to find the router if not found on the\nimmediate $context). Returns $nullRouter if none is found.</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">function nearestParentRouter($context) {\n  var $parentRouter = $nullRouter;\n  if( isObject($context) ) {\n    if( isObject($context.$data) && isRouter($context.$data.$router) ) {</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-43" class="section">\r\n            <div class="annotation">\r\n              <p>found router in this context</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">$parentRouter = $context.$data.$router;\n    } else if( isObject($context.$parentContext) || (isObject($context.$data) && isObject($context.$data.$parentContext)) ) {</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-44" class="section">\r\n            <div class="annotation">\r\n              <p>search through next parent up the chain</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">$parentRouter = nearestParentRouter( $context.$parentContext || $context.$data.$parentContext );\n    }\n  }\n  return $parentRouter;\n}\n\nvar noComponentSelected = \'_noComponentSelected\';\nvar $routerOutlet = function(outletName, componentToDisplay, options ) {\n  options = options || {};\n  if( isFunction(options) ) {\n    options = { onComplete: options };\n  }\n  \n  var viewModelParameters = options.params;\n  var onComplete = options.onComplete;\n  var outlets = this.outlets;\n\n  outletName = fw.unwrap( outletName );\n  if( !isObservable(outlets[outletName]) ) {\n    outlets[outletName] = fw.observable({\n      name: noComponentSelected,\n      params: {},\n      __getOnCompleteCallback: function() { return noop; }\n    });\n  }\n\n  var outlet = outlets[outletName];\n  var currentOutletDef = outlet();\n  var valueHasMutated = false;\n  var isInitialLoad = outlet().name === noComponentSelected;\n\n  if( !isUndefined(componentToDisplay) ) {\n    currentOutletDef.name = componentToDisplay;\n    valueHasMutated = true;\n  }\n\n  if( !isUndefined(viewModelParameters) ) {\n    currentOutletDef.params = viewModelParameters;\n    valueHasMutated = true;\n  }\n\n  if( valueHasMutated ) {\n    if( isFunction(onComplete) ) {</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-45" class="section">\r\n            <div class="annotation">\r\n              <p>Return the onComplete callback once the DOM is injected in the page.\nFor some reason, on initial outlet binding only calls update once. Subsequent\nchanges get called twice (correct per docs, once upon initial binding, and once\nupon injection into the DOM). Perhaps due to usage of virtual DOM for the component?</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var callCounter = (isInitialLoad ? 0 : 1);\n\n      currentOutletDef.__getOnCompleteCallback = function() {\n        var isComplete = callCounter === 0;\n        callCounter--;\n        if( isComplete ) {\n          return onComplete;\n        }\n        return noop;\n      };\n    } else {\n      currentOutletDef.__getOnCompleteCallback = function() {\n        return noop;\n      };\n    }\n\n    outlet.valueHasMutated();\n  }\n\n  return outlet;\n};\n\nvar isFullURL = fw.isFullURL = function(thing) {\n  return isString(thing) && isFullURLRegex.test(thing);\n};\n\nvar fwRouters = fw.routers = {</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-46" class="section">\r\n            <div class="annotation">\r\n              <p>Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">baseRoute: fw.observable(\'\'),\n  getNearestParent: function($context) {\n    var $parentRouter = nearestParentRouter($context);\n    return (!isNullRouter($parentRouter) ? $parentRouter : null);\n  },\n  activeRouteClassName: \'active\',</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-47" class="section">\r\n            <div class="annotation">\r\n              <p>Return array of all currently instantiated $router’s</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">getAll: function() {\n    return reduce( $globalNamespace.request(\'__router_reference\', undefined, true), function(routers, router) {\n      var namespaceName = isNamespace(router.$namespace) ? router.$namespace.getName() : null;\n\n      if( !isNull(namespaceName) ) {\n        if( isUndefined(routers[namespaceName]) ) {\n          routers[namespaceName] = router;\n        } else {\n          if( !isArray(routers[namespaceName]) ) {\n            routers[namespaceName] = [ routers[namespaceName] ];\n          }\n          routers[namespaceName].push(router);\n        }\n      }\n      return routers;\n    }, {});\n  }\n};\n\nfw.router = function( routerConfig, $viewModel, $context ) {\n  return new Router( routerConfig, $viewModel, $context );\n};\n\nfw.bindingHandlers.$route = {\n  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {\n    var $myRouter = nearestParentRouter(bindingContext);\n    var urlValue = valueAccessor();\n    var elementIsSetup = false;\n    var stateTracker = null;\n\n    var routeHandlerDescription = {\n      on: \'click\',\n      url: function defaultURLForRoute() { return null; },\n      handler: function defaultHandlerForRoute(event, url) {\n        if( !isFullURL(url) && event.which !== 2 ) {\n          event.preventDefault();\n          return true;\n        }\n        return false;\n      }\n    };\n\n    if( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {\n      routeHandlerDescription.url = urlValue;\n    } else if( isObject(urlValue) ) {\n      extend(routeHandlerDescription, urlValue);\n    } else if( !urlValue ) {\n      routeHandlerDescription.url = element.getAttribute(\'href\');\n    } else {\n      throw \'Unknown type of url value provided to $route [\' + typeof urlValue + \']\';\n    }\n\n    var routeHandlerDescriptionURL = routeHandlerDescription.url;\n    if( !isFunction(routeHandlerDescriptionURL) ) {\n      routeHandlerDescription.url = function() { return routeHandlerDescriptionURL; };\n    }\n\n    function getRouteURL(includeParentPath) {\n      var parentRoutePath = \'\';\n      var routeURL = routeHandlerDescription.url();\n      var myLinkPath = routeURL || element.getAttribute(\'href\') || \'\';\n\n      if(!isNull(routeURL)) {\n        if( isUndefined(routeURL) ) {\n          routeURL = myLinkPath;\n        }\n\n        if( !isFullURL(myLinkPath) ) {\n          if( !hasPathStart(myLinkPath) ) {\n            myLinkPath = \'/\' + myLinkPath;\n          }\n\n          if( includeParentPath && !isNullRouter($myRouter) ) {\n            myLinkPath = $myRouter.parentRouter().path() + myLinkPath;\n          }\n        }\n\n        return myLinkPath;\n      }\n\n      return null;\n    };\n    var routeURLWithParentPath = bind(getRouteURL, null, true);\n    var routeURLWithoutParentPath = bind(getRouteURL, null, false);\n\n    function checkForMatchingSegment(mySegment, newRoute) {\n      if(mySegment === \'/\') {\n        mySegment = \'\';\n      }\n      \n      if(!isNull(newRoute) && newRoute.segment === mySegment && isString(fwRouters.activeRouteClassName) && fwRouters.activeRouteClassName.length) {</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-48" class="section">\r\n            <div class="annotation">\r\n              <p>newRoute.segment is the same as this routers segment…add the activeRouteClassName to the element to indicate it is active</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">addClass(element, fwRouters.activeRouteClassName);\n      } else if( hasClass(element, fwRouters.activeRouteClassName) ) {\n        removeClass(element, fwRouters.activeRouteClassName);\n      }\n    };\n\n    function setUpElement() {\n      var myCurrentSegment = routeURLWithoutParentPath();\n      if( element.tagName.toLowerCase() === \'a\' ) {\n        element.href = routeURLWithParentPath();\n      }\n\n      if( !isNull(stateTracker) ) {\n        stateTracker.unsubscribe();\n      }\n      stateTracker = $myRouter.currentRoute.subscribe( bind(checkForMatchingSegment, null, myCurrentSegment) );\n\n      if(elementIsSetup === false) {\n        elementIsSetup = true;\n        checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());\n        fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {\n          var currentRouteURL = routeURLWithoutParentPath();\n          var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);\n          if( handlerResult ) {\n            if( isString(handlerResult) ) {\n              currentRouteURL = handlerResult;\n            }\n            if( isString(currentRouteURL) && !isFullURL( currentRouteURL ) ) {\n              $myRouter.setState(currentRouteURL);\n            }\n          }\n        });\n      }\n    }\n\n    if( isObservable(routeHandlerDescription.url) ) {\n      routeHandlerDescription.url.subscribe(setUpElement);\n    }\n    setUpElement();\n  }\n};\n\nvar Router = function( routerConfig, $viewModel, $context ) {\n  extend(this, $baseRouter);\n  var subscriptions = this.subscriptions = [];\n  var viewModelNamespaceName;\n\n  if( isViewModel($viewModel) ) {\n    viewModelNamespaceName = $viewModel.getNamespaceName();\n  }\n\n  this.id = uniqueId(\'router\');\n  this.$globalNamespace = makeNamespace();\n  this.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + \'Router\') );\n  this.$namespace.enter();\n  this.$namespace.command.handler(\'setState\', this.setState, this);\n  this.$namespace.request.handler(\'currentRoute\', function() { return this.currentRoute(); }, this);\n  this.$namespace.request.handler(\'urlParts\', function() { return this.urlParts(); }, this);\n\n  this.$viewModel = $viewModel;\n  this.urlParts = fw.observable();\n  this.childRouters = fw.observableArray();\n  this.parentRouter = fw.observable($nullRouter);\n  this.context = fw.observable();\n  this.historyIsEnabled = fw.observable(false).broadcastAs(\'historyIsEnabled\');\n  this.currentState = fw.observable(\'\').broadcastAs(\'currentState\');\n  this.config = routerConfig = extend({}, routerDefaultConfig, routerConfig);\n  this.config.baseRoute = fw.routers.baseRoute() + (result(routerConfig, \'baseRoute\') || \'\');\n\n  this.isRelative = fw.computed(function() {\n    return routerConfig.isRelative && !isNullRouter( this.parentRouter() );\n  }, this);\n  \n  this.currentRoute = fw.computed(function() {\n    return this.getRouteForURL( this.currentState() );\n  }, this);\n  \n  this.path = fw.computed(function() {\n    var currentRoute = this.currentRoute();\n    var parentRouter = this.parentRouter();\n    var routePath = this.parentRouter().path();\n\n    if( isRoute(currentRoute) ) {\n      routePath = routePath + currentRoute.segment;\n    }\n    return routePath;\n  }, this);\n\n  var $previousParent = $nullRouter;\n  subscriptions.push(this.parentRouter.subscribe(function( $parentRouter ) {\n    if( !isNullRouter($previousParent) && $previousParent !== $parentRouter ) {\n      $previousParent.childRouters.remove(this);\n    }\n    $parentRouter.childRouters.push(this);\n    $previousParent = $parentRouter;\n  }, this));</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-49" class="section">\r\n            <div class="annotation">\r\n              <p>Automatically trigger the new Action() whenever the currentRoute() updates</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">subscriptions.push( this.currentRoute.subscribe(function getActionForRouteAndTrigger( newRoute ) {\n    this.getActionForRoute( newRoute )( /* get and call the action for the newRoute */ );\n  }, this) );\n\n  var $router = this;\n  this.$globalNamespace.request.handler(\'__router_reference\', function() {\n    return $router;\n  });\n\n  this.outlets = {};\n  this.$outlet = bind( $routerOutlet, this );\n  this.$outlet.reset = bind( function() {\n    each( this.outlets, function(outlet) {\n      outlet({ name: noComponentSelected, params: {} });\n    });\n  }, this);\n\n  if( !isUndefined(routerConfig.unknownRoute) ) {\n    if( isFunction(routerConfig.unknownRoute) ) {\n      routerConfig.unknownRoute = { controller: routerConfig.unknownRoute };\n    }\n    routerConfig.routes.push( extend( routerConfig.unknownRoute, { unknown: true } ) );\n  }\n  this.setRoutes( routerConfig.routes );\n\n  if( routerConfig.activate === true ) {\n    subscriptions.push(this.context.subscribe(function activateRouterAfterNewContext( $context ) {\n      if( isObject($context) ) {\n        this.activate( $context );\n      }\n    }, this));\n  }\n  this.context( $viewModel.$context || $context );\n\n  this.$namespace.exit();\n};\n\nRouter.prototype.setRoutes = function(routeDesc) {\n  this.routeDescriptions = [];\n  this.addRoutes(routeDesc);\n  return this;\n};\n\nRouter.prototype.addRoutes = function(routeConfig) {\n  this.routeDescriptions = this.routeDescriptions.concat( map(isArray(routeConfig) ? routeConfig : [routeConfig], transformRouteConfigToDesc) );\n  return this;\n};\n\nRouter.prototype.activate = function($context, $parentRouter) {\n  this.startup( $context, $parentRouter );\n  if( this.currentState() === \'\' ) {\n    this.setState();\n  }\n  return this;\n};\n\nRouter.prototype.setState = function(url, noHistoryInjection) {\n  if( this.historyIsEnabled() ) {\n    if(!noHistoryInjection && isString(url)) {\n      var historyAPIWorked = true;\n      try {\n        historyAPIWorked = History.pushState(null, \'\', this.parentRouter().path() + url);\n      } catch(error) {\n        historyAPIWorked = false;\n      } finally {\n        if(historyAPIWorked) {\n          return;\n        }\n      }\n    } else {\n      url = History.getState().url;\n    }\n  }\n\n  if( isString(url) ) {\n    this.currentState( this.normalizeURL(url) );\n  }\n};\n\nRouter.prototype.startup = function( $context, $parentRouter ) {\n  var $myRouter = this;\n  $parentRouter = $parentRouter || $nullRouter;\n\n  if( !isNullRouter($parentRouter) ) {\n    this.parentRouter( $parentRouter );\n  } else if( isObject($context) ) {\n    $parentRouter = nearestParentRouter($context);\n    if( $parentRouter.id !== this.id ) {\n      this.parentRouter( $parentRouter );\n    }\n  }\n\n  if( !this.historyIsEnabled() ) {\n    if( historyIsReady() ) {\n      History.Adapter.bind( windowObject, \'statechange\', this.stateChangeHandler = function() {\n        $myRouter.setState( History.getState().url, true );\n      } );\n      this.historyIsEnabled(true);\n    } else {\n      this.historyIsEnabled(false);\n    }\n  }\n\n  return this;\n};\n\nRouter.prototype.shutdown = function() {\n  var $parentRouter = this.parentRouter();\n  if( !isNullRouter($parentRouter) ) {\n    $parentRouter.childRouters.remove(this);\n  }\n\n  if( this.historyIsEnabled() && historyIsReady() ) {\n    History.Adapter.unbind( this.stateChangeHandler );\n  }\n\n  this.$namespace.shutdown();\n  this.$globalNamespace.shutdown();\n\n  invoke(this.subscriptions, \'dispose\');\n  each(this, function(property) {\n    if( property && isFunction(property.dispose) ) {\n      property.dispose();\n    }\n  });\n};\n\nRouter.prototype.normalizeURL = function(url) {\n  var urlParts = parseUri(url);\n  this.urlParts(urlParts);\n  url = urlParts.path;\n\n  if( !isNull(this.config.baseRoute) && url.indexOf(this.config.baseRoute) === 0 ) {\n    url = url.substr(this.config.baseRoute.length);\n    if(url.length > 1) {\n      url = url.replace(hashMatchRegex, \'/\');\n    }\n  }\n  return url;\n};\n\nRouter.prototype.getUnknownRoute = function() {\n  var unknownRoute = findWhere((this.getRouteDescriptions() || []).reverse(), { unknown: true }) || null;\n\n  if( !isNull(unknownRoute) ) {\n    unknownRoute = extend({}, baseRoute, {\n      id: unknownRoute.id,\n      controller: unknownRoute.controller,\n      title: unknownRoute.title,\n      segment: \'\'\n    });\n  }\n\n  return unknownRoute;\n};\n\nRouter.prototype.getRouteForURL = function(url) {\n  var route = null;\n  var parentRoutePath = this.parentRouter().path() || \'\';\n  var unknownRoute = this.getUnknownRoute();\n  var $myRouter = this;</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-50" class="section">\r\n            <div class="annotation">\r\n              <p>If this is a relative router we need to remove the leading parentRoutePath section of the URL</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">if( this.isRelative() ) {\n    if( parentRoutePath.length > 0 ) {\n      if( ( routeIndex = url.indexOf(parentRoutePath) ) === 0 ) {\n        url = url.substr( parentRoutePath.length );\n      } else {\n        return unknownRoute;\n      }\n    } else {\n      return unknownRoute;\n    }\n  }</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-51" class="section">\r\n            <div class="annotation">\r\n              <p>find all routes with a matching routeString</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var matchedRoutes = [];\n  find(this.getRouteDescriptions(), function(routeDescription) {\n    var routeString = routeDescription.route;\n    var routeParams = [];\n\n    if( isString(routeString) ) {\n      routeParams = url.match(routeStringToRegExp(routeString));\n      if( !isNull(routeParams) && routeDescription.filter.call($myRouter, { params: routeParams, urlParts: $myRouter.urlParts() }) ) {\n        matchedRoutes.push({\n          routeString: routeString,\n          specificity: routeString.replace(namedParamRegex, "*").length,\n          routeDescription: routeDescription,\n          routeParams: routeParams\n        });\n      }\n    }\n    return route;\n  });</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-52" class="section">\r\n            <div class="annotation">\r\n              <p>If there are matchedRoutes, find the one with the highest ‘specificity’ (longest normalized matching routeString)\nand convert it into the actual route</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">if(matchedRoutes.length) {\n    var matchedRoute = reduce(matchedRoutes, function(matchedRoute, foundRoute) {\n      if( isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity ) {\n        matchedRoute = foundRoute;\n      }\n      return matchedRoute;\n    }, null);\n    var routeDescription = matchedRoute.routeDescription;\n    var routeString = matchedRoute.routeString;\n    var routeParams = clone(matchedRoute.routeParams);\n    var splatSegment = routeParams.pop() || \'\';\n    var routeParamNames = map(routeString.match(namedParamRegex), function(param) {\n      return param.replace(\':\', \'\');\n    });\n    var namedParams = reduce(routeParamNames, function(parameterNames, parameterName, index) {\n      parameterNames[parameterName] = routeParams[index + 1];\n      return parameterNames;\n    }, {});\n\n    route = extend({}, baseRoute, {\n      id: routeDescription.id,\n      controller: routeDescription.controller,\n      title: routeDescription.title,\n      url: url,\n      segment: url.substr(0, url.length - splatSegment.length),\n      indexedParams: routeParams,\n      namedParams: namedParams\n    });\n  }\n\n  return route || unknownRoute;\n};\n\nRouter.prototype.getActionForRoute = function(routeDescription) {\n  var Action = bind( function() {\n    delete this.__currentRouteDescription;\n    this.$outlet.reset();\n  }, this );\n\n  if( isRoute(routeDescription) ) {\n    Action = bind(function() {\n      if( !isUndefined(routeDescription.title) ) {\n        document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this) : routeDescription.title;\n      }\n\n      if( isUndefined(this.__currentRouteDescription) || this.__currentRouteDescription.id !== routeDescription.id ) {\n        routeDescription.controller.call( this, routeDescription.namedParams );\n        this.__currentRouteDescription = routeDescription;\n      }\n    }, this);\n  }\n\n  return Action;\n};\n\nRouter.prototype.getRouteDescriptions = function() {\n  return this.routeDescriptions;\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-53" class="section">\r\n            <div class="annotation">\r\n              <h2 id="viewmodel-js">viewModel.js</h2>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-54" class="section">\r\n            <div class="annotation">\r\n              <p>Duck type function for determining whether or not something is a footwork viewModel constructor function</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">function isViewModelCtor(thing) {\r\n  return isFunction(thing) && !!thing.__isViewModelCtor;\r\n}</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-55" class="section">\r\n            <div class="annotation">\r\n              <p>Duck type function for determining whether or not something is a footwork viewModel</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">function isViewModel(thing) {\r\n  return isObject(thing) && !!thing.__isViewModel;\r\n}\r\n\r\nvar defaultGetViewModelOptions = {\r\n  includeOutlets: false\r\n};\r\n\r\nfw.viewModels = {};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-56" class="section">\r\n            <div class="annotation">\r\n              <p>Returns a reference to the specified viewModels.\nIf no name is supplied, a reference to an array containing all model references is returned.</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var getViewModels = fw.viewModels.getAll = function(options) {\r\n  return reduce( $globalNamespace.request(\'__model_reference\', extend({}, defaultGetViewModelOptions, options), true), function(viewModels, viewModel) {\r\n    if( !isUndefined(viewModel) ) {\r\n      var namespaceName = isNamespace(viewModel.$namespace) ? viewModel.$namespace.getName() : null;\r\n      if( !isNull(namespaceName) ) {\r\n        if( isUndefined(viewModels[namespaceName]) ) {\r\n          viewModels[namespaceName] = viewModel;\r\n        } else {\r\n          if( !isArray(viewModels[namespaceName]) ) {\r\n            viewModels[namespaceName] = [ viewModels[namespaceName] ];\r\n          }\r\n          viewModels[namespaceName].push(viewModel);\r\n        }\r\n      }\r\n    }\r\n    return viewModels;\r\n  }, {});\r\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-57" class="section">\r\n            <div class="annotation">\r\n              <p>Tell all viewModels to request the values which it listens for</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var refreshViewModels = fw.viewModels.refresh = function() {\r\n  $globalNamespace.trigger(\'__refreshViewModels\');\r\n};\r\n\r\nvar defaultViewModelConfigParams = {\r\n  namespace: undefined,\r\n  name: undefined,\r\n  componentNamespace: undefined,\r\n  autoIncrement: false,\r\n  mixins: undefined,\r\n  params: undefined,\r\n  initialize: noop,\r\n  afterInit: noop,\r\n  afterBinding: noop,\r\n  afterDispose: noop\r\n};\r\n\r\nfunction beforeInitMixins(mixin) {\r\n  return !!mixin.runBeforeInit;\r\n}\r\n\r\nvar makeViewModel = fw.viewModel = function(configParams) {\r\n  configParams = configParams || {};\r\n\r\n  var ctor = noop;\r\n  var afterInit = noop;\r\n  var parentViewModel = configParams.parent;\r\n\r\n  if( !isUndefined(configParams) ) {\r\n    ctor = configParams.viewModel || configParams.initialize || noop;\r\n    afterInit = configParams.afterInit || noop;\r\n  }\r\n  afterInit = { _postInit: afterInit };\r\n  configParams = extend({}, defaultViewModelConfigParams, configParams);\r\n\r\n  var initViewModelMixin = {\r\n    _preInit: function( params ) {\r\n      if( isObject(configParams.router) ) {\r\n        this.$router = new Router( configParams.router, this );\r\n      }\r\n    },\r\n    mixin: {\r\n      __isViewModel: true,\r\n      $params: result(configParams, \'params\'),\r\n      __getConfigParams: function() {\r\n        return configParams;\r\n      },\r\n      __shutdown: function() {\r\n        if( isFunction(configParams.afterDispose) ) {\r\n          configParams.afterDispose.call(this);\r\n        }\r\n\r\n        each(this, function( property, name ) {\r\n          if( isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) ) {\r\n            property.shutdown();\r\n          }\r\n        });\r\n      }\r\n    },\r\n    _postInit: function() {\r\n      if( this.__assertPresence !== false ) {\r\n        this.$globalNamespace.request.handler(\'__model_reference\', bind(function(options) {\r\n          if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {\r\n            return this;\r\n          }\r\n        }, this));\r\n        this.$globalNamespace.event.handler(\'__refreshViewModels\', bind(function() {\r\n          each(this, function(property) {\r\n            if( isReceiver(property) ) {\r\n              property.refresh();\r\n            }\r\n          });\r\n        }, this));\r\n      }\r\n    }\r\n  };\r\n\r\n  if( !isViewModelCtor(ctor) ) {\r\n    var composure = [ ctor ];\r\n    var afterInitMixins = reject(viewModelMixins, beforeInitMixins);\r\n    var beforeInitMixins = filter(viewModelMixins, beforeInitMixins);\r\n\r\n    if( beforeInitMixins.length ) {\r\n      composure = composure.concat(beforeInitMixins);\r\n    }\r\n    composure = composure.concat(initViewModelMixin);\r\n    if( afterInitMixins.length ) {\r\n      composure = composure.concat(afterInitMixins);\r\n    }\r\n    \r\n    composure = composure.concat(afterInit);\r\n    if( !isUndefined(configParams.mixins) ) {\r\n      composure = composure.concat(configParams.mixins);\r\n    }\r\n\r\n    each(composure, function(element) {\r\n      if( !isUndefined(element[\'runBeforeInit\']) ) {\r\n        delete element.runBeforeInit;\r\n      }\r\n    });\r\n\r\n    var model = riveter.compose.apply( undefined, composure );\r\n    model.__isViewModelCtor = true;\r\n    model.__configParams = configParams;\r\n  } else {</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-58" class="section">\r\n            <div class="annotation">\r\n              <p>user has specified another viewModel constructor as the ‘initialize’ function, we extend it with the current constructor to create an inheritance chain</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">model = ctor;\r\n  }\r\n\r\n  if( !isUndefined(parentViewModel) ) {\r\n    model.inherits(parentViewModel);\r\n  }\r\n\r\n  return model;\r\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-59" class="section">\r\n            <div class="annotation">\r\n              <p>Provides lifecycle functionality and $context for a given viewModel and element</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">function applyContextAndLifeCycle(viewModel, element) {\r\n  if( isViewModel(viewModel) ) {\r\n    var $configParams = viewModel.__getConfigParams();\r\n    var context;\r\n    element = element || document.body;\r\n    viewModel.$context = elementContext = fw.contextFor(element);\r\n    \r\n    if( isFunction($configParams.afterBinding) ) {\r\n      $configParams.afterBinding.call(viewModel, element);\r\n    }\r\n\r\n    if( isRouter(viewModel.$router) ) {\r\n      viewModel.$router.context( elementContext );\r\n    }\r\n    \r\n    if( !isUndefined(element) ) {\r\n      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {\r\n        viewModel.__shutdown();\r\n      });\r\n    }\r\n  }\r\n}</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-60" class="section">\r\n            <div class="annotation">\r\n              <p>Override the original applyBindings method to provide ‘viewModel’ life-cycle hooks/events and to provide the $context to the $router if present.</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var originalApplyBindings = fw.applyBindings;\r\nvar applyBindings = fw.applyBindings = function(viewModel, element) {\r\n  originalApplyBindings(viewModel, element);\r\n  applyContextAndLifeCycle(viewModel, element);\r\n};\r\n\r\nfunction bindComponentViewModel(element, params, ViewModel) {\r\n  var viewModelObj;\r\n  if( isFunction(ViewModel) ) {\r\n    viewModelObj = new ViewModel(values.params);\r\n  } else {\r\n    viewModelObj = ViewModel;\r\n  }\r\n  viewModelObj.$parentContext = fw.contextFor(element.parentElement);</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-61" class="section">\r\n            <div class="annotation">\r\n              <p>binding the viewModelObj onto each child element is not ideal, need to do this differently\ncannot get component.preprocess() method to work/be called for some reason</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">each(element.children, function(child) {\r\n    originalApplyBindings(viewModelObj, child);\r\n  });\r\n  applyContextAndLifeCycle(viewModelObj, element);</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-62" class="section">\r\n            <div class="annotation">\r\n              <p>we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each\nsub-element and must specify the context as being the container element only once</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">if( isRouter(viewModelObj.$router) ) {\r\n    viewModelObj.$router.context( fw.contextFor(element) );\r\n  }\r\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-63" class="section">\r\n            <div class="annotation">\r\n              <p>Monkey patch enables the viewModel component to initialize a model and bind to the html as intended (with lifecycle events)\nTODO: Do this differently once this is resolved: <a href="https://github.com/knockout/knockout/issues/1463">https://github.com/knockout/knockout/issues/1463</a></p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var originalComponentInit = fw.bindingHandlers.component.init;\r\nfw.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {\r\n  var theValueAccessor = valueAccessor;\r\n  if( isString(element.tagName) ) {\r\n    var tagName = element.tagName.toLowerCase();\r\n    if( tagName === \'viewmodel\' ) {\r\n      var values = valueAccessor();\r\n      var viewModelName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute(\'module\') || element.getAttribute(\'data-module\');\r\n      var bindViewModel = bind(bindComponentViewModel, null, element, values.params);\r\n\r\n      if( !isUndefined(viewModelName) ) {\r\n        var resourceLocation = null;\r\n\r\n        if( isRegisteredViewModel(viewModelName) ) {</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-64" class="section">\r\n            <div class="annotation">\r\n              <p>viewModel was manually registered, we preferentially use it</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">resourceLocation = getRegisteredViewModel(viewModelName);\r\n        } else if( isFunction(require) && isFunction(require.defined) && require.defined(viewModelName) ) {</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-65" class="section">\r\n            <div class="annotation">\r\n              <p>we have found a matching resource that is already cached by require, lets use it</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">resourceLocation = viewModelName;\r\n        } else {\r\n          resourceLocation = getViewModelResourceLocation(viewModelName);\r\n        }\r\n\r\n        if( isString(resourceLocation) ) {\r\n          if( isFunction(require) ) {\r\n            if( isPath(resourceLocation) ) {\r\n              resourceLocation = resourceLocation + getViewModelFileName(viewModelName);\r\n            }\r\n\r\n            require([ resourceLocation ], bindViewModel);\r\n          } else {\r\n            throw \'Uses require, but no AMD loader is present\';\r\n          }\r\n        } else if( isFunction(resourceLocation) ) {\r\n          bindViewModel( resourceLocation );\r\n        } else if( isObject(resourceLocation) ) {\r\n          if( isObject(resourceLocation.instance) ) {\r\n            bindViewModel( resourceLocation.instance );\r\n          } else if( isFunction(resourceLocation.createViewModel) ) {\r\n            bindViewModel( resourceLocation.createViewModel( values.params, { element: element } ) );\r\n          }\r\n        }\r\n      }\r\n\r\n      return { \'controlsDescendantBindings\': true };\r\n    } else if( tagName === \'outlet\' ) {</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-66" class="section">\r\n            <div class="annotation">\r\n              <p>we patch in the ‘name’ of the outlet into the params valueAccessor on the component definition (if necessary and available)</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var outletName = element.getAttribute(\'name\') || element.getAttribute(\'data-name\');\r\n      if( outletName ) {\r\n        theValueAccessor = function() {\r\n          var valueAccessorResult = valueAccessor();\r\n          if( !isUndefined(valueAccessorResult.params) && isUndefined(valueAccessorResult.params.name) ) {\r\n            valueAccessorResult.params.name = outletName;\r\n          }\r\n          return valueAccessorResult;\r\n        };\r\n      }\r\n    }\r\n  }\r\n\r\n  return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);\r\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-67" class="section">\r\n            <div class="annotation">\r\n              <h2 id="component-js">component.js</h2>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-68" class="section">\r\n            <div class="annotation">\r\n              \r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var originalComponentRegisterFunc = fw.components.register;\nvar registerComponent = fw.components.register = function(componentName, options) {\n  var viewModel = options.initialize || options.viewModel;\n  \n  if( !isString(componentName) ) {\n    throw \'Components must be provided a componentName.\';\n  }\n\n  if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {\n    options.namespace = componentName;\n    viewModel = makeViewModel(options);\n  }\n\n  originalComponentRegisterFunc(componentName, {\n    viewModel: viewModel || fw.viewModel(),\n    template: options.template\n  });\n};\n\nfw.components.getNormalTagList = function() {\n  return nonComponentTags.splice(0);\n};\n\nfw.components.getComponentNameForNode = function(node) {\n  var tagName = isString(node.tagName) && node.tagName.toLowerCase();\n\n  if( fw.components.isRegistered(tagName) || tagIsComponent(tagName) ) {\n    return tagName;\n  }\n  return null;\n};\n\nvar makeComponent = fw.component = function(componentDefinition) {\n  var viewModel = componentDefinition.viewModel;\n\n  if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {\n    componentDefinition.viewModel = makeViewModel( omit(componentDefinition, \'template\') );\n  }\n\n  return componentDefinition;\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-69" class="section">\r\n            <div class="annotation">\r\n              <p>Register a component as consisting of a template only.\nThis will cause footwork to load only the template when this component is used.</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var componentTemplateOnlyRegister = [];\nvar registerComponentAsTemplateOnly = fw.components.isTemplateOnly = function(componentName, isTemplateOnly) {\n  isTemplateOnly = (isUndefined(isTemplateOnly) ? true : isTemplateOnly);\n  if( isArray(componentName) ) {\n    each(componentName, function(compName) {\n      registerComponentAsTemplateOnly(compName, isTemplateOnly);\n    });\n  }\n\n  componentTemplateOnlyRegister[componentName] = isTemplateOnly;\n  if( !isArray(componentName) ) {\n    return componentTemplateOnlyRegister[componentName] || \'normal\';\n  }\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-70" class="section">\r\n            <div class="annotation">\r\n              <p>These are tags which are ignored by the custom component loader\nSourced from: <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element">https://developer.mozilla.org/en-US/docs/Web/HTML/Element</a></p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var nonComponentTags = [\n  \'a\', \'abbr\', \'acronym\', \'address\', \'applet\', \'area\', \'article\', \'aside\', \'audio\', \'b\', \'base\', \'basefont\', \'bdi\', \'bgsound\',\n  \'big\', \'blink\', \'blockquote\', \'body\', \'br\', \'button\', \'canvas\', \'caption\', \'center\', \'cite\', \'code\', \'col\', \'colgroup\',\n  \'content\', \'data\', \'datalist\', \'dd\', \'decorator\', \'del\', \'details\', \'dfn\', \'dialog\', \'dir\', \'div\', \'dl\', \'dt\', \'element\',\n  \'em\', \'embed\', \'fieldset\', \'figcaption\', \'figure\', \'footer\', \'form\', \'frameset\', \'g\', \'h1\', \'h2\', \'h3\', \'h4\', \'h5\', \'h6\',\n  \'head\', \'header\', \'hgroup\', \'hr\', \'html\', \'i\', \'iframe\', \'img\', \'input\', \'ins\', \'isindex\', \'kbd\', \'keygen\', \'label\',\n  \'legend\', \'li\', \'link\', \'listing\', \'main\', \'map\', \'mark\', \'marquee\', \'menu\', \'menuitem\', \'meta\', \'meter\', \'nav\', \'nobr\',\n  \'noframes\', \'noscript\', \'object\', \'ol\', \'optgroup\', \'option\', \'output\', \'p\', \'param\', \'picture\', \'polygon\', \'path\', \'pre\',\n  \'progress\', \'q\', \'rp\', \'rt\', \'ruby\', \'s\', \'samp\', \'script\', \'section\', \'select\', \'shadow\', \'small\', \'source\', \'spacer\',\n  \'span\', \'strike\', \'strong\', \'style\', \'sub\', \'summary\', \'sup\', \'svg\', \'table\', \'tbody\', \'td\', \'template\', \'textarea\',\n  \'tfoot\', \'th\', \'thead\', \'time\', \'title\', \'tr\', \'track\', \'u\', \'ul\', \'var\', \'video\', \'wbr\', \'xmp\', \'rect\', \'image\',\n  \'lineargradient\', \'stop\', \'line\'\n];\nvar tagIsComponent = fw.components.tagIsComponent = function(tagName, isComponent) {\n  if( isUndefined(isComponent) ) {\n    return indexOf(nonComponentTags, tagName) === -1;\n  }\n\n  if( isArray(tagName) ) {\n    each(tagName, function(tag) {\n      tagIsComponent(tag, isComponent);\n    });\n  }\n\n  if(isComponent !== true) {\n    if( contains(nonComponentTags, tagName) === false ) {\n      nonComponentTags.push(tagName);\n    }\n  } else {\n    nonComponentTags = filter(nonComponentTags, function(nonComponentTagName) {\n      return nonComponentTagName !== tagName;\n    });\n  }\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-71" class="section">\r\n            <div class="annotation">\r\n              <p>Components which footwork will not wrap in the $life custom binding used for lifecycle events\nUsed to keep the wrapper off of internal/natively handled and defined components such as ‘outlet’</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var nativeComponents = [\n  \'outlet\'\n];\nfunction isNativeComponent(componentName) {\n  return indexOf(nativeComponents, componentName) !== -1;\n}\n\nfunction componentTriggerAfterBinding(element, viewModel) {\n  if( isViewModel(viewModel) ) {\n    var configParams = viewModel.__getConfigParams();\n    if( isFunction(configParams.afterBinding) ) {\n      configParams.afterBinding.call(viewModel, element);\n    }\n  }\n}</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-72" class="section">\r\n            <div class="annotation">\r\n              <p>Use the $life wrapper binding to provide lifecycle events for components</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">fw.virtualElements.allowedBindings.$life = true;\nfw.bindingHandlers.$life = {\n  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {\n    fw.utils.domNodeDisposal.addDisposeCallback(element, function() {\n      if( isViewModel(viewModel) ) {\n        viewModel.__shutdown();\n      }\n    });\n  },\n  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {\n    var $parent = bindingContext.$parent;\n    if( isObject($parent) && $parent.__isOutlet ) {\n      $parent.$route().__getOnCompleteCallback()(element.parentElement);\n    } else {\n      componentTriggerAfterBinding(element.parentElement, bindingContext.$data);\n    }\n  }\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-73" class="section">\r\n            <div class="annotation">\r\n              <p>Custom loader used to wrap components with the $life custom binding</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var componentWrapperTemplate = \'<!-- ko $life -->COMPONENT_MARKUP<!-- /ko -->\';\nfw.components.loaders.unshift( fw.components.componentWrapper = {\n  loadTemplate: function(componentName, config, callback) {\n    if( !isNativeComponent(componentName) ) {</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-74" class="section">\r\n            <div class="annotation">\r\n              <p>TODO: Handle different types of configs</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">if( isString(config) ) {\n        config = componentWrapperTemplate.replace(/COMPONENT_MARKUP/, config);\n      } else {\n        throw \'Unhandled config type \' + typeof config + \'.\';\n      }\n      fw.components.defaultLoader.loadTemplate(componentName, config, callback);\n    } else {\n      callback(null);\n    }\n  },\n  loadViewModel: function(componentName, config, callback) {\n    var ViewModel = config.viewModel || config;\n    if( !isNativeComponent(componentName) ) {\n      callback(function(params, componentInfo) {\n        var $context = fw.contextFor(componentInfo.element);\n        var LoadedViewModel = ViewModel;\n        if( isFunction(ViewModel) ) {\n          if( !isViewModelCtor(ViewModel) ) {\n            ViewModel = makeViewModel({ initialize: ViewModel });\n          }</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-75" class="section">\r\n            <div class="annotation">\r\n              <p>inject the context into the ViewModel contructor</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">LoadedViewModel = ViewModel.compose({\n            _preInit: function() {\n              this.$context = $context;\n            }\n          });\n          return new LoadedViewModel(params);\n        }\n        return LoadedViewModel;\n      });\n    } else {\n      callback(null);\n    }\n  }\n});</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-76" class="section">\r\n            <div class="annotation">\r\n              <p>The footwork getConfig loader is a catch-all in the instance a registered component cannot be found.\nThe loader will attempt to use requirejs via knockouts integrated support if it is available.</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">fw.components.loaders.push( fw.components.requireLoader = {\n  getConfig: function(componentName, callback) {\n    var combinedFile = getComponentFileName(componentName, \'combined\');\n    var viewModelFile = getComponentFileName(componentName, \'viewModel\');\n    var templateFile = getComponentFileName(componentName, \'template\');\n    var componentLocation = getComponentResourceLocation(componentName);\n    var configOptions = null;\n    var viewModelPath;\n    var templatePath;\n    var combinedPath;\n\n    if( isFunction(require) ) {</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-77" class="section">\r\n            <div class="annotation">\r\n              <p>load component using knockouts native support for requirejs</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">if( require.defined(componentName) ) {</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-78" class="section">\r\n            <div class="annotation">\r\n              <p>component already cached, lets use it</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">configOptions = {\n          require: componentName\n        };\n      } else if( isString(componentLocation.combined) ) {\n        combinedPath = componentLocation.combined;\n\n        if( isPath(combinedPath) ) {\n          combinedPath = combinedPath + combinedFile;\n        }\n\n        configOptions = {\n          require: combinedPath\n        };\n      } else {\n        viewModelPath = componentLocation.viewModels;\n        templatePath = \'text!\' + componentLocation.templates;\n\n        if( isPath(viewModelPath) ) {\n          viewModelPath = viewModelPath + viewModelFile;\n        }\n        if( isPath(templatePath) ) {\n          templatePath = templatePath + templateFile;\n        }</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-79" class="section">\r\n            <div class="annotation">\r\n              <p>check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var viewModelConfig = { require: viewModelPath };\n        if( componentTemplateOnlyRegister[componentName] ) {\n          viewModelConfig = { instance: {} };\n        }\n\n        configOptions = {\n          viewModel: viewModelConfig,\n          template: { require: templatePath }\n        };\n      }\n    }\n\n    callback(configOptions);\n  }\n});\n\nvar noParentViewModelError = { getNamespaceName: function() { return \'NO-VIEWMODEL-IN-CONTEXT\'; } };</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-80" class="section">\r\n            <div class="annotation">\r\n              <p>This custom binding binds the outlet element to the $outlet on the router, changes on its ‘route’ (component definition observable) will be applied\nto the UI and load in various views</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">fw.virtualElements.allowedBindings.$bind = true;\nfw.bindingHandlers.$bind = {\n  init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {\n    var $parentViewModel = ( isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);\n    var $parentRouter = nearestParentRouter(bindingContext);\n    var outletName = outletViewModel.outletName;\n\n    if( isRouter($parentRouter) ) {</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-81" class="section">\r\n            <div class="annotation">\r\n              <p>register this outlet with the router so that updates will propagate correctly\ntake the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">outletViewModel.$route = $parentRouter.$outlet( outletName );\n    } else {\n      throw \'Outlet [\' + outletName + \'] defined inside of viewModel [\' + $parentViewModel.getNamespaceName() + \'] but no router was defined.\';\n    }\n  }\n};\n\nfw.components.register(\'outlet\', {\n  autoIncrement: true,\n  viewModel: function(params) {\n    this.outletName = fw.unwrap(params.name);\n    this.__isOutlet = true;\n  },\n  template: \'<!-- ko $bind, component: $route --><!-- /ko -->\'\n});\n\nfw.components.register(\'_noComponentSelected\', {\n  viewModel: function(params) {\n    this.__assertPresence = false;\n  },\n  template: \'<div class="no-component-selected"></div>\'\n});\n\nfw.components.register(\'error\', {\n  viewModel: function(params) {\n    this.message = fw.observable(params.message);\n    this.errors = params.errors;\n    this.__assertPresence = false;\n  },\n  template: \'\\\n    <div class="component error" data-bind="foreach: errors">\\\n      <div class="error">\\\n        <span class="number" data-bind="text: $index() + 1"></span>\\\n        <span class="message" data-bind="text: $data"></span>\\\n      </div>\\\n    </div>\'\n});</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-82" class="section">\r\n            <div class="annotation">\r\n              <h2 id="resource-js">resource.js</h2>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-83" class="section">\r\n            <div class="annotation">\r\n              \r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-84" class="section">\r\n            <div class="annotation">\r\n              <p>component resource section</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var defaultComponentFileExtensions = {\n  combined: \'.js\',\n  viewModel: \'.js\',\n  template: \'.html\'\n};\n\nvar componentFileExtensions = fw.components.fileExtensions = fw.observable( clone(defaultComponentFileExtensions) );\n\nvar getComponentFileName = fw.components.getFileName = function(componentName, fileType) {\n  var componentExtensions = componentFileExtensions();\n  var fileName = componentName;\n\n  if( isFunction(componentExtensions) ) {\n    fileName += componentExtensions(componentName)[fileType];\n  } else if( isObject(componentExtensions) ) {\n    if( isFunction(componentExtensions[fileType]) ) {\n      fileName += componentExtensions[fileType](componentName);\n    } else {\n      fileName += componentExtensions[fileType] || \'\';\n    }\n  }\n\n  return fileName;\n};\n\nvar defaultComponentLocation = {\n  combined: null,\n  viewModels: \'/viewModel/\',\n  templates: \'/component/\'\n};\nvar componentResourceLocations = fw.components.resourceLocations = {};\nvar componentDefaultLocation = fw.components.defaultLocation = function(root, updateDefault) {\n  var componentLocation = (isUndefined(updateDefault) || updateDefault === true) ? defaultComponentLocation : clone(defaultComponentLocation);\n\n  if( isObject(root) ) {</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-85" class="section">\r\n            <div class="annotation">\r\n              <p>assume some combination of defaultComponentLocation and normalize the parameters</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">extend(componentLocation, reduce(root, function(options, paramValue, paramName) {\n      if(paramName === \'viewModel\') {\n        options.viewModels = paramValue;\n        delete options.viewModel;\n      } else if(paramName === \'template\') {\n        options.templates = paramValue;\n        delete options.template;\n      } else {\n        options[paramName] = paramValue;\n      }\n      return options;\n    }, {}));\n  } else if( isString(root) ) {\n    componentLocation = {\n      combined: rootURL,\n      viewModels: null,\n      templates: null\n    };\n  }\n\n  return componentLocation;\n};\n\nvar registerLocationOfComponent = fw.components.registerLocation = function(componentName, componentLocation) {\n  if( isArray(componentName) ) {\n    each(componentName, function(name) {\n      registerLocationOfComponent(name, componentLocation);\n    });\n  }\n  componentResourceLocations[ componentName ] = componentDefaultLocation(componentLocation, false);\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-86" class="section">\r\n            <div class="annotation">\r\n              <p>Return the component resource definition for the supplied componentName</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var getComponentResourceLocation = fw.components.getResourceLocation = function(componentName) {\n  if( isUndefined(componentName) ) {\n    return componentResourceLocations;\n  }\n  return componentResourceLocations[componentName] || defaultComponentLocation;\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-87" class="section">\r\n            <div class="annotation">\r\n              <p>viewModel resource section</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var defaultViewModelFileExtensions = \'.js\';\nvar viewModelFileExtensions = fw.viewModels.fileExtensions = fw.observable( defaultViewModelFileExtensions );\n\nvar getViewModelFileName = fw.viewModels.getFileName = function(viewModelName) {\n  var viewModelExtensions = viewModelFileExtensions();\n  var fileName = viewModelName;\n\n  if( isFunction(viewModelExtensions) ) {\n    fileName += viewModelExtensions(viewModelName);\n  } else if( isString(viewModelExtensions) ) {\n    fileName += viewModelExtensions;\n  }\n\n  return fileName;\n};\n\nvar defaultViewModelLocation = \'/viewModel/\';\nvar viewModelResourceLocations = fw.viewModels.resourceLocations = {};\nvar viewModelDefaultLocation = fw.viewModels.defaultLocation = function(path, updateDefault) {\n  var viewModelLocation = defaultViewModelLocation;\n\n  if( isString(path) ) {\n    viewModelLocation = path;\n  }\n\n  if(updateDefault) {\n    defaultViewModelLocation = viewModelLocation;\n  }\n\n  return viewModelLocation;\n};\n\nvar registeredViewModels = {};\nvar registerViewModel = fw.viewModels.register = function(viewModelName, viewModel) {\n  registeredViewModels[viewModelName] = viewModel;\n};\n\nvar isRegisteredViewModel = fw.viewModels.isRegistered = function(viewModelName) {\n  return !isUndefined( registeredViewModels[viewModelName] );\n};\n\nvar getRegisteredViewModel = fw.viewModels.getRegistered = function(viewModelName) {\n  return registeredViewModels[viewModelName];\n};\n\nvar registerLocationOfViewModel = fw.viewModels.registerLocation = function(viewModelName, viewModelLocation) {\n  if( isArray(viewModelName) ) {\n    each(viewModelName, function(name) {\n      registerLocationOfViewModel(name, viewModelLocation);\n    });\n  }\n  viewModelResourceLocations[ viewModelName ] = viewModelDefaultLocation(viewModelLocation, false);\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-88" class="section">\r\n            <div class="annotation">\r\n              <p>Return the viewModel resource definition for the supplied viewModelName</p>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">var getViewModelResourceLocation = fw.viewModels.getResourceLocation = function(viewModelName) {\n  if( isUndefined(viewModelName) ) {\n    return viewModelResourceLocations;\n  }\n  return viewModelResourceLocations[viewModelName] || getComponentResourceLocation(viewModelName).viewModels || defaultViewModelLocation;\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n        \r\n        <li id="section-89" class="section">\r\n            <div class="annotation">\r\n              <h2 id="extenders-js">extenders.js</h2>\n\r\n              <div class="annotation-bg"></div>\r\n            </div>\r\n            \r\n            <div class="content"><pre><code data-language="javascript">fw.extenders.debounce = function(target, opt) {\r\n  if( isNumber(opt) ) {\r\n    opt = {\r\n      timeout: opt,\r\n      when: function() { return true; } // default always throttle\r\n    };\r\n  }\r\n\r\n  target.throttleEvaluation = opt.timeout;\r\n\r\n  var writeTimeoutInstance = null;\r\n  var throttledTarget = fw.computed({\r\n    \'read\': target,\r\n    \'write\': function(value) {\r\n      if( opt.when(value) ) {\r\n        clearTimeout(writeTimeoutInstance);\r\n        writeTimeoutInstance = setTimeout(function() {\r\n          target(value);\r\n        }, opt.timeout);\r\n      } else {\r\n        clearTimeout(writeTimeoutInstance);\r\n        target(value);\r\n      }\r\n    }\r\n  });\r\n\r\n  throttledTarget.force = function( value ) {\r\n    clearTimeout(writeTimeoutInstance);\r\n    target(value);\r\n  };\r\n\r\n  return throttledTarget;\r\n};\r\n\r\nfw.extenders.autoDisable = function( target, delay ) {\r\n  return target.extend({\r\n    delayTrigger: {\r\n      delay: delay || 0,\r\n      trigger: function( target ) { target( false ); }\r\n    }\r\n  });\r\n};\r\n\r\nfw.extenders.autoEnable = function( target, delay ) {\r\n  return target.extend({\r\n    delayTrigger: {\r\n      delay: delay || 0,\r\n      trigger: function( target ) { target( true ); }\r\n    }\r\n  });\r\n};\r\n\r\nfw.extenders.delayTrigger = function( target, options ) {\r\n  var delay = 300;\r\n  var triggerFunc = noop;\r\n  var trigger;\r\n\r\n  if( isObject(options) ) {\r\n    delay = !isNaN( options.delay ) && parseInt( options.delay, 10 ) || delay;\r\n    triggerFunc = options.trigger || triggerFunc;\r\n  } else {\r\n    delay = !isNaN( options ) && parseInt( options, 10 ) || delay;\r\n  }\r\n\r\n  var clearTrigger = function() {\r\n    clearTimeout( trigger );\r\n    trigger = undefined;\r\n  };\r\n\r\n  var delayedObservable = fw.computed({\r\n    read: target,\r\n    write: function( state ) {\r\n      target( state );\r\n\r\n      if( !isUndefined(trigger) ) {\r\n        clearTrigger();\r\n      }\r\n\r\n      trigger = setTimeout(function() {\r\n        triggerFunc( target, options );\r\n      }.bind(target), delayedObservable.triggerDelay);\r\n    }\r\n  });\r\n  delayedObservable.clearTrigger = clearTrigger;\r\n  delayedObservable.triggerDelay = delay;\r\n\r\n  return delayedObservable;\r\n};\r\n\r\nfw.extenders.delayWrite = function( target, options ) {\r\n  var filter;\r\n  var delay = 300;\r\n\r\n  if( isObject(options) ) {\r\n    delay = !isNaN( options.delay ) && parseInt( options.delay, 10 ) || delay;\r\n    filter = options.filter || function() { return true; };\r\n  } else {\r\n    delay = !isNaN( options ) && parseInt( options, 10 ) || delay;\r\n  }\r\n\r\n  return fw.computed({\r\n    read: target,\r\n    write: function( writeValue ) {\r\n      if( filter( writeValue ) ) {\r\n        if(target._delayWriteTimer) {\r\n          clearTimeout( this._delayWriteTimer );\r\n        }\r\n        target._delayWriteTimer = setTimeout(function() {\r\n          target( writeValue );\r\n        }, delay);\r\n      } else {\r\n        target( writeValue );\r\n      }\r\n    }\r\n  });\r\n};</code></pre></div>\r\n            \r\n        </li>\r\n      \r\n  </ul>\r\n</div><div id="metaData">\r\n{\r\n  "title": "Annotated Source",\r\n  "sections": [\r\n    { "anchor": "main-js", "title": "main.js" },\r\n    { "anchor": "namespace-js", "title": "namespace.js" },\r\n    { "anchor": "broadcast-receive-js", "title": "broadcast-receive.js" },\r\n    { "anchor": "router-js", "title": "router.js" },\r\n    { "anchor": "viewmodel-js", "title": "viewModel.js" },\r\n    { "anchor": "component-js", "title": "component.js" },\r\n    { "anchor": "extenders-js", "title": "extenders.js" }\r\n  ],\r\n  "anchorOffset": 60\r\n}\r\n</div>';});
 
 
 define('text!../../pages/api-page.html',[],function () { return '<article id="js-page" class="page-code" data-name="Code">\r\n  <a id="viewModel" class="section-anchor"></a>\r\n  <section name="viewModel">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <span class="sub title"><a data-bind="$route" href="/api/viewModel" target="_blank" class="title">viewModel</a></span>\r\n    </header>\r\n    <div class="content block-font">\r\n      <p>&lt;viewModel /&gt; elements allow you to auto-initialize and wrap sections of your HTML in a viewModel.</p>\r\n    </div>\r\n  </section>\r\n\r\n  <a id="namespace" class="section-anchor"></a>\r\n  <section name="namespace">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <span class="sub title"><a data-bind="$route" href="/api/namespace" target="_blank" class="title">Namespacing</a></span>\r\n    </header>\r\n    <div class="content block-font">\r\n      <p>Namespacing and CQRS, how communication happens in footwork.</p>\r\n    </div>\r\n  </section>\r\n\r\n  <a id="components" class="section-anchor"></a>\r\n  <section name="components">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <span class="sub title"><a data-bind="$route" href="/api/components" target="_blank" class="title">Components</a></span>\r\n    </header>\r\n    <div class="content block-font">\r\n      <p>Components both using bindings and custom &lt;elements /&gt; to fully modularize both your views and viewModels, provide for autoloading and more.</p>\r\n    </div>\r\n  </section>\r\n\r\n  <a id="broadcast-receive" class="section-anchor"></a>\r\n  <section name="broadcast-receive">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <span class="sub title"><a data-bind="$route" href="/api/broadcast-receive" target="_blank" class="title">Broadcastable / Receivable</a></span>\r\n    </header>\r\n    <div class="content block-font">\r\n      <p>Cross-model dependencies and data/resource sharing.</p>\r\n    </div>\r\n  </section>\r\n\r\n  <a id="routing" class="section-anchor"></a>\r\n  <section name="routing">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <span class="sub title"><a data-bind="$route" href="/api/routing" target="_blank" class="title">Routing</a></span>\r\n    </header>\r\n    <div class="content block-font">\r\n      <p>Manage and initialize state in your application.</p>\r\n    </div>\r\n  </section>\r\n</article>\r\n\r\n<div id="metaData">\r\n{\r\n  "title": "API Docs",\r\n  "description": "General documentation covering the API.",\r\n  "sections": [\r\n    { "anchor": "viewModel",\r\n      "title": "viewModel" },\r\n    { "anchor": "namespace",\r\n      "title": "Namespacing" },\r\n    { "anchor": "components",\r\n      "title": "Components" },\r\n    { "anchor": "broadcast-receive",\r\n      "title": "Broadcastable / Receivable" },\r\n    { "anchor": "routing",\r\n      "title": "Routing" }\r\n  ]\r\n}\r\n</div>';});
 
 
-define('text!../../pages/api/viewModel-page.html',[],function () { return 'viewModel.html';});
+define('text!../../pages/api/viewModel-page.html',[],function () { return '<article id="js-page" class="page-code" data-name="Code">\r\n  <a id="viewModel" class="section-anchor"></a>\r\n  <section name="viewModel">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <span class="sub title"><a data-bind="$route" href="/api/viewModel" target="_blank" class="title">viewModel</a></span>\r\n    </header>\r\n    <div class="content block-font">\r\n      <pre>\r\n<code data-language="javascript">var testing = true;\r\nwindow.func = function func() {\r\n  return true;\r\n}\r\n</code></pre>\r\n      <pre>\r\n<code data-language="css">.test { background: red; }</code></pre>\r\n    </div>\r\n  </section>\r\n</article>\r\n\r\n<div id="metaData">\r\n{\r\n  "title": "viewModel",\r\n  "description": "viewModel instantiation and usage.",\r\n  "sections": [\r\n    { "anchor": "viewModel",\r\n      "title": "viewModel" }\r\n  ]\r\n}\r\n</div>';});
 
 
 define('text!../../pages/api/namespacing-page.html',[],function () { return 'namespacing.html';});
@@ -24010,6 +23988,373 @@ define('Rainbow',[], function() {
         }
     };
 });
+define('rainbow-lang-html',['Rainbow'], function(Rainbow) {
+/**
+ * HTML patterns
+ *
+ * @author Craig Campbell
+ * @version 1.0.9
+ */
+Rainbow.extend('html', [
+    {
+        'name': 'source.php.embedded',
+        'matches': {
+            2: {
+                'language': 'php'
+            }
+        },
+        'pattern': /&lt;\?=?(?!xml)(php)?([\s\S]*?)(\?&gt;)/gm
+    },
+    {
+        'name': 'source.css.embedded',
+        'matches': {
+            1: {
+                'matches': {
+                    1: 'support.tag.style',
+                    2: [
+                        {
+                            'name': 'entity.tag.style',
+                            'pattern': /^style/g
+                        },
+                        {
+                            'name': 'string',
+                            'pattern': /('|")(.*?)(\1)/g
+                        },
+                        {
+                            'name': 'entity.tag.style.attribute',
+                            'pattern': /(\w+)/g
+                        }
+                    ],
+                    3: 'support.tag.style'
+                },
+                'pattern': /(&lt;\/?)(style.*?)(&gt;)/g
+            },
+            2: {
+                'language': 'css'
+            },
+            3: 'support.tag.style',
+            4: 'entity.tag.style',
+            5: 'support.tag.style'
+        },
+        'pattern': /(&lt;style.*?&gt;)([\s\S]*?)(&lt;\/)(style)(&gt;)/gm
+    },
+    {
+        'name': 'source.js.embedded',
+        'matches': {
+            1: {
+                'matches': {
+                    1: 'support.tag.script',
+                    2: [
+                        {
+                            'name': 'entity.tag.script',
+                            'pattern': /^script/g
+                        },
+
+                        {
+                            'name': 'string',
+                            'pattern': /('|")(.*?)(\1)/g
+                        },
+                        {
+                            'name': 'entity.tag.script.attribute',
+                            'pattern': /(\w+)/g
+                        }
+                    ],
+                    3: 'support.tag.script'
+                },
+                'pattern': /(&lt;\/?)(script.*?)(&gt;)/g
+            },
+            2: {
+                'language': 'javascript'
+            },
+            3: 'support.tag.script',
+            4: 'entity.tag.script',
+            5: 'support.tag.script'
+        },
+        'pattern': /(&lt;script(?! src).*?&gt;)([\s\S]*?)(&lt;\/)(script)(&gt;)/gm
+    },
+    {
+        'name': 'comment.html',
+        'pattern': /&lt;\!--[\S\s]*?--&gt;/g
+    },
+    {
+        'matches': {
+            1: 'support.tag.open',
+            2: 'support.tag.close'
+        },
+        'pattern': /(&lt;)|(\/?\??&gt;)/g
+    },
+    {
+        'name': 'support.tag',
+        'matches': {
+            1: 'support.tag',
+            2: 'support.tag.special',
+            3: 'support.tag-name'
+        },
+        'pattern': /(&lt;\??)(\/|\!?)(\w+)/g
+    },
+    {
+        'matches': {
+            1: 'support.attribute'
+        },
+        'pattern': /([a-z-]+)(?=\=)/gi
+    },
+    {
+        'matches': {
+            1: 'support.operator',
+            2: 'string.quote',
+            3: 'string.value',
+            4: 'string.quote'
+        },
+        'pattern': /(=)('|")(.*?)(\2)/g
+    },
+    {
+        'matches': {
+            1: 'support.operator',
+            2: 'support.value'
+        },
+        'pattern': /(=)([a-zA-Z\-0-9]*)\b/g
+    },
+    {
+        'matches': {
+            1: 'support.attribute'
+        },
+        'pattern': /\s(\w+)(?=\s|&gt;)(?![\s\S]*&lt;)/g
+    }
+], true);
+
+});
+define('rainbow-lang-css',['Rainbow'], function(Rainbow) {
+/**
+ * CSS patterns
+ *
+ * @author Craig Campbell
+ * @version 1.0.9
+ */
+Rainbow.extend('css', [
+    {
+        'name': 'comment',
+        'pattern': /\/\*[\s\S]*?\*\//gm
+    },
+    {
+        'name': 'constant.hex-color',
+        'pattern': /#([a-f0-9]{3}|[a-f0-9]{6})(?=;|\s|,|\))/gi
+    },
+    {
+        'matches': {
+            1: 'constant.numeric',
+            2: 'keyword.unit'
+        },
+        'pattern': /(\d+)(px|em|cm|s|%)?/g
+    },
+    {
+        'name': 'string',
+        'pattern': /('|")(.*?)\1/g
+    },
+    {
+        'name': 'support.css-property',
+        'matches': {
+            1: 'support.vendor-prefix'
+        },
+        'pattern': /(-o-|-moz-|-webkit-|-ms-)?[\w-]+(?=\s?:)(?!.*\{)/g
+    },
+    {
+        'matches': {
+            1: [
+                {
+                    'name': 'entity.name.sass',
+                    'pattern': /&amp;/g
+                },
+                {
+                    'name': 'direct-descendant',
+                    'pattern': /&gt;/g
+                },
+                {
+                    'name': 'entity.name.class',
+                    'pattern': /\.[\w\-_]+/g
+                },
+                {
+                    'name': 'entity.name.id',
+                    'pattern': /\#[\w\-_]+/g
+                },
+                {
+                    'name': 'entity.name.pseudo',
+                    'pattern': /:[\w\-_]+/g
+                },
+                {
+                    'name': 'entity.name.tag',
+                    'pattern': /\w+/g
+                }
+            ]
+        },
+        'pattern': /([\w\ ,\n:\.\#\&\;\-_]+)(?=.*\{)/g
+    },
+    {
+        'matches': {
+            2: 'support.vendor-prefix',
+            3: 'support.css-value'
+        },
+        'pattern': /(:|,)\s*(-o-|-moz-|-webkit-|-ms-)?([a-zA-Z-]*)(?=\b)(?!.*\{)/g
+    }
+], true);
+
+});
+
+define('rainbow-lang-js',['Rainbow'], function(Rainbow) {
+/**
+ * Javascript patterns
+ *
+ * @author Craig Campbell
+ * @version 1.0.9
+ */
+Rainbow.extend('javascript', [
+
+    /**
+     * matches $. or $(
+     */
+    {
+        'name': 'selector',
+        'pattern': /(\s|^)\$(?=\.|\()/g
+    },
+    {
+        'name': 'support',
+        'pattern': /\b(window|document)\b/g
+    },
+    {
+        'matches': {
+            1: 'support.property'
+        },
+        'pattern': /\.(length|node(Name|Value))\b/g
+    },
+    {
+        'matches': {
+            1: 'support.function'
+        },
+        'pattern': /(setTimeout|setInterval)(?=\()/g
+
+    },
+    {
+        'matches': {
+            1: 'support.method'
+        },
+        'pattern': /\.(getAttribute|push|getElementById|getElementsByClassName|log|setTimeout|setInterval)(?=\()/g
+    },
+
+    /**
+     * matches any escaped characters inside of a js regex pattern
+     *
+     * @see https://github.com/ccampbell/rainbow/issues/22
+     *
+     * this was causing single line comments to fail so it now makes sure
+     * the opening / is not directly followed by a *
+     *
+     * @todo check that there is valid regex in match group 1
+     */
+    {
+        'name': 'string.regexp',
+        'matches': {
+            1: 'string.regexp.open',
+            2: {
+                'name': 'constant.regexp.escape',
+                'pattern': /\\(.){1}/g
+            },
+            3: 'string.regexp.close',
+            4: 'string.regexp.modifier'
+        },
+        'pattern': /(\/)(?!\*)(.+)(\/)([igm]{0,3})/g
+    },
+
+    /**
+     * matches runtime function declarations
+     */
+    {
+        'matches': {
+            1: 'storage',
+            3: 'entity.function'
+        },
+        'pattern': /(var)?(\s|^)(\S*)(?=\s?=\s?function\()/g
+    },
+
+    /**
+     * matches constructor call
+     */
+    {
+        'matches': {
+            1: 'keyword',
+            2: 'entity.function'
+        },
+        'pattern': /(new)\s+(.*)(?=\()/g
+    },
+
+    /**
+     * matches any function call in the style functionName: function()
+     */
+    {
+        'name': 'entity.function',
+        'pattern': /(\w+)(?=:\s{0,}function)/g
+    }
+]);
+
+});
+define('rainbow-lang-shell',['Rainbow'], function(Rainbow) {
+/**
+ * Shell patterns
+ *
+ * @author Matthew King
+ * @author Craig Campbell
+ * @version 1.0.3
+ */
+Rainbow.extend('shell', [
+    /**
+     * This handles the case where subshells contain quotes.
+     * For example: `"$(resolve_link "$name" || true)"`.
+     *
+     * Caveat: This really should match balanced parentheses, but cannot.
+     * @see http://stackoverflow.com/questions/133601/can-regular-expressions-be-used-to-match-nested-patterns
+     */
+    {
+        'name': 'shell',
+        'matches': {
+            1: {
+                'language': 'shell'
+            }
+        },
+        'pattern': /\$\(([\s\S]*?)\)/gm
+    },
+    {
+        'matches': {
+            2: 'string'
+        },
+        'pattern': /(\(|\s|\[|\=)(('|")[\s\S]*?(\3))/gm
+    },
+    {
+        'name': 'keyword.operator',
+        'pattern': /&lt;|&gt;|&amp;/g
+    },
+    {
+        'name': 'comment',
+        'pattern': /\#[\s\S]*?$/gm
+    },
+    {
+        'name': 'storage.function',
+        'pattern': /(.+?)(?=\(\)\s{0,}\{)/g
+    },
+    /**
+     * Environment variables
+     */
+    {
+        'name': 'support.command',
+        'pattern': /\b(echo|rm|ls|(mk|rm)dir|cd|find|cp|exit|pwd|exec|trap|source|shift|unset)/g
+    },
+    {
+        'matches': {
+            1: 'keyword'
+        },
+        'pattern': /\b(break|case|continue|do|done|elif|else|esac|eval|export|fi|for|function|if|in|local|return|set|then|unset|until|while)(?=\(|\b)/g
+    }
+], true);
+
+});
+
 (function (factory) {
   if( typeof define === 'function' && define.amd ) {
     define('jquery.collapsible',['jquery'], factory);
@@ -24043,7 +24388,7 @@ define('Rainbow',[], function() {
     return this;
   };
 }));
-define('router',[ "jquery", "footwork", "lodash", "Rainbow", "jquery.collapsible" ],
+define('router',[ "jquery", "footwork", "lodash", "Rainbow", "rainbow-lang-html", "rainbow-lang-css", "rainbow-lang-js", "rainbow-lang-shell", "jquery.collapsible" ],
   function( $, fw, _, Rainbow ) {
     var $pageNamespace = fw.namespace('Page');
     var $pageSectionNamespace = fw.namespace('PageSection');

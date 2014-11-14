@@ -1,18 +1,16 @@
-<ul class="sections">
-    <% for (var i=0, l=sections.length; i<l; i++) { %>
-    <% var section = sections[i]; %>
-    <li id="section-<%= i + 1 %>" class="section">
-        <div class="annotation">
-          <% heading = section.docsHtml.match(/^\s*<(h\d)>/) %>
-          <div class="pilwrap <%= heading ? 'for-' + heading[1] : '' %>">
-            <a class="pilcrow" href="#section-<%= i + 1 %>">&#182;</a>
-          </div>
-          <%= section.docsHtml %>
-          <div class="annotation-bg"></div>
-        </div>
-        <% if (section.codeText.replace(/\s/gm, '') != '') { %>
-        <div class="content"><%= section.codeHtml %></div>
-        <% } %>
-    </li>
-    <% } %>
-</ul>
+<div class="docco" data-bind="stopBinding: true">
+  <ul class="sections">
+      <% for (var i=0, l=sections.length; i<l; i++) { %>
+        <% var section = sections[i]; %>
+        <li id="section-<%= i + 1 %>" class="section">
+            <div class="annotation">
+              <%= section.docsHtml %>
+              <div class="annotation-bg"></div>
+            </div>
+            <% if (section.codeText.replace(/\s/gm, '') != '') { %>
+            <div class="content"><pre><code data-language="javascript"><%= section.codeText.replace(/^\s+|\s+$/g,"") %></code></pre></div>
+            <% } %>
+        </li>
+      <% } %>
+  </ul>
+</div>
