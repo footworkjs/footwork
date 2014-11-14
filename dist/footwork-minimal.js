@@ -4801,7 +4801,8 @@ function transformRouteConfigToDesc(routeDesc) {
   return extend({ id: uniqueId('route') }, baseRouteDescription, routeDesc );
 }
 
-// Convert a route string to a regular expression which is then used to match a uri against it and determine whether that uri matches the described route as well as parse and retrieve its tokens
+// Convert a route string to a regular expression which is then used to match a uri against it and determine
+// whether that uri matches the described route as well as parse and retrieve its tokens
 function routeStringToRegExp(routeString) {
   routeString = routeString
     .replace(escapeRegex, "\\$&")
@@ -5025,7 +5026,7 @@ fw.bindingHandlers.$route = {
         mySegment = '';
       }
       
-      if(newRoute.segment === mySegment && isString(fwRouters.activeRouteClassName) && fwRouters.activeRouteClassName.length) {
+      if(!isNull(newRoute) && newRoute.segment === mySegment && isString(fwRouters.activeRouteClassName) && fwRouters.activeRouteClassName.length) {
         // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
         addClass(element, fwRouters.activeRouteClassName);
       } else if( hasClass(element, fwRouters.activeRouteClassName) ) {
