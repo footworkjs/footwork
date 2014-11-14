@@ -1,4 +1,4 @@
-define([ "jquery", "footwork", "lodash", "Rainbow", "rainbow-lang-html", "rainbow-lang-css", "rainbow-lang-js", "rainbow-lang-shell", "jquery.collapsible" ],
+define([ "jquery", "footwork", "lodash", "Rainbow", "rainbow-linenum", "rainbow-lang-html", "rainbow-lang-css", "rainbow-lang-js", "rainbow-lang-shell", "jquery.collapsible" ],
   function( $, fw, _, Rainbow ) {
     var $pageNamespace = fw.namespace('Page');
     var $pageSectionNamespace = fw.namespace('PageSection');

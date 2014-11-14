@@ -1,8 +1,25 @@
+@lineNumberColor: #444;
+@lineHeight: 20px;
+
 pre {
   margin: 0;
+  line-height: @lineHeight;
+  font-size: 13px;
   .border-radius(3px);
+
+  code.rainbow .line {
+    border-right: 1px solid @lineNumberColor;
+    margin-right: 10px;
+  }
 }
 
 pre + pre {
   margin-top: 10px;
+}
+
+.line {
+  float: left;
+  height: @lineHeight;
+  line-height: @lineHeight;
+  color: @lineNumberColor;
 }

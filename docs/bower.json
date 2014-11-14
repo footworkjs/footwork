@@ -20,6 +20,7 @@
     "requirejs-text": "*",
     "highlight": "*",
     "jquery": "1.11.1",
-    "rainbow": "https://github.com/reflectiveSingleton/rainbow.git#aa054eb9b413d82bd89f10249654f70d2c65656d"
+    "rainbow": "https://github.com/reflectiveSingleton/rainbow.git#aa054eb9b413d82bd89f10249654f70d2c65656d",
+    "rainbow.linenumbers": "https://github.com/reflectiveSingleton/rainbow.linenumbers.git#03bebb89c799981128207b83e53b8509db940f97"
   }
 }

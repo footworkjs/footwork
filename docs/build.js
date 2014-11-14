@@ -40,6 +40,7 @@
     "rainbow-lang-html":  "../bower_components/rainbow/js/language/html",
     "rainbow-lang-css":   "../bower_components/rainbow/js/language/css",
     "rainbow-lang-shell": "../bower_components/rainbow/js/language/shell",
+    "rainbow-linenum":    "../bower_components/rainbow.linenumbers/js/rainbow.linenumbers",
     "jwerty":             "lib/jwerty",
     "jquery.pulse":       "lib/jquery-plugins/jquery.pulse",
     "jquery.easing":      "lib/jquery-plugins/jquery.easing",
