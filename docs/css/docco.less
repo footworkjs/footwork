@@ -1,3 +1,6 @@
+@annotationBG: #ddd;
+@annotationBorder: darken(@annotationBG, 10%);
+
 .docco {
   .annotation ul, .annotation ol {
     margin: 25px 0;
@@ -66,6 +69,7 @@
   .annotation > * {
     position: relative;
     z-index: 2;
+    color: contrast(@annotationBG, black, white, 60%);
   }
 
   .sections > .section {
@@ -86,14 +90,13 @@
   }
 
   .annotation-bg {
-    background: #eee;
     position: absolute;
     top: 0;
     left: 0;
     bottom: 0;
     width: 100%;
     z-index: 1;
-    border-right: 1px solid #ddd;
+    background: @annotationBG;
   }
 
   #section-1 .annotation-bg, #section-2 .annotation-bg {
@@ -142,6 +145,35 @@
   ul.sections .annotation-bg {
     display: block;
     width: 100%;
+  }
+
+  #section-1 {
+    padding-top: 20px;
+  }
+
+  #section-3 {
+    .annotation-bg {
+      .border-radius(10px 10px 0 0);
+    }
+  }
+
+  #section-3, #section-8, #section-18, #section-21, #section-22 {
+    padding-top: 20px;
+  }
+
+  .section .annotation h2 {
+    margin-top: -60px;
+    padding-top: 60px;
+  }
+  
+  #section-1 .annotation h2 {
+    padding-top: 0px !important;
+  }
+
+  .section-anchor {
+    position: relative;
+    display: block;
+    top: -(@header-min-height + @header-border-width + 20px);
   }
 }
 
@@ -203,7 +235,13 @@
     
     ul.sections .annotation-bg {
       width: 250px;
-      border-right: 1px solid #ddd;
+      border-right: 1px solid @annotationBorder;
+    }
+
+    #section-3 {
+      .annotation-bg {
+        .border-radius(25px 0 0 0);
+      }
     }
   }
 }
