@@ -18,6 +18,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
         this.chosenSection = fw.observable().receiveFrom('PageSections', 'chosenSection');
         this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed').extend({ debounce: 200 });
         this.viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
+        this.paneIsNarrow = fw.observable(false).receiveFrom('Pane', 'narrow');
 
         this.visible = fw.observable( null ).extend({ autoEnable: _.random( 200, 600 ) });
         this.title = fw.observable( pageSectionData.title );
@@ -66,7 +67,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
         };
 
         this.chooseSection = function() {
-          if(this.viewPortLayoutMode() === 'mobile') {
+          if(this.viewPortLayoutMode() === 'mobile' || this.paneIsNarrow()) {
             if(!this.paneCollapsed()) {
               this.goToSection( this.anchor() );
               this.paneCollapsed(true);
