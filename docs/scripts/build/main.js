@@ -22133,7 +22133,7 @@ define('app/viewModel/pane/PageSections',[ "jquery", "lodash", "footwork", "jque
         this.chosenSection = fw.observable().receiveFrom('PageSections', 'chosenSection');
         this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed').extend({ debounce: 200 });
         this.viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
-        this.paneIsNarrow = fw.observable(false).receiveFrom('Pane', 'narrow');
+        this.paneIsOverlapping = fw.observable().receiveFrom('Body', 'overlapPane');
 
         this.visible = fw.observable( null ).extend({ autoEnable: _.random( 200, 600 ) });
         this.title = fw.observable( pageSectionData.title );
@@ -22181,8 +22181,8 @@ define('app/viewModel/pane/PageSections',[ "jquery", "lodash", "footwork", "jque
           $('[name=' + anchorName + ']').pulse({ className: 'active', duration: 1000 });
         };
 
-        this.chooseSection = function() {
-          if(this.viewPortLayoutMode() === 'mobile' || this.paneIsNarrow()) {
+        this.chooseSection = function(event) {
+          if(this.viewPortLayoutMode() === 'mobile' || this.paneIsOverlapping()) {
             if(!this.paneCollapsed()) {
               this.goToSection( this.anchor() );
               this.paneCollapsed(true);
