@@ -6,6 +6,7 @@ pre {
   line-height: @lineHeight;
   font-size: 13px;
   .border-radius(3px);
+  overflow: hidden;
 
   code.rainbow .line {
     border-right: 1px solid @lineNumberColor;
@@ -13,7 +14,7 @@ pre {
   }
 }
 
-pre + pre {
+pre + style + pre {
   margin-top: 10px;
 }
 

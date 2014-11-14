@@ -22181,7 +22181,7 @@ define('app/viewModel/pane/PageSections',[ "jquery", "lodash", "footwork", "jque
           $('[name=' + anchorName + ']').pulse({ className: 'active', duration: 1000 });
         };
 
-        this.chooseSection = function(event) {
+        this.chooseSection = function() {
           if(this.viewPortLayoutMode() === 'mobile' || this.paneIsOverlapping()) {
             if(!this.paneCollapsed()) {
               this.goToSection( this.anchor() );
@@ -23002,7 +23002,7 @@ define('app/viewModel/BuildInfo',[ "footwork", "lodash" ],
   }
 );
 
-define('text!../../pages/index-page.html',[],function () { return '<article id="js-page" class="page-code">\r\n  <a id="post1" class="section-anchor"></a>\r\n  <section name="post1">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <span class="sub title">footworkjs Documentation</span>\r\n    </header>\r\n    <div class="content block-font">\r\n      <p>Welcome to the footworkjs (<showversion></showversion>) documentation.</p>\r\n    </div>\r\n  </section>\r\n</article>\r\n\r\n<div id="metaData">\r\n{\r\n  "title": "Documentation Index",\r\n  "description": "The source for documentation, tutorials, and more for footwork.js"\r\n}\r\n</div>';});
+define('text!../../pages/index-page.html',[],function () { return '<article id="js-page" class="page-code">\r\n  <a id="post1" class="section-anchor"></a>\r\n  <section name="post1">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <span class="sub title">Welcome to the footworkjs (<showversion></showversion>) documentation.</span>\r\n    </header>\r\n    <div class="content block-font">\r\n      <contributors></contributors>\r\n    </div>\r\n  </section>\r\n</article>\r\n\r\n<div id="metaData">\r\n{\r\n  "title": "Documentation Index",\r\n  "description": "The source for documentation, tutorials, and more for footwork.js"\r\n}\r\n</div>';});
 
 
 define('text!../../pages/not-found-page.html',[],function () { return '<article id="js-page" class="page-404">\r\n  <div class="error404">\r\n    <div class="title">404 - <span>Not Found</span>.</div>\r\n    <div class="message">I am sorry about this, but I can\'t seem to find what you are looking for.</div>\r\n  </div>\r\n</article>\r\n\r\n<div id="metaData">\r\n{\r\n  "title": "404",\r\n  "description": "Resource not found."\r\n}\r\n</div>';});
