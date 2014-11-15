@@ -4,7 +4,7 @@ define([ "footwork", "lodash" ],
       namespace: 'Contributors',
       initialize: function() {
         this.contributors = _.map(footworkBuild.contributors, function(contributor) {
-          contributor.contribution = contributor.contribution.join(', ');
+          contributor.contribution = (_.isArray(contributor.contribution) ? contributor.contribution.join(', ') : contributor.contribution);
           return contributor;
         });
       }

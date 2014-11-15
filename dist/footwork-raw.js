@@ -37,11 +37,11 @@ var noop = function() { };
 
 var isObservable = fw.isObservable;
 
-var isPath = function(pathOrFile) {
+function isPath(pathOrFile) {
   return hasTrailingSlash.test(pathOrFile);
 };
 
-var hasPathStart = function(path) {
+function hasPathStart(path) {
   return hasStartingSlash.test(path);
 };
 

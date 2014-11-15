@@ -17,14 +17,8 @@
 @header-min-height: 35px;
 @header-move-speed: 0.3s;
 
-/* computeds/etc */
 @body-text: lighten( contrast(@body-bg-color, white, black, 60%), 20% );
-@link-color-mixin: #2793e6;
-@link-color-mix-amount: 30%;
-@link-color: mix(@body-text, @link-color-mixin, @link-color-mix-amount);
-.link-color-for(@bg-color) {
-  color: mix(contrast(@bg-color, white, black, 50%), @link-color-mixin, @link-color-mix-amount);
-}
+@link-color: darken(@pane-bg-color, 15%);
 
 @controls-fg: contrast(@controls-bg);
 @controls-header-text: contrast(@controls-bg);
@@ -43,9 +37,10 @@
 @controls-header: lighten(@controls-bg, 30%);
 @pane-collapse: all @pane-collapse-time @pane-collapse-func;
 
+@main-line-height: 20px;
 @primary-font-family: Lato, proxima-nova, 'Helvetica Neue', Arial, sans-serif;
-@primary-font: 15px @primary-font-family;
-@header-font: 15px @primary-font-family;
+@primary-font: 15px/@main-line-height @primary-font-family;
+@header-font: 15px/@main-line-height @primary-font-family;
 
 @button-background: lighten(@pane-bg-color, 10%);
 

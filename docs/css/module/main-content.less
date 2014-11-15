@@ -18,22 +18,29 @@
   padding-top: @default-header-height + @header-border-width;
 }
 
+#cornerFoot {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  max-width: 200px;
+}
+
 main {
   position: relative;
-  padding: 20px 10px 0px 10px;
+  padding: 0px 10px 0px 10px;
   opacity: 1;
   font-size: 15px;
   z-index: 0;
   .transition(opacity 0.2s ease);
 
-  @linkColor: #485ecf;
-  a {
-    color: @linkColor;
-    cursor: pointer;
-    &:hover {
-      color: darken(@linkColor, 10%);
-    }
-  }
+  // @linkColor: #485ecf;
+  // a {
+  //   color: @linkColor;
+  //   cursor: pointer;
+  //   &:hover {
+  //     color: darken(@linkColor, 10%);
+  //   }
+  // }
 
   p + p {
     margin-top: 10px;
@@ -82,31 +89,47 @@ main {
         top: 0;
         width: 100%;
         height: 100%;
-        border: 1px solid @controls-bg;
+        border: 1px solid mix(@pane-bg-color, @body-bg-color, 20%);
         .box-shadow(0 0 8px -5px rgba(0,0,0,0.4) inset);
         opacity: 0;
-        background: lighten(@controls-bg, 40%);
+        background: mix(@pane-bg-color, @body-bg-color, 10%);
         .transition(opacity 1.3s linear);
+      }
+
+      .note {
+        background: @body-text;
+        color: mix(@body-bg-color, @body-text);
+        border: 1px solid darken(@body-text, 10%);
+        padding: 10px;
+        font-size: 12px;
+        .border-radius(3px);
+        margin: 10px 0;
+        line-height: 17px;
+
+        a {
+          color: #7D8CDD;
+        }
+
+        p + p {
+          margin-top: 10px;
+        }
       }
 
       header {
         margin-bottom: 10px;
         .title {
-          font: 30px/30px 'Arial Bold', sans-serif;
+          font-size: 20px;
+          line-height: 20px;
 
           &.sub {
             font-size: 18px;
             color: mix(contrast(@body-bg-color, white, black, 60%), @body-bg-color, 60% );
           }
-          
-          &:hover {
-            text-decoration: none;
-          }
         }
       }
     }
 
-    section + a.section-anchor {
+     a.section-anchor + section {
       margin-top: 20px;
     }
   }
