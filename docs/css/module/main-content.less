@@ -2,25 +2,18 @@
   max-width: 1100px;
   margin-left: @accent-padding;
   overflow: hidden;
-  position: relative;
   .transition(@pane-collapse);
   position: relative;
-  background-color: @body-bg-color;
-
-  &.configVisible {
-    #collapse-button {
-      /*display: none;*/
-    }
-  }
 }
 
 .main-content {
   padding-top: @default-header-height + @header-border-width;
+  position: relative;
 }
 
 #cornerFoot {
   position: absolute;
-  top: 60px;
+  top: 45px;
   right: 0;
   max-width: 200px;
 }
@@ -92,10 +85,10 @@ main {
         color: mix(@body-bg-color, @body-text);
         border: 1px solid darken(@body-text, 10%);
         padding: 10px;
-        font-size: 12px;
+        font-size: 13px;
         .border-radius(3px);
         margin: 10px 0;
-        line-height: 17px;
+        line-height: 20px;
 
         a {
           color: #7D8CDD;

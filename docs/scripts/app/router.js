@@ -1,4 +1,4 @@
-define([ "jquery", "footwork", "lodash", "highlight" ],
+define([ "jquery", "footwork", "lodash", "highlight", "jquery.collapsible" ],
   function( $, fw, _ ) {
     var $pageNamespace = fw.namespace('Page');
     var $pageSectionNamespace = fw.namespace('PageSection');
