@@ -25,9 +25,9 @@
             </a>
           </div>
           <div class="content" data-bind="foreach: subMenuItems">
-            <div class="row">
-              <a class="item" data-bind="attr: { target: target }, text: labelText, $route: { url: url, handler: clickHandler }"></a>
-            </div>
+            <a class="row" data-bind="attr: { target: target }, $route: { url: url, handler: clickHandler }">
+              <span class="item" data-bind="text: labelText"></span>
+            </a>
           </div>
         </div>
       <!-- /ko -->

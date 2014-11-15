@@ -520,20 +520,24 @@
 
           a {
             color: @header-dropdown-fg;
-            white-space: nowrap;
 
             &:hover {
+              background: darken(@pane-bg-color, 5%);
+            }
+            &:active {
               color: @header-dropdown-fg-hover;
             }
             &.active {
               color: @header-dropdown-fg-hover;
-              font-weight: bold;
+              background: darken(@pane-bg-color, 5%);
             }
           }
 
           .row {
-            padding: 0 10px;
-            margin: 10px 0;
+            display: block;
+            padding: 5px 10px;
+            margin: 5px 0;
+            white-space: nowrap;
           }
         }
       }
