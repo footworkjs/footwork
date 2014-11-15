@@ -9,9 +9,9 @@
       </div>
 
       <div class="content" data-bind="foreach: releases">
-        <div class="row" data-bind="css: { isMyRelease: myRelease }">
-          <a class="item" data-bind="text: version, attr: { href: href }"></a>
-        </div>
+        <a class="row" data-bind="css: { isMyRelease: myRelease }, attr: { href: href }">
+          <span class="item" data-bind="text: version"></span>
+        </a>
       </div>
     </div>
   </div>
