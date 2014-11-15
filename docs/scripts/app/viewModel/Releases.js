@@ -49,7 +49,7 @@ define([ "jquery", "lodash", "footwork" ],
         }, this));
 
         if( !isRunningLocally ) {
-          $.get((isRunningLocally ? ('http://latest-docs.' + host) : '') + '/release/listAll').done(function(releaseList) {
+          $.get('/release/listAll').done(function(releaseList) {
             this.releaseList(releaseList);
           }.bind(this));
         }

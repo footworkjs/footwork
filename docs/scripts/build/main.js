@@ -20962,7 +20962,7 @@ define('app/viewModel/Releases',[ "jquery", "lodash", "footwork" ],
         }, this));
 
         if( !isRunningLocally ) {
-          $.get((isRunningLocally ? ('http://latest-docs.' + host) : '') + '/release/listAll').done(function(releaseList) {
+          $.get('/release/listAll').done(function(releaseList) {
             this.releaseList(releaseList);
           }.bind(this));
         }
@@ -22026,7 +22026,7 @@ define('app/viewModel/NavMenu',[ "jquery", "lodash", "footwork" ],
 
     return fw.viewModel({
       namespace: 'NavMenu',
-      initialize: function() {
+      initialize: function(params) {
         this.visible = fw.observable(false);
         this.paneWidth = fw.observable().receiveFrom('Pane', 'width');
         this.currentSelection = fw.observable().receiveFrom('PaneLinks', 'currentSelection');
@@ -22034,6 +22034,7 @@ define('app/viewModel/NavMenu',[ "jquery", "lodash", "footwork" ],
         this.headerContentHeight = fw.observable().receiveFrom('Header', 'contentHeight');
         this.configVisible = fw.observable().receiveFrom('Configuration', 'visible');
         this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed');
+        this.inHeader = !!params.inHeader;
 
         this.toggleConfigView = function() {
           this.configVisible( !this.configVisible() );
@@ -22070,7 +22071,7 @@ define('app/viewModel/NavMenu',[ "jquery", "lodash", "footwork" ],
   }
 );
 
-define('text!app/template/navmenu.html',[],function () { return '<div class="pane-component NavMenu initialized" data-bind="css: { visible: visible }">\r\n  <div class="content" data-bind="style: { height: paneContentMaxHeight }">\r\n    <nav data-bind="style: { width: mobileWidth }, foreach: entries">\r\n      <a data-bind="css: { visible: visible }, attr: { title: labelText, target: target }, $route: { url: url, handler: clickHandler }, text: labelText"></a>\r\n    </nav>\r\n  </div>\r\n</div>\r\n\r\n<div class="header-component">\r\n  <div class="menu-item first js-only initialized-only">\r\n    <div class="icon icon-cog title desktop-only" title="Click to adjust layout" id="settings"\r\n      data-bind="css: { active: configVisible }, style: { lineHeight: headerContentHeight }, click: toggleConfigView"></div>\r\n  </div>\r\n\r\n  <!-- ko foreach: entries -->\r\n    <div class="menu-item" data-bind="css: { visible: visible, aside: options.aside }, style: { height: headerContentHeight }">\r\n      <div class="title" data-bind="style: { lineHeight: $parent.headerContentHeight }">\r\n        <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }, text: labelText"></a>\r\n      </div>\r\n      <!-- ko if: hasSubMenu -->\r\n        <div class="drop-down">\r\n          <div class="title" data-bind="style: { lineHeight: headerContentHeight }">\r\n            <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }">\r\n              <span data-bind="text: labelText"></span>\r\n            </a>\r\n          </div>\r\n          <div class="content" data-bind="foreach: subMenuItems">\r\n            <a class="row" data-bind="attr: { target: target }, $route: { url: url, handler: clickHandler }">\r\n              <span class="item" data-bind="text: labelText"></span>\r\n            </a>\r\n          </div>\r\n        </div>\r\n      <!-- /ko -->\r\n    </div>\r\n  <!-- /ko -->\r\n  \r\n  <releases></releases>\r\n</div>';});
+define('text!app/template/navmenu.html',[],function () { return '<div class="pane-component NavMenu initialized" data-bind="css: { visible: visible }">\r\n  <div class="content" data-bind="style: { height: paneContentMaxHeight }">\r\n    <nav data-bind="style: { width: mobileWidth }, foreach: entries">\r\n      <a data-bind="css: { visible: visible }, attr: { title: labelText, target: target }, $route: { url: url, handler: clickHandler }, text: labelText"></a>\r\n    </nav>\r\n  </div>\r\n</div>\r\n\r\n<div class="header-component">\r\n  <div class="menu-item first js-only initialized-only">\r\n    <div class="icon icon-cog title desktop-only" title="Click to adjust layout" id="settings"\r\n      data-bind="css: { active: configVisible }, style: { lineHeight: headerContentHeight }, click: toggleConfigView"></div>\r\n  </div>\r\n\r\n  <!-- ko foreach: entries -->\r\n    <div class="menu-item" data-bind="css: { visible: visible, aside: options.aside }, style: { height: headerContentHeight }">\r\n      <div class="title" data-bind="style: { lineHeight: $parent.headerContentHeight }">\r\n        <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }, text: labelText"></a>\r\n      </div>\r\n      <!-- ko if: hasSubMenu -->\r\n        <div class="drop-down">\r\n          <div class="title" data-bind="style: { lineHeight: headerContentHeight }">\r\n            <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }">\r\n              <span data-bind="text: labelText"></span>\r\n            </a>\r\n          </div>\r\n          <div class="content" data-bind="foreach: subMenuItems">\r\n            <a class="row" data-bind="attr: { target: target }, $route: { url: url, handler: clickHandler }">\r\n              <span class="item" data-bind="text: labelText"></span>\r\n            </a>\r\n          </div>\r\n        </div>\r\n      <!-- /ko -->\r\n    </div>\r\n  <!-- /ko -->\r\n  \r\n  <!-- ko if: inHeader -->\r\n    <releases></releases>\r\n  <!-- /ko -->\r\n</div>';});
 
 ;(function () {
   /*

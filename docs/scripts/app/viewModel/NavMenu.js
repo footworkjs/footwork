@@ -36,7 +36,7 @@ define([ "jquery", "lodash", "footwork" ],
 
     return fw.viewModel({
       namespace: 'NavMenu',
-      initialize: function() {
+      initialize: function(params) {
         this.visible = fw.observable(false);
         this.paneWidth = fw.observable().receiveFrom('Pane', 'width');
         this.currentSelection = fw.observable().receiveFrom('PaneLinks', 'currentSelection');
@@ -44,6 +44,7 @@ define([ "jquery", "lodash", "footwork" ],
         this.headerContentHeight = fw.observable().receiveFrom('Header', 'contentHeight');
         this.configVisible = fw.observable().receiveFrom('Configuration', 'visible');
         this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed');
+        this.inHeader = !!params.inHeader;
 
         this.toggleConfigView = function() {
           this.configVisible( !this.configVisible() );
