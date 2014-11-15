@@ -1,5 +1,5 @@
-define([ "jquery", "footwork", "lodash", "Rainbow", "rainbow-linenum", "rainbow-lang-html", "rainbow-lang-css", "rainbow-lang-js", "rainbow-lang-shell", "jquery.collapsible" ],
-  function( $, fw, _, Rainbow ) {
+define([ "jquery", "footwork", "lodash", "highlight" ],
+  function( $, fw, _ ) {
     var $pageNamespace = fw.namespace('Page');
     var $pageSectionNamespace = fw.namespace('PageSection');
     var $paneElementsNamespace = fw.namespace('PaneElements');
@@ -17,6 +17,8 @@ define([ "jquery", "footwork", "lodash", "Rainbow", "rainbow-linenum", "rainbow-
       pageLoading(true);
       pagePromise.done(function(metaData, article) {
         var maxScrollResetPos = maxScrollResetPosition();
+        var $article = $(article);
+
         if( metaData.length ) {
           metaData = JSON.parse(metaData);
           initPage(metaData);
@@ -32,9 +34,14 @@ define([ "jquery", "footwork", "lodash", "Rainbow", "rainbow-linenum", "rainbow-
         if( location.hash.length ) {
           $pageSectionNamespace.publish( 'scrollToSection', location.hash.slice( location.hash.indexOf('#') + 1 ) );
         }
-        $(article).find('.collapsible').collapsible();
+        var $collapsible = $article.find('.collapsible');
+        if( $collapsible.length ) {
+          $collapsible.collapsible();
+        }
 
-        Rainbow.color();
+        $article.find('pre code').each(function(i, block) {
+          hljs.highlightBlock(block);
+        });
         pageLoading(false);
       });
 
