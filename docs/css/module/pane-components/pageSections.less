@@ -67,12 +67,17 @@
         margin: 5px 0 0 @accent-padding;
 
         & > .content {
+          position: relative;
           padding: 3px 10px;
           background: @pane-bg-color;
           font-size: 13px;
 
           a {
             display: block;
+          }
+
+          .content.active .arrow {
+            right: -25px !important;
           }
         }
       }

@@ -35,8 +35,10 @@ article {
 
   .inline-code {
     padding: 3px;
-    border: 1px solid darken(@body-bg-color, 15%);
-    color: darken(@pane-bg-color, 10%);
+    background: darken(@body-bg-color, 15%);
+    color: contrast(@body-bg-color);
+    font-size: 13px;
     .border-radius(3px);
+    white-space: nowrap;
   }
 }

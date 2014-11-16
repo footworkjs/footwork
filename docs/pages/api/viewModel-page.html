@@ -7,8 +7,10 @@
       <h1 class="sub title">fw.viewModel()</h1>
     </header>
     <div class="content block-font">
-      <p>A viewModel can be thought of simply as a container object which your template/html binds to. There are a number of ways to create them, but a simple plain old javascript object (POJO) at its most basic level is all that is needed.</p>
-      <p>Footwork viewModel's are unique in that they help with many other aspects/concerns a developer might have such as <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" title="Command Query Responsibility Segregation">CQRS</a>, lifecycle events, and more.</p>
+      <p>A viewModel can be thought of simply as a container object which your template/html binds to. There are a number of ways to create 
+      them, but a simple plain old javascript object (POJO) at its most basic level is all that is needed.</p>
+      <p>Footwork viewModel's are unique in that they help with many other aspects/concerns a developer might have such as 
+      <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" title="Command Query Responsibility Segregation">CQRS</a>, lifecycle events, and more.</p>
     </div>
   </section>
 
@@ -16,7 +18,7 @@
   <section name="configuration">
     <div class="highlight"></div>
     <header>
-      <h2 class="sub title">configuration</h2>
+      <h2 class="sub title">Configuration</h2>
     </header>
     <div class="content block-font">
       <p>viewModel class functions can be created using the <span class="inline-code">fw.viewModel()</span> call and passing in a configuration object.</p>
@@ -27,10 +29,10 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });</code></pr
 <pre><code data-language="javascript">fw.viewModel({
   namespace: 'Sprocket',
   autoIncrement: false, // if true, the namespace will have an auto-incremented 0-based index number appended for each new viewModel
-  initialize: function(options) {
+  initialize: function(params) {
     // normal viewModel initialization, just as typical knockout.js code would have you do.
-    this.type = fw.observable(options.type);
-    this.price = fw.observable(options.price);
+    this.type = fw.observable(params.type);
+    this.price = fw.observable(params.price);
     this.isExpensive = fw.computed(function() {
       return this.price() > 10;
     }, this);
@@ -46,6 +48,36 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });</code></pr
     </div>
   </section>
 
+  <a id="initialization" class="section-anchor"></a>
+  <section name="initialization">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Initialization</h1>
+    </header>
+    <div class="content block-font">
+      <p>A footwork viewModel can either be auto-created and bound by the framework based on a <span class="inline-code">&lt;viewModel module="moduleName"&gt;</span> declaration in
+      your template/html, or manually via a <span class="inline-code">fw.viewModel()</span> class function.</p>
+
+<pre><code data-language="javascript">/**
+ * You use footwork viewModel class functions just like you would a normal knockout.js constructor function.
+ * ie: var viewModelObject = new ConstructorFunc(paramaters ...);
+ *     Note: the parameters you pass into the ConstructorFunc(params) call get passed
+             into the initialize(params) function from the configuration object.
+ */
+
+// ex:
+var Sprocket = fw.viewModel({ /* ... configuration object ... */ });
+var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
+// awesomeSprocket.price() === 3.50
+// awesomeSprocket.isExpensive() === false
+
+var sprocketElement = document.getElementById('sprocket-container');
+fw.applyBindings(awesomeSprocket, sprocketElement);
+// Now the awesomeSprocket viewModel is bound to the HTML just as it would be with normal knockout.js code.
+</code></pre>
+    </div>
+  </section>
+
 </article>
 
 <div id="metaData">
@@ -57,7 +89,9 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });</code></pr
       "title": "fw.viewModel()",
       "subSections": [
         { "anchor": "configuration",
-          "title": "configuration" }
+          "title": "Configuration" },
+        { "anchor": "initialization",
+          "title": "Initialization" }
       ] }
   ]
 }
