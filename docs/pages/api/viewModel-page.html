@@ -6,7 +6,7 @@
     <header>
       <h1 class="sub title">fw.viewModel()</h1>
     </header>
-    <div class="content block-font">
+    <div class="content">
       <p>A viewModel can be thought of simply as a container object which your template/html binds to. There are a number of ways to create 
       them, but a simple plain old javascript object (POJO) at its most basic level is all that is needed.</p>
       <p>Footwork viewModel's are unique in that they help with many other aspects/concerns a developer might have such as 
@@ -20,12 +20,16 @@
     <header>
       <h2 class="sub title">Configuration</h2>
     </header>
-    <div class="content block-font">
-      <p>viewModel class functions can be created using the <span class="inline-code">fw.viewModel()</span> call and passing in a configuration object.</p>
-<pre><code data-language="javascript">var Sprocket = fw.viewModel({ /* ... configuration object ... */ });
+    <div class="content">
+      <p>Class constructor functions are created by calling <span class="inline-code">fw.viewModel()</span> and passing it a configuration object. The result (returned constructor function) can then be used to instantiate new instances of that viewModel.</p>
+      <h3>Example:</h3>
+<pre><code data-language="javascript">// viewModels must first have a class constructor created, this is done via the fw.viewModel() method and passing it a configuration object
+var Sprocket = fw.viewModel({ /* ... configuration object ... */ });
+
+// You can then create an instance using that class constructor function
 var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });</code></pre>
 
-      <p>Configuration object synopsis:</p>
+      <h3>Configuration object synopsis:</h3>
 <pre><code data-language="javascript">fw.viewModel({
   // The namespace (communications channel) the viewModel uses
   // It also prepended to the router namespace (if a router configuration is supplied)
@@ -68,7 +72,7 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });</code></pr
     <header>
       <h1 class="sub title">Initialization</h1>
     </header>
-    <div class="content block-font">
+    <div class="content">
       <p>A footwork viewModel can either be auto-created and bound by the framework based on a <span class="inline-code">&lt;viewModel module="moduleName"&gt;</span> declaration in
       your template/html, or manually via a <span class="inline-code">fw.viewModel()</span> class function.</p>
 

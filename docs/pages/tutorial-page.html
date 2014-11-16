@@ -1,15 +1,40 @@
 <article>
+  
   <a id="introduction" class="section-anchor"></a>
   <section name="introduction">
     <div class="highlight"></div>
     <header>
-      <span class="sub title">Introduction</span>
+      <h1 class="sub title">Introduction</h1>
     </header>
-    <div class="content block-font">
+    <div class="content">
       <p>This guide will help walk you through a basic footwork.js based application.</p>
     </div>
   </section>
+
+
+  <a id="viewModels" class="section-anchor"></a>
+  <section name="viewModels">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">viewModels</h2>
+    </header>
+    <div class="content block-font">
+      <h3>Creating objects (viewModels) to bind to the DOM is done exactly like it is in knockout.js.</h3>
+
+<pre><code data-language="javascript">// Works just like regular knockout.js code
+var viewModelObject = {
+  prop: 'value'
+};
+fw.applyBindings(viewModelObject); // this works as you would expect
+</code></pre>
+
+      <p>To get the additional features that footwork provides, such as namespacing, lifecycle events, component integration, and routing...then you need to create them via the <span class="inline-code">fw.viewModel()</span> based class constructors.</p>
+    </div>
+  </section>
+
 </article>
+
+
 
 <div id="metaData">
 {
@@ -17,7 +42,9 @@
   "description": "A step by step guide on creating a footwork based application.",
   "sections": [
     { "anchor": "introduction",
-      "title": "Introduction" }
+      "title": "Introduction" },
+    { "anchor": "viewModels",
+      "title": "viewModels" }
   ]
 }
 </div>
