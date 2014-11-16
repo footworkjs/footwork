@@ -143,6 +143,21 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
     </div>
   </section>
 
+  <a id="amd-loading" class="section-anchor"></a>
+  <section name="amd-loading">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">AMD / Lazy Loading</h2>
+    </header>
+    <div class="content">
+      <p>footwork.js supports (and encourages) the use of requireJS/AMD based loading for a number of reasons:</p>
+      <ul>
+        <li>It strongly encourages modularization and separation of concerns.</li>
+        <li>Helps decouple your application and allow for easier testability.</li>
+        <li>footwork can take advantage of its dependency resolution to automatically load necessary resources for you as needed at runtime.</li>
+        <li>Allows for easier debugging as non-compiled assets.</li>
+        <li>Allows for easy and highly configurable caching/preloading of assets (this includes all components, viewModels, and templates). None, some, or all of it...you choose what your users wait for.</li>
+      </ul>
     </div>
   </section>
 
@@ -159,7 +174,9 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
         { "anchor": "configuration",
           "title": "Configuration" },
         { "anchor": "initialization",
-          "title": "Initialization" }
+          "title": "Initialization" },
+        { "anchor": "amd-loading",
+          "title": "AMD / Lazy Loading" }
       ] }
   ]
 }
