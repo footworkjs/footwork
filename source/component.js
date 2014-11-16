@@ -129,9 +129,8 @@ fw.bindingHandlers.$life = {
     var $parent = bindingContext.$parent;
     if( isObject($parent) && $parent.__isOutlet ) {
       $parent.$route().__getOnCompleteCallback()(element.parentElement);
-    } else {
-      componentTriggerAfterBinding(element.parentElement, bindingContext.$data);
     }
+    componentTriggerAfterBinding(element.parentElement, bindingContext.$data);
   }
 };
 
@@ -155,17 +154,19 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     var ViewModel = config.viewModel || config;
     if( !isNativeComponent(componentName) ) {
       callback(function(params, componentInfo) {
-        var $context = fw.contextFor(componentInfo.element);
+        var $element = (componentInfo.element.nodeType === 8 ? componentInfo.element.parentElement : componentInfo.element);
+        var $context = fw.contextFor($element);
         var LoadedViewModel = ViewModel;
         if( isFunction(ViewModel) ) {
           if( !isViewModelCtor(ViewModel) ) {
             ViewModel = makeViewModel({ initialize: ViewModel });
           }
 
-          // inject the context into the ViewModel contructor
+          // inject the context and element into the ViewModel contructor
           LoadedViewModel = ViewModel.compose({
             _preInit: function() {
               this.$context = $context;
+              this.$element = $element;
             }
           });
           return new LoadedViewModel(params);
