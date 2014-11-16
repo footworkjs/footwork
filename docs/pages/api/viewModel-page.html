@@ -4,7 +4,7 @@
   <section name="introduction">
     <div class="highlight"></div>
     <header>
-      <h1 class="sub title">fw.viewModel()</h1>
+      <h1 class="sub title">viewModel</h1>
     </header>
     <div class="content">
       <p>A viewModel can be thought of simply as a container object which your template/HTML/DOM binds to. There are a number of ways to create 
@@ -23,7 +23,7 @@
     <div class="content">
       <p>Class constructor functions are created by calling <span class="inline-code">fw.viewModel()</span> and passing it a configuration object.</p>
       <p>The result (a constructor function) can then be used to instantiate new instances of that viewModel.
-      These constructor functions are essentially specialized wrappers which enable footwork to hook into both knockout and your module to provide for all of the additional features the framework provides.</p>
+      These constructor functions are essentially specialized wrappers which enable footwork to hook into both knockout and your viewModel/module to provide for all of the additional features the framework provides.</p>
 
       <h3>Configuration object synopsis:</h3>
 <pre><code data-language="javascript">fw.viewModel({
@@ -114,7 +114,7 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
 // awesomeSprocket.isExpensive() === false
 </code></pre>
 
-      <h3>Automatic initialization via <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> declaration in the DOM.</h3>
+      <h3>Automatic initialization via <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> declaration in the DOM:</h3>
 <pre><code>&lt;html&gt;
   &lt;body&gt;
     &lt;viewModel module="Sprocket"&gt;
@@ -126,6 +126,18 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
   &lt;/body&gt;
 &lt;/html&gt;</code></pre>
       <p class="note"><span class="label">NOTE:</span> See <a href="#autoloading">autoloading</a> for information on how to make sure footwork knows where to find your viewModels/modules.</p>
+
+      <h3>Automatic initialization via <span class="inline-code">&lt;[component-name]&gt;&lt;/[component-name]&gt;</span> declaration in the DOM:</h3>
+<pre><code>&lt;html&gt;
+  &lt;body&gt;
+    &lt;sprocket&gt;&lt;/sprocket&gt;
+    &lt;-- NOTE: The viewModel is either autoloaded, or loaded from cache/configuration you supply to the framework --&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      <p class="note"><span class="label">NOTE:</span> See <a data-bind="$route" href="/api/components#autoloading">component autoloading</a> for information on how to make sure footwork knows where to find your viewModels/modules based on the component name.</p>
+    </div>
+  </section>
+
     </div>
   </section>
 
@@ -137,7 +149,7 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
   "description": "viewModel declaration, instantiation, and binding.",
   "sections": [
     { "anchor": "introduction",
-      "title": "fw.viewModel()",
+      "title": "viewModel",
       "subSections": [
         { "anchor": "configuration",
           "title": "Configuration" },

@@ -5,7 +5,8 @@
       border-bottom: 1px solid transparent;
 
       & > .content .title {
-        font-size: 16px;
+        font-size: 17px;
+        font-weight: bold;
         line-height: 25px;
         padding-bottom: 0;
       }
@@ -43,9 +44,15 @@
         }
       }
 
-      & > .content, & > .sub-sections {
+      & > .content {
         position: relative;
         padding-right: @accent-padding;
+        .clearblock;
+      }
+
+       & > .sub-sections {
+        position: relative;
+        padding-right: @accent-padding / 2;
         .clearblock;
       }
 
@@ -74,10 +81,11 @@
 
           a {
             display: block;
+            font-size: 12px;
           }
 
           .content.active .arrow {
-            right: -25px !important;
+            right: -20px !important;
           }
         }
       }
