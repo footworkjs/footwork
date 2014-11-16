@@ -27,22 +27,36 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });</code></pr
 
       <p>Configuration object synopsis:</p>
 <pre><code data-language="javascript">fw.viewModel({
+  // The namespace (communications channel) the viewModel uses
+  // It also prepended to the router namespace (if a router configuration is supplied)
   namespace: 'Sprocket',
-  autoIncrement: false, // if true, the namespace will have an auto-incremented 0-based index number appended for each new viewModel
+
+  // If true, the namespace will have an auto-incremented 0-based index number appended for each new viewModel
+  autoIncrement: false,
+
+  // Initialization function called at creation of a new viewModel, is passed in parameters supplied at call
   initialize: function(params) {
-    // normal viewModel initialization, just as typical knockout.js code would have you do.
+    // this === the viewModel object
+    // normal viewModel initialization, exactly as typical knockout.js code would have you do in a constructor function.
     this.type = fw.observable(params.type);
-    this.price = fw.observable(params.price);
-    this.isExpensive = fw.computed(function() {
-      return this.price() > 10;
-    }, this);
   },
-  mixins: [ /* behavioral mixins to include with each new viewModel created */ ],
+
+  // Behavioral mixins to include with each new viewModel created, see the 'Mixins' section on this page
+  mixins: [],
+
+  // Router configuration object
+  router: {
+    // See: /api/routing
+  },
+
+  // Function called just after binding to the DOM
   afterBinding: function(containingElement) {
-    /* will run just after binding to html */
+    // this === the viewModel object
   },
+
+  // Function called just before the html this viewModel is bound to is removed from the DOM
   onDispose: function(containingElement) {
-    /* will run just before the html this viewModel is bound to is removed from the DOM */
+    // this === the viewModel object
   }
 });</code></pre>
     </div>
@@ -61,16 +75,27 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });</code></pr
 <pre><code data-language="javascript">/**
  * You use footwork viewModel class functions just like you would a normal knockout.js constructor function.
  * ie: var viewModelObject = new ConstructorFunc(paramaters ...);
- *     Note: the parameters you pass into the ConstructorFunc(params) call get passed
-             into the initialize(params) function from the configuration object.
+ * Note: the parameters you pass into the ConstructorFunc(params) call get passed
+ *       into the initialize(params) function from the configuration object.
  */
-
-// ex:
-var Sprocket = fw.viewModel({ /* ... configuration object ... */ });
+// example:
+var Sprocket = fw.viewModel({
+  // ... other options ...
+  initialize: function() {
+    this.type = fw.observable(params.type);
+    this.price = fw.observable(params.price);
+    this.isExpensive = fw.computed(function() {
+      return this.price() > 10;
+    }, this);
+    this.color = 'orange';
+  }
+});
 var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
 // awesomeSprocket.price() === 3.50
 // awesomeSprocket.isExpensive() === false
+// awesomeSprocket.color === 'orange'
 
+// Manually binding the viewModel to the DOM works exactly like it does in knockout.js
 var sprocketElement = document.getElementById('sprocket-container');
 fw.applyBindings(awesomeSprocket, sprocketElement);
 // Now the awesomeSprocket viewModel is bound to the HTML just as it would be with normal knockout.js code.

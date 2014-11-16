@@ -141,10 +141,23 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           this._chosenRead = true;
 
           return ( chosenRead !== true && chosenSection ) || _.reduce( sections, function(currentSection, section) {
+            var theAnchor = currentSection;
+
             if( _.isObject(section.anchorPosition()) && scrollPosition >= (section.anchorPosition().top - anchorOffset) ) {
-              return section.anchor();
+              theAnchor = section.anchor();
             }
-            return currentSection;
+
+            if( section.subSections().length ) {
+              // have to search through sub-sections as well
+              theAnchor = _.reduce( section.subSections(), function(currentSection, section) {
+                if( _.isObject(section.anchorPosition()) && scrollPosition >= (section.anchorPosition().top - anchorOffset) ) {
+                  currentSection = section.anchor();
+                }
+                return currentSection;
+              }, theAnchor);
+            }
+
+            return theAnchor;
           }.bind(this), false );
         }, this).broadcastAs('currentSection');
 
@@ -168,7 +181,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
 
         var loadMetaData = function( pageData ) {
           if( pageData ) {
-            anchorOffset = pageData.anchorOffset || 60;
+            anchorOffset = pageData.anchorOffset || 0;
             pageData.title && this.title(pageData.title);
             pageData.description && this.description(pageData.description);
             this.loadSections(pageData.sections);
