@@ -3,16 +3,49 @@
   <section name="introduction">
     <div class="highlight"></div>
     <header>
-      <span class="sub title">viewModel</span>
+      <span class="sub title">Introduction</span>
     </header>
     <div class="content block-font">
-      <pre><code data-language="javascript">var testing = true;
-window.func = function func() {
-  return true;
-}</code></pre>
-      <pre><code data-language="css">.test { background: red; }</code></pre>
+      <p>A viewModel can be thought of simply as a container object which your template/html binds to. There are a number of ways to create them, but a simple plain old javascript object (POJO) at its most basic level is all that is needed.</p>
+      <p>Footwork viewModel's are unique in that they help with many other aspects/concerns a developer might have such as <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" title="Command Query Responsibility Segregation">CQRS</a>, lifecycle events, and more.</p>
     </div>
   </section>
+
+  <a id="fw-viewModel" class="section-anchor"></a>
+  <section name="fw-viewModel">
+    <div class="highlight"></div>
+    <header>
+      <span class="sub title">fw.viewModel()</span>
+    </header>
+    <div class="content block-font">
+      <p>viewModel class functions can be created using the <span class="inline-code">fw.viewModel()</span> call.</p>
+<pre><code data-language="javascript">var Sprocket = ko.viewModel({
+  namespace: 'Sprocket',
+  autoIncrement: false, // if true, the namespace will have an auto-incremented index number appended for each new viewModel
+  initialize: function(options) {
+    // normal viewModel initialization, just as typical knockout.js code would have you do.
+    this.type = fw.observable(options.type);
+    this.price = fw.observable(options.price);
+    this.isExpensive = fw.computed(function() {
+      return this.price() > 10;
+    }, this);
+  },
+  mixins: [ /* behavioral mixins to include with each new viewModel created */ ],
+  afterBinding: function(containingElement) {
+    /* will run just after binding to html */
+  },
+  afterDispose: function(containingElement) {
+    /* will run just before the html this viewModel is bound to is removed from the DOM */
+  }
+});
+
+var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
+var sprocketElement = document.getElementById('the-sprocket');
+fw.applyBindings(awesomeSprocket, sprocketElement);</code></pre>
+    </div>
+  </section>
+
+
 </article>
 
 <div id="metaData">
@@ -21,7 +54,9 @@ window.func = function func() {
   "description": "viewModel declaration, instantiation, and binding.",
   "sections": [
     { "anchor": "introduction",
-      "title": "Introduction" }
+      "title": "Introduction" },
+    { "anchor": "fw-viewModel",
+      "title": "fw.viewModel()" }
   ]
 }
 </div>

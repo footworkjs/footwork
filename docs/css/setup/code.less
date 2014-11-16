@@ -1,0 +1,26 @@
+@lineNumberColor: #444;
+@lineHeight: 20px;
+@spacing: 10px;
+
+pre {
+  margin: 0;
+  line-height: @lineHeight;
+  font-size: 13px;
+  .border-radius(3px);
+  overflow: hidden;
+}
+
+pre + pre {
+  margin-top: @spacing;
+}
+
+p + pre {
+  margin-top: @spacing;
+}
+
+.inline-code {
+  padding: 3px;
+  border: 1px solid darken(@body-bg-color, 15%);
+  color: darken(@pane-bg-color, 10%);
+  .border-radius(3px);
+}

@@ -60,10 +60,10 @@ define([ "jquery", "lodash", "footwork" ],
         this.entries = fw.observableArray([
           new Entry({ label: 'API Docs', url: '/api', subMenu: [
             new Entry({ label: 'viewModel', url: '/api/viewModel' }),
-            new Entry({ label: 'Namespacing', url: '/api/namespacing' }),
             new Entry({ label: 'Components', url: '/api/components' }),
+            new Entry({ label: 'Namespacing', url: '/api/namespacing' }),
             new Entry({ label: 'Broadcastable / Receivable', url: '/api/broadcastable-receivable' }),
-            new Entry({ label: 'Routing', url: '/api/routing' }),
+            new Entry({ label: 'Routing', url: '/api/routing' })
           ] }),
           new Entry({ label: 'Tutorial', url: '/tutorial' }),
           new Entry({ label: 'Annotated Source', url: '/annotated' })

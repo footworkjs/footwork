@@ -46,7 +46,6 @@ var refreshViewModels = fw.viewModels.refresh = function() {
 var defaultViewModelConfigParams = {
   namespace: undefined,
   name: undefined,
-  componentNamespace: undefined,
   autoIncrement: false,
   mixins: undefined,
   params: undefined,
@@ -161,8 +160,9 @@ function applyContextAndLifeCycle(viewModel, element) {
     var $configParams = viewModel.__getConfigParams();
     var context;
     element = element || document.body;
+    viewModel.$element = element;
     viewModel.$context = elementContext = fw.contextFor(element);
-    
+
     if( isFunction($configParams.afterBinding) ) {
       $configParams.afterBinding.call(viewModel, element);
     }
