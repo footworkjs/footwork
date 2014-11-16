@@ -804,7 +804,19 @@ fw.bindingHandlers.$route = {
               currentRouteURL = handlerResult;
             }
             if( isString(currentRouteURL) && !isFullURL( currentRouteURL ) ) {
-              $myRouter.setState(currentRouteURL);
+              var hashIndex = currentRouteURL.indexOf('#');
+              if( hashIndex === -1 ) {
+                hashIndex = currentRouteURL.length;
+              } else {
+                // This is a really ugly way of handling the hash.
+                // TODO: Need to figure out clean way of detecting when all components have been loaded, or 
+                // allow the user to inform the framework when loading is 'done', then trigger the hash change.
+                // For now, just a nasty setTimeout with a 500ms delay.
+                setTimeout(function() {
+                  windowObject.location.hash = currentRouteURL.substring(hashIndex);
+                }, 500);
+              }
+              $myRouter.setState( currentRouteURL.substring(0, hashIndex) );
             }
           }
         });
