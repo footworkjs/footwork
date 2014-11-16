@@ -44,7 +44,7 @@
   // If true, the namespace will have an auto-incremented 0-based index number appended for each new viewModel
   autoIncrement: false, // default === false
 
-  // Initialization function called at creation of a new viewModel, is passed in parameters supplied at call
+  // Initialization function called at creation of a new viewModel, it is passed in the parameters supplied at creation
   initialize: function(param1, param2, ...) {
     // this === the viewModel object
     // Perform normal viewModel initialization here, just like typical knockout.js code.
@@ -170,6 +170,7 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
   &lt;/body&gt;
 &lt;/html&gt;</code></pre>
 
+      <h3>viewModel/module resolution</h3>
       <p>There are 3 ways footwork will try to resolve your viewModel when it encounters the declarative <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> element you place in the DOM.</p>
       <p>Here they are in order of priority:</p>
       <ul>
@@ -184,7 +185,7 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
 var Sprocket = fw.viewModel({ /* configuration object */ });
 fw.viewModels.register('Sprocket', Sprocket);
 
-// register a normal class function (like in regular knockout)
+// register a normal class constructor function (like in regular knockout)
 var Sprocket = function() { this.isUsed = fw.observable(false); };
 fw.viewModels.register('Sprocket', Sprocket);
 
@@ -215,7 +216,17 @@ fw.viewModels.registerLocation('Sprocket', '/viewModels/parts');
 fw.viewModels.registerLocation('Sprocket', '/viewModels/parts/DifferentFileName.js');
 
 // register the location of several viewModels at once (ie: all in the same folder)
-fw.viewModels.registerLocation(['Body', 'Navigation', 'Footer'], '/viewModels/pageAreas'); // NOTE: This is a folder, not an individual file name.</code></pre>
+fw.viewModels.registerLocation(['Body', 'Navigation', 'Footer'], '/viewModels/pageAreas');</code></pre>
+
+      <h3><em>fw.viewModels.defaultLocation('path/to/viewModel/folder')</em></h3>
+      <h3>Register the default location of viewModels/modules so footwork can load and bind them for you when needed:</h3>
+<pre><code data-language="javascript">// Load all viewModels from /myViewModels (based on viewModel/module name, case sensitive)
+fw.viewModels.registerLocation('/myViewModels');
+
+/**
+ * This would cause footwork to load '/myViewModels/Sprocket.js' via AMD/RequireJS when it encounters:
+ * &lt;viewModel module="Sprocket"&gt; ... &lt;/viewModel&gt;
+ */</code></pre>
 
     </div>
   </section>
