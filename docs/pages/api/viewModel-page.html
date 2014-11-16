@@ -11,6 +11,10 @@
       them, but a simple plain old javascript object (POJO) at its most basic level is all that is needed.</p>
       <p>Footwork viewModel's are unique in that they help with many other aspects/concerns a developer might have such as 
       <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" title="Command Query Responsibility Segregation">CQRS</a>, lifecycle events, routing, component integration, and more.</p>
+      <ul>
+        <li><a href="#configuration">Configuration</a></li>
+        <li><a href="#initialization">Initialization</a></li>
+      </ul>
     </div>
   </section>
 
@@ -21,7 +25,7 @@
       <h2 class="sub title">Configuration</h2>
     </header>
     <div class="content">
-      <p>Class constructor functions are created by calling <span class="inline-code">fw.viewModel()</span> and passing it a configuration object.</p>
+      <p>viewModel constructor functions are created by calling <span class="inline-code">fw.viewModel()</span> and passing it a configuration object.</p>
       <p>The result (a constructor function) can then be used to instantiate new instances of that viewModel.
       These constructor functions are essentially specialized wrappers which enable footwork to hook into both knockout and your viewModel/module to provide for all of the additional features the framework provides.</p>
 
@@ -41,10 +45,10 @@
   autoIncrement: false, // default === false
 
   // Initialization function called at creation of a new viewModel, is passed in parameters supplied at call
-  initialize: function(params) {
+  initialize: function(param1, param2, ...) {
     // this === the viewModel object
     // Perform normal viewModel initialization here, just like typical knockout.js code.
-    this.type = fw.observable(params.type);
+    this.param1 = fw.observable(param1);
   },
 
   // Behavioral mixins to include with each new viewModel created
@@ -131,10 +135,11 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
 <pre><code>&lt;html&gt;
   &lt;body&gt;
     &lt;sprocket&gt;&lt;/sprocket&gt;
-    &lt;-- NOTE: The viewModel is either autoloaded, or loaded from cache/configuration you supply to the framework --&gt;
+    &lt;-- NOTE: Both the viewModel and template are either autoloaded via requireJS/AMD, or 
+              loaded from cache/configuration you supply to the framework --&gt;
   &lt;/body&gt;
 &lt;/html&gt;</code></pre>
-      <p class="note"><span class="label">NOTE:</span> See <a data-bind="$route" href="/api/components#autoloading">component autoloading</a> for information on how to make sure footwork knows where to find your viewModels/modules based on the component name.</p>
+      <p class="note"><span class="label">NOTE:</span> See <a data-bind="$route" href="/api/components#autoloading">component autoloading</a> for information on how to make sure footwork knows where to find your viewModels/modules and templates based on the component name.</p>
     </div>
   </section>
 
