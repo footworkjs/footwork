@@ -10532,7 +10532,7 @@ var defaultViewModelConfigParams = {
   initialize: noop,
   afterInit: noop,
   afterBinding: noop,
-  afterDispose: noop
+  onDispose: noop
 };
 
 function beforeInitMixins(mixin) {
@@ -10566,8 +10566,8 @@ var makeViewModel = fw.viewModel = function(configParams) {
         return configParams;
       },
       __shutdown: function() {
-        if( isFunction(configParams.afterDispose) ) {
-          configParams.afterDispose.call(this);
+        if( isFunction(configParams.onDispose) ) {
+          configParams.onDispose.call(this);
         }
 
         each(this, function( property, name ) {
@@ -10575,6 +10575,9 @@ var makeViewModel = fw.viewModel = function(configParams) {
             property.shutdown();
           }
         });
+        
+        delete this.$element;
+        delete this.$context;
       }
     },
     _postInit: function() {

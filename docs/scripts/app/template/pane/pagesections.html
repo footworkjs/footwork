@@ -12,11 +12,24 @@
     </div>
     <div class="description" data-bind="text: description, css: { visible: hasDescription }"></div>
     <div data-bind="foreach: sections">
-      <a class="section-label entry-row" data-bind="click: chooseSection, css: { active: active, visible: visible }, attr: { href: anchorAddress }">
-        <div class="title" data-bind="text: title"></div>
-        <span class="description" data-bind="text: description"></span>
-        <div class="arrow"></div>
-      </a>
+      <div class="section-label entry-row" data-bind="css: { visible: visible }">
+        <div class="content" data-bind="css: { active: active }">
+          <a class="title" data-bind="text: title, click: chooseSection, attr: { href: anchorAddress }"></a>
+          <div class="arrow"></div>
+        </div>
+        <!-- ko if: hasSubSections -->
+          <div class="sub-sections" data-bind="foreach: subSections">
+            <div class="content">
+              <div class="sub-section">
+                <div class="content" data-bind="css: { active: active }">
+                  <a class="title" data-bind="text: title, click: chooseSection, attr: { href: anchorAddress }"></a>
+                  <div class="arrow"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <!-- /ko -->
+      </div>
     </div>
   </div>
 </div>

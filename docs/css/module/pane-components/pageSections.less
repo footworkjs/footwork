@@ -4,8 +4,8 @@
       border-top: 1px solid transparent;
       border-bottom: 1px solid transparent;
 
-      .title {
-        font-size: 15px;
+      & > .content .title {
+        font-size: 16px;
         line-height: 25px;
         padding-bottom: 0;
       }
@@ -16,14 +16,65 @@
       position: relative;
       cursor: pointer;
       text-decoration: none;
-      overflow: hidden;
-      padding-right: @accent-padding;
-      color: @sectionColor;
       margin: 10px 0;
+      padding-bottom: 5px;
 
-      &:hover {
-        color: lighten(@sectionColor, 10%);
-        .transition(color 0s linear);
+      a {
+        color: @sectionColor;
+        text-decoration: none;
+        .transition(color 0.3s 0.2s ease);
+
+        &:hover {
+          color: lighten(@sectionColor, 10%);
+          .transition(color 0s linear);
+          text-decoration: none;
+        }
+
+        &:active {
+          color: @pane-fg-color;
+        }
+
+        &:focus, &:active {
+          & > .content {
+            a {
+              color: @pane-fg-color;
+            }
+          }
+        }
+      }
+
+      & > .content, & > .sub-sections {
+        position: relative;
+        padding-right: @accent-padding;
+        .clearblock;
+      }
+
+      & > .content, .sub-section > .content {
+        &.active {
+          .title {
+            color: @pane-fg-color;
+            .transition(text-shadow 0.2s linear);
+          }
+          .arrow {
+            right: -5px;
+            opacity: 1;
+            .transition(right 0.5s ease, opacity 0s linear);
+          }
+        }
+      }
+
+      .sub-sections {
+        margin: 5px 0 0 @accent-padding;
+
+        & > .content {
+          padding: 3px 10px;
+          background: @pane-bg-color;
+          font-size: 13px;
+
+          a {
+            display: block;
+          }
+        }
       }
 
       .arrow {
@@ -40,25 +91,6 @@
         margin-top: -@height;
         opacity: 0;
         .transition(right 0.5s ease, opacity 0s 0.5s linear);
-      }
-
-      &:focus, &:active {
-        .title {
-          color: @pane-fg-color;
-        }
-      }
-
-      &.active {
-        .title {
-          color: @pane-fg-color;
-          text-shadow: 0 1px 2px black;
-          .transition(text-shadow 0.2s linear);
-        }
-        .arrow {
-          right: -5px;
-          opacity: 1;
-          .transition(right 0.5s ease, opacity 0s linear);
-        }
       }
     }
   }

@@ -19,10 +19,20 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
         this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed').extend({ debounce: 200 });
         this.viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
         this.paneIsOverlapping = fw.observable().receiveFrom('Body', 'overlapPane');
+        this.subSections = fw.observableArray();
+        this.hasSubSections = fw.computed(function() {
+          return this.subSections().length > 0;
+        }, this);
+        if( _.isArray(pageSectionData.subSections) && pageSectionData.subSections.length ) {
+          var subSections = this.subSections();
+          _.each(pageSectionData.subSections, function(subSection) {
+            subSections.push( new PageSection(subSection) );
+          }.bind(this));
+          this.subSections.valueHasMutated();
+        }
 
         this.visible = fw.observable( null ).extend({ autoEnable: _.random( 200, 600 ) });
         this.title = fw.observable( pageSectionData.title );
-        this.description = fw.observable( pageSectionData.description );
         this.anchor = fw.observable( pageSectionData.anchor );
         this.active = fw.computed(function() {
           return this.currentSection() === this.anchor();
@@ -158,7 +168,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
 
         var loadMetaData = function( pageData ) {
           if( pageData ) {
-            anchorOffset = pageData.anchorOffset || 0;
+            anchorOffset = pageData.anchorOffset || 60;
             pageData.title && this.title(pageData.title);
             pageData.description && this.description(pageData.description);
             this.loadSections(pageData.sections);

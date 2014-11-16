@@ -1,9 +1,10 @@
 <article>
+
   <a id="introduction" class="section-anchor"></a>
   <section name="introduction">
     <div class="highlight"></div>
     <header>
-      <span class="sub title">Introduction</span>
+      <h1 class="sub title">fw.viewModel()</h1>
     </header>
     <div class="content block-font">
       <p>A viewModel can be thought of simply as a container object which your template/html binds to. There are a number of ways to create them, but a simple plain old javascript object (POJO) at its most basic level is all that is needed.</p>
@@ -11,17 +12,21 @@
     </div>
   </section>
 
-  <a id="fw-viewModel" class="section-anchor"></a>
-  <section name="fw-viewModel">
+  <a id="configuration" class="section-anchor"></a>
+  <section name="configuration">
     <div class="highlight"></div>
     <header>
-      <span class="sub title">fw.viewModel()</span>
+      <h2 class="sub title">configuration</h2>
     </header>
     <div class="content block-font">
-      <p>viewModel class functions can be created using the <span class="inline-code">fw.viewModel()</span> call.</p>
-<pre><code data-language="javascript">var Sprocket = fw.viewModel({
+      <p>viewModel class functions can be created using the <span class="inline-code">fw.viewModel()</span> call and passing in a configuration object.</p>
+<pre><code data-language="javascript">var Sprocket = fw.viewModel({ /* ... configuration object ... */ });
+var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });</code></pre>
+
+      <p>Configuration object synopsis:</p>
+<pre><code data-language="javascript">fw.viewModel({
   namespace: 'Sprocket',
-  autoIncrement: false, // if true, the namespace will have an auto-incremented index number appended for each new viewModel
+  autoIncrement: false, // if true, the namespace will have an auto-incremented 0-based index number appended for each new viewModel
   initialize: function(options) {
     // normal viewModel initialization, just as typical knockout.js code would have you do.
     this.type = fw.observable(options.type);
@@ -34,17 +39,12 @@
   afterBinding: function(containingElement) {
     /* will run just after binding to html */
   },
-  afterDispose: function(containingElement) {
+  onDispose: function(containingElement) {
     /* will run just before the html this viewModel is bound to is removed from the DOM */
   }
-});
-
-var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
-var sprocketElement = document.getElementById('the-sprocket');
-fw.applyBindings(awesomeSprocket, sprocketElement);</code></pre>
+});</code></pre>
     </div>
   </section>
-
 
 </article>
 
@@ -54,9 +54,11 @@ fw.applyBindings(awesomeSprocket, sprocketElement);</code></pre>
   "description": "viewModel declaration, instantiation, and binding.",
   "sections": [
     { "anchor": "introduction",
-      "title": "Introduction" },
-    { "anchor": "fw-viewModel",
-      "title": "fw.viewModel()" }
+      "title": "fw.viewModel()",
+      "subSections": [
+        { "anchor": "configuration",
+          "title": "configuration" }
+      ] }
   ]
 }
 </div>
