@@ -350,7 +350,7 @@ viewModelMixins.push({
   runBeforeInit: true,
   _preInit: function( options ) {
     var $configParams = this.__getConfigParams();
-    this.$namespace = enterNamespaceName( indexedNamespaceName($configParams.componentNamespace || $configParams.namespace || $configParams.name || _.uniqueId('namespace'), $configParams.autoIncrement) );
+    this.$namespace = enterNamespaceName( indexedNamespaceName($configParams.namespace || $configParams.name || _.uniqueId('namespace'), $configParams.autoIncrement) );
     this.$globalNamespace = makeNamespace();
   },
   mixin: {
@@ -1177,7 +1177,6 @@ var refreshViewModels = fw.viewModels.refresh = function() {
 var defaultViewModelConfigParams = {
   namespace: undefined,
   name: undefined,
-  componentNamespace: undefined,
   autoIncrement: false,
   mixins: undefined,
   params: undefined,
@@ -1292,8 +1291,9 @@ function applyContextAndLifeCycle(viewModel, element) {
     var $configParams = viewModel.__getConfigParams();
     var context;
     element = element || document.body;
+    viewModel.$element = element;
     viewModel.$context = elementContext = fw.contextFor(element);
-    
+
     if( isFunction($configParams.afterBinding) ) {
       $configParams.afterBinding.call(viewModel, element);
     }
@@ -1535,9 +1535,8 @@ fw.bindingHandlers.$life = {
     var $parent = bindingContext.$parent;
     if( isObject($parent) && $parent.__isOutlet ) {
       $parent.$route().__getOnCompleteCallback()(element.parentElement);
-    } else {
-      componentTriggerAfterBinding(element.parentElement, bindingContext.$data);
     }
+    componentTriggerAfterBinding(element.parentElement, bindingContext.$data);
   }
 };
 
@@ -1561,17 +1560,19 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     var ViewModel = config.viewModel || config;
     if( !isNativeComponent(componentName) ) {
       callback(function(params, componentInfo) {
-        var $context = fw.contextFor(componentInfo.element);
+        var $element = (componentInfo.element.nodeType === 8 ? componentInfo.element.parentElement : componentInfo.element);
+        var $context = fw.contextFor($element);
         var LoadedViewModel = ViewModel;
         if( isFunction(ViewModel) ) {
           if( !isViewModelCtor(ViewModel) ) {
             ViewModel = makeViewModel({ initialize: ViewModel });
           }
 
-          // inject the context into the ViewModel contructor
+          // inject the context and element into the ViewModel contructor
           LoadedViewModel = ViewModel.compose({
             _preInit: function() {
               this.$context = $context;
+              this.$element = $element;
             }
           });
           return new LoadedViewModel(params);
