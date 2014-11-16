@@ -1,6 +1,7 @@
 @lineNumberColor: #444;
 @lineHeight: 20px;
 @spacing: 10px;
+@codeHeaderBorderColor: mix(@body-bg-color, @body-text, 65%);
 
 article {
   pre {
@@ -29,7 +30,7 @@ article {
 
   header {
     h1, h2 {
-      border-bottom: 2px solid mix(@body-bg-color, @body-text, 80%);
+      border-bottom: 2px solid @codeHeaderBorderColor;
       padding-bottom: 10px;
     }
     h2 {

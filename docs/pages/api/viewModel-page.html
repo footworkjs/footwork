@@ -7,7 +7,7 @@
       <h1 class="sub title">fw.viewModel()</h1>
     </header>
     <div class="content">
-      <p>A viewModel can be thought of simply as a container object which your template/html binds to. There are a number of ways to create 
+      <p>A viewModel can be thought of simply as a container object which your template/HTML/DOM binds to. There are a number of ways to create 
       them, but a simple plain old javascript object (POJO) at its most basic level is all that is needed.</p>
       <p>Footwork viewModel's are unique in that they help with many other aspects/concerns a developer might have such as 
       <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" title="Command Query Responsibility Segregation">CQRS</a>, lifecycle events, and more.</p>
@@ -21,13 +21,8 @@
       <h2 class="sub title">Configuration</h2>
     </header>
     <div class="content">
-      <p>Class constructor functions are created by calling <span class="inline-code">fw.viewModel()</span> and passing it a configuration object. The result (returned constructor function) can then be used to instantiate new instances of that viewModel.</p>
-      <h3>Example:</h3>
-<pre><code data-language="javascript">// viewModels must first have a class constructor created, this is done via the fw.viewModel() method and passing it a configuration object
-var Sprocket = fw.viewModel({ /* ... configuration object ... */ });
-
-// You can then create an instance using that class constructor function
-var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });</code></pre>
+      <p>Class constructor functions are created by calling <span class="inline-code">fw.viewModel()</span> and passing it a configuration object.</p>
+      <p>The result (returned constructor function) can then be used to instantiate new instances of that viewModel.</p>
 
       <h3>Configuration object synopsis:</h3>
 <pre><code data-language="javascript">fw.viewModel({
@@ -45,12 +40,14 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });</code></pr
     this.type = fw.observable(params.type);
   },
 
-  // Behavioral mixins to include with each new viewModel created, see the 'Mixins' section on this page
-  mixins: [],
+  // Behavioral mixins to include with each new viewModel created
+  mixins: [
+    // See: 'Mixins' section on this page
+  ],
 
   // Router configuration object
   router: {
-    // See: /api/routing
+    // See: /api/routing in documentation
   },
 
   // Function called just after binding to the DOM
@@ -70,12 +67,17 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });</code></pr
   <section name="initialization">
     <div class="highlight"></div>
     <header>
-      <h1 class="sub title">Initialization</h1>
+      <h2 class="sub title">Initialization</h2>
     </header>
     <div class="content">
-      <p>A footwork viewModel can either be auto-created and bound by the framework based on a <span class="inline-code">&lt;viewModel module="moduleName"&gt;</span> declaration in
-      your template/html, or manually via a <span class="inline-code">fw.viewModel()</span> class function.</p>
+      <p>In footwork a viewModel can be created/initialized and bound in 3 different ways:</p>
+      <ul>
+        <li>Manually initialized (or using a plain object) (standard knockout methodology).</li>
+        <li>Automatically via a <span class="inline-code">&lt;viewModel module="moduleName"&gt;&lt;/viewModel&gt;</span> declaration in the DOM.</li>
+        <li>Automatically via a <span class="inline-code">&lt;component-name&gt;&lt;/component-name&gt;</span> declaration in the DOM.</li>
+      </ul>
 
+<h3>Manual initialization (similar to what would be found in regular knockout.js code):</h3>
 <pre><code data-language="javascript">/**
  * You use footwork viewModel class functions just like you would a normal knockout.js constructor function.
  * ie: var viewModelObject = new ConstructorFunc(paramaters ...);
@@ -84,25 +86,22 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });</code></pr
  */
 // example:
 var Sprocket = fw.viewModel({
-  // ... other options ...
-  initialize: function() {
+  // ... configuration object ...
+  namespace: 'Sprocket',
+  initialize: function(params) {
     this.type = fw.observable(params.type);
+    this.color = 'orange';
     this.price = fw.observable(params.price);
     this.isExpensive = fw.computed(function() {
       return this.price() > 10;
     }, this);
-    this.color = 'orange';
   }
 });
-var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
-// awesomeSprocket.price() === 3.50
-// awesomeSprocket.isExpensive() === false
-// awesomeSprocket.color === 'orange'
 
-// Manually binding the viewModel to the DOM works exactly like it does in knockout.js
-var sprocketElement = document.getElementById('sprocket-container');
-fw.applyBindings(awesomeSprocket, sprocketElement);
-// Now the awesomeSprocket viewModel is bound to the HTML just as it would be with normal knockout.js code.
+var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
+// awesomeSprocket.type() === 'awesome'
+// awesomeSprocket.color === 'orange'
+// awesomeSprocket.isExpensive() === false
 </code></pre>
     </div>
   </section>
