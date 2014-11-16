@@ -88,7 +88,7 @@
         <li>Automatically via a <span class="inline-code">&lt;[component-name]&gt;&lt;/[component-name]&gt;</span> declaration in the DOM.</li>
       </ul>
 
-<h3>Manual initialization (similar to what would be found in regular knockout.js code):</h3>
+      <h3>Manual initialization (similar to what would be found in regular knockout.js code):</h3>
 <pre><code data-language="javascript">/**
  * You use footwork viewModel class functions just like you would a normal knockout.js constructor function.
  * ie: var viewModelObject = new ConstructorFunc(paramaters ...);
@@ -129,7 +129,7 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
     &lt;/viewModel&gt;
   &lt;/body&gt;
 &lt;/html&gt;</code></pre>
-      <p class="note"><span class="label">NOTE:</span> See <a href="#autoloading">autoloading</a> for information on how to make sure footwork knows where to find your viewModels/modules.</p>
+      <p class="note"><span class="label">NOTE:</span> See <a href="#loading-registering">AMD / Lazy Loading / Registering</a> for information on how to make sure footwork knows how to find your viewModels/modules.</p>
 
       <h3>Automatic initialization via <span class="inline-code">&lt;[component-name]&gt;&lt;/[component-name]&gt;</span> declaration in the DOM:</h3>
 <pre><code>&lt;html&gt;
@@ -139,25 +139,84 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
               loaded from cache/configuration you supply to the framework --&gt;
   &lt;/body&gt;
 &lt;/html&gt;</code></pre>
-      <p class="note"><span class="label">NOTE:</span> See <a data-bind="$route" href="/api/components#autoloading">component autoloading</a> for information on how to make sure footwork knows where to find your viewModels/modules and templates based on the component name.</p>
+      <p class="note"><span class="label">NOTE:</span> See <a data-bind="$route" href="/api/components#loading-registering">component AMD / Lazy Loading / Registering</a> for information on how to tell footwork where to find your component/viewModel/template assets.</p>
     </div>
   </section>
 
-  <a id="amd-loading" class="section-anchor"></a>
-  <section name="amd-loading">
+  <a id="loading-registering" class="section-anchor"></a>
+  <section name="loading-registering">
     <div class="highlight"></div>
     <header>
-      <h2 class="sub title">AMD / Lazy Loading</h2>
+      <h2 class="sub title">AMD / Lazy Loading / Registering</h2>
     </header>
     <div class="content">
-      <p>footwork.js supports (and encourages) the use of requireJS/AMD based loading for a number of reasons:</p>
+      <p>footwork.js supports both pre-caching/registering your viewModels ahead of time, or optionally automatically loading them via AMD/RequireJS. In either case, the declarative <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> syntax will trigger the loading (if necessary) and binding of the viewModel/module.</p>
+      <p>AMD/RequireJS is fully supported (and highly encouraged) for a number of reasons:</p>
       <ul>
         <li>It strongly encourages modularization and separation of concerns.</li>
         <li>Helps decouple your application and allow for easier testability.</li>
-        <li>footwork can take advantage of its dependency resolution to automatically load necessary resources for you as needed at runtime.</li>
-        <li>Allows for easier debugging as non-compiled assets.</li>
+        <li>footwork can take advantage of its dependency resolution to automatically load and use resources for you as needed at runtime (<em>including the automatic loading and composing of entire views/pages/routes, components, or viewModels</em>).</li>
+        <li>Allows for easier debugging as non-compiled assets while still being buildable for release into a production environment.</li>
         <li>Allows for easy and highly configurable caching/preloading of assets (this includes all components, viewModels, and templates). None, some, or all of it...you choose what your users wait for.</li>
       </ul>
+
+      <p>Automatically loading and wrapping a section of your DOM with a viewModel begins with inserting/wrapping the html in your template with a <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> element.</p>
+      <h3>Example:</h3>
+<pre><code>&lt;html&gt;
+  &lt;body&gt;
+    &lt;viewModel module="[moduleName]"&gt;
+      &lt;!-- HTML to be bound using an instance of the viewModel/module --&gt;
+    &lt;/viewModel&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+      <p>There are 3 ways footwork will try to resolve your viewModel when it encounters the declarative <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> element you place in the DOM.</p>
+      <p>Here they are in order of priority:</p>
+      <ul>
+        <li>Pre-cached via <span class="inline-code">fw.viewModels.register()</span> call.</li>
+        <li>Automatic download/resolution via AMD/RequireJS at a pre-registered location (<span class="inline-code">fw.viewModels.registerLocation()</span>).</li>
+        <li>Automatic download/resolution via AMD/RequireJS at the configurable default (<span class="inline-code">fw.viewModels.defaultLocation()</span>).</li>
+      </ul>
+
+      <h3><em>fw.viewModels.register('moduleName', viewModel)</em></h3>
+      <h3>Cache a viewModel/module ahead of time:</h3>
+<pre><code data-language="javascript">// register a footwork viewModel
+var Sprocket = fw.viewModel({ /* configuration object */ });
+fw.viewModels.register('Sprocket', Sprocket);
+
+// register a normal class function (like in regular knockout)
+var Sprocket = function() { this.isUsed = fw.observable(false); };
+fw.viewModels.register('Sprocket', Sprocket);
+
+// register an instance of an object (like in regular knockout)
+fw.viewModels.register('Sprocket', {
+  instance: { isUsed: false } // object representing the viewModel to be bound against the DOM
+});
+
+/**
+ * A constructor function to be called when the declaration is encountered.
+ * It is supplied params given at the binding (&lt;viewModel params="exampleParam: true"&gt;) and
+ * the containing element of the viewModel.
+ */
+fw.viewModels.register('Sprocket', {
+  createViewModel: function(params, info) {
+    // info.element = containing &lt;viewModel&gt; element
+    // params are the parameters declaratively created from the DOM (See: note below)
+    return { isUsed: false }; // object representing the viewModel to be bound against the DOM
+  }
+});</code></pre>
+
+      <h3><em>fw.viewModels.registerLocation('moduleName', 'path/to/module')</em></h3>
+      <h3>Register the location of a viewModel/module so footwork can load and bind it for you when needed:</h3>
+<pre><code data-language="javascript">// Load Sprocket from: /viewModels/parts/Sprocket.js (based on viewModel/module name, case sensitive)
+fw.viewModels.registerLocation('Sprocket', '/viewModels/parts');
+
+// Load Sprocket from: /viewModels/parts/DifferentFileName.js (specify full file name)
+fw.viewModels.registerLocation('Sprocket', '/viewModels/parts/DifferentFileName.js');
+
+// register the location of several viewModels at once (ie: all in the same folder)
+fw.viewModels.registerLocation(['Body', 'Navigation', 'Footer'], '/viewModels/pageAreas'); // NOTE: This is a folder, not an individual file name.</code></pre>
+
     </div>
   </section>
 
@@ -175,8 +234,8 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
           "title": "Configuration" },
         { "anchor": "initialization",
           "title": "Initialization" },
-        { "anchor": "amd-loading",
-          "title": "AMD / Lazy Loading" }
+        { "anchor": "loading-registering",
+          "title": "AMD / Lazy Loading / Registering" }
       ] }
   ]
 }
