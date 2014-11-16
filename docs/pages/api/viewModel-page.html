@@ -10,7 +10,7 @@
       <p>A viewModel can be thought of simply as a container object which your template/HTML/DOM binds to. There are a number of ways to create 
       them, but a simple plain old javascript object (POJO) at its most basic level is all that is needed.</p>
       <p>Footwork viewModel's are unique in that they help with many other aspects/concerns a developer might have such as 
-      <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" title="Command Query Responsibility Segregation">CQRS</a>, lifecycle events, and more.</p>
+      <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" title="Command Query Responsibility Segregation">CQRS</a>, lifecycle events, routing, component integration, and more.</p>
     </div>
   </section>
 
@@ -22,21 +22,28 @@
     </header>
     <div class="content">
       <p>Class constructor functions are created by calling <span class="inline-code">fw.viewModel()</span> and passing it a configuration object.</p>
-      <p>The result (returned constructor function) can then be used to instantiate new instances of that viewModel.</p>
+      <p>The result (a constructor function) can then be used to instantiate new instances of that viewModel.
+      These constructor functions are essentially specialized wrappers which enable footwork to hook into both knockout and your module to provide for all of the additional features the framework provides.</p>
 
       <h3>Configuration object synopsis:</h3>
 <pre><code data-language="javascript">fw.viewModel({
-  // The namespace (communications channel) the viewModel uses
-  // It also prepended to the router namespace (if a router configuration is supplied)
+  /**
+   * The namespace (communications channel) the viewModel uses. This is essentially used as
+   * the 'key' for CQRS separation between modules. If no namespace is provided a unique one
+   * will be automatically assigned.
+   *
+   * NOTE: This is also prepended to the routers namespace (if a router configuration is supplied)
+   *       See: /api/routing
+   */
   namespace: 'Sprocket',
 
   // If true, the namespace will have an auto-incremented 0-based index number appended for each new viewModel
-  autoIncrement: false,
+  autoIncrement: false, // default === false
 
   // Initialization function called at creation of a new viewModel, is passed in parameters supplied at call
   initialize: function(params) {
     // this === the viewModel object
-    // normal viewModel initialization, exactly as typical knockout.js code would have you do in a constructor function.
+    // Perform normal viewModel initialization here, just like typical knockout.js code.
     this.type = fw.observable(params.type);
   },
 
@@ -70,27 +77,30 @@
       <h2 class="sub title">Initialization</h2>
     </header>
     <div class="content">
-      <p>In footwork a viewModel can be created/initialized and bound in 3 different ways:</p>
+      <p>A viewModel can be created/initialized in 3 different ways:</p>
       <ul>
-        <li>Manually initialized (or using a plain object) (standard knockout methodology).</li>
-        <li>Automatically via a <span class="inline-code">&lt;viewModel module="moduleName"&gt;&lt;/viewModel&gt;</span> declaration in the DOM.</li>
-        <li>Automatically via a <span class="inline-code">&lt;component-name&gt;&lt;/component-name&gt;</span> declaration in the DOM.</li>
+        <li>Manually initialized (standard knockout methodology).</li>
+        <li>Automatically via a <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> declaration in the DOM.</li>
+        <li>Automatically via a <span class="inline-code">&lt;[component-name]&gt;&lt;/[component-name]&gt;</span> declaration in the DOM.</li>
       </ul>
 
 <h3>Manual initialization (similar to what would be found in regular knockout.js code):</h3>
 <pre><code data-language="javascript">/**
  * You use footwork viewModel class functions just like you would a normal knockout.js constructor function.
  * ie: var viewModelObject = new ConstructorFunc(paramaters ...);
- * Note: the parameters you pass into the ConstructorFunc(params) call get passed
+ *
+ * Note: The parameters you pass into the ConstructorFunc(params) call get passed
  *       into the initialize(params) function from the configuration object.
  */
+
 // example:
 var Sprocket = fw.viewModel({
   // ... configuration object ...
   namespace: 'Sprocket',
   initialize: function(params) {
+    // params === object passed in when calling new Sprocket( ... )
     this.type = fw.observable(params.type);
-    this.color = 'orange';
+    this.color = params.color || 'orange';
     this.price = fw.observable(params.price);
     this.isExpensive = fw.computed(function() {
       return this.price() > 10;
@@ -103,6 +113,19 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
 // awesomeSprocket.color === 'orange'
 // awesomeSprocket.isExpensive() === false
 </code></pre>
+
+      <h3>Automatic initialization via <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> declaration in the DOM.</h3>
+<pre><code>&lt;html&gt;
+  &lt;body&gt;
+    &lt;viewModel module="Sprocket"&gt;
+      Type: &lt;span data-bind="text: type"&gt;&lt;/span&gt;
+      &lt;!-- ko if: isExpensive --&gt;
+        &lt;span class="warning"&gt;This is expensive!&lt;/span&gt;
+      &lt;!-- /ko --&gt;
+    &lt;/viewModel&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      <p class="note"><span class="label">NOTE:</span> See <a href="#autoloading">autoloading</a> for information on how to make sure footwork knows where to find your viewModels/modules.</p>
     </div>
   </section>
 
