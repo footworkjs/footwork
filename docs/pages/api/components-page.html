@@ -35,7 +35,7 @@
       <h2 class="sub title">Configuration</h2>
     </header>
     <div class="content">
-      <p>There are principally 2 pieces that need to be setup prior to a component being usable by footwork:</p>
+      <p>There are principally 2 pieces that need to be setup prior to a component being usable:</p>
       <ul>
         <li>The template/HTML/DOM to bind against the viewModel.</li>
         <li>The viewModel which the template/HTML/DOM is bound to.</li>
@@ -65,7 +65,8 @@
     <div class="content">
       <p>Using a component begins with inserting a custom element into your DOM/HTML (or using the standard knockout <a href="http://knockoutjs.com/documentation/component-binding.html" target="_blank">component binding</a>).</p>
       <div class="note">
-        <p><span class="label">NOTE:</span> This is very similar to the <span class="inline-code">&lt;viewModel module=""&gt;&lt;/viewModel&gt;</span> declarative syntax used for viewModel instantiation. 
+        <p><span class="label">NOTE:</span> This is very similar to the <span class="inline-code">&lt;viewModel module=""&gt;&lt;/viewModel&gt;</span> declarative syntax used for viewModel instantiation. The difference being
+        that instead of wrapping a section of HTML with a viewModel, they are pre-paired and composed together prior to insertion into the DOM.
         See: <a href="/api/viewModel" data-bind="$route">viewModels</a>.</p>
       </div>
       <h3>For example, in <span class="inline-code">index.html</span> lets say we have have:</h3>
@@ -86,8 +87,19 @@
       <div class="note">
         <span class="label">NOTE:</span> You can nest both &lt;component&gt; and &lt;viewModel&gt; declarations within one another, footwork will pull in resources and wire it all up as needed.
       </div>
+      <p>Once footwork encounters an element it doesn't recognize as being normal HTML it will do a lookup for the name and attempt to find the viewModel/template duo.</p>
+    </div>
+  </section>
 
-      <p>Once footwork encounters an element it doesn't recognize as being normal HTML it will do a lookup for the name and attempt to find the viewModel/template duo. There are 3 ways footwork will try to resolve both the viewModel and template.</p>
+  <a id="loading-registering" class="section-anchor"></a>
+  <section name="loading-registering">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">AMD / Lazy Loading / Registering</h2>
+    </header>
+    <div class="content">
+      <p>There are 3 ways footwork will try to resolve both the viewModel and template for your component once it encounters the 
+      <span class="inline-code">&lt;component-name&gt;&lt;/component-name&gt;</span> or <span class="inline-code">&lt;span data-bind="component: 'component-name'"&gt;&lt;/span&gt;</span> markup.</p>
       <p>They are as follows (in order of priority):</p>
       <ul>
         <li>Pre-cached via a <span class="inline-code">fw.components.register()</span> call.</li>
@@ -96,6 +108,7 @@
       </ul>
 
       <h3><em class="func-def">fw.components.register<span>( <span class="param">'moduleName'</span>, <span class="param">optionsObject</span> )</span></em></h3>
+      <h3>Register (cache) a component under a specified 'moduleName' for later use:</h3>
 <pre><code data-language="javascript">// Using a footwork viewModel
 fw.components.register('sprocket', {
   viewModel: fw.viewModel({ /* ... configuration object ... */ }),
@@ -111,7 +124,7 @@ fw.components.register('sprocket', {
         <span class="label">NOTE:</span>
         <ul>
           <li>Footwork fully supports regular knockout component registration (<span class="inline-code">ko.components.register()</span>, 
-          see <a href="http://knockoutjs.com/documentation/component-registration.html">their documentation</a>)</li>
+          see <a href="http://knockoutjs.com/documentation/component-registration.html">the documentation</a>)</li>
           
           <li>Registering components is not necessary if you have RequireJS and tell footwork where it can download them (see 
           <span class="inline-code">fw.components.registerLocation()</span> and <span class="inline-code">fw.components.defaultLocation()</span> down below).</li>
@@ -121,9 +134,28 @@ fw.components.register('sprocket', {
         </ul>
       </div>
 
+      <h3>Tell footwork how to use AMD/RequireJS to automatically resolve/download your component</h3>
+      <p>It is also possible to simply tell footwork where your assets are and let it take care of downloading and initializing them for you. The folliwing methods (<span class="inline-code">fw.components.registerLocation()</span> <span class="inline-code">fw.components.defaultLocation()</span>) outline how to do that.</p>
+
+      <h3><em class="func-def">fw.components.registerLocation<span>( <span class="param">'moduleName'</span>, <span class="param">{ viewModels: 'path/to/viewModel', templates: 'path/to/template' }</span> )</span></em></h3>
+      <h3 class="top"><em class="func-def">fw.components.registerLocation<span>( <span class="param">'moduleName'</span>, <span class="param">{ combined: 'path/to/combinedComponentFile' }</span> )</span></em></h3>
+      <h3 class="top"><em class="func-def">fw.components.registerLocation<span>( <span class="param">'moduleName'</span>, <span class="param">'path/to/combinedComponentFile'</span> )</span></em></h3>
+      <h3>Register a component under the 'moduleName' using supplied parameters:</h3>
+<pre><code data-language="javascript">// Register component under 'sprocket' using individual paths for the viewModel and template files.
+fw.components.registerLocation('sprocket', {
+  viewModels: '/viewModels/bikeParts', // footwork will download from: '/viewModels/bikeParts/sprocket.js'
+  template: '/templates/bikeParts' // footwork will download from: '/templates/bikeParts/sprocket.html'
+});
+
+// Specify the full file name (ie: use this if the file name does not conform to what footwork expects)
+fw.components.registerLocation('sprocket', {
+  viewModels: '/viewModels/bikeParts/TheSprocket.js', // footwork will download from: '/viewModels/bikeParts/sprocket.js'
+  template: '/templates/bikeParts/theSprocket.html' // footwork will download from: '/templates/bikeParts/sprocket.html'
+});
+</code></pre>
+
     </div>
   </section>
-
 
 </article>
 
