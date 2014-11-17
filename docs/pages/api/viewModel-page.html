@@ -14,6 +14,7 @@
       <ul>
         <li><a href="#configuration">Configuration</a></li>
         <li><a href="#initialization">Initialization</a></li>
+        <li><a href="#loading-registering">AMD / Lazy Loading / Registering</a></li>
       </ul>
     </div>
   </section>
@@ -29,7 +30,7 @@
       <p>The result (a constructor function) can then be used to instantiate new instances of that viewModel.
       These constructor functions are essentially specialized wrappers which enable footwork to hook into both knockout and your viewModel/module to provide for all of the additional features the framework provides.</p>
 
-      <h3>Configuration object synopsis:</h3>
+      <h3>viewModel configuration object synopsis:</h3>
 <pre><code data-language="javascript">fw.viewModel({
   /**
    * The namespace (communications channel) the viewModel uses. This is essentially used as
@@ -116,6 +117,9 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
 // awesomeSprocket.type() === 'awesome'
 // awesomeSprocket.color === 'orange'
 // awesomeSprocket.isExpensive() === false
+
+// You can then bind it to the DOM just like any other knockout viewModel/javascript object:
+fw.applyBindings(awesomeSprocket, document.getElementById('sprocket-container'));
 </code></pre>
 
       <h3>Automatic initialization via <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> declaration in the DOM:</h3>
@@ -139,7 +143,7 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
               loaded from cache/configuration you supply to the framework --&gt;
   &lt;/body&gt;
 &lt;/html&gt;</code></pre>
-      <p class="note"><span class="label">NOTE:</span> See <a data-bind="$route" href="/api/components#loading-registering">component AMD / Lazy Loading / Registering</a> for information on how to tell footwork where to find your component/viewModel/template assets.</p>
+      <p class="note"><span class="label">NOTE:</span> See <a data-bind="$route" href="/api/components#loading-registering">component AMD / Lazy Loading / Registering</a> for information on how to tell footwork where to find your component assets.</p>
     </div>
   </section>
 
@@ -150,7 +154,7 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
       <h2 class="sub title">AMD / Lazy Loading / Registering</h2>
     </header>
     <div class="content">
-      <p>footwork.js supports both pre-caching/registering your viewModels ahead of time, or optionally automatically loading them via AMD/RequireJS. In either case, the declarative <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> syntax will trigger the loading (if necessary) and binding of the viewModel/module.</p>
+      <p>footwork.js supports both pre-caching/registering your viewModels ahead of time or automatically loading via AMD/RequireJS. In either case, the declarative <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> syntax will trigger the loading (if necessary) and binding of the viewModel/module.</p>
       <p>AMD/RequireJS is fully supported (and highly encouraged) for a number of reasons:</p>
       <ul>
         <li>It strongly encourages modularization and separation of concerns.</li>
@@ -169,6 +173,7 @@ var awesomeSprocket = new Sprocket({ type: 'awesome', price: 3.50 });
     &lt;/viewModel&gt;
   &lt;/body&gt;
 &lt;/html&gt;</code></pre>
+      <p class="note"><span class="label">NOTE:</span> You can nest viewModels and components within one another.</p>
 
       <h3>viewModel/module resolution</h3>
       <p>There are 3 ways footwork will try to resolve your viewModel when it encounters the declarative <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> element you place in the DOM.</p>
@@ -221,7 +226,7 @@ fw.viewModels.registerLocation(['Body', 'Navigation', 'Footer'], '/viewModels/pa
       <h3><em>fw.viewModels.defaultLocation('path/to/viewModel/folder')</em></h3>
       <h3>Register the default location of viewModels/modules so footwork can load and bind them for you when needed:</h3>
 <pre><code data-language="javascript">// Load all viewModels from /myViewModels (based on viewModel/module name, case sensitive)
-fw.viewModels.registerLocation('/myViewModels');
+fw.viewModels.defaultLocation('/myViewModels');
 
 /**
  * This would cause footwork to load '/myViewModels/Sprocket.js' via AMD/RequireJS when it encounters:
@@ -231,6 +236,185 @@ fw.viewModels.registerLocation('/myViewModels');
     </div>
   </section>
 
+  <a id="mixins" class="section-anchor"></a>
+  <section name="mixins">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Mixins</h1>
+    </header>
+    <div class="content">
+      <p>Mixins are about reusing behavior, functionality, and code whenever possible. It allows you to write various mixins and then later on combine
+      and compose the desired behavior you want for a viewModel at runtime.</p>
+      <p>The mixin functionality in footwork is provided via a library called <a href="https://github.com/a2labs/riveter" target="_blank">riveter</a>.
+      All <span class="inline-code">fw.viewModel()</span> based constructor functions are riveter constructor functions. Above and beyond the
+      functionality outlined here, each object has various methods extended from riveter which can enable you to extend the viewModels in
+      various ways, I would encourage you to also <a href="https://github.com/a2labs/riveter" target="_blank">look at its documentation</a>.</p>
+
+      <h3>Basic usage:</h3>
+<pre><code data-language="javascript">var bigSprocket = { /* mixin configuration object */ };
+var bikeSprocket = { /* mixin configuration object */ };
+
+var Sprocket = fw.viewModel({
+  namespace: 'Sprocket',
+  initialize: function(param) {
+    this.type = param.type;
+  },
+  mixins: [ bigSprocket, bikeSprocket ]
+});
+
+var mySprocket = new Sprocket({ type: 'awesome' });</code></pre>
+    </div>
+  </section>
+
+  <a id="mixin-configuration" class="section-anchor"></a>
+  <section name="mixin-configuration">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Configuration</h2>
+    </header>
+    <div class="content">
+      <p>Each mixin is simply a configuration object defining what the behavior of that mixin is. The behavior you define will be added to each viewModel instance
+      it is configured with. The following is a synopsis of the available options with standard mixins included with footwork.</p>
+      <h3>Mixin configuration object synopsis:</h3>
+<pre><code data-language="javascript">var bigSprocket = {
+  _preInit: function(param1, param2, ...) {
+    /**
+     * called prior to the initialize() method from the viewModel configuration being called
+     * params === params passed in at creation
+     * this === the viewModel
+     */
+  },
+
+  mixin: {
+    /**
+     * these properties are added to 'this' object immediately upon creation, before
+     * any methods (including _preInit) are called
+     */
+    function1: function() {
+      // function that is extended onto the viewModel object (this) upon creation, this === the viewModel
+    },
+    function2: function() {
+      // another function that is extended onto the viewModel object (this) upon creation, this === the viewModel
+    },
+    property1: 'someValue' // a raw property extended to the object
+    // ...
+  },
+
+  _postInit: function() {
+    /**
+     * called after the initialize() method from the viewModel configuration is called
+     * this === the viewModel
+     */
+  }
+};</code></pre>
+      <div class="note">
+        <span class="label">NOTE:</span>
+        <ul>
+          <li>If you require some other type of object extension or mixin, as recommended above you should look at the <a href="https://github.com/a2labs/riveter" target="_blank">riveter documentation</a>.</li>
+          <li>A viewModel can have as many mixins as you want, and you can re-use them across as many differing viewModels/modules as you like.</li>
+        </ul>
+      </div>
+
+      <h3>Example usage:</h3>
+<pre><code data-language="javascript">// define the mixin configuration object
+var bigSprocket = {
+  _preInit: function(param) {
+    this.isAwesome = (param.type === 'awesome' ? true : false);
+  },
+  mixin: {
+    isBig: true,
+    fitInSmallPlace: function() {
+      return false;
+    }
+  }
+};
+
+// create a BigSprocket contructor and include the bigSprocket mixin
+var BigSprocket = fw.viewModel({
+  namespace: 'Sprocket',
+  initialize: function(param) {
+    this.type = param.type;
+  },
+  mixins: [ bigSprocket ]
+});
+
+var mySprocket = new BigSprocket({ type: 'awesome' });
+// mySprocket.fitInSmallPlace() === false
+// mySprocket.isBig === true
+// mySprocket.isAwesome === true</code></pre>
+    </div>
+  </section>
+
+
+  <a id="mixins" class="section-anchor"></a>
+  <section name="mixins">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Mixins</h1>
+    </header>
+    <div class="content">
+      <p>footwork.js provides for several ways of extending a viewModels functionality without having to duplicate code. One such powerful way is
+      through mixins.</p>
+      <p>The mixin functionality in footwork is provided via a library called <a href="https://github.com/a2labs/riveter" target="_blank">riveter</a>.
+      All <span class="inline-code">fw.viewModel()</span> based constructor functions are riveter constructor functions. Above and beyond the
+      functionality outlined here, each object has various methods extended from riveter which can enable you to extend the viewModels in
+      various ways, I would encourage you to also <a href="https://github.com/a2labs/riveter" target="_blank">look at its documentation</a>.</p>
+
+      <h3>Mixin basic usage:</h3>
+<pre><code data-language="javascript">var bigSprocket = { /* mixin configuration object */ };
+var bikeSprocket = { /* mixin configuration object */ };
+
+var Sprocket = fw.viewModel({
+  namespace: 'Sprocket',
+  initialize: function(param) {
+    this.type = param.type;
+  },
+  mixins: [ bigSprocket, bikeSprocket ]
+});
+
+var mySprocket = new Sprocket({ type: 'awesome' });</code></pre>
+    </div>
+  </section>
+
+  <a id="mixin-usage" class="section-anchor"></a>
+  <section name="mixin-usage">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Example mixin usage</h2>
+    </header>
+    <div class="content">
+      <p>Each mixin behavior is added to each new instance of the viewModel that is created. This goes for ones instantiated automatically via declarative HTML, or directly/manually in javascript code.</p>
+      <p>All mixins may be reused on both a standalone viewModel and viewModels attributed with a component.</p>
+      <h3>Example usage:</h3>
+<pre><code data-language="javascript">// define the mixin configuration object
+var bigSprocket = {
+  _preInit: function(param) {
+    this.isAwesome = (param.type === 'awesome' ? true : false);
+    // this.isBig === true
+  },
+  mixin: {
+    isBig: true,
+    fitInSmallPlace: function() {
+      return false;
+    }
+  }
+};
+
+// create a BigSprocket contructor and include the bigSprocket mixin
+var BigSprocket = fw.viewModel({
+  namespace: 'Sprocket',
+  initialize: function(param) {
+    this.type = param.type;
+  },
+  mixins: [ bigSprocket ]
+});
+
+var mySprocket = new BigSprocket({ type: 'awesome' });
+// mySprocket.fitInSmallPlace() === false
+// mySprocket.isBig === true
+// mySprocket.isAwesome === true</code></pre>
+    </div>
+  </section>
 </article>
 
 <div id="metaData">
@@ -247,6 +431,14 @@ fw.viewModels.registerLocation('/myViewModels');
           "title": "Initialization" },
         { "anchor": "loading-registering",
           "title": "AMD / Lazy Loading / Registering" }
+      ] },
+    { "anchor": "mixins",
+      "title": "Mixins",
+      "subSections": [
+        { "anchor": "mixin-configuration",
+          "title": "Configuration" },
+        { "anchor": "mixin-usage",
+          "title": "Usage" }
       ] }
   ]
 }
