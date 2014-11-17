@@ -1,5 +1,5 @@
 .main-pane {
-  max-width: 960px;
+  max-width: 940px;
   margin-left: @accent-padding;
   overflow: hidden;
   .transition(@pane-collapse);
@@ -136,6 +136,10 @@ main {
 
     a.section-anchor + section {
       margin-top: 20px;
+    }
+
+    a.section-anchor + section.top {
+      margin-top: 0px;
     }
 
     a.section-anchor {

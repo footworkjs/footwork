@@ -30,6 +30,7 @@
       <p>The result (a constructor function) can then be used to instantiate new instances of that viewModel.
       These constructor functions are essentially specialized wrappers which enable footwork to hook into both knockout and your viewModel/module to provide for all of the additional features the framework provides.</p>
 
+      <h3><em>fw.viewModel( configurationObject )</em></h3>
       <h3>viewModel configuration object synopsis:</h3>
 <pre><code data-language="javascript">fw.viewModel({
   /**
@@ -164,7 +165,7 @@ fw.applyBindings(awesomeSprocket, document.getElementById('sprocket-container'))
         <li>Allows for easy and highly configurable caching/preloading of assets (this includes all components, viewModels, and templates). None, some, or all of it...you choose what your users wait for.</li>
       </ul>
 
-      <p>Automatically loading and wrapping a section of your DOM with a viewModel begins with inserting/wrapping the html in your template with a <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> element.</p>
+      <p>Automatically loading and binding a section of your DOM with a viewModel begins with inserting/wrapping the html in your template with a <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> element.</p>
       <h3>Example:</h3>
 <pre><code>&lt;html&gt;
   &lt;body&gt;
@@ -184,7 +185,7 @@ fw.applyBindings(awesomeSprocket, document.getElementById('sprocket-container'))
         <li>Automatic download/resolution via AMD/RequireJS at the configurable default (<span class="inline-code">fw.viewModels.defaultLocation()</span>).</li>
       </ul>
 
-      <h3><em>fw.viewModels.register('moduleName', viewModel)</em></h3>
+      <h3><em>fw.viewModels.register( 'moduleName', viewModel )</em></h3>
       <h3>Cache a viewModel/module ahead of time:</h3>
 <pre><code data-language="javascript">// register a footwork viewModel
 var Sprocket = fw.viewModel({ /* configuration object */ });
@@ -212,7 +213,7 @@ fw.viewModels.register('Sprocket', {
   }
 });</code></pre>
 
-      <h3><em>fw.viewModels.registerLocation('moduleName', 'path/to/module')</em></h3>
+      <h3><em>fw.viewModels.registerLocation( 'moduleName', 'path/to/module' )</em></h3>
       <h3>Register the location of a viewModel/module so footwork can load and bind it for you when needed:</h3>
 <pre><code data-language="javascript">// Load Sprocket from: /viewModels/parts/Sprocket.js (based on viewModel/module name, case sensitive)
 fw.viewModels.registerLocation('Sprocket', '/viewModels/parts');
@@ -223,7 +224,7 @@ fw.viewModels.registerLocation('Sprocket', '/viewModels/parts/DifferentFileName.
 // register the location of several viewModels at once (ie: all in the same folder)
 fw.viewModels.registerLocation(['Body', 'Navigation', 'Footer'], '/viewModels/pageAreas');</code></pre>
 
-      <h3><em>fw.viewModels.defaultLocation('path/to/viewModel/folder')</em></h3>
+      <h3><em>fw.viewModels.defaultLocation( 'path/to/viewModel/folder' )</em></h3>
       <h3>Register the default location of viewModels/modules so footwork can load and bind them for you when needed:</h3>
 <pre><code data-language="javascript">// Load all viewModels from /myViewModels (based on viewModel/module name, case sensitive)
 fw.viewModels.defaultLocation('/myViewModels');
@@ -263,6 +264,11 @@ var Sprocket = fw.viewModel({
 });
 
 var mySprocket = new Sprocket({ type: 'awesome' });</code></pre>
+
+      <ul>
+        <li><a href="#mixin-configuration">Configuration</a></li>
+        <li><a href="#mixin-usage">Usage</a></li>
+      </ul>
     </div>
   </section>
 
@@ -345,7 +351,6 @@ var mySprocket = new BigSprocket({ type: 'awesome' });
     </div>
   </section>
 
-
   <a id="mixins" class="section-anchor"></a>
   <section name="mixins">
     <div class="highlight"></div>
@@ -415,6 +420,117 @@ var mySprocket = new BigSprocket({ type: 'awesome' });
 // mySprocket.isAwesome === true</code></pre>
     </div>
   </section>
+
+  <a id="misc" class="section-anchor"></a>
+  <section name="misc">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Utility / Misc</h1>
+    </header>
+    <div class="content">
+      Various useful methods and utility functions for misc and debugging purposes.
+    </div>
+  </section>
+
+  <a id="viewModels-getAll" class="section-anchor"></a>
+  <section name="viewModels-getAll" class="top">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em>fw.viewModels.getAll()</em></h3>
+      <h3>Get list of currently instantiated viewModels grouped/indexed by namespace:</h3>
+<pre><code data-language="javascript">var Bike = fw.viewModel({
+  namespace: 'Bike',
+  initialize: function() {
+    this.isBike = true;
+  }
+});
+var Wheel = fw.viewModel({
+  namespace: 'Wheel',
+  initialize: function() {
+    this.isWheel = true;
+  }
+});
+
+var bike = new Bike();
+var wheel1 = new Wheel();
+var wheel2 = new Wheel();
+
+var viewModels = fw.viewModels.getAll();
+// viewModels['Bike'].isBike === true
+// viewModels['Wheel'].length === 2
+// viewModels['Wheel'][0].isWheel === true
+</code></pre>
+    </div>
+  </section>
+
+  <a id="viewModels-isRegistered" class="section-anchor"></a>
+  <section name="viewModels-isRegistered">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em>fw.viewModels.isRegistered( 'viewModelName' )</em></h3>
+      <h3>Return true or false based on whether or not there is a viewModel that has been registered under 'viewModelName':</h3>
+<pre><code data-language="javascript">var Bike = fw.viewModel({
+  namespace: 'Bike',
+  initialize: function() {
+    this.isBike = true;
+  }
+});
+
+fw.viewModels.register('Bike', Bike);
+// fw.viewModels.isRegistered('Bike') === true
+// fw.viewModels.isRegistered('viewModelThatIsAutoLoadedByAMD') === false</code></pre>
+    </div>
+  </section>
+
+  <a id="viewModels-getRegistered" class="section-anchor"></a>
+  <section name="viewModels-getRegistered">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em>fw.viewModels.getRegistered( 'viewModelName' )</em></h3>
+      <h3>Return viewModel that has been registered under 'viewModelName':</h3>
+<pre><code data-language="javascript">var Bike = fw.viewModel({
+  namespace: 'Bike',
+  initialize: function() {
+    this.isBike = true;
+  }
+});
+
+fw.viewModels.register('Bike', Bike);
+// fw.viewModels.getRegistered('Bike') === Bike;</code></pre>
+    </div>
+  </section>
+
+  <a id="viewModels-file-extensions" class="section-anchor"></a>
+  <section name="viewModels-file-extensions">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em>fw.viewModels.fileExtensions( '.js' )</em></h3>
+      <h3>Observable which stores the extension to append to an AMD/RequireJS loaded viewModel path when it does not have an extension specified (ie: full file name not specified):</h3>
+<pre><code data-language="javascript">fw.viewModels.fileExtensions('.jscript');
+// fw.viewModels.fileExtensions() === '.jscript'
+// All viewModels dynamically loaded that need an extension to be added to the path will now have '.jscript' appended.
+
+// You can also set it to a function() whose return value is used as the extension.
+fw.viewModels.fileExtensions(function(moduleName) {
+  if(moduleName === 'Sprocket') {
+    return '.jscript';
+  } else {
+    return '.js';
+  }
+});</code></pre>
+    </div>
+  </section>
+
+  <a id="viewModels-getResourceLocation" class="section-anchor"></a>
+  <section name="viewModels-getResourceLocation">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em>fw.viewModels.getResourceLocation( 'moduleName' )</em></h3>
+      <h3>Get the path footwork will attempt to load for the given 'moduleName':</h3>
+<pre><code data-language="javascript">fw.viewModels.registerLocation('Sprocket', '/path/to/viewModel/folder');
+// fw.viewModels.getResourceLocation('Sprocket') === '/path/to/viewModel/folder'</code></pre>
+    </div>
+  </section>
 </article>
 
 <div id="metaData">
@@ -439,6 +555,20 @@ var mySprocket = new BigSprocket({ type: 'awesome' });
           "title": "Configuration" },
         { "anchor": "mixin-usage",
           "title": "Usage" }
+      ] },
+    { "anchor": "misc",
+      "title": "Utility / Misc",
+      "subSections": [
+        { "anchor": "viewModels-getAll",
+          "title": "fw.viewModels.getAll()" },
+        { "anchor": "viewModels-isRegistered",
+          "title": "fw.viewModels.isRegistered()" },
+        { "anchor": "viewModels-getRegistered",
+          "title": "fw.viewModels.getRegistered()" },
+        { "anchor": "viewModels-file-extensions",
+          "title": "fw.viewModels.fileExtensions()" },
+        { "anchor": "viewModels-getResourceLocation",
+          "title": "fw.viewModels.getResourceLocation()" }
       ] }
   ]
 }
