@@ -44,7 +44,7 @@
       against (footwork can use <a href="http://knockoutjs.com/documentation/observables.html#mvvm-and-view-models" target="_blank">knockout viewModels</a> which can be created many
       ways, but <a href="/api/viewModel" data-bind="$route">footwork viewModels</a> are extra awesome).</p>
       <p>In addition to being autoloaded via RequireJS/AMD (if needed/possible), the viewModel will be initialized (if required) and bound to your template.</p>
-      <p>Once both have been combined, the resulting composition is inserted into the DOM and then the <span class="inline-code">afterBinding()</span> lifecycle event is triggered.</p>
+      <p>Once both have been combined, the resulting composition is inserted into the DOM and then the <span class="inline-code">afterBinding()</span> lifecycle event is triggered on the viewModel.</p>
       <h3>A simple example of a template used in a component:</h3>
 <pre><code data-language="html">&lt;-- /components/templates/sprocket.html --&gt;
 &lt;-- Normal markup, including any bindings you want bound against the viewModel --&gt;
@@ -66,7 +66,7 @@
       <p>Using a component begins with inserting a custom element into your DOM/HTML (or using the standard knockout <a href="http://knockoutjs.com/documentation/component-binding.html" target="_blank">component binding</a>).</p>
       <div class="note">
         <p><span class="label">NOTE:</span> This is very similar to the <span class="inline-code">&lt;viewModel module=""&gt;&lt;/viewModel&gt;</span> declarative syntax used for viewModel instantiation. The difference being
-        that instead of wrapping a section of HTML with a viewModel, they are pre-paired and composed together prior to insertion into the DOM.
+        that instead of wrapping a section of HTML with a viewModel, they are paired together and composed prior to insertion into the DOM.
         See: <a href="/api/viewModel" data-bind="$route">viewModels</a>.</p>
       </div>
       <h3>For example, in <span class="inline-code">index.html</span> lets say we have have:</h3>
@@ -107,8 +107,8 @@
         <li>Automatic download/resolution via AMD/RequireJS at the configurable default (<span class="inline-code">fw.components.defaultLocation()</span>).</li>
       </ul>
 
-      <h3><em class="func-def">fw.components.register<span>( <span class="param">'moduleName'</span>, <span class="param">optionsObject</span> )</span></em></h3>
-      <h3>Register (cache) a component under a specified 'moduleName' for later use:</h3>
+      <h3><em class="func-def">fw.components.register<span>( <span class="param">'name'</span>, <span class="param">optionsObject</span> )</span></em></h3>
+      <h3>Register (cache) a component under a specified 'name' for later use:</h3>
 <pre><code data-language="javascript">// Using a footwork viewModel
 fw.components.register('sprocket', {
   viewModel: fw.viewModel({ /* ... configuration object ... */ }),
@@ -137,21 +137,49 @@ fw.components.register('sprocket', {
       <h3>Tell footwork how to use AMD/RequireJS to automatically resolve/download your component</h3>
       <p>It is also possible to simply tell footwork where your assets are and let it take care of downloading and initializing them for you. The folliwing methods (<span class="inline-code">fw.components.registerLocation()</span> <span class="inline-code">fw.components.defaultLocation()</span>) outline how to do that.</p>
 
-      <h3><em class="func-def">fw.components.registerLocation<span>( <span class="param">'moduleName'</span>, <span class="param">{ viewModels: 'path/to/viewModel', templates: 'path/to/template' }</span> )</span></em></h3>
-      <h3 class="top"><em class="func-def">fw.components.registerLocation<span>( <span class="param">'moduleName'</span>, <span class="param">{ combined: 'path/to/combinedComponentFile' }</span> )</span></em></h3>
-      <h3 class="top"><em class="func-def">fw.components.registerLocation<span>( <span class="param">'moduleName'</span>, <span class="param">'path/to/combinedComponentFile'</span> )</span></em></h3>
-      <h3>Register a component under the 'moduleName' using supplied parameters:</h3>
-<pre><code data-language="javascript">// Register component under 'sprocket' using individual paths for the viewModel and template files.
+      <h3><em class="func-def">fw.components.registerLocation<span>( <span class="param">'name'</span>, <span class="param">{ viewModel: 'path/to/viewModel', template: 'path/to/template' }</span> )</span></em></h3>
+      <h3 class="top"><em class="func-def">fw.components.registerLocation<span>( <span class="param">'name'</span>, <span class="param">{ combined: 'path/to/combinedComponentFile' }</span> )</span></em></h3>
+      <h3 class="top"><em class="func-def">fw.components.registerLocation<span>( <span class="param">'name'</span>, <span class="param">'path/to/combinedComponentFile'</span> )</span></em></h3>
+      <h3>Tell footwork where to find the component 'name' using the supplied configuration:</h3>
+<pre><code data-language="javascript">/**
+ * Register component under 'sprocket' using individual paths for the viewModel and template files.
+ * The file name will be appended using the name of the component + .ext
+ */
 fw.components.registerLocation('sprocket', {
-  viewModels: '/viewModels/bikeParts', // footwork will download from: '/viewModels/bikeParts/sprocket.js'
-  template: '/templates/bikeParts' // footwork will download from: '/templates/bikeParts/sprocket.html'
+  viewModel: '/viewModels/bikeParts', // load from /viewModels/bikeParts/sprocket.js
+  template: '/templates/bikeParts' // load from /templates/bikeParts/sprocket.html
 });
 
 // Specify the full file name (ie: use this if the file name does not conform to what footwork expects)
 fw.components.registerLocation('sprocket', {
-  viewModels: '/viewModels/bikeParts/TheSprocket.js', // footwork will download from: '/viewModels/bikeParts/sprocket.js'
-  template: '/templates/bikeParts/theSprocket.html' // footwork will download from: '/templates/bikeParts/sprocket.html'
+  viewModel: '/viewModels/bikeParts/TheSprocket.js', // load from /viewModels/bikeParts/TheSprocket.js
+  template: '/templates/bikeParts/theSprocket.html' // load from /templates/bikeParts/theSprocket.html
 });
+
+// Specify the 'combined' module to be downloaded (see the 'Module formats' section on this page)
+fw.components.registerLocation('sprocket', '/components'); // load from /components/sprocket.js
+fw.components.registerLocation('sprocket', '/components/theSprocket.js'); // load from /components/theSprocket.js
+
+// You can also specify the path to many components at once (footwork will append the appropriate file name):
+fw.components.registerLocation(['sprocket', 'wheel'], {
+  viewModel: '/viewModels/bikeParts',
+  template: '/templates/bikeParts'
+});
+fw.components.registerLocation(['sprocket', 'wheel'], '/components');
+</code></pre>
+
+      <h3><em class="func-def">fw.components.defaultLocation<span>( <span class="param">{ viewModel: 'path/to/viewModels', template: 'path/to/templates' }</span> )</span></em></h3>
+      <h3 class="top"><em class="func-def">fw.components.defaultLocation<span>( <span class="param">{ combined: 'path/to/combinedComponentFiles' }</span> )</span></em></h3>
+      <h3 class="top"><em class="func-def">fw.components.defaultLocation<span>( <span class="param">'path/to/combinedComponentFiles'</span> )</span></em></h3>
+      <h3>Tell footwork where to look for a component if it isn't registered explicitly (ie: when all else fails):</h3>
+<pre><code data-language="javascript">// Load components using individual paths for the viewModel and template files.
+fw.components.defaultLocation({
+  viewModel: '/viewModels', // load from /viewModels/[component-name].js
+  template: '/templates' // load from /templates/[component-name].html
+});
+
+// Load components in combined format by default from /components/[component-name].js
+fw.components.defaultLocation('/components');
 </code></pre>
 
     </div>
@@ -172,7 +200,9 @@ fw.components.registerLocation('sprocket', {
         { "anchor": "usage",
           "title": "Usage" },
         { "anchor": "loading-registering",
-          "title": "AMD / Lazy Loading / Registering" }
+          "title": "AMD / Lazy Loading / Registering" },
+        { "anchor": "module-formats",
+          "title": "Module Formats" }
       ] }
   ]
 }
