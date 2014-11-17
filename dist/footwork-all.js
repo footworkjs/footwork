@@ -10158,7 +10158,7 @@ fw.bindingHandlers.$route = {
                 hashIndex = currentRouteURL.length;
               }
               $myRouter.setState( currentRouteURL.substring(0, hashIndex) );
-              
+
               if(hashIndex !== currentRouteURL.length) {
                 windowObject.location.hash = currentRouteURL.substring(hashIndex);
               }
@@ -10287,9 +10287,10 @@ Router.prototype.activate = function($context, $parentRouter) {
   return this;
 };
 
-Router.prototype.setState = function(url, noHistoryInjection) {
+var doNotPushOntoHistory = true;
+Router.prototype.setState = function(url, shouldPushToHistory) {
   if( this.historyIsEnabled() ) {
-    if(!noHistoryInjection && isString(url)) {
+    if(shouldPushToHistory !== doNotPushOntoHistory && isString(url)) {
       var historyAPIWorked = true;
       try {
         historyAPIWorked = History.pushState(null, '', this.parentRouter().path() + url);
@@ -10326,7 +10327,7 @@ Router.prototype.startup = function( $context, $parentRouter ) {
   if( !this.historyIsEnabled() ) {
     if( historyIsReady() ) {
       History.Adapter.bind( windowObject, 'statechange', this.stateChangeHandler = function() {
-        $myRouter.setState( History.getState().url, true );
+        $myRouter.setState( History.getState().url, doNotPushOntoHistory );
       } );
       this.historyIsEnabled(true);
     } else {
