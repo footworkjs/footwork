@@ -1439,6 +1439,7 @@ var refreshViewModels = fw.viewModels.refresh = function() {
 var defaultViewModelConfigParams = {
   namespace: undefined,
   name: undefined,
+  autoRegister: false,
   autoIncrement: false,
   mixins: undefined,
   params: undefined,
@@ -1545,6 +1546,17 @@ var makeViewModel = fw.viewModel = function(configParams) {
 
   if( !isUndefined(parentViewModel) ) {
     model.inherits(parentViewModel);
+  }
+
+  if( configParams.autoRegister ) {
+    var namespace = configParams.namespace || configParams.name;
+    if( isRegisteredViewModel(namespace) ) {
+      if( getRegisteredViewModel(namespace) !== model ) {
+        throw 'namespace [' + namespace + '] already registered using a different viewModel, autoRegister failed.';
+      }
+    } else {
+      registerViewModel(namespace, model);
+    }
   }
 
   return model;

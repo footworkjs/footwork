@@ -41,9 +41,20 @@
    * NOTE: This is also prepended to the routers namespace (if a router configuration is supplied)
    *       See: /api/routing
    */
-  namespace: 'Sprocket',
+  namespace: 'Sprocket', // example namespace name, any alpha-numeric is valid
 
-  // If true, the namespace will have an auto-incremented 0-based index number appended for each new viewModel
+  /**
+   * If true, footwork will register the viewModel under its namespace name. This means
+   * that when this fw.viewModel() call is made it will automatically call
+   * fw.viewModels.register('Sprocket', ThisViewModelConstructor)
+   * This is one (handy) way of telling footwork how to find your viewModel when it needs it.
+   */
+  autoRegister: false, // default === false
+
+  /**
+   * If true, the namespace will have an auto-incremented 0-based index number appended for
+   * each new viewModel.
+   */
   autoIncrement: false, // default === false
 
   // Initialization function called at creation of a new viewModel, it is passed in the parameters supplied at creation
@@ -165,6 +176,24 @@ fw.applyBindings(awesomeSprocket, document.getElementById('sprocket-container'))
         <li>Allows for easy and highly configurable caching/preloading of assets (this includes all components, viewModels, and templates). None, some, or all of it...you choose what your users wait for.</li>
       </ul>
 
+      <h3>Example AMD/RequireJS enhanced footwork module:</h3>
+<pre><code data-language="javascript">/**
+ * An AMD/RequireJS module is defined in exactly the same way as a normal knockout module would be.
+ * The only difference being that you return the footwork-flavored viewModel constructor function
+ * result from fw.viewModel() instead of a normal function() {} constructor.
+ */
+define(["footwork"],
+  function( fw ) {
+    return fw.viewModel({
+      // ... configuration object ...
+      namespace: 'Sprocket',
+      initialize: function() {
+        this.isUsed = fw.observable(false);
+      }
+    });
+  }
+);</code></pre>
+
       <p>Automatically loading and binding a section of your DOM with a viewModel begins with inserting/wrapping the html in your template with a <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> element.</p>
       <h3>Example:</h3>
 <pre><code>&lt;html&gt;
@@ -212,6 +241,11 @@ fw.viewModels.register('Sprocket', {
     return { isUsed: false }; // object representing the viewModel to be bound against the DOM
   }
 });</code></pre>
+      <div class="note">
+        <p><span class="label">NOTE:</span> Are you using a fw.viewModel() constructor and simply want to register it using the namespace name (recommended)?</p>
+        <p>You can optionally just set <span class="inline-code">autoRegister: true</span> in the viewModel configuration object, then the fw.viewModel.register call is taken care of for you when the viewModel constructor is created.</p>
+        <p>See: <a href="#configuration">viewModel configuration</a>.</p>
+      </div>
 
       <h3><em class="func-def">fw.viewModels.registerLocation<span>( <span class="param">'moduleName'</span>, <span class="param">'path/to/module'</span> )</span></em></h3>
       <h3>Register the location of a viewModel/module so footwork can load and bind it for you when needed:</h3>
@@ -488,6 +522,7 @@ fw.viewModels.fileExtensions(function(moduleName) {
       <h3>Get the path footwork will attempt to load for the given 'moduleName':</h3>
 <pre><code data-language="javascript">fw.viewModels.registerLocation('Sprocket', '/path/to/viewModel/folder');
 // fw.viewModels.getResourceLocation('Sprocket') === '/path/to/viewModel/folder'</code></pre>
+
     </div>
   </section>
 </article>

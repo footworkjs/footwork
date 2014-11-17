@@ -18,6 +18,8 @@
   max-width: 200px;
 }
 
+@noteBackground: @body-text;
+@noteForeground: mix(@body-bg-color, @body-text);
 main {
   position: relative;
   padding: 0px 10px 0px 10px;
@@ -85,9 +87,8 @@ main {
       }
 
       .note {
-        background: @body-text;
-        color: mix(@body-bg-color, @body-text);
-        border: 1px solid darken(@body-text, 10%);
+        background: @noteBackground;
+        color: @noteForeground;
         padding: 10px;
         font-size: 13px;
         .border-radius(3px);
@@ -99,7 +100,7 @@ main {
         }
 
         .label {
-          color: @body-bg-color;
+          color: contrast(@noteBackground);
           padding-right: 5px;
         }
 
