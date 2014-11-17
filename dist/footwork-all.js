@@ -10293,6 +10293,11 @@ Router.prototype.setState = function(url, shouldPushToHistory) {
     if(shouldPushToHistory !== doNotPushOntoHistory && isString(url)) {
       var historyAPIWorked = true;
       try {
+        /**
+         * Hash changes at the end of urls cause odd history issues, need to investigate.
+         * Ugly hack fix for now is to make sure the hash is clear prior to calling pushState()
+         */
+        windowObject.location.hash = '';
         historyAPIWorked = History.pushState(null, '', this.parentRouter().path() + url);
       } catch(error) {
         historyAPIWorked = false;
