@@ -3,12 +3,49 @@
   <section name="introduction">
     <div class="highlight"></div>
     <header>
-      <span class="sub title">Introduction</span>
+      <h1 class="sub title">Introduction</h1>
     </header>
-    <div class="content block-font">
-      <p>Custom components allow you to package up your HTML template and javascript viewModel into a fully modular chunk, a component. This is much like the newly jaunted HTML5 component feature, but available to you now.</p>
+    <div class="content">
+      <p>A component can be thought of as a viewModel + template combination composed together and inserted in the DOM for you.</p>
+      <p>footwork.js extends the components feature found in <a href="http://knockoutjs.com" target="_blank">knockout.js</a> 3.2+ to enable many additional features, some of which being:</p>
+      <ul>
+        <li>Full template and viewModel encapsulation.</li>
+        <li>Extremely easy to use (and re-use!) expressive and semantic <span class="inline-code">&lt;custom-elements&gt;&lt;/custom-elements&gt;</span></li>
+        <li>Unlimited nesting capability (you can also nest footwork <a href="/api/viewModel" data-bind="$route">viewModels</a>).</li>
+        <li>Fully cachable components.</li>
+        <li>
+          <p>Automatic component resolution via AMD/RequireJS based on the component/module name in the markup.</p>
+          <p class="top">You can also use the standard knockout <a href="http://knockoutjs.com/documentation/component-binding.html" target="_blank">component binding</a> to initialize your components.</p>
+        </li>
+        <li>Automatic viewModel initialization and binding.</li>
+        <li>Lifecycle events.</li>
+        <li>Routing integration (easily manage components and state, see: <a href="/api/routing" data-bind="$route">routing</a>)</li>
+        <li><span class="inline-code">fw.viewModel()</span> integration (see: <a href="/api/viewModel" data-bind="$route">viewModel</a>).</li>
+      </ul>
+      <p>Another great thing about footwork is that it fully supports any knockout.js component (<em>including markup/bindings</em>)...this means that you don't need to do any refactoring if you already have components you've written. You can 
+      organically add the additional features from footwork as you see fit.</p>
+      <p><em>In short, components are an extremely powerful feature which when leveraged properly allow you to build extremely modularized, easy to maintain, easy to test, and easy to read software.</em></p>
     </div>
   </section>
+
+  <a id="configuration" class="section-anchor"></a>
+  <section name="configuration">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Configuration</h2>
+    </header>
+    <div class="content">
+      <p>There are principally 2 pieces that need to be setup prior to a component being usable by footwork:</p>
+      <ul>
+        <li>The template/HTML/DOM to bind against the viewModel.</li>
+        <li>The viewModel which the template/HTML/DOM is bound to.</li>
+      </ul>
+      <p>They are both essential. Inside of the template is the markup which comprises your component. The viewModel is the object your template is bound against (viewModels can be created many ways, but <a href="/api/viewModel" data-bind="$route">footwork viewModels</a> are extra awesome).</p>
+      <p>In addition to being autoloaded via RequireJS/AMD (if needed/possible), the viewModel will be initialized (if required) and bound to your template.</p>
+      <p>Once both have been combined, the resulting composition is inserted into the DOM and then the <span class="inline-code">afterBinding()</span> lifecycle event is triggered.</p>
+    </div>
+  </section>
+
 </article>
 
 <div id="metaData">
@@ -17,7 +54,15 @@
   "description": "Re-usable modular components.",
   "sections": [
     { "anchor": "introduction",
-      "title": "Introduction" }
+      "title": "Introduction",
+      "subSections": [
+        { "anchor": "configuration",
+          "title": "Configuration" },
+        { "anchor": "initialization",
+          "title": "Initialization / Usage" },
+        { "anchor": "loading-registering",
+          "title": "AMD / Lazy Loading / Registering" }
+      ] }
   ]
 }
 </div>

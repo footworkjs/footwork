@@ -1,5 +1,5 @@
 .main-pane {
-  max-width: 940px;
+  max-width: 900px;
   margin-left: @accent-padding;
   overflow: hidden;
   .transition(@pane-collapse);
@@ -32,9 +32,14 @@ main {
     margin-top: 10px;
   }
 
+  p + p.top {
+    margin-top: 0;
+  }
+
   ul {
     list-style: disc;
     margin: 10px 0;
+
     li {
       margin-left: 30px;
     }

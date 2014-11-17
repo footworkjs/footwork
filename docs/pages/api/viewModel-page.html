@@ -170,7 +170,7 @@ fw.applyBindings(awesomeSprocket, document.getElementById('sprocket-container'))
       <h2 class="sub title">AMD / Lazy Loading / Registering</h2>
     </header>
     <div class="content">
-      <p>footwork.js supports both pre-caching/registering your viewModels ahead of time or automatically loading via AMD/RequireJS. In either case, the declarative <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> syntax will trigger the loading (if necessary) and binding of the viewModel/module.</p>
+      <p>footwork.js supports both pre-caching/registering your viewModels ahead of time or automatically loading via AMD/RequireJS. In either case, the declarative <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> syntax will trigger the loading (if necessary), initialization, and binding of the viewModel/module.</p>
       <p>AMD/RequireJS is fully supported (and highly encouraged) for a number of reasons:</p>
       <ul>
         <li>It strongly encourages modularization and separation of concerns.</li>
