@@ -7,10 +7,13 @@
       <h1 class="sub title">Introduction</h1>
     </header>
     <div class="content">
-      <p>A viewModel can be thought of simply as a container object which your template/HTML/DOM binds to. There are a number of ways to create 
-      them, but a simple plain old javascript object (POJO) at its most basic level is all that is needed.</p>
-      <p>Footwork viewModel's are unique in that they help with many other aspects/concerns a developer might have such as 
-      <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" title="Command Query Responsibility Segregation">CQRS</a>, lifecycle events, routing, component integration, and more.</p>
+      <p>A viewModel can be thought of as a container object which your template/HTML/DOM binds to.</p>
+      <p>In knockout.js you typically would have to manually wrap and bind (<span class="inline-code">ko.applyBindings()</span>) your DOM with instances of your viewModels, this has many disadvantages/issues. Footwork.js can handle
+      the initialization, wrapping, and binding for you automatically based on the HTML/DOM (<em>it can also autoload them via AMD/RequireJS as needed</em>).</p>
+      <p>footwork-flavored viewModels provide a clean way of wrapping your knockout and other HTML markup while also enhancing with functionality for lifecycle events, routing, component integration, 
+      <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" title="Command Query Responsibility Segregation">CQRS</a>, and more.</p>
+      <p>In addition, they can contain any number of nested viewModels, components, and any other markup...making them extremely powerful (especially when integrated into a <a href="/api/components" data-bind="$route">component</a>).</p>
+      <p>There are a number of ways to create viewModels, but a simple plain old javascript object (just as in normal knockout.js) at its most basic level is all that is needed to bind to the DOM.</p>
       <ul>
         <li><a href="#configuration">Configuration</a></li>
         <li><a href="#initialization">Initialization</a></li>
@@ -26,8 +29,9 @@
       <h2 class="sub title">Configuration</h2>
     </header>
     <div class="content">
+      <p>Each different type of viewModel you wish to have must have a new constructor function made for it.</p>
       <p>viewModel constructor functions are created by calling <span class="inline-code">fw.viewModel()</span> and passing it a configuration object.</p>
-      <p>The result (a constructor function) can then be used to instantiate new instances of that viewModel.
+      <p>The resulting constructor function can then be used to instantiate new instances of that viewModel.
       These constructor functions are essentially specialized wrappers which enable footwork to hook into both knockout and your viewModel/module to provide for all of the additional features the framework provides.</p>
 
       <h3><em class="func-def">fw.viewModel<span>( <span class="param">configurationObject</span> )</span></em></h3>
@@ -91,14 +95,14 @@
   <section name="initialization">
     <div class="highlight"></div>
     <header>
-      <h2 class="sub title">Initialization</h2>
+      <h2 class="sub title">Initialization / Usage</h2>
     </header>
     <div class="content">
       <p>A viewModel can be created/initialized in 3 different ways:</p>
       <ul>
         <li>Manually initialized (standard knockout methodology).</li>
         <li>Automatically via a <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> declaration in the DOM.</li>
-        <li>Automatically via a <span class="inline-code">&lt;[component-name]&gt;&lt;/[component-name]&gt;</span> declaration in the DOM.</li>
+        <li>Automatically via a <span class="inline-code">&lt;[component-name]&gt;&lt;/[component-name]&gt;</span> declaration in the DOM (See: <a href="/api/components" data-bind="$route">components</a>).</li>
       </ul>
 
       <h3>Manual initialization (similar to what would be found in regular knockout.js code):</h3>
@@ -187,6 +191,15 @@ define(["footwork"],
     return fw.viewModel({
       // ... configuration object ...
       namespace: 'Sprocket',
+
+      /**
+       * [optional] This module will now automatically register itself as 'Sprocket' and footwork
+       * can autoload and bind it as soon as it is pulled in via AMD.
+       *
+       * This is an easy way to autoload and cache your viewModels for declarative use in your HTML.
+       */
+      autoRegister: true,
+
       initialize: function() {
         this.isUsed = fw.observable(false);
       }
@@ -324,7 +337,8 @@ var mySprocket = new Sprocket({ type: 'awesome' });</code></pre>
       <p>Each mixin is simply a configuration object defining what the behavior of that mixin is. The behavior you define will be added to each viewModel instance
       it is configured with. The following is a synopsis of the available options with standard mixins included with footwork.</p>
       <h3>Mixin configuration object synopsis:</h3>
-<pre><code data-language="javascript">var bigSprocket = {
+<pre><code data-language="javascript">// define 'bigSprocket' as an object to serve as the configuration container
+var bigSprocket = {
   _preInit: function(param1, param2, ...) {
     /**
      * called prior to the initialize() method from the viewModel configuration being called
@@ -538,7 +552,7 @@ fw.viewModels.fileExtensions(function(moduleName) {
         { "anchor": "configuration",
           "title": "Configuration" },
         { "anchor": "initialization",
-          "title": "Initialization" },
+          "title": "Initialization / Usage" },
         { "anchor": "loading-registering",
           "title": "AMD / Lazy Loading / Registering" }
       ] },
