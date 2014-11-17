@@ -28,15 +28,25 @@ article {
     margin-top: 25px;
   }
 
+  pre + ul {
+    margin-top: 20px;
+  }
+
+  .func-def {
+    color: @pane-bg-color;
+    span {
+      color: black;
+    }
+    .param {
+      color: darken(@pane-bg-color, 15%);
+    }
+  }
+
   h3 {
     margin-top: 15px;
 
     &.top {
       margin-top: 0;
-    }
-
-    em {
-      color: @pane-bg-color;
     }
   }
 

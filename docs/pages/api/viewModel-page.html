@@ -4,7 +4,7 @@
   <section name="introduction">
     <div class="highlight"></div>
     <header>
-      <h1 class="sub title">viewModel</h1>
+      <h1 class="sub title">Introduction</h1>
     </header>
     <div class="content">
       <p>A viewModel can be thought of simply as a container object which your template/HTML/DOM binds to. There are a number of ways to create 
@@ -30,7 +30,7 @@
       <p>The result (a constructor function) can then be used to instantiate new instances of that viewModel.
       These constructor functions are essentially specialized wrappers which enable footwork to hook into both knockout and your viewModel/module to provide for all of the additional features the framework provides.</p>
 
-      <h3><em>fw.viewModel( configurationObject )</em></h3>
+      <h3><em class="func-def">fw.viewModel<span>( <span class="param">configurationObject</span> )</span></em></h3>
       <h3>viewModel configuration object synopsis:</h3>
 <pre><code data-language="javascript">fw.viewModel({
   /**
@@ -185,7 +185,7 @@ fw.applyBindings(awesomeSprocket, document.getElementById('sprocket-container'))
         <li>Automatic download/resolution via AMD/RequireJS at the configurable default (<span class="inline-code">fw.viewModels.defaultLocation()</span>).</li>
       </ul>
 
-      <h3><em>fw.viewModels.register( 'moduleName', viewModel )</em></h3>
+      <h3><em class="func-def">fw.viewModels.register<span>( <span class="param">'moduleName'</span>, <span class="param">viewModel</span> )</span></em></h3>
       <h3>Cache a viewModel/module ahead of time:</h3>
 <pre><code data-language="javascript">// register a footwork viewModel
 var Sprocket = fw.viewModel({ /* configuration object */ });
@@ -213,7 +213,7 @@ fw.viewModels.register('Sprocket', {
   }
 });</code></pre>
 
-      <h3><em>fw.viewModels.registerLocation( 'moduleName', 'path/to/module' )</em></h3>
+      <h3><em class="func-def">fw.viewModels.registerLocation<span>( <span class="param">'moduleName'</span>, <span class="param">'path/to/module'</span> )</span></em></h3>
       <h3>Register the location of a viewModel/module so footwork can load and bind it for you when needed:</h3>
 <pre><code data-language="javascript">// Load Sprocket from: /viewModels/parts/Sprocket.js (based on viewModel/module name, case sensitive)
 fw.viewModels.registerLocation('Sprocket', '/viewModels/parts');
@@ -224,7 +224,7 @@ fw.viewModels.registerLocation('Sprocket', '/viewModels/parts/DifferentFileName.
 // register the location of several viewModels at once (ie: all in the same folder)
 fw.viewModels.registerLocation(['Body', 'Navigation', 'Footer'], '/viewModels/pageAreas');</code></pre>
 
-      <h3><em>fw.viewModels.defaultLocation( 'path/to/viewModel/folder' )</em></h3>
+      <h3><em class="func-def">fw.viewModels.defaultLocation<span>( <span class="param">'path/to/viewModel/folder'</span> )</span></em></h3>
       <h3>Register the default location of viewModels/modules so footwork can load and bind them for you when needed:</h3>
 <pre><code data-language="javascript">// Load all viewModels from /myViewModels (based on viewModel/module name, case sensitive)
 fw.viewModels.defaultLocation('/myViewModels');
@@ -251,24 +251,32 @@ fw.viewModels.defaultLocation('/myViewModels');
       functionality outlined here, each object has various methods extended from riveter which can enable you to extend the viewModels in
       various ways, I would encourage you to also <a href="https://github.com/a2labs/riveter" target="_blank">look at its documentation</a>.</p>
 
-      <h3>Basic usage:</h3>
-<pre><code data-language="javascript">var bigSprocket = { /* mixin configuration object */ };
-var bikeSprocket = { /* mixin configuration object */ };
-
-var Sprocket = fw.viewModel({
-  namespace: 'Sprocket',
-  initialize: function(param) {
-    this.type = param.type;
-  },
-  mixins: [ bigSprocket, bikeSprocket ]
-});
-
-var mySprocket = new Sprocket({ type: 'awesome' });</code></pre>
-
       <ul>
         <li><a href="#mixin-configuration">Configuration</a></li>
         <li><a href="#mixin-usage">Usage</a></li>
       </ul>
+
+      <h3>Basic usage:</h3>
+<pre><code data-language="javascript">var bigSprocket = { /* mixin configuration object */ };
+var bikeSprocket = { /* mixin configuration object, detailed in the next section */ };
+
+/**
+ * Mixin behavior is applied to a viewModel by passing it into the
+ * fw.viewModel() configuration object
+ * NOTE: mixins are applied to the viewModel in the order they are given.
+ */
+var Sprocket = fw.viewModel({
+  // ... viewModel configuration object
+  namespace: 'Sprocket',
+  initialize: function(param) {
+    this.type = param.type;
+  },
+
+  // mixins/behavior to include for each new 'Sprocket' viewModel
+  mixins: [ bigSprocket, bikeSprocket ]
+});
+
+var mySprocket = new Sprocket({ type: 'awesome' });</code></pre>
     </div>
   </section>
 
@@ -320,64 +328,6 @@ var mySprocket = new Sprocket({ type: 'awesome' });</code></pre>
           <li>A viewModel can have as many mixins as you want, and you can re-use them across as many differing viewModels/modules as you like.</li>
         </ul>
       </div>
-
-      <h3>Example usage:</h3>
-<pre><code data-language="javascript">// define the mixin configuration object
-var bigSprocket = {
-  _preInit: function(param) {
-    this.isAwesome = (param.type === 'awesome' ? true : false);
-  },
-  mixin: {
-    isBig: true,
-    fitInSmallPlace: function() {
-      return false;
-    }
-  }
-};
-
-// create a BigSprocket contructor and include the bigSprocket mixin
-var BigSprocket = fw.viewModel({
-  namespace: 'Sprocket',
-  initialize: function(param) {
-    this.type = param.type;
-  },
-  mixins: [ bigSprocket ]
-});
-
-var mySprocket = new BigSprocket({ type: 'awesome' });
-// mySprocket.fitInSmallPlace() === false
-// mySprocket.isBig === true
-// mySprocket.isAwesome === true</code></pre>
-    </div>
-  </section>
-
-  <a id="mixins" class="section-anchor"></a>
-  <section name="mixins">
-    <div class="highlight"></div>
-    <header>
-      <h1 class="sub title">Mixins</h1>
-    </header>
-    <div class="content">
-      <p>footwork.js provides for several ways of extending a viewModels functionality without having to duplicate code. One such powerful way is
-      through mixins.</p>
-      <p>The mixin functionality in footwork is provided via a library called <a href="https://github.com/a2labs/riveter" target="_blank">riveter</a>.
-      All <span class="inline-code">fw.viewModel()</span> based constructor functions are riveter constructor functions. Above and beyond the
-      functionality outlined here, each object has various methods extended from riveter which can enable you to extend the viewModels in
-      various ways, I would encourage you to also <a href="https://github.com/a2labs/riveter" target="_blank">look at its documentation</a>.</p>
-
-      <h3>Mixin basic usage:</h3>
-<pre><code data-language="javascript">var bigSprocket = { /* mixin configuration object */ };
-var bikeSprocket = { /* mixin configuration object */ };
-
-var Sprocket = fw.viewModel({
-  namespace: 'Sprocket',
-  initialize: function(param) {
-    this.type = param.type;
-  },
-  mixins: [ bigSprocket, bikeSprocket ]
-});
-
-var mySprocket = new Sprocket({ type: 'awesome' });</code></pre>
     </div>
   </section>
 
@@ -428,15 +378,23 @@ var mySprocket = new BigSprocket({ type: 'awesome' });
       <h1 class="sub title">Utility / Misc</h1>
     </header>
     <div class="content">
-      Various useful methods and utility functions for misc and debugging purposes.
+      <p>Various useful methods and utility functions for misc and debugging purposes.</p>
+
+      <ul>
+        <li><a href="#viewModels-getAll">fw.viewModels.getAll()</a></li>
+        <li><a href="#viewModels-isRegistered">fw.viewModels.isRegistered()</a></li>
+        <li><a href="#viewModels-getRegistered">fw.viewModels.getRegistered()</a></li>
+        <li><a href="#viewModels-fileExtensions">fw.viewModels.fileExtensions()</a></li>
+        <li><a href="#viewModels-getResourceLocation">fw.viewModels.getResourceLocation()</a></li>
+      </ul>
     </div>
   </section>
 
   <a id="viewModels-getAll" class="section-anchor"></a>
-  <section name="viewModels-getAll" class="top">
+  <section name="viewModels-getAll">
     <div class="highlight"></div>
     <div class="content">
-      <h3 class="top"><em>fw.viewModels.getAll()</em></h3>
+      <h3 class="top"><em class="func-def">fw.viewModels.getAll<span>()</span></em></h3>
       <h3>Get list of currently instantiated viewModels grouped/indexed by namespace:</h3>
 <pre><code data-language="javascript">var Bike = fw.viewModel({
   namespace: 'Bike',
@@ -467,8 +425,8 @@ var viewModels = fw.viewModels.getAll();
   <section name="viewModels-isRegistered">
     <div class="highlight"></div>
     <div class="content">
-      <h3 class="top"><em>fw.viewModels.isRegistered( 'viewModelName' )</em></h3>
-      <h3>Return true or false based on whether or not there is a viewModel that has been registered under 'viewModelName':</h3>
+      <h3 class="top"><em class="func-def">fw.viewModels.isRegistered<span>( <span class="param">'moduleName'</span> )</span></em></h3>
+      <h3>Return true or false based on whether or not there is a viewModel that has been registered under 'moduleName':</h3>
 <pre><code data-language="javascript">var Bike = fw.viewModel({
   namespace: 'Bike',
   initialize: function() {
@@ -486,8 +444,8 @@ fw.viewModels.register('Bike', Bike);
   <section name="viewModels-getRegistered">
     <div class="highlight"></div>
     <div class="content">
-      <h3 class="top"><em>fw.viewModels.getRegistered( 'viewModelName' )</em></h3>
-      <h3>Return viewModel that has been registered under 'viewModelName':</h3>
+      <h3 class="top"><em class="func-def">fw.viewModels.getRegistered<span>( <span class="param">'moduleName'</span> )</span></em></h3>
+      <h3>Return viewModel that has been registered under 'moduleName':</h3>
 <pre><code data-language="javascript">var Bike = fw.viewModel({
   namespace: 'Bike',
   initialize: function() {
@@ -504,13 +462,14 @@ fw.viewModels.register('Bike', Bike);
   <section name="viewModels-file-extensions">
     <div class="highlight"></div>
     <div class="content">
-      <h3 class="top"><em>fw.viewModels.fileExtensions( '.js' )</em></h3>
+      <h3 class="top"><em class="func-def">fw.viewModels.fileExtensions<span>( <span class="param">'.ext'</span> )</span></em></h3>
+      <h3 class="top"><em class="func-def">fw.viewModels.fileExtensions<span>( <span class="param">function(moduleName) { ... }</span> )</span></em></h3>
       <h3>Observable which stores the extension to append to an AMD/RequireJS loaded viewModel path when it does not have an extension specified (ie: full file name not specified):</h3>
 <pre><code data-language="javascript">fw.viewModels.fileExtensions('.jscript');
 // fw.viewModels.fileExtensions() === '.jscript'
 // All viewModels dynamically loaded that need an extension to be added to the path will now have '.jscript' appended.
 
-// You can also set it to a function() whose return value is used as the extension.
+// You can also specify a function() whose return value is used as the extension.
 fw.viewModels.fileExtensions(function(moduleName) {
   if(moduleName === 'Sprocket') {
     return '.jscript';
@@ -525,7 +484,7 @@ fw.viewModels.fileExtensions(function(moduleName) {
   <section name="viewModels-getResourceLocation">
     <div class="highlight"></div>
     <div class="content">
-      <h3 class="top"><em>fw.viewModels.getResourceLocation( 'moduleName' )</em></h3>
+      <h3 class="top"><em class="func-def">fw.viewModels.getResourceLocation<span>( <span class="param">'moduleName'</span> )</span></em></h3>
       <h3>Get the path footwork will attempt to load for the given 'moduleName':</h3>
 <pre><code data-language="javascript">fw.viewModels.registerLocation('Sprocket', '/path/to/viewModel/folder');
 // fw.viewModels.getResourceLocation('Sprocket') === '/path/to/viewModel/folder'</code></pre>
@@ -539,7 +498,7 @@ fw.viewModels.fileExtensions(function(moduleName) {
   "description": "viewModel declaration, instantiation, and binding.",
   "sections": [
     { "anchor": "introduction",
-      "title": "viewModel",
+      "title": "Introduction",
       "subSections": [
         { "anchor": "configuration",
           "title": "Configuration" },
