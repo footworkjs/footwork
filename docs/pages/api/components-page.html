@@ -6,7 +6,7 @@
       <h1 class="sub title">Introduction</h1>
     </header>
     <div class="content">
-      <p>A component can be thought of as a viewModel + template combination composed together and inserted in the DOM for you.</p>
+      <p>A component can be thought of as a viewModel + template combination composed together and inserted into the DOM for you.</p>
       <p>footwork.js extends the components feature found in <a href="http://knockoutjs.com" target="_blank">knockout.js</a> 3.2+ to enable many additional features, some of which being:</p>
       <ul>
         <li>Full template and viewModel encapsulation.</li>
@@ -40,11 +40,90 @@
         <li>The template/HTML/DOM to bind against the viewModel.</li>
         <li>The viewModel which the template/HTML/DOM is bound to.</li>
       </ul>
-      <p>They are both essential. Inside of the template is the markup which comprises your component. The viewModel is the object your template is bound against (viewModels can be created many ways, but <a href="/api/viewModel" data-bind="$route">footwork viewModels</a> are extra awesome).</p>
+      <p>They are both essential. Inside of the template is the markup which comprises your component. The viewModel is the object your template is bound
+      against (footwork can use <a href="http://knockoutjs.com/documentation/observables.html#mvvm-and-view-models" target="_blank">knockout viewModels</a> which can be created many
+      ways, but <a href="/api/viewModel" data-bind="$route">footwork viewModels</a> are extra awesome).</p>
       <p>In addition to being autoloaded via RequireJS/AMD (if needed/possible), the viewModel will be initialized (if required) and bound to your template.</p>
       <p>Once both have been combined, the resulting composition is inserted into the DOM and then the <span class="inline-code">afterBinding()</span> lifecycle event is triggered.</p>
+      <h3>A simple example of a template used in a component:</h3>
+<pre><code data-language="html">&lt;-- /components/templates/sprocket.html --&gt;
+&lt;-- Normal markup, including any bindings you want bound against the viewModel --&gt;
+&lt;div class="info"&gt;
+  &lt;div&gt;Sprocket&lt;/div&gt;
+  Type: &lt;span data-bind="text: type"&gt;&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="description" data-bind="text: description"&gt;&lt;/div&gt;</code></pre>
     </div>
   </section>
+
+  <a id="usage" class="section-anchor"></a>
+  <section name="usage">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Usage</h2>
+    </header>
+    <div class="content">
+      <p>Using a component begins with inserting a custom element into your DOM/HTML (or using the standard knockout <a href="http://knockoutjs.com/documentation/component-binding.html" target="_blank">component binding</a>).</p>
+      <div class="note">
+        <p><span class="label">NOTE:</span> This is very similar to the <span class="inline-code">&lt;viewModel module=""&gt;&lt;/viewModel&gt;</span> declarative syntax used for viewModel instantiation. 
+        See: <a href="/api/viewModel" data-bind="$route">viewModels</a>.</p>
+      </div>
+      <h3>For example, in <span class="inline-code">index.html</span> lets say we have have:</h3>
+<pre><code data-language="html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;div&gt;Look at this awesome Sprocket:&lt;/div&gt;
+
+    &lt;-- notice the custom element name, footwork uses this to lookup your component --&gt;
+    &lt;sprocket&gt;&lt;/sprocket&gt;
+    &lt;-- NOTE: only lowercase alpha-numeric, and dash ('-') characters are allowed for custom elements --&gt;
+
+    &lt;-- this also loads the same 'sprocket' component using the standard knockout binding --&gt;
+    &lt;div data-bind="component: 'sprocket'"&gt;&lt;/div&gt;
+
+    &lt;script src="/application.js"&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      <div class="note">
+        <span class="label">NOTE:</span> You can nest both &lt;component&gt; and &lt;viewModel&gt; declarations within one another, footwork will pull in resources and wire it all up as needed.
+      </div>
+
+      <p>Once footwork encounters an element it doesn't recognize as being normal HTML it will do a lookup for the name and attempt to find the viewModel/template duo. There are 3 ways footwork will try to resolve both the viewModel and template.</p>
+      <p>They are as follows (in order of priority):</p>
+      <ul>
+        <li>Pre-cached via a <span class="inline-code">fw.components.register()</span> call.</li>
+        <li>Automatic download/resolution via AMD/RequireJS at a pre-registered location (<span class="inline-code">fw.components.registerLocation()</span>).</li>
+        <li>Automatic download/resolution via AMD/RequireJS at the configurable default (<span class="inline-code">fw.components.defaultLocation()</span>).</li>
+      </ul>
+
+      <h3><em class="func-def">fw.components.register<span>( <span class="param">'moduleName'</span>, <span class="param">optionsObject</span> )</span></em></h3>
+<pre><code data-language="javascript">// Using a footwork viewModel
+fw.components.register('sprocket', {
+  viewModel: fw.viewModel({ /* ... configuration object ... */ }),
+  template: '&lt;div data-bind="text: textProperty"&gt;&lt;/div&gt;'
+});
+
+// Using a regular constructor function
+fw.components.register('sprocket', {
+  viewModel: function() { this.textProperty = 'hello world'; },
+  template: '&lt;div data-bind="text: textProperty"&gt;&lt;/div&gt;'
+});</code></pre>
+      <div class="note">
+        <span class="label">NOTE:</span>
+        <ul>
+          <li>Footwork fully supports regular knockout component registration (<span class="inline-code">ko.components.register()</span>, 
+          see <a href="http://knockoutjs.com/documentation/component-registration.html">their documentation</a>)</li>
+          
+          <li>Registering components is not necessary if you have RequireJS and tell footwork where it can download them (see 
+          <span class="inline-code">fw.components.registerLocation()</span> and <span class="inline-code">fw.components.defaultLocation()</span> down below).</li>
+          
+          <li>It is recommended you load these assets (the viewModel and template) in via some other means. Footwork preferences loading them with
+          <a href="http://requirejs.org">AMD/RequireJS</a> because of its inherent async capabilities/runtime dependency resolution/etc, however if <a href="http://browserify.org" target="_blank">Browserify</a> is more your taste that will work just as well.</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
 
 </article>
 
@@ -58,8 +137,8 @@
       "subSections": [
         { "anchor": "configuration",
           "title": "Configuration" },
-        { "anchor": "initialization",
-          "title": "Initialization / Usage" },
+        { "anchor": "usage",
+          "title": "Usage" },
         { "anchor": "loading-registering",
           "title": "AMD / Lazy Loading / Registering" }
       ] }

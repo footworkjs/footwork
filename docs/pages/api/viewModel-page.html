@@ -222,7 +222,7 @@ define(["footwork"],
       <p>There are 3 ways footwork will try to resolve your viewModel when it encounters the declarative <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> element you place in the DOM.</p>
       <p>Here they are in order of priority:</p>
       <ul>
-        <li>Pre-cached via <span class="inline-code">fw.viewModels.register()</span> call.</li>
+        <li>Pre-cached via a <span class="inline-code">fw.viewModels.register()</span> call.</li>
         <li>Automatic download/resolution via AMD/RequireJS at a pre-registered location (<span class="inline-code">fw.viewModels.registerLocation()</span>).</li>
         <li>Automatic download/resolution via AMD/RequireJS at the configurable default (<span class="inline-code">fw.viewModels.defaultLocation()</span>).</li>
       </ul>
