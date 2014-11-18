@@ -257,6 +257,7 @@ define(["footwork"],
         <li><a href="#components-getFileName">fw.components.getFileName()</a></li>
         <li><a href="#components-fileExtensions">fw.components.fileExtensions()</a></li>
         <li><a href="#components-getResourceLocation">fw.components.getResourceLocation()</a></li>
+        <li><a href="#components-isTemplateOnly">fw.components.isTemplateOnly()</a></li>
         <li><a href="#components-getNormalTagList">fw.components.getNormalTagList()</a></li>
       </ul>
     </div>
@@ -345,6 +346,26 @@ fw.components.fileExtensions(function(componentName) {
     </div>
   </section>
 
+  <a id="components-isTemplateOnly" class="section-anchor"></a>
+  <section name="components-isTemplateOnly">
+    <div class="highlight"></div>
+    <div class="content">
+      <p>Using <span class="inline-code">fw.components.isTemplateOnly()</span> you can tell footwork that when it encounters a specific component not to worry about resolving the viewModel. In this
+      case footwork will only attempt to resolve the template, inject it into the DOM, and then initialize any nested viewModels/components within.</p>
+      <h3 class="top"><em class="func-def">fw.components.isTemplateOnly<span>( <span class="param">'componentName'</span>, <span class="param">isTemplateOnly</span> )</span></em></h3>
+      <h3>Explicitly tell footwork a component has no viewModel:</h3>
+<pre><code data-language="javascript">fw.components.isTemplateOnly('Sprocket', true); // instances of Sprocket will not resolve a viewModel
+fw.components.isTemplateOnly('Sprocket'); // does the same thing (true is default/implied)
+
+// Mark several components as having no viewModel
+fw.components.isTemplateOnly(['Sprocket', 'Wheel']);
+
+// Undo isTemplateOnly()
+fw.components.isTemplateOnly('Sprocket', false);
+fw.components.isTemplateOnly(['Sprocket', 'Wheel'], false); // undo for several</code></pre>
+    </div>
+  </section>
+
   <a id="components-getNormalTagList" class="section-anchor"></a>
   <section name="components-getNormalTagList">
     <div class="highlight"></div>
@@ -383,6 +404,8 @@ fw.components.fileExtensions(function(componentName) {
           "title": "fw.components.getFileName()" },
         { "anchor": "components-fileExtensions",
           "title": "fw.components.fileExtensions()" },
+        { "anchor": "components-isTemplateOnly",
+          "title": "fw.components.isTemplateOnly()" },
         { "anchor": "components-getNormalTagList",
           "title": "fw.components.getNormalTagList()" }
       ] }
