@@ -30,6 +30,27 @@ var getComponentFileName = fw.components.getFileName = function(componentName, f
     }
   }
 
+  switch(fileType) {
+    case 'viewModel':
+      fileType = 'viewModels';
+      break;
+    case 'template':
+      fileType = 'templates';
+      break;
+  }
+
+  if( !isUndefined( componentResourceLocations[componentName] ) ) {
+    var registeredLocation = componentResourceLocations[componentName];
+    if( !isUndefined(registeredLocation[fileType]) && !isPath(registeredLocation[fileType]) ) {
+      if( isString(registeredLocation[fileType]) ) {
+        // full filename was supplied, lets return that
+        fileName = last( registeredLocation[fileType].split('/') );
+      } else {
+        return null;
+      }
+    }
+  }
+  
   return fileName;
 };
 
@@ -97,6 +118,14 @@ var getViewModelFileName = fw.viewModels.getFileName = function(viewModelName) {
     fileName += viewModelExtensions(viewModelName);
   } else if( isString(viewModelExtensions) ) {
     fileName += viewModelExtensions;
+  }
+
+  if( !isUndefined( viewModelResourceLocations[viewModelName] ) ) {
+    var registeredLocation = viewModelResourceLocations[viewModelName];
+    if( isString(registeredLocation) && !isPath(registeredLocation) ) {
+      // full filename was supplied, lets return that
+      fileName = last( registeredLocation.split('/') );
+    }
   }
 
   return fileName;
