@@ -253,18 +253,34 @@ define(["footwork"],
       <p>Various useful methods and utility functions for misc and debugging purposes.</p>
 
       <ul>
-        <li><a href="#components-getResourceLocation">fw.components.getResourceLocation()</a></li>
-        <li><a href="#components-getFileName">fw.components.getFileName()</a></li>
-        <li><a href="#components-fileExtensions">fw.components.fileExtensions()</a></li>
-        <li><a href="#components-getResourceLocation">fw.components.getResourceLocation()</a></li>
-        <li><a href="#components-isTemplateOnly">fw.components.isTemplateOnly()</a></li>
-        <li><a href="#components-getNormalTagList">fw.components.getNormalTagList()</a></li>
+        <li><a href="#isRegistered">fw.components.isRegistered()</a></li>
+        <li><a href="#getResourceLocation">fw.components.getResourceLocation()</a></li>
+        <li><a href="#getFileName">fw.components.getFileName()</a></li>
+        <li><a href="#fileExtensions">fw.components.fileExtensions()</a></li>
+        <li><a href="#isTemplateOnly">fw.components.isTemplateOnly()</a></li>
+        <li><a href="#getNormalTagList">fw.components.getNormalTagList()</a></li>
+        <li><a href="#tagIsComponent">fw.components.tagIsComponent()</a></li>
       </ul>
     </div>
   </section>
 
-  <a id="components-getResourceLocation" class="section-anchor"></a>
-  <section name="components-getResourceLocation">
+  <a id="isRegistered" class="section-anchor"></a>
+  <section name="isRegistered">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">fw.components.isRegistered<span>( <span class="param">'componentName'</span> )</span></em></h3>
+      <h3>Return true or false based on whether or not there is a component that has been registered under 'componentName':</h3>
+<pre><code data-language="javascript">fw.components.register('Sprocket', {
+  viewModel: fw.viewModel({ /* ... configuration object ... */ }),
+  template: '&lt;div&gt;&lt;-- template HTML --&gt;&lt;/div&gt;' 
+});
+// fw.components.isRegistered('Sprocket') === true
+// fw.components.isRegistered('ComponentThatIsLoadedByAMD') === false</code></pre>
+    </div>
+  </section>
+
+  <a id="getResourceLocation" class="section-anchor"></a>
+  <section name="getResourceLocation">
     <div class="highlight"></div>
     <div class="content">
       <h3 class="top"><em class="func-def">fw.components.getResourceLocation<span>( <span class="param">'componentName'</span> )</span></em></h3>
@@ -285,8 +301,8 @@ var sprocketLocation = fw.components.getResourceLocation('Sprocket');
     </div>
   </section>
 
-  <a id="components-getFileName" class="section-anchor"></a>
-  <section name="components-getFileName">
+  <a id="getFileName" class="section-anchor"></a>
+  <section name="getFileName">
     <div class="highlight"></div>
     <div class="content">
       <h3 class="top"><em class="func-def">fw.components.getFileName<span>( <span class="param">'componentName'</span>, <span class="param">'[fileType]'</span> )</span></em></h3>
@@ -313,8 +329,8 @@ var fileNameForSprocket = fw.components.getFileName('sprocket', 'viewModel'); //
     </div>
   </section>
 
-  <a id="components-fileExtensions" class="section-anchor"></a>
-  <section name="components-fileExtensions">
+  <a id="fileExtensions" class="section-anchor"></a>
+  <section name="fileExtensions">
     <div class="highlight"></div>
     <div class="content">
       <h3 class="top"><em class="func-def">fw.components.fileExtensions<span>( <span class="param">{ /* configuration object */ }</span> )</span></em></h3>
@@ -346,8 +362,8 @@ fw.components.fileExtensions(function(componentName) {
     </div>
   </section>
 
-  <a id="components-isTemplateOnly" class="section-anchor"></a>
-  <section name="components-isTemplateOnly">
+  <a id="isTemplateOnly" class="section-anchor"></a>
+  <section name="isTemplateOnly">
     <div class="highlight"></div>
     <div class="content">
       <p>Using <span class="inline-code">fw.components.isTemplateOnly()</span> you can tell footwork that when it encounters a specific component not to worry about resolving the viewModel. In this
@@ -366,13 +382,23 @@ fw.components.isTemplateOnly(['Sprocket', 'Wheel'], false); // undo for several<
     </div>
   </section>
 
-  <a id="components-getNormalTagList" class="section-anchor"></a>
-  <section name="components-getNormalTagList">
+  <a id="getNormalTagList" class="section-anchor"></a>
+  <section name="getNormalTagList">
     <div class="highlight"></div>
     <div class="content">
       <h3 class="top"><em class="func-def">fw.components.getNormalTagList<span>()</span></em></h3>
       <h3>Return an array containing the list of elements (tagName) that footwork will not process as a component:</h3>
 <pre><code data-language="javascript">var normalTags = fw.components.getNormalTagList(); // [ 'span', 'div', ... ]</code></pre>
+    </div>
+  </section>
+
+  <a id="tagIsComponent" class="section-anchor"></a>
+  <section name="tagIsComponent">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">fw.components.tagIsComponent<span>()</span></em></h3>
+      <h3>Return an array containing the list of elements (tagName) that footwork will not process as a component:</h3>
+<pre><code data-language="javascript">var normalTags = fw.components.tagIsComponent(); // [ 'span', 'div', ... ]</code></pre>
     </div>
   </section>
 
@@ -398,16 +424,20 @@ fw.components.isTemplateOnly(['Sprocket', 'Wheel'], false); // undo for several<
     { "anchor": "misc",
       "title": "Utility / Misc",
       "subSections": [
-        { "anchor": "components-getResourceLocation",
+        { "anchor": "isRegistered",
+          "title": "fw.components.isRegistered()" },
+        { "anchor": "getResourceLocation",
           "title": "fw.components.getResourceLocation()" },
-        { "anchor": "components-getFileName",
+        { "anchor": "getFileName",
           "title": "fw.components.getFileName()" },
-        { "anchor": "components-fileExtensions",
+        { "anchor": "fileExtensions",
           "title": "fw.components.fileExtensions()" },
-        { "anchor": "components-isTemplateOnly",
+        { "anchor": "isTemplateOnly",
           "title": "fw.components.isTemplateOnly()" },
-        { "anchor": "components-getNormalTagList",
-          "title": "fw.components.getNormalTagList()" }
+        { "anchor": "getNormalTagList",
+          "title": "fw.components.getNormalTagList()" },
+        { "anchor": "tagIsComponent",
+          "title": "fw.components.tagIsComponent()" }
       ] }
   ]
 }
