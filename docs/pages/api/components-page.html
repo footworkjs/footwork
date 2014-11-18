@@ -46,8 +46,8 @@
       <p>In addition to being autoloaded via RequireJS/AMD (if needed/possible), the viewModel will be initialized (if required) and bound to your template.</p>
       <p>Once both have been combined, the resulting composition is inserted into the DOM and then the <span class="inline-code">afterBinding()</span> lifecycle event is triggered on the viewModel.</p>
       <h3>A simple example of a template used in a component:</h3>
-<pre><code data-language="html">&lt;-- /components/templates/sprocket.html --&gt;
-&lt;-- Normal markup, including any bindings you want bound against the viewModel --&gt;
+<pre><code data-language="html">&lt;!-- /components/templates/sprocket.html --&gt;
+&lt;!-- Normal markup, including any bindings you want bound against the viewModel --&gt;
 &lt;div class="info"&gt;
   &lt;div&gt;Sprocket&lt;/div&gt;
   Type: &lt;span data-bind="text: type"&gt;&lt;/span&gt;
@@ -74,11 +74,11 @@
   &lt;body&gt;
     &lt;div&gt;Look at this awesome Sprocket:&lt;/div&gt;
 
-    &lt;-- notice the custom element name, footwork uses this to lookup your component --&gt;
+    &lt;!-- notice the custom element name, footwork uses this to lookup your component --&gt;
     &lt;sprocket&gt;&lt;/sprocket&gt;
-    &lt;-- NOTE: only lowercase alpha-numeric, and dash ('-') characters are allowed for custom elements --&gt;
+    &lt;!-- NOTE: only lowercase alpha-numeric, and dash (-) characters are allowed for custom elements --&gt;
 
-    &lt;-- this also loads the same 'sprocket' component using the standard knockout binding --&gt;
+    &lt;!-- this also loads the same 'sprocket' component using the standard knockout binding --&gt;
     &lt;div data-bind="component: 'sprocket'"&gt;&lt;/div&gt;
 
     &lt;script src="/application.js"&gt;&lt;/script&gt;
@@ -181,7 +181,58 @@ fw.components.defaultLocation({
 // Load components in combined format by default from /components/[component-name].js
 fw.components.defaultLocation('/components');
 </code></pre>
+    </div>
+  </section>
 
+  <a id="module-formats" class="section-anchor"></a>
+  <section name="module-formats">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Module Formats</h1>
+    </header>
+    <div class="content">
+      <p>Footwork templates are always loaded as plain HTML files (plain text), but viewModels are loaded as javascript modules. viewModels can either be expressed inline (ie: when registering a
+      component explicitly), or resolved via a script loader.</p>
+      <p>Both <a href="http://requirejs.org">AMD/RequireJS</a> and <a href="http://browserify.org" target="_blank">Browserify</a> are supported. RequireJS is preferred as it will enable
+      footwork to resolve your viewModels/components (and their dependencies) automatically at runtime as needed.</p>
+      <p>The following examples all show the RequireJS/AMD flavored versions.</p>
+      <h3>viewModel and template are loaded separately:</h3>
+<pre><code data-language="javascript">// File located in: /viewModel/sprocket.js
+define(["footwork"],
+  function(fw) {
+    return fw.viewModel({
+      namespace: 'sprocket'
+      // ...
+    });
+  }
+);</code></pre>
+<pre><code data-language="html">&lt;!-- File located in: /template/sprocket.html --&gt;
+&lt;div class="info"&gt;
+  &lt;div&gt;Sprocket&lt;/div&gt;
+  Type: &lt;span data-bind="text: type"&gt;&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class="description" data-bind="text: description"&gt;&lt;/div&gt;</code></pre>
+      <div class="note">
+        <p><span class="label">NOTE:</span> You can return any constructor function or plain object from your viewModel modules (you don't have to return a footwork viewModel constructor as shown).</p>
+      </div>
+
+      <h3><em class="func-def">fw.component<span>( <span class="param">{ viewModel: [viewModel], template: '&lt;!-- template HTML --&gt;' }</span> )</span></em></h3>
+      <h3>viewModel and template are loaded as a combined viewModel + template module:</h3>
+<pre><code data-language="javascript">// File located in: /components/sprocket.js
+define(["footwork"],
+  function(fw) {
+    return fw.component({
+      viewModel: fw.viewModel({
+        namespace: 'sprocket'
+        // ...
+      }),
+      template: '&lt;div&gt;&lt;-- template HTML --&gt;&lt;/div&gt;'
+    });
+  }
+);</code></pre>
+      <div class="note">
+        <p><span class="label">NOTE:</span> You can use any constructor function or plain object as the viewModel for your component modules (you don't have to use a footwork viewModel constructor as shown).</p>
+      </div>
     </div>
   </section>
 

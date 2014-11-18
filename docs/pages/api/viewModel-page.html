@@ -155,7 +155,7 @@ fw.applyBindings(awesomeSprocket, document.getElementById('sprocket-container'))
 <pre><code>&lt;html&gt;
   &lt;body&gt;
     &lt;sprocket&gt;&lt;/sprocket&gt;
-    &lt;-- NOTE: Both the viewModel and template are either autoloaded via requireJS/AMD, or 
+    &lt;!-- NOTE: Both the viewModel and template are either autoloaded via requireJS/AMD, or 
               loaded from cache/configuration you supply to the framework --&gt;
   &lt;/body&gt;
 &lt;/html&gt;</code></pre>
@@ -281,6 +281,33 @@ fw.viewModels.defaultLocation('/myViewModels');
  * &lt;viewModel module="Sprocket"&gt; ... &lt;/viewModel&gt;
  */</code></pre>
 
+    </div>
+  </section>
+
+  <a id="module-formats" class="section-anchor"></a>
+  <section name="module-formats">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Module Formats</h1>
+    </header>
+    <div class="content">
+      <p>Loading your viewModel/module in so that footwork can use it is done via a script loader.</p>
+      <p>Both <a href="http://requirejs.org">AMD/RequireJS</a> and <a href="http://browserify.org" target="_blank">Browserify</a> are supported. However RequireJS is preferred as it will enable
+      footwork to resolve your viewModels/components (and their dependencies) automatically at runtime as needed.</p>
+      <p>The following example shows the RequireJS/AMD flavored version.</p>
+      <h3>viewModel and template are loaded separately:</h3>
+<pre><code data-language="javascript">// File located in: /viewModel/sprocket.js
+define(["footwork"],
+  function(fw) {
+    return fw.viewModel({
+      namespace: 'sprocket'
+      // ...
+    });
+  }
+);</code></pre>
+      <div class="note">
+        <p><span class="label">NOTE:</span> You can return any constructor function or plain object from your viewModel modules (you don't have to return a footwork viewModel constructor as shown).</p>
+      </div>
     </div>
   </section>
 
@@ -554,7 +581,9 @@ fw.viewModels.fileExtensions(function(moduleName) {
         { "anchor": "initialization",
           "title": "Initialization / Usage" },
         { "anchor": "loading-registering",
-          "title": "AMD / Lazy Loading / Registering" }
+          "title": "AMD / Lazy Loading / Registering" },
+        { "anchor": "module-formats",
+          "title": "Module Formats" }
       ] },
     { "anchor": "mixins",
       "title": "Mixins",
