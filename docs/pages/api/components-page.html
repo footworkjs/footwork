@@ -70,13 +70,13 @@
         that instead of wrapping a section of HTML with a viewModel, they are paired together and composed prior to insertion into the DOM.
         See: <a href="/api/viewModel" data-bind="$route">viewModels</a>.</p>
       </div>
-      <h3>For example, in <span class="inline-code">index.html</span> lets say we have have:</h3>
+      <p>Footwork.js uses the the custom element name (or name provided by the component binding) to resolve your component.</p>
+      <h3 class="top">For example, in <span class="inline-code">index.html</span> lets say we have have:</h3>
 <pre><code data-language="html">&lt;html&gt;
   &lt;body&gt;
     &lt;div&gt;Look at this awesome Sprocket:&lt;/div&gt;
 
-    &lt;!-- notice the custom element name, footwork uses this to lookup your component --&gt;
-    &lt;sprocket&gt;&lt;/sprocket&gt;
+    &lt;sprocket&gt;&lt;/sprocket&gt; &lt;!-- footwork will load the 'sprocket' component here --&gt;
     &lt;!-- NOTE: only lowercase alpha-numeric and dash (-) characters are allowed for custom elements --&gt;
 
     &lt;!-- this loads the same 'sprocket' component using the standard knockout component binding --&gt;
@@ -88,8 +88,6 @@
       <div class="note">
         <span class="label">NOTE:</span> You can nest both &lt;component&gt; and &lt;viewModel&gt; declarations within one another, footwork will pull in resources and wire it all up as needed.
       </div>
-      <p>Once an element not recognized as being normal HTML is encountered it will lookup the name and attempt to find the component associated with it. The following section outlines how to
-      tell the footwork where to find your component.</p>
     </div>
   </section>
 
@@ -100,6 +98,8 @@
       <h2 class="sub title">AMD / Lazy Loading / Registering</h2>
     </header>
     <div class="content">
+      <p>Once an element not recognized as being normal HTML is encountered footwork will process it as a component, first by resolving its dependencies.</p>
+      <div class="note"><span class="label">NOTE:</span> This means everything it doesn't think is 'normal' it will try to resolve (from cache or dynamically) and process. You can make footwork <em>not</em> process an element as a component, see <span class="inline-code">fw.components.tagIsComponent()</span> further down.</div>
       <p>There are 3 ways footwork will try to resolve both the viewModel and template for your component once it encounters the 
       <span class="inline-code">&lt;component-name&gt;&lt;/component-name&gt;</span> or <span class="inline-code">&lt;span data-bind="component: 'component-name'"&gt;&lt;/span&gt;</span> markup.</p>
       <p>They are as follows (in order of priority):</p>
@@ -108,7 +108,7 @@
         <li>Automatic download/resolution via AMD/RequireJS at a pre-registered location (<span class="inline-code">fw.components.registerLocation()</span>).</li>
         <li>Automatic download/resolution via AMD/RequireJS at the configurable default (<span class="inline-code">fw.components.defaultLocation()</span>).</li>
       </ul>
-      <div class="note"><span class="label">NOTE [<em>advanced</em>]:</span> You can also write your own <a href="http://knockoutjs.com/documentation/component-loaders.html" target="_blank">custom loader</a> if you want to use a different method/library to resolve your component dependencies.</div>
+      <div class="note"><span class="label">NOTE [<em>advanced</em>]:</span> You can also write your own <a href="http://knockoutjs.com/documentation/component-loaders.html" target="_blank">custom loader</a> if you want to use a different method/library or logic to resolve your component dependencies.</div>
 
       <h3><em class="func-def">fw.components.register<span>( <span class="param">'name'</span>, <span class="param">optionsObject</span> )</span></em></h3>
       <h3>Register (cache) a component under a specified 'name' for later use:</h3>
@@ -250,6 +250,8 @@ define(["footwork"],
 
       <ul>
         <li><a href="#components-getFileName">fw.components.getFileName()</a></li>
+        <li><a href="#components-fileExtensions">fw.components.fileExtensions()</a></li>
+        <li><a href="#components-getNormalTagList">fw.components.getNormalTagList()</a></li>
       </ul>
     </div>
   </section>
@@ -282,6 +284,49 @@ var fileNameForSprocket = fw.components.getFileName('sprocket', 'viewModel'); //
     </div>
   </section>
 
+  <a id="components-fileExtensions" class="section-anchor"></a>
+  <section name="components-fileExtensions">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">fw.components.fileExtensions<span>( <span class="param">{ /* configuration object */ }</span> )</span></em></h3>
+      <h3 class="top"><em class="func-def">fw.components.fileExtensions<span>( <span class="param">function(componentName) { ... }</span> )</span></em></h3>
+      <h3>Observable which stores the extension to append to AMD/RequireJS loaded component resources when it does not have an extension specified (ie: full file name not specified):</h3>
+<pre><code data-language="javascript">// Explicitely set the extensions on the various file/module types
+fw.viewModels.fileExtensions({
+  combined: '.js', // append combined component files with '.js'
+  viewModel: '.js', // append viewModel module files with '.js'
+  template: '.html' // append template files with '.html'
+});
+
+// Specify a function() whose return configuration object is used to determine the extension:
+fw.components.fileExtensions(function(componentName) {
+  if(componentName === 'Sprocket') {
+    return {
+      combined: '.js', // append combined component files with '.js'
+      viewModel: '.js', // append viewModel module files with '.js'
+      template: '.html' // append template files with '.html'
+    };
+  } else {
+    return {
+      combined: '.other-js', // append combined component files with '.other-js'
+      viewModel: '.other-js', // append viewModel module files with '.other-js'
+      template: '.other-html' // append template files with '.other-html'
+    };
+  }
+});</code></pre>
+    </div>
+  </section>
+
+  <a id="components-getNormalTagList" class="section-anchor"></a>
+  <section name="components-getNormalTagList">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">fw.components.getNormalTagList<span>()</span></em></h3>
+      <h3>Return an array containing the list of elements (tagName) that footwork will not process as a component:</h3>
+<pre><code data-language="javascript">var normalTags = fw.components.getNormalTagList(); // [ 'a', 'abbr', 'acronym', ... ]</code></pre>
+    </div>
+  </section>
+
 </article>
 
 <div id="metaData">
@@ -305,7 +350,11 @@ var fileNameForSprocket = fw.components.getFileName('sprocket', 'viewModel'); //
       "title": "Utility / Misc",
       "subSections": [
         { "anchor": "components-getFileName",
-          "title": "fw.viewModels.getFileName()" }
+          "title": "fw.components.getFileName()" },
+        { "anchor": "components-fileExtensions",
+          "title": "fw.components.fileExtensions()" },
+        { "anchor": "components-getNormalTagList",
+          "title": "fw.components.getNormalTagList()" }
       ] }
   ]
 }

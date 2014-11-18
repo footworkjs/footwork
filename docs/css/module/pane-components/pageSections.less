@@ -53,11 +53,11 @@
         position: relative;
         color: @sectionColor;
         text-decoration: none;
-        .transition(color 0.3s 0.2s ease);
         .clearblock;
 
         & > .label {
           display: block;
+          .transition(color 0.3s 0.2s ease);
 
           &:hover {
             color: lighten(@sectionColor, 10%);

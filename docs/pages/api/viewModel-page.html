@@ -227,6 +227,9 @@ define(["footwork"],
         <li>Automatic download/resolution via AMD/RequireJS at the configurable default (<span class="inline-code">fw.viewModels.defaultLocation()</span>).</li>
       </ul>
 
+      <p>Registering a viewModel explicitely with <span class="inline-code">fw.viewModels.register()</span> makes it immediately available to footwork. This means that it will be usable and composable with your HTML/template. Any <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> declarations encountered will be processed with no delay (the viewModel is 'cached' when registered).</p>
+      <p>The other 2 methods above (<span class="inline-code">registerLocation()</span> and <span class="inline-code">defaultLocation()</span>) tell footwork where it can download your viewModel module. Your markup will wait until the viewModel is downloaded and then initialized and bound.</p>
+      <div class="note"><span class="label">NOTE:</span> Nested viewModels and components are independently resolved. It works as you would expect, with an outer-most container (viewModel/component) initializing/processing/binding and rendering, then any nested viewModels/components get initialized (and so forth until the end).</div>
       <h3><em class="func-def">fw.viewModels.register<span>( <span class="param">'moduleName'</span>, <span class="param">viewModel</span> )</span></em></h3>
       <h3>Cache a viewModel/module ahead of time:</h3>
 <pre><code data-language="javascript">// register a footwork viewModel
@@ -317,7 +320,7 @@ define(["footwork"],
       and compose the desired behavior you want for a viewModel at runtime.</p>
       <p>The mixin functionality in footwork is provided via a library called <a href="https://github.com/a2labs/riveter" target="_blank">riveter</a>.
       All <span class="inline-code">fw.viewModel()</span> based constructor functions are riveter constructor functions. Above and beyond the
-      functionality outlined here, each object has various methods extended from riveter which can enable you to extend the viewModels in
+      functionality outlined here, each object has various methods extended from riveter which can enable you to extend viewModels in
       various ways, I would encourage you to also <a href="https://github.com/a2labs/riveter" target="_blank">look at its documentation</a>.</p>
 
       <ul>
@@ -519,15 +522,17 @@ fw.viewModels.register('Bike', Bike);
     <div class="content">
       <h3 class="top"><em class="func-def">fw.viewModels.getRegistered<span>( <span class="param">'moduleName'</span> )</span></em></h3>
       <h3>Return viewModel that has been registered under 'moduleName':</h3>
-<pre><code data-language="javascript">var Bike = fw.viewModel({
-  namespace: 'Bike',
-  initialize: function() {
-    this.isBike = true;
-  }
-});
-
+<pre><code data-language="javascript">// Explicit registration
+var Bike = fw.viewModel({ /* ... configuration object */ });
 fw.viewModels.register('Bike', Bike);
-// fw.viewModels.getRegistered('Bike') === Bike;</code></pre>
+// fw.viewModels.getRegistered('Bike') === Bike;
+
+// viewModel that registers itself
+var Sprocket = fw.viewModel({
+  autoRegister: true,
+  // ... remainder of configuration object
+});
+// fw.viewModels.getRegistered('Sprocket') === Sprocket;</code></pre>
     </div>
   </section>
 
@@ -567,9 +572,8 @@ var fileNameForSprocket = fw.viewModels.getFileName('sprocket'); // === null
       <h3 class="top"><em class="func-def">fw.viewModels.fileExtensions<span>( <span class="param">'.ext'</span> )</span></em></h3>
       <h3 class="top"><em class="func-def">fw.viewModels.fileExtensions<span>( <span class="param">function(moduleName) { ... }</span> )</span></em></h3>
       <h3>Observable which stores the extension to append to an AMD/RequireJS loaded viewModel path when it does not have an extension specified (ie: full file name not specified):</h3>
-<pre><code data-language="javascript">fw.viewModels.fileExtensions('.jscript');
-// fw.viewModels.fileExtensions() === '.jscript'
-// All viewModels dynamically loaded that need an extension to be added to the path will now have '.jscript' appended.
+<pre><code data-language="javascript">// Explicitely set the extension
+fw.viewModels.fileExtensions('.jscript'); // append viewModel module files with '.jscript'
 
 // You can also specify a function() whose return value is used as the extension.
 fw.viewModels.fileExtensions(function(moduleName) {
