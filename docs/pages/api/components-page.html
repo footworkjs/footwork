@@ -6,8 +6,8 @@
       <h1 class="sub title">Introduction</h1>
     </header>
     <div class="content">
-      <p>A component can be thought of as a viewModel + template composed together and inserted into the DOM for you.</p>
-      <p>footwork.js extends the components feature found in <a href="http://knockoutjs.com" target="_blank">knockout.js</a> 3.2+ to enable many additional features, some of which being:</p>
+      <p>A component can be thought of as a viewModel + template composed together and inserted into the DOM.</p>
+      <p>footwork.js extends the component feature found in <a href="http://knockoutjs.com" target="_blank">knockout.js</a> 3.2+ to enable many additional features, some of which being:</p>
       <ul>
         <li>Full template and viewModel encapsulation.</li>
         <li>Extremely easy to use (and re-use!) expressive and semantic <span class="inline-code">&lt;custom-elements&gt;&lt;/custom-elements&gt;</span></li>
@@ -149,8 +149,8 @@ fw.components.register('sprocket', {
  * The file name will be appended using the name of the component + .ext
  */
 fw.components.registerLocation('sprocket', {
-  viewModel: '/viewModels/bikeParts', // load from /viewModels/bikeParts/sprocket.js
-  template: '/templates/bikeParts' // load from /templates/bikeParts/sprocket.html
+  viewModel: '/viewModels/bikeParts/', // load from /viewModels/bikeParts/sprocket.js
+  template: '/templates/bikeParts/' // load from /templates/bikeParts/sprocket.html
 });
 
 // Specify the full file name (ie: use this if the file name does not conform to what footwork expects)
@@ -160,15 +160,15 @@ fw.components.registerLocation('sprocket', {
 });
 
 // Specify the 'combined' module to be downloaded (see the 'Module formats' section on this page)
-fw.components.registerLocation('sprocket', '/components'); // load from /components/sprocket.js
+fw.components.registerLocation('sprocket', '/components/'); // load from /components/sprocket.js
 fw.components.registerLocation('sprocket', '/components/theSprocket.js'); // load from /components/theSprocket.js
 
 // You can also specify the path to many components at once (footwork will append the appropriate file name):
 fw.components.registerLocation(['sprocket', 'wheel'], {
-  viewModel: '/viewModels/bikeParts',
-  template: '/templates/bikeParts'
+  viewModel: '/viewModels/bikeParts/',
+  template: '/templates/bikeParts/'
 });
-fw.components.registerLocation(['sprocket', 'wheel'], '/components');
+fw.components.registerLocation(['sprocket', 'wheel'], '/components/'); // combined format
 </code></pre>
 
       <h3><em class="func-def">fw.components.defaultLocation<span>( <span class="param">{ viewModel: 'path/to/viewModels', template: 'path/to/templates' }</span> )</span></em></h3>
@@ -177,12 +177,12 @@ fw.components.registerLocation(['sprocket', 'wheel'], '/components');
       <h3>Tell footwork where to look for a component if it isn't registered explicitly (ie: when all else fails):</h3>
 <pre><code data-language="javascript">// Load components using individual paths for the viewModel and template files.
 fw.components.defaultLocation({
-  viewModel: '/viewModels', // load from /viewModels/[component-name].js
-  template: '/templates' // load from /templates/[component-name].html
+  viewModel: '/viewModels/', // load from /viewModels/[component-name].js
+  template: '/templates/' // load from /templates/[component-name].html
 });
 
 // Load components in combined format by default from /components/[component-name].js
-fw.components.defaultLocation('/components');
+fw.components.defaultLocation('/components/');
 </code></pre>
     </div>
   </section>

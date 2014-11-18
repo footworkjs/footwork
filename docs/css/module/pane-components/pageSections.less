@@ -1,18 +1,30 @@
 .pane .content .pane-component {
   &.pageSections {
+    @pageSectionTitleHeight: 25px;
     .entry-row {
       border-top: 1px solid transparent;
       border-bottom: 1px solid transparent;
 
-      & > .content .title {
-        font-size: 17px;
-        font-weight: bold;
-        line-height: 25px;
-        padding-bottom: 0;
+      & > .content {
+        height: 0;
+
+
+        &.hasTitle {
+          height: @pageSectionTitleHeight;
+        }
+
+        .title {
+          font-size: 17px;
+          font-weight: bold;
+          line-height: @pageSectionTitleHeight;
+          padding-bottom: 0;
+        }
       }
     }
     
     @sectionColor: mix(@pane-bg-color, @pane-fg-color, 50%);
+    @iconWidth: 25px;
+    @iconHeight: 20px;
     .section-label {
       position: relative;
       cursor: pointer;
@@ -20,26 +32,60 @@
       margin: 10px 0;
       padding-bottom: 5px;
 
+      &.isCollapsable {
+        a > .label {
+          margin-right: @iconWidth + 5px;
+        }
+
+        &.isCollapsed {
+          & > .sub-sections {
+            height: 0;
+            opacity: 0;
+            .transition(opacity 0s linear);
+          }
+        }
+      }
+
       a {
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: relative;
         color: @sectionColor;
         text-decoration: none;
         .transition(color 0.3s 0.2s ease);
+        .clearblock;
 
-        &:hover {
-          color: lighten(@sectionColor, 10%);
-          .transition(color 0s linear);
-          text-decoration: none;
+        & > .label {
+          display: block;
+
+          &:hover {
+            color: lighten(@sectionColor, 10%);
+            .transition(color 0s linear);
+            text-decoration: none;
+          }
+
+          &:active {
+            color: @pane-fg-color;
+          }
         }
 
-        &:active {
-          color: @pane-fg-color;
-        }
+        .icon {
+          display: block;
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: @iconWidth;
+          height: 100%;
+          font-size: @iconHeight;
+          line-height: @pageSectionTitleHeight;
+          text-align: center;
+          border: 1px solid transparent;
+          .border-radius(3px);
+          .box-sizing(border-box);
 
-        &:focus, &:active {
-          & > .content {
-            a {
-              color: @pane-fg-color;
-            }
+          &:hover {
+            border-color: @sectionColor;
           }
         }
       }
@@ -47,18 +93,24 @@
       & > .content {
         position: relative;
         padding-right: @accent-padding;
+        width: 100%;
+        height: @pageSectionTitleHeight;
+        .box-sizing(border-box);
         .clearblock;
       }
 
        & > .sub-sections {
         position: relative;
         padding-right: @accent-padding / 2;
+        height: auto;
+        opacity: 1;
+        .transition(opacity 0.35s linear);
         .clearblock;
       }
 
       & > .content, .sub-section > .content {
         &.active {
-          .title {
+          .title .label {
             color: @pane-fg-color;
             .transition(text-shadow 0.2s linear);
           }
@@ -82,6 +134,9 @@
           a {
             display: block;
             font-size: 13px;
+            .label {
+              margin-right: 0;
+            }
           }
 
           .content.active .arrow {

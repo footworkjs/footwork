@@ -7,8 +7,8 @@
       <h1 class="sub title">Introduction</h1>
     </header>
     <div class="content">
-      <p>A viewModel can be thought of as a container object that houses all of the logic and data with which your template/HTML/DOM binds to.</p>
-      <p>In knockout.js you typically would have to manually wrap and bind (<span class="inline-code">ko.applyBindings()</span>) your DOM with instances of your viewModels, this has many disadvantages/issues. Footwork.js can handle
+      <p>A viewModel can be thought of as a container object that houses all of the logic and data with which your template/HTML/DOM binds to. They are used to 'wrap' your HTML/markup, applying the bindings you declare in the HTML while also initializing and binding any nested components and viewModels.</p>
+      <p>In knockout.js you typically need to manually wrap and bind (<span class="inline-code">ko.applyBindings()</span>) your DOM with instances of your viewModels, this has many disadvantages/issues (primarily, it requires a lot of legwork by you). Footwork.js can handle
       the initialization, wrapping, and binding for you automatically based on the HTML/DOM (<em>it can also autoload them via AMD/RequireJS as needed</em>).</p>
       <p>footwork-flavored viewModels provide a clean way of wrapping your knockout and other HTML markup while also enhancing with functionality for lifecycle events, routing, component integration, 
       <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" title="Command Query Responsibility Segregation">CQRS</a>, and more.</p>
@@ -263,23 +263,18 @@ fw.viewModels.register('Sprocket', {
       <h3><em class="func-def">fw.viewModels.registerLocation<span>( <span class="param">'moduleName'</span>, <span class="param">'path/to/module'</span> )</span></em></h3>
       <h3>Register the location of a viewModel/module so footwork can load and bind it for you when needed:</h3>
 <pre><code data-language="javascript">// Load Sprocket from: /viewModels/parts/Sprocket.js (based on viewModel/module name, case sensitive)
-fw.viewModels.registerLocation('Sprocket', '/viewModels/parts');
+fw.viewModels.registerLocation('Sprocket', '/viewModels/parts/');
 
 // Load Sprocket from: /viewModels/parts/DifferentFileName.js (specify full file name)
 fw.viewModels.registerLocation('Sprocket', '/viewModels/parts/DifferentFileName.js');
 
 // register the location of several viewModels at once (ie: all in the same folder)
-fw.viewModels.registerLocation(['Body', 'Navigation', 'Footer'], '/viewModels/pageAreas');</code></pre>
+fw.viewModels.registerLocation(['Body', 'Navigation', 'Footer'], '/viewModels/pageAreas/');</code></pre>
 
       <h3><em class="func-def">fw.viewModels.defaultLocation<span>( <span class="param">'path/to/viewModel/folder'</span> )</span></em></h3>
       <h3>Register the default location of viewModels/modules so footwork can load and bind them for you when needed:</h3>
-<pre><code data-language="javascript">// Load all viewModels from /myViewModels (based on viewModel/module name, case sensitive)
-fw.viewModels.defaultLocation('/myViewModels');
-
-/**
- * This would cause footwork to load '/myViewModels/Sprocket.js' via AMD/RequireJS when it encounters:
- * &lt;viewModel module="Sprocket"&gt; ... &lt;/viewModel&gt;
- */</code></pre>
+<pre><code data-language="javascript">// Load all viewModels from /myViewModels/[module-name].js (case sensitive)
+fw.viewModels.defaultLocation('/myViewModels/');</code></pre>
 
     </div>
   </section>
@@ -461,8 +456,9 @@ var mySprocket = new BigSprocket({ type: 'awesome' });
         <li><a href="#viewModels-getAll">fw.viewModels.getAll()</a></li>
         <li><a href="#viewModels-isRegistered">fw.viewModels.isRegistered()</a></li>
         <li><a href="#viewModels-getRegistered">fw.viewModels.getRegistered()</a></li>
-        <li><a href="#viewModels-fileExtensions">fw.viewModels.fileExtensions()</a></li>
         <li><a href="#viewModels-getResourceLocation">fw.viewModels.getResourceLocation()</a></li>
+        <li><a href="#viewModels-getFileName">fw.viewModels.getFileName()</a></li>
+        <li><a href="#viewModels-fileExtensions">fw.viewModels.fileExtensions()</a></li>
       </ul>
     </div>
   </section>
@@ -513,7 +509,7 @@ var viewModels = fw.viewModels.getAll();
 
 fw.viewModels.register('Bike', Bike);
 // fw.viewModels.isRegistered('Bike') === true
-// fw.viewModels.isRegistered('viewModelThatIsAutoLoadedByAMD') === false</code></pre>
+// fw.viewModels.isRegistered('ModuleThatIsLoadedByAMD') === false</code></pre>
     </div>
   </section>
 
@@ -532,28 +528,6 @@ fw.viewModels.register('Bike', Bike);
 
 fw.viewModels.register('Bike', Bike);
 // fw.viewModels.getRegistered('Bike') === Bike;</code></pre>
-    </div>
-  </section>
-
-  <a id="viewModels-file-extensions" class="section-anchor"></a>
-  <section name="viewModels-file-extensions">
-    <div class="highlight"></div>
-    <div class="content">
-      <h3 class="top"><em class="func-def">fw.viewModels.fileExtensions<span>( <span class="param">'.ext'</span> )</span></em></h3>
-      <h3 class="top"><em class="func-def">fw.viewModels.fileExtensions<span>( <span class="param">function(moduleName) { ... }</span> )</span></em></h3>
-      <h3>Observable which stores the extension to append to an AMD/RequireJS loaded viewModel path when it does not have an extension specified (ie: full file name not specified):</h3>
-<pre><code data-language="javascript">fw.viewModels.fileExtensions('.jscript');
-// fw.viewModels.fileExtensions() === '.jscript'
-// All viewModels dynamically loaded that need an extension to be added to the path will now have '.jscript' appended.
-
-// You can also specify a function() whose return value is used as the extension.
-fw.viewModels.fileExtensions(function(moduleName) {
-  if(moduleName === 'Sprocket') {
-    return '.jscript';
-  } else {
-    return '.js';
-  }
-});</code></pre>
     </div>
   </section>
 
@@ -586,6 +560,28 @@ var fileNameForSprocket = fw.viewModels.getFileName('sprocket'); // === null
     </div>
   </section>
 
+  <a id="viewModels-fileExtensions" class="section-anchor"></a>
+  <section name="viewModels-fileExtensions">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">fw.viewModels.fileExtensions<span>( <span class="param">'.ext'</span> )</span></em></h3>
+      <h3 class="top"><em class="func-def">fw.viewModels.fileExtensions<span>( <span class="param">function(moduleName) { ... }</span> )</span></em></h3>
+      <h3>Observable which stores the extension to append to an AMD/RequireJS loaded viewModel path when it does not have an extension specified (ie: full file name not specified):</h3>
+<pre><code data-language="javascript">fw.viewModels.fileExtensions('.jscript');
+// fw.viewModels.fileExtensions() === '.jscript'
+// All viewModels dynamically loaded that need an extension to be added to the path will now have '.jscript' appended.
+
+// You can also specify a function() whose return value is used as the extension.
+fw.viewModels.fileExtensions(function(moduleName) {
+  if(moduleName === 'Sprocket') {
+    return '.jscript';
+  } else {
+    return '.js';
+  }
+});</code></pre>
+    </div>
+  </section>
+
 </article>
 
 <div id="metaData">
@@ -615,6 +611,8 @@ var fileNameForSprocket = fw.viewModels.getFileName('sprocket'); // === null
       ] },
     { "anchor": "misc",
       "title": "Utility / Misc",
+      "collapsable": true,
+      "isCollapsed": true,
       "subSections": [
         { "anchor": "viewModels-getAll",
           "title": "fw.viewModels.getAll()" },
@@ -622,12 +620,12 @@ var fileNameForSprocket = fw.viewModels.getFileName('sprocket'); // === null
           "title": "fw.viewModels.isRegistered()" },
         { "anchor": "viewModels-getRegistered",
           "title": "fw.viewModels.getRegistered()" },
-        { "anchor": "viewModels-file-extensions",
-          "title": "fw.viewModels.fileExtensions()" },
         { "anchor": "viewModels-getResourceLocation",
           "title": "fw.viewModels.getResourceLocation()" },
         { "anchor": "viewModels-getFileName",
-          "title": "fw.viewModels.getFileName()" }
+          "title": "fw.viewModels.getFileName()" },
+        { "anchor": "viewModels-fileExtensions",
+          "title": "fw.viewModels.fileExtensions()" }
       ] }
   ]
 }

@@ -4,7 +4,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
 
     var PageSection = fw.viewModel({
       namespace: 'PageSection',
-      initialize: function(pageSectionData) {
+      initialize: function(pageSectionData, parent) {
         var paneElementsNamespace = fw.namespace('PaneElements');
         var computeAnchorPos, anchorComputeDelay = 100;
 
@@ -26,16 +26,34 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
         if( _.isArray(pageSectionData.subSections) && pageSectionData.subSections.length ) {
           var subSections = this.subSections();
           _.each(pageSectionData.subSections, function(subSection) {
-            subSections.push( new PageSection(subSection) );
+            subSections.push( new PageSection(subSection, this) );
           }.bind(this));
           this.subSections.valueHasMutated();
         }
 
         this.visible = fw.observable( null ).extend({ autoEnable: _.random( 200, 600 ) });
-        this.title = fw.observable( pageSectionData.title );
+        this.title = fw.observable( pageSectionData.title || '' );
+        this.hasTitle = fw.computed(function() {
+          return _.isString(this.title()) && this.title().length > 0;
+        }, this);
         this.anchor = fw.observable( pageSectionData.anchor );
+        this.isCollapsable = fw.observable( !!pageSectionData.collapsable );
+        this.isCollapsed = fw.observable( !!pageSectionData.isCollapsed );
+        this.collapseIcon = fw.computed(function() {
+          if( this.isCollapsed() ) {
+            return 'icon-chevron-down';
+          }
+          return 'icon-chevron-up';
+        }, this);
         this.active = fw.computed(function() {
-          return this.currentSection() === this.anchor();
+          var isActive = this.currentSection() === this.anchor();
+          if(isActive) {
+            this.isCollapsed(false);
+            if( _.isObject(parent) && _.isFunction(parent.isCollapsed) ) {
+              parent.isCollapsed(false);
+            }
+          }
+          return isActive;
         }, this);
         this.anchorAddress = fw.computed(function() {
           return pageBaseURL + '#' + this.anchor();
@@ -70,6 +88,14 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           this.visible( false );
         }).withContext(this);
 
+        this.toggleCollapse = function(viewModel, event) {
+          this.isCollapsed( !this.isCollapsed() );
+          if( _.isObject(event) && _.isFunction(event.stopPropagation) ) {
+            event.stopPropagation();
+          }
+          return false;
+        };
+
         this.goToSection = function(anchorName) {
           this.chosenSection( '' );
           this.chosenSection( anchorName );
@@ -79,12 +105,10 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
         this.chooseSection = function() {
           if(this.viewPortLayoutMode() === 'mobile' || this.paneIsOverlapping()) {
             if(!this.paneCollapsed()) {
-              this.goToSection( this.anchor() );
               this.paneCollapsed(true);
             }
-          } else {
-            this.goToSection( this.anchor() );
           }
+          this.goToSection( this.anchor() );
           return true;
         }.bind(this);
 
