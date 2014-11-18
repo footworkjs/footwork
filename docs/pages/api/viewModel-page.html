@@ -36,7 +36,7 @@
 
       <h3><em class="func-def">fw.viewModel<span>( <span class="param">configurationObject</span> )</span></em></h3>
       <h3>viewModel configuration object synopsis:</h3>
-<pre><code data-language="javascript">fw.viewModel({
+<pre><code class="javascript">fw.viewModel({
   /**
    * The namespace (communications channel) the viewModel uses. This is essentially used as
    * the 'key' for CQRS separation between modules. If no namespace is provided a unique one
@@ -106,7 +106,7 @@
       </ul>
 
       <h3>Manual initialization (similar to what would be found in regular knockout.js code):</h3>
-<pre><code data-language="javascript">/**
+<pre><code class="javascript">/**
  * You use footwork viewModel class functions just like you would a normal knockout.js constructor function.
  * ie: var viewModelObject = new ConstructorFunc(paramaters ...);
  *
@@ -181,7 +181,7 @@ fw.applyBindings(awesomeSprocket, document.getElementById('sprocket-container'))
       </ul>
 
       <h3>Example AMD/RequireJS enhanced footwork module:</h3>
-<pre><code data-language="javascript">/**
+<pre><code class="javascript">/**
  * An AMD/RequireJS module is defined in exactly the same way as a normal knockout module would be.
  * The only difference being that you return the footwork-flavored viewModel constructor function
  * result from fw.viewModel() instead of a normal function() {} constructor.
@@ -232,7 +232,7 @@ define(["footwork"],
       <div class="note"><span class="label">NOTE:</span> Nested viewModels and components are independently resolved. It works as you would expect, with an outer-most container (viewModel/component) initializing/processing/binding and rendering, then any nested viewModels/components get initialized (and so forth until the end).</div>
       <h3><em class="func-def">fw.viewModels.register<span>( <span class="param">'moduleName'</span>, <span class="param">viewModel</span> )</span></em></h3>
       <h3>Cache a viewModel/module ahead of time:</h3>
-<pre><code data-language="javascript">// register a footwork viewModel
+<pre><code class="javascript">// register a footwork viewModel
 var Sprocket = fw.viewModel({ /* configuration object */ });
 fw.viewModels.register('Sprocket', Sprocket);
 
@@ -265,7 +265,7 @@ fw.viewModels.register('Sprocket', {
 
       <h3><em class="func-def">fw.viewModels.registerLocation<span>( <span class="param">'moduleName'</span>, <span class="param">'path/to/module'</span> )</span></em></h3>
       <h3>Register the location of a viewModel/module so footwork can load and bind it for you when needed:</h3>
-<pre><code data-language="javascript">// Load Sprocket from: /viewModels/parts/Sprocket.js (based on viewModel/module name, case sensitive)
+<pre><code class="javascript">// Load Sprocket from: /viewModels/parts/Sprocket.js (based on viewModel/module name, case sensitive)
 fw.viewModels.registerLocation('Sprocket', '/viewModels/parts/');
 
 // Load Sprocket from: /viewModels/parts/DifferentFileName.js (specify full file name)
@@ -276,7 +276,7 @@ fw.viewModels.registerLocation(['Body', 'Navigation', 'Footer'], '/viewModels/pa
 
       <h3><em class="func-def">fw.viewModels.defaultLocation<span>( <span class="param">'path/to/viewModel/folder'</span> )</span></em></h3>
       <h3>Register the default location of viewModels/modules so footwork can load and bind them for you when needed:</h3>
-<pre><code data-language="javascript">// Load all viewModels from /myViewModels/[module-name].js (case sensitive)
+<pre><code class="javascript">// Load all viewModels from /myViewModels/[module-name].js (case sensitive)
 fw.viewModels.defaultLocation('/myViewModels/');</code></pre>
 
     </div>
@@ -294,7 +294,7 @@ fw.viewModels.defaultLocation('/myViewModels/');</code></pre>
       footwork to resolve your viewModels/components (and their dependencies) automatically at runtime as needed.</p>
       <p>The following example shows the RequireJS/AMD flavored version.</p>
       <h3>viewModel and template are loaded separately:</h3>
-<pre><code data-language="javascript">// File located in: /viewModel/sprocket.js
+<pre><code class="javascript">// File located in: /viewModel/sprocket.js
 define(["footwork"],
   function(fw) {
     return fw.viewModel({
@@ -329,7 +329,7 @@ define(["footwork"],
       </ul>
 
       <h3>Basic usage:</h3>
-<pre><code data-language="javascript">var bigSprocket = { /* mixin configuration object */ };
+<pre><code class="javascript">var bigSprocket = { /* mixin configuration object */ };
 var bikeSprocket = { /* mixin configuration object, detailed in the next section */ };
 
 /**
@@ -362,7 +362,7 @@ var mySprocket = new Sprocket({ type: 'awesome' });</code></pre>
       <p>Each mixin is simply a configuration object defining certain behaviors, functionality, and logic. The behavior you define will be added to each viewModel instance
       it is configured with.</p>
       <h3>Mixin configuration object synopsis:</h3>
-<pre><code data-language="javascript">// define 'bigSprocket' as an object to serve as the configuration container
+<pre><code class="javascript">// define 'bigSprocket' as an object to serve as the configuration container
 var bigSprocket = {
   _preInit: function(param1, param2, ...) {
     /**
@@ -416,7 +416,7 @@ var bigSprocket = {
       <p>Each mixin behavior is added to each new instance of the viewModel that is created. This goes for ones instantiated automatically via declarative HTML, or directly/manually in javascript code.</p>
       <p>All mixins may be reused on both a standalone viewModel and viewModels attributed with a component.</p>
       <h3>Example usage:</h3>
-<pre><code data-language="javascript">// define the mixin configuration object
+<pre><code class="javascript">// define the mixin configuration object
 var bigSprocket = {
   _preInit: function(param) {
     this.isAwesome = (param.type === 'awesome' ? true : false);
@@ -472,7 +472,7 @@ var mySprocket = new BigSprocket({ type: 'awesome' });
     <div class="content">
       <h3 class="top"><em class="func-def">fw.viewModels.getAll<span>()</span></em></h3>
       <h3>Get list of currently instantiated viewModels grouped/indexed by namespace:</h3>
-<pre><code data-language="javascript">var Bike = fw.viewModel({
+<pre><code class="javascript">var Bike = fw.viewModel({
   namespace: 'Bike',
   initialize: function() {
     this.isBike = true;
@@ -503,7 +503,7 @@ var viewModels = fw.viewModels.getAll();
     <div class="content">
       <h3 class="top"><em class="func-def">fw.viewModels.isRegistered<span>( <span class="param">'moduleName'</span> )</span></em></h3>
       <h3>Return true or false based on whether or not there is a viewModel that has been registered under 'moduleName':</h3>
-<pre><code data-language="javascript">var Bike = fw.viewModel({
+<pre><code class="javascript">var Bike = fw.viewModel({
   namespace: 'Bike',
   initialize: function() {
     this.isBike = true;
@@ -522,7 +522,7 @@ fw.viewModels.register('Bike', Bike);
     <div class="content">
       <h3 class="top"><em class="func-def">fw.viewModels.getRegistered<span>( <span class="param">'moduleName'</span> )</span></em></h3>
       <h3>Return viewModel that has been registered under 'moduleName':</h3>
-<pre><code data-language="javascript">// Explicit registration
+<pre><code class="javascript">// Explicit registration
 var Bike = fw.viewModel({ /* ... configuration object */ });
 fw.viewModels.register('Bike', Bike);
 // fw.viewModels.getRegistered('Bike') === Bike;
@@ -542,7 +542,7 @@ var Sprocket = fw.viewModel({
     <div class="content">
       <h3 class="top"><em class="func-def">fw.viewModels.getResourceLocation<span>( <span class="param">'moduleName'</span> )</span></em></h3>
       <h3>Get the path footwork will attempt to load for the given 'moduleName':</h3>
-<pre><code data-language="javascript">fw.viewModels.registerLocation('Sprocket', '/path/to/viewModel/folder');
+<pre><code class="javascript">fw.viewModels.registerLocation('Sprocket', '/path/to/viewModel/folder');
 // fw.viewModels.getResourceLocation('Sprocket') === '/path/to/viewModel/folder'</code></pre>
     </div>
   </section>
@@ -553,7 +553,7 @@ var Sprocket = fw.viewModel({
     <div class="content">
       <h3 class="top"><em class="func-def">fw.viewModels.getFileName<span>( <span class="param">'moduleName'</span> )</span></em></h3>
       <h3>Get the file name that footwork will appended to the path when downloading the viewModel:</h3>
-<pre><code data-language="javascript">var fileNameForSprocket = fw.viewModels.getFileName('sprocket'); // === sprocket.js
+<pre><code class="javascript">var fileNameForSprocket = fw.viewModels.getFileName('sprocket'); // === sprocket.js
 
 /**
  * If the viewModel was explicitly registered (cached), then null is returned for any
@@ -572,7 +572,7 @@ var fileNameForSprocket = fw.viewModels.getFileName('sprocket'); // === null
       <h3 class="top"><em class="func-def">fw.viewModels.fileExtensions<span>( <span class="param">'.ext'</span> )</span></em></h3>
       <h3 class="top"><em class="func-def">fw.viewModels.fileExtensions<span>( <span class="param">function(moduleName) { ... }</span> )</span></em></h3>
       <h3>Observable which stores the extension to append to an AMD/RequireJS loaded viewModel path when it does not have an extension specified (ie: full file name not specified):</h3>
-<pre><code data-language="javascript">// Explicitely set the extension
+<pre><code class="javascript">// Explicitely set the extension
 fw.viewModels.fileExtensions('.jscript'); // append viewModel module files with '.jscript'
 
 // You can also specify a function() whose return value is used as the extension.

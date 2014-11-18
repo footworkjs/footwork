@@ -22,7 +22,7 @@ Distributed under MIT license</p>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">/**
+            <div class="content"><pre><code class="javascript">/**
  * footwork.js - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
  * Version: v0.2.0
@@ -51,7 +51,7 @@ Footwork will also map itself to ‘fw’ on the global object when no script lo
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var fw = ko;</code></pre></div>
+            <div class="content"><pre><code class="javascript">var fw = ko;</code></pre></div>
             
         </li>
       
@@ -63,7 +63,7 @@ Footwork will also map itself to ‘fw’ on the global object when no script lo
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">fw.footworkVersion = '0.2.0';</code></pre></div>
+            <div class="content"><pre><code class="javascript">fw.footworkVersion = '0.2.0';</code></pre></div>
             
         </li>
       
@@ -75,7 +75,7 @@ Footwork will also map itself to ‘fw’ on the global object when no script lo
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">fw.embed = embedded;</code></pre></div>
+            <div class="content"><pre><code class="javascript">fw.embed = embedded;</code></pre></div>
             
         </li>
       
@@ -87,7 +87,7 @@ Footwork will also map itself to ‘fw’ on the global object when no script lo
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var hasTrailingSlash = /\/$/i;
+            <div class="content"><pre><code class="javascript">var hasTrailingSlash = /\/$/i;
 var hasStartingSlash = /^\//i;</code></pre></div>
             
         </li>
@@ -100,7 +100,7 @@ var hasStartingSlash = /^\//i;</code></pre></div>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var noop = function() { };
+            <div class="content"><pre><code class="javascript">var noop = function() { };
 
 var isObservable = fw.isObservable;
 
@@ -139,7 +139,7 @@ function removeClass(element, className) {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var isFunction = _.isFunction;
+            <div class="content"><pre><code class="javascript">var isFunction = _.isFunction;
 var isObject = _.isObject;
 var isString = _.isString;
 var isBoolean = _.isBoolean;
@@ -180,7 +180,7 @@ var last = _.last;</code></pre></div>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var viewModelMixins = [];</code></pre></div>
+            <div class="content"><pre><code class="javascript">var viewModelMixins = [];</code></pre></div>
             
         </li>
       
@@ -192,7 +192,7 @@ var last = _.last;</code></pre></div>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">function parseUri(str) {
+            <div class="content"><pre><code class="javascript">function parseUri(str) {
   var options = parseUri.options;
   var matchParts = options.parser[ options.strictMode ? "strict" : "loose" ].exec(str);
   var uri = {};
@@ -257,7 +257,7 @@ namespace, they receive all of the same events/messages/commands/etc).</p>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var namespaceNameCounter = {};</code></pre></div>
+            <div class="content"><pre><code class="javascript">var namespaceNameCounter = {};</code></pre></div>
             
         </li>
       
@@ -272,7 +272,7 @@ index 0.</p>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var namespaceStack = [];</code></pre></div>
+            <div class="content"><pre><code class="javascript">var namespaceStack = [];</code></pre></div>
             
         </li>
       
@@ -286,7 +286,7 @@ if autoIncrement === true and the counter is &gt; 0).</p>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">function indexedNamespaceName(name, autoIncrement) {
+            <div class="content"><pre><code class="javascript">function indexedNamespaceName(name, autoIncrement) {
   if( isUndefined(namespaceNameCounter[name]) ) {
     namespaceNameCounter[name] = 0;
   } else {
@@ -321,7 +321,7 @@ function createEnvelope(topic, data, expires) {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">function triggerEventOnNamespace(eventKey, params, expires) {
+            <div class="content"><pre><code class="javascript">function triggerEventOnNamespace(eventKey, params, expires) {
   this.publish( createEnvelope('event.' + eventKey, params, expires) );
   return this;
 }</code></pre></div>
@@ -336,7 +336,7 @@ function createEnvelope(topic, data, expires) {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">function registerNamespaceEventHandler(eventKey, callback, context) {
+            <div class="content"><pre><code class="javascript">function registerNamespaceEventHandler(eventKey, callback, context) {
   if( !isUndefined(context) ) {
     callback = bind(callback, context);
   }
@@ -357,7 +357,7 @@ function createEnvelope(topic, data, expires) {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">function unregisterNamespaceHandler(handlerSubscription) {
+            <div class="content"><pre><code class="javascript">function unregisterNamespaceHandler(handlerSubscription) {
   handlerSubscription.unsubscribe();
   return this;
 }</code></pre></div>
@@ -372,7 +372,7 @@ function createEnvelope(topic, data, expires) {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">function sendCommandToNamespace(commandKey, params, expires) {
+            <div class="content"><pre><code class="javascript">function sendCommandToNamespace(commandKey, params, expires) {
   this.publish( createEnvelope('command.' + commandKey, params, expires) );
   return this;
 }</code></pre></div>
@@ -387,7 +387,7 @@ function createEnvelope(topic, data, expires) {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">function registerNamespaceCommandHandler(commandKey, callback, context) {
+            <div class="content"><pre><code class="javascript">function registerNamespaceCommandHandler(commandKey, callback, context) {
   if( !isUndefined(context) ) {
     callback = bind(callback, context);
   }
@@ -409,7 +409,7 @@ This method will return an array of responses if more than one is received.</p>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">function requestResponseFromNamespace(requestKey, params, allowMultipleResponses) {
+            <div class="content"><pre><code class="javascript">function requestResponseFromNamespace(requestKey, params, allowMultipleResponses) {
   var response = undefined;
   var responseSubscription;
 
@@ -438,7 +438,7 @@ Requests sent using the specified requestKey will be called and passed in any pa
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">function registerNamespaceRequestHandler(requestKey, callback, context) {
+            <div class="content"><pre><code class="javascript">function registerNamespaceRequestHandler(requestKey, callback, context) {
   if( !isUndefined(context) ) {
     callback = bind(callback, context);
   }
@@ -464,7 +464,7 @@ Requests sent using the specified requestKey will be called and passed in any pa
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">function disconnectNamespaceHandlers() {
+            <div class="content"><pre><code class="javascript">function disconnectNamespaceHandlers() {
   invoke(this.requestHandlers, 'unsubscribe');
   invoke(this.commandHandlers, 'unsubscribe');
   invoke(this.eventHandlers, 'unsubscribe');
@@ -485,7 +485,7 @@ function getNamespaceName() {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var makeNamespace = fw.namespace = function(namespaceName, $parentNamespace) {
+            <div class="content"><pre><code class="javascript">var makeNamespace = fw.namespace = function(namespaceName, $parentNamespace) {
   if( !isUndefined($parentNamespace) ) {
     if( isString($parentNamespace) ) {
       namespaceName = $parentNamespace + '.' + namespaceName;
@@ -536,7 +536,7 @@ function getNamespaceName() {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var isNamespace = fw.isNamespace = function(thing) {
+            <div class="content"><pre><code class="javascript">var isNamespace = fw.isNamespace = function(thing) {
   return !isUndefined(thing) && !!thing.__isNamespace;
 };</code></pre></div>
             
@@ -550,7 +550,7 @@ function getNamespaceName() {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var currentNamespaceName = fw.currentNamespaceName = function() {
+            <div class="content"><pre><code class="javascript">var currentNamespaceName = fw.currentNamespaceName = function() {
   return namespaceStack[0];
 };</code></pre></div>
             
@@ -564,7 +564,7 @@ function getNamespaceName() {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var currentNamespace = fw.currentNamespace = function() {
+            <div class="content"><pre><code class="javascript">var currentNamespace = fw.currentNamespace = function() {
   return makeNamespace( currentNamespaceName() );
 };</code></pre></div>
             
@@ -580,7 +580,7 @@ The namespace object returned from this method also has a pointer to its parent<
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var enterNamespaceName = fw.enterNamespaceName = function(namespaceName) {
+            <div class="content"><pre><code class="javascript">var enterNamespaceName = fw.enterNamespaceName = function(namespaceName) {
   var $parentNamespace = currentNamespace();
   namespaceStack.unshift( namespaceName );
   return makeNamespace( currentNamespaceName() );
@@ -596,7 +596,7 @@ The namespace object returned from this method also has a pointer to its parent<
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var enterNamespace = fw.enterNamespace = function(namespace) {
+            <div class="content"><pre><code class="javascript">var enterNamespace = fw.enterNamespace = function(namespace) {
   namespaceStack.unshift( namespace.getName() );
   return namespace;
 };</code></pre></div>
@@ -613,7 +613,7 @@ next namespace in the stack</p>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var exitNamespace = fw.exitNamespace = function() {
+            <div class="content"><pre><code class="javascript">var exitNamespace = fw.exitNamespace = function() {
   namespaceStack.shift();
   return currentNamespace();
 };</code></pre></div>
@@ -628,7 +628,7 @@ next namespace in the stack</p>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">viewModelMixins.push({
+            <div class="content"><pre><code class="javascript">viewModelMixins.push({
   runBeforeInit: true,
   _preInit: function( options ) {
     var $configParams = this.__getConfigParams();
@@ -656,7 +656,7 @@ var $globalNamespace = makeNamespace();</code></pre></div>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">function isReceiver(thing) {
+            <div class="content"><pre><code class="javascript">function isReceiver(thing) {
   return isObject(thing) && !!thing.__isReceiver;
 }
 
@@ -674,7 +674,7 @@ function isBroadcaster(thing) {
 </code></pre>
             </div>
             
-            <div class="content"><pre><code data-language="javascript">fw.subscribable.fn.receiveFrom = function(namespace, variable) {
+            <div class="content"><pre><code class="javascript">fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
   var observable = this;
   var namespaceSubscriptions = [];
@@ -732,7 +732,7 @@ function isBroadcaster(thing) {
 </code></pre>
             </div>
             
-            <div class="content"><pre><code data-language="javascript">fw.subscribable.fn.broadcastAs = function(varName, option) {
+            <div class="content"><pre><code class="javascript">fw.subscribable.fn.broadcastAs = function(varName, option) {
   var observable = this;
   var namespace;
   var subscriptions = [];
@@ -827,7 +827,7 @@ function isBroadcaster(thing) {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var alwaysPassPredicate = function() { return true; };
+            <div class="content"><pre><code class="javascript">var alwaysPassPredicate = function() { return true; };
 
 var emptyStringResult = function() { return ''; };
 
@@ -850,7 +850,7 @@ var routerDefaultConfig = {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var optionalParamRegex = /\((.*?)\)/g;
+            <div class="content"><pre><code class="javascript">var optionalParamRegex = /\((.*?)\)/g;
 var namedParamRegex = /(\(\?)?:\w+/g;
 var splatParamRegex = /\*\w*/g;
 var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
@@ -902,7 +902,7 @@ whether that uri matches the described route as well as parse and retrieve its t
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">function routeStringToRegExp(routeString) {
+            <div class="content"><pre><code class="javascript">function routeStringToRegExp(routeString) {
   routeString = routeString
     .replace(escapeRegex, "\\$&")
     .replace(optionalParamRegex, "(?:$1)?")
@@ -928,7 +928,7 @@ function historyIsReady() {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">History.Adapter.unbind = function(callback) {
+            <div class="content"><pre><code class="javascript">History.Adapter.unbind = function(callback) {
       each(History.Adapter.handlers, function(handler) {
         handler.statechange = filter(handler.statechange, function(stateChangeHandler) {
           return stateChangeHandler !== callback;
@@ -963,7 +963,7 @@ immediate $context). Returns $nullRouter if none is found.</p>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">function nearestParentRouter($context) {
+            <div class="content"><pre><code class="javascript">function nearestParentRouter($context) {
   var $parentRouter = $nullRouter;
   if( isObject($context) ) {
     if( isObject($context.$data) && isRouter($context.$data.$router) ) {</code></pre></div>
@@ -978,7 +978,7 @@ immediate $context). Returns $nullRouter if none is found.</p>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">$parentRouter = $context.$data.$router;
+            <div class="content"><pre><code class="javascript">$parentRouter = $context.$data.$router;
     } else if( isObject($context.$parentContext) || (isObject($context.$data) && isObject($context.$data.$parentContext)) ) {</code></pre></div>
             
         </li>
@@ -991,7 +991,7 @@ immediate $context). Returns $nullRouter if none is found.</p>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">$parentRouter = nearestParentRouter( $context.$parentContext || $context.$data.$parentContext );
+            <div class="content"><pre><code class="javascript">$parentRouter = nearestParentRouter( $context.$parentContext || $context.$data.$parentContext );
     }
   }
   return $parentRouter;
@@ -1048,7 +1048,7 @@ upon injection into the DOM). Perhaps due to usage of virtual DOM for the compon
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var callCounter = (isInitialLoad ? 0 : 1);
+            <div class="content"><pre><code class="javascript">var callCounter = (isInitialLoad ? 0 : 1);
 
       currentOutletDef.__getOnCompleteCallback = function() {
         var isComplete = callCounter === 0;
@@ -1086,7 +1086,7 @@ var fwRouters = fw.routers = {</code></pre></div>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">baseRoute: fw.observable(''),
+            <div class="content"><pre><code class="javascript">baseRoute: fw.observable(''),
   getNearestParent: function($context) {
     var $parentRouter = nearestParentRouter($context);
     return (!isNullRouter($parentRouter) ? $parentRouter : null);
@@ -1103,7 +1103,7 @@ var fwRouters = fw.routers = {</code></pre></div>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">getAll: function() {
+            <div class="content"><pre><code class="javascript">getAll: function() {
     return reduce( $globalNamespace.request('__router_reference', undefined, true), function(routers, router) {
       var namespaceName = isNamespace(router.$namespace) ? router.$namespace.getName() : null;
 
@@ -1205,7 +1205,7 @@ fw.bindingHandlers.$route = {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">addClass(element, fwRouters.activeRouteClassName);
+            <div class="content"><pre><code class="javascript">addClass(element, fwRouters.activeRouteClassName);
       } else if( hasClass(element, fwRouters.activeRouteClassName) ) {
         removeClass(element, fwRouters.activeRouteClassName);
       }
@@ -1320,7 +1320,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">subscriptions.push( this.currentRoute.subscribe(function getActionForRouteAndTrigger( newRoute ) {
+            <div class="content"><pre><code class="javascript">subscriptions.push( this.currentRoute.subscribe(function getActionForRouteAndTrigger( newRoute ) {
     this.getActionForRoute( newRoute )( /* get and call the action for the newRoute */ );
   }, this) );
 
@@ -1498,7 +1498,7 @@ Router.prototype.getRouteForURL = function(url) {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">if( this.isRelative() ) {
+            <div class="content"><pre><code class="javascript">if( this.isRelative() ) {
     if( parentRoutePath.length > 0 ) {
       if( ( routeIndex = url.indexOf(parentRoutePath) ) === 0 ) {
         url = url.substr( parentRoutePath.length );
@@ -1520,7 +1520,7 @@ Router.prototype.getRouteForURL = function(url) {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var matchedRoutes = [];
+            <div class="content"><pre><code class="javascript">var matchedRoutes = [];
   find(this.getRouteDescriptions(), function(routeDescription) {
     var routeString = routeDescription.route;
     var routeParams = [];
@@ -1550,7 +1550,7 @@ and convert it into the actual route</p>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">if(matchedRoutes.length) {
+            <div class="content"><pre><code class="javascript">if(matchedRoutes.length) {
     var matchedRoute = reduce(matchedRoutes, function(matchedRoute, foundRoute) {
       if( isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity ) {
         matchedRoute = foundRoute;
@@ -1629,7 +1629,7 @@ Router.prototype.getRouteDescriptions = function() {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">function isViewModelCtor(thing) {
+            <div class="content"><pre><code class="javascript">function isViewModelCtor(thing) {
   return isFunction(thing) && !!thing.__isViewModelCtor;
 }</code></pre></div>
             
@@ -1643,7 +1643,7 @@ Router.prototype.getRouteDescriptions = function() {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">function isViewModel(thing) {
+            <div class="content"><pre><code class="javascript">function isViewModel(thing) {
   return isObject(thing) && !!thing.__isViewModel;
 }
 
@@ -1664,7 +1664,7 @@ If no name is supplied, a reference to an array containing all model references 
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var getViewModels = fw.viewModels.getAll = function(options) {
+            <div class="content"><pre><code class="javascript">var getViewModels = fw.viewModels.getAll = function(options) {
   return reduce( $globalNamespace.request('__model_reference', extend({}, defaultGetViewModelOptions, options), true), function(viewModels, viewModel) {
     if( !isUndefined(viewModel) ) {
       var namespaceName = isNamespace(viewModel.$namespace) ? viewModel.$namespace.getName() : null;
@@ -1693,7 +1693,7 @@ If no name is supplied, a reference to an array containing all model references 
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var refreshViewModels = fw.viewModels.refresh = function() {
+            <div class="content"><pre><code class="javascript">var refreshViewModels = fw.viewModels.refresh = function() {
   $globalNamespace.trigger('__refreshViewModels');
 };
 
@@ -1812,7 +1812,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">model = ctor;
+            <div class="content"><pre><code class="javascript">model = ctor;
   }
 
   if( !isUndefined(parentViewModel) ) {
@@ -1843,7 +1843,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">function applyContextAndLifeCycle(viewModel, element) {
+            <div class="content"><pre><code class="javascript">function applyContextAndLifeCycle(viewModel, element) {
   if( isViewModel(viewModel) ) {
     var $configParams = viewModel.__getConfigParams();
     var context;
@@ -1877,7 +1877,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var originalApplyBindings = fw.applyBindings;
+            <div class="content"><pre><code class="javascript">var originalApplyBindings = fw.applyBindings;
 var applyBindings = fw.applyBindings = function(viewModel, element) {
   originalApplyBindings(viewModel, element);
   applyContextAndLifeCycle(viewModel, element);
@@ -1893,7 +1893,7 @@ var applyBindings = fw.applyBindings = function(viewModel, element) {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">fw.start = function(targetElement) {
+            <div class="content"><pre><code class="javascript">fw.start = function(targetElement) {
   targetElement = targetElement || windowObject.document.body;
   originalApplyBindings({}, targetElement);
 };
@@ -1918,7 +1918,7 @@ cannot get component.preprocess() method to work/be called for some reason</p>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">each(element.children, function(child) {
+            <div class="content"><pre><code class="javascript">each(element.children, function(child) {
     originalApplyBindings(viewModelObj, child);
   });
   applyContextAndLifeCycle(viewModelObj, element);</code></pre></div>
@@ -1934,7 +1934,7 @@ sub-element and must specify the context as being the container element only onc
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">if( isRouter(viewModelObj.$router) ) {
+            <div class="content"><pre><code class="javascript">if( isRouter(viewModelObj.$router) ) {
     viewModelObj.$router.context( fw.contextFor(element) );
   }
 };</code></pre></div>
@@ -1950,7 +1950,7 @@ TODO: Do this differently once this is resolved: <a href="https://github.com/kno
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var originalComponentInit = fw.bindingHandlers.component.init;
+            <div class="content"><pre><code class="javascript">var originalComponentInit = fw.bindingHandlers.component.init;
 fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
   var theValueAccessor = valueAccessor;
   if( isString(element.tagName) ) {
@@ -1975,7 +1975,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">resourceLocation = getRegisteredViewModel(viewModelName);
+            <div class="content"><pre><code class="javascript">resourceLocation = getRegisteredViewModel(viewModelName);
         } else if( isFunction(require) && isFunction(require.defined) && require.defined(viewModelName) ) {</code></pre></div>
             
         </li>
@@ -1988,7 +1988,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">resourceLocation = viewModelName;
+            <div class="content"><pre><code class="javascript">resourceLocation = viewModelName;
         } else {
           resourceLocation = getViewModelResourceLocation(viewModelName);
         }
@@ -2027,7 +2027,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var outletName = element.getAttribute('name') || element.getAttribute('data-name');
+            <div class="content"><pre><code class="javascript">var outletName = element.getAttribute('name') || element.getAttribute('data-name');
       if( outletName ) {
         theValueAccessor = function() {
           var valueAccessorResult = valueAccessor();
@@ -2062,7 +2062,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
               
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var originalComponentRegisterFunc = fw.components.register;
+            <div class="content"><pre><code class="javascript">var originalComponentRegisterFunc = fw.components.register;
 var registerComponent = fw.components.register = function(componentName, options) {
   var viewModel = options.initialize || options.viewModel;
   
@@ -2115,7 +2115,7 @@ This will cause footwork to load only the template when this component is used.<
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var componentTemplateOnlyRegister = [];
+            <div class="content"><pre><code class="javascript">var componentTemplateOnlyRegister = [];
 var registerComponentAsTemplateOnly = fw.components.isTemplateOnly = function(componentName, isTemplateOnly) {
   isTemplateOnly = (isUndefined(isTemplateOnly) ? true : isTemplateOnly);
   if( isArray(componentName) ) {
@@ -2141,7 +2141,7 @@ Sourced from: <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var nonComponentTags = [
+            <div class="content"><pre><code class="javascript">var nonComponentTags = [
   'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont', 'bdi', 'bgsound',
   'big', 'blink', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
   'content', 'data', 'datalist', 'dd', 'decorator', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'element',
@@ -2187,7 +2187,7 @@ Used to keep the wrapper off of internal/natively handled and defined components
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var nativeComponents = [
+            <div class="content"><pre><code class="javascript">var nativeComponents = [
   'outlet'
 ];
 function isNativeComponent(componentName) {
@@ -2213,7 +2213,7 @@ function componentTriggerAfterBinding(element, viewModel) {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">fw.virtualElements.allowedBindings.$life = true;
+            <div class="content"><pre><code class="javascript">fw.virtualElements.allowedBindings.$life = true;
 fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
@@ -2241,7 +2241,7 @@ fw.bindingHandlers.$life = {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var componentWrapperTemplate = '<!-- ko $life -->COMPONENT_MARKUP<!-- /ko -->';
+            <div class="content"><pre><code class="javascript">var componentWrapperTemplate = '<!-- ko $life -->COMPONENT_MARKUP<!-- /ko -->';
 fw.components.loaders.unshift( fw.components.componentWrapper = {
   loadTemplate: function(componentName, config, callback) {
     if( !isNativeComponent(componentName) ) {</code></pre></div>
@@ -2256,7 +2256,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">if( isString(config) ) {
+            <div class="content"><pre><code class="javascript">if( isString(config) ) {
         config = componentWrapperTemplate.replace(/COMPONENT_MARKUP/, config);
       } else {
         throw 'Unhandled config type ' + typeof config + '.';
@@ -2288,7 +2288,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">LoadedViewModel = ViewModel.compose({
+            <div class="content"><pre><code class="javascript">LoadedViewModel = ViewModel.compose({
             _preInit: function() {
               this.$context = $context;
               this.$element = $element;
@@ -2315,7 +2315,7 @@ The loader will attempt to use requirejs via knockouts integrated support if it 
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">fw.components.loaders.push( fw.components.requireLoader = {
+            <div class="content"><pre><code class="javascript">fw.components.loaders.push( fw.components.requireLoader = {
   getConfig: function(componentName, callback) {
     var combinedFile = getComponentFileName(componentName, 'combined');
     var viewModelFile = getComponentFileName(componentName, 'viewModel');
@@ -2338,7 +2338,7 @@ The loader will attempt to use requirejs via knockouts integrated support if it 
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">if( require.defined(componentName) ) {</code></pre></div>
+            <div class="content"><pre><code class="javascript">if( require.defined(componentName) ) {</code></pre></div>
             
         </li>
       
@@ -2350,7 +2350,7 @@ The loader will attempt to use requirejs via knockouts integrated support if it 
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">configOptions = {
+            <div class="content"><pre><code class="javascript">configOptions = {
           require: componentName
         };
       } else if( isString(componentLocation.combined) ) {
@@ -2384,7 +2384,7 @@ The loader will attempt to use requirejs via knockouts integrated support if it 
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var viewModelConfig = { require: viewModelPath };
+            <div class="content"><pre><code class="javascript">var viewModelConfig = { require: viewModelPath };
         if( componentTemplateOnlyRegister[componentName] ) {
           viewModelConfig = { instance: {} };
         }
@@ -2413,7 +2413,7 @@ to the UI and load in various views</p>
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">fw.virtualElements.allowedBindings.$bind = true;
+            <div class="content"><pre><code class="javascript">fw.virtualElements.allowedBindings.$bind = true;
 fw.bindingHandlers.$bind = {
   init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
     var $parentViewModel = ( isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
@@ -2433,7 +2433,7 @@ take the observable returned and define it on the outletViewModel so that outlet
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">outletViewModel.$route = $parentRouter.$outlet( outletName );
+            <div class="content"><pre><code class="javascript">outletViewModel.$route = $parentRouter.$outlet( outletName );
     } else {
       throw 'Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.getNamespaceName() + '] but no router was defined.';
     }
@@ -2500,7 +2500,7 @@ fw.components.register('error', {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var defaultComponentFileExtensions = {
+            <div class="content"><pre><code class="javascript">var defaultComponentFileExtensions = {
   combined: '.js',
   viewModel: '.js',
   template: '.html'
@@ -2552,7 +2552,7 @@ var getComponentFileName = fw.components.getFileName = function(componentName, f
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">fileName = last( registeredLocation[fileType].split('/') );
+            <div class="content"><pre><code class="javascript">fileName = last( registeredLocation[fileType].split('/') );
       } else {
         return null;
       }
@@ -2583,7 +2583,7 @@ var componentDefaultLocation = fw.components.defaultLocation = function(root, up
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">extend(componentLocation, reduce(root, function(options, paramValue, paramName) {
+            <div class="content"><pre><code class="javascript">extend(componentLocation, reduce(root, function(options, paramValue, paramName) {
       if(paramName === 'viewModel') {
         options.viewModels = paramValue;
         delete options.viewModel;
@@ -2625,7 +2625,7 @@ var registerLocationOfComponent = fw.components.registerLocation = function(comp
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var getComponentResourceLocation = fw.components.getResourceLocation = function(componentName) {
+            <div class="content"><pre><code class="javascript">var getComponentResourceLocation = fw.components.getResourceLocation = function(componentName) {
   if( isUndefined(componentName) ) {
     return componentResourceLocations;
   }
@@ -2642,7 +2642,7 @@ var registerLocationOfComponent = fw.components.registerLocation = function(comp
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var defaultViewModelFileExtensions = '.js';
+            <div class="content"><pre><code class="javascript">var defaultViewModelFileExtensions = '.js';
 var viewModelFileExtensions = fw.viewModels.fileExtensions = fw.observable( defaultViewModelFileExtensions );
 
 var getViewModelFileName = fw.viewModels.getFileName = function(viewModelName) {
@@ -2669,7 +2669,7 @@ var getViewModelFileName = fw.viewModels.getFileName = function(viewModelName) {
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">fileName = last( registeredLocation.split('/') );
+            <div class="content"><pre><code class="javascript">fileName = last( registeredLocation.split('/') );
     }
   }
 
@@ -2724,7 +2724,7 @@ var registerLocationOfViewModel = fw.viewModels.registerLocation = function(view
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">var getViewModelResourceLocation = fw.viewModels.getResourceLocation = function(viewModelName) {
+            <div class="content"><pre><code class="javascript">var getViewModelResourceLocation = fw.viewModels.getResourceLocation = function(viewModelName) {
   if( isUndefined(viewModelName) ) {
     return viewModelResourceLocations;
   }
@@ -2741,7 +2741,7 @@ var registerLocationOfViewModel = fw.viewModels.registerLocation = function(view
 
             </div>
             
-            <div class="content"><pre><code data-language="javascript">fw.extenders.debounce = function(target, opt) {
+            <div class="content"><pre><code class="javascript">fw.extenders.debounce = function(target, opt) {
   if( isNumber(opt) ) {
     opt = {
       timeout: opt,

@@ -47,7 +47,7 @@
       <p>In addition to being autoloaded via RequireJS/AMD (if needed/possible), the viewModel will be initialized (if required) and bound to your template.</p>
       <p>Once both have been combined, the resulting composition is inserted into the DOM and then the <span class="inline-code">afterBinding()</span> lifecycle event is triggered on the viewModel.</p>
       <h3>A simple example of a template used in a component:</h3>
-<pre><code data-language="html">&lt;!-- /components/templates/sprocket.html --&gt;
+<pre><code class="html">&lt;!-- /components/templates/sprocket.html --&gt;
 &lt;!-- Normal markup, including any bindings you want bound against the viewModel --&gt;
 &lt;div class="info"&gt;
   &lt;div&gt;Sprocket&lt;/div&gt;
@@ -72,7 +72,7 @@
       </div>
       <p>Footwork.js uses the the custom element name (or name provided by the component binding) to resolve your component.</p>
       <h3 class="top">For example, in <span class="inline-code">index.html</span> lets say we have have:</h3>
-<pre><code data-language="html">&lt;html&gt;
+<pre><code class="html">&lt;html&gt;
   &lt;body&gt;
     &lt;div&gt;Look at this awesome Sprocket:&lt;/div&gt;
 
@@ -112,7 +112,7 @@
 
       <h3><em class="func-def">fw.components.register<span>( <span class="param">'name'</span>, <span class="param">optionsObject</span> )</span></em></h3>
       <h3>Register (cache) a component under a specified 'name' for later use:</h3>
-<pre><code data-language="javascript">// Using a footwork viewModel
+<pre><code class="javascript">// Using a footwork viewModel
 fw.components.register('sprocket', {
   viewModel: fw.viewModel({ /* ... configuration object ... */ }),
   template: '&lt;div data-bind="text: numberOfCogs"&gt;&lt;/div&gt;'
@@ -144,7 +144,7 @@ fw.components.register('sprocket', {
       <h3 class="top"><em class="func-def">fw.components.registerLocation<span>( <span class="param">'name'</span>, <span class="param">{ combined: 'path/to/combinedComponentFile' }</span> )</span></em></h3>
       <h3 class="top"><em class="func-def">fw.components.registerLocation<span>( <span class="param">'name'</span>, <span class="param">'path/to/combinedComponentFile'</span> )</span></em></h3>
       <h3>Tell footwork where to find the component 'name' using the supplied configuration:</h3>
-<pre><code data-language="javascript">/**
+<pre><code class="javascript">/**
  * Register component under 'sprocket' using individual paths for the viewModel and template files.
  * The file name will be appended using the name of the component + .ext
  */
@@ -179,7 +179,7 @@ fw.components.registerLocation(['sprocket', 'wheel'], '/components/');
       <h3 class="top"><em class="func-def">fw.components.defaultLocation<span>( <span class="param">{ combined: 'path/to/combinedComponentFiles' }</span> )</span></em></h3>
       <h3 class="top"><em class="func-def">fw.components.defaultLocation<span>( <span class="param">'path/to/combinedComponentFiles'</span> )</span></em></h3>
       <h3>Tell footwork where to look for a component if it isn't registered explicitly (ie: when all else fails):</h3>
-<pre><code data-language="javascript">// Load components using individual paths for the viewModel and template files.
+<pre><code class="javascript">// Load components using individual paths for the viewModel and template files.
 fw.components.defaultLocation({
   viewModel: '/viewModels/', // load from /viewModels/[component-name].js
   template: '/templates/' // load from /templates/[component-name].html
@@ -204,7 +204,7 @@ fw.components.defaultLocation('/components/');
       footwork to resolve your component (and its dependencies) automatically at runtime as needed.</p>
       <p>The following examples all show RequireJS/AMD-flavored modules.</p>
       <h3>viewModel and template are loaded separately:</h3>
-<pre><code data-language="javascript">// viewModel module file located in: /viewModel/sprocket.js
+<pre><code class="javascript">// viewModel module file located in: /viewModel/sprocket.js
 define(["footwork"],
   function(fw) {
     return fw.viewModel({
@@ -213,7 +213,7 @@ define(["footwork"],
     });
   }
 );</code></pre>
-<pre><code data-language="html">&lt;!-- Template file located in: /template/sprocket.html --&gt;
+<pre><code class="html">&lt;!-- Template file located in: /template/sprocket.html --&gt;
 &lt;div class="info"&gt;
   &lt;div&gt;Sprocket&lt;/div&gt;
   Type: &lt;span data-bind="text: type"&gt;&lt;/span&gt;
@@ -225,7 +225,7 @@ define(["footwork"],
 
       <h3><em class="func-def">fw.component<span>( <span class="param">{ viewModel: [viewModel], template: '&lt;!-- template HTML --&gt;' }</span> )</span></em></h3>
       <h3>viewModel and template are loaded as a combined viewModel + template module:</h3>
-<pre><code data-language="javascript">// component module file located in: /components/sprocket.js
+<pre><code class="javascript">// component module file located in: /components/sprocket.js
 define(["footwork"],
   function(fw) {
     return fw.component({
@@ -270,7 +270,7 @@ define(["footwork"],
     <div class="content">
       <h3 class="top"><em class="func-def">fw.components.isRegistered<span>( <span class="param">'componentName'</span> )</span></em></h3>
       <h3>Return true or false based on whether or not there is a component that has been registered under 'componentName':</h3>
-<pre><code data-language="javascript">fw.components.register('Sprocket', {
+<pre><code class="javascript">fw.components.register('Sprocket', {
   viewModel: fw.viewModel({ /* ... configuration object ... */ }),
   template: '&lt;div&gt;&lt;-- template HTML --&gt;&lt;/div&gt;' 
 });
@@ -285,7 +285,7 @@ define(["footwork"],
     <div class="content">
       <h3 class="top"><em class="func-def">fw.components.getResourceLocation<span>( <span class="param">'componentName'</span> )</span></em></h3>
       <h3>Get the paths footwork will attempt to load for the given 'componentName':</h3>
-<pre><code data-language="javascript">fw.components.registerLocation('Sprocket', {
+<pre><code class="javascript">fw.components.registerLocation('Sprocket', {
   viewModel: '/viewModels/bikeParts/',
   template: '/templates/bikeParts/'
 });
@@ -307,7 +307,7 @@ var sprocketLocation = fw.components.getResourceLocation('Sprocket');
     <div class="content">
       <h3 class="top"><em class="func-def">fw.components.getFileName<span>( <span class="param">'componentName'</span>, <span class="param">'[fileType]'</span> )</span></em></h3>
       <h3>Get the file name that footwork will appended to the path when looking up the specified fileType for the component:</h3>
-<pre><code data-language="javascript">// get the template filename for the component 'sprocket'
+<pre><code class="javascript">// get the template filename for the component 'sprocket'
 var fileNameForSprocket = fw.components.getFileName('sprocket', 'template'); // === sprocket.html
 
 // get the viewModel module filename for the component 'sprocket'
@@ -336,7 +336,7 @@ var fileNameForSprocket = fw.components.getFileName('sprocket', 'viewModel'); //
       <h3 class="top"><em class="func-def">fw.components.fileExtensions<span>( <span class="param">{ /* configuration object */ }</span> )</span></em></h3>
       <h3 class="top"><em class="func-def">fw.components.fileExtensions<span>( <span class="param">function(componentName) { ... }</span> )</span></em></h3>
       <h3>Observable which stores the extension to append to AMD/RequireJS loaded component resources when it does not have an extension specified (ie: full file name not specified):</h3>
-<pre><code data-language="javascript">// Explicitely set the extensions on the various file/module types
+<pre><code class="javascript">// Explicitely set the extensions on the various file/module types
 fw.viewModels.fileExtensions({
   combined: '.js', // append combined component files with '.js'
   viewModel: '.js', // append viewModel module files with '.js'
@@ -370,7 +370,7 @@ fw.components.fileExtensions(function(componentName) {
       case footwork will only attempt to resolve the template, inject it into the DOM, and then initialize any nested viewModels/components within.</p>
       <h3 class="top"><em class="func-def">fw.components.isTemplateOnly<span>( <span class="param">'componentName'</span>, <span class="param">isTemplateOnly</span> )</span></em></h3>
       <h3>Explicitly tell footwork a component has no viewModel:</h3>
-<pre><code data-language="javascript">fw.components.isTemplateOnly('Sprocket', true); // instances of Sprocket will not resolve a viewModel
+<pre><code class="javascript">fw.components.isTemplateOnly('Sprocket', true); // instances of Sprocket will not resolve a viewModel
 fw.components.isTemplateOnly('Sprocket'); // does the same thing (true is default/implied)
 
 // Mark several components as having no viewModel
@@ -388,7 +388,7 @@ fw.components.isTemplateOnly(['Sprocket', 'Wheel'], false); // undo for several<
     <div class="content">
       <h3 class="top"><em class="func-def">fw.components.getNormalTagList<span>()</span></em></h3>
       <h3>Return an array containing the list of elements (tagName) that footwork will not process as a component:</h3>
-<pre><code data-language="javascript">var normalTags = fw.components.getNormalTagList(); // [ 'span', 'div', ... ]</code></pre>
+<pre><code class="javascript">var normalTags = fw.components.getNormalTagList(); // [ 'span', 'div', ... ]</code></pre>
     </div>
   </section>
 
@@ -398,7 +398,7 @@ fw.components.isTemplateOnly(['Sprocket', 'Wheel'], false); // undo for several<
     <div class="content">
       <h3 class="top"><em class="func-def">fw.components.tagIsComponent<span>()</span></em></h3>
       <h3>Return an array containing the list of elements (tagName) that footwork will not process as a component:</h3>
-<pre><code data-language="javascript">var normalTags = fw.components.tagIsComponent(); // [ 'span', 'div', ... ]</code></pre>
+<pre><code class="javascript">var normalTags = fw.components.tagIsComponent(); // [ 'span', 'div', ... ]</code></pre>
     </div>
   </section>
 

@@ -8,7 +8,7 @@
               <%= section.docsHtml %>
             </div>
             <% if (section.codeText.replace(/\s/gm, '') != '') { %>
-            <div class="content"><pre><code data-language="javascript"><%= section.codeText.replace(/^\s+|\s+$/g,"") %></code></pre></div>
+            <div class="content"><pre><code class="javascript"><%= section.codeText.replace(/^\s+|\s+$/g,"") %></code></pre></div>
             <% } %>
         </li>
       <% } %>
