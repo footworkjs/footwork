@@ -1346,6 +1346,12 @@ var applyBindings = fw.applyBindings = function(viewModel, element) {
   applyContextAndLifeCycle(viewModel, element);
 };
 
+// 'start' up footwork at the targetElement (or document.body by default)
+fw.start = function(targetElement) {
+  targetElement = targetElement || windowObject.document.body;
+  originalApplyBindings({}, targetElement);
+};
+
 function bindComponentViewModel(element, params, ViewModel) {
   var viewModelObj;
   if( isFunction(ViewModel) ) {
@@ -1735,9 +1741,15 @@ var defaultComponentFileExtensions = {
 
 var componentFileExtensions = fw.components.fileExtensions = fw.observable( clone(defaultComponentFileExtensions) );
 
+var componentIsRegistered = fw.components.isRegistered;
+
 var getComponentFileName = fw.components.getFileName = function(componentName, fileType) {
   var componentExtensions = componentFileExtensions();
   var fileName = componentName;
+
+  if( componentIsRegistered(componentName) ) {
+    return null;
+  }
 
   if( isFunction(componentExtensions) ) {
     fileName += componentExtensions(componentName)[fileType];

@@ -10,9 +10,15 @@ var defaultComponentFileExtensions = {
 
 var componentFileExtensions = fw.components.fileExtensions = fw.observable( clone(defaultComponentFileExtensions) );
 
+var componentIsRegistered = fw.components.isRegistered;
+
 var getComponentFileName = fw.components.getFileName = function(componentName, fileType) {
   var componentExtensions = componentFileExtensions();
   var fileName = componentName;
+
+  if( componentIsRegistered(componentName) ) {
+    return null;
+  }
 
   if( isFunction(componentExtensions) ) {
     fileName += componentExtensions(componentName)[fileType];
