@@ -227,8 +227,8 @@ define(["footwork"],
         <li>Automatic download/resolution via AMD/RequireJS at the configurable default (<span class="inline-code">fw.viewModels.defaultLocation()</span>).</li>
       </ul>
 
-      <p>Registering a viewModel explicitely with <span class="inline-code">fw.viewModels.register()</span> makes it immediately available to footwork. This means that it will be usable and composable with your HTML/template. Any <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> declarations encountered will be processed with no delay (the viewModel is 'cached' when registered).</p>
-      <p>The other 2 methods above (<span class="inline-code">registerLocation()</span> and <span class="inline-code">defaultLocation()</span>) tell footwork where it can download your viewModel module. Your markup will wait until the viewModel is downloaded and then initialized and bound.</p>
+      <p>Registering a viewModel explicitly with <span class="inline-code">fw.viewModels.register()</span> makes it immediately available to footwork. Any <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> declarations encountered will be processed with no delay (the viewModel is 'cached' when registered).</p>
+      <p>The 2 methods <span class="inline-code">registerLocation()</span> and <span class="inline-code">defaultLocation()</span> tell footwork where it can download your viewModel module (in the event you do not explicitly register it). In any case your markup will wait until the viewModel is resolved prior to being initialized.</p>
       <div class="note"><span class="label">NOTE:</span> Nested viewModels and components are independently resolved. It works as you would expect, with an outer-most container (viewModel/component) initializing/processing/binding and rendering, then any nested viewModels/components get initialized (and so forth until the end).</div>
       <h3><em class="func-def">fw.viewModels.register<span>( <span class="param">'moduleName'</span>, <span class="param">viewModel</span> )</span></em></h3>
       <h3>Cache a viewModel/module ahead of time:</h3>
@@ -262,6 +262,16 @@ fw.viewModels.register('Sprocket', {
         <p>You can optionally just set <span class="inline-code">autoRegister: true</span> in the viewModel configuration object, then the fw.viewModel.register call is taken care of for you when the viewModel constructor is created.</p>
         <p>See: <a href="#configuration">viewModel configuration</a>.</p>
       </div>
+
+      <h3><em class="func-def">fw.viewModels.unregister<span>( <span class="param">'moduleName'</span> )</span></em></h3>
+      <h3>Unregister a component:</h3>
+<pre><code class="javascript">fw.viewModels.register('sprocket', {
+  viewModel: fw.viewModel({ /* ... configuration object ... */ }),
+  template: '&lt;!-- template HTML --&gt;'
+});
+fw.viewModels.unregister('sprocket');
+
+// fw.viewModels.isRegistered('sprocket') === false</code></pre>
 
       <h3><em class="func-def">fw.viewModels.registerLocation<span>( <span class="param">'moduleName'</span>, <span class="param">'path/to/module'</span> )</span></em></h3>
       <h3>Register the location of a viewModel/module so footwork can load and bind it for you when needed:</h3>

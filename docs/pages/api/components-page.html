@@ -46,14 +46,26 @@
       ways, but <a href="/api/viewModel" data-bind="$route">footwork viewModels</a> are extra awesome).</p>
       <p>In addition to being autoloaded via RequireJS/AMD (if needed/possible), the viewModel will be initialized (if required) and bound to your template.</p>
       <p>Once both have been combined, the resulting composition is inserted into the DOM and then the <span class="inline-code">afterBinding()</span> lifecycle event is triggered on the viewModel.</p>
-      <h3>A simple example of a template used in a component:</h3>
+      <h3>Example template file used in a component:</h3>
 <pre><code class="html">&lt;!-- /components/templates/sprocket.html --&gt;
-&lt;!-- Normal markup, including any bindings you want bound against the viewModel --&gt;
 &lt;div class="info"&gt;
-  &lt;div&gt;Sprocket&lt;/div&gt;
-  Type: &lt;span data-bind="text: type"&gt;&lt;/span&gt;
+  Type: &lt;span data-bind="text: sprocketType"&gt;&lt;/span&gt; &lt;!-- bound to the component viewModel --&gt;
 &lt;/div&gt;
-&lt;div class="description" data-bind="text: description"&gt;&lt;/div&gt;</code></pre>
+
+&lt;!-- nested component --&gt;
+&lt;sprocket-diagram&gt;
+  &lt;!-- content here is replaced with the sprocket-diagram component --&gt;
+&lt;/sprocket-diagram&gt;
+
+&lt;!-- nested viewModel --&gt;
+&lt;viewModel module="sprocketLabel"&gt;
+  &lt;div data-bind="text: manufacturer"&gt;&lt;/div&gt; &lt;!-- bound to sprocketLabel viewModel --&gt;
+  &lt;div&gt;
+    &lt;another-nested-component&gt;&lt;/another-nested-component&gt;
+  &lt;/div&gt;
+&lt;/viewModel&gt;
+
+&lt;div data-bind="text: description"&gt;&lt;/div&gt; &lt;!-- bound to the component viewModel --&gt;</code></pre>
     </div>
   </section>
 
@@ -98,8 +110,8 @@
       <h2 class="sub title">AMD / Lazy Loading / Registering</h2>
     </header>
     <div class="content">
-      <p>Once an element not recognized as being normal HTML is encountered footwork will process it as a component, first by resolving its dependencies.</p>
-      <div class="note"><span class="label">NOTE:</span> This means everything it doesn't think is 'normal' it will try to resolve (from cache or dynamically) and process. You can make footwork <em>not</em> process an element as a component, see <span class="inline-code">fw.components.tagIsComponent()</span> further down.</div>
+      <p>Once an element not recognized as being normal HTML is encountered, footwork will process it as a component. Beginning with the resolving of its dependencies.</p>
+      <div class="note"><span class="label">NOTE:</span> This means every tag it doesn't believe is 'normal html' will be resolved (from cache or dynamically) and processed. You can tell footwork what should and should not be processed as a component, see <span class="inline-code">fw.components.tagIsComponent()</span> further down.</div>
       <p>There are 3 ways footwork will try to resolve both the viewModel and template for your component once it encounters the 
       <span class="inline-code">&lt;component-name&gt;&lt;/component-name&gt;</span> or <span class="inline-code">&lt;span data-bind="component: 'component-name'"&gt;&lt;/span&gt;</span> markup.</p>
       <p>They are as follows (in order of priority):</p>
@@ -136,6 +148,16 @@ fw.components.register('sprocket', {
           <a href="http://requirejs.org">AMD/RequireJS</a> because of its inherent async capabilities/runtime dependency resolution/etc, however if <a href="http://browserify.org" target="_blank">Browserify</a> is more your taste that will work just as well.</li>
         </ul>
       </div>
+
+      <h3><em class="func-def">fw.components.unregister<span>( <span class="param">'name'</span> )</span></em></h3>
+      <h3>Unregister a component:</h3>
+<pre><code class="javascript">fw.components.register('sprocket', {
+  viewModel: fw.viewModel({ /* ... configuration object ... */ }),
+  template: '&lt;!-- template HTML --&gt;'
+});
+fw.components.unregister('sprocket');
+
+// fw.components.isRegistered('sprocket') === false</code></pre>
 
       <h3>Tell footwork how to use AMD/RequireJS to automatically resolve/download your component</h3>
       <p>It is also possible to simply tell footwork where your assets are and let it take care of downloading and initializing them for you. The following methods (<span class="inline-code">fw.components.registerLocation()</span> and <span class="inline-code">fw.components.defaultLocation()</span>) outline how to do that.</p>
@@ -424,6 +446,8 @@ fw.components.tagIsComponent('some-element', false);</code></pre>
       ] },
     { "anchor": "misc",
       "title": "Utility / Misc",
+      "collapsable": true,
+      "isCollapsed": true,
       "subSections": [
         { "anchor": "isRegistered",
           "title": "fw.components.isRegistered()" },
