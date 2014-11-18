@@ -167,7 +167,8 @@ var indexOf = _.indexOf;
 var values = _.values;
 var reject = _.reject;
 var findWhere = _.findWhere;
-var once = _.once;</code></pre></div>
+var once = _.once;
+var last = _.last;</code></pre></div>
             
         </li>
       
@@ -2527,6 +2528,37 @@ var getComponentFileName = fw.components.getFileName = function(componentName, f
     }
   }
 
+  switch(fileType) {
+    case 'viewModel':
+      fileType = 'viewModels';
+      break;
+    case 'template':
+      fileType = 'templates';
+      break;
+  }
+
+  if( !isUndefined( componentResourceLocations[componentName] ) ) {
+    var registeredLocation = componentResourceLocations[componentName];
+    if( !isUndefined(registeredLocation[fileType]) && !isPath(registeredLocation[fileType]) ) {
+      if( isString(registeredLocation[fileType]) ) {</code></pre></div>
+            
+        </li>
+      
+        
+        <li id="section-86" class="section">
+            <div class="annotation-bg"></div>
+            <div class="annotation">
+              <p>full filename was supplied, lets return that</p>
+
+            </div>
+            
+            <div class="content"><pre><code data-language="javascript">fileName = last( registeredLocation[fileType].split('/') );
+      } else {
+        return null;
+      }
+    }
+  }
+  
   return fileName;
 };
 
@@ -2544,7 +2576,7 @@ var componentDefaultLocation = fw.components.defaultLocation = function(root, up
         </li>
       
         
-        <li id="section-86" class="section">
+        <li id="section-87" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>assume some combination of defaultComponentLocation and normalize the parameters</p>
@@ -2586,7 +2618,7 @@ var registerLocationOfComponent = fw.components.registerLocation = function(comp
         </li>
       
         
-        <li id="section-87" class="section">
+        <li id="section-88" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Return the component resource definition for the supplied componentName</p>
@@ -2603,7 +2635,7 @@ var registerLocationOfComponent = fw.components.registerLocation = function(comp
         </li>
       
         
-        <li id="section-88" class="section">
+        <li id="section-89" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>viewModel resource section</p>
@@ -2621,6 +2653,24 @@ var getViewModelFileName = fw.viewModels.getFileName = function(viewModelName) {
     fileName += viewModelExtensions(viewModelName);
   } else if( isString(viewModelExtensions) ) {
     fileName += viewModelExtensions;
+  }
+
+  if( !isUndefined( viewModelResourceLocations[viewModelName] ) ) {
+    var registeredLocation = viewModelResourceLocations[viewModelName];
+    if( isString(registeredLocation) && !isPath(registeredLocation) ) {</code></pre></div>
+            
+        </li>
+      
+        
+        <li id="section-90" class="section">
+            <div class="annotation-bg"></div>
+            <div class="annotation">
+              <p>full filename was supplied, lets return that</p>
+
+            </div>
+            
+            <div class="content"><pre><code data-language="javascript">fileName = last( registeredLocation.split('/') );
+    }
   }
 
   return fileName;
@@ -2667,7 +2717,7 @@ var registerLocationOfViewModel = fw.viewModels.registerLocation = function(view
         </li>
       
         
-        <li id="section-89" class="section">
+        <li id="section-91" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Return the viewModel resource definition for the supplied viewModelName</p>
@@ -2684,7 +2734,7 @@ var registerLocationOfViewModel = fw.viewModels.registerLocation = function(view
         </li>
       
         
-        <li id="section-90" class="section">
+        <li id="section-92" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <h2 id="extenders-js">extenders.js</h2>

@@ -75,6 +75,7 @@ var values = _.values;
 var reject = _.reject;
 var findWhere = _.findWhere;
 var once = _.once;
+var last = _.last;
 
 // Internal registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];

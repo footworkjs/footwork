@@ -138,7 +138,7 @@ fw.components.register('sprocket', {
       </div>
 
       <h3>Tell footwork how to use AMD/RequireJS to automatically resolve/download your component</h3>
-      <p>It is also possible to simply tell footwork where your assets are and let it take care of downloading and initializing them for you. The folliwing methods (<span class="inline-code">fw.components.registerLocation()</span> <span class="inline-code">fw.components.defaultLocation()</span>) outline how to do that.</p>
+      <p>It is also possible to simply tell footwork where your assets are and let it take care of downloading and initializing them for you. The following methods (<span class="inline-code">fw.components.registerLocation()</span> and <span class="inline-code">fw.components.defaultLocation()</span>) outline how to do that.</p>
 
       <h3><em class="func-def">fw.components.registerLocation<span>( <span class="param">'name'</span>, <span class="param">{ viewModel: 'path/to/viewModel', template: 'path/to/template' }</span> )</span></em></h3>
       <h3 class="top"><em class="func-def">fw.components.registerLocation<span>( <span class="param">'name'</span>, <span class="param">{ combined: 'path/to/combinedComponentFile' }</span> )</span></em></h3>
@@ -165,11 +165,15 @@ fw.components.registerLocation('sprocket', '/components/theSprocket.js'); // loa
 
 // You can also specify the path to many components at once (footwork will append the appropriate file name):
 fw.components.registerLocation(['sprocket', 'wheel'], {
-  viewModel: '/viewModels/bikeParts/',
-  template: '/templates/bikeParts/'
+  viewModel: '/viewModels/bikeParts/', // load from /viewModels/bikeParts/[component-name].js
+  template: '/templates/bikeParts/' // load from /viewModels/bikeParts/[component-name].js
 });
-fw.components.registerLocation(['sprocket', 'wheel'], '/components/'); // combined format
+
+// load from /components/[component-name].js in combined format:
+fw.components.registerLocation(['sprocket', 'wheel'], '/components/');
 </code></pre>
+      <div class="note"><span class="label">NOTE:</span> Once you <span class="inline-code">registerLocation()</span> a component as being being a 'combined'
+      format, footwork will preferentially choose that path/module type when trying to resolve the component. So in short, make sure you only specify the location of either the viewModel+template OR combined modules (not both) for any given component.</div class="note">
 
       <h3><em class="func-def">fw.components.defaultLocation<span>( <span class="param">{ viewModel: 'path/to/viewModels', template: 'path/to/templates' }</span> )</span></em></h3>
       <h3 class="top"><em class="func-def">fw.components.defaultLocation<span>( <span class="param">{ combined: 'path/to/combinedComponentFiles' }</span> )</span></em></h3>
@@ -249,10 +253,34 @@ define(["footwork"],
       <p>Various useful methods and utility functions for misc and debugging purposes.</p>
 
       <ul>
+        <li><a href="#components-getResourceLocation">fw.components.getResourceLocation()</a></li>
         <li><a href="#components-getFileName">fw.components.getFileName()</a></li>
         <li><a href="#components-fileExtensions">fw.components.fileExtensions()</a></li>
+        <li><a href="#components-getResourceLocation">fw.components.getResourceLocation()</a></li>
         <li><a href="#components-getNormalTagList">fw.components.getNormalTagList()</a></li>
       </ul>
+    </div>
+  </section>
+
+  <a id="components-getResourceLocation" class="section-anchor"></a>
+  <section name="components-getResourceLocation">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">fw.components.getResourceLocation<span>( <span class="param">'componentName'</span> )</span></em></h3>
+      <h3>Get the paths footwork will attempt to load for the given 'componentName':</h3>
+<pre><code data-language="javascript">fw.components.registerLocation('Sprocket', {
+  viewModel: '/viewModels/bikeParts/',
+  template: '/templates/bikeParts/'
+});
+
+var sprocketLocation = fw.components.getResourceLocation('Sprocket');
+/**
+ * sprocketLocation === {
+ *   combined: null,
+ *   viewModels: '/viewModel/bikeParts/',
+ *   templates: '/component/bikeParts/'
+ * }
+ */</code></pre>
     </div>
   </section>
 
@@ -323,7 +351,7 @@ fw.components.fileExtensions(function(componentName) {
     <div class="content">
       <h3 class="top"><em class="func-def">fw.components.getNormalTagList<span>()</span></em></h3>
       <h3>Return an array containing the list of elements (tagName) that footwork will not process as a component:</h3>
-<pre><code data-language="javascript">var normalTags = fw.components.getNormalTagList(); // [ 'a', 'abbr', 'acronym', ... ]</code></pre>
+<pre><code data-language="javascript">var normalTags = fw.components.getNormalTagList(); // [ 'span', 'div', ... ]</code></pre>
     </div>
   </section>
 
@@ -349,6 +377,8 @@ fw.components.fileExtensions(function(componentName) {
     { "anchor": "misc",
       "title": "Utility / Misc",
       "subSections": [
+        { "anchor": "components-getResourceLocation",
+          "title": "fw.components.getResourceLocation()" },
         { "anchor": "components-getFileName",
           "title": "fw.components.getFileName()" },
         { "anchor": "components-fileExtensions",
