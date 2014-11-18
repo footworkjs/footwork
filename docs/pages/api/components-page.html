@@ -396,9 +396,10 @@ fw.components.isTemplateOnly(['Sprocket', 'Wheel'], false); // undo for several<
   <section name="tagIsComponent">
     <div class="highlight"></div>
     <div class="content">
-      <h3 class="top"><em class="func-def">fw.components.tagIsComponent<span>()</span></em></h3>
-      <h3>Return an array containing the list of elements (tagName) that footwork will not process as a component:</h3>
-<pre><code class="javascript">var normalTags = fw.components.tagIsComponent(); // [ 'span', 'div', ... ]</code></pre>
+      <h3 class="top"><em class="func-def">fw.components.tagIsComponent<span>( <span class="param">'tagName'</span>, <span class="param">isComponent</span> )</span></em></h3>
+      <h3>Mark a tagName as being a component (true) or not being a component (false):</h3>
+<pre><code class="javascript">// tell footwork not to process &lt;some-element&gt; as a component
+fw.components.tagIsComponent('some-element', false);</code></pre>
     </div>
   </section>
 
