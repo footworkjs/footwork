@@ -361,8 +361,8 @@ var mySprocket = new Sprocket({ type: 'awesome' });</code></pre>
       <h2 class="sub title">Configuration</h2>
     </header>
     <div class="content">
-      <p>Each mixin is simply a configuration object defining what the behavior of that mixin is. The behavior you define will be added to each viewModel instance
-      it is configured with. The following is a synopsis of the available options with standard mixins included with footwork.</p>
+      <p>Each mixin is simply a configuration object defining certain behaviors, functionality, and logic. The behavior you define will be added to each viewModel instance
+      it is configured with.</p>
       <h3>Mixin configuration object synopsis:</h3>
 <pre><code data-language="javascript">// define 'bigSprocket' as an object to serve as the configuration container
 var bigSprocket = {
@@ -380,10 +380,12 @@ var bigSprocket = {
      * any methods (including _preInit) are called
      */
     function1: function() {
-      // function that is extended onto the viewModel object (this) upon creation, this === the viewModel
+      // function that is extended onto the viewModel object (this) upon creation
+      // this === the viewModel
     },
     function2: function() {
-      // another function that is extended onto the viewModel object (this) upon creation, this === the viewModel
+      // another function that is extended onto the viewModel object (this) upon creation
+      // this === the viewModel
     },
     property1: 'someValue' // a raw property extended to the object
     // ...
