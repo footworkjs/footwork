@@ -258,19 +258,26 @@ define(["footwork"],
   <section name="components-getFileName">
     <div class="highlight"></div>
     <div class="content">
-      <h3 class="top"><em class="func-def">fw.components.getFileName<span>( <span class="param">'componentName'</span>, '[fileType]' )</span></em></h3>
+      <h3 class="top"><em class="func-def">fw.components.getFileName<span>( <span class="param">'componentName'</span>, <span class="param">'[fileType]'</span> )</span></em></h3>
       <h3>Get the file name that footwork will appended to the path when looking up the specified fileType for the component:</h3>
 <pre><code data-language="javascript">// get the template filename for the component 'sprocket'
-var fileNameForSprocket = fw.components.getFileName('sprocket', 'template'); // sprocket.html
+var fileNameForSprocket = fw.components.getFileName('sprocket', 'template'); // === sprocket.html
 
 // get the viewModel module filename for the component 'sprocket'
-var fileNameForSprocket = fw.components.getFileName('sprocket', 'viewModel'); // sprocket.js
+var fileNameForSprocket = fw.components.getFileName('sprocket', 'viewModel'); // === sprocket.js
 
 // get the combined module filename for the component 'sprocket'
-var fileNameForSprocket = fw.components.getFileName('sprocket', 'combined'); // sprocket.js
+var fileNameForSprocket = fw.components.getFileName('sprocket', 'combined'); // === sprocket.js
 
-// if the component is registered (cached), then null is returned for any fileType
-var fileNameForSprocket = fw.components.getFileName('sprocket', 'combined'); // null
+/**
+ * If the component was explicitly registered (cached), then null is returned for any
+ * fileType because the file name will never be used.
+ */
+fw.components.register('sprocket', {
+  viewModel: fw.viewModel({ /* ... configuration object ... */ }),
+  template: '&lt;div&gt;&lt;!-- template HTML --&gt;&lt;/div&gt;'
+});
+var fileNameForSprocket = fw.components.getFileName('sprocket', 'viewModel'); // === null
 </code></pre>
     </div>
   </section>

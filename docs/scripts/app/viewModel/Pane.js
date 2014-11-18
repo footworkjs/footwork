@@ -84,7 +84,7 @@ define([ "footwork", "lodash" ],
           if( this.headerClosed() === false ) {
             heightOffset = heightOffset + headerVisibleHeight;
           }
-          if( this.viewPortLayoutMode() === 'mobile' || this.narrow() === true ) {
+          if( this.viewPortLayoutMode() === 'mobile' ) {
             heightOffset = heightOffset + 30; // mobile menu selection height
           }
 

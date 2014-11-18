@@ -565,9 +565,27 @@ fw.viewModels.fileExtensions(function(moduleName) {
       <h3>Get the path footwork will attempt to load for the given 'moduleName':</h3>
 <pre><code data-language="javascript">fw.viewModels.registerLocation('Sprocket', '/path/to/viewModel/folder');
 // fw.viewModels.getResourceLocation('Sprocket') === '/path/to/viewModel/folder'</code></pre>
-
     </div>
   </section>
+
+  <a id="viewModels-getFileName" class="section-anchor"></a>
+  <section name="viewModels-getFileName">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">fw.viewModels.getFileName<span>( <span class="param">'moduleName'</span> )</span></em></h3>
+      <h3>Get the file name that footwork will appended to the path when downloading the viewModel:</h3>
+<pre><code data-language="javascript">var fileNameForSprocket = fw.viewModels.getFileName('sprocket'); // === sprocket.js
+
+/**
+ * If the viewModel was explicitly registered (cached), then null is returned for any
+ * fileType because the file name will never be used.
+ */
+fw.viewModels.register('sprocket', fw.viewModel({ /* configuration object */ }) );
+var fileNameForSprocket = fw.viewModels.getFileName('sprocket'); // === null
+</code></pre>
+    </div>
+  </section>
+
 </article>
 
 <div id="metaData">
@@ -607,7 +625,9 @@ fw.viewModels.fileExtensions(function(moduleName) {
         { "anchor": "viewModels-file-extensions",
           "title": "fw.viewModels.fileExtensions()" },
         { "anchor": "viewModels-getResourceLocation",
-          "title": "fw.viewModels.getResourceLocation()" }
+          "title": "fw.viewModels.getResourceLocation()" },
+        { "anchor": "viewModels-getFileName",
+          "title": "fw.viewModels.getFileName()" }
       ] }
   ]
 }
