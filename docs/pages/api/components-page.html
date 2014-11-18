@@ -6,7 +6,7 @@
       <h1 class="sub title">Introduction</h1>
     </header>
     <div class="content">
-      <p>A component can be thought of as a viewModel + template combination composed together and inserted into the DOM for you.</p>
+      <p>A component can be thought of as a viewModel + template composed together and inserted into the DOM for you.</p>
       <p>footwork.js extends the components feature found in <a href="http://knockoutjs.com" target="_blank">knockout.js</a> 3.2+ to enable many additional features, some of which being:</p>
       <ul>
         <li>Full template and viewModel encapsulation.</li>
@@ -77,9 +77,9 @@
 
     &lt;!-- notice the custom element name, footwork uses this to lookup your component --&gt;
     &lt;sprocket&gt;&lt;/sprocket&gt;
-    &lt;!-- NOTE: only lowercase alpha-numeric, and dash (-) characters are allowed for custom elements --&gt;
+    &lt;!-- NOTE: only lowercase alpha-numeric and dash (-) characters are allowed for custom elements --&gt;
 
-    &lt;!-- this also loads the same 'sprocket' component using the standard knockout binding --&gt;
+    &lt;!-- this loads the same 'sprocket' component using the standard knockout component binding --&gt;
     &lt;div data-bind="component: 'sprocket'"&gt;&lt;/div&gt;
 
     &lt;script src="/application.js"&gt;&lt;/script&gt;
@@ -88,7 +88,8 @@
       <div class="note">
         <span class="label">NOTE:</span> You can nest both &lt;component&gt; and &lt;viewModel&gt; declarations within one another, footwork will pull in resources and wire it all up as needed.
       </div>
-      <p>Once footwork encounters an element it doesn't recognize as being normal HTML it will do a lookup for the name and attempt to find the viewModel/template duo.</p>
+      <p>Once an element not recognized as being normal HTML is encountered it will lookup the name and attempt to find the component associated with it. The following section outlines how to
+      tell the footwork where to find your component.</p>
     </div>
   </section>
 
@@ -107,25 +108,26 @@
         <li>Automatic download/resolution via AMD/RequireJS at a pre-registered location (<span class="inline-code">fw.components.registerLocation()</span>).</li>
         <li>Automatic download/resolution via AMD/RequireJS at the configurable default (<span class="inline-code">fw.components.defaultLocation()</span>).</li>
       </ul>
+      <div class="note"><span class="label">NOTE [<em>advanced</em>]:</span> You can also write your own <a href="http://knockoutjs.com/documentation/component-loaders.html" target="_blank">custom loader</a> if you want to use a different method/library to resolve your component dependencies.</div>
 
       <h3><em class="func-def">fw.components.register<span>( <span class="param">'name'</span>, <span class="param">optionsObject</span> )</span></em></h3>
       <h3>Register (cache) a component under a specified 'name' for later use:</h3>
 <pre><code data-language="javascript">// Using a footwork viewModel
 fw.components.register('sprocket', {
   viewModel: fw.viewModel({ /* ... configuration object ... */ }),
-  template: '&lt;div data-bind="text: textProperty"&gt;&lt;/div&gt;'
+  template: '&lt;div data-bind="text: numberOfCogs"&gt;&lt;/div&gt;'
 });
 
 // Using a regular constructor function
 fw.components.register('sprocket', {
-  viewModel: function() { this.textProperty = 'hello world'; },
-  template: '&lt;div data-bind="text: textProperty"&gt;&lt;/div&gt;'
+  viewModel: function() { this.numberOfCogs = '12'; },
+  template: '&lt;div data-bind="text: numberOfCogs"&gt;&lt;/div&gt;'
 });</code></pre>
       <div class="note">
         <span class="label">NOTE:</span>
         <ul>
           <li>Footwork fully supports regular knockout component registration (<span class="inline-code">ko.components.register()</span>, 
-          see <a href="http://knockoutjs.com/documentation/component-registration.html">the documentation</a>)</li>
+          see <a href="http://knockoutjs.com/documentation/component-registration.html" target="_blank">the documentation</a>)</li>
           
           <li>Registering components is not necessary if you have RequireJS and tell footwork where it can download them (see 
           <span class="inline-code">fw.components.registerLocation()</span> and <span class="inline-code">fw.components.defaultLocation()</span> down below).</li>
@@ -192,13 +194,13 @@ fw.components.defaultLocation('/components');
       <h1 class="sub title">Module Formats</h1>
     </header>
     <div class="content">
-      <p>Footwork templates are always loaded as plain HTML files (plain text), but viewModels are loaded as javascript modules. viewModels can either be expressed inline (ie: when registering a
-      component explicitly), or resolved via a script loader.</p>
-      <p>Both <a href="http://requirejs.org">AMD/RequireJS</a> and <a href="http://browserify.org" target="_blank">Browserify</a> are supported. RequireJS is preferred as it will enable
-      footwork to resolve your viewModels/components (and their dependencies) automatically at runtime as needed.</p>
-      <p>The following examples all show the RequireJS/AMD flavored versions.</p>
+      <p>Footwork templates are always loaded as plain HTML files (plain text), but viewModels are loaded as javascript modules and have a special structure. A component (and thus, its viewModel)
+      can either be expressed inline (ie: when registering a component explicitly as <a href="#loading-registering">shown above</a>), or resolved via a script loader.</p>
+      <p>Both <a href="http://requirejs.org">AMD/RequireJS</a> and <a href="http://browserify.org" target="_blank">Browserify</a> are supported. However RequireJS is preferred as it will enable
+      footwork to resolve your component (and its dependencies) automatically at runtime as needed.</p>
+      <p>The following examples all show RequireJS/AMD-flavored modules.</p>
       <h3>viewModel and template are loaded separately:</h3>
-<pre><code data-language="javascript">// File located in: /viewModel/sprocket.js
+<pre><code data-language="javascript">// viewModel module file located in: /viewModel/sprocket.js
 define(["footwork"],
   function(fw) {
     return fw.viewModel({
@@ -207,7 +209,7 @@ define(["footwork"],
     });
   }
 );</code></pre>
-<pre><code data-language="html">&lt;!-- File located in: /template/sprocket.html --&gt;
+<pre><code data-language="html">&lt;!-- Template file located in: /template/sprocket.html --&gt;
 &lt;div class="info"&gt;
   &lt;div&gt;Sprocket&lt;/div&gt;
   Type: &lt;span data-bind="text: type"&gt;&lt;/span&gt;
@@ -219,7 +221,7 @@ define(["footwork"],
 
       <h3><em class="func-def">fw.component<span>( <span class="param">{ viewModel: [viewModel], template: '&lt;!-- template HTML --&gt;' }</span> )</span></em></h3>
       <h3>viewModel and template are loaded as a combined viewModel + template module:</h3>
-<pre><code data-language="javascript">// File located in: /components/sprocket.js
+<pre><code data-language="javascript">// component module file located in: /components/sprocket.js
 define(["footwork"],
   function(fw) {
     return fw.component({
@@ -234,6 +236,42 @@ define(["footwork"],
       <div class="note">
         <p><span class="label">NOTE:</span> You can use any constructor function or plain object as the viewModel for your component modules (you don't have to use a footwork viewModel constructor as shown).</p>
       </div>
+    </div>
+  </section>
+
+  <a id="misc" class="section-anchor"></a>
+  <section name="misc">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Utility / Misc</h1>
+    </header>
+    <div class="content">
+      <p>Various useful methods and utility functions for misc and debugging purposes.</p>
+
+      <ul>
+        <li><a href="#components-getFileName">fw.components.getFileName()</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <a id="components-getFileName" class="section-anchor"></a>
+  <section name="components-getFileName">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">fw.components.getFileName<span>( <span class="param">'componentName'</span>, '[fileType]' )</span></em></h3>
+      <h3>Get the file name that footwork will appended to the path when looking up the specified fileType for the component:</h3>
+<pre><code data-language="javascript">// get the template filename for the component 'sprocket'
+var fileNameForSprocket = fw.components.getFileName('sprocket', 'template'); // sprocket.html
+
+// get the viewModel module filename for the component 'sprocket'
+var fileNameForSprocket = fw.components.getFileName('sprocket', 'viewModel'); // sprocket.js
+
+// get the combined module filename for the component 'sprocket'
+var fileNameForSprocket = fw.components.getFileName('sprocket', 'combined'); // sprocket.js
+
+// if the component is registered (cached), then null is returned for any fileType
+var fileNameForSprocket = fw.components.getFileName('sprocket', 'combined'); // null
+</code></pre>
     </div>
   </section>
 
@@ -255,6 +293,12 @@ define(["footwork"],
           "title": "AMD / Lazy Loading / Registering" },
         { "anchor": "module-formats",
           "title": "Module Formats" }
+      ] },
+    { "anchor": "misc",
+      "title": "Utility / Misc",
+      "subSections": [
+        { "anchor": "components-getFileName",
+          "title": "fw.viewModels.getFileName()" }
       ] }
   ]
 }
