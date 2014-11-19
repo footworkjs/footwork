@@ -296,8 +296,8 @@ fw.bindingHandlers.$route = {
         element.href = routeURLWithParentPath();
       }
 
-      if( !isNull(stateTracker) ) {
-        stateTracker.unsubscribe();
+      if( isObject(stateTracker) ) {
+        stateTracker.dispose();
       }
       stateTracker = $myRouter.currentRoute.subscribe( bind(checkForMatchingSegment, null, myCurrentSegment) );
 
@@ -328,9 +328,15 @@ fw.bindingHandlers.$route = {
     }
 
     if( isObservable(routeHandlerDescription.url) ) {
-      routeHandlerDescription.url.subscribe(setUpElement);
+      $myRouter.subscriptions.push( routeHandlerDescription.url.subscribe(setUpElement) );
     }
     setUpElement();
+
+    ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+      if( isObject(stateTracker) ) {
+        stateTracker.dispose();
+      }
+    });
   }
 };
 

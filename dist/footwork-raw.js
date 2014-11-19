@@ -186,7 +186,7 @@ function registerNamespaceEventHandler(eventKey, callback, context) {
     callback = bind(callback, context);
   }
 
-  var handlerSubscription = this.subscribe('event.' + eventKey, callback).enlistPreserved();
+  var handlerSubscription = this.subscribeToTopic('event.' + eventKey, callback).enlistPreserved();
   this.eventHandlers.push(handlerSubscription);
 
   return handlerSubscription;
@@ -210,7 +210,7 @@ function registerNamespaceCommandHandler(commandKey, callback, context) {
     callback = bind(callback, context);
   }
 
-  var handlerSubscription = this.subscribe('command.' + commandKey, callback).enlistPreserved();
+  var handlerSubscription = this.subscribeToTopic('command.' + commandKey, callback).enlistPreserved();
   this.commandHandlers.push(handlerSubscription);
 
   return handlerSubscription;
@@ -222,7 +222,7 @@ function requestResponseFromNamespace(requestKey, params, allowMultipleResponses
   var response = undefined;
   var responseSubscription;
 
-  responseSubscription = this.subscribe('request.' + requestKey + '.response', function(reqResponse) {
+  responseSubscription = this.subscribeToTopic('request.' + requestKey + '.response', function(reqResponse) {
     if( isUndefined(response) ) {
       response = allowMultipleResponses ? [reqResponse] : reqResponse;
     } else if(allowMultipleResponses) {
@@ -248,17 +248,18 @@ function registerNamespaceRequestHandler(requestKey, callback, context) {
     this.publish( createEnvelope('request.' + requestKey + '.response', callbackResponse) );
   }, this);
 
-  var handlerSubscription = this.subscribe('request.' + requestKey, requestHandler);
+  var handlerSubscription = this.subscribeToTopic('request.' + requestKey, requestHandler);
   this.requestHandlers.push(handlerSubscription);
 
   return handlerSubscription;
 }
 
-// This effectively shuts down all requests, commands, and events by unsubscribing all handlers on a discreet namespace object
+// This effectively shuts down all requests, commands, events, and subscriptions by unsubscribing all handlers on a discreet namespace object
 function disconnectNamespaceHandlers() {
-  invoke(this.requestHandlers, 'unsubscribe');
-  invoke(this.commandHandlers, 'unsubscribe');
-  invoke(this.eventHandlers, 'unsubscribe');
+  var namespace = this;
+  each(['requestHandlers', 'commandHandlers', 'eventHandlers', 'subscriptions'], function(handlers) {
+    invoke(namespace[handlers], 'unsubscribe');
+  });
   return this;
 }
 
@@ -276,6 +277,14 @@ var makeNamespace = fw.namespace = function(namespaceName, $parentNamespace) {
     }
   }
   var namespace = postal.channel(namespaceName);
+
+  var subscriptions = namespace.subscriptions = [];
+  var subscribeToTopic = namespace.subscribeToTopic = namespace.subscribe;
+  namespace.subscribe = function(topic, callback) {
+    var subscription = subscribeToTopic.call(namespace, topic, callback);
+    subscriptions.push( subscription );
+    return subscription;
+  };
 
   namespace.__isNamespace = true;
   namespace.shutdown = bind( disconnectNamespaceHandlers, namespace );
@@ -789,8 +798,8 @@ fw.bindingHandlers.$route = {
         element.href = routeURLWithParentPath();
       }
 
-      if( !isNull(stateTracker) ) {
-        stateTracker.unsubscribe();
+      if( isObject(stateTracker) ) {
+        stateTracker.dispose();
       }
       stateTracker = $myRouter.currentRoute.subscribe( bind(checkForMatchingSegment, null, myCurrentSegment) );
 
@@ -821,9 +830,15 @@ fw.bindingHandlers.$route = {
     }
 
     if( isObservable(routeHandlerDescription.url) ) {
-      routeHandlerDescription.url.subscribe(setUpElement);
+      $myRouter.subscriptions.push( routeHandlerDescription.url.subscribe(setUpElement) );
     }
     setUpElement();
+
+    ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+      if( isObject(stateTracker) ) {
+        stateTracker.dispose();
+      }
+    });
   }
 };
 
@@ -1240,6 +1255,9 @@ var makeViewModel = fw.viewModel = function(configParams) {
         each(this, function( property, name ) {
           if( isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) ) {
             property.shutdown();
+          }
+          if( isObject(property) && isFunction(property.dispose) ) {
+            property.dispose();
           }
         });
         
