@@ -6,7 +6,7 @@
       <h1 class="sub title">Introduction</h1>
     </header>
     <div class="content">
-      <p>A component can be thought of as a viewModel + template composed together and inserted into the DOM.</p>
+      <p>At its most basic level, a component is essentially a viewModel + template composed together and inserted into the DOM.</p>
       <p>footwork.js extends the component feature found in <a href="http://knockoutjs.com" target="_blank">knockout.js</a> 3.2+ to enable many additional features, some of which being:</p>
       <ul>
         <li>Full template and viewModel encapsulation.</li>
@@ -60,9 +60,7 @@
 &lt;!-- nested viewModel --&gt;
 &lt;viewModel module="sprocketLabel"&gt;
   &lt;div data-bind="text: manufacturer"&gt;&lt;/div&gt; &lt;!-- bound to sprocketLabel viewModel --&gt;
-  &lt;div&gt;
-    &lt;another-nested-component&gt;&lt;/another-nested-component&gt;
-  &lt;/div&gt;
+  &lt;another-nested-component&gt;&lt;/another-nested-component&gt;
 &lt;/viewModel&gt;
 
 &lt;div data-bind="text: description"&gt;&lt;/div&gt; &lt;!-- bound to the component viewModel --&gt;</code></pre>
@@ -78,8 +76,8 @@
     <div class="content">
       <p>Using a component begins with inserting a custom element into your DOM/HTML (or using the standard knockout <a href="http://knockoutjs.com/documentation/component-binding.html" target="_blank">component binding</a>).</p>
       <div class="note">
-        <p><span class="label">NOTE:</span> This is very similar to the <span class="inline-code">&lt;viewModel module=""&gt;&lt;/viewModel&gt;</span> declarative syntax used for viewModel instantiation. The difference being
-        that instead of wrapping a section of HTML with a viewModel, they are paired together and composed prior to insertion into the DOM.
+        <p><span class="label">NOTE:</span> Components are somewhat similar to <span class="inline-code">&lt;viewModel module=""&gt;&lt;/viewModel&gt;</span> markup in that they both bind a viewModel to a section of the DOM. The difference being
+        that instead of wrapping a section of HTML with a viewModel, a component pairs the two together ahead of time allowing them to be composed at runtime with a single declarative element.
         See: <a href="/api/viewModel" data-bind="$route">viewModels</a>.</p>
       </div>
       <p>Footwork.js uses the the custom element name (or name provided by the component binding) to resolve your component.</p>

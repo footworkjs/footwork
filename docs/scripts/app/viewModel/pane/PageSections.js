@@ -5,8 +5,11 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
     var PageSection = fw.viewModel({
       namespace: 'PageSection',
       initialize: function(pageSectionData, parent) {
-        var paneElementsNamespace = fw.namespace('PaneElements');
-        var computeAnchorPos, anchorComputeDelay = 100;
+        var paneElementsNamespace = this.paneElementsNamespace = fw.namespace('PaneElements');
+        var computeAnchorPos;
+        var anchorComputeDelay = 100;
+        var $anchor = $('#' + pageSectionData.anchor);
+        var parentIsCollapsed = function noop() {};
 
         pageSectionData = pageSectionData || {};
 
@@ -45,13 +48,14 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           }
           return 'icon-chevron-up';
         }, this);
+        if( _.isObject(parent) && _.isFunction(parent.isCollapsed) ) {
+          parentIsCollapsed = parent.isCollapsed;
+        }
         this.active = fw.computed(function() {
           var isActive = this.currentSection() === this.anchor();
           if(isActive) {
             this.isCollapsed(false);
-            if( _.isObject(parent) && _.isFunction(parent.isCollapsed) ) {
-              parent.isCollapsed(false);
-            }
+            parentIsCollapsed(false);
           }
           return isActive;
         }, this);
@@ -61,25 +65,23 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
 
         this.anchorPosition = fw.observable();
         computeAnchorPos = function() {
-          this.anchorPosition( $( '#' + this.anchor() ).offset() );
+          this.anchorPosition( $anchor.offset() );
         }.bind(this);
         computeAnchorPos();
 
-        fw.observable().extend({ throttle: anchorComputeDelay }).receiveFrom('ViewPort', 'layoutMode').subscribe( computeAnchorPos );
-        fw.observable().extend({ throttle: anchorComputeDelay }).receiveFrom('ViewPort', 'dimensions').subscribe( computeAnchorPos );
-        fw.observable().extend({ throttle: anchorComputeDelay }).receiveFrom('Header', 'height').subscribe( computeAnchorPos );
-        fw.observable().extend({ throttle: anchorComputeDelay }).receiveFrom('Pane', 'width').subscribe( computeAnchorPos );
-        fw.observable().extend({ throttle: anchorComputeDelay + 1000 }).receiveFrom('Configuration', 'paneCollapsed').subscribe( computeAnchorPos );
+        this.layoutModeSub = fw.observable().extend({ throttle: anchorComputeDelay }).receiveFrom('ViewPort', 'layoutMode').subscribe( computeAnchorPos );
+        this.dimensionSub = fw.observable().extend({ throttle: anchorComputeDelay }).receiveFrom('ViewPort', 'dimensions').subscribe( computeAnchorPos );
+        this.heightSub = fw.observable().extend({ throttle: anchorComputeDelay }).receiveFrom('Header', 'height').subscribe( computeAnchorPos );
+        this.widthSub = fw.observable().extend({ throttle: anchorComputeDelay }).receiveFrom('Pane', 'width').subscribe( computeAnchorPos );
+        this.collapsedSub = fw.observable().extend({ throttle: anchorComputeDelay + 1000 }).receiveFrom('Configuration', 'paneCollapsed').subscribe( computeAnchorPos );
 
         this.$namespace.subscribe('chooseSection', function( sectionName ) {
           sectionName === this.anchor() && this.chooseSection();
         }).withContext(this);
 
         this.$namespace.subscribe('scrollToSection', function( sectionName ) {
-          var $anchor;
           if( sectionName === this.anchor() ) {
             this.chooseSection();
-            $anchor = $( '#' + this.anchor() );
             $anchor.length && window.scrollTo( 0, $anchor.offset().top - anchorOffset );
           }
         }).withContext(this);
@@ -112,6 +114,13 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           return true;
         }.bind(this);
 
+        this.dispose = function() {
+          _.each(this.subSections(), function(subSection) {
+            subSection.dispose();
+          });
+          this.__shutdown();
+        };
+
         this.visible( false );
       }
     });
@@ -123,6 +132,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
       },
       initialize: function() {
         var isInitialLoad = true;
+        var PageSections = this;
 
         this.visible = fw.observable(false);
         this.description = fw.observable();
@@ -185,8 +195,16 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           }.bind(this), false );
         }, this).broadcastAs('currentSection');
 
+        function clearSections() {
+          _.each(PageSections.sections(), function(section) {
+            section.dispose();
+          });
+          PageSections.sections([]);
+        }
+
         this.loadSections = function( sections ) {
           sections = sections || [];
+          clearSections();
           this.sections( _.reduce( sections, function( sectionArray, sectionData ) {
             sectionArray.push( new PageSection( sectionData ) );
             return sectionArray;
@@ -200,7 +218,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
         }.bind(this);
 
         this.$namespace.subscribe('clear', function() {
-          this.sections( [] );
+          clearSections();
         }).withContext(this);
 
         var loadMetaData = function( pageData ) {
@@ -222,7 +240,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           newSelection = newSelection || this.currentSelection();
           this.visible( newSelection === this.getNamespaceName() );
         };
-        this.currentSelection.subscribe(this.checkSelection, this);
+        this.currentSelSub = this.currentSelection.subscribe(this.checkSelection, this);
       }
     });
   }

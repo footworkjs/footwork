@@ -95,6 +95,9 @@ var makeViewModel = fw.viewModel = function(configParams) {
           if( isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) ) {
             property.shutdown();
           }
+          if( isObject(property) && isFunction(property.dispose) ) {
+            property.dispose();
+          }
         });
         
         delete this.$element;
