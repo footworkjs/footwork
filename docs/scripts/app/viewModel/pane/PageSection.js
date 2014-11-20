@@ -70,6 +70,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           this.anchorPosition( $anchor.offset() );
         }.bind(this);
         computeAnchorPos();
+        setTimeout(computeAnchorPos, 500);
 
         this.viewPortDimensions = fw.observable().receiveFrom('ViewPort', 'dimensions');
         this.headerHeight = fw.observable().receiveFrom('Header', 'height');
@@ -85,7 +86,6 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
         }).withContext(this);
 
         this.$namespace.subscribe('scrollToSection', function( sectionName ) {
-          var $anchor;
           if( sectionName === this.anchor ) {
             this.chooseSection();
             $anchor.length && window.scrollTo( 0, $anchor.offset().top - anchorOffset );

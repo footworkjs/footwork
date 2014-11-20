@@ -481,6 +481,8 @@ var mySprocket = new BigSprocket({ type: 'awesome' });
     <div class="highlight"></div>
     <div class="content">
       <h3 class="top"><em class="func-def">fw.viewModels.getAll<span>()</span></em></h3>
+      <h3 class="top"><em class="func-def">fw.viewModels.getAll<span>( <span class="param">'moduleName'</span> )</span></em></h3>
+      <h3 class="top"><em class="func-def">fw.viewModels.getAll<span>( <span class="param">[ 'moduleName', 'moduleName2', ... ]</span> )</span></em></h3>
       <h3>Get list of currently instantiated viewModels grouped/indexed by namespace:</h3>
 <pre><code class="javascript">var Bike = fw.viewModel({
   namespace: 'Bike',
@@ -503,6 +505,16 @@ var viewModels = fw.viewModels.getAll();
 // viewModels['Bike'].isBike === true
 // viewModels['Wheel'].length === 2
 // viewModels['Wheel'][0].isWheel === true
+
+var viewModels = fw.viewModels.getAll('Bike'); // get all 'Bike' instances
+// viewModels === {
+//  Bike: { ... }
+// }
+var viewModels = fw.viewModels.getAll(['Bike', 'Wheel']); // get all 'Bike' and 'Wheel' instances
+// viewModels === {
+//  Bike: { ... },
+//  Wheel: [ { ... }, { ... } ]
+// }
 </code></pre>
     </div>
   </section>
