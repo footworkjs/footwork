@@ -3,12 +3,47 @@
   <section name="introduction">
     <div class="highlight"></div>
     <header>
-      <span class="sub title">Introduction</span>
+      <h1 class="sub title">Introduction</h1>
     </header>
-    <div class="content block-font">
-      <p>Namespaces in footwork can be thought of as communication 'channels'. They are named destinations that your application can hook into in a standardized manner.</p>
+    <div class="content">
+      <p>Namespaces in footwork can be thought of as communication 'channels'. They are the information highways your application uses to shuffle data and state from one area to another.</p>
+      <p>Organizing your modules and keeping them decoupled is extremely important in more complex javascript applications. Without a standardized way of coordinating information, an application
+      will quickly turn into to a horrible tangled mess of code. This tangled mess becomes a buggy unmanageable piece of poo...no one likes to touch poo.</p>
+      <p>Footwork marshals all of that by organizing your modules firstly by namespaces. Namespaces boil down to a simple <span class="inline-code">'string'</span> value which is used to segment off
+      the communication meant for one module from another. Footwork uses this namespacing to provide a lot of enhanced functionality via 
+      <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" title="Command Query Responsibility Segregation">CQRS</a> and other common communications design patterns.</p>
+      <h3>All of this essentially means is that the communication between your modules/viewModels/components/<em>whatever</em> will be both expressive and easily managed.</h3>
+      <div class="note"><span class="label">NOTE:</span> At its core namespaces in footwork are enhanced <a href="https://github.com/postaljs/postal.js" target="_blank">postal.js</a> pub/sub channels.
+      If you need to enhance or alter how communication is handled then you likely want to take a look at the postal documentation.</div>
     </div>
   </section>
+
+  <a id="usage" class="section-anchor"></a>
+  <section name="usage">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Usage</h2>
+    </header>
+    <div class="content">
+      <p>There are essentially 2 different ways a namespace can be used:</p>
+      <ul>
+        <li>In tandem with a viewModel/component, automatically initialized and disposed of for you.</li>
+        <li>Independently/Manually instantiated by you and <em>sometimes</em> disposed of for you.</li>
+      </ul>
+    </div>
+  </section>
+
+  <a id="independent-usage" class="section-anchor"></a>
+  <section name="independent-usage">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Independent Usage</h2>
+    </header>
+    <div class="content">
+      <h3>Independent Instantiation:</h3>
+    </div>
+  </section>
+
 </article>
 
 <div id="metaData">
@@ -17,7 +52,15 @@
   "description": "Namespacing, the communication channels of your application.",
   "sections": [
     { "anchor": "introduction",
-      "title": "Introduction" }
+      "title": "Introduction" },
+    { "anchor": "usage",
+      "title": "Usage",
+      "subSections": [
+        { "anchor": "independent-usage",
+          "title": "Independent Usage" },
+        { "anchor": "tandem-usage",
+          "title": "Tandem Usage" }
+      ] }
   ]
 }
 </div>
