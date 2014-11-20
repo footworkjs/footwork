@@ -1180,7 +1180,12 @@ fw.viewModels = {};
 
 // Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all model references is returned.
-var getViewModels = fw.viewModels.getAll = function(options) {
+var getViewModels = fw.viewModels.getAll = function(namespaceName, options) {
+  options = options || {};
+  if( isString(namespaceName) || isArray(namespaceName) ) {
+    options.namespaceName = namespaceName;
+  }
+
   return reduce( $globalNamespace.request('__model_reference', extend({}, defaultGetViewModelOptions, options), true), function(viewModels, viewModel) {
     if( !isUndefined(viewModel) ) {
       var namespaceName = isNamespace(viewModel.$namespace) ? viewModel.$namespace.getName() : null;
@@ -1269,7 +1274,15 @@ var makeViewModel = fw.viewModel = function(configParams) {
       if( this.__assertPresence !== false ) {
         this.$globalNamespace.request.handler('__model_reference', bind(function(options) {
           if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
-            return this;
+            if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
+              if(isArray(options.namespaceName) && indexOf(options.namespaceName, this.getNamespaceName()) !== -1) {
+                return this;
+              } else if(isString(options.namespaceName) && options.namespaceName === this.getNamespaceName()) {
+                return this;
+              }
+            } else {
+              return this;
+            }
           }
         }, this));
         this.$globalNamespace.event.handler('__refreshViewModels', bind(function() {
