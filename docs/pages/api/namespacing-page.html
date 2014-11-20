@@ -22,7 +22,7 @@
   <section name="usage">
     <div class="highlight"></div>
     <header>
-      <h2 class="sub title">Usage</h2>
+      <h1 class="sub title">Usage</h1>
     </header>
     <div class="content">
       <p>There are essentially 2 different ways a namespace can be used:</p>
@@ -46,17 +46,17 @@
       <p>To do this, call the <span class="inline-code">fw.namespace()</span> factory and pass it a string (namespace name).</p>
       <h3><em class="func-def">fw.namespace<span>( <span class="param">'namespaceName'</span> )</span></em></h3>
 <pre><code class="javascript">var myNamespace = fw.namespace('myNamespace');
-myNamespace.subscribe('hello', function(fromWhom) {
-  console.info('Greetings ' + fromWhom);
+myNamespace.subscribe('sayHello', function(toWhom) {
+  console.info('Greetings ' + toWhom);
 });
 
-myNamespace.publish('hello', 'Jonathan'); // console prints: 'Greetings Jonathan'
+myNamespace.publish('sayHello', 'Jonathan'); // console prints: 'Greetings Jonathan'
 </code></pre>
       <p>It is important to note that namespaces are based on their <span class="inline-code">'string'</span> key, not the instantiated object...those are just the channels <em>to</em> that namespace.</p>
       <h3>This means that each newly instantiated namespace with the same <span class="inline-code">'string'</span> key will all hear the same events/commands/etc:</h3>
 <pre><code class="javascript">var myNamespace = fw.namespace('myNamespace');
-myNamespace.subscribe('hello', function(fromWhom) {
-  console.log('Greetings ' + fromWhom);
+myNamespace.subscribe('sayHello', function(toWhom) {
+  console.log('Greetings ' + toWhom);
 });
 
 var alsoMyNamespace = fw.namespace('myNamespace');
@@ -109,6 +109,111 @@ define(["footwork"],
     </div>
   </section>
 
+  <a id="pub-sub" class="section-anchor"></a>
+  <section name="pub-sub">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Publish / Subscribe</h2>
+    </header>
+    <div class="content">
+      <p>Publish and subscribe to messages on a namespace channel.</p>
+    </div>
+  </section>
+
+  <a id="publish" class="section-anchor"></a>
+  <section name="publish" class="top">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">namespace.publish<span>( <span class="param">'topic'</span>,  <span class="param">data</span> )</span></em></h3>
+      <h3>Publish a message on a namespace topic:</h3>
+<pre><code class="javascript">// sends data to any listeners bound to the topic 'sayHello' on the myNamespace channel
+myNamespace.publish('sayHello', { person: 'Jonathan' });</code></pre>
+    </div>
+  </section>
+
+  <a id="subscribe" class="section-anchor"></a>
+  <section name="subscribe" class="top">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">namespace.subscribe<span>( <span class="param">'topic'</span>,  <span class="param">function(message) { ... }</span> )</span></em></h3>
+      <h3>Subscribe to a topic on a namespace:</h3>
+<pre><code class="javascript">var greetingSubscription = myNamespace.subscribe('sayHello', function(toWhom) {
+  console.log('Greetings ' + toWhom);
+});</code></pre>
+    </div>
+  </section>
+
+  <a id="unsubscribe" class="section-anchor"></a>
+  <section name="unsubscribe" class="top">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">namespace.unsubscribe<span>( <span class="param">subscription</span> )</span></em></h3>
+      <h3>Unsubscribe to a topic on a namespace:</h3>
+<pre><code class="javascript">var greetingSubscription = myNamespace.subscribe('sayHello', function(toWhom) {
+  console.log('Greetings ' + toWhom);
+});
+
+myNamespace.unsubscribe(greetingSubscription);
+greetingSubscription.unsubscribe(); // also works</code></pre>
+    </div>
+  </section>
+
+  <a id="event" class="section-anchor"></a>
+  <section name="event">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Event</h2>
+    </header>
+    <div class="content">
+      <p>Trigger and handle events on a namespace.</p>
+    </div>
+  </section>
+
+  <a id="trigger-event" class="section-anchor"></a>
+  <section name="trigger-event" class="top">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">namespace.trigger<span>( <span class="param">'eventName'</span>,  <span class="param">data</span> )</span></em></h3>
+      <h3>Trigger an event on a namespace:</h3>
+<pre><code class="javascript">// sends data to any listeners bound to the topic 'sayHello' on the myNamespace channel
+myNamespace.trigger('buyGroceries', { milk: 1, eggs: 12 });
+
+// You can also trigger bare events
+myNamespace.trigger('findWaldo');</code></pre>
+    </div>
+  </section>
+
+  <a id="event-handler" class="section-anchor"></a>
+  <section name="event-handler" class="top">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">namespace.event.handler<span>( <span class="param">'eventName'</span>,  <span class="param">function(data) { ... }</span> )</span></em></h3>
+      <h3>Create a handler for an event on a namespace:</h3>
+<pre><code class="javascript">myNamespace.event.handler('buyGroceries', function(items) {
+  // buy groceries
+});
+
+myNamespace.event.handler('findWaldo', function() {
+  // go find Waldo
+});</code></pre>
+    </div>
+  </section>
+
+  <a id="event-unregister" class="section-anchor"></a>
+  <section name="event-unregister" class="top">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">namespace.event.handler.unregister<span>( <span class="param">subscription</span> )</span></em></h3>
+      <h3>Unregister an event handler:</h3>
+<pre><code class="javascript">var waldoHandler = myNamespace.event.handler('findWaldo', function() {
+  // go find Waldo
+});
+
+myNamespace.event.handler.unregister(waldoHandler);
+waldoHandler.unsubscribe(); // also works</code></pre>
+    </div>
+  </section>
+
 </article>
 
 <div id="metaData">
@@ -143,36 +248,36 @@ define(["footwork"],
       "collapsable": true,
       "isCollapsed": true,
       "subSections": [
+        { "anchor": "trigger-event",
+          "title": "namespace.trigger()" },
         { "anchor": "event-handler",
           "title": "namespace.event.handler()" },
         { "anchor": "event-unregister",
-          "title": "namespace.event.handler.unregister()" },
-        { "anchor": "trigger-event",
-          "title": "namespace.trigger()" }
+          "title": "namespace.event.handler.unregister()" }
       ] },
     { "anchor": "request",
       "title": "Request",
       "collapsable": true,
       "isCollapsed": true,
       "subSections": [
+        { "anchor": "issue-request",
+          "title": "namespace.request()" },
         { "anchor": "request-handler",
           "title": "namespace.request.handler()" },
         { "anchor": "request-unregister",
-          "title": "namespace.request.handler.unregister()" },
-        { "anchor": "issue-request",
-          "title": "namespace.request()" }
+          "title": "namespace.request.handler.unregister()" }
       ] },
     { "anchor": "command",
       "title": "Command",
       "collapsable": true,
       "isCollapsed": true,
       "subSections": [
+        { "anchor": "issue-command",
+          "title": "namespace.command()" },
         { "anchor": "command-handler",
           "title": "namespace.command.handler()" },
         { "anchor": "command-unregister",
-          "title": "namespace.command.handler.unregister()" },
-        { "anchor": "issue-command",
-          "title": "namespace.command()" }
+          "title": "namespace.command.handler.unregister()" }
       ] }
   ]
 }

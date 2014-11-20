@@ -44,6 +44,10 @@
             .transition(opacity 0s linear);
           }
         }
+
+        &.hasSubSections > .content {
+          padding-right: 10px;
+        }
       }
 
       &.hasTitle {
@@ -57,6 +61,7 @@
 
       &.hasSubSections {
         margin-bottom: 10px;
+        
         &.isCollapsed {
           margin-bottom: -10px;
         }
