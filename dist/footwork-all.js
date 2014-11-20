@@ -9735,7 +9735,7 @@ function isBroadcaster(thing) {
 }
 
 //     this.myValue = fw.observable().receiveFrom('NamespaceName' / Namespace, 'varName');
-fw.subscribable.fn.receiveFrom = function(namespace, variable, tagged) {
+fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
   var observable = this;
   var namespaceSubscriptions = [];
