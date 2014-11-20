@@ -58,6 +58,9 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           if(isActive) {
             this.isCollapsed(false);
             parentIsCollapsed(false);
+            if(!_.isUndefined(parent)) {
+              fw.namespace('PageSections').command('showAllBefore', parent);
+            }
           }
           return isActive;
         }, this);

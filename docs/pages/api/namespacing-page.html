@@ -120,18 +120,18 @@ define(["footwork"],
     </div>
   </section>
 
-  <a id="publish" class="section-anchor"></a>
+  <a id="publish" class="section-anchor top"></a>
   <section name="publish" class="top">
     <div class="highlight"></div>
     <div class="content">
       <h3 class="top"><em class="func-def">namespace.publish<span>( <span class="param">'topic'</span>,  <span class="param">data</span> )</span></em></h3>
       <h3>Publish a message on a namespace topic:</h3>
-<pre><code class="javascript">// sends data to any listeners bound to the topic 'sayHello' on the myNamespace channel
-myNamespace.publish('sayHello', { person: 'Jonathan' });</code></pre>
+<pre><code class="javascript">// sends data to any listeners subscribed to the topic 'sayHello' on the myNamespace channel
+myNamespace.publish('sayHello', 'Jonathan');</code></pre>
     </div>
   </section>
 
-  <a id="subscribe" class="section-anchor"></a>
+  <a id="subscribe" class="section-anchor top"></a>
   <section name="subscribe" class="top">
     <div class="highlight"></div>
     <div class="content">
@@ -143,7 +143,7 @@ myNamespace.publish('sayHello', { person: 'Jonathan' });</code></pre>
     </div>
   </section>
 
-  <a id="unsubscribe" class="section-anchor"></a>
+  <a id="unsubscribe" class="section-anchor top"></a>
   <section name="unsubscribe" class="top">
     <div class="highlight"></div>
     <div class="content">
@@ -169,7 +169,7 @@ greetingSubscription.unsubscribe(); // also works</code></pre>
     </div>
   </section>
 
-  <a id="trigger-event" class="section-anchor"></a>
+  <a id="trigger-event" class="section-anchor top"></a>
   <section name="trigger-event" class="top">
     <div class="highlight"></div>
     <div class="content">
@@ -183,14 +183,14 @@ myNamespace.trigger('findWaldo');</code></pre>
     </div>
   </section>
 
-  <a id="event-handler" class="section-anchor"></a>
+  <a id="event-handler" class="section-anchor top"></a>
   <section name="event-handler" class="top">
     <div class="highlight"></div>
     <div class="content">
       <h3 class="top"><em class="func-def">namespace.event.handler<span>( <span class="param">'eventName'</span>,  <span class="param">function(data) { ... }</span> )</span></em></h3>
       <h3>Create a handler for an event on a namespace:</h3>
-<pre><code class="javascript">myNamespace.event.handler('buyGroceries', function(items) {
-  // buy groceries
+<pre><code class="javascript">myNamespace.event.handler('foundWaldo', function(location) {
+  console.log('Found Waldo at', location);
 });
 
 myNamespace.event.handler('findWaldo', function() {
@@ -199,18 +199,119 @@ myNamespace.event.handler('findWaldo', function() {
     </div>
   </section>
 
-  <a id="event-unregister" class="section-anchor"></a>
+  <a id="event-unregister" class="section-anchor top"></a>
   <section name="event-unregister" class="top">
     <div class="highlight"></div>
     <div class="content">
-      <h3 class="top"><em class="func-def">namespace.event.handler.unregister<span>( <span class="param">subscription</span> )</span></em></h3>
+      <h3 class="top"><em class="func-def">namespace.event.unregister<span>( <span class="param">handler</span> )</span></em></h3>
       <h3>Unregister an event handler:</h3>
-<pre><code class="javascript">var waldoHandler = myNamespace.event.handler('findWaldo', function() {
-  // go find Waldo
+<pre><code class="javascript">myNamespace.event.unregister(foundWaldo);
+waldoHandler.unsubscribe(); // also works</code></pre>
+    </div>
+  </section>
+
+  <a id="request" class="section-anchor"></a>
+  <section name="request">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Request</h2>
+    </header>
+    <div class="content">
+      <p>Request and respond to data requests on a namespace.</p>
+    </div>
+  </section>
+
+  <a id="issue-request" class="section-anchor top"></a>
+  <section name="issue-request" class="top">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">namespace.request<span>( <span class="param">'requestKey'</span>,  <span class="param">data</span> )</span></em></h3>
+      <h3>Request data from a namespace:</h3>
+<pre><code class="javascript">var response = myNamespace.request('waldoLocation');</code></pre>
+    </div>
+  </section>
+
+  <a id="request-handler" class="section-anchor top"></a>
+  <section name="request-handler" class="top">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">namespace.request.handler<span>( <span class="param">'requestKey'</span>,  <span class="param">function(data) { ... }</span> )</span></em></h3>
+      <h3>Create a handler for an request on a namespace, return value is passed back to the requester:</h3>
+<pre><code class="javascript">myNamespace.request.handler('waldoLocation', function() {
+  return 'I have no idea.';
 });
 
-myNamespace.event.handler.unregister(waldoHandler);
-waldoHandler.unsubscribe(); // also works</code></pre>
+// Take a parameter, do something with it and return a response
+myNamespace.request.handler('taxCost', function(amount) {
+  return amount * 0.0825;
+});</code></pre>
+    </div>
+  </section>
+
+  <a id="request-unregister" class="section-anchor top"></a>
+  <section name="request-unregister" class="top">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">namespace.request.unregister<span>( <span class="param">handler</span> )</span></em></h3>
+      <h3>Unregister an request handler:</h3>
+<pre><code class="javascript">var waldoLocationResponder = myNamespace.request.handler('waldoLocation', function() {
+  return 'I have no idea.';
+});
+// myNamespace.request('waldoLocation') === 'I have no idea'
+
+myNamespace.request.unregister(waldoLocationResponder);
+waldoLocationResponder.unsubscribe(); // also works
+
+// myNamespace.request('waldoLocation') === undefined
+</code></pre>
+    </div>
+  </section>
+
+  <a id="command" class="section-anchor"></a>
+  <section name="command">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Command</h2>
+    </header>
+    <div class="content">
+      <p>Issue and perform operations based on commands sent to a namespace.</p>
+    </div>
+  </section>
+
+  <a id="issue-command" class="section-anchor top"></a>
+  <section name="issue-command" class="top">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">namespace.command<span>( <span class="param">'commandName'</span>,  <span class="param">data</span> )</span></em></h3>
+      <h3>Issue a command to a namespace:</h3>
+<pre><code class="javascript">myNamespace.command('findWaldo');</code></pre>
+    </div>
+  </section>
+
+  <a id="command-handler" class="section-anchor top"></a>
+  <section name="command-handler" class="top">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">namespace.command.handler<span>( <span class="param">'commandName'</span>,  <span class="param">function(data) { ... }</span> )</span></em></h3>
+      <h3>Create a handler for a command on a namespace:</h3>
+<pre><code class="javascript">myNamespace.command.handler('buyGroceries', function(items) {
+  // buy groceries
+});
+
+myNamespace.command.handler('findWaldo', function() {
+  // go find Waldo
+});</code></pre>
+    </div>
+  </section>
+
+  <a id="command-unregister" class="section-anchor top"></a>
+  <section name="command-unregister" class="top">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">namespace.command.unregister<span>( <span class="param">handler</span> )</span></em></h3>
+      <h3>Unregister a command handler:</h3>
+<pre><code class="javascript">myNamespace.command.unregister(findWaldo);
+findWaldo.unsubscribe(); // also works</code></pre>
     </div>
   </section>
 
@@ -253,7 +354,7 @@ waldoHandler.unsubscribe(); // also works</code></pre>
         { "anchor": "event-handler",
           "title": "namespace.event.handler()" },
         { "anchor": "event-unregister",
-          "title": "namespace.event.handler.unregister()" }
+          "title": "namespace.event.unregister()" }
       ] },
     { "anchor": "request",
       "title": "Request",
@@ -265,7 +366,7 @@ waldoHandler.unsubscribe(); // also works</code></pre>
         { "anchor": "request-handler",
           "title": "namespace.request.handler()" },
         { "anchor": "request-unregister",
-          "title": "namespace.request.handler.unregister()" }
+          "title": "namespace.request.unregister()" }
       ] },
     { "anchor": "command",
       "title": "Command",
@@ -277,7 +378,7 @@ waldoHandler.unsubscribe(); // also works</code></pre>
         { "anchor": "command-handler",
           "title": "namespace.command.handler()" },
         { "anchor": "command-unregister",
-          "title": "namespace.command.handler.unregister()" }
+          "title": "namespace.command.unregister()" }
       ] }
   ]
 }

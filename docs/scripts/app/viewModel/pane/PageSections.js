@@ -112,10 +112,23 @@ define([ "jquery", "lodash", "footwork", "PageSection" ],
           }
         }.bind(this);
         loadMetaData( fw.namespace('Page').request('metaData') );
+
         this.$namespace.request.handler('anchorOffset', function() {
           return anchorOffset;
         });
+
         this.$namespace.subscribe('pageMetaData', loadMetaData).withContext(this);
+
+        this.$namespace.command.handler('showAllBefore', function(shownSection) {
+          var foundSection = false;
+          _.each(this.sections(), function(section) {
+            if(!foundSection && section !== shownSection) {
+              section.isCollapsed(false);
+            } else {
+              foundSection = true;
+            }
+          });
+        }.bind(this));
 
         this.checkSelection = function(newSelection) {
           newSelection = newSelection || this.currentSelection();

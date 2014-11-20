@@ -9642,17 +9642,17 @@ var makeNamespace = fw.namespace = function(namespaceName, $parentNamespace) {
   namespace.commandHandlers = [];
   namespace.command = bind( sendCommandToNamespace, namespace );
   namespace.command.handler = bind( registerNamespaceCommandHandler, namespace );
-  namespace.command.handler.unregister = unregisterNamespaceHandler;
+  namespace.command.unregister = unregisterNamespaceHandler;
 
   namespace.requestHandlers = [];
   namespace.request = bind( requestResponseFromNamespace, namespace );
   namespace.request.handler = bind( registerNamespaceRequestHandler, namespace );
-  namespace.request.handler.unregister = unregisterNamespaceHandler;
+  namespace.request.unregister = unregisterNamespaceHandler;
 
   namespace.eventHandlers = [];
   namespace.event = namespace.trigger = bind( triggerEventOnNamespace, namespace );
   namespace.event.handler = bind( registerNamespaceEventHandler, namespace );
-  namespace.event.handler.unregister = unregisterNamespaceHandler;
+  namespace.event.unregister = unregisterNamespaceHandler;
 
   namespace.getName = bind( getNamespaceName, namespace );
   namespace.enter = function() {
