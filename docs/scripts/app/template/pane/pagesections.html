@@ -12,9 +12,9 @@
     </div>
     <div class="description" data-bind="text: description, css: { visible: hasDescription }"></div>
     <div data-bind="foreach: sections">
-      <div class="section-label entry-row" data-bind="css: { visible: visible, isCollapsable: isCollapsable, isCollapsed: isCollapsed }">
+      <div class="section-label entry-row" data-bind="css: { visible: visible, isCollapsable: isCollapsable, isCollapsed: isCollapsed, hasTitle: hasTitle, hasSubSections: hasSubSections }">
         <div class="content" data-bind="css: { active: active }">
-          <a class="title" data-bind="click: chooseSection, attr: { href: anchorAddress }, css: { hasTitle: hasTitle }">
+          <a class="title" data-bind="click: chooseSection, attr: { href: anchorAddress }">
             <span class="label" data-bind="text: title"></span>
             <!-- ko if: isCollapsable -->
               <span class="icon" data-bind="class: collapseIcon, click: toggleCollapse"></span>

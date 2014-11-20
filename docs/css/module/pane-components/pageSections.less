@@ -29,8 +29,8 @@
       position: relative;
       cursor: pointer;
       text-decoration: none;
-      margin: 10px 0;
       padding-bottom: 5px;
+      margin: -10px 0 0;
 
       &.isCollapsable {
         a > .label {
@@ -43,6 +43,22 @@
             opacity: 0;
             .transition(opacity 0s linear);
           }
+        }
+      }
+
+      &.hasTitle {
+        margin-top: 10px;
+        margin-bottom: -10px;
+        
+        & > .content {
+          display: block;
+        }
+      }
+
+      &.hasSubSections {
+        margin-bottom: 10px;
+        &.isCollapsed {
+          margin-bottom: -10px;
         }
       }
 
@@ -101,6 +117,7 @@
         height: @pageSectionTitleHeight;
         .box-sizing(border-box);
         .clearblock;
+        display: none;
       }
 
        & > .sub-sections {

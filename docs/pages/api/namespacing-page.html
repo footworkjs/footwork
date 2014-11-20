@@ -75,30 +75,28 @@ alsoMyNamespace.publish('hello', 'Jonathan'); // console prints: 'Greetings Jona
       <p>Anytime you place a <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> or <span class="inline-code">&lt;component&gt;&lt;/component&gt;</span> in your markup footwork is
       essentially wrapping that section of HTML with a viewModel. That viewModel has a namespace attached to/associated with it (based on the <span class="inline-code">namespace:</span> viewModel configuration attribute, see <a href="/api/viewModel" data-bind="$route">viewModel</a>).</p>
       <p>When footwork sets up the new instance of your viewModel it automatically creates a namespace channel and assigns it to <span class="inline-code">this.$namespace</span>. This namespace will have its lifecycle handled automatically, and any subscriptions made on it will be cleaned up when the viewModel is destroyed.</p>
+      <p>The following shows an example of using a declarative <span class="inline-code">&lt;viewModel&gt; ... &lt;/viewModel&gt;</span>, however it works exactly the same with a component (and its viewModel).</p>
 <pre><code>&lt;!-- File: index.html --&gt;
 &lt;html&gt;
   &lt;body&gt;
+    &lt;!--
+      namespace and all attached handlers for Sprocket viewModel
+      handled automatically whenever it is added or removed from the DOM
+    --&gt;
     &lt;viewModel module="Sprocket"&gt;
-      &lt;!-- ko if: isExpensive --&gt;
-        &lt;!--
-          namespace and all handlers for warning-component viewModel
-          handled automatically whenever it is added or removed from the DOM
-        --&gt;
-        &lt;warning-component&gt;&lt;/warning-component&gt;
-      &lt;!-- /ko --&gt;
+      &lt;!-- ko if: isExpensive --&gt;Warning: Expensive sprocket.&lt;!-- /ko --&gt;
     &lt;/viewModel&gt;
   &lt;/body&gt;
 &lt;/html&gt;</code></pre>
 
-<pre><code class="javascript">// File: /components/viewModel/warning-component.js
+<pre><code class="javascript">// File: /viewModel/Sprocket.js
 define(["footwork"],
-  function( fw ) {
+  function(fw) {
     return fw.viewModel({
-      namespace: 'Warning',
+      namespace: 'Sprocket',
       initialize: function() {
-        this.message = fw.observable('This Sprocket is expensive!');
-
-        this.$namespace.subscribe('clearWarning', function() {
+        this.isExpensive = fw.observable(false);
+        this.$namespace.subscribe('ThrowAway', function(reason) {
           // this handler will be automatically unsubscribed and cleaned up
         });
       }
@@ -127,6 +125,54 @@ define(["footwork"],
           "title": "Independent Usage" },
         { "anchor": "tandem-usage",
           "title": "Tandem Usage" }
+      ] },
+    { "anchor": "pub-sub",
+      "title": "Pub / Sub",
+      "collapsable": true,
+      "isCollapsed": true,
+      "subSections": [
+        { "anchor": "publish",
+          "title": "namespace.publish()" },
+        { "anchor": "subscribe",
+          "title": "namespace.subscribe()" },
+        { "anchor": "unsubscribe",
+          "title": "namespace.unsubscribe()" }
+      ] },
+    { "anchor": "event",
+      "title": "Event",
+      "collapsable": true,
+      "isCollapsed": true,
+      "subSections": [
+        { "anchor": "event-handler",
+          "title": "namespace.event.handler()" },
+        { "anchor": "event-unregister",
+          "title": "namespace.event.handler.unregister()" },
+        { "anchor": "trigger-event",
+          "title": "namespace.trigger()" }
+      ] },
+    { "anchor": "request",
+      "title": "Request",
+      "collapsable": true,
+      "isCollapsed": true,
+      "subSections": [
+        { "anchor": "request-handler",
+          "title": "namespace.request.handler()" },
+        { "anchor": "request-unregister",
+          "title": "namespace.request.handler.unregister()" },
+        { "anchor": "issue-request",
+          "title": "namespace.request()" }
+      ] },
+    { "anchor": "command",
+      "title": "Command",
+      "collapsable": true,
+      "isCollapsed": true,
+      "subSections": [
+        { "anchor": "command-handler",
+          "title": "namespace.command.handler()" },
+        { "anchor": "command-unregister",
+          "title": "namespace.command.handler.unregister()" },
+        { "anchor": "issue-command",
+          "title": "namespace.command()" }
       ] }
   ]
 }
