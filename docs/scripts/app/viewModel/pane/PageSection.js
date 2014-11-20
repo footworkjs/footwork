@@ -1,12 +1,13 @@
-define([ "jquery", "lodash", "footwork", "PageSubSection", "jquery.pulse" ],
-  function( $, _, fw, PageSubSection ) {
-    return fw.viewModel({
+define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
+  function( $, _, fw ) {
+    var PageSectionCtor = fw.viewModel({
       namespace: 'PageSection',
       initialize: function(pageSectionData, parent) {
         var paneElementsNamespace = this.paneElementsNamespace = fw.namespace('PaneElements');
         var computeAnchorPos;
         var anchorComputeDelay = 100;
         var $anchor = $('#' + (_.isObject(pageSectionData) ? pageSectionData.anchor : ''));
+        var $anchorContainer = $('[name=' + pageSectionData.anchor + ']');
         var parentIsCollapsed = function noop() {};
         var anchorOffset = fw.namespace('PageSections').request('anchorOffset');
         var PageSection = this;
@@ -31,7 +32,7 @@ define([ "jquery", "lodash", "footwork", "PageSubSection", "jquery.pulse" ],
 
         if( subSections.length ) {
           this.subSections( _.map( $.extend(true, [], subSections), function(subSectionData) {
-            return new PageSubSection(subSectionData, PageSection);
+            return new PageSectionCtor(subSectionData, PageSection);
           }) );
         }
 
@@ -40,7 +41,7 @@ define([ "jquery", "lodash", "footwork", "PageSubSection", "jquery.pulse" ],
         this.hasTitle = fw.computed(function() {
           return _.isString(this.title()) && this.title().length > 0;
         }, this);
-        this.anchor = fw.observable( pageSectionData.anchor );
+        this.anchor = pageSectionData.anchor;
         this.isCollapsable = fw.observable( !!pageSectionData.collapsable );
         this.isCollapsed = fw.observable( !!pageSectionData.isCollapsed );
         this.collapseIcon = fw.computed(function() {
@@ -53,7 +54,7 @@ define([ "jquery", "lodash", "footwork", "PageSubSection", "jquery.pulse" ],
           parentIsCollapsed = parent.isCollapsed;
         }
         this.active = fw.computed(function() {
-          var isActive = this.currentSection() === this.anchor();
+          var isActive = this.currentSection() === this.anchor;
           if(isActive) {
             this.isCollapsed(false);
             parentIsCollapsed(false);
@@ -61,7 +62,7 @@ define([ "jquery", "lodash", "footwork", "PageSubSection", "jquery.pulse" ],
           return isActive;
         }, this);
         this.anchorAddress = fw.computed(function() {
-          return pageBaseURL + '#' + this.anchor();
+          return pageBaseURL + '#' + this.anchor;
         }, this);
 
         this.anchorPosition = fw.observable();
@@ -80,14 +81,13 @@ define([ "jquery", "lodash", "footwork", "PageSubSection", "jquery.pulse" ],
         this.collapsedSub = this.paneCollapsed.subscribe( computeAnchorPos );
 
         this.$namespace.subscribe('chooseSection', function( sectionName ) {
-          sectionName === this.anchor() && this.chooseSection();
+          sectionName === this.anchor && this.chooseSection();
         }).withContext(this);
 
         this.$namespace.subscribe('scrollToSection', function( sectionName ) {
           var $anchor;
-          if( sectionName === this.anchor() ) {
+          if( sectionName === this.anchor ) {
             this.chooseSection();
-            $anchor = $( '#' + this.anchor() );
             $anchor.length && window.scrollTo( 0, $anchor.offset().top - anchorOffset );
           }
         }).withContext(this);
@@ -104,19 +104,16 @@ define([ "jquery", "lodash", "footwork", "PageSubSection", "jquery.pulse" ],
           return false;
         };
 
-        this.goToSection = function(anchorName) {
-          this.chosenSection( '' );
-          this.chosenSection( anchorName );
-          $('[name=' + anchorName + ']').pulse({ className: 'active', duration: 1000 });
-        };
-
         this.chooseSection = function() {
           if(this.viewPortLayoutMode() === 'mobile' || this.paneIsOverlapping()) {
             if(!this.paneCollapsed()) {
               this.paneCollapsed(true);
             }
           }
-          this.goToSection( this.anchor() );
+
+          this.chosenSection( '' );
+          this.chosenSection( this.anchor );
+          $anchorContainer.pulse({ className: 'active', duration: 1000 });
           return true;
         }.bind(this);
 
@@ -134,5 +131,7 @@ define([ "jquery", "lodash", "footwork", "PageSubSection", "jquery.pulse" ],
         this.visible( false );
       }
     });
+
+    return PageSectionCtor;
   }
 );

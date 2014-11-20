@@ -56,7 +56,7 @@ define([ "jquery", "lodash", "footwork", "PageSection" ],
             var theAnchor = currentSection;
 
             if( _.isObject(section.anchorPosition()) && scrollPosition >= (section.anchorPosition().top - anchorOffset) ) {
-              theAnchor = section.anchor();
+              theAnchor = section.anchor;
             }
 
             if( section.subSections().length ) {
