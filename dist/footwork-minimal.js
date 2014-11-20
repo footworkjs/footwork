@@ -4638,7 +4638,7 @@ function isBroadcaster(thing) {
 }
 
 //     this.myValue = fw.observable().receiveFrom('NamespaceName' / Namespace, 'varName');
-fw.subscribable.fn.receiveFrom = function(namespace, variable) {
+fw.subscribable.fn.receiveFrom = function(namespace, variable, tagged) {
   var target = this;
   var observable = this;
   var namespaceSubscriptions = [];
@@ -6212,6 +6212,15 @@ fw.extenders.debounce = function(target, opt) {
     target(value);
   };
 
+  var throttleDispose = throttledTarget.dispose;
+  if( isFunction(target.dispose) ) {
+    // has to pass-through the dispose method from the target so it can be released properly as well
+    throttledTarget.dispose = function() {
+      target.dispose();
+      throttleDispose.call(throttledTarget);
+    };
+  }
+
   return throttledTarget;
 };
 
@@ -6267,6 +6276,15 @@ fw.extenders.delayTrigger = function( target, options ) {
   delayedObservable.clearTrigger = clearTrigger;
   delayedObservable.triggerDelay = delay;
 
+  var delayedObservableDispose = delayedObservable.dispose;
+  if( isFunction(target.dispose) ) {
+    // has to pass-through the dispose method from the target so it can be released properly as well
+    delayedObservable.dispose = function() {
+      target.dispose();
+      delayedObservableDispose.call(delayedObservable);
+    };
+  }
+
   return delayedObservable;
 };
 
@@ -6281,7 +6299,7 @@ fw.extenders.delayWrite = function( target, options ) {
     delay = !isNaN( options ) && parseInt( options, 10 ) || delay;
   }
 
-  return fw.computed({
+  var delayWriteComputed = fw.computed({
     read: target,
     write: function( writeValue ) {
       if( filter( writeValue ) ) {
@@ -6296,6 +6314,17 @@ fw.extenders.delayWrite = function( target, options ) {
       }
     }
   });
+
+  var delayWriteComputedDispose = delayWriteComputed.dispose;
+  if( isFunction(target.dispose) ) {
+    // has to pass-through the dispose method from the target so it can be released properly as well
+    delayWriteComputed.dispose = function() {
+      target.dispose();
+      delayWriteComputedDispose.call(delayWriteComputed);
+    };
+  }
+
+  return delayWriteComputed;
 };
       return ko;
     })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter );

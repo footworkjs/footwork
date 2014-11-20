@@ -94,7 +94,7 @@ define([ "jquery", "lodash", "knockout", "postal" ],
         write: function( state ) {
           target( state );
 
-          if( trigger !== undefined ) {
+          if( !_.isUndefined(trigger) ) {
             clearTrigger();
           }
 

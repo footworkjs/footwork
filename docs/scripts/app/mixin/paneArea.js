@@ -27,7 +27,7 @@ define([ "jquery", "lodash", "footwork", "LoadState" ],
           var currentPage = this.currentPage();
           this.currentPage( currentPage + 1 );
 
-          if(this.$params !== undefined && this.$params.url !== undefined) {
+          if( !_.isUndefined(this.$params) && !_.isUndefined(this.$params.url) ) {
             this.loader
               .watch( $.ajax({ url: this.$params.url + currentPage, dataType: 'json' }) )
               .done(function( entries ) {

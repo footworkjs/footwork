@@ -683,7 +683,7 @@ function isBroadcaster(thing) {
 </code></pre>
             </div>
             
-            <div class="content"><pre><code class="javascript">fw.subscribable.fn.receiveFrom = function(namespace, variable) {
+            <div class="content"><pre><code class="javascript">fw.subscribable.fn.receiveFrom = function(namespace, variable, tagged) {
   var target = this;
   var observable = this;
   var namespaceSubscriptions = [];
@@ -2790,6 +2790,25 @@ var registerLocationOfViewModel = fw.viewModels.registerLocation = function(view
     target(value);
   };
 
+  var throttleDispose = throttledTarget.dispose;
+  if( isFunction(target.dispose) ) {</code></pre></div>
+            
+        </li>
+      
+        
+        <li id="section-93" class="section">
+            <div class="annotation-bg"></div>
+            <div class="annotation">
+              <p>has to pass-through the dispose method from the target so it can be released properly as well</p>
+
+            </div>
+            
+            <div class="content"><pre><code class="javascript">throttledTarget.dispose = function() {
+      target.dispose();
+      throttleDispose.call(throttledTarget);
+    };
+  }
+
   return throttledTarget;
 };
 
@@ -2845,6 +2864,25 @@ fw.extenders.delayTrigger = function( target, options ) {
   delayedObservable.clearTrigger = clearTrigger;
   delayedObservable.triggerDelay = delay;
 
+  var delayedObservableDispose = delayedObservable.dispose;
+  if( isFunction(target.dispose) ) {</code></pre></div>
+            
+        </li>
+      
+        
+        <li id="section-94" class="section">
+            <div class="annotation-bg"></div>
+            <div class="annotation">
+              <p>has to pass-through the dispose method from the target so it can be released properly as well</p>
+
+            </div>
+            
+            <div class="content"><pre><code class="javascript">delayedObservable.dispose = function() {
+      target.dispose();
+      delayedObservableDispose.call(delayedObservable);
+    };
+  }
+
   return delayedObservable;
 };
 
@@ -2859,7 +2897,7 @@ fw.extenders.delayWrite = function( target, options ) {
     delay = !isNaN( options ) && parseInt( options, 10 ) || delay;
   }
 
-  return fw.computed({
+  var delayWriteComputed = fw.computed({
     read: target,
     write: function( writeValue ) {
       if( filter( writeValue ) ) {
@@ -2874,6 +2912,27 @@ fw.extenders.delayWrite = function( target, options ) {
       }
     }
   });
+
+  var delayWriteComputedDispose = delayWriteComputed.dispose;
+  if( isFunction(target.dispose) ) {</code></pre></div>
+            
+        </li>
+      
+        
+        <li id="section-95" class="section">
+            <div class="annotation-bg"></div>
+            <div class="annotation">
+              <p>has to pass-through the dispose method from the target so it can be released properly as well</p>
+
+            </div>
+            
+            <div class="content"><pre><code class="javascript">delayWriteComputed.dispose = function() {
+      target.dispose();
+      delayWriteComputedDispose.call(delayWriteComputed);
+    };
+  }
+
+  return delayWriteComputed;
 };</code></pre></div>
             
         </li>
