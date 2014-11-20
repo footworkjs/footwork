@@ -539,6 +539,7 @@ var makeNamespace = fw.namespace = function(namespaceName, $parentNamespace) {
     subscriptions.push( subscription );
     return subscription;
   };
+  namespace.unsubscribe = unregisterNamespaceHandler;
 
   namespace.__isNamespace = true;
   namespace.shutdown = bind( disconnectNamespaceHandlers, namespace );
@@ -546,17 +547,17 @@ var makeNamespace = fw.namespace = function(namespaceName, $parentNamespace) {
   namespace.commandHandlers = [];
   namespace.command = bind( sendCommandToNamespace, namespace );
   namespace.command.handler = bind( registerNamespaceCommandHandler, namespace );
-  namespace.command.handler.unregister = bind( unregisterNamespaceHandler, namespace );
+  namespace.command.handler.unregister = unregisterNamespaceHandler;
 
   namespace.requestHandlers = [];
   namespace.request = bind( requestResponseFromNamespace, namespace );
   namespace.request.handler = bind( registerNamespaceRequestHandler, namespace );
-  namespace.request.handler.unregister = bind( unregisterNamespaceHandler, namespace );
+  namespace.request.handler.unregister = unregisterNamespaceHandler;
 
   namespace.eventHandlers = [];
   namespace.event = namespace.trigger = bind( triggerEventOnNamespace, namespace );
   namespace.event.handler = bind( registerNamespaceEventHandler, namespace );
-  namespace.event.handler.unregister = bind( unregisterNamespaceHandler, namespace );
+  namespace.event.handler.unregister = unregisterNamespaceHandler;
 
   namespace.getName = bind( getNamespaceName, namespace );
   namespace.enter = function() {
