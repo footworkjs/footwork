@@ -22315,10 +22315,12 @@ define('PageSection',[ "jquery", "lodash", "footwork", "jquery.pulse" ],
 
         this.anchorPosition = fw.observable();
         computeAnchorPos = function() {
-          this.anchorPosition( $anchor.offset() );
+          clearTimeout(this.computeAnchorTimeout);
+          this.computeAnchorTimeout = setTimeout(function() {
+            this.anchorPosition( $anchor.offset() );
+          }.bind(this), 500);
         }.bind(this);
         computeAnchorPos();
-        setTimeout(computeAnchorPos, 500);
 
         this.viewPortDimensions = fw.observable().receiveFrom('ViewPort', 'dimensions');
         this.headerHeight = fw.observable().receiveFrom('Header', 'height');
