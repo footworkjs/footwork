@@ -437,7 +437,7 @@ function triggerEventOnNamespace(eventKey, params, expires) {
 // Method used to register an event handler on a namespace
 function registerNamespaceEventHandler(eventKey, callback, context) {
   if( !isUndefined(context) ) {
-    callback = bind(callback, context);
+    callback = callback.bind(context);
   }
 
   var handlerSubscription = this.subscribeToTopic('event.' + eventKey, callback).enlistPreserved();
@@ -461,7 +461,7 @@ function sendCommandToNamespace(commandKey, params, expires) {
 // Method used to register a command handler on a namespace
 function registerNamespaceCommandHandler(commandKey, callback, context) {
   if( !isUndefined(context) ) {
-    callback = bind(callback, context);
+    callback = callback.bind(context);
   }
 
   var handlerSubscription = this.subscribeToTopic('command.' + commandKey, callback).enlistPreserved();
@@ -494,13 +494,13 @@ function requestResponseFromNamespace(requestKey, params, allowMultipleResponses
 // Requests sent using the specified requestKey will be called and passed in any params specified, the return value is passed back to the issuer
 function registerNamespaceRequestHandler(requestKey, callback, context) {
   if( !isUndefined(context) ) {
-    callback = bind(callback, context);
+    callback = callback.bind(context);
   }
 
-  var requestHandler = bind(function(params) {
+  var requestHandler = function(params) {
     var callbackResponse = callback(params);
     this.publish( createEnvelope('request.' + requestKey + '.response', callbackResponse) );
-  }, this);
+  }.bind(this);
 
   var handlerSubscription = this.subscribeToTopic('request.' + requestKey, requestHandler);
   this.requestHandlers.push(handlerSubscription);
@@ -542,24 +542,24 @@ var makeNamespace = fw.namespace = function(namespaceName, $parentNamespace) {
   namespace.unsubscribe = unregisterNamespaceHandler;
 
   namespace.__isNamespace = true;
-  namespace.shutdown = bind( disconnectNamespaceHandlers, namespace );
+  namespace.shutdown = disconnectNamespaceHandlers.bind(namespace);
 
   namespace.commandHandlers = [];
-  namespace.command = bind( sendCommandToNamespace, namespace );
-  namespace.command.handler = bind( registerNamespaceCommandHandler, namespace );
+  namespace.command = sendCommandToNamespace.bind(namespace);
+  namespace.command.handler = registerNamespaceCommandHandler.bind(namespace);
   namespace.command.unregister = unregisterNamespaceHandler;
 
   namespace.requestHandlers = [];
-  namespace.request = bind( requestResponseFromNamespace, namespace );
-  namespace.request.handler = bind( registerNamespaceRequestHandler, namespace );
+  namespace.request = requestResponseFromNamespace.bind(namespace);
+  namespace.request.handler = registerNamespaceRequestHandler.bind(namespace);
   namespace.request.unregister = unregisterNamespaceHandler;
 
   namespace.eventHandlers = [];
-  namespace.event = namespace.trigger = bind( triggerEventOnNamespace, namespace );
-  namespace.event.handler = bind( registerNamespaceEventHandler, namespace );
+  namespace.event = namespace.trigger = triggerEventOnNamespace.bind(namespace);
+  namespace.event.handler = registerNamespaceEventHandler.bind(namespace);
   namespace.event.unregister = unregisterNamespaceHandler;
 
-  namespace.getName = bind( getNamespaceName, namespace );
+  namespace.getName = getNamespaceName.bind(namespace);
   namespace.enter = function() {
     return enterNamespace( this );
   };
@@ -784,7 +784,7 @@ var routesAreCaseSensitive = true;
 var invalidRoutePathIdentifier = '___invalid-route';
 
 var $nullRouter = extend({}, $baseRouter, {
-  childRouters: extend( bind(noop), { push: noop } ),
+  childRouters: extend( noop.bind(), { push: noop } ),
   path: function() { return ''; },
   isRelative: function() { return false; },
   __isNullRouter: true
@@ -1031,8 +1031,8 @@ fw.bindingHandlers.$route = {
 
       return null;
     };
-    var routeURLWithParentPath = bind(getRouteURL, null, true);
-    var routeURLWithoutParentPath = bind(getRouteURL, null, false);
+    var routeURLWithParentPath = getRouteURL.bind(null, true);
+    var routeURLWithoutParentPath = getRouteURL.bind(null, false);
 
     function checkForMatchingSegment(mySegment, newRoute) {
       if(mySegment === '/') {
@@ -1056,7 +1056,7 @@ fw.bindingHandlers.$route = {
       if( isObject(stateTracker) ) {
         stateTracker.dispose();
       }
-      stateTracker = $myRouter.currentRoute.subscribe( bind(checkForMatchingSegment, null, myCurrentSegment) );
+      stateTracker = $myRouter.currentRoute.subscribe( checkForMatchingSegment.bind(null, myCurrentSegment) );
 
       if(elementIsSetup === false) {
         elementIsSetup = true;
@@ -1163,12 +1163,12 @@ var Router = function( routerConfig, $viewModel, $context ) {
   });
 
   this.outlets = {};
-  this.$outlet = bind( $routerOutlet, this );
-  this.$outlet.reset = bind( function() {
+  this.$outlet = $routerOutlet.bind(this);
+  this.$outlet.reset = function() {
     each( this.outlets, function(outlet) {
       outlet({ name: noComponentSelected, params: {} });
     });
-  }, this);
+  }.bind(this);
 
   if( !isUndefined(routerConfig.unknownRoute) ) {
     if( isFunction(routerConfig.unknownRoute) ) {
@@ -1390,13 +1390,13 @@ Router.prototype.getRouteForURL = function(url) {
 };
 
 Router.prototype.getActionForRoute = function(routeDescription) {
-  var Action = bind( function() {
+  var Action = function() {
     delete this.__currentRouteDescription;
     this.$outlet.reset();
-  }, this );
+  }.bind(this);
 
   if( isRoute(routeDescription) ) {
-    Action = bind(function() {
+    Action = function() {
       if( !isUndefined(routeDescription.title) ) {
         document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this) : routeDescription.title;
       }
@@ -1405,7 +1405,7 @@ Router.prototype.getActionForRoute = function(routeDescription) {
         routeDescription.controller.call( this, routeDescription.namedParams );
         this.__currentRouteDescription = routeDescription;
       }
-    }, this);
+    }.bind(this);
   }
 
   return Action;
@@ -1508,15 +1508,14 @@ var makeViewModel = fw.viewModel = function(configParams) {
         return configParams;
       },
       __shutdown: function() {
-        if( isFunction(configParams.onDispose) ) {
+        if( configParams.onDispose !== noop ) {
           configParams.onDispose.call(this);
         }
 
         each(this, function( property, name ) {
           if( isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) ) {
             property.shutdown();
-          }
-          if( isObject(property) && isFunction(property.dispose) ) {
+          } else if( isObject(property) && isFunction(property.dispose) ) {
             property.dispose();
           }
         });
@@ -1527,7 +1526,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
     },
     _postInit: function() {
       if( this.__assertPresence !== false ) {
-        this.$globalNamespace.request.handler('__model_reference', bind(function(options) {
+        this.$globalNamespace.request.handler('__model_reference', function(options) {
           if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
             if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
               if(isArray(options.namespaceName) && indexOf(options.namespaceName, this.getNamespaceName()) !== -1) {
@@ -1539,14 +1538,14 @@ var makeViewModel = fw.viewModel = function(configParams) {
               return this;
             }
           }
-        }, this));
-        this.$globalNamespace.event.handler('__refreshViewModels', bind(function() {
+        }.bind(this));
+        this.$globalNamespace.event.handler('__refreshViewModels', function() {
           each(this, function(property) {
             if( isReceiver(property) ) {
               property.refresh();
             }
           });
-        }, this));
+        }.bind(this));
       }
     }
   };
@@ -1672,7 +1671,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
     if( tagName === 'viewmodel' ) {
       var values = valueAccessor();
       var viewModelName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
-      var bindViewModel = bind(bindComponentViewModel, null, element, values.params);
+      var bindViewModel = bindComponentViewModel.bind(null, element, values.params);
 
       if( !isUndefined(viewModelName) ) {
         var resourceLocation = null;

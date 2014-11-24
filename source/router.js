@@ -27,7 +27,7 @@ var routesAreCaseSensitive = true;
 var invalidRoutePathIdentifier = '___invalid-route';
 
 var $nullRouter = extend({}, $baseRouter, {
-  childRouters: extend( bind(noop), { push: noop } ),
+  childRouters: extend( noop.bind(), { push: noop } ),
   path: function() { return ''; },
   isRelative: function() { return false; },
   __isNullRouter: true
@@ -274,8 +274,8 @@ fw.bindingHandlers.$route = {
 
       return null;
     };
-    var routeURLWithParentPath = bind(getRouteURL, null, true);
-    var routeURLWithoutParentPath = bind(getRouteURL, null, false);
+    var routeURLWithParentPath = getRouteURL.bind(null, true);
+    var routeURLWithoutParentPath = getRouteURL.bind(null, false);
 
     function checkForMatchingSegment(mySegment, newRoute) {
       if(mySegment === '/') {
@@ -299,7 +299,7 @@ fw.bindingHandlers.$route = {
       if( isObject(stateTracker) ) {
         stateTracker.dispose();
       }
-      stateTracker = $myRouter.currentRoute.subscribe( bind(checkForMatchingSegment, null, myCurrentSegment) );
+      stateTracker = $myRouter.currentRoute.subscribe( checkForMatchingSegment.bind(null, myCurrentSegment) );
 
       if(elementIsSetup === false) {
         elementIsSetup = true;
@@ -406,12 +406,12 @@ var Router = function( routerConfig, $viewModel, $context ) {
   });
 
   this.outlets = {};
-  this.$outlet = bind( $routerOutlet, this );
-  this.$outlet.reset = bind( function() {
+  this.$outlet = $routerOutlet.bind(this);
+  this.$outlet.reset = function() {
     each( this.outlets, function(outlet) {
       outlet({ name: noComponentSelected, params: {} });
     });
-  }, this);
+  }.bind(this);
 
   if( !isUndefined(routerConfig.unknownRoute) ) {
     if( isFunction(routerConfig.unknownRoute) ) {
@@ -633,13 +633,13 @@ Router.prototype.getRouteForURL = function(url) {
 };
 
 Router.prototype.getActionForRoute = function(routeDescription) {
-  var Action = bind( function() {
+  var Action = function() {
     delete this.__currentRouteDescription;
     this.$outlet.reset();
-  }, this );
+  }.bind(this);
 
   if( isRoute(routeDescription) ) {
-    Action = bind(function() {
+    Action = function() {
       if( !isUndefined(routeDescription.title) ) {
         document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this) : routeDescription.title;
       }
@@ -648,7 +648,7 @@ Router.prototype.getActionForRoute = function(routeDescription) {
         routeDescription.controller.call( this, routeDescription.namedParams );
         this.__currentRouteDescription = routeDescription;
       }
-    }, this);
+    }.bind(this);
   }
 
   return Action;
