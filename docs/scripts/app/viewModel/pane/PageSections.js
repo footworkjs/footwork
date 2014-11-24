@@ -106,20 +106,16 @@ define([ "jquery", "lodash", "footwork" ],
           }
         }.bind(this);
         loadMetaData( pageNamespace.request('metaData') );
-        // this.anchorSub = anchorPositions.subscribe(function(anchorPos) {
-        //   if(isInitialLoad) {
-        //     isInitialLoad = false;
-        //     var chosenSection = null;
-        //     _.each(anchorPos, function(anchorPos) {
-        //       if( anchorPos.anchor === this.anchor )
-        //     });
-        //     if( sectionName === this.anchor ) {
-        //       this.chooseSection();
-        //       $anchor.length && window.scrollTo( 0, $anchor.offset().top - anchorOffset );
-        //     }
-        //     pageSectionNamespace.publish( 'scrollToSection', bodyRouterNamespace.request('urlParts').anchor );
-        //   }
-        // });
+        this.anchorSub = anchorPositions.subscribe(function(anchorPos) {
+          if(isInitialLoad) {
+            isInitialLoad = false;
+            _.each(anchorPositions(), function(anchorPos) {
+              if( anchorPos.anchor === window.location.hash.substring(1) ) {
+                window.scrollTo( 0, anchorPos.position - anchorOffset );
+              }
+            });
+          }
+        });
 
         this.$namespace.request.handler('anchorOffset', function() {
           return anchorOffset;
