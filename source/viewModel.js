@@ -92,15 +92,14 @@ var makeViewModel = fw.viewModel = function(configParams) {
         return configParams;
       },
       __shutdown: function() {
-        if( isFunction(configParams.onDispose) ) {
+        if( configParams.onDispose !== noop ) {
           configParams.onDispose.call(this);
         }
 
         each(this, function( property, name ) {
           if( isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) ) {
             property.shutdown();
-          }
-          if( isObject(property) && isFunction(property.dispose) ) {
+          } else if( isObject(property) && isFunction(property.dispose) ) {
             property.dispose();
           }
         });
@@ -111,7 +110,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
     },
     _postInit: function() {
       if( this.__assertPresence !== false ) {
-        this.$globalNamespace.request.handler('__model_reference', bind(function(options) {
+        this.$globalNamespace.request.handler('__model_reference', function(options) {
           if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
             if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
               if(isArray(options.namespaceName) && indexOf(options.namespaceName, this.getNamespaceName()) !== -1) {
@@ -123,14 +122,14 @@ var makeViewModel = fw.viewModel = function(configParams) {
               return this;
             }
           }
-        }, this));
-        this.$globalNamespace.event.handler('__refreshViewModels', bind(function() {
+        }.bind(this));
+        this.$globalNamespace.event.handler('__refreshViewModels', function() {
           each(this, function(property) {
             if( isReceiver(property) ) {
               property.refresh();
             }
           });
-        }, this));
+        }.bind(this));
       }
     }
   };
@@ -256,7 +255,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
     if( tagName === 'viewmodel' ) {
       var values = valueAccessor();
       var viewModelName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
-      var bindViewModel = bind(bindComponentViewModel, null, element, values.params);
+      var bindViewModel = bindComponentViewModel.bind(null, element, values.params);
 
       if( !isUndefined(viewModelName) ) {
         var resourceLocation = null;
