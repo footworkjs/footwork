@@ -1,5 +1,44 @@
-define([ "jquery", "lodash", "footwork", "PageSection" ],
-  function( $, _, fw, PageSection ) {
+define([ "jquery", "lodash", "footwork" ],
+  function( $, _, fw ) {
+    var pageNamespace = fw.namespace('Page');
+    var currentSelection = fw.observable().receiveFrom('PaneLinks', 'currentSelection');
+    var pageSectionNamespace = fw.namespace('PageSection');
+    var pageSubSectionNamespace = fw.namespace('PageSubSection');
+    var bodyRouterNamespace = fw.namespace('BodyRouter');
+    var defaultPaneSelection = fw.observable().receiveFrom('PaneLinks', 'defaultSelection');
+    var viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
+    var headerHeight = fw.observable().receiveFrom('Header', 'height');
+    var viewPortDimensions = fw.observable().receiveFrom('ViewPort', 'dimensions');
+    var paneWidth = fw.observable().receiveFrom('Pane', 'width');
+    var paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed');
+
+    var anchorPositions = fw.observable([]);
+    var computeAnchorDelay;
+    function computeAnchorPos() {
+      clearTimeout(computeAnchorDelay);
+      computeAnchorDelay = setTimeout(function() {
+        var positions = [];
+        var sectionPositions = pageSectionNamespace.request('position', null, true);
+        var subSectionPositions = pageSubSectionNamespace.request('position', null, true);
+
+        if(!_.isUndefined(sectionPositions) && sectionPositions.length) {
+          positions = positions.concat(sectionPositions);
+        }
+        if(!_.isUndefined(subSectionPositions) && subSectionPositions.length) {
+          positions = positions.concat(subSectionPositions);
+        }
+
+        anchorPositions( _.sortBy(positions, function(section) {
+          return section.position;
+        }) );
+      }, 500);
+    };
+    this.layoutModeSub = viewPortLayoutMode.subscribe( computeAnchorPos );
+    this.dimensionSub = viewPortDimensions.subscribe( computeAnchorPos );
+    this.heightSub = headerHeight.subscribe( computeAnchorPos );
+    this.widthSub = paneWidth.subscribe( computeAnchorPos );
+    this.collapsedSub = paneCollapsed.subscribe( computeAnchorPos );
+
     return fw.viewModel({
       namespace: 'PageSections',
       afterBinding: function() {
@@ -8,8 +47,6 @@ define([ "jquery", "lodash", "footwork", "PageSection" ],
       initialize: function() {
         var isInitialLoad = true;
         var PageSections = this;
-        var pageSectionNamespace = this.pageSectionNamespace = fw.namespace('PageSection');
-        var bodyRouterNamespace = this.bodyRouterNamespace = fw.namespace('BodyRouter');
         var anchorOffset = 0;
 
         this.visible = fw.observable(false);
@@ -18,16 +55,11 @@ define([ "jquery", "lodash", "footwork", "PageSection" ],
           var description = this.description();
           return _.isString(description) && description.length;
         }, this);
-        this.initialized = fw.observable(true);
-        this.currentSelection = fw.observable().receiveFrom('PaneLinks', 'currentSelection');
-        this.paneContentMaxHeight = fw.observable().receiveFrom('Pane', 'contentMaxHeight').extend({ units: 'px' });
-        this.defaultPaneSelection = fw.observable().receiveFrom('PaneLinks', 'defaultSelection');
         this.title = fw.observable();
         this.viewPortScrollPos = fw.observable().receiveFrom('ViewPort', 'scrollPosition');
-        this.viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
-        this.headerVisibleHeight = fw.observable().receiveFrom('Header','visibleHeight');
+        this.paneContentMaxHeight = fw.observable().receiveFrom('Pane', 'contentMaxHeight').extend({ units: 'px' });
 
-        this.sections = fw.observable().broadcastAs('sections');
+        this.sections = fw.observable();
         this.highlightSection = fw.observable().broadcastAs('highlightSection').extend({ autoDisable: 300 });
         this.chosenSection = fw.observable(null).extend({
           write: function( target, sectionName ) {
@@ -36,68 +68,34 @@ define([ "jquery", "lodash", "footwork", "PageSection" ],
             this._chosenRead = false;
           }.bind(this)
         }).broadcastAs('chosenSection', true);
-        this.hasSections = fw.computed(function() {
+        this.hasSections = fw.observable(function() {
           var description = this.description() || '';
           var sections = this.sections() || [];
           return sections.length || description.length;
-        }, this).broadcastAs('hasSections'),
-        this.sectionCount = fw.computed(function() {
-          var sections = this.sections() || [];
-          return sections.length;
-        }, this).broadcastAs('sectionCount');
+        }, this).broadcastAs('hasSections');
         this.currentSection = fw.computed(function() {
           var sections = this.sections();
           var scrollPosition = this.viewPortScrollPos();
-          var chosenSection = this.chosenSection();
-          var chosenRead = this._chosenRead;
-          this._chosenRead = true;
-
-          return ( chosenRead !== true && chosenSection ) || _.reduce( sections, function(currentSection, section) {
+          return _.reduce( anchorPositions(), function(currentSection, section) {
             var theAnchor = currentSection;
-
-            if( _.isObject(section.anchorPosition()) && scrollPosition >= (section.anchorPosition().top - anchorOffset) ) {
+            if( scrollPosition >= (section.position - anchorOffset) ) {
               theAnchor = section.anchor;
             }
-
-            if( section.subSections().length ) {
-              // have to search through sub-sections as well
-              theAnchor = _.reduce( section.subSections(), function(currentSection, section) {
-                if( _.isFunction(section.anchorPosition) && _.isObject(section.anchorPosition()) && scrollPosition >= (section.anchorPosition().top - anchorOffset) ) {
-                  currentSection = section.anchor;
-                }
-                return currentSection;
-              }, theAnchor);
-            }
-
             return theAnchor;
           }.bind(this), false );
         }, this).broadcastAs('currentSection');
 
-        function clearSections() {
-          _.each(PageSections.sections(), function(section) {
-            section.dispose();
-          });
-          PageSections.sections([]);
-        }
-
         this.loadSections = function( sections ) {
           sections = sections || [];
-          clearSections();
-          this.sections( _.reduce( sections, function( sectionArray, sectionData ) {
-            sectionArray.push( new PageSection( sectionData ) );
-            return sectionArray;
-          }, [] ));
+          this.sections(sections);
+          computeAnchorPos();
 
-          if( this.hasSections() && this.viewPortLayoutMode() !== 'mobile' ) {
-            this.currentSelection( this.getNamespaceName() );
+          if( this.hasSections() && viewPortLayoutMode() !== 'mobile' ) {
+            currentSelection( this.getNamespaceName() );
           } else {
-            this.currentSelection( this.defaultPaneSelection() );
+            currentSelection( defaultPaneSelection() );
           }
         }.bind(this);
-
-        this.$namespace.subscribe('clear', function() {
-          clearSections();
-        }).withContext(this);
 
         var loadMetaData = function( pageData ) {
           if( pageData ) {
@@ -105,13 +103,23 @@ define([ "jquery", "lodash", "footwork", "PageSection" ],
             pageData.title && this.title(pageData.title);
             pageData.description && this.description(pageData.description);
             this.loadSections(pageData.sections);
-            if(isInitialLoad) {
-              isInitialLoad = false;
-              pageSectionNamespace.publish( 'scrollToSection', bodyRouterNamespace.request('urlParts').anchor );
-            }
           }
         }.bind(this);
-        loadMetaData( fw.namespace('Page').request('metaData') );
+        loadMetaData( pageNamespace.request('metaData') );
+        // this.anchorSub = anchorPositions.subscribe(function(anchorPos) {
+        //   if(isInitialLoad) {
+        //     isInitialLoad = false;
+        //     var chosenSection = null;
+        //     _.each(anchorPos, function(anchorPos) {
+        //       if( anchorPos.anchor === this.anchor )
+        //     });
+        //     if( sectionName === this.anchor ) {
+        //       this.chooseSection();
+        //       $anchor.length && window.scrollTo( 0, $anchor.offset().top - anchorOffset );
+        //     }
+        //     pageSectionNamespace.publish( 'scrollToSection', bodyRouterNamespace.request('urlParts').anchor );
+        //   }
+        // });
 
         this.$namespace.request.handler('anchorOffset', function() {
           return anchorOffset;
@@ -119,22 +127,11 @@ define([ "jquery", "lodash", "footwork", "PageSection" ],
 
         this.$namespace.subscribe('pageMetaData', loadMetaData).withContext(this);
 
-        this.$namespace.command.handler('showAllBefore', function(shownSection) {
-          var foundSection = false;
-          _.each(this.sections(), function(section) {
-            if(!foundSection && section !== shownSection) {
-              section.isCollapsed(false);
-            } else {
-              foundSection = true;
-            }
-          });
-        }.bind(this));
-
         this.checkSelection = function(newSelection) {
-          newSelection = newSelection || this.currentSelection();
+          newSelection = newSelection || currentSelection();
           this.visible( newSelection === this.getNamespaceName() );
         };
-        this.currentSelSub = this.currentSelection.subscribe(this.checkSelection, this);
+        this.currentSelSub = currentSelection.subscribe(this.checkSelection, this);
       }
     });
   }

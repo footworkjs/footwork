@@ -1,0 +1,16 @@
+<div class="section-label entry-row" data-bind="css: { visible: visible, isCollapsable: isCollapsable, isCollapsed: isCollapsed, hasTitle: hasTitle, hasSubSections: hasSubSections }">
+  <div class="content" data-bind="css: { active: active }">
+    <a class="title" data-bind="click: chooseSection, attr: { href: anchorAddress }">
+      <span class="label" data-bind="text: title"></span>
+      <!-- ko if: isCollapsable -->
+        <span class="icon" data-bind="class: collapseIcon, click: toggleCollapse"></span>
+      <!-- /ko -->
+    </a>
+    <div class="arrow"></div>
+  </div>
+  <!-- ko if: hasSubSections -->
+    <div class="sub-sections" data-bind="foreach: subSections">
+      <pagesubsection params="sectionData: $data, parent: $parent"></pagesubsection>
+    </div>
+  <!-- /ko -->
+</div>

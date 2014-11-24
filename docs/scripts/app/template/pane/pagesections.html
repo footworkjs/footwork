@@ -1,10 +1,10 @@
-<div class="pageSections pane-component" data-bind="css: { visible: visible, initialized: initialized }">
+<div class="pageSections pane-component initialized" data-bind="css: { visible: visible }">
   <div class="title no-mobile">
     <span class="label">
       <span class="text" data-bind="text: title"></span>
     </span>
   </div>
-  <div class="content" data-bind="css: { hasContent: sectionCount }, style: { height: paneContentMaxHeight }">
+  <div class="content" data-bind="css: { hasContent: hasSections }, style: { height: paneContentMaxHeight }">
     <div class="title mobile-only">
       <span class="label">
         <span class="text" data-bind="text: title"></span>
@@ -12,31 +12,7 @@
     </div>
     <div class="description" data-bind="text: description, css: { visible: hasDescription }"></div>
     <div data-bind="foreach: sections">
-      <div class="section-label entry-row" data-bind="css: { visible: visible, isCollapsable: isCollapsable, isCollapsed: isCollapsed, hasTitle: hasTitle, hasSubSections: hasSubSections }">
-        <div class="content" data-bind="css: { active: active }">
-          <a class="title" data-bind="click: chooseSection, attr: { href: anchorAddress }">
-            <span class="label" data-bind="text: title"></span>
-            <!-- ko if: isCollapsable -->
-              <span class="icon" data-bind="class: collapseIcon, click: toggleCollapse"></span>
-            <!-- /ko -->
-          </a>
-          <div class="arrow"></div>
-        </div>
-        <!-- ko if: hasSubSections -->
-          <div class="sub-sections" data-bind="foreach: subSections">
-            <div class="content">
-              <div class="sub-section">
-                <div class="content" data-bind="css: { active: active }">
-                  <a class="title" data-bind="click: chooseSection, attr: { href: anchorAddress }">
-                    <span class="label" data-bind="text: title"></span>
-                  </a>
-                  <div class="arrow"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        <!-- /ko -->
-      </div>
+      <pagesection params="sectionData: $data"></pagesection>
     </div>
   </div>
 </div>

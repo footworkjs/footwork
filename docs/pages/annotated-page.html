@@ -241,15 +241,6 @@ parseUri.options = {
         <li id="section-13" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
-              
-            </div>
-            
-        </li>
-      
-        
-        <li id="section-14" class="section">
-            <div class="annotation-bg"></div>
-            <div class="annotation">
               <p>This counter is used when model options { autoIncrement: true } and more than one model
 having the same namespace is instantiated. This is used in the event you do not want
 multiple copies of the same model to share the same namespace (if they do share a
@@ -262,7 +253,7 @@ namespace, they receive all of the same events/messages/commands/etc).</p>
         </li>
       
         
-        <li id="section-15" class="section">
+        <li id="section-14" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Prepare an empty namespace stack.
@@ -277,7 +268,7 @@ index 0.</p>
         </li>
       
         
-        <li id="section-16" class="section">
+        <li id="section-15" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Returns a normalized namespace name based off of ‘name’. It will register the name counter
@@ -314,7 +305,7 @@ function createEnvelope(topic, data, expires) {
         </li>
       
         
-        <li id="section-17" class="section">
+        <li id="section-16" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Method used to trigger an event on a namespace</p>
@@ -329,7 +320,7 @@ function createEnvelope(topic, data, expires) {
         </li>
       
         
-        <li id="section-18" class="section">
+        <li id="section-17" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Method used to register an event handler on a namespace</p>
@@ -338,7 +329,7 @@ function createEnvelope(topic, data, expires) {
             
             <div class="content"><pre><code class="javascript">function registerNamespaceEventHandler(eventKey, callback, context) {
   if( !isUndefined(context) ) {
-    callback = bind(callback, context);
+    callback = callback.bind(context);
   }
 
   var handlerSubscription = this.subscribeToTopic('event.' + eventKey, callback).enlistPreserved();
@@ -350,7 +341,7 @@ function createEnvelope(topic, data, expires) {
         </li>
       
         
-        <li id="section-19" class="section">
+        <li id="section-18" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Method used to unregister an event handler on a namespace</p>
@@ -365,7 +356,7 @@ function createEnvelope(topic, data, expires) {
         </li>
       
         
-        <li id="section-20" class="section">
+        <li id="section-19" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Method used to send a command to a namespace</p>
@@ -380,7 +371,7 @@ function createEnvelope(topic, data, expires) {
         </li>
       
         
-        <li id="section-21" class="section">
+        <li id="section-20" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Method used to register a command handler on a namespace</p>
@@ -389,7 +380,7 @@ function createEnvelope(topic, data, expires) {
             
             <div class="content"><pre><code class="javascript">function registerNamespaceCommandHandler(commandKey, callback, context) {
   if( !isUndefined(context) ) {
-    callback = bind(callback, context);
+    callback = callback.bind(context);
   }
 
   var handlerSubscription = this.subscribeToTopic('command.' + commandKey, callback).enlistPreserved();
@@ -401,7 +392,7 @@ function createEnvelope(topic, data, expires) {
         </li>
       
         
-        <li id="section-22" class="section">
+        <li id="section-21" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Method used to issue a request for data from a namespace, returning the response (or undefined if no response)
@@ -430,7 +421,7 @@ This method will return an array of responses if more than one is received.</p>
         </li>
       
         
-        <li id="section-23" class="section">
+        <li id="section-22" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Method used to register a request handler on a namespace.
@@ -440,13 +431,13 @@ Requests sent using the specified requestKey will be called and passed in any pa
             
             <div class="content"><pre><code class="javascript">function registerNamespaceRequestHandler(requestKey, callback, context) {
   if( !isUndefined(context) ) {
-    callback = bind(callback, context);
+    callback = callback.bind(context);
   }
 
-  var requestHandler = bind(function(params) {
+  var requestHandler = function(params) {
     var callbackResponse = callback(params);
     this.publish( createEnvelope('request.' + requestKey + '.response', callbackResponse) );
-  }, this);
+  }.bind(this);
 
   var handlerSubscription = this.subscribeToTopic('request.' + requestKey, requestHandler);
   this.requestHandlers.push(handlerSubscription);
@@ -457,7 +448,7 @@ Requests sent using the specified requestKey will be called and passed in any pa
         </li>
       
         
-        <li id="section-24" class="section">
+        <li id="section-23" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>This effectively shuts down all requests, commands, events, and subscriptions by unsubscribing all handlers on a discreet namespace object</p>
@@ -479,7 +470,7 @@ function getNamespaceName() {
         </li>
       
         
-        <li id="section-25" class="section">
+        <li id="section-24" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Creates and returns a new namespace instance</p>
@@ -506,24 +497,24 @@ function getNamespaceName() {
   namespace.unsubscribe = unregisterNamespaceHandler;
 
   namespace.__isNamespace = true;
-  namespace.shutdown = bind( disconnectNamespaceHandlers, namespace );
+  namespace.shutdown = disconnectNamespaceHandlers.bind(namespace);
 
   namespace.commandHandlers = [];
-  namespace.command = bind( sendCommandToNamespace, namespace );
-  namespace.command.handler = bind( registerNamespaceCommandHandler, namespace );
+  namespace.command = sendCommandToNamespace.bind(namespace);
+  namespace.command.handler = registerNamespaceCommandHandler.bind(namespace);
   namespace.command.unregister = unregisterNamespaceHandler;
 
   namespace.requestHandlers = [];
-  namespace.request = bind( requestResponseFromNamespace, namespace );
-  namespace.request.handler = bind( registerNamespaceRequestHandler, namespace );
+  namespace.request = requestResponseFromNamespace.bind(namespace);
+  namespace.request.handler = registerNamespaceRequestHandler.bind(namespace);
   namespace.request.unregister = unregisterNamespaceHandler;
 
   namespace.eventHandlers = [];
-  namespace.event = namespace.trigger = bind( triggerEventOnNamespace, namespace );
-  namespace.event.handler = bind( registerNamespaceEventHandler, namespace );
+  namespace.event = namespace.trigger = triggerEventOnNamespace.bind(namespace);
+  namespace.event.handler = registerNamespaceEventHandler.bind(namespace);
   namespace.event.unregister = unregisterNamespaceHandler;
 
-  namespace.getName = bind( getNamespaceName, namespace );
+  namespace.getName = getNamespaceName.bind(namespace);
   namespace.enter = function() {
     return enterNamespace( this );
   };
@@ -539,7 +530,7 @@ function getNamespaceName() {
         </li>
       
         
-        <li id="section-26" class="section">
+        <li id="section-25" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Duck type check for a namespace object</p>
@@ -553,7 +544,7 @@ function getNamespaceName() {
         </li>
       
         
-        <li id="section-27" class="section">
+        <li id="section-26" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Return the current namespace name.</p>
@@ -567,7 +558,7 @@ function getNamespaceName() {
         </li>
       
         
-        <li id="section-28" class="section">
+        <li id="section-27" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Return the current namespace channel.</p>
@@ -581,7 +572,7 @@ function getNamespaceName() {
         </li>
       
         
-        <li id="section-29" class="section">
+        <li id="section-28" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
@@ -599,7 +590,7 @@ The namespace object returned from this method also has a pointer to its parent<
         </li>
       
         
-        <li id="section-30" class="section">
+        <li id="section-29" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>enterNamespace() uses a current namespace definition as the one to enter into.</p>
@@ -614,7 +605,7 @@ The namespace object returned from this method also has a pointer to its parent<
         </li>
       
         
-        <li id="section-31" class="section">
+        <li id="section-30" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Called at the after a model constructor function is run. exitNamespace()
@@ -631,7 +622,7 @@ next namespace in the stack</p>
         </li>
       
         
-        <li id="section-32" class="section">
+        <li id="section-31" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc</p>
@@ -659,7 +650,7 @@ var $globalNamespace = makeNamespace();</code></pre></div>
         </li>
       
         
-        <li id="section-33" class="section">
+        <li id="section-32" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <h2 id="broadcast-receive-js">broadcast-receive.js</h2>
@@ -677,7 +668,7 @@ function isBroadcaster(thing) {
         </li>
       
         
-        <li id="section-34" class="section">
+        <li id="section-33" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <pre><code><span class="hljs-keyword">this</span>.myValue = fw.observable().receiveFrom(<span class="hljs-string">'NamespaceName'</span> / Namespace, <span class="hljs-string">'varName'</span>);
@@ -731,7 +722,7 @@ function isBroadcaster(thing) {
         </li>
       
         
-        <li id="section-35" class="section">
+        <li id="section-34" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <pre><code><span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs(<span class="hljs-string">'NameOfVar'</span>);
@@ -811,7 +802,7 @@ function isBroadcaster(thing) {
         </li>
       
         
-        <li id="section-36" class="section">
+        <li id="section-35" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <h2 id="router-js">router.js</h2>
@@ -821,16 +812,7 @@ function isBroadcaster(thing) {
         </li>
       
         
-        <li id="section-37" class="section">
-            <div class="annotation-bg"></div>
-            <div class="annotation">
-              
-            </div>
-            
-        </li>
-      
-        
-        <li id="section-38" class="section">
+        <li id="section-36" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Predicate function that always returns true / ‘pass’</p>
@@ -853,7 +835,7 @@ var routerDefaultConfig = {
         </li>
       
         
-        <li id="section-39" class="section">
+        <li id="section-37" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Regular expressions used to parse a uri</p>
@@ -871,7 +853,7 @@ var routesAreCaseSensitive = true;
 var invalidRoutePathIdentifier = '___invalid-route';
 
 var $nullRouter = extend({}, $baseRouter, {
-  childRouters: extend( bind(noop), { push: noop } ),
+  childRouters: extend( noop.bind(), { push: noop } ),
   path: function() { return ''; },
   isRelative: function() { return false; },
   __isNullRouter: true
@@ -904,7 +886,7 @@ function transformRouteConfigToDesc(routeDesc) {
         </li>
       
         
-        <li id="section-40" class="section">
+        <li id="section-38" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Convert a route string to a regular expression which is then used to match a uri against it and determine
@@ -931,7 +913,7 @@ function historyIsReady() {
         </li>
       
         
-        <li id="section-41" class="section">
+        <li id="section-39" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>why .unbind() is not already present in History.js is beyond me</p>
@@ -964,7 +946,7 @@ function isRoute(thing) {
         </li>
       
         
-        <li id="section-42" class="section">
+        <li id="section-40" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Recursive function which will locate the nearest $router from a given ko $context
@@ -981,7 +963,7 @@ immediate $context). Returns $nullRouter if none is found.</p>
         </li>
       
         
-        <li id="section-43" class="section">
+        <li id="section-41" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>found router in this context</p>
@@ -994,7 +976,7 @@ immediate $context). Returns $nullRouter if none is found.</p>
         </li>
       
         
-        <li id="section-44" class="section">
+        <li id="section-42" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>search through next parent up the chain</p>
@@ -1048,7 +1030,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
         </li>
       
         
-        <li id="section-45" class="section">
+        <li id="section-43" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Return the onComplete callback once the DOM is injected in the page.
@@ -1089,7 +1071,7 @@ var fwRouters = fw.routers = {</code></pre></div>
         </li>
       
         
-        <li id="section-46" class="section">
+        <li id="section-44" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route</p>
@@ -1106,7 +1088,7 @@ var fwRouters = fw.routers = {</code></pre></div>
         </li>
       
         
-        <li id="section-47" class="section">
+        <li id="section-45" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Return array of all currently instantiated $router’s</p>
@@ -1195,8 +1177,8 @@ fw.bindingHandlers.$route = {
 
       return null;
     };
-    var routeURLWithParentPath = bind(getRouteURL, null, true);
-    var routeURLWithoutParentPath = bind(getRouteURL, null, false);
+    var routeURLWithParentPath = getRouteURL.bind(null, true);
+    var routeURLWithoutParentPath = getRouteURL.bind(null, false);
 
     function checkForMatchingSegment(mySegment, newRoute) {
       if(mySegment === '/') {
@@ -1208,7 +1190,7 @@ fw.bindingHandlers.$route = {
         </li>
       
         
-        <li id="section-48" class="section">
+        <li id="section-46" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>newRoute.segment is the same as this routers segment…add the activeRouteClassName to the element to indicate it is active</p>
@@ -1230,7 +1212,7 @@ fw.bindingHandlers.$route = {
       if( isObject(stateTracker) ) {
         stateTracker.dispose();
       }
-      stateTracker = $myRouter.currentRoute.subscribe( bind(checkForMatchingSegment, null, myCurrentSegment) );
+      stateTracker = $myRouter.currentRoute.subscribe( checkForMatchingSegment.bind(null, myCurrentSegment) );
 
       if(elementIsSetup === false) {
         elementIsSetup = true;
@@ -1329,7 +1311,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
         </li>
       
         
-        <li id="section-49" class="section">
+        <li id="section-47" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Automatically trigger the new Action() whenever the currentRoute() updates</p>
@@ -1346,12 +1328,12 @@ var Router = function( routerConfig, $viewModel, $context ) {
   });
 
   this.outlets = {};
-  this.$outlet = bind( $routerOutlet, this );
-  this.$outlet.reset = bind( function() {
+  this.$outlet = $routerOutlet.bind(this);
+  this.$outlet.reset = function() {
     each( this.outlets, function(outlet) {
       outlet({ name: noComponentSelected, params: {} });
     });
-  }, this);
+  }.bind(this);
 
   if( !isUndefined(routerConfig.unknownRoute) ) {
     if( isFunction(routerConfig.unknownRoute) ) {
@@ -1507,7 +1489,7 @@ Router.prototype.getRouteForURL = function(url) {
         </li>
       
         
-        <li id="section-50" class="section">
+        <li id="section-48" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>If this is a relative router we need to remove the leading parentRoutePath section of the URL</p>
@@ -1529,7 +1511,7 @@ Router.prototype.getRouteForURL = function(url) {
         </li>
       
         
-        <li id="section-51" class="section">
+        <li id="section-49" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>find all routes with a matching routeString</p>
@@ -1558,7 +1540,7 @@ Router.prototype.getRouteForURL = function(url) {
         </li>
       
         
-        <li id="section-52" class="section">
+        <li id="section-50" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>If there are matchedRoutes, find the one with the highest ‘specificity’ (longest normalized matching routeString)
@@ -1600,13 +1582,13 @@ and convert it into the actual route</p>
 };
 
 Router.prototype.getActionForRoute = function(routeDescription) {
-  var Action = bind( function() {
+  var Action = function() {
     delete this.__currentRouteDescription;
     this.$outlet.reset();
-  }, this );
+  }.bind(this);
 
   if( isRoute(routeDescription) ) {
-    Action = bind(function() {
+    Action = function() {
       if( !isUndefined(routeDescription.title) ) {
         document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this) : routeDescription.title;
       }
@@ -1615,7 +1597,7 @@ Router.prototype.getActionForRoute = function(routeDescription) {
         routeDescription.controller.call( this, routeDescription.namedParams );
         this.__currentRouteDescription = routeDescription;
       }
-    }, this);
+    }.bind(this);
   }
 
   return Action;
@@ -1628,7 +1610,7 @@ Router.prototype.getRouteDescriptions = function() {
         </li>
       
         
-        <li id="section-53" class="section">
+        <li id="section-51" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <h2 id="viewmodel-js">viewModel.js</h2>
@@ -1638,7 +1620,7 @@ Router.prototype.getRouteDescriptions = function() {
         </li>
       
         
-        <li id="section-54" class="section">
+        <li id="section-52" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Duck type function for determining whether or not something is a footwork viewModel constructor function</p>
@@ -1652,7 +1634,7 @@ Router.prototype.getRouteDescriptions = function() {
         </li>
       
         
-        <li id="section-55" class="section">
+        <li id="section-53" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Duck type function for determining whether or not something is a footwork viewModel</p>
@@ -1672,7 +1654,7 @@ fw.viewModels = {};</code></pre></div>
         </li>
       
         
-        <li id="section-56" class="section">
+        <li id="section-54" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Returns a reference to the specified viewModels.
@@ -1707,7 +1689,7 @@ If no name is supplied, a reference to an array containing all model references 
         </li>
       
         
-        <li id="section-57" class="section">
+        <li id="section-55" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Tell all viewModels to request the values which it listens for</p>
@@ -1762,15 +1744,14 @@ var makeViewModel = fw.viewModel = function(configParams) {
         return configParams;
       },
       __shutdown: function() {
-        if( isFunction(configParams.onDispose) ) {
+        if( configParams.onDispose !== noop ) {
           configParams.onDispose.call(this);
         }
 
         each(this, function( property, name ) {
           if( isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) ) {
             property.shutdown();
-          }
-          if( isObject(property) && isFunction(property.dispose) ) {
+          } else if( isObject(property) && isFunction(property.dispose) ) {
             property.dispose();
           }
         });
@@ -1781,7 +1762,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
     },
     _postInit: function() {
       if( this.__assertPresence !== false ) {
-        this.$globalNamespace.request.handler('__model_reference', bind(function(options) {
+        this.$globalNamespace.request.handler('__model_reference', function(options) {
           if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
             if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
               if(isArray(options.namespaceName) && indexOf(options.namespaceName, this.getNamespaceName()) !== -1) {
@@ -1793,14 +1774,14 @@ var makeViewModel = fw.viewModel = function(configParams) {
               return this;
             }
           }
-        }, this));
-        this.$globalNamespace.event.handler('__refreshViewModels', bind(function() {
+        }.bind(this));
+        this.$globalNamespace.event.handler('__refreshViewModels', function() {
           each(this, function(property) {
             if( isReceiver(property) ) {
               property.refresh();
             }
           });
-        }, this));
+        }.bind(this));
       }
     }
   };
@@ -1837,7 +1818,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
         </li>
       
         
-        <li id="section-58" class="section">
+        <li id="section-56" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>user has specified another viewModel constructor as the ‘initialize’ function, we extend it with the current constructor to create an inheritance chain</p>
@@ -1868,7 +1849,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
         </li>
       
         
-        <li id="section-59" class="section">
+        <li id="section-57" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Provides lifecycle functionality and $context for a given viewModel and element</p>
@@ -1902,7 +1883,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
         </li>
       
         
-        <li id="section-60" class="section">
+        <li id="section-58" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Override the original applyBindings method to provide ‘viewModel’ life-cycle hooks/events and to provide the $context to the $router if present.</p>
@@ -1918,7 +1899,7 @@ var applyBindings = fw.applyBindings = function(viewModel, element) {
         </li>
       
         
-        <li id="section-61" class="section">
+        <li id="section-59" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>‘start’ up footwork at the targetElement (or document.body by default)</p>
@@ -1942,7 +1923,7 @@ function bindComponentViewModel(element, params, ViewModel) {
         </li>
       
         
-        <li id="section-62" class="section">
+        <li id="section-60" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>binding the viewModelObj onto each child element is not ideal, need to do this differently
@@ -1958,7 +1939,7 @@ cannot get component.preprocess() method to work/be called for some reason</p>
         </li>
       
         
-        <li id="section-63" class="section">
+        <li id="section-61" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each
@@ -1974,7 +1955,7 @@ sub-element and must specify the context as being the container element only onc
         </li>
       
         
-        <li id="section-64" class="section">
+        <li id="section-62" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Monkey patch enables the viewModel component to initialize a model and bind to the html as intended (with lifecycle events)
@@ -1990,7 +1971,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
     if( tagName === 'viewmodel' ) {
       var values = valueAccessor();
       var viewModelName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
-      var bindViewModel = bind(bindComponentViewModel, null, element, values.params);
+      var bindViewModel = bindComponentViewModel.bind(null, element, values.params);
 
       if( !isUndefined(viewModelName) ) {
         var resourceLocation = null;
@@ -2000,7 +1981,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         </li>
       
         
-        <li id="section-65" class="section">
+        <li id="section-63" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>viewModel was manually registered, we preferentially use it</p>
@@ -2013,7 +1994,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         </li>
       
         
-        <li id="section-66" class="section">
+        <li id="section-64" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>we have found a matching resource that is already cached by require, lets use it</p>
@@ -2052,7 +2033,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         </li>
       
         
-        <li id="section-67" class="section">
+        <li id="section-65" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>we patch in the ‘name’ of the outlet into the params valueAccessor on the component definition (if necessary and available)</p>
@@ -2078,7 +2059,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         </li>
       
         
-        <li id="section-68" class="section">
+        <li id="section-66" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <h2 id="component-js">component.js</h2>
@@ -2088,7 +2069,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         </li>
       
         
-        <li id="section-69" class="section">
+        <li id="section-67" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               
@@ -2139,7 +2120,7 @@ var makeComponent = fw.component = function(componentDefinition) {
         </li>
       
         
-        <li id="section-70" class="section">
+        <li id="section-68" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Register a component as consisting of a template only.
@@ -2165,7 +2146,7 @@ var registerComponentAsTemplateOnly = fw.components.isTemplateOnly = function(co
         </li>
       
         
-        <li id="section-71" class="section">
+        <li id="section-69" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>These are tags which are ignored by the custom component loader
@@ -2211,7 +2192,7 @@ var tagIsComponent = fw.components.tagIsComponent = function(tagName, isComponen
         </li>
       
         
-        <li id="section-72" class="section">
+        <li id="section-70" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Components which footwork will not wrap in the $life custom binding used for lifecycle events
@@ -2238,7 +2219,7 @@ function componentTriggerAfterBinding(element, viewModel) {
         </li>
       
         
-        <li id="section-73" class="section">
+        <li id="section-71" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Use the $life wrapper binding to provide lifecycle events for components</p>
@@ -2266,7 +2247,7 @@ fw.bindingHandlers.$life = {
         </li>
       
         
-        <li id="section-74" class="section">
+        <li id="section-72" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Custom loader used to wrap components with the $life custom binding</p>
@@ -2281,7 +2262,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
         </li>
       
         
-        <li id="section-75" class="section">
+        <li id="section-73" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>TODO: Handle different types of configs</p>
@@ -2313,7 +2294,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
         </li>
       
         
-        <li id="section-76" class="section">
+        <li id="section-74" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>inject the context and element into the ViewModel contructor</p>
@@ -2339,7 +2320,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
         </li>
       
         
-        <li id="section-77" class="section">
+        <li id="section-75" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>The footwork getConfig loader is a catch-all in the instance a registered component cannot be found.
@@ -2363,7 +2344,7 @@ The loader will attempt to use requirejs via knockouts integrated support if it 
         </li>
       
         
-        <li id="section-78" class="section">
+        <li id="section-76" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>load component using knockouts native support for requirejs</p>
@@ -2375,7 +2356,7 @@ The loader will attempt to use requirejs via knockouts integrated support if it 
         </li>
       
         
-        <li id="section-79" class="section">
+        <li id="section-77" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>component already cached, lets use it</p>
@@ -2409,7 +2390,7 @@ The loader will attempt to use requirejs via knockouts integrated support if it 
         </li>
       
         
-        <li id="section-80" class="section">
+        <li id="section-78" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)</p>
@@ -2437,7 +2418,7 @@ var noParentViewModelError = { getNamespaceName: function() { return 'NO-VIEWMOD
         </li>
       
         
-        <li id="section-81" class="section">
+        <li id="section-79" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>This custom binding binds the outlet element to the $outlet on the router, changes on its ‘route’ (component definition observable) will be applied
@@ -2457,7 +2438,7 @@ fw.bindingHandlers.$bind = {
         </li>
       
         
-        <li id="section-82" class="section">
+        <li id="section-80" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>register this outlet with the router so that updates will propagate correctly
@@ -2506,7 +2487,7 @@ fw.components.register('error', {
         </li>
       
         
-        <li id="section-83" class="section">
+        <li id="section-81" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <h2 id="resource-js">resource.js</h2>
@@ -2516,16 +2497,7 @@ fw.components.register('error', {
         </li>
       
         
-        <li id="section-84" class="section">
-            <div class="annotation-bg"></div>
-            <div class="annotation">
-              
-            </div>
-            
-        </li>
-      
-        
-        <li id="section-85" class="section">
+        <li id="section-82" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>component resource section</p>
@@ -2577,7 +2549,7 @@ var getComponentFileName = fw.components.getFileName = function(componentName, f
         </li>
       
         
-        <li id="section-86" class="section">
+        <li id="section-83" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>full filename was supplied, lets return that</p>
@@ -2608,7 +2580,7 @@ var componentDefaultLocation = fw.components.defaultLocation = function(root, up
         </li>
       
         
-        <li id="section-87" class="section">
+        <li id="section-84" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>assume some combination of defaultComponentLocation and normalize the parameters</p>
@@ -2650,7 +2622,7 @@ var registerLocationOfComponent = fw.components.registerLocation = function(comp
         </li>
       
         
-        <li id="section-88" class="section">
+        <li id="section-85" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Return the component resource definition for the supplied componentName</p>
@@ -2667,7 +2639,7 @@ var registerLocationOfComponent = fw.components.registerLocation = function(comp
         </li>
       
         
-        <li id="section-89" class="section">
+        <li id="section-86" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>viewModel resource section</p>
@@ -2694,7 +2666,7 @@ var getViewModelFileName = fw.viewModels.getFileName = function(viewModelName) {
         </li>
       
         
-        <li id="section-90" class="section">
+        <li id="section-87" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>full filename was supplied, lets return that</p>
@@ -2749,7 +2721,7 @@ var registerLocationOfViewModel = fw.viewModels.registerLocation = function(view
         </li>
       
         
-        <li id="section-91" class="section">
+        <li id="section-88" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Return the viewModel resource definition for the supplied viewModelName</p>
@@ -2766,7 +2738,7 @@ var registerLocationOfViewModel = fw.viewModels.registerLocation = function(view
         </li>
       
         
-        <li id="section-92" class="section">
+        <li id="section-89" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <h2 id="extenders-js">extenders.js</h2>
@@ -2810,7 +2782,7 @@ var registerLocationOfViewModel = fw.viewModels.registerLocation = function(view
         </li>
       
         
-        <li id="section-93" class="section">
+        <li id="section-90" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>has to pass-through the dispose method from the target so it can be released properly as well</p>
@@ -2884,7 +2856,7 @@ fw.extenders.delayTrigger = function( target, options ) {
         </li>
       
         
-        <li id="section-94" class="section">
+        <li id="section-91" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>has to pass-through the dispose method from the target so it can be released properly as well</p>
@@ -2933,7 +2905,7 @@ fw.extenders.delayWrite = function( target, options ) {
         </li>
       
         
-        <li id="section-95" class="section">
+        <li id="section-92" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>has to pass-through the dispose method from the target so it can be released properly as well</p>

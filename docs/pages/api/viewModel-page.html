@@ -227,7 +227,7 @@ define(["footwork"],
         <li>Automatic download/resolution via AMD/RequireJS at the configurable default (<span class="inline-code">fw.viewModels.defaultLocation()</span>).</li>
       </ul>
 
-      <p>Registering a viewModel explicitly with <span class="inline-code">fw.viewModels.register()</span> makes it immediately available to footwork. Any <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> declarations encountered will be processed with no delay (the viewModel is 'cached' when registered).</p>
+      <p>Registering a viewModel explicitly with <span class="inline-code">fw.viewModels.register()</span> makes it immediately available. Any <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> declarations encountered will be processed with no delay (the viewModel is 'cached' when registered).</p>
       <p>The 2 methods <span class="inline-code">registerLocation()</span> and <span class="inline-code">defaultLocation()</span> tell footwork where it can download your viewModel module (in the event you do not explicitly register it). In any case your markup will wait until the viewModel is resolved prior to being initialized.</p>
       <div class="note"><span class="label">NOTE:</span> Nested viewModels and components are independently resolved. It works as you would expect, with an outer-most container (viewModel/component) initializing/processing/binding and rendering, then any nested viewModels/components get initialized (and so forth until the end).</div>
       <h3><em class="func-def">fw.viewModels.register<span>( <span class="param">'moduleName'</span>, <span class="param">viewModel</span> )</span></em></h3>

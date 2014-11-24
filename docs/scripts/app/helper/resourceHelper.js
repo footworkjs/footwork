@@ -9,6 +9,8 @@ define([ "footwork",
     "app/viewModel/pane/PaneLinks", "text!app/template/pane/panelinks.html",
     "app/viewModel/NavMenu", "text!app/template/navmenu.html",
     "app/viewModel/pane/PageSections", "text!app/template/pane/pagesections.html",
+    "app/viewModel/pane/PageSection", "text!app/template/pane/pagesection.html",
+    "app/viewModel/pane/PageSubSection", "text!app/template/pane/pagesubsection.html",
     "app/viewModel/pane/PaneBackground", "text!app/template/pane/panebackground.html",
     "app/viewModel/Header",
     "app/viewModel/Navigation",
@@ -38,6 +40,8 @@ define([ "footwork",
     paneLinksViewModel, paneLinksTemplate,
     navMenuViewModel, navMenuTemplate,
     pageSectionsViewModel, pageSectionsTemplate,
+    pageSectionViewModel, pageSectionTemplate,
+    pageSubSectionViewModel, pageSubSectionTemplate,
     paneBackgroundViewModel, paneBackgroundTemplate,
     HeaderViewModel,
     NavigationViewModel,
@@ -117,6 +121,16 @@ define([ "footwork",
       fw.components.register('pagesections', {
         viewModel: pageSectionsViewModel,
         template: pageSectionsTemplate
+      });
+      
+      fw.components.register('pagesection', {
+        viewModel: pageSectionViewModel,
+        template: pageSectionTemplate
+      });
+      
+      fw.components.register('pagesubsection', {
+        viewModel: pageSubSectionViewModel,
+        template: pageSubSectionTemplate
       });
 
       fw.components.register('panebackground', {
