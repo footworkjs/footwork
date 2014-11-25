@@ -117,10 +117,6 @@ define([ "jquery", "lodash", "footwork" ],
           }
         });
 
-        this.$namespace.request.handler('anchorOffset', function() {
-          return anchorOffset;
-        });
-
         this.$namespace.subscribe('pageMetaData', loadMetaData).withContext(this);
 
         this.checkSelection = function(newSelection) {

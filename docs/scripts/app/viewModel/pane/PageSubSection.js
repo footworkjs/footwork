@@ -8,15 +8,6 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
     var paneIsOverlapping = fw.observable().receiveFrom('Body', 'overlapPane');
     var chosenSection = fw.observable().receiveFrom('PageSections', 'chosenSection');
 
-    var PageSectionsNamespace = fw.namespace('PageSections');
-    window.continue = true;
-    window.run = function() {
-      PageSectionsNamespace.publish('pageMetaData', {"title":"viewModel","description":"viewModel declaration, instantiation, and binding.","sections":[{"anchor":"introduction","title":"Introduction","subSections":[{"anchor":"configuration","title":"Configuration"},{"anchor":"initialization","title":"Initialization / Usage"},{"anchor":"loading-registering","title":"AMD / Lazy Loading / Registering"},{"anchor":"module-formats","title":"Module Formats"}]},{"anchor":"mixins","title":"Mixins","subSections":[{"anchor":"mixin-configuration","title":"Configuration"},{"anchor":"mixin-usage","title":"Usage"}]},{"anchor":"misc","title":"Utility / Misc","collapsable":true,"isCollapsed":true,"subSections":[{"anchor":"getAll","title":"fw.viewModels.getAll()"},{"anchor":"isRegistered","title":"fw.viewModels.isRegistered()"},{"anchor":"getRegistered","title":"fw.viewModels.getRegistered()"},{"anchor":"getResourceLocation","title":"fw.viewModels.getResourceLocation()"},{"anchor":"getFileName","title":"fw.viewModels.getFileName()"},{"anchor":"fileExtensions","title":"fw.viewModels.fileExtensions()"}]}]});
-      if(window.continue === true) {
-        setTimeout(run, 600);
-      }
-    };
-
     return fw.viewModel({
       namespace: 'PageSubSection',
       initialize: function(params) {
