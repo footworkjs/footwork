@@ -9637,7 +9637,7 @@ var makeNamespace = fw.namespace = function(namespaceName, $parentNamespace) {
   namespace.unsubscribe = unregisterNamespaceHandler;
 
   namespace.__isNamespace = true;
-  namespace.shutdown = disconnectNamespaceHandlers.bind(namespace);
+  namespace.dispose = disconnectNamespaceHandlers.bind(namespace);
 
   namespace.commandHandlers = [];
   namespace.command = sendCommandToNamespace.bind(namespace);
@@ -9768,10 +9768,10 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   }) );
 
   var observableDispose = observable.dispose;
-  observable.dispose = observable.shutdown = function() {
+  observable.dispose = observable.dispose = function() {
     invoke(namespaceSubscriptions, 'unsubscribe');
     if( isLocalNamespace ) {
-      namespace.shutdown();
+      namespace.dispose();
     }
     observableDispose.call(observable);
   };
@@ -9839,11 +9839,11 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
     namespace.publish( option.name, newValue );
   }) );
 
-  observable.dispose = observable.shutdown = function() {
+  observable.dispose = observable.dispose = function() {
     invoke(namespaceSubscriptions, 'unsubscribe');
     invoke(subscriptions, 'dispose');
     if( isLocalNamespace ) {
-      namespace.shutdown();
+      namespace.dispose();
     }
   };
 
@@ -10304,38 +10304,12 @@ Router.prototype.activate = function($context, $parentRouter) {
   return this;
 };
 
-// Part of hash=hack below, used to preserve scroll state when mangling the hash
-function scrollTop(setPos) {
-  var body = document.body;
-  var doc = document.documentElement;
-  doc = doc.clientHeight ? doc : body;
-
-  if( isUndefined(setPos) ) {
-    if( !isUndefined(pageYOffset) ) {
-      return pageYOffset;
-    } else {
-      return doc.scrollTop;
-    }
-  } else {
-    doc.scrollTop = setPos;
-  }
-}
-
 var doNotPushOntoHistory = true;
 Router.prototype.setState = function(url, shouldPushToHistory) {
   if( this.historyIsEnabled() ) {
     if(shouldPushToHistory !== doNotPushOntoHistory && isString(url)) {
       var historyAPIWorked = true;
       try {
-        /**
-         * Hash changes at the end of urls cause odd history issues, need to investigate.
-         * Ugly hack fix for now is to make sure the hash is clear prior to calling pushState()
-         */
-        if(windowObject.location.hash.length) {
-          var oldScrollPos = scrollTop();
-          windowObject.location.hash = '';
-          scrollTop(oldScrollPos);
-        }
         historyAPIWorked = History.pushState(null, '', this.parentRouter().path() + url);
       } catch(error) {
         historyAPIWorked = false;
@@ -10381,7 +10355,7 @@ Router.prototype.startup = function( $context, $parentRouter ) {
   return this;
 };
 
-Router.prototype.shutdown = function() {
+Router.prototype.dispose = function() {
   var $parentRouter = this.parentRouter();
   if( !isNullRouter($parentRouter) ) {
     $parentRouter.childRouters.remove(this);
@@ -10391,8 +10365,8 @@ Router.prototype.shutdown = function() {
     History.Adapter.unbind( this.stateChangeHandler );
   }
 
-  this.$namespace.shutdown();
-  this.$globalNamespace.shutdown();
+  this.$namespace.dispose();
+  this.$globalNamespace.dispose();
 
   invoke(this.subscriptions, 'dispose');
   each(this, function(property) {
@@ -10623,16 +10597,14 @@ var makeViewModel = fw.viewModel = function(configParams) {
       __getConfigParams: function() {
         return configParams;
       },
-      __shutdown: function() {
+      _dispose: function() {
         if( configParams.onDispose !== noop ) {
           configParams.onDispose.call(this);
         }
 
         each(this, function( property, name ) {
-          if( isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) ) {
-            property.shutdown();
-          } else if( isObject(property) && isFunction(property.dispose) ) {
-            property.dispose();
+          if( (isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) || isObservable(property)) && isFunction(property.dispose) ) {
+            property.dispose();  
           }
         });
         
@@ -10735,7 +10707,7 @@ function applyContextAndLifeCycle(viewModel, element) {
     
     if( !isUndefined(element) ) {
       fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
-        viewModel.__shutdown();
+        viewModel.__dispose();
       });
     }
   }
@@ -10964,7 +10936,7 @@ fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if( isViewModel(viewModel) ) {
-        viewModel.__shutdown();
+        viewModel._dispose();
       }
     });
   },
