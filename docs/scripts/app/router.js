@@ -2,6 +2,7 @@ define([ "jquery", "footwork", "lodash", "highlight", "jquery.collapsible" ],
   function( $, fw, _ ) {
     var $pageNamespace = fw.namespace('Page');
     var $pageSectionNamespace = fw.namespace('PageSection');
+    var $pageSubSectionNamespace = fw.namespace('PageSubSection');
     var $paneElementsNamespace = fw.namespace('PaneElements');
     var scrollPosition = fw.observable().receiveFrom('ViewPort', 'scrollPosition');
     var maxScrollResetPosition = fw.observable().receiveFrom('ViewPort', 'maxScrollResetPosition');
@@ -11,6 +12,11 @@ define([ "jquery", "footwork", "lodash", "highlight", "jquery.collapsible" ],
     function initPage(metaData) {
       $pageNamespace.publish( 'initMeta', metaData );
     }
+
+    History.Adapter.bind(window, 'popstate', function() {
+      $pageSectionNamespace.trigger('resetURL');
+      $pageSubSectionNamespace.trigger('resetURL');
+    });
 
     function getPageLoadPromise() {
       var pagePromise = $.Deferred();
@@ -31,9 +37,6 @@ define([ "jquery", "footwork", "lodash", "highlight", "jquery.collapsible" ],
           window.scrollTo( 0, maxScrollResetPos );
         }
 
-        if( location.hash.length ) {
-          $pageSectionNamespace.publish( 'scrollToSection', location.hash.slice( location.hash.indexOf('#') + 1 ) );
-        }
         var $collapsible = $article.find('.collapsible');
         if( $collapsible.length ) {
           $collapsible.collapsible();

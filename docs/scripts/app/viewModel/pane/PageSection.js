@@ -1,6 +1,5 @@
 define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
   function( $, _, fw ) {
-    var BodyRouterNamespace = fw.namespace('BodyRouter');
     var PageSectionsNamespace = fw.namespace('PageSections');
     var viewPortDimensions = fw.observable().receiveFrom('ViewPort', 'dimensions');
     var headerHeight = fw.observable().receiveFrom('Header', 'height');
@@ -22,9 +21,15 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
         var PageSection = this;
 
         var pageBaseURL = '';
-        if( !this.$globalNamespace.request('isRunningLocally') ) {
-          pageBaseURL = BodyRouterNamespace.request('currentRoute').url;
-        }
+        var resetURL = function() {
+          if( !this.$globalNamespace.request('isRunningLocally') ) {
+            pageBaseURL = window.location.pathname;
+          }
+          this.anchorAddress(pageBaseURL + '#' + (pageSectionData.anchor || ''));
+        }.bind(this);
+        this.$namespace.event.handler('resetURL', resetURL);
+        this.anchorAddress = fw.observable();
+        resetURL();
 
         this.currentSection = fw.observable().receiveFrom('PageSections', 'currentSection');
         this.viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
@@ -55,9 +60,6 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
             parentIsCollapsed(false);
           }
           return isActive;
-        }, this);
-        this.anchorAddress = fw.computed(function() {
-          return pageBaseURL + '#' + this.anchor;
         }, this);
 
         paneElementsNamespace.subscribe('hideAll', function() {

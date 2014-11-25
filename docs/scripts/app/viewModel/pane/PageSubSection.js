@@ -1,6 +1,5 @@
 define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
   function( $, _, fw ) {
-    var BodyRouterNamespace = fw.namespace('BodyRouter');
     var globalNamespace = fw.namespace();
 
     var paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed');
@@ -17,11 +16,16 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
         var $anchor = $('#' + (_.isObject(subSectionData) ? subSectionData.anchor : ''));
         
         var pageBaseURL = '';
-        if( !globalNamespace.request('isRunningLocally') ) {
-          pageBaseURL = BodyRouterNamespace.request('currentRoute').url;
-        }
+        var resetURL = function() {
+          if( !this.$globalNamespace.request('isRunningLocally') ) {
+            pageBaseURL = window.location.pathname;
+          }
+          this.anchorAddress(pageBaseURL + '#' + (subSectionData.anchor || ''));
+        }.bind(this);
+        this.$namespace.event.handler('resetURL', resetURL);
+        this.anchorAddress = fw.observable();
+        resetURL();
 
-        this.anchorAddress = fw.observable(pageBaseURL + '#' + (subSectionData.anchor || ''));
         this.currentSection = fw.observable().receiveFrom('PageSections', 'currentSection');
         this.title = subSectionData.title;
         this.active = fw.computed(function() {

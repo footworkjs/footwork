@@ -234,8 +234,12 @@ myNamespace.event.handler('findWaldo', function() {
     <div class="content">
       <h3 class="top"><em class="func-def">namespace.event.unregister<span>( <span class="param">handler</span> )</span></em></h3>
       <h3>Unregister an event handler:</h3>
-<pre><code class="javascript">myNamespace.event.unregister(foundWaldo);
-waldoHandler.unsubscribe(); // also works</code></pre>
+<pre><code class="javascript">var foundWaldo = myNamespace.event.handler('foundWaldo', function() {
+  // yay, we found Waldo
+});
+
+myNamespace.event.unregister(foundWaldo);
+foundWaldo.unsubscribe(); // also works</code></pre>
     </div>
   </section>
 
