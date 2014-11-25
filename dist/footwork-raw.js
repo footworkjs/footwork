@@ -965,7 +965,11 @@ Router.prototype.setState = function(url, shouldPushToHistory) {
          * Hash changes at the end of urls cause odd history issues, need to investigate.
          * Ugly hack fix for now is to make sure the hash is clear prior to calling pushState()
          */
-        windowObject.location.hash = '';
+        if(windowObject.location.hash.length) {
+          var oldScrollPos = document.body.scrollTop;
+          windowObject.location.hash = '';
+          document.body.scrollTop = oldScrollPos;
+        }
         historyAPIWorked = History.pushState(null, '', this.parentRouter().path() + url);
       } catch(error) {
         historyAPIWorked = false;
