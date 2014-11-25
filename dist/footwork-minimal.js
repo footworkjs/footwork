@@ -5067,15 +5067,16 @@ fw.bindingHandlers.$route = {
               currentRouteURL = handlerResult;
             }
             if( isString(currentRouteURL) && !isFullURL( currentRouteURL ) ) {
-              var hashIndex = currentRouteURL.indexOf('#');
-              if( hashIndex === -1 ) {
-                hashIndex = currentRouteURL.length;
-              }
-              $myRouter.setState( currentRouteURL.substring(0, hashIndex) );
+              $myRouter.setState( currentRouteURL );
+              // var hashIndex = currentRouteURL.indexOf('#');
+              // if( hashIndex === -1 ) {
+              //   hashIndex = currentRouteURL.length;
+              // }
+              // $myRouter.setState( currentRouteURL.substring(0, hashIndex) );
 
-              if(hashIndex !== currentRouteURL.length) {
-                windowObject.location.hash = currentRouteURL.substring(hashIndex);
-              }
+              // if(hashIndex !== currentRouteURL.length) {
+              //   windowObject.location.hash = currentRouteURL.substring(hashIndex);
+              // }
             }
           }
         });
@@ -5208,7 +5209,16 @@ Router.prototype.activate = function($context, $parentRouter) {
 };
 
 var doNotPushOntoHistory = true;
+var pushOntoHistory = false;
 Router.prototype.setState = function(url, shouldPushToHistory) {
+  if(isString(url)) {
+    var hashIndex = url.indexOf('#');
+    if( hashIndex === -1 ) {
+      hashIndex = url.length;
+    }
+    url = url.substring(0, hashIndex);
+  }
+
   if( this.historyIsEnabled() ) {
     if(shouldPushToHistory !== doNotPushOntoHistory && isString(url)) {
       var historyAPIWorked = true;
@@ -5221,7 +5231,7 @@ Router.prototype.setState = function(url, shouldPushToHistory) {
           return;
         }
       }
-    } else {
+    } else if(!isString(url)) {
       url = History.getState().url;
     }
   }
@@ -5246,8 +5256,8 @@ Router.prototype.startup = function( $context, $parentRouter ) {
 
   if( !this.historyIsEnabled() ) {
     if( historyIsReady() ) {
-      History.Adapter.bind( windowObject, 'statechange', this.stateChangeHandler = function() {
-        $myRouter.setState( History.getState().url, doNotPushOntoHistory );
+      History.Adapter.bind( windowObject, 'popstate', this.stateChangeHandler = function(event) {
+        $myRouter.setState( windowObject.location.pathname, event.constructor.name === 'PopStateEvent' ? pushOntoHistory : doNotPushOntoHistory );
       } );
       this.historyIsEnabled(true);
     } else {
