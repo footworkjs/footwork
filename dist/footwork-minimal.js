@@ -5510,9 +5510,6 @@ var makeViewModel = fw.viewModel = function(configParams) {
             property.dispose();  
           }
         });
-        
-        delete this.$element;
-        delete this.$context;
       }
     },
     _postInit: function() {
