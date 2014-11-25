@@ -10304,6 +10304,23 @@ Router.prototype.activate = function($context, $parentRouter) {
   return this;
 };
 
+// Part of hash=hack below, used to preserve scroll state when mangling the hash
+function scrollTop(setPos) {
+  var body = document.body;
+  var doc = document.documentElement;
+  doc = doc.clientHeight ? doc : body;
+
+  if( isUndefined(setPos) ) {
+    if( !isUndefined(pageYOffset) ) {
+      return pageYOffset;
+    } else {
+      return doc.scrollTop;
+    }
+  } else {
+    doc.scrollTop = setPos;
+  }
+}
+
 var doNotPushOntoHistory = true;
 Router.prototype.setState = function(url, shouldPushToHistory) {
   if( this.historyIsEnabled() ) {
@@ -10315,9 +10332,9 @@ Router.prototype.setState = function(url, shouldPushToHistory) {
          * Ugly hack fix for now is to make sure the hash is clear prior to calling pushState()
          */
         if(windowObject.location.hash.length) {
-          var oldScrollPos = document.body.scrollTop;
+          var oldScrollPos = scrollTop();
           windowObject.location.hash = '';
-          document.body.scrollTop = oldScrollPos;
+          scrollTop(oldScrollPos);
         }
         historyAPIWorked = History.pushState(null, '', this.parentRouter().path() + url);
       } catch(error) {
