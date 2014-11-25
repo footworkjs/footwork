@@ -91,16 +91,14 @@ var makeViewModel = fw.viewModel = function(configParams) {
       __getConfigParams: function() {
         return configParams;
       },
-      __shutdown: function() {
+      _dispose: function() {
         if( configParams.onDispose !== noop ) {
           configParams.onDispose.call(this);
         }
 
         each(this, function( property, name ) {
-          if( isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) ) {
-            property.shutdown();
-          } else if( isObject(property) && isFunction(property.dispose) ) {
-            property.dispose();
+          if( (isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) || isObservable(property)) && isFunction(property.dispose) ) {
+            property.dispose();  
           }
         });
         
@@ -203,7 +201,7 @@ function applyContextAndLifeCycle(viewModel, element) {
     
     if( !isUndefined(element) ) {
       fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
-        viewModel.__shutdown();
+        viewModel.__dispose();
       });
     }
   }

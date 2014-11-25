@@ -46,7 +46,8 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
         }.bind(this);
 
         this.$namespace.request.handler('position', function() {
-          return { anchor: subSectionData.anchor, position: $anchor.offset().top };
+          var offset = $anchor.offset() || { top: 99999999999 };
+          return { anchor: subSectionData.anchor, position: offset.top };
         }.bind(this));
       }
     });

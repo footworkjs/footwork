@@ -60,11 +60,9 @@ define([ "jquery", "lodash", "footwork" ],
         this.paneContentMaxHeight = fw.observable().receiveFrom('Pane', 'contentMaxHeight').extend({ units: 'px' });
 
         this.sections = fw.observable();
-        this.highlightSection = fw.observable().broadcastAs('highlightSection').extend({ autoDisable: 300 });
         this.chosenSection = fw.observable(null).extend({
           write: function( target, sectionName ) {
             target( sectionName );
-            this.highlightSection( sectionName );
             this._chosenRead = false;
           }.bind(this)
         }).broadcastAs('chosenSection', true);
@@ -76,7 +74,11 @@ define([ "jquery", "lodash", "footwork" ],
         this.currentSection = fw.computed(function() {
           var sections = this.sections();
           var scrollPosition = this.viewPortScrollPos();
-          return _.reduce( anchorPositions(), function(currentSection, section) {
+          var chosenSection = this.chosenSection();
+          var chosenRead = this._chosenRead;
+          this._chosenRead = true;
+          
+          return ( chosenRead !== true && chosenSection ) ||  _.reduce( anchorPositions(), function(currentSection, section) {
             var theAnchor = currentSection;
             if( scrollPosition >= (section.position - anchorOffset - 3) ) {
               theAnchor = section.anchor;

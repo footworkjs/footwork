@@ -155,7 +155,7 @@ var makeNamespace = fw.namespace = function(namespaceName, $parentNamespace) {
   namespace.unsubscribe = unregisterNamespaceHandler;
 
   namespace.__isNamespace = true;
-  namespace.shutdown = disconnectNamespaceHandlers.bind(namespace);
+  namespace.dispose = disconnectNamespaceHandlers.bind(namespace);
 
   namespace.commandHandlers = [];
   namespace.command = sendCommandToNamespace.bind(namespace);

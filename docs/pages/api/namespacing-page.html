@@ -109,6 +109,35 @@ define(["footwork"],
     </div>
   </section>
 
+  <a id="namespace-getName" class="section-anchor top"></a>
+  <section name="namespace-getName" class="top">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">namespace.getName<span>( )</span></em></h3>
+      <h3>Get the name (channel) of the namespace:</h3>
+<pre><code class="javascript">var myNamespace = fw.namespace('Waldo');
+// myNamespace.getName() === 'Waldo'</code></pre>
+    </div>
+  </section>
+
+  <a id="namespace-dispose" class="section-anchor top"></a>
+  <section name="namespace-dispose" class="top">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">namespace.dispose<span>( )</span></em></h3>
+      <h3>Dispose of all registered subscriptions and handlers:</h3>
+<pre><code class="javascript">var myNamespace = fw.namespace('Waldo');
+myNamespace.request.handler('ping', function() {
+  return 'pong';
+});
+// myNamespace.request('ping') === 'pong'
+
+myNamespace.dispose();
+// myNamespace.request('ping') === undefined</code></pre>
+      <div class="note"><span class="label">NOTE:</span> This only disconnects handlers attached to that specific object (not all handlers to all handlers on a 'Waldo' namespace object).</div>
+    </div>
+  </section>
+
   <a id="pub-sub" class="section-anchor"></a>
   <section name="pub-sub">
     <div class="highlight"></div>
@@ -225,9 +254,25 @@ waldoHandler.unsubscribe(); // also works</code></pre>
   <section name="issue-request" class="top">
     <div class="highlight"></div>
     <div class="content">
-      <h3 class="top"><em class="func-def">namespace.request<span>( <span class="param">'requestKey'</span>,  <span class="param">data</span> )</span></em></h3>
+      <h3 class="top"><em class="func-def">namespace.request<span>( <span class="param">'requestKey'</span>,  <span class="param">data</span>, <span class="param">allowMultiple = false</span> )</span></em></h3>
       <h3>Request data from a namespace:</h3>
-<pre><code class="javascript">var response = myNamespace.request('waldoLocation');</code></pre>
+<pre><code class="javascript">myNamespace.request.handler('waldoLocation', function() {
+  return 'I have no idea.';
+});
+// myNamespace.request('waldoLocation') === 'I have no idea.'
+
+/**
+ * By passing 'true' as the third argument to .request(), footwork will
+ * return an array of responses received. By default only the first is returned
+ * otherwise.
+ */
+myNamespace.request.handler('something', function() {
+  return 'response 1';
+});
+myNamespace.request.handler('something', function() {
+  return 'response 2';
+});
+// myNamespace.request('waldoLocation', null, true) === [ 'response 1', 'response 2' ]</code></pre>
     </div>
   </section>
 
@@ -310,7 +355,11 @@ myNamespace.command.handler('findWaldo', function() {
     <div class="content">
       <h3 class="top"><em class="func-def">namespace.command.unregister<span>( <span class="param">handler</span> )</span></em></h3>
       <h3>Unregister a command handler:</h3>
-<pre><code class="javascript">myNamespace.command.unregister(findWaldo);
+<pre><code class="javascript">var findWaldo = myNamespace.command.handler('findWaldo', function() {
+  // go find Waldo
+});
+
+myNamespace.command.unregister(findWaldo);
 findWaldo.unsubscribe(); // also works</code></pre>
     </div>
   </section>
@@ -331,6 +380,12 @@ findWaldo.unsubscribe(); // also works</code></pre>
           "title": "Independent Usage" },
         { "anchor": "tandem-usage",
           "title": "Tandem Usage" }
+      ] },
+    { "subSections": [
+        { "anchor": "namespace-getName",
+          "title": "namespace.getName()" },
+        { "anchor": "namespace-dispose",
+          "title": "namespace.dispose()" }
       ] },
     { "anchor": "pub-sub",
       "title": "Pub / Sub",
