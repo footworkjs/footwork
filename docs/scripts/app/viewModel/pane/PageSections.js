@@ -78,7 +78,7 @@ define([ "jquery", "lodash", "footwork" ],
           var scrollPosition = this.viewPortScrollPos();
           return _.reduce( anchorPositions(), function(currentSection, section) {
             var theAnchor = currentSection;
-            if( scrollPosition >= (section.position - anchorOffset) ) {
+            if( scrollPosition >= (section.position - anchorOffset - 3) ) {
               theAnchor = section.anchor;
             }
             return theAnchor;
