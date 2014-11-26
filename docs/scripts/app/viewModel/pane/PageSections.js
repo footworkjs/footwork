@@ -46,6 +46,7 @@ define([ "jquery", "lodash", "footwork" ],
       },
       initialize: function() {
         var isInitialLoad = true;
+        var goToSection = null;
         var PageSections = this;
         var anchorOffset = 0;
 
@@ -108,17 +109,21 @@ define([ "jquery", "lodash", "footwork" ],
           }
         }.bind(this);
         loadMetaData( pageNamespace.request('metaData') );
-        this.anchorSub = anchorPositions.subscribe(function(anchorPos) {
-          if(isInitialLoad) {
+        this.anchorSub = anchorPositions.subscribe(function(anchorPosition) {
+          if(isInitialLoad || _.isString(goToSection)) {
             isInitialLoad = false;
-            _.each(anchorPositions(), function(anchorPos) {
-              if( anchorPos.anchor === window.location.hash.substring(1) ) {
+            goToSection = null;
+            _.each(anchorPosition, function(anchorPos) {
+              if( anchorPos.anchor ===  window.location.hash.substring(1) ) {
                 window.scrollTo( 0, anchorPos.position - anchorOffset );
               }
             });
           }
         });
 
+        this.$namespace.command.handler('goToSection', function(sectionAnchor) {
+          goToSection = sectionAnchor;
+        });
         this.$namespace.subscribe('pageMetaData', loadMetaData).withContext(this);
 
         this.checkSelection = function(newSelection) {

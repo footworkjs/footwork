@@ -39,7 +39,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
           return this.subSections().length > 0;
         }, this);
 
-        this.visible = fw.observable( null ).extend({ autoEnable: _.random( 200, 600 ) });
+        this.visible = fw.observable( null ).extend({ autoEnable: _.random( 40, 300 ) });
         this.title = fw.observable( pageSectionData.title || '' );
         this.hasTitle = fw.computed(function() {
           return _.isString(this.title()) && this.title().length > 0;

@@ -1,6 +1,7 @@
 define([ "jquery", "footwork", "lodash", "highlight", "jquery.collapsible" ],
   function( $, fw, _ ) {
     var $pageNamespace = fw.namespace('Page');
+    var $pageSectionsNamespace = fw.namespace('PageSections');
     var $pageSectionNamespace = fw.namespace('PageSection');
     var $pageSubSectionNamespace = fw.namespace('PageSubSection');
     var $paneElementsNamespace = fw.namespace('PaneElements');
@@ -8,6 +9,7 @@ define([ "jquery", "footwork", "lodash", "highlight", "jquery.collapsible" ],
     var maxScrollResetPosition = fw.observable().receiveFrom('ViewPort', 'maxScrollResetPosition');
     var pageLoading = fw.observable().broadcastAs({ name: 'pageLoading', namespace: 'mainRouter' });
     var viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
+    var currentPageSection = fw.observable().receiveFrom('PageSections', 'currentSection');
 
     function initPage(metaData) {
       $pageNamespace.publish( 'initMeta', metaData );
@@ -45,6 +47,10 @@ define([ "jquery", "footwork", "lodash", "highlight", "jquery.collapsible" ],
         $article.find('pre code').each(function(i, block) {
           hljs.highlightBlock(block);
         });
+
+        if(window.location.hash.length) {
+          $pageSectionsNamespace.command('goToSection', window.location.hash.substring(1));
+        }
         pageLoading(false);
       });
 

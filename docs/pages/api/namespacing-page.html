@@ -109,6 +109,23 @@ define(["footwork"],
     </div>
   </section>
 
+  <a id="lifecycle" class="section-anchor"></a>
+  <section name="lifecycle">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Lifecycle</h1>
+    </header>
+    <div class="content">
+      <p>Namespace subscriptions and handlers are automatically cleaned up for you when it is attached to a viewModel (See: <a href="/api/viewModel" data-bind="$route">viewModel</a>). In other scenarios you must tell the namespace when to clean up its references, this is done via <span class="inline-code">dispose()</span>.</p>
+      <h3 class="top"><em class="func-def">namespace.dispose<span>()</span></em></h3>
+      <h3>Dispose/detatch all handlers, and subscriptions for a namespace instance:</h3>
+<pre><code class="javascript">var myNamespace = fw.namespace('myNamespace');
+// ...
+myNamespace.dispose(); // all namespaces, handlers, and subscriptions now cleaned up/removed
+</code></pre>
+    </div>
+  </section>
+
   <a id="namespace-getName" class="section-anchor top"></a>
   <section name="namespace-getName" class="top">
     <div class="highlight"></div>
@@ -383,7 +400,9 @@ findWaldo.unsubscribe(); // also works</code></pre>
         { "anchor": "independent-usage",
           "title": "Independent Usage" },
         { "anchor": "tandem-usage",
-          "title": "Tandem Usage" }
+          "title": "Tandem Usage" },
+        { "anchor": "lifecycle",
+          "title": "Lifecycle" }
       ] },
     { "subSections": [
         { "anchor": "namespace-getName",
