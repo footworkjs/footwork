@@ -5211,7 +5211,7 @@ Router.prototype.activate = function($context, $parentRouter) {
 var doNotPushOntoHistory = true;
 var pushOntoHistory = false;
 Router.prototype.setState = function(url) {
-  if( this.historyIsEnabled() ) {
+  if( this.historyIsEnabled() && !this.disableHistory ) {
     if(isString(url)) {
       var historyAPIWorked = true;
       try {
@@ -5226,8 +5226,9 @@ Router.prototype.setState = function(url) {
     } else {
       this.currentState( this.normalizeURL( History.getState().url ) );
     }
+  } else if(isString(url)) {
+    this.currentState( this.normalizeURL( url ) );
   }
-
 };
 
 Router.prototype.startup = function( $context, $parentRouter ) {
@@ -5244,7 +5245,7 @@ Router.prototype.startup = function( $context, $parentRouter ) {
   }
 
   if( !this.historyIsEnabled() ) {
-    if( historyIsReady() ) {
+    if( historyIsReady() && !this.disableHistory ) {
       History.Adapter.bind( windowObject, 'popstate', this.stateChangeHandler = function(event) {
         this.currentState( this.normalizeURL(windowObject.location.pathname + windowObject.location.hash) );
       }.bind(this));
