@@ -1,12 +1,77 @@
 <article>
+
   <a id="introduction" class="section-anchor"></a>
   <section name="introduction">
     <div class="highlight"></div>
     <header>
-      <span class="sub title">Introduction</span>
+      <h1 class="sub title">Introduction</h1>
     </header>
     <div class="content block-font">
-      <p>Footworks broadcastable / receivable is about inter-model dependencies. This duo-concept makes it easy to keep your modules decoupled while still allowing for easy and expressive information and state sharing.</p>
+      <p>The broadcastable and receivable functionality provides for an easy method of inter-module/namespace property sharing, communication, and computed values.</p>
+      <p>They are extended/special knockout observables which hook into the namespacing provided by footwork to either send data (broadcastable) or receive data (receivable) to or from other namespaces/modules.</p>
+      <div class="note"><span class="label">NOTE:</span> Broadcastable and receivable are integrated with footwork viewModels and their namespacing but you can also use them independently.</div>
+    </div>
+  </section>
+
+  <a id="usage" class="section-anchor"></a>
+  <section name="usage">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Usage</h1>
+    </header>
+    <div class="content block-font">
+      <p>Broadcastables are created by calling <span class="inline-code">observable.broadcastAs()</span>, receivables are created by calling <span class="inline-code">observable.receivFrom()</span>. Broadcastables and receivables can be based off of any knockout observable type (observable, computed observable, observableArray).</p>
+      <div class="note"><span class="label">NOTE:</span> Receivables must be 'writable' (when receiving data from a broadcastable, the observable it is based off of must be able to be written to). This means that if you have a computed receivable, it must have a <span class="inline-code">write:</span> method specified.</div>
+      <p>Receivables are listeners for information that a broadcastable sends out. Anytime a <span class="inline-code">broadcastable</span> send out an updated value for the variable a <span class="inline-code">receivable</span> is configured for, the receivable will be updated and its listeners notified.</p>
+      <p>Any computed properties based off of the receivable value will work as intended.</p>
+      <h3>Example usage:</h3>
+<pre><code class="javascript">var Navigation = fw.viewModel({
+  namespace: 'Navigation',
+  initialize: function() {
+    // initial value provided to the observable is the default, before any data is received from a broadcastable
+    this.userIsLoggedIn = fw.observable(false).receiveFrom('User', 'isLoggedIn');
+    this.loggedInUsername = fw.observable().receiveFrom('User', 'username');
+
+    // This computed is based off of the two previous receivables
+    this.navGreeting = fw.computed(function() {
+      if(this.userIsLoggedIn()) {
+        return 'Welcome ' + this.loggedInUsername();
+      } else {
+        return 'Please login';
+      }
+    }, this);
+  }
+});
+
+var User = fw.viewModel({
+  namespace: 'User',
+  initialize: function() {
+    /**
+     * broadcastAs() will use the namespace of the viewModel by default.
+     * All you need to pass it is the variable name to broadcast the value as
+     */
+    this.loggedIn = fw.observable(false).broadcastAs('isLoggedIn');
+    this.username = fw.observable().broadcastAs('username');
+    this.login = function(user, pass) {
+      if(user === 'DarkHelmet' && pass === '12345') {
+        this.username(user);
+        this.loggedIn(true);
+      }
+    };
+  }
+});
+
+var navigation = new Navigation();
+// navigation.userLoggedIn() === false
+
+var user = new User();
+// user.loggedIn() === false
+
+user.login('DarkHelmet', '12345');
+// navigation.userIsLoggedIn() === true
+// navigation.loggedInUsername() === 'DarkHelmet'
+</code></pre>
+      <div class="note"><span class="label">NOTE:</span> Because of their reliance on the message bus, broadcastables and receivables must be cleaned up when disposing of them. Any broadcastable or receivable which is assigned to a viewModel will automatically be cleaned up along with that viewModel. If you are using them independently, you will need to call <span class="inline-code">.dispose()</span> when you intend to get rid of it.</div>
     </div>
   </section>
 </article>
@@ -14,10 +79,12 @@
 <div id="metaData">
 {
   "title": "Broadcastable / Receivable",
-  "description": "Intermodel dependencies.",
+  "description": "Inter-module communication and computed values.",
   "sections": [
     { "anchor": "introduction",
-      "title": "Introduction" }
+      "title": "Introduction" },
+    { "anchor": "usage",
+      "title": "Usage" }
   ]
 }
 </div>
