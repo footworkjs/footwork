@@ -52,7 +52,7 @@ myNamespace.subscribe('sayHello', function(toWhom) {
 
 myNamespace.publish('sayHello', 'Jonathan'); // console prints: 'Greetings Jonathan'
 </code></pre>
-      <p>It is important to note that namespaces are based on their <span class="inline-code">'string'</span> key, not the instantiated object...those are just the channels <em>to</em> that namespace.</p>
+      <p>It is important to note that namespaces are based on their <span class="inline-code">'string'</span> key, not the instantiated object...they are just the channels <em>to</em> that namespace.</p>
       <h3>This means that each newly instantiated namespace with the same <span class="inline-code">'string'</span> key will all hear the same events/commands/etc:</h3>
 <pre><code class="javascript">var myNamespace = fw.namespace('myNamespace');
 myNamespace.subscribe('sayHello', function(toWhom) {
@@ -169,7 +169,7 @@ myNamespace.publish('sayHello', 'Jonathan');</code></pre>
     <div class="content">
       <h3 class="top"><em class="func-def">namespace.subscribe<span>( <span class="param">'topic'</span>,  <span class="param">function(message) { ... }</span> )</span></em></h3>
       <h3>Subscribe to a topic on a namespace:</h3>
-<pre><code class="javascript">var greetingSubscription = myNamespace.subscribe('sayHello', function(toWhom) {
+<pre><code class="javascript">myNamespace.subscribe('sayHello', function(toWhom) {
   console.log('Greetings ' + toWhom);
 });</code></pre>
     </div>

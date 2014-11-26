@@ -8,9 +8,10 @@ define([ "footwork", "lodash", "router" ],
       },
       initialize: function() {
         if( this.$globalNamespace.request('isRunningLocally') ) {
+          this.$router.disableHistory = true;
           this.$router.setState('/');
         }
-        
+
         this.initialized = fw.observable(false);
         this.configIsInitialized = fw.observable(false).receiveFrom('Configuration', 'initialized');
         this.configVisible = fw.observable().receiveFrom('Configuration', 'visible');
