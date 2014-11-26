@@ -10,6 +10,7 @@ define([ "jquery", "footwork", "lodash", "highlight", "jquery.collapsible" ],
     var pageLoading = fw.observable().broadcastAs({ name: 'pageLoading', namespace: 'mainRouter' });
     var viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
     var currentPageSection = fw.observable().receiveFrom('PageSections', 'currentSection');
+    var firstLoad = true;
 
     function initPage(metaData) {
       $pageNamespace.publish( 'initMeta', metaData );
@@ -35,8 +36,10 @@ define([ "jquery", "footwork", "lodash", "highlight", "jquery.collapsible" ],
         if( viewPortLayoutMode() !== 'mobile' ) {
           $paneElementsNamespace.publish('hideAll');
         }
-        if( scrollPosition() > maxScrollResetPos ) {
+        if( scrollPosition() > maxScrollResetPos && !firstLoad ) {
           window.scrollTo( 0, maxScrollResetPos );
+        } else {
+          firstLoad = false;
         }
 
         var $collapsible = $article.find('.collapsible');

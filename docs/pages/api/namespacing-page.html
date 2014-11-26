@@ -73,7 +73,7 @@ alsoMyNamespace.publish('hello', 'Jonathan'); // console prints: 'Greetings Jona
     </header>
     <div class="content">
       <p>Anytime you place a <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> or <span class="inline-code">&lt;component&gt;&lt;/component&gt;</span> in your markup footwork is
-      essentially wrapping that section of HTML with a viewModel. That viewModel has a namespace attached to/associated with it (based on the <span class="inline-code">namespace:</span> viewModel configuration attribute, see <a href="/api/viewModel" data-bind="$route">viewModel</a>).</p>
+      essentially wrapping that section of HTML with a viewModel. That viewModel has a namespace attached to/associated with it (based on the <span class="inline-code">namespace:</span> viewModel configuration attribute, see <a href="/api/viewModel#configuration" data-bind="$route">viewModel configuration</a>).</p>
       <p>When footwork sets up the new instance of your viewModel it automatically creates a namespace channel and assigns it to <span class="inline-code">this.$namespace</span>. This namespace will have its lifecycle handled automatically, and any subscriptions made on it will be cleaned up when the viewModel is destroyed.</p>
       <p>The following shows an example of using a declarative <span class="inline-code">&lt;viewModel&gt; ... &lt;/viewModel&gt;</span>, however it works exactly the same with a component (and its viewModel).</p>
 <pre><code>&lt;!-- File: index.html --&gt;
