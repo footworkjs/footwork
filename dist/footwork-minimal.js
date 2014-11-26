@@ -5210,9 +5210,9 @@ Router.prototype.activate = function($context, $parentRouter) {
 
 var doNotPushOntoHistory = true;
 var pushOntoHistory = false;
-Router.prototype.setState = function(url, shouldPushToHistory) {
+Router.prototype.setState = function(url) {
   if( this.historyIsEnabled() ) {
-    if(shouldPushToHistory !== doNotPushOntoHistory && isString(url)) {
+    if(isString(url)) {
       var historyAPIWorked = true;
       try {
         historyAPIWorked = History.pushState(null, '', this.parentRouter().path() + url);
@@ -5223,14 +5223,11 @@ Router.prototype.setState = function(url, shouldPushToHistory) {
           return;
         }
       }
-    } else if(!isString(url)) {
-      url = History.getState().url;
+    } else {
+      this.currentState( this.normalizeURL( History.getState().url ) );
     }
   }
 
-  if( isString(url) ) {
-    this.currentState( this.normalizeURL(url) );
-  }
 };
 
 Router.prototype.startup = function( $context, $parentRouter ) {
@@ -5249,8 +5246,8 @@ Router.prototype.startup = function( $context, $parentRouter ) {
   if( !this.historyIsEnabled() ) {
     if( historyIsReady() ) {
       History.Adapter.bind( windowObject, 'popstate', this.stateChangeHandler = function(event) {
-        $myRouter.setState( windowObject.location.pathname + windowObject.location.hash, doNotPushOntoHistory );
-      } );
+        this.currentState( this.normalizeURL(windowObject.location.pathname + windowObject.location.hash) );
+      }.bind(this));
       this.historyIsEnabled(true);
     } else {
       this.historyIsEnabled(false);
