@@ -319,6 +319,57 @@ define(["footwork"],
     </div>
   </section>
 
+  <a id="lifecycle" class="section-anchor"></a>
+  <section name="lifecycle">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Lifecycle</h1>
+    </header>
+    <div class="content">
+      <p>Lifecycle events are automatically handled for you when using a viewModel via one of the three main methods:</p>
+      <ul>
+        <li>Use the <span class="inline-code">&lt;viewModel&gt; ... &lt;/viewModel&gt;</span> declarative syntax.</li>
+        <li>Use the <span class="inline-code">&lt;[component-name]&gt;&lt;/[component-name]&gt;</span> declarative syntax.</li>
+        <li>Manually bound (<span class="inline-code">fw.applyBindings()</span>) to the DOM.</li>
+      </ul>
+      <p>viewModels that are attached to the DOM retrive two main lifecycle events, one just after binding to the DOM (<span class="inline-code">afterBinding()</span>) and one when the element (that the viewModel bound itself to) is removed from the DOM (<span class="inline-code">onDispose()</span>, called just before the element is removed).</p>
+      <div class="note"><span class="label">NOTE:</span> Any subscriptions, namespaces, events, etc must be assigned to <span class="inline-code">this</span> if you want them to automatically be cleaned up for you when the viewModel is disposed.</div>
+<pre><code class="javascript">var someOtherObservable = fw.observable();
+
+var MyViewModel = fw.viewModel({
+  initialize: function() {
+    this.myVarSub = someOtherObservable.subscribe(function() {
+      // This subscription will get cleaned up when the viewModel is disposed
+    });
+
+    this.$namespace.command.handler('doSomething', function() {
+      // This command handler will get cleaned up when the viewModel is disposed
+    });
+
+    this.$someOtherNamespace = fw.namespace('SomeOtherNamespace');
+    this.$someOtherNamespace.command.handler('doSomethingElse', function() {
+      // This command handler will get cleaned up when the viewModel is disposed
+    });
+
+    this.someOtherThing = {
+      eventHandler: this.$namespace.event.handler('someEvent', function() {
+        // This will NOT get cleaned up, handler result/subscription is not attached to 'this'
+      })
+    };
+  }
+});
+</code></pre>
+      <p>If you do not bind a viewModel to the DOM then you will want to tell it to clean up its references when you are getting rid of it. This is done by calling <span class="inline-code">viewModel.dispose()</span> directly.</p>
+      <h3 class="top"><em class="func-def">viewModel.dispose<span>()</span></em></h3>
+      <h3>Dispose of all namespaces, handlers, and subscriptions assigned to a viewModel:</h3>
+<pre><code class="javascript">var MyViewModel = fw.viewModel({ /* ... */ });
+var viewModel = new MyViewModel();
+// ...
+viewModel.dispose(); // all namespaces, handlers, and subscriptions now cleaned up/removed
+</code></pre>
+    </div>
+  </section>
+
   <a id="mixins" class="section-anchor"></a>
   <section name="mixins">
     <div class="highlight"></div>
@@ -625,7 +676,9 @@ fw.viewModels.fileExtensions(function(moduleName) {
         { "anchor": "loading-registering",
           "title": "AMD / Lazy Loading / Registering" },
         { "anchor": "module-formats",
-          "title": "Module Formats" }
+          "title": "Module Formats" },
+        { "anchor": "lifecycle",
+          "title": "Lifecycle" }
       ] },
     { "anchor": "mixins",
       "title": "Mixins",
