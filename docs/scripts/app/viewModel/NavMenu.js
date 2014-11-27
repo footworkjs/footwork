@@ -22,6 +22,8 @@ define([ "jquery", "lodash", "footwork" ],
           }
           if( !fw.isFullURL(url) && event.which !== 2 ) {
             event.preventDefault();
+          } else if(event.which === 2) {
+            routeToURL = false;
           }
           return routeToURL;
         };

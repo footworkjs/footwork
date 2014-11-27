@@ -37,7 +37,7 @@
     <div class="content">
       <h3 class="top"><em class="func-def">observable.receiveFrom<span>( <span class="param">'namespaceName'</span>, <span class="param">'variableName'</span> )</span></em></h3>
       <h3 class="top"><em class="func-def">observable.receiveFrom<span>( <span class="param">namespace</span>, <span class="param">'variableName'</span> )</span></em></h3>
-      <h3 class="top">Examples:</h3>
+      <h3>Factory method which will create and return a receivable from an existing observable (observable, computed, or observableArray):</h3>
 <pre><code class="javascript">var Navigation = fw.viewModel({
   namespace: 'Navigation',
   initialize: function() {
@@ -99,6 +99,7 @@ user.login('DarkHelmet', '12345');
       <h3 class="top"><em class="func-def">observable.broadcastAs<span>( <span class="param">{ name: 'variableName', writable: isWritable }</span> )</span></em></h3>
       <h3 class="top"><em class="func-def">observable.broadcastAs<span>( <span class="param">{ name: 'variableName', namespace: Namespace, writable: isWritable }</span> )</span></em></h3>
       <h3 class="top"><em class="func-def">observable.broadcastAs<span>( <span class="param">{ name: 'variableName', namespace: 'NamespaceName', writable: isWritable }</span> )</span></em></h3>
+      <h3 class="top">Factory method which will create and return a broadcastable from an existing observable (observable, computed, or observableArray)</h3>
       <p>Broadcastable values can be either read-only or writable. A writable broadcastable will allow a receivable to
           write back its value upstream. This means you can have a value broadcast from one namespace/module and allow a receivable to both listen for and update its value (with that value propogating back to the broadcaster).</p>
       <div class="note"><p><span class="label">NOTE:</span> Although broadcastables can be writable, try to avoid writing to them from external modules. The broadcastable should ideally have associated 
