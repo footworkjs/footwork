@@ -27,11 +27,16 @@
     <div class="content">
       <p>There are essentially 2 different ways a namespace can be used:</p>
       <ul>
-        <li>In tandem with a viewModel/component, automatically initialized and disposed of for you.</li>
+        <li>Coupled with a viewModel/component, automatically initialized and disposed of for you.</li>
         <li>Independently/Manually instantiated by you and <em>sometimes</em> disposed of for you.</li>
       </ul>
       <div class="note"><span class="label">NOTE:</span> If you just need to share a property across viewModels/components then take a look <a href="/api/broadcastable-receivable" data-bind="$route">broadcastable / receivable</a>, they make
       basic sharing of data between modules a no-brainer.</div>
+      <ul>
+        <li><a href="#independent-usage">Independent Usage</a></li>
+        <li><a href="#coupled-usage">Coupled Usage</a></li>
+        <li><a href="#lifecycle">Lifecycle</a></li>
+      </ul>
     </div>
   </section>
 
@@ -65,11 +70,11 @@ alsoMyNamespace.publish('hello', 'Jonathan'); // console prints: 'Greetings Jona
     </div>
   </section>
 
-  <a id="tandem-usage" class="section-anchor"></a>
-  <section name="tandem-usage">
+  <a id="coupled-usage" class="section-anchor"></a>
+  <section name="coupled-usage">
     <div class="highlight"></div>
     <header>
-      <h2 class="sub title">Tandem Usage (with viewModel/component)</h2>
+      <h2 class="sub title">Coupled Usage (with viewModel/component)</h2>
     </header>
     <div class="content">
       <p>Anytime you place a <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> or <span class="inline-code">&lt;component&gt;&lt;/component&gt;</span> in your markup footwork is
@@ -113,7 +118,7 @@ define(["footwork"],
   <section name="lifecycle">
     <div class="highlight"></div>
     <header>
-      <h1 class="sub title">Lifecycle</h1>
+      <h2 class="sub title">Lifecycle</h2>
     </header>
     <div class="content">
       <p>Namespace subscriptions and handlers are automatically cleaned up for you when it is attached to a viewModel (See: <a href="/api/viewModel#lifecycle" data-bind="$route">viewModel lifecycle</a>). In other scenarios you must tell the namespace when to clean up its references, this is done via <span class="inline-code">dispose()</span>.</p>
@@ -385,8 +390,8 @@ findWaldo.unsubscribe(); // also works</code></pre>
       "subSections": [
         { "anchor": "independent-usage",
           "title": "Independent Usage" },
-        { "anchor": "tandem-usage",
-          "title": "Tandem Usage" },
+        { "anchor": "coupled-usage",
+          "title": "Coupled Usage" },
         { "anchor": "lifecycle",
           "title": "Lifecycle" }
       ] },
