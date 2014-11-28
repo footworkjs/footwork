@@ -128,23 +128,11 @@ var userName = fw.observable(null).receiveFrom('User', 'username');
 // create user object that broadcasts 'username'
 var user = new User('Jonathan');
 // ...and now the receivable is updated by the broadcastable:
-// userName() === 'Jonathan'
-
-/**
- * Note that 
- */
-
-// Outside of a viewModel, specifying the namespace name
-var username = fw.observable().broadcastAs({ name: 'username', namespace: 'User' });
-
-// Outsite of a viewModel, specifying the namespace
-var userNamespace = fw.namespace('User');
-var username = fw.observable().broadcastAs({ name: 'username', namespace: userNamespace });
-</code></pre>
+// userName() === 'Jonathan'</code></pre>
       <div class="note"><span class="label">NOTE:</span> It does not matter if the broadcastable or receivable is created first:
         <ul>
-          <li>As soon as the broadcastable is instantiated any receivables listening will be updated.</li>
-          <li>As soon as a receivable is instantiated it will request the current value (if there is one) from the broadcastable.</li>
+          <li>As soon as the broadcastable is instantiated any receivables listening will be updated with the current value.</li>
+          <li>As soon as a receivable is instantiated it will request the current value from the broadcastable. If no broadcastable is present for the receivable, no change to the receivables default will be made.</li>
         </ul>
       </div>
 
@@ -165,19 +153,26 @@ var username = fw.observable().broadcastAs({ name: 'username', namespace: userNa
 var user = new User(); // create a user using the viewModel declaration from above
 // user.browserType() === 'unknown'
 
-var userBrowserType = fw.observable(null).receiveFrom('User', 'browserType');
 /**
+ * Create the receivable which is tied to the 'browserType' variable on the 'User'
+ * namespace. The default (null) provided is overwritten when the receivable is
+ * initialized and the (already initialized) broadcastable responds with the current value.
+ */
+var userBrowserType = fw.observable(null).receiveFrom('User', 'browserType');
+// userBrowserType() === 'unknown'
+
+/**
+ * When you make an update/write to a receivable, it will try to write that back
+ * to the broadcastable, if (and only if) that broadcastable is writable it will be
+ * listening for any updates and act accordingly, updating its own value, informing any
+ * listeners, and propogating through any computed values.
  *
- * userBrowserType() === 'unknown'
- *
- * Then when you make an update, it will try to write that back to the broadcastable, if that
- * broadcastable is writable it will be listening for any updates and act accordingly, updating
- * its own value, informing any listeners, and propogating through any computed values.
+ * If the broadcastable is not writable then the requestable will only be overwritten
+ * locally. The requestable will also be overwritten again if/when the broadcastable send
+ * out another value.
  */
 userBrowserType('Internet Explorer 6');
-// console will print: 'I am sorry, we do not support ancient technologies.'
-
-</code></pre>
+// console will print: 'I am sorry, we do not support ancient technologies.'</code></pre>
     </div>
   </section>
 

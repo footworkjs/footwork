@@ -671,8 +671,8 @@ function isBroadcaster(thing) {
         <li id="section-33" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
-              <pre><code><span class="hljs-keyword">this</span>.myValue = fw.observable().receiveFrom(<span class="hljs-string">'NamespaceName'</span> / Namespace, <span class="hljs-string">'varName'</span>);
-</code></pre>
+              <p>factory method which turns an observable into a receivable</p>
+
             </div>
             
             <div class="content"><pre><code class="javascript">fw.subscribable.fn.receiveFrom = function(namespace, variable) {
@@ -725,12 +725,8 @@ function isBroadcaster(thing) {
         <li id="section-34" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
-              <pre><code><span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs(<span class="hljs-string">'NameOfVar'</span>);
-<span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs(<span class="hljs-string">'NameOfVar'</span>, isWritable);
-<span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs({ name: <span class="hljs-string">'NameOfVar'</span>, writable: <span class="hljs-literal">true</span> });
-<span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs({ name: <span class="hljs-string">'NameOfVar'</span>, namespace: Namespace });
-<span class="hljs-keyword">this</span>.myValue = fw.observable().broadcastAs({ name: <span class="hljs-string">'NameOfVar'</span>, namespace: <span class="hljs-string">'NamespaceName'</span> });
-</code></pre>
+              <p>factory method which turns an observable into a broadcastable</p>
+
             </div>
             
             <div class="content"><pre><code class="javascript">fw.subscribable.fn.broadcastAs = function(varName, option) {
@@ -1458,7 +1454,7 @@ Router.prototype.dispose = function() {
 
   invoke(this.subscriptions, 'dispose');
   each(this, function(property) {
-    if( property && isFunction(property.dispose) ) {
+    if( property && !isViewModel(property) && isFunction(property.dispose) ) {
       property.dispose();
     }
   });
@@ -1757,15 +1753,18 @@ var makeViewModel = fw.viewModel = function(configParams) {
         return configParams;
       },
       dispose: function() {
-        if( configParams.onDispose !== noop ) {
-          configParams.onDispose.call(this);
-        }
-
-        each(this, function( property, name ) {
-          if( (isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) || isObservable(property)) && isFunction(property.dispose) ) {
-            property.dispose();  
+        if( !this._isDisposed ) {
+          this._isDisposed = true;
+          if( configParams.onDispose !== noop ) {
+            configParams.onDispose.call(this);
           }
-        });
+
+          each(this, function( property, name ) {
+            if( (isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) || isObservable(property)) && isFunction(property.dispose) ) {
+              property.dispose();  
+            }
+          });
+        }
       }
     },
     _postInit: function() {
