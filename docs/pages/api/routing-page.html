@@ -7,13 +7,56 @@
       <h1 class="sub title">Introduction</h1>
     </header>
     <div class="content block-font">
-      <p>Routing in a web application is about managing state. The router included with footwork has a few key features:</p>
+      <p>Routing in a web application is about managing state. Modern single-page web applications make use of the HTML5 <span class="inline-code">history</span>
+      API in order to retain normal browser navigation while not forcing a complete refresh of the page on every change. Footwork incorporates 
+      <a href="https://github.com/browserstate/history.js/" target="_blank">history.js</a> to help smooth over the browser history API inconsistencies.</p>
+      <p>The router included with footwork has a few key features:</p>
       <ul>
         <li>Unlimited nesting of routers.</li>
-        <li>Unlimited dynamic view outlets per router.</li>
+        <li>Unlimited named dynamic view outlets per router.</li>
         <li>Context based sub-routing.</li>
         <li>Filtered/predicate based routes.</li>
       </ul>
+      <p>In essence the included router in footwork combines several design patterns (MVC + MVVM + Observable) and context-based subrouting to provide a novel and extremely powerful routing solution.</p>
+    </div>
+  </section>
+
+  <a id="usage" class="section-anchor"></a>
+  <section name="usage">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Usage</h1>
+    </header>
+    <div class="content block-font">
+      <p>Routers have two principle components which make them useful:</p>
+      <ul>
+        <li>Routing configuration/definition used to define routes, controllers, and their actions.</li>
+        <li><span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations which are the output points your router controls.</li>
+      </ul>
+    </div>
+  </section>
+
+  <a id="configuration" class="section-anchor"></a>
+  <section name="configuration">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Configuration</h1>
+    </header>
+    <div class="content block-font">
+      <p>Routers are incorporated into <a href="/api/viewModel" data-bind="$route">footwork viewModels</a> and are a part of their <a href="/api/viewModel#configuration" data-bind="$route">configuration</a> definition.</p>
+    </div>
+  </section>
+
+  <a id="outlet" class="section-anchor"></a>
+  <section name="outlet">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Outlets</h1>
+    </header>
+    <div class="content block-font">
+      <p>viewModels 'wrap' a section of your DOM, providing the binding points and logic for that section of your HTML. In a similar sense a router provides all routing logic for that section of the DOM. If anywhere within in the DOM there is an 
+      <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declaration, footwork will travel up the element node path searching for the nearest parent viewModel which has a router. That router is able to control what view/component
+      is displayed at any one time in any <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations found within its scope.</p>
     </div>
   </section>
 
@@ -29,10 +72,10 @@
     { "anchor": "usage",
       "title": "Usage",
       "subSections": [
-        { "anchor": "observable-receiveFrom",
-          "title": "observable.receiveFrom()" },
-        { "anchor": "observable-broadcastAs",
-          "title": "observable.broadcastAs()" }
+        { "anchor": "configuration",
+          "title": "Configuration" },
+        { "anchor": "outlet",
+          "title": "outlets" }
       ] }
   ]
 }
