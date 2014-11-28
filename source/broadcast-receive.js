@@ -1,12 +1,12 @@
 // broadcast-receive.js
 // ----------------
 
-function isReceiver(thing) {
-  return isObject(thing) && !!thing.__isReceiver;
+function isReceivable(thing) {
+  return isObject(thing) && !!thing.__isReceivable;
 }
 
-function isBroadcaster(thing) {
-  return isObject(thing) && !!thing.__isBroadcaster;
+function isBroadcastable(thing) {
+  return isObject(thing) && !!thing.__isBroadcastable;
 }
 
 // factory method which turns an observable into a receivable
@@ -50,7 +50,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
     observableDispose.call(observable);
   };
 
-  observable.__isReceiver = true;
+  observable.__isReceivable = true;
   return observable.refresh();
 };
 
@@ -117,6 +117,6 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
     }
   };
 
-  observable.__isBroadcaster = true;
+  observable.__isBroadcastable = true;
   return observable.broadcast();
 };

@@ -378,12 +378,12 @@ var $globalNamespace = makeNamespace();
 // broadcast-receive.js
 // ----------------
 
-function isReceiver(thing) {
-  return isObject(thing) && !!thing.__isReceiver;
+function isReceivable(thing) {
+  return isObject(thing) && !!thing.__isReceivable;
 }
 
-function isBroadcaster(thing) {
-  return isObject(thing) && !!thing.__isBroadcaster;
+function isBroadcastable(thing) {
+  return isObject(thing) && !!thing.__isBroadcastable;
 }
 
 // factory method which turns an observable into a receivable
@@ -427,7 +427,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
     observableDispose.call(observable);
   };
 
-  observable.__isReceiver = true;
+  observable.__isReceivable = true;
   return observable.refresh();
 };
 
@@ -494,7 +494,7 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
     }
   };
 
-  observable.__isBroadcaster = true;
+  observable.__isBroadcastable = true;
   return observable.broadcast();
 };
 // router.js
@@ -1196,11 +1196,6 @@ var getViewModels = fw.viewModels.getAll = function(namespaceName, options) {
   }, {});
 };
 
-// Tell all viewModels to request the values which it listens for
-var refreshViewModels = fw.viewModels.refresh = function() {
-  $globalNamespace.trigger('__refreshViewModels');
-};
-
 var defaultViewModelConfigParams = {
   namespace: undefined,
   name: undefined,
@@ -1252,7 +1247,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
           }
 
           each(this, function( property, name ) {
-            if( (isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) || isObservable(property)) && isFunction(property.dispose) ) {
+            if( (isNamespace(property) || isRouter(property) || isBroadcastable(property) || isReceivable(property) || isObservable(property)) && isFunction(property.dispose) ) {
               property.dispose();  
             }
           });
@@ -1273,13 +1268,6 @@ var makeViewModel = fw.viewModel = function(configParams) {
               return this;
             }
           }
-        }.bind(this));
-        this.$globalNamespace.event.handler('__refreshViewModels', function() {
-          each(this, function(property) {
-            if( isReceiver(property) ) {
-              property.refresh();
-            }
-          });
         }.bind(this));
       }
     }
