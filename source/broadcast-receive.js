@@ -9,7 +9,7 @@ function isBroadcaster(thing) {
   return isObject(thing) && !!thing.__isBroadcaster;
 }
 
-//     this.myValue = fw.observable().receiveFrom('NamespaceName' / Namespace, 'varName');
+// factory method which turns an observable into a receivable
 fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
   var observable = this;
@@ -54,11 +54,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   return observable.refresh();
 };
 
-//     this.myValue = fw.observable().broadcastAs('NameOfVar');
-//     this.myValue = fw.observable().broadcastAs('NameOfVar', isWritable);
-//     this.myValue = fw.observable().broadcastAs({ name: 'NameOfVar', writable: true });
-//     this.myValue = fw.observable().broadcastAs({ name: 'NameOfVar', namespace: Namespace });
-//     this.myValue = fw.observable().broadcastAs({ name: 'NameOfVar', namespace: 'NamespaceName' });
+// factory method which turns an observable into a broadcastable
 fw.subscribable.fn.broadcastAs = function(varName, option) {
   var observable = this;
   var namespace;

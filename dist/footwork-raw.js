@@ -386,7 +386,7 @@ function isBroadcaster(thing) {
   return isObject(thing) && !!thing.__isBroadcaster;
 }
 
-//     this.myValue = fw.observable().receiveFrom('NamespaceName' / Namespace, 'varName');
+// factory method which turns an observable into a receivable
 fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
   var observable = this;
@@ -431,11 +431,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   return observable.refresh();
 };
 
-//     this.myValue = fw.observable().broadcastAs('NameOfVar');
-//     this.myValue = fw.observable().broadcastAs('NameOfVar', isWritable);
-//     this.myValue = fw.observable().broadcastAs({ name: 'NameOfVar', writable: true });
-//     this.myValue = fw.observable().broadcastAs({ name: 'NameOfVar', namespace: Namespace });
-//     this.myValue = fw.observable().broadcastAs({ name: 'NameOfVar', namespace: 'NamespaceName' });
+// factory method which turns an observable into a broadcastable
 fw.subscribable.fn.broadcastAs = function(varName, option) {
   var observable = this;
   var namespace;
@@ -1021,7 +1017,7 @@ Router.prototype.dispose = function() {
 
   invoke(this.subscriptions, 'dispose');
   each(this, function(property) {
-    if( property && isFunction(property.dispose) ) {
+    if( property && !isViewModel(property) && isFunction(property.dispose) ) {
       property.dispose();
     }
   });
@@ -1249,15 +1245,18 @@ var makeViewModel = fw.viewModel = function(configParams) {
         return configParams;
       },
       dispose: function() {
-        if( configParams.onDispose !== noop ) {
-          configParams.onDispose.call(this);
-        }
-
-        each(this, function( property, name ) {
-          if( (isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) || isObservable(property)) && isFunction(property.dispose) ) {
-            property.dispose();  
+        if( !this._isDisposed ) {
+          this._isDisposed = true;
+          if( configParams.onDispose !== noop ) {
+            configParams.onDispose.call(this);
           }
-        });
+
+          each(this, function( property, name ) {
+            if( (isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) || isObservable(property)) && isFunction(property.dispose) ) {
+              property.dispose();  
+            }
+          });
+        }
       }
     },
     _postInit: function() {

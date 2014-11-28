@@ -518,7 +518,7 @@ Router.prototype.dispose = function() {
 
   invoke(this.subscriptions, 'dispose');
   each(this, function(property) {
-    if( property && isFunction(property.dispose) ) {
+    if( property && !isViewModel(property) && isFunction(property.dispose) ) {
       property.dispose();
     }
   });
