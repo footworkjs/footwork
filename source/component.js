@@ -121,7 +121,7 @@ fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if( isViewModel(viewModel) ) {
-        viewModel._dispose();
+        viewModel.dispose();
       }
     });
   },

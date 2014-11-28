@@ -91,7 +91,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
       __getConfigParams: function() {
         return configParams;
       },
-      _dispose: function() {
+      dispose: function() {
         if( configParams.onDispose !== noop ) {
           configParams.onDispose.call(this);
         }
@@ -198,7 +198,7 @@ function applyContextAndLifeCycle(viewModel, element) {
     
     if( !isUndefined(element) ) {
       fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
-        viewModel.__dispose();
+        viewModel.dispose();
       });
     }
   }
