@@ -92,15 +92,18 @@ var makeViewModel = fw.viewModel = function(configParams) {
         return configParams;
       },
       dispose: function() {
-        if( configParams.onDispose !== noop ) {
-          configParams.onDispose.call(this);
-        }
-
-        each(this, function( property, name ) {
-          if( (isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) || isObservable(property)) && isFunction(property.dispose) ) {
-            property.dispose();  
+        if( !this._isDisposed ) {
+          this._isDisposed = true;
+          if( configParams.onDispose !== noop ) {
+            configParams.onDispose.call(this);
           }
-        });
+
+          each(this, function( property, name ) {
+            if( (isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) || isObservable(property)) && isFunction(property.dispose) ) {
+              property.dispose();  
+            }
+          });
+        }
       }
     },
     _postInit: function() {
