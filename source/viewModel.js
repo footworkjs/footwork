@@ -224,7 +224,7 @@ function bindComponentViewModel(element, params, ViewModel) {
   } else {
     viewModelObj = ViewModel;
   }
-  viewModelObj.$parentContext = fw.contextFor(element.parentElement);
+  viewModelObj.$parentContext = fw.contextFor(element.parentElement || element.parentNode);
 
   // binding the viewModelObj onto each child element is not ideal, need to do this differently
   // cannot get component.preprocess() method to work/be called for some reason
