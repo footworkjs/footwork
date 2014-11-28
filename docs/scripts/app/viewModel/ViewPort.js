@@ -3,14 +3,6 @@ define([ "jquery", "lodash", "footwork" ],
     return fw.viewModel({
       namespace: 'ViewPort',
       initialize: function() {
-        fw.observable().receiveFrom('Configuration', 'initialized').subscribe(function(isInitialized) {
-          if(isInitialized === true) {
-            setTimeout(function() {
-              this.initialLoad(false);
-            }.bind(this));
-          }
-        }, this);
-
         this.configTransitionsEnabled = fw.observable().receiveFrom('Configuration', 'transitionsEnabled');
         this.paneAccentPadding = fw.observable().receiveFrom('Configuration', 'paneAccentPadding');
         this.paneCollapsed = fw.observable().receiveFrom('Configuration', 'paneCollapsed');
@@ -22,7 +14,7 @@ define([ "jquery", "lodash", "footwork" ],
         this.currentSelection = fw.observable().receiveFrom('PaneLinks', 'currentSelection');
 
         this.resizing = fw.observable( false ).extend({ autoDisable: 200 }).broadcastAs('resizing');
-        this.initialLoad = fw.observable( true ).broadcastAs('initialLoad');
+        this.initialLoad = fw.observable( true ).broadcastAs('initialLoad', true);
         this.scrolling = fw.observable(false).extend({ autoDisable: 100 }).broadcastAs('scrolling');
         this.scrollPosition = fw.observable(0).broadcastAs('scrollPosition', true);
         this.dimensions = fw.observable( { width: null, height: null } ).extend({

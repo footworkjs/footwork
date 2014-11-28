@@ -20,6 +20,7 @@
         <li><a href="#loading-registering">AMD / Lazy Loading / Registering</a></li>
         <li><a href="#module-formats">Module Formats</a></li>
         <li><a href="#lifecycle">Lifecycle</a></li>
+        <li><a href="#properties">Properties</a></li>
       </ul>
     </div>
   </section>
@@ -298,7 +299,7 @@ fw.viewModels.defaultLocation('/myViewModels/');</code></pre>
   <section name="module-formats">
     <div class="highlight"></div>
     <header>
-      <h1 class="sub title">Module Formats</h1>
+      <h2 class="sub title">Module Formats</h2>
     </header>
     <div class="content">
       <p>Loading your viewModel/module in so that footwork can use it is done via a script loader.</p>
@@ -325,7 +326,7 @@ define(["footwork"],
   <section name="lifecycle">
     <div class="highlight"></div>
     <header>
-      <h1 class="sub title">Lifecycle</h1>
+      <h2 class="sub title">Lifecycle</h2>
     </header>
     <div class="content">
       <p>Lifecycle events are automatically handled for you when using a viewModel via one of the three main methods:</p>
@@ -369,6 +370,57 @@ var viewModel = new MyViewModel();
 // ...
 viewModel.dispose(); // all namespaces, handlers, and subscriptions now cleaned up/removed
 </code></pre>
+    </div>
+  </section>
+
+  <a id="properties" class="section-anchor"></a>
+  <section name="properties">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Properties</h2>
+    </header>
+    <div class="content">
+      <p>After a viewModel has been created, there are a few properties/references which are added/available to the object depending on its current state.</p>
+
+      <h3>viewModel.$namespace <em>(available after instantiation)</em></h3>
+      <p>Every instantiated viewModel will have a property called <span class="inline-code">$namespace</span>, this is the namespace channel created as a result of the <span class="inline-code">namespace:</span> configuration attribute given. It should
+      be used to setup any handlers and subscriptions on the current namespace that a viewModel might need.</p>
+<pre><code class="javascript">var Navigation = fw.viewModel({
+  namespace: 'Navigation',
+  initialize: function() {
+    this.$namespace.event.handler('userLoggedIn', function(username) {
+      console.log('Welcome', username);
+    });
+  }
+});
+
+var navigation = new Navigation();
+
+var navNamespace = fw.namespace('Navigation');
+navNamespace.trigger('userLoggedIn', 'Jonathan'); // console prints: Welcome Jonathan</code></pre>
+
+      <h3>viewModel.$router <em>(available after instantiation)</em></h3>
+      <p>If you provide a viewModel with a <span class="inline-code">router: {}</span> configuration parameter then the instantiated <span class="inline-code">$router</span> will be available just after instantiation.</p>
+<pre><code class="javascript">var Navigation = fw.viewModel({
+  namespace: 'Navigation',
+  router: { /* ... see: /api/routing ... */ },
+  initialize: function() {
+    // set the URL/state of the viewModels router to '/'
+    this.$router.setState('/')
+  }
+});</code></pre>
+    </div>
+  </section>
+
+      <h3>viewModel.$element <em>(available after binding)</em></h3>
+      <p>After a viewModel is bound with the DOM, the element it is bound to is assigned to the <span class="inline-code">$element</span> property.</p>
+<pre><code class="javascript">var Navigation = fw.viewModel({
+  namespace: 'Navigation',
+  initialize: function() { /* ... */ }
+  afterBinding: function() {
+    this.$element.className += 'isBound';
+  }
+});</code></pre>
     </div>
   </section>
 
@@ -680,7 +732,9 @@ fw.viewModels.fileExtensions(function(moduleName) {
         { "anchor": "module-formats",
           "title": "Module Formats" },
         { "anchor": "lifecycle",
-          "title": "Lifecycle" }
+          "title": "Lifecycle" },
+        { "anchor": "properties",
+          "title": "Properties" }
       ] },
     { "anchor": "mixins",
       "title": "Mixins",

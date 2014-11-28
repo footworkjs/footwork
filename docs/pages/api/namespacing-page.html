@@ -100,6 +100,7 @@ define(["footwork"],
     return fw.viewModel({
       namespace: 'Sprocket',
       initialize: function() {
+        // this.$namespace.getName() === 'Sprocket'
         this.isExpensive = fw.observable(false);
         this.$namespace.subscribe('ThrowAway', function(reason) {
           // this handler will be automatically unsubscribed and cleaned up

@@ -10,6 +10,7 @@ define([ "jquery", "footwork", "lodash", "highlight", "jquery.collapsible" ],
     var pageLoading = fw.observable().broadcastAs({ name: 'pageLoading', namespace: 'mainRouter' });
     var viewPortLayoutMode = fw.observable().receiveFrom('ViewPort', 'layoutMode');
     var currentPageSection = fw.observable().receiveFrom('PageSections', 'currentSection');
+    var initialLoad = fw.observable().receiveFrom('ViewPort', 'initialLoad');
     var firstLoad = true;
 
     function initPage(metaData) {
@@ -55,6 +56,7 @@ define([ "jquery", "footwork", "lodash", "highlight", "jquery.collapsible" ],
           $pageSectionsNamespace.command('goToSection', window.location.hash.substring(1));
         }
         pageLoading(false);
+        initialLoad(false);
       });
 
       $pageNamespace.publish('loadingPage', pagePromise);
