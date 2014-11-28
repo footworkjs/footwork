@@ -58,7 +58,5 @@
     "Navigation":         "app/viewModel/Navigation",
     "Body":               "app/viewModel/Body",
     "Page":               "app/viewModel/Page"
-    // "PageSection":        "app/viewModel/pane/PageSection",
-    // "PageSubSection":     "app/viewModel/pane/PageSubSection"
   }
 })

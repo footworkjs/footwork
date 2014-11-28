@@ -128,9 +128,9 @@ fw.bindingHandlers.$life = {
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $parent = bindingContext.$parent;
     if( isObject($parent) && $parent.__isOutlet ) {
-      $parent.$route().__getOnCompleteCallback()(element.parentElement);
+      $parent.$route().__getOnCompleteCallback()(element.parentElement || element.parentNode);
     }
-    componentTriggerAfterBinding(element.parentElement, bindingContext.$data);
+    componentTriggerAfterBinding(element.parentElement || element.parentNode, bindingContext.$data);
   }
 };
 
@@ -154,7 +154,8 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     var ViewModel = config.viewModel || config;
     if( !isNativeComponent(componentName) ) {
       callback(function(params, componentInfo) {
-        var $element = (componentInfo.element.nodeType === 8 ? componentInfo.element.parentElement : componentInfo.element);
+        var componentElement = componentInfo.element;
+        var $element = (componentElement.nodeType === 8 ? (componentElement.parentElement || componentElement.parentNode) : componentElement);
         var $context = fw.contextFor($element);
         var LoadedViewModel = ViewModel;
         if( isFunction(ViewModel) ) {
