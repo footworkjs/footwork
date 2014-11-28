@@ -657,12 +657,12 @@ var $globalNamespace = makeNamespace();</code></pre></div>
 
             </div>
             
-            <div class="content"><pre><code class="javascript">function isReceiver(thing) {
-  return isObject(thing) && !!thing.__isReceiver;
+            <div class="content"><pre><code class="javascript">function isReceivable(thing) {
+  return isObject(thing) && !!thing.__isReceivable;
 }
 
-function isBroadcaster(thing) {
-  return isObject(thing) && !!thing.__isBroadcaster;
+function isBroadcastable(thing) {
+  return isObject(thing) && !!thing.__isBroadcastable;
 }</code></pre></div>
             
         </li>
@@ -715,7 +715,7 @@ function isBroadcaster(thing) {
     observableDispose.call(observable);
   };
 
-  observable.__isReceiver = true;
+  observable.__isReceivable = true;
   return observable.refresh();
 };</code></pre></div>
             
@@ -791,7 +791,7 @@ function isBroadcaster(thing) {
     }
   };
 
-  observable.__isBroadcaster = true;
+  observable.__isBroadcastable = true;
   return observable.broadcast();
 };</code></pre></div>
             
@@ -1693,20 +1693,6 @@ If no name is supplied, a reference to an array containing all model references 
     }
     return viewModels;
   }, {});
-};</code></pre></div>
-            
-        </li>
-      
-        
-        <li id="section-57" class="section">
-            <div class="annotation-bg"></div>
-            <div class="annotation">
-              <p>Tell all viewModels to request the values which it listens for</p>
-
-            </div>
-            
-            <div class="content"><pre><code class="javascript">var refreshViewModels = fw.viewModels.refresh = function() {
-  $globalNamespace.trigger('__refreshViewModels');
 };
 
 var defaultViewModelConfigParams = {
@@ -1760,7 +1746,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
           }
 
           each(this, function( property, name ) {
-            if( (isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) || isObservable(property)) && isFunction(property.dispose) ) {
+            if( (isNamespace(property) || isRouter(property) || isBroadcastable(property) || isReceivable(property) || isObservable(property)) && isFunction(property.dispose) ) {
               property.dispose();  
             }
           });
@@ -1781,13 +1767,6 @@ var makeViewModel = fw.viewModel = function(configParams) {
               return this;
             }
           }
-        }.bind(this));
-        this.$globalNamespace.event.handler('__refreshViewModels', function() {
-          each(this, function(property) {
-            if( isReceiver(property) ) {
-              property.refresh();
-            }
-          });
         }.bind(this));
       }
     }
@@ -1825,7 +1804,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
         </li>
       
         
-        <li id="section-58" class="section">
+        <li id="section-57" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>user has specified another viewModel constructor as the ‘initialize’ function, we extend it with the current constructor to create an inheritance chain</p>
@@ -1856,7 +1835,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
         </li>
       
         
-        <li id="section-59" class="section">
+        <li id="section-58" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Provides lifecycle functionality and $context for a given viewModel and element</p>
@@ -1890,7 +1869,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
         </li>
       
         
-        <li id="section-60" class="section">
+        <li id="section-59" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Override the original applyBindings method to provide ‘viewModel’ life-cycle hooks/events and to provide the $context to the $router if present.</p>
@@ -1906,7 +1885,7 @@ var applyBindings = fw.applyBindings = function(viewModel, element) {
         </li>
       
         
-        <li id="section-61" class="section">
+        <li id="section-60" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>‘start’ up footwork at the targetElement (or document.body by default)</p>
@@ -1930,7 +1909,7 @@ function bindComponentViewModel(element, params, ViewModel) {
         </li>
       
         
-        <li id="section-62" class="section">
+        <li id="section-61" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>binding the viewModelObj onto each child element is not ideal, need to do this differently
@@ -1946,7 +1925,7 @@ cannot get component.preprocess() method to work/be called for some reason</p>
         </li>
       
         
-        <li id="section-63" class="section">
+        <li id="section-62" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each
@@ -1962,7 +1941,7 @@ sub-element and must specify the context as being the container element only onc
         </li>
       
         
-        <li id="section-64" class="section">
+        <li id="section-63" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Monkey patch enables the viewModel component to initialize a model and bind to the html as intended (with lifecycle events)
@@ -1988,7 +1967,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         </li>
       
         
-        <li id="section-65" class="section">
+        <li id="section-64" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>viewModel was manually registered, we preferentially use it</p>
@@ -2001,7 +1980,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         </li>
       
         
-        <li id="section-66" class="section">
+        <li id="section-65" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>we have found a matching resource that is already cached by require, lets use it</p>
@@ -2040,7 +2019,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         </li>
       
         
-        <li id="section-67" class="section">
+        <li id="section-66" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>we patch in the ‘name’ of the outlet into the params valueAccessor on the component definition (if necessary and available)</p>
@@ -2066,7 +2045,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         </li>
       
         
-        <li id="section-68" class="section">
+        <li id="section-67" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <h2 id="component-js">component.js</h2>
@@ -2076,7 +2055,7 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
         </li>
       
         
-        <li id="section-69" class="section">
+        <li id="section-68" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               
@@ -2127,7 +2106,7 @@ var makeComponent = fw.component = function(componentDefinition) {
         </li>
       
         
-        <li id="section-70" class="section">
+        <li id="section-69" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Register a component as consisting of a template only.
@@ -2153,7 +2132,7 @@ var registerComponentAsTemplateOnly = fw.components.isTemplateOnly = function(co
         </li>
       
         
-        <li id="section-71" class="section">
+        <li id="section-70" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>These are tags which are ignored by the custom component loader
@@ -2199,7 +2178,7 @@ var tagIsComponent = fw.components.tagIsComponent = function(tagName, isComponen
         </li>
       
         
-        <li id="section-72" class="section">
+        <li id="section-71" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Components which footwork will not wrap in the $life custom binding used for lifecycle events
@@ -2226,7 +2205,7 @@ function componentTriggerAfterBinding(element, viewModel) {
         </li>
       
         
-        <li id="section-73" class="section">
+        <li id="section-72" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Use the $life wrapper binding to provide lifecycle events for components</p>
@@ -2254,7 +2233,7 @@ fw.bindingHandlers.$life = {
         </li>
       
         
-        <li id="section-74" class="section">
+        <li id="section-73" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Custom loader used to wrap components with the $life custom binding</p>
@@ -2269,7 +2248,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
         </li>
       
         
-        <li id="section-75" class="section">
+        <li id="section-74" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>TODO: Handle different types of configs</p>
@@ -2302,7 +2281,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
         </li>
       
         
-        <li id="section-76" class="section">
+        <li id="section-75" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>inject the context and element into the ViewModel contructor</p>
@@ -2328,7 +2307,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
         </li>
       
         
-        <li id="section-77" class="section">
+        <li id="section-76" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>The footwork getConfig loader is a catch-all in the instance a registered component cannot be found.
@@ -2352,7 +2331,7 @@ The loader will attempt to use requirejs via knockouts integrated support if it 
         </li>
       
         
-        <li id="section-78" class="section">
+        <li id="section-77" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>load component using knockouts native support for requirejs</p>
@@ -2364,7 +2343,7 @@ The loader will attempt to use requirejs via knockouts integrated support if it 
         </li>
       
         
-        <li id="section-79" class="section">
+        <li id="section-78" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>component already cached, lets use it</p>
@@ -2398,7 +2377,7 @@ The loader will attempt to use requirejs via knockouts integrated support if it 
         </li>
       
         
-        <li id="section-80" class="section">
+        <li id="section-79" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)</p>
@@ -2426,7 +2405,7 @@ var noParentViewModelError = { getNamespaceName: function() { return 'NO-VIEWMOD
         </li>
       
         
-        <li id="section-81" class="section">
+        <li id="section-80" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>This custom binding binds the outlet element to the $outlet on the router, changes on its ‘route’ (component definition observable) will be applied
@@ -2446,7 +2425,7 @@ fw.bindingHandlers.$bind = {
         </li>
       
         
-        <li id="section-82" class="section">
+        <li id="section-81" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>register this outlet with the router so that updates will propagate correctly
@@ -2495,7 +2474,7 @@ fw.components.register('error', {
         </li>
       
         
-        <li id="section-83" class="section">
+        <li id="section-82" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <h2 id="resource-js">resource.js</h2>
@@ -2505,7 +2484,7 @@ fw.components.register('error', {
         </li>
       
         
-        <li id="section-84" class="section">
+        <li id="section-83" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>component resource section</p>
@@ -2557,7 +2536,7 @@ var getComponentFileName = fw.components.getFileName = function(componentName, f
         </li>
       
         
-        <li id="section-85" class="section">
+        <li id="section-84" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>full filename was supplied, lets return that</p>
@@ -2588,7 +2567,7 @@ var componentDefaultLocation = fw.components.defaultLocation = function(root, up
         </li>
       
         
-        <li id="section-86" class="section">
+        <li id="section-85" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>assume some combination of defaultComponentLocation and normalize the parameters</p>
@@ -2630,7 +2609,7 @@ var registerLocationOfComponent = fw.components.registerLocation = function(comp
         </li>
       
         
-        <li id="section-87" class="section">
+        <li id="section-86" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Return the component resource definition for the supplied componentName</p>
@@ -2647,7 +2626,7 @@ var registerLocationOfComponent = fw.components.registerLocation = function(comp
         </li>
       
         
-        <li id="section-88" class="section">
+        <li id="section-87" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>viewModel resource section</p>
@@ -2674,7 +2653,7 @@ var getViewModelFileName = fw.viewModels.getFileName = function(viewModelName) {
         </li>
       
         
-        <li id="section-89" class="section">
+        <li id="section-88" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>full filename was supplied, lets return that</p>
@@ -2729,7 +2708,7 @@ var registerLocationOfViewModel = fw.viewModels.registerLocation = function(view
         </li>
       
         
-        <li id="section-90" class="section">
+        <li id="section-89" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Return the viewModel resource definition for the supplied viewModelName</p>
@@ -2746,7 +2725,7 @@ var registerLocationOfViewModel = fw.viewModels.registerLocation = function(view
         </li>
       
         
-        <li id="section-91" class="section">
+        <li id="section-90" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <h2 id="extenders-js">extenders.js</h2>
@@ -2790,7 +2769,7 @@ var registerLocationOfViewModel = fw.viewModels.registerLocation = function(view
         </li>
       
         
-        <li id="section-92" class="section">
+        <li id="section-91" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>has to pass-through the dispose method from the target so it can be released properly as well</p>
@@ -2864,7 +2843,7 @@ fw.extenders.delayTrigger = function( target, options ) {
         </li>
       
         
-        <li id="section-93" class="section">
+        <li id="section-92" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>has to pass-through the dispose method from the target so it can be released properly as well</p>
@@ -2913,7 +2892,7 @@ fw.extenders.delayWrite = function( target, options ) {
         </li>
       
         
-        <li id="section-94" class="section">
+        <li id="section-93" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>has to pass-through the dispose method from the target so it can be released properly as well</p>

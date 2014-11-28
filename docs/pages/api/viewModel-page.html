@@ -400,7 +400,7 @@ var navNamespace = fw.namespace('Navigation');
 navNamespace.trigger('userLoggedIn', 'Jonathan'); // console prints: Welcome Jonathan</code></pre>
 
       <h3>viewModel.$router <em>(available after instantiation)</em></h3>
-      <p>If you provide a viewModel with a <span class="inline-code">router: {}</span> configuration parameter then the instantiated <span class="inline-code">$router</span> will be available just after instantiation.</p>
+      <p>If you provide a viewModel with a <span class="inline-code">router: {}</span> configuration parameter then the <span class="inline-code">$router</span> will be available just after instantiation.</p>
 <pre><code class="javascript">var Navigation = fw.viewModel({
   namespace: 'Navigation',
   router: { /* ... see: /api/routing ... */ },

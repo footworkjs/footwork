@@ -43,11 +43,6 @@ var getViewModels = fw.viewModels.getAll = function(namespaceName, options) {
   }, {});
 };
 
-// Tell all viewModels to request the values which it listens for
-var refreshViewModels = fw.viewModels.refresh = function() {
-  $globalNamespace.trigger('__refreshViewModels');
-};
-
 var defaultViewModelConfigParams = {
   namespace: undefined,
   name: undefined,
@@ -99,7 +94,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
           }
 
           each(this, function( property, name ) {
-            if( (isNamespace(property) || isRouter(property) || isBroadcaster(property) || isReceiver(property) || isObservable(property)) && isFunction(property.dispose) ) {
+            if( (isNamespace(property) || isRouter(property) || isBroadcastable(property) || isReceivable(property) || isObservable(property)) && isFunction(property.dispose) ) {
               property.dispose();  
             }
           });
@@ -120,13 +115,6 @@ var makeViewModel = fw.viewModel = function(configParams) {
               return this;
             }
           }
-        }.bind(this));
-        this.$globalNamespace.event.handler('__refreshViewModels', function() {
-          each(this, function(property) {
-            if( isReceiver(property) ) {
-              property.refresh();
-            }
-          });
         }.bind(this));
       }
     }
