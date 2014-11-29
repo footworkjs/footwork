@@ -930,6 +930,12 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   return outlet;
 };
 
+fw.outlets = {
+  registerView: function(outletDestination, templateHTML) {
+    registerComponent(outletDestination, { template: templateHTML });
+  }
+};
+
 var isFullURL = fw.isFullURL = function(thing) {
   return isString(thing) && isFullURLRegex.test(thing);
 };
@@ -1962,7 +1968,7 @@ fw.bindingHandlers.$bind = {
   }
 };
 
-fw.components.register('outlet', {
+registerComponent('outlet', {
   autoIncrement: true,
   viewModel: function(params) {
     this.outletName = fw.unwrap(params.name);
@@ -1971,14 +1977,14 @@ fw.components.register('outlet', {
   template: '<!-- ko $bind, component: $route --><!-- /ko -->'
 });
 
-fw.components.register('_noComponentSelected', {
+registerComponent('_noComponentSelected', {
   viewModel: function(params) {
     this.__assertPresence = false;
   },
   template: '<div class="no-component-selected"></div>'
 });
 
-fw.components.register('error', {
+registerComponent('error', {
   viewModel: function(params) {
     this.message = fw.observable(params.message);
     this.errors = params.errors;
