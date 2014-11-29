@@ -20,7 +20,7 @@
         <li>Filtered/predicated routes.</li>
         <li>Integration with <a href="https://github.com/browserstate/history.js/" target="_blank">history.js</a> for cross-browser history API support.</li>
       </ul>
-      <p>In essence the included router in footwork combines several design patterns (MVC + MVVM + Observable), context-based subrouting, and context based outlets to provide a novel and extremely powerful routing solution.</p>
+      <p>In essence the router combines several design patterns (MVC + MVVM + Observable), context-based subrouting, and context-based outlets to provide a novel and extremely powerful routing solution.</p>
     </div>
   </section>
 
@@ -107,8 +107,8 @@
       <h2 class="sub title">Routes List</h2>
     </header>
     <div class="content">
-      <p>When a new state/url is requested each router will iteratively search its <span class="inline-code">routes: []</span> list from the top down searching for the first matching route. If more than one 
-      route matches for a given url/state then only the first one found will be used.</p>
+      <p>When a new state/url is requested each router will iteratively search its <span class="inline-code">routes: []</span> list from the top down for the first matching route. If more than one 
+      route matches for a given url/state then only the first one found found will be used.</p>
       
       <h3>Example <span class="inline-code">routes: []</span> list definition:</h3>
 <pre><code class="javascript">// ...
@@ -142,25 +142,31 @@ unknownRoute: { /* ... */ }
       
       <p>A route definition has several available options and parameters. The first is the <span class="inline-code">route:</span>
       path itself. A route path can either define a static route, or one which allows for parameters.</p>
+
+      <p>A route definition four total possible parameters:</p>
+      <ul>
+        <li><span class="inline-code">route:</span> - A specially structured string which is used to match against a given URL (and optionally provide named parameters).</li>
+        <li><span class="inline-code">controller:</span> - Callback function used when a route is chosen, this is where <span class="inline-code">outlets</span> get changed and the state of your application is altered. Any parameters defined by the <span class="inline-code">route:</span> will be passed in.</li>
+        <li><span class="inline-code">title:</span> - (<em>optional</em>) A string or callback function used to set the title of the page when the route is chosen. Any parameters defined by the <span class="inline-code">route:</span> will be passed in.</li>
+        <li><span class="inline-code">filter:</span> - (<em>optional</em>) A predicate function used to tell footwork whether to consider a route. Any parameters defined by the <span class="inline-code">route:</span> will be passed in.</li>
+      </ul>
       
-      <h3>A couple example route definitions with and without parameters specified:</h3>
+      <h3><span class="inline-code">route:</span> example definitions with and without parameters specified:</h3>
+      <h3><span class="inline-code">controller:</span> example definitions with and without parameters specified:</h3>
 <pre><code class="javascript">// ...
 routes: [
   { // static route: /about-us
     route: '/about-us',
-    title: 'About Us',
     controller: function() { /* ... */ }
   },
   { // route with required parameter isbn
     route: '/book/:isbn',
-    title: 'Book Page',
     controller: function(params) {
       console.log('Book ISBN', params.isbn);
     }
   },
   { // route with optional parameter storeNum
     route: '/info(/:storeNum)',
-    title: 'Store Page',
     controller: function(params) {
       // params.storeNum is undefined if no storeNum is provided in the route
       console.log('Store Number', params.storeNum);
@@ -169,13 +175,32 @@ routes: [
 ],
 // ...
 </code></pre>
-      <p>A route can also have a <span class="inline-code">filter:</span> callback specified. This callback is passed the route params
-      and url description object. If it returns a <span class="inline-code">falsey</span> value, the router will ignore the route even
-      if the path matches. Conversely if the callback returns a <span class="inline-code">truthy</span> value the router will
-      considered it on a first-found first-routed basis as normal.</p>
-      
-      <h3>Example route definitions with a <span class="inline-code">filter:</span> callback specified:</h3>
 
+      <h3><span class="inline-code">title:</span> example definitions as a string and callback:</h3>
+      <p>This (optional) parameter defines what the title of the page will be set to when routing to this route.</p>
+<pre><code class="javascript">// ...
+routes: [
+  { // 'string' title
+    route: '/book/:isbn',
+    title: 'Book Page',
+    controller: function(params) { /* ...*/ }
+  },
+  { // callback-based title
+    route: '/book/:isbn',
+    title: function(params) {
+      return 'Book ' + params.isbn;
+    },
+    controller: function(params) { /* ...*/ }
+  }
+],
+// ...
+</code></pre>
+
+      
+      <h3><span class="inline-code">filter:</span> example definition:</h3>
+      <p>This callback is passed the route params object. If it returns a <span class="inline-code">falsey</span> value, the
+      router will ignore the route even if the path matches. Conversely if the callback returns a
+      <span class="inline-code">truthy</span> value the router will considered it on a first-found first-routed basis as normal.</p>
 <pre><code class="javascript">// ...
 routes: [
   { // only routed to when isbn === '12345'
@@ -184,7 +209,7 @@ routes: [
     controller: function(params) {
       console.log('Special Book ISBN', params.isbn);
     },
-    filter: function(params, urlDesc) {
+    filter: function(params) {
       if(params.isbn === '12345') {
         return true; // this route used only if isbn === '12345'
       }
@@ -201,7 +226,8 @@ routes: [
 ],
 // ...
 </code></pre>
-      <div class="note"><span class="label">NOTE:</span> Remember that you can always <span class="inline-code">request</span> data, or use <span class="inline-code">receivables</span>/<span class="inline-code">broadcastables</span>/etc inside of your filter functions too.</div>
+      <div class="note"><span class="label">NOTE:</span> Remember that you can always <a href="/api/namespacing#request" data-bind="$route"><span class="inline-code">request</span></a> data, or use <a href="/api/broadcastable-receivable" data-bind="$route"><span class="inline-code">receivables</span>/<span class="inline-code">broadcastables</span></a>/etc inside of your filter functions too.</div>
+
     </div>
   </section>
 

@@ -132,10 +132,6 @@ body {
       & > .content {
         .pane-component {
           .entry-row {
-            &:first-child {
-              margin-top: 0;
-            }
-
             & > .title:after {
               opacity: 1;
             }
@@ -218,6 +214,10 @@ body {
 
     .pane .content .pane-component {
       background-position: right -75px;
+
+      & > .content > .title {
+        background: transparent;
+      }
     }
 
     #cornerFoot {
