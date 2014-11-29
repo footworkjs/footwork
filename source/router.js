@@ -177,6 +177,12 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   return outlet;
 };
 
+fw.outlets = {
+  registerView: function(outletDestination, templateHTML) {
+    registerComponent(outletDestination, { template: templateHTML });
+  }
+};
+
 var isFullURL = fw.isFullURL = function(thing) {
   return isString(thing) && isFullURLRegex.test(thing);
 };
