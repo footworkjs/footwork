@@ -8,7 +8,8 @@
     </header>
     <div class="content">
       <p>Routing in a web application is about managing state. Modern single-page web applications make use of the HTML5 <span class="inline-code">history</span>
-      API in order to retain normal browser navigation while not forcing a complete refresh of the page on every change, and footwork does the same.</p>
+      API in order to retain normal browser navigation while not forcing a complete refresh of the page on every state/url change. Footwork includes a router which
+      provides this functionality.</p>
       <p>The router included with footwork has a few key features:</p>
       <ul>
         <li>Unlimited nesting of routers (relative and non-relative).</li>
@@ -31,16 +32,29 @@
     </header>
     <div class="content">
       <p>Routers have two principle components which are needed to make them useful:</p>
+      
       <ul>
         <li>A router configuration on a viewModel. Used to define the router, its routes, controllers, and their actions.</li>
         <li>Any number of <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations in your HTML which are the output points your router controls.</li>
       </ul>
-      <p>viewModels 'wrap' a section of your HTML, providing the binding points and logic for that section of your application. In a similar sense a router 'wraps' and provides all routing logic for that section of your HTML. Anywhere there is an 
-      <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declaration, footwork will traverse up the DOM searching for the nearest parent viewModel which has a router. That router is able to control what view/component
+      
+      <p>Just as a viewModel 'wraps' a section of your HTML providing the binding points and logic for that portion of your application. In a similar sense,
+      a router also 'wraps' and provides all routing logic for that portion of your application. Anywhere there is an 
+      <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declaration, footwork will traverse up the DOM searching for the nearest parent
+      viewModel which has a router. That router is able to control what view/component
       is displayed in any <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations found within its scope.</p>
-      <p>The same holds true for nested routers configured with <span class="inline-code">isRelative: true</span>. They will also iteratively walk the DOM upwards searching for any parent routers that might exist (if any).</p>
-      <p>It is by this parent-seeking nature that it is possible to nest routers and outlets in any configuration and at any depth and complexity, with each outlet and router traversing the DOM to find its parent and hook into it as appropriate.</p>
-      <div class="note"><span class="label">NOTE:</span> You can even nest an <span class="inline-code">outlet</span> deep within a nested viewModel/component and it will still traverse through any number of layers to find the nearest parent router.</div>
+      
+      <div class="note"><span class="label">NOTE:</span> Generally these <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> view points
+      are modified/used inside of a controller (as a result of a url/state change) but they can be modified/used outside of controller methods as well.</div>
+      
+      <p>This same parent-seeking logic holds true for nested routers configured with <span class="inline-code">isRelative: true</span>. They will iteratively
+      walk the DOM upwards searching for (and making their routes relative to) the nearest parent (if one is found).</p>
+      
+      <p>It is by this parent-seeking nature that it is possible to nest routers and outlets in any configuration and at any depth and complexity, with
+      each outlet and router traversing the DOM to find its parent and hook into it as appropriate.</p>
+      
+      <div class="note"><span class="label">NOTE:</span> You can even nest an <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> deep
+      within a nested viewModel/component and it will still traverse through any number of layers to find the nearest parent router.</div>
     </div>
   </section>
 
@@ -59,25 +73,27 @@
     // if true all routes defined for the router will be relative to its parent router (if any)
     isRelative: true, // default is true
 
-    // route definitions
+    // routes list definition
     routes: [],
 
-    // unknown route (triggered if none of the routes match from above)
+    // unknown route (triggered if none of the routes[] match from above)
     unknownRoute: {},
 
     // if true the router will activate as soon as its viewModel is bound to the DOM
     activate: true, // default is true
 
-    // if you want to tell the router to exclude the begginning portion of a route
-    baseRoute: null,
+    // tell the router to exclude the beginning portion of a route
+    baseRoute: '', // default is null
 
     // by default the namespace is based off of the viewModel it is paired with
     namespace: 'namespaceName', // (this is not usually needed)
   },
   // ..
 });</code></pre>
-      <div class="note"><span class="label">NOTE:</span> The router is instantiated (and disposed of) along with the viewModel and is available at <span class="inline-code">viewModel.$router</span> after instation.
+      
+      <div class="note"><span class="label">NOTE:</span> The router is instantiated (and disposed of) along with the viewModel and is available at <span class="inline-code">viewModel.$router</span> after instantiation.
       Once the viewModel is bound to the DOM (either because it is part of a component, viewModel, or is manually bound) the router will activate and the current route (url) will be expressed.</div>
+      
       <p>The <span class="inline-code">routes: []</span> and <span class="inline-code">unknownRoute: {}</span> definitions both have the same syntax. The only difference between
       these two is that <span class="inline-code">routes: []</span> is an array of route definitions, and <span class="inline-code">unknownRoute: {}</span> is a single route definition.
       These define the routes your application (on this router) has available to it.</p>
@@ -91,8 +107,10 @@
       <h2 class="sub title">Routes List</h2>
     </header>
     <div class="content">
-      <p>A router will search its <span class="inline-code">routes: []</span> list from the top down searching for the first matching route.</p>
-      <h3>Example <span class="inline-code">routes: []</span> definition:</h3>
+      <p>When a new state/url is requested each router will iteratively search its <span class="inline-code">routes: []</span> list from the top down searching for the first matching route. If more than one 
+      route matches for a given url/state then only the first one found will be used.</p>
+      
+      <h3>Example <span class="inline-code">routes: []</span> list definition:</h3>
 <pre><code class="javascript">// ...
 routes: [
   { // default route: '/'
@@ -104,8 +122,11 @@ routes: [
     // ...
   }
 ],
+unknownRoute: { /* ... */ }
 // ...
 </code></pre>
+      <div class="note"><span class="label">NOTE:</span> The <span class="inline-code">unknownRoute</span> definition only differs in that it has no <span class="inline-code">route:</span> parameter (it is ignored if included). This route
+      is triggered when no matching route is found in the routes list.</div>
     </div>
   </section>
 
@@ -116,18 +137,28 @@ routes: [
       <h2 class="sub title">Route Definition</h2>
     </header>
     <div class="content">
-      <p>A route definition has several available options and parameters. The first is the route path itself. A route path can either define a static route, or allow for parameters.</p>
-      <h3>A couple example route definitions with parameters specified:</h3>
+      <p>A route definition is simply an object which describes a route. Footwork will match the browser path up
+      against the <span class="inline-code">route:</span> parameter and use the other options to trigger and setup the state of your application.</p>
+      
+      <p>A route definition has several available options and parameters. The first is the <span class="inline-code">route:</span>
+      path itself. A route path can either define a static route, or one which allows for parameters.</p>
+      
+      <h3>A couple example route definitions with and without parameters specified:</h3>
 <pre><code class="javascript">// ...
 routes: [
-  { // required parameter isbn
+  { // static route: /about-us
+    route: '/about-us',
+    title: 'About Us',
+    controller: function() { /* ... */ }
+  },
+  { // route with required parameter isbn
     route: '/book/:isbn',
-    title: 'Home Page',
+    title: 'Book Page',
     controller: function(params) {
       console.log('Book ISBN', params.isbn);
     }
   },
-  { // optional parameter storeNum
+  { // route with optional parameter storeNum
     route: '/info(/:storeNum)',
     title: 'Store Page',
     controller: function(params) {
@@ -138,10 +169,13 @@ routes: [
 ],
 // ...
 </code></pre>
-      <p>A route can also have a <span class="inline-code">filter: function() {}</span> callback specified. This callback is passed the route params and url description object. If this callback returns
-      a <span class="inline-code">falsey</span> value, the router will ignore the route even if the path matches. Conversely, if the callback returns a <span class="inline-code">truthy</span> value the
-      router will consider it a valid route for the path if it matches, and be considered on a first-found first-routed basis as normal.</p>
+      <p>A route can also have a <span class="inline-code">filter:</span> callback specified. This callback is passed the route params
+      and url description object. If it returns a <span class="inline-code">falsey</span> value, the router will ignore the route even
+      if the path matches. Conversely if the callback returns a <span class="inline-code">truthy</span> value the router will
+      considered it on a first-found first-routed basis as normal.</p>
+      
       <h3>Example route definitions with a <span class="inline-code">filter:</span> callback specified:</h3>
+
 <pre><code class="javascript">// ...
 routes: [
   { // only routed to when isbn === '12345'
@@ -152,7 +186,7 @@ routes: [
     },
     filter: function(params, urlDesc) {
       if(params.isbn === '12345') {
-        return true; // this route only considered if isbn === '12345'
+        return true; // this route used only if isbn === '12345'
       }
       return false;
     }
@@ -167,6 +201,7 @@ routes: [
 ],
 // ...
 </code></pre>
+      <div class="note"><span class="label">NOTE:</span> Remember that you can always <span class="inline-code">request</span> data, or use <span class="inline-code">receivables</span>/<span class="inline-code">broadcastables</span>/etc inside of your filter functions too.</div>
     </div>
   </section>
 
