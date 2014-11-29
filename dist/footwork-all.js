@@ -10427,7 +10427,7 @@ Router.prototype.getRouteForURL = function(url) {
 
     if( isString(routeString) ) {
       routeParams = url.match(routeStringToRegExp(routeString));
-      if( !isNull(routeParams) && routeDescription.filter.call($myRouter, { params: routeParams, urlParts: $myRouter.urlParts() }) ) {
+      if( !isNull(routeParams) && routeDescription.filter.call($myRouter, routeParams, $myRouter.urlParts()) ) {
         matchedRoutes.push({
           routeString: routeString,
           specificity: routeString.replace(namedParamRegex, "*").length,
