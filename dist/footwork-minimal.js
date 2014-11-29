@@ -4762,7 +4762,6 @@ var routerDefaultConfig = {
   baseRoute: null,
   isRelative: true,
   activate: true,
-  setHref: true,
   routes: []
 };
 

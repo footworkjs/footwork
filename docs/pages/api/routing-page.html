@@ -8,16 +8,18 @@
     </header>
     <div class="content block-font">
       <p>Routing in a web application is about managing state. Modern single-page web applications make use of the HTML5 <span class="inline-code">history</span>
-      API in order to retain normal browser navigation while not forcing a complete refresh of the page on every change. Footwork incorporates 
-      <a href="https://github.com/browserstate/history.js/" target="_blank">history.js</a> to help smooth over the browser history API inconsistencies.</p>
+      API in order to retain normal browser navigation while not forcing a complete refresh of the page on every change.</p>
       <p>The router included with footwork has a few key features:</p>
       <ul>
-        <li>Unlimited nesting of routers.</li>
-        <li>Unlimited named dynamic view outlets per router.</li>
+        <li>Unlimited nesting of routers (relative and non-relative).</li>
+        <li>Unlimited number of view outlets per router.</li>
         <li>Context based sub-routing.</li>
-        <li>Filtered/predicate based routes.</li>
+        <li>Context based outlets.</li>
+        <li>Parameterized routes (with optional or required parameters).</li>
+        <li>Filtered/predicated routes.</li>
+        <li>Integration with <a href="https://github.com/browserstate/history.js/" target="_blank">history.js</a> for cross-browser history API support.</li>
       </ul>
-      <p>In essence the included router in footwork combines several design patterns (MVC + MVVM + Observable) and context-based subrouting to provide a novel and extremely powerful routing solution.</p>
+      <p>In essence the included router in footwork combines several design patterns (MVC + MVVM + Observable), context-based subrouting, and context based outlets to provide a novel and extremely powerful routing solution.</p>
     </div>
   </section>
 
@@ -28,11 +30,17 @@
       <h1 class="sub title">Usage</h1>
     </header>
     <div class="content block-font">
-      <p>Routers have two principle components which make them useful:</p>
+      <p>Routers have two principle components which are needed to make them useful:</p>
       <ul>
-        <li>Routing configuration/definition used to define routes, controllers, and their actions.</li>
-        <li><span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations which are the output points your router controls.</li>
+        <li>A router configuration on a viewModel. Used to define the router, its routes, controllers, and their actions.</li>
+        <li>Any number of <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations in your HTML which are the output points your router controls.</li>
       </ul>
+      <p>viewModels 'wrap' a section of your DOM, providing the binding points and logic for that section of your HTML. In a similar sense a router 'wraps' and provides all routing logic for that section of the DOM. If anywhere within in the DOM there is an 
+      <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declaration, footwork will traverse up the element node path searching for the nearest parent viewModel which has a router. That router is able to control what view/component
+      is displayed at any one time in any <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations found within its scope.</p>
+      <p>The same holds true for nested routers configured with <span class="inline-code">isRelative: true</span>. They will also iteratively walk the DOM upwards searching for any parent routers that might exist (if any).</p>
+      <p>It is by this parent-seeking nature that it is possible to nest routers and outlets in any configuration and at any depth and complexity, with each outlet and router traversing the DOM to find its parent and hook into it as appropriate.</p>
+      <div class="note"><span class="label">NOTE:</span> You can even nest an <span class="inline-code">outlet</span> deep within a nested viewModel/component and it will still traverse through any number of layers to find the nearest parent router.</div>
     </div>
   </section>
 
@@ -43,20 +51,109 @@
       <h1 class="sub title">Configuration</h1>
     </header>
     <div class="content block-font">
-      <p>Routers are incorporated into <a href="/api/viewModel" data-bind="$route">footwork viewModels</a> and are a part of their <a href="/api/viewModel#configuration" data-bind="$route">configuration</a> definition.</p>
+      <p>Routers are incorporated into <a href="/api/viewModel" data-bind="$route">footwork viewModels</a>, to create one you must add a router <a href="/api/viewModel#configuration" data-bind="$route">configuration to a viewModel</a>.</p>
+      <h3>A synopsis of router configuration options:</h3>
+<pre><code class="javascript">var BodyViewModel = fw.viewModel({
+  // ...
+  router: {
+    // if true all routes defined for the router will be relative to its parent router (if any)
+    isRelative: true, // default is true
+
+    // route definitions
+    routes: [],
+
+    // unknown route (triggered if none of the routes match from above)
+    unknownRoute: {},
+
+    // if true the router will activate as soon as its viewModel is bound to the DOM
+    activate: true, // default is true
+
+    // if you want to tell the router to exclude the begginning portion of a route
+    baseRoute: null,
+
+    // by default the namespace is based off of the viewModel it is paired with
+    namespace: 'namespaceName', // (this is not usually needed)
+  },
+  // ..
+});</code></pre>
+      <div class="note"><span class="label">NOTE:</span> The router is instantiated along with the viewModel and is available at <span class="inline-code">viewModel.$router</span> after instation.
+      Once the viewModel is bound to the DOM (either because it is part of a component, viewModel, or is manually bound) the router will activate and the current route (url) will be expressed.</div>
+      <p>The <span class="inline-code">routes: []</span> and <span class="inline-code">unknownRoute: {}</span> definitions both have the same syntax. The only difference between
+      these two is that <span class="inline-code">routes: []</span> is an array of route definitions, and <span class="inline-code">unknownRoute: {}</span> is a single route definition.
+      These define the routes your application (on this router) has available to it.</p>
     </div>
   </section>
 
-  <a id="outlet" class="section-anchor"></a>
-  <section name="outlet">
+  <a id="routes" class="section-anchor"></a>
+  <section name="routes">
     <div class="highlight"></div>
     <header>
-      <h1 class="sub title">Outlets</h1>
+      <h2 class="sub title">Routes</h2>
     </header>
     <div class="content block-font">
-      <p>viewModels 'wrap' a section of your DOM, providing the binding points and logic for that section of your HTML. In a similar sense a router provides all routing logic for that section of the DOM. If anywhere within in the DOM there is an 
-      <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declaration, footwork will travel up the element node path searching for the nearest parent viewModel which has a router. That router is able to control what view/component
-      is displayed at any one time in any <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations found within its scope.</p>
+      <h3>Example <span class="inline-code">routes: []</span> definition:</h3>
+<pre><code class="javascript">// ...
+routes: [
+  { // default route: '/'
+    route: '/',
+    title: 'Home Page',
+    controller: function() {
+      this.$outlet('mainContent', 'index-page');
+    }
+  },
+  { // route: /store
+    route: '/store',
+    title: 'Store Page',
+    controller: function() {
+      this.$outlet('mainContent', 'store-page');
+    }
+  }
+],
+// ...
+</code></pre>
+    </div>
+  </section>
+
+  <a id="route" class="section-anchor"></a>
+  <section name="route">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Route Definition</h2>
+    </header>
+    <div class="content block-font">
+      <p>A route definition has several available options and parameters. The first is the route path itself. A route path can either define a static route, or allow for parameters.</p>
+      <h3>A couple example route definitions with parameters specified:</h3>
+<pre><code class="javascript">// ...
+routes: [
+  { // required parameter bookNum
+    route: '/book/:bookNum',
+    title: 'Home Page',
+    controller: function(params) {
+      console.log('Book Number', params.bookNum);
+    }
+  },
+  { // optional parameter storeNum
+    route: '/info(/:storeNum)',
+    title: 'Store Page',
+    controller: function(params) {
+      // params.storeNum is undefined if no storeNum is provided in the route
+      console.log('Store Number', params.storeNum);
+    }
+  }
+],
+// ...
+</code></pre>
+    </div>
+  </section>
+
+  <a id="outlets" class="section-anchor"></a>
+  <section name="outlets">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Outlets</h2>
+    </header>
+    <div class="content block-font">
+      <p>Outlets ...</p>
     </div>
   </section>
 
@@ -70,13 +167,17 @@
     { "anchor": "introduction",
       "title": "Introduction" },
     { "anchor": "usage",
-      "title": "Usage",
+      "title": "Usage" },
+    { "anchor": "configuration",
+      "title": "Configuration",
       "subSections": [
-        { "anchor": "configuration",
-          "title": "Configuration" },
-        { "anchor": "outlet",
-          "title": "outlets" }
-      ] }
+        { "anchor": "routes",
+          "title": "Routes" },
+        { "anchor": "route",
+          "title": "Route" }
+      ] },
+    { "anchor": "outlets",
+      "title": "Outlets" }
   ]
 }
 </div>
