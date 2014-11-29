@@ -34,8 +34,8 @@
       <p>Routers have two principle components which are needed to make them useful:</p>
       
       <ul>
-        <li>A router configuration on a viewModel. Used to define the router, its routes, controllers, and their actions.</li>
-        <li>Any number of <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations in your HTML which are the output points your router controls.</li>
+        <li><a href="#configuration">configuration object</a>: A router configuration on a viewModel. Used to define the router, its routes, controllers, and their actions.</li>
+        <li><a href="#outlets">outlets</a>: Any number of <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations in your HTML which are the output points your router controls.</li>
       </ul>
       
       <p>Just as a viewModel 'wraps' a section of your HTML providing the binding points and logic for that portion of your application. In a similar sense,
@@ -125,8 +125,8 @@ routes: [
 unknownRoute: { /* ... */ }
 // ...
 </code></pre>
-      <div class="note"><span class="label">NOTE:</span> The <span class="inline-code">unknownRoute</span> definition has no <span class="inline-code">route:</span> parameter (it is ignored if included). This route
-      is triggered when no matching route is found in the routes list.</div>
+      <div class="note"><span class="label">NOTE:</span> The <span class="inline-code">unknownRoute:</span> definition has no <span class="inline-code">route:</span> parameter (it is ignored if included). This route
+      is triggered when no matching route is found in the <span class="inline-code">routes:</span> list. It is otherwise configured just like the other route definitions.</div>
     </div>
   </section>
 
@@ -223,8 +223,8 @@ routes: [
 ],
 // ...
 </code></pre>
-      <div class="note"><span class="label">NOTE:</span> Remember that you can always <a href="/api/namespacing#request" data-bind="$route"><span class="inline-code">request</span></a> data, or use <a href="/api/broadcastable-receivable" data-bind="$route"><span class="inline-code">receivables</span>/<span class="inline-code">broadcastables</span></a>/etc inside of your filter functions too.</div>
-
+      <div class="note"><span class="label">NOTE:</span> Remember that you can always <a href="/api/namespacing#request" data-bind="$route"><span class="inline-code">request</span></a>
+      data, or use <a href="/api/broadcastable-receivable" data-bind="$route"><span class="inline-code">receivables</span>/<span class="inline-code">broadcastables</span></a>/etc inside of your filter functions too.</div>
     </div>
   </section>
 
@@ -235,7 +235,11 @@ routes: [
       <h2 class="sub title">Outlets</h2>
     </header>
     <div class="content">
-      <p>Outlets ...</p>
+      <p>Outlets are the output points that a router can control. Each <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> found
+      within its scope is controlled via the key given in the <span class="inline-code">name=""</span> attribute by using the <span class="inline-code">router.$outlet()</span> method.</p>
+      <p>Outlets are simply output points for components. Thus for each 'page' or output you want for an <span class="inline-code">outlet</span> you will need a corresponding component
+      registered.</p>
+      <p></p>
     </div>
   </section>
 

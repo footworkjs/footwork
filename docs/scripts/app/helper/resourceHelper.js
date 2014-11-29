@@ -61,17 +61,17 @@ define([ "footwork",
     tutorialPage
   ) {
     return function resourceHelper() {
-      fw.components.register('index-page', { template: indexPage });
-      fw.components.register('not-found-page', { template: notFoundPage });
-      fw.components.register('build-info-page', { template: buildInfoPage });
-      fw.components.register('annotated-page', { template: annotatedPage });
-      fw.components.register('api-page', { template: apiPage });
-      fw.components.register('api-viewModel-page', { template: viewModelPage });
-      fw.components.register('api-namespacing-page', { template: namespacingPage });
-      fw.components.register('api-components-page', { template: componentsPage });
-      fw.components.register('api-broadcastable-receivable-page', { template: broadcastableReceivablePage });
-      fw.components.register('api-routing-page', { template: routingPage });
-      fw.components.register('tutorial-page', { template: tutorialPage });
+      fw.outlets.registerView('index-page', indexPage);
+      fw.outlets.registerView('not-found-page', notFoundPage);
+      fw.outlets.registerView('build-info-page', buildInfoPage);
+      fw.outlets.registerView('annotated-page', annotatedPage);
+      fw.outlets.registerView('api-page', apiPage);
+      fw.outlets.registerView('api-viewModel-page', viewModelPage);
+      fw.outlets.registerView('api-namespacing-page', namespacingPage);
+      fw.outlets.registerView('api-components-page', componentsPage);
+      fw.outlets.registerView('api-broadcastable-receivable-page', broadcastableReceivablePage);
+      fw.outlets.registerView('api-routing-page', routingPage);
+      fw.outlets.registerView('tutorial-page', tutorialPage);
 
       fw.components.register('showversion', {
         viewModel: BuildInfoViewModel,
