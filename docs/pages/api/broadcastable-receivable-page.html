@@ -6,9 +6,9 @@
     <header>
       <h1 class="sub title">Introduction</h1>
     </header>
-    <div class="content block-font">
+    <div class="content">
       <p>The broadcastable and receivable functionality provides for an easy to way to share data, state, and more between two different areas of your code.</p>
-      <p>They enable a variables value in one viewModel/module to be reflected in the value of another, being kept in sync automatically and transparently to you. By taking advantage of this functionality
+      <p>They enable a variables in one viewModel/module to be reflected in the variable of another, being kept in sync automatically and transparently to you. By taking advantage of this functionality
       your application and modules are able to expressively share state and data while being kept as loosely coupled (<em>and testable!</em>) as possible.</p>
       <p>Broadcastables and receivables are extended/special knockout observables which hook into the namespacing provided by footwork to either send data (broadcastable) or receive data (receivable) to or from other namespaces/modules. They
       can be used just like any other knockout observable as they extend from the base <span class="inline-code">ko.subscribable</span> type.</p>
@@ -22,7 +22,7 @@
     <header>
       <h1 class="sub title">Usage</h1>
     </header>
-    <div class="content block-font">
+    <div class="content">
       <p>Broadcastables are created by taking an observable and calling <span class="inline-code">observable.broadcastAs()</span> on it, receivables are created by taking an observable and calling <span class="inline-code">observable.receivFrom()</span> on it. Broadcastables and receivables can be based off of any knockout observable type (observable, computed observable, observableArray).</p>
       <div class="note"><span class="label">NOTE:</span> Receivables must be 'writable' (when receiving data from a broadcastable, the observable it is based off of must be able to be written to). This means that if you have a computed observable you are calling <span class="inline-code">.broadcastAs()</span> on, it must have a <span class="inline-code">write:</span> method specified.</div>
       <p>Receivables are listeners for information that a broadcastable sends out. Anytime a <span class="inline-code">broadcastable</span> send out an updated value for the variable a <span class="inline-code">receivable</span> is configured for, the receivable will be updated, its listeners notified, and propagate through any computed values as expected.</p>
