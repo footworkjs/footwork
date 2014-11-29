@@ -235,11 +235,47 @@ routes: [
       <h2 class="sub title">Outlets</h2>
     </header>
     <div class="content">
-      <p>Outlets are the output points that a router can control. Each <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> found
-      within its scope is controlled via the key given in the <span class="inline-code">name=""</span> attribute by using the <span class="inline-code">router.$outlet()</span> method.</p>
-      <p>Outlets are simply output points for components. Thus for each 'page' or output you want for an <span class="inline-code">outlet</span> you will need a corresponding component
-      registered.</p>
-      <p></p>
+      <p>Outlets are simply controllable output points for components.  When you tell an outlet what to show, you are telling it to load a component. Thus for each 'page' or output you want
+      for an <span class="inline-code">outlet</span> footwork will need one of the two following things:</p>
+
+      <ul>
+        <li>A corresponding view registered (cached/preloaded) via <span class="inline-code">fw.outlets.registerView()</span> or <a href="/api/components#loading-registering" data-bind="$route"><span class="inline-code">fw.components.register()</span></a></li>
+        <li>A registered location where it can load the view via <span class="inline-code">fw.outlets.registerViewLocation()</span> or <a href="/api/components#loading-registering" data-bind="$route"><span class="inline-code">fw.components.registerLocation()</span></a></li>
+      </ul>
+
+      <p>Because most outlet components (pages/views) consist of only template code (they have no corresponding viewModel), footwork provides two shortcut methods for creating a
+      template-only outlet view (ie: a 'page/view' you can show in an <span class="inline-code">&lt;outlet&gt;&lt;/outlet&gt;</span>).</p>
+      <ul>
+        <li><span class="inline-code">fw.outlets.registerView()</span> - Cache a view/template for later use (available instantly, no download time).</li>
+        <li><span class="inline-code">fw.outlets.registerViewLocation()</span> - Tell footwork where it can download it via AMD/RequireJS (dynamically/lazy loaded for you when requested). Since outlet views are just viewModel-less components, they are resolved just like any other <a href="/api/components#loading-registering" data-bind="$route">AMD/RequireJS loaded component</a>.</li>
+      </ul>
+      <p>Essentially they are ways to easily create/register a view you can use in an outlet.</p>
+
+      <h3><em class="func-def">fw.outlets.registerView<span>( <span class="param">'viewName'</span>, <span class="param">'&lt;!-- template HTML --&gt;'</span> )</span></em></h3>
+      <h3>Register/cache a view for later use:</h3>
+<pre><code class="javascript">// Register the 'index-page' template view
+fw.outlets.registerView('index-page', '&lt;p&gt;Welcome to footwork.js&lt;/p&gt;');
+
+// Register a different view that has a nested component
+fw.outlets.registerView('calendar-page', 'Calendar: &lt;calendar&gt;&lt;/calendar&gt;');
+</code></pre>
+      <div class="note"><span class="label">NOTE:</span> It is generally recommended you load your templates via a module system such as RequireJS (don't just write them inline in a string as shown, that was only used as an example for reasons of brevity). For an example of how to do this check the <a href="/tutorials" data-bind="$route">tutorials page</a>.</div>
+
+      <h3><em class="func-def">fw.outlets.registerViewLocation<span>( <span class="param">'viewName'</span>, <span class="param">'/path/to/template'</span> )</span></em></h3>
+      <h3>Tell footwork where it can download the view via AMD/RequireJS:</h3>
+<pre><code class="javascript">// Register location of the 'index-page' template view
+fw.outlets.registerViewLocation('index-page', '/pages/index-page.html');
+
+/**
+ * Footwork will append the filename if you end it with a trailing slash (/)
+ * The following will try to load '/otherPages/calendar-page.html' when needed
+ */
+fw.outlets.registerViewLocation('calendar-page', '/otherPages/');
+</code></pre>
+      <div class="note"><span class="label">NOTE:</span> You can tell an <span class="inline-code">&lt;outlet&gt;&lt;/outlet&gt;</span> to show <em>any</em> component, not just ones you register with <span class="inline-code">fw.outlets.registerView()</span> or 
+      <span class="inline-code">fw.outlets.registerViewLocation()</span></div>
+
+      <p>Once footwork knows how to resolve your outlet view it can be used in your application.</p>
     </div>
   </section>
 

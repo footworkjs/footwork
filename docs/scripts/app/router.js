@@ -119,10 +119,10 @@ define([ "jquery", "footwork", "lodash", "highlight", "jquery.collapsible" ],
             this.$outlet('mainContent', 'api-routing-page', _.bind(resolvePage, this, getPageLoadPromise()));
           }
         }, {
-          route: '/tutorial',
-          title: 'footworkjs - Tutorial',
+          route: '/tutorials',
+          title: 'footworkjs - Tutorials',
           controller: function($routeParams) {
-            this.$outlet('mainContent', 'tutorial-page', _.bind(resolvePage, this, getPageLoadPromise()));
+            this.$outlet('mainContent', 'tutorials-page', _.bind(resolvePage, this, getPageLoadPromise()));
           }
         }
       ],

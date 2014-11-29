@@ -118,7 +118,7 @@
       <p>Once an element not recognized as being normal HTML is encountered, footwork will process it as a component. Beginning with the resolving of its dependencies.</p>
       <div class="note"><span class="label">NOTE:</span> This means every tag it doesn't believe is 'normal html' will be resolved (from cache or dynamically) and processed. You can tell footwork what should and should not be processed as a component, see <span class="inline-code">fw.components.tagIsComponent()</span> further down.</div>
       <p>There are 3 ways footwork will try to resolve both the viewModel and template for your component once it encounters the 
-      <span class="inline-code">&lt;component-name&gt;&lt;/component-name&gt;</span> or <span class="inline-code">&lt;span data-bind="component: 'component-name'"&gt;&lt;/span&gt;</span> markup.</p>
+      <span class="inline-code">&lt;component-name&gt;&lt;/component-name&gt;</span> or <span class="inline-code">&lt;div data-bind="component: 'component-name'"&gt;&lt;/div&gt;</span> markup.</p>
       <p>They are as follows (in order of priority):</p>
       <ul>
         <li>Pre-cached via a <span class="inline-code">fw.components.register()</span> call.</li>

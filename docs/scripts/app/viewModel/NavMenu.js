@@ -67,7 +67,7 @@ define([ "jquery", "lodash", "footwork" ],
             new Entry({ label: 'Broadcastable / Receivable', url: '/api/broadcastable-receivable' }),
             new Entry({ label: 'Routing', url: '/api/routing' })
           ] }),
-          new Entry({ label: 'Tutorial', url: '/tutorial' }),
+          new Entry({ label: 'Tutorials', url: '/tutorials' }),
           new Entry({ label: 'Annotated Source', url: '/annotated' })
         ]);
 
