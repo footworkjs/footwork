@@ -178,8 +178,12 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
 };
 
 fw.outlets = {
-  registerView: function(outletDestination, templateHTML) {
-    registerComponent(outletDestination, { template: templateHTML });
+  registerView: function(viewName, templateHTML) {
+    registerComponent(viewName, { template: templateHTML });
+  },
+  registerViewLocation: function(viewName, viewLocation) {
+    registerLocationOfComponent(viewName, { template: viewLocation })
+    registerComponentAsTemplateOnly(viewName);
   }
 };
 
