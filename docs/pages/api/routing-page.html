@@ -48,7 +48,7 @@
       are modified/used inside of a controller (as a result of a url/state change) but they can be modified/used outside of controller methods as well.</div>
       
       <p>This same parent-seeking logic holds true for nested routers configured with <span class="inline-code">isRelative: true</span>. They will iteratively
-      walk the DOM upwards searching for (and making their routes relative to) the nearest parent (if one is found).</p>
+      walk the DOM upwards searching for (and making their routes relative to) the nearest parent router (if one is found).</p>
       
       <p>It is by this parent-seeking nature that it is possible to nest routers and outlets in any configuration and at any depth and complexity, with
       each outlet and router traversing the DOM to find its parent and hook into it as appropriate.</p>
@@ -67,7 +67,7 @@
     <div class="content">
       <p>Routers are incorporated into <a href="/api/viewModel" data-bind="$route">footwork viewModels</a>, to create one you must add a router <a href="/api/viewModel#configuration" data-bind="$route">configuration to a viewModel</a>.</p>
       <h3>A synopsis of router configuration options:</h3>
-<pre><code class="javascript">var BodyViewModel = fw.viewModel({
+<pre><code class="javascript">var ViewModel = fw.viewModel({
   // ...
   router: {
     // if true all routes defined for the router will be relative to its parent router (if any)
@@ -125,7 +125,7 @@ routes: [
 unknownRoute: { /* ... */ }
 // ...
 </code></pre>
-      <div class="note"><span class="label">NOTE:</span> The <span class="inline-code">unknownRoute</span> definition only differs in that it has no <span class="inline-code">route:</span> parameter (it is ignored if included). This route
+      <div class="note"><span class="label">NOTE:</span> The <span class="inline-code">unknownRoute</span> definition has no <span class="inline-code">route:</span> parameter (it is ignored if included). This route
       is triggered when no matching route is found in the routes list.</div>
     </div>
   </section>
@@ -140,22 +140,19 @@ unknownRoute: { /* ... */ }
       <p>A route definition is simply an object which describes a route. Footwork will match the browser path up
       against the <span class="inline-code">route:</span> parameter and use the other options to trigger and setup the state of your application.</p>
       
-      <p>A route definition has several available options and parameters. The first is the <span class="inline-code">route:</span>
-      path itself. A route path can either define a static route, or one which allows for parameters.</p>
-
-      <p>A route definition four total possible parameters:</p>
+      <p>A route definition has four possible parameters:</p>
       <ul>
-        <li><span class="inline-code">route:</span> - A specially structured string which is used to match against a given URL (and optionally provide named parameters).</li>
+        <li><span class="inline-code">route:</span> - A specially structured string which is used to match against a given URL (and optionally provide for named parameters).</li>
         <li><span class="inline-code">controller:</span> - Callback function used when a route is chosen, this is where <span class="inline-code">outlets</span> get changed and the state of your application is altered. Any parameters defined by the <span class="inline-code">route:</span> will be passed in.</li>
         <li><span class="inline-code">title:</span> - (<em>optional</em>) A string or callback function used to set the title of the page when the route is chosen. Any parameters defined by the <span class="inline-code">route:</span> will be passed in.</li>
-        <li><span class="inline-code">filter:</span> - (<em>optional</em>) A predicate function used to tell footwork whether to consider a route. Any parameters defined by the <span class="inline-code">route:</span> will be passed in.</li>
+        <li><span class="inline-code">filter:</span> - (<em>optional</em>) A predicate function used to tell footwork if it should consider a route. Any parameters defined by the <span class="inline-code">route:</span> will be passed in.</li>
       </ul>
       
       <h3><span class="inline-code">route:</span> example definitions with and without parameters specified:</h3>
-      <h3><span class="inline-code">controller:</span> example definitions with and without parameters specified:</h3>
+      <h3><span class="inline-code">controller:</span> example definitions with and without parameters passed in:</h3>
 <pre><code class="javascript">// ...
 routes: [
-  { // static route: /about-us
+  { // static route (no parameters): /about-us
     route: '/about-us',
     controller: function() { /* ... */ }
   },
@@ -177,30 +174,30 @@ routes: [
 </code></pre>
 
       <h3><span class="inline-code">title:</span> example definitions as a string and callback:</h3>
-      <p>This (optional) parameter defines what the title of the page will be set to when routing to this route.</p>
+      <p>This (optional) parameter defines what the title of the page will be set to when routing to this route. The route params (if any) as described by the route: string will be passed in.</p>
 <pre><code class="javascript">// ...
 routes: [
   { // 'string' title
-    route: '/book/:isbn',
-    title: 'Book Page',
-    controller: function(params) { /* ...*/ }
+    title: 'Store Page',
+    route: '/store',
+    controller: function() { /* ... */ }
   },
   { // callback-based title
-    route: '/book/:isbn',
     title: function(params) {
       return 'Book ' + params.isbn;
     },
-    controller: function(params) { /* ...*/ }
+    route: '/book/:isbn',
+    controller: function(params) { /* ... */ }
   }
 ],
 // ...
 </code></pre>
-
       
       <h3><span class="inline-code">filter:</span> example definition:</h3>
-      <p>This callback is passed the route params object. If it returns a <span class="inline-code">falsey</span> value, the
+      <p>If this (optional) callback returns a 'falsey' value, the
       router will ignore the route even if the path matches. Conversely if the callback returns a
-      <span class="inline-code">truthy</span> value the router will considered it on a first-found first-routed basis as normal.</p>
+      'truthy' value the router will considered it on a first-found first-routed basis as normal.
+      The route params (if any) as described by the <span class="inline-code">route:</span> string will be passed in.</p>
 <pre><code class="javascript">// ...
 routes: [
   { // only routed to when isbn === '12345'
