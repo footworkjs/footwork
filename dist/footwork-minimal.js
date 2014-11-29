@@ -5386,7 +5386,7 @@ Router.prototype.getActionForRoute = function(routeDescription) {
   if( isRoute(routeDescription) ) {
     Action = function() {
       if( !isUndefined(routeDescription.title) ) {
-        document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this) : routeDescription.title;
+        document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this, routeDescription.namedParams, this.urlParts()) : routeDescription.title;
       }
 
       if( isUndefined(this.__currentRouteDescription) || this.__currentRouteDescription.id !== routeDescription.id ) {
