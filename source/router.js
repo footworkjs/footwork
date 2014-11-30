@@ -194,25 +194,35 @@ var isFullURL = fw.isFullURL = function(thing) {
 var fwRouters = fw.routers = {
   // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
   baseRoute: fw.observable(''),
+  activeRouteClassName: fw.observable('active'),
+
   getNearestParent: function($context) {
     var $parentRouter = nearestParentRouter($context);
     return (!isNullRouter($parentRouter) ? $parentRouter : null);
   },
-  activeRouteClassName: 'active',
   
-  // Return array of all currently instantiated $router's
-  getAll: function() {
+  // Return array of all currently instantiated $router's (optionally for a given viewModelNamespaceName)
+  getAll: function(viewModelNamespaceName) {
+    if( !isUndefined(viewModelNamespaceName) && !isArray(viewModelNamespaceName) ) {
+      viewModelNamespaceName = [ viewModelNamespaceName ];
+    }
+
     return reduce( $globalNamespace.request('__router_reference', undefined, true), function(routers, router) {
       var namespaceName = isNamespace(router.$namespace) ? router.$namespace.getName() : null;
+      if( !isUndefined(router.$viewModel) ) {
+        namespaceName = router.$viewModel.$namespace.getName();
+      }
 
       if( !isNull(namespaceName) ) {
-        if( isUndefined(routers[namespaceName]) ) {
-          routers[namespaceName] = router;
-        } else {
-          if( !isArray(routers[namespaceName]) ) {
-            routers[namespaceName] = [ routers[namespaceName] ];
+        if( isUndefined(viewModelNamespaceName) || contains(viewModelNamespaceName, namespaceName) ) {
+          if( isUndefined(routers[namespaceName]) ) {
+            routers[namespaceName] = router;
+          } else {
+            if( !isArray(routers[namespaceName]) ) {
+              routers[namespaceName] = [ routers[namespaceName] ];
+            }
+            routers[namespaceName].push(router);
           }
-          routers[namespaceName].push(router);
         }
       }
       return routers;
@@ -287,15 +297,16 @@ fw.bindingHandlers.$route = {
     var routeURLWithoutParentPath = getRouteURL.bind(null, false);
 
     function checkForMatchingSegment(mySegment, newRoute) {
+      var activeRouteClassName = fwRouters.activeRouteClassName();
       if(mySegment === '/') {
         mySegment = '';
       }
       
-      if(!isNull(newRoute) && newRoute.segment === mySegment && isString(fwRouters.activeRouteClassName) && fwRouters.activeRouteClassName.length) {
+      if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
         // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
-        addClass(element, fwRouters.activeRouteClassName);
-      } else if( hasClass(element, fwRouters.activeRouteClassName) ) {
-        removeClass(element, fwRouters.activeRouteClassName);
+        addClass(element, activeRouteClassName);
+      } else if( hasClass(element, activeRouteClassName) ) {
+        removeClass(element, activeRouteClassName);
       }
     };
 

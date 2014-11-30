@@ -117,6 +117,12 @@ parseUri.options = {
 //import("namespace.js");
 var $globalNamespace = makeNamespace();
 
+// 'start' up footwork at the targetElement (or document.body by default)
+fw.start = function(targetElement) {
+  targetElement = targetElement || windowObject.document.body;
+  originalApplyBindings({}, targetElement);
+};
+
 //import("broadcast-receive.js");
 //import("router.js");
 //import("viewModel.js");

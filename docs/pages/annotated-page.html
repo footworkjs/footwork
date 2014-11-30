@@ -653,6 +653,21 @@ var $globalNamespace = makeNamespace();</code></pre></div>
         <li id="section-32" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
+              <p>‘start’ up footwork at the targetElement (or document.body by default)</p>
+
+            </div>
+            
+            <div class="content"><pre><code class="javascript">fw.start = function(targetElement) {
+  targetElement = targetElement || windowObject.document.body;
+  originalApplyBindings({}, targetElement);
+};</code></pre></div>
+            
+        </li>
+      
+        
+        <li id="section-33" class="section">
+            <div class="annotation-bg"></div>
+            <div class="annotation">
               <h2 id="broadcast-receive-js">broadcast-receive.js</h2>
 
             </div>
@@ -668,7 +683,7 @@ function isBroadcastable(thing) {
         </li>
       
         
-        <li id="section-33" class="section">
+        <li id="section-34" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>factory method which turns an observable into a receivable</p>
@@ -722,7 +737,7 @@ function isBroadcastable(thing) {
         </li>
       
         
-        <li id="section-34" class="section">
+        <li id="section-35" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>factory method which turns an observable into a broadcastable</p>
@@ -798,7 +813,7 @@ function isBroadcastable(thing) {
         </li>
       
         
-        <li id="section-35" class="section">
+        <li id="section-36" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <h2 id="router-js">router.js</h2>
@@ -808,7 +823,7 @@ function isBroadcastable(thing) {
         </li>
       
         
-        <li id="section-36" class="section">
+        <li id="section-37" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Predicate function that always returns true / ‘pass’</p>
@@ -830,7 +845,7 @@ var routerDefaultConfig = {
         </li>
       
         
-        <li id="section-37" class="section">
+        <li id="section-38" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Regular expressions used to parse a uri</p>
@@ -881,7 +896,7 @@ function transformRouteConfigToDesc(routeDesc) {
         </li>
       
         
-        <li id="section-38" class="section">
+        <li id="section-39" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Convert a route string to a regular expression which is then used to match a uri against it and determine
@@ -908,7 +923,7 @@ function historyIsReady() {
         </li>
       
         
-        <li id="section-39" class="section">
+        <li id="section-40" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>why .unbind() is not already present in History.js is beyond me</p>
@@ -941,7 +956,7 @@ function isRoute(thing) {
         </li>
       
         
-        <li id="section-40" class="section">
+        <li id="section-41" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Recursive function which will locate the nearest $router from a given ko $context
@@ -958,7 +973,7 @@ immediate $context). Returns $nullRouter if none is found.</p>
         </li>
       
         
-        <li id="section-41" class="section">
+        <li id="section-42" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>found router in this context</p>
@@ -971,7 +986,7 @@ immediate $context). Returns $nullRouter if none is found.</p>
         </li>
       
         
-        <li id="section-42" class="section">
+        <li id="section-43" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>search through next parent up the chain</p>
@@ -1025,7 +1040,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
         </li>
       
         
-        <li id="section-43" class="section">
+        <li id="section-44" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Return the onComplete callback once the DOM is injected in the page.
@@ -1076,7 +1091,7 @@ var fwRouters = fw.routers = {</code></pre></div>
         </li>
       
         
-        <li id="section-44" class="section">
+        <li id="section-45" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route</p>
@@ -1084,34 +1099,44 @@ var fwRouters = fw.routers = {</code></pre></div>
             </div>
             
             <div class="content"><pre><code class="javascript">baseRoute: fw.observable(''),
+  activeRouteClassName: fw.observable('active'),
+
   getNearestParent: function($context) {
     var $parentRouter = nearestParentRouter($context);
     return (!isNullRouter($parentRouter) ? $parentRouter : null);
-  },
-  activeRouteClassName: 'active',</code></pre></div>
+  },</code></pre></div>
             
         </li>
       
         
-        <li id="section-45" class="section">
+        <li id="section-46" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
-              <p>Return array of all currently instantiated $router’s</p>
+              <p>Return array of all currently instantiated $router’s (optionally for a given viewModelNamespaceName)</p>
 
             </div>
             
-            <div class="content"><pre><code class="javascript">getAll: function() {
+            <div class="content"><pre><code class="javascript">getAll: function(viewModelNamespaceName) {
+    if( !isUndefined(viewModelNamespaceName) && !isArray(viewModelNamespaceName) ) {
+      viewModelNamespaceName = [ viewModelNamespaceName ];
+    }
+
     return reduce( $globalNamespace.request('__router_reference', undefined, true), function(routers, router) {
       var namespaceName = isNamespace(router.$namespace) ? router.$namespace.getName() : null;
+      if( !isUndefined(router.$viewModel) ) {
+        namespaceName = router.$viewModel.$namespace.getName();
+      }
 
       if( !isNull(namespaceName) ) {
-        if( isUndefined(routers[namespaceName]) ) {
-          routers[namespaceName] = router;
-        } else {
-          if( !isArray(routers[namespaceName]) ) {
-            routers[namespaceName] = [ routers[namespaceName] ];
+        if( isUndefined(viewModelNamespaceName) || contains(viewModelNamespaceName, namespaceName) ) {
+          if( isUndefined(routers[namespaceName]) ) {
+            routers[namespaceName] = router;
+          } else {
+            if( !isArray(routers[namespaceName]) ) {
+              routers[namespaceName] = [ routers[namespaceName] ];
+            }
+            routers[namespaceName].push(router);
           }
-          routers[namespaceName].push(router);
         }
       }
       return routers;
@@ -1186,25 +1211,26 @@ fw.bindingHandlers.$route = {
     var routeURLWithoutParentPath = getRouteURL.bind(null, false);
 
     function checkForMatchingSegment(mySegment, newRoute) {
+      var activeRouteClassName = fwRouters.activeRouteClassName();
       if(mySegment === '/') {
         mySegment = '';
       }
       
-      if(!isNull(newRoute) && newRoute.segment === mySegment && isString(fwRouters.activeRouteClassName) && fwRouters.activeRouteClassName.length) {</code></pre></div>
+      if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {</code></pre></div>
             
         </li>
       
         
-        <li id="section-46" class="section">
+        <li id="section-47" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>newRoute.segment is the same as this routers segment…add the activeRouteClassName to the element to indicate it is active</p>
 
             </div>
             
-            <div class="content"><pre><code class="javascript">addClass(element, fwRouters.activeRouteClassName);
-      } else if( hasClass(element, fwRouters.activeRouteClassName) ) {
-        removeClass(element, fwRouters.activeRouteClassName);
+            <div class="content"><pre><code class="javascript">addClass(element, activeRouteClassName);
+      } else if( hasClass(element, activeRouteClassName) ) {
+        removeClass(element, activeRouteClassName);
       }
     };
 
@@ -1235,7 +1261,7 @@ fw.bindingHandlers.$route = {
         </li>
       
         
-        <li id="section-47" class="section">
+        <li id="section-48" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>var hashIndex = currentRouteURL.indexOf(‘#’);
@@ -1249,7 +1275,7 @@ $myRouter.setState( currentRouteURL.substring(0, hashIndex) );</p>
         </li>
       
         
-        <li id="section-48" class="section">
+        <li id="section-49" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>if(hashIndex !== currentRouteURL.length) {
@@ -1335,7 +1361,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
         </li>
       
         
-        <li id="section-49" class="section">
+        <li id="section-50" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Automatically trigger the new Action() whenever the currentRoute() updates</p>
@@ -1507,7 +1533,7 @@ Router.prototype.getRouteForURL = function(url) {
         </li>
       
         
-        <li id="section-50" class="section">
+        <li id="section-51" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>If this is a relative router we need to remove the leading parentRoutePath section of the URL</p>
@@ -1529,7 +1555,7 @@ Router.prototype.getRouteForURL = function(url) {
         </li>
       
         
-        <li id="section-51" class="section">
+        <li id="section-52" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>find all routes with a matching routeString</p>
@@ -1558,7 +1584,7 @@ Router.prototype.getRouteForURL = function(url) {
         </li>
       
         
-        <li id="section-52" class="section">
+        <li id="section-53" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>If there are matchedRoutes, find the one with the highest ‘specificity’ (longest normalized matching routeString)
@@ -1628,7 +1654,7 @@ Router.prototype.getRouteDescriptions = function() {
         </li>
       
         
-        <li id="section-53" class="section">
+        <li id="section-54" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <h2 id="viewmodel-js">viewModel.js</h2>
@@ -1638,7 +1664,7 @@ Router.prototype.getRouteDescriptions = function() {
         </li>
       
         
-        <li id="section-54" class="section">
+        <li id="section-55" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Duck type function for determining whether or not something is a footwork viewModel constructor function</p>
@@ -1652,7 +1678,7 @@ Router.prototype.getRouteDescriptions = function() {
         </li>
       
         
-        <li id="section-55" class="section">
+        <li id="section-56" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Duck type function for determining whether or not something is a footwork viewModel</p>
@@ -1672,7 +1698,7 @@ fw.viewModels = {};</code></pre></div>
         </li>
       
         
-        <li id="section-56" class="section">
+        <li id="section-57" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Returns a reference to the specified viewModels.
@@ -1813,7 +1839,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
         </li>
       
         
-        <li id="section-57" class="section">
+        <li id="section-58" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>user has specified another viewModel constructor as the ‘initialize’ function, we extend it with the current constructor to create an inheritance chain</p>
@@ -1844,7 +1870,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
         </li>
       
         
-        <li id="section-58" class="section">
+        <li id="section-59" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Provides lifecycle functionality and $context for a given viewModel and element</p>
@@ -1878,7 +1904,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
         </li>
       
         
-        <li id="section-59" class="section">
+        <li id="section-60" class="section">
             <div class="annotation-bg"></div>
             <div class="annotation">
               <p>Override the original applyBindings method to provide ‘viewModel’ life-cycle hooks/events and to provide the $context to the $router if present.</p>
@@ -1889,21 +1915,6 @@ var makeViewModel = fw.viewModel = function(configParams) {
 var applyBindings = fw.applyBindings = function(viewModel, element) {
   originalApplyBindings(viewModel, element);
   applyContextAndLifeCycle(viewModel, element);
-};</code></pre></div>
-            
-        </li>
-      
-        
-        <li id="section-60" class="section">
-            <div class="annotation-bg"></div>
-            <div class="annotation">
-              <p>‘start’ up footwork at the targetElement (or document.body by default)</p>
-
-            </div>
-            
-            <div class="content"><pre><code class="javascript">fw.start = function(targetElement) {
-  targetElement = targetElement || windowObject.document.body;
-  originalApplyBindings({}, targetElement);
 };
 
 function bindComponentViewModel(element, params, ViewModel) {

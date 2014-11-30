@@ -235,7 +235,7 @@ routes: [
       <h2 class="sub title">Outlets</h2>
     </header>
     <div class="content">
-      <p>Outlets are simply areas in your application that it can control what is displayed. When you tell an outlet what to show, you are telling it to load a component. Thus for each 'page' or view you want
+      <p>Outlets are simply areas in your application where you can control what is displayed. When you tell an outlet what to show, you are telling it to load a component. Thus for each 'page' or view you want
       for an <span class="inline-code">outlet</span> footwork will need one of the three following things:</p>
 
       <ul>
@@ -258,8 +258,8 @@ routes: [
       <h2 class="sub title">Lazy Loading / Registering Views (components without a viewModel)</h2>
     </header>
     <div class="content">
-      <p>Because most things you might want to show in an outlet (pages/views) consist of only template code (they have no corresponding viewModel), footwork provides two shortcut methods for creating a
-      template-only outlet view (ie: a 'page/view' you can show in an <span class="inline-code">&lt;outlet&gt;&lt;/outlet&gt;</span>).</p>
+      <p>Because most things you might want to show in an outlet (pages/views) consist of only template code (they have no corresponding viewModel), footwork provides two shortcut methods for registering a
+      template-only outlet view (ie: a page/view/template you can show in an <span class="inline-code">&lt;outlet&gt;&lt;/outlet&gt;</span>).</p>
       <ul>
         <li><span class="inline-code">fw.outlets.registerView()</span> - Cache a view/template for later use (available instantly, no download time).</li>
         <li><span class="inline-code">fw.outlets.registerViewLocation()</span> - Tell footwork where it can download it via AMD/RequireJS (dynamically/lazy loaded for you when requested). Since outlet views are just viewModel-less components, they are resolved just like any other <a href="/api/components#loading-registering" data-bind="$route">AMD/RequireJS loaded component</a>.</li>
@@ -301,11 +301,11 @@ fw.outlets.registerViewLocation('calendar-page', '/otherPages/');
     </header>
     <div class="content">
       <p>Once footwork knows how to resolve your outlet view it can be used in your application. From that point you need only place whatever
-      <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations you want in the HTML and then change/set them via <span class="inline-code">router.$outlet()</span> calls.</p>
+      <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations you want in the HTML and then change/set them via the <span class="inline-code">router.$outlet()</span> method.</p>
 
-      <h3><em class="func-def">router.$outlet<span>( <span class="param">'outletName'</span>, <span class="param">'viewName'</span>, <span class="param">initParams</span> )</span></em></h3>
-      <h3><em class="func-def">router.$outlet<span>( <span class="param">'outletName'</span>, <span class="param">'componentName'</span>, <span class="param">initParams</span> )</span></em></h3>
-      <h3>Trigger an outlet to display a component, optionally passing in initParams to its viewModel.</h3>
+      <h3><em class="func-def">router.$outlet<span>( <span class="param">'outletName'</span>, <span class="param">'viewName'</span>, <span class="param">options</span> )</span></em></h3>
+      <h3><em class="func-def">router.$outlet<span>( <span class="param">'outletName'</span>, <span class="param">'viewName'</span>, <span class="param">onComplete()</span> )</span></em></h3>
+      <h3>Trigger an outlet to display a component, optionally providing an onComplete() callback and/or parameters to its viewModel.</h3>
       <h3>Example <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> with a router and outlet:</h3>
 <pre><code class="html">&lt;html&gt;
   &lt;body&gt;
@@ -354,30 +354,44 @@ fw.start();
 });
 </code></pre>
 
-      <h3>If the view (component) you are loading in an outlet has a viewModel (its a normal component), you can pass parameters to it via the <span class="inline-code">router.$outlet()</span> call:</h3>
-<pre><code class="javascript">var Main = fw.viewModel({
-  namespace: 'Main',
-  router: {
-    routes: [ {
-      route: '/',
-      controller: function() {
-        this.$outlet('main-view', 'index-page');
-      }
-    }, {
-      route: '/about',
-      controller: function() {
-        /**
-         * Route changed to '/about', make the 'main-view' outlet show the 'about-page' component while
-         * passing it the object literal (3rd parameter) to the initialize method of the viewModel.
-         */
-        this.$outlet('main-view', 'about-page', { thisObject: 'isPassedToTheComponent' });
-      }
-    } ]
+      <h3>You can provide an <span class="inline-code">onComplete()</span> callback to the <span class="inline-code">router.$outlet()</span> method which is run after the outlet has finished changing its view:</h3>
+<pre><code class="javascript">// ...
+{
+  route: '/about',
+  controller: function() {
+    this.$outlet('main-view', 'about-page', function() {
+      console.log('About page is loaded!');
+    });
   }
-  initialize: function() { /* ... */ }
-});
+}
+// ...
 </code></pre>
-      <div class="note"><span class="label">NOTE:</span> Remember that in addition to passing arguments directly from a route, you can also leverage the powerful <a href="/api/namespacing" data-bind="$route">namespacing features</a> of footwork to facilitate communication/initialization for your view component.</div>
+
+      <p>You can also pass an <span class="inline-code">options</span> object to the <span class="inline-code">router.$outlet()</span> method. This object can contain the following:</p>
+      <ul>
+        <li><span class="inline-code">params:</span> - (<em>optional</em>) Object passed to the <span class="inline-code">initialize()</span> method of the viewModel (if your view/component has a viewModel).</li>
+        <li><span class="inline-code">onComplete:</span> - (<em>optional</em>) A callback function which is run after the new view/component is loaded (same as above).</li>
+      </ul>
+<pre><code class="javascript">// ...
+{
+  route: '/about',
+  controller: function() {
+    this.$outlet('main-view', 'about-page', {
+      // params object passed to the viewModel initialize() method
+      params: { thisObject: 'isPassedToTheComponent' },
+
+      // callback which is run after it is loaded
+      onComplete: function() {
+        console.log('About page is loaded!');
+      }
+    });
+  }
+}
+// ...
+</code></pre>
+      <div class="note"><span class="label">NOTE:</span> Remember that in addition to passing arguments directly from a route, you can also leverage the
+      powerful <a href="/api/namespacing" data-bind="$route">namespacing</a> or <a href="/api/broadcastable-receivable" data-bind="$route">broadcastable/receivable</a>
+      features of footwork to facilitate communication/initialization for your view component.</div>
     </div>
   </section>
 
@@ -398,7 +412,9 @@ fw.start();
         { "anchor": "routes",
           "title": "Routes List" },
         { "anchor": "route",
-          "title": "Route Definition" }
+          "title": "Route Definition" },
+        { "anchor": "router-properties",
+          "title": "Router Properties" }
       ] },
     { "anchor": "outlets",
       "title": "Outlets",
@@ -407,6 +423,18 @@ fw.start();
           "title": "Lazy Loading / Registering Views" },
         { "anchor": "outlet-usage",
           "title": "Usage" }
+      ] },
+    { "anchor": "misc",
+      "title": "Misc / Utility",
+      "collapsable": true,
+      "isCollapsed": true,
+      "subSections": [
+        { "anchor": "routers-getAll",
+          "title": "fw.routers.getAll()" },
+        { "anchor": "routers-baseRoute",
+          "title": "fw.routers.baseRoute()" },
+        { "anchor": "routers-activeRouteClassName",
+          "title": "fw.routers.activeRouteClassName()" }
       ] }
   ]
 }
