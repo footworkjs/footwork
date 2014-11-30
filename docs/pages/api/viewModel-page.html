@@ -142,7 +142,7 @@ fw.applyBindings(awesomeSprocket, document.getElementById('sprocket-container'))
 </code></pre>
 
       <h3>Automatic initialization via <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> declaration in the DOM:</h3>
-<pre><code>&lt;html&gt;
+<pre><code class="html">&lt;html&gt;
   &lt;body&gt;
     &lt;viewModel module="Sprocket"&gt;
       Type: &lt;span data-bind="text: type"&gt;&lt;/span&gt;
@@ -155,7 +155,7 @@ fw.applyBindings(awesomeSprocket, document.getElementById('sprocket-container'))
       <p class="note"><span class="label">NOTE:</span> See <a href="#loading-registering">AMD / Lazy Loading / Registering</a> for information on how to make sure footwork knows how to find your viewModels/modules.</p>
 
       <h3>Automatic initialization via <span class="inline-code">&lt;[component-name]&gt;&lt;/[component-name]&gt;</span> declaration in the DOM:</h3>
-<pre><code>&lt;html&gt;
+<pre><code class="html">&lt;html&gt;
   &lt;body&gt;
     &lt;sprocket&gt;&lt;/sprocket&gt;
     &lt;!-- NOTE: Both the viewModel and template are either autoloaded via requireJS/AMD, or 
@@ -212,7 +212,7 @@ define(["footwork"],
 
       <p>Automatically loading and binding a section of your DOM with a viewModel begins with inserting/wrapping the html in your template with a <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> element.</p>
       <h3>Example:</h3>
-<pre><code>&lt;html&gt;
+<pre><code class="html">&lt;html&gt;
   &lt;body&gt;
     &lt;viewModel module="[moduleName]"&gt;
       &lt;!-- HTML to be bound using an instance of the viewModel/module --&gt;

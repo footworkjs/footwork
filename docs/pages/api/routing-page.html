@@ -196,7 +196,7 @@ routes: [
       <h3><span class="inline-code">filter:</span> example definition:</h3>
       <p>If this (optional) callback returns a 'falsey' value, the
       router will ignore the route even if the path matches. Conversely if the callback returns a
-      'truthy' value the router will considered it on a first-found first-routed basis as normal.
+      'truthy' value the router will consider it on a first-found first-routed basis as normal.
       The route params (if any) as described by the <span class="inline-code">route:</span> string will be passed in.</p>
 <pre><code class="javascript">// ...
 routes: [
@@ -235,15 +235,30 @@ routes: [
       <h2 class="sub title">Outlets</h2>
     </header>
     <div class="content">
-      <p>Outlets are simply controllable output points for components.  When you tell an outlet what to show, you are telling it to load a component. Thus for each 'page' or output you want
-      for an <span class="inline-code">outlet</span> footwork will need one of the two following things:</p>
+      <p>Outlets are simply areas in your application that it can control what is displayed. When you tell an outlet what to show, you are telling it to load a component. Thus for each 'page' or view you want
+      for an <span class="inline-code">outlet</span> footwork will need one of the three following things:</p>
 
       <ul>
         <li>A corresponding view registered (cached/preloaded) via <span class="inline-code">fw.outlets.registerView()</span> or <a href="/api/components#loading-registering" data-bind="$route"><span class="inline-code">fw.components.register()</span></a></li>
         <li>A registered location where it can load the view via <span class="inline-code">fw.outlets.registerViewLocation()</span> or <a href="/api/components#loading-registering" data-bind="$route"><span class="inline-code">fw.components.registerLocation()</span></a></li>
+        <li>A component/view available at the default component location (<span class="inline-code">fw.components.defaultLocation()</span>, see <a href="/api/components#loading-registering" data-bind="$route">component registration</a>).</li>
       </ul>
+      <div class="note">
+        <p><span class="label">NOTE:</span> You can tell an <span class="inline-code">&lt;outlet&gt;&lt;/outlet&gt;</span> to show <em>any</em> component, not just ones you register with <span class="inline-code">fw.outlets.registerView()</span> or 
+        <span class="inline-code">fw.outlets.registerViewLocation()</span>. Those methods are simply provided as a shortcut for creating a component and marking it as 'template-only'.</p>
+        <p>Also remember that components can contain any depth and complexity of nested viewModels, components, routers, etc. This means you can even nest entire applications within the view of another, all with simple declarative syntax.</p>
+      </div>
+    </div>
+  </section>
 
-      <p>Because most outlet components (pages/views) consist of only template code (they have no corresponding viewModel), footwork provides two shortcut methods for creating a
+  <a id="outlet-registering" class="section-anchor"></a>
+  <section name="outlet-registering">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Lazy Loading / Registering Views (components without a viewModel)</h2>
+    </header>
+    <div class="content">
+      <p>Because most things you might want to show in an outlet (pages/views) consist of only template code (they have no corresponding viewModel), footwork provides two shortcut methods for creating a
       template-only outlet view (ie: a 'page/view' you can show in an <span class="inline-code">&lt;outlet&gt;&lt;/outlet&gt;</span>).</p>
       <ul>
         <li><span class="inline-code">fw.outlets.registerView()</span> - Cache a view/template for later use (available instantly, no download time).</li>
@@ -259,7 +274,10 @@ fw.outlets.registerView('index-page', '&lt;p&gt;Welcome to footwork.js&lt;/p&gt;
 // Register a different view that has a nested component
 fw.outlets.registerView('calendar-page', 'Calendar: &lt;calendar&gt;&lt;/calendar&gt;');
 </code></pre>
-      <div class="note"><span class="label">NOTE:</span> It is generally recommended you load your templates via a module system such as RequireJS (don't just write them inline in a string as shown, that was only used as an example for reasons of brevity). For an example of how to do this check the <a href="/tutorials" data-bind="$route">tutorials page</a>.</div>
+      <div class="note">
+        <p><span class="label">NOTE:</span> It is generally recommended you load your templates via a module system such as RequireJS (don't just write them inline in a string as shown, that was only used as an example for reasons of brevity).</p>
+        <p>For an example of how to do this check the <a href="/tutorials" data-bind="$route">tutorials page</a>, or alternatively just specify the location of the view via <span class="inline-code">fw.outlets.registerViewLocation()</span>.</p>
+      </div>
 
       <h3><em class="func-def">fw.outlets.registerViewLocation<span>( <span class="param">'viewName'</span>, <span class="param">'/path/to/template'</span> )</span></em></h3>
       <h3>Tell footwork where it can download the view via AMD/RequireJS:</h3>
@@ -272,10 +290,94 @@ fw.outlets.registerViewLocation('index-page', '/pages/index-page.html');
  */
 fw.outlets.registerViewLocation('calendar-page', '/otherPages/');
 </code></pre>
-      <div class="note"><span class="label">NOTE:</span> You can tell an <span class="inline-code">&lt;outlet&gt;&lt;/outlet&gt;</span> to show <em>any</em> component, not just ones you register with <span class="inline-code">fw.outlets.registerView()</span> or 
-      <span class="inline-code">fw.outlets.registerViewLocation()</span></div>
+    </div>
+  </section>
 
-      <p>Once footwork knows how to resolve your outlet view it can be used in your application.</p>
+  <a id="outlet-usage" class="section-anchor"></a>
+  <section name="outlet-usage">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Usage</h2>
+    </header>
+    <div class="content">
+      <p>Once footwork knows how to resolve your outlet view it can be used in your application. From that point you need only place whatever
+      <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations you want in the HTML and then change/set them via <span class="inline-code">router.$outlet()</span> calls.</p>
+
+      <h3><em class="func-def">router.$outlet<span>( <span class="param">'outletName'</span>, <span class="param">'viewName'</span>, <span class="param">initParams</span> )</span></em></h3>
+      <h3><em class="func-def">router.$outlet<span>( <span class="param">'outletName'</span>, <span class="param">'componentName'</span>, <span class="param">initParams</span> )</span></em></h3>
+      <h3>Trigger an outlet to display a component, optionally passing in initParams to its viewModel.</h3>
+      <h3>Example <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> with a router and outlet:</h3>
+<pre><code class="html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;viewModel module="Main"&gt;
+      &lt;!-- ... --&gt;
+      &lt;outlet name="main-view"&gt;&lt;/outlet&gt;
+      &lt;!-- ... --&gt;
+    &lt;/viewModel&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<pre><code class="javascript">var Main = fw.viewModel({
+  namespace: 'Main',
+  router: { /* ... */ }
+  initialize: function() {
+    // tell the 'main-view' outlet to show the 'index-page' view/component
+    this.$router.$outlet('main-view', 'index-page');
+  }
+});
+
+fw.viewModels.register('Main', Main);
+fw.outlets.registerView('index-page', '&lt;p&gt;This is the index-page view.!&lt;/p&gt;');
+
+fw.start();
+</code></pre>
+        <div class="note"><span class="label">NOTE:</span> You should be loading your viewModel and template modules externally, do not write them inline as shown! That was done purely to make the example short and more readable.</div>
+
+      <h3>Normally you would perform <span class="inline-code">router.$outlet()</span> calls from inside a route controller, as shown below:</h3>
+<pre><code class="javascript">var Main = fw.viewModel({
+  namespace: 'Main',
+  router: {
+    routes: [ {
+      route: '/',
+      controller: function() {
+        // route changed to '/', make the 'main-view' outlet show the 'index-page' view
+        this.$outlet('main-view', 'index-page');
+      }
+    }, {
+      route: '/about',
+      controller: function() {
+        // route changed to '/about', make the 'main-view' outlet show the 'about-page' view
+        this.$outlet('main-view', 'about-page');
+      }
+    } ]
+  }
+  initialize: function() { /* ... */ }
+});
+</code></pre>
+
+      <h3>If the view (component) you are loading in an outlet has a viewModel (its a normal component), you can pass parameters to it via the <span class="inline-code">router.$outlet()</span> call:</h3>
+<pre><code class="javascript">var Main = fw.viewModel({
+  namespace: 'Main',
+  router: {
+    routes: [ {
+      route: '/',
+      controller: function() {
+        this.$outlet('main-view', 'index-page');
+      }
+    }, {
+      route: '/about',
+      controller: function() {
+        /**
+         * Route changed to '/about', make the 'main-view' outlet show the 'about-page' component while
+         * passing it the object literal (3rd parameter) to the initialize method of the viewModel.
+         */
+        this.$outlet('main-view', 'about-page', { thisObject: 'isPassedToTheComponent' });
+      }
+    } ]
+  }
+  initialize: function() { /* ... */ }
+});
+</code></pre>
+      <div class="note"><span class="label">NOTE:</span> Remember that in addition to passing arguments directly from a route, you can also leverage the powerful <a href="/api/namespacing" data-bind="$route">namespacing features</a> of footwork to facilitate communication/initialization for your view component.</div>
     </div>
   </section>
 
@@ -299,7 +401,13 @@ fw.outlets.registerViewLocation('calendar-page', '/otherPages/');
           "title": "Route Definition" }
       ] },
     { "anchor": "outlets",
-      "title": "Outlets" }
+      "title": "Outlets",
+      "subSections": [
+        { "anchor": "outlet-registering",
+          "title": "Lazy Loading / Registering Views" },
+        { "anchor": "outlet-usage",
+          "title": "Usage" }
+      ] }
   ]
 }
 </div>
