@@ -23,12 +23,12 @@
       <h1 class="sub title">Usage</h1>
     </header>
     <div class="content">
-      <p>Broadcastables are created by taking an observable and calling <span class="inline-code">observable.broadcastAs()</span> on it, receivables are created by taking an observable and calling <span class="inline-code">observable.receivFrom()</span> on it. Broadcastables and receivables can be based off of any knockout observable type (observable, computed observable, observableArray).</p>
-      <div class="note"><span class="label">NOTE:</span> Receivables must be 'writable' (when receiving data from a broadcastable, the observable it is based off of must be able to be written to). This means that if you have a computed observable you are calling <span class="inline-code">.broadcastAs()</span> on, it must have a <span class="inline-code">write:</span> method specified.</div>
-      <p>Receivables are listeners for information that a broadcastable sends out. Anytime a <span class="inline-code">broadcastable</span> send out an updated value for the variable a <span class="inline-code">receivable</span> is configured for, the receivable will be updated, its listeners notified, and propagate through any computed values as expected.</p>
+      <p>Broadcastables are created by taking an observable and calling <span class="inline-code">observable.broadcastAs()</span> on it, receivables are created by taking an observable and calling <span class="inline-code">observable.receiveFrom()</span> on it. Broadcastables and receivables can be based off of any knockout observable type (observable, computed observable, observableArray).</p>
+      <div class="note"><span class="label">NOTE:</span> Receivables must be 'writable' (when receiving data from a broadcastable, the observable it is based off of must be able to be written to). This means that if you have a computed observable you are calling <span class="inline-code">.receiveFrom()</span> on, it must have a <span class="inline-code">write:</span> method specified.</div>
+      <p>Receivables are listeners for information that a broadcastable sends out. Anytime a <span class="inline-code">broadcastable</span> sends out an updated value for the variable a <span class="inline-code">receivable</span> is configured for, the receivable will be updated, its listeners notified, and that value propagated through any computed values as expected.</p>
       <p>The module a broadcastable is attached to should be thought of as the 'owner' of that property, and any related logic should (ideally) also be contained within that module/lexical scope.</p>
       <p>Since receivables and broadcastables are just extended observables, any computed properties and subscriptions based off of them will propagate just like normal knockout observables.</p>
-      <div class="note"><span class="label">NOTE:</span> Because of their reliance on the message bus, broadcastables and receivables must be cleaned up when disposing of them. Any broadcastable or receivable which is assigned to a viewModel will automatically be cleaned up along with that viewModel. If you are using them independently, you will need to call <span class="inline-code">observable.dispose()</span> when you intend to get rid of it.</div>
+      <div class="note"><span class="label">NOTE:</span> Because of their reliance on the message bus, broadcastables and receivables must be cleaned up when disposing of them. Any broadcastable or receivable which is assigned to a viewModel will automatically be cleaned up along with that viewModel. If you are using them independently, you will need to call <span class="inline-code">.dispose()</span> on it when you intend to get rid of it.</div>
     </div>
   </section>
 
@@ -176,6 +176,38 @@ userBrowserType('Internet Explorer 6');
     </div>
   </section>
 
+  <a id="dispose" class="section-anchor"></a>
+  <section name="dispose">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">.dispose()</h1>
+    </header>
+    <div class="content">
+
+      <h3 class="top"><em class="func-def">broadcastable.dispose<span>()</span></em></h3>
+      <h3 class="top"><em class="func-def">receivable.dispose<span>()</span></em></h3>
+      <h3>Dispose of a broadcastable (no longer sends out updates) or receivable (no longer receives updates):</h3>
+<pre><code class="javascript">// setup a broadcastable
+var broadcastable = fw.observable('Hello').broadcastAs({ name: 'broadcastable', namespace: 'someNamespace' });
+
+// setup a couple receivables to retrive its value
+var receivable = fw.observable().receiveFrom('someNamespace', 'broadcastable');
+var receivable2 = fw.observable().receiveFrom('someNamespace', 'broadcastable');
+// receivable() === 'Hello'
+// receivable2() === 'Hello'
+
+broadcastable('Goodbye'); // write new value to broadcastable
+// receivable() === 'Goodbye'
+// receivable2() === 'Goodbye'
+
+receivable.dispose(); // receivable will no longer get updates
+broadcastable('Hello');
+// receivable() === 'GoodBye'
+// receivable2() === 'Hello'
+</code></pre>
+    </div>
+  </section>
+
 </article>
 
 <div id="metaData">
@@ -192,6 +224,10 @@ userBrowserType('Internet Explorer 6');
           "title": "observable.receiveFrom()" },
         { "anchor": "observable-broadcastAs",
           "title": "observable.broadcastAs()" }
+      ] },
+    { "subSections": [
+        { "anchor": "dispose",
+          "title": ".dispose()" }
       ] }
   ]
 }
