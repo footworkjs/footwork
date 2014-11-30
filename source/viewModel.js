@@ -92,12 +92,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
           if( configParams.onDispose !== noop ) {
             configParams.onDispose.call(this);
           }
-
-          each(this, function( property, name ) {
-            if( (isNamespace(property) || isRouter(property) || isBroadcastable(property) || isReceivable(property) || isObservable(property)) && isFunction(property.dispose) ) {
-              property.dispose();  
-            }
-          });
+          each(this, propertyDisposal);
         }
       }
     },

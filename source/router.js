@@ -195,6 +195,7 @@ var fwRouters = fw.routers = {
   // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
   baseRoute: fw.observable(''),
   activeRouteClassName: fw.observable('active'),
+  disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: $globalNamespace }),
 
   getNearestParent: function($context) {
     var $parentRouter = nearestParentRouter($context);
@@ -333,15 +334,6 @@ fw.bindingHandlers.$route = {
             }
             if( isString(currentRouteURL) && !isFullURL( currentRouteURL ) ) {
               $myRouter.setState( currentRouteURL );
-              // var hashIndex = currentRouteURL.indexOf('#');
-              // if( hashIndex === -1 ) {
-              //   hashIndex = currentRouteURL.length;
-              // }
-              // $myRouter.setState( currentRouteURL.substring(0, hashIndex) );
-
-              // if(hashIndex !== currentRouteURL.length) {
-              //   windowObject.location.hash = currentRouteURL.substring(hashIndex);
-              // }
             }
           }
         });
@@ -370,8 +362,8 @@ var Router = function( routerConfig, $viewModel, $context ) {
     viewModelNamespaceName = $viewModel.getNamespaceName();
   }
 
+  var $globalNamespace = this.$globalNamespace = makeNamespace();
   this.id = uniqueId('router');
-  this.$globalNamespace = makeNamespace();
   this.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + 'Router') );
   this.$namespace.enter();
   this.$namespace.command.handler('setState', this.setState, this);
@@ -383,7 +375,8 @@ var Router = function( routerConfig, $viewModel, $context ) {
   this.childRouters = fw.observableArray();
   this.parentRouter = fw.observable($nullRouter);
   this.context = fw.observable();
-  this.historyIsEnabled = fw.observable(false).broadcastAs('historyIsEnabled');
+  this.historyIsEnabled = fw.observable(false);
+  this.disableHistory = fw.observable().receiveFrom($globalNamespace, 'disableHistory');
   this.currentState = fw.observable('').broadcastAs('currentState');
   this.config = routerConfig = extend({}, routerDefaultConfig, routerConfig);
   this.config.baseRoute = fw.routers.baseRoute() + (result(routerConfig, 'baseRoute') || '');
@@ -476,7 +469,7 @@ Router.prototype.activate = function($context, $parentRouter) {
 var doNotPushOntoHistory = true;
 var pushOntoHistory = false;
 Router.prototype.setState = function(url) {
-  if( this.historyIsEnabled() && !this.disableHistory ) {
+  if( this.historyIsEnabled() && !this.disableHistory() ) {
     if(isString(url)) {
       var historyAPIWorked = true;
       try {
@@ -510,7 +503,7 @@ Router.prototype.startup = function( $context, $parentRouter ) {
   }
 
   if( !this.historyIsEnabled() ) {
-    if( historyIsReady() && !this.disableHistory ) {
+    if( historyIsReady() && !this.disableHistory() ) {
       History.Adapter.bind( windowObject, 'popstate', this.stateChangeHandler = function(event) {
         this.currentState( this.normalizeURL(windowObject.location.pathname + windowObject.location.hash) );
       }.bind(this));
@@ -537,11 +530,9 @@ Router.prototype.dispose = function() {
   this.$globalNamespace.dispose();
 
   invoke(this.subscriptions, 'dispose');
-  each(this, function(property) {
-    if( property && !isViewModel(property) && isFunction(property.dispose) ) {
-      property.dispose();
-    }
-  });
+  each(omit(this, function(property) {
+    return isViewModel(property);
+  }), propertyDisposal);
 };
 
 Router.prototype.normalizeURL = function(url) {
@@ -580,16 +571,8 @@ Router.prototype.getRouteForURL = function(url) {
   var $myRouter = this;
 
   // If this is a relative router we need to remove the leading parentRoutePath section of the URL
-  if( this.isRelative() ) {
-    if( parentRoutePath.length > 0 ) {
-      if( ( routeIndex = url.indexOf(parentRoutePath) ) === 0 ) {
-        url = url.substr( parentRoutePath.length );
-      } else {
-        return unknownRoute;
-      }
-    } else {
-      return unknownRoute;
-    }
+  if(this.isRelative() && parentRoutePath.length > 0 && (routeIndex = url.indexOf(parentRoutePath + '/')) === 0) {
+    url = url.substr( parentRoutePath.length );
   }
 
   // find all routes with a matching routeString
