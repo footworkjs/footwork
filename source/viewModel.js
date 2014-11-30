@@ -202,12 +202,6 @@ var applyBindings = fw.applyBindings = function(viewModel, element) {
   applyContextAndLifeCycle(viewModel, element);
 };
 
-// 'start' up footwork at the targetElement (or document.body by default)
-fw.start = function(targetElement) {
-  targetElement = targetElement || windowObject.document.body;
-  originalApplyBindings({}, targetElement);
-};
-
 function bindComponentViewModel(element, params, ViewModel) {
   var viewModelObj;
   if( isFunction(ViewModel) ) {
