@@ -31,11 +31,12 @@
       <h1 class="sub title">Usage</h1>
     </header>
     <div class="content">
-      <p>Routers have two principle components which are needed to make them useful:</p>
+      <p>Routers have three principle components which make them useful:</p>
       
       <ul>
         <li><a href="#configuration">configuration object</a>: A router configuration on a viewModel. Used to define the router, its routes, controllers, and their actions.</li>
         <li><a href="#outlets">outlets</a>: Any number of <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations in your HTML which are the output points your router controls.</li>
+        <li><a href="#link-binding">link bindings</a>: Special bindings for links (and other tags) which will initiate new states in your application.</li>
       </ul>
       
       <p>Just as a viewModel 'wraps' a section of your HTML providing the binding points and logic for that portion of your application. In a similar sense,
@@ -367,8 +368,21 @@ fw.start();
       <h2 class="sub title">Outlets</h2>
     </header>
     <div class="content">
-      <p>Outlets are simply areas in your application where you can control what is displayed. When you tell an outlet what to show, you are telling it to load a component. Thus for each 'page' or view you want
-      for an <span class="inline-code">outlet</span> footwork will need one of the three following things:</p>
+      <p>Outlets are simply areas in your application where you can control what is displayed. Their placement in your application is designated by one or more <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span>
+      declarations in your HTML. The <span class="inline-code">name=""</span> key is used by the router to target that specific outlet.</p>
+
+<pre><code class="html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;viewModel module="Main"&gt;
+      &lt;!-- ... --&gt;
+      &lt;outlet name="main-view"&gt;&lt;/outlet&gt;
+      &lt;!-- ... --&gt;
+    &lt;/viewModel&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+      <p>When you tell an outlet what to show, you are telling it to load a component. Thus for each 'page' or view you want
+      to display for an <span class="inline-code">outlet</span>, footwork will need one of the three following things:</p>
 
       <ul>
         <li>A corresponding view registered (cached/preloaded) via <span class="inline-code">fw.outlets.registerView()</span> or <a href="/api/components#loading-registering" data-bind="$route"><span class="inline-code">fw.components.register()</span></a></li>
@@ -529,6 +543,93 @@ fw.start();
     </div>
   </section>
 
+  <a id="link-binding" class="section-anchor"></a>
+  <section name="link-binding">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Link Binding</h1>
+    </header>
+    <div class="content">
+      <p>In order to make your links work with the router, footwork needs to know about them. This is done with the <span class="inline-code">$route</span> binding.</p>
+    </div>
+  </section>
+
+  <a id="misc" class="section-anchor"></a>
+  <section name="misc">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Misc / Utility</h2>
+    </header>
+    <div class="content">
+      <p>Miscelaneous useful and utility methods.</p>
+    </div>
+  </section>
+
+  <a id="routers-getAll" class="section-anchor"></a>
+  <section name="routers-getAll">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">fw.routers.getAll<span>()</span></em></h3>
+      <h3 class="top"><em class="func-def">fw.routers.getAll<span>( <span class="param">'viewModelNamespaceName'</span> )</span></em></h3>
+      <h3>Return router (that has optionally been registered for the viewModel 'viewModelNamespaceName'):</h3>
+<pre><code class="javascript">// Explicit registration
+var MainViewModel = fw.viewModel({
+  namespace: 'MainViewModel'
+  router: { /* ... */ }
+});
+var Widget = fw.viewModel({
+  namespace: 'Widget'
+  router: { /* ... */ }
+});
+
+var main = new MainViewModel();
+var widget = new Widget();
+
+var routers = fw.routers.getAll();
+// routers === { MainViewModel: router, Widget: router }
+
+var routers = fw.routers.getAll('Widget');
+// routers === { Widget: router }</code></pre>
+    </div>
+  </section>
+
+  <a id="routers-baseRoute" class="section-anchor"></a>
+  <section name="routers-baseRoute">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">fw.routers.baseRoute<span>()</span></em></h3>
+      <h3 class="top"><em class="func-def">fw.routers.baseRoute<span>( <span class="param">'/path/to/ignore'</span> )</span></em></h3>
+      <h3>Get or set the beginning portion of a route to ignore for the given path:</h3>
+<pre><code class="javascript">// fw.routers.baseRoute() === ''
+fw.routers.baseRoute('/home/directory'); // will ignore '/home/directory' at beginning of route</code></pre>
+    </div>
+  </section>
+
+  <a id="routers-activeRouteClassName" class="section-anchor"></a>
+  <section name="routers-activeRouteClassName">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">fw.routers.activeRouteClassName<span>()</span></em></h3>
+      <h3 class="top"><em class="func-def">fw.routers.activeRouteClassName<span>( <span class="param">'className'</span> )</span></em></h3>
+      <h3>Get or set the class which is added to <span class="inline-code">$route</span> bound links:</h3>
+<pre><code class="javascript">// fw.routers.activeRouteClassName() === 'active' // default === 'active'
+// active routes will now have 'currentlyActive' added to their className
+fw.routers.activeRouteClassName('currentlyActive');</code></pre>
+    </div>
+  </section>
+
+  <a id="routers-disableHistory" class="section-anchor"></a>
+  <section name="routers-disableHistory">
+    <div class="highlight"></div>
+    <div class="content">
+      <h3 class="top"><em class="func-def">fw.routers.disableHistory<span>()</span></em></h3>
+      <h3 class="top"><em class="func-def">fw.routers.disableHistory<span>( <span class="param">isDisabled</span> )</span></em></h3>
+      <h3>Turn on/off history (or get the current setting):</h3>
+<pre><code class="javascript">// fw.routers.disableHistory() === false (default)
+fw.routers.disableHistory(true); // history now disabled, but app still navigable</code></pre>
+    </div>
+  </section>
+
 </article>
 
 <div id="metaData">
@@ -558,6 +659,8 @@ fw.start();
         { "anchor": "outlet-usage",
           "title": "Usage" }
       ] },
+    { "anchor": "link-binding",
+      "title": "Link Binding" },
     { "anchor": "misc",
       "title": "Misc / Utility",
       "collapsable": true,
