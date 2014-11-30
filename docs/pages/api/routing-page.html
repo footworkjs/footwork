@@ -45,17 +45,11 @@
       viewModel which has a router. That router is able to control what view/component
       is displayed in any <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations found within its scope.</p>
       
-      <div class="note"><span class="label">NOTE:</span> Generally these <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> view points
-      are modified/used inside of a controller (as a result of a url/state change) but they can be modified/used outside of controller methods as well.</div>
+      <p>This same parent-seeking logic holds true for both link bindings and nested routers (configured with <span class="inline-code">isRelative: true</span>) as well. Routers will iteratively
+      walk the DOM upwards searching for (and making their routes relative to) the nearest parent router (if one is found). Link bindings do the same
+      and will then trigger state changes on that router as appropriate.</p>
       
-      <p>This same parent-seeking logic holds true for nested routers configured with <span class="inline-code">isRelative: true</span>. They will iteratively
-      walk the DOM upwards searching for (and making their routes relative to) the nearest parent router (if one is found).</p>
-      
-      <p>It is by this parent-seeking nature that it is possible to nest routers and outlets in any configuration and at any depth and complexity, with
-      each outlet and router traversing the DOM to find its parent and hook into it as appropriate.</p>
-      
-      <div class="note"><span class="label">NOTE:</span> You can even nest an <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> deep
-      within a nested viewModel/component and it will still traverse through any number of layers to find the nearest parent router.</div>
+      <p>It is by this parent-seeking nature that it is possible to nest routers, outlets, and link bindings in any configuration and at any depth and complexity.</p>
     </div>
   </section>
 
@@ -365,7 +359,7 @@ fw.start();
   <section name="outlets">
     <div class="highlight"></div>
     <header>
-      <h2 class="sub title">Outlets</h2>
+      <h1 class="sub title">Outlets</h1>
     </header>
     <div class="content">
       <p>Outlets are simply areas in your application where you can control what is displayed. Their placement in your application is designated by one or more <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span>
@@ -426,7 +420,8 @@ fw.outlets.registerView('calendar-page', 'Calendar: &lt;calendar&gt;&lt;/calenda
       </div>
 
       <h3><em class="func-def">fw.outlets.registerViewLocation<span>( <span class="param">'viewName'</span>, <span class="param">'/path/to/template'</span> )</span></em></h3>
-      <h3>Tell footwork where it can download the view via AMD/RequireJS:</h3>
+      <h3><em class="func-def">fw.outlets.registerViewLocation<span>( [<span class="param">'viewName'</span>, <span class="param">'viewName2'</span>, ...], <span class="param">'/path/to/template/'</span> )</span></em></h3>
+      <h3>Tell footwork where it can download a view via AMD/RequireJS:</h3>
 <pre><code class="javascript">// Register location of the 'index-page' template view
 fw.outlets.registerViewLocation('index-page', '/pages/index-page.html');
 
@@ -435,6 +430,9 @@ fw.outlets.registerViewLocation('index-page', '/pages/index-page.html');
  * The following will try to load '/otherPages/calendar-page.html' when needed
  */
 fw.outlets.registerViewLocation('calendar-page', '/otherPages/');
+
+// Register location for multiple views (the same filename appending occurs):
+fw.outlets.registerViewLocation(['calendar-page', 'about-page'], '/otherPages/');
 </code></pre>
     </div>
   </section>
@@ -539,7 +537,7 @@ fw.start();
 </code></pre>
       <div class="note"><span class="label">NOTE:</span> Remember that in addition to passing arguments directly from a route, you can also leverage the
       powerful <a href="/api/namespacing" data-bind="$route">namespacing</a> or <a href="/api/broadcastable-receivable" data-bind="$route">broadcastable/receivable</a>
-      features of footwork to facilitate communication/initialization for your view component.</div>
+      features of footwork to facilitate communication/initialization of your view component.</div>
     </div>
   </section>
 
@@ -547,10 +545,48 @@ fw.start();
   <section name="link-binding">
     <div class="highlight"></div>
     <header>
-      <h1 class="sub title">Link Binding</h1>
+      <h1 class="sub title">Link Binding (using: <span class="inline-code">$route</span>)</h1>
     </header>
     <div class="content">
       <p>In order to make your links work with the router, footwork needs to know about them. This is done with the <span class="inline-code">$route</span> binding.</p>
+      <p>The <span class="inline-code">$route</span> binding is simply a <a href="http://knockoutjs.com/documentation/custom-bindings.html" target="_blank">custom knockout binding</a> which is created by footwork. This
+      binding allows it to correctly connect your DOM element event (click, by default) to a router action.</p>
+      <p>Whenever footwork encounters the <span class="inline-code">$route</span> binding it will traverse up the DOM node path searching for the nearest parent router. Whenever the designated event occurs on that
+      element it will trigger the state change as described on that router.</p>
+      <h3><span class="inline-code">$route</span> binding basic example:</h3>
+<pre><code class="html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;viewModel module="Main"&gt;
+      &lt;div class="navigation"&gt;
+        &lt;!-- 'click' events on these will route application to their href="" paths --&gt;
+        &lt;a href="/" data-bind="$route"&gt;Home Page&lt;/a&gt;
+        &lt;a href="/about" data-bind="$route"&gt;About Page&lt;/a&gt;
+      &lt;/div&gt;
+
+      &lt;outlet name="main-view"&gt;&lt;/outlet&gt;
+    &lt;/viewModel&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+      <p>The <span class="inline-code">$route</span> binding has a few optional parameters.</p>
+      <ul>
+        <li><span class="inline-code">url:</span> - <span class="inline-code">string</span> The URL/HREF/route to send the application to.</li>
+        <li><span class="inline-code">on:</span> - <span class="inline-code">string</span> The event to trigger the action on (click, by default).</li>
+        <li><span class="inline-code">handler:</span> - <span class="inline-code">function()</span> Callback handler for the event.</li>
+      </ul>
+
+      <p>By default it will attempt to retrieve the <span class="inline-code">url:</span> for the action from the <span class="inline-code">href=""</span> attribute.</p>
+      <h3><span class="inline-code">url:</span> - <span class="inline-code">string</span> The URL/HREF/route to send the application to:</h3>
+<pre><code class="html">&lt;!-- ... --&gt;
+  &lt;a data-bind="$route: { href: '/about' }"&gt;About Page&lt;/a&gt;
+&lt;!-- ... --&gt;</code></pre>
+
+      <p>The <span class="inline-code">$route</span> binding has several available options. By default it will attempt to retrieve the path for the action from the <span class="inline-code">href=""</span> attribute. You can also provide the
+      destination route as a configuration option.</p>
+      <h3>Providing the destination route as an option on the <span class="inline-code">$route</span> binding:</h3>
+<pre><code class="html">&lt;!-- ... --&gt;
+  &lt;a data-bind="$route: { href: '/about' }"&gt;About Page&lt;/a&gt;
+&lt;!-- ... --&gt;</code></pre>
     </div>
   </section>
 
