@@ -238,12 +238,125 @@ routes: [
       <p>After a router has been instantiated (it is available immediately after a viewModel instance is created, at <span class="inline-code">viewModel.$router</span>) it has a handful of helpful properties and methods.</p>
       <p>They are as follows:</p>
       <ul>
-        <li>router.setRoutes()</li>
-        <li>router.currentRoute()</li>
-        <li>router.outlets[]</li>
-        <li></li>
-        <li></li>
+        <li><span class="inline-code">router.addRoutes()</span> - Add route(s) programmatically.</li>
+        <li><span class="inline-code">router.setRoutes()</span> - (clear out and) Set the routes for a router programmatically.</li>
+        <li><span class="inline-code">router.currentRoute()</span> - Get the current route details.</li>
+        <li><span class="inline-code">router.outlets{}</span> - List/Collection of registered outlets.</li>
       </ul>
+
+      <h3><span class="inline-code">router.addRoutes()</span> - Add route(s) programmatically.</h3>
+<pre><code class="javascript">var MainViewModel = fw.viewModel({
+  // ...
+  router: {},
+  // ...
+});
+var main = new MainViewModel();
+
+main.$router.addRoutes([
+  {
+    title: 'Index Page',
+    route: '/',
+    controller: function() { /* ... */ }
+  },
+  {
+    title: 'Book Page',
+    route: '/book/:isbn',
+    controller: function(params) { /* ... */ }
+  }
+]);
+</code></pre>
+
+      <h3><span class="inline-code">router.setRoutes()</span> - (clear out and) Set the routes for a router programmatically.</h3>
+<pre><code class="javascript">var MainViewModel = fw.viewModel({
+  // ...
+  router: {
+    routes: [
+      {
+        title: 'Index Page',
+        route: '/',
+        controller: function() { /* ... */ }
+      },
+      {
+        title: 'Book Page',
+        route: '/book/:isbn',
+        controller: function(params) { /* ... */ }
+      }
+    ]
+  },
+  // ...
+});
+var main = new MainViewModel();
+
+main.$router.setRoutes([
+  {
+    title: 'Different Index Page',
+    route: '/',
+    controller: function() { /* ... */ }
+  },
+  {
+    title: 'Different Book Page',
+    route: '/book/:isbn',
+    controller: function(params) { /* ... */ }
+  }
+]);
+</code></pre>
+
+      <h3><span class="inline-code">router.currentRoute()</span> - Get the current route details.</h3>
+<pre><code class="javascript">// Browser currently pointed to 'http://application.com/book/22'
+var MainViewModel = fw.viewModel({
+  namespace: 'Main',
+  // ...
+  router: {
+    routes: [
+      {
+        title: 'Index Page',
+        route: '/',
+        controller: function() { /* ... */ }
+      },
+      {
+        title: 'Book Page',
+        route: '/book/:isbn',
+        controller: function(params) { /* ... */ }
+      }
+    ]
+  },
+  // ...
+});
+
+// ...
+
+var currentRoute = router.currentRoute();
+// currentRoute.segment === '/book/22' (this specific route segment/path)
+// currentRoute.url === '/book/22' (full url, includes parent and children segments)
+// currentRoute.namedParams.isbn === '22'
+// currentRoute.title === 'Book Page'
+</code></pre>
+
+      <h3><span class="inline-code">router.outlets{}</span> - List/Collection of registered outlets.</h3>
+<pre><code class="html">&lt;html&gt;
+  &lt;body&gt;
+    &lt;viewModel module="Main"&gt;
+      &lt;!-- ... --&gt;
+      &lt;outlet name="main-view"&gt;&lt;/outlet&gt;
+      &lt;!-- ... --&gt;
+    &lt;/viewModel&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<pre><code class="javascript">var Main = fw.viewModel({
+  namespace: 'Main',
+  router: { /* ... */ }
+  initialize: function() { /* ... */ },
+  afterBinding: function() {
+    // Prints: Registered outlets { 'main-view': function }
+    console.log('Registered outlets', this.$router.outlets);
+  }
+});
+
+fw.viewModels.register('Main', Main);
+fw.start();
+</code></pre>
+      <div class="note"><span class="label">NOTE:</span> If/When you call the <span class="inline-code">router.$outlet()</span> method that will also register whatever named outlet you refer to (if it is not already registered).</div>
+
     </div>
   </section>
 
@@ -355,19 +468,21 @@ fw.start();
 <pre><code class="javascript">var Main = fw.viewModel({
   namespace: 'Main',
   router: {
-    routes: [ {
-      route: '/',
-      controller: function() {
-        // route changed to '/', make the 'main-view' outlet show the 'index-page' view
-        this.$outlet('main-view', 'index-page');
+    routes: [
+      {
+        route: '/',
+        controller: function() {
+          // route changed to '/', make the 'main-view' outlet show the 'index-page' view
+          this.$outlet('main-view', 'index-page');
+        }
+      }, {
+        route: '/about',
+        controller: function() {
+          // route changed to '/about', make the 'main-view' outlet show the 'about-page' view
+          this.$outlet('main-view', 'about-page');
+        }
       }
-    }, {
-      route: '/about',
-      controller: function() {
-        // route changed to '/about', make the 'main-view' outlet show the 'about-page' view
-        this.$outlet('main-view', 'about-page');
-      }
-    } ]
+    ]
   }
   initialize: function() { /* ... */ }
 });
