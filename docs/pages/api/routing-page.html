@@ -36,7 +36,7 @@
       <ul>
         <li><a href="#configuration">configuration object</a>: A router configuration on a viewModel. Used to define the router, its routes, controllers, and their actions.</li>
         <li><a href="#outlets">outlets</a>: Any number of <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations in your HTML which are the output points your router controls.</li>
-        <li><a href="#link-binding">link bindings</a>: Special bindings for links (and other tags) which will initiate new states in your application.</li>
+        <li><a href="#route-binding">route bindings</a>: Special bindings for links (and other tags) which will initiate new states in your application.</li>
       </ul>
       
       <p>Just as a viewModel 'wraps' a section of your HTML providing the binding points and logic for that portion of your application. In a similar sense,
@@ -45,11 +45,11 @@
       viewModel which has a router. That router is able to control what view/component
       is displayed in any <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations found within its scope.</p>
       
-      <p>This same parent-seeking logic holds true for both link bindings and nested routers (configured with <span class="inline-code">isRelative: true</span>) as well. Routers will iteratively
-      walk the DOM upwards searching for (and making their routes relative to) the nearest parent router (if one is found). Link bindings do the same
+      <p>This same parent-seeking logic holds true for both route bindings and nested routers (configured with <span class="inline-code">isRelative: true</span>) as well. Routers will iteratively
+      walk the DOM upwards searching for (and making their routes relative to) the nearest parent router (if one is found). Route bindings do the same
       and will then trigger state changes on that router as appropriate.</p>
       
-      <p>It is by this parent-seeking nature that it is possible to nest routers, outlets, and link bindings in any configuration and at any depth and complexity.</p>
+      <p>It is by this parent-seeking nature that it is possible to nest routers, outlets, and route bindings in any configuration and at any depth and complexity.</p>
     </div>
   </section>
 
@@ -541,16 +541,16 @@ fw.start();
     </div>
   </section>
 
-  <a id="link-binding" class="section-anchor"></a>
-  <section name="link-binding">
+  <a id="route-binding" class="section-anchor"></a>
+  <section name="route-binding">
     <div class="highlight"></div>
     <header>
-      <h1 class="sub title">Link Binding (using: <span class="inline-code">$route</span>)</h1>
+      <h1 class="sub title">Route Binding</h1>
     </header>
     <div class="content">
       <p>In order to make your links work with the router, footwork needs to know about them. This is done with the <span class="inline-code">$route</span> binding.</p>
       <p>The <span class="inline-code">$route</span> binding is simply a <a href="http://knockoutjs.com/documentation/custom-bindings.html" target="_blank">custom knockout binding</a> which is created by footwork. This
-      binding allows it to correctly connect your DOM element event (click, by default) to a router action.</p>
+      binding allows footwork to correctly connect your DOM element event (click, by default) to a router action.</p>
       <p>Whenever footwork encounters the <span class="inline-code">$route</span> binding it will traverse up the DOM node path searching for the nearest parent router. Whenever the designated event occurs on that
       element it will trigger the state change as described on that router.</p>
       <h3><span class="inline-code">$route</span> binding basic example:</h3>
@@ -572,21 +572,38 @@ fw.start();
       <ul>
         <li><span class="inline-code">url:</span> - <span class="inline-code">string</span> The URL/HREF/route to send the application to.</li>
         <li><span class="inline-code">on:</span> - <span class="inline-code">string</span> The event to trigger the action on (click, by default).</li>
-        <li><span class="inline-code">handler:</span> - <span class="inline-code">function()</span> Callback handler for the event.</li>
+        <li><span class="inline-code">handler:</span> - <span class="inline-code">function(event, url)</span> Callback handler for the event.</li>
       </ul>
 
-      <p>By default it will attempt to retrieve the <span class="inline-code">url:</span> for the action from the <span class="inline-code">href=""</span> attribute.</p>
       <h3><span class="inline-code">url:</span> - <span class="inline-code">string</span> The URL/HREF/route to send the application to:</h3>
 <pre><code class="html">&lt;!-- ... --&gt;
-  &lt;a data-bind="$route: { href: '/about' }"&gt;About Page&lt;/a&gt;
+  &lt;!-- If not provided, footwork will attempt to find the url for the action on the href="" attribute. --&gt;
+  &lt;a data-bind="$route: { url: '/about' }"&gt;About Page&lt;/a&gt;
 &lt;!-- ... --&gt;</code></pre>
 
-      <p>The <span class="inline-code">$route</span> binding has several available options. By default it will attempt to retrieve the path for the action from the <span class="inline-code">href=""</span> attribute. You can also provide the
-      destination route as a configuration option.</p>
-      <h3>Providing the destination route as an option on the <span class="inline-code">$route</span> binding:</h3>
+      <h3><span class="inline-code">on:</span> - <span class="inline-code">string</span> The event to trigger the action on (click, by default):</h3>
 <pre><code class="html">&lt;!-- ... --&gt;
-  &lt;a data-bind="$route: { href: '/about' }"&gt;About Page&lt;/a&gt;
+  &lt;!-- Trigger the action on a double-click --&gt;
+  &lt;a data-bind="$route: { url: '/about', on: 'dblclick' }"&gt;About Page&lt;/a&gt;
 &lt;!-- ... --&gt;</code></pre>
+
+      <h3><span class="inline-code">handler:</span> - <span class="inline-code">function(event, url)</span> Callback handler for the event:</h3>
+<pre><code class="html">&lt;!-- ... --&gt;
+  &lt;!-- Trigger the action with a custom handler --&gt;
+  &lt;a data-bind="$route: { url: '/about', handler: clickHandler }"&gt;About Page&lt;/a&gt;
+&lt;!-- ... --&gt;</code></pre>
+<pre><code class="javascript">// example viewModel showing the handler from above
+var MainViewModel = fw.viewModel({
+  // ...
+  initialize: function() {
+    this.clickHandler = function(event, url) {
+      console.log('Route Destination:', url);
+      return true; // tell footwork to route to the url (false === do not route)
+    }
+  }
+  // ...
+});
+</code></pre>
     </div>
   </section>
 
@@ -695,8 +712,8 @@ fw.routers.disableHistory(true); // history now disabled, but app still navigabl
         { "anchor": "outlet-usage",
           "title": "Usage" }
       ] },
-    { "anchor": "link-binding",
-      "title": "Link Binding" },
+    { "anchor": "route-binding",
+      "title": "Route Binding" },
     { "anchor": "misc",
       "title": "Misc / Utility",
       "collapsable": true,
