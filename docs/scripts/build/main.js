@@ -23641,7 +23641,7 @@ define('Body',[ "footwork", "lodash", "router" ],
       },
       initialize: function() {
         if( this.$globalNamespace.request('isRunningLocally') ) {
-          this.$router.disableHistory = true;
+          fw.routers.disableHistory(true);
           this.$router.setState('/');
         }
 
