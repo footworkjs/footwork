@@ -408,9 +408,6 @@
     }
 
     .releases, .aside {
-      .icon {
-        padding-right: 5px;
-      }
       .menu-item {
         &:hover {
           .drop-down {
@@ -466,6 +463,10 @@
           }
         }
 
+        .icon {
+          padding-right: 5px;
+        }
+
         a {
           color: @header-fg-default;
           padding: 0 10px;
@@ -479,11 +480,12 @@
         }
       }
 
-      &:hover {
+      &.active {
         .drop-down {
           top: 0;
           opacity: 1;
-          .transition(all 0s ease);
+          display: block;
+          // .transition(all 0s ease);
         }
       }
 
@@ -495,7 +497,8 @@
         max-width: 100%;
         cursor: auto;
         opacity: 0;
-        .transition(top 0s 0.4s linear, opacity 0.2s 0.3s ease);
+        display: none;
+        // .transition(top 0s 0.4s linear, opacity 0.2s 0.3s ease);
 
         & > .title {
           position: relative;

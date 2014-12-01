@@ -16,15 +16,20 @@
     </div>
 
     <!-- ko foreach: entries -->
-      <div class="menu-item" data-bind="css: { visible: visible, aside: options.aside }, style: { height: headerContentHeight }">
+      <div class="menu-item" data-bind="css: { visible: visible, aside: options.aside, active: menuActive }, style: { height: headerContentHeight }">
         <div class="title" data-bind="style: { lineHeight: $parent.headerContentHeight }">
-          <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }, text: labelText"></a>
+          <!-- ko if: hasSubMenu -->
+            <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }"><span class="icon icon-chevron-down"></span> <span data-bind="text: labelText"></span></a>
+          <!-- /ko -->
+          <!-- ko ifnot: hasSubMenu -->
+            <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }, text: labelText"></a>
+          <!-- /ko -->
         </div>
         <!-- ko if: hasSubMenu -->
           <div class="drop-down">
             <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
               <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }">
-                <span data-bind="text: labelText"></span>
+                <span class="icon icon-chevron-up"></span> <span data-bind="text: labelText"></span>
               </a>
             </div>
             <div class="content" data-bind="foreach: subMenuItems">

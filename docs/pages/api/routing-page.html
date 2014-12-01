@@ -437,7 +437,7 @@ fw.outlets.registerView('calendar-page', 'Calendar: &lt;calendar&gt;&lt;/calenda
       </div>
 
       <h3><em class="func-def">fw.outlets.registerViewLocation<span>( <span class="param">'viewName'</span>, <span class="param">'/path/to/template'</span> )</span></em></h3>
-      <h3><em class="func-def">fw.outlets.registerViewLocation<span>( [<span class="param">'viewName'</span>, <span class="param">'viewName2'</span>, ...], <span class="param">'/path/to/template/'</span> )</span></em></h3>
+      <h3><em class="func-def">fw.outlets.registerViewLocation<span>( <span class="param">[ 'viewName', 'viewName2', ... ]</span>, <span class="param">'/path/to/template/'</span> )</span></em></h3>
       <h3>Tell footwork where it can download a view via AMD/RequireJS:</h3>
 <pre><code class="javascript">// Register location of the 'index-page' template view
 fw.outlets.registerViewLocation('index-page', '/pages/index-page.html');
@@ -544,8 +544,8 @@ fw.start();
       params: { thisObject: 'isPassedToTheComponent' },
 
       // callback which is run after it is loaded
-      onComplete: function() {
-        console.log('About page is loaded!');
+      onComplete: function(element) {
+        console.log('About page is loaded inside of', element);
       }
     });
   }
@@ -588,7 +588,7 @@ fw.start();
 
       <p>The <span class="inline-code">$route</span> binding has a few optional parameters.</p>
       <ul>
-        <li><span class="inline-code">url:</span> - <span class="inline-code">string</span> The URL/HREF/route to send the application to.</li>
+        <li><span class="inline-code">url:</span> - <span class="inline-code">string</span> The route to send the application to.</li>
         <li><span class="inline-code">on:</span> - <span class="inline-code">string</span> The event to trigger the action on (click, by default).</li>
         <li><span class="inline-code">handler:</span> - <span class="inline-code">function(event, url)</span> Callback handler for the event.</li>
       </ul>

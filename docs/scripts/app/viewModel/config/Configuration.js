@@ -69,7 +69,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
           return ( this.visible() && ( !this.headerFixed() || this.scrollPosition() === 0 ) );
         }, this ).broadcastAs('heightMutable');
         this.isMobile = fw.observable( storage.get('viewPortIsMobile') || window.isMobile ).broadcastAs('isMobile', true);
-        this.mobileWidthCutoff = fw.observable(495).broadcastAs('mobileWidthCutoff');
+        this.mobileWidthCutoff = fw.observable(515).broadcastAs('mobileWidthCutoff');
         this.defaultHeaderMaxHeight = fw.computed(function() {
           return defaultConfig().header.max.height;
         }, this ).broadcastAs('defaultHeaderMaxHeight');

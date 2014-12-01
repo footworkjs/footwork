@@ -14,25 +14,47 @@ define([ "jquery", "lodash", "footwork" ],
         this.subMenuItems = entryData.subMenu;
         this.hasSubMenu = _.isArray(entryData.subMenu) && !!entryData.subMenu.length;
         this.target = entryData.target;
+        this.menuActive = fw.observable(false);
+        this.$globalNamespace.subscribe('clear', _.bind(function() {
+          this.menuActive(false);
+        }, this));
 
         this.clickHandler = function(event, url) {
           var routeToURL = false;
-          if(!viewPortIsMobile() || !this.paneCollapsed()) {
-            routeToURL = true;
+          var $target = $(event.target);
+          var stopHere = false;
+
+          if( this.hasSubMenu ) {
+            this.menuActive(!this.menuActive());
+            stopHere = true;
+          } else {
+            if(!viewPortIsMobile() || !this.paneCollapsed()) {
+              routeToURL = true;
+            }
+            if( !fw.isFullURL(url) && event.which !== 2 ) {
+              stopHere = true;
+            } else if(event.which === 2) {
+              routeToURL = false;
+            }
+            this.$namespace.publish('collapseSubMenu');
           }
-          if( !fw.isFullURL(url) && event.which !== 2 ) {
+
+          if(stopHere) {
             event.preventDefault();
-          } else if(event.which === 2) {
-            routeToURL = false;
+            event.stopPropagation();
           }
           return routeToURL;
         };
 
-        this.$namespace.subscribe('hideAll', function() {
-          this.visible( false );
+        this.$namespace.subscribe('collapseSubMenu', function() {
+          this.menuActive(false);
         }).withContext(this);
 
-        this.visible( false );
+        this.$namespace.subscribe('hideAll', function() {
+          this.visible(false);
+        }).withContext(this);
+
+        this.visible(false);
       }
     });
 
