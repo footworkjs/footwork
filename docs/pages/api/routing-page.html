@@ -92,6 +92,12 @@
       <p>The <span class="inline-code">routes: []</span> and <span class="inline-code">unknownRoute: {}</span> definitions both have the same syntax. The only difference between
       these two is that <span class="inline-code">routes: []</span> is an array of route definitions, and <span class="inline-code">unknownRoute: {}</span> is a single route definition.
       These define the routes your application (on this router) has available to it.</p>
+
+      <ul>
+        <li><a href="#routes">Routes List</a></li>
+        <li><a href="#route">Route Definition</a></li>
+        <li><a href="#router-properties">Router Properties</a></li>
+      </ul>
     </div>
   </section>
 
@@ -346,9 +352,6 @@ var currentRoute = router.currentRoute();
     console.log('Registered outlets', this.$router.outlets);
   }
 });
-
-fw.viewModels.register('Main', Main);
-fw.start();
 </code></pre>
       <div class="note"><span class="label">NOTE:</span> If/When you call the <span class="inline-code">router.$outlet()</span> method that will also register whatever named outlet you refer to (if it is not already registered).</div>
 
@@ -388,6 +391,10 @@ fw.start();
         <span class="inline-code">fw.outlets.registerViewLocation()</span>. Those methods are simply provided as a shortcut for creating a component and marking it as 'template-only'.</p>
         <p>Also remember that components can contain any depth and complexity of nested viewModels, components, routers, etc. This means you can even nest entire applications within the view of another, all with simple declarative syntax.</p>
       </div>
+      <ul>
+        <li><a href="#outlet-registering">Lazy Loading / Registering Views (components without a viewModel)</a></li>
+        <li><a href="#outlet-usage">Usage</a></li>
+      </ul>
     </div>
   </section>
 
@@ -448,7 +455,7 @@ fw.outlets.registerViewLocation(['calendar-page', 'about-page'], '/otherPages/')
       <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations you want in the HTML and then change/set them via the <span class="inline-code">router.$outlet()</span> method.</p>
 
       <h3><em class="func-def">router.$outlet<span>( <span class="param">'outletName'</span>, <span class="param">'viewName'</span>, <span class="param">options</span> )</span></em></h3>
-      <h3><em class="func-def">router.$outlet<span>( <span class="param">'outletName'</span>, <span class="param">'viewName'</span>, <span class="param">onComplete()</span> )</span></em></h3>
+      <h3><em class="func-def">router.$outlet<span>( <span class="param">'outletName'</span>, <span class="param">'viewName'</span>, <span class="param">onComplete(containingElement)</span> )</span></em></h3>
       <h3>Trigger an outlet to display a component, optionally providing an onComplete() callback and/or parameters to its viewModel.</h3>
       <h3>Example <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> with a router and outlet:</h3>
 <pre><code class="html">&lt;html&gt;
@@ -505,8 +512,8 @@ fw.start();
 {
   route: '/about',
   controller: function() {
-    this.$outlet('main-view', 'about-page', function() {
-      console.log('About page is loaded!');
+    this.$outlet('main-view', 'about-page', function(element) {
+      console.log('About page is loaded inside of', element);
     });
   }
 }
@@ -615,6 +622,12 @@ var MainViewModel = fw.viewModel({
     </header>
     <div class="content">
       <p>Miscelaneous useful and utility methods.</p>
+      <ul>
+        <li><span class="inline-code"><a href="#routers-getAll">fw.routers.getAll()</a></span> - Return router (that has optionally been registered for the viewModel 'viewModelNamespaceName').</li>
+        <li><span class="inline-code"><a href="#routers-baseRoute">fw.routers.baseRoute()</a></span> - Get or set the beginning portion of a route to ignore for the given path.</li>
+        <li><span class="inline-code"><a href="#routers-activeRouteClassName">fw.routers.activeRouteClassName()</a></span> - Get or set the class which is added to an active <span class="inline-code">$route</span> bound element.</li>
+        <li><span class="inline-code"><a href="#routers-disableHistory">fw.routers.disableHistory()</a></span> - Enable or disable history (or get the current setting).</li>
+      </ul>
     </div>
   </section>
 
@@ -664,7 +677,7 @@ fw.routers.baseRoute('/home/directory'); // will ignore '/home/directory' at beg
     <div class="content">
       <h3 class="top"><em class="func-def">fw.routers.activeRouteClassName<span>()</span></em></h3>
       <h3 class="top"><em class="func-def">fw.routers.activeRouteClassName<span>( <span class="param">'className'</span> )</span></em></h3>
-      <h3>Get or set the class which is added to <span class="inline-code">$route</span> bound links:</h3>
+      <h3>Get or set the class which is added to an active <span class="inline-code">$route</span> bound element:</h3>
 <pre><code class="javascript">// fw.routers.activeRouteClassName() === 'active' // default === 'active'
 // active routes will now have 'currentlyActive' added to their className
 fw.routers.activeRouteClassName('currentlyActive');</code></pre>
@@ -677,7 +690,7 @@ fw.routers.activeRouteClassName('currentlyActive');</code></pre>
     <div class="content">
       <h3 class="top"><em class="func-def">fw.routers.disableHistory<span>()</span></em></h3>
       <h3 class="top"><em class="func-def">fw.routers.disableHistory<span>( <span class="param">isDisabled</span> )</span></em></h3>
-      <h3>Turn on/off history (or get the current setting):</h3>
+      <h3>Enable or disable history (or get the current setting):</h3>
 <pre><code class="javascript">// fw.routers.disableHistory() === false (default)
 fw.routers.disableHistory(true); // history now disabled, but app still navigable</code></pre>
     </div>
