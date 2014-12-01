@@ -239,13 +239,21 @@ routes: [
       <p>After a router has been instantiated (it is available immediately after a viewModel instance is created, at <span class="inline-code">viewModel.$router</span>) it has a handful of helpful properties and methods.</p>
       <p>They are as follows:</p>
       <ul>
+        <li><span class="inline-code">router.setState()</span> - Set the state/url for this router, triggering any routes/controllers.</li>
         <li><span class="inline-code">router.addRoutes()</span> - Add route(s) programmatically.</li>
         <li><span class="inline-code">router.setRoutes()</span> - (clear out and) Set the routes for a router programmatically.</li>
         <li><span class="inline-code">router.currentRoute()</span> - Get the current route details.</li>
         <li><span class="inline-code">router.outlets{}</span> - List/Collection of registered outlets.</li>
       </ul>
 
-      <h3><span class="inline-code">router.addRoutes()</span> - Add route(s) programmatically.</h3>
+      <h3><em class="func-def">router.setState<span>( <span class="param">'/new/state'</span> )</span></em></h3>
+      <h3>Set the state/url for this router, triggering any routes/controllers:</h3>
+<pre><code class="javascript">// trigger the route that matches for '/about'
+router.setState('/about');
+</code></pre>
+
+      <h3><em class="func-def">router.addRoutes<span>( <span class="param">[ /* routes */ ]</span> )</span></em></h3>
+      <h3>Add route(s) programmatically:</h3>
 <pre><code class="javascript">var MainViewModel = fw.viewModel({
   // ...
   router: {},
@@ -267,7 +275,8 @@ main.$router.addRoutes([
 ]);
 </code></pre>
 
-      <h3><span class="inline-code">router.setRoutes()</span> - (clear out and) Set the routes for a router programmatically.</h3>
+      <h3><em class="func-def">router.setRoutes<span>( <span class="param">[ /* routes */ ]</span> )</span></em></h3>
+      <h3>(clear out and) Set the routes for a router programmatically:</h3>
 <pre><code class="javascript">var MainViewModel = fw.viewModel({
   // ...
   router: {
@@ -302,7 +311,8 @@ main.$router.setRoutes([
 ]);
 </code></pre>
 
-      <h3><span class="inline-code">router.currentRoute()</span> - Get the current route details.</h3>
+      <h3><em class="func-def">router.currentRoute<span>()</span></em></h3>
+      <h3>Get the current route details:</h3>
 <pre><code class="javascript">// Browser currently pointed to 'http://application.com/book/22'
 var MainViewModel = fw.viewModel({
   namespace: 'Main',
@@ -555,7 +565,7 @@ fw.start();
       <h1 class="sub title">Route Binding</h1>
     </header>
     <div class="content">
-      <p>In order to make your links work with the router, footwork needs to know about them. This is done with the <span class="inline-code">$route</span> binding.</p>
+      <p>In order to make your links and other elements work with the router, footwork needs to know about them. This is done with the <span class="inline-code">$route</span> binding.</p>
       <p>The <span class="inline-code">$route</span> binding is simply a <a href="http://knockoutjs.com/documentation/custom-bindings.html" target="_blank">custom knockout binding</a> which is created by footwork. This
       binding allows footwork to correctly connect your DOM element event (click, by default) to a router action.</p>
       <p>Whenever footwork encounters the <span class="inline-code">$route</span> binding it will traverse up the DOM node path searching for the nearest parent router. Whenever the designated event occurs on that
@@ -574,6 +584,7 @@ fw.start();
     &lt;/viewModel&gt;
   &lt;/body&gt;
 &lt;/html&gt;</code></pre>
+      <div class="note"><span class="label">NOTE:</span> If you do not wish to use the <span class="inline-code">$route</span> binding to trigger state changes you can always just use the <span class="inline-code">router.setState()</span> method.</div>
 
       <p>The <span class="inline-code">$route</span> binding has a few optional parameters.</p>
       <ul>
@@ -667,7 +678,7 @@ var routers = fw.routers.getAll('Widget');
       <h3 class="top"><em class="func-def">fw.routers.baseRoute<span>( <span class="param">'/path/to/ignore'</span> )</span></em></h3>
       <h3>Get or set the beginning portion of a route to ignore for the given path:</h3>
 <pre><code class="javascript">// fw.routers.baseRoute() === ''
-fw.routers.baseRoute('/home/directory'); // will ignore '/home/directory' at beginning of route</code></pre>
+fw.routers.baseRoute('/home/directory'); // routers will ignore '/home/directory' at beginning of url</code></pre>
     </div>
   </section>
 
