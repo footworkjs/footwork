@@ -77,7 +77,7 @@ define([ "jquery", "lodash", "footwork" ],
 
         this.isSmall = fw.computed(function() {
           if( _.isNull(this.dimensions().width) === false ) {
-            return this.dimensions().width <= 768;
+            return this.dimensions().width <= 835;
           }
           return null;
         }, this).broadcastAs('isSmall');

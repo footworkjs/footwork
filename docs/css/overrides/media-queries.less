@@ -22,6 +22,27 @@
 }
 
 @media screen and (max-width: 650px) {
+  body {
+    .main-header {
+      nav {
+        .menu-item {
+          margin-left: 0;
+
+          &.aside .title a {
+            padding-left: 0;
+          }
+          .title {
+            font-size: 13px;
+
+            a {
+              padding: 0 5px;
+            }
+          }
+        }
+      }
+    }
+  }
+  
   footer {
     div .no-js.notice {
       display: none !important;
@@ -60,29 +81,6 @@
       nav {
         margin-left: @split !important;
         .transition(margin-left 0.3s ease);
-      }
-    }
-  }
-}
-
-@media screen and (max-width: 625px) {
-  body {
-    .main-header {
-      nav {
-        .menu-item {
-          margin-left: 0;
-
-          &.aside .title a {
-            padding-left: 0;
-          }
-          .title {
-            font-size: 13px;
-
-            a {
-              padding: 0 5px;
-            }
-          }
-        }
       }
     }
   }

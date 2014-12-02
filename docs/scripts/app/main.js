@@ -11,6 +11,7 @@ require([
     if( window.isCrappyBrowser === true ) {
       return false;
     }
+    window.fw = fw;
 
     var $window = $(window);
     var $document = $(document);
@@ -34,7 +35,6 @@ require([
       return _.isNull(window.location.protocol.match('^http'));
     });
 
-    window.fw = fw;
 
     (new ViewPort());
     (new Page());

@@ -3,8 +3,8 @@
  *       Template located in the <footwork-root>/docs/templates folder.
  */
 window.footworkBuild = {
-  version: '0.2.0',
+  version: '0.8.0-pre',
   statement: 'A solid footing for web applications.',
-  timestamp: '2014-12-01T05:25:38-06:00',
+  timestamp: '2014-12-02T05:05:26-06:00',
   contributors: [{"name":"Jonathan Newman","email":"jonathan@staticty.pe","contribution":["creator","code","documentation"],"urls":[{"url":"https://github.com/reflectiveSingleton"},{"url":"http://staticty.pe"}]},{"name":"Travis Miller","email":"travis@travisamiller.com","contribution":["framework name"],"urls":[{"url":"http://travisamiller.com"}]}]
 };
