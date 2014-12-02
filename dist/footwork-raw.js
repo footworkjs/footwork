@@ -1,6 +1,6 @@
 // footwork.js
 // ----------------------------------
-// v0.2.0
+// v0.8.0-pre
 //
 // Copyright (c)2014 Jonathan Newman (http://staticty.pe).
 // Distributed under MIT license
@@ -10,7 +10,7 @@
 /**
  * footwork.js - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.2.0
+ * Version: v0.8.0-pre
  * Url: http://footworkjs.com
  * License(s): MIT
  */
@@ -23,7 +23,7 @@
 var fw = ko;
 
 // Record the footwork version as of this build.
-fw.footworkVersion = '0.2.0';
+fw.footworkVersion = '0.8.0-pre';
 
 // Expose any embedded dependencies
 fw.embed = embedded;
