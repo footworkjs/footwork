@@ -1,7 +1,7 @@
 /**
  * footwork.js - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.8.0-pre-minimal
+ * Version: v0.8.0pre-minimal
  * Url: http://footworkjs.com
  * License(s): MIT
  */
@@ -4275,7 +4275,7 @@ if (typeof JSON !== 'object') {
 var fw = ko;
 
 // Record the footwork version as of this build.
-fw.footworkVersion = '0.8.0-pre';
+fw.footworkVersion = '0.8.0pre';
 
 // Expose any embedded dependencies
 fw.embed = embedded;
