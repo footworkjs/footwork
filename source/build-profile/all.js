@@ -24,10 +24,6 @@
     }).call(root);
 
     (function() {
-      //import("../../bower_components/conduitjs/lib/conduit.js");
-    }).call(root);
-
-    (function() {
       //import("../../bower_components/postal.js/lib/postal.js");
     }).call(root);
 
@@ -49,7 +45,7 @@
     root.ko = ko; // ick...
 
     // list of dependencies to export from the library as .embed properties
-    var embeddedDependencies = [ '_', 'ko', 'riveter', 'Conduit', 'postal' ];
+    var embeddedDependencies = [ '_', 'ko', 'riveter', 'postal' ];
 
     return (function footwork(embedded, windowObject, _, ko, postal, riveter) {
       //import("../main.js");
