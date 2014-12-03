@@ -27,7 +27,8 @@ define([ "footwork",
     "text!../../pages/api/components-page.html",
     "text!../../pages/api/broadcastable-receivable-page.html",
     "text!../../pages/api/routing-page.html",
-    "text!../../pages/tutorials-page.html"
+    "text!../../pages/tutorials-page.html",
+    "text!../../pages/tutorials/todomvc-page.html"
   ],
   function( fw,
     contributorsViewModel, contributorsTemplate,
@@ -58,7 +59,8 @@ define([ "footwork",
     componentsPage,
     broadcastableReceivablePage,
     routingPage,
-    tutorialsPage
+    tutorialsPage,
+    todoMVCTutorialPage
   ) {
     return function resourceHelper() {
       fw.outlets.registerView('index-page', indexPage);
@@ -72,6 +74,7 @@ define([ "footwork",
       fw.outlets.registerView('api-broadcastable-receivable-page', broadcastableReceivablePage);
       fw.outlets.registerView('api-routing-page', routingPage);
       fw.outlets.registerView('tutorials-page', tutorialsPage);
+      fw.outlets.registerView('todomvc-tutorial-page', todoMVCTutorialPage);
 
       fw.components.register('showversion', {
         viewModel: BuildInfoViewModel,
