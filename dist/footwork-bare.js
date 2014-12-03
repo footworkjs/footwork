@@ -185,18 +185,18 @@ var module = undefined,
     if (typeof module === "object" && module.exports) {
         // Node, or CommonJS-Like environments
         module.exports = function (postal) {
-            factory(require("lodash"), require("conduitjs"), postal, this);
+            factory(require("lodash"), postal, this);
         };
     } else if (typeof define === "function" && define.amd) {
         // AMD. Register as an anonymous module.
-        define(["lodash", "conduitjs", "postal"], function (_, Conduit, postal) {
-            return factory(_, Conduit, postal, root);
+        define(["lodash", "postal"], function (_, postal) {
+            return factory(_, postal, root);
         });
     } else {
         // Browser globals
-        root.postal = factory(root._, root.Conduit, root.postal, root);
+        root.postal = factory(root._, root.postal, root);
     }
-}(this, function (_, Conduit, postal, global, undefined) {
+}(this, function (_, postal, global, undefined) {
     var plugin = postal.preserve = {
         store: {},
         expiring: []
@@ -235,13 +235,6 @@ var module = undefined,
         while (expired.length) {
             expired.pop().purge();
         }
-    }
-    if (!postal.subscribe.after) {
-        var orig = postal.subscribe;
-        postal.subscribe = new Conduit.Sync({
-            context: postal,
-            target: orig
-        });
     }
     postal.SubscriptionDefinition.prototype.enlistPreserved = function () {
         var channel = this.channel;

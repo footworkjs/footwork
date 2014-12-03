@@ -64,7 +64,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
 
         paneElementsNamespace.subscribe('hideAll', function() {
           this.visible( false );
-        }).withContext(this);
+        }).context(this);
 
         this.toggleCollapse = function(viewModel, event) {
           this.isCollapsed( !this.isCollapsed() );

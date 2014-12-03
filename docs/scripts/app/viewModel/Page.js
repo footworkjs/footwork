@@ -24,7 +24,7 @@ define([ "jquery", "lodash", "footwork", "history" ],
 
         this.$namespace.subscribe( 'initMeta', function( metaData ) {
           this.loadPageMeta( metaData );
-        }).withContext( this );
+        }).context( this );
 
         var pageMetaData;
         this.$namespace.request.handler('metaData', function() {

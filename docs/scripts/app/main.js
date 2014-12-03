@@ -57,7 +57,7 @@ require([
 
     globalNamespace.subscribe('refreshDocSize', refreshDocSize = function() {
       bodyHeight( $document.height() );
-    }).withContext(this);
+    }).context(this);
     refreshDocSize();
 
     globalNamespace.subscribe( 'enableControl', function( controlHandler ) {

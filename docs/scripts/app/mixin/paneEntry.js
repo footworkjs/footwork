@@ -33,11 +33,11 @@ define([ "footwork", "lodash" ],
           if( callingObject !== this && this.paneScrolling() === false ) {
             this.active(false);
           }
-        }).withContext(this);
+        }).context(this);
 
         paneElementsChannel.subscribe('hideAll', function() {
           this.visible( false );
-        }).withContext(this);
+        }).context(this);
 
         this.filterClick = function(model, event) {
             var $link = $(event.target),

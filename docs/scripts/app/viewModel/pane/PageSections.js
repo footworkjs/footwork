@@ -124,7 +124,7 @@ define([ "jquery", "lodash", "footwork" ],
         this.$namespace.command.handler('goToSection', function(sectionAnchor) {
           goToSection = sectionAnchor;
         });
-        this.$namespace.subscribe('pageMetaData', loadMetaData).withContext(this);
+        this.$namespace.subscribe('pageMetaData', loadMetaData).context(this);
 
         this.checkSelection = function(newSelection) {
           newSelection = newSelection || currentSelection();

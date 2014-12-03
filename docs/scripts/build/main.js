@@ -17482,177 +17482,34 @@ function(){if(!w||!w.tmpl)return 0;try{if(0<=w.tmpl.tag.tmpl.open.toString().ind
 b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJavaScriptEvaluatorBlock=function(a){return"{{ko_code ((function() { return "+a+" })()) }}"};this.addTemplate=function(a,b){v.write("<script type='text/html' id='"+a+"'>"+b+"\x3c/script>")};0<a&&(w.tmpl.tag.ko_code={open:"__.push($1 || '');"},w.tmpl.tag.ko_with={open:"with($1) {",close:"} "})};a.Sa.prototype=new a.H;var b=new a.Sa;0<b.kc&&a.ab(b);a.b("jqueryTmplTemplateEngine",a.Sa)})()})})();})();
 
 /**
- * conduitjs - Give any method a pre/post invocation pipeline....
- * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
- * Version: v0.3.3
- * Url: http://github.com/ifandelse/ConduitJS
- * License: MIT
- */
-(function (root, factory) {
-    if (typeof module === "object" && module.exports) {
-        // Node, or CommonJS-Like environments
-        module.exports = factory();
-    } else if (typeof define === "function" && define.amd) {
-        // AMD. Register as an anonymous module.
-        define('conduitjs',[], factory(root));
-    } else {
-        // Browser globals
-        root.Conduit = factory(root);
-    }
-}(this, function (global, undefined) {
-    function Conduit(options) {
-        if (typeof options.target !== "function") {
-            throw new Error("You can only make functions into Conduits.");
-        }
-        var _steps = {
-            pre: options.pre || [],
-            post: options.post || [],
-            all: []
-        };
-        var _defaultContext = options.context;
-        var _target = options.target;
-        var _targetStep = {
-            isTarget: true,
-            fn: options.sync ?
-            function () {
-                var args = Array.prototype.slice.call(arguments, 0);
-                var result = _target.apply(_defaultContext, args);
-                return result;
-            } : function (next) {
-                var args = Array.prototype.slice.call(arguments, 1);
-                args.splice(1, 1, _target.apply(_defaultContext, args));
-                next.apply(this, args);
-            }
-        };
-        var _genPipeline = function () {
-            _steps.all = _steps.pre.concat([_targetStep].concat(_steps.post));
-        };
-        _genPipeline();
-        var conduit = function () {
-            var idx = 0;
-            var retval;
-            var phase;
-            var next = function next() {
-                var args = Array.prototype.slice.call(arguments, 0);
-                var thisIdx = idx;
-                var step;
-                var nextArgs;
-                idx += 1;
-                if (thisIdx < _steps.all.length) {
-                    step = _steps.all[thisIdx];
-                    phase = (phase === "target") ? "after" : (step.isTarget) ? "target" : "before";
-                    if (options.sync) {
-                        if (phase === "before") {
-                            nextArgs = step.fn.apply(step.context || _defaultContext, args);
-                            next.apply(this, nextArgs || args);
-                        } else {
-                            retval = step.fn.apply(step.context || _defaultContext, args) || retval;
-                            next.apply(this, [retval].concat(args));
-                        }
-                    } else {
-                        step.fn.apply(step.context || _defaultContext, [next].concat(args));
-                    }
-                }
-            };
-            next.apply(this, arguments);
-            return retval;
-        };
-        conduit.steps = function () {
-            return _steps.all;
-        };
-        conduit.context = function (ctx) {
-            if (arguments.length === 0) {
-                return _defaultContext;
-            } else {
-                _defaultContext = ctx;
-            }
-        };
-        conduit.before = function (step, options) {
-            step = typeof step === "function" ? {
-                fn: step
-            } : step;
-            options = options || {};
-            if (options.prepend) {
-                _steps.pre.unshift(step);
-            } else {
-                _steps.pre.push(step);
-            }
-            _genPipeline();
-        };
-        conduit.after = function (step, options) {
-            step = typeof step === "function" ? {
-                fn: step
-            } : step;
-            options = options || {};
-            if (options.prepend) {
-                _steps.post.unshift(step);
-            } else {
-                _steps.post.push(step);
-            }
-            _genPipeline();
-        };
-        conduit.clear = function () {
-            _steps = {
-                pre: [],
-                post: [],
-                all: []
-            };
-            _genPipeline();
-        };
-        conduit.target = function (fn) {
-            if (fn) {
-                _target = fn;
-            }
-            return _target;
-        };
-        return conduit;
-    };
-    return {
-        Sync: function (options) {
-            options.sync = true;
-            return Conduit.call(this, options)
-        },
-        Async: function (options) {
-            return Conduit.call(this, options);
-        }
-    }
-}));
-/**
  * postal - Pub/Sub library providing wildcard subscriptions, complex message handling, etc.  Works server and client-side.
  * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
- * Version: v0.10.3
+ * Version: v0.11.0
  * Url: http://github.com/postaljs/postal.js
- * License(s): MIT, GPL
+ * License(s): MIT
  */
-(function (root, factory) {
-    if (typeof module === "object" && module.exports) {
-        // Node, or CommonJS-Like environments
-        module.exports = factory(require("lodash"), require("conduitjs"), this);
-    } else if (typeof define === "function" && define.amd) {
+(function (root, factory) { /* istanbul ignore if  */
+    if (typeof define === "function" && define.amd) {
         // AMD. Register as an anonymous module.
-        define('postal',["lodash", "conduitjs"], function (_, Conduit) {
-            return factory(_, Conduit, root);
-        });
+        define('postal',["lodash"], function (_) {
+            return factory(_, root);
+        }); /* istanbul ignore else */
+    } else if (typeof module === "object" && module.exports) {
+        // Node, or CommonJS-Like environments
+        module.exports = factory(require("lodash"), this);
     } else {
         // Browser globals
-        root.postal = factory(root._, root.Conduit, root);
+        root.postal = factory(root._, root);
     }
-}(this, function (_, Conduit, global, undefined) {
+}(this, function (_, global, undefined) {
     var _postal;
     var prevPostal = global.postal;
-    var ChannelDefinition = function (channelName) {
+    var ChannelDefinition = function (channelName, bus) {
+        this.bus = bus;
         this.channel = channelName || _postal.configuration.DEFAULT_CHANNEL;
-        this.initialize();
-    };
-    ChannelDefinition.prototype.initialize = function () {
-        var oldPub = this.publish;
-        this.publish = new Conduit.Async({
-            target: oldPub,
-            context: this
-        });
     };
     ChannelDefinition.prototype.subscribe = function () {
-        return _postal.subscribe({
+        return this.bus.subscribe({
             channel: this.channel,
             topic: (arguments.length === 1 ? arguments[0].topic : arguments[0]),
             callback: (arguments.length === 1 ? arguments[0].callback : arguments[1])
@@ -17666,7 +17523,7 @@ b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJava
             data: arguments[1]
         };
         envelope.channel = this.channel;
-        _postal.publish(envelope);
+        this.bus.publish(envelope);
     };
     var SubscriptionDefinition = function (channel, topic, callback) {
         if (arguments.length !== 3) {
@@ -17677,7 +17534,10 @@ b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJava
         }
         this.channel = channel;
         this.topic = topic;
-        this.subscribe(callback);
+        this.callback = callback;
+        this.pipeline = [];
+        this.cacheKeys = [];
+        this._context = undefined;
     };
     var ConsecutiveDistinctPredicate = function () {
         var previous;
@@ -17693,9 +17553,9 @@ b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJava
             return !eq;
         };
     };
-    var DistinctPredicate = function () {
+    var DistinctPredicate = function DistinctPredicateFactory() {
         var previous = [];
-        return function (data) {
+        return function DistinctPredicate(data) {
             var isDistinct = !_.any(previous, function (p) {
                 if (_.isObject(data) || _.isArray(data)) {
                     return _.isEqual(data, p);
@@ -17708,130 +17568,66 @@ b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJava
             return isDistinct;
         };
     };
-    var strats = {
-        withDelay: function (ms) {
-            if (_.isNaN(ms)) {
-                throw "Milliseconds must be a number";
-            }
-            return {
-                name: "withDelay",
-                fn: function (next, data, envelope) {
-                    setTimeout(function () {
-                        next(data, envelope);
-                    }, ms);
-                }
-            };
-        },
-        defer: function () {
-            return this.withDelay(0);
-        },
-        stopAfter: function (maxCalls, callback) {
-            if (_.isNaN(maxCalls) || maxCalls <= 0) {
-                throw "The value provided to disposeAfter (maxCalls) must be a number greater than zero.";
-            }
-            var dispose = _.after(maxCalls, callback);
-            return {
-                name: "stopAfter",
-                fn: function (next, data, envelope) {
-                    dispose();
-                    next(data, envelope);
-                }
-            };
-        },
-        withThrottle: function (ms) {
-            if (_.isNaN(ms)) {
-                throw "Milliseconds must be a number";
-            }
-            return {
-                name: "withThrottle",
-                fn: _.throttle(function (next, data, envelope) {
-                    next(data, envelope);
-                }, ms)
-            };
-        },
-        withDebounce: function (ms, immediate) {
-            if (_.isNaN(ms)) {
-                throw "Milliseconds must be a number";
-            }
-            return {
-                name: "debounce",
-                fn: _.debounce(function (next, data, envelope) {
-                    next(data, envelope);
-                }, ms, !! immediate)
-            };
-        },
-        withConstraint: function (pred) {
-            if (!_.isFunction(pred)) {
-                throw "Predicate constraint must be a function";
-            }
-            return {
-                name: "withConstraint",
-                fn: function (next, data, envelope) {
-                    if (pred.call(this, data, envelope)) {
-                        next.call(this, data, envelope);
-                    }
-                }
-            };
-        },
-        distinct: function (options) {
-            options = options || {};
-            var accessor = function (args) {
-                return args[0];
-            };
-            var check = options.all ? new DistinctPredicate(accessor) : new ConsecutiveDistinctPredicate(accessor);
-            return {
-                name: "distinct",
-                fn: function (next, data, envelope) {
-                    if (check(data)) {
-                        next(data, envelope);
-                    }
-                }
-            };
-        }
-    };
     SubscriptionDefinition.prototype = {
-        after: function () {
-            this.callback.after.apply(this, arguments);
-            return this;
-        },
-        before: function () {
-            this.callback.before.apply(this, arguments);
-            return this;
-        },
         "catch": function (errorHandler) {
-            var original = this.callback.target();
-            var safeTarget = function () {
+            var original = this.callback;
+            var safeCallback = function () {
                 try {
                     original.apply(this, arguments);
                 } catch (err) {
                     errorHandler(err, arguments[0]);
                 }
             };
-            this.callback.target(safeTarget);
+            this.callback = safeCallback;
             return this;
         },
-        defer: function () {
-            this.callback.before(strats.defer());
-            return this;
+        defer: function defer() {
+            return this.withDelay(0);
         },
-        disposeAfter: function (maxCalls) {
+        disposeAfter: function disposeAfter(maxCalls) {
+            if (!_.isNumber(maxCalls) || maxCalls <= 0) {
+                throw new Error("The value provided to disposeAfter (maxCalls) must be a number greater than zero.");
+            }
             var self = this;
-            self.callback.before(strats.stopAfter(maxCalls, function () {
-                self.unsubscribe.call(self);
+            var dispose = _.after(maxCalls, _.bind(function () {
+                self.unsubscribe();
             }));
+            self.pipeline.push(function (data, env, next) {
+                next(data, env);
+                dispose();
+            });
             return self;
         },
-        distinctUntilChanged: function () {
-            this.callback.before(strats.distinct());
-            return this;
+        distinct: function distinct() {
+            return this.withConstraint(new DistinctPredicate());
         },
-        distinct: function () {
-            this.callback.before(strats.distinct({
-                all: true
-            }));
-            return this;
+        distinctUntilChanged: function distinctUntilChanged() {
+            return this.withConstraint(new ConsecutiveDistinctPredicate());
         },
-        logError: function () {
+        invokeSubscriber: function invokeSubscriber(data, env) {
+            if (!this.inactive) {
+                var self = this;
+                var pipeline = self.pipeline;
+                var len = pipeline.length;
+                var context = self._context;
+                var idx = -1;
+                if (!len) {
+                    self.callback.call(context, data, env);
+                } else {
+                    pipeline = pipeline.concat([self.callback]);
+                    var step = function step(d, e) {
+                        idx += 1;
+                        if (idx < len) {
+                            pipeline[idx].call(context, d, e, step);
+                        } else {
+                            self.callback.call(context, d, e);
+                        }
+                    };
+                    step(data, env, 0);
+                }
+            }
+        },
+        logError: function logError() { /* istanbul ignore else */
             if (console) {
                 var report;
                 if (console.warn) {
@@ -17843,60 +17639,121 @@ b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJava
             }
             return this;
         },
-        once: function () {
-            this.disposeAfter(1);
+        once: function once() {
+            return this.disposeAfter(1);
+        },
+        subscribe: function subscribe(callback) {
+            this.callback = callback;
             return this;
         },
-        subscribe: function (callback) {
-            this.callback = new Conduit.Async({
-                target: callback,
-                context: this
-            });
-            return this;
-        },
-        unsubscribe: function () {
+        unsubscribe: function unsubscribe() { /* istanbul ignore else */
             if (!this.inactive) {
-                this.inactive = true;
                 _postal.unsubscribe(this);
             }
         },
-        withConstraint: function (predicate) {
-            this.callback.before(strats.withConstraint(predicate));
-            return this;
-        },
-        withConstraints: function (preds) {
-            while (preds.length) {
-                this.callback.before(strats.withConstraint(preds.shift()));
+        constraint: function constraint(predicate) {
+            if (!_.isFunction(predicate)) {
+                throw new Error("Predicate constraint must be a function");
             }
+            this.pipeline.push(function (data, env, next) {
+                if (predicate.call(this, data, env)) {
+                    next(data, env);
+                }
+            });
             return this;
         },
-        withDebounce: function (milliseconds, immediate) {
-            this.callback.before(strats.withDebounce(milliseconds, immediate));
+        constraints: function constraints(predicates) {
+            var self = this; /* istanbul ignore else */
+            if (_.isArray(predicates)) {
+                _.each(predicates, function (predicate) {
+                    self.withConstraint(predicate);
+                });
+            }
+            return self;
+        },
+        context: function contextSetter(context) {
+            this._context = context;
             return this;
         },
-        withDelay: function (milliseconds) {
-            this.callback.before(strats.withDelay(milliseconds));
+        debounce: function debounce(milliseconds, immediate) {
+            if (!_.isNumber(milliseconds)) {
+                throw new Error("Milliseconds must be a number");
+            }
+            var fn = function (data, env, next) {
+                next(data, env);
+            };
+            this.pipeline.push(
+            _.debounce(function (data, env, next) {
+                next(data, env);
+            }, milliseconds, !! immediate));
             return this;
         },
-        withThrottle: function (milliseconds) {
-            this.callback.before(strats.withThrottle(milliseconds));
+        delay: function delay(milliseconds) {
+            if (!_.isNumber(milliseconds)) {
+                throw new Error("Milliseconds must be a number");
+            }
+            var self = this;
+            self.pipeline.push(function (data, env, next) {
+                setTimeout(function () {
+                    next(data, env);
+                }, milliseconds);
+            });
             return this;
         },
-        withContext: function (context) {
-            this.callback.context(context);
+        throttle: function throttle(milliseconds) {
+            if (!_.isNumber(milliseconds)) {
+                throw new Error("Milliseconds must be a number");
+            }
+            var fn = function (data, env, next) {
+                next(data, env);
+            };
+            this.pipeline.push(_.throttle(fn, milliseconds));
             return this;
         }
     };
+    // Backwards Compatibility
+    // WARNING: these will be removed by version 0.13
+
+
+    function warnOnDeprecation(oldMethod, newMethod) {
+        return function () {
+            if (console.warn || console.log) {
+                var msg = "Warning, the " + oldMethod + " method has been deprecated. Please use " + newMethod + " instead.";
+                if (console.warn) {
+                    console.warn(msg);
+                } else {
+                    console.log(msg);
+                }
+            }
+            return SubscriptionDefinition.prototype[newMethod].apply(this, arguments);
+        };
+    }
+    var oldMethods = ["withConstraint", "withConstraints", "withContext", "withDebounce", "withDelay", "withThrottle"];
+    var newMethods = ["constraint", "constraints", "context", "debounce", "delay", "throttle"];
+    for (var i = 0; i < 6; i++) {
+        var oldMethod = oldMethods[i];
+        SubscriptionDefinition.prototype[oldMethod] = warnOnDeprecation(oldMethod, newMethods[i]);
+    }
     var bindingsResolver = {
         cache: {},
         regex: {},
-        compare: function (binding, topic) {
-            var pattern, rgx, prevSegment, result = (this.cache[topic] && this.cache[topic][binding]);
-            if (typeof result !== "undefined") {
+        compare: function compare(binding, topic) {
+            var pattern;
+            var rgx;
+            var prevSegment;
+            var result = (this.cache[topic + "-" + binding]);
+            // result is cached?
+            if (result === true) {
                 return result;
             }
+            // plain string matching?
+            if (binding.indexOf("#") === -1 && binding.indexOf("*") === -1) {
+                result = this.cache[topic + "-" + binding] = (topic === binding);
+                return result;
+            }
+            // ah, regex matching, then
             if (!(rgx = this.regex[binding])) {
-                pattern = "^" + _.map(binding.split("."), function (segment) {
+                pattern = "^" + _.map(binding.split("."), function mapTopicBinding(segment) {
                     var res = "";
                     if ( !! prevSegment) {
                         res = prevSegment !== "#" ? "\\.\\b" : "\\b";
@@ -17913,18 +17770,12 @@ b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJava
                 }).join("") + "$";
                 rgx = this.regex[binding] = new RegExp(pattern);
             }
-            this.cache[topic] = this.cache[topic] || {};
-            this.cache[topic][binding] = result = rgx.test(topic);
+            result = this.cache[topic + "-" + binding] = rgx.test(topic);
             return result;
         },
-        reset: function () {
+        reset: function reset() {
             this.cache = {};
             this.regex = {};
-        }
-    };
-    var fireSub = function (subDef, envelope) {
-        if (!subDef.inactive && _postal.configuration.resolver.compare(subDef.topic, envelope.topic)) {
-            subDef.callback(envelope.data, envelope);
         }
     };
     var pubInProgress = 0;
@@ -17933,6 +17784,27 @@ b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJava
         while (unSubQueue.length) {
             _postal.unsubscribe(unSubQueue.shift());
         }
+    }
+    function getCachePurger(subDef, key, cache) {
+        return function (sub, i, list) {
+            if (sub === subDef) {
+                list.splice(i, 1);
+            }
+            if (list.length === 0) {
+                delete cache[key];
+            }
+        };
+    }
+    function getCacher(configuration, topic, cache, cacheKey, done) {
+        return function (subDef) {
+            if (configuration.resolver.compare(subDef.topic, topic)) {
+                cache.push(subDef);
+                subDef.cacheKeys.push(cacheKey);
+                if (done) {
+                    done(subDef);
+                }
+            }
+        };
     }
     function getSystemMessage(kind, subDef) {
         return {
@@ -17945,7 +17817,9 @@ b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJava
             }
         };
     }
-    function getPredicate(options) {
+    var sysCreatedMessage = getSystemMessage.bind(this, "created");
+    var sysRemovedMessage = getSystemMessage.bind(this, "removed");
+    function getPredicate(options, resolver) {
         if (typeof options === "function") {
             return options;
         } else if (!options) {
@@ -17960,9 +17834,7 @@ b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJava
                     compared += 1;
                     if (
                     // We use the bindings resolver to compare the options.topic to subDef.topic
-                    (prop === "topic" && _postal.configuration.resolver.compare(sub.topic, options.topic))
-                    // We need to account for the context possibly being available on callback due to Conduit
-                    || (prop === "context" && options.context === (sub.callback.context && sub.callback.context() || sub.context))
+                    (prop === "topic" && resolver.compare(sub.topic, options.topic)) || (prop === "context" && options.context === sub._context)
                     // Any other potential prop/value matching outside topic & context...
                     || (sub[prop] === options[prop])) {
                         matched += 1;
@@ -17972,88 +17844,23 @@ b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJava
             };
         }
     }
-    function subscribe(options) {
-        var subDef = new SubscriptionDefinition(options.channel || this.configuration.DEFAULT_CHANNEL, options.topic, options.callback);
-        var channel = this.subscriptions[subDef.channel];
-        var subs;
-        if (!channel) {
-            channel = this.subscriptions[subDef.channel] = {};
-        }
-        subs = this.subscriptions[subDef.channel][subDef.topic];
-        if (!subs) {
-            subs = this.subscriptions[subDef.channel][subDef.topic] = [];
-        }
-        subs.push(subDef);
-        return subDef;
-    }
-    function publish(envelope) {
-        ++pubInProgress;
-        envelope.channel = envelope.channel || this.configuration.DEFAULT_CHANNEL;
-        envelope.timeStamp = new Date();
-        _.each(this.wireTaps, function (tap) {
-            tap(envelope.data, envelope, pubInProgress);
-        });
-        if (this.subscriptions[envelope.channel]) {
-            _.each(this.subscriptions[envelope.channel], function (subscribers) {
-                var idx = 0,
-                    len = subscribers.length,
-                    subDef;
-                while (idx < len) {
-                    if (subDef = subscribers[idx++]) {
-                        fireSub(subDef, envelope);
-                    }
-                }
-            });
-        }
-        if (--pubInProgress === 0) {
-            clearUnSubQueue();
-        }
-    }
-    function unsubscribe() {
-        var idx = 0;
-        var subs = Array.prototype.slice.call(arguments, 0);
-        var subDef, channelSubs, topicSubs;
-        while (subDef = subs.shift()) {
-            if (pubInProgress) {
-                unSubQueue.push(subDef);
-                return;
-            }
-            channelSubs = this.subscriptions[subDef.channel];
-            topicSubs = channelSubs && channelSubs[subDef.topic];
-            if (topicSubs) {
-                var len = topicSubs.length;
-                idx = 0;
-                while (idx < len) {
-                    if (topicSubs[idx] === subDef) {
-                        topicSubs.splice(idx, 1);
-                        break;
-                    }
-                    idx += 1;
-                }
-                if (topicSubs.length === 0) {
-                    delete channelSubs[subDef.topic];
-                    if (_.isEmpty(channelSubs)) {
-                        delete this.subscriptions[subDef.channel];
-                    }
-                }
-            }
-            _postal.publish(getSystemMessage("removed", subDef));
-        }
-    }
     _postal = {
+        cache: {},
         configuration: {
             resolver: bindingsResolver,
             DEFAULT_CHANNEL: "/",
-            SYSTEM_CHANNEL: "postal"
+            SYSTEM_CHANNEL: "postal",
+            enableSystemMessages: true,
+            cacheKeyDelimiter: "|"
         },
         subscriptions: {},
         wireTaps: [],
         ChannelDefinition: ChannelDefinition,
         SubscriptionDefinition: SubscriptionDefinition,
-        channel: function (channelName) {
-            return new ChannelDefinition(channelName);
+        channel: function channel(channelName) {
+            return new ChannelDefinition(channelName, this);
         },
-        addWireTap: function (callback) {
+        addWireTap: function addWireTap(callback) {
             var self = this;
             self.wireTaps.push(callback);
             return function () {
@@ -18063,76 +17870,142 @@ b,e);e.appendTo(v.createElement("div"));w.fragments={};return e};this.createJava
                 }
             };
         },
-        noConflict: function () {
+        noConflict: function noConflict() { /* istanbul ignore else */
             if (typeof window === "undefined" || (typeof window !== "undefined" && typeof define === "function" && define.amd)) {
                 throw new Error("noConflict can only be used in browser clients which aren't using AMD modules");
             }
             global.postal = prevPostal;
             return this;
         },
-        getSubscribersFor: function (options) {
+        getSubscribersFor: function getSubscribersFor(options) {
             var result = [];
-            _.each(this.subscriptions, function (channel) {
+            var self = this;
+            _.each(self.subscriptions, function (channel) {
                 _.each(channel, function (subList) {
-                    result = result.concat(_.filter(subList, getPredicate(options)));
+                    result = result.concat(_.filter(subList, getPredicate(options, self.configuration.resolver)));
                 });
             });
             return result;
         },
-        reset: function () {
+        publish: function publish(envelope) {
+            ++pubInProgress;
+            var configuration = this.configuration;
+            var channel = envelope.channel = envelope.channel || configuration.DEFAULT_CHANNEL;
+            var topic = envelope.topic;
+            envelope.timeStamp = new Date();
+            if (this.wireTaps.length) {
+                _.each(this.wireTaps, function (tap) {
+                    tap(envelope.data, envelope, pubInProgress);
+                });
+            }
+            var cacheKey = channel + configuration.cacheKeyDelimiter + topic;
+            var cache = this.cache[cacheKey];
+            if (!cache) {
+                cache = this.cache[cacheKey] = [];
+                var cacherFn = getCacher(
+                configuration, topic, cache, cacheKey, function (candidate) {
+                    candidate.invokeSubscriber(envelope.data, envelope);
+                });
+                _.each(this.subscriptions[channel], function (candidates) {
+                    _.each(candidates, cacherFn);
+                });
+            } else {
+                _.each(cache, function (subDef) {
+                    subDef.invokeSubscriber(envelope.data, envelope);
+                });
+            }
+            if (--pubInProgress === 0) {
+                clearUnSubQueue();
+            }
+        },
+        reset: function reset() {
             this.unsubscribeFor();
             this.configuration.resolver.reset();
             this.subscriptions = {};
         },
-        unsubscribeFor: function (options) {
-            var toDispose = [];
+        subscribe: function subscribe(options) {
+            var subscriptions = this.subscriptions;
+            var subDef = new SubscriptionDefinition(options.channel || this.configuration.DEFAULT_CHANNEL, options.topic, options.callback);
+            var channel = subscriptions[subDef.channel];
+            var channelLen = subDef.channel.length;
+            var configuration = this.configuration;
+            var subs;
+            if (!channel) {
+                channel = subscriptions[subDef.channel] = {};
+            }
+            subs = subscriptions[subDef.channel][subDef.topic];
+            if (!subs) {
+                subs = subscriptions[subDef.channel][subDef.topic] = [];
+            }
+            // First, add the SubscriptionDefinition to the channel list
+            subs.push(subDef);
+            // Next, add the SubscriptionDefinition to any relevant existing cache(s)
+            _.each(this.cache, function (list, cacheKey) {
+                if (cacheKey.substr(0, channelLen) === subDef.channel) {
+                    getCacher(
+                    configuration, cacheKey.split(configuration.cacheKeyDelimiter)[1], list, cacheKey)(subDef);
+                }
+            }); /* istanbul ignore else */
+            if (this.configuration.enableSystemMessages) {
+                this.publish(sysCreatedMessage(subDef));
+            }
+            return subDef;
+        },
+        unsubscribe: function unsubscribe() {
+            var unSubLen = arguments.length;
+            var unSubIdx = 0;
+            var subDef;
+            var channelSubs;
+            var topicSubs;
+            var idx;
+            for (; unSubIdx < unSubLen; unSubIdx++) {
+                subDef = arguments[unSubIdx];
+                subDef.inactive = true;
+                if (pubInProgress) {
+                    unSubQueue.push(subDef);
+                    return;
+                }
+                channelSubs = this.subscriptions[subDef.channel];
+                topicSubs = channelSubs && channelSubs[subDef.topic]; /* istanbul ignore else */
+                if (topicSubs) {
+                    var len = topicSubs.length;
+                    idx = 0;
+                    // remove SubscriptionDefinition from channel list
+                    while (idx < len) { /* istanbul ignore else */
+                        if (topicSubs[idx] === subDef) {
+                            topicSubs.splice(idx, 1);
+                            break;
+                        }
+                        idx += 1;
+                    }
+                    // remove SubscriptionDefinition from cache
+                    if (subDef.cacheKeys && subDef.cacheKeys.length) {
+                        var key;
+                        while (key = subDef.cacheKeys.pop()) {
+                            _.each(this.cache[key], getCachePurger(subDef, key, this.cache));
+                        }
+                    }
+                    if (topicSubs.length === 0) {
+                        delete channelSubs[subDef.topic];
+                        if (_.isEmpty(channelSubs)) {
+                            delete this.subscriptions[subDef.channel];
+                        }
+                    }
+                }
+                if (this.configuration.enableSystemMessages) {
+                    this.publish(sysRemovedMessage(subDef));
+                }
+            }
+        },
+        unsubscribeFor: function unsubscribeFor(options) {
+            var toDispose = []; /* istanbul ignore else */
             if (this.subscriptions) {
                 toDispose = this.getSubscribersFor(options);
                 this.unsubscribe.apply(this, toDispose);
             }
         }
     };
-    _postal.subscribe = new Conduit.Sync({
-        target: subscribe,
-        context: _postal
-    });
-    _postal.publish = Conduit.Async({
-        target: publish,
-        context: _postal
-    });
-    _postal.unsubscribe = new Conduit.Sync({
-        target: unsubscribe,
-        context: _postal
-    });
-    _postal.subscribe.after(function (subDef /*, options */ ) {
-        _postal.publish(getSystemMessage("created", subDef));
-    });
     _postal.subscriptions[_postal.configuration.SYSTEM_CHANNEL] = {};
-    _postal.linkChannels = function (sources, destinations) {
-        var result = [],
-            self = this;
-        sources = !_.isArray(sources) ? [sources] : sources;
-        destinations = !_.isArray(destinations) ? [destinations] : destinations;
-        _.each(sources, function (source) {
-            var sourceTopic = source.topic || "#";
-            _.each(destinations, function (destination) {
-                var destChannel = destination.channel || self.configuration.DEFAULT_CHANNEL;
-                result.push(
-                self.subscribe({
-                    channel: source.channel || self.configuration.DEFAULT_CHANNEL,
-                    topic: sourceTopic,
-                    callback: function (data, env) {
-                        var newEnv = _.clone(env);
-                        newEnv.topic = _.isFunction(destination.topic) ? destination.topic(env.topic) : destination.topic || env.topic;
-                        newEnv.channel = destChannel;
-                        newEnv.data = data;
-                        self.publish(newEnv);
-                    }
-                }));
-            });
-        });
-        return result;
-    };
     if (global && Object.prototype.hasOwnProperty.call(global, "__postalReady__") && _.isArray(global.__postalReady__)) {
         while (global.__postalReady__.length) {
             global.__postalReady__.shift().onReady(_postal);
@@ -18327,18 +18200,18 @@ var module = undefined,
     if (typeof module === "object" && module.exports) {
         // Node, or CommonJS-Like environments
         module.exports = function (postal) {
-            factory(require("lodash"), require("conduitjs"), postal, this);
+            factory(require("lodash"), postal, this);
         };
     } else if (typeof define === "function" && define.amd) {
         // AMD. Register as an anonymous module.
-        define(["lodash", "conduitjs", "postal"], function (_, Conduit, postal) {
-            return factory(_, Conduit, postal, root);
+        define(["lodash", "postal"], function (_, Conduit, postal) {
+            return factory(_, postal, root);
         });
     } else {
         // Browser globals
-        root.postal = factory(root._, root.Conduit, root.postal, root);
+        root.postal = factory(root._, root.postal, root);
     }
-}(this, function (_, Conduit, postal, global, undefined) {
+}(this, function (_, postal, global, undefined) {
     var plugin = postal.preserve = {
         store: {},
         expiring: []
@@ -18377,13 +18250,6 @@ var module = undefined,
         while (expired.length) {
             expired.pop().purge();
         }
-    }
-    if (!postal.subscribe.after) {
-        var orig = postal.subscribe;
-        postal.subscribe = new Conduit.Sync({
-            context: postal,
-            target: orig
-        });
     }
     postal.SubscriptionDefinition.prototype.enlistPreserved = function () {
         var channel = this.channel;
@@ -21096,17 +20962,21 @@ define('text!app/template/releases.html',[],function () { return '<div class="re
 		storage
 
 	store.disabled = false
+	store.version = '1.3.17'
 	store.set = function(key, value) {}
-	store.get = function(key) {}
+	store.get = function(key, defaultVal) {}
+	store.has = function(key) { return store.get(key) !== undefined }
 	store.remove = function(key) {}
 	store.clear = function() {}
 	store.transact = function(key, defaultVal, transactionFn) {
-		var val = store.get(key)
 		if (transactionFn == null) {
 			transactionFn = defaultVal
 			defaultVal = null
 		}
-		if (typeof val == 'undefined') { val = defaultVal || {} }
+		if (defaultVal == null) {
+			defaultVal = {}
+		}
+		var val = store.get(key, defaultVal)
 		transactionFn(val)
 		store.set(key, val)
 	}
@@ -21137,7 +21007,10 @@ define('text!app/template/releases.html',[],function () { return '<div class="re
 			storage.setItem(key, store.serialize(val))
 			return val
 		}
-		store.get = function(key) { return store.deserialize(storage.getItem(key)) }
+		store.get = function(key, defaultVal) {
+			var val = store.deserialize(storage.getItem(key))
+			return (val === undefined ? defaultVal : val)
+		}
 		store.remove = function(key) { storage.removeItem(key) }
 		store.clear = function() { storage.clear() }
 		store.getAll = function() {
@@ -21179,7 +21052,7 @@ define('text!app/template/releases.html',[],function () { return '<div class="re
 			storage = doc.createElement('div')
 			storageOwner = doc.body
 		}
-		function withIEStorage(storeFunction) {
+		var withIEStorage = function(storeFunction) {
 			return function() {
 				var args = Array.prototype.slice.call(arguments, 0)
 				args.unshift(storage)
@@ -21208,9 +21081,10 @@ define('text!app/template/releases.html',[],function () { return '<div class="re
 			storage.save(localStorageName)
 			return val
 		})
-		store.get = withIEStorage(function(storage, key) {
+		store.get = withIEStorage(function(storage, key, defaultVal) {
 			key = ieKeyFix(key)
-			return store.deserialize(storage.getAttribute(key))
+			var val = store.deserialize(storage.getAttribute(key))
+			return (val === undefined ? defaultVal : val)
 		})
 		store.remove = withIEStorage(function(storage, key) {
 			key = ieKeyFix(key)
@@ -21484,7 +21358,7 @@ define('app/viewModel/config/Configuration',[ "jquery", "lodash", "footwork", "s
             }.bind(this), 3000);
           }
         }.bind(this);
-        this.$namespace.subscribe('updateSession', this.updateSession).withContext(this);
+        this.$namespace.subscribe('updateSession', this.updateSession).context(this);
 
         this.$namespace.subscribe('reset', reset = function( noReflow ) {
           if( this.navReflowing() === true || this.paneMoving() === true || this.headerMoving() === true ) {
@@ -21849,7 +21723,7 @@ define('app/viewModel/config/LayoutControl',[ "footwork", "lodash" ],
 
         this.$namespace.subscribe( 'disableControl', function() {
           this.disable();
-        }).withContext(this);
+        }).context(this);
 
         return this;
       }
@@ -22153,11 +22027,11 @@ define('app/viewModel/NavMenu',[ "jquery", "lodash", "footwork" ],
 
         this.$namespace.subscribe('collapseSubMenu', function() {
           this.menuActive(false);
-        }).withContext(this);
+        }).context(this);
 
         this.$namespace.subscribe('hideAll', function() {
           this.visible(false);
-        }).withContext(this);
+        }).context(this);
 
         this.visible(false);
       }
@@ -22338,7 +22212,7 @@ define('app/viewModel/pane/PageSections',[ "jquery", "lodash", "footwork" ],
         this.$namespace.command.handler('goToSection', function(sectionAnchor) {
           goToSection = sectionAnchor;
         });
-        this.$namespace.subscribe('pageMetaData', loadMetaData).withContext(this);
+        this.$namespace.subscribe('pageMetaData', loadMetaData).context(this);
 
         this.checkSelection = function(newSelection) {
           newSelection = newSelection || currentSelection();
@@ -22459,7 +22333,7 @@ define('app/viewModel/pane/PageSection',[ "jquery", "lodash", "footwork", "jquer
 
         paneElementsNamespace.subscribe('hideAll', function() {
           this.visible( false );
-        }).withContext(this);
+        }).context(this);
 
         this.toggleCollapse = function(viewModel, event) {
           this.isCollapsed( !this.isCollapsed() );
@@ -23106,7 +22980,7 @@ define('app/viewModel/Navigation',[ "jquery", "lodash", "footwork", "LoadState" 
 
         this.$globalNamespace.subscribe('configReset', function() {
           this.headerOpen(false);
-        }).withContext(this);
+        }).context(this);
 
         var pageNamespace = fw.namespace('Page');
         pageNamespace.subscribe('loadingPage', function(promise) {
@@ -23117,7 +22991,7 @@ define('app/viewModel/Navigation',[ "jquery", "lodash", "footwork", "LoadState" 
               this.loader.setState('ready');
             }
           }.bind(this));
-        }).withContext(this);
+        }).context(this);
 
         this.toggleHeader = function() {
           if( ( (this.paneAnimate3d() === true && this.paneMoving() === true) ||
@@ -23291,10 +23165,10 @@ define('text!../../pages/api/broadcastable-receivable-page.html',[],function () 
 define('text!../../pages/api/routing-page.html',[],function () { return '<article>\r\n\r\n  <a id="introduction" class="section-anchor"></a>\r\n  <section name="introduction">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <h1 class="sub title">Introduction</h1>\r\n    </header>\r\n    <div class="content">\r\n      <p>Routing in a web application is about managing state. Modern single-page web applications make use of the HTML5 <span class="inline-code">history</span>\r\n      API in order to retain normal browser navigation while not forcing a complete refresh of the page on every state/url change. Footwork includes a router which\r\n      provides this functionality.</p>\r\n      <p>The router included with footwork has a few key features:</p>\r\n      <ul>\r\n        <li>Unlimited nesting of routers (relative and non-relative).</li>\r\n        <li>Unlimited number of view outlets per router.</li>\r\n        <li>Context based sub-routing.</li>\r\n        <li>Context based outlets.</li>\r\n        <li>Parameterized routes (with optional or required parameters).</li>\r\n        <li>Filtered/predicated routes.</li>\r\n        <li>Integration with <a href="https://github.com/browserstate/history.js/" target="_blank">history.js</a> for cross-browser history API support.</li>\r\n      </ul>\r\n      <p>In essence the router combines several design patterns (MVC + MVVM + Observable), context-based subrouting, and context-based outlets to provide a novel and extremely powerful routing solution.</p>\r\n    </div>\r\n  </section>\r\n\r\n  <a id="usage" class="section-anchor"></a>\r\n  <section name="usage">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <h1 class="sub title">Usage</h1>\r\n    </header>\r\n    <div class="content">\r\n      <p>Routers have three principle components which make them useful:</p>\r\n      \r\n      <ul>\r\n        <li><a href="#configuration">configuration object</a>: A router configuration on a viewModel. Used to define the router, its routes, controllers, and their actions.</li>\r\n        <li><a href="#outlets">outlets</a>: Any number of <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations in your HTML which are the output points your router controls.</li>\r\n        <li><a href="#route-binding">route bindings</a>: Special bindings for links (and other tags) which will initiate new states in your application.</li>\r\n      </ul>\r\n      \r\n      <p>Just as a viewModel \'wraps\' a section of your HTML providing the binding points and logic for that portion of your application. In a similar sense,\r\n      a router also \'wraps\' and provides all routing logic for that portion of your application. Anywhere there is an \r\n      <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declaration, footwork will traverse up the DOM searching for the nearest parent\r\n      viewModel which has a router. That router is able to control what view/component\r\n      is displayed in any <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations found within its scope.</p>\r\n      \r\n      <p>This same parent-seeking logic holds true for both route bindings and nested routers (configured with <span class="inline-code">isRelative: true</span>) as well. Routers will iteratively\r\n      walk the DOM upwards searching for (and making their routes relative to) the nearest parent router (if one is found). Route bindings do the same\r\n      and will then trigger state changes on that router as appropriate.</p>\r\n      \r\n      <p>It is by this parent-seeking nature that it is possible to nest routers, outlets, and route bindings in any configuration and at any depth and complexity.</p>\r\n    </div>\r\n  </section>\r\n\r\n  <a id="configuration" class="section-anchor"></a>\r\n  <section name="configuration">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <h1 class="sub title">Configuration</h1>\r\n    </header>\r\n    <div class="content">\r\n      <p>Routers are incorporated into <a href="/api/viewModel" data-bind="$route">footwork viewModels</a>, to create one you must add a router <a href="/api/viewModel#configuration" data-bind="$route">configuration to a viewModel</a>.</p>\r\n      <h3>A synopsis of router configuration options:</h3>\r\n<pre><code class="javascript">var ViewModel = fw.viewModel({\r\n  // ...\r\n  router: {\r\n    // if true all routes defined for the router will be relative to its parent router (if any)\r\n    isRelative: true, // default is true\r\n\r\n    // routes list definition\r\n    routes: [],\r\n\r\n    // unknown route (triggered if none of the routes[] match from above)\r\n    unknownRoute: {},\r\n\r\n    // if true the router will activate as soon as its viewModel is bound to the DOM\r\n    activate: true, // default is true\r\n\r\n    // tell the router to exclude the beginning portion of a route\r\n    baseRoute: \'\', // default is null\r\n\r\n    // by default the namespace is based off of the viewModel it is paired with\r\n    namespace: \'namespaceName\', // (this is not usually needed)\r\n  },\r\n  // ..\r\n});</code></pre>\r\n      \r\n      <div class="note"><span class="label">NOTE:</span> The router is instantiated (and disposed of) along with the viewModel and is available at <span class="inline-code">viewModel.$router</span> after instantiation.\r\n      Once the viewModel is bound to the DOM (either because it is part of a component, viewModel, or is manually bound) the router will activate and the current route (url) will be expressed.</div>\r\n      \r\n      <p>The <span class="inline-code">routes: []</span> and <span class="inline-code">unknownRoute: {}</span> definitions both have the same syntax. The only difference between\r\n      these two is that <span class="inline-code">routes: []</span> is an array of route definitions, and <span class="inline-code">unknownRoute: {}</span> is a single route definition.\r\n      These define the routes your application (on this router) has available to it.</p>\r\n\r\n      <ul>\r\n        <li><a href="#routes">Routes List</a></li>\r\n        <li><a href="#route">Route Definition</a></li>\r\n        <li><a href="#router-properties">Router Properties</a></li>\r\n      </ul>\r\n    </div>\r\n  </section>\r\n\r\n  <a id="routes" class="section-anchor"></a>\r\n  <section name="routes">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <h2 class="sub title">Routes List</h2>\r\n    </header>\r\n    <div class="content">\r\n      <p>When a new state/url is requested each router will iteratively search its <span class="inline-code">routes: []</span> list from the top down for the first matching route. If more than one \r\n      route matches for a given url/state then only the first one found found will be used.</p>\r\n      \r\n      <h3>Example <span class="inline-code">routes: []</span> list definition:</h3>\r\n<pre><code class="javascript">// ...\r\nroutes: [\r\n  { // default route: \'/\'\r\n    route: \'/\',\r\n    // ...\r\n  },\r\n  { // route: /store\r\n    route: \'/store\',\r\n    // ...\r\n  }\r\n],\r\nunknownRoute: { /* ... */ }\r\n// ...\r\n</code></pre>\r\n      <div class="note"><span class="label">NOTE:</span> The <span class="inline-code">unknownRoute:</span> definition has no <span class="inline-code">route:</span> parameter (it is ignored if included). This route\r\n      is triggered when no matching route is found in the <span class="inline-code">routes:</span> list. It is otherwise configured just like the other route definitions.</div>\r\n    </div>\r\n  </section>\r\n\r\n  <a id="route" class="section-anchor"></a>\r\n  <section name="route">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <h2 class="sub title">Route Definition</h2>\r\n    </header>\r\n    <div class="content">\r\n      <p>A route definition is simply an object which describes a route. Footwork will match the browser path up\r\n      against the <span class="inline-code">route:</span> parameter and use the other options to trigger and setup the state of your application.</p>\r\n      \r\n      <p>A route definition has four possible parameters:</p>\r\n      <ul>\r\n        <li><span class="inline-code">route:</span> - A specially structured string which is used to match against a given URL (and optionally provide for named parameters).</li>\r\n        <li><span class="inline-code">controller:</span> - Callback function used when a route is chosen, this is where <span class="inline-code">outlets</span> get changed and the state of your application is altered. Any parameters defined by the <span class="inline-code">route:</span> will be passed in.</li>\r\n        <li><span class="inline-code">title:</span> - (<em>optional</em>) A string or callback function used to set the title of the page when the route is chosen. Any parameters defined by the <span class="inline-code">route:</span> will be passed in.</li>\r\n        <li><span class="inline-code">filter:</span> - (<em>optional</em>) A predicate function used to tell footwork if it should consider a route. Any parameters defined by the <span class="inline-code">route:</span> will be passed in.</li>\r\n      </ul>\r\n      \r\n      <h3><span class="inline-code">route:</span> example definitions with and without parameters specified:</h3>\r\n      <h3><span class="inline-code">controller:</span> example definitions with and without parameters passed in:</h3>\r\n<pre><code class="javascript">// ...\r\nroutes: [\r\n  { // static route (no parameters): /about-us\r\n    route: \'/about-us\',\r\n    controller: function() { /* ... */ }\r\n  },\r\n  { // route with required parameter isbn\r\n    route: \'/book/:isbn\',\r\n    controller: function(params) {\r\n      console.log(\'Book ISBN\', params.isbn);\r\n    }\r\n  },\r\n  { // route with optional parameter storeNum\r\n    route: \'/info(/:storeNum)\',\r\n    controller: function(params) {\r\n      // params.storeNum is undefined if no storeNum is provided in the route\r\n      console.log(\'Store Number\', params.storeNum);\r\n    }\r\n  }\r\n],\r\n// ...\r\n</code></pre>\r\n\r\n      <h3><span class="inline-code">title:</span> example definitions as a string and callback:</h3>\r\n      <p>This (optional) parameter defines what the title of the page will be set to when routing to this route. The route params (if any) as described by the route: string will be passed in.</p>\r\n<pre><code class="javascript">// ...\r\nroutes: [\r\n  { // \'string\' title\r\n    title: \'Store Page\',\r\n    route: \'/store\',\r\n    controller: function() { /* ... */ }\r\n  },\r\n  { // callback-based title\r\n    title: function(params) {\r\n      return \'Book \' + params.isbn;\r\n    },\r\n    route: \'/book/:isbn\',\r\n    controller: function(params) { /* ... */ }\r\n  }\r\n],\r\n// ...\r\n</code></pre>\r\n      \r\n      <h3><span class="inline-code">filter:</span> example definition:</h3>\r\n      <p>If this (optional) callback returns a \'falsey\' value, the\r\n      router will ignore the route even if the path matches. Conversely if the callback returns a\r\n      \'truthy\' value the router will consider it on a first-found first-routed basis as normal.\r\n      The route params (if any) as described by the <span class="inline-code">route:</span> string will be passed in.</p>\r\n<pre><code class="javascript">// ...\r\nroutes: [\r\n  { // only routed to when isbn === \'12345\'\r\n    route: \'/book/:isbn\',\r\n    title: \'Special Book Page\',\r\n    controller: function(params) {\r\n      console.log(\'Special Book ISBN\', params.isbn);\r\n    },\r\n    filter: function(params) {\r\n      if(params.isbn === \'12345\') {\r\n        return true; // this route used only if isbn === \'12345\'\r\n      }\r\n      return false;\r\n    }\r\n  },\r\n  { // normal book/:isbn route that is used when isbn !== \'12345\'\r\n    route: \'/book/:isbn\',\r\n    title: \'Home Page\',\r\n    controller: function(params) {\r\n      console.log(\'Book ISBN\', params.isbn);\r\n    }\r\n  }\r\n],\r\n// ...\r\n</code></pre>\r\n      <div class="note"><span class="label">NOTE:</span> Remember that you can always <a href="/api/namespacing#request" data-bind="$route"><span class="inline-code">request</span></a>\r\n      data, or use <a href="/api/broadcastable-receivable" data-bind="$route"><span class="inline-code">receivables</span>/<span class="inline-code">broadcastables</span></a>/etc inside of your filter functions too.</div>\r\n    </div>\r\n  </section>\r\n\r\n  <a id="router-properties" class="section-anchor"></a>\r\n  <section name="router-properties">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <h2 class="sub title">(instantiated) Router Properties</h2>\r\n    </header>\r\n    <div class="content">\r\n      <p>After a router has been instantiated (it is available immediately after a viewModel instance is created, at <span class="inline-code">viewModel.$router</span>) it has a handful of helpful properties and methods.</p>\r\n      <p>They are as follows:</p>\r\n      <ul>\r\n        <li><span class="inline-code">router.setState()</span> - Set the state/url for this router, triggering any routes/controllers.</li>\r\n        <li><span class="inline-code">router.addRoutes()</span> - Add route(s) programmatically.</li>\r\n        <li><span class="inline-code">router.setRoutes()</span> - (clear out and) Set the routes for a router programmatically.</li>\r\n        <li><span class="inline-code">router.currentRoute()</span> - Get the current route details.</li>\r\n        <li><span class="inline-code">router.outlets{}</span> - List/Collection of registered outlets.</li>\r\n      </ul>\r\n\r\n      <h3><em class="func-def">router.setState<span>( <span class="param">\'/new/state\'</span> )</span></em></h3>\r\n      <h3>Set the state/url for this router, triggering any routes/controllers:</h3>\r\n<pre><code class="javascript">// trigger the route that matches for \'/about\'\r\nrouter.setState(\'/about\');\r\n</code></pre>\r\n\r\n      <h3><em class="func-def">router.addRoutes<span>( <span class="param">[ /* routes */ ]</span> )</span></em></h3>\r\n      <h3>Add route(s) programmatically:</h3>\r\n<pre><code class="javascript">var MainViewModel = fw.viewModel({\r\n  // ...\r\n  router: {},\r\n  // ...\r\n});\r\nvar main = new MainViewModel();\r\n\r\nmain.$router.addRoutes([\r\n  {\r\n    title: \'Index Page\',\r\n    route: \'/\',\r\n    controller: function() { /* ... */ }\r\n  },\r\n  {\r\n    title: \'Book Page\',\r\n    route: \'/book/:isbn\',\r\n    controller: function(params) { /* ... */ }\r\n  }\r\n]);\r\n</code></pre>\r\n\r\n      <h3><em class="func-def">router.setRoutes<span>( <span class="param">[ /* routes */ ]</span> )</span></em></h3>\r\n      <h3>(clear out and) Set the routes for a router programmatically:</h3>\r\n<pre><code class="javascript">var MainViewModel = fw.viewModel({\r\n  // ...\r\n  router: {\r\n    routes: [\r\n      {\r\n        title: \'Index Page\',\r\n        route: \'/\',\r\n        controller: function() { /* ... */ }\r\n      },\r\n      {\r\n        title: \'Book Page\',\r\n        route: \'/book/:isbn\',\r\n        controller: function(params) { /* ... */ }\r\n      }\r\n    ]\r\n  },\r\n  // ...\r\n});\r\nvar main = new MainViewModel();\r\n\r\nmain.$router.setRoutes([\r\n  {\r\n    title: \'Different Index Page\',\r\n    route: \'/\',\r\n    controller: function() { /* ... */ }\r\n  },\r\n  {\r\n    title: \'Different Book Page\',\r\n    route: \'/book/:isbn\',\r\n    controller: function(params) { /* ... */ }\r\n  }\r\n]);\r\n</code></pre>\r\n\r\n      <h3><em class="func-def">router.currentRoute<span>()</span></em></h3>\r\n      <h3>Get the current route details:</h3>\r\n<pre><code class="javascript">// Browser currently pointed to \'http://application.com/book/22\'\r\nvar MainViewModel = fw.viewModel({\r\n  namespace: \'Main\',\r\n  // ...\r\n  router: {\r\n    routes: [\r\n      {\r\n        title: \'Index Page\',\r\n        route: \'/\',\r\n        controller: function() { /* ... */ }\r\n      },\r\n      {\r\n        title: \'Book Page\',\r\n        route: \'/book/:isbn\',\r\n        controller: function(params) { /* ... */ }\r\n      }\r\n    ]\r\n  },\r\n  // ...\r\n});\r\n\r\n// ...\r\n\r\nvar currentRoute = router.currentRoute();\r\n// currentRoute.segment === \'/book/22\' (this specific route segment/path)\r\n// currentRoute.url === \'/book/22\' (full url, includes parent and children segments)\r\n// currentRoute.namedParams.isbn === \'22\'\r\n// currentRoute.title === \'Book Page\'\r\n</code></pre>\r\n\r\n      <h3><span class="inline-code">router.outlets{}</span> - List/Collection of registered outlets.</h3>\r\n<pre><code class="html">&lt;html&gt;\r\n  &lt;body&gt;\r\n    &lt;viewModel module="Main"&gt;\r\n      &lt;!-- ... --&gt;\r\n      &lt;outlet name="main-view"&gt;&lt;/outlet&gt;\r\n      &lt;!-- ... --&gt;\r\n    &lt;/viewModel&gt;\r\n  &lt;/body&gt;\r\n&lt;/html&gt;</code></pre>\r\n<pre><code class="javascript">var Main = fw.viewModel({\r\n  namespace: \'Main\',\r\n  router: { /* ... */ }\r\n  initialize: function() { /* ... */ },\r\n  afterBinding: function() {\r\n    // Prints: Registered outlets { \'main-view\': function }\r\n    console.log(\'Registered outlets\', this.$router.outlets);\r\n  }\r\n});\r\n</code></pre>\r\n      <div class="note"><span class="label">NOTE:</span> If/When you call the <span class="inline-code">router.$outlet()</span> method that will also register whatever named outlet you refer to (if it is not already registered).</div>\r\n\r\n    </div>\r\n  </section>\r\n\r\n  <a id="outlets" class="section-anchor"></a>\r\n  <section name="outlets">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <h1 class="sub title">Outlets</h1>\r\n    </header>\r\n    <div class="content">\r\n      <p>Outlets are simply areas in your application where you can control what is displayed. Their placement in your application is designated by one or more <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span>\r\n      declarations in your HTML. The <span class="inline-code">name=""</span> key is used by the router to target that specific outlet.</p>\r\n\r\n<pre><code class="html">&lt;html&gt;\r\n  &lt;body&gt;\r\n    &lt;viewModel module="Main"&gt;\r\n      &lt;!-- ... --&gt;\r\n      &lt;outlet name="main-view"&gt;&lt;/outlet&gt;\r\n      &lt;!-- ... --&gt;\r\n    &lt;/viewModel&gt;\r\n  &lt;/body&gt;\r\n&lt;/html&gt;</code></pre>\r\n\r\n      <p>When you tell an outlet what to show, you are telling it to load a component. Thus for each \'page\' or view you want\r\n      to display for an <span class="inline-code">outlet</span>, footwork will need one of the three following things:</p>\r\n\r\n      <ul>\r\n        <li>A corresponding view registered (cached/preloaded) via <span class="inline-code">fw.outlets.registerView()</span> or <a href="/api/components#loading-registering" data-bind="$route"><span class="inline-code">fw.components.register()</span></a></li>\r\n        <li>A registered location where it can load the view via <span class="inline-code">fw.outlets.registerViewLocation()</span> or <a href="/api/components#loading-registering" data-bind="$route"><span class="inline-code">fw.components.registerLocation()</span></a></li>\r\n        <li>A component/view available at the default component location (<span class="inline-code">fw.components.defaultLocation()</span>, see <a href="/api/components#loading-registering" data-bind="$route">component registration</a>).</li>\r\n      </ul>\r\n      <div class="note">\r\n        <p><span class="label">NOTE:</span> You can tell an <span class="inline-code">&lt;outlet&gt;&lt;/outlet&gt;</span> to show <em>any</em> component, not just ones you register with <span class="inline-code">fw.outlets.registerView()</span> or \r\n        <span class="inline-code">fw.outlets.registerViewLocation()</span>. Those methods are simply provided as a shortcut for creating a component and marking it as \'template-only\'.</p>\r\n        <p>Also remember that components can contain any depth and complexity of nested viewModels, components, routers, etc. This means you can even nest entire applications within the view of another, all with simple declarative syntax.</p>\r\n      </div>\r\n      <ul>\r\n        <li><a href="#outlet-registering">Lazy Loading / Registering Views (components without a viewModel)</a></li>\r\n        <li><a href="#outlet-usage">Usage</a></li>\r\n      </ul>\r\n    </div>\r\n  </section>\r\n\r\n  <a id="outlet-registering" class="section-anchor"></a>\r\n  <section name="outlet-registering">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <h2 class="sub title">Lazy Loading / Registering Views (components without a viewModel)</h2>\r\n    </header>\r\n    <div class="content">\r\n      <p>Because most things you might want to show in an outlet (pages/views) consist of only template code (they have no corresponding viewModel), footwork provides two shortcut methods for registering a\r\n      template-only outlet view (ie: a page/view/template you can show in an <span class="inline-code">&lt;outlet&gt;&lt;/outlet&gt;</span>).</p>\r\n      <ul>\r\n        <li><span class="inline-code">fw.outlets.registerView()</span> - Cache a view/template for later use (available instantly, no download time).</li>\r\n        <li><span class="inline-code">fw.outlets.registerViewLocation()</span> - Tell footwork where it can download it via AMD/RequireJS (dynamically/lazy loaded for you when requested). Since outlet views are just viewModel-less components, they are resolved just like any other <a href="/api/components#loading-registering" data-bind="$route">AMD/RequireJS loaded component</a>.</li>\r\n      </ul>\r\n      <p>Essentially they are ways to easily create/register a view you can use in an outlet.</p>\r\n\r\n      <h3><em class="func-def">fw.outlets.registerView<span>( <span class="param">\'viewName\'</span>, <span class="param">\'&lt;!-- template HTML --&gt;\'</span> )</span></em></h3>\r\n      <h3>Register/cache a view for later use:</h3>\r\n<pre><code class="javascript">// Register the \'index-page\' template view\r\nfw.outlets.registerView(\'index-page\', \'&lt;p&gt;Welcome to footwork.js&lt;/p&gt;\');\r\n\r\n// Register a different view that has a nested component\r\nfw.outlets.registerView(\'calendar-page\', \'Calendar: &lt;calendar&gt;&lt;/calendar&gt;\');\r\n</code></pre>\r\n      <div class="note">\r\n        <p><span class="label">NOTE:</span> It is generally recommended you load your templates via a module system such as RequireJS (don\'t just write them inline in a string as shown, that was only used as an example for reasons of brevity).</p>\r\n        <p>For an example of how to do this check the <a href="/tutorials" data-bind="$route">tutorials page</a>, or alternatively just specify the location of the view via <span class="inline-code">fw.outlets.registerViewLocation()</span>.</p>\r\n      </div>\r\n\r\n      <h3><em class="func-def">fw.outlets.registerViewLocation<span>( <span class="param">\'viewName\'</span>, <span class="param">\'/path/to/template\'</span> )</span></em></h3>\r\n      <h3><em class="func-def">fw.outlets.registerViewLocation<span>( <span class="param">[ \'viewName\', \'viewName2\', ... ]</span>, <span class="param">\'/path/to/template/\'</span> )</span></em></h3>\r\n      <h3>Tell footwork where it can download a view via AMD/RequireJS:</h3>\r\n<pre><code class="javascript">// Register location of the \'index-page\' template view\r\nfw.outlets.registerViewLocation(\'index-page\', \'/pages/index-page.html\');\r\n\r\n/**\r\n * Footwork will append the filename if you end it with a trailing slash (/)\r\n * The following will try to load \'/otherPages/calendar-page.html\' when needed\r\n */\r\nfw.outlets.registerViewLocation(\'calendar-page\', \'/otherPages/\');\r\n\r\n// Register location for multiple views (the same filename appending occurs):\r\nfw.outlets.registerViewLocation([\'calendar-page\', \'about-page\'], \'/otherPages/\');\r\n</code></pre>\r\n    </div>\r\n  </section>\r\n\r\n  <a id="outlet-usage" class="section-anchor"></a>\r\n  <section name="outlet-usage">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <h2 class="sub title">Usage</h2>\r\n    </header>\r\n    <div class="content">\r\n      <p>Once footwork knows how to resolve your outlet view it can be used in your application. From that point you need only place whatever\r\n      <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations you want in the HTML and then change/set them via the <span class="inline-code">router.$outlet()</span> method.</p>\r\n\r\n      <h3><em class="func-def">router.$outlet<span>( <span class="param">\'outletName\'</span>, <span class="param">\'viewName\'</span>, <span class="param">options</span> )</span></em></h3>\r\n      <h3><em class="func-def">router.$outlet<span>( <span class="param">\'outletName\'</span>, <span class="param">\'viewName\'</span>, <span class="param">onComplete(containingElement)</span> )</span></em></h3>\r\n      <h3>Trigger an outlet to display a component, optionally providing an onComplete() callback and/or parameters to its viewModel.</h3>\r\n      <h3>Example <span class="inline-code">&lt;viewModel module="[moduleName]"&gt; ... &lt;/viewModel&gt;</span> with a router and outlet:</h3>\r\n<pre><code class="html">&lt;html&gt;\r\n  &lt;body&gt;\r\n    &lt;viewModel module="Main"&gt;\r\n      &lt;!-- ... --&gt;\r\n      &lt;outlet name="main-view"&gt;&lt;/outlet&gt;\r\n      &lt;!-- ... --&gt;\r\n    &lt;/viewModel&gt;\r\n  &lt;/body&gt;\r\n&lt;/html&gt;</code></pre>\r\n<pre><code class="javascript">var Main = fw.viewModel({\r\n  namespace: \'Main\',\r\n  router: { /* ... */ }\r\n  initialize: function() {\r\n    // tell the \'main-view\' outlet to show the \'index-page\' view/component\r\n    this.$router.$outlet(\'main-view\', \'index-page\');\r\n  }\r\n});\r\n\r\nfw.viewModels.register(\'Main\', Main);\r\nfw.outlets.registerView(\'index-page\', \'&lt;p&gt;This is the index-page view.!&lt;/p&gt;\');\r\n\r\nfw.start();\r\n</code></pre>\r\n        <div class="note"><span class="label">NOTE:</span> You should be loading your viewModel and template modules externally, do not write them inline as shown! That was done purely to make the example short and more readable.</div>\r\n\r\n      <h3>Normally you would perform <span class="inline-code">router.$outlet()</span> calls from inside a route controller, as shown below:</h3>\r\n<pre><code class="javascript">var Main = fw.viewModel({\r\n  namespace: \'Main\',\r\n  router: {\r\n    routes: [\r\n      {\r\n        route: \'/\',\r\n        controller: function() {\r\n          // route changed to \'/\', make the \'main-view\' outlet show the \'index-page\' view\r\n          this.$outlet(\'main-view\', \'index-page\');\r\n        }\r\n      }, {\r\n        route: \'/about\',\r\n        controller: function() {\r\n          // route changed to \'/about\', make the \'main-view\' outlet show the \'about-page\' view\r\n          this.$outlet(\'main-view\', \'about-page\');\r\n        }\r\n      }\r\n    ]\r\n  }\r\n  initialize: function() { /* ... */ }\r\n});\r\n</code></pre>\r\n\r\n      <h3>You can provide an <span class="inline-code">onComplete()</span> callback to the <span class="inline-code">router.$outlet()</span> method which is run after the outlet has finished changing its view:</h3>\r\n<pre><code class="javascript">// ...\r\n{\r\n  route: \'/about\',\r\n  controller: function() {\r\n    this.$outlet(\'main-view\', \'about-page\', function(element) {\r\n      console.log(\'About page is loaded inside of\', element);\r\n    });\r\n  }\r\n}\r\n// ...\r\n</code></pre>\r\n\r\n      <p>You can also pass an <span class="inline-code">options</span> object to the <span class="inline-code">router.$outlet()</span> method. This object can contain the following:</p>\r\n      <ul>\r\n        <li><span class="inline-code">params:</span> - (<em>optional</em>) Object passed to the <span class="inline-code">initialize()</span> method of the viewModel (if your view/component has a viewModel).</li>\r\n        <li><span class="inline-code">onComplete:</span> - (<em>optional</em>) A callback function which is run after the new view/component is loaded (same as above).</li>\r\n      </ul>\r\n<pre><code class="javascript">// ...\r\n{\r\n  route: \'/about\',\r\n  controller: function() {\r\n    this.$outlet(\'main-view\', \'about-page\', {\r\n      // params object passed to the viewModel initialize() method\r\n      params: { thisObject: \'isPassedToTheComponent\' },\r\n\r\n      // callback which is run after it is loaded\r\n      onComplete: function(element) {\r\n        console.log(\'About page is loaded inside of\', element);\r\n      }\r\n    });\r\n  }\r\n}\r\n// ...\r\n</code></pre>\r\n      <div class="note"><span class="label">NOTE:</span> Remember that in addition to passing arguments directly from a route, you can also leverage the\r\n      powerful <a href="/api/namespacing" data-bind="$route">namespacing</a> or <a href="/api/broadcastable-receivable" data-bind="$route">broadcastable/receivable</a>\r\n      features of footwork to facilitate communication/initialization of your view component.</div>\r\n    </div>\r\n  </section>\r\n\r\n  <a id="route-binding" class="section-anchor"></a>\r\n  <section name="route-binding">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <h1 class="sub title">Route Binding</h1>\r\n    </header>\r\n    <div class="content">\r\n      <p>In order to make your links and other elements work with the router, footwork needs to know about them. This is done with the <span class="inline-code">$route</span> binding.</p>\r\n      <p>The <span class="inline-code">$route</span> binding is simply a <a href="http://knockoutjs.com/documentation/custom-bindings.html" target="_blank">custom knockout binding</a> which is created by footwork. This\r\n      binding allows footwork to correctly connect your DOM element event (click, by default) to a router action.</p>\r\n      <p>Whenever footwork encounters the <span class="inline-code">$route</span> binding it will traverse up the DOM node path searching for the nearest parent router. Whenever the designated event occurs on that\r\n      element it will trigger the state change as described on that router.</p>\r\n      <h3><span class="inline-code">$route</span> binding basic example:</h3>\r\n<pre><code class="html">&lt;html&gt;\r\n  &lt;body&gt;\r\n    &lt;viewModel module="Main"&gt;\r\n      &lt;div class="navigation"&gt;\r\n        &lt;!-- \'click\' events on these will route application to their href="" paths --&gt;\r\n        &lt;a href="/" data-bind="$route"&gt;Home Page&lt;/a&gt;\r\n        &lt;a href="/about" data-bind="$route"&gt;About Page&lt;/a&gt;\r\n      &lt;/div&gt;\r\n\r\n      &lt;outlet name="main-view"&gt;&lt;/outlet&gt;\r\n    &lt;/viewModel&gt;\r\n  &lt;/body&gt;\r\n&lt;/html&gt;</code></pre>\r\n      <div class="note"><span class="label">NOTE:</span> If you do not wish to use the <span class="inline-code">$route</span> binding to trigger state changes you can always just use the <span class="inline-code">router.setState()</span> method.</div>\r\n\r\n      <p>The <span class="inline-code">$route</span> binding has a few optional parameters.</p>\r\n      <ul>\r\n        <li><span class="inline-code">url:</span> - <span class="inline-code">string</span> The route to send the application to.</li>\r\n        <li><span class="inline-code">on:</span> - <span class="inline-code">string</span> The event to trigger the action on (click, by default).</li>\r\n        <li><span class="inline-code">handler:</span> - <span class="inline-code">function(event, url)</span> Callback handler for the event.</li>\r\n      </ul>\r\n\r\n      <h3><span class="inline-code">url:</span> - <span class="inline-code">string</span> The URL/HREF/route to send the application to:</h3>\r\n<pre><code class="html">&lt;!-- ... --&gt;\r\n  &lt;!-- If not provided, footwork will attempt to find the url for the action on the href="" attribute. --&gt;\r\n  &lt;a data-bind="$route: { url: \'/about\' }"&gt;About Page&lt;/a&gt;\r\n&lt;!-- ... --&gt;</code></pre>\r\n\r\n      <h3><span class="inline-code">on:</span> - <span class="inline-code">string</span> The event to trigger the action on (click, by default):</h3>\r\n<pre><code class="html">&lt;!-- ... --&gt;\r\n  &lt;!-- Trigger the action on a double-click --&gt;\r\n  &lt;a data-bind="$route: { url: \'/about\', on: \'dblclick\' }"&gt;About Page&lt;/a&gt;\r\n&lt;!-- ... --&gt;</code></pre>\r\n\r\n      <h3><span class="inline-code">handler:</span> - <span class="inline-code">function(event, url)</span> Callback handler for the event:</h3>\r\n<pre><code class="html">&lt;!-- ... --&gt;\r\n  &lt;!-- Trigger the action with a custom handler --&gt;\r\n  &lt;a data-bind="$route: { url: \'/about\', handler: clickHandler }"&gt;About Page&lt;/a&gt;\r\n&lt;!-- ... --&gt;</code></pre>\r\n<pre><code class="javascript">// example viewModel showing the handler from above\r\nvar MainViewModel = fw.viewModel({\r\n  // ...\r\n  initialize: function() {\r\n    this.clickHandler = function(event, url) {\r\n      console.log(\'Route Destination:\', url);\r\n      return true; // tell footwork to route to the url (false === do not route)\r\n    }\r\n  }\r\n  // ...\r\n});\r\n</code></pre>\r\n    </div>\r\n  </section>\r\n\r\n  <a id="misc" class="section-anchor"></a>\r\n  <section name="misc">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <h2 class="sub title">Misc / Utility</h2>\r\n    </header>\r\n    <div class="content">\r\n      <p>Miscelaneous useful and utility methods.</p>\r\n      <ul>\r\n        <li><span class="inline-code"><a href="#routers-getAll">fw.routers.getAll()</a></span> - Return router (that has optionally been registered for the viewModel \'viewModelNamespaceName\').</li>\r\n        <li><span class="inline-code"><a href="#routers-baseRoute">fw.routers.baseRoute()</a></span> - Get or set the beginning portion of a route to ignore for the given path.</li>\r\n        <li><span class="inline-code"><a href="#routers-activeRouteClassName">fw.routers.activeRouteClassName()</a></span> - Get or set the class which is added to an active <span class="inline-code">$route</span> bound element.</li>\r\n        <li><span class="inline-code"><a href="#routers-disableHistory">fw.routers.disableHistory()</a></span> - Enable or disable history (or get the current setting).</li>\r\n      </ul>\r\n    </div>\r\n  </section>\r\n\r\n  <a id="routers-getAll" class="section-anchor"></a>\r\n  <section name="routers-getAll">\r\n    <div class="highlight"></div>\r\n    <div class="content">\r\n      <h3 class="top"><em class="func-def">fw.routers.getAll<span>()</span></em></h3>\r\n      <h3 class="top"><em class="func-def">fw.routers.getAll<span>( <span class="param">\'viewModelNamespaceName\'</span> )</span></em></h3>\r\n      <h3>Return router (that has optionally been registered for the viewModel \'viewModelNamespaceName\'):</h3>\r\n<pre><code class="javascript">// Explicit registration\r\nvar MainViewModel = fw.viewModel({\r\n  namespace: \'MainViewModel\'\r\n  router: { /* ... */ }\r\n});\r\nvar Widget = fw.viewModel({\r\n  namespace: \'Widget\'\r\n  router: { /* ... */ }\r\n});\r\n\r\nvar main = new MainViewModel();\r\nvar widget = new Widget();\r\n\r\nvar routers = fw.routers.getAll();\r\n// routers === { MainViewModel: router, Widget: router }\r\n\r\nvar routers = fw.routers.getAll(\'Widget\');\r\n// routers === { Widget: router }</code></pre>\r\n    </div>\r\n  </section>\r\n\r\n  <a id="routers-baseRoute" class="section-anchor"></a>\r\n  <section name="routers-baseRoute">\r\n    <div class="highlight"></div>\r\n    <div class="content">\r\n      <h3 class="top"><em class="func-def">fw.routers.baseRoute<span>()</span></em></h3>\r\n      <h3 class="top"><em class="func-def">fw.routers.baseRoute<span>( <span class="param">\'/path/to/ignore\'</span> )</span></em></h3>\r\n      <h3>Get or set the beginning portion of a route to ignore for the given path:</h3>\r\n<pre><code class="javascript">// fw.routers.baseRoute() === \'\'\r\nfw.routers.baseRoute(\'/home/directory\'); // routers will ignore \'/home/directory\' at beginning of url</code></pre>\r\n    </div>\r\n  </section>\r\n\r\n  <a id="routers-activeRouteClassName" class="section-anchor"></a>\r\n  <section name="routers-activeRouteClassName">\r\n    <div class="highlight"></div>\r\n    <div class="content">\r\n      <h3 class="top"><em class="func-def">fw.routers.activeRouteClassName<span>()</span></em></h3>\r\n      <h3 class="top"><em class="func-def">fw.routers.activeRouteClassName<span>( <span class="param">\'className\'</span> )</span></em></h3>\r\n      <h3>Get or set the class which is added to an active <span class="inline-code">$route</span> bound element:</h3>\r\n<pre><code class="javascript">// fw.routers.activeRouteClassName() === \'active\' // default === \'active\'\r\n// active routes will now have \'currentlyActive\' added to their className\r\nfw.routers.activeRouteClassName(\'currentlyActive\');</code></pre>\r\n    </div>\r\n  </section>\r\n\r\n  <a id="routers-disableHistory" class="section-anchor"></a>\r\n  <section name="routers-disableHistory">\r\n    <div class="highlight"></div>\r\n    <div class="content">\r\n      <h3 class="top"><em class="func-def">fw.routers.disableHistory<span>()</span></em></h3>\r\n      <h3 class="top"><em class="func-def">fw.routers.disableHistory<span>( <span class="param">isDisabled</span> )</span></em></h3>\r\n      <h3>Enable or disable history (or get the current setting):</h3>\r\n<pre><code class="javascript">// fw.routers.disableHistory() === false (default)\r\nfw.routers.disableHistory(true); // history now disabled, but app still navigable</code></pre>\r\n    </div>\r\n  </section>\r\n\r\n</article>\r\n\r\n<div id="metaData">\r\n{\r\n  "title": "Routing",\r\n  "description": "Initializing and managing application state.",\r\n  "sections": [\r\n    { "anchor": "introduction",\r\n      "title": "Introduction" },\r\n    { "anchor": "usage",\r\n      "title": "Usage" },\r\n    { "anchor": "configuration",\r\n      "title": "Configuration",\r\n      "subSections": [\r\n        { "anchor": "routes",\r\n          "title": "Routes List" },\r\n        { "anchor": "route",\r\n          "title": "Route Definition" },\r\n        { "anchor": "router-properties",\r\n          "title": "Router Properties" }\r\n      ] },\r\n    { "anchor": "outlets",\r\n      "title": "Outlets",\r\n      "subSections": [\r\n        { "anchor": "outlet-registering",\r\n          "title": "Lazy Loading / Registering Views" },\r\n        { "anchor": "outlet-usage",\r\n          "title": "Usage" }\r\n      ] },\r\n    { "anchor": "route-binding",\r\n      "title": "Route Binding" },\r\n    { "anchor": "misc",\r\n      "title": "Misc / Utility",\r\n      "collapsable": true,\r\n      "isCollapsed": true,\r\n      "subSections": [\r\n        { "anchor": "routers-getAll",\r\n          "title": "fw.routers.getAll()" },\r\n        { "anchor": "routers-baseRoute",\r\n          "title": "fw.routers.baseRoute()" },\r\n        { "anchor": "routers-activeRouteClassName",\r\n          "title": "fw.routers.activeRouteClassName()" },\r\n        { "anchor": "routers-disableHistory",\r\n          "title": "fw.routers.disableHistory()" }\r\n      ] }\r\n  ]\r\n}\r\n</div>';});
 
 
-define('text!../../pages/tutorials-page.html',[],function () { return '<article>\r\n  \r\n  <a id="introduction" class="section-anchor"></a>\r\n  <section name="introduction">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <h1 class="sub title">Introduction</h1>\r\n    </header>\r\n    <div class="content">\r\n      <p>These guides will help walk you through a basic footwork.js based application and various features found in the framework.</p>\r\n      <h3>Application Tutorials</h3>\r\n      <ul>\r\n        <li>\r\n          <a href="/tutorials/TodoMVC" data-bind="$route">TodoMVC</a> <span>- New to footwork? Start here!</span>\r\n        </li>\r\n      </ul>\r\n\r\n      <h3>Feature Specific Tutorials</h3>\r\n      <ul>\r\n        <li><em>Coming VERY soon...currently being worked on!</em></li>\r\n      </ul>\r\n    </div>\r\n  </section>\r\n\r\n</article>\r\n\r\n\r\n\r\n<div id="metaData">\r\n{\r\n  "title": "Tutorial",\r\n  "description": "Step by step guides on creating footwork based applications.",\r\n  "sections": [\r\n    { "anchor": "introduction",\r\n      "title": "Introduction" }\r\n  ]\r\n}\r\n</div>';});
+define('text!../../pages/tutorials-page.html',[],function () { return '<article>\r\n  \r\n  <a id="introduction" class="section-anchor"></a>\r\n  <section name="introduction">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <h1 class="sub title">Tutorial List</h1>\r\n    </header>\r\n    <div class="content">\r\n      <p>These guides will help walk you through a basic footwork.js based application and various features found in the framework.</p>\r\n      <h3>Application Tutorials</h3>\r\n      <ul>\r\n        <li>\r\n          <a href="/tutorials/TodoMVC" data-bind="$route">TodoMVC</a> <span>- New to footwork? Start here!</span>\r\n        </li>\r\n      </ul>\r\n\r\n      <h3>Feature Specific Tutorials</h3>\r\n      <ul>\r\n        <li><em>Coming VERY soon...currently being worked on!</em></li>\r\n      </ul>\r\n    </div>\r\n  </section>\r\n\r\n</article>\r\n\r\n<div id="metaData">\r\n{\r\n  "title": "Tutorials",\r\n  "description": "Step by step guides on creating footwork based applications."\r\n}\r\n</div>';});
 
 
-define('text!../../pages/tutorials/todomvc-page.html',[],function () { return '<article>\r\n  \r\n  <a id="introduction" class="section-anchor"></a>\r\n  <section name="introduction">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <h1 class="sub title">Introduction</h1>\r\n    </header>\r\n    <div class="content">\r\n      <p></p>\r\n    </div>\r\n  </section>\r\n\r\n</article>\r\n\r\n\r\n\r\n<div id="metaData">\r\n{\r\n  "title": "TodoMVC Tutorial",\r\n  "sections": [\r\n    { "anchor": "introduction",\r\n      "title": "Introduction" }\r\n  ]\r\n}\r\n</div>';});
+define('text!../../pages/tutorials/todomvc-page.html',[],function () { return '<article>\r\n  \r\n  <a id="introduction" class="section-anchor"></a>\r\n  <section name="introduction">\r\n    <div class="highlight"></div>\r\n    <header>\r\n      <h1 class="sub title">Introduction</h1>\r\n    </header>\r\n    <div class="content">\r\n      <p></p>\r\n    </div>\r\n  </section>\r\n\r\n</article>\r\n\r\n<div id="metaData">\r\n{\r\n  "title": "TodoMVC Tutorial",\r\n  "sections": [\r\n    { "anchor": "introduction",\r\n      "title": "Introduction" }\r\n  ]\r\n}\r\n</div>';});
 
 define('resourceHelper',[ "footwork",
     "app/viewModel/Contributors", "text!app/template/contributors.html",
@@ -23475,7 +23349,7 @@ define('Page',[ "jquery", "lodash", "footwork", "history" ],
 
         this.$namespace.subscribe( 'initMeta', function( metaData ) {
           this.loadPageMeta( metaData );
-        }).withContext( this );
+        }).context( this );
 
         var pageMetaData;
         this.$namespace.request.handler('metaData', function() {
@@ -24725,7 +24599,7 @@ require([
 
     globalNamespace.subscribe('refreshDocSize', refreshDocSize = function() {
       bodyHeight( $document.height() );
-    }).withContext(this);
+    }).context(this);
     refreshDocSize();
 
     globalNamespace.subscribe( 'enableControl', function( controlHandler ) {

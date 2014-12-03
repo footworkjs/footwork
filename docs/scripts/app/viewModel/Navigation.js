@@ -30,7 +30,7 @@ define([ "jquery", "lodash", "footwork", "LoadState" ],
 
         this.$globalNamespace.subscribe('configReset', function() {
           this.headerOpen(false);
-        }).withContext(this);
+        }).context(this);
 
         var pageNamespace = fw.namespace('Page');
         pageNamespace.subscribe('loadingPage', function(promise) {
@@ -41,7 +41,7 @@ define([ "jquery", "lodash", "footwork", "LoadState" ],
               this.loader.setState('ready');
             }
           }.bind(this));
-        }).withContext(this);
+        }).context(this);
 
         this.toggleHeader = function() {
           if( ( (this.paneAnimate3d() === true && this.paneMoving() === true) ||

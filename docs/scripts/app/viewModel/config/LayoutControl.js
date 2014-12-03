@@ -183,7 +183,7 @@ define([ "footwork", "lodash" ],
 
         this.$namespace.subscribe( 'disableControl', function() {
           this.disable();
-        }).withContext(this);
+        }).context(this);
 
         return this;
       }

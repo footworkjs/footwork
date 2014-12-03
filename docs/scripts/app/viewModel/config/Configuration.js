@@ -226,7 +226,7 @@ define([ "jquery", "lodash", "footwork", "storage" ],
             }.bind(this), 3000);
           }
         }.bind(this);
-        this.$namespace.subscribe('updateSession', this.updateSession).withContext(this);
+        this.$namespace.subscribe('updateSession', this.updateSession).context(this);
 
         this.$namespace.subscribe('reset', reset = function( noReflow ) {
           if( this.navReflowing() === true || this.paneMoving() === true || this.headerMoving() === true ) {

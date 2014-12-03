@@ -48,11 +48,11 @@ define([ "jquery", "lodash", "footwork" ],
 
         this.$namespace.subscribe('collapseSubMenu', function() {
           this.menuActive(false);
-        }).withContext(this);
+        }).context(this);
 
         this.$namespace.subscribe('hideAll', function() {
           this.visible(false);
-        }).withContext(this);
+        }).context(this);
 
         this.visible(false);
       }
