@@ -7,6 +7,13 @@
  */
 
 (function (root, factory) {
+  /**
+   * Knockout uses a non-standard UMD wrapping that makes it impossible (I think) to embed it like the
+   * other dependencies, the -all build uses a forked version which removes the wrappings.
+   *
+   * Also have to give it normal access to the window object, otherwise strange things happen with
+   * _some_ bindings. (ie: strange behavior I could not track a cause to, fixed here by 'brute force')
+   */
   var koExports = {};
   /*!
  * Knockout JavaScript library v3.2.0
@@ -139,15 +146,14 @@ w.O.prototype.renderTemplateSource=function(a){var d=(9>w.a.L?0:a.nodes)?a.nodes
 g.templateOptions);e=b.tmpl(h,c,e);e.appendTo(document.createElement("div"));b.fragments={};return e};this.createJavaScriptEvaluatorBlock=function(a){return"{{ko_code ((function() { return "+a+" })()) }}"};this.addTemplate=function(a,d){document.write("<script type='text/html' id='"+a+"'>"+d+"\x3c/script>")};0<a&&(b.tmpl.tag.ko_code={open:"__.push($1 || '');"},b.tmpl.tag.ko_with={open:"with($1) {",close:"} "})};w.Sa.prototype=new w.H;var a=new w.Sa;0<a.kc&&w.ab(a);w.b("jqueryTmplTemplateEngine",w.Sa)})();
 w=koExports;})();
 
-  var ko = koExports;
-  
+
   if (typeof define === 'function' && define.amd) {
-    define('knockout', [], function() { return ko; });
+    define('knockout', [], function() { return koExports; });
     define(['knockout'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory(ko);
+    module.exports = factory(koExports);
   } else {
-    root.fw = factory(ko);
+    root.fw = factory(koExports);
   }
 }(this, function (ko) {
   var windowObject = window;

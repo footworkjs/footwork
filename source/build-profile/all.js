@@ -1,20 +1,21 @@
 (function (root, factory) {
   /**
-   * Knockout does some funky wrapping, this build uses a custom version which removes the wrappings.
+   * Knockout uses a non-standard UMD wrapping that makes it impossible (I think) to embed it like the
+   * other dependencies, the -all build uses a forked version which removes the wrappings.
+   *
    * Also have to give it normal access to the window object, otherwise strange things happen with
-   * _some_ bindings (ie: strange behavior I could not track a cause to, fixed by 'brute force').
+   * _some_ bindings. (ie: strange behavior I could not track a cause to, fixed here by 'brute force')
    */
   var koExports = {};
   //import("../../bower_components/knockoutjs-nowrapper/dist/knockout.js");
-  var ko = koExports;
 
   if (typeof define === 'function' && define.amd) {
-    define('knockout', [], function() { return ko; });
+    define('knockout', [], function() { return koExports; });
     define(['knockout'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory(ko);
+    module.exports = factory(koExports);
   } else {
-    root.fw = factory(ko);
+    root.fw = factory(koExports);
   }
 }(this, function (ko) {
   var windowObject = window;
