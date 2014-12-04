@@ -14,8 +14,8 @@ require.config({
 });
 
 require([ "footwork" ],
-  function( ko ) {
-    window.ko = ko;
+  function( fw ) {
+    window.fw = fw;
     if(typeof mochaPhantomJS !== 'undefined') {
       mochaPhantomJS.run();
     } else {
