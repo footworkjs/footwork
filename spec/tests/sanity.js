@@ -2,17 +2,17 @@
 
 describe('sanity', function () {
   it('has the ability to create a namespace', function() {
-    expect(ko.namespace).to.be.a('function');
-    expect(ko.namespace()).to.be.an('object');
+    expect(fw.namespace).to.be.a('function');
+    expect(fw.namespace()).to.be.an('object');
   });
 
   it('has the ability to create a model', function() {
-    expect(ko.viewModel).to.be.a('function');
-    expect(ko.viewModel()).to.be.a('function');
+    expect(fw.viewModel).to.be.a('function');
+    expect(fw.viewModel()).to.be.a('function');
   });
 
   it('has the ability to create a model with a correctly defined namespace', function() {
-    var ModelA = ko.viewModel({
+    var ModelA = fw.viewModel({
       namespace: 'ModelA'
     });
     var modelA = new ModelA();
@@ -21,28 +21,28 @@ describe('sanity', function () {
   });
 
   it('has the ability to create nested models with correctly defined namespaces', function() {
-    var ModelA = ko.viewModel({
+    var ModelA = fw.viewModel({
       namespace: 'ModelA',
       initialize: function() {
-        this.preSubModelNamespaceName = ko.currentNamespaceName();
+        this.preSubModelNamespaceName = fw.currentNamespaceName();
         this.subModelB = new ModelB();
-        this.postSubModelNamespaceName = ko.currentNamespaceName();
+        this.postSubModelNamespaceName = fw.currentNamespaceName();
       }
     });
 
-    var ModelB = ko.viewModel({
+    var ModelB = fw.viewModel({
       namespace: 'ModelB',
       initialize: function() {
-        this.preSubModelNamespaceName = ko.currentNamespaceName();
+        this.preSubModelNamespaceName = fw.currentNamespaceName();
         this.subModelC = new ModelC();
-        this.postSubModelNamespaceName = ko.currentNamespaceName();
+        this.postSubModelNamespaceName = fw.currentNamespaceName();
       }
     });
 
-    var ModelC = ko.viewModel({
+    var ModelC = fw.viewModel({
       namespace: 'ModelC',
       initialize: function() {
-        this.recordedNamespaceName = ko.currentNamespaceName();
+        this.recordedNamespaceName = fw.currentNamespaceName();
       }
     });
 

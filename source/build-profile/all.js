@@ -1,12 +1,17 @@
 (function (root, factory) {
+  var koExports = {};
+  //import("../../bower_components/knockoutjs-nowrapper/dist/knockout.js");
+  var ko = koExports;
+  
   if (typeof define === 'function' && define.amd) {
-    define([], factory);
+    define('knockout', [], function() { return ko; });
+    define(['knockout'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory();
+    module.exports = factory(ko);
   } else {
-    root.fw = factory();
+    root.fw = factory(ko);
   }
-}(this, function () {
+}(this, function (ko) {
   var windowObject = window;
 
   window.require = typeof require !== 'undefined' ? require : undefined;
@@ -15,6 +20,7 @@
   return (function() {
     //import("helpers/root-masks.js");
     //import("helpers/bind-poly.js");
+    root.ko = ko;
 
     (function() {
       //import("../../bower_components/lodash/dist/lodash.underscore.js");
@@ -37,13 +43,6 @@
         //import("../../bower_components/postal.preserve/lib/postal.preserve.js");
       }).call(root);
     }
-
-    /**
-     * Knockout needs to know about requirejs if present, and also double wraps their module so we can't lie about
-     * the root object to it. For those reasons we embed it here.
-     */
-    //import("../../bower_components/knockoutjs/dist/knockout.js");
-    root.ko = ko; // ick...
 
     // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ '_', 'ko', 'riveter', 'postal' ];

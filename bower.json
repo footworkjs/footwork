@@ -32,6 +32,7 @@
   "dependencies": {},
   "devDependencies": {
     "knockoutjs": "3.2.0",
+    "knockoutjs-nowrapper": "https://github.com/reflectiveSingleton/knockout-nowrapper.git#10b6aacd37f8d49bc03924e54100e10cd1aadd4c",
     "riveter": "0.1.2",
     "lodash": "2.4.1",
     "postal.js": "0.11.0",
