@@ -1,8 +1,13 @@
 (function (root, factory) {
+  /**
+   * Knockout does some funky wrapping, this build uses a custom version which removes the wrappings.
+   * Also have to give it normal access to the window object, otherwise strange things happen with
+   * _some_ bindings (ie: strange behavior I could not track a cause to, fixed by 'brute force').
+   */
   var koExports = {};
   //import("../../bower_components/knockoutjs-nowrapper/dist/knockout.js");
   var ko = koExports;
-  
+
   if (typeof define === 'function' && define.amd) {
     define('knockout', [], function() { return ko; });
     define(['knockout'], factory);
