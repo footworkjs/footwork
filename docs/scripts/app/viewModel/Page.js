@@ -1,4 +1,4 @@
-define([ "jquery", "lodash", "footwork", "history" ],
+define([ "jquery", "lodash", "footwork" ],
   function( $, _, fw ) {
     return fw.viewModel({
       namespace: 'Page',
