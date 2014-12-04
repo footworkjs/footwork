@@ -87,7 +87,7 @@ gulp.task('ci', ['build-and-test']);
 
 gulp.task('build-and-test', ['test_all', 'test_minimal', 'test_bare']);
 
-gulp.task('test_all', function() {
+gulp.task('test_all', ['build_all'], function() {
   return gulp
     .src('spec/runner_all.html')
     .pipe(mochaPhantomJS({ reporter: reporter }));

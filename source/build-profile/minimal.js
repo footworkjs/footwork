@@ -14,6 +14,8 @@
   
   return (function() {
     //import("helpers/root-masks.js");
+    //import("helpers/bind-poly.js");
+    
     _.extend(root, {
       _: _,
       ko: ko

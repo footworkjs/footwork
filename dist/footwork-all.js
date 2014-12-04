@@ -16,7 +16,7 @@
   }
 }(this, function () {
   var windowObject = window;
-  
+
   window.require = typeof require !== 'undefined' ? require : undefined;
   window.define = typeof define !== 'undefined' ? define : undefined;
 
@@ -34,6 +34,30 @@ var define = undefined;
 var module = undefined,
     exports = undefined,
     global = undefined;
+    if (!Function.prototype.bind) {
+  Function.prototype.bind = function(oThis) {
+    if (typeof this !== 'function') {
+      // closest thing possible to the ECMAScript 5
+      // internal IsCallable function
+      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+    }
+
+    var aArgs   = Array.prototype.slice.call(arguments, 1),
+        fToBind = this,
+        fNOP    = function() {},
+        fBound  = function() {
+          return fToBind.apply(this instanceof fNOP && oThis
+                 ? this
+                 : oThis,
+                 aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+
+    fNOP.prototype = this.prototype;
+    fBound.prototype = new fNOP();
+
+    return fBound;
+  };
+}
 
     (function() {
       /**
@@ -9018,6 +9042,92 @@ if (typeof JSON !== 'object') {
 })(window);
 
     }).call(root, windowObject);
+
+    if(typeof root.postal.preserve === 'undefined') {
+      (function() {
+        /**
+ * postal.preserve - Add-on for postal.js that provides message durability features.
+ * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
+ * Version: v0.1.0
+ * Url: http://github.com/postaljs/postal.preserve
+ * License(s): MIT
+ */
+(function (root, factory) {
+    if (typeof module === "object" && module.exports) {
+        // Node, or CommonJS-Like environments
+        module.exports = function (postal) {
+            factory(require("lodash"), postal, this);
+        };
+    } else if (typeof define === "function" && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(["lodash", "postal"], function (_, postal) {
+            return factory(_, postal, root);
+        });
+    } else {
+        // Browser globals
+        root.postal = factory(root._, root.postal, root);
+    }
+}(this, function (_, postal, global, undefined) {
+    var plugin = postal.preserve = {
+        store: {},
+        expiring: []
+    };
+    var system = postal.channel(postal.configuration.SYSTEM_CHANNEL);
+    var dtSort = function (a, b) {
+        return b.expires - a.expires;
+    };
+    var tap = postal.addWireTap(function (d, e) {
+        var channel = e.channel;
+        var topic = e.topic;
+        if (e.headers && e.headers.preserve) {
+            plugin.store[channel] = plugin.store[channel] || {};
+            plugin.store[channel][topic] = plugin.store[channel][topic] || [];
+            plugin.store[channel][topic].push(e);
+            // a bit harder to read, but trying to make
+            // traversing expired messages faster than
+            // iterating the store object's multiple arrays
+            if (e.headers.expires) {
+                plugin.expiring.push({
+                    expires: e.headers.expires,
+                    purge: function () {
+                        plugin.store[channel][topic] = _.without(plugin.store[channel][topic], e);
+                        plugin.expiring = _.without(plugin.expiring, this);
+                    }
+                });
+                plugin.expiring.sort(dtSort);
+            }
+        }
+    });
+    function purgeExpired() {
+        var dt = new Date();
+        var expired = _.filter(plugin.expiring, function (x) {
+            return x.expires < dt;
+        });
+        while (expired.length) {
+            expired.pop().purge();
+        }
+    }
+    postal.SubscriptionDefinition.prototype.enlistPreserved = function () {
+        var channel = this.channel;
+        var binding = this.topic;
+        var self = this;
+        purgeExpired(true);
+        if (plugin.store[channel]) {
+            _.each(plugin.store[channel], function (msgs, topic) {
+                if (postal.configuration.resolver.compare(binding, topic)) {
+                    _.each(msgs, function (env) {
+                        self.callback.call(
+                        self.context || (self.callback.context && self.callback.context()) || this, env.data, env);
+                    });
+                }
+            });
+        }
+        return this;
+    };
+    return postal;
+}));
+      }).call(root);
+    }
 
     /**
      * Knockout needs to know about requirejs if present, and also double wraps their module so we can't lie about
