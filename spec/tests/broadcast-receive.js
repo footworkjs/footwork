@@ -2,10 +2,10 @@
 
 describe('broadcast-receive', function () {
   it('has the ability to create model with an observable that broadcasts', function() {
-    var ModelA = ko.viewModel({
+    var ModelA = fw.viewModel({
       namespace: 'ModelA',
       initialize: function() {
-        this.broadcaster = ko.observable().broadcastAs('broadcaster');
+        this.broadcaster = fw.observable().broadcastAs('broadcaster');
       }
     });
     var modelA = new ModelA();
@@ -15,10 +15,10 @@ describe('broadcast-receive', function () {
   });
 
   it('has the ability to create model with an observable that listens', function() {
-    var ModelB = ko.viewModel({
+    var ModelB = fw.viewModel({
       namespace: 'ModelB',
       initialize: function() {
-        this.receiver = ko.observable().receiveFrom('ModelA', 'broadcaster');
+        this.receiver = fw.observable().receiveFrom('ModelA', 'broadcaster');
       }
     });
     var modelB = new ModelB();
@@ -28,10 +28,10 @@ describe('broadcast-receive', function () {
   });
 
   it('has the ability to create model with an observable that broadcasts', function() {
-    var ModelA = ko.viewModel({
+    var ModelA = fw.viewModel({
       namespace: 'ModelA',
       initialize: function() {
-        this.broadcaster = ko.observable().broadcastAs('broadcaster');
+        this.broadcaster = fw.observable().broadcastAs('broadcaster');
       }
     });
     var modelA = new ModelA();
@@ -41,18 +41,18 @@ describe('broadcast-receive', function () {
   });
 
   it('modelB receiver() can receive data from the modelA broadcaster()', function() {
-    var ModelA = ko.viewModel({
+    var ModelA = fw.viewModel({
       namespace: 'ModelA',
       initialize: function() {
-        this.broadcaster = ko.observable().broadcastAs('broadcaster');
+        this.broadcaster = fw.observable().broadcastAs('broadcaster');
       }
     });
     var modelA = new ModelA();
 
-    var ModelB = ko.viewModel({
+    var ModelB = fw.viewModel({
       namespace: 'ModelB',
       initialize: function() {
-        this.receiver = ko.observable().receiveFrom('ModelA', 'broadcaster');
+        this.receiver = fw.observable().receiveFrom('ModelA', 'broadcaster');
       }
     });
     var modelB = new ModelB();
@@ -62,18 +62,18 @@ describe('broadcast-receive', function () {
   });
 
   it('modelB can write to writableReceiver() and modelA sees the new data on writableBroadcaster()', function() {
-    var ModelA = ko.viewModel({
+    var ModelA = fw.viewModel({
       namespace: 'ModelA',
       initialize: function() {
-        this.writableBroadcaster = ko.observable().broadcastAs('writableBroadcaster', true);
+        this.writableBroadcaster = fw.observable().broadcastAs('writableBroadcaster', true);
       }
     });
     var modelA = new ModelA();
 
-    var ModelB = ko.viewModel({
+    var ModelB = fw.viewModel({
       namespace: 'ModelB',
       initialize: function() {
-        this.writableReceiver = ko.observable().receiveFrom('ModelA', 'writableBroadcaster', true);
+        this.writableReceiver = fw.observable().receiveFrom('ModelA', 'writableBroadcaster', true);
       }
     });
     var modelB = new ModelB();
@@ -83,18 +83,18 @@ describe('broadcast-receive', function () {
   });
 
   it('when modelB tries to write to nonwritableReceiver() modelA does not see the data on nonwritableBroadcaster()', function() {
-    var ModelA = ko.viewModel({
+    var ModelA = fw.viewModel({
       namespace: 'ModelA',
       initialize: function() {
-        this.nonwritableBroadcaster = ko.observable().broadcastAs('nonwritableBroadcaster');
+        this.nonwritableBroadcaster = fw.observable().broadcastAs('nonwritableBroadcaster');
       }
     });
     var modelA = new ModelA();
 
-    var ModelB = ko.viewModel({
+    var ModelB = fw.viewModel({
       namespace: 'ModelB',
       initialize: function() {
-        this.nonwritableReceiver = ko.observable().receiveFrom('ModelA', 'nonwritableBroadcaster', true);
+        this.nonwritableReceiver = fw.observable().receiveFrom('ModelA', 'nonwritableBroadcaster', true);
       }
     });
     var modelB = new ModelB();
