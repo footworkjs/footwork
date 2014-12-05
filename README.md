@@ -41,7 +41,6 @@ The following dependencies are considered part of 'core':
 * [lodash](http://lodash.com/)
 * [riveter](https://github.com/a2labs/riveter)
 * [postal.js](https://github.com/postaljs/postal.js)
-  * [conduitjs](https://github.com/ifandelse/ConduitJS) (needed by postal.js)
 
 More unit tests, documentation, and features coming soon.
 
