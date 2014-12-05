@@ -1,7 +1,7 @@
 body {
   &.headerMoving {
     header,
-    .main-content .main-pane #collapse-button,
+    #collapse-button,
     .main-content .pane,
     .management,
     div .pane-bg,
@@ -19,13 +19,6 @@ body {
     }
     div .pane-bg {
       .transition(all @header-move-speed ease) !important;
-    }
-    .main-content .main-pane #collapse-button {
-      -webkit-transition: -webkit-transform @header-move-speed ease, top @header-move-speed ease !important;
-      -moz-transition: -moz-transform @header-move-speed ease, top @header-move-speed ease !important;
-      -ms-transition: -ms-transform @header-move-speed ease, top @header-move-speed ease !important;
-      -o-transition: -o-transform @header-move-speed ease, top @header-move-speed ease !important;
-      transition: transform @header-move-speed ease, top @header-move-speed ease !important;
     }
   }
 

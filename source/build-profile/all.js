@@ -44,7 +44,7 @@
       //import("../../bower_components/history.js/scripts/bundled-uncompressed/html4+html5/native.history.js");
     }).call(root, windowObject);
 
-    if(typeof root.postal.preserve === 'undefined') {
+    if(root._.isUndefined(root.postal.preserve)) {
       (function() {
         //import("../../bower_components/postal.preserve/lib/postal.preserve.js");
       }).call(root);
