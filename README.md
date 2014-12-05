@@ -42,6 +42,4 @@ The following dependencies are considered part of 'core':
 * [riveter](https://github.com/a2labs/riveter)
 * [postal.js](https://github.com/postaljs/postal.js)
 
-More unit tests, documentation, and features coming soon.
-
 [![Analytics](https://ga-beacon.appspot.com/UA-52543452-1/footwork/GITHUB-ROOT)](https://github.com/reflectiveSingleton/ga-beacon)
