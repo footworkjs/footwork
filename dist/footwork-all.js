@@ -9185,7 +9185,7 @@ if (typeof JSON !== 'object') {
 
     }).call(root, windowObject);
 
-    if(typeof root.postal.preserve === 'undefined') {
+    if(root._.isUndefined(root.postal.preserve)) {
       (function() {
         /**
  * postal.preserve - Add-on for postal.js that provides message durability features.
