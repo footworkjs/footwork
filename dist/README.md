@@ -24,7 +24,6 @@
     * 'lodash' - http://lodash.com/ (footwork uses lodash.underscore.js natively)
     * 'knockout' - http://knockoutjs.com/
     * 'postal' - https://github.com/postaljs/postal.js/
-      * 'conduitjs' - https://github.com/ifandelse/ConduitJS
 
 ### I need a different build, can I make others?
 
