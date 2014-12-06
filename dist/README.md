@@ -15,14 +15,14 @@
 * **footwork-minimal.js**
 
     You will need to provide (via either &lt;script&gt; includes, requirejs, browserify, etc)
+    * 'knockout' - http://knockoutjs.com/ (NOTE: footwork requires v3.2)
     * 'lodash' - http://lodash.com/
-    * 'knockout' - http://knockoutjs.com/
 
 * **footwork-bare.js**
 
     You will need to provide (via either &lt;script&gt; includes, requirejs, browserify, etc)
+    * 'knockout' - http://knockoutjs.com/ (NOTE: footwork requires v3.2)
     * 'lodash' - http://lodash.com/ (footwork uses lodash.underscore.js natively)
-    * 'knockout' - http://knockoutjs.com/
     * 'postal' - https://github.com/postaljs/postal.js/
 
 ### I need a different build, can I make others?
