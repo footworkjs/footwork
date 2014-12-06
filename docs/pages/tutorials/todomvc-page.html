@@ -7,7 +7,66 @@
       <h1 class="sub title">Introduction</h1>
     </header>
     <div class="content">
-      <p></p>
+      <p>Getting started with footwork is best done with a real application. In this tutorial we will be covering the creation of a TODO list app.</p>
+      <p>Specifically, in relation to footwork.js we will cover the following topics:</p>
+      <ul>
+        <li>Downloading dependencies and setting up an environment to use footwork.</li>
+        <li>App instantiation.</li>
+        <li>&lt;viewModel&gt; wrapping of HTML and 2-way binding.</li>
+        <li>&lt;custom-component&gt; creation and usage.</li>
+        <li>Broadcastable and receivable usage.</li>
+        <li>Routing and state initialization.</li>
+      </ul>
+    </div>
+  </section>
+
+  <a id="getting-started" class="section-anchor"></a>
+  <section name="getting-started">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Getting Started</h1>
+    </header>
+    <div class="content">
+      <p>This tutorial has a companion repository on github which houses the source. It is recommended (although not 100% necessary) that you follow along and
+      play with the code as you progress through the tutorial.</p>
+      <p>This section will not cover setting up a webservice or basic git usage (beyond the few commands needed to use the tutorial). If you are new to git,
+      I would recommend taking a look at the <a href="https://try.github.io/levels/1/challenges/1" target="_blank">walk-through</a> available on github.</p>
+      <h3>You can clone the <a href="https://github.com/reflectiveSingleton/todo-tutorial" target="_blank">tutorial repo</a> with the following command:</h3>
+<pre><code class="bash">git clone https://github.com/reflectiveSingleton/todo-tutorial.git</code></pre>
+      <p>This repo has all of the assets needed to run the application. You may notice it also makes use of bower <a href="http://bower.io/" target="_blank">bower</a> for
+      package management, and <a href="http://lesscss.org/#client-side-usage" target="_blank">less.js</a> for CSS. It is not necessary to know anything about
+      these in order to use this tutorial however they are both great tools worthy of checking out.</p>
+    </div>
+  </section>
+
+  <a id="prerequisites" class="section-anchor"></a>
+  <section name="prerequisites">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Prerequisites</h2>
+    </header>
+    <div class="content">
+      <p>This tutorial assumes a basic understanding of the following topics:</p>
+      <ul>
+        <li>HTML</li>
+        <li>CSS</li>
+        <li>Javascript</li>
+      </ul>
+      <p>This tutorial will not cover the creation of the CSS/LESS, they are included for you in the base repository. Also of note, the javascript runtime of
+      LessCSS is used so that it needs no re-compile step if/when you alter it.</p>
+    </div>
+  </section>
+
+  <a id="setup" class="section-anchor"></a>
+  <section name="setup">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Setup</h2>
+    </header>
+    <div class="content">
+      <p>After cloning the repository you are ready to get started, begin by checking out the <span class="inline-code">setup</span> step branch:</p>
+<pre><code class="bash">git checkout -f setup</code></pre>
+
     </div>
   </section>
 
@@ -18,7 +77,15 @@
   "title": "TodoMVC Tutorial",
   "sections": [
     { "anchor": "introduction",
-      "title": "Introduction" }
+      "title": "Introduction" },
+    { "anchor": "getting-started",
+      "title": "Getting Started",
+      "subSections": [
+        { "anchor": "prerequisites",
+          "title": "Prerequisites" }
+      ] },
+    { "anchor": "setup",
+      "title": "Setup" }
   ]
 }
 </div>
