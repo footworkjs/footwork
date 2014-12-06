@@ -71,8 +71,8 @@
         </li>
       </ul>
 
-      <p>Generally when in doubt, check the <a href="http://knockoutjs.com/documentation/introduction.html" target="_blank">knockout.js documentation</a>. Footwork at
-        its core is just a <span class="inline-code">superset</span> of knockout, extended from the <span class="inline-code">ko</span> object itself.</p>
+      <p>If you have questions unanswered by this tutorial consult the <a href="/api" data-bind="$route">footwork API documentation</a>. If that does not answer your question, check the <a href="http://knockoutjs.com/documentation/introduction.html" target="_blank">knockout.js documentation</a>. Footwork at
+        its core is just a <span class="inline-code">superset</span> of knockout, extended from the <span class="inline-code">ko</span> object itself. Any undocumented features found in footwork are outlined there.</p>
     </div>
   </section>
 
@@ -92,6 +92,33 @@
           <div class="image"><img src="images/todo-tutorial/setup0.png" alt="Base application structure" title="Base application structure"></div>
         </div>
       </div>
+
+      <p>The markup itself is also nothing special, just some basic HTML:</p>
+<pre><code class="html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+  &lt;head&gt;
+    &lt;!-- ... --&gt;
+    &lt;script src="/bower_components/footwork/dist/footwork-all.js"&gt;&lt;/script&gt;
+  &lt;/head&gt;
+
+  &lt;body&gt;
+    &lt;main&gt;
+      &lt;form&gt;
+        &lt;input type="text" name="thingToDo" placeholder="What needs to be done?"&gt;
+        &lt;input type="submit" value="Add Item" class="button"&gt;
+      &lt;/form&gt;
+      &lt;div class="todo-list"&gt;
+        &lt;div class="todo"&gt;Nothing to do.&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/main&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+      <p>The only thing of note here is the <span class="inline-code">&lt;script&gt;</span> tag which is pulling in footwork. The path to it is mostly insignificant, just
+      pointing to the bower_components folder (where bower installs footwork by default). What is significant is what build it is using, this is denoted by the postfix <span class="inline-code">-all</span>.
+      This build embeds all of the dependencies footwork requires into one easy to use file. For the purposes of this tutorial we will be using this version but note that
+       <a href="https://github.com/reflectiveSingleton/footwork/tree/master/dist#readme" target="_blank">others are available</a> which may fit your needs better.</p>
 
     </div>
   </section>
