@@ -12,6 +12,7 @@
       <ul>
         <li>Downloading dependencies and setting up an environment to use footwork.</li>
         <li>App instantiation.</li>
+        <li>RequireJS usage for automatic dependency management.</li>
         <li>&lt;viewModel&gt; wrapping of HTML and 2-way binding.</li>
         <li>&lt;custom-component&gt; creation and usage.</li>
         <li>Broadcastable and receivable usage.</li>
@@ -47,11 +48,17 @@
     </header>
     <div class="content">
       <p>This tutorial assumes a basic understanding of the following topics:</p>
+      
       <ul>
         <li>HTML</li>
         <li>CSS</li>
         <li>Javascript</li>
       </ul>
+      
+      <p>Although not required, it is helpful if you have knowledge of any of the dependencies footwork uses, most notably knockout. You shouldn't have <em>too much</em> issue
+      getting through the tutorial without it, but having an idea of how to use <a href="http://knockoutjs.com/documentation/observables.html" target="_blank">observables and
+      2-way data binding</a> at the least would be helpful.</p>
+      
       <p>This tutorial will not cover the creation of the CSS/LESS, they are included for you in the base repository. Also of note, the javascript runtime of
       LessCSS is used so that it needs no re-compile step if/when you alter it.</p>
     </div>
@@ -66,6 +73,13 @@
     <div class="content">
       <p>After cloning the repository you are ready to get started, begin by checking out the <span class="inline-code">setup</span> step branch:</p>
 <pre><code class="bash">git checkout -f setup</code></pre>
+      <p>This will set your workspace up with the base application structure and code. Open up the page in your browser and you won't see anything too interesting just yet...but we'll get to that.</p>
+      <div class="figure">
+        <div class="title">Initial App View</div>
+        <div class="content">
+          <div class="image"><img src="images/todo-tutorial/setup0.png" alt="Base application structure" title="Base application structure"></div>
+        </div>
+      </div>
 
     </div>
   </section>

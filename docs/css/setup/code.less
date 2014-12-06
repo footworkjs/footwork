@@ -83,4 +83,23 @@ article {
     color: contrast(@noteBackground);
     padding: 0;
   }
+
+  .figure {
+    border: 1px solid #ddd;
+    max-width: 100%;
+    margin: 10px 0;
+    .border-radius(3px);
+
+    & > .title {
+      padding: 3px 5px;
+      font-weight: bold;
+    }
+
+    & > .content {
+      padding: 0 5px 5px 5px;
+      .image {
+        overflow: hidden;
+      }
+    }
+  }
 }

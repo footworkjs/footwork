@@ -188,9 +188,6 @@ gulp.task('set_version', function() {
 gulp.task('readyDocServ', function(callback) {
   return gulp.src('docs/index.html')
     .pipe( replace('<!--FOOTWORK_CONTENT-->', '<?php App::loadView( isset( $bodyView ) ? $bodyView : DEFAULT_BODY_VIEW ); ?>') )
-    .pipe( replace('src="scripts', 'src="/scripts') )
-    .pipe( replace('src="build', 'src="/build') )
-    .pipe( replace('href="css', 'href="/css') )
-    .pipe( replace('href="images', 'href="/images') )
+    .pipe( replace('<base href="">', '<base href="/">') )
     .pipe(gulp.dest('docs'));
 });
