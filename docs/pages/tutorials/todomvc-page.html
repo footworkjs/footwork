@@ -29,14 +29,24 @@
     </header>
     <div class="content">
       <p>This tutorial has a companion repository on github which houses the source. It is recommended (although not 100% necessary) that you follow along and
-      play with the code as you progress through the tutorial.</p>
-      <p>This section will not cover setting up a webservice or basic git usage (beyond the few commands needed to use the tutorial). If you are new to git,
-      I would recommend taking a look at the <a href="https://try.github.io/levels/1/challenges/1" target="_blank">walk-through</a> available on github.</p>
+        play with the code as you progress through the tutorial.</p>
+
+      <p>If you wish to follow along and run the tutorial code it is assumed you have a web server to host the tutorial on, and git installed. You can also optionally follow
+        along by viewing the live application at the demo addresses shown at the top of each step.</p>
+
       <h3>You can clone the <a href="https://github.com/reflectiveSingleton/todo-tutorial" target="_blank">tutorial repo</a> with the following command:</h3>
+
 <pre><code class="bash">git clone https://github.com/reflectiveSingleton/todo-tutorial.git</code></pre>
-      <p>This repo has all of the assets needed to run the application. You may notice it also makes use of bower <a href="http://bower.io/" target="_blank">bower</a> for
-      package management, and <a href="http://lesscss.org/#client-side-usage" target="_blank">less.js</a> for CSS. It is not necessary to know anything about
-      these in order to use this tutorial however they are both great tools worthy of checking out.</p>
+
+      <p>This repo has all of the assets needed to run the application. You may also notice it makes use of <a href="http://bower.io/" target="_blank">bower</a> for
+        package management and <a href="http://lesscss.org/#client-side-usage" target="_blank">less.js</a> for CSS. It is not necessary to know anything about
+        these in order to use this tutorial however they are both great tools worthy of checking out.</p>
+      
+      <p>For reason of brevity this tutorial will not cover the creation of the CSS/LESS, they are included for you in the repository. Also of note, the javascript runtime of
+        LessCSS is used so that no re-compile step is required if/when you alter the LESS.</p>
+
+      <div class="note"><span class="label">NOTE:</span> Do not rely on the javascript runtime of LESS when publishing your application on the internet, it is
+        always recommended that you incorporate a build process in order to deply normal CSS files to a production environment.</div></p>
     </div>
   </section>
 
@@ -53,14 +63,16 @@
         <li>HTML</li>
         <li>CSS</li>
         <li>Javascript</li>
+        <li>
+          <p><a href="http://knockoutjs.com/documentation/observables.html" target="_blank">Knockout.js observables and data-binding</a>*</p>
+          <div class="note"><span class="label">NOTE*:</span> It is helpful if you have an understanding of
+            <a href="http://knockoutjs.com/documentation/observables.html" target="_blank">knockout observables and
+            2-way data binding</a>. You may be able to do without it, but if you have unanswered questions check the aforementioned documentation.</div>
+        </li>
       </ul>
-      
-      <p>Although not required, it is helpful if you have knowledge of any of the dependencies footwork uses, most notably knockout. You shouldn't have <em>too much</em> issue
-      getting through the tutorial without it, but having an idea of how to use <a href="http://knockoutjs.com/documentation/observables.html" target="_blank">observables and
-      2-way data binding</a> at the least would be helpful.</p>
-      
-      <p>This tutorial will not cover the creation of the CSS/LESS, they are included for you in the base repository. Also of note, the javascript runtime of
-      LessCSS is used so that it needs no re-compile step if/when you alter it.</p>
+
+      <p>Generally when in doubt, check the <a href="http://knockoutjs.com/documentation/introduction.html" target="_blank">knockout.js documentation</a>. Footwork at
+        its core is just a <span class="inline-code">superset</span> of knockout, extended from the <span class="inline-code">ko</span> object itself.</p>
     </div>
   </section>
 
@@ -71,7 +83,7 @@
       <h2 class="sub title">Setup</h2>
     </header>
     <div class="content">
-      <p>After cloning the repository you are ready to get started, begin by checking out the <span class="inline-code">setup</span> step branch:</p>
+      <p>After cloning the repository you are ready to get started, begin by checking out the <span class="inline-code">setup</span> branch:</p>
 <pre><code class="bash">git checkout -f setup</code></pre>
       <p>This will set your workspace up with the base application structure and code. Open up the page in your browser and you won't see anything too interesting just yet...but we'll get to that.</p>
       <div class="figure">
