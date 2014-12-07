@@ -85,6 +85,7 @@
     <div class="content">
       <p>After cloning the repository you are ready to get started, begin by checking out the <span class="inline-code">setup</span> branch:</p>
 <pre><code class="bash">git checkout -f setup</code></pre>
+      <p class="top"><a href="http://todo-tutorial.footworkjs.com/setup" target="_blank">Live Demo</a></p>
       <p>This will set your workspace up with the base application structure and code. Open up the page in your browser and you won't see anything too interesting just yet...but we'll get to that.</p>
       <div class="figure">
         <div class="title">Initial App View</div>
@@ -94,6 +95,7 @@
       </div>
 
       <p>The markup itself is also nothing special, just some basic HTML:</p>
+<div class="file-location">/index.html</div>
 <pre><code class="html">&lt;!DOCTYPE html&gt;
 &lt;html lang="en"&gt;
   &lt;head&gt;
@@ -108,7 +110,7 @@
         &lt;input type="submit" value="Add Item" class="button"&gt;
       &lt;/form&gt;
       &lt;div class="todo-list"&gt;
-        &lt;div class="todo"&gt;Nothing to do.&lt;/div&gt;
+        Nothing to do.
       &lt;/div&gt;
     &lt;/main&gt;
   &lt;/body&gt;
@@ -120,9 +122,94 @@
       This build embeds all of the dependencies footwork requires into one easy to use file. For the purposes of this tutorial we will be using this version but note that
        <a href="https://github.com/reflectiveSingleton/footwork/tree/master/dist#readme" target="_blank">others are available</a> which may fit your needs better.</p>
 
+      <p>So what does this get us? Well we have footwork being included and some basic markup with a form to add a todo item, but no actual behavior or code to back it up. If you hit submit on the form
+      it will do a normal form request which refreshes the entire page and doesn't do much else. Now it's time to bootstrap footwork and introduce the first important concept, the <span class="inline-code">&lt;viewModel&gt;.</span></p>
+
     </div>
   </section>
 
+  <a id="base-app" class="section-anchor"></a>
+  <section name="base-app">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Base Application</h2>
+    </header>
+    <div class="content">
+      <h3>To get the changes made in this step, run the following command:</h3>
+      <pre><code class="bash">git checkout -f baseApplication</code></pre>
+      <p class="top"><a href="http://todo-tutorial.footworkjs.com/bootstrapping" target="_blank">Live Demo</a></p>
+
+      <p>Now we are ready to add some behavior to our logic-less markup and get our app started.</p>
+
+      <p>Lets begin by creating the viewModel for our todo form. At the beginning the <a href="/api/viewModel" data-bind="$route">API documentation on viewModels</a> they are described as:</p>
+      <div class="note">"A viewModel can be thought of as a container object that houses all of the logic and data with which your template/HTML/DOM binds to."</div>
+      <p>With that in mind the first thing we should look after creating our base HTML is what obvious behavoirs (ie: bindings) our markup dictates we need.</p>
+      
+      <p>We have a form which requires the ability to take action on the provided todo text after submitting, lets go ahead and create the <span class="inline-code">viewModel</span>
+        we need to express this behavior and allow for the bindings as described in our HTML:</p>
+      
+      <h3>The viewModel module file for the form (module which contains the forms behavior/logic):</h3>
+<div class="file-location">/scripts/viewModels/TodoForm.js</div>
+<pre><code class="javascript">var TodoForm = fw.viewModel({
+  initialize: function() {
+    this.thingToDo = fw.observable();
+    this.submitForm = function() {
+      console.info('TodoForm submit action triggered');
+    };
+  }
+});</code></pre>
+      <h3>Add the additional markup to bind the submit action to <span class="inline-code">submitForm</span> and value of <span class="inline-code">thingToDo</span> to the viewModel:</h3>
+<div class="file-location">/index.html</div>
+<pre>
+<code class="html">&lt;!-- ... --&gt;
+&lt;form data-bind="submit: submitForm"&gt;
+  &lt;input type="text" name="thingToDo" data-bind="value: thingToDo" placeholder="What needs to be done?"&gt;
+  &lt;input type="submit" value="Add Item" class="button"&gt;
+&lt;/form&gt;
+&lt;!-- ... --&gt;</code></pre>
+
+    <h3>And in our main application file we register the viewModel and start the app:</h3>
+<div class="file-location">/scripts/app.js</div>
+<pre><code class="javascript">// register the TodoForm viewModel so footwork can use it
+fw.viewModels.register('TodoForm', TodoForm);
+
+// tell footwork to startup and begin binding
+fw.start();
+</code></pre>
+
+      <p>Refresh the page and we expect to have our HTML todo form bound to the Todo viewModel. But instead we get an error:</p>
+      <div class="figure">
+        <div class="title">Binding error:</div>
+        <div class="content">
+          <div class="image"><img src="images/todo-tutorial/baseApplication0.png" alt="Binding error" title="Binding error"></div>
+        </div>
+      </div>
+
+      <p>So this is telling us it can't find the method/property for the <span class="inline-code">submit:</span> binding on our viewModel,
+        why? Well we forgot one critical detail, we need to tell footwork which viewModel to bind our HTML form with. We can do this by wrapping our form
+        with the <span class="inline-code">&lt;viewModel&gt;</span> declarative syntax like so:</p>
+
+<div class="file-location">/index.html</div>
+<pre><code class="html">&lt;!-- ... --&gt;
+&lt;viewModel module="TodoForm"&gt;
+  &lt;form data-bind="submit: submitForm"&gt;
+    &lt;input type="text" name="thingToDo" data-bind="value: thingToDo" placeholder="What needs to be done?"&gt;
+    &lt;input type="submit" value="Add Item" class="button"&gt;
+  &lt;/form&gt;
+&lt;/viewModel&gt;
+&lt;!-- ... --&gt;</code></pre>
+
+      <p>Now footwork will know which viewModel and what HTML to bind it with. Lets refresh the page once more...now there is no error, great! So lets press the <span class="inline-code">Add Item</span> button, we see the console spring to life:</p>
+      <div class="figure">
+        <div class="title">Binding error:</div>
+        <div class="content">
+          <div class="image"><img src="images/todo-tutorial/baseApplication1.png" alt="Binding error" title="Binding error"></div>
+        </div>
+      </div>
+
+
+    </div>
+  </section>
 </article>
 
 <div id="metaData">
@@ -138,7 +225,9 @@
           "title": "Prerequisites" }
       ] },
     { "anchor": "setup",
-      "title": "Setup" }
+      "title": "Setup" },
+    { "anchor": "base-app",
+      "title": "Base Application" }
   ]
 }
 </div>

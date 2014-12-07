@@ -4,12 +4,24 @@
 @codeHeaderBorderColor: mix(@body-bg-color, @body-text, 65%);
 
 article {
+  .file-location {
+    @size: 25px;
+    float: right;
+    position: relative;
+    margin-bottom: -@size;
+    padding-right: 5px;
+    line-height: @size;
+    color: white;
+    font-weight: bold;
+    z-index: 1;
+  }
   pre {
     margin: 0;
     line-height: @lineHeight;
     font-size: 13px;
     .border-radius(3px);
     overflow: hidden;
+    position: relative;
   }
 
   pre + pre {
@@ -22,6 +34,10 @@ article {
 
   pre + p {
     margin-top: (2 * @spacing);
+
+    &.top {
+      margin-top: 0;
+    }
   }
 
   .note + h3, pre + h3 {
@@ -101,6 +117,7 @@ article {
       .image {
         overflow: hidden;
         img {
+          display: block;
           max-width: 100%;
         }
       }
