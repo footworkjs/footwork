@@ -22,9 +22,10 @@ article {
     .border-radius(3px);
     overflow: hidden;
     position: relative;
+    clear: both;
   }
 
-  pre + pre {
+  pre + pre, .worspace-setup + p {
     margin-top: @spacing;
   }
 
@@ -98,6 +99,48 @@ article {
     background: transparent;
     color: contrast(@noteBackground);
     padding: 0;
+  }
+
+  .workspace-setup {
+    position: relative;
+    background: #deffdc;
+    .border-radius(3px);
+    .box-shadow(0px 1px 7px -2px black inset);
+
+    & > .title {
+      padding: 10px;
+      .clearblock;
+
+      & + .content {
+        padding: 0 10px 10px 10px;
+      }
+    }
+
+    & > .content {
+      padding: 10px;
+      .clearblock;
+    }
+
+    .live-demo, .diff {
+      display: block;
+      float: right;
+
+      &.bottom {
+        padding-top: 10px;
+      }
+    }
+
+    .live-demo + .diff {
+      margin-right: 10px;
+    }
+
+    .diff {
+      color: #444;
+    }
+
+    & + p {
+      margin-top: @spacing;
+    }
   }
 
   .figure {

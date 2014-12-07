@@ -34,9 +34,15 @@
       <p>If you wish to follow along and run the tutorial code it is assumed you have a web server to host the tutorial on, and git installed. You can also optionally follow
         along by viewing the live application at the demo addresses shown at the top of each step.</p>
 
-      <h3>You can clone the <a href="https://github.com/reflectiveSingleton/todo-tutorial" target="_blank">tutorial repo</a> with the following command:</h3>
-
-<pre><code class="bash">git clone https://github.com/reflectiveSingleton/todo-tutorial.git</code></pre>
+      <div class="workspace-setup">
+        <div class="title">
+          <a class="live-demo" href="http://todo-tutorial.footworkjs.com" target="_blank">Live Demo</a>
+          <p>You can clone the <a href="https://github.com/reflectiveSingleton/todo-tutorial" target="_blank">tutorial repo</a> with the following command:</p>
+        </div>
+        <div class="content">
+          <pre><code class="bash">git clone https://github.com/reflectiveSingleton/todo-tutorial.git</code></pre>
+        </div>
+      </div>
 
       <p>This repo has all of the assets needed to run the application. You may also notice it makes use of <a href="http://bower.io/" target="_blank">bower</a> for
         package management and <a href="http://lesscss.org/#client-side-usage" target="_blank">less.js</a> for CSS. It is not necessary to know anything about
@@ -82,9 +88,16 @@
       <h1 class="sub title">Setup</h1>
     </header>
     <div class="content">
-      <p>After cloning the repository you are ready to get started, begin by checking out the <span class="inline-code">setup</span> branch:</p>
-<pre><code class="bash">git checkout -f setup</code></pre>
-      <p class="top"><a href="http://todo-tutorial.footworkjs.com/setup" target="_blank">Live Demo</a></p>
+      <div class="workspace-setup">
+        <div class="title">
+          <a class="live-demo" href="http://todo-tutorial.footworkjs.com/setup" target="_blank">Live Demo</a>
+          <p>After cloning the repository you are ready to get started, begin by checking out the <span class="inline-code">setup</span> branch:</p>
+        </div>
+        <div class="content">
+          <pre><code class="bash">git checkout -f setup</code></pre>
+        </div>
+      </div>
+
       <p>This will set your workspace up with the base application structure and code. Open up the page in your browser and you won't see anything too interesting just yet...but we'll get to that.</p>
       <div class="figure">
         <div class="title">Initial App View</div>
@@ -134,12 +147,10 @@
       <h1 class="sub title">Base Application</h1>
     </header>
     <div class="content">
-      <pre><code class="bash">git checkout -f baseApplication</code></pre>
-      <p class="top"><a href="http://todo-tutorial.footworkjs.com/bootstrapping" target="_blank">Live Demo</a></p>
 
       <p>We are now ready to start creating our application using the provided HTML (and other assets). In footwork the logic/behavior in your application is primarily driven by
       bindings between your markup and its viewModel. These bindings are the 2-way connections between your HTML and the viewModel it is bound against.</p>
-      
+
       <p>This means any updates to form elements, or any other events on elements a viewModel is bound with are communicated to/triggered on it via the bindings you declare in the HTML/markup.</p>
       
       <h3>From the <a href="/api/viewModel" data-bind="$route">API documentation on viewModels</a>:</h3>
@@ -164,6 +175,17 @@
       <h2 class="sub title">Creating the Application</h2>
     </header>
     <div class="content">
+      <div class="workspace-setup">
+        <div class="title">
+          Get the code present in this step:
+          <a class="live-demo" href="http://todo-tutorial.footworkjs.com/baseApplication" target="_blank">Live Demo</a>
+          <a href="https://github.com/reflectiveSingleton/todo-tutorial/compare/setup...baseApplication" class="diff" target="_blank"><span class="icon-git-compare"></span> diff</a>
+        </div>
+        <div class="content">
+          <pre><code class="bash">git checkout -f baseApplication</code></pre>
+        </div>
+      </div>
+
       <p>When creating an application it helps to think about what pieces of your markup can be subdivided. Those subdivisions are good starting points to create code/behavior (viewModels) for. Looking at our current markup,
       the obvious starting point is the form to create a new Todo. We need to create a viewModel (which if you remember, contains the business logic of our UI) for the form to bind against so that we can have it 'do things'
       (yes, that is a highly technical term).</p>
@@ -191,7 +213,9 @@
         read about them in detail on the <a href="/api/viewModel" data-bind="$route">viewModel API docs</a>, for our Todo form this viewModel will suffice</p>
       
 <div class="file-location">/scripts/viewModels/TodoForm.js</div>
-<pre><code class="javascript">var TodoForm = fw.viewModel({
+<pre><code class="javascript">fw.viewModel({
+  namespace: 'TodoForm', // the name to register the viewModel as
+  autoRegister: true, // tells footwork to use this viewModel for any 'TodoForm' viewModels
   initialize: function() {
     // The observable which stores the current thingToDo form text
     this.thingToDo = fw.observable();
@@ -203,12 +227,9 @@
   }
 });</code></pre>
 
-    <h3>In our main application file we register the viewModel and start the app:</h3>
+    <h3>In our main application file we start the app:</h3>
 <div class="file-location">/scripts/app.js</div>
-<pre><code class="javascript">// register the TodoForm viewModel so footwork can use it
-fw.viewModels.register('TodoForm', TodoForm);
-
-// tell footwork to startup and begin binding
+<pre><code class="javascript">// tell footwork to startup and begin binding
 fw.start();
 </code></pre>
       <div class="note"><span class="label">NOTE:</span> Later on this tutorial covers how to convert these (the viewModel and HTML/template) into AMD/RequireJS modules so that foorwork can automatically load them as necessary for you. For
@@ -245,14 +266,13 @@ fw.start();
 &lt;!-- ... --&gt;</code></pre>
 
       <p>Now footwork will know to load the <span class="inline-code">TodoForm</span> viewModel and what HTML to bind it with. Lets refresh the page once more...there is no error this time, great!
-        Lets press the <span class="inline-code">Add Item</span> button, you should see the console spring to life:</p>
+        Press the <span class="inline-code">Add Item</span> button, you should see the console spring to life:</p>
       <div class="figure no-title">
         <div class="content">
           <div class="image"><img src="images/todo-tutorial/baseApplication1.png" alt="Binding error" title="Binding error"></div>
         </div>
       </div>
       <p>Excellent, this lets us know our application is initializing properly and our viewModel is binding to the form....</p>
-      <p>Now that we know the form is triggering on the <span class="inline-code">submit</span> event and our text field is also bound to the thingToDo observable we are ready to create a todo list.</p>
     </div>
   </section>
 
@@ -263,7 +283,31 @@ fw.start();
       <h2 class="sub title">Creating Todos</h2>
     </header>
     <div class="content">
+      <div class="workspace-setup">
+        <div class="title">
+          Get the code present in this step:
+          <a class="live-demo" href="http://todo-tutorial.footworkjs.com/creatingTodos" target="_blank">Live Demo</a>
+          <a href="https://github.com/reflectiveSingleton/todo-tutorial/compare/baseApplication...creatingTodos" class="diff" target="_blank"><span class="icon-git-compare"></span> diff</a>
+        </div>
+        <div class="content">
+          <pre><code class="bash">git checkout -f creatingTodos</code></pre>
+        </div>
+      </div>
+
       <p>Now that our form is wired up to the viewModel, lets work on creating the actual Todo entries.</p>
+      <p>Looking at the HTML we see that the todo list is outside of the form. This list will contain not only the list of todo items...but any associated behavior and actions related to that list. Lets start off by
+      adding the additional markup we need to turn this <span class="inline-code">&lt;div&gt;</span> into a listing we can bind against a viewModel.</p>
+      <h3>Wrap the <span class="inline-code">class="todo-list"</span> element with a viewModel and add the appropriate bindings:</h3>
+<div class="file-location">/index.html</div>
+<pre><code class="html">&lt;!-- ... --&gt;
+&lt;div class="todo-list"&gt;
+  &lt;viewModel module="TodoList"&gt;
+    &lt;div class="todos" data-bind="foreach: todos"&gt;
+      &lt;div class="todo" data-bind="text: todoText"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/viewModel&gt;
+&lt;/div&gt;
+&lt;!-- ... --&gt;</code></pre>
     </div>
   </section>
 </article>
