@@ -269,7 +269,7 @@ fw.start();
         Press the <span class="inline-code">Add Item</span> button, you should see the console spring to life:</p>
       <div class="figure no-title">
         <div class="content">
-          <div class="image"><img src="images/todo-tutorial/baseApplication1.png" alt="Binding error" title="Binding error"></div>
+          <div class="image"><img src="images/todo-tutorial/baseApplication1.png"></div>
         </div>
       </div>
       <p>Excellent, this lets us know our application is initializing properly and our form is binding to the viewModel...</p>
@@ -343,17 +343,24 @@ fw.start();
   &lt;/body&gt;
 &lt;/html&gt;</code></pre>
 
-      <p>Now when we reload the page, nothing much happens still, typing something into the form and clicking submit simply issues the console message we saw prior. Lets fix that by making the <span class="inline-code">TodoForm</span>
-        tell the <span class="inline-code">TodoList</span> to add a new entry when the user submits the form. You might be wondering how that can be accomplished, the viewModels are after all completely separate and we don't even
+      <p>Now when we reload the page, nothing much happens still, typing something into the form and clicking submit simply issues
+        the console message we saw prior. Lets fix that by making the <span class="inline-code">TodoForm</span>
+        tell the <span class="inline-code">TodoList</span> to add a new entry when the user submits the form. You might be wondering
+        how that can be accomplished, the viewModels are after all completely separate and we don't even
         have a reference to them. Fear not, namespacing to the rescue!</p>
 
-      <p>In footwork, communication between viewModels/modules (and anything, really) is accomplished via the <a href="/api/namespacing" data-bind="$route">namespacing</a> functionality. You may recall from earlier, the <span class="inline-code">namespace:</span>
-        attribute we gave to each of our <span class="inline-code">viewModel</span> configurations. This namespace is used not only to <span class="inline-code">autoRegister:</span> the viewModel so footwork can know where to find it, but also to facilitate
+      <p>In footwork, communication between viewModels/modules (and anything, really) is accomplished via the
+        <a href="/api/namespacing" data-bind="$route">namespacing</a> functionality. You may recall from earlier, the
+        <span class="inline-code">namespace:</span>
+        attribute we gave to each of our <span class="inline-code">viewModel</span> configurations. This namespace is 
+        used not only to <span class="inline-code">autoRegister:</span> the viewModel so footwork can know where to find it, but also to facilitate
         various forms of messaging, events, commands, etc.</p>
 
-      <p>It is possibly easier to grasp with an example, so lets go ahead and add the necessary code we need to have the <span class="inline-code">TodoForm</span> tell the <span class="inline-code">TodoList</span> it should add a todo.</p>
+      <p>It is possibly easier to grasp with an example, so lets go ahead and add the necessary code we need to have the 
+        <span class="inline-code">TodoForm</span> tell the <span class="inline-code">TodoList</span> it should add a todo.</p>
 
-      <h3>First we add the code to <span class="inline-code">TodoForm.js</span> which causes the form to tell the <span class="inline-code">TodoList</span> to add a new item when the form is submitted:</h3>
+      <h3>First we add the code to <span class="inline-code">TodoForm.js</span> which causes the form to tell the 
+        <span class="inline-code">TodoList</span> to add a new item when the form is submitted:</h3>
 <div class="file-location">/scripts/viewModels/TodoForm.js</div>
 <pre><code class="javascript">fw.viewModel({
   namespace: 'TodoForm',
@@ -363,12 +370,108 @@ fw.start();
 
     // create the namespace 'channel' we will use to talk to the TodoList
     this.todoListNamespace = fw.namespace('TodoList');
+
     this.submitForm = function() {
       // The user wishes to add a todo item, lets tell the TodoList what it is
       this.todoListNamespace.publish('newItem', this.thingToDo());
+
+      // clear out the text box so the user can type a new entry
+      this.thingToDo('');
     };
   }
-});;</code></pre>
+});</code></pre>
+      <p>What exactly is happening here? Well the first thing of note is the <span class="inline-code">todoListNamespace</span>
+        property being created on the viewModel. The namespace instance created here via <span class="inline-code">fw.namespace()</span>
+        can be thought of as a way to send and receive messages/commands/etc to/from the <span class="inline-code">TodoList</span> viewModel.</p>
+      
+      <p>The other important aspect of this code is the <span class="inline-code">todoListNamespace.publish()</span> call. This method call is
+        publishing a message to the <span class="inline-code">TodoList</span> passing along the new todo item the user has typed in.</p>
+      
+      <div class="note"><span class="label">NOTE:</span> For full documentation on what namespaces are capable of in footwork you should read
+        the <a href="/api/namespacing" data-bind="$route">namespacing API documentation</a>.</div>
+
+      <p>Ok so now our <span class="inline-code">TodoForm</span> is sending the message to the <span class="inline-code">TodoList</span>, lets
+        modify the <span class="inline-code">TodoList</span> so that it can use that data to create new <span class="inline-code">TodoItem</span> entries.</p>
+
+<div class="file-location">/scripts/viewModels/TodoList.js</div>
+<pre><code class="javascript">fw.viewModel({
+  namespace: 'TodoList',
+  autoRegister: true,
+  initialize: function() {
+    var self = this; // create a reference to this viewModel we can use inside of the callback
+    this.todos = fw.observableArray();
+    this.$namespace.subscribe('newItem', function(thingToDo) {
+      self.todos.push( new TodoItem(thingToDo) );
+    });
+  }
+});</code></pre>
+      
+      <p><span class="inline-code">self</span> is simply a reference to <span class="inline-code">this</span> (the viewModel) that we can reference inside of the <span class="inline-code">subscribe()</span> callback.</p>
+      
+      <p>And lastly, note the <span class="inline-code">this.$namespace.subscribe()</span> call. This simply adds a callback for any 'newItem' messages that are
+        broadcast for the viewModels <span class="inline-code">$namespace</span> ('TodoList' in this case). This callback pushes a <span class="inline-code">new TodoItem()</span> onto the
+        <span class="inline-code">todos</span> observable array. If all is going well when you refresh the page type something into the form and hit enter you should see a new todo entry:</p>
+      
+      <div class="figure">
+        <div class="title">A new todo is created!</div>
+        <div class="content">
+          <div class="image"><img src="images/todo-tutorial/creatingTodos0.png" alt="What you see after creating a todo" title="What you see after creating a todo"></div>
+        </div>
+      </div>
+
+      <p>Now we have the very basic functionality of being able to create new todo items and having them rendered to the page. You might be thinking that <span class="inline-code">viewModels</span> are great and all, but at this rate
+        we will be writing a single piece of HTML to represent our entire app...thats not too modular is it?</p>
+
+      <p>It certainly isn't. In the next section we learn how to split apart our html into separate templates and couple them
+        along with their respective viewModel to create fully encapsulated reusable (and testable) <em>components</em>.</p>
+    </div>
+  </section>
+
+  <a id="components" class="section-anchor"></a>
+  <section name="components">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Components</h1>
+    </header>
+    <div class="content">
+      <div class="workspace-setup">
+        <div class="title">
+          Get the code present in this step:
+          <a class="live-demo" href="http://todo-tutorial.footworkjs.com/components" target="_blank">Live Demo</a>
+          <a href="https://github.com/reflectiveSingleton/todo-tutorial/compare/creatingTodos...components" class="diff" target="_blank"><span class="icon-git-compare"></span> diff</a>
+        </div>
+        <div class="content">
+          <pre><code class="bash">git checkout -f components</code></pre>
+        </div>
+      </div>
+
+      <p>Our <span class="inline-code">viewModels</span> are nicely separated from each other, wouldn't it be nice to split apart the HTML in the same way? Maybe combine the two into a reusable package? Components let you do just that.</p>
+
+      <p>You may have heard about them, and how future browsers will hopefully support them and enable a new world of reusable pieces you can just throw around at will. Well footwork (with the help of knockout) provides exactly
+      that. Expressive semantic custom elements, testable and reusable by simply declaring them in your HTML. Did I mention you can nest any number of both <span class="inline-code">viewModel</span> or other <span class="inline-code">components</span>
+      within them as well? Even entire applications? Components are an extremely powerful feature in footwork.</p>
+
+      <p>Lets start by componentizing the <span class="inline-code">TodoForm</span>, after all maybe in the future we might want to reuse this form on a different page or possibly in multiple places on the same page. Thankfully, we already
+      have our viewModel <span class="inline-code">TodoForm</span> in its own separate file...no additional work needs to be done there at the moment.</p>
+
+      <p>We begin by pulling out the <span class="inline-code">TodoForm</span> HTML into its own separate file and replacing it with a declarative custom element (<span class="inline-code">&lt;todoform&gt;&lt;/todoform&gt;</span> in this case,
+      it can be anything you want that is a non-standard tagName. Valid letters include lower-case letters and a hyphen).</p>
+
+<div class="file-location">/scripts/templates/TodoForm.html</div>
+<pre><code class="html">&lt;form data-bind="submit: submitForm"&gt;
+  &lt;input type="text" name="thingToDo" data-bind="value: thingToDo" placeholder="What needs to be done?"&gt;
+  &lt;input type="submit" value="Add Item" class="button"&gt;
+&lt;/form&gt;</code></pre>
+
+      <h3>And replace it with our custom element:</h3>
+<div class="file-location">/index.html</div>
+<pre><code class="html">  &lt;!-- ... --&gt;
+    &lt;main&gt;
+      &lt;todoform&gt;&lt;/todoform&gt; &lt;!-- Our new custom element --&gt;
+      &lt;viewModel module="TodoList"&gt;
+  &lt;!-- ... --&gt;</code></pre>
+
+      <p>Now that the HTML form is in its own template file, we need to tell footwork to </p>
 
     </div>
   </section>
@@ -399,7 +502,13 @@ fw.start();
           "title": "Creating Todos" }
       ] },
     { "anchor": "components",
-      "title": "Components" }
+      "title": "Components",
+      "collapsable": true,
+      "isCollapsed": true,
+      "subSections": [
+        { "anchor": "automatic-loading",
+          "title": "Automatic Loading" }
+      ] }
   ]
 }
 </div>
