@@ -42,11 +42,11 @@
         package management and <a href="http://lesscss.org/#client-side-usage" target="_blank">less.js</a> for CSS. It is not necessary to know anything about
         these in order to use this tutorial however they are both great tools worthy of checking out.</p>
       
-      <p>For reason of brevity this tutorial will not cover the creation of the CSS/LESS, they are included for you in the repository. Also of note, the javascript runtime of
+      <p>For reasons of brevity this tutorial will not cover the creation of the CSS/LESS, they are included for you in the repository. Also of note, the javascript runtime of
         LessCSS is used so that no re-compile step is required if/when you alter the LESS.</p>
 
       <div class="note"><span class="label">NOTE:</span> Do not rely on the javascript runtime of LESS when publishing your application on the internet, it is
-        always recommended that you incorporate a build process in order to deply normal CSS files to a production environment.</div></p>
+        always recommended that you incorporate a build process in order to deploy normal CSS files to a production environment.</div></p>
     </div>
   </section>
 
@@ -64,15 +64,14 @@
         <li>CSS</li>
         <li>Javascript</li>
         <li>
-          <p><a href="http://knockoutjs.com/documentation/observables.html" target="_blank">Knockout.js observables and data-binding</a>*</p>
-          <div class="note"><span class="label">NOTE*:</span> It is helpful if you have an understanding of
-            <a href="http://knockoutjs.com/documentation/observables.html" target="_blank">knockout observables and
-            2-way data binding</a>. You may be able to do without it, but if you have unanswered questions check the aforementioned documentation.</div>
+          <p>Knockout.js <a href="http://knockoutjs.com/documentation/observables.html#mvvm-and-view-models" target="_blank">MVVM</a> and <a href="http://knockoutjs.com/documentation/binding-syntax.html" target="_blank">data-binding</a> *</p>
+          <div class="note"><span class="label">NOTE*:</span> It is helpful if you have an understanding of knockout
+            <a href="http://knockoutjs.com/documentation/observables.html#mvvm-and-view-models" target="_blank">MVVM</a> and <a href="http://knockoutjs.com/documentation/binding-syntax.html" target="_blank">data-binding</a> however you can probably get through this tutorial without having used them before.</div>
         </li>
       </ul>
 
       <p>If you have questions unanswered by this tutorial consult the <a href="/api" data-bind="$route">footwork API documentation</a>. If that does not answer your question, check the <a href="http://knockoutjs.com/documentation/introduction.html" target="_blank">knockout.js documentation</a>. Footwork at
-        its core is just a <span class="inline-code">superset</span> of knockout, extended from the <span class="inline-code">ko</span> object itself. Any undocumented features found in footwork are outlined there.</p>
+        its core is just a superset of knockout, extended from the <span class="inline-code">ko</span> (knockout) object itself. Any undocumented features found in footwork are outlined there.</p>
     </div>
   </section>
 
@@ -80,7 +79,7 @@
   <section name="setup">
     <div class="highlight"></div>
     <header>
-      <h2 class="sub title">Setup</h2>
+      <h1 class="sub title">Setup</h1>
     </header>
     <div class="content">
       <p>After cloning the repository you are ready to get started, begin by checking out the <span class="inline-code">setup</span> branch:</p>
@@ -123,7 +122,7 @@
        <a href="https://github.com/reflectiveSingleton/footwork/tree/master/dist#readme" target="_blank">others are available</a> which may fit your needs better.</p>
 
       <p>So what does this get us? Well we have footwork being included and some basic markup with a form to add a todo item, but no actual behavior or code to back it up. If you hit submit on the form
-      it will do a normal form request which refreshes the entire page and doesn't do much else. Now it's time to bootstrap footwork and introduce the first important concept, the <span class="inline-code">&lt;viewModel&gt;.</span></p>
+      it will do a normal form request which refreshes the entire page and doesn't do much else. Now it's time to bootstrap footwork and introduce the first important concept, the <span class="inline-code">viewModel</span>.</p>
 
     </div>
   </section>
@@ -132,34 +131,45 @@
   <section name="base-app">
     <div class="highlight"></div>
     <header>
-      <h2 class="sub title">Base Application</h2>
+      <h1 class="sub title">Base Application</h1>
     </header>
     <div class="content">
-      <h3>To get the changes made in this step, run the following command:</h3>
       <pre><code class="bash">git checkout -f baseApplication</code></pre>
       <p class="top"><a href="http://todo-tutorial.footworkjs.com/bootstrapping" target="_blank">Live Demo</a></p>
 
-      <p>Now we are ready to add some behavior to the markup and get our app started. The logic in your view/html code is driven by bindings between your markup and its viewModel.
-      This means any updates to form elements, click events, or any other events on elements are communicated to/triggered on your viewModel via the bindings you declare in the HTML/markup.</p>
+      <p>We are now ready to start creating our application using the provided HTML (and other assets). In footwork the logic/behavior in your application is primarily driven by
+      bindings between your markup and its viewModel. These bindings are the 2-way connections between your HTML and the viewModel it is bound against.</p>
+      
+      <p>This means any updates to form elements, or any other events on elements a viewModel is bound with are communicated to/triggered on it via the bindings you declare in the HTML/markup.</p>
+      
       <h3>From the <a href="/api/viewModel" data-bind="$route">API documentation on viewModels</a>:</h3>
+      
       <div class="note"><em>A viewModel can be thought of as a container object that houses all of the logic and data with which your template/HTML/DOM binds to.</em></div>
 
-      <p>Lets begin by creating the viewModel for our todo form. The first thing we should look at after creating our HTML form is what behavoirs (ie: bindings) our markup dictates we need.</p>
-      
-      <p>We have a form which requires the ability to take action on the provided todo text after submitting, lets go ahead and create the <span class="inline-code">viewModel</span>
-        we need to express this behavior and allow for the bindings as described in our HTML:</p>
-      
-      <h3>The viewModel module file for the form (module which contains the forms behavior/logic):</h3>
-<div class="file-location">/scripts/viewModels/TodoForm.js</div>
-<pre><code class="javascript">var TodoForm = fw.viewModel({
-  initialize: function() {
-    this.thingToDo = fw.observable();
-    this.submitForm = function() {
-      console.info('TodoForm submit action triggered');
-    };
-  }
-});</code></pre>
-      <h3>Add the additional markup to bind the submit action to <span class="inline-code">submitForm</span> and value of <span class="inline-code">thingToDo</span> to the viewModel:</h3>
+      <p>Note that the bindings in your HTML should not be used to contain code/logic, rather you should try and think of them as merely the <em>pointers</em> to the code
+      contained within your viewModel. By doing this you avoid the trap of tightly coupling your HTML to the business logic of your application. This enables many benefits, most notably:</p>
+      <ul>
+        <li>Very little/no coupling between your HTML and its business logic. The behaviors expressed are just pointers to the logic contained in the viewModel.</li>
+        <li>It is trivial when debuging to trace behavior back to its source code, the bindings point the way.</li>
+        <li>The expressive binding syntax makes creating and composing behavior easier.</li>
+        <li>Easy testing of your viewModels and its business logic, independently of the HTML/markup.</li>
+      </ul>
+    </div>
+  </section>
+
+  <a id="creating-the-app" class="section-anchor"></a>
+  <section name="creating-the-app">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Creating the Application</h2>
+    </header>
+    <div class="content">
+      <p>When creating an application it helps to think about what pieces of your markup can be subdivided. Those subdivisions are good starting points to create code/behavior (viewModels) for. Looking at our current markup,
+      the obvious starting point is the form to create a new Todo. We need to create a viewModel (which if you remember, contains the business logic of our UI) for the form to bind against so that we can have it 'do things'
+      (yes, that is a highly technical term).</p>
+      <p>So to start off lets look at our Todo form and see what bindings it needs...</p>
+
+      <h3>We need a <span class="inline-code">value:</span> binding for the text input and a <span class="inline-code">submit:</span> event binding for the form:</h3>
 <div class="file-location">/index.html</div>
 <pre>
 <code class="html">&lt;!-- ... --&gt;
@@ -168,8 +178,32 @@
   &lt;input type="submit" value="Add Item" class="button"&gt;
 &lt;/form&gt;
 &lt;!-- ... --&gt;</code></pre>
+      <div class="note"><span class="label">NOTE:</span> The full list of available bindings is listed on the <a href="http://knockoutjs.com/documentation/introduction.html" target="_blank">knockout.js documentation</a>.
+      Remember, footwork is a superset of knockout so it also contains all of the features of knockout, including its binding capabilities. You can also 
+      <a href="http://knockoutjs.com/documentation/custom-bindings.html" target="_blank">create your own</a>, but that is out of scope for this tutorial.</div>
+      
+      <p>Now the form will trigger the <span class="inline-code">submitForm</span> method on the viewModel whenever the form is submitted, and the value of the text input is bound to
+        the <span class="inline-code">thingToDo</span> observable on the viewModel.</p>
 
-    <h3>And in our main application file we register the viewModel and start the app:</h3>
+      <p>The first thing we should look at after creating our form HTML and bindings is what code those bindings dictate we need in our viewModel.</p>
+
+      <p>viewModels are created with the <span class="inline-code">fw.viewModel()</span> factory method. You can
+        read about them in detail on the <a href="/api/viewModel" data-bind="$route">viewModel API docs</a>, for our Todo form this viewModel will suffice</p>
+      
+<div class="file-location">/scripts/viewModels/TodoForm.js</div>
+<pre><code class="javascript">var TodoForm = fw.viewModel({
+  initialize: function() {
+    // The observable which stores the current thingToDo form text
+    this.thingToDo = fw.observable();
+
+    // Method/Action we want triggered when the form is submitted
+    this.submitForm = function() {
+      console.info('TodoForm submit action triggered');
+    };
+  }
+});</code></pre>
+
+    <h3>In our main application file we register the viewModel and start the app:</h3>
 <div class="file-location">/scripts/app.js</div>
 <pre><code class="javascript">// register the TodoForm viewModel so footwork can use it
 fw.viewModels.register('TodoForm', TodoForm);
@@ -177,8 +211,19 @@ fw.viewModels.register('TodoForm', TodoForm);
 // tell footwork to startup and begin binding
 fw.start();
 </code></pre>
+      <div class="note"><span class="label">NOTE:</span> Later on this tutorial covers how to convert these (the viewModel and HTML/template) into AMD/RequireJS modules so that foorwork can automatically load them as necessary for you. For
+      now, we are simply registering (caching) them manually.</div>
 
-      <p>Refresh the page and we expect to have our HTML todo form bound to the Todo viewModel. But instead we see an error in the console:</p>
+      <h3>And finally, we add the <span class="inline-code">&lt;script&gt;</span> tags to reference our application file and viewModel at the bottom of our <span class="inline-code">index.html</span>:</h3>
+<div class="file-location">/index.html</div>
+<pre>
+<code class="html">    &lt;!-- ... --&gt;
+    &lt;script src="scripts/viewModels/TodoForm.js"&gt;&lt;/script&gt;
+    &lt;script src="scripts/app.js"&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+      <p>Now we refresh the page and expect to have our HTML todo form bound to the Todo viewModel. But instead we see an error in the console:</p>
       <div class="figure no-title">
         <div class="content">
           <div class="image"><img src="images/todo-tutorial/baseApplication0.png" alt="Binding error" title="Binding error"></div>
@@ -199,13 +244,26 @@ fw.start();
 &lt;/viewModel&gt;
 &lt;!-- ... --&gt;</code></pre>
 
-      <p>Now footwork will know which viewModel and what HTML to bind it with. Lets refresh the page once more...now there is no error, great! Lets press the <span class="inline-code">Add Item</span> button, we see the console spring to life:</p>
+      <p>Now footwork will know to load the <span class="inline-code">TodoForm</span> viewModel and what HTML to bind it with. Lets refresh the page once more...there is no error this time, great!
+        Lets press the <span class="inline-code">Add Item</span> button, you should see the console spring to life:</p>
       <div class="figure no-title">
         <div class="content">
           <div class="image"><img src="images/todo-tutorial/baseApplication1.png" alt="Binding error" title="Binding error"></div>
         </div>
       </div>
-      <p>Excellent, this lets us know our application is initializing properly and our viewModel is binding to the form...in the next section lets see how we can leverage components so that we can easily reuse this form wherever we like.</p>
+      <p>Excellent, this lets us know our application is initializing properly and our viewModel is binding to the form....</p>
+      <p>Now that we know the form is triggering on the <span class="inline-code">submit</span> event and our text field is also bound to the thingToDo observable we are ready to create a todo list.</p>
+    </div>
+  </section>
+
+  <a id="creating-todos" class="section-anchor"></a>
+  <section name="creating-todos">
+    <div class="highlight"></div>
+    <header>
+      <h2 class="sub title">Creating Todos</h2>
+    </header>
+    <div class="content">
+      <p>Now that our form is wired up to the viewModel, lets work on creating the actual Todo entries.</p>
     </div>
   </section>
 </article>
@@ -225,7 +283,17 @@ fw.start();
     { "anchor": "setup",
       "title": "Setup" },
     { "anchor": "base-app",
-      "title": "Base Application" }
+      "title": "Base Application",
+      "collapsable": true,
+      "isCollapsed": true,
+      "subSections": [
+        { "anchor": "creating-the-app",
+          "title": "Creating the App" },
+        { "anchor": "creating-todos",
+          "title": "Creating Todos" }
+      ] },
+    { "anchor": "components",
+      "title": "Components" }
   ]
 }
 </div>
