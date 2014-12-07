@@ -139,11 +139,12 @@
       <pre><code class="bash">git checkout -f baseApplication</code></pre>
       <p class="top"><a href="http://todo-tutorial.footworkjs.com/bootstrapping" target="_blank">Live Demo</a></p>
 
-      <p>Now we are ready to add some behavior to our logic-less markup and get our app started.</p>
+      <p>Now we are ready to add some behavior to the markup and get our app started. The logic in your view/html code is driven by bindings between your markup and its viewModel.
+      This means any updates to form elements, click events, or any other events on elements are communicated to/triggered on your viewModel via the bindings you declare in the HTML/markup.</p>
+      <h3>From the <a href="/api/viewModel" data-bind="$route">API documentation on viewModels</a>:</h3>
+      <div class="note"><em>A viewModel can be thought of as a container object that houses all of the logic and data with which your template/HTML/DOM binds to.</em></div>
 
-      <p>Lets begin by creating the viewModel for our todo form. At the beginning the <a href="/api/viewModel" data-bind="$route">API documentation on viewModels</a> they are described as:</p>
-      <div class="note">"A viewModel can be thought of as a container object that houses all of the logic and data with which your template/HTML/DOM binds to."</div>
-      <p>With that in mind the first thing we should look after creating our base HTML is what obvious behavoirs (ie: bindings) our markup dictates we need.</p>
+      <p>Lets begin by creating the viewModel for our todo form. The first thing we should look at after creating our HTML form is what behavoirs (ie: bindings) our markup dictates we need.</p>
       
       <p>We have a form which requires the ability to take action on the provided todo text after submitting, lets go ahead and create the <span class="inline-code">viewModel</span>
         we need to express this behavior and allow for the bindings as described in our HTML:</p>
@@ -177,9 +178,8 @@ fw.viewModels.register('TodoForm', TodoForm);
 fw.start();
 </code></pre>
 
-      <p>Refresh the page and we expect to have our HTML todo form bound to the Todo viewModel. But instead we get an error:</p>
-      <div class="figure">
-        <div class="title">Binding error:</div>
+      <p>Refresh the page and we expect to have our HTML todo form bound to the Todo viewModel. But instead we see an error in the console:</p>
+      <div class="figure no-title">
         <div class="content">
           <div class="image"><img src="images/todo-tutorial/baseApplication0.png" alt="Binding error" title="Binding error"></div>
         </div>
@@ -199,15 +199,13 @@ fw.start();
 &lt;/viewModel&gt;
 &lt;!-- ... --&gt;</code></pre>
 
-      <p>Now footwork will know which viewModel and what HTML to bind it with. Lets refresh the page once more...now there is no error, great! So lets press the <span class="inline-code">Add Item</span> button, we see the console spring to life:</p>
-      <div class="figure">
-        <div class="title">Binding error:</div>
+      <p>Now footwork will know which viewModel and what HTML to bind it with. Lets refresh the page once more...now there is no error, great! Lets press the <span class="inline-code">Add Item</span> button, we see the console spring to life:</p>
+      <div class="figure no-title">
         <div class="content">
           <div class="image"><img src="images/todo-tutorial/baseApplication1.png" alt="Binding error" title="Binding error"></div>
         </div>
       </div>
-
-
+      <p>Excellent, this lets us know our application is initializing properly and our viewModel is binding to the form...in the next section lets see how we can leverage components so that we can easily reuse this form wherever we like.</p>
     </div>
   </section>
 </article>
