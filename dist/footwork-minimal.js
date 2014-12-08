@@ -4171,6 +4171,7 @@ fw.embed = embedded;
 // misc regex patterns
 var hasTrailingSlash = /\/$/i;
 var hasStartingSlash = /^\//i;
+var hasStartingHash = /^#/i;
 
 // misc utility functions
 var noop = function() { };
@@ -4184,6 +4185,10 @@ function isPath(pathOrFile) {
 function hasPathStart(path) {
   return hasStartingSlash.test(path);
 };
+
+function hasHashStart(string) {
+  return hasStartingHash.test(string);
+}
 
 function hasClass(element, className) {
   return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
@@ -4893,6 +4898,7 @@ fw.bindingHandlers.$route = {
     var urlValue = valueAccessor();
     var elementIsSetup = false;
     var stateTracker = null;
+    var hashOnly = null;
 
     var routeHandlerDescription = {
       on: 'click',
@@ -4900,6 +4906,11 @@ fw.bindingHandlers.$route = {
       addActiveClass: true,
       activeClass: null,
       handler: function defaultHandlerForRoute(event, url) {
+        if(hashOnly) {
+          windowObject.location.hash = routeHandlerDescription.url;
+          return false;
+        }
+
         if( !isFullURL(url) && event.which !== 2 ) {
           event.preventDefault();
           return true;
@@ -4935,7 +4946,12 @@ fw.bindingHandlers.$route = {
 
         if( !isFullURL(myLinkPath) ) {
           if( !hasPathStart(myLinkPath) ) {
-            myLinkPath = '/' + myLinkPath;
+            if(hasHashStart(myLinkPath)) {
+              myLinkPath = $myRouter.currentRoute().segment + myLinkPath;
+              hashOnly = true;
+            } else {
+              myLinkPath = '/' + myLinkPath;
+            }
           }
 
           if( includeParentPath && !isNullRouter($myRouter) ) {

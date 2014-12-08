@@ -27,11 +27,11 @@
       <p><em>In short, components are an extremely powerful feature which when leveraged properly allow you to build extremely modularized, easy to maintain, easy to test, and easy to read software.</em></p>
       <div class="note"><span class="label">NOTE:</span> Footwork uses knockout components as the base implementation, for further documentation concerning components please see the <a href="http://knockoutjs.com/documentation/component-overview.html" target="_blank">KnockoutJS component documentation</a>.</div>
       <ul>
-        <li><a href="#configuration">Configuration</a></li>
-        <li><a href="#usage">Usage</a></li>
-        <li><a href="#loading-registering">AMD / Lazy Loading / Registering</a></li>
-        <li><a href="#module-formats">Module Formats</a></li>
-        <li><a href="#lifecycle">Lifecycle</a></li>
+        <li><a data-bind="$route" href="#configuration">Configuration</a></li>
+        <li><a data-bind="$route" href="#usage">Usage</a></li>
+        <li><a data-bind="$route" href="#loading-registering">AMD / Lazy Loading / Registering</a></li>
+        <li><a data-bind="$route" href="#module-formats">Module Formats</a></li>
+        <li><a data-bind="$route" href="#lifecycle">Lifecycle</a></li>
       </ul>
     </div>
   </section>
@@ -226,7 +226,7 @@ fw.components.defaultLocation('/components/');
     </header>
     <div class="content">
       <p>Footwork templates are always loaded as plain HTML files (plain text), but viewModels are loaded as javascript modules and have a special structure. A component (and thus, its viewModel)
-      can either be expressed inline (ie: when registering a component explicitly as <a href="#loading-registering">shown above</a>), or resolved via a script loader.</p>
+      can either be expressed inline (ie: when registering a component explicitly as <a data-bind="$route" href="#loading-registering">shown above</a>), or resolved via a script loader.</p>
       <p>Both <a href="http://requirejs.org">AMD/RequireJS</a> and <a href="http://browserify.org" target="_blank">Browserify</a> are supported. However RequireJS is preferred as it will enable
       footwork to resolve your component (and its dependencies) automatically at runtime as needed.</p>
       <p>The following examples all show RequireJS/AMD-flavored modules.</p>
@@ -291,13 +291,13 @@ define(["footwork"],
       <p>Various useful methods and utility functions for misc and debugging purposes.</p>
 
       <ul>
-        <li><a href="#isRegistered">fw.components.isRegistered()</a></li>
-        <li><a href="#getResourceLocation">fw.components.getResourceLocation()</a></li>
-        <li><a href="#getFileName">fw.components.getFileName()</a></li>
-        <li><a href="#fileExtensions">fw.components.fileExtensions()</a></li>
-        <li><a href="#isTemplateOnly">fw.components.isTemplateOnly()</a></li>
-        <li><a href="#getNormalTagList">fw.components.getNormalTagList()</a></li>
-        <li><a href="#tagIsComponent">fw.components.tagIsComponent()</a></li>
+        <li><a data-bind="$route" href="#isRegistered">fw.components.isRegistered()</a></li>
+        <li><a data-bind="$route" href="#getResourceLocation">fw.components.getResourceLocation()</a></li>
+        <li><a data-bind="$route" href="#getFileName">fw.components.getFileName()</a></li>
+        <li><a data-bind="$route" href="#fileExtensions">fw.components.fileExtensions()</a></li>
+        <li><a data-bind="$route" href="#isTemplateOnly">fw.components.isTemplateOnly()</a></li>
+        <li><a data-bind="$route" href="#getNormalTagList">fw.components.getNormalTagList()</a></li>
+        <li><a data-bind="$route" href="#tagIsComponent">fw.components.tagIsComponent()</a></li>
       </ul>
     </div>
   </section>

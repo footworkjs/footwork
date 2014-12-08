@@ -34,9 +34,9 @@
       <p>Routers have three principle components which make them useful:</p>
       
       <ul>
-        <li><a href="#configuration">configuration object</a>: A router configuration on a viewModel. Used to define the router, its routes, controllers, and their actions.</li>
-        <li><a href="#outlets">outlets</a>: Any number of <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations in your HTML which are the output points your router controls.</li>
-        <li><a href="#route-binding">route bindings</a>: Special bindings for links (and other tags) which will initiate new states in your application.</li>
+        <li><a data-bind="$route" href="#configuration" data-bind="$route">configuration object</a>: A router configuration on a viewModel. Used to define the router, its routes, controllers, and their actions.</li>
+        <li><a data-bind="$route" href="#outlets" data-bind="$route">outlets</a>: Any number of <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations in your HTML which are the output points your router controls.</li>
+        <li><a data-bind="$route" href="#route-binding" data-bind="$route">route bindings</a>: Special bindings for links (and other tags) which will initiate new states in your application.</li>
       </ul>
       
       <p>Just as a viewModel 'wraps' a section of your HTML providing the binding points and logic for that portion of your application. In a similar sense,
@@ -94,9 +94,9 @@
       These define the routes your application (on this router) has available to it.</p>
 
       <ul>
-        <li><a href="#routes">Routes List</a></li>
-        <li><a href="#route">Route Definition</a></li>
-        <li><a href="#router-properties">Router Properties</a></li>
+        <li><a data-bind="$route" href="#routes" data-bind="$route">Routes List</a></li>
+        <li><a data-bind="$route" href="#route" data-bind="$route">Route Definition</a></li>
+        <li><a data-bind="$route" href="#router-properties" data-bind="$route">Router Properties</a></li>
       </ul>
     </div>
   </section>
@@ -402,8 +402,8 @@ var currentRoute = router.currentRoute();
         <p>Also remember that components can contain any depth and complexity of nested viewModels, components, routers, etc. This means you can even nest entire applications within the view of another, all with simple declarative syntax.</p>
       </div>
       <ul>
-        <li><a href="#outlet-registering">Lazy Loading / Registering Views (components without a viewModel)</a></li>
-        <li><a href="#outlet-usage">Usage</a></li>
+        <li><a data-bind="$route" href="#outlet-registering" data-bind="$route">Lazy Loading / Registering Views (components without a viewModel)</a></li>
+        <li><a data-bind="$route" href="#outlet-usage" data-bind="$route">Usage</a></li>
       </ul>
     </div>
   </section>
@@ -636,10 +636,10 @@ var MainViewModel = fw.viewModel({
     <div class="content">
       <p>Miscelaneous useful and utility methods.</p>
       <ul>
-        <li><span class="inline-code"><a href="#routers-getAll">fw.routers.getAll()</a></span> - Return router (that has optionally been registered for the viewModel 'viewModelNamespaceName').</li>
-        <li><span class="inline-code"><a href="#routers-baseRoute">fw.routers.baseRoute()</a></span> - Get or set the beginning portion of a route to ignore for the given path.</li>
-        <li><span class="inline-code"><a href="#routers-activeRouteClassName">fw.routers.activeRouteClassName()</a></span> - Get or set the class which is added to an active <span class="inline-code">$route</span> bound element.</li>
-        <li><span class="inline-code"><a href="#routers-disableHistory">fw.routers.disableHistory()</a></span> - Enable or disable history (or get the current setting).</li>
+        <li><span class="inline-code"><a data-bind="$route" href="#routers-getAll" data-bind="$route">fw.routers.getAll()</a></span> - Return router (that has optionally been registered for the viewModel 'viewModelNamespaceName').</li>
+        <li><span class="inline-code"><a data-bind="$route" href="#routers-baseRoute" data-bind="$route">fw.routers.baseRoute()</a></span> - Get or set the beginning portion of a route to ignore for the given path.</li>
+        <li><span class="inline-code"><a data-bind="$route" href="#routers-activeRouteClassName" data-bind="$route">fw.routers.activeRouteClassName()</a></span> - Get or set the class which is added to an active <span class="inline-code">$route</span> bound element.</li>
+        <li><span class="inline-code"><a data-bind="$route" href="#routers-disableHistory" data-bind="$route">fw.routers.disableHistory()</a></span> - Enable or disable history (or get the current setting).</li>
       </ul>
     </div>
   </section>

@@ -15,12 +15,12 @@
       <p>In addition, they can contain any number of nested viewModels, components, and any other markup...making them extremely powerful (especially when integrated into a <a href="/api/components" data-bind="$route">component</a>).</p>
       <p>There are a number of ways to create viewModels, but a simple plain old javascript object (just as in normal knockout.js) at its most basic level is all that is needed to bind to the DOM.</p>
       <ul>
-        <li><a href="#configuration">Configuration</a></li>
-        <li><a href="#initialization">Initialization</a></li>
-        <li><a href="#loading-registering">AMD / Lazy Loading / Registering</a></li>
-        <li><a href="#module-formats">Module Formats</a></li>
-        <li><a href="#lifecycle">Lifecycle</a></li>
-        <li><a href="#properties">Properties</a></li>
+        <li><a data-bind="$route" href="#configuration">Configuration</a></li>
+        <li><a data-bind="$route" href="#initialization">Initialization</a></li>
+        <li><a data-bind="$route" href="#loading-registering">AMD / Lazy Loading / Registering</a></li>
+        <li><a data-bind="$route" href="#module-formats">Module Formats</a></li>
+        <li><a data-bind="$route" href="#lifecycle">Lifecycle</a></li>
+        <li><a data-bind="$route" href="#properties">Properties</a></li>
       </ul>
     </div>
   </section>
@@ -152,7 +152,7 @@ fw.applyBindings(awesomeSprocket, document.getElementById('sprocket-container'))
     &lt;/viewModel&gt;
   &lt;/body&gt;
 &lt;/html&gt;</code></pre>
-      <p class="note"><span class="label">NOTE:</span> See <a href="#loading-registering">AMD / Lazy Loading / Registering</a> for information on how to make sure footwork knows how to find your viewModels/modules.</p>
+      <p class="note"><span class="label">NOTE:</span> See <a data-bind="$route" href="#loading-registering">AMD / Lazy Loading / Registering</a> for information on how to make sure footwork knows how to find your viewModels/modules.</p>
 
       <h3>Automatic initialization via <span class="inline-code">&lt;[component-name]&gt;&lt;/[component-name]&gt;</span> declaration in the DOM:</h3>
 <pre><code class="html">&lt;html&gt;
@@ -263,7 +263,7 @@ fw.viewModels.register('Sprocket', {
       <div class="note">
         <p><span class="label">NOTE:</span> Are you using a fw.viewModel() constructor and simply want to register it using the namespace name (recommended)?</p>
         <p>You can optionally just set <span class="inline-code">autoRegister: true</span> in the viewModel configuration object, then the fw.viewModel.register call is taken care of for you when the viewModel constructor is created.</p>
-        <p>See: <a href="#configuration">viewModel configuration</a>.</p>
+        <p>See: <a data-bind="$route" href="#configuration">viewModel configuration</a>.</p>
       </div>
 
       <h3><em class="func-def">fw.viewModels.unregister<span>( <span class="param">'moduleName'</span> )</span></em></h3>
@@ -439,8 +439,8 @@ navNamespace.trigger('userLoggedIn', 'Jonathan'); // console prints: Welcome Jon
       various ways, I would encourage you to also <a href="https://github.com/a2labs/riveter" target="_blank">look at its documentation</a>.</p>
 
       <ul>
-        <li><a href="#mixin-configuration">Configuration</a></li>
-        <li><a href="#mixin-usage">Usage</a></li>
+        <li><a data-bind="$route" href="#mixin-configuration">Configuration</a></li>
+        <li><a data-bind="$route" href="#mixin-usage">Usage</a></li>
       </ul>
 
       <h3>Basic usage:</h3>
@@ -571,12 +571,12 @@ var mySprocket = new BigSprocket({ type: 'awesome' });
       <p>Various useful methods and utility functions for misc and debugging purposes.</p>
 
       <ul>
-        <li><a href="#getAll">fw.viewModels.getAll()</a></li>
-        <li><a href="#isRegistered">fw.viewModels.isRegistered()</a></li>
-        <li><a href="#getRegistered">fw.viewModels.getRegistered()</a></li>
-        <li><a href="#getResourceLocation">fw.viewModels.getResourceLocation()</a></li>
-        <li><a href="#getFileName">fw.viewModels.getFileName()</a></li>
-        <li><a href="#fileExtensions">fw.viewModels.fileExtensions()</a></li>
+        <li><a data-bind="$route" href="#getAll">fw.viewModels.getAll()</a></li>
+        <li><a data-bind="$route" href="#isRegistered">fw.viewModels.isRegistered()</a></li>
+        <li><a data-bind="$route" href="#getRegistered">fw.viewModels.getRegistered()</a></li>
+        <li><a data-bind="$route" href="#getResourceLocation">fw.viewModels.getResourceLocation()</a></li>
+        <li><a data-bind="$route" href="#getFileName">fw.viewModels.getFileName()</a></li>
+        <li><a data-bind="$route" href="#fileExtensions">fw.viewModels.fileExtensions()</a></li>
       </ul>
     </div>
   </section>
