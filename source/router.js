@@ -241,6 +241,7 @@ fw.bindingHandlers.$route = {
     var urlValue = valueAccessor();
     var elementIsSetup = false;
     var stateTracker = null;
+    var hashOnly = null;
 
     var routeHandlerDescription = {
       on: 'click',
@@ -248,6 +249,11 @@ fw.bindingHandlers.$route = {
       addActiveClass: true,
       activeClass: null,
       handler: function defaultHandlerForRoute(event, url) {
+        if(hashOnly) {
+          windowObject.location.hash = routeHandlerDescription.url;
+          return false;
+        }
+
         if( !isFullURL(url) && event.which !== 2 ) {
           event.preventDefault();
           return true;
@@ -283,7 +289,12 @@ fw.bindingHandlers.$route = {
 
         if( !isFullURL(myLinkPath) ) {
           if( !hasPathStart(myLinkPath) ) {
-            myLinkPath = '/' + myLinkPath;
+            if(hasHashStart(myLinkPath)) {
+              myLinkPath = $myRouter.currentRoute().segment + myLinkPath;
+              hashOnly = true;
+            } else {
+              myLinkPath = '/' + myLinkPath;
+            }
           }
 
           if( includeParentPath && !isNullRouter($myRouter) ) {
