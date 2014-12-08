@@ -26,7 +26,7 @@
           <!-- /ko -->
         </div>
         <!-- ko if: hasSubMenu -->
-          <div class="drop-down">
+          <div class="drop-down" data-bind="click: stopPropagation">
             <div class="title" data-bind="style: { lineHeight: headerContentHeight }">
               <a data-bind="$route: { url: url, handler: clickHandler }, attr: { target: target }">
                 <span class="icon icon-chevron-up"></span> <span data-bind="text: labelText"></span>

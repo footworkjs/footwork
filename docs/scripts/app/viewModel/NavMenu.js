@@ -19,6 +19,12 @@ define([ "jquery", "lodash", "footwork" ],
           this.menuActive(false);
         }, this));
 
+        this.stopPropagation = function(viewModel, event) {
+          event.preventDefault();
+          event.stopPropagation();
+          return false;
+        };
+
         this.clickHandler = function(event, url) {
           var routeToURL = false;
           var $target = $(event.target);
