@@ -104,7 +104,7 @@ define([ "jquery", "lodash", "footwork" ],
           if( pageData ) {
             anchorOffset = pageData.anchorOffset || 0;
             pageData.title && this.title(pageData.title);
-            pageData.description && this.description(pageData.description);
+            this.description(pageData.description);
             this.loadSections(pageData.sections);
           }
         }.bind(this);

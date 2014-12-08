@@ -76,7 +76,7 @@ define([ "jquery", "lodash", "footwork", "jquery.pulse" ],
 
         this.chooseSection = function() {
           if(this.viewPortLayoutMode() === 'mobile' || this.paneIsOverlapping()) {
-            if(!this.paneCollapsed()) {
+            if(!paneCollapsed()) {
               paneCollapsed(true);
             }
           }

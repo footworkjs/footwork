@@ -24,7 +24,7 @@ define([ "jquery", "lodash", "footwork" ],
           var $target = $(event.target);
           var stopHere = false;
 
-          if( this.hasSubMenu ) {
+          if( this.hasSubMenu && !viewPortIsMobile() ) {
             this.menuActive(!this.menuActive());
             stopHere = true;
           } else {
