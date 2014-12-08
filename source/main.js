@@ -14,6 +14,7 @@ fw.embed = embedded;
 // misc regex patterns
 var hasTrailingSlash = /\/$/i;
 var hasStartingSlash = /^\//i;
+var hasStartingHash = /^#/i;
 
 // misc utility functions
 var noop = function() { };
@@ -27,6 +28,10 @@ function isPath(pathOrFile) {
 function hasPathStart(path) {
   return hasStartingSlash.test(path);
 };
+
+function hasHashStart(string) {
+  return hasStartingHash.test(string);
+}
 
 function hasClass(element, className) {
   return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
