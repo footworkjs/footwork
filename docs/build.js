@@ -11,7 +11,7 @@
       include: ["requireLib", "app/main"],
       create: true }
   ],
-  optimize: "uglify2",
+  optimize: "none",
   generateSourceMaps: false,
   map: {
     "*": {
