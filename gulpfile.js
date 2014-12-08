@@ -187,7 +187,9 @@ gulp.task('set_version', function() {
 // Used to setup documentation on remote server after a release
 gulp.task('readyDocServ', function(callback) {
   return gulp.src('docs/index.html')
+    .pipe( replace('js-body narrow', '<?=(isset($isMobile) ? \'mobile\' : \'\')?>') )
     .pipe( replace('<!--FOOTWORK_CONTENT-->', '<?php App::loadView( isset( $bodyView ) ? $bodyView : DEFAULT_BODY_VIEW ); ?>') )
     .pipe( replace('<base href="">', '<base href="/">') )
+    .pipe( replace('<!-- current build info -->', '<?php if(isset($isMobile) && $isMobile === true) { ?><script>window.isMobile = true;</script><?php } ?>') )
     .pipe(gulp.dest('docs'));
 });
