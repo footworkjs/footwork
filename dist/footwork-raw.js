@@ -757,6 +757,8 @@ fw.bindingHandlers.$route = {
     var routeHandlerDescription = {
       on: 'click',
       url: function defaultURLForRoute() { return null; },
+      addActiveClass: true,
+      activeClass: null,
       handler: function defaultHandlerForRoute(event, url) {
         if( !isFullURL(url) && event.which !== 2 ) {
           event.preventDefault();
@@ -810,16 +812,18 @@ fw.bindingHandlers.$route = {
     var routeURLWithoutParentPath = getRouteURL.bind(null, false);
 
     function checkForMatchingSegment(mySegment, newRoute) {
-      var activeRouteClassName = fwRouters.activeRouteClassName();
-      if(mySegment === '/') {
-        mySegment = '';
-      }
-      
-      if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
-        // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
-        addClass(element, activeRouteClassName);
-      } else if( hasClass(element, activeRouteClassName) ) {
-        removeClass(element, activeRouteClassName);
+      if(routeHandlerDescription.addActiveClass) {
+        var activeRouteClassName = routeHandlerDescription.activeClass || fwRouters.activeRouteClassName();
+        if(mySegment === '/') {
+          mySegment = '';
+        }
+        
+        if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
+          // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
+          addClass(element, activeRouteClassName);
+        } else if( hasClass(element, activeRouteClassName) ) {
+          removeClass(element, activeRouteClassName);
+        }
       }
     };
 
