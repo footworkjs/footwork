@@ -471,7 +471,39 @@ fw.start();
       &lt;viewModel module="TodoList"&gt;
   &lt;!-- ... --&gt;</code></pre>
 
-      <p>Now that the HTML form is in its own template file, we need to tell footwork to </p>
+      <p>Having done that, if we reload the page we see another error in the console:</p>
+      
+      <div class="figure no-title">
+        <div class="content">
+          <div class="image"><img src="images/todo-tutorial/components0.png"></div>
+        </div>
+      </div>
+
+      <p>Now that both the HTML form and its viewModel are in their own files we have what we need to turn it into a component. In the next section we start by telling footwork how it can build the component and access both the template and viewModel.</p>
+
+    </div>
+  </section>
+
+  <a id="automatic-loading" class="section-anchor"></a>
+  <section name="automatic-loading">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Automatic Loading</h1>
+    </header>
+    <div class="content">
+      <div class="workspace-setup">
+        <div class="title">
+          View the code for this step:
+          <a class="live-demo" href="http://todo-tutorial.footworkjs.com/automaticLoading" target="_blank">Live Demo</a>
+          <a href="https://github.com/reflectiveSingleton/todo-tutorial/compare/components...automaticLoading" class="diff" target="_blank"><span class="icon-git-compare"></span> diff</a>
+        </div>
+        <div class="content">
+          <pre><code class="bash">git checkout -f automaticLoading</code></pre>
+        </div>
+      </div>
+
+      <p>So now that we have our HTML form in its own file, we are <em>almost</em> ready to make the form into a component. First, we need to convert our form viewModel into a loadable javascript module so that
+      footwork can correctly pull it in (and any dependencies it might have, although there are none in this case).</p>
 
     </div>
   </section>
