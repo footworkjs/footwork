@@ -420,7 +420,7 @@ fw.start();
       </div>
 
       <p>Now we have the very basic functionality of being able to create new todo items and having them rendered to the page. You might be thinking that <span class="inline-code">viewModels</span> are great and all, but at this rate
-        we will be writing a single piece of HTML to represent our entire app...thats not too modular is it?</p>
+        we will be writing a single page of HTML to represent our entire app. Not only that, we have to specify and correctly order all of the javascript assets by hand...thats not too modular or robust is it?</p>
 
       <p>It certainly isn't. In the next section we learn how to split apart our html into separate templates and couple them
         along with their respective viewModel to create fully encapsulated reusable (and testable) <em>components</em>.</p>
@@ -449,14 +449,18 @@ fw.start();
 
       <p>You may have heard about them, and how future browsers will hopefully support them and enable a new world of reusable pieces you can just throw around at will. Well footwork (with the help of knockout) provides exactly
       that. Expressive semantic custom elements, testable and reusable by simply declaring them in your HTML. Did I mention you can nest any number of both <span class="inline-code">viewModel</span> or other <span class="inline-code">components</span>
-      within them as well? Even entire applications? Components are an extremely powerful feature in footwork.</p>
+      within them as well? Even entire applications?</p>
+
+      <div class="note"><span class="label">NOTE:</span> Components are extremely powerful and have many useful features, you can view the full documentation concerning <span class="inline-code">components</span> in the 
+      <a href="/api/components" data-bind="$route">API documentation</a>.</div>
 
       <p>Lets start by componentizing the <span class="inline-code">TodoForm</span>, after all maybe in the future we might want to reuse this form on a different page or possibly in multiple places on the same page. Thankfully, we already
-      have our viewModel <span class="inline-code">TodoForm</span> in its own separate file...no additional work needs to be done there at the moment.</p>
+      have our viewModel <span class="inline-code">TodoForm</span> in its own separate file...no additional work needs to be done there just yet.</p>
 
       <p>We begin by pulling out the <span class="inline-code">TodoForm</span> HTML into its own separate file and replacing it with a declarative custom element (<span class="inline-code">&lt;todoform&gt;&lt;/todoform&gt;</span> in this case,
-      it can be anything you want that is a non-standard tagName. Valid letters include lower-case letters and a hyphen).</p>
+      although it can be anything you want that is a non-standard tagName. Valid letters include lower-case letters and a hyphen).</p>
 
+      <h3>Here is the <span class="inline-code">TodoForm</span> extracted out from the <span class="inline-code">index.html</span> and placed in its own file:</h3>
 <div class="file-location">/scripts/templates/TodoForm.html</div>
 <pre><code class="html">&lt;form data-bind="submit: submitForm"&gt;
   &lt;input type="text" name="thingToDo" data-bind="value: thingToDo" placeholder="What needs to be done?"&gt;
@@ -502,8 +506,43 @@ fw.start();
         </div>
       </div>
 
-      <p>So now that we have our HTML form in its own file, we are <em>almost</em> ready to make the form into a component. First, we need to convert our form viewModel into a loadable javascript module so that
-      footwork can correctly pull it in (and any dependencies it might have, although there are none in this case).</p>
+      <p>So now that we have our HTML form in its own file, we are <em>almost</em> ready to make the form into a component.</p>
+
+      <p>There are a few left to do, they are as follows:</p>
+      <ul>
+        <li>Convert our form viewModel into a RequireJS/AMD javascript module.</li>
+        <li>Convert our main <span class="inline-code">app.js</span> into a RequireJS/AMD main module.</li>
+        <li>Tell footwork where our component viewModel and template files are located.</li>
+        <li>Add the RequireJS main script tag to our <span class="inline-code">index.html</span></li>
+      </ul>
+
+      <h3>We start by turning our form viewModel into a RequireJS/AMD module:</h3>
+<div class="file-location">/scripts/viewModels/TodoForm.js</div>
+<pre><code class="javascript">define(['footwork'],
+  function(fw) {
+    return fw.viewModel({
+      namespace: 'TodoForm',
+      initialize: function() {
+        // ...
+      }
+    });
+  }
+);</code></pre>
+      <div class="note"><span class="label">NOTE:</span> Everything else about this viewModel is essentially unchanged, we just needed to add the RequireJS wrapper around it which lists footwork as a dependency and return the viewModel constructor.</div>
+
+      <h3>Next, lets convert our <span class="inline-code">app.js</span> file into a RequireJS 'main' module:</h3>
+<div class="file-location">/scripts/viewModels/TodoForm.js</div>
+<pre><code class="javascript">require([ 'footwork' ],
+  function(fw) {
+    // tell footwork to startup and begin binding
+    fw.start(); 
+  }
+);</code></pre>
+      <div class="note"><span class="label">NOTE:</span> Once again everything else about this file is essentially unchanged, we just needed to add the RequireJS wrapper around it.</div>
+
+
+
+
 
     </div>
   </section>
