@@ -506,15 +506,20 @@ fw.start();
         </div>
       </div>
 
-      <p>So now that we have our HTML form in its own file, we are <em>almost</em> ready to make the form into a component.</p>
+      <p>So now that we have our HTML form in its own file, we need to AMD-ify the javascript assets and inform footwork on where it can find all of the files.</p>
 
-      <p>There are a few left to do, they are as follows:</p>
+      <p>There are a few things left to do, they are as follows:</p>
       <ul>
         <li>Convert our form viewModel into a RequireJS/AMD javascript module.</li>
         <li>Convert our main <span class="inline-code">app.js</span> into a RequireJS/AMD main module.</li>
         <li>Tell footwork where our component viewModel and template files are located.</li>
         <li>Add the RequireJS main script tag to our <span class="inline-code">index.html</span></li>
       </ul>
+      <div class="note">
+        <p><span class="label">NOTE:</span> We also will be converting the remaining javascript files into AMD modules as well, RequireJS/AMD loading is mostly an all-or-nothing situation.</p>
+        <p>To enable RequireJS to track and manage our dependencies everything it needs (and everything it loads) will need to be converted. For purposes of brevity, only the
+          <span class="inline-code">TodoForm</span> module conversion will be outlined here...the others follow the exact same pattern, you can check out the code in order to view them.</p>
+      </div>
 
       <h3>We start by turning our form viewModel into a RequireJS/AMD module:</h3>
 <div class="file-location">/scripts/viewModels/TodoForm.js</div>
@@ -528,11 +533,23 @@ fw.start();
     });
   }
 );</code></pre>
-      <div class="note"><span class="label">NOTE:</span> Everything else about this viewModel is essentially unchanged, we just needed to add the RequireJS wrapper around it which lists footwork as a dependency and return the viewModel constructor.</div>
+      <div class="note"><span class="label">NOTE:</span> Everything else about this viewModel is essentially unchanged, we just needed to add the RequireJS wrapper
+        around it which lists footwork as a dependency and return the viewModel constructor created by <span class="inline-code">fw.viewModel()</span>.</div>
 
       <h3>Next, lets convert our <span class="inline-code">app.js</span> file into a RequireJS 'main' module:</h3>
-<div class="file-location">/scripts/viewModels/TodoForm.js</div>
-<pre><code class="javascript">require([ 'footwork' ],
+<div class="file-location">/scripts/app.js</div>
+<pre><code class="javascript">/**
+ * Configure RequireJS, telling it where the text plugin (used to load templates) and
+ * footwork are located.
+ */
+requirejs.config({
+  paths: {
+    "text": "/bower_components/requirejs-text/text",
+    "footwork": "/bower_components/footwork/dist/footwork-all"
+  }
+});
+
+require([ 'footwork' ],
   function(fw) {
     // tell footwork to startup and begin binding
     fw.start(); 
@@ -540,9 +557,32 @@ fw.start();
 );</code></pre>
       <div class="note"><span class="label">NOTE:</span> Once again everything else about this file is essentially unchanged, we just needed to add the RequireJS wrapper around it.</div>
 
+      <h3>Now we have to tell footwork where it can find our component and viewModel assets:</h3>
+<div class="file-location">/scripts/app.js</div>
+<pre><code class="javascript">// ...
+require([ 'footwork' ],
+  function(fw) {
+    // footwork will append the filename to the path if you provide a trailing '/'
+    fw.viewModels.registerLocation('TodoList', '/scripts/viewModels/'); // /scripts/viewModels/TodoList.js
 
+    /**
+     * Here we provide the entire filename to footwork because the lowercase
+     * 'todoform' does not match the file names on disk.
+     */
+    fw.components.registerLocation('todoform', {
+      viewModel: '/scripts/viewModels/TodoForm.js',
+      template: '/scripts/templates/TodoForm.html'
+    });
 
+    // tell footwork to startup and begin binding
+    fw.start(); 
+  }
+);</code></pre>
+      <p class="note"><span class="label">NOTE:</span> For full documentation on how you can specify where these assets are located take a look at the
+      <a href="/api/components#loading-registering" data-bind="$route">components AMD</a> and <a href="/api/viewModel#loading-registering" data-bind="$route">viewModel AMD</a> sections of the API docs.</p>
 
+      <p>So by using <span class="inline-code">fw.components.registerLocation()</span> and <span class="inline-code">fw.viewModels.registerLocation()</span> we are able to to footwork where it can
+      find our modules.</p>
 
     </div>
   </section>
