@@ -541,7 +541,7 @@ fw.start();</code></pre>
       <p>In order to do this we need to do the following things:</p>
       <ul>
         <li>Pull the todo form HTML template out of <span class="inline-code">app.js</span> and put it into its own file.</li>
-        <li>Convert our form viewModels into RequireJS/AMD javascript modules.</li>
+        <li>Convert our viewModels into RequireJS/AMD javascript modules.</li>
         <li>Convert our <span class="inline-code">app.js</span> into a RequireJS/AMD main module.</li>
         <li>Tell footwork where our viewModels, and components (viewModel + template) are located.</li>
         <li>Add the RequireJS main script tag to our <span class="inline-code">index.html</span></li>
@@ -555,7 +555,7 @@ fw.start();</code></pre>
   &lt;input type="submit" value="Add Item" class="button"&gt;
 &lt;/form&gt;</code></pre>
 
-      <h3>Then we turn our form viewModel into a RequireJS/AMD module:</h3>
+      <h3>Then we turn our viewModels into RequireJS/AMD modules (TodoForm shown, see repo for the others):</h3>
 <div class="file-location">/scripts/viewModels/TodoForm.js</div>
 <pre><code class="javascript">define(['footwork'],
   function(fw) {
