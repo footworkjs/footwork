@@ -531,9 +531,10 @@ fw.start();</code></pre>
         </div>
       </div>
 
-      <p>Converting your <span class="inline-code">viewModels</span> and <span class="inline-code">components</span> into RequireJS/AMD modules is very beneficial. It allows footwork
+      <p>Converting our <span class="inline-code">viewModels</span> and <span class="inline-code">components</span> into RequireJS/AMD modules is very beneficial. It allows footwork
         to automatically load them for you when needed, as well as any dependencies they may have. It also makes it easy for us to place our template HTML in its own separate file.
-        This helps us keep both our HTML (markup and bindings) and javascript (business logic) very modularized and separated.</p>
+        This helps us keep both our HTML (markup and bindings) and javascript (business logic) very modularized and separated. Even further, we can still cache any viewModels/components
+        that we don't want the client to wait to download if we end up building the javascript before deploying into production (this tutorial will not cover that portion).</p>
       
       <p>In this step we convert our application to use RequireJS and enable footwork to load our assets (both viewModels, and components) dynamically for us at runtime.</p>
 
@@ -545,8 +546,16 @@ fw.start();</code></pre>
         <li>Tell footwork where our viewModels, and components (viewModel + template) are located.</li>
         <li>Add the RequireJS main script tag to our <span class="inline-code">index.html</span></li>
       </ul>
+      
+      <h3>We start by pulling our form HTML template out of <span class="inline-code">app.js</span> and placing it in its own file:</h3>
+<div class="file-location">/scripts/templates/TodoForm.html</div>
+<pre><code class="html">&lt;form data-bind="submit: submitForm"&gt;
+  &lt;div class="icon-chevron-down"&gt;&lt;/div&gt;
+  &lt;input type="text" name="thingToDo" data-bind="value: thingToDo" placeholder="What needs to be done?" autofocus&gt;
+  &lt;input type="submit" value="Add Item" class="button"&gt;
+&lt;/form&gt;</code></pre>
 
-      <h3>We start by turning our form viewModel into a RequireJS/AMD module:</h3>
+      <h3>Then we turn our form viewModel into a RequireJS/AMD module:</h3>
 <div class="file-location">/scripts/viewModels/TodoForm.js</div>
 <pre><code class="javascript">define(['footwork'],
   function(fw) {
@@ -604,13 +613,21 @@ require([ 'footwork' ],
   }
 );</code></pre>
       <p class="note"><span class="label">NOTE:</span> For full documentation on how you can specify where these assets are located take a look at the
-      <a href="/api/components#loading-registering" data-bind="$route">components AMD</a> and <a href="/api/viewModel#loading-registering" data-bind="$route">viewModel AMD</a> sections of the API docs.</p>
+        <a href="/api/components#loading-registering" data-bind="$route">components AMD</a> and <a href="/api/viewModel#loading-registering" data-bind="$route">viewModel AMD</a> sections of the API docs.</p>
 
-      <p>By using <span class="inline-code">fw.components.registerLocation()</span> and <span class="inline-code">fw.viewModels.registerLocation()</span> we are able to to footwork where it can
-        find our viewModels and component assets.</p>
+      <p>By using <span class="inline-code">fw.components.registerLocation()</span> and <span class="inline-code">fw.viewModels.registerLocation()</span> we are able to tell footwork where it can
+        find our viewModels and component (viewModel + template) assets.</p>
+      
+      <h3>And finally, we pull out our previous <span class="inline-code">&lt;script&gt;</span> tags and replace them with the RequireJS flavored version:</h3>
+<div class="file-location">/index.html</div>
+<pre><code class="html">      &lt;!-- ... --&gt;
+    &lt;/main&gt;
+    &lt;script src="bower_components/requirejs/require.js" data-main="scripts/app"&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
 
-      <p>If we reload the page and try to enter another todo, it should work exactly like before. The only difference is that footwork is now loading the viewModels/components automatically for you.
-        If you were to not include the <span class="inline-code">&lt;todoform&gt;</span> custom element then that component (and its dependencies) would not be loaded.</p>
+      <p>If we reload the page and try to enter another todo, it should work exactly like before. The only difference is that footwork is now loading the viewModels/components automatically for us.
+        If we were to not include the <span class="inline-code">&lt;todoform&gt;</span> custom element then that component (and its dependencies) would not be downloaded.</p>
     </div>
   </section>
 </article>
