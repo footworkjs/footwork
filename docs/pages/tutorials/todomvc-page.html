@@ -115,7 +115,6 @@
 &lt;html lang="en"&gt;
   &lt;head&gt;
     &lt;!-- ... --&gt;
-    &lt;script src="/bower_components/footwork/dist/footwork-all.js"&gt;&lt;/script&gt;
   &lt;/head&gt;
 
   &lt;body&gt;
@@ -128,6 +127,7 @@
         Nothing to do.
       &lt;/div&gt;
     &lt;/main&gt;
+    &lt;script src="/bower_components/footwork/dist/footwork-all.js"&gt;&lt;/script&gt;
   &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
@@ -166,8 +166,8 @@
       <ul>
         <li>Very little/no coupling between your HTML and its business logic. This makes refactors or changing things much easier.</li>
         <li>It is trivial when debuging to trace behavior back to its source code, the bindings point the way.</li>
-        <li>The expressive binding syntax makes creating and composing behavior easier.</li>
-        <li>Easy testing of your viewModels and its business logic, independently of the HTML/markup.</li>
+        <li>The expressive binding syntax makes creating and composing behavior easier to do/comprehend.</li>
+        <li>Ensures testability of your viewModels and its business logic, independently of the HTML/markup.</li>
       </ul>
     </div>
   </section>
@@ -431,7 +431,7 @@ fw.start();
       </div>
 
       <p>Now we have the very basic functionality of being able to create new todo items and having them rendered to the page. You might be thinking that <span class="inline-code">viewModels</span> are great and all, but at this rate
-        we will be writing a single page of HTML to represent our entire app. Not only that, we have to specify and correctly order all of the javascript assets by hand...thats not too modular or robust is it?</p>
+        we will be writing a single page of HTML to represent our entire app. Thats not too modular or robust is it?</p>
 
       <p>It certainly isn't. In the next section we learn how to split apart our html into separate templates and couple them
         along with their respective viewModel to create fully encapsulated reusable (and testable) <em>components</em>.</p>
@@ -498,51 +498,53 @@ fw.components.register('todoform', {
 // tell footwork to startup and begin binding
 fw.start();</code></pre>
 
-      <p>Having done that, if we reload the page we see another error in the console:</p>
+      <p>Having done that, if we reload the page we should not see any error. Now lets try typing in a new todo item, then hit enter, you should see a new todo on the page:</p>
       
-      <div class="figure no-title">
+      <div class="figure">
+        <div class="title">A new todo created with our component todo form:</div>
         <div class="content">
           <div class="image"><img src="images/todo-tutorial/components0.png"></div>
         </div>
       </div>
 
-      <p>The </p>
+      <p>Now our application is using a custom element to lookup, compose, and insert our component for us. In the next section we find out how to make this more modular by separating our our HTML into separate files and loading it
+        all dynamically via RequireJS/AMD.</p>
 
     </div>
   </section>
 
-  <a id="automatic-loading" class="section-anchor"></a>
-  <section name="automatic-loading">
+  <a id="amd-requirejs" class="section-anchor"></a>
+  <section name="amd-requirejs">
     <div class="highlight"></div>
     <header>
-      <h1 class="sub title">Automatic Loading</h1>
+      <h1 class="sub title">AMD / RequireJS</h1>
     </header>
     <div class="content">
       <div class="workspace-setup">
         <div class="title">
           View the code for this step:
-          <a class="live-demo" href="http://todo-tutorial.footworkjs.com/automaticLoading" target="_blank">Live Demo</a>
-          <a href="https://github.com/reflectiveSingleton/todo-tutorial/compare/components...automaticLoading" class="diff" target="_blank"><span class="icon-git-compare"></span> diff</a>
+          <a class="live-demo" href="http://todo-tutorial.footworkjs.com/amd" target="_blank">Live Demo</a>
+          <a href="https://github.com/reflectiveSingleton/todo-tutorial/compare/components...amd" class="diff" target="_blank"><span class="icon-git-compare"></span> diff</a>
         </div>
         <div class="content">
-          <pre><code class="bash">git checkout -f automaticLoading</code></pre>
+          <pre><code class="bash">git checkout -f amd</code></pre>
         </div>
       </div>
 
-      <p>So now that we have our HTML form in its own file, we need to AMD-ify the javascript assets and inform footwork on where it can find all of the files.</p>
+      <p>Converting your <span class="inline-code">viewModels</span> and <span class="inline-code">components</span> into RequireJS/AMD modules is very beneficial. It allows footwork
+        to automatically load them for you when needed, as well as any dependencies they may have. It also makes it easy for us to place our template HTML in its own separate file.
+        This helps us keep both our HTML (markup and bindings) and javascript (business logic) very modularized and separated.</p>
+      
+      <p>In this step we convert our application to use RequireJS and enable footwork to load our assets (both viewModels, and components) dynamically for us at runtime.</p>
 
-      <p>There are a few remaining things to do, they are as follows:</p>
+      <p>In order to do this we need to do the following things:</p>
       <ul>
-        <li>Convert our form viewModel into a RequireJS/AMD javascript module.</li>
-        <li>Convert our main <span class="inline-code">app.js</span> into a RequireJS/AMD main module.</li>
-        <li>Tell footwork where our component viewModel and template files are located.</li>
+        <li>Pull the todo form HTML template out of <span class="inline-code">app.js</span> and put it into its own file.</li>
+        <li>Convert our form viewModels into RequireJS/AMD javascript modules.</li>
+        <li>Convert our <span class="inline-code">app.js</span> into a RequireJS/AMD main module.</li>
+        <li>Tell footwork where our viewModels, and components (viewModel + template) are located.</li>
         <li>Add the RequireJS main script tag to our <span class="inline-code">index.html</span></li>
       </ul>
-      <div class="note">
-        <p><span class="label">NOTE:</span> We also will be converting the remaining javascript files into AMD modules as well, RequireJS/AMD is mostly an all-or-nothing type of tool.
-          In order for RequireJS (and by proxy, footwork) to track and manage our dependencies everything it loads will need to be converted. For purposes of brevity, only the
-          <span class="inline-code">TodoForm</span> module conversion will be outlined here...the others follow the exact same pattern, you can check out the code (or view the live demo) if you wish to view them.</p>
-      </div>
 
       <h3>We start by turning our form viewModel into a RequireJS/AMD module:</h3>
 <div class="file-location">/scripts/viewModels/TodoForm.js</div>
@@ -578,7 +580,7 @@ require([ 'footwork' ],
     fw.start(); 
   }
 );</code></pre>
-      <div class="note"><span class="label">NOTE:</span> Once again everything else about this file is essentially unchanged, we just needed to add the RequireJS wrapper around it.</div>
+      <div class="note"><span class="label">NOTE:</span> Once again everything else about this file is essentially unchanged, we just needed to add the RequireJS wrapper around our code.</div>
 
       <h3>Now we have to tell footwork where it can find our component and viewModel assets:</h3>
 <div class="file-location">/scripts/app.js</div>
@@ -604,9 +606,11 @@ require([ 'footwork' ],
       <p class="note"><span class="label">NOTE:</span> For full documentation on how you can specify where these assets are located take a look at the
       <a href="/api/components#loading-registering" data-bind="$route">components AMD</a> and <a href="/api/viewModel#loading-registering" data-bind="$route">viewModel AMD</a> sections of the API docs.</p>
 
-      <p>So by using <span class="inline-code">fw.components.registerLocation()</span> and <span class="inline-code">fw.viewModels.registerLocation()</span> we are able to to footwork where it can
-      find our modules.</p>
+      <p>By using <span class="inline-code">fw.components.registerLocation()</span> and <span class="inline-code">fw.viewModels.registerLocation()</span> we are able to to footwork where it can
+        find our viewModels and component assets.</p>
 
+      <p>If we reload the page and try to enter another todo, it should work exactly like before. The only difference is that footwork is now loading the viewModels/components automatically for you.
+        If you were to not include the <span class="inline-code">&lt;todoform&gt;</span> custom element then that component (and its dependencies) would not be loaded.</p>
     </div>
   </section>
 </article>
