@@ -30,8 +30,10 @@
     <div class="content">
       <p>This tutorial has a companion repository on github which houses the source. It is recommended that you follow along and play with the code as you progress through the tutorial.</p>
 
-      <p>If you wish to follow along and run the tutorial code it is assumed you have a web server to host the tutorial on, and git installed. You can also optionally follow
-        along by viewing the live application at the demo addresses shown at the top of each step.</p>
+      <p>If you wish to follow along and run the tutorial code it is assumed you have a web server to host the tutorial on, and git installed. This tutorial will also not be covering
+        the setup and configuration of your web server to host the files, it is assumed you are capable of handling that as well.</p>
+
+      <div class="note"><span class="label">NOTE:</span> You can also optionally follow along by viewing the Live Demo link shown at the top of each step.</div>
 
       <div class="workspace-setup">
         <div class="title">
@@ -44,7 +46,7 @@
       </div>
 
       <p>This repo has all of the assets needed to run the application. You may also notice it makes use of <a href="http://bower.io/" target="_blank">bower</a> for
-        package management and <a href="http://lesscss.org/#client-side-usage" target="_blank">less.js</a> for CSS. It is not necessary to know anything about
+        package management and <a href="http://lesscss.org/#client-side-usage" target="_blank">less.js</a> for CSS. It is not necessary to know anything about (nor have installed)
         these in order to use this tutorial however they are both great tools worthy of checking out.</p>
       
       <p>For reasons of brevity this tutorial will not cover the creation of the CSS/LESS, they are included for you in the repository. Also of note, the javascript runtime of
@@ -78,7 +80,7 @@
       <p>If you have questions unanswered by this tutorial consult the <a href="/api" data-bind="$route">footwork API documentation</a>. If that does not answer your question, check the <a href="http://knockoutjs.com/documentation/introduction.html" target="_blank">knockout.js documentation</a>. Footwork at
         its core is just a superset of knockout, extended from the <span class="inline-code">ko</span> (knockout) object itself. Any undocumented features found in footwork are outlined there.</p>
 
-      <p>That said, this tutorial is written with the mindset of standing on its own and you likely won't need the reference material.</p>
+      <p>That said, this tutorial is written with the mindset of standing on its own and you likely won't need the reference material to complete it.</p>
     </div>
   </section>
 
@@ -119,7 +121,7 @@
   &lt;body&gt;
     &lt;main&gt;
       &lt;form&gt;
-        &lt;input type="text" name="thingToDo" placeholder="What needs to be done?"&gt;
+        &lt;input type="text" name="thingToDo" placeholder="What needs to be done?" autofocus&gt;
         &lt;input type="submit" value="Add Item" class="button"&gt;
       &lt;/form&gt;
       &lt;div class="todo-list"&gt;
@@ -130,13 +132,13 @@
 &lt;/html&gt;
 </code></pre>
 
-      <p>The only thing of note here is the <span class="inline-code">&lt;script&gt;</span> tag which is pulling in footwork. The path to it is mostly insignificant, just
-      pointing to the bower_components folder (where bower installs footwork by default). What is significant is what build it is using, this is denoted by the postfix <span class="inline-code">-all</span>.
-      This build embeds all of the dependencies footwork requires into one easy to use file. For the purposes of this tutorial we will be using this version but note that
-       <a href="https://github.com/reflectiveSingleton/footwork/tree/master/dist#readme" target="_blank">others are available</a> which may fit your needs better.</p>
+      <p>The only thing of note here is the <span class="inline-code">&lt;script&gt;</span> tag which is pulling in footwork. The path to it is mostly insignificant, it is 
+        pointing to the bower_components folder (where bower installs footwork by default). What is significant is what build it is using, this is denoted by the postfix <span class="inline-code">-all</span>.
+        This build embeds all of the dependencies footwork requires into one easy to use file. For the purposes of this tutorial we will be using this version but note that
+        <a href="https://github.com/reflectiveSingleton/footwork/tree/master/dist#readme" target="_blank">others are available</a> which may fit your needs better.</p>
 
       <p>So what does this get us? Well we have footwork being included and some basic markup with a form to add a todo item, but no actual behavior or code to back it up. If you hit submit on the form
-      it will do a normal form request which refreshes the entire page and doesn't do much else. Now it's time to bootstrap footwork and introduce the first important concept, the <span class="inline-code">viewModel</span>.</p>
+        it will do a normal form request which refreshes the entire page and doesn't do much else. Now it's time to bootstrap footwork and introduce the first important concept, the <span class="inline-code">viewModel</span>.</p>
 
     </div>
   </section>
@@ -150,7 +152,7 @@
     <div class="content">
 
       <p>We are now ready to start creating our application using the provided HTML (and other assets). In footwork the logic/behavior in your application is primarily driven by
-      bindings between your markup and its viewModel. These bindings are the 2-way connections between your HTML and the viewModel it is bound against.</p>
+        bindings between your markup and its viewModel. These bindings are the 2-way connections between your HTML and the viewModel it is bound against.</p>
 
       <p>This means any updates to form elements, or any other events on elements a viewModel is bound with are communicated to/triggered on it via the bindings you declare in the HTML/markup.</p>
       
@@ -159,7 +161,8 @@
       <div class="note"><em>A viewModel can be thought of as a container object that houses all of the logic and data with which your template/HTML/DOM binds to.</em></div>
 
       <p>Note that the bindings in your HTML should not contain code/logic, rather you should try and think of them as merely the <em>pointers</em> to the code
-      contained within your viewModel. By doing this you avoid the trap of tightly coupling your HTML to the business logic of your application. This enables many benefits, most notably:</p>
+        contained within your viewModel. By doing this you avoid the trap of tightly coupling your HTML to the business logic of your application. This enables many benefits, most notably:</p>
+      
       <ul>
         <li>Very little/no coupling between your HTML and its business logic. This makes refactors or changing things much easier.</li>
         <li>It is trivial when debuging to trace behavior back to its source code, the bindings point the way.</li>
@@ -188,8 +191,9 @@
       </div>
 
       <p>When creating an application it helps to think about what pieces of your markup can be subdivided. Those subdivisions are good starting points to create code/behavior (viewModels) for. Looking at our current markup,
-      the obvious starting point is the form to create a new Todo. We need to create a viewModel (which if you remember, contains the business logic of our UI) for the form to bind against so that we can have it 'do things'
-      (yes, that is a highly technical term).</p>
+        the obvious starting point is the form to create a new Todo. We need to create a viewModel (which if you remember, contains the business logic of our UI) for the form to bind against so that we can have it 'do things'
+        (yes, that is a highly technical term).</p>
+      
       <p>So to start off lets look at our Todo form and see what bindings it needs...</p>
 
       <h3>We need a <span class="inline-code">value:</span> binding for the text input and a <span class="inline-code">submit:</span> event binding for the form:</h3>
@@ -201,9 +205,10 @@
   &lt;input type="submit" value="Add Item" class="button"&gt;
 &lt;/form&gt;
 &lt;!-- ... --&gt;</code></pre>
+
       <div class="note"><span class="label">NOTE:</span> The full list of available bindings is listed on the <a href="http://knockoutjs.com/documentation/introduction.html" target="_blank">knockout.js documentation</a>.
-      Remember, footwork is a superset of knockout so it also contains all of the features of knockout, including its binding capabilities. You can also 
-      <a href="http://knockoutjs.com/documentation/custom-bindings.html" target="_blank">create your own bindings</a>, but that is out of scope for this tutorial.</div>
+        Remember, footwork is a superset of knockout so it also contains all of the features of knockout, including its binding capabilities. You can also 
+        <a href="http://knockoutjs.com/documentation/custom-bindings.html" target="_blank">create your own bindings</a>, but that is out of scope for this tutorial.</div>
       
       <p>Now the form will trigger the <span class="inline-code">submitForm</span> method on the viewModel whenever the form is submitted, and the value of the text input is bound to
         the <span class="inline-code">thingToDo</span> observable on the viewModel.</p>
@@ -211,10 +216,11 @@
       <p>The first thing we should look at after creating our form HTML and bindings is what code those bindings dictate we need in our viewModel.</p>
 
       <p>viewModels are created with the <span class="inline-code">fw.viewModel()</span> factory method. You can
-        read about them in detail on the <a href="/api/viewModel" data-bind="$route">viewModel API docs</a>, for our Todo form this viewModel will suffice</p>
+        read about them in detail on the <a href="/api/viewModel" data-bind="$route">viewModel API docs</a>.</p>
       
+      <h3>For our todo form this viewModel will suffice:</h3>
 <div class="file-location">/scripts/viewModels/TodoForm.js</div>
-<pre><code class="javascript">fw.viewModel({
+<pre><code class="javascript">var TodoForm = fw.viewModel({
   namespace: 'TodoForm', // the name to register the viewModel as
   autoRegister: true, // tells footwork to use this viewModel for any 'TodoForm' viewModels
   initialize: function() {
@@ -267,11 +273,13 @@ fw.start();
 
       <p>Now footwork will know to load the <span class="inline-code">TodoForm</span> viewModel and what HTML to bind it with. Lets refresh the page once more...there is no error this time, great!
         Press the <span class="inline-code">Add Item</span> button, you should see the console spring to life:</p>
+
       <div class="figure no-title">
         <div class="content">
           <div class="image"><img src="images/todo-tutorial/baseApplication1.png"></div>
         </div>
       </div>
+
       <p>Excellent, this lets us know our application is initializing properly and our form is binding to the viewModel...</p>
     </div>
   </section>
@@ -297,7 +305,7 @@ fw.start();
       <p>Now that our form is wired up to the viewModel, lets work on creating the actual Todo entries.</p>
       
       <p>Looking at the HTML we see that the todo list is outside of the form. This list will contain not only the list of todo items...but any associated data and behavior related to that list. This
-      listing is another good 'section' to make into a separate viewModel.</p>
+        listing is another good 'section' to make into a separate viewModel.</p>
       
       <h3>Start by wrapping the <span class="inline-code">class="todo-list"</span> element with a viewModel and add the appropriate bindings:</h3>
 <div class="file-location">/index.html</div>
@@ -313,7 +321,7 @@ fw.start();
 
       <h3>And now that our list markup has been created, we can make the <span class="inline-code">TodoList</span> viewModel it will bind against:</h3>
 <div class="file-location">/scripts/viewModels/TodoList.js</div>
-<pre><code class="javascript">fw.viewModel({
+<pre><code class="javascript">var TodoList = fw.viewModel({
   namespace: 'TodoList',
   autoRegister: true,
   initialize: function() {
@@ -322,7 +330,7 @@ fw.start();
   }
 });</code></pre>
 
-      <h3>One more viewModel is needed...for each individual <span class="inline-code">TodoItem</span>:</h3>
+      <h3>One more viewModel is needed...the one we will use for each individual <span class="inline-code">TodoItem</span>:</h3>
 <div class="file-location">/scripts/viewModels/TodoItem.js</div>
 <pre><code class="javascript">var TodoItem = fw.viewModel({
   namespace: 'TodoItem',
@@ -330,8 +338,6 @@ fw.start();
     this.thingToDo = fw.observable(thingToDo);
   }
 });</code></pre>
-      <div class="note"><span class="label">NOTE:</span> There is one critical difference in the <span class="inline-code">TodoItem</span> viewModel, we are assigning its constructor function to the variable <span class="inline-code">TodoItem</span>.
-        This will allow us to construct new <span class="inline-code">TodoItem</span> entries from inside the <span class="inline-code">TodoList</span> when it receives the new data.</div>
 
       <h3>And finally, we add the <span class="inline-code">&lt;script&gt;</span> tags to reference our new viewModels at the bottom of our <span class="inline-code">index.html</span>:</h3>
 <div class="file-location">/index.html</div>
@@ -345,9 +351,11 @@ fw.start();
 
       <p>Now when we reload the page, nothing much happens still, typing something into the form and clicking submit simply issues
         the console message we saw prior. Lets fix that by making the <span class="inline-code">TodoForm</span>
-        tell the <span class="inline-code">TodoList</span> to add a new entry when the user submits the form. You might be wondering
-        how that can be accomplished, the viewModels are after all completely separate and we don't even
-        have a reference to them. Fear not, namespacing to the rescue!</p>
+        tell the <span class="inline-code">TodoList</span> to add a new entry when the user submits the form.</p>
+
+      <p>You might be wondering how that can be accomplished, the viewModels are after all completely separate and we don't even
+        have a reference to them. We only have references to their constructor functions, which doesn't get us much. We can only create new instances with that, not
+        get references to current instances. But fear not, namespace-based <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank">CQRS</a> to the rescue!</p>
 
       <p>In footwork, communication between viewModels/modules (and anything, really) is accomplished via the
         <a href="/api/namespacing" data-bind="$route">namespacing</a> functionality. You may recall from earlier, the
@@ -357,12 +365,12 @@ fw.start();
         various forms of messaging, events, commands, etc.</p>
 
       <p>It is possibly easier to grasp with an example, so lets go ahead and add the necessary code we need to have the 
-        <span class="inline-code">TodoForm</span> tell the <span class="inline-code">TodoList</span> it should add a todo.</p>
+        <span class="inline-code">TodoForm</span> tell the <span class="inline-code">TodoList</span> it should add a new <span class="inline-code">TodoItem</span>.</p>
 
-      <h3>First we add the code to <span class="inline-code">TodoForm.js</span> which causes the form to tell the 
+      <h3>First we add code to <span class="inline-code">TodoForm.js</span> which causes the form to tell the 
         <span class="inline-code">TodoList</span> to add a new item when the form is submitted:</h3>
 <div class="file-location">/scripts/viewModels/TodoForm.js</div>
-<pre><code class="javascript">fw.viewModel({
+<pre><code class="javascript">var TodoForm = fw.viewModel({
   namespace: 'TodoForm',
   autoRegister: true,
   initialize: function() {
@@ -391,26 +399,29 @@ fw.start();
         the <a href="/api/namespacing" data-bind="$route">namespacing API documentation</a>.</div>
 
       <p>Ok so now our <span class="inline-code">TodoForm</span> is sending the message to the <span class="inline-code">TodoList</span>, lets
-        modify the <span class="inline-code">TodoList</span> so that it can use that data to create new <span class="inline-code">TodoItem</span> entries.</p>
+        modify the <span class="inline-code">TodoList</span> so that it can receive (listen for) that message and create new <span class="inline-code">TodoItem</span> entries
+        based on the data passed to it.</p>
 
+      <h3>We add the <span class="inline-code">$namespace.subscribe()</span> call to subscribe to <span class="inline-code">newItem</span> messages:</h3>
 <div class="file-location">/scripts/viewModels/TodoList.js</div>
-<pre><code class="javascript">fw.viewModel({
+<pre><code class="javascript">var TodoList = fw.viewModel({
   namespace: 'TodoList',
   autoRegister: true,
   initialize: function() {
     var self = this; // create a reference to this viewModel we can use inside of the callback
     this.todos = fw.observableArray();
+
+    // listen for any 'newItem' messages broadcast on our namespace.
     this.$namespace.subscribe('newItem', function(thingToDo) {
+      // new thingToDo was received, lets create a new TodoItem based on it
       self.todos.push( new TodoItem(thingToDo) );
     });
   }
 });</code></pre>
       
-      <p><span class="inline-code">self</span> is simply a reference to <span class="inline-code">this</span> (the viewModel) that we can reference inside of the <span class="inline-code">subscribe()</span> callback.</p>
-      
       <p>And lastly, note the <span class="inline-code">this.$namespace.subscribe()</span> call. This simply adds a callback for any 'newItem' messages that are
         broadcast for the viewModels <span class="inline-code">$namespace</span> ('TodoList' in this case). This callback pushes a <span class="inline-code">new TodoItem()</span> onto the
-        <span class="inline-code">todos</span> observable array. If all is going well when you refresh the page type something into the form and hit enter you should see a new todo entry:</p>
+        <span class="inline-code">todos</span> observable array. If all is going well when you refresh the page, type something into the form, and then hit enter you should see a new todo entry:</p>
       
       <div class="figure">
         <div class="title">A new todo is created!</div>
@@ -448,32 +459,44 @@ fw.start();
       <p>Our <span class="inline-code">viewModels</span> are nicely separated from each other, wouldn't it be nice to split apart the HTML in the same way? Maybe combine the two into a reusable package? Components let you do just that.</p>
 
       <p>You may have heard about them, and how future browsers will hopefully support them and enable a new world of reusable pieces you can just throw around at will. Well footwork (with the help of knockout) provides exactly
-      that. Expressive semantic custom elements, testable and reusable by simply declaring them in your HTML. Did I mention you can nest any number of both <span class="inline-code">viewModel</span> or other <span class="inline-code">components</span>
-      within them as well? Even entire applications?</p>
+        that. Expressive semantic custom elements, testable and reusable by simply declaring them in your HTML. Did I mention you can nest any number of both <span class="inline-code">viewModel</span> or other <span class="inline-code">components</span>
+        within them as well? Even entire applications?</p>
 
       <div class="note"><span class="label">NOTE:</span> Components are extremely powerful and have many useful features, you can view the full documentation concerning <span class="inline-code">components</span> in the 
-      <a href="/api/components" data-bind="$route">API documentation</a>.</div>
+        <a href="/api/components" data-bind="$route">API documentation</a>.</div>
 
       <p>Lets start by componentizing the <span class="inline-code">TodoForm</span>, after all maybe in the future we might want to reuse this form on a different page or possibly in multiple places on the same page. Thankfully, we already
-      have our viewModel <span class="inline-code">TodoForm</span> in its own separate file...no additional work needs to be done there just yet.</p>
+        have our viewModel <span class="inline-code">TodoForm</span> in its own separate file...no additional work needs to be done there just yet.</p>
 
-      <p>We begin by pulling out the <span class="inline-code">TodoForm</span> HTML into its own separate file and replacing it with a declarative custom element (<span class="inline-code">&lt;todoform&gt;&lt;/todoform&gt;</span> in this case,
-      although it can be anything you want that is a non-standard tagName. Valid letters include lower-case letters and a hyphen).</p>
+      <p>We begin by pulling out the <span class="inline-code">TodoForm</span> HTML and replacing it with a declarative custom element (<span class="inline-code">&lt;todoform&gt;&lt;/todoform&gt;</span> in this case,
+        although it can be anything you want that is a non-standard tagName. Valid letters include lower-case letters and a hyphen).</p>
 
-      <h3>Here is the <span class="inline-code">TodoForm</span> extracted out from the <span class="inline-code">index.html</span> and placed in its own file:</h3>
-<div class="file-location">/scripts/templates/TodoForm.html</div>
-<pre><code class="html">&lt;form data-bind="submit: submitForm"&gt;
-  &lt;input type="text" name="thingToDo" data-bind="value: thingToDo" placeholder="What needs to be done?"&gt;
-  &lt;input type="submit" value="Add Item" class="button"&gt;
-&lt;/form&gt;</code></pre>
-
-      <h3>And replace it with our custom element:</h3>
+      <h3>Replace the form with our custom element:</h3>
 <div class="file-location">/index.html</div>
 <pre><code class="html">  &lt;!-- ... --&gt;
     &lt;main&gt;
       &lt;todoform&gt;&lt;/todoform&gt; &lt;!-- Our new custom element --&gt;
       &lt;viewModel module="TodoList"&gt;
   &lt;!-- ... --&gt;</code></pre>
+
+      <p>Now, where do we put the HTML for the form? In this step of the tutorial we will be registering the component directly with footwork, and for that to be accomplished we need the form embedded in a string variable. Note
+        that it is not recommended to do it this way, and in the next section we will be covering how to convert this (and our viewModel) into their AMD/RequireJS counterparts so that footwork can load them
+        automatically as needed for you.</p>
+
+      <h3>Register both the template and viewModel with footwork:</h3>
+<div class="file-location">/scripts/app.js</div>
+<pre><code class="javascript">var TodoFormHTML = '&lt;form data-bind="submit: submitForm"&gt;\
+  &lt;input type="text" name="thingToDo" data-bind="value: thingToDo" placeholder="What needs to be done?"&gt;\
+  &lt;input type="submit" value="Add Item" class="button"&gt;\
+&lt;/form&gt;';
+
+fw.components.register('todoform', {
+  viewModel: TodoForm,
+  template: TodoFormHTML
+});
+
+// tell footwork to startup and begin binding
+fw.start();</code></pre>
 
       <p>Having done that, if we reload the page we see another error in the console:</p>
       
@@ -483,7 +506,7 @@ fw.start();
         </div>
       </div>
 
-      <p>Now that both the HTML form and its viewModel are in their own files we have what we need to turn it into a component. In the next section we start by telling footwork how it can build the component and access both the template and viewModel.</p>
+      <p>The </p>
 
     </div>
   </section>
@@ -508,7 +531,7 @@ fw.start();
 
       <p>So now that we have our HTML form in its own file, we need to AMD-ify the javascript assets and inform footwork on where it can find all of the files.</p>
 
-      <p>There are a few things left to do, they are as follows:</p>
+      <p>There are a few remaining things to do, they are as follows:</p>
       <ul>
         <li>Convert our form viewModel into a RequireJS/AMD javascript module.</li>
         <li>Convert our main <span class="inline-code">app.js</span> into a RequireJS/AMD main module.</li>
@@ -516,9 +539,9 @@ fw.start();
         <li>Add the RequireJS main script tag to our <span class="inline-code">index.html</span></li>
       </ul>
       <div class="note">
-        <p><span class="label">NOTE:</span> We also will be converting the remaining javascript files into AMD modules as well, RequireJS/AMD loading is mostly an all-or-nothing situation.</p>
-        <p>To enable RequireJS to track and manage our dependencies everything it needs (and everything it loads) will need to be converted. For purposes of brevity, only the
-          <span class="inline-code">TodoForm</span> module conversion will be outlined here...the others follow the exact same pattern, you can check out the code in order to view them.</p>
+        <p><span class="label">NOTE:</span> We also will be converting the remaining javascript files into AMD modules as well, RequireJS/AMD is mostly an all-or-nothing type of tool.
+          In order for RequireJS (and by proxy, footwork) to track and manage our dependencies everything it loads will need to be converted. For purposes of brevity, only the
+          <span class="inline-code">TodoForm</span> module conversion will be outlined here...the others follow the exact same pattern, you can check out the code (or view the live demo) if you wish to view them.</p>
       </div>
 
       <h3>We start by turning our form viewModel into a RequireJS/AMD module:</h3>
@@ -605,8 +628,6 @@ require([ 'footwork' ],
       "title": "Setup" },
     { "anchor": "base-app",
       "title": "Base Application",
-      "collapsable": true,
-      "isCollapsed": true,
       "subSections": [
         { "anchor": "creating-the-app",
           "title": "Creating the App" },
@@ -614,13 +635,9 @@ require([ 'footwork' ],
           "title": "Creating Todos" }
       ] },
     { "anchor": "components",
-      "title": "Components",
-      "collapsable": true,
-      "isCollapsed": true,
-      "subSections": [
-        { "anchor": "automatic-loading",
-          "title": "Automatic Loading" }
-      ] }
+      "title": "Components" },
+    { "anchor": "amd-requirejs",
+      "title": "AMD / RequireJS" }
   ]
 }
 </div>
