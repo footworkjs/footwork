@@ -555,7 +555,8 @@ fw.start();</code></pre>
   &lt;input type="submit" value="Add Item" class="button"&gt;
 &lt;/form&gt;</code></pre>
 
-      <h3>Then we turn our viewModels into RequireJS/AMD modules (TodoForm shown, see repo for the others):</h3>
+      <h3>Then we turn our viewModels into RequireJS/AMD modules (TodoForm shown, <a href="https://github.com/reflectiveSingleton/todo-tutorial/tree/amd" target="_blank">see the repo</a>
+        for <span class="inline-code">TodoList</span> and <span class="inline-code">TodoItem</span>):</h3>
 <div class="file-location">/scripts/viewModels/TodoForm.js</div>
 <pre><code class="javascript">define(['footwork'],
   function(fw) {
@@ -589,9 +590,9 @@ require([ 'footwork' ],
     fw.start(); 
   }
 );</code></pre>
-      <div class="note"><span class="label">NOTE:</span> Once again everything else about this file is essentially unchanged, we just needed to add the RequireJS wrapper around our code.</div>
+      <div class="note"><span class="label">NOTE:</span> With the exception of adding the config at the top, the only change here is we needed to add the RequireJS wrapper around our code.</div>
 
-      <h3>Now we have to tell footwork where it can find our component and viewModel assets:</h3>
+      <h3>Now we have to tell footwork where it can find our component and viewModel assets before the app is started:</h3>
 <div class="file-location">/scripts/app.js</div>
 <pre><code class="javascript">// ...
 require([ 'footwork' ],
@@ -627,7 +628,8 @@ require([ 'footwork' ],
 &lt;/html&gt;</code></pre>
 
       <p>If we reload the page and try to enter another todo, it should work exactly like before. The only difference is that footwork is now loading the viewModels/components automatically for us.
-        If we were to not include the <span class="inline-code">&lt;todoform&gt;</span> custom element then that component (and its dependencies) would not be downloaded.</p>
+        If we were to not include the <span class="inline-code">&lt;todoform&gt;</span> custom element then that component (and its dependencies) would not be downloaded (the same is also true for
+        <span class="inline-code">viewModel</span> wrappers).</p>
     </div>
   </section>
 </article>
