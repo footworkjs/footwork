@@ -20,9 +20,12 @@ define([ "jquery", "lodash", "footwork" ],
         }, this));
 
         this.stopPropagation = function(viewModel, event) {
-          event.preventDefault();
-          event.stopPropagation();
-          return false;
+          if(event.which !== 2) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+          }
+          return true;
         };
 
         this.clickHandler = function(event, url) {
