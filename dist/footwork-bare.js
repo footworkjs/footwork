@@ -985,6 +985,7 @@ var fwRouters = fw.routers = {
   baseRoute: fw.observable(''),
   activeRouteClassName: fw.observable('active'),
   disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: $globalNamespace }),
+  html5History: fw.observable(false),
 
   getNearestParent: function($context) {
     var $parentRouter = nearestParentRouter($context);
@@ -1079,7 +1080,10 @@ fw.bindingHandlers.$route = {
         if( !isFullURL(myLinkPath) ) {
           if( !hasPathStart(myLinkPath) ) {
             if(hasHashStart(myLinkPath)) {
-              myLinkPath = $myRouter.currentRoute().segment + myLinkPath;
+              var currentRoute = $myRouter.currentRoute();
+              if(!isNull(currentRoute)) {
+                myLinkPath = $myRouter.currentRoute().segment + myLinkPath;
+              }
               hashOnly = true;
             } else {
               myLinkPath = '/' + myLinkPath;
@@ -1088,6 +1092,10 @@ fw.bindingHandlers.$route = {
 
           if( includeParentPath && !isNullRouter($myRouter) ) {
             myLinkPath = $myRouter.parentRouter().path() + myLinkPath;
+
+            if(fwRouters.html5History() === false) {
+              myLinkPath = '#' + myLinkPath;
+            }
           }
         }
 
