@@ -283,6 +283,25 @@ var module = undefined,
       }).call(root);
     }
 
+    (function(window) {
+      // Console-polyfill. MIT license.
+// https://github.com/paulmillr/console-polyfill
+// Make it safe to do console.log() always.
+(function(con) {
+  'use strict';
+  var prop, method;
+  var empty = {};
+  var dummy = function() {};
+  var properties = 'memory'.split(',');
+  var methods = ('assert,clear,count,debug,dir,dirxml,error,exception,group,' +
+     'groupCollapsed,groupEnd,info,log,markTimeline,profile,profiles,profileEnd,' +
+     'show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn').split(',');
+  while (prop = properties.pop()) con[prop] = con[prop] || empty;
+  while (method = methods.pop()) con[method] = con[method] || dummy;
+})(this.console = this.console || {}); // Using `this` for web workers.
+
+    }).call(root, windowObject);
+
     // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ 'riveter' ];
 
@@ -865,13 +884,6 @@ function historyIsReady() {
   if(isReady && !History.Adapter.isSetup) {
     History.Adapter.isSetup = true;
 
-    if(!fwRouters.html5History()) {
-      History.options.html4Mode = true;
-    } else {
-      History.options.html4Mode = false;
-    }
-    History.init();
-
     // why .unbind() is not already present in History.js is beyond me
     History.Adapter.unbind = function(callback) {
       each(History.Adapter.handlers, function(handler) {
@@ -990,12 +1002,20 @@ var isFullURL = fw.isFullURL = function(thing) {
   return isString(thing) && isFullURLRegex.test(thing);
 };
 
+var hasHTML5History = windowObject.history && windowObject.history.pushState;
+if(isObject(windowObject.History.options) && windowObject.History.options.html4Mode) {
+  // user is overriding to force html4mode hash-based history
+  hasHTML5History = false;
+}
+
 var fwRouters = fw.routers = {
   // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
   baseRoute: fw.observable(''),
   activeRouteClassName: fw.observable('active'),
   disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: $globalNamespace }),
-  html5History: fw.observable(false),
+  html5History: function() {
+    return hasHTML5History;
+  },
 
   getNearestParent: function($context) {
     var $parentRouter = nearestParentRouter($context);
@@ -1297,6 +1317,7 @@ Router.prototype.setState = function(url) {
       try {
         historyAPIWorked = History.pushState(null, '', this.parentRouter().path() + url);
       } catch(error) {
+        console.error(error);
         historyAPIWorked = false;
       } finally {
         if(historyAPIWorked) {

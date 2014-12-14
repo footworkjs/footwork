@@ -39,6 +39,10 @@
       }).call(root);
     }
 
+    (function(window) {
+      //import("../../bower_components/console-polyfill/index.js");
+    }).call(root, windowObject);
+
     // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ 'riveter', 'postal' ];
 
