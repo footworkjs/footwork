@@ -13,6 +13,8 @@ define([ "jquery", "footwork", "lodash", "highlight", "jquery.collapsible", "his
     var initialLoad = fw.observable().receiveFrom('ViewPort', 'initialLoad');
     var firstLoad = true;
 
+    fw.routers.html5History(true);
+
     function initPage(metaData) {
       $pageNamespace.publish( 'initMeta', metaData );
     }
@@ -86,6 +88,7 @@ define([ "jquery", "footwork", "lodash", "highlight", "jquery.collapsible", "his
           route: '/api',
           title: 'footworkjs',
           controller: function($routeParams) {
+            console.info('/api route');
             this.$outlet('mainContent', 'api-page', _.bind(resolvePage, this, getPageLoadPromise()));
           }
         }, {
