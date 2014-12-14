@@ -735,9 +735,10 @@ require([ 'footwork' ],
         defines one route <span class="inline-code">'/'</span> (which is the default/base route). The controller will get triggered/called anytime this route is triggered.</p>
 
       <p>Now, we call <span class="inline-code">fw.viewModels.registerLocation()</span>
-        just as we did in the preceeding step so that footwork knows where to find it when it encounters the <span class="inline-code">&lt;viewModel&gt;</span>
+        just as we did in the preceeding (<a href="#amd-requirejs" data-bind="$route">amd</a>) step so that footwork knows where to find it when it encounters the <span class="inline-code">&lt;viewModel&gt;</span>
         declaration in our markup.</p>
 
+      <h3>Register the location of our new <span class="inline-code">Main</span> viewModel:</h3>
 <div class="file-location">/scripts/app.js</div>
 <pre><code class="javascript">// ...
 require([ 'footwork' ],
@@ -760,7 +761,29 @@ require([ 'footwork' ],
     fw.start(); 
   }
 );</code></pre>
-   
+
+      <p>This takes care of the basic structure and setup we need in our javascript for routing...now lets create the <span class="inline-code">&lt;outlet&gt;</span> declaration which our router will use to
+        display different views on.</p>
+
+      <p>We do this by pulling out the section of HTML we would like to turn into a page, and replacing it with an <span class="inline-code">&lt;outlet&gt;</span>. For our todo tutorial, we plan on having
+        two 'views' or pages...one for the login screen, and one to display the todo list once logged in. While we pull out the HTML for our todo list page, lets add in a basic header which will display
+        the login status for our application.</p>
+
+      <h3>Replace the content of our app with the <span class="inline-code">&lt;outlet&gt;</span> and create our header:</h3>
+<div class="file-location">/index.html</div>
+<pre><code class="html">&lt;!-- ... --&gt;
+  &lt;body&gt;
+    &lt;viewModel module="Main"&gt; &lt;!-- new 'Main' viewModel wrapper which will have our router --&gt;
+      &lt;main&gt;
+        &lt;todoform&gt;&lt;/todoform&gt;
+        &lt;viewModel module="TodoList"&gt;
+          &lt;!-- ... --&gt;
+        &lt;/viewModel&gt;
+      &lt;/main&gt;
+    &lt;/viewModel&gt;
+    &lt;script src="bower_components/requirejs/require.js" data-main="scripts/app"&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;!-- ... --&gt;</code></pre>
 
     </div>
   </section>
