@@ -593,13 +593,6 @@ function historyIsReady() {
   if(isReady && !History.Adapter.isSetup) {
     History.Adapter.isSetup = true;
 
-    if(!fwRouters.html5History()) {
-      History.options.html4Mode = true;
-    } else {
-      History.options.html4Mode = false;
-    }
-    History.init();
-
     // why .unbind() is not already present in History.js is beyond me
     History.Adapter.unbind = function(callback) {
       each(History.Adapter.handlers, function(handler) {
@@ -718,12 +711,20 @@ var isFullURL = fw.isFullURL = function(thing) {
   return isString(thing) && isFullURLRegex.test(thing);
 };
 
+var hasHTML5History = windowObject.history && windowObject.history.pushState;
+if(isObject(windowObject.History.options) && windowObject.History.options.html4Mode) {
+  // user is overriding to force html4mode hash-based history
+  hasHTML5History = false;
+}
+
 var fwRouters = fw.routers = {
   // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
   baseRoute: fw.observable(''),
   activeRouteClassName: fw.observable('active'),
   disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: $globalNamespace }),
-  html5History: fw.observable(false),
+  html5History: function() {
+    return hasHTML5History;
+  },
 
   getNearestParent: function($context) {
     var $parentRouter = nearestParentRouter($context);
@@ -1025,6 +1026,7 @@ Router.prototype.setState = function(url) {
       try {
         historyAPIWorked = History.pushState(null, '', this.parentRouter().path() + url);
       } catch(error) {
+        console.error(error);
         historyAPIWorked = false;
       } finally {
         if(historyAPIWorked) {
