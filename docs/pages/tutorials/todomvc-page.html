@@ -642,7 +642,126 @@ require([ 'footwork' ],
       <h1 class="sub title">Routing</h1>
     </header>
     <div class="content">
+      <div class="workspace-setup">
+        <div class="title">
+          View the code for this step:
+          <a class="live-demo" href="http://todo-tutorial.footworkjs.com/routing" target="_blank">Live Demo</a>
+          <a href="https://github.com/reflectiveSingleton/todo-tutorial/compare/amd...routing" class="diff" target="_blank"><span class="icon-git-compare"></span> diff</a>
+        </div>
+        <div class="content">
+          <pre><code class="bash">git checkout -f routing</code></pre>
+        </div>
+      </div>
+
       <p>What SPA is complete without routing? In this step we will be adding a login page as well as routes which filter the todo list based on its state.</p>
+      
+      <p>Routing in a single page app is about managing the state of application. This can include the loading of different views, or triggering some other change
+        based on the URL in the address bar. The router in footwork has many features, including the ability to nest routers as well as many differing
+        route configurations. The example shown in this tutorial is relatively basic, for a full explanation on footworks routing capabilities take a look at the
+        <a href="/api/routing" data-bind="$route">routing API documentation</a>.</p>
+
+      <p>There are 3 principle components of routers in footwork which make useful:</p>
+
+      <ul>
+        <li><a data-bind="$route" href="/api/routing#configuration" data-bind="$route">configuration object</a>: A router configuration on a viewModel. Used to define
+          the router, its routes, controllers, and their actions.</li>
+        <li><a data-bind="$route" href="/api/routing#outlets" data-bind="$route">outlets</a>: Any number of
+          <span class="inline-code">&lt;outlet name=""&gt;&lt;/outlet&gt;</span> declarations in your HTML which are the output points your router controls.</li>
+        <li><a data-bind="$route" href="/api/routing#route-binding" data-bind="$route">route bindings</a>: Special bindings for links (and other tags) which will
+          initiate new states in your application.</li>
+      </ul>
+
+      <p>The first thing we need to do when setting up a router in footwork, is deciding where it will 'live'. Routers in footwork are attached to viewModels,
+        specified either in a standalone <span class="inline-code">&lt;viewModel&gt;</span> or on a <span class="inline-code">viewModel</span> which is part of a component.
+        The reason for this is that the <span class="inline-code">outlet</span> and <span class="inline-code">$route</span> binding declarations are controlled by 
+        (or attach themselves to) the nearest parent router found in the DOM.</p>
+
+      <p>This parent-seeking nature allows for outlets and <span class="inline-code">$route</span> bindings which can be nested as deeply as you would like within
+        other elements, viewModels, components, etc.</p>
+
+      <p>For our todo application, we will only need one router. Since this router is to control the entirety of the application it makes sense to put it on an
+        'outermost' viewModel so that anything we might want to control will be a decendant (or inside the scope of) the DOM for that router.</p>
+
+      <p>Looking at our current code, we don't actually have a viewModel that encompasses the entire application, we currently have the
+        <span class="inline-code">TodoForm</span> and the <span class="inline-code">TodoList</span> (as well as <span class="inline-code">TodoItem</span>) viewModels.
+        Lets start by creating a container viewModel that we will wrap our entire application with which will simply house our router for us.</p>
+
+      <h3>First, lets wrap our HTML with a new <span class="inline-code">&lt;viewModel&gt;</span> declaration:</h3>
+<div class="file-location">/index.html</div>
+<pre><code class="html">&lt;!-- ... --&gt;
+  &lt;body&gt;
+    &lt;viewModel module="Main"&gt; &lt;!-- new 'Main' viewModel wrapper which will have our router --&gt;
+      &lt;main&gt;
+        &lt;todoform&gt;&lt;/todoform&gt;
+        &lt;viewModel module="TodoList"&gt;
+          &lt;!-- ... --&gt;
+        &lt;/viewModel&gt;
+      &lt;/main&gt;
+    &lt;/viewModel&gt;
+    &lt;script src="bower_components/requirejs/require.js" data-main="scripts/app"&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;!-- ... --&gt;</code></pre>
+
+      <p>Now we need to prepare the <span class="inline-code">viewModel</span> which will house our router for us. A router is created when a viewModel is instantiated
+        which has a router configuration object. Lets create our new <span class="inline-code">Main</span> viewModel with a basic router configuration so that
+        when footwork processes the <span class="inline-code">&lt;viewModel&gt;</span> declaration our viewModel will be instantiated along with it.</p>
+
+      <h3>Our <span class="inline-code">Main</span> viewModel with its basic router configuration object:</h3>
+<div class="file-location">/scripts/viewModels/Main.js</div>
+<pre><code class="javascript">define(['footwork'],
+  function(fw) {
+    return fw.viewModel({
+      namespace: 'Main',
+      router: {
+        routes: [
+          {
+            route: '/', // default route
+            title: 'Todo Application Tutorial',
+            controller: function() {
+              // do something here
+            }
+          }
+        ]
+      }
+    });    
+  }
+);</code></pre>
+
+      <div class="note"><span class="label">NOTE:</span> There are many available options for routers, the preceding definition keeps it simple for sake of the
+        tutorial. If you want the in-depth overview of options available (and other things) for routers then take a look at the 
+        <a href="/api/routing" data-bind="$route">router API documentation</a>.</div>
+
+      <p>What we see above is a very basic <span class="inline-code">viewModel</span> definition which has a router configuration. The router configuration
+        defines one route <span class="inline-code">'/'</span> (which is the default/base route). The controller will get triggered/called anytime this route is triggered.</p>
+
+      <p>Now, we call <span class="inline-code">fw.viewModels.registerLocation()</span>
+        just as we did in the preceeding step so that footwork knows where to find it when it encounters the <span class="inline-code">&lt;viewModel&gt;</span>
+        declaration in our markup.</p>
+
+<div class="file-location">/scripts/app.js</div>
+<pre><code class="javascript">// ...
+require([ 'footwork' ],
+  function(fw) {
+    fw.components.registerLocation('todoform', {
+      viewModel: '/scripts/viewModels/TodoForm.js',
+      template: '/scripts/templates/TodoForm.html'
+    });
+
+    /**
+     * Tell footwork it can find both the 'Main' and 'TodoList' viewModels
+     * inside of /scripts/viewModels.
+     */
+    fw.viewModels.registerLocation([
+      'Main',
+      'TodoList'
+    ], '/scripts/viewModels/');
+
+    // tell footwork to startup and begin binding
+    fw.start(); 
+  }
+);</code></pre>
+   
+
     </div>
   </section>
 
