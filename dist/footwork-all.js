@@ -9849,7 +9849,17 @@ function routeStringToRegExp(routeString) {
 
 function historyIsReady() {
   var isReady = has(History, 'Adapter');
-  if(isReady && isUndefined(History.Adapter.unbind)) {
+
+  if(isReady && !History.Adapter.isSetup) {
+    History.Adapter.isSetup = true;
+
+    if(!fwRouters.html5History()) {
+      History.options.html4Mode = true;
+    } else {
+      History.options.html4Mode = false;
+    }
+    History.init();
+
     // why .unbind() is not already present in History.js is beyond me
     History.Adapter.unbind = function(callback) {
       each(History.Adapter.handlers, function(handler) {
@@ -10082,7 +10092,7 @@ fw.bindingHandlers.$route = {
             myLinkPath = $myRouter.parentRouter().path() + myLinkPath;
 
             if(fwRouters.html5History() === false) {
-              myLinkPath = '#' + myLinkPath;
+              myLinkPath = '#' + (myLinkPath.indexOf('/') === 0 ? myLinkPath.substring(1) : myLinkPath);
             }
           }
         }
@@ -10114,7 +10124,7 @@ fw.bindingHandlers.$route = {
     function setUpElement() {
       var myCurrentSegment = routeURLWithoutParentPath();
       if( element.tagName.toLowerCase() === 'a' ) {
-        element.href = routeURLWithParentPath();
+        element.href = (fwRouters.html5History() ? '' : '/') + routeURLWithParentPath();
       }
 
       if( isObject(stateTracker) ) {
@@ -10281,7 +10291,7 @@ Router.prototype.setState = function(url) {
           return;
         }
       }
-    } else {
+    } else if(isFunction(History.getState)) {
       this.currentState( this.normalizeURL( History.getState().url ) );
     }
   } else if(isString(url)) {
@@ -10305,7 +10315,11 @@ Router.prototype.startup = function( $context, $parentRouter ) {
   if( !this.historyIsEnabled() ) {
     if( historyIsReady() && !this.disableHistory() ) {
       History.Adapter.bind( windowObject, 'popstate', this.stateChangeHandler = function(event) {
-        this.currentState( this.normalizeURL(windowObject.location.pathname + windowObject.location.hash) );
+        if(!fwRouters.html5History() && windowObject.location.pathname === '/' && windowObject.location.hash.length > 1) {
+          this.currentState( this.normalizeURL('/' + windowObject.location.hash.substring(1)) );
+        } else {
+          this.currentState( this.normalizeURL(windowObject.location.pathname + windowObject.location.hash) );
+        }
       }.bind(this));
       this.historyIsEnabled(true);
     } else {
@@ -10338,7 +10352,12 @@ Router.prototype.dispose = function() {
 Router.prototype.normalizeURL = function(url) {
   var urlParts = parseUri(url);
   this.urlParts(urlParts);
-  url = urlParts.path;
+
+  if(!fwRouters.html5History() && urlParts.path === '/') {
+    url = '/' + urlParts.anchor;
+  } else {
+    url = urlParts.path;
+  }
 
   if( !isNull(this.config.baseRoute) && url.indexOf(this.config.baseRoute) === 0 ) {
     url = url.substr(this.config.baseRoute.length);
