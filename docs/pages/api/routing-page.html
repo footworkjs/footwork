@@ -640,7 +640,7 @@ var MainViewModel = fw.viewModel({
         <li><span class="inline-code"><a data-bind="$route" href="#routers-baseRoute" data-bind="$route">fw.routers.baseRoute()</a></span> - Get or set the beginning portion of a route to ignore for the given path.</li>
         <li><span class="inline-code"><a data-bind="$route" href="#routers-activeRouteClassName" data-bind="$route">fw.routers.activeRouteClassName()</a></span> - Get or set the class which is added to an active <span class="inline-code">$route</span> bound element.</li>
         <li><span class="inline-code"><a data-bind="$route" href="#routers-disableHistory" data-bind="$route">fw.routers.disableHistory()</a></span> - Enable or disable history (or get the current setting).</li>
-        <li><span class="inline-code"><a data-bind="$route" href="#routers-html5History" data-bind="$route">fw.routers.html5History()</a></span> - Enable or disable HTML5 history/routing (enable or disable hash-based routes when rendering HREFs for $route bound elements).</li>
+        <li><span class="inline-code"><a data-bind="$route" href="#routers-html5History" data-bind="$route">fw.routers.html5History()</a></span> - Returns true if using HTML5 history.</li>
       </ul>
     </div>
   </section>
@@ -715,11 +715,10 @@ fw.routers.disableHistory(true); // history now disabled, but app still navigabl
     <div class="highlight"></div>
     <div class="content">
       <h3 class="top"><em class="func-def">fw.routers.html5History<span>()</span></em></h3>
-      <h3 class="top"><em class="func-def">fw.routers.html5History<span>( <span class="param">isEnabled</span> )</span></em></h3>
-      <h3>Enable or disable HTML5 routes (or get the current setting):</h3>
-<pre><code class="javascript">// fw.routers.html5History() === false (default)
-fw.routers.html5History(true); // non-hash based URLs will be generated for $route bound A tags</code></pre>
-      <div class="note"><span class="label">NOTE:</span> If you want HTML5 based routes generated this must be set to true before your application starts/begins binding.</div>
+      <h3>Get a boolean indicating whether or not footwork is using the HTML5 history API:</h3>
+<pre><code class="javascript">// fw.routers.html5History() === true (when using chrome)
+fw.routers.html5History(); // === false when using &lt;=IE8</code></pre>
+      <div class="note"><span class="label">NOTE:</span> You can force HTML4 (hash-based) routing by running this code before DOM onload: <span class="inline-code">window.History = { options: { html4Mode: true} };</span>.</div>
     </div>
   </section>
 

@@ -37,7 +37,8 @@
     "lodash": "2.4.1",
     "postal.js": "0.11.0",
     "postal.preserve": "https://github.com/reflectiveSingleton/postal.preserve.git#ca8b46dd58b5565c3bae4ab15a23eee4ba78a95c",
-    "history.js": "1.8.0",
+    "history.js": "https://github.com/reflectiveSingleton/history.js.git#ae04b0e41c48a1e2f272cc10e29c2aeaa50d1a86",
+    "console-polyfill": "*",
     "requirejs": "*",
     "expect": "0.1.2",
     "mocha": "*"
