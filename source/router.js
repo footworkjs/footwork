@@ -37,6 +37,7 @@ var $baseRouter = {
   segment: emptyStringResult,
   childRouters: fw.observableArray(),
   context: noop,
+  userInitialize: noop,
   __isRouter: true
 };
 
@@ -469,10 +470,16 @@ var Router = function( routerConfig, $viewModel, $context ) {
   }
   this.setRoutes( routerConfig.routes );
 
+  if( isFunction(routerConfig.initialize) ) {
+    this.userInitialize = routerConfig.initialize;
+  }
+
   if( routerConfig.activate === true ) {
     subscriptions.push(this.context.subscribe(function activateRouterAfterNewContext( $context ) {
       if( isObject($context) ) {
-        this.activate( $context );
+        this
+          .activate( $context )
+          .userInitialize();
       }
     }, this));
   }
