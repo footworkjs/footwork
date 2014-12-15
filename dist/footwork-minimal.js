@@ -4710,6 +4710,7 @@ var $baseRouter = {
   segment: emptyStringResult,
   childRouters: fw.observableArray(),
   context: noop,
+  userInitialize: noop,
   __isRouter: true
 };
 
@@ -5142,10 +5143,16 @@ var Router = function( routerConfig, $viewModel, $context ) {
   }
   this.setRoutes( routerConfig.routes );
 
+  if( isFunction(routerConfig.initialize) ) {
+    this.userInitialize = routerConfig.initialize;
+  }
+
   if( routerConfig.activate === true ) {
     subscriptions.push(this.context.subscribe(function activateRouterAfterNewContext( $context ) {
       if( isObject($context) ) {
-        this.activate( $context );
+        this
+          .activate( $context )
+          .userInitialize();
       }
     }, this));
   }
@@ -6048,6 +6055,10 @@ var registerLocationOfComponent = fw.components.registerLocation = function(comp
   componentResourceLocations[ componentName ] = componentDefaultLocation(componentLocation, false);
 };
 
+var locationIsRegisteredForComponent = fw.components.locationIsRegistered = function(componentName) {
+  return !isUndefined(componentResourceLocations[componentName]);
+};
+
 // Return the component resource definition for the supplied componentName
 var getComponentResourceLocation = fw.components.getResourceLocation = function(componentName) {
   if( isUndefined(componentName) ) {
@@ -6118,6 +6129,10 @@ var registerLocationOfViewModel = fw.viewModels.registerLocation = function(view
     });
   }
   viewModelResourceLocations[ viewModelName ] = viewModelDefaultLocation(viewModelLocation, false);
+};
+
+var locationIsRegisteredForViewModel = fw.viewModels.locationIsRegistered = function(viewModelName) {
+  return !isUndefined(viewModelResourceLocations[viewModelName]);
 };
 
 // Return the viewModel resource definition for the supplied viewModelName

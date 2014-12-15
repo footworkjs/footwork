@@ -97,6 +97,10 @@ var registerLocationOfComponent = fw.components.registerLocation = function(comp
   componentResourceLocations[ componentName ] = componentDefaultLocation(componentLocation, false);
 };
 
+var locationIsRegisteredForComponent = fw.components.locationIsRegistered = function(componentName) {
+  return !isUndefined(componentResourceLocations[componentName]);
+};
+
 // Return the component resource definition for the supplied componentName
 var getComponentResourceLocation = fw.components.getResourceLocation = function(componentName) {
   if( isUndefined(componentName) ) {
@@ -167,6 +171,10 @@ var registerLocationOfViewModel = fw.viewModels.registerLocation = function(view
     });
   }
   viewModelResourceLocations[ viewModelName ] = viewModelDefaultLocation(viewModelLocation, false);
+};
+
+var locationIsRegisteredForViewModel = fw.viewModels.locationIsRegistered = function(viewModelName) {
+  return !isUndefined(viewModelResourceLocations[viewModelName]);
 };
 
 // Return the viewModel resource definition for the supplied viewModelName
