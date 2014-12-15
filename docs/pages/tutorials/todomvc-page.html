@@ -885,7 +885,28 @@ require(['footwork'],
   ]
 // ...</code></pre>
 
-      <p>Ok so everything is done except for one final thing. We need to tell footwork where it can find our page views. We do this with
+      <p>So thats it, right? Well lets reload the page and see where we are at:</p>
+
+      <div class="figure">
+        <div class="title">Footwork tried to find our view for us, but failed...</div>
+        <div class="content">
+          <div class="image"><img src="images/todo-tutorial/routing0.png"></div>
+        </div>
+      </div>
+
+      <p>What the heck happened here? Well, turns out footwork tried as best it could to download the view for us...but it guessed wrong. Footwork has a 'default path' it will attempt to download from
+        when all else fails (these are configurable, see <span class="inline-code">fw.components.defaultLocation()</span> in the
+        <a href="/api/components#loading-registering" data-bind="$route">API docs</a>).</p>
+
+      <div class="note">
+        <p><span class="label">NOTE:</span> You may also have noticed it tried to download a <span class="inline-code">viewModel</span> as well as a template...why is that?</p>
+        <p>When you tell an <span class="inline-code">outlet</span> to show something, you are actually telling it to render a <span class="inline-code">component</span>. Because most 'views' you might want to show in an
+          <span class="inline-code">outlet</span> consist of a template/HTML and no <span class="inline-code">viewModel</span>, footwork provides a couple helper methods that make it easy
+          to create a <span class="inline-code">component</span> that has no corresponding <span class="inline-code">viewModel</span>. These methods are outlined in detail in the
+          <a href="/api/routing#outlet-registering" data-bind="$route">outlet API documentation</a>.</p>
+      </div>
+
+      <p>Ok so everything is done except for <em>one final</em> thing. We need to tell footwork where it can find our page views. We can do this with
         <span class="inline-code">fw.outlets.registerView()</span>.</p>
 
       <h3>Register our two views using <span class="inline-code">fw.outlets.registerView()</span>:</h3>
@@ -901,7 +922,10 @@ require(['footwork'],
     'TodoList'
   ], '/scripts/viewModels/');
 
-  fw.outlets.registerViewLocation([ 'login-page', 'todo-page' ], '/scripts/views/');
+  fw.outlets.registerViewLocation([
+    'login-page',
+    'todo-page'
+  ], '/scripts/views/');
 // ...</code></pre>
     </div>
   </section>

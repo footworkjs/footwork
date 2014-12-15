@@ -68,6 +68,11 @@
     // if true all routes defined for the router will be relative to its parent router (if any)
     isRelative: true, // default is true
 
+    // function which will run just after the router is initialized and bound onto the DOM
+    initialize: function() {
+      // this === the router instance
+    },
+
     // routes list definition
     routes: [],
 
