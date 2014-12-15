@@ -119,7 +119,7 @@
 
   &lt;body&gt;
     &lt;main&gt;
-      &lt;form&gt;
+      &lt;form class="todo"&gt;
         &lt;input type="text" name="thingToDo" placeholder="What needs to be done?" autofocus&gt;
         &lt;input type="submit" value="Add Item" class="button"&gt;
       &lt;/form&gt;
@@ -200,7 +200,7 @@
 <div class="file-location">/index.html</div>
 <pre>
 <code class="html">&lt;!-- ... --&gt;
-&lt;form data-bind="submit: submitForm"&gt;
+&lt;form class="todo" data-bind="submit: submitForm"&gt;
   &lt;input type="text" name="thingToDo" data-bind="value: thingToDo" placeholder="What needs to be done?"&gt;
   &lt;input type="submit" value="Add Item" class="button"&gt;
 &lt;/form&gt;
@@ -264,7 +264,7 @@ fw.start();
 <div class="file-location">/index.html</div>
 <pre><code class="html">&lt;!-- ... --&gt;
 &lt;viewModel module="TodoForm"&gt;
-  &lt;form data-bind="submit: submitForm"&gt;
+  &lt;form class="todo" data-bind="submit: submitForm"&gt;
     &lt;input type="text" name="thingToDo" data-bind="value: thingToDo" placeholder="What needs to be done?"&gt;
     &lt;input type="submit" value="Add Item" class="button"&gt;
   &lt;/form&gt;
@@ -485,7 +485,7 @@ fw.start();
 
       <h3>Register both the template and viewModel with footwork:</h3>
 <div class="file-location">/scripts/app.js</div>
-<pre><code class="javascript">var TodoFormHTML = '&lt;form data-bind="submit: submitForm"&gt;\
+<pre><code class="javascript">var TodoFormHTML = '&lt;form class="todo" data-bind="submit: submitForm"&gt;\
   &lt;input type="text" name="thingToDo" data-bind="value: thingToDo" placeholder="What needs to be done?"&gt;\
   &lt;input type="submit" value="Add Item" class="button"&gt;\
 &lt;/form&gt;';
@@ -549,7 +549,7 @@ fw.start();</code></pre>
       
       <h3>We start by pulling our form HTML template out of <span class="inline-code">app.js</span> and placing it in its own file:</h3>
 <div class="file-location">/scripts/templates/TodoForm.html</div>
-<pre><code class="html">&lt;form data-bind="submit: submitForm"&gt;
+<pre><code class="html">&lt;form class="todo" data-bind="submit: submitForm"&gt;
   &lt;div class="icon-chevron-down"&gt;&lt;/div&gt;
   &lt;input type="text" name="thingToDo" data-bind="value: thingToDo" placeholder="What needs to be done?" autofocus&gt;
   &lt;input type="submit" value="Add Item" class="button"&gt;
@@ -674,17 +674,20 @@ require(['footwork'],
       <p>The first thing we need to do when setting up a router in footwork, is deciding where it will 'live'. Routers in footwork are attached to viewModels,
         specified either in a standalone <span class="inline-code">&lt;viewModel&gt;</span> or on a <span class="inline-code">viewModel</span> which is part of a component.
         The reason for this is that the <span class="inline-code">outlet</span> and <span class="inline-code">$route</span> binding declarations are controlled by 
-        (or attach themselves to) the nearest parent router found in the DOM.</p>
+        (or attach themselves to) the nearest parent router found in the DOM. So a <span class="inline-code">router</span> needs to be bound to the DOM along with a
+        <span class="inline-code">viewModel</span> so that it can be found.</p>
 
       <p>This parent-seeking nature allows for outlets and <span class="inline-code">$route</span> bindings which can be nested as deeply as you would like within
         other elements, viewModels, components, etc.</p>
 
-      <p>For our todo application, we will only need one router. Since this router is to control the entirety of the application it makes sense to put it on an
-        'outermost' viewModel so that anything we might want to control will be a decendant (or inside the scope of) the DOM for that router.</p>
+      <p>For our todo application, we will only need one router which will control one <span class="inline-code">outlet</span>. Since this router is to control the
+        entirety of the application it makes sense to put it on an  'outermost' viewModel so that anything we might want to control will be a decendant (or inside
+        the scope of) the DOM for that router.</p>
 
       <p>Looking at our current code, we don't actually have a viewModel that encompasses the entire application, we currently have the
         <span class="inline-code">TodoForm</span> and the <span class="inline-code">TodoList</span> (as well as <span class="inline-code">TodoItem</span>) viewModels.
-        Lets start by creating a container viewModel that we will wrap our entire application with which will simply house our router for us.</p>
+        All of these elements belong on a single 'page'...the todo list page. So lets start by creating a container <span class="inline-code">viewModel</span> that will wrap our
+        aforementioned viewModels and components. We will place our router configuration on that 'wrapper' <span class="inline-code">viewModel</span>.</p>
 
       <h3>First, lets wrap our HTML with a new <span class="inline-code">&lt;viewModel&gt;</span> declaration:</h3>
 <div class="file-location">/index.html</div>
@@ -718,29 +721,29 @@ require(['footwork'],
             route: '/',
             title: 'Todo Application Tutorial',
             controller: function() {
-              // do something here
+              // show our login page here
+            }
+          },
+          {
+            route: '/todo',
+            title: 'Todo List',
+            controller: function() {
+              // show our todo list page here
             }
           }
-        ],
-        unknownRoute: {
-          title: '404 not found',
-          controller: function() {
-            // route triggered when none of the others match
-          }
-        }
+        ]
       }
     });    
   }
-);
-</code></pre>
+);</code></pre>
 
       <div class="note"><span class="label">NOTE:</span> There are many available options for routers, the preceding definition keeps it simple for sake of the
         tutorial. If you want the in-depth overview of options available (and other things) for routers then take a look at the 
         <a href="/api/routing" data-bind="$route">router API documentation</a>.</div>
 
       <p>What we see above is a very basic <span class="inline-code">viewModel</span> definition which has a router configuration (we will fill it out a bit more later on).
-        The router configuration defines one route <span class="inline-code">'/'</span> and the <span class="inline-code">unknownRoute</span> (which is the route triggered
-        when none of the others match). The controller will get triggered/called anytime this route is triggered.</p>
+        The router configuration defines two routes <span class="inline-code">'/'</span> (which we will use to display our login page) and <span class="inline-code">'/todo'</span> (which we will use to display
+        the todo list).</p>
 
       <p>Now, we call <span class="inline-code">fw.viewModels.registerLocation()</span>
         just as we did in the preceeding (<a href="#amd-requirejs" data-bind="$route">amd</a>) step so that footwork knows where to find it when it encounters the <span class="inline-code">&lt;viewModel&gt;</span>
@@ -749,26 +752,15 @@ require(['footwork'],
       <h3>Register the location of our new <span class="inline-code">Main</span> viewModel:</h3>
 <div class="file-location">/scripts/app.js</div>
 <pre><code class="javascript">// ...
-require(['footwork'],
-  function(fw) {
-    fw.components.registerLocation('todoform', {
-      viewModel: '/scripts/viewModels/TodoForm.js',
-      template: '/scripts/templates/TodoForm.html'
-    });
-
-    /**
-     * Tell footwork it can find both the 'Main' and 'TodoList' viewModels
-     * inside of /scripts/viewModels.
-     */
-    fw.viewModels.registerLocation([
-      'Main',
-      'TodoList'
-    ], '/scripts/viewModels/');
-
-    // tell footwork to startup and begin binding
-    fw.start(); 
-  }
-);</code></pre>
+  /**
+   * Tell footwork it can find both the 'Main' and 'TodoList' viewModels
+   * inside of /scripts/viewModels.
+   */
+  fw.viewModels.registerLocation([
+    'Main',
+    'TodoList'
+  ], '/scripts/viewModels/');
+// ...</code></pre>
 
       <p>Now lets create the <span class="inline-code">&lt;outlet&gt;</span> declaration which our router will use to display different views/pages on.</p>
 
@@ -812,7 +804,7 @@ require(['footwork'],
       <p>Now we should create the login page as well...for this we will also need a login form. Lets go ahead and create the <span class="inline-code">Login</span> viewModel and bindings in the markup
         just like we had done for the <span class="inline-code">TodoForm</span> form we made earlier.</p>
 
-      <h3>Create the HTML for the <span class="inline-code">login-page.html</span>:</h3>
+      <h3>Create the HTML (along with bindings) for the <span class="inline-code">login-page.html</span>:</h3>
 <div class="file-location">/scripts/views/login-page.html</div>
 <pre><code class="html">&lt;viewModel module="Login"&gt;
   &lt;form class="login" data-bind="submit: loginUser"&gt;
@@ -848,29 +840,69 @@ require(['footwork'],
       <h3>Remember, since we have a new <span class="inline-code">viewModel</span> we must also tell footwork where it can find it:</h3>
 <div class="file-location">/scripts/app.js</div>
 <pre><code class="javascript">// ...
-require(['footwork'],
-  function(fw) {
-    fw.components.registerLocation('todoform', {
-      viewModel: '/scripts/viewModels/TodoForm.js',
-      template: '/scripts/templates/TodoForm.html'
-    });
+  /**
+   * Tell footwork it can find the 'Main', 'Login', and 'TodoList' viewModels
+   * inside of /scripts/viewModels.
+   */
+  fw.viewModels.registerLocation([
+    'Main',
+    'Login',
+    'TodoList'
+  ], '/scripts/viewModels/');
+// ...</code></pre>
 
-    /**
-     * Tell footwork it can find the 'Main', 'Login', and 'TodoList' viewModels
-     * inside of /scripts/viewModels.
-     */
-    fw.viewModels.registerLocation([
-      'Main',
-      'Login',
-      'TodoList'
-    ], '/scripts/viewModels/');
+      <p>Ok, now we have everything we need to start rendering different pages. We just need to add a couple things to our <span class="inline-code">router</span> configuration. Remember
+        those two routes we defined in the <span class="inline-code">Main</span> <span class="inline-code">viewModel</span> definition? We need to make the controllers on those routes show their respective
+        pages in our <span class="inline-code">&lt;outlet&gt;</span>.</p>
 
-    // tell footwork to startup and begin binding
-    fw.start(); 
-  }
-);</code></pre>
+      <p>Changing what is displayed in an <span class="inline-code">&lt;outlet&gt;</span> is accomplished via <span class="inline-code">router.$outlet()</span> calls.
+        <span class="inline-code">router.$outlet()</span> is simply a method on the router which is used to control whatever outlets are attached to it.</p>
 
+      <div class="note"><span class="label">NOTE:</span> Remember, outlets will find their nearest parent router in the DOM...so you just need to ensure that your
+        <span class="inline-code">&lt;outlet&gt;</span> is a child element of the <span class="inline-code">viewModel</span> a router is defined on. You can read about
+        outlets in detail on the <a href="/api/routing#outlets" data-bind="$route">router API documentation</a>.</div>
 
+      <h3>Update our routes to display their respective pages inside of the <span class="inline-code">outlet</span>:</h3>
+<div class="file-location">/scripts/viewModels/Main.js</div>
+<pre><code class="javascript">// ...
+  routes: [
+    {
+      route: '/',
+      title: 'Todo Application Tutorial',
+      controller: function() {
+        // show our login page here
+        this.$outlet('mainView', 'login-page');
+      }
+    },
+    {
+      route: '/todo',
+      title: 'Todo List',
+      controller: function() {
+        // show our todo list page here
+        this.$outlet('mainView', 'todo-page');
+      }
+    }
+  ]
+// ...</code></pre>
+
+      <p>Ok so everything is done except for one final thing. We need to tell footwork where it can find our page views. We do this with
+        <span class="inline-code">fw.outlets.registerView()</span>.</p>
+
+      <h3>Register our two views using <span class="inline-code">fw.outlets.registerView()</span>:</h3>
+<div class="file-location">/scripts/app.js</div>
+<pre><code class="javascript">// ...
+  /**
+   * Tell footwork it can find the 'Main', 'Login', and 'TodoList' viewModels
+   * inside of /scripts/viewModels.
+   */
+  fw.viewModels.registerLocation([
+    'Main',
+    'Login',
+    'TodoList'
+  ], '/scripts/viewModels/');
+
+  fw.outlets.registerViewLocation([ 'login-page', 'todo-page' ], '/scripts/views/');
+// ...</code></pre>
     </div>
   </section>
 

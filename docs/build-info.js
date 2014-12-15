@@ -5,6 +5,6 @@
 window.footworkBuild = {
   version: '0.8.0pre',
   statement: 'A solid footing for web applications.',
-  timestamp: '2014-12-14T19:12:22-06:00',
+  timestamp: '2014-12-14T21:17:35-06:00',
   contributors: [{"name":"Jonathan Newman","email":"jonathan@staticty.pe","contribution":["creator","code","documentation"],"urls":[{"url":"https://github.com/reflectiveSingleton"},{"url":"http://staticty.pe"}]},{"name":"Travis Miller","email":"travis@travisamiller.com","contribution":["framework name"],"urls":[{"url":"http://travisamiller.com"}]}]
 };
