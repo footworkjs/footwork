@@ -1110,7 +1110,7 @@ var isFullURL = fw.isFullURL = function(thing) {
 };
 
 var hasHTML5History = windowObject.history && windowObject.history.pushState;
-if(isObject(windowObject.History.options) && windowObject.History.options.html4Mode) {</code></pre></div>
+if(!isUndefined(windowObject.History) && isObject(windowObject.History.options) && windowObject.History.options.html4Mode) {</code></pre></div>
             
         </li>
       
