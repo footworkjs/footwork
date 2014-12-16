@@ -1,14 +1,15 @@
 <article>
 
-  <a id="routing" class="section-anchor"></a>
-  <section name="routing">
+  <a id="introduction" class="section-anchor"></a>
+  <section name="introduction">
     <div class="highlight"></div>
     <header>
-      <h1 class="sub title">Routing</h1>
+      <h1 class="sub title">Introduction - Routing</h1>
     </header>
     <div class="content">
       <div class="note"><span class="label">NOTE:</span> It is assumed you have gone through the previous
-        <a href="/tutorials/TodoMVC/creatingApplication" data-bind="$route">Creating the Application</a> tutorial. If you haven't yet, check it out!</div>
+        <a href="/tutorials/TodoMVC/creatingApplication" data-bind="$route">Creating the Application</a> tutorial. The code in here is based off of where that tutorial
+          left off, so if you haven't checked it out yet you should!</div>
       
       <div class="workspace-setup">
         <div class="title">
@@ -21,7 +22,7 @@
         </div>
       </div>
 
-      <p>What SPA is complete without routing? In this step we will be adding a login page as well as routes which filter the todo list based on its state.</p>
+      <p>What SPA is complete without routing? In this tutorial we will be adding a login page as well as routes which filter the todo list based on its state.</p>
       
       <p>Routing in a single page app is about managing the state of application. This can include the loading of different views, or triggering some other change
         based on the URL in the address bar. The router in footwork has many features, including the ability to nest routers as well as many differing
@@ -47,9 +48,18 @@
 
       <p>This parent-seeking nature allows for outlets and <span class="inline-code">$route</span> bindings which can be nested as deeply as you would like within
         other elements, viewModels, components, etc.</p>
+    </div>
+  </section>
 
+  <a id="viewModel-router" class="section-anchor"></a>
+  <section name="viewModel-router">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">viewModel and router</h1>
+    </header>
+    <div class="content">
       <p>For our todo application, we will only need one router which will control one <span class="inline-code">outlet</span>. Since this router is to control the
-        entirety of the application it makes sense to put it on an  'outermost' viewModel so that anything we might want to control will be a decendant (or inside
+        entirety of the application it makes sense to put it on an 'outermost' viewModel so that anything we might want to control will be a decendant (or inside
         the scope of) the DOM for that router.</p>
 
       <p>Looking at our current code, we don't actually have a viewModel that encompasses the entire application, we currently have the
@@ -129,7 +139,16 @@
     'TodoList'
   ], '/scripts/viewModels/');
 // ...</code></pre>
+    </div>
+  </section>
 
+  <a id="outlet" class="section-anchor"></a>
+  <section name="outlet">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Creating an outlet</h1>
+    </header>
+    <div class="content">
       <p>Now lets create the <span class="inline-code">&lt;outlet&gt;</span> declaration which our router will use to display different views/pages on.</p>
 
       <p>We do this by pulling out the section of HTML we would like to turn into a page, and replacing it with an <span class="inline-code">&lt;outlet&gt;</span>. For our todo tutorial, we plan on having
@@ -151,8 +170,20 @@
     &lt;script src="bower_components/requirejs/require.js" data-main="scripts/app"&gt;&lt;/script&gt;
   &lt;/body&gt;
 &lt;!-- ... --&gt;</code></pre>
+    </div>
+  </section>
 
-      <h3>Take the HTML we removed from the <span class="inline-code">index.html</span> and place it in a new file:</h3>
+  <a id="outlet-views" class="section-anchor"></a>
+  <section name="outlet-views">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Creating Views</h1>
+    </header>
+    <div class="content">
+      <p>Now that our <span class="inline-code">&lt;outlet&gt;</span> is where our HTML once was, we need to put that HTML somewhere and load it as a view in the outlet. We do that by creating new
+        files which will store the markup and telling footwork where it can find it.</p>
+
+      <h3>First we take the HTML we removed from the <span class="inline-code">index.html</span> and place it in a view file:</h3>
 <div class="file-location">/scripts/views/todo-page.html</div>
 <pre><code class="html">&lt;todoform&gt;&lt;/todoform&gt;
 &lt;viewModel module="TodoList"&gt;
@@ -167,10 +198,11 @@
   &lt;/div&gt;
 &lt;/viewModel&gt;</code></pre>
 
-      <p>If you notice, the HTML we removed from the <span class="inline-code">index.html</span> is unchanged, we simply dropped it in the new <span class="inline-code">todo-page.html</span> file.</p>
+      <p class="note"><span class="label">NOTE:</span> If you notice, the HTML we removed from the <span class="inline-code">index.html</span> is unchanged, we simply dropped it in the new
+        <span class="inline-code">todo-page.html</span> file.</p>
 
-      <p>Now we should create the login page as well...for this we will also need a login form. Lets go ahead and create the <span class="inline-code">Login</span> viewModel and bindings in the markup
-        just like we had done for the <span class="inline-code">TodoForm</span> form we made earlier.</p>
+      <p>Now we should create the other view we will have, the login page...for this we will also need a login form. Lets go ahead and create the <span class="inline-code">Login</span> viewModel
+        and bindings in the markup just like we had done for the <span class="inline-code">TodoForm</span> form we made earlier.</p>
 
       <h3>Create the HTML (along with bindings) for the <span class="inline-code">login-page.html</span>:</h3>
 <div class="file-location">/scripts/views/login-page.html</div>
@@ -220,7 +252,16 @@
     'TodoList'
   ], '/scripts/viewModels/');
 // ...</code></pre>
+    </div>
+  </section>
 
+  <a id="changing-outlet" class="section-anchor"></a>
+  <section name="changing-outlet">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Changing the outlet</h1>
+    </header>
+    <div class="content">
       <p>Ok, now we have everything we need to start rendering different pages. We just need to add a couple things to our <span class="inline-code">router</span> configuration. Remember
         those two routes we defined in the <span class="inline-code">Main</span> <span class="inline-code">viewModel</span> definition? We need to make the controllers on those routes show their respective
         pages in our <span class="inline-code">&lt;outlet&gt;</span>.</p>
@@ -231,7 +272,7 @@
       <div class="note"><span class="label">NOTE:</span> Remember, outlets will find their nearest parent router in the DOM...so you just need to ensure that your
         <span class="inline-code">&lt;outlet&gt;</span> is a child element of the <span class="inline-code">viewModel</span> a router is defined on. You can read about
         outlets in detail on the <a href="/api/routing#outlets" data-bind="$route">router API documentation</a>.</div>
-
+        
       <h3>Update our routes to display their respective pages inside of the <span class="inline-code">outlet</span>:</h3>
 <div class="file-location">/scripts/viewModels/Main.js</div>
 <pre><code class="javascript">// ...
@@ -330,8 +371,18 @@
   "title": "TodoMVC Routing",
   "description": "",
   "sections": [
-    { "anchor": "routing",
-      "title": "Routing" }
+    { "anchor": "introduction",
+      "title": "Introduction" },
+    { "anchor": "viewModel-router",
+      "title": "viewModel and router" },
+    { "anchor": "outlet",
+      "title": "Creating an outlet",
+      "subSections": [
+        { "anchor": "outlet-views",
+          "title": "Creating views" },
+        { "anchor": "changing-outlet",
+          "title": "Changing the outlet" }
+      ] }
   ]
 }
 </div>
