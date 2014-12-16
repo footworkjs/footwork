@@ -808,9 +808,10 @@ require(['footwork'],
 <div class="file-location">/scripts/views/login-page.html</div>
 <pre><code class="html">&lt;viewModel module="Login"&gt;
   &lt;form class="login" data-bind="submit: loginUser"&gt;
+    &lt;div class="title"&gt;Please Login...&lt;/div&gt;
     &lt;label&gt;
       &lt;span&gt;Username:&lt;/span&gt;
-      &lt;input type="text" data-bind="value: username"&gt;
+      &lt;input type="text" data-bind="value: username" autofocus&gt;
     &lt;/label&gt;
     &lt;label&gt;
       &lt;span&gt;Password:&lt;/span&gt;
@@ -830,6 +831,7 @@ require(['footwork'],
         this.username = fw.observable();
         this.password = fw.observable();
         this.loginUser = function() {
+          console.info('Login form submitted!');
           return false;
         };
       }
@@ -927,6 +929,29 @@ require(['footwork'],
     'todo-page'
   ], '/scripts/views/');
 // ...</code></pre>
+
+      <p>With our views both properly registered, lets reload the page once more:</p>
+
+      <div class="figure">
+        <div class="title">Success!</div>
+        <div class="content">
+          <div class="image"><img src="images/todo-tutorial/routing1.png"></div>
+        </div>
+      </div>
+
+      <h3>Now, click submit:</h3>
+      <div class="figure no-title">
+        <div class="content">
+          <div class="image"><img src="images/todo-tutorial/routing2.png"></div>
+        </div>
+      </div>
+
+      <p>Great, so now we have a login page that is being routed to by our default <span class="inline-code">'/'</span> route. That routes controller is being triggered and we tell the <span class="inline-code">outlet</span>
+        to render the <span class="inline-code">login-page</span> view. That view is dynamically loaded for us and rendered on the page with our <span class="inline-code">Login</span> <span class="inline-code">viewModel</span>
+        then also being downloaded and instantiated for us.</p>
+
+      <p>Now we just need to get it to switch to the other view...but how do we tell the router to jump to the <span class="inline-code">todo-list</span> once a user clicks login? You might have guessed it...send a message!
+        Or more accurately, in this instance we will send a <span class="inline-code">command</span>.</p>
     </div>
   </section>
 
