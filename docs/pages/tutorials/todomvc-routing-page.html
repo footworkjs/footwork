@@ -206,7 +206,7 @@
 
       <h3>Create the HTML (along with bindings) for the <span class="inline-code">login-page.html</span>:</h3>
 <div class="file-location">/scripts/views/login-page.html</div>
-<pre><code class="html">&lt;viewModel module="Login"&gt;
+<pre><code class="html">&lt;viewModel module="LoginForm"&gt;
   &lt;form class="login" data-bind="submit: loginUser"&gt;
     &lt;div class="title"&gt;Please Login...&lt;/div&gt;
     &lt;label&gt;
@@ -221,18 +221,17 @@
   &lt;/form&gt;
 &lt;/viewModel&gt;</code></pre>
 
-      <h3>Create the <span class="inline-code">Login</span> viewModel that goes along with the form:</h3>
-<div class="file-location">/scripts/viewModels/Login.js</div>
+      <h3>Create the <span class="inline-code">LoginForm</span> viewModel that goes along with the form:</h3>
+<div class="file-location">/scripts/viewModels/LoginForm.js</div>
 <pre><code class="javascript">define(['footwork'],
   function(fw) {
     return fw.viewModel({
-      namespace: 'Login',
+      namespace: 'LoginForm',
       initialize: function() {
         this.username = fw.observable();
         this.password = fw.observable();
         this.loginUser = function() {
           console.info('Login form submitted!');
-          return false;
         };
       }
     });
@@ -243,12 +242,12 @@
 <div class="file-location">/scripts/app.js</div>
 <pre><code class="javascript">// ...
   /**
-   * Tell footwork it can find the 'Main', 'Login', and 'TodoList' viewModels
+   * Tell footwork it can find the 'Main', 'LoginForm', and 'TodoList' viewModels
    * inside of /scripts/viewModels.
    */
   fw.viewModels.registerLocation([
     'Main',
-    'Login',
+    'LoginForm',
     'TodoList'
   ], '/scripts/viewModels/');
 // ...</code></pre>
@@ -272,7 +271,7 @@
       <div class="note"><span class="label">NOTE:</span> Remember, outlets will find their nearest parent router in the DOM...so you just need to ensure that your
         <span class="inline-code">&lt;outlet&gt;</span> is a child element of the <span class="inline-code">viewModel</span> a router is defined on. You can read about
         outlets in detail on the <a href="/api/routing#outlets" data-bind="$route">router API documentation</a>.</div>
-        
+
       <h3>Update our routes to display their respective pages inside of the <span class="inline-code">outlet</span>:</h3>
 <div class="file-location">/scripts/viewModels/Main.js</div>
 <pre><code class="javascript">// ...
@@ -329,7 +328,7 @@
    */
   fw.viewModels.registerLocation([
     'Main',
-    'Login',
+    'LoginForm',
     'TodoList'
   ], '/scripts/viewModels/');
 
@@ -357,10 +356,54 @@
 
       <p>Great, so now we have a login page that is being routed to by our default <span class="inline-code">'/'</span> route. That routes controller is being triggered and we tell the <span class="inline-code">outlet</span>
         to render the <span class="inline-code">login-page</span> view. That view is dynamically loaded for us and rendered on the page with our <span class="inline-code">Login</span> <span class="inline-code">viewModel</span>
-        then also being downloaded and instantiated for us.</p>
+        then also being downloaded and instantiated for us too.</p>
 
-      <p>Now we just need to get it to switch to the other view...but how do we tell the router to jump to the <span class="inline-code">todo-list</span> once a user clicks login? You might have guessed it...send a message!
-        Or more accurately, in this instance we will send a <span class="inline-code">command</span>.</p>
+      <p>Now we just need to get it to switch to the other view...but how do we tell the router to jump to the <span class="inline-code">'/todo'</span> route (and thus trigger the <span class="inline-code">outlet</span> change
+        to the <span class="inline-code">todo-page</span>) once a user clicks login? You might have guessed it...send a message! Or more accurately, in this instance we will send a <span class="inline-code">command</span>.</p>
+
+      <p>Remember, the <span class="inline-code">router</span> is instantiated on the <span class="inline-code">viewModel</span> it is configured with. Our <span class="inline-code">router</span> must then be attached
+        to the <span class="inline-code">Main</span> <span class="inline-code">viewModel</span>. So lets tell it when the user submits the form.</p>
+    </div>
+  </section>
+
+  <a id="manipulating-route" class="section-anchor"></a>
+  <section name="manipulating-route">
+    <div class="highlight"></div>
+    <header>
+      <h1 class="sub title">Manipulating the Route</h1>
+    </header>
+    <div class="content">
+      <p>Footwork provides two basic avenues for altering the state of your application.</p>
+      <ul>
+        <li>Direct manipulation via <span class="inline-code">router.setState()</span></li>
+        <li><span class="inline-code">$route</span> binding to a DOM element event (ex: a click on an <span class="inline-code">&lt;a href=""&gt;</span>).</li>
+      </ul>
+
+      <p>Directly manipulating the <span class="inline-code">router</span> state requires having a reference to it. Since our <span class="inline-code">router</span> is instantiated on the <span class="inline-code">Main</span>
+        <span class="inline-code">viewModel</span> it has a reference to it on <span class="inline-code">viewModel.$router</span>. What we need to do is tell the <span class="inline-code">Main</span>
+        <span class="inline-code">viewModel</span> when the new user logs in and what that username is. Lets use a <span class="inline-code">command</span> to do that.</p>
+
+      <h3>First, we write the code to issue the command from the <span class="inline-code">LoginForm</span>:</h3>
+<div class="file-location">/scripts/viewModels/LoginForm.js</div>
+<pre><code class="javascript">// ...
+  namespace: 'LoginForm',
+  initialize: function() {
+    /**
+     * Create a new namespace instance we will use to communicate with
+     * the Main viewModel.
+     */
+    this.mainNamespace = fw.namespace('Main');
+
+    this.username = fw.observable();
+    this.password = fw.observable();
+    this.loginUser = function() {
+      // Tell the Main viewModel what user has logged in
+      this.mainNamespace.command('userLogin', this.username());
+    };
+  }
+// ...</code></pre>
+      <div class="note"><span class="label">NOTE: </span> new <span class="inline-code">namespace</span> instances should be assigned to <span class="inline-code">this</span> (the <span class="inline-code">viewModel</span>).
+        This ensures that footwork can clean up any subscriptions, handlers, etc if/when the <span class="inline-code">viewModel</span> is disposed of (such as when you navigate to a new route/page).</div>
     </div>
   </section>
 
@@ -379,10 +422,12 @@
       "title": "Creating an outlet",
       "subSections": [
         { "anchor": "outlet-views",
-          "title": "Creating views" },
+          "title": "Creating outlet views" },
         { "anchor": "changing-outlet",
           "title": "Changing the outlet" }
-      ] }
+      ] },
+    { "anchor": "manipulating-route",
+      "title": "Manipulating the Route" }
   ]
 }
 </div>
