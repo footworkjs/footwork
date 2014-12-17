@@ -11,7 +11,8 @@
         <a href="/tutorials/TodoMVC/creatingApplication" data-bind="$route">Creating the Application</a> tutorial. The code in here is based off of where that tutorial
           left off, so if you haven't checked it out yet you should!</div>
 
-      <p>What SPA is complete without routing? In this tutorial we will be adding a login page as well as routes which filter the todo list based on its state.</p>
+      <p>What SPA is complete without routing? In this tutorial we will be adding a login page to the application as well as the necessary code to route between
+        <span class="inline-code">'/'</span> and <span class="inline-code">'/todo</span>.</p>
       
       <p>Routing in a single page app is about managing the state of application. This can include the loading of different views, or triggering some other change
         based on the URL in the address bar. The router in footwork has many features, including the ability to nest routers as well as many differing
@@ -32,7 +33,7 @@
       <p>The first thing we need to do when setting up a router in footwork, is deciding where it will 'live'. Routers in footwork are attached to viewModels,
         specified either in a standalone <span class="inline-code">&lt;viewModel&gt;</span> or on a <span class="inline-code">viewModel</span> which is part of a component.
         The reason for this is that the <span class="inline-code">outlet</span> and <span class="inline-code">$route</span> binding declarations are controlled by 
-        (or attach themselves to) the nearest parent router found in the DOM. So a <span class="inline-code">router</span> needs to be bound to the DOM along with a
+        (or attach themselves to) the nearest parent <span class="inline-code">router</span> found in the DOM. So a <span class="inline-code">router</span> needs to be bound to the DOM along with a
         <span class="inline-code">viewModel</span> so that it can be found.</p>
 
       <p>This parent-seeking nature allows for outlets and <span class="inline-code">$route</span> bindings which can be nested as deeply as you would like within
@@ -301,7 +302,7 @@
       <p>Changing what is displayed in an <span class="inline-code">&lt;outlet&gt;</span> is accomplished via <span class="inline-code">router.$outlet()</span> calls.
         <span class="inline-code">router.$outlet()</span> is simply a method on the router which is used to control whatever outlets are attached to it.</p>
 
-      <div class="note"><span class="label">NOTE:</span> Remember, outlets will find their nearest parent router in the DOM...so you just need to ensure that your
+      <div class="note"><span class="label">NOTE:</span> Remember, outlets will find their nearest parent <span class="inline-code">router</span> in the DOM...so you just need to ensure that your
         <span class="inline-code">&lt;outlet&gt;</span> is a child element of the <span class="inline-code">viewModel</span> a router is defined on. You can read about
         outlets in detail on the <a href="/api/routing#outlets" data-bind="$route">router API documentation</a>.</div>
 
