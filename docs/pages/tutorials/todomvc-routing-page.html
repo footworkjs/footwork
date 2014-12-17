@@ -10,17 +10,6 @@
       <div class="note"><span class="label">NOTE:</span> It is assumed you have gone through the previous
         <a href="/tutorials/TodoMVC/creatingApplication" data-bind="$route">Creating the Application</a> tutorial. The code in here is based off of where that tutorial
           left off, so if you haven't checked it out yet you should!</div>
-      
-      <div class="workspace-setup">
-        <div class="title">
-          View the code for this step:
-          <a class="live-demo" href="http://todo-tutorial.footworkjs.com/routing" target="_blank">Live Demo</a>
-          <a href="https://github.com/reflectiveSingleton/todo-tutorial/compare/amd...routing" class="diff" target="_blank"><span class="icon-git-compare"></span> diff</a>
-        </div>
-        <div class="content">
-          <pre><code class="bash">git checkout -f routing</code></pre>
-        </div>
-      </div>
 
       <p>What SPA is complete without routing? In this tutorial we will be adding a login page as well as routes which filter the todo list based on its state.</p>
       
@@ -58,6 +47,17 @@
       <h1 class="sub title">viewModel and router</h1>
     </header>
     <div class="content">
+      <div class="workspace-setup">
+        <div class="title">
+          View the code for this step:
+          <a class="live-demo" href="http://todo-tutorial.footworkjs.com/viewModelRouter" target="_blank">Live Demo</a>
+          <a href="https://github.com/reflectiveSingleton/todo-tutorial/compare/amd...viewModelRouter" class="diff" target="_blank"><span class="icon-git-compare"></span> diff</a>
+        </div>
+        <div class="content">
+          <pre><code class="bash">git checkout -f viewModelRouter</code></pre>
+        </div>
+      </div>
+
       <p>For our todo application, we will only need one router which will control one <span class="inline-code">outlet</span>. Since this router is to control the
         entirety of the application it makes sense to put it on an 'outermost' viewModel so that anything we might want to control will be a decendant (or inside
         the scope of) the DOM for that router.</p>
@@ -149,6 +149,17 @@
       <h1 class="sub title">Creating an outlet</h1>
     </header>
     <div class="content">
+      <div class="workspace-setup">
+        <div class="title">
+          View the code for this step:
+          <a class="live-demo" href="http://todo-tutorial.footworkjs.com/createOutlet" target="_blank">Live Demo</a>
+          <a href="https://github.com/reflectiveSingleton/todo-tutorial/compare/viewModelRouter...createOutlet" class="diff" target="_blank"><span class="icon-git-compare"></span> diff</a>
+        </div>
+        <div class="content">
+          <pre><code class="bash">git checkout -f createOutlet</code></pre>
+        </div>
+      </div>
+
       <p>Now lets create the <span class="inline-code">&lt;outlet&gt;</span> declaration which our router will use to display different views/pages on.</p>
 
       <p>We do this by pulling out the section of HTML we would like to turn into a page, and replacing it with an <span class="inline-code">&lt;outlet&gt;</span>. For our todo tutorial, we plan on having
@@ -180,6 +191,17 @@
       <h1 class="sub title">Creating Views</h1>
     </header>
     <div class="content">
+      <div class="workspace-setup">
+        <div class="title">
+          View the code for this step:
+          <a class="live-demo" href="http://todo-tutorial.footworkjs.com/creatingViews" target="_blank">Live Demo</a>
+          <a href="https://github.com/reflectiveSingleton/todo-tutorial/compare/createOutlet...creatingViews" class="diff" target="_blank"><span class="icon-git-compare"></span> diff</a>
+        </div>
+        <div class="content">
+          <pre><code class="bash">git checkout -f creatingViews</code></pre>
+        </div>
+      </div>
+
       <p>Now that our <span class="inline-code">&lt;outlet&gt;</span> is where our HTML once was, we need to put that HTML somewhere and load it as a view in the outlet. We do that by creating new
         files which will store the markup and telling footwork where it can find it.</p>
 
@@ -261,6 +283,17 @@
       <h1 class="sub title">Changing the outlet</h1>
     </header>
     <div class="content">
+      <div class="workspace-setup">
+        <div class="title">
+          View the code for this step:
+          <a class="live-demo" href="http://todo-tutorial.footworkjs.com/changingOutlet" target="_blank">Live Demo</a>
+          <a href="https://github.com/reflectiveSingleton/todo-tutorial/compare/creatingViews...changingOutlet" class="diff" target="_blank"><span class="icon-git-compare"></span> diff</a>
+        </div>
+        <div class="content">
+          <pre><code class="bash">git checkout -f changingOutlet</code></pre>
+        </div>
+      </div>
+
       <p>Ok, now we have everything we need to start rendering different pages. We just need to add a couple things to our <span class="inline-code">router</span> configuration. Remember
         those two routes we defined in the <span class="inline-code">Main</span> <span class="inline-code">viewModel</span> definition? We need to make the controllers on those routes show their respective
         pages in our <span class="inline-code">&lt;outlet&gt;</span>.</p>
@@ -359,7 +392,7 @@
         then also being downloaded and instantiated for us too.</p>
 
       <p>Now we just need to get it to switch to the other view...but how do we tell the router to jump to the <span class="inline-code">'/todo'</span> route (and thus trigger the <span class="inline-code">outlet</span> change
-        to the <span class="inline-code">todo-page</span>) once a user clicks login? You might have guessed it...send a message! Or more accurately, in this instance we will send a <span class="inline-code">command</span>.</p>
+        to the <span class="inline-code">todo-page</span>) once a user clicks login? You might have guessed it...send a message! Or more accurately, in this instance we will trigger an <span class="inline-code">event</span>.</p>
 
       <p>Remember, the <span class="inline-code">router</span> is instantiated on the <span class="inline-code">viewModel</span> it is configured with. Our <span class="inline-code">router</span> must then be attached
         to the <span class="inline-code">Main</span> <span class="inline-code">viewModel</span>. So lets tell it when the user submits the form.</p>
@@ -373,6 +406,17 @@
       <h1 class="sub title">Manipulating the Route</h1>
     </header>
     <div class="content">
+      <div class="workspace-setup">
+        <div class="title">
+          View the code for this step:
+          <a class="live-demo" href="http://todo-tutorial.footworkjs.com/manipulatingRoute" target="_blank">Live Demo</a>
+          <a href="https://github.com/reflectiveSingleton/todo-tutorial/compare/changingOutlet...manipulatingRoute" class="diff" target="_blank"><span class="icon-git-compare"></span> diff</a>
+        </div>
+        <div class="content">
+          <pre><code class="bash">git checkout -f manipulatingRoute</code></pre>
+        </div>
+      </div>
+
       <p>Footwork provides two basic avenues for altering the state of your application.</p>
       <ul>
         <li>Direct manipulation via <span class="inline-code">router.setState()</span></li>
@@ -381,9 +425,9 @@
 
       <p>Directly manipulating the <span class="inline-code">router</span> state requires having a reference to it. Since our <span class="inline-code">router</span> is instantiated on the <span class="inline-code">Main</span>
         <span class="inline-code">viewModel</span> it has a reference to it on <span class="inline-code">viewModel.$router</span>. What we need to do is tell the <span class="inline-code">Main</span>
-        <span class="inline-code">viewModel</span> when the new user logs in and what that username is. Lets use a <span class="inline-code">command</span> to do that.</p>
+        <span class="inline-code">viewModel</span> when the new user logs in and what that username is so that it can alter the route for us. Lets trigger an <span class="inline-code">event</span> to do that.</p>
 
-      <h3>First, we write the code to issue the command from the <span class="inline-code">LoginForm</span>:</h3>
+      <h3>First, we write the code to trigger the event from the <span class="inline-code">LoginForm</span>:</h3>
 <div class="file-location">/scripts/viewModels/LoginForm.js</div>
 <pre><code class="javascript">// ...
   namespace: 'LoginForm',
@@ -398,12 +442,77 @@
     this.password = fw.observable();
     this.loginUser = function() {
       // Tell the Main viewModel what user has logged in
-      this.mainNamespace.command('userLogin', this.username());
+      this.mainNamespace.trigger('userLogin');
     };
   }
 // ...</code></pre>
+
       <div class="note"><span class="label">NOTE: </span> new <span class="inline-code">namespace</span> instances should be assigned to <span class="inline-code">this</span> (the <span class="inline-code">viewModel</span>).
         This ensures that footwork can clean up any subscriptions, handlers, etc if/when the <span class="inline-code">viewModel</span> is disposed of (such as when you navigate to a new route/page).</div>
+
+      <p>Now we need to receive that event on the <span class="inline-code">Main</span> <span class="inline-code">viewModel</span> (our <span class="inline-code">viewModel</span> that has the
+        <span class="inline-code">router</span>)...lets add that code.</p>
+
+<div class="file-location">/scripts/viewModels/Main.js</div>
+<pre><code class="javascript">// ...
+  /**
+   * Add the initialize method which is called when the Main viewModel is instantiated.
+   * We then setup the event handler for 'userLogin' messages received on this.$namespace
+   */
+  initialize: function() {
+    // Create reference to the viewModel we will use in the callback
+    var self = this;
+
+    // Create the event handler which receives the 'userLogin' event
+    this.$namespace.event.handler('userLogin', function() {
+      // Tell the router to route to '/todo'
+      self.$router.setState('/todo');
+    });
+  }
+// ...</code></pre>
+
+      <p>Ok...refresh the page and click login (username/password optional at the moment). You should see the route change to <span class="inline-code">/#todo</span> (the hash is there because we are using HTML4 hash-based routing).
+        You should also see the <span class="inline-code">todo-list.html</span> rendered in place of the login form. Yay! You now know the basics of routing in footwork.</p>
+
+      <p>You might be thinking 'but I just want to put a link in there, why do I have to send these events around...seems like a lot of work'. And I would agree with you, but sometimes it is necessary when your route doesn't
+        neatly correspond to a link on your page, this was an example showing how to do that. However if you do actually need a link/button to a URL you can use <span class="inline-code">$route</span> bindings.</p>
+
+      <p><span class="inline-code">$route</span> bindings are simply a <span class="inline-code">data-bind</span> attribute you give to an element. That binding tells footwork you want to change the route based on
+        an event on the element it is bound to. Basically we can turn <span class="inline-code">&lt;a href=""&gt;</a></span> tags (or any other tag) into something you can click on to trigger the new state/route.</p>
+
+      <p>With our todo application we currently have no way to logout. Once you click <span class="inline-code">Login</span> you are in the application, yes you can go 'back'...but that isn't very user friendly. We need a logout
+        button to send us back to <span class="inline-code">'/'</span>. Lets use a <span class="inline-code">$route</span> binding to do that.</p>
+
+      <h3>Add a <span class="inline-code">$route</span> binding to a logout <span class="inline-code">&lt;a href=""&gt;</span> link/button:</h3>
+
+<div class="file-location">/index.html</div>
+<pre><code class="html">&lt;!-- ... --&gt;
+  &lt;header&gt;
+    &lt;div class="title"&gt;Things To Do...&lt;/div&gt;
+
+    &lt;!-- new $route bound link --&gt;
+    &lt;a href="/" data-bind="$route" class="logout button"&gt;Logout&lt;/a&gt;
+  &lt;/header&gt;
+&lt;!-- ... --&gt;</code></pre>
+
+      <p>Thats it...reload the page and after clicking login we should see our new button. When setting up, a <span class="inline-code">$route</span> binding will traverse the DOM tree upwards until it finds the
+        nearest parent <span class="inline-code">router</span> and will use that <span class="inline-code">router</span> to trigger its state change when appropriate.</p>
+
+      <div class="note"><span class="label">NOTE:</span> <span class="inline-code">$route</span> binding has many more available options and features. For the full run-down take a look at the
+        <a href="/api/routing#route-binding" data-bind="$route">route binding API documentation</a>.</div>
+
+      <div class="figure no-title">
+        <div class="content">
+          <div class="image"><img src="images/todo-tutorial/routing3.png"></div>
+        </div>
+      </div>
+
+      <p>And if you click logout, you should notice it sends us back to the login page.</p>
+
+      <p>Now you know the basics of setting up a <span class="inline-code">router</span>, creating an <span class="inline-code">outlet</span>, and manipulating the route either explicitly of via a <span class="inline-code">$route</span>
+        binding.</p>
+
+      <p>Thats it for this part of the tutorial...in the next (and final) part we will finish up the remaining features and show how broadcastables and receivables are a great way to share state/data between your viewModels.</p>
     </div>
   </section>
 
