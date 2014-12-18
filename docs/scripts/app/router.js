@@ -139,6 +139,12 @@ define([ "jquery", "footwork", "lodash", "highlight", "jquery.collapsible", "his
           controller: function($routeParams) {
             this.$outlet('mainContent', 'todomvc-routing-tutorial-page', _.bind(resolvePage, this, getPageLoadPromise()));
           }
+        }, {
+          route: '/tutorials/TodoMVC/finishingUp',
+          title: 'footworkjs - Tutorials - TodoMVC - Finishing',
+          controller: function($routeParams) {
+            this.$outlet('mainContent', 'todomvc-finishing-tutorial-page', _.bind(resolvePage, this, getPageLoadPromise()));
+          }
         }
       ],
       unknownRoute: {

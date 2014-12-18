@@ -29,7 +29,8 @@ define([ "footwork",
     "text!../../pages/api/routing-page.html",
     "text!../../pages/tutorials-page.html",
     "text!../../pages/tutorials/todomvc-creating-page.html",
-    "text!../../pages/tutorials/todomvc-routing-page.html"
+    "text!../../pages/tutorials/todomvc-routing-page.html",
+    "text!../../pages/tutorials/todomvc-finishing-page.html"
   ],
   function( fw,
     contributorsViewModel, contributorsTemplate,
@@ -62,7 +63,8 @@ define([ "footwork",
     routingPage,
     tutorialsPage,
     todoMVCCreatingTutorialPage,
-    todoMVCRoutingTutorialPage
+    todoMVCRoutingTutorialPage,
+    todoMVCFinishingTutorialPage
   ) {
     return function resourceHelper() {
       fw.outlets.registerView('index-page', indexPage);
@@ -78,6 +80,7 @@ define([ "footwork",
       fw.outlets.registerView('tutorials-page', tutorialsPage);
       fw.outlets.registerView('todomvc-creating-tutorial-page', todoMVCCreatingTutorialPage);
       fw.outlets.registerView('todomvc-routing-tutorial-page', todoMVCRoutingTutorialPage);
+      fw.outlets.registerView('todomvc-finishing-tutorial-page', todoMVCFinishingTutorialPage);
 
       fw.components.register('showversion', {
         viewModel: BuildInfoViewModel,
