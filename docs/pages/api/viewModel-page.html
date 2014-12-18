@@ -10,7 +10,7 @@
       <p>A viewModel can be thought of as a container object that houses all of the logic and data with which your template/HTML/DOM binds to. They are used to 'wrap' your HTML/markup, applying the bindings you declare in the HTML while also initializing and binding any nested components and viewModels.</p>
       <p>In knockout.js you typically need to manually wrap and bind (<span class="inline-code">ko.applyBindings()</span>) your DOM with instances of your viewModels, this has many disadvantages/issues (primarily, it requires a lot of legwork by you). Footwork.js can handle
       the initialization, wrapping, and binding for you automatically based on the HTML/DOM (<em>it can also autoload them via AMD/RequireJS as needed</em>).</p>
-      <p>footwork-flavored viewModels provide a clean way of wrapping your knockout and other HTML markup while also enhancing with functionality for lifecycle events, routing, component integration, 
+      <p>Footwork-flavored viewModels provide a clean way of wrapping your knockout and other HTML markup while also enhancing with functionality for lifecycle events, routing, component integration,
       <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" title="Command Query Responsibility Segregation">CQRS</a>, and more.</p>
       <p>In addition, they can contain any number of nested viewModels, components, and any other markup...making them extremely powerful (especially when integrated into a <a href="/api/components" data-bind="$route">component</a>).</p>
       <p>There are a number of ways to create viewModels, but a simple plain old javascript object (just as in normal knockout.js) at its most basic level is all that is needed to bind to the DOM.</p>
