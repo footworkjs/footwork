@@ -244,8 +244,10 @@ var fwRouters = fw.routers = {
   }
 };
 
-fw.router = function( routerConfig, $viewModel, $context ) {
-  return new Router( routerConfig, $viewModel, $context );
+fw.router = function( routerConfig ) {
+  return makeViewModel({
+    router: routerConfig
+  });
 };
 
 fw.bindingHandlers.$route = {
@@ -471,15 +473,19 @@ var Router = function( routerConfig, $viewModel, $context ) {
   this.setRoutes( routerConfig.routes );
 
   if( isFunction(routerConfig.initialize) ) {
-    this.userInitialize = routerConfig.initialize;
+    this.userInitialize = function() {
+      this.$namespace.enter();
+      routerConfig.initialize.call(this);
+      this.$namespace.exit();
+      return this;
+    }.bind(this);
   }
 
   if( routerConfig.activate === true ) {
     subscriptions.push(this.context.subscribe(function activateRouterAfterNewContext( $context ) {
       if( isObject($context) ) {
         this
-          .activate( $context )
-          .userInitialize();
+          .activate( $context );
       }
     }, this));
   }
@@ -504,7 +510,7 @@ Router.prototype.activate = function($context, $parentRouter) {
   if( this.currentState() === '' ) {
     this.setState();
   }
-  return this;
+  return this.userInitialize();
 };
 
 var doNotPushOntoHistory = true;
