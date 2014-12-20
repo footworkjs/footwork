@@ -227,28 +227,33 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
   var theValueAccessor = valueAccessor;
   if( isString(element.tagName) ) {
     var tagName = element.tagName.toLowerCase();
-    if( tagName === 'viewmodel' ) {
+    if( tagName === 'viewmodel' || tagName === 'router' ) {
       var values = valueAccessor();
-      var viewModelName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
+      var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
       var bindViewModel = bindComponentViewModel.bind(null, element, values.params);
 
-      if( !isUndefined(viewModelName) ) {
+      var isRegistered = (tagName === 'viewmodel' ? isRegisteredViewModel : isRegisteredRouter);
+      var getRegistered = (tagName === 'viewmodel' ? getRegisteredViewModel : getRegisteredRouter);
+      var getResourceLocation = (tagName === 'viewmodel' ? getViewModelResourceLocation : getRouterResourceLocation);
+      var getFileName = (tagName === 'viewmodel' ? getViewModelFileName : getRouterFileName);
+
+      if( !isUndefined(moduleName) ) {
         var resourceLocation = null;
 
-        if( isRegisteredViewModel(viewModelName) ) {
+        if( isRegistered(moduleName) ) {
           // viewModel was manually registered, we preferentially use it
-          resourceLocation = getRegisteredViewModel(viewModelName);
-        } else if( isFunction(require) && isFunction(require.defined) && require.defined(viewModelName) ) {
+          resourceLocation = getRegistered(moduleName);
+        } else if( isFunction(require) && isFunction(require.defined) && require.defined(moduleName) ) {
           // we have found a matching resource that is already cached by require, lets use it
-          resourceLocation = viewModelName;
+          resourceLocation = moduleName;
         } else {
-          resourceLocation = getViewModelResourceLocation(viewModelName);
+          resourceLocation = getResourceLocation(moduleName);
         }
 
         if( isString(resourceLocation) ) {
           if( isFunction(require) ) {
             if( isPath(resourceLocation) ) {
-              resourceLocation = resourceLocation + getViewModelFileName(viewModelName);
+              resourceLocation = resourceLocation + getFileName(moduleName);
             }
 
             require([ resourceLocation ], bindViewModel);
