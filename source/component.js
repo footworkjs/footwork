@@ -4,7 +4,7 @@
 var originalComponentRegisterFunc = fw.components.register;
 var registerComponent = fw.components.register = function(componentName, options) {
   var viewModel = options.initialize || options.viewModel;
-  
+
   if( !isString(componentName) ) {
     throw 'Components must be provided a componentName.';
   }
@@ -220,7 +220,7 @@ fw.components.loaders.push( fw.components.requireLoader = {
         if( isPath(templatePath) ) {
           templatePath = templatePath + templateFile;
         }
-        
+
         // check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)
         var viewModelConfig = { require: viewModelPath };
         if( componentTemplateOnlyRegister[componentName] ) {

@@ -127,7 +127,7 @@ var makeViewModel = fw.viewModel = function(configParams) {
     if( afterInitMixins.length ) {
       composure = composure.concat(afterInitMixins);
     }
-    
+
     composure = composure.concat(afterInit);
     if( !isUndefined(configParams.mixins) ) {
       composure = composure.concat(configParams.mixins);
@@ -181,7 +181,7 @@ function applyContextAndLifeCycle(viewModel, element) {
     if( isRouter(viewModel.$router) ) {
       viewModel.$router.context( elementContext );
     }
-    
+
     if( !isUndefined(element) ) {
       fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
         viewModel.dispose();
@@ -223,11 +223,19 @@ function bindComponentViewModel(element, params, ViewModel) {
 // Monkey patch enables the viewModel component to initialize a model and bind to the html as intended (with lifecycle events)
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = fw.bindingHandlers.component.init;
-fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+
+var initSpecialTag = function(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
   var theValueAccessor = valueAccessor;
-  if( isString(element.tagName) ) {
-    var tagName = element.tagName.toLowerCase();
+  if(tagName === '__elementBased') {
+    tagName = element.tagName;
+  }
+
+  if(isString(tagName)) {
+    tagName = tagName.toLowerCase();
     if( tagName === 'viewmodel' || tagName === 'router' ) {
+      if(tagName === 'router') {
+        // debugger;
+      }
       var values = valueAccessor();
       var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
       var bindViewModel = bindComponentViewModel.bind(null, element, values.params);
@@ -236,6 +244,10 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
       var getRegistered = (tagName === 'viewmodel' ? getRegisteredViewModel : getRegisteredRouter);
       var getResourceLocation = (tagName === 'viewmodel' ? getViewModelResourceLocation : getRouterResourceLocation);
       var getFileName = (tagName === 'viewmodel' ? getViewModelFileName : getRouterFileName);
+
+      if(isNull(moduleName) && isString(values)) {
+        moduleName = values;
+      }
 
       if( !isUndefined(moduleName) ) {
         var resourceLocation = null;
@@ -289,3 +301,23 @@ fw.bindingHandlers.component.init = function(element, valueAccessor, allBindings
 
   return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);
 };
+
+fw.bindingHandlers.$router = {
+  preprocess: function(moduleName) {
+    /**
+     * get config for router from constructor module
+     * viewModel.$router = new Router( configParams.router, this );
+     */
+    return "'" + moduleName + "'";
+  },
+  init: initSpecialTag.bind(null, 'router')
+};
+
+fw.bindingHandlers.$viewModel = {
+  preprocess: function(moduleName) {
+    return "'" + moduleName + "'";
+  },
+  init: initSpecialTag.bind(null, 'viewModel')
+};
+
+fw.bindingHandlers.component.init = initSpecialTag.bind(null, '__elementBased');
