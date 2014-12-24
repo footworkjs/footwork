@@ -124,7 +124,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   if( isFunction(options) ) {
     options = { onComplete: options };
   }
-  
+
   var viewModelParameters = options.params;
   var onComplete = options.onComplete;
   var outlets = this.outlets;
@@ -135,7 +135,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
       name: noComponentSelected,
       params: {},
       __getOnCompleteCallback: function() { return noop; }
-    });
+    }).broadcastAs({ name: outletName, namespace: this.$namespace });
   }
 
   var outlet = outlets[outletName];
@@ -214,7 +214,7 @@ var fwRouters = fw.routers = {
     var $parentRouter = nearestParentRouter($context);
     return (!isNullRouter($parentRouter) ? $parentRouter : null);
   },
-  
+
   // Return array of all currently instantiated $router's (optionally for a given viewModelNamespaceName)
   getAll: function(viewModelNamespaceName) {
     if( !isUndefined(viewModelNamespaceName) && !isArray(viewModelNamespaceName) ) {
@@ -338,7 +338,7 @@ fw.bindingHandlers.$route = {
         if(mySegment === '/') {
           mySegment = '';
         }
-        
+
         if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
           // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
           addClass(element, activeRouteClassName);
@@ -421,11 +421,11 @@ var Router = function( routerConfig, $viewModel, $context ) {
   this.isRelative = fw.computed(function() {
     return routerConfig.isRelative && !isNullRouter( this.parentRouter() );
   }, this);
-  
+
   this.currentRoute = fw.computed(function() {
     return this.getRouteForURL( this.normalizeURL(this.currentState()) );
   }, this);
-  
+
   this.path = fw.computed(function() {
     var currentRoute = this.currentRoute();
     var parentRouter = this.parentRouter();
