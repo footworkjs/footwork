@@ -302,6 +302,9 @@ var initSpecialTag = function(tagName, element, valueAccessor, allBindings, view
   return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);
 };
 
+fw.bindingHandlers.component.init = initSpecialTag.bind(null, '__elementBased');
+
+// NOTE: Do not use the $router binding yet, it is incomplete
 fw.bindingHandlers.$router = {
   preprocess: function(moduleName) {
     /**
@@ -313,11 +316,10 @@ fw.bindingHandlers.$router = {
   init: initSpecialTag.bind(null, 'router')
 };
 
+// NOTE: Do not use the $viewModel binding yet, it is incomplete
 fw.bindingHandlers.$viewModel = {
   preprocess: function(moduleName) {
     return "'" + moduleName + "'";
   },
   init: initSpecialTag.bind(null, 'viewModel')
 };
-
-fw.bindingHandlers.component.init = initSpecialTag.bind(null, '__elementBased');
