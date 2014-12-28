@@ -163,11 +163,11 @@ var generatedBuildInfoMessage = [
   '/**',
   ' * NOTE: This file is generated, do not edit it directly.',
   ' *       See: docs/templates/build-info.js',
-  ' */\n'
+  ' */'
 ];
 gulp.task('build_info', function() {
   return gulp.src('docs/templates/build-info.js')
-    .pipe( header(generatedBuildInfoMessage.join('\n')) )
+    .pipe( header(generatedBuildInfoMessage.join('\n') + '\n') )
     .pipe( replace('FOOTWORK_VERSION', pkg.version, 'g') )
     .pipe( replace('FOOTWORK_STATEMENT', statement, 'g') )
     .pipe( replace('FOOTWORK_BUILD_TIMESTAMP', moment().format(), 'g') )
