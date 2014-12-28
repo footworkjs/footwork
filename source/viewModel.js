@@ -172,7 +172,7 @@ function applyContextAndLifeCycle(viewModel, element) {
     var context;
     element = element || document.body;
     viewModel.$element = element;
-    viewModel.$context = elementContext = fw.contextFor(element);
+    viewModel.$context = elementContext = fw.contextFor(element.tagName.toLowerCase() === 'binding-wrapper' ? (element.parentElement || element.parentNode) : element);
 
     if( isFunction($configParams.afterBinding) ) {
       $configParams.afterBinding.call(viewModel, element);
@@ -210,15 +210,22 @@ function bindComponentViewModel(element, params, ViewModel) {
   // existing element as it has already been bound against.
   var wrapperNode = document.createElement('binding-wrapper');
   element.insertBefore(wrapperNode, element.firstChild);
+
+  var childrenToInsert = [];
   each(element.children, function(child) {
-    if(child !== wrapperNode) {
-      wrapperNode.appendChild(child);
+    if(!isUndefined(child) && child !== wrapperNode) {
+      childrenToInsert.push(child);
     }
-  })
+  });
+
+  each(childrenToInsert, function(child) {
+    wrapperNode.appendChild(child);
+  });
+
   applyBindings(viewModelObj, wrapperNode);
 };
 
-// Monkey patch enables the viewModel component to initialize a model and bind to the html as intended (with lifecycle events)
+// Monkey patch enables the viewModel or router component to initialize a model and bind to the html as intended (with lifecycle events)
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = fw.bindingHandlers.component.init;
 
