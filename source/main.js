@@ -131,7 +131,7 @@ fw.start = function(targetElement) {
 // dispose a known property type
 function propertyDisposal( property, name ) {
   if( (isNamespace(property) || isRouter(property) || isBroadcastable(property) || isReceivable(property) || isObservable(property)) && isFunction(property.dispose) ) {
-    property.dispose();  
+    property.dispose();
   }
 }
 

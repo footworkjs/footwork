@@ -37,7 +37,7 @@ function createEnvelope(topic, data, expires) {
       envelope.expires = expires;
     }
   }
-  
+
   return envelope;
 }
 

@@ -50,7 +50,7 @@ var getComponentFileName = fw.components.getFileName = function(componentName, f
       }
     }
   }
-  
+
   return fileName;
 };
 

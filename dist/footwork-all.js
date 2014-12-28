@@ -9451,7 +9451,7 @@ function createEnvelope(topic, data, expires) {
       envelope.expires = expires;
     }
   }
-  
+
   return envelope;
 }
 
@@ -9665,7 +9665,7 @@ fw.start = function(targetElement) {
 // dispose a known property type
 function propertyDisposal( property, name ) {
   if( (isNamespace(property) || isRouter(property) || isBroadcastable(property) || isReceivable(property) || isObservable(property)) && isFunction(property.dispose) ) {
-    property.dispose();  
+    property.dispose();
   }
 }
 
@@ -11165,7 +11165,7 @@ var getComponentFileName = fw.components.getFileName = function(componentName, f
       }
     }
   }
-  
+
   return fileName;
 };
 
