@@ -258,5 +258,5 @@ var getRouterResourceLocation = fw.routers.getResourceLocation = function(module
   if( isUndefined(moduleName) ) {
     return routerResourceLocations;
   }
-  return routerResourceLocations[moduleName] || getComponentResourceLocation(moduleName).viewModels || defaultViewModelLocation;
+  return routerResourceLocations[moduleName] || defaultRouterLocation;
 };
