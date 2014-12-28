@@ -159,8 +159,15 @@ gulp.task('doc_source_annotation', function() {
     .pipe(gulp.dest('docs/pages'));
 });
 
+var generatedBuildInfoMessage = [
+  '/**',
+  ' * NOTE: This file is generated, do not edit it directly.',
+  ' *       See: docs/templates/build-info.js',
+  ' */\n'
+];
 gulp.task('build_info', function() {
   return gulp.src('docs/templates/build-info.js')
+    .pipe( header(generatedBuildInfoMessage.join('\n')) )
     .pipe( replace('FOOTWORK_VERSION', pkg.version, 'g') )
     .pipe( replace('FOOTWORK_STATEMENT', statement, 'g') )
     .pipe( replace('FOOTWORK_BUILD_TIMESTAMP', moment().format(), 'g') )
@@ -168,15 +175,15 @@ gulp.task('build_info', function() {
     .pipe(gulp.dest('./docs'));
 });
 
-var generatedConfigMessage = [
+var generatedBuildConfigMessage = [
   '/**',
   ' * NOTE: This file is generated, do not edit it directly.',
   ' *       See: docs/scripts/require-config.json',
   ' */'
 ];
 gulp.task('build_config', function(callback) {
-  var requireConfigJS = _.extend([], generatedConfigMessage).concat('var requireConfig = ' + JSON.stringify(requireConfig, null, '\t'));
-  var buildJS = _.extend([], generatedConfigMessage).concat('(' + JSON.stringify(requireConfig, null, '\t') + ')');
+  var requireConfigJS = _.extend([], generatedBuildConfigMessage).concat('var requireConfig = ' + JSON.stringify(requireConfig, null, '\t'));
+  var buildJS = _.extend([], generatedBuildConfigMessage).concat('(' + JSON.stringify(requireConfig, null, '\t') + ')');
   fs.writeFile('docs/scripts/require-config.js', requireConfigJS.join('\n'));
   fs.writeFile('docs/build.js', buildJS.join('\n'));
   callback();

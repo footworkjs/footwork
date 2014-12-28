@@ -182,7 +182,7 @@ var getViewModelResourceLocation = fw.viewModels.getResourceLocation = function(
   if( isUndefined(viewModelName) ) {
     return viewModelResourceLocations;
   }
-  return viewModelResourceLocations[viewModelName] || getComponentResourceLocation(viewModelName).viewModels || defaultViewModelLocation;
+  return viewModelResourceLocations[viewModelName] || defaultViewModelLocation;
 };
 
 
