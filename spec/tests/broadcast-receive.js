@@ -98,7 +98,7 @@ describe('broadcast-receive', function () {
       }
     });
     var modelB = new ModelB();
-    
+
     modelB.nonwritableReceiver('specific-value-that-should-not-be-seen');
     expect(modelA.nonwritableBroadcaster()).not.to.eql('specific-value-that-should-not-be-seen');
   });
