@@ -206,18 +206,16 @@ function bindComponentViewModel(element, params, ViewModel) {
   }
   viewModelObj.$parentContext = fw.contextFor(element.parentElement || element.parentNode);
 
-  // binding the viewModelObj onto each child element is not ideal, need to do this differently
-  // cannot get component.preprocess() method to work/be called for some reason
+  // Have to create a wrapper element for the contents of the element. Cannot bind to
+  // existing element as it has already been bound against.
+  var wrapperNode = document.createElement('binding-wrapper');
+  element.insertBefore(wrapperNode, element.firstChild);
   each(element.children, function(child) {
-    originalApplyBindings(viewModelObj, child);
-  });
-  applyContextAndLifeCycle(viewModelObj, element);
-
-  // we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each
-  // sub-element and must specify the context as being the container element only once
-  if( isRouter(viewModelObj.$router) ) {
-    viewModelObj.$router.context( fw.contextFor(element) );
-  }
+    if(child !== wrapperNode) {
+      wrapperNode.appendChild(child);
+    }
+  })
+  applyBindings(viewModelObj, wrapperNode);
 };
 
 // Monkey patch enables the viewModel component to initialize a model and bind to the html as intended (with lifecycle events)
@@ -233,9 +231,6 @@ var initSpecialTag = function(tagName, element, valueAccessor, allBindings, view
   if(isString(tagName)) {
     tagName = tagName.toLowerCase();
     if( tagName === 'viewmodel' || tagName === 'router' ) {
-      if(tagName === 'router') {
-        // debugger;
-      }
       var values = valueAccessor();
       var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
       var bindViewModel = bindComponentViewModel.bind(null, element, values.params);

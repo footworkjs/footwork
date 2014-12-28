@@ -4896,9 +4896,6 @@ var fwRouters = fw.routers = {
 
     return reduce( $globalNamespace.request('__router_reference', undefined, true), function(routers, router) {
       var namespaceName = isNamespace(router.$namespace) ? router.$namespace.getName() : null;
-      if( !isUndefined(router.$viewModel) ) {
-        namespaceName = router.$viewModel.$namespace.getName();
-      }
 
       if( !isNull(namespaceName) ) {
         if( isUndefined(viewModelNamespaceName) || contains(viewModelNamespaceName, namespaceName) ) {
@@ -5121,7 +5118,9 @@ var Router = function( routerConfig, $viewModel, $context ) {
 
   // Automatically trigger the new Action() whenever the currentRoute() updates
   subscriptions.push( this.currentRoute.subscribe(function getActionForRouteAndTrigger( newRoute ) {
-    this.getActionForRoute( newRoute )( /* get and call the action for the newRoute */ );
+    if(this.currentState().length) {
+      this.getActionForRoute( newRoute )( /* get and call the action for the newRoute */ );
+    }
   }, this) );
 
   var $router = this;
@@ -5186,16 +5185,14 @@ Router.prototype.activate = function($context, $parentRouter) {
   return this.userInitialize();
 };
 
-var doNotPushOntoHistory = true;
-var pushOntoHistory = false;
 Router.prototype.setState = function(url) {
   if( this.historyIsEnabled() && !this.disableHistory() ) {
     if(isString(url)) {
       var historyAPIWorked = true;
       try {
         historyAPIWorked = History.pushState(null, '', this.parentRouter().path() + url);
-      } catch(error) {
-        console.error(error);
+      } catch(historyException) {
+        console.error(historyException);
         historyAPIWorked = false;
       } finally {
         if(historyAPIWorked) {
@@ -5593,18 +5590,16 @@ function bindComponentViewModel(element, params, ViewModel) {
   }
   viewModelObj.$parentContext = fw.contextFor(element.parentElement || element.parentNode);
 
-  // binding the viewModelObj onto each child element is not ideal, need to do this differently
-  // cannot get component.preprocess() method to work/be called for some reason
+  // Have to create a wrapper element for the contents of the element. Cannot bind to
+  // existing element as it has already been bound against.
+  var wrapperNode = document.createElement('binding-wrapper');
+  element.insertBefore(wrapperNode, element.firstChild);
   each(element.children, function(child) {
-    originalApplyBindings(viewModelObj, child);
-  });
-  applyContextAndLifeCycle(viewModelObj, element);
-
-  // we told applyBindings not to specify a context on the viewModel.$router after binding because we are binding to each
-  // sub-element and must specify the context as being the container element only once
-  if( isRouter(viewModelObj.$router) ) {
-    viewModelObj.$router.context( fw.contextFor(element) );
-  }
+    if(child !== wrapperNode) {
+      wrapperNode.appendChild(child);
+    }
+  })
+  applyBindings(viewModelObj, wrapperNode);
 };
 
 // Monkey patch enables the viewModel component to initialize a model and bind to the html as intended (with lifecycle events)
@@ -5620,9 +5615,6 @@ var initSpecialTag = function(tagName, element, valueAccessor, allBindings, view
   if(isString(tagName)) {
     tagName = tagName.toLowerCase();
     if( tagName === 'viewmodel' || tagName === 'router' ) {
-      if(tagName === 'router') {
-        // debugger;
-      }
       var values = valueAccessor();
       var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
       var bindViewModel = bindComponentViewModel.bind(null, element, values.params);
@@ -5689,6 +5681,9 @@ var initSpecialTag = function(tagName, element, valueAccessor, allBindings, view
   return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);
 };
 
+fw.bindingHandlers.component.init = initSpecialTag.bind(null, '__elementBased');
+
+// NOTE: Do not use the $router binding yet, it is incomplete
 fw.bindingHandlers.$router = {
   preprocess: function(moduleName) {
     /**
@@ -5700,14 +5695,13 @@ fw.bindingHandlers.$router = {
   init: initSpecialTag.bind(null, 'router')
 };
 
+// NOTE: Do not use the $viewModel binding yet, it is incomplete
 fw.bindingHandlers.$viewModel = {
   preprocess: function(moduleName) {
     return "'" + moduleName + "'";
   },
   init: initSpecialTag.bind(null, 'viewModel')
 };
-
-fw.bindingHandlers.component.init = initSpecialTag.bind(null, '__elementBased');
 // component.js
 // ------------------
 
@@ -5783,7 +5777,7 @@ var nonComponentTags = [
   'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'shadow', 'small', 'source', 'spacer',
   'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'template', 'textarea',
   'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp', 'rect', 'image',
-  'lineargradient', 'stop', 'line'
+  'lineargradient', 'stop', 'line', 'binding-wrapper'
 ];
 var tagIsComponent = fw.components.tagIsComponent = function(tagName, isComponent) {
   if( isUndefined(isComponent) ) {

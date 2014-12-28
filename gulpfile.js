@@ -18,6 +18,7 @@ var runSequence = require('run-sequence');
 var fs = require('fs');
 
 var pkg = require('./package.json');
+var requireConfig = require('./docs/scripts/require-config.json');
 var reporter = 'list';
 var statement = 'A solid footing for web applications.';
 var args   = require('yargs').argv;
@@ -138,7 +139,7 @@ gulp.task('readyRelease', function(callback) {
 });
 
 gulp.task('docs', function(callback) {
-  runSequence('docs_clean', 'doc_source_annotation', 'build_info', callback);
+  runSequence('docs_clean', 'doc_source_annotation', 'build_info', 'build_config', callback);
 });
 
 gulp.task('docs_clean', function() {
@@ -167,6 +168,20 @@ gulp.task('build_info', function() {
     .pipe(gulp.dest('./docs'));
 });
 
+var generatedConfigMessage = [
+  '/**',
+  ' * NOTE: This file is generated, do not edit it directly.',
+  ' *       See: docs/scripts/require-config.json',
+  ' */'
+];
+gulp.task('build_config', function(callback) {
+  var requireConfigJS = _.extend([], generatedConfigMessage).concat('var requireConfig = ' + JSON.stringify(requireConfig, null, '\t'));
+  var buildJS = _.extend([], generatedConfigMessage).concat('(' + JSON.stringify(requireConfig, null, '\t') + ')');
+  fs.writeFile('docs/scripts/require-config.js', requireConfigJS.join('\n'));
+  fs.writeFile('docs/build.js', buildJS.join('\n'));
+  callback();
+});
+
 gulp.task('set_version', function() {
   var version = pkg.version;
   if(typeof args.ver !== 'undefined') {
@@ -184,10 +199,20 @@ gulp.task('set_version', function() {
   );
 });
 
+var dynamicAppScriptBlock = [
+  '<?php if( gethostname() !== DEV_HOSTNAME ): ?>',
+  '<script src="scripts/build/main.js"></script>',
+  '<?php else: ?>',
+  '<script src="scripts/require-config.js"></script>',
+  '<script src="bower_components/requirejs/require.js" data-main="scripts/app/main"></script>',
+  '<?php endif; ?>',
+];
+
 // Used to setup documentation on remote server after a release
 gulp.task('readyDocServ', function(callback) {
   return gulp.src('docs/index.html')
-    .pipe( replace('js-body narrow', '<?=(isset($isMobile) ? \'mobile\' : \'\')?>') )
+    .pipe( replace('layout narrow', '<?=\'layout \'.(isset($isMobile) ? \'mobile\' : \'\')?>') )
+    .pipe( replace('<script src="scripts/build/main.js"></script>', dynamicAppScriptBlock.join('\n')) )
     .pipe( replace('<!--FOOTWORK_CONTENT-->', '<?php App::loadView( isset( $bodyView ) ? $bodyView : DEFAULT_BODY_VIEW ); ?>') )
     .pipe( replace('<base href="">', '<base href="/">') )
     .pipe( replace('<!-- current build info -->', '<?php if(isset($isMobile) && $isMobile === true) { ?><script>window.isMobile = true;</script><?php } ?>') )

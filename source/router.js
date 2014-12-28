@@ -223,9 +223,6 @@ var fwRouters = fw.routers = {
 
     return reduce( $globalNamespace.request('__router_reference', undefined, true), function(routers, router) {
       var namespaceName = isNamespace(router.$namespace) ? router.$namespace.getName() : null;
-      if( !isUndefined(router.$viewModel) ) {
-        namespaceName = router.$viewModel.$namespace.getName();
-      }
 
       if( !isNull(namespaceName) ) {
         if( isUndefined(viewModelNamespaceName) || contains(viewModelNamespaceName, namespaceName) ) {
@@ -448,7 +445,9 @@ var Router = function( routerConfig, $viewModel, $context ) {
 
   // Automatically trigger the new Action() whenever the currentRoute() updates
   subscriptions.push( this.currentRoute.subscribe(function getActionForRouteAndTrigger( newRoute ) {
-    this.getActionForRoute( newRoute )( /* get and call the action for the newRoute */ );
+    if(this.currentState().length) {
+      this.getActionForRoute( newRoute )( /* get and call the action for the newRoute */ );
+    }
   }, this) );
 
   var $router = this;
@@ -513,16 +512,14 @@ Router.prototype.activate = function($context, $parentRouter) {
   return this.userInitialize();
 };
 
-var doNotPushOntoHistory = true;
-var pushOntoHistory = false;
 Router.prototype.setState = function(url) {
   if( this.historyIsEnabled() && !this.disableHistory() ) {
     if(isString(url)) {
       var historyAPIWorked = true;
       try {
         historyAPIWorked = History.pushState(null, '', this.parentRouter().path() + url);
-      } catch(error) {
-        console.error(error);
+      } catch(historyException) {
+        console.error(historyException);
         historyAPIWorked = false;
       } finally {
         if(historyAPIWorked) {
