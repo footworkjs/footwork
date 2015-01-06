@@ -200,7 +200,7 @@ var currentNamespace = fw.currentNamespace = function() {
   return makeNamespace( currentNamespaceName() );
 };
 
-// enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
+// enterNamespaceName() adds a namespaceName onto the namespace stack at the current index,
 // 'entering' into that namespace (it is now the currentNamespace).
 // The namespace object returned from this method also has a pointer to its parent
 var enterNamespaceName = fw.enterNamespaceName = function(namespaceName) {

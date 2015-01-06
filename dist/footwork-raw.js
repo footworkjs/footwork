@@ -338,7 +338,7 @@ var currentNamespace = fw.currentNamespace = function() {
   return makeNamespace( currentNamespaceName() );
 };
 
-// enterNamespaceName() adds a namespaceName onto the namespace stack at the current index, 
+// enterNamespaceName() adds a namespaceName onto the namespace stack at the current index,
 // 'entering' into that namespace (it is now the currentNamespace).
 // The namespace object returned from this method also has a pointer to its parent
 var enterNamespaceName = fw.enterNamespaceName = function(namespaceName) {
@@ -378,6 +378,7 @@ viewModelMixins.push({
     exitNamespace();
   }
 });
+
 var $globalNamespace = makeNamespace();
 
 // 'start' up footwork at the targetElement (or document.body by default)
@@ -515,6 +516,7 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
   observable.__isBroadcastable = true;
   return observable.broadcast();
 };
+
 // router.js
 // ------------------
 
@@ -1226,6 +1228,7 @@ Router.prototype.getActionForRoute = function(routeDescription) {
 Router.prototype.getRouteDescriptions = function() {
   return this.routeDescriptions;
 };
+
 // viewModel.js
 // ------------------
 
@@ -1553,6 +1556,7 @@ fw.bindingHandlers.$viewModel = {
   },
   init: initSpecialTag.bind(null, 'viewModel')
 };
+
 // component.js
 // ------------------
 
@@ -1844,6 +1848,7 @@ registerComponent('error', {
       </div>\
     </div>'
 });
+
 // resource.js
 // ------------------
 
@@ -2106,6 +2111,7 @@ var getRouterResourceLocation = fw.routers.getResourceLocation = function(module
   }
   return routerResourceLocations[moduleName] || defaultRouterLocation;
 };
+
 // extenders.js
 // ----------------
 
@@ -2254,3 +2260,4 @@ fw.extenders.delayWrite = function( target, options ) {
 
   return delayWriteComputed;
 };
+
