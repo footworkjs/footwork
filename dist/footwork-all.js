@@ -10301,10 +10301,11 @@ Router.prototype.addRoutes = function(routeConfig) {
 
 Router.prototype.activate = function($context, $parentRouter) {
   this.startup( $context, $parentRouter );
+  this.userInitialize();
   if( this.currentState() === '' ) {
     this.setState();
   }
-  return this.userInitialize();
+  return this;
 };
 
 Router.prototype.setState = function(url) {
