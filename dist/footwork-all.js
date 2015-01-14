@@ -9374,6 +9374,7 @@ var reject = _.reject;
 var findWhere = _.findWhere;
 var once = _.once;
 var last = _.last;
+var isEqual = _.isEqual;
 
 // Internal registry which stores the mixins that are automatically added to each viewModel
 var viewModelMixins = [];
@@ -9938,7 +9939,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   var valueHasMutated = false;
   var isInitialLoad = outlet().name === noComponentSelected;
 
-  if( !isUndefined(componentToDisplay) ) {
+  if( !isUndefined(componentToDisplay) && currentOutletDef.name !== componentToDisplay ) {
     currentOutletDef.name = componentToDisplay;
     valueHasMutated = true;
   }
@@ -10096,14 +10097,17 @@ fw.bindingHandlers.$route = {
 
         if( !isFullURL(myLinkPath) ) {
           if( !hasPathStart(myLinkPath) ) {
+            var currentRoute = $myRouter.currentRoute();
             if(hasHashStart(myLinkPath)) {
-              var currentRoute = $myRouter.currentRoute();
               if(!isNull(currentRoute)) {
                 myLinkPath = $myRouter.currentRoute().segment + myLinkPath;
               }
               hashOnly = true;
             } else {
-              myLinkPath = '/' + myLinkPath;
+              // relative url, prepend current segment
+              if(!isNull(currentRoute)) {
+                myLinkPath = $myRouter.currentRoute().segment + '/' + myLinkPath;
+              }
             }
           }
 
@@ -10480,6 +10484,10 @@ Router.prototype.getRouteForURL = function(url) {
   return route || unknownRoute;
 };
 
+function sameRouteDescription(desc1, desc2) {
+  return desc1.id === desc2.id && isEqual(desc1.indexedParams, desc2.indexedParams) && isEqual(desc1.namedParams, desc2.namedParams);
+}
+
 Router.prototype.getActionForRoute = function(routeDescription) {
   var Action = function() {
     delete this.__currentRouteDescription;
@@ -10492,7 +10500,7 @@ Router.prototype.getActionForRoute = function(routeDescription) {
         document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this, routeDescription.namedParams, this.urlParts()) : routeDescription.title;
       }
 
-      if( isUndefined(this.__currentRouteDescription) || this.__currentRouteDescription.id !== routeDescription.id ) {
+      if( isUndefined(this.__currentRouteDescription) || !sameRouteDescription(this.__currentRouteDescription, routeDescription) ) {
         routeDescription.controller.call( this, routeDescription.namedParams );
         this.__currentRouteDescription = routeDescription;
       }
