@@ -164,7 +164,7 @@ w=koExports;})();
   return (function() {
     // define our own root object to supply to the modules as an attachment point
 var root = {};
-  
+
 // supply our root for modules that directly check for the window object
 var window = root;
 
@@ -175,6 +175,7 @@ var define = undefined;
 var module = undefined,
     exports = undefined,
     global = undefined;
+
     if (!Function.prototype.bind) {
   Function.prototype.bind = function(oThis) {
     if (typeof this !== 'function') {
@@ -199,6 +200,7 @@ var module = undefined,
     return fBound;
   };
 }
+
     root.ko = ko;
 
     (function() {
@@ -10339,7 +10341,6 @@ Router.prototype.setState = function(url) {
 };
 
 Router.prototype.startup = function( $context, $parentRouter ) {
-  var $myRouter = this;
   $parentRouter = $parentRouter || $nullRouter;
 
   if( !isNullRouter($parentRouter) ) {
@@ -10441,7 +10442,7 @@ Router.prototype.getRouteForURL = function(url) {
 
     if( isString(routeString) ) {
       routeParams = url.match(routeStringToRegExp(routeString));
-      if( !isNull(routeParams) && routeDescription.filter.call($myRouter, routeParams, $myRouter.urlParts()) ) {
+      if( !isNull(routeParams) && routeDescription.filter.call($myRouter, routeParams, $myRouter.urlParts.peek()) ) {
         matchedRoutes.push({
           routeString: routeString,
           specificity: routeString.replace(namedParamRegex, "*").length,
@@ -10488,12 +10489,12 @@ Router.prototype.getRouteForURL = function(url) {
   return route || unknownRoute;
 };
 
-var DefaultAction = function() {
+function DefaultAction() {
   delete this.__currentRouteDescription;
   this.$outlet.reset();
-};
+}
 
-var DefinedAction = function(routeDescription) {
+function RoutedAction(routeDescription) {
   if( !isUndefined(routeDescription.title) ) {
     document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this, routeDescription.namedParams, this.urlParts()) : routeDescription.title;
   }
@@ -10502,13 +10503,13 @@ var DefinedAction = function(routeDescription) {
     routeDescription.controller.call( this, routeDescription.namedParams );
     this.__currentRouteDescription = routeDescription;
   }
-};
+}
 
 Router.prototype.getActionForRoute = function(routeDescription) {
   var Action;
 
   if( isRoute(routeDescription) ) {
-    Action = DefinedAction.bind(this, routeDescription);
+    Action = RoutedAction.bind(this, routeDescription);
   }
 
   return Action || DefaultAction.bind(this);

@@ -1,6 +1,6 @@
 // define our own root object to supply to the modules as an attachment point
 var root = {};
-  
+
 // supply our root for modules that directly check for the window object
 var window = root;
 

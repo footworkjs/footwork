@@ -8,14 +8,14 @@
   }
 }(this, function (_, ko) {
   var windowObject = window;
-  
+
   window.require = typeof require !== 'undefined' ? require : undefined;
   window.define = typeof define !== 'undefined' ? define : undefined;
-  
+
   return (function() {
     //import("helpers/root-masks.js");
     //import("helpers/bind-poly.js");
-    
+
     _.extend(root, {
       _: _,
       ko: ko
