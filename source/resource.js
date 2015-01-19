@@ -12,22 +12,29 @@ var componentFileExtensions = fw.components.fileExtensions = fw.observable( clon
 
 var componentIsRegistered = fw.components.isRegistered;
 
-var getComponentFileName = fw.components.getFileName = function(componentName, fileType) {
+function getComponentExtension(componentName, fileType) {
   var componentExtensions = componentFileExtensions();
+  var fileExtension = '';
+
+  if( isFunction(componentExtensions) ) {
+    fileExtension = componentExtensions(componentName)[fileType];
+  } else if( isObject(componentExtensions) ) {
+    if( isFunction(componentExtensions[fileType]) ) {
+      fileExtension = componentExtensions[fileType](componentName);
+    } else {
+      fileExtension = componentExtensions[fileType] || '';
+    }
+  }
+
+  return fileExtension.replace(/^\./, '') || '';
+}
+
+var getComponentFileName = fw.components.getFileName = function(componentName, fileType) {
   var fileName = componentName;
+  var fileExtension = getComponentExtension(componentName, fileType);
 
   if( componentIsRegistered(componentName) ) {
     return null;
-  }
-
-  if( isFunction(componentExtensions) ) {
-    fileName += componentExtensions(componentName)[fileType];
-  } else if( isObject(componentExtensions) ) {
-    if( isFunction(componentExtensions[fileType]) ) {
-      fileName += componentExtensions[fileType](componentName);
-    } else {
-      fileName += componentExtensions[fileType] || '';
-    }
   }
 
   switch(fileType) {
@@ -51,7 +58,7 @@ var getComponentFileName = fw.components.getFileName = function(componentName, f
     }
   }
 
-  return fileName;
+  return fileName + (fileExtension !== getFilenameExtension(fileName) ? ('.' + fileExtension) : '');
 };
 
 var defaultComponentLocation = {
@@ -114,15 +121,21 @@ var getComponentResourceLocation = fw.components.getResourceLocation = function(
 var defaultViewModelFileExtensions = '.js';
 var viewModelFileExtensions = fw.viewModels.fileExtensions = fw.observable( defaultViewModelFileExtensions );
 
-var getViewModelFileName = fw.viewModels.getFileName = function(viewModelName) {
+function getViewModelExtension(viewModelName) {
   var viewModelExtensions = viewModelFileExtensions();
-  var fileName = viewModelName;
+  var fileExtension = '';
 
   if( isFunction(viewModelExtensions) ) {
-    fileName += viewModelExtensions(viewModelName);
+    fileExtension = viewModelExtensions(viewModelName);
   } else if( isString(viewModelExtensions) ) {
-    fileName += viewModelExtensions;
+    fileExtension = viewModelExtensions;
   }
+
+  return fileExtension.replace(/^\./, '') || '';
+}
+
+var getViewModelFileName = fw.viewModels.getFileName = function(viewModelName) {
+  var fileName = viewModelName + '.' + getViewModelExtension(viewModelName);
 
   if( !isUndefined( viewModelResourceLocations[viewModelName] ) ) {
     var registeredLocation = viewModelResourceLocations[viewModelName];

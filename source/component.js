@@ -221,6 +221,13 @@ fw.components.loaders.push( fw.components.requireLoader = {
           templatePath = templatePath + templateFile;
         }
 
+        if( getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel') ) {
+          viewModelPath += '.' + getComponentExtension(componentName, 'viewModel');
+        }
+        if( getFilenameExtension(templatePath) !== getComponentExtension(componentName, 'template') ) {
+          templatePath += '.' + getComponentExtension(componentName, 'template');
+        }
+
         // check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)
         var viewModelConfig = { require: viewModelPath };
         if( componentTemplateOnlyRegister[componentName] ) {
