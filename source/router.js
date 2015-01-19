@@ -637,15 +637,14 @@ Router.prototype.getRouteForURL = function(url) {
   }
 
   // find all routes with a matching routeString
-  var matchedRoutes = [];
-  find(this.getRouteDescriptions(), function(routeDescription) {
+  var matchedRoutes = reduce(this.getRouteDescriptions(), function(matches, routeDescription) {
     var routeString = routeDescription.route;
     var routeParams = [];
 
     if( isString(routeString) ) {
       routeParams = url.match(routeStringToRegExp(routeString));
       if( !isNull(routeParams) && routeDescription.filter.call($myRouter, routeParams, $myRouter.urlParts.peek()) ) {
-        matchedRoutes.push({
+        matches.push({
           routeString: routeString,
           specificity: routeString.replace(namedParamRegex, "*").length,
           routeDescription: routeDescription,
@@ -653,8 +652,8 @@ Router.prototype.getRouteForURL = function(url) {
         });
       }
     }
-    return route;
-  });
+    return matches;
+  }, []);
 
   // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
   // and convert it into the actual route
