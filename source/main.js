@@ -50,6 +50,15 @@ function removeClass(element, className) {
   }
 }
 
+function getFilenameExtension(fileName) {
+  var extension = '';
+  if(fileName.indexOf('.') !== -1) {
+    var parts = fileName.split('.');
+    extension = parts[parts.length - 1];
+  }
+  return extension;
+}
+
 // Pull out lodash utility function references for better minification and easier implementation swap
 var isFunction = _.isFunction;
 var isObject = _.isObject;
