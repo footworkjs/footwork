@@ -12,9 +12,9 @@ fw.footworkVersion = 'FOOTWORK_VERSION';
 fw.embed = embedded;
 
 // misc regex patterns
-var hasTrailingSlash = /\/$/i;
-var hasStartingSlash = /^\//i;
-var hasStartingHash = /^#/i;
+var trailingSlashRegex = /\/$/;
+var startingSlashRegex = /^\//;
+var startingHashRegex = /^#/;
 
 // misc utility functions
 var noop = function() { };
@@ -22,15 +22,15 @@ var noop = function() { };
 var isObservable = fw.isObservable;
 
 function isPath(pathOrFile) {
-  return hasTrailingSlash.test(pathOrFile);
+  return trailingSlashRegex.test(pathOrFile);
 };
 
 function hasPathStart(path) {
-  return hasStartingSlash.test(path);
+  return startingSlashRegex.test(path);
 };
 
 function hasHashStart(string) {
-  return hasStartingHash.test(string);
+  return startingHashRegex.test(string);
 }
 
 function hasClass(element, className) {

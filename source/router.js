@@ -542,16 +542,6 @@ Router.prototype.setState = function(url) {
   }
 };
 
-function trimBaseRoute($router, url) {
-  if( !isNull($router.config.baseRoute) && url.indexOf($router.config.baseRoute) === 0 ) {
-    url = url.substr($router.config.baseRoute.length);
-    if(url.length > 1) {
-      url = url.replace(hashMatchRegex, '/');
-    }
-  }
-  return url;
-}
-
 Router.prototype.startup = function( $context, $parentRouter ) {
   $parentRouter = $parentRouter || $nullRouter;
 
@@ -568,8 +558,8 @@ Router.prototype.startup = function( $context, $parentRouter ) {
     if( historyIsReady() && !this.disableHistory() ) {
       History.Adapter.bind( windowObject, 'popstate', this.stateChangeHandler = function(event) {
         var url = '';
-        if(!fwRouters.html5History() && trimBaseRoute(this, windowObject.location.pathname) === '/' && windowObject.location.hash.length > 1) {
-          url = '/' + windowObject.location.hash.substring(1).replace(/^\//, '');
+        if(!fwRouters.html5History() && windowObject.location.hash.length > 1) {
+          url = '/' + windowObject.location.hash.substring(1).replace(startingSlashRegex, '');
         } else {
           url = windowObject.location.pathname + windowObject.location.hash;
         }
@@ -604,15 +594,24 @@ Router.prototype.dispose = function() {
   }), propertyDisposal);
 };
 
+function trimBaseRoute($router, url) {
+  if( !isNull($router.config.baseRoute) && url.indexOf($router.config.baseRoute) === 0 ) {
+    url = url.substr($router.config.baseRoute.length);
+    if(url.length > 1) {
+      url = url.replace(hashMatchRegex, '/');
+    }
+  }
+  return url;
+}
+
 Router.prototype.normalizeURL = function(url) {
   var urlParts = parseUri(url);
-  var trimmedUrl = trimBaseRoute(this, urlParts.path);
   this.urlParts(urlParts);
 
-  if(!fwRouters.html5History() && trimmedUrl === '/') {
-    url = '/' + urlParts.anchor.replace(/^\//, '');
+  if(!fwRouters.html5History() && url.length && urlParts.anchor.length) {
+    url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
   } else {
-    url = trimmedUrl;
+    url = trimBaseRoute(this, urlParts.path);
   }
 
   return url;
