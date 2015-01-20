@@ -10427,15 +10427,16 @@ Router.prototype.dispose = function() {
 
 Router.prototype.normalizeURL = function(url) {
   var urlParts = parseUri(url);
+  var trimmedUrl = trimBaseRoute(this, urlParts.path);
   this.urlParts(urlParts);
 
-  if(!fwRouters.html5History() && urlParts.path === '/') {
+  if(!fwRouters.html5History() && trimmedUrl === '/') {
     url = '/' + urlParts.anchor;
   } else {
-    url = urlParts.path;
+    url = trimmedUrl;
   }
 
-  return trimBaseRoute(this, url);
+  return url;
 };
 
 Router.prototype.getUnknownRoute = function() {
