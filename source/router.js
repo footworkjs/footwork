@@ -559,7 +559,7 @@ Router.prototype.startup = function( $context, $parentRouter ) {
       History.Adapter.bind( windowObject, 'popstate', this.stateChangeHandler = function(event) {
         var url = '';
         if(!fwRouters.html5History() && windowObject.location.hash.length > 1) {
-          url = '/' + windowObject.location.hash.substring(1).replace(startingSlashRegex, '');
+          url = windowObject.location.hash;
         } else {
           url = windowObject.location.pathname + windowObject.location.hash;
         }
@@ -608,13 +608,17 @@ Router.prototype.normalizeURL = function(url) {
   var urlParts = parseUri(url);
   this.urlParts(urlParts);
 
-  if(!fwRouters.html5History() && url.length && urlParts.anchor.length) {
-    url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
+  if(!fwRouters.html5History()) {
+    if(url.indexOf('#') !== -1) {
+      url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
+    } else if(this.currentState() !== url) {
+      url = '/';
+    }
   } else {
-    url = trimBaseRoute(this, urlParts.path);
+    url = urlParts.path;
   }
 
-  return url;
+  return trimBaseRoute(this, url);
 };
 
 Router.prototype.getUnknownRoute = function() {
