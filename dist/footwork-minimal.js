@@ -5056,7 +5056,7 @@ fw.bindingHandlers.$route = {
     function setUpElement() {
       var myCurrentSegment = routeURLWithoutParentPath();
       if( element.tagName.toLowerCase() === 'a' ) {
-        element.href = (fwRouters.html5History() ? '' : '/') + routeURLWithParentPath();
+        element.href = (fwRouters.html5History() ? '' : '/') + $myRouter.config.baseRoute + routeURLWithParentPath();
       }
 
       if( isObject(stateTracker) ) {
@@ -5067,6 +5067,8 @@ fw.bindingHandlers.$route = {
       if(elementIsSetup === false) {
         elementIsSetup = true;
         checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
+
+        $myRouter.parentRouter.subscribe(setUpElement);
         fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
           var currentRouteURL = routeURLWithoutParentPath();
           var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
@@ -5191,8 +5193,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
   if( routerConfig.activate === true ) {
     subscriptions.push(this.context.subscribe(function activateRouterAfterNewContext( $context ) {
       if( isObject($context) ) {
-        this
-          .activate( $context );
+        this.activate($context);
       }
     }, this));
   }
@@ -5213,7 +5214,7 @@ Router.prototype.addRoutes = function(routeConfig) {
 };
 
 Router.prototype.activate = function($context, $parentRouter) {
-  this.startup( $context, $parentRouter );
+  this.startup( $context, $parentRouter || nearestParentRouter($context) );
   this.userInitialize();
   if( this.currentState() === '' ) {
     this.setState();
@@ -5226,7 +5227,7 @@ Router.prototype.setState = function(url) {
     if(isString(url)) {
       var historyAPIWorked = true;
       try {
-        historyAPIWorked = History.pushState(null, '', this.parentRouter().path() + url);
+        historyAPIWorked = History.pushState(null, '', this.config.baseRoute + this.parentRouter().path() + url);
       } catch(historyException) {
         console.error(historyException);
         historyAPIWorked = false;
