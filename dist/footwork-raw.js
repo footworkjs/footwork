@@ -1100,11 +1100,22 @@ Router.prototype.startup = function( $context, $parentRouter ) {
   if( !this.historyIsEnabled() ) {
     if( historyIsReady() && !this.disableHistory() ) {
       History.Adapter.bind( windowObject, 'popstate', this.stateChangeHandler = function(event) {
+        var url = '';
         if(!fwRouters.html5History() && windowObject.location.pathname === '/' && windowObject.location.hash.length > 1) {
-          this.currentState( this.normalizeURL('/' + windowObject.location.hash.substring(1)) );
+          url = '/' + windowObject.location.hash.substring(1);
         } else {
-          this.currentState( this.normalizeURL(windowObject.location.pathname + windowObject.location.hash) );
+          url = windowObject.location.pathname + windowObject.location.hash;
         }
+
+        // trim off the baseRoute if it exists
+        if( !isNull(this.config.baseRoute) && url.indexOf(this.config.baseRoute) === 0 ) {
+          url = url.substr(this.config.baseRoute.length);
+          if(url.length > 1) {
+            url = url.replace(hashMatchRegex, '/');
+          }
+        }
+
+        this.currentState( this.normalizeURL(url) );
       }.bind(this));
       this.historyIsEnabled(true);
     } else {
@@ -1144,12 +1155,6 @@ Router.prototype.normalizeURL = function(url) {
     url = urlParts.path;
   }
 
-  if( !isNull(this.config.baseRoute) && url.indexOf(this.config.baseRoute) === 0 ) {
-    url = url.substr(this.config.baseRoute.length);
-    if(url.length > 1) {
-      url = url.replace(hashMatchRegex, '/');
-    }
-  }
   return url;
 };
 
