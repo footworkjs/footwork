@@ -29,9 +29,9 @@ fw.footworkVersion = '0.8.0pre';
 fw.embed = embedded;
 
 // misc regex patterns
-var hasTrailingSlash = /\/$/i;
-var hasStartingSlash = /^\//i;
-var hasStartingHash = /^#/i;
+var trailingSlashRegex = /\/$/;
+var startingSlashRegex = /^\//;
+var startingHashRegex = /^#/;
 
 // misc utility functions
 var noop = function() { };
@@ -39,15 +39,15 @@ var noop = function() { };
 var isObservable = fw.isObservable;
 
 function isPath(pathOrFile) {
-  return hasTrailingSlash.test(pathOrFile);
+  return trailingSlashRegex.test(pathOrFile);
 };
 
 function hasPathStart(path) {
-  return hasStartingSlash.test(path);
+  return startingSlashRegex.test(path);
 };
 
 function hasHashStart(string) {
-  return hasStartingHash.test(string);
+  return startingHashRegex.test(string);
 }
 
 function hasClass(element, className) {
@@ -1101,18 +1101,10 @@ Router.prototype.startup = function( $context, $parentRouter ) {
     if( historyIsReady() && !this.disableHistory() ) {
       History.Adapter.bind( windowObject, 'popstate', this.stateChangeHandler = function(event) {
         var url = '';
-        if(!fwRouters.html5History() && windowObject.location.pathname === '/' && windowObject.location.hash.length > 1) {
-          url = '/' + windowObject.location.hash.substring(1);
+        if(!fwRouters.html5History() && windowObject.location.hash.length > 1) {
+          url = windowObject.location.hash;
         } else {
           url = windowObject.location.pathname + windowObject.location.hash;
-        }
-
-        // trim off the baseRoute if it exists
-        if( !isNull(this.config.baseRoute) && url.indexOf(this.config.baseRoute) === 0 ) {
-          url = url.substr(this.config.baseRoute.length);
-          if(url.length > 1) {
-            url = url.replace(hashMatchRegex, '/');
-          }
         }
 
         this.currentState( this.normalizeURL(url) );
@@ -1145,17 +1137,31 @@ Router.prototype.dispose = function() {
   }), propertyDisposal);
 };
 
+function trimBaseRoute($router, url) {
+  if( !isNull($router.config.baseRoute) && url.indexOf($router.config.baseRoute) === 0 ) {
+    url = url.substr($router.config.baseRoute.length);
+    if(url.length > 1) {
+      url = url.replace(hashMatchRegex, '/');
+    }
+  }
+  return url;
+}
+
 Router.prototype.normalizeURL = function(url) {
   var urlParts = parseUri(url);
   this.urlParts(urlParts);
 
-  if(!fwRouters.html5History() && urlParts.path === '/') {
-    url = '/' + urlParts.anchor;
+  if(!fwRouters.html5History()) {
+    if(url.indexOf('#') !== -1) {
+      url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
+    } else if(this.currentState() !== url) {
+      url = '/';
+    }
   } else {
     url = urlParts.path;
   }
 
-  return url;
+  return trimBaseRoute(this, url);
 };
 
 Router.prototype.getUnknownRoute = function() {
