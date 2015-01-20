@@ -610,7 +610,7 @@ Router.prototype.normalizeURL = function(url) {
   this.urlParts(urlParts);
 
   if(!fwRouters.html5History() && trimmedUrl === '/') {
-    url = '/' + urlParts.anchor;
+    url = '/' + urlParts.anchor.replace(/^\//, '');
   } else {
     url = trimmedUrl;
   }
