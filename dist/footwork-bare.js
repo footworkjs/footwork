@@ -711,6 +711,11 @@ var guid = fw.guid = (function() {
   };
 })();
 
+// Predicate function that always returns true / 'pass'
+var alwaysPassPredicate = function() { return true; };
+
+var emptyStringResult = function() { return ''; };
+
 // broadcast-receive.js
 // ----------------
 
@@ -728,6 +733,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   var observable = this;
   var namespaceSubscriptions = [];
   var isLocalNamespace = false;
+  var when = alwaysPassPredicate;
 
   if( isString(namespace) ) {
     namespace = makeNamespace( namespace );
@@ -751,7 +757,9 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   };
 
   namespaceSubscriptions.push( namespace.subscribe( variable, function( newValue ) {
-    target( newValue );
+    if(when(newValue)) {
+      target( newValue );
+    }
   }) );
 
   var observableDispose = observable.dispose;
@@ -761,6 +769,17 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
       namespace.dispose();
     }
     observableDispose.call(observable);
+  };
+
+  observable.when = function(predicate) {
+    if(isFunction(predicate)) {
+      when = predicate;
+    } else {
+      when = function(updatedValue) {
+        return updatedValue === predicate;
+      };
+    }
+    return this;
   };
 
   observable.__isReceivable = true;

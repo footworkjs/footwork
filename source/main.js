@@ -159,6 +159,11 @@ var guid = fw.guid = (function() {
   };
 })();
 
+// Predicate function that always returns true / 'pass'
+var alwaysPassPredicate = function() { return true; };
+
+var emptyStringResult = function() { return ''; };
+
 //import("broadcast-receive.js");
 //import("router.js");
 //import("viewModel.js");

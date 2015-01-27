@@ -102,4 +102,69 @@ describe('broadcast-receive', function () {
     modelB.nonwritableReceiver('specific-value-that-should-not-be-seen');
     expect(modelA.nonwritableBroadcaster()).not.to.eql('specific-value-that-should-not-be-seen');
   });
+
+  it('receivable with .when() specified writes when callback returns true', function() {
+    var ModelA = fw.viewModel({
+      namespace: 'ModelA',
+      initialize: function() {
+        this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback');
+      }
+    });
+    var modelA = new ModelA();
+
+    var ModelB = fw.viewModel({
+      namespace: 'ModelB',
+      initialize: function() {
+        this.receiver = fw.observable().receiveFrom('ModelA', 'broadcasterToTestWhenCallback').when(function() { return true; });
+      }
+    });
+    var modelB = new ModelB();
+
+    modelA.broadcaster('value-that-should-be-visible-from-ModelB');
+    expect(modelB.receiver()).to.eql('value-that-should-be-visible-from-ModelB');
+  });
+
+  it('receivable with .when() specified does NOT write when callback returns false', function() {
+    var ModelA = fw.viewModel({
+      namespace: 'ModelA',
+      initialize: function() {
+        this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback');
+      }
+    });
+    var modelA = new ModelA();
+
+    var ModelB = fw.viewModel({
+      namespace: 'ModelB',
+      initialize: function() {
+        this.receiver = fw.observable().receiveFrom('ModelA', 'broadcasterToTestWhenCallback').when(function() { return false; });
+      }
+    });
+    var modelB = new ModelB();
+
+    modelA.broadcaster('value-that-should-NOT-be-visible-from-ModelB');
+    expect(modelB.receiver()).not.to.eql('value-that-should-NOT-be-visible-from-ModelB');
+  });
+
+  it('receivable with .when() sees correct value passed to it in the callback', function() {
+    var valueInsideCallback = null;
+
+    var ModelA = fw.viewModel({
+      namespace: 'ModelA',
+      initialize: function() {
+        this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback');
+      }
+    });
+    var modelA = new ModelA();
+
+    var ModelB = fw.viewModel({
+      namespace: 'ModelB',
+      initialize: function() {
+        this.receiver = fw.observable().receiveFrom('ModelA', 'broadcasterToTestWhenCallback').when(function(val) { valueInsideCallback = val; });
+      }
+    });
+    var modelB = new ModelB();
+
+    modelA.broadcaster('value-that-should-be-visible-from-ModelB-callback');
+    expect(valueInsideCallback).to.eql('value-that-should-be-visible-from-ModelB-callback');
+  });
 });
