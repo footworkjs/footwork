@@ -10774,7 +10774,7 @@ var applyBindings = fw.applyBindings = function(viewModel, element) {
 function bindComponentViewModel(element, params, ViewModel) {
   var viewModelObj;
   if( isFunction(ViewModel) ) {
-    viewModelObj = new ViewModel(values.params);
+    viewModelObj = new ViewModel(params);
   } else {
     viewModelObj = ViewModel;
   }
