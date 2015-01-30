@@ -9317,15 +9317,15 @@ var noop = function() { };
 var isObservable = fw.isObservable;
 
 function isPath(pathOrFile) {
-  return trailingSlashRegex.test(pathOrFile);
+  return isString(pathOrFile) && trailingSlashRegex.test(pathOrFile);
 };
 
 function hasPathStart(path) {
-  return startingSlashRegex.test(path);
+  return isString(path) && startingSlashRegex.test(path);
 };
 
 function hasHashStart(string) {
-  return startingHashRegex.test(string);
+  return isString(string) && startingHashRegex.test(string);
 }
 
 function hasClass(element, className) {
@@ -9613,7 +9613,7 @@ var makeNamespace = fw.namespace = function(namespaceName, $parentNamespace) {
 
 // Duck type check for a namespace object
 var isNamespace = fw.isNamespace = function(thing) {
-  return !isUndefined(thing) && !!thing.__isNamespace;
+  return isObject(thing) && !!thing.__isNamespace;
 };
 
 // Return the current namespace name.

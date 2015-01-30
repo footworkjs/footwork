@@ -187,7 +187,7 @@ var makeNamespace = fw.namespace = function(namespaceName, $parentNamespace) {
 
 // Duck type check for a namespace object
 var isNamespace = fw.isNamespace = function(thing) {
-  return !isUndefined(thing) && !!thing.__isNamespace;
+  return isObject(thing) && !!thing.__isNamespace;
 };
 
 // Return the current namespace name.
