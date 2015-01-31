@@ -18,11 +18,11 @@ var runSequence = require('run-sequence');
 var fs = require('fs');
 
 var pkg = require('./package.json');
-var requireConfig = require('./docs/scripts/require-config.json');
+// var requireConfig = require('./docs/scripts/require-config.json');
 var reporter = 'list';
 var statement = 'A solid footing for web applications.';
 var args   = require('yargs').argv;
-var annotatedPageMetaData = fs.readFileSync('docs/templates/annotated-metadata.html','utf8').replace('FOOTWORK_VERSION', pkg.version, 'g');
+// var annotatedPageMetaData = fs.readFileSync('docs/templates/annotated-metadata.html','utf8').replace('FOOTWORK_VERSION', pkg.version, 'g');
 
 var banner = ['/**',
   ' * <%= pkg.name %> - <%= pkg.description %>',

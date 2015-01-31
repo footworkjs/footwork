@@ -1,4 +1,4 @@
-![footwork.js](https://raw.github.com/reflectiveSingleton/footwork/master/docs/images/gh-footwork-logo.png)
+![footwork.js](https://raw.github.com/reflectiveSingleton/footwork/master/dist/gh-footwork-logo.png)
 ========
 [http://footworkjs.com](http://footworkjs.com "Footwork.js Homepage")
 
