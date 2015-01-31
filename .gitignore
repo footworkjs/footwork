@@ -1,4 +1,4 @@
 node_modules
 bower_components
 docs/bower_components
-docs/scripts/build
+docs/scripts/builddocs/
