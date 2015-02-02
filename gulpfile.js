@@ -30,8 +30,7 @@ var banner = ['/**',
   ' * Version: v<%= pkg.version %>',
   ' * Url: <%= pkg.homepage %>',
   ' * License(s): <% pkg.licenses.forEach(function( license, idx ){ %><%= license.type %><% if(idx !== pkg.licenses.length-1) { %>, <% } %><% }); %>',
-  ' */',
-  '', ''
+  ' */'
 ];
 
 var rawBanner = [
@@ -42,8 +41,7 @@ var rawBanner = [
   '// Copyright (c)2014 <%= pkg.author %>.',
   '// Distributed under <% pkg.licenses.forEach(function( license, idx ){ %><%= license.type %><% if(idx !== pkg.licenses.length-1) { %>, <% } %><% }); %> license',
   '//',
-  '// <%= pkg.homepage %>',
-  '', ''
+  '// <%= pkg.homepage %>'
 ];
 
 var build = function(buildProfile) {
@@ -133,62 +131,6 @@ gulp.task('build_raw', ['build_prep'], function() {
   return build('raw');
 });
 
-// Documentation / release oriented tasks
-gulp.task('readyRelease', function(callback) {
-  runSequence('set_version', 'build-everything', 'docs', callback);
-});
-
-gulp.task('docs', function(callback) {
-  runSequence('docs_clean', 'doc_source_annotation', 'build_info', 'build_config', callback);
-});
-
-gulp.task('docs_clean', function() {
-  return merge(
-    gulp.src('./docs/pages/annotated-page.html', { read: false }).pipe(rimraf())
-  );
-});
-
-gulp.task('doc_source_annotation', function() {
-  return gulp.src('dist/footwork-raw.js')
-    .pipe(docco({
-      // layout: 'parallel'
-      template: 'docs/templates/docco.jst'
-    }))
-    .pipe(footer(annotatedPageMetaData))
-    .pipe(rename('annotated-page.html'))
-    .pipe(gulp.dest('docs/pages'));
-});
-
-var generatedBuildInfoMessage = [
-  '/**',
-  ' * NOTE: This file is generated, do not edit it directly.',
-  ' *       See: docs/templates/build-info.js',
-  ' */'
-];
-gulp.task('build_info', function() {
-  return gulp.src('docs/templates/build-info.js')
-    .pipe( header(generatedBuildInfoMessage.join('\n') + '\n') )
-    .pipe( replace('FOOTWORK_VERSION', pkg.version, 'g') )
-    .pipe( replace('FOOTWORK_STATEMENT', statement, 'g') )
-    .pipe( replace('FOOTWORK_BUILD_TIMESTAMP', moment().format(), 'g') )
-    .pipe( replace('FOOTWORK_CONTRIBUTORS', JSON.stringify(pkg.contributors), 'g') )
-    .pipe(gulp.dest('./docs'));
-});
-
-var generatedBuildConfigMessage = [
-  '/**',
-  ' * NOTE: This file is generated, do not edit it directly.',
-  ' *       See: docs/scripts/require-config.json',
-  ' */'
-];
-gulp.task('build_config', function(callback) {
-  var requireConfigJS = _.extend([], generatedBuildConfigMessage).concat('var requireConfig = ' + JSON.stringify(requireConfig, null, '\t'));
-  var buildJS = _.extend([], generatedBuildConfigMessage).concat('(' + JSON.stringify(requireConfig, null, '\t') + ')');
-  fs.writeFile('docs/scripts/require-config.js', requireConfigJS.join('\n'));
-  fs.writeFile('docs/build.js', buildJS.join('\n'));
-  callback();
-});
-
 gulp.task('set_version', function() {
   var version = pkg.version;
   if(typeof args.ver !== 'undefined') {
@@ -204,24 +146,4 @@ gulp.task('set_version', function() {
       .pipe(bump({ version: version }))
       .pipe(gulp.dest('./'))
   );
-});
-
-var dynamicAppScriptBlock = [
-  '<?php if( gethostname() !== DEV_HOSTNAME ): ?>',
-  '<script src="scripts/build/main.js"></script>',
-  '<?php else: ?>',
-  '<script src="scripts/require-config.js"></script>',
-  '<script src="bower_components/requirejs/require.js" data-main="scripts/app/main"></script>',
-  '<?php endif; ?>',
-];
-
-// Used to setup documentation on remote server after a release
-gulp.task('readyDocServ', function(callback) {
-  return gulp.src('docs/index.html')
-    .pipe( replace('layout narrow', '<?=\'layout \'.(isset($isMobile) ? \'mobile\' : \'\')?>') )
-    .pipe( replace('<script src="scripts/build/main.js"></script>', dynamicAppScriptBlock.join('\n')) )
-    .pipe( replace('<!--FOOTWORK_CONTENT-->', '<?php App::loadView( isset( $bodyView ) ? $bodyView : DEFAULT_BODY_VIEW ); ?>') )
-    .pipe( replace('<base href="">', '<base href="/">') )
-    .pipe( replace('<!-- current build info -->', '<?php if(isset($isMobile) && $isMobile === true) { ?><script>window.isMobile = true;</script><?php } ?>') )
-    .pipe(gulp.dest('docs'));
 });

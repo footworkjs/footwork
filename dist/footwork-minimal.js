@@ -4,9 +4,7 @@
  * Version: v0.8.0-minimal
  * Url: http://footworkjs.com
  * License(s): MIT
- */
-
-(function (root, factory) {
+ */(function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     define(['lodash', 'knockout'], factory);
   } else if (typeof exports === 'object') {

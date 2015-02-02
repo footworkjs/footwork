@@ -4,9 +4,7 @@
  * Version: v0.8.0-all
  * Url: http://footworkjs.com
  * License(s): MIT
- */
-
-(function (root, factory) {
+ */(function (root, factory) {
   /**
    * Knockout uses a non-standard UMD wrapping that makes it impossible (I think) to embed it like the
    * other dependencies, the -all build uses a forked version which removes the wrappings.
