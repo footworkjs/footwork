@@ -8,21 +8,16 @@ var bump = require('gulp-bump');
 var size = require('gulp-size');
 var replace = require('gulp-replace');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
-var docco = require('gulp-docco');
 var merge = require('merge-stream');
-var ignore = require('gulp-ignore');
-var rimraf = require('gulp-rimraf');
 var moment = require('moment');
 var _ = require('lodash');
 var runSequence = require('run-sequence');
 var fs = require('fs');
 
 var pkg = require('./package.json');
-// var requireConfig = require('./docs/scripts/require-config.json');
 var reporter = 'list';
 var statement = 'A solid footing for web applications.';
 var args   = require('yargs').argv;
-// var annotatedPageMetaData = fs.readFileSync('docs/templates/annotated-metadata.html','utf8').replace('FOOTWORK_VERSION', pkg.version, 'g');
 
 var banner = ['/**',
   ' * <%= pkg.name %> - <%= pkg.description %>',

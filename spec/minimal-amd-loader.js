@@ -1,7 +1,7 @@
 require.config({
   paths: {
     "knockout": "../bower_components/knockoutjs/dist/knockout",
-    "lodash": "../bower_components/lodash/dist/lodash.underscore",
+    "lodash": "../bower_components/lodash/lodash",
     "postal": "../bower_components/postal.js/lib/postal",
     "conduitjs": "../bower_components/conduitjs/lib/conduit",
     "delegate": "../bower_components/delegate.js/delegate",

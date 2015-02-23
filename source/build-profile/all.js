@@ -28,9 +28,7 @@
     //import("helpers/bind-poly.js");
     root.ko = ko;
 
-    (function() {
-      //import("../../bower_components/lodash/dist/lodash.underscore.js");
-    }).call(root);
+    //import("../../source/build-profile/helpers/lodash-custom.js");
 
     (function() {
       //import("../../bower_components/riveter/lib/riveter.js");
