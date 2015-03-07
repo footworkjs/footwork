@@ -1,7 +1,7 @@
 /**
  * footwork.js - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.8.1-minimal
+ * Version: v0.9.0-minimal
  * Url: http://footworkjs.com
  * License(s): MIT
  */(function (root, factory) {
@@ -194,8 +194,8 @@ var module = undefined,
     (function() {
       /**
  * postal - Pub/Sub library providing wildcard subscriptions, complex message handling, etc.  Works server and client-side.
- * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
- * Version: v0.11.0
+ * Author: Jim Cowart (http://ifandelse.com)
+ * Version: v1.0.1
  * Url: http://github.com/postaljs/postal.js
  * License(s): MIT
  */
@@ -213,11 +213,21 @@ var module = undefined,
         root.postal = factory(root._, root);
     }
 }(this, function (_, global, undefined) {
-    var _postal;
     var prevPostal = global.postal;
+    var _defaultConfig = {
+        DEFAULT_CHANNEL: "/",
+        SYSTEM_CHANNEL: "postal",
+        enableSystemMessages: true,
+        cacheKeyDelimiter: "|",
+        autoCompactResolver: false
+    };
+    var postal = {
+        configuration: _.extend({}, _defaultConfig)
+    };
+    var _config = postal.configuration;
     var ChannelDefinition = function (channelName, bus) {
         this.bus = bus;
-        this.channel = channelName || _postal.configuration.DEFAULT_CHANNEL;
+        this.channel = channelName || _config.DEFAULT_CHANNEL;
     };
     ChannelDefinition.prototype.subscribe = function () {
         return this.bus.subscribe({
@@ -226,15 +236,23 @@ var module = undefined,
             callback: (arguments.length === 1 ? arguments[0].callback : arguments[1])
         });
     };
+/*
+    publish( envelope [, callback ] );
+    publish( topic, data [, callback ] );
+*/
     ChannelDefinition.prototype.publish = function () {
-        var envelope = arguments.length === 1 ? (Object.prototype.toString.call(arguments[0]) === "[object String]" ? {
-            topic: arguments[0]
-        } : arguments[0]) : {
-            topic: arguments[0],
-            data: arguments[1]
-        };
+        var envelope = {};
+        var callback;
+        if (typeof arguments[0] === "string") {
+            envelope.topic = arguments[0];
+            envelope.data = arguments[1];
+            callback = arguments[2];
+        } else {
+            envelope = arguments[0];
+            callback = arguments[1];
+        }
         envelope.channel = this.channel;
-        this.bus.publish(envelope);
+        this.bus.publish(envelope, callback);
     };
     var SubscriptionDefinition = function (channel, topic, callback) {
         if (arguments.length !== 3) {
@@ -254,12 +272,12 @@ var module = undefined,
         var previous;
         return function (data) {
             var eq = false;
-            if (_.isString(data)) {
+            if (typeof data == 'string') {
                 eq = data === previous;
                 previous = data;
             } else {
                 eq = _.isEqual(data, previous);
-                previous = _.clone(data);
+                previous = _.extend({}, data);
             }
             return !eq;
         };
@@ -268,10 +286,7 @@ var module = undefined,
         var previous = [];
         return function DistinctPredicate(data) {
             var isDistinct = !_.any(previous, function (p) {
-                if (_.isObject(data) || _.isArray(data)) {
-                    return _.isEqual(data, p);
-                }
-                return data === p;
+                return _.isEqual(data, p);
             });
             if (isDistinct) {
                 previous.push(data);
@@ -293,10 +308,10 @@ var module = undefined,
             return this;
         },
         defer: function defer() {
-            return this.withDelay(0);
+            return this.delay(0);
         },
         disposeAfter: function disposeAfter(maxCalls) {
-            if (!_.isNumber(maxCalls) || maxCalls <= 0) {
+            if (typeof maxCalls != 'number' || maxCalls <= 0) {
                 throw new Error("The value provided to disposeAfter (maxCalls) must be a number greater than zero.");
             }
             var self = this;
@@ -310,10 +325,10 @@ var module = undefined,
             return self;
         },
         distinct: function distinct() {
-            return this.withConstraint(new DistinctPredicate());
+            return this.constraint(new DistinctPredicate());
         },
         distinctUntilChanged: function distinctUntilChanged() {
-            return this.withConstraint(new ConsecutiveDistinctPredicate());
+            return this.constraint(new ConsecutiveDistinctPredicate());
         },
         invokeSubscriber: function invokeSubscriber(data, env) {
             if (!this.inactive) {
@@ -322,8 +337,10 @@ var module = undefined,
                 var len = pipeline.length;
                 var context = self._context;
                 var idx = -1;
+                var invoked = false;
                 if (!len) {
                     self.callback.call(context, data, env);
+                    invoked = true;
                 } else {
                     pipeline = pipeline.concat([self.callback]);
                     var step = function step(d, e) {
@@ -332,10 +349,12 @@ var module = undefined,
                             pipeline[idx].call(context, d, e, step);
                         } else {
                             self.callback.call(context, d, e);
+                            invoked = true;
                         }
                     };
                     step(data, env, 0);
                 }
+                return invoked;
             }
         },
         logError: function logError() { /* istanbul ignore else */
@@ -359,11 +378,11 @@ var module = undefined,
         },
         unsubscribe: function unsubscribe() { /* istanbul ignore else */
             if (!this.inactive) {
-                _postal.unsubscribe(this);
+                postal.unsubscribe(this);
             }
         },
         constraint: function constraint(predicate) {
-            if (!_.isFunction(predicate)) {
+            if (typeof predicate != 'function') {
                 throw new Error("Predicate constraint must be a function");
             }
             this.pipeline.push(function (data, env, next) {
@@ -375,11 +394,9 @@ var module = undefined,
         },
         constraints: function constraints(predicates) {
             var self = this; /* istanbul ignore else */
-            if (_.isArray(predicates)) {
-                _.each(predicates, function (predicate) {
-                    self.withConstraint(predicate);
-                });
-            }
+            _.each(predicates, function (predicate) {
+                self.constraint(predicate);
+            });
             return self;
         },
         context: function contextSetter(context) {
@@ -387,12 +404,9 @@ var module = undefined,
             return this;
         },
         debounce: function debounce(milliseconds, immediate) {
-            if (!_.isNumber(milliseconds)) {
+            if (typeof milliseconds != 'number') {
                 throw new Error("Milliseconds must be a number");
             }
-            var fn = function (data, env, next) {
-                next(data, env);
-            };
             this.pipeline.push(
             _.debounce(function (data, env, next) {
                 next(data, env);
@@ -400,7 +414,7 @@ var module = undefined,
             return this;
         },
         delay: function delay(milliseconds) {
-            if (!_.isNumber(milliseconds)) {
+            if (typeof milliseconds != 'number') {
                 throw new Error("Milliseconds must be a number");
             }
             var self = this;
@@ -412,7 +426,7 @@ var module = undefined,
             return this;
         },
         throttle: function throttle(milliseconds) {
-            if (!_.isNumber(milliseconds)) {
+            if (typeof milliseconds != 'number') {
                 throw new Error("Milliseconds must be a number");
             }
             var fn = function (data, env, next) {
@@ -445,21 +459,28 @@ var module = undefined,
         var oldMethod = oldMethods[i];
         SubscriptionDefinition.prototype[oldMethod] = warnOnDeprecation(oldMethod, newMethods[i]);
     }
-    var bindingsResolver = {
+    var bindingsResolver = _config.resolver = {
         cache: {},
         regex: {},
-        compare: function compare(binding, topic) {
+        enableCache: true,
+        compare: function compare(binding, topic, headerOptions) {
             var pattern;
             var rgx;
             var prevSegment;
-            var result = (this.cache[topic + "-" + binding]);
+            var cacheKey = topic + _config.cacheKeyDelimiter + binding;
+            var result = (this.cache[cacheKey]);
+            var opt = headerOptions || {};
+            var saveToCache = this.enableCache && !opt.resolverNoCache;
             // result is cached?
             if (result === true) {
                 return result;
             }
             // plain string matching?
             if (binding.indexOf("#") === -1 && binding.indexOf("*") === -1) {
-                result = this.cache[topic + "-" + binding] = (topic === binding);
+                result = (topic === binding);
+                if (saveToCache) {
+                    this.cache[cacheKey] = result;
+                }
                 return result;
             }
             // ah, regex matching, then
@@ -481,19 +502,49 @@ var module = undefined,
                 }).join("") + "$";
                 rgx = this.regex[binding] = new RegExp(pattern);
             }
-            result = this.cache[topic + "-" + binding] = rgx.test(topic);
+            result = rgx.test(topic);
+            if (saveToCache) {
+                this.cache[cacheKey] = result;
+            }
             return result;
         },
         reset: function reset() {
             this.cache = {};
             this.regex = {};
+        },
+        purge: function (options) {
+            var self = this;
+            var keyDelimiter = _config.cacheKeyDelimiter;
+            var matchPredicate = function (val, key) {
+                var split = key.split(keyDelimiter);
+                var topic = split[0];
+                var binding = split[1];
+                if ((typeof options.topic === "undefined" || options.topic === topic) && (typeof options.binding === "undefined" || options.binding === binding)) {
+                    delete self.cache[key];
+                }
+            };
+            var compactPredicate = function (val, key) {
+                var split = key.split(keyDelimiter);
+                if (postal.getSubscribersFor({
+                    topic: split[0]
+                }).length === 0) {
+                    delete self.cache[key];
+                }
+            };
+            if (typeof options === "undefined") {
+                this.reset();
+            } else {
+                var handler = options.compact === true ? compactPredicate : matchPredicate;
+                _.each(this.cache, handler);
+            }
         }
     };
     var pubInProgress = 0;
     var unSubQueue = [];
+    var autoCompactIndex = 0;
     function clearUnSubQueue() {
         while (unSubQueue.length) {
-            _postal.unsubscribe(unSubQueue.shift());
+            postal.unsubscribe(unSubQueue.shift());
         }
     }
     function getCachePurger(subDef, key, cache) {
@@ -506,9 +557,10 @@ var module = undefined,
             }
         };
     }
-    function getCacher(configuration, topic, cache, cacheKey, done) {
+    function getCacher(topic, cache, cacheKey, done, envelope) {
+        var headers = envelope && envelope.headers || {};
         return function (subDef) {
-            if (configuration.resolver.compare(subDef.topic, topic)) {
+            if (_config.resolver.compare(subDef.topic, topic, headers)) {
                 cache.push(subDef);
                 subDef.cacheKeys.push(cacheKey);
                 if (done) {
@@ -519,7 +571,7 @@ var module = undefined,
     }
     function getSystemMessage(kind, subDef) {
         return {
-            channel: _postal.configuration.SYSTEM_CHANNEL,
+            channel: _config.SYSTEM_CHANNEL,
             topic: "subscription." + kind,
             data: {
                 event: "subscription." + kind,
@@ -528,8 +580,8 @@ var module = undefined,
             }
         };
     }
-    var sysCreatedMessage = getSystemMessage.bind(this, "created");
-    var sysRemovedMessage = getSystemMessage.bind(this, "removed");
+    var sysCreatedMessage = _.bind(getSystemMessage, this, "created");
+    var sysRemovedMessage = _.bind(getSystemMessage, this, "removed");
     function getPredicate(options, resolver) {
         if (typeof options === "function") {
             return options;
@@ -545,7 +597,9 @@ var module = undefined,
                     compared += 1;
                     if (
                     // We use the bindings resolver to compare the options.topic to subDef.topic
-                    (prop === "topic" && resolver.compare(sub.topic, options.topic)) || (prop === "context" && options.context === sub._context)
+                    (prop === "topic" && resolver.compare(sub.topic, options.topic, {
+                        resolverNoCache: true
+                    })) || (prop === "context" && options.context === sub._context)
                     // Any other potential prop/value matching outside topic & context...
                     || (sub[prop] === options[prop])) {
                         matched += 1;
@@ -555,15 +609,8 @@ var module = undefined,
             };
         }
     }
-    _postal = {
+    _.extend(postal, {
         cache: {},
-        configuration: {
-            resolver: bindingsResolver,
-            DEFAULT_CHANNEL: "/",
-            SYSTEM_CHANNEL: "postal",
-            enableSystemMessages: true,
-            cacheKeyDelimiter: "|"
-        },
         subscriptions: {},
         wireTaps: [],
         ChannelDefinition: ChannelDefinition,
@@ -593,15 +640,14 @@ var module = undefined,
             var self = this;
             _.each(self.subscriptions, function (channel) {
                 _.each(channel, function (subList) {
-                    result = result.concat(_.filter(subList, getPredicate(options, self.configuration.resolver)));
+                    result = result.concat(_.filter(subList, getPredicate(options, _config.resolver)));
                 });
             });
             return result;
         },
-        publish: function publish(envelope) {
+        publish: function publish(envelope, cb) {
             ++pubInProgress;
-            var configuration = this.configuration;
-            var channel = envelope.channel = envelope.channel || configuration.DEFAULT_CHANNEL;
+            var channel = envelope.channel = envelope.channel || _config.DEFAULT_CHANNEL;
             var topic = envelope.topic;
             envelope.timeStamp = new Date();
             if (this.wireTaps.length) {
@@ -609,37 +655,52 @@ var module = undefined,
                     tap(envelope.data, envelope, pubInProgress);
                 });
             }
-            var cacheKey = channel + configuration.cacheKeyDelimiter + topic;
+            var cacheKey = channel + _config.cacheKeyDelimiter + topic;
             var cache = this.cache[cacheKey];
+            var skipped = 0;
+            var activated = 0;
             if (!cache) {
                 cache = this.cache[cacheKey] = [];
                 var cacherFn = getCacher(
-                configuration, topic, cache, cacheKey, function (candidate) {
-                    candidate.invokeSubscriber(envelope.data, envelope);
-                });
+                topic, cache, cacheKey, function (candidate) {
+                    if (candidate.invokeSubscriber(envelope.data, envelope)) {
+                        activated++;
+                    } else {
+                        skipped++;
+                    }
+                }, envelope);
                 _.each(this.subscriptions[channel], function (candidates) {
                     _.each(candidates, cacherFn);
                 });
             } else {
                 _.each(cache, function (subDef) {
-                    subDef.invokeSubscriber(envelope.data, envelope);
+                    if (subDef.invokeSubscriber(envelope.data, envelope)) {
+                        activated++;
+                    } else {
+                        skipped++;
+                    }
                 });
             }
             if (--pubInProgress === 0) {
                 clearUnSubQueue();
             }
+            if (cb) {
+                cb({
+                    activated: activated,
+                    skipped: skipped
+                });
+            }
         },
         reset: function reset() {
             this.unsubscribeFor();
-            this.configuration.resolver.reset();
+            _config.resolver.reset();
             this.subscriptions = {};
         },
         subscribe: function subscribe(options) {
             var subscriptions = this.subscriptions;
-            var subDef = new SubscriptionDefinition(options.channel || this.configuration.DEFAULT_CHANNEL, options.topic, options.callback);
+            var subDef = new SubscriptionDefinition(options.channel || _config.DEFAULT_CHANNEL, options.topic, options.callback);
             var channel = subscriptions[subDef.channel];
             var channelLen = subDef.channel.length;
-            var configuration = this.configuration;
             var subs;
             if (!channel) {
                 channel = subscriptions[subDef.channel] = {};
@@ -654,10 +715,10 @@ var module = undefined,
             _.each(this.cache, function (list, cacheKey) {
                 if (cacheKey.substr(0, channelLen) === subDef.channel) {
                     getCacher(
-                    configuration, cacheKey.split(configuration.cacheKeyDelimiter)[1], list, cacheKey)(subDef);
+                    cacheKey.split(_config.cacheKeyDelimiter)[1], list, cacheKey)(subDef);
                 }
             }); /* istanbul ignore else */
-            if (this.configuration.enableSystemMessages) {
+            if (_config.enableSystemMessages) {
                 this.publish(sysCreatedMessage(subDef));
             }
             return subDef;
@@ -689,21 +750,33 @@ var module = undefined,
                         }
                         idx += 1;
                     }
-                    // remove SubscriptionDefinition from cache
+                    if (topicSubs.length === 0) {
+                        delete channelSubs[subDef.topic];
+                        if (!_.keys(channelSubs).length) {
+                            delete this.subscriptions[subDef.channel];
+                        }
+                    }
+                    // remove SubscriptionDefinition from postal cache
                     if (subDef.cacheKeys && subDef.cacheKeys.length) {
                         var key;
                         while (key = subDef.cacheKeys.pop()) {
                             _.each(this.cache[key], getCachePurger(subDef, key, this.cache));
                         }
                     }
-                    if (topicSubs.length === 0) {
-                        delete channelSubs[subDef.topic];
-                        if (_.isEmpty(channelSubs)) {
-                            delete this.subscriptions[subDef.channel];
+                    if (typeof _config.resolver.purge === "function") {
+                        // check to see if relevant resolver cache entries can be purged
+                        var autoCompact = _config.autoCompactResolver === true ? 0 : typeof _config.autoCompactResolver === "number" ? (_config.autoCompactResolver - 1) : false;
+                        if (autoCompact >= 0 && autoCompactIndex === autoCompact) {
+                            _config.resolver.purge({
+                                compact: true
+                            });
+                            autoCompactIndex = 0;
+                        } else if (autoCompact >= 0 && autoCompactIndex < autoCompact) {
+                            autoCompactIndex += 1;
                         }
                     }
                 }
-                if (this.configuration.enableSystemMessages) {
+                if (_config.enableSystemMessages) {
                     this.publish(sysRemovedMessage(subDef));
                 }
             }
@@ -715,14 +788,13 @@ var module = undefined,
                 this.unsubscribe.apply(this, toDispose);
             }
         }
-    };
-    _postal.subscriptions[_postal.configuration.SYSTEM_CHANNEL] = {};
+    });
     if (global && Object.prototype.hasOwnProperty.call(global, "__postalReady__") && _.isArray(global.__postalReady__)) {
         while (global.__postalReady__.length) {
-            global.__postalReady__.shift().onReady(_postal);
+            global.__postalReady__.shift().onReady(postal);
         }
     }
-    return _postal;
+    return postal;
 }));
     }).call(root);
 
@@ -4152,8 +4224,10 @@ if (typeof JSON !== 'object') {
       // Console-polyfill. MIT license.
 // https://github.com/paulmillr/console-polyfill
 // Make it safe to do console.log() always.
-(function(con) {
+(function(global) {
   'use strict';
+  global.console = global.console || {};
+  var con = global.console;
   var prop, method;
   var empty = {};
   var dummy = function() {};
@@ -4163,7 +4237,10 @@ if (typeof JSON !== 'object') {
      'show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn').split(',');
   while (prop = properties.pop()) con[prop] = con[prop] || empty;
   while (method = methods.pop()) con[method] = con[method] || dummy;
-})(this.console = this.console || {}); // Using `this` for web workers.
+})(typeof window === 'undefined' ? this : window);
+// Using `this` for web workers while maintaining compatibility with browser
+// targeted script loaders such as Browserify or Webpack where the only way to
+// get to the global object is via `window`.
 
     }).call(root, windowObject);
 
@@ -4179,7 +4256,7 @@ if (typeof JSON !== 'object') {
 var fw = ko;
 
 // Record the footwork version as of this build.
-fw.footworkVersion = '0.8.1';
+fw.footworkVersion = '0.9.0';
 
 // Expose any embedded dependencies
 fw.embed = embedded;
@@ -4626,7 +4703,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   }) );
 
   var observableDispose = observable.dispose;
-  observable.dispose = observable.dispose = function() {
+  observable.dispose = function() {
     invoke(namespaceSubscriptions, 'unsubscribe');
     if( isLocalNamespace ) {
       namespace.dispose();
@@ -4704,7 +4781,7 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
     namespace.publish( option.name, newValue );
   }) );
 
-  observable.dispose = observable.dispose = function() {
+  observable.dispose = function() {
     invoke(namespaceSubscriptions, 'unsubscribe');
     invoke(subscriptions, 'dispose');
     if( isLocalNamespace ) {

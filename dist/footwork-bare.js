@@ -1,7 +1,7 @@
 /**
  * footwork.js - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.8.1-bare
+ * Version: v0.9.0-bare
  * Url: http://footworkjs.com
  * License(s): MIT
  */(function (root, factory) {
@@ -287,8 +287,10 @@ var module = undefined,
       // Console-polyfill. MIT license.
 // https://github.com/paulmillr/console-polyfill
 // Make it safe to do console.log() always.
-(function(con) {
+(function(global) {
   'use strict';
+  global.console = global.console || {};
+  var con = global.console;
   var prop, method;
   var empty = {};
   var dummy = function() {};
@@ -298,7 +300,10 @@ var module = undefined,
      'show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn').split(',');
   while (prop = properties.pop()) con[prop] = con[prop] || empty;
   while (method = methods.pop()) con[method] = con[method] || dummy;
-})(this.console = this.console || {}); // Using `this` for web workers.
+})(typeof window === 'undefined' ? this : window);
+// Using `this` for web workers while maintaining compatibility with browser
+// targeted script loaders such as Browserify or Webpack where the only way to
+// get to the global object is via `window`.
 
     }).call(root, windowObject);
 
@@ -314,7 +319,7 @@ var module = undefined,
 var fw = ko;
 
 // Record the footwork version as of this build.
-fw.footworkVersion = '0.8.1';
+fw.footworkVersion = '0.9.0';
 
 // Expose any embedded dependencies
 fw.embed = embedded;
@@ -761,7 +766,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   }) );
 
   var observableDispose = observable.dispose;
-  observable.dispose = observable.dispose = function() {
+  observable.dispose = function() {
     invoke(namespaceSubscriptions, 'unsubscribe');
     if( isLocalNamespace ) {
       namespace.dispose();
@@ -839,7 +844,7 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
     namespace.publish( option.name, newValue );
   }) );
 
-  observable.dispose = observable.dispose = function() {
+  observable.dispose = function() {
     invoke(namespaceSubscriptions, 'unsubscribe');
     invoke(subscriptions, 'dispose');
     if( isLocalNamespace ) {

@@ -33,6 +33,7 @@ var once = require('../../../node_modules/lodash/function/once');
 var last = require('../../../node_modules/lodash/array/last');
 var isEqual = require('../../../node_modules/lodash/lang/isEqual');
 var defaults = require('../../../node_modules/lodash/object/defaults');
+var keys = require('../../../node_modules/lodash/object/keys');
 
 root._ = {
   isFunction: isFunction,
@@ -66,5 +67,6 @@ root._ = {
   once: once,
   last: last,
   isEqual: isEqual,
-  defaults: defaults
+  defaults: defaults,
+  keys: keys
 };

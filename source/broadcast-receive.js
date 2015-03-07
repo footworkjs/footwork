@@ -45,7 +45,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   }) );
 
   var observableDispose = observable.dispose;
-  observable.dispose = observable.dispose = function() {
+  observable.dispose = function() {
     invoke(namespaceSubscriptions, 'unsubscribe');
     if( isLocalNamespace ) {
       namespace.dispose();
@@ -123,7 +123,7 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
     namespace.publish( option.name, newValue );
   }) );
 
-  observable.dispose = observable.dispose = function() {
+  observable.dispose = function() {
     invoke(namespaceSubscriptions, 'unsubscribe');
     invoke(subscriptions, 'dispose');
     if( isLocalNamespace ) {

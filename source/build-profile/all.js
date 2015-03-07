@@ -7,9 +7,11 @@
    * _some_ bindings. (ie: strange behavior I could not track a cause to, fixed here by 'brute force')
    */
   var koExports = {};
+  var amdRequire;
   //import("../../bower_components/knockoutjs-nowrapper/dist/knockout.js");
 
   if (typeof define === 'function' && define.amd) {
+    amdRequire = require;
     define('knockout', [], function() { return koExports; });
     define(['knockout'], factory);
   } else if (typeof exports === 'object') {
