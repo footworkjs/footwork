@@ -92,8 +92,8 @@ var once = _.once;
 var last = _.last;
 var isEqual = _.isEqual;
 
-// Internal registry which stores the mixins that are automatically added to each viewModel
-var viewModelMixins = [];
+// Internal registry which stores the mixins that are automatically added to each model
+var modelMixins = [];
 
 // parseUri() originally sourced from: http://blog.stevenlevithan.com/archives/parseuri
 function parseUri(str) {
@@ -166,7 +166,9 @@ var emptyStringResult = function() { return ''; };
 
 //import("broadcast-receive.js");
 //import("router.js");
+//import("model.js");
 //import("viewModel.js");
+//import("dataModel.js");
 //import("component.js");
 //import("resource.js");
 //import("extenders.js");

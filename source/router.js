@@ -220,16 +220,16 @@ var fwRouters = fw.routers = {
   },
 
   // Return array of all currently instantiated $router's (optionally for a given viewModelNamespaceName)
-  getAll: function(viewModelNamespaceName) {
-    if( !isUndefined(viewModelNamespaceName) && !isArray(viewModelNamespaceName) ) {
-      viewModelNamespaceName = [ viewModelNamespaceName ];
+  getAll: function(routerNamespaceName) {
+    if( !isUndefined(routerNamespaceName) && !isArray(routerNamespaceName) ) {
+      routerNamespaceName = [ routerNamespaceName ];
     }
 
     return reduce( $globalNamespace.request('__router_reference', undefined, true), function(routers, router) {
       var namespaceName = isNamespace(router.$namespace) ? router.$namespace.getName() : null;
 
       if( !isNull(namespaceName) ) {
-        if( isUndefined(viewModelNamespaceName) || contains(viewModelNamespaceName, namespaceName) ) {
+        if( isUndefined(routerNamespaceName) || contains(routerNamespaceName, namespaceName) ) {
           if( isUndefined(routers[namespaceName]) ) {
             routers[namespaceName] = router;
           } else {

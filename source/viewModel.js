@@ -11,159 +11,36 @@ function isViewModel(thing) {
   return isObject(thing) && !!thing.__isViewModel;
 }
 
-var defaultGetViewModelOptions = {
-  includeOutlets: false
-};
-
 fw.viewModels = {};
 
+var viewModelReferenceNamespace = '__model_reference';
+
 // Returns a reference to the specified viewModels.
-// If no name is supplied, a reference to an array containing all model references is returned.
-var getViewModels = fw.viewModels.getAll = function(namespaceName, options) {
-  options = options || {};
-  if( isString(namespaceName) || isArray(namespaceName) ) {
-    options.namespaceName = namespaceName;
-  }
+// If no name is supplied, a reference to an array containing all viewModel references is returned.
+var getViewModels = fw.viewModels.getAll = model.getAllFromNamespace(viewModelReferenceNamespace);
 
-  return reduce( $globalNamespace.request('__model_reference', extend({}, defaultGetViewModelOptions, options), true), function(viewModels, viewModel) {
-    if( !isUndefined(viewModel) ) {
-      var namespaceName = isNamespace(viewModel.$namespace) ? viewModel.$namespace.getName() : null;
-      if( !isNull(namespaceName) ) {
-        if( isUndefined(viewModels[namespaceName]) ) {
-          viewModels[namespaceName] = viewModel;
-        } else {
-          if( !isArray(viewModels[namespaceName]) ) {
-            viewModels[namespaceName] = [ viewModels[namespaceName] ];
-          }
-          viewModels[namespaceName].push(viewModel);
-        }
-      }
-    }
-    return viewModels;
-  }, {});
-};
-
-var defaultViewModelConfigParams = {
-  namespace: undefined,
-  name: undefined,
-  autoRegister: false,
-  autoIncrement: false,
-  mixins: undefined,
-  params: undefined,
-  initialize: noop,
-  afterInit: noop,
-  afterBinding: noop,
-  onDispose: noop
-};
-
-function beforeInitMixins(mixin) {
-  return !!mixin.runBeforeInit;
-}
-
-var makeViewModel = fw.viewModel = function(configParams) {
-  configParams = configParams || {};
-
-  var ctor = noop;
-  var afterInit = noop;
-  var parentViewModel = configParams.parent;
-
-  if( !isUndefined(configParams) ) {
-    ctor = configParams.viewModel || configParams.initialize || noop;
-    afterInit = configParams.afterInit || noop;
-  }
-  afterInit = { _postInit: afterInit };
-  configParams = extend({}, defaultViewModelConfigParams, configParams);
-
-  var initViewModelMixin = {
-    _preInit: function( params ) {
-      if( isObject(configParams.router) ) {
-        this.$router = new Router( configParams.router, this );
-      }
-    },
-    mixin: {
-      __isViewModel: true,
-      $params: result(configParams, 'params'),
-      __getConfigParams: function() {
-        return configParams;
-      },
-      dispose: function() {
-        if( !this._isDisposed ) {
-          this._isDisposed = true;
-          if( configParams.onDispose !== noop ) {
-            configParams.onDispose.call(this);
-          }
-          each(this, propertyDisposal);
-        }
-      }
-    },
-    _postInit: function() {
-      if( this.__assertPresence !== false ) {
-        this.$globalNamespace.request.handler('__model_reference', function(options) {
-          if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
-            if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
-              if(isArray(options.namespaceName) && indexOf(options.namespaceName, this.getNamespaceName()) !== -1) {
-                return this;
-              } else if(isString(options.namespaceName) && options.namespaceName === this.getNamespaceName()) {
-                return this;
-              }
-            } else {
-              return this;
-            }
-          }
-        }.bind(this));
-      }
-    }
-  };
-
-  if( !isViewModelCtor(ctor) ) {
-    var composure = [ ctor ];
-    var afterInitMixins = reject(viewModelMixins, beforeInitMixins);
-    var beforeInitMixins = filter(viewModelMixins, beforeInitMixins);
-
-    if( beforeInitMixins.length ) {
-      composure = composure.concat(beforeInitMixins);
-    }
-    composure = composure.concat(initViewModelMixin);
-    if( afterInitMixins.length ) {
-      composure = composure.concat(afterInitMixins);
-    }
-
-    composure = composure.concat(afterInit);
-    if( !isUndefined(configParams.mixins) ) {
-      composure = composure.concat(configParams.mixins);
-    }
-
-    each(composure, function(element) {
-      if( !isUndefined(element['runBeforeInit']) ) {
-        delete element.runBeforeInit;
-      }
-    });
-
-    var model = riveter.compose.apply( undefined, composure );
-    model.__isViewModelCtor = true;
-    model.__configParams = configParams;
-  } else {
-    // user has specified another viewModel constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain
-    model = ctor;
-  }
-
-  if( !isUndefined(parentViewModel) ) {
-    model.inherits(parentViewModel);
-  }
-
-  if( configParams.autoRegister ) {
-    var namespace = configParams.namespace || configParams.name;
-    if( isRegisteredViewModel(namespace) ) {
-      if( getRegisteredViewModel(namespace) !== model ) {
-        throw 'namespace [' + namespace + '] already registered using a different viewModel, autoRegister failed.';
-      }
-    } else {
-      registerViewModel(namespace, model);
-    }
-  }
-
-  return model;
-};
+// Make a viewModel factory
+var makeViewModel = fw.viewModel = model.makeModelFactory({
+  referenceNamespaceName: viewModelReferenceNamespace,
+  isModelDuckTag: '__isViewModel',
+  isModelCtorDuckTag: '__isViewModelCtor',
+  defaultConfigParams: {
+    namespace: undefined,
+    name: undefined,
+    autoRegister: false,
+    autoIncrement: false,
+    mixins: undefined,
+    params: undefined,
+    initialize: noop,
+    afterInit: noop,
+    afterBinding: noop,
+    onDispose: noop
+  },
+  isModelCtor: isViewModelCtor,
+  isRegistered: isRegisteredViewModel,
+  getRegistered: getRegisteredViewModel,
+  register: registerViewModel
+});
 
 // Provides lifecycle functionality and $context for a given viewModel and element
 function applyContextAndLifeCycle(viewModel, element) {

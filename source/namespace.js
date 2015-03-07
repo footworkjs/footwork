@@ -224,7 +224,7 @@ var exitNamespace = fw.exitNamespace = function() {
 };
 
 // mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
-viewModelMixins.push({
+modelMixins.push({
   runBeforeInit: true,
   _preInit: function( options ) {
     var $configParams = this.__getConfigParams();

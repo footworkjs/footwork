@@ -8,6 +8,10 @@
   those as embedded dependencies and you will need to provide them
   yourself.
 
+* **footwork-all-history.js**
+
+    All dependencies embedded, this can be used without any other externally provided dependencies. This build additionally includes History.js embedded for use with SPA state/route management.
+
 * **footwork-all.js**
 
     All dependencies embedded, this can be used without any other externally provided dependencies.
