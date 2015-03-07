@@ -731,3 +731,5 @@ Router.prototype.getActionForRoute = function(routeDescription) {
 Router.prototype.getRouteDescriptions = function() {
   return this.routeDescriptions;
 };
+
+//import("router/outletBinding.js");
