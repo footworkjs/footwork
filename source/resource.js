@@ -1,6 +1,18 @@
 // resource.js
 // ------------------
 
+var isRegistered = function(resourceName) {
+  return !isUndefined( this[resourceName] );
+};
+
+var getRegistered = function(resourceName) {
+  return this[resourceName];
+};
+
+var register = function(resourceName, resource) {
+  this[resourceName] = resource;
+};
+
 // component resource section
 var defaultComponentFileExtensions = {
   combined: '.js',
@@ -165,17 +177,9 @@ var viewModelDefaultLocation = fw.viewModels.defaultLocation = function(path, up
 };
 
 var registeredViewModels = {};
-var registerViewModel = fw.viewModels.register = function(viewModelName, viewModel) {
-  registeredViewModels[viewModelName] = viewModel;
-};
-
-var isRegisteredViewModel = fw.viewModels.isRegistered = function(viewModelName) {
-  return !isUndefined( registeredViewModels[viewModelName] );
-};
-
-var getRegisteredViewModel = fw.viewModels.getRegistered = function(viewModelName) {
-  return registeredViewModels[viewModelName];
-};
+var registerViewModel = fw.viewModels.register = register.bind(registeredViewModels);
+var isRegisteredViewModel = fw.viewModels.isRegistered = isRegistered.bind(registeredViewModels);
+var getRegisteredViewModel = fw.viewModels.getRegistered = getRegistered.bind(registeredViewModels);
 
 var registerLocationOfViewModel = fw.viewModels.registerLocation = function(viewModelName, viewModelLocation) {
   if( isArray(viewModelName) ) {
@@ -241,17 +245,9 @@ var routerDefaultLocation = fw.routers.defaultLocation = function(path, updateDe
 };
 
 var registeredRouters = {};
-var registerRouter = fw.routers.register = function(moduleName, viewModel) {
-  registeredRouters[moduleName] = viewModel;
-};
-
-var isRegisteredRouter = fw.routers.isRegistered = function(moduleName) {
-  return !isUndefined( registeredRouters[moduleName] );
-};
-
-var getRegisteredRouter = fw.routers.getRegistered = function(moduleName) {
-  return registeredRouters[moduleName];
-};
+var registerRouter = fw.routers.register = register.bind(registeredRouters);
+var isRegisteredRouter = fw.routers.isRegistered = isRegistered.bind(registeredRouters);
+var getRegisteredRouter = fw.routers.getRegistered = getRegistered.bind(registeredRouters);
 
 var registerLocationOfRouter = fw.routers.registerLocation = function(moduleName, routerLocation) {
   if( isArray(moduleName) ) {

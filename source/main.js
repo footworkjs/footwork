@@ -169,6 +169,7 @@ var emptyStringResult = function() { return ''; };
 //import("model.js");
 //import("viewModel.js");
 //import("dataModel.js");
+//import("specialTags.js");
 //import("component.js");
 //import("resource.js");
 //import("extenders.js");
