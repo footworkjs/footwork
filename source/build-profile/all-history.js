@@ -44,6 +44,10 @@
       //import("../../bower_components/postal.js/lib/postal.js");
     }).call(root);
 
+    (function(window) {
+      //import("../../bower_components/history.js/scripts/bundled-uncompressed/html4+html5/native.history.js");
+    }).call(root, windowObject);
+
     if(root._.isUndefined(root.postal.preserve)) {
       (function() {
         //import("../../bower_components/postal.preserve/lib/postal.preserve.js");

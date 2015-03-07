@@ -79,7 +79,7 @@ gulp.task('bump', function () {
 // Testing tasks
 gulp.task('ci', ['build-and-test']);
 
-gulp.task('build-and-test', ['test_all', 'test_minimal', 'test_bare']);
+gulp.task('build-and-test', ['build_all_with_history', 'test_all', 'test_minimal', 'test_bare']);
 
 gulp.task('test_all', ['build_all'], function() {
   return gulp
@@ -100,7 +100,7 @@ gulp.task('test_bare', ['build_bare'], function() {
 });
 
 // Building tasks
-gulp.task('build-everything', ['build_all', 'build_minimal', 'build_bare', 'build_raw']);
+gulp.task('build-everything', ['build_all', 'build_all_with_history', 'build_minimal', 'build_bare', 'build_raw']);
 
 gulp.task('build_prep', function() {
   // we have to force load of lodash instead of underscore
@@ -108,6 +108,10 @@ gulp.task('build_prep', function() {
     .src('bower_components/riveter/lib/riveter.js')
     .pipe(replace(/underscore/g, 'lodash'))
     .pipe(gulp.dest('./bower_components/riveter/lib'));
+});
+
+gulp.task('build_all_with_history', ['build_prep'], function() {
+  return build('all-history');
 });
 
 gulp.task('build_all', ['build_prep'], function() {

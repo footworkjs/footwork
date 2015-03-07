@@ -22,6 +22,10 @@
       postal: postal
     });
 
+    (function() {
+      //import("../../bower_components/reqwest/reqwest.js");
+    }).call(root);
+
     /**
      * Riveter still embedded in 'bare' build as it is problematic when used as a module compared to the other dependencies. It depends on
      * underscore as opposed to lodash...meaning both lodash and underscore would be required if lodash was not substituted for underscore
@@ -42,7 +46,7 @@
     }).call(root, windowObject);
 
     // list of dependencies to export from the library as .embed properties
-    var embeddedDependencies = [ 'riveter' ];
+    var embeddedDependencies = [ 'riveter', 'reqwest' ];
 
     return (function footwork(embedded, windowObject, _, ko, postal, riveter) {
       //import("../main.js");
