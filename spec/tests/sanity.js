@@ -24,25 +24,25 @@ describe('sanity', function () {
     var ModelA = fw.viewModel({
       namespace: 'ModelA',
       initialize: function() {
-        this.preSubModelNamespaceName = fw.currentNamespaceName();
+        this.preSubModelNamespaceName = fw.utils.currentNamespaceName();
         this.subModelB = new ModelB();
-        this.postSubModelNamespaceName = fw.currentNamespaceName();
+        this.postSubModelNamespaceName = fw.utils.currentNamespaceName();
       }
     });
 
     var ModelB = fw.viewModel({
       namespace: 'ModelB',
       initialize: function() {
-        this.preSubModelNamespaceName = fw.currentNamespaceName();
+        this.preSubModelNamespaceName = fw.utils.currentNamespaceName();
         this.subModelC = new ModelC();
-        this.postSubModelNamespaceName = fw.currentNamespaceName();
+        this.postSubModelNamespaceName = fw.utils.currentNamespaceName();
       }
     });
 
     var ModelC = fw.viewModel({
       namespace: 'ModelC',
       initialize: function() {
-        this.recordedNamespaceName = fw.currentNamespaceName();
+        this.recordedNamespaceName = fw.utils.currentNamespaceName();
       }
     });
 

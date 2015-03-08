@@ -1538,11 +1538,8 @@ var module = undefined,
 // Footwork will also map itself to 'fw' on the global object when no script loader is used.
 var fw = ko;
 
-// Record the footwork version as of this build.
-fw.footworkVersion = '0.9.0';
-
-// Expose any embedded dependencies
-fw.embed = embedded;
+// misc/utility.js
+// ----------------
 
 // misc regex patterns
 var trailingSlashRegex = /\/$/;
@@ -1566,23 +1563,6 @@ function hasHashStart(string) {
   return isString(string) && startingHashRegex.test(string);
 }
 
-function hasClass(element, className) {
-  return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
-}
-
-function addClass(element, className) {
-  if( !hasClass(element, className) ) {
-    element.className += (element.className.length ? ' ' : '') + className;
-  }
-}
-
-function removeClass(element, className) {
-  if( hasClass(element, className) ) {
-    var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)');
-    element.className = element.className.replace(classNameRegex, ' ');
-  }
-}
-
 function getFilenameExtension(fileName) {
   var extension = '';
   if(fileName.indexOf('.') !== -1) {
@@ -1592,41 +1572,18 @@ function getFilenameExtension(fileName) {
   return extension;
 }
 
-// Pull out lodash utility function references for better minification and easier implementation swap
-var isFunction = _.isFunction;
-var isObject = _.isObject;
-var isString = _.isString;
-var isBoolean = _.isBoolean;
-var isNumber = _.isNumber;
-var isUndefined = _.isUndefined;
-var isArray = _.isArray;
-var isNull = _.isNull;
-var contains = _.contains;
-var extend = _.extend;
-var pick = _.pick;
-var each = _.each;
-var filter = _.filter;
-var bind = _.bind;
-var invoke = _.invoke;
-var clone = _.clone;
-var reduce = _.reduce;
-var has = _.has;
-var where = _.where;
-var result = _.result;
-var uniqueId = _.uniqueId;
-var map = _.map;
-var find = _.find;
-var omit = _.omit;
-var indexOf = _.indexOf;
-var values = _.values;
-var reject = _.reject;
-var findWhere = _.findWhere;
-var once = _.once;
-var last = _.last;
-var isEqual = _.isEqual;
+function alwaysPassPredicate() { return true; }
+function emptyStringResult() { return ''; }
 
-// Internal registry which stores the mixins that are automatically added to each viewModel
-var viewModelMixins = [];
+// Internal registry which stores the mixins that are automatically added to each model
+var modelMixins = [];
+
+// dispose a known property type
+function propertyDisposal( property, name ) {
+  if( (isNamespace(property) || isRouter(property) || isBroadcastable(property) || isReceivable(property) || isObservable(property)) && isFunction(property.dispose) ) {
+    property.dispose();
+  }
+}
 
 // parseUri() originally sourced from: http://blog.stevenlevithan.com/archives/parseuri
 function parseUri(str) {
@@ -1662,8 +1619,73 @@ parseUri.options = {
   }
 };
 
-// namespace.js
+// fw.utils exports
+var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
+var isFullURL = fw.utils.isFullURL = function(thing) {
+  return isString(thing) && isFullURLRegex.test(thing);
+};
+
+// Generate a random pseudo-GUID
+// http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+var guid = fw.utils.guid = (function() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+               .toString(16)
+               .substring(1);
+  }
+  return function() {
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+           s4() + '-' + s4() + s4() + s4();
+  };
+})();
+
+// misc/lodashExtract.js
+// ----------------
+
+// Pull out lodash utility function references for better minification and easier implementation swap
+var isFunction = _.isFunction;
+var isObject = _.isObject;
+var isString = _.isString;
+var isBoolean = _.isBoolean;
+var isNumber = _.isNumber;
+var isUndefined = _.isUndefined;
+var isArray = _.isArray;
+var isNull = _.isNull;
+var contains = _.contains;
+var extend = _.extend;
+var pick = _.pick;
+var each = _.each;
+var filter = _.filter;
+var bind = _.bind;
+var invoke = _.invoke;
+var clone = _.clone;
+var reduce = _.reduce;
+var has = _.has;
+var where = _.where;
+var result = _.result;
+var uniqueId = _.uniqueId;
+var map = _.map;
+var find = _.find;
+var omit = _.omit;
+var indexOf = _.indexOf;
+var values = _.values;
+var reject = _.reject;
+var findWhere = _.findWhere;
+var once = _.once;
+var last = _.last;
+var isEqual = _.isEqual;
+
+// namespace/module.js
 // ------------------
+
+// namespace/setup.js
+// ----------------
+
+// Prepare an empty namespace stack.
+// This is where footwork registers its current working namespace name. Each new namespace is
+// 'unshifted' and 'shifted' as they are entered and exited, keeping the most current at
+// index 0.
+var namespaceStack = [];
 
 // This counter is used when model options { autoIncrement: true } and more than one model
 // having the same namespace is instantiated. This is used in the event you do not want
@@ -1671,11 +1693,8 @@ parseUri.options = {
 // namespace, they receive all of the same events/messages/commands/etc).
 var namespaceNameCounter = {};
 
-// Prepare an empty namespace stack.
-// This is where footwork registers its current working namespace name. Each new namespace is
-// 'unshifted' and 'shifted' as they are entered and exited, keeping the most current at
-// index 0.
-var namespaceStack = [];
+// namespace/utility.js
+// ----------------
 
 // Returns a normalized namespace name based off of 'name'. It will register the name counter
 // if not present and increment it if it is, then return the name (with the counter appended
@@ -1798,6 +1817,37 @@ function getNamespaceName() {
   return this.channel;
 }
 
+// Duck type check for a namespace object
+function isNamespace(thing) {
+  return isObject(thing) && !!thing.__isNamespace;
+}
+
+// enterNamespaceName() adds a namespaceName onto the namespace stack at the current index,
+// 'entering' into that namespace (it is now the currentNamespace).
+// The namespace object returned from this method also has a pointer to its parent
+function enterNamespaceName(namespaceName) {
+  var $parentNamespace = currentNamespace();
+  namespaceStack.unshift( namespaceName );
+  return makeNamespace( currentNamespaceName() );
+}
+
+// enterNamespace() uses a current namespace definition as the one to enter into.
+function enterNamespace(namespace) {
+  namespaceStack.unshift( namespace.getName() );
+  return namespace;
+}
+
+// Called at the after a model constructor function is run. exitNamespace()
+// will shift the current namespace off of the stack, 'exiting' to the
+// next namespace in the stack
+function exitNamespace() {
+  namespaceStack.shift();
+  return currentNamespace();
+}
+
+// namespace/exports.js
+// ----------------
+
 // Creates and returns a new namespace instance
 var makeNamespace = fw.namespace = function(namespaceName, $parentNamespace) {
   if( !isUndefined($parentNamespace) ) {
@@ -1849,46 +1899,21 @@ var makeNamespace = fw.namespace = function(namespaceName, $parentNamespace) {
   return namespace;
 };
 
-// Duck type check for a namespace object
-var isNamespace = fw.isNamespace = function(thing) {
-  return isObject(thing) && !!thing.__isNamespace;
-};
-
 // Return the current namespace name.
-var currentNamespaceName = fw.currentNamespaceName = function() {
+var currentNamespaceName = fw.utils.currentNamespaceName = function() {
   return namespaceStack[0];
 };
 
 // Return the current namespace channel.
-var currentNamespace = fw.currentNamespace = function() {
+var currentNamespace = fw.utils.currentNamespace = function() {
   return makeNamespace( currentNamespaceName() );
 };
 
-// enterNamespaceName() adds a namespaceName onto the namespace stack at the current index,
-// 'entering' into that namespace (it is now the currentNamespace).
-// The namespace object returned from this method also has a pointer to its parent
-var enterNamespaceName = fw.enterNamespaceName = function(namespaceName) {
-  var $parentNamespace = currentNamespace();
-  namespaceStack.unshift( namespaceName );
-  return makeNamespace( currentNamespaceName() );
-};
-
-// enterNamespace() uses a current namespace definition as the one to enter into.
-var enterNamespace = fw.enterNamespace = function(namespace) {
-  namespaceStack.unshift( namespace.getName() );
-  return namespace;
-};
-
-// Called at the after a model constructor function is run. exitNamespace()
-// will shift the current namespace off of the stack, 'exiting' to the
-// next namespace in the stack
-var exitNamespace = fw.exitNamespace = function() {
-  namespaceStack.shift();
-  return currentNamespace();
-};
+// namespace/modelMixins.js
+// ----------------
 
 // mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
-viewModelMixins.push({
+modelMixins.push({
   runBeforeInit: true,
   _preInit: function( options ) {
     var $configParams = this.__getConfigParams();
@@ -1905,109 +1930,18 @@ viewModelMixins.push({
   }
 });
 
+
 var $globalNamespace = makeNamespace();
 
-// 'start' up footwork at the targetElement (or document.body by default)
-fw.start = function(targetElement) {
-  targetElement = targetElement || windowObject.document.body;
-  originalApplyBindings({}, targetElement);
-};
+// broadcastable-receivable/module.js
+// ------------------
 
-// dispose a known property type
-function propertyDisposal( property, name ) {
-  if( (isNamespace(property) || isRouter(property) || isBroadcastable(property) || isReceivable(property) || isObservable(property)) && isFunction(property.dispose) ) {
-    property.dispose();
-  }
-}
-
-// Generate a random pseudo-GUID
-// http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
-var guid = fw.guid = (function() {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-               .toString(16)
-               .substring(1);
-  }
-  return function() {
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-           s4() + '-' + s4() + s4() + s4();
-  };
-})();
-
-// Predicate function that always returns true / 'pass'
-var alwaysPassPredicate = function() { return true; };
-
-var emptyStringResult = function() { return ''; };
-
-// broadcast-receive.js
-// ----------------
-
-function isReceivable(thing) {
-  return isObject(thing) && !!thing.__isReceivable;
-}
+// broadcastable-receivable/broacastable.js
+// ------------------
 
 function isBroadcastable(thing) {
   return isObject(thing) && !!thing.__isBroadcastable;
 }
-
-// factory method which turns an observable into a receivable
-fw.subscribable.fn.receiveFrom = function(namespace, variable) {
-  var target = this;
-  var observable = this;
-  var namespaceSubscriptions = [];
-  var isLocalNamespace = false;
-  var when = alwaysPassPredicate;
-
-  if( isString(namespace) ) {
-    namespace = makeNamespace( namespace );
-    isLocalNamespace = true;
-  }
-
-  if( !isNamespace(namespace) ) {
-    throw 'Invalid namespace provided for receiveFrom() observable.';
-  }
-
-  observable = fw.computed({
-    read: target,
-    write: function( value ) {
-      namespace.publish( '__change.' + variable, value );
-    }
-  });
-
-  observable.refresh = function() {
-    namespace.publish( '__refresh.' + variable );
-    return this;
-  };
-
-  namespaceSubscriptions.push( namespace.subscribe( variable, function( newValue ) {
-    if(when(newValue)) {
-      target( newValue );
-    }
-  }) );
-
-  var observableDispose = observable.dispose;
-  observable.dispose = function() {
-    invoke(namespaceSubscriptions, 'unsubscribe');
-    if( isLocalNamespace ) {
-      namespace.dispose();
-    }
-    observableDispose.call(observable);
-  };
-
-  observable.when = function(predicate) {
-    if(isFunction(predicate)) {
-      when = predicate;
-    } else {
-      when = function(updatedValue) {
-        return updatedValue === predicate;
-      };
-    }
-    return this;
-  };
-
-  observable.__isReceivable = true;
-  return observable.refresh();
-};
 
 // factory method which turns an observable into a broadcastable
 fw.subscribable.fn.broadcastAs = function(varName, option) {
@@ -2076,13 +2010,78 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
   return observable.broadcast();
 };
 
-// router.js
+// broadcastable-receivable/receivable.js
 // ------------------
 
-// Predicate function that always returns true / 'pass'
-var alwaysPassPredicate = function() { return true; };
+function isReceivable(thing) {
+  return isObject(thing) && !!thing.__isReceivable;
+}
 
-var emptyStringResult = function() { return ''; };
+// factory method which turns an observable into a receivable
+fw.subscribable.fn.receiveFrom = function(namespace, variable) {
+  var target = this;
+  var observable = this;
+  var namespaceSubscriptions = [];
+  var isLocalNamespace = false;
+  var when = alwaysPassPredicate;
+
+  if( isString(namespace) ) {
+    namespace = makeNamespace( namespace );
+    isLocalNamespace = true;
+  }
+
+  if( !isNamespace(namespace) ) {
+    throw 'Invalid namespace provided for receiveFrom() observable.';
+  }
+
+  observable = fw.computed({
+    read: target,
+    write: function( value ) {
+      namespace.publish( '__change.' + variable, value );
+    }
+  });
+
+  observable.refresh = function() {
+    namespace.publish( '__refresh.' + variable );
+    return this;
+  };
+
+  namespaceSubscriptions.push( namespace.subscribe( variable, function( newValue ) {
+    if(when(newValue)) {
+      target( newValue );
+    }
+  }) );
+
+  var observableDispose = observable.dispose;
+  observable.dispose = function() {
+    invoke(namespaceSubscriptions, 'unsubscribe');
+    if( isLocalNamespace ) {
+      namespace.dispose();
+    }
+    observableDispose.call(observable);
+  };
+
+  observable.when = function(predicate) {
+    if(isFunction(predicate)) {
+      when = predicate;
+    } else {
+      when = function(updatedValue) {
+        return updatedValue === predicate;
+      };
+    }
+    return this;
+  };
+
+  observable.__isReceivable = true;
+  return observable.refresh();
+};
+
+
+// router/module.js
+// ------------------
+
+// router/setup.js
+// ------------------
 
 var routerDefaultConfig = {
   namespace: '$router',
@@ -2098,17 +2097,9 @@ var namedParamRegex = /(\(\?)?:\w+/g;
 var splatParamRegex = /\*\w*/g;
 var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatchRegex = /(^\/#)/;
-var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
 var routesAreCaseSensitive = true;
 
 var invalidRoutePathIdentifier = '___invalid-route';
-
-var $nullRouter = extend({}, $baseRouter, {
-  childRouters: extend( noop.bind(), { push: noop } ),
-  path: function() { return ''; },
-  isRelative: function() { return false; },
-  __isNullRouter: true
-});
 
 var $baseRouter = {
   path: emptyStringResult,
@@ -2118,6 +2109,13 @@ var $baseRouter = {
   userInitialize: noop,
   __isRouter: true
 };
+
+var $nullRouter = extend({}, $baseRouter, {
+  childRouters: extend( noop.bind(), { push: noop } ),
+  path: function() { return ''; },
+  isRelative: function() { return false; },
+  __isNullRouter: true
+});
 
 var baseRoute = {
   controller: noop,
@@ -2130,6 +2128,12 @@ var baseRouteDescription = {
   filter: alwaysPassPredicate,
   __isRouteDesc: true
 };
+
+var fwRouters;
+var makeRouter;
+
+// router/utility.js
+// -----------
 
 function transformRouteConfigToDesc(routeDesc) {
   return extend({ id: uniqueId('route') }, baseRouteDescription, routeDesc );
@@ -2200,6 +2204,50 @@ function nearestParentRouter($context) {
   return $parentRouter;
 }
 
+var hasHTML5History;
+function assessHistoryState() {
+  hasHTML5History = windowObject.history && windowObject.history.pushState;
+  if(!isUndefined(windowObject.History) && isObject(windowObject.History.options) && windowObject.History.options.html4Mode) {
+    // user is overriding to force html4mode hash-based history
+    hasHTML5History = false;
+  }
+};
+assessHistoryState();
+
+function trimBaseRoute($router, url) {
+  if( !isNull($router.config.baseRoute) && url.indexOf($router.config.baseRoute) === 0 ) {
+    url = url.substr($router.config.baseRoute.length);
+    if(url.length > 1) {
+      url = url.replace(hashMatchRegex, '/');
+    }
+  }
+  return url;
+}
+
+// router/outlet.js
+// ------------------
+
+var noParentViewModelError = { getNamespaceName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } };
+
+// This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied
+// to the UI and load in various views
+fw.virtualElements.allowedBindings.$bind = true;
+fw.bindingHandlers.$bind = {
+  init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
+    var $parentViewModel = ( isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
+    var $parentRouter = nearestParentRouter(bindingContext);
+    var outletName = outletViewModel.outletName;
+
+    if( isRouter($parentRouter) ) {
+      // register this outlet with the router so that updates will propagate correctly
+      // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
+      outletViewModel.$route = $parentRouter.$outlet( outletName );
+    } else {
+      throw 'Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.getNamespaceName() + '] but no router was defined.';
+    }
+  }
+};
+
 var noComponentSelected = '_noComponentSelected';
 var $routerOutlet = function(outletName, componentToDisplay, options ) {
   options = options || {};
@@ -2269,210 +2317,28 @@ fw.outlets = {
   },
   registerViewLocation: function(viewName, viewLocation) {
     registerLocationOfComponent(viewName, { template: viewLocation })
-    registerComponentAsTemplateOnly(viewName);
+    markComponentAsTemplateOnly(viewName);
   }
 };
 
-var isFullURL = fw.isFullURL = function(thing) {
-  return isString(thing) && isFullURLRegex.test(thing);
-};
+// router/factory.js
+// -----------
 
-var hasHTML5History = windowObject.history && windowObject.history.pushState;
-if(!isUndefined(windowObject.History) && isObject(windowObject.History.options) && windowObject.History.options.html4Mode) {
-  // user is overriding to force html4mode hash-based history
-  hasHTML5History = false;
+function DefaultAction() {
+  delete this.__currentRouteDescription;
+  this.$outlet.reset();
 }
 
-var fwRouters = fw.routers = {
-  // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
-  baseRoute: fw.observable(''),
-  activeRouteClassName: fw.observable('active'),
-  disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: $globalNamespace }),
-  html5History: function() {
-    return hasHTML5History;
-  },
-
-  getNearestParent: function($context) {
-    var $parentRouter = nearestParentRouter($context);
-    return (!isNullRouter($parentRouter) ? $parentRouter : null);
-  },
-
-  // Return array of all currently instantiated $router's (optionally for a given viewModelNamespaceName)
-  getAll: function(viewModelNamespaceName) {
-    if( !isUndefined(viewModelNamespaceName) && !isArray(viewModelNamespaceName) ) {
-      viewModelNamespaceName = [ viewModelNamespaceName ];
-    }
-
-    return reduce( $globalNamespace.request('__router_reference', undefined, true), function(routers, router) {
-      var namespaceName = isNamespace(router.$namespace) ? router.$namespace.getName() : null;
-
-      if( !isNull(namespaceName) ) {
-        if( isUndefined(viewModelNamespaceName) || contains(viewModelNamespaceName, namespaceName) ) {
-          if( isUndefined(routers[namespaceName]) ) {
-            routers[namespaceName] = router;
-          } else {
-            if( !isArray(routers[namespaceName]) ) {
-              routers[namespaceName] = [ routers[namespaceName] ];
-            }
-            routers[namespaceName].push(router);
-          }
-        }
-      }
-      return routers;
-    }, {});
+function RoutedAction(routeDescription) {
+  if( !isUndefined(routeDescription.title) ) {
+    document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this, routeDescription.namedParams, this.urlParts()) : routeDescription.title;
   }
-};
 
-fw.router = function( routerConfig ) {
-  return makeViewModel({
-    router: routerConfig
-  });
-};
-
-fw.bindingHandlers.$route = {
-  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    var $myRouter = nearestParentRouter(bindingContext);
-    var urlValue = valueAccessor();
-    var elementIsSetup = false;
-    var stateTracker = null;
-    var hashOnly = null;
-
-    var routeHandlerDescription = {
-      on: 'click',
-      url: function defaultURLForRoute() { return null; },
-      addActiveClass: true,
-      activeClass: null,
-      handler: function defaultHandlerForRoute(event, url) {
-        if(hashOnly) {
-          windowObject.location.hash = routeHandlerDescription.url;
-          return false;
-        }
-
-        if( !isFullURL(url) && event.which !== 2 ) {
-          event.preventDefault();
-          return true;
-        }
-        return false;
-      }
-    };
-
-    if( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
-      routeHandlerDescription.url = urlValue;
-    } else if( isObject(urlValue) ) {
-      extend(routeHandlerDescription, urlValue);
-    } else if( !urlValue ) {
-      routeHandlerDescription.url = element.getAttribute('href');
-    } else {
-      throw 'Unknown type of url value provided to $route [' + typeof urlValue + ']';
-    }
-
-    var routeHandlerDescriptionURL = routeHandlerDescription.url;
-    if( !isFunction(routeHandlerDescriptionURL) ) {
-      routeHandlerDescription.url = function() { return routeHandlerDescriptionURL; };
-    }
-
-    function getRouteURL(includeParentPath) {
-      var parentRoutePath = '';
-      var routeURL = routeHandlerDescription.url();
-      var myLinkPath = routeURL || element.getAttribute('href') || '';
-
-      if(!isNull(routeURL)) {
-        if( isUndefined(routeURL) ) {
-          routeURL = myLinkPath;
-        }
-
-        if( !isFullURL(myLinkPath) ) {
-          if( !hasPathStart(myLinkPath) ) {
-            var currentRoute = $myRouter.currentRoute();
-            if(hasHashStart(myLinkPath)) {
-              if(!isNull(currentRoute)) {
-                myLinkPath = $myRouter.currentRoute().segment + myLinkPath;
-              }
-              hashOnly = true;
-            } else {
-              // relative url, prepend current segment
-              if(!isNull(currentRoute)) {
-                myLinkPath = $myRouter.currentRoute().segment + '/' + myLinkPath;
-              }
-            }
-          }
-
-          if( includeParentPath && !isNullRouter($myRouter) ) {
-            myLinkPath = $myRouter.parentRouter().path() + myLinkPath;
-
-            if(fwRouters.html5History() === false) {
-              myLinkPath = '#' + (myLinkPath.indexOf('/') === 0 ? myLinkPath.substring(1) : myLinkPath);
-            }
-          }
-        }
-
-        return myLinkPath;
-      }
-
-      return null;
-    };
-    var routeURLWithParentPath = getRouteURL.bind(null, true);
-    var routeURLWithoutParentPath = getRouteURL.bind(null, false);
-
-    function checkForMatchingSegment(mySegment, newRoute) {
-      if(routeHandlerDescription.addActiveClass) {
-        var activeRouteClassName = routeHandlerDescription.activeClass || fwRouters.activeRouteClassName();
-        if(mySegment === '/') {
-          mySegment = '';
-        }
-
-        if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
-          // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
-          addClass(element, activeRouteClassName);
-        } else if( hasClass(element, activeRouteClassName) ) {
-          removeClass(element, activeRouteClassName);
-        }
-      }
-    };
-
-    function setUpElement() {
-      var myCurrentSegment = routeURLWithoutParentPath();
-      if( element.tagName.toLowerCase() === 'a' ) {
-        element.href = (fwRouters.html5History() ? '' : '/') + $myRouter.config.baseRoute + routeURLWithParentPath();
-      }
-
-      if( isObject(stateTracker) ) {
-        stateTracker.dispose();
-      }
-      stateTracker = $myRouter.currentRoute.subscribe( checkForMatchingSegment.bind(null, myCurrentSegment) );
-
-      if(elementIsSetup === false) {
-        elementIsSetup = true;
-        checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
-
-        $myRouter.parentRouter.subscribe(setUpElement);
-        fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
-          var currentRouteURL = routeURLWithoutParentPath();
-          var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
-          if( handlerResult ) {
-            if( isString(handlerResult) ) {
-              currentRouteURL = handlerResult;
-            }
-            if( isString(currentRouteURL) && !isFullURL( currentRouteURL ) ) {
-              $myRouter.setState( currentRouteURL );
-            }
-          }
-        });
-      }
-    }
-
-    if( isObservable(routeHandlerDescription.url) ) {
-      $myRouter.subscriptions.push( routeHandlerDescription.url.subscribe(setUpElement) );
-    }
-    setUpElement();
-
-    ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-      if( isObject(stateTracker) ) {
-        stateTracker.dispose();
-      }
-    });
+  if( isUndefined(this.__currentRouteDescription) || !sameRouteDescription(this.__currentRouteDescription, routeDescription) ) {
+    routeDescription.controller.call( this, routeDescription.namedParams );
+    this.__currentRouteDescription = routeDescription;
   }
-};
+}
 
 var Router = function( routerConfig, $viewModel, $context ) {
   extend(this, $baseRouter);
@@ -2673,16 +2539,6 @@ Router.prototype.dispose = function() {
   }), propertyDisposal);
 };
 
-function trimBaseRoute($router, url) {
-  if( !isNull($router.config.baseRoute) && url.indexOf($router.config.baseRoute) === 0 ) {
-    url = url.substr($router.config.baseRoute.length);
-    if(url.length > 1) {
-      url = url.replace(hashMatchRegex, '/');
-    }
-  }
-  return url;
-}
-
 Router.prototype.normalizeURL = function(url) {
   var urlParts = parseUri(url);
   this.urlParts(urlParts);
@@ -2780,22 +2636,6 @@ Router.prototype.getRouteForURL = function(url) {
   return route || unknownRoute;
 };
 
-function DefaultAction() {
-  delete this.__currentRouteDescription;
-  this.$outlet.reset();
-}
-
-function RoutedAction(routeDescription) {
-  if( !isUndefined(routeDescription.title) ) {
-    document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this, routeDescription.namedParams, this.urlParts()) : routeDescription.title;
-  }
-
-  if( isUndefined(this.__currentRouteDescription) || !sameRouteDescription(this.__currentRouteDescription, routeDescription) ) {
-    routeDescription.controller.call( this, routeDescription.namedParams );
-    this.__currentRouteDescription = routeDescription;
-  }
-}
-
 Router.prototype.getActionForRoute = function(routeDescription) {
   var Action;
 
@@ -2808,6 +2648,383 @@ Router.prototype.getActionForRoute = function(routeDescription) {
 
 Router.prototype.getRouteDescriptions = function() {
   return this.routeDescriptions;
+};
+
+// router/binding.js
+// -----------
+
+function hasClass(element, className) {
+  return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
+}
+
+function addClass(element, className) {
+  if( !hasClass(element, className) ) {
+    element.className += (element.className.length ? ' ' : '') + className;
+  }
+}
+
+function removeClass(element, className) {
+  if( hasClass(element, className) ) {
+    var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)');
+    element.className = element.className.replace(classNameRegex, ' ');
+  }
+}
+
+fw.bindingHandlers.$route = {
+  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    var $myRouter = nearestParentRouter(bindingContext);
+    var urlValue = valueAccessor();
+    var elementIsSetup = false;
+    var stateTracker = null;
+    var hashOnly = null;
+
+    var routeHandlerDescription = {
+      on: 'click',
+      url: function defaultURLForRoute() { return null; },
+      addActiveClass: true,
+      activeClass: null,
+      handler: function defaultHandlerForRoute(event, url) {
+        if(hashOnly) {
+          windowObject.location.hash = routeHandlerDescription.url;
+          return false;
+        }
+
+        if( !isFullURL(url) && event.which !== 2 ) {
+          event.preventDefault();
+          return true;
+        }
+        return false;
+      }
+    };
+
+    if( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
+      routeHandlerDescription.url = urlValue;
+    } else if( isObject(urlValue) ) {
+      extend(routeHandlerDescription, urlValue);
+    } else if( !urlValue ) {
+      routeHandlerDescription.url = element.getAttribute('href');
+    } else {
+      throw 'Unknown type of url value provided to $route [' + typeof urlValue + ']';
+    }
+
+    var routeHandlerDescriptionURL = routeHandlerDescription.url;
+    if( !isFunction(routeHandlerDescriptionURL) ) {
+      routeHandlerDescription.url = function() { return routeHandlerDescriptionURL; };
+    }
+
+    function getRouteURL(includeParentPath) {
+      var parentRoutePath = '';
+      var routeURL = routeHandlerDescription.url();
+      var myLinkPath = routeURL || element.getAttribute('href') || '';
+
+      if(!isNull(routeURL)) {
+        if( isUndefined(routeURL) ) {
+          routeURL = myLinkPath;
+        }
+
+        if( !isFullURL(myLinkPath) ) {
+          if( !hasPathStart(myLinkPath) ) {
+            var currentRoute = $myRouter.currentRoute();
+            if(hasHashStart(myLinkPath)) {
+              if(!isNull(currentRoute)) {
+                myLinkPath = $myRouter.currentRoute().segment + myLinkPath;
+              }
+              hashOnly = true;
+            } else {
+              // relative url, prepend current segment
+              if(!isNull(currentRoute)) {
+                myLinkPath = $myRouter.currentRoute().segment + '/' + myLinkPath;
+              }
+            }
+          }
+
+          if( includeParentPath && !isNullRouter($myRouter) ) {
+            myLinkPath = $myRouter.parentRouter().path() + myLinkPath;
+
+            if(fwRouters.html5History() === false) {
+              myLinkPath = '#' + (myLinkPath.indexOf('/') === 0 ? myLinkPath.substring(1) : myLinkPath);
+            }
+          }
+        }
+
+        return myLinkPath;
+      }
+
+      return null;
+    };
+    var routeURLWithParentPath = getRouteURL.bind(null, true);
+    var routeURLWithoutParentPath = getRouteURL.bind(null, false);
+
+    function checkForMatchingSegment(mySegment, newRoute) {
+      if(routeHandlerDescription.addActiveClass) {
+        var activeRouteClassName = routeHandlerDescription.activeClass || fwRouters.activeRouteClassName();
+        if(mySegment === '/') {
+          mySegment = '';
+        }
+
+        if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
+          // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
+          addClass(element, activeRouteClassName);
+        } else if( hasClass(element, activeRouteClassName) ) {
+          removeClass(element, activeRouteClassName);
+        }
+      }
+    };
+
+    function setUpElement() {
+      var myCurrentSegment = routeURLWithoutParentPath();
+      if( element.tagName.toLowerCase() === 'a' ) {
+        element.href = (fwRouters.html5History() ? '' : '/') + $myRouter.config.baseRoute + routeURLWithParentPath();
+      }
+
+      if( isObject(stateTracker) ) {
+        stateTracker.dispose();
+      }
+      stateTracker = $myRouter.currentRoute.subscribe( checkForMatchingSegment.bind(null, myCurrentSegment) );
+
+      if(elementIsSetup === false) {
+        elementIsSetup = true;
+        checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
+
+        $myRouter.parentRouter.subscribe(setUpElement);
+        fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
+          var currentRouteURL = routeURLWithoutParentPath();
+          var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
+          if( handlerResult ) {
+            if( isString(handlerResult) ) {
+              currentRouteURL = handlerResult;
+            }
+            if( isString(currentRouteURL) && !isFullURL( currentRouteURL ) ) {
+              $myRouter.setState( currentRouteURL );
+            }
+          }
+        });
+      }
+    }
+
+    if( isObservable(routeHandlerDescription.url) ) {
+      $myRouter.subscriptions.push( routeHandlerDescription.url.subscribe(setUpElement) );
+    }
+    setUpElement();
+
+    ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+      if( isObject(stateTracker) ) {
+        stateTracker.dispose();
+      }
+    });
+  }
+};
+
+// router/exports.js
+// -----------
+
+fwRouters = fw.routers = {
+  // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
+  baseRoute: fw.observable(''),
+  activeRouteClassName: fw.observable('active'),
+  disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: $globalNamespace }),
+  html5History: function() {
+    return hasHTML5History;
+  },
+
+  getNearestParent: function($context) {
+    var $parentRouter = nearestParentRouter($context);
+    return (!isNullRouter($parentRouter) ? $parentRouter : null);
+  },
+
+  // Return array of all currently instantiated $router's (optionally for a given viewModelNamespaceName)
+  getAll: function(routerNamespaceName) {
+    if( !isUndefined(routerNamespaceName) && !isArray(routerNamespaceName) ) {
+      routerNamespaceName = [ routerNamespaceName ];
+    }
+
+    return reduce( $globalNamespace.request('__router_reference', undefined, true), function(routers, router) {
+      var namespaceName = isNamespace(router.$namespace) ? router.$namespace.getName() : null;
+
+      if( !isNull(namespaceName) ) {
+        if( isUndefined(routerNamespaceName) || contains(routerNamespaceName, namespaceName) ) {
+          if( isUndefined(routers[namespaceName]) ) {
+            routers[namespaceName] = router;
+          } else {
+            if( !isArray(routers[namespaceName]) ) {
+              routers[namespaceName] = [ routers[namespaceName] ];
+            }
+            routers[namespaceName].push(router);
+          }
+        }
+      }
+      return routers;
+    }, {});
+  }
+};
+
+makeRouter = fw.router = function( routerConfig ) {
+  return makeViewModel({
+    router: routerConfig
+  });
+};
+
+
+// model/module.js
+// ------------------
+
+// model/factories.js
+// ------------------
+
+var model = {};
+
+function isBeforeInitMixin(mixin) {
+  return !!mixin.runBeforeInit;
+}
+
+// Make a callback which returns all model references for a given namespaceString reference
+model.makeGetAll = function(namespaceString) {
+  return function(namespaceName, options) {
+    options = options || {};
+    if( isString(namespaceName) || isArray(namespaceName) ) {
+      options.namespaceName = namespaceName;
+    }
+
+    return reduce( $globalNamespace.request(namespaceString, extend({ includeOutlets: false }, options), true), function(models, model) {
+      if( !isUndefined(model) ) {
+        var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
+        if( !isNull(namespaceName) ) {
+          if( isUndefined(models[namespaceName]) ) {
+            models[namespaceName] = model;
+          } else {
+            if( !isArray(models[namespaceName]) ) {
+              models[namespaceName] = [ models[namespaceName] ];
+            }
+            models[namespaceName].push(model);
+          }
+        }
+      }
+      return models;
+    }, {});
+  };
+};
+
+// Make a model factory function for the given factoryConf
+model.makeViewModelFactory = function(factoryConf) {
+  return function(configParams) {
+    configParams = extend({
+      namespace: undefined,
+      name: undefined,
+      autoRegister: false,
+      autoIncrement: false,
+      mixins: undefined,
+      params: undefined,
+      initialize: noop,
+      afterInit: noop,
+      afterBinding: noop,
+      onDispose: noop
+    }, configParams || {});
+
+    var ctor = noop;
+    var afterInit = noop;
+    var parent = configParams.parent;
+
+    if( !isUndefined(configParams) ) {
+      ctor = configParams.viewModel || configParams.initialize || noop;
+      afterInit = configParams.afterInit || noop;
+    }
+    afterInit = { _postInit: afterInit };
+    configParams = extend({}, factoryConf.defaultConfigParams, configParams);
+
+    var initModelMixin = {
+      _preInit: function( params ) {
+        if( isObject(configParams.router) ) {
+          this.$router = new Router( configParams.router, this );
+        }
+      },
+      mixin: {
+        $params: result(configParams, 'params'),
+        __getConfigParams: function() {
+          return configParams;
+        },
+        dispose: function() {
+          if( !this._isDisposed ) {
+            this._isDisposed = true;
+            if( configParams.onDispose !== noop ) {
+              configParams.onDispose.call(this);
+            }
+            each(this, propertyDisposal);
+          }
+        }
+      },
+      _postInit: function() {
+        if( this.__assertPresence !== false ) {
+          this.$globalNamespace.request.handler(factoryConf.referenceNamespaceName, function(options) {
+            if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
+              if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
+                if(isArray(options.namespaceName) && indexOf(options.namespaceName, this.getNamespaceName()) !== -1) {
+                  return this;
+                } else if(isString(options.namespaceName) && options.namespaceName === this.getNamespaceName()) {
+                  return this;
+                }
+              } else {
+                return this;
+              }
+            }
+          }.bind(this));
+        }
+      }
+    };
+
+    if( !factoryConf.isModelCtor(ctor) ) {
+      var composure = [ ctor ];
+      var afterInitMixins = reject(modelMixins, isBeforeInitMixin);
+      var beforeInitMixins = filter(modelMixins, isBeforeInitMixin);
+
+      if( afterInitMixins.length ) {
+        composure = composure.concat(afterInitMixins);
+      }
+      composure = composure.concat(initModelMixin);
+      if( beforeInitMixins.length ) {
+        composure = composure.concat(beforeInitMixins);
+      }
+
+      // must 'mixin' the duck tag which marks this object as a model
+      var isModelDuckTagMixin = {};
+      isModelDuckTagMixin[factoryConf.isModelDuckTag] = true;
+      composure = composure.concat({ mixin: isModelDuckTagMixin });
+
+      composure = composure.concat(afterInit);
+      if( !isUndefined(configParams.mixins) ) {
+        composure = composure.concat(configParams.mixins);
+      }
+
+      each(composure, function(composureElement) {
+        if( !isUndefined(composureElement['runBeforeInit']) ) {
+          delete composureElement.runBeforeInit;
+        }
+      });
+
+      var model = riveter.compose.apply( undefined, composure );
+      model['isModelCtorDuckTag'] = true;
+      model.__configParams = configParams;
+    } else {
+      // user has specified another model constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain
+      model = ctor;
+    }
+
+    if( !isUndefined(parent) ) {
+      model.inherits(parent);
+    }
+
+    if( configParams.autoRegister ) {
+      var namespace = configParams.namespace;
+      if( factoryConf.isRegistered(namespace) ) {
+        if( factoryConf.getRegistered(namespace) !== model ) {
+          throw 'namespace [' + namespace + '] has already been registered, autoRegister failed.';
+        }
+      } else {
+        factoryConf.register(namespace, model);
+      }
+    }
+
+    return model;
+  };
 };
 
 // viewModel.js
@@ -2823,163 +3040,63 @@ function isViewModel(thing) {
   return isObject(thing) && !!thing.__isViewModel;
 }
 
-var defaultGetViewModelOptions = {
-  includeOutlets: false
-};
+var viewModelReferenceNamespace = '__viewModel_reference';
 
 fw.viewModels = {};
 
 // Returns a reference to the specified viewModels.
-// If no name is supplied, a reference to an array containing all model references is returned.
-var getViewModels = fw.viewModels.getAll = function(namespaceName, options) {
-  options = options || {};
-  if( isString(namespaceName) || isArray(namespaceName) ) {
-    options.namespaceName = namespaceName;
-  }
+// If no name is supplied, a reference to an array containing all viewModel references is returned.
+var getViewModels = fw.viewModels.getAll = model.makeGetAll(viewModelReferenceNamespace);
 
-  return reduce( $globalNamespace.request('__model_reference', extend({}, defaultGetViewModelOptions, options), true), function(viewModels, viewModel) {
-    if( !isUndefined(viewModel) ) {
-      var namespaceName = isNamespace(viewModel.$namespace) ? viewModel.$namespace.getName() : null;
-      if( !isNull(namespaceName) ) {
-        if( isUndefined(viewModels[namespaceName]) ) {
-          viewModels[namespaceName] = viewModel;
-        } else {
-          if( !isArray(viewModels[namespaceName]) ) {
-            viewModels[namespaceName] = [ viewModels[namespaceName] ];
-          }
-          viewModels[namespaceName].push(viewModel);
-        }
-      }
-    }
-    return viewModels;
-  }, {});
-};
+// Make a viewModel factory
+var makeViewModel = fw.viewModel = model.makeViewModelFactory({
+  referenceNamespaceName: viewModelReferenceNamespace,
+  isModelDuckTag: '__isViewModel',
+  isModelCtorDuckTag: '__isViewModelCtor',
+  isModelCtor: isViewModelCtor,
+  isRegistered: isRegisteredViewModel,
+  getRegistered: getRegisteredViewModel,
+  register: registerViewModel
+});
 
-var defaultViewModelConfigParams = {
-  namespace: undefined,
-  name: undefined,
-  autoRegister: false,
-  autoIncrement: false,
-  mixins: undefined,
-  params: undefined,
-  initialize: noop,
-  afterInit: noop,
-  afterBinding: noop,
-  onDispose: noop
-};
+// dataModel.js
+// ------------------
 
-function beforeInitMixins(mixin) {
-  return !!mixin.runBeforeInit;
+// Duck type function for determining whether or not something is a footwork viewModel constructor function
+function isDataModelCtor(thing) {
+  return isFunction(thing) && !!thing.__isDataModelCtor;
 }
 
-var makeViewModel = fw.viewModel = function(configParams) {
-  configParams = configParams || {};
+// Duck type function for determining whether or not something is a footwork dataModel
+function isDataModel(thing) {
+  return isObject(thing) && !!thing.__isDataModel;
+}
 
-  var ctor = noop;
-  var afterInit = noop;
-  var parentViewModel = configParams.parent;
+var dataModelReferenceNamespace = '__dataModel_reference';
 
-  if( !isUndefined(configParams) ) {
-    ctor = configParams.viewModel || configParams.initialize || noop;
-    afterInit = configParams.afterInit || noop;
-  }
-  afterInit = { _postInit: afterInit };
-  configParams = extend({}, defaultViewModelConfigParams, configParams);
+fw.dataModels = {};
 
-  var initViewModelMixin = {
-    _preInit: function( params ) {
-      if( isObject(configParams.router) ) {
-        this.$router = new Router( configParams.router, this );
-      }
-    },
-    mixin: {
-      __isViewModel: true,
-      $params: result(configParams, 'params'),
-      __getConfigParams: function() {
-        return configParams;
-      },
-      dispose: function() {
-        if( !this._isDisposed ) {
-          this._isDisposed = true;
-          if( configParams.onDispose !== noop ) {
-            configParams.onDispose.call(this);
-          }
-          each(this, propertyDisposal);
-        }
-      }
-    },
-    _postInit: function() {
-      if( this.__assertPresence !== false ) {
-        this.$globalNamespace.request.handler('__model_reference', function(options) {
-          if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
-            if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
-              if(isArray(options.namespaceName) && indexOf(options.namespaceName, this.getNamespaceName()) !== -1) {
-                return this;
-              } else if(isString(options.namespaceName) && options.namespaceName === this.getNamespaceName()) {
-                return this;
-              }
-            } else {
-              return this;
-            }
-          }
-        }.bind(this));
-      }
-    }
-  };
+// Returns a reference to the specified viewModels.
+// If no name is supplied, a reference to an array containing all viewModel references is returned.
+var getDataModels = fw.dataModels.getAll = model.makeGetAll(dataModelReferenceNamespace);
 
-  if( !isViewModelCtor(ctor) ) {
-    var composure = [ ctor ];
-    var afterInitMixins = reject(viewModelMixins, beforeInitMixins);
-    var beforeInitMixins = filter(viewModelMixins, beforeInitMixins);
+// Make a dataModel factory
+var makeDataModel = fw.dataModel = model.makeViewModelFactory({
+  referenceNamespaceName: dataModelReferenceNamespace,
+  isModelDuckTag: '__isDataModel',
+  isModelCtorDuckTag: '__isDataModelCtor',
+  isModelCtor: isDataModelCtor,
+  isRegistered: isRegisteredDataModel,
+  getRegistered: getRegisteredDataModel,
+  register: registerDataModel
+});
 
-    if( beforeInitMixins.length ) {
-      composure = composure.concat(beforeInitMixins);
-    }
-    composure = composure.concat(initViewModelMixin);
-    if( afterInitMixins.length ) {
-      composure = composure.concat(afterInitMixins);
-    }
+// model/lifecycle-binding.js
+// ------------------
 
-    composure = composure.concat(afterInit);
-    if( !isUndefined(configParams.mixins) ) {
-      composure = composure.concat(configParams.mixins);
-    }
-
-    each(composure, function(element) {
-      if( !isUndefined(element['runBeforeInit']) ) {
-        delete element.runBeforeInit;
-      }
-    });
-
-    var model = riveter.compose.apply( undefined, composure );
-    model.__isViewModelCtor = true;
-    model.__configParams = configParams;
-  } else {
-    // user has specified another viewModel constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain
-    model = ctor;
-  }
-
-  if( !isUndefined(parentViewModel) ) {
-    model.inherits(parentViewModel);
-  }
-
-  if( configParams.autoRegister ) {
-    var namespace = configParams.namespace || configParams.name;
-    if( isRegisteredViewModel(namespace) ) {
-      if( getRegisteredViewModel(namespace) !== model ) {
-        throw 'namespace [' + namespace + '] already registered using a different viewModel, autoRegister failed.';
-      }
-    } else {
-      registerViewModel(namespace, model);
-    }
-  }
-
-  return model;
-};
-
-// Provides lifecycle functionality and $context for a given viewModel and element
-function applyContextAndLifeCycle(viewModel, element) {
-  if( isViewModel(viewModel) ) {
+// Provides lifecycle functionality and $context for a given model and element
+function setupModelContextAndLifeCycle(viewModel, element) {
+  if( isViewModel(viewModel) || isDataModel(viewModel) ) {
     var $configParams = viewModel.__getConfigParams();
     var context;
     element = element || document.body;
@@ -3006,159 +3123,15 @@ function applyContextAndLifeCycle(viewModel, element) {
 var originalApplyBindings = fw.applyBindings;
 var applyBindings = fw.applyBindings = function(viewModel, element) {
   originalApplyBindings(viewModel, element);
-  applyContextAndLifeCycle(viewModel, element);
+  setupModelContextAndLifeCycle(viewModel, element);
 };
 
-function bindComponentViewModel(element, params, ViewModel) {
-  var viewModelObj;
-  if( isFunction(ViewModel) ) {
-    viewModelObj = new ViewModel(params);
-  } else {
-    viewModelObj = ViewModel;
-  }
-  viewModelObj.$parentContext = fw.contextFor(element.parentElement || element.parentNode);
 
-  // Have to create a wrapper element for the contents of the element. Cannot bind to
-  // existing element as it has already been bound against.
-  var wrapperNode = document.createElement('binding-wrapper');
-  element.insertBefore(wrapperNode, element.firstChild);
-
-  var childrenToInsert = [];
-  each(element.children, function(child) {
-    if(!isUndefined(child) && child !== wrapperNode) {
-      childrenToInsert.push(child);
-    }
-  });
-
-  each(childrenToInsert, function(child) {
-    wrapperNode.appendChild(child);
-  });
-
-  applyBindings(viewModelObj, wrapperNode);
-};
-
-// Monkey patch enables the viewModel or router component to initialize a model and bind to the html as intended (with lifecycle events)
-// TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
-var originalComponentInit = fw.bindingHandlers.component.init;
-
-var initSpecialTag = function(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
-  var theValueAccessor = valueAccessor;
-  if(tagName === '__elementBased') {
-    tagName = element.tagName;
-  }
-
-  if(isString(tagName)) {
-    tagName = tagName.toLowerCase();
-    if( tagName === 'viewmodel' || tagName === 'router' ) {
-      var values = valueAccessor();
-      var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
-      var bindViewModel = bindComponentViewModel.bind(null, element, values.params);
-
-      var isRegistered = (tagName === 'viewmodel' ? isRegisteredViewModel : isRegisteredRouter);
-      var getRegistered = (tagName === 'viewmodel' ? getRegisteredViewModel : getRegisteredRouter);
-      var getResourceLocation = (tagName === 'viewmodel' ? getViewModelResourceLocation : getRouterResourceLocation);
-      var getFileName = (tagName === 'viewmodel' ? getViewModelFileName : getRouterFileName);
-
-      if(isNull(moduleName) && isString(values)) {
-        moduleName = values;
-      }
-
-      if( !isUndefined(moduleName) ) {
-        var resourceLocation = null;
-
-        if( isRegistered(moduleName) ) {
-          // viewModel was manually registered, we preferentially use it
-          resourceLocation = getRegistered(moduleName);
-        } else if( isFunction(require) && isFunction(require.defined) && require.defined(moduleName) ) {
-          // we have found a matching resource that is already cached by require, lets use it
-          resourceLocation = moduleName;
-        } else {
-          resourceLocation = getResourceLocation(moduleName);
-        }
-
-        if( isString(resourceLocation) ) {
-          if( isFunction(require) ) {
-            if( isPath(resourceLocation) ) {
-              resourceLocation = resourceLocation + getFileName(moduleName);
-            }
-
-            require([ resourceLocation ], bindViewModel);
-          } else {
-            throw 'Uses require, but no AMD loader is present';
-          }
-        } else if( isFunction(resourceLocation) ) {
-          bindViewModel( resourceLocation );
-        } else if( isObject(resourceLocation) ) {
-          if( isObject(resourceLocation.instance) ) {
-            bindViewModel( resourceLocation.instance );
-          } else if( isFunction(resourceLocation.createViewModel) ) {
-            bindViewModel( resourceLocation.createViewModel( values.params, { element: element } ) );
-          }
-        }
-      }
-
-      return { 'controlsDescendantBindings': true };
-    } else if( tagName === 'outlet' ) {
-      // we patch in the 'name' of the outlet into the params valueAccessor on the component definition (if necessary and available)
-      var outletName = element.getAttribute('name') || element.getAttribute('data-name');
-      if( outletName ) {
-        theValueAccessor = function() {
-          var valueAccessorResult = valueAccessor();
-          if( !isUndefined(valueAccessorResult.params) && isUndefined(valueAccessorResult.params.name) ) {
-            valueAccessorResult.params.name = outletName;
-          }
-          return valueAccessorResult;
-        };
-      }
-    }
-  }
-
-  return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);
-};
-
-fw.bindingHandlers.component.init = initSpecialTag.bind(null, '__elementBased');
-
-// NOTE: Do not use the $router binding yet, it is incomplete
-fw.bindingHandlers.$router = {
-  preprocess: function(moduleName) {
-    /**
-     * get config for router from constructor module
-     * viewModel.$router = new Router( configParams.router, this );
-     */
-    return "'" + moduleName + "'";
-  },
-  init: initSpecialTag.bind(null, 'router')
-};
-
-// NOTE: Do not use the $viewModel binding yet, it is incomplete
-fw.bindingHandlers.$viewModel = {
-  preprocess: function(moduleName) {
-    return "'" + moduleName + "'";
-  },
-  init: initSpecialTag.bind(null, 'viewModel')
-};
-
-// component.js
+// component/module.js
 // ------------------
 
-var originalComponentRegisterFunc = fw.components.register;
-var registerComponent = fw.components.register = function(componentName, options) {
-  var viewModel = options.initialize || options.viewModel;
-
-  if( !isString(componentName) ) {
-    throw 'Components must be provided a componentName.';
-  }
-
-  if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {
-    options.namespace = componentName;
-    viewModel = makeViewModel(options);
-  }
-
-  originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || fw.viewModel(),
-    template: options.template
-  });
-};
+// component/exports.js
+// ------------------
 
 fw.components.getNormalTagList = function() {
   return nonComponentTags.splice(0);
@@ -3183,14 +3156,14 @@ var makeComponent = fw.component = function(componentDefinition) {
   return componentDefinition;
 };
 
-// Register a component as consisting of a template only.
+// Mark a component as consisting of a template only.
 // This will cause footwork to load only the template when this component is used.
 var componentTemplateOnlyRegister = [];
-var registerComponentAsTemplateOnly = fw.components.isTemplateOnly = function(componentName, isTemplateOnly) {
+var markComponentAsTemplateOnly = fw.components.isTemplateOnly = function(componentName, isTemplateOnly) {
   isTemplateOnly = (isUndefined(isTemplateOnly) ? true : isTemplateOnly);
   if( isArray(componentName) ) {
     each(componentName, function(compName) {
-      registerComponentAsTemplateOnly(compName, isTemplateOnly);
+      markComponentAsTemplateOnly(compName, isTemplateOnly);
     });
   }
 
@@ -3199,6 +3172,9 @@ var registerComponentAsTemplateOnly = fw.components.isTemplateOnly = function(co
     return componentTemplateOnlyRegister[componentName] || 'normal';
   }
 };
+
+// component/processing.js
+// ------------------
 
 // These are tags which are ignored by the custom component loader
 // Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
@@ -3213,7 +3189,7 @@ var nonComponentTags = [
   'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'shadow', 'small', 'source', 'spacer',
   'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'template', 'textarea',
   'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp', 'rect', 'image',
-  'lineargradient', 'stop', 'line', 'binding-wrapper'
+  'lineargradient', 'stop', 'line', 'binding-wrapper', 'font'
 ];
 var tagIsComponent = fw.components.tagIsComponent = function(tagName, isComponent) {
   if( isUndefined(isComponent) ) {
@@ -3237,6 +3213,9 @@ var tagIsComponent = fw.components.tagIsComponent = function(tagName, isComponen
   }
 };
 
+// component/lifecycle.js
+// ------------------
+
 // Components which footwork will not wrap in the $life custom binding used for lifecycle events
 // Used to keep the wrapper off of internal/natively handled and defined components such as 'outlet'
 var nativeComponents = [
@@ -3254,6 +3233,8 @@ function componentTriggerAfterBinding(element, viewModel) {
     }
   }
 }
+
+var componentLifecycleWrapperTemplate = '<!-- ko $life -->COMPONENT_MARKUP<!-- /ko -->';
 
 // Use the $life wrapper binding to provide lifecycle events for components
 fw.virtualElements.allowedBindings.$life = true;
@@ -3275,13 +3256,12 @@ fw.bindingHandlers.$life = {
 };
 
 // Custom loader used to wrap components with the $life custom binding
-var componentWrapperTemplate = '<!-- ko $life -->COMPONENT_MARKUP<!-- /ko -->';
 fw.components.loaders.unshift( fw.components.componentWrapper = {
   loadTemplate: function(componentName, config, callback) {
     if( !isNativeComponent(componentName) ) {
       // TODO: Handle different types of configs
       if( isString(config) ) {
-        config = componentWrapperTemplate.replace(/COMPONENT_MARKUP/, config);
+        config = componentLifecycleWrapperTemplate.replace(/COMPONENT_MARKUP/, config);
       } else {
         throw 'Unhandled config type ' + typeof config + '.';
       }
@@ -3320,7 +3300,10 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
   }
 });
 
-// The footwork getConfig loader is a catch-all in the instance a registered component cannot be found.
+// component/loader.js
+// ------------------
+
+// This loader is a catch-all in the instance a registered component cannot be found.
 // The loader will attempt to use requirejs via knockouts integrated support if it is available.
 fw.components.loaders.push( fw.components.requireLoader = {
   getConfig: function(componentName, callback) {
@@ -3385,62 +3368,47 @@ fw.components.loaders.push( fw.components.requireLoader = {
   }
 });
 
-var noParentViewModelError = { getNamespaceName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } };
 
-// This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied
-// to the UI and load in various views
-fw.virtualElements.allowedBindings.$bind = true;
-fw.bindingHandlers.$bind = {
-  init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
-    var $parentViewModel = ( isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
-    var $parentRouter = nearestParentRouter(bindingContext);
-    var outletName = outletViewModel.outletName;
-
-    if( isRouter($parentRouter) ) {
-      // register this outlet with the router so that updates will propagate correctly
-      // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
-      outletViewModel.$route = $parentRouter.$outlet( outletName );
-    } else {
-      throw 'Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.getNamespaceName() + '] but no router was defined.';
-    }
-  }
-};
-
-registerComponent('outlet', {
-  autoIncrement: true,
-  viewModel: function(params) {
-    this.outletName = fw.unwrap(params.name);
-    this.__isOutlet = true;
-  },
-  template: '<!-- ko $bind, component: $route --><!-- /ko -->'
-});
-
-registerComponent('_noComponentSelected', {
-  viewModel: function(params) {
-    this.__assertPresence = false;
-  },
-  template: '<div class="no-component-selected"></div>'
-});
-
-registerComponent('error', {
-  viewModel: function(params) {
-    this.message = fw.observable(params.message);
-    this.errors = params.errors;
-    this.__assertPresence = false;
-  },
-  template: '\
-    <div class="component error" data-bind="foreach: errors">\
-      <div class="error">\
-        <span class="number" data-bind="text: $index() + 1"></span>\
-        <span class="message" data-bind="text: $data"></span>\
-      </div>\
-    </div>'
-});
-
-// resource.js
+// resource/module.js
 // ------------------
 
-// component resource section
+// resource/utility.js
+// ------------------
+
+function isRegistered(resourceName) {
+  return !isUndefined( this[resourceName] );
+};
+
+function getRegistered(resourceName) {
+  return this[resourceName];
+};
+
+function register(resourceName, resource) {
+  this[resourceName] = resource;
+};
+
+// resource/component.js
+// ------------------
+
+var originalComponentRegisterFunc = fw.components.register;
+var registerComponent = fw.components.register = function(componentName, options) {
+  var viewModel = options.initialize || options.viewModel;
+
+  if( !isString(componentName) ) {
+    throw 'Components must be provided a componentName.';
+  }
+
+  if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {
+    options.namespace = componentName;
+    viewModel = makeViewModel(options);
+  }
+
+  originalComponentRegisterFunc(componentName, {
+    viewModel: viewModel || fw.viewModel(),
+    template: options.template
+  });
+};
+
 var defaultComponentFileExtensions = {
   combined: '.js',
   viewModel: '.js',
@@ -3555,8 +3523,9 @@ var getComponentResourceLocation = fw.components.getResourceLocation = function(
   return componentResourceLocations[componentName] || defaultComponentLocation;
 };
 
+// resource/viewModel.js
+// ------------------
 
-// viewModel resource section
 var defaultViewModelFileExtensions = '.js';
 var viewModelFileExtensions = fw.viewModels.fileExtensions = fw.observable( defaultViewModelFileExtensions );
 
@@ -3604,17 +3573,9 @@ var viewModelDefaultLocation = fw.viewModels.defaultLocation = function(path, up
 };
 
 var registeredViewModels = {};
-var registerViewModel = fw.viewModels.register = function(viewModelName, viewModel) {
-  registeredViewModels[viewModelName] = viewModel;
-};
-
-var isRegisteredViewModel = fw.viewModels.isRegistered = function(viewModelName) {
-  return !isUndefined( registeredViewModels[viewModelName] );
-};
-
-var getRegisteredViewModel = fw.viewModels.getRegistered = function(viewModelName) {
-  return registeredViewModels[viewModelName];
-};
+var registerViewModel = fw.viewModels.register = register.bind(registeredViewModels);
+var isRegisteredViewModel = fw.viewModels.isRegistered = isRegistered.bind(registeredViewModels);
+var getRegisteredViewModel = fw.viewModels.getRegistered = getRegistered.bind(registeredViewModels);
 
 var registerLocationOfViewModel = fw.viewModels.registerLocation = function(viewModelName, viewModelLocation) {
   if( isArray(viewModelName) ) {
@@ -3637,8 +3598,84 @@ var getViewModelResourceLocation = fw.viewModels.getResourceLocation = function(
   return viewModelResourceLocations[viewModelName] || defaultViewModelLocation;
 };
 
+// resource/dataModel.js
+// ------------------
 
-// router resource section
+var defaultDataModelFileExtensions = '.js';
+var dataModelFileExtensions = fw.dataModels.fileExtensions = fw.observable( defaultDataModelFileExtensions );
+
+function getDataModelExtension(dataModelName) {
+  var dataModelExtensions = dataModelFileExtensions();
+  var fileExtension = '';
+
+  if( isFunction(dataModelExtensions) ) {
+    fileExtension = dataModelExtensions(dataModelName);
+  } else if( isString(dataModelExtensions) ) {
+    fileExtension = dataModelExtensions;
+  }
+
+  return fileExtension.replace(/^\./, '') || '';
+}
+
+var dataModelResourceLocations = fw.dataModels.resourceLocations = {};
+var getDataModelFileName = fw.dataModels.getFileName = function(dataModelName) {
+  var fileName = dataModelName + '.' + getDataModelExtension(dataModelName);
+
+  if( !isUndefined( dataModelResourceLocations[dataModelName] ) ) {
+    var registeredLocation = dataModelResourceLocations[dataModelName];
+    if( isString(registeredLocation) && !isPath(registeredLocation) ) {
+      // full filename was supplied, lets return that
+      fileName = last( registeredLocation.split('/') );
+    }
+  }
+
+  return fileName;
+};
+
+var defaultDataModelLocation = '/dataModel/';
+var dataModelDefaultLocation = fw.dataModels.defaultLocation = function(path, updateDefault) {
+  var dataModelLocation = defaultDataModelLocation;
+
+  if( isString(path) ) {
+    dataModelLocation = path;
+  }
+
+  if(isUndefined(updateDefault) || updateDefault) {
+    defaultDataModelLocation = dataModelLocation;
+  }
+
+  return dataModelLocation;
+};
+
+var registeredDataModels = {};
+var registerDataModel = fw.dataModels.register = register.bind(registeredDataModels);
+var isRegisteredDataModel = fw.dataModels.isRegistered = isRegistered.bind(registeredDataModels);
+var getRegisteredDataModel = fw.dataModels.getRegistered = getRegistered.bind(registeredDataModels);
+
+var registerLocationOfDataModel = fw.dataModels.registerLocation = function(dataModelName, dataModelLocation) {
+  if( isArray(dataModelName) ) {
+    each(dataModelName, function(name) {
+      registerLocationOfDataModel(name, dataModelLocation);
+    });
+  }
+  dataModelResourceLocations[ dataModelName ] = dataModelDefaultLocation(dataModelLocation, false);
+};
+
+var locationIsRegisteredForDataModel = fw.dataModels.locationIsRegistered = function(dataModelName) {
+  return !isUndefined(dataModelResourceLocations[dataModelName]);
+};
+
+// Return the viewModel resource definition for the supplied dataModelName
+var getDataModelResourceLocation = fw.dataModels.getResourceLocation = function(dataModelName) {
+  if( isUndefined(dataModelName) ) {
+    return dataModelResourceLocations;
+  }
+  return dataModelResourceLocations[dataModelName] || defaultDataModelLocation;
+};
+
+// resource/router.js
+// ------------------
+
 var defaultRouterFileExtensions = '.js';
 var routerFileExtensions = fw.viewModels.fileExtensions = fw.observable( defaultRouterFileExtensions );
 
@@ -3680,17 +3717,9 @@ var routerDefaultLocation = fw.routers.defaultLocation = function(path, updateDe
 };
 
 var registeredRouters = {};
-var registerRouter = fw.routers.register = function(moduleName, viewModel) {
-  registeredRouters[moduleName] = viewModel;
-};
-
-var isRegisteredRouter = fw.routers.isRegistered = function(moduleName) {
-  return !isUndefined( registeredRouters[moduleName] );
-};
-
-var getRegisteredRouter = fw.routers.getRegistered = function(moduleName) {
-  return registeredRouters[moduleName];
-};
+var registerRouter = fw.routers.register = register.bind(registeredRouters);
+var isRegisteredRouter = fw.routers.isRegistered = isRegistered.bind(registeredRouters);
+var getRegisteredRouter = fw.routers.getRegistered = getRegistered.bind(registeredRouters);
 
 var registerLocationOfRouter = fw.routers.registerLocation = function(moduleName, routerLocation) {
   if( isArray(moduleName) ) {
@@ -3712,6 +3741,38 @@ var getRouterResourceLocation = fw.routers.getResourceLocation = function(module
   }
   return routerResourceLocations[moduleName] || defaultRouterLocation;
 };
+
+
+registerComponent('outlet', {
+  autoIncrement: true,
+  viewModel: function(params) {
+    this.outletName = fw.unwrap(params.name);
+    this.__isOutlet = true;
+  },
+  template: '<!-- ko $bind, component: $route --><!-- /ko -->'
+});
+
+registerComponent('_noComponentSelected', {
+  viewModel: function(params) {
+    this.__assertPresence = false;
+  },
+  template: '<div class="no-component-selected"></div>'
+});
+
+registerComponent('error', {
+  viewModel: function(params) {
+    this.message = fw.observable(params.message);
+    this.errors = params.errors;
+    this.__assertPresence = false;
+  },
+  template: '\
+    <div class="component error" data-bind="foreach: errors">\
+      <div class="error">\
+        <span class="number" data-bind="text: $index() + 1"></span>\
+        <span class="message" data-bind="text: $data"></span>\
+      </div>\
+    </div>'
+});
 
 // extenders.js
 // ----------------
@@ -3862,6 +3923,177 @@ fw.extenders.delayWrite = function( target, options ) {
   return delayWriteComputed;
 };
 
+// specialTags.js
+// ------------------
+
+function modelBinder(element, params, ViewModel) {
+  var viewModelObj;
+  if( isFunction(ViewModel) ) {
+    viewModelObj = new ViewModel(params);
+  } else {
+    viewModelObj = ViewModel;
+  }
+  viewModelObj.$parentContext = fw.contextFor(element.parentElement || element.parentNode);
+
+  // Have to create a wrapper element for the contents of the element. Cannot bind to
+  // existing element as it has already been bound against.
+  var wrapperNode = document.createElement('binding-wrapper');
+  element.insertBefore(wrapperNode, element.firstChild);
+
+  var childrenToInsert = [];
+  each(element.children, function(child) {
+    if(!isUndefined(child) && child !== wrapperNode) {
+      childrenToInsert.push(child);
+    }
+  });
+
+  each(childrenToInsert, function(child) {
+    wrapperNode.appendChild(child);
+  });
+
+  applyBindings(viewModelObj, wrapperNode);
+};
+
+// Monkey patch enables the viewModel or router component to initialize a model and bind to the html as intended (with lifecycle events)
+// TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
+var originalComponentInit = fw.bindingHandlers.component.init;
+
+function isViewModelTag(tagName) {
+  return [ 'viewmodel', 'datamodel', 'router' ].indexOf(tagName) !== -1;
+}
+
+var initSpecialTag = function(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
+  var theValueAccessor = valueAccessor;
+  if(tagName === '__elementBased') {
+    tagName = element.tagName;
+  }
+
+  if(isString(tagName)) {
+    tagName = tagName.toLowerCase();
+    if( isViewModelTag(tagName) ) {
+      var values = valueAccessor();
+      var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
+      var bindModel = modelBinder.bind(null, element, values.params);
+      var isRegistered;
+      var getRegistered;
+      var getResourceLocation;
+      var getFileName;
+
+      switch(tagName) {
+        case 'viewmodel':
+          isRegistered = isRegisteredViewModel;
+          getRegistered = getRegisteredViewModel;
+          getResourceLocation = getViewModelResourceLocation;
+          getFileName = getViewModelFileName;
+          break;
+
+        case 'datamodel':
+          isRegistered = isRegisteredDataModel;
+          getRegistered = getRegisteredDataModel;
+          getResourceLocation = getDataModelResourceLocation;
+          getFileName = getDataModelFileName;
+          break;
+
+        case 'router':
+          isRegistered = isRegisteredRouter;
+          getRegistered = getRegisteredRouter;
+          getResourceLocation = getRouterResourceLocation;
+          getFileName = getRouterFileName;
+          break;
+      }
+
+      if(isNull(moduleName) && isString(values)) {
+        moduleName = values;
+      }
+
+      if( !isUndefined(moduleName) ) {
+        var resourceLocation = null;
+
+        if( isRegistered(moduleName) ) {
+          // viewModel was manually registered, we preferentially use it
+          resourceLocation = getRegistered(moduleName);
+        } else if( isFunction(require) && isFunction(require.defined) && require.defined(moduleName) ) {
+          // we have found a matching resource that is already cached by require, lets use it
+          resourceLocation = moduleName;
+        } else {
+          resourceLocation = getResourceLocation(moduleName);
+        }
+
+        if( isString(resourceLocation) ) {
+          if( isFunction(require) ) {
+            if( isPath(resourceLocation) ) {
+              resourceLocation = resourceLocation + getFileName(moduleName);
+            }
+
+            require([ resourceLocation ], bindModel);
+          } else {
+            throw 'Uses require, but no AMD loader is present';
+          }
+        } else if( isFunction(resourceLocation) ) {
+          bindModel( resourceLocation );
+        } else if( isObject(resourceLocation) ) {
+          if( isObject(resourceLocation.instance) ) {
+            bindModel( resourceLocation.instance );
+          } else if( isFunction(resourceLocation.createViewModel) ) {
+            bindModel( resourceLocation.createViewModel( values.params, { element: element } ) );
+          }
+        }
+      }
+
+      return { 'controlsDescendantBindings': true };
+    } else if( tagName === 'outlet' ) {
+      // we patch in the 'name' of the outlet into the params valueAccessor on the component definition (if necessary and available)
+      var outletName = element.getAttribute('name') || element.getAttribute('data-name');
+      if( outletName ) {
+        theValueAccessor = function() {
+          var valueAccessorResult = valueAccessor();
+          if( !isUndefined(valueAccessorResult.params) && isUndefined(valueAccessorResult.params.name) ) {
+            valueAccessorResult.params.name = outletName;
+          }
+          return valueAccessorResult;
+        };
+      }
+    }
+  }
+
+  return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);
+};
+
+fw.bindingHandlers.component.init = initSpecialTag.bind(null, '__elementBased');
+
+// NOTE: Do not use the $router binding yet, it is incomplete
+fw.bindingHandlers.$router = {
+  preprocess: function(moduleName) {
+    /**
+     * get config for router from constructor module
+     * viewModel.$router = new Router( configParams.router, this );
+     */
+    return "'" + moduleName + "'";
+  },
+  init: initSpecialTag.bind(null, 'router')
+};
+
+// NOTE: Do not use the $viewModel binding yet, it is incomplete
+fw.bindingHandlers.$viewModel = {
+  preprocess: function(moduleName) {
+    return "'" + moduleName + "'";
+  },
+  init: initSpecialTag.bind(null, 'viewModel')
+};
+
+
+// Record the footwork version as of this build.
+fw.footworkVersion = '0.9.0';
+
+// Expose any embedded dependencies
+fw.embed = embedded;
+
+// 'start' up footwork at the targetElement (or document.body by default)
+fw.start = function(targetElement) {
+  assessHistoryState();
+  targetElement = targetElement || windowObject.document.body;
+  originalApplyBindings({}, targetElement);
+};
 
       return ko;
     })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter );

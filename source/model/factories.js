@@ -37,7 +37,18 @@ model.makeGetAll = function(namespaceString) {
 // Make a model factory function for the given factoryConf
 model.makeViewModelFactory = function(factoryConf) {
   return function(configParams) {
-    configParams = configParams || {};
+    configParams = extend({
+      namespace: undefined,
+      name: undefined,
+      autoRegister: false,
+      autoIncrement: false,
+      mixins: undefined,
+      params: undefined,
+      initialize: noop,
+      afterInit: noop,
+      afterBinding: noop,
+      onDispose: noop
+    }, configParams || {});
 
     var ctor = noop;
     var afterInit = noop;

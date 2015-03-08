@@ -11,9 +11,9 @@ function isViewModel(thing) {
   return isObject(thing) && !!thing.__isViewModel;
 }
 
-fw.viewModels = {};
+var viewModelReferenceNamespace = '__viewModel_reference';
 
-var viewModelReferenceNamespace = '__model_reference';
+fw.viewModels = {};
 
 // Returns a reference to the specified viewModels.
 // If no name is supplied, a reference to an array containing all viewModel references is returned.
@@ -21,18 +21,6 @@ var getViewModels = fw.viewModels.getAll = model.makeGetAll(viewModelReferenceNa
 
 // Make a viewModel factory
 var makeViewModel = fw.viewModel = model.makeViewModelFactory({
-  defaultConfigParams: {
-    namespace: undefined,
-    name: undefined,
-    autoRegister: false,
-    autoIncrement: false,
-    mixins: undefined,
-    params: undefined,
-    initialize: noop,
-    afterInit: noop,
-    afterBinding: noop,
-    onDispose: noop
-  },
   referenceNamespaceName: viewModelReferenceNamespace,
   isModelDuckTag: '__isViewModel',
   isModelCtorDuckTag: '__isViewModelCtor',

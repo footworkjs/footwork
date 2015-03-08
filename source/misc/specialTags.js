@@ -33,6 +33,10 @@ function modelBinder(element, params, ViewModel) {
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = fw.bindingHandlers.component.init;
 
+function isViewModelTag(tagName) {
+  return [ 'viewmodel', 'datamodel', 'router' ].indexOf(tagName) !== -1;
+}
+
 var initSpecialTag = function(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
   var theValueAccessor = valueAccessor;
   if(tagName === '__elementBased') {
@@ -41,15 +45,37 @@ var initSpecialTag = function(tagName, element, valueAccessor, allBindings, view
 
   if(isString(tagName)) {
     tagName = tagName.toLowerCase();
-    if( tagName === 'viewmodel' || tagName === 'router' ) {
+    if( isViewModelTag(tagName) ) {
       var values = valueAccessor();
       var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
       var bindModel = modelBinder.bind(null, element, values.params);
+      var isRegistered;
+      var getRegistered;
+      var getResourceLocation;
+      var getFileName;
 
-      var isRegistered = (tagName === 'viewmodel' ? isRegisteredViewModel : isRegisteredRouter);
-      var getRegistered = (tagName === 'viewmodel' ? getRegisteredViewModel : getRegisteredRouter);
-      var getResourceLocation = (tagName === 'viewmodel' ? getViewModelResourceLocation : getRouterResourceLocation);
-      var getFileName = (tagName === 'viewmodel' ? getViewModelFileName : getRouterFileName);
+      switch(tagName) {
+        case 'viewmodel':
+          isRegistered = isRegisteredViewModel;
+          getRegistered = getRegisteredViewModel;
+          getResourceLocation = getViewModelResourceLocation;
+          getFileName = getViewModelFileName;
+          break;
+
+        case 'datamodel':
+          isRegistered = isRegisteredDataModel;
+          getRegistered = getRegisteredDataModel;
+          getResourceLocation = getDataModelResourceLocation;
+          getFileName = getDataModelFileName;
+          break;
+
+        case 'router':
+          isRegistered = isRegisteredRouter;
+          getRegistered = getRegisteredRouter;
+          getResourceLocation = getRouterResourceLocation;
+          getFileName = getRouterFileName;
+          break;
+      }
 
       if(isNull(moduleName) && isString(values)) {
         moduleName = values;
