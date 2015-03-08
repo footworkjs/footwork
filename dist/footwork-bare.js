@@ -2494,7 +2494,7 @@ var makeDataModel = fw.dataModel = model.makeViewModelFactory({
 // ------------------
 
 // Provides lifecycle functionality and $context for a given model and element
-function setupModelContextAndLifeCycle(viewModel, element) {
+function setupContextAndLifeCycle(viewModel, element) {
   if( isViewModel(viewModel) || isDataModel(viewModel) ) {
     var $configParams = viewModel.__getConfigParams();
     var context;
@@ -2522,7 +2522,7 @@ function setupModelContextAndLifeCycle(viewModel, element) {
 var originalApplyBindings = fw.applyBindings;
 var applyBindings = fw.applyBindings = function(viewModel, element) {
   originalApplyBindings(viewModel, element);
-  setupModelContextAndLifeCycle(viewModel, element);
+  setupContextAndLifeCycle(viewModel, element);
 };
 
 
@@ -2771,7 +2771,7 @@ fw.components.loaders.push( fw.components.requireLoader = {
 // resource/module.js
 // ------------------
 
-// resource/utility.js
+// resource/proto.js
 // ------------------
 
 function isRegistered(resourceName) {

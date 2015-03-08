@@ -49,7 +49,7 @@
     var embeddedDependencies = [ 'riveter', 'reqwest' ];
 
     return (function footwork(embedded, windowObject, _, ko, postal, riveter) {
-      //import("../main.js");
+      //import("../footwork.js");
       return ko;
     })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter );
   })();

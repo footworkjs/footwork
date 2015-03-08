@@ -1,4 +1,4 @@
-// resource/utility.js
+// resource/proto.js
 // ------------------
 
 function isRegistered(resourceName) {

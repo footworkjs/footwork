@@ -1,7 +1,7 @@
 // resource/module.js
 // ------------------
 
-//import("utility.js");
+//import("proto.js");
 //import("component.js");
 //import("viewModel.js");
 //import("dataModel.js");
