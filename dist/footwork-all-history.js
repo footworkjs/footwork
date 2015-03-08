@@ -9877,10 +9877,29 @@ var guid = fw.utils.guid = (function() {
   };
 })();
 
+// Duck type function for determining whether or not something is a footwork viewModel constructor function
+function isViewModelCtor(thing) {
+  return isFunction(thing) && !!thing.__isViewModelCtor;
+}
+
+// Duck type function for determining whether or not something is a footwork viewModel
+function isViewModel(thing) {
+  return isObject(thing) && !!thing.__isViewModel;
+}
+
+// Duck type function for determining whether or not something is a footwork viewModel constructor function
+function isDataModelCtor(thing) {
+  return isFunction(thing) && !!thing.__isDataModelCtor;
+}
+
+// Duck type function for determining whether or not something is a footwork dataModel
+function isDataModel(thing) {
+  return isObject(thing) && !!thing.__isDataModel;
+}
+
 // misc/lodashExtract.js
 // ----------------
 
-// Pull out lodash utility function references for better minification and easier implementation swap
 var isFunction = _.isFunction;
 var isObject = _.isObject;
 var isString = _.isString;
@@ -9912,6 +9931,50 @@ var findWhere = _.findWhere;
 var once = _.once;
 var last = _.last;
 var isEqual = _.isEqual;
+
+// misc/core-init.js
+// ------------------
+
+// initialize base objects which are not present in knockout
+fw.viewModels = {};
+fw.dataModels = {};
+fw.routers = {};
+
+var specialTagDescriptors = [
+  {
+    referenceNamespaceName: '__viewModel_reference',
+    isModelDuckTag: '__isViewModel',
+    isModelCtorDuckTag: '__isViewModelCtor',
+    isModelCtor: isViewModelCtor,
+    tagName: 'viewmodel',
+    factoryName: 'viewModel',
+    resource: fw.viewModels,
+    defaultLocation: '/viewModel/',
+    fileExtensions: fw.observable('.js'),
+    resourceLocations: {},
+    registered: {}
+  }, {
+    referenceNamespaceName: '__dataModel_reference',
+    isModelDuckTag: '__isDataModel',
+    isModelCtorDuckTag: '__isDataModelCtor',
+    isModelCtor: isDataModelCtor,
+    tagName: 'datamodel',
+    factoryName: 'dataModel',
+    resource: fw.dataModels,
+    defaultLocation: '/dataModel/',
+    fileExtensions: fw.observable('.js'),
+    resourceLocations: {},
+    registered: {}
+  }, {
+    referenceNamespaceName: '__router_reference',
+    tagName: 'router',
+    resource: fw.routers,
+    defaultLocation: '/',
+    fileExtensions: fw.observable('.js'),
+    resourceLocations: {},
+    registered: {}
+  }
+];
 
 // namespace/module.js
 // ------------------
@@ -10170,6 +10233,238 @@ modelMixins.push({
 
 
 var $globalNamespace = makeNamespace();
+
+// resource/module.js
+// ------------------
+
+// resource/proto.js
+// ------------------
+
+function isRegistered(resourceName) {
+  return !isUndefined( this.registered[resourceName] );
+};
+
+function getRegistered(resourceName) {
+  return this.registered[resourceName];
+};
+
+function register(resourceName, resource) {
+  this.registered[resourceName] = resource;
+};
+
+function getModelExtension(dataModelExtensions, modelName) {
+  var fileExtension = '';
+
+  if( isFunction(dataModelExtensions) ) {
+    fileExtension = dataModelExtensions(modelName);
+  } else if( isString(dataModelExtensions) ) {
+    fileExtension = dataModelExtensions;
+  }
+
+  return fileExtension.replace(/^\./, '') || '';
+}
+
+function getModelFileName(modelName) {
+  var modelResourceLocations = this.resourceLocations;
+  var fileName = modelName + '.' + getModelExtension(this.fileExtensions(), modelName);
+
+  if( !isUndefined( modelResourceLocations[modelName] ) ) {
+    var registeredLocation = modelResourceLocations[modelName];
+    if( isString(registeredLocation) && !isPath(registeredLocation) ) {
+      // full filename was supplied, lets return that
+      fileName = last( registeredLocation.split('/') );
+    }
+  }
+
+  return fileName;
+}
+
+function setDefaultModelLocation(path) {
+  if( isString(path) ) {
+    this.defaultLocation = path;
+  }
+
+  return this.defaultLocation;
+}
+
+function registerModelLocation(modelName, location) {
+  if( isArray(modelName) ) {
+    each(modelName, function(name) {
+      registerLocation.call(this, name, location);
+    });
+  }
+  this.resourceLocations[ modelName ] = location;
+}
+
+function modelLocationIsRegistered(modelName) {
+  return !isUndefined(this.resourceLocations[modelName]);
+}
+
+function getModelResourceLocation(modelName) {
+  if( isUndefined(modelName) ) {
+    return this.resourceLocations;
+  }
+  return this.resourceLocations[modelName] || this.defaultLocation;
+}
+
+// assemble all resource methods for a given config object
+function getSimpleResourceMethods(config) {
+  return {
+    getFileName: getModelFileName.bind(config),
+    register: register.bind(config),
+    isRegistered: isRegistered.bind(config),
+    getRegistered: getRegistered.bind(config),
+    registerLocation: registerModelLocation.bind(config),
+    locationIsRegistered: modelLocationIsRegistered.bind(config),
+    getResourceLocation: getModelResourceLocation.bind(config),
+    defaultLocation: setDefaultModelLocation.bind(config),
+    fileExtensions: config.fileExtensions,
+    resourceLocations: config.resourceLocations
+  };
+}
+
+// resource/component.js
+// ------------------
+
+var originalComponentRegisterFunc = fw.components.register;
+var registerComponent = fw.components.register = function(componentName, options) {
+  var viewModel = options.initialize || options.viewModel;
+
+  if( !isString(componentName) ) {
+    throw 'Components must be provided a componentName.';
+  }
+
+  if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {
+    options.namespace = componentName;
+    viewModel = fw.viewModel(options);
+  }
+
+  originalComponentRegisterFunc(componentName, {
+    viewModel: viewModel || fw.viewModel(),
+    template: options.template
+  });
+};
+
+var defaultComponentFileExtensions = {
+  combined: '.js',
+  viewModel: '.js',
+  template: '.html'
+};
+
+var componentFileExtensions = fw.components.fileExtensions = fw.observable( clone(defaultComponentFileExtensions) );
+
+var componentIsRegistered = fw.components.isRegistered;
+
+function getComponentExtension(componentName, fileType) {
+  var componentExtensions = componentFileExtensions();
+  var fileExtension = '';
+
+  if( isFunction(componentExtensions) ) {
+    fileExtension = componentExtensions(componentName)[fileType];
+  } else if( isObject(componentExtensions) ) {
+    if( isFunction(componentExtensions[fileType]) ) {
+      fileExtension = componentExtensions[fileType](componentName);
+    } else {
+      fileExtension = componentExtensions[fileType] || '';
+    }
+  }
+
+  return fileExtension.replace(/^\./, '') || '';
+}
+
+var getComponentFileName = fw.components.getFileName = function(componentName, fileType) {
+  var fileName = componentName;
+  var fileExtension = getComponentExtension(componentName, fileType);
+
+  if( componentIsRegistered(componentName) ) {
+    return null;
+  }
+
+  switch(fileType) {
+    case 'viewModel':
+      fileType = 'viewModels';
+      break;
+    case 'template':
+      fileType = 'templates';
+      break;
+  }
+
+  if( !isUndefined( componentResourceLocations[componentName] ) ) {
+    var registeredLocation = componentResourceLocations[componentName];
+    if( !isUndefined(registeredLocation[fileType]) && !isPath(registeredLocation[fileType]) ) {
+      if( isString(registeredLocation[fileType]) ) {
+        // full filename was supplied, lets return that
+        fileName = last( registeredLocation[fileType].split('/') );
+      } else {
+        return null;
+      }
+    }
+  }
+
+  return fileName + (fileExtension !== getFilenameExtension(fileName) ? ('.' + fileExtension) : '');
+};
+
+var defaultComponentLocation = {
+  combined: null,
+  viewModels: '/viewModel/',
+  templates: '/component/'
+};
+var componentResourceLocations = fw.components.resourceLocations = {};
+var componentDefaultLocation = fw.components.defaultLocation = function(root, updateDefault) {
+  var componentLocation = (isUndefined(updateDefault) || updateDefault === true) ? defaultComponentLocation : clone(defaultComponentLocation);
+
+  if( isObject(root) ) {
+    // assume some combination of defaultComponentLocation and normalize the parameters
+    extend(componentLocation, reduce(root, function(options, paramValue, paramName) {
+      if(paramName === 'viewModel') {
+        options.viewModels = paramValue;
+        delete options.viewModel;
+      } else if(paramName === 'template') {
+        options.templates = paramValue;
+        delete options.template;
+      } else {
+        options[paramName] = paramValue;
+      }
+      return options;
+    }, {}));
+  } else if( isString(root) ) {
+    componentLocation = {
+      combined: rootURL,
+      viewModels: null,
+      templates: null
+    };
+  }
+
+  return componentLocation;
+};
+
+var registerLocationOfComponent = fw.components.registerLocation = function(componentName, componentLocation) {
+  if( isArray(componentName) ) {
+    each(componentName, function(name) {
+      registerLocationOfComponent(name, componentLocation);
+    });
+  }
+  componentResourceLocations[ componentName ] = componentDefaultLocation(componentLocation, false);
+};
+
+var locationIsRegisteredForComponent = fw.components.locationIsRegistered = function(componentName) {
+  return !isUndefined(componentResourceLocations[componentName]);
+};
+
+// Return the component resource definition for the supplied componentName
+var getComponentResourceLocation = fw.components.getResourceLocation = function(componentName) {
+  if( isUndefined(componentName) ) {
+    return componentResourceLocations;
+  }
+  return componentResourceLocations[componentName] || defaultComponentLocation;
+};
+
+
+each(specialTagDescriptors, function(descriptor) {
+  if(!isUndefined(descriptor.resource)) {
+    extend(descriptor.resource, getSimpleResourceMethods(descriptor));
+  }
+});
 
 // broadcastable-receivable/module.js
 // ------------------
@@ -11056,7 +11351,7 @@ fw.bindingHandlers.$route = {
 // router/exports.js
 // -----------
 
-fwRouters = fw.routers = {
+fwRouters = extend(fw.routers, {
   // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
   baseRoute: fw.observable(''),
   activeRouteClassName: fw.observable('active'),
@@ -11094,10 +11389,10 @@ fwRouters = fw.routers = {
       return routers;
     }, {});
   }
-};
+});
 
 makeRouter = fw.router = function( routerConfig ) {
-  return makeViewModel({
+  return fw.viewModel({
     router: routerConfig
   });
 };
@@ -11105,229 +11400,6 @@ makeRouter = fw.router = function( routerConfig ) {
 
 // model/module.js
 // ------------------
-
-// model/factories.js
-// ------------------
-
-var model = {};
-
-function isBeforeInitMixin(mixin) {
-  return !!mixin.runBeforeInit;
-}
-
-// Make a callback which returns all model references for a given namespaceString reference
-model.makeGetAll = function(namespaceString) {
-  return function(namespaceName, options) {
-    options = options || {};
-    if( isString(namespaceName) || isArray(namespaceName) ) {
-      options.namespaceName = namespaceName;
-    }
-
-    return reduce( $globalNamespace.request(namespaceString, extend({ includeOutlets: false }, options), true), function(models, model) {
-      if( !isUndefined(model) ) {
-        var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
-        if( !isNull(namespaceName) ) {
-          if( isUndefined(models[namespaceName]) ) {
-            models[namespaceName] = model;
-          } else {
-            if( !isArray(models[namespaceName]) ) {
-              models[namespaceName] = [ models[namespaceName] ];
-            }
-            models[namespaceName].push(model);
-          }
-        }
-      }
-      return models;
-    }, {});
-  };
-};
-
-// Make a model factory function for the given factoryConf
-model.makeViewModelFactory = function(factoryConf) {
-  return function(configParams) {
-    configParams = extend({
-      namespace: undefined,
-      name: undefined,
-      autoRegister: false,
-      autoIncrement: false,
-      mixins: undefined,
-      params: undefined,
-      initialize: noop,
-      afterInit: noop,
-      afterBinding: noop,
-      onDispose: noop
-    }, configParams || {});
-
-    var ctor = noop;
-    var afterInit = noop;
-    var parent = configParams.parent;
-
-    if( !isUndefined(configParams) ) {
-      ctor = configParams.viewModel || configParams.initialize || noop;
-      afterInit = configParams.afterInit || noop;
-    }
-    afterInit = { _postInit: afterInit };
-    configParams = extend({}, factoryConf.defaultConfigParams, configParams);
-
-    var initModelMixin = {
-      _preInit: function( params ) {
-        if( isObject(configParams.router) ) {
-          this.$router = new Router( configParams.router, this );
-        }
-      },
-      mixin: {
-        $params: result(configParams, 'params'),
-        __getConfigParams: function() {
-          return configParams;
-        },
-        dispose: function() {
-          if( !this._isDisposed ) {
-            this._isDisposed = true;
-            if( configParams.onDispose !== noop ) {
-              configParams.onDispose.call(this);
-            }
-            each(this, propertyDisposal);
-          }
-        }
-      },
-      _postInit: function() {
-        if( this.__assertPresence !== false ) {
-          this.$globalNamespace.request.handler(factoryConf.referenceNamespaceName, function(options) {
-            if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
-              if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
-                if(isArray(options.namespaceName) && indexOf(options.namespaceName, this.getNamespaceName()) !== -1) {
-                  return this;
-                } else if(isString(options.namespaceName) && options.namespaceName === this.getNamespaceName()) {
-                  return this;
-                }
-              } else {
-                return this;
-              }
-            }
-          }.bind(this));
-        }
-      }
-    };
-
-    if( !factoryConf.isModelCtor(ctor) ) {
-      var composure = [ ctor ];
-      var afterInitMixins = reject(modelMixins, isBeforeInitMixin);
-      var beforeInitMixins = filter(modelMixins, isBeforeInitMixin);
-
-      if( afterInitMixins.length ) {
-        composure = composure.concat(afterInitMixins);
-      }
-      composure = composure.concat(initModelMixin);
-      if( beforeInitMixins.length ) {
-        composure = composure.concat(beforeInitMixins);
-      }
-
-      // must 'mixin' the duck tag which marks this object as a model
-      var isModelDuckTagMixin = {};
-      isModelDuckTagMixin[factoryConf.isModelDuckTag] = true;
-      composure = composure.concat({ mixin: isModelDuckTagMixin });
-
-      composure = composure.concat(afterInit);
-      if( !isUndefined(configParams.mixins) ) {
-        composure = composure.concat(configParams.mixins);
-      }
-
-      each(composure, function(composureElement) {
-        if( !isUndefined(composureElement['runBeforeInit']) ) {
-          delete composureElement.runBeforeInit;
-        }
-      });
-
-      var model = riveter.compose.apply( undefined, composure );
-      model['isModelCtorDuckTag'] = true;
-      model.__configParams = configParams;
-    } else {
-      // user has specified another model constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain
-      model = ctor;
-    }
-
-    if( !isUndefined(parent) ) {
-      model.inherits(parent);
-    }
-
-    if( configParams.autoRegister ) {
-      var namespace = configParams.namespace;
-      if( factoryConf.isRegistered(namespace) ) {
-        if( factoryConf.getRegistered(namespace) !== model ) {
-          throw 'namespace [' + namespace + '] has already been registered, autoRegister failed.';
-        }
-      } else {
-        factoryConf.register(namespace, model);
-      }
-    }
-
-    return model;
-  };
-};
-
-// viewModel.js
-// ------------------
-
-// Duck type function for determining whether or not something is a footwork viewModel constructor function
-function isViewModelCtor(thing) {
-  return isFunction(thing) && !!thing.__isViewModelCtor;
-}
-
-// Duck type function for determining whether or not something is a footwork viewModel
-function isViewModel(thing) {
-  return isObject(thing) && !!thing.__isViewModel;
-}
-
-var viewModelReferenceNamespace = '__viewModel_reference';
-
-fw.viewModels = {};
-
-// Returns a reference to the specified viewModels.
-// If no name is supplied, a reference to an array containing all viewModel references is returned.
-var getViewModels = fw.viewModels.getAll = model.makeGetAll(viewModelReferenceNamespace);
-
-// Make a viewModel factory
-var makeViewModel = fw.viewModel = model.makeViewModelFactory({
-  referenceNamespaceName: viewModelReferenceNamespace,
-  isModelDuckTag: '__isViewModel',
-  isModelCtorDuckTag: '__isViewModelCtor',
-  isModelCtor: isViewModelCtor,
-  isRegistered: isRegisteredViewModel,
-  getRegistered: getRegisteredViewModel,
-  register: registerViewModel
-});
-
-// dataModel.js
-// ------------------
-
-// Duck type function for determining whether or not something is a footwork viewModel constructor function
-function isDataModelCtor(thing) {
-  return isFunction(thing) && !!thing.__isDataModelCtor;
-}
-
-// Duck type function for determining whether or not something is a footwork dataModel
-function isDataModel(thing) {
-  return isObject(thing) && !!thing.__isDataModel;
-}
-
-var dataModelReferenceNamespace = '__dataModel_reference';
-
-fw.dataModels = {};
-
-// Returns a reference to the specified viewModels.
-// If no name is supplied, a reference to an array containing all viewModel references is returned.
-var getDataModels = fw.dataModels.getAll = model.makeGetAll(dataModelReferenceNamespace);
-
-// Make a dataModel factory
-var makeDataModel = fw.dataModel = model.makeViewModelFactory({
-  referenceNamespaceName: dataModelReferenceNamespace,
-  isModelDuckTag: '__isDataModel',
-  isModelCtorDuckTag: '__isDataModelCtor',
-  isModelCtor: isDataModelCtor,
-  isRegistered: isRegisteredDataModel,
-  getRegistered: getRegisteredDataModel,
-  register: registerDataModel
-});
 
 // model/lifecycle-binding.js
 // ------------------
@@ -11364,6 +11436,171 @@ var applyBindings = fw.applyBindings = function(viewModel, element) {
   setupContextAndLifeCycle(viewModel, element);
 };
 
+// model/factories.js
+// ------------------
+
+var model = {};
+
+function isBeforeInitMixin(mixin) {
+  return !!mixin.runBeforeInit;
+}
+
+function modelGetAll(namespaceName, options) {
+  options = options || {};
+  if( isString(namespaceName) || isArray(namespaceName) ) {
+    options.namespaceName = namespaceName;
+  }
+
+  return reduce( $globalNamespace.request(this.referenceNamespaceName, extend({ includeOutlets: false }, options), true), function(models, model) {
+    if( !isUndefined(model) ) {
+      var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
+      if( !isNull(namespaceName) ) {
+        if( isUndefined(models[namespaceName]) ) {
+          models[namespaceName] = model;
+        } else {
+          if( !isArray(models[namespaceName]) ) {
+            models[namespaceName] = [ models[namespaceName] ];
+          }
+          models[namespaceName].push(model);
+        }
+      }
+    }
+    return models;
+  }, {});
+}
+
+function modelFactory(configParams) {
+  configParams = extend({
+    namespace: undefined,
+    name: undefined,
+    autoRegister: false,
+    autoIncrement: false,
+    mixins: undefined,
+    params: undefined,
+    initialize: noop,
+    afterInit: noop,
+    afterBinding: noop,
+    onDispose: noop
+  }, configParams || {});
+
+  var modelConfig = this;
+  var ctor = noop;
+  var afterInit = noop;
+  var parent = configParams.parent;
+
+  if( !isUndefined(configParams) ) {
+    ctor = configParams.viewModel || configParams.initialize || noop;
+    afterInit = configParams.afterInit || noop;
+  }
+  afterInit = { _postInit: afterInit };
+
+  var initModelMixin = {
+    _preInit: function( params ) {
+      if( isObject(configParams.router) ) {
+        this.$router = new Router( configParams.router, this );
+      }
+    },
+    mixin: {
+      $params: result(configParams, 'params'),
+      __getConfigParams: function() {
+        return configParams;
+      },
+      dispose: function() {
+        if( !this._isDisposed ) {
+          this._isDisposed = true;
+          if( configParams.onDispose !== noop ) {
+            configParams.onDispose.call(this);
+          }
+          each(this, propertyDisposal);
+        }
+      }
+    },
+    _postInit: function() {
+      if( this.__assertPresence !== false ) {
+        this.$globalNamespace.request.handler(modelConfig.referenceNamespaceName, function(options) {
+          if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
+            if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
+              if(isArray(options.namespaceName) && indexOf(options.namespaceName, this.getNamespaceName()) !== -1) {
+                return this;
+              } else if(isString(options.namespaceName) && options.namespaceName === this.getNamespaceName()) {
+                return this;
+              }
+            } else {
+              return this;
+            }
+          }
+        }.bind(this));
+      }
+    }
+  };
+
+  if( !modelConfig.isModelCtor(ctor) ) {
+    var composure = [ ctor ];
+    var afterInitMixins = reject(modelMixins, isBeforeInitMixin);
+    var beforeInitMixins = filter(modelMixins, isBeforeInitMixin);
+
+    if( afterInitMixins.length ) {
+      composure = composure.concat(afterInitMixins);
+    }
+    composure = composure.concat(initModelMixin);
+    if( beforeInitMixins.length ) {
+      composure = composure.concat(beforeInitMixins);
+    }
+
+    // must 'mixin' the duck tag which marks this object as a model
+    var isModelDuckTagMixin = {};
+    isModelDuckTagMixin[modelConfig.isModelDuckTag] = true;
+    composure = composure.concat({ mixin: isModelDuckTagMixin });
+
+    composure = composure.concat(afterInit);
+    if( !isUndefined(configParams.mixins) ) {
+      composure = composure.concat(configParams.mixins);
+    }
+
+    each(composure, function(composureElement) {
+      if( !isUndefined(composureElement['runBeforeInit']) ) {
+        delete composureElement.runBeforeInit;
+      }
+    });
+
+    var model = riveter.compose.apply( undefined, composure );
+    model['isModelCtorDuckTag'] = true;
+    model.__configParams = configParams;
+  } else {
+    // user has specified another model constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain
+    model = ctor;
+  }
+
+  if( !isUndefined(parent) ) {
+    model.inherits(parent);
+  }
+
+  if( configParams.autoRegister ) {
+    var namespace = configParams.namespace;
+    if( modelConfig.resource.isRegistered(namespace) ) {
+      if( modelConfig.resource.getRegistered(namespace) !== model ) {
+        throw 'namespace [' + namespace + '] has already been registered, autoRegister failed.';
+      }
+    } else {
+      modelConfig.resource.register(namespace, model);
+    }
+  }
+
+  return model;
+}
+
+
+filter(specialTagDescriptors, function(descriptor) {
+  // we only want the descriptors that have a factoryName on them
+  return !isUndefined(descriptor.factoryName);
+}).forEach(function(descriptor) {
+  // Returns a reference to the specified models.
+  // If no name is supplied, a reference to an array containing all viewModel references is returned.
+  descriptor.resource['getAll'] = modelGetAll.bind(descriptor);
+
+  // Make a factory for this descriptor on the root fw object
+  fw[descriptor.factoryName] = modelFactory.bind(descriptor);
+});
 
 // component/module.js
 // ------------------
@@ -11388,7 +11625,7 @@ var makeComponent = fw.component = function(componentDefinition) {
   var viewModel = componentDefinition.viewModel;
 
   if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {
-    componentDefinition.viewModel = makeViewModel( omit(componentDefinition, 'template') );
+    componentDefinition.viewModel = fw.viewModel( omit(componentDefinition, 'template') );
   }
 
   return componentDefinition;
@@ -11518,7 +11755,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
         var LoadedViewModel = ViewModel;
         if( isFunction(ViewModel) ) {
           if( !isViewModelCtor(ViewModel) ) {
-            ViewModel = makeViewModel({ initialize: ViewModel });
+            ViewModel = fw.viewModel({ initialize: ViewModel });
           }
 
           // inject the context and element into the ViewModel contructor
@@ -11605,380 +11842,6 @@ fw.components.loaders.push( fw.components.requireLoader = {
     callback(configOptions);
   }
 });
-
-
-// resource/module.js
-// ------------------
-
-// resource/proto.js
-// ------------------
-
-function isRegistered(resourceName) {
-  return !isUndefined( this[resourceName] );
-};
-
-function getRegistered(resourceName) {
-  return this[resourceName];
-};
-
-function register(resourceName, resource) {
-  this[resourceName] = resource;
-};
-
-// resource/component.js
-// ------------------
-
-var originalComponentRegisterFunc = fw.components.register;
-var registerComponent = fw.components.register = function(componentName, options) {
-  var viewModel = options.initialize || options.viewModel;
-
-  if( !isString(componentName) ) {
-    throw 'Components must be provided a componentName.';
-  }
-
-  if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {
-    options.namespace = componentName;
-    viewModel = makeViewModel(options);
-  }
-
-  originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || fw.viewModel(),
-    template: options.template
-  });
-};
-
-var defaultComponentFileExtensions = {
-  combined: '.js',
-  viewModel: '.js',
-  template: '.html'
-};
-
-var componentFileExtensions = fw.components.fileExtensions = fw.observable( clone(defaultComponentFileExtensions) );
-
-var componentIsRegistered = fw.components.isRegistered;
-
-function getComponentExtension(componentName, fileType) {
-  var componentExtensions = componentFileExtensions();
-  var fileExtension = '';
-
-  if( isFunction(componentExtensions) ) {
-    fileExtension = componentExtensions(componentName)[fileType];
-  } else if( isObject(componentExtensions) ) {
-    if( isFunction(componentExtensions[fileType]) ) {
-      fileExtension = componentExtensions[fileType](componentName);
-    } else {
-      fileExtension = componentExtensions[fileType] || '';
-    }
-  }
-
-  return fileExtension.replace(/^\./, '') || '';
-}
-
-var getComponentFileName = fw.components.getFileName = function(componentName, fileType) {
-  var fileName = componentName;
-  var fileExtension = getComponentExtension(componentName, fileType);
-
-  if( componentIsRegistered(componentName) ) {
-    return null;
-  }
-
-  switch(fileType) {
-    case 'viewModel':
-      fileType = 'viewModels';
-      break;
-    case 'template':
-      fileType = 'templates';
-      break;
-  }
-
-  if( !isUndefined( componentResourceLocations[componentName] ) ) {
-    var registeredLocation = componentResourceLocations[componentName];
-    if( !isUndefined(registeredLocation[fileType]) && !isPath(registeredLocation[fileType]) ) {
-      if( isString(registeredLocation[fileType]) ) {
-        // full filename was supplied, lets return that
-        fileName = last( registeredLocation[fileType].split('/') );
-      } else {
-        return null;
-      }
-    }
-  }
-
-  return fileName + (fileExtension !== getFilenameExtension(fileName) ? ('.' + fileExtension) : '');
-};
-
-var defaultComponentLocation = {
-  combined: null,
-  viewModels: '/viewModel/',
-  templates: '/component/'
-};
-var componentResourceLocations = fw.components.resourceLocations = {};
-var componentDefaultLocation = fw.components.defaultLocation = function(root, updateDefault) {
-  var componentLocation = (isUndefined(updateDefault) || updateDefault === true) ? defaultComponentLocation : clone(defaultComponentLocation);
-
-  if( isObject(root) ) {
-    // assume some combination of defaultComponentLocation and normalize the parameters
-    extend(componentLocation, reduce(root, function(options, paramValue, paramName) {
-      if(paramName === 'viewModel') {
-        options.viewModels = paramValue;
-        delete options.viewModel;
-      } else if(paramName === 'template') {
-        options.templates = paramValue;
-        delete options.template;
-      } else {
-        options[paramName] = paramValue;
-      }
-      return options;
-    }, {}));
-  } else if( isString(root) ) {
-    componentLocation = {
-      combined: rootURL,
-      viewModels: null,
-      templates: null
-    };
-  }
-
-  return componentLocation;
-};
-
-var registerLocationOfComponent = fw.components.registerLocation = function(componentName, componentLocation) {
-  if( isArray(componentName) ) {
-    each(componentName, function(name) {
-      registerLocationOfComponent(name, componentLocation);
-    });
-  }
-  componentResourceLocations[ componentName ] = componentDefaultLocation(componentLocation, false);
-};
-
-var locationIsRegisteredForComponent = fw.components.locationIsRegistered = function(componentName) {
-  return !isUndefined(componentResourceLocations[componentName]);
-};
-
-// Return the component resource definition for the supplied componentName
-var getComponentResourceLocation = fw.components.getResourceLocation = function(componentName) {
-  if( isUndefined(componentName) ) {
-    return componentResourceLocations;
-  }
-  return componentResourceLocations[componentName] || defaultComponentLocation;
-};
-
-// resource/viewModel.js
-// ------------------
-
-var defaultViewModelFileExtensions = '.js';
-var viewModelFileExtensions = fw.viewModels.fileExtensions = fw.observable( defaultViewModelFileExtensions );
-
-function getViewModelExtension(viewModelName) {
-  var viewModelExtensions = viewModelFileExtensions();
-  var fileExtension = '';
-
-  if( isFunction(viewModelExtensions) ) {
-    fileExtension = viewModelExtensions(viewModelName);
-  } else if( isString(viewModelExtensions) ) {
-    fileExtension = viewModelExtensions;
-  }
-
-  return fileExtension.replace(/^\./, '') || '';
-}
-
-var getViewModelFileName = fw.viewModels.getFileName = function(viewModelName) {
-  var fileName = viewModelName + '.' + getViewModelExtension(viewModelName);
-
-  if( !isUndefined( viewModelResourceLocations[viewModelName] ) ) {
-    var registeredLocation = viewModelResourceLocations[viewModelName];
-    if( isString(registeredLocation) && !isPath(registeredLocation) ) {
-      // full filename was supplied, lets return that
-      fileName = last( registeredLocation.split('/') );
-    }
-  }
-
-  return fileName;
-};
-
-var defaultViewModelLocation = '/viewModel/';
-var viewModelResourceLocations = fw.viewModels.resourceLocations = {};
-var viewModelDefaultLocation = fw.viewModels.defaultLocation = function(path, updateDefault) {
-  var viewModelLocation = defaultViewModelLocation;
-
-  if( isString(path) ) {
-    viewModelLocation = path;
-  }
-
-  if(isUndefined(updateDefault) || updateDefault) {
-    defaultViewModelLocation = viewModelLocation;
-  }
-
-  return viewModelLocation;
-};
-
-var registeredViewModels = {};
-var registerViewModel = fw.viewModels.register = register.bind(registeredViewModels);
-var isRegisteredViewModel = fw.viewModels.isRegistered = isRegistered.bind(registeredViewModels);
-var getRegisteredViewModel = fw.viewModels.getRegistered = getRegistered.bind(registeredViewModels);
-
-var registerLocationOfViewModel = fw.viewModels.registerLocation = function(viewModelName, viewModelLocation) {
-  if( isArray(viewModelName) ) {
-    each(viewModelName, function(name) {
-      registerLocationOfViewModel(name, viewModelLocation);
-    });
-  }
-  viewModelResourceLocations[ viewModelName ] = viewModelDefaultLocation(viewModelLocation, false);
-};
-
-var locationIsRegisteredForViewModel = fw.viewModels.locationIsRegistered = function(viewModelName) {
-  return !isUndefined(viewModelResourceLocations[viewModelName]);
-};
-
-// Return the viewModel resource definition for the supplied viewModelName
-var getViewModelResourceLocation = fw.viewModels.getResourceLocation = function(viewModelName) {
-  if( isUndefined(viewModelName) ) {
-    return viewModelResourceLocations;
-  }
-  return viewModelResourceLocations[viewModelName] || defaultViewModelLocation;
-};
-
-// resource/dataModel.js
-// ------------------
-
-var defaultDataModelFileExtensions = '.js';
-var dataModelFileExtensions = fw.dataModels.fileExtensions = fw.observable( defaultDataModelFileExtensions );
-
-function getDataModelExtension(dataModelName) {
-  var dataModelExtensions = dataModelFileExtensions();
-  var fileExtension = '';
-
-  if( isFunction(dataModelExtensions) ) {
-    fileExtension = dataModelExtensions(dataModelName);
-  } else if( isString(dataModelExtensions) ) {
-    fileExtension = dataModelExtensions;
-  }
-
-  return fileExtension.replace(/^\./, '') || '';
-}
-
-var dataModelResourceLocations = fw.dataModels.resourceLocations = {};
-var getDataModelFileName = fw.dataModels.getFileName = function(dataModelName) {
-  var fileName = dataModelName + '.' + getDataModelExtension(dataModelName);
-
-  if( !isUndefined( dataModelResourceLocations[dataModelName] ) ) {
-    var registeredLocation = dataModelResourceLocations[dataModelName];
-    if( isString(registeredLocation) && !isPath(registeredLocation) ) {
-      // full filename was supplied, lets return that
-      fileName = last( registeredLocation.split('/') );
-    }
-  }
-
-  return fileName;
-};
-
-var defaultDataModelLocation = '/dataModel/';
-var dataModelDefaultLocation = fw.dataModels.defaultLocation = function(path, updateDefault) {
-  var dataModelLocation = defaultDataModelLocation;
-
-  if( isString(path) ) {
-    dataModelLocation = path;
-  }
-
-  if(isUndefined(updateDefault) || updateDefault) {
-    defaultDataModelLocation = dataModelLocation;
-  }
-
-  return dataModelLocation;
-};
-
-var registeredDataModels = {};
-var registerDataModel = fw.dataModels.register = register.bind(registeredDataModels);
-var isRegisteredDataModel = fw.dataModels.isRegistered = isRegistered.bind(registeredDataModels);
-var getRegisteredDataModel = fw.dataModels.getRegistered = getRegistered.bind(registeredDataModels);
-
-var registerLocationOfDataModel = fw.dataModels.registerLocation = function(dataModelName, dataModelLocation) {
-  if( isArray(dataModelName) ) {
-    each(dataModelName, function(name) {
-      registerLocationOfDataModel(name, dataModelLocation);
-    });
-  }
-  dataModelResourceLocations[ dataModelName ] = dataModelDefaultLocation(dataModelLocation, false);
-};
-
-var locationIsRegisteredForDataModel = fw.dataModels.locationIsRegistered = function(dataModelName) {
-  return !isUndefined(dataModelResourceLocations[dataModelName]);
-};
-
-// Return the viewModel resource definition for the supplied dataModelName
-var getDataModelResourceLocation = fw.dataModels.getResourceLocation = function(dataModelName) {
-  if( isUndefined(dataModelName) ) {
-    return dataModelResourceLocations;
-  }
-  return dataModelResourceLocations[dataModelName] || defaultDataModelLocation;
-};
-
-// resource/router.js
-// ------------------
-
-var defaultRouterFileExtensions = '.js';
-var routerFileExtensions = fw.viewModels.fileExtensions = fw.observable( defaultRouterFileExtensions );
-
-var getRouterFileName = fw.routers.getFileName = function(moduleName) {
-  var routerExtensions = routerFileExtensions();
-  var fileName = moduleName;
-
-  if( isFunction(routerExtensions) ) {
-    fileName += routerExtensions(moduleName);
-  } else if( isString(routerExtensions) ) {
-    fileName += routerExtensions;
-  }
-
-  if( !isUndefined( routerResourceLocations[moduleName] ) ) {
-    var registeredLocation = routerResourceLocations[moduleName];
-    if( isString(registeredLocation) && !isPath(registeredLocation) ) {
-      // full filename was supplied, lets return that
-      fileName = last( registeredLocation.split('/') );
-    }
-  }
-
-  return fileName;
-};
-
-var defaultRouterLocation = '/';
-var routerResourceLocations = fw.routers.resourceLocations = {};
-var routerDefaultLocation = fw.routers.defaultLocation = function(path, updateDefault) {
-  var routerLocation = defaultRouterLocation;
-
-  if( isString(path) ) {
-    routerLocation = path;
-  }
-
-  if(isUndefined(updateDefault) || updateDefault) {
-    defaultRouterLocation = routerLocation;
-  }
-
-  return routerLocation;
-};
-
-var registeredRouters = {};
-var registerRouter = fw.routers.register = register.bind(registeredRouters);
-var isRegisteredRouter = fw.routers.isRegistered = isRegistered.bind(registeredRouters);
-var getRegisteredRouter = fw.routers.getRegistered = getRegistered.bind(registeredRouters);
-
-var registerLocationOfRouter = fw.routers.registerLocation = function(moduleName, routerLocation) {
-  if( isArray(moduleName) ) {
-    each(moduleName, function(name) {
-      registerLocationOfRouter(name, routerLocation);
-    });
-  }
-  routerResourceLocations[ moduleName ] = routerDefaultLocation(routerLocation, false);
-};
-
-var locationIsRegisteredForRouter = fw.routers.locationIsRegistered = function(moduleName) {
-  return !isUndefined(routerResourceLocations[moduleName]);
-};
-
-// Return the viewModel resource definition for the supplied moduleName
-var getRouterResourceLocation = fw.routers.getResourceLocation = function(moduleName) {
-  if( isUndefined(moduleName) ) {
-    return routerResourceLocations;
-  }
-  return routerResourceLocations[moduleName] || defaultRouterLocation;
-};
 
 
 registerComponent('outlet', {
@@ -12161,7 +12024,7 @@ fw.extenders.delayWrite = function( target, options ) {
   return delayWriteComputed;
 };
 
-// specialTags.js
+// misc/specialTags.js
 // ------------------
 
 function modelBinder(element, params, ViewModel) {
@@ -12196,8 +12059,43 @@ function modelBinder(element, params, ViewModel) {
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = fw.bindingHandlers.component.init;
 
-function isViewModelTag(tagName) {
-  return [ 'viewmodel', 'datamodel', 'router' ].indexOf(tagName) !== -1;
+function isSpecialModelTag(tagName) {
+  var specialTagsFound = filter(specialTagDescriptors, function(descriptor) {
+    return descriptor.tagName === tagName;
+  });
+
+  if(specialTagsFound.length) {
+    return true;
+  }
+
+  return false;
+}
+
+function getResourceForTagName(tagName) {
+  var resource = null;
+  var resourcesFound = filter(specialTagDescriptors, function(descriptor) {
+    return descriptor.tagName === tagName;
+  });
+  if(resourcesFound.length) {
+    resource = resourcesFound[0].resource;
+  }
+  return resource;
+}
+
+function getResourceLocation(moduleName) {
+  var resourceLocation = null;
+
+  if( this.isRegistered(moduleName) ) {
+    // viewModel was manually registered, we preferentially use it
+    resourceLocation = this.getRegistered(moduleName);
+  } else if( isFunction(require) && isFunction(require.defined) && require.defined(moduleName) ) {
+    // we have found a matching resource that is already cached by require, lets use it
+    resourceLocation = moduleName;
+  } else {
+    resourceLocation = this.getResourceLocation(moduleName);
+  }
+
+  return resourceLocation;
 }
 
 var initSpecialTag = function(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
@@ -12208,59 +12106,24 @@ var initSpecialTag = function(tagName, element, valueAccessor, allBindings, view
 
   if(isString(tagName)) {
     tagName = tagName.toLowerCase();
-    if( isViewModelTag(tagName) ) {
+    if( isSpecialModelTag(tagName) ) {
       var values = valueAccessor();
       var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
       var bindModel = modelBinder.bind(null, element, values.params);
-      var isRegistered;
-      var getRegistered;
-      var getResourceLocation;
-      var getFileName;
-
-      switch(tagName) {
-        case 'viewmodel':
-          isRegistered = isRegisteredViewModel;
-          getRegistered = getRegisteredViewModel;
-          getResourceLocation = getViewModelResourceLocation;
-          getFileName = getViewModelFileName;
-          break;
-
-        case 'datamodel':
-          isRegistered = isRegisteredDataModel;
-          getRegistered = getRegisteredDataModel;
-          getResourceLocation = getDataModelResourceLocation;
-          getFileName = getDataModelFileName;
-          break;
-
-        case 'router':
-          isRegistered = isRegisteredRouter;
-          getRegistered = getRegisteredRouter;
-          getResourceLocation = getRouterResourceLocation;
-          getFileName = getRouterFileName;
-          break;
-      }
+      var resource = getResourceForTagName(tagName);
+      var getResourceLocationFor = getResourceLocation.bind(resource);
 
       if(isNull(moduleName) && isString(values)) {
         moduleName = values;
       }
 
-      if( !isUndefined(moduleName) ) {
-        var resourceLocation = null;
-
-        if( isRegistered(moduleName) ) {
-          // viewModel was manually registered, we preferentially use it
-          resourceLocation = getRegistered(moduleName);
-        } else if( isFunction(require) && isFunction(require.defined) && require.defined(moduleName) ) {
-          // we have found a matching resource that is already cached by require, lets use it
-          resourceLocation = moduleName;
-        } else {
-          resourceLocation = getResourceLocation(moduleName);
-        }
+      if( !isUndefined(moduleName) && !isNull(resource) ) {
+        var resourceLocation = getResourceLocationFor(moduleName);
 
         if( isString(resourceLocation) ) {
           if( isFunction(require) ) {
             if( isPath(resourceLocation) ) {
-              resourceLocation = resourceLocation + getFileName(moduleName);
+              resourceLocation = resourceLocation + resource.getFileName(moduleName);
             }
 
             require([ resourceLocation ], bindModel);

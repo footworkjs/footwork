@@ -45,6 +45,7 @@ function modelFactory(configParams) {
     onDispose: noop
   }, configParams || {});
 
+  var modelConfig = this;
   var ctor = noop;
   var afterInit = noop;
   var parent = configParams.parent;
@@ -78,7 +79,7 @@ function modelFactory(configParams) {
     },
     _postInit: function() {
       if( this.__assertPresence !== false ) {
-        this.$globalNamespace.request.handler(this.referenceNamespaceName, function(options) {
+        this.$globalNamespace.request.handler(modelConfig.referenceNamespaceName, function(options) {
           if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
             if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
               if(isArray(options.namespaceName) && indexOf(options.namespaceName, this.getNamespaceName()) !== -1) {
@@ -95,7 +96,7 @@ function modelFactory(configParams) {
     }
   };
 
-  if( !this.isModelCtor(ctor) ) {
+  if( !modelConfig.isModelCtor(ctor) ) {
     var composure = [ ctor ];
     var afterInitMixins = reject(modelMixins, isBeforeInitMixin);
     var beforeInitMixins = filter(modelMixins, isBeforeInitMixin);
@@ -110,7 +111,7 @@ function modelFactory(configParams) {
 
     // must 'mixin' the duck tag which marks this object as a model
     var isModelDuckTagMixin = {};
-    isModelDuckTagMixin[this.isModelDuckTag] = true;
+    isModelDuckTagMixin[modelConfig.isModelDuckTag] = true;
     composure = composure.concat({ mixin: isModelDuckTagMixin });
 
     composure = composure.concat(afterInit);
@@ -138,12 +139,12 @@ function modelFactory(configParams) {
 
   if( configParams.autoRegister ) {
     var namespace = configParams.namespace;
-    if( this.resource.isRegistered(namespace) ) {
-      if( this.resource.getRegistered(namespace) !== model ) {
+    if( modelConfig.resource.isRegistered(namespace) ) {
+      if( modelConfig.resource.getRegistered(namespace) !== model ) {
         throw 'namespace [' + namespace + '] has already been registered, autoRegister failed.';
       }
     } else {
-      this.resource.register(namespace, model);
+      modelConfig.resource.register(namespace, model);
     }
   }
 

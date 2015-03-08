@@ -2,15 +2,15 @@
 // ------------------
 
 function isRegistered(resourceName) {
-  return !isUndefined( this.registeredModels[resourceName] );
+  return !isUndefined( this.registered[resourceName] );
 };
 
 function getRegistered(resourceName) {
-  return this.registeredModels[resourceName];
+  return this.registered[resourceName];
 };
 
 function register(resourceName, resource) {
-  this.registeredModels[resourceName] = resource;
+  this.registered[resourceName] = resource;
 };
 
 function getModelExtension(dataModelExtensions, modelName) {
@@ -54,11 +54,11 @@ function registerModelLocation(modelName, location) {
       registerLocation.call(this, name, location);
     });
   }
-  this.resourceLocations[ viewModelName ] = location;
+  this.resourceLocations[ modelName ] = location;
 }
 
-function modelLocationIsRegistered(viewModelName) {
-  return !isUndefined(this.resourceLocations[viewModelName]);
+function modelLocationIsRegistered(modelName) {
+  return !isUndefined(this.resourceLocations[modelName]);
 }
 
 function getModelResourceLocation(modelName) {

@@ -3,6 +3,9 @@
 
 //import("proto.js");
 //import("component.js");
-//import("viewModel.js");
-//import("dataModel.js");
-//import("router.js");
+
+each(specialTagDescriptors, function(descriptor) {
+  if(!isUndefined(descriptor.resource)) {
+    extend(descriptor.resource, getSimpleResourceMethods(descriptor));
+  }
+});

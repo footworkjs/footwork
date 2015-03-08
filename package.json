@@ -55,8 +55,6 @@
     "browserify": "*",
     "vinyl-transform": "1.0.0",
     "gulp": "*",
-    "gulp-util": "*",
-    "gulp-sourcemaps": "1.5.0",
     "gulp-imports": "0.0.3",
     "gulp-header": "1.2.2",
     "gulp-footer": "~1.0.4",

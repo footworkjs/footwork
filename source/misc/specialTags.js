@@ -33,8 +33,43 @@ function modelBinder(element, params, ViewModel) {
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = fw.bindingHandlers.component.init;
 
-function isViewModelTag(tagName) {
-  return [ 'viewmodel', 'datamodel', 'router' ].indexOf(tagName) !== -1;
+function isSpecialModelTag(tagName) {
+  var specialTagsFound = filter(specialTagDescriptors, function(descriptor) {
+    return descriptor.tagName === tagName;
+  });
+
+  if(specialTagsFound.length) {
+    return true;
+  }
+
+  return false;
+}
+
+function getResourceForTagName(tagName) {
+  var resource = null;
+  var resourcesFound = filter(specialTagDescriptors, function(descriptor) {
+    return descriptor.tagName === tagName;
+  });
+  if(resourcesFound.length) {
+    resource = resourcesFound[0].resource;
+  }
+  return resource;
+}
+
+function getResourceLocation(moduleName) {
+  var resourceLocation = null;
+
+  if( this.isRegistered(moduleName) ) {
+    // viewModel was manually registered, we preferentially use it
+    resourceLocation = this.getRegistered(moduleName);
+  } else if( isFunction(require) && isFunction(require.defined) && require.defined(moduleName) ) {
+    // we have found a matching resource that is already cached by require, lets use it
+    resourceLocation = moduleName;
+  } else {
+    resourceLocation = this.getResourceLocation(moduleName);
+  }
+
+  return resourceLocation;
 }
 
 var initSpecialTag = function(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
@@ -45,42 +80,19 @@ var initSpecialTag = function(tagName, element, valueAccessor, allBindings, view
 
   if(isString(tagName)) {
     tagName = tagName.toLowerCase();
-    if( isViewModelTag(tagName) ) {
+    if( isSpecialModelTag(tagName) ) {
       var values = valueAccessor();
       var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
       var bindModel = modelBinder.bind(null, element, values.params);
-
-      var resource = null;
-      switch(tagName) {
-        case 'viewmodel':
-          resource = fw.viewModels;
-          break;
-
-        case 'datamodel':
-          resource = fw.dataModels;
-          break;
-
-        case 'router':
-          resource = fw.routers;
-          break;
-      }
+      var resource = getResourceForTagName(tagName);
+      var getResourceLocationFor = getResourceLocation.bind(resource);
 
       if(isNull(moduleName) && isString(values)) {
         moduleName = values;
       }
 
       if( !isUndefined(moduleName) && !isNull(resource) ) {
-        var resourceLocation = null;
-
-        if( resource.isRegistered(moduleName) ) {
-          // viewModel was manually registered, we preferentially use it
-          resourceLocation = resource.getRegistered(moduleName);
-        } else if( isFunction(require) && isFunction(require.defined) && require.defined(moduleName) ) {
-          // we have found a matching resource that is already cached by require, lets use it
-          resourceLocation = moduleName;
-        } else {
-          resourceLocation = resource.getResourceLocation(moduleName);
-        }
+        var resourceLocation = getResourceLocationFor(moduleName);
 
         if( isString(resourceLocation) ) {
           if( isFunction(require) ) {
