@@ -1,23 +1,6 @@
 // component/processing.js
 // ------------------
 
-// Mark a component as consisting of a template only.
-// This will cause footwork to load only the template when this component is used.
-var componentTemplateOnlyRegister = [];
-var markComponentAsTemplateOnly = fw.components.isTemplateOnly = function(componentName, isTemplateOnly) {
-  isTemplateOnly = (isUndefined(isTemplateOnly) ? true : isTemplateOnly);
-  if( isArray(componentName) ) {
-    each(componentName, function(compName) {
-      markComponentAsTemplateOnly(compName, isTemplateOnly);
-    });
-  }
-
-  componentTemplateOnlyRegister[componentName] = isTemplateOnly;
-  if( !isArray(componentName) ) {
-    return componentTemplateOnlyRegister[componentName] || 'normal';
-  }
-};
-
 // These are tags which are ignored by the custom component loader
 // Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
 var nonComponentTags = [

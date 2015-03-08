@@ -1,4 +1,4 @@
-// resource.js
+// resource/utility.js
 // ------------------
 
 function isRegistered(resourceName) {
@@ -12,7 +12,3 @@ function getRegistered(resourceName) {
 function register(resourceName, resource) {
   this[resourceName] = resource;
 };
-
-//import("resource/component.js");
-//import("resource/viewModel.js");
-//import("resource/router.js");
