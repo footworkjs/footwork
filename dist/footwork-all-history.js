@@ -9940,19 +9940,12 @@ var isEqual = _.isEqual;
 fw.viewModels = {};
 fw.dataModels = {};
 fw.routers = {};
-
-function prepDescriptor(descriptor) {
-  return extend({
-    resourceLocations: {},
-    registered: {},
-    fileExtensions: fw.observable('.js')
-  }, descriptor);
-}
+fw.outlets = {};
 
 var specialTagDescriptors = map([
   {
     tagName: 'viewmodel',
-    factoryName: 'viewModel',
+    methodName: 'viewModel',
     resource: fw.viewModels,
     defaultLocation: '/viewModel/',
     referenceNamespaceName: '__viewModel_reference',
@@ -9961,7 +9954,7 @@ var specialTagDescriptors = map([
     isModelCtor: isViewModelCtor
   }, {
     tagName: 'datamodel',
-    factoryName: 'dataModel',
+    methodName: 'dataModel',
     resource: fw.dataModels,
     defaultLocation: '/dataModel/',
     referenceNamespaceName: '__dataModel_reference',
@@ -9974,7 +9967,13 @@ var specialTagDescriptors = map([
     defaultLocation: '/',
     referenceNamespaceName: '__router_reference'
   }
-], prepDescriptor);
+], function prepareDescriptor(descriptor) {
+  return extend({
+    resourceLocations: {},
+    registered: {},
+    fileExtensions: fw.observable('.js')
+  }, descriptor);
+});
 
 // namespace/module.js
 // ------------------
@@ -10384,7 +10383,6 @@ var defaultComponentFileExtensions = {
 };
 
 var componentFileExtensions = fw.components.fileExtensions = fw.observable( clone(defaultComponentFileExtensions) );
-
 var componentIsRegistered = fw.components.isRegistered;
 
 function getComponentExtension(componentName, fileType) {
@@ -10873,7 +10871,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   return outlet;
 };
 
-fw.outlets = {
+extend(fw.outlets, {
   registerView: function(viewName, templateHTML) {
     registerComponent(viewName, { template: templateHTML });
   },
@@ -10881,7 +10879,7 @@ fw.outlets = {
     registerLocationOfComponent(viewName, { template: viewLocation })
     markComponentAsTemplateOnly(viewName);
   }
-};
+});
 
 // router/factory.js
 // -----------
@@ -11404,7 +11402,7 @@ fw.router = function( routerConfig ) {
 // model/module.js
 // ------------------
 
-// model/lifecycle-binding.js
+// model/lifecycle.js
 // ------------------
 
 // Provides lifecycle functionality and $context for a given model and element
@@ -11432,6 +11430,9 @@ function setupContextAndLifeCycle(viewModel, element) {
   }
 }
 
+// model/applyBinding.js
+// ------------------
+
 // Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.
 var originalApplyBindings = fw.applyBindings;
 var applyBindings = fw.applyBindings = function(viewModel, element) {
@@ -11439,7 +11440,7 @@ var applyBindings = fw.applyBindings = function(viewModel, element) {
   setupContextAndLifeCycle(viewModel, element);
 };
 
-// model/factories.js
+// model/class.js
 // ------------------
 
 var model = {};
@@ -11448,7 +11449,7 @@ function isBeforeInitMixin(mixin) {
   return !!mixin.runBeforeInit;
 }
 
-function modelFactory(configParams) {
+function modelClassMethod(configParams) {
   configParams = extend({
     namespace: undefined,
     name: undefined,
@@ -11570,11 +11571,11 @@ function modelFactory(configParams) {
 
 
 filter(specialTagDescriptors, function(descriptor) {
-  // we only want the descriptors that have a factoryName on them
-  return !isUndefined(descriptor.factoryName);
+  // we only want the descriptors that have a methodName on them
+  return !isUndefined(descriptor.methodName);
 }).forEach(function(descriptor) {
-  // Make a factory for this descriptor on the root fw object
-  fw[descriptor.factoryName] = modelFactory.bind(descriptor);
+  // Make a class method for this descriptor on the root fw object
+  fw[descriptor.methodName] = modelClassMethod.bind(descriptor);
 });
 
 // component/module.js
