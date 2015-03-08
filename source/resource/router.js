@@ -1,6 +1,13 @@
 // resource/router.js
 // ------------------
 
+var routerModelConfig = {
+  defaultLocation: '/viewModel/',
+  fileExtensions: fw.observable( '.js' ),
+  resourceLocations: {},
+  registeredModels: {}
+};
+
 var defaultRouterFileExtensions = '.js';
 var routerFileExtensions = fw.viewModels.fileExtensions = fw.observable( defaultRouterFileExtensions );
 
@@ -41,10 +48,9 @@ var routerDefaultLocation = fw.routers.defaultLocation = function(path, updateDe
   return routerLocation;
 };
 
-var registeredRouters = {};
-var registerRouter = fw.routers.register = register.bind(registeredRouters);
-var isRegisteredRouter = fw.routers.isRegistered = isRegistered.bind(registeredRouters);
-var getRegisteredRouter = fw.routers.getRegistered = getRegistered.bind(registeredRouters);
+var registerRouter = fw.routers.register = register.bind(routerModelConfig);
+var isRegisteredRouter = fw.routers.isRegistered = isRegistered.bind(routerModelConfig);
+var getRegisteredRouter = fw.routers.getRegistered = getRegistered.bind(routerModelConfig);
 
 var registerLocationOfRouter = fw.routers.registerLocation = function(moduleName, routerLocation) {
   if( isArray(moduleName) ) {

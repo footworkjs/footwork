@@ -1,7 +1,6 @@
 // misc/lodashExtract.js
 // ----------------
 
-// Pull out lodash utility function references for better minification and easier implementation swap
 var isFunction = _.isFunction;
 var isObject = _.isObject;
 var isString = _.isString;

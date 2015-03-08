@@ -1,4 +1,4 @@
-// specialTags.js
+// misc/specialTags.js
 // ------------------
 
 function modelBinder(element, params, ViewModel) {
@@ -49,31 +49,19 @@ var initSpecialTag = function(tagName, element, valueAccessor, allBindings, view
       var values = valueAccessor();
       var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
       var bindModel = modelBinder.bind(null, element, values.params);
-      var isRegistered;
-      var getRegistered;
-      var getResourceLocation;
-      var getFileName;
 
+      var resource = null;
       switch(tagName) {
         case 'viewmodel':
-          isRegistered = isRegisteredViewModel;
-          getRegistered = getRegisteredViewModel;
-          getResourceLocation = getViewModelResourceLocation;
-          getFileName = getViewModelFileName;
+          resource = fw.viewModels;
           break;
 
         case 'datamodel':
-          isRegistered = isRegisteredDataModel;
-          getRegistered = getRegisteredDataModel;
-          getResourceLocation = getDataModelResourceLocation;
-          getFileName = getDataModelFileName;
+          resource = fw.dataModels;
           break;
 
         case 'router':
-          isRegistered = isRegisteredRouter;
-          getRegistered = getRegisteredRouter;
-          getResourceLocation = getRouterResourceLocation;
-          getFileName = getRouterFileName;
+          resource = fw.routers;
           break;
       }
 
@@ -81,23 +69,23 @@ var initSpecialTag = function(tagName, element, valueAccessor, allBindings, view
         moduleName = values;
       }
 
-      if( !isUndefined(moduleName) ) {
+      if( !isUndefined(moduleName) && !isNull(resource) ) {
         var resourceLocation = null;
 
-        if( isRegistered(moduleName) ) {
+        if( resource.isRegistered(moduleName) ) {
           // viewModel was manually registered, we preferentially use it
-          resourceLocation = getRegistered(moduleName);
+          resourceLocation = resource.getRegistered(moduleName);
         } else if( isFunction(require) && isFunction(require.defined) && require.defined(moduleName) ) {
           // we have found a matching resource that is already cached by require, lets use it
           resourceLocation = moduleName;
         } else {
-          resourceLocation = getResourceLocation(moduleName);
+          resourceLocation = resource.getResourceLocation(moduleName);
         }
 
         if( isString(resourceLocation) ) {
           if( isFunction(require) ) {
             if( isPath(resourceLocation) ) {
-              resourceLocation = resourceLocation + getFileName(moduleName);
+              resourceLocation = resourceLocation + resource.getFileName(moduleName);
             }
 
             require([ resourceLocation ], bindModel);

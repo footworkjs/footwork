@@ -18,7 +18,7 @@ var makeComponent = fw.component = function(componentDefinition) {
   var viewModel = componentDefinition.viewModel;
 
   if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {
-    componentDefinition.viewModel = makeViewModel( omit(componentDefinition, 'template') );
+    componentDefinition.viewModel = fw.viewModel( omit(componentDefinition, 'template') );
   }
 
   return componentDefinition;

@@ -1,7 +1,7 @@
 // router/exports.js
 // -----------
 
-fwRouters = fw.routers = {
+fwRouters = extend(fw.routers, {
   // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
   baseRoute: fw.observable(''),
   activeRouteClassName: fw.observable('active'),
@@ -39,10 +39,10 @@ fwRouters = fw.routers = {
       return routers;
     }, {});
   }
-};
+});
 
 makeRouter = fw.router = function( routerConfig ) {
-  return makeViewModel({
+  return fw.viewModel({
     router: routerConfig
   });
 };

@@ -65,7 +65,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
         var LoadedViewModel = ViewModel;
         if( isFunction(ViewModel) ) {
           if( !isViewModelCtor(ViewModel) ) {
-            ViewModel = makeViewModel({ initialize: ViewModel });
+            ViewModel = fw.viewModel({ initialize: ViewModel });
           }
 
           // inject the context and element into the ViewModel contructor

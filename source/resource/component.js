@@ -11,7 +11,7 @@ var registerComponent = fw.components.register = function(componentName, options
 
   if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {
     options.namespace = componentName;
-    viewModel = makeViewModel(options);
+    viewModel = fw.viewModel(options);
   }
 
   originalComponentRegisterFunc(componentName, {
