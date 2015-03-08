@@ -6437,8 +6437,6 @@ root._ = {
       // main.js
 // -----------
 
-// Map ko to the variable 'fw' internally to make it clear this is the 'footwork' flavored version of knockout we are dealing with.
-// Footwork will also map itself to 'fw' on the global object when no script loader is used.
 var fw = ko;
 
 // misc/utility.js
@@ -6599,6 +6597,12 @@ var isEqual = _.isEqual;
 
 // misc/core-init.js
 // ------------------
+
+// Record the footwork version as of this build.
+fw.footworkVersion = '0.9.0';
+
+// Expose any embedded dependencies
+fw.embed = embedded;
 
 // initialize base objects which are not present in knockout
 fw.viewModels = {};
@@ -8234,8 +8238,7 @@ function modelClassMethod(configParams) {
 }
 
 
-filter(specialTagDescriptors, function(descriptor) {
-  // we only want the descriptors that have a methodName on them
+filter(specialTagDescriptors, function onlyDescriptorsWithMethodName(descriptor) {
   return !isUndefined(descriptor.methodName);
 }).forEach(function(descriptor) {
   // Make a class method for this descriptor on the root fw object
@@ -8822,12 +8825,8 @@ fw.bindingHandlers.$viewModel = {
   init: initSpecialTag.bind(null, 'viewModel')
 };
 
-
-// Record the footwork version as of this build.
-fw.footworkVersion = '0.9.0';
-
-// Expose any embedded dependencies
-fw.embed = embedded;
+// misc/start.js
+// ----------------
 
 // 'start' up footwork at the targetElement (or document.body by default)
 fw.start = function(targetElement) {
@@ -8835,6 +8834,7 @@ fw.start = function(targetElement) {
   targetElement = targetElement || windowObject.document.body;
   originalApplyBindings({}, targetElement);
 };
+
 
       return ko;
     })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter );

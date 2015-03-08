@@ -5,8 +5,7 @@
 //import("applyBinding.js");
 //import("classMethod.js");
 
-filter(specialTagDescriptors, function(descriptor) {
-  // we only want the descriptors that have a methodName on them
+filter(specialTagDescriptors, function onlyDescriptorsWithMethodName(descriptor) {
   return !isUndefined(descriptor.methodName);
 }).forEach(function(descriptor) {
   // Make a class method for this descriptor on the root fw object

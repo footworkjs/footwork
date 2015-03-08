@@ -1,9 +1,6 @@
 var gulp = require('gulp');
 var browserify = require('browserify');
 var transform = require('vinyl-transform');
-var browserified = transform(function(filename) {
-  return browserify(filename).bundle();
-});
 var header = require('gulp-header');
 var footer = require('gulp-footer');
 var fileImports = require('gulp-imports');
@@ -23,6 +20,12 @@ var pkg = require('./package.json');
 var reporter = 'list';
 var statement = 'A solid footing for web applications.';
 var args   = require('yargs').argv;
+
+var browserified = function() {
+  return transform(function(filename) {
+    return browserify(filename).bundle();
+  });
+};
 
 var banner = ['/**',
   ' * <%= pkg.name %> - <%= pkg.description %>',
@@ -154,7 +157,7 @@ gulp.task('set_version', function() {
 
 gulp.task('lodash_custom', function () {
   return gulp.src('./source/build-profile/lodash-custom.js')
-    .pipe(browserified)
+    .pipe(browserified())
     .pipe(rename('lodash-custom.js'))
     .pipe(gulp.dest('./dist'));
 });

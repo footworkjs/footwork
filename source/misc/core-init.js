@@ -1,6 +1,12 @@
 // misc/core-init.js
 // ------------------
 
+// Record the footwork version as of this build.
+fw.footworkVersion = 'FOOTWORK_VERSION';
+
+// Expose any embedded dependencies
+fw.embed = embedded;
+
 // initialize base objects which are not present in knockout
 fw.viewModels = {};
 fw.dataModels = {};

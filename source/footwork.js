@@ -1,8 +1,6 @@
 // main.js
 // -----------
 
-// Map ko to the variable 'fw' internally to make it clear this is the 'footwork' flavored version of knockout we are dealing with.
-// Footwork will also map itself to 'fw' on the global object when no script loader is used.
 var fw = ko;
 
 //import("misc/utility.js");
@@ -17,16 +15,4 @@ var fw = ko;
 //import("component/builtIn.js");
 //import("misc/extenders.js");
 //import("misc/specialTags.js");
-
-// Record the footwork version as of this build.
-fw.footworkVersion = 'FOOTWORK_VERSION';
-
-// Expose any embedded dependencies
-fw.embed = embedded;
-
-// 'start' up footwork at the targetElement (or document.body by default)
-fw.start = function(targetElement) {
-  assessHistoryState();
-  targetElement = targetElement || windowObject.document.body;
-  originalApplyBindings({}, targetElement);
-};
+//import("misc/start.js");
