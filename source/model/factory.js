@@ -7,30 +7,6 @@ function isBeforeInitMixin(mixin) {
   return !!mixin.runBeforeInit;
 }
 
-function modelGetAll(namespaceName, options) {
-  options = options || {};
-  if( isString(namespaceName) || isArray(namespaceName) ) {
-    options.namespaceName = namespaceName;
-  }
-
-  return reduce( $globalNamespace.request(this.referenceNamespaceName, extend({ includeOutlets: false }, options), true), function(models, model) {
-    if( !isUndefined(model) ) {
-      var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
-      if( !isNull(namespaceName) ) {
-        if( isUndefined(models[namespaceName]) ) {
-          models[namespaceName] = model;
-        } else {
-          if( !isArray(models[namespaceName]) ) {
-            models[namespaceName] = [ models[namespaceName] ];
-          }
-          models[namespaceName].push(model);
-        }
-      }
-    }
-    return models;
-  }, {});
-}
-
 function modelFactory(configParams) {
   configParams = extend({
     namespace: undefined,

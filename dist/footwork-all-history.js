@@ -10307,20 +10307,52 @@ function getModelResourceLocation(modelName) {
   return this.resourceLocations[modelName] || this.defaultLocation;
 }
 
-// assemble all resource methods for a given config object
-function getSimpleResourceMethods(config) {
-  return {
-    getFileName: getModelFileName.bind(config),
-    register: register.bind(config),
-    isRegistered: isRegistered.bind(config),
-    getRegistered: getRegistered.bind(config),
-    registerLocation: registerModelLocation.bind(config),
-    locationIsRegistered: modelLocationIsRegistered.bind(config),
-    getResourceLocation: getModelResourceLocation.bind(config),
-    defaultLocation: setDefaultModelLocation.bind(config),
-    fileExtensions: config.fileExtensions,
-    resourceLocations: config.resourceLocations
+function getModelReferences(namespaceName, options) {
+  options = options || {};
+  if( isString(namespaceName) || isArray(namespaceName) ) {
+    options.namespaceName = namespaceName;
+  }
+
+  return reduce( $globalNamespace.request(this.referenceNamespaceName, extend({ includeOutlets: false }, options), true), function(models, model) {
+    if( !isUndefined(model) ) {
+      var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
+      if( !isNull(namespaceName) ) {
+        if( isUndefined(models[namespaceName]) ) {
+          models[namespaceName] = model;
+        } else {
+          if( !isArray(models[namespaceName]) ) {
+            models[namespaceName] = [ models[namespaceName] ];
+          }
+          models[namespaceName].push(model);
+        }
+      }
+    }
+    return models;
+  }, {});
+}
+
+// assemble all resource methods for a given descriptor object
+function getSimpleResourceMethods(descriptor) {
+  var resourceMethods = {
+    getFileName: getModelFileName.bind(descriptor),
+    register: register.bind(descriptor),
+    isRegistered: isRegistered.bind(descriptor),
+    getRegistered: getRegistered.bind(descriptor),
+    registerLocation: registerModelLocation.bind(descriptor),
+    locationIsRegistered: modelLocationIsRegistered.bind(descriptor),
+    getResourceLocation: getModelResourceLocation.bind(descriptor),
+    defaultLocation: setDefaultModelLocation.bind(descriptor),
+    fileExtensions: descriptor.fileExtensions,
+    resourceLocations: descriptor.resourceLocations
   };
+
+  if(!isUndefined(descriptor.referenceNamespaceName)) {
+    // Returns a reference to the specified models.
+    // If no name is supplied, a reference to an array containing all viewModel references is returned.
+    resourceMethods.getAll = getModelReferences.bind(descriptor);
+  }
+
+  return resourceMethods;
 }
 
 // resource/component.js
@@ -11363,31 +11395,6 @@ fwRouters = extend(fw.routers, {
   getNearestParent: function($context) {
     var $parentRouter = nearestParentRouter($context);
     return (!isNullRouter($parentRouter) ? $parentRouter : null);
-  },
-
-  // Return array of all currently instantiated $router's (optionally for a given viewModelNamespaceName)
-  getAll: function(routerNamespaceName) {
-    if( !isUndefined(routerNamespaceName) && !isArray(routerNamespaceName) ) {
-      routerNamespaceName = [ routerNamespaceName ];
-    }
-
-    return reduce( $globalNamespace.request('__router_reference', undefined, true), function(routers, router) {
-      var namespaceName = isNamespace(router.$namespace) ? router.$namespace.getName() : null;
-
-      if( !isNull(namespaceName) ) {
-        if( isUndefined(routerNamespaceName) || contains(routerNamespaceName, namespaceName) ) {
-          if( isUndefined(routers[namespaceName]) ) {
-            routers[namespaceName] = router;
-          } else {
-            if( !isArray(routers[namespaceName]) ) {
-              routers[namespaceName] = [ routers[namespaceName] ];
-            }
-            routers[namespaceName].push(router);
-          }
-        }
-      }
-      return routers;
-    }, {});
   }
 });
 
@@ -11443,30 +11450,6 @@ var model = {};
 
 function isBeforeInitMixin(mixin) {
   return !!mixin.runBeforeInit;
-}
-
-function modelGetAll(namespaceName, options) {
-  options = options || {};
-  if( isString(namespaceName) || isArray(namespaceName) ) {
-    options.namespaceName = namespaceName;
-  }
-
-  return reduce( $globalNamespace.request(this.referenceNamespaceName, extend({ includeOutlets: false }, options), true), function(models, model) {
-    if( !isUndefined(model) ) {
-      var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
-      if( !isNull(namespaceName) ) {
-        if( isUndefined(models[namespaceName]) ) {
-          models[namespaceName] = model;
-        } else {
-          if( !isArray(models[namespaceName]) ) {
-            models[namespaceName] = [ models[namespaceName] ];
-          }
-          models[namespaceName].push(model);
-        }
-      }
-    }
-    return models;
-  }, {});
 }
 
 function modelFactory(configParams) {
@@ -11594,10 +11577,6 @@ filter(specialTagDescriptors, function(descriptor) {
   // we only want the descriptors that have a factoryName on them
   return !isUndefined(descriptor.factoryName);
 }).forEach(function(descriptor) {
-  // Returns a reference to the specified models.
-  // If no name is supplied, a reference to an array containing all viewModel references is returned.
-  descriptor.resource['getAll'] = modelGetAll.bind(descriptor);
-
   // Make a factory for this descriptor on the root fw object
   fw[descriptor.factoryName] = modelFactory.bind(descriptor);
 });
