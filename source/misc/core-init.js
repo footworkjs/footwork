@@ -5,19 +5,12 @@
 fw.viewModels = {};
 fw.dataModels = {};
 fw.routers = {};
-
-function prepDescriptor(descriptor) {
-  return extend({
-    resourceLocations: {},
-    registered: {},
-    fileExtensions: fw.observable('.js')
-  }, descriptor);
-}
+fw.outlets = {};
 
 var specialTagDescriptors = map([
   {
     tagName: 'viewmodel',
-    factoryName: 'viewModel',
+    methodName: 'viewModel',
     resource: fw.viewModels,
     defaultLocation: '/viewModel/',
     referenceNamespaceName: '__viewModel_reference',
@@ -26,7 +19,7 @@ var specialTagDescriptors = map([
     isModelCtor: isViewModelCtor
   }, {
     tagName: 'datamodel',
-    factoryName: 'dataModel',
+    methodName: 'dataModel',
     resource: fw.dataModels,
     defaultLocation: '/dataModel/',
     referenceNamespaceName: '__dataModel_reference',
@@ -39,4 +32,10 @@ var specialTagDescriptors = map([
     defaultLocation: '/',
     referenceNamespaceName: '__router_reference'
   }
-], prepDescriptor);
+], function prepareDescriptor(descriptor) {
+  return extend({
+    resourceLocations: {},
+    registered: {},
+    fileExtensions: fw.observable('.js')
+  }, descriptor);
+});

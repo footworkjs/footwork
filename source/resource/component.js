@@ -27,7 +27,6 @@ var defaultComponentFileExtensions = {
 };
 
 var componentFileExtensions = fw.components.fileExtensions = fw.observable( clone(defaultComponentFileExtensions) );
-
 var componentIsRegistered = fw.components.isRegistered;
 
 function getComponentExtension(componentName, fileType) {

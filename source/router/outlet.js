@@ -85,7 +85,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   return outlet;
 };
 
-fw.outlets = {
+extend(fw.outlets, {
   registerView: function(viewName, templateHTML) {
     registerComponent(viewName, { template: templateHTML });
   },
@@ -93,4 +93,4 @@ fw.outlets = {
     registerLocationOfComponent(viewName, { template: viewLocation })
     markComponentAsTemplateOnly(viewName);
   }
-};
+});

@@ -1,4 +1,4 @@
-// model/factories.js
+// model/class.js
 // ------------------
 
 var model = {};
@@ -7,7 +7,7 @@ function isBeforeInitMixin(mixin) {
   return !!mixin.runBeforeInit;
 }
 
-function modelFactory(configParams) {
+function modelClassMethod(configParams) {
   configParams = extend({
     namespace: undefined,
     name: undefined,
