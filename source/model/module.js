@@ -1,8 +1,9 @@
 // model/module.js
 // ------------------
 
-//import("lifecycle-applyBinding.js");
-//import("class.js");
+//import("lifecycle.js");
+//import("applyBinding.js");
+//import("classMethod.js");
 
 filter(specialTagDescriptors, function(descriptor) {
   // we only want the descriptors that have a methodName on them
