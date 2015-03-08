@@ -158,8 +158,8 @@ gulp.task('lodash_custom', function () {
     return b.bundle();
   });
 
-  return gulp.src('./source/build-profile/helpers/lodash-custom.builder.js')
+  return gulp.src('./source/build-profile/lodash-custom.js')
     .pipe(browserified)
-    .pipe(rename('lodash.custom.js'))
+    .pipe(rename('lodash-custom.js'))
     .pipe(gulp.dest('./dist'));
 });
