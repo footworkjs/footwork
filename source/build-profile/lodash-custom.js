@@ -33,5 +33,6 @@ root._ = {
   once: require('../../node_modules/lodash/function/once'),
   last: require('../../node_modules/lodash/array/last'),
   isEqual: require('../../node_modules/lodash/lang/isEqual'),
-  defaults: require('../../node_modules/lodash/object/defaults')
+  defaults: require('../../node_modules/lodash/object/defaults'),
+  keys: require('../../node_modules/lodash/object/keys')
 };

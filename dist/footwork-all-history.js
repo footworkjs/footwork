@@ -4960,10 +4960,11 @@ root._ = {
   once: require('../../node_modules/lodash/function/once'),
   last: require('../../node_modules/lodash/array/last'),
   isEqual: require('../../node_modules/lodash/lang/isEqual'),
-  defaults: require('../../node_modules/lodash/object/defaults')
+  defaults: require('../../node_modules/lodash/object/defaults'),
+  keys: require('../../node_modules/lodash/object/keys')
 };
 
-},{"../../node_modules/lodash/array/indexOf":2,"../../node_modules/lodash/array/last":3,"../../node_modules/lodash/collection/contains":4,"../../node_modules/lodash/collection/each":5,"../../node_modules/lodash/collection/filter":6,"../../node_modules/lodash/collection/find":7,"../../node_modules/lodash/collection/findWhere":8,"../../node_modules/lodash/collection/invoke":11,"../../node_modules/lodash/collection/map":12,"../../node_modules/lodash/collection/reduce":13,"../../node_modules/lodash/collection/reject":14,"../../node_modules/lodash/collection/where":15,"../../node_modules/lodash/function/bind":18,"../../node_modules/lodash/function/once":19,"../../node_modules/lodash/lang/clone":93,"../../node_modules/lodash/lang/isArray":95,"../../node_modules/lodash/lang/isBoolean":96,"../../node_modules/lodash/lang/isEqual":97,"../../node_modules/lodash/lang/isFunction":98,"../../node_modules/lodash/lang/isNull":100,"../../node_modules/lodash/lang/isNumber":101,"../../node_modules/lodash/lang/isObject":102,"../../node_modules/lodash/lang/isString":103,"../../node_modules/lodash/lang/isUndefined":105,"../../node_modules/lodash/object/defaults":107,"../../node_modules/lodash/object/extend":108,"../../node_modules/lodash/object/has":109,"../../node_modules/lodash/object/omit":112,"../../node_modules/lodash/object/pick":113,"../../node_modules/lodash/object/result":114,"../../node_modules/lodash/object/values":115,"../../node_modules/lodash/utility/uniqueId":121}]},{},[122]);
+},{"../../node_modules/lodash/array/indexOf":2,"../../node_modules/lodash/array/last":3,"../../node_modules/lodash/collection/contains":4,"../../node_modules/lodash/collection/each":5,"../../node_modules/lodash/collection/filter":6,"../../node_modules/lodash/collection/find":7,"../../node_modules/lodash/collection/findWhere":8,"../../node_modules/lodash/collection/invoke":11,"../../node_modules/lodash/collection/map":12,"../../node_modules/lodash/collection/reduce":13,"../../node_modules/lodash/collection/reject":14,"../../node_modules/lodash/collection/where":15,"../../node_modules/lodash/function/bind":18,"../../node_modules/lodash/function/once":19,"../../node_modules/lodash/lang/clone":93,"../../node_modules/lodash/lang/isArray":95,"../../node_modules/lodash/lang/isBoolean":96,"../../node_modules/lodash/lang/isEqual":97,"../../node_modules/lodash/lang/isFunction":98,"../../node_modules/lodash/lang/isNull":100,"../../node_modules/lodash/lang/isNumber":101,"../../node_modules/lodash/lang/isObject":102,"../../node_modules/lodash/lang/isString":103,"../../node_modules/lodash/lang/isUndefined":105,"../../node_modules/lodash/object/defaults":107,"../../node_modules/lodash/object/extend":108,"../../node_modules/lodash/object/has":109,"../../node_modules/lodash/object/keys":110,"../../node_modules/lodash/object/omit":112,"../../node_modules/lodash/object/pick":113,"../../node_modules/lodash/object/result":114,"../../node_modules/lodash/object/values":115,"../../node_modules/lodash/utility/uniqueId":121}]},{},[122]);
 
 
     (function() {
@@ -9940,41 +9941,40 @@ fw.viewModels = {};
 fw.dataModels = {};
 fw.routers = {};
 
-var specialTagDescriptors = [
+function prepDescriptor(descriptor) {
+  return extend({
+    resourceLocations: {},
+    registered: {},
+    fileExtensions: fw.observable('.js')
+  }, descriptor);
+}
+
+var specialTagDescriptors = map([
   {
-    referenceNamespaceName: '__viewModel_reference',
-    isModelDuckTag: '__isViewModel',
-    isModelCtorDuckTag: '__isViewModelCtor',
-    isModelCtor: isViewModelCtor,
     tagName: 'viewmodel',
     factoryName: 'viewModel',
     resource: fw.viewModels,
     defaultLocation: '/viewModel/',
-    fileExtensions: fw.observable('.js'),
-    resourceLocations: {},
-    registered: {}
+    referenceNamespaceName: '__viewModel_reference',
+    isModelDuckTag: '__isViewModel',
+    isModelCtorDuckTag: '__isViewModelCtor',
+    isModelCtor: isViewModelCtor
   }, {
-    referenceNamespaceName: '__dataModel_reference',
-    isModelDuckTag: '__isDataModel',
-    isModelCtorDuckTag: '__isDataModelCtor',
-    isModelCtor: isDataModelCtor,
     tagName: 'datamodel',
     factoryName: 'dataModel',
     resource: fw.dataModels,
     defaultLocation: '/dataModel/',
-    fileExtensions: fw.observable('.js'),
-    resourceLocations: {},
-    registered: {}
+    referenceNamespaceName: '__dataModel_reference',
+    isModelDuckTag: '__isDataModel',
+    isModelCtorDuckTag: '__isDataModelCtor',
+    isModelCtor: isDataModelCtor
   }, {
-    referenceNamespaceName: '__router_reference',
     tagName: 'router',
     resource: fw.routers,
     defaultLocation: '/',
-    fileExtensions: fw.observable('.js'),
-    resourceLocations: {},
-    registered: {}
+    referenceNamespaceName: '__router_reference'
   }
-];
+], prepDescriptor);
 
 // namespace/module.js
 // ------------------
@@ -10694,9 +10694,6 @@ var baseRouteDescription = {
   __isRouteDesc: true
 };
 
-var fwRouters;
-var makeRouter;
-
 // router/utility.js
 // -----------
 
@@ -11068,7 +11065,7 @@ Router.prototype.startup = function( $context, $parentRouter ) {
     if( historyIsReady() && !this.disableHistory() ) {
       History.Adapter.bind( windowObject, 'popstate', this.stateChangeHandler = function(event) {
         var url = '';
-        if(!fwRouters.html5History() && windowObject.location.hash.length > 1) {
+        if(!fw.routers.html5History() && windowObject.location.hash.length > 1) {
           url = windowObject.location.hash;
         } else {
           url = windowObject.location.pathname + windowObject.location.hash;
@@ -11108,7 +11105,7 @@ Router.prototype.normalizeURL = function(url) {
   var urlParts = parseUri(url);
   this.urlParts(urlParts);
 
-  if(!fwRouters.html5History()) {
+  if(!fw.routers.html5History()) {
     if(url.indexOf('#') !== -1) {
       url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
     } else if(this.currentState() !== url) {
@@ -11306,7 +11303,7 @@ fw.bindingHandlers.$route = {
           if( includeParentPath && !isNullRouter($myRouter) ) {
             myLinkPath = $myRouter.parentRouter().path() + myLinkPath;
 
-            if(fwRouters.html5History() === false) {
+            if(fw.routers.html5History() === false) {
               myLinkPath = '#' + (myLinkPath.indexOf('/') === 0 ? myLinkPath.substring(1) : myLinkPath);
             }
           }
@@ -11322,7 +11319,7 @@ fw.bindingHandlers.$route = {
 
     function checkForMatchingSegment(mySegment, newRoute) {
       if(routeHandlerDescription.addActiveClass) {
-        var activeRouteClassName = routeHandlerDescription.activeClass || fwRouters.activeRouteClassName();
+        var activeRouteClassName = routeHandlerDescription.activeClass || fw.routers.activeRouteClassName();
         if(mySegment === '/') {
           mySegment = '';
         }
@@ -11339,7 +11336,7 @@ fw.bindingHandlers.$route = {
     function setUpElement() {
       var myCurrentSegment = routeURLWithoutParentPath();
       if( element.tagName.toLowerCase() === 'a' ) {
-        element.href = (fwRouters.html5History() ? '' : '/') + $myRouter.config.baseRoute + routeURLWithParentPath();
+        element.href = (fw.routers.html5History() ? '' : '/') + $myRouter.config.baseRoute + routeURLWithParentPath();
       }
 
       if( isObject(stateTracker) ) {
@@ -11383,7 +11380,7 @@ fw.bindingHandlers.$route = {
 // router/exports.js
 // -----------
 
-fwRouters = extend(fw.routers, {
+extend(fw.routers, {
   // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
   baseRoute: fw.observable(''),
   activeRouteClassName: fw.observable('active'),
@@ -11391,14 +11388,13 @@ fwRouters = extend(fw.routers, {
   html5History: function() {
     return hasHTML5History;
   },
-
   getNearestParent: function($context) {
     var $parentRouter = nearestParentRouter($context);
     return (!isNullRouter($parentRouter) ? $parentRouter : null);
   }
 });
 
-makeRouter = fw.router = function( routerConfig ) {
+fw.router = function( routerConfig ) {
   return fw.viewModel({
     router: routerConfig
   });
@@ -11547,7 +11543,7 @@ function modelFactory(configParams) {
     });
 
     var model = riveter.compose.apply( undefined, composure );
-    model['isModelCtorDuckTag'] = true;
+    model[ modelConfig.isModelCtorDuckTag ] = true;
     model.__configParams = configParams;
   } else {
     // user has specified another model constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain
