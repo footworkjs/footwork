@@ -30,7 +30,7 @@
     //import("helpers/bind-poly.js");
     root.ko = ko;
 
-    //import("../../source/build-profile/helpers/lodash-custom.js");
+    //import("../../dist/lodash.custom.js");
 
     (function() {
       //import("../../bower_components/reqwest/reqwest.js");

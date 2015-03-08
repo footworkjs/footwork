@@ -1,4 +1,8 @@
 var gulp = require('gulp');
+var gutil = require('gulp-util');
+var sourcemaps = require('gulp-sourcemaps');
+var browserify = require('browserify');
+var transform = require('vinyl-transform');
 var header = require('gulp-header');
 var footer = require('gulp-footer');
 var fileImports = require('gulp-imports');
@@ -102,7 +106,7 @@ gulp.task('test_bare', ['build_bare'], function() {
 // Building tasks
 gulp.task('build-everything', ['build_all', 'build_all_with_history', 'build_minimal', 'build_bare', 'build_raw']);
 
-gulp.task('build_prep', function() {
+gulp.task('build_prep', ['lodash_custom'], function() {
   // we have to force load of lodash instead of underscore
   return gulp
     .src('bower_components/riveter/lib/riveter.js')
@@ -145,4 +149,17 @@ gulp.task('set_version', function() {
       .pipe(bump({ version: version }))
       .pipe(gulp.dest('./'))
   );
+});
+
+gulp.task('lodash_custom', function () {
+  // transform regular node stream to gulp (buffered vinyl) stream
+  var browserified = transform(function(filename) {
+    var b = browserify(filename);
+    return b.bundle();
+  });
+
+  return gulp.src('./source/build-profile/helpers/lodash-custom.builder.js')
+    .pipe(browserified)
+    .pipe(rename('lodash.custom.js'))
+    .pipe(gulp.dest('./dist'));
 });
