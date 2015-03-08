@@ -59,6 +59,9 @@ function getFilenameExtension(fileName) {
   return extension;
 }
 
+function alwaysPassPredicate() { return true; }
+function emptyStringResult() { return ''; }
+
 // Pull out lodash utility function references for better minification and easier implementation swap
 var isFunction = _.isFunction;
 var isObject = _.isObject;
@@ -132,8 +135,11 @@ parseUri.options = {
 //import("namespace.js");
 var $globalNamespace = makeNamespace();
 
+var assessHistoryState = noop;
+
 // 'start' up footwork at the targetElement (or document.body by default)
 fw.start = function(targetElement) {
+  assessHistoryState();
   targetElement = targetElement || windowObject.document.body;
   originalApplyBindings({}, targetElement);
 };
