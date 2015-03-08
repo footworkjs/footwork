@@ -89,7 +89,7 @@ fw.bindingHandlers.$route = {
           if( includeParentPath && !isNullRouter($myRouter) ) {
             myLinkPath = $myRouter.parentRouter().path() + myLinkPath;
 
-            if(fwRouters.html5History() === false) {
+            if(fw.routers.html5History() === false) {
               myLinkPath = '#' + (myLinkPath.indexOf('/') === 0 ? myLinkPath.substring(1) : myLinkPath);
             }
           }
@@ -105,7 +105,7 @@ fw.bindingHandlers.$route = {
 
     function checkForMatchingSegment(mySegment, newRoute) {
       if(routeHandlerDescription.addActiveClass) {
-        var activeRouteClassName = routeHandlerDescription.activeClass || fwRouters.activeRouteClassName();
+        var activeRouteClassName = routeHandlerDescription.activeClass || fw.routers.activeRouteClassName();
         if(mySegment === '/') {
           mySegment = '';
         }
@@ -122,7 +122,7 @@ fw.bindingHandlers.$route = {
     function setUpElement() {
       var myCurrentSegment = routeURLWithoutParentPath();
       if( element.tagName.toLowerCase() === 'a' ) {
-        element.href = (fwRouters.html5History() ? '' : '/') + $myRouter.config.baseRoute + routeURLWithParentPath();
+        element.href = (fw.routers.html5History() ? '' : '/') + $myRouter.config.baseRoute + routeURLWithParentPath();
       }
 
       if( isObject(stateTracker) ) {

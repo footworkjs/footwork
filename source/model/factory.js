@@ -102,7 +102,7 @@ function modelFactory(configParams) {
     });
 
     var model = riveter.compose.apply( undefined, composure );
-    model['isModelCtorDuckTag'] = true;
+    model[ modelConfig.isModelCtorDuckTag ] = true;
     model.__configParams = configParams;
   } else {
     // user has specified another model constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain

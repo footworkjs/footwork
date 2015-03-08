@@ -46,6 +46,3 @@ var baseRouteDescription = {
   filter: alwaysPassPredicate,
   __isRouteDesc: true
 };
-
-var fwRouters;
-var makeRouter;

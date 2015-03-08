@@ -180,7 +180,7 @@ Router.prototype.startup = function( $context, $parentRouter ) {
     if( historyIsReady() && !this.disableHistory() ) {
       History.Adapter.bind( windowObject, 'popstate', this.stateChangeHandler = function(event) {
         var url = '';
-        if(!fwRouters.html5History() && windowObject.location.hash.length > 1) {
+        if(!fw.routers.html5History() && windowObject.location.hash.length > 1) {
           url = windowObject.location.hash;
         } else {
           url = windowObject.location.pathname + windowObject.location.hash;
@@ -220,7 +220,7 @@ Router.prototype.normalizeURL = function(url) {
   var urlParts = parseUri(url);
   this.urlParts(urlParts);
 
-  if(!fwRouters.html5History()) {
+  if(!fw.routers.html5History()) {
     if(url.indexOf('#') !== -1) {
       url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
     } else if(this.currentState() !== url) {

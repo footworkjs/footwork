@@ -1,7 +1,7 @@
 // router/exports.js
 // -----------
 
-fwRouters = extend(fw.routers, {
+extend(fw.routers, {
   // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
   baseRoute: fw.observable(''),
   activeRouteClassName: fw.observable('active'),
@@ -9,14 +9,13 @@ fwRouters = extend(fw.routers, {
   html5History: function() {
     return hasHTML5History;
   },
-
   getNearestParent: function($context) {
     var $parentRouter = nearestParentRouter($context);
     return (!isNullRouter($parentRouter) ? $parentRouter : null);
   }
 });
 
-makeRouter = fw.router = function( routerConfig ) {
+fw.router = function( routerConfig ) {
   return fw.viewModel({
     router: routerConfig
   });
