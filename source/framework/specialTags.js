@@ -34,26 +34,18 @@ function modelBinder(element, params, ViewModel) {
 var originalComponentInit = fw.bindingHandlers.component.init;
 
 function isSpecialModelTag(tagName) {
-  var specialTagsFound = filter(specialTagDescriptors, function(descriptor) {
+  return filter(specialTagDescriptors, function(descriptor) {
     return descriptor.tagName === tagName;
-  });
-
-  if(specialTagsFound.length) {
-    return true;
-  }
-
-  return false;
+  }).length > 0;
 }
 
 function getResourceForTagName(tagName) {
-  var resource = null;
-  var resourcesFound = filter(specialTagDescriptors, function(descriptor) {
-    return descriptor.tagName === tagName;
-  });
-  if(resourcesFound.length) {
-    resource = resourcesFound[0].resource;
-  }
-  return resource;
+  return reduce(specialTagDescriptors, function(resource, descriptor) {
+    if(descriptor.tagName === tagName) {
+      resource = descriptor.resource;
+    }
+    return resource;
+  }, null);
 }
 
 function getResourceLocation(moduleName) {
