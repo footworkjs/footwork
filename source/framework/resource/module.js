@@ -6,6 +6,6 @@
 
 each(specialTagDescriptors, function(descriptor) {
   if(!isUndefined(descriptor.resource)) {
-    extend(descriptor.resource, getSimpleResourceMethods(descriptor));
+    extend(descriptor.resource, resourceFactory(descriptor));
   }
 });

@@ -33,32 +33,18 @@ function modelBinder(element, params, ViewModel) {
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = fw.bindingHandlers.component.init;
 
-function isSpecialModelTag(tagName) {
-  return filter(specialTagDescriptors, function(descriptor) {
-    return descriptor.tagName === tagName;
-  }).length > 0;
-}
-
-function getResourceForTagName(tagName) {
-  return reduce(specialTagDescriptors, function(resource, descriptor) {
-    if(descriptor.tagName === tagName) {
-      resource = descriptor.resource;
-    }
-    return resource;
-  }, null);
-}
-
 function getResourceLocation(moduleName) {
+  var resource = this;
   var resourceLocation = null;
 
-  if( this.isRegistered(moduleName) ) {
+  if( resource.isRegistered(moduleName) ) {
     // viewModel was manually registered, we preferentially use it
-    resourceLocation = this.getRegistered(moduleName);
+    resourceLocation = resource.getRegistered(moduleName);
   } else if( isFunction(require) && isFunction(require.defined) && require.defined(moduleName) ) {
     // we have found a matching resource that is already cached by require, lets use it
     resourceLocation = moduleName;
   } else {
-    resourceLocation = this.getResourceLocation(moduleName);
+    resourceLocation = resource.getLocation(moduleName);
   }
 
   return resourceLocation;
@@ -72,11 +58,11 @@ var initSpecialTag = function(tagName, element, valueAccessor, allBindings, view
 
   if(isString(tagName)) {
     tagName = tagName.toLowerCase();
-    if( isSpecialModelTag(tagName) ) {
+    if( specialTagDescriptors.tagNameIsPresent(tagName) ) {
       var values = valueAccessor();
       var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
       var bindModel = modelBinder.bind(null, element, values.params);
-      var resource = getResourceForTagName(tagName);
+      var resource = specialTagDescriptors.resourceFor(tagName);
       var getResourceLocationFor = getResourceLocation.bind(resource);
 
       if(isNull(moduleName) && isString(values)) {

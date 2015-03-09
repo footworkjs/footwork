@@ -1,16 +1,16 @@
 // framework/resource/proto.js
 // ------------------
 
-function isRegistered(resourceName) {
-  return !isUndefined( this.registered[resourceName] );
+function isRegistered(descriptor, resourceName) {
+  return !isUndefined( descriptor.registered[resourceName] );
 };
 
-function getRegistered(resourceName) {
-  return this.registered[resourceName];
+function getRegistered(descriptor, resourceName) {
+  return descriptor.registered[resourceName];
 };
 
-function register(resourceName, resource) {
-  this.registered[resourceName] = resource;
+function register(descriptor, resourceName, resource) {
+  descriptor.registered[resourceName] = resource;
 };
 
 function getModelExtension(dataModelExtensions, modelName) {
@@ -25,9 +25,9 @@ function getModelExtension(dataModelExtensions, modelName) {
   return fileExtension.replace(/^\./, '') || '';
 }
 
-function getModelFileName(modelName) {
-  var modelResourceLocations = this.resourceLocations;
-  var fileName = modelName + '.' + getModelExtension(this.fileExtensions(), modelName);
+function getModelFileName(descriptor, modelName) {
+  var modelResourceLocations = descriptor.resourceLocations;
+  var fileName = modelName + '.' + getModelExtension(descriptor.fileExtensions(), modelName);
 
   if( !isUndefined( modelResourceLocations[modelName] ) ) {
     var registeredLocation = modelResourceLocations[modelName];
@@ -40,41 +40,41 @@ function getModelFileName(modelName) {
   return fileName;
 }
 
-function setDefaultModelLocation(path) {
+function setDefaultModelLocation(descriptor, path) {
   if( isString(path) ) {
-    this.defaultLocation = path;
+    descriptor.defaultLocation = path;
   }
 
-  return this.defaultLocation;
+  return descriptor.defaultLocation;
 }
 
-function registerModelLocation(modelName, location) {
+function registerModelLocation(descriptor, modelName, location) {
   if( isArray(modelName) ) {
     each(modelName, function(name) {
-      registerLocation.call(this, name, location);
+      registerModelLocation.call(descriptor, name, location);
     });
   }
-  this.resourceLocations[ modelName ] = location;
+  descriptor.resourceLocations[ modelName ] = location;
 }
 
-function modelLocationIsRegistered(modelName) {
-  return !isUndefined(this.resourceLocations[modelName]);
+function modelLocationIsRegistered(descriptor, modelName) {
+  return !isUndefined(descriptor.resourceLocations[modelName]);
 }
 
-function getModelResourceLocation(modelName) {
+function getModelResourceLocation(descriptor, modelName) {
   if( isUndefined(modelName) ) {
-    return this.resourceLocations;
+    return descriptor.resourceLocations;
   }
-  return this.resourceLocations[modelName] || this.defaultLocation;
+  return descriptor.resourceLocations[modelName] || descriptor.defaultLocation;
 }
 
-function getModelReferences(namespaceName, options) {
+function getModelReferences(descriptor, namespaceName, options) {
   options = options || {};
   if( isString(namespaceName) || isArray(namespaceName) ) {
     options.namespaceName = namespaceName;
   }
 
-  return reduce( $globalNamespace.request(this.referenceNamespaceName, extend({ includeOutlets: false }, options), true), function(models, model) {
+  return reduce( $globalNamespace.request(descriptor.referenceNamespaceName, extend({ includeOutlets: false }, options), true), function(models, model) {
     if( !isUndefined(model) ) {
       var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
       if( !isNull(namespaceName) ) {
@@ -93,16 +93,16 @@ function getModelReferences(namespaceName, options) {
 }
 
 // assemble all resource methods for a given descriptor object
-function getSimpleResourceMethods(descriptor) {
+function resourceFactory(descriptor) {
   var resourceMethods = {
-    getFileName: getModelFileName.bind(descriptor),
-    register: register.bind(descriptor),
-    isRegistered: isRegistered.bind(descriptor),
-    getRegistered: getRegistered.bind(descriptor),
-    registerLocation: registerModelLocation.bind(descriptor),
-    locationIsRegistered: modelLocationIsRegistered.bind(descriptor),
-    getResourceLocation: getModelResourceLocation.bind(descriptor),
-    defaultLocation: setDefaultModelLocation.bind(descriptor),
+    getFileName: getModelFileName.bind(null, descriptor),
+    register: register.bind(null, descriptor),
+    isRegistered: isRegistered.bind(null, descriptor),
+    getRegistered: getRegistered.bind(null, descriptor),
+    registerLocation: registerModelLocation.bind(null, descriptor),
+    locationIsRegistered: modelLocationIsRegistered.bind(null, descriptor),
+    getLocation: getModelResourceLocation.bind(null, descriptor),
+    defaultLocation: setDefaultModelLocation.bind(null, descriptor),
     fileExtensions: descriptor.fileExtensions,
     resourceLocations: descriptor.resourceLocations
   };
@@ -110,7 +110,7 @@ function getSimpleResourceMethods(descriptor) {
   if(!isUndefined(descriptor.referenceNamespaceName)) {
     // Returns a reference to the specified models.
     // If no name is supplied, a reference to an array containing all viewModel references is returned.
-    resourceMethods.getAll = getModelReferences.bind(descriptor);
+    resourceMethods.getAll = getModelReferences.bind(null, descriptor);
   }
 
   return resourceMethods;

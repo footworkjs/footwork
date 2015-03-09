@@ -67,6 +67,22 @@ var specialTagDescriptors = map([
   }, descriptor);
 });
 
+extend(specialTagDescriptors, {
+  tagNameIsPresent: function isSpecialTagDescriptorPresent(tagName) {
+    return filter(specialTagDescriptors, function(descriptor) {
+      return descriptor.tagName === tagName;
+    }).length > 0;
+  },
+  resourceFor: function getResourceForSpecialTag(tagName) {
+    return reduce(specialTagDescriptors, function(resource, descriptor) {
+      if(descriptor.tagName === tagName) {
+        resource = descriptor.resource;
+      }
+      return resource;
+    }, null);
+  }
+});
+
 //import("utility.js");
 
 //import("namespace/module.js");
