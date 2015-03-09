@@ -4,5 +4,8 @@
 //import("exports.js");
 //import("processing.js");
 //import("lifecycle.js");
-//import("native.js");
 //import("loader.js");
+
+function isNativeComponent(componentName) {
+  return indexOf(nativeComponents, componentName) !== -1;
+}

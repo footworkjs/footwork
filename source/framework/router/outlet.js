@@ -22,7 +22,6 @@ fw.bindingHandlers.$bind = {
   }
 };
 
-var noComponentSelected = '_noComponentSelected';
 var $routerOutlet = function(outletName, componentToDisplay, options ) {
   options = options || {};
   if( isFunction(options) ) {
@@ -87,10 +86,28 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
 
 extend(fw.outlets, {
   registerView: function(viewName, templateHTML) {
-    registerComponent(viewName, { template: templateHTML });
+    fw.components.register(viewName, { template: templateHTML });
   },
   registerViewLocation: function(viewName, viewLocation) {
     registerLocationOfComponent(viewName, { template: viewLocation })
     markComponentAsTemplateOnly(viewName);
   }
+});
+
+nativeComponents.push('outlet');
+fw.components.register('outlet', {
+  autoIncrement: true,
+  viewModel: function(params) {
+    this.outletName = fw.unwrap(params.name);
+    this.__isOutlet = true;
+  },
+  template: '<!-- ko $bind, component: $route --><!-- /ko -->'
+});
+
+nativeComponents.push(noComponentSelected);
+fw.components.register(noComponentSelected, {
+  viewModel: function(params) {
+    this.__assertPresence = false;
+  },
+  template: '<div class="no-component-selected"></div>'
 });

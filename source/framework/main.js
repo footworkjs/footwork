@@ -18,6 +18,12 @@ var isDataModelCtor;
 var isViewModel;
 var isDataModel;
 
+var noComponentSelected = '_noComponentSelected';
+
+// Components which footwork will not wrap in the $life custom binding used for lifecycle events
+// Used to keep the wrapper off of internal/natively handled and defined components such as 'outlet'
+var nativeComponents = [];
+
 var specialTagDescriptors = map([
   {
     tagName: 'viewmodel',
@@ -66,8 +72,8 @@ var specialTagDescriptors = map([
 //import("namespace/module.js");
 //import("resource/module.js");
 //import("broadcastable-receivable/module.js");
-//import("router/module.js");
 //import("model/module.js");
+//import("router/module.js");
 //import("component/module.js");
 
 //import("specialTags.js");
