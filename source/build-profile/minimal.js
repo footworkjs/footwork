@@ -33,7 +33,7 @@
       //import("../../bower_components/postal.js/lib/postal.js");
     }).call(root);
 
-    if(typeof root.postal.preserve === 'undefined') {
+    if(root._.isUndefined(root.postal.preserve)) {
       (function() {
         //import("../../bower_components/postal.preserve/lib/postal.preserve.js");
       }).call(root);

@@ -34,5 +34,11 @@ root._ = {
   last: require('../../node_modules/lodash/array/last'),
   isEqual: require('../../node_modules/lodash/lang/isEqual'),
   defaults: require('../../node_modules/lodash/object/defaults'),
-  keys: require('../../node_modules/lodash/object/keys')
+
+  // required for postal.js specifically (ref: postal.js/lib/postal.lodash.js)
+  keys: require('../../node_modules/lodash/object/keys'),
+  after: require('../../node_modules/lodash/function/after'),
+  any: require('../../node_modules/lodash/collection/any'),
+  debounce: require('../../node_modules/lodash/function/debounce'),
+  throttle: require('../../node_modules/lodash/function/throttle')
 };
