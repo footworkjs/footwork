@@ -1,4 +1,4 @@
-// misc/utility.js
+// framework/utility.js
 // ----------------
 
 // misc regex patterns

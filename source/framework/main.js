@@ -1,4 +1,4 @@
-// framework/init.js
+// framework/main.js
 // ------------------
 
 // Record the footwork version as of this build.
@@ -60,3 +60,15 @@ var specialTagDescriptors = map([
     fileExtensions: fw.observable('.js')
   }, descriptor);
 });
+
+//import("utility.js");
+
+//import("namespace/module.js");
+//import("resource/module.js");
+//import("broadcastable-receivable/module.js");
+//import("router/module.js");
+//import("model/module.js");
+//import("component/module.js");
+
+//import("specialTags.js");
+//import("start.js");
