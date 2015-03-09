@@ -2,7 +2,7 @@
 // ----------------
 
 // Creates and returns a new namespace instance
-var makeNamespace = fw.namespace = function(namespaceName, $parentNamespace) {
+fw.namespace = function(namespaceName, $parentNamespace) {
   if( !isUndefined($parentNamespace) ) {
     if( isString($parentNamespace) ) {
       namespaceName = $parentNamespace + '.' + namespaceName;
@@ -59,7 +59,7 @@ var currentNamespaceName = fw.utils.currentNamespaceName = function() {
 
 // Return the current namespace channel.
 var currentNamespace = fw.utils.currentNamespace = function() {
-  return makeNamespace( currentNamespaceName() );
+  return fw.namespace( currentNamespaceName() );
 };
 
-var $globalNamespace = makeNamespace();
+var $globalNamespace = fw.namespace();

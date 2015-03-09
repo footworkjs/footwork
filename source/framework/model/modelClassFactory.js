@@ -1,4 +1,4 @@
-// framework/model/classMethod.js
+// framework/model/modelClassFactory.js
 // ------------------
 
 function isBeforeInitMixin(mixin) {

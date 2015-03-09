@@ -133,7 +133,7 @@ function isNamespace(thing) {
 function enterNamespaceName(namespaceName) {
   var $parentNamespace = currentNamespace();
   namespaceStack.unshift( namespaceName );
-  return makeNamespace( currentNamespaceName() );
+  return fw.namespace( currentNamespaceName() );
 }
 
 // enterNamespace() uses a current namespace definition as the one to enter into.

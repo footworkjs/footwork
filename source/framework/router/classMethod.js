@@ -10,9 +10,9 @@ var Router = function( routerConfig, $viewModel, $context ) {
     viewModelNamespaceName = $viewModel.getNamespaceName();
   }
 
-  var $globalNamespace = this.$globalNamespace = makeNamespace();
+  var $globalNamespace = this.$globalNamespace = fw.namespace();
   this.id = uniqueId('router');
-  this.$namespace = makeNamespace( routerConfig.namespace || (viewModelNamespaceName + 'Router') );
+  this.$namespace = fw.namespace( routerConfig.namespace || (viewModelNamespaceName + 'Router') );
   this.$namespace.enter();
   this.$namespace.command.handler('setState', this.setState, this);
   this.$namespace.request.handler('currentRoute', function() { return this.currentRoute(); }, this);

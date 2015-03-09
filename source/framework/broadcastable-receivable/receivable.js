@@ -14,7 +14,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   var when = alwaysPassPredicate;
 
   if( isString(namespace) ) {
-    namespace = makeNamespace( namespace );
+    namespace = fw.namespace( namespace );
     isLocalNamespace = true;
   }
 

@@ -7,7 +7,7 @@ modelMixins.push({
   _preInit: function( options ) {
     var $configParams = this.__getConfigParams();
     this.$namespace = enterNamespaceName( indexedNamespaceName($configParams.namespace || $configParams.name || _.uniqueId('namespace'), $configParams.autoIncrement) );
-    this.$globalNamespace = makeNamespace();
+    this.$globalNamespace = fw.namespace();
   },
   mixin: {
     getNamespaceName: function() {
