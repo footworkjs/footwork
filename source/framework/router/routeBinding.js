@@ -1,4 +1,4 @@
-// framework/router/binding.js
+// framework/router/routeBinding.js
 // -----------
 
 function hasClass(element, className) {

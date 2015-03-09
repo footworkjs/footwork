@@ -1,4 +1,4 @@
-// framework/router/setup.js
+// framework/router/init.js
 // ------------------
 
 var routerDefaultConfig = {
