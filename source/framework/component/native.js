@@ -1,5 +1,15 @@
-// framework/component/builtIn.js
+// framework/component/native.js
 // ------------------
+
+// Components which footwork will not wrap in the $life custom binding used for lifecycle events
+// Used to keep the wrapper off of internal/natively handled and defined components such as 'outlet'
+var nativeComponents = [
+  'outlet'
+];
+
+function isNativeComponent(componentName) {
+  return indexOf(nativeComponents, componentName) !== -1;
+}
 
 registerComponent('outlet', {
   autoIncrement: true,

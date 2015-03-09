@@ -1,15 +1,6 @@
 // framework/component/lifecycle.js
 // ------------------
 
-// Components which footwork will not wrap in the $life custom binding used for lifecycle events
-// Used to keep the wrapper off of internal/natively handled and defined components such as 'outlet'
-var nativeComponents = [
-  'outlet'
-];
-function isNativeComponent(componentName) {
-  return indexOf(nativeComponents, componentName) !== -1;
-}
-
 function componentTriggerAfterBinding(element, viewModel) {
   if( isViewModel(viewModel) ) {
     var configParams = viewModel.__getConfigParams();
