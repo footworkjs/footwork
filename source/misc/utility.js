@@ -98,23 +98,3 @@ var guid = fw.utils.guid = (function() {
            s4() + '-' + s4() + s4() + s4();
   };
 })();
-
-// Duck type function for determining whether or not something is a footwork viewModel constructor function
-function isViewModelCtor(thing) {
-  return isFunction(thing) && !!thing.__isViewModelCtor;
-}
-
-// Duck type function for determining whether or not something is a footwork viewModel
-function isViewModel(thing) {
-  return isObject(thing) && !!thing.__isViewModel;
-}
-
-// Duck type function for determining whether or not something is a footwork viewModel constructor function
-function isDataModelCtor(thing) {
-  return isFunction(thing) && !!thing.__isDataModelCtor;
-}
-
-// Duck type function for determining whether or not something is a footwork dataModel
-function isDataModel(thing) {
-  return isObject(thing) && !!thing.__isDataModel;
-}
