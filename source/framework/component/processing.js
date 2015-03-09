@@ -16,6 +16,7 @@ var nonComponentTags = [
   'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp', 'rect', 'image',
   'lineargradient', 'stop', 'line', 'binding-wrapper', 'font'
 ];
+
 var tagIsComponent = fw.components.tagIsComponent = function(tagName, isComponent) {
   if( isUndefined(isComponent) ) {
     return indexOf(nonComponentTags, tagName) === -1;
