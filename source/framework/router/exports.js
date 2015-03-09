@@ -2,7 +2,7 @@
 // -----------
 
 extend(fw.routers, {
-  // Configuration point for a baseRoute / path which will always be stripped from the URL prior to processing the route
+  // baseRoute / path which will always be stripped from the URL prior to processing the route
   baseRoute: fw.observable(''),
   activeRouteClassName: fw.observable('active'),
   disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: $globalNamespace }),
@@ -14,9 +14,3 @@ extend(fw.routers, {
     return (!isNullRouter($parentRouter) ? $parentRouter : null);
   }
 });
-
-fw.router = function( routerConfig ) {
-  return fw.viewModel({
-    router: routerConfig
-  });
-};

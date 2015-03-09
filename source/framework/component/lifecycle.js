@@ -10,8 +10,6 @@ function componentTriggerAfterBinding(element, viewModel) {
   }
 }
 
-var componentLifecycleWrapperTemplate = '<!-- ko $life -->COMPONENT_MARKUP<!-- /ko -->';
-
 // Use the $life wrapper binding to provide lifecycle events for components
 fw.virtualElements.allowedBindings.$life = true;
 fw.bindingHandlers.$life = {
@@ -37,7 +35,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     if( !isNativeComponent(componentName) ) {
       // TODO: Handle different types of configs
       if( isString(config) ) {
-        config = componentLifecycleWrapperTemplate.replace(/COMPONENT_MARKUP/, config);
+        config = '<!-- ko $life -->COMPONENT_MARKUP<!-- /ko -->'.replace(/COMPONENT_MARKUP/, config);
       } else {
         throw 'Unhandled config type ' + typeof config + '.';
       }

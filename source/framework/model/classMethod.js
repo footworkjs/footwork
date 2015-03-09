@@ -1,8 +1,6 @@
 // framework/model/classMethod.js
 // ------------------
 
-var model = {};
-
 function isBeforeInitMixin(mixin) {
   return !!mixin.runBeforeInit;
 }

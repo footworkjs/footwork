@@ -19,6 +19,8 @@ var isViewModel;
 var isDataModel;
 
 var noComponentSelected = '_noComponentSelected';
+var hasHTML5History;
+var originalApplyBindings;
 
 // Components which footwork will not wrap in the $life custom binding used for lifecycle events
 // Used to keep the wrapper off of internal/natively handled and defined components such as 'outlet'
@@ -55,6 +57,7 @@ var specialTagDescriptors = map([
     }
   }, {
     tagName: 'router',
+    methodName: 'router',
     resource: fw.routers,
     defaultLocation: '/',
     referenceNamespaceName: '__router_reference'

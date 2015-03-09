@@ -90,7 +90,7 @@ extend(fw.outlets, {
   },
   registerViewLocation: function(viewName, viewLocation) {
     registerLocationOfComponent(viewName, { template: viewLocation })
-    markComponentAsTemplateOnly(viewName);
+    fw.components.isTemplateOnly(viewName);
   }
 });
 

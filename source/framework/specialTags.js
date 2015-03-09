@@ -26,7 +26,7 @@ function modelBinder(element, params, ViewModel) {
     wrapperNode.appendChild(child);
   });
 
-  applyBindings(viewModelObj, wrapperNode);
+  fw.applyBindings(viewModelObj, wrapperNode);
 };
 
 // Monkey patch enables the viewModel or router component to initialize a model and bind to the html as intended (with lifecycle events)

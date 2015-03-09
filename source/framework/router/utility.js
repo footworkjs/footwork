@@ -70,7 +70,6 @@ function nearestParentRouter($context) {
   return $parentRouter;
 }
 
-var hasHTML5History;
 function assessHistoryState() {
   hasHTML5History = windowObject.history && windowObject.history.pushState;
   if(!isUndefined(windowObject.History) && isObject(windowObject.History.options) && windowObject.History.options.html4Mode) {

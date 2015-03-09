@@ -17,14 +17,14 @@ var nonComponentTags = [
   'lineargradient', 'stop', 'line', 'binding-wrapper', 'font'
 ];
 
-var tagIsComponent = fw.components.tagIsComponent = function(tagName, isComponent) {
+fw.components.tagIsComponent = function(tagName, isComponent) {
   if( isUndefined(isComponent) ) {
     return indexOf(nonComponentTags, tagName) === -1;
   }
 
   if( isArray(tagName) ) {
     each(tagName, function(tag) {
-      tagIsComponent(tag, isComponent);
+      fw.components.tagIsComponent(tag, isComponent);
     });
   }
 
