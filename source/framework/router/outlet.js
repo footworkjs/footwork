@@ -94,20 +94,22 @@ extend(fw.outlets, {
   }
 });
 
-nativeComponents.push('outlet');
-fw.components.register('outlet', {
-  autoIncrement: true,
-  viewModel: function(params) {
-    this.outletName = fw.unwrap(params.name);
-    this.__isOutlet = true;
-  },
-  template: '<!-- ko $bind, component: $route --><!-- /ko -->'
-});
+runPostInit.push(function() {
+  nativeComponents.push('outlet');
+  fw.components.register('outlet', {
+    autoIncrement: true,
+    viewModel: function(params) {
+      this.outletName = fw.unwrap(params.name);
+      this.__isOutlet = true;
+    },
+    template: '<!-- ko $bind, component: $route --><!-- /ko -->'
+  });
 
-nativeComponents.push(noComponentSelected);
-fw.components.register(noComponentSelected, {
-  viewModel: function(params) {
-    this.__assertPresence = false;
-  },
-  template: '<div class="no-component-selected"></div>'
+  nativeComponents.push(noComponentSelected);
+  fw.components.register(noComponentSelected, {
+    viewModel: function(params) {
+      this.__assertPresence = false;
+    },
+    template: '<div class="no-component-selected"></div>'
+  });
 });

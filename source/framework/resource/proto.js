@@ -74,7 +74,7 @@ function getModelReferences(descriptor, namespaceName, options) {
     options.namespaceName = namespaceName;
   }
 
-  return reduce( $globalNamespace.request(descriptor.referenceNamespaceName, extend({ includeOutlets: false }, options), true), function(models, model) {
+  return reduce( $globalNamespace.request(descriptor.referenceNamespace, extend({ includeOutlets: false }, options), true), function(models, model) {
     if( !isUndefined(model) ) {
       var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
       if( !isNull(namespaceName) ) {
@@ -107,7 +107,7 @@ function resourceFactory(descriptor) {
     resourceLocations: descriptor.resourceLocations
   };
 
-  if(!isUndefined(descriptor.referenceNamespaceName)) {
+  if(!isUndefined(descriptor.referenceNamespace)) {
     // Returns a reference to the specified models.
     // If no name is supplied, a reference to an array containing all viewModel references is returned.
     resourceMethods.getAll = getModelReferences.bind(null, descriptor);

@@ -11,6 +11,14 @@ var noop = function() { };
 
 var isObservable = fw.isObservable;
 
+function isModelCtor(thing) {
+  return isFunction(thing) && !!thing.__isModelCtor;
+}
+
+function isModel(thing) {
+  return isObject(thing) && !!thing.__isModel;
+}
+
 function isNativeComponent(componentName) {
   return indexOf(nativeComponents, componentName) !== -1;
 }

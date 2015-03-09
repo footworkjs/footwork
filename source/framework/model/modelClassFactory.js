@@ -52,7 +52,7 @@ function modelClassFactory(descriptor, configParams) {
     },
     _postInit: function() {
       if( this.__assertPresence !== false ) {
-        this.$globalNamespace.request.handler(descriptor.referenceNamespaceName, function(options) {
+        this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
           if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
             if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
               if(isArray(options.namespaceName) && indexOf(options.namespaceName, this.getNamespaceName()) !== -1) {

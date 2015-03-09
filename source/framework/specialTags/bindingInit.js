@@ -1,4 +1,4 @@
-// framework/specialTags.js
+// framework/specialTags/bindingInit.js
 // ------------------
 
 function modelBinder(element, params, ViewModel) {
