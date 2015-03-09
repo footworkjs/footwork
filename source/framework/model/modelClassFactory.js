@@ -5,7 +5,7 @@ function isBeforeInitMixin(mixin) {
   return !!mixin.runBeforeInit;
 }
 
-function modelClassMethod(descriptor, configParams) {
+function modelClassFactory(descriptor, configParams) {
   configParams = extend({
     namespace: undefined,
     name: undefined,

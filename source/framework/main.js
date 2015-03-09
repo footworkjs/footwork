@@ -26,7 +26,7 @@ var originalApplyBindings;
 // Used to keep the wrapper off of internal/natively handled and defined components such as 'outlet'
 var nativeComponents = [];
 
-var specialTagDescriptors = map([
+var specialTagDescriptors = [
   {
     tagName: 'viewmodel',
     methodName: 'viewModel',
@@ -62,32 +62,10 @@ var specialTagDescriptors = map([
     defaultLocation: '/',
     referenceNamespaceName: '__router_reference'
   }
-], function prepareDescriptor(descriptor) {
-  return extend({
-    resourceLocations: {},
-    registered: {},
-    fileExtensions: fw.observable('.js')
-  }, descriptor);
-});
-
-extend(specialTagDescriptors, {
-  tagNameIsPresent: function isSpecialTagDescriptorPresent(tagName) {
-    return filter(specialTagDescriptors, function(descriptor) {
-      return descriptor.tagName === tagName;
-    }).length > 0;
-  },
-  resourceFor: function getResourceForSpecialTag(tagName) {
-    return reduce(specialTagDescriptors, function(resource, descriptor) {
-      if(descriptor.tagName === tagName) {
-        resource = descriptor.resource;
-      }
-      return resource;
-    }, null);
-  }
-});
+];
 
 //import("utility.js");
-
+//import("setup.js");
 //import("namespace/module.js");
 //import("resource/module.js");
 //import("broadcastable-receivable/module.js");

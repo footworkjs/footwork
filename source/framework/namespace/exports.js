@@ -61,3 +61,5 @@ var currentNamespaceName = fw.utils.currentNamespaceName = function() {
 var currentNamespace = fw.utils.currentNamespace = function() {
   return makeNamespace( currentNamespaceName() );
 };
+
+var $globalNamespace = makeNamespace();

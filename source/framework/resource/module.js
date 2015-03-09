@@ -1,8 +1,8 @@
-// framework/resource/module.js
-// ------------------
-
 //import("proto.js");
 //import("component.js");
+
+// framework/resource/module.js
+// ------------------
 
 each(specialTagDescriptors, function(descriptor) {
   if(!isUndefined(descriptor.resource)) {

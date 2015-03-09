@@ -11,6 +11,10 @@ var noop = function() { };
 
 var isObservable = fw.isObservable;
 
+function isNativeComponent(componentName) {
+  return indexOf(nativeComponents, componentName) !== -1;
+}
+
 function isPath(pathOrFile) {
   return isString(pathOrFile) && trailingSlashRegex.test(pathOrFile);
 };
@@ -98,3 +102,7 @@ var guid = fw.utils.guid = (function() {
            s4() + '-' + s4() + s4() + s4();
   };
 })();
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}

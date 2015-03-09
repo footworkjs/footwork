@@ -50,7 +50,7 @@ function getResourceLocation(moduleName) {
   return resourceLocation;
 }
 
-var initSpecialTag = function(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
+function initSpecialTag(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
   var theValueAccessor = valueAccessor;
   if(tagName === '__elementBased') {
     tagName = element.tagName;
@@ -117,10 +117,6 @@ fw.bindingHandlers.component.init = initSpecialTag.bind(null, '__elementBased');
 // NOTE: Do not use the $router binding yet, it is incomplete
 fw.bindingHandlers.$router = {
   preprocess: function(moduleName) {
-    /**
-     * get config for router from constructor module
-     * viewModel.$router = new Router( configParams.router, this );
-     */
     return "'" + moduleName + "'";
   },
   init: initSpecialTag.bind(null, 'router')
