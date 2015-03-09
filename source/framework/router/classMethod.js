@@ -6,7 +6,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
   var subscriptions = this.subscriptions = [];
   var viewModelNamespaceName;
 
-  if( isViewModel($viewModel) ) {
+  if( isModel($viewModel) ) {
     viewModelNamespaceName = $viewModel.getNamespaceName();
   }
 
@@ -196,7 +196,7 @@ Router.prototype.dispose = function() {
 
   invoke(this.subscriptions, 'dispose');
   each(omit(this, function(property) {
-    return isViewModel(property);
+    return isModel(property);
   }), propertyDisposal);
 };
 

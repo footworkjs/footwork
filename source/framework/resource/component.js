@@ -9,7 +9,7 @@ var registerComponent = fw.components.register = function(componentName, options
     throw 'Components must be provided a componentName.';
   }
 
-  if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {
+  if( isFunction(viewModel) && !isModelCtor(viewModel) ) {
     options.namespace = componentName;
     viewModel = fw.viewModel(options);
   }

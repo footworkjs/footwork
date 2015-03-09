@@ -1,20 +1,30 @@
 // framework/setup.js
 // ----------------
 
+function isModelCtor(thing) {
+  return isFunction(thing) && !!thing.__isModelCtor;
+}
+
+function isModel(thing) {
+  return isObject(thing) && !!thing.__isModel;
+}
+
 function makeDescriptorTags(descriptor) {
   var tags = {};
   if( isString(descriptor.methodName) ) {
     var name = capitalizeFirstLetter(descriptor.methodName);
     extend(tags, {
-      isModelDuckTag: '__is' + name,
-      isModelCtorDuckTag: '__is' + name + 'Ctor',
-      referenceNamespaceName: '__' + name + 'Reference'
+      referenceNamespaceName: '__' + name + 'Reference',
+      isModelCtorDuckTag: '__isModelCtor',
+      isModelDuckTag: '__isModel',
+      isModelCtor: isModelCtor,
+      isModel: isModel
     });
   }
   return tags;
 }
 
-function prepareDescriptor(descriptor) {
+specialTagDescriptors = map(specialTagDescriptors, function prepareDescriptor(descriptor) {
   return extend({
       resourceLocations: {},
       registered: {},
@@ -22,9 +32,7 @@ function prepareDescriptor(descriptor) {
     },
     makeDescriptorTags(descriptor),
     descriptor);
-}
-
-specialTagDescriptors = map(specialTagDescriptors, prepareDescriptor);
+});
 
 extend(specialTagDescriptors, {
   tagNameIsPresent: function isSpecialTagDescriptorPresent(tagName) {

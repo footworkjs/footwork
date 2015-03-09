@@ -17,7 +17,7 @@ fw.components.getComponentNameForNode = function(node) {
 fw.component = function(componentDefinition) {
   var viewModel = componentDefinition.viewModel;
 
-  if( isFunction(viewModel) && !isViewModelCtor(viewModel) ) {
+  if( isFunction(viewModel) && !isModelCtor(viewModel) ) {
     componentDefinition.viewModel = fw.viewModel( omit(componentDefinition, 'template') );
   }
 
