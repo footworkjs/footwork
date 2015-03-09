@@ -1,21 +1,5 @@
-// framework/router/factory.js
+// framework/router/classMethod.js
 // -----------
-
-function DefaultAction() {
-  delete this.__currentRouteDescription;
-  this.$outlet.reset();
-}
-
-function RoutedAction(routeDescription) {
-  if( !isUndefined(routeDescription.title) ) {
-    document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this, routeDescription.namedParams, this.urlParts()) : routeDescription.title;
-  }
-
-  if( isUndefined(this.__currentRouteDescription) || !sameRouteDescription(this.__currentRouteDescription, routeDescription) ) {
-    routeDescription.controller.call( this, routeDescription.namedParams );
-    this.__currentRouteDescription = routeDescription;
-  }
-}
 
 var Router = function( routerConfig, $viewModel, $context ) {
   extend(this, $baseRouter);
@@ -312,6 +296,22 @@ Router.prototype.getRouteForURL = function(url) {
 
   return route || unknownRoute;
 };
+
+function DefaultAction() {
+  delete this.__currentRouteDescription;
+  this.$outlet.reset();
+}
+
+function RoutedAction(routeDescription) {
+  if( !isUndefined(routeDescription.title) ) {
+    document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this, routeDescription.namedParams, this.urlParts()) : routeDescription.title;
+  }
+
+  if( isUndefined(this.__currentRouteDescription) || !sameRouteDescription(this.__currentRouteDescription, routeDescription) ) {
+    routeDescription.controller.call( this, routeDescription.namedParams );
+    this.__currentRouteDescription = routeDescription;
+  }
+}
 
 Router.prototype.getActionForRoute = function(routeDescription) {
   var Action;
