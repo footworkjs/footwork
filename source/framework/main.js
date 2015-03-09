@@ -20,7 +20,7 @@ var originalApplyBindings;
 
 var runPostInit = [];
 var nativeComponents = [];
-var specialTagDescriptors;
+var specialTagDescriptors = [];
 
 // 'start' up the framework at the targetElement (or document.body by default)
 fw.start = function(targetElement) {

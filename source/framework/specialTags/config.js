@@ -1,7 +1,7 @@
 // framework/specialTags/config.js
 // ------------------
 
-var specialTagDescriptors = [
+specialTagDescriptors = specialTagDescriptors.concat([
   {
     tagName: 'viewmodel',
     methodName: 'viewModel',
@@ -16,7 +16,6 @@ var specialTagDescriptors = [
     tagName: 'router',
     methodName: 'router',
     defaultLocation: '/',
-    resource: fw.routers,
-    referenceNamespace: '__router_reference'
+    resource: fw.routers
   }
-];
+]);
