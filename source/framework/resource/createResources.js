@@ -10,6 +10,6 @@ function createResources(descriptors) {
   });
 }
 
-runPostInit.push(function() {
+runPostInit.unshift(function() {
   createResources(specialTagDescriptors);
 });

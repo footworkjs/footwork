@@ -46,9 +46,3 @@ extend(specialTagDescriptors, {
     return descriptors.length ? descriptors[0] : null;
   }
 });
-
-runPostInit.unshift(function() {
-  [ createFactories, createResources ].forEach(function(callback) {
-    callback(specialTagDescriptors);
-  });
-});
