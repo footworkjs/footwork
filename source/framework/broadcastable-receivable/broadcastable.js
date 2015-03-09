@@ -32,7 +32,7 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
     }
   }
 
-  namespace = option.namespace || currentNamespace();
+  namespace = option.namespace || fw.utils.currentNamespace();
   if( isString(namespace) ) {
     namespace = fw.namespace(namespace);
     isLocalNamespace = true;

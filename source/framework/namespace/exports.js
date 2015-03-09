@@ -1,6 +1,16 @@
 // framework/namespace/exports.js
 // ----------------
 
+// Return the current namespace name.
+fw.utils.currentNamespaceName = function() {
+  return namespaceStack[0];
+};
+
+// Return the current namespace channel.
+fw.utils.currentNamespace = function() {
+  return fw.namespace( fw.utils.currentNamespaceName() );
+};
+
 // Creates and returns a new namespace instance
 fw.namespace = function(namespaceName, $parentNamespace) {
   if( !isUndefined($parentNamespace) ) {
@@ -44,22 +54,12 @@ fw.namespace = function(namespaceName, $parentNamespace) {
     return enterNamespace( this );
   };
   namespace.exit = function() {
-    if( currentNamespaceName() === this.getName() ) {
+    if( fw.utils.currentNamespaceName() === this.getName() ) {
       return exitNamespace();
     }
   };
 
   return namespace;
-};
-
-// Return the current namespace name.
-var currentNamespaceName = fw.utils.currentNamespaceName = function() {
-  return namespaceStack[0];
-};
-
-// Return the current namespace channel.
-var currentNamespace = fw.utils.currentNamespace = function() {
-  return fw.namespace( currentNamespaceName() );
 };
 
 var $globalNamespace = fw.namespace();

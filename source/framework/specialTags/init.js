@@ -38,8 +38,16 @@ extend(specialTagDescriptors, {
       }
       return resource;
     }, null);
+  },
+  get: function(methodName) {
+    var descriptors = filter(specialTagDescriptors, function matchingTagNames(descriptor) {
+      return descriptor.methodName === methodName;
+    });
+    return descriptors.length ? descriptors[0] : null;
   }
 });
 
-createFactories(specialTagDescriptors);
-createResources(specialTagDescriptors);
+runPostInit.unshift(function() {
+  createFactories(specialTagDescriptors);
+  createResources(specialTagDescriptors);
+});

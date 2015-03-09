@@ -128,12 +128,12 @@ function isNamespace(thing) {
 }
 
 // enterNamespaceName() adds a namespaceName onto the namespace stack at the current index,
-// 'entering' into that namespace (it is now the currentNamespace).
+// 'entering' into that namespace (it is now the current namespace).
 // The namespace object returned from this method also has a pointer to its parent
 function enterNamespaceName(namespaceName) {
-  var $parentNamespace = currentNamespace();
+  var $parentNamespace = fw.utils.currentNamespace();
   namespaceStack.unshift( namespaceName );
-  return fw.namespace( currentNamespaceName() );
+  return fw.namespace( fw.utils.currentNamespaceName() );
 }
 
 // enterNamespace() uses a current namespace definition as the one to enter into.
@@ -147,5 +147,5 @@ function enterNamespace(namespace) {
 // next namespace in the stack
 function exitNamespace() {
   namespaceStack.shift();
-  return currentNamespace();
+  return fw.utils.currentNamespace();
 }
