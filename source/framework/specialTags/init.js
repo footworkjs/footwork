@@ -39,7 +39,7 @@ extend(specialTagDescriptors, {
       return resource;
     }, null);
   },
-  get: function(methodName) {
+  getDescriptor: function(methodName) {
     var descriptors = filter(specialTagDescriptors, function matchingTagNames(descriptor) {
       return descriptor.methodName === methodName;
     });
@@ -48,6 +48,7 @@ extend(specialTagDescriptors, {
 });
 
 runPostInit.unshift(function() {
-  createFactories(specialTagDescriptors);
-  createResources(specialTagDescriptors);
+  [ createFactories, createResources ].forEach(function(callback) {
+    callback(specialTagDescriptors);
+  });
 });

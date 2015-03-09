@@ -65,7 +65,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
   }, this) );
 
   var $router = this;
-  this.$globalNamespace.request.handler(specialTagDescriptors.get('router').referenceNamespace, function() {
+  this.$globalNamespace.request.handler(specialTagDescriptors.getDescriptor('router').referenceNamespace, function() {
     return $router;
   });
 
