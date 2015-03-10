@@ -1,38 +1,41 @@
 // framework/specialTags/init.js
 // ----------------
 
-function makeDescriptorTags(descriptor) {
-  var tags = {};
-  if( isString(descriptor.methodName) ) {
-    extend(tags, {
-      referenceNamespace: '__' + descriptor.methodName + 'Reference',
-      isModelCtorDuckTag: '__isModelCtor',
-      isModelDuckTag: '__isModel',
-      isModelCtor: isModelCtor,
-      isModel: isModel
-    });
-  }
-  return tags;
+function makeBooleanChecks(descriptor) {
+  var booleanFunctions = {};
+
+  booleanFunctions.isModelCtor = function(thing) {
+    return isFunction(thing) && !!thing[ descriptor.isModelCtorDuckTag ];
+  };
+
+  booleanFunctions.isModel = function(thing) {
+    return isFunction(thing) && !!thing[ descriptor.isModelDuckTag ];
+  };
+
+  return booleanFunctions;
 }
 
 specialTagDescriptors = map(specialTagDescriptors, function prepareDescriptor(descriptor) {
-  return extend({
-      resourceLocations: {},
-      registered: {},
-      fileExtensions: fw.observable('.js')
-    },
-    makeDescriptorTags(descriptor),
-    descriptor);
+  descriptor = extend({
+    resourceLocations: {},
+    registered: {},
+    fileExtensions: fw.observable('.js'),
+    isModelCtorDuckTag: '__isModelCtor',
+    isModelDuckTag: '__isModel',
+    referenceNamespace: (isString(descriptor.methodName) ? ('__' + descriptor.methodName + 'Reference') : undefined)
+  }, descriptor);
+
+  return extend(descriptor, makeBooleanChecks(descriptor));
 });
 
 extend(specialTagDescriptors, {
   tagNameIsPresent: function isSpecialTagDescriptorPresent(tagName) {
-    return filter(specialTagDescriptors, function matchingTagNames(descriptor) {
+    return filter(this, function matchingTagNames(descriptor) {
       return descriptor.tagName === tagName;
     }).length > 0;
   },
   resourceFor: function getResourceForSpecialTag(tagName) {
-    return reduce(specialTagDescriptors, function(resource, descriptor) {
+    return reduce(this, function(resource, descriptor) {
       if(descriptor.tagName === tagName) {
         resource = descriptor.resource;
       }
@@ -40,9 +43,8 @@ extend(specialTagDescriptors, {
     }, null);
   },
   getDescriptor: function(methodName) {
-    var descriptors = filter(specialTagDescriptors, function matchingTagNames(descriptor) {
-      return descriptor.methodName === methodName;
-    });
-    return descriptors.length ? descriptors[0] : null;
+    return reduce(this, function findDescriptor(foundDescriptor, descriptor) {
+      return descriptor.methodName === methodName ? descriptor : foundDescriptor;
+    }, null);
   }
 });
