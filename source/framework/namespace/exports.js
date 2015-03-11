@@ -61,5 +61,3 @@ fw.namespace = function(namespaceName, $parentNamespace) {
 
   return namespace;
 };
-
-var $globalNamespace = fw.namespace();

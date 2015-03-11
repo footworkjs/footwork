@@ -1,7 +1,7 @@
 // framework/model/createFactories.js
 // ------------------
 
-function createFactories(descriptors) {
+createFactories = function(descriptors) {
   // create the class factory method for each specialTag descriptor
   filter(descriptors, function getOnlyDescriptorsWithMethodName(descriptor) {
     return isString(descriptor.methodName);
@@ -15,8 +15,4 @@ function createFactories(descriptors) {
         fw[descriptor.methodName] = modelClassFactory.bind(null, descriptor);
     }
   });
-}
-
-runPostInit.unshift(function() {
-  createFactories(specialTagDescriptors);
-});
+};

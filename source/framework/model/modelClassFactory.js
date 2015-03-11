@@ -24,8 +24,8 @@ function modelClassFactory(descriptor, configParams) {
   var parent = configParams.parent;
 
   if( !isUndefined(configParams) ) {
-    ctor = configParams.viewModel || configParams.initialize || noop;
-    afterInit = configParams.afterInit || noop;
+    ctor = configParams.viewModel || configParams.initialize || ctor;
+    afterInit = configParams.afterInit || afterInit;
   }
   afterInit = { _postInit: afterInit };
 

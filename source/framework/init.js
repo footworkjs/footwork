@@ -26,6 +26,21 @@ var specialTagDescriptors = [];
 var modelMixins = [];
 var componentIsTemplateOnly = [];
 
+var $globalNamespace;
+runPostInit.push(function() {
+  $globalNamespace = fw.namespace();
+});
+
+var createResources;
+runPostInit.unshift(function() {
+  createResources(specialTagDescriptors);
+});
+
+var createFactories;
+runPostInit.unshift(function() {
+  createFactories(specialTagDescriptors);
+});
+
 // These are tags which are ignored by the custom component loader
 // Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
 var nonComponentTags = [
@@ -44,7 +59,6 @@ var nonComponentTags = [
 
 var isModelCtor;
 var isModel;
-
 runPostInit.push(function() {
   var viewModelDescriptor = specialTagDescriptors.getDescriptor('viewModel');
   isModelCtor = viewModelDescriptor.isModelCtor;
