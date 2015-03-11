@@ -22,7 +22,7 @@ fw.bindingHandlers.$bind = {
   }
 };
 
-var $routerOutlet = function(outletName, componentToDisplay, options ) {
+$routerOutlet = function(outletName, componentToDisplay, options ) {
   options = options || {};
   if( isFunction(options) ) {
     options = { onComplete: options };
@@ -84,17 +84,7 @@ var $routerOutlet = function(outletName, componentToDisplay, options ) {
   return outlet;
 };
 
-extend(fw.outlets, {
-  registerView: function(viewName, templateHTML) {
-    fw.components.register(viewName, { template: templateHTML });
-  },
-  registerViewLocation: function(viewName, viewLocation) {
-    registerLocationOfComponent(viewName, { template: viewLocation })
-    fw.components.isTemplateOnly(viewName);
-  }
-});
-
-runPostInit.push(function() {
+registerOutletComponents = function() {
   nativeComponents.push('outlet');
   fw.components.register('outlet', {
     autoIncrement: true,
@@ -112,4 +102,4 @@ runPostInit.push(function() {
     },
     template: '<div class="no-component-selected"></div>'
   });
-});
+};

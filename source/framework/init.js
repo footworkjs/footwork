@@ -25,20 +25,34 @@ var nativeComponents = [];
 var specialTagDescriptors = [];
 var modelMixins = [];
 var componentIsTemplateOnly = [];
+var $routerOutlet;
 
 var $globalNamespace;
 runPostInit.push(function() {
   $globalNamespace = fw.namespace();
 });
 
+var isModelCtor;
+var isModel;
+runPostInit.push(function() {
+  var viewModelDescriptor = specialTagDescriptors.getDescriptor('viewModel');
+  isModelCtor = viewModelDescriptor.isModelCtor;
+  isModel = viewModelDescriptor.isModel;
+});
+
 var createResources;
-runPostInit.unshift(function() {
+runPostInit.push(function() {
   createResources(specialTagDescriptors);
 });
 
 var createFactories;
-runPostInit.unshift(function() {
+runPostInit.push(function() {
   createFactories(specialTagDescriptors);
+});
+
+var registerOutletComponents;
+runPostInit.push(function() {
+  registerOutletComponents();
 });
 
 // These are tags which are ignored by the custom component loader
@@ -56,11 +70,3 @@ var nonComponentTags = [
   'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp', 'rect', 'image',
   'lineargradient', 'stop', 'line', 'binding-wrapper', 'font'
 ];
-
-var isModelCtor;
-var isModel;
-runPostInit.push(function() {
-  var viewModelDescriptor = specialTagDescriptors.getDescriptor('viewModel');
-  isModelCtor = viewModelDescriptor.isModelCtor;
-  isModel = viewModelDescriptor.isModel;
-});

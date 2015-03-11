@@ -112,10 +112,10 @@ var componentDefaultLocation = fw.components.defaultLocation = function(root, up
   return componentLocation;
 };
 
-var registerLocationOfComponent = fw.components.registerLocation = function(componentName, componentLocation) {
+fw.components.registerLocation = function(componentName, componentLocation) {
   if( isArray(componentName) ) {
     each(componentName, function(name) {
-      registerLocationOfComponent(name, componentLocation);
+      fw.components.registerLocation(name, componentLocation);
     });
   }
   componentResourceLocations[ componentName ] = componentDefaultLocation(componentLocation, false);

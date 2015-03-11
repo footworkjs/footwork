@@ -14,3 +14,13 @@ extend(fw.routers, {
     return (!isNullRouter($parentRouter) ? $parentRouter : null);
   }
 });
+
+extend(fw.outlets, {
+  registerView: function(viewName, templateHTML) {
+    fw.components.register(viewName, { template: templateHTML });
+  },
+  registerViewLocation: function(viewName, viewLocation) {
+    fw.components.registerLocation(viewName, { template: viewLocation })
+    fw.components.isTemplateOnly(viewName);
+  }
+});
