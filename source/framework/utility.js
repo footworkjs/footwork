@@ -11,13 +11,14 @@ var noop = function() { };
 
 var isObservable = fw.isObservable;
 
-function isModelCtor(thing) {
-  return isFunction(thing) && !!thing.__isModelCtor;
-}
+var isModelCtor;
+var isModel;
 
-function isModel(thing) {
-  return isObject(thing) && !!thing.__isModel;
-}
+runPostInit.push(function() {
+  var viewModelDescriptor = specialTagDescriptors.getDescriptor('viewModel');
+  isModel = viewModelDescriptor.isModel;
+  isModelCtor = viewModelDescriptor.isModelCtor;
+});
 
 function isNativeComponent(componentName) {
   return indexOf(nativeComponents, componentName) !== -1;

@@ -4,12 +4,12 @@
 function makeBooleanChecks(descriptor) {
   var booleanFunctions = {};
 
-  booleanFunctions.isModelCtor = function(thing) {
+  booleanFunctions.isModelCtor = function isModelCtor(thing) {
     return isFunction(thing) && !!thing[ descriptor.isModelCtorDuckTag ];
   };
 
-  booleanFunctions.isModel = function(thing) {
-    return isFunction(thing) && !!thing[ descriptor.isModelDuckTag ];
+  booleanFunctions.isModel = function isModel(thing) {
+    return isObject(thing) && !!thing[ descriptor.isModelDuckTag ];
   };
 
   return booleanFunctions;
