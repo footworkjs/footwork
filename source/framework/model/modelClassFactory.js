@@ -13,21 +13,14 @@ function modelClassFactory(descriptor, configParams) {
     autoIncrement: false,
     mixins: undefined,
     params: undefined,
-    initialize: noop,
     afterInit: noop,
     afterBinding: noop,
     onDispose: noop
   }, configParams || {});
 
-  var ctor = noop;
+  var ctor = configParams.initialize || configParams.viewModel || noop;
   var afterInit = noop;
   var parent = configParams.parent;
-
-  if( !isUndefined(configParams) ) {
-    ctor = configParams.viewModel || configParams.initialize || ctor;
-    afterInit = configParams.afterInit || afterInit;
-  }
-  afterInit = { _postInit: afterInit };
 
   var initModelMixin = {
     _preInit: function( params ) {
@@ -87,7 +80,8 @@ function modelClassFactory(descriptor, configParams) {
     isModelDuckTagMixin[descriptor.isModelDuckTag] = true;
     composure = composure.concat({ mixin: isModelDuckTagMixin });
 
-    composure = composure.concat(afterInit);
+    composure = composure.concat({ _postInit: configParams.afterInit || afterInit });
+
     if( !isUndefined(configParams.mixins) ) {
       composure = composure.concat(configParams.mixins);
     }
