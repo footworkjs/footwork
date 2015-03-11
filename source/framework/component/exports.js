@@ -14,19 +14,8 @@ fw.components.getComponentNameForNode = function(node) {
   return null;
 };
 
-fw.component = function(componentDefinition) {
-  var viewModel = componentDefinition.viewModel;
-
-  if( isFunction(viewModel) && !isModelCtor(viewModel) ) {
-    componentDefinition.viewModel = fw.viewModel( omit(componentDefinition, 'template') );
-  }
-
-  return componentDefinition;
-};
-
 // Mark a component as consisting of a template only.
 // This will cause footwork to load only the template when this component is used.
-var componentTemplateOnlyRegister = [];
 fw.components.isTemplateOnly = function(componentName, isTemplateOnly) {
   isTemplateOnly = (isUndefined(isTemplateOnly) ? true : isTemplateOnly);
   if( isArray(componentName) ) {
@@ -35,8 +24,40 @@ fw.components.isTemplateOnly = function(componentName, isTemplateOnly) {
     });
   }
 
-  componentTemplateOnlyRegister[componentName] = isTemplateOnly;
+  componentIsTemplateOnly[componentName] = isTemplateOnly;
   if( !isArray(componentName) ) {
-    return componentTemplateOnlyRegister[componentName] || 'normal';
+    return componentIsTemplateOnly[componentName] || 'normal';
   }
+};
+
+fw.components.tagIsComponent = function(tagName, isComponent) {
+  if( isUndefined(isComponent) ) {
+    return indexOf(nonComponentTags, tagName) === -1;
+  }
+
+  if( isArray(tagName) ) {
+    each(tagName, function(tag) {
+      fw.components.tagIsComponent(tag, isComponent);
+    });
+  }
+
+  if(isComponent !== true) {
+    if( contains(nonComponentTags, tagName) === false ) {
+      nonComponentTags.push(tagName);
+    }
+  } else {
+    nonComponentTags = filter(nonComponentTags, function(nonComponentTagName) {
+      return nonComponentTagName !== tagName;
+    });
+  }
+};
+
+fw.component = function(componentDefinition) {
+  var viewModel = componentDefinition.viewModel;
+
+  if( isFunction(viewModel) && !isModelCtor(viewModel) ) {
+    componentDefinition.viewModel = fw.viewModel( omit(componentDefinition, 'template') );
+  }
+
+  return componentDefinition;
 };

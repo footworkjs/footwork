@@ -32,3 +32,4 @@ var findWhere = _.findWhere;
 var once = _.once;
 var last = _.last;
 var isEqual = _.isEqual;
+var noop = _.noop;

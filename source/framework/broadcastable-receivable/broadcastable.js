@@ -1,7 +1,7 @@
 // framework/broadcastable-receivable/broacastable.js
 // ------------------
 
-function isBroadcastable(thing) {
+isBroadcastable = function(thing) {
   return isObject(thing) && !!thing.__isBroadcastable;
 }
 

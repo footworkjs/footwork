@@ -51,7 +51,7 @@ fw.components.loaders.push( fw.components.requireLoader = {
 
         // check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)
         var viewModelConfig = { require: viewModelPath };
-        if( componentTemplateOnlyRegister[componentName] ) {
+        if( componentIsTemplateOnly[componentName] ) {
           viewModelConfig = { instance: {} };
         }
 

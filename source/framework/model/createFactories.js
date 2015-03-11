@@ -5,7 +5,7 @@ function createFactories(descriptors) {
   // create the class factory method for each specialTag descriptor
   filter(descriptors, function getOnlyDescriptorsWithMethodName(descriptor) {
     return isString(descriptor.methodName);
-  }).forEach(function setupModelFactoryMethod(descriptor) {
+  }).forEach(function setupFactoryMethod(descriptor) {
     switch(descriptor.methodName) {
       case 'router':
         fw[descriptor.methodName] = routerClassFactory;
@@ -13,7 +13,6 @@ function createFactories(descriptors) {
 
       default:
         fw[descriptor.methodName] = modelClassFactory.bind(null, descriptor);
-        break;
     }
   });
 }

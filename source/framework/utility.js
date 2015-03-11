@@ -6,17 +6,6 @@ var startingSlashRegex = /^\//;
 var startingHashRegex = /^#/;
 
 var isObservable = fw.isObservable;
-var isModelCtor;
-var isModel;
-
-// registry which stores the mixins that are automatically added to each model
-var modelMixins = [];
-
-runPostInit.push(function() {
-  var viewModelDescriptor = specialTagDescriptors.getDescriptor('viewModel');
-  isModelCtor = viewModelDescriptor.isModelCtor;
-  isModel = viewModelDescriptor.isModel;
-});
 
 var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
 var isFullURL = fw.utils.isFullURL = function(thing) {
@@ -47,7 +36,6 @@ function getFilenameExtension(fileName) {
   return extension;
 }
 
-function noop() { };
 function alwaysPassPredicate() { return true; }
 function emptyStringResult() { return ''; }
 

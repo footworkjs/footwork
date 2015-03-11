@@ -1,5 +1,30 @@
-// framework/component/processing.js
+// framework/init.js
 // ------------------
+
+// Record the footwork version as of this build.
+fw.footworkVersion = 'FOOTWORK_VERSION';
+
+// Expose any embedded dependencies
+fw.embed = embedded;
+
+fw.viewModels = {};
+fw.dataModels = {};
+fw.routers = {};
+fw.outlets = {};
+
+var hasHTML5History = noop;
+var assessHistoryState = noop;
+var originalApplyBindings = noop;
+var setupContextAndLifeCycle = noop;
+var isBroadcastable = noop;
+var isReceivable = noop;
+
+var noComponentSelected = '_noComponentSelected';
+var runPostInit = [];
+var nativeComponents = [];
+var specialTagDescriptors = [];
+var modelMixins = [];
+var componentIsTemplateOnly = [];
 
 // These are tags which are ignored by the custom component loader
 // Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
@@ -17,24 +42,11 @@ var nonComponentTags = [
   'lineargradient', 'stop', 'line', 'binding-wrapper', 'font'
 ];
 
-fw.components.tagIsComponent = function(tagName, isComponent) {
-  if( isUndefined(isComponent) ) {
-    return indexOf(nonComponentTags, tagName) === -1;
-  }
+var isModelCtor;
+var isModel;
 
-  if( isArray(tagName) ) {
-    each(tagName, function(tag) {
-      fw.components.tagIsComponent(tag, isComponent);
-    });
-  }
-
-  if(isComponent !== true) {
-    if( contains(nonComponentTags, tagName) === false ) {
-      nonComponentTags.push(tagName);
-    }
-  } else {
-    nonComponentTags = filter(nonComponentTags, function(nonComponentTagName) {
-      return nonComponentTagName !== tagName;
-    });
-  }
-};
+runPostInit.push(function() {
+  var viewModelDescriptor = specialTagDescriptors.getDescriptor('viewModel');
+  isModelCtor = viewModelDescriptor.isModelCtor;
+  isModel = viewModelDescriptor.isModel;
+});
