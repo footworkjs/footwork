@@ -1,24 +1,27 @@
 // framework/utility.js
 // ----------------
 
-// misc regex patterns
 var trailingSlashRegex = /\/$/;
 var startingSlashRegex = /^\//;
 var startingHashRegex = /^#/;
 
-// misc utility functions
-var noop = function() { };
-
 var isObservable = fw.isObservable;
-
 var isModelCtor;
 var isModel;
 
+// registry which stores the mixins that are automatically added to each model
+var modelMixins = [];
+
 runPostInit.push(function() {
   var viewModelDescriptor = specialTagDescriptors.getDescriptor('viewModel');
-  isModel = viewModelDescriptor.isModel;
   isModelCtor = viewModelDescriptor.isModelCtor;
+  isModel = viewModelDescriptor.isModel;
 });
+
+var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
+var isFullURL = fw.utils.isFullURL = function(thing) {
+  return isString(thing) && isFullURLRegex.test(thing);
+};
 
 function isNativeComponent(componentName) {
   return indexOf(nativeComponents, componentName) !== -1;
@@ -39,17 +42,14 @@ function hasHashStart(string) {
 function getFilenameExtension(fileName) {
   var extension = '';
   if(fileName.indexOf('.') !== -1) {
-    var parts = fileName.split('.');
-    extension = parts[parts.length - 1];
+    extension = last(fileName.split('.'));
   }
   return extension;
 }
 
+function noop() { };
 function alwaysPassPredicate() { return true; }
 function emptyStringResult() { return ''; }
-
-// Internal registry which stores the mixins that are automatically added to each model
-var modelMixins = [];
 
 // dispose a known property type
 function propertyDisposal( property, name ) {
@@ -92,12 +92,6 @@ parseUri.options = {
   }
 };
 
-// fw.utils exports
-var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
-var isFullURL = fw.utils.isFullURL = function(thing) {
-  return isString(thing) && isFullURLRegex.test(thing);
-};
-
 // Generate a random pseudo-GUID
 // http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
 var guid = fw.utils.guid = (function() {
@@ -111,7 +105,3 @@ var guid = fw.utils.guid = (function() {
            s4() + '-' + s4() + s4() + s4();
   };
 })();
-
-function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
