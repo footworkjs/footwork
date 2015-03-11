@@ -13,11 +13,12 @@ fw.dataModels = {};
 fw.routers = {};
 fw.outlets = {};
 
-var noComponentSelected = '_noComponentSelected';
 var hasHTML5History;
 var assessHistoryState;
 var originalApplyBindings;
+var setupContextAndLifeCycle;
 
+var noComponentSelected = '_noComponentSelected';
 var runPostInit = [];
 var nativeComponents = [];
 var specialTagDescriptors = [];

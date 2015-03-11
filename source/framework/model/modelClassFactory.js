@@ -93,9 +93,7 @@ function modelClassFactory(descriptor, configParams) {
     }
 
     each(composure, function(composureElement) {
-      if( !isUndefined(composureElement['runBeforeInit']) ) {
-        delete composureElement.runBeforeInit;
-      }
+      delete composureElement.runBeforeInit;
     });
 
     var model = riveter.compose.apply( undefined, composure );

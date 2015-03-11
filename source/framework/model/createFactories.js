@@ -8,9 +8,7 @@ function createFactories(descriptors) {
   }).forEach(function setupModelFactoryMethod(descriptor) {
     switch(descriptor.methodName) {
       case 'router':
-        fw[descriptor.methodName] = function routerClassFactory(routerConfig) {
-          return fw.viewModel({ router: routerConfig });
-        };
+        fw[descriptor.methodName] = routerClassFactory;
         break;
 
       default:

@@ -2,17 +2,14 @@
 // ----------------
 
 function makeBooleanChecks(descriptor) {
-  var booleanFunctions = {};
-
-  booleanFunctions.isModelCtor = function isModelCtor(thing) {
-    return isFunction(thing) && !!thing[ descriptor.isModelCtorDuckTag ];
+  return {
+    isModelCtor: function isModelCtor(thing) {
+      return isFunction(thing) && !!thing[ descriptor.isModelCtorDuckTag ];
+    },
+    isModel: function isModel(thing) {
+      return isObject(thing) && !!thing[ descriptor.isModelDuckTag ];
+    }
   };
-
-  booleanFunctions.isModel = function isModel(thing) {
-    return isObject(thing) && !!thing[ descriptor.isModelDuckTag ];
-  };
-
-  return booleanFunctions;
 }
 
 specialTagDescriptors = map(specialTagDescriptors, function prepareDescriptor(descriptor) {
