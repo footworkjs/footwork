@@ -18,10 +18,6 @@ function modelClassFactory(descriptor, configParams) {
     onDispose: noop
   }, configParams || {});
 
-  var ctor = configParams.initialize || configParams.viewModel || noop;
-  var afterInit = noop;
-  var parent = configParams.parent;
-
   var initModelMixin = {
     _preInit: function( params ) {
       if( isObject(configParams.router) ) {
@@ -62,6 +58,7 @@ function modelClassFactory(descriptor, configParams) {
     }
   };
 
+  var ctor = configParams.initialize || configParams.viewModel || noop;
   if( !descriptor.isModelCtor(ctor) ) {
     var composure = [ ctor ];
     var afterInitMixins = reject(modelMixins, isBeforeInitMixin);
@@ -80,7 +77,7 @@ function modelClassFactory(descriptor, configParams) {
     isModelDuckTagMixin[descriptor.isModelDuckTag] = true;
     composure = composure.concat({ mixin: isModelDuckTagMixin });
 
-    composure = composure.concat({ _postInit: configParams.afterInit || afterInit });
+    composure = composure.concat({ _postInit: configParams.afterInit || noop });
 
     if( !isUndefined(configParams.mixins) ) {
       composure = composure.concat(configParams.mixins);
@@ -98,8 +95,8 @@ function modelClassFactory(descriptor, configParams) {
     model = ctor;
   }
 
-  if( !isUndefined(parent) ) {
-    model.inherits(parent);
+  if( !isUndefined(configParams.parent) ) {
+    model.inherits(configParams.parent);
   }
 
   if( configParams.autoRegister ) {
