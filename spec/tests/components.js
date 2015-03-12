@@ -51,7 +51,7 @@ describe('components', function () {
     setTimeout(function() {
       expect(window.defaultComponentLocationLoaded).to.be(true);
       done();
-    }, 30);
+    }, 300);
   });
 
   it('can specify and load via a registered location', function(done) {
@@ -70,7 +70,7 @@ describe('components', function () {
     setTimeout(function() {
       expect(window.registeredComponentLocationLoaded).to.be(true);
       done();
-    }, 30);
+    }, 300);
   });
 
   it('can specify and load via a registered location for a combined component', function(done) {
@@ -86,6 +86,6 @@ describe('components', function () {
     setTimeout(function() {
       expect(window.registeredComponentLocationLoaded).to.be(true);
       done();
-    }, 30);
+    }, 300);
   });
 });
