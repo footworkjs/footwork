@@ -108,22 +108,9 @@ describe('viewModel', function () {
 
     expect(isRegistered).to.be(false);
 
-    var AutoRegisteredViewModel = fw.viewModel({
+    fw.viewModel({
       namespace: 'AutoRegisteredViewModel',
-      autoRegister: true,
-      initialize: function() {
-        if(!afterBindingWasCalledSecond) {
-          initializeWasCalledFirst = true;
-        }
-      },
-      afterBinding: function(containingElement) {
-        if(initializeWasCalledFirst) {
-          afterBindingWasCalledSecond = true;
-        }
-        if(containingElement === container) {
-          containerIsTheSame = true;
-        }
-      }
+      autoRegister: true
     });
 
     isRegistered = fw.viewModels.isRegistered('AutoRegisteredViewModel');

@@ -42,6 +42,7 @@
     "history.js": "https://github.com/reflectiveSingleton/history.js.git#ae04b0e41c48a1e2f272cc10e29c2aeaa50d1a86",
     "console-polyfill": "*",
     "requirejs": "*",
+    "requirejs-text": "*",
     "expect": "0.1.2",
     "mocha": "*"
   }
