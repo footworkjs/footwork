@@ -35,7 +35,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     if( !isNativeComponent(componentName) ) {
       // TODO: Handle different types of configs
       if( isString(config) ) {
-        config = '<!-- ko $life -->COMPONENT_MARKUP<!-- /ko -->'.replace(/COMPONENT_MARKUP/, config);
+        config = '<!-- ko $life -->' + config + '<!-- /ko -->';
       } else {
         throw 'Unhandled config type ' + typeof config + '.';
       }
