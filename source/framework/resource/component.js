@@ -103,7 +103,7 @@ var componentDefaultLocation = fw.components.defaultLocation = function(root, up
     }, {}));
   } else if( isString(root) ) {
     componentLocation = {
-      combined: rootURL,
+      combined: root,
       viewModels: null,
       templates: null
     };
