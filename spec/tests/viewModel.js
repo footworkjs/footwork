@@ -103,7 +103,7 @@ describe('viewModel', function () {
     expect(containerIsTheSame).to.be(true);
   });
 
-  it('can autoRegister a viewModel after class method creation', function() {
+  it('can autoRegister a viewModel during class method creation', function() {
     var isRegistered = fw.viewModels.isRegistered('AutoRegisteredViewModel');
 
     expect(isRegistered).to.be(false);
@@ -129,6 +129,23 @@ describe('viewModel', function () {
     isRegistered = fw.viewModels.isRegistered('AutoRegisteredViewModel');
 
     expect(isRegistered).to.be(true);
+  });
+
+  it('can bind to the DOM using a <viewModel> declaration', function() {
+    var wasInitialized = false;
+    var container = document.getElementById('declarativeViewModel');
+
+    fw.viewModel({
+      namespace: 'ViewModelBoundWithDeclarativeStatement',
+      autoRegister: true,
+      initialize: function() {
+        wasInitialized = true;
+      }
+    });
+
+    expect(wasInitialized).to.be(false);
+    fw.start(container);
+    expect(wasInitialized).to.be(true);
   });
 
   it('correctly names and increments counter for indexed viewModels', function() {
