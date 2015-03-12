@@ -3,11 +3,6 @@ require.config({
     "knockout": "../bower_components/knockoutjs/dist/knockout",
     "lodash": "../bower_components/lodash/lodash",
     "postal": "../bower_components/postal.js/lib/postal",
-    "conduitjs": "../bower_components/conduitjs/lib/conduit",
-    "delegate": "../bower_components/delegate.js/delegate",
-    "matches": "../bower_components/matches.js/matches",
-    "Apollo": "../bower_components/apollo/dist/apollo",
-    "reqwest": "../bower_components/reqwest/reqwest",
     "footwork": "../dist/footwork-minimal",
   },
   waitSeconds: 1500
