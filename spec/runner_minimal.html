@@ -7,10 +7,14 @@
   </head>
   <body>
     <div id="mocha"></div>
+
     <script src="../bower_components/mocha/mocha.js"></script>
     <script src="../bower_components/expect/expect.js"></script>
+
     <script>mocha.setup('bdd')</script>
     <script src="tests/sanity.js"></script>
-    <script src="../bower_components/requirejs/require.js" data-main="minimal-amd-loader.js"></script>
+
+    <script src="scripts/require-config.js"></script>
+    <script src="../bower_components/requirejs/require.js" data-main="scripts/minimal-amd-loader.js"></script>
   </body>
 </html>

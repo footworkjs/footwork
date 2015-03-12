@@ -40,7 +40,7 @@ function getResourceLocation(moduleName) {
   if( resource.isRegistered(moduleName) ) {
     // viewModel was manually registered, we preferentially use it
     resourceLocation = resource.getRegistered(moduleName);
-  } else if( isFunction(require) && isFunction(require.defined) && require.defined(moduleName) ) {
+  } else if( isFunction(require) && isFunction(require.specified) && require.specified(moduleName) ) {
     // we have found a matching resource that is already cached by require, lets use it
     resourceLocation = moduleName;
   } else {

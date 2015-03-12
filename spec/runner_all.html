@@ -4,37 +4,19 @@
     <title>footwork.js Test Runner</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="../bower_components/mocha/mocha.css" />
-    <style>#sandbox { overflow: hidden; height: 0; }</style>
   </head>
 
   <body>
-    <div id="sandbox">
-      <div id="afterBinding"></div>
-
-      <div id="onDispose">
-        <div data-bind="if: showIt">
-          <viewModel module="ViewModelWithDispose"></viewModel>
-        </div>
-      </div>
-
-      <div id="declarativeViewModel">
-        <viewModel module="ViewModelBoundWithDeclarativeStatement"></viewModel>
-      </div>
-
-      <div id="declarativeComponent">
-        <declarative-component></declarative-component>
-      </div>
-    </div>
-
     <div id="mocha"></div>
+
     <script src="../bower_components/mocha/mocha.js"></script>
     <script src="../bower_components/expect/expect.js"></script>
+
     <script src="../dist/footwork-all.js"></script>
+
     <script>mocha.setup('bdd')</script>
     <script src="tests/sanity.js"></script>
-    <script src="tests/viewModel.js"></script>
-    <script src="tests/components.js"></script>
-    <script src="tests/broadcast-receive.js"></script>
+
     <script>
       if(typeof mochaPhantomJS !== 'undefined') {
         mochaPhantomJS.run();

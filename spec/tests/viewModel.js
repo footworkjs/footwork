@@ -131,7 +131,7 @@ describe('viewModel', function () {
     expect(isRegistered).to.be(true);
   });
 
-  it('can bind to the DOM using a <viewModel> declaration', function() {
+  it('can bind to the DOM using a <viewModel> declaration', function(done) {
     var wasInitialized = false;
     var container = document.getElementById('declarativeViewModel');
 
@@ -145,7 +145,11 @@ describe('viewModel', function () {
 
     expect(wasInitialized).to.be(false);
     fw.start(container);
-    expect(wasInitialized).to.be(true);
+
+    setTimeout(function() {
+      expect(wasInitialized).to.be(true);
+      done();
+    }, 0);
   });
 
   it('correctly names and increments counter for indexed viewModels', function() {
@@ -214,5 +218,55 @@ describe('viewModel', function () {
     wrapper.showIt(false);
 
     expect(onDisposeWasCalled).to.be(true);
+  });
+
+  // it('can load via requirejs with a declarative initialization from an already registered module', function(done) {
+    /**
+     * This test should work but requirejs currently doesn't seem to specify modules correctly.
+     *
+     * The following should work but does not:
+     *
+     * expect(require.specified('test')).to.be(false);
+     *
+     * define('test', [], function() {});
+     *
+     * expect(require.specified('test')).to.be(true);
+     *
+     * It DOES work once your require() the module...but specified() is supposed to work without that.
+     */
+
+    // var container = document.getElementById('AMDPreRegisteredViewModel');
+    // var viewModelLoaded = false;
+
+    // define('AMDPreRegisteredViewModel', ['fw'], function(fw) {
+    //   return fw.viewModel({
+    //     initialization: function() {
+    //       viewModelLoaded = true;
+    //     }
+    //   });
+    // });
+
+    // expect(viewModelLoaded).to.be(false);
+    // fw.start(container);
+
+    // setTimeout(function() {
+    //   expect(viewModelLoaded).to.be(true);
+    //   done();
+    // }, 25);
+  // });
+
+  it('can load via requirejs with a declarative initialization from a specified location', function(done) {
+    var container = document.getElementById('AMDViewModel');
+    window.AMDViewModelWasLoaded = false;
+
+    fw.viewModels.registerLocation('AMDViewModel', 'scripts/testAssets/');
+
+    expect(window.AMDViewModelWasLoaded).to.be(false);
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(window.AMDViewModelWasLoaded).to.be(true);
+      done();
+    }, 25);
   });
 });

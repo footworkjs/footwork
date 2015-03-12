@@ -1,7 +1,7 @@
 'use strict';
 
 describe('components', function () {
-  it('can create a component', function() {
+  it('can register a component', function() {
     fw.components.register('ComponentA', {
       template: '<div>a template</div>',
       viewModel: function() {
@@ -22,7 +22,6 @@ describe('components', function () {
       template: '<div>a template</div>',
       viewModel: fw.viewModel({
         initialize: function() {
-          console.info('yo');
           componentInitialized = true;
         }
       })
