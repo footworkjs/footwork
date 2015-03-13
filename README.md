@@ -42,4 +42,6 @@ The following dependencies are considered part of 'core':
 * [riveter](https://github.com/a2labs/riveter)
 * [postal.js](https://github.com/postaljs/postal.js)
 
+[![Join the chat at https://gitter.im/reflectiveSingleton/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/reflectiveSingleton/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Analytics](https://ga-beacon.appspot.com/UA-52543452-1/footwork/GITHUB-ROOT)](https://github.com/reflectiveSingleton/ga-beacon)
