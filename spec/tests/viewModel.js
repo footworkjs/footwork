@@ -256,4 +256,35 @@ describe('viewModel', function () {
       done();
     }, 25);
   });
+
+  it('can load via requirejs with a declarative initialization from a specified location with the full file name', function(done) {
+    var container = document.getElementById('AMDViewModelFullName');
+    window.AMDViewModelFullNameWasLoaded = false;
+
+    fw.viewModels.registerLocation('AMDViewModelFullName', 'scripts/testAssets/AMDViewModelFullName.js');
+
+    expect(window.AMDViewModelFullNameWasLoaded).to.be(false);
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(window.AMDViewModelFullNameWasLoaded).to.be(true);
+      done();
+    }, 25);
+  });
+
+  it('can specify and load via requirejs with the default location', function(done) {
+    var container = document.getElementById('defaultViewModelLocation');
+    window.defaultViewModelLocationLoaded = false;
+
+    fw.viewModels.defaultLocation('scripts/testAssets/defaultViewModelLocation/');
+
+    expect(window.defaultViewModelLocationLoaded).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(window.defaultViewModelLocationLoaded).to.be(true);
+      done();
+    }, 30);
+  });
 });
