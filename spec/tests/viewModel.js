@@ -103,6 +103,14 @@ describe('viewModel', function () {
     expect(containerIsTheSame).to.be(true);
   });
 
+  it('can register a viewModel', function() {
+    expect( fw.components.isRegistered('registeredViewModelCheck') ).to.be(false);
+
+    fw.viewModels.register('registeredViewModelCheck', function() {});
+
+    expect( fw.viewModels.isRegistered('registeredViewModelCheck') ).to.be(true);
+  });
+
   it('can autoRegister a viewModel during class method creation', function() {
     var isRegistered = fw.viewModels.isRegistered('autoRegisteredViewModel');
 

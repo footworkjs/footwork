@@ -12,6 +12,17 @@ describe('components', function () {
     expect(fw.components.isRegistered('ComponentA')).to.eql(true);
   });
 
+  it('can register a component', function() {
+    expect( fw.components.isRegistered('registered-component-check') ).to.be(false);
+
+    fw.components.register('registered-component-check', {
+      template: '<div>a template</div>',
+      viewModel: function() {}
+    });
+
+    expect( fw.components.isRegistered('registered-component-check') ).to.be(true);
+  });
+
   it('can instantiate a registered component via a <declarative> statement', function(done) {
     var componentInitialized = false;
     var container = document.getElementById('declarativeComponent');
