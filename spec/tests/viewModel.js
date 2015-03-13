@@ -104,16 +104,16 @@ describe('viewModel', function () {
   });
 
   it('can autoRegister a viewModel during class method creation', function() {
-    var isRegistered = fw.viewModels.isRegistered('AutoRegisteredViewModel');
+    var isRegistered = fw.viewModels.isRegistered('autoRegisteredViewModel');
 
     expect(isRegistered).to.be(false);
 
     fw.viewModel({
-      namespace: 'AutoRegisteredViewModel',
+      namespace: 'autoRegisteredViewModel',
       autoRegister: true
     });
 
-    isRegistered = fw.viewModels.isRegistered('AutoRegisteredViewModel');
+    isRegistered = fw.viewModels.isRegistered('autoRegisteredViewModel');
 
     expect(isRegistered).to.be(true);
   });
@@ -123,7 +123,7 @@ describe('viewModel', function () {
     var container = document.getElementById('declarativeViewModel');
 
     fw.viewModel({
-      namespace: 'ViewModelBoundWithDeclarativeStatement',
+      namespace: 'declarativeViewModel',
       autoRegister: true,
       initialize: function() {
         wasInitialized = true;
@@ -242,6 +242,25 @@ describe('viewModel', function () {
     // }, 25);
   // });
 
+  it('can load via registered viewModel with a declarative initialization', function(done) {
+    var container = document.getElementById('registeredViewModel');
+    var registeredViewModelWasLoaded = false;
+
+    fw.viewModels.register('registeredViewModel', fw.viewModel({
+      initialize: function() {
+        registeredViewModelWasLoaded = true;
+      }
+    }));
+
+    expect(registeredViewModelWasLoaded).to.be(false);
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(registeredViewModelWasLoaded).to.be(true);
+      done();
+    }, 25);
+  });
+
   it('can load via requirejs with a declarative initialization from a specified location', function(done) {
     var container = document.getElementById('AMDViewModel');
     window.AMDViewModelWasLoaded = false;
@@ -285,6 +304,6 @@ describe('viewModel', function () {
     setTimeout(function() {
       expect(window.defaultViewModelLocationLoaded).to.be(true);
       done();
-    }, 30);
+    }, 25);
   });
 });

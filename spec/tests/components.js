@@ -73,6 +73,25 @@ describe('components', function () {
     }, 150);
   });
 
+  it('can specify and load via a registered location with full file name', function(done) {
+    var container = document.getElementById('registeredComponentLocationFullName');
+    window.registeredComponentLocationFullNameLoaded = false;
+
+    fw.components.registerLocation('registered-component-location-fullname', {
+      viewModel: 'scripts/testAssets/registeredComponentLocation/registeredComponentLocationFullname.js',
+      template: 'testAssets/registeredComponentLocation/registeredComponentLocationFullname.html'
+    });
+
+    expect(window.registeredComponentLocationFullNameLoaded).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(window.registeredComponentLocationFullNameLoaded).to.be(true);
+      done();
+    }, 150);
+  });
+
   it('can specify and load via a registered location for a combined component', function(done) {
     var container = document.getElementById('registeredCombinedComponentLocation');
     window.registeredComponentLocationLoaded = false;
