@@ -8,7 +8,7 @@ describe('viewModel', function () {
     expect(fw.viewModel()).to.be.a('function');
   });
 
-  it('has the ability to create a viewModel with a correctly defined namespace', function() {
+  it('has the ability to create a viewModel with a correctly defined namespace which we can retrieve', function() {
     var ModelA = fw.viewModel({
       namespace: 'ModelA'
     });

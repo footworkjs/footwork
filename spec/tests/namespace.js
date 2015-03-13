@@ -9,6 +9,11 @@ describe('namespace', function () {
     expect(namespace.channel).to.eql('testNamespaceCreation');
   });
 
+  it('can create a namespace which we can then use to .getName()', function() {
+    var namespace = fw.namespace('testNamespaceGetName');
+    expect(namespace.getName()).to.be('testNamespaceGetName');
+  });
+
   it('has basic pub/sub capability', function() {
     var namespace = fw.namespace('basicSubscription');
     var subscriptionWorks = false;
@@ -91,7 +96,7 @@ describe('namespace', function () {
     expect(namespace.request('testRequest', 'optionalParam')).to.be('all-ok');
   });
 
-  it('can unsubscribe handler for request', function() {
+  it('can unregister handler for request', function() {
     var namespace = fw.namespace('requestUnregisterTest');
 
     var requestHandler = namespace.request.handler('testUnregisteredRequest', function(parameter) {
@@ -116,5 +121,35 @@ describe('namespace', function () {
 
     var namespace = fw.namespace('requestMultipleTest');
     expect( namespace.request('testMultipleRequest', 'optionalParam', true) ).to.eql( ['all-ok', 'all-ok', 'all-ok'] );
+  });
+
+  it('can trigger and listen to commands', function() {
+    var namespace = fw.namespace('commandTest');
+    var commandHandled = false;
+
+    namespace.command.handler('testCommand', function(parameter) {
+      commandHandled = true;
+      expect(parameter).to.be('optionalParam');
+    });
+
+    expect(commandHandled).to.be(false);
+    namespace.command('testCommand', 'optionalParam');
+    expect(commandHandled).to.be(true);
+  });
+
+  it('can unregister handler for request', function() {
+    var namespace = fw.namespace('commandUnregisterTest');
+    var commandHandled = false;
+
+    var requestHandler = namespace.command.handler('testUnregisteredCommand', function(parameter) {
+      commandHandled = true;
+      expect(parameter).to.be('optionalParam');
+    });
+
+    namespace.command.unregister(requestHandler);
+
+    expect(commandHandled).to.be(false);
+    namespace.command('testUnregisteredCommand', 'optionalParam');
+    expect(commandHandled).to.be(false);
   });
 });
