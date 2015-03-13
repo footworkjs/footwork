@@ -137,7 +137,7 @@ describe('namespace', function () {
     expect(commandHandled).to.be(true);
   });
 
-  it('can unregister handler for request', function() {
+  it('can unregister handler for commands', function() {
     var namespace = fw.namespace('commandUnregisterTest');
     var commandHandled = false;
 
@@ -151,5 +151,32 @@ describe('namespace', function () {
     expect(commandHandled).to.be(false);
     namespace.command('testUnregisteredCommand', 'optionalParam');
     expect(commandHandled).to.be(false);
+  });
+
+  it('can unregister all types of handlers when namespace is disposed', function() {
+    var namespace = fw.namespace('disposeTest');
+    var handlerTriggered = false;
+
+    namespace.command.handler('testDispose', function() {
+      handlerTriggered = true;
+    });
+    namespace.request.handler('testDispose', function() {
+      handlerTriggered = true;
+    });
+    namespace.event.handler('testDispose', function() {
+      handlerTriggered = true;
+    });
+    namespace.subscribe('testDispose', function() {
+      handlerTriggered = true;
+    });
+
+    namespace.dispose();
+
+    expect(handlerTriggered).to.be(false);
+    namespace.command('testDispose');
+    namespace.request('testDispose');
+    namespace.trigger('testDispose');
+    namespace.publish('testDispose');
+    expect(handlerTriggered).to.be(false);
   });
 });
