@@ -27,8 +27,6 @@ describe('components', function () {
     var componentInitialized = false;
     var container = document.getElementById('declarativeComponent');
 
-    expect(componentInitialized).to.be(false);
-
     fw.components.register('declarative-component', {
       template: '<div>a template</div>',
       viewModel: fw.viewModel({
@@ -38,12 +36,49 @@ describe('components', function () {
       })
     });
 
+    expect(componentInitialized).to.be(false);
+
     fw.start(container);
 
     setTimeout(function() {
       expect(componentInitialized).to.be(true);
       done();
     }, 20);
+  });
+
+  it('can instantiate nested <components>', function(done) {
+    var outerComponentInitialized = false;
+    var innerComponentInitialized = false;
+    var container = document.getElementById('nestedDeclarativeComponent');
+
+    fw.components.register('nested-outer-declarative-component', {
+      template: '<nested-inner-declarative-component></nested-inner-declarative-component>',
+      viewModel: fw.viewModel({
+        initialize: function() {
+          outerComponentInitialized = true;
+        }
+      })
+    });
+
+    fw.components.register('nested-inner-declarative-component', {
+      template: '<div></div>',
+      viewModel: fw.viewModel({
+        initialize: function() {
+          innerComponentInitialized = true;
+        }
+      })
+    });
+
+    expect(outerComponentInitialized).to.be(false);
+    expect(innerComponentInitialized).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(outerComponentInitialized).to.be(true);
+      expect(innerComponentInitialized).to.be(true);
+      done();
+    }, 150);
   });
 
   it('can specify and load via the default location', function(done) {
