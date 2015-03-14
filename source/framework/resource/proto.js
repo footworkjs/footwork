@@ -79,11 +79,8 @@ function getModelReferences(descriptor, namespaceName, options) {
       var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
       if( !isNull(namespaceName) ) {
         if( isUndefined(models[namespaceName]) ) {
-          models[namespaceName] = model;
+          models[namespaceName] = [ model ];
         } else {
-          if( !isArray(models[namespaceName]) ) {
-            models[namespaceName] = [ models[namespaceName] ];
-          }
           models[namespaceName].push(model);
         }
       }

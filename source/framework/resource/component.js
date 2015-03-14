@@ -126,7 +126,7 @@ var locationIsRegisteredForComponent = fw.components.locationIsRegistered = func
 };
 
 // Return the component resource definition for the supplied componentName
-var getComponentResourceLocation = fw.components.getResourceLocation = function(componentName) {
+var getComponentResourceLocation = fw.components.getLocation = function(componentName) {
   if( isUndefined(componentName) ) {
     return componentResourceLocations;
   }

@@ -203,7 +203,7 @@ describe('viewModel', function () {
   it('can get all instantiated viewModels of a specific type/name', function() {
     var viewModels = [];
     var ViewModel = fw.viewModel({ namespace: 'getAllSpecificViewModel' });
-    var numToMake = _.random(3,15);
+    var numToMake = _.random(1,15);
 
     for(var x = numToMake; x; x--) {
       viewModels.push( new ViewModel() );
@@ -306,6 +306,37 @@ describe('viewModel', function () {
     wrapper.showIt(false);
 
     expect(onDisposeWasCalled).to.be(true);
+  });
+
+  it('can have a registered location set and retrieved proplerly', function() {
+    fw.viewModels.registerLocation('registeredLocationRetrieval', '/bogus/path');
+    expect(fw.viewModels.getLocation('registeredLocationRetrieval')).to.be('/bogus/path');
+  });
+
+  it('can have a registered location with filename set and retrieved proplerly', function() {
+    fw.viewModels.registerLocation('registeredLocationWithFilenameRetrieval', '/bogus/path/__file__.js');
+    expect(fw.viewModels.getLocation('registeredLocationWithFilenameRetrieval')).to.be('/bogus/path/__file__.js');
+  });
+
+  it('can have a specific file extension set and used correctly', function() {
+    fw.viewModels.fileExtensions('.jscript');
+    fw.viewModels.registerLocation('registeredLocationWithExtensionRetrieval', '/bogus/path/');
+
+    expect(fw.viewModels.getFileName('registeredLocationWithExtensionRetrieval')).to.be('registeredLocationWithExtensionRetrieval.jscript');
+
+    fw.viewModels.fileExtensions('.js');
+  });
+
+  it('can have a callback specified as the extension with it invoked and the return value used', function() {
+    fw.viewModels.fileExtensions(function(moduleName) {
+      expect(moduleName).to.be('registeredLocationWithFunctionExtensionRetrieval');
+      return '.jscriptFunction';
+    });
+    fw.viewModels.registerLocation('registeredLocationWithFunctionExtensionRetrieval', '/bogus/path/');
+
+    expect(fw.viewModels.getFileName('registeredLocationWithFunctionExtensionRetrieval')).to.be('registeredLocationWithFunctionExtensionRetrieval.jscriptFunction');
+
+    fw.viewModels.fileExtensions('.js');
   });
 
   it.skip('can load via requirejs with a declarative initialization from an already registered module', function(done) {
