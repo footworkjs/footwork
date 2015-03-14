@@ -16,8 +16,6 @@ var hasHTML5History = noop;
 var assessHistoryState = noop;
 var originalApplyBindings = noop;
 var setupContextAndLifeCycle = noop;
-var isBroadcastable = noop;
-var isReceivable = noop;
 
 var noComponentSelected = '_noComponentSelected';
 var runPostInit = [];

@@ -157,7 +157,7 @@ describe('namespace', function () {
     var namespace = fw.namespace('subscriptionDisposeTest');
     var handlerTriggered = false;
 
-    namespace.subscribe('testDispose', function markAsTriggered() {
+    namespace.subscribe('testDispose', function() {
       handlerTriggered = true;
     });
     namespace.dispose();
@@ -171,7 +171,7 @@ describe('namespace', function () {
     var namespace = fw.namespace('eventDisposeTest');
     var handlerTriggered = false;
 
-    namespace.event.handler('testDispose', function markAsTriggered() {
+    namespace.event.handler('testDispose', function() {
       handlerTriggered = true;
     });
     namespace.dispose();
@@ -185,7 +185,7 @@ describe('namespace', function () {
     var namespace = fw.namespace('commandDisposeTest');
     var handlerTriggered = false;
 
-    namespace.command.handler('testDispose', function markAsTriggered() {
+    namespace.command.handler('testDispose', function() {
       handlerTriggered = true;
     });
     namespace.dispose();
@@ -199,7 +199,7 @@ describe('namespace', function () {
     var namespace = fw.namespace('requestDisposeTest');
     var handlerTriggered = false;
 
-    namespace.request.handler('testDispose', function markAsTriggered() {
+    namespace.request.handler('testDispose', function() {
       handlerTriggered = true;
     });
     namespace.dispose();

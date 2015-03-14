@@ -1,7 +1,7 @@
 'use strict';
 
 describe('broadcast-receive', function () {
-  it('has the ability to create model with an observable that broadcasts', function() {
+  it('has the ability to create model with a broadcastable', function() {
     var ModelA = fw.viewModel({
       namespace: 'ModelA',
       initialize: function() {
@@ -11,10 +11,10 @@ describe('broadcast-receive', function () {
     var modelA = new ModelA();
 
     expect(ModelA).to.be.a('function');
-    expect(modelA.broadcaster).to.be.a('function');
+    expect(fw.isBroadcastable(modelA.broadcaster)).to.be(true);
   });
 
-  it('has the ability to create model with an observable that listens', function() {
+  it('has the ability to create model with a receivable', function() {
     var ModelB = fw.viewModel({
       namespace: 'ModelB',
       initialize: function() {
@@ -24,20 +24,7 @@ describe('broadcast-receive', function () {
     var modelB = new ModelB();
 
     expect(ModelB).to.be.a('function');
-    expect(modelB.receiver).to.be.a('function');
-  });
-
-  it('has the ability to create model with an observable that broadcasts', function() {
-    var ModelA = fw.viewModel({
-      namespace: 'ModelA',
-      initialize: function() {
-        this.broadcaster = fw.observable().broadcastAs('broadcaster');
-      }
-    });
-    var modelA = new ModelA();
-
-    expect(ModelA).to.be.a('function');
-    expect(modelA.broadcaster).to.be.a('function');
+    expect(fw.isReceivable(modelB.receiver)).to.be(true);
   });
 
   it('modelB receiver() can receive data from the modelA broadcaster()', function() {

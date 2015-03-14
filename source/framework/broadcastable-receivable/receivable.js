@@ -1,14 +1,10 @@
 // framework/broadcastable-receivable/receivable.js
 // ------------------
 
-isReceivable = function(thing) {
-  return isObject(thing) && !!thing.__isReceivable;
-}
-
 // factory method which turns an observable into a receivable
 fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   var target = this;
-  var observable = this;
+  var receivable = this;
   var namespaceSubscriptions = [];
   var isLocalNamespace = false;
   var when = alwaysPassPredicate;
@@ -22,14 +18,14 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
     throw 'Invalid namespace provided for receiveFrom() observable.';
   }
 
-  observable = fw.computed({
+  receivable = fw.computed({
     read: target,
     write: function( value ) {
       namespace.publish( '__change.' + variable, value );
     }
   });
 
-  observable.refresh = function() {
+  receivable.refresh = function() {
     namespace.publish( '__refresh.' + variable );
     return this;
   };
@@ -42,16 +38,16 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
     }
   }) );
 
-  var observableDispose = observable.dispose;
-  observable.dispose = function() {
+  var observableDispose = receivable.dispose;
+  receivable.dispose = function() {
     invoke(namespaceSubscriptions, 'unsubscribe');
     if( isLocalNamespace ) {
       namespace.dispose();
     }
-    observableDispose.call(observable);
+    observableDispose.call(receivable);
   };
 
-  observable.when = function(predicate) {
+  receivable.when = function(predicate) {
     if(isFunction(predicate)) {
       when = predicate;
     } else {
@@ -62,6 +58,6 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
     return this;
   };
 
-  observable.__isReceivable = true;
-  return observable.refresh();
+  receivable.__isReceivable = true;
+  return receivable.refresh();
 };

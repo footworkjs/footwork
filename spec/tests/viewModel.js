@@ -8,12 +8,13 @@ describe('viewModel', function () {
     expect(fw.viewModel()).to.be.a('function');
   });
 
-  it('has the ability to create a viewModel with a correctly defined namespace which we can retrieve', function() {
+  it('has the ability to create a viewModel with a correctly defined namespace whos name we can retrieve', function() {
     var ModelA = fw.viewModel({
       namespace: 'ModelA'
     });
     var modelA = new ModelA();
 
+    expect(modelA.$namespace).to.be.an('object');
     expect(modelA.getNamespaceName()).to.eql('ModelA');
   });
 
@@ -143,6 +144,36 @@ describe('viewModel', function () {
     expect(containerIsTheSame).to.be(true);
   });
 
+  it('after binding has the correct containing $element referenced', function(done) {
+    var hasElementReference = false;
+    var checkForReference;
+    var modelA;
+    var container = document.getElementById('afterBindingElementReference');
+
+    var ModelA = fw.viewModel({
+      namespace: 'ModelA',
+      afterBinding: function(containingElement) {
+        checkForReference();
+      }
+    });
+
+    checkForReference = function() {
+      if( _.isObject(modelA.$element) ) {
+        hasElementReference = true;
+      }
+
+      expect(modelA.$element).to.be.an('object');
+      expect(modelA.$element).to.be(container);
+      done();
+    };
+
+    modelA = new ModelA();
+
+    expect(hasElementReference).to.be(false);
+
+    fw.applyBindings(modelA, container);
+  });
+
   it('can register a viewModel', function() {
     expect( fw.components.isRegistered('registeredViewModelCheck') ).to.be(false);
 
@@ -253,11 +284,11 @@ describe('viewModel', function () {
      *
      * The following should work but does not:
      *
-     * expect(require.specified('test')).to.be(false);
+     * expect(require.specified('test')).to.be(false); // PASS
      *
      * define('test', [], function() {});
      *
-     * expect(require.specified('test')).to.be(true);
+     * expect(require.specified('test')).to.be(true); // FAIL
      *
      * It DOES work once your require() the module...but specified() is supposed to work without that.
      */

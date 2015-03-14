@@ -1,13 +1,9 @@
 // framework/broadcastable-receivable/broacastable.js
 // ------------------
 
-isBroadcastable = function(thing) {
-  return isObject(thing) && !!thing.__isBroadcastable;
-}
-
 // factory method which turns an observable into a broadcastable
 fw.subscribable.fn.broadcastAs = function(varName, option) {
-  var observable = this;
+  var broadcastable = this;
   var namespace;
   var subscriptions = [];
   var namespaceSubscriptions = [];
@@ -44,23 +40,23 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
 
   if( option.writable ) {
     namespaceSubscriptions.push( namespace.subscribe( '__change.' + option.name, function( newValue ) {
-      observable( newValue );
+      broadcastable( newValue );
     }) );
   }
 
-  observable.broadcast = function() {
-    namespace.publish( option.name, observable() );
+  broadcastable.broadcast = function() {
+    namespace.publish( option.name, broadcastable() );
     return this;
   };
 
   namespaceSubscriptions.push( namespace.subscribe( '__refresh.' + option.name, function() {
-    namespace.publish( option.name, observable() );
+    namespace.publish( option.name, broadcastable() );
   }) );
-  subscriptions.push( observable.subscribe(function( newValue ) {
+  subscriptions.push( broadcastable.subscribe(function( newValue ) {
     namespace.publish( option.name, newValue );
   }) );
 
-  observable.dispose = function() {
+  broadcastable.dispose = function() {
     invoke(namespaceSubscriptions, 'unsubscribe');
     invoke(subscriptions, 'dispose');
     if( isLocalNamespace ) {
@@ -68,6 +64,6 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
     }
   };
 
-  observable.__isBroadcastable = true;
-  return observable.broadcast();
+  broadcastable.__isBroadcastable = true;
+  return broadcastable.broadcast();
 };

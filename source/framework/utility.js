@@ -41,7 +41,7 @@ function emptyStringResult() { return ''; }
 
 // dispose a known property type
 function propertyDisposal( property, name ) {
-  if( (isNamespace(property) || isRouter(property) || isBroadcastable(property) || isReceivable(property) || isObservable(property)) && isFunction(property.dispose) ) {
+  if( (isObservable(property) || isNamespace(property) || isRouter(property) || fw.isBroadcastable(property) || fw.isReceivable(property)) && isFunction(property.dispose) ) {
     property.dispose();
   }
 }
