@@ -80,7 +80,7 @@ function initSpecialTag(tagName, element, valueAccessor, allBindings, viewModel,
 
             require([ resourceLocation ], bindModel);
           } else {
-            throw 'Uses require, but no AMD loader is present';
+            throw new Error('Uses require, but no AMD loader is present');
           }
         } else if( isFunction(resourceLocation) ) {
           bindModel( resourceLocation );

@@ -37,7 +37,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
       if( isString(config) ) {
         config = '<!-- ko $life -->' + config + '<!-- /ko -->';
       } else {
-        throw 'Unhandled config type ' + typeof config + '.';
+        throw new Error('Unhandled config type ' + typeof config + '.');
       }
       fw.components.defaultLoader.loadTemplate(componentName, config, callback);
     } else {

@@ -52,7 +52,7 @@ fw.bindingHandlers.$route = {
     } else if( !urlValue ) {
       routeHandlerDescription.url = element.getAttribute('href');
     } else {
-      throw 'Unknown type of url value provided to $route [' + typeof urlValue + ']';
+      throw new Error('Unknown type of url value provided to $route [' + typeof urlValue + ']');
     }
 
     var routeHandlerDescriptionURL = routeHandlerDescription.url;

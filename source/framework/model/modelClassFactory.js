@@ -5,6 +5,15 @@ function isBeforeInitMixin(mixin) {
   return !!mixin.runBeforeInit;
 }
 
+modelMixins.unshift({
+  runBeforeInit: true,
+  _preInit: function() {
+    if(this === windowObject) {
+      throw new Error('Must call the new operator when instantiating this type of object.');
+    }
+  }
+});
+
 function modelClassFactory(descriptor, configParams) {
   configParams = extend({
     namespace: undefined,
@@ -103,7 +112,7 @@ function modelClassFactory(descriptor, configParams) {
     var namespace = configParams.namespace;
     if( descriptor.resource.isRegistered(namespace) ) {
       if( descriptor.resource.getRegistered(namespace) !== model ) {
-        throw 'namespace [' + namespace + '] has already been registered, autoRegister failed.';
+        throw new Error('namespace [' + namespace + '] has already been registered, autoRegister failed.');
       }
     } else {
       descriptor.resource.register(namespace, model);

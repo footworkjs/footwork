@@ -6,7 +6,7 @@ var registerComponent = fw.components.register = function(componentName, options
   var viewModel = options.initialize || options.viewModel;
 
   if( !isString(componentName) ) {
-    throw 'Components must be provided a componentName.';
+    throw new Error('Components must be provided a componentName.');
   }
 
   if( isFunction(viewModel) && !isModelCtor(viewModel) ) {

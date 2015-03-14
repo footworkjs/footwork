@@ -74,7 +74,7 @@ function getModelReferences(descriptor, namespaceName, options) {
     options.namespaceName = namespaceName;
   }
 
-  return reduce( $globalNamespace.request(descriptor.referenceNamespace, extend({ includeOutlets: false }, options), true), function(models, model) {
+  var references = reduce( $globalNamespace.request(descriptor.referenceNamespace, extend({ includeOutlets: false }, options), true), function(models, model) {
     if( !isUndefined(model) ) {
       var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
       if( !isNull(namespaceName) ) {
@@ -90,6 +90,12 @@ function getModelReferences(descriptor, namespaceName, options) {
     }
     return models;
   }, {});
+
+  var referenceKeys = keys(references);
+  if(isString(namespaceName) && referenceKeys.length === 1) {
+    return references[referenceKeys[0]];
+  }
+  return references;
 }
 
 // assemble all resource methods for a given descriptor object

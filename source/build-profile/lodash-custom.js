@@ -35,9 +35,9 @@ root._ = {
   isEqual: require('../../node_modules/lodash/lang/isEqual'),
   defaults: require('../../node_modules/lodash/object/defaults'),
   noop: require('../../node_modules/lodash/utility/noop'),
+  keys: require('../../node_modules/lodash/object/keys'),
 
   // required for postal.js specifically (ref: postal.js/lib/postal.lodash.js)
-  keys: require('../../node_modules/lodash/object/keys'),
   after: require('../../node_modules/lodash/function/after'),
   any: require('../../node_modules/lodash/collection/any'),
   debounce: require('../../node_modules/lodash/function/debounce'),

@@ -17,7 +17,7 @@ fw.bindingHandlers.$bind = {
       // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
       outletViewModel.$route = $parentRouter.$outlet( outletName );
     } else {
-      throw 'Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.getNamespaceName() + '] but no router was defined.';
+      throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.getNamespaceName() + '] but no router was defined.');
     }
   }
 };

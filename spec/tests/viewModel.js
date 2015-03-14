@@ -182,6 +182,36 @@ describe('viewModel', function () {
     expect( fw.viewModels.isRegistered('registeredViewModelCheck') ).to.be(true);
   });
 
+  it('can get a registered viewModel', function() {
+    expect( fw.components.isRegistered('registeredViewModelRetrieval') ).to.be(false);
+
+    var RegisteredViewModelRetrieval = function() {};
+
+    fw.viewModels.register('registeredViewModelRetrieval', RegisteredViewModelRetrieval);
+
+    expect( fw.viewModels.isRegistered('registeredViewModelRetrieval') ).to.be(true);
+    expect( fw.viewModels.getRegistered('registeredViewModelRetrieval') ).to.be(RegisteredViewModelRetrieval);
+  });
+
+  it('can get all instantiated viewModels', function() {
+    var ViewModel = fw.viewModel();
+    var viewModels = [ new ViewModel(), new ViewModel() ];
+
+    expect( _.keys(fw.viewModels.getAll()).length ).to.be.greaterThan(0);
+  });
+
+  it('can get all instantiated viewModels of a specific type/name', function() {
+    var viewModels = [];
+    var ViewModel = fw.viewModel({ namespace: 'getAllSpecificViewModel' });
+    var numToMake = _.random(3,15);
+
+    for(var x = numToMake; x; x--) {
+      viewModels.push( new ViewModel() );
+    }
+
+    expect( fw.viewModels.getAll('getAllSpecificViewModel').length ).to.be(numToMake);
+  });
+
   it('can autoRegister a viewModel during class method creation', function() {
     var isRegistered = fw.viewModels.isRegistered('autoRegisteredViewModel');
 

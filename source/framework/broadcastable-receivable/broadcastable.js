@@ -35,7 +35,7 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
   }
 
   if( !isNamespace(namespace) ) {
-    throw 'Invalid namespace provided for broadcastAs() observable.';
+    throw new Error('Invalid namespace provided for broadcastAs() observable.');
   }
 
   if( option.writable ) {
