@@ -153,26 +153,59 @@ describe('namespace', function () {
     expect(commandHandled).to.be(false);
   });
 
-  it('can unregister all types of handlers when namespace is disposed', function() {
-    var namespace = fw.namespace('disposeTest');
+  it('can unregister subscription handlers when namespace is disposed', function() {
+    var namespace = fw.namespace('subscriptionDisposeTest');
     var handlerTriggered = false;
 
-    function markAsTriggered() {
+    namespace.subscribe('testDispose', function markAsTriggered() {
       handlerTriggered = true;
-    }
+    });
+    namespace.dispose();
 
-    namespace.command.handler('testDispose', markAsTriggered);
-    namespace.request.handler('testDispose', markAsTriggered);
-    namespace.event.handler('testDispose', markAsTriggered);
-    namespace.subscribe('testDispose', markAsTriggered);
+    expect(handlerTriggered).to.be(false);
+    namespace.publish('testDispose');
+    expect(handlerTriggered).to.be(false);
+  });
 
+  it('can unregister event handlers when namespace is disposed', function() {
+    var namespace = fw.namespace('eventDisposeTest');
+    var handlerTriggered = false;
+
+    namespace.event.handler('testDispose', function markAsTriggered() {
+      handlerTriggered = true;
+    });
+    namespace.dispose();
+
+    expect(handlerTriggered).to.be(false);
+    namespace.trigger('testDispose');
+    expect(handlerTriggered).to.be(false);
+  });
+
+  it('can unregister command handlers when namespace is disposed', function() {
+    var namespace = fw.namespace('commandDisposeTest');
+    var handlerTriggered = false;
+
+    namespace.command.handler('testDispose', function markAsTriggered() {
+      handlerTriggered = true;
+    });
     namespace.dispose();
 
     expect(handlerTriggered).to.be(false);
     namespace.command('testDispose');
+    expect(handlerTriggered).to.be(false);
+  });
+
+  it('can unregister request handlers when namespace is disposed', function() {
+    var namespace = fw.namespace('requestDisposeTest');
+    var handlerTriggered = false;
+
+    namespace.request.handler('testDispose', function markAsTriggered() {
+      handlerTriggered = true;
+    });
+    namespace.dispose();
+
+    expect(handlerTriggered).to.be(false);
     namespace.request('testDispose');
-    namespace.trigger('testDispose');
-    namespace.publish('testDispose');
     expect(handlerTriggered).to.be(false);
   });
 });

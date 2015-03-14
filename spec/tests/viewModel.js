@@ -187,6 +187,38 @@ describe('viewModel', function () {
     }, 0);
   });
 
+  it('can nest <viewModel> declarations', function(done) {
+    var container = document.getElementById('nestedViewModels');
+    var outerWasInitialized = false;
+    var innerWasInitialized = false;
+
+    fw.viewModel({
+      namespace: 'nestedViewModelOuter',
+      autoRegister: true,
+      initialize: function() {
+        outerWasInitialized = true;
+      }
+    });
+
+    fw.viewModel({
+      namespace: 'nestedViewModelInner',
+      autoRegister: true,
+      initialize: function() {
+        innerWasInitialized = true;
+      }
+    });
+
+    expect(outerWasInitialized).to.be(false);
+    expect(innerWasInitialized).to.be(false);
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(outerWasInitialized).to.be(true);
+      expect(innerWasInitialized).to.be(true);
+      done();
+    }, 0);
+  });
+
   it('calls onDispose when the containing element is removed from the DOM', function() {
     var container = document.getElementById('onDispose');
     var onDisposeWasCalled = false;
