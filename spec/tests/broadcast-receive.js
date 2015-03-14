@@ -142,7 +142,7 @@ describe('broadcast-receive', function () {
     var modelB = new ModelB();
 
     modelA.broadcaster('value-that-should-NOT-be-visible-from-ModelB');
-    expect(modelB.receiver()).not.to.eql('value-that-should-NOT-be-visible-from-ModelB');
+    expect(modelB.receiver()).to.eql(undefined);
   });
 
   it('receivable with .when() sees correct value passed to it in the callback', function() {

@@ -157,18 +157,14 @@ describe('namespace', function () {
     var namespace = fw.namespace('disposeTest');
     var handlerTriggered = false;
 
-    namespace.command.handler('testDispose', function() {
+    function markAsTriggered() {
       handlerTriggered = true;
-    });
-    namespace.request.handler('testDispose', function() {
-      handlerTriggered = true;
-    });
-    namespace.event.handler('testDispose', function() {
-      handlerTriggered = true;
-    });
-    namespace.subscribe('testDispose', function() {
-      handlerTriggered = true;
-    });
+    }
+
+    namespace.command.handler('testDispose', markAsTriggered);
+    namespace.request.handler('testDispose', markAsTriggered);
+    namespace.event.handler('testDispose', markAsTriggered);
+    namespace.subscribe('testDispose', markAsTriggered);
 
     namespace.dispose();
 

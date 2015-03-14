@@ -17,6 +17,46 @@ describe('viewModel', function () {
     expect(modelA.getNamespaceName()).to.eql('ModelA');
   });
 
+  it('correctly names and increments counter for indexed viewModels', function() {
+    var IndexedViewModel = fw.viewModel({
+      namespace: 'IndexedViewModel',
+      autoIncrement: true
+    });
+
+    var firstViewModel = new IndexedViewModel();
+    var secondViewModel = new IndexedViewModel();
+    var thirdViewModel = new IndexedViewModel();
+
+    expect(firstViewModel.getNamespaceName()).to.eql('IndexedViewModel0');
+    expect(secondViewModel.getNamespaceName()).to.eql('IndexedViewModel1');
+    expect(thirdViewModel.getNamespaceName()).to.eql('IndexedViewModel2');
+  });
+
+  it('correctly applies a mixin to a viewModel', function() {
+    var ViewModelWithMixin = fw.viewModel({
+      namespace: 'ViewModelWithMixin',
+      mixins: [
+        {
+          _preInit: function() {
+            this.preInitRan = true;
+          },
+          mixin: {
+            mixinPresent: true
+          },
+          _postInit: function() {
+            this.postInitRan = true;
+          }
+        }
+      ]
+    });
+
+    var viewModel = new ViewModelWithMixin();
+
+    expect(viewModel.preInitRan).to.be(true);
+    expect(viewModel.mixinPresent).to.be(true);
+    expect(viewModel.postInitRan).to.be(true);
+  });
+
   it('has the ability to create nested viewModels with correctly defined namespaces', function() {
     var ModelA = fw.viewModel({
       namespace: 'ModelA',
@@ -145,46 +185,6 @@ describe('viewModel', function () {
       expect(wasInitialized).to.be(true);
       done();
     }, 0);
-  });
-
-  it('correctly names and increments counter for indexed viewModels', function() {
-    var IndexedViewModel = fw.viewModel({
-      namespace: 'IndexedViewModel',
-      autoIncrement: true
-    });
-
-    var firstViewModel = new IndexedViewModel();
-    var secondViewModel = new IndexedViewModel();
-    var thirdViewModel = new IndexedViewModel();
-
-    expect(firstViewModel.getNamespaceName()).to.eql('IndexedViewModel0');
-    expect(secondViewModel.getNamespaceName()).to.eql('IndexedViewModel1');
-    expect(thirdViewModel.getNamespaceName()).to.eql('IndexedViewModel2');
-  });
-
-  it('correctly applies a mixin to a viewModel', function() {
-    var ViewModelWithMixin = fw.viewModel({
-      namespace: 'ViewModelWithMixin',
-      mixins: [
-        {
-          _preInit: function() {
-            this.preInitRan = true;
-          },
-          mixin: {
-            mixinPresent: true
-          },
-          _postInit: function() {
-            this.postInitRan = true;
-          }
-        }
-      ]
-    });
-
-    var viewModel = new ViewModelWithMixin();
-
-    expect(viewModel.preInitRan).to.be(true);
-    expect(viewModel.mixinPresent).to.be(true);
-    expect(viewModel.postInitRan).to.be(true);
   });
 
   it('calls onDispose when the containing element is removed from the DOM', function() {
