@@ -2,7 +2,7 @@
 // ------------------
 
 fw.components.getNormalTagList = function() {
-  return nonComponentTags.splice(0);
+  return clone(nonComponentTags);
 };
 
 fw.components.getComponentNameForNode = function(node) {

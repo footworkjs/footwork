@@ -48,15 +48,6 @@ fw.components.getFileName = function(componentName, fileType) {
     return null;
   }
 
-  switch(fileType) {
-    case 'viewModel':
-      fileType = 'viewModel';
-      break;
-    case 'template':
-      fileType = 'template';
-      break;
-  }
-
   if( !isUndefined( fw.components.resourceLocations[componentName] ) ) {
     var registeredLocation = fw.components.resourceLocations[componentName];
     if( !isUndefined(registeredLocation[fileType]) && !isPath(registeredLocation[fileType]) ) {
@@ -97,7 +88,7 @@ fw.components.registerLocation = function(componentName, componentLocation) {
     });
   }
 
-  fw.components.resourceLocations[ componentName ] = extend({}, baseComponentLocation, componentLocation);//fw.components.defaultLocation(componentLocation, false);;
+  fw.components.resourceLocations[ componentName ] = extend({}, baseComponentLocation, componentLocation);
 };
 
 fw.components.locationIsRegistered = function(componentName) {

@@ -81,6 +81,70 @@ describe('components', function () {
     }, 150);
   });
 
+  it('can set and return fileExtensions correctly', function() {
+    var extensions = {
+      combined: '.combinedTest',
+      viewModel: '.viewModelTest',
+      template: '.templateTest'
+    };
+    fw.components.fileExtensions(extensions);
+
+    expect(fw.components.fileExtensions()).to.eql(extensions);
+
+    // reset extensions back to normal
+    fw.components.fileExtensions({
+      combined: '.js',
+      viewModel: '.js',
+      template: '.html'
+    });
+  });
+
+  it('can set fileExtensions via a callback', function() {
+    function prependName(name, withName) {
+      return _.reduce({
+        combined: '.' + name + 'combinedTest',
+        viewModel: '.' + name + 'viewModelTest',
+        template: '.' + name + 'templateTest'
+      }, function(ext, extension, property) {
+        ext[property] = (withName ? name : '') + extension;
+        return ext;
+      }, {});
+    }
+
+    fw.components.fileExtensions(function getFileExtensions(componentName) {
+      if(componentName === 'comp1') {
+        return prependName('comp1');
+      }
+
+      return prependName('comp2');
+    });
+
+    var comp1Check = prependName('comp1', true);
+    var comp2Check = prependName('comp2', true);
+
+    expect(fw.components.getFileName('comp1', 'viewModel')).to.eql(comp1Check.viewModel);
+    expect(fw.components.getFileName('comp2', 'viewModel')).to.eql(comp2Check.viewModel);
+
+    // reset extensions back to normal
+    fw.components.fileExtensions({
+      combined: '.js',
+      viewModel: '.js',
+      template: '.html'
+    });
+  });
+
+  it('can get the normal tag list', function() {
+    var tagList = fw.components.getNormalTagList();
+    expect(tagList).to.contain('div');
+    expect(tagList).to.contain('span');
+    expect(tagList).to.contain('canvas');
+  });
+
+  it('can set a tag as not being a component', function() {
+    fw.components.tagIsComponent('test-not-component', false);
+    expect(fw.components.tagIsComponent('test-not-component')).to.be(false);
+  });
+
   it('can specify and load via the default location', function(done) {
     var container = document.getElementById('defaultComponentLocation');
     window.defaultComponentLocationLoaded = false;
@@ -164,7 +228,7 @@ describe('components', function () {
     }, 150);
   });
 
-  it('can have a component registered as template only which is resolved and injected correctly', function(done) {
+  it('can be registered as template only which is resolved and injected correctly', function(done) {
     var container = document.getElementById('templateOnlyComponent');
     var innerViewModelInstantiated = false;
 
