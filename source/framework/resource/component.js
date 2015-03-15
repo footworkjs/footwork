@@ -50,10 +50,10 @@ fw.components.getFileName = function(componentName, fileType) {
 
   switch(fileType) {
     case 'viewModel':
-      fileType = 'viewModels';
+      fileType = 'viewModel';
       break;
     case 'template':
-      fileType = 'templates';
+      fileType = 'template';
       break;
   }
 
@@ -75,26 +75,14 @@ fw.components.getFileName = function(componentName, fileType) {
 fw.components.defaultLocation = function(root, updateDefault) {
   var componentLocation = (isUndefined(updateDefault) || updateDefault === true) ? defaultComponentLocation : clone(defaultComponentLocation);
 
-  if( isObject(root) ) {
-    // assume some combination of defaultComponentLocation and normalize the parameters
-    extend(componentLocation, reduce(root, function(options, paramValue, paramName) {
-      if(paramName === 'viewModel') {
-        options.viewModels = paramValue;
-        delete options.viewModel;
-      } else if(paramName === 'template') {
-        options.templates = paramValue;
-        delete options.template;
-      } else {
-        options[paramName] = paramValue;
-      }
-      return options;
-    }, {}));
-  } else if( isString(root) ) {
+  if( isString(root) ) {
     componentLocation = {
       combined: root,
-      viewModels: null,
-      templates: null
+      viewModel: null,
+      template: null
     };
+  } else {
+    extend(componentLocation, root);
   }
 
   return componentLocation;
@@ -106,7 +94,11 @@ fw.components.registerLocation = function(componentName, componentLocation) {
       fw.components.registerLocation(name, componentLocation);
     });
   }
-  fw.components.resourceLocations[ componentName ] = fw.components.defaultLocation(componentLocation, false);
+
+  // console.log(JSON.stringify(fw.components.defaultLocation(componentLocation, false)));
+  // console.log(JSON.stringify(extend({}, baseComponentLocation, componentLocation)));
+
+  fw.components.resourceLocations[ componentName ] = fw.components.defaultLocation(componentLocation, false);;
 };
 
 fw.components.locationIsRegistered = function(componentName) {

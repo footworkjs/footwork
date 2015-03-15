@@ -5,6 +5,10 @@ function isBeforeInitMixin(mixin) {
   return !!mixin.runBeforeInit;
 }
 
+function mixin(thing) {
+  return ( (isArray(thing) && thing.length) || isObject(thing) ? thing : {} );
+}
+
 function modelClassFactory(descriptor, configParams) {
   configParams = extend({
     namespace: undefined,
@@ -81,16 +85,13 @@ function modelClassFactory(descriptor, configParams) {
     });
 
     var composure = [ ctor ].concat(
-      isModelDuckTagMixin,
-      afterInitCallbackMixin,
-      afterInitMixins,
-      initModelMixin,
-      beforeInitMixins
+      mixin(afterInitCallbackMixin),
+      mixin(afterInitMixins),
+      mixin(configParams.mixins),
+      mixin(initModelMixin),
+      mixin(beforeInitMixins),
+      mixin(isModelDuckTagMixin)
     );
-
-    if( !isUndefined(configParams.mixins) ) {
-      composure = composure.concat(configParams.mixins);
-    }
 
     var model = riveter.compose.apply( undefined, composure );
     model[ descriptor.isModelCtorDuckTag ] = true;
@@ -108,7 +109,7 @@ function modelClassFactory(descriptor, configParams) {
     var namespace = configParams.namespace;
     if( descriptor.resource.isRegistered(namespace) ) {
       if( descriptor.resource.getRegistered(namespace) !== model ) {
-        throw new Error('namespace [' + namespace + '] has already been registered as a ' + descriptor.methodName + ', autoRegister failed.');
+        throw new Error('"' + namespace + '" has already been registered as a ' + descriptor.methodName + ', autoRegister failed.');
       }
     } else {
       descriptor.resource.register(namespace, model);

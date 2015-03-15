@@ -102,8 +102,8 @@ describe('components', function () {
 
   it('can specify a location and verify it', function() {
     var location = {
-      viewModels: 'scripts/testAssets/registeredComponentLocation/',
-      templates: 'testAssets/registeredComponentLocation/'
+      viewModel: 'scripts/testAssets/registeredComponentLocation/',
+      template: 'testAssets/registeredComponentLocation/'
     };
     fw.components.registerLocation('registered-component-location-verify', location);
 

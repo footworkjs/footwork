@@ -32,8 +32,8 @@ fw.components.loaders.push( fw.components.requireLoader = {
           require: combinedPath
         };
       } else {
-        viewModelPath = componentLocation.viewModels;
-        templatePath = 'text!' + componentLocation.templates;
+        viewModelPath = componentLocation.viewModel;
+        templatePath = 'text!' + componentLocation.template;
 
         if( isPath(viewModelPath) ) {
           viewModelPath = viewModelPath + viewModelFile;

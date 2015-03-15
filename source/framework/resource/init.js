@@ -1,6 +1,12 @@
 // framework/resource/init.js
 // ------------------
 
+var baseComponentLocation = {
+  combined: null,
+  viewModel: null,
+  template: null
+};
+
 var originalComponentRegisterFunc = fw.components.register;
 
 var defaultComponentFileExtensions = {
@@ -9,9 +15,8 @@ var defaultComponentFileExtensions = {
   template: '.html'
 };
 
-var defaultComponentLocation = {
-  combined: null,
-  viewModels: '/viewModel/',
-  templates: '/component/'
-};
+var defaultComponentLocation = extend({}, baseComponentLocation, {
+  viewModel: '/viewModel/',
+  template: '/component/'
+});
 
