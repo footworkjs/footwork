@@ -112,11 +112,7 @@ describe('components', function () {
     }
 
     fw.components.fileExtensions(function getFileExtensions(componentName) {
-      if(componentName === 'comp1') {
-        return prependName('comp1');
-      }
-
-      return prependName('comp2');
+      return prependName(componentName);
     });
 
     var comp1Check = prependName('comp1', true);
@@ -141,6 +137,7 @@ describe('components', function () {
   });
 
   it('can set a tag as not being a component', function() {
+    expect(fw.components.tagIsComponent('test-not-component')).to.be(true);
     fw.components.tagIsComponent('test-not-component', false);
     expect(fw.components.tagIsComponent('test-not-component')).to.be(false);
   });
