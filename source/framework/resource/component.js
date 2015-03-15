@@ -72,20 +72,16 @@ fw.components.getFileName = function(componentName, fileType) {
   return fileName + (fileExtension !== getFilenameExtension(fileName) ? ('.' + fileExtension) : '');
 };
 
-fw.components.defaultLocation = function(root, updateDefault) {
-  var componentLocation = (isUndefined(updateDefault) || updateDefault === true) ? defaultComponentLocation : clone(defaultComponentLocation);
-
-  if( isString(root) ) {
-    componentLocation = {
-      combined: root,
-      viewModel: null,
-      template: null
-    };
-  } else {
-    extend(componentLocation, root);
+fw.components.defaultLocation = function(location) {
+  if( isString(location) ) {
+    defaultComponentLocation = extend({}, baseComponentLocation, {
+      combined: location
+    });
+  } else if(isObject(location)) {
+    defaultComponentLocation = extend({}, baseComponentLocation, location);
   }
 
-  return componentLocation;
+  return defaultComponentLocation;
 };
 
 fw.components.registerLocation = function(componentName, componentLocation) {
@@ -95,10 +91,13 @@ fw.components.registerLocation = function(componentName, componentLocation) {
     });
   }
 
-  // console.log(JSON.stringify(fw.components.defaultLocation(componentLocation, false)));
-  // console.log(JSON.stringify(extend({}, baseComponentLocation, componentLocation)));
+  if( isString(componentLocation) ) {
+    componentLocation = extend({}, baseComponentLocation, {
+      combined: componentLocation
+    });
+  }
 
-  fw.components.resourceLocations[ componentName ] = fw.components.defaultLocation(componentLocation, false);;
+  fw.components.resourceLocations[ componentName ] = extend({}, baseComponentLocation, componentLocation);//fw.components.defaultLocation(componentLocation, false);;
 };
 
 fw.components.locationIsRegistered = function(componentName) {

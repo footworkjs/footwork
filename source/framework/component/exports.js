@@ -14,22 +14,6 @@ fw.components.getComponentNameForNode = function(node) {
   return null;
 };
 
-// Mark a component as consisting of a template only.
-// This will cause footwork to load only the template when this component is used.
-fw.components.isTemplateOnly = function(componentName, isTemplateOnly) {
-  isTemplateOnly = (isUndefined(isTemplateOnly) ? true : isTemplateOnly);
-  if( isArray(componentName) ) {
-    each(componentName, function(compName) {
-      fw.components.isTemplateOnly(compName, isTemplateOnly);
-    });
-  }
-
-  componentIsTemplateOnly[componentName] = isTemplateOnly;
-  if( !isArray(componentName) ) {
-    return componentIsTemplateOnly[componentName] || 'normal';
-  }
-};
-
 fw.components.tagIsComponent = function(tagName, isComponent) {
   if( isUndefined(isComponent) ) {
     return indexOf(nonComponentTags, tagName) === -1;

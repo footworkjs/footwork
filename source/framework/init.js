@@ -22,7 +22,6 @@ var runPostInit = [];
 var nativeComponents = [];
 var specialTagDescriptors = [];
 var modelMixins = [];
-var componentIsTemplateOnly = [];
 var $routerOutlet;
 
 var $globalNamespace;

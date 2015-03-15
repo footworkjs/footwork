@@ -13,6 +13,7 @@ fw.components.loaders.push( fw.components.requireLoader = {
     var viewModelPath;
     var templatePath;
     var combinedPath;
+    var viewModelConfig;
 
     if( isFunction(require) ) {
       // load component using knockouts native support for requirejs
@@ -32,27 +33,30 @@ fw.components.loaders.push( fw.components.requireLoader = {
           require: combinedPath
         };
       } else {
-        viewModelPath = componentLocation.viewModel;
-        templatePath = 'text!' + componentLocation.template;
+        // check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)
+        if( !isString(componentLocation.viewModel) ) {
+          // template-only component, substitute with 'blank' viewModel
+          viewModelConfig = { instance: {} };
+        } else {
+          viewModelPath = componentLocation.viewModel;
 
-        if( isPath(viewModelPath) ) {
-          viewModelPath = viewModelPath + viewModelFile;
+          if( isPath(viewModelPath) ) {
+            viewModelPath = viewModelPath + viewModelFile;
+          }
+
+          if( getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel') ) {
+            viewModelPath += '.' + getComponentExtension(componentName, 'viewModel');
+          }
+
+          viewModelConfig = { require: viewModelPath };
         }
+
+        templatePath = 'text!' + componentLocation.template;
         if( isPath(templatePath) ) {
           templatePath = templatePath + templateFile;
         }
-
-        if( getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel') ) {
-          viewModelPath += '.' + getComponentExtension(componentName, 'viewModel');
-        }
         if( getFilenameExtension(templatePath) !== getComponentExtension(componentName, 'template') ) {
           templatePath += '.' + getComponentExtension(componentName, 'template');
-        }
-
-        // check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)
-        var viewModelConfig = { require: viewModelPath };
-        if( componentIsTemplateOnly[componentName] ) {
-          viewModelConfig = { instance: {} };
         }
 
         configOptions = {

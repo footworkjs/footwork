@@ -163,4 +163,24 @@ describe('components', function () {
       done();
     }, 150);
   });
+
+  it('can have a component registered as template only which is resolved and injected correctly', function(done) {
+    var container = document.getElementById('templateOnlyComponent');
+    var innerViewModelInstantiated = false;
+
+    fw.components.registerLocation('template-only-component', { template: 'testAssets/' });
+    fw.viewModels.register('templateOnlyInnerCheck', fw.viewModel({
+      initialize: function() {
+        innerViewModelInstantiated = true;
+      }
+    }));
+
+    expect(innerViewModelInstantiated).to.be(false);
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(innerViewModelInstantiated).to.be(true);
+      done();
+    }, 150);
+  });
 });
