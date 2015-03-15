@@ -2341,15 +2341,6 @@ fw.components.getFileName = function(componentName, fileType) {
     return null;
   }
 
-  switch(fileType) {
-    case 'viewModel':
-      fileType = 'viewModel';
-      break;
-    case 'template':
-      fileType = 'template';
-      break;
-  }
-
   if( !isUndefined( fw.components.resourceLocations[componentName] ) ) {
     var registeredLocation = fw.components.resourceLocations[componentName];
     if( !isUndefined(registeredLocation[fileType]) && !isPath(registeredLocation[fileType]) ) {
@@ -3524,7 +3515,7 @@ extend(fw.outlets, {
 // ------------------
 
 fw.components.getNormalTagList = function() {
-  return nonComponentTags.splice(0);
+  return clone(nonComponentTags);
 };
 
 fw.components.getComponentNameForNode = function(node) {
