@@ -5,11 +5,19 @@ function isBeforeInitMixin(mixin) {
   return !!mixin.runBeforeInit;
 }
 
-function mixin(thing) {
+function modelMixin(thing) {
   return ( (isArray(thing) && thing.length) || isObject(thing) ? thing : {} );
 }
 
+function newInstanceCheck() {
+  if(this === windowObject) {
+    throw new Error('Must call the new operator when instantiating a new ' + descriptor.methodName + '.');
+  }
+}
+
 function modelClassFactory(descriptor, configParams) {
+  var model = null;
+
   configParams = extend({
     namespace: undefined,
     name: undefined,
@@ -68,32 +76,28 @@ function modelClassFactory(descriptor, configParams) {
     isModelDuckTagMixin[descriptor.isModelDuckTag] = true;
     isModelDuckTagMixin = { mixin: isModelDuckTagMixin };
 
+    var newInstanceCheckMixin = { _preInit: newInstanceCheck };
     var afterInitCallbackMixin = { _postInit: configParams.afterInit || noop };
     var afterInitMixins = reject(modelMixins, isBeforeInitMixin);
-    var beforeInitMixins = filter(modelMixins, isBeforeInitMixin);
-
-    each(beforeInitMixins, function(mixin) {
+    var beforeInitMixins = map(filter(modelMixins, isBeforeInitMixin), function(mixin) {
       delete mixin.runBeforeInit;
-    });
-
-    afterInitMixins.unshift({
-      _preInit: function() {
-        if(this === windowObject) {
-          throw new Error('Must call the new operator when instantiating a new ' + descriptor.methodName + '.');
-        }
-      }
+      return mixin;
     });
 
     var composure = [ ctor ].concat(
-      mixin(afterInitCallbackMixin),
-      mixin(afterInitMixins),
-      mixin(configParams.mixins),
-      mixin(initModelMixin),
-      mixin(beforeInitMixins),
-      mixin(isModelDuckTagMixin)
+      // latest in execution
+      modelMixin(afterInitCallbackMixin),
+      modelMixin(afterInitMixins),
+      modelMixin(configParams.mixins),
+      modelMixin(initModelMixin),
+      modelMixin(beforeInitMixins),
+      modelMixin(isModelDuckTagMixin),
+      modelMixin(newInstanceCheckMixin)
+      // earliest in execution
     );
 
-    var model = riveter.compose.apply( undefined, composure );
+    model = riveter.compose.apply( undefined, composure );
+
     model[ descriptor.isModelCtorDuckTag ] = true;
     model.__configParams = configParams;
   } else {
@@ -101,7 +105,7 @@ function modelClassFactory(descriptor, configParams) {
     model = ctor;
   }
 
-  if( !isUndefined(configParams.parent) ) {
+  if( !isNull(model) && isFunction(configParams.parent) ) {
     model.inherits(configParams.parent);
   }
 
