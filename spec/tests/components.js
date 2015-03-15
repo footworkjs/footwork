@@ -100,6 +100,16 @@ describe('components', function () {
     }, 150);
   });
 
+  it('can specify a location and verify it', function() {
+    var location = {
+      viewModels: 'scripts/testAssets/registeredComponentLocation/',
+      templates: 'testAssets/registeredComponentLocation/'
+    };
+    fw.components.registerLocation('registered-component-location-verify', location);
+
+    expect(fw.components.getLocation('registered-component-location-verify')).to.eql(location);
+  });
+
   it('can specify and load via a registered location', function(done) {
     var container = document.getElementById('registeredComponentLocation');
     window.registeredComponentLocationLoaded = false;

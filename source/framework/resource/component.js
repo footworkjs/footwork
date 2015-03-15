@@ -1,8 +1,11 @@
 // framework/resource/component.js
 // ------------------
 
-var originalComponentRegisterFunc = fw.components.register;
-var registerComponent = fw.components.register = function(componentName, options) {
+fw.components.resourceLocations = {};
+
+fw.components.fileExtensions = fw.observable( clone(defaultComponentFileExtensions) );
+
+fw.components.register = function(componentName, options) {
   var viewModel = options.initialize || options.viewModel;
 
   if( !isString(componentName) ) {
@@ -15,22 +18,13 @@ var registerComponent = fw.components.register = function(componentName, options
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || fw.viewModel(),
+    viewModel: viewModel || noop,
     template: options.template
   });
 };
 
-var defaultComponentFileExtensions = {
-  combined: '.js',
-  viewModel: '.js',
-  template: '.html'
-};
-
-var componentFileExtensions = fw.components.fileExtensions = fw.observable( clone(defaultComponentFileExtensions) );
-var componentIsRegistered = fw.components.isRegistered;
-
 function getComponentExtension(componentName, fileType) {
-  var componentExtensions = componentFileExtensions();
+  var componentExtensions = fw.components.fileExtensions();
   var fileExtension = '';
 
   if( isFunction(componentExtensions) ) {
@@ -46,11 +40,11 @@ function getComponentExtension(componentName, fileType) {
   return fileExtension.replace(/^\./, '') || '';
 }
 
-var getComponentFileName = fw.components.getFileName = function(componentName, fileType) {
+fw.components.getFileName = function(componentName, fileType) {
   var fileName = componentName;
   var fileExtension = getComponentExtension(componentName, fileType);
 
-  if( componentIsRegistered(componentName) ) {
+  if( fw.components.isRegistered(componentName) ) {
     return null;
   }
 
@@ -63,8 +57,8 @@ var getComponentFileName = fw.components.getFileName = function(componentName, f
       break;
   }
 
-  if( !isUndefined( componentResourceLocations[componentName] ) ) {
-    var registeredLocation = componentResourceLocations[componentName];
+  if( !isUndefined( fw.components.resourceLocations[componentName] ) ) {
+    var registeredLocation = fw.components.resourceLocations[componentName];
     if( !isUndefined(registeredLocation[fileType]) && !isPath(registeredLocation[fileType]) ) {
       if( isString(registeredLocation[fileType]) ) {
         // full filename was supplied, lets return that
@@ -78,13 +72,7 @@ var getComponentFileName = fw.components.getFileName = function(componentName, f
   return fileName + (fileExtension !== getFilenameExtension(fileName) ? ('.' + fileExtension) : '');
 };
 
-var defaultComponentLocation = {
-  combined: null,
-  viewModels: '/viewModel/',
-  templates: '/component/'
-};
-var componentResourceLocations = fw.components.resourceLocations = {};
-var componentDefaultLocation = fw.components.defaultLocation = function(root, updateDefault) {
+fw.components.defaultLocation = function(root, updateDefault) {
   var componentLocation = (isUndefined(updateDefault) || updateDefault === true) ? defaultComponentLocation : clone(defaultComponentLocation);
 
   if( isObject(root) ) {
@@ -118,17 +106,17 @@ fw.components.registerLocation = function(componentName, componentLocation) {
       fw.components.registerLocation(name, componentLocation);
     });
   }
-  componentResourceLocations[ componentName ] = componentDefaultLocation(componentLocation, false);
+  fw.components.resourceLocations[ componentName ] = fw.components.defaultLocation(componentLocation, false);
 };
 
-var locationIsRegisteredForComponent = fw.components.locationIsRegistered = function(componentName) {
-  return !isUndefined(componentResourceLocations[componentName]);
+fw.components.locationIsRegistered = function(componentName) {
+  return !isUndefined(fw.components.resourceLocations[componentName]);
 };
 
 // Return the component resource definition for the supplied componentName
-var getComponentResourceLocation = fw.components.getLocation = function(componentName) {
+fw.components.getLocation = function(componentName) {
   if( isUndefined(componentName) ) {
-    return componentResourceLocations;
+    return fw.components.resourceLocations;
   }
-  return componentResourceLocations[componentName] || defaultComponentLocation;
+  return _.omit(fw.components.resourceLocations[componentName] || defaultComponentLocation, _.isNull);
 };

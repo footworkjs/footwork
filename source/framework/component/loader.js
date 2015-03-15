@@ -5,10 +5,10 @@
 // The loader will attempt to use requirejs via knockouts integrated support if it is available.
 fw.components.loaders.push( fw.components.requireLoader = {
   getConfig: function(componentName, callback) {
-    var combinedFile = getComponentFileName(componentName, 'combined');
-    var viewModelFile = getComponentFileName(componentName, 'viewModel');
-    var templateFile = getComponentFileName(componentName, 'template');
-    var componentLocation = getComponentResourceLocation(componentName);
+    var combinedFile = fw.components.getFileName(componentName, 'combined');
+    var viewModelFile = fw.components.getFileName(componentName, 'viewModel');
+    var templateFile = fw.components.getFileName(componentName, 'template');
+    var componentLocation = fw.components.getLocation(componentName);
     var configOptions = null;
     var viewModelPath;
     var templatePath;
