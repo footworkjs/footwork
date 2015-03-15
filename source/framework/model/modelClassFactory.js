@@ -5,15 +5,6 @@ function isBeforeInitMixin(mixin) {
   return !!mixin.runBeforeInit;
 }
 
-modelMixins.unshift({
-  runBeforeInit: true,
-  _preInit: function() {
-    if(this === windowObject) {
-      throw new Error('Must call the new operator when instantiating this type of object.');
-    }
-  }
-});
-
 function modelClassFactory(descriptor, configParams) {
   configParams = extend({
     namespace: undefined,
@@ -69,32 +60,37 @@ function modelClassFactory(descriptor, configParams) {
 
   var ctor = configParams.initialize || configParams.viewModel || noop;
   if( !descriptor.isModelCtor(ctor) ) {
-    var composure = [ ctor ];
+    var isModelDuckTagMixin = {};
+    isModelDuckTagMixin[descriptor.isModelDuckTag] = true;
+    isModelDuckTagMixin = { mixin: isModelDuckTagMixin };
+
+    var afterInitCallbackMixin = { _postInit: configParams.afterInit || noop };
     var afterInitMixins = reject(modelMixins, isBeforeInitMixin);
     var beforeInitMixins = filter(modelMixins, isBeforeInitMixin);
 
-    if( afterInitMixins.length ) {
-      composure = composure.concat(afterInitMixins);
-    }
-    composure = composure.concat(initModelMixin);
-    if( beforeInitMixins.length ) {
-      composure = composure.concat(beforeInitMixins);
-    }
+    each(beforeInitMixins, function(mixin) {
+      delete mixin.runBeforeInit;
+    });
 
-    // must 'mixin' the duck tag which marks this object as a model
-    var isModelDuckTagMixin = {};
-    isModelDuckTagMixin[descriptor.isModelDuckTag] = true;
-    composure = composure.concat({ mixin: isModelDuckTagMixin });
+    afterInitMixins.unshift({
+      _preInit: function() {
+        if(this === windowObject) {
+          throw new Error('Must call the new operator when instantiating a new ' + descriptor.methodName + '.');
+        }
+      }
+    });
 
-    composure = composure.concat({ _postInit: configParams.afterInit || noop });
+    var composure = [ ctor ].concat(
+      isModelDuckTagMixin,
+      afterInitCallbackMixin,
+      afterInitMixins,
+      initModelMixin,
+      beforeInitMixins
+    );
 
     if( !isUndefined(configParams.mixins) ) {
       composure = composure.concat(configParams.mixins);
     }
-
-    each(composure, function(composureElement) {
-      delete composureElement.runBeforeInit;
-    });
 
     var model = riveter.compose.apply( undefined, composure );
     model[ descriptor.isModelCtorDuckTag ] = true;
@@ -112,7 +108,7 @@ function modelClassFactory(descriptor, configParams) {
     var namespace = configParams.namespace;
     if( descriptor.resource.isRegistered(namespace) ) {
       if( descriptor.resource.getRegistered(namespace) !== model ) {
-        throw new Error('namespace [' + namespace + '] has already been registered, autoRegister failed.');
+        throw new Error('namespace [' + namespace + '] has already been registered as a ' + descriptor.methodName + ', autoRegister failed.');
       }
     } else {
       descriptor.resource.register(namespace, model);
