@@ -9,12 +9,6 @@ function modelMixin(thing) {
   return ( (isArray(thing) && thing.length) || isObject(thing) ? thing : {} );
 }
 
-function newInstanceCheck() {
-  if(this === windowObject) {
-    throw new Error('Must call the new operator when instantiating a new ' + descriptor.methodName + '.');
-  }
-}
-
 function modelClassFactory(descriptor, configParams) {
   var model = null;
 
@@ -76,7 +70,13 @@ function modelClassFactory(descriptor, configParams) {
     isModelDuckTagMixin[descriptor.isModelDuckTag] = true;
     isModelDuckTagMixin = { mixin: isModelDuckTagMixin };
 
-    var newInstanceCheckMixin = { _preInit: newInstanceCheck };
+    var newInstanceCheckMixin = {
+      _preInit: function() {
+        if(this === windowObject) {
+          throw new Error('Must call the new operator when instantiating a new ' + descriptor.methodName + '.');
+        }
+      }
+    };
     var afterInitCallbackMixin = { _postInit: configParams.afterInit || noop };
     var afterInitMixins = reject(modelMixins, isBeforeInitMixin);
     var beforeInitMixins = map(filter(modelMixins, isBeforeInitMixin), function(mixin) {
@@ -86,13 +86,13 @@ function modelClassFactory(descriptor, configParams) {
 
     var composure = [ ctor ].concat(
       // latest in execution
+      modelMixin(newInstanceCheckMixin),
       modelMixin(afterInitCallbackMixin),
       modelMixin(afterInitMixins),
       modelMixin(configParams.mixins),
       modelMixin(initModelMixin),
       modelMixin(beforeInitMixins),
-      modelMixin(isModelDuckTagMixin),
-      modelMixin(newInstanceCheckMixin)
+      modelMixin(isModelDuckTagMixin)
       // earliest in execution
     );
 
