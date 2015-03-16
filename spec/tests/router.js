@@ -15,6 +15,7 @@ describe('router', function () {
     });
 
     expect(routerConstructor).to.be.a('function');
+    expect(new routerConstructor()).to.be.an('object');
   });
 
   it('has the ability to create a router with a correctly defined namespace whos name we can retrieve', function() {
@@ -47,17 +48,17 @@ describe('router', function () {
   });
 
   it('can get all instantiated routers', function() {
-    var Router = fw.viewModel();
-    var routers = [
-      new Router({ namespace: 'RouterA' }),
-      new Router({ namespace: 'RouterB' })
-    ];
+    var RouterA = fw.router({ namespace: 'RouterA' });
+    var RouterB = fw.router({ namespace: 'RouterB' });
 
-    expect( _.keys(fw.routers.getAll()).length ).to.be.greaterThan(0);
+    var routers = [ new RouterA(), new RouterB() ];
+    var routerList = _.keys( fw.routers.getAll() );
+
+    expect( routerList ).to.contain('RouterA');
+    expect( routerList ).to.contain('RouterB');
   });
 
-  // TODO: make this work
-  it.skip('can get all instantiated routers of a specific namespace', function() {
+  it('can get all instantiated routers of a specific namespace', function() {
     var routers = [];
     var Router = fw.router({ namespace: 'getAllSpecificRouter' });
     var numToMake = _.random(1,15);

@@ -50,9 +50,10 @@ function modelClassFactory(descriptor, configParams) {
         this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
           if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
             if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
-              if(isArray(options.namespaceName) && indexOf(options.namespaceName, this.getNamespaceName()) !== -1) {
+              var myNamespaceName = this.getNamespaceName();
+              if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
                 return this;
-              } else if(isString(options.namespaceName) && options.namespaceName === this.getNamespaceName()) {
+              } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
                 return this;
               }
             } else {
@@ -73,7 +74,7 @@ function modelClassFactory(descriptor, configParams) {
     var newInstanceCheckMixin = {
       _preInit: function() {
         if(this === windowObject) {
-          throw new Error('Must call the new operator when instantiating a new ' + descriptor.methodName + '.');
+          throw new Error('Must use the new operator when instantiating a ' + descriptor.methodName + '.');
         }
       }
     };

@@ -2,5 +2,7 @@
 // ------------------
 
 function routerClassFactory(routerConfig) {
-  return fw.viewModel({ router: routerConfig });
+  return fw.viewModel({
+    router: routerConfig
+  });
 }

@@ -5,7 +5,7 @@
 createResources = function(descriptors) {
   each(descriptors, function(descriptor) {
     if(!isUndefined(descriptor.resource)) {
-      extend(descriptor.resource, resourceFactory(descriptor));
+      extend(descriptor.resource, resourceHelperFactory(descriptor));
     }
   });
 };
