@@ -371,7 +371,7 @@ describe('viewModel', function () {
     setTimeout(function() {
       expect(viewModelLoaded).to.be(true);
       done();
-    }, 25);
+    }, 40);
   });
 
   it('can load via registered viewModel with a declarative initialization', function(done) {
@@ -390,7 +390,7 @@ describe('viewModel', function () {
     setTimeout(function() {
       expect(registeredViewModelWasLoaded).to.be(true);
       done();
-    }, 25);
+    }, 40);
   });
 
   it('can load via requirejs with a declarative initialization from a specified location', function(done) {
@@ -405,7 +405,7 @@ describe('viewModel', function () {
     setTimeout(function() {
       expect(window.AMDViewModelWasLoaded).to.be(true);
       done();
-    }, 25);
+    }, 40);
   });
 
   it('can load via requirejs with a declarative initialization from a specified location with the full file name', function(done) {
@@ -420,7 +420,7 @@ describe('viewModel', function () {
     setTimeout(function() {
       expect(window.AMDViewModelFullNameWasLoaded).to.be(true);
       done();
-    }, 25);
+    }, 40);
   });
 
   it('can specify and load via requirejs with the default location', function(done) {
@@ -436,6 +436,6 @@ describe('viewModel', function () {
     setTimeout(function() {
       expect(window.defaultViewModelLocationLoaded).to.be(true);
       done();
-    }, 25);
+    }, 40);
   });
 });
