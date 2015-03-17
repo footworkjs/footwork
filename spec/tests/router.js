@@ -103,4 +103,26 @@ describe('router', function () {
       return routeDescriptions;
     }, []).length ).to.be( routesList.length );
   });
+
+  it('can be instantiated declaratively from an autoRegistered router', function(done) {
+    var container = document.getElementById('declarativeRouterInstantiation');
+    var wasInitialized = false;
+
+    var Router = fw.router({
+      namespace: 'declarativeRouterInstantiation',
+      autoRegister: true,
+      initialize: function() {
+        wasInitialized = true;
+      }
+    });
+
+    expect(wasInitialized).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(wasInitialized).to.be(true);
+      done();
+    }, 40);
+  });
 });
