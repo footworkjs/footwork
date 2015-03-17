@@ -131,7 +131,7 @@ describe('router', function () {
     var outerWasInitialized = false;
     var innerWasInitialized = false;
 
-    var Router = fw.router({
+    fw.router({
       namespace: 'declarativeNestedRouterInstantiationOuter',
       autoRegister: true,
       initialize: function() {
@@ -139,7 +139,7 @@ describe('router', function () {
       }
     });
 
-    var Router = fw.router({
+    fw.router({
       namespace: 'declarativeNestedRouterInstantiationInner',
       autoRegister: true,
       initialize: function() {
@@ -155,6 +155,58 @@ describe('router', function () {
     setTimeout(function() {
       expect(outerWasInitialized).to.be(true);
       expect(innerWasInitialized).to.be(true);
+      done();
+    }, 40);
+  });
+
+  it('can trigger the unknownRoute', function(done) {
+    var container = document.getElementById('unknownRouteCheck');
+    var unknownRan = false;
+
+    var Router = fw.router({
+      namespace: 'unknownRouteCheck',
+      autoRegister: true,
+      unknownRoute: {
+        controller: function() {
+          unknownRan = true;
+        }
+      }
+    });
+
+    expect(unknownRan).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(unknownRan).to.be(true);
+      done();
+    }, 40);
+  });
+
+  it('can trigger the default route', function(done) {
+    var container = document.getElementById('defaultRouteCheck');
+    var defaultRouteRan = false;
+
+    var Router = fw.router({
+      namespace: 'defaultRouteCheck',
+      autoRegister: true,
+      routes: [
+        {
+          route: '/',
+          controller: function() {
+            defaultRouteRan = true;
+          }
+        }
+      ]
+    });
+
+    expect(defaultRouteRan).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      History.pushState(null, '', '/');
+      expect(defaultRouteRan).to.be(true);
       done();
     }, 40);
   });

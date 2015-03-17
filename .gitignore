@@ -3,3 +3,4 @@ bower_components
 docs/bower_components
 docs/scripts/builddocs/
 dist/lodash-custom.js
+spec/dist
