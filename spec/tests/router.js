@@ -125,4 +125,37 @@ describe('router', function () {
       done();
     }, 40);
   });
+
+  it('can be nested and initialized declaratively', function(done) {
+    var container = document.getElementById('declarativeNestedRouterInstantiation');
+    var outerWasInitialized = false;
+    var innerWasInitialized = false;
+
+    var Router = fw.router({
+      namespace: 'declarativeNestedRouterInstantiationOuter',
+      autoRegister: true,
+      initialize: function() {
+        outerWasInitialized = true;
+      }
+    });
+
+    var Router = fw.router({
+      namespace: 'declarativeNestedRouterInstantiationInner',
+      autoRegister: true,
+      initialize: function() {
+        innerWasInitialized = true;
+      }
+    });
+
+    expect(outerWasInitialized).to.be(false);
+    expect(innerWasInitialized).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(outerWasInitialized).to.be(true);
+      expect(innerWasInitialized).to.be(true);
+      done();
+    }, 40);
+  });
 });

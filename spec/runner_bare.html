@@ -80,6 +80,12 @@
       <div id="declarativeRouterInstantiation">
         <router module="declarativeRouterInstantiation"></router>
       </div>
+
+      <div id="declarativeNestedRouterInstantiation">
+        <router module="declarativeNestedRouterInstantiationOuter">
+          <router module="declarativeNestedRouterInstantiationInner"></router>
+        </router>
+      </div>
     </div>
 
     <script src="../bower_components/mocha/mocha.js"></script>
