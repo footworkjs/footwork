@@ -47,6 +47,18 @@ describe('router', function () {
     expect( fw.routers.getRegistered('registeredRouterRetrieval') ).to.be(RegisteredRouterRetrieval);
   });
 
+  it('can autoRegister a router', function() {
+    expect( fw.routers.isRegistered('autoRegisteredRouter') ).to.be(false);
+
+    var autoRegisteredRouter = fw.router({
+      namespace: 'autoRegisteredRouter',
+      autoRegister: true
+    });
+
+    expect( fw.routers.isRegistered('autoRegisteredRouter') ).to.be(true);
+    expect( fw.routers.getRegistered('autoRegisteredRouter') ).to.be(autoRegisteredRouter);
+  });
+
   it('can get all instantiated routers', function() {
     var RouterA = fw.router({ namespace: 'RouterA' });
     var RouterB = fw.router({ namespace: 'RouterB' });
@@ -67,6 +79,28 @@ describe('router', function () {
       routers.push( new Router() );
     }
 
-    expect( fw.routers.getAll('getAllSpecificRouter').length ).to.be(numToMake);
+    expect( fw.routers.getAll('getAllSpecificRouter').filter(function(instance) {
+      return instance.$namespace.getName() === 'getAllSpecificRouter';
+    }).length ).to.be(numToMake);
+  });
+
+  it('can be instantiated with a list of routes', function() {
+    var routesList = [ '/', '/route1', '/route2' ];
+
+    var Router = fw.router({
+      namespace: 'instantiatedListOfRoutes',
+      routes: _.map(routesList, function(routePath) {
+        return { route: routePath };
+      })
+    });
+
+    var router = new Router();
+
+    expect( _.reduce(router.$router.getRouteDescriptions(), function(routeDescriptions, routeDesc) {
+      if( routesList.indexOf(routeDesc.route) !== -1 ) {
+        routeDescriptions.push(routeDesc);
+      }
+      return routeDescriptions;
+    }, []).length ).to.be( routesList.length );
   });
 });

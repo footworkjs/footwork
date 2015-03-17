@@ -86,15 +86,13 @@ function modelClassFactory(descriptor, configParams) {
     });
 
     var composure = [ ctor ].concat(
-      // latest in execution
       modelMixin(newInstanceCheckMixin),
+      modelMixin(isModelDuckTagMixin),
       modelMixin(afterInitCallbackMixin),
       modelMixin(afterInitMixins),
-      modelMixin(configParams.mixins),
-      modelMixin(initModelMixin),
       modelMixin(beforeInitMixins),
-      modelMixin(isModelDuckTagMixin)
-      // earliest in execution
+      modelMixin(configParams.mixins),
+      modelMixin(initModelMixin)
     );
 
     model = riveter.compose.apply( undefined, composure );
