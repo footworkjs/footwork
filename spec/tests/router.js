@@ -183,7 +183,7 @@ describe('router', function () {
     }, 40);
   });
 
-  it('can trigger the default route', function(done) {
+  it.skip('can trigger the default route', function(done) {
     var container = document.getElementById('defaultRouteCheck');
     var defaultRouteRan = false;
 
