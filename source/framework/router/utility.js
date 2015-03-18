@@ -24,7 +24,7 @@ function routeStringToRegExp(routeString) {
 }
 
 function historyIsReady() {
-  var isReady = has(History, 'Adapter');
+  var isReady = typeof History === 'function' && has(History, 'Adapter');
 
   if(isReady && !History.Adapter.isSetup) {
     History.Adapter.isSetup = true;
@@ -38,6 +38,7 @@ function historyIsReady() {
       });
     };
   }
+
   return isReady;
 }
 

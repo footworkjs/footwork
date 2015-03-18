@@ -158,6 +158,8 @@ Router.prototype.setState = function(url) {
     }
   } else if(isString(url)) {
     this.currentState( this.normalizeURL( url ) );
+  } else {
+    this.currentState('/');
   }
 };
 

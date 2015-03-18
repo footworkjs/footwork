@@ -162,10 +162,14 @@ describe('router', function () {
   it('can trigger the unknownRoute', function(done) {
     var container = document.getElementById('unknownRouteCheck');
     var unknownRan = false;
+    var router;
 
     var Router = fw.router({
       namespace: 'unknownRouteCheck',
       autoRegister: true,
+      initialize: function() {
+        router = this;
+      },
       unknownRoute: {
         controller: function() {
           unknownRan = true;
@@ -178,12 +182,13 @@ describe('router', function () {
     fw.start(container);
 
     setTimeout(function() {
+      router.setState('/unknownRouteCheck');
       expect(unknownRan).to.be(true);
       done();
     }, 40);
   });
 
-  it.skip('can trigger the default route', function(done) {
+  it('can trigger the default route', function(done) {
     var container = document.getElementById('defaultRouteCheck');
     var defaultRouteRan = false;
 
@@ -205,7 +210,6 @@ describe('router', function () {
     fw.start(container);
 
     setTimeout(function() {
-      History.pushState(null, '', '/');
       expect(defaultRouteRan).to.be(true);
       done();
     }, 40);
