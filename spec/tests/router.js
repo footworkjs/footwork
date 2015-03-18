@@ -108,7 +108,7 @@ describe('router', function () {
     var container = document.getElementById('declarativeRouterInstantiation');
     var wasInitialized = false;
 
-    var Router = fw.router({
+    fw.router({
       namespace: 'declarativeRouterInstantiation',
       autoRegister: true,
       initialize: function() {
@@ -159,12 +159,39 @@ describe('router', function () {
     }, 40);
   });
 
+  it('can trigger the default route', function(done) {
+    var container = document.getElementById('defaultRouteCheck');
+    var defaultRouteRan = false;
+
+    fw.router({
+      namespace: 'defaultRouteCheck',
+      autoRegister: true,
+      routes: [
+        {
+          route: '/',
+          controller: function() {
+            defaultRouteRan = true;
+          }
+        }
+      ]
+    });
+
+    expect(defaultRouteRan).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(defaultRouteRan).to.be(true);
+      done();
+    }, 40);
+  });
+
   it('can trigger the unknownRoute', function(done) {
     var container = document.getElementById('unknownRouteCheck');
     var unknownRan = false;
     var router;
 
-    var Router = fw.router({
+    fw.router({
       namespace: 'unknownRouteCheck',
       autoRegister: true,
       initialize: function() {
@@ -188,30 +215,159 @@ describe('router', function () {
     }, 40);
   });
 
-  it('can trigger the default route', function(done) {
-    var container = document.getElementById('defaultRouteCheck');
-    var defaultRouteRan = false;
+  it('can trigger a specified route', function(done) {
+    var container = document.getElementById('specifiedRouteCheck');
+    var specifiedRouteRan = false;
+    var router;
 
-    var Router = fw.router({
-      namespace: 'defaultRouteCheck',
+    fw.router({
+      namespace: 'specifiedRouteCheck',
       autoRegister: true,
+      initialize: function() {
+        router = this;
+      },
       routes: [
         {
-          route: '/',
+          route: '/specifiedRoute',
           controller: function() {
-            defaultRouteRan = true;
+            specifiedRouteRan = true;
           }
         }
       ]
     });
 
-    expect(defaultRouteRan).to.be(false);
+    expect(specifiedRouteRan).to.be(false);
 
     fw.start(container);
 
     setTimeout(function() {
-      expect(defaultRouteRan).to.be(true);
+      router.setState('/specifiedRoute');
+      expect(specifiedRouteRan).to.be(true);
       done();
+    }, 40);
+  });
+
+  it('can trigger a specified route with a required parameter', function(done) {
+    var container = document.getElementById('specifiedRouteWithReqParamCheck');
+    var specifiedRouteRan = false;
+    var testParam = 'luggageCode12345';
+    var router;
+
+    fw.router({
+      namespace: 'specifiedRouteWithReqParamCheck',
+      autoRegister: true,
+      initialize: function() {
+        router = this;
+      },
+      routes: [
+        {
+          route: '/specifiedRoute/:testParam',
+          controller: function(params) {
+            expect(params.testParam).to.be(testParam);
+            specifiedRouteRan = true;
+          }
+        }
+      ]
+    });
+
+    expect(specifiedRouteRan).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      router.setState('/specifiedRoute/' + testParam);
+      expect(specifiedRouteRan).to.be(true);
+      done();
+    }, 40);
+  });
+
+  it('can trigger a specified route with an optional parameter with and without the parameter', function(done) {
+    var container = document.getElementById('specifiedRouteWithOptParamCheck');
+    var optParamNotSupplied = false;
+    var optParamSupplied = false;
+    var testParam = 'luggageCode12345';
+    var router;
+
+    fw.router({
+      namespace: 'specifiedRouteWithOptParamCheck',
+      autoRegister: true,
+      initialize: function() {
+        router = this;
+      },
+      routes: [
+        {
+          route: '/specifiedRoute/optParamNotSupplied(/:testParam)',
+          controller: function(params) {
+            expect(params.testParam).to.be(undefined);
+            optParamNotSupplied = true;
+          }
+        }, {
+          route: '/specifiedRoute/optParamSupplied(/:testParam)',
+          controller: function(params) {
+            expect(params.testParam).to.be(testParam);
+            optParamSupplied = true;
+          }
+        }
+      ]
+    });
+
+    expect(optParamNotSupplied).to.be(false);
+    expect(optParamSupplied).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      router.setState('/specifiedRoute/optParamNotSupplied');
+      router.setState('/specifiedRoute/optParamSupplied/' + testParam);
+      expect(optParamNotSupplied).to.be(true);
+      expect(optParamSupplied).to.be(true);
+      done();
+    }, 40);
+  });
+
+  it('can manipulate an outlet', function(done) {
+    var container = document.getElementById('manipulateOutlet');
+    var controllerRan = false;
+    var componentInstantiated = false;
+    var router;
+
+    fw.components.register('manipulateOutletComponent', {
+      viewModel: function() {
+        componentInstantiated = true;
+      },
+      template: '<div></div>'
+    });
+
+    fw.router({
+      namespace: 'manipulateOutlet',
+      autoRegister: true,
+      initialize: function() {
+        router = this;
+      },
+      routes: [
+        {
+          route: '/manipulateOutlet',
+          controller: function() {
+            controllerRan = true;
+            this.$outlet('output', 'manipulateOutletComponent');
+          }
+        }
+      ]
+    });
+
+    expect(controllerRan).to.be(false);
+    expect(componentInstantiated).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      router.setState('/manipulateOutlet');
+      expect(controllerRan).to.be(true);
+
+      setTimeout(function() {
+        expect(componentInstantiated).to.be(true);
+        done();
+      }, 40);
     }, 40);
   });
 });
