@@ -112,6 +112,22 @@
           <outlet name="output"></outlet>
         </router>
       </div>
+
+      <div id="outletCallback">
+        <router module="outletCallback">
+          <outlet name="output"></outlet>
+        </router>
+      </div>
+
+      <div id="outletAfterRouter">
+        <router module="outletAfterRouter">
+          <viewModel module="outletAfterRouter">
+            <div data-bind="if: outletVisible">
+              <outlet name="output"></outlet>
+            </div>
+          </viewModel>
+        </router>
+      </div>
     </div>
 
     <script src="../bower_components/mocha/mocha.js"></script>
