@@ -81,6 +81,31 @@ describe('components', function () {
     }, 150);
   });
 
+  it('can pass params to a component viewModel', function(done) {
+    var container = document.getElementById('passParamsToComponent');
+    var componentInitialized = false;
+
+    fw.components.register('pass-params-to-component', {
+      template: '<div></div>',
+      viewModel: fw.viewModel({
+        initialize: function(params) {
+          expect(params.testValueOne).to.be(1);
+          expect(params.testValueTwo).to.eql([1,2,3]);
+          componentInitialized = true;
+        }
+      })
+    });
+
+    expect(componentInitialized).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(componentInitialized).to.be(true);
+      done();
+    }, 150);
+  });
+
   it('can set and return fileExtensions correctly', function() {
     var extensions = {
       combined: '.combinedTest',

@@ -280,6 +280,29 @@ describe('viewModel', function () {
     }, 0);
   });
 
+  it('can pass parameters through a <viewModel> declaration', function(done) {
+    var wasInitialized = false;
+    var container = document.getElementById('paramsViewModel');
+
+    fw.viewModel({
+      namespace: 'paramsViewModel',
+      autoRegister: true,
+      initialize: function(params) {
+        expect(params.testValueOne).to.be(1);
+        expect(params.testValueTwo).to.eql([1,2,3]);
+        wasInitialized = true;
+      }
+    });
+
+    expect(wasInitialized).to.be(false);
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(wasInitialized).to.be(true);
+      done();
+    }, 0);
+  });
+
   it('calls onDispose when the containing element is removed from the DOM', function() {
     var container = document.getElementById('onDispose');
     var onDisposeWasCalled = false;

@@ -468,6 +468,7 @@ describe('router', function () {
 
     expect(controllerRan).to.be(false);
     expect(componentInstantiated).to.be(false);
+    expect(outletCallbackRan).to.be(false);
 
     fw.start(container);
 

@@ -29,6 +29,10 @@
         </viewModel>
       </div>
 
+      <div id="paramsViewModel">
+        <viewModel module="paramsViewModel" params="testValueOne: 1, testValueTwo: [1,2,3]"></viewModel>
+      </div>
+
       <div id="registeredViewModel">
         <viewModel module="registeredViewModel"></viewModel>
       </div>
@@ -55,6 +59,10 @@
 
       <div id="nestedDeclarativeComponent">
         <nested-outer-declarative-component></nested-outer-declarative-component>
+      </div>
+
+      <div id="passParamsToComponent">
+        <pass-params-to-component params="testValueOne: 1, testValueTwo: [1,2,3]"></pass-params-to-component>
       </div>
 
       <div id="defaultComponentLocation">
