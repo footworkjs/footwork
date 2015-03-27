@@ -24,7 +24,8 @@ function routeStringToRegExp(routeString) {
 }
 
 function historyIsReady() {
-  var isReady = typeof History === 'function' && has(History, 'Adapter');
+  var typeOfHistory = typeof History;
+  var isReady = ['function','object'].indexOf(typeOfHistory) !== -1 && has(History, 'Adapter');
 
   if(isReady && !History.Adapter.isSetup) {
     History.Adapter.isSetup = true;

@@ -3,7 +3,7 @@
 
 var Router = function( routerConfig, $viewModel, $context ) {
   extend(this, $baseRouter);
-  var subscriptions = this.subscriptions = [];
+  var subscriptions = this.subscriptions = fw.observableArray();
   var viewModelNamespaceName;
 
   if( isModel($viewModel) ) {
@@ -48,10 +48,20 @@ var Router = function( routerConfig, $viewModel, $context ) {
     return routePath;
   }, this);
 
+  var triggerRouteRecompute = function() {
+    this.currentState.notifySubscribers();
+  }.bind(this);
+  var parentPathSubscription;
   var $previousParent = $nullRouter;
   subscriptions.push(this.parentRouter.subscribe(function( $parentRouter ) {
     if( !isNullRouter($previousParent) && $previousParent !== $parentRouter ) {
       $previousParent.childRouters.remove(this);
+
+      if(parentPathSubscription) {
+        subscriptions.remove(parentPathSubscription);
+        parentPathSubscription.dispose();
+      }
+      subscriptions.push(parentPathSubscription = $parentRouter.path.subscribe(triggerRouteRecompute));
     }
     $parentRouter.childRouters.push(this);
     $previousParent = $parentRouter;
@@ -144,7 +154,7 @@ Router.prototype.setState = function(url) {
     if(isString(url)) {
       var historyAPIWorked = true;
       try {
-        historyAPIWorked = History.pushState(null, '', this.config.baseRoute + this.parentRouter().path() + url);
+        historyAPIWorked = History.pushState(null, '', this.config.baseRoute + this.parentRouter().path() + url.replace(startingHashRegex, '/'));
       } catch(historyException) {
         console.error(historyException);
         historyAPIWorked = false;
@@ -209,7 +219,7 @@ Router.prototype.dispose = function() {
   this.$namespace.dispose();
   this.$globalNamespace.dispose();
 
-  invoke(this.subscriptions, 'dispose');
+  invoke(this.subscriptions(), 'dispose');
   each(omit(this, function(property) {
     return isModel(property);
   }), propertyDisposal);
