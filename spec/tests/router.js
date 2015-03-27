@@ -371,6 +371,31 @@ describe('router', function () {
     }, 40);
   });
 
+  it('can see all/multiple referenced outlets defined in its context', function(done) {
+    var container = document.getElementById('outletRefCheck');
+    var routerInstantiated = false;
+    var router;
+
+    fw.router({
+      namespace: 'outletRefCheck',
+      autoRegister: true,
+      initialize: function() {
+        routerInstantiated = true;
+        router = this;
+      }
+    });
+
+    expect(routerInstantiated).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(routerInstantiated).to.be(true);
+      expect(_.keys(router.outlets)).to.eql([ 'output1', 'output2', 'output3' ]);
+      done();
+    }, 40);
+  });
+
   it('can have callback triggered after outlet component is resolved and composed', function(done) {
     var container = document.getElementById('outletCallback');
     var controllerRan = false;
