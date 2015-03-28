@@ -365,6 +365,7 @@ describe('viewModel', function () {
   it.skip('can load via requirejs with a declarative initialization from an already registered module', function(done) {
     /**
      * This test should work but requirejs currently doesn't seem to specify modules correctly.
+     * Current OPEN issue: https://github.com/jrburke/requirejs/issues/1305
      *
      * The following should work but does not:
      *

@@ -513,7 +513,7 @@ describe('router', function () {
     }, 40);
   });
 
-  it('can have a nested/child routers path be dependent on its parents', function(done) {
+  it('can have nested/child routers path be dependent on its parents', function(done) {
     var container = document.getElementById('nestedRouteDependency');
     var outerRouterInstantiated = false;
     var innerRouterInstantiated = false;
@@ -536,7 +536,7 @@ describe('router', function () {
       autoRegister: true,
       routes: [
         { route: '/' },
-        { route: '/innerNested' }
+        { route: '/innerRoute' }
       ],
       initialize: function() {
         innerRouterInstantiated = true;
@@ -580,6 +580,183 @@ describe('router', function () {
       expect(inner.path()).to.be('/outerRoute/');
       expect(subInner.path()).to.be('/outerRoute//');
 
+      inner.setState('/innerRoute');
+
+      expect(outer.path()).to.be('/outerRoute');
+      expect(inner.path()).to.be('/outerRoute/innerRoute');
+      expect(subInner.path()).to.be('/outerRoute/innerRoute/');
+
+      done();
+    }, 40);
+  });
+
+  it('can have a nested/child router which is not relative to its parent', function(done) {
+    var container = document.getElementById('nestedRouteNonRelative');
+    var outerRouterInstantiated = false;
+    var innerRouterInstantiated = false;
+
+    fw.router({
+      namespace: 'outerNestedRouteNonRelative',
+      autoRegister: true,
+      routes: [
+        { route: '/' },
+        { route: '/outerRoute' }
+      ],
+      initialize: function() {
+        outerRouterInstantiated = true;
+      }
+    });
+
+    fw.router({
+      namespace: 'innerNestedRouteNonRelative',
+      autoRegister: true,
+      isRelative: false,
+      routes: [
+        { route: '/' },
+        { route: '/outerRoute' }
+      ],
+      initialize: function() {
+        innerRouterInstantiated = true;
+      }
+    });
+
+    function router(name) {
+      return fw.routers.getAll(name)[0];
+    }
+
+    expect(outerRouterInstantiated).to.be(false);
+    expect(innerRouterInstantiated).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(outerRouterInstantiated).to.be(true);
+      expect(innerRouterInstantiated).to.be(true);
+
+      var outer = router('outerNestedRouteNonRelative');
+      var inner = router('innerNestedRouteNonRelative');
+
+      expect(outer.path()).to.be('/');
+      expect(inner.path()).to.be('/');
+
+      outer.setState('/outerRoute');
+
+      expect(outer.path()).to.be('/outerRoute');
+      expect(inner.path()).to.be('/outerRoute');
+
+      done();
+    }, 40);
+  });
+
+  it('can have a registered location set and retrieved proplerly', function() {
+    fw.routers.registerLocation('registeredLocationRetrieval', '/bogus/path');
+    expect(fw.routers.getLocation('registeredLocationRetrieval')).to.be('/bogus/path');
+  });
+
+  it('can have a registered location with filename set and retrieved proplerly', function() {
+    fw.routers.registerLocation('registeredLocationWithFilenameRetrieval', '/bogus/path/__file__.js');
+    expect(fw.routers.getLocation('registeredLocationWithFilenameRetrieval')).to.be('/bogus/path/__file__.js');
+  });
+
+  it('can have a specific file extension set and used correctly', function() {
+    fw.routers.fileExtensions('.jscript');
+    fw.routers.registerLocation('registeredLocationWithExtensionRetrieval', '/bogus/path/');
+
+    expect(fw.routers.getFileName('registeredLocationWithExtensionRetrieval')).to.be('registeredLocationWithExtensionRetrieval.jscript');
+
+    fw.routers.fileExtensions('.js');
+  });
+
+  it('can have a callback specified as the extension with it invoked and the return value used', function() {
+    fw.routers.fileExtensions(function(moduleName) {
+      expect(moduleName).to.be('registeredLocationWithFunctionExtensionRetrieval');
+      return '.jscriptFunction';
+    });
+    fw.routers.registerLocation('registeredLocationWithFunctionExtensionRetrieval', '/bogus/path/');
+
+    expect(fw.routers.getFileName('registeredLocationWithFunctionExtensionRetrieval')).to.be('registeredLocationWithFunctionExtensionRetrieval.jscriptFunction');
+
+    fw.routers.fileExtensions('.js');
+  });
+
+  it.skip('can load via requirejs with a declarative initialization from an already registered module', function(done) {
+    /**
+     * This test should work but requirejs currently doesn't seem to specify modules correctly.
+     * Current OPEN issue: https://github.com/jrburke/requirejs/issues/1305
+     *
+     * The following should work but does not:
+     *
+     * expect(require.specified('test')).to.be(false); // PASS
+     *
+     * define('test', [], function() {});
+     *
+     * expect(require.specified('test')).to.be(true); // FAIL
+     *
+     * It DOES work once your require() the module...but specified() is supposed to work without that.
+     */
+
+    var container = document.getElementById('AMDPreRegisteredRouter');
+    var routerLoaded = false;
+
+    define('AMDPreRegisteredRouter', ['fw'], function(fw) {
+      return fw.router({
+        initialization: function() {
+          routerLoaded = true;
+        }
+      });
+    });
+
+    expect(routerLoaded).to.be(false);
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(routerLoaded).to.be(true);
+      done();
+    }, 40);
+  });
+
+  it('can load via requirejs with a declarative initialization from a specified location', function(done) {
+    var container = document.getElementById('AMDRouter');
+    window.AMDRouterWasLoaded = false;
+
+    fw.routers.registerLocation('AMDRouter', 'scripts/testAssets/');
+
+    expect(window.AMDRouterWasLoaded).to.be(false);
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(window.AMDRouterWasLoaded).to.be(true);
+      done();
+    }, 40);
+  });
+
+  it('can load via requirejs with a declarative initialization from a specified location with the full file name', function(done) {
+    var container = document.getElementById('AMDRouterFullName');
+    window.AMDRouterFullNameWasLoaded = false;
+
+    fw.routers.registerLocation('AMDRouterFullName', 'scripts/testAssets/AMDRouterFullName.js');
+
+    expect(window.AMDRouterFullNameWasLoaded).to.be(false);
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(window.AMDRouterFullNameWasLoaded).to.be(true);
+      done();
+    }, 40);
+  });
+
+  it('can specify and load via requirejs with the default location', function(done) {
+    var container = document.getElementById('defaultRouterLocation');
+    window.defaultRouterLocationLoaded = false;
+
+    fw.routers.defaultLocation('scripts/testAssets/defaultRouterLocation/');
+
+    expect(window.defaultRouterLocationLoaded).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(window.defaultRouterLocationLoaded).to.be(true);
       done();
     }, 40);
   });

@@ -152,6 +152,28 @@
           </router>
         </router>
       </div>
+
+      <div id="nestedRouteNonRelative">
+        <router module="outerNestedRouteNonRelative">
+          <router module="innerNestedRouteNonRelative"></router>
+        </router>
+      </div>
+
+      <div id="AMDRouter">
+        <router module="AMDRouter"></router>
+      </div>
+
+      <div id="AMDRouterFullName">
+        <router module="AMDRouterFullName"></router>
+      </div>
+
+      <div id="AMDPreRegisteredRouter">
+        <viewModel module="AMDPreRegisteredRouter"></viewModel>
+      </div>
+
+      <div id="defaultRouterLocation">
+        <router module="defaultRouter"></router>
+      </div>
     </div>
 
     <script src="../bower_components/mocha/mocha.js"></script>

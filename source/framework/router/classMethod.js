@@ -45,7 +45,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
       routeSegment = (currentRoute.segment === '' ? '/' : currentRoute.segment);
     }
 
-    return this.parentRouter().path() + routeSegment;
+    return (this.isRelative() ? this.parentRouter().path() : '') + routeSegment;
   }, this);
 
   var triggerRouteRecompute = function() {
