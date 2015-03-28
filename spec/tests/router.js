@@ -512,4 +512,75 @@ describe('router', function () {
       }, 40);
     }, 40);
   });
+
+  it('can have a nested/child routers path be dependent on its parents', function(done) {
+    var container = document.getElementById('nestedRouteDependency');
+    var outerRouterInstantiated = false;
+    var innerRouterInstantiated = false;
+    var subInnerRouterInstantiated = false;
+
+    fw.router({
+      namespace: 'outerNestedRouteDependency',
+      autoRegister: true,
+      routes: [
+        { route: '/' },
+        { route: '/outerRoute' }
+      ],
+      initialize: function() {
+        outerRouterInstantiated = true;
+      }
+    });
+
+    fw.router({
+      namespace: 'innerNestedRouteDependency',
+      autoRegister: true,
+      routes: [
+        { route: '/' },
+        { route: '/innerNested' }
+      ],
+      initialize: function() {
+        innerRouterInstantiated = true;
+      }
+    });
+
+    fw.router({
+      namespace: 'subInnerNestedRouteDependency',
+      autoRegister: true,
+      initialize: function() {
+        subInnerRouterInstantiated = true;
+      }
+    });
+
+    function router(name) {
+      return fw.routers.getAll(name)[0];
+    }
+
+    expect(outerRouterInstantiated).to.be(false);
+    expect(innerRouterInstantiated).to.be(false);
+    expect(subInnerRouterInstantiated).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(outerRouterInstantiated).to.be(true);
+      expect(innerRouterInstantiated).to.be(true);
+      expect(subInnerRouterInstantiated).to.be(true);
+
+      var outer = router('outerNestedRouteDependency');
+      var inner = router('innerNestedRouteDependency');
+      var subInner = router('subInnerNestedRouteDependency');
+
+      expect(outer.path()).to.be('/');
+      expect(inner.path()).to.be('//');
+      expect(subInner.path()).to.be('///');
+
+      outer.setState('/outerRoute');
+
+      expect(outer.path()).to.be('/outerRoute');
+      expect(inner.path()).to.be('/outerRoute/');
+      expect(subInner.path()).to.be('/outerRoute//');
+
+      done();
+    }, 40);
+  });
 });

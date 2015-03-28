@@ -39,13 +39,13 @@ var Router = function( routerConfig, $viewModel, $context ) {
 
   this.path = fw.computed(function() {
     var currentRoute = this.currentRoute();
-    var parentRouter = this.parentRouter();
-    var routePath = this.parentRouter().path();
+    var routeSegment = '/';
 
     if( isRoute(currentRoute) ) {
-      routePath = routePath + currentRoute.segment;
+      routeSegment = (currentRoute.segment === '' ? '/' : currentRoute.segment);
     }
-    return routePath;
+
+    return this.parentRouter().path() + routeSegment;
   }, this);
 
   var triggerRouteRecompute = function() {
@@ -173,9 +173,9 @@ Router.prototype.setState = function(url) {
   }
 
   if(!historyIsReady()) {
-    var currentState = this.currentState();
+    var routePath = this.path();
     each(this.childRouters(), function(childRouter) {
-      childRouter.currentState(currentState);
+      childRouter.currentState(routePath);
     });
   }
 
@@ -342,7 +342,7 @@ function RoutedAction(routeDescription) {
   }
 
   if( isUndefined(this.__currentRouteDescription) || !sameRouteDescription(this.__currentRouteDescription, routeDescription) ) {
-    routeDescription.controller.call( this, routeDescription.namedParams );
+    (routeDescription.controller || noop).call( this, routeDescription.namedParams );
     this.__currentRouteDescription = routeDescription;
   }
 }

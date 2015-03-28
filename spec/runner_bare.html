@@ -144,6 +144,14 @@
           </viewModel>
         </router>
       </div>
+
+      <div id="nestedRouteDependency">
+        <router module="outerNestedRouteDependency">
+          <router module="innerNestedRouteDependency">
+            <router module="subInnerNestedRouteDependency"></router>
+          </router>
+        </router>
+      </div>
     </div>
 
     <script src="../bower_components/mocha/mocha.js"></script>
