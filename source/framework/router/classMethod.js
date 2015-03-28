@@ -171,6 +171,15 @@ Router.prototype.setState = function(url) {
   } else {
     this.currentState('/');
   }
+
+  if(!historyIsReady()) {
+    var currentState = this.currentState();
+    each(this.childRouters(), function(childRouter) {
+      childRouter.currentState(currentState);
+    });
+  }
+
+  return this;
 };
 
 Router.prototype.startup = function( $context, $parentRouter ) {
