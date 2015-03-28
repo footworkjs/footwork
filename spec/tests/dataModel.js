@@ -2,14 +2,14 @@
 
 var sandbox = document.getElementById('sandbox');
 
-describe('viewModel', function () {
-  it('has the ability to create a viewModel', function() {
-    expect(fw.viewModel).to.be.a('function');
-    expect(fw.viewModel()).to.be.a('function');
+describe('dataModel', function () {
+  it('has the ability to create a dataModel', function() {
+    expect(fw.dataModel).to.be.a('function');
+    expect(fw.dataModel()).to.be.a('function');
   });
 
-  it('has the ability to create a viewModel with a correctly defined namespace whos name we can retrieve', function() {
-    var ModelA = fw.viewModel({
+  it('has the ability to create a dataModel with a correctly defined namespace whos name we can retrieve', function() {
+    var ModelA = fw.dataModel({
       namespace: 'ModelA'
     });
     var modelA = new ModelA();
@@ -18,24 +18,24 @@ describe('viewModel', function () {
     expect(modelA.getNamespaceName()).to.eql('ModelA');
   });
 
-  it('correctly names and increments counter for indexed viewModels', function() {
-    var IndexedViewModel = fw.viewModel({
-      namespace: 'IndexedViewModel',
+  it('correctly names and increments counter for indexed dataModels', function() {
+    var IndexedDataModel = fw.dataModel({
+      namespace: 'IndexedDataModel',
       autoIncrement: true
     });
 
-    var firstViewModel = new IndexedViewModel();
-    var secondViewModel = new IndexedViewModel();
-    var thirdViewModel = new IndexedViewModel();
+    var firstDataModel = new IndexedDataModel();
+    var secondDataModel = new IndexedDataModel();
+    var thirdDataModel = new IndexedDataModel();
 
-    expect(firstViewModel.getNamespaceName()).to.eql('IndexedViewModel0');
-    expect(secondViewModel.getNamespaceName()).to.eql('IndexedViewModel1');
-    expect(thirdViewModel.getNamespaceName()).to.eql('IndexedViewModel2');
+    expect(firstDataModel.getNamespaceName()).to.eql('IndexedDataModel0');
+    expect(secondDataModel.getNamespaceName()).to.eql('IndexedDataModel1');
+    expect(thirdDataModel.getNamespaceName()).to.eql('IndexedDataModel2');
   });
 
-  it('correctly applies a mixin to a viewModel', function() {
-    var ViewModelWithMixin = fw.viewModel({
-      namespace: 'ViewModelWithMixin',
+  it('correctly applies a mixin to a dataModel', function() {
+    var DataModelWithMixin = fw.dataModel({
+      namespace: 'DataModelWithMixin',
       mixins: [
         {
           _preInit: function() {
@@ -51,15 +51,15 @@ describe('viewModel', function () {
       ]
     });
 
-    var viewModel = new ViewModelWithMixin();
+    var dataModel = new DataModelWithMixin();
 
-    expect(viewModel.preInitRan).to.be(true);
-    expect(viewModel.mixinPresent).to.be(true);
-    expect(viewModel.postInitRan).to.be(true);
+    expect(dataModel.preInitRan).to.be(true);
+    expect(dataModel.mixinPresent).to.be(true);
+    expect(dataModel.postInitRan).to.be(true);
   });
 
-  it('has the ability to create nested viewModels with correctly defined namespaces', function() {
-    var ModelA = fw.viewModel({
+  it('has the ability to create nested dataModels with correctly defined namespaces', function() {
+    var ModelA = fw.dataModel({
       namespace: 'ModelA',
       initialize: function() {
         this.preSubModelNamespaceName = fw.utils.currentNamespaceName();
@@ -68,7 +68,7 @@ describe('viewModel', function () {
       }
     });
 
-    var ModelB = fw.viewModel({
+    var ModelB = fw.dataModel({
       namespace: 'ModelB',
       initialize: function() {
         this.preSubModelNamespaceName = fw.utils.currentNamespaceName();
@@ -77,7 +77,7 @@ describe('viewModel', function () {
       }
     });
 
-    var ModelC = fw.viewModel({
+    var ModelC = fw.dataModel({
       namespace: 'ModelC',
       initialize: function() {
         this.recordedNamespaceName = fw.utils.currentNamespaceName();
@@ -96,7 +96,7 @@ describe('viewModel', function () {
     var initializeWasCalledFirst = false;
     var afterInitWasCalledSecond = false;
 
-    var ModelA = fw.viewModel({
+    var ModelA = fw.dataModel({
       namespace: 'ModelA',
       initialize: function() {
         if(!afterInitWasCalledSecond) {
@@ -118,9 +118,9 @@ describe('viewModel', function () {
     var initializeWasCalledFirst = false;
     var afterBindingWasCalledSecond = false;
     var containerIsTheSame = false;
-    var container = document.getElementById('afterBindingViewModel');
+    var container = document.getElementById('afterBindingDataModel');
 
-    var ModelA = fw.viewModel({
+    var ModelA = fw.dataModel({
       namespace: 'ModelA',
       initialize: function() {
         if(!afterBindingWasCalledSecond) {
@@ -148,9 +148,9 @@ describe('viewModel', function () {
     var hasElementReference = false;
     var checkForReference;
     var modelA;
-    var container = document.getElementById('afterBindingViewModelElementReference');
+    var container = document.getElementById('afterBindingDataModelElementReference');
 
-    var ModelA = fw.viewModel({
+    var ModelA = fw.dataModel({
       namespace: 'ModelA',
       afterBinding: function(containingElement) {
         checkForReference();
@@ -174,65 +174,65 @@ describe('viewModel', function () {
     fw.applyBindings(modelA, container);
   });
 
-  it('can register a viewModel', function() {
-    expect( fw.components.isRegistered('registeredViewModelCheck') ).to.be(false);
+  it('can register a dataModel', function() {
+    expect( fw.components.isRegistered('registeredDataModelCheck') ).to.be(false);
 
-    fw.viewModels.register('registeredViewModelCheck', function() {});
+    fw.dataModels.register('registeredDataModelCheck', function() {});
 
-    expect( fw.viewModels.isRegistered('registeredViewModelCheck') ).to.be(true);
+    expect( fw.dataModels.isRegistered('registeredDataModelCheck') ).to.be(true);
   });
 
-  it('can get a registered viewModel', function() {
-    expect( fw.components.isRegistered('registeredViewModelRetrieval') ).to.be(false);
+  it('can get a registered dataModel', function() {
+    expect( fw.components.isRegistered('registeredDataModelRetrieval') ).to.be(false);
 
-    var RegisteredViewModelRetrieval = function() {};
+    var RegisteredDataModelRetrieval = function() {};
 
-    fw.viewModels.register('registeredViewModelRetrieval', RegisteredViewModelRetrieval);
+    fw.dataModels.register('registeredDataModelRetrieval', RegisteredDataModelRetrieval);
 
-    expect( fw.viewModels.isRegistered('registeredViewModelRetrieval') ).to.be(true);
-    expect( fw.viewModels.getRegistered('registeredViewModelRetrieval') ).to.be(RegisteredViewModelRetrieval);
+    expect( fw.dataModels.isRegistered('registeredDataModelRetrieval') ).to.be(true);
+    expect( fw.dataModels.getRegistered('registeredDataModelRetrieval') ).to.be(RegisteredDataModelRetrieval);
   });
 
-  it('can get all instantiated viewModels', function() {
-    var ViewModel = fw.viewModel();
-    var viewModels = [ new ViewModel(), new ViewModel() ];
+  it('can get all instantiated dataModels', function() {
+    var DataModel = fw.dataModel();
+    var dataModels = [ new DataModel(), new DataModel() ];
 
-    expect( _.keys(fw.viewModels.getAll()).length ).to.be.greaterThan(0);
+    expect( _.keys(fw.dataModels.getAll()).length ).to.be.greaterThan(0);
   });
 
-  it('can get all instantiated viewModels of a specific type/name', function() {
-    var viewModels = [];
-    var ViewModel = fw.viewModel({ namespace: 'getAllSpecificViewModel' });
+  it('can get all instantiated dataModels of a specific type/name', function() {
+    var dataModels = [];
+    var DataModel = fw.dataModel({ namespace: 'getAllSpecificDataModel' });
     var numToMake = _.random(1,15);
 
     for(var x = numToMake; x; x--) {
-      viewModels.push( new ViewModel() );
+      dataModels.push( new DataModel() );
     }
 
-    expect( fw.viewModels.getAll('getAllSpecificViewModel').length ).to.be(numToMake);
+    expect( fw.dataModels.getAll('getAllSpecificDataModel').length ).to.be(numToMake);
   });
 
-  it('can autoRegister a viewModel during class method creation', function() {
-    var isRegistered = fw.viewModels.isRegistered('autoRegisteredViewModel');
+  it('can autoRegister a dataModel during class method creation', function() {
+    var isRegistered = fw.dataModels.isRegistered('autoRegisteredDataModel');
 
     expect(isRegistered).to.be(false);
 
-    fw.viewModel({
-      namespace: 'autoRegisteredViewModel',
+    fw.dataModel({
+      namespace: 'autoRegisteredDataModel',
       autoRegister: true
     });
 
-    isRegistered = fw.viewModels.isRegistered('autoRegisteredViewModel');
+    isRegistered = fw.dataModels.isRegistered('autoRegisteredDataModel');
 
     expect(isRegistered).to.be(true);
   });
 
-  it('can bind to the DOM using a <viewModel> declaration', function(done) {
+  it('can bind to the DOM using a <dataModel> declaration', function(done) {
     var wasInitialized = false;
-    var container = document.getElementById('declarativeViewModel');
+    var container = document.getElementById('declarativeDataModel');
 
-    fw.viewModel({
-      namespace: 'declarativeViewModel',
+    fw.dataModel({
+      namespace: 'declarativeDataModel',
       autoRegister: true,
       initialize: function() {
         wasInitialized = true;
@@ -248,21 +248,21 @@ describe('viewModel', function () {
     }, 0);
   });
 
-  it('can nest <viewModel> declarations', function(done) {
-    var container = document.getElementById('nestedViewModels');
+  it('can nest <dataModel> declarations', function(done) {
+    var container = document.getElementById('nestedDataModels');
     var outerWasInitialized = false;
     var innerWasInitialized = false;
 
-    fw.viewModel({
-      namespace: 'nestedViewModelOuter',
+    fw.dataModel({
+      namespace: 'nestedDataModelOuter',
       autoRegister: true,
       initialize: function() {
         outerWasInitialized = true;
       }
     });
 
-    fw.viewModel({
-      namespace: 'nestedViewModelInner',
+    fw.dataModel({
+      namespace: 'nestedDataModelInner',
       autoRegister: true,
       initialize: function() {
         innerWasInitialized = true;
@@ -280,12 +280,12 @@ describe('viewModel', function () {
     }, 0);
   });
 
-  it('can pass parameters through a <viewModel> declaration', function(done) {
+  it('can pass parameters through a <dataModel> declaration', function(done) {
     var wasInitialized = false;
-    var container = document.getElementById('paramsViewModel');
+    var container = document.getElementById('paramsDataModel');
 
-    fw.viewModel({
-      namespace: 'paramsViewModel',
+    fw.dataModel({
+      namespace: 'paramsDataModel',
       autoRegister: true,
       initialize: function(params) {
         expect(params.testValueOne).to.be(1);
@@ -304,24 +304,24 @@ describe('viewModel', function () {
   });
 
   it('calls onDispose when the containing element is removed from the DOM', function() {
-    var container = document.getElementById('onDisposeViewModel');
+    var container = document.getElementById('onDisposeDataModel');
     var onDisposeWasCalled = false;
 
-    var WrapperViewModel = fw.viewModel({
+    var WrapperDataModel = fw.dataModel({
       initialize: function() {
         this.showIt = fw.observable(true);
       }
     });
 
-    var ViewModelWithDispose = fw.viewModel({
-      namespace: 'ViewModelWithDispose',
+    var DataModelWithDispose = fw.dataModel({
+      namespace: 'DataModelWithDispose',
       autoRegister: true,
       onDispose: function() {
         onDisposeWasCalled = true;
       }
     });
 
-    var wrapper = new WrapperViewModel();
+    var wrapper = new WrapperDataModel();
     fw.applyBindings(wrapper, container);
 
     expect(onDisposeWasCalled).to.be(false);
@@ -332,34 +332,34 @@ describe('viewModel', function () {
   });
 
   it('can have a registered location set and retrieved proplerly', function() {
-    fw.viewModels.registerLocation('registeredLocationRetrieval', '/bogus/path');
-    expect(fw.viewModels.getLocation('registeredLocationRetrieval')).to.be('/bogus/path');
+    fw.dataModels.registerLocation('registeredLocationRetrieval', '/bogus/path');
+    expect(fw.dataModels.getLocation('registeredLocationRetrieval')).to.be('/bogus/path');
   });
 
   it('can have a registered location with filename set and retrieved proplerly', function() {
-    fw.viewModels.registerLocation('registeredLocationWithFilenameRetrieval', '/bogus/path/__file__.js');
-    expect(fw.viewModels.getLocation('registeredLocationWithFilenameRetrieval')).to.be('/bogus/path/__file__.js');
+    fw.dataModels.registerLocation('registeredLocationWithFilenameRetrieval', '/bogus/path/__file__.js');
+    expect(fw.dataModels.getLocation('registeredLocationWithFilenameRetrieval')).to.be('/bogus/path/__file__.js');
   });
 
   it('can have a specific file extension set and used correctly', function() {
-    fw.viewModels.fileExtensions('.jscript');
-    fw.viewModels.registerLocation('registeredLocationWithExtensionRetrieval', '/bogus/path/');
+    fw.dataModels.fileExtensions('.jscript');
+    fw.dataModels.registerLocation('registeredLocationWithExtensionRetrieval', '/bogus/path/');
 
-    expect(fw.viewModels.getFileName('registeredLocationWithExtensionRetrieval')).to.be('registeredLocationWithExtensionRetrieval.jscript');
+    expect(fw.dataModels.getFileName('registeredLocationWithExtensionRetrieval')).to.be('registeredLocationWithExtensionRetrieval.jscript');
 
-    fw.viewModels.fileExtensions('.js');
+    fw.dataModels.fileExtensions('.js');
   });
 
   it('can have a callback specified as the extension with it invoked and the return value used', function() {
-    fw.viewModels.fileExtensions(function(moduleName) {
+    fw.dataModels.fileExtensions(function(moduleName) {
       expect(moduleName).to.be('registeredLocationWithFunctionExtensionRetrieval');
       return '.jscriptFunction';
     });
-    fw.viewModels.registerLocation('registeredLocationWithFunctionExtensionRetrieval', '/bogus/path/');
+    fw.dataModels.registerLocation('registeredLocationWithFunctionExtensionRetrieval', '/bogus/path/');
 
-    expect(fw.viewModels.getFileName('registeredLocationWithFunctionExtensionRetrieval')).to.be('registeredLocationWithFunctionExtensionRetrieval.jscriptFunction');
+    expect(fw.dataModels.getFileName('registeredLocationWithFunctionExtensionRetrieval')).to.be('registeredLocationWithFunctionExtensionRetrieval.jscriptFunction');
 
-    fw.viewModels.fileExtensions('.js');
+    fw.dataModels.fileExtensions('.js');
   });
 
   it.skip('can load via requirejs with a declarative initialization from an already registered module', function(done) {
@@ -378,87 +378,87 @@ describe('viewModel', function () {
      * It DOES work once your require() the module...but specified() is supposed to work without that.
      */
 
-    var container = document.getElementById('AMDPreRegisteredViewModel');
-    var viewModelLoaded = false;
+    var container = document.getElementById('AMDPreRegisteredDataModel');
+    var dataModelLoaded = false;
 
-    define('AMDPreRegisteredViewModel', ['fw'], function(fw) {
-      return fw.viewModel({
+    define('AMDPreRegisteredDataModel', ['fw'], function(fw) {
+      return fw.dataModel({
         initialization: function() {
-          viewModelLoaded = true;
+          dataModelLoaded = true;
         }
       });
     });
 
-    expect(viewModelLoaded).to.be(false);
+    expect(dataModelLoaded).to.be(false);
     fw.start(container);
 
     setTimeout(function() {
-      expect(viewModelLoaded).to.be(true);
+      expect(dataModelLoaded).to.be(true);
       done();
     }, 40);
   });
 
-  it('can load via registered viewModel with a declarative initialization', function(done) {
-    var container = document.getElementById('registeredViewModel');
-    var registeredViewModelWasLoaded = false;
+  it('can load via registered dataModel with a declarative initialization', function(done) {
+    var container = document.getElementById('registeredDataModel');
+    var registeredDataModelWasLoaded = false;
 
-    fw.viewModels.register('registeredViewModel', fw.viewModel({
+    fw.dataModels.register('registeredDataModel', fw.dataModel({
       initialize: function() {
-        registeredViewModelWasLoaded = true;
+        registeredDataModelWasLoaded = true;
       }
     }));
 
-    expect(registeredViewModelWasLoaded).to.be(false);
+    expect(registeredDataModelWasLoaded).to.be(false);
     fw.start(container);
 
     setTimeout(function() {
-      expect(registeredViewModelWasLoaded).to.be(true);
+      expect(registeredDataModelWasLoaded).to.be(true);
       done();
     }, 40);
   });
 
   it('can load via requirejs with a declarative initialization from a specified location', function(done) {
-    var container = document.getElementById('AMDViewModel');
-    window.AMDViewModelWasLoaded = false;
+    var container = document.getElementById('AMDDataModel');
+    window.AMDDataModelWasLoaded = false;
 
-    fw.viewModels.registerLocation('AMDViewModel', 'scripts/testAssets/');
+    fw.dataModels.registerLocation('AMDDataModel', 'scripts/testAssets/');
 
-    expect(window.AMDViewModelWasLoaded).to.be(false);
+    expect(window.AMDDataModelWasLoaded).to.be(false);
     fw.start(container);
 
     setTimeout(function() {
-      expect(window.AMDViewModelWasLoaded).to.be(true);
+      expect(window.AMDDataModelWasLoaded).to.be(true);
       done();
     }, 40);
   });
 
   it('can load via requirejs with a declarative initialization from a specified location with the full file name', function(done) {
-    var container = document.getElementById('AMDViewModelFullName');
-    window.AMDViewModelFullNameWasLoaded = false;
+    var container = document.getElementById('AMDDataModelFullName');
+    window.AMDDataModelFullNameWasLoaded = false;
 
-    fw.viewModels.registerLocation('AMDViewModelFullName', 'scripts/testAssets/AMDViewModelFullName.js');
+    fw.dataModels.registerLocation('AMDDataModelFullName', 'scripts/testAssets/AMDDataModelFullName.js');
 
-    expect(window.AMDViewModelFullNameWasLoaded).to.be(false);
+    expect(window.AMDDataModelFullNameWasLoaded).to.be(false);
     fw.start(container);
 
     setTimeout(function() {
-      expect(window.AMDViewModelFullNameWasLoaded).to.be(true);
+      expect(window.AMDDataModelFullNameWasLoaded).to.be(true);
       done();
     }, 40);
   });
 
   it('can specify and load via requirejs with the default location', function(done) {
-    var container = document.getElementById('defaultViewModelLocation');
-    window.defaultViewModelLocationLoaded = false;
+    var container = document.getElementById('defaultDataModelLocation');
+    window.defaultDataModelLocationLoaded = false;
 
-    fw.viewModels.defaultLocation('scripts/testAssets/defaultViewModelLocation/');
+    fw.dataModels.defaultLocation('scripts/testAssets/defaultDataModelLocation/');
 
-    expect(window.defaultViewModelLocationLoaded).to.be(false);
+    expect(window.defaultDataModelLocationLoaded).to.be(false);
 
     fw.start(container);
 
     setTimeout(function() {
-      expect(window.defaultViewModelLocationLoaded).to.be(true);
+      expect(window.defaultDataModelLocationLoaded).to.be(true);
       done();
     }, 40);
   });

@@ -10,10 +10,11 @@
     <div id="mocha"></div>
 
     <div id="sandbox">
-      <div id="afterBinding"></div>
-      <div id="afterBindingElementReference"></div>
+      <!-- viewModel tests -->
+      <div id="afterBindingViewModel"></div>
+      <div id="afterBindingViewModelElementReference"></div>
 
-      <div id="onDispose">
+      <div id="onDisposeViewModel">
         <div data-bind="if: showIt">
           <viewModel module="ViewModelWithDispose"></viewModel>
         </div>
@@ -53,6 +54,51 @@
         <viewModel module="AMDPreRegisteredViewModel"></viewModel>
       </div>
 
+      <!-- dataModel tests -->
+      <div id="afterBindingDataModel"></div>
+      <div id="afterBindingDataModelElementReference"></div>
+
+      <div id="onDisposeDataModel">
+        <div data-bind="if: showIt">
+          <dataModel module="DataModelWithDispose"></dataModel>
+        </div>
+      </div>
+
+      <div id="declarativeDataModel">
+        <dataModel module="declarativeDataModel"></dataModel>
+      </div>
+
+      <div id="nestedDataModels">
+        <dataModel module="nestedDataModelOuter">
+          <dataModel module="nestedDataModelInner"></dataModel>
+        </dataModel>
+      </div>
+
+      <div id="paramsDataModel">
+        <dataModel module="paramsDataModel" params="testValueOne: 1, testValueTwo: [1,2,3]"></dataModel>
+      </div>
+
+      <div id="registeredDataModel">
+        <dataModel module="registeredDataModel"></dataModel>
+      </div>
+
+      <div id="defaultDataModelLocation">
+        <dataModel module="defaultDataModel"></dataModel>
+      </div>
+
+      <div id="AMDDataModel">
+        <dataModel module="AMDDataModel"></dataModel>
+      </div>
+
+      <div id="AMDDataModelFullName">
+        <dataModel module="AMDDataModelFullName"></dataModel>
+      </div>
+
+      <div id="AMDPreRegisteredDataModel">
+        <dataModel module="AMDPreRegisteredDataModel"></dataModel>
+      </div>
+
+      <!-- component tests -->
       <div id="declarativeComponent">
         <declarative-component></declarative-component>
       </div>
@@ -85,6 +131,7 @@
         <template-only-component></template-only-component>
       </div>
 
+      <!-- router tests -->
       <div id="declarativeRouterInstantiation">
         <router module="declarativeRouterInstantiation"></router>
       </div>
@@ -184,6 +231,7 @@
     <script src="tests/sanity.js"></script>
     <script src="tests/namespace.js"></script>
     <script src="tests/viewModel.js"></script>
+    <script src="tests/dataModel.js"></script>
     <script src="tests/components.js"></script>
     <script src="tests/broadcast-receive.js"></script>
     <script src="tests/router.js"></script>

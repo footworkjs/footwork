@@ -1,0 +1,7 @@
+define(['footwork'], function(fw) {
+  return fw.dataModel({
+    initialize: function() {
+      window.AMDDataModelWasLoaded = true;
+    }
+  });
+});
