@@ -362,28 +362,13 @@ describe('dataModel', function () {
     fw.dataModels.fileExtensions('.js');
   });
 
-  it.skip('can load via requirejs with a declarative initialization from an already registered module', function(done) {
-    /**
-     * This test should work but requirejs currently doesn't seem to specify modules correctly.
-     * Current OPEN issue: https://github.com/jrburke/requirejs/issues/1305
-     *
-     * The following should work but does not:
-     *
-     * expect(require.specified('test')).to.be(false); // PASS
-     *
-     * define('test', [], function() {});
-     *
-     * expect(require.specified('test')).to.be(true); // FAIL
-     *
-     * It DOES work once your require() the module...but specified() is supposed to work without that.
-     */
-
+  it('can load via requirejs with a declarative initialization from an already registered module', function(done) {
     var container = document.getElementById('AMDPreRegisteredDataModel');
     var dataModelLoaded = false;
 
-    define('AMDPreRegisteredDataModel', ['fw'], function(fw) {
+    define('AMDPreRegisteredDataModel', ['footwork'], function(fw) {
       return fw.dataModel({
-        initialization: function() {
+        initialize: function() {
           dataModelLoaded = true;
         }
       });
