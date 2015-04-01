@@ -250,6 +250,28 @@ describe('components', function () {
     }, 150);
   });
 
+  it('can load with a declarative initialization from an already registered combined module', function(done) {
+    var container = document.getElementById('specifiedCombinedComponentModule');
+    var componentLoaded = false;
+
+    define('specified-combined-component-module', ['footwork'], function(fw) {
+      return fw.component({
+        viewModel: function() {
+          componentLoaded = true;
+        },
+        template: '<div></div>'
+      });
+    });
+
+    expect(componentLoaded).to.be(false);
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(componentLoaded).to.be(true);
+      done();
+    }, 40);
+  });
+
   it('can be registered as template only which is resolved and injected correctly', function(done) {
     var container = document.getElementById('templateOnlyComponent');
     var innerViewModelInstantiated = false;

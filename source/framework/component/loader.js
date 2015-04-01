@@ -17,7 +17,7 @@ fw.components.loaders.push( fw.components.requireLoader = {
 
     if( isFunction(require) ) {
       // load component using knockouts native support for requirejs
-      if( require.defined(componentName) ) {
+      if( require.specified(componentName) ) {
         // component already cached, lets use it
         configOptions = {
           require: componentName
