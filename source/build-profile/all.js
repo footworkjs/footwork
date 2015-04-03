@@ -8,7 +8,7 @@
    */
   var koExports = {};
   var amdRequire;
-  //import("../../bower_components/knockoutjs-nowrapper/dist/knockout.js");
+  //import("../../bower_components/knockoutjs-nowrapper/dist/knockout.debug.js");
 
   if (typeof define === 'function' && define.amd) {
     amdRequire = require;

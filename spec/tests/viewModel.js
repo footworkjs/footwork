@@ -336,6 +336,12 @@ describe('viewModel', function () {
     expect(fw.viewModels.getLocation('registeredLocationRetrieval')).to.be('/bogus/path');
   });
 
+  it('can have an array of models registered to a location and retrieved proplerly', function() {
+    fw.viewModels.registerLocation(['registeredLocationRetrievalArray1', 'registeredLocationRetrievalArray2'], '/bogus/path');
+    expect(fw.viewModels.getLocation('registeredLocationRetrievalArray1')).to.be('/bogus/path');
+    expect(fw.viewModels.getLocation('registeredLocationRetrievalArray2')).to.be('/bogus/path');
+  });
+
   it('can have a registered location with filename set and retrieved proplerly', function() {
     fw.viewModels.registerLocation('registeredLocationWithFilenameRetrieval', '/bogus/path/__file__.js');
     expect(fw.viewModels.getLocation('registeredLocationWithFilenameRetrieval')).to.be('/bogus/path/__file__.js');

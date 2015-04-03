@@ -51,7 +51,7 @@ function setDefaultModelLocation(descriptor, path) {
 function registerModelLocation(descriptor, modelName, location) {
   if( isArray(modelName) ) {
     each(modelName, function(name) {
-      registerModelLocation.call(descriptor, name, location);
+      registerModelLocation(descriptor, name, location);
     });
   }
   descriptor.resourceLocations[ modelName ] = location;

@@ -196,6 +196,17 @@ describe('components', function () {
     expect(fw.components.getLocation('registered-component-location-verify')).to.eql(location);
   });
 
+  it('can register an array of components to a location and retrieve them proplerly', function() {
+    var location = {
+      viewModel: 'scripts/testAssets/registeredComponentLocation/',
+      template: 'testAssets/registeredComponentLocation/'
+    };
+
+    fw.components.registerLocation(['registeredLocationRetrievalArray1', 'registeredLocationRetrievalArray2'], location);
+    expect(fw.components.getLocation('registeredLocationRetrievalArray1')).to.eql(location);
+    expect(fw.components.getLocation('registeredLocationRetrievalArray2')).to.eql(location);
+  });
+
   it('can specify and load via a registered location', function(done) {
     var container = document.getElementById('registeredComponentLocation');
     window.registeredComponentLocationLoaded = false;
