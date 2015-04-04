@@ -110,7 +110,7 @@ gulp.task('test_bare', ['build_bare'], function() {
 // Building tasks
 gulp.task('build-everything', ['build_all', 'build_all_with_history', 'build_minimal', 'build_bare', 'build_raw']);
 
-gulp.task('build_prep', ['lodash_custom'], function() {
+gulp.task('build_prep', function() {
   // we have to force load of lodash instead of underscore inside of riveter
   return gulp
     .src('bower_components/riveter/lib/riveter.js')
