@@ -1,7 +1,8 @@
 // framework/specialTags/config.js
 // ------------------
 
-//import("mixins.js");
+//import("ViewModel.js");
+//import("DataModel.js");
 
 specialTagDescriptors = specialTagDescriptors.concat([
   {

@@ -1,3 +1,3 @@
 //import("config.js");
 //import("bindingInit.js");
-//import("init.js")
+//import("init.js");

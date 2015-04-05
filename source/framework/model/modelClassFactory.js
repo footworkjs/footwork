@@ -26,7 +26,7 @@ function modelClassFactory(descriptor, configParams) {
 
   var descriptorMixins = [];
   map(descriptor.mixins, function(mixin, index) {
-    descriptorMixins.push( isFunction(mixin) ? mixin(descriptor, configParams) : mixin );
+    descriptorMixins.push( isFunction(mixin) ? mixin(descriptor, configParams || {}) : mixin );
   });
 
   var ctor = configParams.initialize || configParams.viewModel || noop;

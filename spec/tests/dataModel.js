@@ -6,6 +6,15 @@ describe('dataModel', function () {
   it('has the ability to create a dataModel', function() {
     expect(fw.dataModel).to.be.a('function');
     expect(fw.dataModel()).to.be.a('function');
+
+    var dataModel = new (fw.dataModel())();
+
+    expect(dataModel.$fetch).to.be.a('function');
+    expect(dataModel.$save).to.be.a('function');
+    expect(dataModel.$destroy).to.be.a('function');
+    expect(dataModel.$load).to.be.a('function');
+    expect(dataModel.$toJS).to.be.a('function');
+    expect(dataModel.$toJSON).to.be.a('function');
   });
 
   it('has the ability to create a dataModel with a correctly defined namespace whos name we can retrieve', function() {

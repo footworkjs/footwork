@@ -1,4 +1,4 @@
-// framework/specialTags/mixins.js
+// framework/specialTags/ViewModel.js
 // ------------------
 
 var ViewModel = function(descriptor, configParams) {
@@ -40,22 +40,6 @@ var ViewModel = function(descriptor, configParams) {
           }
         }.bind(this));
       }
-    }
-  };
-};
-
-
-var DataModel = function(descriptor, configParams) {
-  return {
-    _preInit: function( params ) {
-    },
-    mixin: {
-      '$fetch': function() {}, // GET
-      '$save': function() {}, // PUT
-      '$destroy': function() {}, // DELETE
-      '$load': function(/* { ... } */) {} // RAW OBJECT INITIALIZATION
-    },
-    _postInit: function() {
     }
   };
 };
