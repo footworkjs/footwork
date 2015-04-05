@@ -1,17 +1,21 @@
 // framework/specialTags/config.js
 // ------------------
 
+//import("mixins.js");
+
 specialTagDescriptors = specialTagDescriptors.concat([
   {
     tagName: 'viewmodel',
     methodName: 'viewModel',
     defaultLocation: '/viewModel/',
-    resource: fw.viewModels
+    resource: fw.viewModels,
+    mixins: [ ViewModel ]
   }, {
     tagName: 'datamodel',
     methodName: 'dataModel',
     defaultLocation: '/dataModel/',
-    resource: fw.dataModels
+    resource: fw.dataModels,
+    mixins: [ ViewModel, DataModel ]
   }, {
     tagName: 'router',
     methodName: 'router',
