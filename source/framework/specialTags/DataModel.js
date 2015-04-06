@@ -76,7 +76,7 @@ var DataModel = function(descriptor, configParams) {
       $toJS: function() {}, // return current data in POJO form
       $toJSON: function() {}, // return current data in JSON form,
       $dirty: function() {}, // return whether or not the model data has been changed, or set it to a state
-      $valid: function('movies.drama') {}, // get validation of entire model or selected field
+      $valid: function(/* 'movies.drama' */) {}, // get validation of entire model or selected field
       $validate: function() {} // perform a validation and return the result on a specific field or the entire model
     },
     _postInit: function() {
