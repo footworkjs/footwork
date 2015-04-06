@@ -39,8 +39,8 @@ extend(specialTagDescriptors, {
       return resource;
     }, null);
   },
-  getDescriptor: function(methodName) {
-    return reduce(this, function findDescriptor(foundDescriptor, descriptor) {
+  getDescriptor: function getDescriptor(methodName) {
+    return reduce(this, function reduceDescriptor(foundDescriptor, descriptor) {
       return descriptor.methodName === methodName ? descriptor : foundDescriptor;
     }, null);
   }

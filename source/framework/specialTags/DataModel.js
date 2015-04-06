@@ -31,40 +31,53 @@
  *     }
  *   },
  *
+ *   validate: {
+ *     'firstName': 'notEmpty',
+ *     'lastName': 'notEmpty',
+ *     'email': 'validEmail',
+ *     'movies.action': function(actionMovies) {
+ *       return actionMovies.indexOf('Commando') !== -1;
+ *     }
+ *   }
+ *
  *   initialize: function() {
  *     // field declarations and mapping
  *     this.firstName = fw.observable().mapTo('firstName');
  *     this.lastName = fw.observable().mapTo('lastName');
+ *     this.email = fw.observable().mapTo('email');
  *     this.movieCollection = {
  *       action: fw.observable().mapTo('movies.action'),
  *       drama: fw.observable().mapTo('movies.drama'),
  *       comedy: fw.observable().mapTo('movies.comedy'),
  *       horror: fw.observable().mapTo('movies.horror')
  *     };
- *
- *     // model operations
- *     this.$fetch(); // GET
- *     this.$save(); // PUT / POST
- *     this.$destroy(); // DELETE
- *     this.$load({}); // load data into model
- *     this.$toJS(); // return current data in POJO form
- *     this.$toJSON(); // return current data in JSON form
  *   }
  * });
  */
 
 var DataModel = function(descriptor, configParams) {
+  configParams = extend({}, {
+    id: 'id'
+  }, configParams);
+
   return {
     _preInit: function( params ) {
     },
     mixin: {
-      $$tracked: {}, // internal tracking/mapping/etc data
-      $fetch: function() {}, // GET
+      __isDataModel: true,
+      // internal tracking/mapping/etc data
+      $$dataModel: {
+        fields: []
+      },
+      $fetch: function() {}, // GET from server and $load into model
       $save: function() {}, // PUT / POST
       $destroy: function() {}, // DELETE
-      $load: function(/* { ... } */) {}, // load data into model
+      $load: function(/* { ... } */) {}, // load data into model (clears $dirty)
       $toJS: function() {}, // return current data in POJO form
-      $toJSON: function() {} // return current data in JSON form
+      $toJSON: function() {}, // return current data in JSON form,
+      $dirty: function() {}, // return whether or not the model data has been changed, or set it to a state
+      $valid: function('movies.drama') {}, // get validation of entire model or selected field
+      $validate: function() {} // perform a validation and return the result on a specific field or the entire model
     },
     _postInit: function() {
     }
