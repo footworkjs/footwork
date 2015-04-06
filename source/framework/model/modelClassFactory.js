@@ -12,17 +12,7 @@ function modelMixin(thing) {
 function modelClassFactory(descriptor, configParams) {
   var model = null;
 
-  configParams = extend({
-    namespace: undefined,
-    name: undefined,
-    autoRegister: false,
-    autoIncrement: false,
-    mixins: undefined,
-    params: undefined,
-    afterInit: noop,
-    afterBinding: noop,
-    onDispose: noop
-  }, configParams || {});
+  configParams = extend({}, descriptor.defaultConfig, configParams || {});
 
   var descriptorMixins = [];
   map(descriptor.mixins, function(mixin, index) {

@@ -19,12 +19,12 @@ describe('dataModel', function () {
 
   it('has the ability to create a dataModel with a correctly defined namespace whos name we can retrieve', function() {
     var ModelA = fw.dataModel({
-      namespace: 'ModelA'
+      namespace: 'dataModelA'
     });
     var modelA = new ModelA();
 
     expect(modelA.$namespace).to.be.an('object');
-    expect(modelA.getNamespaceName()).to.eql('ModelA');
+    expect(modelA.getNamespaceName()).to.eql('dataModelA0');
   });
 
   it('correctly names and increments counter for indexed dataModels', function() {
@@ -69,7 +69,7 @@ describe('dataModel', function () {
 
   it('has the ability to create nested dataModels with correctly defined namespaces', function() {
     var ModelA = fw.dataModel({
-      namespace: 'ModelA',
+      namespace: 'nestedDataModelA',
       initialize: function() {
         this.preSubModelNamespaceName = fw.utils.currentNamespaceName();
         this.subModelB = new ModelB();
@@ -78,7 +78,7 @@ describe('dataModel', function () {
     });
 
     var ModelB = fw.dataModel({
-      namespace: 'ModelB',
+      namespace: 'nestedDataModelB',
       initialize: function() {
         this.preSubModelNamespaceName = fw.utils.currentNamespaceName();
         this.subModelC = new ModelC();
@@ -87,18 +87,18 @@ describe('dataModel', function () {
     });
 
     var ModelC = fw.dataModel({
-      namespace: 'ModelC',
+      namespace: 'nestedDataModelC',
       initialize: function() {
         this.recordedNamespaceName = fw.utils.currentNamespaceName();
       }
     });
 
     var modelA = new ModelA();
-    expect(modelA.preSubModelNamespaceName).to.eql('ModelA');
-    expect(modelA.postSubModelNamespaceName).to.eql('ModelA');
-    expect(modelA.subModelB.preSubModelNamespaceName).to.eql('ModelB');
-    expect(modelA.subModelB.postSubModelNamespaceName).to.eql('ModelB');
-    expect(modelA.subModelB.subModelC.recordedNamespaceName).to.eql('ModelC');
+    expect(modelA.preSubModelNamespaceName).to.eql('nestedDataModelA0');
+    expect(modelA.postSubModelNamespaceName).to.eql('nestedDataModelA0');
+    expect(modelA.subModelB.preSubModelNamespaceName).to.eql('nestedDataModelB0');
+    expect(modelA.subModelB.postSubModelNamespaceName).to.eql('nestedDataModelB0');
+    expect(modelA.subModelB.subModelC.recordedNamespaceName).to.eql('nestedDataModelC0');
   });
 
   it('calls afterInit after initialize when creating a new instance', function() {
@@ -218,7 +218,7 @@ describe('dataModel', function () {
       dataModels.push( new DataModel() );
     }
 
-    expect( fw.dataModels.getAll('getAllSpecificDataModel').length ).to.be(numToMake);
+    expect( _.keys(fw.dataModels.getAll('getAllSpecificDataModel')).length ).to.be(numToMake);
   });
 
   it('can autoRegister a dataModel during class method creation', function() {

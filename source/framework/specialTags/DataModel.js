@@ -55,13 +55,53 @@
  * });
  */
 
+var dataModelContext = [];
+function enterDataModelContext(dataModel) {
+  dataModelContext.unshift(dataModel);
+}
+function exitDataModelContext() {
+  dataModelContext.shift();
+}
+
+function dataModelContext() {
+  return dataModelContext.length ? dataModelContext[0] : null;
+}
+
+fw.subscribable.fn.mapTo = function(option) {
+  var mappedObservable = this;
+  var mapPath;
+  var dataModel;
+
+  if(isString(option)) {
+    mapPath = option;
+    dataModel = dataModelContext();
+  } else if(isObject(option)) {
+    mapPath = option.path;
+    dataModel = option.dataModel;
+  } else {
+    throw new Error('Invalid options supplied to mapTo');
+  }
+
+  if(isNull(dataModel)) {
+    throw new Error('No dataModel context found/supplied for mapTo observable');
+  }
+
+  var config = dataModel.$$dataModel;
+  if( !isUndefined(config.fields[mapPath]) ) {
+    throw new Error('this path is already mapped on this dataModel');
+  }
+  config.fields[mapPath] = mappedObservable;
+};
+
 var DataModel = function(descriptor, configParams) {
   configParams = extend({}, {
     id: 'id'
   }, configParams);
 
   return {
+    runBeforeInit: true,
     _preInit: function( params ) {
+      enterDataModelContext(this);
     },
     mixin: {
       __isDataModel: true,
@@ -80,6 +120,18 @@ var DataModel = function(descriptor, configParams) {
       $validate: function() {} // perform a validation and return the result on a specific field or the entire model
     },
     _postInit: function() {
+      this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
+        if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
+          var myNamespaceName = configParams.namespace;
+          if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
+            return this;
+          } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+            return this;
+          }
+        }
+      }.bind(this));
+
+      exitDataModelContext();
     }
   };
 };

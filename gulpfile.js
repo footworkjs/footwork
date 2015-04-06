@@ -85,7 +85,7 @@ gulp.task('bump', function () {
 });
 
 // Testing tasks
-gulp.task('ci', ['build-and-test']);
+gulp.task('ci', ['test_bare']);
 
 gulp.task('build-and-test', ['build_all_with_history', 'test_all', 'test_minimal', 'test_bare']);
 
