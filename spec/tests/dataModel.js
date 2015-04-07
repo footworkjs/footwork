@@ -514,4 +514,99 @@ describe('dataModel', function () {
     expect(person.$hasMappedField('movies.comedy')).to.be(true);
     expect(person.$hasMappedField('movies.horror')).to.be(true);
   });
+
+  it('can have observables mapped and retreived correctly', function() {
+    var Person = fw.dataModel({
+      namespace: 'person',
+      initialize: function(person) {
+        this.firstName = fw.observable(person.firstName).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName).mapTo('lastName');
+        this.movieCollection = {
+          action: fw.observableArray(person.movies.action).mapTo('movies.action'),
+          drama: fw.observableArray(person.movies.drama).mapTo('movies.drama'),
+          comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy'),
+          horror: fw.observableArray(person.movies.horror).mapTo('movies.horror')
+        };
+      }
+    });
+
+    var personData = {
+      firstName: 'John',
+      lastName: 'Smith',
+      movies: {
+        action: ['Commando', 'Predator', 'Timecop', 'Terminator'],
+        drama: ['The Shawshank Redemption'],
+        comedy: ['Dumb and Dumber', 'Billy Madison'],
+        horror: ['Friday the 13th', 'Jason']
+      }
+    };
+    var person = new Person(personData);
+
+    expect(person.$toJS()).to.eql(personData);
+  });
+
+  it('can have observables mapped and a specific one retreived correctly', function() {
+    var Person = fw.dataModel({
+      namespace: 'person',
+      initialize: function(person) {
+        this.firstName = fw.observable(person.firstName).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName).mapTo('lastName');
+        this.movieCollection = {
+          action: fw.observableArray(person.movies.action).mapTo('movies.action'),
+          drama: fw.observableArray(person.movies.drama).mapTo('movies.drama'),
+          comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy'),
+          horror: fw.observableArray(person.movies.horror).mapTo('movies.horror')
+        };
+      }
+    });
+
+    var personData = {
+      firstName: 'John',
+      lastName: 'Smith',
+      movies: {
+        action: ['Commando', 'Predator', 'Timecop', 'Terminator'],
+        drama: ['The Shawshank Redemption'],
+        comedy: ['Dumb and Dumber', 'Billy Madison'],
+        horror: ['Friday the 13th', 'Jason']
+      }
+    };
+    var person = new Person(personData);
+
+    expect(person.$toJS('firstName')).to.eql(personData.firstName);
+    expect(person.$toJS('movies')).to.eql(personData.movies);
+    expect(person.$toJS('movies.action')).to.eql(personData.movies.action);
+  });
+
+  it('can generate the correct JSON string using $toJSON()', function() {
+    var Person = fw.dataModel({
+      namespace: 'person',
+      initialize: function(person) {
+        this.firstName = fw.observable(person.firstName).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName).mapTo('lastName');
+        this.movieCollection = {
+          action: fw.observableArray(person.movies.action).mapTo('movies.action'),
+          drama: fw.observableArray(person.movies.drama).mapTo('movies.drama'),
+          comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy'),
+          horror: fw.observableArray(person.movies.horror).mapTo('movies.horror')
+        };
+      }
+    });
+
+    var personData = {
+      firstName: 'John',
+      lastName: 'Smith',
+      movies: {
+        action: ['Commando', 'Predator', 'Timecop', 'Terminator'],
+        drama: ['The Shawshank Redemption'],
+        comedy: ['Dumb and Dumber', 'Billy Madison'],
+        horror: ['Friday the 13th', 'Jason']
+      }
+    };
+    var person = new Person(personData);
+
+    expect(person.$toJSON()).to.eql(JSON.stringify(personData));
+    expect(person.$toJSON('firstName')).to.eql(JSON.stringify(personData.firstName));
+    expect(person.$toJSON('movies')).to.eql(JSON.stringify(personData.movies));
+    expect(person.$toJSON('movies.action')).to.eql(JSON.stringify(personData.movies.action));
+  });
 });
