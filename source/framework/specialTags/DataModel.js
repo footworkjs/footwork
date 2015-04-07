@@ -153,7 +153,13 @@ var DataModel = function(descriptor, configParams) {
       $fetch: function() {}, // GET from server and $load into model
       $save: function() {}, // PUT / POST
       $destroy: function() {}, // DELETE
-      $load: function(/* { ... } */) {}, // load data into model (clears $dirty)
+      $load: function( data ) {}, // load data into model (clears $dirty)
+
+      $hasMappedField: function(referenceField) {
+        return !!this.$$dataModel.fields[referenceField];;
+      },
+
+      // return current data in POJO form
       $toJS: function $toJS(referenceField) {
         var mappedObject = reduce(this.$$dataModel.fields, function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
           if(isUndefined(referenceField) || fieldMap.indexOf(referenceField) === 0) {
@@ -163,10 +169,15 @@ var DataModel = function(descriptor, configParams) {
         }, {});
 
         return getNestedReference(mappedObject, referenceField);
-      }, // return current data in POJO form
-      $toJSON: function() {}, // return current data in JSON form,
+      },
+
+      // return current data in JSON form
+      $toJSON: function(referenceField) {
+        return JSON.stringify( this.$toJS(referenceField) );
+      },
+
       $dirty: function() {}, // return whether or not the model data has been changed, or set it to a state
-      $valid: function(/* 'movies.drama' */) {}, // get validation of entire model or selected field
+      $valid: function( referenceField ) {}, // get validation of entire model or selected field
       $validate: function() {} // perform a validation and return the result on a specific field or the entire model
     },
     _postInit: function() {

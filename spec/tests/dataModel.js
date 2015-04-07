@@ -462,4 +462,22 @@ describe('dataModel', function () {
       done();
     }, 40);
   });
+
+  it('can have an observable mapped correctly at the parent level', function() {
+    var Person = fw.dataModel({
+      namespace: 'person',
+      initialize: function(person) {
+        this.firstName = fw.observable(person.firstName).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName).mapTo('lastName');
+      }
+    });
+
+    var person = new Person({
+      firstName: 'John',
+      lastName: 'Smith'
+    });
+
+    expect(person.$hasMappedField('firstName')).to.be(true);
+    expect(person.$hasMappedField('lastName')).to.be(true);
+  });
 });
