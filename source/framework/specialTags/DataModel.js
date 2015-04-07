@@ -63,7 +63,7 @@ function exitDataModelContext() {
   dataModelContext.shift();
 }
 
-function dataModelContext() {
+function currentDataModelContext() {
   return dataModelContext.length ? dataModelContext[0] : null;
 }
 
@@ -74,7 +74,7 @@ fw.subscribable.fn.mapTo = function(option) {
 
   if(isString(option)) {
     mapPath = option;
-    dataModel = dataModelContext();
+    dataModel = currentDataModelContext();
   } else if(isObject(option)) {
     mapPath = option.path;
     dataModel = option.dataModel;
@@ -91,7 +91,48 @@ fw.subscribable.fn.mapTo = function(option) {
     throw new Error('this path is already mapped on this dataModel');
   }
   config.fields[mapPath] = mappedObservable;
+
+  return mappedObservable;
 };
+
+function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
+  if(isString(fieldMap)) {
+    return insertValueIntoObject(rootObject, fieldMap.split('.'), fieldValue);
+  }
+
+  var propName = fieldMap.shift();
+  if(fieldMap.length) {
+    if(isUndefined(rootObject[propName])) {
+      // nested property, lets add the child
+      rootObject[propName] = {};
+    }
+    // recurse into the next layer
+    insertValueIntoObject(rootObject[propName], fieldMap, fieldValue);
+  } else {
+    rootObject[propName] = fieldValue;
+  }
+
+  return rootObject;
+}
+
+function getNestedReference(rootObject, fieldMap) {
+  var propName = fieldMap;
+
+  if(!isUndefined(fieldMap)) {
+    if(isString(fieldMap)) {
+      // initial call with string based fieldMap, recurse into main loop
+      return getNestedReference(rootObject, fieldMap.split('.'));
+    }
+
+    propName = fieldMap.shift();
+    if(fieldMap.length) {
+      // recurse into the next layer
+      return getNestedReference(rootObject[propName], fieldMap);
+    }
+  }
+
+  return !isString(propName) ? rootObject : rootObject[propName];
+}
 
 var DataModel = function(descriptor, configParams) {
   configParams = extend({}, {
@@ -107,13 +148,22 @@ var DataModel = function(descriptor, configParams) {
       __isDataModel: true,
       // internal tracking/mapping/etc data
       $$dataModel: {
-        fields: []
+        fields: {}
       },
       $fetch: function() {}, // GET from server and $load into model
       $save: function() {}, // PUT / POST
       $destroy: function() {}, // DELETE
       $load: function(/* { ... } */) {}, // load data into model (clears $dirty)
-      $toJS: function() {}, // return current data in POJO form
+      $toJS: function $toJS(referenceField) {
+        var mappedObject = reduce(this.$$dataModel.fields, function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+          if(isUndefined(referenceField) || fieldMap.indexOf(referenceField) === 0) {
+            insertValueIntoObject(jsObject, fieldMap, fieldObservable());
+          }
+          return jsObject;
+        }, {});
+
+        return getNestedReference(mappedObject, referenceField);
+      }, // return current data in POJO form
       $toJSON: function() {}, // return current data in JSON form,
       $dirty: function() {}, // return whether or not the model data has been changed, or set it to a state
       $valid: function(/* 'movies.drama' */) {}, // get validation of entire model or selected field
