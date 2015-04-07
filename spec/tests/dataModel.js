@@ -609,4 +609,38 @@ describe('dataModel', function () {
     expect(person.$toJSON('movies')).to.eql(JSON.stringify(personData.movies));
     expect(person.$toJSON('movies.action')).to.eql(JSON.stringify(personData.movies.action));
   });
+
+  it('can correctly be flagged as dirty when a mapped field value is altered', function() {
+    var Person = fw.dataModel({
+      namespace: 'person',
+      initialize: function(person) {
+        this.firstName = fw.observable(person.firstName).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName).mapTo('lastName');
+        this.movieCollection = {
+          action: fw.observableArray(person.movies.action).mapTo('movies.action'),
+          drama: fw.observableArray(person.movies.drama).mapTo('movies.drama'),
+          comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy'),
+          horror: fw.observableArray(person.movies.horror).mapTo('movies.horror')
+        };
+      }
+    });
+
+    var personData = {
+      firstName: 'John',
+      lastName: 'Smith',
+      movies: {
+        action: ['Commando', 'Predator', 'Timecop', 'Terminator'],
+        drama: ['The Shawshank Redemption'],
+        comedy: ['Dumb and Dumber', 'Billy Madison'],
+        horror: ['Friday the 13th', 'Jason']
+      }
+    };
+    var person = new Person(personData);
+
+    expect(person.$dirty()).to.be(false);
+
+    person.firstName('test123');
+
+    expect(person.$dirty()).to.be(true);
+  });
 });
