@@ -107,7 +107,7 @@ function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
       rootObject[propName] = {};
     }
     // recurse into the next layer
-    insertValueIntoObject(rootObject[propName], fieldMap, fieldValue);
+    return insertValueIntoObject(rootObject[propName], fieldMap, fieldValue);
   } else {
     rootObject[propName] = fieldValue;
   }
