@@ -1,4 +1,4 @@
-// framework/specialTags/init.js
+// framework/entities/init.js
 // ----------------
 
 function makeBooleanChecks(descriptor) {
@@ -12,7 +12,7 @@ function makeBooleanChecks(descriptor) {
   };
 }
 
-specialTagDescriptors = map(specialTagDescriptors, function prepareDescriptor(descriptor) {
+entityDescriptors = map(entityDescriptors, function prepareDescriptor(descriptor) {
   descriptor = extend({
     resourceLocations: {},
     registered: {},
@@ -25,13 +25,13 @@ specialTagDescriptors = map(specialTagDescriptors, function prepareDescriptor(de
   return extend(descriptor, makeBooleanChecks(descriptor));
 });
 
-extend(specialTagDescriptors, {
-  tagNameIsPresent: function isSpecialTagDescriptorPresent(tagName) {
+extend(entityDescriptors, {
+  tagNameIsPresent: function isEntityDescriptorPresent(tagName) {
     return filter(this, function matchingTagNames(descriptor) {
       return descriptor.tagName === tagName;
     }).length > 0;
   },
-  resourceFor: function getResourceForSpecialTag(tagName) {
+  resourceFor: function getResourceForEntityTagName(tagName) {
     return reduce(this, function(resource, descriptor) {
       if(descriptor.tagName === tagName) {
         resource = descriptor.resource;

@@ -1,4 +1,4 @@
-// framework/specialTags/ViewModel.js
+// framework/entities/ViewModel.js
 // ------------------
 
 var ViewModel = function(descriptor, configParams) {

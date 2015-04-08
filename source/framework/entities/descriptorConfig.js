@@ -1,10 +1,10 @@
-// framework/specialTags/descriptorConfig.js
+// framework/entities/descriptorConfig.js
 // ------------------
 
-//import("ViewModel.js");
-//import("DataModel.js");
+//import("behavior/ViewModel.js");
+//import("behavior/DataModel.js");
 
-specialTagDescriptors = specialTagDescriptors.concat([
+entityDescriptors = entityDescriptors.concat([
   {
     tagName: 'viewmodel',
     methodName: 'viewModel',

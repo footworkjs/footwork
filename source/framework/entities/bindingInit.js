@@ -1,4 +1,4 @@
-// framework/specialTags/bindingInit.js
+// framework/entities/bindingInit.js
 // ------------------
 
 function modelBinder(element, params, ViewModel) {
@@ -50,7 +50,7 @@ function getResourceLocation(moduleName) {
   return resourceLocation;
 }
 
-function initSpecialTag(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
+function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
   var theValueAccessor = valueAccessor;
   if(tagName === '__elementBased') {
     tagName = element.tagName;
@@ -58,11 +58,11 @@ function initSpecialTag(tagName, element, valueAccessor, allBindings, viewModel,
 
   if(isString(tagName)) {
     tagName = tagName.toLowerCase();
-    if( specialTagDescriptors.tagNameIsPresent(tagName) ) {
+    if( entityDescriptors.tagNameIsPresent(tagName) ) {
       var values = valueAccessor();
       var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
       var bindModel = modelBinder.bind(null, element, values.params);
-      var resource = specialTagDescriptors.resourceFor(tagName);
+      var resource = entityDescriptors.resourceFor(tagName);
       var getResourceLocationFor = getResourceLocation.bind(resource);
 
       if(isNull(moduleName) && isString(values)) {
@@ -112,14 +112,14 @@ function initSpecialTag(tagName, element, valueAccessor, allBindings, viewModel,
   return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);
 };
 
-fw.bindingHandlers.component.init = initSpecialTag.bind(null, '__elementBased');
+fw.bindingHandlers.component.init = initEntityTag.bind(null, '__elementBased');
 
 // NOTE: Do not use the $router binding yet, it is incomplete
 fw.bindingHandlers.$router = {
   preprocess: function(moduleName) {
     return "'" + moduleName + "'";
   },
-  init: initSpecialTag.bind(null, 'router')
+  init: initEntityTag.bind(null, 'router')
 };
 
 // NOTE: Do not use the $viewModel binding yet, it is incomplete
@@ -127,5 +127,5 @@ fw.bindingHandlers.$viewModel = {
   preprocess: function(moduleName) {
     return "'" + moduleName + "'";
   },
-  init: initSpecialTag.bind(null, 'viewModel')
+  init: initEntityTag.bind(null, 'viewModel')
 };

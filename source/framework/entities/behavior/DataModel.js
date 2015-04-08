@@ -1,4 +1,4 @@
-// framework/specialTags/DataModel.js
+// framework/entities/behavior/DataModel.js
 // ------------------
 
 /**

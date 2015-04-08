@@ -20,7 +20,7 @@ var setupContextAndLifeCycle = noop;
 var noComponentSelected = '_noComponentSelected';
 var runPostInit = [];
 var nativeComponents = [];
-var specialTagDescriptors = [];
+var entityDescriptors = [];
 var modelMixins = [];
 var $routerOutlet;
 
@@ -32,19 +32,19 @@ runPostInit.push(function() {
 var isModelCtor;
 var isModel;
 runPostInit.push(function() {
-  var viewModelDescriptor = specialTagDescriptors.getDescriptor('viewModel');
+  var viewModelDescriptor = entityDescriptors.getDescriptor('viewModel');
   isModelCtor = viewModelDescriptor.isModelCtor;
   isModel = viewModelDescriptor.isModel;
 });
 
 var createResources;
 runPostInit.push(function() {
-  createResources(specialTagDescriptors);
+  createResources(entityDescriptors);
 });
 
 var createFactories;
 runPostInit.push(function() {
-  createFactories(specialTagDescriptors);
+  createFactories(entityDescriptors);
 });
 
 var registerOutletComponents;

@@ -7,7 +7,7 @@
 //import("model/module.js");
 //import("router/module.js");
 //import("component/module.js");
-//import("specialTags/module.js");
+//import("entities/module.js");
 
 // 'start' up the framework at the targetElement (or document.body by default)
 fw.start = function(targetElement) {

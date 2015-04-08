@@ -80,12 +80,6 @@ var build = function(buildProfile) {
 
 gulp.task('default', ['build-and-test']);
 
-gulp.task('bump', function () {
-  return gulp.src(['./package.json', './bower.json'])
-    .pipe(bump())
-    .pipe(gulp.dest('./'));
-});
-
 // Testing tasks
 gulp.task('ci', ['test_bare']);
 

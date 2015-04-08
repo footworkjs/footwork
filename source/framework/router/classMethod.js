@@ -75,7 +75,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
   }, this) );
 
   var $router = this;
-  this.$globalNamespace.request.handler(specialTagDescriptors.getDescriptor('router').referenceNamespace, function(options) {
+  this.$globalNamespace.request.handler(entityDescriptors.getDescriptor('router').referenceNamespace, function(options) {
     if( isObject(options) ) {
       if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
         var myNamespaceName = $router.$namespace.getName();

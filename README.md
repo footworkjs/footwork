@@ -8,49 +8,55 @@ A solid footing for web applications.
 
 ## What is footwork?
 
-Footwork is a front-end framework built upon open source technologies. It uses novel combinations of several design patterns and libraries to enable the creation of expressive, low-boilerplate, highly modularized, maintainable, and reusable web components and applications.
+Footwork is a front-end javascript framework built upon open source technologies. It uses novel combinations of several design patterns and libraries to enable the creation of expressive, low-boilerplate, highly modularized, maintainable, and reusable web components and applications.
 
-**Totally new to footwork?** The easiest place to start is [the tutorials](http://latest-docs.footworkjs.com/tutorials).
+**Totally new to footwork?** The easiest place to start is [the tutorials](http://latest-docs.footworkjs.com/tutorials "Get started quick!").
 
 For more details, see:
 
- * [Main Website](http://footworkjs.com/)
+ * [Main Website](http://footworkjs.com/ "Footwork.js Homepage")
 
- * [Documentation/API](http://latest-docs.footworkjs.com/)
+ * [Documentation/API](http://latest-docs.footworkjs.com/ "Documentation and API information")
 
 ### Building footwork from source
 
-* **Clone the repo from GitHub**
+* **Clone the repo from GitHub:**
 
 ```bash
-    git clone https://github.com/reflectiveSingleton/footwork.git
-    cd footwork
+git clone https://github.com/reflectiveSingleton/footwork.git
+cd footwork
 ```
 
-* **Acquire build dependencies.** Make sure you have [Node.js](http://nodejs.org/) installed on your workstation. This is only needed to _build_ footwork from source. Footwork requires gulp as well as several bower and NPM dependencies when building...to install those run:
+* **Acquire build dependencies:**
+
+Make sure you have [node.js](http://nodejs.org/) installed in your environment. Footwork additionally requires gulp plus several bower and NPM dependencies when building from source...to install those run:
 
 ```bash
-    npm install -g gulp
-    npm install -g bower
-    npm install && bower install
-```      
-
-The first `npm` command installs [gulp](http://gulpjs.com/) task runner. The second `npm` command installs [bower](http://bower.io/). The third installs the local build dependencies needed from [npm](https://www.npmjs.com/) and [bower](http://bower.io/).
-
-* **Run a gulp task to build/test/etc**
-
-```bash
-    # build everything (output in /dist) and run extended tests
-    gulp
-
-    # build everything (output in /dist)
-    gulp build-everything
-
-    # build whats necessary for continuous integration tests, and run them
-    gulp ci
+# These are needed to build footwork from source code
+npm install -g gulp
+npm install -g bower
+npm install && bower install
 ```
 
-##License
+The first `npm` command installs the [gulp](http://gulpjs.com/) task runner. The second `npm` command installs the [bower](http://bower.io/) package manager. The third installs the local build dependencies needed from both [npm](https://www.npmjs.com/) and [bower](http://bower.io/).
+
+* **Run a gulp task to build/test/etc:**
+
+```bash
+# build everything (output in /dist) and run extended tests
+gulp
+
+# build everything (output in /dist)
+gulp build-everything
+
+# build whats necessary for continuous integration tests, and run them
+gulp ci
+
+# (re)build the custom lodash exports module
+gulp lodash_custom
+```
+
+### License
 
 MIT license - [http://www.opensource.org/licenses/mit-license.php](http://www.opensource.org/licenses/mit-license.php)
 
