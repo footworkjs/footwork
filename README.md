@@ -10,32 +10,36 @@ A solid footing for web applications.
 
 Footwork is a front-end framework built upon open source technologies. It uses novel combinations of several design patterns and libraries to enable the creation of expressive, low-boilerplate, highly modularized, maintainable, and reusable web components and applications.
 
-**Totally new to Footwork?** The easiest place to start is [the tutorials](http://latest-docs.footworkjs.com/tutorials).
+**Totally new to footwork?** The easiest place to start is [the tutorials](http://latest-docs.footworkjs.com/tutorials).
 
-For more details, see
+For more details, see:
 
  * [Main Website](http://footworkjs.com/)
 
  * [Documentation/API](http://latest-docs.footworkjs.com/)
 
-### Building Footwork from source
+### Building footwork from source
 
 1. **Clone the repo from GitHub**
 
+```bash
         git clone https://github.com/reflectiveSingleton/footwork.git
         cd footwork
+```
 
 2. **Acquire build dependencies.** Make sure you have [Node.js](http://nodejs.org/) installed on your workstation. This is only needed to _build_ footwork from source. Footwork requires gulp as well as several bower and NPM dependencies when building...to install those run:
 
+```bash
         npm install -g gulp
         npm install -g bower
         npm install && bower install
-        
+```      
 
-    The first `npm` command installs [Gulp](http://gulpjs.com/) task runner. The second `npm` command installs bower. The third installs the local build dependencies from npm and bower.
+    The first `npm` command installs [gulp](http://gulpjs.com/) task runner. The second `npm` command installs [bower](http://bower.io/). The third installs the local build dependencies needed from [npm](https://www.npmjs.com/) and [bower](http://bower.io/).
 
 3. **Run a gulp task to build/test/etc**
 
+```bash
         # build everything (output in /dist) and run extended tests
         gulp
 
@@ -44,6 +48,7 @@ For more details, see
 
         # build whats necessary for continuous integration tests, and run them
         gulp ci
+```
 
 ##License
 
