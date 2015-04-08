@@ -10,37 +10,44 @@ A solid footing for web applications.
 
 Footwork is a front-end framework built upon open source technologies. It uses novel combinations of several design patterns and libraries to enable the creation of expressive, low-boilerplate, highly modularized, maintainable, and reusable web components and applications.
 
-TLDR: It makes knockout based applications easier to extend, scale, and maintain.
+**Totally new to Footwork?** The easiest place to start is [the tutorials](http://latest-docs.footworkjs.com/tutorials).
 
-## Why use footwork?
-There are a few main selling points:
+For more details, see
 
-1. **Expressive and semantic**
+ * [Main Website](http://footworkjs.com/)
 
-    Footwork makes use of a formalized viewModel construct along with built-in namespace, CQRS, and more. This makes working with your applications pieces easy while providing for proper separation of concerns. Integrated component support is from knockout 3.2+ which allows for the creation and use of fully modular custom elements. Why wait for browsers to support components...use them today!
+ * [Documentation/API](http://latest-docs.footworkjs.com/)
 
-2. **Low boilerplate**
+### Building Footwork from source
 
-    We all want to write as little code as possible while still enabling maximum extensibility. Footwork ensures you write as little code as possible while still allowing you to hook in at the appropriate locations your application needs. A lot of care is taken to make use of footwork work with very little fat to get in your way.
+1. **Clone the repo from GitHub**
 
-3. **Module and component based**
+        git clone https://github.com/reflectiveSingleton/footwork.git
+        cd footwork
 
-    Footwork makes use of Knockout 3.2+ along with a modular structure that enables full encapsulation of both logic and display source code. Reusing the different pieces of your application couldn't be easier.
+2. **Acquire build dependencies.** Make sure you have [Node.js](http://nodejs.org/) installed on your workstation. This is only needed to _build_ footwork from source. Footwork requires gulp as well as several bower and NPM dependencies when building...to install those run:
 
-    Note: it is also recommended to use requirejs for help with the modular structuring and optimization of your code.
+        npm install -g gulp
+        npm install -g bower
+        npm install && bower install
+        
 
-4. **Maintainability**
+    The first `npm` command installs [Gulp](http://gulpjs.com/) task runner. The second `npm` command installs bower. The third installs the local build dependencies from npm and bower.
 
-    Applications written using modular components and models combined with the expressiveness and semantics afforded by footwork makes maintaining them a breeze. This is because your code *says* what it means and does. Reading code you wrote a while back, or something someone else made becomes much more straightforward.
+3. **Run a gulp task to build/test/etc**
 
-### Footworks special sauce...
+        # build everything (output in /dist) and run extended tests
+        gulp
 
-The following dependencies are considered part of 'core':
+        # build everything (output in /dist)
+        gulp build-everything
 
-* [Knockout](http://knockoutjs.com/)
-* [lodash](http://lodash.com/)
-* [riveter](https://github.com/a2labs/riveter)
-* [postal.js](https://github.com/postaljs/postal.js)
+        # build whats necessary for continuous integration tests, and run them
+        gulp ci
+
+##License
+
+MIT license - [http://www.opensource.org/licenses/mit-license.php](http://www.opensource.org/licenses/mit-license.php)
 
 [![Join the chat at https://gitter.im/reflectiveSingleton/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/reflectiveSingleton/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 

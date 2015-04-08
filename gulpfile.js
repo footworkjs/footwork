@@ -58,7 +58,7 @@ var build = function(buildProfile) {
   headerBanner = headerBanner.join('\n');
 
   if(buildProfile === 'raw') {
-    headerBanner = rawBanner.join("\n");
+    headerBanner = headerBanner + rawBanner.join("\n");
   }
 
   return gulp
@@ -112,35 +112,27 @@ gulp.task('test_bare', ['build_bare_jquery'], function() {
 // Building tasks
 gulp.task('build-everything', ['build_all', 'build_all_with_history', 'build_minimal', 'build_bare_jquery', 'build_bare_reqwest', 'build_raw']);
 
-gulp.task('build_prep', function() {
-  // we have to force load of lodash instead of underscore inside of riveter
-  return gulp
-    .src('bower_components/riveter/lib/riveter.js')
-    .pipe(replace(/underscore/g, 'lodash'))
-    .pipe(gulp.dest('./bower_components/riveter/lib'));
-});
-
-gulp.task('build_all_with_history', ['build_prep'], function() {
+gulp.task('build_all_with_history', function() {
   return build('all-history');
 });
 
-gulp.task('build_all', ['build_prep'], function() {
+gulp.task('build_all', function() {
   return build('all');
 });
 
-gulp.task('build_minimal', ['build_prep'], function() {
+gulp.task('build_minimal', function() {
   return build('minimal');
 });
 
-gulp.task('build_bare_jquery', ['build_prep'], function() {
+gulp.task('build_bare_jquery', function() {
   return build('bare-jquery');
 });
 
-gulp.task('build_bare_reqwest', ['build_prep'], function() {
+gulp.task('build_bare_reqwest', function() {
   return build('bare-reqwest');
 });
 
-gulp.task('build_raw', ['build_prep'], function() {
+gulp.task('build_raw', function() {
   return build('raw');
 });
 
@@ -151,14 +143,9 @@ gulp.task('set_version', function() {
     pkg.version = version;
   }
 
-  return merge(
-    gulp.src(['docs/package.json', 'docs/bower.json'])
-      .pipe(bump({ version: version }))
-      .pipe(gulp.dest('./docs')),
-    gulp.src(['./package.json', './bower.json'])
-      .pipe(bump({ version: version }))
-      .pipe(gulp.dest('./'))
-  );
+  return gulp.src(['./package.json', './bower.json'])
+    .pipe(bump({ version: version }))
+    .pipe(gulp.dest('./'));
 });
 
 gulp.task('lodash_custom', function () {

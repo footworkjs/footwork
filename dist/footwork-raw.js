@@ -1,6 +1,14 @@
+/**
+ * footwork.js - A solid footing for web applications.
+ * Author: Jonathan Newman (http://staticty.pe)
+ * Version: v1.0.0
+ * Url: http://footworkjs.com
+ * License(s): MIT
+ */
+
 // footwork.js
 // ----------------------------------
-// v0.9.0
+// v1.0.0
 //
 // Copyright (c)2014 Jonathan Newman (http://staticty.pe).
 // Distributed under MIT license
@@ -203,7 +211,7 @@ fw.extenders.delayWrite = function( target, options ) {
 // ------------------
 
 // Record the footwork version as of this build.
-fw.footworkVersion = '0.9.0';
+fw.footworkVersion = '1.0.0';
 
 // Expose any embedded dependencies
 fw.embed = embedded;

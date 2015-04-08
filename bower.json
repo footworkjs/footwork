@@ -1,6 +1,6 @@
 {
   "name": "knockout-footwork.js",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "description": "A solid footing for knockout applications.",
   "homepage": "http://footworkjs.com",
   "keywords": [
@@ -34,7 +34,7 @@
   "devDependencies": {
     "knockoutjs": "3.3.0",
     "knockoutjs-nowrapper": "https://github.com/reflectiveSingleton/knockout-nowrapper.git#aed2cd28719849f4c2ee01d7080ac80ca83a7d66",
-    "riveter": "0.1.2",
+    "riveter": "https://github.com/reflectiveSingleton/riveter.git#a7916c8e0fd9434876c8defcf34948c724002fbb",
     "lodash": "3.3.1",
     "postal.js": "1.0.1",
     "reqwest": "1.1.5",

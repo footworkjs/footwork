@@ -1,7 +1,7 @@
 /**
  * footwork.js - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.9.0-bare-jquery
+ * Version: v1.0.0-bare-jquery
  * Url: http://footworkjs.com
  * License(s): MIT
  */
@@ -301,8 +301,8 @@ var module = undefined,
   var methods = ('assert,clear,count,debug,dir,dirxml,error,exception,group,' +
      'groupCollapsed,groupEnd,info,log,markTimeline,profile,profiles,profileEnd,' +
      'show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn').split(',');
-  while (prop = properties.pop()) con[prop] = con[prop] || empty;
-  while (method = methods.pop()) con[method] = con[method] || dummy;
+  while (prop = properties.pop()) if (!con[prop]) con[prop] = empty;
+  while (method = methods.pop()) if (!con[method]) con[method] = dummy;
 })(typeof window === 'undefined' ? this : window);
 // Using `this` for web workers while maintaining compatibility with browser
 // targeted script loaders such as Browserify or Webpack where the only way to
@@ -511,7 +511,7 @@ fw.extenders.delayWrite = function( target, options ) {
 // ------------------
 
 // Record the footwork version as of this build.
-fw.footworkVersion = '0.9.0';
+fw.footworkVersion = '1.0.0';
 
 // Expose any embedded dependencies
 fw.embed = embedded;
