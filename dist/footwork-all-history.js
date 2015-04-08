@@ -4,7 +4,9 @@
  * Version: v0.9.0-all-history
  * Url: http://footworkjs.com
  * License(s): MIT
- */(function (root, factory) {
+ */
+
+(function (root, factory) {
   /**
    * Knockout uses a non-standard UMD wrapping that makes it impossible (I think) to embed it like the
    * other dependencies, the -all build uses a forked version which removes the wrappings.
@@ -12615,7 +12617,7 @@ var DataModel = function(descriptor, configParams) {
       $load: function( data ) {}, // load data into model (clears $dirty)
 
       $hasMappedField: function(referenceField) {
-        return !!this.$$mappings[referenceField];;
+        return !!this.$$mappings[referenceField];
       },
 
       // return current data in POJO form

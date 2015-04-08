@@ -4,7 +4,9 @@
  * Version: v0.9.0-minimal
  * Url: http://footworkjs.com
  * License(s): MIT
- */(function (root, factory) {
+ */
+
+(function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     define(['lodash', 'knockout'], factory);
   } else if (typeof exports === 'object') {
@@ -3937,7 +3939,7 @@ var DataModel = function(descriptor, configParams) {
       $load: function( data ) {}, // load data into model (clears $dirty)
 
       $hasMappedField: function(referenceField) {
-        return !!this.$$mappings[referenceField];;
+        return !!this.$$mappings[referenceField];
       },
 
       // return current data in POJO form

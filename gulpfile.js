@@ -34,7 +34,8 @@ var banner = [
   ' * Version: v<%= pkg.version %>',
   ' * Url: <%= pkg.homepage %>',
   ' * License(s): <% pkg.licenses.forEach(function( license, idx ){ %><%= license.type %><% if(idx !== pkg.licenses.length-1) { %>, <% } %><% }); %>',
-  ' */'
+  ' */',
+  '', ''
 ];
 
 var rawBanner = [
@@ -45,7 +46,8 @@ var rawBanner = [
   '// Copyright (c)2014 <%= pkg.author %>.',
   '// Distributed under <% pkg.licenses.forEach(function( license, idx ){ %><%= license.type %><% if(idx !== pkg.licenses.length-1) { %>, <% } %><% }); %> license',
   '//',
-  '// <%= pkg.homepage %>'
+  '// <%= pkg.homepage %>',
+  '', ''
 ];
 
 var build = function(buildProfile) {
@@ -70,7 +72,6 @@ var build = function(buildProfile) {
     .pipe(uglify({
       compress: { negate_iife: false }
     }))
-    .pipe(header(banner, { pkg: pkg }))
     .pipe(rename('footwork-' + buildProfile + '.min.js'))
     .pipe(size({ title: '[' + buildProfile + '] Minified' }))
     .pipe(size({ title: '[' + buildProfile + '] Minified', gzip: true }))

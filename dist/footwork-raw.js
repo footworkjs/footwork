@@ -5,7 +5,9 @@
 // Copyright (c)2014 Jonathan Newman (http://staticty.pe).
 // Distributed under MIT license
 //
-// http://footworkjs.com// main.js
+// http://footworkjs.com
+
+// main.js
 // -----------
 
 var fw = ko;
@@ -2410,7 +2412,7 @@ var DataModel = function(descriptor, configParams) {
       $load: function( data ) {}, // load data into model (clears $dirty)
 
       $hasMappedField: function(referenceField) {
-        return !!this.$$mappings[referenceField];;
+        return !!this.$$mappings[referenceField];
       },
 
       // return current data in POJO form
