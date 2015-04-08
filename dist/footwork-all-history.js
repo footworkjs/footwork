@@ -10208,7 +10208,8 @@ if (typeof JSON !== 'object') {
     // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ '_', 'ko', 'riveter', 'postal', 'reqwest' ];
 
-    return (function footwork(embedded, windowObject, _, ko, postal, riveter) {
+    return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest) {
+      var ajax = reqwest.compat;
       // main.js
 // -----------
 
@@ -10901,7 +10902,7 @@ function setDefaultModelLocation(descriptor, path) {
 function registerModelLocation(descriptor, modelName, location) {
   if( isArray(modelName) ) {
     each(modelName, function(name) {
-      registerModelLocation.call(descriptor, name, location);
+      registerModelLocation(descriptor, name, location);
     });
   }
   descriptor.resourceLocations[ modelName ] = location;
@@ -10943,30 +10944,6 @@ function getModelReferences(descriptor, namespaceName, options) {
     return references[referenceKeys[0]];
   }
   return references;
-}
-
-// assemble all resource methods for a given descriptor object
-function resourceFactory(descriptor) {
-  var resourceMethods = {
-    getFileName: getModelFileName.bind(null, descriptor),
-    register: register.bind(null, descriptor),
-    isRegistered: isRegistered.bind(null, descriptor),
-    getRegistered: getRegistered.bind(null, descriptor),
-    registerLocation: registerModelLocation.bind(null, descriptor),
-    locationIsRegistered: modelLocationIsRegistered.bind(null, descriptor),
-    getLocation: getModelResourceLocation.bind(null, descriptor),
-    defaultLocation: setDefaultModelLocation.bind(null, descriptor),
-    fileExtensions: descriptor.fileExtensions,
-    resourceLocations: descriptor.resourceLocations
-  };
-
-  if(!isUndefined(descriptor.referenceNamespace)) {
-    // Returns a reference to the specified models.
-    // If no name is supplied, a reference to an array containing all viewModel references is returned.
-    resourceMethods.getAll = getModelReferences.bind(null, descriptor);
-  }
-
-  return resourceMethods;
 }
 
 // framework/resource/component.js
@@ -11081,10 +11058,37 @@ fw.components.getLocation = function(componentName) {
 createResources = function(descriptors) {
   each(descriptors, function(descriptor) {
     if(!isUndefined(descriptor.resource)) {
-      extend(descriptor.resource, resourceFactory(descriptor));
+      extend(descriptor.resource, resourceHelperFactory(descriptor));
     }
   });
 };
+
+// framework/resource/resourceHelperFactory.js
+// ------------------
+
+// assemble all resource methods for a given descriptor object
+function resourceHelperFactory(descriptor) {
+  var resourceMethods = {
+    getFileName: getModelFileName.bind(null, descriptor),
+    register: register.bind(null, descriptor),
+    isRegistered: isRegistered.bind(null, descriptor),
+    getRegistered: getRegistered.bind(null, descriptor),
+    registerLocation: registerModelLocation.bind(null, descriptor),
+    locationIsRegistered: modelLocationIsRegistered.bind(null, descriptor),
+    getLocation: getModelResourceLocation.bind(null, descriptor),
+    defaultLocation: setDefaultModelLocation.bind(null, descriptor),
+    fileExtensions: descriptor.fileExtensions,
+    resourceLocations: descriptor.resourceLocations
+  };
+
+  if(!isUndefined(descriptor.referenceNamespace)) {
+    // Returns a reference to the specified models.
+    // If no name is supplied, a reference to an array containing all viewModel references is returned.
+    resourceMethods.getAll = getModelReferences.bind(null, descriptor);
+  }
+
+  return resourceMethods;
+}
 
 
 // framework/broadcastable-receivable/broacastable.js
@@ -11285,57 +11289,12 @@ function modelMixin(thing) {
 function modelClassFactory(descriptor, configParams) {
   var model = null;
 
-  configParams = extend({
-    namespace: undefined,
-    name: undefined,
-    autoRegister: false,
-    autoIncrement: false,
-    mixins: undefined,
-    params: undefined,
-    afterInit: noop,
-    afterBinding: noop,
-    onDispose: noop
-  }, configParams || {});
+  configParams = extend({}, descriptor.defaultConfig, configParams || {});
 
-  var initModelMixin = {
-    _preInit: function( params ) {
-      if( isObject(configParams.router) ) {
-        this.$router = new Router( configParams.router, this );
-      }
-    },
-    mixin: {
-      $params: result(configParams, 'params'),
-      __getConfigParams: function() {
-        return configParams;
-      },
-      dispose: function() {
-        if( !this._isDisposed ) {
-          this._isDisposed = true;
-          if( configParams.onDispose !== noop ) {
-            configParams.onDispose.call(this);
-          }
-          each(this, propertyDisposal);
-        }
-      }
-    },
-    _postInit: function() {
-      if( this.__assertPresence !== false ) {
-        this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
-          if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
-            if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
-              if(isArray(options.namespaceName) && indexOf(options.namespaceName, this.getNamespaceName()) !== -1) {
-                return this;
-              } else if(isString(options.namespaceName) && options.namespaceName === this.getNamespaceName()) {
-                return this;
-              }
-            } else {
-              return this;
-            }
-          }
-        }.bind(this));
-      }
-    }
-  };
+  var descriptorMixins = [];
+  map(descriptor.mixins, function(mixin, index) {
+    descriptorMixins.push( isFunction(mixin) ? mixin(descriptor, configParams || {}) : mixin );
+  });
 
   var ctor = configParams.initialize || configParams.viewModel || noop;
   if( !descriptor.isModelCtor(ctor) ) {
@@ -11346,7 +11305,7 @@ function modelClassFactory(descriptor, configParams) {
     var newInstanceCheckMixin = {
       _preInit: function() {
         if(this === windowObject) {
-          throw new Error('Must call the new operator when instantiating a new ' + descriptor.methodName + '.');
+          throw new Error('Must use the new operator when instantiating a ' + descriptor.methodName + '.');
         }
       }
     };
@@ -11358,15 +11317,13 @@ function modelClassFactory(descriptor, configParams) {
     });
 
     var composure = [ ctor ].concat(
-      // latest in execution
       modelMixin(newInstanceCheckMixin),
+      modelMixin(isModelDuckTagMixin),
       modelMixin(afterInitCallbackMixin),
       modelMixin(afterInitMixins),
-      modelMixin(configParams.mixins),
-      modelMixin(initModelMixin),
       modelMixin(beforeInitMixins),
-      modelMixin(isModelDuckTagMixin)
-      // earliest in execution
+      modelMixin(configParams.mixins),
+      modelMixin(descriptorMixins)
     );
 
     model = riveter.compose.apply( undefined, composure );
@@ -11400,7 +11357,22 @@ function modelClassFactory(descriptor, configParams) {
 // ------------------
 
 function routerClassFactory(routerConfig) {
-  return fw.viewModel({ router: routerConfig });
+  var viewModel = fw.viewModel({
+    router: routerConfig
+  });
+
+  if( routerConfig.autoRegister ) {
+    var namespace = routerConfig.namespace;
+    if( fw.routers.isRegistered(namespace) ) {
+      if( fw.routers.getRegistered(namespace) !== this ) {
+        throw new Error('"' + namespace + '" has already been registered as a router, autoRegister failed.');
+      }
+    } else {
+      fw.routers.register(namespace, viewModel);
+    }
+  }
+
+  return viewModel;
 }
 
 // framework/model/createFactories.js
@@ -11498,7 +11470,8 @@ function routeStringToRegExp(routeString) {
 }
 
 function historyIsReady() {
-  var isReady = has(History, 'Adapter');
+  var typeOfHistory = typeof History;
+  var isReady = ['function','object'].indexOf(typeOfHistory) !== -1 && has(History, 'Adapter');
 
   if(isReady && !History.Adapter.isSetup) {
     History.Adapter.isSetup = true;
@@ -11512,6 +11485,7 @@ function historyIsReady() {
       });
     };
   }
+
   return isReady;
 }
 
@@ -11673,7 +11647,7 @@ registerOutletComponents = function() {
 
 var Router = function( routerConfig, $viewModel, $context ) {
   extend(this, $baseRouter);
-  var subscriptions = this.subscriptions = [];
+  var subscriptions = this.subscriptions = fw.observableArray();
   var viewModelNamespaceName;
 
   if( isModel($viewModel) ) {
@@ -11709,19 +11683,29 @@ var Router = function( routerConfig, $viewModel, $context ) {
 
   this.path = fw.computed(function() {
     var currentRoute = this.currentRoute();
-    var parentRouter = this.parentRouter();
-    var routePath = this.parentRouter().path();
+    var routeSegment = '/';
 
     if( isRoute(currentRoute) ) {
-      routePath = routePath + currentRoute.segment;
+      routeSegment = (currentRoute.segment === '' ? '/' : currentRoute.segment);
     }
-    return routePath;
+
+    return (this.isRelative() ? this.parentRouter().path() : '') + routeSegment;
   }, this);
 
+  var triggerRouteRecompute = function() {
+    this.currentState.notifySubscribers();
+  }.bind(this);
+  var parentPathSubscription;
   var $previousParent = $nullRouter;
   subscriptions.push(this.parentRouter.subscribe(function( $parentRouter ) {
     if( !isNullRouter($previousParent) && $previousParent !== $parentRouter ) {
       $previousParent.childRouters.remove(this);
+
+      if(parentPathSubscription) {
+        subscriptions.remove(parentPathSubscription);
+        parentPathSubscription.dispose();
+      }
+      subscriptions.push(parentPathSubscription = $parentRouter.path.subscribe(triggerRouteRecompute));
     }
     $parentRouter.childRouters.push(this);
     $previousParent = $parentRouter;
@@ -11735,8 +11719,21 @@ var Router = function( routerConfig, $viewModel, $context ) {
   }, this) );
 
   var $router = this;
-  this.$globalNamespace.request.handler(specialTagDescriptors.getDescriptor('router').referenceNamespace, function() {
-    return $router;
+  this.$globalNamespace.request.handler(specialTagDescriptors.getDescriptor('router').referenceNamespace, function(options) {
+    if( isObject(options) ) {
+      if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
+        var myNamespaceName = $router.$namespace.getName();
+        if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
+          return $router;
+        } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+          return $router;
+        }
+      } else {
+        return $router;
+      }
+    } else {
+      return $router;
+    }
   });
 
   this.outlets = {};
@@ -11801,7 +11798,7 @@ Router.prototype.setState = function(url) {
     if(isString(url)) {
       var historyAPIWorked = true;
       try {
-        historyAPIWorked = History.pushState(null, '', this.config.baseRoute + this.parentRouter().path() + url);
+        historyAPIWorked = History.pushState(null, '', this.config.baseRoute + this.parentRouter().path() + url.replace(startingHashRegex, '/'));
       } catch(historyException) {
         console.error(historyException);
         historyAPIWorked = false;
@@ -11815,7 +11812,18 @@ Router.prototype.setState = function(url) {
     }
   } else if(isString(url)) {
     this.currentState( this.normalizeURL( url ) );
+  } else {
+    this.currentState('/');
   }
+
+  if(!historyIsReady()) {
+    var routePath = this.path();
+    each(this.childRouters(), function(childRouter) {
+      childRouter.currentState(routePath);
+    });
+  }
+
+  return this;
 };
 
 Router.prototype.startup = function( $context, $parentRouter ) {
@@ -11864,7 +11872,7 @@ Router.prototype.dispose = function() {
   this.$namespace.dispose();
   this.$globalNamespace.dispose();
 
-  invoke(this.subscriptions, 'dispose');
+  invoke(this.subscriptions(), 'dispose');
   each(omit(this, function(property) {
     return isModel(property);
   }), propertyDisposal);
@@ -11877,8 +11885,6 @@ Router.prototype.normalizeURL = function(url) {
   if(!fw.routers.html5History()) {
     if(url.indexOf('#') !== -1) {
       url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
-    } else if(this.currentState() !== url) {
-      url = '/';
     }
   } else {
     url = urlParts.path;
@@ -11978,7 +11984,7 @@ function RoutedAction(routeDescription) {
   }
 
   if( isUndefined(this.__currentRouteDescription) || !sameRouteDescription(this.__currentRouteDescription, routeDescription) ) {
-    routeDescription.controller.call( this, routeDescription.namedParams );
+    (routeDescription.controller || noop).call( this, routeDescription.namedParams );
     this.__currentRouteDescription = routeDescription;
   }
 }
@@ -12087,10 +12093,10 @@ fw.bindingHandlers.$route = {
 
           if( includeParentPath && !isNullRouter($myRouter) ) {
             myLinkPath = $myRouter.parentRouter().path() + myLinkPath;
+          }
 
-            if(fw.routers.html5History() === false) {
-              myLinkPath = '#' + (myLinkPath.indexOf('/') === 0 ? myLinkPath.substring(1) : myLinkPath);
-            }
+          if(fw.routers.html5History() === false) {
+            myLinkPath = '#' + (myLinkPath.indexOf('/') === 0 ? myLinkPath.substring(1) : myLinkPath);
           }
         }
 
@@ -12103,17 +12109,22 @@ fw.bindingHandlers.$route = {
     var routeURLWithoutParentPath = getRouteURL.bind(null, false);
 
     function checkForMatchingSegment(mySegment, newRoute) {
-      if(routeHandlerDescription.addActiveClass) {
-        var activeRouteClassName = routeHandlerDescription.activeClass || fw.routers.activeRouteClassName();
-        if(mySegment === '/') {
-          mySegment = '';
-        }
+      var currentRoute = $myRouter.currentRoute();
+      mySegment = mySegment.replace(startingHashRegex, '/');
 
-        if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
-          // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
-          addClass(element, activeRouteClassName);
-        } else if( hasClass(element, activeRouteClassName) ) {
-          removeClass(element, activeRouteClassName);
+      if(isObject(currentRoute)) {
+        if(routeHandlerDescription.addActiveClass) {
+          var activeRouteClassName = routeHandlerDescription.activeClass || fw.routers.activeRouteClassName();
+          if(mySegment === '/') {
+            mySegment = '';
+          }
+
+          if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
+            // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
+            addClass(element, activeRouteClassName);
+          } else if( hasClass(element, activeRouteClassName) ) {
+            removeClass(element, activeRouteClassName);
+          }
         }
       }
     };
@@ -12332,7 +12343,7 @@ fw.components.loaders.push( fw.components.requireLoader = {
 
     if( isFunction(require) ) {
       // load component using knockouts native support for requirejs
-      if( require.defined(componentName) ) {
+      if( require.specified(componentName) ) {
         // component already cached, lets use it
         configOptions = {
           require: componentName
@@ -12386,20 +12397,300 @@ fw.components.loaders.push( fw.components.requireLoader = {
 });
 
 
-// framework/specialTags/config.js
+// framework/specialTags/descriptorConfig.js
 // ------------------
+
+// framework/specialTags/ViewModel.js
+// ------------------
+
+var ViewModel = function(descriptor, configParams) {
+  return {
+    _preInit: function( params ) {
+      if( isObject(configParams.router) ) {
+        this.$router = new Router( configParams.router, this );
+      }
+    },
+    mixin: {
+      $params: result(configParams, 'params'),
+      __getConfigParams: function() {
+        return configParams;
+      },
+      dispose: function() {
+        if( !this._isDisposed ) {
+          this._isDisposed = true;
+          if( configParams.onDispose !== noop ) {
+            configParams.onDispose.call(this);
+          }
+          each(this, propertyDisposal);
+        }
+      }
+    },
+    _postInit: function() {
+      if( this.__assertPresence !== false ) {
+        this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
+          if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
+            if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
+              var myNamespaceName = this.getNamespaceName();
+              if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
+                return this;
+              } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+                return this;
+              }
+            } else {
+              return this;
+            }
+          }
+        }.bind(this));
+      }
+    }
+  };
+};
+
+// framework/specialTags/DataModel.js
+// ------------------
+
+/**
+ * Tentative API:
+ *
+ * var DataModel = fw.dataModel({
+ *   id: 'id',
+ *
+ *   // string based url with automatic RESTful routes
+ *   url: 'http://server.com/person',
+ *
+ *   // custom routes provided by callback
+ *   url: function(method) {
+ *     switch(method) {
+ *       case 'read':
+ *         return 'http://server.com/person/:id';
+ *         break;
+ *
+ *       case 'create':
+ *         return 'http://server.com/person';
+ *         break;
+ *
+ *       case 'update':
+ *         return 'http://server.com/person/:id';
+ *         break;
+ *
+ *       case 'delete':
+ *         return 'http://server.com/person/:id';
+ *         break;
+ *     }
+ *   },
+ *
+ *   validate: {
+ *     'firstName': 'notEmpty',
+ *     'lastName': 'notEmpty',
+ *     'email': 'validEmail',
+ *     'movies.action': function(actionMovies) {
+ *       return actionMovies.indexOf('Commando') !== -1;
+ *     }
+ *   }
+ *
+ *   initialize: function() {
+ *     // field declarations and mapping
+ *     this.firstName = fw.observable().mapTo('firstName');
+ *     this.lastName = fw.observable().mapTo('lastName');
+ *     this.email = fw.observable().mapTo('email');
+ *     this.movieCollection = {
+ *       action: fw.observable().mapTo('movies.action'),
+ *       drama: fw.observable().mapTo('movies.drama'),
+ *       comedy: fw.observable().mapTo('movies.comedy'),
+ *       horror: fw.observable().mapTo('movies.horror')
+ *     };
+ *   }
+ * });
+ */
+
+var dataModelContext = [];
+function enterDataModelContext(dataModel) {
+  dataModelContext.unshift(dataModel);
+}
+function exitDataModelContext() {
+  dataModelContext.shift();
+}
+
+function currentDataModelContext() {
+  return dataModelContext.length ? dataModelContext[0] : null;
+}
+
+fw.subscribable.fn.mapTo = function(option) {
+  var mappedObservable = this;
+  var mapPath;
+  var dataModel;
+
+  if(isString(option)) {
+    mapPath = option;
+    dataModel = currentDataModelContext();
+  } else if(isObject(option)) {
+    mapPath = option.path;
+    dataModel = option.dataModel;
+  } else {
+    throw new Error('Invalid options supplied to mapTo');
+  }
+
+  if(isNull(dataModel)) {
+    throw new Error('No dataModel context found/supplied for mapTo observable');
+  }
+
+  var mappings = dataModel.$$mappings;
+  if( !isUndefined(mappings[mapPath]) ) {
+    throw new Error('this path is already mapped on this dataModel');
+  }
+  mappings[mapPath] = mappedObservable;
+
+  var changeSubscription = mappedObservable.subscribe(function() {
+    dataModel.$dirty(true);
+  });
+
+  var disposeObservable = mappedObservable.dispose || noop;
+  if(isFunction(mappedObservable.dispose)) {
+    mappedObservable.dispose = function() {
+      changeSubscription.dispose();
+      disposeObservable.call(mappedObservable);
+    };
+  }
+
+  return mappedObservable;
+};
+
+function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
+  if(isString(fieldMap)) {
+    return insertValueIntoObject(rootObject, fieldMap.split('.'), fieldValue);
+  }
+
+  var propName = fieldMap.shift();
+  if(fieldMap.length) {
+    if(isUndefined(rootObject[propName])) {
+      // nested property, lets add the child
+      rootObject[propName] = {};
+    }
+    // recurse into the next layer
+    return insertValueIntoObject(rootObject[propName], fieldMap, fieldValue);
+  } else {
+    rootObject[propName] = fieldValue;
+  }
+
+  return rootObject;
+}
+
+function getNestedReference(rootObject, fieldMap) {
+  var propName = fieldMap;
+
+  if(!isUndefined(fieldMap)) {
+    if(isString(fieldMap)) {
+      // initial call with string based fieldMap, recurse into main loop
+      return getNestedReference(rootObject, fieldMap.split('.'));
+    }
+
+    propName = fieldMap.shift();
+    if(fieldMap.length) {
+      // recurse into the next layer
+      return getNestedReference(rootObject[propName], fieldMap);
+    }
+  }
+
+  return !isString(propName) ? rootObject : rootObject[propName];
+}
+
+var DataModel = function(descriptor, configParams) {
+  configParams = extend({}, {
+    id: 'id'
+  }, configParams);
+
+  return {
+    runBeforeInit: true,
+    _preInit: function( params ) {
+      enterDataModelContext(this);
+      this.$dirty = fw.observable(false);
+    },
+    mixin: {
+      __isDataModel: true,
+      // internal tracking/mapping/etc data
+      $$mappings: {},
+      $fetch: function() {}, // GET from server and $load into model
+      $save: function() {}, // PUT / POST
+      $destroy: function() {}, // DELETE
+      $load: function( data ) {}, // load data into model (clears $dirty)
+
+      $hasMappedField: function(referenceField) {
+        return !!this.$$mappings[referenceField];;
+      },
+
+      // return current data in POJO form
+      $toJS: function(referenceField) {
+        var mappedObject = reduce(this.$$mappings, function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+          if(isUndefined(referenceField) || fieldMap.indexOf(referenceField) === 0) {
+            insertValueIntoObject(jsObject, fieldMap, fieldObservable());
+          }
+          return jsObject;
+        }, {});
+
+        return getNestedReference(mappedObject, referenceField);
+      },
+
+      // return current data in JSON form
+      $toJSON: function(referenceField) {
+        return JSON.stringify( this.$toJS(referenceField) );
+      },
+
+      $valid: function( referenceField ) {}, // get validation of entire model or selected field
+      $validate: function() {} // perform a validation and return the result on a specific field or the entire model
+    },
+    _postInit: function() {
+      this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
+        if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
+          var myNamespaceName = configParams.namespace;
+          if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
+            return this;
+          } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+            return this;
+          }
+        }
+      }.bind(this));
+
+      exitDataModelContext();
+    }
+  };
+};
+
 
 specialTagDescriptors = specialTagDescriptors.concat([
   {
     tagName: 'viewmodel',
     methodName: 'viewModel',
     defaultLocation: '/viewModel/',
-    resource: fw.viewModels
+    resource: fw.viewModels,
+    mixins: [ ViewModel ],
+    defaultConfig: {
+      namespace: undefined,
+      name: undefined,
+      autoRegister: false,
+      autoIncrement: false,
+      mixins: undefined,
+      params: undefined,
+      afterInit: noop,
+      afterBinding: noop,
+      onDispose: noop
+    }
   }, {
     tagName: 'datamodel',
     methodName: 'dataModel',
     defaultLocation: '/dataModel/',
-    resource: fw.dataModels
+    resource: fw.dataModels,
+    mixins: [ ViewModel, DataModel ],
+    defaultConfig: {
+      namespace: undefined,
+      name: undefined,
+      autoRegister: false,
+      autoIncrement: true,
+      mixins: undefined,
+      params: undefined,
+      afterInit: noop,
+      afterBinding: noop,
+      onDispose: noop
+    }
   }, {
     tagName: 'router',
     methodName: 'router',
@@ -12581,8 +12872,8 @@ extend(specialTagDescriptors, {
       return resource;
     }, null);
   },
-  getDescriptor: function(methodName) {
-    return reduce(this, function findDescriptor(foundDescriptor, descriptor) {
+  getDescriptor: function getDescriptor(methodName) {
+    return reduce(this, function reduceDescriptor(foundDescriptor, descriptor) {
       return descriptor.methodName === methodName ? descriptor : foundDescriptor;
     }, null);
   }
@@ -12592,6 +12883,9 @@ extend(specialTagDescriptors, {
 
 // 'start' up the framework at the targetElement (or document.body by default)
 fw.start = function(targetElement) {
+  // must initialize require context (https://github.com/jrburke/requirejs/issues/1305#issuecomment-87924865)
+  require([]);
+
   assessHistoryState();
   targetElement = targetElement || windowObject.document.body;
   originalApplyBindings({}, targetElement);
@@ -12603,6 +12897,6 @@ each(runPostInit, function(runTask) {
 
 
       return ko;
-    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter );
+    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.reqwest );
   })();
 }));

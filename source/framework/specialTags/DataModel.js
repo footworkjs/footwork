@@ -86,11 +86,11 @@ fw.subscribable.fn.mapTo = function(option) {
     throw new Error('No dataModel context found/supplied for mapTo observable');
   }
 
-  var config = dataModel.$$dataModel;
-  if( !isUndefined(config[mapPath]) ) {
+  var mappings = dataModel.$$mappings;
+  if( !isUndefined(mappings[mapPath]) ) {
     throw new Error('this path is already mapped on this dataModel');
   }
-  config[mapPath] = mappedObservable;
+  mappings[mapPath] = mappedObservable;
 
   var changeSubscription = mappedObservable.subscribe(function() {
     dataModel.$dirty(true);
@@ -160,19 +160,19 @@ var DataModel = function(descriptor, configParams) {
     mixin: {
       __isDataModel: true,
       // internal tracking/mapping/etc data
-      $$dataModel: {},
+      $$mappings: {},
       $fetch: function() {}, // GET from server and $load into model
       $save: function() {}, // PUT / POST
       $destroy: function() {}, // DELETE
       $load: function( data ) {}, // load data into model (clears $dirty)
 
       $hasMappedField: function(referenceField) {
-        return !!this.$$dataModel[referenceField];;
+        return !!this.$$mappings[referenceField];
       },
 
       // return current data in POJO form
       $toJS: function(referenceField) {
-        var mappedObject = reduce(this.$$dataModel, function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+        var mappedObject = reduce(this.$$mappings, function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
           if(isUndefined(referenceField) || fieldMap.indexOf(referenceField) === 0) {
             insertValueIntoObject(jsObject, fieldMap, fieldObservable());
           }

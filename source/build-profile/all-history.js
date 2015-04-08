@@ -61,9 +61,10 @@
     // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ '_', 'ko', 'riveter', 'postal', 'reqwest' ];
 
-    return (function footwork(embedded, windowObject, _, ko, postal, riveter) {
+    return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest) {
+      var ajax = reqwest.compat;
       //import("../footwork.js");
       return ko;
-    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter );
+    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.reqwest );
   })();
 }));

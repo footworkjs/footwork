@@ -1,11 +1,319 @@
-// footwork.js
-// ----------------------------------
-// v0.9.0
-//
-// Copyright (c)2014 Jonathan Newman (http://staticty.pe).
-// Distributed under MIT license
-//
-// http://footworkjs.com// main.js
+/**
+ * footwork.js - A solid footing for web applications.
+ * Author: Jonathan Newman (http://staticty.pe)
+ * Version: v0.9.0-bare-reqwest
+ * Url: http://footworkjs.com
+ * License(s): MIT
+ */(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define(['lodash', 'knockout', 'postal', 'reqwest'], factory);
+  } else if (typeof exports === 'object') {
+    module.exports = factory(require('lodash'), require('knockout'), require('postal'), require('reqwest'));
+  } else {
+    root.fw = factory(root._, root.ko, root.postal, root.reqwest);
+  }
+}(this, function (_, ko, postal, reqwest) {
+  var windowObject = window;
+
+  window.require = typeof require !== 'undefined' ? require : undefined;
+  window.define = typeof define !== 'undefined' ? define : undefined;
+
+  return (function() {
+    // define our own root object to supply to the modules as an attachment point
+var root = {};
+
+// supply our root for modules that directly check for the window object
+var window = root;
+
+// hide requirejs from the modules (AMD environment)
+var define = undefined;
+
+// hide node.js or browserified from the modules (CommonJS environment)
+var module = undefined,
+    exports = undefined,
+    global = undefined;
+
+    if (!Function.prototype.bind) {
+  Function.prototype.bind = function(oThis) {
+    if (typeof this !== 'function') {
+      // closest thing possible to the ECMAScript 5
+      // internal IsCallable function
+      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+    }
+
+    var aArgs   = Array.prototype.slice.call(arguments, 1),
+        fToBind = this,
+        fNOP    = function() {},
+        fBound  = function() {
+          return fToBind.apply(this instanceof fNOP && oThis
+                 ? this
+                 : oThis,
+                 aArgs.concat(Array.prototype.slice.call(arguments)));
+        };
+
+    fNOP.prototype = this.prototype;
+    fBound.prototype = new fNOP();
+
+    return fBound;
+  };
+}
+
+
+    _.extend(root, {
+      _: _,
+      ko: ko,
+      postal: postal,
+      reqwest: reqwest
+    });
+
+    /**
+     * Riveter still embedded in 'bare' build as it is problematic when used as a module compared to the other dependencies. It depends on
+     * underscore as opposed to lodash...meaning both lodash and underscore would be required if lodash was not substituted for underscore
+     * in riveter.
+     */
+    (function() {
+      /**
+ * riveter - Mix-in, inheritance and constructor extend behavior for your JavaScript enjoyment.
+ * © 2012 - Copyright appendTo, LLC 
+ * Author(s): Jim Cowart, Nicholas Cloud, Doug Neiner
+ * Version: v0.1.2
+ * Url: https://github.com/a2labs/riveter
+ * License(s): MIT, GPL
+ */
+(function (root, factory) {
+    if (typeof module === "object" && module.exports) {
+        // Node, or CommonJS-Like environments
+        module.exports = factory(require("lodash"));
+    } else if (typeof define === "function" && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(["lodash"], function (_) {
+            return factory(_, root);
+        });
+    } else {
+        // Browser globals
+        root.riveter = factory(root._, root);
+    }
+}(this, function (_, global, undefined) {
+    var slice = Array.prototype.slice;
+    var riveter = function () {
+        var args = slice.call(arguments, 0);
+        while (args.length) {
+            riveter.rivet(args.shift());
+        }
+    };
+    riveter.rivet = function (fn) {
+        if (!fn.hasOwnProperty("extend")) {
+            fn.extend = function (props, ctorProps) {
+                return riveter.extend(fn, props, ctorProps);
+            };
+        }
+        if (!fn.hasOwnProperty("compose")) {
+            fn.compose = function () {
+                return riveter.compose.apply(this, [fn].concat(slice.call(arguments, 0)));
+            };
+        }
+        if (!fn.hasOwnProperty("inherits")) {
+            fn.inherits = function (parent, ctorProps) {
+                riveter.inherits(fn, parent, ctorProps);
+            };
+        }
+        if (!fn.hasOwnProperty("mixin")) {
+            fn.mixin = function () {
+                riveter.mixin.apply(this, ([fn].concat(slice.call(arguments, 0))));
+            };
+        }
+    };
+    riveter.inherits = function (child, parent, ctorProps) {
+        var childProto;
+        var TmpCtor = function () {};
+        var Child = function () {
+            parent.apply(this, arguments);
+        };
+        if (typeof child === "object") {
+            if (child.hasOwnProperty("constructor")) {
+                Child = child.constructor;
+            }
+            childProto = child;
+        } else {
+            Child = child;
+            childProto = child.prototype;
+        }
+        riveter.rivet(Child);
+        _.defaults(Child, parent, ctorProps);
+        TmpCtor.prototype = parent.prototype;
+        Child.prototype = new TmpCtor();
+        _.extend(Child.prototype, childProto, {
+            constructor: Child
+        });
+        Child.__super = parent;
+        // Next line is all about Backbone compatibility
+        Child.__super__ = parent.prototype;
+        return Child;
+    };
+    riveter.extend = function (ctor, props, ctorProps) {
+        return riveter.inherits(props, ctor, ctorProps);
+    };
+    riveter.compose = function () {
+        var args = slice.call(arguments, 0);
+        var ctor = args.shift();
+        riveter.rivet(ctor);
+        var mixin = _.reduce(args, function (memo, val) {
+            if (val.hasOwnProperty("_preInit")) {
+                memo.preInit.push(val._preInit);
+            }
+            if (val.hasOwnProperty("_postInit")) {
+                memo.postInit.push(val._postInit);
+            }
+            val = val.mixin || val;
+            memo.items.push(val);
+            return memo;
+        }, {
+            items: [],
+            preInit: [],
+            postInit: []
+        });
+        var res = ctor.extend({
+            constructor: function ( /* options */ ) {
+                var args = slice.call(arguments, 0);
+                _.each(mixin.preInit, function (initializer) {
+                    initializer.apply(this, args);
+                }, this);
+                ctor.prototype.constructor.apply(this, args);
+                _.each(mixin.postInit, function (initializer) {
+                    initializer.apply(this, args);
+                }, this);
+            }
+        });
+        riveter.rivet(res);
+        _.defaults(res.prototype, _.extend.apply(null, [{}].concat(mixin.items)));
+        return res;
+    };
+    riveter.mixin = function () {
+        var args = slice.call(arguments, 0);
+        var ctor = args.shift();
+        riveter.rivet(ctor);
+        _.defaults(ctor.prototype, _.extend.apply(null, [{}].concat(args)));
+    };
+    return riveter;
+}));
+    }).call(root);
+
+    if(root._.isUndefined(root.postal.preserve)) {
+      (function() {
+        /**
+ * postal.preserve - Add-on for postal.js that provides message durability features.
+ * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
+ * Version: v0.1.0
+ * Url: http://github.com/postaljs/postal.preserve
+ * License(s): MIT
+ */
+(function (root, factory) {
+    if (typeof module === "object" && module.exports) {
+        // Node, or CommonJS-Like environments
+        module.exports = function (postal) {
+            factory(require("lodash"), postal, this);
+        };
+    } else if (typeof define === "function" && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(["lodash", "postal"], function (_, postal) {
+            return factory(_, postal, root);
+        });
+    } else {
+        // Browser globals
+        root.postal = factory(root._, root.postal, root);
+    }
+}(this, function (_, postal, global, undefined) {
+    var plugin = postal.preserve = {
+        store: {},
+        expiring: []
+    };
+    var system = postal.channel(postal.configuration.SYSTEM_CHANNEL);
+    var dtSort = function (a, b) {
+        return b.expires - a.expires;
+    };
+    var tap = postal.addWireTap(function (d, e) {
+        var channel = e.channel;
+        var topic = e.topic;
+        if (e.headers && e.headers.preserve) {
+            plugin.store[channel] = plugin.store[channel] || {};
+            plugin.store[channel][topic] = plugin.store[channel][topic] || [];
+            plugin.store[channel][topic].push(e);
+            // a bit harder to read, but trying to make
+            // traversing expired messages faster than
+            // iterating the store object's multiple arrays
+            if (e.headers.expires) {
+                plugin.expiring.push({
+                    expires: e.headers.expires,
+                    purge: function () {
+                        plugin.store[channel][topic] = _.without(plugin.store[channel][topic], e);
+                        plugin.expiring = _.without(plugin.expiring, this);
+                    }
+                });
+                plugin.expiring.sort(dtSort);
+            }
+        }
+    });
+    function purgeExpired() {
+        var dt = new Date();
+        var expired = _.filter(plugin.expiring, function (x) {
+            return x.expires < dt;
+        });
+        while (expired.length) {
+            expired.pop().purge();
+        }
+    }
+    postal.SubscriptionDefinition.prototype.enlistPreserved = function () {
+        var channel = this.channel;
+        var binding = this.topic;
+        var self = this;
+        purgeExpired(true);
+        if (plugin.store[channel]) {
+            _.each(plugin.store[channel], function (msgs, topic) {
+                if (postal.configuration.resolver.compare(binding, topic)) {
+                    _.each(msgs, function (env) {
+                        self.callback.call(
+                        self.context || (self.callback.context && self.callback.context()) || this, env.data, env);
+                    });
+                }
+            });
+        }
+        return this;
+    };
+    return postal;
+}));
+      }).call(root);
+    }
+
+    (function(window) {
+      // Console-polyfill. MIT license.
+// https://github.com/paulmillr/console-polyfill
+// Make it safe to do console.log() always.
+(function(global) {
+  'use strict';
+  global.console = global.console || {};
+  var con = global.console;
+  var prop, method;
+  var empty = {};
+  var dummy = function() {};
+  var properties = 'memory'.split(',');
+  var methods = ('assert,clear,count,debug,dir,dirxml,error,exception,group,' +
+     'groupCollapsed,groupEnd,info,log,markTimeline,profile,profiles,profileEnd,' +
+     'show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn').split(',');
+  while (prop = properties.pop()) con[prop] = con[prop] || empty;
+  while (method = methods.pop()) con[method] = con[method] || dummy;
+})(typeof window === 'undefined' ? this : window);
+// Using `this` for web workers while maintaining compatibility with browser
+// targeted script loaders such as Browserify or Webpack where the only way to
+// get to the global object is via `window`.
+
+    }).call(root, windowObject);
+
+    // list of dependencies to export from the library as .embed properties
+    var embeddedDependencies = [ 'riveter' ];
+
+    return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest) {
+      var ajax = reqwest.compat;
+      // main.js
 // -----------
 
 var fw = ko;
@@ -2691,3 +2999,7 @@ each(runPostInit, function(runTask) {
 });
 
 
+      return ko;
+    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.reqwest );
+  })();
+}));

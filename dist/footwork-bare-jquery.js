@@ -1,18 +1,18 @@
 /**
  * footwork.js - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v0.9.0-bare
+ * Version: v0.9.0-bare-jquery
  * Url: http://footworkjs.com
  * License(s): MIT
  */(function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['lodash', 'knockout', 'postal'], factory);
+    define(['lodash', 'knockout', 'postal', 'jquery'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory(require('lodash'), require('knockout'), require('postal'));
+    module.exports = factory(require('lodash'), require('knockout'), require('postal'), require('jquery'));
   } else {
-    root.fw = factory(root._, root.ko, root.postal);
+    root.fw = factory(root._, root.ko, root.postal, root.jQuery);
   }
-}(this, function (_, ko, postal) {
+}(this, function (_, ko, postal, jquery) {
   var windowObject = window;
 
   window.require = typeof require !== 'undefined' ? require : undefined;
@@ -62,627 +62,9 @@ var module = undefined,
     _.extend(root, {
       _: _,
       ko: ko,
-      postal: postal
+      postal: postal,
+      jquery: jquery
     });
-
-    (function() {
-      /*!
-  * Reqwest! A general purpose XHR connection manager
-  * license MIT (c) Dustin Diaz 2014
-  * https://github.com/ded/reqwest
-  */
-
-!function (name, context, definition) {
-  if (typeof module != 'undefined' && module.exports) module.exports = definition()
-  else if (typeof define == 'function' && define.amd) define(definition)
-  else context[name] = definition()
-}('reqwest', this, function () {
-
-  var win = window
-    , doc = document
-    , httpsRe = /^http/
-    , protocolRe = /(^\w+):\/\//
-    , twoHundo = /^(20\d|1223)$/ //http://stackoverflow.com/questions/10046972/msie-returns-status-code-of-1223-for-ajax-request
-    , byTag = 'getElementsByTagName'
-    , readyState = 'readyState'
-    , contentType = 'Content-Type'
-    , requestedWith = 'X-Requested-With'
-    , head = doc[byTag]('head')[0]
-    , uniqid = 0
-    , callbackPrefix = 'reqwest_' + (+new Date())
-    , lastValue // data stored by the most recent JSONP callback
-    , xmlHttpRequest = 'XMLHttpRequest'
-    , xDomainRequest = 'XDomainRequest'
-    , noop = function () {}
-
-    , isArray = typeof Array.isArray == 'function'
-        ? Array.isArray
-        : function (a) {
-            return a instanceof Array
-          }
-
-    , defaultHeaders = {
-          'contentType': 'application/x-www-form-urlencoded'
-        , 'requestedWith': xmlHttpRequest
-        , 'accept': {
-              '*':  'text/javascript, text/html, application/xml, text/xml, */*'
-            , 'xml':  'application/xml, text/xml'
-            , 'html': 'text/html'
-            , 'text': 'text/plain'
-            , 'json': 'application/json, text/javascript'
-            , 'js':   'application/javascript, text/javascript'
-          }
-      }
-
-    , xhr = function(o) {
-        // is it x-domain
-        if (o['crossOrigin'] === true) {
-          var xhr = win[xmlHttpRequest] ? new XMLHttpRequest() : null
-          if (xhr && 'withCredentials' in xhr) {
-            return xhr
-          } else if (win[xDomainRequest]) {
-            return new XDomainRequest()
-          } else {
-            throw new Error('Browser does not support cross-origin requests')
-          }
-        } else if (win[xmlHttpRequest]) {
-          return new XMLHttpRequest()
-        } else {
-          return new ActiveXObject('Microsoft.XMLHTTP')
-        }
-      }
-    , globalSetupOptions = {
-        dataFilter: function (data) {
-          return data
-        }
-      }
-
-  function succeed(r) {
-    var protocol = protocolRe.exec(r.url);
-    protocol = (protocol && protocol[1]) || window.location.protocol;
-    return httpsRe.test(protocol) ? twoHundo.test(r.request.status) : !!r.request.response;
-  }
-
-  function handleReadyState(r, success, error) {
-    return function () {
-      // use _aborted to mitigate against IE err c00c023f
-      // (can't read props on aborted request objects)
-      if (r._aborted) return error(r.request)
-      if (r._timedOut) return error(r.request, 'Request is aborted: timeout')
-      if (r.request && r.request[readyState] == 4) {
-        r.request.onreadystatechange = noop
-        if (succeed(r)) success(r.request)
-        else
-          error(r.request)
-      }
-    }
-  }
-
-  function setHeaders(http, o) {
-    var headers = o['headers'] || {}
-      , h
-
-    headers['Accept'] = headers['Accept']
-      || defaultHeaders['accept'][o['type']]
-      || defaultHeaders['accept']['*']
-
-    var isAFormData = typeof FormData === 'function' && (o['data'] instanceof FormData);
-    // breaks cross-origin requests with legacy browsers
-    if (!o['crossOrigin'] && !headers[requestedWith]) headers[requestedWith] = defaultHeaders['requestedWith']
-    if (!headers[contentType] && !isAFormData) headers[contentType] = o['contentType'] || defaultHeaders['contentType']
-    for (h in headers)
-      headers.hasOwnProperty(h) && 'setRequestHeader' in http && http.setRequestHeader(h, headers[h])
-  }
-
-  function setCredentials(http, o) {
-    if (typeof o['withCredentials'] !== 'undefined' && typeof http.withCredentials !== 'undefined') {
-      http.withCredentials = !!o['withCredentials']
-    }
-  }
-
-  function generalCallback(data) {
-    lastValue = data
-  }
-
-  function urlappend (url, s) {
-    return url + (/\?/.test(url) ? '&' : '?') + s
-  }
-
-  function handleJsonp(o, fn, err, url) {
-    var reqId = uniqid++
-      , cbkey = o['jsonpCallback'] || 'callback' // the 'callback' key
-      , cbval = o['jsonpCallbackName'] || reqwest.getcallbackPrefix(reqId)
-      , cbreg = new RegExp('((^|\\?|&)' + cbkey + ')=([^&]+)')
-      , match = url.match(cbreg)
-      , script = doc.createElement('script')
-      , loaded = 0
-      , isIE10 = navigator.userAgent.indexOf('MSIE 10.0') !== -1
-
-    if (match) {
-      if (match[3] === '?') {
-        url = url.replace(cbreg, '$1=' + cbval) // wildcard callback func name
-      } else {
-        cbval = match[3] // provided callback func name
-      }
-    } else {
-      url = urlappend(url, cbkey + '=' + cbval) // no callback details, add 'em
-    }
-
-    win[cbval] = generalCallback
-
-    script.type = 'text/javascript'
-    script.src = url
-    script.async = true
-    if (typeof script.onreadystatechange !== 'undefined' && !isIE10) {
-      // need this for IE due to out-of-order onreadystatechange(), binding script
-      // execution to an event listener gives us control over when the script
-      // is executed. See http://jaubourg.net/2010/07/loading-script-as-onclick-handler-of.html
-      script.htmlFor = script.id = '_reqwest_' + reqId
-    }
-
-    script.onload = script.onreadystatechange = function () {
-      if ((script[readyState] && script[readyState] !== 'complete' && script[readyState] !== 'loaded') || loaded) {
-        return false
-      }
-      script.onload = script.onreadystatechange = null
-      script.onclick && script.onclick()
-      // Call the user callback with the last value stored and clean up values and scripts.
-      fn(lastValue)
-      lastValue = undefined
-      head.removeChild(script)
-      loaded = 1
-    }
-
-    // Add the script to the DOM head
-    head.appendChild(script)
-
-    // Enable JSONP timeout
-    return {
-      abort: function () {
-        script.onload = script.onreadystatechange = null
-        err({}, 'Request is aborted: timeout', {})
-        lastValue = undefined
-        head.removeChild(script)
-        loaded = 1
-      }
-    }
-  }
-
-  function getRequest(fn, err) {
-    var o = this.o
-      , method = (o['method'] || 'GET').toUpperCase()
-      , url = typeof o === 'string' ? o : o['url']
-      // convert non-string objects to query-string form unless o['processData'] is false
-      , data = (o['processData'] !== false && o['data'] && typeof o['data'] !== 'string')
-        ? reqwest.toQueryString(o['data'])
-        : (o['data'] || null)
-      , http
-      , sendWait = false
-
-    // if we're working on a GET request and we have data then we should append
-    // query string to end of URL and not post data
-    if ((o['type'] == 'jsonp' || method == 'GET') && data) {
-      url = urlappend(url, data)
-      data = null
-    }
-
-    if (o['type'] == 'jsonp') return handleJsonp(o, fn, err, url)
-
-    // get the xhr from the factory if passed
-    // if the factory returns null, fall-back to ours
-    http = (o.xhr && o.xhr(o)) || xhr(o)
-
-    http.open(method, url, o['async'] === false ? false : true)
-    setHeaders(http, o)
-    setCredentials(http, o)
-    if (win[xDomainRequest] && http instanceof win[xDomainRequest]) {
-        http.onload = fn
-        http.onerror = err
-        // NOTE: see
-        // http://social.msdn.microsoft.com/Forums/en-US/iewebdevelopment/thread/30ef3add-767c-4436-b8a9-f1ca19b4812e
-        http.onprogress = function() {}
-        sendWait = true
-    } else {
-      http.onreadystatechange = handleReadyState(this, fn, err)
-    }
-    o['before'] && o['before'](http)
-    if (sendWait) {
-      setTimeout(function () {
-        http.send(data)
-      }, 200)
-    } else {
-      http.send(data)
-    }
-    return http
-  }
-
-  function Reqwest(o, fn) {
-    this.o = o
-    this.fn = fn
-
-    init.apply(this, arguments)
-  }
-
-  function setType(header) {
-    // json, javascript, text/plain, text/html, xml
-    if (header.match('json')) return 'json'
-    if (header.match('javascript')) return 'js'
-    if (header.match('text')) return 'html'
-    if (header.match('xml')) return 'xml'
-  }
-
-  function init(o, fn) {
-
-    this.url = typeof o == 'string' ? o : o['url']
-    this.timeout = null
-
-    // whether request has been fulfilled for purpose
-    // of tracking the Promises
-    this._fulfilled = false
-    // success handlers
-    this._successHandler = function(){}
-    this._fulfillmentHandlers = []
-    // error handlers
-    this._errorHandlers = []
-    // complete (both success and fail) handlers
-    this._completeHandlers = []
-    this._erred = false
-    this._responseArgs = {}
-
-    var self = this
-
-    fn = fn || function () {}
-
-    if (o['timeout']) {
-      this.timeout = setTimeout(function () {
-        timedOut()
-      }, o['timeout'])
-    }
-
-    if (o['success']) {
-      this._successHandler = function () {
-        o['success'].apply(o, arguments)
-      }
-    }
-
-    if (o['error']) {
-      this._errorHandlers.push(function () {
-        o['error'].apply(o, arguments)
-      })
-    }
-
-    if (o['complete']) {
-      this._completeHandlers.push(function () {
-        o['complete'].apply(o, arguments)
-      })
-    }
-
-    function complete (resp) {
-      o['timeout'] && clearTimeout(self.timeout)
-      self.timeout = null
-      while (self._completeHandlers.length > 0) {
-        self._completeHandlers.shift()(resp)
-      }
-    }
-
-    function success (resp) {
-      var type = o['type'] || resp && setType(resp.getResponseHeader('Content-Type')) // resp can be undefined in IE
-      resp = (type !== 'jsonp') ? self.request : resp
-      // use global data filter on response text
-      var filteredResponse = globalSetupOptions.dataFilter(resp.responseText, type)
-        , r = filteredResponse
-      try {
-        resp.responseText = r
-      } catch (e) {
-        // can't assign this in IE<=8, just ignore
-      }
-      if (r) {
-        switch (type) {
-        case 'json':
-          try {
-            resp = win.JSON ? win.JSON.parse(r) : eval('(' + r + ')')
-          } catch (err) {
-            return error(resp, 'Could not parse JSON in response', err)
-          }
-          break
-        case 'js':
-          resp = eval(r)
-          break
-        case 'html':
-          resp = r
-          break
-        case 'xml':
-          resp = resp.responseXML
-              && resp.responseXML.parseError // IE trololo
-              && resp.responseXML.parseError.errorCode
-              && resp.responseXML.parseError.reason
-            ? null
-            : resp.responseXML
-          break
-        }
-      }
-
-      self._responseArgs.resp = resp
-      self._fulfilled = true
-      fn(resp)
-      self._successHandler(resp)
-      while (self._fulfillmentHandlers.length > 0) {
-        resp = self._fulfillmentHandlers.shift()(resp)
-      }
-
-      complete(resp)
-    }
-
-    function timedOut() {
-      self._timedOut = true
-      self.request.abort()      
-    }
-
-    function error(resp, msg, t) {
-      resp = self.request
-      self._responseArgs.resp = resp
-      self._responseArgs.msg = msg
-      self._responseArgs.t = t
-      self._erred = true
-      while (self._errorHandlers.length > 0) {
-        self._errorHandlers.shift()(resp, msg, t)
-      }
-      complete(resp)
-    }
-
-    this.request = getRequest.call(this, success, error)
-  }
-
-  Reqwest.prototype = {
-    abort: function () {
-      this._aborted = true
-      this.request.abort()
-    }
-
-  , retry: function () {
-      init.call(this, this.o, this.fn)
-    }
-
-    /**
-     * Small deviation from the Promises A CommonJs specification
-     * http://wiki.commonjs.org/wiki/Promises/A
-     */
-
-    /**
-     * `then` will execute upon successful requests
-     */
-  , then: function (success, fail) {
-      success = success || function () {}
-      fail = fail || function () {}
-      if (this._fulfilled) {
-        this._responseArgs.resp = success(this._responseArgs.resp)
-      } else if (this._erred) {
-        fail(this._responseArgs.resp, this._responseArgs.msg, this._responseArgs.t)
-      } else {
-        this._fulfillmentHandlers.push(success)
-        this._errorHandlers.push(fail)
-      }
-      return this
-    }
-
-    /**
-     * `always` will execute whether the request succeeds or fails
-     */
-  , always: function (fn) {
-      if (this._fulfilled || this._erred) {
-        fn(this._responseArgs.resp)
-      } else {
-        this._completeHandlers.push(fn)
-      }
-      return this
-    }
-
-    /**
-     * `fail` will execute when the request fails
-     */
-  , fail: function (fn) {
-      if (this._erred) {
-        fn(this._responseArgs.resp, this._responseArgs.msg, this._responseArgs.t)
-      } else {
-        this._errorHandlers.push(fn)
-      }
-      return this
-    }
-  , 'catch': function (fn) {
-      return this.fail(fn)
-    }
-  }
-
-  function reqwest(o, fn) {
-    return new Reqwest(o, fn)
-  }
-
-  // normalize newline variants according to spec -> CRLF
-  function normalize(s) {
-    return s ? s.replace(/\r?\n/g, '\r\n') : ''
-  }
-
-  function serial(el, cb) {
-    var n = el.name
-      , t = el.tagName.toLowerCase()
-      , optCb = function (o) {
-          // IE gives value="" even where there is no value attribute
-          // 'specified' ref: http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-862529273
-          if (o && !o['disabled'])
-            cb(n, normalize(o['attributes']['value'] && o['attributes']['value']['specified'] ? o['value'] : o['text']))
-        }
-      , ch, ra, val, i
-
-    // don't serialize elements that are disabled or without a name
-    if (el.disabled || !n) return
-
-    switch (t) {
-    case 'input':
-      if (!/reset|button|image|file/i.test(el.type)) {
-        ch = /checkbox/i.test(el.type)
-        ra = /radio/i.test(el.type)
-        val = el.value
-        // WebKit gives us "" instead of "on" if a checkbox has no value, so correct it here
-        ;(!(ch || ra) || el.checked) && cb(n, normalize(ch && val === '' ? 'on' : val))
-      }
-      break
-    case 'textarea':
-      cb(n, normalize(el.value))
-      break
-    case 'select':
-      if (el.type.toLowerCase() === 'select-one') {
-        optCb(el.selectedIndex >= 0 ? el.options[el.selectedIndex] : null)
-      } else {
-        for (i = 0; el.length && i < el.length; i++) {
-          el.options[i].selected && optCb(el.options[i])
-        }
-      }
-      break
-    }
-  }
-
-  // collect up all form elements found from the passed argument elements all
-  // the way down to child elements; pass a '<form>' or form fields.
-  // called with 'this'=callback to use for serial() on each element
-  function eachFormElement() {
-    var cb = this
-      , e, i
-      , serializeSubtags = function (e, tags) {
-          var i, j, fa
-          for (i = 0; i < tags.length; i++) {
-            fa = e[byTag](tags[i])
-            for (j = 0; j < fa.length; j++) serial(fa[j], cb)
-          }
-        }
-
-    for (i = 0; i < arguments.length; i++) {
-      e = arguments[i]
-      if (/input|select|textarea/i.test(e.tagName)) serial(e, cb)
-      serializeSubtags(e, [ 'input', 'select', 'textarea' ])
-    }
-  }
-
-  // standard query string style serialization
-  function serializeQueryString() {
-    return reqwest.toQueryString(reqwest.serializeArray.apply(null, arguments))
-  }
-
-  // { 'name': 'value', ... } style serialization
-  function serializeHash() {
-    var hash = {}
-    eachFormElement.apply(function (name, value) {
-      if (name in hash) {
-        hash[name] && !isArray(hash[name]) && (hash[name] = [hash[name]])
-        hash[name].push(value)
-      } else hash[name] = value
-    }, arguments)
-    return hash
-  }
-
-  // [ { name: 'name', value: 'value' }, ... ] style serialization
-  reqwest.serializeArray = function () {
-    var arr = []
-    eachFormElement.apply(function (name, value) {
-      arr.push({name: name, value: value})
-    }, arguments)
-    return arr
-  }
-
-  reqwest.serialize = function () {
-    if (arguments.length === 0) return ''
-    var opt, fn
-      , args = Array.prototype.slice.call(arguments, 0)
-
-    opt = args.pop()
-    opt && opt.nodeType && args.push(opt) && (opt = null)
-    opt && (opt = opt.type)
-
-    if (opt == 'map') fn = serializeHash
-    else if (opt == 'array') fn = reqwest.serializeArray
-    else fn = serializeQueryString
-
-    return fn.apply(null, args)
-  }
-
-  reqwest.toQueryString = function (o, trad) {
-    var prefix, i
-      , traditional = trad || false
-      , s = []
-      , enc = encodeURIComponent
-      , add = function (key, value) {
-          // If value is a function, invoke it and return its value
-          value = ('function' === typeof value) ? value() : (value == null ? '' : value)
-          s[s.length] = enc(key) + '=' + enc(value)
-        }
-    // If an array was passed in, assume that it is an array of form elements.
-    if (isArray(o)) {
-      for (i = 0; o && i < o.length; i++) add(o[i]['name'], o[i]['value'])
-    } else {
-      // If traditional, encode the "old" way (the way 1.3.2 or older
-      // did it), otherwise encode params recursively.
-      for (prefix in o) {
-        if (o.hasOwnProperty(prefix)) buildParams(prefix, o[prefix], traditional, add)
-      }
-    }
-
-    // spaces should be + according to spec
-    return s.join('&').replace(/%20/g, '+')
-  }
-
-  function buildParams(prefix, obj, traditional, add) {
-    var name, i, v
-      , rbracket = /\[\]$/
-
-    if (isArray(obj)) {
-      // Serialize array item.
-      for (i = 0; obj && i < obj.length; i++) {
-        v = obj[i]
-        if (traditional || rbracket.test(prefix)) {
-          // Treat each array item as a scalar.
-          add(prefix, v)
-        } else {
-          buildParams(prefix + '[' + (typeof v === 'object' ? i : '') + ']', v, traditional, add)
-        }
-      }
-    } else if (obj && obj.toString() === '[object Object]') {
-      // Serialize object item.
-      for (name in obj) {
-        buildParams(prefix + '[' + name + ']', obj[name], traditional, add)
-      }
-
-    } else {
-      // Serialize scalar item.
-      add(prefix, obj)
-    }
-  }
-
-  reqwest.getcallbackPrefix = function () {
-    return callbackPrefix
-  }
-
-  // jQuery and Zepto compatibility, differences can be remapped here so you can call
-  // .ajax.compat(options, callback)
-  reqwest.compat = function (o, fn) {
-    if (o) {
-      o['type'] && (o['method'] = o['type']) && delete o['type']
-      o['dataType'] && (o['type'] = o['dataType'])
-      o['jsonpCallback'] && (o['jsonpCallbackName'] = o['jsonpCallback']) && delete o['jsonpCallback']
-      o['jsonp'] && (o['jsonpCallback'] = o['jsonp'])
-    }
-    return new Reqwest(o, fn)
-  }
-
-  reqwest.ajaxSetup = function (options) {
-    options = options || {}
-    for (var k in options) {
-      globalSetupOptions[k] = options[k]
-    }
-  }
-
-  return reqwest
-});
-
-    }).call(root);
 
     /**
      * Riveter still embedded in 'bare' build as it is problematic when used as a module compared to the other dependencies. It depends on
@@ -927,9 +309,10 @@ var module = undefined,
     }).call(root, windowObject);
 
     // list of dependencies to export from the library as .embed properties
-    var embeddedDependencies = [ 'riveter', 'reqwest' ];
+    var embeddedDependencies = [ 'riveter' ];
 
-    return (function footwork(embedded, windowObject, _, ko, postal, riveter) {
+    return (function footwork(embedded, windowObject, _, ko, postal, riveter, jquery) {
+      var ajax = jquery.ajax;
       // main.js
 // -----------
 
@@ -1622,7 +1005,7 @@ function setDefaultModelLocation(descriptor, path) {
 function registerModelLocation(descriptor, modelName, location) {
   if( isArray(modelName) ) {
     each(modelName, function(name) {
-      registerModelLocation.call(descriptor, name, location);
+      registerModelLocation(descriptor, name, location);
     });
   }
   descriptor.resourceLocations[ modelName ] = location;
@@ -1664,30 +1047,6 @@ function getModelReferences(descriptor, namespaceName, options) {
     return references[referenceKeys[0]];
   }
   return references;
-}
-
-// assemble all resource methods for a given descriptor object
-function resourceFactory(descriptor) {
-  var resourceMethods = {
-    getFileName: getModelFileName.bind(null, descriptor),
-    register: register.bind(null, descriptor),
-    isRegistered: isRegistered.bind(null, descriptor),
-    getRegistered: getRegistered.bind(null, descriptor),
-    registerLocation: registerModelLocation.bind(null, descriptor),
-    locationIsRegistered: modelLocationIsRegistered.bind(null, descriptor),
-    getLocation: getModelResourceLocation.bind(null, descriptor),
-    defaultLocation: setDefaultModelLocation.bind(null, descriptor),
-    fileExtensions: descriptor.fileExtensions,
-    resourceLocations: descriptor.resourceLocations
-  };
-
-  if(!isUndefined(descriptor.referenceNamespace)) {
-    // Returns a reference to the specified models.
-    // If no name is supplied, a reference to an array containing all viewModel references is returned.
-    resourceMethods.getAll = getModelReferences.bind(null, descriptor);
-  }
-
-  return resourceMethods;
 }
 
 // framework/resource/component.js
@@ -1802,10 +1161,37 @@ fw.components.getLocation = function(componentName) {
 createResources = function(descriptors) {
   each(descriptors, function(descriptor) {
     if(!isUndefined(descriptor.resource)) {
-      extend(descriptor.resource, resourceFactory(descriptor));
+      extend(descriptor.resource, resourceHelperFactory(descriptor));
     }
   });
 };
+
+// framework/resource/resourceHelperFactory.js
+// ------------------
+
+// assemble all resource methods for a given descriptor object
+function resourceHelperFactory(descriptor) {
+  var resourceMethods = {
+    getFileName: getModelFileName.bind(null, descriptor),
+    register: register.bind(null, descriptor),
+    isRegistered: isRegistered.bind(null, descriptor),
+    getRegistered: getRegistered.bind(null, descriptor),
+    registerLocation: registerModelLocation.bind(null, descriptor),
+    locationIsRegistered: modelLocationIsRegistered.bind(null, descriptor),
+    getLocation: getModelResourceLocation.bind(null, descriptor),
+    defaultLocation: setDefaultModelLocation.bind(null, descriptor),
+    fileExtensions: descriptor.fileExtensions,
+    resourceLocations: descriptor.resourceLocations
+  };
+
+  if(!isUndefined(descriptor.referenceNamespace)) {
+    // Returns a reference to the specified models.
+    // If no name is supplied, a reference to an array containing all viewModel references is returned.
+    resourceMethods.getAll = getModelReferences.bind(null, descriptor);
+  }
+
+  return resourceMethods;
+}
 
 
 // framework/broadcastable-receivable/broacastable.js
@@ -2006,57 +1392,12 @@ function modelMixin(thing) {
 function modelClassFactory(descriptor, configParams) {
   var model = null;
 
-  configParams = extend({
-    namespace: undefined,
-    name: undefined,
-    autoRegister: false,
-    autoIncrement: false,
-    mixins: undefined,
-    params: undefined,
-    afterInit: noop,
-    afterBinding: noop,
-    onDispose: noop
-  }, configParams || {});
+  configParams = extend({}, descriptor.defaultConfig, configParams || {});
 
-  var initModelMixin = {
-    _preInit: function( params ) {
-      if( isObject(configParams.router) ) {
-        this.$router = new Router( configParams.router, this );
-      }
-    },
-    mixin: {
-      $params: result(configParams, 'params'),
-      __getConfigParams: function() {
-        return configParams;
-      },
-      dispose: function() {
-        if( !this._isDisposed ) {
-          this._isDisposed = true;
-          if( configParams.onDispose !== noop ) {
-            configParams.onDispose.call(this);
-          }
-          each(this, propertyDisposal);
-        }
-      }
-    },
-    _postInit: function() {
-      if( this.__assertPresence !== false ) {
-        this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
-          if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
-            if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
-              if(isArray(options.namespaceName) && indexOf(options.namespaceName, this.getNamespaceName()) !== -1) {
-                return this;
-              } else if(isString(options.namespaceName) && options.namespaceName === this.getNamespaceName()) {
-                return this;
-              }
-            } else {
-              return this;
-            }
-          }
-        }.bind(this));
-      }
-    }
-  };
+  var descriptorMixins = [];
+  map(descriptor.mixins, function(mixin, index) {
+    descriptorMixins.push( isFunction(mixin) ? mixin(descriptor, configParams || {}) : mixin );
+  });
 
   var ctor = configParams.initialize || configParams.viewModel || noop;
   if( !descriptor.isModelCtor(ctor) ) {
@@ -2067,7 +1408,7 @@ function modelClassFactory(descriptor, configParams) {
     var newInstanceCheckMixin = {
       _preInit: function() {
         if(this === windowObject) {
-          throw new Error('Must call the new operator when instantiating a new ' + descriptor.methodName + '.');
+          throw new Error('Must use the new operator when instantiating a ' + descriptor.methodName + '.');
         }
       }
     };
@@ -2079,15 +1420,13 @@ function modelClassFactory(descriptor, configParams) {
     });
 
     var composure = [ ctor ].concat(
-      // latest in execution
       modelMixin(newInstanceCheckMixin),
+      modelMixin(isModelDuckTagMixin),
       modelMixin(afterInitCallbackMixin),
       modelMixin(afterInitMixins),
-      modelMixin(configParams.mixins),
-      modelMixin(initModelMixin),
       modelMixin(beforeInitMixins),
-      modelMixin(isModelDuckTagMixin)
-      // earliest in execution
+      modelMixin(configParams.mixins),
+      modelMixin(descriptorMixins)
     );
 
     model = riveter.compose.apply( undefined, composure );
@@ -2121,7 +1460,22 @@ function modelClassFactory(descriptor, configParams) {
 // ------------------
 
 function routerClassFactory(routerConfig) {
-  return fw.viewModel({ router: routerConfig });
+  var viewModel = fw.viewModel({
+    router: routerConfig
+  });
+
+  if( routerConfig.autoRegister ) {
+    var namespace = routerConfig.namespace;
+    if( fw.routers.isRegistered(namespace) ) {
+      if( fw.routers.getRegistered(namespace) !== this ) {
+        throw new Error('"' + namespace + '" has already been registered as a router, autoRegister failed.');
+      }
+    } else {
+      fw.routers.register(namespace, viewModel);
+    }
+  }
+
+  return viewModel;
 }
 
 // framework/model/createFactories.js
@@ -2219,7 +1573,8 @@ function routeStringToRegExp(routeString) {
 }
 
 function historyIsReady() {
-  var isReady = has(History, 'Adapter');
+  var typeOfHistory = typeof History;
+  var isReady = ['function','object'].indexOf(typeOfHistory) !== -1 && has(History, 'Adapter');
 
   if(isReady && !History.Adapter.isSetup) {
     History.Adapter.isSetup = true;
@@ -2233,6 +1588,7 @@ function historyIsReady() {
       });
     };
   }
+
   return isReady;
 }
 
@@ -2394,7 +1750,7 @@ registerOutletComponents = function() {
 
 var Router = function( routerConfig, $viewModel, $context ) {
   extend(this, $baseRouter);
-  var subscriptions = this.subscriptions = [];
+  var subscriptions = this.subscriptions = fw.observableArray();
   var viewModelNamespaceName;
 
   if( isModel($viewModel) ) {
@@ -2430,19 +1786,29 @@ var Router = function( routerConfig, $viewModel, $context ) {
 
   this.path = fw.computed(function() {
     var currentRoute = this.currentRoute();
-    var parentRouter = this.parentRouter();
-    var routePath = this.parentRouter().path();
+    var routeSegment = '/';
 
     if( isRoute(currentRoute) ) {
-      routePath = routePath + currentRoute.segment;
+      routeSegment = (currentRoute.segment === '' ? '/' : currentRoute.segment);
     }
-    return routePath;
+
+    return (this.isRelative() ? this.parentRouter().path() : '') + routeSegment;
   }, this);
 
+  var triggerRouteRecompute = function() {
+    this.currentState.notifySubscribers();
+  }.bind(this);
+  var parentPathSubscription;
   var $previousParent = $nullRouter;
   subscriptions.push(this.parentRouter.subscribe(function( $parentRouter ) {
     if( !isNullRouter($previousParent) && $previousParent !== $parentRouter ) {
       $previousParent.childRouters.remove(this);
+
+      if(parentPathSubscription) {
+        subscriptions.remove(parentPathSubscription);
+        parentPathSubscription.dispose();
+      }
+      subscriptions.push(parentPathSubscription = $parentRouter.path.subscribe(triggerRouteRecompute));
     }
     $parentRouter.childRouters.push(this);
     $previousParent = $parentRouter;
@@ -2456,8 +1822,21 @@ var Router = function( routerConfig, $viewModel, $context ) {
   }, this) );
 
   var $router = this;
-  this.$globalNamespace.request.handler(specialTagDescriptors.getDescriptor('router').referenceNamespace, function() {
-    return $router;
+  this.$globalNamespace.request.handler(specialTagDescriptors.getDescriptor('router').referenceNamespace, function(options) {
+    if( isObject(options) ) {
+      if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
+        var myNamespaceName = $router.$namespace.getName();
+        if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
+          return $router;
+        } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+          return $router;
+        }
+      } else {
+        return $router;
+      }
+    } else {
+      return $router;
+    }
   });
 
   this.outlets = {};
@@ -2522,7 +1901,7 @@ Router.prototype.setState = function(url) {
     if(isString(url)) {
       var historyAPIWorked = true;
       try {
-        historyAPIWorked = History.pushState(null, '', this.config.baseRoute + this.parentRouter().path() + url);
+        historyAPIWorked = History.pushState(null, '', this.config.baseRoute + this.parentRouter().path() + url.replace(startingHashRegex, '/'));
       } catch(historyException) {
         console.error(historyException);
         historyAPIWorked = false;
@@ -2536,7 +1915,18 @@ Router.prototype.setState = function(url) {
     }
   } else if(isString(url)) {
     this.currentState( this.normalizeURL( url ) );
+  } else {
+    this.currentState('/');
   }
+
+  if(!historyIsReady()) {
+    var routePath = this.path();
+    each(this.childRouters(), function(childRouter) {
+      childRouter.currentState(routePath);
+    });
+  }
+
+  return this;
 };
 
 Router.prototype.startup = function( $context, $parentRouter ) {
@@ -2585,7 +1975,7 @@ Router.prototype.dispose = function() {
   this.$namespace.dispose();
   this.$globalNamespace.dispose();
 
-  invoke(this.subscriptions, 'dispose');
+  invoke(this.subscriptions(), 'dispose');
   each(omit(this, function(property) {
     return isModel(property);
   }), propertyDisposal);
@@ -2598,8 +1988,6 @@ Router.prototype.normalizeURL = function(url) {
   if(!fw.routers.html5History()) {
     if(url.indexOf('#') !== -1) {
       url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
-    } else if(this.currentState() !== url) {
-      url = '/';
     }
   } else {
     url = urlParts.path;
@@ -2699,7 +2087,7 @@ function RoutedAction(routeDescription) {
   }
 
   if( isUndefined(this.__currentRouteDescription) || !sameRouteDescription(this.__currentRouteDescription, routeDescription) ) {
-    routeDescription.controller.call( this, routeDescription.namedParams );
+    (routeDescription.controller || noop).call( this, routeDescription.namedParams );
     this.__currentRouteDescription = routeDescription;
   }
 }
@@ -2808,10 +2196,10 @@ fw.bindingHandlers.$route = {
 
           if( includeParentPath && !isNullRouter($myRouter) ) {
             myLinkPath = $myRouter.parentRouter().path() + myLinkPath;
+          }
 
-            if(fw.routers.html5History() === false) {
-              myLinkPath = '#' + (myLinkPath.indexOf('/') === 0 ? myLinkPath.substring(1) : myLinkPath);
-            }
+          if(fw.routers.html5History() === false) {
+            myLinkPath = '#' + (myLinkPath.indexOf('/') === 0 ? myLinkPath.substring(1) : myLinkPath);
           }
         }
 
@@ -2824,17 +2212,22 @@ fw.bindingHandlers.$route = {
     var routeURLWithoutParentPath = getRouteURL.bind(null, false);
 
     function checkForMatchingSegment(mySegment, newRoute) {
-      if(routeHandlerDescription.addActiveClass) {
-        var activeRouteClassName = routeHandlerDescription.activeClass || fw.routers.activeRouteClassName();
-        if(mySegment === '/') {
-          mySegment = '';
-        }
+      var currentRoute = $myRouter.currentRoute();
+      mySegment = mySegment.replace(startingHashRegex, '/');
 
-        if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
-          // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
-          addClass(element, activeRouteClassName);
-        } else if( hasClass(element, activeRouteClassName) ) {
-          removeClass(element, activeRouteClassName);
+      if(isObject(currentRoute)) {
+        if(routeHandlerDescription.addActiveClass) {
+          var activeRouteClassName = routeHandlerDescription.activeClass || fw.routers.activeRouteClassName();
+          if(mySegment === '/') {
+            mySegment = '';
+          }
+
+          if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
+            // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
+            addClass(element, activeRouteClassName);
+          } else if( hasClass(element, activeRouteClassName) ) {
+            removeClass(element, activeRouteClassName);
+          }
         }
       }
     };
@@ -3053,7 +2446,7 @@ fw.components.loaders.push( fw.components.requireLoader = {
 
     if( isFunction(require) ) {
       // load component using knockouts native support for requirejs
-      if( require.defined(componentName) ) {
+      if( require.specified(componentName) ) {
         // component already cached, lets use it
         configOptions = {
           require: componentName
@@ -3107,20 +2500,300 @@ fw.components.loaders.push( fw.components.requireLoader = {
 });
 
 
-// framework/specialTags/config.js
+// framework/specialTags/descriptorConfig.js
 // ------------------
+
+// framework/specialTags/ViewModel.js
+// ------------------
+
+var ViewModel = function(descriptor, configParams) {
+  return {
+    _preInit: function( params ) {
+      if( isObject(configParams.router) ) {
+        this.$router = new Router( configParams.router, this );
+      }
+    },
+    mixin: {
+      $params: result(configParams, 'params'),
+      __getConfigParams: function() {
+        return configParams;
+      },
+      dispose: function() {
+        if( !this._isDisposed ) {
+          this._isDisposed = true;
+          if( configParams.onDispose !== noop ) {
+            configParams.onDispose.call(this);
+          }
+          each(this, propertyDisposal);
+        }
+      }
+    },
+    _postInit: function() {
+      if( this.__assertPresence !== false ) {
+        this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
+          if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
+            if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
+              var myNamespaceName = this.getNamespaceName();
+              if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
+                return this;
+              } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+                return this;
+              }
+            } else {
+              return this;
+            }
+          }
+        }.bind(this));
+      }
+    }
+  };
+};
+
+// framework/specialTags/DataModel.js
+// ------------------
+
+/**
+ * Tentative API:
+ *
+ * var DataModel = fw.dataModel({
+ *   id: 'id',
+ *
+ *   // string based url with automatic RESTful routes
+ *   url: 'http://server.com/person',
+ *
+ *   // custom routes provided by callback
+ *   url: function(method) {
+ *     switch(method) {
+ *       case 'read':
+ *         return 'http://server.com/person/:id';
+ *         break;
+ *
+ *       case 'create':
+ *         return 'http://server.com/person';
+ *         break;
+ *
+ *       case 'update':
+ *         return 'http://server.com/person/:id';
+ *         break;
+ *
+ *       case 'delete':
+ *         return 'http://server.com/person/:id';
+ *         break;
+ *     }
+ *   },
+ *
+ *   validate: {
+ *     'firstName': 'notEmpty',
+ *     'lastName': 'notEmpty',
+ *     'email': 'validEmail',
+ *     'movies.action': function(actionMovies) {
+ *       return actionMovies.indexOf('Commando') !== -1;
+ *     }
+ *   }
+ *
+ *   initialize: function() {
+ *     // field declarations and mapping
+ *     this.firstName = fw.observable().mapTo('firstName');
+ *     this.lastName = fw.observable().mapTo('lastName');
+ *     this.email = fw.observable().mapTo('email');
+ *     this.movieCollection = {
+ *       action: fw.observable().mapTo('movies.action'),
+ *       drama: fw.observable().mapTo('movies.drama'),
+ *       comedy: fw.observable().mapTo('movies.comedy'),
+ *       horror: fw.observable().mapTo('movies.horror')
+ *     };
+ *   }
+ * });
+ */
+
+var dataModelContext = [];
+function enterDataModelContext(dataModel) {
+  dataModelContext.unshift(dataModel);
+}
+function exitDataModelContext() {
+  dataModelContext.shift();
+}
+
+function currentDataModelContext() {
+  return dataModelContext.length ? dataModelContext[0] : null;
+}
+
+fw.subscribable.fn.mapTo = function(option) {
+  var mappedObservable = this;
+  var mapPath;
+  var dataModel;
+
+  if(isString(option)) {
+    mapPath = option;
+    dataModel = currentDataModelContext();
+  } else if(isObject(option)) {
+    mapPath = option.path;
+    dataModel = option.dataModel;
+  } else {
+    throw new Error('Invalid options supplied to mapTo');
+  }
+
+  if(isNull(dataModel)) {
+    throw new Error('No dataModel context found/supplied for mapTo observable');
+  }
+
+  var mappings = dataModel.$$mappings;
+  if( !isUndefined(mappings[mapPath]) ) {
+    throw new Error('this path is already mapped on this dataModel');
+  }
+  mappings[mapPath] = mappedObservable;
+
+  var changeSubscription = mappedObservable.subscribe(function() {
+    dataModel.$dirty(true);
+  });
+
+  var disposeObservable = mappedObservable.dispose || noop;
+  if(isFunction(mappedObservable.dispose)) {
+    mappedObservable.dispose = function() {
+      changeSubscription.dispose();
+      disposeObservable.call(mappedObservable);
+    };
+  }
+
+  return mappedObservable;
+};
+
+function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
+  if(isString(fieldMap)) {
+    return insertValueIntoObject(rootObject, fieldMap.split('.'), fieldValue);
+  }
+
+  var propName = fieldMap.shift();
+  if(fieldMap.length) {
+    if(isUndefined(rootObject[propName])) {
+      // nested property, lets add the child
+      rootObject[propName] = {};
+    }
+    // recurse into the next layer
+    return insertValueIntoObject(rootObject[propName], fieldMap, fieldValue);
+  } else {
+    rootObject[propName] = fieldValue;
+  }
+
+  return rootObject;
+}
+
+function getNestedReference(rootObject, fieldMap) {
+  var propName = fieldMap;
+
+  if(!isUndefined(fieldMap)) {
+    if(isString(fieldMap)) {
+      // initial call with string based fieldMap, recurse into main loop
+      return getNestedReference(rootObject, fieldMap.split('.'));
+    }
+
+    propName = fieldMap.shift();
+    if(fieldMap.length) {
+      // recurse into the next layer
+      return getNestedReference(rootObject[propName], fieldMap);
+    }
+  }
+
+  return !isString(propName) ? rootObject : rootObject[propName];
+}
+
+var DataModel = function(descriptor, configParams) {
+  configParams = extend({}, {
+    id: 'id'
+  }, configParams);
+
+  return {
+    runBeforeInit: true,
+    _preInit: function( params ) {
+      enterDataModelContext(this);
+      this.$dirty = fw.observable(false);
+    },
+    mixin: {
+      __isDataModel: true,
+      // internal tracking/mapping/etc data
+      $$mappings: {},
+      $fetch: function() {}, // GET from server and $load into model
+      $save: function() {}, // PUT / POST
+      $destroy: function() {}, // DELETE
+      $load: function( data ) {}, // load data into model (clears $dirty)
+
+      $hasMappedField: function(referenceField) {
+        return !!this.$$mappings[referenceField];;
+      },
+
+      // return current data in POJO form
+      $toJS: function(referenceField) {
+        var mappedObject = reduce(this.$$mappings, function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+          if(isUndefined(referenceField) || fieldMap.indexOf(referenceField) === 0) {
+            insertValueIntoObject(jsObject, fieldMap, fieldObservable());
+          }
+          return jsObject;
+        }, {});
+
+        return getNestedReference(mappedObject, referenceField);
+      },
+
+      // return current data in JSON form
+      $toJSON: function(referenceField) {
+        return JSON.stringify( this.$toJS(referenceField) );
+      },
+
+      $valid: function( referenceField ) {}, // get validation of entire model or selected field
+      $validate: function() {} // perform a validation and return the result on a specific field or the entire model
+    },
+    _postInit: function() {
+      this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
+        if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
+          var myNamespaceName = configParams.namespace;
+          if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
+            return this;
+          } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+            return this;
+          }
+        }
+      }.bind(this));
+
+      exitDataModelContext();
+    }
+  };
+};
+
 
 specialTagDescriptors = specialTagDescriptors.concat([
   {
     tagName: 'viewmodel',
     methodName: 'viewModel',
     defaultLocation: '/viewModel/',
-    resource: fw.viewModels
+    resource: fw.viewModels,
+    mixins: [ ViewModel ],
+    defaultConfig: {
+      namespace: undefined,
+      name: undefined,
+      autoRegister: false,
+      autoIncrement: false,
+      mixins: undefined,
+      params: undefined,
+      afterInit: noop,
+      afterBinding: noop,
+      onDispose: noop
+    }
   }, {
     tagName: 'datamodel',
     methodName: 'dataModel',
     defaultLocation: '/dataModel/',
-    resource: fw.dataModels
+    resource: fw.dataModels,
+    mixins: [ ViewModel, DataModel ],
+    defaultConfig: {
+      namespace: undefined,
+      name: undefined,
+      autoRegister: false,
+      autoIncrement: true,
+      mixins: undefined,
+      params: undefined,
+      afterInit: noop,
+      afterBinding: noop,
+      onDispose: noop
+    }
   }, {
     tagName: 'router',
     methodName: 'router',
@@ -3302,8 +2975,8 @@ extend(specialTagDescriptors, {
       return resource;
     }, null);
   },
-  getDescriptor: function(methodName) {
-    return reduce(this, function findDescriptor(foundDescriptor, descriptor) {
+  getDescriptor: function getDescriptor(methodName) {
+    return reduce(this, function reduceDescriptor(foundDescriptor, descriptor) {
       return descriptor.methodName === methodName ? descriptor : foundDescriptor;
     }, null);
   }
@@ -3313,6 +2986,9 @@ extend(specialTagDescriptors, {
 
 // 'start' up the framework at the targetElement (or document.body by default)
 fw.start = function(targetElement) {
+  // must initialize require context (https://github.com/jrburke/requirejs/issues/1305#issuecomment-87924865)
+  require([]);
+
   assessHistoryState();
   targetElement = targetElement || windowObject.document.body;
   originalApplyBindings({}, targetElement);
@@ -3324,6 +3000,6 @@ each(runPostInit, function(runTask) {
 
 
       return ko;
-    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter );
+    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.jquery );
   })();
 }));

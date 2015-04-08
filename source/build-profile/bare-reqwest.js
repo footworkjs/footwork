@@ -1,25 +1,12 @@
 (function (root, factory) {
-  /**
-   * Knockout uses a non-standard UMD wrapping that makes it impossible (I think) to embed it like the
-   * other dependencies, the -all build uses a forked version which removes the wrappings.
-   *
-   * Also have to give it normal access to the window object, otherwise strange things happen with
-   * _some_ bindings. (ie: strange behavior I could not track a cause to, fixed here by 'brute force')
-   */
-  var koExports = {};
-  var amdRequire;
-  //import("../../bower_components/knockoutjs-nowrapper/dist/knockout.js");
-
   if (typeof define === 'function' && define.amd) {
-    amdRequire = require;
-    define('knockout', [], function() { return koExports; });
-    define(['knockout'], factory);
+    define(['lodash', 'knockout', 'postal', 'reqwest'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory(koExports);
+    module.exports = factory(require('lodash'), require('knockout'), require('postal'), require('reqwest'));
   } else {
-    root.fw = factory(koExports);
+    root.fw = factory(root._, root.ko, root.postal, root.reqwest);
   }
-}(this, function (ko) {
+}(this, function (_, ko, postal, reqwest) {
   var windowObject = window;
 
   window.require = typeof require !== 'undefined' ? require : undefined;
@@ -28,20 +15,21 @@
   return (function() {
     //import("helpers/root-masks.js");
     //import("helpers/bind-poly.js");
-    root.ko = ko;
 
-    //import("../../dist/lodash-custom.js");
+    _.extend(root, {
+      _: _,
+      ko: ko,
+      postal: postal,
+      reqwest: reqwest
+    });
 
-    (function() {
-      //import("../../bower_components/reqwest/reqwest.js");
-    }).call(root);
-
+    /**
+     * Riveter still embedded in 'bare' build as it is problematic when used as a module compared to the other dependencies. It depends on
+     * underscore as opposed to lodash...meaning both lodash and underscore would be required if lodash was not substituted for underscore
+     * in riveter.
+     */
     (function() {
       //import("../../bower_components/riveter/lib/riveter.js");
-    }).call(root);
-
-    (function() {
-      //import("../../bower_components/postal.js/lib/postal.js");
     }).call(root);
 
     if(root._.isUndefined(root.postal.preserve)) {
@@ -55,7 +43,7 @@
     }).call(root, windowObject);
 
     // list of dependencies to export from the library as .embed properties
-    var embeddedDependencies = [ '_', 'ko', 'riveter', 'postal', 'reqwest' ];
+    var embeddedDependencies = [ 'riveter' ];
 
     return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest) {
       var ajax = reqwest.compat;

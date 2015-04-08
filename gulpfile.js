@@ -27,7 +27,8 @@ var browserified = function() {
   });
 };
 
-var banner = ['/**',
+var banner = [
+  '/**',
   ' * <%= pkg.name %> - <%= pkg.description %>',
   ' * Author: <%= pkg.author %>',
   ' * Version: v<%= pkg.version %>',
@@ -55,7 +56,7 @@ var build = function(buildProfile) {
   headerBanner = headerBanner.join('\n');
 
   if(buildProfile === 'raw') {
-    headerBanner = rawBanner.join("\n") + headerBanner;
+    headerBanner = rawBanner.join("\n");
   }
 
   return gulp
@@ -87,7 +88,7 @@ gulp.task('bump', function () {
 // Testing tasks
 gulp.task('ci', ['test_bare']);
 
-gulp.task('build-and-test', ['build_all_with_history', 'test_all', 'test_minimal', 'test_bare']);
+gulp.task('build-and-test', ['build-everything', 'test_all', 'test_minimal', 'test_bare']);
 
 gulp.task('test_all', ['build_all'], function() {
   return gulp
@@ -101,14 +102,14 @@ gulp.task('test_minimal', ['build_minimal'], function() {
     .pipe(mochaPhantomJS({ reporter: reporter }));
 });
 
-gulp.task('test_bare', ['build_bare'], function() {
+gulp.task('test_bare', ['build_bare_jquery'], function() {
   return gulp
     .src('spec/runner_bare.html')
     .pipe(mochaPhantomJS({ reporter: reporter }));
 });
 
 // Building tasks
-gulp.task('build-everything', ['build_all', 'build_all_with_history', 'build_minimal', 'build_bare', 'build_raw']);
+gulp.task('build-everything', ['build_all', 'build_all_with_history', 'build_minimal', 'build_bare_jquery', 'build_bare_reqwest', 'build_raw']);
 
 gulp.task('build_prep', function() {
   // we have to force load of lodash instead of underscore inside of riveter
@@ -130,8 +131,12 @@ gulp.task('build_minimal', ['build_prep'], function() {
   return build('minimal');
 });
 
-gulp.task('build_bare', ['build_prep'], function() {
-  return build('bare');
+gulp.task('build_bare_jquery', ['build_prep'], function() {
+  return build('bare-jquery');
+});
+
+gulp.task('build_bare_reqwest', ['build_prep'], function() {
+  return build('bare-reqwest');
 });
 
 gulp.task('build_raw', ['build_prep'], function() {
