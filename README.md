@@ -20,14 +20,14 @@ For more details, see:
 
 ### Building footwork from source
 
-1. **Clone the repo from GitHub**
+* **Clone the repo from GitHub**
 
 ```bash
-        git clone https://github.com/reflectiveSingleton/footwork.git
-        cd footwork
+    git clone https://github.com/reflectiveSingleton/footwork.git
+    cd footwork
 ```
 
-2. **Acquire build dependencies.** Make sure you have [Node.js](http://nodejs.org/) installed on your workstation. This is only needed to _build_ footwork from source. Footwork requires gulp as well as several bower and NPM dependencies when building...to install those run:
+* **Acquire build dependencies.** Make sure you have [Node.js](http://nodejs.org/) installed on your workstation. This is only needed to _build_ footwork from source. Footwork requires gulp as well as several bower and NPM dependencies when building...to install those run:
 
 ```bash
     npm install -g gulp
@@ -37,7 +37,7 @@ For more details, see:
 
 The first `npm` command installs [gulp](http://gulpjs.com/) task runner. The second `npm` command installs [bower](http://bower.io/). The third installs the local build dependencies needed from [npm](https://www.npmjs.com/) and [bower](http://bower.io/).
 
-3. **Run a gulp task to build/test/etc**
+* **Run a gulp task to build/test/etc**
 
 ```bash
     # build everything (output in /dist) and run extended tests
