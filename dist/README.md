@@ -19,13 +19,13 @@
 * **footwork-minimal.js**
 
     You will need to provide (via either &lt;script&gt; includes, requirejs, browserify, etc). This build includes reqwest embedded for ajax support.
-    * 'knockout' - http://knockoutjs.com/ (NOTE: footwork requires v3.2)
+    * 'knockout' - http://knockoutjs.com/ (NOTE: footwork requires v3.2 or later)
     * 'lodash' - http://lodash.com/
 
 * **footwork-bare-reqwest.js**
 
     You will need to provide (via either &lt;script&gt; includes, requirejs, browserify, etc)
-    * 'knockout' - http://knockoutjs.com/ (NOTE: footwork requires v3.2)
+    * 'knockout' - http://knockoutjs.com/ (NOTE: footwork requires v3.2 or later)
     * 'lodash' - http://lodash.com/ (footwork uses lodash.underscore.js natively)
     * 'postal' - https://github.com/postaljs/postal.js/
     * 'reqwest' - https://github.com/ded/reqwest (used for ajax dependency)
@@ -33,7 +33,7 @@
 * **footwork-bare-jquery.js**
 
     You will need to provide (via either &lt;script&gt; includes, requirejs, browserify, etc)
-    * 'knockout' - http://knockoutjs.com/ (NOTE: footwork requires v3.2)
+    * 'knockout' - http://knockoutjs.com/ (NOTE: footwork requires v3.2 or later)
     * 'lodash' - http://lodash.com/ (footwork uses lodash.underscore.js natively)
     * 'postal' - https://github.com/postaljs/postal.js/
     * 'jquery' - http://jquery.com (used for ajax dependency)

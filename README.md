@@ -4,7 +4,9 @@
 
 [![Build Status](https://travis-ci.org/reflectiveSingleton/footwork.png?branch=master)](https://travis-ci.org/reflectiveSingleton/footwork) [![Bower version](https://badge.fury.io/bo/footwork.png)](http://badge.fury.io/bo/footwork)
 
-A solid footing for web applications.
+*```A solid footing for web applications.```*
+
+[![Join the chat at https://gitter.im/reflectiveSingleton/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/reflectiveSingleton/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## What is footwork?
 
@@ -17,6 +19,8 @@ For more details, see:
  * [Main Website](http://footworkjs.com/ "Footwork.js Homepage")
 
  * [Documentation/API](http://latest-docs.footworkjs.com/ "Documentation and API information")
+
+ * [Tutorials](http://latest-docs.footworkjs.com/tutorials "Tutorials and guides")
 
 ### Downloading footwork.js
 
@@ -84,7 +88,5 @@ gulp lodash_custom
 ### License
 
 MIT license - [http://www.opensource.org/licenses/mit-license.php](http://www.opensource.org/licenses/mit-license.php)
-
-[![Join the chat at https://gitter.im/reflectiveSingleton/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/reflectiveSingleton/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Analytics](https://ga-beacon.appspot.com/UA-52543452-1/footwork/GITHUB-ROOT)](https://github.com/reflectiveSingleton/ga-beacon)
