@@ -163,6 +163,10 @@ each(runPostInit, function(runTask) {
 
 fw.sync = function(method, dataModel, options) {
   var type = methodMap[method];
+  var params = {
+    type: type,
+    dataType: 'json'
+  };
 
   options = options || {};
   extend(options, {
@@ -171,11 +175,6 @@ fw.sync = function(method, dataModel, options) {
     emulateHTTP: fw.settings.emulateHTTP,
     emulateJSON: fw.settings.emulateJSON
   }, options);
-
-  var params = {
-    type: type,
-    dataType: 'json'
-  };
 
   if(!options.url) {
     var configParams = dataModel.__getConfigParams();

@@ -531,6 +531,7 @@ describe('dataModel', function () {
     });
 
     var personData = {
+      id: undefined,
       firstName: 'John',
       lastName: 'Smith',
       movies: {
