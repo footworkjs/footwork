@@ -31,15 +31,6 @@
  *     }
  *   },
  *
- *   validate: {
- *     'firstName': 'notEmpty',
- *     'lastName': 'notEmpty',
- *     'email': 'validEmail',
- *     'movies.action': function(actionMovies) {
- *       return actionMovies.indexOf('Commando') !== -1;
- *     }
- *   }
- *
  *   initialize: function() {
  *     // field declarations and mapping
  *     this.firstName = fw.observable().mapTo('firstName');
@@ -86,7 +77,7 @@ fw.subscribable.fn.mapTo = function(option) {
     throw new Error('No dataModel context found/supplied for mapTo observable');
   }
 
-  var mappings = dataModel.$$mappings;
+  var mappings = dataModel.__mappings;
   if( !isUndefined(mappings[mapPath]) ) {
     throw new Error('this path is already mapped on this dataModel');
   }
@@ -148,7 +139,8 @@ function getNestedReference(rootObject, fieldMap) {
 
 var DataModel = function(descriptor, configParams) {
   configParams = extend({}, {
-    id: 'id'
+    url: null,
+    idAttribute: 'id'
   }, configParams);
 
   return {
@@ -156,24 +148,32 @@ var DataModel = function(descriptor, configParams) {
     _preInit: function( params ) {
       enterDataModelContext(this);
       this.$dirty = fw.observable(false);
+      this.$cid = fw.observable( fw.utils.guid() );
+      this[configParams.idAttribute] = this.$id = fw.observable();
+      this.__mappings = {};
     },
     mixin: {
       __isDataModel: true,
-      // internal tracking/mapping/etc data
-      $$mappings: {},
-      $fetch: function() {}, // GET from server and $load into model
+
+      // GET from server and $load into model
+      $fetch: function() {
+        var id = this[configParams.idAttribute]();
+        if(id) {
+          // retrieve data from server for model using the id
+        }
+      },
       $save: function() {}, // PUT / POST
       $destroy: function() {}, // DELETE
       $load: function( data ) {}, // load data into model (clears $dirty)
 
       $hasMappedField: function(referenceField) {
-        return !!this.$$mappings[referenceField];
+        return !!this.__mappings[referenceField];
       },
 
       // return current data in POJO form
       $toJS: function(referenceField) {
-        var mappedObject = reduce(this.$$mappings, function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
-          if(isUndefined(referenceField) || fieldMap.indexOf(referenceField) === 0) {
+        var mappedObject = reduce(this.__mappings, function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+          if(isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
             insertValueIntoObject(jsObject, fieldMap, fieldObservable());
           }
           return jsObject;

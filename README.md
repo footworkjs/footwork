@@ -18,29 +18,56 @@ For more details, see:
 
  * [Documentation/API](http://latest-docs.footworkjs.com/ "Documentation and API information")
 
+### Installing footwork.js
+
+Footwork is available for download directly on the [main website](http://footworkjs.com/ "Footwork.js Homepage") however it is recommended you use [bower](http://bower.io/) to download/install the framework:
+
+*Install via command line:*
+```bash
+# run this command in your public html folder
+bower install footwork
+```
+
+*Install via ```bower.json``` (recommended)*
+```javascript
+{
+  // ...
+  "dependencies": {
+    "footwork": "*",
+  }
+  // ...
+}
+```
+```bash
+# run this in the same directory as your bower.json file
+bower install
+```
+
 ### Building footwork from source
 
-* **Clone the repo from GitHub:**
+1) **Clone the repo from GitHub:**
 
 ```bash
 git clone https://github.com/reflectiveSingleton/footwork.git
 cd footwork
 ```
 
-* **Acquire build dependencies:**
+2) **Acquire build dependencies:**
 
-Make sure you have [node.js](http://nodejs.org/) installed in your environment. Footwork additionally requires gulp plus several bower and NPM dependencies when building from source...to install those run:
+Make sure you have [node.js](http://nodejs.org/) installed in your environment. Footwork additionally requires [gulp](http://gulpjs.com/) plus several [bower](http://bower.io/) and [NPM](https://www.npmjs.com/) dependencies when building from source...to install those run:
 
 ```bash
-# These are needed to build footwork from source code
-npm install -g gulp
-npm install -g bower
+# install gulp (javascript task runner, http://gulpjs.com/)
+npm install -g gulp # you may need to run this as sudo
+
+# install bower (package manager, http://bower.io/)
+npm install -g bower # you may need to run this as sudo
+
+# download dependencies from npm (https://www.npmjs.com/) and bower (http://bower.io/)
 npm install && bower install
 ```
 
-The first `npm` command installs the [gulp](http://gulpjs.com/) task runner. The second `npm` command installs the [bower](http://bower.io/) package manager. The third installs the local build dependencies needed from both [npm](https://www.npmjs.com/) and [bower](http://bower.io/).
-
-* **Run a gulp task to build/test/etc:**
+3) **Run a gulp task to build/test/etc:**
 
 ```bash
 # build everything (output in /dist) and run extended tests
