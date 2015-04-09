@@ -13,7 +13,6 @@ entityDescriptors = entityDescriptors.concat([
     mixins: [ ViewModel ],
     defaultConfig: {
       namespace: undefined,
-      name: undefined,
       autoRegister: false,
       autoIncrement: false,
       mixins: undefined,
@@ -28,9 +27,11 @@ entityDescriptors = entityDescriptors.concat([
     defaultLocation: '/dataModel/',
     resource: fw.dataModels,
     mixins: [ ViewModel, DataModel ],
+    debug: false,
     defaultConfig: {
+      idAttribute: 'id',
+      url: null,
       namespace: undefined,
-      name: undefined,
       autoRegister: false,
       autoIncrement: true,
       mixins: undefined,

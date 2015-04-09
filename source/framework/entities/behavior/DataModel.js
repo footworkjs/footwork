@@ -130,41 +130,70 @@ function getNestedReference(rootObject, fieldMap) {
     propName = fieldMap.shift();
     if(fieldMap.length) {
       // recurse into the next layer
-      return getNestedReference(rootObject[propName], fieldMap);
+      return getNestedReference((rootObject || {})[propName], fieldMap);
     }
   }
 
-  return !isString(propName) ? rootObject : rootObject[propName];
+  return !isString(propName) ? rootObject : (rootObject || {})[propName];
 }
 
-var DataModel = function(descriptor, configParams) {
-  configParams = extend({}, {
-    url: null,
-    idAttribute: 'id'
-  }, configParams);
+// Map from CRUD to HTTP for our default `fw.$sync` implementation.
+var methodMap = {
+  'create': 'POST',
+  'update': 'PUT',
+  'patch':  'PATCH',
+  'delete': 'DELETE',
+  'read':   'GET'
+};
 
+fw.$sync = function(method, model, options) {
+
+};
+
+var DataModel = function(descriptor, configParams) {
   return {
     runBeforeInit: true,
     _preInit: function( params ) {
       enterDataModelContext(this);
+
+      this.__mappings = {};
+
       this.$dirty = fw.observable(false);
       this.$cid = fw.observable( fw.utils.guid() );
       this[configParams.idAttribute] = this.$id = fw.observable();
-      this.__mappings = {};
     },
     mixin: {
       __isDataModel: true,
 
       // GET from server and $load into model
       $fetch: function() {
+        var model = this;
         var id = this[configParams.idAttribute]();
         if(id) {
           // retrieve data from server for model using the id
+          this.$sync('read', model, [options]);
         }
       },
       $save: function() {}, // PUT / POST
       $destroy: function() {}, // DELETE
-      $load: function( data ) {}, // load data into model (clears $dirty)
+
+      // load data into model (clears $dirty)
+      $load: function( data ) {
+        var dataModel = this;
+        each(dataModel.__mappings, function(fieldObservable, fieldMap) {
+          var fieldValue = getNestedReference(data, fieldMap);
+          if(!isUndefined(fieldValue)) {
+            if(configParams.debug) {
+              console.info(descriptor.methodName + '.$load(' + typeof data + '): Setting \'' + fieldMap + '\' to \'' + fieldValue + '\', namespace[' + dataModel.getNamespaceName() + ']');
+            }
+            fieldObservable(fieldValue);
+          }
+        });
+      },
+
+      $sync: function() {
+        return fw.$sync.apply(this, arguments);
+      },
 
       $hasMappedField: function(referenceField) {
         return !!this.__mappings[referenceField];
