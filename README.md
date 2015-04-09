@@ -1,12 +1,9 @@
 ![footwork.js](https://raw.github.com/reflectiveSingleton/footwork/master/dist/gh-footwork-logo.png)
 ========
-[http://footworkjs.com](http://footworkjs.com "Footwork.js Homepage")
-
-[![Build Status](https://travis-ci.org/reflectiveSingleton/footwork.png?branch=master)](https://travis-ci.org/reflectiveSingleton/footwork) [![Bower version](https://badge.fury.io/bo/footwork.png)](http://badge.fury.io/bo/footwork)
 
 *```A solid footing for web applications.```*
 
-[![Join the chat at https://gitter.im/reflectiveSingleton/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/reflectiveSingleton/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/reflectiveSingleton/footwork.png?branch=master)](https://travis-ci.org/reflectiveSingleton/footwork) [![Bower version](https://badge.fury.io/bo/footwork.png)](http://badge.fury.io/bo/footwork)
 
 ## What is footwork?
 
@@ -16,11 +13,13 @@ Footwork is a front-end javascript framework built upon open source technologies
 
 For more details, see:
 
- * [Main Website](http://footworkjs.com/ "Footwork.js Homepage")
+* [Main Website](http://footworkjs.com/ "http://footworkjs.com")
 
- * [Documentation/API](http://latest-docs.footworkjs.com/ "Documentation and API information")
+* [Documentation/API](http://latest-docs.footworkjs.com/ "Documentation and API information")
 
- * [Tutorials](http://latest-docs.footworkjs.com/tutorials "Tutorials and guides")
+* [Tutorials](http://latest-docs.footworkjs.com/tutorials "Tutorials and guides")
+
+[![Join the chat at https://gitter.im/reflectiveSingleton/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/reflectiveSingleton/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ### Downloading footwork.js
 
