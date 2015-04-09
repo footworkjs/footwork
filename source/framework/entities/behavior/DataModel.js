@@ -137,6 +137,10 @@ function getNestedReference(rootObject, fieldMap) {
   return !isString(propName) ? rootObject : (rootObject || {})[propName];
 }
 
+function noURLError() {
+  throw new Error('A "url" property or function must be specified');
+};
+
 // Map from CRUD to HTTP for our default `fw.$sync` implementation.
 var methodMap = {
   'create': 'POST',
@@ -146,8 +150,95 @@ var methodMap = {
   'read':   'GET'
 };
 
-fw.$sync = function(method, model, options) {
+var parseURLRegex = /(http:\/\/|https:\/\/)*([A-Za-z0-9:\/\.?=]+)/;
+var parseParamsRegex = /(:[A-Za-z0-9\.]+)/;
 
+each(runPostInit, function(runTask) {
+  fw.ajax = ajax;
+  extend(fw.settings, {
+    emulateHTTP: false,
+    emulateJSON: false
+  });
+});
+
+fw.sync = function(method, dataModel, options) {
+  var type = methodMap[method];
+
+  options = options || {};
+  extend(options, {
+    data: null,
+    headers: {},
+    emulateHTTP: fw.settings.emulateHTTP,
+    emulateJSON: fw.settings.emulateJSON
+  }, options);
+
+  var params = {
+    type: type,
+    dataType: 'json'
+  };
+
+  if(!options.url) {
+    var configParams = dataModel.__getConfigParams();
+    var url = configParams.url;
+    if(isFunction(url)) {
+      url = url(method);
+    } else {
+      if(contains(['read', 'update', 'patch', 'delete'], method)) {
+        // need to append /:id to url
+        url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
+      }
+    }
+  }
+  var urlPieces = (url || noURLError()).match(parseURLRegex);
+  var protocol = urlPieces[1] || '';
+  params.url = last(urlPieces);
+
+  // replace any needed params
+  var urlParams;
+  if(urlParams = params.url.match(parseParamsRegex)) {
+    each(urlParams, function(param) {
+      params.url = params.url.replace(param, dataModel.$toJS(param.substr(1)));
+    });
+  }
+  params.url = protocol + params.url;
+
+  if(isNull(options.data) && dataModel && contains(['create', 'update', 'patch'], method)) {
+    params.contentType = 'application/json';
+    params.data = dataModel.$toJS();
+  }
+
+  // For older servers, emulate JSON by encoding the request into an HTML-form.
+  if(options.emulateJSON) {
+    params.contentType = 'application/x-www-form-urlencoded';
+    params.data = !isNull(params.data) ? { model: params.data } : {};
+  }
+
+  // For older servers, emulate HTTP by mimicking the HTTP method with `_method`
+  // And an `X-HTTP-Method-Override` header.
+  if (options.emulateHTTP && contains(['PUT', 'DELETE', 'PATCH'], type)) {
+    params.type = 'POST';
+
+    if(options.emulateJSON) {
+      params.data._method = type;
+    }
+    extend(options.headers, { 'X-HTTP-Method-Override': type });
+  }
+
+  // Don't process data on a non-GET request.
+  if(params.type !== 'GET' && !options.emulateJSON) {
+    params.processData = false;
+  }
+
+  // Pass along `textStatus` and `errorThrown` from jQuery.
+  // var error = options.error;
+  // options.error = function(xhr, textStatus, errorThrown) {
+  //   options.textStatus = textStatus;
+  //   options.errorThrown = errorThrown;
+  //   if (error) error.call(options.context, xhr, textStatus, errorThrown);
+  // };
+
+  return options.xhr = fw.ajax( extend(params, options) );
+  // dataModel.trigger('request', model, xhr, options);
 };
 
 var DataModel = function(descriptor, configParams) {
@@ -160,7 +251,7 @@ var DataModel = function(descriptor, configParams) {
 
       this.$dirty = fw.observable(false);
       this.$cid = fw.observable( fw.utils.guid() );
-      this[configParams.idAttribute] = this.$id = fw.observable();
+      this[configParams.idAttribute] = this.$id = fw.observable().mapTo(configParams.idAttribute);
     },
     mixin: {
       __isDataModel: true,
@@ -171,7 +262,7 @@ var DataModel = function(descriptor, configParams) {
         var id = this[configParams.idAttribute]();
         if(id) {
           // retrieve data from server for model using the id
-          this.$sync('read', model, [options]);
+          this.$sync('read', model);
         }
       },
       $save: function() {}, // PUT / POST
@@ -184,7 +275,7 @@ var DataModel = function(descriptor, configParams) {
           var fieldValue = getNestedReference(data, fieldMap);
           if(!isUndefined(fieldValue)) {
             if(configParams.debug) {
-              console.info(descriptor.methodName + '.$load(' + typeof data + '): Setting \'' + fieldMap + '\' to \'' + fieldValue + '\', namespace[' + dataModel.getNamespaceName() + ']');
+              console.info('[' + dataModel.getNamespaceName() + '].$load(', typeof data, '): Setting', fieldMap, 'to', fieldValue);
             }
             fieldObservable(fieldValue);
           }
@@ -192,7 +283,7 @@ var DataModel = function(descriptor, configParams) {
       },
 
       $sync: function() {
-        return fw.$sync.apply(this, arguments);
+        return fw.sync.apply(this, arguments);
       },
 
       $hasMappedField: function(referenceField) {

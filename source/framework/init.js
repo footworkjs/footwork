@@ -11,6 +11,7 @@ fw.viewModels = {};
 fw.dataModels = {};
 fw.routers = {};
 fw.outlets = {};
+fw.settings = {};
 
 var hasHTML5History = noop;
 var assessHistoryState = noop;
