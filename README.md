@@ -18,7 +18,7 @@ For more details, see:
 
  * [Documentation/API](http://latest-docs.footworkjs.com/ "Documentation and API information")
 
-### Installing footwork.js
+### Downloading footwork.js
 
 Footwork is available for download directly on the [main website](http://footworkjs.com/ "Footwork.js Homepage") however it is recommended you use [bower](http://bower.io/) to download/install the framework:
 
@@ -31,11 +31,9 @@ bower install footwork
 *Install via ```bower.json``` (recommended)*
 ```javascript
 {
-  // ...
   "dependencies": {
-    "footwork": "*",
+    "footwork": "*", // add footwork under "dependencies"
   }
-  // ...
 }
 ```
 ```bash
@@ -43,7 +41,7 @@ bower install footwork
 bower install
 ```
 
-### Building footwork from source
+### Building footwork from source and running tests
 
 1) **Clone the repo from GitHub:**
 
@@ -58,10 +56,10 @@ Make sure you have [node.js](http://nodejs.org/) installed in your environment. 
 
 ```bash
 # install gulp (javascript task runner, http://gulpjs.com/)
-npm install -g gulp # you may need to run this as sudo
+npm install -g gulp # you may need to run this under sudo
 
 # install bower (package manager, http://bower.io/)
-npm install -g bower # you may need to run this as sudo
+npm install -g bower # you may need to run this under sudo
 
 # download dependencies from npm (https://www.npmjs.com/) and bower (http://bower.io/)
 npm install && bower install
