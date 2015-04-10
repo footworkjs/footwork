@@ -611,6 +611,40 @@ describe('dataModel', function () {
     expect(person.$toJSON('movies.action')).to.eql(JSON.stringify(personData.movies.action));
   });
 
+  it('can load data in using dataModel.$load()', function() {
+    var Person = fw.dataModel({
+      namespace: 'person',
+      initialize: function(person) {
+        this.firstName = fw.observable().mapTo('firstName');
+        this.lastName = fw.observable().mapTo('lastName');
+        this.movieCollection = {
+          action: fw.observableArray().mapTo('movies.action'),
+          drama: fw.observableArray().mapTo('movies.drama'),
+          comedy: fw.observableArray().mapTo('movies.comedy'),
+          horror: fw.observableArray().mapTo('movies.horror')
+        };
+      }
+    });
+
+    var personData = {
+      firstName: 'John',
+      lastName: 'Smith',
+      movies: {
+        action: ['Commando', 'Predator', 'Timecop', 'Terminator'],
+        drama: ['The Shawshank Redemption'],
+        comedy: ['Dumb and Dumber', 'Billy Madison'],
+        horror: ['Friday the 13th', 'Jason']
+      }
+    };
+    var person = new Person();
+
+    expect(person.$toJS('firstName')).to.eql(undefined);
+
+    person.$load(personData);
+
+    expect(person.$toJS('firstName')).to.eql(personData.firstName);
+  });
+
   it('can correctly be flagged as dirty when a mapped field value is altered', function() {
     var Person = fw.dataModel({
       namespace: 'person',

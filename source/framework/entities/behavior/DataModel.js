@@ -180,7 +180,7 @@ fw.sync = function(method, dataModel, options) {
     var configParams = dataModel.__getConfigParams();
     var url = configParams.url;
     if(isFunction(url)) {
-      url = url(method);
+      url = url.call(dataModel, method);
     } else {
       if(contains(['read', 'update', 'patch', 'delete'], method)) {
         // need to append /:id to url
