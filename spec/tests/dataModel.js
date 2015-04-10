@@ -675,6 +675,28 @@ describe('dataModel', function () {
     expect(person.$toJS('firstName')).to.eql(personData.firstName);
   });
 
+  it('can (re)map the primary key', function() {
+    var Person = fw.dataModel({
+      namespace: 'person',
+      initialize: function(personData) {
+        this.firstName = fw.observable().mapTo('firstName');
+        this.lastName = fw.observable().mapTo('lastName');
+        this.movieCollection = {
+          action: fw.observableArray().mapTo('movies.action'),
+          drama: fw.observableArray().mapTo('movies.drama'),
+          comedy: fw.observableArray().mapTo('movies.comedy'),
+          horror: fw.observableArray().mapTo('movies.horror')
+        };
+
+        this.id = fw.observable().mapTo('id');
+      }
+    });
+
+    var person = new Person();
+
+    expect(person.$id).to.be(person.id);
+  });
+
   it('can correctly be flagged as dirty when a mapped field value is altered', function() {
     var Person = fw.dataModel({
       namespace: 'person',

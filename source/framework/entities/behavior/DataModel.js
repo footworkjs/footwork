@@ -58,6 +58,10 @@ function currentDataModelContext() {
   return dataModelContext.length ? dataModelContext[0] : null;
 }
 
+function getPrimaryKey(dataModel) {
+  return dataModel.__getConfigParams().idAttribute;
+}
+
 fw.subscribable.fn.mapTo = function(option) {
   var mappedObservable = this;
   var mapPath;
@@ -78,10 +82,23 @@ fw.subscribable.fn.mapTo = function(option) {
   }
 
   var mappings = dataModel.__mappings;
-  if( !isUndefined(mappings[mapPath]) ) {
-    throw new Error('this path is already mapped on this dataModel');
+  var primaryKey = getPrimaryKey(dataModel);
+  if( !isUndefined(mappings[mapPath]) && mapPath !== primaryKey) {
+    throw new Error('the field \'' + mapPath + '\' is already mapped on this dataModel');
   }
+
+  if(!isUndefined(mappings[mapPath]) && isFunction(mappings[mapPath].dispose)) {
+    // remapping a path, we need to dispose of the old one first
+    mappings[mapPath].dispose();
+  }
+
+  // add the registry entry for the mapped observable
   mappings[mapPath] = mappedObservable;
+
+  if(mapPath === primaryKey) {
+    // mapping primary key, update/set the $id property on the dataModel
+    dataModel.$id = mappings[mapPath];
+  }
 
   var changeSubscription = mappedObservable.subscribe(function() {
     dataModel.$dirty(true);
