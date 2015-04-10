@@ -83,7 +83,7 @@ fw.subscribable.fn.mapTo = function(option) {
 
   var mappings = dataModel.__mappings;
   var primaryKey = getPrimaryKey(dataModel);
-  if( !isUndefined(mappings[mapPath]) && mapPath !== primaryKey) {
+  if( !isUndefined(mappings[mapPath]) && (mapPath !== primaryKey && dataModel.$id.__isOriginalPK)) {
     throw new Error('the field \'' + mapPath + '\' is already mapped on this dataModel');
   }
 
@@ -270,6 +270,7 @@ var DataModel = function(descriptor, configParams) {
       this.$dirty = fw.observable(false);
       this.$cid = fw.observable( fw.utils.guid() );
       this[configParams.idAttribute] = this.$id = fw.observable().mapTo(configParams.idAttribute);
+      this.$id.__isOriginalPK = true;
     },
     mixin: {
       __isDataModel: true,
