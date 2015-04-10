@@ -150,8 +150,8 @@ var methodMap = {
   'read':   'GET'
 };
 
-var parseURLRegex = /(http:\/\/|https:\/\/)*([A-Za-z0-9:\/\.?=]+)/;
-var parseParamsRegex = /(:[A-Za-z0-9\.]+)/;
+var parseURLRegex = /^(http:\/\/|https:\/\/)*([a-zA-Z0-9:\.]+)[\/]{0,1}([\w\.:\/-]*)$/;
+var parseParamsRegex = /(:[\w\.]+)/;
 
 each(runPostInit, function(runTask) {
   fw.ajax = ajax;
@@ -170,15 +170,17 @@ fw.sync = function(method, dataModel, options) {
 
   options = options || {};
   extend(options, {
+    url: null,
     data: null,
     headers: {},
     emulateHTTP: fw.settings.emulateHTTP,
     emulateJSON: fw.settings.emulateJSON
   }, options);
 
-  if(!options.url) {
+  var url = options.url;
+  if(isNull(url)) {
     var configParams = dataModel.__getConfigParams();
-    var url = configParams.url;
+    url = configParams.url;
     if(isFunction(url)) {
       url = url.call(dataModel, method);
     } else {
@@ -192,9 +194,9 @@ fw.sync = function(method, dataModel, options) {
   var protocol = urlPieces[1] || '';
   params.url = last(urlPieces);
 
-  // replace any needed params
-  var urlParams;
-  if(urlParams = params.url.match(parseParamsRegex)) {
+  // replace any interpolated parameters
+  var urlParams = params.url.match(parseParamsRegex);
+  if(urlParams) {
     each(urlParams, function(param) {
       params.url = params.url.replace(param, dataModel.$toJS(param.substr(1)));
     });
@@ -214,7 +216,7 @@ fw.sync = function(method, dataModel, options) {
 
   // For older servers, emulate HTTP by mimicking the HTTP method with `_method`
   // And an `X-HTTP-Method-Override` header.
-  if (options.emulateHTTP && contains(['PUT', 'DELETE', 'PATCH'], type)) {
+  if(options.emulateHTTP && contains(['PUT', 'DELETE', 'PATCH'], type)) {
     params.type = 'POST';
 
     if(options.emulateJSON) {
@@ -236,7 +238,7 @@ fw.sync = function(method, dataModel, options) {
   //   if (error) error.call(options.context, xhr, textStatus, errorThrown);
   // };
 
-  return options.xhr = fw.ajax( extend(params, options) );
+  return fw.ajax(extend(params, options));
   // dataModel.trigger('request', model, xhr, options);
 };
 
@@ -273,9 +275,6 @@ var DataModel = function(descriptor, configParams) {
         each(dataModel.__mappings, function(fieldObservable, fieldMap) {
           var fieldValue = getNestedReference(data, fieldMap);
           if(!isUndefined(fieldValue)) {
-            if(configParams.debug) {
-              console.info('[' + dataModel.getNamespaceName() + '].$load(', typeof data, '): Setting', fieldMap, 'to', fieldValue);
-            }
             fieldObservable(fieldValue);
           }
         });
@@ -290,7 +289,16 @@ var DataModel = function(descriptor, configParams) {
       },
 
       // return current data in POJO form
-      $toJS: function(referenceField) {
+      $toJS: function(referenceField, includeRoot) {
+        var dataModel = this;
+        if(isArray(referenceField)) {
+          return reduce(referenceField, function(jsObject, fieldMap) {
+            return merge(jsObject, dataModel.$toJS(fieldMap, true));
+          }, {});
+        } else if(!isUndefined(referenceField) && !isString(referenceField)) {
+          throw new Error(dataModel.getNamespaceName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.$toJS().');
+        }
+
         var mappedObject = reduce(this.__mappings, function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
           if(isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
             insertValueIntoObject(jsObject, fieldMap, fieldObservable());
@@ -298,12 +306,12 @@ var DataModel = function(descriptor, configParams) {
           return jsObject;
         }, {});
 
-        return getNestedReference(mappedObject, referenceField);
+        return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
       },
 
       // return current data in JSON form
-      $toJSON: function(referenceField) {
-        return JSON.stringify( this.$toJS(referenceField) );
+      $toJSON: function(referenceField, includeRoot) {
+        return JSON.stringify( this.$toJS(referenceField, includeRoot) );
       },
 
       $valid: function( referenceField ) {}, // get validation of entire model or selected field

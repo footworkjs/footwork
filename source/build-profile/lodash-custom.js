@@ -36,6 +36,7 @@ root._ = {
   defaults: require('../../node_modules/lodash/object/defaults'),
   noop: require('../../node_modules/lodash/utility/noop'),
   keys: require('../../node_modules/lodash/object/keys'),
+  merge: require('../../node_modules/lodash/object/merge'),
 
   // required for postal.js specifically (ref: postal.js/lib/postal.lodash.js)
   after: require('../../node_modules/lodash/function/after'),

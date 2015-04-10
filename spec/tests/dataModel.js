@@ -578,6 +578,36 @@ describe('dataModel', function () {
     expect(person.$toJS('movies.action')).to.eql(personData.movies.action);
   });
 
+  it('can have observables mapped and an array of values retreived correctly', function() {
+    var Person = fw.dataModel({
+      namespace: 'person',
+      initialize: function(person) {
+        this.firstName = fw.observable(person.firstName).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName).mapTo('lastName');
+        this.movieCollection = {
+          action: fw.observableArray(person.movies.action).mapTo('movies.action'),
+          drama: fw.observableArray(person.movies.drama).mapTo('movies.drama'),
+          comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy'),
+          horror: fw.observableArray(person.movies.horror).mapTo('movies.horror')
+        };
+      }
+    });
+
+    var personData = {
+      firstName: 'John',
+      lastName: 'Smith',
+      movies: {
+        action: ['Commando', 'Predator', 'Timecop', 'Terminator'],
+        drama: ['The Shawshank Redemption'],
+        comedy: ['Dumb and Dumber', 'Billy Madison'],
+        horror: ['Friday the 13th', 'Jason']
+      }
+    };
+    var person = new Person(personData);
+
+    expect(person.$toJS(['firstName', 'lastName'])).to.eql(_.pick(personData, ['firstName', 'lastName']));
+  });
+
   it('can generate the correct JSON string using $toJSON()', function() {
     var Person = fw.dataModel({
       namespace: 'person',

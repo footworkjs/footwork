@@ -27,7 +27,6 @@ entityDescriptors = entityDescriptors.concat([
     defaultLocation: '/dataModel/',
     resource: fw.dataModels,
     mixins: [ ViewModel, DataModel ],
-    debug: false,
     defaultConfig: {
       idAttribute: 'id',
       url: null,
