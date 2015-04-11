@@ -92,7 +92,7 @@ fw.subscribable.fn.mapTo = function(option) {
     mappings[mapPath].dispose();
   }
 
-  // add the registry entry for the mapped observable
+  // add/set the registry entry for the mapped observable
   mappings[mapPath] = mappedObservable;
 
   if(mapPath === primaryKey) {
@@ -167,8 +167,8 @@ var methodMap = {
   'read':   'GET'
 };
 
-var parseURLRegex = /^(http:\/\/|https:\/\/)*([a-zA-Z0-9:\.]+)[\/]{0,1}([\w\.:\/-]*)$/;
-var parseParamsRegex = /(:[\w\.]+)/;
+var parseURLRegex = /^(http[s]*:\/\/[a-zA-Z0-9:\.]*)*([\/]{0,1}[\w\.:\/-]*)$/;
+var parseParamsRegex = /(:[\w\.]+)/g;
 
 each(runPostInit, function(runTask) {
   fw.ajax = ajax;
@@ -178,73 +178,70 @@ each(runPostInit, function(runTask) {
   });
 });
 
-fw.sync = function(method, dataModel, options) {
-  var type = methodMap[method];
-  var params = {
-    type: type,
-    dataType: 'json'
-  };
+fw.sync = function(action, dataModel, params) {
+  params = params || {};
 
-  options = options || {};
-  extend(options, {
+  var options = extend({
+    type: methodMap[action],
+    dataType: 'json',
     url: null,
     data: null,
     headers: {},
     emulateHTTP: fw.settings.emulateHTTP,
     emulateJSON: fw.settings.emulateJSON
-  }, options);
+  }, params);
 
   var url = options.url;
   if(isNull(url)) {
     var configParams = dataModel.__getConfigParams();
     url = configParams.url;
     if(isFunction(url)) {
-      url = url.call(dataModel, method);
+      url = url.call(dataModel, action);
     } else {
-      if(contains(['read', 'update', 'patch', 'delete'], method)) {
+      if(contains(['read', 'update', 'patch', 'delete'], action)) {
         // need to append /:id to url
         url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
       }
     }
   }
   var urlPieces = (url || noURLError()).match(parseURLRegex);
-  var protocol = urlPieces[1] || '';
-  params.url = last(urlPieces);
+  var baseURL = urlPieces[1] || '';
+  options.url = last(urlPieces);
 
   // replace any interpolated parameters
-  var urlParams = params.url.match(parseParamsRegex);
+  var urlParams = options.url.match(parseParamsRegex);
   if(urlParams) {
     each(urlParams, function(param) {
-      params.url = params.url.replace(param, dataModel.$toJS(param.substr(1)));
+      options.url = options.url.replace(param, dataModel.$toJS(param.substr(1)));
     });
   }
-  params.url = protocol + params.url;
+  options.url = baseURL + options.url;
 
-  if(isNull(options.data) && dataModel && contains(['create', 'update', 'patch'], method)) {
-    params.contentType = 'application/json';
-    params.data = dataModel.$toJS();
+  if(isNull(options.data) && dataModel && contains(['create', 'update', 'patch'], action)) {
+    options.contentType = 'application/json';
+    options.data = dataModel.$toJS();
   }
 
   // For older servers, emulate JSON by encoding the request into an HTML-form.
   if(options.emulateJSON) {
-    params.contentType = 'application/x-www-form-urlencoded';
-    params.data = !isNull(params.data) ? { model: params.data } : {};
+    options.contentType = 'application/x-www-form-urlencoded';
+    options.data = options.data ? { model: options.data } : {};
   }
 
   // For older servers, emulate HTTP by mimicking the HTTP method with `_method`
   // And an `X-HTTP-Method-Override` header.
-  if(options.emulateHTTP && contains(['PUT', 'DELETE', 'PATCH'], type)) {
-    params.type = 'POST';
+  if(options.emulateHTTP && contains(['PUT', 'DELETE', 'PATCH'], options.type)) {
+    options.type = 'POST';
 
     if(options.emulateJSON) {
-      params.data._method = type;
+      options.data._method = options.type;
     }
-    extend(options.headers, { 'X-HTTP-Method-Override': type });
+    extend(options.headers, { 'X-HTTP-Method-Override': options.type });
   }
 
   // Don't process data on a non-GET request.
-  if(params.type !== 'GET' && !options.emulateJSON) {
-    params.processData = false;
+  if(options.type !== 'GET' && !options.emulateJSON) {
+    options.processData = false;
   }
 
   // Pass along `textStatus` and `errorThrown` from jQuery.
@@ -255,7 +252,7 @@ fw.sync = function(method, dataModel, options) {
   //   if (error) error.call(options.context, xhr, textStatus, errorThrown);
   // };
 
-  return fw.ajax(extend(params, options));
+  return fw.ajax(options);
   // dataModel.trigger('request', model, xhr, options);
 };
 
