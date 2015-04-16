@@ -84,6 +84,10 @@ gulp ci
 gulp lodash_custom
 ```
 
+### Documentation Contributions
+
+If you want to help contribute with the documentation (or website in general) then there is a companion repository located at: [https://github.com/reflectiveSingleton/footwork-site](https://github.com/reflectiveSingleton/footwork-site)
+
 ### License
 
 MIT license - [http://www.opensource.org/licenses/mit-license.php](http://www.opensource.org/licenses/mit-license.php)
