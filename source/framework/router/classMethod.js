@@ -340,7 +340,7 @@ function RoutedAction(routeDescription) {
   }
 
   if( isUndefined(this.__currentRouteDescription) || !sameRouteDescription(this.__currentRouteDescription, routeDescription) ) {
-    (routeDescription.controller || noop).call( this, routeDescription.namedParams );
+    (routeDescription.controller || noop).apply( this, values(routeDescription.namedParams) );
     this.__currentRouteDescription = routeDescription;
   }
 }

@@ -262,8 +262,8 @@ describe('router', function () {
       routes: [
         {
           route: '/specifiedRoute/:testParam',
-          controller: function(params) {
-            expect(params.testParam).to.be(testParam);
+          controller: function(passedTestParam) {
+            expect(passedTestParam).to.be(testParam);
             specifiedRouteRan = true;
           }
         }
@@ -297,14 +297,14 @@ describe('router', function () {
       routes: [
         {
           route: '/specifiedRoute/optParamNotSupplied(/:testParam)',
-          controller: function(params) {
-            expect(params.testParam).to.be(undefined);
+          controller: function(testParam) {
+            expect(testParam).to.be(undefined);
             optParamNotSupplied = true;
           }
         }, {
           route: '/specifiedRoute/optParamSupplied(/:testParam)',
-          controller: function(params) {
-            expect(params.testParam).to.be(testParam);
+          controller: function(passedTestParam) {
+            expect(passedTestParam).to.be(testParam);
             optParamSupplied = true;
           }
         }

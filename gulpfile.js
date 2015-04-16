@@ -72,6 +72,7 @@ var build = function(buildProfile) {
     .pipe(uglify({
       compress: { negate_iife: false }
     }))
+    .pipe(header(headerBanner, { pkg: pkg }))
     .pipe(rename('footwork-' + buildProfile + '.min.js'))
     .pipe(size({ title: '[' + buildProfile + '] Minified' }))
     .pipe(size({ title: '[' + buildProfile + '] Minified', gzip: true }))
