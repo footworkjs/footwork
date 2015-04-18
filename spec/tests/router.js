@@ -648,6 +648,165 @@ describe('router', function () {
     }, 40);
   });
 
+  it('can have a $route bound link correctly composed with an href attribute using passed in string route', function(done) {
+    var container = document.getElementById('routeHrefBindingString');
+    var $container = $(container);
+    var routerInitialized = false;
+    var routeTouched = false;
+
+    fw.router({
+      namespace: 'routeHrefBindingString',
+      autoRegister: true,
+      routes: [
+        {
+          route: '/routeHrefBindingString',
+          controller: function() {
+            routeTouched = true;
+          }
+        }
+      ],
+      initialize: function() {
+        routerInitialized = true;
+      }
+    });
+
+    function router(name) {
+      return fw.routers.getAll(name)[0];
+    }
+
+    expect(routerInitialized).to.be(false);
+    expect(routeTouched).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      var $link = $container.find('a');
+
+      expect(routerInitialized).to.be(true);
+      expect($link.attr('href')).to.be('/routeHrefBindingString');
+
+      $link.click();
+      expect(routeTouched).to.be(true);
+      done();
+    }, 40);
+  });
+
+  it('can have a $route bound link correctly composed using the elements existing href attribute', function(done) {
+    var container = document.getElementById('routeHrefBindingHrefAttr');
+    var $container = $(container);
+    var routerInitialized = false;
+    var routeTouched = false;
+
+    fw.router({
+      namespace: 'routeHrefBindingHrefAttr',
+      autoRegister: true,
+      routes: [
+        {
+          route: '/routeHrefBindingHrefAttr',
+          controller: function() {
+            routeTouched = true;
+          }
+        }
+      ],
+      initialize: function() {
+        routerInitialized = true;
+      }
+    });
+
+    function router(name) {
+      return fw.routers.getAll(name)[0];
+    }
+
+    expect(routerInitialized).to.be(false);
+    expect(routeTouched).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      var $link = $container.find('a');
+
+      expect(routerInitialized).to.be(true);
+      expect($link.attr('href')).to.be('/routeHrefBindingHrefAttr');
+
+      $link.click();
+      expect(routeTouched).to.be(true);
+      done();
+    }, 40);
+  });
+
+  it('can have a $route bound link correctly composed with an href attribute using an observable', function(done) {
+    var container = document.getElementById('routeHrefBindingObservable');
+    var $container = $(container);
+    var routerInitialized = false;
+    var routeTouched = false;
+    var changedRouteTouched = false;
+    var viewModelInitialized = false;
+
+    fw.router({
+      namespace: 'routeHrefBindingObservable',
+      autoRegister: true,
+      routes: [
+        {
+          route: '/routeHrefBindingObservable',
+          controller: function() {
+            routeTouched = true;
+          }
+        }, {
+          route: '/routeHrefBindingObservableChangedRoute',
+          controller: function() {
+            changedRouteTouched = true;
+          }
+        }
+      ],
+      initialize: function() {
+        routerInitialized = true;
+      }
+    });
+
+    fw.viewModel({
+      namespace: 'routeHrefBindingObservable',
+      autoRegister: true,
+      initialize: function() {
+        viewModelInitialized = true;
+        this.routeHrefBindingObservable = fw.observable('/routeHrefBindingObservable');
+      }
+    });
+
+    function viewModel(name) {
+      return fw.viewModels.getAll(name)[0];
+    }
+
+    expect(routerInitialized).to.be(false);
+    expect(viewModelInitialized).to.be(false);
+    expect(routeTouched).to.be(false);
+    expect(changedRouteTouched).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      var $link = $container.find('a');
+
+      expect(routerInitialized).to.be(true);
+      expect(viewModelInitialized).to.be(true);
+
+      expect(routeTouched).to.be(false);
+      expect(changedRouteTouched).to.be(false);
+      expect($link.attr('href')).to.be('/routeHrefBindingObservable');
+
+      $link.click();
+      expect(routeTouched).to.be(true);
+      expect(changedRouteTouched).to.be(false);
+
+      viewModel('routeHrefBindingObservable').routeHrefBindingObservable('/routeHrefBindingObservableChangedRoute');
+      expect($link.attr('href')).to.be('/routeHrefBindingObservableChangedRoute');
+
+      $link.click();
+      expect(changedRouteTouched).to.be(true);
+
+      done();
+    }, 40);
+  });
+
   it('can have a registered location set and retrieved proplerly', function() {
     fw.routers.registerLocation('registeredLocationRetrieval', '/bogus/path');
     expect(fw.routers.getLocation('registeredLocationRetrieval')).to.be('/bogus/path');

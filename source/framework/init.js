@@ -13,7 +13,7 @@ fw.routers = {};
 fw.outlets = {};
 fw.settings = {};
 
-var hasHTML5History = noop;
+var hasHTML5History = false;
 var assessHistoryState = noop;
 var originalApplyBindings = noop;
 var setupContextAndLifeCycle = noop;

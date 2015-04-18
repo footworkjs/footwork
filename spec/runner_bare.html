@@ -210,6 +210,26 @@
         </router>
       </div>
 
+      <div id="routeHrefBindingString">
+        <router module="routeHrefBindingString">
+          <a data-bind="$route: '/routeHrefBindingString'"></a>
+        </router>
+      </div>
+
+      <div id="routeHrefBindingHrefAttr">
+        <router module="routeHrefBindingHrefAttr">
+          <a href="/routeHrefBindingHrefAttr" data-bind="$route"></a>
+        </router>
+      </div>
+
+      <div id="routeHrefBindingObservable">
+        <router module="routeHrefBindingObservable">
+          <viewModel module="routeHrefBindingObservable">
+            <a data-bind="$route: routeHrefBindingObservable"></a>
+          </viewModel>
+        </router>
+      </div>
+
       <div id="AMDRouter">
         <router module="AMDRouter"></router>
       </div>
@@ -230,8 +250,10 @@
     <script src="../bower_components/mocha/mocha.js"></script>
     <script src="../bower_components/expect/expect.js"></script>
     <script src="../bower_components/lodash/lodash.js"></script>
+    <script src="../bower_components/jquery/dist/jquery.js"></script>
 
     <script>mocha.setup('bdd')</script>
+
     <script src="tests/sanity.js"></script>
     <script src="tests/namespace.js"></script>
     <script src="tests/viewModel.js"></script>
