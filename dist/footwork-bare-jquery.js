@@ -356,6 +356,7 @@ var last = _.last;
 var isEqual = _.isEqual;
 var noop = _.noop;
 var keys = _.keys;
+var merge = _.merge;
 
 // extenders.js
 // ----------------
@@ -520,8 +521,9 @@ fw.viewModels = {};
 fw.dataModels = {};
 fw.routers = {};
 fw.outlets = {};
+fw.settings = {};
 
-var hasHTML5History = noop;
+var hasHTML5History = false;
 var assessHistoryState = noop;
 var originalApplyBindings = noop;
 var setupContextAndLifeCycle = noop;
@@ -529,7 +531,7 @@ var setupContextAndLifeCycle = noop;
 var noComponentSelected = '_noComponentSelected';
 var runPostInit = [];
 var nativeComponents = [];
-var specialTagDescriptors = [];
+var entityDescriptors = [];
 var modelMixins = [];
 var $routerOutlet;
 
@@ -541,19 +543,19 @@ runPostInit.push(function() {
 var isModelCtor;
 var isModel;
 runPostInit.push(function() {
-  var viewModelDescriptor = specialTagDescriptors.getDescriptor('viewModel');
+  var viewModelDescriptor = entityDescriptors.getDescriptor('viewModel');
   isModelCtor = viewModelDescriptor.isModelCtor;
   isModel = viewModelDescriptor.isModel;
 });
 
 var createResources;
 runPostInit.push(function() {
-  createResources(specialTagDescriptors);
+  createResources(entityDescriptors);
 });
 
 var createFactories;
 runPostInit.push(function() {
-  createFactories(specialTagDescriptors);
+  createFactories(entityDescriptors);
 });
 
 var registerOutletComponents;
@@ -1484,7 +1486,7 @@ function routerClassFactory(routerConfig) {
 // ------------------
 
 createFactories = function(descriptors) {
-  // create the class factory method for each specialTag descriptor
+  // create the class factory method for each entity descriptor
   filter(descriptors, function getOnlyDescriptorsWithMethodName(descriptor) {
     return isString(descriptor.methodName);
   }).forEach(function setupFactoryMethod(descriptor) {
@@ -1624,7 +1626,7 @@ function nearestParentRouter($context) {
 }
 
 (assessHistoryState = function() {
-  hasHTML5History = windowObject.history && windowObject.history.pushState;
+  hasHTML5History = !!windowObject.history && !!windowObject.history.pushState;
   if(!isUndefined(windowObject.History) && isObject(windowObject.History.options) && windowObject.History.options.html4Mode) {
     // user is overriding to force html4mode hash-based history
     hasHTML5History = false;
@@ -1824,7 +1826,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
   }, this) );
 
   var $router = this;
-  this.$globalNamespace.request.handler(specialTagDescriptors.getDescriptor('router').referenceNamespace, function(options) {
+  this.$globalNamespace.request.handler(entityDescriptors.getDescriptor('router').referenceNamespace, function(options) {
     if( isObject(options) ) {
       if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
         var myNamespaceName = $router.$namespace.getName();
@@ -1990,6 +1992,8 @@ Router.prototype.normalizeURL = function(url) {
   if(!fw.routers.html5History()) {
     if(url.indexOf('#') !== -1) {
       url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
+    } else {
+      url = urlParts.path;
     }
   } else {
     url = urlParts.path;
@@ -2089,7 +2093,7 @@ function RoutedAction(routeDescription) {
   }
 
   if( isUndefined(this.__currentRouteDescription) || !sameRouteDescription(this.__currentRouteDescription, routeDescription) ) {
-    (routeDescription.controller || noop).call( this, routeDescription.namedParams );
+    (routeDescription.controller || noop).apply( this, values(routeDescription.namedParams) );
     this.__currentRouteDescription = routeDescription;
   }
 }
@@ -2214,21 +2218,23 @@ fw.bindingHandlers.$route = {
     var routeURLWithoutParentPath = getRouteURL.bind(null, false);
 
     function checkForMatchingSegment(mySegment, newRoute) {
-      var currentRoute = $myRouter.currentRoute();
-      mySegment = mySegment.replace(startingHashRegex, '/');
+      if(isString(mySegment)) {
+        var currentRoute = $myRouter.currentRoute();
+        mySegment = mySegment.replace(startingHashRegex, '/');
 
-      if(isObject(currentRoute)) {
-        if(routeHandlerDescription.addActiveClass) {
-          var activeRouteClassName = routeHandlerDescription.activeClass || fw.routers.activeRouteClassName();
-          if(mySegment === '/') {
-            mySegment = '';
-          }
+        if(isObject(currentRoute)) {
+          if(routeHandlerDescription.addActiveClass) {
+            var activeRouteClassName = routeHandlerDescription.activeClass || fw.routers.activeRouteClassName();
+            if(mySegment === '/') {
+              mySegment = '';
+            }
 
-          if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
-            // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
-            addClass(element, activeRouteClassName);
-          } else if( hasClass(element, activeRouteClassName) ) {
-            removeClass(element, activeRouteClassName);
+            if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
+              // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
+              addClass(element, activeRouteClassName);
+            } else if( hasClass(element, activeRouteClassName) ) {
+              removeClass(element, activeRouteClassName);
+            }
           }
         }
       }
@@ -2502,10 +2508,10 @@ fw.components.loaders.push( fw.components.requireLoader = {
 });
 
 
-// framework/specialTags/descriptorConfig.js
+// framework/entities/descriptorConfig.js
 // ------------------
 
-// framework/specialTags/ViewModel.js
+// framework/entities/behavior/ViewModel.js
 // ------------------
 
 var ViewModel = function(descriptor, configParams) {
@@ -2551,7 +2557,7 @@ var ViewModel = function(descriptor, configParams) {
   };
 };
 
-// framework/specialTags/DataModel.js
+// framework/entities/behavior/DataModel.js
 // ------------------
 
 /**
@@ -2584,15 +2590,6 @@ var ViewModel = function(descriptor, configParams) {
  *     }
  *   },
  *
- *   validate: {
- *     'firstName': 'notEmpty',
- *     'lastName': 'notEmpty',
- *     'email': 'validEmail',
- *     'movies.action': function(actionMovies) {
- *       return actionMovies.indexOf('Commando') !== -1;
- *     }
- *   }
- *
  *   initialize: function() {
  *     // field declarations and mapping
  *     this.firstName = fw.observable().mapTo('firstName');
@@ -2620,6 +2617,10 @@ function currentDataModelContext() {
   return dataModelContext.length ? dataModelContext[0] : null;
 }
 
+function getPrimaryKey(dataModel) {
+  return dataModel.__getConfigParams().idAttribute;
+}
+
 fw.subscribable.fn.mapTo = function(option) {
   var mappedObservable = this;
   var mapPath;
@@ -2639,11 +2640,24 @@ fw.subscribable.fn.mapTo = function(option) {
     throw new Error('No dataModel context found/supplied for mapTo observable');
   }
 
-  var mappings = dataModel.$$mappings;
-  if( !isUndefined(mappings[mapPath]) ) {
-    throw new Error('this path is already mapped on this dataModel');
+  var mappings = dataModel.__mappings;
+  var primaryKey = getPrimaryKey(dataModel);
+  if( !isUndefined(mappings[mapPath]) && (mapPath !== primaryKey && dataModel.$id.__isOriginalPK)) {
+    throw new Error('the field \'' + mapPath + '\' is already mapped on this dataModel');
   }
+
+  if(!isUndefined(mappings[mapPath]) && isFunction(mappings[mapPath].dispose)) {
+    // remapping a path, we need to dispose of the old one first
+    mappings[mapPath].dispose();
+  }
+
+  // add/set the registry entry for the mapped observable
   mappings[mapPath] = mappedObservable;
+
+  if(mapPath === primaryKey) {
+    // mapping primary key, update/set the $id property on the dataModel
+    dataModel.$id = mappings[mapPath];
+  }
 
   var changeSubscription = mappedObservable.subscribe(function() {
     dataModel.$dirty(true);
@@ -2692,52 +2706,186 @@ function getNestedReference(rootObject, fieldMap) {
     propName = fieldMap.shift();
     if(fieldMap.length) {
       // recurse into the next layer
-      return getNestedReference(rootObject[propName], fieldMap);
+      return getNestedReference((rootObject || {})[propName], fieldMap);
     }
   }
 
-  return !isString(propName) ? rootObject : rootObject[propName];
+  return !isString(propName) ? rootObject : (rootObject || {})[propName];
 }
 
-var DataModel = function(descriptor, configParams) {
-  configParams = extend({}, {
-    id: 'id'
-  }, configParams);
+function noURLError() {
+  throw new Error('A "url" property or function must be specified');
+};
 
+// Map from CRUD to HTTP for our default `fw.$sync` implementation.
+var methodMap = {
+  'create': 'POST',
+  'update': 'PUT',
+  'patch':  'PATCH',
+  'delete': 'DELETE',
+  'read':   'GET'
+};
+
+var parseURLRegex = /^(http[s]*:\/\/[a-zA-Z0-9:\.]*)*([\/]{0,1}[\w\.:\/-]*)$/;
+var parseParamsRegex = /(:[\w\.]+)/g;
+
+each(runPostInit, function(runTask) {
+  fw.ajax = ajax;
+  extend(fw.settings, {
+    emulateHTTP: false,
+    emulateJSON: false
+  });
+});
+
+fw.sync = function(action, dataModel, params) {
+  params = params || {};
+
+  var options = extend({
+    type: methodMap[action],
+    dataType: 'json',
+    url: null,
+    data: null,
+    headers: {},
+    emulateHTTP: fw.settings.emulateHTTP,
+    emulateJSON: fw.settings.emulateJSON
+  }, params);
+
+  var url = options.url;
+  if(isNull(url)) {
+    var configParams = dataModel.__getConfigParams();
+    url = configParams.url;
+    if(isFunction(url)) {
+      url = url.call(dataModel, action);
+    } else {
+      if(contains(['read', 'update', 'patch', 'delete'], action)) {
+        // need to append /:id to url
+        url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
+      }
+    }
+  }
+  var urlPieces = (url || noURLError()).match(parseURLRegex);
+  var baseURL = urlPieces[1] || '';
+  options.url = last(urlPieces);
+
+  // replace any interpolated parameters
+  var urlParams = options.url.match(parseParamsRegex);
+  if(urlParams) {
+    each(urlParams, function(param) {
+      options.url = options.url.replace(param, dataModel.$toJS(param.substr(1)));
+    });
+  }
+  options.url = baseURL + options.url;
+
+  if(isNull(options.data) && dataModel && contains(['create', 'update', 'patch'], action)) {
+    options.contentType = 'application/json';
+    options.data = dataModel.$toJS();
+  }
+
+  // For older servers, emulate JSON by encoding the request into an HTML-form.
+  if(options.emulateJSON) {
+    options.contentType = 'application/x-www-form-urlencoded';
+    options.data = options.data ? { model: options.data } : {};
+  }
+
+  // For older servers, emulate HTTP by mimicking the HTTP method with `_method`
+  // And an `X-HTTP-Method-Override` header.
+  if(options.emulateHTTP && contains(['PUT', 'DELETE', 'PATCH'], options.type)) {
+    options.type = 'POST';
+
+    if(options.emulateJSON) {
+      options.data._method = options.type;
+    }
+    extend(options.headers, { 'X-HTTP-Method-Override': options.type });
+  }
+
+  // Don't process data on a non-GET request.
+  if(options.type !== 'GET' && !options.emulateJSON) {
+    options.processData = false;
+  }
+
+  // Pass along `textStatus` and `errorThrown` from jQuery.
+  // var error = options.error;
+  // options.error = function(xhr, textStatus, errorThrown) {
+  //   options.textStatus = textStatus;
+  //   options.errorThrown = errorThrown;
+  //   if (error) error.call(options.context, xhr, textStatus, errorThrown);
+  // };
+
+  return fw.ajax(options);
+  // dataModel.trigger('request', model, xhr, options);
+};
+
+var DataModel = function(descriptor, configParams) {
   return {
     runBeforeInit: true,
     _preInit: function( params ) {
       enterDataModelContext(this);
+
+      this.__mappings = {};
+
       this.$dirty = fw.observable(false);
+      this.$cid = fw.observable( fw.utils.guid() );
+      this[configParams.idAttribute] = this.$id = fw.observable().mapTo(configParams.idAttribute);
+      this.$id.__isOriginalPK = true;
     },
     mixin: {
       __isDataModel: true,
-      // internal tracking/mapping/etc data
-      $$mappings: {},
-      $fetch: function() {}, // GET from server and $load into model
+
+      // GET from server and $load into model
+      $fetch: function() {
+        var model = this;
+        var id = this[configParams.idAttribute]();
+        if(id) {
+          // retrieve data from server for model using the id
+          this.$sync('read', model);
+        }
+      },
       $save: function() {}, // PUT / POST
       $destroy: function() {}, // DELETE
-      $load: function( data ) {}, // load data into model (clears $dirty)
+
+      // load data into model (clears $dirty)
+      $load: function( data ) {
+        var dataModel = this;
+        each(dataModel.__mappings, function(fieldObservable, fieldMap) {
+          var fieldValue = getNestedReference(data, fieldMap);
+          if(!isUndefined(fieldValue)) {
+            fieldObservable(fieldValue);
+          }
+        });
+      },
+
+      $sync: function() {
+        return fw.sync.apply(this, arguments);
+      },
 
       $hasMappedField: function(referenceField) {
-        return !!this.$$mappings[referenceField];
+        return !!this.__mappings[referenceField];
       },
 
       // return current data in POJO form
-      $toJS: function(referenceField) {
-        var mappedObject = reduce(this.$$mappings, function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
-          if(isUndefined(referenceField) || fieldMap.indexOf(referenceField) === 0) {
+      $toJS: function(referenceField, includeRoot) {
+        var dataModel = this;
+        if(isArray(referenceField)) {
+          return reduce(referenceField, function(jsObject, fieldMap) {
+            return merge(jsObject, dataModel.$toJS(fieldMap, true));
+          }, {});
+        } else if(!isUndefined(referenceField) && !isString(referenceField)) {
+          throw new Error(dataModel.getNamespaceName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.$toJS().');
+        }
+
+        var mappedObject = reduce(this.__mappings, function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+          if(isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
             insertValueIntoObject(jsObject, fieldMap, fieldObservable());
           }
           return jsObject;
         }, {});
 
-        return getNestedReference(mappedObject, referenceField);
+        return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
       },
 
       // return current data in JSON form
-      $toJSON: function(referenceField) {
-        return JSON.stringify( this.$toJS(referenceField) );
+      $toJSON: function(referenceField, includeRoot) {
+        return JSON.stringify( this.$toJS(referenceField, includeRoot) );
       },
 
       $valid: function( referenceField ) {}, // get validation of entire model or selected field
@@ -2761,7 +2909,7 @@ var DataModel = function(descriptor, configParams) {
 };
 
 
-specialTagDescriptors = specialTagDescriptors.concat([
+entityDescriptors = entityDescriptors.concat([
   {
     tagName: 'viewmodel',
     methodName: 'viewModel',
@@ -2770,7 +2918,6 @@ specialTagDescriptors = specialTagDescriptors.concat([
     mixins: [ ViewModel ],
     defaultConfig: {
       namespace: undefined,
-      name: undefined,
       autoRegister: false,
       autoIncrement: false,
       mixins: undefined,
@@ -2786,8 +2933,9 @@ specialTagDescriptors = specialTagDescriptors.concat([
     resource: fw.dataModels,
     mixins: [ ViewModel, DataModel ],
     defaultConfig: {
+      idAttribute: 'id',
+      url: null,
       namespace: undefined,
-      name: undefined,
       autoRegister: false,
       autoIncrement: true,
       mixins: undefined,
@@ -2804,7 +2952,7 @@ specialTagDescriptors = specialTagDescriptors.concat([
   }
 ]);
 
-// framework/specialTags/bindingInit.js
+// framework/entities/bindingInit.js
 // ------------------
 
 function modelBinder(element, params, ViewModel) {
@@ -2856,7 +3004,7 @@ function getResourceLocation(moduleName) {
   return resourceLocation;
 }
 
-function initSpecialTag(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
+function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
   var theValueAccessor = valueAccessor;
   if(tagName === '__elementBased') {
     tagName = element.tagName;
@@ -2864,11 +3012,11 @@ function initSpecialTag(tagName, element, valueAccessor, allBindings, viewModel,
 
   if(isString(tagName)) {
     tagName = tagName.toLowerCase();
-    if( specialTagDescriptors.tagNameIsPresent(tagName) ) {
+    if( entityDescriptors.tagNameIsPresent(tagName) ) {
       var values = valueAccessor();
       var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
       var bindModel = modelBinder.bind(null, element, values.params);
-      var resource = specialTagDescriptors.resourceFor(tagName);
+      var resource = entityDescriptors.resourceFor(tagName);
       var getResourceLocationFor = getResourceLocation.bind(resource);
 
       if(isNull(moduleName) && isString(values)) {
@@ -2918,14 +3066,14 @@ function initSpecialTag(tagName, element, valueAccessor, allBindings, viewModel,
   return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);
 };
 
-fw.bindingHandlers.component.init = initSpecialTag.bind(null, '__elementBased');
+fw.bindingHandlers.component.init = initEntityTag.bind(null, '__elementBased');
 
 // NOTE: Do not use the $router binding yet, it is incomplete
 fw.bindingHandlers.$router = {
   preprocess: function(moduleName) {
     return "'" + moduleName + "'";
   },
-  init: initSpecialTag.bind(null, 'router')
+  init: initEntityTag.bind(null, 'router')
 };
 
 // NOTE: Do not use the $viewModel binding yet, it is incomplete
@@ -2933,10 +3081,10 @@ fw.bindingHandlers.$viewModel = {
   preprocess: function(moduleName) {
     return "'" + moduleName + "'";
   },
-  init: initSpecialTag.bind(null, 'viewModel')
+  init: initEntityTag.bind(null, 'viewModel')
 };
 
-// framework/specialTags/init.js
+// framework/entities/init.js
 // ----------------
 
 function makeBooleanChecks(descriptor) {
@@ -2950,7 +3098,7 @@ function makeBooleanChecks(descriptor) {
   };
 }
 
-specialTagDescriptors = map(specialTagDescriptors, function prepareDescriptor(descriptor) {
+entityDescriptors = map(entityDescriptors, function prepareDescriptor(descriptor) {
   descriptor = extend({
     resourceLocations: {},
     registered: {},
@@ -2963,13 +3111,13 @@ specialTagDescriptors = map(specialTagDescriptors, function prepareDescriptor(de
   return extend(descriptor, makeBooleanChecks(descriptor));
 });
 
-extend(specialTagDescriptors, {
-  tagNameIsPresent: function isSpecialTagDescriptorPresent(tagName) {
+extend(entityDescriptors, {
+  tagNameIsPresent: function isEntityTagNameDescriptorPresent(tagName) {
     return filter(this, function matchingTagNames(descriptor) {
       return descriptor.tagName === tagName;
     }).length > 0;
   },
-  resourceFor: function getResourceForSpecialTag(tagName) {
+  resourceFor: function getResourceForEntityTagName(tagName) {
     return reduce(this, function(resource, descriptor) {
       if(descriptor.tagName === tagName) {
         resource = descriptor.resource;
