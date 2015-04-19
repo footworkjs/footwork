@@ -230,6 +230,30 @@
         </router>
       </div>
 
+      <div id="routeHrefBindingCustomHandler">
+        <router module="routeHrefBindingCustomHandler">
+          <viewModel module="routeHrefBindingCustomHandler">
+            <a data-bind="$route: { url: '/routeHrefBindingCustomHandler', handler: routeHrefBindingCustomHandler }"></a>
+          </viewModel>
+        </router>
+      </div>
+
+      <div id="routeHrefBindingCustomUrlCallback">
+        <router module="routeHrefBindingCustomUrlCallback">
+          <viewModel module="routeHrefBindingCustomUrlCallback">
+            <a data-bind="$route: { url: routeHrefBindingCustomUrlCallback }"></a>
+          </viewModel>
+        </router>
+      </div>
+
+      <div id="routeHrefBindingAltEvent">
+        <router module="routeHrefBindingAltEvent">
+          <viewModel module="routeHrefBindingAltEvent">
+            <a data-bind="$route: { on: 'dblclick', handler: routeHrefBindingAltEvent }"></a>
+          </viewModel>
+        </router>
+      </div>
+
       <div id="AMDRouter">
         <router module="AMDRouter"></router>
       </div>

@@ -104,21 +104,23 @@ fw.bindingHandlers.$route = {
     var routeURLWithoutParentPath = getRouteURL.bind(null, false);
 
     function checkForMatchingSegment(mySegment, newRoute) {
-      var currentRoute = $myRouter.currentRoute();
-      mySegment = mySegment.replace(startingHashRegex, '/');
+      if(isString(mySegment)) {
+        var currentRoute = $myRouter.currentRoute();
+        mySegment = mySegment.replace(startingHashRegex, '/');
 
-      if(isObject(currentRoute)) {
-        if(routeHandlerDescription.addActiveClass) {
-          var activeRouteClassName = routeHandlerDescription.activeClass || fw.routers.activeRouteClassName();
-          if(mySegment === '/') {
-            mySegment = '';
-          }
+        if(isObject(currentRoute)) {
+          if(routeHandlerDescription.addActiveClass) {
+            var activeRouteClassName = routeHandlerDescription.activeClass || fw.routers.activeRouteClassName();
+            if(mySegment === '/') {
+              mySegment = '';
+            }
 
-          if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
-            // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
-            addClass(element, activeRouteClassName);
-          } else if( hasClass(element, activeRouteClassName) ) {
-            removeClass(element, activeRouteClassName);
+            if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
+              // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
+              addClass(element, activeRouteClassName);
+            } else if( hasClass(element, activeRouteClassName) ) {
+              removeClass(element, activeRouteClassName);
+            }
           }
         }
       }

@@ -807,6 +807,165 @@ describe('router', function () {
     }, 40);
   });
 
+  it('can have a $route bound link correctly composed with a custom callback handler', function(done) {
+    var container = document.getElementById('routeHrefBindingCustomHandler');
+    var $container = $(container);
+    var routerInitialized = false;
+    var routeTouched = false;
+    var viewModelInitialized = false;
+    var customHandlerTouched = false;
+    var allowHandlerEvent = false;
+
+    fw.router({
+      namespace: 'routeHrefBindingCustomHandler',
+      autoRegister: true,
+      routes: [
+        {
+          route: '/routeHrefBindingCustomHandler',
+          controller: function() {
+            routeTouched = true;
+          }
+        }
+      ],
+      initialize: function() {
+        routerInitialized = true;
+      }
+    });
+
+    fw.viewModel({
+      namespace: 'routeHrefBindingCustomHandler',
+      autoRegister: true,
+      initialize: function() {
+        viewModelInitialized = true;
+        this.routeHrefBindingCustomHandler = function(event, url) {
+          customHandlerTouched = true;
+          expect(event).to.be.an('object');
+          expect(url).to.be.a('string');
+          return allowHandlerEvent;
+        };
+      }
+    });
+
+    function viewModel(name) {
+      return fw.viewModels.getAll(name)[0];
+    }
+
+    expect(routerInitialized).to.be(false);
+    expect(viewModelInitialized).to.be(false);
+    expect(routeTouched).to.be(false);
+    expect(customHandlerTouched).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      var $link = $container.find('a');
+
+      expect(routerInitialized).to.be(true);
+      expect(viewModelInitialized).to.be(true);
+      expect(customHandlerTouched).to.be(false);
+      expect(routeTouched).to.be(false);
+      expect($link.attr('href')).to.be('/routeHrefBindingCustomHandler');
+
+      $link.click();
+      expect(customHandlerTouched).to.be(true);
+      expect(routeTouched).to.be(false);
+
+      allowHandlerEvent = true;
+
+      $link.click();
+      expect(routeTouched).to.be(true);
+
+      done();
+    }, 40);
+  });
+
+  it('can have a $route bound link correctly composed with a custom URL callback', function(done) {
+    var container = document.getElementById('routeHrefBindingCustomUrlCallback');
+    var $container = $(container);
+    var routerInitialized = false;
+    var viewModelInitialized = false;
+
+    fw.router({
+      namespace: 'routeHrefBindingCustomUrlCallback',
+      autoRegister: true,
+      initialize: function() {
+        routerInitialized = true;
+      }
+    });
+
+    fw.viewModel({
+      namespace: 'routeHrefBindingCustomUrlCallback',
+      autoRegister: true,
+      initialize: function() {
+        viewModelInitialized = true;
+        this.routeHrefBindingCustomUrlCallback = function() {
+          return '/routeHrefBindingCustomUrlCallback';
+        };
+      }
+    });
+
+    expect(routerInitialized).to.be(false);
+    expect(viewModelInitialized).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      var $link = $container.find('a');
+
+      expect(routerInitialized).to.be(true);
+      expect(viewModelInitialized).to.be(true);
+      expect($link.attr('href')).to.be('/routeHrefBindingCustomUrlCallback');
+
+      done();
+    }, 40);
+  });
+
+  it('can have a $route bound link correctly composed with an alternative event', function(done) {
+    var container = document.getElementById('routeHrefBindingAltEvent');
+    var $container = $(container);
+    var routerInitialized = false;
+    var viewModelInitialized = false;
+    var altEventRan = false;
+
+    fw.router({
+      namespace: 'routeHrefBindingAltEvent',
+      autoRegister: true,
+      initialize: function() {
+        routerInitialized = true;
+      }
+    });
+
+    fw.viewModel({
+      namespace: 'routeHrefBindingAltEvent',
+      autoRegister: true,
+      initialize: function() {
+        viewModelInitialized = true;
+        this.routeHrefBindingAltEvent = function() {
+          altEventRan = true;
+        };
+      }
+    });
+
+    expect(routerInitialized).to.be(false);
+    expect(viewModelInitialized).to.be(false);
+    expect(altEventRan).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      var $link = $container.find('a');
+
+      expect(routerInitialized).to.be(true);
+      expect(viewModelInitialized).to.be(true);
+      expect(altEventRan).to.be(false);
+
+      $link.dblclick();
+      expect(altEventRan).to.be(true);
+
+      done();
+    }, 40);
+  });
+
   it('can have a registered location set and retrieved proplerly', function() {
     fw.routers.registerLocation('registeredLocationRetrieval', '/bogus/path');
     expect(fw.routers.getLocation('registeredLocationRetrieval')).to.be('/bogus/path');
