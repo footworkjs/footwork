@@ -241,6 +241,8 @@ Router.prototype.normalizeURL = function(url) {
   if(!fw.routers.html5History()) {
     if(url.indexOf('#') !== -1) {
       url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
+    } else {
+      url = urlParts.path;
     }
   } else {
     url = urlParts.path;
