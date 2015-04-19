@@ -13360,7 +13360,7 @@ extend(entityDescriptors, {
 // 'start' up the framework at the targetElement (or document.body by default)
 fw.start = function(targetElement) {
   // must initialize require context (https://github.com/jrburke/requirejs/issues/1305#issuecomment-87924865)
-  require([]);
+  isFunction(require) && require([]);
 
   assessHistoryState();
   targetElement = targetElement || windowObject.document.body;
