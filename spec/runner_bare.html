@@ -230,6 +230,24 @@
         </router>
       </div>
 
+      <div id="routeHrefBindingDefaultActiveClass">
+        <router module="routeHrefBindingDefaultActiveClass">
+          <a data-bind="$route: '/routeHrefBindingDefaultActiveClass'"></a>
+        </router>
+      </div>
+
+      <div id="routeHrefBindingCustomActiveClass">
+        <router module="routeHrefBindingCustomActiveClass">
+          <a data-bind="$route: { url: '/routeHrefBindingCustomActiveClass', activeClass: 'routeHrefBindingCustomActiveClass' }"></a>
+        </router>
+      </div>
+
+      <div id="routeHrefBindingDisabledActiveClass">
+        <router module="routeHrefBindingDisabledActiveClass">
+          <a data-bind="$route: { url: '/routeHrefBindingDisabledActiveClass', addActiveClass: false }"></a>
+        </router>
+      </div>
+
       <div id="routeHrefBindingCustomHandler">
         <router module="routeHrefBindingCustomHandler">
           <viewModel module="routeHrefBindingCustomHandler">

@@ -807,6 +807,132 @@ describe('router', function () {
     }, 40);
   });
 
+  it('can have a $route bound link that expresses the default active class when the route matches', function(done) {
+    var container = document.getElementById('routeHrefBindingDefaultActiveClass');
+    var $container = $(container);
+    var routerInitialized = false;
+    var routeTouched = false;
+
+    fw.router({
+      namespace: 'routeHrefBindingDefaultActiveClass',
+      autoRegister: true,
+      routes: [
+        {
+          route: '/routeHrefBindingDefaultActiveClass',
+          controller: function() {
+            routeTouched = true;
+          }
+        }
+      ],
+      initialize: function() {
+        routerInitialized = true;
+      }
+    });
+
+    expect(routerInitialized).to.be(false);
+    expect(routeTouched).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      var $link = $container.find('a');
+
+      expect(routerInitialized).to.be(true);
+      expect(routeTouched).to.be(false);
+      expect($link.hasClass('active')).to.be(false);
+
+      $link.click();
+      expect(routeTouched).to.be(true);
+      expect($link.hasClass('active')).to.be(true);
+
+      done();
+    }, 40);
+  });
+
+  it('can have a $route bound link that expresses a custom \'active\' class when the route matches', function(done) {
+    var container = document.getElementById('routeHrefBindingCustomActiveClass');
+    var $container = $(container);
+    var routerInitialized = false;
+    var routeTouched = false;
+
+    fw.router({
+      namespace: 'routeHrefBindingCustomActiveClass',
+      autoRegister: true,
+      routes: [
+        {
+          route: '/routeHrefBindingCustomActiveClass',
+          controller: function() {
+            routeTouched = true;
+          }
+        }
+      ],
+      initialize: function() {
+        routerInitialized = true;
+      }
+    });
+
+    expect(routerInitialized).to.be(false);
+    expect(routeTouched).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      var $link = $container.find('a');
+
+      expect(routerInitialized).to.be(true);
+      expect(routeTouched).to.be(false);
+      expect($link.hasClass('routeHrefBindingCustomActiveClass')).to.be(false);
+
+      $link.click();
+      expect(routeTouched).to.be(true);
+      expect($link.hasClass('routeHrefBindingCustomActiveClass')).to.be(true);
+
+      done();
+    }, 40);
+  });
+
+  it('can have a $route bound link that disables the active class state', function(done) {
+    var container = document.getElementById('routeHrefBindingDisabledActiveClass');
+    var $container = $(container);
+    var routerInitialized = false;
+    var routeTouched = false;
+
+    fw.router({
+      namespace: 'routeHrefBindingDisabledActiveClass',
+      autoRegister: true,
+      routes: [
+        {
+          route: '/routeHrefBindingDisabledActiveClass',
+          controller: function() {
+            routeTouched = true;
+          }
+        }
+      ],
+      initialize: function() {
+        routerInitialized = true;
+      }
+    });
+
+    expect(routerInitialized).to.be(false);
+    expect(routeTouched).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      var $link = $container.find('a');
+
+      expect(routerInitialized).to.be(true);
+      expect(routeTouched).to.be(false);
+      expect($link.hasClass('active')).to.be(false);
+
+      $link.click();
+      expect(routeTouched).to.be(true);
+      expect($link.hasClass('active')).to.be(false);
+
+      done();
+    }, 40);
+  });
+
   it('can have a $route bound link correctly composed with a custom callback handler', function(done) {
     var container = document.getElementById('routeHrefBindingCustomHandler');
     var $container = $(container);
