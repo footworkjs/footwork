@@ -32,10 +32,19 @@ runPostInit.push(function() {
 
 var isEntityCtor;
 var isEntity;
+var isDataModel;
 runPostInit.push(function() {
-  var viewModelDescriptor = entityDescriptors.getDescriptor('viewModel');
-  isEntityCtor = viewModelDescriptor.isEntityCtor;
-  isEntity = viewModelDescriptor.isEntity;
+  var viewModel = entityDescriptors.getDescriptor('viewModel');
+  var dataModel = entityDescriptors.getDescriptor('dataModel');
+
+  isEntityCtor = function(thing) {
+    return viewModel.isEntityCtor(thing) || dataModel.isEntityCtor(thing);
+  };
+  isEntity = function(thing) {
+    return viewModel.isEntity(thing) || dataModel.isEntity(thing);
+  };
+
+  isDataModel = dataModel.isEntity;
 });
 
 var createResources;

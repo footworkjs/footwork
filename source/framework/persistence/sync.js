@@ -19,8 +19,11 @@ function noURLError() {
 
 fw.sync = function(action, dataModel, params) {
   params = params || {};
+  action = action || 'noAction';
 
-  if(!dataModel.__isDataModel)
+  if(!isDataModel(dataModel)) {
+    throw new Error('Must supply a dataModel to fw.sync()');
+  }
 
   var options = extend({
     type: methodMap[action],
@@ -31,6 +34,10 @@ fw.sync = function(action, dataModel, params) {
     emulateHTTP: fw.settings.emulateHTTP,
     emulateJSON: fw.settings.emulateJSON
   }, params);
+
+  if(!isString(options.type)) {
+    throw new Error('Invalid action (' + action + ') specified for sync operation');
+  }
 
   var url = options.url;
   if(isNull(url)) {

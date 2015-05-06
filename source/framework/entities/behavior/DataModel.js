@@ -176,8 +176,6 @@ var DataModel = function(descriptor, configParams) {
       this.$id.__isOriginalPK = true;
     },
     mixin: {
-      __isDataModel: true,
-
       // GET from server and $load into model
       $fetch: function() {
         var model = this;
