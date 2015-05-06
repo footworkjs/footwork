@@ -1,4 +1,4 @@
-// framework/model/applyBinding.js
+// framework/entities/applyBinding.js
 // ------------------
 
 // Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.

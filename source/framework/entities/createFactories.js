@@ -1,15 +1,15 @@
-// framework/model/createFactories.js
+// framework/entities/createFactories.js
 // ------------------
 
 function isBeforeInitMixin(mixin) {
   return !!mixin.runBeforeInit;
 }
 
-function modelMixin(thing) {
+function entityMixin(thing) {
   return ( (isArray(thing) && thing.length) || isObject(thing) ? thing : {} );
 }
 
-function modelClassFactory(descriptor, configParams) {
+function entityClassFactory(descriptor, configParams) {
   var model = null;
 
   configParams = extend({}, descriptor.defaultConfig, configParams || {});
@@ -33,20 +33,20 @@ function modelClassFactory(descriptor, configParams) {
       }
     };
     var afterInitCallbackMixin = { _postInit: configParams.afterInit || noop };
-    var afterInitMixins = reject(modelMixins, isBeforeInitMixin);
-    var beforeInitMixins = map(filter(modelMixins, isBeforeInitMixin), function(mixin) {
+    var afterInitMixins = reject(entityMixins, isBeforeInitMixin);
+    var beforeInitMixins = map(filter(entityMixins, isBeforeInitMixin), function(mixin) {
       delete mixin.runBeforeInit;
       return mixin;
     });
 
     var composure = [ ctor ].concat(
-      modelMixin(newInstanceCheckMixin),
-      modelMixin(isEntityDuckTagMixin),
-      modelMixin(afterInitCallbackMixin),
-      modelMixin(afterInitMixins),
-      modelMixin(beforeInitMixins),
-      modelMixin(configParams.mixins),
-      modelMixin(descriptorMixins)
+      entityMixin(newInstanceCheckMixin),
+      entityMixin(isEntityDuckTagMixin),
+      entityMixin(afterInitCallbackMixin),
+      entityMixin(afterInitMixins),
+      entityMixin(beforeInitMixins),
+      entityMixin(configParams.mixins),
+      entityMixin(descriptorMixins)
     );
 
     model = riveter.compose.apply( undefined, composure );
@@ -76,7 +76,7 @@ function modelClassFactory(descriptor, configParams) {
   return model;
 }
 
-function routerClassFactory(routerConfig) {
+function routerEntityClassFactory(routerConfig) {
   var viewModel = fw.viewModel({
     router: routerConfig
   });
@@ -99,14 +99,14 @@ createFactories = function(descriptors) {
   // create the class factory method for each entity descriptor
   filter(descriptors, function getOnlyDescriptorsWithMethodName(descriptor) {
     return isString(descriptor.methodName);
-  }).forEach(function setupFactoryMethod(descriptor) {
+  }).forEach(function setupClassFactory(descriptor) {
     switch(descriptor.methodName) {
       case 'router':
-        fw[descriptor.methodName] = routerClassFactory;
+        fw[descriptor.methodName] = routerEntityClassFactory;
         break;
 
       default:
-        fw[descriptor.methodName] = modelClassFactory.bind(null, descriptor);
+        fw[descriptor.methodName] = entityClassFactory.bind(null, descriptor);
     }
   });
 };

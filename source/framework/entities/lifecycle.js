@@ -1,4 +1,4 @@
-// framework/model/lifecycle.js
+// framework/entities/lifecycle.js
 // ------------------
 
 // Provides lifecycle functionality and $context for a given model and element

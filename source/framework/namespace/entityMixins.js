@@ -1,8 +1,8 @@
-// framework/namespace/modelMixins.js
+// framework/namespace/entityMixins.js
 // ----------------
 
 // mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
-modelMixins.push({
+entityMixins.push({
   runBeforeInit: true,
   _preInit: function( options ) {
     var $configParams = this.__getConfigParams();

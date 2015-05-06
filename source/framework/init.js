@@ -22,7 +22,7 @@ var noComponentSelected = '_noComponentSelected';
 var runPostInit = [];
 var nativeComponents = [];
 var entityDescriptors = [];
-var modelMixins = [];
+var entityMixins = [];
 var $routerOutlet;
 
 var $globalNamespace;
