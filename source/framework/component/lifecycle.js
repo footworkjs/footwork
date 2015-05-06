@@ -2,7 +2,7 @@
 // ------------------
 
 function componentTriggerAfterBinding(element, viewModel) {
-  if( isModel(viewModel) ) {
+  if( isEntity(viewModel) ) {
     var configParams = viewModel.__getConfigParams();
     if( isFunction(configParams.afterBinding) ) {
       configParams.afterBinding.call(viewModel, element);
@@ -15,7 +15,7 @@ fw.virtualElements.allowedBindings.$life = true;
 fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
-      if( isModel(viewModel) ) {
+      if( isEntity(viewModel) ) {
         viewModel.dispose();
       }
     });
@@ -53,7 +53,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
         var $context = fw.contextFor($element);
         var LoadedViewModel = ViewModel;
         if( isFunction(ViewModel) ) {
-          if( !isModelCtor(ViewModel) ) {
+          if( !isEntityCtor(ViewModel) ) {
             ViewModel = fw.viewModel({ initialize: ViewModel });
           }
 

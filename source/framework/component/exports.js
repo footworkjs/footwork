@@ -39,7 +39,7 @@ fw.components.tagIsComponent = function(tagName, isComponent) {
 fw.component = function(componentDefinition) {
   var viewModel = componentDefinition.viewModel;
 
-  if( isFunction(viewModel) && !isModelCtor(viewModel) ) {
+  if( isFunction(viewModel) && !isEntityCtor(viewModel) ) {
     componentDefinition.viewModel = fw.viewModel( omit(componentDefinition, 'template') );
   }
 

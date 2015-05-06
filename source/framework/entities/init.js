@@ -3,11 +3,11 @@
 
 function makeBooleanChecks(descriptor) {
   return {
-    isModelCtor: function isModelCtor(thing) {
-      return isFunction(thing) && !!thing[ descriptor.isModelCtorDuckTag ];
+    isEntityCtor: function isEntityCtor(thing) {
+      return isFunction(thing) && !!thing[ descriptor.isEntityCtorDuckTag ];
     },
-    isModel: function isModel(thing) {
-      return isObject(thing) && !!thing[ descriptor.isModelDuckTag ];
+    isEntity: function isEntity(thing) {
+      return isObject(thing) && !!thing[ descriptor.isEntityDuckTag ];
     }
   };
 }
@@ -17,8 +17,8 @@ entityDescriptors = map(entityDescriptors, function prepareDescriptor(descriptor
     resourceLocations: {},
     registered: {},
     fileExtensions: fw.observable('.js'),
-    isModelCtorDuckTag: '__isModelCtor',
-    isModelDuckTag: '__isModel',
+    isEntityCtorDuckTag: '__isEntityCtor',
+    isEntityDuckTag: '__isEntity',
     referenceNamespace: (isString(descriptor.methodName) ? ('__' + descriptor.methodName + 'Reference') : undefined)
   }, descriptor);
 

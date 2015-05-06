@@ -20,10 +20,10 @@ function modelClassFactory(descriptor, configParams) {
   });
 
   var ctor = configParams.initialize || configParams.viewModel || noop;
-  if( !descriptor.isModelCtor(ctor) ) {
-    var isModelDuckTagMixin = {};
-    isModelDuckTagMixin[descriptor.isModelDuckTag] = true;
-    isModelDuckTagMixin = { mixin: isModelDuckTagMixin };
+  if( !descriptor.isEntityCtor(ctor) ) {
+    var isEntityDuckTagMixin = {};
+    isEntityDuckTagMixin[descriptor.isEntityDuckTag] = true;
+    isEntityDuckTagMixin = { mixin: isEntityDuckTagMixin };
 
     var newInstanceCheckMixin = {
       _preInit: function() {
@@ -41,7 +41,7 @@ function modelClassFactory(descriptor, configParams) {
 
     var composure = [ ctor ].concat(
       modelMixin(newInstanceCheckMixin),
-      modelMixin(isModelDuckTagMixin),
+      modelMixin(isEntityDuckTagMixin),
       modelMixin(afterInitCallbackMixin),
       modelMixin(afterInitMixins),
       modelMixin(beforeInitMixins),
@@ -51,7 +51,7 @@ function modelClassFactory(descriptor, configParams) {
 
     model = riveter.compose.apply( undefined, composure );
 
-    model[ descriptor.isModelCtorDuckTag ] = true;
+    model[ descriptor.isEntityCtorDuckTag ] = true;
     model.__configParams = configParams;
   } else {
     // user has specified another model constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain

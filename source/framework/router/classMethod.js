@@ -6,7 +6,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
   var subscriptions = this.subscriptions = fw.observableArray();
   var viewModelNamespaceName;
 
-  if( isModel($viewModel) ) {
+  if( isEntity($viewModel) ) {
     viewModelNamespaceName = $viewModel.getNamespaceName();
   }
 
@@ -230,7 +230,7 @@ Router.prototype.dispose = function() {
 
   invoke(this.subscriptions(), 'dispose');
   each(omit(this, function(property) {
-    return isModel(property);
+    return isEntity(property);
   }), propertyDisposal);
 };
 

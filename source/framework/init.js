@@ -30,12 +30,12 @@ runPostInit.push(function() {
   $globalNamespace = fw.namespace();
 });
 
-var isModelCtor;
-var isModel;
+var isEntityCtor;
+var isEntity;
 runPostInit.push(function() {
   var viewModelDescriptor = entityDescriptors.getDescriptor('viewModel');
-  isModelCtor = viewModelDescriptor.isModelCtor;
-  isModel = viewModelDescriptor.isModel;
+  isEntityCtor = viewModelDescriptor.isEntityCtor;
+  isEntity = viewModelDescriptor.isEntity;
 });
 
 var createResources;

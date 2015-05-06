@@ -1759,12 +1759,12 @@ runPostInit.push(function() {
   $globalNamespace = fw.namespace();
 });
 
-var isModelCtor;
-var isModel;
+var isEntityCtor;
+var isEntity;
 runPostInit.push(function() {
   var viewModelDescriptor = entityDescriptors.getDescriptor('viewModel');
-  isModelCtor = viewModelDescriptor.isModelCtor;
-  isModel = viewModelDescriptor.isModel;
+  isEntityCtor = viewModelDescriptor.isEntityCtor;
+  isEntity = viewModelDescriptor.isEntity;
 });
 
 var createResources;
@@ -2286,7 +2286,7 @@ fw.components.register = function(componentName, options) {
     throw new Error('Components must be provided a componentName.');
   }
 
-  if( isFunction(viewModel) && !isModelCtor(viewModel) ) {
+  if( isFunction(viewModel) && !isEntityCtor(viewModel) ) {
     options.namespace = componentName;
     viewModel = fw.viewModel(options);
   }
@@ -2568,7 +2568,7 @@ fw.isReceivable = function(thing) {
 
 // Provides lifecycle functionality and $context for a given model and element
 setupContextAndLifeCycle = function(viewModel, element) {
-  if( isModel(viewModel) ) {
+  if( isEntity(viewModel) ) {
     var $configParams = viewModel.__getConfigParams();
     var context;
     element = element || document.body;
@@ -2623,10 +2623,10 @@ function modelClassFactory(descriptor, configParams) {
   });
 
   var ctor = configParams.initialize || configParams.viewModel || noop;
-  if( !descriptor.isModelCtor(ctor) ) {
-    var isModelDuckTagMixin = {};
-    isModelDuckTagMixin[descriptor.isModelDuckTag] = true;
-    isModelDuckTagMixin = { mixin: isModelDuckTagMixin };
+  if( !descriptor.isEntityCtor(ctor) ) {
+    var isEntityDuckTagMixin = {};
+    isEntityDuckTagMixin[descriptor.isEntityDuckTag] = true;
+    isEntityDuckTagMixin = { mixin: isEntityDuckTagMixin };
 
     var newInstanceCheckMixin = {
       _preInit: function() {
@@ -2644,7 +2644,7 @@ function modelClassFactory(descriptor, configParams) {
 
     var composure = [ ctor ].concat(
       modelMixin(newInstanceCheckMixin),
-      modelMixin(isModelDuckTagMixin),
+      modelMixin(isEntityDuckTagMixin),
       modelMixin(afterInitCallbackMixin),
       modelMixin(afterInitMixins),
       modelMixin(beforeInitMixins),
@@ -2654,7 +2654,7 @@ function modelClassFactory(descriptor, configParams) {
 
     model = riveter.compose.apply( undefined, composure );
 
-    model[ descriptor.isModelCtorDuckTag ] = true;
+    model[ descriptor.isEntityCtorDuckTag ] = true;
     model.__configParams = configParams;
   } else {
     // user has specified another model constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain
@@ -2976,7 +2976,7 @@ var Router = function( routerConfig, $viewModel, $context ) {
   var subscriptions = this.subscriptions = fw.observableArray();
   var viewModelNamespaceName;
 
-  if( isModel($viewModel) ) {
+  if( isEntity($viewModel) ) {
     viewModelNamespaceName = $viewModel.getNamespaceName();
   }
 
@@ -3200,7 +3200,7 @@ Router.prototype.dispose = function() {
 
   invoke(this.subscriptions(), 'dispose');
   each(omit(this, function(property) {
-    return isModel(property);
+    return isEntity(property);
   }), propertyDisposal);
 };
 
@@ -3571,7 +3571,7 @@ fw.components.tagIsComponent = function(tagName, isComponent) {
 fw.component = function(componentDefinition) {
   var viewModel = componentDefinition.viewModel;
 
-  if( isFunction(viewModel) && !isModelCtor(viewModel) ) {
+  if( isFunction(viewModel) && !isEntityCtor(viewModel) ) {
     componentDefinition.viewModel = fw.viewModel( omit(componentDefinition, 'template') );
   }
 
@@ -3582,7 +3582,7 @@ fw.component = function(componentDefinition) {
 // ------------------
 
 function componentTriggerAfterBinding(element, viewModel) {
-  if( isModel(viewModel) ) {
+  if( isEntity(viewModel) ) {
     var configParams = viewModel.__getConfigParams();
     if( isFunction(configParams.afterBinding) ) {
       configParams.afterBinding.call(viewModel, element);
@@ -3595,7 +3595,7 @@ fw.virtualElements.allowedBindings.$life = true;
 fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
-      if( isModel(viewModel) ) {
+      if( isEntity(viewModel) ) {
         viewModel.dispose();
       }
     });
@@ -3633,7 +3633,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
         var $context = fw.contextFor($element);
         var LoadedViewModel = ViewModel;
         if( isFunction(ViewModel) ) {
-          if( !isModelCtor(ViewModel) ) {
+          if( !isEntityCtor(ViewModel) ) {
             ViewModel = fw.viewModel({ initialize: ViewModel });
           }
 
@@ -3932,22 +3932,6 @@ function getNestedReference(rootObject, fieldMap) {
   return !isString(propName) ? rootObject : (rootObject || {})[propName];
 }
 
-function noURLError() {
-  throw new Error('A "url" property or function must be specified');
-};
-
-// Map from CRUD to HTTP for our default `fw.$sync` implementation.
-var methodMap = {
-  'create': 'POST',
-  'update': 'PUT',
-  'patch':  'PATCH',
-  'delete': 'DELETE',
-  'read':   'GET'
-};
-
-var parseURLRegex = /^(http[s]*:\/\/[a-zA-Z0-9:\.]*)*([\/]{0,1}[\w\.:\/-]*)$/;
-var parseParamsRegex = /(:[\w\.]+)/g;
-
 each(runPostInit, function(runTask) {
   fw.ajax = ajax;
   extend(fw.settings, {
@@ -3955,84 +3939,6 @@ each(runPostInit, function(runTask) {
     emulateJSON: false
   });
 });
-
-fw.sync = function(action, dataModel, params) {
-  params = params || {};
-
-  var options = extend({
-    type: methodMap[action],
-    dataType: 'json',
-    url: null,
-    data: null,
-    headers: {},
-    emulateHTTP: fw.settings.emulateHTTP,
-    emulateJSON: fw.settings.emulateJSON
-  }, params);
-
-  var url = options.url;
-  if(isNull(url)) {
-    var configParams = dataModel.__getConfigParams();
-    url = configParams.url;
-    if(isFunction(url)) {
-      url = url.call(dataModel, action);
-    } else {
-      if(contains(['read', 'update', 'patch', 'delete'], action)) {
-        // need to append /:id to url
-        url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
-      }
-    }
-  }
-  var urlPieces = (url || noURLError()).match(parseURLRegex);
-  var baseURL = urlPieces[1] || '';
-  options.url = last(urlPieces);
-
-  // replace any interpolated parameters
-  var urlParams = options.url.match(parseParamsRegex);
-  if(urlParams) {
-    each(urlParams, function(param) {
-      options.url = options.url.replace(param, dataModel.$toJS(param.substr(1)));
-    });
-  }
-  options.url = baseURL + options.url;
-
-  if(isNull(options.data) && dataModel && contains(['create', 'update', 'patch'], action)) {
-    options.contentType = 'application/json';
-    options.data = dataModel.$toJS();
-  }
-
-  // For older servers, emulate JSON by encoding the request into an HTML-form.
-  if(options.emulateJSON) {
-    options.contentType = 'application/x-www-form-urlencoded';
-    options.data = options.data ? { model: options.data } : {};
-  }
-
-  // For older servers, emulate HTTP by mimicking the HTTP method with `_method`
-  // And an `X-HTTP-Method-Override` header.
-  if(options.emulateHTTP && contains(['PUT', 'DELETE', 'PATCH'], options.type)) {
-    options.type = 'POST';
-
-    if(options.emulateJSON) {
-      options.data._method = options.type;
-    }
-    extend(options.headers, { 'X-HTTP-Method-Override': options.type });
-  }
-
-  // Don't process data on a non-GET request.
-  if(options.type !== 'GET' && !options.emulateJSON) {
-    options.processData = false;
-  }
-
-  // Pass along `textStatus` and `errorThrown` from jQuery.
-  // var error = options.error;
-  // options.error = function(xhr, textStatus, errorThrown) {
-  //   options.textStatus = textStatus;
-  //   options.errorThrown = errorThrown;
-  //   if (error) error.call(options.context, xhr, textStatus, errorThrown);
-  // };
-
-  return fw.ajax(options);
-  // dataModel.trigger('request', model, xhr, options);
-};
 
 var DataModel = function(descriptor, configParams) {
   return {
@@ -4043,7 +3949,7 @@ var DataModel = function(descriptor, configParams) {
       this.__mappings = {};
 
       this.$dirty = fw.observable(false);
-      this.$cid = fw.observable( fw.utils.guid() );
+      this.$cid = fw.utils.guid();
       this[configParams.idAttribute] = this.$id = fw.observable().mapTo(configParams.idAttribute);
       this.$id.__isOriginalPK = true;
     },
@@ -4308,11 +4214,11 @@ fw.bindingHandlers.$viewModel = {
 
 function makeBooleanChecks(descriptor) {
   return {
-    isModelCtor: function isModelCtor(thing) {
-      return isFunction(thing) && !!thing[ descriptor.isModelCtorDuckTag ];
+    isEntityCtor: function isEntityCtor(thing) {
+      return isFunction(thing) && !!thing[ descriptor.isEntityCtorDuckTag ];
     },
-    isModel: function isModel(thing) {
-      return isObject(thing) && !!thing[ descriptor.isModelDuckTag ];
+    isEntity: function isEntity(thing) {
+      return isObject(thing) && !!thing[ descriptor.isEntityDuckTag ];
     }
   };
 }
@@ -4322,8 +4228,8 @@ entityDescriptors = map(entityDescriptors, function prepareDescriptor(descriptor
     resourceLocations: {},
     registered: {},
     fileExtensions: fw.observable('.js'),
-    isModelCtorDuckTag: '__isModelCtor',
-    isModelDuckTag: '__isModel',
+    isEntityCtorDuckTag: '__isEntityCtor',
+    isEntityDuckTag: '__isEntity',
     referenceNamespace: (isString(descriptor.methodName) ? ('__' + descriptor.methodName + 'Reference') : undefined)
   }, descriptor);
 
@@ -4351,6 +4257,119 @@ extend(entityDescriptors, {
   }
 });
 
+
+// framework/collection/exports.js
+// ------------------
+
+var defaultCollectionConfig = {};
+
+fw.collection = function(config) {
+  var collection = fw.observableArray();
+
+  extend({}, defaultCollectionConfig, config);
+
+  return collection;
+};
+
+
+// framework/persistence/sync.js
+// ------------------
+
+// Map from CRUD to HTTP for our default `fw.$sync` implementation.
+var methodMap = {
+  'create': 'POST',
+  'update': 'PUT',
+  'patch':  'PATCH',
+  'delete': 'DELETE',
+  'read':   'GET'
+};
+
+var parseURLRegex = /^(http[s]*:\/\/[a-zA-Z0-9:\.]*)*([\/]{0,1}[\w\.:\/-]*)$/;
+var parseParamsRegex = /(:[\w\.]+)/g;
+
+function noURLError() {
+  throw new Error('A "url" property or function must be specified');
+};
+
+fw.sync = function(action, dataModel, params) {
+  params = params || {};
+
+  if(!dataModel.__isDataModel)
+
+  var options = extend({
+    type: methodMap[action],
+    dataType: 'json',
+    url: null,
+    data: null,
+    headers: {},
+    emulateHTTP: fw.settings.emulateHTTP,
+    emulateJSON: fw.settings.emulateJSON
+  }, params);
+
+  var url = options.url;
+  if(isNull(url)) {
+    var configParams = dataModel.__getConfigParams();
+    url = configParams.url;
+    if(isFunction(url)) {
+      url = url.call(dataModel, action);
+    } else {
+      if(contains(['read', 'update', 'patch', 'delete'], action)) {
+        // need to append /:id to url
+        url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
+      }
+    }
+  }
+  var urlPieces = (url || noURLError()).match(parseURLRegex);
+  var baseURL = urlPieces[1] || '';
+  options.url = last(urlPieces);
+
+  // replace any interpolated parameters
+  var urlParams = options.url.match(parseParamsRegex);
+  if(urlParams) {
+    each(urlParams, function(param) {
+      options.url = options.url.replace(param, dataModel.$toJS(param.substr(1)));
+    });
+  }
+  options.url = baseURL + options.url;
+
+  if(isNull(options.data) && dataModel && contains(['create', 'update', 'patch'], action)) {
+    options.contentType = 'application/json';
+    options.data = dataModel.$toJS();
+  }
+
+  // For older servers, emulate JSON by encoding the request into an HTML-form.
+  if(options.emulateJSON) {
+    options.contentType = 'application/x-www-form-urlencoded';
+    options.data = options.data ? { model: options.data } : {};
+  }
+
+  // For older servers, emulate HTTP by mimicking the HTTP method with `_method`
+  // And an `X-HTTP-Method-Override` header.
+  if(options.emulateHTTP && contains(['PUT', 'DELETE', 'PATCH'], options.type)) {
+    options.type = 'POST';
+
+    if(options.emulateJSON) {
+      options.data._method = options.type;
+    }
+    extend(options.headers, { 'X-HTTP-Method-Override': options.type });
+  }
+
+  // Don't process data on a non-GET request.
+  if(options.type !== 'GET' && !options.emulateJSON) {
+    options.processData = false;
+  }
+
+  // Pass along `textStatus` and `errorThrown` from jQuery.
+  // var error = options.error;
+  // options.error = function(xhr, textStatus, errorThrown) {
+  //   options.textStatus = textStatus;
+  //   options.errorThrown = errorThrown;
+  //   if (error) error.call(options.context, xhr, textStatus, errorThrown);
+  // };
+
+  return fw.ajax(options);
+  // dataModel.trigger('request', model, xhr, options);
+};
 
 
 // 'start' up the framework at the targetElement (or document.body by default)

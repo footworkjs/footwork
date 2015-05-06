@@ -12,7 +12,7 @@ fw.components.register = function(componentName, options) {
     throw new Error('Components must be provided a componentName.');
   }
 
-  if( isFunction(viewModel) && !isModelCtor(viewModel) ) {
+  if( isFunction(viewModel) && !isEntityCtor(viewModel) ) {
     options.namespace = componentName;
     viewModel = fw.viewModel(options);
   }

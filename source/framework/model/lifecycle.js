@@ -3,7 +3,7 @@
 
 // Provides lifecycle functionality and $context for a given model and element
 setupContextAndLifeCycle = function(viewModel, element) {
-  if( isModel(viewModel) ) {
+  if( isEntity(viewModel) ) {
     var $configParams = viewModel.__getConfigParams();
     var context;
     element = element || document.body;
