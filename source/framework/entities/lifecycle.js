@@ -2,25 +2,25 @@
 // ------------------
 
 // Provides lifecycle functionality and $context for a given model and element
-setupContextAndLifeCycle = function(viewModel, element) {
-  if( isEntity(viewModel) ) {
-    var $configParams = viewModel.__getConfigParams();
+setupContextAndLifeCycle = function(entity, element) {
+  if( isEntity(entity) ) {
+    var $configParams = entity.__getConfigParams();
     var context;
     element = element || document.body;
-    viewModel.$element = element;
-    viewModel.$context = elementContext = fw.contextFor(element.tagName.toLowerCase() === 'binding-wrapper' ? (element.parentElement || element.parentNode) : element);
+    entity.$element = element;
+    entity.$context = elementContext = fw.contextFor(element.tagName.toLowerCase() === 'binding-wrapper' ? (element.parentElement || element.parentNode) : element);
 
     if( isFunction($configParams.afterBinding) ) {
-      $configParams.afterBinding.call(viewModel, element);
+      $configParams.afterBinding.call(entity, element);
     }
 
-    if( isRouter(viewModel.$router) ) {
-      viewModel.$router.context( elementContext );
+    if( isRouter(entity.$router) ) {
+      entity.$router.context( elementContext );
     }
 
     if( !isUndefined(element) ) {
       fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
-        viewModel.dispose();
+        entity.dispose();
       });
     }
   }

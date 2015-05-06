@@ -1,14 +1,14 @@
 // framework/entities/bindingInit.js
 // ------------------
 
-function modelBinder(element, params, ViewModel) {
-  var viewModelObj;
-  if( isFunction(ViewModel) ) {
-    viewModelObj = new ViewModel(params);
+function entityBinder(element, params, Entity) {
+  var entityObj;
+  if( isFunction(Entity) ) {
+    entityObj = new Entity(params);
   } else {
-    viewModelObj = ViewModel;
+    entityObj = Entity;
   }
-  viewModelObj.$parentContext = fw.contextFor(element.parentElement || element.parentNode);
+  entityObj.$parentContext = fw.contextFor(element.parentElement || element.parentNode);
 
   // Have to create a wrapper element for the contents of the element. Cannot bind to
   // existing element as it has already been bound against.
@@ -26,10 +26,10 @@ function modelBinder(element, params, ViewModel) {
     wrapperNode.appendChild(child);
   });
 
-  fw.applyBindings(viewModelObj, wrapperNode);
+  fw.applyBindings(entityObj, wrapperNode);
 };
 
-// Monkey patch enables the viewModel or router component to initialize a model and bind to the html as intended (with lifecycle events)
+// Monkey patch enables the entity to initialize a viewModel and bind to the html as intended (with lifecycle events)
 // TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
 var originalComponentInit = fw.bindingHandlers.component.init;
 
@@ -61,7 +61,7 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
     if( entityDescriptors.tagNameIsPresent(tagName) ) {
       var values = valueAccessor();
       var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
-      var bindModel = modelBinder.bind(null, element, values.params);
+      var bindModel = entityBinder.bind(null, element, values.params);
       var resource = entityDescriptors.resourceFor(tagName);
       var getResourceLocationFor = getResourceLocation.bind(resource);
 

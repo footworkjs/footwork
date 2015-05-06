@@ -10,7 +10,7 @@ function entityMixin(thing) {
 }
 
 function entityClassFactory(descriptor, configParams) {
-  var model = null;
+  var entityCtor = null;
 
   configParams = extend({}, descriptor.defaultConfig, configParams || {});
 
@@ -49,31 +49,31 @@ function entityClassFactory(descriptor, configParams) {
       entityMixin(descriptorMixins)
     );
 
-    model = riveter.compose.apply( undefined, composure );
+    entityCtor = riveter.compose.apply( undefined, composure );
 
-    model[ descriptor.isEntityCtorDuckTag ] = true;
-    model.__configParams = configParams;
+    entityCtor[ descriptor.isEntityCtorDuckTag ] = true;
+    entityCtor.__configParams = configParams;
   } else {
-    // user has specified another model constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain
-    model = ctor;
+    // user has specified another entity constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain
+    entityCtor = ctor;
   }
 
-  if( !isNull(model) && isFunction(configParams.parent) ) {
-    model.inherits(configParams.parent);
+  if( !isNull(entityCtor) && isFunction(configParams.parent) ) {
+    entityCtor.inherits(configParams.parent);
   }
 
   if( configParams.autoRegister ) {
     var namespace = configParams.namespace;
     if( descriptor.resource.isRegistered(namespace) ) {
-      if( descriptor.resource.getRegistered(namespace) !== model ) {
+      if( descriptor.resource.getRegistered(namespace) !== entityCtor ) {
         throw new Error('"' + namespace + '" has already been registered as a ' + descriptor.methodName + ', autoRegister failed.');
       }
     } else {
-      descriptor.resource.register(namespace, model);
+      descriptor.resource.register(namespace, entityCtor);
     }
   }
 
-  return model;
+  return entityCtor;
 }
 
 function routerEntityClassFactory(routerConfig) {
