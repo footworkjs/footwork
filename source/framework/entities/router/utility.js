@@ -47,10 +47,6 @@ function isNullRouter(thing) {
   return isObject(thing) && !!thing.__isNullRouter;
 }
 
-function isRouter(thing) {
-  return isObject(thing) && !!thing.__isRouter;
-}
-
 function isRoute(thing) {
   return isObject(thing) && !!thing.__isRoute;
 }

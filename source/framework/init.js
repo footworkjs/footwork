@@ -28,3 +28,4 @@ var $globalNamespace;
 var isEntityCtor;
 var isEntity;
 var isDataModel;
+var isRouter;

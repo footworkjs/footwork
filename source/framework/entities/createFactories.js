@@ -14,9 +14,9 @@ function entityClassFactory(descriptor, configParams) {
 
   configParams = extend({}, descriptor.defaultConfig, configParams || {});
 
-  var descriptorMixins = [];
-  map(descriptor.mixins, function(mixin, index) {
-    descriptorMixins.push( isFunction(mixin) ? mixin(descriptor, configParams || {}) : mixin );
+  var descriptorBehavior = [];
+  map(descriptor.behavior, function(behavior, index) {
+    descriptorBehavior.push( isFunction(behavior) ? behavior(descriptor, configParams || {}) : behavior );
   });
 
   var ctor = configParams.initialize || configParams.viewModel || noop;
@@ -32,7 +32,6 @@ function entityClassFactory(descriptor, configParams) {
         }
       }
     };
-    var afterInitCallbackMixin = { _postInit: configParams.afterInit || noop };
     var afterInitMixins = reject(entityMixins, isBeforeInitMixin);
     var beforeInitMixins = map(filter(entityMixins, isBeforeInitMixin), function(mixin) {
       delete mixin.runBeforeInit;
@@ -42,11 +41,10 @@ function entityClassFactory(descriptor, configParams) {
     var composure = [ ctor ].concat(
       entityMixin(newInstanceCheckMixin),
       entityMixin(isEntityDuckTagMixin),
-      entityMixin(afterInitCallbackMixin),
       entityMixin(afterInitMixins),
       entityMixin(beforeInitMixins),
       entityMixin(configParams.mixins),
-      entityMixin(descriptorMixins)
+      entityMixin(descriptorBehavior)
     );
 
     entityCtor = riveter.compose.apply( undefined, composure );

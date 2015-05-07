@@ -71,4 +71,5 @@ runPostInit.push(function() {
   };
 
   isDataModel = entityDescriptors.getDescriptor('dataModel').isEntity;
+  isRouter = entityDescriptors.getDescriptor('router').isEntity;
 });

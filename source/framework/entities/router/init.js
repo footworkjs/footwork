@@ -17,26 +17,22 @@ var namedParamRegex = /(\(\?)?:\w+/g;
 var splatParamRegex = /\*\w*/g;
 var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatchRegex = /(^\/#)/;
-var routesAreCaseSensitive = true;
-var noComponentSelected = '_noComponentSelected';
 
+var noComponentSelected = '_noComponentSelected';
 var invalidRoutePathIdentifier = '___invalid-route';
 
-var $baseRouter = {
+var routesAreCaseSensitive = true;
+
+var $nullRouter = {
   path: emptyStringResult,
-  segment: emptyStringResult,
   childRouters: fw.observableArray(),
   context: noop,
   userInitialize: noop,
-  __isRouter: true
-};
-
-var $nullRouter = extend({}, $baseRouter, {
   childRouters: extend( noop.bind(), { push: noop } ),
   path: function() { return ''; },
   isRelative: function() { return false; },
   __isNullRouter: true
-});
+};
 
 var baseRoute = {
   controller: noop,

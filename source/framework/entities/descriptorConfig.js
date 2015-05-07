@@ -3,6 +3,7 @@
 
 //import("behavior/ViewModel.js");
 //import("behavior/DataModel.js");
+//import("behavior/Router.js");
 
 entityDescriptors = entityDescriptors.concat([
   {
@@ -10,14 +11,12 @@ entityDescriptors = entityDescriptors.concat([
     methodName: 'viewModel',
     defaultLocation: '/viewModel/',
     resource: fw.viewModels,
-    mixins: [ ViewModel ],
+    behavior: [ ViewModel ],
     defaultConfig: {
       namespace: undefined,
       autoRegister: false,
       autoIncrement: false,
       mixins: undefined,
-      params: undefined,
-      afterInit: noop,
       afterBinding: noop,
       onDispose: noop
     }
@@ -26,7 +25,7 @@ entityDescriptors = entityDescriptors.concat([
     methodName: 'dataModel',
     defaultLocation: '/dataModel/',
     resource: fw.dataModels,
-    mixins: [ ViewModel, DataModel ],
+    behavior: [ ViewModel, DataModel ],
     defaultConfig: {
       idAttribute: 'id',
       url: null,
@@ -34,8 +33,6 @@ entityDescriptors = entityDescriptors.concat([
       autoRegister: false,
       autoIncrement: true,
       mixins: undefined,
-      params: undefined,
-      afterInit: noop,
       afterBinding: noop,
       onDispose: noop
     }
@@ -43,6 +40,17 @@ entityDescriptors = entityDescriptors.concat([
     tagName: 'router',
     methodName: 'router',
     defaultLocation: '/',
-    resource: fw.routers
+    resource: fw.routers,
+    behavior: [ ViewModel, Router ],
+    defaultConfig: {
+      idAttribute: 'id',
+      url: null,
+      namespace: undefined,
+      autoRegister: false,
+      autoIncrement: true,
+      mixins: undefined,
+      afterBinding: noop,
+      onDispose: noop
+    }
   }
 ]);

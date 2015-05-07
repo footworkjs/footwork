@@ -101,28 +101,6 @@ describe('dataModel', function () {
     expect(modelA.subModelB.subModelC.recordedNamespaceName).to.eql('nestedDataModelC0');
   });
 
-  it('calls afterInit after initialize when creating a new instance', function() {
-    var initializeWasCalledFirst = false;
-    var afterInitWasCalledSecond = false;
-
-    var ModelA = fw.dataModel({
-      namespace: 'ModelA',
-      initialize: function() {
-        if(!afterInitWasCalledSecond) {
-          initializeWasCalledFirst = true;
-        }
-      },
-      afterInit: function() {
-        if(initializeWasCalledFirst) {
-          afterInitWasCalledSecond = true;
-        }
-      }
-    });
-    var modelA = new ModelA();
-
-    expect(afterInitWasCalledSecond).to.be(true);
-  });
-
   it('calls afterBinding after initialize with the correct target element when creating and binding a new instance', function() {
     var initializeWasCalledFirst = false;
     var afterBindingWasCalledSecond = false;

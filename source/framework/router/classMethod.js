@@ -2,7 +2,9 @@
 // -----------
 
 var Router = function( routerConfig, $viewModel, $context ) {
-  extend(this, $baseRouter);
+  this.userInitialize = noop;
+  this.__isRouter = true;
+
   var subscriptions = this.subscriptions = fw.observableArray();
   var viewModelNamespaceName;
 
