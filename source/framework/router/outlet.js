@@ -84,8 +84,8 @@ $routerOutlet = function(outletName, componentToDisplay, options ) {
   return outlet;
 };
 
-registerOutletComponents = function() {
-  nativeComponents.push('outlet');
+function registerOutletComponents() {
+  internalComponents.push('outlet');
   fw.components.register('outlet', {
     autoIncrement: true,
     viewModel: function(params) {
@@ -95,7 +95,7 @@ registerOutletComponents = function() {
     template: '<!-- ko $bind, component: $route --><!-- /ko -->'
   });
 
-  nativeComponents.push(noComponentSelected);
+  internalComponents.push(noComponentSelected);
   fw.components.register(noComponentSelected, {
     viewModel: function(params) {
       this.__assertPresence = false;
@@ -103,3 +103,5 @@ registerOutletComponents = function() {
     template: '<div class="no-component-selected"></div>'
   });
 };
+
+runPostInit.push(registerOutletComponents);

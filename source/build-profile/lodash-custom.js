@@ -37,8 +37,7 @@ root._ = {
   noop: require('../../node_modules/lodash/utility/noop'),
   keys: require('../../node_modules/lodash/object/keys'),
   merge: require('../../node_modules/lodash/object/merge'),
-
-  // required for postal.js specifically (ref: postal.js/lib/postal.lodash.js)
+  pluck: require('../../node_modules/lodash/collection/pluck'),
   after: require('../../node_modules/lodash/function/after'),
   any: require('../../node_modules/lodash/collection/any'),
   debounce: require('../../node_modules/lodash/function/debounce'),

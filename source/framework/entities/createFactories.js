@@ -95,7 +95,7 @@ function routerEntityClassFactory(routerConfig) {
   return viewModel;
 }
 
-createFactories = function(descriptors) {
+function createEntityFactories(descriptors) {
   // create the class factory method for each entity descriptor
   filter(descriptors, function getOnlyDescriptorsWithMethodName(descriptor) {
     return isString(descriptor.methodName);
@@ -110,3 +110,7 @@ createFactories = function(descriptors) {
     }
   });
 };
+
+runPostInit.push(function() {
+  createEntityFactories(entityDescriptors);
+});

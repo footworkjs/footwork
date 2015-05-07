@@ -45,3 +45,29 @@ extend(entityDescriptors, {
     }, null);
   }
 });
+
+function getEntityComparator(methodName, compFunctions, entityDescriptor) {
+  if(isFunction(entityDescriptor[methodName])) {
+    compFunctions.push(entityDescriptor[methodName]);
+  }
+  return compFunctions;
+}
+
+runPostInit.push(function() {
+  var entityCtorComparators = pluck(entityDescriptors, 'isEntityCtor');
+  var entityComparators = pluck(entityDescriptors, 'isEntity');
+
+  isEntityCtor = function(thing) {
+    return reduce(entityCtorComparators, function(isThing, comparator) {
+      return isThing || comparator(thing);
+    }, false);
+  };
+
+  isEntity = function(thing) {
+    return reduce(entityComparators, function(isThing, comparator) {
+      return isThing || comparator(thing);
+    }, false);
+  };
+
+  isDataModel = entityDescriptors.getDescriptor('dataModel').isEntity;
+});

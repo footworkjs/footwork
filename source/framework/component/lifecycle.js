@@ -32,7 +32,7 @@ fw.bindingHandlers.$life = {
 // Custom loader used to wrap components with the $life custom binding
 fw.components.loaders.unshift( fw.components.componentWrapper = {
   loadTemplate: function(componentName, config, callback) {
-    if( !isNativeComponent(componentName) ) {
+    if( !isInternalComponent(componentName) ) {
       // TODO: Handle different types of configs
       if( isString(config) ) {
         config = '<!-- ko $life -->' + config + '<!-- /ko -->';
@@ -46,7 +46,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
   },
   loadViewModel: function(componentName, config, callback) {
     var ViewModel = config.viewModel || config;
-    if( !isNativeComponent(componentName) ) {
+    if( !isInternalComponent(componentName) ) {
       callback(function(params, componentInfo) {
         var componentElement = componentInfo.element;
         var $element = (componentElement.nodeType === 8 ? (componentElement.parentElement || componentElement.parentNode) : componentElement);

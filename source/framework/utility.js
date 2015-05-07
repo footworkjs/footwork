@@ -12,8 +12,8 @@ var isFullURL = fw.utils.isFullURL = function(thing) {
   return isString(thing) && isFullURLRegex.test(thing);
 };
 
-function isNativeComponent(componentName) {
-  return indexOf(nativeComponents, componentName) !== -1;
+function isInternalComponent(componentName) {
+  return indexOf(internalComponents, componentName) !== -1;
 }
 
 function isPath(pathOrFile) {

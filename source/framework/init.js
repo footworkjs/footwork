@@ -20,47 +20,15 @@ var setupContextAndLifeCycle = noop;
 
 var noComponentSelected = '_noComponentSelected';
 var runPostInit = [];
-var nativeComponents = [];
+var internalComponents = [];
 var entityDescriptors = [];
 var entityMixins = [];
 var $routerOutlet;
-
 var $globalNamespace;
-runPostInit.push(function() {
-  $globalNamespace = fw.namespace();
-});
 
 var isEntityCtor;
 var isEntity;
 var isDataModel;
-runPostInit.push(function() {
-  var viewModel = entityDescriptors.getDescriptor('viewModel');
-  var dataModel = entityDescriptors.getDescriptor('dataModel');
-
-  isEntityCtor = function(thing) {
-    return viewModel.isEntityCtor(thing) || dataModel.isEntityCtor(thing);
-  };
-  isEntity = function(thing) {
-    return viewModel.isEntity(thing) || dataModel.isEntity(thing);
-  };
-
-  isDataModel = dataModel.isEntity;
-});
-
-var createResources;
-runPostInit.push(function() {
-  createResources(entityDescriptors);
-});
-
-var createFactories;
-runPostInit.push(function() {
-  createFactories(entityDescriptors);
-});
-
-var registerOutletComponents;
-runPostInit.push(function() {
-  registerOutletComponents();
-});
 
 // These are tags which are ignored by the custom component loader
 // Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element

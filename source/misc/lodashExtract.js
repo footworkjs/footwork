@@ -35,3 +35,4 @@ var isEqual = _.isEqual;
 var noop = _.noop;
 var keys = _.keys;
 var merge = _.merge;
+var pluck = _.pluck;
