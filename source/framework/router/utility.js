@@ -72,15 +72,13 @@ function nearestParentRouter($context) {
   return $parentRouter;
 }
 
-function assessHistoryState() {
+(assessHistoryState = function() {
   hasHTML5History = !!windowObject.history && !!windowObject.history.pushState;
   if(!isUndefined(windowObject.History) && isObject(windowObject.History.options) && windowObject.History.options.html4Mode) {
     // user is overriding to force html4mode hash-based history
     hasHTML5History = false;
   }
-};
-
-runPostInit.push(assessHistoryState);
+})();
 
 function trimBaseRoute($router, url) {
   if( !isNull($router.config.baseRoute) && url.indexOf($router.config.baseRoute) === 0 ) {
