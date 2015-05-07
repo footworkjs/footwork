@@ -77,6 +77,8 @@ function entityClassFactory(descriptor, configParams) {
 }
 
 function routerEntityClassFactory(routerConfig) {
+  routerConfig = routerConfig || {};
+
   var viewModel = fw.viewModel({
     router: routerConfig
   });
