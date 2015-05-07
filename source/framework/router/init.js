@@ -1,6 +1,8 @@
 // framework/router/init.js
 // ------------------
 
+var hasHTML5History = false;
+
 var routerDefaultConfig = {
   namespace: '$router',
   baseRoute: null,
@@ -16,6 +18,7 @@ var splatParamRegex = /\*\w*/g;
 var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatchRegex = /(^\/#)/;
 var routesAreCaseSensitive = true;
+var noComponentSelected = '_noComponentSelected';
 
 var invalidRoutePathIdentifier = '___invalid-route';
 
