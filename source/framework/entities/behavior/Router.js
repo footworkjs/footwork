@@ -17,7 +17,7 @@ function RoutedAction(routeDescription) {
   }
 }
 
-function startupRouter($router, $context, $parentRouter ) {
+function activateRouter($router, $context, $parentRouter ) {
   $parentRouter = $parentRouter || $nullRouter;
 
   if( !isNullRouter($parentRouter) ) {
@@ -66,7 +66,6 @@ function normalizeURL($router, url) {
 
   return trimBaseRoute($router, url);
 };
-
 
 function getRouteForURL($router, url) {
   var route = null;
@@ -132,16 +131,6 @@ function getRouteForURL($router, url) {
   return route || unknownRoute;
 };
 
-function getActionForRoute($router, routeDescription) {
-  var Action;
-
-  if( isRoute(routeDescription) ) {
-    Action = RoutedAction.bind($router, routeDescription);
-  }
-
-  return Action || DefaultAction.bind($router);
-};
-
 function getUnknownRoute($router) {
   var unknownRoute = findWhere(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
 
@@ -157,10 +146,15 @@ function getUnknownRoute($router) {
   return unknownRoute;
 };
 
-var routeEntityDesc;
-runPostInit.push(function() {
-  routeEntityDesc = entityDescriptors.getDescriptor('router');
-});
+function getActionForRoute($router, routeDescription) {
+  var Action;
+
+  if( isRoute(routeDescription) ) {
+    Action = RoutedAction.bind($router, routeDescription);
+  }
+
+  return Action || DefaultAction.bind($router);
+};
 
 var Router = function(descriptor, configParams) {
   return {
@@ -263,7 +257,7 @@ var Router = function(descriptor, configParams) {
       },
       activate: function($context, $parentRouter) {
         $context = $context || this.context();
-        startupRouter(this, $context, $parentRouter || nearestParentRouter($context) );
+        activateRouter(this, $context, $parentRouter || nearestParentRouter($context) );
         if( this.currentState() === '' ) {
           this.setState();
         }
@@ -276,7 +270,6 @@ var Router = function(descriptor, configParams) {
             try {
               historyAPIWorked = History.pushState(null, '', this.__getConfigParams().baseRoute + this.parentRouter().path() + url.replace(startingHashRegex, '/'));
             } catch(historyException) {
-              console.error(historyException);
               historyAPIWorked = false;
             } finally {
               if(historyAPIWorked) {
