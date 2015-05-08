@@ -13,13 +13,13 @@ function makeBooleanChecks(descriptor) {
 }
 
 entityDescriptors = map(entityDescriptors, function prepareDescriptor(descriptor) {
-  var properMethodName = descriptor.methodName.charAt(0).toUpperCase() + descriptor.methodName.slice(1);
+  var methodName = descriptor.methodName.charAt(0).toUpperCase() + descriptor.methodName.slice(1);
   descriptor = extend({
     resourceLocations: {},
     registered: {},
     fileExtensions: fw.observable('.js'),
-    isEntityCtorDuckTag: '__is' + properMethodName + 'Ctor',
-    isEntityDuckTag: '__is' + properMethodName,
+    isEntityCtorDuckTag: '__is' + methodName + 'Ctor',
+    isEntityDuckTag: '__is' + methodName,
     referenceNamespace: (isString(descriptor.methodName) ? ('__' + descriptor.methodName + 'Reference') : undefined)
   }, descriptor);
 

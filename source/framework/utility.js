@@ -40,8 +40,8 @@ function alwaysPassPredicate() { return true; }
 function emptyStringResult() { return ''; }
 
 // dispose a known property type
-function propertyDisposal( property, name ) {
-  if( (isObservable(property) || isNamespace(property) || isRouter(property) || fw.isBroadcastable(property) || fw.isReceivable(property)) && isFunction(property.dispose) ) {
+function propertyDisposal( property ) {
+  if( (isObservable(property) || isNamespace(property) || isEntity(property) || fw.isBroadcastable(property) || fw.isReceivable(property)) && isFunction(property.dispose) ) {
     property.dispose();
   }
 }

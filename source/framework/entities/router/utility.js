@@ -57,9 +57,9 @@ function isRoute(thing) {
 function nearestParentRouter($context) {
   var $parentRouter = $nullRouter;
   if( isObject($context) ) {
-    if( isObject($context.$data) && isRouter($context.$data.$router) ) {
+    if( isRouter($context.$data) ) {
       // found router in this context
-      $parentRouter = $context.$data.$router;
+      $parentRouter = $context.$data;
     } else if( isObject($context.$parentContext) || (isObject($context.$data) && isObject($context.$data.$parentContext)) ) {
       // search through next parent up the chain
       $parentRouter = nearestParentRouter( $context.$parentContext || $context.$data.$parentContext );
@@ -77,8 +77,9 @@ function nearestParentRouter($context) {
 })();
 
 function trimBaseRoute($router, url) {
-  if( !isNull($router.config.baseRoute) && url.indexOf($router.config.baseRoute) === 0 ) {
-    url = url.substr($router.config.baseRoute.length);
+  var routerConfig = $router.__getConfigParams();
+  if( !isNull(routerConfig.baseRoute) && url.indexOf(routerConfig.baseRoute) === 0 ) {
+    url = url.substr(routerConfig.baseRoute.length);
     if(url.length > 1) {
       url = url.replace(hashMatchRegex, '/');
     }

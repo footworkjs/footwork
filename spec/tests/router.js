@@ -24,8 +24,8 @@ describe('router', function () {
     });
     var router = new Router();
 
-    expect(router.$router.$namespace).to.be.an('object');
-    expect(router.$router.$namespace.getName()).to.be('RouterNamespaceCheck');
+    expect(router.$namespace).to.be.an('object');
+    expect(router.$namespace.getName()).to.be('RouterNamespaceCheck');
   });
 
   it('can register a router', function() {
@@ -96,7 +96,7 @@ describe('router', function () {
 
     var router = new Router();
 
-    expect( _.reduce(router.$router.getRouteDescriptions(), function(routeDescriptions, routeDesc) {
+    expect( _.reduce(router.getRouteDescriptions(), function(routeDescriptions, routeDesc) {
       if( routesList.indexOf(routeDesc.route) !== -1 ) {
         routeDescriptions.push(routeDesc);
       }

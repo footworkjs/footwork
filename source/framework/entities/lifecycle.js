@@ -14,8 +14,8 @@ setupContextAndLifeCycle = function(entity, element) {
       $configParams.afterBinding.call(entity, element);
     }
 
-    if( isRouter(entity.$router) ) {
-      entity.$router.context( elementContext );
+    if( isRouter(entity) ) {
+      entity.context( elementContext );
     }
 
     if( !isUndefined(element) ) {

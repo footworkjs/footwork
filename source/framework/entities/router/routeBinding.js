@@ -128,8 +128,9 @@ fw.bindingHandlers.$route = {
 
     function setUpElement() {
       var myCurrentSegment = routeURLWithoutParentPath();
+      var routerConfig = $myRouter.__getConfigParams();
       if( element.tagName.toLowerCase() === 'a' ) {
-        element.href = (fw.routers.html5History() ? '' : '/') + $myRouter.config.baseRoute + routeURLWithParentPath();
+        element.href = (fw.routers.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
       }
 
       if( isObject(stateTracker) ) {
@@ -158,7 +159,7 @@ fw.bindingHandlers.$route = {
     }
 
     if( isObservable(routeHandlerDescription.url) ) {
-      $myRouter.subscriptions.push( routeHandlerDescription.url.subscribe(setUpElement) );
+      $myRouter.__subscriptions.push( routeHandlerDescription.url.subscribe(setUpElement) );
     }
     setUpElement();
 

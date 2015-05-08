@@ -44,13 +44,16 @@ entityDescriptors = entityDescriptors.concat([
     behavior: [ ViewModel, Router ],
     defaultConfig: {
       idAttribute: 'id',
-      url: null,
-      namespace: undefined,
+      namespace: '$router',
       autoRegister: false,
-      autoIncrement: true,
+      autoIncrement: false,
       mixins: undefined,
       afterBinding: noop,
-      onDispose: noop
+      onDispose: noop,
+      baseRoute: null,
+      isRelative: true,
+      activate: true,
+      routes: []
     }
   }
 ]);

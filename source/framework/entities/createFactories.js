@@ -74,40 +74,12 @@ function entityClassFactory(descriptor, configParams) {
   return entityCtor;
 }
 
-function routerEntityClassFactory(routerConfig) {
-  routerConfig = routerConfig || {};
-
-  var viewModel = fw.viewModel({
-    router: routerConfig
-  });
-
-  if( routerConfig.autoRegister ) {
-    var namespace = routerConfig.namespace;
-    if( fw.routers.isRegistered(namespace) ) {
-      if( fw.routers.getRegistered(namespace) !== this ) {
-        throw new Error('"' + namespace + '" has already been registered as a router, autoRegister failed.');
-      }
-    } else {
-      fw.routers.register(namespace, viewModel);
-    }
-  }
-
-  return viewModel;
-}
-
 function createEntityFactories(descriptors) {
   // create the class factory method for each entity descriptor
   filter(descriptors, function getOnlyDescriptorsWithMethodName(descriptor) {
     return isString(descriptor.methodName);
   }).forEach(function setupClassFactory(descriptor) {
-    switch(descriptor.methodName) {
-      case 'router':
-        fw[descriptor.methodName] = routerEntityClassFactory;
-        break;
-
-      default:
-        fw[descriptor.methodName] = entityClassFactory.bind(null, descriptor);
-    }
+    fw[descriptor.methodName] = entityClassFactory.bind(null, descriptor);
   });
 };
 
