@@ -1,4 +1,4 @@
-// framework/router/outlet.js
+// framework/entities/router/outlet.js
 // ------------------
 
 var noParentViewModelError = { getNamespaceName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } };

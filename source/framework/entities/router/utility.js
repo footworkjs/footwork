@@ -1,4 +1,4 @@
-// framework/router/utility.js
+// framework/entities/router/utility.js
 // -----------
 
 function transformRouteConfigToDesc(routeDesc) {

@@ -77,7 +77,7 @@ fw.subscribable.fn.mapTo = function(option) {
     throw new Error('Invalid options supplied to mapTo');
   }
 
-  if(isNull(dataModel)) {
+  if(!isDataModel(dataModel)) {
     throw new Error('No dataModel context found/supplied for mapTo observable');
   }
 
@@ -154,7 +154,7 @@ function getNestedReference(rootObject, fieldMap) {
   return !isString(propName) ? rootObject : (rootObject || {})[propName];
 }
 
-each(runPostInit, function(runTask) {
+runPostInit.push(function(runTask) {
   fw.ajax = ajax;
   extend(fw.settings, {
     emulateHTTP: false,
@@ -169,7 +169,6 @@ var DataModel = function(descriptor, configParams) {
       enterDataModelContext(this);
 
       this.__mappings = {};
-
       this.$dirty = fw.observable(false);
       this.$cid = fw.utils.guid();
       this[configParams.idAttribute] = this.$id = fw.observable().mapTo(configParams.idAttribute);

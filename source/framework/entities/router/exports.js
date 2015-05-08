@@ -1,4 +1,4 @@
-// framework/router/exports.js
+// framework/entities/router/exports.js
 // -----------
 
 extend(fw.routers, {

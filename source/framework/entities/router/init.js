@@ -1,15 +1,7 @@
-// framework/router/init.js
+// framework/entities/router/init.js
 // ------------------
 
 var hasHTML5History = false;
-
-var routerDefaultConfig = {
-  namespace: '$router',
-  baseRoute: null,
-  isRelative: true,
-  activate: true,
-  routes: []
-};
 
 // Regular expressions used to parse a uri
 var optionalParamRegex = /\((.*?)\)/g;

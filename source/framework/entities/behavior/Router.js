@@ -27,7 +27,6 @@ var Router = function(descriptor, configParams) {
     _preInit: function( params ) {
       var subscriptions = this.__subscriptions = fw.observableArray();
 
-      this.$id = fw.utils.guid();
       this.$namespace.command.handler('setState', this.setState, this);
       this.$namespace.request.handler('currentRoute', function() { return this.currentRoute(); }, this);
       this.$namespace.request.handler('urlParts', function() { return this.urlParts(); }, this);
@@ -169,7 +168,7 @@ var Router = function(descriptor, configParams) {
           this.parentRouter( $parentRouter );
         } else if( isObject($context) ) {
           $parentRouter = nearestParentRouter($context);
-          if( $parentRouter.$id !== this.$id ) {
+          if( $parentRouter !== this ) {
             this.parentRouter( $parentRouter );
           }
         }
@@ -318,7 +317,6 @@ var Router = function(descriptor, configParams) {
       getRouteDescriptions: function() {
         return this.routeDescriptions;
       }
-    },
-    _postInit: function() {}
+    }
   };
 };

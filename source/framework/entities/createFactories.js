@@ -74,15 +74,13 @@ function entityClassFactory(descriptor, configParams) {
   return entityCtor;
 }
 
-function createEntityFactories(descriptors) {
+function createEntityFactories() {
   // create the class factory method for each entity descriptor
-  filter(descriptors, function getOnlyDescriptorsWithMethodName(descriptor) {
+  filter(entityDescriptors, function getOnlyDescriptorsWithMethodName(descriptor) {
     return isString(descriptor.methodName);
   }).forEach(function setupClassFactory(descriptor) {
     fw[descriptor.methodName] = entityClassFactory.bind(null, descriptor);
   });
 };
 
-runPostInit.push(function() {
-  createEntityFactories(entityDescriptors);
-});
+runPostInit.push(createEntityFactories);

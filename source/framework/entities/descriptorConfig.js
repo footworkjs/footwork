@@ -43,7 +43,6 @@ entityDescriptors = entityDescriptors.concat([
     resource: fw.routers,
     behavior: [ ViewModel, Router ],
     defaultConfig: {
-      idAttribute: 'id',
       namespace: '$router',
       autoRegister: false,
       autoIncrement: false,
