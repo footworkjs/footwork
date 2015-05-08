@@ -28,7 +28,7 @@ var ViewModel = function(descriptor, configParams) {
         this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
           if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
             if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
-              var myNamespaceName = this.getNamespaceName();
+              var myNamespaceName = this.$namespace.getName();
               if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
                 return this;
               } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {

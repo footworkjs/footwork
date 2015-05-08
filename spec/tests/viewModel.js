@@ -15,7 +15,7 @@ describe('viewModel', function () {
     var modelA = new ModelA();
 
     expect(modelA.$namespace).to.be.an('object');
-    expect(modelA.getNamespaceName()).to.eql('ModelA');
+    expect(modelA.$namespace.getName()).to.eql('ModelA');
   });
 
   it('correctly names and increments counter for indexed viewModels', function() {
@@ -28,9 +28,9 @@ describe('viewModel', function () {
     var secondViewModel = new IndexedViewModel();
     var thirdViewModel = new IndexedViewModel();
 
-    expect(firstViewModel.getNamespaceName()).to.eql('IndexedViewModel0');
-    expect(secondViewModel.getNamespaceName()).to.eql('IndexedViewModel1');
-    expect(thirdViewModel.getNamespaceName()).to.eql('IndexedViewModel2');
+    expect(firstViewModel.$namespace.getName()).to.eql('IndexedViewModel0');
+    expect(secondViewModel.$namespace.getName()).to.eql('IndexedViewModel1');
+    expect(thirdViewModel.$namespace.getName()).to.eql('IndexedViewModel2');
   });
 
   it('correctly applies a mixin to a viewModel', function() {

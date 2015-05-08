@@ -24,7 +24,7 @@ describe('dataModel', function () {
     var modelA = new ModelA();
 
     expect(modelA.$namespace).to.be.an('object');
-    expect(modelA.getNamespaceName()).to.eql('dataModelA0');
+    expect(modelA.$namespace.getName()).to.eql('dataModelA0');
   });
 
   it('correctly names and increments counter for indexed dataModels', function() {
@@ -37,9 +37,9 @@ describe('dataModel', function () {
     var secondDataModel = new IndexedDataModel();
     var thirdDataModel = new IndexedDataModel();
 
-    expect(firstDataModel.getNamespaceName()).to.eql('IndexedDataModel0');
-    expect(secondDataModel.getNamespaceName()).to.eql('IndexedDataModel1');
-    expect(thirdDataModel.getNamespaceName()).to.eql('IndexedDataModel2');
+    expect(firstDataModel.$namespace.getName()).to.eql('IndexedDataModel0');
+    expect(secondDataModel.$namespace.getName()).to.eql('IndexedDataModel1');
+    expect(thirdDataModel.$namespace.getName()).to.eql('IndexedDataModel2');
   });
 
   it('correctly applies a mixin to a dataModel', function() {

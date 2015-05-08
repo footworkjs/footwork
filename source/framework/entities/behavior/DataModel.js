@@ -214,7 +214,7 @@ var DataModel = function(descriptor, configParams) {
             return merge(jsObject, dataModel.$toJS(fieldMap, true));
           }, {});
         } else if(!isUndefined(referenceField) && !isString(referenceField)) {
-          throw new Error(dataModel.getNamespaceName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.$toJS().');
+          throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.$toJS().');
         }
 
         var mappedObject = reduce(this.__mappings, function reduceModelToObject(jsObject, fieldObservable, fieldMap) {

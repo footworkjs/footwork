@@ -96,7 +96,7 @@ describe('router', function () {
 
     var router = new Router();
 
-    expect( _.reduce(router.getRouteDescriptions(), function(routeDescriptions, routeDesc) {
+    expect( _.reduce(router.routeDescriptions, function(routeDescriptions, routeDesc) {
       if( routesList.indexOf(routeDesc.route) !== -1 ) {
         routeDescriptions.push(routeDesc);
       }

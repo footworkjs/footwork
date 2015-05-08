@@ -1,7 +1,7 @@
 // framework/entities/router/outlet.js
 // ------------------
 
-var noParentViewModelError = { getNamespaceName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } };
+var noParentViewModelError = { $namespace: { getName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } } };
 
 // This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied
 // to the UI and load in various views
@@ -17,7 +17,7 @@ fw.bindingHandlers.$bind = {
       // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
       outletViewModel.$route = $parentRouter.$outlet( outletName );
     } else {
-      throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.getNamespaceName() + '] but no router was defined.');
+      throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.$namespace.getName() + '] but no router was defined.');
     }
   }
 };
