@@ -23,13 +23,17 @@ var Router = function(descriptor, configParams) {
       var $router = this;
       var router = {}; // internal data/etc
 
-      var __router = this.__router = function privateData(propName) {
+      var __router = this.__router = function privateData(propName, propValue) {
         var isGetBaseObjOp = arguments.length === 0;
         var isReadOp = arguments.length === 1;
+        var isWriteOp = arguments.length === 2;
 
         if(isGetBaseObjOp) {
           return router;
         } else if(isReadOp) {
+          return router[propName];
+        } else if(isWriteOp) {
+          router[propName] = propValue;
           return router[propName];
         }
       };
@@ -45,6 +49,17 @@ var Router = function(descriptor, configParams) {
       router.disableHistory = fw.observable().receiveFrom(this.$globalNamespace, 'disableHistory');
       router.currentState = fw.observable('').broadcastAs('currentState');
 
+      function trimBaseRoute(url) {
+        var routerConfig = $router.__getConfigParams();
+        if( !isNull(routerConfig.baseRoute) && url.indexOf(routerConfig.baseRoute) === 0 ) {
+          url = url.substr(routerConfig.baseRoute.length);
+          if(url.length > 1) {
+            url = url.replace(hashMatchRegex, '/');
+          }
+        }
+        return url;
+      }
+
       function normalizeURL(url) {
         var urlParts = parseUri(url);
         router.urlParts(urlParts);
@@ -59,43 +74,9 @@ var Router = function(descriptor, configParams) {
           url = urlParts.path;
         }
 
-        return trimBaseRoute($router, url);
+        return trimBaseRoute(url);
       }
       router.normalizeURL = normalizeURL;
-
-      function activateRouter($context, $parentRouter ) {
-        $parentRouter = $parentRouter || $nullRouter;
-
-        if( !isNullRouter($parentRouter) ) {
-          router.parentRouter($parentRouter);
-        } else if( isObject($context) ) {
-          $parentRouter = nearestParentRouter($context);
-          if( $parentRouter !== $router ) {
-            router.parentRouter($parentRouter);
-          }
-        }
-
-        if( !router.historyIsEnabled() ) {
-          if( historyIsReady() && !router.disableHistory() ) {
-            History.Adapter.bind( windowObject, 'popstate', router.stateChangeHandler = function(event) {
-              var url = '';
-              if(!fw.routers.html5History() && windowObject.location.hash.length > 1) {
-                url = windowObject.location.hash;
-              } else {
-                url = windowObject.location.pathname + windowObject.location.hash;
-              }
-
-              router.currentState( normalizeURL(url) );
-            });
-            router.historyIsEnabled(true);
-          } else {
-            router.historyIsEnabled(false);
-          }
-        }
-
-        return $router;
-      }
-      router.activateRouter = activateRouter;
 
       function getUnknownRoute() {
         var unknownRoute = findWhere(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
@@ -272,7 +253,35 @@ var Router = function(descriptor, configParams) {
       },
       activate: function($context, $parentRouter) {
         $context = $context || this.__router('context')();
-        this.__router('activateRouter')($context, $parentRouter || nearestParentRouter($context) );
+        $parentRouter = $parentRouter || nearestParentRouter($context);
+
+        if( !isNullRouter($parentRouter) ) {
+          this.__router('parentRouter')($parentRouter);
+        } else if( isObject($context) ) {
+          $parentRouter = nearestParentRouter($context);
+          if( $parentRouter !== this ) {
+            this.__router('parentRouter')($parentRouter);
+          }
+        }
+
+        if( !this.__router('historyIsEnabled')() ) {
+          if( historyIsReady() && !this.__router('disableHistory')() ) {
+            History.Adapter.bind( windowObject, 'popstate', this.__router('stateChangeHandler', function(event) {
+              var url = '';
+              if(!fw.routers.html5History() && windowObject.location.hash.length > 1) {
+                url = windowObject.location.hash;
+              } else {
+                url = windowObject.location.pathname + windowObject.location.hash;
+              }
+
+              this.__router('currentState')( this.__router('normalizeURL')(url) );
+            }.bind(this) ));
+            this.__router('historyIsEnabled')(true);
+          } else {
+            this.__router('historyIsEnabled')(false);
+          }
+        }
+
         if( this.__router('currentState')() === '' ) {
           this.setState();
         }

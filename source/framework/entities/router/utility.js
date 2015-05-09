@@ -75,14 +75,3 @@ function nearestParentRouter($context) {
     hasHTML5History = false;
   }
 })();
-
-function trimBaseRoute($router, url) {
-  var routerConfig = $router.__getConfigParams();
-  if( !isNull(routerConfig.baseRoute) && url.indexOf(routerConfig.baseRoute) === 0 ) {
-    url = url.substr(routerConfig.baseRoute.length);
-    if(url.length > 1) {
-      url = url.replace(hashMatchRegex, '/');
-    }
-  }
-  return url;
-}
