@@ -276,7 +276,7 @@ function findIndex(array, predicate, thisArg) {
 
 module.exports = findIndex;
 
-},{"../internal/baseCallback":34}],2:[function(require,module,exports){
+},{"../internal/baseCallback":35}],2:[function(require,module,exports){
 var baseIndexOf = require('../internal/baseIndexOf'),
     binaryIndex = require('../internal/binaryIndex');
 
@@ -333,7 +333,7 @@ function indexOf(array, value, fromIndex) {
 
 module.exports = indexOf;
 
-},{"../internal/baseIndexOf":46,"../internal/binaryIndex":64}],3:[function(require,module,exports){
+},{"../internal/baseIndexOf":47,"../internal/binaryIndex":65}],3:[function(require,module,exports){
 /**
  * Gets the last element of `array`.
  *
@@ -357,7 +357,7 @@ module.exports = last;
 },{}],4:[function(require,module,exports){
 module.exports = require('./some');
 
-},{"./some":16}],5:[function(require,module,exports){
+},{"./some":17}],5:[function(require,module,exports){
 module.exports = require('./includes');
 
 },{"./includes":11}],6:[function(require,module,exports){
@@ -426,7 +426,7 @@ function filter(collection, predicate, thisArg) {
 
 module.exports = filter;
 
-},{"../internal/arrayFilter":28,"../internal/baseCallback":34,"../internal/baseFilter":40,"../lang/isArray":105}],8:[function(require,module,exports){
+},{"../internal/arrayFilter":29,"../internal/baseCallback":35,"../internal/baseFilter":41,"../lang/isArray":106}],8:[function(require,module,exports){
 var baseCallback = require('../internal/baseCallback'),
     baseEach = require('../internal/baseEach'),
     baseFind = require('../internal/baseFind'),
@@ -494,7 +494,7 @@ function find(collection, predicate, thisArg) {
 
 module.exports = find;
 
-},{"../array/findIndex":1,"../internal/baseCallback":34,"../internal/baseEach":39,"../internal/baseFind":41,"../lang/isArray":105}],9:[function(require,module,exports){
+},{"../array/findIndex":1,"../internal/baseCallback":35,"../internal/baseEach":40,"../internal/baseFind":42,"../lang/isArray":106}],9:[function(require,module,exports){
 var baseMatches = require('../internal/baseMatches'),
     find = require('./find');
 
@@ -533,7 +533,7 @@ function findWhere(collection, source) {
 
 module.exports = findWhere;
 
-},{"../internal/baseMatches":53,"./find":8}],10:[function(require,module,exports){
+},{"../internal/baseMatches":54,"./find":8}],10:[function(require,module,exports){
 var arrayEach = require('../internal/arrayEach'),
     baseEach = require('../internal/baseEach'),
     bindCallback = require('../internal/bindCallback'),
@@ -577,7 +577,7 @@ function forEach(collection, iteratee, thisArg) {
 
 module.exports = forEach;
 
-},{"../internal/arrayEach":27,"../internal/baseEach":39,"../internal/bindCallback":66,"../lang/isArray":105}],11:[function(require,module,exports){
+},{"../internal/arrayEach":28,"../internal/baseEach":40,"../internal/bindCallback":67,"../lang/isArray":106}],11:[function(require,module,exports){
 var baseIndexOf = require('../internal/baseIndexOf'),
     isArray = require('../lang/isArray'),
     isLength = require('../internal/isLength'),
@@ -640,7 +640,7 @@ function includes(collection, target, fromIndex) {
 
 module.exports = includes;
 
-},{"../internal/baseIndexOf":46,"../internal/isLength":90,"../lang/isArray":105,"../lang/isString":114,"../object/values":128}],12:[function(require,module,exports){
+},{"../internal/baseIndexOf":47,"../internal/isLength":91,"../lang/isArray":106,"../lang/isString":115,"../object/values":129}],12:[function(require,module,exports){
 var baseInvoke = require('../internal/baseInvoke'),
     baseSlice = require('../internal/baseSlice');
 
@@ -672,7 +672,7 @@ function invoke(collection, methodName) {
 
 module.exports = invoke;
 
-},{"../internal/baseInvoke":47,"../internal/baseSlice":60}],13:[function(require,module,exports){
+},{"../internal/baseInvoke":48,"../internal/baseSlice":61}],13:[function(require,module,exports){
 var arrayMap = require('../internal/arrayMap'),
     baseCallback = require('../internal/baseCallback'),
     baseMap = require('../internal/baseMap'),
@@ -742,7 +742,40 @@ function map(collection, iteratee, thisArg) {
 
 module.exports = map;
 
-},{"../internal/arrayMap":29,"../internal/baseCallback":34,"../internal/baseMap":52,"../lang/isArray":105}],14:[function(require,module,exports){
+},{"../internal/arrayMap":30,"../internal/baseCallback":35,"../internal/baseMap":53,"../lang/isArray":106}],14:[function(require,module,exports){
+var baseProperty = require('../internal/baseProperty'),
+    map = require('./map');
+
+/**
+ * Gets the value of `key` from all elements in `collection`.
+ *
+ * @static
+ * @memberOf _
+ * @category Collection
+ * @param {Array|Object|string} collection The collection to iterate over.
+ * @param {string} key The key of the property to pluck.
+ * @returns {Array} Returns the property values.
+ * @example
+ *
+ * var users = [
+ *   { 'user': 'barney', 'age': 36 },
+ *   { 'user': 'fred',   'age': 40 }
+ * ];
+ *
+ * _.pluck(users, 'user');
+ * // => ['barney', 'fred']
+ *
+ * var userIndex = _.indexBy(users, 'user');
+ * _.pluck(userIndex, 'age');
+ * // => [36, 40] (iteration order is not guaranteed)
+ */
+function pluck(collection, key) {
+  return map(collection, baseProperty(key));
+}
+
+module.exports = pluck;
+
+},{"../internal/baseProperty":58,"./map":13}],15:[function(require,module,exports){
 var arrayReduce = require('../internal/arrayReduce'),
     baseCallback = require('../internal/baseCallback'),
     baseEach = require('../internal/baseEach'),
@@ -792,7 +825,7 @@ function reduce(collection, iteratee, accumulator, thisArg) {
 
 module.exports = reduce;
 
-},{"../internal/arrayReduce":30,"../internal/baseCallback":34,"../internal/baseEach":39,"../internal/baseReduce":58,"../lang/isArray":105}],15:[function(require,module,exports){
+},{"../internal/arrayReduce":31,"../internal/baseCallback":35,"../internal/baseEach":40,"../internal/baseReduce":59,"../lang/isArray":106}],16:[function(require,module,exports){
 var arrayFilter = require('../internal/arrayFilter'),
     baseCallback = require('../internal/baseCallback'),
     baseFilter = require('../internal/baseFilter'),
@@ -855,7 +888,7 @@ function reject(collection, predicate, thisArg) {
 
 module.exports = reject;
 
-},{"../internal/arrayFilter":28,"../internal/baseCallback":34,"../internal/baseFilter":40,"../lang/isArray":105}],16:[function(require,module,exports){
+},{"../internal/arrayFilter":29,"../internal/baseCallback":35,"../internal/baseFilter":41,"../lang/isArray":106}],17:[function(require,module,exports){
 var arraySome = require('../internal/arraySome'),
     baseCallback = require('../internal/baseCallback'),
     baseSome = require('../internal/baseSome'),
@@ -920,7 +953,7 @@ function some(collection, predicate, thisArg) {
 
 module.exports = some;
 
-},{"../internal/arraySome":31,"../internal/baseCallback":34,"../internal/baseSome":61,"../lang/isArray":105}],17:[function(require,module,exports){
+},{"../internal/arraySome":32,"../internal/baseCallback":35,"../internal/baseSome":62,"../lang/isArray":106}],18:[function(require,module,exports){
 var baseMatches = require('../internal/baseMatches'),
     filter = require('./filter');
 
@@ -959,7 +992,7 @@ function where(collection, source) {
 
 module.exports = where;
 
-},{"../internal/baseMatches":53,"./filter":7}],18:[function(require,module,exports){
+},{"../internal/baseMatches":54,"./filter":7}],19:[function(require,module,exports){
 var isNative = require('../lang/isNative');
 
 /* Native method references for those with the same name as other `lodash` methods. */
@@ -985,7 +1018,7 @@ var now = nativeNow || function() {
 
 module.exports = now;
 
-},{"../lang/isNative":109}],19:[function(require,module,exports){
+},{"../lang/isNative":110}],20:[function(require,module,exports){
 (function (global){
 /** Used as the `TypeError` message for "Functions" methods. */
 var FUNC_ERROR_TEXT = 'Expected a function';
@@ -1037,7 +1070,7 @@ function after(n, func) {
 module.exports = after;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 /** Used as the `TypeError` message for "Functions" methods. */
 var FUNC_ERROR_TEXT = 'Expected a function';
 
@@ -1080,7 +1113,7 @@ function before(n, func) {
 
 module.exports = before;
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 var baseSlice = require('../internal/baseSlice'),
     createWrapper = require('../internal/createWrapper'),
     replaceHolders = require('../internal/replaceHolders');
@@ -1140,7 +1173,7 @@ bind.placeholder = {};
 
 module.exports = bind;
 
-},{"../internal/baseSlice":60,"../internal/createWrapper":78,"../internal/replaceHolders":98}],22:[function(require,module,exports){
+},{"../internal/baseSlice":61,"../internal/createWrapper":79,"../internal/replaceHolders":99}],23:[function(require,module,exports){
 var isObject = require('../lang/isObject'),
     now = require('../date/now');
 
@@ -1328,7 +1361,7 @@ function debounce(func, wait, options) {
 
 module.exports = debounce;
 
-},{"../date/now":18,"../lang/isObject":112}],23:[function(require,module,exports){
+},{"../date/now":19,"../lang/isObject":113}],24:[function(require,module,exports){
 var before = require('./before');
 
 /**
@@ -1354,7 +1387,7 @@ function once(func) {
 
 module.exports = once;
 
-},{"./before":20}],24:[function(require,module,exports){
+},{"./before":21}],25:[function(require,module,exports){
 var debounce = require('./debounce'),
     isObject = require('../lang/isObject');
 
@@ -1428,7 +1461,7 @@ function throttle(func, wait, options) {
 
 module.exports = throttle;
 
-},{"../lang/isObject":112,"./debounce":22}],25:[function(require,module,exports){
+},{"../lang/isObject":113,"./debounce":23}],26:[function(require,module,exports){
 (function (global){
 var cachePush = require('./cachePush'),
     isNative = require('../lang/isNative');
@@ -1461,7 +1494,7 @@ SetCache.prototype.push = cachePush;
 module.exports = SetCache;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../lang/isNative":109,"./cachePush":69}],26:[function(require,module,exports){
+},{"../lang/isNative":110,"./cachePush":70}],27:[function(require,module,exports){
 /**
  * Copies the values of `source` to `array`.
  *
@@ -1483,7 +1516,7 @@ function arrayCopy(source, array) {
 
 module.exports = arrayCopy;
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /**
  * A specialized version of `_.forEach` for arrays without support for callback
  * shorthands or `this` binding.
@@ -1507,7 +1540,7 @@ function arrayEach(array, iteratee) {
 
 module.exports = arrayEach;
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /**
  * A specialized version of `_.filter` for arrays without support for callback
  * shorthands or `this` binding.
@@ -1534,7 +1567,7 @@ function arrayFilter(array, predicate) {
 
 module.exports = arrayFilter;
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /**
  * A specialized version of `_.map` for arrays without support for callback
  * shorthands or `this` binding.
@@ -1557,7 +1590,7 @@ function arrayMap(array, iteratee) {
 
 module.exports = arrayMap;
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 /**
  * A specialized version of `_.reduce` for arrays without support for callback
  * shorthands or `this` binding.
@@ -1585,7 +1618,7 @@ function arrayReduce(array, iteratee, accumulator, initFromArray) {
 
 module.exports = arrayReduce;
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 /**
  * A specialized version of `_.some` for arrays without support for callback
  * shorthands or `this` binding.
@@ -1610,7 +1643,7 @@ function arraySome(array, predicate) {
 
 module.exports = arraySome;
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 /**
  * Used by `_.defaults` to customize its `_.assign` use.
  *
@@ -1625,7 +1658,7 @@ function assignDefaults(objectValue, sourceValue) {
 
 module.exports = assignDefaults;
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 var baseCopy = require('./baseCopy'),
     keys = require('../object/keys');
 
@@ -1662,7 +1695,7 @@ function baseAssign(object, source, customizer) {
 
 module.exports = baseAssign;
 
-},{"../object/keys":122,"./baseCopy":36}],34:[function(require,module,exports){
+},{"../object/keys":123,"./baseCopy":37}],35:[function(require,module,exports){
 var baseMatches = require('./baseMatches'),
     baseMatchesProperty = require('./baseMatchesProperty'),
     baseProperty = require('./baseProperty'),
@@ -1700,7 +1733,7 @@ function baseCallback(func, thisArg, argCount) {
 
 module.exports = baseCallback;
 
-},{"../utility/identity":132,"./baseMatches":53,"./baseMatchesProperty":54,"./baseProperty":57,"./bindCallback":66,"./isBindable":87}],35:[function(require,module,exports){
+},{"../utility/identity":133,"./baseMatches":54,"./baseMatchesProperty":55,"./baseProperty":58,"./bindCallback":67,"./isBindable":88}],36:[function(require,module,exports){
 var arrayCopy = require('./arrayCopy'),
     arrayEach = require('./arrayEach'),
     baseCopy = require('./baseCopy'),
@@ -1832,7 +1865,7 @@ function baseClone(value, isDeep, customizer, key, object, stackA, stackB) {
 
 module.exports = baseClone;
 
-},{"../lang/isArray":105,"../lang/isObject":112,"../object/keys":122,"./arrayCopy":26,"./arrayEach":27,"./baseCopy":36,"./baseForOwn":45,"./initCloneArray":84,"./initCloneByTag":85,"./initCloneObject":86}],36:[function(require,module,exports){
+},{"../lang/isArray":106,"../lang/isObject":113,"../object/keys":123,"./arrayCopy":27,"./arrayEach":28,"./baseCopy":37,"./baseForOwn":46,"./initCloneArray":85,"./initCloneByTag":86,"./initCloneObject":87}],37:[function(require,module,exports){
 /**
  * Copies the properties of `source` to `object`.
  *
@@ -1859,7 +1892,7 @@ function baseCopy(source, object, props) {
 
 module.exports = baseCopy;
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 (function (global){
 var isObject = require('../lang/isObject');
 
@@ -1886,7 +1919,7 @@ var baseCreate = (function() {
 module.exports = baseCreate;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../lang/isObject":112}],38:[function(require,module,exports){
+},{"../lang/isObject":113}],39:[function(require,module,exports){
 var baseIndexOf = require('./baseIndexOf'),
     cacheIndexOf = require('./cacheIndexOf'),
     createCache = require('./createCache');
@@ -1940,7 +1973,7 @@ function baseDifference(array, values) {
 
 module.exports = baseDifference;
 
-},{"./baseIndexOf":46,"./cacheIndexOf":68,"./createCache":74}],39:[function(require,module,exports){
+},{"./baseIndexOf":47,"./cacheIndexOf":69,"./createCache":75}],40:[function(require,module,exports){
 var baseForOwn = require('./baseForOwn'),
     isLength = require('./isLength'),
     toObject = require('./toObject');
@@ -1972,7 +2005,7 @@ function baseEach(collection, iteratee) {
 
 module.exports = baseEach;
 
-},{"./baseForOwn":45,"./isLength":90,"./toObject":102}],40:[function(require,module,exports){
+},{"./baseForOwn":46,"./isLength":91,"./toObject":103}],41:[function(require,module,exports){
 var baseEach = require('./baseEach');
 
 /**
@@ -1996,7 +2029,7 @@ function baseFilter(collection, predicate) {
 
 module.exports = baseFilter;
 
-},{"./baseEach":39}],41:[function(require,module,exports){
+},{"./baseEach":40}],42:[function(require,module,exports){
 /**
  * The base implementation of `_.find`, `_.findLast`, `_.findKey`, and `_.findLastKey`,
  * without support for callback shorthands and `this` binding, which iterates
@@ -2023,7 +2056,7 @@ function baseFind(collection, predicate, eachFunc, retKey) {
 
 module.exports = baseFind;
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 var isArguments = require('../lang/isArguments'),
     isArray = require('../lang/isArray'),
     isLength = require('./isLength'),
@@ -2070,7 +2103,7 @@ function baseFlatten(array, isDeep, isStrict, fromIndex) {
 
 module.exports = baseFlatten;
 
-},{"../lang/isArguments":104,"../lang/isArray":105,"./isLength":90,"./isObjectLike":91}],43:[function(require,module,exports){
+},{"../lang/isArguments":105,"../lang/isArray":106,"./isLength":91,"./isObjectLike":92}],44:[function(require,module,exports){
 var toObject = require('./toObject');
 
 /**
@@ -2102,7 +2135,7 @@ function baseFor(object, iteratee, keysFunc) {
 
 module.exports = baseFor;
 
-},{"./toObject":102}],44:[function(require,module,exports){
+},{"./toObject":103}],45:[function(require,module,exports){
 var baseFor = require('./baseFor'),
     keysIn = require('../object/keysIn');
 
@@ -2121,7 +2154,7 @@ function baseForIn(object, iteratee) {
 
 module.exports = baseForIn;
 
-},{"../object/keysIn":123,"./baseFor":43}],45:[function(require,module,exports){
+},{"../object/keysIn":124,"./baseFor":44}],46:[function(require,module,exports){
 var baseFor = require('./baseFor'),
     keys = require('../object/keys');
 
@@ -2140,7 +2173,7 @@ function baseForOwn(object, iteratee) {
 
 module.exports = baseForOwn;
 
-},{"../object/keys":122,"./baseFor":43}],46:[function(require,module,exports){
+},{"../object/keys":123,"./baseFor":44}],47:[function(require,module,exports){
 var indexOfNaN = require('./indexOfNaN');
 
 /**
@@ -2169,7 +2202,7 @@ function baseIndexOf(array, value, fromIndex) {
 
 module.exports = baseIndexOf;
 
-},{"./indexOfNaN":83}],47:[function(require,module,exports){
+},{"./indexOfNaN":84}],48:[function(require,module,exports){
 var baseEach = require('./baseEach'),
     isLength = require('./isLength');
 
@@ -2199,7 +2232,7 @@ function baseInvoke(collection, methodName, args) {
 
 module.exports = baseInvoke;
 
-},{"./baseEach":39,"./isLength":90}],48:[function(require,module,exports){
+},{"./baseEach":40,"./isLength":91}],49:[function(require,module,exports){
 var baseIsEqualDeep = require('./baseIsEqualDeep');
 
 /**
@@ -2235,7 +2268,7 @@ function baseIsEqual(value, other, customizer, isWhere, stackA, stackB) {
 
 module.exports = baseIsEqual;
 
-},{"./baseIsEqualDeep":49}],49:[function(require,module,exports){
+},{"./baseIsEqualDeep":50}],50:[function(require,module,exports){
 var equalArrays = require('./equalArrays'),
     equalByTag = require('./equalByTag'),
     equalObjects = require('./equalObjects'),
@@ -2338,7 +2371,7 @@ function baseIsEqualDeep(object, other, equalFunc, customizer, isWhere, stackA, 
 
 module.exports = baseIsEqualDeep;
 
-},{"../lang/isArray":105,"../lang/isTypedArray":115,"./equalArrays":79,"./equalByTag":80,"./equalObjects":81}],50:[function(require,module,exports){
+},{"../lang/isArray":106,"../lang/isTypedArray":116,"./equalArrays":80,"./equalByTag":81,"./equalObjects":82}],51:[function(require,module,exports){
 /**
  * The base implementation of `_.isFunction` without support for environments
  * with incorrect `typeof` results.
@@ -2355,7 +2388,7 @@ function baseIsFunction(value) {
 
 module.exports = baseIsFunction;
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 var baseIsEqual = require('./baseIsEqual');
 
 /** Used for native method references. */
@@ -2415,7 +2448,7 @@ function baseIsMatch(object, props, values, strictCompareFlags, customizer) {
 
 module.exports = baseIsMatch;
 
-},{"./baseIsEqual":48}],52:[function(require,module,exports){
+},{"./baseIsEqual":49}],53:[function(require,module,exports){
 var baseEach = require('./baseEach');
 
 /**
@@ -2437,7 +2470,7 @@ function baseMap(collection, iteratee) {
 
 module.exports = baseMap;
 
-},{"./baseEach":39}],53:[function(require,module,exports){
+},{"./baseEach":40}],54:[function(require,module,exports){
 var baseIsMatch = require('./baseIsMatch'),
     isStrictComparable = require('./isStrictComparable'),
     keys = require('../object/keys');
@@ -2484,7 +2517,7 @@ function baseMatches(source) {
 
 module.exports = baseMatches;
 
-},{"../object/keys":122,"./baseIsMatch":51,"./isStrictComparable":92}],54:[function(require,module,exports){
+},{"../object/keys":123,"./baseIsMatch":52,"./isStrictComparable":93}],55:[function(require,module,exports){
 var baseIsEqual = require('./baseIsEqual'),
     isStrictComparable = require('./isStrictComparable');
 
@@ -2510,7 +2543,7 @@ function baseMatchesProperty(key, value) {
 
 module.exports = baseMatchesProperty;
 
-},{"./baseIsEqual":48,"./isStrictComparable":92}],55:[function(require,module,exports){
+},{"./baseIsEqual":49,"./isStrictComparable":93}],56:[function(require,module,exports){
 var arrayEach = require('./arrayEach'),
     baseForOwn = require('./baseForOwn'),
     baseMergeDeep = require('./baseMergeDeep'),
@@ -2560,7 +2593,7 @@ function baseMerge(object, source, customizer, stackA, stackB) {
 
 module.exports = baseMerge;
 
-},{"../lang/isArray":105,"../lang/isObject":112,"../lang/isTypedArray":115,"./arrayEach":27,"./baseForOwn":45,"./baseMergeDeep":56,"./isLength":90,"./isObjectLike":91}],56:[function(require,module,exports){
+},{"../lang/isArray":106,"../lang/isObject":113,"../lang/isTypedArray":116,"./arrayEach":28,"./baseForOwn":46,"./baseMergeDeep":57,"./isLength":91,"./isObjectLike":92}],57:[function(require,module,exports){
 var arrayCopy = require('./arrayCopy'),
     isArguments = require('../lang/isArguments'),
     isArray = require('../lang/isArray'),
@@ -2629,7 +2662,7 @@ function baseMergeDeep(object, source, key, mergeFunc, customizer, stackA, stack
 
 module.exports = baseMergeDeep;
 
-},{"../lang/isArguments":104,"../lang/isArray":105,"../lang/isPlainObject":113,"../lang/isTypedArray":115,"../lang/toPlainObject":117,"./arrayCopy":26,"./isLength":90}],57:[function(require,module,exports){
+},{"../lang/isArguments":105,"../lang/isArray":106,"../lang/isPlainObject":114,"../lang/isTypedArray":116,"../lang/toPlainObject":118,"./arrayCopy":27,"./isLength":91}],58:[function(require,module,exports){
 /**
  * The base implementation of `_.property` which does not coerce `key` to a string.
  *
@@ -2645,7 +2678,7 @@ function baseProperty(key) {
 
 module.exports = baseProperty;
 
-},{}],58:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 /**
  * The base implementation of `_.reduce` and `_.reduceRight` without support
  * for callback shorthands or `this` binding, which iterates over `collection`
@@ -2671,7 +2704,7 @@ function baseReduce(collection, iteratee, accumulator, initFromCollection, eachF
 
 module.exports = baseReduce;
 
-},{}],59:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 var identity = require('../utility/identity'),
     metaMap = require('./metaMap');
 
@@ -2690,7 +2723,7 @@ var baseSetData = !metaMap ? identity : function(func, data) {
 
 module.exports = baseSetData;
 
-},{"../utility/identity":132,"./metaMap":94}],60:[function(require,module,exports){
+},{"../utility/identity":133,"./metaMap":95}],61:[function(require,module,exports){
 /**
  * The base implementation of `_.slice` without an iteratee call guard.
  *
@@ -2724,7 +2757,7 @@ function baseSlice(array, start, end) {
 
 module.exports = baseSlice;
 
-},{}],61:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 var baseEach = require('./baseEach');
 
 /**
@@ -2749,7 +2782,7 @@ function baseSome(collection, predicate) {
 
 module.exports = baseSome;
 
-},{"./baseEach":39}],62:[function(require,module,exports){
+},{"./baseEach":40}],63:[function(require,module,exports){
 /**
  * Converts `value` to a string if it is not one. An empty string is returned
  * for `null` or `undefined` values.
@@ -2767,7 +2800,7 @@ function baseToString(value) {
 
 module.exports = baseToString;
 
-},{}],63:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 /**
  * The base implementation of `_.values` and `_.valuesIn` which creates an
  * array of `object` property values corresponding to the property names
@@ -2791,7 +2824,7 @@ function baseValues(object, props) {
 
 module.exports = baseValues;
 
-},{}],64:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 var binaryIndexBy = require('./binaryIndexBy'),
     identity = require('../utility/identity');
 
@@ -2833,7 +2866,7 @@ function binaryIndex(array, value, retHighest) {
 
 module.exports = binaryIndex;
 
-},{"../utility/identity":132,"./binaryIndexBy":65}],65:[function(require,module,exports){
+},{"../utility/identity":133,"./binaryIndexBy":66}],66:[function(require,module,exports){
 /** Native method references. */
 var floor = Math.floor;
 
@@ -2889,7 +2922,7 @@ function binaryIndexBy(array, value, iteratee, retHighest) {
 
 module.exports = binaryIndexBy;
 
-},{}],66:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 var identity = require('../utility/identity');
 
 /**
@@ -2930,7 +2963,7 @@ function bindCallback(func, thisArg, argCount) {
 
 module.exports = bindCallback;
 
-},{"../utility/identity":132}],67:[function(require,module,exports){
+},{"../utility/identity":133}],68:[function(require,module,exports){
 (function (global){
 var constant = require('../utility/constant'),
     isNative = require('../lang/isNative');
@@ -2989,7 +3022,7 @@ if (!bufferSlice) {
 module.exports = bufferClone;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../lang/isNative":109,"../utility/constant":131}],68:[function(require,module,exports){
+},{"../lang/isNative":110,"../utility/constant":132}],69:[function(require,module,exports){
 var isObject = require('../lang/isObject');
 
 /**
@@ -3010,7 +3043,7 @@ function cacheIndexOf(cache, value) {
 
 module.exports = cacheIndexOf;
 
-},{"../lang/isObject":112}],69:[function(require,module,exports){
+},{"../lang/isObject":113}],70:[function(require,module,exports){
 var isObject = require('../lang/isObject');
 
 /**
@@ -3032,7 +3065,7 @@ function cachePush(value) {
 
 module.exports = cachePush;
 
-},{"../lang/isObject":112}],70:[function(require,module,exports){
+},{"../lang/isObject":113}],71:[function(require,module,exports){
 /* Native method references for those with the same name as other `lodash` methods. */
 var nativeMax = Math.max;
 
@@ -3068,7 +3101,7 @@ function composeArgs(args, partials, holders) {
 
 module.exports = composeArgs;
 
-},{}],71:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 /* Native method references for those with the same name as other `lodash` methods. */
 var nativeMax = Math.max;
 
@@ -3106,7 +3139,7 @@ function composeArgsRight(args, partials, holders) {
 
 module.exports = composeArgsRight;
 
-},{}],72:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 var bindCallback = require('./bindCallback'),
     isIterateeCall = require('./isIterateeCall');
 
@@ -3148,7 +3181,7 @@ function createAssigner(assigner) {
 
 module.exports = createAssigner;
 
-},{"./bindCallback":66,"./isIterateeCall":89}],73:[function(require,module,exports){
+},{"./bindCallback":67,"./isIterateeCall":90}],74:[function(require,module,exports){
 var createCtorWrapper = require('./createCtorWrapper');
 
 /**
@@ -3171,7 +3204,7 @@ function createBindWrapper(func, thisArg) {
 
 module.exports = createBindWrapper;
 
-},{"./createCtorWrapper":75}],74:[function(require,module,exports){
+},{"./createCtorWrapper":76}],75:[function(require,module,exports){
 (function (global){
 var SetCache = require('./SetCache'),
     constant = require('../utility/constant'),
@@ -3197,7 +3230,7 @@ var createCache = !(nativeCreate && Set) ? constant(null) : function(values) {
 module.exports = createCache;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../lang/isNative":109,"../utility/constant":131,"./SetCache":25}],75:[function(require,module,exports){
+},{"../lang/isNative":110,"../utility/constant":132,"./SetCache":26}],76:[function(require,module,exports){
 var baseCreate = require('./baseCreate'),
     isObject = require('../lang/isObject');
 
@@ -3222,7 +3255,7 @@ function createCtorWrapper(Ctor) {
 
 module.exports = createCtorWrapper;
 
-},{"../lang/isObject":112,"./baseCreate":37}],76:[function(require,module,exports){
+},{"../lang/isObject":113,"./baseCreate":38}],77:[function(require,module,exports){
 var arrayCopy = require('./arrayCopy'),
     composeArgs = require('./composeArgs'),
     composeArgsRight = require('./composeArgsRight'),
@@ -3328,7 +3361,7 @@ function createHybridWrapper(func, bitmask, thisArg, partials, holders, partials
 
 module.exports = createHybridWrapper;
 
-},{"./arrayCopy":26,"./composeArgs":70,"./composeArgsRight":71,"./createCtorWrapper":75,"./reorder":97,"./replaceHolders":98}],77:[function(require,module,exports){
+},{"./arrayCopy":27,"./composeArgs":71,"./composeArgsRight":72,"./createCtorWrapper":76,"./reorder":98,"./replaceHolders":99}],78:[function(require,module,exports){
 var createCtorWrapper = require('./createCtorWrapper');
 
 /** Used to compose bitmasks for wrapper metadata. */
@@ -3372,7 +3405,7 @@ function createPartialWrapper(func, bitmask, thisArg, partials) {
 
 module.exports = createPartialWrapper;
 
-},{"./createCtorWrapper":75}],78:[function(require,module,exports){
+},{"./createCtorWrapper":76}],79:[function(require,module,exports){
 var baseSetData = require('./baseSetData'),
     createBindWrapper = require('./createBindWrapper'),
     createHybridWrapper = require('./createHybridWrapper'),
@@ -3460,7 +3493,7 @@ function createWrapper(func, bitmask, thisArg, partials, holders, argPos, ary, a
 
 module.exports = createWrapper;
 
-},{"./baseSetData":59,"./createBindWrapper":73,"./createHybridWrapper":76,"./createPartialWrapper":77,"./getData":82,"./mergeData":93,"./setData":99}],79:[function(require,module,exports){
+},{"./baseSetData":60,"./createBindWrapper":74,"./createHybridWrapper":77,"./createPartialWrapper":78,"./getData":83,"./mergeData":94,"./setData":100}],80:[function(require,module,exports){
 /**
  * A specialized version of `baseIsEqualDeep` for arrays with support for
  * partial deep comparisons.
@@ -3516,7 +3549,7 @@ function equalArrays(array, other, equalFunc, customizer, isWhere, stackA, stack
 
 module.exports = equalArrays;
 
-},{}],80:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 /** `Object#toString` result references. */
 var boolTag = '[object Boolean]',
     dateTag = '[object Date]',
@@ -3567,7 +3600,7 @@ function equalByTag(object, other, tag) {
 
 module.exports = equalByTag;
 
-},{}],81:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 var keys = require('../object/keys');
 
 /** Used for native method references. */
@@ -3641,7 +3674,7 @@ function equalObjects(object, other, equalFunc, customizer, isWhere, stackA, sta
 
 module.exports = equalObjects;
 
-},{"../object/keys":122}],82:[function(require,module,exports){
+},{"../object/keys":123}],83:[function(require,module,exports){
 var metaMap = require('./metaMap'),
     noop = require('../utility/noop');
 
@@ -3658,7 +3691,7 @@ var getData = !metaMap ? noop : function(func) {
 
 module.exports = getData;
 
-},{"../utility/noop":133,"./metaMap":94}],83:[function(require,module,exports){
+},{"../utility/noop":134,"./metaMap":95}],84:[function(require,module,exports){
 /**
  * Gets the index at which the first occurrence of `NaN` is found in `array`.
  * If `fromRight` is provided elements of `array` are iterated from right to left.
@@ -3684,7 +3717,7 @@ function indexOfNaN(array, fromIndex, fromRight) {
 
 module.exports = indexOfNaN;
 
-},{}],84:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 /** Used for native method references. */
 var objectProto = Object.prototype;
 
@@ -3712,7 +3745,7 @@ function initCloneArray(array) {
 
 module.exports = initCloneArray;
 
-},{}],85:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 var bufferClone = require('./bufferClone');
 
 /** `Object#toString` result references. */
@@ -3778,7 +3811,7 @@ function initCloneByTag(object, tag, isDeep) {
 
 module.exports = initCloneByTag;
 
-},{"./bufferClone":67}],86:[function(require,module,exports){
+},{"./bufferClone":68}],87:[function(require,module,exports){
 /**
  * Initializes an object clone.
  *
@@ -3796,7 +3829,7 @@ function initCloneObject(object) {
 
 module.exports = initCloneObject;
 
-},{}],87:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 var baseSetData = require('./baseSetData'),
     isNative = require('../lang/isNative'),
     support = require('../support');
@@ -3836,7 +3869,7 @@ function isBindable(func) {
 
 module.exports = isBindable;
 
-},{"../lang/isNative":109,"../support":130,"./baseSetData":59}],88:[function(require,module,exports){
+},{"../lang/isNative":110,"../support":131,"./baseSetData":60}],89:[function(require,module,exports){
 /**
  * Used as the maximum length of an array-like value.
  * See the [ES spec](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
@@ -3860,7 +3893,7 @@ function isIndex(value, length) {
 
 module.exports = isIndex;
 
-},{}],89:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 var isIndex = require('./isIndex'),
     isLength = require('./isLength'),
     isObject = require('../lang/isObject');
@@ -3894,7 +3927,7 @@ function isIterateeCall(value, index, object) {
 
 module.exports = isIterateeCall;
 
-},{"../lang/isObject":112,"./isIndex":88,"./isLength":90}],90:[function(require,module,exports){
+},{"../lang/isObject":113,"./isIndex":89,"./isLength":91}],91:[function(require,module,exports){
 /**
  * Used as the maximum length of an array-like value.
  * See the [ES spec](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
@@ -3919,7 +3952,7 @@ function isLength(value) {
 
 module.exports = isLength;
 
-},{}],91:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 /**
  * Checks if `value` is object-like.
  *
@@ -3933,7 +3966,7 @@ function isObjectLike(value) {
 
 module.exports = isObjectLike;
 
-},{}],92:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 var isObject = require('../lang/isObject');
 
 /**
@@ -3950,7 +3983,7 @@ function isStrictComparable(value) {
 
 module.exports = isStrictComparable;
 
-},{"../lang/isObject":112}],93:[function(require,module,exports){
+},{"../lang/isObject":113}],94:[function(require,module,exports){
 var arrayCopy = require('./arrayCopy'),
     composeArgs = require('./composeArgs'),
     composeArgsRight = require('./composeArgsRight'),
@@ -4051,7 +4084,7 @@ function mergeData(data, source) {
 
 module.exports = mergeData;
 
-},{"./arrayCopy":26,"./composeArgs":70,"./composeArgsRight":71,"./replaceHolders":98}],94:[function(require,module,exports){
+},{"./arrayCopy":27,"./composeArgs":71,"./composeArgsRight":72,"./replaceHolders":99}],95:[function(require,module,exports){
 (function (global){
 var isNative = require('../lang/isNative');
 
@@ -4064,7 +4097,7 @@ var metaMap = WeakMap && new WeakMap;
 module.exports = metaMap;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../lang/isNative":109}],95:[function(require,module,exports){
+},{"../lang/isNative":110}],96:[function(require,module,exports){
 var toObject = require('./toObject');
 
 /**
@@ -4094,7 +4127,7 @@ function pickByArray(object, props) {
 
 module.exports = pickByArray;
 
-},{"./toObject":102}],96:[function(require,module,exports){
+},{"./toObject":103}],97:[function(require,module,exports){
 var baseForIn = require('./baseForIn');
 
 /**
@@ -4118,7 +4151,7 @@ function pickByCallback(object, predicate) {
 
 module.exports = pickByCallback;
 
-},{"./baseForIn":44}],97:[function(require,module,exports){
+},{"./baseForIn":45}],98:[function(require,module,exports){
 var arrayCopy = require('./arrayCopy'),
     isIndex = require('./isIndex');
 
@@ -4149,7 +4182,7 @@ function reorder(array, indexes) {
 
 module.exports = reorder;
 
-},{"./arrayCopy":26,"./isIndex":88}],98:[function(require,module,exports){
+},{"./arrayCopy":27,"./isIndex":89}],99:[function(require,module,exports){
 /** Used as the internal argument placeholder. */
 var PLACEHOLDER = '__lodash_placeholder__';
 
@@ -4179,7 +4212,7 @@ function replaceHolders(array, placeholder) {
 
 module.exports = replaceHolders;
 
-},{}],99:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 var baseSetData = require('./baseSetData'),
     now = require('../date/now');
 
@@ -4222,7 +4255,7 @@ var setData = (function() {
 
 module.exports = setData;
 
-},{"../date/now":18,"./baseSetData":59}],100:[function(require,module,exports){
+},{"../date/now":19,"./baseSetData":60}],101:[function(require,module,exports){
 var baseForIn = require('./baseForIn'),
     isObjectLike = require('./isObjectLike');
 
@@ -4275,7 +4308,7 @@ function shimIsPlainObject(value) {
 
 module.exports = shimIsPlainObject;
 
-},{"./baseForIn":44,"./isObjectLike":91}],101:[function(require,module,exports){
+},{"./baseForIn":45,"./isObjectLike":92}],102:[function(require,module,exports){
 var isArguments = require('../lang/isArguments'),
     isArray = require('../lang/isArray'),
     isIndex = require('./isIndex'),
@@ -4319,7 +4352,7 @@ function shimKeys(object) {
 
 module.exports = shimKeys;
 
-},{"../lang/isArguments":104,"../lang/isArray":105,"../object/keysIn":123,"../support":130,"./isIndex":88,"./isLength":90}],102:[function(require,module,exports){
+},{"../lang/isArguments":105,"../lang/isArray":106,"../object/keysIn":124,"../support":131,"./isIndex":89,"./isLength":91}],103:[function(require,module,exports){
 var isObject = require('../lang/isObject');
 
 /**
@@ -4335,7 +4368,7 @@ function toObject(value) {
 
 module.exports = toObject;
 
-},{"../lang/isObject":112}],103:[function(require,module,exports){
+},{"../lang/isObject":113}],104:[function(require,module,exports){
 var baseClone = require('../internal/baseClone'),
     bindCallback = require('../internal/bindCallback'),
     isIterateeCall = require('../internal/isIterateeCall');
@@ -4406,7 +4439,7 @@ function clone(value, isDeep, customizer, thisArg) {
 
 module.exports = clone;
 
-},{"../internal/baseClone":35,"../internal/bindCallback":66,"../internal/isIterateeCall":89}],104:[function(require,module,exports){
+},{"../internal/baseClone":36,"../internal/bindCallback":67,"../internal/isIterateeCall":90}],105:[function(require,module,exports){
 var isLength = require('../internal/isLength'),
     isObjectLike = require('../internal/isObjectLike');
 
@@ -4446,7 +4479,7 @@ function isArguments(value) {
 
 module.exports = isArguments;
 
-},{"../internal/isLength":90,"../internal/isObjectLike":91}],105:[function(require,module,exports){
+},{"../internal/isLength":91,"../internal/isObjectLike":92}],106:[function(require,module,exports){
 var isLength = require('../internal/isLength'),
     isNative = require('./isNative'),
     isObjectLike = require('../internal/isObjectLike');
@@ -4489,7 +4522,7 @@ var isArray = nativeIsArray || function(value) {
 
 module.exports = isArray;
 
-},{"../internal/isLength":90,"../internal/isObjectLike":91,"./isNative":109}],106:[function(require,module,exports){
+},{"../internal/isLength":91,"../internal/isObjectLike":92,"./isNative":110}],107:[function(require,module,exports){
 var isObjectLike = require('../internal/isObjectLike');
 
 /** `Object#toString` result references. */
@@ -4527,7 +4560,7 @@ function isBoolean(value) {
 
 module.exports = isBoolean;
 
-},{"../internal/isObjectLike":91}],107:[function(require,module,exports){
+},{"../internal/isObjectLike":92}],108:[function(require,module,exports){
 var baseIsEqual = require('../internal/baseIsEqual'),
     bindCallback = require('../internal/bindCallback'),
     isStrictComparable = require('../internal/isStrictComparable');
@@ -4586,7 +4619,7 @@ function isEqual(value, other, customizer, thisArg) {
 
 module.exports = isEqual;
 
-},{"../internal/baseIsEqual":48,"../internal/bindCallback":66,"../internal/isStrictComparable":92}],108:[function(require,module,exports){
+},{"../internal/baseIsEqual":49,"../internal/bindCallback":67,"../internal/isStrictComparable":93}],109:[function(require,module,exports){
 (function (global){
 var baseIsFunction = require('../internal/baseIsFunction'),
     isNative = require('./isNative');
@@ -4633,7 +4666,7 @@ var isFunction = !(baseIsFunction(/x/) || (Uint8Array && !baseIsFunction(Uint8Ar
 module.exports = isFunction;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../internal/baseIsFunction":50,"./isNative":109}],109:[function(require,module,exports){
+},{"../internal/baseIsFunction":51,"./isNative":110}],110:[function(require,module,exports){
 var escapeRegExp = require('../string/escapeRegExp'),
     isObjectLike = require('../internal/isObjectLike');
 
@@ -4690,7 +4723,7 @@ function isNative(value) {
 
 module.exports = isNative;
 
-},{"../internal/isObjectLike":91,"../string/escapeRegExp":129}],110:[function(require,module,exports){
+},{"../internal/isObjectLike":92,"../string/escapeRegExp":130}],111:[function(require,module,exports){
 /**
  * Checks if `value` is `null`.
  *
@@ -4713,7 +4746,7 @@ function isNull(value) {
 
 module.exports = isNull;
 
-},{}],111:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 var isObjectLike = require('../internal/isObjectLike');
 
 /** `Object#toString` result references. */
@@ -4757,7 +4790,7 @@ function isNumber(value) {
 
 module.exports = isNumber;
 
-},{"../internal/isObjectLike":91}],112:[function(require,module,exports){
+},{"../internal/isObjectLike":92}],113:[function(require,module,exports){
 /**
  * Checks if `value` is the language type of `Object`.
  * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
@@ -4789,7 +4822,7 @@ function isObject(value) {
 
 module.exports = isObject;
 
-},{}],113:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 var isNative = require('./isNative'),
     shimIsPlainObject = require('../internal/shimIsPlainObject');
 
@@ -4853,7 +4886,7 @@ var isPlainObject = !getPrototypeOf ? shimIsPlainObject : function(value) {
 
 module.exports = isPlainObject;
 
-},{"../internal/shimIsPlainObject":100,"./isNative":109}],114:[function(require,module,exports){
+},{"../internal/shimIsPlainObject":101,"./isNative":110}],115:[function(require,module,exports){
 var isObjectLike = require('../internal/isObjectLike');
 
 /** `Object#toString` result references. */
@@ -4891,7 +4924,7 @@ function isString(value) {
 
 module.exports = isString;
 
-},{"../internal/isObjectLike":91}],115:[function(require,module,exports){
+},{"../internal/isObjectLike":92}],116:[function(require,module,exports){
 var isLength = require('../internal/isLength'),
     isObjectLike = require('../internal/isObjectLike');
 
@@ -4968,7 +5001,7 @@ function isTypedArray(value) {
 
 module.exports = isTypedArray;
 
-},{"../internal/isLength":90,"../internal/isObjectLike":91}],116:[function(require,module,exports){
+},{"../internal/isLength":91,"../internal/isObjectLike":92}],117:[function(require,module,exports){
 /**
  * Checks if `value` is `undefined`.
  *
@@ -4991,7 +5024,7 @@ function isUndefined(value) {
 
 module.exports = isUndefined;
 
-},{}],117:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 var baseCopy = require('../internal/baseCopy'),
     keysIn = require('../object/keysIn');
 
@@ -5024,7 +5057,7 @@ function toPlainObject(value) {
 
 module.exports = toPlainObject;
 
-},{"../internal/baseCopy":36,"../object/keysIn":123}],118:[function(require,module,exports){
+},{"../internal/baseCopy":37,"../object/keysIn":124}],119:[function(require,module,exports){
 var baseAssign = require('../internal/baseAssign'),
     createAssigner = require('../internal/createAssigner');
 
@@ -5061,7 +5094,7 @@ var assign = createAssigner(baseAssign);
 
 module.exports = assign;
 
-},{"../internal/baseAssign":33,"../internal/createAssigner":72}],119:[function(require,module,exports){
+},{"../internal/baseAssign":34,"../internal/createAssigner":73}],120:[function(require,module,exports){
 var arrayCopy = require('../internal/arrayCopy'),
     assign = require('./assign'),
     assignDefaults = require('../internal/assignDefaults');
@@ -5093,10 +5126,10 @@ function defaults(object) {
 
 module.exports = defaults;
 
-},{"../internal/arrayCopy":26,"../internal/assignDefaults":32,"./assign":118}],120:[function(require,module,exports){
+},{"../internal/arrayCopy":27,"../internal/assignDefaults":33,"./assign":119}],121:[function(require,module,exports){
 module.exports = require('./assign');
 
-},{"./assign":118}],121:[function(require,module,exports){
+},{"./assign":119}],122:[function(require,module,exports){
 /** Used for native method references. */
 var objectProto = Object.prototype;
 
@@ -5126,7 +5159,7 @@ function has(object, key) {
 
 module.exports = has;
 
-},{}],122:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 var isLength = require('../internal/isLength'),
     isNative = require('../lang/isNative'),
     isObject = require('../lang/isObject'),
@@ -5176,7 +5209,7 @@ var keys = !nativeKeys ? shimKeys : function(object) {
 
 module.exports = keys;
 
-},{"../internal/isLength":90,"../internal/shimKeys":101,"../lang/isNative":109,"../lang/isObject":112}],123:[function(require,module,exports){
+},{"../internal/isLength":91,"../internal/shimKeys":102,"../lang/isNative":110,"../lang/isObject":113}],124:[function(require,module,exports){
 var isArguments = require('../lang/isArguments'),
     isArray = require('../lang/isArray'),
     isIndex = require('../internal/isIndex'),
@@ -5243,7 +5276,7 @@ function keysIn(object) {
 
 module.exports = keysIn;
 
-},{"../internal/isIndex":88,"../internal/isLength":90,"../lang/isArguments":104,"../lang/isArray":105,"../lang/isObject":112,"../support":130}],124:[function(require,module,exports){
+},{"../internal/isIndex":89,"../internal/isLength":91,"../lang/isArguments":105,"../lang/isArray":106,"../lang/isObject":113,"../support":131}],125:[function(require,module,exports){
 var baseMerge = require('../internal/baseMerge'),
     createAssigner = require('../internal/createAssigner');
 
@@ -5299,7 +5332,7 @@ var merge = createAssigner(baseMerge);
 
 module.exports = merge;
 
-},{"../internal/baseMerge":55,"../internal/createAssigner":72}],125:[function(require,module,exports){
+},{"../internal/baseMerge":56,"../internal/createAssigner":73}],126:[function(require,module,exports){
 var arrayMap = require('../internal/arrayMap'),
     baseDifference = require('../internal/baseDifference'),
     baseFlatten = require('../internal/baseFlatten'),
@@ -5352,7 +5385,7 @@ function omit(object, predicate, thisArg) {
 
 module.exports = omit;
 
-},{"../internal/arrayMap":29,"../internal/baseDifference":38,"../internal/baseFlatten":42,"../internal/bindCallback":66,"../internal/pickByArray":95,"../internal/pickByCallback":96,"./keysIn":123}],126:[function(require,module,exports){
+},{"../internal/arrayMap":30,"../internal/baseDifference":39,"../internal/baseFlatten":43,"../internal/bindCallback":67,"../internal/pickByArray":96,"../internal/pickByCallback":97,"./keysIn":124}],127:[function(require,module,exports){
 var baseFlatten = require('../internal/baseFlatten'),
     bindCallback = require('../internal/bindCallback'),
     pickByArray = require('../internal/pickByArray'),
@@ -5395,7 +5428,7 @@ function pick(object, predicate, thisArg) {
 
 module.exports = pick;
 
-},{"../internal/baseFlatten":42,"../internal/bindCallback":66,"../internal/pickByArray":95,"../internal/pickByCallback":96}],127:[function(require,module,exports){
+},{"../internal/baseFlatten":43,"../internal/bindCallback":67,"../internal/pickByArray":96,"../internal/pickByCallback":97}],128:[function(require,module,exports){
 var isFunction = require('../lang/isFunction');
 
 /**
@@ -5438,7 +5471,7 @@ function result(object, key, defaultValue) {
 
 module.exports = result;
 
-},{"../lang/isFunction":108}],128:[function(require,module,exports){
+},{"../lang/isFunction":109}],129:[function(require,module,exports){
 var baseValues = require('../internal/baseValues'),
     keys = require('./keys');
 
@@ -5473,7 +5506,7 @@ function values(object) {
 
 module.exports = values;
 
-},{"../internal/baseValues":63,"./keys":122}],129:[function(require,module,exports){
+},{"../internal/baseValues":64,"./keys":123}],130:[function(require,module,exports){
 var baseToString = require('../internal/baseToString');
 
 /**
@@ -5507,7 +5540,7 @@ function escapeRegExp(string) {
 
 module.exports = escapeRegExp;
 
-},{"../internal/baseToString":62}],130:[function(require,module,exports){
+},{"../internal/baseToString":63}],131:[function(require,module,exports){
 (function (global){
 var isNative = require('./lang/isNative');
 
@@ -5586,7 +5619,7 @@ var support = {};
 module.exports = support;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./lang/isNative":109}],131:[function(require,module,exports){
+},{"./lang/isNative":110}],132:[function(require,module,exports){
 /**
  * Creates a function that returns `value`.
  *
@@ -5611,7 +5644,7 @@ function constant(value) {
 
 module.exports = constant;
 
-},{}],132:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
 /**
  * This method returns the first argument provided to it.
  *
@@ -5633,7 +5666,7 @@ function identity(value) {
 
 module.exports = identity;
 
-},{}],133:[function(require,module,exports){
+},{}],134:[function(require,module,exports){
 /**
  * A no-operation function which returns `undefined` regardless of the
  * arguments it receives.
@@ -5654,7 +5687,7 @@ function noop() {
 
 module.exports = noop;
 
-},{}],134:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 var baseToString = require('../internal/baseToString');
 
 /** Used to generate unique IDs. */
@@ -5683,7 +5716,7 @@ function uniqueId(prefix) {
 
 module.exports = uniqueId;
 
-},{"../internal/baseToString":62}],135:[function(require,module,exports){
+},{"../internal/baseToString":63}],136:[function(require,module,exports){
 /**
  * This is for creating a custom build of lodash which only includes the dependencies that footwork needs
  */
@@ -5723,6 +5756,7 @@ root._ = {
   noop: require('../../node_modules/lodash/utility/noop'),
   keys: require('../../node_modules/lodash/object/keys'),
   merge: require('../../node_modules/lodash/object/merge'),
+  pluck: require('../../node_modules/lodash/collection/pluck'),
 
   // required for postal.js specifically (ref: postal.js/lib/postal.lodash.js)
   after: require('../../node_modules/lodash/function/after'),
@@ -5731,7 +5765,7 @@ root._ = {
   throttle: require('../../node_modules/lodash/function/throttle')
 };
 
-},{"../../node_modules/lodash/array/indexOf":2,"../../node_modules/lodash/array/last":3,"../../node_modules/lodash/collection/any":4,"../../node_modules/lodash/collection/contains":5,"../../node_modules/lodash/collection/each":6,"../../node_modules/lodash/collection/filter":7,"../../node_modules/lodash/collection/find":8,"../../node_modules/lodash/collection/findWhere":9,"../../node_modules/lodash/collection/invoke":12,"../../node_modules/lodash/collection/map":13,"../../node_modules/lodash/collection/reduce":14,"../../node_modules/lodash/collection/reject":15,"../../node_modules/lodash/collection/where":17,"../../node_modules/lodash/function/after":19,"../../node_modules/lodash/function/bind":21,"../../node_modules/lodash/function/debounce":22,"../../node_modules/lodash/function/once":23,"../../node_modules/lodash/function/throttle":24,"../../node_modules/lodash/lang/clone":103,"../../node_modules/lodash/lang/isArray":105,"../../node_modules/lodash/lang/isBoolean":106,"../../node_modules/lodash/lang/isEqual":107,"../../node_modules/lodash/lang/isFunction":108,"../../node_modules/lodash/lang/isNull":110,"../../node_modules/lodash/lang/isNumber":111,"../../node_modules/lodash/lang/isObject":112,"../../node_modules/lodash/lang/isString":114,"../../node_modules/lodash/lang/isUndefined":116,"../../node_modules/lodash/object/defaults":119,"../../node_modules/lodash/object/extend":120,"../../node_modules/lodash/object/has":121,"../../node_modules/lodash/object/keys":122,"../../node_modules/lodash/object/merge":124,"../../node_modules/lodash/object/omit":125,"../../node_modules/lodash/object/pick":126,"../../node_modules/lodash/object/result":127,"../../node_modules/lodash/object/values":128,"../../node_modules/lodash/utility/noop":133,"../../node_modules/lodash/utility/uniqueId":134}]},{},[135]);
+},{"../../node_modules/lodash/array/indexOf":2,"../../node_modules/lodash/array/last":3,"../../node_modules/lodash/collection/any":4,"../../node_modules/lodash/collection/contains":5,"../../node_modules/lodash/collection/each":6,"../../node_modules/lodash/collection/filter":7,"../../node_modules/lodash/collection/find":8,"../../node_modules/lodash/collection/findWhere":9,"../../node_modules/lodash/collection/invoke":12,"../../node_modules/lodash/collection/map":13,"../../node_modules/lodash/collection/pluck":14,"../../node_modules/lodash/collection/reduce":15,"../../node_modules/lodash/collection/reject":16,"../../node_modules/lodash/collection/where":18,"../../node_modules/lodash/function/after":20,"../../node_modules/lodash/function/bind":22,"../../node_modules/lodash/function/debounce":23,"../../node_modules/lodash/function/once":24,"../../node_modules/lodash/function/throttle":25,"../../node_modules/lodash/lang/clone":104,"../../node_modules/lodash/lang/isArray":106,"../../node_modules/lodash/lang/isBoolean":107,"../../node_modules/lodash/lang/isEqual":108,"../../node_modules/lodash/lang/isFunction":109,"../../node_modules/lodash/lang/isNull":111,"../../node_modules/lodash/lang/isNumber":112,"../../node_modules/lodash/lang/isObject":113,"../../node_modules/lodash/lang/isString":115,"../../node_modules/lodash/lang/isUndefined":117,"../../node_modules/lodash/object/defaults":120,"../../node_modules/lodash/object/extend":121,"../../node_modules/lodash/object/has":122,"../../node_modules/lodash/object/keys":123,"../../node_modules/lodash/object/merge":125,"../../node_modules/lodash/object/omit":126,"../../node_modules/lodash/object/pick":127,"../../node_modules/lodash/object/result":128,"../../node_modules/lodash/object/values":129,"../../node_modules/lodash/utility/noop":134,"../../node_modules/lodash/utility/uniqueId":135}]},{},[136]);
 
 
     (function() {
@@ -10580,156 +10614,7 @@ var isEqual = _.isEqual;
 var noop = _.noop;
 var keys = _.keys;
 var merge = _.merge;
-
-// extenders.js
-// ----------------
-
-fw.extenders.debounce = function(target, opt) {
-  if( isNumber(opt) ) {
-    opt = {
-      timeout: opt,
-      when: function() { return true; } // default always throttle
-    };
-  }
-
-  target.throttleEvaluation = opt.timeout;
-
-  var writeTimeoutInstance = null;
-  var throttledTarget = fw.computed({
-    'read': target,
-    'write': function(value) {
-      if( opt.when(value) ) {
-        clearTimeout(writeTimeoutInstance);
-        writeTimeoutInstance = setTimeout(function() {
-          target(value);
-        }, opt.timeout);
-      } else {
-        clearTimeout(writeTimeoutInstance);
-        target(value);
-      }
-    }
-  });
-
-  throttledTarget.force = function( value ) {
-    clearTimeout(writeTimeoutInstance);
-    target(value);
-  };
-
-  var throttleDispose = throttledTarget.dispose;
-  if( isFunction(target.dispose) ) {
-    // has to pass-through the dispose method from the target so it can be released properly as well
-    throttledTarget.dispose = function() {
-      target.dispose();
-      throttleDispose.call(throttledTarget);
-    };
-  }
-
-  return throttledTarget;
-};
-
-fw.extenders.autoDisable = function( target, delay ) {
-  return target.extend({
-    delayTrigger: {
-      delay: delay || 0,
-      trigger: function( target ) { target( false ); }
-    }
-  });
-};
-
-fw.extenders.autoEnable = function( target, delay ) {
-  return target.extend({
-    delayTrigger: {
-      delay: delay || 0,
-      trigger: function( target ) { target( true ); }
-    }
-  });
-};
-
-fw.extenders.delayTrigger = function( target, options ) {
-  var delay = 300;
-  var triggerFunc = noop;
-  var trigger;
-
-  if( isObject(options) ) {
-    delay = !isNaN( options.delay ) && parseInt( options.delay, 10 ) || delay;
-    triggerFunc = options.trigger || triggerFunc;
-  } else {
-    delay = !isNaN( options ) && parseInt( options, 10 ) || delay;
-  }
-
-  var clearTrigger = function() {
-    clearTimeout( trigger );
-    trigger = undefined;
-  };
-
-  var delayedObservable = fw.computed({
-    read: target,
-    write: function( state ) {
-      target( state );
-
-      if( !isUndefined(trigger) ) {
-        clearTrigger();
-      }
-
-      trigger = setTimeout(function() {
-        triggerFunc( target, options );
-      }.bind(target), delayedObservable.triggerDelay);
-    }
-  });
-  delayedObservable.clearTrigger = clearTrigger;
-  delayedObservable.triggerDelay = delay;
-
-  var delayedObservableDispose = delayedObservable.dispose;
-  if( isFunction(target.dispose) ) {
-    // has to pass-through the dispose method from the target so it can be released properly as well
-    delayedObservable.dispose = function() {
-      target.dispose();
-      delayedObservableDispose.call(delayedObservable);
-    };
-  }
-
-  return delayedObservable;
-};
-
-fw.extenders.delayWrite = function( target, options ) {
-  var filter;
-  var delay = 300;
-
-  if( isObject(options) ) {
-    delay = !isNaN( options.delay ) && parseInt( options.delay, 10 ) || delay;
-    filter = options.filter || function() { return true; };
-  } else {
-    delay = !isNaN( options ) && parseInt( options, 10 ) || delay;
-  }
-
-  var delayWriteComputed = fw.computed({
-    read: target,
-    write: function( writeValue ) {
-      if( filter( writeValue ) ) {
-        if(target._delayWriteTimer) {
-          clearTimeout( this._delayWriteTimer );
-        }
-        target._delayWriteTimer = setTimeout(function() {
-          target( writeValue );
-        }, delay);
-      } else {
-        target( writeValue );
-      }
-    }
-  });
-
-  var delayWriteComputedDispose = delayWriteComputed.dispose;
-  if( isFunction(target.dispose) ) {
-    // has to pass-through the dispose method from the target so it can be released properly as well
-    delayWriteComputed.dispose = function() {
-      target.dispose();
-      delayWriteComputedDispose.call(delayWriteComputed);
-    };
-  }
-
-  return delayWriteComputed;
-};
-
+var pluck = _.pluck;
 
 // framework/init.js
 // ------------------
@@ -10746,61 +10631,22 @@ fw.routers = {};
 fw.outlets = {};
 fw.settings = {};
 
-var hasHTML5History = false;
 var assessHistoryState = noop;
 var originalApplyBindings = noop;
 var setupContextAndLifeCycle = noop;
 
-var noComponentSelected = '_noComponentSelected';
 var runPostInit = [];
-var nativeComponents = [];
+var internalComponents = [];
 var entityDescriptors = [];
-var modelMixins = [];
-var $routerOutlet;
+var entityMixins = [];
 
+var $routerOutlet;
 var $globalNamespace;
-runPostInit.push(function() {
-  $globalNamespace = fw.namespace();
-});
 
 var isEntityCtor;
 var isEntity;
-runPostInit.push(function() {
-  var viewModelDescriptor = entityDescriptors.getDescriptor('viewModel');
-  isEntityCtor = viewModelDescriptor.isEntityCtor;
-  isEntity = viewModelDescriptor.isEntity;
-});
-
-var createResources;
-runPostInit.push(function() {
-  createResources(entityDescriptors);
-});
-
-var createFactories;
-runPostInit.push(function() {
-  createFactories(entityDescriptors);
-});
-
-var registerOutletComponents;
-runPostInit.push(function() {
-  registerOutletComponents();
-});
-
-// These are tags which are ignored by the custom component loader
-// Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
-var nonComponentTags = [
-  'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont', 'bdi', 'bgsound',
-  'big', 'blink', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
-  'content', 'data', 'datalist', 'dd', 'decorator', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'element',
-  'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'frameset', 'g', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-  'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'isindex', 'kbd', 'keygen', 'label',
-  'legend', 'li', 'link', 'listing', 'main', 'map', 'mark', 'marquee', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'nobr',
-  'noframes', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture', 'polygon', 'path', 'pre',
-  'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'shadow', 'small', 'source', 'spacer',
-  'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'template', 'textarea',
-  'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp', 'rect', 'image',
-  'lineargradient', 'stop', 'line', 'binding-wrapper', 'font'
-];
+var isDataModel;
+var isRouter;
 
 // framework/utility.js
 // ----------------
@@ -10816,8 +10662,8 @@ var isFullURL = fw.utils.isFullURL = function(thing) {
   return isString(thing) && isFullURLRegex.test(thing);
 };
 
-function isNativeComponent(componentName) {
-  return indexOf(nativeComponents, componentName) !== -1;
+function isInternalComponent(componentName) {
+  return indexOf(internalComponents, componentName) !== -1;
 }
 
 function isPath(pathOrFile) {
@@ -10844,8 +10690,8 @@ function alwaysPassPredicate() { return true; }
 function emptyStringResult() { return ''; }
 
 // dispose a known property type
-function propertyDisposal( property, name ) {
-  if( (isObservable(property) || isNamespace(property) || isRouter(property) || fw.isBroadcastable(property) || fw.isReceivable(property)) && isFunction(property.dispose) ) {
+function propertyDisposal( property ) {
+  if( (isObservable(property) || isNamespace(property) || isEntity(property) || fw.isBroadcastable(property) || fw.isReceivable(property)) && isFunction(property.dispose) ) {
     property.dispose();
   }
 }
@@ -10913,6 +10759,10 @@ var namespaceStack = [];
 // multiple copies of the same model to share the same namespace (if they do share a
 // namespace, they receive all of the same events/messages/commands/etc).
 var namespaceNameCounter = {};
+
+runPostInit.push(function() {
+  $globalNamespace = fw.namespace();
+});
 
 // framework/namespace/utility.js
 // ----------------
@@ -11134,11 +10984,11 @@ fw.namespace = function(namespaceName, $parentNamespace) {
   return namespace;
 };
 
-// framework/namespace/modelMixins.js
+// framework/namespace/entityMixins.js
 // ----------------
 
 // mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
-modelMixins.push({
+entityMixins.push({
   runBeforeInit: true,
   _preInit: function( options ) {
     var $configParams = this.__getConfigParams();
@@ -11385,13 +11235,17 @@ fw.components.getLocation = function(componentName) {
 // ------------------
 
 // Create/extend all resource methods onto each descriptor.resource found inside an array of descriptors
-createResources = function(descriptors) {
+function createResources(descriptors) {
   each(descriptors, function(descriptor) {
     if(!isUndefined(descriptor.resource)) {
       extend(descriptor.resource, resourceHelperFactory(descriptor));
     }
   });
 };
+
+runPostInit.push(function() {
+  createResources(entityDescriptors);
+});
 
 // framework/resource/resourceHelperFactory.js
 // ------------------
@@ -11567,174 +11421,10 @@ fw.isReceivable = function(thing) {
 };
 
 
-// framework/model/lifecycle.js
+// framework/entities/router/init.js
 // ------------------
 
-// Provides lifecycle functionality and $context for a given model and element
-setupContextAndLifeCycle = function(viewModel, element) {
-  if( isEntity(viewModel) ) {
-    var $configParams = viewModel.__getConfigParams();
-    var context;
-    element = element || document.body;
-    viewModel.$element = element;
-    viewModel.$context = elementContext = fw.contextFor(element.tagName.toLowerCase() === 'binding-wrapper' ? (element.parentElement || element.parentNode) : element);
-
-    if( isFunction($configParams.afterBinding) ) {
-      $configParams.afterBinding.call(viewModel, element);
-    }
-
-    if( isRouter(viewModel.$router) ) {
-      viewModel.$router.context( elementContext );
-    }
-
-    if( !isUndefined(element) ) {
-      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
-        viewModel.dispose();
-      });
-    }
-  }
-}
-
-// framework/model/applyBinding.js
-// ------------------
-
-// Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.
-originalApplyBindings = fw.applyBindings;
-fw.applyBindings = function(viewModel, element) {
-  originalApplyBindings(viewModel, element);
-  setupContextAndLifeCycle(viewModel, element);
-};
-
-// framework/model/modelClassFactory.js
-// ------------------
-
-function isBeforeInitMixin(mixin) {
-  return !!mixin.runBeforeInit;
-}
-
-function modelMixin(thing) {
-  return ( (isArray(thing) && thing.length) || isObject(thing) ? thing : {} );
-}
-
-function modelClassFactory(descriptor, configParams) {
-  var model = null;
-
-  configParams = extend({}, descriptor.defaultConfig, configParams || {});
-
-  var descriptorMixins = [];
-  map(descriptor.mixins, function(mixin, index) {
-    descriptorMixins.push( isFunction(mixin) ? mixin(descriptor, configParams || {}) : mixin );
-  });
-
-  var ctor = configParams.initialize || configParams.viewModel || noop;
-  if( !descriptor.isEntityCtor(ctor) ) {
-    var isEntityDuckTagMixin = {};
-    isEntityDuckTagMixin[descriptor.isEntityDuckTag] = true;
-    isEntityDuckTagMixin = { mixin: isEntityDuckTagMixin };
-
-    var newInstanceCheckMixin = {
-      _preInit: function() {
-        if(this === windowObject) {
-          throw new Error('Must use the new operator when instantiating a ' + descriptor.methodName + '.');
-        }
-      }
-    };
-    var afterInitCallbackMixin = { _postInit: configParams.afterInit || noop };
-    var afterInitMixins = reject(modelMixins, isBeforeInitMixin);
-    var beforeInitMixins = map(filter(modelMixins, isBeforeInitMixin), function(mixin) {
-      delete mixin.runBeforeInit;
-      return mixin;
-    });
-
-    var composure = [ ctor ].concat(
-      modelMixin(newInstanceCheckMixin),
-      modelMixin(isEntityDuckTagMixin),
-      modelMixin(afterInitCallbackMixin),
-      modelMixin(afterInitMixins),
-      modelMixin(beforeInitMixins),
-      modelMixin(configParams.mixins),
-      modelMixin(descriptorMixins)
-    );
-
-    model = riveter.compose.apply( undefined, composure );
-
-    model[ descriptor.isEntityCtorDuckTag ] = true;
-    model.__configParams = configParams;
-  } else {
-    // user has specified another model constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain
-    model = ctor;
-  }
-
-  if( !isNull(model) && isFunction(configParams.parent) ) {
-    model.inherits(configParams.parent);
-  }
-
-  if( configParams.autoRegister ) {
-    var namespace = configParams.namespace;
-    if( descriptor.resource.isRegistered(namespace) ) {
-      if( descriptor.resource.getRegistered(namespace) !== model ) {
-        throw new Error('"' + namespace + '" has already been registered as a ' + descriptor.methodName + ', autoRegister failed.');
-      }
-    } else {
-      descriptor.resource.register(namespace, model);
-    }
-  }
-
-  return model;
-}
-
-// framework/model/routerClassFactory.js
-// ------------------
-
-function routerClassFactory(routerConfig) {
-  var viewModel = fw.viewModel({
-    router: routerConfig
-  });
-
-  if( routerConfig.autoRegister ) {
-    var namespace = routerConfig.namespace;
-    if( fw.routers.isRegistered(namespace) ) {
-      if( fw.routers.getRegistered(namespace) !== this ) {
-        throw new Error('"' + namespace + '" has already been registered as a router, autoRegister failed.');
-      }
-    } else {
-      fw.routers.register(namespace, viewModel);
-    }
-  }
-
-  return viewModel;
-}
-
-// framework/model/createFactories.js
-// ------------------
-
-createFactories = function(descriptors) {
-  // create the class factory method for each entity descriptor
-  filter(descriptors, function getOnlyDescriptorsWithMethodName(descriptor) {
-    return isString(descriptor.methodName);
-  }).forEach(function setupFactoryMethod(descriptor) {
-    switch(descriptor.methodName) {
-      case 'router':
-        fw[descriptor.methodName] = routerClassFactory;
-        break;
-
-      default:
-        fw[descriptor.methodName] = modelClassFactory.bind(null, descriptor);
-    }
-  });
-};
-
-
-// framework/router/init.js
-// ------------------
-
-var routerDefaultConfig = {
-  namespace: '$router',
-  baseRoute: null,
-  isRelative: true,
-  activate: true,
-  routes: []
-};
+var hasHTML5History = false;
 
 // Regular expressions used to parse a uri
 var optionalParamRegex = /\((.*?)\)/g;
@@ -11742,25 +11432,22 @@ var namedParamRegex = /(\(\?)?:\w+/g;
 var splatParamRegex = /\*\w*/g;
 var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatchRegex = /(^\/#)/;
-var routesAreCaseSensitive = true;
 
+var noComponentSelected = '_noComponentSelected';
 var invalidRoutePathIdentifier = '___invalid-route';
 
-var $baseRouter = {
+var routesAreCaseSensitive = true;
+
+var $nullRouter = {
   path: emptyStringResult,
-  segment: emptyStringResult,
   childRouters: fw.observableArray(),
   context: noop,
   userInitialize: noop,
-  __isRouter: true
-};
-
-var $nullRouter = extend({}, $baseRouter, {
   childRouters: extend( noop.bind(), { push: noop } ),
   path: function() { return ''; },
   isRelative: function() { return false; },
   __isNullRouter: true
-});
+};
 
 var baseRoute = {
   controller: noop,
@@ -11774,7 +11461,7 @@ var baseRouteDescription = {
   __isRouteDesc: true
 };
 
-// framework/router/utility.js
+// framework/entities/router/utility.js
 // -----------
 
 function transformRouteConfigToDesc(routeDesc) {
@@ -11823,10 +11510,6 @@ function isNullRouter(thing) {
   return isObject(thing) && !!thing.__isNullRouter;
 }
 
-function isRouter(thing) {
-  return isObject(thing) && !!thing.__isRouter;
-}
-
 function isRoute(thing) {
   return isObject(thing) && !!thing.__isRoute;
 }
@@ -11837,9 +11520,9 @@ function isRoute(thing) {
 function nearestParentRouter($context) {
   var $parentRouter = $nullRouter;
   if( isObject($context) ) {
-    if( isObject($context.$data) && isRouter($context.$data.$router) ) {
+    if( isRouter($context.$data) ) {
       // found router in this context
-      $parentRouter = $context.$data.$router;
+      $parentRouter = $context.$data;
     } else if( isObject($context.$parentContext) || (isObject($context.$data) && isObject($context.$data.$parentContext)) ) {
       // search through next parent up the chain
       $parentRouter = nearestParentRouter( $context.$parentContext || $context.$data.$parentContext );
@@ -11857,8 +11540,9 @@ function nearestParentRouter($context) {
 })();
 
 function trimBaseRoute($router, url) {
-  if( !isNull($router.config.baseRoute) && url.indexOf($router.config.baseRoute) === 0 ) {
-    url = url.substr($router.config.baseRoute.length);
+  var routerConfig = $router.__getConfigParams();
+  if( !isNull(routerConfig.baseRoute) && url.indexOf(routerConfig.baseRoute) === 0 ) {
+    url = url.substr(routerConfig.baseRoute.length);
     if(url.length > 1) {
       url = url.replace(hashMatchRegex, '/');
     }
@@ -11866,10 +11550,1031 @@ function trimBaseRoute($router, url) {
   return url;
 }
 
-// framework/router/outlet.js
+
+// framework/entities/descriptorConfig.js
 // ------------------
 
-var noParentViewModelError = { getNamespaceName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } };
+// framework/entities/behavior/ViewModel.js
+// ------------------
+
+var ViewModel = function(descriptor, configParams) {
+  return {
+    _preInit: function( params ) {
+      if( isObject(configParams.router) ) {
+        this.$router = new Router( configParams.router, this );
+      }
+    },
+    mixin: {
+      $params: result(configParams, 'params'),
+      __getConfigParams: function() {
+        return configParams;
+      },
+      dispose: function() {
+        if( !this._isDisposed ) {
+          this._isDisposed = true;
+          if( configParams.onDispose !== noop ) {
+            configParams.onDispose.call(this);
+          }
+          each(this, propertyDisposal);
+        }
+      }
+    },
+    _postInit: function() {
+      if( this.__assertPresence !== false ) {
+        this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
+          if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
+            if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
+              var myNamespaceName = this.$namespace.getName();
+              if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
+                return this;
+              } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+                return this;
+              }
+            } else {
+              return this;
+            }
+          }
+        }.bind(this));
+      }
+    }
+  };
+};
+
+// framework/entities/behavior/DataModel.js
+// ------------------
+
+/**
+ * Tentative API:
+ *
+ * var DataModel = fw.dataModel({
+ *   id: 'id',
+ *
+ *   // string based url with automatic RESTful routes
+ *   url: 'http://server.com/person',
+ *
+ *   // custom routes provided by callback
+ *   url: function(method) {
+ *     switch(method) {
+ *       case 'read':
+ *         return 'http://server.com/person/:id';
+ *         break;
+ *
+ *       case 'create':
+ *         return 'http://server.com/person';
+ *         break;
+ *
+ *       case 'update':
+ *         return 'http://server.com/person/:id';
+ *         break;
+ *
+ *       case 'delete':
+ *         return 'http://server.com/person/:id';
+ *         break;
+ *     }
+ *   },
+ *
+ *   initialize: function() {
+ *     // field declarations and mapping
+ *     this.firstName = fw.observable().mapTo('firstName');
+ *     this.lastName = fw.observable().mapTo('lastName');
+ *     this.email = fw.observable().mapTo('email');
+ *     this.movieCollection = {
+ *       action: fw.observable().mapTo('movies.action'),
+ *       drama: fw.observable().mapTo('movies.drama'),
+ *       comedy: fw.observable().mapTo('movies.comedy'),
+ *       horror: fw.observable().mapTo('movies.horror')
+ *     };
+ *   }
+ * });
+ */
+
+var dataModelContext = [];
+function enterDataModelContext(dataModel) {
+  dataModelContext.unshift(dataModel);
+}
+function exitDataModelContext() {
+  dataModelContext.shift();
+}
+
+function currentDataModelContext() {
+  return dataModelContext.length ? dataModelContext[0] : null;
+}
+
+function getPrimaryKey(dataModel) {
+  return dataModel.__getConfigParams().idAttribute;
+}
+
+fw.subscribable.fn.mapTo = function(option) {
+  var mappedObservable = this;
+  var mapPath;
+  var dataModel;
+
+  if(isString(option)) {
+    mapPath = option;
+    dataModel = currentDataModelContext();
+  } else if(isObject(option)) {
+    mapPath = option.path;
+    dataModel = option.dataModel;
+  } else {
+    throw new Error('Invalid options supplied to mapTo');
+  }
+
+  if(!isDataModel(dataModel)) {
+    throw new Error('No dataModel context found/supplied for mapTo observable');
+  }
+
+  var mappings = dataModel.__mappings;
+  var primaryKey = getPrimaryKey(dataModel);
+  if( !isUndefined(mappings[mapPath]) && (mapPath !== primaryKey && dataModel.$id.__isOriginalPK)) {
+    throw new Error('the field \'' + mapPath + '\' is already mapped on this dataModel');
+  }
+
+  if(!isUndefined(mappings[mapPath]) && isFunction(mappings[mapPath].dispose)) {
+    // remapping a path, we need to dispose of the old one first
+    mappings[mapPath].dispose();
+  }
+
+  // add/set the registry entry for the mapped observable
+  mappings[mapPath] = mappedObservable;
+
+  if(mapPath === primaryKey) {
+    // mapping primary key, update/set the $id property on the dataModel
+    dataModel.$id = mappings[mapPath];
+  }
+
+  var changeSubscription = mappedObservable.subscribe(function() {
+    dataModel.$dirty(true);
+  });
+
+  var disposeObservable = mappedObservable.dispose || noop;
+  if(isFunction(mappedObservable.dispose)) {
+    mappedObservable.dispose = function() {
+      changeSubscription.dispose();
+      disposeObservable.call(mappedObservable);
+    };
+  }
+
+  return mappedObservable;
+};
+
+function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
+  if(isString(fieldMap)) {
+    return insertValueIntoObject(rootObject, fieldMap.split('.'), fieldValue);
+  }
+
+  var propName = fieldMap.shift();
+  if(fieldMap.length) {
+    if(isUndefined(rootObject[propName])) {
+      // nested property, lets add the child
+      rootObject[propName] = {};
+    }
+    // recurse into the next layer
+    return insertValueIntoObject(rootObject[propName], fieldMap, fieldValue);
+  } else {
+    rootObject[propName] = fieldValue;
+  }
+
+  return rootObject;
+}
+
+function getNestedReference(rootObject, fieldMap) {
+  var propName = fieldMap;
+
+  if(!isUndefined(fieldMap)) {
+    if(isString(fieldMap)) {
+      // initial call with string based fieldMap, recurse into main loop
+      return getNestedReference(rootObject, fieldMap.split('.'));
+    }
+
+    propName = fieldMap.shift();
+    if(fieldMap.length) {
+      // recurse into the next layer
+      return getNestedReference((rootObject || {})[propName], fieldMap);
+    }
+  }
+
+  return !isString(propName) ? rootObject : (rootObject || {})[propName];
+}
+
+runPostInit.push(function(runTask) {
+  fw.ajax = ajax;
+  extend(fw.settings, {
+    emulateHTTP: false,
+    emulateJSON: false
+  });
+});
+
+var DataModel = function(descriptor, configParams) {
+  return {
+    runBeforeInit: true,
+    _preInit: function( params ) {
+      enterDataModelContext(this);
+
+      this.__mappings = {};
+      this.$dirty = fw.observable(false);
+      this.$cid = fw.utils.guid();
+      this[configParams.idAttribute] = this.$id = fw.observable().mapTo(configParams.idAttribute);
+      this.$id.__isOriginalPK = true;
+    },
+    mixin: {
+      // GET from server and $load into model
+      $fetch: function() {
+        var model = this;
+        var id = this[configParams.idAttribute]();
+        if(id) {
+          // retrieve data from server for model using the id
+          this.$sync('read', model);
+        }
+      },
+      $save: function() {}, // PUT / POST
+      $destroy: function() {}, // DELETE
+
+      // load data into model (clears $dirty)
+      $load: function( data ) {
+        var dataModel = this;
+        each(dataModel.__mappings, function(fieldObservable, fieldMap) {
+          var fieldValue = getNestedReference(data, fieldMap);
+          if(!isUndefined(fieldValue)) {
+            fieldObservable(fieldValue);
+          }
+        });
+      },
+
+      $sync: function() {
+        return fw.sync.apply(this, arguments);
+      },
+
+      $hasMappedField: function(referenceField) {
+        return !!this.__mappings[referenceField];
+      },
+
+      // return current data in POJO form
+      $toJS: function(referenceField, includeRoot) {
+        var dataModel = this;
+        if(isArray(referenceField)) {
+          return reduce(referenceField, function(jsObject, fieldMap) {
+            return merge(jsObject, dataModel.$toJS(fieldMap, true));
+          }, {});
+        } else if(!isUndefined(referenceField) && !isString(referenceField)) {
+          throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.$toJS().');
+        }
+
+        var mappedObject = reduce(this.__mappings, function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+          if(isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
+            insertValueIntoObject(jsObject, fieldMap, fieldObservable());
+          }
+          return jsObject;
+        }, {});
+
+        return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
+      },
+
+      // return current data in JSON form
+      $toJSON: function(referenceField, includeRoot) {
+        return JSON.stringify( this.$toJS(referenceField, includeRoot) );
+      },
+
+      $valid: function( referenceField ) {}, // get validation of entire model or selected field
+      $validate: function() {} // perform a validation and return the result on a specific field or the entire model
+    },
+    _postInit: function() {
+      this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
+        if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
+          var myNamespaceName = configParams.namespace;
+          if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
+            return this;
+          } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+            return this;
+          }
+        }
+      }.bind(this));
+
+      exitDataModelContext();
+    }
+  };
+};
+
+// framework/entities/behavior/Router.js
+// ------------------
+
+function DefaultAction() {
+  delete this.__currentRouteDescription;
+  this.$outlet.reset();
+}
+
+function RoutedAction(routeDescription) {
+  if( !isUndefined(routeDescription.title) ) {
+    document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this, routeDescription.namedParams, this.urlParts()) : routeDescription.title;
+  }
+
+  if( isUndefined(this.__currentRouteDescription) || !sameRouteDescription(this.__currentRouteDescription, routeDescription) ) {
+    (routeDescription.controller || noop).apply( this, values(routeDescription.namedParams) );
+    this.__currentRouteDescription = routeDescription;
+  }
+}
+
+function activateRouter($router, $context, $parentRouter ) {
+  $parentRouter = $parentRouter || $nullRouter;
+
+  if( !isNullRouter($parentRouter) ) {
+    $router.parentRouter( $parentRouter );
+  } else if( isObject($context) ) {
+    $parentRouter = nearestParentRouter($context);
+    if( $parentRouter !== $router ) {
+      $router.parentRouter( $parentRouter );
+    }
+  }
+
+  if( !$router.historyIsEnabled() ) {
+    if( historyIsReady() && !$router.disableHistory() ) {
+      History.Adapter.bind( windowObject, 'popstate', $router.stateChangeHandler = function(event) {
+        var url = '';
+        if(!fw.routers.html5History() && windowObject.location.hash.length > 1) {
+          url = windowObject.location.hash;
+        } else {
+          url = windowObject.location.pathname + windowObject.location.hash;
+        }
+
+        $router.currentState( normalizeURL($router, url) );
+      });
+      $router.historyIsEnabled(true);
+    } else {
+      $router.historyIsEnabled(false);
+    }
+  }
+
+  return $router;
+};
+
+function normalizeURL($router, url) {
+  var urlParts = parseUri(url);
+  $router.urlParts(urlParts);
+
+  if(!fw.routers.html5History()) {
+    if(url.indexOf('#') !== -1) {
+      url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
+    } else if($router.currentState() !== url) {
+      url = '/';
+    }
+  } else {
+    url = urlParts.path;
+  }
+
+  return trimBaseRoute($router, url);
+};
+
+function getRouteForURL($router, url) {
+  var route = null;
+  var parentRoutePath = $router.parentRouter().path() || '';
+  var unknownRoute = getUnknownRoute($router);
+
+  // If this is a relative router we need to remove the leading parentRoutePath section of the URL
+  if($router.isRelative() && parentRoutePath.length > 0 && (routeIndex = url.indexOf(parentRoutePath + '/')) === 0) {
+    url = url.substr( parentRoutePath.length );
+  }
+
+  // find all routes with a matching routeString
+  var matchedRoutes = reduce($router.routeDescriptions, function(matches, routeDescription) {
+    var routeString = routeDescription.route;
+    var routeParams = [];
+
+    if( isString(routeString) ) {
+      routeParams = url.match(routeStringToRegExp(routeString));
+      if( !isNull(routeParams) && routeDescription.filter.call($router, routeParams, $router.urlParts.peek()) ) {
+        matches.push({
+          routeString: routeString,
+          specificity: routeString.replace(namedParamRegex, "*").length,
+          routeDescription: routeDescription,
+          routeParams: routeParams
+        });
+      }
+    }
+    return matches;
+  }, []);
+
+  // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
+  // and convert it into the actual route
+  if(matchedRoutes.length) {
+    var matchedRoute = reduce(matchedRoutes, function(matchedRoute, foundRoute) {
+      if( isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity ) {
+        matchedRoute = foundRoute;
+      }
+      return matchedRoute;
+    }, null);
+    var routeDescription = matchedRoute.routeDescription;
+    var routeString = matchedRoute.routeString;
+    var routeParams = clone(matchedRoute.routeParams);
+    var splatSegment = routeParams.pop() || '';
+    var routeParamNames = map(routeString.match(namedParamRegex), function(param) {
+      return param.replace(':', '');
+    });
+    var namedParams = reduce(routeParamNames, function(parameterNames, parameterName, index) {
+      parameterNames[parameterName] = routeParams[index + 1];
+      return parameterNames;
+    }, {});
+
+    route = extend({}, baseRoute, {
+      id: routeDescription.id,
+      controller: routeDescription.controller,
+      title: routeDescription.title,
+      url: url,
+      segment: url.substr(0, url.length - splatSegment.length),
+      indexedParams: routeParams,
+      namedParams: namedParams
+    });
+  }
+
+  return route || unknownRoute;
+};
+
+function getUnknownRoute($router) {
+  var unknownRoute = findWhere(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
+
+  if( !isNull(unknownRoute) ) {
+    unknownRoute = extend({}, baseRoute, {
+      id: unknownRoute.id,
+      controller: unknownRoute.controller,
+      title: unknownRoute.title,
+      segment: ''
+    });
+  }
+
+  return unknownRoute;
+};
+
+function getActionForRoute($router, routeDescription) {
+  var Action;
+
+  if( isRoute(routeDescription) ) {
+    Action = RoutedAction.bind($router, routeDescription);
+  }
+
+  return Action || DefaultAction.bind($router);
+};
+
+var Router = function(descriptor, configParams) {
+  return {
+    _preInit: function( params ) {
+      var routerData = {};
+      var __router = this.__router = function(propName, propValue) {
+        var isReadOp = arguments.length === 1;
+        var isWriteOp = arguments.length === 2;
+
+        if(isReadOp) {
+          return routerData[propName];
+        } else if(isWriteOp) {
+          routerData[propName] = propValue;
+          return routerData[propName];
+        }
+      };
+      var subscriptions = this.__subscriptions = fw.observableArray();
+
+      this.$namespace.command.handler('setState', this.setState, this);
+      this.$namespace.request.handler('currentRoute', function() { return this.currentRoute(); }, this);
+      this.$namespace.request.handler('urlParts', function() { return this.urlParts(); }, this);
+
+      this.urlParts = fw.observable();
+      this.childRouters = fw.observableArray();
+      this.parentRouter = fw.observable($nullRouter);
+      this.context = fw.observable();
+      this.historyIsEnabled = fw.observable(false);
+      this.disableHistory = fw.observable().receiveFrom(this.$globalNamespace, 'disableHistory');
+      this.currentState = fw.observable('').broadcastAs('currentState');
+      configParams.baseRoute = fw.routers.baseRoute() + (result(configParams, 'baseRoute') || '');
+
+      this.isRelative = fw.computed(function() {
+        return configParams.isRelative && !isNullRouter( this.parentRouter() );
+      }, this);
+
+      this.currentRoute = fw.computed(function() {
+        return getRouteForURL(this, normalizeURL(this, this.currentState()) );
+      }, this);
+
+      this.path = fw.computed(function() {
+        var currentRoute = this.currentRoute();
+        var routeSegment = '/';
+
+        if( isRoute(currentRoute) ) {
+          routeSegment = (currentRoute.segment === '' ? '/' : currentRoute.segment);
+        }
+
+        return (this.isRelative() ? this.parentRouter().path() : '') + routeSegment;
+      }, this);
+
+      var parentPathSubscription;
+      var $router = this;
+      var $previousParent = $nullRouter;
+      subscriptions.push(this.parentRouter.subscribe(function( $parentRouter ) {
+        if( !isNullRouter($previousParent) && $previousParent !== $parentRouter ) {
+          $previousParent.childRouters.remove(this);
+
+          if(parentPathSubscription) {
+            subscriptions.remove(parentPathSubscription);
+            parentPathSubscription.dispose();
+          }
+          subscriptions.push(parentPathSubscription = $parentRouter.path.subscribe(function triggerRouteRecompute() {
+            $router.currentState.notifySubscribers();
+          }));
+        }
+        $parentRouter.childRouters.push(this);
+        $previousParent = $parentRouter;
+      }, this));
+
+      // Automatically trigger the new Action() whenever the currentRoute() updates
+      subscriptions.push( this.currentRoute.subscribe(function getActionForRouteAndTrigger( newRoute ) {
+        if(this.currentState().length) {
+          getActionForRoute(this, newRoute)( /* get and call the action for the newRoute */ );
+        }
+      }, this) );
+
+      this.outlets = {};
+      this.$outlet = $routerOutlet.bind(this);
+      this.$outlet.reset = function() {
+        each( this.outlets, function(outlet) {
+          outlet({ name: noComponentSelected, params: {} });
+        });
+      }.bind(this);
+
+      if( !isUndefined(configParams.unknownRoute) ) {
+        if( isFunction(configParams.unknownRoute) ) {
+          configParams.unknownRoute = { controller: configParams.unknownRoute };
+        }
+        configParams.routes.push( extend( configParams.unknownRoute, { unknown: true } ) );
+      }
+      this.setRoutes( configParams.routes );
+
+      if( configParams.activate === true ) {
+        subscriptions.push(this.context.subscribe(function activateRouterAfterNewContext( $context ) {
+          if( isObject($context) ) {
+            this.activate($context);
+          }
+        }, this));
+      }
+
+      this.$namespace.exit();
+    },
+    mixin: {
+      setRoutes: function(routeDesc) {
+        this.routeDescriptions = [];
+        this.addRoutes(routeDesc);
+        return this;
+      },
+      addRoutes: function(routeConfig) {
+        this.routeDescriptions = this.routeDescriptions.concat( map(isArray(routeConfig) ? routeConfig : [routeConfig], transformRouteConfigToDesc) );
+        return this;
+      },
+      activate: function($context, $parentRouter) {
+        $context = $context || this.context();
+        activateRouter(this, $context, $parentRouter || nearestParentRouter($context) );
+        if( this.currentState() === '' ) {
+          this.setState();
+        }
+        return this;
+      },
+      setState: function(url) {
+        if( this.historyIsEnabled() && !this.disableHistory() ) {
+          if(isString(url)) {
+            var historyAPIWorked = true;
+            try {
+              historyAPIWorked = History.pushState(null, '', this.__getConfigParams().baseRoute + this.parentRouter().path() + url.replace(startingHashRegex, '/'));
+            } catch(historyException) {
+              historyAPIWorked = false;
+            } finally {
+              if(historyAPIWorked) {
+                return;
+              }
+            }
+          } else if(isFunction(History.getState)) {
+            this.currentState( normalizeURL(this, History.getState().url ) );
+          }
+        } else if(isString(url)) {
+          this.currentState( normalizeURL(this, url ) );
+        } else {
+          this.currentState('/');
+        }
+
+        if(!historyIsReady()) {
+          var routePath = this.path();
+          each(this.childRouters(), function(childRouter) {
+            childRouter.currentState(routePath);
+          });
+        }
+
+        return this;
+      },
+      dispose: function() {
+        var $parentRouter = this.parentRouter();
+        if( !isNullRouter($parentRouter) ) {
+          $parentRouter.childRouters.remove(this);
+        }
+
+        if( this.historyIsEnabled() && historyIsReady() ) {
+          History.Adapter.unbind( this.stateChangeHandler );
+        }
+
+        this.$namespace.dispose();
+        this.$globalNamespace.dispose();
+
+        invoke(this.__subscriptions(), 'dispose');
+        each(omit(this, function(property) {
+          return isEntity(property);
+        }), propertyDisposal);
+      }
+    }
+  };
+};
+
+
+entityDescriptors = entityDescriptors.concat([
+  {
+    tagName: 'viewmodel',
+    methodName: 'viewModel',
+    defaultLocation: '/viewModel/',
+    resource: fw.viewModels,
+    behavior: [ ViewModel ],
+    defaultConfig: {
+      namespace: undefined,
+      autoRegister: false,
+      autoIncrement: false,
+      mixins: undefined,
+      afterBinding: noop,
+      onDispose: noop
+    }
+  }, {
+    tagName: 'datamodel',
+    methodName: 'dataModel',
+    defaultLocation: '/dataModel/',
+    resource: fw.dataModels,
+    behavior: [ ViewModel, DataModel ],
+    defaultConfig: {
+      idAttribute: 'id',
+      url: null,
+      namespace: undefined,
+      autoRegister: false,
+      autoIncrement: true,
+      mixins: undefined,
+      afterBinding: noop,
+      onDispose: noop
+    }
+  }, {
+    tagName: 'router',
+    methodName: 'router',
+    defaultLocation: '/',
+    resource: fw.routers,
+    behavior: [ ViewModel, Router ],
+    defaultConfig: {
+      namespace: '$router',
+      autoRegister: false,
+      autoIncrement: false,
+      mixins: undefined,
+      afterBinding: noop,
+      onDispose: noop,
+      baseRoute: null,
+      isRelative: true,
+      activate: true,
+      routes: []
+    }
+  }
+]);
+
+// framework/entities/bindingInit.js
+// ------------------
+
+function entityBinder(element, params, Entity) {
+  var entityObj;
+  if( isFunction(Entity) ) {
+    entityObj = new Entity(params);
+  } else {
+    entityObj = Entity;
+  }
+  entityObj.$parentContext = fw.contextFor(element.parentElement || element.parentNode);
+
+  // Have to create a wrapper element for the contents of the element. Cannot bind to
+  // existing element as it has already been bound against.
+  var wrapperNode = document.createElement('binding-wrapper');
+  element.insertBefore(wrapperNode, element.firstChild);
+
+  var childrenToInsert = [];
+  each(element.children, function(child) {
+    if(!isUndefined(child) && child !== wrapperNode) {
+      childrenToInsert.push(child);
+    }
+  });
+
+  each(childrenToInsert, function(child) {
+    wrapperNode.appendChild(child);
+  });
+
+  fw.applyBindings(entityObj, wrapperNode);
+};
+
+// Monkey patch enables the entity to initialize a viewModel and bind to the html as intended (with lifecycle events)
+// TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
+var originalComponentInit = fw.bindingHandlers.component.init;
+
+function getResourceLocation(moduleName) {
+  var resource = this;
+  var resourceLocation = null;
+
+  if( resource.isRegistered(moduleName) ) {
+    // viewModel was manually registered, we preferentially use it
+    resourceLocation = resource.getRegistered(moduleName);
+  } else if( isFunction(require) && isFunction(require.specified) && require.specified(moduleName) ) {
+    // we have found a matching resource that is already cached by require, lets use it
+    resourceLocation = moduleName;
+  } else {
+    resourceLocation = resource.getLocation(moduleName);
+  }
+
+  return resourceLocation;
+}
+
+function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
+  var theValueAccessor = valueAccessor;
+  if(tagName === '__elementBased') {
+    tagName = element.tagName;
+  }
+
+  if(isString(tagName)) {
+    tagName = tagName.toLowerCase();
+    if( entityDescriptors.tagNameIsPresent(tagName) ) {
+      var values = valueAccessor();
+      var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
+      var bindModel = entityBinder.bind(null, element, values.params);
+      var resource = entityDescriptors.resourceFor(tagName);
+      var getResourceLocationFor = getResourceLocation.bind(resource);
+
+      if(isNull(moduleName) && isString(values)) {
+        moduleName = values;
+      }
+
+      if( !isUndefined(moduleName) && !isNull(resource) ) {
+        var resourceLocation = getResourceLocationFor(moduleName);
+
+        if( isString(resourceLocation) ) {
+          if( isFunction(require) ) {
+            if( isPath(resourceLocation) ) {
+              resourceLocation = resourceLocation + resource.getFileName(moduleName);
+            }
+
+            require([ resourceLocation ], bindModel);
+          } else {
+            throw new Error('Uses require, but no AMD loader is present');
+          }
+        } else if( isFunction(resourceLocation) ) {
+          bindModel( resourceLocation );
+        } else if( isObject(resourceLocation) ) {
+          if( isObject(resourceLocation.instance) ) {
+            bindModel( resourceLocation.instance );
+          } else if( isFunction(resourceLocation.createViewModel) ) {
+            bindModel( resourceLocation.createViewModel( values.params, { element: element } ) );
+          }
+        }
+      }
+
+      return { 'controlsDescendantBindings': true };
+    } else if( tagName === 'outlet' ) {
+      // we patch in the 'name' of the outlet into the params valueAccessor on the component definition (if necessary and available)
+      var outletName = element.getAttribute('name') || element.getAttribute('data-name');
+      if( outletName ) {
+        theValueAccessor = function() {
+          var valueAccessorResult = valueAccessor();
+          if( !isUndefined(valueAccessorResult.params) && isUndefined(valueAccessorResult.params.name) ) {
+            valueAccessorResult.params.name = outletName;
+          }
+          return valueAccessorResult;
+        };
+      }
+    }
+  }
+
+  return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);
+};
+
+fw.bindingHandlers.component.init = initEntityTag.bind(null, '__elementBased');
+
+// NOTE: Do not use the $router binding yet, it is incomplete
+fw.bindingHandlers.$router = {
+  preprocess: function(moduleName) {
+    return "'" + moduleName + "'";
+  },
+  init: initEntityTag.bind(null, 'router')
+};
+
+// NOTE: Do not use the $viewModel binding yet, it is incomplete
+fw.bindingHandlers.$viewModel = {
+  preprocess: function(moduleName) {
+    return "'" + moduleName + "'";
+  },
+  init: initEntityTag.bind(null, 'viewModel')
+};
+
+// framework/entities/lifecycle.js
+// ------------------
+
+// Provides lifecycle functionality and $context for a given model and element
+setupContextAndLifeCycle = function(entity, element) {
+  if( isEntity(entity) ) {
+    var $configParams = entity.__getConfigParams();
+    var context;
+    element = element || document.body;
+    entity.$element = element;
+    entity.$context = elementContext = fw.contextFor(element.tagName.toLowerCase() === 'binding-wrapper' ? (element.parentElement || element.parentNode) : element);
+
+    if( isFunction($configParams.afterBinding) ) {
+      $configParams.afterBinding.call(entity, element);
+    }
+
+    if( isRouter(entity) ) {
+      entity.context( elementContext );
+    }
+
+    if( !isUndefined(element) ) {
+      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
+        entity.dispose();
+      });
+    }
+  }
+}
+
+// framework/entities/applyBinding.js
+// ------------------
+
+// Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.
+originalApplyBindings = fw.applyBindings;
+fw.applyBindings = function(viewModel, element) {
+  originalApplyBindings(viewModel, element);
+  setupContextAndLifeCycle(viewModel, element);
+};
+
+// framework/entities/createFactories.js
+// ------------------
+
+function isBeforeInitMixin(mixin) {
+  return !!mixin.runBeforeInit;
+}
+
+function entityMixin(thing) {
+  return ( (isArray(thing) && thing.length) || isObject(thing) ? thing : {} );
+}
+
+function entityClassFactory(descriptor, configParams) {
+  var entityCtor = null;
+
+  configParams = extend({}, descriptor.defaultConfig, configParams || {});
+
+  var descriptorBehavior = [];
+  map(descriptor.behavior, function(behavior, index) {
+    descriptorBehavior.push( isFunction(behavior) ? behavior(descriptor, configParams || {}) : behavior );
+  });
+
+  var ctor = configParams.initialize || configParams.viewModel || noop;
+  if( !descriptor.isEntityCtor(ctor) ) {
+    var isEntityDuckTagMixin = {};
+    isEntityDuckTagMixin[descriptor.isEntityDuckTag] = true;
+    isEntityDuckTagMixin = { mixin: isEntityDuckTagMixin };
+
+    var newInstanceCheckMixin = {
+      _preInit: function() {
+        if(this === windowObject) {
+          throw new Error('Must use the new operator when instantiating a ' + descriptor.methodName + '.');
+        }
+      }
+    };
+    var afterInitMixins = reject(entityMixins, isBeforeInitMixin);
+    var beforeInitMixins = map(filter(entityMixins, isBeforeInitMixin), function(mixin) {
+      delete mixin.runBeforeInit;
+      return mixin;
+    });
+
+    var composure = [ ctor ].concat(
+      entityMixin(newInstanceCheckMixin),
+      entityMixin(isEntityDuckTagMixin),
+      entityMixin(afterInitMixins),
+      entityMixin(beforeInitMixins),
+      entityMixin(configParams.mixins),
+      entityMixin(descriptorBehavior)
+    );
+
+    entityCtor = riveter.compose.apply( undefined, composure );
+
+    entityCtor[ descriptor.isEntityCtorDuckTag ] = true;
+    entityCtor.__configParams = configParams;
+  } else {
+    // user has specified another entity constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain
+    entityCtor = ctor;
+  }
+
+  if( !isNull(entityCtor) && isFunction(configParams.parent) ) {
+    entityCtor.inherits(configParams.parent);
+  }
+
+  if( configParams.autoRegister ) {
+    var namespace = configParams.namespace;
+    if( descriptor.resource.isRegistered(namespace) ) {
+      if( descriptor.resource.getRegistered(namespace) !== entityCtor ) {
+        throw new Error('"' + namespace + '" has already been registered as a ' + descriptor.methodName + ', autoRegister failed.');
+      }
+    } else {
+      descriptor.resource.register(namespace, entityCtor);
+    }
+  }
+
+  return entityCtor;
+}
+
+function createEntityFactories() {
+  // create the class factory method for each entity descriptor
+  filter(entityDescriptors, function getOnlyDescriptorsWithMethodName(descriptor) {
+    return isString(descriptor.methodName);
+  }).forEach(function setupClassFactory(descriptor) {
+    fw[descriptor.methodName] = entityClassFactory.bind(null, descriptor);
+  });
+};
+
+runPostInit.push(createEntityFactories);
+
+// framework/entities/init.js
+// ----------------
+
+function makeBooleanChecks(descriptor) {
+  return {
+    isEntityCtor: function isEntityCtor(thing) {
+      return isFunction(thing) && !!thing[ descriptor.isEntityCtorDuckTag ];
+    },
+    isEntity: function isEntity(thing) {
+      return isObject(thing) && !!thing[ descriptor.isEntityDuckTag ];
+    }
+  };
+}
+
+entityDescriptors = map(entityDescriptors, function prepareDescriptor(descriptor) {
+  var methodName = descriptor.methodName.charAt(0).toUpperCase() + descriptor.methodName.slice(1);
+  descriptor = extend({
+    resourceLocations: {},
+    registered: {},
+    fileExtensions: fw.observable('.js'),
+    isEntityCtorDuckTag: '__is' + methodName + 'Ctor',
+    isEntityDuckTag: '__is' + methodName,
+    referenceNamespace: (isString(descriptor.methodName) ? ('__' + descriptor.methodName + 'Reference') : undefined)
+  }, descriptor);
+
+  return extend(descriptor, makeBooleanChecks(descriptor));
+});
+
+extend(entityDescriptors, {
+  tagNameIsPresent: function isEntityTagNameDescriptorPresent(tagName) {
+    return filter(this, function matchingTagNames(descriptor) {
+      return descriptor.tagName === tagName;
+    }).length > 0;
+  },
+  resourceFor: function getResourceForEntityTagName(tagName) {
+    return reduce(this, function(resource, descriptor) {
+      if(descriptor.tagName === tagName) {
+        resource = descriptor.resource;
+      }
+      return resource;
+    }, null);
+  },
+  getDescriptor: function getDescriptor(methodName) {
+    return reduce(this, function reduceDescriptor(foundDescriptor, descriptor) {
+      return descriptor.methodName === methodName ? descriptor : foundDescriptor;
+    }, null);
+  }
+});
+
+function getEntityComparator(methodName, compFunctions, entityDescriptor) {
+  if(isFunction(entityDescriptor[methodName])) {
+    compFunctions.push(entityDescriptor[methodName]);
+  }
+  return compFunctions;
+}
+
+runPostInit.push(function() {
+  var entityCtorComparators = pluck(entityDescriptors, 'isEntityCtor');
+  var entityComparators = pluck(entityDescriptors, 'isEntity');
+
+  isEntityCtor = function(thing) {
+    return reduce(entityCtorComparators, function(isThing, comparator) {
+      return isThing || comparator(thing);
+    }, false);
+  };
+
+  isEntity = function(thing) {
+    return reduce(entityComparators, function(isThing, comparator) {
+      return isThing || comparator(thing);
+    }, false);
+  };
+
+  isDataModel = entityDescriptors.getDescriptor('dataModel').isEntity;
+  isRouter = entityDescriptors.getDescriptor('router').isEntity;
+});
+
+
+// framework/entities/router/outlet.js
+// ------------------
+
+var noParentViewModelError = { $namespace: { getName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } } };
 
 // This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied
 // to the UI and load in various views
@@ -11885,7 +12590,7 @@ fw.bindingHandlers.$bind = {
       // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
       outletViewModel.$route = $parentRouter.$outlet( outletName );
     } else {
-      throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.getNamespaceName() + '] but no router was defined.');
+      throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.$namespace.getName() + '] but no router was defined.');
     }
   }
 };
@@ -11952,8 +12657,8 @@ $routerOutlet = function(outletName, componentToDisplay, options ) {
   return outlet;
 };
 
-registerOutletComponents = function() {
-  nativeComponents.push('outlet');
+function registerOutletComponents() {
+  internalComponents.push('outlet');
   fw.components.register('outlet', {
     autoIncrement: true,
     viewModel: function(params) {
@@ -11963,7 +12668,7 @@ registerOutletComponents = function() {
     template: '<!-- ko $bind, component: $route --><!-- /ko -->'
   });
 
-  nativeComponents.push(noComponentSelected);
+  internalComponents.push(noComponentSelected);
   fw.components.register(noComponentSelected, {
     viewModel: function(params) {
       this.__assertPresence = false;
@@ -11972,370 +12677,9 @@ registerOutletComponents = function() {
   });
 };
 
-// framework/router/classMethod.js
-// -----------
+runPostInit.push(registerOutletComponents);
 
-var Router = function( routerConfig, $viewModel, $context ) {
-  extend(this, $baseRouter);
-  var subscriptions = this.subscriptions = fw.observableArray();
-  var viewModelNamespaceName;
-
-  if( isEntity($viewModel) ) {
-    viewModelNamespaceName = $viewModel.getNamespaceName();
-  }
-
-  var $globalNamespace = this.$globalNamespace = fw.namespace();
-  this.id = uniqueId('router');
-  this.$namespace = fw.namespace( routerConfig.namespace || (viewModelNamespaceName + 'Router') );
-  this.$namespace.enter();
-  this.$namespace.command.handler('setState', this.setState, this);
-  this.$namespace.request.handler('currentRoute', function() { return this.currentRoute(); }, this);
-  this.$namespace.request.handler('urlParts', function() { return this.urlParts(); }, this);
-
-  this.$viewModel = $viewModel;
-  this.urlParts = fw.observable();
-  this.childRouters = fw.observableArray();
-  this.parentRouter = fw.observable($nullRouter);
-  this.context = fw.observable();
-  this.historyIsEnabled = fw.observable(false);
-  this.disableHistory = fw.observable().receiveFrom($globalNamespace, 'disableHistory');
-  this.currentState = fw.observable('').broadcastAs('currentState');
-  this.config = routerConfig = extend({}, routerDefaultConfig, routerConfig);
-  this.config.baseRoute = fw.routers.baseRoute() + (result(routerConfig, 'baseRoute') || '');
-
-  this.isRelative = fw.computed(function() {
-    return routerConfig.isRelative && !isNullRouter( this.parentRouter() );
-  }, this);
-
-  this.currentRoute = fw.computed(function() {
-    return this.getRouteForURL( this.normalizeURL(this.currentState()) );
-  }, this);
-
-  this.path = fw.computed(function() {
-    var currentRoute = this.currentRoute();
-    var routeSegment = '/';
-
-    if( isRoute(currentRoute) ) {
-      routeSegment = (currentRoute.segment === '' ? '/' : currentRoute.segment);
-    }
-
-    return (this.isRelative() ? this.parentRouter().path() : '') + routeSegment;
-  }, this);
-
-  var triggerRouteRecompute = function() {
-    this.currentState.notifySubscribers();
-  }.bind(this);
-  var parentPathSubscription;
-  var $previousParent = $nullRouter;
-  subscriptions.push(this.parentRouter.subscribe(function( $parentRouter ) {
-    if( !isNullRouter($previousParent) && $previousParent !== $parentRouter ) {
-      $previousParent.childRouters.remove(this);
-
-      if(parentPathSubscription) {
-        subscriptions.remove(parentPathSubscription);
-        parentPathSubscription.dispose();
-      }
-      subscriptions.push(parentPathSubscription = $parentRouter.path.subscribe(triggerRouteRecompute));
-    }
-    $parentRouter.childRouters.push(this);
-    $previousParent = $parentRouter;
-  }, this));
-
-  // Automatically trigger the new Action() whenever the currentRoute() updates
-  subscriptions.push( this.currentRoute.subscribe(function getActionForRouteAndTrigger( newRoute ) {
-    if(this.currentState().length) {
-      this.getActionForRoute( newRoute )( /* get and call the action for the newRoute */ );
-    }
-  }, this) );
-
-  var $router = this;
-  this.$globalNamespace.request.handler(entityDescriptors.getDescriptor('router').referenceNamespace, function(options) {
-    if( isObject(options) ) {
-      if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
-        var myNamespaceName = $router.$namespace.getName();
-        if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
-          return $router;
-        } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
-          return $router;
-        }
-      } else {
-        return $router;
-      }
-    } else {
-      return $router;
-    }
-  });
-
-  this.outlets = {};
-  this.$outlet = $routerOutlet.bind(this);
-  this.$outlet.reset = function() {
-    each( this.outlets, function(outlet) {
-      outlet({ name: noComponentSelected, params: {} });
-    });
-  }.bind(this);
-
-  if( !isUndefined(routerConfig.unknownRoute) ) {
-    if( isFunction(routerConfig.unknownRoute) ) {
-      routerConfig.unknownRoute = { controller: routerConfig.unknownRoute };
-    }
-    routerConfig.routes.push( extend( routerConfig.unknownRoute, { unknown: true } ) );
-  }
-  this.setRoutes( routerConfig.routes );
-
-  if( isFunction(routerConfig.initialize) ) {
-    this.userInitialize = function() {
-      this.$namespace.enter();
-      routerConfig.initialize.call(this);
-      this.$namespace.exit();
-      return this;
-    }.bind(this);
-  }
-
-  if( routerConfig.activate === true ) {
-    subscriptions.push(this.context.subscribe(function activateRouterAfterNewContext( $context ) {
-      if( isObject($context) ) {
-        this.activate($context);
-      }
-    }, this));
-  }
-  this.context( $viewModel.$context || $context );
-
-  this.$namespace.exit();
-};
-
-Router.prototype.setRoutes = function(routeDesc) {
-  this.routeDescriptions = [];
-  this.addRoutes(routeDesc);
-  return this;
-};
-
-Router.prototype.addRoutes = function(routeConfig) {
-  this.routeDescriptions = this.routeDescriptions.concat( map(isArray(routeConfig) ? routeConfig : [routeConfig], transformRouteConfigToDesc) );
-  return this;
-};
-
-Router.prototype.activate = function($context, $parentRouter) {
-  this.startup( $context, $parentRouter || nearestParentRouter($context) );
-  this.userInitialize();
-  if( this.currentState() === '' ) {
-    this.setState();
-  }
-  return this;
-};
-
-Router.prototype.setState = function(url) {
-  if( this.historyIsEnabled() && !this.disableHistory() ) {
-    if(isString(url)) {
-      var historyAPIWorked = true;
-      try {
-        historyAPIWorked = History.pushState(null, '', this.config.baseRoute + this.parentRouter().path() + url.replace(startingHashRegex, '/'));
-      } catch(historyException) {
-        console.error(historyException);
-        historyAPIWorked = false;
-      } finally {
-        if(historyAPIWorked) {
-          return;
-        }
-      }
-    } else if(isFunction(History.getState)) {
-      this.currentState( this.normalizeURL( History.getState().url ) );
-    }
-  } else if(isString(url)) {
-    this.currentState( this.normalizeURL( url ) );
-  } else {
-    this.currentState('/');
-  }
-
-  if(!historyIsReady()) {
-    var routePath = this.path();
-    each(this.childRouters(), function(childRouter) {
-      childRouter.currentState(routePath);
-    });
-  }
-
-  return this;
-};
-
-Router.prototype.startup = function( $context, $parentRouter ) {
-  $parentRouter = $parentRouter || $nullRouter;
-
-  if( !isNullRouter($parentRouter) ) {
-    this.parentRouter( $parentRouter );
-  } else if( isObject($context) ) {
-    $parentRouter = nearestParentRouter($context);
-    if( $parentRouter.id !== this.id ) {
-      this.parentRouter( $parentRouter );
-    }
-  }
-
-  if( !this.historyIsEnabled() ) {
-    if( historyIsReady() && !this.disableHistory() ) {
-      History.Adapter.bind( windowObject, 'popstate', this.stateChangeHandler = function(event) {
-        var url = '';
-        if(!fw.routers.html5History() && windowObject.location.hash.length > 1) {
-          url = windowObject.location.hash;
-        } else {
-          url = windowObject.location.pathname + windowObject.location.hash;
-        }
-
-        this.currentState( this.normalizeURL(url) );
-      }.bind(this));
-      this.historyIsEnabled(true);
-    } else {
-      this.historyIsEnabled(false);
-    }
-  }
-
-  return this;
-};
-
-Router.prototype.dispose = function() {
-  var $parentRouter = this.parentRouter();
-  if( !isNullRouter($parentRouter) ) {
-    $parentRouter.childRouters.remove(this);
-  }
-
-  if( this.historyIsEnabled() && historyIsReady() ) {
-    History.Adapter.unbind( this.stateChangeHandler );
-  }
-
-  this.$namespace.dispose();
-  this.$globalNamespace.dispose();
-
-  invoke(this.subscriptions(), 'dispose');
-  each(omit(this, function(property) {
-    return isEntity(property);
-  }), propertyDisposal);
-};
-
-Router.prototype.normalizeURL = function(url) {
-  var urlParts = parseUri(url);
-  this.urlParts(urlParts);
-
-  if(!fw.routers.html5History()) {
-    if(url.indexOf('#') !== -1) {
-      url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
-    } else if(this.currentState() !== url) {
-      url = '/';
-    }
-  } else {
-    url = urlParts.path;
-  }
-
-  return trimBaseRoute(this, url);
-};
-
-Router.prototype.getUnknownRoute = function() {
-  var unknownRoute = findWhere((this.getRouteDescriptions() || []).reverse(), { unknown: true }) || null;
-
-  if( !isNull(unknownRoute) ) {
-    unknownRoute = extend({}, baseRoute, {
-      id: unknownRoute.id,
-      controller: unknownRoute.controller,
-      title: unknownRoute.title,
-      segment: ''
-    });
-  }
-
-  return unknownRoute;
-};
-
-Router.prototype.getRouteForURL = function(url) {
-  var route = null;
-  var parentRoutePath = this.parentRouter().path() || '';
-  var unknownRoute = this.getUnknownRoute();
-  var $myRouter = this;
-
-  // If this is a relative router we need to remove the leading parentRoutePath section of the URL
-  if(this.isRelative() && parentRoutePath.length > 0 && (routeIndex = url.indexOf(parentRoutePath + '/')) === 0) {
-    url = url.substr( parentRoutePath.length );
-  }
-
-  // find all routes with a matching routeString
-  var matchedRoutes = reduce(this.getRouteDescriptions(), function(matches, routeDescription) {
-    var routeString = routeDescription.route;
-    var routeParams = [];
-
-    if( isString(routeString) ) {
-      routeParams = url.match(routeStringToRegExp(routeString));
-      if( !isNull(routeParams) && routeDescription.filter.call($myRouter, routeParams, $myRouter.urlParts.peek()) ) {
-        matches.push({
-          routeString: routeString,
-          specificity: routeString.replace(namedParamRegex, "*").length,
-          routeDescription: routeDescription,
-          routeParams: routeParams
-        });
-      }
-    }
-    return matches;
-  }, []);
-
-  // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
-  // and convert it into the actual route
-  if(matchedRoutes.length) {
-    var matchedRoute = reduce(matchedRoutes, function(matchedRoute, foundRoute) {
-      if( isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity ) {
-        matchedRoute = foundRoute;
-      }
-      return matchedRoute;
-    }, null);
-    var routeDescription = matchedRoute.routeDescription;
-    var routeString = matchedRoute.routeString;
-    var routeParams = clone(matchedRoute.routeParams);
-    var splatSegment = routeParams.pop() || '';
-    var routeParamNames = map(routeString.match(namedParamRegex), function(param) {
-      return param.replace(':', '');
-    });
-    var namedParams = reduce(routeParamNames, function(parameterNames, parameterName, index) {
-      parameterNames[parameterName] = routeParams[index + 1];
-      return parameterNames;
-    }, {});
-
-    route = extend({}, baseRoute, {
-      id: routeDescription.id,
-      controller: routeDescription.controller,
-      title: routeDescription.title,
-      url: url,
-      segment: url.substr(0, url.length - splatSegment.length),
-      indexedParams: routeParams,
-      namedParams: namedParams
-    });
-  }
-
-  return route || unknownRoute;
-};
-
-function DefaultAction() {
-  delete this.__currentRouteDescription;
-  this.$outlet.reset();
-}
-
-function RoutedAction(routeDescription) {
-  if( !isUndefined(routeDescription.title) ) {
-    document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this, routeDescription.namedParams, this.urlParts()) : routeDescription.title;
-  }
-
-  if( isUndefined(this.__currentRouteDescription) || !sameRouteDescription(this.__currentRouteDescription, routeDescription) ) {
-    (routeDescription.controller || noop).apply( this, values(routeDescription.namedParams) );
-    this.__currentRouteDescription = routeDescription;
-  }
-}
-
-Router.prototype.getActionForRoute = function(routeDescription) {
-  var Action;
-
-  if( isRoute(routeDescription) ) {
-    Action = RoutedAction.bind(this, routeDescription);
-  }
-
-  return Action || DefaultAction.bind(this);
-};
-
-Router.prototype.getRouteDescriptions = function() {
-  return this.routeDescriptions;
-};
-
-// framework/router/routeBinding.js
+// framework/entities/router/routeBinding.js
 // -----------
 
 function hasClass(element, className) {
@@ -12465,8 +12809,9 @@ fw.bindingHandlers.$route = {
 
     function setUpElement() {
       var myCurrentSegment = routeURLWithoutParentPath();
+      var routerConfig = $myRouter.__getConfigParams();
       if( element.tagName.toLowerCase() === 'a' ) {
-        element.href = (fw.routers.html5History() ? '' : '/') + $myRouter.config.baseRoute + routeURLWithParentPath();
+        element.href = (fw.routers.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
       }
 
       if( isObject(stateTracker) ) {
@@ -12495,7 +12840,7 @@ fw.bindingHandlers.$route = {
     }
 
     if( isObservable(routeHandlerDescription.url) ) {
-      $myRouter.subscriptions.push( routeHandlerDescription.url.subscribe(setUpElement) );
+      $myRouter.__subscriptions.push( routeHandlerDescription.url.subscribe(setUpElement) );
     }
     setUpElement();
 
@@ -12507,7 +12852,7 @@ fw.bindingHandlers.$route = {
   }
 };
 
-// framework/router/exports.js
+// framework/entities/router/exports.js
 // -----------
 
 extend(fw.routers, {
@@ -12536,6 +12881,22 @@ extend(fw.outlets, {
 
 // framework/component/exports.js
 // ------------------
+
+// These are tags which are ignored by the custom component loader
+// Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
+var nonComponentTags = [
+  'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont', 'bdi', 'bgsound',
+  'big', 'blink', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
+  'content', 'data', 'datalist', 'dd', 'decorator', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'element',
+  'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'frameset', 'g', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'isindex', 'kbd', 'keygen', 'label',
+  'legend', 'li', 'link', 'listing', 'main', 'map', 'mark', 'marquee', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'nobr',
+  'noframes', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture', 'polygon', 'path', 'pre',
+  'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'shadow', 'small', 'source', 'spacer',
+  'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'template', 'textarea',
+  'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp', 'rect', 'image',
+  'lineargradient', 'stop', 'line', 'binding-wrapper', 'font'
+];
 
 fw.components.getNormalTagList = function() {
   return clone(nonComponentTags);
@@ -12616,7 +12977,7 @@ fw.bindingHandlers.$life = {
 // Custom loader used to wrap components with the $life custom binding
 fw.components.loaders.unshift( fw.components.componentWrapper = {
   loadTemplate: function(componentName, config, callback) {
-    if( !isNativeComponent(componentName) ) {
+    if( !isInternalComponent(componentName) ) {
       // TODO: Handle different types of configs
       if( isString(config) ) {
         config = '<!-- ko $life -->' + config + '<!-- /ko -->';
@@ -12630,7 +12991,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
   },
   loadViewModel: function(componentName, config, callback) {
     var ViewModel = config.viewModel || config;
-    if( !isNativeComponent(componentName) ) {
+    if( !isInternalComponent(componentName) ) {
       callback(function(params, componentInfo) {
         var componentElement = componentInfo.element;
         var $element = (componentElement.nodeType === 8 ? (componentElement.parentElement || componentElement.parentNode) : componentElement);
@@ -12731,537 +13092,6 @@ fw.components.loaders.push( fw.components.requireLoader = {
 });
 
 
-// framework/entities/descriptorConfig.js
-// ------------------
-
-// framework/entities/behavior/ViewModel.js
-// ------------------
-
-var ViewModel = function(descriptor, configParams) {
-  return {
-    _preInit: function( params ) {
-      if( isObject(configParams.router) ) {
-        this.$router = new Router( configParams.router, this );
-      }
-    },
-    mixin: {
-      $params: result(configParams, 'params'),
-      __getConfigParams: function() {
-        return configParams;
-      },
-      dispose: function() {
-        if( !this._isDisposed ) {
-          this._isDisposed = true;
-          if( configParams.onDispose !== noop ) {
-            configParams.onDispose.call(this);
-          }
-          each(this, propertyDisposal);
-        }
-      }
-    },
-    _postInit: function() {
-      if( this.__assertPresence !== false ) {
-        this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
-          if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
-            if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
-              var myNamespaceName = this.getNamespaceName();
-              if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
-                return this;
-              } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
-                return this;
-              }
-            } else {
-              return this;
-            }
-          }
-        }.bind(this));
-      }
-    }
-  };
-};
-
-// framework/entities/behavior/DataModel.js
-// ------------------
-
-/**
- * Tentative API:
- *
- * var DataModel = fw.dataModel({
- *   id: 'id',
- *
- *   // string based url with automatic RESTful routes
- *   url: 'http://server.com/person',
- *
- *   // custom routes provided by callback
- *   url: function(method) {
- *     switch(method) {
- *       case 'read':
- *         return 'http://server.com/person/:id';
- *         break;
- *
- *       case 'create':
- *         return 'http://server.com/person';
- *         break;
- *
- *       case 'update':
- *         return 'http://server.com/person/:id';
- *         break;
- *
- *       case 'delete':
- *         return 'http://server.com/person/:id';
- *         break;
- *     }
- *   },
- *
- *   initialize: function() {
- *     // field declarations and mapping
- *     this.firstName = fw.observable().mapTo('firstName');
- *     this.lastName = fw.observable().mapTo('lastName');
- *     this.email = fw.observable().mapTo('email');
- *     this.movieCollection = {
- *       action: fw.observable().mapTo('movies.action'),
- *       drama: fw.observable().mapTo('movies.drama'),
- *       comedy: fw.observable().mapTo('movies.comedy'),
- *       horror: fw.observable().mapTo('movies.horror')
- *     };
- *   }
- * });
- */
-
-var dataModelContext = [];
-function enterDataModelContext(dataModel) {
-  dataModelContext.unshift(dataModel);
-}
-function exitDataModelContext() {
-  dataModelContext.shift();
-}
-
-function currentDataModelContext() {
-  return dataModelContext.length ? dataModelContext[0] : null;
-}
-
-function getPrimaryKey(dataModel) {
-  return dataModel.__getConfigParams().idAttribute;
-}
-
-fw.subscribable.fn.mapTo = function(option) {
-  var mappedObservable = this;
-  var mapPath;
-  var dataModel;
-
-  if(isString(option)) {
-    mapPath = option;
-    dataModel = currentDataModelContext();
-  } else if(isObject(option)) {
-    mapPath = option.path;
-    dataModel = option.dataModel;
-  } else {
-    throw new Error('Invalid options supplied to mapTo');
-  }
-
-  if(isNull(dataModel)) {
-    throw new Error('No dataModel context found/supplied for mapTo observable');
-  }
-
-  var mappings = dataModel.__mappings;
-  var primaryKey = getPrimaryKey(dataModel);
-  if( !isUndefined(mappings[mapPath]) && (mapPath !== primaryKey && dataModel.$id.__isOriginalPK)) {
-    throw new Error('the field \'' + mapPath + '\' is already mapped on this dataModel');
-  }
-
-  if(!isUndefined(mappings[mapPath]) && isFunction(mappings[mapPath].dispose)) {
-    // remapping a path, we need to dispose of the old one first
-    mappings[mapPath].dispose();
-  }
-
-  // add/set the registry entry for the mapped observable
-  mappings[mapPath] = mappedObservable;
-
-  if(mapPath === primaryKey) {
-    // mapping primary key, update/set the $id property on the dataModel
-    dataModel.$id = mappings[mapPath];
-  }
-
-  var changeSubscription = mappedObservable.subscribe(function() {
-    dataModel.$dirty(true);
-  });
-
-  var disposeObservable = mappedObservable.dispose || noop;
-  if(isFunction(mappedObservable.dispose)) {
-    mappedObservable.dispose = function() {
-      changeSubscription.dispose();
-      disposeObservable.call(mappedObservable);
-    };
-  }
-
-  return mappedObservable;
-};
-
-function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
-  if(isString(fieldMap)) {
-    return insertValueIntoObject(rootObject, fieldMap.split('.'), fieldValue);
-  }
-
-  var propName = fieldMap.shift();
-  if(fieldMap.length) {
-    if(isUndefined(rootObject[propName])) {
-      // nested property, lets add the child
-      rootObject[propName] = {};
-    }
-    // recurse into the next layer
-    return insertValueIntoObject(rootObject[propName], fieldMap, fieldValue);
-  } else {
-    rootObject[propName] = fieldValue;
-  }
-
-  return rootObject;
-}
-
-function getNestedReference(rootObject, fieldMap) {
-  var propName = fieldMap;
-
-  if(!isUndefined(fieldMap)) {
-    if(isString(fieldMap)) {
-      // initial call with string based fieldMap, recurse into main loop
-      return getNestedReference(rootObject, fieldMap.split('.'));
-    }
-
-    propName = fieldMap.shift();
-    if(fieldMap.length) {
-      // recurse into the next layer
-      return getNestedReference((rootObject || {})[propName], fieldMap);
-    }
-  }
-
-  return !isString(propName) ? rootObject : (rootObject || {})[propName];
-}
-
-each(runPostInit, function(runTask) {
-  fw.ajax = ajax;
-  extend(fw.settings, {
-    emulateHTTP: false,
-    emulateJSON: false
-  });
-});
-
-var DataModel = function(descriptor, configParams) {
-  return {
-    runBeforeInit: true,
-    _preInit: function( params ) {
-      enterDataModelContext(this);
-
-      this.__mappings = {};
-
-      this.$dirty = fw.observable(false);
-      this.$cid = fw.utils.guid();
-      this[configParams.idAttribute] = this.$id = fw.observable().mapTo(configParams.idAttribute);
-      this.$id.__isOriginalPK = true;
-    },
-    mixin: {
-      __isDataModel: true,
-
-      // GET from server and $load into model
-      $fetch: function() {
-        var model = this;
-        var id = this[configParams.idAttribute]();
-        if(id) {
-          // retrieve data from server for model using the id
-          this.$sync('read', model);
-        }
-      },
-      $save: function() {}, // PUT / POST
-      $destroy: function() {}, // DELETE
-
-      // load data into model (clears $dirty)
-      $load: function( data ) {
-        var dataModel = this;
-        each(dataModel.__mappings, function(fieldObservable, fieldMap) {
-          var fieldValue = getNestedReference(data, fieldMap);
-          if(!isUndefined(fieldValue)) {
-            fieldObservable(fieldValue);
-          }
-        });
-      },
-
-      $sync: function() {
-        return fw.sync.apply(this, arguments);
-      },
-
-      $hasMappedField: function(referenceField) {
-        return !!this.__mappings[referenceField];
-      },
-
-      // return current data in POJO form
-      $toJS: function(referenceField, includeRoot) {
-        var dataModel = this;
-        if(isArray(referenceField)) {
-          return reduce(referenceField, function(jsObject, fieldMap) {
-            return merge(jsObject, dataModel.$toJS(fieldMap, true));
-          }, {});
-        } else if(!isUndefined(referenceField) && !isString(referenceField)) {
-          throw new Error(dataModel.getNamespaceName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.$toJS().');
-        }
-
-        var mappedObject = reduce(this.__mappings, function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
-          if(isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
-            insertValueIntoObject(jsObject, fieldMap, fieldObservable());
-          }
-          return jsObject;
-        }, {});
-
-        return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
-      },
-
-      // return current data in JSON form
-      $toJSON: function(referenceField, includeRoot) {
-        return JSON.stringify( this.$toJS(referenceField, includeRoot) );
-      },
-
-      $valid: function( referenceField ) {}, // get validation of entire model or selected field
-      $validate: function() {} // perform a validation and return the result on a specific field or the entire model
-    },
-    _postInit: function() {
-      this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
-        if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
-          var myNamespaceName = configParams.namespace;
-          if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
-            return this;
-          } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
-            return this;
-          }
-        }
-      }.bind(this));
-
-      exitDataModelContext();
-    }
-  };
-};
-
-
-entityDescriptors = entityDescriptors.concat([
-  {
-    tagName: 'viewmodel',
-    methodName: 'viewModel',
-    defaultLocation: '/viewModel/',
-    resource: fw.viewModels,
-    mixins: [ ViewModel ],
-    defaultConfig: {
-      namespace: undefined,
-      autoRegister: false,
-      autoIncrement: false,
-      mixins: undefined,
-      params: undefined,
-      afterInit: noop,
-      afterBinding: noop,
-      onDispose: noop
-    }
-  }, {
-    tagName: 'datamodel',
-    methodName: 'dataModel',
-    defaultLocation: '/dataModel/',
-    resource: fw.dataModels,
-    mixins: [ ViewModel, DataModel ],
-    defaultConfig: {
-      idAttribute: 'id',
-      url: null,
-      namespace: undefined,
-      autoRegister: false,
-      autoIncrement: true,
-      mixins: undefined,
-      params: undefined,
-      afterInit: noop,
-      afterBinding: noop,
-      onDispose: noop
-    }
-  }, {
-    tagName: 'router',
-    methodName: 'router',
-    defaultLocation: '/',
-    resource: fw.routers
-  }
-]);
-
-// framework/entities/bindingInit.js
-// ------------------
-
-function modelBinder(element, params, ViewModel) {
-  var viewModelObj;
-  if( isFunction(ViewModel) ) {
-    viewModelObj = new ViewModel(params);
-  } else {
-    viewModelObj = ViewModel;
-  }
-  viewModelObj.$parentContext = fw.contextFor(element.parentElement || element.parentNode);
-
-  // Have to create a wrapper element for the contents of the element. Cannot bind to
-  // existing element as it has already been bound against.
-  var wrapperNode = document.createElement('binding-wrapper');
-  element.insertBefore(wrapperNode, element.firstChild);
-
-  var childrenToInsert = [];
-  each(element.children, function(child) {
-    if(!isUndefined(child) && child !== wrapperNode) {
-      childrenToInsert.push(child);
-    }
-  });
-
-  each(childrenToInsert, function(child) {
-    wrapperNode.appendChild(child);
-  });
-
-  fw.applyBindings(viewModelObj, wrapperNode);
-};
-
-// Monkey patch enables the viewModel or router component to initialize a model and bind to the html as intended (with lifecycle events)
-// TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
-var originalComponentInit = fw.bindingHandlers.component.init;
-
-function getResourceLocation(moduleName) {
-  var resource = this;
-  var resourceLocation = null;
-
-  if( resource.isRegistered(moduleName) ) {
-    // viewModel was manually registered, we preferentially use it
-    resourceLocation = resource.getRegistered(moduleName);
-  } else if( isFunction(require) && isFunction(require.specified) && require.specified(moduleName) ) {
-    // we have found a matching resource that is already cached by require, lets use it
-    resourceLocation = moduleName;
-  } else {
-    resourceLocation = resource.getLocation(moduleName);
-  }
-
-  return resourceLocation;
-}
-
-function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
-  var theValueAccessor = valueAccessor;
-  if(tagName === '__elementBased') {
-    tagName = element.tagName;
-  }
-
-  if(isString(tagName)) {
-    tagName = tagName.toLowerCase();
-    if( entityDescriptors.tagNameIsPresent(tagName) ) {
-      var values = valueAccessor();
-      var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
-      var bindModel = modelBinder.bind(null, element, values.params);
-      var resource = entityDescriptors.resourceFor(tagName);
-      var getResourceLocationFor = getResourceLocation.bind(resource);
-
-      if(isNull(moduleName) && isString(values)) {
-        moduleName = values;
-      }
-
-      if( !isUndefined(moduleName) && !isNull(resource) ) {
-        var resourceLocation = getResourceLocationFor(moduleName);
-
-        if( isString(resourceLocation) ) {
-          if( isFunction(require) ) {
-            if( isPath(resourceLocation) ) {
-              resourceLocation = resourceLocation + resource.getFileName(moduleName);
-            }
-
-            require([ resourceLocation ], bindModel);
-          } else {
-            throw new Error('Uses require, but no AMD loader is present');
-          }
-        } else if( isFunction(resourceLocation) ) {
-          bindModel( resourceLocation );
-        } else if( isObject(resourceLocation) ) {
-          if( isObject(resourceLocation.instance) ) {
-            bindModel( resourceLocation.instance );
-          } else if( isFunction(resourceLocation.createViewModel) ) {
-            bindModel( resourceLocation.createViewModel( values.params, { element: element } ) );
-          }
-        }
-      }
-
-      return { 'controlsDescendantBindings': true };
-    } else if( tagName === 'outlet' ) {
-      // we patch in the 'name' of the outlet into the params valueAccessor on the component definition (if necessary and available)
-      var outletName = element.getAttribute('name') || element.getAttribute('data-name');
-      if( outletName ) {
-        theValueAccessor = function() {
-          var valueAccessorResult = valueAccessor();
-          if( !isUndefined(valueAccessorResult.params) && isUndefined(valueAccessorResult.params.name) ) {
-            valueAccessorResult.params.name = outletName;
-          }
-          return valueAccessorResult;
-        };
-      }
-    }
-  }
-
-  return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);
-};
-
-fw.bindingHandlers.component.init = initEntityTag.bind(null, '__elementBased');
-
-// NOTE: Do not use the $router binding yet, it is incomplete
-fw.bindingHandlers.$router = {
-  preprocess: function(moduleName) {
-    return "'" + moduleName + "'";
-  },
-  init: initEntityTag.bind(null, 'router')
-};
-
-// NOTE: Do not use the $viewModel binding yet, it is incomplete
-fw.bindingHandlers.$viewModel = {
-  preprocess: function(moduleName) {
-    return "'" + moduleName + "'";
-  },
-  init: initEntityTag.bind(null, 'viewModel')
-};
-
-// framework/entities/init.js
-// ----------------
-
-function makeBooleanChecks(descriptor) {
-  return {
-    isEntityCtor: function isEntityCtor(thing) {
-      return isFunction(thing) && !!thing[ descriptor.isEntityCtorDuckTag ];
-    },
-    isEntity: function isEntity(thing) {
-      return isObject(thing) && !!thing[ descriptor.isEntityDuckTag ];
-    }
-  };
-}
-
-entityDescriptors = map(entityDescriptors, function prepareDescriptor(descriptor) {
-  descriptor = extend({
-    resourceLocations: {},
-    registered: {},
-    fileExtensions: fw.observable('.js'),
-    isEntityCtorDuckTag: '__isEntityCtor',
-    isEntityDuckTag: '__isEntity',
-    referenceNamespace: (isString(descriptor.methodName) ? ('__' + descriptor.methodName + 'Reference') : undefined)
-  }, descriptor);
-
-  return extend(descriptor, makeBooleanChecks(descriptor));
-});
-
-extend(entityDescriptors, {
-  tagNameIsPresent: function isEntityTagNameDescriptorPresent(tagName) {
-    return filter(this, function matchingTagNames(descriptor) {
-      return descriptor.tagName === tagName;
-    }).length > 0;
-  },
-  resourceFor: function getResourceForEntityTagName(tagName) {
-    return reduce(this, function(resource, descriptor) {
-      if(descriptor.tagName === tagName) {
-        resource = descriptor.resource;
-      }
-      return resource;
-    }, null);
-  },
-  getDescriptor: function getDescriptor(methodName) {
-    return reduce(this, function reduceDescriptor(foundDescriptor, descriptor) {
-      return descriptor.methodName === methodName ? descriptor : foundDescriptor;
-    }, null);
-  }
-});
-
-
 // framework/collection/exports.js
 // ------------------
 
@@ -13297,8 +13127,11 @@ function noURLError() {
 
 fw.sync = function(action, dataModel, params) {
   params = params || {};
+  action = action || 'noAction';
 
-  if(!dataModel.__isDataModel)
+  if(!isDataModel(dataModel)) {
+    throw new Error('Must supply a dataModel to fw.sync()');
+  }
 
   var options = extend({
     type: methodMap[action],
@@ -13309,6 +13142,10 @@ fw.sync = function(action, dataModel, params) {
     emulateHTTP: fw.settings.emulateHTTP,
     emulateJSON: fw.settings.emulateJSON
   }, params);
+
+  if(!isString(options.type)) {
+    throw new Error('Invalid action (' + action + ') specified for sync operation');
+  }
 
   var url = options.url;
   if(isNull(url)) {
