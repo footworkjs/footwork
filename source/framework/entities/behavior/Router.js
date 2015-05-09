@@ -160,9 +160,10 @@ var Router = function(descriptor, configParams) {
   return {
     _preInit: function( params ) {
       var $router = this;
+      var subscriptions;
       var routerData = {};
 
-      var __router = this.__router = function(propName, propValue) {
+      var __router = this.__router = function privateData(propName, propValue) {
         var isGetBaseObjOp = arguments.length === 0;
         var isReadOp = arguments.length === 1;
         var isWriteOp = arguments.length === 2;
@@ -176,14 +177,10 @@ var Router = function(descriptor, configParams) {
           return routerData[propName];
         }
       };
-      var subscriptions = __router('subscriptions', fw.observableArray());
-
-      this.$namespace.command.handler('setState', this.setState, this);
-      this.$namespace.request.handler('currentRoute', function() { return this.currentRoute(); }, this);
-      this.$namespace.request.handler('urlParts', function() { return __router('urlParts')(); }, this);
 
       configParams.baseRoute = fw.routers.baseRoute() + (result(configParams, 'baseRoute') || '');
 
+      __router('subscriptions', subscriptions = fw.observableArray());
       __router('urlParts', fw.observable());
       __router('childRouters', fw.observableArray());
       __router('parentRouter', fw.observable($nullRouter));
@@ -213,6 +210,10 @@ var Router = function(descriptor, configParams) {
 
       this.currentRoute = __router('currentRoute');
       this.path = __router('path');
+
+      this.$namespace.command.handler('setState', this.setState, this);
+      this.$namespace.request.handler('currentRoute', function() { return this.currentRoute(); }, this);
+      this.$namespace.request.handler('urlParts', function() { return __router('urlParts')(); }, this);
 
       var parentPathSubscription;
       var $previousParent = $nullRouter;
