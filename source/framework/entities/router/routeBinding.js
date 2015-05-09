@@ -87,7 +87,7 @@ fw.bindingHandlers.$route = {
           }
 
           if( includeParentPath && !isNullRouter($myRouter) ) {
-            myLinkPath = $myRouter.parentRouter().path() + myLinkPath;
+            myLinkPath = $myRouter.__router('parentRouter')().path() + myLinkPath;
           }
 
           if(fw.routers.html5History() === false) {
@@ -142,7 +142,7 @@ fw.bindingHandlers.$route = {
         elementIsSetup = true;
         checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
 
-        $myRouter.parentRouter.subscribe(setUpElement);
+        $myRouter.__router('parentRouter').subscribe(setUpElement);
         fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
           var currentRouteURL = routeURLWithoutParentPath();
           var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
@@ -159,7 +159,7 @@ fw.bindingHandlers.$route = {
     }
 
     if( isObservable(routeHandlerDescription.url) ) {
-      $myRouter.__subscriptions.push( routeHandlerDescription.url.subscribe(setUpElement) );
+      $myRouter.__router('subscriptions').push( routeHandlerDescription.url.subscribe(setUpElement) );
     }
     setUpElement();
 

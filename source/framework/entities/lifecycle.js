@@ -15,7 +15,7 @@ setupContextAndLifeCycle = function(entity, element) {
     }
 
     if( isRouter(entity) ) {
-      entity.context( elementContext );
+      entity.__router('context')( elementContext );
     }
 
     if( !isUndefined(element) ) {

@@ -15,14 +15,21 @@ var invalidRoutePathIdentifier = '___invalid-route';
 
 var routesAreCaseSensitive = true;
 
+var nullRouterData = {
+  context: noop,
+  childRouters: extend( noop.bind(), { push: noop } ),
+  isRelative: function() { return false; }
+};
+
 var $nullRouter = {
   path: emptyStringResult,
-  childRouters: fw.observableArray(),
-  context: noop,
-  userInitialize: noop,
-  childRouters: extend( noop.bind(), { push: noop } ),
+  __router: function(propName) {
+    if(arguments.length) {
+      return nullRouterData[propName];
+    }
+    return nullRouterData;
+  },
   path: function() { return ''; },
-  isRelative: function() { return false; },
   __isNullRouter: true
 };
 
