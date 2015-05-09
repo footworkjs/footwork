@@ -1,9 +1,9 @@
 // framework/entities/descriptorConfig.js
 // ------------------
 
-//import("behavior/ViewModel.js");
-//import("behavior/DataModel.js");
-//import("behavior/Router.js");
+//import("viewModel/ViewModel.js");
+//import("dataModel/DataModel.js");
+//import("router/Router.js");
 
 entityDescriptors = entityDescriptors.concat([
   {

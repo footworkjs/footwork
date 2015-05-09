@@ -1,4 +1,4 @@
-// framework/entities/behavior/Router.js
+// framework/entities/router/Router.js
 // ------------------
 
 function DefaultAction() {

@@ -1,4 +1,4 @@
-// framework/entities/behavior/ViewModel.js
+// framework/entities/viewModel/ViewModel.js
 // ------------------
 
 var ViewModel = function(descriptor, configParams) {
