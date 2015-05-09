@@ -54,7 +54,7 @@ function getEntityComparator(methodName, compFunctions, entityDescriptor) {
   return compFunctions;
 }
 
-runPostInit.push(function() {
+runPostInit.unshift(function() {
   var entityCtorComparators = pluck(entityDescriptors, 'isEntityCtor');
   var entityComparators = pluck(entityDescriptors, 'isEntity');
 

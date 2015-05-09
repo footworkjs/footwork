@@ -1,5 +1,6 @@
-//import("router/init.js");
-//import("router/utility.js");
+//import("viewModel/module.js");
+//import("dataModel/module.js");
+//import("router/module.js");
 
 //import("descriptorConfig.js");
 //import("bindingInit.js");
@@ -7,7 +8,3 @@
 //import("applyBinding.js");
 //import("createFactories.js");
 //import("init.js");
-
-//import("router/outlet.js");
-//import("router/routeBinding.js");
-//import("router/exports.js");

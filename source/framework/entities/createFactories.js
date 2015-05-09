@@ -83,4 +83,4 @@ function createEntityFactories() {
   });
 };
 
-runPostInit.push(createEntityFactories);
+runPostInit.unshift(createEntityFactories);

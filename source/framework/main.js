@@ -7,7 +7,6 @@
 //import("entities/module.js");
 //import("component/module.js");
 //import("collection/module.js");
-//import("persistence/sync.js");
 
 // 'start' up the framework at the targetElement (or document.body by default)
 fw.start = function(targetElement) {
