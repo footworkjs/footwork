@@ -12,7 +12,3 @@ var namespaceStack = [];
 // multiple copies of the same model to share the same namespace (if they do share a
 // namespace, they receive all of the same events/messages/commands/etc).
 var namespaceNameCounter = {};
-
-runPostInit.push(function() {
-  $globalNamespace = fw.namespace();
-});

@@ -31,7 +31,7 @@ function activateRouter($router, $context, $parentRouter ) {
 
   if( !$router.__router('historyIsEnabled')() ) {
     if( historyIsReady() && !$router.__router('disableHistory')() ) {
-      History.Adapter.bind( windowObject, 'popstate', $router.stateChangeHandler = function(event) {
+      History.Adapter.bind( windowObject, 'popstate', $router.__router('stateChangeHandler', function(event) {
         var url = '';
         if(!fw.routers.html5History() && windowObject.location.hash.length > 1) {
           url = windowObject.location.hash;
@@ -40,7 +40,7 @@ function activateRouter($router, $context, $parentRouter ) {
         }
 
         $router.__router('currentState')( normalizeURL($router, url) );
-      });
+      }));
       $router.__router('historyIsEnabled')(true);
     } else {
       $router.__router('historyIsEnabled')(false);
@@ -193,11 +193,11 @@ var Router = function(descriptor, configParams) {
         return configParams.isRelative && !isNullRouter( this.parentRouter() );
       }, __router()));
 
-      __router('currentRoute', fw.computed(function() {
+      this.currentRoute = __router('currentRoute', fw.computed(function() {
         return getRouteForURL($router, normalizeURL($router, this.currentState()) );
       }, __router()));
 
-      __router('path', fw.computed(function() {
+      this.path = __router('path', fw.computed(function() {
         var currentRoute = this.currentRoute();
         var routeSegment = '/';
 
@@ -207,9 +207,6 @@ var Router = function(descriptor, configParams) {
 
         return (this.isRelative() ? this.parentRouter().path() : '') + routeSegment;
       }, __router()));
-
-      this.currentRoute = __router('currentRoute');
-      this.path = __router('path');
 
       this.$namespace.command.handler('setState', this.setState, this);
       this.$namespace.request.handler('currentRoute', function() { return this.currentRoute(); }, this);
@@ -322,7 +319,7 @@ var Router = function(descriptor, configParams) {
         }
 
         if( this.__router('historyIsEnabled')() && historyIsReady() ) {
-          History.Adapter.unbind( this.stateChangeHandler );
+          History.Adapter.unbind( this.__router('stateChangeHandler') );
         }
 
         this.$namespace.dispose();

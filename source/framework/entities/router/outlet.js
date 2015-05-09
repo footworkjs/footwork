@@ -22,7 +22,7 @@ fw.bindingHandlers.$bind = {
   }
 };
 
-$routerOutlet = function(outletName, componentToDisplay, options ) {
+function $routerOutlet(outletName, componentToDisplay, options ) {
   options = options || {};
   if( isFunction(options) ) {
     options = { onComplete: options };

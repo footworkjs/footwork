@@ -68,6 +68,7 @@ function getModelResourceLocation(descriptor, modelName) {
   return descriptor.resourceLocations[modelName] || descriptor.defaultLocation;
 }
 
+var $globalNamespace = fw.namespace();
 function getModelReferences(descriptor, namespaceName, options) {
   options = options || {};
   if( isString(namespaceName) || isArray(namespaceName) ) {

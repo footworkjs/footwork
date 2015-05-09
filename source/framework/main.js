@@ -2,9 +2,9 @@
 //import("utility.js");
 
 //import("namespace/module.js");
-//import("resource/module.js");
 //import("broadcastable-receivable/module.js");
 //import("entities/module.js");
+//import("resource/module.js");
 //import("component/module.js");
 //import("collection/module.js");
 
