@@ -1600,7 +1600,6 @@ var entityMixins = [];
 
 var assessHistoryState;
 var originalApplyBindings;
-var setupContextAndLifeCycle;
 
 var isEntityCtor;
 var isEntity;
@@ -4123,7 +4122,7 @@ fw.bindingHandlers.$viewModel = {
 // ------------------
 
 // Provides lifecycle functionality and $context for a given model and element
-setupContextAndLifeCycle = function(entity, element) {
+function setupContextAndLifeCycle(entity, element) {
   if( isEntity(entity) ) {
     var $configParams = entity.__getConfigParams();
     var context;
@@ -4707,7 +4706,6 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
       callback(function(params, componentInfo) {
         var componentElement = componentInfo.element;
         var $element = (componentElement.nodeType === 8 ? (componentElement.parentElement || componentElement.parentNode) : componentElement);
-        var $context = fw.contextFor($element);
         var LoadedViewModel = ViewModel;
         if( isFunction(ViewModel) ) {
           if( !isEntityCtor(ViewModel) ) {

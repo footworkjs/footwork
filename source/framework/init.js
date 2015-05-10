@@ -20,7 +20,6 @@ var entityMixins = [];
 
 var assessHistoryState;
 var originalApplyBindings;
-var setupContextAndLifeCycle;
 
 var isEntityCtor;
 var isEntity;

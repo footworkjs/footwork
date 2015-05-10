@@ -2,7 +2,6 @@ var gulp = require('gulp');
 var browserify = require('browserify');
 var transform = require('vinyl-transform');
 var header = require('gulp-header');
-var footer = require('gulp-footer');
 var fileImports = require('gulp-imports');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
@@ -10,7 +9,6 @@ var bump = require('gulp-bump');
 var size = require('gulp-size');
 var replace = require('gulp-replace');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
-var merge = require('merge-stream');
 var moment = require('moment');
 var _ = require('lodash');
 var runSequence = require('run-sequence');
@@ -18,8 +16,7 @@ var fs = require('fs');
 
 var pkg = require('./package.json');
 var reporter = 'list';
-var statement = 'A solid footing for web applications.';
-var args   = require('yargs').argv;
+var args = require('yargs').argv;
 
 var browserified = function() {
   return transform(function(filename) {
@@ -50,20 +47,19 @@ var rawBanner = [
   '', ''
 ];
 
-var build = function(buildProfile) {
-  var headerBanner = banner.slice(0);
-  if(buildProfile !== 'raw') {
-    headerBanner[3] += '-' + buildProfile;
-  }
-  headerBanner = headerBanner.join('\n');
+function buildRelease(buildProfile) {
+  var headerBanner = banner.slice(0).join('\n');
+  var pkgData = pkg;
 
   if(buildProfile === 'raw') {
     headerBanner = headerBanner + rawBanner.join("\n");
+  } else {
+    pkgData = _.extend({}, pkg, { version: pkg.version + '-' + buildProfile });
   }
 
   return gulp
     .src(['source/build-profile/' + buildProfile + '.js'])
-    .pipe(header(headerBanner, { pkg: pkg }))
+    .pipe(header(headerBanner, { pkg: pkgData }))
     .pipe(fileImports())
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
     .pipe(rename('footwork-' + buildProfile + '.js'))
@@ -72,7 +68,7 @@ var build = function(buildProfile) {
     .pipe(uglify({
       compress: { negate_iife: false }
     }))
-    .pipe(header(headerBanner, { pkg: pkg }))
+    .pipe(header(headerBanner, { pkg: pkgData }))
     .pipe(rename('footwork-' + buildProfile + '.min.js'))
     .pipe(size({ title: '[' + buildProfile + '] Minified' }))
     .pipe(size({ title: '[' + buildProfile + '] Minified', gzip: true }))
@@ -108,27 +104,27 @@ gulp.task('test_bare', ['build_bare_jquery'], function() {
 gulp.task('build-everything', ['build_all', 'build_all_with_history', 'build_minimal', 'build_bare_jquery', 'build_bare_reqwest', 'build_raw']);
 
 gulp.task('build_all_with_history', function() {
-  return build('all-history');
+  return buildRelease('all-history');
 });
 
 gulp.task('build_all', function() {
-  return build('all');
+  return buildRelease('all');
 });
 
 gulp.task('build_minimal', function() {
-  return build('minimal');
+  return buildRelease('minimal');
 });
 
 gulp.task('build_bare_jquery', function() {
-  return build('bare-jquery');
+  return buildRelease('bare-jquery');
 });
 
 gulp.task('build_bare_reqwest', function() {
-  return build('bare-reqwest');
+  return buildRelease('bare-reqwest');
 });
 
 gulp.task('build_raw', function() {
-  return build('raw');
+  return buildRelease('raw');
 });
 
 gulp.task('set_version', function() {

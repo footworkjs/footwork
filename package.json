@@ -91,7 +91,6 @@
   "devDependencies": {
     "bower": "*",
     "yargs": "*",
-    "merge-stream": "~0.1.1",
     "lodash": "3.3.1",
     "run-sequence": "*",
     "moment": "*",
@@ -100,7 +99,6 @@
     "gulp": "*",
     "gulp-imports": "0.0.3",
     "gulp-header": "1.2.2",
-    "gulp-footer": "~1.0.4",
     "gulp-uglify": "^0.3.0",
     "gulp-rename": "^1.2.0",
     "gulp-size": "~0.3.1",

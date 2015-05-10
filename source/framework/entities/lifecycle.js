@@ -2,7 +2,7 @@
 // ------------------
 
 // Provides lifecycle functionality and $context for a given model and element
-setupContextAndLifeCycle = function(entity, element) {
+function setupContextAndLifeCycle(entity, element) {
   if( isEntity(entity) ) {
     var $configParams = entity.__getConfigParams();
     var context;
