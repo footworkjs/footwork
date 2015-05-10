@@ -3,11 +3,6 @@
 
 var ViewModel = function(descriptor, configParams) {
   return {
-    _preInit: function( params ) {
-      if( isObject(configParams.router) ) {
-        this.$router = new Router( configParams.router, this );
-      }
-    },
     mixin: {
       $params: result(configParams, 'params'),
       __getConfigParams: function() {

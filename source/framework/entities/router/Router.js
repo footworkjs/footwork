@@ -1,22 +1,6 @@
 // framework/entities/router/Router.js
 // ------------------
 
-function DefaultAction() {
-  delete this.__currentRouteDescription;
-  this.$outlet.reset();
-}
-
-function RoutedAction(routeDescription) {
-  if( !isUndefined(routeDescription.title) ) {
-    document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this, routeDescription.namedParams, this__router('urlParts')()) : routeDescription.title;
-  }
-
-  if( isUndefined(this.__currentRouteDescription) || !sameRouteDescription(this.__currentRouteDescription, routeDescription) ) {
-    (routeDescription.controller || noop).apply( this, values(routeDescription.namedParams) );
-    this.__currentRouteDescription = routeDescription;
-  }
-}
-
 var Router = function(descriptor, configParams) {
   return {
     _preInit: function( params ) {
@@ -157,6 +141,22 @@ var Router = function(descriptor, configParams) {
         return route || unknownRoute;
       }
 
+      function DefaultAction() {
+        delete router.currentRouteDescription;
+        $router.$outlet.reset();
+      }
+
+      function RoutedAction(routeDescription) {
+        if( !isUndefined(routeDescription.title) ) {
+          document.title = isFunction(routeDescription.title) ? routeDescription.title.call($router, routeDescription.namedParams, this__router('urlParts')()) : routeDescription.title;
+        }
+
+        if( isUndefined(router.currentRouteDescription) || !sameRouteDescription(router.currentRouteDescription, routeDescription) ) {
+          (routeDescription.controller || noop).apply( $router, values(routeDescription.namedParams) );
+          router.currentRouteDescription = routeDescription;
+        }
+      }
+
       function getActionForRoute(routeDescription) {
         var Action;
 
@@ -164,7 +164,7 @@ var Router = function(descriptor, configParams) {
           Action = RoutedAction.bind($router, routeDescription);
         }
 
-        return Action || DefaultAction.bind($router);
+        return Action || DefaultAction;
       }
 
       router.isRelative = fw.computed(function() {

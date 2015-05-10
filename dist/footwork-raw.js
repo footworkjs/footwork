@@ -74,17 +74,14 @@ fw.routers = {};
 fw.outlets = {};
 fw.settings = {};
 
-var assessHistoryState = noop;
-var originalApplyBindings = noop;
-var setupContextAndLifeCycle = noop;
-
 var runPostInit = [];
 var internalComponents = [];
 var entityDescriptors = [];
 var entityMixins = [];
 
-var $routerOutlet;
-var $globalNamespace;
+var assessHistoryState;
+var originalApplyBindings;
+var setupContextAndLifeCycle;
 
 var isEntityCtor;
 var isEntity;
@@ -202,10 +199,6 @@ var namespaceStack = [];
 // multiple copies of the same model to share the same namespace (if they do share a
 // namespace, they receive all of the same events/messages/commands/etc).
 var namespaceNameCounter = {};
-
-runPostInit.push(function() {
-  $globalNamespace = fw.namespace();
-});
 
 // framework/namespace/utility.js
 // ----------------
@@ -449,275 +442,6 @@ entityMixins.push({
 });
 
 
-// framework/resource/init.js
-// ------------------
-
-var baseComponentLocation = {
-  combined: null,
-  viewModel: null,
-  template: null
-};
-
-var originalComponentRegisterFunc = fw.components.register;
-
-var defaultComponentFileExtensions = {
-  combined: '.js',
-  viewModel: '.js',
-  template: '.html'
-};
-
-var defaultComponentLocation = extend({}, baseComponentLocation, {
-  viewModel: '/viewModel/',
-  template: '/component/'
-});
-
-
-// framework/resource/proto.js
-// ------------------
-
-function isRegistered(descriptor, resourceName) {
-  return !isUndefined( descriptor.registered[resourceName] );
-};
-
-function getRegistered(descriptor, resourceName) {
-  return descriptor.registered[resourceName];
-};
-
-function register(descriptor, resourceName, resource) {
-  descriptor.registered[resourceName] = resource;
-};
-
-function getModelExtension(dataModelExtensions, modelName) {
-  var fileExtension = '';
-
-  if( isFunction(dataModelExtensions) ) {
-    fileExtension = dataModelExtensions(modelName);
-  } else if( isString(dataModelExtensions) ) {
-    fileExtension = dataModelExtensions;
-  }
-
-  return fileExtension.replace(/^\./, '') || '';
-}
-
-function getModelFileName(descriptor, modelName) {
-  var modelResourceLocations = descriptor.resourceLocations;
-  var fileName = modelName + '.' + getModelExtension(descriptor.fileExtensions(), modelName);
-
-  if( !isUndefined( modelResourceLocations[modelName] ) ) {
-    var registeredLocation = modelResourceLocations[modelName];
-    if( isString(registeredLocation) && !isPath(registeredLocation) ) {
-      // full filename was supplied, lets return that
-      fileName = last( registeredLocation.split('/') );
-    }
-  }
-
-  return fileName;
-}
-
-function setDefaultModelLocation(descriptor, path) {
-  if( isString(path) ) {
-    descriptor.defaultLocation = path;
-  }
-
-  return descriptor.defaultLocation;
-}
-
-function registerModelLocation(descriptor, modelName, location) {
-  if( isArray(modelName) ) {
-    each(modelName, function(name) {
-      registerModelLocation(descriptor, name, location);
-    });
-  }
-  descriptor.resourceLocations[ modelName ] = location;
-}
-
-function modelLocationIsRegistered(descriptor, modelName) {
-  return !isUndefined(descriptor.resourceLocations[modelName]);
-}
-
-function getModelResourceLocation(descriptor, modelName) {
-  if( isUndefined(modelName) ) {
-    return descriptor.resourceLocations;
-  }
-  return descriptor.resourceLocations[modelName] || descriptor.defaultLocation;
-}
-
-function getModelReferences(descriptor, namespaceName, options) {
-  options = options || {};
-  if( isString(namespaceName) || isArray(namespaceName) ) {
-    options.namespaceName = namespaceName;
-  }
-
-  var references = reduce( $globalNamespace.request(descriptor.referenceNamespace, extend({ includeOutlets: false }, options), true), function(models, model) {
-    if( !isUndefined(model) ) {
-      var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
-      if( !isNull(namespaceName) ) {
-        if( isUndefined(models[namespaceName]) ) {
-          models[namespaceName] = [ model ];
-        } else {
-          models[namespaceName].push(model);
-        }
-      }
-    }
-    return models;
-  }, {});
-
-  var referenceKeys = keys(references);
-  if(isString(namespaceName) && referenceKeys.length === 1) {
-    return references[referenceKeys[0]];
-  }
-  return references;
-}
-
-// framework/resource/component.js
-// ------------------
-
-fw.components.resourceLocations = {};
-
-fw.components.fileExtensions = fw.observable( clone(defaultComponentFileExtensions) );
-
-fw.components.register = function(componentName, options) {
-  var viewModel = options.initialize || options.viewModel;
-
-  if( !isString(componentName) ) {
-    throw new Error('Components must be provided a componentName.');
-  }
-
-  if( isFunction(viewModel) && !isEntityCtor(viewModel) ) {
-    options.namespace = componentName;
-    viewModel = fw.viewModel(options);
-  }
-
-  originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || noop,
-    template: options.template
-  });
-};
-
-function getComponentExtension(componentName, fileType) {
-  var componentExtensions = fw.components.fileExtensions();
-  var fileExtension = '';
-
-  if( isFunction(componentExtensions) ) {
-    fileExtension = componentExtensions(componentName)[fileType];
-  } else if( isObject(componentExtensions) ) {
-    if( isFunction(componentExtensions[fileType]) ) {
-      fileExtension = componentExtensions[fileType](componentName);
-    } else {
-      fileExtension = componentExtensions[fileType] || '';
-    }
-  }
-
-  return fileExtension.replace(/^\./, '') || '';
-}
-
-fw.components.getFileName = function(componentName, fileType) {
-  var fileName = componentName;
-  var fileExtension = getComponentExtension(componentName, fileType);
-
-  if( fw.components.isRegistered(componentName) ) {
-    return null;
-  }
-
-  if( !isUndefined( fw.components.resourceLocations[componentName] ) ) {
-    var registeredLocation = fw.components.resourceLocations[componentName];
-    if( !isUndefined(registeredLocation[fileType]) && !isPath(registeredLocation[fileType]) ) {
-      if( isString(registeredLocation[fileType]) ) {
-        // full filename was supplied, lets return that
-        fileName = last( registeredLocation[fileType].split('/') );
-      } else {
-        return null;
-      }
-    }
-  }
-
-  return fileName + (fileExtension !== getFilenameExtension(fileName) ? ('.' + fileExtension) : '');
-};
-
-fw.components.defaultLocation = function(location) {
-  if( isString(location) ) {
-    defaultComponentLocation = extend({}, baseComponentLocation, {
-      combined: location
-    });
-  } else if(isObject(location)) {
-    defaultComponentLocation = extend({}, baseComponentLocation, location);
-  }
-
-  return defaultComponentLocation;
-};
-
-fw.components.registerLocation = function(componentName, componentLocation) {
-  if( isArray(componentName) ) {
-    each(componentName, function(name) {
-      fw.components.registerLocation(name, componentLocation);
-    });
-  }
-
-  if( isString(componentLocation) ) {
-    componentLocation = extend({}, baseComponentLocation, {
-      combined: componentLocation
-    });
-  }
-
-  fw.components.resourceLocations[ componentName ] = extend({}, baseComponentLocation, componentLocation);
-};
-
-fw.components.locationIsRegistered = function(componentName) {
-  return !isUndefined(fw.components.resourceLocations[componentName]);
-};
-
-// Return the component resource definition for the supplied componentName
-fw.components.getLocation = function(componentName) {
-  if( isUndefined(componentName) ) {
-    return fw.components.resourceLocations;
-  }
-  return _.omit(fw.components.resourceLocations[componentName] || defaultComponentLocation, _.isNull);
-};
-
-// framework/resource/createResource.js
-// ------------------
-
-// Create/extend all resource methods onto each descriptor.resource found inside an array of descriptors
-function createResources(descriptors) {
-  each(descriptors, function(descriptor) {
-    if(!isUndefined(descriptor.resource)) {
-      extend(descriptor.resource, resourceHelperFactory(descriptor));
-    }
-  });
-};
-
-runPostInit.push(function() {
-  createResources(entityDescriptors);
-});
-
-// framework/resource/resourceHelperFactory.js
-// ------------------
-
-// assemble all resource methods for a given descriptor object
-function resourceHelperFactory(descriptor) {
-  var resourceMethods = {
-    getFileName: getModelFileName.bind(null, descriptor),
-    register: register.bind(null, descriptor),
-    isRegistered: isRegistered.bind(null, descriptor),
-    getRegistered: getRegistered.bind(null, descriptor),
-    registerLocation: registerModelLocation.bind(null, descriptor),
-    locationIsRegistered: modelLocationIsRegistered.bind(null, descriptor),
-    getLocation: getModelResourceLocation.bind(null, descriptor),
-    defaultLocation: setDefaultModelLocation.bind(null, descriptor),
-    fileExtensions: descriptor.fileExtensions,
-    resourceLocations: descriptor.resourceLocations
-  };
-
-  if(!isUndefined(descriptor.referenceNamespace)) {
-    // Returns a reference to the specified models.
-    // If no name is supplied, a reference to an array containing all viewModel references is returned.
-    resourceMethods.getAll = getModelReferences.bind(null, descriptor);
-  }
-
-  return resourceMethods;
-}
-
-
 // framework/broadcastable-receivable/broacastable.js
 // ------------------
 
@@ -864,149 +588,11 @@ fw.isReceivable = function(thing) {
 };
 
 
-// framework/entities/router/init.js
-// ------------------
-
-var hasHTML5History = false;
-
-// Regular expressions used to parse a uri
-var optionalParamRegex = /\((.*?)\)/g;
-var namedParamRegex = /(\(\?)?:\w+/g;
-var splatParamRegex = /\*\w*/g;
-var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
-var hashMatchRegex = /(^\/#)/;
-
-var noComponentSelected = '_noComponentSelected';
-var invalidRoutePathIdentifier = '___invalid-route';
-
-var routesAreCaseSensitive = true;
-
-var $nullRouter = {
-  path: emptyStringResult,
-  childRouters: fw.observableArray(),
-  context: noop,
-  userInitialize: noop,
-  childRouters: extend( noop.bind(), { push: noop } ),
-  path: function() { return ''; },
-  isRelative: function() { return false; },
-  __isNullRouter: true
-};
-
-var baseRoute = {
-  controller: noop,
-  indexedParams: [],
-  namedParams: {},
-  __isRoute: true
-};
-
-var baseRouteDescription = {
-  filter: alwaysPassPredicate,
-  __isRouteDesc: true
-};
-
-// framework/entities/router/utility.js
-// -----------
-
-function transformRouteConfigToDesc(routeDesc) {
-  return extend({ id: uniqueId('route') }, baseRouteDescription, routeDesc );
-}
-
-function sameRouteDescription(desc1, desc2) {
-  return desc1.id === desc2.id && isEqual(desc1.indexedParams, desc2.indexedParams) && isEqual(desc1.namedParams, desc2.namedParams);
-}
-
-// Convert a route string to a regular expression which is then used to match a uri against it and determine
-// whether that uri matches the described route as well as parse and retrieve its tokens
-function routeStringToRegExp(routeString) {
-  routeString = routeString
-    .replace(escapeRegex, "\\$&")
-    .replace(optionalParamRegex, "(?:$1)?")
-    .replace(namedParamRegex, function(match, optional) {
-      return optional ? match : "([^\/]+)";
-    })
-    .replace(splatParamRegex, "(.*?)");
-
-  return new RegExp('^' + routeString + (routeString !== '/' ? '(\\/.*)*$' : '$'), routesAreCaseSensitive ? undefined : 'i');
-}
-
-function historyIsReady() {
-  var typeOfHistory = typeof History;
-  var isReady = ['function','object'].indexOf(typeOfHistory) !== -1 && has(History, 'Adapter');
-
-  if(isReady && !History.Adapter.isSetup) {
-    History.Adapter.isSetup = true;
-
-    // why .unbind() is not already present in History.js is beyond me
-    History.Adapter.unbind = function(callback) {
-      each(History.Adapter.handlers, function(handler) {
-        handler.statechange = filter(handler.statechange, function(stateChangeHandler) {
-          return stateChangeHandler !== callback;
-        });
-      });
-    };
-  }
-
-  return isReady;
-}
-
-function isNullRouter(thing) {
-  return isObject(thing) && !!thing.__isNullRouter;
-}
-
-function isRoute(thing) {
-  return isObject(thing) && !!thing.__isRoute;
-}
-
-// Recursive function which will locate the nearest $router from a given ko $context
-// (travels up through $parentContext chain to find the router if not found on the
-// immediate $context). Returns $nullRouter if none is found.
-function nearestParentRouter($context) {
-  var $parentRouter = $nullRouter;
-  if( isObject($context) ) {
-    if( isRouter($context.$data) ) {
-      // found router in this context
-      $parentRouter = $context.$data;
-    } else if( isObject($context.$parentContext) || (isObject($context.$data) && isObject($context.$data.$parentContext)) ) {
-      // search through next parent up the chain
-      $parentRouter = nearestParentRouter( $context.$parentContext || $context.$data.$parentContext );
-    }
-  }
-  return $parentRouter;
-}
-
-(assessHistoryState = function() {
-  hasHTML5History = !!windowObject.history && !!windowObject.history.pushState;
-  if(!isUndefined(windowObject.History) && isObject(windowObject.History.options) && windowObject.History.options.html4Mode) {
-    // user is overriding to force html4mode hash-based history
-    hasHTML5History = false;
-  }
-})();
-
-function trimBaseRoute($router, url) {
-  var routerConfig = $router.__getConfigParams();
-  if( !isNull(routerConfig.baseRoute) && url.indexOf(routerConfig.baseRoute) === 0 ) {
-    url = url.substr(routerConfig.baseRoute.length);
-    if(url.length > 1) {
-      url = url.replace(hashMatchRegex, '/');
-    }
-  }
-  return url;
-}
-
-
-// framework/entities/descriptorConfig.js
-// ------------------
-
-// framework/entities/behavior/ViewModel.js
+// framework/entities/viewModel/ViewModel.js
 // ------------------
 
 var ViewModel = function(descriptor, configParams) {
   return {
-    _preInit: function( params ) {
-      if( isObject(configParams.router) ) {
-        this.$router = new Router( configParams.router, this );
-      }
-    },
     mixin: {
       $params: result(configParams, 'params'),
       __getConfigParams: function() {
@@ -1043,7 +629,114 @@ var ViewModel = function(descriptor, configParams) {
   };
 };
 
-// framework/entities/behavior/DataModel.js
+
+// framework/persistence/sync.js
+// ------------------
+
+// Map from CRUD to HTTP for our default `fw.$sync` implementation.
+var methodMap = {
+  'create': 'POST',
+  'update': 'PUT',
+  'patch':  'PATCH',
+  'delete': 'DELETE',
+  'read':   'GET'
+};
+
+var parseURLRegex = /^(http[s]*:\/\/[a-zA-Z0-9:\.]*)*([\/]{0,1}[\w\.:\/-]*)$/;
+var parseParamsRegex = /(:[\w\.]+)/g;
+
+function noURLError() {
+  throw new Error('A "url" property or function must be specified');
+};
+
+fw.sync = function(action, dataModel, params) {
+  params = params || {};
+  action = action || 'noAction';
+
+  if(!isDataModel(dataModel)) {
+    throw new Error('Must supply a dataModel to fw.sync()');
+  }
+
+  var options = extend({
+    type: methodMap[action],
+    dataType: 'json',
+    url: null,
+    data: null,
+    headers: {},
+    emulateHTTP: fw.settings.emulateHTTP,
+    emulateJSON: fw.settings.emulateJSON
+  }, params);
+
+  if(!isString(options.type)) {
+    throw new Error('Invalid action (' + action + ') specified for sync operation');
+  }
+
+  var url = options.url;
+  if(isNull(url)) {
+    var configParams = dataModel.__getConfigParams();
+    url = configParams.url;
+    if(isFunction(url)) {
+      url = url.call(dataModel, action);
+    } else {
+      if(contains(['read', 'update', 'patch', 'delete'], action)) {
+        // need to append /:id to url
+        url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
+      }
+    }
+  }
+  var urlPieces = (url || noURLError()).match(parseURLRegex);
+  var baseURL = urlPieces[1] || '';
+  options.url = last(urlPieces);
+
+  // replace any interpolated parameters
+  var urlParams = options.url.match(parseParamsRegex);
+  if(urlParams) {
+    each(urlParams, function(param) {
+      options.url = options.url.replace(param, dataModel.$toJS(param.substr(1)));
+    });
+  }
+  options.url = baseURL + options.url;
+
+  if(isNull(options.data) && dataModel && contains(['create', 'update', 'patch'], action)) {
+    options.contentType = 'application/json';
+    options.data = dataModel.$toJS();
+  }
+
+  // For older servers, emulate JSON by encoding the request into an HTML-form.
+  if(options.emulateJSON) {
+    options.contentType = 'application/x-www-form-urlencoded';
+    options.data = options.data ? { model: options.data } : {};
+  }
+
+  // For older servers, emulate HTTP by mimicking the HTTP method with `_method`
+  // And an `X-HTTP-Method-Override` header.
+  if(options.emulateHTTP && contains(['PUT', 'DELETE', 'PATCH'], options.type)) {
+    options.type = 'POST';
+
+    if(options.emulateJSON) {
+      options.data._method = options.type;
+    }
+    extend(options.headers, { 'X-HTTP-Method-Override': options.type });
+  }
+
+  // Don't process data on a non-GET request.
+  if(options.type !== 'GET' && !options.emulateJSON) {
+    options.processData = false;
+  }
+
+  // Pass along `textStatus` and `errorThrown` from jQuery.
+  // var error = options.error;
+  // options.error = function(xhr, textStatus, errorThrown) {
+  //   options.textStatus = textStatus;
+  //   options.errorThrown = errorThrown;
+  //   if (error) error.call(options.context, xhr, textStatus, errorThrown);
+  // };
+
+  return fw.ajax(options);
+  // dataModel.trigger('request', model, xhr, options);
+};
+
+// framework/entities/dataModel/DataModel.js
 // ------------------
 
 /**
@@ -1297,203 +990,617 @@ var DataModel = function(descriptor, configParams) {
   };
 };
 
-// framework/entities/behavior/Router.js
+
+// framework/entities/router/init.js
 // ------------------
 
-function DefaultAction() {
-  delete this.__currentRouteDescription;
-  this.$outlet.reset();
+var hasHTML5History = false;
+
+// Regular expressions used to parse a uri
+var optionalParamRegex = /\((.*?)\)/g;
+var namedParamRegex = /(\(\?)?:\w+/g;
+var splatParamRegex = /\*\w*/g;
+var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
+var hashMatchRegex = /(^\/#)/;
+
+var noComponentSelected = '_noComponentSelected';
+var invalidRoutePathIdentifier = '___invalid-route';
+
+var routesAreCaseSensitive = true;
+
+var nullRouterData = {
+  context: noop,
+  childRouters: extend( noop.bind(), { push: noop } ),
+  isRelative: function() { return false; }
+};
+
+var $nullRouter = {
+  path: emptyStringResult,
+  __router: function(propName) {
+    if(arguments.length) {
+      return nullRouterData[propName];
+    }
+    return nullRouterData;
+  },
+  path: function() { return ''; },
+  __isNullRouter: true
+};
+
+var baseRoute = {
+  controller: noop,
+  indexedParams: [],
+  namedParams: {},
+  __isRoute: true
+};
+
+var baseRouteDescription = {
+  filter: alwaysPassPredicate,
+  __isRouteDesc: true
+};
+
+// framework/entities/router/utility.js
+// -----------
+
+function transformRouteConfigToDesc(routeDesc) {
+  return extend({ id: uniqueId('route') }, baseRouteDescription, routeDesc );
 }
 
-function RoutedAction(routeDescription) {
-  if( !isUndefined(routeDescription.title) ) {
-    document.title = isFunction(routeDescription.title) ? routeDescription.title.call(this, routeDescription.namedParams, this.urlParts()) : routeDescription.title;
-  }
-
-  if( isUndefined(this.__currentRouteDescription) || !sameRouteDescription(this.__currentRouteDescription, routeDescription) ) {
-    (routeDescription.controller || noop).apply( this, values(routeDescription.namedParams) );
-    this.__currentRouteDescription = routeDescription;
-  }
+function sameRouteDescription(desc1, desc2) {
+  return desc1.id === desc2.id && isEqual(desc1.indexedParams, desc2.indexedParams) && isEqual(desc1.namedParams, desc2.namedParams);
 }
 
-function activateRouter($router, $context, $parentRouter ) {
-  $parentRouter = $parentRouter || $nullRouter;
+// Convert a route string to a regular expression which is then used to match a uri against it and determine
+// whether that uri matches the described route as well as parse and retrieve its tokens
+function routeStringToRegExp(routeString) {
+  routeString = routeString
+    .replace(escapeRegex, "\\$&")
+    .replace(optionalParamRegex, "(?:$1)?")
+    .replace(namedParamRegex, function(match, optional) {
+      return optional ? match : "([^\/]+)";
+    })
+    .replace(splatParamRegex, "(.*?)");
 
-  if( !isNullRouter($parentRouter) ) {
-    $router.parentRouter( $parentRouter );
-  } else if( isObject($context) ) {
-    $parentRouter = nearestParentRouter($context);
-    if( $parentRouter !== $router ) {
-      $router.parentRouter( $parentRouter );
+  return new RegExp('^' + routeString + (routeString !== '/' ? '(\\/.*)*$' : '$'), routesAreCaseSensitive ? undefined : 'i');
+}
+
+function historyIsReady() {
+  var typeOfHistory = typeof History;
+  var isReady = ['function','object'].indexOf(typeOfHistory) !== -1 && has(History, 'Adapter');
+
+  if(isReady && !History.Adapter.isSetup) {
+    History.Adapter.isSetup = true;
+
+    // why .unbind() is not already present in History.js is beyond me
+    History.Adapter.unbind = function(callback) {
+      each(History.Adapter.handlers, function(handler) {
+        handler.statechange = filter(handler.statechange, function(stateChangeHandler) {
+          return stateChangeHandler !== callback;
+        });
+      });
+    };
+  }
+
+  return isReady;
+}
+
+function isNullRouter(thing) {
+  return isObject(thing) && !!thing.__isNullRouter;
+}
+
+function isRoute(thing) {
+  return isObject(thing) && !!thing.__isRoute;
+}
+
+// Recursive function which will locate the nearest $router from a given ko $context
+// (travels up through $parentContext chain to find the router if not found on the
+// immediate $context). Returns $nullRouter if none is found.
+function nearestParentRouter($context) {
+  var $parentRouter = $nullRouter;
+  if( isObject($context) ) {
+    if( isRouter($context.$data) ) {
+      // found router in this context
+      $parentRouter = $context.$data;
+    } else if( isObject($context.$parentContext) || (isObject($context.$data) && isObject($context.$data.$parentContext)) ) {
+      // search through next parent up the chain
+      $parentRouter = nearestParentRouter( $context.$parentContext || $context.$data.$parentContext );
     }
   }
+  return $parentRouter;
+}
 
-  if( !$router.historyIsEnabled() ) {
-    if( historyIsReady() && !$router.disableHistory() ) {
-      History.Adapter.bind( windowObject, 'popstate', $router.stateChangeHandler = function(event) {
-        var url = '';
-        if(!fw.routers.html5History() && windowObject.location.hash.length > 1) {
-          url = windowObject.location.hash;
-        } else {
-          url = windowObject.location.pathname + windowObject.location.hash;
+(assessHistoryState = function() {
+  hasHTML5History = !!windowObject.history && !!windowObject.history.pushState;
+  if(!isUndefined(windowObject.History) && isObject(windowObject.History.options) && windowObject.History.options.html4Mode) {
+    // user is overriding to force html4mode hash-based history
+    hasHTML5History = false;
+  }
+})();
+
+// framework/entities/router/outlet.js
+// ------------------
+
+var noParentViewModelError = { $namespace: { getName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } } };
+
+// This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied
+// to the UI and load in various views
+fw.virtualElements.allowedBindings.$bind = true;
+fw.bindingHandlers.$bind = {
+  init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
+    var $parentViewModel = ( isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
+    var $parentRouter = nearestParentRouter(bindingContext);
+    var outletName = outletViewModel.outletName;
+
+    if( isRouter($parentRouter) ) {
+      // register this outlet with the router so that updates will propagate correctly
+      // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
+      outletViewModel.$route = $parentRouter.$outlet( outletName );
+    } else {
+      throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.$namespace.getName() + '] but no router was defined.');
+    }
+  }
+};
+
+function $routerOutlet(outletName, componentToDisplay, options ) {
+  options = options || {};
+  if( isFunction(options) ) {
+    options = { onComplete: options };
+  }
+
+  var viewModelParameters = options.params;
+  var onComplete = options.onComplete;
+  var outlets = this.outlets;
+
+  outletName = fw.unwrap( outletName );
+  if( !isObservable(outlets[outletName]) ) {
+    outlets[outletName] = fw.observable({
+      name: noComponentSelected,
+      params: {},
+      __getOnCompleteCallback: function() { return noop; }
+    }).broadcastAs({ name: outletName, namespace: this.$namespace });
+  }
+
+  var outlet = outlets[outletName];
+  var currentOutletDef = outlet();
+  var valueHasMutated = false;
+  var isInitialLoad = outlet().name === noComponentSelected;
+
+  if( !isUndefined(componentToDisplay) && currentOutletDef.name !== componentToDisplay ) {
+    currentOutletDef.name = componentToDisplay;
+    valueHasMutated = true;
+  }
+
+  if( !isUndefined(viewModelParameters) ) {
+    currentOutletDef.params = viewModelParameters;
+    valueHasMutated = true;
+  }
+
+  if( valueHasMutated ) {
+    if( isFunction(onComplete) ) {
+      // Return the onComplete callback once the DOM is injected in the page.
+      // For some reason, on initial outlet binding only calls update once. Subsequent
+      // changes get called twice (correct per docs, once upon initial binding, and once
+      // upon injection into the DOM). Perhaps due to usage of virtual DOM for the component?
+      var callCounter = (isInitialLoad ? 0 : 1);
+
+      currentOutletDef.__getOnCompleteCallback = function() {
+        var isComplete = callCounter === 0;
+        callCounter--;
+        if( isComplete ) {
+          return onComplete;
+        }
+        return noop;
+      };
+    } else {
+      currentOutletDef.__getOnCompleteCallback = function() {
+        return noop;
+      };
+    }
+
+    outlet.valueHasMutated();
+  }
+
+  return outlet;
+};
+
+function registerOutletComponents() {
+  internalComponents.push('outlet');
+  fw.components.register('outlet', {
+    autoIncrement: true,
+    viewModel: function(params) {
+      this.outletName = fw.unwrap(params.name);
+      this.__isOutlet = true;
+    },
+    template: '<!-- ko $bind, component: $route --><!-- /ko -->'
+  });
+
+  internalComponents.push(noComponentSelected);
+  fw.components.register(noComponentSelected, {
+    viewModel: function(params) {
+      this.__assertPresence = false;
+    },
+    template: '<div class="no-component-selected"></div>'
+  });
+};
+
+runPostInit.push(registerOutletComponents);
+
+// framework/entities/router/routeBinding.js
+// -----------
+
+function hasClass(element, className) {
+  return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
+}
+
+function addClass(element, className) {
+  if( !hasClass(element, className) ) {
+    element.className += (element.className.length ? ' ' : '') + className;
+  }
+}
+
+function removeClass(element, className) {
+  if( hasClass(element, className) ) {
+    var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)');
+    element.className = element.className.replace(classNameRegex, ' ');
+  }
+}
+
+fw.bindingHandlers.$route = {
+  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    var $myRouter = nearestParentRouter(bindingContext);
+    var urlValue = valueAccessor();
+    var elementIsSetup = false;
+    var stateTracker = null;
+    var hashOnly = null;
+
+    var routeHandlerDescription = {
+      on: 'click',
+      url: function defaultURLForRoute() { return null; },
+      addActiveClass: true,
+      activeClass: null,
+      handler: function defaultHandlerForRoute(event, url) {
+        if(hashOnly) {
+          windowObject.location.hash = routeHandlerDescription.url;
+          return false;
         }
 
-        $router.currentState( normalizeURL($router, url) );
-      });
-      $router.historyIsEnabled(true);
+        if( !isFullURL(url) && event.which !== 2 ) {
+          event.preventDefault();
+          return true;
+        }
+        return false;
+      }
+    };
+
+    if( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
+      routeHandlerDescription.url = urlValue;
+    } else if( isObject(urlValue) ) {
+      extend(routeHandlerDescription, urlValue);
+    } else if( !urlValue ) {
+      routeHandlerDescription.url = element.getAttribute('href');
     } else {
-      $router.historyIsEnabled(false);
+      throw new Error('Unknown type of url value provided to $route [' + typeof urlValue + ']');
     }
-  }
 
-  return $router;
-};
-
-function normalizeURL($router, url) {
-  var urlParts = parseUri(url);
-  $router.urlParts(urlParts);
-
-  if(!fw.routers.html5History()) {
-    if(url.indexOf('#') !== -1) {
-      url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
-    } else if($router.currentState() !== url) {
-      url = '/';
+    var routeHandlerDescriptionURL = routeHandlerDescription.url;
+    if( !isFunction(routeHandlerDescriptionURL) ) {
+      routeHandlerDescription.url = function() { return routeHandlerDescriptionURL; };
     }
-  } else {
-    url = urlParts.path;
-  }
 
-  return trimBaseRoute($router, url);
-};
+    function getRouteURL(includeParentPath) {
+      var parentRoutePath = '';
+      var routeURL = routeHandlerDescription.url();
+      var myLinkPath = routeURL || element.getAttribute('href') || '';
 
-function getRouteForURL($router, url) {
-  var route = null;
-  var parentRoutePath = $router.parentRouter().path() || '';
-  var unknownRoute = getUnknownRoute($router);
+      if(!isNull(routeURL)) {
+        if( isUndefined(routeURL) ) {
+          routeURL = myLinkPath;
+        }
 
-  // If this is a relative router we need to remove the leading parentRoutePath section of the URL
-  if($router.isRelative() && parentRoutePath.length > 0 && (routeIndex = url.indexOf(parentRoutePath + '/')) === 0) {
-    url = url.substr( parentRoutePath.length );
-  }
+        if( !isFullURL(myLinkPath) ) {
+          if( !hasPathStart(myLinkPath) ) {
+            var currentRoute = $myRouter.currentRoute();
+            if(hasHashStart(myLinkPath)) {
+              if(!isNull(currentRoute)) {
+                myLinkPath = $myRouter.currentRoute().segment + myLinkPath;
+              }
+              hashOnly = true;
+            } else {
+              // relative url, prepend current segment
+              if(!isNull(currentRoute)) {
+                myLinkPath = $myRouter.currentRoute().segment + '/' + myLinkPath;
+              }
+            }
+          }
 
-  // find all routes with a matching routeString
-  var matchedRoutes = reduce($router.routeDescriptions, function(matches, routeDescription) {
-    var routeString = routeDescription.route;
-    var routeParams = [];
+          if( includeParentPath && !isNullRouter($myRouter) ) {
+            myLinkPath = $myRouter.__router('parentRouter')().path() + myLinkPath;
+          }
 
-    if( isString(routeString) ) {
-      routeParams = url.match(routeStringToRegExp(routeString));
-      if( !isNull(routeParams) && routeDescription.filter.call($router, routeParams, $router.urlParts.peek()) ) {
-        matches.push({
-          routeString: routeString,
-          specificity: routeString.replace(namedParamRegex, "*").length,
-          routeDescription: routeDescription,
-          routeParams: routeParams
+          if(fw.routers.html5History() === false) {
+            myLinkPath = '#' + (myLinkPath.indexOf('/') === 0 ? myLinkPath.substring(1) : myLinkPath);
+          }
+        }
+
+        return myLinkPath;
+      }
+
+      return null;
+    };
+    var routeURLWithParentPath = getRouteURL.bind(null, true);
+    var routeURLWithoutParentPath = getRouteURL.bind(null, false);
+
+    function checkForMatchingSegment(mySegment, newRoute) {
+      if(isString(mySegment)) {
+        var currentRoute = $myRouter.currentRoute();
+        mySegment = mySegment.replace(startingHashRegex, '/');
+
+        if(isObject(currentRoute)) {
+          if(routeHandlerDescription.addActiveClass) {
+            var activeRouteClassName = routeHandlerDescription.activeClass || fw.routers.activeRouteClassName();
+            if(mySegment === '/') {
+              mySegment = '';
+            }
+
+            if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
+              // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
+              addClass(element, activeRouteClassName);
+            } else if( hasClass(element, activeRouteClassName) ) {
+              removeClass(element, activeRouteClassName);
+            }
+          }
+        }
+      }
+    };
+
+    function setUpElement() {
+      var myCurrentSegment = routeURLWithoutParentPath();
+      var routerConfig = $myRouter.__getConfigParams();
+      if( element.tagName.toLowerCase() === 'a' ) {
+        element.href = (fw.routers.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
+      }
+
+      if( isObject(stateTracker) ) {
+        stateTracker.dispose();
+      }
+      stateTracker = $myRouter.currentRoute.subscribe( checkForMatchingSegment.bind(null, myCurrentSegment) );
+
+      if(elementIsSetup === false) {
+        elementIsSetup = true;
+        checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
+
+        $myRouter.__router('parentRouter').subscribe(setUpElement);
+        fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
+          var currentRouteURL = routeURLWithoutParentPath();
+          var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
+          if( handlerResult ) {
+            if( isString(handlerResult) ) {
+              currentRouteURL = handlerResult;
+            }
+            if( isString(currentRouteURL) && !isFullURL( currentRouteURL ) ) {
+              $myRouter.setState( currentRouteURL );
+            }
+          }
         });
       }
     }
-    return matches;
-  }, []);
 
-  // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
-  // and convert it into the actual route
-  if(matchedRoutes.length) {
-    var matchedRoute = reduce(matchedRoutes, function(matchedRoute, foundRoute) {
-      if( isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity ) {
-        matchedRoute = foundRoute;
+    if( isObservable(routeHandlerDescription.url) ) {
+      $myRouter.__router('subscriptions').push( routeHandlerDescription.url.subscribe(setUpElement) );
+    }
+    setUpElement();
+
+    ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+      if( isObject(stateTracker) ) {
+        stateTracker.dispose();
       }
-      return matchedRoute;
-    }, null);
-    var routeDescription = matchedRoute.routeDescription;
-    var routeString = matchedRoute.routeString;
-    var routeParams = clone(matchedRoute.routeParams);
-    var splatSegment = routeParams.pop() || '';
-    var routeParamNames = map(routeString.match(namedParamRegex), function(param) {
-      return param.replace(':', '');
-    });
-    var namedParams = reduce(routeParamNames, function(parameterNames, parameterName, index) {
-      parameterNames[parameterName] = routeParams[index + 1];
-      return parameterNames;
-    }, {});
-
-    route = extend({}, baseRoute, {
-      id: routeDescription.id,
-      controller: routeDescription.controller,
-      title: routeDescription.title,
-      url: url,
-      segment: url.substr(0, url.length - splatSegment.length),
-      indexedParams: routeParams,
-      namedParams: namedParams
     });
   }
-
-  return route || unknownRoute;
 };
 
-function getUnknownRoute($router) {
-  var unknownRoute = findWhere(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
+// framework/entities/router/exports.js
+// -----------
 
-  if( !isNull(unknownRoute) ) {
-    unknownRoute = extend({}, baseRoute, {
-      id: unknownRoute.id,
-      controller: unknownRoute.controller,
-      title: unknownRoute.title,
-      segment: ''
-    });
+extend(fw.routers, {
+  // baseRoute / path which will always be stripped from the URL prior to processing the route
+  baseRoute: fw.observable(''),
+  activeRouteClassName: fw.observable('active'),
+  disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: fw.namespace() }),
+  html5History: function() {
+    return hasHTML5History;
+  },
+  getNearestParent: function($context) {
+    var $parentRouter = nearestParentRouter($context);
+    return (!isNullRouter($parentRouter) ? $parentRouter : null);
   }
+});
 
-  return unknownRoute;
-};
-
-function getActionForRoute($router, routeDescription) {
-  var Action;
-
-  if( isRoute(routeDescription) ) {
-    Action = RoutedAction.bind($router, routeDescription);
+extend(fw.outlets, {
+  registerView: function(viewName, templateHTML) {
+    fw.components.register(viewName, { template: templateHTML });
+  },
+  registerViewLocation: function(viewName, viewLocation) {
+    fw.components.registerLocation(viewName, { template: viewLocation })
   }
+});
 
-  return Action || DefaultAction.bind($router);
-};
+// framework/entities/router/Router.js
+// ------------------
 
 var Router = function(descriptor, configParams) {
   return {
     _preInit: function( params ) {
-      var routerData = {};
-      var __router = this.__router = function(propName, propValue) {
+      var $router = this;
+      var router = {}; // internal data/etc
+
+      var __router = this.__router = function privateData(propName, propValue) {
+        var isGetBaseObjOp = arguments.length === 0;
         var isReadOp = arguments.length === 1;
         var isWriteOp = arguments.length === 2;
 
-        if(isReadOp) {
-          return routerData[propName];
+        if(isGetBaseObjOp) {
+          return router;
+        } else if(isReadOp) {
+          return router[propName];
         } else if(isWriteOp) {
-          routerData[propName] = propValue;
-          return routerData[propName];
+          router[propName] = propValue;
+          return router[propName];
         }
       };
-      var subscriptions = this.__subscriptions = fw.observableArray();
 
-      this.$namespace.command.handler('setState', this.setState, this);
-      this.$namespace.request.handler('currentRoute', function() { return this.currentRoute(); }, this);
-      this.$namespace.request.handler('urlParts', function() { return this.urlParts(); }, this);
-
-      this.urlParts = fw.observable();
-      this.childRouters = fw.observableArray();
-      this.parentRouter = fw.observable($nullRouter);
-      this.context = fw.observable();
-      this.historyIsEnabled = fw.observable(false);
-      this.disableHistory = fw.observable().receiveFrom(this.$globalNamespace, 'disableHistory');
-      this.currentState = fw.observable('').broadcastAs('currentState');
       configParams.baseRoute = fw.routers.baseRoute() + (result(configParams, 'baseRoute') || '');
 
-      this.isRelative = fw.computed(function() {
+      var subscriptions = router.subscriptions = fw.observableArray();
+      router.urlParts = fw.observable();
+      router.childRouters = fw.observableArray();
+      router.parentRouter = fw.observable($nullRouter);
+      router.context = fw.observable();
+      router.historyIsEnabled = fw.observable(false);
+      router.disableHistory = fw.observable().receiveFrom(this.$globalNamespace, 'disableHistory');
+      router.currentState = fw.observable('').broadcastAs('currentState');
+
+      function trimBaseRoute(url) {
+        var routerConfig = $router.__getConfigParams();
+        if( !isNull(routerConfig.baseRoute) && url.indexOf(routerConfig.baseRoute) === 0 ) {
+          url = url.substr(routerConfig.baseRoute.length);
+          if(url.length > 1) {
+            url = url.replace(hashMatchRegex, '/');
+          }
+        }
+        return url;
+      }
+
+      function normalizeURL(url) {
+        var urlParts = parseUri(url);
+        router.urlParts(urlParts);
+
+        if(!fw.routers.html5History()) {
+          if(url.indexOf('#') !== -1) {
+            url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
+          } else if(router.currentState() !== url) {
+            url = '/';
+          }
+        } else {
+          url = urlParts.path;
+        }
+
+        return trimBaseRoute(url);
+      }
+      router.normalizeURL = normalizeURL;
+
+      function getUnknownRoute() {
+        var unknownRoute = findWhere(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
+
+        if( !isNull(unknownRoute) ) {
+          unknownRoute = extend({}, baseRoute, {
+            id: unknownRoute.id,
+            controller: unknownRoute.controller,
+            title: unknownRoute.title,
+            segment: ''
+          });
+        }
+
+        return unknownRoute;
+      }
+
+      function getRouteForURL(url) {
+        var route = null;
+        var parentRoutePath = router.parentRouter().path() || '';
+        var unknownRoute = getUnknownRoute();
+
+        // If this is a relative router we need to remove the leading parentRoutePath section of the URL
+        if(router.isRelative() && parentRoutePath.length > 0 && (routeIndex = url.indexOf(parentRoutePath + '/')) === 0) {
+          url = url.substr( parentRoutePath.length );
+        }
+
+        // find all routes with a matching routeString
+        var matchedRoutes = reduce($router.routeDescriptions, function(matches, routeDescription) {
+          var routeString = routeDescription.route;
+          var routeParams = [];
+
+          if( isString(routeString) ) {
+            routeParams = url.match(routeStringToRegExp(routeString));
+            if( !isNull(routeParams) && routeDescription.filter.call($router, routeParams, router.urlParts.peek()) ) {
+              matches.push({
+                routeString: routeString,
+                specificity: routeString.replace(namedParamRegex, "*").length,
+                routeDescription: routeDescription,
+                routeParams: routeParams
+              });
+            }
+          }
+          return matches;
+        }, []);
+
+        // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
+        // and convert it into the actual route
+        if(matchedRoutes.length) {
+          var matchedRoute = reduce(matchedRoutes, function(matchedRoute, foundRoute) {
+            if( isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity ) {
+              matchedRoute = foundRoute;
+            }
+            return matchedRoute;
+          }, null);
+          var routeDescription = matchedRoute.routeDescription;
+          var routeString = matchedRoute.routeString;
+          var routeParams = clone(matchedRoute.routeParams);
+          var splatSegment = routeParams.pop() || '';
+          var routeParamNames = map(routeString.match(namedParamRegex), function(param) {
+            return param.replace(':', '');
+          });
+          var namedParams = reduce(routeParamNames, function(parameterNames, parameterName, index) {
+            parameterNames[parameterName] = routeParams[index + 1];
+            return parameterNames;
+          }, {});
+
+          route = extend({}, baseRoute, {
+            id: routeDescription.id,
+            controller: routeDescription.controller,
+            title: routeDescription.title,
+            url: url,
+            segment: url.substr(0, url.length - splatSegment.length),
+            indexedParams: routeParams,
+            namedParams: namedParams
+          });
+        }
+
+        return route || unknownRoute;
+      }
+
+      function DefaultAction() {
+        delete router.currentRouteDescription;
+        $router.$outlet.reset();
+      }
+
+      function RoutedAction(routeDescription) {
+        if( !isUndefined(routeDescription.title) ) {
+          document.title = isFunction(routeDescription.title) ? routeDescription.title.call($router, routeDescription.namedParams, this__router('urlParts')()) : routeDescription.title;
+        }
+
+        if( isUndefined(router.currentRouteDescription) || !sameRouteDescription(router.currentRouteDescription, routeDescription) ) {
+          (routeDescription.controller || noop).apply( $router, values(routeDescription.namedParams) );
+          router.currentRouteDescription = routeDescription;
+        }
+      }
+
+      function getActionForRoute(routeDescription) {
+        var Action;
+
+        if( isRoute(routeDescription) ) {
+          Action = RoutedAction.bind($router, routeDescription);
+        }
+
+        return Action || DefaultAction;
+      }
+
+      router.isRelative = fw.computed(function() {
         return configParams.isRelative && !isNullRouter( this.parentRouter() );
-      }, this);
+      }, router);
 
-      this.currentRoute = fw.computed(function() {
-        return getRouteForURL(this, normalizeURL(this, this.currentState()) );
-      }, this);
+      this.currentRoute = router.currentRoute = fw.computed(function() {
+        return getRouteForURL(normalizeURL(this.currentState()) );
+      }, router);
 
-      this.path = fw.computed(function() {
+      this.path = router.path = fw.computed(function() {
         var currentRoute = this.currentRoute();
         var routeSegment = '/';
 
@@ -1502,31 +1609,34 @@ var Router = function(descriptor, configParams) {
         }
 
         return (this.isRelative() ? this.parentRouter().path() : '') + routeSegment;
-      }, this);
+      }, router);
+
+      this.$namespace.command.handler('setState', this.setState, this);
+      this.$namespace.request.handler('currentRoute', function() { return this.currentRoute(); }, this);
+      this.$namespace.request.handler('urlParts', function() { return router.urlParts(); }, this);
 
       var parentPathSubscription;
-      var $router = this;
       var $previousParent = $nullRouter;
-      subscriptions.push(this.parentRouter.subscribe(function( $parentRouter ) {
+      subscriptions.push(router.parentRouter.subscribe(function( $parentRouter ) {
         if( !isNullRouter($previousParent) && $previousParent !== $parentRouter ) {
-          $previousParent.childRouters.remove(this);
+          $previousParent.router.childRouters.remove(this);
 
           if(parentPathSubscription) {
             subscriptions.remove(parentPathSubscription);
             parentPathSubscription.dispose();
           }
           subscriptions.push(parentPathSubscription = $parentRouter.path.subscribe(function triggerRouteRecompute() {
-            $router.currentState.notifySubscribers();
+            $router.router.currentState.notifySubscribers();
           }));
         }
-        $parentRouter.childRouters.push(this);
+        $parentRouter.__router('childRouters').push(this);
         $previousParent = $parentRouter;
       }, this));
 
       // Automatically trigger the new Action() whenever the currentRoute() updates
-      subscriptions.push( this.currentRoute.subscribe(function getActionForRouteAndTrigger( newRoute ) {
-        if(this.currentState().length) {
-          getActionForRoute(this, newRoute)( /* get and call the action for the newRoute */ );
+      subscriptions.push( router.currentRoute.subscribe(function getActionForRouteAndTrigger( newRoute ) {
+        if(router.currentState().length) {
+          getActionForRoute(newRoute)( /* get and call the action for the newRoute */ );
         }
       }, this) );
 
@@ -1547,7 +1657,7 @@ var Router = function(descriptor, configParams) {
       this.setRoutes( configParams.routes );
 
       if( configParams.activate === true ) {
-        subscriptions.push(this.context.subscribe(function activateRouterAfterNewContext( $context ) {
+        subscriptions.push(router.context.subscribe(function activateRouterAfterNewContext( $context ) {
           if( isObject($context) ) {
             this.activate($context);
           }
@@ -1567,19 +1677,47 @@ var Router = function(descriptor, configParams) {
         return this;
       },
       activate: function($context, $parentRouter) {
-        $context = $context || this.context();
-        activateRouter(this, $context, $parentRouter || nearestParentRouter($context) );
-        if( this.currentState() === '' ) {
+        $context = $context || this.__router('context')();
+        $parentRouter = $parentRouter || nearestParentRouter($context);
+
+        if( !isNullRouter($parentRouter) ) {
+          this.__router('parentRouter')($parentRouter);
+        } else if( isObject($context) ) {
+          $parentRouter = nearestParentRouter($context);
+          if( $parentRouter !== this ) {
+            this.__router('parentRouter')($parentRouter);
+          }
+        }
+
+        if( !this.__router('historyIsEnabled')() ) {
+          if( historyIsReady() && !this.__router('disableHistory')() ) {
+            History.Adapter.bind( windowObject, 'popstate', this.__router('stateChangeHandler', function(event) {
+              var url = '';
+              if(!fw.routers.html5History() && windowObject.location.hash.length > 1) {
+                url = windowObject.location.hash;
+              } else {
+                url = windowObject.location.pathname + windowObject.location.hash;
+              }
+
+              this.__router('currentState')( this.__router('normalizeURL')(url) );
+            }.bind(this) ));
+            this.__router('historyIsEnabled')(true);
+          } else {
+            this.__router('historyIsEnabled')(false);
+          }
+        }
+
+        if( this.__router('currentState')() === '' ) {
           this.setState();
         }
         return this;
       },
       setState: function(url) {
-        if( this.historyIsEnabled() && !this.disableHistory() ) {
+        if( this.__router('historyIsEnabled')() && !this.__router('disableHistory')() ) {
           if(isString(url)) {
             var historyAPIWorked = true;
             try {
-              historyAPIWorked = History.pushState(null, '', this.__getConfigParams().baseRoute + this.parentRouter().path() + url.replace(startingHashRegex, '/'));
+              historyAPIWorked = History.pushState(null, '', this.__getConfigParams().baseRoute + this.__router('parentRouter')().path() + url.replace(startingHashRegex, '/'));
             } catch(historyException) {
               historyAPIWorked = false;
             } finally {
@@ -1588,38 +1726,688 @@ var Router = function(descriptor, configParams) {
               }
             }
           } else if(isFunction(History.getState)) {
-            this.currentState( normalizeURL(this, History.getState().url ) );
+            this.__router('currentState')( this.__router('normalizeURL')(History.getState().url ) );
           }
         } else if(isString(url)) {
-          this.currentState( normalizeURL(this, url ) );
+          this.__router('currentState')( this.__router('normalizeURL')(url ) );
         } else {
-          this.currentState('/');
+          this.__router('currentState')('/');
         }
 
         if(!historyIsReady()) {
           var routePath = this.path();
-          each(this.childRouters(), function(childRouter) {
-            childRouter.currentState(routePath);
+          each(this.__router('childRouters')(), function(childRouter) {
+            childRouter.__router('currentState')(routePath);
           });
         }
 
         return this;
       },
       dispose: function() {
-        var $parentRouter = this.parentRouter();
+        var $parentRouter = this.__router('parentRouter')();
         if( !isNullRouter($parentRouter) ) {
-          $parentRouter.childRouters.remove(this);
+          $parentRouter.__router('childRouters').remove(this);
         }
 
-        if( this.historyIsEnabled() && historyIsReady() ) {
-          History.Adapter.unbind( this.stateChangeHandler );
+        if( this.__router('historyIsEnabled')() && historyIsReady() ) {
+          History.Adapter.unbind( this.__router('stateChangeHandler') );
         }
 
         this.$namespace.dispose();
         this.$globalNamespace.dispose();
+        invoke(this.__router('subscriptions'), 'dispose');
 
-        invoke(this.__subscriptions(), 'dispose');
         each(omit(this, function(property) {
+          return isEntity(property);
+        }), propertyDisposal);
+
+        each(omit(this.__router(), function(property) {
+          return isEntity(property);
+        }), propertyDisposal);
+      }
+    }
+  };
+};
+
+
+
+// framework/entities/descriptorConfig.js
+// ------------------
+
+// framework/entities/viewModel/ViewModel.js
+// ------------------
+
+var ViewModel = function(descriptor, configParams) {
+  return {
+    mixin: {
+      $params: result(configParams, 'params'),
+      __getConfigParams: function() {
+        return configParams;
+      },
+      dispose: function() {
+        if( !this._isDisposed ) {
+          this._isDisposed = true;
+          if( configParams.onDispose !== noop ) {
+            configParams.onDispose.call(this);
+          }
+          each(this, propertyDisposal);
+        }
+      }
+    },
+    _postInit: function() {
+      if( this.__assertPresence !== false ) {
+        this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
+          if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
+            if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
+              var myNamespaceName = this.$namespace.getName();
+              if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
+                return this;
+              } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+                return this;
+              }
+            } else {
+              return this;
+            }
+          }
+        }.bind(this));
+      }
+    }
+  };
+};
+
+// framework/entities/dataModel/DataModel.js
+// ------------------
+
+/**
+ * Tentative API:
+ *
+ * var DataModel = fw.dataModel({
+ *   id: 'id',
+ *
+ *   // string based url with automatic RESTful routes
+ *   url: 'http://server.com/person',
+ *
+ *   // custom routes provided by callback
+ *   url: function(method) {
+ *     switch(method) {
+ *       case 'read':
+ *         return 'http://server.com/person/:id';
+ *         break;
+ *
+ *       case 'create':
+ *         return 'http://server.com/person';
+ *         break;
+ *
+ *       case 'update':
+ *         return 'http://server.com/person/:id';
+ *         break;
+ *
+ *       case 'delete':
+ *         return 'http://server.com/person/:id';
+ *         break;
+ *     }
+ *   },
+ *
+ *   initialize: function() {
+ *     // field declarations and mapping
+ *     this.firstName = fw.observable().mapTo('firstName');
+ *     this.lastName = fw.observable().mapTo('lastName');
+ *     this.email = fw.observable().mapTo('email');
+ *     this.movieCollection = {
+ *       action: fw.observable().mapTo('movies.action'),
+ *       drama: fw.observable().mapTo('movies.drama'),
+ *       comedy: fw.observable().mapTo('movies.comedy'),
+ *       horror: fw.observable().mapTo('movies.horror')
+ *     };
+ *   }
+ * });
+ */
+
+var dataModelContext = [];
+function enterDataModelContext(dataModel) {
+  dataModelContext.unshift(dataModel);
+}
+function exitDataModelContext() {
+  dataModelContext.shift();
+}
+
+function currentDataModelContext() {
+  return dataModelContext.length ? dataModelContext[0] : null;
+}
+
+function getPrimaryKey(dataModel) {
+  return dataModel.__getConfigParams().idAttribute;
+}
+
+fw.subscribable.fn.mapTo = function(option) {
+  var mappedObservable = this;
+  var mapPath;
+  var dataModel;
+
+  if(isString(option)) {
+    mapPath = option;
+    dataModel = currentDataModelContext();
+  } else if(isObject(option)) {
+    mapPath = option.path;
+    dataModel = option.dataModel;
+  } else {
+    throw new Error('Invalid options supplied to mapTo');
+  }
+
+  if(!isDataModel(dataModel)) {
+    throw new Error('No dataModel context found/supplied for mapTo observable');
+  }
+
+  var mappings = dataModel.__mappings;
+  var primaryKey = getPrimaryKey(dataModel);
+  if( !isUndefined(mappings[mapPath]) && (mapPath !== primaryKey && dataModel.$id.__isOriginalPK)) {
+    throw new Error('the field \'' + mapPath + '\' is already mapped on this dataModel');
+  }
+
+  if(!isUndefined(mappings[mapPath]) && isFunction(mappings[mapPath].dispose)) {
+    // remapping a path, we need to dispose of the old one first
+    mappings[mapPath].dispose();
+  }
+
+  // add/set the registry entry for the mapped observable
+  mappings[mapPath] = mappedObservable;
+
+  if(mapPath === primaryKey) {
+    // mapping primary key, update/set the $id property on the dataModel
+    dataModel.$id = mappings[mapPath];
+  }
+
+  var changeSubscription = mappedObservable.subscribe(function() {
+    dataModel.$dirty(true);
+  });
+
+  var disposeObservable = mappedObservable.dispose || noop;
+  if(isFunction(mappedObservable.dispose)) {
+    mappedObservable.dispose = function() {
+      changeSubscription.dispose();
+      disposeObservable.call(mappedObservable);
+    };
+  }
+
+  return mappedObservable;
+};
+
+function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
+  if(isString(fieldMap)) {
+    return insertValueIntoObject(rootObject, fieldMap.split('.'), fieldValue);
+  }
+
+  var propName = fieldMap.shift();
+  if(fieldMap.length) {
+    if(isUndefined(rootObject[propName])) {
+      // nested property, lets add the child
+      rootObject[propName] = {};
+    }
+    // recurse into the next layer
+    return insertValueIntoObject(rootObject[propName], fieldMap, fieldValue);
+  } else {
+    rootObject[propName] = fieldValue;
+  }
+
+  return rootObject;
+}
+
+function getNestedReference(rootObject, fieldMap) {
+  var propName = fieldMap;
+
+  if(!isUndefined(fieldMap)) {
+    if(isString(fieldMap)) {
+      // initial call with string based fieldMap, recurse into main loop
+      return getNestedReference(rootObject, fieldMap.split('.'));
+    }
+
+    propName = fieldMap.shift();
+    if(fieldMap.length) {
+      // recurse into the next layer
+      return getNestedReference((rootObject || {})[propName], fieldMap);
+    }
+  }
+
+  return !isString(propName) ? rootObject : (rootObject || {})[propName];
+}
+
+runPostInit.push(function(runTask) {
+  fw.ajax = ajax;
+  extend(fw.settings, {
+    emulateHTTP: false,
+    emulateJSON: false
+  });
+});
+
+var DataModel = function(descriptor, configParams) {
+  return {
+    runBeforeInit: true,
+    _preInit: function( params ) {
+      enterDataModelContext(this);
+
+      this.__mappings = {};
+      this.$dirty = fw.observable(false);
+      this.$cid = fw.utils.guid();
+      this[configParams.idAttribute] = this.$id = fw.observable().mapTo(configParams.idAttribute);
+      this.$id.__isOriginalPK = true;
+    },
+    mixin: {
+      // GET from server and $load into model
+      $fetch: function() {
+        var model = this;
+        var id = this[configParams.idAttribute]();
+        if(id) {
+          // retrieve data from server for model using the id
+          this.$sync('read', model);
+        }
+      },
+      $save: function() {}, // PUT / POST
+      $destroy: function() {}, // DELETE
+
+      // load data into model (clears $dirty)
+      $load: function( data ) {
+        var dataModel = this;
+        each(dataModel.__mappings, function(fieldObservable, fieldMap) {
+          var fieldValue = getNestedReference(data, fieldMap);
+          if(!isUndefined(fieldValue)) {
+            fieldObservable(fieldValue);
+          }
+        });
+      },
+
+      $sync: function() {
+        return fw.sync.apply(this, arguments);
+      },
+
+      $hasMappedField: function(referenceField) {
+        return !!this.__mappings[referenceField];
+      },
+
+      // return current data in POJO form
+      $toJS: function(referenceField, includeRoot) {
+        var dataModel = this;
+        if(isArray(referenceField)) {
+          return reduce(referenceField, function(jsObject, fieldMap) {
+            return merge(jsObject, dataModel.$toJS(fieldMap, true));
+          }, {});
+        } else if(!isUndefined(referenceField) && !isString(referenceField)) {
+          throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.$toJS().');
+        }
+
+        var mappedObject = reduce(this.__mappings, function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+          if(isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
+            insertValueIntoObject(jsObject, fieldMap, fieldObservable());
+          }
+          return jsObject;
+        }, {});
+
+        return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
+      },
+
+      // return current data in JSON form
+      $toJSON: function(referenceField, includeRoot) {
+        return JSON.stringify( this.$toJS(referenceField, includeRoot) );
+      },
+
+      $valid: function( referenceField ) {}, // get validation of entire model or selected field
+      $validate: function() {} // perform a validation and return the result on a specific field or the entire model
+    },
+    _postInit: function() {
+      this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
+        if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
+          var myNamespaceName = configParams.namespace;
+          if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
+            return this;
+          } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+            return this;
+          }
+        }
+      }.bind(this));
+
+      exitDataModelContext();
+    }
+  };
+};
+
+// framework/entities/router/Router.js
+// ------------------
+
+var Router = function(descriptor, configParams) {
+  return {
+    _preInit: function( params ) {
+      var $router = this;
+      var router = {}; // internal data/etc
+
+      var __router = this.__router = function privateData(propName, propValue) {
+        var isGetBaseObjOp = arguments.length === 0;
+        var isReadOp = arguments.length === 1;
+        var isWriteOp = arguments.length === 2;
+
+        if(isGetBaseObjOp) {
+          return router;
+        } else if(isReadOp) {
+          return router[propName];
+        } else if(isWriteOp) {
+          router[propName] = propValue;
+          return router[propName];
+        }
+      };
+
+      configParams.baseRoute = fw.routers.baseRoute() + (result(configParams, 'baseRoute') || '');
+
+      var subscriptions = router.subscriptions = fw.observableArray();
+      router.urlParts = fw.observable();
+      router.childRouters = fw.observableArray();
+      router.parentRouter = fw.observable($nullRouter);
+      router.context = fw.observable();
+      router.historyIsEnabled = fw.observable(false);
+      router.disableHistory = fw.observable().receiveFrom(this.$globalNamespace, 'disableHistory');
+      router.currentState = fw.observable('').broadcastAs('currentState');
+
+      function trimBaseRoute(url) {
+        var routerConfig = $router.__getConfigParams();
+        if( !isNull(routerConfig.baseRoute) && url.indexOf(routerConfig.baseRoute) === 0 ) {
+          url = url.substr(routerConfig.baseRoute.length);
+          if(url.length > 1) {
+            url = url.replace(hashMatchRegex, '/');
+          }
+        }
+        return url;
+      }
+
+      function normalizeURL(url) {
+        var urlParts = parseUri(url);
+        router.urlParts(urlParts);
+
+        if(!fw.routers.html5History()) {
+          if(url.indexOf('#') !== -1) {
+            url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
+          } else if(router.currentState() !== url) {
+            url = '/';
+          }
+        } else {
+          url = urlParts.path;
+        }
+
+        return trimBaseRoute(url);
+      }
+      router.normalizeURL = normalizeURL;
+
+      function getUnknownRoute() {
+        var unknownRoute = findWhere(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
+
+        if( !isNull(unknownRoute) ) {
+          unknownRoute = extend({}, baseRoute, {
+            id: unknownRoute.id,
+            controller: unknownRoute.controller,
+            title: unknownRoute.title,
+            segment: ''
+          });
+        }
+
+        return unknownRoute;
+      }
+
+      function getRouteForURL(url) {
+        var route = null;
+        var parentRoutePath = router.parentRouter().path() || '';
+        var unknownRoute = getUnknownRoute();
+
+        // If this is a relative router we need to remove the leading parentRoutePath section of the URL
+        if(router.isRelative() && parentRoutePath.length > 0 && (routeIndex = url.indexOf(parentRoutePath + '/')) === 0) {
+          url = url.substr( parentRoutePath.length );
+        }
+
+        // find all routes with a matching routeString
+        var matchedRoutes = reduce($router.routeDescriptions, function(matches, routeDescription) {
+          var routeString = routeDescription.route;
+          var routeParams = [];
+
+          if( isString(routeString) ) {
+            routeParams = url.match(routeStringToRegExp(routeString));
+            if( !isNull(routeParams) && routeDescription.filter.call($router, routeParams, router.urlParts.peek()) ) {
+              matches.push({
+                routeString: routeString,
+                specificity: routeString.replace(namedParamRegex, "*").length,
+                routeDescription: routeDescription,
+                routeParams: routeParams
+              });
+            }
+          }
+          return matches;
+        }, []);
+
+        // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
+        // and convert it into the actual route
+        if(matchedRoutes.length) {
+          var matchedRoute = reduce(matchedRoutes, function(matchedRoute, foundRoute) {
+            if( isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity ) {
+              matchedRoute = foundRoute;
+            }
+            return matchedRoute;
+          }, null);
+          var routeDescription = matchedRoute.routeDescription;
+          var routeString = matchedRoute.routeString;
+          var routeParams = clone(matchedRoute.routeParams);
+          var splatSegment = routeParams.pop() || '';
+          var routeParamNames = map(routeString.match(namedParamRegex), function(param) {
+            return param.replace(':', '');
+          });
+          var namedParams = reduce(routeParamNames, function(parameterNames, parameterName, index) {
+            parameterNames[parameterName] = routeParams[index + 1];
+            return parameterNames;
+          }, {});
+
+          route = extend({}, baseRoute, {
+            id: routeDescription.id,
+            controller: routeDescription.controller,
+            title: routeDescription.title,
+            url: url,
+            segment: url.substr(0, url.length - splatSegment.length),
+            indexedParams: routeParams,
+            namedParams: namedParams
+          });
+        }
+
+        return route || unknownRoute;
+      }
+
+      function DefaultAction() {
+        delete router.currentRouteDescription;
+        $router.$outlet.reset();
+      }
+
+      function RoutedAction(routeDescription) {
+        if( !isUndefined(routeDescription.title) ) {
+          document.title = isFunction(routeDescription.title) ? routeDescription.title.call($router, routeDescription.namedParams, this__router('urlParts')()) : routeDescription.title;
+        }
+
+        if( isUndefined(router.currentRouteDescription) || !sameRouteDescription(router.currentRouteDescription, routeDescription) ) {
+          (routeDescription.controller || noop).apply( $router, values(routeDescription.namedParams) );
+          router.currentRouteDescription = routeDescription;
+        }
+      }
+
+      function getActionForRoute(routeDescription) {
+        var Action;
+
+        if( isRoute(routeDescription) ) {
+          Action = RoutedAction.bind($router, routeDescription);
+        }
+
+        return Action || DefaultAction;
+      }
+
+      router.isRelative = fw.computed(function() {
+        return configParams.isRelative && !isNullRouter( this.parentRouter() );
+      }, router);
+
+      this.currentRoute = router.currentRoute = fw.computed(function() {
+        return getRouteForURL(normalizeURL(this.currentState()) );
+      }, router);
+
+      this.path = router.path = fw.computed(function() {
+        var currentRoute = this.currentRoute();
+        var routeSegment = '/';
+
+        if( isRoute(currentRoute) ) {
+          routeSegment = (currentRoute.segment === '' ? '/' : currentRoute.segment);
+        }
+
+        return (this.isRelative() ? this.parentRouter().path() : '') + routeSegment;
+      }, router);
+
+      this.$namespace.command.handler('setState', this.setState, this);
+      this.$namespace.request.handler('currentRoute', function() { return this.currentRoute(); }, this);
+      this.$namespace.request.handler('urlParts', function() { return router.urlParts(); }, this);
+
+      var parentPathSubscription;
+      var $previousParent = $nullRouter;
+      subscriptions.push(router.parentRouter.subscribe(function( $parentRouter ) {
+        if( !isNullRouter($previousParent) && $previousParent !== $parentRouter ) {
+          $previousParent.router.childRouters.remove(this);
+
+          if(parentPathSubscription) {
+            subscriptions.remove(parentPathSubscription);
+            parentPathSubscription.dispose();
+          }
+          subscriptions.push(parentPathSubscription = $parentRouter.path.subscribe(function triggerRouteRecompute() {
+            $router.router.currentState.notifySubscribers();
+          }));
+        }
+        $parentRouter.__router('childRouters').push(this);
+        $previousParent = $parentRouter;
+      }, this));
+
+      // Automatically trigger the new Action() whenever the currentRoute() updates
+      subscriptions.push( router.currentRoute.subscribe(function getActionForRouteAndTrigger( newRoute ) {
+        if(router.currentState().length) {
+          getActionForRoute(newRoute)( /* get and call the action for the newRoute */ );
+        }
+      }, this) );
+
+      this.outlets = {};
+      this.$outlet = $routerOutlet.bind(this);
+      this.$outlet.reset = function() {
+        each( this.outlets, function(outlet) {
+          outlet({ name: noComponentSelected, params: {} });
+        });
+      }.bind(this);
+
+      if( !isUndefined(configParams.unknownRoute) ) {
+        if( isFunction(configParams.unknownRoute) ) {
+          configParams.unknownRoute = { controller: configParams.unknownRoute };
+        }
+        configParams.routes.push( extend( configParams.unknownRoute, { unknown: true } ) );
+      }
+      this.setRoutes( configParams.routes );
+
+      if( configParams.activate === true ) {
+        subscriptions.push(router.context.subscribe(function activateRouterAfterNewContext( $context ) {
+          if( isObject($context) ) {
+            this.activate($context);
+          }
+        }, this));
+      }
+
+      this.$namespace.exit();
+    },
+    mixin: {
+      setRoutes: function(routeDesc) {
+        this.routeDescriptions = [];
+        this.addRoutes(routeDesc);
+        return this;
+      },
+      addRoutes: function(routeConfig) {
+        this.routeDescriptions = this.routeDescriptions.concat( map(isArray(routeConfig) ? routeConfig : [routeConfig], transformRouteConfigToDesc) );
+        return this;
+      },
+      activate: function($context, $parentRouter) {
+        $context = $context || this.__router('context')();
+        $parentRouter = $parentRouter || nearestParentRouter($context);
+
+        if( !isNullRouter($parentRouter) ) {
+          this.__router('parentRouter')($parentRouter);
+        } else if( isObject($context) ) {
+          $parentRouter = nearestParentRouter($context);
+          if( $parentRouter !== this ) {
+            this.__router('parentRouter')($parentRouter);
+          }
+        }
+
+        if( !this.__router('historyIsEnabled')() ) {
+          if( historyIsReady() && !this.__router('disableHistory')() ) {
+            History.Adapter.bind( windowObject, 'popstate', this.__router('stateChangeHandler', function(event) {
+              var url = '';
+              if(!fw.routers.html5History() && windowObject.location.hash.length > 1) {
+                url = windowObject.location.hash;
+              } else {
+                url = windowObject.location.pathname + windowObject.location.hash;
+              }
+
+              this.__router('currentState')( this.__router('normalizeURL')(url) );
+            }.bind(this) ));
+            this.__router('historyIsEnabled')(true);
+          } else {
+            this.__router('historyIsEnabled')(false);
+          }
+        }
+
+        if( this.__router('currentState')() === '' ) {
+          this.setState();
+        }
+        return this;
+      },
+      setState: function(url) {
+        if( this.__router('historyIsEnabled')() && !this.__router('disableHistory')() ) {
+          if(isString(url)) {
+            var historyAPIWorked = true;
+            try {
+              historyAPIWorked = History.pushState(null, '', this.__getConfigParams().baseRoute + this.__router('parentRouter')().path() + url.replace(startingHashRegex, '/'));
+            } catch(historyException) {
+              historyAPIWorked = false;
+            } finally {
+              if(historyAPIWorked) {
+                return;
+              }
+            }
+          } else if(isFunction(History.getState)) {
+            this.__router('currentState')( this.__router('normalizeURL')(History.getState().url ) );
+          }
+        } else if(isString(url)) {
+          this.__router('currentState')( this.__router('normalizeURL')(url ) );
+        } else {
+          this.__router('currentState')('/');
+        }
+
+        if(!historyIsReady()) {
+          var routePath = this.path();
+          each(this.__router('childRouters')(), function(childRouter) {
+            childRouter.__router('currentState')(routePath);
+          });
+        }
+
+        return this;
+      },
+      dispose: function() {
+        var $parentRouter = this.__router('parentRouter')();
+        if( !isNullRouter($parentRouter) ) {
+          $parentRouter.__router('childRouters').remove(this);
+        }
+
+        if( this.__router('historyIsEnabled')() && historyIsReady() ) {
+          History.Adapter.unbind( this.__router('stateChangeHandler') );
+        }
+
+        this.$namespace.dispose();
+        this.$globalNamespace.dispose();
+        invoke(this.__router('subscriptions'), 'dispose');
+
+        each(omit(this, function(property) {
+          return isEntity(property);
+        }), propertyDisposal);
+
+        each(omit(this.__router(), function(property) {
           return isEntity(property);
         }), propertyDisposal);
       }
@@ -1829,7 +2617,7 @@ setupContextAndLifeCycle = function(entity, element) {
     }
 
     if( isRouter(entity) ) {
-      entity.context( elementContext );
+      entity.__router('context')( elementContext );
     }
 
     if( !isUndefined(element) ) {
@@ -1935,7 +2723,7 @@ function createEntityFactories() {
   });
 };
 
-runPostInit.push(createEntityFactories);
+runPostInit.unshift(createEntityFactories);
 
 // framework/entities/init.js
 // ----------------
@@ -1993,7 +2781,7 @@ function getEntityComparator(methodName, compFunctions, entityDescriptor) {
   return compFunctions;
 }
 
-runPostInit.push(function() {
+runPostInit.unshift(function() {
   var entityCtorComparators = pluck(entityDescriptors, 'isEntityCtor');
   var entityComparators = pluck(entityDescriptors, 'isEntity');
 
@@ -2014,312 +2802,274 @@ runPostInit.push(function() {
 });
 
 
-// framework/entities/router/outlet.js
+// framework/resource/init.js
 // ------------------
 
-var noParentViewModelError = { $namespace: { getName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } } };
-
-// This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied
-// to the UI and load in various views
-fw.virtualElements.allowedBindings.$bind = true;
-fw.bindingHandlers.$bind = {
-  init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
-    var $parentViewModel = ( isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
-    var $parentRouter = nearestParentRouter(bindingContext);
-    var outletName = outletViewModel.outletName;
-
-    if( isRouter($parentRouter) ) {
-      // register this outlet with the router so that updates will propagate correctly
-      // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
-      outletViewModel.$route = $parentRouter.$outlet( outletName );
-    } else {
-      throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.$namespace.getName() + '] but no router was defined.');
-    }
-  }
+var baseComponentLocation = {
+  combined: null,
+  viewModel: null,
+  template: null
 };
 
-$routerOutlet = function(outletName, componentToDisplay, options ) {
-  options = options || {};
-  if( isFunction(options) ) {
-    options = { onComplete: options };
-  }
+var originalComponentRegisterFunc = fw.components.register;
 
-  var viewModelParameters = options.params;
-  var onComplete = options.onComplete;
-  var outlets = this.outlets;
-
-  outletName = fw.unwrap( outletName );
-  if( !isObservable(outlets[outletName]) ) {
-    outlets[outletName] = fw.observable({
-      name: noComponentSelected,
-      params: {},
-      __getOnCompleteCallback: function() { return noop; }
-    }).broadcastAs({ name: outletName, namespace: this.$namespace });
-  }
-
-  var outlet = outlets[outletName];
-  var currentOutletDef = outlet();
-  var valueHasMutated = false;
-  var isInitialLoad = outlet().name === noComponentSelected;
-
-  if( !isUndefined(componentToDisplay) && currentOutletDef.name !== componentToDisplay ) {
-    currentOutletDef.name = componentToDisplay;
-    valueHasMutated = true;
-  }
-
-  if( !isUndefined(viewModelParameters) ) {
-    currentOutletDef.params = viewModelParameters;
-    valueHasMutated = true;
-  }
-
-  if( valueHasMutated ) {
-    if( isFunction(onComplete) ) {
-      // Return the onComplete callback once the DOM is injected in the page.
-      // For some reason, on initial outlet binding only calls update once. Subsequent
-      // changes get called twice (correct per docs, once upon initial binding, and once
-      // upon injection into the DOM). Perhaps due to usage of virtual DOM for the component?
-      var callCounter = (isInitialLoad ? 0 : 1);
-
-      currentOutletDef.__getOnCompleteCallback = function() {
-        var isComplete = callCounter === 0;
-        callCounter--;
-        if( isComplete ) {
-          return onComplete;
-        }
-        return noop;
-      };
-    } else {
-      currentOutletDef.__getOnCompleteCallback = function() {
-        return noop;
-      };
-    }
-
-    outlet.valueHasMutated();
-  }
-
-  return outlet;
+var defaultComponentFileExtensions = {
+  combined: '.js',
+  viewModel: '.js',
+  template: '.html'
 };
 
-function registerOutletComponents() {
-  internalComponents.push('outlet');
-  fw.components.register('outlet', {
-    autoIncrement: true,
-    viewModel: function(params) {
-      this.outletName = fw.unwrap(params.name);
-      this.__isOutlet = true;
-    },
-    template: '<!-- ko $bind, component: $route --><!-- /ko -->'
-  });
+var defaultComponentLocation = extend({}, baseComponentLocation, {
+  viewModel: '/viewModel/',
+  template: '/component/'
+});
 
-  internalComponents.push(noComponentSelected);
-  fw.components.register(noComponentSelected, {
-    viewModel: function(params) {
-      this.__assertPresence = false;
-    },
-    template: '<div class="no-component-selected"></div>'
-  });
+
+// framework/resource/proto.js
+// ------------------
+
+function isRegistered(descriptor, resourceName) {
+  return !isUndefined( descriptor.registered[resourceName] );
 };
 
-runPostInit.push(registerOutletComponents);
+function getRegistered(descriptor, resourceName) {
+  return descriptor.registered[resourceName];
+};
 
-// framework/entities/router/routeBinding.js
-// -----------
+function register(descriptor, resourceName, resource) {
+  descriptor.registered[resourceName] = resource;
+};
 
-function hasClass(element, className) {
-  return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
-}
+function getModelExtension(dataModelExtensions, modelName) {
+  var fileExtension = '';
 
-function addClass(element, className) {
-  if( !hasClass(element, className) ) {
-    element.className += (element.className.length ? ' ' : '') + className;
+  if( isFunction(dataModelExtensions) ) {
+    fileExtension = dataModelExtensions(modelName);
+  } else if( isString(dataModelExtensions) ) {
+    fileExtension = dataModelExtensions;
   }
+
+  return fileExtension.replace(/^\./, '') || '';
 }
 
-function removeClass(element, className) {
-  if( hasClass(element, className) ) {
-    var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)');
-    element.className = element.className.replace(classNameRegex, ' ');
+function getModelFileName(descriptor, modelName) {
+  var modelResourceLocations = descriptor.resourceLocations;
+  var fileName = modelName + '.' + getModelExtension(descriptor.fileExtensions(), modelName);
+
+  if( !isUndefined( modelResourceLocations[modelName] ) ) {
+    var registeredLocation = modelResourceLocations[modelName];
+    if( isString(registeredLocation) && !isPath(registeredLocation) ) {
+      // full filename was supplied, lets return that
+      fileName = last( registeredLocation.split('/') );
+    }
   }
+
+  return fileName;
 }
 
-fw.bindingHandlers.$route = {
-  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    var $myRouter = nearestParentRouter(bindingContext);
-    var urlValue = valueAccessor();
-    var elementIsSetup = false;
-    var stateTracker = null;
-    var hashOnly = null;
+function setDefaultModelLocation(descriptor, path) {
+  if( isString(path) ) {
+    descriptor.defaultLocation = path;
+  }
 
-    var routeHandlerDescription = {
-      on: 'click',
-      url: function defaultURLForRoute() { return null; },
-      addActiveClass: true,
-      activeClass: null,
-      handler: function defaultHandlerForRoute(event, url) {
-        if(hashOnly) {
-          windowObject.location.hash = routeHandlerDescription.url;
-          return false;
-        }
+  return descriptor.defaultLocation;
+}
 
-        if( !isFullURL(url) && event.which !== 2 ) {
-          event.preventDefault();
-          return true;
-        }
-        return false;
-      }
-    };
-
-    if( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
-      routeHandlerDescription.url = urlValue;
-    } else if( isObject(urlValue) ) {
-      extend(routeHandlerDescription, urlValue);
-    } else if( !urlValue ) {
-      routeHandlerDescription.url = element.getAttribute('href');
-    } else {
-      throw new Error('Unknown type of url value provided to $route [' + typeof urlValue + ']');
-    }
-
-    var routeHandlerDescriptionURL = routeHandlerDescription.url;
-    if( !isFunction(routeHandlerDescriptionURL) ) {
-      routeHandlerDescription.url = function() { return routeHandlerDescriptionURL; };
-    }
-
-    function getRouteURL(includeParentPath) {
-      var parentRoutePath = '';
-      var routeURL = routeHandlerDescription.url();
-      var myLinkPath = routeURL || element.getAttribute('href') || '';
-
-      if(!isNull(routeURL)) {
-        if( isUndefined(routeURL) ) {
-          routeURL = myLinkPath;
-        }
-
-        if( !isFullURL(myLinkPath) ) {
-          if( !hasPathStart(myLinkPath) ) {
-            var currentRoute = $myRouter.currentRoute();
-            if(hasHashStart(myLinkPath)) {
-              if(!isNull(currentRoute)) {
-                myLinkPath = $myRouter.currentRoute().segment + myLinkPath;
-              }
-              hashOnly = true;
-            } else {
-              // relative url, prepend current segment
-              if(!isNull(currentRoute)) {
-                myLinkPath = $myRouter.currentRoute().segment + '/' + myLinkPath;
-              }
-            }
-          }
-
-          if( includeParentPath && !isNullRouter($myRouter) ) {
-            myLinkPath = $myRouter.parentRouter().path() + myLinkPath;
-          }
-
-          if(fw.routers.html5History() === false) {
-            myLinkPath = '#' + (myLinkPath.indexOf('/') === 0 ? myLinkPath.substring(1) : myLinkPath);
-          }
-        }
-
-        return myLinkPath;
-      }
-
-      return null;
-    };
-    var routeURLWithParentPath = getRouteURL.bind(null, true);
-    var routeURLWithoutParentPath = getRouteURL.bind(null, false);
-
-    function checkForMatchingSegment(mySegment, newRoute) {
-      if(isString(mySegment)) {
-        var currentRoute = $myRouter.currentRoute();
-        mySegment = mySegment.replace(startingHashRegex, '/');
-
-        if(isObject(currentRoute)) {
-          if(routeHandlerDescription.addActiveClass) {
-            var activeRouteClassName = routeHandlerDescription.activeClass || fw.routers.activeRouteClassName();
-            if(mySegment === '/') {
-              mySegment = '';
-            }
-
-            if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
-              // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
-              addClass(element, activeRouteClassName);
-            } else if( hasClass(element, activeRouteClassName) ) {
-              removeClass(element, activeRouteClassName);
-            }
-          }
-        }
-      }
-    };
-
-    function setUpElement() {
-      var myCurrentSegment = routeURLWithoutParentPath();
-      var routerConfig = $myRouter.__getConfigParams();
-      if( element.tagName.toLowerCase() === 'a' ) {
-        element.href = (fw.routers.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
-      }
-
-      if( isObject(stateTracker) ) {
-        stateTracker.dispose();
-      }
-      stateTracker = $myRouter.currentRoute.subscribe( checkForMatchingSegment.bind(null, myCurrentSegment) );
-
-      if(elementIsSetup === false) {
-        elementIsSetup = true;
-        checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
-
-        $myRouter.parentRouter.subscribe(setUpElement);
-        fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
-          var currentRouteURL = routeURLWithoutParentPath();
-          var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
-          if( handlerResult ) {
-            if( isString(handlerResult) ) {
-              currentRouteURL = handlerResult;
-            }
-            if( isString(currentRouteURL) && !isFullURL( currentRouteURL ) ) {
-              $myRouter.setState( currentRouteURL );
-            }
-          }
-        });
-      }
-    }
-
-    if( isObservable(routeHandlerDescription.url) ) {
-      $myRouter.__subscriptions.push( routeHandlerDescription.url.subscribe(setUpElement) );
-    }
-    setUpElement();
-
-    ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-      if( isObject(stateTracker) ) {
-        stateTracker.dispose();
-      }
+function registerModelLocation(descriptor, modelName, location) {
+  if( isArray(modelName) ) {
+    each(modelName, function(name) {
+      registerModelLocation(descriptor, name, location);
     });
   }
+  descriptor.resourceLocations[ modelName ] = location;
+}
+
+function modelLocationIsRegistered(descriptor, modelName) {
+  return !isUndefined(descriptor.resourceLocations[modelName]);
+}
+
+function getModelResourceLocation(descriptor, modelName) {
+  if( isUndefined(modelName) ) {
+    return descriptor.resourceLocations;
+  }
+  return descriptor.resourceLocations[modelName] || descriptor.defaultLocation;
+}
+
+var $globalNamespace = fw.namespace();
+function getModelReferences(descriptor, namespaceName, options) {
+  options = options || {};
+  if( isString(namespaceName) || isArray(namespaceName) ) {
+    options.namespaceName = namespaceName;
+  }
+
+  var references = reduce( $globalNamespace.request(descriptor.referenceNamespace, extend({ includeOutlets: false }, options), true), function(models, model) {
+    if( !isUndefined(model) ) {
+      var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
+      if( !isNull(namespaceName) ) {
+        if( isUndefined(models[namespaceName]) ) {
+          models[namespaceName] = [ model ];
+        } else {
+          models[namespaceName].push(model);
+        }
+      }
+    }
+    return models;
+  }, {});
+
+  var referenceKeys = keys(references);
+  if(isString(namespaceName) && referenceKeys.length === 1) {
+    return references[referenceKeys[0]];
+  }
+  return references;
+}
+
+// framework/resource/component.js
+// ------------------
+
+fw.components.resourceLocations = {};
+
+fw.components.fileExtensions = fw.observable( clone(defaultComponentFileExtensions) );
+
+fw.components.register = function(componentName, options) {
+  var viewModel = options.initialize || options.viewModel;
+
+  if( !isString(componentName) ) {
+    throw new Error('Components must be provided a componentName.');
+  }
+
+  if( isFunction(viewModel) && !isEntityCtor(viewModel) ) {
+    options.namespace = componentName;
+    viewModel = fw.viewModel(options);
+  }
+
+  originalComponentRegisterFunc(componentName, {
+    viewModel: viewModel || noop,
+    template: options.template
+  });
 };
 
-// framework/entities/router/exports.js
-// -----------
+function getComponentExtension(componentName, fileType) {
+  var componentExtensions = fw.components.fileExtensions();
+  var fileExtension = '';
 
-extend(fw.routers, {
-  // baseRoute / path which will always be stripped from the URL prior to processing the route
-  baseRoute: fw.observable(''),
-  activeRouteClassName: fw.observable('active'),
-  disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: $globalNamespace }),
-  html5History: function() {
-    return hasHTML5History;
-  },
-  getNearestParent: function($context) {
-    var $parentRouter = nearestParentRouter($context);
-    return (!isNullRouter($parentRouter) ? $parentRouter : null);
+  if( isFunction(componentExtensions) ) {
+    fileExtension = componentExtensions(componentName)[fileType];
+  } else if( isObject(componentExtensions) ) {
+    if( isFunction(componentExtensions[fileType]) ) {
+      fileExtension = componentExtensions[fileType](componentName);
+    } else {
+      fileExtension = componentExtensions[fileType] || '';
+    }
   }
+
+  return fileExtension.replace(/^\./, '') || '';
+}
+
+fw.components.getFileName = function(componentName, fileType) {
+  var fileName = componentName;
+  var fileExtension = getComponentExtension(componentName, fileType);
+
+  if( fw.components.isRegistered(componentName) ) {
+    return null;
+  }
+
+  if( !isUndefined( fw.components.resourceLocations[componentName] ) ) {
+    var registeredLocation = fw.components.resourceLocations[componentName];
+    if( !isUndefined(registeredLocation[fileType]) && !isPath(registeredLocation[fileType]) ) {
+      if( isString(registeredLocation[fileType]) ) {
+        // full filename was supplied, lets return that
+        fileName = last( registeredLocation[fileType].split('/') );
+      } else {
+        return null;
+      }
+    }
+  }
+
+  return fileName + (fileExtension !== getFilenameExtension(fileName) ? ('.' + fileExtension) : '');
+};
+
+fw.components.defaultLocation = function(location) {
+  if( isString(location) ) {
+    defaultComponentLocation = extend({}, baseComponentLocation, {
+      combined: location
+    });
+  } else if(isObject(location)) {
+    defaultComponentLocation = extend({}, baseComponentLocation, location);
+  }
+
+  return defaultComponentLocation;
+};
+
+fw.components.registerLocation = function(componentName, componentLocation) {
+  if( isArray(componentName) ) {
+    each(componentName, function(name) {
+      fw.components.registerLocation(name, componentLocation);
+    });
+  }
+
+  if( isString(componentLocation) ) {
+    componentLocation = extend({}, baseComponentLocation, {
+      combined: componentLocation
+    });
+  }
+
+  fw.components.resourceLocations[ componentName ] = extend({}, baseComponentLocation, componentLocation);
+};
+
+fw.components.locationIsRegistered = function(componentName) {
+  return !isUndefined(fw.components.resourceLocations[componentName]);
+};
+
+// Return the component resource definition for the supplied componentName
+fw.components.getLocation = function(componentName) {
+  if( isUndefined(componentName) ) {
+    return fw.components.resourceLocations;
+  }
+  return _.omit(fw.components.resourceLocations[componentName] || defaultComponentLocation, _.isNull);
+};
+
+// framework/resource/createResource.js
+// ------------------
+
+// Create/extend all resource methods onto each descriptor.resource found inside an array of descriptors
+function createResources(descriptors) {
+  each(descriptors, function(descriptor) {
+    if(!isUndefined(descriptor.resource)) {
+      extend(descriptor.resource, resourceHelperFactory(descriptor));
+    }
+  });
+};
+
+runPostInit.push(function() {
+  createResources(entityDescriptors);
 });
 
-extend(fw.outlets, {
-  registerView: function(viewName, templateHTML) {
-    fw.components.register(viewName, { template: templateHTML });
-  },
-  registerViewLocation: function(viewName, viewLocation) {
-    fw.components.registerLocation(viewName, { template: viewLocation })
+// framework/resource/resourceHelperFactory.js
+// ------------------
+
+// assemble all resource methods for a given descriptor object
+function resourceHelperFactory(descriptor) {
+  var resourceMethods = {
+    getFileName: getModelFileName.bind(null, descriptor),
+    register: register.bind(null, descriptor),
+    isRegistered: isRegistered.bind(null, descriptor),
+    getRegistered: getRegistered.bind(null, descriptor),
+    registerLocation: registerModelLocation.bind(null, descriptor),
+    locationIsRegistered: modelLocationIsRegistered.bind(null, descriptor),
+    getLocation: getModelResourceLocation.bind(null, descriptor),
+    defaultLocation: setDefaultModelLocation.bind(null, descriptor),
+    fileExtensions: descriptor.fileExtensions,
+    resourceLocations: descriptor.resourceLocations
+  };
+
+  if(!isUndefined(descriptor.referenceNamespace)) {
+    // Returns a reference to the specified models.
+    // If no name is supplied, a reference to an array containing all viewModel references is returned.
+    resourceMethods.getAll = getModelReferences.bind(null, descriptor);
   }
-});
+
+  return resourceMethods;
+}
 
 
 // framework/component/exports.js
@@ -2448,7 +3198,6 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
           // inject the context and element into the ViewModel contructor
           LoadedViewModel = ViewModel.compose({
             _preInit: function() {
-              this.$context = $context;
               this.$element = $element;
             }
           });
@@ -2548,112 +3297,6 @@ fw.collection = function(config) {
   return collection;
 };
 
-
-// framework/persistence/sync.js
-// ------------------
-
-// Map from CRUD to HTTP for our default `fw.$sync` implementation.
-var methodMap = {
-  'create': 'POST',
-  'update': 'PUT',
-  'patch':  'PATCH',
-  'delete': 'DELETE',
-  'read':   'GET'
-};
-
-var parseURLRegex = /^(http[s]*:\/\/[a-zA-Z0-9:\.]*)*([\/]{0,1}[\w\.:\/-]*)$/;
-var parseParamsRegex = /(:[\w\.]+)/g;
-
-function noURLError() {
-  throw new Error('A "url" property or function must be specified');
-};
-
-fw.sync = function(action, dataModel, params) {
-  params = params || {};
-  action = action || 'noAction';
-
-  if(!isDataModel(dataModel)) {
-    throw new Error('Must supply a dataModel to fw.sync()');
-  }
-
-  var options = extend({
-    type: methodMap[action],
-    dataType: 'json',
-    url: null,
-    data: null,
-    headers: {},
-    emulateHTTP: fw.settings.emulateHTTP,
-    emulateJSON: fw.settings.emulateJSON
-  }, params);
-
-  if(!isString(options.type)) {
-    throw new Error('Invalid action (' + action + ') specified for sync operation');
-  }
-
-  var url = options.url;
-  if(isNull(url)) {
-    var configParams = dataModel.__getConfigParams();
-    url = configParams.url;
-    if(isFunction(url)) {
-      url = url.call(dataModel, action);
-    } else {
-      if(contains(['read', 'update', 'patch', 'delete'], action)) {
-        // need to append /:id to url
-        url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
-      }
-    }
-  }
-  var urlPieces = (url || noURLError()).match(parseURLRegex);
-  var baseURL = urlPieces[1] || '';
-  options.url = last(urlPieces);
-
-  // replace any interpolated parameters
-  var urlParams = options.url.match(parseParamsRegex);
-  if(urlParams) {
-    each(urlParams, function(param) {
-      options.url = options.url.replace(param, dataModel.$toJS(param.substr(1)));
-    });
-  }
-  options.url = baseURL + options.url;
-
-  if(isNull(options.data) && dataModel && contains(['create', 'update', 'patch'], action)) {
-    options.contentType = 'application/json';
-    options.data = dataModel.$toJS();
-  }
-
-  // For older servers, emulate JSON by encoding the request into an HTML-form.
-  if(options.emulateJSON) {
-    options.contentType = 'application/x-www-form-urlencoded';
-    options.data = options.data ? { model: options.data } : {};
-  }
-
-  // For older servers, emulate HTTP by mimicking the HTTP method with `_method`
-  // And an `X-HTTP-Method-Override` header.
-  if(options.emulateHTTP && contains(['PUT', 'DELETE', 'PATCH'], options.type)) {
-    options.type = 'POST';
-
-    if(options.emulateJSON) {
-      options.data._method = options.type;
-    }
-    extend(options.headers, { 'X-HTTP-Method-Override': options.type });
-  }
-
-  // Don't process data on a non-GET request.
-  if(options.type !== 'GET' && !options.emulateJSON) {
-    options.processData = false;
-  }
-
-  // Pass along `textStatus` and `errorThrown` from jQuery.
-  // var error = options.error;
-  // options.error = function(xhr, textStatus, errorThrown) {
-  //   options.textStatus = textStatus;
-  //   options.errorThrown = errorThrown;
-  //   if (error) error.call(options.context, xhr, textStatus, errorThrown);
-  // };
-
-  return fw.ajax(options);
-  // dataModel.trigger('request', model, xhr, options);
-};
 
 
 // 'start' up the framework at the targetElement (or document.body by default)

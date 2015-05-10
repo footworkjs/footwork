@@ -50,7 +50,6 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
       callback(function(params, componentInfo) {
         var componentElement = componentInfo.element;
         var $element = (componentElement.nodeType === 8 ? (componentElement.parentElement || componentElement.parentNode) : componentElement);
-        var $context = fw.contextFor($element);
         var LoadedViewModel = ViewModel;
         if( isFunction(ViewModel) ) {
           if( !isEntityCtor(ViewModel) ) {
@@ -60,7 +59,6 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
           // inject the context and element into the ViewModel contructor
           LoadedViewModel = ViewModel.compose({
             _preInit: function() {
-              this.$context = $context;
               this.$element = $element;
             }
           });
