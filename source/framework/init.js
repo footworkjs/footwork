@@ -17,9 +17,7 @@ var runPostInit = [];
 var internalComponents = [];
 var entityDescriptors = [];
 var entityMixins = [];
-
-var assessHistoryState;
-var originalApplyBindings;
+var footwork = {};
 
 var isEntityCtor;
 var isEntity;

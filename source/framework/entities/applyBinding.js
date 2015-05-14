@@ -1,9 +1,26 @@
 // framework/entities/applyBinding.js
 // ------------------
 
-// Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.
-originalApplyBindings = fw.applyBindings;
+var historyStateAssessed = false;
+function assessHistoryState() {
+  if(!historyStateAssessed) {
+    historyStateAssessed = true;
+
+    footwork.hasHTML5History = !!windowObject.history && !!windowObject.history.pushState;
+    if(!isUndefined(windowObject.History) && isObject(windowObject.History.options) && windowObject.History.options.html4Mode) {
+      // user is overriding to force html4mode hash-based history
+      footwork.hasHTML5History = false;
+    }
+  }
+}
+
+// Override the original applyBindings method to assess history API state and provide viewModel/dataModel/router life-cycle
+var originalApplyBindings = fw.applyBindings;
 fw.applyBindings = function(viewModel, element) {
+  // must initialize default require context (https://github.com/jrburke/requirejs/issues/1305#issuecomment-87924865)
+  isFunction(require) && require([]);
+
+  assessHistoryState();
   originalApplyBindings(viewModel, element);
   setupContextAndLifeCycle(viewModel, element);
 };

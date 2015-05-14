@@ -1,8 +1,6 @@
 // framework/entities/router/init.js
 // ------------------
 
-var hasHTML5History = false;
-
 // Regular expressions used to parse a uri
 var optionalParamRegex = /\((.*?)\)/g;
 var namedParamRegex = /(\(\?)?:\w+/g;
