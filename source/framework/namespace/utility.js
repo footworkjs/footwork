@@ -22,7 +22,6 @@ function isNamespace(thing) {
 // 'entering' into that namespace (it is now the current namespace).
 // The namespace object returned from this method also has a pointer to its parent
 function enterNamespaceName(namespaceName) {
-  var $parentNamespace = fw.utils.currentNamespace();
   namespaceStack.unshift( namespaceName );
   return fw.namespace( fw.utils.currentNamespaceName() );
 }

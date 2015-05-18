@@ -238,8 +238,6 @@ var Router = function(descriptor, configParams) {
           }
         }, this));
       }
-
-      this.$namespace.exit();
     },
     mixin: {
       setRoutes: function(routeDesc) {
