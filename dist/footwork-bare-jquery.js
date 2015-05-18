@@ -378,9 +378,7 @@ var runPostInit = [];
 var internalComponents = [];
 var entityDescriptors = [];
 var entityMixins = [];
-
-var assessHistoryState;
-var originalApplyBindings;
+var footwork = {};
 
 var isEntityCtor;
 var isEntity;
@@ -523,7 +521,6 @@ function isNamespace(thing) {
 // 'entering' into that namespace (it is now the current namespace).
 // The namespace object returned from this method also has a pointer to its parent
 function enterNamespaceName(namespaceName) {
-  var $parentNamespace = fw.utils.currentNamespace();
   namespaceStack.unshift( namespaceName );
   return fw.namespace( fw.utils.currentNamespaceName() );
 }
@@ -1293,8 +1290,6 @@ var DataModel = function(descriptor, configParams) {
 // framework/entities/router/init.js
 // ------------------
 
-var hasHTML5History = false;
-
 // Regular expressions used to parse a uri
 var optionalParamRegex = /\((.*?)\)/g;
 var namedParamRegex = /(\(\?)?:\w+/g;
@@ -1406,14 +1401,6 @@ function nearestParentRouter($context) {
   }
   return $parentRouter;
 }
-
-(assessHistoryState = function() {
-  hasHTML5History = !!windowObject.history && !!windowObject.history.pushState;
-  if(!isUndefined(windowObject.History) && isObject(windowObject.History.options) && windowObject.History.options.html4Mode) {
-    // user is overriding to force html4mode hash-based history
-    hasHTML5History = false;
-  }
-})();
 
 // framework/entities/router/outlet.js
 // ------------------
@@ -1705,7 +1692,7 @@ extend(fw.routers, {
   activeRouteClassName: fw.observable('active'),
   disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: fw.namespace() }),
   html5History: function() {
-    return hasHTML5History;
+    return footwork.hasHTML5History;
   },
   getNearestParent: function($context) {
     var $parentRouter = nearestParentRouter($context);
@@ -1962,8 +1949,6 @@ var Router = function(descriptor, configParams) {
           }
         }, this));
       }
-
-      this.$namespace.exit();
     },
     mixin: {
       setRoutes: function(routeDesc) {
@@ -2608,8 +2593,6 @@ var Router = function(descriptor, configParams) {
           }
         }, this));
       }
-
-      this.$namespace.exit();
     },
     mixin: {
       setRoutes: function(routeDesc) {
@@ -2930,9 +2913,26 @@ function setupContextAndLifeCycle(entity, element) {
 // framework/entities/applyBinding.js
 // ------------------
 
-// Override the original applyBindings method to provide 'viewModel' life-cycle hooks/events and to provide the $context to the $router if present.
-originalApplyBindings = fw.applyBindings;
+var historyStateAssessed = false;
+function assessHistoryState() {
+  if(!historyStateAssessed) {
+    historyStateAssessed = true;
+
+    footwork.hasHTML5History = !!windowObject.history && !!windowObject.history.pushState;
+    if(!isUndefined(windowObject.History) && isObject(windowObject.History.options) && windowObject.History.options.html4Mode) {
+      // user is overriding to force html4mode hash-based history
+      footwork.hasHTML5History = false;
+    }
+  }
+}
+
+// Override the original applyBindings method to assess history API state and provide viewModel/dataModel/router life-cycle
+var originalApplyBindings = fw.applyBindings;
 fw.applyBindings = function(viewModel, element) {
+  // must initialize default require context (https://github.com/jrburke/requirejs/issues/1305#issuecomment-87924865)
+  isFunction(require) && require([]);
+
+  assessHistoryState();
   originalApplyBindings(viewModel, element);
   setupContextAndLifeCycle(viewModel, element);
 };
@@ -3599,12 +3599,8 @@ fw.collection = function(config) {
 
 // 'start' up the framework at the targetElement (or document.body by default)
 fw.start = function(targetElement) {
-  // must initialize require context (https://github.com/jrburke/requirejs/issues/1305#issuecomment-87924865)
-  isFunction(require) && require([]);
-
-  assessHistoryState();
   targetElement = targetElement || windowObject.document.body;
-  originalApplyBindings({}, targetElement);
+  fw.applyBindings({}, targetElement);
 };
 
 each(runPostInit, function(runTask) {
