@@ -6,7 +6,7 @@ function isBeforeInitMixin(mixin) {
 }
 
 function entityMixin(thing) {
-  return ( (isArray(thing) && thing.length) || isObject(thing) ? thing : {} );
+  return ((isArray(thing) && thing.length) || isObject(thing) ? thing : {});
 }
 
 function entityClassFactory(descriptor, configParams) {
