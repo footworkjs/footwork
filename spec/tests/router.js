@@ -126,6 +126,36 @@ describe('router', function () {
     }, 40);
   });
 
+  it('calls afterBinding after initialize with the correct target element when creating and binding a new instance', function() {
+    var initializeWasCalledFirst = false;
+    var afterBindingWasCalledSecond = false;
+    var containerIsTheSame = false;
+    var container = document.getElementById('afterBindingRouter');
+
+    var Router = fw.router({
+      namespace: 'Router',
+      initialize: function() {
+        if(!afterBindingWasCalledSecond) {
+          initializeWasCalledFirst = true;
+        }
+      },
+      afterBinding: function(containingElement) {
+        if(initializeWasCalledFirst) {
+          afterBindingWasCalledSecond = true;
+        }
+        if(containingElement === container) {
+          containerIsTheSame = true;
+        }
+      }
+    });
+
+    var router = new Router();
+    fw.applyBindings(router, container);
+
+    expect(afterBindingWasCalledSecond).to.be(true);
+    expect(containerIsTheSame).to.be(true);
+  });
+
   it('can be nested and initialized declaratively', function(done) {
     var container = document.getElementById('declarativeNestedRouterInstantiation');
     var outerWasInitialized = false;
