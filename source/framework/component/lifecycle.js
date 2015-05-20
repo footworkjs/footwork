@@ -15,7 +15,7 @@ function componentTriggerAfterBinding(element, viewModel) {
           if(element.className.indexOf(bindingClassName) === -1 && isNull(element.getAttribute('data-tags'))) {
             element.className += ' ' + bindingClassName;
           }
-        }, 0);
+        }, 20);
         afterBinding.call(this, element);
       };
 
