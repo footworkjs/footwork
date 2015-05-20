@@ -13,10 +13,26 @@ function setupContextAndLifeCycle(entity, element) {
       element = element.parentElement || element.parentNode;
     }
 
+    if(element.className.indexOf(entityClassName) === -1 && isUndefined(element.getAttribute('data-tags'))) {
+      element.className += entityClassName;
+    }
+
     entity.$element = element;
     entity.$context = elementContext = fw.contextFor(element);
 
     if( isFunction($configParams.afterBinding) ) {
+        var afterBinding = noop;
+        if(isFunction($configParams.afterBinding)) {
+          afterBinding = $configParams.afterBinding;
+        }
+
+        $configParams.afterBinding = function(element) {
+          setTimeout(function() {
+            if(element.className.indexOf(bindingClassName) === -1 && isUndefined(element.getAttribute('data-tags')))
+            element.className += ' ' + bindingClassName;
+          }, 0);
+          afterBinding.call(this, element);
+        };
       $configParams.afterBinding.call(entity, element);
     }
 

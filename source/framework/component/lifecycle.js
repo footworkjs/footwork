@@ -5,6 +5,20 @@ function componentTriggerAfterBinding(element, viewModel) {
   if( isEntity(viewModel) ) {
     var configParams = viewModel.__getConfigParams();
     if( isFunction(configParams.afterBinding) ) {
+      var afterBinding = noop;
+      if(isFunction(configParams.afterBinding)) {
+        afterBinding = configParams.afterBinding;
+      }
+
+      configParams.afterBinding = function(element) {
+        setTimeout(function() {
+          if(element.className.indexOf(bindingClassName) === -1 && isUndefined(element.getAttribute('data-tags'))) {
+            element.className += ' ' + bindingClassName;
+          }
+        }, 0);
+        afterBinding.call(this, element);
+      };
+
       configParams.afterBinding.call(viewModel, element);
     }
   }
@@ -14,6 +28,13 @@ function componentTriggerAfterBinding(element, viewModel) {
 fw.virtualElements.allowedBindings.$life = true;
 fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    element = element.parentElement || element.parentNode;
+    if(element.tagName.toLowerCase() !== 'outlet' && isString(element.className)) {
+      if(element.className.indexOf(entityClassName) === -1 && isUndefined(element.getAttribute('data-tags'))) {
+        element.className += entityClassName;
+      }
+    }
+
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if( isEntity(viewModel) ) {
         viewModel.dispose();
@@ -21,11 +42,12 @@ fw.bindingHandlers.$life = {
     });
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    element = element.parentElement || element.parentNode;
     var $parent = bindingContext.$parent;
     if( isObject($parent) && $parent.__isOutlet ) {
-      $parent.$route().__getOnCompleteCallback()(element.parentElement || element.parentNode);
+      $parent.$route().__getOnCompleteCallback()(element);
     }
-    componentTriggerAfterBinding(element.parentElement || element.parentNode, bindingContext.$data);
+    componentTriggerAfterBinding(element, bindingContext.$data);
   }
 };
 

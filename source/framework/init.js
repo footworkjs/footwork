@@ -19,6 +19,8 @@ var entityDescriptors = [];
 var entityMixins = [];
 var footwork = {};
 
+var entityClassName = 'fw-entity';
+var bindingClassName = 'fw-entity-bound';
 var isEntityCtor;
 var isEntity;
 var isDataModel;
