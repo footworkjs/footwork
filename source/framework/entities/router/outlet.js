@@ -67,7 +67,7 @@ function $routerOutlet(outletName, componentToDisplay, options ) {
       var isComplete = callCounter === 0;
       callCounter--;
       if( isComplete ) {
-        return function(element) {
+        return function addBindingOnComplete(element) {
           element.className += ' ' + bindingClassName;
           onComplete.apply(this, arguments);
         };
