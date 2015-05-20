@@ -29,7 +29,7 @@ function $routerOutlet(outletName, componentToDisplay, options ) {
   }
 
   var viewModelParameters = options.params;
-  var onComplete = options.onComplete;
+  var onComplete = options.onComplete || noop;
   var outlets = this.outlets;
 
   outletName = fw.unwrap( outletName );
@@ -57,26 +57,23 @@ function $routerOutlet(outletName, componentToDisplay, options ) {
   }
 
   if( valueHasMutated ) {
-    if( isFunction(onComplete) ) {
-      // Return the onComplete callback once the DOM is injected in the page.
-      // For some reason, on initial outlet binding only calls update once. Subsequent
-      // changes get called twice (correct per docs, once upon initial binding, and once
-      // upon injection into the DOM). Perhaps due to usage of virtual DOM for the component?
-      var callCounter = (isInitialLoad ? 0 : 1);
+    // Return the onComplete callback once the DOM is injected in the page.
+    // For some reason, on initial outlet binding only calls update once. Subsequent
+    // changes get called twice (correct per docs, once upon initial binding, and once
+    // upon injection into the DOM). Perhaps due to usage of virtual DOM for the component?
+    var callCounter = (isInitialLoad ? 0 : 1);
 
-      currentOutletDef.__getOnCompleteCallback = function() {
-        var isComplete = callCounter === 0;
-        callCounter--;
-        if( isComplete ) {
-          return onComplete;
-        }
-        return noop;
-      };
-    } else {
-      currentOutletDef.__getOnCompleteCallback = function() {
-        return noop;
-      };
-    }
+    currentOutletDef.__getOnCompleteCallback = function() {
+      var isComplete = callCounter === 0;
+      callCounter--;
+      if( isComplete ) {
+        return function(element) {
+          element.className += ' ' + bindingClassName;
+          onComplete.apply(this, arguments);
+        };
+      }
+      return noop;
+    };
 
     outlet.valueHasMutated();
   }

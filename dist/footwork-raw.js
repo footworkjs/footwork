@@ -80,6 +80,8 @@ var entityDescriptors = [];
 var entityMixins = [];
 var footwork = {};
 
+var entityClassName = 'fw-entity';
+var bindingClassName = 'fw-entity-bound';
 var isEntityCtor;
 var isEntity;
 var isDataModel;
@@ -1133,7 +1135,7 @@ function $routerOutlet(outletName, componentToDisplay, options ) {
   }
 
   var viewModelParameters = options.params;
-  var onComplete = options.onComplete;
+  var onComplete = options.onComplete || noop;
   var outlets = this.outlets;
 
   outletName = fw.unwrap( outletName );
@@ -1161,26 +1163,23 @@ function $routerOutlet(outletName, componentToDisplay, options ) {
   }
 
   if( valueHasMutated ) {
-    if( isFunction(onComplete) ) {
-      // Return the onComplete callback once the DOM is injected in the page.
-      // For some reason, on initial outlet binding only calls update once. Subsequent
-      // changes get called twice (correct per docs, once upon initial binding, and once
-      // upon injection into the DOM). Perhaps due to usage of virtual DOM for the component?
-      var callCounter = (isInitialLoad ? 0 : 1);
+    // Return the onComplete callback once the DOM is injected in the page.
+    // For some reason, on initial outlet binding only calls update once. Subsequent
+    // changes get called twice (correct per docs, once upon initial binding, and once
+    // upon injection into the DOM). Perhaps due to usage of virtual DOM for the component?
+    var callCounter = (isInitialLoad ? 0 : 1);
 
-      currentOutletDef.__getOnCompleteCallback = function() {
-        var isComplete = callCounter === 0;
-        callCounter--;
-        if( isComplete ) {
-          return onComplete;
-        }
-        return noop;
-      };
-    } else {
-      currentOutletDef.__getOnCompleteCallback = function() {
-        return noop;
-      };
-    }
+    currentOutletDef.__getOnCompleteCallback = function() {
+      var isComplete = callCounter === 0;
+      callCounter--;
+      if( isComplete ) {
+        return function(element) {
+          element.className += ' ' + bindingClassName;
+          onComplete.apply(this, arguments);
+        };
+      }
+      return noop;
+    };
 
     outlet.valueHasMutated();
   }
@@ -2597,10 +2596,26 @@ function setupContextAndLifeCycle(entity, element) {
       element = element.parentElement || element.parentNode;
     }
 
+    if(element.className.indexOf(entityClassName) === -1) {
+      element.className += entityClassName;
+    }
+
     entity.$element = element;
     entity.$context = elementContext = fw.contextFor(element);
 
     if( isFunction($configParams.afterBinding) ) {
+        var afterBinding = noop;
+        if(isFunction($configParams.afterBinding)) {
+          afterBinding = $configParams.afterBinding;
+        }
+
+        $configParams.afterBinding = function(element) {
+          setTimeout(function() {
+            if(element.className.indexOf(bindingClassName) === -1)
+            element.className += ' ' + bindingClassName;
+          }, 0);
+          afterBinding.call(this, element);
+        };
       $configParams.afterBinding.call(entity, element);
     }
 
@@ -3148,6 +3163,20 @@ function componentTriggerAfterBinding(element, viewModel) {
   if( isEntity(viewModel) ) {
     var configParams = viewModel.__getConfigParams();
     if( isFunction(configParams.afterBinding) ) {
+      var afterBinding = noop;
+      if(isFunction(configParams.afterBinding)) {
+        afterBinding = configParams.afterBinding;
+      }
+
+      configParams.afterBinding = function(element) {
+        setTimeout(function() {
+          if(element.className.indexOf(bindingClassName) === -1) {
+            element.className += ' ' + bindingClassName;
+          }
+        }, 20);
+        afterBinding.call(this, element);
+      };
+
       configParams.afterBinding.call(viewModel, element);
     }
   }
@@ -3157,6 +3186,13 @@ function componentTriggerAfterBinding(element, viewModel) {
 fw.virtualElements.allowedBindings.$life = true;
 fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    element = element.parentElement || element.parentNode;
+    if(isString(element.className)) {
+      if(element.className.indexOf(entityClassName) === -1) {
+        element.className += entityClassName;
+      }
+    }
+
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if( isEntity(viewModel) ) {
         viewModel.dispose();
@@ -3164,11 +3200,12 @@ fw.bindingHandlers.$life = {
     });
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    element = element.parentElement || element.parentNode;
     var $parent = bindingContext.$parent;
     if( isObject($parent) && $parent.__isOutlet ) {
-      $parent.$route().__getOnCompleteCallback()(element.parentElement || element.parentNode);
+      $parent.$route().__getOnCompleteCallback()(element);
     }
-    componentTriggerAfterBinding(element.parentElement || element.parentNode, bindingContext.$data);
+    componentTriggerAfterBinding(element, bindingContext.$data);
   }
 };
 
