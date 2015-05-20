@@ -13,7 +13,7 @@ function setupContextAndLifeCycle(entity, element) {
       element = element.parentElement || element.parentNode;
     }
 
-    if(element.className.indexOf(entityClassName) === -1 && isUndefined(element.getAttribute('data-tags'))) {
+    if(element.className.indexOf(entityClassName) === -1 && isNull(element.getAttribute('data-tags'))) {
       element.className += entityClassName;
     }
 
@@ -28,7 +28,7 @@ function setupContextAndLifeCycle(entity, element) {
 
         $configParams.afterBinding = function(element) {
           setTimeout(function() {
-            if(element.className.indexOf(bindingClassName) === -1 && isUndefined(element.getAttribute('data-tags')))
+            if(element.className.indexOf(bindingClassName) === -1 && isNull(element.getAttribute('data-tags')))
             element.className += ' ' + bindingClassName;
           }, 0);
           afterBinding.call(this, element);

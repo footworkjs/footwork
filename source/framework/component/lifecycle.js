@@ -12,7 +12,7 @@ function componentTriggerAfterBinding(element, viewModel) {
 
       configParams.afterBinding = function(element) {
         setTimeout(function() {
-          if(element.className.indexOf(bindingClassName) === -1 && isUndefined(element.getAttribute('data-tags'))) {
+          if(element.className.indexOf(bindingClassName) === -1 && isNull(element.getAttribute('data-tags'))) {
             element.className += ' ' + bindingClassName;
           }
         }, 0);
@@ -30,7 +30,7 @@ fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
     if(element.tagName.toLowerCase() !== 'outlet' && isString(element.className)) {
-      if(element.className.indexOf(entityClassName) === -1 && isUndefined(element.getAttribute('data-tags'))) {
+      if(element.className.indexOf(entityClassName) === -1 && isNull(element.getAttribute('data-tags'))) {
         element.className += entityClassName;
       }
     }
