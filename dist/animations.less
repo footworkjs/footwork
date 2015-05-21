@@ -1,33 +1,56 @@
 .fw-entity {
   @moveDistance: 20px;
 
-  & > .fade-in {
+  & > .sub-fade-in,
+  & > * > .sub-fade-in,
+  & > * > * > .sub-fade-in,
+  & > * > * > * > .sub-fade-in {
     opacity: 0;
     .transition(all 0.5s ease);
   }
 
-  & > .fade-in-from-left {
+  & > .fade-in,
+  & > * > .fade-in,
+  & > * > * > .fade-in,
+  & > * > * > * > .fade-in {
+    opacity: 0;
+    .transition(all 0.5s ease);
+  }
+
+  & > .fade-in-from-left,
+  & > * > .fade-in-from-left,
+  & > * > * > .fade-in-from-left,
+  & > * > * > * > .fade-in-from-left {
     position: relative;
     left: -@moveDistance;
     opacity: 0;
     .transition(all 0.5s ease);
   }
 
-  & > .fade-in-from-right {
+  & > .fade-in-from-right,
+  & > * > .fade-in-from-right,
+  & > * > * > .fade-in-from-right,
+  & > * > * > * > .fade-in-from-right {
     position: relative;
     left: @moveDistance;
     opacity: 0;
     .transition(all 0.5s ease);
   }
 
-  & > .fade-in-from-top {
+  & > .fade-in-from-top,
+  & > * > .fade-in-from-top,
+  & > * > * > .fade-in-from-top,
+  & > * > * > * > .fade-in-from-top {
     position: relative;
     top: -@moveDistance;
     opacity: 0;
     .transition(all 0.5s ease);
   }
 
-  & > .fade-in-from-bottom {
+  & > .fade-in-from-bottom,
+  & > * > .fade-in-from-bottom,
+  & > * > * > .fade-in-from-bottom,
+  & > * > * > * > .fade-in-from-bottom {
     position: relative;
     top: @moveDistance;
     opacity: 0;
@@ -36,15 +59,28 @@
 }
 
 .fw-entity-bound {
-  & > .fade-in {
+  & > .fade-in,
+  & > .sub-fade-in {
     opacity: 1;
     .transition(all 0.5s ease);
   }
 
-  & > .fade-in-from-right,
   & > .fade-in-from-left,
+  & > * > .fade-in-from-left,
+  & > * > * > .fade-in-from-left,
+  & > * > * > * > .fade-in-from-left,
+  & > .fade-in-from-right,
+  & > * > .fade-in-from-right,
+  & > * > * > .fade-in-from-right,
+  & > * > * > * > .fade-in-from-right,
   & > .fade-in-from-top,
-  & > .fade-in-from-bottom {
+  & > * > .fade-in-from-top,
+  & > * > * > .fade-in-from-top,
+  & > * > * > * > .fade-in-from-top,
+  & > .fade-in-from-bottom,
+  & > * > .fade-in-from-bottom,
+  & > * > * > .fade-in-from-bottom,
+  & > * > * > * > .fade-in-from-bottom {
     position: relative;
     left: 0;
     top: 0;

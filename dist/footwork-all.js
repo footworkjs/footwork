@@ -8349,7 +8349,7 @@ fw.bindingHandlers.$bind = {
   }
 };
 
-function $routerOutlet(outletName, componentToDisplay, options ) {
+function $routerOutlet(outletName, componentToDisplay, options) {
   options = options || {};
   if( isFunction(options) ) {
     options = { onComplete: options };
@@ -8390,15 +8390,21 @@ function $routerOutlet(outletName, componentToDisplay, options ) {
     // upon injection into the DOM). Perhaps due to usage of virtual DOM for the component?
     var callCounter = (isInitialLoad ? 0 : 1);
 
-    currentOutletDef.__getOnCompleteCallback = function() {
+    currentOutletDef.__getOnCompleteCallback = function(element) {
       var isComplete = callCounter === 0;
       callCounter--;
       if( isComplete ) {
-        return function(element) {
-          element.className += ' ' + bindingClassName;
+        return function addBindingOnComplete(element) {
+          setTimeout(function() {
+            if(element.className.indexOf(bindingClassName) === -1) {
+              element.className += ' ' + bindingClassName;
+            }
+          }, 20);
+
           onComplete.apply(this, arguments);
         };
       }
+      element.className = element.className.replace(' ' + bindingClassName, '');
       return noop;
     };
 
@@ -10424,7 +10430,7 @@ fw.bindingHandlers.$life = {
     element = element.parentElement || element.parentNode;
     var $parent = bindingContext.$parent;
     if( isObject($parent) && $parent.__isOutlet ) {
-      $parent.$route().__getOnCompleteCallback()(element);
+      $parent.$route().__getOnCompleteCallback(element)(element);
     }
     componentTriggerAfterBinding(element, bindingContext.$data);
   }
