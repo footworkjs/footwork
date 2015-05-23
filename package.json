@@ -104,6 +104,7 @@
     "gulp-size": "~0.3.1",
     "gulp-replace": "~0.3.0",
     "gulp-bump": "*",
-    "gulp-mocha-phantomjs": "~0.5.3"
+    "gulp-mocha-phantomjs": "~0.5.3",
+    "gulp-less": "*"
   }
 }

@@ -1,0 +1,75 @@
+.fw-entity .fade-in {
+  opacity: 0;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -ms-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+.fw-entity .fade-in-from-left {
+  position: relative;
+  left: -15px;
+  opacity: 0;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -ms-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+.fw-entity .fade-in-from-right {
+  position: relative;
+  left: 15px;
+  opacity: 0;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -ms-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+.fw-entity .fade-in-from-top {
+  position: relative;
+  top: -15px;
+  opacity: 0;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -ms-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+.fw-entity .fade-in-from-bottom {
+  position: relative;
+  top: 15px;
+  opacity: 0;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -ms-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+.fw-entity-bound > .fade-in,
+.fw-entity-bound > * > .fade-in {
+  opacity: 1;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -ms-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+.fw-entity-bound > .fade-in-from-left,
+.fw-entity-bound > .fade-in-from-right,
+.fw-entity-bound > .fade-in-from-top,
+.fw-entity-bound > .fade-in-from-bottom,
+.fw-entity-bound > * > .fade-in-from-left,
+.fw-entity-bound > * > .fade-in-from-right,
+.fw-entity-bound > * > .fade-in-from-top,
+.fw-entity-bound > * > .fade-in-from-bottom {
+  position: relative;
+  left: 0;
+  top: 0;
+  opacity: 1;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -ms-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}

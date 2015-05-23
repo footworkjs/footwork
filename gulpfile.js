@@ -13,6 +13,7 @@ var moment = require('moment');
 var _ = require('lodash');
 var runSequence = require('run-sequence');
 var fs = require('fs');
+var less = require('gulp-less');
 
 var pkg = require('./package.json');
 var reporter = 'list';
@@ -125,6 +126,12 @@ gulp.task('build_bare_reqwest', function() {
 
 gulp.task('build_raw', function() {
   return buildRelease('raw');
+});
+
+gulp.task('build_animations_css', function() {
+  return gulp.src('./dist/animation/animation.less')
+    .pipe(less())
+    .pipe(gulp.dest('./dist/animation'));
 });
 
 gulp.task('set_version', function() {
