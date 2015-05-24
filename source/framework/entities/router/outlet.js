@@ -67,14 +67,14 @@ function $routerOutlet(outletName, componentToDisplay, options) {
       var isComplete = callCounter === 0;
       callCounter--;
       if( isComplete ) {
-        return function addBindingOnComplete(element) {
+        return function addBindingOnComplete() {
           setTimeout(function() {
             if(element.className.indexOf(bindingClassName) === -1) {
               element.className += ' ' + bindingClassName;
             }
-          }, 20);
+          }, animationIteration);
 
-          onComplete.apply(this, arguments);
+          onComplete.call(this, element);
         };
       }
       element.className = element.className.replace(' ' + bindingClassName, '');

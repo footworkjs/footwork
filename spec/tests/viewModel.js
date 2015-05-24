@@ -226,6 +226,39 @@ describe('viewModel', function () {
     }, 0);
   });
 
+  it('has the animation classes applied properly', function(done) {
+    var wasInitialized = false;
+    var container = document.getElementById('afterBindingViewModelAnimation');
+    var afterBindingCalled = false;
+    var theElement;
+
+    fw.viewModel({
+      namespace: 'afterBindingViewModelAnimation',
+      autoRegister: true,
+      initialize: function() {
+        wasInitialized = true;
+      },
+      afterBinding: function(element) {
+        afterBindingCalled = true;
+        theElement = element;
+        expect(theElement.className.indexOf('fw-entity-bound')).to.be(-1);
+      }
+    });
+
+    expect(afterBindingCalled).to.be(false);
+    expect(wasInitialized).to.be(false);
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(afterBindingCalled).to.be(true);
+      expect(wasInitialized).to.be(true);
+      setTimeout(function() {
+        expect(theElement.className.indexOf('fw-entity-bound')).to.be.greaterThan(-1);
+        done();
+      }, 100);
+    }, 0);
+  });
+
   it('can nest <viewModel> declarations', function(done) {
     var container = document.getElementById('nestedViewModels');
     var outerWasInitialized = false;

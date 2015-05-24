@@ -15,7 +15,7 @@ function componentTriggerAfterBinding(element, viewModel) {
           if(element.className.indexOf(bindingClassName) === -1) {
             element.className += ' ' + bindingClassName;
           }
-        }, 20);
+        }, animationIteration);
         afterBinding.call(this, element);
       };
 
@@ -24,7 +24,7 @@ function componentTriggerAfterBinding(element, viewModel) {
   }
 }
 
-// Use the $life wrapper binding to provide lifecycle events for components
+// $life wrapper binding to provide lifecycle events for components
 fw.virtualElements.allowedBindings.$life = true;
 fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
@@ -45,7 +45,7 @@ fw.bindingHandlers.$life = {
     element = element.parentElement || element.parentNode;
     var $parent = bindingContext.$parent;
     if( isObject($parent) && $parent.__isOutlet ) {
-      $parent.$route().__getOnCompleteCallback(element)(element);
+      $parent.$route().__getOnCompleteCallback(element)();
     }
     componentTriggerAfterBinding(element, bindingContext.$data);
   }

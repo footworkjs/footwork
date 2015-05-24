@@ -30,7 +30,7 @@ function setupContextAndLifeCycle(entity, element) {
           setTimeout(function() {
             if(element.className.indexOf(bindingClassName) === -1)
             element.className += ' ' + bindingClassName;
-          }, 20);
+          }, animationIteration);
           afterBinding.call(this, element);
         };
       $configParams.afterBinding.call(entity, element);

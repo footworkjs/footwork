@@ -8,7 +8,7 @@
 }
 .fw-entity .fade-in-from-left {
   position: relative;
-  left: -15px;
+  left: -20px;
   opacity: 0;
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
@@ -18,7 +18,7 @@
 }
 .fw-entity .fade-in-from-right {
   position: relative;
-  left: 15px;
+  left: 20px;
   opacity: 0;
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
@@ -28,7 +28,7 @@
 }
 .fw-entity .fade-in-from-top {
   position: relative;
-  top: -15px;
+  top: -20px;
   opacity: 0;
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
@@ -38,7 +38,7 @@
 }
 .fw-entity .fade-in-from-bottom {
   position: relative;
-  top: 15px;
+  top: 20px;
   opacity: 0;
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;

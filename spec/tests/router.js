@@ -156,6 +156,39 @@ describe('router', function () {
     expect(containerIsTheSame).to.be(true);
   });
 
+  it('has the animation classes applied properly', function(done) {
+    var wasInitialized = false;
+    var container = document.getElementById('afterBindingRouterAnimation');
+    var afterBindingCalled = false;
+    var theElement;
+
+    fw.router({
+      namespace: 'afterBindingRouterAnimation',
+      autoRegister: true,
+      initialize: function() {
+        wasInitialized = true;
+      },
+      afterBinding: function(element) {
+        afterBindingCalled = true;
+        theElement = element;
+        expect(theElement.className.indexOf('fw-entity-bound')).to.be(-1);
+      }
+    });
+
+    expect(afterBindingCalled).to.be(false);
+    expect(wasInitialized).to.be(false);
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(afterBindingCalled).to.be(true);
+      expect(wasInitialized).to.be(true);
+      setTimeout(function() {
+        expect(theElement.className.indexOf('fw-entity-bound')).to.be.greaterThan(-1);
+        done();
+      }, 100);
+    }, 0);
+  });
+
   it('can be nested and initialized declaratively', function(done) {
     var container = document.getElementById('declarativeNestedRouterInstantiation');
     var outerWasInitialized = false;

@@ -82,6 +82,7 @@ var footwork = {};
 
 var entityClassName = 'fw-entity';
 var bindingClassName = 'fw-entity-bound';
+var animationIteration = 20;
 var isEntityCtor;
 var isEntity;
 var isDataModel;
@@ -1173,14 +1174,14 @@ function $routerOutlet(outletName, componentToDisplay, options) {
       var isComplete = callCounter === 0;
       callCounter--;
       if( isComplete ) {
-        return function addBindingOnComplete(element) {
+        return function addBindingOnComplete() {
           setTimeout(function() {
             if(element.className.indexOf(bindingClassName) === -1) {
               element.className += ' ' + bindingClassName;
             }
-          }, 20);
+          }, animationIteration);
 
-          onComplete.apply(this, arguments);
+          onComplete.call(this, element);
         };
       }
       element.className = element.className.replace(' ' + bindingClassName, '');
@@ -2619,7 +2620,7 @@ function setupContextAndLifeCycle(entity, element) {
           setTimeout(function() {
             if(element.className.indexOf(bindingClassName) === -1)
             element.className += ' ' + bindingClassName;
-          }, 20);
+          }, animationIteration);
           afterBinding.call(this, element);
         };
       $configParams.afterBinding.call(entity, element);
@@ -3179,7 +3180,7 @@ function componentTriggerAfterBinding(element, viewModel) {
           if(element.className.indexOf(bindingClassName) === -1) {
             element.className += ' ' + bindingClassName;
           }
-        }, 20);
+        }, animationIteration);
         afterBinding.call(this, element);
       };
 
@@ -3188,7 +3189,7 @@ function componentTriggerAfterBinding(element, viewModel) {
   }
 }
 
-// Use the $life wrapper binding to provide lifecycle events for components
+// $life wrapper binding to provide lifecycle events for components
 fw.virtualElements.allowedBindings.$life = true;
 fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
@@ -3209,7 +3210,7 @@ fw.bindingHandlers.$life = {
     element = element.parentElement || element.parentNode;
     var $parent = bindingContext.$parent;
     if( isObject($parent) && $parent.__isOutlet ) {
-      $parent.$route().__getOnCompleteCallback(element)(element);
+      $parent.$route().__getOnCompleteCallback(element)();
     }
     componentTriggerAfterBinding(element, bindingContext.$data);
   }

@@ -1,9 +1,8 @@
-@moveDistance: 15px;
+@moveDistance: 20px;
 @speed: 0.5s;
 @easing: ease;
 
-.transition(@value1, @value2:X, ...) {
-  @value: ~`"@{arguments}".replace(/[\[\]]|\,\sX/g, '')`;
+.transition(@value) {
   -webkit-transition: @value;
   -moz-transition: @value;
   -ms-transition: @value;
