@@ -9,7 +9,7 @@
 
 Footwork is a front-end javascript framework built upon open source technologies. It uses novel combinations of several design patterns and libraries to enable the creation of expressive, low-boilerplate, highly modularized, maintainable, and reusable web components and applications.
 
-**Totally new to footwork?** The easiest place to start is [the tutorials](http://latest-docs.footworkjs.com/tutorials "Get started quick!").
+**Totally new to footwork?** The best place to start is [the tutorials](http://latest-docs.footworkjs.com/tutorials "Get started quick!").
 
 For more details, see:
 
@@ -35,7 +35,7 @@ bower install footwork
 ```javascript
 {
   "dependencies": {
-    "footwork": "*", // add footwork under "dependencies"
+    "footwork": "*" // add footwork under "dependencies"
   }
 }
 ```

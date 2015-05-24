@@ -5,7 +5,12 @@ var Router = function(descriptor, configParams) {
   return {
     _preInit: function( params ) {
       var $router = this;
-      var router = {}; // internal data/etc
+      var router = {};  // internal data/etc
+      var routerConfigParams = extend({}, configParams);
+
+      this.__getConfigParams = function() {
+        return routerConfigParams;
+      };
 
       var __router = this.__router = function privateData(propName, propValue) {
         var isGetBaseObjOp = arguments.length === 0;
@@ -22,7 +27,7 @@ var Router = function(descriptor, configParams) {
         }
       };
 
-      configParams.baseRoute = fw.routers.baseRoute() + (result(configParams, 'baseRoute') || '');
+      routerConfigParams.baseRoute = fw.routers.baseRoute() + (result(routerConfigParams, 'baseRoute') || '');
 
       var subscriptions = router.subscriptions = fw.observableArray();
       router.urlParts = fw.observable();
@@ -168,7 +173,7 @@ var Router = function(descriptor, configParams) {
       }
 
       router.isRelative = fw.computed(function() {
-        return configParams.isRelative && !isNullRouter( this.parentRouter() );
+        return routerConfigParams.isRelative && !isNullRouter( this.parentRouter() );
       }, router);
 
       this.currentRoute = router.currentRoute = fw.computed(function() {
@@ -223,15 +228,15 @@ var Router = function(descriptor, configParams) {
         });
       }.bind(this);
 
-      if( !isUndefined(configParams.unknownRoute) ) {
-        if( isFunction(configParams.unknownRoute) ) {
-          configParams.unknownRoute = { controller: configParams.unknownRoute };
+      if( !isUndefined(routerConfigParams.unknownRoute) ) {
+        if( isFunction(routerConfigParams.unknownRoute) ) {
+          routerConfigParams.unknownRoute = { controller: routerConfigParams.unknownRoute };
         }
-        configParams.routes.push( extend( configParams.unknownRoute, { unknown: true } ) );
+        routerConfigParams.routes.push( extend( routerConfigParams.unknownRoute, { unknown: true } ) );
       }
-      this.setRoutes( configParams.routes );
+      this.setRoutes( routerConfigParams.routes );
 
-      if( configParams.activate === true ) {
+      if( routerConfigParams.activate === true ) {
         subscriptions.push(router.context.subscribe(function activateRouterAfterNewContext( $context ) {
           if( isObject($context) ) {
             this.activate($context);

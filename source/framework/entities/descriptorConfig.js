@@ -1,10 +1,6 @@
 // framework/entities/descriptorConfig.js
 // ------------------
 
-//import("viewModel/ViewModel.js");
-//import("dataModel/DataModel.js");
-//import("router/Router.js");
-
 entityDescriptors = entityDescriptors.concat([
   {
     tagName: 'viewmodel',

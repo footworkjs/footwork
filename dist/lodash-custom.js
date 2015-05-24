@@ -5545,8 +5545,6 @@ root._ = {
   keys: require('../../node_modules/lodash/object/keys'),
   merge: require('../../node_modules/lodash/object/merge'),
   pluck: require('../../node_modules/lodash/collection/pluck'),
-
-  // required for postal.js specifically (ref: postal.js/lib/postal.lodash.js)
   after: require('../../node_modules/lodash/function/after'),
   any: require('../../node_modules/lodash/collection/any'),
   debounce: require('../../node_modules/lodash/function/debounce'),
