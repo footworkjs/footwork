@@ -166,22 +166,27 @@ var DataModel = function(descriptor, configParams) {
   return {
     runBeforeInit: true,
     _preInit: function( params ) {
+      params = params || {};
       enterDataModelContext(this);
+      var pk = configParams.idAttribute;
 
       this.__mappings = {};
       this.$dirty = fw.observable(false);
       this.$cid = fw.utils.guid();
-      this[configParams.idAttribute] = this.$id = fw.observable().mapTo(configParams.idAttribute);
+      this[pk] = this.$id = fw.observable(params[pk]).mapTo(pk);
       this.$id.__isOriginalPK = true;
     },
     mixin: {
       // GET from server and $load into model
       $fetch: function() {
-        var model = this;
+        var dataModel = this;
         var id = this[configParams.idAttribute]();
         if(id) {
-          // retrieve data from server for model using the id
-          this.$sync('read', model);
+          // retrieve data dataModel the from server using the id
+          this.$sync('read', dataModel)
+            .done(function(response) {
+              dataModel.$load(response);
+            });
         }
       },
       $save: function() {}, // PUT / POST

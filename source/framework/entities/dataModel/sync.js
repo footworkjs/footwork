@@ -45,11 +45,13 @@ fw.sync = function(action, dataModel, params) {
     url = configParams.url;
     if(isFunction(url)) {
       url = url.call(dataModel, action);
-    } else {
+    } else if(isString(url)) {
       if(contains(['read', 'update', 'patch', 'delete'], action)) {
         // need to append /:id to url
         url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
       }
+    } else {
+      throw new Error('Must provide a URL for/on a dataModel in order to call .sync() on it');
     }
   }
   var urlPieces = (url || noURLError()).match(parseURLRegex);
@@ -93,13 +95,14 @@ fw.sync = function(action, dataModel, params) {
   }
 
   // Pass along `textStatus` and `errorThrown` from jQuery.
-  // var error = options.error;
-  // options.error = function(xhr, textStatus, errorThrown) {
-  //   options.textStatus = textStatus;
-  //   options.errorThrown = errorThrown;
-  //   if (error) error.call(options.context, xhr, textStatus, errorThrown);
-  // };
+  var error = options.error;
+  options.error = function(xhr, textStatus, errorThrown) {
+    options.textStatus = textStatus;
+    options.errorThrown = errorThrown;
+    if (error) error.call(options.context, xhr, textStatus, errorThrown);
+  };
 
-  return fw.ajax(options);
-  // dataModel.trigger('request', model, xhr, options);
+  var xhr = options.xhr = fw.ajax(options);
+  dataModel.$namespace.trigger('request', { dataModel: dataModel, xhr: xhr, options: options });
+  return xhr;
 };
