@@ -14,6 +14,19 @@ fw.start = function(targetElement) {
   fw.applyBindings({}, targetElement);
 };
 
+// https://github.com/knockout/knockout/issues/1786#issuecomment-104353852
+var originalGetBindingHandler = ko.getBindingHandler;
+ko.getBindingHandler = function(bindingKey) {
+  var bindingHandler = originalGetBindingHandler(bindingKey);
+  if(!bindingHandler) {
+    if(isObject(windowObject.console) && isFunction(windowObject.console.warn)) {
+      windowObject.console.warn('Could not locate binding "' + bindingKey + '"');
+    }
+  } else {
+    return bindingHandler;
+  }
+}
+
 each(runPostInit, function(runTask) {
   runTask();
 });
