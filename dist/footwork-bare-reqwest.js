@@ -2890,7 +2890,7 @@ fw.bindingHandlers.$viewModel = {
 // framework/entities/lifecycle.js
 // ------------------
 
-// Provides lifecycle functionality and $context for a given model and element
+// Provides lifecycle functionality and $context for a given entity and element
 function setupContextAndLifeCycle(entity, element) {
   if( isEntity(entity) ) {
     element = element || document.body;
@@ -2919,7 +2919,7 @@ function setupContextAndLifeCycle(entity, element) {
           setTimeout(function() {
             if(element.className.indexOf(bindingClassName) === -1)
             element.className += ' ' + bindingClassName;
-          }, 0);
+          }, 20);
           afterBinding.call(this, element);
         };
       $configParams.afterBinding.call(entity, element);
