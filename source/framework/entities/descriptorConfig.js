@@ -12,6 +12,7 @@ entityDescriptors = entityDescriptors.concat([
       namespace: undefined,
       autoRegister: false,
       autoIncrement: false,
+      extend: {},
       mixins: undefined,
       afterBinding: noop,
       onDispose: noop
@@ -28,6 +29,7 @@ entityDescriptors = entityDescriptors.concat([
       namespace: undefined,
       autoRegister: false,
       autoIncrement: true,
+      extend: {},
       mixins: undefined,
       afterBinding: noop,
       onDispose: noop
@@ -42,6 +44,7 @@ entityDescriptors = entityDescriptors.concat([
       namespace: '$router',
       autoRegister: false,
       autoIncrement: false,
+      extend: {},
       mixins: undefined,
       afterBinding: noop,
       onDispose: noop,

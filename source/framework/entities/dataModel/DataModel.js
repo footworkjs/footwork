@@ -81,7 +81,7 @@ fw.subscribable.fn.mapTo = function(option) {
     throw new Error('No dataModel context found/supplied for mapTo observable');
   }
 
-  var mappings = dataModel.__mappings;
+  var mappings = dataModel.__mappings();
   var primaryKey = getPrimaryKey(dataModel);
   if( !isUndefined(mappings[mapPath]) && (mapPath !== primaryKey && dataModel.$id.__isOriginalPK)) {
     throw new Error('the field \'' + mapPath + '\' is already mapped on this dataModel');
@@ -100,8 +100,9 @@ fw.subscribable.fn.mapTo = function(option) {
     dataModel.$id = mappings[mapPath];
   }
 
+  mappedObservable.isDirty = fw.observable(false);
   var changeSubscription = mappedObservable.subscribe(function() {
-    dataModel.$dirty(true);
+    mappedObservable.isDirty(true);
   });
 
   var disposeObservable = mappedObservable.dispose || noop;
@@ -111,6 +112,8 @@ fw.subscribable.fn.mapTo = function(option) {
       disposeObservable.call(mappedObservable);
     };
   }
+
+  dataModel.__mappings.valueHasMutated();
 
   return mappedObservable;
 };
@@ -168,16 +171,21 @@ var DataModel = function(descriptor, configParams) {
     _preInit: function( params ) {
       params = params || {};
       enterDataModelContext(this);
-      var pk = configParams.idAttribute;
+      var pkField = configParams.idAttribute;
 
-      this.__mappings = {};
-      this.$dirty = fw.observable(false);
+      this.__mappings = fw.observable({});
+      this.$dirty = fw.computed(function() {
+        var mappings = this.__mappings();
+        return reduce(mappings, function(isDirty, mappedField) {
+          return isDirty || mappedField.isDirty();
+        }, false);
+      }, this);
       this.$cid = fw.utils.guid();
-      this[pk] = this.$id = fw.observable(params[pk]).mapTo(pk);
+      this[pkField] = this.$id = fw.observable(params[pkField]).mapTo(pkField);
       this.$id.__isOriginalPK = true;
     },
     mixin: {
-      // GET from server and $load into model
+      // GET from server and $set in model
       $fetch: function() {
         var dataModel = this;
         var id = this[configParams.idAttribute]();
@@ -185,22 +193,34 @@ var DataModel = function(descriptor, configParams) {
           // retrieve data dataModel the from server using the id
           this.$sync('read', dataModel)
             .done(function(response) {
-              dataModel.$load(response);
+              dataModel.$set(response);
             });
         }
       },
-      $save: function() {}, // PUT / POST
+       // PUT / POST / PATCH to server
+      $save: function(key, val, options) {
+
+      },
       $destroy: function() {}, // DELETE
 
-      // load data into model (clears $dirty)
-      $load: function( data ) {
-        var dataModel = this;
-        each(dataModel.__mappings, function(fieldObservable, fieldMap) {
-          var fieldValue = getNestedReference(data, fieldMap);
+      // set attributes in model (clears isDirty on observables/fields it saves to by default)
+      $set: function( attributes, options ) {
+        options = extend({
+          clearDirty: true
+        }, options);
+
+        each(this.__mappings(), function(fieldObservable, fieldMap) {
+          var fieldValue = getNestedReference(attributes, fieldMap);
           if(!isUndefined(fieldValue)) {
             fieldObservable(fieldValue);
+            options.clearDirty && fieldObservable.isDirty(false);
           }
         });
+
+        if(options.clearDirty) {
+          // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function
+          this.__mappings.valueHasMutated();
+        }
       },
 
       $sync: function() {
@@ -208,7 +228,7 @@ var DataModel = function(descriptor, configParams) {
       },
 
       $hasMappedField: function(referenceField) {
-        return !!this.__mappings[referenceField];
+        return !!this.__mappings()[referenceField];
       },
 
       // return current data in POJO form
@@ -222,7 +242,7 @@ var DataModel = function(descriptor, configParams) {
           throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.$toJS().');
         }
 
-        var mappedObject = reduce(this.__mappings, function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+        var mappedObject = reduce(this.__mappings(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
           if(isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
             insertValueIntoObject(jsObject, fieldMap, fieldObservable());
           }

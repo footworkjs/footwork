@@ -12,7 +12,7 @@ describe('dataModel', function () {
     expect(dataModel.$fetch).to.be.a('function');
     expect(dataModel.$save).to.be.a('function');
     expect(dataModel.$destroy).to.be.a('function');
-    expect(dataModel.$load).to.be.a('function');
+    expect(dataModel.$set).to.be.a('function');
     expect(dataModel.$toJS).to.be.a('function');
     expect(dataModel.$toJSON).to.be.a('function');
   });
@@ -652,7 +652,7 @@ describe('dataModel', function () {
     expect(person.$toJSON('movies.action')).to.eql(JSON.stringify(personData.movies.action));
   });
 
-  it('can load data in using dataModel.$load()', function() {
+  it('can load data in using dataModel.$set()', function() {
     var Person = fw.dataModel({
       namespace: 'person',
       initialize: function(person) {
@@ -681,7 +681,7 @@ describe('dataModel', function () {
 
     expect(person.$toJS('firstName')).to.eql(undefined);
 
-    person.$load(personData);
+    person.$set(personData);
 
     expect(person.$toJS('firstName')).to.eql(personData.firstName);
   });

@@ -20,6 +20,7 @@ function entityClassFactory(descriptor, configParams) {
   });
 
   var ctor = configParams.initialize || configParams.viewModel || noop;
+  var userExtendProps = { mixin: configParams.extend || {} };
   if( !descriptor.isEntityCtor(ctor) ) {
     var isEntityDuckTagMixin = {};
     isEntityDuckTagMixin[descriptor.isEntityDuckTag] = true;
@@ -39,6 +40,7 @@ function entityClassFactory(descriptor, configParams) {
     });
 
     var composure = [ ctor ].concat(
+      entityMixin(userExtendProps),
       entityMixin(newInstanceCheckMixin),
       entityMixin(isEntityDuckTagMixin),
       entityMixin(afterInitMixins),
