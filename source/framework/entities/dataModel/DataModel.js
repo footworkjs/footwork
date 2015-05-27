@@ -130,7 +130,7 @@ function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
       rootObject[propName] = {};
     }
     // recurse into the next layer
-    return insertValueIntoObject(rootObject[propName], fieldMap, fieldValue);
+    insertValueIntoObject(rootObject[propName], fieldMap, fieldValue);
   } else {
     rootObject[propName] = fieldValue;
   }
@@ -197,27 +197,40 @@ var DataModel = function(descriptor, configParams) {
             });
         }
       },
-       // PUT / POST / PATCH to server
+
+      // PUT / POST / PATCH to server
       $save: function(key, val, options) {
 
       },
+
       $destroy: function() {}, // DELETE
 
       // set attributes in model (clears isDirty on observables/fields it saves to by default)
-      $set: function( attributes, options ) {
+      $set: function( key, value, options ) {
+        var attributes = {};
+
+        if(isString(key)) {
+          attributes = insertValueIntoObject(attributes, key, value);
+        } else if(isObject(key)) {
+          attributes = key;
+          options = value;
+        }
+
         options = extend({
           clearDirty: true
         }, options);
 
+        var mappingsChanged = false;
         each(this.__mappings(), function(fieldObservable, fieldMap) {
           var fieldValue = getNestedReference(attributes, fieldMap);
           if(!isUndefined(fieldValue)) {
             fieldObservable(fieldValue);
+            mappingsChanged = true;
             options.clearDirty && fieldObservable.isDirty(false);
           }
         });
 
-        if(options.clearDirty) {
+        if(mappingsChanged && options.clearDirty) {
           // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function
           this.__mappings.valueHasMutated();
         }
