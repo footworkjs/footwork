@@ -126,7 +126,7 @@ function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
   var propName = fieldMap.shift();
   if(fieldMap.length) {
     if(isUndefined(rootObject[propName])) {
-      // nested property, lets add the child
+      // nested property, lets add the container object
       rootObject[propName] = {};
     }
     // recurse into the next layer
@@ -168,7 +168,7 @@ runPostInit.push(function(runTask) {
 var DataModel = function(descriptor, configParams) {
   return {
     runBeforeInit: true,
-    _preInit: function( params ) {
+    _preInit: function(params) {
       params = params || {};
       enterDataModelContext(this);
       var pkField = configParams.idAttribute;
@@ -200,13 +200,51 @@ var DataModel = function(descriptor, configParams) {
 
       // PUT / POST / PATCH to server
       $save: function(key, val, options) {
+        var viewModel = this;
+        var attrs = null;
 
+        if(isObject(key)) {
+          attrs = key;
+          options = val;
+        } else {
+          (attrs = {})[key] = val;
+        }
+
+        options = extend({
+          parse: true,
+          wait: false,
+          patch: false
+        }, options);
+
+        var method = isUndefined(viewModel.$id()) ? 'create' : (options.patch ? 'patch' : 'update');
+
+        if(method === 'patch' && !options.attrs) {
+          options.attrs = attrs;
+        }
+
+        var xhr = viewModel.$sync(method, viewModel, options);
+
+        if(!isNull(attrs)) {
+          if(options.wait) {
+            xhr.done(function(response) {
+              if(options.parse && isObject(response)) {
+                viewModel.$set(response);
+              } else {
+                viewModel.$set(attrs);
+              }
+            });
+          } else {
+            viewModel.$set(attrs);
+          }
+        }
+
+        return xhr;
       },
 
       $destroy: function() {}, // DELETE
 
       // set attributes in model (clears isDirty on observables/fields it saves to by default)
-      $set: function( key, value, options ) {
+      $set: function(key, value, options) {
         var attributes = {};
 
         if(isString(key)) {
