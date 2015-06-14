@@ -222,11 +222,11 @@ var DataModel = function(descriptor, configParams) {
           options.attrs = attrs;
         }
 
-        var xhr = viewModel.$sync(method, viewModel, options);
+        var promise = viewModel.$sync(method, viewModel, options);
 
         if(!isNull(attrs)) {
           if(options.wait) {
-            xhr.done(function(response) {
+            promise.done(function(response) {
               if(options.parse && isObject(response)) {
                 viewModel.$set(response);
               } else {
@@ -238,7 +238,7 @@ var DataModel = function(descriptor, configParams) {
           }
         }
 
-        return xhr;
+        return promise;
       },
 
       $destroy: function() {}, // DELETE
@@ -272,6 +272,15 @@ var DataModel = function(descriptor, configParams) {
           // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function
           this.__mappings.valueHasMutated();
         }
+      },
+
+      $clean: function(field) {
+        var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
+        each(this.__mappings(), function(fieldObservable, fieldMap) {
+          if(fieldMap.match(fieldMatch)) {
+            fieldObservable.isDirty(false);
+          }
+        });
       },
 
       $sync: function() {

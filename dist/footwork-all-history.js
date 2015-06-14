@@ -11231,11 +11231,13 @@ fw.sync = function(action, dataModel, params) {
     url = configParams.url;
     if(isFunction(url)) {
       url = url.call(dataModel, action);
-    } else {
+    } else if(isString(url)) {
       if(contains(['read', 'update', 'patch', 'delete'], action)) {
         // need to append /:id to url
         url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
       }
+    } else {
+      throw new Error('Must provide a URL for/on a dataModel in order to call .sync() on it');
     }
   }
   var urlPieces = (url || noURLError()).match(parseURLRegex);
@@ -11253,7 +11255,7 @@ fw.sync = function(action, dataModel, params) {
 
   if(isNull(options.data) && dataModel && contains(['create', 'update', 'patch'], action)) {
     options.contentType = 'application/json';
-    options.data = dataModel.$toJS();
+    options.data = options.attrs || dataModel.$toJS();
   }
 
   // For older servers, emulate JSON by encoding the request into an HTML-form.
@@ -11279,15 +11281,16 @@ fw.sync = function(action, dataModel, params) {
   }
 
   // Pass along `textStatus` and `errorThrown` from jQuery.
-  // var error = options.error;
-  // options.error = function(xhr, textStatus, errorThrown) {
-  //   options.textStatus = textStatus;
-  //   options.errorThrown = errorThrown;
-  //   if (error) error.call(options.context, xhr, textStatus, errorThrown);
-  // };
+  var error = options.error;
+  options.error = function(xhr, textStatus, errorThrown) {
+    options.textStatus = textStatus;
+    options.errorThrown = errorThrown;
+    if (error) error.call(options.context, xhr, textStatus, errorThrown);
+  };
 
-  return fw.ajax(options);
-  // dataModel.trigger('request', model, xhr, options);
+  var xhr = options.xhr = fw.ajax(options);
+  dataModel.$namespace.trigger('request', { dataModel: dataModel, xhr: xhr, options: options });
+  return xhr;
 };
 
 // framework/entities/dataModel/DataModel.js
@@ -11373,7 +11376,7 @@ fw.subscribable.fn.mapTo = function(option) {
     throw new Error('No dataModel context found/supplied for mapTo observable');
   }
 
-  var mappings = dataModel.__mappings;
+  var mappings = dataModel.__mappings();
   var primaryKey = getPrimaryKey(dataModel);
   if( !isUndefined(mappings[mapPath]) && (mapPath !== primaryKey && dataModel.$id.__isOriginalPK)) {
     throw new Error('the field \'' + mapPath + '\' is already mapped on this dataModel');
@@ -11392,8 +11395,9 @@ fw.subscribable.fn.mapTo = function(option) {
     dataModel.$id = mappings[mapPath];
   }
 
+  mappedObservable.isDirty = fw.observable(false);
   var changeSubscription = mappedObservable.subscribe(function() {
-    dataModel.$dirty(true);
+    mappedObservable.isDirty(true);
   });
 
   var disposeObservable = mappedObservable.dispose || noop;
@@ -11403,6 +11407,8 @@ fw.subscribable.fn.mapTo = function(option) {
       disposeObservable.call(mappedObservable);
     };
   }
+
+  dataModel.__mappings.valueHasMutated();
 
   return mappedObservable;
 };
@@ -11415,11 +11421,11 @@ function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
   var propName = fieldMap.shift();
   if(fieldMap.length) {
     if(isUndefined(rootObject[propName])) {
-      // nested property, lets add the child
+      // nested property, lets add the container object
       rootObject[propName] = {};
     }
     // recurse into the next layer
-    return insertValueIntoObject(rootObject[propName], fieldMap, fieldValue);
+    insertValueIntoObject(rootObject[propName], fieldMap, fieldValue);
   } else {
     rootObject[propName] = fieldValue;
   }
@@ -11457,35 +11463,117 @@ runPostInit.push(function(runTask) {
 var DataModel = function(descriptor, configParams) {
   return {
     runBeforeInit: true,
-    _preInit: function( params ) {
+    _preInit: function(params) {
+      params = params || {};
       enterDataModelContext(this);
+      var pkField = configParams.idAttribute;
 
-      this.__mappings = {};
-      this.$dirty = fw.observable(false);
+      this.__mappings = fw.observable({});
+      this.$dirty = fw.computed(function() {
+        var mappings = this.__mappings();
+        return reduce(mappings, function(isDirty, mappedField) {
+          return isDirty || mappedField.isDirty();
+        }, false);
+      }, this);
       this.$cid = fw.utils.guid();
-      this[configParams.idAttribute] = this.$id = fw.observable().mapTo(configParams.idAttribute);
+      this[pkField] = this.$id = fw.observable(params[pkField]).mapTo(pkField);
       this.$id.__isOriginalPK = true;
     },
     mixin: {
-      // GET from server and $load into model
+      // GET from server and $set in model
       $fetch: function() {
-        var model = this;
+        var dataModel = this;
         var id = this[configParams.idAttribute]();
         if(id) {
-          // retrieve data from server for model using the id
-          this.$sync('read', model);
+          // retrieve data dataModel the from server using the id
+          this.$sync('read', dataModel)
+            .done(function(response) {
+              dataModel.$set(response);
+            });
         }
       },
-      $save: function() {}, // PUT / POST
+
+      // PUT / POST / PATCH to server
+      $save: function(key, val, options) {
+        var viewModel = this;
+        var attrs = null;
+
+        if(isObject(key)) {
+          attrs = key;
+          options = val;
+        } else {
+          (attrs = {})[key] = val;
+        }
+
+        options = extend({
+          parse: true,
+          wait: false,
+          patch: false
+        }, options);
+
+        var method = isUndefined(viewModel.$id()) ? 'create' : (options.patch ? 'patch' : 'update');
+
+        if(method === 'patch' && !options.attrs) {
+          options.attrs = attrs;
+        }
+
+        var promise = viewModel.$sync(method, viewModel, options);
+
+        if(!isNull(attrs)) {
+          if(options.wait) {
+            promise.done(function(response) {
+              if(options.parse && isObject(response)) {
+                viewModel.$set(response);
+              } else {
+                viewModel.$set(attrs);
+              }
+            });
+          } else {
+            viewModel.$set(attrs);
+          }
+        }
+
+        return promise;
+      },
+
       $destroy: function() {}, // DELETE
 
-      // load data into model (clears $dirty)
-      $load: function( data ) {
-        var dataModel = this;
-        each(dataModel.__mappings, function(fieldObservable, fieldMap) {
-          var fieldValue = getNestedReference(data, fieldMap);
+      // set attributes in model (clears isDirty on observables/fields it saves to by default)
+      $set: function(key, value, options) {
+        var attributes = {};
+
+        if(isString(key)) {
+          attributes = insertValueIntoObject(attributes, key, value);
+        } else if(isObject(key)) {
+          attributes = key;
+          options = value;
+        }
+
+        options = extend({
+          clearDirty: true
+        }, options);
+
+        var mappingsChanged = false;
+        each(this.__mappings(), function(fieldObservable, fieldMap) {
+          var fieldValue = getNestedReference(attributes, fieldMap);
           if(!isUndefined(fieldValue)) {
             fieldObservable(fieldValue);
+            mappingsChanged = true;
+            options.clearDirty && fieldObservable.isDirty(false);
+          }
+        });
+
+        if(mappingsChanged && options.clearDirty) {
+          // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function
+          this.__mappings.valueHasMutated();
+        }
+      },
+
+      $clean: function(field) {
+        var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
+        each(this.__mappings(), function(fieldObservable, fieldMap) {
+          if(fieldMap.match(fieldMatch)) {
+            fieldObservable.isDirty(false);
           }
         });
       },
@@ -11495,7 +11583,7 @@ var DataModel = function(descriptor, configParams) {
       },
 
       $hasMappedField: function(referenceField) {
-        return !!this.__mappings[referenceField];
+        return !!this.__mappings()[referenceField];
       },
 
       // return current data in POJO form
@@ -11509,7 +11597,7 @@ var DataModel = function(descriptor, configParams) {
           throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.$toJS().');
         }
 
-        var mappedObject = reduce(this.__mappings, function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+        var mappedObject = reduce(this.__mappings(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
           if(isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
             insertValueIntoObject(jsObject, fieldMap, fieldObservable());
           }
@@ -12335,6 +12423,7 @@ entityDescriptors = entityDescriptors.concat([
       namespace: undefined,
       autoRegister: false,
       autoIncrement: false,
+      extend: {},
       mixins: undefined,
       afterBinding: noop,
       onDispose: noop
@@ -12351,6 +12440,7 @@ entityDescriptors = entityDescriptors.concat([
       namespace: undefined,
       autoRegister: false,
       autoIncrement: true,
+      extend: {},
       mixins: undefined,
       afterBinding: noop,
       onDispose: noop
@@ -12365,6 +12455,7 @@ entityDescriptors = entityDescriptors.concat([
       namespace: '$router',
       autoRegister: false,
       autoIncrement: false,
+      extend: {},
       mixins: undefined,
       afterBinding: noop,
       onDispose: noop,
@@ -12607,6 +12698,7 @@ function entityClassFactory(descriptor, configParams) {
   });
 
   var ctor = configParams.initialize || configParams.viewModel || noop;
+  var userExtendProps = { mixin: configParams.extend || {} };
   if( !descriptor.isEntityCtor(ctor) ) {
     var isEntityDuckTagMixin = {};
     isEntityDuckTagMixin[descriptor.isEntityDuckTag] = true;
@@ -12626,6 +12718,7 @@ function entityClassFactory(descriptor, configParams) {
     });
 
     var composure = [ ctor ].concat(
+      entityMixin(userExtendProps),
       entityMixin(newInstanceCheckMixin),
       entityMixin(isEntityDuckTagMixin),
       entityMixin(afterInitMixins),
