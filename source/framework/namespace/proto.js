@@ -29,7 +29,7 @@ function registerNamespaceEventHandler(eventKey, callback, context) {
     callback = callback.bind(context);
   }
 
-  var handlerSubscription = this.subscribeToTopic('event.' + eventKey, callback).enlistPreserved();
+  var handlerSubscription = this._subscribe('event.' + eventKey, callback).enlistPreserved();
   this.eventHandlers.push(handlerSubscription);
 
   return handlerSubscription;
@@ -53,7 +53,7 @@ function registerNamespaceCommandHandler(commandKey, callback, context) {
     callback = callback.bind(context);
   }
 
-  var handlerSubscription = this.subscribeToTopic('command.' + commandKey, callback).enlistPreserved();
+  var handlerSubscription = this._subscribe('command.' + commandKey, callback).enlistPreserved();
   this.commandHandlers.push(handlerSubscription);
 
   return handlerSubscription;
@@ -65,7 +65,7 @@ function requestResponseFromNamespace(requestKey, params, allowMultipleResponses
   var response = undefined;
   var responseSubscription;
 
-  responseSubscription = this.subscribeToTopic('request.' + requestKey + '.response', function(reqResponse) {
+  responseSubscription = this._subscribe('request.' + requestKey + '.response', function(reqResponse) {
     if( isUndefined(response) ) {
       response = allowMultipleResponses ? [reqResponse] : reqResponse;
     } else if(allowMultipleResponses) {
@@ -91,7 +91,7 @@ function registerNamespaceRequestHandler(requestKey, callback, context) {
     this.publish( createEnvelope('request.' + requestKey + '.response', callbackResponse) );
   }.bind(this);
 
-  var handlerSubscription = this.subscribeToTopic('request.' + requestKey, requestHandler);
+  var handlerSubscription = this._subscribe('request.' + requestKey, requestHandler);
   this.requestHandlers.push(handlerSubscription);
 
   return handlerSubscription;

@@ -323,6 +323,9 @@ var DataModel = function(descriptor, configParams) {
       $validate: function() {} // perform a validation and return the result on a specific field or the entire model
     },
     _postInit: function() {
+      this.$namespace.request.handler('$toJS', function() { return this.$toJS(); }.bind(this));
+      this.$namespace.request.handler('$toJSON', function() { return this.$toJSON(); }.bind(this));
+
       this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
         if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
           var myNamespaceName = configParams.namespace;

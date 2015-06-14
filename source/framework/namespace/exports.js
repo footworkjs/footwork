@@ -23,13 +23,24 @@ fw.namespace = function(namespaceName, $parentNamespace) {
   var namespace = postal.channel(namespaceName);
 
   var subscriptions = namespace.subscriptions = [];
-  var subscribeToTopic = namespace.subscribeToTopic = namespace.subscribe;
-  namespace.subscribe = function(topic, callback) {
-    var subscription = subscribeToTopic.call(namespace, topic, callback);
+  namespace._subscribe = namespace.subscribe;
+  namespace.subscribe = function(topic, callback, context) {
+    if(arguments.length > 2) {
+      callback = callback.bind(context);
+    }
+    var subscription = namespace._subscribe.call(namespace, topic, callback);
     subscriptions.push( subscription );
     return subscription;
   };
   namespace.unsubscribe = unregisterNamespaceHandler;
+
+  namespace._publish = namespace.publish;
+  namespace.publish = function(envelope, callback, context) {
+    if(arguments.length > 2) {
+      callback = callback.bind(context);
+    }
+    namespace._publish.call(namespace, envelope, callback);
+  };
 
   namespace.__isNamespace = true;
   namespace.dispose = disconnectNamespaceHandlers.bind(namespace);
