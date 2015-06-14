@@ -8234,9 +8234,11 @@ var DataModel = function(descriptor, configParams) {
       },
 
       $clean: function(field) {
-        var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
+        if(!isUndefined(field)) {
+          var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
+        }
         each(this.__mappings(), function(fieldObservable, fieldMap) {
-          if(fieldMap.match(fieldMatch)) {
+          if(isUndefined(field) || fieldMap.match(fieldMatch)) {
             fieldObservable.isDirty(false);
           }
         });
