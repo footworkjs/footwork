@@ -319,10 +319,22 @@ var DataModel = function(descriptor, configParams) {
         return JSON.stringify( this.$toJS(referenceField, includeRoot) );
       },
 
+      $dirtyTree: function() {
+        var tree = {};
+        each(this.__mappings(), function(fieldObservable, fieldMap) {
+          tree[fieldMap] = fieldObservable.isDirty();
+        });
+        return tree;
+      },
+
       $valid: function( referenceField ) {}, // get validation of entire model or selected field
       $validate: function() {} // perform a validation and return the result on a specific field or the entire model
     },
     _postInit: function() {
+      if(configParams.autoIncrement) {
+        this.$rootNamespace.request.handler('$toJS', function() { return this.$toJS(); }.bind(this));
+        this.$rootNamespace.request.handler('$toJSON', function() { return this.$toJSON(); }.bind(this));
+      }
       this.$namespace.request.handler('$toJS', function() { return this.$toJS(); }.bind(this));
       this.$namespace.request.handler('$toJSON', function() { return this.$toJSON(); }.bind(this));
 

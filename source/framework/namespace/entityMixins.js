@@ -6,7 +6,9 @@ entityMixins.push({
   runBeforeInit: true,
   _preInit: function( options ) {
     var $configParams = this.__getConfigParams();
-    this.$namespace = enterNamespaceName( indexedNamespaceName($configParams.namespace || $configParams.name || _.uniqueId('namespace'), $configParams.autoIncrement) );
+    var mainNamespace = $configParams.namespace || $configParams.name || _.uniqueId('namespace');
+    this.$namespace = enterNamespaceName( indexedNamespaceName(mainNamespace, $configParams.autoIncrement) );
+    this.$rootNamespace = fw.namespace(mainNamespace);
     this.$globalNamespace = fw.namespace();
   },
   mixin: {

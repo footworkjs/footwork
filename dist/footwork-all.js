@@ -7492,7 +7492,7 @@ function registerNamespaceEventHandler(eventKey, callback, context) {
     callback = callback.bind(context);
   }
 
-  var handlerSubscription = this.subscribeToTopic('event.' + eventKey, callback).enlistPreserved();
+  var handlerSubscription = this._subscribe('event.' + eventKey, callback).enlistPreserved();
   this.eventHandlers.push(handlerSubscription);
 
   return handlerSubscription;
@@ -7516,7 +7516,7 @@ function registerNamespaceCommandHandler(commandKey, callback, context) {
     callback = callback.bind(context);
   }
 
-  var handlerSubscription = this.subscribeToTopic('command.' + commandKey, callback).enlistPreserved();
+  var handlerSubscription = this._subscribe('command.' + commandKey, callback).enlistPreserved();
   this.commandHandlers.push(handlerSubscription);
 
   return handlerSubscription;
@@ -7528,7 +7528,7 @@ function requestResponseFromNamespace(requestKey, params, allowMultipleResponses
   var response = undefined;
   var responseSubscription;
 
-  responseSubscription = this.subscribeToTopic('request.' + requestKey + '.response', function(reqResponse) {
+  responseSubscription = this._subscribe('request.' + requestKey + '.response', function(reqResponse) {
     if( isUndefined(response) ) {
       response = allowMultipleResponses ? [reqResponse] : reqResponse;
     } else if(allowMultipleResponses) {
@@ -7554,7 +7554,7 @@ function registerNamespaceRequestHandler(requestKey, callback, context) {
     this.publish( createEnvelope('request.' + requestKey + '.response', callbackResponse) );
   }.bind(this);
 
-  var handlerSubscription = this.subscribeToTopic('request.' + requestKey, requestHandler);
+  var handlerSubscription = this._subscribe('request.' + requestKey, requestHandler);
   this.requestHandlers.push(handlerSubscription);
 
   return handlerSubscription;
@@ -7599,13 +7599,24 @@ fw.namespace = function(namespaceName, $parentNamespace) {
   var namespace = postal.channel(namespaceName);
 
   var subscriptions = namespace.subscriptions = [];
-  var subscribeToTopic = namespace.subscribeToTopic = namespace.subscribe;
-  namespace.subscribe = function(topic, callback) {
-    var subscription = subscribeToTopic.call(namespace, topic, callback);
+  namespace._subscribe = namespace.subscribe;
+  namespace.subscribe = function(topic, callback, context) {
+    if(arguments.length > 2) {
+      callback = callback.bind(context);
+    }
+    var subscription = namespace._subscribe.call(namespace, topic, callback);
     subscriptions.push( subscription );
     return subscription;
   };
   namespace.unsubscribe = unregisterNamespaceHandler;
+
+  namespace._publish = namespace.publish;
+  namespace.publish = function(envelope, callback, context) {
+    if(arguments.length > 2) {
+      callback = callback.bind(context);
+    }
+    namespace._publish.call(namespace, envelope, callback);
+  };
 
   namespace.__isNamespace = true;
   namespace.dispose = disconnectNamespaceHandlers.bind(namespace);
@@ -7646,7 +7657,9 @@ entityMixins.push({
   runBeforeInit: true,
   _preInit: function( options ) {
     var $configParams = this.__getConfigParams();
-    this.$namespace = enterNamespaceName( indexedNamespaceName($configParams.namespace || $configParams.name || _.uniqueId('namespace'), $configParams.autoIncrement) );
+    var mainNamespace = $configParams.namespace || $configParams.name || _.uniqueId('namespace');
+    this.$namespace = enterNamespaceName( indexedNamespaceName(mainNamespace, $configParams.autoIncrement) );
+    this.$rootNamespace = fw.namespace(mainNamespace);
     this.$globalNamespace = fw.namespace();
   },
   mixin: {
@@ -8278,10 +8291,25 @@ var DataModel = function(descriptor, configParams) {
         return JSON.stringify( this.$toJS(referenceField, includeRoot) );
       },
 
+      $dirtyTree: function() {
+        var tree = {};
+        each(this.__mappings(), function(fieldObservable, fieldMap) {
+          tree[fieldMap] = fieldObservable.isDirty();
+        });
+        return tree;
+      },
+
       $valid: function( referenceField ) {}, // get validation of entire model or selected field
       $validate: function() {} // perform a validation and return the result on a specific field or the entire model
     },
     _postInit: function() {
+      if(configParams.autoIncrement) {
+        this.$rootNamespace.request.handler('$toJS', function() { return this.$toJS(); }.bind(this));
+        this.$rootNamespace.request.handler('$toJSON', function() { return this.$toJSON(); }.bind(this));
+      }
+      this.$namespace.request.handler('$toJS', function() { return this.$toJS(); }.bind(this));
+      this.$namespace.request.handler('$toJSON', function() { return this.$toJSON(); }.bind(this));
+
       this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
         if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
           var myNamespaceName = configParams.namespace;
