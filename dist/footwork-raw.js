@@ -2090,7 +2090,7 @@ function setupContextAndLifeCycle(entity, element) {
     }
 
     if(element.className.indexOf(entityClassName) === -1) {
-      element.className += entityClassName;
+      element.className += (element.className.length ? ' ' : '') + entityClassName;
     }
 
     entity.$element = element;
