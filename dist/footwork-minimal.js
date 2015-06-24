@@ -2209,7 +2209,7 @@ fw.sync = function(action, dataModel, params) {
     if(isFunction(url)) {
       url = url.call(dataModel, action);
     } else if(isString(url)) {
-      if(contains(['read', 'update', 'patch', 'delete'], action)) {
+      if(contains(['read', 'update', 'patch', 'delete'], action) && configParams.pkInURL) {
         // need to append /:id to url
         url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
       }
@@ -2266,7 +2266,7 @@ fw.sync = function(action, dataModel, params) {
   };
 
   var xhr = options.xhr = fw.ajax(options);
-  dataModel.$namespace.trigger('request', { dataModel: dataModel, xhr: xhr, options: options });
+  dataModel.$namespace.publish('$.request', { dataModel: dataModel, xhr: xhr, options: options });
   return xhr;
 };
 
@@ -2373,7 +2373,8 @@ fw.subscribable.fn.mapTo = function(option) {
   }
 
   mappedObservable.isDirty = fw.observable(false);
-  var changeSubscription = mappedObservable.subscribe(function() {
+  var changeSubscription = mappedObservable.subscribe(function(value) {
+    dataModel.$namespace.publish('$.change', { param: mapPath, value: value });
     mappedObservable.isDirty(true);
   });
 
@@ -3431,6 +3432,7 @@ entityDescriptors = entityDescriptors.concat([
     defaultConfig: {
       idAttribute: 'id',
       url: null,
+      pkInURL: true,
       namespace: undefined,
       autoRegister: false,
       autoIncrement: true,

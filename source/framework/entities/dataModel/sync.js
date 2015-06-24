@@ -46,7 +46,7 @@ fw.sync = function(action, dataModel, params) {
     if(isFunction(url)) {
       url = url.call(dataModel, action);
     } else if(isString(url)) {
-      if(contains(['read', 'update', 'patch', 'delete'], action)) {
+      if(contains(['read', 'update', 'patch', 'delete'], action) && configParams.pkInURL) {
         // need to append /:id to url
         url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
       }
@@ -103,6 +103,6 @@ fw.sync = function(action, dataModel, params) {
   };
 
   var xhr = options.xhr = fw.ajax(options);
-  dataModel.$namespace.trigger('request', { dataModel: dataModel, xhr: xhr, options: options });
+  dataModel.$namespace.publish('$.request', { dataModel: dataModel, xhr: xhr, options: options });
   return xhr;
 };

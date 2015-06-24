@@ -26,6 +26,7 @@ entityDescriptors = entityDescriptors.concat([
     defaultConfig: {
       idAttribute: 'id',
       url: null,
+      pkInURL: true,
       namespace: undefined,
       autoRegister: false,
       autoIncrement: true,
