@@ -67,12 +67,12 @@ var DataModel = function(descriptor, configParams) {
     },
     mixin: {
       // GET from server and $set in model
-      $fetch: function() {
+      $fetch: function(options) {
         var dataModel = this;
         var id = this[configParams.idAttribute]();
         if(id) {
           // retrieve data dataModel the from server using the id
-          this.$sync('read', dataModel)
+          this.$sync('read', dataModel, options)
             .done(function(response) {
               dataModel.$set(response);
             });
