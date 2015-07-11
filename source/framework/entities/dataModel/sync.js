@@ -69,7 +69,7 @@ fw.sync = function(action, dataModel, params) {
 
   if(isNull(options.data) && dataModel && contains(['create', 'update', 'patch'], action)) {
     options.contentType = 'application/json';
-    options.data = options.attrs || dataModel.$toJS();
+    options.data = JSON.stringify(options.attrs || dataModel.$toJS());
   }
 
   // For older servers, emulate JSON by encoding the request into an HTML-form.
