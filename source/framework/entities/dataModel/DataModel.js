@@ -55,15 +55,22 @@ var DataModel = function(descriptor, configParams) {
       var pkField = configParams.idAttribute;
 
       this.__mappings = fw.observable({});
+
       this.$dirty = fw.computed(function() {
         var mappings = this.__mappings();
         return reduce(mappings, function(isDirty, mappedField) {
           return isDirty || mappedField.isDirty();
         }, false);
       }, this);
+
       this.$cid = fw.utils.guid();
+
       this[pkField] = this.$id = fw.observable(params[pkField]).mapTo(pkField);
       this.$id.__isOriginalPK = true;
+
+      this.$isNew = fw.computed(function() {
+        return !isUndefined(this.$id());
+      }, this);
     },
     mixin: {
       // GET from server and $set in model
@@ -126,7 +133,7 @@ var DataModel = function(descriptor, configParams) {
 
       // DELETE
       $destroy: function(options) {
-        if(!this.$id()) {
+        if(this.$isNew()) {
           return false;
         }
 
@@ -205,7 +212,6 @@ var DataModel = function(descriptor, configParams) {
         return !!this.__mappings()[referenceField];
       },
 
-      // return current data in POJO form
       $toJS: function(referenceField, includeRoot) {
         var dataModel = this;
         if(isArray(referenceField)) {
@@ -226,7 +232,6 @@ var DataModel = function(descriptor, configParams) {
         return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
       },
 
-      // return current data in JSON form
       $toJSON: function(referenceField, includeRoot) {
         return JSON.stringify( this.$toJS(referenceField, includeRoot) );
       },
