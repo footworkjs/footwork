@@ -106,7 +106,6 @@ var DataModel = function(descriptor, configParams) {
         var promise = dataModel.$sync(method, dataModel, options);
 
         promise.done(function(response) {
-          var configParams = dataModel.__getConfigParams();
           var resourceData = configParams.parse ? configParams.parse(response) : response;
 
           if(options.wait && !isNull(attrs)) {
@@ -125,7 +124,36 @@ var DataModel = function(descriptor, configParams) {
         return promise;
       },
 
-      $destroy: function() {}, // DELETE
+      // DELETE
+      $destroy: function(options) {
+        if(!this.$id()) {
+          return false;
+        }
+
+        options = options ? _.clone(options) : {};
+        var dataModel = this;
+        var success = options.success;
+        var wait = options.wait;
+
+        var destroy = function() {
+          dataModel.$namespace.publish('destroy', options);
+        };
+
+        var xhr = this.$sync('delete', this, options);
+
+        xhr.done(function() {
+          dataModel.$id(undefined);
+          if(options.wait) {
+            destroy();
+          }
+        });
+
+        if(!options.wait) {
+          destroy();
+        }
+
+        return xhr;
+      },
 
       // set attributes in model (clears isDirty on observables/fields it saves to by default)
       $set: function(key, value, options) {
