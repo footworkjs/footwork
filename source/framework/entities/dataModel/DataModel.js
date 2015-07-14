@@ -81,7 +81,7 @@ var DataModel = function(descriptor, configParams) {
 
       // PUT / POST / PATCH to server
       $save: function(key, val, options) {
-        var viewModel = this;
+        var dataModel = this;
         var attrs = null;
 
         if(isObject(key)) {
@@ -97,26 +97,29 @@ var DataModel = function(descriptor, configParams) {
           patch: false
         }, options);
 
-        var method = isUndefined(viewModel.$id()) ? 'create' : (options.patch ? 'patch' : 'update');
+        var method = isUndefined(dataModel.$id()) ? 'create' : (options.patch ? 'patch' : 'update');
 
         if(method === 'patch' && !options.attrs) {
           options.attrs = attrs;
         }
 
-        var promise = viewModel.$sync(method, viewModel, options);
+        var promise = dataModel.$sync(method, dataModel, options);
 
-        if(!isNull(attrs)) {
-          if(options.wait) {
-            promise.done(function(response) {
-              if(options.parse && isObject(response)) {
-                viewModel.$set(response);
-              } else {
-                viewModel.$set(attrs);
-              }
-            });
-          } else {
-            viewModel.$set(attrs);
+        promise.done(function(response) {
+          var configParams = dataModel.__getConfigParams();
+          var resourceData = configParams.parse ? configParams.parse(response) : response;
+
+          if(options.wait && !isNull(attrs)) {
+            resourceData = _.extend({}, attrs, resourceData);
           }
+
+          if(isObject(resourceData)) {
+            dataModel.$set(resourceData);
+          }
+        });
+
+        if(!options.wait && !isNull(attrs)) {
+          dataModel.$set(attrs);
         }
 
         return promise;

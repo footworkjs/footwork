@@ -27,6 +27,7 @@ entityDescriptors = entityDescriptors.concat([
       idAttribute: 'id',
       url: null,
       pkInURL: true,
+      parse: false,
       namespace: undefined,
       autoRegister: false,
       autoIncrement: true,
