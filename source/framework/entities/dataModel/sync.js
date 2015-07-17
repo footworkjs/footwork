@@ -17,12 +17,21 @@ function noURLError() {
   throw new Error('A "url" property or function must be specified');
 };
 
-fw.sync = function(action, dataModel, params) {
+function getDataForModelOrCollection(thing) {
+  if(isDataModel(thing)) {
+    return thing.$toJS();
+  } else if(isCollection(thing)) {
+    return thing.__originalData;
+  }
+  return null;
+}
+
+fw.sync = function(action, concern, params) {
   params = params || {};
   action = action || 'noAction';
 
-  if(!isDataModel(dataModel)) {
-    throw new Error('Must supply a dataModel to fw.sync()');
+  if(!isDataModel(concern) && !isCollection(concern)) {
+    throw new Error('Must supply a dataModel or collection to fw.sync()');
   }
 
   var options = extend({
@@ -39,37 +48,42 @@ fw.sync = function(action, dataModel, params) {
     throw new Error('Invalid action (' + action + ') specified for sync operation');
   }
 
+  // get url option
+  // get attrs for post/put
+
   var url = options.url;
   if(isNull(url)) {
-    var configParams = dataModel.__getConfigParams();
+    var configParams = concern.__getConfigParams();
     url = configParams.url;
     if(isFunction(url)) {
-      url = url.call(dataModel, action);
+      url = url.call(concern, action);
     } else if(isString(url)) {
       if(contains(['read', 'update', 'patch', 'delete'], action) && configParams.pkInURL) {
         // need to append /:id to url
         url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
       }
     } else {
-      throw new Error('Must provide a URL for/on a dataModel in order to call .sync() on it');
+      var thing = (isDataModel(concern) && 'dataModel') || (isCollection(concern) && 'collection') || 'UNKNOWN';
+      throw new Error('Must provide a URL for/on a ' + thing + ' configuration in order to call .sync() on it');
     }
   }
   var urlPieces = (url || noURLError()).match(parseURLRegex);
   var baseURL = urlPieces[1] || '';
-  options.url = last(urlPieces);
+  options.url = baseURL + last(urlPieces);
 
-  // replace any interpolated parameters
-  var urlParams = options.url.match(parseParamsRegex);
-  if(urlParams) {
-    each(urlParams, function(param) {
-      options.url = options.url.replace(param, dataModel.$toJS(param.substr(1)));
-    });
+  if(isDataModel(concern)) {
+    // replace any interpolated parameters
+    var urlParams = options.url.match(parseParamsRegex);
+    if(urlParams) {
+      each(urlParams, function(param) {
+        options.url = options.url.replace(param, concern.$toJS(param.substr(1)));
+      });
+    }
   }
-  options.url = baseURL + options.url;
 
-  if(isNull(options.data) && dataModel && contains(['create', 'update', 'patch'], action)) {
+  if(isNull(options.data) && concern && contains(['create', 'update', 'patch'], action)) {
     options.contentType = 'application/json';
-    options.data = JSON.stringify(options.attrs || dataModel.$toJS());
+    options.data = JSON.stringify(options.attrs || getDataForModelOrCollection(concern));
   }
 
   // For older servers, emulate JSON by encoding the request into an HTML-form.
@@ -103,6 +117,6 @@ fw.sync = function(action, dataModel, params) {
   };
 
   var xhr = options.xhr = fw.ajax(options);
-  dataModel.$namespace.publish('$.request', { dataModel: dataModel, xhr: xhr, options: options });
+  concern.$namespace.publish('$.request', { dataModel: concern, xhr: xhr, options: options });
   return xhr;
 };
