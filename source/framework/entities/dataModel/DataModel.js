@@ -184,8 +184,9 @@ var DataModel = function(descriptor, configParams) {
             fieldObservable(fieldValue);
             mappingsChanged = true;
             options.clearDirty && fieldObservable.isDirty(false);
+            this.$namespace.publish('_.change.' + fieldMap, fieldValue);
           }
-        });
+        }, this);
 
         if(mappingsChanged && options.clearDirty) {
           // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function

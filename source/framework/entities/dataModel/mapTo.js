@@ -41,7 +41,7 @@ fw.subscribable.fn.mapTo = function(option) {
 
   mappedObservable.isDirty = fw.observable(false);
   var changeSubscription = mappedObservable.subscribe(function(value) {
-    dataModel.$namespace.publish('$.change', { param: mapPath, value: value });
+    dataModel.$namespace.publish('_.change', { param: mapPath, value: value });
     mappedObservable.isDirty(true);
   });
 

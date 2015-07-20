@@ -25,5 +25,6 @@ var animationIteration = 20;
 var isEntityCtor;
 var isEntity;
 var isDataModel;
+var isDataModelCtor;
 var isRouter;
 var activeOutlets = fw.observableArray();

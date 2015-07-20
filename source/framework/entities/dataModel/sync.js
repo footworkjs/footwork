@@ -117,6 +117,6 @@ fw.sync = function(action, concern, params) {
   };
 
   var xhr = options.xhr = fw.ajax(options);
-  concern.$namespace.publish('$.request', { dataModel: concern, xhr: xhr, options: options });
+  concern.$namespace.publish('_.request', { dataModel: concern, xhr: xhr, options: options });
   return xhr;
 };

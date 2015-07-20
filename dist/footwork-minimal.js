@@ -1605,7 +1605,9 @@ var animationIteration = 20;
 var isEntityCtor;
 var isEntity;
 var isDataModel;
+var isDataModelCtor;
 var isRouter;
+var activeOutlets = fw.observableArray();
 
 // framework/utility.js
 // ----------------
@@ -1957,7 +1959,7 @@ entityMixins.push({
   runBeforeInit: true,
   _preInit: function( options ) {
     var $configParams = this.__getConfigParams();
-    var mainNamespace = $configParams.namespace || $configParams.name || _.uniqueId('namespace');
+    var mainNamespace = $configParams.namespace || $configParams.name || uniqueId('namespace');
     this.$namespace = enterNamespaceName( indexedNamespaceName(mainNamespace, $configParams.autoIncrement) );
     this.$rootNamespace = fw.namespace(mainNamespace);
     this.$globalNamespace = fw.namespace();
@@ -2161,6 +2163,64 @@ var ViewModel = function(descriptor, configParams) {
 };
 
 
+// framework/entities/dataModel/utility.js
+// ------------------
+
+var dataModelContext = [];
+function enterDataModelContext(dataModel) {
+  dataModelContext.unshift(dataModel);
+}
+function exitDataModelContext() {
+  dataModelContext.shift();
+}
+
+function currentDataModelContext() {
+  return dataModelContext.length ? dataModelContext[0] : null;
+}
+
+function getPrimaryKey(dataModel) {
+  return dataModel.__getConfigParams().idAttribute;
+}
+
+function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
+  if(isString(fieldMap)) {
+    return insertValueIntoObject(rootObject, fieldMap.split('.'), fieldValue);
+  }
+
+  var propName = fieldMap.shift();
+  if(fieldMap.length) {
+    if(isUndefined(rootObject[propName])) {
+      // nested property, lets add the container object
+      rootObject[propName] = {};
+    }
+    // recurse into the next layer
+    insertValueIntoObject(rootObject[propName], fieldMap, fieldValue);
+  } else {
+    rootObject[propName] = fieldValue;
+  }
+
+  return rootObject;
+}
+
+function getNestedReference(rootObject, fieldMap) {
+  var propName = fieldMap;
+
+  if(!isUndefined(fieldMap)) {
+    if(isString(fieldMap)) {
+      // initial call with string based fieldMap, recurse into main loop
+      return getNestedReference(rootObject, fieldMap.split('.'));
+    }
+
+    propName = fieldMap.shift();
+    if(fieldMap.length) {
+      // recurse into the next layer
+      return getNestedReference((rootObject || {})[propName], fieldMap);
+    }
+  }
+
+  return !isString(propName) ? rootObject : (rootObject || {})[propName];
+}
+
 // framework/persistence/sync.js
 // ------------------
 
@@ -2180,12 +2240,21 @@ function noURLError() {
   throw new Error('A "url" property or function must be specified');
 };
 
-fw.sync = function(action, dataModel, params) {
+function getDataForModelOrCollection(thing) {
+  if(isDataModel(thing)) {
+    return thing.$toJS();
+  } else if(isCollection(thing)) {
+    return thing.__originalData;
+  }
+  return null;
+}
+
+fw.sync = function(action, concern, params) {
   params = params || {};
   action = action || 'noAction';
 
-  if(!isDataModel(dataModel)) {
-    throw new Error('Must supply a dataModel to fw.sync()');
+  if(!isDataModel(concern) && !isCollection(concern)) {
+    throw new Error('Must supply a dataModel or collection to fw.sync()');
   }
 
   var options = extend({
@@ -2202,37 +2271,42 @@ fw.sync = function(action, dataModel, params) {
     throw new Error('Invalid action (' + action + ') specified for sync operation');
   }
 
+  // get url option
+  // get attrs for post/put
+
   var url = options.url;
   if(isNull(url)) {
-    var configParams = dataModel.__getConfigParams();
+    var configParams = concern.__getConfigParams();
     url = configParams.url;
     if(isFunction(url)) {
-      url = url.call(dataModel, action);
+      url = url.call(concern, action);
     } else if(isString(url)) {
       if(contains(['read', 'update', 'patch', 'delete'], action) && configParams.pkInURL) {
         // need to append /:id to url
         url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
       }
     } else {
-      throw new Error('Must provide a URL for/on a dataModel in order to call .sync() on it');
+      var thing = (isDataModel(concern) && 'dataModel') || (isCollection(concern) && 'collection') || 'UNKNOWN';
+      throw new Error('Must provide a URL for/on a ' + thing + ' configuration in order to call .sync() on it');
     }
   }
   var urlPieces = (url || noURLError()).match(parseURLRegex);
   var baseURL = urlPieces[1] || '';
-  options.url = last(urlPieces);
+  options.url = baseURL + last(urlPieces);
 
-  // replace any interpolated parameters
-  var urlParams = options.url.match(parseParamsRegex);
-  if(urlParams) {
-    each(urlParams, function(param) {
-      options.url = options.url.replace(param, dataModel.$toJS(param.substr(1)));
-    });
+  if(isDataModel(concern)) {
+    // replace any interpolated parameters
+    var urlParams = options.url.match(parseParamsRegex);
+    if(urlParams) {
+      each(urlParams, function(param) {
+        options.url = options.url.replace(param, concern.$toJS(param.substr(1)));
+      });
+    }
   }
-  options.url = baseURL + options.url;
 
-  if(isNull(options.data) && dataModel && contains(['create', 'update', 'patch'], action)) {
+  if(isNull(options.data) && concern && contains(['create', 'update', 'patch'], action)) {
     options.contentType = 'application/json';
-    options.data = options.attrs || dataModel.$toJS();
+    options.data = JSON.stringify(options.attrs || getDataForModelOrCollection(concern));
   }
 
   // For older servers, emulate JSON by encoding the request into an HTML-form.
@@ -2266,8 +2340,68 @@ fw.sync = function(action, dataModel, params) {
   };
 
   var xhr = options.xhr = fw.ajax(options);
-  dataModel.$namespace.publish('$.request', { dataModel: dataModel, xhr: xhr, options: options });
+  concern.$namespace.publish('_.request', { dataModel: concern, xhr: xhr, options: options });
   return xhr;
+};
+
+// framework/entities/dataModel/mapTo.js
+// ------------------
+
+fw.subscribable.fn.mapTo = function(option) {
+  var mappedObservable = this;
+  var mapPath;
+  var dataModel;
+
+  if(isString(option)) {
+    mapPath = option;
+    dataModel = currentDataModelContext();
+  } else if(isObject(option)) {
+    mapPath = option.path;
+    dataModel = option.dataModel;
+  } else {
+    throw new Error('Invalid options supplied to mapTo');
+  }
+
+  if(!isDataModel(dataModel)) {
+    throw new Error('No dataModel context found/supplied for mapTo observable');
+  }
+
+  var mappings = dataModel.__mappings();
+  var primaryKey = getPrimaryKey(dataModel);
+  if( !isUndefined(mappings[mapPath]) && (mapPath !== primaryKey && dataModel.$id.__isOriginalPK)) {
+    throw new Error('the field \'' + mapPath + '\' is already mapped on this dataModel');
+  }
+
+  if(!isUndefined(mappings[mapPath]) && isFunction(mappings[mapPath].dispose)) {
+    // remapping a path, we need to dispose of the old one first
+    mappings[mapPath].dispose();
+  }
+
+  // add/set the registry entry for the mapped observable
+  mappings[mapPath] = mappedObservable;
+
+  if(mapPath === primaryKey) {
+    // mapping primary key, update/set the $id property on the dataModel
+    dataModel.$id = mappings[mapPath];
+  }
+
+  mappedObservable.isDirty = fw.observable(false);
+  var changeSubscription = mappedObservable.subscribe(function(value) {
+    dataModel.$namespace.publish('_.change', { param: mapPath, value: value });
+    mappedObservable.isDirty(true);
+  });
+
+  var disposeObservable = mappedObservable.dispose || noop;
+  if(isFunction(mappedObservable.dispose)) {
+    mappedObservable.dispose = function() {
+      changeSubscription.dispose();
+      disposeObservable.call(mappedObservable);
+    };
+  }
+
+  dataModel.__mappings.valueHasMutated();
+
+  return mappedObservable;
 };
 
 // framework/entities/dataModel/DataModel.js
@@ -2318,126 +2452,6 @@ fw.sync = function(action, dataModel, params) {
  * });
  */
 
-var dataModelContext = [];
-function enterDataModelContext(dataModel) {
-  dataModelContext.unshift(dataModel);
-}
-function exitDataModelContext() {
-  dataModelContext.shift();
-}
-
-function currentDataModelContext() {
-  return dataModelContext.length ? dataModelContext[0] : null;
-}
-
-function getPrimaryKey(dataModel) {
-  return dataModel.__getConfigParams().idAttribute;
-}
-
-fw.subscribable.fn.mapTo = function(option) {
-  var mappedObservable = this;
-  var mapPath;
-  var dataModel;
-
-  if(isString(option)) {
-    mapPath = option;
-    dataModel = currentDataModelContext();
-  } else if(isObject(option)) {
-    mapPath = option.path;
-    dataModel = option.dataModel;
-  } else {
-    throw new Error('Invalid options supplied to mapTo');
-  }
-
-  if(!isDataModel(dataModel)) {
-    throw new Error('No dataModel context found/supplied for mapTo observable');
-  }
-
-  var mappings = dataModel.__mappings();
-  var primaryKey = getPrimaryKey(dataModel);
-  if( !isUndefined(mappings[mapPath]) && (mapPath !== primaryKey && dataModel.$id.__isOriginalPK)) {
-    throw new Error('the field \'' + mapPath + '\' is already mapped on this dataModel');
-  }
-
-  if(!isUndefined(mappings[mapPath]) && isFunction(mappings[mapPath].dispose)) {
-    // remapping a path, we need to dispose of the old one first
-    mappings[mapPath].dispose();
-  }
-
-  // add/set the registry entry for the mapped observable
-  mappings[mapPath] = mappedObservable;
-
-  if(mapPath === primaryKey) {
-    // mapping primary key, update/set the $id property on the dataModel
-    dataModel.$id = mappings[mapPath];
-  }
-
-  mappedObservable.isDirty = fw.observable(false);
-  var changeSubscription = mappedObservable.subscribe(function(value) {
-    dataModel.$namespace.publish('$.change', { param: mapPath, value: value });
-    mappedObservable.isDirty(true);
-  });
-
-  var disposeObservable = mappedObservable.dispose || noop;
-  if(isFunction(mappedObservable.dispose)) {
-    mappedObservable.dispose = function() {
-      changeSubscription.dispose();
-      disposeObservable.call(mappedObservable);
-    };
-  }
-
-  dataModel.__mappings.valueHasMutated();
-
-  return mappedObservable;
-};
-
-function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
-  if(isString(fieldMap)) {
-    return insertValueIntoObject(rootObject, fieldMap.split('.'), fieldValue);
-  }
-
-  var propName = fieldMap.shift();
-  if(fieldMap.length) {
-    if(isUndefined(rootObject[propName])) {
-      // nested property, lets add the container object
-      rootObject[propName] = {};
-    }
-    // recurse into the next layer
-    insertValueIntoObject(rootObject[propName], fieldMap, fieldValue);
-  } else {
-    rootObject[propName] = fieldValue;
-  }
-
-  return rootObject;
-}
-
-function getNestedReference(rootObject, fieldMap) {
-  var propName = fieldMap;
-
-  if(!isUndefined(fieldMap)) {
-    if(isString(fieldMap)) {
-      // initial call with string based fieldMap, recurse into main loop
-      return getNestedReference(rootObject, fieldMap.split('.'));
-    }
-
-    propName = fieldMap.shift();
-    if(fieldMap.length) {
-      // recurse into the next layer
-      return getNestedReference((rootObject || {})[propName], fieldMap);
-    }
-  }
-
-  return !isString(propName) ? rootObject : (rootObject || {})[propName];
-}
-
-runPostInit.push(function(runTask) {
-  fw.ajax = ajax;
-  extend(fw.settings, {
-    emulateHTTP: false,
-    emulateJSON: false
-  });
-});
-
 var DataModel = function(descriptor, configParams) {
   return {
     runBeforeInit: true,
@@ -2447,24 +2461,31 @@ var DataModel = function(descriptor, configParams) {
       var pkField = configParams.idAttribute;
 
       this.__mappings = fw.observable({});
+
       this.$dirty = fw.computed(function() {
         var mappings = this.__mappings();
         return reduce(mappings, function(isDirty, mappedField) {
           return isDirty || mappedField.isDirty();
         }, false);
       }, this);
+
       this.$cid = fw.utils.guid();
+
       this[pkField] = this.$id = fw.observable(params[pkField]).mapTo(pkField);
       this.$id.__isOriginalPK = true;
+
+      this.$isNew = fw.computed(function() {
+        return !isUndefined(this.$id());
+      }, this);
     },
     mixin: {
       // GET from server and $set in model
-      $fetch: function() {
+      $fetch: function(options) {
         var dataModel = this;
         var id = this[configParams.idAttribute]();
         if(id) {
           // retrieve data dataModel the from server using the id
-          this.$sync('read', dataModel)
+          this.$sync('read', dataModel, options)
             .done(function(response) {
               dataModel.$set(response);
             });
@@ -2473,7 +2494,7 @@ var DataModel = function(descriptor, configParams) {
 
       // PUT / POST / PATCH to server
       $save: function(key, val, options) {
-        var viewModel = this;
+        var dataModel = this;
         var attrs = null;
 
         if(isObject(key)) {
@@ -2489,32 +2510,63 @@ var DataModel = function(descriptor, configParams) {
           patch: false
         }, options);
 
-        var method = isUndefined(viewModel.$id()) ? 'create' : (options.patch ? 'patch' : 'update');
+        var method = isUndefined(dataModel.$id()) ? 'create' : (options.patch ? 'patch' : 'update');
 
         if(method === 'patch' && !options.attrs) {
           options.attrs = attrs;
         }
 
-        var promise = viewModel.$sync(method, viewModel, options);
+        var promise = dataModel.$sync(method, dataModel, options);
 
-        if(!isNull(attrs)) {
-          if(options.wait) {
-            promise.done(function(response) {
-              if(options.parse && isObject(response)) {
-                viewModel.$set(response);
-              } else {
-                viewModel.$set(attrs);
-              }
-            });
-          } else {
-            viewModel.$set(attrs);
+        promise.done(function(response) {
+          var resourceData = configParams.parse ? configParams.parse(response) : response;
+
+          if(options.wait && !isNull(attrs)) {
+            resourceData = _.extend({}, attrs, resourceData);
           }
+
+          if(isObject(resourceData)) {
+            dataModel.$set(resourceData);
+          }
+        });
+
+        if(!options.wait && !isNull(attrs)) {
+          dataModel.$set(attrs);
         }
 
         return promise;
       },
 
-      $destroy: function() {}, // DELETE
+      // DELETE
+      $destroy: function(options) {
+        if(this.$isNew()) {
+          return false;
+        }
+
+        options = options ? _.clone(options) : {};
+        var dataModel = this;
+        var success = options.success;
+        var wait = options.wait;
+
+        var destroy = function() {
+          dataModel.$namespace.publish('destroy', options);
+        };
+
+        var xhr = this.$sync('delete', this, options);
+
+        xhr.done(function() {
+          dataModel.$id(undefined);
+          if(options.wait) {
+            destroy();
+          }
+        });
+
+        if(!options.wait) {
+          destroy();
+        }
+
+        return xhr;
+      },
 
       // set attributes in model (clears isDirty on observables/fields it saves to by default)
       $set: function(key, value, options) {
@@ -2538,8 +2590,9 @@ var DataModel = function(descriptor, configParams) {
             fieldObservable(fieldValue);
             mappingsChanged = true;
             options.clearDirty && fieldObservable.isDirty(false);
+            this.$namespace.publish('_.change.' + fieldMap, fieldValue);
           }
-        });
+        }, this);
 
         if(mappingsChanged && options.clearDirty) {
           // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function
@@ -2566,7 +2619,6 @@ var DataModel = function(descriptor, configParams) {
         return !!this.__mappings()[referenceField];
       },
 
-      // return current data in POJO form
       $toJS: function(referenceField, includeRoot) {
         var dataModel = this;
         if(isArray(referenceField)) {
@@ -2587,7 +2639,6 @@ var DataModel = function(descriptor, configParams) {
         return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
       },
 
-      // return current data in JSON form
       $toJSON: function(referenceField, includeRoot) {
         return JSON.stringify( this.$toJS(referenceField, includeRoot) );
       },
@@ -2627,6 +2678,14 @@ var DataModel = function(descriptor, configParams) {
   };
 };
 
+
+runPostInit.push(function(runTask) {
+  fw.ajax = ajax;
+  extend(fw.settings, {
+    emulateHTTP: false,
+    emulateJSON: false
+  });
+});
 
 // framework/entities/router/init.js
 // ------------------
@@ -2770,11 +2829,12 @@ fw.bindingHandlers.$bind = {
 function $routerOutlet(outletName, componentToDisplay, options) {
   options = options || {};
   if( isFunction(options) ) {
-    options = { onComplete: options };
+    options = { onComplete: options, onFailure: noop };
   }
 
   var viewModelParameters = options.params;
   var onComplete = options.onComplete || noop;
+  var onFailure = options.onFailure || noop;
   var outlets = this.outlets;
 
   outletName = fw.unwrap( outletName );
@@ -2782,7 +2842,8 @@ function $routerOutlet(outletName, componentToDisplay, options) {
     outlets[outletName] = fw.observable({
       name: noComponentSelected,
       params: {},
-      __getOnCompleteCallback: function() { return noop; }
+      __getOnCompleteCallback: function() { return noop; },
+      __onFailure: onFailure.bind(this)
     }).broadcastAs({ name: outletName, namespace: this.$namespace });
   }
 
@@ -2812,6 +2873,7 @@ function $routerOutlet(outletName, componentToDisplay, options) {
       var isComplete = callCounter === 0;
       callCounter--;
       if( isComplete ) {
+        activeOutlets.remove(outlet);
         return function addBindingOnComplete() {
           setTimeout(function() {
             if(element.className.indexOf(bindingClassName) === -1) {
@@ -2826,6 +2888,7 @@ function $routerOutlet(outletName, componentToDisplay, options) {
       return noop;
     };
 
+    activeOutlets.push(outlet);
     outlet.valueHasMutated();
   }
 
@@ -3433,6 +3496,7 @@ entityDescriptors = entityDescriptors.concat([
       idAttribute: 'id',
       url: null,
       pkInURL: true,
+      parse: false,
       namespace: undefined,
       autoRegister: false,
       autoIncrement: true,
@@ -3834,6 +3898,7 @@ runPostInit.unshift(function() {
   };
 
   isDataModel = entityDescriptors.getDescriptor('dataModel').isEntity;
+  isDataModelCtor = entityDescriptors.getDescriptor('dataModel').isEntityCtor;
   isRouter = entityDescriptors.getDescriptor('router').isEntity;
 });
 
@@ -4273,7 +4338,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
 
 // This loader is a catch-all in the instance a registered component cannot be found.
 // The loader will attempt to use requirejs via knockouts integrated support if it is available.
-fw.components.loaders.push( fw.components.requireLoader = {
+fw.components.loaders.push(fw.components.requireLoader = {
   getConfig: function(componentName, callback) {
     var combinedFile = fw.components.getFileName(componentName, 'combined');
     var viewModelFile = fw.components.getFileName(componentName, 'viewModel');
@@ -4340,18 +4405,326 @@ fw.components.loaders.push( fw.components.requireLoader = {
   }
 });
 
+// Note that this is a direct lift from the knockoutjs source
+function possiblyGetConfigFromAmd(config, callback) {
+  if(isString(config['require'])) {
+    if(isFunction(require)) {
+      require([config['require']], callback, function() {
+        each(activeOutlets(), function(outlet) {
+          outlet().__onFailure();
+        });
+      });
+    } else {
+      throw new Error('Uses require, but no AMD loader is present');
+    }
+  } else {
+    callback(config);
+  }
+}
+
+// Note that this is a direct lift from the knockoutjs source
+function resolveConfig(componentName, config, callback) {
+  var result = {};
+  var makeCallBackWhenZero = 2;
+  var tryIssueCallback = function() {
+    if (--makeCallBackWhenZero === 0) {
+      callback(result);
+    }
+  };
+  var templateConfig = config['template'];
+  var viewModelConfig = config['viewModel'];
+
+  if (templateConfig) {
+    possiblyGetConfigFromAmd(templateConfig, function(loadedConfig) {
+      getFirstResultFromLoaders('loadTemplate', [componentName, loadedConfig], function(resolvedTemplate) {
+        result['template'] = resolvedTemplate;
+        tryIssueCallback();
+      });
+    });
+  } else {
+    tryIssueCallback();
+  }
+
+  if (viewModelConfig) {
+    possiblyGetConfigFromAmd(viewModelConfig, function(loadedConfig) {
+      getFirstResultFromLoaders('loadViewModel', [componentName, loadedConfig], function(resolvedViewModel) {
+        result['createViewModel'] = resolvedViewModel;
+        tryIssueCallback();
+      });
+    });
+  } else {
+    tryIssueCallback();
+  }
+}
+
+// Note that this is a direct lift from the knockoutjs source
+function getFirstResultFromLoaders(methodName, argsExceptCallback, callback, candidateLoaders) {
+  // On the first call in the stack, start with the full set of loaders
+  if(!candidateLoaders) {
+    candidateLoaders = fw.components['loaders'].slice(0); // Use a copy, because we'll be mutating this array
+  }
+
+  // Try the next candidate
+  var currentCandidateLoader = candidateLoaders.shift();
+  if (currentCandidateLoader) {
+    var methodInstance = currentCandidateLoader[methodName];
+    if (methodInstance) {
+      var wasAborted = false;
+      var synchronousReturnValue = methodInstance.apply(currentCandidateLoader, argsExceptCallback.concat(function(result) {
+        if (wasAborted) {
+          callback(null);
+        } else if (result !== null) {
+          // This candidate returned a value. Use it.
+          callback(result);
+        } else {
+          // Try the next candidate
+          getFirstResultFromLoaders(methodName, argsExceptCallback, callback, candidateLoaders);
+        }
+      }));
+
+      // Currently, loaders may not return anything synchronously. This leaves open the possibility
+      // that we'll extend the API to support synchronous return values in the future. It won't be
+      // a breaking change, because currently no loader is allowed to return anything except undefined.
+      if (synchronousReturnValue !== undefined) {
+        wasAborted = true;
+
+        // Method to suppress exceptions will remain undocumented. This is only to keep
+        // KO's specs running tidily, since we can observe the loading got aborted without
+        // having exceptions cluttering up the console too.
+        if (!currentCandidateLoader['suppressLoaderExceptions']) {
+          throw new Error('Component loaders must supply values by invoking the callback, not by returning values synchronously.');
+        }
+      }
+    } else {
+      // This candidate doesn't have the relevant handler. Synchronously move on to the next one.
+      getFirstResultFromLoaders(methodName, argsExceptCallback, callback, candidateLoaders);
+    }
+  } else {
+    // No candidates returned a value
+    callback(null);
+  }
+}
+
+// Note that this is a direct lift from the knockoutjs source
+function resolveTemplate(templateConfig, callback) {
+  if (typeof templateConfig === 'string') {
+    // Markup - parse it
+    callback(fw.utils.parseHtmlFragment(templateConfig));
+  } else if (templateConfig instanceof Array) {
+    // Assume already an array of DOM nodes - pass through unchanged
+    callback(templateConfig);
+  } else if (isDocumentFragment(templateConfig)) {
+    // Document fragment - use its child nodes
+    callback(fw.utils.makeArray(templateConfig.childNodes));
+  } else if (templateConfig['element']) {
+    var element = templateConfig['element'];
+    if (isDomElement(element)) {
+      // Element instance - copy its child nodes
+      callback(cloneNodesFromTemplateSourceElement(element));
+    } else if (typeof element === 'string') {
+      // Element ID - find it, then copy its child nodes
+      var elemInstance = document.getElementById(element);
+      if (elemInstance) {
+        callback(cloneNodesFromTemplateSourceElement(elemInstance));
+      } else {
+        throw new Error('Cannot find element with ID ' + element);
+      }
+    } else {
+      throw new Error('Unknown element type: ' + element);
+    }
+  } else {
+    throw new Error('Unknown template value: ' + templateConfig);
+  }
+}
+
+// Note that this is a direct lift from the knockoutjs source
+function cloneNodesFromTemplateSourceElement(elemInstance) {
+  switch (fw.utils.tagNameLower(elemInstance)) {
+    case 'script':
+      return fw.utils.parseHtmlFragment(elemInstance.text);
+    case 'textarea':
+      return fw.utils.parseHtmlFragment(elemInstance.value);
+    case 'template':
+      // For browsers with proper <template> element support (i.e., where the .content property
+      // gives a document fragment), use that document fragment.
+      if (isDocumentFragment(elemInstance.content)) {
+        return fw.utils.cloneNodes(elemInstance.content.childNodes);
+      }
+  }
+
+  // Regular elements such as <div>, and <template> elements on old browsers that don't really
+  // understand <template> and just treat it as a regular container
+  return fw.utils.cloneNodes(elemInstance.childNodes);
+}
+
+fw.components.loaders.unshift(fw.components.requireResolver = {
+  loadComponent: function(componentName, config, callback) {
+    possiblyGetConfigFromAmd(config, function(loadedConfig) {
+      // TODO: Provide upstream patch which clears out loadingSubscribablesCache when load fails so that
+      // subsequent requests will re-run require
+
+      resolveConfig(componentName, loadedConfig, callback);
+      // fw.components.defaultLoader.loadComponent(componentName, loadedConfig, callback);
+    });
+  }
+});
+
+
+// framework/collection/defaultConfig.js
+// ------------------
+
+var defaultCollectionConfig = {
+  namespace: null,
+  url: null,
+  dataModel: null
+};
+
+// framework/collection/utility.js
+// ------------------
+
+function isCollection(thing) {
+  return isObject(thing) && !!thing.__isCollection;
+}
 
 // framework/collection/exports.js
 // ------------------
 
-var defaultCollectionConfig = {};
+fw.collection = function(conf) {
+  return function initCollection(collectionData) {
+    var collection = fw.observableArray();
 
-fw.collection = function(config) {
-  var collection = fw.observableArray();
+    var config = extend({}, defaultCollectionConfig, conf);
+    if(!isDataModelCtor(config.dataModel)) {
+      throw new Error('Must provide a dataModel for a collection');
+    }
 
-  extend({}, defaultCollectionConfig, config);
+    collection.__getConfigParams = function() {
+      return config;
+    };
 
-  return collection;
+    extend(collection, collectionMethods, {
+      $namespace: fw.namespace(config.namespace || uniqueId('collection')),
+      __originalData: collectionData,
+      __isCollection: true
+    });
+
+    if(collectionData) {
+      collection.$set(collectionData);
+    }
+
+    return collection;
+  };
+};
+
+// framework/collection/collectionMethods.js
+// ------------------
+
+var collectionMethods = {
+  $sync: function() {
+    return fw.sync.apply(this, arguments);
+  },
+  $get: function(id) {
+    return find(this(), function findModelWithId(model) {
+      return model.$id() === id || model.$cid() === id;
+    });
+  },
+  $set: function(newCollection) {
+    var collectionChanged = false;
+    var collectionStore = this();
+    var DataModelCtor = this.__getConfigParams().dataModel;
+    var modelFields;
+    var idAttribute;
+    var touchedModels = [];
+
+    // remove any models present that are not in the new collection or update them if needed
+    var absentModels = [];
+    each(collectionStore, function removeNonPresentModels(model) {
+      var modelPresent = false;
+      var collectionModelData = model.$toJS();
+
+      if(isUndefined(modelFields)) {
+        modelFields = keys(collectionModelData);
+        idAttribute = model.__getConfigParams().idAttribute;
+      }
+
+      each(newCollection, function isThisModel(modelData) {
+        modelData = pick(modelData, modelFields);
+        if(isEqual(modelData, collectionModelData)) {
+          // found identical model
+          modelPresent = true;
+        } else if(modelData[idAttribute] === collectionModelData[idAttribute]) {
+          // found model, but needs an update
+          modelPresent = true;
+          model.$set(modelData);
+          this.$namespace.publish('_.change', model);
+          touchedModels.push(model);
+        }
+      });
+
+      if(!modelPresent) {
+        // not found, must remove this model from our collection
+        this.$namespace.publish('_.remove', model);
+        absentModels.push(model);
+        touchedModels.push(model);
+      }
+    }, this);
+    this.removeAll(absentModels);
+
+    // add in any new models
+    each(newCollection, function addNewModelToCollection(modelData) {
+      if(isUndefined(modelData[idAttribute]) || isNull(modelData[idAttribute])) {
+        // new model
+        var newModel = new DataModelCtor(modelData);
+        collectionStore.push(newModel);
+        this.$namespace.publish('_.add', newModel);
+        collectionChanged = true;
+        touchedModels.push(newModel);
+      }
+    }, this);
+
+    collectionChanged && this.valueHasMutated();
+
+    return touchedModels;
+  },
+  $reset: function(newCollection) {
+    var oldModels = this();
+
+    this(reduce(newCollection, function(newModels, modelData) {
+      newModels.push(new DataModelCtor(modelData));
+      return newModels;
+    }, []));
+
+    this.$namespace.publish('_.reset', oldModels);
+
+    return this();
+  },
+  $fetch: function(options) {
+    options = options ? clone(options) : {};
+
+    if(isUndefined(options.parse)) {
+      options.parse = true;
+    }
+
+    var xhr = this.$sync('read', this, options);
+
+    var collection = this;
+    xhr.done(function(resp) {
+      var method = options.reset ? '$reset' : '$set';
+      collection[method](resp, options);
+      collection.$namespace.publish('sync', collection, resp, options);
+    });
+
+    return xhr;
+  },
+  $toJS: function() {
+    return reduce(this(), function(models, model) {
+      models.push(model.$toJS());
+      return models;
+    }, []);
+  },
+  $toJSON: function() {
+    return JSON.stringify(this.$toJS());
+  }
 };
 
 
