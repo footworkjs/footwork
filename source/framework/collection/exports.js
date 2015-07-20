@@ -14,6 +14,22 @@ fw.collection = function(conf) {
       return config;
     };
 
+    var router = {};
+    this.__private = function privateData(propName, propValue) {
+      var isGetBaseObjOp = arguments.length === 0;
+      var isReadOp = arguments.length === 1;
+      var isWriteOp = arguments.length === 2;
+
+      if(isGetBaseObjOp) {
+        return router;
+      } else if(isReadOp) {
+        return propName === 'configParams' ? config : router[propName];
+      } else if(isWriteOp) {
+        router[propName] = propValue;
+        return router[propName];
+      }
+    };
+
     extend(collection, collectionMethods, {
       $namespace: fw.namespace(config.namespace || uniqueId('collection')),
       __originalData: collectionData,

@@ -37,7 +37,7 @@ function setupContextAndLifeCycle(entity, element) {
     }
 
     if( isRouter(entity) ) {
-      entity.__router('context')( elementContext );
+      entity.__private('context')( elementContext );
     }
 
     if( !isUndefined(element) ) {

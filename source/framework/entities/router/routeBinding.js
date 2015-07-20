@@ -87,7 +87,7 @@ fw.bindingHandlers.$route = {
           }
 
           if( includeParentPath && !isNullRouter($myRouter) ) {
-            myLinkPath = $myRouter.__router('parentRouter')().path() + myLinkPath;
+            myLinkPath = $myRouter.__private('parentRouter')().path() + myLinkPath;
           }
 
           if(fw.routers.html5History() === false) {
@@ -128,7 +128,7 @@ fw.bindingHandlers.$route = {
 
     function setUpElement() {
       var myCurrentSegment = routeURLWithoutParentPath();
-      var routerConfig = $myRouter.__getConfigParams();
+      var routerConfig = $myRouter.__private('configParams');
       if( element.tagName.toLowerCase() === 'a' ) {
         element.href = (fw.routers.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
       }
@@ -142,7 +142,7 @@ fw.bindingHandlers.$route = {
         elementIsSetup = true;
         checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
 
-        $myRouter.__router('parentRouter').subscribe(setUpElement);
+        $myRouter.__private('parentRouter').subscribe(setUpElement);
         fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
           var currentRouteURL = routeURLWithoutParentPath();
           var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
@@ -159,7 +159,7 @@ fw.bindingHandlers.$route = {
     }
 
     if( isObservable(routeHandlerDescription.url) ) {
-      $myRouter.__router('subscriptions').push( routeHandlerDescription.url.subscribe(setUpElement) );
+      $myRouter.__private('subscriptions').push( routeHandlerDescription.url.subscribe(setUpElement) );
     }
     setUpElement();
 
