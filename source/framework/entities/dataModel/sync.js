@@ -17,15 +17,6 @@ function noURLError() {
   throw new Error('A "url" property or function must be specified');
 };
 
-function getDataForModelOrCollection(thing) {
-  if(isDataModel(thing)) {
-    return thing.$toJS();
-  } else if(isCollection(thing)) {
-    return thing.__originalData;
-  }
-  return null;
-}
-
 fw.sync = function(action, concern, params) {
   params = params || {};
   action = action || 'noAction';
@@ -83,7 +74,7 @@ fw.sync = function(action, concern, params) {
 
   if(isNull(options.data) && concern && contains(['create', 'update', 'patch'], action)) {
     options.contentType = 'application/json';
-    options.data = JSON.stringify(options.attrs || getDataForModelOrCollection(concern));
+    options.data = JSON.stringify(options.attrs || concern.$toJS());
   }
 
   // For older servers, emulate JSON by encoding the request into an HTML-form.
