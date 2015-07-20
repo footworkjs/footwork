@@ -322,26 +322,30 @@ var Router = function(descriptor, configParams) {
         return this;
       },
       dispose: function() {
-        var $parentRouter = this.__router('parentRouter')();
-        if( !isNullRouter($parentRouter) ) {
-          $parentRouter.__router('childRouters').remove(this);
+        if( !this._isDisposed ) {
+          this._isDisposed = true;
+
+          var $parentRouter = this.__router('parentRouter')();
+          if( !isNullRouter($parentRouter) ) {
+            $parentRouter.__router('childRouters').remove(this);
+          }
+
+          if( this.__router('historyIsEnabled')() && historyIsReady() ) {
+            History.Adapter.unbind( this.__router('stateChangeHandler') );
+          }
+
+          this.$namespace.dispose();
+          this.$globalNamespace.dispose();
+          invoke(this.__router('subscriptions'), 'dispose');
+
+          each(omit(this, function(property) {
+            return isEntity(property);
+          }), propertyDisposal);
+
+          each(omit(this.__router(), function(property) {
+            return isEntity(property);
+          }), propertyDisposal);
         }
-
-        if( this.__router('historyIsEnabled')() && historyIsReady() ) {
-          History.Adapter.unbind( this.__router('stateChangeHandler') );
-        }
-
-        this.$namespace.dispose();
-        this.$globalNamespace.dispose();
-        invoke(this.__router('subscriptions'), 'dispose');
-
-        each(omit(this, function(property) {
-          return isEntity(property);
-        }), propertyDisposal);
-
-        each(omit(this.__router(), function(property) {
-          return isEntity(property);
-        }), propertyDisposal);
       }
     }
   };

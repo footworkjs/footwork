@@ -1,51 +1,6 @@
 // framework/entities/dataModel/DataModel.js
 // ------------------
 
-/**
- * Tentative API:
- *
- * var DataModel = fw.dataModel({
- *   id: 'id',
- *
- *   // string based url with automatic RESTful routes
- *   url: 'http://server.com/person',
- *
- *   // custom routes provided by callback
- *   url: function(method) {
- *     switch(method) {
- *       case 'read':
- *         return 'http://server.com/person/:id';
- *         break;
- *
- *       case 'create':
- *         return 'http://server.com/person';
- *         break;
- *
- *       case 'update':
- *         return 'http://server.com/person/:id';
- *         break;
- *
- *       case 'delete':
- *         return 'http://server.com/person/:id';
- *         break;
- *     }
- *   },
- *
- *   initialize: function() {
- *     // field declarations and mapping
- *     this.firstName = fw.observable().mapTo('firstName');
- *     this.lastName = fw.observable().mapTo('lastName');
- *     this.email = fw.observable().mapTo('email');
- *     this.movieCollection = {
- *       action: fw.observable().mapTo('movies.action'),
- *       drama: fw.observable().mapTo('movies.drama'),
- *       comedy: fw.observable().mapTo('movies.comedy'),
- *       horror: fw.observable().mapTo('movies.horror')
- *     };
- *   }
- * });
- */
-
 var DataModel = function(descriptor, configParams) {
   return {
     runBeforeInit: true,

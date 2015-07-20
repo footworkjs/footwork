@@ -8,6 +8,12 @@ var ViewModel = function(descriptor, configParams) {
       __getConfigParams: function() {
         return configParams;
       },
+      $trackSub: function(subscription) {
+        if(!isArray(this.__subscriptions)) {
+          this.__subscriptions = [];
+        }
+        subscription && this.__subscriptions.push(subscription);
+      },
       dispose: function() {
         if( !this._isDisposed ) {
           this._isDisposed = true;
@@ -15,6 +21,7 @@ var ViewModel = function(descriptor, configParams) {
             configParams.onDispose.call(this);
           }
           each(this, propertyDisposal);
+          each(this.__subscriptions || [], propertyDisposal);
         }
       }
     },
