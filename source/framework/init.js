@@ -26,3 +26,4 @@ var isEntityCtor;
 var isEntity;
 var isDataModel;
 var isRouter;
+var activeOutlets = fw.observableArray();

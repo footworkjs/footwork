@@ -25,11 +25,12 @@ fw.bindingHandlers.$bind = {
 function $routerOutlet(outletName, componentToDisplay, options) {
   options = options || {};
   if( isFunction(options) ) {
-    options = { onComplete: options };
+    options = { onComplete: options, onFailure: noop };
   }
 
   var viewModelParameters = options.params;
   var onComplete = options.onComplete || noop;
+  var onFailure = options.onFailure || noop;
   var outlets = this.outlets;
 
   outletName = fw.unwrap( outletName );
@@ -37,7 +38,8 @@ function $routerOutlet(outletName, componentToDisplay, options) {
     outlets[outletName] = fw.observable({
       name: noComponentSelected,
       params: {},
-      __getOnCompleteCallback: function() { return noop; }
+      __getOnCompleteCallback: function() { return noop; },
+      __onFailure: onFailure.bind(this)
     }).broadcastAs({ name: outletName, namespace: this.$namespace });
   }
 
@@ -67,6 +69,7 @@ function $routerOutlet(outletName, componentToDisplay, options) {
       var isComplete = callCounter === 0;
       callCounter--;
       if( isComplete ) {
+        activeOutlets.remove(outlet);
         return function addBindingOnComplete() {
           setTimeout(function() {
             if(element.className.indexOf(bindingClassName) === -1) {
@@ -81,6 +84,7 @@ function $routerOutlet(outletName, componentToDisplay, options) {
       return noop;
     };
 
+    activeOutlets.push(outlet);
     outlet.valueHasMutated();
   }
 
