@@ -17,7 +17,7 @@ For more details, see:
 
 * [Documentation/API](http://footworkjs.com/docs/list "Documentation and API information")
 
-* [Tutorials](http://footworkjs.com/docs/list "Tutorials and guides")
+* [Tutorials](http://footworkjs.com/tutorials "Tutorials and guides")
 
 [![Join the chat at https://gitter.im/reflectiveSingleton/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/reflectiveSingleton/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
