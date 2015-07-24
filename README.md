@@ -15,7 +15,7 @@ For more details, see:
 
 * [Main Website](http://footworkjs.com/ "http://footworkjs.com")
 
-* [Documentation/API]http://footworkjs.com/docs/list "Documentation and API information")
+* [Documentation/API](http://footworkjs.com/docs/list "Documentation and API information")
 
 * [Tutorials](http://footworkjs.com/docs/list "Tutorials and guides")
 
