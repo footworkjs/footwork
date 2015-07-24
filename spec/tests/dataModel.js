@@ -741,4 +741,110 @@ describe('dataModel', function () {
 
     expect(person.$dirty()).to.be(true);
   });
+
+  it('can correctly POST data on initial $save()', function(done) {
+    $.mockjax({
+      responseTime: 10,
+      url: "/personPOST",
+      type: 'POST',
+      responseText: {
+        "id": 1,
+        "firstName":null,
+        "lastName":null,
+        "email":null,
+        "movies": {
+          "action": [],
+          "drama": [],
+          "comedy": [],
+          "horror": []
+        }
+      }
+    });
+
+    var Person = fw.dataModel({
+      namespace: 'person',
+      url: '/personPOST',
+      initialize: function(person) {
+        person = _.extend({}, person, { movies: {} });
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+        this.movieCollection = {
+          action: fw.observableArray(person.movies.action).mapTo('movies.action'),
+          drama: fw.observableArray(person.movies.drama).mapTo('movies.drama'),
+          comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy'),
+          horror: fw.observableArray(person.movies.horror).mapTo('movies.horror')
+        };
+      }
+    });
+
+    var person = new Person();
+    person.$save();
+    setTimeout(function() {
+      expect(person.$id()).to.be(1);
+      done();
+    }, 40);
+  });
+
+  it('can correctly POST data on initial $save() and then PUT on subsequent calls', function(done) {
+    var postCheck = '__POST__CHECK__';
+    var putCheck = '__PUT__CHECK__';
+    var personData = {
+      "id": 1,
+      "firstName": null,
+      "lastName": null,
+      "email": null,
+      "movies": {
+        "action": [],
+        "drama": [],
+        "comedy": [],
+        "horror": []
+      }
+    };
+
+    $.mockjax({
+      responseTime: 10,
+      url: "/personPOSTPUT",
+      type: 'POST',
+      responseText: _.extend({}, personData, { firstName: postCheck })
+    });
+
+    $.mockjax({
+      responseTime: 10,
+      url: "/personPOSTPUT",
+      type: 'PUT',
+      responseText: _.extend({}, personData, { firstName: putCheck })
+    });
+
+    var Person = fw.dataModel({
+      namespace: 'person',
+      url: '/personPOSTPUT',
+      initialize: function(person) {
+        person = _.extend({}, person, { movies: {} });
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+        this.movieCollection = {
+          action: fw.observableArray(person.movies.action).mapTo('movies.action'),
+          drama: fw.observableArray(person.movies.drama).mapTo('movies.drama'),
+          comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy'),
+          horror: fw.observableArray(person.movies.horror).mapTo('movies.horror')
+        };
+      }
+    });
+
+    var person = new Person();
+    person.$save();
+    setTimeout(function() {
+      expect(person.$id()).to.be(1);
+      expect(person.firstName()).to.be(postCheck);
+
+      person.$save();
+      setTimeout(function() {
+        expect(person.firstName()).to.be(putCheck);
+        done();
+      }, 40);
+      done();
+    }, 40);
+  });
 });

@@ -2131,6 +2131,12 @@ var ViewModel = function(descriptor, configParams) {
       __getConfigParams: function() {
         return configParams;
       },
+      $trackSub: function(subscription) {
+        if(!isArray(this.__subscriptions)) {
+          this.__subscriptions = [];
+        }
+        subscription && this.__subscriptions.push(subscription);
+      },
       dispose: function() {
         if( !this._isDisposed ) {
           this._isDisposed = true;
@@ -2138,6 +2144,7 @@ var ViewModel = function(descriptor, configParams) {
             configParams.onDispose.call(this);
           }
           each(this, propertyDisposal);
+          each(this.__subscriptions || [], propertyDisposal);
         }
       }
     },
@@ -2240,15 +2247,6 @@ function noURLError() {
   throw new Error('A "url" property or function must be specified');
 };
 
-function getDataForModelOrCollection(thing) {
-  if(isDataModel(thing)) {
-    return thing.$toJS();
-  } else if(isCollection(thing)) {
-    return thing.__originalData;
-  }
-  return null;
-}
-
 fw.sync = function(action, concern, params) {
   params = params || {};
   action = action || 'noAction';
@@ -2306,7 +2304,7 @@ fw.sync = function(action, concern, params) {
 
   if(isNull(options.data) && concern && contains(['create', 'update', 'patch'], action)) {
     options.contentType = 'application/json';
-    options.data = JSON.stringify(options.attrs || getDataForModelOrCollection(concern));
+    options.data = JSON.stringify(options.attrs || concern.$toJS());
   }
 
   // For older servers, emulate JSON by encoding the request into an HTML-form.
@@ -2406,51 +2404,6 @@ fw.subscribable.fn.mapTo = function(option) {
 
 // framework/entities/dataModel/DataModel.js
 // ------------------
-
-/**
- * Tentative API:
- *
- * var DataModel = fw.dataModel({
- *   id: 'id',
- *
- *   // string based url with automatic RESTful routes
- *   url: 'http://server.com/person',
- *
- *   // custom routes provided by callback
- *   url: function(method) {
- *     switch(method) {
- *       case 'read':
- *         return 'http://server.com/person/:id';
- *         break;
- *
- *       case 'create':
- *         return 'http://server.com/person';
- *         break;
- *
- *       case 'update':
- *         return 'http://server.com/person/:id';
- *         break;
- *
- *       case 'delete':
- *         return 'http://server.com/person/:id';
- *         break;
- *     }
- *   },
- *
- *   initialize: function() {
- *     // field declarations and mapping
- *     this.firstName = fw.observable().mapTo('firstName');
- *     this.lastName = fw.observable().mapTo('lastName');
- *     this.email = fw.observable().mapTo('email');
- *     this.movieCollection = {
- *       action: fw.observable().mapTo('movies.action'),
- *       drama: fw.observable().mapTo('movies.drama'),
- *       comedy: fw.observable().mapTo('movies.comedy'),
- *       horror: fw.observable().mapTo('movies.horror')
- *     };
- *   }
- * });
- */
 
 var DataModel = function(descriptor, configParams) {
   return {
@@ -2710,7 +2663,7 @@ var nullRouterData = {
 
 var $nullRouter = {
   path: emptyStringResult,
-  __router: function(propName) {
+  __private: function(propName) {
     if(arguments.length) {
       return nullRouterData[propName];
     }
@@ -3006,7 +2959,7 @@ fw.bindingHandlers.$route = {
           }
 
           if( includeParentPath && !isNullRouter($myRouter) ) {
-            myLinkPath = $myRouter.__router('parentRouter')().path() + myLinkPath;
+            myLinkPath = $myRouter.__private('parentRouter')().path() + myLinkPath;
           }
 
           if(fw.routers.html5History() === false) {
@@ -3047,7 +3000,7 @@ fw.bindingHandlers.$route = {
 
     function setUpElement() {
       var myCurrentSegment = routeURLWithoutParentPath();
-      var routerConfig = $myRouter.__getConfigParams();
+      var routerConfig = $myRouter.__private('configParams');
       if( element.tagName.toLowerCase() === 'a' ) {
         element.href = (fw.routers.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
       }
@@ -3061,7 +3014,7 @@ fw.bindingHandlers.$route = {
         elementIsSetup = true;
         checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
 
-        $myRouter.__router('parentRouter').subscribe(setUpElement);
+        $myRouter.__private('parentRouter').subscribe(setUpElement);
         fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
           var currentRouteURL = routeURLWithoutParentPath();
           var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
@@ -3078,7 +3031,7 @@ fw.bindingHandlers.$route = {
     }
 
     if( isObservable(routeHandlerDescription.url) ) {
-      $myRouter.__router('subscriptions').push( routeHandlerDescription.url.subscribe(setUpElement) );
+      $myRouter.__private('subscriptions').push( routeHandlerDescription.url.subscribe(setUpElement) );
     }
     setUpElement();
 
@@ -3126,11 +3079,7 @@ var Router = function(descriptor, configParams) {
       var router = {};  // internal data/etc
       var routerConfigParams = extend({}, configParams);
 
-      this.__getConfigParams = function() {
-        return routerConfigParams;
-      };
-
-      var __router = this.__router = function privateData(propName, propValue) {
+      this.__private = function privateData(propName, propValue) {
         var isGetBaseObjOp = arguments.length === 0;
         var isReadOp = arguments.length === 1;
         var isWriteOp = arguments.length === 2;
@@ -3138,7 +3087,7 @@ var Router = function(descriptor, configParams) {
         if(isGetBaseObjOp) {
           return router;
         } else if(isReadOp) {
-          return router[propName];
+          return propName === 'configParams' ? routerConfigParams : router[propName];
         } else if(isWriteOp) {
           router[propName] = propValue;
           return router[propName];
@@ -3157,7 +3106,7 @@ var Router = function(descriptor, configParams) {
       router.currentState = fw.observable('').broadcastAs('currentState');
 
       function trimBaseRoute(url) {
-        var routerConfig = $router.__getConfigParams();
+        var routerConfig = $router.__private('configParams');
         if( !isNull(routerConfig.baseRoute) && url.indexOf(routerConfig.baseRoute) === 0 ) {
           url = url.substr(routerConfig.baseRoute.length);
           if(url.length > 1) {
@@ -3271,7 +3220,7 @@ var Router = function(descriptor, configParams) {
 
       function RoutedAction(routeDescription) {
         if( !isUndefined(routeDescription.title) ) {
-          document.title = isFunction(routeDescription.title) ? routeDescription.title.call($router, routeDescription.namedParams, this__router('urlParts')()) : routeDescription.title;
+          document.title = isFunction(routeDescription.title) ? routeDescription.title.call($router, routeDescription.namedParams, this.__private('urlParts')()) : routeDescription.title;
         }
 
         if( isUndefined(router.currentRouteDescription) || !sameRouteDescription(router.currentRouteDescription, routeDescription) ) {
@@ -3327,7 +3276,7 @@ var Router = function(descriptor, configParams) {
             $router.router.currentState.notifySubscribers();
           }));
         }
-        $parentRouter.__router('childRouters').push(this);
+        $parentRouter.__private('childRouters').push(this);
         $previousParent = $parentRouter;
       }, this));
 
@@ -3373,21 +3322,21 @@ var Router = function(descriptor, configParams) {
         return this;
       },
       activate: function($context, $parentRouter) {
-        $context = $context || this.__router('context')();
+        $context = $context || this.__private('context')();
         $parentRouter = $parentRouter || nearestParentRouter($context);
 
         if( !isNullRouter($parentRouter) ) {
-          this.__router('parentRouter')($parentRouter);
+          this.__private('parentRouter')($parentRouter);
         } else if( isObject($context) ) {
           $parentRouter = nearestParentRouter($context);
           if( $parentRouter !== this ) {
-            this.__router('parentRouter')($parentRouter);
+            this.__private('parentRouter')($parentRouter);
           }
         }
 
-        if( !this.__router('historyIsEnabled')() ) {
-          if( historyIsReady() && !this.__router('disableHistory')() ) {
-            History.Adapter.bind( windowObject, 'popstate', this.__router('stateChangeHandler', function(event) {
+        if( !this.__private('historyIsEnabled')() ) {
+          if( historyIsReady() && !this.__private('disableHistory')() ) {
+            History.Adapter.bind( windowObject, 'popstate', this.__private('stateChangeHandler', function(event) {
               var url = '';
               if(!fw.routers.html5History() && windowObject.location.hash.length > 1) {
                 url = windowObject.location.hash;
@@ -3395,25 +3344,25 @@ var Router = function(descriptor, configParams) {
                 url = windowObject.location.pathname + windowObject.location.hash;
               }
 
-              this.__router('currentState')( this.__router('normalizeURL')(url) );
+              this.__private('currentState')( this.__private('normalizeURL')(url) );
             }.bind(this) ));
-            this.__router('historyIsEnabled')(true);
+            this.__private('historyIsEnabled')(true);
           } else {
-            this.__router('historyIsEnabled')(false);
+            this.__private('historyIsEnabled')(false);
           }
         }
 
-        if( this.__router('currentState')() === '' ) {
+        if( this.__private('currentState')() === '' ) {
           this.setState();
         }
         return this;
       },
       setState: function(url) {
-        if( this.__router('historyIsEnabled')() && !this.__router('disableHistory')() ) {
+        if( this.__private('historyIsEnabled')() && !this.__private('disableHistory')() ) {
           if(isString(url)) {
             var historyAPIWorked = true;
             try {
-              historyAPIWorked = History.pushState(null, '', this.__getConfigParams().baseRoute + this.__router('parentRouter')().path() + url.replace(startingHashRegex, '/'));
+              historyAPIWorked = History.pushState(null, '', this.__private('configParams').baseRoute + this.__private('parentRouter')().path() + url.replace(startingHashRegex, '/'));
             } catch(historyException) {
               historyAPIWorked = false;
             } finally {
@@ -3422,44 +3371,48 @@ var Router = function(descriptor, configParams) {
               }
             }
           } else if(isFunction(History.getState)) {
-            this.__router('currentState')( this.__router('normalizeURL')(History.getState().url ) );
+            this.__private('currentState')( this.__private('normalizeURL')(History.getState().url ) );
           }
         } else if(isString(url)) {
-          this.__router('currentState')( this.__router('normalizeURL')(url ) );
+          this.__private('currentState')( this.__private('normalizeURL')(url ) );
         } else {
-          this.__router('currentState')('/');
+          this.__private('currentState')('/');
         }
 
         if(!historyIsReady()) {
           var routePath = this.path();
-          each(this.__router('childRouters')(), function(childRouter) {
-            childRouter.__router('currentState')(routePath);
+          each(this.__private('childRouters')(), function(childRouter) {
+            childRouter.__private('currentState')(routePath);
           });
         }
 
         return this;
       },
       dispose: function() {
-        var $parentRouter = this.__router('parentRouter')();
-        if( !isNullRouter($parentRouter) ) {
-          $parentRouter.__router('childRouters').remove(this);
+        if( !this._isDisposed ) {
+          this._isDisposed = true;
+
+          var $parentRouter = this.__private('parentRouter')();
+          if( !isNullRouter($parentRouter) ) {
+            $parentRouter.__private('childRouters').remove(this);
+          }
+
+          if( this.__private('historyIsEnabled')() && historyIsReady() ) {
+            History.Adapter.unbind( this.__private('stateChangeHandler') );
+          }
+
+          this.$namespace.dispose();
+          this.$globalNamespace.dispose();
+          invoke(this.__private('subscriptions'), 'dispose');
+
+          each(omit(this, function(property) {
+            return isEntity(property);
+          }), propertyDisposal);
+
+          each(omit(this.__private(), function(property) {
+            return isEntity(property);
+          }), propertyDisposal);
         }
-
-        if( this.__router('historyIsEnabled')() && historyIsReady() ) {
-          History.Adapter.unbind( this.__router('stateChangeHandler') );
-        }
-
-        this.$namespace.dispose();
-        this.$globalNamespace.dispose();
-        invoke(this.__router('subscriptions'), 'dispose');
-
-        each(omit(this, function(property) {
-          return isEntity(property);
-        }), propertyDisposal);
-
-        each(omit(this.__router(), function(property) {
-          return isEntity(property);
-        }), propertyDisposal);
       }
     }
   };
@@ -3698,7 +3651,7 @@ function setupContextAndLifeCycle(entity, element) {
     }
 
     if( isRouter(entity) ) {
-      entity.__router('context')( elementContext );
+      entity.__private('context')( elementContext );
     }
 
     if( !isUndefined(element) ) {
@@ -4600,6 +4553,22 @@ fw.collection = function(conf) {
 
     collection.__getConfigParams = function() {
       return config;
+    };
+
+    var router = {};
+    this.__private = function privateData(propName, propValue) {
+      var isGetBaseObjOp = arguments.length === 0;
+      var isReadOp = arguments.length === 1;
+      var isWriteOp = arguments.length === 2;
+
+      if(isGetBaseObjOp) {
+        return router;
+      } else if(isReadOp) {
+        return propName === 'configParams' ? config : router[propName];
+      } else if(isWriteOp) {
+        router[propName] = propValue;
+        return router[propName];
+      }
     };
 
     extend(collection, collectionMethods, {
