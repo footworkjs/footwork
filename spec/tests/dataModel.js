@@ -476,7 +476,7 @@ describe('dataModel', function () {
 
   it('can have an observable mapped correctly at the parent level', function() {
     var Person = fw.dataModel({
-      namespace: 'person',
+      namespace: 'Person',
       initialize: function(person) {
         this.firstName = fw.observable(person.firstName).mapTo('firstName');
         this.lastName = fw.observable(person.lastName).mapTo('lastName');
@@ -494,7 +494,7 @@ describe('dataModel', function () {
 
   it('can have an observable mapped correctly at a nested level', function() {
     var Person = fw.dataModel({
-      namespace: 'person',
+      namespace: 'Person',
       initialize: function(person) {
         this.firstName = fw.observable(person.firstName).mapTo('firstName');
         this.lastName = fw.observable(person.lastName).mapTo('lastName');
@@ -528,7 +528,7 @@ describe('dataModel', function () {
 
   it('can have observables mapped and retreived correctly', function() {
     var Person = fw.dataModel({
-      namespace: 'person',
+      namespace: 'Person',
       initialize: function(person) {
         this.firstName = fw.observable(person.firstName).mapTo('firstName');
         this.lastName = fw.observable(person.lastName).mapTo('lastName');
@@ -559,7 +559,7 @@ describe('dataModel', function () {
 
   it('can have observables mapped and a specific one retreived correctly', function() {
     var Person = fw.dataModel({
-      namespace: 'person',
+      namespace: 'Person',
       initialize: function(person) {
         this.firstName = fw.observable(person.firstName).mapTo('firstName');
         this.lastName = fw.observable(person.lastName).mapTo('lastName');
@@ -591,7 +591,7 @@ describe('dataModel', function () {
 
   it('can have observables mapped and an array of values retreived correctly', function() {
     var Person = fw.dataModel({
-      namespace: 'person',
+      namespace: 'Person',
       initialize: function(person) {
         this.firstName = fw.observable(person.firstName).mapTo('firstName');
         this.lastName = fw.observable(person.lastName).mapTo('lastName');
@@ -621,7 +621,7 @@ describe('dataModel', function () {
 
   it('can generate the correct JSON string using $toJSON()', function() {
     var Person = fw.dataModel({
-      namespace: 'person',
+      namespace: 'Person',
       initialize: function(person) {
         this.firstName = fw.observable(person.firstName).mapTo('firstName');
         this.lastName = fw.observable(person.lastName).mapTo('lastName');
@@ -654,7 +654,7 @@ describe('dataModel', function () {
 
   it('can load data in using dataModel.$set()', function() {
     var Person = fw.dataModel({
-      namespace: 'person',
+      namespace: 'Person',
       initialize: function(person) {
         this.firstName = fw.observable().mapTo('firstName');
         this.lastName = fw.observable().mapTo('lastName');
@@ -688,7 +688,7 @@ describe('dataModel', function () {
 
   it('can (re)map the primary key', function() {
     var Person = fw.dataModel({
-      namespace: 'person',
+      namespace: 'Person',
       initialize: function(personData) {
         this.firstName = fw.observable().mapTo('firstName');
         this.lastName = fw.observable().mapTo('lastName');
@@ -710,7 +710,7 @@ describe('dataModel', function () {
 
   it('can correctly be flagged as dirty when a mapped field value is altered', function() {
     var Person = fw.dataModel({
-      namespace: 'person',
+      namespace: 'Person',
       initialize: function(person) {
         this.firstName = fw.observable(person.firstName).mapTo('firstName');
         this.lastName = fw.observable(person.lastName).mapTo('lastName');
@@ -749,32 +749,20 @@ describe('dataModel', function () {
       type: 'POST',
       responseText: {
         "id": 1,
-        "firstName":null,
-        "lastName":null,
-        "email":null,
-        "movies": {
-          "action": [],
-          "drama": [],
-          "comedy": [],
-          "horror": []
-        }
+        "firstName": null,
+        "lastName": null,
+        "email": null
       }
     });
 
     var Person = fw.dataModel({
-      namespace: 'person',
+      namespace: 'Person',
       url: '/personPOST',
       initialize: function(person) {
-        person = _.extend({}, person, { movies: {} });
+        person = person || {};
         this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
         this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
         this.email = fw.observable(person.email || null).mapTo('email');
-        this.movieCollection = {
-          action: fw.observableArray(person.movies.action).mapTo('movies.action'),
-          drama: fw.observableArray(person.movies.drama).mapTo('movies.drama'),
-          comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy'),
-          horror: fw.observableArray(person.movies.horror).mapTo('movies.horror')
-        };
       }
     });
 
@@ -793,13 +781,7 @@ describe('dataModel', function () {
       "id": 1,
       "firstName": null,
       "lastName": null,
-      "email": null,
-      "movies": {
-        "action": [],
-        "drama": [],
-        "comedy": [],
-        "horror": []
-      }
+      "email": null
     };
 
     $.mockjax({
@@ -817,19 +799,13 @@ describe('dataModel', function () {
     });
 
     var Person = fw.dataModel({
-      namespace: 'person',
+      namespace: 'Person',
       url: '/personPOSTPUT',
       initialize: function(person) {
-        person = _.extend({}, person, { movies: {} });
+        person = person || {};
         this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
         this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
         this.email = fw.observable(person.email || null).mapTo('email');
-        this.movieCollection = {
-          action: fw.observableArray(person.movies.action).mapTo('movies.action'),
-          drama: fw.observableArray(person.movies.drama).mapTo('movies.drama'),
-          comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy'),
-          horror: fw.observableArray(person.movies.horror).mapTo('movies.horror')
-        };
       }
     });
 
@@ -844,6 +820,79 @@ describe('dataModel', function () {
         expect(person.firstName()).to.be(putCheck);
         done();
       }, 40);
+    }, 40);
+  });
+
+  it('can correctly $fetch() data from the server via a pre-filled idAttribute', function(done) {
+    var getCheck = '__GET__CHECK__';
+    var personData = {
+      "id": 100,
+      "firstName": getCheck,
+      "lastName": null,
+      "email": null
+    };
+
+    $.mockjax({
+      responseTime: 10,
+      url: "/personGET/1",
+      type: 'GET',
+      responseText: personData
+    });
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      url: '/personGET',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var person = new Person(personData);
+    person.$fetch();
+    setTimeout(function() {
+      expect(person.$id()).to.be(personData.id);
+      expect(person.firstName()).to.be(getCheck);
+      done();
+    }, 40);
+  });
+
+  it('can correctly $fetch() data from the server via a pre-filled custom idAttribute', function(done) {
+    var getCheck = '__GET__CUSTOM__CHECK__';
+    var personData = {
+      "customId": 100,
+      "firstName": getCheck,
+      "lastName": null,
+      "email": null
+    };
+
+    $.mockjax({
+      responseTime: 10,
+      url: "/personGETWithCustomId/1",
+      type: 'GET',
+      responseText: personData
+    });
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      url: '/personGETWithCustomId',
+      idAttribute: 'customId',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var person = new Person(personData);
+    person.$fetch();
+    setTimeout(function() {
+      expect(person.customId()).to.be(personData.customId);
+      expect(person.firstName()).to.be(getCheck);
+      done();
     }, 40);
   });
 });
