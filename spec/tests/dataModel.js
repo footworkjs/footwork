@@ -811,7 +811,7 @@ describe('dataModel', function () {
 
     $.mockjax({
       responseTime: 10,
-      url: "/personPOSTPUT",
+      url: "/personPOSTPUT/1",
       type: 'PUT',
       responseText: _.extend({}, personData, { firstName: putCheck })
     });
@@ -844,7 +844,6 @@ describe('dataModel', function () {
         expect(person.firstName()).to.be(putCheck);
         done();
       }, 40);
-      done();
     }, 40);
   });
 });
