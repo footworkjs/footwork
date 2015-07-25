@@ -834,7 +834,7 @@ describe('dataModel', function () {
 
     $.mockjax({
       responseTime: 10,
-      url: "/personGET/1",
+      url: "/personGET/" + personData.id,
       type: 'GET',
       responseText: personData
     });
@@ -870,7 +870,7 @@ describe('dataModel', function () {
 
     $.mockjax({
       responseTime: 10,
-      url: "/personGETWithCustomId/1",
+      url: "/personGETWithCustomId/" + personData.customId,
       type: 'GET',
       responseText: personData
     });
