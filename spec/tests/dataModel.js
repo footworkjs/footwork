@@ -827,7 +827,7 @@ describe('dataModel', function () {
     var getCheck = '__GET__CHECK__';
     var personData = {
       "id": 100,
-      "firstName": getCheck,
+      "firstName": null,
       "lastName": null,
       "email": null
     };
@@ -836,7 +836,7 @@ describe('dataModel', function () {
       responseTime: 10,
       url: "/personGET/" + personData.id,
       type: 'GET',
-      responseText: personData
+      responseText: _.extend({}, personData, { firstName: getCheck })
     });
 
     var Person = fw.dataModel({
@@ -863,7 +863,7 @@ describe('dataModel', function () {
     var getCheck = '__GET__CUSTOM__CHECK__';
     var personData = {
       "customId": 100,
-      "firstName": getCheck,
+      "firstName": null,
       "lastName": null,
       "email": null
     };
@@ -872,7 +872,7 @@ describe('dataModel', function () {
       responseTime: 10,
       url: "/personGETWithCustomId/" + personData.customId,
       type: 'GET',
-      responseText: personData
+      responseText: _.extend({}, personData, { firstName: getCheck })
     });
 
     var Person = fw.dataModel({
@@ -891,6 +891,44 @@ describe('dataModel', function () {
     person.$fetch();
     setTimeout(function() {
       expect(person.customId()).to.be(personData.customId);
+      expect(person.firstName()).to.be(getCheck);
+      done();
+    }, 40);
+  });
+
+  it('can correctly $fetch() data from the server via a url based on an evaluator function', function(done) {
+    var getCheck = '__GET__CUSTOM__CHECK__';
+    var personData = {
+      "id": 100,
+      "firstName": null,
+      "lastName": null,
+      "email": null
+    };
+
+    $.mockjax({
+      responseTime: 10,
+      url: "/personGETWithUrlInEvaluator/" + personData.id,
+      type: 'GET',
+      responseText: _.extend({}, personData, { firstName: getCheck })
+    });
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      url: function() {
+        return '/personGETWithUrlInEvaluator';
+      },
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var person = new Person(personData);
+    person.$fetch();
+    setTimeout(function() {
+      expect(person.$id()).to.be(personData.id);
       expect(person.firstName()).to.be(getCheck);
       done();
     }, 40);

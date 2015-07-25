@@ -48,14 +48,14 @@ fw.sync = function(action, concern, params) {
     url = configParams.url;
     if(isFunction(url)) {
       url = url.call(concern, action);
-    } else if(isString(url)) {
-      if(contains(['read', 'update', 'patch', 'delete'], action) && configParams.pkInURL) {
-        // need to append /:id to url
-        url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
-      }
-    } else {
+    } else if(!isString(url)) {
       var thing = (isDataModel(concern) && 'dataModel') || (isCollection(concern) && 'collection') || 'UNKNOWN';
       throw new Error('Must provide a URL for/on a ' + thing + ' configuration in order to call .sync() on it');
+    }
+
+    if(contains(['read', 'update', 'patch', 'delete'], action) && configParams.pkInURL) {
+      // need to append /:id to url
+      url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
     }
   }
   var urlPieces = (url || noURLError()).match(parseURLRegex);
