@@ -3,7 +3,7 @@
 
 function componentTriggerAfterBinding(element, viewModel) {
   if( isEntity(viewModel) ) {
-    var configParams = viewModel.__getConfigParams();
+    var configParams = viewModel.__private('configParams');
     if( isFunction(configParams.afterBinding) ) {
       var afterBinding = noop;
       if(isFunction(configParams.afterBinding)) {

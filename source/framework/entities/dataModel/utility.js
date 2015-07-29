@@ -14,7 +14,7 @@ function currentDataModelContext() {
 }
 
 function getPrimaryKey(dataModel) {
-  return dataModel.__getConfigParams().idAttribute;
+  return dataModel.__private('configParams').idAttribute;
 }
 
 function insertValueIntoObject(rootObject, fieldMap, fieldValue) {

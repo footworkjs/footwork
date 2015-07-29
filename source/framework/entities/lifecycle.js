@@ -8,7 +8,7 @@ function setupContextAndLifeCycle(entity, element) {
 
     var context;
     var elementContext;
-    var $configParams = entity.__getConfigParams();
+    var $configParams = entity.__private('configParams');
     if(element.tagName.toLowerCase() === 'binding-wrapper') {
       element = element.parentElement || element.parentNode;
     }

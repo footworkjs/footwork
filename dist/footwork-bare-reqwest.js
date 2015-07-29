@@ -486,6 +486,22 @@ var guid = fw.utils.guid = (function() {
   };
 })();
 
+// Private data management method
+function privateData(privateStore, configParams, propName, propValue) {
+  var isGetBaseObjOp = arguments.length === 2;
+  var isReadOp = arguments.length === 3;
+  var isWriteOp = arguments.length === 4;
+
+  if(isGetBaseObjOp) {
+    return privateStore;
+  } else if(isReadOp) {
+     return propName === 'configParams' ? configParams : privateStore[propName];
+  } else if(isWriteOp) {
+    privateStore[propName] = propValue;
+    return privateStore[propName];
+  }
+}
+
 
 // framework/namespace/init.js
 // ----------------
@@ -739,7 +755,7 @@ fw.namespace = function(namespaceName, $parentNamespace) {
 entityMixins.push({
   runBeforeInit: true,
   _preInit: function( options ) {
-    var $configParams = this.__getConfigParams();
+    var $configParams = this.__private('configParams');
     var mainNamespace = $configParams.namespace || $configParams.name || uniqueId('namespace');
     this.$namespace = enterNamespaceName( indexedNamespaceName(mainNamespace, $configParams.autoIncrement) );
     this.$rootNamespace = fw.namespace(mainNamespace);
@@ -906,12 +922,11 @@ fw.isReceivable = function(thing) {
 // ------------------
 
 var ViewModel = function(descriptor, configParams) {
+  var privateDataStore = {};
   return {
     mixin: {
+      __private: privateData.bind(this, privateDataStore, configParams),
       $params: result(configParams, 'params'),
-      __getConfigParams: function() {
-        return configParams;
-      },
       $trackSub: function(subscription) {
         if(!isArray(this.__subscriptions)) {
           this.__subscriptions = [];
@@ -927,6 +942,7 @@ var ViewModel = function(descriptor, configParams) {
           each(this, propertyDisposal);
           each(this.__subscriptions || [], propertyDisposal);
         }
+        return this;
       }
     },
     _postInit: function() {
@@ -967,7 +983,7 @@ function currentDataModelContext() {
 }
 
 function getPrimaryKey(dataModel) {
-  return dataModel.__getConfigParams().idAttribute;
+  return dataModel.__private('configParams').idAttribute;
 }
 
 function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
@@ -1055,18 +1071,18 @@ fw.sync = function(action, concern, params) {
 
   var url = options.url;
   if(isNull(url)) {
-    var configParams = concern.__getConfigParams();
+    var configParams = concern.__private('configParams');
     url = configParams.url;
     if(isFunction(url)) {
       url = url.call(concern, action);
-    } else if(isString(url)) {
-      if(contains(['read', 'update', 'patch', 'delete'], action) && configParams.pkInURL) {
-        // need to append /:id to url
-        url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
-      }
-    } else {
+    } else if(!isString(url)) {
       var thing = (isDataModel(concern) && 'dataModel') || (isCollection(concern) && 'collection') || 'UNKNOWN';
       throw new Error('Must provide a URL for/on a ' + thing + ' configuration in order to call .sync() on it');
+    }
+
+    if(contains(['read', 'update', 'patch', 'delete'], action) && configParams.pkInURL) {
+      // need to append /:id to url
+      url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
     }
   }
   var urlPieces = (url || noURLError()).match(parseURLRegex);
@@ -1660,7 +1676,7 @@ function hasClass(element, className) {
 
 function addClass(element, className) {
   if( !hasClass(element, className) ) {
-    element.className += (element.className.length ? ' ' : '') + className;
+    element.className += (isNull(element.className.match(/ $/)) ? ' ' : '') + className;
   }
 }
 
@@ -1857,23 +1873,10 @@ var Router = function(descriptor, configParams) {
   return {
     _preInit: function( params ) {
       var $router = this;
-      var router = {};  // internal data/etc
       var routerConfigParams = extend({}, configParams);
 
-      this.__private = function privateData(propName, propValue) {
-        var isGetBaseObjOp = arguments.length === 0;
-        var isReadOp = arguments.length === 1;
-        var isWriteOp = arguments.length === 2;
-
-        if(isGetBaseObjOp) {
-          return router;
-        } else if(isReadOp) {
-          return propName === 'configParams' ? routerConfigParams : router[propName];
-        } else if(isWriteOp) {
-          router[propName] = propValue;
-          return router[propName];
-        }
-      };
+      var router = {};
+      this.__private = privateData.bind(this, router, routerConfigParams);
 
       routerConfigParams.baseRoute = fw.routers.baseRoute() + (result(routerConfigParams, 'baseRoute') || '');
 
@@ -2193,6 +2196,8 @@ var Router = function(descriptor, configParams) {
           each(omit(this.__private(), function(property) {
             return isEntity(property);
           }), propertyDisposal);
+
+          return this;
         }
       }
     }
@@ -2403,7 +2408,7 @@ function setupContextAndLifeCycle(entity, element) {
 
     var context;
     var elementContext;
-    var $configParams = entity.__getConfigParams();
+    var $configParams = entity.__private('configParams');
     if(element.tagName.toLowerCase() === 'binding-wrapper') {
       element = element.parentElement || element.parentNode;
     }
@@ -2976,7 +2981,7 @@ fw.component = function(componentDefinition) {
 
 function componentTriggerAfterBinding(element, viewModel) {
   if( isEntity(viewModel) ) {
-    var configParams = viewModel.__getConfigParams();
+    var configParams = viewModel.__private('configParams');
     if( isFunction(configParams.afterBinding) ) {
       var afterBinding = noop;
       if(isFunction(configParams.afterBinding)) {
@@ -3320,7 +3325,7 @@ function isCollection(thing) {
   return isObject(thing) && !!thing.__isCollection;
 }
 
-// framework/collection/exports.js
+// framework/collection/collection.js
 // ------------------
 
 fw.collection = function(conf) {
@@ -3332,25 +3337,10 @@ fw.collection = function(conf) {
       throw new Error('Must provide a dataModel for a collection');
     }
 
-    collection.__getConfigParams = function() {
-      return config;
-    };
+    var privateDataStore = {};
+    collection.__private = privateData.bind(this, privateDataStore, config);
 
-    var router = {};
-    this.__private = function privateData(propName, propValue) {
-      var isGetBaseObjOp = arguments.length === 0;
-      var isReadOp = arguments.length === 1;
-      var isWriteOp = arguments.length === 2;
-
-      if(isGetBaseObjOp) {
-        return router;
-      } else if(isReadOp) {
-        return propName === 'configParams' ? config : router[propName];
-      } else if(isWriteOp) {
-        router[propName] = propValue;
-        return router[propName];
-      }
-    };
+    var originalRemove = this.remove;
 
     extend(collection, collectionMethods, {
       $namespace: fw.namespace(config.namespace || uniqueId('collection')),
@@ -3381,7 +3371,7 @@ var collectionMethods = {
   $set: function(newCollection) {
     var collectionChanged = false;
     var collectionStore = this();
-    var DataModelCtor = this.__getConfigParams().dataModel;
+    var DataModelCtor = this.__private('configParams').dataModel;
     var modelFields;
     var idAttribute;
     var touchedModels = [];
@@ -3394,7 +3384,7 @@ var collectionMethods = {
 
       if(isUndefined(modelFields)) {
         modelFields = keys(collectionModelData);
-        idAttribute = model.__getConfigParams().idAttribute;
+        idAttribute = model.__private('configParams').idAttribute;
       }
 
       each(newCollection, function isThisModel(modelData) {
@@ -3414,7 +3404,7 @@ var collectionMethods = {
       if(!modelPresent) {
         // not found, must remove this model from our collection
         this.$namespace.publish('_.remove', model);
-        absentModels.push(model);
+        absentModels.push(model.dispose());
         touchedModels.push(model);
       }
     }, this);

@@ -2,16 +2,11 @@
 // ------------------
 
 var ViewModel = function(descriptor, configParams) {
+  var privateDataStore = {};
   return {
-    _preInit: function() {
-      var privateDataStore = {};
-      this.__private = privateData.bind(this, privateDataStore, configParams);
-    },
     mixin: {
+      __private: privateData.bind(this, privateDataStore, configParams),
       $params: result(configParams, 'params'),
-      __getConfigParams: function() {
-        return configParams;
-      },
       $trackSub: function(subscription) {
         if(!isArray(this.__subscriptions)) {
           this.__subscriptions = [];
