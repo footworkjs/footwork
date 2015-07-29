@@ -13,7 +13,7 @@ var collectionMethods = {
   $set: function(newCollection) {
     var collectionChanged = false;
     var collectionStore = this();
-    var DataModelCtor = this.__getConfigParams().dataModel;
+    var DataModelCtor = this.__private('configParams').dataModel;
     var modelFields;
     var idAttribute;
     var touchedModels = [];
@@ -26,7 +26,7 @@ var collectionMethods = {
 
       if(isUndefined(modelFields)) {
         modelFields = keys(collectionModelData);
-        idAttribute = model.__getConfigParams().idAttribute;
+        idAttribute = model.__private('configParams').idAttribute;
       }
 
       each(newCollection, function isThisModel(modelData) {
@@ -46,7 +46,7 @@ var collectionMethods = {
       if(!modelPresent) {
         // not found, must remove this model from our collection
         this.$namespace.publish('_.remove', model);
-        absentModels.push(model);
+        absentModels.push(model.dispose());
         touchedModels.push(model);
       }
     }, this);

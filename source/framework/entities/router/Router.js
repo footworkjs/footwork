@@ -5,23 +5,10 @@ var Router = function(descriptor, configParams) {
   return {
     _preInit: function( params ) {
       var $router = this;
-      var router = {};  // internal data/etc
       var routerConfigParams = extend({}, configParams);
 
-      this.__private = function privateData(propName, propValue) {
-        var isGetBaseObjOp = arguments.length === 0;
-        var isReadOp = arguments.length === 1;
-        var isWriteOp = arguments.length === 2;
-
-        if(isGetBaseObjOp) {
-          return router;
-        } else if(isReadOp) {
-          return propName === 'configParams' ? routerConfigParams : router[propName];
-        } else if(isWriteOp) {
-          router[propName] = propValue;
-          return router[propName];
-        }
-      };
+      var router = {};
+      this.__private = privateData.bind(this, router, routerConfigParams);
 
       routerConfigParams.baseRoute = fw.routers.baseRoute() + (result(routerConfigParams, 'baseRoute') || '');
 
@@ -341,6 +328,8 @@ var Router = function(descriptor, configParams) {
           each(omit(this.__private(), function(property) {
             return isEntity(property);
           }), propertyDisposal);
+
+          return this;
         }
       }
     }

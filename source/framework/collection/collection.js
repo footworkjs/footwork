@@ -1,4 +1,4 @@
-// framework/collection/exports.js
+// framework/collection/collection.js
 // ------------------
 
 fw.collection = function(conf) {
@@ -10,25 +10,10 @@ fw.collection = function(conf) {
       throw new Error('Must provide a dataModel for a collection');
     }
 
-    collection.__getConfigParams = function() {
-      return config;
-    };
+    var privateDataStore = {};
+    collection.__private = privateData.bind(this, privateDataStore, config);
 
-    var router = {};
-    this.__private = function privateData(propName, propValue) {
-      var isGetBaseObjOp = arguments.length === 0;
-      var isReadOp = arguments.length === 1;
-      var isWriteOp = arguments.length === 2;
-
-      if(isGetBaseObjOp) {
-        return router;
-      } else if(isReadOp) {
-        return propName === 'configParams' ? config : router[propName];
-      } else if(isWriteOp) {
-        router[propName] = propValue;
-        return router[propName];
-      }
-    };
+    var originalRemove = this.remove;
 
     extend(collection, collectionMethods, {
       $namespace: fw.namespace(config.namespace || uniqueId('collection')),

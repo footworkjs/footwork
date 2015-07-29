@@ -3,6 +3,10 @@
 
 var ViewModel = function(descriptor, configParams) {
   return {
+    _preInit: function() {
+      var privateDataStore = {};
+      this.__private = privateData.bind(this, privateDataStore, configParams);
+    },
     mixin: {
       $params: result(configParams, 'params'),
       __getConfigParams: function() {
@@ -23,6 +27,7 @@ var ViewModel = function(descriptor, configParams) {
           each(this, propertyDisposal);
           each(this.__subscriptions || [], propertyDisposal);
         }
+        return this;
       }
     },
     _postInit: function() {

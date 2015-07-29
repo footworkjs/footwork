@@ -44,7 +44,7 @@ fw.sync = function(action, concern, params) {
 
   var url = options.url;
   if(isNull(url)) {
-    var configParams = concern.__getConfigParams();
+    var configParams = concern.__private('configParams');
     url = configParams.url;
     if(isFunction(url)) {
       url = url.call(concern, action);
