@@ -2,7 +2,7 @@
 // ------------------
 
 function removeAndDispose(originalFunction) {
-  var removedItems = originalFunction.apply(this, arguments);
+  var removedItems = originalFunction.apply(this, Array.prototype.slice.call(arguments).splice(1));
   invoke(removedItems, 'dispose');
   return removedItems;
 }

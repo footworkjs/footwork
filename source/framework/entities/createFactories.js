@@ -52,7 +52,9 @@ function entityClassFactory(descriptor, configParams) {
     entityCtor = riveter.compose.apply( undefined, composure );
 
     entityCtor[ descriptor.isEntityCtorDuckTag ] = true;
-    entityCtor.__configParams = configParams;
+
+    var privateDataStore = {};
+    entityCtor.__private = privateData.bind(this, privateDataStore, configParams);
   } else {
     // user has specified another entity constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain
     entityCtor = ctor;

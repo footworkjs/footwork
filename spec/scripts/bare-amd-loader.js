@@ -4,6 +4,8 @@ require.config(REQUIRE_CONFIG);
 require([ "footwork", "jquery", "mockjax" ],
   function( fw, $ ) {
     window.fw = fw;
+    $.mockjaxSettings.log = function noop() {};
+
     if(typeof mochaPhantomJS !== 'undefined') {
       mochaPhantomJS.run();
     } else {

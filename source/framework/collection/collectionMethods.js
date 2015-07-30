@@ -11,60 +11,69 @@ var collectionMethods = {
     });
   },
   $set: function(newCollection) {
+    var collection = this;
     var collectionChanged = false;
-    var collectionStore = this();
-    var DataModelCtor = this.__private('configParams').dataModel;
-    var modelFields;
-    var idAttribute;
+    var collectionStore = collection();
+    var DataModelCtor = collection.__private('configParams').dataModel;
+    var idAttribute = DataModelCtor.__private('configParams').idAttribute;
     var touchedModels = [];
-
-    // remove any models present that are not in the new collection or update them if needed
     var absentModels = [];
-    each(collectionStore, function removeNonPresentModels(model) {
+
+    each(newCollection, function checkForAdditionsOrChanges(modelData) {
       var modelPresent = false;
-      var collectionModelData = model.$toJS();
 
-      if(isUndefined(modelFields)) {
-        modelFields = keys(collectionModelData);
-        idAttribute = model.__private('configParams').idAttribute;
-      }
+      each(collectionStore, function lookForModel(model) {
+        var collectionModelData = model.$toJS();
+        var modelFields = keys(collectionModelData);
 
-      each(newCollection, function isThisModel(modelData) {
         modelData = pick(modelData, modelFields);
-        if(isEqual(modelData, collectionModelData)) {
-          // found identical model
+        if(!isUndefined(modelData[idAttribute]) && !isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
           modelPresent = true;
-        } else if(modelData[idAttribute] === collectionModelData[idAttribute]) {
-          // found model, but needs an update
-          modelPresent = true;
-          model.$set(modelData);
-          this.$namespace.publish('_.change', model);
-          touchedModels.push(model);
+          if(!isEqual(modelData, collectionModelData)) {
+            // found model, but needs an update
+            model.$set(modelData);
+            collection.$namespace.publish('_.change', model);
+            touchedModels.push(model);
+          }
         }
       });
 
       if(!modelPresent) {
-        // not found, must remove this model from our collection
-        this.$namespace.publish('_.remove', model);
-        absentModels.push(model.dispose());
-        touchedModels.push(model);
-      }
-    }, this);
-    this.removeAll(absentModels);
-
-    // add in any new models
-    each(newCollection, function addNewModelToCollection(modelData) {
-      if(isUndefined(modelData[idAttribute]) || isNull(modelData[idAttribute])) {
-        // new model
+        // id not found in collection, we have to add this model
         var newModel = new DataModelCtor(modelData);
         collectionStore.push(newModel);
-        this.$namespace.publish('_.add', newModel);
+        collection.$namespace.publish('_.add', newModel);
         collectionChanged = true;
         touchedModels.push(newModel);
       }
-    }, this);
+    });
 
-    collectionChanged && this.valueHasMutated();
+    each(collectionStore, function checkForRemovals(model) {
+      var modelPresent = false;
+      var collectionModelData = model.$toJS();
+      var modelFields = filter(keys(collectionModelData), function(thing) { return thing !== idAttribute; });
+
+      each(newCollection, function isModelPresent(modelData) {
+        modelData = pick(modelData, modelFields);
+        if(isEqual(modelData, omit(collectionModelData, idAttribute))) {
+          modelPresent = true;
+        }
+      });
+
+      if(!modelPresent) {
+        collection.$namespace.publish('_.remove', model);
+        absentModels.push(model.dispose());
+        touchedModels.push(model);
+      }
+    });
+
+    if(absentModels.length) {
+      collection.removeAll(absentModels);
+    }
+
+    if(collectionChanged) {
+      collection.valueHasMutated();
+    }
 
     return touchedModels;
   },
