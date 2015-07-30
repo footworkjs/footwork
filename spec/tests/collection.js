@@ -44,7 +44,7 @@ describe('collection', function () {
     expect(people()[1].email()).to.be(person2Data.email);
   });
 
-  it('can correctly trigger change/add events for dataModels in a $set() call', function() {
+  it('can correctly trigger change/add/remove events for dataModels in a $set() call as appropriate', function() {
     var peopleData = {
       "person1Data": {
         "id": 1,
@@ -71,6 +71,7 @@ describe('collection', function () {
     });
 
 
+    var unexpectedEvents = {};
     var recordedEvents = {
       'person1Data _.add': 0,
       'person1Data _.change': 0,
@@ -78,16 +79,6 @@ describe('collection', function () {
       'person2Data _.add': 0,
       'person2Data _.change': 0,
       'person2Data _.remove': 0
-    };
-
-    var unexpectedEvents = {};
-    var expectedEvents = {
-      'person1Data _.add': 1,
-      'person1Data _.change': 1,
-      'person1Data _.remove': 1,
-      'person2Data _.add': 2,
-      'person2Data _.change': 0,
-      'person2Data _.remove': 1
     };
 
     var PeopleCollection = fw.collection({
@@ -115,11 +106,36 @@ describe('collection', function () {
     expect(people().length).to.be(0);
 
     people.$set(_.values(peopleData));
+    expect(recordedEvents).to.eql({
+      'person1Data _.add': 1,
+      'person1Data _.change': 0,
+      'person1Data _.remove': 0,
+      'person2Data _.add': 1,
+      'person2Data _.change': 0,
+      'person2Data _.remove': 0
+    });
 
     expect(people().length).to.be(2);
-    people.$set([ _.extend(peopleData.person1Data, { firstName: "Person1FirstNameChangeTest" }) ]);
-    people.$set([ _.extend(peopleData.person2Data, { firstName: "Person2FirstNameChangeTest" }) ]);
-    expect(recordedEvents).to.eql(expectedEvents);
+    people.$set([ peopleData.person1Data ]);
+    expect(recordedEvents).to.eql({
+      'person1Data _.add': 1,
+      'person1Data _.change': 0,
+      'person1Data _.remove': 0,
+      'person2Data _.add': 1,
+      'person2Data _.change': 0,
+      'person2Data _.remove': 1
+    });
+
+    _.extend(peopleData.person1Data, { firstName: 'changeTest1' });
+    people.$set([ peopleData.person1Data, peopleData.person2Data ]);
+    expect(recordedEvents).to.eql({
+      'person1Data _.add': 1,
+      'person1Data _.change': 1,
+      'person1Data _.remove': 0,
+      'person2Data _.add': 2,
+      'person2Data _.change': 0,
+      'person2Data _.remove': 1
+    });
     expect(_.values(unexpectedEvents).length).to.be(0);
   });
 
