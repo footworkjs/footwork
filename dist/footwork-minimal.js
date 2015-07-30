@@ -4658,8 +4658,8 @@ var collectionMethods = {
       });
 
       if(!modelPresent) {
-        collection.$namespace.publish('_.remove', model);
-        absentModels.push(model.dispose());
+        collection.$namespace.publish('_.remove', model.dispose());
+        absentModels.push(model);
         touchedModels.push(model);
       }
     });
@@ -4675,7 +4675,8 @@ var collectionMethods = {
     return touchedModels;
   },
   $reset: function(newCollection) {
-    var oldModels = this();
+    var oldModels = this.removeAll();
+    var DataModelCtor = this.__private('configParams').dataModel;
 
     this(reduce(newCollection, function(newModels, modelData) {
       newModels.push(new DataModelCtor(modelData));

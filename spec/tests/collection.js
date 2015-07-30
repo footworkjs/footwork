@@ -148,7 +148,6 @@ describe('collection', function () {
       }
     });
 
-
     var unexpectedEvents = {};
     var recordedEvents = {
       'person1Data _.add': 0,
@@ -228,6 +227,60 @@ describe('collection', function () {
     });
 
     expect(_.values(unexpectedEvents).length).to.be(0);
+  });
+
+  it('can be instantiated and $reset() correctly', function() {
+    var peopleData = {
+      "person1Data": {
+        "id": 1,
+        "firstName": "Person1FirstNameTest",
+        "lastName": "Person1LastNameTest",
+        "email": "Person1EmailTest"
+      },
+      "person2Data": {
+        "id": 2,
+        "firstName": "Person2FirstNameTest",
+        "lastName": "Person2LastNameTest",
+        "email": "Person2EmailTest"
+      }
+    };
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var PeopleCollection = fw.collection({
+      namespace: 'People',
+      dataModel: Person
+    });
+    var people = new PeopleCollection();
+    var resetTriggered = false;
+
+    people.$namespace.subscribe('_.reset', function(dataModels) {
+      expect(dataModels.length).to.eql(2);
+      resetTriggered = true;
+    });
+
+    expect(people().length).to.be(0);
+
+    expect(resetTriggered).to.be(false);
+    people.$set(_.values(peopleData));
+    people.$reset(_.values(peopleData));
+    expect(resetTriggered).to.be(true);
+
+    expect(people().length).to.be(2);
+    expect(people()[0].firstName()).to.be(peopleData.person1Data.firstName);
+    expect(people()[0].lastName()).to.be(peopleData.person1Data.lastName);
+    expect(people()[0].email()).to.be(peopleData.person1Data.email);
+    expect(people()[1].firstName()).to.be(peopleData.person2Data.firstName);
+    expect(people()[1].lastName()).to.be(peopleData.person2Data.lastName);
+    expect(people()[1].email()).to.be(peopleData.person2Data.email);
   });
 
   it('can correctly $fetch() data from the server and instantiate dataModels as appropriate', function(done) {
