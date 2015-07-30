@@ -260,8 +260,8 @@ describe('collection', function () {
       dataModel: Person
     });
     var people = new PeopleCollection();
-    var resetTriggered = false;
 
+    var resetTriggered = false;
     people.$namespace.subscribe('_.reset', function(dataModels) {
       expect(dataModels.length).to.eql(2);
       resetTriggered = true;
@@ -283,7 +283,7 @@ describe('collection', function () {
     expect(people()[1].email()).to.be(peopleData.person2Data.email);
   });
 
-  it('can correctly $fetch() data from the server and instantiate dataModels as appropriate', function(done) {
+  it('can correctly $fetch() and $set data from the server', function(done) {
     var personData = {
       "firstName": "PeopleFirstNameTest",
       "lastName": null,
@@ -325,6 +325,61 @@ describe('collection', function () {
 
     people.$fetch();
     setTimeout(function() {
+      expect(people().length).to.be(peopleData.length);
+      expect(people()[0].firstName()).to.be(personData.firstName);
+      done();
+    }, 40);
+  });
+
+  it('can correctly $fetch() and $reset data from the server', function(done) {
+    var personData = {
+      "firstName": "PeopleFirstNameTest",
+      "lastName": null,
+      "email": null
+    };
+
+    var idCount = 100;
+    function makePersonData() {
+      return _.extend({}, personData, {
+        id: idCount++
+      });
+    }
+    var peopleData = [ makePersonData(), makePersonData(), makePersonData(), makePersonData(), makePersonData() ];
+
+    $.mockjax({
+      responseTime: 10,
+      url: "/peopleCollectionReset",
+      type: 'GET',
+      responseText: peopleData
+    });
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var PeopleCollection = fw.collection({
+      namespace: 'PeopleReset',
+      url: '/peopleCollectionReset',
+      dataModel: Person
+    });
+    var people = new PeopleCollection();
+
+    var resetTriggered = false;
+    people.$namespace.subscribe('_.reset', function(dataModels) {
+      resetTriggered = true;
+    });
+
+    expect(resetTriggered).to.be(false);
+
+    people.$fetch({ reset: true });
+    setTimeout(function() {
+      expect(resetTriggered).to.be(true);
       expect(people().length).to.be(peopleData.length);
       expect(people()[0].firstName()).to.be(personData.firstName);
       done();
