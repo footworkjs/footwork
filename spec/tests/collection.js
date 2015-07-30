@@ -163,21 +163,24 @@ describe('collection', function () {
       dataModel: Person
     });
     var people = new PeopleCollection();
-    people.$namespace.subscribe('_.*', function(dataModel, envelope) {
+    people.$namespace.subscribe('_.*', function(models, envelope) {
+      var dataModels = [].concat(models);
       var collectionEvent = envelope.topic;
-      _.each(peopleData, function(person, varName) {
-        var expectedEventKey = varName + ' ' + collectionEvent;
-        var fieldNames = _.keys(person);
-        if(_.isEqual(person, _.pick(dataModel.$toJS(), fieldNames))) {
-          if(!_.isUndefined(recordedEvents[expectedEventKey])) {
-            recordedEvents[expectedEventKey]++;
-          } else {
-            if(_.isUndefined(unexpectedEvents[expectedEventKey])) {
-              unexpectedEvents[expectedEventKey] = 0;
+      _.each(dataModels, function(dataModel) {
+        _.each(peopleData, function(person, varName) {
+          var expectedEventKey = varName + ' ' + collectionEvent;
+          var fieldNames = _.keys(person);
+          if(_.isEqual(person, _.pick(dataModel.$toJS(), fieldNames))) {
+            if(!_.isUndefined(recordedEvents[expectedEventKey])) {
+              recordedEvents[expectedEventKey]++;
+            } else {
+              if(_.isUndefined(unexpectedEvents[expectedEventKey])) {
+                unexpectedEvents[expectedEventKey] = 0;
+              }
+              unexpectedEvents[expectedEventKey]++;
             }
-            unexpectedEvents[expectedEventKey]++;
           }
-        }
+        });
       });
     });
 
@@ -364,7 +367,7 @@ describe('collection', function () {
     });
 
     var PeopleCollection = fw.collection({
-      namespace: 'PeopleReset',
+      namespace: 'PeopleFetchReset',
       url: '/peopleCollectionReset',
       dataModel: Person
     });
@@ -384,5 +387,268 @@ describe('collection', function () {
       expect(people()[0].firstName()).to.be(personData.firstName);
       done();
     }, 40);
+  });
+
+  it('.push() correctly triggers _.add event', function() {
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var PeopleCollection = fw.collection({
+      namespace: 'PeoplePushEventCheck',
+      dataModel: Person
+    });
+    var people = new PeopleCollection();
+
+    var addTriggered = false;
+    people.$namespace.subscribe('_.add', function(dataModels) {
+      addTriggered = true;
+    });
+
+    expect(addTriggered).to.be(false);
+    people.push(new Person());
+    expect(addTriggered).to.be(true);
+  });
+
+  it('.unshift() correctly triggers _.add event', function() {
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var PeopleCollection = fw.collection({
+      namespace: 'PeoplePushEventCheck',
+      dataModel: Person
+    });
+    var people = new PeopleCollection();
+
+    var addTriggered = false;
+    people.$namespace.subscribe('_.add', function(dataModels) {
+      addTriggered = true;
+    });
+
+    expect(addTriggered).to.be(false);
+    people.unshift(new Person());
+    expect(addTriggered).to.be(true);
+  });
+
+  it('.remove() correctly triggers _.remove event', function() {
+    var personData = {
+      "firstName": "PeopleFirstNameTest",
+      "lastName": null,
+      "email": null
+    };
+
+    var idCount = 100;
+    function makePersonData() {
+      return _.extend({}, personData, {
+        id: idCount++
+      });
+    }
+    var peopleData = [ makePersonData(), makePersonData(), makePersonData(), makePersonData(), makePersonData() ];
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var PeopleCollection = fw.collection({
+      namespace: 'PeoplePushEventCheck',
+      dataModel: Person
+    });
+    var people = new PeopleCollection(peopleData);
+
+    var removeTriggered = false;
+    people.$namespace.subscribe('_.remove', function(dataModels) {
+      removeTriggered = true;
+    });
+
+    expect(removeTriggered).to.be(false);
+    people.remove(people()[0]);
+    expect(removeTriggered).to.be(true);
+  });
+
+  it('.removeAll() correctly triggers _.remove event', function() {
+    var personData = {
+      "firstName": "PeopleFirstNameTest",
+      "lastName": null,
+      "email": null
+    };
+
+    var idCount = 100;
+    function makePersonData() {
+      return _.extend({}, personData, {
+        id: idCount++
+      });
+    }
+    var peopleData = [ makePersonData(), makePersonData(), makePersonData(), makePersonData(), makePersonData() ];
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var PeopleCollection = fw.collection({
+      namespace: 'PeoplePushEventCheck',
+      dataModel: Person
+    });
+    var people = new PeopleCollection(peopleData);
+
+    var removeTriggered = false;
+    people.$namespace.subscribe('_.remove', function(dataModels) {
+      removeTriggered = true;
+    });
+
+    expect(removeTriggered).to.be(false);
+    var peopleRemoved = people.removeAll([ people()[0], people()[2] ]);
+    expect(removeTriggered).to.be(true);
+    expect(peopleRemoved.length).to.be(2);
+  });
+
+  it('.pop() correctly triggers _.remove event', function() {
+    var personData = {
+      "firstName": "PeopleFirstNameTest",
+      "lastName": null,
+      "email": null
+    };
+
+    var idCount = 100;
+    function makePersonData() {
+      return _.extend({}, personData, {
+        id: idCount++
+      });
+    }
+    var peopleData = [ makePersonData(), makePersonData(), makePersonData(), makePersonData(), makePersonData() ];
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var PeopleCollection = fw.collection({
+      namespace: 'PeoplePushEventCheck',
+      dataModel: Person
+    });
+    var people = new PeopleCollection(peopleData);
+
+    var removeTriggered = false;
+    people.$namespace.subscribe('_.remove', function(dataModels) {
+      removeTriggered = true;
+    });
+
+    expect(removeTriggered).to.be(false);
+    var peopleRemoved = people.pop();
+    expect(removeTriggered).to.be(true);
+    expect(peopleRemoved).to.be.an('object');
+  });
+
+  it('.shift() correctly triggers _.remove event', function() {
+    var personData = {
+      "firstName": "PeopleFirstNameTest",
+      "lastName": null,
+      "email": null
+    };
+
+    var idCount = 100;
+    function makePersonData() {
+      return _.extend({}, personData, {
+        id: idCount++
+      });
+    }
+    var peopleData = [ makePersonData(), makePersonData(), makePersonData(), makePersonData(), makePersonData() ];
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var PeopleCollection = fw.collection({
+      namespace: 'PeoplePushEventCheck',
+      dataModel: Person
+    });
+    var people = new PeopleCollection(peopleData);
+
+    var removeTriggered = false;
+    people.$namespace.subscribe('_.remove', function(dataModels) {
+      removeTriggered = true;
+    });
+
+    expect(removeTriggered).to.be(false);
+    var peopleRemoved = people.shift();
+    expect(removeTriggered).to.be(true);
+    expect(peopleRemoved).to.be.an('object');
+  });
+
+  it('.splice() correctly triggers _.remove event', function() {
+    var personData = {
+      "firstName": "PeopleFirstNameTest",
+      "lastName": null,
+      "email": null
+    };
+
+    var idCount = 100;
+    function makePersonData() {
+      return _.extend({}, personData, {
+        id: idCount++
+      });
+    }
+    var peopleData = [ makePersonData(), makePersonData(), makePersonData(), makePersonData(), makePersonData() ];
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var PeopleCollection = fw.collection({
+      namespace: 'PeoplePushEventCheck',
+      dataModel: Person
+    });
+    var people = new PeopleCollection(peopleData);
+
+    var removeTriggered = false;
+    people.$namespace.subscribe('_.remove', function(dataModels) {
+      removeTriggered = true;
+    });
+
+    expect(removeTriggered).to.be(false);
+    var peopleRemoved = people.splice(1, 2);
+    expect(removeTriggered).to.be(true);
+    expect(peopleRemoved.length).to.be(2);
   });
 });

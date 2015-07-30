@@ -4549,10 +4549,17 @@ function isCollection(thing) {
 // framework/collection/collection.js
 // ------------------
 
-function removeAndDispose(originalFunction) {
+function removeDisposeAndNotify(originalFunction) {
   var removedItems = originalFunction.apply(this, Array.prototype.slice.call(arguments).splice(1));
   invoke(removedItems, 'dispose');
+  this.$namespace.publish('_.remove', removedItems);
   return removedItems;
+}
+
+function addAndNotify(originalFunction) {
+  var addedItems = originalFunction.apply(this, Array.prototype.slice.call(arguments).splice(1));
+  this.$namespace.publish('_.add', addedItems);
+  return addedItems;
 }
 
 fw.collection = function(conf) {
@@ -4568,10 +4575,12 @@ fw.collection = function(conf) {
     collection.__private = privateData.bind(this, privateDataStore, config);
 
     // Make sure we dispose all dataModels when they are removed
-    collection.remove = removeAndDispose.bind(collection, collection.remove);
-    collection.pop = removeAndDispose.bind(collection, collection.pop);
-    collection.shift = removeAndDispose.bind(collection, collection.shift);
-    collection.splice = removeAndDispose.bind(collection, collection.splice);
+    collection.remove = removeDisposeAndNotify.bind(collection, collection.remove);
+    collection.pop = removeDisposeAndNotify.bind(collection, collection.pop);
+    collection.shift = removeDisposeAndNotify.bind(collection, collection.shift);
+    collection.splice = removeDisposeAndNotify.bind(collection, collection.splice);
+    collection.push = addAndNotify.bind(collection, collection.push);
+    collection.unshift = addAndNotify.bind(collection, collection.unshift);
 
     collection.dispose = function() {
       if(!collection.isDisposed) {
@@ -4658,7 +4667,6 @@ var collectionMethods = {
       });
 
       if(!modelPresent) {
-        collection.$namespace.publish('_.remove', model.dispose());
         absentModels.push(model);
         touchedModels.push(model);
       }

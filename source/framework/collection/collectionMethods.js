@@ -61,7 +61,6 @@ var collectionMethods = {
       });
 
       if(!modelPresent) {
-        collection.$namespace.publish('_.remove', model.dispose());
         absentModels.push(model);
         touchedModels.push(model);
       }
