@@ -3049,32 +3049,29 @@ fw.collection = function(conf) {
 
     var config = extend({}, defaultCollectionConfig, conf);
     if(!isDataModelCtor(config.dataModel)) {
-      throw new Error('Must provide a dataModel for a collection');
+      throw new Error('Must provide a dataModel for a collection to use');
     }
 
     var privateDataStore = {};
-    collection.__private = privateData.bind(this, privateDataStore, config);
-
-    // Make sure we dispose all dataModels when they are removed
-    collection.remove = removeDisposeAndNotify.bind(collection, collection.remove);
-    collection.pop = removeDisposeAndNotify.bind(collection, collection.pop);
-    collection.shift = removeDisposeAndNotify.bind(collection, collection.shift);
-    collection.splice = removeDisposeAndNotify.bind(collection, collection.splice);
-    collection.push = addAndNotify.bind(collection, collection.push);
-    collection.unshift = addAndNotify.bind(collection, collection.unshift);
-
-    collection.dispose = function() {
-      if(!collection.isDisposed) {
-        collection.isDisposed = true;
-        collection.$namespace.dispose();
-        invoke(collection(), 'dispose');
-      }
-    };
 
     extend(collection, collectionMethods, {
       $namespace: fw.namespace(config.namespace || uniqueId('collection')),
       __originalData: collectionData,
-      __isCollection: true
+      __isCollection: true,
+      __private: privateData.bind(this, privateDataStore, config),
+      remove: removeDisposeAndNotify.bind(collection, collection.remove),
+      pop: removeDisposeAndNotify.bind(collection, collection.pop),
+      shift: removeDisposeAndNotify.bind(collection, collection.shift),
+      splice: removeDisposeAndNotify.bind(collection, collection.splice),
+      push: addAndNotify.bind(collection, collection.push),
+      unshift: addAndNotify.bind(collection, collection.unshift),
+      dispose: function() {
+        if(!collection.isDisposed) {
+          collection.isDisposed = true;
+          collection.$namespace.dispose();
+          invoke(collection(), 'dispose');
+        }
+      }
     });
 
     if(collectionData) {
