@@ -33,9 +33,10 @@ bower install footwork
 
 *Install via ```bower.json``` (recommended)*
 ```javascript
+// add footwork under "dependencies"
 {
   "dependencies": {
-    "footwork": "*" // add footwork under "dependencies"
+    "footwork": "*"
   }
 }
 ```
@@ -84,9 +85,11 @@ gulp ci
 gulp lodash_custom
 ```
 
-### Documentation Contributions
+### Documentation and Website Contributions
 
-If you want to help contribute with the documentation (or website in general) then there is a companion repository located at: [https://github.com/reflectiveSingleton/footwork-site](https://github.com/reflectiveSingleton/footwork-site)
+There is a companion repository located at [https://github.com/reflectiveSingleton/footwork-site](https://github.com/reflectiveSingleton/footwork-site).
+
+If you wish to contribute to the documentation or main website you can do that here.
 
 ### License
 
