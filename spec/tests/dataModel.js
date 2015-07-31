@@ -743,13 +743,14 @@ describe('dataModel', function () {
   });
 
   it('can correctly POST data on initial $save()', function(done) {
+    var postValue = '__POST__CHECK__';
     $.mockjax({
       responseTime: 10,
       url: "/personPOST",
       type: 'POST',
       responseText: {
         "id": 1,
-        "firstName": null,
+        "firstName": postValue,
         "lastName": null,
         "email": null
       }
@@ -767,16 +768,20 @@ describe('dataModel', function () {
     });
 
     var person = new Person();
+
+    expect(person.firstName()).not.to.be(postValue);
+
     person.$save();
     setTimeout(function() {
       expect(person.$id()).to.be(1);
+      expect(person.firstName()).to.be(postValue);
       done();
     }, 40);
   });
 
   it('can correctly POST data on initial $save() and then PUT on subsequent calls', function(done) {
-    var postCheck = '__POST__CHECK__';
-    var putCheck = '__PUT__CHECK__';
+    var postValue = '__POST__CHECK__';
+    var putValue = '__PUT__CHECK__';
     var personData = {
       "id": 1,
       "firstName": null,
@@ -788,14 +793,14 @@ describe('dataModel', function () {
       responseTime: 10,
       url: "/personPOSTPUT",
       type: 'POST',
-      responseText: _.extend({}, personData, { firstName: postCheck })
+      responseText: _.extend({}, personData, { firstName: postValue })
     });
 
     $.mockjax({
       responseTime: 10,
       url: "/personPOSTPUT/1",
       type: 'PUT',
-      responseText: _.extend({}, personData, { firstName: putCheck })
+      responseText: _.extend({}, personData, { firstName: putValue })
     });
 
     var Person = fw.dataModel({
@@ -810,21 +815,25 @@ describe('dataModel', function () {
     });
 
     var person = new Person();
+
+    expect(person.firstName()).not.to.be(postValue);
+
     person.$save();
     setTimeout(function() {
       expect(person.$id()).to.be(1);
-      expect(person.firstName()).to.be(postCheck);
+      expect(person.firstName()).to.be(postValue);
 
+      expect(person.firstName()).not.to.be(putValue);
       person.$save();
       setTimeout(function() {
-        expect(person.firstName()).to.be(putCheck);
+        expect(person.firstName()).to.be(putValue);
         done();
       }, 40);
     }, 40);
   });
 
   it('can correctly $fetch() data from the server via a pre-filled idAttribute', function(done) {
-    var getCheck = '__GET__CHECK__';
+    var getValue = '__GET__CHECK__';
     var personData = {
       "id": 100,
       "firstName": null,
@@ -836,7 +845,7 @@ describe('dataModel', function () {
       responseTime: 10,
       url: "/personGET/" + personData.id,
       type: 'GET',
-      responseText: _.extend({}, personData, { firstName: getCheck })
+      responseText: _.extend({}, personData, { firstName: getValue })
     });
 
     var Person = fw.dataModel({
@@ -851,16 +860,19 @@ describe('dataModel', function () {
     });
 
     var person = new Person(personData);
+
+    expect(person.firstName()).not.to.be(getValue);
+
     person.$fetch();
     setTimeout(function() {
       expect(person.$id()).to.be(personData.id);
-      expect(person.firstName()).to.be(getCheck);
+      expect(person.firstName()).to.be(getValue);
       done();
     }, 40);
   });
 
   it('can correctly $fetch() data from the server via a pre-filled custom idAttribute', function(done) {
-    var getCheck = '__GET__CUSTOM__CHECK__';
+    var getValue = '__GET__CUSTOM__CHECK__';
     var personData = {
       "customId": 100,
       "firstName": null,
@@ -872,7 +884,7 @@ describe('dataModel', function () {
       responseTime: 10,
       url: "/personGETWithCustomId/" + personData.customId,
       type: 'GET',
-      responseText: _.extend({}, personData, { firstName: getCheck })
+      responseText: _.extend({}, personData, { firstName: getValue })
     });
 
     var Person = fw.dataModel({
@@ -888,16 +900,19 @@ describe('dataModel', function () {
     });
 
     var person = new Person(personData);
+
+    expect(person.firstName()).not.to.be(getValue);
+
     person.$fetch();
     setTimeout(function() {
       expect(person.customId()).to.be(personData.customId);
-      expect(person.firstName()).to.be(getCheck);
+      expect(person.firstName()).to.be(getValue);
       done();
     }, 40);
   });
 
   it('can correctly $fetch() data from the server via a url based on an evaluator function', function(done) {
-    var getCheck = '__GET__CUSTOM__CHECK__';
+    var getValue = '__GET__CUSTOM__CHECK__';
     var personData = {
       "id": 100,
       "firstName": null,
@@ -909,7 +924,7 @@ describe('dataModel', function () {
       responseTime: 10,
       url: "/personGETWithUrlInEvaluator/" + personData.id,
       type: 'GET',
-      responseText: _.extend({}, personData, { firstName: getCheck })
+      responseText: _.extend({}, personData, { firstName: getValue })
     });
 
     var Person = fw.dataModel({
@@ -926,10 +941,13 @@ describe('dataModel', function () {
     });
 
     var person = new Person(personData);
+
+    expect(person.firstName()).not.to.be(getValue);
+
     person.$fetch();
     setTimeout(function() {
       expect(person.$id()).to.be(personData.id);
-      expect(person.firstName()).to.be(getCheck);
+      expect(person.firstName()).to.be(getValue);
       done();
     }, 40);
   });
