@@ -39,7 +39,7 @@ var collectionMethods = {
       });
 
       if(!modelPresent) {
-        // id not found in collection, we have to add this model
+        // not found in collection, we have to add this model
         var newModel = new DataModelCtor(modelData);
         collectionStore.push(newModel);
         collection.$namespace.publish('_.add', newModel);

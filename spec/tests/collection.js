@@ -163,6 +163,7 @@ describe('collection', function () {
       dataModel: Person
     });
     var people = new PeopleCollection();
+
     people.$namespace.subscribe('_.*', function(models, envelope) {
       var dataModels = [].concat(models);
       var collectionEvent = envelope.topic;
@@ -184,6 +185,14 @@ describe('collection', function () {
       });
     });
 
+    expect(recordedEvents).to.eql({
+      'person1Data _.add': 0,
+      'person1Data _.change': 0,
+      'person1Data _.remove': 0,
+      'person2Data _.add': 0,
+      'person2Data _.change': 0,
+      'person2Data _.remove': 0
+    });
     expect(people().length).to.be(0);
 
     people.$set(_.values(peopleData));
@@ -195,8 +204,8 @@ describe('collection', function () {
       'person2Data _.change': 0,
       'person2Data _.remove': 0
     });
-
     expect(people().length).to.be(2);
+
     people.$set([ peopleData.person1Data ]);
     expect(recordedEvents).to.eql({
       'person1Data _.add': 1,
@@ -270,14 +279,16 @@ describe('collection', function () {
       resetTriggered = true;
     });
 
-    expect(people().length).to.be(0);
-
     expect(resetTriggered).to.be(false);
+
+    expect(people().length).to.be(0);
     people.$set(_.values(peopleData));
+    expect(people().length).to.be(2);
+
     people.$reset(_.values(peopleData));
     expect(resetTriggered).to.be(true);
-
     expect(people().length).to.be(2);
+
     expect(people()[0].firstName()).to.be(peopleData.person1Data.firstName);
     expect(people()[0].lastName()).to.be(peopleData.person1Data.lastName);
     expect(people()[0].email()).to.be(peopleData.person1Data.email);
@@ -650,5 +661,80 @@ describe('collection', function () {
     var peopleRemoved = people.splice(1, 2);
     expect(removeTriggered).to.be(true);
     expect(peopleRemoved.length).to.be(2);
+  });
+
+  it('disposes dataModels correctly when removed', function() {
+    var personData = {
+      "firstName": "PeopleFirstNameTest",
+      "lastName": null,
+      "email": null
+    };
+
+    var idCount = 100;
+    function makePersonData() {
+      return _.extend({}, personData, {
+        id: idCount++
+      });
+    }
+    var peopleData = [ makePersonData(), makePersonData(), makePersonData(), makePersonData(), makePersonData() ];
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var PeopleCollection = fw.collection({
+      namespace: 'PeoplePushEventCheck',
+      dataModel: Person
+    });
+    var people = new PeopleCollection(peopleData);
+
+    expect(people()[0]._isDisposed).to.be(undefined);
+    var personRemoved = people.remove(people()[0]);
+    expect(personRemoved[0]._isDisposed).to.be(true);
+    expect(people().length).to.be(peopleData.length - 1);
+  });
+
+  it('can be configured to not dispose of dataModels when removed', function() {
+    var personData = {
+      "firstName": "PeopleFirstNameTest",
+      "lastName": null,
+      "email": null
+    };
+
+    var idCount = 100;
+    function makePersonData() {
+      return _.extend({}, personData, {
+        id: idCount++
+      });
+    }
+    var peopleData = [ makePersonData(), makePersonData(), makePersonData(), makePersonData(), makePersonData() ];
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var PeopleCollection = fw.collection({
+      namespace: 'PeoplePushEventCheck',
+      dataModel: Person,
+      disposeOnRemove: false
+    });
+    var people = new PeopleCollection(peopleData);
+
+    expect(people()[0]._isDisposed).to.be(undefined);
+    var personRemoved = people.remove(people()[0]);
+    expect(personRemoved[0]._isDisposed).not.to.be(true);
+    expect(people().length).to.be(peopleData.length - 1);
   });
 });

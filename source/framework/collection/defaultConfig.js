@@ -4,5 +4,6 @@
 var defaultCollectionConfig = {
   namespace: null,
   url: null,
-  dataModel: null
+  dataModel: null,
+  disposeOnRemove: true
 };
