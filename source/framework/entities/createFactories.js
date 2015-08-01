@@ -11,6 +11,12 @@ function entityMixin(thing) {
 
 function entityClassFactory(descriptor, configParams) {
   var entityCtor = null;
+  var privateDataMixin = {
+    _preInit: function() {
+      var privateDataStore = {};
+      this.__private = privateData.bind(this, privateDataStore, configParams);
+    }
+  };
 
   configParams = extend({}, descriptor.defaultConfig, configParams || {});
 
@@ -40,6 +46,7 @@ function entityClassFactory(descriptor, configParams) {
     });
 
     var composure = [ ctor ].concat(
+      entityMixin(privateDataMixin),
       entityMixin(userExtendProps),
       entityMixin(newInstanceCheckMixin),
       entityMixin(isEntityDuckTagMixin),

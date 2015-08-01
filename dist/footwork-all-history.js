@@ -11183,10 +11183,12 @@ var ViewModel = function(descriptor, configParams) {
       __private: privateData.bind(this, privateDataStore, configParams),
       $params: result(configParams, 'params'),
       $trackSub: function(subscription) {
-        if(!isArray(this.__subscriptions)) {
-          this.__subscriptions = [];
+        var subscriptions = this.__private('subscriptions');
+        if(!isArray(subscriptions)) {
+          subscriptions = [];
         }
-        subscription && this.__subscriptions.push(subscription);
+        subscription && subscriptions.push(subscription);
+        this.__private('subscriptions', subscriptions);
       },
       dispose: function() {
         if( !this._isDisposed ) {
@@ -11195,7 +11197,7 @@ var ViewModel = function(descriptor, configParams) {
             configParams.onDispose.call(this);
           }
           each(this, propertyDisposal);
-          each(this.__subscriptions || [], propertyDisposal);
+          each(this.__private('subscriptions') || [], propertyDisposal);
         }
         return this;
       }
@@ -11416,7 +11418,7 @@ fw.subscribable.fn.mapTo = function(option) {
     throw new Error('No dataModel context found/supplied for mapTo observable');
   }
 
-  var mappings = dataModel.__mappings();
+  var mappings = dataModel.__private('mappings')();
   var primaryKey = getPrimaryKey(dataModel);
   if( !isUndefined(mappings[mapPath]) && (mapPath !== primaryKey && dataModel.$id.__isOriginalPK)) {
     throw new Error('the field \'' + mapPath + '\' is already mapped on this dataModel');
@@ -11449,7 +11451,7 @@ fw.subscribable.fn.mapTo = function(option) {
     };
   }
 
-  dataModel.__mappings.valueHasMutated();
+  dataModel.__private('mappings').valueHasMutated();
 
   return mappedObservable;
 };
@@ -11464,12 +11466,10 @@ var DataModel = function(descriptor, configParams) {
       params = params || {};
       enterDataModelContext(this);
       var pkField = configParams.idAttribute;
-
-      this.__mappings = fw.observable({});
+      this.__private('mappings', fw.observable({}));
 
       this.$dirty = fw.computed(function() {
-        var mappings = this.__mappings();
-        return reduce(mappings, function(isDirty, mappedField) {
+        return reduce(this.__private('mappings')(), function(isDirty, mappedField) {
           return isDirty || mappedField.isDirty();
         }, false);
       }, this);
@@ -11589,7 +11589,7 @@ var DataModel = function(descriptor, configParams) {
         }, options);
 
         var mappingsChanged = false;
-        each(this.__mappings(), function(fieldObservable, fieldMap) {
+        each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
           var fieldValue = getNestedReference(attributes, fieldMap);
           if(!isUndefined(fieldValue)) {
             fieldObservable(fieldValue);
@@ -11601,7 +11601,7 @@ var DataModel = function(descriptor, configParams) {
 
         if(mappingsChanged && options.clearDirty) {
           // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function
-          this.__mappings.valueHasMutated();
+          this.__private('mappings').valueHasMutated();
         }
       },
 
@@ -11609,7 +11609,7 @@ var DataModel = function(descriptor, configParams) {
         if(!isUndefined(field)) {
           var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
         }
-        each(this.__mappings(), function(fieldObservable, fieldMap) {
+        each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
           if(isUndefined(field) || fieldMap.match(fieldMatch)) {
             fieldObservable.isDirty(false);
           }
@@ -11621,7 +11621,7 @@ var DataModel = function(descriptor, configParams) {
       },
 
       $hasMappedField: function(referenceField) {
-        return !!this.__mappings()[referenceField];
+        return !!this.__private('mappings')()[referenceField];
       },
 
       $toJS: function(referenceField, includeRoot) {
@@ -11634,7 +11634,7 @@ var DataModel = function(descriptor, configParams) {
           throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.$toJS().');
         }
 
-        var mappedObject = reduce(this.__mappings(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+        var mappedObject = reduce(this.__private('mappings')(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
           if(isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
             insertValueIntoObject(jsObject, fieldMap, fieldObservable());
           }
@@ -11650,7 +11650,7 @@ var DataModel = function(descriptor, configParams) {
 
       $dirtyTree: function() {
         var tree = {};
-        each(this.__mappings(), function(fieldObservable, fieldMap) {
+        each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
           tree[fieldMap] = fieldObservable.isDirty();
         });
         return tree;

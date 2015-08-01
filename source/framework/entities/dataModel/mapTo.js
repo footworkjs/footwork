@@ -20,7 +20,7 @@ fw.subscribable.fn.mapTo = function(option) {
     throw new Error('No dataModel context found/supplied for mapTo observable');
   }
 
-  var mappings = dataModel.__mappings();
+  var mappings = dataModel.__private('mappings')();
   var primaryKey = getPrimaryKey(dataModel);
   if( !isUndefined(mappings[mapPath]) && (mapPath !== primaryKey && dataModel.$id.__isOriginalPK)) {
     throw new Error('the field \'' + mapPath + '\' is already mapped on this dataModel');
@@ -53,7 +53,7 @@ fw.subscribable.fn.mapTo = function(option) {
     };
   }
 
-  dataModel.__mappings.valueHasMutated();
+  dataModel.__private('mappings').valueHasMutated();
 
   return mappedObservable;
 };

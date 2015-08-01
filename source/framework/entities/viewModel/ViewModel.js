@@ -2,16 +2,16 @@
 // ------------------
 
 var ViewModel = function(descriptor, configParams) {
-  var privateDataStore = {};
   return {
     mixin: {
-      __private: privateData.bind(this, privateDataStore, configParams),
       $params: result(configParams, 'params'),
       $trackSub: function(subscription) {
-        if(!isArray(this.__subscriptions)) {
-          this.__subscriptions = [];
+        var subscriptions = this.__private('subscriptions');
+        if(!isArray(subscriptions)) {
+          subscriptions = [];
         }
-        subscription && this.__subscriptions.push(subscription);
+        subscription && subscriptions.push(subscription);
+        this.__private('subscriptions', subscriptions);
       },
       dispose: function() {
         if( !this._isDisposed ) {
@@ -20,7 +20,7 @@ var ViewModel = function(descriptor, configParams) {
             configParams.onDispose.call(this);
           }
           each(this, propertyDisposal);
-          each(this.__subscriptions || [], propertyDisposal);
+          each(this.__private('subscriptions') || [], propertyDisposal);
         }
         return this;
       }
