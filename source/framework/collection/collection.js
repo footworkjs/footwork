@@ -9,9 +9,10 @@ function removeDisposeAndNotify(originalFunction) {
 }
 
 function addAndNotify(originalFunction) {
-  var addedItems = originalFunction.apply(this, Array.prototype.slice.call(arguments).splice(1));
-  this.$namespace.publish('_.add', addedItems);
-  return addedItems;
+  var addItems = Array.prototype.slice.call(arguments).splice(1);
+  originalFunction.apply(this, addItems);
+  this.$namespace.publish('_.add', addItems);
+  return addItems;
 }
 
 fw.collection = function(configParams) {

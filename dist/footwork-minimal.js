@@ -2141,10 +2141,8 @@ fw.isReceivable = function(thing) {
 // ------------------
 
 var ViewModel = function(descriptor, configParams) {
-  var privateDataStore = {};
   return {
     mixin: {
-      __private: privateData.bind(this, privateDataStore, configParams),
       $params: result(configParams, 'params'),
       $trackSub: function(subscription) {
         var subscriptions = this.__private('subscriptions');
@@ -3707,6 +3705,12 @@ function entityMixin(thing) {
 
 function entityClassFactory(descriptor, configParams) {
   var entityCtor = null;
+  var privateDataMixin = {
+    _preInit: function() {
+      var privateDataStore = {};
+      this.__private = privateData.bind(this, privateDataStore, configParams);
+    }
+  };
 
   configParams = extend({}, descriptor.defaultConfig, configParams || {});
 
@@ -3736,6 +3740,7 @@ function entityClassFactory(descriptor, configParams) {
     });
 
     var composure = [ ctor ].concat(
+      entityMixin(privateDataMixin),
       entityMixin(userExtendProps),
       entityMixin(newInstanceCheckMixin),
       entityMixin(isEntityDuckTagMixin),
@@ -4558,9 +4563,10 @@ function removeDisposeAndNotify(originalFunction) {
 }
 
 function addAndNotify(originalFunction) {
-  var addedItems = originalFunction.apply(this, Array.prototype.slice.call(arguments).splice(1));
-  this.$namespace.publish('_.add', addedItems);
-  return addedItems;
+  var addItems = Array.prototype.slice.call(arguments).splice(1);
+  originalFunction.apply(this, addItems);
+  this.$namespace.publish('_.add', addItems);
+  return addItems;
 }
 
 fw.collection = function(configParams) {
@@ -4616,7 +4622,6 @@ var collectionMethods = {
   },
   $set: function(newCollection) {
     var collection = this;
-    var collectionChanged = false;
     var collectionStore = collection();
     var DataModelCtor = collection.__private('configParams').dataModel;
     var idAttribute = DataModelCtor.__private('configParams').idAttribute;
@@ -4645,9 +4650,7 @@ var collectionMethods = {
       if(!modelPresent) {
         // not found in collection, we have to add this model
         var newModel = new DataModelCtor(modelData);
-        collectionStore.push(newModel);
-        collection.$namespace.publish('_.add', newModel);
-        collectionChanged = true;
+        collection.push(newModel);
         touchedModels.push(newModel);
       }
     });
@@ -4672,10 +4675,6 @@ var collectionMethods = {
 
     if(absentModels.length) {
       collection.removeAll(absentModels);
-    }
-
-    if(collectionChanged) {
-      collection.valueHasMutated();
     }
 
     return touchedModels;

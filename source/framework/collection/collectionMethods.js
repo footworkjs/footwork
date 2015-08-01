@@ -12,7 +12,6 @@ var collectionMethods = {
   },
   $set: function(newCollection) {
     var collection = this;
-    var collectionChanged = false;
     var collectionStore = collection();
     var DataModelCtor = collection.__private('configParams').dataModel;
     var idAttribute = DataModelCtor.__private('configParams').idAttribute;
@@ -41,9 +40,7 @@ var collectionMethods = {
       if(!modelPresent) {
         // not found in collection, we have to add this model
         var newModel = new DataModelCtor(modelData);
-        collectionStore.push(newModel);
-        collection.$namespace.publish('_.add', newModel);
-        collectionChanged = true;
+        collection.push(newModel);
         touchedModels.push(newModel);
       }
     });
@@ -68,10 +65,6 @@ var collectionMethods = {
 
     if(absentModels.length) {
       collection.removeAll(absentModels);
-    }
-
-    if(collectionChanged) {
-      collection.valueHasMutated();
     }
 
     return touchedModels;

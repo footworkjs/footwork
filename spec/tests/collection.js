@@ -171,6 +171,11 @@ describe('collection', function () {
         _.each(peopleData, function(person, varName) {
           var expectedEventKey = varName + ' ' + collectionEvent;
           var fieldNames = _.keys(person);
+
+          if(collectionEvent === '_.add') {
+            expect(dataModel.__isDataModel).to.be(true)
+          }
+
           if(_.isEqual(person, _.pick(dataModel.$toJS(), fieldNames))) {
             if(!_.isUndefined(recordedEvents[expectedEventKey])) {
               recordedEvents[expectedEventKey]++;
