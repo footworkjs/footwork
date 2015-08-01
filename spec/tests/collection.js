@@ -424,6 +424,9 @@ describe('collection', function () {
 
     var addTriggered = false;
     people.$namespace.subscribe('_.add', function(dataModels) {
+      _.each(dataModels, function(dataModel) {
+        expect(dataModel.__isDataModel).to.be(true)
+      });
       addTriggered = true;
     });
 
@@ -451,6 +454,9 @@ describe('collection', function () {
 
     var addTriggered = false;
     people.$namespace.subscribe('_.add', function(dataModels) {
+      _.each(dataModels, function(dataModel) {
+        expect(dataModel.__isDataModel).to.be(true)
+      });
       addTriggered = true;
     });
 
