@@ -44,8 +44,9 @@ describe('broadcast-receive', function () {
     });
     var modelB = new ModelB();
 
-    modelA.broadcaster('a-specific-value');
-    expect(modelB.receiver()).to.eql('a-specific-value');
+    var testValue = 'a-specific-value';
+    modelA.broadcaster(testValue);
+    expect(modelB.receiver()).to.eql(testValue);
   });
 
   it('can have receivable created with a passed in instantiated namespace', function() {
@@ -97,11 +98,12 @@ describe('broadcast-receive', function () {
     });
     var modelB = new ModelB();
 
-    modelB.writableReceiver('a-different-specific-value');
-    expect(modelA.writableBroadcaster()).to.eql('a-different-specific-value');
+    var testValue = 'a-different-specific-value';
+    modelB.writableReceiver(testValue);
+    expect(modelA.writableBroadcaster()).to.eql(testValue);
   });
 
-  it('when modelB tries to write to receivable modelA does not see the data on a non-writable broadcastable', function() {
+  it('when modelB tries to write to receivable modelA does not see the data on a non-writable broadcastable and the receivable is not set to the new value', function() {
     var ModelA = fw.viewModel({
       namespace: 'ModelA',
       initialize: function() {
@@ -118,8 +120,10 @@ describe('broadcast-receive', function () {
     });
     var modelB = new ModelB();
 
-    modelB.nonwritableReceiver('specific-value-that-should-not-be-seen');
-    expect(modelA.nonwritableBroadcaster()).not.to.eql('specific-value-that-should-not-be-seen');
+    var testValue = 'specific-value-that-should-not-be-seen';
+    modelB.nonwritableReceiver(testValue);
+    expect(modelB.nonwritableReceiver()).not.to.eql(testValue);
+    expect(modelA.nonwritableBroadcaster()).not.to.eql(testValue);
   });
 
   it('receivable with .when() specified writes when callback returns true', function() {
@@ -139,8 +143,9 @@ describe('broadcast-receive', function () {
     });
     var modelB = new ModelB();
 
-    modelA.broadcaster('value-that-should-be-visible-from-ModelB');
-    expect(modelB.receiver()).to.eql('value-that-should-be-visible-from-ModelB');
+    var testValue = 'value-that-should-be-visible-from-ModelB';
+    modelA.broadcaster(testValue);
+    expect(modelB.receiver()).to.eql(testValue);
   });
 
   it('receivable with .when() specified does NOT write when callback returns false', function() {
@@ -183,7 +188,8 @@ describe('broadcast-receive', function () {
     });
     var modelB = new ModelB();
 
-    modelA.broadcaster('value-that-should-be-visible-from-ModelB-callback');
-    expect(valueInsideCallback).to.eql('value-that-should-be-visible-from-ModelB-callback');
+    var testValue = 'value-that-should-be-visible-from-ModelB-callback';
+    modelA.broadcaster(testValue);
+    expect(valueInsideCallback).to.eql(testValue);
   });
 });
