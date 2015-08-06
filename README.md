@@ -87,7 +87,7 @@ gulp lodash_custom
 
 ### Documentation and Website Contributions
 
-There is a companion repository located at [https://github.com/jonbnewman/footwork-site](https://github.com/jonbnewman/footwork-site).
+There is a companion repository located at [https://github.com/jonbnewman/footworkjs.com](https://github.com/jonbnewman/footworkjs.com).
 
 If you wish to contribute to the documentation or main website you can do that here.
 
