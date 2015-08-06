@@ -1,9 +1,9 @@
-![footwork.js](https://raw.github.com/reflectiveSingleton/footwork/master/dist/gh-footwork-logo.png)
+![footwork.js](https://raw.github.com/jonbnewman/footwork/master/dist/gh-footwork-logo.png)
 ========
 
 *```A solid footing for web applications.```*
 
-[![Build Status](https://travis-ci.org/reflectiveSingleton/footwork.png?branch=master)](https://travis-ci.org/reflectiveSingleton/footwork) [![Bower version](https://badge.fury.io/bo/footwork.png)](http://badge.fury.io/bo/footwork)
+[![Build Status](https://travis-ci.org/jonbnewman/footwork.png?branch=master)](https://travis-ci.org/jonbnewman/footwork) [![Bower version](https://badge.fury.io/bo/footwork.png)](http://badge.fury.io/bo/footwork)
 
 ## What is footwork?
 
@@ -19,7 +19,7 @@ For more details, see:
 
 * [Tutorials](http://footworkjs.com/tutorials "Tutorials and guides")
 
-[![Join the chat at https://gitter.im/reflectiveSingleton/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/reflectiveSingleton/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/jonbnewman/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jonbnewman/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ### Downloading footwork.js
 
@@ -50,7 +50,7 @@ bower install
 1) **Clone the repo from GitHub:**
 
 ```bash
-git clone https://github.com/reflectiveSingleton/footwork.git
+git clone https://github.com/jonbnewman/footwork.git
 cd footwork
 ```
 
@@ -87,7 +87,7 @@ gulp lodash_custom
 
 ### Documentation and Website Contributions
 
-There is a companion repository located at [https://github.com/reflectiveSingleton/footwork-site](https://github.com/reflectiveSingleton/footwork-site).
+There is a companion repository located at [https://github.com/jonbnewman/footwork-site](https://github.com/jonbnewman/footwork-site).
 
 If you wish to contribute to the documentation or main website you can do that here.
 
@@ -95,4 +95,4 @@ If you wish to contribute to the documentation or main website you can do that h
 
 MIT license - [http://www.opensource.org/licenses/mit-license.php](http://www.opensource.org/licenses/mit-license.php)
 
-[![Analytics](https://ga-beacon.appspot.com/UA-52543452-1/footwork/GITHUB-ROOT)](https://github.com/reflectiveSingleton/ga-beacon)
+[![Analytics](https://ga-beacon.appspot.com/UA-52543452-1/footwork/GITHUB-ROOT)](https://github.com/jonbnewman/ga-beacon)
