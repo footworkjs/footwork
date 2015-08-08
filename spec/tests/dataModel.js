@@ -619,6 +619,56 @@ describe('dataModel', function () {
     expect(person.$toJS(['firstName', 'lastName'])).to.eql(_.pick(personData, ['firstName', 'lastName']));
   });
 
+  it('can have a correct $dirtyTree() produced', function() {
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        this.firstName = fw.observable(person.firstName).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName).mapTo('lastName');
+        this.movieCollection = {
+          action: fw.observableArray(person.movies.action).mapTo('movies.action'),
+          drama: fw.observableArray(person.movies.drama).mapTo('movies.drama'),
+          comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy'),
+          horror: fw.observableArray(person.movies.horror).mapTo('movies.horror')
+        };
+      }
+    });
+
+    var person = new Person({
+      firstName: 'John',
+      lastName: 'Smith',
+      movies: {
+        action: ['Commando', 'Predator', 'Timecop', 'Terminator'],
+        drama: ['The Shawshank Redemption'],
+        comedy: ['Dumb and Dumber', 'Billy Madison'],
+        horror: ['Friday the 13th', 'Jason']
+      }
+    });
+
+    expect(person.$dirtyTree()).to.eql({
+      "id": false,
+      "firstName": false,
+      "lastName": false,
+      "movies.action": false,
+      "movies.drama": false,
+      "movies.comedy": false,
+      "movies.horror": false
+    });
+
+    person.firstName('test');
+    person.movieCollection.comedy.push('Kung Fury');
+
+    expect(person.$dirtyTree()).to.eql({
+      "id": false,
+      "firstName": true,
+      "lastName": false,
+      "movies.action": false,
+      "movies.drama": false,
+      "movies.comedy": true,
+      "movies.horror": false
+    });
+  });
+
   it('can generate the correct JSON string using $toJSON()', function() {
     var Person = fw.dataModel({
       namespace: 'Person',
@@ -836,7 +886,7 @@ describe('dataModel', function () {
     var postValue = '__POST__CHECK__';
     $.mockjax({
       responseTime: 10,
-      url: "/personPOST",
+      url: "/personPOSTParse",
       type: 'POST',
       responseText: {
         "id": 1,
@@ -848,7 +898,7 @@ describe('dataModel', function () {
 
     var Person = fw.dataModel({
       namespace: 'Person',
-      url: '/personPOST',
+      url: '/personPOSTParse',
       parse: function(response) {
         response.firstName = postValue;
         return response;
