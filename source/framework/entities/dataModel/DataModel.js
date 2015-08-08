@@ -34,7 +34,7 @@ var DataModel = function(descriptor, configParams) {
           // retrieve data dataModel the from server using the id
           this.$sync('read', dataModel, options)
             .done(function(response) {
-              dataModel.$set(response);
+              dataModel.$set(configParams.parse ? configParams.parse(response) : response);
             });
         }
       },

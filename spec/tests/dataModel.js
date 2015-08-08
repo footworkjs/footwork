@@ -832,6 +832,47 @@ describe('dataModel', function () {
     }, 40);
   });
 
+  it('can correctly POST data and apply parse() method with return on $save()', function(done) {
+    var postValue = '__POST__CHECK__';
+    $.mockjax({
+      responseTime: 10,
+      url: "/personPOST",
+      type: 'POST',
+      responseText: {
+        "id": 1,
+        "firstName": null,
+        "lastName": null,
+        "email": null
+      }
+    });
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      url: '/personPOST',
+      parse: function(response) {
+        response.firstName = postValue;
+        return response;
+      },
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var person = new Person();
+
+    expect(person.firstName()).not.to.be(postValue);
+
+    person.$save();
+    setTimeout(function() {
+      expect(person.$id()).to.be(1);
+      expect(person.firstName()).to.be(postValue);
+      done();
+    }, 40);
+  });
+
   it('can correctly $fetch() data from the server via a pre-filled idAttribute', function(done) {
     var getValue = '__GET__CHECK__';
     var personData = {
@@ -851,6 +892,49 @@ describe('dataModel', function () {
     var Person = fw.dataModel({
       namespace: 'Person',
       url: '/personGET',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var person = new Person(personData);
+
+    expect(person.firstName()).not.to.be(getValue);
+
+    person.$fetch();
+    setTimeout(function() {
+      expect(person.$id()).to.be(personData.id);
+      expect(person.firstName()).to.be(getValue);
+      done();
+    }, 40);
+  });
+
+  it('can correctly $fetch() data from the server with a provided parse() method', function(done) {
+    var getValue = '__GET__CHECK__';
+    var personData = {
+      "id": 100,
+      "firstName": null,
+      "lastName": null,
+      "email": null
+    };
+
+    $.mockjax({
+      responseTime: 10,
+      url: "/personGETParse/" + personData.id,
+      type: 'GET',
+      responseText: personData
+    });
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      url: '/personGETParse',
+      parse: function(response) {
+        response.firstName = getValue;
+        return response;
+      },
       initialize: function(person) {
         person = person || {};
         this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
