@@ -619,7 +619,7 @@ describe('dataModel', function () {
     expect(person.$toJS(['firstName', 'lastName'])).to.eql(_.pick(personData, ['firstName', 'lastName']));
   });
 
-  it('can have a correct $dirtyTree() produced', function() {
+  it('can have a correct $dirtyMap() produced', function() {
     var Person = fw.dataModel({
       namespace: 'Person',
       initialize: function(person) {
@@ -645,7 +645,7 @@ describe('dataModel', function () {
       }
     });
 
-    expect(person.$dirtyTree()).to.eql({
+    expect(person.$dirtyMap()).to.eql({
       "id": false,
       "firstName": false,
       "lastName": false,
@@ -658,7 +658,7 @@ describe('dataModel', function () {
     person.firstName('test');
     person.movieCollection.comedy.push('Kung Fury');
 
-    expect(person.$dirtyTree()).to.eql({
+    expect(person.$dirtyMap()).to.eql({
       "id": false,
       "firstName": true,
       "lastName": false,

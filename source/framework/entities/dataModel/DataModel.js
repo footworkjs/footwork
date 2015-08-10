@@ -190,7 +190,7 @@ var DataModel = function(descriptor, configParams) {
         return JSON.stringify( this.$toJS(referenceField, includeRoot) );
       },
 
-      $dirtyTree: function() {
+      $dirtyMap: function() {
         var tree = {};
         each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
           tree[fieldMap] = fieldObservable.isDirty();
