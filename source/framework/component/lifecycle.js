@@ -31,7 +31,7 @@ fw.bindingHandlers.$life = {
     element = element.parentElement || element.parentNode;
     if(isString(element.className)) {
       if(element.className.indexOf(entityClassName) === -1) {
-        element.className += entityClassName;
+        element.className += (element.className.length ? ' ' : '') + entityClassName;
       }
     }
 
