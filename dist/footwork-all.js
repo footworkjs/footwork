@@ -8154,7 +8154,7 @@ var DataModel = function(descriptor, configParams) {
           // retrieve data dataModel the from server using the id
           this.$sync('read', dataModel, options)
             .done(function(response) {
-              dataModel.$set(response);
+              dataModel.$set(configParams.parse ? configParams.parse(response) : response);
             });
         }
       },
@@ -8310,7 +8310,7 @@ var DataModel = function(descriptor, configParams) {
         return JSON.stringify( this.$toJS(referenceField, includeRoot) );
       },
 
-      $dirtyTree: function() {
+      $dirtyMap: function() {
         var tree = {};
         each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
           tree[fieldMap] = fieldObservable.isDirty();
@@ -8617,9 +8617,9 @@ fw.bindingHandlers.$route = {
       url: function defaultURLForRoute() { return null; },
       addActiveClass: true,
       activeClass: null,
-      handler: function defaultHandlerForRoute(event, url) {
+      handler: function defaultHandlerForRouteBinding(event, url) {
         if(hashOnly) {
-          windowObject.location.hash = routeHandlerDescription.url;
+          windowObject.location.hash = result(routeHandlerDescription, 'url');
           return false;
         }
 
@@ -9935,7 +9935,7 @@ fw.bindingHandlers.$life = {
     element = element.parentElement || element.parentNode;
     if(isString(element.className)) {
       if(element.className.indexOf(entityClassName) === -1) {
-        element.className += entityClassName;
+        element.className += (element.className.length ? ' ' : '') + entityClassName;
       }
     }
 
@@ -10264,9 +10264,9 @@ function removeDisposeAndNotify(originalFunction) {
 
 function addAndNotify(originalFunction) {
   var addItems = Array.prototype.slice.call(arguments).splice(1);
-  originalFunction.apply(this, addItems);
+  var originalResult = originalFunction.apply(this, addItems);
   this.$namespace.publish('_.add', addItems);
-  return addItems;
+  return originalResult;
 }
 
 fw.collection = function(configParams) {

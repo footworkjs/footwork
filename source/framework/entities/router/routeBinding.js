@@ -31,9 +31,9 @@ fw.bindingHandlers.$route = {
       url: function defaultURLForRoute() { return null; },
       addActiveClass: true,
       activeClass: null,
-      handler: function defaultHandlerForRoute(event, url) {
+      handler: function defaultHandlerForRouteBinding(event, url) {
         if(hashOnly) {
-          windowObject.location.hash = routeHandlerDescription.url;
+          windowObject.location.hash = result(routeHandlerDescription, 'url');
           return false;
         }
 
