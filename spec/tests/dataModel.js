@@ -333,11 +333,17 @@ describe('dataModel', function () {
       }
     });
 
+    var theElement;
     var DataModelWithDispose = fw.dataModel({
       namespace: 'DataModelWithDispose',
       autoRegister: true,
-      onDispose: function() {
+      afterBinding: function(element) {
+        theElement = element;
+        expect(theElement.tagName).to.be('DATAMODEL');
+      },
+      onDispose: function(element) {
         onDisposeWasCalled = true;
+        expect(element).to.be(theElement);
       }
     });
 

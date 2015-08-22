@@ -324,11 +324,17 @@ describe('viewModel', function () {
       }
     });
 
+    var theElement;
     var ViewModelWithDispose = fw.viewModel({
       namespace: 'ViewModelWithDispose',
       autoRegister: true,
-      onDispose: function() {
+      afterBinding: function(element) {
+        theElement = element;
+        expect(theElement.tagName).to.be('VIEWMODEL');
+      },
+      onDispose: function(element) {
         onDisposeWasCalled = true;
+        expect(element).to.be(theElement);
       }
     });
 

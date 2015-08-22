@@ -7856,7 +7856,7 @@ var ViewModel = function(descriptor, configParams) {
         if( !this._isDisposed ) {
           this._isDisposed = true;
           if( configParams.onDispose !== noop ) {
-            configParams.onDispose.call(this);
+            configParams.onDispose.call(this, this.__private('element'));
           }
           each(this, propertyDisposal);
           each(this.__private('subscriptions') || [], propertyDisposal);
@@ -9334,6 +9334,7 @@ function setupContextAndLifeCycle(entity, element) {
       element.className += (element.className.length ? ' ' : '') + entityClassName;
     }
 
+    entity.__private('element', element);
     entity.$element = element;
     entity.$context = elementContext = fw.contextFor(element);
 
@@ -9354,7 +9355,7 @@ function setupContextAndLifeCycle(entity, element) {
     }
 
     if( isRouter(entity) ) {
-      entity.__private('context')( elementContext );
+      entity.__private('context')(elementContext);
     }
 
     if( !isUndefined(element) ) {
