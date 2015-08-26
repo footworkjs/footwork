@@ -9194,7 +9194,7 @@ entityDescriptors = entityDescriptors.concat([
       namespace: '$router',
       autoRegister: false,
       autoIncrement: false,
-      showDuringLoad: undefined,
+      showDuringLoad: noComponentSelected,
       extend: {},
       mixins: undefined,
       afterBinding: noop,

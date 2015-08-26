@@ -623,6 +623,7 @@ describe('router', function () {
       ]
     });
 
+    expect(_.every(outletLoaderTest)).to.be(false);
     fw.start(container);
     router('outletLoaderTest').setState('/outletLoaderTest');
 
@@ -687,6 +688,7 @@ describe('router', function () {
       ]
     });
 
+    expect(_.every(outletLoaderTest)).to.be(false);
     fw.start(container);
     router('outletLoaderTestCallback').setState('/outletLoaderTestCallback');
 
