@@ -26,22 +26,18 @@ var ViewModel = function(descriptor, configParams) {
       }
     },
     _postInit: function() {
-      if( this.__assertPresence !== false ) {
-        this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
-          if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
-            if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
-              var myNamespaceName = this.$namespace.getName();
-              if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
-                return this;
-              } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
-                return this;
-              }
-            } else {
-              return this;
-            }
+      this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
+        if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
+          var myNamespaceName = this.$namespace.getName();
+          if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
+            return this;
+          } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+            return this;
           }
-        }.bind(this));
-      }
+        } else {
+          return this;
+        }
+      }.bind(this));
     }
   };
 };

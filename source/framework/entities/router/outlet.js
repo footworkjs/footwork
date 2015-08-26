@@ -12,10 +12,10 @@ fw.bindingHandlers.$bind = {
     var $parentRouter = nearestParentRouter(bindingContext);
     var outletName = outletViewModel.outletName;
 
-    if( isRouter($parentRouter) ) {
+    if(isRouter($parentRouter)) {
       // register this outlet with the router so that updates will propagate correctly
       // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
-      outletViewModel.$route = $parentRouter.$outlet( outletName );
+      outletViewModel.$route = $parentRouter.$outlet(outletName);
     } else {
       throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.$namespace.getName() + '] but no router was defined.');
     }
@@ -24,23 +24,25 @@ fw.bindingHandlers.$bind = {
 
 function $routerOutlet(outletName, componentToDisplay, options) {
   options = options || {};
-  if( isFunction(options) ) {
+  if(isFunction(options)) {
     options = { onComplete: options, onFailure: noop };
   }
 
+  var wasCompleted = false;
   var viewModelParameters = options.params;
   var onComplete = options.onComplete || noop;
   var onFailure = options.onFailure || noop;
-  var outlets = this.outlets;
+  var router = this;
+  var outlets = router.outlets;
 
-  outletName = fw.unwrap( outletName );
-  if( !isObservable(outlets[outletName]) ) {
+  outletName = fw.unwrap(outletName);
+  if(!isObservable(outlets[outletName])) {
     outlets[outletName] = fw.observable({
       name: noComponentSelected,
       params: {},
       __getOnCompleteCallback: function() { return noop; },
-      __onFailure: onFailure.bind(this)
-    }).broadcastAs({ name: outletName, namespace: this.$namespace });
+      __onFailure: onFailure.bind(router)
+    }).broadcastAs({ name: outletName, namespace: router.$namespace });
   }
 
   var outlet = outlets[outletName];
@@ -48,27 +50,38 @@ function $routerOutlet(outletName, componentToDisplay, options) {
   var valueHasMutated = false;
   var isInitialLoad = outlet().name === noComponentSelected;
 
-  if( !isUndefined(componentToDisplay) && currentOutletDef.name !== componentToDisplay ) {
-    currentOutletDef.name = componentToDisplay;
-    valueHasMutated = true;
+  if(!isUndefined(componentToDisplay)) {
+    if(currentOutletDef.name !== componentToDisplay) {
+      currentOutletDef.name = componentToDisplay;
+      valueHasMutated = true;
+    }
+
+    if(!isUndefined(viewModelParameters)) {
+      currentOutletDef.params = viewModelParameters;
+      valueHasMutated = true;
+    }
   }
 
-  if( !isUndefined(viewModelParameters) ) {
-    currentOutletDef.params = viewModelParameters;
-    valueHasMutated = true;
-  }
-
-  if( valueHasMutated ) {
+  if(valueHasMutated) {
     // Return the onComplete callback once the DOM is injected in the page.
     // For some reason, on initial outlet binding only calls update once. Subsequent
     // changes get called twice (correct per docs, once upon initial binding, and once
     // upon injection into the DOM). Perhaps due to usage of virtual DOM for the component?
-    var callCounter = (isInitialLoad ? 0 : 1);
+    var showDuringLoad = {
+      name: result(this.__private('configParams'), 'showDuringLoad'),
+      __getOnCompleteCallback: function(element) {
+        if(element.children.length) {
+          element.children[0].___isLoadingComponent = true;
+        }
+        return noop;
+      }
+    };
 
     currentOutletDef.__getOnCompleteCallback = function(element) {
-      var isComplete = callCounter === 0;
-      callCounter--;
-      if( isComplete ) {
+      var isComplete = element.children.length && isUndefined(element.children[0].___isLoadingComponent);
+
+      if(!wasCompleted && isComplete) {
+        wasCompleted = true;
         activeOutlets.remove(outlet);
         return function addBindingOnComplete() {
           setTimeout(function() {
@@ -77,21 +90,34 @@ function $routerOutlet(outletName, componentToDisplay, options) {
             }
           }, animationIteration);
 
-          onComplete.call(this, element);
+          onComplete.call(router, element);
         };
+      } else {
+        element.className = element.className.replace(' ' + bindingClassName, '');
+        return noop;
       }
-      element.className = element.className.replace(' ' + bindingClassName, '');
-      return noop;
     };
 
-    activeOutlets.push(outlet);
-    outlet.valueHasMutated();
+    if(activeOutlets().indexOf(outlet) === -1) {
+      activeOutlets.push(outlet);
+    }
+
+    if(showDuringLoad.name) {
+      outlet(showDuringLoad);
+
+      fw.components.get(currentOutletDef.name, function() {
+        // now that its cached and loaded, lets show the desired component
+        outlet(currentOutletDef);
+      });
+    } else {
+      outlet.valueHasMutated();
+    }
   }
 
   return outlet;
 };
 
-function registerOutletComponents() {
+function registerOutletComponent() {
   internalComponents.push('outlet');
   fw.components.register('outlet', {
     autoIncrement: true,
@@ -104,11 +130,9 @@ function registerOutletComponents() {
 
   internalComponents.push(noComponentSelected);
   fw.components.register(noComponentSelected, {
-    viewModel: function(params) {
-      this.__assertPresence = false;
-    },
+    viewModel: { instance: {} },
     template: '<div class="no-component-selected"></div>'
   });
 };
 
-runPostInit.push(registerOutletComponents);
+runPostInit.push(registerOutletComponent);
