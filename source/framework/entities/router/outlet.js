@@ -63,10 +63,6 @@ function $routerOutlet(outletName, componentToDisplay, options) {
   }
 
   if(valueHasMutated) {
-    // Return the onComplete callback once the DOM is injected in the page.
-    // For some reason, on initial outlet binding only calls update once. Subsequent
-    // changes get called twice (correct per docs, once upon initial binding, and once
-    // upon injection into the DOM). Perhaps due to usage of virtual DOM for the component?
     var showDuringLoad = {
       name: result(this.__private('configParams'), 'showDuringLoad'),
       __getOnCompleteCallback: function(element) {
