@@ -946,22 +946,18 @@ var ViewModel = function(descriptor, configParams) {
       }
     },
     _postInit: function() {
-      if( this.__assertPresence !== false ) {
-        this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
-          if( !this.__isOutlet || (isObject(options) && options.includeOutlets) ) {
-            if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
-              var myNamespaceName = this.$namespace.getName();
-              if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
-                return this;
-              } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
-                return this;
-              }
-            } else {
-              return this;
-            }
+      this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
+        if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
+          var myNamespaceName = this.$namespace.getName();
+          if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
+            return this;
+          } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+            return this;
           }
-        }.bind(this));
-      }
+        } else {
+          return this;
+        }
+      }.bind(this));
     }
   };
 };
@@ -1564,10 +1560,10 @@ fw.bindingHandlers.$bind = {
     var $parentRouter = nearestParentRouter(bindingContext);
     var outletName = outletViewModel.outletName;
 
-    if( isRouter($parentRouter) ) {
+    if(isRouter($parentRouter)) {
       // register this outlet with the router so that updates will propagate correctly
       // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
-      outletViewModel.$route = $parentRouter.$outlet( outletName );
+      outletViewModel.$route = $parentRouter.$outlet(outletName);
     } else {
       throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.$namespace.getName() + '] but no router was defined.');
     }
@@ -1576,23 +1572,25 @@ fw.bindingHandlers.$bind = {
 
 function $routerOutlet(outletName, componentToDisplay, options) {
   options = options || {};
-  if( isFunction(options) ) {
+  if(isFunction(options)) {
     options = { onComplete: options, onFailure: noop };
   }
 
+  var wasCompleted = false;
   var viewModelParameters = options.params;
   var onComplete = options.onComplete || noop;
   var onFailure = options.onFailure || noop;
-  var outlets = this.outlets;
+  var router = this;
+  var outlets = router.outlets;
 
-  outletName = fw.unwrap( outletName );
-  if( !isObservable(outlets[outletName]) ) {
+  outletName = fw.unwrap(outletName);
+  if(!isObservable(outlets[outletName])) {
     outlets[outletName] = fw.observable({
       name: noComponentSelected,
       params: {},
       __getOnCompleteCallback: function() { return noop; },
-      __onFailure: onFailure.bind(this)
-    }).broadcastAs({ name: outletName, namespace: this.$namespace });
+      __onFailure: onFailure.bind(router)
+    }).broadcastAs({ name: outletName, namespace: router.$namespace });
   }
 
   var outlet = outlets[outletName];
@@ -1600,27 +1598,39 @@ function $routerOutlet(outletName, componentToDisplay, options) {
   var valueHasMutated = false;
   var isInitialLoad = outlet().name === noComponentSelected;
 
-  if( !isUndefined(componentToDisplay) && currentOutletDef.name !== componentToDisplay ) {
-    currentOutletDef.name = componentToDisplay;
-    valueHasMutated = true;
+  if(!isUndefined(componentToDisplay)) {
+    if(currentOutletDef.name !== componentToDisplay) {
+      currentOutletDef.name = componentToDisplay;
+      valueHasMutated = true;
+    }
+
+    if(!isUndefined(viewModelParameters)) {
+      currentOutletDef.params = viewModelParameters;
+      valueHasMutated = true;
+    }
   }
 
-  if( !isUndefined(viewModelParameters) ) {
-    currentOutletDef.params = viewModelParameters;
-    valueHasMutated = true;
-  }
+  if(valueHasMutated) {
+    var showDuringLoadComponent = this.__private('configParams')['showDuringLoad'];
+    if(isFunction(showDuringLoadComponent)) {
+      showDuringLoadComponent = showDuringLoadComponent.call(router, outletName, componentToDisplay);
+    }
 
-  if( valueHasMutated ) {
-    // Return the onComplete callback once the DOM is injected in the page.
-    // For some reason, on initial outlet binding only calls update once. Subsequent
-    // changes get called twice (correct per docs, once upon initial binding, and once
-    // upon injection into the DOM). Perhaps due to usage of virtual DOM for the component?
-    var callCounter = (isInitialLoad ? 0 : 1);
+    var showDuringLoad = {
+      name: showDuringLoadComponent,
+      __getOnCompleteCallback: function(element) {
+        if(element.children.length) {
+          element.children[0].___isLoadingComponent = true;
+        }
+        return noop;
+      }
+    };
 
     currentOutletDef.__getOnCompleteCallback = function(element) {
-      var isComplete = callCounter === 0;
-      callCounter--;
-      if( isComplete ) {
+      var isComplete = element.children.length && isUndefined(element.children[0].___isLoadingComponent);
+
+      if(!wasCompleted && isComplete) {
+        wasCompleted = true;
         activeOutlets.remove(outlet);
         return function addBindingOnComplete() {
           setTimeout(function() {
@@ -1629,21 +1639,36 @@ function $routerOutlet(outletName, componentToDisplay, options) {
             }
           }, animationIteration);
 
-          onComplete.call(this, element);
+          onComplete.call(router, element);
         };
+      } else {
+        element.className = element.className.replace(' ' + bindingClassName, '');
+        return noop;
       }
-      element.className = element.className.replace(' ' + bindingClassName, '');
-      return noop;
     };
 
-    activeOutlets.push(outlet);
-    outlet.valueHasMutated();
+    if(activeOutlets().indexOf(outlet) === -1) {
+      activeOutlets.push(outlet);
+    }
+
+    if(showDuringLoad.name) {
+      outlet(showDuringLoad);
+
+      fw.components.get(currentOutletDef.name, function() {
+        // now that its cached and loaded, lets show the desired component
+        setTimeout(function() {
+          outlet(currentOutletDef);
+        }, 0);
+      });
+    } else {
+      outlet.valueHasMutated();
+    }
   }
 
   return outlet;
 };
 
-function registerOutletComponents() {
+function registerOutletComponent() {
   internalComponents.push('outlet');
   fw.components.register('outlet', {
     autoIncrement: true,
@@ -1656,14 +1681,12 @@ function registerOutletComponents() {
 
   internalComponents.push(noComponentSelected);
   fw.components.register(noComponentSelected, {
-    viewModel: function(params) {
-      this.__assertPresence = false;
-    },
+    viewModel: { instance: {} },
     template: '<div class="no-component-selected"></div>'
   });
 };
 
-runPostInit.push(registerOutletComponents);
+runPostInit.push(registerOutletComponent);
 
 // framework/entities/router/routeBinding.js
 // -----------
@@ -2252,6 +2275,7 @@ entityDescriptors = entityDescriptors.concat([
       namespace: '$router',
       autoRegister: false,
       autoIncrement: false,
+      showDuringLoad: undefined,
       extend: {},
       mixins: undefined,
       afterBinding: noop,
@@ -2988,9 +3012,9 @@ fw.component = function(componentDefinition) {
 // ------------------
 
 function componentTriggerAfterBinding(element, viewModel) {
-  if( isEntity(viewModel) ) {
+  if(isEntity(viewModel)) {
     var configParams = viewModel.__private('configParams');
-    if( isFunction(configParams.afterBinding) ) {
+    if(isFunction(configParams.afterBinding)) {
       var afterBinding = noop;
       if(isFunction(configParams.afterBinding)) {
         afterBinding = configParams.afterBinding;
@@ -3022,7 +3046,7 @@ fw.bindingHandlers.$life = {
     }
 
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
-      if( isEntity(viewModel) ) {
+      if(isEntity(viewModel)) {
         viewModel.dispose();
       }
     });
@@ -3030,7 +3054,7 @@ fw.bindingHandlers.$life = {
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
     var $parent = bindingContext.$parent;
-    if( isObject($parent) && $parent.__isOutlet ) {
+    if(isObject($parent) && $parent.__isOutlet && isFunction($parent.$route().__getOnCompleteCallback)) {
       $parent.$route().__getOnCompleteCallback(element)();
     }
     componentTriggerAfterBinding(element, bindingContext.$data);
@@ -3040,9 +3064,9 @@ fw.bindingHandlers.$life = {
 // Custom loader used to wrap components with the $life custom binding
 fw.components.loaders.unshift( fw.components.componentWrapper = {
   loadTemplate: function(componentName, config, callback) {
-    if( !isInternalComponent(componentName) ) {
+    if(!isInternalComponent(componentName)) {
       // TODO: Handle different types of configs
-      if( isString(config) ) {
+      if(isString(config) ) {
         config = '<!-- ko $life -->' + config + '<!-- /ko -->';
       } else {
         throw new Error('Unhandled config type ' + typeof config + '.');
@@ -3054,25 +3078,15 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
   },
   loadViewModel: function(componentName, config, callback) {
     var ViewModel = config.viewModel || config;
-    if( !isInternalComponent(componentName) ) {
+    if(!isInternalComponent(componentName)) {
       callback(function(params, componentInfo) {
         var componentElement = componentInfo.element;
         var $element = (componentElement.nodeType === 8 ? (componentElement.parentElement || componentElement.parentNode) : componentElement);
-        var LoadedViewModel = ViewModel;
-        if( isFunction(ViewModel) ) {
-          if( !isEntityCtor(ViewModel) ) {
-            ViewModel = fw.viewModel({ initialize: ViewModel });
-          }
 
-          // inject the context and element into the ViewModel contructor
-          LoadedViewModel = ViewModel.compose({
-            _preInit: function() {
-              this.$element = $element;
-            }
-          });
-          return new LoadedViewModel(params);
+        if(isFunction(ViewModel)) {
+          return new ViewModel(params);
         }
-        return LoadedViewModel;
+        return ViewModel;
       });
     } else {
       callback(null);

@@ -576,6 +576,126 @@ describe('router', function () {
     }, 40);
   });
 
+  it('can display a temporary loading component in place of a component that is being downloaded', function(done) {
+    var container = document.getElementById('outletLoaderTest');
+    var outletLoaderTest = {
+      outletLoaderTestLoading: false,
+      outletLoaderTestLoaded: false,
+      afterOutlet: false,
+      routeHasRun: false
+    };
+
+    function router(name) {
+      return fw.routers.getAll(name)[0];
+    }
+
+    fw.components.register('outletLoaderTestLoading', {
+      viewModel: function() {
+        outletLoaderTest.outletLoaderTestLoading = true;
+      },
+      template: '<div class="outletLoaderTestLoading"></div>',
+      synchronous: true
+    });
+
+    fw.components.register('outletLoaderTestLoaded', {
+      viewModel: function() {
+        outletLoaderTest.outletLoaderTestLoaded = true;
+      },
+      template: '<div class="outletLoaderTestLoaded"></div>'
+    });
+
+    fw.router({
+      namespace: 'outletLoaderTest',
+      autoRegister: true,
+      showDuringLoad: 'outletLoaderTestLoading',
+      routes: [
+        {
+          route: '/outletLoaderTest',
+          controller: function() {
+            outletLoaderTest.routeHasRun = true;
+            this.$outlet('output', 'outletLoaderTestLoaded', function(element) {
+              outletLoaderTest.afterOutlet = true;
+              expect(element.tagName.toLowerCase()).to.be('outlet');
+              expect(element.children[0].className).to.be('outletLoaderTestLoaded');
+            });
+          }
+        }
+      ]
+    });
+
+    fw.start(container);
+    router('outletLoaderTest').setState('/outletLoaderTest');
+
+    setTimeout(function() {
+      expect(_.every(outletLoaderTest)).to.be(true);
+      done();
+    }, 150);
+  });
+
+  it('can display a temporary loading component (source from callback) in place of a component that is being downloaded', function(done) {
+    var container = document.getElementById('outletLoaderTestCallback');
+    var outletLoaderTest = {
+      outletLoaderTestLoading: false,
+      outletLoaderTestLoaded: false,
+      afterOutlet: false,
+      routeHasRun: false
+    };
+
+    function router(name) {
+      return fw.routers.getAll(name)[0];
+    }
+
+    fw.components.register('outletLoaderTestCallbackLoading', {
+      viewModel: function() {
+        outletLoaderTest.outletLoaderTestLoading = true;
+      },
+      template: '<div class="outletLoaderTestCallbackLoading"></div>'
+    });
+
+    fw.components.register('outletLoaderTestCallbackLoaded', {
+      viewModel: function() {
+        outletLoaderTest.outletLoaderTestLoaded = true;
+      },
+      template: '<div class="outletLoaderTestCallbackLoaded"></div>'
+    });
+
+    var theRouter;
+    fw.router({
+      namespace: 'outletLoaderTestCallback',
+      autoRegister: true,
+      initialize: function() {
+        theRouter = this;
+      },
+      showDuringLoad: function(outletName, componentToDisplay) {
+        expect(this).to.be(theRouter);
+        expect(outletName).to.be('output');
+        expect(componentToDisplay).to.be('outletLoaderTestCallbackLoaded');
+        return 'outletLoaderTestCallbackLoading';
+      },
+      routes: [
+        {
+          route: '/outletLoaderTestCallback',
+          controller: function() {
+            outletLoaderTest.routeHasRun = true;
+            this.$outlet('output', 'outletLoaderTestCallbackLoaded', function(element) {
+              outletLoaderTest.afterOutlet = true;
+              expect(element.tagName.toLowerCase()).to.be('outlet');
+              expect(element.children[0].className).to.be('outletLoaderTestCallbackLoaded');
+            });
+          }
+        }
+      ]
+    });
+
+    fw.start(container);
+    router('outletLoaderTestCallback').setState('/outletLoaderTestCallback');
+
+    setTimeout(function() {
+      expect(_.every(outletLoaderTest)).to.be(true);
+      done();
+    }, 150);
+  });
+
   it('can have nested/child routers path be dependent on its parents', function(done) {
     var container = document.getElementById('nestedRouteDependency');
     var outerRouterInstantiated = false;

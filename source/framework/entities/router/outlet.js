@@ -63,8 +63,13 @@ function $routerOutlet(outletName, componentToDisplay, options) {
   }
 
   if(valueHasMutated) {
+    var showDuringLoadComponent = this.__private('configParams')['showDuringLoad'];
+    if(isFunction(showDuringLoadComponent)) {
+      showDuringLoadComponent = showDuringLoadComponent.call(router, outletName, componentToDisplay);
+    }
+
     var showDuringLoad = {
-      name: result(this.__private('configParams'), 'showDuringLoad'),
+      name: showDuringLoadComponent,
       __getOnCompleteCallback: function(element) {
         if(element.children.length) {
           element.children[0].___isLoadingComponent = true;
@@ -103,7 +108,9 @@ function $routerOutlet(outletName, componentToDisplay, options) {
 
       fw.components.get(currentOutletDef.name, function() {
         // now that its cached and loaded, lets show the desired component
-        outlet(currentOutletDef);
+        setTimeout(function() {
+          outlet(currentOutletDef);
+        }, 0);
       });
     } else {
       outlet.valueHasMutated();
