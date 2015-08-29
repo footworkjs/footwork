@@ -147,6 +147,10 @@ var DataModel = function(descriptor, configParams) {
         }
       },
 
+      $get: function(referenceField) {
+        return this.$toJS(referenceField);
+      },
+
       $clean: function(field) {
         if(!isUndefined(field)) {
           var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');

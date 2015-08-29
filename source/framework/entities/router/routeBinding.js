@@ -66,12 +66,12 @@ fw.bindingHandlers.$route = {
       var myLinkPath = routeURL || element.getAttribute('href') || '';
 
       if(!isNull(routeURL)) {
-        if( isUndefined(routeURL) ) {
+        if(isUndefined(routeURL)) {
           routeURL = myLinkPath;
         }
 
-        if( !isFullURL(myLinkPath) ) {
-          if( !hasPathStart(myLinkPath) ) {
+        if(!isFullURL(myLinkPath)) {
+          if(!hasPathStart(myLinkPath)) {
             var currentRoute = $myRouter.currentRoute();
             if(hasHashStart(myLinkPath)) {
               if(!isNull(currentRoute)) {
@@ -86,7 +86,7 @@ fw.bindingHandlers.$route = {
             }
           }
 
-          if( includeParentPath && !isNullRouter($myRouter) ) {
+          if(includeParentPath && !isNullRouter($myRouter)) {
             myLinkPath = $myRouter.__private('parentRouter')().path() + myLinkPath;
           }
 
@@ -146,25 +146,26 @@ fw.bindingHandlers.$route = {
         fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
           var currentRouteURL = routeURLWithoutParentPath();
           var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
-          if( handlerResult ) {
-            if( isString(handlerResult) ) {
+          if(handlerResult) {
+            if(isString(handlerResult)) {
               currentRouteURL = handlerResult;
             }
-            if( isString(currentRouteURL) && !isFullURL( currentRouteURL ) ) {
+            if(isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
               $myRouter.setState( currentRouteURL );
             }
           }
+          return true;
         });
       }
     }
 
-    if( isObservable(routeHandlerDescription.url) ) {
+    if(isObservable(routeHandlerDescription.url)) {
       $myRouter.__private('subscriptions').push( routeHandlerDescription.url.subscribe(setUpElement) );
     }
     setUpElement();
 
     ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-      if( isObject(stateTracker) ) {
+      if(isObject(stateTracker)) {
         stateTracker.dispose();
       }
     });
