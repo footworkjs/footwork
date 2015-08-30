@@ -80,46 +80,7 @@ describe('collection', function () {
     people.$set(peopleData);
 
     expect(people().length).to.be(2);
-    expect(people.$toJS()).to.eql(peopleData);
-  });
-
-  it('can be serialized to a JSON string correctly', function() {
-    var person1Data = {
-      "id": undefined,
-      "firstName": "PersonFirstNameTest",
-      "lastName": "PersonLastNameTest",
-      "email": "PersonEmailTest"
-    };
-    var person2Data = {
-      "id": undefined,
-      "firstName": "PersonFirstNameTest",
-      "lastName": "PersonLastNameTest",
-      "email": "PersonEmailTest"
-    };
-
-    var Person = fw.dataModel({
-      namespace: 'Person',
-      initialize: function(person) {
-        person = person || {};
-        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-        this.email = fw.observable(person.email || null).mapTo('email');
-      }
-    });
-
-    var PeopleCollection = fw.collection({
-      namespace: 'People',
-      dataModel: Person
-    });
-    var people = new PeopleCollection();
-
-    expect(people().length).to.be(0);
-
-    var peopleData = [ person1Data, person2Data ];
-    people.$set(peopleData);
-
-    expect(people().length).to.be(2);
-    expect(people.$toJSON()).to.eql(JSON.stringify(peopleData));
+    expect(people.$get()).to.eql(peopleData);
   });
 
   it('can correctly trigger change/add/remove events for dataModels in a $set() call as appropriate', function() {
@@ -176,7 +137,7 @@ describe('collection', function () {
             expect(dataModel.__isDataModel).to.be(true)
           }
 
-          if(_.isEqual(person, _.pick(dataModel.$toJS(), fieldNames))) {
+          if(_.isEqual(person, _.pick(dataModel.$get(), fieldNames))) {
             if(!_.isUndefined(recordedEvents[expectedEventKey])) {
               recordedEvents[expectedEventKey]++;
             } else {

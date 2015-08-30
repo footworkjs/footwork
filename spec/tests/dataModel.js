@@ -13,8 +13,7 @@ describe('dataModel', function () {
     expect(dataModel.$save).to.be.a('function');
     expect(dataModel.$destroy).to.be.a('function');
     expect(dataModel.$set).to.be.a('function');
-    expect(dataModel.$toJS).to.be.a('function');
-    expect(dataModel.$toJSON).to.be.a('function');
+    expect(dataModel.$get).to.be.a('function');
   });
 
   it('has the ability to create a dataModel with a correctly defined namespace whos name we can retrieve', function() {
@@ -532,99 +531,6 @@ describe('dataModel', function () {
     expect(person.$hasMappedField('movies.horror')).to.be(true);
   });
 
-  it('can have observables mapped and retreived correctly via $toJS', function() {
-    var Person = fw.dataModel({
-      namespace: 'Person',
-      initialize: function(person) {
-        this.firstName = fw.observable(person.firstName).mapTo('firstName');
-        this.lastName = fw.observable(person.lastName).mapTo('lastName');
-        this.movieCollection = {
-          action: fw.observableArray(person.movies.action).mapTo('movies.action'),
-          drama: fw.observableArray(person.movies.drama).mapTo('movies.drama'),
-          comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy'),
-          horror: fw.observableArray(person.movies.horror).mapTo('movies.horror')
-        };
-      }
-    });
-
-    var personData = {
-      id: undefined,
-      firstName: 'John',
-      lastName: 'Smith',
-      movies: {
-        action: ['Commando', 'Predator', 'Timecop', 'Terminator'],
-        drama: ['The Shawshank Redemption'],
-        comedy: ['Dumb and Dumber', 'Billy Madison'],
-        horror: ['Friday the 13th', 'Jason']
-      }
-    };
-    var person = new Person(personData);
-
-    expect(person.$toJS()).to.eql(personData);
-  });
-
-  it('can have observables mapped and a specific one retreived correctly via $toJS', function() {
-    var Person = fw.dataModel({
-      namespace: 'Person',
-      initialize: function(person) {
-        this.firstName = fw.observable(person.firstName).mapTo('firstName');
-        this.lastName = fw.observable(person.lastName).mapTo('lastName');
-        this.movieCollection = {
-          action: fw.observableArray(person.movies.action).mapTo('movies.action'),
-          drama: fw.observableArray(person.movies.drama).mapTo('movies.drama'),
-          comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy'),
-          horror: fw.observableArray(person.movies.horror).mapTo('movies.horror')
-        };
-      }
-    });
-
-    var personData = {
-      firstName: 'John',
-      lastName: 'Smith',
-      movies: {
-        action: ['Commando', 'Predator', 'Timecop', 'Terminator'],
-        drama: ['The Shawshank Redemption'],
-        comedy: ['Dumb and Dumber', 'Billy Madison'],
-        horror: ['Friday the 13th', 'Jason']
-      }
-    };
-    var person = new Person(personData);
-
-    expect(person.$toJS('firstName')).to.eql(personData.firstName);
-    expect(person.$toJS('movies')).to.eql(personData.movies);
-    expect(person.$toJS('movies.action')).to.eql(personData.movies.action);
-  });
-
-  it('can have observables mapped and an array of values retreived correctly via $toJS', function() {
-    var Person = fw.dataModel({
-      namespace: 'Person',
-      initialize: function(person) {
-        this.firstName = fw.observable(person.firstName).mapTo('firstName');
-        this.lastName = fw.observable(person.lastName).mapTo('lastName');
-        this.movieCollection = {
-          action: fw.observableArray(person.movies.action).mapTo('movies.action'),
-          drama: fw.observableArray(person.movies.drama).mapTo('movies.drama'),
-          comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy'),
-          horror: fw.observableArray(person.movies.horror).mapTo('movies.horror')
-        };
-      }
-    });
-
-    var personData = {
-      firstName: 'John',
-      lastName: 'Smith',
-      movies: {
-        action: ['Commando', 'Predator', 'Timecop', 'Terminator'],
-        drama: ['The Shawshank Redemption'],
-        comedy: ['Dumb and Dumber', 'Billy Madison'],
-        horror: ['Friday the 13th', 'Jason']
-      }
-    };
-    var person = new Person(personData);
-
-    expect(person.$toJS(['firstName', 'lastName'])).to.eql(_.pick(personData, ['firstName', 'lastName']));
-  });
-
   it('can have observables mapped and retreived correctly via $get', function() {
     var Person = fw.dataModel({
       namespace: 'Person',
@@ -768,39 +674,6 @@ describe('dataModel', function () {
     });
   });
 
-  it('can generate the correct JSON string using $toJSON()', function() {
-    var Person = fw.dataModel({
-      namespace: 'Person',
-      initialize: function(person) {
-        this.firstName = fw.observable(person.firstName).mapTo('firstName');
-        this.lastName = fw.observable(person.lastName).mapTo('lastName');
-        this.movieCollection = {
-          action: fw.observableArray(person.movies.action).mapTo('movies.action'),
-          drama: fw.observableArray(person.movies.drama).mapTo('movies.drama'),
-          comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy'),
-          horror: fw.observableArray(person.movies.horror).mapTo('movies.horror')
-        };
-      }
-    });
-
-    var personData = {
-      firstName: 'John',
-      lastName: 'Smith',
-      movies: {
-        action: ['Commando', 'Predator', 'Timecop', 'Terminator'],
-        drama: ['The Shawshank Redemption'],
-        comedy: ['Dumb and Dumber', 'Billy Madison'],
-        horror: ['Friday the 13th', 'Jason']
-      }
-    };
-    var person = new Person(personData);
-
-    expect(person.$toJSON()).to.eql(JSON.stringify(personData));
-    expect(person.$toJSON('firstName')).to.eql(JSON.stringify(personData.firstName));
-    expect(person.$toJSON('movies')).to.eql(JSON.stringify(personData.movies));
-    expect(person.$toJSON('movies.action')).to.eql(JSON.stringify(personData.movies.action));
-  });
-
   it('can load data in using dataModel.$set()', function() {
     var Person = fw.dataModel({
       namespace: 'Person',
@@ -828,11 +701,11 @@ describe('dataModel', function () {
     };
     var person = new Person();
 
-    expect(person.$toJS('firstName')).to.eql(undefined);
+    expect(person.firstName()).to.eql(undefined);
 
     person.$set(personData);
 
-    expect(person.$toJS('firstName')).to.eql(personData.firstName);
+    expect(person.firstName()).to.eql(personData.firstName);
   });
 
   it('can (re)map the primary key', function() {

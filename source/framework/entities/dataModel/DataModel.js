@@ -147,8 +147,24 @@ var DataModel = function(descriptor, configParams) {
         }
       },
 
-      $get: function(referenceField) {
-        return this.$toJS(referenceField);
+      $get: function(referenceField, includeRoot) {
+        var dataModel = this;
+        if(isArray(referenceField)) {
+          return reduce(referenceField, function(jsObject, fieldMap) {
+            return merge(jsObject, dataModel.$get(fieldMap, true));
+          }, {});
+        } else if(!isUndefined(referenceField) && !isString(referenceField)) {
+          throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.$get().');
+        }
+
+        var mappedObject = reduce(this.__private('mappings')(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+          if(isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
+            insertValueIntoObject(jsObject, fieldMap, fieldObservable());
+          }
+          return jsObject;
+        }, {});
+
+        return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
       },
 
       $clean: function(field) {
@@ -170,30 +186,6 @@ var DataModel = function(descriptor, configParams) {
         return !!this.__private('mappings')()[referenceField];
       },
 
-      $toJS: function(referenceField, includeRoot) {
-        var dataModel = this;
-        if(isArray(referenceField)) {
-          return reduce(referenceField, function(jsObject, fieldMap) {
-            return merge(jsObject, dataModel.$toJS(fieldMap, true));
-          }, {});
-        } else if(!isUndefined(referenceField) && !isString(referenceField)) {
-          throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.$toJS().');
-        }
-
-        var mappedObject = reduce(this.__private('mappings')(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
-          if(isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
-            insertValueIntoObject(jsObject, fieldMap, fieldObservable());
-          }
-          return jsObject;
-        }, {});
-
-        return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
-      },
-
-      $toJSON: function(referenceField, includeRoot) {
-        return JSON.stringify( this.$toJS(referenceField, includeRoot) );
-      },
-
       $dirtyMap: function() {
         var tree = {};
         each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
@@ -207,11 +199,9 @@ var DataModel = function(descriptor, configParams) {
     },
     _postInit: function() {
       if(configParams.autoIncrement) {
-        this.$rootNamespace.request.handler('$toJS', function() { return this.$toJS(); }.bind(this));
-        this.$rootNamespace.request.handler('$toJSON', function() { return this.$toJSON(); }.bind(this));
+        this.$rootNamespace.request.handler('$get', function() { return this.$get(); }.bind(this));
       }
-      this.$namespace.request.handler('$toJS', function() { return this.$toJS(); }.bind(this));
-      this.$namespace.request.handler('$toJSON', function() { return this.$toJSON(); }.bind(this));
+      this.$namespace.request.handler('$get', function() { return this.$get(); }.bind(this));
 
       this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
         if( isString(options.namespaceName) || isArray(options.namespaceName) ) {

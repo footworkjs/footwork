@@ -67,14 +67,14 @@ fw.sync = function(action, concern, params) {
     var urlParams = options.url.match(parseParamsRegex);
     if(urlParams) {
       each(urlParams, function(param) {
-        options.url = options.url.replace(param, concern.$toJS(param.substr(1)));
+        options.url = options.url.replace(param, concern.$get(param.substr(1)));
       });
     }
   }
 
   if(isNull(options.data) && concern && contains(['create', 'update', 'patch'], action)) {
     options.contentType = 'application/json';
-    options.data = JSON.stringify(options.attrs || concern.$toJS());
+    options.data = JSON.stringify(options.attrs || concern.$get());
   }
 
   // For older servers, emulate JSON by encoding the request into an HTML-form.

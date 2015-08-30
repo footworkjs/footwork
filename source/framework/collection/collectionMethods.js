@@ -22,7 +22,7 @@ var collectionMethods = {
       var modelPresent = false;
 
       each(collectionStore, function lookForModel(model) {
-        var collectionModelData = model.$toJS();
+        var collectionModelData = model.$get();
         var modelFields = keys(collectionModelData);
 
         modelData = pick(modelData, modelFields);
@@ -47,7 +47,7 @@ var collectionMethods = {
 
     each(collectionStore, function checkForRemovals(model) {
       var modelPresent = false;
-      var collectionModelData = model.$toJS();
+      var collectionModelData = model.$get();
       var modelFields = filter(keys(collectionModelData), function(thing) { return thing !== idAttribute; });
 
       each(newCollection, function isModelPresent(modelData) {
@@ -100,13 +100,10 @@ var collectionMethods = {
 
     return xhr;
   },
-  $toJS: function() {
+  $get: function() {
     return reduce(this(), function(models, model) {
-      models.push(model.$toJS());
+      models.push(model.$get());
       return models;
     }, []);
-  },
-  $toJSON: function() {
-    return JSON.stringify(this.$toJS());
   }
 };
