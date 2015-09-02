@@ -8009,14 +8009,14 @@ fw.sync = function(action, concern, params) {
     var urlParams = options.url.match(parseParamsRegex);
     if(urlParams) {
       each(urlParams, function(param) {
-        options.url = options.url.replace(param, concern.$toJS(param.substr(1)));
+        options.url = options.url.replace(param, concern.$get(param.substr(1)));
       });
     }
   }
 
   if(isNull(options.data) && concern && contains(['create', 'update', 'patch'], action)) {
     options.contentType = 'application/json';
-    options.data = JSON.stringify(options.attrs || concern.$toJS());
+    options.data = JSON.stringify(options.attrs || concern.$get());
   }
 
   // For older servers, emulate JSON by encoding the request into an HTML-form.
@@ -8179,9 +8179,9 @@ var DataModel = function(descriptor, configParams) {
           options.attrs = attrs;
         }
 
-        var promise = dataModel.$sync(method, dataModel, options);
+        var syncPromise = dataModel.$sync(method, dataModel, options);
 
-        promise.done(function(response) {
+        syncPromise.done(function(response) {
           var resourceData = configParams.parse ? configParams.parse(response) : response;
 
           if(options.wait && !isNull(attrs)) {
@@ -8197,7 +8197,7 @@ var DataModel = function(descriptor, configParams) {
           dataModel.$set(attrs);
         }
 
-        return promise;
+        return syncPromise;
       },
 
       // DELETE
@@ -8263,6 +8263,26 @@ var DataModel = function(descriptor, configParams) {
         }
       },
 
+      $get: function(referenceField, includeRoot) {
+        var dataModel = this;
+        if(isArray(referenceField)) {
+          return reduce(referenceField, function(jsObject, fieldMap) {
+            return merge(jsObject, dataModel.$get(fieldMap, true));
+          }, {});
+        } else if(!isUndefined(referenceField) && !isString(referenceField)) {
+          throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.$get().');
+        }
+
+        var mappedObject = reduce(this.__private('mappings')(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+          if(isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
+            insertValueIntoObject(jsObject, fieldMap, fieldObservable());
+          }
+          return jsObject;
+        }, {});
+
+        return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
+      },
+
       $clean: function(field) {
         if(!isUndefined(field)) {
           var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
@@ -8282,30 +8302,6 @@ var DataModel = function(descriptor, configParams) {
         return !!this.__private('mappings')()[referenceField];
       },
 
-      $toJS: function(referenceField, includeRoot) {
-        var dataModel = this;
-        if(isArray(referenceField)) {
-          return reduce(referenceField, function(jsObject, fieldMap) {
-            return merge(jsObject, dataModel.$toJS(fieldMap, true));
-          }, {});
-        } else if(!isUndefined(referenceField) && !isString(referenceField)) {
-          throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.$toJS().');
-        }
-
-        var mappedObject = reduce(this.__private('mappings')(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
-          if(isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
-            insertValueIntoObject(jsObject, fieldMap, fieldObservable());
-          }
-          return jsObject;
-        }, {});
-
-        return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
-      },
-
-      $toJSON: function(referenceField, includeRoot) {
-        return JSON.stringify( this.$toJS(referenceField, includeRoot) );
-      },
-
       $dirtyMap: function() {
         var tree = {};
         each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
@@ -8319,11 +8315,9 @@ var DataModel = function(descriptor, configParams) {
     },
     _postInit: function() {
       if(configParams.autoIncrement) {
-        this.$rootNamespace.request.handler('$toJS', function() { return this.$toJS(); }.bind(this));
-        this.$rootNamespace.request.handler('$toJSON', function() { return this.$toJSON(); }.bind(this));
+        this.$rootNamespace.request.handler('$get', function() { return this.$get(); }.bind(this));
       }
-      this.$namespace.request.handler('$toJS', function() { return this.$toJS(); }.bind(this));
-      this.$namespace.request.handler('$toJSON', function() { return this.$toJSON(); }.bind(this));
+      this.$namespace.request.handler('$get', function() { return this.$get(); }.bind(this));
 
       this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
         if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
@@ -8675,12 +8669,12 @@ fw.bindingHandlers.$route = {
       var myLinkPath = routeURL || element.getAttribute('href') || '';
 
       if(!isNull(routeURL)) {
-        if( isUndefined(routeURL) ) {
+        if(isUndefined(routeURL)) {
           routeURL = myLinkPath;
         }
 
-        if( !isFullURL(myLinkPath) ) {
-          if( !hasPathStart(myLinkPath) ) {
+        if(!isFullURL(myLinkPath)) {
+          if(!hasPathStart(myLinkPath)) {
             var currentRoute = $myRouter.currentRoute();
             if(hasHashStart(myLinkPath)) {
               if(!isNull(currentRoute)) {
@@ -8695,7 +8689,7 @@ fw.bindingHandlers.$route = {
             }
           }
 
-          if( includeParentPath && !isNullRouter($myRouter) ) {
+          if(includeParentPath && !isNullRouter($myRouter)) {
             myLinkPath = $myRouter.__private('parentRouter')().path() + myLinkPath;
           }
 
@@ -8755,25 +8749,26 @@ fw.bindingHandlers.$route = {
         fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
           var currentRouteURL = routeURLWithoutParentPath();
           var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
-          if( handlerResult ) {
-            if( isString(handlerResult) ) {
+          if(handlerResult) {
+            if(isString(handlerResult)) {
               currentRouteURL = handlerResult;
             }
-            if( isString(currentRouteURL) && !isFullURL( currentRouteURL ) ) {
+            if(isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
               $myRouter.setState( currentRouteURL );
             }
           }
+          return true;
         });
       }
     }
 
-    if( isObservable(routeHandlerDescription.url) ) {
+    if(isObservable(routeHandlerDescription.url)) {
       $myRouter.__private('subscriptions').push( routeHandlerDescription.url.subscribe(setUpElement) );
     }
     setUpElement();
 
     ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-      if( isObject(stateTracker) ) {
+      if(isObject(stateTracker)) {
         stateTracker.dispose();
       }
     });
@@ -10091,7 +10086,7 @@ function possiblyGetConfigFromAmd(config, callback) {
     if(isFunction(require)) {
       require([config['require']], callback, function() {
         each(activeOutlets(), function(outlet) {
-          outlet().__onFailure();
+          (outlet().__onFailure || noop)();
         });
       });
     } else {
@@ -10347,7 +10342,7 @@ var collectionMethods = {
       var modelPresent = false;
 
       each(collectionStore, function lookForModel(model) {
-        var collectionModelData = model.$toJS();
+        var collectionModelData = model.$get();
         var modelFields = keys(collectionModelData);
 
         modelData = pick(modelData, modelFields);
@@ -10372,7 +10367,7 @@ var collectionMethods = {
 
     each(collectionStore, function checkForRemovals(model) {
       var modelPresent = false;
-      var collectionModelData = model.$toJS();
+      var collectionModelData = model.$get();
       var modelFields = filter(keys(collectionModelData), function(thing) { return thing !== idAttribute; });
 
       each(newCollection, function isModelPresent(modelData) {
@@ -10425,14 +10420,11 @@ var collectionMethods = {
 
     return xhr;
   },
-  $toJS: function() {
+  $get: function() {
     return reduce(this(), function(models, model) {
-      models.push(model.$toJS());
+      models.push(model.$get());
       return models;
     }, []);
-  },
-  $toJSON: function() {
-    return JSON.stringify(this.$toJS());
   }
 };
 
