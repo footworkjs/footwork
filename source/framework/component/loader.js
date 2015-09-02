@@ -76,7 +76,7 @@ function possiblyGetConfigFromAmd(config, callback) {
     if(isFunction(require)) {
       require([config['require']], callback, function() {
         each(activeOutlets(), function(outlet) {
-          outlet().__onFailure();
+          (outlet().__onFailure || noop)();
         });
       });
     } else {

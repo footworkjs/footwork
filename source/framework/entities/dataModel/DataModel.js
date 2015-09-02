@@ -63,9 +63,9 @@ var DataModel = function(descriptor, configParams) {
           options.attrs = attrs;
         }
 
-        var promise = dataModel.$sync(method, dataModel, options);
+        var syncPromise = dataModel.$sync(method, dataModel, options);
 
-        promise.done(function(response) {
+        syncPromise.done(function(response) {
           var resourceData = configParams.parse ? configParams.parse(response) : response;
 
           if(options.wait && !isNull(attrs)) {
@@ -81,7 +81,7 @@ var DataModel = function(descriptor, configParams) {
           dataModel.$set(attrs);
         }
 
-        return promise;
+        return syncPromise;
       },
 
       // DELETE
