@@ -262,7 +262,10 @@ describe('dataModel', function () {
     var boundPropertyValue = 'registeredDataModelGenerated';
 
     fw.dataModels.register('registeredDataModelGenerated', {
-      createDataModel: function() {
+      createDataModel: function(params, info) {
+        expect(params.var).to.be('registeredDataModelGenerated');
+        expect(info.element.getAttribute('id')).to.be('registeredDataModelGeneratedElement');
+
         return {
           boundProperty: boundPropertyValue
         };

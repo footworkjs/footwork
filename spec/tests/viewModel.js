@@ -254,7 +254,10 @@ describe('viewModel', function () {
     var boundPropertyValue = 'registeredViewModelGenerated';
 
     fw.viewModels.register('registeredViewModelGenerated', {
-      createDataModel: function() {
+      createViewModel: function(params, info) {
+        expect(params.var).to.be('registeredViewModelGenerated');
+        expect(info.element.getAttribute('id')).to.be('registeredViewModelGeneratedElement');
+
         return {
           boundProperty: boundPropertyValue
         };
