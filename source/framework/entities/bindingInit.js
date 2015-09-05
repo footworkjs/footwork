@@ -85,10 +85,11 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
         } else if( isFunction(resourceLocation) ) {
           bindModel( resourceLocation );
         } else if( isObject(resourceLocation) ) {
+          var createInstance = resourceLocation.createViewModel || resourceLocation.createDataModel;
           if( isObject(resourceLocation.instance) ) {
             bindModel( resourceLocation.instance );
-          } else if( isFunction(resourceLocation.createViewModel) ) {
-            bindModel( resourceLocation.createViewModel( values.params, { element: element } ) );
+          } else if( isFunction(createInstance) ) {
+            bindModel( createInstance( values.params, { element: element } ) );
           }
         }
       }

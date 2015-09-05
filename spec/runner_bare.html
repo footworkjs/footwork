@@ -24,6 +24,18 @@
         <viewModel module="declarativeViewModel"></viewModel>
       </div>
 
+      <div id="registeredViewModelInstance">
+        <viewModel module="registeredViewModelInstance">
+          <span class="result" data-bind="text: boundProperty"></span>
+        </viewModel>
+      </div>
+
+      <div id="registeredViewModelGenerated">
+        <viewModel module="registeredViewModelGenerated">
+          <span class="result" data-bind="text: boundProperty"></span>
+        </viewModel>
+      </div>
+
       <div id="afterBindingViewModelAnimation">
         <viewModel module="afterBindingViewModelAnimation"></viewModel>
       </div>
@@ -70,6 +82,18 @@
 
       <div id="declarativeDataModel">
         <dataModel module="declarativeDataModel"></dataModel>
+      </div>
+
+      <div id="registeredDataModelInstance">
+        <dataModel module="registeredDataModelInstance">
+          <span class="result" data-bind="text: boundProperty"></span>
+        </dataModel>
+      </div>
+
+      <div id="registeredDataModelGenerated">
+        <dataModel module="registeredDataModelGenerated">
+          <span class="result" data-bind="text: boundProperty"></span>
+        </dataModel>
       </div>
 
       <div id="afterBindingDataModelAnimation">

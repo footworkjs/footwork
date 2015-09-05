@@ -234,6 +234,52 @@ describe('dataModel', function () {
     }, 0);
   });
 
+  it('can bind to the DOM using a shared instance', function(done) {
+    var wasInitialized = false;
+    var container = document.getElementById('registeredDataModelInstance');
+    var boundPropertyValue = 'registeredDataModelInstance';
+
+    fw.dataModels.register('registeredDataModelInstance', {
+      instance: {
+        boundProperty: boundPropertyValue
+      }
+    });
+
+    expect(wasInitialized).to.be(false);
+    expect($('#registeredDataModelInstance .result').text()).not.to.be(boundPropertyValue);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect($('#registeredDataModelInstance .result').text()).to.be(boundPropertyValue);
+      done();
+    }, 20);
+  });
+
+  it('can bind to the DOM using a generated instance', function(done) {
+    var wasInitialized = false;
+    var container = document.getElementById('registeredDataModelGenerated');
+    var boundPropertyValue = 'registeredDataModelGenerated';
+
+    fw.dataModels.register('registeredDataModelGenerated', {
+      createDataModel: function() {
+        return {
+          boundProperty: boundPropertyValue
+        };
+      }
+    });
+
+    expect(wasInitialized).to.be(false);
+    expect($('#registeredDataModelGenerated .result').text()).not.to.be(boundPropertyValue);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect($('#registeredDataModelGenerated .result').text()).to.be(boundPropertyValue);
+      done();
+    }, 20);
+  });
+
   it('has the animation classes applied properly', function(done) {
     var wasInitialized = false;
     var container = document.getElementById('afterBindingDataModelAnimation');
