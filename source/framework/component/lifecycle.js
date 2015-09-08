@@ -71,7 +71,6 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     if(!isInternalComponent(componentName)) {
       callback(function(params, componentInfo) {
         var componentElement = componentInfo.element;
-        var $element = (componentElement.nodeType === 8 ? (componentElement.parentElement || componentElement.parentNode) : componentElement);
 
         if(isFunction(ViewModel)) {
           return new ViewModel(params);

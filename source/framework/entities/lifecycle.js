@@ -7,7 +7,7 @@ function setupContextAndLifeCycle(entity, element) {
     element = element || document.body;
 
     var context;
-    var elementContext;
+    var entityContext;
     var $configParams = entity.__private('configParams');
     if(element.tagName.toLowerCase() === 'binding-wrapper') {
       element = element.parentElement || element.parentNode;
@@ -18,8 +18,7 @@ function setupContextAndLifeCycle(entity, element) {
     }
 
     entity.__private('element', element);
-    entity.$element = element;
-    entity.$context = elementContext = fw.contextFor(element);
+    entity.$context = entityContext = fw.contextFor(element);
 
     if( isFunction($configParams.afterBinding) ) {
         var afterBinding = noop;
@@ -27,19 +26,19 @@ function setupContextAndLifeCycle(entity, element) {
           afterBinding = $configParams.afterBinding;
         }
 
-        $configParams.afterBinding = function(element) {
+        $configParams.afterBinding = function(containerElement) {
           setTimeout(function() {
-            if(element.className.indexOf(bindingClassName) === -1) {
-              element.className += ' ' + bindingClassName;
+            if(containerElement.className.indexOf(bindingClassName) === -1) {
+              containerElement.className += ' ' + bindingClassName;
             }
           }, animationIteration);
-          afterBinding.call(this, element);
+          afterBinding.call(this, containerElement);
         };
       $configParams.afterBinding.call(entity, element);
     }
 
     if( isRouter(entity) ) {
-      entity.__private('context')(elementContext);
+      entity.__private('context')(entityContext);
     }
 
     if( !isUndefined(element) ) {

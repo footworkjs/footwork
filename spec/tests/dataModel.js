@@ -131,33 +131,17 @@ describe('dataModel', function () {
   });
 
   it('after binding has the correct containing $element referenced', function(done) {
-    var hasElementReference = false;
-    var checkForReference;
-    var modelA;
     var container = document.getElementById('afterBindingDataModelElementReference');
 
-    var ModelA = fw.dataModel({
+    var ModelA = fw.viewModel({
       namespace: 'ModelA',
       afterBinding: function(containingElement) {
-        checkForReference();
+        expect(containingElement).to.be(container);
+        done();
       }
     });
 
-    checkForReference = function() {
-      if( _.isObject(modelA.$element) ) {
-        hasElementReference = true;
-      }
-
-      expect(modelA.$element).to.be.an('object');
-      expect(modelA.$element).to.be(container);
-      done();
-    };
-
-    modelA = new ModelA();
-
-    expect(hasElementReference).to.be(false);
-
-    fw.applyBindings(modelA, container);
+    fw.applyBindings(new ModelA(), container);
   });
 
   it('can register a dataModel', function() {

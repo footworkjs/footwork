@@ -4,7 +4,6 @@
 var ViewModel = function(descriptor, configParams) {
   return {
     mixin: {
-      $params: result(configParams, 'params'),
       $trackSub: function(subscription) {
         var subscriptions = this.__private('subscriptions');
         if(!isArray(subscriptions)) {
