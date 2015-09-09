@@ -8923,6 +8923,7 @@ var Router = function(descriptor, configParams) {
             id: routeDescription.id,
             controller: routeDescription.controller,
             title: routeDescription.title,
+            name: routeDescription.name,
             url: url,
             segment: url.substr(0, url.length - splatSegment.length),
             indexedParams: routeParams,
@@ -9030,6 +9031,15 @@ var Router = function(descriptor, configParams) {
           }
         }, this));
       }
+
+      this.matchesRoute = function(routeName, path) {
+        var route = getRouteForURL(path);
+        routeName = [].concat(routeName);
+        if(!isNull(route)) {
+          return routeName.indexOf(route.name) !== -1;
+        }
+        return false;
+      };
     },
     mixin: {
       setRoutes: function(routeDesc) {
@@ -9077,33 +9087,59 @@ var Router = function(descriptor, configParams) {
         }
         return this;
       },
-      setState: function(url) {
-        if( this.__private('historyIsEnabled')() && !this.__private('disableHistory')() ) {
-          if(isString(url)) {
-            var historyAPIWorked = true;
-            try {
-              historyAPIWorked = History.pushState(null, '', this.__private('configParams').baseRoute + this.__private('parentRouter')().path() + url.replace(startingHashRegex, '/'));
-            } catch(historyException) {
-              historyAPIWorked = false;
-            } finally {
-              if(historyAPIWorked) {
-                return;
-              }
-            }
-          } else if(isFunction(History.getState)) {
-            this.__private('currentState')( this.__private('normalizeURL')(History.getState().url ) );
+      setState: function(url, routeParams) {
+        var namedRoute = isObject(routeParams) ? url : null;
+        var configParams = this.__private('configParams');
+        var continueToRoute = true;
+
+        if(!isNull(namedRoute)) {
+          // must convert namedRoute into its URL form
+          var routeDescription = find(this.routeDescriptions, function(route) {
+            return route.name === namedRoute;
+          });
+
+          if(!isUndefined(routeDescription)) {
+            url = routeDescription.route;
+            each(routeParams, function(value, fieldName) {
+              url = url.replace(':' + fieldName, routeParams[fieldName]);
+            });
+          } else {
+            throw new Error('Could not locate named route:', namedRoute);
           }
-        } else if(isString(url)) {
-          this.__private('currentState')( this.__private('normalizeURL')(url ) );
-        } else {
-          this.__private('currentState')('/');
         }
 
-        if(!historyIsReady()) {
-          var routePath = this.path();
-          each(this.__private('childRouters')(), function(childRouter) {
-            childRouter.__private('currentState')(routePath);
-          });
+        if(isFunction(configParams.beforeRoute)) {
+          continueToRoute = configParams.beforeRoute.call(this, url || '/');
+        }
+
+        if(continueToRoute) {
+          if( this.__private('historyIsEnabled')() && !this.__private('disableHistory')() ) {
+            if(isString(url)) {
+              var historyAPIWorked = true;
+              try {
+                historyAPIWorked = History.pushState(null, '', configParams.baseRoute + this.__private('parentRouter')().path() + url.replace(startingHashRegex, '/'));
+              } catch(historyException) {
+                historyAPIWorked = false;
+              } finally {
+                if(historyAPIWorked) {
+                  return;
+                }
+              }
+            } else if(isFunction(History.getState)) {
+              this.__private('currentState')( this.__private('normalizeURL')(History.getState().url ) );
+            }
+          } else if(isString(url)) {
+            this.__private('currentState')( this.__private('normalizeURL')(url ) );
+          } else {
+            this.__private('currentState')('/');
+          }
+
+          if(!historyIsReady()) {
+            var routePath = this.path();
+            each(this.__private('childRouters')(), function(childRouter) {
+              childRouter.__private('currentState')(routePath);
+            });
+          }
         }
 
         return this;
@@ -9198,6 +9234,7 @@ entityDescriptors = entityDescriptors.concat([
       baseRoute: null,
       isRelative: true,
       activate: true,
+      beforeRoute: null,
       routes: []
     }
   }
