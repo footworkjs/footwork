@@ -54,6 +54,7 @@ entityDescriptors = entityDescriptors.concat([
       baseRoute: null,
       isRelative: true,
       activate: true,
+      beforeRoute: null,
       routes: []
     }
   }

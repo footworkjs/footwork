@@ -104,6 +104,85 @@ describe('router', function () {
     }, []).length ).to.be( routesList.length );
   });
 
+  it('can trigger beforeRoute with appropriate (filled in) url', function() {
+    var Router = fw.router({
+      namespace: 'instantiatedListOfRoutes',
+      beforeRoute: function(url) {
+        beforeRouteRan = true;
+        expect(url).to.be('/with/1/param');
+      },
+      routes: [
+        {
+          name: 'withParam',
+          route: '/with/:num/param'
+        }
+      ]
+    });
+
+    var beforeRouteRan = false;
+    var router = new Router();
+
+    expect(beforeRouteRan).to.be(false);
+    router.setState('/with/1/param');
+    expect(beforeRouteRan).to.be(true);
+  });
+
+  it('can trigger named route with appropriately filled in data', function() {
+    var beforeRouteRan = false;
+    var activated = false;
+
+    var Router = fw.router({
+      namespace: 'instantiatedListOfRoutes',
+      beforeRoute: function(url) {
+        if(activated) {
+          beforeRouteRan = true;
+          expect(url).to.be('/with/1/param');
+        }
+      },
+      routes: [
+        {
+          name: 'withParam',
+          route: '/with/:num/param'
+        }
+      ]
+    });
+
+    var router = new Router();
+    router.activate();
+    activated = true;
+
+    expect(beforeRouteRan).to.be(false);
+    router.setState('withParam', { num: 1 });
+    expect(beforeRouteRan).to.be(true);
+  });
+
+  it('can be instantiated with a list of named routes and then matched against that name or set of names', function() {
+    var Router = fw.router({
+      namespace: 'instantiatedListOfRoutes',
+      routes: [
+        {
+          name: 'home',
+          route: '/'
+        },
+        {
+          name: 'underHome',
+          route: '/under-home'
+        },
+        {
+          name: 'withParam',
+          route: '/with/:num/param'
+        }
+      ]
+    });
+
+    var router = new Router();
+
+    expect(router.matchesRoute('home', '/')).to.be(true);
+    expect(router.matchesRoute('underHome', '/under-home')).to.be(true);
+    expect(router.matchesRoute('withParam', '/with/123/param')).to.be(true);
+    expect(router.matchesRoute(['withParam', 'underHome'], '/with/123/param')).to.be(true);
+  });
+
   it('can be instantiated declaratively from an autoRegistered router', function(done) {
     var container = document.getElementById('declarativeRouterInstantiation');
     var wasInitialized = false;
