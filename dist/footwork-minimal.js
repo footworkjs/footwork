@@ -2143,7 +2143,6 @@ fw.isReceivable = function(thing) {
 var ViewModel = function(descriptor, configParams) {
   return {
     mixin: {
-      $params: result(configParams, 'params'),
       $trackSub: function(subscription) {
         var subscriptions = this.__private('subscriptions');
         if(!isArray(subscriptions)) {
@@ -3180,20 +3179,22 @@ var Router = function(descriptor, configParams) {
 
         // find all routes with a matching routeString
         var matchedRoutes = reduce($router.routeDescriptions, function(matches, routeDescription) {
-          var routeString = routeDescription.route;
-          var routeParams = [];
+          var routeDescRoute = [].concat(routeDescription.route);
+          each(routeDescRoute, function(routeString) {
+            var routeParams = [];
 
-          if( isString(routeString) ) {
-            routeParams = url.match(routeStringToRegExp(routeString));
-            if( !isNull(routeParams) && routeDescription.filter.call($router, routeParams, router.urlParts.peek()) ) {
-              matches.push({
-                routeString: routeString,
-                specificity: routeString.replace(namedParamRegex, "*").length,
-                routeDescription: routeDescription,
-                routeParams: routeParams
-              });
+            if( isString(routeString) ) {
+              routeParams = url.match(routeStringToRegExp(routeString));
+              if( !isNull(routeParams) && routeDescription.filter.call($router, routeParams, router.urlParts.peek()) ) {
+                matches.push({
+                  routeString: routeString,
+                  specificity: routeString.replace(namedParamRegex, "*").length,
+                  routeDescription: routeDescription,
+                  routeParams: routeParams
+                });
+              }
             }
-          }
+          });
           return matches;
         }, []);
 
@@ -3589,10 +3590,11 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
         } else if( isFunction(resourceLocation) ) {
           bindModel( resourceLocation );
         } else if( isObject(resourceLocation) ) {
+          var createInstance = resourceLocation.createViewModel || resourceLocation.createDataModel;
           if( isObject(resourceLocation.instance) ) {
             bindModel( resourceLocation.instance );
-          } else if( isFunction(resourceLocation.createViewModel) ) {
-            bindModel( resourceLocation.createViewModel( values.params, { element: element } ) );
+          } else if( isFunction(createInstance) ) {
+            bindModel( createInstance( values.params, { element: element } ) );
           }
         }
       }
@@ -3643,7 +3645,7 @@ function setupContextAndLifeCycle(entity, element) {
     element = element || document.body;
 
     var context;
-    var elementContext;
+    var entityContext;
     var $configParams = entity.__private('configParams');
     if(element.tagName.toLowerCase() === 'binding-wrapper') {
       element = element.parentElement || element.parentNode;
@@ -3654,8 +3656,7 @@ function setupContextAndLifeCycle(entity, element) {
     }
 
     entity.__private('element', element);
-    entity.$element = element;
-    entity.$context = elementContext = fw.contextFor(element);
+    entity.$context = entityContext = fw.contextFor(element);
 
     if( isFunction($configParams.afterBinding) ) {
         var afterBinding = noop;
@@ -3663,18 +3664,19 @@ function setupContextAndLifeCycle(entity, element) {
           afterBinding = $configParams.afterBinding;
         }
 
-        $configParams.afterBinding = function(element) {
+        $configParams.afterBinding = function(containerElement) {
           setTimeout(function() {
-            if(element.className.indexOf(bindingClassName) === -1)
-            element.className += ' ' + bindingClassName;
+            if(containerElement.className.indexOf(bindingClassName) === -1) {
+              containerElement.className += ' ' + bindingClassName;
+            }
           }, animationIteration);
-          afterBinding.call(this, element);
+          afterBinding.call(this, containerElement);
         };
       $configParams.afterBinding.call(entity, element);
     }
 
     if( isRouter(entity) ) {
-      entity.__private('context')(elementContext);
+      entity.__private('context')(entityContext);
     }
 
     if( !isUndefined(element) ) {
@@ -4295,7 +4297,6 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     if(!isInternalComponent(componentName)) {
       callback(function(params, componentInfo) {
         var componentElement = componentInfo.element;
-        var $element = (componentElement.nodeType === 8 ? (componentElement.parentElement || componentElement.parentNode) : componentElement);
 
         if(isFunction(ViewModel)) {
           return new ViewModel(params);
