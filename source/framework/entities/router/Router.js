@@ -77,20 +77,22 @@ var Router = function(descriptor, configParams) {
 
         // find all routes with a matching routeString
         var matchedRoutes = reduce($router.routeDescriptions, function(matches, routeDescription) {
-          var routeString = routeDescription.route;
-          var routeParams = [];
+          var routeDescRoute = [].concat(routeDescription.route);
+          each(routeDescRoute, function(routeString) {
+            var routeParams = [];
 
-          if( isString(routeString) ) {
-            routeParams = url.match(routeStringToRegExp(routeString));
-            if( !isNull(routeParams) && routeDescription.filter.call($router, routeParams, router.urlParts.peek()) ) {
-              matches.push({
-                routeString: routeString,
-                specificity: routeString.replace(namedParamRegex, "*").length,
-                routeDescription: routeDescription,
-                routeParams: routeParams
-              });
+            if( isString(routeString) ) {
+              routeParams = url.match(routeStringToRegExp(routeString));
+              if( !isNull(routeParams) && routeDescription.filter.call($router, routeParams, router.urlParts.peek()) ) {
+                matches.push({
+                  routeString: routeString,
+                  specificity: routeString.replace(namedParamRegex, "*").length,
+                  routeDescription: routeDescription,
+                  routeParams: routeParams
+                });
+              }
             }
-          }
+          });
           return matches;
         }, []);
 

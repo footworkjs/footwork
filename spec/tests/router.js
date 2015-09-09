@@ -310,6 +310,38 @@ describe('router', function () {
     }, 40);
   });
 
+  it('can trigger a specified route that is defined within an array of route strings', function(done) {
+    var container = document.getElementById('specifiedRouteArrayCheck');
+    var specifiedRouteRan = false;
+    var router;
+
+    fw.router({
+      namespace: 'specifiedRouteArrayCheck',
+      autoRegister: true,
+      initialize: function() {
+        router = this;
+      },
+      routes: [
+        {
+          route: [ '/specifiedArrayRoute', '/specifiedArrayRoute2' ],
+          controller: function() {
+            specifiedRouteRan = true;
+          }
+        }
+      ]
+    });
+
+    expect(specifiedRouteRan).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      router.setState('/specifiedArrayRoute2');
+      expect(specifiedRouteRan).to.be(true);
+      done();
+    }, 40);
+  });
+
   it('can trigger a specified route with a required parameter', function(done) {
     var container = document.getElementById('specifiedRouteWithReqParamCheck');
     var specifiedRouteRan = false;
