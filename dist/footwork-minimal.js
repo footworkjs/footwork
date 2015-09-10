@@ -3391,6 +3391,7 @@ var Router = function(descriptor, configParams) {
         var namedRoute = isObject(routeParams) ? url : null;
         var configParams = this.__private('configParams');
         var continueToRoute = true;
+        var useHistory = this.__private('historyIsEnabled')() && !this.__private('disableHistory')();
 
         if(!isNull(namedRoute)) {
           // must convert namedRoute into its URL form
@@ -3408,13 +3409,22 @@ var Router = function(descriptor, configParams) {
           }
         }
 
+        var isExternalURL = isString(url);
+        if(!isString(url) && useHistory && isFunction(History.getState)) {
+          url = History.getState().url;
+        }
+
+        if(!isExternalURL) {
+          url = this.__private('normalizeURL')(url);
+        }
+
         if(isFunction(configParams.beforeRoute)) {
           continueToRoute = configParams.beforeRoute.call(this, url || '/');
         }
 
         if(continueToRoute) {
-          if( this.__private('historyIsEnabled')() && !this.__private('disableHistory')() ) {
-            if(isString(url)) {
+          if(useHistory) {
+            if(isExternalURL) {
               var historyAPIWorked = true;
               try {
                 historyAPIWorked = History.pushState(null, '', configParams.baseRoute + this.__private('parentRouter')().path() + url.replace(startingHashRegex, '/'));
@@ -3425,11 +3435,11 @@ var Router = function(descriptor, configParams) {
                   return;
                 }
               }
-            } else if(isFunction(History.getState)) {
-              this.__private('currentState')( this.__private('normalizeURL')(History.getState().url ) );
+            } else {
+              this.__private('currentState')( this.__private('normalizeURL')(url) );
             }
-          } else if(isString(url)) {
-            this.__private('currentState')( this.__private('normalizeURL')(url ) );
+          } else if(isExternalURL) {
+            this.__private('currentState')( this.__private('normalizeURL')(url) );
           } else {
             this.__private('currentState')('/');
           }

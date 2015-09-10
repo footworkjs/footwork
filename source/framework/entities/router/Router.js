@@ -289,7 +289,7 @@ var Router = function(descriptor, configParams) {
         var namedRoute = isObject(routeParams) ? url : null;
         var configParams = this.__private('configParams');
         var continueToRoute = true;
-        var useHistory = this.__private('historyIsEnabled')() && !this.__private('disableHistory')();
+        var useHistory = this.__private('historyIsEnabled')() && !this.__private('disableHistory')() && isFunction(History.getState);
 
         if(!isNull(namedRoute)) {
           // must convert namedRoute into its URL form
@@ -308,7 +308,7 @@ var Router = function(descriptor, configParams) {
         }
 
         var isExternalURL = isString(url);
-        if(!isString(url) && useHistory && isFunction(History.getState)) {
+        if(!isString(url) && useHistory) {
           url = History.getState().url;
         }
 
