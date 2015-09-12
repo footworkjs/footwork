@@ -132,7 +132,7 @@ describe('router', function () {
     var activated = false;
 
     var Router = fw.router({
-      namespace: 'instantiatedListOfRoutes',
+      namespace: 'namedRoute',
       beforeRoute: function(url) {
         if(activated) {
           beforeRouteRan = true;
@@ -153,6 +153,39 @@ describe('router', function () {
 
     expect(beforeRouteRan).to.be(false);
     router.setState('withParam', { num: 1 });
+    expect(beforeRouteRan).to.be(true);
+  });
+
+  it('can trigger named route via COMMAND with appropriately filled in data', function() {
+    var beforeRouteRan = false;
+    var activated = false;
+    var routerNamespace = 'namedRouteViaCommand';
+
+    var Router = fw.router({
+      namespace: routerNamespace,
+      beforeRoute: function(url) {
+        if(activated) {
+          beforeRouteRan = true;
+          expect(url).to.be('/with/1/param');
+        }
+      },
+      routes: [
+        {
+          name: 'withParam',
+          route: '/with/:num/param'
+        }
+      ]
+    });
+
+    var router = new Router();
+    router.activate();
+    activated = true;
+
+    expect(beforeRouteRan).to.be(false);
+    fw.namespace(routerNamespace).command('setState', {
+      name: 'withParam',
+      params: { num: 1 }
+    });
     expect(beforeRouteRan).to.be(true);
   });
 

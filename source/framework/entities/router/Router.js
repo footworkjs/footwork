@@ -177,9 +177,18 @@ var Router = function(descriptor, configParams) {
         return (this.isRelative() ? this.parentRouter().path() : '') + routeSegment;
       }, router);
 
-      this.$namespace.command.handler('setState', this.setState, this);
-      this.$namespace.request.handler('currentRoute', function() { return this.currentRoute(); }, this);
-      this.$namespace.request.handler('urlParts', function() { return router.urlParts(); }, this);
+      this.$namespace.command.handler('setState', function(state) {
+        var route = state;
+        var params = state.params;
+
+        if(isObject(state)) {
+          route = state.name;
+        }
+
+        $router.setState(route, params);
+      });
+      this.$namespace.request.handler('currentRoute', function() { return $router.currentRoute(); });
+      this.$namespace.request.handler('urlParts', function() { return $router.urlParts(); });
 
       var parentPathSubscription;
       var $previousParent = $nullRouter;
