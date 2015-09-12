@@ -109,8 +109,8 @@ fw.bindingHandlers.$route = {
         mySegment = mySegment.replace(startingHashRegex, '/');
 
         if(isObject(currentRoute)) {
-          if(routeHandlerDescription.addActiveClass) {
-            var activeRouteClassName = routeHandlerDescription.activeClass || fw.routers.activeRouteClassName();
+          if(result(routeHandlerDescription, 'addActiveClass')) {
+            var activeRouteClassName = result(routeHandlerDescription, 'activeClass') || fw.routers.activeRouteClassName();
             if(mySegment === '/') {
               mySegment = '';
             }

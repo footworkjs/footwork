@@ -300,9 +300,35 @@
         </router>
       </div>
 
+      <div id="routeHrefBindingCustomActiveClassObservable">
+        <router module="routeHrefBindingCustomActiveClassObservable">
+          <viewModel module="routeHrefBindingCustomActiveClassObservable">
+            <a data-bind="$route: { url: '/routeHrefBindingCustomActiveClassObservable', activeClass: activeClassObservable }"></a>
+          </viewModel>
+        </router>
+      </div>
+
       <div id="routeHrefBindingDisabledActiveClass">
         <router module="routeHrefBindingDisabledActiveClass">
           <a data-bind="$route: { url: '/routeHrefBindingDisabledActiveClass', addActiveClass: false }"></a>
+        </router>
+      </div>
+
+      <div id="routeHrefBindingDisabledActiveClassObservable">
+        <router module="routeHrefBindingDisabledActiveClassObservable">
+          <a data-bind="$route: { url: '/routeHrefBindingDisabledActiveClassObservable', addActiveClass: disableActiveClass }"></a>
+        </router>
+      </div>
+
+      <div id="routeHrefBindingCustomEvent">
+        <router module="routeHrefBindingCustomEvent">
+          <a data-bind="$route: { url: '/routeHrefBindingCustomEvent', on: 'dblclick' }"></a>
+        </router>
+      </div>
+
+      <div id="routeHrefBindingCustomEventObservable">
+        <router module="routeHrefBindingCustomEventObservable">
+          <a data-bind="$route: { url: '/routeHrefBindingCustomEventObservable', on: 'dblclick' }"></a>
         </router>
       </div>
 
