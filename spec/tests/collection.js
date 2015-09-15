@@ -3,7 +3,7 @@
 var sandbox = document.getElementById('sandbox');
 
 describe('collection', function () {
-  it('can be instantiated and correctly $set() with some data', function() {
+  it('can be instantiated and correctly set() with some data', function() {
     var person1Data = {
       "firstName": "PersonFirstNameTest",
       "lastName": "PersonLastNameTest",
@@ -33,7 +33,7 @@ describe('collection', function () {
 
     expect(people().length).to.be(0);
 
-    people.$set([ person1Data, person2Data ]);
+    people.set([ person1Data, person2Data ]);
 
     expect(people().length).to.be(2);
     expect(people()[0].firstName()).to.be(person1Data.firstName);
@@ -77,13 +77,13 @@ describe('collection', function () {
     expect(people().length).to.be(0);
 
     var peopleData = [ person1Data, person2Data ];
-    people.$set(peopleData);
+    people.set(peopleData);
 
     expect(people().length).to.be(2);
-    expect(people.$get()).to.eql(peopleData);
+    expect(people.get()).to.eql(peopleData);
   });
 
-  it('can correctly trigger change/add/remove events for dataModels in a $set() call as appropriate', function() {
+  it('can correctly trigger change/add/remove events for dataModels in a set() call as appropriate', function() {
     var peopleData = {
       "person1Data": {
         "id": 1,
@@ -137,7 +137,7 @@ describe('collection', function () {
             expect(dataModel.__isDataModel).to.be(true)
           }
 
-          if(_.isEqual(person, _.pick(dataModel.$get(), fieldNames))) {
+          if(_.isEqual(person, _.pick(dataModel.get(), fieldNames))) {
             if(!_.isUndefined(recordedEvents[expectedEventKey])) {
               recordedEvents[expectedEventKey]++;
             } else {
@@ -161,7 +161,7 @@ describe('collection', function () {
     });
     expect(people().length).to.be(0);
 
-    people.$set(_.values(peopleData));
+    people.set(_.values(peopleData));
     expect(recordedEvents).to.eql({
       'person1Data _.add': 1,
       'person1Data _.change': 0,
@@ -172,7 +172,7 @@ describe('collection', function () {
     });
     expect(people().length).to.be(2);
 
-    people.$set([ peopleData.person1Data ]);
+    people.set([ peopleData.person1Data ]);
     expect(recordedEvents).to.eql({
       'person1Data _.add': 1,
       'person1Data _.change': 0,
@@ -183,7 +183,7 @@ describe('collection', function () {
     });
 
     _.extend(peopleData.person1Data, { firstName: 'changeTest1' });
-    people.$set([ peopleData.person1Data, peopleData.person2Data ]);
+    people.set([ peopleData.person1Data, peopleData.person2Data ]);
     expect(recordedEvents).to.eql({
       'person1Data _.add': 1,
       'person1Data _.change': 1,
@@ -194,7 +194,7 @@ describe('collection', function () {
     });
 
     peopleData.person1Data = _.omit(peopleData.person1Data, 'id');
-    people.$set([ peopleData.person1Data, peopleData.person2Data ]);
+    people.set([ peopleData.person1Data, peopleData.person2Data ]);
     expect(recordedEvents).to.eql({
       'person1Data _.add': 2,
       'person1Data _.change': 1,
@@ -207,7 +207,7 @@ describe('collection', function () {
     expect(_.values(unexpectedEvents).length).to.be(0);
   });
 
-  it('can be instantiated and $reset() correctly', function() {
+  it('can be instantiated and reset() correctly', function() {
     var peopleData = {
       "person1Data": {
         "id": 1,
@@ -248,10 +248,10 @@ describe('collection', function () {
     expect(resetTriggered).to.be(false);
 
     expect(people().length).to.be(0);
-    people.$set(_.values(peopleData));
+    people.set(_.values(peopleData));
     expect(people().length).to.be(2);
 
-    people.$reset(_.values(peopleData));
+    people.reset(_.values(peopleData));
     expect(resetTriggered).to.be(true);
     expect(people().length).to.be(2);
 
@@ -263,7 +263,7 @@ describe('collection', function () {
     expect(people()[1].email()).to.be(peopleData.person2Data.email);
   });
 
-  it('can correctly $fetch() and $set data from the server', function(done) {
+  it('can correctly fetch() and set data from the server', function(done) {
     var personData = {
       "firstName": "PeopleFirstNameTest",
       "lastName": null,
@@ -303,7 +303,7 @@ describe('collection', function () {
     });
     var people = new PeopleCollection();
 
-    people.$fetch();
+    people.fetch();
     setTimeout(function() {
       expect(people().length).to.be(peopleData.length);
       expect(people()[0].firstName()).to.be(personData.firstName);
@@ -311,7 +311,7 @@ describe('collection', function () {
     }, 40);
   });
 
-  it('can correctly $fetch() and $reset data from the server', function(done) {
+  it('can correctly fetch() and reset data from the server', function(done) {
     var personData = {
       "firstName": "PeopleFirstNameTest",
       "lastName": null,
@@ -357,7 +357,7 @@ describe('collection', function () {
 
     expect(resetTriggered).to.be(false);
 
-    people.$fetch({ reset: true });
+    people.fetch({ reset: true });
     setTimeout(function() {
       expect(resetTriggered).to.be(true);
       expect(people().length).to.be(peopleData.length);

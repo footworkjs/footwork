@@ -2,15 +2,15 @@
 // ------------------
 
 var collectionMethods = {
-  $sync: function() {
+  sync: function() {
     return fw.sync.apply(this, arguments);
   },
-  $get: function(id) {
+  get: function(id) {
     return find(this(), function findModelWithId(model) {
       return model.$id() === id || model.$cid() === id;
     });
   },
-  $set: function(newCollection) {
+  set: function(newCollection) {
     var collection = this;
     var collectionStore = collection();
     var DataModelCtor = collection.__private('configParams').dataModel;
@@ -22,7 +22,7 @@ var collectionMethods = {
       var modelPresent = false;
 
       each(collectionStore, function lookForModel(model) {
-        var collectionModelData = model.$get();
+        var collectionModelData = model.get();
         var modelFields = keys(collectionModelData);
 
         modelData = pick(modelData, modelFields);
@@ -30,7 +30,7 @@ var collectionMethods = {
           modelPresent = true;
           if(!isEqual(modelData, collectionModelData)) {
             // found model, but needs an update
-            model.$set(modelData);
+            model.set(modelData);
             collection.$namespace.publish('_.change', model);
             touchedModels.push(model);
           }
@@ -47,7 +47,7 @@ var collectionMethods = {
 
     each(collectionStore, function checkForRemovals(model) {
       var modelPresent = false;
-      var collectionModelData = model.$get();
+      var collectionModelData = model.get();
       var modelFields = filter(keys(collectionModelData), function(thing) { return thing !== idAttribute; });
 
       each(newCollection, function isModelPresent(modelData) {
@@ -69,7 +69,7 @@ var collectionMethods = {
 
     return touchedModels;
   },
-  $reset: function(newCollection) {
+  reset: function(newCollection) {
     var oldModels = this.removeAll();
     var DataModelCtor = this.__private('configParams').dataModel;
 
@@ -82,27 +82,27 @@ var collectionMethods = {
 
     return this();
   },
-  $fetch: function(options) {
+  fetch: function(options) {
     options = options ? clone(options) : {};
 
     if(isUndefined(options.parse)) {
       options.parse = true;
     }
 
-    var xhr = this.$sync('read', this, options);
+    var xhr = this.sync('read', this, options);
 
     var collection = this;
     xhr.done(function(resp) {
-      var method = options.reset ? '$reset' : '$set';
+      var method = options.reset ? 'reset' : 'set';
       collection[method](resp, options);
       collection.$namespace.publish('sync', collection, resp, options);
     });
 
     return xhr;
   },
-  $get: function() {
+  get: function() {
     return reduce(this(), function(models, model) {
-      models.push(model.$get());
+      models.push(model.get());
       return models;
     }, []);
   }

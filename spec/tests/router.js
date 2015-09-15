@@ -556,7 +556,7 @@ describe('router', function () {
           route: '/manipulateOutlet',
           controller: function() {
             controllerRan = true;
-            this.$outlet('output', 'manipulateOutletComponent');
+            this.outlet('output', 'manipulateOutletComponent');
           }
         }
       ]
@@ -628,7 +628,7 @@ describe('router', function () {
           route: '/outletCallback',
           controller: function() {
             controllerRan = true;
-            this.$outlet('output', 'outletCallbackComponent', function(element) {
+            this.outlet('output', 'outletCallbackComponent', function(element) {
               expect(element.tagName.toLowerCase()).to.be('outlet');
               expect(element.children[0].className).to.be('outletCallbackComponent');
               outletCallbackRan = true;
@@ -688,7 +688,7 @@ describe('router', function () {
           route: '/outletAfterRouter',
           controller: function() {
             controllerRan = true;
-            this.$outlet('output', 'outletAfterRouter', function(element) {
+            this.outlet('output', 'outletAfterRouter', function(element) {
               expect(element.tagName.toLowerCase()).to.be('outlet');
               expect(element.children[0].className).to.be('outletAfterRouter');
               outletCallbackRan = true;
@@ -757,7 +757,7 @@ describe('router', function () {
           route: '/outletLoaderTest',
           controller: function() {
             outletLoaderTest.routeHasRun = true;
-            this.$outlet('output', 'outletLoaderTestLoaded', function(element) {
+            this.outlet('output', 'outletLoaderTestLoaded', function(element) {
               outletLoaderTest.afterOutlet = true;
               expect(element.tagName.toLowerCase()).to.be('outlet');
               expect(element.children[0].className).to.be('outletLoaderTestLoaded');
@@ -822,7 +822,7 @@ describe('router', function () {
           route: '/outletLoaderTestCallback',
           controller: function() {
             outletLoaderTest.routeHasRun = true;
-            this.$outlet('output', 'outletLoaderTestCallbackLoaded', function(element) {
+            this.outlet('output', 'outletLoaderTestCallbackLoaded', function(element) {
               outletLoaderTest.afterOutlet = true;
               expect(element.tagName.toLowerCase()).to.be('outlet');
               expect(element.children[0].className).to.be('outletLoaderTestCallbackLoaded');

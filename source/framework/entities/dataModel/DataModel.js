@@ -26,21 +26,21 @@ var DataModel = function(descriptor, configParams) {
       }, this);
     },
     mixin: {
-      // GET from server and $set in model
-      $fetch: function(options) {
+      // GET from server and set in model
+      fetch: function(options) {
         var dataModel = this;
         var id = this[configParams.idAttribute]();
         if(id) {
           // retrieve data dataModel the from server using the id
-          this.$sync('read', dataModel, options)
+          this.sync('read', dataModel, options)
             .done(function(response) {
-              dataModel.$set(configParams.parse ? configParams.parse(response) : response);
+              dataModel.set(configParams.parse ? configParams.parse(response) : response);
             });
         }
       },
 
       // PUT / POST / PATCH to server
-      $save: function(key, val, options) {
+      save: function(key, val, options) {
         var dataModel = this;
         var attrs = null;
 
@@ -63,7 +63,7 @@ var DataModel = function(descriptor, configParams) {
           options.attrs = attrs;
         }
 
-        var syncPromise = dataModel.$sync(method, dataModel, options);
+        var syncPromise = dataModel.sync(method, dataModel, options);
 
         syncPromise.done(function(response) {
           var resourceData = configParams.parse ? configParams.parse(response) : response;
@@ -73,19 +73,19 @@ var DataModel = function(descriptor, configParams) {
           }
 
           if(isObject(resourceData)) {
-            dataModel.$set(resourceData);
+            dataModel.set(resourceData);
           }
         });
 
         if(!options.wait && !isNull(attrs)) {
-          dataModel.$set(attrs);
+          dataModel.set(attrs);
         }
 
         return syncPromise;
       },
 
       // DELETE
-      $destroy: function(options) {
+      destroy: function(options) {
         if(this.$isNew()) {
           return false;
         }
@@ -99,7 +99,7 @@ var DataModel = function(descriptor, configParams) {
           dataModel.$namespace.publish('destroy', options);
         };
 
-        var xhr = this.$sync('delete', this, options);
+        var xhr = this.sync('delete', this, options);
 
         xhr.done(function() {
           dataModel.$id(undefined);
@@ -116,7 +116,7 @@ var DataModel = function(descriptor, configParams) {
       },
 
       // set attributes in model (clears isDirty on observables/fields it saves to by default)
-      $set: function(key, value, options) {
+      set: function(key, value, options) {
         var attributes = {};
 
         if(isString(key)) {
@@ -147,14 +147,14 @@ var DataModel = function(descriptor, configParams) {
         }
       },
 
-      $get: function(referenceField, includeRoot) {
+      get: function(referenceField, includeRoot) {
         var dataModel = this;
         if(isArray(referenceField)) {
           return reduce(referenceField, function(jsObject, fieldMap) {
-            return merge(jsObject, dataModel.$get(fieldMap, true));
+            return merge(jsObject, dataModel.get(fieldMap, true));
           }, {});
         } else if(!isUndefined(referenceField) && !isString(referenceField)) {
-          throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.$get().');
+          throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.get().');
         }
 
         var mappedObject = reduce(this.__private('mappings')(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
@@ -167,7 +167,7 @@ var DataModel = function(descriptor, configParams) {
         return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
       },
 
-      $clean: function(field) {
+      clean: function(field) {
         if(!isUndefined(field)) {
           var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
         }
@@ -178,30 +178,27 @@ var DataModel = function(descriptor, configParams) {
         });
       },
 
-      $sync: function() {
+      sync: function() {
         return fw.sync.apply(this, arguments);
       },
 
-      $hasMappedField: function(referenceField) {
+      hasMappedField: function(referenceField) {
         return !!this.__private('mappings')()[referenceField];
       },
 
-      $dirtyMap: function() {
+      dirtyMap: function() {
         var tree = {};
         each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
           tree[fieldMap] = fieldObservable.isDirty();
         });
         return tree;
-      },
-
-      $valid: function( referenceField ) {}, // get validation of entire model or selected field
-      $validate: function() {} // perform a validation and return the result on a specific field or the entire model
+      }
     },
     _postInit: function() {
       if(configParams.autoIncrement) {
-        this.$rootNamespace.request.handler('$get', function() { return this.$get(); }.bind(this));
+        this.$rootNamespace.request.handler('get', function() { return this.get(); }.bind(this));
       }
-      this.$namespace.request.handler('$get', function() { return this.$get(); }.bind(this));
+      this.$namespace.request.handler('get', function() { return this.get(); }.bind(this));
 
       this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
         if( isString(options.namespaceName) || isArray(options.namespaceName) ) {

@@ -9,11 +9,11 @@ describe('dataModel', function () {
 
     var dataModel = new (fw.dataModel())();
 
-    expect(dataModel.$fetch).to.be.a('function');
-    expect(dataModel.$save).to.be.a('function');
-    expect(dataModel.$destroy).to.be.a('function');
-    expect(dataModel.$set).to.be.a('function');
-    expect(dataModel.$get).to.be.a('function');
+    expect(dataModel.fetch).to.be.a('function');
+    expect(dataModel.save).to.be.a('function');
+    expect(dataModel.destroy).to.be.a('function');
+    expect(dataModel.set).to.be.a('function');
+    expect(dataModel.get).to.be.a('function');
   });
 
   it('has the ability to create a dataModel with a correctly defined namespace whos name we can retrieve', function() {
@@ -526,8 +526,8 @@ describe('dataModel', function () {
       lastName: 'Smith'
     });
 
-    expect(person.$hasMappedField('firstName')).to.be(true);
-    expect(person.$hasMappedField('lastName')).to.be(true);
+    expect(person.hasMappedField('firstName')).to.be(true);
+    expect(person.hasMappedField('lastName')).to.be(true);
   });
 
   it('can have an observable mapped correctly at a nested level', function() {
@@ -556,15 +556,15 @@ describe('dataModel', function () {
       }
     });
 
-    expect(person.$hasMappedField('firstName')).to.be(true);
-    expect(person.$hasMappedField('lastName')).to.be(true);
-    expect(person.$hasMappedField('movies.action')).to.be(true);
-    expect(person.$hasMappedField('movies.drama')).to.be(true);
-    expect(person.$hasMappedField('movies.comedy')).to.be(true);
-    expect(person.$hasMappedField('movies.horror')).to.be(true);
+    expect(person.hasMappedField('firstName')).to.be(true);
+    expect(person.hasMappedField('lastName')).to.be(true);
+    expect(person.hasMappedField('movies.action')).to.be(true);
+    expect(person.hasMappedField('movies.drama')).to.be(true);
+    expect(person.hasMappedField('movies.comedy')).to.be(true);
+    expect(person.hasMappedField('movies.horror')).to.be(true);
   });
 
-  it('can have observables mapped and retreived correctly via $get', function() {
+  it('can have observables mapped and retreived correctly via get', function() {
     var Person = fw.dataModel({
       namespace: 'Person',
       initialize: function(person) {
@@ -592,10 +592,10 @@ describe('dataModel', function () {
     };
     var person = new Person(personData);
 
-    expect(person.$get()).to.eql(personData);
+    expect(person.get()).to.eql(personData);
   });
 
-  it('can have observables mapped and a specific one retreived correctly via $get', function() {
+  it('can have observables mapped and a specific one retreived correctly via get', function() {
     var Person = fw.dataModel({
       namespace: 'Person',
       initialize: function(person) {
@@ -622,12 +622,12 @@ describe('dataModel', function () {
     };
     var person = new Person(personData);
 
-    expect(person.$get('firstName')).to.eql(personData.firstName);
-    expect(person.$get('movies')).to.eql(personData.movies);
-    expect(person.$get('movies.action')).to.eql(personData.movies.action);
+    expect(person.get('firstName')).to.eql(personData.firstName);
+    expect(person.get('movies')).to.eql(personData.movies);
+    expect(person.get('movies.action')).to.eql(personData.movies.action);
   });
 
-  it('can have observables mapped and an array of values retreived correctly via $get', function() {
+  it('can have observables mapped and an array of values retreived correctly via get', function() {
     var Person = fw.dataModel({
       namespace: 'Person',
       initialize: function(person) {
@@ -654,10 +654,10 @@ describe('dataModel', function () {
     };
     var person = new Person(personData);
 
-    expect(person.$get(['firstName', 'lastName'])).to.eql(_.pick(personData, ['firstName', 'lastName']));
+    expect(person.get(['firstName', 'lastName'])).to.eql(_.pick(personData, ['firstName', 'lastName']));
   });
 
-  it('can have a correct $dirtyMap() produced', function() {
+  it('can have a correct dirtyMap() produced', function() {
     var Person = fw.dataModel({
       namespace: 'Person',
       initialize: function(person) {
@@ -683,7 +683,7 @@ describe('dataModel', function () {
       }
     });
 
-    expect(person.$dirtyMap()).to.eql({
+    expect(person.dirtyMap()).to.eql({
       "id": false,
       "firstName": false,
       "lastName": false,
@@ -696,7 +696,7 @@ describe('dataModel', function () {
     person.firstName('test');
     person.movieCollection.comedy.push('Kung Fury');
 
-    expect(person.$dirtyMap()).to.eql({
+    expect(person.dirtyMap()).to.eql({
       "id": false,
       "firstName": true,
       "lastName": false,
@@ -707,7 +707,7 @@ describe('dataModel', function () {
     });
   });
 
-  it('can load data in using dataModel.$set()', function() {
+  it('can load data in using dataModel.set()', function() {
     var Person = fw.dataModel({
       namespace: 'Person',
       initialize: function(person) {
@@ -736,7 +736,7 @@ describe('dataModel', function () {
 
     expect(person.firstName()).to.eql(undefined);
 
-    person.$set(personData);
+    person.set(personData);
 
     expect(person.firstName()).to.eql(personData.firstName);
   });
@@ -797,7 +797,7 @@ describe('dataModel', function () {
     expect(person.$dirty()).to.be(true);
   });
 
-  it('can correctly POST data on initial $save()', function(done) {
+  it('can correctly POST data on initial save()', function(done) {
     var postValue = '__POST__CHECK__';
     $.mockjax({
       responseTime: 10,
@@ -826,7 +826,7 @@ describe('dataModel', function () {
 
     expect(person.firstName()).not.to.be(postValue);
 
-    person.$save();
+    person.save();
     setTimeout(function() {
       expect(person.$id()).to.be(1);
       expect(person.firstName()).to.be(postValue);
@@ -834,7 +834,7 @@ describe('dataModel', function () {
     }, 40);
   });
 
-  it('can correctly POST data on initial $save() and then PUT on subsequent calls', function(done) {
+  it('can correctly POST data on initial save() and then PUT on subsequent calls', function(done) {
     var postValue = '__POST__CHECK__';
     var putValue = '__PUT__CHECK__';
     var personData = {
@@ -873,13 +873,13 @@ describe('dataModel', function () {
 
     expect(person.firstName()).not.to.be(postValue);
 
-    person.$save();
+    person.save();
     setTimeout(function() {
       expect(person.$id()).to.be(1);
       expect(person.firstName()).to.be(postValue);
 
       expect(person.firstName()).not.to.be(putValue);
-      person.$save();
+      person.save();
       setTimeout(function() {
         expect(person.firstName()).to.be(putValue);
         done();
@@ -887,7 +887,7 @@ describe('dataModel', function () {
     }, 40);
   });
 
-  it('can correctly POST data and apply parse() method with return on $save()', function(done) {
+  it('can correctly POST data and apply parse() method with return on save()', function(done) {
     var postValue = '__POST__CHECK__';
     $.mockjax({
       responseTime: 10,
@@ -920,7 +920,7 @@ describe('dataModel', function () {
 
     expect(person.firstName()).not.to.be(postValue);
 
-    person.$save();
+    person.save();
     setTimeout(function() {
       expect(person.$id()).to.be(1);
       expect(person.firstName()).to.be(postValue);
@@ -928,7 +928,7 @@ describe('dataModel', function () {
     }, 40);
   });
 
-  it('can correctly $fetch() data from the server via a pre-filled idAttribute', function(done) {
+  it('can correctly fetch() data from the server via a pre-filled idAttribute', function(done) {
     var getValue = '__GET__CHECK__';
     var personData = {
       "id": 100,
@@ -959,7 +959,7 @@ describe('dataModel', function () {
 
     expect(person.firstName()).not.to.be(getValue);
 
-    person.$fetch();
+    person.fetch();
     setTimeout(function() {
       expect(person.$id()).to.be(personData.id);
       expect(person.firstName()).to.be(getValue);
@@ -967,7 +967,7 @@ describe('dataModel', function () {
     }, 40);
   });
 
-  it('can correctly $fetch() data from the server with a provided parse() method', function(done) {
+  it('can correctly fetch() data from the server with a provided parse() method', function(done) {
     var getValue = '__GET__CHECK__';
     var personData = {
       "id": 100,
@@ -1002,7 +1002,7 @@ describe('dataModel', function () {
 
     expect(person.firstName()).not.to.be(getValue);
 
-    person.$fetch();
+    person.fetch();
     setTimeout(function() {
       expect(person.$id()).to.be(personData.id);
       expect(person.firstName()).to.be(getValue);
@@ -1010,7 +1010,7 @@ describe('dataModel', function () {
     }, 40);
   });
 
-  it('can correctly $fetch() data from the server via a pre-filled custom idAttribute', function(done) {
+  it('can correctly fetch() data from the server via a pre-filled custom idAttribute', function(done) {
     var getValue = '__GET__CUSTOM__CHECK__';
     var personData = {
       "customId": 100,
@@ -1042,7 +1042,7 @@ describe('dataModel', function () {
 
     expect(person.firstName()).not.to.be(getValue);
 
-    person.$fetch();
+    person.fetch();
     setTimeout(function() {
       expect(person.customId()).to.be(personData.customId);
       expect(person.firstName()).to.be(getValue);
@@ -1050,7 +1050,7 @@ describe('dataModel', function () {
     }, 40);
   });
 
-  it('can correctly $fetch() data from the server via a url based on an evaluator function', function(done) {
+  it('can correctly fetch() data from the server via a url based on an evaluator function', function(done) {
     var getValue = '__GET__CUSTOM__CHECK__';
     var personData = {
       "id": 100,
@@ -1083,7 +1083,7 @@ describe('dataModel', function () {
 
     expect(person.firstName()).not.to.be(getValue);
 
-    person.$fetch();
+    person.fetch();
     setTimeout(function() {
       expect(person.$id()).to.be(personData.id);
       expect(person.firstName()).to.be(getValue);

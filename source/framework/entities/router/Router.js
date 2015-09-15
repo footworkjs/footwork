@@ -134,7 +134,7 @@ var Router = function(descriptor, configParams) {
 
       function DefaultAction() {
         delete router.currentRouteDescription;
-        $router.$outlet.reset();
+        $router.outlet.reset();
       }
 
       function RoutedAction(routeDescription) {
@@ -183,6 +183,7 @@ var Router = function(descriptor, configParams) {
 
         if(isObject(state)) {
           route = state.name;
+          params = params || {};
         }
 
         $router.setState(route, params);
@@ -216,8 +217,8 @@ var Router = function(descriptor, configParams) {
       }, this) );
 
       this.outlets = {};
-      this.$outlet = $routerOutlet.bind(this);
-      this.$outlet.reset = function() {
+      this.outlet = routerOutlet.bind(this);
+      this.outlet.reset = function() {
         each( this.outlets, function(outlet) {
           outlet({ name: noComponentSelected, params: {} });
         });

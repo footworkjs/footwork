@@ -47,7 +47,7 @@ fw.collection = function(configParams) {
     });
 
     if(collectionData) {
-      collection.$set(collectionData);
+      collection.set(collectionData);
     }
 
     return collection;
