@@ -8711,8 +8711,8 @@ fw.bindingHandlers.$route = {
         mySegment = mySegment.replace(startingHashRegex, '/');
 
         if(isObject(currentRoute)) {
-          if(routeHandlerDescription.addActiveClass) {
-            var activeRouteClassName = routeHandlerDescription.activeClass || fw.routers.activeRouteClassName();
+          if(result(routeHandlerDescription, 'addActiveClass')) {
+            var activeRouteClassName = result(routeHandlerDescription, 'activeClass') || fw.routers.activeRouteClassName();
             if(mySegment === '/') {
               mySegment = '';
             }
@@ -8979,9 +8979,18 @@ var Router = function(descriptor, configParams) {
         return (this.isRelative() ? this.parentRouter().path() : '') + routeSegment;
       }, router);
 
-      this.$namespace.command.handler('setState', this.setState, this);
-      this.$namespace.request.handler('currentRoute', function() { return this.currentRoute(); }, this);
-      this.$namespace.request.handler('urlParts', function() { return router.urlParts(); }, this);
+      this.$namespace.command.handler('setState', function(state) {
+        var route = state;
+        var params = state.params;
+
+        if(isObject(state)) {
+          route = state.name;
+        }
+
+        $router.setState(route, params);
+      });
+      this.$namespace.request.handler('currentRoute', function() { return $router.currentRoute(); });
+      this.$namespace.request.handler('urlParts', function() { return $router.urlParts(); });
 
       var parentPathSubscription;
       var $previousParent = $nullRouter;
@@ -9091,7 +9100,7 @@ var Router = function(descriptor, configParams) {
         var namedRoute = isObject(routeParams) ? url : null;
         var configParams = this.__private('configParams');
         var continueToRoute = true;
-        var useHistory = this.__private('historyIsEnabled')() && !this.__private('disableHistory')();
+        var useHistory = this.__private('historyIsEnabled')() && !this.__private('disableHistory')() && isFunction(History.getState);
 
         if(!isNull(namedRoute)) {
           // must convert namedRoute into its URL form
@@ -9110,7 +9119,7 @@ var Router = function(descriptor, configParams) {
         }
 
         var isExternalURL = isString(url);
-        if(!isString(url) && useHistory && isFunction(History.getState)) {
+        if(!isString(url) && useHistory) {
           url = History.getState().url;
         }
 
