@@ -842,6 +842,132 @@ describe('router', function () {
     }, 150);
   });
 
+  it('can display a temporary loading component in place of a component that is being downloaded with a custom minimum transition time', function(done) {
+    var container = document.getElementById('outletLoaderTestMinTime');
+    var outletLoaderTest = {
+      outletLoaderTestMinTimeLoading: false,
+      outletLoaderTestMinTimeLoaded: false,
+      afterOutlet: false,
+      routeHasRun: false
+    };
+
+    function router(name) {
+      return fw.routers.getAll(name)[0];
+    }
+
+    fw.components.register('outletLoaderTestMinTimeLoading', {
+      viewModel: function() {
+        outletLoaderTest.outletLoaderTestMinTimeLoading = true;
+      },
+      template: '<div class="outletLoaderTestMinTimeLoading"></div>',
+      synchronous: true
+    });
+
+    fw.components.register('outletLoaderTestMinTimeLoaded', {
+      viewModel: function() {
+        outletLoaderTest.outletLoaderTestMinTimeLoaded = true;
+      },
+      template: '<div class="outletLoaderTestMinTimeLoaded"></div>'
+    });
+
+    fw.router({
+      namespace: 'outletLoaderTestMinTime',
+      autoRegister: true,
+      showDuringLoad: 'outletLoaderTestMinTimeLoading',
+      minTransitionPeriod: 250,
+      routes: [
+        {
+          route: '/outletLoaderTestMinTime',
+          controller: function() {
+            outletLoaderTest.routeHasRun = true;
+            this.outlet('output', 'outletLoaderTestMinTimeLoaded', function(element) {
+              outletLoaderTest.afterOutlet = true;
+              expect(element.tagName.toLowerCase()).to.be('outlet');
+              expect(element.children[0].className).to.be('outletLoaderTestMinTimeLoaded');
+            });
+          }
+        }
+      ]
+    });
+
+    expect(_.every(outletLoaderTest)).to.be(false);
+    fw.start(container);
+    router('outletLoaderTestMinTime').setState('/outletLoaderTestMinTime');
+
+    setTimeout(function() {
+      expect(_.every(outletLoaderTest)).to.be(false);
+      setTimeout(function() {
+        expect(_.every(outletLoaderTest)).to.be(true);
+      }, 200);
+      done();
+    }, 150);
+  });
+
+  it('can display a temporary loading component in place of a component that is being downloaded with a custom minimum transition time from callback', function(done) {
+    var container = document.getElementById('outletLoaderTestMinTimeCallback');
+    var outletLoaderTest = {
+      outletLoaderTestMinTimeCallbackLoading: false,
+      outletLoaderTestMinTimeCallbackLoaded: false,
+      afterOutlet: false,
+      routeHasRun: false
+    };
+
+    function router(name) {
+      return fw.routers.getAll(name)[0];
+    }
+
+    fw.components.register('outletLoaderTestMinTimeCallbackLoading', {
+      viewModel: function() {
+        outletLoaderTest.outletLoaderTestMinTimeCallbackLoading = true;
+      },
+      template: '<div class="outletLoaderTestMinTimeCallbackLoading"></div>',
+      synchronous: true
+    });
+
+    fw.components.register('outletLoaderTestMinTimeCallbackLoaded', {
+      viewModel: function() {
+        outletLoaderTest.outletLoaderTestMinTimeCallbackLoaded = true;
+      },
+      template: '<div class="outletLoaderTestMinTimeCallbackLoaded"></div>'
+    });
+
+    fw.router({
+      namespace: 'outletLoaderTestMinTimeCallback',
+      autoRegister: true,
+      showDuringLoad: 'outletLoaderTestMinTimeCallbackLoading',
+      minTransitionPeriod: function(outletName, componentToDisplay) {
+        expect(outletName).to.be('output');
+        expect(componentToDisplay).to.be('outletLoaderTestMinTimeCallbackLoaded');
+        return 250;
+      },
+      routes: [
+        {
+          route: '/outletLoaderTestMinTimeCallback',
+          controller: function() {
+            outletLoaderTest.routeHasRun = true;
+            this.outlet('output', 'outletLoaderTestMinTimeCallbackLoaded', function(element) {
+              outletLoaderTest.afterOutlet = true;
+              expect(element.tagName.toLowerCase()).to.be('outlet');
+              expect(element.children[0].className).to.be('outletLoaderTestMinTimeCallbackLoaded');
+            });
+          }
+        }
+      ]
+    });
+
+    expect(_.every(outletLoaderTest)).to.be(false);
+    fw.start(container);
+    router('outletLoaderTestMinTimeCallback').setState('/outletLoaderTestMinTimeCallback');
+
+    setTimeout(function() {
+      expect(_.every(outletLoaderTest)).to.be(false);
+      setTimeout(function() {
+        expect(_.every(outletLoaderTest)).to.be(true);
+      }, 200);
+      done();
+    }, 150);
+  });
+
   it('can have nested/child routers path be dependent on its parents', function(done) {
     var container = document.getElementById('nestedRouteDependency');
     var outerRouterInstantiated = false;

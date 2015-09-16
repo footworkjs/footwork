@@ -1,18 +1,22 @@
 // framework/entities/router/routeBinding.js
 // -----------
 
+function hasClassName(element) {
+  return isObject(element) && isString(element.className);
+}
+
 function hasClass(element, className) {
   return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
 }
 
 function addClass(element, className) {
-  if( !hasClass(element, className) ) {
-    element.className += (isNull(element.className.match(/ $/)) ? ' ' : '') + className;
+  if( hasClassName(element) && !hasClass(element, className) ) {
+    element.className += (element.className.length ? ' ' : '') + className;
   }
 }
 
 function removeClass(element, className) {
-  if( hasClass(element, className) ) {
+  if( hasClassName(element) && hasClass(element, className) ) {
     var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)');
     element.className = element.className.replace(classNameRegex, ' ');
   }
@@ -33,7 +37,7 @@ fw.bindingHandlers.$route = {
       activeClass: null,
       handler: function defaultHandlerForRouteBinding(event, url) {
         if(hashOnly) {
-          windowObject.location.hash = result(routeHandlerDescription, 'url');
+          windowObject.location.hash = resultBound(routeHandlerDescription, 'url', $myRouter);
           return false;
         }
 
@@ -109,8 +113,8 @@ fw.bindingHandlers.$route = {
         mySegment = mySegment.replace(startingHashRegex, '/');
 
         if(isObject(currentRoute)) {
-          if(result(routeHandlerDescription, 'addActiveClass')) {
-            var activeRouteClassName = result(routeHandlerDescription, 'activeClass') || fw.routers.activeRouteClassName();
+          if(resultBound(routeHandlerDescription, 'addActiveClass', $myRouter)) {
+            var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', $myRouter) || fw.routers.activeRouteClassName();
             if(mySegment === '/') {
               mySegment = '';
             }

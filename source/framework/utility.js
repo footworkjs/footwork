@@ -28,6 +28,16 @@ function hasHashStart(string) {
   return isString(string) && startingHashRegex.test(string);
 }
 
+function resultBound(object, path, context, params) {
+  params = params || [];
+  context = context || object;
+
+  if(isFunction(object[path])) {
+    return object[path].apply(context, params);
+  }
+  return object[path];
+}
+
 function getFilenameExtension(fileName) {
   var extension = '';
   if(fileName.indexOf('.') !== -1) {

@@ -29,11 +29,7 @@ fw.virtualElements.allowedBindings.$life = true;
 fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
-    if(isString(element.className)) {
-      if(element.className.indexOf(entityClassName) === -1) {
-        element.className += (element.className.length ? ' ' : '') + entityClassName;
-      }
-    }
+    addClass(element, entityClassName);
 
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if(isEntity(viewModel)) {

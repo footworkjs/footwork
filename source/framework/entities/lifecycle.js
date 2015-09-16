@@ -13,10 +13,6 @@ function setupContextAndLifeCycle(entity, element) {
       element = element.parentElement || element.parentNode;
     }
 
-    if(element.className.indexOf(entityClassName) === -1) {
-      element.className += (element.className.length ? ' ' : '') + entityClassName;
-    }
-
     entity.__private('element', element);
     entity.$context = entityContext = fw.contextFor(element);
 

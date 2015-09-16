@@ -10,7 +10,7 @@ var Router = function(descriptor, configParams) {
       var router = {};
       this.__private = privateData.bind(this, router, routerConfigParams);
 
-      routerConfigParams.baseRoute = fw.routers.baseRoute() + (result(routerConfigParams, 'baseRoute') || '');
+      routerConfigParams.baseRoute = fw.routers.baseRoute() + (resultBound(routerConfigParams, 'baseRoute', router) || '');
 
       var subscriptions = router.subscriptions = fw.observableArray();
       router.urlParts = fw.observable();

@@ -63,10 +63,9 @@ function routerOutlet(outletName, componentToDisplay, options) {
   }
 
   if(valueHasMutated) {
-    var showDuringLoadComponent = this.__private('configParams')['showDuringLoad'];
-    if(isFunction(showDuringLoadComponent)) {
-      showDuringLoadComponent = showDuringLoadComponent.call(router, outletName, componentToDisplay);
-    }
+    var configParams = router.__private('configParams');
+    var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay]);
+    var minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
 
     var showDuringLoad = {
       name: showDuringLoadComponent,
@@ -74,7 +73,13 @@ function routerOutlet(outletName, componentToDisplay, options) {
         if(element.children.length) {
           element.children[0].___isLoadingComponent = true;
         }
-        return noop;
+
+        removeClass(element, bindingClassName);
+        return function addBindingOnComplete() {
+          setTimeout(function() {
+            addClass(element, bindingClassName);
+          }, animationIteration);
+        };
       }
     };
 
@@ -86,15 +91,13 @@ function routerOutlet(outletName, componentToDisplay, options) {
         activeOutlets.remove(outlet);
         return function addBindingOnComplete() {
           setTimeout(function() {
-            if(element.className.indexOf(bindingClassName) === -1) {
-              element.className += ' ' + bindingClassName;
-            }
+            addClass(element, bindingClassName);
           }, animationIteration);
 
           onComplete.call(router, element);
         };
       } else {
-        element.className = element.className.replace(' ' + bindingClassName, '');
+        removeClass(element, bindingClassName);
         return noop;
       }
     };
@@ -104,13 +107,14 @@ function routerOutlet(outletName, componentToDisplay, options) {
     }
 
     if(showDuringLoad.name) {
+      clearTimeout(outlet.transitionTimeout);
       outlet(showDuringLoad);
 
       fw.components.get(currentOutletDef.name, function() {
         // now that its cached and loaded, lets show the desired component
-        setTimeout(function() {
+        outlet.transitionTimeout = setTimeout(function() {
           outlet(currentOutletDef);
-        }, 0);
+        }, minTransitionPeriod);
       });
     } else {
       outlet.valueHasMutated();
