@@ -36,3 +36,4 @@ var noop = _.noop;
 var keys = _.keys;
 var merge = _.merge;
 var pluck = _.pluck;
+var first = _.first;

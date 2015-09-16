@@ -27,6 +27,7 @@ root._ = {
   find: require('../../node_modules/lodash/collection/find'),
   omit: require('../../node_modules/lodash/object/omit'),
   indexOf: require('../../node_modules/lodash/array/indexOf'),
+  first: require('../../node_modules/lodash/array/first'),
   values: require('../../node_modules/lodash/object/values'),
   reject: require('../../node_modules/lodash/collection/reject'),
   findWhere: require('../../node_modules/lodash/collection/findWhere'),

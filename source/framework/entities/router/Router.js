@@ -308,12 +308,12 @@ var Router = function(descriptor, configParams) {
           });
 
           if(!isUndefined(routeDescription)) {
-            url = routeDescription.route;
+            url = first([].concat(routeDescription.route));
             each(routeParams, function(value, fieldName) {
               url = url.replace(':' + fieldName, routeParams[fieldName]);
             });
           } else {
-            throw new Error('Could not locate named route:', namedRoute);
+            throw new Error('Could not locate named route: ' + namedRoute);
           }
         }
 

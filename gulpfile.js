@@ -104,27 +104,27 @@ gulp.task('test_bare', ['build_bare_jquery'], function() {
 // Building tasks
 gulp.task('build-everything', ['build_all', 'build_all_with_history', 'build_minimal', 'build_bare_jquery', 'build_bare_reqwest', 'build_raw']);
 
-gulp.task('build_all_with_history', function() {
+gulp.task('build_all_with_history', ['lodash_custom'], function() {
   return buildRelease('all-history');
 });
 
-gulp.task('build_all', function() {
+gulp.task('build_all', ['lodash_custom'], function() {
   return buildRelease('all');
 });
 
-gulp.task('build_minimal', function() {
+gulp.task('build_minimal', ['lodash_custom'], function() {
   return buildRelease('minimal');
 });
 
-gulp.task('build_bare_jquery', function() {
+gulp.task('build_bare_jquery', ['lodash_custom'], function() {
   return buildRelease('bare-jquery');
 });
 
-gulp.task('build_bare_reqwest', function() {
+gulp.task('build_bare_reqwest', ['lodash_custom'], function() {
   return buildRelease('bare-reqwest');
 });
 
-gulp.task('build_raw', function() {
+gulp.task('build_raw', ['lodash_custom'], function() {
   return buildRelease('raw');
 });
 
