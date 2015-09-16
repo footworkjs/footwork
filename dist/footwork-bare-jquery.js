@@ -420,6 +420,16 @@ function hasHashStart(string) {
   return isString(string) && startingHashRegex.test(string);
 }
 
+function resultBound(object, path, context, params) {
+  params = params || [];
+  context = context || object;
+
+  if(isFunction(object[path])) {
+    return object[path].apply(context, params);
+  }
+  return object[path];
+}
+
 function getFilenameExtension(fileName) {
   var extension = '';
   if(fileName.indexOf('.') !== -1) {
@@ -1601,10 +1611,9 @@ function routerOutlet(outletName, componentToDisplay, options) {
   }
 
   if(valueHasMutated) {
-    var showDuringLoadComponent = this.__private('configParams')['showDuringLoad'];
-    if(isFunction(showDuringLoadComponent)) {
-      showDuringLoadComponent = showDuringLoadComponent.call(router, outletName, componentToDisplay);
-    }
+    var configParams = router.__private('configParams');
+    var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay]);
+    var minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
 
     var showDuringLoad = {
       name: showDuringLoadComponent,
@@ -1612,7 +1621,13 @@ function routerOutlet(outletName, componentToDisplay, options) {
         if(element.children.length) {
           element.children[0].___isLoadingComponent = true;
         }
-        return noop;
+
+        removeClass(element, bindingClassName);
+        return function addBindingOnComplete() {
+          setTimeout(function() {
+            addClass(element, bindingClassName);
+          }, animationIteration);
+        };
       }
     };
 
@@ -1624,15 +1639,13 @@ function routerOutlet(outletName, componentToDisplay, options) {
         activeOutlets.remove(outlet);
         return function addBindingOnComplete() {
           setTimeout(function() {
-            if(element.className.indexOf(bindingClassName) === -1) {
-              element.className += ' ' + bindingClassName;
-            }
+            addClass(element, bindingClassName);
           }, animationIteration);
 
           onComplete.call(router, element);
         };
       } else {
-        element.className = element.className.replace(' ' + bindingClassName, '');
+        removeClass(element, bindingClassName);
         return noop;
       }
     };
@@ -1642,13 +1655,14 @@ function routerOutlet(outletName, componentToDisplay, options) {
     }
 
     if(showDuringLoad.name) {
+      clearTimeout(outlet.transitionTimeout);
       outlet(showDuringLoad);
 
       fw.components.get(currentOutletDef.name, function() {
         // now that its cached and loaded, lets show the desired component
-        setTimeout(function() {
+        outlet.transitionTimeout = setTimeout(function() {
           outlet(currentOutletDef);
-        }, 0);
+        }, minTransitionPeriod);
       });
     } else {
       outlet.valueHasMutated();
@@ -1681,18 +1695,22 @@ runPostInit.push(registerOutletComponent);
 // framework/entities/router/routeBinding.js
 // -----------
 
+function hasClassName(element) {
+  return isObject(element) && isString(element.className);
+}
+
 function hasClass(element, className) {
   return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
 }
 
 function addClass(element, className) {
-  if( !hasClass(element, className) ) {
-    element.className += (isNull(element.className.match(/ $/)) ? ' ' : '') + className;
+  if( hasClassName(element) && !hasClass(element, className) ) {
+    element.className += (element.className.length ? ' ' : '') + className;
   }
 }
 
 function removeClass(element, className) {
-  if( hasClass(element, className) ) {
+  if( hasClassName(element) && hasClass(element, className) ) {
     var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)');
     element.className = element.className.replace(classNameRegex, ' ');
   }
@@ -1713,7 +1731,7 @@ fw.bindingHandlers.$route = {
       activeClass: null,
       handler: function defaultHandlerForRouteBinding(event, url) {
         if(hashOnly) {
-          windowObject.location.hash = result(routeHandlerDescription, 'url');
+          windowObject.location.hash = resultBound(routeHandlerDescription, 'url', $myRouter);
           return false;
         }
 
@@ -1789,8 +1807,8 @@ fw.bindingHandlers.$route = {
         mySegment = mySegment.replace(startingHashRegex, '/');
 
         if(isObject(currentRoute)) {
-          if(result(routeHandlerDescription, 'addActiveClass')) {
-            var activeRouteClassName = result(routeHandlerDescription, 'activeClass') || fw.routers.activeRouteClassName();
+          if(resultBound(routeHandlerDescription, 'addActiveClass', $myRouter)) {
+            var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', $myRouter) || fw.routers.activeRouteClassName();
             if(mySegment === '/') {
               mySegment = '';
             }
@@ -1890,7 +1908,7 @@ var Router = function(descriptor, configParams) {
       var router = {};
       this.__private = privateData.bind(this, router, routerConfigParams);
 
-      routerConfigParams.baseRoute = fw.routers.baseRoute() + (result(routerConfigParams, 'baseRoute') || '');
+      routerConfigParams.baseRoute = fw.routers.baseRoute() + (resultBound(routerConfigParams, 'baseRoute', router) || '');
 
       var subscriptions = router.subscriptions = fw.observableArray();
       router.urlParts = fw.observable();
@@ -2333,6 +2351,7 @@ entityDescriptors = entityDescriptors.concat([
       isRelative: true,
       activate: true,
       beforeRoute: null,
+      minTransitionPeriod: 0,
       routes: []
     }
   }
@@ -2484,10 +2503,6 @@ function setupContextAndLifeCycle(entity, element) {
     var $configParams = entity.__private('configParams');
     if(element.tagName.toLowerCase() === 'binding-wrapper') {
       element = element.parentElement || element.parentNode;
-    }
-
-    if(element.className.indexOf(entityClassName) === -1) {
-      element.className += (element.className.length ? ' ' : '') + entityClassName;
     }
 
     entity.__private('element', element);
@@ -3090,11 +3105,7 @@ fw.virtualElements.allowedBindings.$life = true;
 fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
-    if(isString(element.className)) {
-      if(element.className.indexOf(entityClassName) === -1) {
-        element.className += (element.className.length ? ' ' : '') + entityClassName;
-      }
-    }
+    addClass(element, entityClassName);
 
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if(isEntity(viewModel)) {

@@ -10675,6 +10675,16 @@ function hasHashStart(string) {
   return isString(string) && startingHashRegex.test(string);
 }
 
+function resultBound(object, path, context, params) {
+  params = params || [];
+  context = context || object;
+
+  if(isFunction(object[path])) {
+    return object[path].apply(context, params);
+  }
+  return object[path];
+}
+
 function getFilenameExtension(fileName) {
   var extension = '';
   if(fileName.indexOf('.') !== -1) {
@@ -11278,7 +11288,7 @@ function getNestedReference(rootObject, fieldMap) {
 // framework/persistence/sync.js
 // ------------------
 
-// Map from CRUD to HTTP for our default `fw.$sync` implementation.
+// Map from CRUD to HTTP for our default `fw.sync` implementation.
 var methodMap = {
   'create': 'POST',
   'update': 'PUT',
@@ -11344,14 +11354,14 @@ fw.sync = function(action, concern, params) {
     var urlParams = options.url.match(parseParamsRegex);
     if(urlParams) {
       each(urlParams, function(param) {
-        options.url = options.url.replace(param, concern.$get(param.substr(1)));
+        options.url = options.url.replace(param, concern.get(param.substr(1)));
       });
     }
   }
 
   if(isNull(options.data) && concern && contains(['create', 'update', 'patch'], action)) {
     options.contentType = 'application/json';
-    options.data = JSON.stringify(options.attrs || concern.$get());
+    options.data = JSON.stringify(options.attrs || concern.get());
   }
 
   // For older servers, emulate JSON by encoding the request into an HTML-form.
@@ -11477,21 +11487,21 @@ var DataModel = function(descriptor, configParams) {
       }, this);
     },
     mixin: {
-      // GET from server and $set in model
-      $fetch: function(options) {
+      // GET from server and set in model
+      fetch: function(options) {
         var dataModel = this;
         var id = this[configParams.idAttribute]();
         if(id) {
           // retrieve data dataModel the from server using the id
-          this.$sync('read', dataModel, options)
+          this.sync('read', dataModel, options)
             .done(function(response) {
-              dataModel.$set(configParams.parse ? configParams.parse(response) : response);
+              dataModel.set(configParams.parse ? configParams.parse(response) : response);
             });
         }
       },
 
       // PUT / POST / PATCH to server
-      $save: function(key, val, options) {
+      save: function(key, val, options) {
         var dataModel = this;
         var attrs = null;
 
@@ -11514,7 +11524,7 @@ var DataModel = function(descriptor, configParams) {
           options.attrs = attrs;
         }
 
-        var syncPromise = dataModel.$sync(method, dataModel, options);
+        var syncPromise = dataModel.sync(method, dataModel, options);
 
         syncPromise.done(function(response) {
           var resourceData = configParams.parse ? configParams.parse(response) : response;
@@ -11524,19 +11534,19 @@ var DataModel = function(descriptor, configParams) {
           }
 
           if(isObject(resourceData)) {
-            dataModel.$set(resourceData);
+            dataModel.set(resourceData);
           }
         });
 
         if(!options.wait && !isNull(attrs)) {
-          dataModel.$set(attrs);
+          dataModel.set(attrs);
         }
 
         return syncPromise;
       },
 
       // DELETE
-      $destroy: function(options) {
+      destroy: function(options) {
         if(this.$isNew()) {
           return false;
         }
@@ -11550,7 +11560,7 @@ var DataModel = function(descriptor, configParams) {
           dataModel.$namespace.publish('destroy', options);
         };
 
-        var xhr = this.$sync('delete', this, options);
+        var xhr = this.sync('delete', this, options);
 
         xhr.done(function() {
           dataModel.$id(undefined);
@@ -11567,7 +11577,7 @@ var DataModel = function(descriptor, configParams) {
       },
 
       // set attributes in model (clears isDirty on observables/fields it saves to by default)
-      $set: function(key, value, options) {
+      set: function(key, value, options) {
         var attributes = {};
 
         if(isString(key)) {
@@ -11598,14 +11608,14 @@ var DataModel = function(descriptor, configParams) {
         }
       },
 
-      $get: function(referenceField, includeRoot) {
+      get: function(referenceField, includeRoot) {
         var dataModel = this;
         if(isArray(referenceField)) {
           return reduce(referenceField, function(jsObject, fieldMap) {
-            return merge(jsObject, dataModel.$get(fieldMap, true));
+            return merge(jsObject, dataModel.get(fieldMap, true));
           }, {});
         } else if(!isUndefined(referenceField) && !isString(referenceField)) {
-          throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.$get().');
+          throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.get().');
         }
 
         var mappedObject = reduce(this.__private('mappings')(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
@@ -11618,7 +11628,7 @@ var DataModel = function(descriptor, configParams) {
         return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
       },
 
-      $clean: function(field) {
+      clean: function(field) {
         if(!isUndefined(field)) {
           var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
         }
@@ -11629,30 +11639,27 @@ var DataModel = function(descriptor, configParams) {
         });
       },
 
-      $sync: function() {
+      sync: function() {
         return fw.sync.apply(this, arguments);
       },
 
-      $hasMappedField: function(referenceField) {
+      hasMappedField: function(referenceField) {
         return !!this.__private('mappings')()[referenceField];
       },
 
-      $dirtyMap: function() {
+      dirtyMap: function() {
         var tree = {};
         each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
           tree[fieldMap] = fieldObservable.isDirty();
         });
         return tree;
-      },
-
-      $valid: function( referenceField ) {}, // get validation of entire model or selected field
-      $validate: function() {} // perform a validation and return the result on a specific field or the entire model
+      }
     },
     _postInit: function() {
       if(configParams.autoIncrement) {
-        this.$rootNamespace.request.handler('$get', function() { return this.$get(); }.bind(this));
+        this.$rootNamespace.request.handler('get', function() { return this.get(); }.bind(this));
       }
-      this.$namespace.request.handler('$get', function() { return this.$get(); }.bind(this));
+      this.$namespace.request.handler('get', function() { return this.get(); }.bind(this));
 
       this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
         if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
@@ -11811,14 +11818,14 @@ fw.bindingHandlers.$bind = {
     if(isRouter($parentRouter)) {
       // register this outlet with the router so that updates will propagate correctly
       // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
-      outletViewModel.$route = $parentRouter.$outlet(outletName);
+      outletViewModel.$route = $parentRouter.outlet(outletName);
     } else {
       throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.$namespace.getName() + '] but no router was defined.');
     }
   }
 };
 
-function $routerOutlet(outletName, componentToDisplay, options) {
+function routerOutlet(outletName, componentToDisplay, options) {
   options = options || {};
   if(isFunction(options)) {
     options = { onComplete: options, onFailure: noop };
@@ -11859,10 +11866,9 @@ function $routerOutlet(outletName, componentToDisplay, options) {
   }
 
   if(valueHasMutated) {
-    var showDuringLoadComponent = this.__private('configParams')['showDuringLoad'];
-    if(isFunction(showDuringLoadComponent)) {
-      showDuringLoadComponent = showDuringLoadComponent.call(router, outletName, componentToDisplay);
-    }
+    var configParams = router.__private('configParams');
+    var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay]);
+    var minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
 
     var showDuringLoad = {
       name: showDuringLoadComponent,
@@ -11870,7 +11876,13 @@ function $routerOutlet(outletName, componentToDisplay, options) {
         if(element.children.length) {
           element.children[0].___isLoadingComponent = true;
         }
-        return noop;
+
+        removeClass(element, bindingClassName);
+        return function addBindingOnComplete() {
+          setTimeout(function() {
+            addClass(element, bindingClassName);
+          }, animationIteration);
+        };
       }
     };
 
@@ -11882,15 +11894,13 @@ function $routerOutlet(outletName, componentToDisplay, options) {
         activeOutlets.remove(outlet);
         return function addBindingOnComplete() {
           setTimeout(function() {
-            if(element.className.indexOf(bindingClassName) === -1) {
-              element.className += ' ' + bindingClassName;
-            }
+            addClass(element, bindingClassName);
           }, animationIteration);
 
           onComplete.call(router, element);
         };
       } else {
-        element.className = element.className.replace(' ' + bindingClassName, '');
+        removeClass(element, bindingClassName);
         return noop;
       }
     };
@@ -11900,13 +11910,14 @@ function $routerOutlet(outletName, componentToDisplay, options) {
     }
 
     if(showDuringLoad.name) {
+      clearTimeout(outlet.transitionTimeout);
       outlet(showDuringLoad);
 
       fw.components.get(currentOutletDef.name, function() {
         // now that its cached and loaded, lets show the desired component
-        setTimeout(function() {
+        outlet.transitionTimeout = setTimeout(function() {
           outlet(currentOutletDef);
-        }, 0);
+        }, minTransitionPeriod);
       });
     } else {
       outlet.valueHasMutated();
@@ -11939,18 +11950,22 @@ runPostInit.push(registerOutletComponent);
 // framework/entities/router/routeBinding.js
 // -----------
 
+function hasClassName(element) {
+  return isObject(element) && isString(element.className);
+}
+
 function hasClass(element, className) {
   return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
 }
 
 function addClass(element, className) {
-  if( !hasClass(element, className) ) {
-    element.className += (isNull(element.className.match(/ $/)) ? ' ' : '') + className;
+  if( hasClassName(element) && !hasClass(element, className) ) {
+    element.className += (element.className.length ? ' ' : '') + className;
   }
 }
 
 function removeClass(element, className) {
-  if( hasClass(element, className) ) {
+  if( hasClassName(element) && hasClass(element, className) ) {
     var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)');
     element.className = element.className.replace(classNameRegex, ' ');
   }
@@ -11971,7 +11986,7 @@ fw.bindingHandlers.$route = {
       activeClass: null,
       handler: function defaultHandlerForRouteBinding(event, url) {
         if(hashOnly) {
-          windowObject.location.hash = result(routeHandlerDescription, 'url');
+          windowObject.location.hash = resultBound(routeHandlerDescription, 'url', $myRouter);
           return false;
         }
 
@@ -12047,8 +12062,8 @@ fw.bindingHandlers.$route = {
         mySegment = mySegment.replace(startingHashRegex, '/');
 
         if(isObject(currentRoute)) {
-          if(result(routeHandlerDescription, 'addActiveClass')) {
-            var activeRouteClassName = result(routeHandlerDescription, 'activeClass') || fw.routers.activeRouteClassName();
+          if(resultBound(routeHandlerDescription, 'addActiveClass', $myRouter)) {
+            var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', $myRouter) || fw.routers.activeRouteClassName();
             if(mySegment === '/') {
               mySegment = '';
             }
@@ -12148,7 +12163,7 @@ var Router = function(descriptor, configParams) {
       var router = {};
       this.__private = privateData.bind(this, router, routerConfigParams);
 
-      routerConfigParams.baseRoute = fw.routers.baseRoute() + (result(routerConfigParams, 'baseRoute') || '');
+      routerConfigParams.baseRoute = fw.routers.baseRoute() + (resultBound(routerConfigParams, 'baseRoute', router) || '');
 
       var subscriptions = router.subscriptions = fw.observableArray();
       router.urlParts = fw.observable();
@@ -12272,7 +12287,7 @@ var Router = function(descriptor, configParams) {
 
       function DefaultAction() {
         delete router.currentRouteDescription;
-        $router.$outlet.reset();
+        $router.outlet.reset();
       }
 
       function RoutedAction(routeDescription) {
@@ -12321,6 +12336,7 @@ var Router = function(descriptor, configParams) {
 
         if(isObject(state)) {
           route = state.name;
+          params = params || {};
         }
 
         $router.setState(route, params);
@@ -12354,8 +12370,8 @@ var Router = function(descriptor, configParams) {
       }, this) );
 
       this.outlets = {};
-      this.$outlet = $routerOutlet.bind(this);
-      this.$outlet.reset = function() {
+      this.outlet = routerOutlet.bind(this);
+      this.outlet.reset = function() {
         each( this.outlets, function(outlet) {
           outlet({ name: noComponentSelected, params: {} });
         });
@@ -12590,6 +12606,7 @@ entityDescriptors = entityDescriptors.concat([
       isRelative: true,
       activate: true,
       beforeRoute: null,
+      minTransitionPeriod: 0,
       routes: []
     }
   }
@@ -12741,10 +12758,6 @@ function setupContextAndLifeCycle(entity, element) {
     var $configParams = entity.__private('configParams');
     if(element.tagName.toLowerCase() === 'binding-wrapper') {
       element = element.parentElement || element.parentNode;
-    }
-
-    if(element.className.indexOf(entityClassName) === -1) {
-      element.className += (element.className.length ? ' ' : '') + entityClassName;
     }
 
     entity.__private('element', element);
@@ -13347,11 +13360,7 @@ fw.virtualElements.allowedBindings.$life = true;
 fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
-    if(isString(element.className)) {
-      if(element.className.indexOf(entityClassName) === -1) {
-        element.className += (element.className.length ? ' ' : '') + entityClassName;
-      }
-    }
+    addClass(element, entityClassName);
 
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if(isEntity(viewModel)) {
@@ -13704,7 +13713,7 @@ fw.collection = function(configParams) {
     });
 
     if(collectionData) {
-      collection.$set(collectionData);
+      collection.set(collectionData);
     }
 
     return collection;
@@ -13715,15 +13724,15 @@ fw.collection = function(configParams) {
 // ------------------
 
 var collectionMethods = {
-  $sync: function() {
+  sync: function() {
     return fw.sync.apply(this, arguments);
   },
-  $get: function(id) {
+  get: function(id) {
     return find(this(), function findModelWithId(model) {
       return model.$id() === id || model.$cid() === id;
     });
   },
-  $set: function(newCollection) {
+  set: function(newCollection) {
     var collection = this;
     var collectionStore = collection();
     var DataModelCtor = collection.__private('configParams').dataModel;
@@ -13735,7 +13744,7 @@ var collectionMethods = {
       var modelPresent = false;
 
       each(collectionStore, function lookForModel(model) {
-        var collectionModelData = model.$get();
+        var collectionModelData = model.get();
         var modelFields = keys(collectionModelData);
 
         modelData = pick(modelData, modelFields);
@@ -13743,7 +13752,7 @@ var collectionMethods = {
           modelPresent = true;
           if(!isEqual(modelData, collectionModelData)) {
             // found model, but needs an update
-            model.$set(modelData);
+            model.set(modelData);
             collection.$namespace.publish('_.change', model);
             touchedModels.push(model);
           }
@@ -13760,7 +13769,7 @@ var collectionMethods = {
 
     each(collectionStore, function checkForRemovals(model) {
       var modelPresent = false;
-      var collectionModelData = model.$get();
+      var collectionModelData = model.get();
       var modelFields = filter(keys(collectionModelData), function(thing) { return thing !== idAttribute; });
 
       each(newCollection, function isModelPresent(modelData) {
@@ -13782,7 +13791,7 @@ var collectionMethods = {
 
     return touchedModels;
   },
-  $reset: function(newCollection) {
+  reset: function(newCollection) {
     var oldModels = this.removeAll();
     var DataModelCtor = this.__private('configParams').dataModel;
 
@@ -13795,27 +13804,27 @@ var collectionMethods = {
 
     return this();
   },
-  $fetch: function(options) {
+  fetch: function(options) {
     options = options ? clone(options) : {};
 
     if(isUndefined(options.parse)) {
       options.parse = true;
     }
 
-    var xhr = this.$sync('read', this, options);
+    var xhr = this.sync('read', this, options);
 
     var collection = this;
     xhr.done(function(resp) {
-      var method = options.reset ? '$reset' : '$set';
+      var method = options.reset ? 'reset' : 'set';
       collection[method](resp, options);
       collection.$namespace.publish('sync', collection, resp, options);
     });
 
     return xhr;
   },
-  $get: function() {
+  get: function() {
     return reduce(this(), function(models, model) {
-      models.push(model.$get());
+      models.push(model.get());
       return models;
     }, []);
   }
