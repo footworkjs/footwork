@@ -898,8 +898,8 @@ describe('router', function () {
       expect(_.every(outletLoaderTest)).to.be(false);
       setTimeout(function() {
         expect(_.every(outletLoaderTest)).to.be(true);
+        done();
       }, 200);
-      done();
     }, 150);
   });
 
@@ -963,8 +963,8 @@ describe('router', function () {
       expect(_.every(outletLoaderTest)).to.be(false);
       setTimeout(function() {
         expect(_.every(outletLoaderTest)).to.be(true);
+        done();
       }, 200);
-      done();
     }, 150);
   });
 
