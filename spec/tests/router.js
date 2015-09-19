@@ -129,9 +129,10 @@ describe('router', function () {
 
   it('can be activated via a COMMAND', function() {
     var activated = false;
+    var namespace = 'activatedViaCommand';
 
     var Router = fw.router({
-      namespace: 'namedRoute',
+      namespace: namespace,
       initialize: function() {
         this.$namespace.event.handler('activated', function() {
           activated = true;
@@ -140,8 +141,9 @@ describe('router', function () {
     });
 
     var router = new Router();
+    var routerNS = fw.namespace(namespace);
     expect(activated).to.be(false);
-    router.activate();
+    routerNS.command('activate');
     expect(activated).to.be(true);
   });
 
