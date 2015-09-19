@@ -127,14 +127,37 @@ describe('router', function () {
     expect(beforeRouteRan).to.be(true);
   });
 
+  it('can be activated via a COMMAND', function() {
+    var activated = false;
+
+    var Router = fw.router({
+      namespace: 'namedRoute',
+      initialize: function() {
+        this.$namespace.event.handler('activated', function() {
+          activated = true;
+        });
+      }
+    });
+
+    var router = new Router();
+    expect(activated).to.be(false);
+    router.activate();
+    expect(activated).to.be(true);
+  });
+
   it('can trigger named route with appropriately filled in data', function() {
     var beforeRouteRan = false;
     var activated = false;
 
     var Router = fw.router({
       namespace: 'namedRoute',
+      initialize: function() {
+        this.$namespace.event.handler('activated', function() {
+          activated = true;
+        });
+      },
       beforeRoute: function(url) {
-        if(activated) {
+        if(url !== '/') {
           beforeRouteRan = true;
           expect(url).to.be('/with/1/param');
         }
@@ -148,8 +171,9 @@ describe('router', function () {
     });
 
     var router = new Router();
+    expect(activated).to.be(false);
     router.activate();
-    activated = true;
+    expect(activated).to.be(true);
 
     expect(beforeRouteRan).to.be(false);
     router.setState('withParam', { num: 1 });

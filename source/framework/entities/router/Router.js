@@ -190,6 +190,7 @@ var Router = function(descriptor, configParams) {
       });
       this.$namespace.request.handler('currentRoute', function() { return $router.__private('currentRoute')(); });
       this.$namespace.request.handler('urlParts', function() { return $router.__private('urlParts')(); });
+      this.$namespace.command.handler('activate', function() { $router.activate(); });
 
       var parentPathSubscription;
       var $previousParent = $nullRouter;
@@ -262,6 +263,7 @@ var Router = function(descriptor, configParams) {
       activate: function($context, $parentRouter) {
         $context = $context || this.__private('context')();
         $parentRouter = $parentRouter || nearestParentRouter($context);
+        this.$namespace.trigger('activated', { context: $context, parentRouter: $parentRouter });
 
         if( !isNullRouter($parentRouter) ) {
           this.__private('parentRouter')($parentRouter);
