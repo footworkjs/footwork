@@ -156,6 +156,66 @@ describe('router', function () {
     expect(beforeRouteRan).to.be(true);
   });
 
+  it('can correctly get/return the urlParts from the current route via a REQUEST', function() {
+    var theNum = 31337;
+    var routeRan = false;
+    var namespaceName = 'urlPartsRequest';
+
+    var Router = fw.router({
+      namespace: namespaceName,
+      routes: [
+        {
+          name: 'withParam',
+          route: '/with/:num/param',
+          controller: function(num) {
+            routeRan = true;
+            expect(num).to.eql(theNum);
+          }
+        }
+      ]
+    });
+
+    var router = new Router();
+    router.activate();
+
+    expect(routeRan).to.be(false);
+    router.setState('withParam', { num: theNum });
+    expect(fw.namespace(namespaceName).request('urlParts').path).to.eql('/with/' + theNum + '/param');
+    expect(routeRan).to.be(true);
+  });
+
+  it('can correctly get/return the currentRoute via a REQUEST', function() {
+    var theNum = 31337;
+    var routeRan = false;
+    var routeName = 'withParam';
+    var namespaceName = 'currentRouteRequest';
+    var controllerMethod = function(num) {
+      routeRan = true;
+      expect(num).to.eql(theNum);
+    };
+
+    var Router = fw.router({
+      namespace: namespaceName,
+      routes: [
+        {
+          name: routeName,
+          route: '/with/:num/param',
+          controller: controllerMethod
+        }
+      ]
+    });
+
+    var router = new Router();
+    router.activate();
+
+    expect(routeRan).to.be(false);
+    router.setState(routeName, { num: theNum });
+    var currentRoute = fw.namespace(namespaceName).request('currentRoute');
+    expect(currentRoute.name).to.be(routeName);
+    expect(currentRoute.controller).to.be(controllerMethod);
+    expect(routeRan).to.be(true);
+  });
+
   it('can trigger named route via COMMAND with appropriately filled in data', function() {
     var beforeRouteRan = false;
     var activated = false;

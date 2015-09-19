@@ -188,8 +188,8 @@ var Router = function(descriptor, configParams) {
 
         $router.setState(route, params);
       });
-      this.$namespace.request.handler('currentRoute', function() { return $router.currentRoute(); });
-      this.$namespace.request.handler('urlParts', function() { return $router.urlParts(); });
+      this.$namespace.request.handler('currentRoute', function() { return $router.__private('currentRoute')(); });
+      this.$namespace.request.handler('urlParts', function() { return $router.__private('urlParts')(); });
 
       var parentPathSubscription;
       var $previousParent = $nullRouter;
