@@ -3,7 +3,7 @@
 
 *```A solid footing for web applications.```*
 
-[![Build Status](https://travis-ci.org/jonbnewman/footwork.png?branch=master)](https://travis-ci.org/jonbnewman/footwork) [![Bower version](https://badge.fury.io/bo/footwork.png)](http://badge.fury.io/bo/footwork)
+[![Build Status](https://travis-ci.org/jonbnewman/footwork.png?branch=master)](https://travis-ci.org/footworkjs/footwork) [![Bower version](https://badge.fury.io/bo/footwork.png)](http://badge.fury.io/bo/footwork)
 
 ## What is footwork?
 
