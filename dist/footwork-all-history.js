@@ -12921,14 +12921,7 @@ function entityClassFactory(descriptor, configParams) {
   }
 
   if( configParams.autoRegister ) {
-    var namespace = configParams.namespace;
-    if( descriptor.resource.isRegistered(namespace) ) {
-      if( descriptor.resource.getRegistered(namespace) !== entityCtor ) {
-        throw new Error('"' + namespace + '" has already been registered as a ' + descriptor.methodName + ', autoRegister failed.');
-      }
-    } else {
-      descriptor.resource.register(namespace, entityCtor);
-    }
+    descriptor.resource.register(configParams.namespace, entityCtor);
   }
 
   return entityCtor;
