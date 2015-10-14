@@ -16,22 +16,19 @@ function setupContextAndLifeCycle(entity, element) {
     entity.__private('element', element);
     entity.$context = entityContext = fw.contextFor(element);
 
-    if( isFunction($configParams.afterBinding) ) {
-        var afterBinding = noop;
-        if(isFunction($configParams.afterBinding)) {
-          afterBinding = $configParams.afterBinding;
-        }
-
-        $configParams.afterBinding = function(containerElement) {
-          setTimeout(function() {
-            if(containerElement.className.indexOf(bindingClassName) === -1) {
-              containerElement.className += ' ' + bindingClassName;
-            }
-          }, animationIteration);
-          afterBinding.call(this, containerElement);
-        };
-      $configParams.afterBinding.call(entity, element);
+    var afterBinding = noop;
+    if(isFunction($configParams.afterBinding)) {
+      afterBinding = $configParams.afterBinding;
     }
+
+    $configParams.afterBinding = function(containerElement) {
+      addClass(containerElement, entityClassName);
+      setTimeout(function() {
+        addClass(containerElement, bindingClassName);
+      }, animationIteration);
+      afterBinding.call(this, containerElement);
+    };
+    $configParams.afterBinding.call(entity, element);
 
     if( isRouter(entity) ) {
       entity.__private('context')(entityContext);
