@@ -470,7 +470,7 @@ describe('dataModel', function () {
     var container = document.getElementById('AMDDataModel');
     window.AMDDataModelWasLoaded = false;
 
-    fw.dataModels.registerLocation('AMDDataModel', 'scripts/testAssets/');
+    fw.dataModels.registerLocation('AMDDataModel', 'testAssets/');
 
     expect(window.AMDDataModelWasLoaded).to.be(false);
     fw.start(container);
@@ -485,7 +485,7 @@ describe('dataModel', function () {
     var container = document.getElementById('AMDDataModelFullName');
     window.AMDDataModelFullNameWasLoaded = false;
 
-    fw.dataModels.registerLocation('AMDDataModelFullName', 'scripts/testAssets/AMDDataModelFullName.js');
+    fw.dataModels.registerLocation('AMDDataModelFullName', 'testAssets/AMDDataModelFullName.js');
 
     expect(window.AMDDataModelFullNameWasLoaded).to.be(false);
     fw.start(container);
@@ -500,7 +500,7 @@ describe('dataModel', function () {
     var container = document.getElementById('defaultDataModelLocation');
     window.defaultDataModelLocationLoaded = false;
 
-    fw.dataModels.defaultLocation('scripts/testAssets/defaultDataModelLocation/');
+    fw.dataModels.defaultLocation('testAssets/defaultDataModelLocation/');
 
     expect(window.defaultDataModelLocationLoaded).to.be(false);
 

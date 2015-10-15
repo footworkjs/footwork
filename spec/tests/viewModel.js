@@ -462,7 +462,7 @@ describe('viewModel', function () {
     var container = document.getElementById('AMDViewModel');
     window.AMDViewModelWasLoaded = false;
 
-    fw.viewModels.registerLocation('AMDViewModel', 'scripts/testAssets/');
+    fw.viewModels.registerLocation('AMDViewModel', 'testAssets/');
 
     expect(window.AMDViewModelWasLoaded).to.be(false);
     fw.start(container);
@@ -477,7 +477,7 @@ describe('viewModel', function () {
     var container = document.getElementById('AMDViewModelFullName');
     window.AMDViewModelFullNameWasLoaded = false;
 
-    fw.viewModels.registerLocation('AMDViewModelFullName', 'scripts/testAssets/AMDViewModelFullName.js');
+    fw.viewModels.registerLocation('AMDViewModelFullName', 'testAssets/AMDViewModelFullName.js');
 
     expect(window.AMDViewModelFullNameWasLoaded).to.be(false);
     fw.start(container);
@@ -492,7 +492,7 @@ describe('viewModel', function () {
     var container = document.getElementById('defaultViewModelLocation');
     window.defaultViewModelLocationLoaded = false;
 
-    fw.viewModels.defaultLocation('scripts/testAssets/defaultViewModelLocation/');
+    fw.viewModels.defaultLocation('testAssets/defaultViewModelLocation/');
 
     expect(window.defaultViewModelLocationLoaded).to.be(false);
 

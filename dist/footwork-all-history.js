@@ -12716,8 +12716,11 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
 
         if( isString(resourceLocation) ) {
           if( isFunction(require) ) {
-            if( isPath(resourceLocation) ) {
-              resourceLocation = resourceLocation + resource.getFileName(moduleName);
+            if(!require.specified(resourceLocation)) {
+              if( isPath(resourceLocation) ) {
+                resourceLocation = resourceLocation + resource.getFileName(moduleName);
+              }
+              resourceLocation = require.toUrl(resourceLocation);
             }
 
             require([ resourceLocation ], bindModel);
@@ -12791,22 +12794,19 @@ function setupContextAndLifeCycle(entity, element) {
     entity.__private('element', element);
     entity.$context = entityContext = fw.contextFor(element);
 
-    if( isFunction($configParams.afterBinding) ) {
-        var afterBinding = noop;
-        if(isFunction($configParams.afterBinding)) {
-          afterBinding = $configParams.afterBinding;
-        }
-
-        $configParams.afterBinding = function(containerElement) {
-          setTimeout(function() {
-            if(containerElement.className.indexOf(bindingClassName) === -1) {
-              containerElement.className += ' ' + bindingClassName;
-            }
-          }, animationIteration);
-          afterBinding.call(this, containerElement);
-        };
-      $configParams.afterBinding.call(entity, element);
+    var afterBinding = noop;
+    if(isFunction($configParams.afterBinding)) {
+      afterBinding = $configParams.afterBinding;
     }
+
+    $configParams.afterBinding = function(containerElement) {
+      addClass(containerElement, entityClassName);
+      setTimeout(function() {
+        addClass(containerElement, bindingClassName);
+      }, animationIteration);
+      afterBinding.call(this, containerElement);
+    };
+    $configParams.afterBinding.call(entity, element);
 
     if( isRouter(entity) ) {
       entity.__private('context')(entityContext);
@@ -13463,7 +13463,7 @@ fw.components.loaders.push(fw.components.requireLoader = {
         }
 
         configOptions = {
-          require: combinedPath
+          require: require.toUrl(combinedPath)
         };
       } else {
         // check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)
@@ -13475,22 +13475,25 @@ fw.components.loaders.push(fw.components.requireLoader = {
 
           if( isPath(viewModelPath) ) {
             viewModelPath = viewModelPath + viewModelFile;
+
+            if( getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel') ) {
+              viewModelPath += '.' + getComponentExtension(componentName, 'viewModel');
+            }
           }
 
-          if( getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel') ) {
-            viewModelPath += '.' + getComponentExtension(componentName, 'viewModel');
-          }
-
-          viewModelConfig = { require: viewModelPath };
+          viewModelConfig = { require: require.toUrl(viewModelPath) };
         }
 
-        templatePath = 'text!' + componentLocation.template;
+        templatePath = componentLocation.template;
         if( isPath(templatePath) ) {
           templatePath = templatePath + templateFile;
         }
+
         if( getFilenameExtension(templatePath) !== getComponentExtension(componentName, 'template') ) {
           templatePath += '.' + getComponentExtension(componentName, 'template');
         }
+
+        templatePath = 'text!' + templatePath;
 
         configOptions = {
           viewModel: viewModelConfig,

@@ -1874,7 +1874,7 @@ describe('router', function () {
     var container = document.getElementById('AMDRouter');
     window.AMDRouterWasLoaded = false;
 
-    fw.routers.registerLocation('AMDRouter', 'scripts/testAssets/');
+    fw.routers.registerLocation('AMDRouter', 'testAssets/');
 
     expect(window.AMDRouterWasLoaded).to.be(false);
     fw.start(container);
@@ -1889,7 +1889,7 @@ describe('router', function () {
     var container = document.getElementById('AMDRouterFullName');
     window.AMDRouterFullNameWasLoaded = false;
 
-    fw.routers.registerLocation('AMDRouterFullName', 'scripts/testAssets/AMDRouterFullName.js');
+    fw.routers.registerLocation('AMDRouterFullName', 'testAssets/AMDRouterFullName.js');
 
     expect(window.AMDRouterFullNameWasLoaded).to.be(false);
     fw.start(container);
@@ -1904,7 +1904,7 @@ describe('router', function () {
     var container = document.getElementById('defaultRouterLocation');
     window.defaultRouterLocationLoaded = false;
 
-    fw.routers.defaultLocation('scripts/testAssets/defaultRouterLocation/');
+    fw.routers.defaultLocation('testAssets/defaultRouterLocation/');
 
     expect(window.defaultRouterLocationLoaded).to.be(false);
 

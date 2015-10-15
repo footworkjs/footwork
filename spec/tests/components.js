@@ -208,7 +208,7 @@ describe('components', function () {
     window.defaultComponentLocationLoaded = false;
 
     fw.components.defaultLocation({
-      viewModel: 'scripts/testAssets/defaultComponentLocation/',
+      viewModel: 'testAssets/defaultComponentLocation/',
       template: 'testAssets/defaultComponentLocation/'
     });
 
@@ -224,7 +224,7 @@ describe('components', function () {
 
   it('can specify a location and verify it', function() {
     var location = {
-      viewModel: 'scripts/testAssets/registeredComponentLocation/',
+      viewModel: 'testAssets/registeredComponentLocation/',
       template: 'testAssets/registeredComponentLocation/'
     };
     fw.components.registerLocation('registered-component-location-verify', location);
@@ -234,7 +234,7 @@ describe('components', function () {
 
   it('can register an array of components to a location and retrieve them proplerly', function() {
     var location = {
-      viewModel: 'scripts/testAssets/registeredComponentLocation/',
+      viewModel: 'testAssets/registeredComponentLocation/',
       template: 'testAssets/registeredComponentLocation/'
     };
 
@@ -248,7 +248,7 @@ describe('components', function () {
     window.registeredComponentLocationLoaded = false;
 
     fw.components.registerLocation('registered-component-location', {
-      viewModel: 'scripts/testAssets/registeredComponentLocation/',
+      viewModel: 'testAssets/registeredComponentLocation/',
       template: 'testAssets/registeredComponentLocation/'
     });
 
@@ -267,7 +267,7 @@ describe('components', function () {
     window.registeredComponentLocationFullNameLoaded = false;
 
     fw.components.registerLocation('registered-component-location-fullname', {
-      viewModel: 'scripts/testAssets/registeredComponentLocation/registeredComponentLocationFullname.js',
+      viewModel: 'testAssets/registeredComponentLocation/registeredComponentLocationFullname.js',
       template: 'testAssets/registeredComponentLocation/registeredComponentLocationFullname.html'
     });
 
@@ -285,7 +285,7 @@ describe('components', function () {
     var container = document.getElementById('registeredCombinedComponentLocation');
     window.registeredComponentLocationLoaded = false;
 
-    fw.components.registerLocation('registered-combined-component-location', 'scripts/testAssets/registeredComponentLocation/');
+    fw.components.registerLocation('registered-combined-component-location', 'testAssets/registeredComponentLocation/');
 
     expect(window.registeredComponentLocationLoaded).to.be(false);
 

@@ -74,8 +74,11 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
 
         if( isString(resourceLocation) ) {
           if( isFunction(require) ) {
-            if( isPath(resourceLocation) ) {
-              resourceLocation = resourceLocation + resource.getFileName(moduleName);
+            if(!require.specified(resourceLocation)) {
+              if( isPath(resourceLocation) ) {
+                resourceLocation = resourceLocation + resource.getFileName(moduleName);
+              }
+              resourceLocation = require.toUrl(resourceLocation);
             }
 
             require([ resourceLocation ], bindModel);

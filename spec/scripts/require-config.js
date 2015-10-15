@@ -1,4 +1,5 @@
 var REQUIRE_CONFIG = {
+  baseUrl: 'scripts',
   paths: {
     "knockout": "../../bower_components/knockoutjs/dist/knockout.debug",
     "jquery": "../../bower_components/jquery/dist/jquery",

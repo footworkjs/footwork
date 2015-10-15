@@ -30,7 +30,7 @@ fw.components.loaders.push(fw.components.requireLoader = {
         }
 
         configOptions = {
-          require: combinedPath
+          require: require.toUrl(combinedPath)
         };
       } else {
         // check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)
@@ -42,22 +42,25 @@ fw.components.loaders.push(fw.components.requireLoader = {
 
           if( isPath(viewModelPath) ) {
             viewModelPath = viewModelPath + viewModelFile;
+
+            if( getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel') ) {
+              viewModelPath += '.' + getComponentExtension(componentName, 'viewModel');
+            }
           }
 
-          if( getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel') ) {
-            viewModelPath += '.' + getComponentExtension(componentName, 'viewModel');
-          }
-
-          viewModelConfig = { require: viewModelPath };
+          viewModelConfig = { require: require.toUrl(viewModelPath) };
         }
 
-        templatePath = 'text!' + componentLocation.template;
+        templatePath = componentLocation.template;
         if( isPath(templatePath) ) {
           templatePath = templatePath + templateFile;
         }
+
         if( getFilenameExtension(templatePath) !== getComponentExtension(componentName, 'template') ) {
           templatePath += '.' + getComponentExtension(componentName, 'template');
         }
+
+        templatePath = 'text!' + templatePath;
 
         configOptions = {
           viewModel: viewModelConfig,

@@ -80,9 +80,6 @@ gulp build-everything
 
 # build whats necessary for continuous integration tests, and run them
 gulp ci
-
-# (re)build the custom lodash exports module
-gulp lodash_custom
 ```
 
 ### Documentation and Website Contributions
