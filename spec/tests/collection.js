@@ -44,6 +44,82 @@ describe('collection', function () {
     expect(people()[1].email()).to.be(person2Data.email);
   });
 
+  it('can be instantiated with some data', function() {
+    var person1Data = {
+      "firstName": "PersonFirstNameTest",
+      "lastName": "PersonLastNameTest",
+      "email": "PersonEmailTest"
+    };
+    var person2Data = {
+      "firstName": "PersonFirstNameTest",
+      "lastName": "PersonLastNameTest",
+      "email": "PersonEmailTest"
+    };
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var PeopleCollection = fw.collection({
+      namespace: 'People',
+      dataModel: Person
+    });
+
+    var people = new PeopleCollection([person1Data, person2Data]);
+
+    expect(people().length).to.be(2);
+    expect(people()[0].firstName()).to.be(person1Data.firstName);
+    expect(people()[0].lastName()).to.be(person1Data.lastName);
+    expect(people()[0].email()).to.be(person1Data.email);
+    expect(people()[1].firstName()).to.be(person2Data.firstName);
+    expect(people()[1].lastName()).to.be(person2Data.lastName);
+    expect(people()[1].email()).to.be(person2Data.email);
+  });
+
+  it('can be instantiated with some data correctly when missing portions for an individual model', function() {
+    var person1Data = {
+      "firstName": "PersonFirstNameTest",
+      "lastName": "PersonLastNameTest",
+      "email": "PersonEmailTest"
+    };
+    var person2Data = {
+      "firstName": "PersonFirstNameTest",
+      "email": "PersonEmailTest"
+    };
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+        this.somethingNotProvidedFor = fw.observable().mapTo('somethingNotProvidedFor');
+      }
+    });
+
+    var PeopleCollection = fw.collection({
+      namespace: 'People',
+      dataModel: Person
+    });
+
+    var people = new PeopleCollection([person1Data, person2Data]);
+
+    expect(people().length).to.be(2);
+    expect(people()[0].firstName()).to.be(person1Data.firstName || null);
+    expect(people()[0].lastName()).to.be(person1Data.lastName || null);
+    expect(people()[0].email()).to.be(person1Data.email || null);
+    expect(people()[1].firstName()).to.be(person2Data.firstName || null);
+    expect(people()[1].lastName()).to.be(person2Data.lastName || null);
+    expect(people()[1].email()).to.be(person2Data.email || null);
+  });
+
   it('can be serialized to a POJO correctly', function() {
     var person1Data = {
       "id": undefined,
