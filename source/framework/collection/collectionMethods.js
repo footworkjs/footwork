@@ -52,7 +52,7 @@ var collectionMethods = {
 
       each(newCollection, function isModelPresent(modelData) {
         modelData = pick(modelData, modelFields);
-        if(isEqual(modelData, omit(collectionModelData, idAttribute), sortOfEqual)) {
+        if(isEqual(modelData, omit(collectionModelData, idAttribute), commonKeyEqual)) {
           modelPresent = true;
         }
       });
