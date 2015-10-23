@@ -6,6 +6,6 @@ function isCollection(thing) {
 }
 
 function sortOfEqual(a, b) {
-  var commonKeys = _.intersection(_.keys(a), _.keys(b));
-  return _.isEqual(_.pick(a, commonKeys), _.pick(b, commonKeys));
+  var commonKeys = intersection(keys(a), keys(b));
+  return isEqual(pick(a, commonKeys), pick(b, commonKeys));
 }
