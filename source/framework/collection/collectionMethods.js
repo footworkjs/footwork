@@ -182,5 +182,25 @@ var collectionMethods = {
     }
 
     return touchedModels;
+  },
+  removeModel: function(models) {
+    var collection = this;
+    var touchedModels = [];
+
+    if(isObject(models)) {
+      models = [models];
+    }
+    if(!isArray(models)) {
+      models = !isUndefined(models) && !isNull(models) ? [models] : [];
+    }
+
+    each(models, function(modelData) {
+      if(isDataModel(modelData)) {
+        collection.remove(modelData);
+      } else {
+        var modelToRemove = collection.findWhere(modelData);
+        !isNull(modelToRemove) && collection.remove(modelToRemove);
+      }
+    });
   }
 };
