@@ -18,7 +18,7 @@ var collectionMethods = {
     var touchedModels = [];
     var absentModels = [];
 
-    each(newCollection, function checkForAdditionsOrChanges(modelData) {
+    each(newCollection, function checkModelPresence(modelData) {
       var modelPresent = false;
 
       each(collectionStore, function lookForModel(model) {
@@ -48,11 +48,9 @@ var collectionMethods = {
     each(collectionStore, function checkForRemovals(model) {
       var modelPresent = false;
       var collectionModelData = model.get();
-      var modelFields = filter(keys(collectionModelData), function(thing) { return thing !== idAttribute; });
 
       each(newCollection, function isModelPresent(modelData) {
-        modelData = pick(modelData, modelFields);
-        if(isEqual(modelData, omit(collectionModelData, idAttribute), commonKeyEqual)) {
+        if(sortOfEqual(modelData, collectionModelData)) {
           modelPresent = true;
         }
       });
@@ -76,7 +74,7 @@ var collectionMethods = {
     this(reduce(newCollection, function(newModels, modelData) {
       newModels.push(new DataModelCtor(modelData));
       return newModels;
-    }, []));
+    }.bind(this), []));
 
     this.$namespace.publish('_.reset', oldModels);
 
@@ -105,5 +103,84 @@ var collectionMethods = {
       models.push(model.get());
       return models;
     }, []);
+  },
+  where: function(modelData) {
+    return reduce(this(), function findModel(foundModel, model) {
+      var collectionModelData = model.get();
+
+      each(modelData, function lookForModel(individualModelData) {
+        if(sortOfEqual(individualModelData, collectionModelData)) {
+          foundModel.push(model);
+        }
+      });
+
+      return foundModel;
+    }, []);
+  },
+  findWhere: function(modelData) {
+    return reduce(this(), function findModel(foundModel, model) {
+      if(isNull(foundModel)) {
+        if(sortOfEqual(modelData, model.get())) {
+          return model;
+        }
+      }
+      return foundModel;
+    }, null);
+  },
+  add: function(models, options) {
+    var touchedModels = [];
+    options = options || {};
+
+    if(isObject(models)) {
+      models = [models];
+    }
+    if(!isArray(models)) {
+      models = !isUndefined(models) && !isNull(models) ? [models] : [];
+    }
+
+    if(models.length) {
+      var collection = this;
+      var collectionData = collection();
+      var DataModelCtor = this.__private('configParams').dataModel;
+      var idAttribute = DataModelCtor.__private('configParams').idAttribute;
+
+      if(isNumber(options.at)) {
+        var newModels = map(models, function(modelData) {
+          return new DataModelCtor(modelData);
+        });
+
+        collectionData.splice.apply(collectionData, [options.at, 0].concat(newModels));
+        touchedModels.concat(newModels);
+
+        collection.valueHasMutated();
+      } else {
+        each(models, function checkModelPresence(modelData) {
+          var modelPresent = false;
+
+          each(collectionData, function lookForModel(model) {
+            var collectionModelData = model.get();
+
+            if(!isUndefined(modelData[idAttribute]) && !isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
+              modelPresent = true;
+              if(!sortOfEqual(modelData, collectionModelData) && options.merge) {
+                // found model, but needs an update
+                model.set(modelData);
+                collection.$namespace.publish('_.change', model);
+                touchedModels.push(model);
+              }
+            }
+          });
+
+          if(!modelPresent) {
+            // not found in collection, we have to add this model
+            var newModel = new DataModelCtor(modelData);
+            collection.push(newModel);
+            touchedModels.push(newModel);
+          }
+        });
+      }
+    }
+
+    return touchedModels;
   }
 };

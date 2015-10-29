@@ -43,5 +43,6 @@ root._ = {
   any: require('../../node_modules/lodash/collection/any'),
   debounce: require('../../node_modules/lodash/function/debounce'),
   throttle: require('../../node_modules/lodash/function/throttle'),
-  intersection: require('../../node_modules/lodash/array/intersection')
+  intersection: require('../../node_modules/lodash/array/intersection'),
+  every: require('../../node_modules/lodash/collection/every')
 };

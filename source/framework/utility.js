@@ -28,6 +28,22 @@ function hasHashStart(string) {
   return isString(string) && startingHashRegex.test(string);
 }
 
+/**
+ * Performs an equality comparison between two objects while ensuring atleast one or more keys/values match and that all keys/values from object A also exist in B
+ * @param  {object} a Object to compare
+ * @param  {object} b Object to compare
+ * @return boolean   Result of equality comparison
+ */
+function sortOfEqual(a, b) {
+  var AKeys = keys(a);
+  var BKeys = keys(b);
+  var commonKeys = intersection(AKeys, BKeys);
+  var hasAllAKeys = every(AKeys, function(Akey) {
+    return BKeys.indexOf(Akey) !== -1;
+  })
+  return commonKeys.length > 0 && hasAllAKeys && isEqual(pick(a, commonKeys), pick(b, commonKeys));
+}
+
 function resultBound(object, path, context, params) {
   params = params || [];
   context = context || object;

@@ -82,7 +82,7 @@ describe('collection', function () {
     expect(people()[1].email()).to.be(person2Data.email);
   });
 
-  it('can be instantiated with some data correctly when missing portions for an individual model', function() {
+  it('can be instantiated with some data correctly', function() {
     var person1Data = {
       "firstName": "PersonFirstNameTest",
       "lastName": "PersonLastNameTest",
@@ -118,6 +118,116 @@ describe('collection', function () {
     expect(people()[1].firstName()).to.be(person2Data.firstName || null);
     expect(people()[1].lastName()).to.be(person2Data.lastName || null);
     expect(people()[1].email()).to.be(person2Data.email || null);
+  });
+
+  it('can be instantiated with some data correctly and then add()ed onto correctly', function() {
+    var person1Data = {
+      "firstName": "PersonFirstNameTest",
+      "lastName": "PersonLastNameTest",
+      "email": "PersonEmailTest"
+    };
+    var person2Data = {
+      "firstName": "PersonFirstNameTest",
+      "email": "PersonEmailTest"
+    };
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+        this.somethingNotProvidedFor = fw.observable().mapTo('somethingNotProvidedFor');
+      }
+    });
+
+    var PeopleCollection = fw.collection({
+      namespace: 'People',
+      dataModel: Person
+    });
+
+    var people = new PeopleCollection([person1Data, person2Data]);
+
+    expect(people().length).to.be(2);
+    people.add(person1Data);
+    expect(people().length).to.be(3);
+  });
+
+  it('can find an individual model that matches a set of attributes', function() {
+    var persons = [
+      {
+        "firstName": "PersonFirstNameTest",
+        "lastName": "PersonLastNameTest",
+        "email": "PersonEmailTest"
+      }, {
+        "firstName": "PersonFirstNameTest",
+        "email": "PersonEmailTest"
+      }
+    ];
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+        this.somethingNotProvidedFor = fw.observable().mapTo('somethingNotProvidedFor');
+      }
+    });
+
+    var PeopleCollection = fw.collection({
+      namespace: 'People',
+      dataModel: Person
+    });
+
+    var people = new PeopleCollection(persons);
+
+    expect(people.findWhere(persons[0])).to.be.an('object');
+    expect(people.findWhere({ shouldNotFind: true })).to.be(null);
+  });
+
+  it('can find where a set of models matches some data', function() {
+    var persons = [
+      {
+        "firstName": "PersonFirstNameTest1",
+        "lastName": "PersonLastNameTest1",
+        "email": "PersonEmailTest1"
+      }, {
+        "firstName": "PersonFirstNameTest2",
+        "lastName": "PersonLastNameTest2",
+        "email": "PersonEmailTest2"
+      }, {
+        "firstName": "PersonFirstNameTest3",
+        "lastName": "PersonLastNameTest3",
+        "email": "PersonEmailTest3"
+      }, {
+        "firstName": "PersonFirstNameTest4",
+        "lastName": "PersonLastNameTest4",
+        "email": "PersonEmailTest4"
+      }
+    ];
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+        this.somethingNotProvidedFor = fw.observable().mapTo('somethingNotProvidedFor');
+      }
+    });
+
+    var PeopleCollection = fw.collection({
+      namespace: 'People',
+      dataModel: Person
+    });
+
+    var people = new PeopleCollection(persons);
+
+    expect(people.where([persons[0], persons[2]]).length).to.be(2);
   });
 
   it('can be serialized to a POJO correctly', function() {
