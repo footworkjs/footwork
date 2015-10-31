@@ -29,7 +29,21 @@ function hasHashStart(string) {
 }
 
 /**
+ * Performs an equality comparison between two objects ensuring only the common key values match (and that there is a non-0 number of them)
+ * @param  {object} a Object to compare
+ * @param  {object} b Object to compare
+ * @return boolean   Result of equality comparison
+ */
+function commonKeysEqual(a, b) {
+  var AKeys = keys(a);
+  var BKeys = keys(b);
+  var commonKeys = intersection(AKeys, BKeys);
+  return commonKeys.length > 0 && isEqual(pick(a, commonKeys), pick(b, commonKeys));
+}
+
+/**
  * Performs an equality comparison between two objects while ensuring atleast one or more keys/values match and that all keys/values from object A also exist in B
+ * In other words: A == B, but B does not necessarily == A
  * @param  {object} a Object to compare
  * @param  {object} b Object to compare
  * @return boolean   Result of equality comparison

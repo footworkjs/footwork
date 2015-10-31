@@ -20,17 +20,34 @@ fw.collection = function(configParams) {
     var collection = fw.observableArray();
 
     configParams = extend({}, defaultCollectionConfig, configParams);
-    if(!isDataModelCtor(configParams.dataModel)) {
-      throw new Error('Must provide a dataModel for a collection to use');
-    }
 
-    var privateDataStore = {};
+    var privateStuff = {
+      castAs: {
+        modelData: function(modelData) {
+          return isDataModel(modelData) ? modelData.get() : modelData;
+        }.bind(collection),
+        dataModel: function(modelData) {
+          var DataModelCtor = this.__private('configParams').dataModel;
+          return isDataModelCtor(DataModelCtor) && !isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;
+        }.bind(collection)
+      },
+      getIdAttribute: function(options) {
+        var idAttribute = (options || {}).idAttribute || null;
+        if(isNull(idAttribute)) {
+          var DataModelCtor = this.__private('configParams').dataModel;
+          if(isDataModelCtor(DataModelCtor)) {
+            return DataModelCtor.__private('configParams').idAttribute;
+          }
+        }
+        return idAttribute || 'id';
+      }.bind(collection)
+    };
 
     extend(collection, collectionMethods, {
       $namespace: fw.namespace(configParams.namespace || uniqueId('collection')),
       __originalData: collectionData,
       __isCollection: true,
-      __private: privateData.bind(this, privateDataStore, configParams),
+      __private: privateData.bind(this, privateStuff, configParams),
       remove: removeDisposeAndNotify.bind(collection, collection.remove),
       pop: removeDisposeAndNotify.bind(collection, collection.pop),
       shift: removeDisposeAndNotify.bind(collection, collection.shift),

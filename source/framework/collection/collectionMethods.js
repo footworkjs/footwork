@@ -13,51 +13,47 @@ var collectionMethods = {
   set: function(newCollection) {
     var collection = this;
     var collectionStore = collection();
-    var DataModelCtor = collection.__private('configParams').dataModel;
-    var idAttribute = DataModelCtor.__private('configParams').idAttribute;
-    var touchedModels = [];
+    var castAsDataModel = collection.__private('castAs').dataModel;
+    var castAsModelData = collection.__private('castAs').modelData;
+    var idAttribute = collection.__private('getIdAttribute')();
+    var affectedModels = [];
     var absentModels = [];
 
     each(newCollection, function checkModelPresence(modelData) {
       var modelPresent = false;
+      modelData = castAsModelData(modelData);
 
       each(collectionStore, function lookForModel(model) {
-        var collectionModelData = model.get();
-        var modelFields = keys(collectionModelData);
+        var collectionModelData = castAsModelData(model);
 
-        modelData = pick(modelData, modelFields);
         if(!isUndefined(modelData[idAttribute]) && !isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
           modelPresent = true;
-          if(!isEqual(modelData, collectionModelData)) {
+          if(!sortOfEqual(collectionModelData, modelData)) {
             // found model, but needs an update
             model.set(modelData);
             collection.$namespace.publish('_.change', model);
-            touchedModels.push(model);
+            affectedModels.push(model);
           }
         }
       });
 
       if(!modelPresent) {
         // not found in collection, we have to add this model
-        var newModel = new DataModelCtor(modelData);
+        var newModel = castAsDataModel(modelData);
         collection.push(newModel);
-        touchedModels.push(newModel);
+        affectedModels.push(newModel);
       }
     });
 
     each(collectionStore, function checkForRemovals(model) {
-      var modelPresent = false;
-      var collectionModelData = model.get();
-
-      each(newCollection, function isModelPresent(modelData) {
-        if(sortOfEqual(modelData, collectionModelData)) {
-          modelPresent = true;
-        }
-      });
+      var collectionModelData = castAsModelData(model);
+      var modelPresent = reduce(newCollection, function(isPresent, modelData) {
+        return isPresent || commonKeysEqual(castAsModelData(modelData), collectionModelData);
+      }, false);
 
       if(!modelPresent) {
         absentModels.push(model);
-        touchedModels.push(model);
+        affectedModels.push(model);
       }
     });
 
@@ -65,14 +61,15 @@ var collectionMethods = {
       collection.removeAll(absentModels);
     }
 
-    return touchedModels;
+    return affectedModels;
   },
   reset: function(newCollection) {
+    var collection = this;
     var oldModels = this.removeAll();
-    var DataModelCtor = this.__private('configParams').dataModel;
+    var castAsDataModel = collection.__private('castAs').dataModel;
 
     this(reduce(newCollection, function(newModels, modelData) {
-      newModels.push(new DataModelCtor(modelData));
+      newModels.push(castAsDataModel(modelData));
       return newModels;
     }.bind(this), []));
 
@@ -99,36 +96,40 @@ var collectionMethods = {
     return xhr;
   },
   get: function() {
+    var collection = this;
+    var castAsModelData = collection.__private('castAs').modelData;
     return reduce(this(), function(models, model) {
-      models.push(model.get());
+      models.push(castAsModelData(model));
       return models;
     }, []);
   },
   where: function(modelData) {
-    return reduce(this(), function findModel(foundModel, model) {
-      var collectionModelData = model.get();
+    var collection = this;
+    var castAsModelData = collection.__private('castAs').modelData;
+    modelData = castAsModelData(modelData);
 
-      each(modelData, function lookForModel(individualModelData) {
-        if(sortOfEqual(individualModelData, collectionModelData)) {
-          foundModel.push(model);
-        }
-      });
-
-      return foundModel;
+    return reduce(this(), function findModel(foundModels, model) {
+      if(sortOfEqual(modelData, castAsModelData(model))) {
+        foundModels.push(model);
+      }
+      return foundModels;
     }, []);
   },
   findWhere: function(modelData) {
+    var collection = this;
+    var castAsModelData = collection.__private('castAs').modelData;
+    modelData = castAsModelData(modelData);
+
     return reduce(this(), function findModel(foundModel, model) {
-      if(isNull(foundModel)) {
-        if(sortOfEqual(modelData, model.get())) {
-          return model;
-        }
+      if(isNull(foundModel) && sortOfEqual(modelData, castAsModelData(model))) {
+        return model;
       }
       return foundModel;
     }, null);
   },
   add: function(models, options) {
-    var touchedModels = [];
+    var collection = this;
+    var affectedModels = [];
     options = options || {};
 
     if(isObject(models)) {
@@ -139,53 +140,55 @@ var collectionMethods = {
     }
 
     if(models.length) {
-      var collection = this;
       var collectionData = collection();
-      var DataModelCtor = this.__private('configParams').dataModel;
-      var idAttribute = DataModelCtor.__private('configParams').idAttribute;
+      var castAsDataModel = collection.__private('castAs').dataModel;
+      var castAsModelData = collection.__private('castAs').modelData;
+      var idAttribute = collection.__private('getIdAttribute')();
 
       if(isNumber(options.at)) {
-        var newModels = map(models, function(modelData) {
-          return new DataModelCtor(modelData);
-        });
+        var newModels = map(models, castAsDataModel);
 
         collectionData.splice.apply(collectionData, [options.at, 0].concat(newModels));
-        touchedModels.concat(newModels);
+        affectedModels.concat(newModels);
+        collection.$namespace.publish('_.add', newModels);
 
         collection.valueHasMutated();
       } else {
         each(models, function checkModelPresence(modelData) {
           var modelPresent = false;
+          var theModelData = castAsModelData(modelData);
 
           each(collectionData, function lookForModel(model) {
-            var collectionModelData = model.get();
+            var collectionModelData = castAsModelData(model);
 
-            if(!isUndefined(modelData[idAttribute]) && !isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
+            if(!isUndefined(theModelData[idAttribute]) && !isNull(theModelData[idAttribute]) && theModelData[idAttribute] === collectionModelData[idAttribute]) {
               modelPresent = true;
-              if(!sortOfEqual(modelData, collectionModelData) && options.merge) {
+              if(!sortOfEqual(theModelData, collectionModelData) && options.merge) {
                 // found model, but needs an update
-                model.set(modelData);
+                model.set(theModelData);
                 collection.$namespace.publish('_.change', model);
-                touchedModels.push(model);
+                affectedModels.push(model);
               }
             }
           });
 
           if(!modelPresent) {
             // not found in collection, we have to add this model
-            var newModel = new DataModelCtor(modelData);
+            var newModel = castAsDataModel(modelData);
             collection.push(newModel);
-            touchedModels.push(newModel);
+            affectedModels.push(newModel);
           }
         });
       }
     }
 
-    return touchedModels;
+    return affectedModels;
   },
-  removeModel: function(models) {
+  create: function(models, options) {
     var collection = this;
-    var touchedModels = [];
+    var castAsDataModel = collection.__private('castAs').dataModel;
+    var affectedModels = [];
+    options = options || {};
 
     if(isObject(models)) {
       models = [models];
@@ -194,11 +197,35 @@ var collectionMethods = {
       models = !isUndefined(models) && !isNull(models) ? [models] : [];
     }
 
-    each(models, function(modelData) {
-      if(isDataModel(modelData)) {
-        collection.remove(modelData);
+    if(models.length) {
+      each(models, function(modelData) {
+        var newModel = castAsDataModel(modelData);
+        if(options.wait) {
+          newModel.save().done(function() {
+            collection.add(newModel);
+          });
+        }
+      });
+    }
+
+    return affectedModels;
+  },
+  removeModel: function(models) {
+    var collection = this;
+    var affectedModels = [];
+
+    if(isObject(models)) {
+      models = [models];
+    }
+    if(!isArray(models)) {
+      models = !isUndefined(models) && !isNull(models) ? [models] : [];
+    }
+
+    each(models, function(model) {
+      if(isDataModel(model)) {
+        collection.remove(model);
       } else {
-        var modelToRemove = collection.findWhere(modelData);
+        var modelToRemove = collection.findWhere(model);
         !isNull(modelToRemove) && collection.remove(modelToRemove);
       }
     });

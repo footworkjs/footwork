@@ -199,19 +199,23 @@ describe('collection', function () {
       {
         "firstName": "PersonFirstNameTest1",
         "lastName": "PersonLastNameTest1",
-        "email": "PersonEmailTest1"
+        "email": "PersonEmailTest1",
+        "commonTerm": "common1"
       }, {
         "firstName": "PersonFirstNameTest2",
         "lastName": "PersonLastNameTest2",
-        "email": "PersonEmailTest2"
+        "email": "PersonEmailTest2",
+        "commonTerm": "common2"
       }, {
         "firstName": "PersonFirstNameTest3",
         "lastName": "PersonLastNameTest3",
-        "email": "PersonEmailTest3"
+        "email": "PersonEmailTest3",
+        "commonTerm": "common1"
       }, {
         "firstName": "PersonFirstNameTest4",
         "lastName": "PersonLastNameTest4",
-        "email": "PersonEmailTest4"
+        "email": "PersonEmailTest4",
+        "commonTerm": "common2"
       }
     ];
 
@@ -223,6 +227,7 @@ describe('collection', function () {
         this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
         this.email = fw.observable(person.email || null).mapTo('email');
         this.somethingNotProvidedFor = fw.observable().mapTo('somethingNotProvidedFor');
+        this.commonTerm = fw.observable(person.commonTerm).mapTo('commonTerm');
       }
     });
 
@@ -233,7 +238,7 @@ describe('collection', function () {
 
     var people = new PeopleCollection(persons);
 
-    expect(people.where([persons[0], persons[2]]).length).to.be(2);
+    expect(people.where({ commonTerm: persons[2].commonTerm }).length).to.be(2);
   });
 
   it('can remove a model correctly', function() {
