@@ -25,22 +25,22 @@ fw.collection = function(configParams) {
       castAs: {
         modelData: function(modelData) {
           return isDataModel(modelData) ? modelData.get() : modelData;
-        }.bind(collection),
+        },
         dataModel: function(modelData) {
-          var DataModelCtor = this.__private('configParams').dataModel;
+          var DataModelCtor = collection.__private('configParams').dataModel;
           return isDataModelCtor(DataModelCtor) && !isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;
-        }.bind(collection)
+        }
       },
       getIdAttribute: function(options) {
-        var idAttribute = (options || {}).idAttribute || null;
-        if(isNull(idAttribute)) {
-          var DataModelCtor = this.__private('configParams').dataModel;
+        var idAttribute = configParams.idAttribute || (options || {}).idAttribute;
+        if(isUndefined(idAttribute) || isNull(idAttribute)) {
+          var DataModelCtor = collection.__private('configParams').dataModel;
           if(isDataModelCtor(DataModelCtor)) {
             return DataModelCtor.__private('configParams').idAttribute;
           }
         }
         return idAttribute || 'id';
-      }.bind(collection)
+      }
     };
 
     extend(collection, collectionMethods, {

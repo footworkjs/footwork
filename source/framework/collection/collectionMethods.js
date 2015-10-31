@@ -7,7 +7,7 @@ var collectionMethods = {
   },
   get: function(id) {
     return find(this(), function findModelWithId(model) {
-      return model.$id() === id || model.$cid() === id;
+      return result(model, collection.__private('getIdAttribute')()) === id || result(model, '$id') === id || result(model, '$cid') === id;
     });
   },
   set: function(newCollection) {

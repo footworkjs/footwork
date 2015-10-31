@@ -35,10 +35,12 @@ function hasHashStart(string) {
  * @return boolean   Result of equality comparison
  */
 function commonKeysEqual(a, b) {
-  var AKeys = keys(a);
-  var BKeys = keys(b);
-  var commonKeys = intersection(AKeys, BKeys);
-  return commonKeys.length > 0 && isEqual(pick(a, commonKeys), pick(b, commonKeys));
+  if(isObject(a) && isObject(b)) {
+    var commonKeys = intersection(keys(a), keys(b));
+    return commonKeys.length > 0 && isEqual(pick(a, commonKeys), pick(b, commonKeys));
+  } else {
+    return a === b;
+  }
 }
 
 /**
@@ -49,13 +51,17 @@ function commonKeysEqual(a, b) {
  * @return boolean   Result of equality comparison
  */
 function sortOfEqual(a, b) {
-  var AKeys = keys(a);
-  var BKeys = keys(b);
-  var commonKeys = intersection(AKeys, BKeys);
-  var hasAllAKeys = every(AKeys, function(Akey) {
-    return BKeys.indexOf(Akey) !== -1;
-  })
-  return commonKeys.length > 0 && hasAllAKeys && isEqual(pick(a, commonKeys), pick(b, commonKeys));
+  if(isObject(a) && isObject(b)) {
+    var AKeys = keys(a);
+    var BKeys = keys(b);
+    var commonKeys = intersection(AKeys, BKeys);
+    var hasAllAKeys = every(AKeys, function(Akey) {
+      return BKeys.indexOf(Akey) !== -1;
+    })
+    return commonKeys.length > 0 && hasAllAKeys && isEqual(pick(a, commonKeys), pick(b, commonKeys));
+  } else {
+    return a === b;
+  }
 }
 
 function resultBound(object, path, context, params) {
