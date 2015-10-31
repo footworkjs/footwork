@@ -1,7 +1,7 @@
 // framework/collection/collectionMethods.js
 // ------------------
 
-var collectionMethods = {
+var collectionMethods = fw.collection.methods = {
   sync: function() {
     return fw.sync.apply(this, arguments);
   },
@@ -71,7 +71,7 @@ var collectionMethods = {
     this(reduce(newCollection, function(newModels, modelData) {
       newModels.push(castAsDataModel(modelData));
       return newModels;
-    }.bind(this), []));
+    }, []));
 
     this.$namespace.publish('_.reset', oldModels);
 
@@ -184,31 +184,29 @@ var collectionMethods = {
 
     return affectedModels;
   },
-  create: function(models, options) {
+  create: function(model, options) {
     var collection = this;
     var castAsDataModel = collection.__private('castAs').dataModel;
-    var affectedModels = [];
     options = options || {};
 
-    if(isObject(models)) {
-      models = [models];
-    }
-    if(!isArray(models)) {
-      models = !isUndefined(models) && !isNull(models) ? [models] : [];
+    var newModel = castAsDataModel(model);
+    var modelSavePromise = null;
+
+    if(isDataModel(newModel)) {
+      modelSavePromise = newModel.save();
+
+      if(options.wait) {
+        modelSavePromise.done(function() {
+          collection.add(newModel);
+        });
+      } else {
+        collection.add(newModel)
+      }
+    } else {
+      collection.add(newModel);
     }
 
-    if(models.length) {
-      each(models, function(modelData) {
-        var newModel = castAsDataModel(modelData);
-        if(options.wait) {
-          newModel.save().done(function() {
-            collection.add(newModel);
-          });
-        }
-      });
-    }
-
-    return affectedModels;
+    return modelSavePromise;
   },
   removeModel: function(models) {
     var collection = this;

@@ -64,6 +64,16 @@ function sortOfEqual(a, b) {
   }
 }
 
+/**
+ * Return the 'result' of a property on an object, either via calling it (using the supplied context and params) or the raw value if it is a non-function value.
+ * Note: This is similar to underscore/lodash result() but allows you to provide the context and parameters to potential callbacks
+ *
+ * @param  {object} object  Object to read property from
+ * @param  {string} path    Property name
+ * @param  {mixed}  context Context to call the (if existant) function with
+ * @param  {array}  params  Parameters to call the callback (object properties) with
+ * @return {mixed}          The result of the property on the object
+ */
 function resultBound(object, path, context, params) {
   params = params || [];
   context = context || object;
@@ -85,9 +95,13 @@ function getFilenameExtension(fileName) {
 function alwaysPassPredicate() { return true; }
 function emptyStringResult() { return ''; }
 
-// dispose a known property type
-function propertyDisposal( property ) {
-  if( (isObservable(property) || isNamespace(property) || isEntity(property) || isCollection(property) || fw.isBroadcastable(property) || fw.isReceivable(property)) && isFunction(property.dispose) ) {
+/**
+ * Dispose of a known property type
+ * @param  {object} property Variable/property to dispose of (if needed)
+ * @return {undefined}
+ */
+function propertyDisposal(property) {
+  if((isObservable(property) || isNamespace(property) || isEntity(property) || isCollection(property) || fw.isBroadcastable(property) || fw.isReceivable(property)) && isFunction(property.dispose)) {
     property.dispose();
   }
 }

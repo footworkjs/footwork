@@ -27,14 +27,14 @@ fw.collection = function(configParams) {
           return isDataModel(modelData) ? modelData.get() : modelData;
         },
         dataModel: function(modelData) {
-          var DataModelCtor = collection.__private('configParams').dataModel;
+          var DataModelCtor = configParams.dataModel;
           return isDataModelCtor(DataModelCtor) && !isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;
         }
       },
       getIdAttribute: function(options) {
         var idAttribute = configParams.idAttribute || (options || {}).idAttribute;
         if(isUndefined(idAttribute) || isNull(idAttribute)) {
-          var DataModelCtor = collection.__private('configParams').dataModel;
+          var DataModelCtor = configParams.dataModel;
           if(isDataModelCtor(DataModelCtor)) {
             return DataModelCtor.__private('configParams').idAttribute;
           }
