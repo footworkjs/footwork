@@ -5,3 +5,4 @@ docs/scripts/builddocs/
 dist/lodash-custom.js
 spec/dist
 /dist/lodash-custom.js
+/.idea

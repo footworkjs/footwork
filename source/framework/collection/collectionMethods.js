@@ -6,9 +6,18 @@ var collectionMethods = fw.collection.methods = {
     return fw.sync.apply(this, arguments);
   },
   get: function(id) {
+    var collection = this;
     return find(this(), function findModelWithId(model) {
       return result(model, collection.__private('getIdAttribute')()) === id || result(model, '$id') === id || result(model, '$cid') === id;
     });
+  },
+  getData: function() {
+    var collection = this;
+    var castAsModelData = collection.__private('castAs').modelData;
+    return reduce(this(), function(models, model) {
+      models.push(castAsModelData(model));
+      return models;
+    }, []);
   },
   set: function(newCollection) {
     var collection = this;
@@ -94,14 +103,6 @@ var collectionMethods = fw.collection.methods = {
     });
 
     return xhr;
-  },
-  get: function() {
-    var collection = this;
-    var castAsModelData = collection.__private('castAs').modelData;
-    return reduce(this(), function(models, model) {
-      models.push(castAsModelData(model));
-      return models;
-    }, []);
   },
   where: function(modelData) {
     var collection = this;

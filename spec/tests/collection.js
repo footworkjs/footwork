@@ -241,6 +241,103 @@ describe('collection', function () {
     expect(people.where({ commonTerm: persons[2].commonTerm }).length).to.be(2);
   });
 
+
+
+  it('can create a new model and add it to the collection correctly', function(done) {
+    var wasCompleted = false;
+    var responseValue = {
+      success: true
+    };
+
+    var persons = [
+      {
+        "firstName": "PersonFirstNameTest1",
+        "lastName": "PersonLastNameTest1",
+        "email": "PersonEmailTest1"
+      }, {
+        "firstName": "PersonFirstNameTest2",
+        "lastName": "PersonLastNameTest2",
+        "email": "PersonEmailTest2"
+      }, {
+        "firstName": "PersonFirstNameTest3",
+        "lastName": "PersonLastNameTest3",
+        "email": "PersonEmailTest3"
+      }, {
+        "firstName": "PersonFirstNameTest4",
+        "lastName": "PersonLastNameTest4",
+        "email": "PersonEmailTest4"
+      }
+    ];
+
+    var destUrl = '/peopleCollectionCreate';
+    $.mockjax({
+      responseTime: 10,
+      url: destUrl,
+      type: 'POST',
+      responseText: responseValue
+    });
+    $.mockjax({
+      responseTime: 10,
+      url: destUrl,
+      type: 'PUT',
+      responseText: responseValue
+    });
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      url: destUrl,
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var PeopleCollection = fw.collection({
+      namespace: 'People',
+      dataModel: Person
+    });
+
+    var people = new PeopleCollection(persons);
+
+    var createdPersonData = {
+      "firstName": "CreatedPersonFirstNameTest",
+      "lastName": "CreatedPersonLastNameTest",
+      "email": "CreatedPersonEmailTest"
+    };
+    var noWaitCreatedPersonData = {
+      "firstName": "NoWaitCreatedPersonFirstNameTest",
+      "lastName": "NoWaitCreatedPersonLastNameTest",
+      "email": "NoWaitCreatedPersonEmailTest"
+    };
+
+    expect(wasCompleted).to.be(false);
+
+    expect(people.findWhere(noWaitCreatedPersonData)).to.be(null);
+    people
+      .create(noWaitCreatedPersonData)
+      .done(function(response) {
+        expect(response).to.eql(responseValue);
+        wasCompleted = true;
+      });
+    expect(people.findWhere(noWaitCreatedPersonData)).to.be.an('object');
+
+    people
+      .create(createdPersonData, { wait: true })
+      .done(function(response) {
+        expect(response).to.eql(responseValue);
+        wasCompleted = true;
+      });
+
+    expect(people.findWhere(createdPersonData)).to.be(null);
+    setTimeout(function() {
+      expect(wasCompleted).to.be(true);
+      expect(people.findWhere(createdPersonData)).to.be.an('object');
+      done();
+    }, 40);
+  });
+
   it('can remove a model correctly', function() {
     var persons = [
       {
@@ -312,7 +409,7 @@ describe('collection', function () {
     people.set(peopleData);
 
     expect(people().length).to.be(2);
-    expect(people.get()).to.eql(peopleData);
+    expect(people.getData()).to.eql(peopleData);
   });
 
   it('can correctly trigger change/add/remove events for dataModels in a set() call as appropriate', function() {
