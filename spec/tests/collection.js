@@ -334,6 +334,25 @@ describe('collection', function () {
     }, 40);
   });
 
+  it('can initialize and manipulate a plain collection', function() {
+    var persons = [
+      {
+        "firstName": "PersonFirstNameTest",
+        "lastName": "PersonLastNameTest",
+        "email": "PersonEmailTest"
+      }, {
+        "firstName": "PersonFirstNameTest",
+        "email": "PersonEmailTest"
+      }
+    ];
+
+    var people = fw.collection(persons);
+
+    expect(people.findWhere(persons[0])).to.be.an('object');
+    people.removeModel({ firstName: persons[0].firstName });
+    expect(people.findWhere(persons[0])).to.be(null);
+  });
+
   it('can remove a model correctly', function() {
     var persons = [
       {

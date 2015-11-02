@@ -104,26 +104,30 @@ var collectionMethods = fw.collection.methods = {
 
     return xhr;
   },
-  where: function(modelData) {
+  where: function(modelData, options) {
     var collection = this;
     var castAsModelData = collection.__private('castAs').modelData;
+    options = options || {};
     modelData = castAsModelData(modelData);
 
     return reduce(this(), function findModel(foundModels, model) {
-      if(sortOfEqual(modelData, castAsModelData(model))) {
-        foundModels.push(model);
+      var thisModelData = castAsModelData(model);
+      if(sortOfEqual(modelData, thisModelData)) {
+        foundModels.push(options.getData ? thisModelData : model);
       }
       return foundModels;
     }, []);
   },
-  findWhere: function(modelData) {
+  findWhere: function(modelData, options) {
     var collection = this;
     var castAsModelData = collection.__private('castAs').modelData;
+    options = options || {};
     modelData = castAsModelData(modelData);
 
     return reduce(this(), function findModel(foundModel, model) {
-      if(isNull(foundModel) && sortOfEqual(modelData, castAsModelData(model))) {
-        return model;
+      var thisModelData = castAsModelData(model);
+      if(isNull(foundModel) && sortOfEqual(modelData, thisModelData)) {
+        return options.getData ? thisModelData : model;
       }
       return foundModel;
     }, null);
