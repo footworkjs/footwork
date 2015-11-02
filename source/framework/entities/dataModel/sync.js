@@ -39,9 +39,6 @@ fw.sync = function(action, concern, params) {
     throw new Error('Invalid action (' + action + ') specified for sync operation');
   }
 
-  // get url option
-  // get attrs for post/put
-
   var url = options.url;
   if(isNull(url)) {
     var configParams = concern.__private('configParams');

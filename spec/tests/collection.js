@@ -241,10 +241,8 @@ describe('collection', function () {
     expect(people.where({ commonTerm: persons[2].commonTerm }).length).to.be(2);
   });
 
-
-
   it('can create a new model and add it to the collection correctly', function(done) {
-    var wasCompleted = false;
+    var wasCompleted = 0;
     var responseValue = {
       success: true
     };
@@ -312,14 +310,12 @@ describe('collection', function () {
       "email": "NoWaitCreatedPersonEmailTest"
     };
 
-    expect(wasCompleted).to.be(false);
-
     expect(people.findWhere(noWaitCreatedPersonData)).to.be(null);
     people
       .create(noWaitCreatedPersonData)
       .done(function(response) {
         expect(response).to.eql(responseValue);
-        wasCompleted = true;
+        wasCompleted++;
       });
     expect(people.findWhere(noWaitCreatedPersonData)).to.be.an('object');
 
@@ -327,12 +323,12 @@ describe('collection', function () {
       .create(createdPersonData, { wait: true })
       .done(function(response) {
         expect(response).to.eql(responseValue);
-        wasCompleted = true;
+        wasCompleted++;
       });
 
     expect(people.findWhere(createdPersonData)).to.be(null);
     setTimeout(function() {
-      expect(wasCompleted).to.be(true);
+      expect(wasCompleted).to.be(2);
       expect(people.findWhere(createdPersonData)).to.be.an('object');
       done();
     }, 40);
