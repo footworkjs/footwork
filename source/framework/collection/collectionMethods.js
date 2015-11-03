@@ -112,7 +112,7 @@ var collectionMethods = fw.collection.methods = {
 
     return reduce(this(), function findModel(foundModels, model) {
       var thisModelData = castAsModelData(model);
-      if(sortOfEqual(modelData, thisModelData)) {
+      if(sortOfEqual(modelData, thisModelData, options.isEqual)) {
         foundModels.push(options.getData ? thisModelData : model);
       }
       return foundModels;
@@ -126,7 +126,7 @@ var collectionMethods = fw.collection.methods = {
 
     return reduce(this(), function findModel(foundModel, model) {
       var thisModelData = castAsModelData(model);
-      if(isNull(foundModel) && sortOfEqual(modelData, thisModelData)) {
+      if(isNull(foundModel) && sortOfEqual(modelData, thisModelData, options.isEqual)) {
         return options.getData ? thisModelData : model;
       }
       return foundModel;

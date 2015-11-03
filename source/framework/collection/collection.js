@@ -15,7 +15,7 @@ function addAndNotify(originalFunction) {
   return originalResult;
 }
 
-var plainCollection;
+var PlainCollectionConstructor;
 
 fw.collection = function(collectionData, configParams) {
   if(!isArray(collectionData)) {
@@ -23,7 +23,7 @@ fw.collection = function(collectionData, configParams) {
   }
   configParams = configParams || {};
 
-  var initCollection = function(collectionData) {
+  var CollectionConstructor = function(collectionData) {
     configParams = extend({}, defaultCollectionConfig, configParams);
     var collection = fw.observableArray();
     var privateStuff = {
@@ -77,17 +77,18 @@ fw.collection = function(collectionData, configParams) {
 
   if(!isArray(collectionData)) {
     // no collectionData supplied, just return the constructor
-    return initCollection;
+    return !arguments.length ? PlainCollectionConstructor : CollectionConstructor;
   } else {
-    // collectionData supplied we need to init a collection of some sort
+    // collectionData supplied we need to return an initialized collection of some sort
     if(arguments.length === 2) {
       // user supplied custom options, use them
-      return initCollection(configParams)(collectionData);
+      return CollectionConstructor(configParams)(collectionData);
     } else {
-      // no options, plain collection of data
-      return plainCollection(collectionData);
+      // no options, return plain collection of data
+      if(isUndefined(PlainCollectionConstructor)) {
+        PlainCollectionConstructor = fw.collection();
+      }
+      return PlainCollectionConstructor(collectionData);
     }
   }
 };
-
-plainCollection = fw.collection();

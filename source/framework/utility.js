@@ -34,10 +34,12 @@ function hasHashStart(string) {
  * @param  {object} b Object to compare
  * @return boolean   Result of equality comparison
  */
-function commonKeysEqual(a, b) {
+function commonKeysEqual(a, b, isEq) {
+  isEq = isEq || isEqual;
+
   if(isObject(a) && isObject(b)) {
     var commonKeys = intersection(keys(a), keys(b));
-    return commonKeys.length > 0 && isEqual(pick(a, commonKeys), pick(b, commonKeys));
+    return commonKeys.length > 0 && isEq(pick(a, commonKeys), pick(b, commonKeys));
   } else {
     return a === b;
   }
@@ -50,7 +52,9 @@ function commonKeysEqual(a, b) {
  * @param  {object} b Object to compare
  * @return boolean   Result of equality comparison
  */
-function sortOfEqual(a, b) {
+function sortOfEqual(a, b, isEq) {
+  isEq = isEq || isEqual;
+
   if(isObject(a) && isObject(b)) {
     var AKeys = keys(a);
     var BKeys = keys(b);
@@ -58,7 +62,7 @@ function sortOfEqual(a, b) {
     var hasAllAKeys = every(AKeys, function(Akey) {
       return BKeys.indexOf(Akey) !== -1;
     })
-    return commonKeys.length > 0 && hasAllAKeys && isEqual(pick(a, commonKeys), pick(b, commonKeys));
+    return commonKeys.length > 0 && hasAllAKeys && isEq(pick(a, commonKeys), pick(b, commonKeys));
   } else {
     return a === b;
   }
