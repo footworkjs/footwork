@@ -77,7 +77,7 @@ fw.collection = function(collectionData, configParams) {
 
   if(!isArray(collectionData)) {
     // no collectionData supplied, just return the constructor
-    return !arguments.length ? PlainCollectionConstructor : CollectionConstructor;
+    return CollectionConstructor;
   } else {
     // collectionData supplied we need to return an initialized collection of some sort
     if(arguments.length === 2) {

@@ -3,18 +3,19 @@
 
 var collectionMethods = fw.collection.methods = {
   sync: function() {
-    return fw.sync.apply(this, arguments);
+    var collection = this;
+    return fw.sync.apply(collection, arguments);
   },
   get: function(id) {
     var collection = this;
-    return find(this(), function findModelWithId(model) {
+    return find(collection(), function findModelWithId(model) {
       return result(model, collection.__private('getIdAttribute')()) === id || result(model, '$id') === id || result(model, '$cid') === id;
     });
   },
   getData: function() {
     var collection = this;
     var castAsModelData = collection.__private('castAs').modelData;
-    return reduce(this(), function(models, model) {
+    return reduce(collection(), function(models, model) {
       models.push(castAsModelData(model));
       return models;
     }, []);
@@ -74,28 +75,28 @@ var collectionMethods = fw.collection.methods = {
   },
   reset: function(newCollection) {
     var collection = this;
-    var oldModels = this.removeAll();
+    var oldModels = collection.removeAll();
     var castAsDataModel = collection.__private('castAs').dataModel;
 
-    this(reduce(newCollection, function(newModels, modelData) {
+    collection(reduce(newCollection, function(newModels, modelData) {
       newModels.push(castAsDataModel(modelData));
       return newModels;
     }, []));
 
-    this.$namespace.publish('_.reset', oldModels);
+    collection.$namespace.publish('_.reset', oldModels);
 
-    return this();
+    return collection();
   },
   fetch: function(options) {
+    var collection = this;
     options = options ? clone(options) : {};
 
     if(isUndefined(options.parse)) {
       options.parse = true;
     }
 
-    var xhr = this.sync('read', this, options);
+    var xhr = collection.sync('read', collection, options);
 
-    var collection = this;
     xhr.done(function(resp) {
       var method = options.reset ? 'reset' : 'set';
       collection[method](resp, options);
@@ -110,7 +111,7 @@ var collectionMethods = fw.collection.methods = {
     options = options || {};
     modelData = castAsModelData(modelData);
 
-    return reduce(this(), function findModel(foundModels, model) {
+    return reduce(collection(), function findModel(foundModels, model) {
       var thisModelData = castAsModelData(model);
       if(sortOfEqual(modelData, thisModelData, options.isEqual)) {
         foundModels.push(options.getData ? thisModelData : model);
@@ -124,7 +125,7 @@ var collectionMethods = fw.collection.methods = {
     options = options || {};
     modelData = castAsModelData(modelData);
 
-    return reduce(this(), function findModel(foundModel, model) {
+    return reduce(collection(), function findModel(foundModel, model) {
       var thisModelData = castAsModelData(model);
       if(isNull(foundModel) && sortOfEqual(modelData, thisModelData, options.isEqual)) {
         return options.getData ? thisModelData : model;
