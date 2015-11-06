@@ -3181,13 +3181,19 @@ function addAndNotify(originalFunction) {
 
 var PlainCollectionConstructor;
 
-fw.collection = function(collectionData, configParams) {
-  if(!isArray(collectionData)) {
-    configParams = collectionData;
+fw.collection = function(collectionData) {
+  collectionData = collectionData || [];
+
+  if(isUndefined(PlainCollectionConstructor)) {
+    PlainCollectionConstructor = fw.collection.constructor();
   }
+  return PlainCollectionConstructor(collectionData);
+};
+
+fw.collection.constructor = function(configParams) {
   configParams = configParams || {};
 
-  var CollectionConstructor = function(collectionData) {
+  return function CollectionConstructor(collectionData) {
     configParams = extend({}, defaultCollectionConfig, configParams);
     var collection = fw.observableArray();
     var privateStuff = {
@@ -3237,24 +3243,7 @@ fw.collection = function(collectionData, configParams) {
     }
 
     return collection;
-  }
-
-  if(!isArray(collectionData)) {
-    // no collectionData supplied, just return the constructor
-    return CollectionConstructor;
-  } else {
-    // collectionData supplied we need to return an initialized collection of some sort
-    if(arguments.length === 2) {
-      // user supplied custom options, use them
-      return CollectionConstructor(configParams)(collectionData);
-    } else {
-      // no options, return plain collection of data
-      if(isUndefined(PlainCollectionConstructor)) {
-        PlainCollectionConstructor = fw.collection();
-      }
-      return PlainCollectionConstructor(collectionData);
-    }
-  }
+  };
 };
 
 // framework/collection/collectionMethods.js

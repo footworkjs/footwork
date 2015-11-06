@@ -25,7 +25,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'People',
       dataModel: Person
     });
@@ -66,7 +66,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'People',
       dataModel: Person
     });
@@ -104,7 +104,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'People',
       dataModel: Person
     });
@@ -146,7 +146,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'People',
       dataModel: Person
     });
@@ -183,7 +183,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'People',
       dataModel: Person
     });
@@ -231,7 +231,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'People',
       dataModel: Person
     });
@@ -292,7 +292,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'People',
       dataModel: Person
     });
@@ -376,7 +376,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'People',
       dataModel: Person
     });
@@ -412,7 +412,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'People',
       dataModel: Person
     });
@@ -463,7 +463,7 @@ describe('collection', function () {
       'person2Data _.remove': 0
     };
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'PeopleEventCheck',
       dataModel: Person
     });
@@ -577,7 +577,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'People',
       dataModel: Person
     });
@@ -640,7 +640,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'People',
       url: '/peopleCollectionGET',
       dataModel: Person
@@ -687,7 +687,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'PeopleFetchReset',
       url: '/peopleCollectionReset',
       dataModel: Person
@@ -721,7 +721,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'PeoplePushEventCheck',
       dataModel: Person
     });
@@ -751,7 +751,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'PeoplePushEventCheck',
       dataModel: Person
     });
@@ -795,7 +795,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'PeoplePushEventCheck',
       dataModel: Person
     });
@@ -836,7 +836,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'PeoplePushEventCheck',
       dataModel: Person
     });
@@ -878,7 +878,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'PeoplePushEventCheck',
       dataModel: Person
     });
@@ -920,7 +920,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'PeoplePushEventCheck',
       dataModel: Person
     });
@@ -962,7 +962,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'PeoplePushEventCheck',
       dataModel: Person
     });
@@ -1004,7 +1004,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'PeoplePushEventCheck',
       dataModel: Person
     });
@@ -1041,7 +1041,7 @@ describe('collection', function () {
       }
     });
 
-    var PeopleCollection = fw.collection({
+    var PeopleCollection = fw.collection.constructor({
       namespace: 'PeoplePushEventCheck',
       dataModel: Person,
       disposeOnRemove: false
