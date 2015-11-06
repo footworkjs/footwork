@@ -359,6 +359,8 @@ var keys = _.keys;
 var merge = _.merge;
 var pluck = _.pluck;
 var first = _.first;
+var intersection = _.intersection;
+var every = _.every;
 
 // framework/init.js
 // ------------------
@@ -421,6 +423,56 @@ function hasHashStart(string) {
   return isString(string) && startingHashRegex.test(string);
 }
 
+/**
+ * Performs an equality comparison between two objects ensuring only the common key values match (and that there is a non-0 number of them)
+ * @param  {object} a Object to compare
+ * @param  {object} b Object to compare
+ * @return boolean   Result of equality comparison
+ */
+function commonKeysEqual(a, b, isEq) {
+  isEq = isEq || isEqual;
+
+  if(isObject(a) && isObject(b)) {
+    var commonKeys = intersection(keys(a), keys(b));
+    return commonKeys.length > 0 && isEq(pick(a, commonKeys), pick(b, commonKeys));
+  } else {
+    return a === b;
+  }
+}
+
+/**
+ * Performs an equality comparison between two objects while ensuring atleast one or more keys/values match and that all keys/values from object A also exist in B
+ * In other words: A == B, but B does not necessarily == A
+ * @param  {object} a Object to compare
+ * @param  {object} b Object to compare
+ * @return boolean   Result of equality comparison
+ */
+function sortOfEqual(a, b, isEq) {
+  isEq = isEq || isEqual;
+
+  if(isObject(a) && isObject(b)) {
+    var AKeys = keys(a);
+    var BKeys = keys(b);
+    var commonKeys = intersection(AKeys, BKeys);
+    var hasAllAKeys = every(AKeys, function(Akey) {
+      return BKeys.indexOf(Akey) !== -1;
+    })
+    return commonKeys.length > 0 && hasAllAKeys && isEq(pick(a, commonKeys), pick(b, commonKeys));
+  } else {
+    return a === b;
+  }
+}
+
+/**
+ * Return the 'result' of a property on an object, either via calling it (using the supplied context and params) or the raw value if it is a non-function value.
+ * Note: This is similar to underscore/lodash result() but allows you to provide the context and parameters to potential callbacks
+ *
+ * @param  {object} object  Object to read property from
+ * @param  {string} path    Property name
+ * @param  {mixed}  context Context to call the (if existant) function with
+ * @param  {array}  params  Parameters to call the callback (object properties) with
+ * @return {mixed}          The result of the property on the object
+ */
 function resultBound(object, path, context, params) {
   params = params || [];
   context = context || object;
@@ -442,9 +494,13 @@ function getFilenameExtension(fileName) {
 function alwaysPassPredicate() { return true; }
 function emptyStringResult() { return ''; }
 
-// dispose a known property type
-function propertyDisposal( property ) {
-  if( (isObservable(property) || isNamespace(property) || isEntity(property) || isCollection(property) || fw.isBroadcastable(property) || fw.isReceivable(property)) && isFunction(property.dispose) ) {
+/**
+ * Dispose of a known property type
+ * @param  {object} property Variable/property to dispose of (if needed)
+ * @return {undefined}
+ */
+function propertyDisposal(property) {
+  if((isObservable(property) || isNamespace(property) || isEntity(property) || isCollection(property) || fw.isBroadcastable(property) || fw.isReceivable(property)) && isFunction(property.dispose)) {
     property.dispose();
   }
 }
@@ -1071,9 +1127,6 @@ fw.sync = function(action, concern, params) {
   if(!isString(options.type)) {
     throw new Error('Invalid action (' + action + ') specified for sync operation');
   }
-
-  // get url option
-  // get attrs for post/put
 
   var url = options.url;
   if(isNull(url)) {
@@ -3398,6 +3451,7 @@ var defaultCollectionConfig = {
   namespace: null,
   url: null,
   dataModel: null,
+  idAttribute: null,
   disposeOnRemove: true
 };
 
@@ -3425,22 +3479,44 @@ function addAndNotify(originalFunction) {
   return originalResult;
 }
 
-fw.collection = function(configParams) {
-  return function initCollection(collectionData) {
-    var collection = fw.observableArray();
+var PlainCollectionConstructor;
 
+fw.collection = function(collectionData, configParams) {
+  if(!isArray(collectionData)) {
+    configParams = collectionData;
+  }
+  configParams = configParams || {};
+
+  var CollectionConstructor = function(collectionData) {
     configParams = extend({}, defaultCollectionConfig, configParams);
-    if(!isDataModelCtor(configParams.dataModel)) {
-      throw new Error('Must provide a dataModel for a collection to use');
-    }
-
-    var privateDataStore = {};
+    var collection = fw.observableArray();
+    var privateStuff = {
+      castAs: {
+        modelData: function(modelData) {
+          return isDataModel(modelData) ? modelData.get() : modelData;
+        },
+        dataModel: function(modelData) {
+          var DataModelCtor = configParams.dataModel;
+          return isDataModelCtor(DataModelCtor) && !isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;
+        }
+      },
+      getIdAttribute: function(options) {
+        var idAttribute = configParams.idAttribute || (options || {}).idAttribute;
+        if(isUndefined(idAttribute) || isNull(idAttribute)) {
+          var DataModelCtor = configParams.dataModel;
+          if(isDataModelCtor(DataModelCtor)) {
+            return DataModelCtor.__private('configParams').idAttribute;
+          }
+        }
+        return idAttribute || 'id';
+      }
+    };
 
     extend(collection, collectionMethods, {
       $namespace: fw.namespace(configParams.namespace || uniqueId('collection')),
       __originalData: collectionData,
       __isCollection: true,
-      __private: privateData.bind(this, privateDataStore, configParams),
+      __private: privateData.bind(this, privateStuff, configParams),
       remove: removeDisposeAndNotify.bind(collection, collection.remove),
       pop: removeDisposeAndNotify.bind(collection, collection.pop),
       shift: removeDisposeAndNotify.bind(collection, collection.shift),
@@ -3461,71 +3537,92 @@ fw.collection = function(configParams) {
     }
 
     return collection;
-  };
+  }
+
+  if(!isArray(collectionData)) {
+    // no collectionData supplied, just return the constructor
+    return CollectionConstructor;
+  } else {
+    // collectionData supplied we need to return an initialized collection of some sort
+    if(arguments.length === 2) {
+      // user supplied custom options, use them
+      return CollectionConstructor(configParams)(collectionData);
+    } else {
+      // no options, return plain collection of data
+      if(isUndefined(PlainCollectionConstructor)) {
+        PlainCollectionConstructor = fw.collection();
+      }
+      return PlainCollectionConstructor(collectionData);
+    }
+  }
 };
 
 // framework/collection/collectionMethods.js
 // ------------------
 
-var collectionMethods = {
+var collectionMethods = fw.collection.methods = {
   sync: function() {
-    return fw.sync.apply(this, arguments);
+    var collection = this;
+    return fw.sync.apply(collection, arguments);
   },
   get: function(id) {
-    return find(this(), function findModelWithId(model) {
-      return model.$id() === id || model.$cid() === id;
+    var collection = this;
+    return find(collection(), function findModelWithId(model) {
+      return result(model, collection.__private('getIdAttribute')()) === id || result(model, '$id') === id || result(model, '$cid') === id;
     });
+  },
+  getData: function() {
+    var collection = this;
+    var castAsModelData = collection.__private('castAs').modelData;
+    return reduce(collection(), function(models, model) {
+      models.push(castAsModelData(model));
+      return models;
+    }, []);
   },
   set: function(newCollection) {
     var collection = this;
     var collectionStore = collection();
-    var DataModelCtor = collection.__private('configParams').dataModel;
-    var idAttribute = DataModelCtor.__private('configParams').idAttribute;
-    var touchedModels = [];
+    var castAsDataModel = collection.__private('castAs').dataModel;
+    var castAsModelData = collection.__private('castAs').modelData;
+    var idAttribute = collection.__private('getIdAttribute')();
+    var affectedModels = [];
     var absentModels = [];
 
-    each(newCollection, function checkForAdditionsOrChanges(modelData) {
+    each(newCollection, function checkModelPresence(modelData) {
       var modelPresent = false;
+      modelData = castAsModelData(modelData);
 
       each(collectionStore, function lookForModel(model) {
-        var collectionModelData = model.get();
-        var modelFields = keys(collectionModelData);
+        var collectionModelData = castAsModelData(model);
 
-        modelData = pick(modelData, modelFields);
         if(!isUndefined(modelData[idAttribute]) && !isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
           modelPresent = true;
-          if(!isEqual(modelData, collectionModelData)) {
+          if(!sortOfEqual(collectionModelData, modelData)) {
             // found model, but needs an update
             model.set(modelData);
             collection.$namespace.publish('_.change', model);
-            touchedModels.push(model);
+            affectedModels.push(model);
           }
         }
       });
 
       if(!modelPresent) {
         // not found in collection, we have to add this model
-        var newModel = new DataModelCtor(modelData);
+        var newModel = castAsDataModel(modelData);
         collection.push(newModel);
-        touchedModels.push(newModel);
+        affectedModels.push(newModel);
       }
     });
 
     each(collectionStore, function checkForRemovals(model) {
-      var modelPresent = false;
-      var collectionModelData = model.get();
-      var modelFields = filter(keys(collectionModelData), function(thing) { return thing !== idAttribute; });
-
-      each(newCollection, function isModelPresent(modelData) {
-        modelData = pick(modelData, modelFields);
-        if(isEqual(modelData, omit(collectionModelData, idAttribute))) {
-          modelPresent = true;
-        }
-      });
+      var collectionModelData = castAsModelData(model);
+      var modelPresent = reduce(newCollection, function(isPresent, modelData) {
+        return isPresent || commonKeysEqual(castAsModelData(modelData), collectionModelData);
+      }, false);
 
       if(!modelPresent) {
         absentModels.push(model);
-        touchedModels.push(model);
+        affectedModels.push(model);
       }
     });
 
@@ -3533,31 +3630,32 @@ var collectionMethods = {
       collection.removeAll(absentModels);
     }
 
-    return touchedModels;
+    return affectedModels;
   },
   reset: function(newCollection) {
-    var oldModels = this.removeAll();
-    var DataModelCtor = this.__private('configParams').dataModel;
+    var collection = this;
+    var oldModels = collection.removeAll();
+    var castAsDataModel = collection.__private('castAs').dataModel;
 
-    this(reduce(newCollection, function(newModels, modelData) {
-      newModels.push(new DataModelCtor(modelData));
+    collection(reduce(newCollection, function(newModels, modelData) {
+      newModels.push(castAsDataModel(modelData));
       return newModels;
     }, []));
 
-    this.$namespace.publish('_.reset', oldModels);
+    collection.$namespace.publish('_.reset', oldModels);
 
-    return this();
+    return collection();
   },
   fetch: function(options) {
+    var collection = this;
     options = options ? clone(options) : {};
 
     if(isUndefined(options.parse)) {
       options.parse = true;
     }
 
-    var xhr = this.sync('read', this, options);
+    var xhr = collection.sync('read', collection, options);
 
-    var collection = this;
     xhr.done(function(resp) {
       var method = options.reset ? 'reset' : 'set';
       collection[method](resp, options);
@@ -3566,11 +3664,134 @@ var collectionMethods = {
 
     return xhr;
   },
-  get: function() {
-    return reduce(this(), function(models, model) {
-      models.push(model.get());
-      return models;
+  where: function(modelData, options) {
+    var collection = this;
+    var castAsModelData = collection.__private('castAs').modelData;
+    options = options || {};
+    modelData = castAsModelData(modelData);
+
+    return reduce(collection(), function findModel(foundModels, model) {
+      var thisModelData = castAsModelData(model);
+      if(sortOfEqual(modelData, thisModelData, options.isEqual)) {
+        foundModels.push(options.getData ? thisModelData : model);
+      }
+      return foundModels;
     }, []);
+  },
+  findWhere: function(modelData, options) {
+    var collection = this;
+    var castAsModelData = collection.__private('castAs').modelData;
+    options = options || {};
+    modelData = castAsModelData(modelData);
+
+    return reduce(collection(), function findModel(foundModel, model) {
+      var thisModelData = castAsModelData(model);
+      if(isNull(foundModel) && sortOfEqual(modelData, thisModelData, options.isEqual)) {
+        return options.getData ? thisModelData : model;
+      }
+      return foundModel;
+    }, null);
+  },
+  add: function(models, options) {
+    var collection = this;
+    var affectedModels = [];
+    options = options || {};
+
+    if(isObject(models)) {
+      models = [models];
+    }
+    if(!isArray(models)) {
+      models = !isUndefined(models) && !isNull(models) ? [models] : [];
+    }
+
+    if(models.length) {
+      var collectionData = collection();
+      var castAsDataModel = collection.__private('castAs').dataModel;
+      var castAsModelData = collection.__private('castAs').modelData;
+      var idAttribute = collection.__private('getIdAttribute')();
+
+      if(isNumber(options.at)) {
+        var newModels = map(models, castAsDataModel);
+
+        collectionData.splice.apply(collectionData, [options.at, 0].concat(newModels));
+        affectedModels.concat(newModels);
+        collection.$namespace.publish('_.add', newModels);
+
+        collection.valueHasMutated();
+      } else {
+        each(models, function checkModelPresence(modelData) {
+          var modelPresent = false;
+          var theModelData = castAsModelData(modelData);
+
+          each(collectionData, function lookForModel(model) {
+            var collectionModelData = castAsModelData(model);
+
+            if(!isUndefined(theModelData[idAttribute]) && !isNull(theModelData[idAttribute]) && theModelData[idAttribute] === collectionModelData[idAttribute]) {
+              modelPresent = true;
+              if(!sortOfEqual(theModelData, collectionModelData) && options.merge) {
+                // found model, but needs an update
+                model.set(theModelData);
+                collection.$namespace.publish('_.change', model);
+                affectedModels.push(model);
+              }
+            }
+          });
+
+          if(!modelPresent) {
+            // not found in collection, we have to add this model
+            var newModel = castAsDataModel(modelData);
+            collection.push(newModel);
+            affectedModels.push(newModel);
+          }
+        });
+      }
+    }
+
+    return affectedModels;
+  },
+  create: function(model, options) {
+    var collection = this;
+    var castAsDataModel = collection.__private('castAs').dataModel;
+    options = options || {};
+
+    var newModel = castAsDataModel(model);
+    var modelSavePromise = null;
+
+    if(isDataModel(newModel)) {
+      modelSavePromise = newModel.save();
+
+      if(options.wait) {
+        modelSavePromise.done(function() {
+          collection.add(newModel);
+        });
+      } else {
+        collection.add(newModel)
+      }
+    } else {
+      collection.add(newModel);
+    }
+
+    return modelSavePromise;
+  },
+  removeModel: function(models) {
+    var collection = this;
+    var affectedModels = [];
+
+    if(isObject(models)) {
+      models = [models];
+    }
+    if(!isArray(models)) {
+      models = !isUndefined(models) && !isNull(models) ? [models] : [];
+    }
+
+    each(models, function(model) {
+      if(isDataModel(model)) {
+        collection.remove(model);
+      } else {
+        var modelToRemove = collection.findWhere(model);
+        !isNull(modelToRemove) && collection.remove(modelToRemove);
+      }
+    });
   }
 };
 
