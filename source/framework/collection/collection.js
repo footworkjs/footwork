@@ -21,12 +21,12 @@ fw.collection = function(collectionData) {
   collectionData = collectionData || [];
 
   if(isUndefined(PlainCollectionConstructor)) {
-    PlainCollectionConstructor = fw.collection.constructor();
+    PlainCollectionConstructor = fw.collection.create();
   }
   return PlainCollectionConstructor(collectionData);
 };
 
-fw.collection.constructor = function(configParams) {
+fw.collection.create = function(configParams) {
   configParams = configParams || {};
 
   return function CollectionConstructor(collectionData) {
