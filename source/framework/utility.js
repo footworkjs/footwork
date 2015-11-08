@@ -28,21 +28,31 @@ function hasHashStart(string) {
   return isString(string) && startingHashRegex.test(string);
 }
 
+/**
+ * Performs an equality comparison between two objects while ensuring atleast one or more keys/values match and that all keys/values from object A also exist in B
+ * Note: object 'a' can provide a regex value for a property and have it searched matching on the regex value
+ * @param  {object} a Object to compare (which can contain regex values for properties)
+ * @param  {object} b Object to compare
+ * @param  {function} isEqual evauluator to use (optional)
+ * @return boolean   Result of equality comparison
+ */
 function regExpIsEqual(a, b, isEq) {
   isEq = isEq || isEqual;
 
   if(isObject(a) && isObject(b)) {
-    return every(values(reduce(a, function(isCongruent, paramValue, paramName) {
-      isCongruent[paramName] = false;
+    return every(reduce(a, function(comparison, paramValue, paramName) {
+      var isCongruent = false;
       if(b[paramName]) {
         if(isRegExp(paramValue)) {
-          isCongruent[paramName] = !isNull(b[paramName].match(paramValue));
+          isCongruent = !isNull(b[paramName].match(paramValue));
         } else {
-          isCongruent[paramName] = isEq(paramValue, b[paramName]);
+          isCongruent = isEq(paramValue, b[paramName]);
         }
       }
-      return isCongruent;
-    }, [])));
+
+      comparison.push(isCongruent);
+      return comparison;
+    }, []));
   } else {
     return a === b;
   }
@@ -52,6 +62,7 @@ function regExpIsEqual(a, b, isEq) {
  * Performs an equality comparison between two objects ensuring only the common key values match (and that there is a non-0 number of them)
  * @param  {object} a Object to compare
  * @param  {object} b Object to compare
+ * @param  {function} isEqual evauluator to use (optional)
  * @return boolean   Result of equality comparison
  */
 function commonKeysEqual(a, b, isEq) {
@@ -70,6 +81,7 @@ function commonKeysEqual(a, b, isEq) {
  * In other words: A == B, but B does not necessarily == A
  * @param  {object} a Object to compare
  * @param  {object} b Object to compare
+ * @param  {function} isEqual evauluator to use (optional)
  * @return boolean   Result of equality comparison
  */
 function sortOfEqual(a, b, isEq) {
