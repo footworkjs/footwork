@@ -194,6 +194,40 @@ describe('collection', function () {
     expect(people.findWhere({ shouldNotFind: true })).to.be(null);
   });
 
+  it('can find an individual model that matches a regex attribute', function() {
+    var persons = [
+      {
+        "firstName": "PersonFirstNameTestRegex",
+        "lastName": "PersonLastNaFINDMEmeTestRegex",
+        "email": "PersonEmailTestRegex"
+      }, {
+        "firstName": "PersonFirstNameTest",
+        "email": "PersonEmailTest"
+      }
+    ];
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+        this.somethingNotProvidedFor = fw.observable().mapTo('somethingNotProvidedFor');
+      }
+    });
+
+    var PeopleCollection = fw.collection.create({
+      namespace: 'People',
+      dataModel: Person
+    });
+
+    var people = new PeopleCollection(persons);
+
+    expect(people.findWhere({ lastName: /FINDME/ })).to.be.an('object');
+    expect(people.findWhere({ lastName: /NOTFINDME/ })).to.be(null);
+  });
+
   it('can find where a set of models matches some data', function() {
     var persons = [
       {

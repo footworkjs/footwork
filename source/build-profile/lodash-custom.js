@@ -44,5 +44,6 @@ root._ = {
   debounce: require('../../node_modules/lodash/function/debounce'),
   throttle: require('../../node_modules/lodash/function/throttle'),
   intersection: require('../../node_modules/lodash/array/intersection'),
-  every: require('../../node_modules/lodash/collection/every')
+  every: require('../../node_modules/lodash/collection/every'),
+  isRegExp: require('../../node_modules/lodash/lang/isRegExp')
 };

@@ -39,3 +39,4 @@ var pluck = _.pluck;
 var first = _.first;
 var intersection = _.intersection;
 var every = _.every;
+var isRegExp = _.isRegExp;

@@ -28,6 +28,26 @@ function hasHashStart(string) {
   return isString(string) && startingHashRegex.test(string);
 }
 
+function regExpIsEqual(a, b, isEq) {
+  isEq = isEq || isEqual;
+
+  if(isObject(a) && isObject(b)) {
+    return every(values(reduce(a, function(isCongruent, paramValue, paramName) {
+      isCongruent[paramName] = false;
+      if(b[paramName]) {
+        if(isRegExp(paramValue)) {
+          isCongruent[paramName] = !isNull(b[paramName].match(paramValue));
+        } else {
+          isCongruent[paramName] = isEq(paramValue, b[paramName]);
+        }
+      }
+      return isCongruent;
+    }, [])));
+  } else {
+    return a === b;
+  }
+}
+
 /**
  * Performs an equality comparison between two objects ensuring only the common key values match (and that there is a non-0 number of them)
  * @param  {object} a Object to compare
