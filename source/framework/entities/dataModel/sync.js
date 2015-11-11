@@ -55,9 +55,14 @@ fw.sync = function(action, concern, params) {
       url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
     }
   }
+
   var urlPieces = (url || noURLError()).match(parseURLRegex);
-  var baseURL = urlPieces[1] || '';
-  options.url = baseURL + last(urlPieces);
+  if(!isNull(urlPieces)) {
+    var baseURL = urlPieces[1] || '';
+    options.url = baseURL + last(urlPieces);
+  } else {
+    options.url = url;
+  }
 
   if(isDataModel(concern)) {
     // replace any interpolated parameters
