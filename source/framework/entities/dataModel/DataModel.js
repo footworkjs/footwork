@@ -35,10 +35,9 @@ var DataModel = function(descriptor, configParams) {
           this.sync('read', dataModel, options)
             .done(function(response) {
               var parsedResponse = configParams.parse ? configParams.parse(response) : response;
-              if(isUndefined(parsedResponse[configParams.idAttribute])) {
-                throw new Error('Fetched dataModel does not contain the configured idAttribute: ' + configParams.idAttribute);
+              if(!isUndefined(parsedResponse[configParams.idAttribute])) {
+                dataModel.set(parsedResponse);
               }
-              dataModel.set(parsedResponse);
             });
         }
       },

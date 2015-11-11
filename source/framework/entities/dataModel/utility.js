@@ -53,5 +53,5 @@ function getNestedReference(rootObject, fieldMap) {
     }
   }
 
-  return !isString(propName) ? rootObject : (rootObject || {})[propName];
+  return !isString(propName) ? rootObject : result(rootObject || {}, propName);
 }
