@@ -8339,9 +8339,13 @@ fw.sync = function(action, concern, params) {
       throw new Error('Must provide a URL for/on a ' + thing + ' configuration in order to call .sync() on it');
     }
 
-    if(contains(['read', 'update', 'patch', 'delete'], action) && configParams.pkInURL) {
-      // need to append /:id to url
-      url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
+    if(isDataModel(concern)) {
+      var pkIsSpecifiedByUser = !isNull(url.match(':' + configParams.idAttribute));
+      var hasQueryString = !isNull(url.match(/\?/));
+      if(contains(['read', 'update', 'patch', 'delete'], action) && configParams.pkInURL && !pkIsSpecifiedByUser && !hasQueryString) {
+        // need to append /:id to url
+        url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
+      }
     }
   }
 
