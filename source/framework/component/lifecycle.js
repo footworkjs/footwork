@@ -2,7 +2,8 @@
 // ------------------
 
 function componentTriggerAfterBinding(element, viewModel) {
-  if(isEntity(viewModel)) {
+  if(isEntity(viewModel) && !viewModel.__private('afterBindingWasTriggered')) {
+    viewModel.__private('afterBindingWasTriggered', true);
     var configParams = viewModel.__private('configParams');
     if(isFunction(configParams.afterBinding)) {
       var afterBinding = noop;

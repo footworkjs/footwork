@@ -1036,7 +1036,11 @@ var DataModel = function(descriptor, configParams) {
           // retrieve data dataModel the from server using the id
           this.sync('read', dataModel, options)
             .done(function(response) {
-              dataModel.set(configParams.parse ? configParams.parse(response) : response);
+              var parsedResponse = configParams.parse ? configParams.parse(response) : response;
+              if(isUndefined(parsedResponse[configParams.idAttribute])) {
+                throw new Error('Fetched dataModel does not contain the configured idAttribute: ' + configParams.idAttribute);
+              }
+              dataModel.set(parsedResponse);
             });
         }
       },
@@ -2296,7 +2300,8 @@ fw.bindingHandlers.$viewModel = {
 
 // Provides lifecycle functionality and $context for a given entity and element
 function setupContextAndLifeCycle(entity, element) {
-  if( isEntity(entity) ) {
+  if(isEntity(entity) && !entity.__private('afterBindingWasTriggered')) {
+    entity.__private('afterBindingWasTriggered', true);
     element = element || document.body;
 
     var context;
@@ -2869,7 +2874,8 @@ fw.component = function(componentDefinition) {
 // ------------------
 
 function componentTriggerAfterBinding(element, viewModel) {
-  if(isEntity(viewModel)) {
+  if(isEntity(viewModel) && !viewModel.__private('afterBindingWasTriggered')) {
+    viewModel.__private('afterBindingWasTriggered', true);
     var configParams = viewModel.__private('configParams');
     if(isFunction(configParams.afterBinding)) {
       var afterBinding = noop;
