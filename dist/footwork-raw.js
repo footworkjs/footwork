@@ -61,6 +61,7 @@ var pluck = _.pluck;
 var first = _.first;
 var intersection = _.intersection;
 var every = _.every;
+var isRegExp = _.isRegExp;
 
 // framework/init.js
 // ------------------
@@ -124,9 +125,40 @@ function hasHashStart(string) {
 }
 
 /**
+ * Performs an equality comparison between two objects while ensuring atleast one or more keys/values match and that all keys/values from object A also exist in B
+ * Note: object 'a' can provide a regex value for a property and have it searched matching on the regex value
+ * @param  {object} a Object to compare (which can contain regex values for properties)
+ * @param  {object} b Object to compare
+ * @param  {function} isEqual evauluator to use (optional)
+ * @return boolean   Result of equality comparison
+ */
+function regExpIsEqual(a, b, isEq) {
+  isEq = isEq || isEqual;
+
+  if(isObject(a) && isObject(b)) {
+    return every(reduce(a, function(comparison, paramValue, paramName) {
+      var isCongruent = false;
+      if(b[paramName]) {
+        if(isRegExp(paramValue)) {
+          isCongruent = !isNull(b[paramName].match(paramValue));
+        } else {
+          isCongruent = isEq(paramValue, b[paramName]);
+        }
+      }
+
+      comparison.push(isCongruent);
+      return comparison;
+    }, []));
+  } else {
+    return a === b;
+  }
+}
+
+/**
  * Performs an equality comparison between two objects ensuring only the common key values match (and that there is a non-0 number of them)
  * @param  {object} a Object to compare
  * @param  {object} b Object to compare
+ * @param  {function} isEqual evauluator to use (optional)
  * @return boolean   Result of equality comparison
  */
 function commonKeysEqual(a, b, isEq) {
@@ -145,6 +177,7 @@ function commonKeysEqual(a, b, isEq) {
  * In other words: A == B, but B does not necessarily == A
  * @param  {object} a Object to compare
  * @param  {object} b Object to compare
+ * @param  {function} isEqual evauluator to use (optional)
  * @return boolean   Result of equality comparison
  */
 function sortOfEqual(a, b, isEq) {
@@ -3185,12 +3218,12 @@ fw.collection = function(collectionData) {
   collectionData = collectionData || [];
 
   if(isUndefined(PlainCollectionConstructor)) {
-    PlainCollectionConstructor = fw.collection.constructor();
+    PlainCollectionConstructor = fw.collection.create();
   }
   return PlainCollectionConstructor(collectionData);
 };
 
-fw.collection.constructor = function(configParams) {
+fw.collection.create = function(configParams) {
   configParams = configParams || {};
 
   return function CollectionConstructor(collectionData) {
@@ -3361,7 +3394,7 @@ var collectionMethods = fw.collection.methods = {
 
     return reduce(collection(), function findModel(foundModels, model) {
       var thisModelData = castAsModelData(model);
-      if(sortOfEqual(modelData, thisModelData, options.isEqual)) {
+      if(regExpIsEqual(modelData, thisModelData, options.isEqual)) {
         foundModels.push(options.getData ? thisModelData : model);
       }
       return foundModels;
@@ -3375,7 +3408,7 @@ var collectionMethods = fw.collection.methods = {
 
     return reduce(collection(), function findModel(foundModel, model) {
       var thisModelData = castAsModelData(model);
-      if(isNull(foundModel) && sortOfEqual(modelData, thisModelData, options.isEqual)) {
+      if(isNull(foundModel) && regExpIsEqual(modelData, thisModelData, options.isEqual)) {
         return options.getData ? thisModelData : model;
       }
       return foundModel;
