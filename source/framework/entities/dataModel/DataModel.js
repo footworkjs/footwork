@@ -34,7 +34,11 @@ var DataModel = function(descriptor, configParams) {
           // retrieve data dataModel the from server using the id
           this.sync('read', dataModel, options)
             .done(function(response) {
-              dataModel.set(configParams.parse ? configParams.parse(response) : response);
+              var parsedResponse = configParams.parse ? configParams.parse(response) : response;
+              if(isUndefined(parsedResponse[configParams.idAttribute])) {
+                throw new Error('Fetched dataModel does not contain the configured idAttribute: ' + configParams.idAttribute);
+              }
+              dataModel.set(parsedResponse);
             });
         }
       },
