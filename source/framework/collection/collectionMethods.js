@@ -20,7 +20,7 @@ var collectionMethods = fw.collection.methods = {
       return models;
     }, []);
   },
-  set: function(newCollection) {
+  set: function(newCollection, options) {
     var collection = this;
     var collectionStore = collection();
     var castAsDataModel = collection.__private('castAs').dataModel;
@@ -28,6 +28,7 @@ var collectionMethods = fw.collection.methods = {
     var idAttribute = collection.__private('getIdAttribute')();
     var affectedModels = [];
     var absentModels = [];
+    options = options || {};
 
     each(newCollection, function checkModelPresence(modelData) {
       var modelPresent = false;
@@ -38,7 +39,7 @@ var collectionMethods = fw.collection.methods = {
 
         if(!isUndefined(modelData[idAttribute]) && !isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
           modelPresent = true;
-          if(!sortOfEqual(collectionModelData, modelData)) {
+          if(options.merge !== false && !sortOfEqual(collectionModelData, modelData)) {
             // found model, but needs an update
             model.set(modelData);
             collection.$namespace.publish('_.change', model);
@@ -47,7 +48,7 @@ var collectionMethods = fw.collection.methods = {
         }
       });
 
-      if(!modelPresent) {
+      if(!modelPresent && options.add !== false) {
         // not found in collection, we have to add this model
         var newModel = castAsDataModel(modelData);
         collection.push(newModel);
@@ -55,20 +56,22 @@ var collectionMethods = fw.collection.methods = {
       }
     });
 
-    each(collectionStore, function checkForRemovals(model) {
-      var collectionModelData = castAsModelData(model);
-      var modelPresent = reduce(newCollection, function(isPresent, modelData) {
-        return isPresent || commonKeysEqual(castAsModelData(modelData), collectionModelData);
-      }, false);
+    if(options.remove !== false) {
+      each(collectionStore, function checkForRemovals(model) {
+        var collectionModelData = castAsModelData(model);
+        var modelPresent = reduce(newCollection, function(isPresent, modelData) {
+          return isPresent || result(modelData, idAttribute) === collectionModelData[idAttribute];
+        }, !isUndefined(collectionModelData[idAttribute]) ? false : true);
 
-      if(!modelPresent) {
-        absentModels.push(model);
-        affectedModels.push(model);
+        if(!modelPresent) {
+          absentModels.push(model);
+          affectedModels.push(model);
+        }
+      });
+
+      if(absentModels.length) {
+        collection.removeAll(absentModels);
       }
-    });
-
-    if(absentModels.length) {
-      collection.removeAll(absentModels);
     }
 
     return affectedModels;

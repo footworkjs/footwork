@@ -44,6 +44,67 @@ describe('collection', function () {
     expect(people()[1].email()).to.be(person2Data.email);
   });
 
+  it('can be instantiated and correctly set() with some data and options', function() {
+    var persons = [
+      {
+        "id": 1,
+        "firstName": "PersonFirstNameTest1",
+        "lastName": "PersonLastNameTest1",
+        "email": "PersonEmailTest1"
+      }, {
+        "id": 2,
+        "firstName": "PersonFirstNameTest2",
+        "lastName": "PersonLastNameTest2",
+        "email": "PersonEmailTest2"
+      }, {
+        "id": 3,
+        "firstName": "PersonFirstNameTest3",
+        "lastName": "PersonLastNameTest3",
+        "email": "PersonEmailTest3"
+      }, {
+        "id": 4,
+        "firstName": "PersonFirstNameTest4",
+        "lastName": "PersonLastNameTest4",
+        "email": "PersonEmailTest4"
+      }
+    ];
+
+    var Person = fw.dataModel({
+      namespace: 'Person',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var PeopleCollection = fw.collection.create({
+      namespace: 'People',
+      dataModel: Person
+    });
+    var people = new PeopleCollection();
+
+    expect(people().length).to.be(0);
+
+    people.set(persons);
+
+    expect(people().length).to.be(4);
+
+    people.set([ _.extend({}, persons[0], { firstName: 'NOMERGE' }) ], { merge: false });
+    expect(people.get(persons[0].id).firstName()).not.to.be('NOMERGE');
+
+    people.set(persons);
+    expect(people().length).to.be(4);
+    people.set([ persons[0], persons[1] ], { remove: false });
+    expect(people().length).to.be(4);
+
+    people.set([ persons[0] ]);
+    expect(people().length).to.be(1);
+    people.set([ persons[0], persons[1] ], { add: false });
+    expect(people().length).to.be(1);
+  });
+
   it('can be instantiated with some data', function() {
     var person1Data = {
       "firstName": "PersonFirstNameTest",
@@ -576,7 +637,7 @@ describe('collection', function () {
     expect(recordedEvents).to.eql({
       'person1Data _.add': 2,
       'person1Data _.change': 1,
-      'person1Data _.remove': 0,
+      'person1Data _.remove': 1,
       'person2Data _.add': 2,
       'person2Data _.change': 0,
       'person2Data _.remove': 1
