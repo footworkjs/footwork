@@ -31,21 +31,20 @@ fw.collection.create = function(configParams) {
 
   return function CollectionConstructor(collectionData) {
     configParams = extend({}, defaultCollectionConfig, configParams);
+    var DataModelCtor = configParams.dataModel;
     var collection = fw.observableArray();
     var privateStuff = {
       castAs: {
         modelData: function(modelData) {
-          return isDataModel(modelData) ? modelData.get() : modelData;
+          return isDataModel(modelData) ? modelData.getData() : modelData;
         },
         dataModel: function(modelData) {
-          var DataModelCtor = configParams.dataModel;
           return isDataModelCtor(DataModelCtor) && !isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;
         }
       },
       getIdAttribute: function(options) {
         var idAttribute = configParams.idAttribute || (options || {}).idAttribute;
         if(isUndefined(idAttribute) || isNull(idAttribute)) {
-          var DataModelCtor = configParams.dataModel;
           if(isDataModelCtor(DataModelCtor)) {
             return DataModelCtor.__private('configParams').idAttribute;
           }

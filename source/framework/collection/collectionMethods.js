@@ -64,6 +64,7 @@ var collectionMethods = fw.collection.methods = {
         }, !isUndefined(collectionModelData[idAttribute]) ? false : true);
 
         if(!modelPresent) {
+          // model currently in collection not found in the supplied newCollection so we need to mark it for removal
           absentModels.push(model);
           affectedModels.push(model);
         }
@@ -172,7 +173,7 @@ var collectionMethods = fw.collection.methods = {
 
             if(!isUndefined(theModelData[idAttribute]) && !isNull(theModelData[idAttribute]) && theModelData[idAttribute] === collectionModelData[idAttribute]) {
               modelPresent = true;
-              if(!sortOfEqual(theModelData, collectionModelData) && options.merge) {
+              if(options.merge && !sortOfEqual(theModelData, collectionModelData)) {
                 // found model, but needs an update
                 model.set(theModelData);
                 collection.$namespace.publish('_.change', model);

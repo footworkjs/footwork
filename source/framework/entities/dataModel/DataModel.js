@@ -170,6 +170,10 @@ var DataModel = function(descriptor, configParams) {
         return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
       },
 
+      getData: function() {
+        return this.get();
+      },
+
       clean: function(field) {
         if(!isUndefined(field)) {
           var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
