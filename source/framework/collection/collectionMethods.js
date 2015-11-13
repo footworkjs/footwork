@@ -20,6 +20,14 @@ var collectionMethods = fw.collection.methods = {
       return models;
     }, []);
   },
+  pluck: function(attribute) {
+    var collection = this;
+    var castAsModelData = collection.__private('castAs').modelData;
+    return reduce(collection(), function(pluckedValues, model) {
+      pluckedValues.push(castAsModelData(model, attribute));
+      return pluckedValues;
+    }, []);
+  },
   set: function(newCollection, options) {
     var collection = this;
     var collectionStore = collection();

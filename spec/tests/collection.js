@@ -221,6 +221,27 @@ describe('collection', function () {
     expect(people()[insertPosition].firstName()).to.be(insertTestValue);
   });
 
+  it('can have data plucked from its entries', function() {
+    var persons = [
+      {
+        "firstName": "PersonFirstNameTest1",
+        "lastName": "PersonLastNameTest1",
+        "email": "PersonEmailTest1"
+      }, {
+        "firstName": "PersonFirstNameTest2",
+        "lastName": "PersonLastNameTest2",
+        "email": "PersonEmailTest2"
+      }
+    ];
+
+    var people = fw.collection(persons);
+
+    expect(people.pluck('firstName')).to.eql([
+      persons[0]['firstName'],
+      persons[1]['firstName']
+    ]);
+  });
+
   it('can find an individual model that matches a set of attributes', function() {
     var persons = [
       {

@@ -35,8 +35,14 @@ fw.collection.create = function(configParams) {
     var collection = fw.observableArray();
     var privateStuff = {
       castAs: {
-        modelData: function(modelData) {
-          return isDataModel(modelData) ? modelData.getData() : modelData;
+        modelData: function(modelData, attribute) {
+          if(isDataModel(modelData)) {
+            return modelData.getData(attribute);
+          }
+          if(isUndefined(attribute)) {
+            return modelData;
+          }
+          return result(modelData, attribute)
         },
         dataModel: function(modelData) {
           return isDataModelCtor(DataModelCtor) && !isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;
