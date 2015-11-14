@@ -174,6 +174,10 @@ var DataModel = function(descriptor, configParams) {
         return this.get();
       },
 
+      toJSON: function() {
+        return JSON.stringify(this.getData());
+      },
+
       clean: function(field) {
         if(!isUndefined(field)) {
           var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');

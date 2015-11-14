@@ -42,7 +42,7 @@ fw.collection.create = function(configParams) {
           if(isUndefined(attribute)) {
             return modelData;
           }
-          return result(modelData, attribute)
+          return result(modelData, attribute);
         },
         dataModel: function(modelData) {
           return isDataModelCtor(DataModelCtor) && !isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;

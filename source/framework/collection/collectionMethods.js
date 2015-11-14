@@ -20,6 +20,9 @@ var collectionMethods = fw.collection.methods = {
       return models;
     }, []);
   },
+  toJSON: function() {
+    return JSON.stringify(this.getData());
+  },
   pluck: function(attribute) {
     var collection = this;
     var castAsModelData = collection.__private('castAs').modelData;
