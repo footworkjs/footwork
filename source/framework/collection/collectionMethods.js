@@ -98,7 +98,7 @@ var collectionMethods = fw.collection.methods = {
       return newModels;
     }, []));
 
-    collection.$namespace.publish('_.reset', oldModels);
+    collection.$namespace.publish('_.reset', { newModels: collection(), oldModels: oldModels });
 
     return collection();
   },
@@ -114,8 +114,8 @@ var collectionMethods = fw.collection.methods = {
 
     xhr.done(function(resp) {
       var method = options.reset ? 'reset' : 'set';
-      collection[method](resp, options);
-      collection.$namespace.publish('sync', collection, resp, options);
+      var touchedModels = collection[method](resp, options);
+      collection.$namespace.publish('_.change', { touched: touchedModels, serverResponse: resp, options: options });
     });
 
     return xhr;

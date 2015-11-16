@@ -700,8 +700,9 @@ describe('collection', function () {
     var people = new PeopleCollection();
 
     var resetTriggered = false;
-    people.$namespace.subscribe('_.reset', function(dataModels) {
-      expect(dataModels.length).to.eql(2);
+    people.$namespace.subscribe('_.reset', function(resetData) {
+      expect(resetData.newModels.length).to.be(2);
+      expect(resetData.oldModels.length).to.be(2);
       resetTriggered = true;
     });
 
