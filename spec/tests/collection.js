@@ -758,14 +758,25 @@ describe('collection', function () {
     });
 
     var PeopleCollection = fw.collection.create({
-      namespace: 'People',
+      namespace: 'PeopleFetch',
       url: '/peopleCollectionGET',
       dataModel: Person
     });
     var people = new PeopleCollection();
 
+    var changeEventCalled = false;
+    fw.namespace('PeopleFetch').subscribe('_.change', function(changeData) {
+      expect(changeData).to.be.an('object');
+      expect(changeData.touched.length).to.be(peopleData.length);
+      expect(changeData.serverResponse).to.eql(peopleData);
+      expect(changeData.options).to.eql({ parse: true });
+      changeEventCalled = true;
+    });
+
     people.fetch();
+    expect(changeEventCalled).to.be(false);
     setTimeout(function() {
+      expect(changeEventCalled).to.be(true);
       expect(people().length).to.be(peopleData.length);
       expect(people()[0].firstName()).to.be(personData.firstName);
       done();
