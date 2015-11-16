@@ -731,13 +731,7 @@ describe('collection', function () {
       "email": null
     };
 
-    var idCount = 100;
-    function makePersonData() {
-      return _.extend({}, personData, {
-        id: idCount++
-      });
-    }
-    var peopleData = [ makePersonData(), makePersonData(), makePersonData(), makePersonData(), makePersonData() ];
+    var peopleData = [ personData, personData, personData, personData, personData ];
 
     $.mockjax({
       responseTime: 10,
@@ -746,21 +740,9 @@ describe('collection', function () {
       responseText: peopleData
     });
 
-    var Person = fw.dataModel({
-      namespace: 'Person',
-      url: '/personGETWithCustomId',
-      initialize: function(person) {
-        person = person || {};
-        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-        this.email = fw.observable(person.email || null).mapTo('email');
-      }
-    });
-
     var PeopleCollection = fw.collection.create({
       namespace: 'PeopleFetch',
       url: '/peopleCollectionGET',
-      dataModel: Person
     });
     var people = new PeopleCollection();
 
@@ -778,7 +760,7 @@ describe('collection', function () {
     setTimeout(function() {
       expect(changeEventCalled).to.be(true);
       expect(people().length).to.be(peopleData.length);
-      expect(people()[0].firstName()).to.be(personData.firstName);
+      expect(people()[0].firstName).to.be(personData.firstName);
       done();
     }, 40);
   });
@@ -823,13 +805,16 @@ describe('collection', function () {
     var people = new PeopleCollection();
 
     var resetTriggered = false;
-    people.$namespace.subscribe('_.reset', function(dataModels) {
+    people.$namespace.subscribe('_.reset', function(resetData) {
+      expect(resetData).to.be.an('object');
+      expect(resetData.oldModels).to.be.an('array');
+      expect(resetData.newModels).to.be.an('array');
       resetTriggered = true;
     });
 
-    expect(resetTriggered).to.be(false);
-
     people.fetch({ reset: true });
+
+    expect(resetTriggered).to.be(false);
     setTimeout(function() {
       expect(resetTriggered).to.be(true);
       expect(people().length).to.be(peopleData.length);
