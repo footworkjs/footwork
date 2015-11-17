@@ -102,9 +102,9 @@
     "gulp-uglify": "^0.3.0",
     "gulp-rename": "^1.2.0",
     "gulp-size": "~0.3.1",
-    "gulp-replace": "~0.3.0",
+    "gulp-replace": "0.5.4",
     "gulp-bump": "*",
-    "gulp-mocha-phantomjs": "0.8.0",
+    "gulp-mocha-phantomjs": "0.10.1",
     "gulp-less": "*"
   }
 }
