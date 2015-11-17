@@ -823,7 +823,7 @@ describe('collection', function () {
     }, 40);
   });
 
-  it('.push() correctly triggers _.add event', function() {
+  it('can .push() correctly', function() {
     var Person = fw.dataModel({
       namespace: 'Person',
       initialize: function(person) {
@@ -849,11 +849,12 @@ describe('collection', function () {
     });
 
     expect(addTriggered).to.be(false);
-    people.push(new Person());
+    people.push({});
     expect(addTriggered).to.be(true);
+    expect(people()[0].__isDataModel).to.be(true);
   });
 
-  it('.unshift() correctly triggers _.add event', function() {
+  it('can .unshift() correctly', function() {
     var Person = fw.dataModel({
       namespace: 'Person',
       initialize: function(person) {
@@ -865,7 +866,7 @@ describe('collection', function () {
     });
 
     var PeopleCollection = fw.collection.create({
-      namespace: 'PeoplePushEventCheck',
+      namespace: 'PeopleUnshiftEventCheck',
       dataModel: Person
     });
     var people = new PeopleCollection();
@@ -879,8 +880,9 @@ describe('collection', function () {
     });
 
     expect(addTriggered).to.be(false);
-    people.unshift(new Person());
+    people.unshift({});
     expect(addTriggered).to.be(true);
+    expect(people()[0].__isDataModel).to.be(true);
   });
 
   it('.remove() correctly triggers _.remove event', function() {

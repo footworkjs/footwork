@@ -9,7 +9,7 @@ function removeDisposeAndNotify(originalFunction) {
 }
 
 function addAndNotify(originalFunction) {
-  var addItems = Array.prototype.slice.call(arguments).splice(1);
+  var addItems = map(Array.prototype.slice.call(arguments).splice(1), this.__private('castAs').dataModel);
   var originalResult = originalFunction.apply(this, addItems);
   this.$namespace.publish('_.add', addItems);
   return originalResult;
