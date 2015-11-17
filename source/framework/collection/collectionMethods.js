@@ -207,6 +207,11 @@ var collectionMethods = fw.collection.methods = {
   },
   create: function(model, options) {
     var collection = this;
+
+    if(!isDataModelCtor(collection.__private('configParams').dataModel)) {
+      throw new Error('No dataModel specified, cannot create() a new collection item');
+    }
+
     var castAsDataModel = collection.__private('castAs').dataModel;
     options = options || {};
 
