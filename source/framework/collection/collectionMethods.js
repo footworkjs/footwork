@@ -250,9 +250,9 @@ var collectionMethods = fw.collection.methods = {
       if(isDataModel(model)) {
         removed = collection.remove(model);
       } else {
-        var modelToRemove = collection.findWhere(model);
-        if(!isNull(modelToRemove)) {
-          removed = collection.remove(modelToRemove);
+        var modelsToRemove = collection.where(model);
+        if(!isNull(modelsToRemove)) {
+          removed = collection.removeAll(modelsToRemove);
         }
       }
 

@@ -457,7 +457,7 @@ describe('collection', function () {
         "lastName": "PersonLastNameTest",
         "email": "PersonEmailTest"
       }, {
-        "firstName": "PersonFirstNameTest",
+        "firstName": "PersonFirstNameTest2",
         "email": "PersonEmailTest"
       }
     ];
@@ -477,7 +477,7 @@ describe('collection', function () {
         "lastName": "PersonLastNameTest",
         "email": "PersonEmailTest"
       }, {
-        "firstName": "PersonFirstNameTest",
+        "firstName": "PersonFirstNameTest2",
         "email": "PersonEmailTest"
       }
     ];
@@ -514,9 +514,9 @@ describe('collection', function () {
     };
     var person2Data = {
       "id": undefined,
-      "firstName": "PersonFirstNameTest",
-      "lastName": "PersonLastNameTest",
-      "email": "PersonEmailTest"
+      "firstName": "PersonFirstNameTest2",
+      "lastName": "PersonLastNameTest2",
+      "email": "PersonEmailTest2"
     };
 
     var Person = fw.dataModel({
