@@ -4,10 +4,10 @@ var sandbox = document.getElementById('sandbox');
 
 describe('dataModel', function () {
   it('has the ability to create a dataModel', function() {
-    expect(fw.dataModel).to.be.a('function');
-    expect(fw.dataModel()).to.be.a('function');
+    expect(fw.dataModel.create).to.be.a('function');
+    expect(fw.dataModel.create()).to.be.a('function');
 
-    var dataModel = new (fw.dataModel())();
+    var dataModel = new (fw.dataModel.create())();
 
     expect(dataModel.fetch).to.be.a('function');
     expect(dataModel.save).to.be.a('function');
@@ -17,7 +17,7 @@ describe('dataModel', function () {
   });
 
   it('has the ability to create a dataModel with a correctly defined namespace whos name we can retrieve', function() {
-    var ModelA = fw.dataModel({
+    var ModelA = fw.dataModel.create({
       namespace: 'dataModelA'
     });
     var modelA = new ModelA();
@@ -27,7 +27,7 @@ describe('dataModel', function () {
   });
 
   it('correctly names and increments counter for indexed dataModels', function() {
-    var IndexedDataModel = fw.dataModel({
+    var IndexedDataModel = fw.dataModel.create({
       namespace: 'IndexedDataModel',
       autoIncrement: true
     });
@@ -42,7 +42,7 @@ describe('dataModel', function () {
   });
 
   it('correctly applies a mixin to a dataModel', function() {
-    var DataModelWithMixin = fw.dataModel({
+    var DataModelWithMixin = fw.dataModel.create({
       namespace: 'DataModelWithMixin',
       mixins: [
         {
@@ -67,7 +67,7 @@ describe('dataModel', function () {
   });
 
   it('has the ability to create nested dataModels with correctly defined namespaces', function() {
-    var ModelA = fw.dataModel({
+    var ModelA = fw.dataModel.create({
       namespace: 'nestedDataModelA',
       initialize: function() {
         this.preSubModelNamespaceName = fw.utils.currentNamespaceName();
@@ -76,7 +76,7 @@ describe('dataModel', function () {
       }
     });
 
-    var ModelB = fw.dataModel({
+    var ModelB = fw.dataModel.create({
       namespace: 'nestedDataModelB',
       initialize: function() {
         this.preSubModelNamespaceName = fw.utils.currentNamespaceName();
@@ -85,7 +85,7 @@ describe('dataModel', function () {
       }
     });
 
-    var ModelC = fw.dataModel({
+    var ModelC = fw.dataModel.create({
       namespace: 'nestedDataModelC',
       initialize: function() {
         this.recordedNamespaceName = fw.utils.currentNamespaceName();
@@ -106,7 +106,7 @@ describe('dataModel', function () {
     var containerIsTheSame = false;
     var container = document.getElementById('afterBindingDataModel');
 
-    var ModelA = fw.dataModel({
+    var ModelA = fw.dataModel.create({
       namespace: 'ModelA',
       initialize: function() {
         if(!afterBindingWasCalledSecond) {
@@ -133,7 +133,7 @@ describe('dataModel', function () {
   it('after binding has the correct containing $element referenced', function(done) {
     var container = document.getElementById('afterBindingDataModelElementReference');
 
-    var ModelA = fw.viewModel({
+    var ModelA = fw.viewModel.create({
       namespace: 'ModelA',
       afterBinding: function(containingElement) {
         expect(containingElement).to.be(container);
@@ -147,9 +147,9 @@ describe('dataModel', function () {
   it('can register a dataModel', function() {
     expect( fw.components.isRegistered('registeredDataModelCheck') ).to.be(false);
 
-    fw.dataModels.register('registeredDataModelCheck', function() {});
+    fw.dataModel.register('registeredDataModelCheck', function() {});
 
-    expect( fw.dataModels.isRegistered('registeredDataModelCheck') ).to.be(true);
+    expect( fw.dataModel.isRegistered('registeredDataModelCheck') ).to.be(true);
   });
 
   it('can get a registered dataModel', function() {
@@ -157,42 +157,42 @@ describe('dataModel', function () {
 
     var RegisteredDataModelRetrieval = function() {};
 
-    fw.dataModels.register('registeredDataModelRetrieval', RegisteredDataModelRetrieval);
+    fw.dataModel.register('registeredDataModelRetrieval', RegisteredDataModelRetrieval);
 
-    expect( fw.dataModels.isRegistered('registeredDataModelRetrieval') ).to.be(true);
-    expect( fw.dataModels.getRegistered('registeredDataModelRetrieval') ).to.be(RegisteredDataModelRetrieval);
+    expect( fw.dataModel.isRegistered('registeredDataModelRetrieval') ).to.be(true);
+    expect( fw.dataModel.getRegistered('registeredDataModelRetrieval') ).to.be(RegisteredDataModelRetrieval);
   });
 
   it('can get all instantiated dataModels', function() {
-    var DataModel = fw.dataModel();
+    var DataModel = fw.dataModel.create();
     var dataModels = [ new DataModel(), new DataModel() ];
 
-    expect( _.keys(fw.dataModels.getAll()).length ).to.be.greaterThan(0);
+    expect( _.keys(fw.dataModel.getAll()).length ).to.be.greaterThan(0);
   });
 
   it('can get all instantiated dataModels of a specific type/name', function() {
     var dataModels = [];
-    var DataModel = fw.dataModel({ namespace: 'getAllSpecificDataModel' });
+    var DataModel = fw.dataModel.create({ namespace: 'getAllSpecificDataModel' });
     var numToMake = _.random(1,15);
 
     for(var x = numToMake; x; x--) {
       dataModels.push( new DataModel() );
     }
 
-    expect( _.keys(fw.dataModels.getAll('getAllSpecificDataModel')).length ).to.be(numToMake);
+    expect( _.keys(fw.dataModel.getAll('getAllSpecificDataModel')).length ).to.be(numToMake);
   });
 
   it('can autoRegister a dataModel during class method creation', function() {
-    var isRegistered = fw.dataModels.isRegistered('autoRegisteredDataModel');
+    var isRegistered = fw.dataModel.isRegistered('autoRegisteredDataModel');
 
     expect(isRegistered).to.be(false);
 
-    fw.dataModel({
+    fw.dataModel.create({
       namespace: 'autoRegisteredDataModel',
       autoRegister: true
     });
 
-    isRegistered = fw.dataModels.isRegistered('autoRegisteredDataModel');
+    isRegistered = fw.dataModel.isRegistered('autoRegisteredDataModel');
 
     expect(isRegistered).to.be(true);
   });
@@ -201,7 +201,7 @@ describe('dataModel', function () {
     var wasInitialized = false;
     var container = document.getElementById('declarativeDataModel');
 
-    fw.dataModel({
+    fw.dataModel.create({
       namespace: 'declarativeDataModel',
       autoRegister: true,
       initialize: function() {
@@ -223,7 +223,7 @@ describe('dataModel', function () {
     var container = document.getElementById('registeredDataModelInstance');
     var boundPropertyValue = 'registeredDataModelInstance';
 
-    fw.dataModels.register('registeredDataModelInstance', {
+    fw.dataModel.register('registeredDataModelInstance', {
       instance: {
         boundProperty: boundPropertyValue
       }
@@ -245,7 +245,7 @@ describe('dataModel', function () {
     var container = document.getElementById('registeredDataModelGenerated');
     var boundPropertyValue = 'registeredDataModelGenerated';
 
-    fw.dataModels.register('registeredDataModelGenerated', {
+    fw.dataModel.register('registeredDataModelGenerated', {
       createDataModel: function(params, info) {
         expect(params.var).to.be('registeredDataModelGenerated');
         expect(info.element.getAttribute('id')).to.be('registeredDataModelGeneratedElement');
@@ -273,7 +273,7 @@ describe('dataModel', function () {
     var afterBindingCalled = false;
     var theElement;
 
-    fw.dataModel({
+    fw.dataModel.create({
       namespace: 'afterBindingDataModelAnimation',
       autoRegister: true,
       initialize: function() {
@@ -305,7 +305,7 @@ describe('dataModel', function () {
     var outerWasInitialized = false;
     var innerWasInitialized = false;
 
-    fw.dataModel({
+    fw.dataModel.create({
       namespace: 'nestedDataModelOuter',
       autoRegister: true,
       initialize: function() {
@@ -313,7 +313,7 @@ describe('dataModel', function () {
       }
     });
 
-    fw.dataModel({
+    fw.dataModel.create({
       namespace: 'nestedDataModelInner',
       autoRegister: true,
       initialize: function() {
@@ -336,7 +336,7 @@ describe('dataModel', function () {
     var wasInitialized = false;
     var container = document.getElementById('paramsDataModel');
 
-    fw.dataModel({
+    fw.dataModel.create({
       namespace: 'paramsDataModel',
       autoRegister: true,
       initialize: function(params) {
@@ -359,14 +359,14 @@ describe('dataModel', function () {
     var container = document.getElementById('onDisposeDataModel');
     var onDisposeWasCalled = false;
 
-    var WrapperDataModel = fw.dataModel({
+    var WrapperDataModel = fw.dataModel.create({
       initialize: function() {
         this.showIt = fw.observable(true);
       }
     });
 
     var theElement;
-    var DataModelWithDispose = fw.dataModel({
+    var DataModelWithDispose = fw.dataModel.create({
       namespace: 'DataModelWithDispose',
       autoRegister: true,
       afterBinding: function(element) {
@@ -390,40 +390,40 @@ describe('dataModel', function () {
   });
 
   it('can have a registered location set and retrieved proplerly', function() {
-    fw.dataModels.registerLocation('registeredLocationRetrieval', '/bogus/path');
-    expect(fw.dataModels.getLocation('registeredLocationRetrieval')).to.be('/bogus/path');
+    fw.dataModel.registerLocation('registeredLocationRetrieval', '/bogus/path');
+    expect(fw.dataModel.getLocation('registeredLocationRetrieval')).to.be('/bogus/path');
   });
 
   it('can have an array of dataModels registered to a location and retrieved proplerly', function() {
-    fw.dataModels.registerLocation(['registeredLocationRetrievalArray1', 'registeredLocationRetrievalArray2'], '/bogus/path');
-    expect(fw.dataModels.getLocation('registeredLocationRetrievalArray1')).to.be('/bogus/path');
-    expect(fw.dataModels.getLocation('registeredLocationRetrievalArray2')).to.be('/bogus/path');
+    fw.dataModel.registerLocation(['registeredLocationRetrievalArray1', 'registeredLocationRetrievalArray2'], '/bogus/path');
+    expect(fw.dataModel.getLocation('registeredLocationRetrievalArray1')).to.be('/bogus/path');
+    expect(fw.dataModel.getLocation('registeredLocationRetrievalArray2')).to.be('/bogus/path');
   });
 
   it('can have a registered location with filename set and retrieved proplerly', function() {
-    fw.dataModels.registerLocation('registeredLocationWithFilenameRetrieval', '/bogus/path/__file__.js');
-    expect(fw.dataModels.getLocation('registeredLocationWithFilenameRetrieval')).to.be('/bogus/path/__file__.js');
+    fw.dataModel.registerLocation('registeredLocationWithFilenameRetrieval', '/bogus/path/__file__.js');
+    expect(fw.dataModel.getLocation('registeredLocationWithFilenameRetrieval')).to.be('/bogus/path/__file__.js');
   });
 
   it('can have a specific file extension set and used correctly', function() {
-    fw.dataModels.fileExtensions('.jscript');
-    fw.dataModels.registerLocation('registeredLocationWithExtensionRetrieval', '/bogus/path/');
+    fw.dataModel.fileExtensions('.jscript');
+    fw.dataModel.registerLocation('registeredLocationWithExtensionRetrieval', '/bogus/path/');
 
-    expect(fw.dataModels.getFileName('registeredLocationWithExtensionRetrieval')).to.be('registeredLocationWithExtensionRetrieval.jscript');
+    expect(fw.dataModel.getFileName('registeredLocationWithExtensionRetrieval')).to.be('registeredLocationWithExtensionRetrieval.jscript');
 
-    fw.dataModels.fileExtensions('.js');
+    fw.dataModel.fileExtensions('.js');
   });
 
   it('can have a callback specified as the extension with it invoked and the return value used', function() {
-    fw.dataModels.fileExtensions(function(moduleName) {
+    fw.dataModel.fileExtensions(function(moduleName) {
       expect(moduleName).to.be('registeredLocationWithFunctionExtensionRetrieval');
       return '.jscriptFunction';
     });
-    fw.dataModels.registerLocation('registeredLocationWithFunctionExtensionRetrieval', '/bogus/path/');
+    fw.dataModel.registerLocation('registeredLocationWithFunctionExtensionRetrieval', '/bogus/path/');
 
-    expect(fw.dataModels.getFileName('registeredLocationWithFunctionExtensionRetrieval')).to.be('registeredLocationWithFunctionExtensionRetrieval.jscriptFunction');
+    expect(fw.dataModel.getFileName('registeredLocationWithFunctionExtensionRetrieval')).to.be('registeredLocationWithFunctionExtensionRetrieval.jscriptFunction');
 
-    fw.dataModels.fileExtensions('.js');
+    fw.dataModel.fileExtensions('.js');
   });
 
   it('can load via requirejs with a declarative initialization from an already registered module', function(done) {
@@ -431,7 +431,7 @@ describe('dataModel', function () {
     var dataModelLoaded = false;
 
     define('AMDPreRegisteredDataModel', ['footwork'], function(fw) {
-      return fw.dataModel({
+      return fw.dataModel.create({
         initialize: function() {
           dataModelLoaded = true;
         }
@@ -451,7 +451,7 @@ describe('dataModel', function () {
     var container = document.getElementById('registeredDataModel');
     var registeredDataModelWasLoaded = false;
 
-    fw.dataModels.register('registeredDataModel', fw.dataModel({
+    fw.dataModel.register('registeredDataModel', fw.dataModel.create({
       initialize: function() {
         registeredDataModelWasLoaded = true;
       }
@@ -470,7 +470,7 @@ describe('dataModel', function () {
     var container = document.getElementById('AMDDataModel');
     window.AMDDataModelWasLoaded = false;
 
-    fw.dataModels.registerLocation('AMDDataModel', 'testAssets/');
+    fw.dataModel.registerLocation('AMDDataModel', 'testAssets/');
 
     expect(window.AMDDataModelWasLoaded).to.be(false);
     fw.start(container);
@@ -485,7 +485,7 @@ describe('dataModel', function () {
     var container = document.getElementById('AMDDataModelFullName');
     window.AMDDataModelFullNameWasLoaded = false;
 
-    fw.dataModels.registerLocation('AMDDataModelFullName', 'testAssets/AMDDataModelFullName.js');
+    fw.dataModel.registerLocation('AMDDataModelFullName', 'testAssets/AMDDataModelFullName.js');
 
     expect(window.AMDDataModelFullNameWasLoaded).to.be(false);
     fw.start(container);
@@ -500,7 +500,7 @@ describe('dataModel', function () {
     var container = document.getElementById('defaultDataModelLocation');
     window.defaultDataModelLocationLoaded = false;
 
-    fw.dataModels.defaultLocation('testAssets/defaultDataModelLocation/');
+    fw.dataModel.defaultLocation('testAssets/defaultDataModelLocation/');
 
     expect(window.defaultDataModelLocationLoaded).to.be(false);
 
@@ -513,7 +513,7 @@ describe('dataModel', function () {
   });
 
   it('can have an observable mapped correctly at the parent level', function() {
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         this.firstName = fw.observable(person.firstName).mapTo('firstName');
@@ -531,7 +531,7 @@ describe('dataModel', function () {
   });
 
   it('can have an observable mapped correctly at a nested level', function() {
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         this.firstName = fw.observable(person.firstName).mapTo('firstName');
@@ -565,7 +565,7 @@ describe('dataModel', function () {
   });
 
   it('can have observables mapped and retreived correctly via get', function() {
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         this.firstName = fw.observable(person.firstName).mapTo('firstName');
@@ -596,7 +596,7 @@ describe('dataModel', function () {
   });
 
   it('can have observables mapped and a specific one retreived correctly via get', function() {
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         this.firstName = fw.observable(person.firstName).mapTo('firstName');
@@ -628,7 +628,7 @@ describe('dataModel', function () {
   });
 
   it('can have observables mapped and an array of values retreived correctly via get', function() {
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         this.firstName = fw.observable(person.firstName).mapTo('firstName');
@@ -658,7 +658,7 @@ describe('dataModel', function () {
   });
 
   it('can have a correct dirtyMap() produced', function() {
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         this.firstName = fw.observable(person.firstName).mapTo('firstName');
@@ -708,7 +708,7 @@ describe('dataModel', function () {
   });
 
   it('can load data in using dataModel.set()', function() {
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         this.firstName = fw.observable().mapTo('firstName');
@@ -742,7 +742,7 @@ describe('dataModel', function () {
   });
 
   it('can (re)map the primary key', function() {
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(personData) {
         this.firstName = fw.observable().mapTo('firstName');
@@ -764,7 +764,7 @@ describe('dataModel', function () {
   });
 
   it('can correctly be flagged as dirty when a mapped field value is altered', function() {
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         this.firstName = fw.observable(person.firstName).mapTo('firstName');
@@ -811,7 +811,7 @@ describe('dataModel', function () {
       }
     });
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       url: '/personPOST',
       initialize: function(person) {
@@ -858,7 +858,7 @@ describe('dataModel', function () {
       responseText: _.extend({}, personData, { firstName: putValue })
     });
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       url: '/personPOSTPUT',
       initialize: function(person) {
@@ -901,7 +901,7 @@ describe('dataModel', function () {
       }
     });
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       url: '/personPOSTParse',
       parse: function(response) {
@@ -944,7 +944,7 @@ describe('dataModel', function () {
       responseText: _.extend({}, personData, { firstName: getValue })
     });
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       url: '/personGET',
       initialize: function(person) {
@@ -983,7 +983,7 @@ describe('dataModel', function () {
       responseText: personData
     });
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       url: '/personGETParse',
       parse: function(response) {
@@ -1026,7 +1026,7 @@ describe('dataModel', function () {
       responseText: _.extend({}, personData, { firstName: getValue })
     });
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       url: '/personGETWithCustomId',
       idAttribute: 'customId',
@@ -1066,7 +1066,7 @@ describe('dataModel', function () {
       responseText: _.extend({}, personData, { firstName: getValue })
     });
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       url: function() {
         return '/personGETWithUrlInEvaluator';

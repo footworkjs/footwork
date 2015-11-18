@@ -1,6 +1,6 @@
 define(['footwork'], function(fw) {
   return fw.component({
-    viewModel: fw.viewModel({
+    viewModel: fw.viewModel.create({
       initialize: function() {
         window.registeredComponentLocationLoaded = true;
       }

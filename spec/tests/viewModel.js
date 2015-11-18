@@ -4,12 +4,12 @@ var sandbox = document.getElementById('sandbox');
 
 describe('viewModel', function () {
   it('has the ability to create a viewModel', function() {
-    expect(fw.viewModel).to.be.a('function');
-    expect(fw.viewModel()).to.be.a('function');
+    expect(fw.viewModel.create).to.be.a('function');
+    expect(fw.viewModel.create()).to.be.a('function');
   });
 
   it('has the ability to create a viewModel with a correctly defined namespace whos name we can retrieve', function() {
-    var ModelA = fw.viewModel({
+    var ModelA = fw.viewModel.create({
       namespace: 'ModelA'
     });
     var modelA = new ModelA();
@@ -19,7 +19,7 @@ describe('viewModel', function () {
   });
 
   it('correctly names and increments counter for indexed viewModels', function() {
-    var IndexedViewModel = fw.viewModel({
+    var IndexedViewModel = fw.viewModel.create({
       namespace: 'IndexedViewModel',
       autoIncrement: true
     });
@@ -34,7 +34,7 @@ describe('viewModel', function () {
   });
 
   it('correctly applies a mixin to a viewModel', function() {
-    var ViewModelWithMixin = fw.viewModel({
+    var ViewModelWithMixin = fw.viewModel.create({
       namespace: 'ViewModelWithMixin',
       mixins: [
         {
@@ -59,7 +59,7 @@ describe('viewModel', function () {
   });
 
   it('has the ability to create nested viewModels with correctly defined namespaces', function() {
-    var ModelA = fw.viewModel({
+    var ModelA = fw.viewModel.create({
       namespace: 'ModelA',
       initialize: function() {
         this.preSubModelNamespaceName = fw.utils.currentNamespaceName();
@@ -68,7 +68,7 @@ describe('viewModel', function () {
       }
     });
 
-    var ModelB = fw.viewModel({
+    var ModelB = fw.viewModel.create({
       namespace: 'ModelB',
       initialize: function() {
         this.preSubModelNamespaceName = fw.utils.currentNamespaceName();
@@ -77,7 +77,7 @@ describe('viewModel', function () {
       }
     });
 
-    var ModelC = fw.viewModel({
+    var ModelC = fw.viewModel.create({
       namespace: 'ModelC',
       initialize: function() {
         this.recordedNamespaceName = fw.utils.currentNamespaceName();
@@ -98,7 +98,7 @@ describe('viewModel', function () {
     var containerIsTheSame = false;
     var container = document.getElementById('afterBindingViewModel');
 
-    var ModelA = fw.viewModel({
+    var ModelA = fw.viewModel.create({
       namespace: 'ModelA',
       initialize: function() {
         if(!afterBindingWasCalledSecond) {
@@ -125,7 +125,7 @@ describe('viewModel', function () {
   it('after binding has the correct containing $element referenced', function(done) {
     var container = document.getElementById('afterBindingViewModelElementReference');
 
-    var ModelA = fw.viewModel({
+    var ModelA = fw.viewModel.create({
       namespace: 'ModelA',
       afterBinding: function(containingElement) {
         expect(containingElement).to.be(container);
@@ -139,9 +139,9 @@ describe('viewModel', function () {
   it('can register a viewModel', function() {
     expect( fw.components.isRegistered('registeredViewModelCheck') ).to.be(false);
 
-    fw.viewModels.register('registeredViewModelCheck', function() {});
+    fw.viewModel.register('registeredViewModelCheck', function() {});
 
-    expect( fw.viewModels.isRegistered('registeredViewModelCheck') ).to.be(true);
+    expect( fw.viewModel.isRegistered('registeredViewModelCheck') ).to.be(true);
   });
 
   it('can get a registered viewModel', function() {
@@ -149,42 +149,42 @@ describe('viewModel', function () {
 
     var RegisteredViewModelRetrieval = function() {};
 
-    fw.viewModels.register('registeredViewModelRetrieval', RegisteredViewModelRetrieval);
+    fw.viewModel.register('registeredViewModelRetrieval', RegisteredViewModelRetrieval);
 
-    expect( fw.viewModels.isRegistered('registeredViewModelRetrieval') ).to.be(true);
-    expect( fw.viewModels.getRegistered('registeredViewModelRetrieval') ).to.be(RegisteredViewModelRetrieval);
+    expect( fw.viewModel.isRegistered('registeredViewModelRetrieval') ).to.be(true);
+    expect( fw.viewModel.getRegistered('registeredViewModelRetrieval') ).to.be(RegisteredViewModelRetrieval);
   });
 
   it('can get all instantiated viewModels', function() {
-    var ViewModel = fw.viewModel();
+    var ViewModel = fw.viewModel.create();
     var viewModels = [ new ViewModel(), new ViewModel() ];
 
-    expect( _.keys(fw.viewModels.getAll()).length ).to.be.greaterThan(0);
+    expect( _.keys(fw.viewModel.getAll()).length ).to.be.greaterThan(0);
   });
 
   it('can get all instantiated viewModels of a specific type/name', function() {
     var viewModels = [];
-    var ViewModel = fw.viewModel({ namespace: 'getAllSpecificViewModel' });
+    var ViewModel = fw.viewModel.create({ namespace: 'getAllSpecificViewModel' });
     var numToMake = _.random(1,15);
 
     for(var x = numToMake; x; x--) {
       viewModels.push( new ViewModel() );
     }
 
-    expect( fw.viewModels.getAll('getAllSpecificViewModel').length ).to.be(numToMake);
+    expect( fw.viewModel.getAll('getAllSpecificViewModel').length ).to.be(numToMake);
   });
 
   it('can autoRegister a viewModel during class method creation', function() {
-    var isRegistered = fw.viewModels.isRegistered('autoRegisteredViewModel');
+    var isRegistered = fw.viewModel.isRegistered('autoRegisteredViewModel');
 
     expect(isRegistered).to.be(false);
 
-    fw.viewModel({
+    fw.viewModel.create({
       namespace: 'autoRegisteredViewModel',
       autoRegister: true
     });
 
-    isRegistered = fw.viewModels.isRegistered('autoRegisteredViewModel');
+    isRegistered = fw.viewModel.isRegistered('autoRegisteredViewModel');
 
     expect(isRegistered).to.be(true);
   });
@@ -193,7 +193,7 @@ describe('viewModel', function () {
     var wasInitialized = false;
     var container = document.getElementById('declarativeViewModel');
 
-    fw.viewModel({
+    fw.viewModel.create({
       namespace: 'declarativeViewModel',
       autoRegister: true,
       initialize: function() {
@@ -215,7 +215,7 @@ describe('viewModel', function () {
     var container = document.getElementById('registeredViewModelInstance');
     var boundPropertyValue = 'registeredViewModelInstance';
 
-    fw.viewModels.register('registeredViewModelInstance', {
+    fw.viewModel.register('registeredViewModelInstance', {
       instance: {
         boundProperty: boundPropertyValue
       }
@@ -237,7 +237,7 @@ describe('viewModel', function () {
     var container = document.getElementById('registeredViewModelGenerated');
     var boundPropertyValue = 'registeredViewModelGenerated';
 
-    fw.viewModels.register('registeredViewModelGenerated', {
+    fw.viewModel.register('registeredViewModelGenerated', {
       createViewModel: function(params, info) {
         expect(params.var).to.be('registeredViewModelGenerated');
         expect(info.element.getAttribute('id')).to.be('registeredViewModelGeneratedElement');
@@ -265,7 +265,7 @@ describe('viewModel', function () {
     var afterBindingCalled = false;
     var theElement;
 
-    fw.viewModel({
+    fw.viewModel.create({
       namespace: 'afterBindingViewModelAnimation',
       autoRegister: true,
       initialize: function() {
@@ -297,7 +297,7 @@ describe('viewModel', function () {
     var outerWasInitialized = false;
     var innerWasInitialized = false;
 
-    fw.viewModel({
+    fw.viewModel.create({
       namespace: 'nestedViewModelOuter',
       autoRegister: true,
       initialize: function() {
@@ -305,7 +305,7 @@ describe('viewModel', function () {
       }
     });
 
-    fw.viewModel({
+    fw.viewModel.create({
       namespace: 'nestedViewModelInner',
       autoRegister: true,
       initialize: function() {
@@ -328,7 +328,7 @@ describe('viewModel', function () {
     var wasInitialized = false;
     var container = document.getElementById('paramsViewModel');
 
-    fw.viewModel({
+    fw.viewModel.create({
       namespace: 'paramsViewModel',
       autoRegister: true,
       initialize: function(params) {
@@ -351,14 +351,14 @@ describe('viewModel', function () {
     var container = document.getElementById('onDisposeViewModel');
     var onDisposeWasCalled = false;
 
-    var WrapperViewModel = fw.viewModel({
+    var WrapperViewModel = fw.viewModel.create({
       initialize: function() {
         this.showIt = fw.observable(true);
       }
     });
 
     var theElement;
-    var ViewModelWithDispose = fw.viewModel({
+    var ViewModelWithDispose = fw.viewModel.create({
       namespace: 'ViewModelWithDispose',
       autoRegister: true,
       afterBinding: function(element) {
@@ -382,40 +382,40 @@ describe('viewModel', function () {
   });
 
   it('can have a registered location set and retrieved proplerly', function() {
-    fw.viewModels.registerLocation('registeredLocationRetrieval', '/bogus/path');
-    expect(fw.viewModels.getLocation('registeredLocationRetrieval')).to.be('/bogus/path');
+    fw.viewModel.registerLocation('registeredLocationRetrieval', '/bogus/path');
+    expect(fw.viewModel.getLocation('registeredLocationRetrieval')).to.be('/bogus/path');
   });
 
   it('can have an array of models registered to a location and retrieved proplerly', function() {
-    fw.viewModels.registerLocation(['registeredLocationRetrievalArray1', 'registeredLocationRetrievalArray2'], '/bogus/path');
-    expect(fw.viewModels.getLocation('registeredLocationRetrievalArray1')).to.be('/bogus/path');
-    expect(fw.viewModels.getLocation('registeredLocationRetrievalArray2')).to.be('/bogus/path');
+    fw.viewModel.registerLocation(['registeredLocationRetrievalArray1', 'registeredLocationRetrievalArray2'], '/bogus/path');
+    expect(fw.viewModel.getLocation('registeredLocationRetrievalArray1')).to.be('/bogus/path');
+    expect(fw.viewModel.getLocation('registeredLocationRetrievalArray2')).to.be('/bogus/path');
   });
 
   it('can have a registered location with filename set and retrieved proplerly', function() {
-    fw.viewModels.registerLocation('registeredLocationWithFilenameRetrieval', '/bogus/path/__file__.js');
-    expect(fw.viewModels.getLocation('registeredLocationWithFilenameRetrieval')).to.be('/bogus/path/__file__.js');
+    fw.viewModel.registerLocation('registeredLocationWithFilenameRetrieval', '/bogus/path/__file__.js');
+    expect(fw.viewModel.getLocation('registeredLocationWithFilenameRetrieval')).to.be('/bogus/path/__file__.js');
   });
 
   it('can have a specific file extension set and used correctly', function() {
-    fw.viewModels.fileExtensions('.jscript');
-    fw.viewModels.registerLocation('registeredLocationWithExtensionRetrieval', '/bogus/path/');
+    fw.viewModel.fileExtensions('.jscript');
+    fw.viewModel.registerLocation('registeredLocationWithExtensionRetrieval', '/bogus/path/');
 
-    expect(fw.viewModels.getFileName('registeredLocationWithExtensionRetrieval')).to.be('registeredLocationWithExtensionRetrieval.jscript');
+    expect(fw.viewModel.getFileName('registeredLocationWithExtensionRetrieval')).to.be('registeredLocationWithExtensionRetrieval.jscript');
 
-    fw.viewModels.fileExtensions('.js');
+    fw.viewModel.fileExtensions('.js');
   });
 
   it('can have a callback specified as the extension with it invoked and the return value used', function() {
-    fw.viewModels.fileExtensions(function(moduleName) {
+    fw.viewModel.fileExtensions(function(moduleName) {
       expect(moduleName).to.be('registeredLocationWithFunctionExtensionRetrieval');
       return '.jscriptFunction';
     });
-    fw.viewModels.registerLocation('registeredLocationWithFunctionExtensionRetrieval', '/bogus/path/');
+    fw.viewModel.registerLocation('registeredLocationWithFunctionExtensionRetrieval', '/bogus/path/');
 
-    expect(fw.viewModels.getFileName('registeredLocationWithFunctionExtensionRetrieval')).to.be('registeredLocationWithFunctionExtensionRetrieval.jscriptFunction');
+    expect(fw.viewModel.getFileName('registeredLocationWithFunctionExtensionRetrieval')).to.be('registeredLocationWithFunctionExtensionRetrieval.jscriptFunction');
 
-    fw.viewModels.fileExtensions('.js');
+    fw.viewModel.fileExtensions('.js');
   });
 
   it('can load via requirejs with a declarative initialization from an already registered module', function(done) {
@@ -423,7 +423,7 @@ describe('viewModel', function () {
     var viewModelLoaded = false;
 
     define('AMDPreRegisteredViewModel', ['footwork'], function(fw) {
-      return fw.viewModel({
+      return fw.viewModel.create({
         initialize: function() {
           viewModelLoaded = true;
         }
@@ -443,7 +443,7 @@ describe('viewModel', function () {
     var container = document.getElementById('registeredViewModel');
     var registeredViewModelWasLoaded = false;
 
-    fw.viewModels.register('registeredViewModel', fw.viewModel({
+    fw.viewModel.register('registeredViewModel', fw.viewModel.create({
       initialize: function() {
         registeredViewModelWasLoaded = true;
       }
@@ -462,7 +462,7 @@ describe('viewModel', function () {
     var container = document.getElementById('AMDViewModel');
     window.AMDViewModelWasLoaded = false;
 
-    fw.viewModels.registerLocation('AMDViewModel', 'testAssets/');
+    fw.viewModel.registerLocation('AMDViewModel', 'testAssets/');
 
     expect(window.AMDViewModelWasLoaded).to.be(false);
     fw.start(container);
@@ -477,7 +477,7 @@ describe('viewModel', function () {
     var container = document.getElementById('AMDViewModelFullName');
     window.AMDViewModelFullNameWasLoaded = false;
 
-    fw.viewModels.registerLocation('AMDViewModelFullName', 'testAssets/AMDViewModelFullName.js');
+    fw.viewModel.registerLocation('AMDViewModelFullName', 'testAssets/AMDViewModelFullName.js');
 
     expect(window.AMDViewModelFullNameWasLoaded).to.be(false);
     fw.start(container);
@@ -492,7 +492,7 @@ describe('viewModel', function () {
     var container = document.getElementById('defaultViewModelLocation');
     window.defaultViewModelLocationLoaded = false;
 
-    fw.viewModels.defaultLocation('testAssets/defaultViewModelLocation/');
+    fw.viewModel.defaultLocation('testAssets/defaultViewModelLocation/');
 
     expect(window.defaultViewModelLocationLoaded).to.be(false);
 

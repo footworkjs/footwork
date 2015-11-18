@@ -6,9 +6,9 @@ describe('router', function () {
   it('has the ability to create a router', function() {
     var routerInitialized = false;
 
-    expect(fw.router).to.be.a('function');
+    expect(fw.router.create).to.be.a('function');
 
-    var routerConstructor = fw.router({
+    var routerConstructor = fw.router.create({
       initialize: function() {
         routerInitialized = true;
       }
@@ -19,7 +19,7 @@ describe('router', function () {
   });
 
   it('has the ability to create a router with a correctly defined namespace whos name we can retrieve', function() {
-    var Router = fw.router({
+    var Router = fw.router.create({
       namespace: 'RouterNamespaceCheck'
     });
     var router = new Router();
@@ -29,42 +29,42 @@ describe('router', function () {
   });
 
   it('can register a router', function() {
-    expect( fw.routers.isRegistered('registeredRouterCheck') ).to.be(false);
+    expect( fw.router.isRegistered('registeredRouterCheck') ).to.be(false);
 
-    fw.routers.register('registeredRouterCheck', function() {});
+    fw.router.register('registeredRouterCheck', function() {});
 
-    expect( fw.routers.isRegistered('registeredRouterCheck') ).to.be(true);
+    expect( fw.router.isRegistered('registeredRouterCheck') ).to.be(true);
   });
 
   it('can get a registered router', function() {
-    expect( fw.routers.isRegistered('registeredRouterRetrieval') ).to.be(false);
+    expect( fw.router.isRegistered('registeredRouterRetrieval') ).to.be(false);
 
     var RegisteredRouterRetrieval = function() {};
 
-    fw.routers.register('registeredRouterRetrieval', RegisteredRouterRetrieval);
+    fw.router.register('registeredRouterRetrieval', RegisteredRouterRetrieval);
 
-    expect( fw.routers.isRegistered('registeredRouterRetrieval') ).to.be(true);
-    expect( fw.routers.getRegistered('registeredRouterRetrieval') ).to.be(RegisteredRouterRetrieval);
+    expect( fw.router.isRegistered('registeredRouterRetrieval') ).to.be(true);
+    expect( fw.router.getRegistered('registeredRouterRetrieval') ).to.be(RegisteredRouterRetrieval);
   });
 
   it('can autoRegister a router', function() {
-    expect( fw.routers.isRegistered('autoRegisteredRouter') ).to.be(false);
+    expect( fw.router.isRegistered('autoRegisteredRouter') ).to.be(false);
 
-    var autoRegisteredRouter = fw.router({
+    var autoRegisteredRouter = fw.router.create({
       namespace: 'autoRegisteredRouter',
       autoRegister: true
     });
 
-    expect( fw.routers.isRegistered('autoRegisteredRouter') ).to.be(true);
-    expect( fw.routers.getRegistered('autoRegisteredRouter') ).to.be(autoRegisteredRouter);
+    expect( fw.router.isRegistered('autoRegisteredRouter') ).to.be(true);
+    expect( fw.router.getRegistered('autoRegisteredRouter') ).to.be(autoRegisteredRouter);
   });
 
   it('can get all instantiated routers', function() {
-    var RouterA = fw.router({ namespace: 'RouterA' });
-    var RouterB = fw.router({ namespace: 'RouterB' });
+    var RouterA = fw.router.create({ namespace: 'RouterA' });
+    var RouterB = fw.router.create({ namespace: 'RouterB' });
 
     var routers = [ new RouterA(), new RouterB() ];
-    var routerList = _.keys( fw.routers.getAll() );
+    var routerList = _.keys( fw.router.getAll() );
 
     expect( routerList ).to.contain('RouterA');
     expect( routerList ).to.contain('RouterB');
@@ -72,14 +72,14 @@ describe('router', function () {
 
   it('can get all instantiated routers of a specific namespace', function() {
     var routers = [];
-    var Router = fw.router({ namespace: 'getAllSpecificRouter' });
+    var Router = fw.router.create({ namespace: 'getAllSpecificRouter' });
     var numToMake = _.random(1,15);
 
     for(var x = numToMake; x; x--) {
       routers.push( new Router() );
     }
 
-    expect( fw.routers.getAll('getAllSpecificRouter').filter(function(instance) {
+    expect( fw.router.getAll('getAllSpecificRouter').filter(function(instance) {
       return instance.$namespace.getName() === 'getAllSpecificRouter';
     }).length ).to.be(numToMake);
   });
@@ -87,7 +87,7 @@ describe('router', function () {
   it('can be instantiated with a list of routes', function() {
     var routesList = [ '/', '/route1', '/route2' ];
 
-    var Router = fw.router({
+    var Router = fw.router.create({
       namespace: 'instantiatedListOfRoutes',
       routes: _.map(routesList, function(routePath) {
         return { route: routePath };
@@ -105,7 +105,7 @@ describe('router', function () {
   });
 
   it('can trigger beforeRoute with appropriate (filled in) url', function() {
-    var Router = fw.router({
+    var Router = fw.router.create({
       namespace: 'instantiatedListOfRoutes',
       beforeRoute: function(url) {
         beforeRouteRan = true;
@@ -131,7 +131,7 @@ describe('router', function () {
     var activated = false;
     var namespace = 'activatedViaCommand';
 
-    var Router = fw.router({
+    var Router = fw.router.create({
       namespace: namespace,
       initialize: function() {
         this.$namespace.event.handler('activated', function() {
@@ -151,7 +151,7 @@ describe('router', function () {
     var beforeRouteRan = false;
     var activated = false;
 
-    var Router = fw.router({
+    var Router = fw.router.create({
       namespace: 'namedRoute',
       initialize: function() {
         this.$namespace.event.handler('activated', function() {
@@ -187,7 +187,7 @@ describe('router', function () {
     var routeRan = false;
     var namespaceName = 'urlPartsRequest';
 
-    var Router = fw.router({
+    var Router = fw.router.create({
       namespace: namespaceName,
       routes: [
         {
@@ -220,7 +220,7 @@ describe('router', function () {
       expect(num).to.eql(theNum);
     };
 
-    var Router = fw.router({
+    var Router = fw.router.create({
       namespace: namespaceName,
       routes: [
         {
@@ -247,7 +247,7 @@ describe('router', function () {
     var activated = false;
     var routerNamespace = 'namedRouteViaCommand';
 
-    var Router = fw.router({
+    var Router = fw.router.create({
       namespace: routerNamespace,
       beforeRoute: function(url) {
         if(activated) {
@@ -276,7 +276,7 @@ describe('router', function () {
   });
 
   it('can be instantiated with a list of named routes and then matched against that name or set of names', function() {
-    var Router = fw.router({
+    var Router = fw.router.create({
       namespace: 'instantiatedListOfRoutes',
       routes: [
         {
@@ -306,7 +306,7 @@ describe('router', function () {
     var container = document.getElementById('declarativeRouterInstantiation');
     var wasInitialized = false;
 
-    fw.router({
+    fw.router.create({
       namespace: 'declarativeRouterInstantiation',
       autoRegister: true,
       initialize: function() {
@@ -330,7 +330,7 @@ describe('router', function () {
     var containerIsTheSame = false;
     var container = document.getElementById('afterBindingRouter');
 
-    var Router = fw.router({
+    var Router = fw.router.create({
       namespace: 'Router',
       initialize: function() {
         if(!afterBindingWasCalledSecond) {
@@ -360,7 +360,7 @@ describe('router', function () {
     var afterBindingCalled = false;
     var theElement;
 
-    fw.router({
+    fw.router.create({
       namespace: 'afterBindingRouterAnimation',
       autoRegister: true,
       initialize: function() {
@@ -392,7 +392,7 @@ describe('router', function () {
     var outerWasInitialized = false;
     var innerWasInitialized = false;
 
-    fw.router({
+    fw.router.create({
       namespace: 'declarativeNestedRouterInstantiationOuter',
       autoRegister: true,
       initialize: function() {
@@ -400,7 +400,7 @@ describe('router', function () {
       }
     });
 
-    fw.router({
+    fw.router.create({
       namespace: 'declarativeNestedRouterInstantiationInner',
       autoRegister: true,
       initialize: function() {
@@ -424,7 +424,7 @@ describe('router', function () {
     var container = document.getElementById('defaultRouteCheck');
     var defaultRouteRan = false;
 
-    fw.router({
+    fw.router.create({
       namespace: 'defaultRouteCheck',
       autoRegister: true,
       routes: [
@@ -452,7 +452,7 @@ describe('router', function () {
     var unknownRan = false;
     var router;
 
-    fw.router({
+    fw.router.create({
       namespace: 'unknownRouteCheck',
       autoRegister: true,
       initialize: function() {
@@ -481,7 +481,7 @@ describe('router', function () {
     var specifiedRouteRan = false;
     var router;
 
-    fw.router({
+    fw.router.create({
       namespace: 'specifiedRouteCheck',
       autoRegister: true,
       initialize: function() {
@@ -513,7 +513,7 @@ describe('router', function () {
     var specifiedRouteRan = false;
     var router;
 
-    fw.router({
+    fw.router.create({
       namespace: 'specifiedRouteArrayCheck',
       autoRegister: true,
       initialize: function() {
@@ -546,7 +546,7 @@ describe('router', function () {
     var testParam = 'luggageCode12345';
     var router;
 
-    fw.router({
+    fw.router.create({
       namespace: 'specifiedRouteWithReqParamCheck',
       autoRegister: true,
       initialize: function() {
@@ -581,7 +581,7 @@ describe('router', function () {
     var testParam = 'luggageCode12345';
     var router;
 
-    fw.router({
+    fw.router.create({
       namespace: 'specifiedRouteWithOptParamCheck',
       autoRegister: true,
       initialize: function() {
@@ -631,7 +631,7 @@ describe('router', function () {
       template: '<div></div>'
     });
 
-    fw.router({
+    fw.router.create({
       namespace: 'manipulateOutlet',
       autoRegister: true,
       initialize: function() {
@@ -669,7 +669,7 @@ describe('router', function () {
     var routerInstantiated = false;
     var router;
 
-    fw.router({
+    fw.router.create({
       namespace: 'outletRefCheck',
       autoRegister: true,
       initialize: function() {
@@ -703,7 +703,7 @@ describe('router', function () {
       template: '<div class="outletCallbackComponent"></div>'
     });
 
-    fw.router({
+    fw.router.create({
       namespace: 'outletCallback',
       autoRegister: true,
       initialize: function() {
@@ -756,14 +756,14 @@ describe('router', function () {
       template: '<div class="outletAfterRouter"></div>'
     });
 
-    fw.viewModels.register('outletAfterRouter', fw.viewModel({
+    fw.viewModel.register('outletAfterRouter', fw.viewModel.create({
       initialize: function() {
         viewModel = this;
         this.outletVisible = fw.observable(false);
       }
     }));
 
-    fw.router({
+    fw.router.create({
       namespace: 'outletAfterRouter',
       autoRegister: true,
       initialize: function() {
@@ -816,7 +816,7 @@ describe('router', function () {
     };
 
     function router(name) {
-      return fw.routers.getAll(name)[0];
+      return fw.router.getAll(name)[0];
     }
 
     fw.components.register('outletLoaderTestLoading', {
@@ -834,7 +834,7 @@ describe('router', function () {
       template: '<div class="outletLoaderTestLoaded"></div>'
     });
 
-    fw.router({
+    fw.router.create({
       namespace: 'outletLoaderTest',
       autoRegister: true,
       showDuringLoad: 'outletLoaderTestLoading',
@@ -873,7 +873,7 @@ describe('router', function () {
     };
 
     function router(name) {
-      return fw.routers.getAll(name)[0];
+      return fw.router.getAll(name)[0];
     }
 
     fw.components.register('outletLoaderTestCallbackLoading', {
@@ -891,7 +891,7 @@ describe('router', function () {
     });
 
     var theRouter;
-    fw.router({
+    fw.router.create({
       namespace: 'outletLoaderTestCallback',
       autoRegister: true,
       initialize: function() {
@@ -938,7 +938,7 @@ describe('router', function () {
     };
 
     function router(name) {
-      return fw.routers.getAll(name)[0];
+      return fw.router.getAll(name)[0];
     }
 
     fw.components.register('outletLoaderTestMinTimeLoading', {
@@ -956,7 +956,7 @@ describe('router', function () {
       template: '<div class="outletLoaderTestMinTimeLoaded"></div>'
     });
 
-    fw.router({
+    fw.router.create({
       namespace: 'outletLoaderTestMinTime',
       autoRegister: true,
       showDuringLoad: 'outletLoaderTestMinTimeLoading',
@@ -999,7 +999,7 @@ describe('router', function () {
     };
 
     function router(name) {
-      return fw.routers.getAll(name)[0];
+      return fw.router.getAll(name)[0];
     }
 
     fw.components.register('outletLoaderTestMinTimeCallbackLoading', {
@@ -1017,7 +1017,7 @@ describe('router', function () {
       template: '<div class="outletLoaderTestMinTimeCallbackLoaded"></div>'
     });
 
-    fw.router({
+    fw.router.create({
       namespace: 'outletLoaderTestMinTimeCallback',
       autoRegister: true,
       showDuringLoad: 'outletLoaderTestMinTimeCallbackLoading',
@@ -1060,7 +1060,7 @@ describe('router', function () {
     var innerRouterInstantiated = false;
     var subInnerRouterInstantiated = false;
 
-    fw.router({
+    fw.router.create({
       namespace: 'outerNestedRouteDependency',
       autoRegister: true,
       routes: [
@@ -1072,7 +1072,7 @@ describe('router', function () {
       }
     });
 
-    fw.router({
+    fw.router.create({
       namespace: 'innerNestedRouteDependency',
       autoRegister: true,
       routes: [
@@ -1084,7 +1084,7 @@ describe('router', function () {
       }
     });
 
-    fw.router({
+    fw.router.create({
       namespace: 'subInnerNestedRouteDependency',
       autoRegister: true,
       initialize: function() {
@@ -1093,7 +1093,7 @@ describe('router', function () {
     });
 
     function router(name) {
-      return fw.routers.getAll(name)[0];
+      return fw.router.getAll(name)[0];
     }
 
     expect(outerRouterInstantiated).to.be(false);
@@ -1136,7 +1136,7 @@ describe('router', function () {
     var outerRouterInstantiated = false;
     var innerRouterInstantiated = false;
 
-    fw.router({
+    fw.router.create({
       namespace: 'outerNestedRouteNonRelative',
       autoRegister: true,
       routes: [
@@ -1148,7 +1148,7 @@ describe('router', function () {
       }
     });
 
-    fw.router({
+    fw.router.create({
       namespace: 'innerNestedRouteNonRelative',
       autoRegister: true,
       isRelative: false,
@@ -1162,7 +1162,7 @@ describe('router', function () {
     });
 
     function router(name) {
-      return fw.routers.getAll(name)[0];
+      return fw.router.getAll(name)[0];
     }
 
     expect(outerRouterInstantiated).to.be(false);
@@ -1195,7 +1195,7 @@ describe('router', function () {
     var routerInitialized = false;
     var routeTouched = false;
 
-    fw.router({
+    fw.router.create({
       namespace: 'routeHrefBindingString',
       autoRegister: true,
       routes: [
@@ -1212,7 +1212,7 @@ describe('router', function () {
     });
 
     function router(name) {
-      return fw.routers.getAll(name)[0];
+      return fw.router.getAll(name)[0];
     }
 
     expect(routerInitialized).to.be(false);
@@ -1238,7 +1238,7 @@ describe('router', function () {
     var routerInitialized = false;
     var routeTouched = false;
 
-    fw.router({
+    fw.router.create({
       namespace: 'routeHrefBindingHrefAttr',
       autoRegister: true,
       routes: [
@@ -1255,7 +1255,7 @@ describe('router', function () {
     });
 
     function router(name) {
-      return fw.routers.getAll(name)[0];
+      return fw.router.getAll(name)[0];
     }
 
     expect(routerInitialized).to.be(false);
@@ -1283,7 +1283,7 @@ describe('router', function () {
     var changedRouteTouched = false;
     var viewModelInitialized = false;
 
-    fw.router({
+    fw.router.create({
       namespace: 'routeHrefBindingObservable',
       autoRegister: true,
       routes: [
@@ -1304,7 +1304,7 @@ describe('router', function () {
       }
     });
 
-    fw.viewModel({
+    fw.viewModel.create({
       namespace: 'routeHrefBindingObservable',
       autoRegister: true,
       initialize: function() {
@@ -1314,7 +1314,7 @@ describe('router', function () {
     });
 
     function viewModel(name) {
-      return fw.viewModels.getAll(name)[0];
+      return fw.viewModel.getAll(name)[0];
     }
 
     expect(routerInitialized).to.be(false);
@@ -1354,7 +1354,7 @@ describe('router', function () {
     var routerInitialized = false;
     var routeTouched = false;
 
-    fw.router({
+    fw.router.create({
       namespace: 'routeHrefBindingDefaultActiveClass',
       autoRegister: true,
       routes: [
@@ -1396,7 +1396,7 @@ describe('router', function () {
     var routerInitialized = false;
     var routeTouched = false;
 
-    fw.router({
+    fw.router.create({
       namespace: 'routeHrefBindingCustomActiveClass',
       autoRegister: true,
       routes: [
@@ -1440,7 +1440,7 @@ describe('router', function () {
     var routePath = '/routeHrefBindingCustomActiveClassObservable';
     var activeClassName = 'activeClassObservable';
 
-    fw.viewModel({
+    fw.viewModel.create({
       namespace: 'routeHrefBindingCustomActiveClassObservable',
       autoRegister: true,
       initialize: function() {
@@ -1448,7 +1448,7 @@ describe('router', function () {
       }
     });
 
-    fw.router({
+    fw.router.create({
       namespace: 'routeHrefBindingCustomActiveClassObservable',
       autoRegister: true,
       routes: [
@@ -1490,7 +1490,7 @@ describe('router', function () {
     var routerInitialized = false;
     var routeTouched = false;
 
-    fw.router({
+    fw.router.create({
       namespace: 'routeHrefBindingDisabledActiveClass',
       autoRegister: true,
       routes: [
@@ -1532,7 +1532,7 @@ describe('router', function () {
     var routerInitialized = false;
     var routeTouched = false;
 
-    fw.router({
+    fw.router.create({
       namespace: 'routeHrefBindingDisabledActiveClassObservable',
       autoRegister: true,
       routes: [
@@ -1575,7 +1575,7 @@ describe('router', function () {
     var routerInitialized = false;
     var routeTouched = false;
 
-    fw.router({
+    fw.router.create({
       namespace: 'routeHrefBindingCustomEvent',
       autoRegister: true,
       routes: [
@@ -1617,7 +1617,7 @@ describe('router', function () {
     var routerInitialized = false;
     var routeTouched = false;
 
-    fw.router({
+    fw.router.create({
       namespace: 'routeHrefBindingCustomEventObservable',
       autoRegister: true,
       routes: [
@@ -1662,7 +1662,7 @@ describe('router', function () {
     var customHandlerTouched = false;
     var allowHandlerEvent = false;
 
-    fw.router({
+    fw.router.create({
       namespace: 'routeHrefBindingCustomHandler',
       autoRegister: true,
       routes: [
@@ -1678,7 +1678,7 @@ describe('router', function () {
       }
     });
 
-    fw.viewModel({
+    fw.viewModel.create({
       namespace: 'routeHrefBindingCustomHandler',
       autoRegister: true,
       initialize: function() {
@@ -1693,7 +1693,7 @@ describe('router', function () {
     });
 
     function viewModel(name) {
-      return fw.viewModels.getAll(name)[0];
+      return fw.viewModel.getAll(name)[0];
     }
 
     expect(routerInitialized).to.be(false);
@@ -1731,7 +1731,7 @@ describe('router', function () {
     var routerInitialized = false;
     var viewModelInitialized = false;
 
-    fw.router({
+    fw.router.create({
       namespace: 'routeHrefBindingCustomUrlCallback',
       autoRegister: true,
       initialize: function() {
@@ -1739,7 +1739,7 @@ describe('router', function () {
       }
     });
 
-    fw.viewModel({
+    fw.viewModel.create({
       namespace: 'routeHrefBindingCustomUrlCallback',
       autoRegister: true,
       initialize: function() {
@@ -1773,7 +1773,7 @@ describe('router', function () {
     var viewModelInitialized = false;
     var altEventRan = false;
 
-    fw.router({
+    fw.router.create({
       namespace: 'routeHrefBindingAltEvent',
       autoRegister: true,
       initialize: function() {
@@ -1781,7 +1781,7 @@ describe('router', function () {
       }
     });
 
-    fw.viewModel({
+    fw.viewModel.create({
       namespace: 'routeHrefBindingAltEvent',
       autoRegister: true,
       initialize: function() {
@@ -1813,40 +1813,40 @@ describe('router', function () {
   });
 
   it('can have a registered location set and retrieved proplerly', function() {
-    fw.routers.registerLocation('registeredLocationRetrieval', '/bogus/path');
-    expect(fw.routers.getLocation('registeredLocationRetrieval')).to.be('/bogus/path');
+    fw.router.registerLocation('registeredLocationRetrieval', '/bogus/path');
+    expect(fw.router.getLocation('registeredLocationRetrieval')).to.be('/bogus/path');
   });
 
   it('can have an array of routers registered to a location and retrieved proplerly', function() {
-    fw.routers.registerLocation(['registeredLocationRetrievalArray1', 'registeredLocationRetrievalArray2'], '/bogus/path');
-    expect(fw.routers.getLocation('registeredLocationRetrievalArray1')).to.be('/bogus/path');
-    expect(fw.routers.getLocation('registeredLocationRetrievalArray2')).to.be('/bogus/path');
+    fw.router.registerLocation(['registeredLocationRetrievalArray1', 'registeredLocationRetrievalArray2'], '/bogus/path');
+    expect(fw.router.getLocation('registeredLocationRetrievalArray1')).to.be('/bogus/path');
+    expect(fw.router.getLocation('registeredLocationRetrievalArray2')).to.be('/bogus/path');
   });
 
   it('can have a registered location with filename set and retrieved proplerly', function() {
-    fw.routers.registerLocation('registeredLocationWithFilenameRetrieval', '/bogus/path/__file__.js');
-    expect(fw.routers.getLocation('registeredLocationWithFilenameRetrieval')).to.be('/bogus/path/__file__.js');
+    fw.router.registerLocation('registeredLocationWithFilenameRetrieval', '/bogus/path/__file__.js');
+    expect(fw.router.getLocation('registeredLocationWithFilenameRetrieval')).to.be('/bogus/path/__file__.js');
   });
 
   it('can have a specific file extension set and used correctly', function() {
-    fw.routers.fileExtensions('.jscript');
-    fw.routers.registerLocation('registeredLocationWithExtensionRetrieval', '/bogus/path/');
+    fw.router.fileExtensions('.jscript');
+    fw.router.registerLocation('registeredLocationWithExtensionRetrieval', '/bogus/path/');
 
-    expect(fw.routers.getFileName('registeredLocationWithExtensionRetrieval')).to.be('registeredLocationWithExtensionRetrieval.jscript');
+    expect(fw.router.getFileName('registeredLocationWithExtensionRetrieval')).to.be('registeredLocationWithExtensionRetrieval.jscript');
 
-    fw.routers.fileExtensions('.js');
+    fw.router.fileExtensions('.js');
   });
 
   it('can have a callback specified as the extension with it invoked and the return value used', function() {
-    fw.routers.fileExtensions(function(moduleName) {
+    fw.router.fileExtensions(function(moduleName) {
       expect(moduleName).to.be('registeredLocationWithFunctionExtensionRetrieval');
       return '.jscriptFunction';
     });
-    fw.routers.registerLocation('registeredLocationWithFunctionExtensionRetrieval', '/bogus/path/');
+    fw.router.registerLocation('registeredLocationWithFunctionExtensionRetrieval', '/bogus/path/');
 
-    expect(fw.routers.getFileName('registeredLocationWithFunctionExtensionRetrieval')).to.be('registeredLocationWithFunctionExtensionRetrieval.jscriptFunction');
+    expect(fw.router.getFileName('registeredLocationWithFunctionExtensionRetrieval')).to.be('registeredLocationWithFunctionExtensionRetrieval.jscriptFunction');
 
-    fw.routers.fileExtensions('.js');
+    fw.router.fileExtensions('.js');
   });
 
   it('can load via requirejs with a declarative initialization from an already registered module', function(done) {
@@ -1854,7 +1854,7 @@ describe('router', function () {
     var routerLoaded = false;
 
     define('AMDPreRegisteredRouter', ['footwork'], function(fw) {
-      return fw.router({
+      return fw.router.create({
         initialize: function() {
           routerLoaded = true;
         }
@@ -1874,7 +1874,7 @@ describe('router', function () {
     var container = document.getElementById('AMDRouter');
     window.AMDRouterWasLoaded = false;
 
-    fw.routers.registerLocation('AMDRouter', 'testAssets/');
+    fw.router.registerLocation('AMDRouter', 'testAssets/');
 
     expect(window.AMDRouterWasLoaded).to.be(false);
     fw.start(container);
@@ -1889,7 +1889,7 @@ describe('router', function () {
     var container = document.getElementById('AMDRouterFullName');
     window.AMDRouterFullNameWasLoaded = false;
 
-    fw.routers.registerLocation('AMDRouterFullName', 'testAssets/AMDRouterFullName.js');
+    fw.router.registerLocation('AMDRouterFullName', 'testAssets/AMDRouterFullName.js');
 
     expect(window.AMDRouterFullNameWasLoaded).to.be(false);
     fw.start(container);
@@ -1904,7 +1904,7 @@ describe('router', function () {
     var container = document.getElementById('defaultRouterLocation');
     window.defaultRouterLocationLoaded = false;
 
-    fw.routers.defaultLocation('testAssets/defaultRouterLocation/');
+    fw.router.defaultLocation('testAssets/defaultRouterLocation/');
 
     expect(window.defaultRouterLocationLoaded).to.be(false);
 

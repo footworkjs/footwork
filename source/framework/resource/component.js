@@ -14,7 +14,7 @@ fw.components.register = function(componentName, options) {
 
   if( isFunction(viewModel) && !isEntityCtor(viewModel) ) {
     options.namespace = componentName;
-    viewModel = fw.viewModel(options);
+    viewModel = fw.viewModel.create(options);
   }
 
   originalComponentRegisterFunc(componentName, {

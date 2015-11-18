@@ -56,7 +56,7 @@ fw.component = function(componentDefinition) {
   var viewModel = componentDefinition.viewModel;
 
   if( isFunction(viewModel) && !isEntityCtor(viewModel) ) {
-    componentDefinition.viewModel = fw.viewModel( omit(componentDefinition, 'template') );
+    componentDefinition.viewModel = fw.viewModel.create( omit(componentDefinition, 'template') );
   }
 
   return componentDefinition;

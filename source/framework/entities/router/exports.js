@@ -1,7 +1,7 @@
 // framework/entities/router/exports.js
 // -----------
 
-extend(fw.routers, {
+extend(fw.router, {
   // baseRoute / path which will always be stripped from the URL prior to processing the route
   baseRoute: fw.observable(''),
   activeRouteClassName: fw.observable('active'),

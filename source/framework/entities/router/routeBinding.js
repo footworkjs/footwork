@@ -94,7 +94,7 @@ fw.bindingHandlers.$route = {
             myLinkPath = $myRouter.__private('parentRouter')().path() + myLinkPath;
           }
 
-          if(fw.routers.html5History() === false) {
+          if(fw.router.html5History() === false) {
             myLinkPath = '#' + (myLinkPath.indexOf('/') === 0 ? myLinkPath.substring(1) : myLinkPath);
           }
         }
@@ -114,7 +114,7 @@ fw.bindingHandlers.$route = {
 
         if(isObject(currentRoute)) {
           if(resultBound(routeHandlerDescription, 'addActiveClass', $myRouter)) {
-            var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', $myRouter) || fw.routers.activeRouteClassName();
+            var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', $myRouter) || fw.router.activeRouteClassName();
             if(mySegment === '/') {
               mySegment = '';
             }
@@ -134,7 +134,7 @@ fw.bindingHandlers.$route = {
       var myCurrentSegment = routeURLWithoutParentPath();
       var routerConfig = $myRouter.__private('configParams');
       if( element.tagName.toLowerCase() === 'a' ) {
-        element.href = (fw.routers.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
+        element.href = (fw.router.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
       }
 
       if( isObject(stateTracker) ) {

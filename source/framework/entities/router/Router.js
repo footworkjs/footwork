@@ -10,7 +10,7 @@ var Router = function(descriptor, configParams) {
       var router = {};
       this.__private = privateData.bind(this, router, routerConfigParams);
 
-      routerConfigParams.baseRoute = fw.routers.baseRoute() + (resultBound(routerConfigParams, 'baseRoute', router) || '');
+      routerConfigParams.baseRoute = fw.router.baseRoute() + (resultBound(routerConfigParams, 'baseRoute', router) || '');
 
       var subscriptions = router.subscriptions = fw.observableArray();
       router.urlParts = fw.observable();
@@ -36,7 +36,7 @@ var Router = function(descriptor, configParams) {
         var urlParts = parseUri(url);
         router.urlParts(urlParts);
 
-        if(!fw.routers.html5History()) {
+        if(!fw.router.html5History()) {
           if(url.indexOf('#') !== -1) {
             url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
           } else if(router.currentState() !== url) {
@@ -278,7 +278,7 @@ var Router = function(descriptor, configParams) {
           if( historyIsReady() && !this.__private('disableHistory')() ) {
             History.Adapter.bind( windowObject, 'popstate', this.__private('stateChangeHandler', function(event) {
               var url = '';
-              if(!fw.routers.html5History() && windowObject.location.hash.length > 1) {
+              if(!fw.router.html5History() && windowObject.location.hash.length > 1) {
                 url = windowObject.location.hash;
               } else {
                 url = windowObject.location.pathname + windowObject.location.hash;

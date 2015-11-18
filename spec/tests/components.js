@@ -29,7 +29,7 @@ describe('components', function () {
 
     fw.components.register('declarative-component', {
       template: '<div>a template</div>',
-      viewModel: fw.viewModel({
+      viewModel: fw.viewModel.create({
         initialize: function() {
           componentInitialized = true;
         }
@@ -54,7 +54,7 @@ describe('components', function () {
 
     fw.components.register('component-animation', {
       template: '<div>a template</div>',
-      viewModel: fw.viewModel({
+      viewModel: fw.viewModel.create({
         namespace: 'afterBindingComponentAnimation',
         autoRegister: true,
         initialize: function() {
@@ -89,7 +89,7 @@ describe('components', function () {
 
     fw.components.register('nested-outer-declarative-component', {
       template: '<nested-inner-declarative-component></nested-inner-declarative-component>',
-      viewModel: fw.viewModel({
+      viewModel: fw.viewModel.create({
         initialize: function() {
           outerComponentInitialized = true;
         }
@@ -98,7 +98,7 @@ describe('components', function () {
 
     fw.components.register('nested-inner-declarative-component', {
       template: '<div></div>',
-      viewModel: fw.viewModel({
+      viewModel: fw.viewModel.create({
         initialize: function() {
           innerComponentInitialized = true;
         }
@@ -123,7 +123,7 @@ describe('components', function () {
 
     fw.components.register('pass-params-to-component', {
       template: '<div></div>',
-      viewModel: fw.viewModel({
+      viewModel: fw.viewModel.create({
         initialize: function(params) {
           expect(params.testValueOne).to.be(1);
           expect(params.testValueTwo).to.eql([1,2,3]);
@@ -324,7 +324,7 @@ describe('components', function () {
     var innerViewModelInstantiated = false;
 
     fw.components.registerLocation('template-only-component', { template: 'testAssets/' });
-    fw.viewModels.register('templateOnlyInnerCheck', fw.viewModel({
+    fw.viewModel.register('templateOnlyInnerCheck', fw.viewModel.create({
       initialize: function() {
         innerViewModelInstantiated = true;
       }

@@ -83,7 +83,7 @@ function createEntityFactories() {
   filter(entityDescriptors, function getOnlyDescriptorsWithMethodName(descriptor) {
     return isString(descriptor.methodName);
   }).forEach(function setupClassFactory(descriptor) {
-    fw[descriptor.methodName] = entityClassFactory.bind(null, descriptor);
+    fw[descriptor.methodName].create = entityClassFactory.bind(null, descriptor);
   });
 };
 

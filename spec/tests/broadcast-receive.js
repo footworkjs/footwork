@@ -2,7 +2,7 @@
 
 describe('broadcast-receive', function () {
   it('has the ability to create model with a broadcastable', function() {
-    var ModelA = fw.viewModel({
+    var ModelA = fw.viewModel.create({
       namespace: 'ModelA',
       initialize: function() {
         this.broadcaster = fw.observable().broadcastAs('broadcaster');
@@ -15,7 +15,7 @@ describe('broadcast-receive', function () {
   });
 
   it('has the ability to create model with a receivable', function() {
-    var ModelB = fw.viewModel({
+    var ModelB = fw.viewModel.create({
       namespace: 'ModelB',
       initialize: function() {
         this.receiver = fw.observable().receiveFrom('ModelA', 'broadcaster');
@@ -28,7 +28,7 @@ describe('broadcast-receive', function () {
   });
 
   it('modelB receivable can receive data from the modelA broadcastable', function() {
-    var ModelA = fw.viewModel({
+    var ModelA = fw.viewModel.create({
       namespace: 'ModelA',
       initialize: function() {
         this.broadcaster = fw.observable().broadcastAs('broadcaster');
@@ -36,7 +36,7 @@ describe('broadcast-receive', function () {
     });
     var modelA = new ModelA();
 
-    var ModelB = fw.viewModel({
+    var ModelB = fw.viewModel.create({
       namespace: 'ModelB',
       initialize: function() {
         this.receiver = fw.observable().receiveFrom('ModelA', 'broadcaster');
@@ -82,7 +82,7 @@ describe('broadcast-receive', function () {
   });
 
   it('modelB can write to a receivable and modelA sees the new data on a writable broadcastable', function() {
-    var ModelA = fw.viewModel({
+    var ModelA = fw.viewModel.create({
       namespace: 'ModelA',
       initialize: function() {
         this.writableBroadcaster = fw.observable().broadcastAs('writableBroadcaster', true);
@@ -90,7 +90,7 @@ describe('broadcast-receive', function () {
     });
     var modelA = new ModelA();
 
-    var ModelB = fw.viewModel({
+    var ModelB = fw.viewModel.create({
       namespace: 'ModelB',
       initialize: function() {
         this.writableReceiver = fw.observable().receiveFrom('ModelA', 'writableBroadcaster', true);
@@ -104,7 +104,7 @@ describe('broadcast-receive', function () {
   });
 
   it('when modelB tries to write to receivable modelA does not see the data on a non-writable broadcastable and the receivable is not set to the new value', function() {
-    var ModelA = fw.viewModel({
+    var ModelA = fw.viewModel.create({
       namespace: 'ModelA',
       initialize: function() {
         this.nonwritableBroadcaster = fw.observable().broadcastAs('nonwritableBroadcaster');
@@ -112,7 +112,7 @@ describe('broadcast-receive', function () {
     });
     var modelA = new ModelA();
 
-    var ModelB = fw.viewModel({
+    var ModelB = fw.viewModel.create({
       namespace: 'ModelB',
       initialize: function() {
         this.nonwritableReceiver = fw.observable().receiveFrom('ModelA', 'nonwritableBroadcaster', true);
@@ -127,7 +127,7 @@ describe('broadcast-receive', function () {
   });
 
   it('receivable with .when() specified writes when callback returns true', function() {
-    var ModelA = fw.viewModel({
+    var ModelA = fw.viewModel.create({
       namespace: 'ModelA',
       initialize: function() {
         this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback');
@@ -135,7 +135,7 @@ describe('broadcast-receive', function () {
     });
     var modelA = new ModelA();
 
-    var ModelB = fw.viewModel({
+    var ModelB = fw.viewModel.create({
       namespace: 'ModelB',
       initialize: function() {
         this.receiver = fw.observable().receiveFrom('ModelA', 'broadcasterToTestWhenCallback').when(function() { return true; });
@@ -149,7 +149,7 @@ describe('broadcast-receive', function () {
   });
 
   it('receivable with .when() specified does NOT write when callback returns false', function() {
-    var ModelA = fw.viewModel({
+    var ModelA = fw.viewModel.create({
       namespace: 'ModelA',
       initialize: function() {
         this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback');
@@ -157,7 +157,7 @@ describe('broadcast-receive', function () {
     });
     var modelA = new ModelA();
 
-    var ModelB = fw.viewModel({
+    var ModelB = fw.viewModel.create({
       namespace: 'ModelB',
       initialize: function() {
         this.receiver = fw.observable().receiveFrom('ModelA', 'broadcasterToTestWhenCallback').when(function() { return false; });
@@ -172,7 +172,7 @@ describe('broadcast-receive', function () {
   it('receivable with .when() sees correct value passed to it in the callback', function() {
     var valueInsideCallback = null;
 
-    var ModelA = fw.viewModel({
+    var ModelA = fw.viewModel.create({
       namespace: 'ModelA',
       initialize: function() {
         this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback');
@@ -180,7 +180,7 @@ describe('broadcast-receive', function () {
     });
     var modelA = new ModelA();
 
-    var ModelB = fw.viewModel({
+    var ModelB = fw.viewModel.create({
       namespace: 'ModelB',
       initialize: function() {
         this.receiver = fw.observable().receiveFrom('ModelA', 'broadcasterToTestWhenCallback').when(function(val) { valueInsideCallback = val; });

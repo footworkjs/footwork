@@ -15,7 +15,7 @@ describe('collection', function () {
       "email": "PersonEmailTest"
     };
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -69,7 +69,7 @@ describe('collection', function () {
       }
     ];
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -117,7 +117,7 @@ describe('collection', function () {
       "email": "PersonEmailTest"
     };
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -154,7 +154,7 @@ describe('collection', function () {
       "email": "PersonEmailTest"
     };
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -196,7 +196,7 @@ describe('collection', function () {
       }
     ];
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -254,7 +254,7 @@ describe('collection', function () {
       }
     ];
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -288,7 +288,7 @@ describe('collection', function () {
       }
     ];
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -335,7 +335,7 @@ describe('collection', function () {
       }
     ];
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -397,7 +397,7 @@ describe('collection', function () {
       responseText: responseValue
     });
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       url: destUrl,
       initialize: function(person) {
@@ -482,7 +482,7 @@ describe('collection', function () {
       }
     ];
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -519,7 +519,7 @@ describe('collection', function () {
       "email": "PersonEmailTest2"
     };
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -560,7 +560,7 @@ describe('collection', function () {
       }
     };
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'PersonEventCheck',
       initialize: function(person) {
         person = person || {};
@@ -684,7 +684,7 @@ describe('collection', function () {
       }
     };
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -788,7 +788,7 @@ describe('collection', function () {
       responseText: peopleData
     });
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -825,7 +825,7 @@ describe('collection', function () {
   });
 
   it('can .push() correctly', function() {
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -856,7 +856,7 @@ describe('collection', function () {
   });
 
   it('can .unshift() correctly', function() {
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -901,7 +901,7 @@ describe('collection', function () {
     }
     var peopleData = [ makePersonData(), makePersonData(), makePersonData(), makePersonData(), makePersonData() ];
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -942,7 +942,7 @@ describe('collection', function () {
     }
     var peopleData = [ makePersonData(), makePersonData(), makePersonData(), makePersonData(), makePersonData() ];
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -984,7 +984,7 @@ describe('collection', function () {
     }
     var peopleData = [ makePersonData(), makePersonData(), makePersonData(), makePersonData(), makePersonData() ];
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -1026,7 +1026,7 @@ describe('collection', function () {
     }
     var peopleData = [ makePersonData(), makePersonData(), makePersonData(), makePersonData(), makePersonData() ];
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -1068,7 +1068,7 @@ describe('collection', function () {
     }
     var peopleData = [ makePersonData(), makePersonData(), makePersonData(), makePersonData(), makePersonData() ];
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -1110,7 +1110,7 @@ describe('collection', function () {
     }
     var peopleData = [ makePersonData(), makePersonData(), makePersonData(), makePersonData(), makePersonData() ];
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
@@ -1147,7 +1147,7 @@ describe('collection', function () {
     }
     var peopleData = [ makePersonData(), makePersonData(), makePersonData(), makePersonData(), makePersonData() ];
 
-    var Person = fw.dataModel({
+    var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
         person = person || {};
