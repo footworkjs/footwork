@@ -1591,9 +1591,9 @@ fw.footworkVersion = '1.0.0';
 // Expose any embedded dependencies
 fw.embed = embedded;
 
-fw.viewModels = {};
-fw.dataModels = {};
-fw.routers = {};
+fw.viewModel = {};
+fw.dataModel = {};
+fw.router = {};
 fw.outlets = {};
 fw.settings = {};
 
@@ -1657,11 +1657,12 @@ function regExpIsEqual(a, b, isEq) {
   if(isObject(a) && isObject(b)) {
     return every(reduce(a, function(comparison, paramValue, paramName) {
       var isCongruent = false;
-      if(b[paramName]) {
+      var bParamValue = !isUndefined(b[paramName]) && !isNull(b[paramName]) ? b[paramName].toString() : b[paramName];
+      if(bParamValue) {
         if(isRegExp(paramValue)) {
-          isCongruent = !isNull(b[paramName].match(paramValue));
+          isCongruent = !isNull(bParamValue.match(paramValue));
         } else {
-          isCongruent = isEq(paramValue, b[paramName]);
+          isCongruent = isEq(paramValue, bParamValue);
         }
       }
 
@@ -2556,7 +2557,9 @@ var DataModel = function(descriptor, configParams) {
           this.sync('read', dataModel, options)
             .done(function(response) {
               var parsedResponse = configParams.parse ? configParams.parse(response) : response;
-              dataModel.set(parsedResponse);
+              if(!isUndefined(parsedResponse[configParams.idAttribute])) {
+                dataModel.set(parsedResponse);
+              }
             });
         }
       },
@@ -2687,6 +2690,14 @@ var DataModel = function(descriptor, configParams) {
         }, {});
 
         return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
+      },
+
+      getData: function() {
+        return this.get();
+      },
+
+      toJSON: function() {
+        return JSON.stringify(this.getData());
       },
 
       clean: function(field) {
@@ -3104,7 +3115,7 @@ fw.bindingHandlers.$route = {
             myLinkPath = $myRouter.__private('parentRouter')().path() + myLinkPath;
           }
 
-          if(fw.routers.html5History() === false) {
+          if(fw.router.html5History() === false) {
             myLinkPath = '#' + (myLinkPath.indexOf('/') === 0 ? myLinkPath.substring(1) : myLinkPath);
           }
         }
@@ -3124,7 +3135,7 @@ fw.bindingHandlers.$route = {
 
         if(isObject(currentRoute)) {
           if(resultBound(routeHandlerDescription, 'addActiveClass', $myRouter)) {
-            var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', $myRouter) || fw.routers.activeRouteClassName();
+            var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', $myRouter) || fw.router.activeRouteClassName();
             if(mySegment === '/') {
               mySegment = '';
             }
@@ -3144,7 +3155,7 @@ fw.bindingHandlers.$route = {
       var myCurrentSegment = routeURLWithoutParentPath();
       var routerConfig = $myRouter.__private('configParams');
       if( element.tagName.toLowerCase() === 'a' ) {
-        element.href = (fw.routers.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
+        element.href = (fw.router.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
       }
 
       if( isObject(stateTracker) ) {
@@ -3189,7 +3200,7 @@ fw.bindingHandlers.$route = {
 // framework/entities/router/exports.js
 // -----------
 
-extend(fw.routers, {
+extend(fw.router, {
   // baseRoute / path which will always be stripped from the URL prior to processing the route
   baseRoute: fw.observable(''),
   activeRouteClassName: fw.observable('active'),
@@ -3224,7 +3235,7 @@ var Router = function(descriptor, configParams) {
       var router = {};
       this.__private = privateData.bind(this, router, routerConfigParams);
 
-      routerConfigParams.baseRoute = fw.routers.baseRoute() + (resultBound(routerConfigParams, 'baseRoute', router) || '');
+      routerConfigParams.baseRoute = fw.router.baseRoute() + (resultBound(routerConfigParams, 'baseRoute', router) || '');
 
       var subscriptions = router.subscriptions = fw.observableArray();
       router.urlParts = fw.observable();
@@ -3250,7 +3261,7 @@ var Router = function(descriptor, configParams) {
         var urlParts = parseUri(url);
         router.urlParts(urlParts);
 
-        if(!fw.routers.html5History()) {
+        if(!fw.router.html5History()) {
           if(url.indexOf('#') !== -1) {
             url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
           } else if(router.currentState() !== url) {
@@ -3492,7 +3503,7 @@ var Router = function(descriptor, configParams) {
           if( historyIsReady() && !this.__private('disableHistory')() ) {
             History.Adapter.bind( windowObject, 'popstate', this.__private('stateChangeHandler', function(event) {
               var url = '';
-              if(!fw.routers.html5History() && windowObject.location.hash.length > 1) {
+              if(!fw.router.html5History() && windowObject.location.hash.length > 1) {
                 url = windowObject.location.hash;
               } else {
                 url = windowObject.location.pathname + windowObject.location.hash;
@@ -3620,7 +3631,7 @@ entityDescriptors = entityDescriptors.concat([
     tagName: 'viewmodel',
     methodName: 'viewModel',
     defaultLocation: '/viewModel/',
-    resource: fw.viewModels,
+    resource: fw.viewModel,
     behavior: [ ViewModel ],
     defaultConfig: {
       namespace: undefined,
@@ -3635,7 +3646,7 @@ entityDescriptors = entityDescriptors.concat([
     tagName: 'datamodel',
     methodName: 'dataModel',
     defaultLocation: '/dataModel/',
-    resource: fw.dataModels,
+    resource: fw.dataModel,
     behavior: [ ViewModel, DataModel ],
     defaultConfig: {
       idAttribute: 'id',
@@ -3654,7 +3665,7 @@ entityDescriptors = entityDescriptors.concat([
     tagName: 'router',
     methodName: 'router',
     defaultLocation: '/',
-    resource: fw.routers,
+    resource: fw.router,
     behavior: [ ViewModel, Router ],
     defaultConfig: {
       namespace: '$router',
@@ -3968,7 +3979,7 @@ function createEntityFactories() {
   filter(entityDescriptors, function getOnlyDescriptorsWithMethodName(descriptor) {
     return isString(descriptor.methodName);
   }).forEach(function setupClassFactory(descriptor) {
-    fw[descriptor.methodName] = entityClassFactory.bind(null, descriptor);
+    fw[descriptor.methodName].create = entityClassFactory.bind(null, descriptor);
   });
 };
 
@@ -4189,7 +4200,7 @@ fw.components.register = function(componentName, options) {
 
   if( isFunction(viewModel) && !isEntityCtor(viewModel) ) {
     options.namespace = componentName;
-    viewModel = fw.viewModel(options);
+    viewModel = fw.viewModel.create(options);
   }
 
   originalComponentRegisterFunc(componentName, {
@@ -4380,7 +4391,7 @@ fw.component = function(componentDefinition) {
   var viewModel = componentDefinition.viewModel;
 
   if( isFunction(viewModel) && !isEntityCtor(viewModel) ) {
-    componentDefinition.viewModel = fw.viewModel( omit(componentDefinition, 'template') );
+    componentDefinition.viewModel = fw.viewModel.create( omit(componentDefinition, 'template') );
   }
 
   return componentDefinition;
@@ -4737,7 +4748,7 @@ function removeDisposeAndNotify(originalFunction) {
 }
 
 function addAndNotify(originalFunction) {
-  var addItems = Array.prototype.slice.call(arguments).splice(1);
+  var addItems = map(Array.prototype.slice.call(arguments).splice(1), this.__private('castAs').dataModel);
   var originalResult = originalFunction.apply(this, addItems);
   this.$namespace.publish('_.add', addItems);
   return originalResult;
@@ -4759,21 +4770,26 @@ fw.collection.create = function(configParams) {
 
   return function CollectionConstructor(collectionData) {
     configParams = extend({}, defaultCollectionConfig, configParams);
+    var DataModelCtor = configParams.dataModel;
     var collection = fw.observableArray();
     var privateStuff = {
       castAs: {
-        modelData: function(modelData) {
-          return isDataModel(modelData) ? modelData.get() : modelData;
+        modelData: function(modelData, attribute) {
+          if(isDataModel(modelData)) {
+            return modelData.getData(attribute);
+          }
+          if(isUndefined(attribute)) {
+            return modelData;
+          }
+          return result(modelData, attribute);
         },
         dataModel: function(modelData) {
-          var DataModelCtor = configParams.dataModel;
           return isDataModelCtor(DataModelCtor) && !isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;
         }
       },
       getIdAttribute: function(options) {
         var idAttribute = configParams.idAttribute || (options || {}).idAttribute;
         if(isUndefined(idAttribute) || isNull(idAttribute)) {
-          var DataModelCtor = configParams.dataModel;
           if(isDataModelCtor(DataModelCtor)) {
             return DataModelCtor.__private('configParams').idAttribute;
           }
@@ -4832,7 +4848,18 @@ var collectionMethods = fw.collection.methods = {
       return models;
     }, []);
   },
-  set: function(newCollection) {
+  toJSON: function() {
+    return JSON.stringify(this.getData());
+  },
+  pluck: function(attribute) {
+    var collection = this;
+    var castAsModelData = collection.__private('castAs').modelData;
+    return reduce(collection(), function(pluckedValues, model) {
+      pluckedValues.push(castAsModelData(model, attribute));
+      return pluckedValues;
+    }, []);
+  },
+  set: function(newCollection, options) {
     var collection = this;
     var collectionStore = collection();
     var castAsDataModel = collection.__private('castAs').dataModel;
@@ -4840,6 +4867,7 @@ var collectionMethods = fw.collection.methods = {
     var idAttribute = collection.__private('getIdAttribute')();
     var affectedModels = [];
     var absentModels = [];
+    options = options || {};
 
     each(newCollection, function checkModelPresence(modelData) {
       var modelPresent = false;
@@ -4850,7 +4878,7 @@ var collectionMethods = fw.collection.methods = {
 
         if(!isUndefined(modelData[idAttribute]) && !isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
           modelPresent = true;
-          if(!sortOfEqual(collectionModelData, modelData)) {
+          if(options.merge !== false && !sortOfEqual(collectionModelData, modelData)) {
             // found model, but needs an update
             model.set(modelData);
             collection.$namespace.publish('_.change', model);
@@ -4859,7 +4887,7 @@ var collectionMethods = fw.collection.methods = {
         }
       });
 
-      if(!modelPresent) {
+      if(!modelPresent && options.add !== false) {
         // not found in collection, we have to add this model
         var newModel = castAsDataModel(modelData);
         collection.push(newModel);
@@ -4867,20 +4895,23 @@ var collectionMethods = fw.collection.methods = {
       }
     });
 
-    each(collectionStore, function checkForRemovals(model) {
-      var collectionModelData = castAsModelData(model);
-      var modelPresent = reduce(newCollection, function(isPresent, modelData) {
-        return isPresent || commonKeysEqual(castAsModelData(modelData), collectionModelData);
-      }, false);
+    if(options.remove !== false) {
+      each(collectionStore, function checkForRemovals(model) {
+        var collectionModelData = castAsModelData(model);
+        var modelPresent = reduce(newCollection, function(isPresent, modelData) {
+          return isPresent || result(modelData, idAttribute) === collectionModelData[idAttribute];
+        }, !isUndefined(collectionModelData[idAttribute]) ? false : true);
 
-      if(!modelPresent) {
-        absentModels.push(model);
-        affectedModels.push(model);
+        if(!modelPresent) {
+          // model currently in collection not found in the supplied newCollection so we need to mark it for removal
+          absentModels.push(model);
+          affectedModels.push(model);
+        }
+      });
+
+      if(absentModels.length) {
+        collection.removeAll(absentModels);
       }
-    });
-
-    if(absentModels.length) {
-      collection.removeAll(absentModels);
     }
 
     return affectedModels;
@@ -4895,7 +4926,7 @@ var collectionMethods = fw.collection.methods = {
       return newModels;
     }, []));
 
-    collection.$namespace.publish('_.reset', oldModels);
+    collection.$namespace.publish('_.reset', { newModels: collection(), oldModels: oldModels });
 
     return collection();
   },
@@ -4911,8 +4942,8 @@ var collectionMethods = fw.collection.methods = {
 
     xhr.done(function(resp) {
       var method = options.reset ? 'reset' : 'set';
-      collection[method](resp, options);
-      collection.$namespace.publish('sync', collection, resp, options);
+      var touchedModels = collection[method](resp, options);
+      collection.$namespace.publish('_.change', { touched: touchedModels, serverResponse: resp, options: options });
     });
 
     return xhr;
@@ -4945,7 +4976,7 @@ var collectionMethods = fw.collection.methods = {
       return foundModel;
     }, null);
   },
-  add: function(models, options) {
+  addModel: function(models, options) {
     var collection = this;
     var affectedModels = [];
     options = options || {};
@@ -4981,7 +5012,7 @@ var collectionMethods = fw.collection.methods = {
 
             if(!isUndefined(theModelData[idAttribute]) && !isNull(theModelData[idAttribute]) && theModelData[idAttribute] === collectionModelData[idAttribute]) {
               modelPresent = true;
-              if(!sortOfEqual(theModelData, collectionModelData) && options.merge) {
+              if(options.merge && !sortOfEqual(theModelData, collectionModelData)) {
                 // found model, but needs an update
                 model.set(theModelData);
                 collection.$namespace.publish('_.change', model);
@@ -5004,6 +5035,11 @@ var collectionMethods = fw.collection.methods = {
   },
   create: function(model, options) {
     var collection = this;
+
+    if(!isDataModelCtor(collection.__private('configParams').dataModel)) {
+      throw new Error('No dataModel specified, cannot create() a new collection item');
+    }
+
     var castAsDataModel = collection.__private('castAs').dataModel;
     options = options || {};
 
@@ -5015,13 +5051,13 @@ var collectionMethods = fw.collection.methods = {
 
       if(options.wait) {
         modelSavePromise.done(function() {
-          collection.add(newModel);
+          collection.addModel(newModel);
         });
       } else {
-        collection.add(newModel)
+        collection.addModel(newModel)
       }
     } else {
-      collection.add(newModel);
+      collection.addModel(newModel);
     }
 
     return modelSavePromise;
@@ -5037,14 +5073,22 @@ var collectionMethods = fw.collection.methods = {
       models = !isUndefined(models) && !isNull(models) ? [models] : [];
     }
 
-    each(models, function(model) {
+    return reduce(models, function(removedModels, model) {
+      var removed = null;
       if(isDataModel(model)) {
-        collection.remove(model);
+        removed = collection.remove(model);
       } else {
-        var modelToRemove = collection.findWhere(model);
-        !isNull(modelToRemove) && collection.remove(modelToRemove);
+        var modelsToRemove = collection.where(model);
+        if(!isNull(modelsToRemove)) {
+          removed = collection.removeAll(modelsToRemove);
+        }
       }
-    });
+
+      if(!isNull(removed)) {
+        return removedModels.concat(removed);
+      }
+      return removedModels;
+    }, []);
   }
 };
 

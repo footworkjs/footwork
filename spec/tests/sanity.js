@@ -18,7 +18,7 @@ describe('sanity', function () {
   });
 
   it('has a fw.outlet property', function() {
-    expect(fw.outlet).to.be.an('object');
+    expect(fw.outlets).to.be.an('object');
   });
 
   it('has the ability to create a namespace', function() {
