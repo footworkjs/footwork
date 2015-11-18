@@ -148,7 +148,7 @@ var collectionMethods = fw.collection.methods = {
       return foundModel;
     }, null);
   },
-  add: function(models, options) {
+  addModel: function(models, options) {
     var collection = this;
     var affectedModels = [];
     options = options || {};
@@ -223,13 +223,13 @@ var collectionMethods = fw.collection.methods = {
 
       if(options.wait) {
         modelSavePromise.done(function() {
-          collection.add(newModel);
+          collection.addModel(newModel);
         });
       } else {
-        collection.add(newModel)
+        collection.addModel(newModel)
       }
     } else {
-      collection.add(newModel);
+      collection.addModel(newModel);
     }
 
     return modelSavePromise;

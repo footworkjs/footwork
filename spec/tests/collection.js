@@ -215,9 +215,9 @@ describe('collection', function () {
     var people = new PeopleCollection(persons);
 
     expect(people().length).to.be(2);
-    people.add(persons[0]);
+    people.addModel(persons[0]);
     expect(people().length).to.be(3);
-    people.add(_.extend(persons[0], { firstName: insertTestValue }), { at: insertPosition });
+    people.addModel(_.extend(persons[0], { firstName: insertTestValue }), { at: insertPosition });
     expect(people()[insertPosition].firstName()).to.be(insertTestValue);
   });
 

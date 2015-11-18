@@ -42,11 +42,12 @@ function regExpIsEqual(a, b, isEq) {
   if(isObject(a) && isObject(b)) {
     return every(reduce(a, function(comparison, paramValue, paramName) {
       var isCongruent = false;
-      if(b[paramName]) {
+      var bParamValue = !isUndefined(b[paramName]) && !isNull(b[paramName]) ? b[paramName].toString() : b[paramName];
+      if(bParamValue) {
         if(isRegExp(paramValue)) {
-          isCongruent = !isNull(b[paramName].match(paramValue));
+          isCongruent = !isNull(bParamValue.match(paramValue));
         } else {
-          isCongruent = isEq(paramValue, b[paramName]);
+          isCongruent = isEq(paramValue, bParamValue);
         }
       }
 
