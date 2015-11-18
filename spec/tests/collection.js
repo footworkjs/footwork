@@ -450,7 +450,7 @@ describe('collection', function () {
     }, 40);
   });
 
-  it('can initialize and manipulate a plain collection', function() {
+  it('can initialize and manipulate a plain collection including removal of an item', function() {
     var persons = [
       {
         "firstName": "PersonFirstNameTest",
@@ -465,11 +465,12 @@ describe('collection', function () {
     var people = fw.collection(persons);
 
     expect(people.findWhere(persons[0])).to.be.an('object');
-    people.removeModel({ firstName: persons[0].firstName });
+    var removedModels = people.removeModel({ firstName: persons[0].firstName });
     expect(people.findWhere(persons[0])).to.be(null);
+    expect(removedModels).to.eql([persons[0]]);
   });
 
-  it('can remove a model correctly', function() {
+  it('can remove a dataModel correctly', function() {
     var persons = [
       {
         "firstName": "PersonFirstNameTest",

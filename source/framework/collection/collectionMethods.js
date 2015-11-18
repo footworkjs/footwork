@@ -245,13 +245,21 @@ var collectionMethods = fw.collection.methods = {
       models = !isUndefined(models) && !isNull(models) ? [models] : [];
     }
 
-    each(models, function(model) {
+    return reduce(models, function(removedModels, model) {
+      var removed = null;
       if(isDataModel(model)) {
-        collection.remove(model);
+        removed = collection.remove(model);
       } else {
         var modelToRemove = collection.findWhere(model);
-        !isNull(modelToRemove) && collection.remove(modelToRemove);
+        if(!isNull(modelToRemove)) {
+          removed = collection.remove(modelToRemove);
+        }
       }
-    });
+
+      if(!isNull(removed)) {
+        return removedModels.concat(removed);
+      }
+      return removedModels;
+    }, []);
   }
 };
