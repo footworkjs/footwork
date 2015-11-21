@@ -18,6 +18,17 @@ describe('viewModel', function () {
     expect(modelA.$namespace.getName()).to.eql('ModelA');
   });
 
+  it('has the ability to be instantiated with with extended params', function() {
+    var ModelA = fw.viewModel.create({
+      extend: {
+        extendedAttribute: true
+      }
+    });
+    var modelA = new ModelA();
+
+    expect(modelA.extendedAttribute).to.be(true);
+  });
+
   it('correctly names and increments counter for indexed viewModels', function() {
     var IndexedViewModel = fw.viewModel.create({
       namespace: 'IndexedViewModel',

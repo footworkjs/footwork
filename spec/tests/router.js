@@ -28,6 +28,17 @@ describe('router', function () {
     expect(router.$namespace.getName()).to.be('RouterNamespaceCheck');
   });
 
+  it('has the ability to be instantiated with with extended params', function() {
+    var Router = fw.router.create({
+      extend: {
+        extendedAttribute: true
+      }
+    });
+    var router = new Router();
+
+    expect(router.extendedAttribute).to.be(true);
+  });
+
   it('can register a router', function() {
     expect( fw.router.isRegistered('registeredRouterCheck') ).to.be(false);
 
