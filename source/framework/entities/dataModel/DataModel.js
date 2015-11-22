@@ -54,6 +54,11 @@ var DataModel = function(descriptor, configParams) {
           (attrs = {})[key] = val;
         }
 
+        if(isObject(options) && isFunction(options.stopPropagation)) {
+          // method called as a result of an event binding, ignore its 'options'
+          options = {};
+        }
+
         options = extend({
           parse: true,
           wait: false,

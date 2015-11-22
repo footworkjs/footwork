@@ -18,7 +18,7 @@ describe('viewModel', function () {
     expect(modelA.$namespace.getName()).to.eql('ModelA');
   });
 
-  it('has the ability to be instantiated with with extended params', function() {
+  it('has the ability to be instantiated with with extended attributes', function() {
     var ModelA = fw.viewModel.create({
       extend: {
         extendedAttribute: true

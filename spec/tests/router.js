@@ -28,7 +28,7 @@ describe('router', function () {
     expect(router.$namespace.getName()).to.be('RouterNamespaceCheck');
   });
 
-  it('has the ability to be instantiated with with extended params', function() {
+  it('has the ability to be instantiated with with extended attributes', function() {
     var Router = fw.router.create({
       extend: {
         extendedAttribute: true

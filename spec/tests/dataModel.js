@@ -26,7 +26,7 @@ describe('dataModel', function () {
     expect(modelA.$namespace.getName()).to.eql('dataModelA0');
   });
 
-  it('has the ability to be instantiated with with extended params', function() {
+  it('has the ability to be instantiated with with extended attributes', function() {
     var ModelA = fw.dataModel.create({
       extend: {
         extendedAttribute: true
