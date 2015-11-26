@@ -53,11 +53,11 @@ fw.components.tagIsComponent = function(tagName, isComponent) {
 };
 
 fw.component = function(componentDefinition) {
-  var viewModel = componentDefinition.viewModel;
-
-  if( isFunction(viewModel) && !isEntityCtor(viewModel) ) {
-    componentDefinition.viewModel = fw.viewModel.create( omit(componentDefinition, 'template') );
+  if(!isObject(componentDefinition)) {
+    throw new Error('fw.component() must be supplied with a componentDefinition configuration object.');
   }
+
+  componentDefinition.viewModel = componentDefinition.dataModel || componentDefinition.router || componentDefinition.viewModel;
 
   return componentDefinition;
 };
