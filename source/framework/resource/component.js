@@ -6,15 +6,10 @@ fw.components.resourceLocations = {};
 fw.components.fileExtensions = fw.observable( clone(defaultComponentFileExtensions) );
 
 fw.components.register = function(componentName, options) {
-  var viewModel = options.initialize || options.viewModel;
+  var viewModel = options.viewModel || options.dataModel || options.router;
 
   if( !isString(componentName) ) {
     throw new Error('Components must be provided a componentName.');
-  }
-
-  if( isFunction(viewModel) && !isEntityCtor(viewModel) ) {
-    options.namespace = componentName;
-    viewModel = fw.viewModel.create(options);
   }
 
   originalComponentRegisterFunc(componentName, {

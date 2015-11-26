@@ -46,6 +46,52 @@ describe('components', function () {
     }, 20);
   });
 
+  it('can instantiate a registered component via a <declarative> statement with a dataModel', function(done) {
+    var componentInitialized = false;
+    var container = document.getElementById('declarativeComponentDataModel');
+
+    fw.components.register('declarative-component-datamodel', {
+      template: '<div>a template</div>',
+      dataModel: fw.dataModel.create({
+        initialize: function() {
+          componentInitialized = true;
+        }
+      })
+    });
+
+    expect(componentInitialized).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(componentInitialized).to.be(true);
+      done();
+    }, 20);
+  });
+
+  it('can instantiate a registered component via a <declarative> statement with a router', function(done) {
+    var componentInitialized = false;
+    var container = document.getElementById('declarativeComponentRouter');
+
+    fw.components.register('declarative-component-router', {
+      template: '<div>a template</div>',
+      dataModel: fw.router.create({
+        initialize: function() {
+          componentInitialized = true;
+        }
+      })
+    });
+
+    expect(componentInitialized).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(componentInitialized).to.be(true);
+      done();
+    }, 20);
+  });
+
   it('has the animation classes applied properly', function(done) {
     var wasInitialized = false;
     var container = document.getElementById('afterBindingComponentAnimation');
