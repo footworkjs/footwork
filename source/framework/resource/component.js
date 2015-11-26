@@ -70,6 +70,16 @@ fw.components.defaultLocation = function(location) {
   return defaultComponentLocation;
 };
 
+function forceViewModelComponentConvention(componentLocation) {
+  if(isObject(componentLocation) && isUndefined(componentLocation.viewModel) && isUndefined(componentLocation.combined)) {
+    return {
+      viewModel: componentLocation.dataModel || componentLocation.router,
+      template: componentLocation.template
+    };
+  }
+  return componentLocation;
+}
+
 fw.components.registerLocation = function(componentName, componentLocation) {
   if( isArray(componentName) ) {
     each(componentName, function(name) {
@@ -83,7 +93,7 @@ fw.components.registerLocation = function(componentName, componentLocation) {
     });
   }
 
-  fw.components.resourceLocations[ componentName ] = extend({}, baseComponentLocation, componentLocation);
+  fw.components.resourceLocations[ componentName ] = extend({}, baseComponentLocation, forceViewModelComponentConvention(componentLocation));
 };
 
 fw.components.locationIsRegistered = function(componentName) {

@@ -343,6 +343,44 @@ describe('components', function () {
     }, 150);
   });
 
+  it('can specify and load via a registered location for a dataModel enabled component', function(done) {
+    var container = document.getElementById('registeredDataModelComponentLocation');
+    window.registeredComponentLocationLoaded = false;
+
+    fw.components.registerLocation('registered-datamodel-component-location', {
+      dataModel: 'testAssets/registeredComponentLocation/',
+      template: 'testAssets/registeredComponentLocation/'
+    });
+
+    expect(window.registeredComponentLocationLoaded).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(window.registeredComponentLocationLoaded).to.be(true);
+      done();
+    }, 150);
+  });
+
+  it('can specify and load via a registered location for a router enabled component', function(done) {
+    var container = document.getElementById('registeredRouterComponentLocation');
+    window.registeredComponentLocationLoaded = false;
+
+    fw.components.registerLocation('registered-router-component-location', {
+      router: 'testAssets/registeredComponentLocation/',
+      template: 'testAssets/registeredComponentLocation/'
+    });
+
+    expect(window.registeredComponentLocationLoaded).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(window.registeredComponentLocationLoaded).to.be(true);
+      done();
+    }, 150);
+  });
+
   it('can load with a declarative initialization from an already registered combined module', function(done) {
     var container = document.getElementById('specifiedCombinedComponentModule');
     var componentLoaded = false;
