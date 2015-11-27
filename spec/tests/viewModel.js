@@ -116,7 +116,7 @@ describe('viewModel', function () {
           initializeWasCalledFirst = true;
         }
       },
-      afterBinding: function(containingElement) {
+      afterRender: function(containingElement) {
         if(initializeWasCalledFirst) {
           afterBindingWasCalledSecond = true;
         }
@@ -138,7 +138,7 @@ describe('viewModel', function () {
 
     var ModelA = fw.viewModel.create({
       namespace: 'ModelA',
-      afterBinding: function(containingElement) {
+      afterRender: function(containingElement) {
         expect(containingElement).to.be(container);
         done();
       }
@@ -282,7 +282,7 @@ describe('viewModel', function () {
       initialize: function() {
         wasInitialized = true;
       },
-      afterBinding: function(element) {
+      afterRender: function(element) {
         afterBindingCalled = true;
         theElement = element;
         expect(theElement.className.indexOf('fw-entity-bound')).to.be(-1);
@@ -372,7 +372,7 @@ describe('viewModel', function () {
     var ViewModelWithDispose = fw.viewModel.create({
       namespace: 'ViewModelWithDispose',
       autoRegister: true,
-      afterBinding: function(element) {
+      afterRender: function(element) {
         theElement = element;
         expect(theElement.tagName).to.be('VIEWMODEL');
       },

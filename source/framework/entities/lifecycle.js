@@ -3,8 +3,8 @@
 
 // Provides lifecycle functionality and $context for a given entity and element
 function setupContextAndLifeCycle(entity, element) {
-  if(isEntity(entity) && !entity.__private('afterBindingWasTriggered')) {
-    entity.__private('afterBindingWasTriggered', true);
+  if(isEntity(entity) && !entity.__private('afterRenderWasTriggered')) {
+    entity.__private('afterRenderWasTriggered', true);
     element = element || document.body;
 
     var context;
@@ -17,19 +17,19 @@ function setupContextAndLifeCycle(entity, element) {
     entity.__private('element', element);
     entity.$context = entityContext = fw.contextFor(element);
 
-    var afterBinding = noop;
-    if(isFunction($configParams.afterBinding)) {
-      afterBinding = $configParams.afterBinding;
+    var afterRender = noop;
+    if(isFunction($configParams.afterRender)) {
+      afterRender = $configParams.afterRender;
     }
 
-    $configParams.afterBinding = function(containerElement) {
+    $configParams.afterRender = function(containerElement) {
       addClass(containerElement, entityClassName);
       setTimeout(function() {
         addClass(containerElement, bindingClassName);
       }, animationIteration);
-      afterBinding.call(this, containerElement);
+      afterRender.call(this, containerElement);
     };
-    $configParams.afterBinding.call(entity, element);
+    $configParams.afterRender.call(entity, element);
 
     if( isRouter(entity) ) {
       entity.__private('context')(entityContext);

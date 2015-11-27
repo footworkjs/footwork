@@ -1,26 +1,26 @@
 // framework/component/lifecycle.js
 // ------------------
 
-function componentTriggerAfterBinding(element, viewModel) {
-  if(isEntity(viewModel) && !viewModel.__private('afterBindingWasTriggered')) {
-    viewModel.__private('afterBindingWasTriggered', true);
+function componentTriggerafterRender(element, viewModel) {
+  if(isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
+    viewModel.__private('afterRenderWasTriggered', true);
     var configParams = viewModel.__private('configParams');
-    if(isFunction(configParams.afterBinding)) {
-      var afterBinding = noop;
-      if(isFunction(configParams.afterBinding)) {
-        afterBinding = configParams.afterBinding;
+    if(isFunction(configParams.afterRender)) {
+      var afterRender = noop;
+      if(isFunction(configParams.afterRender)) {
+        afterRender = configParams.afterRender;
       }
 
-      configParams.afterBinding = function(element) {
+      configParams.afterRender = function(element) {
         setTimeout(function() {
           if(element.className.indexOf(bindingClassName) === -1) {
             element.className += ' ' + bindingClassName;
           }
         }, animationIteration);
-        afterBinding.call(this, element);
+        afterRender.call(this, element);
       };
 
-      configParams.afterBinding.call(viewModel, element);
+      configParams.afterRender.call(viewModel, element);
     }
   }
 }
@@ -44,7 +44,7 @@ fw.bindingHandlers.$life = {
     if(isObject($parent) && $parent.__isOutlet && isFunction($parent.$route().__getOnCompleteCallback)) {
       $parent.$route().__getOnCompleteCallback(element)();
     }
-    componentTriggerAfterBinding(element, bindingContext.$data);
+    componentTriggerafterRender(element, bindingContext.$data);
   }
 };
 

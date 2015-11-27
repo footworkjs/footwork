@@ -106,7 +106,7 @@ describe('components', function () {
         initialize: function() {
           wasInitialized = true;
         },
-        afterBinding: function(element) {
+        afterRender: function(element) {
           afterBindingCalled = true;
           theElement = element;
           expect(theElement.className.indexOf('fw-entity-bound')).to.be(-1);
