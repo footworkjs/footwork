@@ -21,6 +21,11 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
       option = extend({
         name: varName
       }, option);
+    } else if( isString(option) ) {
+      option = extend({
+        name: varName,
+        namespace: option
+      }, option);
     } else {
       option = {
         name: varName

@@ -66,7 +66,9 @@ describe('broadcast-receive', function () {
     expect(receivable()).to.be(null);
 
     var broadcastable = fw.observable('testValue').broadcastAs({ name: 'broadcaster', namespace: 'alternativeSyntaxTestNamespace' });
+    expect(receivable()).to.be(broadcastable());
 
+    var broadcastable = fw.observable('testValue2').broadcastAs('broadcaster', 'alternativeSyntaxTestNamespace');
     expect(receivable()).to.be(broadcastable());
   });
 
