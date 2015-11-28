@@ -1736,6 +1736,16 @@ function resultBound(object, path, context, params) {
   return object[path];
 }
 
+function forceViewModelComponentConvention(componentLocation) {
+  if(isObject(componentLocation) && isUndefined(componentLocation.viewModel) && isUndefined(componentLocation.combined)) {
+    return {
+      viewModel: componentLocation.dataModel || componentLocation.router,
+      template: componentLocation.template
+    };
+  }
+  return componentLocation;
+}
+
 function getFilenameExtension(fileName) {
   var extension = '';
   if(fileName.indexOf('.') !== -1) {
@@ -2114,6 +2124,11 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
     } else if( isObject(option) ) {
       option = extend({
         name: varName
+      }, option);
+    } else if( isString(option) ) {
+      option = extend({
+        name: varName,
+        namespace: option
       }, option);
     } else {
       option = {
@@ -2574,6 +2589,11 @@ var DataModel = function(descriptor, configParams) {
           options = val;
         } else {
           (attrs = {})[key] = val;
+        }
+
+        if(isObject(options) && isFunction(options.stopPropagation)) {
+          // method called as a result of an event binding, ignore its 'options'
+          options = {};
         }
 
         options = extend({
@@ -3639,7 +3659,7 @@ entityDescriptors = entityDescriptors.concat([
       autoIncrement: false,
       extend: {},
       mixins: undefined,
-      afterBinding: noop,
+      afterRender: noop,
       onDispose: noop
     }
   }, {
@@ -3658,7 +3678,7 @@ entityDescriptors = entityDescriptors.concat([
       autoIncrement: true,
       extend: {},
       mixins: undefined,
-      afterBinding: noop,
+      afterRender: noop,
       onDispose: noop
     }
   }, {
@@ -3674,7 +3694,7 @@ entityDescriptors = entityDescriptors.concat([
       showDuringLoad: noComponentSelected,
       extend: {},
       mixins: undefined,
-      afterBinding: noop,
+      afterRender: noop,
       onDispose: noop,
       baseRoute: null,
       isRelative: true,
@@ -3827,8 +3847,8 @@ fw.bindingHandlers.$viewModel = {
 
 // Provides lifecycle functionality and $context for a given entity and element
 function setupContextAndLifeCycle(entity, element) {
-  if(isEntity(entity) && !entity.__private('afterBindingWasTriggered')) {
-    entity.__private('afterBindingWasTriggered', true);
+  if(isEntity(entity) && !entity.__private('afterRenderWasTriggered')) {
+    entity.__private('afterRenderWasTriggered', true);
     element = element || document.body;
 
     var context;
@@ -3841,19 +3861,19 @@ function setupContextAndLifeCycle(entity, element) {
     entity.__private('element', element);
     entity.$context = entityContext = fw.contextFor(element);
 
-    var afterBinding = noop;
-    if(isFunction($configParams.afterBinding)) {
-      afterBinding = $configParams.afterBinding;
+    var afterRender = noop;
+    if(isFunction($configParams.afterRender)) {
+      afterRender = $configParams.afterRender;
     }
 
-    $configParams.afterBinding = function(containerElement) {
+    $configParams.afterRender = function(containerElement) {
       addClass(containerElement, entityClassName);
       setTimeout(function() {
         addClass(containerElement, bindingClassName);
       }, animationIteration);
-      afterBinding.call(this, containerElement);
+      afterRender.call(this, containerElement);
     };
-    $configParams.afterBinding.call(entity, element);
+    $configParams.afterRender.call(entity, element);
 
     if( isRouter(entity) ) {
       entity.__private('context')(entityContext);
@@ -4192,15 +4212,10 @@ fw.components.resourceLocations = {};
 fw.components.fileExtensions = fw.observable( clone(defaultComponentFileExtensions) );
 
 fw.components.register = function(componentName, options) {
-  var viewModel = options.initialize || options.viewModel;
+  var viewModel = options.viewModel || options.dataModel || options.router;
 
   if( !isString(componentName) ) {
     throw new Error('Components must be provided a componentName.');
-  }
-
-  if( isFunction(viewModel) && !isEntityCtor(viewModel) ) {
-    options.namespace = componentName;
-    viewModel = fw.viewModel.create(options);
   }
 
   originalComponentRegisterFunc(componentName, {
@@ -4274,7 +4289,7 @@ fw.components.registerLocation = function(componentName, componentLocation) {
     });
   }
 
-  fw.components.resourceLocations[ componentName ] = extend({}, baseComponentLocation, componentLocation);
+  fw.components.resourceLocations[ componentName ] = extend({}, baseComponentLocation, forceViewModelComponentConvention(componentLocation));
 };
 
 fw.components.locationIsRegistered = function(componentName) {
@@ -4388,11 +4403,11 @@ fw.components.tagIsComponent = function(tagName, isComponent) {
 };
 
 fw.component = function(componentDefinition) {
-  var viewModel = componentDefinition.viewModel;
-
-  if( isFunction(viewModel) && !isEntityCtor(viewModel) ) {
-    componentDefinition.viewModel = fw.viewModel.create( omit(componentDefinition, 'template') );
+  if(!isObject(componentDefinition)) {
+    throw new Error('fw.component() must be supplied with a componentDefinition configuration object.');
   }
+
+  componentDefinition.viewModel = componentDefinition.dataModel || componentDefinition.router || componentDefinition.viewModel;
 
   return componentDefinition;
 };
@@ -4400,26 +4415,26 @@ fw.component = function(componentDefinition) {
 // framework/component/lifecycle.js
 // ------------------
 
-function componentTriggerAfterBinding(element, viewModel) {
-  if(isEntity(viewModel) && !viewModel.__private('afterBindingWasTriggered')) {
-    viewModel.__private('afterBindingWasTriggered', true);
+function componentTriggerafterRender(element, viewModel) {
+  if(isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
+    viewModel.__private('afterRenderWasTriggered', true);
     var configParams = viewModel.__private('configParams');
-    if(isFunction(configParams.afterBinding)) {
-      var afterBinding = noop;
-      if(isFunction(configParams.afterBinding)) {
-        afterBinding = configParams.afterBinding;
+    if(isFunction(configParams.afterRender)) {
+      var afterRender = noop;
+      if(isFunction(configParams.afterRender)) {
+        afterRender = configParams.afterRender;
       }
 
-      configParams.afterBinding = function(element) {
+      configParams.afterRender = function(element) {
         setTimeout(function() {
           if(element.className.indexOf(bindingClassName) === -1) {
             element.className += ' ' + bindingClassName;
           }
         }, animationIteration);
-        afterBinding.call(this, element);
+        afterRender.call(this, element);
       };
 
-      configParams.afterBinding.call(viewModel, element);
+      configParams.afterRender.call(viewModel, element);
     }
   }
 }
@@ -4443,7 +4458,7 @@ fw.bindingHandlers.$life = {
     if(isObject($parent) && $parent.__isOutlet && isFunction($parent.$route().__getOnCompleteCallback)) {
       $parent.$route().__getOnCompleteCallback(element)();
     }
-    componentTriggerAfterBinding(element, bindingContext.$data);
+    componentTriggerafterRender(element, bindingContext.$data);
   }
 };
 
