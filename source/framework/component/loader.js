@@ -42,10 +42,10 @@ fw.components.loaders.push(fw.components.requireLoader = {
 
           if( isPath(viewModelPath) ) {
             viewModelPath = viewModelPath + viewModelFile;
+          }
 
-            if( getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel') ) {
-              viewModelPath += '.' + getComponentExtension(componentName, 'viewModel');
-            }
+          if( getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel') ) {
+            viewModelPath += '.' + getComponentExtension(componentName, 'viewModel');
           }
 
           viewModelConfig = { require: require.toUrl(viewModelPath) };
