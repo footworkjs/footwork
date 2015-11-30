@@ -1,4 +1,4 @@
-![footwork.js](https://raw.github.com/jonbnewman/footwork/master/dist/gh-footwork-logo.png)
+![footwork.js](https://raw.github.com/footworkjs/footwork/master/dist/gh-footwork-logo.png)
 ========
 
 *```A solid footing for web applications.```*
@@ -17,9 +17,9 @@ For more details, see:
 
 * [Documentation/API](http://footworkjs.com/docs/list "Documentation and API information")
 
-* [Tutorials](http://footworkjs.com/tutorials "Tutorials and guides")
+* [Get Started](http://footworkjs.com/get-started "Tutorials and guides")
 
-[![Join the chat at https://gitter.im/jonbnewman/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jonbnewman/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/footworkjs/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/footworkjs/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ### Downloading footwork.js
 
@@ -50,7 +50,7 @@ bower install
 1) **Clone the repo from GitHub:**
 
 ```bash
-git clone https://github.com/jonbnewman/footwork.git
+git clone https://github.com/footworkjs/footwork.git
 cd footwork
 ```
 
@@ -84,7 +84,7 @@ gulp ci
 
 ### Documentation and Website Contributions
 
-There is a companion repository located at [https://github.com/jonbnewman/footworkjs.com](https://github.com/jonbnewman/footworkjs.com).
+There is a companion repository located at [https://github.com/footworkjs/footworkjs.com](https://github.com/footworkjs/footworkjs.com).
 
 If you wish to contribute to the documentation or main website you can do that here.
 
@@ -92,4 +92,4 @@ If you wish to contribute to the documentation or main website you can do that h
 
 MIT license - [http://www.opensource.org/licenses/mit-license.php](http://www.opensource.org/licenses/mit-license.php)
 
-[![Analytics](https://ga-beacon.appspot.com/UA-52543452-1/footwork/GITHUB-ROOT)](https://github.com/jonbnewman/ga-beacon)
+[![Analytics](https://ga-beacon.appspot.com/UA-52543452-1/footwork/GITHUB-ROOT)](https://github.com/footworkjs/ga-beacon)
