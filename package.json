@@ -37,7 +37,11 @@
     "all": {
       "required": [],
       "optional": [
-        { "label": "History.js", "url": "https://github.com/browserstate/history.js/", "note": "Used for browser history and router integration" }
+        {
+          "label": "History.js",
+          "url": "https://github.com/browserstate/history.js/",
+          "note": "Used for browser history and router integration"
+        }
       ]
     },
     "all-history": {
@@ -46,37 +50,84 @@
     },
     "minimal": {
       "required": [
-        { "label": "KnockoutJS", "url": "http://knockoutjs.com/", "note": "Any version >= 3.2.0" },
-        { "label": "Lodash", "url": "https://lodash.com/" }
+        {
+          "label": "KnockoutJS",
+          "url": "http://knockoutjs.com/",
+          "note": "Any version >= 3.2.0"
+        },
+        {
+          "label": "Lodash",
+          "url": "https://lodash.com/"
+        }
       ],
       "optional": [
-        { "label": "History.js", "url": "https://github.com/browserstate/history.js/", "note": "Used for browser history and router integration" }
+        {
+          "label": "History.js",
+          "url": "https://github.com/browserstate/history.js/",
+          "note": "Used for browser history and router integration"
+        }
       ]
     },
     "bare-reqwest": {
       "required": [
-        { "label": "KnockoutJS", "url": "http://knockoutjs.com/", "note": "Any version >= 3.2.0" },
-        { "label": "Lodash", "url": "https://lodash.com/" },
-        { "label": "postal.js", "url": "https://github.com/postaljs/postal.js" },
-        { "label": "reqwest", "url": "https://github.com/ded/reqwest", "note": "reqwest is used for AJAX functionality" }
+        {
+          "label": "KnockoutJS",
+          "url": "http://knockoutjs.com/",
+          "note": "Any version >= 3.2.0"
+        },
+        {
+          "label": "Lodash",
+          "url": "https://lodash.com/"
+        },
+        {
+          "label": "postal.js",
+          "url": "https://github.com/postaljs/postal.js"
+        },
+        {
+          "label": "reqwest",
+          "url": "https://github.com/ded/reqwest",
+          "note": "reqwest is used for AJAX functionality"
+        }
       ],
       "optional": [
-        { "label": "History.js", "url": "https://github.com/browserstate/history.js/", "note": "Used for browser history and router integration" }
+        {
+          "label": "History.js",
+          "url": "https://github.com/browserstate/history.js/",
+          "note": "Used for browser history and router integration"
+        }
       ]
     },
     "bare-jquery": {
       "required": [
-        { "label": "KnockoutJS", "url": "http://knockoutjs.com/", "note": "Any version >= 3.2.0" },
-        { "label": "Lodash", "url": "https://lodash.com/" },
-        { "label": "postal.js", "url": "https://github.com/postaljs/postal.js" },
-        { "label": "jQuery", "url": "https://jquery.com/", "note": "jQuery is used for AJAX functionality only" }
+        {
+          "label": "KnockoutJS",
+          "url": "http://knockoutjs.com/",
+          "note": "Any version >= 3.2.0"
+        },
+        {
+          "label": "Lodash",
+          "url": "https://lodash.com/"
+        },
+        {
+          "label": "postal.js",
+          "url": "https://github.com/postaljs/postal.js"
+        },
+        {
+          "label": "jQuery",
+          "url": "https://jquery.com/",
+          "note": "jQuery is used for AJAX functionality only"
+        }
       ],
       "optional": [
-        { "label": "History.js", "url": "https://github.com/browserstate/history.js/", "note": "Used for browser history and router integration" }
+        {
+          "label": "History.js",
+          "url": "https://github.com/browserstate/history.js/",
+          "note": "Used for browser history and router integration"
+        }
       ]
     }
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "http://footworkjs.com",
   "licenses": [
     {

@@ -276,6 +276,33 @@ describe('collection', function () {
     expect(people.findWhere({ shouldNotFind: true })).to.be(null);
   });
 
+  it('can find an item that matches a set of attributes in a complex set of models', function() {
+    var people = fw.collection([
+      {
+        "firstName": "PersonFirstNameTest",
+        "lastName": "PersonLastNameTest",
+        "attributes": {
+          nested: {
+            nested2: {
+              value: 'findme!'
+            }
+          }
+        }
+      }, {
+        "firstName": "PersonFirstNameTest",
+        "attributes": {
+          nested: {
+            nested2: {
+              value: 'donotfindme!'
+            }
+          }
+        }
+      }
+    ]);
+
+    expect(people.where({ attributes: { nested: { nested2: { value: 'findme!' } } } }).length).to.be(1);
+  });
+
   it('can find an individual model that matches a regex attribute', function() {
     var persons = [
       {
