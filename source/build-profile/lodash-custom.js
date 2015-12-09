@@ -45,5 +45,6 @@ root._ = {
   throttle: require('../../node_modules/lodash/function/throttle'),
   intersection: require('../../node_modules/lodash/array/intersection'),
   every: require('../../node_modules/lodash/collection/every'),
-  isRegExp: require('../../node_modules/lodash/lang/isRegExp')
+  isRegExp: require('../../node_modules/lodash/lang/isRegExp'),
+  identity: require('../../node_modules/lodash/utility/identity')
 };

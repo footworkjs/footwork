@@ -45,25 +45,27 @@ var collectionMethods = fw.collection.methods = {
       var modelPresent = false;
       modelData = castAsModelData(modelData);
 
-      each(collectionStore, function lookForModel(model) {
-        var collectionModelData = castAsModelData(model);
+      if(!isUndefined(modelData)) {
+        each(collectionStore, function lookForModel(model) {
+          var collectionModelData = castAsModelData(model);
 
-        if(!isUndefined(modelData[idAttribute]) && !isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
-          modelPresent = true;
-          if(options.merge !== false && !sortOfEqual(collectionModelData, modelData)) {
-            // found model, but needs an update
-            model.set(modelData);
-            collection.$namespace.publish('_.change', model);
-            affectedModels.push(model);
+          if(!isUndefined(modelData[idAttribute]) && !isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
+            modelPresent = true;
+            if(options.merge !== false && !sortOfEqual(collectionModelData, modelData)) {
+              // found model, but needs an update
+              model.set(modelData);
+              collection.$namespace.publish('_.change', model);
+              affectedModels.push(model);
+            }
           }
-        }
-      });
+        });
 
-      if(!modelPresent && options.add !== false) {
-        // not found in collection, we have to add this model
-        var newModel = castAsDataModel(modelData);
-        collection.push(newModel);
-        affectedModels.push(newModel);
+        if(!modelPresent && options.add !== false) {
+          // not found in collection, we have to add this model
+          var newModel = castAsDataModel(modelData);
+          collection.push(newModel);
+          affectedModels.push(newModel);
+        }
       }
     });
 
@@ -114,6 +116,7 @@ var collectionMethods = fw.collection.methods = {
 
     xhr.done(function(resp) {
       var method = options.reset ? 'reset' : 'set';
+      resp = collection.__private('configParams').parse(resp);
       var touchedModels = collection[method](resp, options);
       collection.$namespace.publish('_.change', { touched: touchedModels, serverResponse: resp, options: options });
     });

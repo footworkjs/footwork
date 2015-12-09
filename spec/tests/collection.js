@@ -793,6 +793,52 @@ describe('collection', function () {
     }, 40);
   });
 
+  it('can correctly fetch(), parse and set data from the server', function(done) {
+    var peopleData = [
+      {
+        "firstName": "PeopleFirstNameTest1",
+        "lastName": "PeopleLastNameTest1",
+        "email": "PeopleEmailTest1@email.com"
+      }, {
+        "firstName": "PeopleFirstNameTest2",
+        "lastName": "PeopleLastNameTest2",
+        "email": "PeopleEmailTest2@email.com"
+      }, {
+        "firstName": "PeopleFirstNameTest3",
+        "lastName": "PeopleLastNameTest2",
+        "email": "PeopleEmailTest3@email.com"
+      }
+    ];
+
+    $.mockjax({
+      responseTime: 10,
+      url: "/peopleCollectionGETParse",
+      type: 'GET',
+      responseText: peopleData
+    });
+
+    var PeopleCollection = fw.collection.create({
+      namespace: 'PeopleFetchAndParse',
+      url: '/peopleCollectionGETParse',
+      parse: function(people) {
+        return _.map(people, function(person) {
+          person.flag = true;
+          return person;
+        });
+      }
+    });
+
+    var people = new PeopleCollection();
+    people.fetch();
+
+    expect(people().length).to.be(0);
+    setTimeout(function() {
+      expect(people().length).to.be(peopleData.length);
+      expect(people()[0].flag).to.be(true);
+      done();
+    }, 40);
+  });
+
   it('can correctly fetch() and reset data from the server', function(done) {
     var personData = {
       "firstName": "PeopleFirstNameTest",

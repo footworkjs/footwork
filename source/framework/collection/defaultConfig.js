@@ -6,5 +6,6 @@ var defaultCollectionConfig = {
   url: null,
   dataModel: null,
   idAttribute: null,
-  disposeOnRemove: true
+  disposeOnRemove: true,
+  parse: identity,
 };
