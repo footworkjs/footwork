@@ -11,7 +11,7 @@ function hasClass(element, className) {
 
 function addClass(element, className) {
   if( hasClassName(element) && !hasClass(element, className) ) {
-    element.className += (element.className.length ? ' ' : '') + className;
+    element.className += (isNull(element.className.match(/ $/)) ? ' ' : '') + className;
   }
 }
 
