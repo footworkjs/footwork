@@ -1,7 +1,7 @@
 /**
  * footwork.js - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v1.0.0-all
+ * Version: v1.1.0-all
  * Url: http://footworkjs.com
  * License(s): MIT
  */
@@ -6018,10 +6018,11 @@ root._ = {
   throttle: require('../../node_modules/lodash/function/throttle'),
   intersection: require('../../node_modules/lodash/array/intersection'),
   every: require('../../node_modules/lodash/collection/every'),
-  isRegExp: require('../../node_modules/lodash/lang/isRegExp')
+  isRegExp: require('../../node_modules/lodash/lang/isRegExp'),
+  identity: require('../../node_modules/lodash/utility/identity')
 };
 
-},{"../../node_modules/lodash/array/first":2,"../../node_modules/lodash/array/indexOf":3,"../../node_modules/lodash/array/intersection":4,"../../node_modules/lodash/array/last":5,"../../node_modules/lodash/collection/any":6,"../../node_modules/lodash/collection/contains":7,"../../node_modules/lodash/collection/each":8,"../../node_modules/lodash/collection/every":9,"../../node_modules/lodash/collection/filter":10,"../../node_modules/lodash/collection/find":11,"../../node_modules/lodash/collection/findWhere":12,"../../node_modules/lodash/collection/invoke":15,"../../node_modules/lodash/collection/map":16,"../../node_modules/lodash/collection/pluck":17,"../../node_modules/lodash/collection/reduce":18,"../../node_modules/lodash/collection/reject":19,"../../node_modules/lodash/collection/where":21,"../../node_modules/lodash/function/after":23,"../../node_modules/lodash/function/bind":25,"../../node_modules/lodash/function/debounce":26,"../../node_modules/lodash/function/once":27,"../../node_modules/lodash/function/throttle":28,"../../node_modules/lodash/lang/clone":109,"../../node_modules/lodash/lang/isArray":111,"../../node_modules/lodash/lang/isBoolean":112,"../../node_modules/lodash/lang/isEqual":113,"../../node_modules/lodash/lang/isFunction":114,"../../node_modules/lodash/lang/isNull":116,"../../node_modules/lodash/lang/isNumber":117,"../../node_modules/lodash/lang/isObject":118,"../../node_modules/lodash/lang/isRegExp":120,"../../node_modules/lodash/lang/isString":121,"../../node_modules/lodash/lang/isUndefined":123,"../../node_modules/lodash/object/defaults":126,"../../node_modules/lodash/object/extend":127,"../../node_modules/lodash/object/has":128,"../../node_modules/lodash/object/keys":129,"../../node_modules/lodash/object/merge":131,"../../node_modules/lodash/object/omit":132,"../../node_modules/lodash/object/pick":133,"../../node_modules/lodash/object/result":134,"../../node_modules/lodash/object/values":135,"../../node_modules/lodash/utility/noop":140,"../../node_modules/lodash/utility/uniqueId":141}]},{},[142]);
+},{"../../node_modules/lodash/array/first":2,"../../node_modules/lodash/array/indexOf":3,"../../node_modules/lodash/array/intersection":4,"../../node_modules/lodash/array/last":5,"../../node_modules/lodash/collection/any":6,"../../node_modules/lodash/collection/contains":7,"../../node_modules/lodash/collection/each":8,"../../node_modules/lodash/collection/every":9,"../../node_modules/lodash/collection/filter":10,"../../node_modules/lodash/collection/find":11,"../../node_modules/lodash/collection/findWhere":12,"../../node_modules/lodash/collection/invoke":15,"../../node_modules/lodash/collection/map":16,"../../node_modules/lodash/collection/pluck":17,"../../node_modules/lodash/collection/reduce":18,"../../node_modules/lodash/collection/reject":19,"../../node_modules/lodash/collection/where":21,"../../node_modules/lodash/function/after":23,"../../node_modules/lodash/function/bind":25,"../../node_modules/lodash/function/debounce":26,"../../node_modules/lodash/function/once":27,"../../node_modules/lodash/function/throttle":28,"../../node_modules/lodash/lang/clone":109,"../../node_modules/lodash/lang/isArray":111,"../../node_modules/lodash/lang/isBoolean":112,"../../node_modules/lodash/lang/isEqual":113,"../../node_modules/lodash/lang/isFunction":114,"../../node_modules/lodash/lang/isNull":116,"../../node_modules/lodash/lang/isNumber":117,"../../node_modules/lodash/lang/isObject":118,"../../node_modules/lodash/lang/isRegExp":120,"../../node_modules/lodash/lang/isString":121,"../../node_modules/lodash/lang/isUndefined":123,"../../node_modules/lodash/object/defaults":126,"../../node_modules/lodash/object/extend":127,"../../node_modules/lodash/object/has":128,"../../node_modules/lodash/object/keys":129,"../../node_modules/lodash/object/merge":131,"../../node_modules/lodash/object/omit":132,"../../node_modules/lodash/object/pick":133,"../../node_modules/lodash/object/result":134,"../../node_modules/lodash/object/values":135,"../../node_modules/lodash/utility/identity":139,"../../node_modules/lodash/utility/noop":140,"../../node_modules/lodash/utility/uniqueId":141}]},{},[142]);
 
 
     (function() {
@@ -7539,12 +7540,13 @@ var first = _.first;
 var intersection = _.intersection;
 var every = _.every;
 var isRegExp = _.isRegExp;
+var identity = _.identity;
 
 // framework/init.js
 // ------------------
 
 // Record the footwork version as of this build.
-fw.footworkVersion = '1.0.0';
+fw.footworkVersion = '1.1.0';
 
 // Expose any embedded dependencies
 fw.embed = embedded;
@@ -7610,12 +7612,12 @@ function hasHashStart(string) {
  * @return boolean   Result of equality comparison
  */
 function regExpIsEqual(a, b, isEq) {
-  isEq = isEq || isEqual;
+  isEq = isEq || regExpIsEqual;
 
   if(isObject(a) && isObject(b)) {
     return every(reduce(a, function(comparison, paramValue, paramName) {
       var isCongruent = false;
-      var bParamValue = !isUndefined(b[paramName]) && !isNull(b[paramName]) ? b[paramName].toString() : b[paramName];
+      var bParamValue = !isUndefined(b[paramName]) && !isNull(b[paramName]) ? (isObject(b[paramName]) ? b[paramName] : b[paramName].toString()) : b[paramName];
       if(bParamValue) {
         if(isRegExp(paramValue)) {
           isCongruent = !isNull(bParamValue.match(paramValue));
@@ -9010,7 +9012,7 @@ function hasClass(element, className) {
 
 function addClass(element, className) {
   if( hasClassName(element) && !hasClass(element, className) ) {
-    element.className += (element.className.length ? ' ' : '') + className;
+    element.className += (isNull(element.className.match(/ $/)) ? ' ' : '') + className;
   }
 }
 
@@ -10700,7 +10702,8 @@ var defaultCollectionConfig = {
   url: null,
   dataModel: null,
   idAttribute: null,
-  disposeOnRemove: true
+  disposeOnRemove: true,
+  parse: identity,
 };
 
 // framework/collection/utility.js
@@ -10846,25 +10849,27 @@ var collectionMethods = fw.collection.methods = {
       var modelPresent = false;
       modelData = castAsModelData(modelData);
 
-      each(collectionStore, function lookForModel(model) {
-        var collectionModelData = castAsModelData(model);
+      if(!isUndefined(modelData)) {
+        each(collectionStore, function lookForModel(model) {
+          var collectionModelData = castAsModelData(model);
 
-        if(!isUndefined(modelData[idAttribute]) && !isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
-          modelPresent = true;
-          if(options.merge !== false && !sortOfEqual(collectionModelData, modelData)) {
-            // found model, but needs an update
-            model.set(modelData);
-            collection.$namespace.publish('_.change', model);
-            affectedModels.push(model);
+          if(!isUndefined(modelData[idAttribute]) && !isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
+            modelPresent = true;
+            if(options.merge !== false && !sortOfEqual(collectionModelData, modelData)) {
+              // found model, but needs an update
+              model.set(modelData);
+              collection.$namespace.publish('_.change', model);
+              affectedModels.push(model);
+            }
           }
-        }
-      });
+        });
 
-      if(!modelPresent && options.add !== false) {
-        // not found in collection, we have to add this model
-        var newModel = castAsDataModel(modelData);
-        collection.push(newModel);
-        affectedModels.push(newModel);
+        if(!modelPresent && options.add !== false) {
+          // not found in collection, we have to add this model
+          var newModel = castAsDataModel(modelData);
+          collection.push(newModel);
+          affectedModels.push(newModel);
+        }
       }
     });
 
@@ -10915,6 +10920,7 @@ var collectionMethods = fw.collection.methods = {
 
     xhr.done(function(resp) {
       var method = options.reset ? 'reset' : 'set';
+      resp = collection.__private('configParams').parse(resp);
       var touchedModels = collection[method](resp, options);
       collection.$namespace.publish('_.change', { touched: touchedModels, serverResponse: resp, options: options });
     });
