@@ -32,6 +32,10 @@ var collectionMethods = fw.collection.methods = {
     }, []);
   },
   set: function(newCollection, options) {
+    if(!isArray(newCollection)) {
+      throw new Error('collection.set() must be passed an array of data/dataModels');
+    }
+
     var collection = this;
     var collectionStore = collection();
     var castAsDataModel = collection.__private('castAs').dataModel;

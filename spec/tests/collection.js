@@ -42,6 +42,14 @@ describe('collection', function () {
     expect(people()[1].firstName()).to.be(person2Data.firstName);
     expect(people()[1].lastName()).to.be(person2Data.lastName);
     expect(people()[1].email()).to.be(person2Data.email);
+
+    var foundError = false;
+    try {
+      people.set({});
+    } catch(error) {
+      foundError = true;
+    }
+    expect(foundError).to.be(true);
   });
 
   it('can be instantiated and correctly set() with some data and options', function() {
