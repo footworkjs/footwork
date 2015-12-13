@@ -15,7 +15,9 @@ For more details, see:
 
 * [Documentation/API](http://footworkjs.com/docs/list "Documentation and API information")
 
-* [Get Started](http://footworkjs.com/get-started "Tutorials and guides")
+* [Get Started](http://footworkjs.com/get-started "Get Started")
+
+  * [Skeleton Application](https://github.com/footworkjs/skeleton-app "Skeleton Application")
 
 [![Join the chat at https://gitter.im/footworkjs/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/footworkjs/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
