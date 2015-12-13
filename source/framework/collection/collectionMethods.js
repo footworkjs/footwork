@@ -3,8 +3,7 @@
 
 var collectionMethods = fw.collection.methods = {
   sync: function() {
-    var collection = this;
-    return fw.sync.apply(collection, arguments);
+    return fw.sync.apply(this, arguments);
   },
   get: function(id) {
     var collection = this;

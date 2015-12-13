@@ -10,17 +10,17 @@ function entityBinder(element, params, Entity) {
   }
   entityObj.$parentContext = fw.contextFor(element.parentElement || element.parentNode);
 
+  var childrenToInsert = [];
+  each(element.childNodes, function(child) {
+    if(!isUndefined(child)) {
+      childrenToInsert.push(child);
+    }
+  });
+
   // Have to create a wrapper element for the contents of the element. Cannot bind to
   // existing element as it has already been bound against.
   var wrapperNode = document.createElement('binding-wrapper');
   element.insertBefore(wrapperNode, element.firstChild);
-
-  var childrenToInsert = [];
-  each(element.children, function(child) {
-    if(!isUndefined(child) && child !== wrapperNode) {
-      childrenToInsert.push(child);
-    }
-  });
 
   each(childrenToInsert, function(child) {
     wrapperNode.appendChild(child);
