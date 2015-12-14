@@ -17,10 +17,6 @@ For more details, see:
 
 * [Get Started](http://footworkjs.com/get-started "Get Started")
 
-  * [Install via Yeoman](https://github.com/footworkjs/generator-footwork "FootworkJS Yeoman Generator") (recommended)
-
-  * [Skeleton Application](https://github.com/footworkjs/skeleton-app "Skeleton Application") (based on the Yeoman generator)
-
 [![Join the chat at https://gitter.im/footworkjs/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/footworkjs/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ### Downloading / Installing footwork.js
@@ -34,6 +30,8 @@ For more details, see:
   * [Direct Download](http://footworkjs.com/get-started#download)
 
 It is recommended you use either the Yeoman generator to bootstrap your application, or the Skeleton Application as a template for your own. This is primarily because in order to use some of the features found in Footwork other resources (such as RequireJS) are needed and in some cases they have their own configuration/etc. The Yeoman generator and Skeleton provide sane defaults and best-use recommendations.
+
+If you need further setup help, refer to the [Get Started](http://footworkjs.com/get-started "Get Started") page.
 
 ### Building footwork from source and running tests
 
