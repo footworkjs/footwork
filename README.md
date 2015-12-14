@@ -21,9 +21,9 @@ For more details, see:
 
 ### Downloading / Installing footwork.js
 
-  * [Install via Yeoman](https://github.com/footworkjs/generator-footwork "FootworkJS Yeoman Generator") (recommended)
+  * [Install via Yeoman](https://github.com/footworkjs/generator-footwork#readme "FootworkJS Yeoman Generator") (recommended)
 
-  * [Skeleton Application](https://github.com/footworkjs/skeleton-app "Skeleton Application") (based on the Yeoman generator)
+  * [Skeleton Application](https://github.com/footworkjs/skeleton-app#readme "Skeleton Application") (based on the Yeoman generator)
   
   * [Install via Bower](http://footworkjs.com/get-started#bower)
 
