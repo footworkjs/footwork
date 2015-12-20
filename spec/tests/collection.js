@@ -791,7 +791,10 @@ describe('collection', function () {
       changeEventCalled = true;
     });
 
-    people.fetch();
+    var fetchResult = people.fetch();
+    expect(fetchResult).to.be.an('object');
+    expect(fetchResult.done).to.be.a('function');
+
     expect(changeEventCalled).to.be(false);
     setTimeout(function() {
       expect(changeEventCalled).to.be(true);
@@ -837,7 +840,10 @@ describe('collection', function () {
     });
 
     var people = new PeopleCollection();
-    people.fetch();
+
+    var fetchResult = people.fetch();
+    expect(fetchResult).to.be.an('object');
+    expect(fetchResult.done).to.be.a('function');
 
     expect(people().length).to.be(0);
     setTimeout(function() {
@@ -894,7 +900,9 @@ describe('collection', function () {
       resetTriggered = true;
     });
 
-    people.fetch({ reset: true });
+    var fetchResult = people.fetch({ reset: true });
+    expect(fetchResult).to.be.an('object');
+    expect(fetchResult.done).to.be.a('function');
 
     expect(resetTriggered).to.be(false);
     setTimeout(function() {
