@@ -970,7 +970,10 @@ describe('dataModel', function () {
 
     expect(person.firstName()).not.to.be(getValue);
 
-    person.fetch();
+    var fetchResult = person.fetch();
+    expect(fetchResult).to.be.an('object');
+    expect(fetchResult.done).to.be.a('function');
+
     setTimeout(function() {
       expect(person.$id()).to.be(personData.id);
       expect(person.firstName()).to.be(getValue);
@@ -1013,7 +1016,10 @@ describe('dataModel', function () {
 
     expect(person.firstName()).not.to.be(getValue);
 
-    person.fetch();
+    var fetchResult = person.fetch();
+    expect(fetchResult).to.be.an('object');
+    expect(fetchResult.done).to.be.a('function');
+
     setTimeout(function() {
       expect(person.$id()).to.be(personData.id);
       expect(person.firstName()).to.be(getValue);
@@ -1053,7 +1059,10 @@ describe('dataModel', function () {
 
     expect(person.firstName()).not.to.be(getValue);
 
-    person.fetch();
+    var fetchResult = person.fetch();
+    expect(fetchResult).to.be.an('object');
+    expect(fetchResult.done).to.be.a('function');
+
     setTimeout(function() {
       expect(person.customId()).to.be(personData.customId);
       expect(person.firstName()).to.be(getValue);
@@ -1094,7 +1103,10 @@ describe('dataModel', function () {
 
     expect(person.firstName()).not.to.be(getValue);
 
-    person.fetch();
+    var fetchResult = person.fetch();
+    expect(fetchResult).to.be.an('object');
+    expect(fetchResult.done).to.be.a('function');
+
     setTimeout(function() {
       expect(person.$id()).to.be(personData.id);
       expect(person.firstName()).to.be(getValue);

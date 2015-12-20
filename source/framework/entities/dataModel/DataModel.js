@@ -32,7 +32,7 @@ var DataModel = function(descriptor, configParams) {
         var id = this[configParams.idAttribute]();
         if(id) {
           // retrieve data dataModel the from server using the id
-          this.sync('read', dataModel, options)
+          return this.sync('read', dataModel, options)
             .done(function(response) {
               var parsedResponse = configParams.parse ? configParams.parse(response) : response;
               if(!isUndefined(parsedResponse[configParams.idAttribute])) {
