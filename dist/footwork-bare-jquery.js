@@ -1,7 +1,7 @@
 /**
  * footwork.js - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v1.1.0-bare-jquery
+ * Version: v1.1.1-bare-jquery
  * Url: http://footworkjs.com
  * License(s): MIT
  */
@@ -368,7 +368,7 @@ var identity = _.identity;
 // ------------------
 
 // Record the footwork version as of this build.
-fw.footworkVersion = '1.1.0';
+fw.footworkVersion = '1.1.1';
 
 // Expose any embedded dependencies
 fw.embed = embedded;
@@ -1351,7 +1351,7 @@ var DataModel = function(descriptor, configParams) {
         var id = this[configParams.idAttribute]();
         if(id) {
           // retrieve data dataModel the from server using the id
-          this.sync('read', dataModel, options)
+          return this.sync('read', dataModel, options)
             .done(function(response) {
               var parsedResponse = configParams.parse ? configParams.parse(response) : response;
               if(!isUndefined(parsedResponse[configParams.idAttribute])) {
