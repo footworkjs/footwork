@@ -642,9 +642,13 @@ describe('router', function () {
       template: '<div></div>'
     });
 
+    var routerContainer;
     fw.router.create({
       namespace: 'manipulateOutlet',
       autoRegister: true,
+      afterRender: function(container) {
+        routerContainer = container;
+      },
       initialize: function() {
         router = this;
       },
@@ -665,11 +669,13 @@ describe('router', function () {
     fw.start(container);
 
     setTimeout(function() {
+      expect($(routerContainer).find('outlet[name="output"]').attr('data-rendered')).not.to.be('manipulateOutletComponent');
       router.setState('/manipulateOutlet');
       expect(controllerRan).to.be(true);
 
       setTimeout(function() {
         expect(componentInstantiated).to.be(true);
+        expect($(routerContainer).find('outlet[name="output"]').attr('data-rendered')).to.be('manipulateOutletComponent');
         done();
       }, 40);
     }, 40);

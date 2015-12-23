@@ -1766,6 +1766,8 @@ function routerOutlet(outletName, componentToDisplay, options) {
       if(!wasCompleted && isComplete) {
         wasCompleted = true;
         activeOutlets.remove(outlet);
+        element.setAttribute('data-rendered', componentToDisplay);
+
         return function addBindingOnComplete() {
           setTimeout(function() {
             addClass(element, bindingClassName);
