@@ -1,14 +1,14 @@
 /**
  * footwork.js - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v1.1.1
+ * Version: v1.2.0
  * Url: http://footworkjs.com
  * License(s): MIT
  */
 
 // footwork.js
 // ----------------------------------
-// v1.1.1
+// v1.2.0
 //
 // Copyright (c)2014 Jonathan Newman (http://staticty.pe).
 // Distributed under MIT license
@@ -68,7 +68,7 @@ var identity = _.identity;
 // ------------------
 
 // Record the footwork version as of this build.
-fw.footworkVersion = '1.1.1';
+fw.footworkVersion = '1.2.0';
 
 // Expose any embedded dependencies
 fw.embed = embedded;
@@ -1506,7 +1506,6 @@ function routerOutlet(outletName, componentToDisplay, options) {
 function registerOutletComponent() {
   internalComponents.push('outlet');
   fw.components.register('outlet', {
-    autoIncrement: true,
     viewModel: function(params) {
       this.outletName = fw.unwrap(params.name);
       this.__isOutlet = true;
@@ -1516,7 +1515,6 @@ function registerOutletComponent() {
 
   internalComponents.push(noComponentSelected);
   fw.components.register(noComponentSelected, {
-    viewModel: { instance: {} },
     template: '<div class="no-component-selected"></div>'
   });
 };
@@ -2649,15 +2647,30 @@ function registerModelLocation(descriptor, modelName, location) {
   descriptor.resourceLocations[ modelName ] = location;
 }
 
+var regExpMatch = /^\/|\/$/g;
+function modelResourceLocation(descriptor, modelName) {
+  return reduce(descriptor.resourceLocations, function(registeredLocation, location, registeredName) {
+    if(!registeredLocation) {
+      if(!isNull(registeredName.match(regExpMatch)) && !isNull(modelName.match(registeredName.replace(regExpMatch, '')))) {
+        registeredLocation = location;
+      } else if(modelName === registeredName) {
+        registeredLocation = location;
+      }
+    }
+    return registeredLocation;
+  }, undefined);
+}
+
 function modelLocationIsRegistered(descriptor, modelName) {
-  return !isUndefined(descriptor.resourceLocations[modelName]);
+  return !!modelResourceLocation(descriptor, modelName);
 }
 
 function getModelResourceLocation(descriptor, modelName) {
   if( isUndefined(modelName) ) {
     return descriptor.resourceLocations;
   }
-  return descriptor.resourceLocations[modelName] || descriptor.defaultLocation;
+
+  return modelResourceLocation(descriptor, modelName) || descriptor.defaultLocation;
 }
 
 var $globalNamespace = fw.namespace();
@@ -2729,16 +2742,16 @@ fw.components.getFileName = function(componentName, fileType) {
   var fileName = componentName;
   var fileExtension = getComponentExtension(componentName, fileType);
 
-  if( fw.components.isRegistered(componentName) ) {
+  if(fw.components.isRegistered(componentName)) {
     return null;
   }
 
-  if( !isUndefined( fw.components.resourceLocations[componentName] ) ) {
-    var registeredLocation = fw.components.resourceLocations[componentName];
-    if( !isUndefined(registeredLocation[fileType]) && !isPath(registeredLocation[fileType]) ) {
-      if( isString(registeredLocation[fileType]) ) {
+  if(fw.components.locationIsRegistered(componentName)) {
+    var registeredLocation = fw.components.getLocation(componentName);
+    if(!isUndefined(registeredLocation[fileType]) && !isPath(registeredLocation[fileType])) {
+      if(isString(registeredLocation[fileType])) {
         // full filename was supplied, lets return that
-        fileName = last( registeredLocation[fileType].split('/') );
+        fileName = last(registeredLocation[fileType].split('/'));
       } else {
         return null;
       }
@@ -2761,23 +2774,37 @@ fw.components.defaultLocation = function(location) {
 };
 
 fw.components.registerLocation = function(componentName, componentLocation) {
-  if( isArray(componentName) ) {
+  if(isArray(componentName)) {
     each(componentName, function(name) {
       fw.components.registerLocation(name, componentLocation);
     });
   }
 
-  if( isString(componentLocation) ) {
+  if(isString(componentLocation)) {
     componentLocation = extend({}, baseComponentLocation, {
       combined: componentLocation
     });
   }
 
-  fw.components.resourceLocations[ componentName ] = extend({}, baseComponentLocation, forceViewModelComponentConvention(componentLocation));
+  fw.components.resourceLocations[componentName] = extend({}, baseComponentLocation, forceViewModelComponentConvention(componentLocation));
+};
+
+var regExpMatch = /^\/|\/$/g;
+fw.components.getRegisteredLocation = function(componentName) {
+  return reduce(fw.components.resourceLocations, function(registeredLocation, location, registeredComponentName) {
+    if(!registeredLocation) {
+      if(!isNull(registeredComponentName.match(regExpMatch)) && !isNull(componentName.match(registeredComponentName.replace(regExpMatch, '')))) {
+        registeredLocation = location;
+      } else if(componentName === registeredComponentName) {
+        registeredLocation = location;
+      }
+    }
+    return registeredLocation;
+  }, undefined);
 };
 
 fw.components.locationIsRegistered = function(componentName) {
-  return !isUndefined(fw.components.resourceLocations[componentName]);
+  return !!fw.components.getRegisteredLocation(componentName);
 };
 
 // Return the component resource definition for the supplied componentName
@@ -2785,7 +2812,7 @@ fw.components.getLocation = function(componentName) {
   if( isUndefined(componentName) ) {
     return fw.components.resourceLocations;
   }
-  return _.omit(fw.components.resourceLocations[componentName] || defaultComponentLocation, _.isNull);
+  return _.omit(fw.components.getRegisteredLocation(componentName) || defaultComponentLocation, _.isNull);
 };
 
 // framework/resource/createResource.js

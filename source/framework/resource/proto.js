@@ -57,20 +57,6 @@ function registerModelLocation(descriptor, modelName, location) {
   descriptor.resourceLocations[ modelName ] = location;
 }
 
-
-fw.components.getRegisteredLocation = function(componentName) {
-  return reduce(fw.components.resourceLocations, function(registeredLocation, location, registeredComponentName) {
-    if(!registeredLocation) {
-      if(!isNull(registeredComponentName.match(regExpMatch)) && !isNull(componentName.match(registeredComponentName.replace(regExpMatch, '')))) {
-        registeredLocation = location;
-      } else if(componentName === registeredComponentName) {
-        registeredLocation = location;
-      }
-    }
-    return registeredLocation;
-  }, undefined);
-};
-
 var regExpMatch = /^\/|\/$/g;
 function modelResourceLocation(descriptor, modelName) {
   return reduce(descriptor.resourceLocations, function(registeredLocation, location, registeredName) {
