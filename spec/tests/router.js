@@ -1832,6 +1832,8 @@ describe('router', function () {
   it('can have a registered location set and retrieved proplerly', function() {
     fw.router.registerLocation('registeredLocationRetrieval', '/bogus/path');
     expect(fw.router.getLocation('registeredLocationRetrieval')).to.be('/bogus/path');
+    fw.router.registerLocation(/regexp.*/, '/bogus/path');
+    expect(fw.router.getLocation('regexp-model')).to.be('/bogus/path');
   });
 
   it('can have an array of routers registered to a location and retrieved proplerly', function() {
@@ -1898,6 +1900,21 @@ describe('router', function () {
 
     setTimeout(function() {
       expect(window.AMDRouterWasLoaded).to.be(true);
+      done();
+    }, 40);
+  });
+
+  it('can load via requirejs with a declarative initialization from a specified RegExp-based location', function(done) {
+    var container = document.getElementById('AMDRouterRegexp');
+    window.AMDRouterRegexpWasLoaded = false;
+
+    fw.router.registerLocation(/AMDRouterRegexp-.*/, 'testAssets/');
+
+    expect(window.AMDRouterRegexpWasLoaded).to.be(false);
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(window.AMDRouterRegexpWasLoaded).to.be(true);
       done();
     }, 40);
   });

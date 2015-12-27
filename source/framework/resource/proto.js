@@ -57,15 +57,44 @@ function registerModelLocation(descriptor, modelName, location) {
   descriptor.resourceLocations[ modelName ] = location;
 }
 
+
+fw.components.getRegisteredLocation = function(componentName) {
+  return reduce(fw.components.resourceLocations, function(registeredLocation, location, registeredComponentName) {
+    if(!registeredLocation) {
+      if(!isNull(registeredComponentName.match(regExpMatch)) && !isNull(componentName.match(registeredComponentName.replace(regExpMatch, '')))) {
+        registeredLocation = location;
+      } else if(componentName === registeredComponentName) {
+        registeredLocation = location;
+      }
+    }
+    return registeredLocation;
+  }, undefined);
+};
+
+var regExpMatch = /^\/|\/$/g;
+function modelResourceLocation(descriptor, modelName) {
+  return reduce(descriptor.resourceLocations, function(registeredLocation, location, registeredName) {
+    if(!registeredLocation) {
+      if(!isNull(registeredName.match(regExpMatch)) && !isNull(modelName.match(registeredName.replace(regExpMatch, '')))) {
+        registeredLocation = location;
+      } else if(modelName === registeredName) {
+        registeredLocation = location;
+      }
+    }
+    return registeredLocation;
+  }, undefined);
+}
+
 function modelLocationIsRegistered(descriptor, modelName) {
-  return !isUndefined(descriptor.resourceLocations[modelName]);
+  return !!modelResourceLocation(descriptor, modelName);
 }
 
 function getModelResourceLocation(descriptor, modelName) {
   if( isUndefined(modelName) ) {
     return descriptor.resourceLocations;
   }
-  return descriptor.resourceLocations[modelName] || descriptor.defaultLocation;
+
+  return modelResourceLocation(descriptor, modelName) || descriptor.defaultLocation;
 }
 
 var $globalNamespace = fw.namespace();

@@ -21,6 +21,7 @@ describe('components', function () {
     });
 
     expect( fw.components.isRegistered('registered-component-check') ).to.be(true);
+    expect( fw.components.isRegistered('registered-component-check-blah') ).to.be(false);
   });
 
   it('can instantiate a registered component via a <declarative> statement', function(done) {
@@ -274,8 +275,10 @@ describe('components', function () {
       template: 'testAssets/registeredComponentLocation/'
     };
     fw.components.registerLocation('registered-component-location-verify', location);
+    fw.components.registerLocation(/^regexp-test.*$/, location);
 
     expect(fw.components.getLocation('registered-component-location-verify')).to.eql(location);
+    expect(fw.components.getLocation('regexp-test-regexp')).to.eql(location);
   });
 
   it('can register an array of components to a location and retrieve them proplerly', function() {
@@ -304,6 +307,25 @@ describe('components', function () {
 
     setTimeout(function() {
       expect(window.registeredComponentLocationLoaded).to.be(true);
+      done();
+    }, 150);
+  });
+
+  it('can specify and load via a registered RegExp-based location', function(done) {
+    var container = document.getElementById('registeredRegExpComponentLocation');
+    window.registeredRegExpComponentLocationLoaded = false;
+
+    fw.components.registerLocation(/registered-regexp-comp.*/, {
+      viewModel: 'testAssets/registeredRegExpComponentLocation/',
+      template: 'testAssets/registeredRegExpComponentLocation/'
+    });
+
+    expect(window.registeredRegExpComponentLocationLoaded).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(window.registeredRegExpComponentLocationLoaded).to.be(true);
       done();
     }, 150);
   });

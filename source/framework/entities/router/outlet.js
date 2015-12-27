@@ -129,7 +129,6 @@ function routerOutlet(outletName, componentToDisplay, options) {
 function registerOutletComponent() {
   internalComponents.push('outlet');
   fw.components.register('outlet', {
-    autoIncrement: true,
     viewModel: function(params) {
       this.outletName = fw.unwrap(params.name);
       this.__isOutlet = true;
@@ -139,7 +138,6 @@ function registerOutletComponent() {
 
   internalComponents.push(noComponentSelected);
   fw.components.register(noComponentSelected, {
-    viewModel: { instance: {} },
     template: '<div class="no-component-selected"></div>'
   });
 };

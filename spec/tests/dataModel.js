@@ -403,6 +403,8 @@ describe('dataModel', function () {
   it('can have a registered location set and retrieved proplerly', function() {
     fw.dataModel.registerLocation('registeredLocationRetrieval', '/bogus/path');
     expect(fw.dataModel.getLocation('registeredLocationRetrieval')).to.be('/bogus/path');
+    fw.dataModel.registerLocation(/regexp.*/, '/bogus/path');
+    expect(fw.dataModel.getLocation('regexp-model')).to.be('/bogus/path');
   });
 
   it('can have an array of dataModels registered to a location and retrieved proplerly', function() {
@@ -488,6 +490,21 @@ describe('dataModel', function () {
 
     setTimeout(function() {
       expect(window.AMDDataModelWasLoaded).to.be(true);
+      done();
+    }, 40);
+  });
+
+  it('can load via requirejs with a declarative initialization from a specified RegExp-based location', function(done) {
+    var container = document.getElementById('AMDDataModelRegexp');
+    window.AMDDataModelRegexpWasLoaded = false;
+
+    fw.dataModel.registerLocation(/AMDDataModelRegexp-.*/, 'testAssets/');
+
+    expect(window.AMDDataModelRegexpWasLoaded).to.be(false);
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(window.AMDDataModelRegexpWasLoaded).to.be(true);
       done();
     }, 40);
   });

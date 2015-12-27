@@ -395,6 +395,8 @@ describe('viewModel', function () {
   it('can have a registered location set and retrieved proplerly', function() {
     fw.viewModel.registerLocation('registeredLocationRetrieval', '/bogus/path');
     expect(fw.viewModel.getLocation('registeredLocationRetrieval')).to.be('/bogus/path');
+    fw.viewModel.registerLocation(/regexp.*/, '/bogus/path');
+    expect(fw.viewModel.getLocation('regexp-model')).to.be('/bogus/path');
   });
 
   it('can have an array of models registered to a location and retrieved proplerly', function() {
@@ -480,6 +482,21 @@ describe('viewModel', function () {
 
     setTimeout(function() {
       expect(window.AMDViewModelWasLoaded).to.be(true);
+      done();
+    }, 40);
+  });
+
+  it('can load via requirejs with a declarative initialization from a specified RegExp-based location', function(done) {
+    var container = document.getElementById('AMDViewModelRegexp');
+    window.AMDViewModelRegexpWasLoaded = false;
+
+    fw.viewModel.registerLocation(/AMDViewModelRegexp-.*/, 'testAssets/');
+
+    expect(window.AMDViewModelRegexpWasLoaded).to.be(false);
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(window.AMDViewModelRegexpWasLoaded).to.be(true);
       done();
     }, 40);
   });
