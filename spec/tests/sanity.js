@@ -1,6 +1,6 @@
 'use strict';
 
-describe('sanity', function () {
+describe('sanity test', function () {
   it('has a fw.viewModel property', function() {
     expect(fw.viewModel).to.be.an('object');
   });
@@ -18,7 +18,7 @@ describe('sanity', function () {
   });
 
   it('has a fw.outlet property', function() {
-    expect(fw.outlets).to.be.an('object');
+    expect(fw.outlet).to.be.an('object');
   });
 
   it('has the ability to create a namespace', function() {

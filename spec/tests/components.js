@@ -353,7 +353,7 @@ describe('components', function () {
     var container = document.getElementById('registeredCombinedComponentLocation');
     window.registeredComponentLocationLoaded = false;
 
-    fw.components.registerLocation('registered-combined-component-location', 'testAssets/registeredComponentLocation/');
+    fw.components.registerLocation('registered-combined-component-location', { combined: 'testAssets/registeredComponentLocation/' });
 
     expect(window.registeredComponentLocationLoaded).to.be(false);
 

@@ -15,11 +15,11 @@ extend(fw.router, {
   }
 });
 
-extend(fw.outlets, {
+extend(fw.outlet, {
   registerView: function(viewName, templateHTML) {
     fw.components.register(viewName, { template: templateHTML });
   },
   registerViewLocation: function(viewName, viewLocation) {
-    fw.components.registerLocation(viewName, { template: viewLocation })
+    fw.components.registerLocation(viewName, { template: viewLocation });
   }
 });

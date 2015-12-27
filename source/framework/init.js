@@ -10,7 +10,7 @@ fw.embed = embedded;
 fw.viewModel = {};
 fw.dataModel = {};
 fw.router = {};
-fw.outlets = {};
+fw.outlet = {};
 fw.settings = {};
 
 var runPostInit = [];

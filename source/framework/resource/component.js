@@ -61,7 +61,8 @@ fw.components.getFileName = function(componentName, fileType) {
 fw.components.defaultLocation = function(location) {
   if( isString(location) ) {
     defaultComponentLocation = extend({}, baseComponentLocation, {
-      combined: location
+      viewModel: location,
+      template: location
     });
   } else if(isObject(location)) {
     defaultComponentLocation = extend({}, baseComponentLocation, location);
@@ -79,7 +80,8 @@ fw.components.registerLocation = function(componentName, componentLocation) {
 
   if(isString(componentLocation)) {
     componentLocation = extend({}, baseComponentLocation, {
-      combined: componentLocation
+      viewModel: componentLocation,
+      template: componentLocation
     });
   }
 
