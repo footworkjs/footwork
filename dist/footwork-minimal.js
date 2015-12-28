@@ -1620,6 +1620,7 @@ var activeOutlets = fw.observableArray();
 var trailingSlashRegex = /\/$/;
 var startingSlashRegex = /^\//;
 var startingHashRegex = /^#/;
+var regExpMatch = /^\/|\/$/g;
 
 var isObservable = fw.isObservable;
 
@@ -1642,6 +1643,27 @@ function hasPathStart(path) {
 
 function hasHashStart(string) {
   return isString(string) && startingHashRegex.test(string);
+}
+
+function hasClassName(element) {
+  return isObject(element) && isString(element.className);
+}
+
+function hasClass(element, className) {
+  return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
+}
+
+function addClass(element, className) {
+  if( hasClassName(element) && !hasClass(element, className) ) {
+    element.className += (element.className.length && isNull(element.className.match(/ $/)) ? ' ' : '') + className;
+  }
+}
+
+function removeClass(element, className) {
+  if( hasClassName(element) && hasClass(element, className) ) {
+    var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)', 'g');
+    element.className = element.className.replace(classNameRegex, ' ');
+  }
 }
 
 /**
@@ -2615,7 +2637,7 @@ var DataModel = function(descriptor, configParams) {
           var resourceData = configParams.parse ? configParams.parse(response) : response;
 
           if(options.wait && !isNull(attrs)) {
-            resourceData = _.extend({}, attrs, resourceData);
+            resourceData = extend({}, attrs, resourceData);
           }
 
           if(isObject(resourceData)) {
@@ -2636,7 +2658,7 @@ var DataModel = function(descriptor, configParams) {
           return false;
         }
 
-        options = options ? _.clone(options) : {};
+        options = options ? clone(options) : {};
         var dataModel = this;
         var success = options.success;
         var wait = options.wait;
@@ -2985,7 +3007,7 @@ function routerOutlet(outletName, componentToDisplay, options) {
       if(!wasCompleted && isComplete) {
         wasCompleted = true;
         activeOutlets.remove(outlet);
-        element.setAttribute('data-rendered', componentToDisplay);
+        element.setAttribute('rendered', componentToDisplay);
 
         return function addBindingOnComplete() {
           setTimeout(function() {
@@ -3042,27 +3064,6 @@ runPostInit.push(registerOutletComponent);
 
 // framework/entities/router/routeBinding.js
 // -----------
-
-function hasClassName(element) {
-  return isObject(element) && isString(element.className);
-}
-
-function hasClass(element, className) {
-  return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
-}
-
-function addClass(element, className) {
-  if( hasClassName(element) && !hasClass(element, className) ) {
-    element.className += (isNull(element.className.match(/ $/)) ? ' ' : '') + className;
-  }
-}
-
-function removeClass(element, className) {
-  if( hasClassName(element) && hasClass(element, className) ) {
-    var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)');
-    element.className = element.className.replace(classNameRegex, ' ');
-  }
-}
 
 fw.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
@@ -4166,7 +4167,6 @@ function registerModelLocation(descriptor, modelName, location) {
   descriptor.resourceLocations[ modelName ] = location;
 }
 
-var regExpMatch = /^\/|\/$/g;
 function modelResourceLocation(descriptor, modelName) {
   return reduce(descriptor.resourceLocations, function(registeredLocation, location, registeredName) {
     if(!registeredLocation) {
@@ -4310,7 +4310,6 @@ fw.components.registerLocation = function(componentName, componentLocation) {
   fw.components.resourceLocations[componentName] = extend({}, baseComponentLocation, forceViewModelComponentConvention(componentLocation));
 };
 
-var regExpMatch = /^\/|\/$/g;
 fw.components.getRegisteredLocation = function(componentName) {
   return reduce(fw.components.resourceLocations, function(registeredLocation, location, registeredComponentName) {
     if(!registeredLocation) {
@@ -4333,7 +4332,7 @@ fw.components.getLocation = function(componentName) {
   if( isUndefined(componentName) ) {
     return fw.components.resourceLocations;
   }
-  return _.omit(fw.components.getRegisteredLocation(componentName) || defaultComponentLocation, _.isNull);
+  return omit(fw.components.getRegisteredLocation(componentName) || defaultComponentLocation, isNull);
 };
 
 // framework/resource/createResource.js
@@ -4460,7 +4459,7 @@ function componentTriggerafterRender(element, viewModel) {
       configParams.afterRender = function(element) {
         setTimeout(function() {
           if(element.className.indexOf(bindingClassName) === -1) {
-            element.className += ' ' + bindingClassName;
+            addClass(element, bindingClassName);
           }
         }, animationIteration);
         afterRender.call(this, element);

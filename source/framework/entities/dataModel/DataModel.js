@@ -77,7 +77,7 @@ var DataModel = function(descriptor, configParams) {
           var resourceData = configParams.parse ? configParams.parse(response) : response;
 
           if(options.wait && !isNull(attrs)) {
-            resourceData = _.extend({}, attrs, resourceData);
+            resourceData = extend({}, attrs, resourceData);
           }
 
           if(isObject(resourceData)) {
@@ -98,7 +98,7 @@ var DataModel = function(descriptor, configParams) {
           return false;
         }
 
-        options = options ? _.clone(options) : {};
+        options = options ? clone(options) : {};
         var dataModel = this;
         var success = options.success;
         var wait = options.wait;

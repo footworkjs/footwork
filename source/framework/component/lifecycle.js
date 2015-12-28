@@ -14,7 +14,7 @@ function componentTriggerafterRender(element, viewModel) {
       configParams.afterRender = function(element) {
         setTimeout(function() {
           if(element.className.indexOf(bindingClassName) === -1) {
-            element.className += ' ' + bindingClassName;
+            addClass(element, bindingClassName);
           }
         }, animationIteration);
         afterRender.call(this, element);

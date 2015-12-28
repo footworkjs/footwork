@@ -57,7 +57,6 @@ function registerModelLocation(descriptor, modelName, location) {
   descriptor.resourceLocations[ modelName ] = location;
 }
 
-var regExpMatch = /^\/|\/$/g;
 function modelResourceLocation(descriptor, modelName) {
   return reduce(descriptor.resourceLocations, function(registeredLocation, location, registeredName) {
     if(!registeredLocation) {

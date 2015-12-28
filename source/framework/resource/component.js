@@ -88,7 +88,6 @@ fw.components.registerLocation = function(componentName, componentLocation) {
   fw.components.resourceLocations[componentName] = extend({}, baseComponentLocation, forceViewModelComponentConvention(componentLocation));
 };
 
-var regExpMatch = /^\/|\/$/g;
 fw.components.getRegisteredLocation = function(componentName) {
   return reduce(fw.components.resourceLocations, function(registeredLocation, location, registeredComponentName) {
     if(!registeredLocation) {
@@ -111,5 +110,5 @@ fw.components.getLocation = function(componentName) {
   if( isUndefined(componentName) ) {
     return fw.components.resourceLocations;
   }
-  return _.omit(fw.components.getRegisteredLocation(componentName) || defaultComponentLocation, _.isNull);
+  return omit(fw.components.getRegisteredLocation(componentName) || defaultComponentLocation, isNull);
 };

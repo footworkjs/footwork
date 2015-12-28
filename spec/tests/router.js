@@ -669,13 +669,13 @@ describe('router', function () {
     fw.start(container);
 
     setTimeout(function() {
-      expect($(routerContainer).find('outlet[name="output"]').attr('data-rendered')).not.to.be('manipulateOutletComponent');
+      expect($(routerContainer).find('outlet[name="output"]').attr('rendered')).not.to.be('manipulateOutletComponent');
       router.setState('/manipulateOutlet');
       expect(controllerRan).to.be(true);
 
       setTimeout(function() {
         expect(componentInstantiated).to.be(true);
-        expect($(routerContainer).find('outlet[name="output"]').attr('data-rendered')).to.be('manipulateOutletComponent');
+        expect($(routerContainer).find('outlet[name="output"]').attr('rendered')).to.be('manipulateOutletComponent');
         done();
       }, 40);
     }, 40);

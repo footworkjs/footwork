@@ -4,6 +4,7 @@
 var trailingSlashRegex = /\/$/;
 var startingSlashRegex = /^\//;
 var startingHashRegex = /^#/;
+var regExpMatch = /^\/|\/$/g;
 
 var isObservable = fw.isObservable;
 
@@ -26,6 +27,27 @@ function hasPathStart(path) {
 
 function hasHashStart(string) {
   return isString(string) && startingHashRegex.test(string);
+}
+
+function hasClassName(element) {
+  return isObject(element) && isString(element.className);
+}
+
+function hasClass(element, className) {
+  return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
+}
+
+function addClass(element, className) {
+  if( hasClassName(element) && !hasClass(element, className) ) {
+    element.className += (element.className.length && isNull(element.className.match(/ $/)) ? ' ' : '') + className;
+  }
+}
+
+function removeClass(element, className) {
+  if( hasClassName(element) && hasClass(element, className) ) {
+    var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)', 'g');
+    element.className = element.className.replace(classNameRegex, ' ');
+  }
 }
 
 /**

@@ -1,27 +1,6 @@
 // framework/entities/router/routeBinding.js
 // -----------
 
-function hasClassName(element) {
-  return isObject(element) && isString(element.className);
-}
-
-function hasClass(element, className) {
-  return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
-}
-
-function addClass(element, className) {
-  if( hasClassName(element) && !hasClass(element, className) ) {
-    element.className += (isNull(element.className.match(/ $/)) ? ' ' : '') + className;
-  }
-}
-
-function removeClass(element, className) {
-  if( hasClassName(element) && hasClass(element, className) ) {
-    var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)');
-    element.className = element.className.replace(classNameRegex, ' ');
-  }
-}
-
 fw.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $myRouter = nearestParentRouter(bindingContext);
