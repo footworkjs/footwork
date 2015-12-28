@@ -71,7 +71,7 @@ fw.components.defaultLocation = function(location) {
   return defaultComponentLocation;
 };
 
-fw.components.registerLocation = function(componentName, componentLocation) {
+fw.components.registerLocation = function(componentName, componentLocation, folderOffset) {
   if(isArray(componentName)) {
     each(componentName, function(name) {
       fw.components.registerLocation(name, componentLocation);
@@ -81,8 +81,11 @@ fw.components.registerLocation = function(componentName, componentLocation) {
   if(isString(componentLocation)) {
     componentLocation = extend({}, baseComponentLocation, {
       viewModel: componentLocation,
-      template: componentLocation
+      template: componentLocation,
+      folderOffset: !!folderOffset
     });
+  } else if(isObject(componentLocation)) {
+    componentLocation.folderOffset = !!folderOffset;
   }
 
   fw.components.resourceLocations[componentName] = extend({}, baseComponentLocation, forceViewModelComponentConvention(componentLocation));

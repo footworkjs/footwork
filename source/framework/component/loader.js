@@ -9,11 +9,16 @@ fw.components.loaders.push(fw.components.requireLoader = {
     var viewModelFile = fw.components.getFileName(componentName, 'viewModel');
     var templateFile = fw.components.getFileName(componentName, 'template');
     var componentLocation = fw.components.getLocation(componentName);
+    var folderOffset = componentLocation.folderOffset || '';
     var configOptions = null;
     var viewModelPath;
     var templatePath;
     var combinedPath;
     var viewModelConfig;
+
+    if(folderOffset !== '') {
+      folderOffset = componentName + '/';
+    }
 
     if( isFunction(require) ) {
       // load component using knockouts native support for requirejs
@@ -26,7 +31,7 @@ fw.components.loaders.push(fw.components.requireLoader = {
         combinedPath = componentLocation.combined;
 
         if( isPath(combinedPath) ) {
-          combinedPath = combinedPath + combinedFile;
+          combinedPath = combinedPath + folderOffset + combinedFile;
         }
 
         configOptions = {
@@ -41,7 +46,7 @@ fw.components.loaders.push(fw.components.requireLoader = {
           viewModelPath = componentLocation.viewModel;
 
           if( isPath(viewModelPath) ) {
-            viewModelPath = viewModelPath + viewModelFile;
+            viewModelPath = viewModelPath + folderOffset + viewModelFile;
           }
 
           if( getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel') ) {
@@ -53,7 +58,7 @@ fw.components.loaders.push(fw.components.requireLoader = {
 
         templatePath = componentLocation.template;
         if( isPath(templatePath) ) {
-          templatePath = templatePath + templateFile;
+          templatePath = templatePath + folderOffset + templateFile;
         }
 
         if( getFilenameExtension(templatePath) !== getComponentExtension(componentName, 'template') ) {

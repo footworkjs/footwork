@@ -311,6 +311,25 @@ describe('components', function () {
     }, 150);
   });
 
+  it('can specify and load via a registered location with a prefixed folder', function(done) {
+    var container = document.getElementById('registeredComponentLocationPrefixed');
+    window.registeredComponentLocationPrefixedLoaded = false;
+
+    fw.components.registerLocation('registered-component-location-prefixed', {
+      viewModel: 'testAssets/',
+      template: 'testAssets/'
+    }, true);
+
+    expect(window.registeredComponentLocationPrefixedLoaded).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect(window.registeredComponentLocationPrefixedLoaded).to.be(true);
+      done();
+    }, 150);
+  });
+
   it('can specify and load via a registered RegExp-based location', function(done) {
     var container = document.getElementById('registeredRegExpComponentLocation');
     window.registeredRegExpComponentLocationLoaded = false;
