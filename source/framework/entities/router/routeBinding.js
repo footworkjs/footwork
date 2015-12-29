@@ -1,19 +1,37 @@
 // framework/entities/router/routeBinding.js
 // -----------
 
+function findParentNode(element, selector) {
+  if(selector === true) {
+    return element.parentNode;
+  }
+
+  if(element.parentNode && isFunction(element.parentNode.querySelectorAll)) {
+    var parentNode = element.parentNode;
+    var matches = parentNode.querySelectorAll(selector);
+    if(matches.length && contains(matches, element)) {
+      return element;
+    }
+    return findParentNode(parentNode, selector);
+  }
+
+  return undefined;
+}
+
 fw.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $myRouter = nearestParentRouter(bindingContext);
-    var urlValue = valueAccessor();
+    var routeParams = valueAccessor();
     var elementIsSetup = false;
     var stateTracker = null;
     var hashOnly = null;
 
     var routeHandlerDescription = {
       on: 'click',
-      url: function defaultURLForRoute() { return null; },
+      url: function defaultURLForRoute() { return element.getAttribute('href'); },
       addActiveClass: true,
       activeClass: null,
+      parentHasState: false,
       handler: function defaultHandlerForRouteBinding(event, url) {
         if(hashOnly) {
           windowObject.location.hash = resultBound(routeHandlerDescription, 'url', $myRouter);
@@ -28,25 +46,21 @@ fw.bindingHandlers.$route = {
       }
     };
 
-    if( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
-      routeHandlerDescription.url = urlValue;
-    } else if( isObject(urlValue) ) {
-      extend(routeHandlerDescription, urlValue);
-    } else if( !urlValue ) {
-      routeHandlerDescription.url = element.getAttribute('href');
-    } else {
-      throw new Error('Unknown type of url value provided to $route [' + typeof urlValue + ']');
+    if(isFunction(routeParams) || isString(routeParams)) {
+      routeHandlerDescription.url = routeParams;
+    } else if( isObject(routeParams) ) {
+      extend(routeHandlerDescription, routeParams);
     }
 
     var routeHandlerDescriptionURL = routeHandlerDescription.url;
-    if( !isFunction(routeHandlerDescriptionURL) ) {
+    if(!isFunction(routeHandlerDescriptionURL)) {
       routeHandlerDescription.url = function() { return routeHandlerDescriptionURL; };
     }
 
     function getRouteURL(includeParentPath) {
       var parentRoutePath = '';
       var routeURL = routeHandlerDescription.url();
-      var myLinkPath = routeURL || element.getAttribute('href') || '';
+      var myLinkPath = routeURL || '';
 
       if(!isNull(routeURL)) {
         if(isUndefined(routeURL)) {
@@ -89,23 +103,29 @@ fw.bindingHandlers.$route = {
     function checkForMatchingSegment(mySegment, newRoute) {
       if(isString(mySegment)) {
         var currentRoute = $myRouter.currentRoute();
+        var elementWithState = routeHandlerDescription.parentHasState ? findParentNode(element, routeHandlerDescription.parentHasState) : element;
+        var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', $myRouter) || fw.router.activeRouteClassName();
         mySegment = mySegment.replace(startingHashRegex, '/');
 
         if(isObject(currentRoute)) {
           if(resultBound(routeHandlerDescription, 'addActiveClass', $myRouter)) {
-            var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', $myRouter) || fw.router.activeRouteClassName();
             if(mySegment === '/') {
               mySegment = '';
             }
 
             if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
               // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
-              addClass(element, activeRouteClassName);
-            } else if( hasClass(element, activeRouteClassName) ) {
-              removeClass(element, activeRouteClassName);
+              addClass(elementWithState, activeRouteClassName);
+            } else if( hasClass(elementWithState, activeRouteClassName) ) {
+              removeClass(elementWithState, activeRouteClassName);
             }
           }
         }
+      }
+
+      if(isNull(newRoute)) {
+        // No route currently selected, remove the activeRouteClassName from the elementWithState
+        removeClass(elementWithState, activeRouteClassName);
       }
     };
 

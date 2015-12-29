@@ -352,6 +352,24 @@
         </router>
       </div>
 
+      <div id="routeHrefBindingParentActiveClass">
+        <router module="routeHrefBindingParentActiveClass">
+          <div>
+            <a data-bind="$route: { url: '/routeHrefBindingParentActiveClass', activeClass: 'routeHrefBindingParentActiveClass', parentHasState: true }"></a>
+          </div>
+        </router>
+      </div>
+
+      <div id="routeHrefBindingParentSelectorActiveClass">
+        <router module="routeHrefBindingParentSelectorActiveClass">
+          <div class="parent-to-find">
+            <div>
+              <a data-bind="$route: { url: '/routeHrefBindingParentSelectorActiveClass', activeClass: 'routeHrefBindingParentSelectorActiveClass', parentHasState: '.parent-to-find' }"></a>
+            </div>
+          </div>
+        </router>
+      </div>
+
       <div id="routeHrefBindingCustomActiveClassObservable">
         <router module="routeHrefBindingCustomActiveClassObservable">
           <viewModel module="routeHrefBindingCustomActiveClassObservable">

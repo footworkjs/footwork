@@ -1449,6 +1449,91 @@ describe('router', function () {
     }, 40);
   });
 
+  it('can have a $route bound link that expresses an \'active\' class on the direct parent element', function(done) {
+    var container = document.getElementById('routeHrefBindingParentActiveClass');
+    var $container = $(container);
+    var routerInitialized = false;
+    var routeTouched = false;
+
+    fw.router.create({
+      namespace: 'routeHrefBindingParentActiveClass',
+      autoRegister: true,
+      routes: [
+        {
+          route: '/routeHrefBindingParentActiveClass',
+          controller: function() {
+            routeTouched = true;
+          }
+        }
+      ],
+      initialize: function() {
+        routerInitialized = true;
+      }
+    });
+
+    expect(routerInitialized).to.be(false);
+    expect(routeTouched).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      var $link = $container.find('a');
+
+      expect(routerInitialized).to.be(true);
+      expect(routeTouched).to.be(false);
+      expect($link.parent().hasClass('routeHrefBindingParentActiveClass')).to.be(false);
+
+      $link.click();
+      expect(routeTouched).to.be(true);
+      expect($link.parent().hasClass('routeHrefBindingParentActiveClass')).to.be(true);
+
+      done();
+    }, 40);
+  });
+
+  it('can have a $route bound link that expresses an \'active\' class on the selected parent element', function(done) {
+    var container = document.getElementById('routeHrefBindingParentSelectorActiveClass');
+    var $container = $(container);
+    var routerInitialized = false;
+    var routeTouched = false;
+
+    fw.router.create({
+      namespace: 'routeHrefBindingParentSelectorActiveClass',
+      autoRegister: true,
+      routes: [
+        {
+          route: '/routeHrefBindingParentSelectorActiveClass',
+          controller: function() {
+            routeTouched = true;
+          }
+        }
+      ],
+      initialize: function() {
+        routerInitialized = true;
+      }
+    });
+
+    expect(routerInitialized).to.be(false);
+    expect(routeTouched).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      var $link = $container.find('a');
+      var $elementThatHasState = $container.find('.parent-to-find');
+
+      expect(routerInitialized).to.be(true);
+      expect(routeTouched).to.be(false);
+      expect($elementThatHasState.hasClass('routeHrefBindingParentSelectorActiveClass')).to.be(false);
+
+      $link.click();
+      expect(routeTouched).to.be(true);
+      expect($elementThatHasState.hasClass('routeHrefBindingParentSelectorActiveClass')).to.be(true);
+
+      done();
+    }, 40);
+  });
+
   it('can have a $route bound link that expresses a custom \'active\' class defined by an observable when the route matches', function(done) {
     var container = document.getElementById('routeHrefBindingCustomActiveClassObservable');
     var $container = $(container);
