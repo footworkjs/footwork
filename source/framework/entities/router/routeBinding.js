@@ -130,35 +130,37 @@ fw.bindingHandlers.$route = {
     };
 
     function setUpElement() {
-      var myCurrentSegment = routeURLWithoutParentPath();
-      var routerConfig = $myRouter.__private('configParams');
-      if( element.tagName.toLowerCase() === 'a' ) {
-        element.href = (fw.router.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
-      }
+      if(!isNullRouter($myRouter)) {
+        var myCurrentSegment = routeURLWithoutParentPath();
+        var routerConfig = $myRouter.__private('configParams');
+        if( element.tagName.toLowerCase() === 'a' ) {
+          element.href = (fw.router.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
+        }
 
-      if( isObject(stateTracker) ) {
-        stateTracker.dispose();
-      }
-      stateTracker = $myRouter.currentRoute.subscribe( checkForMatchingSegment.bind(null, myCurrentSegment) );
+        if( isObject(stateTracker) ) {
+          stateTracker.dispose();
+        }
+        stateTracker = $myRouter.currentRoute.subscribe( checkForMatchingSegment.bind(null, myCurrentSegment) );
 
-      if(elementIsSetup === false) {
-        elementIsSetup = true;
-        checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
+        if(elementIsSetup === false) {
+          elementIsSetup = true;
+          checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
 
-        $myRouter.__private('parentRouter').subscribe(setUpElement);
-        fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
-          var currentRouteURL = routeURLWithoutParentPath();
-          var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
-          if(handlerResult) {
-            if(isString(handlerResult)) {
-              currentRouteURL = handlerResult;
+          $myRouter.__private('parentRouter').subscribe(setUpElement);
+          fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
+            var currentRouteURL = routeURLWithoutParentPath();
+            var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
+            if(handlerResult) {
+              if(isString(handlerResult)) {
+                currentRouteURL = handlerResult;
+              }
+              if(isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
+                $myRouter.setState( currentRouteURL );
+              }
             }
-            if(isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
-              $myRouter.setState( currentRouteURL );
-            }
-          }
-          return true;
-        });
+            return true;
+          });
+        }
       }
     }
 
