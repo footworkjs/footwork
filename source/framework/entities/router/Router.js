@@ -138,12 +138,12 @@ var Router = function(descriptor, configParams) {
       }
 
       function RoutedAction(routeDescription) {
-        if( !isUndefined(routeDescription.title) ) {
-          document.title = isFunction(routeDescription.title) ? routeDescription.title.call($router, routeDescription.namedParams, this.__private('urlParts')()) : routeDescription.title;
+        if(!isUndefined(routeDescription.title)) {
+          document.title = isFunction(routeDescription.title) ? routeDescription.title.apply($router, values(routeDescription.namedParams)) : routeDescription.title;
         }
 
-        if( isUndefined(router.currentRouteDescription) || !sameRouteDescription(router.currentRouteDescription, routeDescription) ) {
-          (routeDescription.controller || noop).apply( $router, values(routeDescription.namedParams) );
+        if(isUndefined(router.currentRouteDescription) || !sameRouteDescription(router.currentRouteDescription, routeDescription)) {
+          (routeDescription.controller || noop).apply($router, values(routeDescription.namedParams) );
           router.currentRouteDescription = routeDescription;
         }
       }
