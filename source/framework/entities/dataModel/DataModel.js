@@ -32,8 +32,8 @@ var DataModel = function(descriptor, configParams) {
         var id = this[configParams.idAttribute]();
         if(id) {
           // retrieve data dataModel the from server using the id
-          return this.sync('read', dataModel, options)
-            .done(function(response) {
+          var xhr = this.sync('read', dataModel, options);
+          return (xhr.done || xhr.then).call(xhr, function(response) {
               var parsedResponse = configParams.parse ? configParams.parse(response) : response;
               if(!isUndefined(parsedResponse[configParams.idAttribute])) {
                 dataModel.set(parsedResponse);
@@ -73,7 +73,7 @@ var DataModel = function(descriptor, configParams) {
 
         var syncPromise = dataModel.sync(method, dataModel, options);
 
-        syncPromise.done(function(response) {
+        (syncPromise.done || syncPromise.then).call(syncPromise, function(response) {
           var resourceData = configParams.parse ? configParams.parse(response) : response;
 
           if(options.wait && !isNull(attrs)) {
@@ -109,7 +109,7 @@ var DataModel = function(descriptor, configParams) {
 
         var xhr = this.sync('delete', this, options);
 
-        xhr.done(function() {
+        (xhr.done || xhr.then).call(xhr, function() {
           dataModel.$id(undefined);
           if(options.wait) {
             destroy();

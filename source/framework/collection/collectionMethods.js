@@ -117,7 +117,7 @@ var collectionMethods = fw.collection.methods = {
 
     var xhr = collection.sync('read', collection, options);
 
-    xhr.done(function(resp) {
+    (xhr.done || xhr.then).call(xhr, function(resp) {
       var method = options.reset ? 'reset' : 'set';
       resp = collection.__private('configParams').parse(resp);
       var touchedModels = collection[method](resp, options);
@@ -228,7 +228,7 @@ var collectionMethods = fw.collection.methods = {
       modelSavePromise = newModel.save();
 
       if(options.wait) {
-        modelSavePromise.done(function() {
+        (modelSavePromise.done || modelSavePromise.this).call(modelSavePromise, function() {
           collection.addModel(newModel);
         });
       } else {
