@@ -183,14 +183,15 @@ describe('dataModel', function () {
 
   it('can get all instantiated dataModels of a specific type/name', function() {
     var dataModels = [];
-    var DataModel = fw.dataModel.create({ namespace: 'getAllSpecificDataModel' });
+    var DataModel = fw.dataModel.create({ namespace: 'getAllSpecificDataModel', autoIncrement: false });
     var numToMake = _.random(1,15);
 
     for(var x = numToMake; x; x--) {
-      dataModels.push( new DataModel() );
+      dataModels.push(new DataModel());
     }
 
-    expect( _.keys(fw.dataModel.getAll('getAllSpecificDataModel')).length ).to.be(numToMake);
+    expect(fw.dataModel.getAll('getAllSpecificDataModelDoesNotExist').length).to.be(0);
+    expect(fw.dataModel.getAll('getAllSpecificDataModel').length).to.be(numToMake);
   });
 
   it('can autoRegister a dataModel during class method creation', function() {

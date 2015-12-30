@@ -216,17 +216,6 @@ var DataModel = function(descriptor, configParams) {
       }
       this.$namespace.request.handler('get', function() { return this.get(); }.bind(this));
 
-      this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
-        if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
-          var myNamespaceName = configParams.namespace;
-          if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
-            return this;
-          } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
-            return this;
-          }
-        }
-      }.bind(this));
-
       exitDataModelContext();
     }
   };

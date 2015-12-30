@@ -170,7 +170,7 @@ describe('viewModel', function () {
     var ViewModel = fw.viewModel.create();
     var viewModels = [ new ViewModel(), new ViewModel() ];
 
-    expect( _.keys(fw.viewModel.getAll()).length ).to.be.greaterThan(0);
+    expect(_.keys(fw.viewModel.getAll()).length).to.be.greaterThan(0);
   });
 
   it('can get all instantiated viewModels of a specific type/name', function() {
@@ -182,7 +182,8 @@ describe('viewModel', function () {
       viewModels.push( new ViewModel() );
     }
 
-    expect( fw.viewModel.getAll('getAllSpecificViewModel').length ).to.be(numToMake);
+    expect(fw.viewModel.getAll('getAllSpecificViewModelDoesNotExist').length).to.be(0);
+    expect(fw.viewModel.getAll('getAllSpecificViewModel').length).to.be(numToMake);
   });
 
   it('can autoRegister a viewModel during class method creation', function() {

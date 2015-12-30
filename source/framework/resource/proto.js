@@ -89,12 +89,12 @@ function getModelReferences(descriptor, namespaceName, options) {
     options.namespaceName = namespaceName;
   }
 
-  var references = reduce( $globalNamespace.request(descriptor.referenceNamespace, extend({ includeOutlets: false }, options), true), function(models, model) {
-    if( !isUndefined(model) ) {
+  var references = reduce($globalNamespace.request(descriptor.referenceNamespace, extend({ includeOutlets: false }, options), true), function(models, model) {
+    if(!isUndefined(model)) {
       var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
-      if( !isNull(namespaceName) ) {
+      if(!isNull(namespaceName)) {
         if( isUndefined(models[namespaceName]) ) {
-          models[namespaceName] = [ model ];
+          models[namespaceName] = [model];
         } else {
           models[namespaceName].push(model);
         }
@@ -104,8 +104,11 @@ function getModelReferences(descriptor, namespaceName, options) {
   }, {});
 
   var referenceKeys = keys(references);
-  if(isString(namespaceName) && referenceKeys.length === 1) {
-    return references[referenceKeys[0]];
+  if(isString(namespaceName)) {
+    if(referenceKeys.length === 1) {
+      return references[referenceKeys[0]] || [];
+    }
+    return [];
   }
   return references;
 }

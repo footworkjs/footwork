@@ -90,6 +90,7 @@ describe('router', function () {
       routers.push( new Router() );
     }
 
+    expect(fw.router.getAll('getAllSpecificRouterDoesNotExist').length).to.be(0);
     expect( fw.router.getAll('getAllSpecificRouter').filter(function(instance) {
       return instance.$namespace.getName() === 'getAllSpecificRouter';
     }).length ).to.be(numToMake);
