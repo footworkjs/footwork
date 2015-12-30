@@ -228,7 +228,7 @@ var collectionMethods = fw.collection.methods = {
       modelSavePromise = newModel.save();
 
       if(options.wait) {
-        (modelSavePromise.done || modelSavePromise.this).call(modelSavePromise, function() {
+        (modelSavePromise.done || modelSavePromise.then).call(modelSavePromise, function() {
           collection.addModel(newModel);
         });
       } else {
