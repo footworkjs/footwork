@@ -34,7 +34,6 @@ fw.bindingHandlers.$route = {
       parentHasState: false,
       handler: function defaultHandlerForRouteBinding(event, url) {
         if(hashOnly) {
-          windowObject.location.hash = resultBound(routeHandlerDescription, 'url', $myRouter);
           return false;
         }
 
