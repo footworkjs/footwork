@@ -640,7 +640,7 @@ describe('router', function () {
       viewModel: function() {
         componentInstantiated = true;
       },
-      template: '<div></div>'
+      template: '<div class="component-loaded"></div>'
     });
 
     var routerContainer;
@@ -683,6 +683,7 @@ describe('router', function () {
       setTimeout(function() {
         expect(componentInstantiated).to.be(true);
         expect($(routerContainer).find('outlet[name="output"]').attr('rendered')).to.be('manipulateOutletComponent');
+        expect($(routerContainer).find('outlet[name="output"] .component-loaded').length).to.be(1);
 
         controllerRan = false;
         expect(controllerRan).to.be(false);
@@ -691,6 +692,7 @@ describe('router', function () {
         setTimeout(function() {
           expect(controllerRan).to.be(true);
           expect($(routerContainer).find('outlet[name="output"]').attr('rendered')).not.to.be('manipulateOutletComponent');
+          expect($(routerContainer).find('outlet[name="output"] .component-loaded').length).to.be(0);
           done();
         }, 40);
       }, 40);
