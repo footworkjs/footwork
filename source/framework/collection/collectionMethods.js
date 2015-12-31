@@ -56,7 +56,7 @@ var collectionMethods = fw.collection.methods = {
             modelPresent = true;
             if(options.merge !== false && !sortOfEqual(collectionModelData, modelData)) {
               // found model, but needs an update
-              model.set(modelData);
+              (model.set || noop).call(model, modelData);
               collection.$namespace.publish('_.change', model);
               affectedModels.push(model);
             }
@@ -192,7 +192,7 @@ var collectionMethods = fw.collection.methods = {
               modelPresent = true;
               if(options.merge && !sortOfEqual(theModelData, collectionModelData)) {
                 // found model, but needs an update
-                model.set(theModelData);
+                (model.set || noop).call(model, theModelData);
                 collection.$namespace.publish('_.change', model);
                 affectedModels.push(model);
               }
