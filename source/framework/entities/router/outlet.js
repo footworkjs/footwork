@@ -35,6 +35,10 @@ function routerOutlet(outletName, componentToDisplay, options) {
   var router = this;
   var outlets = router.outlets;
 
+  if(arguments.length > 1 && !componentToDisplay) {
+    componentToDisplay = noComponentSelected;
+  }
+
   outletName = fw.unwrap(outletName);
   if(!isObservable(outlets[outletName])) {
     outlets[outletName] = fw.observable({
