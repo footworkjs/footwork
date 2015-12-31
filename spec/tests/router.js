@@ -660,6 +660,12 @@ describe('router', function () {
             controllerRan = true;
             this.outlet('output', 'manipulateOutletComponent');
           }
+        }, {
+          route: '/clearOutlet',
+          controller: function() {
+            controllerRan = true;
+            this.outlet('output', false);
+          }
         }
       ]
     });
@@ -677,7 +683,16 @@ describe('router', function () {
       setTimeout(function() {
         expect(componentInstantiated).to.be(true);
         expect($(routerContainer).find('outlet[name="output"]').attr('rendered')).to.be('manipulateOutletComponent');
-        done();
+
+        controllerRan = false;
+        expect(controllerRan).to.be(false);
+        router.setState('/clearOutlet');
+
+        setTimeout(function() {
+          expect(controllerRan).to.be(true);
+          expect($(routerContainer).find('outlet[name="output"]').attr('rendered')).not.to.be('manipulateOutletComponent');
+          done();
+        }, 40);
       }, 40);
     }, 40);
   });

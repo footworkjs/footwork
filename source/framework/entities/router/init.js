@@ -9,6 +9,7 @@ var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatchRegex = /(^\/#)/;
 
 var noComponentSelected = '_noComponentSelected';
+var nullComponent = '_nullComponent';
 var invalidRoutePathIdentifier = '___invalid-route';
 
 var routesAreCaseSensitive = true;

@@ -35,10 +35,6 @@ function routerOutlet(outletName, componentToDisplay, options) {
   var router = this;
   var outlets = router.outlets;
 
-  if(arguments.length > 1 && !componentToDisplay) {
-    componentToDisplay = noComponentSelected;
-  }
-
   outletName = fw.unwrap(outletName);
   if(!isObservable(outlets[outletName])) {
     outlets[outletName] = fw.observable({
@@ -54,8 +50,12 @@ function routerOutlet(outletName, componentToDisplay, options) {
   var valueHasMutated = false;
   var isInitialLoad = outlet().name === noComponentSelected;
 
+  if(arguments.length > 1 && !componentToDisplay) {
+    componentToDisplay = nullComponent;
+  }
+
   if(!isUndefined(componentToDisplay)) {
-    if(currentOutletDef.name !== componentToDisplay) {
+    if((currentOutletDef.loadingFor || currentOutletDef.name) !== componentToDisplay) {
       currentOutletDef.name = componentToDisplay;
       valueHasMutated = true;
     }
@@ -73,7 +73,10 @@ function routerOutlet(outletName, componentToDisplay, options) {
 
     var showDuringLoad = {
       name: showDuringLoadComponent,
+      loadingFor: componentToDisplay,
       __getOnCompleteCallback: function(element) {
+        element.setAttribute('rendered', '');
+
         if(element.children.length) {
           element.children[0].___isLoadingComponent = true;
         }
@@ -143,6 +146,10 @@ function registerOutletComponent() {
   internalComponents.push(noComponentSelected);
   fw.components.register(noComponentSelected, {
     template: '<div class="no-component-selected"></div>'
+  });
+  internalComponents.push(nullComponent);
+  fw.components.register(nullComponent, {
+    template: '<div class="null-component"></div>'
   });
 };
 
