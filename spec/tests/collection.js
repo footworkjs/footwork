@@ -790,8 +790,10 @@ describe('collection', function () {
     var PeopleCollectionAjaxOptions = fw.collection.create({
       namespace: 'PeopleFetch',
       url: '/invalid',
-      ajaxOptions: {
-        url: '/peopleCollectionGETAjaxOptionsOverride'
+      ajaxOptions: function() {
+        return {
+          url: '/peopleCollectionGETAjaxOptionsOverride'
+        };
       }
     });
     var peopleAjaxOptions = PeopleCollectionAjaxOptions();

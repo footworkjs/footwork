@@ -34,7 +34,7 @@ fw.sync = function(action, concern, params) {
     headers: {},
     emulateHTTP: fw.settings.emulateHTTP,
     emulateJSON: fw.settings.emulateJSON
-  }, configParams.ajaxOptions || {}, params);
+  }, resultBound(configParams, 'ajaxOptions', concern, [params]) || {}, params);
 
   if(!isString(options.type)) {
     throw new Error('Invalid action (' + action + ') specified for sync operation');
