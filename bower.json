@@ -13,8 +13,19 @@
     "url": "git://github.com/reflectiveSingleton/footwork.git"
   },
   "main": [
-    "dist/footwork-all.min.js",
-    "dist/footwork-all.js"
+    "./dist/footwork-all.min.js",
+    "./dist/footwork-all.js",
+    "./dist/footwork-all-history.min.js",
+    "./dist/footwork-all-history.js",
+    "./dist/footwork-bare-jquery.min.js",
+    "./dist/footwork-bare-jquery.js",
+    "./dist/footwork-bare-reqwest.min.js",
+    "./dist/footwork-bare-reqwest.js",
+    "./dist/footwork-minimal.min.js",
+    "./dist/footwork-minimal.js",
+    "./dist/animation/animation.css",
+    "./dist/animation/animation.less",
+    "./dist/animation/animation.scss"
   ],
   "ignore": [
     "source",
