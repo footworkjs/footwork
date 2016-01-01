@@ -1,0 +1,72 @@
+$moveDistance: 15px;
+$speed: 0.5s;
+$easing: ease;
+
+@mixin transition($transitionDef) {
+  -webkit-transition: $transitionDef;
+  -moz-transition: $transitionDef;
+  -ms-transition: $transitionDef;
+  -o-transition: $transitionDef;
+  transition: $transitionDef;
+}
+
+.fw-entity {
+  .fade-in {
+    opacity: 0;
+    @include transition(all $speed $easing);
+  }
+
+  .fade-in-from-left {
+    position: relative;
+    left: -$moveDistance;
+    opacity: 0;
+    @include transition(all $speed $easing);
+  }
+
+  .fade-in-from-right {
+    position: relative;
+    left: $moveDistance;
+    opacity: 0;
+    @include transition(all $speed $easing);
+  }
+
+  .fade-in-from-top {
+    position: relative;
+    top: -$moveDistance;
+    opacity: 0;
+    @include transition(all $speed $easing);
+  }
+
+  .fade-in-from-bottom {
+    position: relative;
+    top: $moveDistance;
+    opacity: 0;
+    @include transition(all $speed $easing);
+  }
+
+  &.fw-entity-bound {
+    & > .fade-in,
+    & > * > .fade-in {
+      opacity: 1;
+      @include transition(all $speed $easing);
+    }
+
+    & > .fade-in-from-left,
+    & > .fade-in-from-right,
+    & > .fade-in-from-top,
+    & > .fade-in-from-bottom,
+    & > * > .fade-in-from-left,
+    & > * > .fade-in-from-right,
+    & > * > .fade-in-from-top,
+    & > * > .fade-in-from-bottom {
+      position: relative;
+      left: 0;
+      top: 0;
+      opacity: 1;
+      @include transition(all $speed $easing);
+    }
+  }
+}
+
+
+

@@ -1,4 +1,4 @@
-REQUIRE_CONFIG.paths.footwork = "../../dist/footwork-bare-jquery";
+REQUIRE_CONFIG.paths.footwork = "../../build/footwork-bare-jquery";
 require.config(REQUIRE_CONFIG);
 
 require([ "footwork", "jquery", "mockjax" ],

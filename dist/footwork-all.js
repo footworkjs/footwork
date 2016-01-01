@@ -8551,8 +8551,8 @@ var DataModel = function(descriptor, configParams) {
         var id = this[configParams.idAttribute]();
         if(id) {
           // retrieve data dataModel the from server using the id
-          return this.sync('read', dataModel, options)
-            .done(function(response) {
+          var xhr = this.sync('read', dataModel, options);
+          return (xhr.done || xhr.then).call(xhr, function(response) {
               var parsedResponse = configParams.parse ? configParams.parse(response) : response;
               if(!isUndefined(parsedResponse[configParams.idAttribute])) {
                 dataModel.set(parsedResponse);
@@ -8592,7 +8592,7 @@ var DataModel = function(descriptor, configParams) {
 
         var syncPromise = dataModel.sync(method, dataModel, options);
 
-        syncPromise.done(function(response) {
+        (syncPromise.done || syncPromise.then).call(syncPromise, function(response) {
           var resourceData = configParams.parse ? configParams.parse(response) : response;
 
           if(options.wait && !isNull(attrs)) {
@@ -8628,7 +8628,7 @@ var DataModel = function(descriptor, configParams) {
 
         var xhr = this.sync('delete', this, options);
 
-        xhr.done(function() {
+        (xhr.done || xhr.then).call(xhr, function() {
           dataModel.$id(undefined);
           if(options.wait) {
             destroy();
@@ -8735,17 +8735,6 @@ var DataModel = function(descriptor, configParams) {
       }
       this.$namespace.request.handler('get', function() { return this.get(); }.bind(this));
 
-      this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
-        if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
-          var myNamespaceName = configParams.namespace;
-          if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
-            return this;
-          } else if(isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
-            return this;
-          }
-        }
-      }.bind(this));
-
       exitDataModelContext();
     }
   };
@@ -8771,6 +8760,7 @@ var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatchRegex = /(^\/#)/;
 
 var noComponentSelected = '_noComponentSelected';
+var nullComponent = '_nullComponent';
 var invalidRoutePathIdentifier = '___invalid-route';
 
 var routesAreCaseSensitive = true;
@@ -8927,8 +8917,12 @@ function routerOutlet(outletName, componentToDisplay, options) {
   var valueHasMutated = false;
   var isInitialLoad = outlet().name === noComponentSelected;
 
+  if(arguments.length > 1 && !componentToDisplay) {
+    componentToDisplay = nullComponent;
+  }
+
   if(!isUndefined(componentToDisplay)) {
-    if(currentOutletDef.name !== componentToDisplay) {
+    if((currentOutletDef.loadingFor || currentOutletDef.name) !== componentToDisplay) {
       currentOutletDef.name = componentToDisplay;
       valueHasMutated = true;
     }
@@ -8946,7 +8940,10 @@ function routerOutlet(outletName, componentToDisplay, options) {
 
     var showDuringLoad = {
       name: showDuringLoadComponent,
+      loadingFor: componentToDisplay,
       __getOnCompleteCallback: function(element) {
+        element.setAttribute('rendered', '');
+
         if(element.children.length) {
           element.children[0].___isLoadingComponent = true;
         }
@@ -9017,6 +9014,10 @@ function registerOutletComponent() {
   fw.components.register(noComponentSelected, {
     template: '<div class="no-component-selected"></div>'
   });
+  internalComponents.push(nullComponent);
+  fw.components.register(nullComponent, {
+    template: '<div class="null-component"></div>'
+  });
 };
 
 runPostInit.push(registerOutletComponent);
@@ -9024,22 +9025,39 @@ runPostInit.push(registerOutletComponent);
 // framework/entities/router/routeBinding.js
 // -----------
 
+function findParentNode(element, selector) {
+  if(selector === true) {
+    return element.parentNode;
+  }
+
+  if(element.parentNode && isFunction(element.parentNode.querySelectorAll)) {
+    var parentNode = element.parentNode;
+    var matches = parentNode.querySelectorAll(selector);
+    if(matches.length && contains(matches, element)) {
+      return element;
+    }
+    return findParentNode(parentNode, selector);
+  }
+
+  return undefined;
+}
+
 fw.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $myRouter = nearestParentRouter(bindingContext);
-    var urlValue = valueAccessor();
+    var routeParams = valueAccessor();
     var elementIsSetup = false;
     var stateTracker = null;
     var hashOnly = null;
 
     var routeHandlerDescription = {
       on: 'click',
-      url: function defaultURLForRoute() { return null; },
+      url: function defaultURLForRoute() { return element.getAttribute('href'); },
       addActiveClass: true,
       activeClass: null,
+      parentHasState: false,
       handler: function defaultHandlerForRouteBinding(event, url) {
         if(hashOnly) {
-          windowObject.location.hash = resultBound(routeHandlerDescription, 'url', $myRouter);
           return false;
         }
 
@@ -9051,25 +9069,21 @@ fw.bindingHandlers.$route = {
       }
     };
 
-    if( isObservable(urlValue) || isFunction(urlValue) || isString(urlValue) ) {
-      routeHandlerDescription.url = urlValue;
-    } else if( isObject(urlValue) ) {
-      extend(routeHandlerDescription, urlValue);
-    } else if( !urlValue ) {
-      routeHandlerDescription.url = element.getAttribute('href');
-    } else {
-      throw new Error('Unknown type of url value provided to $route [' + typeof urlValue + ']');
+    if(isFunction(routeParams) || isString(routeParams)) {
+      routeHandlerDescription.url = routeParams;
+    } else if( isObject(routeParams) ) {
+      extend(routeHandlerDescription, routeParams);
     }
 
     var routeHandlerDescriptionURL = routeHandlerDescription.url;
-    if( !isFunction(routeHandlerDescriptionURL) ) {
+    if(!isFunction(routeHandlerDescriptionURL)) {
       routeHandlerDescription.url = function() { return routeHandlerDescriptionURL; };
     }
 
     function getRouteURL(includeParentPath) {
       var parentRoutePath = '';
       var routeURL = routeHandlerDescription.url();
-      var myLinkPath = routeURL || element.getAttribute('href') || '';
+      var myLinkPath = routeURL || '';
 
       if(!isNull(routeURL)) {
         if(isUndefined(routeURL)) {
@@ -9112,56 +9126,64 @@ fw.bindingHandlers.$route = {
     function checkForMatchingSegment(mySegment, newRoute) {
       if(isString(mySegment)) {
         var currentRoute = $myRouter.currentRoute();
+        var elementWithState = routeHandlerDescription.parentHasState ? findParentNode(element, routeHandlerDescription.parentHasState) : element;
+        var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', $myRouter) || fw.router.activeRouteClassName();
         mySegment = mySegment.replace(startingHashRegex, '/');
 
         if(isObject(currentRoute)) {
           if(resultBound(routeHandlerDescription, 'addActiveClass', $myRouter)) {
-            var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', $myRouter) || fw.router.activeRouteClassName();
             if(mySegment === '/') {
               mySegment = '';
             }
 
             if(!isNull(newRoute) && newRoute.segment === mySegment && isString(activeRouteClassName) && activeRouteClassName.length) {
               // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
-              addClass(element, activeRouteClassName);
-            } else if( hasClass(element, activeRouteClassName) ) {
-              removeClass(element, activeRouteClassName);
+              addClass(elementWithState, activeRouteClassName);
+            } else if( hasClass(elementWithState, activeRouteClassName) ) {
+              removeClass(elementWithState, activeRouteClassName);
             }
           }
         }
       }
+
+      if(isNull(newRoute)) {
+        // No route currently selected, remove the activeRouteClassName from the elementWithState
+        removeClass(elementWithState, activeRouteClassName);
+      }
     };
 
     function setUpElement() {
-      var myCurrentSegment = routeURLWithoutParentPath();
-      var routerConfig = $myRouter.__private('configParams');
-      if( element.tagName.toLowerCase() === 'a' ) {
-        element.href = (fw.router.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
-      }
+      if(!isNullRouter($myRouter)) {
+        var myCurrentSegment = routeURLWithoutParentPath();
+        var routerConfig = $myRouter.__private('configParams');
+        if( element.tagName.toLowerCase() === 'a' ) {
+          element.href = (fw.router.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
+        }
 
-      if( isObject(stateTracker) ) {
-        stateTracker.dispose();
-      }
-      stateTracker = $myRouter.currentRoute.subscribe( checkForMatchingSegment.bind(null, myCurrentSegment) );
+        if( isObject(stateTracker) ) {
+          stateTracker.dispose();
+        }
+        stateTracker = $myRouter.currentRoute.subscribe( checkForMatchingSegment.bind(null, myCurrentSegment) );
 
-      if(elementIsSetup === false) {
-        elementIsSetup = true;
-        checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
+        if(elementIsSetup === false) {
+          elementIsSetup = true;
+          checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
 
-        $myRouter.__private('parentRouter').subscribe(setUpElement);
-        fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
-          var currentRouteURL = routeURLWithoutParentPath();
-          var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
-          if(handlerResult) {
-            if(isString(handlerResult)) {
-              currentRouteURL = handlerResult;
+          $myRouter.__private('parentRouter').subscribe(setUpElement);
+          fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
+            var currentRouteURL = routeURLWithoutParentPath();
+            var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
+            if(handlerResult) {
+              if(isString(handlerResult)) {
+                currentRouteURL = handlerResult;
+              }
+              if(isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
+                $myRouter.setState( currentRouteURL );
+              }
             }
-            if(isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
-              $myRouter.setState( currentRouteURL );
-            }
-          }
-          return true;
-        });
+            return true;
+          });
+        }
       }
     }
 
@@ -9344,12 +9366,12 @@ var Router = function(descriptor, configParams) {
       }
 
       function RoutedAction(routeDescription) {
-        if( !isUndefined(routeDescription.title) ) {
-          document.title = isFunction(routeDescription.title) ? routeDescription.title.call($router, routeDescription.namedParams, this.__private('urlParts')()) : routeDescription.title;
+        if(!isUndefined(routeDescription.title)) {
+          document.title = isFunction(routeDescription.title) ? routeDescription.title.apply($router, values(routeDescription.namedParams)) : routeDescription.title;
         }
 
-        if( isUndefined(router.currentRouteDescription) || !sameRouteDescription(router.currentRouteDescription, routeDescription) ) {
-          (routeDescription.controller || noop).apply( $router, values(routeDescription.namedParams) );
+        if(isUndefined(router.currentRouteDescription) || !sameRouteDescription(router.currentRouteDescription, routeDescription)) {
+          (routeDescription.controller || noop).apply($router, values(routeDescription.namedParams) );
           router.currentRouteDescription = routeDescription;
         }
       }
@@ -10158,12 +10180,12 @@ function getModelReferences(descriptor, namespaceName, options) {
     options.namespaceName = namespaceName;
   }
 
-  var references = reduce( $globalNamespace.request(descriptor.referenceNamespace, extend({ includeOutlets: false }, options), true), function(models, model) {
-    if( !isUndefined(model) ) {
+  var references = reduce($globalNamespace.request(descriptor.referenceNamespace, extend({ includeOutlets: false }, options), true), function(models, model) {
+    if(!isUndefined(model)) {
       var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
-      if( !isNull(namespaceName) ) {
+      if(!isNull(namespaceName)) {
         if( isUndefined(models[namespaceName]) ) {
-          models[namespaceName] = [ model ];
+          models[namespaceName] = [model];
         } else {
           models[namespaceName].push(model);
         }
@@ -10173,8 +10195,11 @@ function getModelReferences(descriptor, namespaceName, options) {
   }, {});
 
   var referenceKeys = keys(references);
-  if(isString(namespaceName) && referenceKeys.length === 1) {
-    return references[referenceKeys[0]];
+  if(isString(namespaceName)) {
+    if(referenceKeys.length === 1) {
+      return references[referenceKeys[0]] || [];
+    }
+    return [];
   }
   return references;
 }
@@ -10252,7 +10277,7 @@ fw.components.defaultLocation = function(location) {
   return defaultComponentLocation;
 };
 
-fw.components.registerLocation = function(componentName, componentLocation) {
+fw.components.registerLocation = function(componentName, componentLocation, folderOffset) {
   if(isArray(componentName)) {
     each(componentName, function(name) {
       fw.components.registerLocation(name, componentLocation);
@@ -10262,8 +10287,11 @@ fw.components.registerLocation = function(componentName, componentLocation) {
   if(isString(componentLocation)) {
     componentLocation = extend({}, baseComponentLocation, {
       viewModel: componentLocation,
-      template: componentLocation
+      template: componentLocation,
+      folderOffset: !!folderOffset
     });
+  } else if(isObject(componentLocation)) {
+    componentLocation.folderOffset = !!folderOffset;
   }
 
   fw.components.resourceLocations[componentName] = extend({}, baseComponentLocation, forceViewModelComponentConvention(componentLocation));
@@ -10495,11 +10523,16 @@ fw.components.loaders.push(fw.components.requireLoader = {
     var viewModelFile = fw.components.getFileName(componentName, 'viewModel');
     var templateFile = fw.components.getFileName(componentName, 'template');
     var componentLocation = fw.components.getLocation(componentName);
+    var folderOffset = componentLocation.folderOffset || '';
     var configOptions = null;
     var viewModelPath;
     var templatePath;
     var combinedPath;
     var viewModelConfig;
+
+    if(folderOffset !== '') {
+      folderOffset = componentName + '/';
+    }
 
     if( isFunction(require) ) {
       // load component using knockouts native support for requirejs
@@ -10512,7 +10545,7 @@ fw.components.loaders.push(fw.components.requireLoader = {
         combinedPath = componentLocation.combined;
 
         if( isPath(combinedPath) ) {
-          combinedPath = combinedPath + combinedFile;
+          combinedPath = combinedPath + folderOffset + combinedFile;
         }
 
         configOptions = {
@@ -10527,7 +10560,7 @@ fw.components.loaders.push(fw.components.requireLoader = {
           viewModelPath = componentLocation.viewModel;
 
           if( isPath(viewModelPath) ) {
-            viewModelPath = viewModelPath + viewModelFile;
+            viewModelPath = viewModelPath + folderOffset + viewModelFile;
           }
 
           if( getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel') ) {
@@ -10539,7 +10572,7 @@ fw.components.loaders.push(fw.components.requireLoader = {
 
         templatePath = componentLocation.template;
         if( isPath(templatePath) ) {
-          templatePath = templatePath + templateFile;
+          templatePath = templatePath + folderOffset + templateFile;
         }
 
         if( getFilenameExtension(templatePath) !== getComponentExtension(componentName, 'template') ) {
@@ -10890,7 +10923,7 @@ var collectionMethods = fw.collection.methods = {
             modelPresent = true;
             if(options.merge !== false && !sortOfEqual(collectionModelData, modelData)) {
               // found model, but needs an update
-              model.set(modelData);
+              (model.set || noop).call(model, modelData);
               collection.$namespace.publish('_.change', model);
               affectedModels.push(model);
             }
@@ -10951,7 +10984,7 @@ var collectionMethods = fw.collection.methods = {
 
     var xhr = collection.sync('read', collection, options);
 
-    xhr.done(function(resp) {
+    (xhr.done || xhr.then).call(xhr, function(resp) {
       var method = options.reset ? 'reset' : 'set';
       resp = collection.__private('configParams').parse(resp);
       var touchedModels = collection[method](resp, options);
@@ -11026,7 +11059,7 @@ var collectionMethods = fw.collection.methods = {
               modelPresent = true;
               if(options.merge && !sortOfEqual(theModelData, collectionModelData)) {
                 // found model, but needs an update
-                model.set(theModelData);
+                (model.set || noop).call(model, theModelData);
                 collection.$namespace.publish('_.change', model);
                 affectedModels.push(model);
               }
@@ -11062,7 +11095,7 @@ var collectionMethods = fw.collection.methods = {
       modelSavePromise = newModel.save();
 
       if(options.wait) {
-        modelSavePromise.done(function() {
+        (modelSavePromise.done || modelSavePromise.then).call(modelSavePromise, function() {
           collection.addModel(newModel);
         });
       } else {

@@ -65,7 +65,7 @@ function buildRelease(buildProfile) {
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
     .pipe(rename('footwork-' + buildProfile + '.js'))
     .pipe(size({ title: '[' + buildProfile + '] Unminified' }))
-    .pipe(gulp.dest('dist/'))
+    .pipe(gulp.dest('build/'))
     .pipe(uglify({
       compress: { negate_iife: false }
     }))
@@ -73,10 +73,10 @@ function buildRelease(buildProfile) {
     .pipe(rename('footwork-' + buildProfile + '.min.js'))
     .pipe(size({ title: '[' + buildProfile + '] Minified' }))
     .pipe(size({ title: '[' + buildProfile + '] Minified', gzip: true }))
-    .pipe(gulp.dest('dist/'));
+    .pipe(gulp.dest('build/'));
 };
 
-gulp.task('default', ['build-and-test']);
+gulp.task('default', ['build-and-test', 'copy_animation_styles_to_build']);
 
 // Testing tasks
 gulp.task('ci', ['test_bare']);
@@ -102,7 +102,7 @@ gulp.task('test_bare', ['build_bare_jquery'], function() {
 });
 
 // Building tasks
-gulp.task('build-everything', ['build_all', 'build_all_with_history', 'build_minimal', 'build_bare_jquery', 'build_bare_reqwest', 'build_raw']);
+gulp.task('build-everything', ['build_all', 'build_all_with_history', 'build_minimal', 'build_bare_jquery', 'build_bare_reqwest', 'build_raw', 'build_animations_css']);
 
 gulp.task('build_all_with_history', ['lodash_custom'], function() {
   return buildRelease('all-history');
@@ -128,10 +128,29 @@ gulp.task('build_raw', ['lodash_custom'], function() {
   return buildRelease('raw');
 });
 
-gulp.task('build_animations_css', function() {
-  return gulp.src('./dist/animation/animation.less')
-    .pipe(less())
+gulp.task('dist_animation_styles', function() {
+  gulp.src('./build/animation/**/*')
     .pipe(gulp.dest('./dist/animation'));
+});
+
+gulp.task('dist_build', function() {
+  gulp.src(['./build/footwork-*.js', '!./build/footwork-raw*.js'])
+    .pipe(gulp.dest('./dist'));
+});
+
+gulp.task('dist', function(callback) {
+  runSequence('build-everything', ['dist_build', 'dist_animation_styles'], callback);
+});
+
+gulp.task('copy_animation_styles_to_build', function() {
+  gulp.src(['./source/misc/animation/*.less', './source/misc/animation/*.scss'])
+    .pipe(gulp.dest('./build/animation'));
+});
+
+gulp.task('build_animations_css', function() {
+  return gulp.src('./source/misc/animation/animation.less')
+    .pipe(less())
+    .pipe(gulp.dest('./build/animation'));
 });
 
 gulp.task('set_version', function() {
@@ -150,5 +169,5 @@ gulp.task('lodash_custom', function () {
   return gulp.src('./source/build-profile/lodash-custom.js')
     .pipe(browserified())
     .pipe(rename('lodash-custom.js'))
-    .pipe(gulp.dest('./dist'));
+    .pipe(gulp.dest('./build'));
 });

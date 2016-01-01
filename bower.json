@@ -22,10 +22,7 @@
     "./dist/footwork-bare-reqwest.min.js",
     "./dist/footwork-bare-reqwest.js",
     "./dist/footwork-minimal.min.js",
-    "./dist/footwork-minimal.js",
-    "./dist/animation/animation.css",
-    "./dist/animation/animation.less",
-    "./dist/animation/animation.scss"
+    "./dist/footwork-minimal.js"
   ],
   "ignore": [
     "source",

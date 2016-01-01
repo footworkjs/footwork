@@ -60,14 +60,17 @@ npm install && bower install
 3) **Run a gulp task to build/test/etc:**
 
 ```bash
-# build everything (output in /dist) and run extended tests
+# build everything (output in /build) and run extended tests
 gulp
 
-# build everything (output in /dist)
+# build everything (output in /build)
 gulp build-everything
 
 # build whats necessary for continuous integration tests, and run them
 gulp ci
+
+# rebuild and deploy assets to /dist (for release)
+gulp dist
 ```
 
 ### Documentation and Website Contributions

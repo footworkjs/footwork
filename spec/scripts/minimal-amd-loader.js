@@ -1,4 +1,4 @@
-REQUIRE_CONFIG.paths.footwork = "../../dist/footwork-minimal";
+REQUIRE_CONFIG.paths.footwork = "../../build/footwork-minimal";
 require.config(REQUIRE_CONFIG);
 
 require([ "footwork" ],
