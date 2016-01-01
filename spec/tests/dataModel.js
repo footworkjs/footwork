@@ -1088,6 +1088,46 @@ describe('dataModel', function () {
     }, 40);
   });
 
+  it('can correctly fetch() data from the server with overridden ajaxOptions', function(done) {
+    var ajaxOptionsUrl = "/getDataModelAjaxOptions";
+    var personData = {
+      "id": 100,
+      "firstName": 'SpecialName',
+      "lastName": null,
+      "email": null
+    };
+
+    $.mockjax({
+      responseTime: 10,
+      url: ajaxOptionsUrl,
+      type: 'GET',
+      responseText: personData
+    });
+
+    var Person = fw.dataModel.create({
+      namespace: 'Person',
+      url: '/invalidURL',
+      ajaxOptions: {
+        url: ajaxOptionsUrl
+      },
+      initialize: function(person) {
+        person = person || {};
+        this.id(person.id);
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var person = new Person({ id: personData.id });
+    person.fetch();
+
+    setTimeout(function() {
+      expect(person.firstName()).to.be(personData.firstName);
+      done();
+    }, 40);
+  });
+
   it('can correctly fetch() data from the server via a url based on an evaluator function', function(done) {
     var getValue = '__GET__CUSTOM__CHECK__';
     var personData = {

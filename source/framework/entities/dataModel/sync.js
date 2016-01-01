@@ -25,6 +25,7 @@ fw.sync = function(action, concern, params) {
     throw new Error('Must supply a dataModel or collection to fw.sync()');
   }
 
+  var configParams = concern.__private('configParams');
   var options = extend({
     type: methodMap[action],
     dataType: 'json',
@@ -33,7 +34,7 @@ fw.sync = function(action, concern, params) {
     headers: {},
     emulateHTTP: fw.settings.emulateHTTP,
     emulateJSON: fw.settings.emulateJSON
-  }, params);
+  }, configParams.ajaxOptions || {}, params);
 
   if(!isString(options.type)) {
     throw new Error('Invalid action (' + action + ') specified for sync operation');
@@ -41,7 +42,6 @@ fw.sync = function(action, concern, params) {
 
   var url = options.url;
   if(isNull(url)) {
-    var configParams = concern.__private('configParams');
     url = configParams.url;
     if(isFunction(url)) {
       url = url.call(concern, action);

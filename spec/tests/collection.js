@@ -775,12 +775,26 @@ describe('collection', function () {
       type: 'GET',
       responseText: peopleData
     });
+    $.mockjax({
+      responseTime: 10,
+      url: "/peopleCollectionGETAjaxOptionsOverride",
+      type: 'GET',
+      responseText: peopleData
+    });
 
     var PeopleCollection = fw.collection.create({
       namespace: 'PeopleFetch',
       url: '/peopleCollectionGET',
     });
-    var people = new PeopleCollection();
+    var people = PeopleCollection();
+    var PeopleCollectionAjaxOptions = fw.collection.create({
+      namespace: 'PeopleFetch',
+      url: '/invalid',
+      ajaxOptions: {
+        url: '/peopleCollectionGETAjaxOptionsOverride'
+      }
+    });
+    var peopleAjaxOptions = PeopleCollectionAjaxOptions();
 
     var changeEventCalled = false;
     fw.namespace('PeopleFetch').subscribe('_.change', function(changeData) {
@@ -793,13 +807,19 @@ describe('collection', function () {
 
     var fetchResult = people.fetch();
     expect(fetchResult).to.be.an('object');
-    expect(fetchResult.done).to.be.a('function');
+    expect((fetchResult.done || fetchResult.then)).to.be.a('function');
+
+    peopleAjaxOptions.fetch();
 
     expect(changeEventCalled).to.be(false);
     setTimeout(function() {
       expect(changeEventCalled).to.be(true);
       expect(people().length).to.be(peopleData.length);
       expect(people()[0].firstName).to.be(personData.firstName);
+
+      expect(peopleAjaxOptions().length).to.be(peopleData.length);
+      expect(peopleAjaxOptions()[0].firstName).to.be(personData.firstName);
+
       done();
     }, 40);
   });

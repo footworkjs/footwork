@@ -28,6 +28,7 @@ entityDescriptors = entityDescriptors.concat([
       url: null,
       pkInURL: true,
       parse: false,
+      ajaxOptions: {},
       namespace: undefined,
       autoRegister: false,
       autoIncrement: true,
