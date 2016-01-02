@@ -1186,7 +1186,7 @@ describe('dataModel', function () {
       responseTime: 10,
       url: url + '/' + personData.firstName,
       type: 'GET',
-      responseText: _.extend({}, personData, { firstName: getValue })
+      responseText: personData
     });
 
     var Person = fw.dataModel.create({
@@ -1210,8 +1210,7 @@ describe('dataModel', function () {
     expect(fetchResult.done).to.be.a('function');
 
     setTimeout(function() {
-      expect(person.$id()).to.be(personData.id);
-      expect(person.firstName()).to.be(getValue);
+      expect(person.firstName()).to.be(personData.firstName);
       done();
     }, 40);
   });
