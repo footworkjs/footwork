@@ -164,13 +164,8 @@ function getFilenameExtension(fileName) {
 function alwaysPassPredicate() { return true; }
 function emptyStringResult() { return ''; }
 
-/**
- * Dispose of a known property type
- * @param  {object} property Variable/property to dispose of (if needed)
- * @return {undefined}
- */
-function propertyDisposal(property) {
-  if((isObservable(property) || isNamespace(property) || isEntity(property) || isCollection(property) || fw.isBroadcastable(property) || fw.isReceivable(property)) && isFunction(property.dispose)) {
+function propertyDispose(property) {
+  if(!isUndefined(property) && isFunction(property.dispose)) {
     property.dispose();
   }
 }

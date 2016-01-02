@@ -18,8 +18,8 @@ var ViewModel = function(descriptor, configParams) {
           if( configParams.onDispose !== noop ) {
             configParams.onDispose.call(this, this.__private('element'));
           }
-          each(this, propertyDisposal);
-          each(this.__private('subscriptions') || [], propertyDisposal);
+          each(this, propertyDispose);
+          each(this.__private('subscriptions') || [], propertyDispose);
         }
         return this;
       }

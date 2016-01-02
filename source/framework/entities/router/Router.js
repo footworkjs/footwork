@@ -383,11 +383,11 @@ var Router = function(descriptor, configParams) {
 
           each(omit(this, function(property) {
             return isEntity(property);
-          }), propertyDisposal);
+          }), propertyDispose);
 
           each(omit(this.__private(), function(property) {
             return isEntity(property);
-          }), propertyDisposal);
+          }), propertyDispose);
 
           return this;
         }
