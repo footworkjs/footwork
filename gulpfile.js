@@ -143,12 +143,12 @@ gulp.task('dist', function(callback) {
 });
 
 gulp.task('copy_animation_styles_to_build', function() {
-  gulp.src(['./source/misc/animation/*.less', './source/misc/animation/*.scss'])
+  gulp.src(['./source/animation-styles/*.less', './source/animation-styles/*.scss'])
     .pipe(gulp.dest('./build/animation'));
 });
 
 gulp.task('build_animations_css', function() {
-  return gulp.src('./source/misc/animation/animation.less')
+  return gulp.src('./source/animation-styles/animation.less')
     .pipe(less())
     .pipe(gulp.dest('./build/animation'));
 });
