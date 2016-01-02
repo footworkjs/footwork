@@ -1171,4 +1171,48 @@ describe('dataModel', function () {
       done();
     }, 40);
   });
+
+  it('can correctly fetch() data from the server via a url with interpolated parameters', function(done) {
+    var getValue = '__GET__CUSTOM__CHECK__';
+    var url = '/personWithInterpolatedParams';
+    var personData = {
+      "id": 100,
+      "firstName": 'interpolatedFirstName',
+      "lastName": 'lastName',
+      "email": null
+    };
+
+    $.mockjax({
+      responseTime: 10,
+      url: url + '/' + personData.firstName,
+      type: 'GET',
+      responseText: _.extend({}, personData, { firstName: getValue })
+    });
+
+    var Person = fw.dataModel.create({
+      namespace: 'Person',
+      pkInURL: false,
+      url: url + '/:firstName',
+      initialize: function(person) {
+        person = person || {};
+        this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+        this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+        this.email = fw.observable(person.email || null).mapTo('email');
+      }
+    });
+
+    var person = new Person(personData);
+
+    expect(person.firstName()).not.to.be(getValue);
+
+    var fetchResult = person.fetch();
+    expect(fetchResult).to.be.an('object');
+    expect(fetchResult.done).to.be.a('function');
+
+    setTimeout(function() {
+      expect(person.$id()).to.be(personData.id);
+      expect(person.firstName()).to.be(getValue);
+      done();
+    }, 40);
+  });
 });
