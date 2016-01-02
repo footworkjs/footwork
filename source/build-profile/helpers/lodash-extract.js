@@ -1,6 +1,3 @@
-// misc/lodashExtract.js
-// ----------------
-
 var isFunction = _.isFunction;
 var isObject = _.isObject;
 var isString = _.isString;

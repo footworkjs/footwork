@@ -1173,12 +1173,11 @@ describe('dataModel', function () {
   });
 
   it('can correctly fetch() data from the server via a url with interpolated parameters', function(done) {
-    var getValue = '__GET__CUSTOM__CHECK__';
     var url = '/personWithInterpolatedParams';
     var personData = {
       "id": 100,
       "firstName": 'interpolatedFirstName',
-      "lastName": 'lastName',
+      "lastName": 'personDataLastName',
       "email": null
     };
 
@@ -1201,16 +1200,16 @@ describe('dataModel', function () {
       }
     });
 
-    var person = new Person(personData);
+    var person = new Person({ id: personData.id, firstName: personData.firstName });
 
-    expect(person.firstName()).not.to.be(getValue);
+    expect(person.lastName()).not.to.be(personData.lastName);
 
     var fetchResult = person.fetch();
     expect(fetchResult).to.be.an('object');
     expect(fetchResult.done).to.be.a('function');
 
     setTimeout(function() {
-      expect(person.firstName()).to.be(personData.firstName);
+      expect(person.lastName()).to.be(personData.lastName);
       done();
     }, 40);
   });

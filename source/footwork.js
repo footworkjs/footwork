@@ -1,7 +1,4 @@
-// main.js
-// -----------
-
 var fw = ko;
 
-//import("misc/lodashExtract.js");
+//import("build-profile/helpers/lodash-extract.js");
 //import("framework/main.js");

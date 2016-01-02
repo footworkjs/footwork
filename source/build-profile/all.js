@@ -27,7 +27,6 @@
 
   return (function() {
     //import("helpers/root-masks.js");
-    //import("helpers/bind-poly.js");
     root.ko = ko;
 
     //import("../../build/lodash-custom.js");
@@ -49,10 +48,6 @@
         //import("../../bower_components/postal.preserve/lib/postal.preserve.js");
       }).call(root);
     }
-
-    (function(window) {
-      //import("../../bower_components/console-polyfill/index.js");
-    }).call(root, windowObject);
 
     // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ '_', 'ko', 'riveter', 'postal', 'reqwest' ];
