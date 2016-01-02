@@ -43,7 +43,7 @@
 
     return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest) {
       var ajax = reqwest.compat;
-      //import("../footwork.js");
+      //import("../framework/main.js");
       return ko;
     })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.reqwest );
   })();

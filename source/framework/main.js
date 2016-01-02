@@ -1,3 +1,6 @@
+var fw = ko;
+//import("../build-profile/helpers/lodash-extract.js");
+
 //import("init.js");
 //import("utility.js");
 
