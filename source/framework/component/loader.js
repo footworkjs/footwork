@@ -38,10 +38,10 @@ fw.components.loaders.push(fw.components.requireLoader = {
           require: require.toUrl(combinedPath)
         };
       } else {
-        // check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)
+        // check to see if the requested component is template only and should not request a viewModel (we supply a dummy object in its place)
         if( !isString(componentLocation.viewModel) ) {
           // template-only component, substitute with 'blank' viewModel
-          viewModelConfig = { instance: {} };
+          viewModelConfig = { instance: new DefaultViewModel() };
         } else {
           viewModelPath = componentLocation.viewModel;
 
