@@ -163,6 +163,18 @@
         <pass-params-to-component params="testValueOne: 1, testValueTwo: [1,2,3]"></pass-params-to-component>
       </div>
 
+      <div id="passParamsToComponent">
+        <pass-params-to-component params="testValueOne: 1, testValueTwo: [1,2,3]"></pass-params-to-component>
+      </div>
+
+      <div id="passParamsToDefaultComponent">
+        <viewModel module="passParamsDefault">
+          <div data-bind="with: boundViewModel">
+            <pass-params-to-default-component params="$viewModel: $data"></pass-params-to-default-component>
+          </div>
+        </viewModel>
+      </div>
+
       <div id="defaultComponentLocation">
         <default-component-location></default-component-location>
       </div>

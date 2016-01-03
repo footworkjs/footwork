@@ -189,6 +189,33 @@ describe('components', function () {
     }, 150);
   });
 
+  it('can pass params to a \'default\' component viewModel', function(done) {
+    var container = document.getElementById('passParamsToDefaultComponent');
+    var componentInitialized = false;
+    var valueToFind = 'someRandomValue12345';
+
+    fw.components.register('pass-params-to-default-component', {
+      template: '<div class="passed-value" data-bind="text: someVariable"></div>'
+    });
+
+    fw.viewModel.register('passParamsDefault', fw.viewModel.create({
+      initialize: function() {
+        this.boundViewModel = {
+          someVariable: valueToFind
+        };
+      }
+    }));
+
+    expect(componentInitialized).to.be(false);
+
+    fw.start(container);
+
+    setTimeout(function() {
+      expect($(container).find('.passed-value').text()).to.be(valueToFind);
+      done();
+    }, 150);
+  });
+
   it('can set and return fileExtensions correctly', function() {
     var extensions = {
       combined: '.combinedTest',

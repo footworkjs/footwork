@@ -5,6 +5,12 @@ fw.components.resourceLocations = {};
 
 fw.components.fileExtensions = fw.observable( clone(defaultComponentFileExtensions) );
 
+function DefaultViewModel(params) {
+  if(isObject(params) && isObject(params.$viewModel)) {
+    extend(this, params.$viewModel);
+  }
+}
+
 fw.components.register = function(componentName, options) {
   var viewModel = options.viewModel || options.dataModel || options.router;
 
@@ -13,7 +19,7 @@ fw.components.register = function(componentName, options) {
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || noop,
+    viewModel: viewModel || DefaultViewModel,
     template: options.template
   });
 };

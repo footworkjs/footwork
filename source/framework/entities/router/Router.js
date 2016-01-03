@@ -163,7 +163,7 @@ var Router = function(descriptor, configParams) {
       }, router);
 
       this.currentRoute = router.currentRoute = fw.computed(function() {
-        return getRouteForURL(normalizeURL(this.currentState()) );
+        return getRouteForURL(normalizeURL(this.currentState()));
       }, router);
 
       this.path = router.path = fw.computed(function() {
