@@ -74,7 +74,7 @@ fw.components.defaultLocation = function(location) {
 fw.components.registerLocation = function(componentName, componentLocation, folderOffset) {
   if(isArray(componentName)) {
     each(componentName, function(name) {
-      fw.components.registerLocation(name, componentLocation);
+      fw.components.registerLocation(name, componentLocation, folderOffset);
     });
   }
 
