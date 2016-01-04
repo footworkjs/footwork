@@ -1,23 +1,56 @@
 // framework/component/lifecycle.js
 // ------------------
 
+function runBindingSequence(queue) {
+  if(queue.length) {
+    queue.running = true;
+    var sequence = queue.shift();
+    setTimeout(function() {
+      sequence.addBinding();
+      runBindingSequence(queue);
+    }, sequence.nextIteration);
+  } else {
+    queue.running = false;
+  }
+}
+
+var sequenceQueue = {};
+function queueBindingClass(element, viewModel) {
+  var configParams = viewModel.__private('configParams');
+  var sequenceTimeout = result(configParams, 'sequenceAnimations', false);
+  if(sequenceTimeout) {
+    var namespaceSequenceQueue = sequenceQueue[configParams.namespace] = (sequenceQueue[configParams.namespace] || []);
+    namespaceSequenceQueue.push({
+      addBinding: function addBindingFromQueue() {
+        addClass(element, bindingClassName);
+      },
+      nextIteration: sequenceTimeout,
+      viewModel: viewModel
+    });
+
+    if(!namespaceSequenceQueue.running) {
+      runBindingSequence(namespaceSequenceQueue);
+    }
+  } else {
+    addClass(element, bindingClassName);
+  }
+}
+
 function componentTriggerafterRender(element, viewModel) {
   if(isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
     viewModel.__private('afterRenderWasTriggered', true);
     var configParams = viewModel.__private('configParams');
     if(isFunction(configParams.afterRender)) {
-      var afterRender = noop;
-      if(isFunction(configParams.afterRender)) {
-        afterRender = configParams.afterRender;
-      }
-
+      var afterRender = configParams.afterRender || noop;
       configParams.afterRender = function(element) {
         setTimeout(function() {
-          if(element.className.indexOf(bindingClassName) === -1) {
-            addClass(element, bindingClassName);
-          }
+          queueBindingClass(element, viewModel);
         }, animationIteration);
-        afterRender.call(this, element);
+
+        if(!afterRender.wasCalled) {
+          afterRender.wasCalled = true;
+          afterRender.call(viewModel, element);
+        }
       };
 
       configParams.afterRender.call(viewModel, element);

@@ -21,10 +21,25 @@ var footwork = {};
 
 var entityClassName = 'fw-entity';
 var bindingClassName = 'fw-entity-bound';
-var animationIteration = 40;
+var animationIteration = 20;
+var defaultBindingSequence = 50;
 var isEntityCtor;
 var isEntity;
 var isDataModel;
 var isDataModelCtor;
 var isRouter;
 var activeOutlets = fw.observableArray();
+var DefaultViewModel;
+
+runPostInit.unshift(function() {
+  DefaultViewModel = fw.viewModel.create({
+    namespace: '_DefaultNamespace',
+    autoIncrement: true,
+    initialize: function(params) {
+      if(isObject(params) && isObject(params.$viewModel)) {
+        extend(this, params.$viewModel);
+      }
+    },
+    sequenceAnimations: fw.settings.sequenceAnimations || 15
+  });
+});

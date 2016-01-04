@@ -15,6 +15,7 @@ entityDescriptors = entityDescriptors.concat([
       extend: {},
       mixins: undefined,
       afterRender: noop,
+      sequenceAnimations: false,
       onDispose: noop
     }
   }, {
@@ -35,6 +36,7 @@ entityDescriptors = entityDescriptors.concat([
       extend: {},
       mixins: undefined,
       afterRender: noop,
+      sequenceAnimations: false,
       onDispose: noop
     }
   }, {
@@ -51,6 +53,7 @@ entityDescriptors = entityDescriptors.concat([
       extend: {},
       mixins: undefined,
       afterRender: noop,
+      sequenceAnimations: false,
       onDispose: noop,
       baseRoute: null,
       isRelative: true,

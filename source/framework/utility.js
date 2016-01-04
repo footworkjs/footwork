@@ -50,18 +50,6 @@ function removeClass(element, className) {
   }
 }
 
-var DefaultViewModel;
-
-runPostInit.unshift(function() {
-  DefaultViewModel = fw.viewModel.create({
-    initialize: function(params) {
-      if(isObject(params) && isObject(params.$viewModel)) {
-        extend(this, params.$viewModel);
-      }
-    }
-  });
-});
-
 /**
  * Performs an equality comparison between two objects while ensuring atleast one or more keys/values match and that all keys/values from object A also exist in B
  * Note: object 'a' can provide a regex value for a property and have it searched matching on the regex value
