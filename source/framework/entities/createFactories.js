@@ -25,7 +25,7 @@ function entityClassFactory(descriptor, configParams) {
     descriptorBehavior.push( isFunction(behavior) ? behavior(descriptor, configParams || {}) : behavior );
   });
 
-  var ctor = configParams.initialize || configParams.viewModel || noop;
+  var ctor = configParams.initialize || noop;
   var userExtendProps = { mixin: configParams.extend || {} };
   if( !descriptor.isEntityCtor(ctor) ) {
     var isEntityDuckTagMixin = {};

@@ -22,7 +22,7 @@ var footwork = {};
 var entityClassName = 'fw-entity';
 var bindingClassName = 'fw-entity-bound';
 var animationIteration = 20;
-var defaultBindingSequence = 50;
+var defaultBindingSequence = 15;
 var isEntityCtor;
 var isEntity;
 var isDataModel;
@@ -40,6 +40,8 @@ runPostInit.unshift(function() {
         extend(this, params.$viewModel);
       }
     },
-    sequenceAnimations: fw.settings.sequenceAnimations || 15
+    sequenceAnimations: function() {
+      return fw.settings.sequenceAnimations || defaultBindingSequence;
+    }
   });
 });

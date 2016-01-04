@@ -17,15 +17,14 @@ function runBindingSequence(queue) {
 var sequenceQueue = {};
 function queueBindingClass(element, viewModel) {
   var configParams = viewModel.__private('configParams');
-  var sequenceTimeout = result(configParams, 'sequenceAnimations', false);
+  var sequenceTimeout = resultBound(configParams, 'sequenceAnimations', viewModel) || false;
   if(sequenceTimeout) {
     var namespaceSequenceQueue = sequenceQueue[configParams.namespace] = (sequenceQueue[configParams.namespace] || []);
     namespaceSequenceQueue.push({
       addBinding: function addBindingFromQueue() {
         addClass(element, bindingClassName);
       },
-      nextIteration: sequenceTimeout,
-      viewModel: viewModel
+      nextIteration: sequenceTimeout
     });
 
     if(!namespaceSequenceQueue.running) {
@@ -39,22 +38,13 @@ function queueBindingClass(element, viewModel) {
 function componentTriggerafterRender(element, viewModel) {
   if(isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
     viewModel.__private('afterRenderWasTriggered', true);
+
     var configParams = viewModel.__private('configParams');
-    if(isFunction(configParams.afterRender)) {
-      var afterRender = configParams.afterRender || noop;
-      configParams.afterRender = function(element) {
-        setTimeout(function() {
-          queueBindingClass(element, viewModel);
-        }, animationIteration);
+    configParams.afterRender.call(viewModel, element);
 
-        if(!afterRender.wasCalled) {
-          afterRender.wasCalled = true;
-          afterRender.call(viewModel, element);
-        }
-      };
-
-      configParams.afterRender.call(viewModel, element);
-    }
+    setTimeout(function() {
+      queueBindingClass(element, viewModel);
+    }, animationIteration);
   }
 }
 
