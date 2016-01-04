@@ -50,11 +50,17 @@ function removeClass(element, className) {
   }
 }
 
-function DefaultViewModel(params) {
-  if(isObject(params) && isObject(params.$viewModel)) {
-    extend(this, params.$viewModel);
-  }
-}
+var DefaultViewModel;
+
+runPostInit.unshift(function() {
+  DefaultViewModel = fw.viewModel.create({
+    initialize: function(params) {
+      if(isObject(params) && isObject(params.$viewModel)) {
+        extend(this, params.$viewModel);
+      }
+    }
+  });
+});
 
 /**
  * Performs an equality comparison between two objects while ensuring atleast one or more keys/values match and that all keys/values from object A also exist in B
@@ -171,7 +177,7 @@ function alwaysPassPredicate() { return true; }
 function emptyStringResult() { return ''; }
 
 function propertyDispose(property) {
-  if(!isUndefined(property) && isFunction(property.dispose)) {
+  if(isObject(property) && isFunction(property.dispose)) {
     property.dispose();
   }
 }

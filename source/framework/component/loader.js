@@ -41,7 +41,7 @@ fw.components.loaders.push(fw.components.requireLoader = {
         // check to see if the requested component is template only and should not request a viewModel (we supply a dummy object in its place)
         if( !isString(componentLocation.viewModel) ) {
           // template-only component, substitute with 'blank' viewModel
-          viewModelConfig = { instance: new DefaultViewModel() };
+          viewModelConfig = DefaultViewModel;
         } else {
           viewModelPath = componentLocation.viewModel;
 
