@@ -1,13 +1,13 @@
 // framework/component/lifecycle.js
 // ------------------
 
-function runBindingSequence(queue) {
+function runAnimationClassSequence(queue) {
   if(queue.length) {
     queue.running = true;
     var sequence = queue.shift();
     setTimeout(function() {
-      sequence.addBinding();
-      runBindingSequence(queue);
+      sequence.addClass();
+      runAnimationClassSequence(queue);
     }, sequence.nextIteration);
   } else {
     queue.running = false;
@@ -15,20 +15,20 @@ function runBindingSequence(queue) {
 }
 
 var sequenceQueue = {};
-function queueBindingClass(element, viewModel) {
+function queueAnimationClass(element, viewModel) {
   var configParams = viewModel.__private('configParams');
   var sequenceTimeout = resultBound(configParams, 'sequenceAnimations', viewModel) || false;
   if(sequenceTimeout) {
-    var namespaceSequenceQueue = sequenceQueue[configParams.namespace] = (sequenceQueue[configParams.namespace] || []);
-    namespaceSequenceQueue.push({
-      addBinding: function addBindingFromQueue() {
+    var animationSequence = sequenceQueue[configParams.namespace] = (sequenceQueue[configParams.namespace] || []);
+    animationSequence.push({
+      addClass: function addBindingFromQueue() {
         addClass(element, bindingClassName);
       },
       nextIteration: sequenceTimeout
     });
 
-    if(!namespaceSequenceQueue.running) {
-      runBindingSequence(namespaceSequenceQueue);
+    if(!animationSequence.running) {
+      runAnimationClassSequence(animationSequence);
     }
   } else {
     addClass(element, bindingClassName);
@@ -43,7 +43,7 @@ function componentTriggerafterRender(element, viewModel) {
     configParams.afterRender.call(viewModel, element);
 
     setTimeout(function() {
-      queueBindingClass(element, viewModel);
+      queueAnimationClass(element, viewModel);
     }, animationIteration);
   }
 }

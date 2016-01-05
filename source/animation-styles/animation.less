@@ -1,6 +1,6 @@
-@moveDistance: 20px;
-@speed: 0.5s;
-@easing: ease;
+@fw-animation-move-distance: 20px;
+@fw-animation-speed: 0.5s;
+@fw-animation-easing: ease;
 
 .transition(@value) {
   -webkit-transition: @value;
@@ -13,42 +13,42 @@
 .fw-entity {
   .fade-in {
     opacity: 0;
-    .transition(all @speed @easing);
+    .transition(all @fw-animation-speed @fw-animation-easing);
   }
 
   .fade-in-from-left {
     position: relative;
-    left: -@moveDistance;
+    left: -@fw-animation-move-distance;
     opacity: 0;
-    .transition(all @speed @easing);
+    .transition(all @fw-animation-speed @fw-animation-easing);
   }
 
   .fade-in-from-right {
     position: relative;
-    left: @moveDistance;
+    left: @fw-animation-move-distance;
     opacity: 0;
-    .transition(all @speed @easing);
+    .transition(all @fw-animation-speed @fw-animation-easing);
   }
 
   .fade-in-from-top {
     position: relative;
-    top: -@moveDistance;
+    top: -@fw-animation-move-distance;
     opacity: 0;
-    .transition(all @speed @easing);
+    .transition(all @fw-animation-speed @fw-animation-easing);
   }
 
   .fade-in-from-bottom {
     position: relative;
-    top: @moveDistance;
+    top: @fw-animation-move-distance;
     opacity: 0;
-    .transition(all @speed @easing);
+    .transition(all @fw-animation-speed @fw-animation-easing);
   }
 
   &.fw-entity-bound {
     & > .fade-in,
     & > * > .fade-in {
       opacity: 1;
-      .transition(all @speed @easing);
+      .transition(all @fw-animation-speed @fw-animation-easing);
     }
 
     & > .fade-in-from-left,
@@ -63,10 +63,7 @@
       left: 0;
       top: 0;
       opacity: 1;
-      .transition(all @speed @easing);
+      .transition(all @fw-animation-speed @fw-animation-easing);
     }
   }
 }
-
-
-

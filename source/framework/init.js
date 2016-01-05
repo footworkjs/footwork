@@ -22,7 +22,7 @@ var footwork = {};
 var entityClassName = 'fw-entity';
 var bindingClassName = 'fw-entity-bound';
 var animationIteration = 20;
-var defaultBindingSequence = 15;
+var defaultBindingSequence = 20;
 var isEntityCtor;
 var isEntity;
 var isDataModel;
