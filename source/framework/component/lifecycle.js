@@ -22,7 +22,7 @@ function queueAnimationClass(element, viewModel) {
     var animationSequence = sequenceQueue[configParams.namespace] = (sequenceQueue[configParams.namespace] || []);
     animationSequence.push({
       addClass: function addBindingFromQueue() {
-        addClass(element, bindingClassName);
+        addClass(element, entityAnimateClass);
       },
       nextIteration: sequenceTimeout
     });
@@ -31,7 +31,7 @@ function queueAnimationClass(element, viewModel) {
       runAnimationClassSequence(animationSequence);
     }
   } else {
-    addClass(element, bindingClassName);
+    addClass(element, entityAnimateClass);
   }
 }
 
@@ -53,7 +53,7 @@ fw.virtualElements.allowedBindings.$life = true;
 fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
-    addClass(element, entityClassName);
+    addClass(element, entityClass);
 
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if(isEntity(viewModel)) {

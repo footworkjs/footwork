@@ -110,7 +110,7 @@ describe('components', function () {
         afterRender: function(element) {
           afterBindingCalled = true;
           theElement = element;
-          expect(theElement.className.indexOf('fw-entity-bound')).to.be(-1);
+          expect(theElement.className.indexOf('fw-entity-animate')).to.be(-1);
         }
       })
     });
@@ -123,10 +123,39 @@ describe('components', function () {
       expect(afterBindingCalled).to.be(true);
       expect(wasInitialized).to.be(true);
       setTimeout(function() {
-        expect(theElement.className.indexOf('fw-entity-bound')).to.be.greaterThan(-1);
+        expect(theElement.className.indexOf('fw-entity-animate')).to.be.greaterThan(-1);
         done();
       }, 100);
     }, 0);
+  });
+
+  it('can sequence animations', function(done) {
+    var container = document.getElementById('afterBindingComponentAnimationSequence');
+    var $container = $(container);
+
+    var thingslist = [ {}, {}, {}, {}, {} ];
+    var thingToFind = '.fw-entity-animate';
+
+    fw.components.register('component-animation-sequence', {
+      template: '<div>a template</div>',
+      viewModel: fw.viewModel.create({
+        namespace: 'afterBindingComponentAnimationSequence'
+      })
+    });
+
+    expect($container.find(thingToFind).length).to.be(0);
+    fw.applyBindings({
+      things: thingslist
+    }, container);
+
+    setTimeout(function() {
+      var currentThingLength = $container.find(thingToFind).length;
+      expect(currentThingLength).to.be.greaterThan(0);
+      setTimeout(function() {
+        expect($container.find(thingToFind).length).to.be.greaterThan(currentThingLength);
+        done();
+      }, 100);
+    }, 30);
   });
 
   it('can instantiate nested <components>', function(done) {

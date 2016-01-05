@@ -294,7 +294,7 @@ describe('dataModel', function () {
       afterRender: function(element) {
         afterBindingCalled = true;
         theElement = element;
-        expect(theElement.className.indexOf('fw-entity-bound')).to.be(-1);
+        expect(theElement.className.indexOf('fw-entity-animate')).to.be(-1);
       }
     });
 
@@ -306,7 +306,7 @@ describe('dataModel', function () {
       expect(afterBindingCalled).to.be(true);
       expect(wasInitialized).to.be(true);
       setTimeout(function() {
-        expect(theElement.className.indexOf('fw-entity-bound')).to.be.greaterThan(-1);
+        expect(theElement.className.indexOf('fw-entity-animate')).to.be.greaterThan(-1);
         done();
       }, 100);
     }, 0);

@@ -81,10 +81,10 @@ function routerOutlet(outletName, componentToDisplay, options) {
           element.children[0].___isLoadingComponent = true;
         }
 
-        removeClass(element, bindingClassName);
+        removeClass(element, entityAnimateClass);
         return function addBindingOnComplete() {
           setTimeout(function() {
-            addClass(element, bindingClassName);
+            addClass(element, entityAnimateClass);
           }, animationIteration);
         };
       }
@@ -100,13 +100,13 @@ function routerOutlet(outletName, componentToDisplay, options) {
 
         return function addBindingOnComplete() {
           setTimeout(function() {
-            addClass(element, bindingClassName);
+            addClass(element, entityAnimateClass);
           }, animationIteration);
 
           onComplete.call(router, element);
         };
       } else {
-        removeClass(element, bindingClassName);
+        removeClass(element, entityAnimateClass);
         return noop;
       }
     };

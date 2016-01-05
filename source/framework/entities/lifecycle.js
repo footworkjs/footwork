@@ -23,9 +23,9 @@ function setupContextAndLifeCycle(entity, element) {
     }
 
     $configParams.afterRender = function(containerElement) {
-      addClass(containerElement, entityClassName);
+      addClass(containerElement, entityClass);
       setTimeout(function() {
-        addClass(containerElement, bindingClassName);
+        addClass(containerElement, entityAnimateClass);
       }, animationIteration);
       afterRender.call(this, containerElement);
     };
