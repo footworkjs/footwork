@@ -166,7 +166,7 @@ gulp.task('set_version', function() {
 });
 
 gulp.task('lodash_custom', function () {
-  return gulp.src('./source/build-profile/lodash-custom.js')
+  return gulp.src('./source/build-profile/helpers/lodash-custom.js')
     .pipe(browserified())
     .pipe(rename('lodash-custom.js'))
     .pipe(gulp.dest('./build'));
