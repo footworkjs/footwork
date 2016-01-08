@@ -44,7 +44,7 @@ function componentTriggerafterRender(element, viewModel) {
 
     setTimeout(function() {
       queueAnimationClass(element, viewModel);
-    }, animationIteration);
+    }, minimumAnimationDelay);
   }
 }
 

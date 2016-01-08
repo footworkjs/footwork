@@ -85,7 +85,7 @@ function routerOutlet(outletName, componentToDisplay, options) {
         return function addBindingOnComplete() {
           setTimeout(function() {
             addClass(element, entityAnimateClass);
-          }, animationIteration);
+          }, minimumAnimationDelay);
         };
       }
     };
@@ -101,7 +101,7 @@ function routerOutlet(outletName, componentToDisplay, options) {
         return function addBindingOnComplete() {
           setTimeout(function() {
             addClass(element, entityAnimateClass);
-          }, animationIteration);
+          }, minimumAnimationDelay);
 
           onComplete.call(router, element);
         };

@@ -20,8 +20,8 @@ var entityMixins = [];
 
 var entityClass = 'fw-entity';
 var entityAnimateClass = 'fw-entity-animate';
-var animationIteration = 20;
-var defaultBindingSequence = 20;
+var minimumAnimationDelay = 20;
+var defaultAnimationSequenceInterval = 20;
 var isEntityCtor;
 var isEntity;
 var isDataModel;
@@ -40,7 +40,7 @@ runPostInit.unshift(function() {
       }
     },
     sequenceAnimations: function() {
-      return fw.settings.sequenceAnimations || defaultBindingSequence;
+      return fw.settings.sequenceAnimations || defaultAnimationSequenceInterval;
     }
   });
 });
