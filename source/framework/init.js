@@ -17,7 +17,6 @@ var runPostInit = [];
 var internalComponents = [];
 var entityDescriptors = [];
 var entityMixins = [];
-var footwork = {};
 
 var entityClass = 'fw-entity';
 var entityAnimateClass = 'fw-entity-animate';

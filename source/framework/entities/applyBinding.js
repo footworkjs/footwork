@@ -1,15 +1,17 @@
 // framework/entities/applyBinding.js
 // ------------------
 
+var hasHTML5History = false;
 var historyStateAssessed = false;
+
 function assessHistoryState() {
   if(!historyStateAssessed) {
     historyStateAssessed = true;
 
-    footwork.hasHTML5History = !!windowObject.history && !!windowObject.history.pushState;
+    hasHTML5History = !!windowObject.history && !!windowObject.history.pushState;
     if(!isUndefined(windowObject.History) && isObject(windowObject.History.options) && windowObject.History.options.html4Mode) {
       // user is overriding to force html4mode hash-based history
-      footwork.hasHTML5History = false;
+      hasHTML5History = false;
     }
   }
 }

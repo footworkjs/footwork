@@ -10,7 +10,7 @@ extend(fw.router, {
   activeRouteClassName: fw.observable('active'),
   disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: fw.namespace() }),
   html5History: function() {
-    return footwork.hasHTML5History;
+    return hasHTML5History;
   },
   getNearestParent: function($context) {
     var $parentRouter = nearestParentRouter($context);
