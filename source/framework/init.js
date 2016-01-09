@@ -40,7 +40,10 @@ runPostInit.unshift(function() {
       }
     },
     sequenceAnimations: function() {
-      return fw.settings.sequenceAnimations || defaultAnimationSequenceInterval;
+      if(isUndefined(fw.settings.sequenceAnimations) || isNull(fw.settings.sequenceAnimations)) {
+        return defaultAnimationSequenceInterval;
+      }
+      return fw.settings.sequenceAnimations;
     }
   });
 });

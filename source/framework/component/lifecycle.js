@@ -1,38 +1,41 @@
 // framework/component/lifecycle.js
 // ------------------
 
-function runAnimationClassSequence(queue) {
-  if(queue.length) {
-    queue.running = true;
-    var sequence = queue.shift();
-    setTimeout(function() {
-      sequence.addClass();
-      runAnimationClassSequence(queue);
-    }, sequence.nextIteration);
-  } else {
-    queue.running = false;
+function runAnimationClassSequenceQueue(queue, isRunner) {
+  if(!queue.running || isRunner) {
+    var sequenceIteration = queue.shift();
+
+    if(sequenceIteration) {
+      sequenceIteration.addAnimationClass();
+
+      if(sequenceIteration.nextIteration || queue.length) {
+        queue.running = true;
+        setTimeout(function() {
+          runAnimationClassSequenceQueue(queue, true);
+        }, sequenceIteration.nextIteration);
+      }
+    } else {
+      queue.running = false;
+    }
   }
 }
 
 var sequenceQueue = {};
-function queueAnimationClass(element, viewModel) {
+windowObject.sequenceQueue = sequenceQueue;
+function addToAndFetchQueue(element, viewModel) {
   var configParams = viewModel.__private('configParams');
-  var sequenceTimeout = resultBound(configParams, 'sequenceAnimations', viewModel) || false;
-  if(sequenceTimeout) {
-    var animationSequence = sequenceQueue[configParams.namespace] = (sequenceQueue[configParams.namespace] || []);
-    animationSequence.push({
-      addClass: function addBindingFromQueue() {
-        addClass(element, entityAnimateClass);
-      },
-      nextIteration: sequenceTimeout
-    });
+  var sequenceTimeout = resultBound(configParams, 'sequenceAnimations', viewModel) || 0;
+  var animationSequenceQueue = sequenceQueue[configParams.namespace] = (sequenceQueue[configParams.namespace] || []);
+  var newSequenceIteration = {
+    addAnimationClass: function addBindingFromQueue() {
+      addClass(element, entityAnimateClass);
+    },
+    nextIteration: sequenceTimeout
+  };
 
-    if(!animationSequence.running) {
-      runAnimationClassSequence(animationSequence);
-    }
-  } else {
-    addClass(element, entityAnimateClass);
-  }
+  animationSequenceQueue.push(newSequenceIteration);
+
+  return animationSequenceQueue;
 }
 
 function componentTriggerafterRender(element, viewModel) {
@@ -43,7 +46,7 @@ function componentTriggerafterRender(element, viewModel) {
     configParams.afterRender.call(viewModel, element);
 
     setTimeout(function() {
-      queueAnimationClass(element, viewModel);
+      runAnimationClassSequenceQueue(addToAndFetchQueue(element, viewModel));
     }, minimumAnimationDelay);
   }
 }
