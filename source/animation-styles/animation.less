@@ -2,7 +2,8 @@
 @fw-animation-speed: 0.5s;
 @fw-animation-easing: ease;
 
-.transition(@value) {
+.transition(@value1, @value2:X, ...) {
+  @value: ~`"@{arguments}".replace(/[\[\]]|\,\sX/g, '')`;
   -webkit-transition: @value;
   -moz-transition: @value;
   -ms-transition: @value;
@@ -13,42 +14,42 @@
 .fw-entity {
   .fade-in {
     opacity: 0;
-    .transition(all @fw-animation-speed @fw-animation-easing);
+    .transition(opacity @fw-animation-speed @fw-animation-easing);
   }
 
   .fade-in-from-left {
     position: relative;
     left: -@fw-animation-move-distance;
     opacity: 0;
-    .transition(all @fw-animation-speed @fw-animation-easing);
+    .transition(left @fw-animation-speed @fw-animation-easing, opacity @fw-animation-speed @fw-animation-easing);
   }
 
   .fade-in-from-right {
     position: relative;
     left: @fw-animation-move-distance;
     opacity: 0;
-    .transition(all @fw-animation-speed @fw-animation-easing);
+    .transition(left @fw-animation-speed @fw-animation-easing, opacity @fw-animation-speed @fw-animation-easing);
   }
 
   .fade-in-from-top {
     position: relative;
     top: -@fw-animation-move-distance;
     opacity: 0;
-    .transition(all @fw-animation-speed @fw-animation-easing);
+    .transition(top @fw-animation-speed @fw-animation-easing, opacity @fw-animation-speed @fw-animation-easing);
   }
 
   .fade-in-from-bottom {
     position: relative;
     top: @fw-animation-move-distance;
     opacity: 0;
-    .transition(all @fw-animation-speed @fw-animation-easing);
+    .transition(top @fw-animation-speed @fw-animation-easing, opacity @fw-animation-speed @fw-animation-easing);
   }
 
   &.fw-entity-animate {
     & > .fade-in,
     & > * > .fade-in {
       opacity: 1;
-      .transition(all @fw-animation-speed @fw-animation-easing);
+      .transition(opacity @fw-animation-speed @fw-animation-easing);
     }
 
     & > .fade-in-from-left,
@@ -63,7 +64,7 @@
       left: 0;
       top: 0;
       opacity: 1;
-      .transition(all @fw-animation-speed @fw-animation-easing);
+      .transition(top @fw-animation-speed @fw-animation-easing, left @fw-animation-speed @fw-animation-easing, opacity @fw-animation-speed @fw-animation-easing);
     }
   }
 }

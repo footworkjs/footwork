@@ -5,7 +5,7 @@ function isBeforeInitMixin(mixin) {
   return !!mixin.runBeforeInit;
 }
 
-function entityMixin(thing) {
+function entityMixinOrNothingFrom(thing) {
   return ((isArray(thing) && thing.length) || isObject(thing) ? thing : {});
 }
 
@@ -27,7 +27,7 @@ function entityClassFactory(descriptor, configParams) {
 
   var ctor = configParams.initialize || noop;
   var userExtendProps = { mixin: configParams.extend || {} };
-  if( !descriptor.isEntityCtor(ctor) ) {
+  if(!descriptor.isEntityCtor(ctor)) {
     var isEntityDuckTagMixin = {};
     isEntityDuckTagMixin[descriptor.isEntityDuckTag] = true;
     isEntityDuckTagMixin = { mixin: isEntityDuckTagMixin };
@@ -45,15 +45,15 @@ function entityClassFactory(descriptor, configParams) {
       return mixin;
     });
 
-    var composure = [ ctor ].concat(
-      entityMixin(privateDataMixin),
-      entityMixin(userExtendProps),
-      entityMixin(newInstanceCheckMixin),
-      entityMixin(isEntityDuckTagMixin),
-      entityMixin(afterInitMixins),
-      entityMixin(beforeInitMixins),
-      entityMixin(configParams.mixins),
-      entityMixin(descriptorBehavior)
+    var composure = [ctor].concat(
+      entityMixinOrNothingFrom(privateDataMixin),
+      entityMixinOrNothingFrom(userExtendProps),
+      entityMixinOrNothingFrom(newInstanceCheckMixin),
+      entityMixinOrNothingFrom(isEntityDuckTagMixin),
+      entityMixinOrNothingFrom(afterInitMixins),
+      entityMixinOrNothingFrom(beforeInitMixins),
+      entityMixinOrNothingFrom(configParams.mixins),
+      entityMixinOrNothingFrom(descriptorBehavior)
     );
 
     entityCtor = riveter.compose.apply( undefined, composure );
@@ -67,11 +67,11 @@ function entityClassFactory(descriptor, configParams) {
     entityCtor = ctor;
   }
 
-  if( !isNull(entityCtor) && isFunction(configParams.parent) ) {
+  if(!isNull(entityCtor) && isFunction(configParams.parent)) {
     entityCtor.inherits(configParams.parent);
   }
 
-  if( configParams.autoRegister ) {
+  if(configParams.autoRegister) {
     descriptor.resource.register(configParams.namespace, entityCtor);
   }
 

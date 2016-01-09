@@ -76,7 +76,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
   loadTemplate: function(componentName, config, callback) {
     if(!isInternalComponent(componentName)) {
       // TODO: Handle different types of configs
-      if(isString(config) ) {
+      if(isString(config)) {
         config = '<!-- ko $life -->' + config + '<!-- /ko -->';
       } else {
         throw new Error('Unhandled config type ' + typeof config + '.');

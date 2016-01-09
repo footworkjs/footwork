@@ -8,7 +8,7 @@ var noParentViewModelError = { $namespace: { getName: function() { return 'NO-VI
 fw.virtualElements.allowedBindings.$bind = true;
 fw.bindingHandlers.$bind = {
   init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
-    var $parentViewModel = ( isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
+    var $parentViewModel = (isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
     var $parentRouter = nearestParentRouter(bindingContext);
     var outletName = outletViewModel.outletName;
 
