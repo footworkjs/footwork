@@ -21,7 +21,6 @@ function runAnimationClassSequenceQueue(queue, isRunner) {
 }
 
 var sequenceQueue = {};
-windowObject.sequenceQueue = sequenceQueue;
 function addToAndFetchQueue(element, viewModel) {
   var configParams = viewModel.__private('configParams');
   var sequenceTimeout = resultBound(configParams, 'sequenceAnimations', viewModel) || 0;

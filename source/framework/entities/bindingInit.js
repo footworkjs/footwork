@@ -1,14 +1,54 @@
 // framework/entities/bindingInit.js
 // ------------------
 
-function entityBinder(element, params, Entity) {
+function entityBinder(element, params, $parentContext, Entity, $flightTracker, $parentsInFlightChildren) {
   var entityObj;
   if( isFunction(Entity) ) {
     entityObj = new Entity(params);
   } else {
     entityObj = Entity;
   }
-  entityObj.$parentContext = fw.contextFor(element.parentElement || element.parentNode);
+  entityObj.$parentContext = $parentContext;
+
+  if(isEntity(entityObj)) {
+    var resolveFlightTracker =  noop;
+
+    if($flightTracker) {
+      resolveFlightTracker = function(addAnimationClass) {
+        var wasResolved = false;
+        function resolveThisEntityNow(isResolved) {
+          if(!wasResolved) {
+            wasResolved = true;
+            if(isResolved === true) {
+              addAnimationClass();
+              if(fw.isObservable($parentsInFlightChildren) && isFunction($parentsInFlightChildren.remove)) {
+                $parentsInFlightChildren.remove($flightTracker);
+              }
+            } else if(isPromise(isResolved) || (isArray(isResolved) && every(isResolved, isPromise))) {
+              // handle promises here
+            }
+          }
+        }
+
+        function maybeResolve() {
+          entityObj.__private('configParams').resolved.call(entityObj, resolveThisEntityNow);
+        }
+
+        var $inFlightChildren = entityObj.__private('inFlightChildren');
+        // if no children then resolve now, otherwise subscribe and wait till its 0
+        if($inFlightChildren().length === 0) {
+          maybeResolve();
+        } else {
+          entityObj.$trackSub($inFlightChildren.subscribe(function(inFlightChildren) {
+            inFlightChildren.length === 0 && maybeResolve();
+          }));
+        }
+        console.log('resolveFlightTracker resolved', $inFlightChildren().length);
+      };
+    }
+
+    entityObj.__private('resolveFlightTracker', resolveFlightTracker);
+  }
 
   var childrenToInsert = [];
   each(element.childNodes, function(child) {
@@ -52,56 +92,69 @@ function getResourceLocation(moduleName) {
 
 function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
   var theValueAccessor = valueAccessor;
-  if(tagName === '__elementBased') {
+  if (tagName === '__elementBased') {
     tagName = element.tagName;
   }
 
-  if(isString(tagName)) {
+  if (isString(tagName)) {
     tagName = tagName.toLowerCase();
-    if( entityDescriptors.tagNameIsPresent(tagName) ) {
+    if (entityDescriptors.tagNameIsPresent(tagName)) {
       var values = valueAccessor();
-      var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
-      var bindModel = entityBinder.bind(null, element, values.params);
+      var moduleName = (!isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined) || element.getAttribute('module') || element.getAttribute('data-module');
+      var bindModel = entityBinder.bind(null, element, values.params, bindingContext);
       var resource = entityDescriptors.resourceFor(tagName);
       var getResourceLocationFor = getResourceLocation.bind(resource);
 
-      if(isNull(moduleName) && isString(values)) {
+      if (isNull(moduleName) && isString(values)) {
         moduleName = values;
       }
 
-      if( !isUndefined(moduleName) && !isNull(resource) ) {
+      if (!isUndefined(moduleName) && !isNull(resource)) {
         var resourceLocation = getResourceLocationFor(moduleName);
 
-        if( isString(resourceLocation) ) {
-          if( isFunction(require) ) {
-            if(!require.specified(resourceLocation)) {
-              if( isPath(resourceLocation) ) {
+        var $inFlightChildren;
+        var $flightTracker = { entityName: moduleName, type: tagName };
+        if (isEntity(bindingContext.$data)) {
+          $inFlightChildren = bindingContext.$data.__private('inFlightChildren');
+
+          if (isFunction($inFlightChildren) && isFunction($inFlightChildren.push)) {
+            $inFlightChildren.push($flightTracker);
+          }
+        }
+
+        if (isString(resourceLocation)) {
+          if (isFunction(require)) {
+            if (!require.specified(resourceLocation)) {
+              if (isPath(resourceLocation)) {
                 resourceLocation = resourceLocation + resource.getFileName(moduleName);
               }
               resourceLocation = require.toUrl(resourceLocation);
             }
 
-            require([ resourceLocation ], bindModel);
+            require([resourceLocation], function(resource) {
+              var args = Array.prototype.slice.call(arguments);
+              bindModel(resource, $flightTracker, $inFlightChildren);
+            });
           } else {
             throw new Error('Uses require, but no AMD loader is present');
           }
-        } else if( isFunction(resourceLocation) ) {
-          bindModel( resourceLocation );
-        } else if( isObject(resourceLocation) ) {
+        } else if (isFunction(resourceLocation)) {
+          bindModel(resourceLocation, $flightTracker, $inFlightChildren);
+        } else if (isObject(resourceLocation)) {
           var createInstance = resourceLocation.createViewModel || resourceLocation.createDataModel;
-          if( isObject(resourceLocation.instance) ) {
-            bindModel( resourceLocation.instance );
-          } else if( isFunction(createInstance) ) {
-            bindModel( createInstance( values.params, { element: element } ) );
+          if(isObject(resourceLocation.instance)) {
+            bindModel(resourceLocation.instance, $flightTracker, $inFlightChildren);
+          } else if (isFunction(createInstance)) {
+            bindModel(createInstance(values.params, { element: element }), $flightTracker, $inFlightChildren);
           }
         }
       }
 
       return { 'controlsDescendantBindings': true };
-    } else if( tagName === 'outlet' ) {
+    } else if (tagName === 'outlet') {
       // we patch in the 'name' of the outlet into the params valueAccessor on the component definition (if necessary and available)
       var outletName = element.getAttribute('name') || element.getAttribute('data-name');
-      if( outletName ) {
+      if(outletName) {
         theValueAccessor = function() {
           var valueAccessorResult = valueAccessor();
           if( !isUndefined(valueAccessorResult.params) && isUndefined(valueAccessorResult.params.name) ) {

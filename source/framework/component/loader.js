@@ -20,17 +20,17 @@ fw.components.loaders.push(fw.components.requireLoader = {
       folderOffset = componentName + '/';
     }
 
-    if( isFunction(require) ) {
+    if(isFunction(require)) {
       // load component using knockouts native support for requirejs
-      if( require.specified(componentName) ) {
+      if(require.specified(componentName)) {
         // component already cached, lets use it
         configOptions = {
           require: componentName
         };
-      } else if( isString(componentLocation.combined) ) {
+      } else if(isString(componentLocation.combined)) {
         combinedPath = componentLocation.combined;
 
-        if( isPath(combinedPath) ) {
+        if(isPath(combinedPath)) {
           combinedPath = combinedPath + folderOffset + combinedFile;
         }
 
@@ -39,17 +39,17 @@ fw.components.loaders.push(fw.components.requireLoader = {
         };
       } else {
         // check to see if the requested component is template only and should not request a viewModel (we supply a dummy object in its place)
-        if( !isString(componentLocation.viewModel) ) {
+        if(!isString(componentLocation.viewModel)) {
           // template-only component, substitute with 'blank' viewModel
           viewModelConfig = DefaultViewModel;
         } else {
           viewModelPath = componentLocation.viewModel;
 
-          if( isPath(viewModelPath) ) {
+          if(isPath(viewModelPath)) {
             viewModelPath = viewModelPath + folderOffset + viewModelFile;
           }
 
-          if( getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel') ) {
+          if(getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel')) {
             viewModelPath += '.' + getComponentExtension(componentName, 'viewModel');
           }
 
@@ -57,11 +57,11 @@ fw.components.loaders.push(fw.components.requireLoader = {
         }
 
         templatePath = componentLocation.template;
-        if( isPath(templatePath) ) {
+        if(isPath(templatePath)) {
           templatePath = templatePath + folderOffset + templateFile;
         }
 
-        if( getFilenameExtension(templatePath) !== getComponentExtension(componentName, 'template') ) {
+        if(getFilenameExtension(templatePath) !== getComponentExtension(componentName, 'template')) {
           templatePath += '.' + getComponentExtension(componentName, 'template');
         }
 
@@ -72,13 +72,13 @@ fw.components.loaders.push(fw.components.requireLoader = {
           template: { require: templatePath }
         };
       }
+      console.info('require component', componentName, configOptions);
     }
 
     callback(configOptions);
   }
 });
 
-// Note that this is a direct lift from the knockoutjs source
 function possiblyGetConfigFromAmd(config, callback) {
   if(isString(config['require'])) {
     if(isFunction(require)) {
@@ -236,6 +236,7 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
       // TODO: Provide upstream patch which clears out loadingSubscribablesCache when load fails so that
       // subsequent requests will re-run require
 
+      console.log('resolved component', componentName, config);
       resolveConfig(componentName, loadedConfig, callback);
       // fw.components.defaultLoader.loadComponent(componentName, loadedConfig, callback);
     });

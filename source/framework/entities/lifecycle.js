@@ -22,12 +22,16 @@ function setupContextAndLifeCycle(entity, element) {
       afterRender = $configParams.afterRender;
     }
 
+    var resolveFlightTracker = entity.__private('resolveFlightTracker') || noop;
     $configParams.afterRender = function(containerElement) {
       addClass(containerElement, entityClass);
-      setTimeout(function() {
-        addClass(containerElement, entityAnimateClass);
-      }, minimumAnimationDelay);
+      function addAnimationClass() {
+        setTimeout(function() {
+          addClass(containerElement, entityAnimateClass);
+        }, minimumAnimationDelay);
+      }
       afterRender.call(this, containerElement);
+      resolveFlightTracker(addAnimationClass);
     };
     $configParams.afterRender.call(entity, element);
 

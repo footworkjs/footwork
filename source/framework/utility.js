@@ -13,6 +13,10 @@ var isFullURL = fw.utils.isFullURL = function(thing) {
   return isString(thing) && isFullURLRegex.test(thing);
 };
 
+function isPromise(thing) {
+  return isObject(thing) && isFunction(thing.then);
+}
+
 function isInternalComponent(componentName) {
   return indexOf(internalComponents, componentName) !== -1;
 }

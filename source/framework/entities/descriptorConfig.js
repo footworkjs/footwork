@@ -1,6 +1,10 @@
 // framework/entities/descriptorConfig.js
 // ------------------
 
+function resolveEntityImmediately(resolveNow) {
+  resolveNow(true);
+}
+
 entityDescriptors = entityDescriptors.concat([
   {
     tagName: 'viewmodel',
@@ -15,6 +19,7 @@ entityDescriptors = entityDescriptors.concat([
       extend: {},
       mixins: undefined,
       afterRender: noop,
+      resolved: resolveEntityImmediately,
       sequenceAnimations: false,
       onDispose: noop
     }
@@ -36,6 +41,7 @@ entityDescriptors = entityDescriptors.concat([
       extend: {},
       mixins: undefined,
       afterRender: noop,
+      resolved: resolveEntityImmediately,
       sequenceAnimations: false,
       onDispose: noop
     }
@@ -53,6 +59,7 @@ entityDescriptors = entityDescriptors.concat([
       extend: {},
       mixins: undefined,
       afterRender: noop,
+      resolved: resolveEntityImmediately,
       sequenceAnimations: false,
       onDispose: noop,
       baseRoute: null,

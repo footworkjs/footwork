@@ -7,7 +7,7 @@ var Router = function(descriptor, configParams) {
       var $router = this;
       var routerConfigParams = extend({}, configParams);
 
-      var router = {};
+      var router = this.__private();
       this.__private = privateData.bind(this, router, routerConfigParams);
 
       routerConfigParams.baseRoute = fw.router.baseRoute() + (resultBound(routerConfigParams, 'baseRoute', router) || '');

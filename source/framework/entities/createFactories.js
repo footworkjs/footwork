@@ -13,7 +13,9 @@ function entityClassFactory(descriptor, configParams) {
   var entityCtor = null;
   var privateDataMixin = {
     _preInit: function() {
-      var privateDataStore = {};
+      var privateDataStore = {
+        inFlightChildren: fw.observableArray()
+      };
       this.__private = privateData.bind(this, privateDataStore, configParams);
     }
   };
@@ -22,19 +24,19 @@ function entityClassFactory(descriptor, configParams) {
 
   var descriptorBehavior = [];
   map(descriptor.behavior, function(behavior, index) {
-    descriptorBehavior.push( isFunction(behavior) ? behavior(descriptor, configParams || {}) : behavior );
+    descriptorBehavior.push(isFunction(behavior) ? behavior(descriptor, configParams || {}) : behavior);
   });
 
   var ctor = configParams.initialize || noop;
   var userExtendProps = { mixin: configParams.extend || {} };
-  if(!descriptor.isEntityCtor(ctor)) {
+  if (!descriptor.isEntityCtor(ctor)) {
     var isEntityDuckTagMixin = {};
     isEntityDuckTagMixin[descriptor.isEntityDuckTag] = true;
     isEntityDuckTagMixin = { mixin: isEntityDuckTagMixin };
 
     var newInstanceCheckMixin = {
       _preInit: function() {
-        if(this === windowObject) {
+        if (this === windowObject) {
           throw new Error('Must use the new operator when instantiating a ' + descriptor.methodName + '.');
         }
       }
@@ -58,7 +60,7 @@ function entityClassFactory(descriptor, configParams) {
 
     entityCtor = riveter.compose.apply( undefined, composure );
 
-    entityCtor[ descriptor.isEntityCtorDuckTag ] = true;
+    entityCtor[descriptor.isEntityCtorDuckTag] = true;
 
     var privateDataStore = {};
     entityCtor.__private = privateData.bind(this, privateDataStore, configParams);
@@ -67,11 +69,11 @@ function entityClassFactory(descriptor, configParams) {
     entityCtor = ctor;
   }
 
-  if(!isNull(entityCtor) && isFunction(configParams.parent)) {
+  if (!isNull(entityCtor) && isFunction(configParams.parent)) {
     entityCtor.inherits(configParams.parent);
   }
 
-  if(configParams.autoRegister) {
+  if (configParams.autoRegister) {
     descriptor.resource.register(configParams.namespace, entityCtor);
   }
 
