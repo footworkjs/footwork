@@ -17,6 +17,10 @@ function isPromise(thing) {
   return isObject(thing) && isFunction(thing.then);
 }
 
+function promiseIsResolvedOrRejected(promise) {
+  return isPromise(promise) && isFunction(promise.state) && includes(['resolved', 'rejected'], promise.state());
+}
+
 function isInternalComponent(componentName) {
   return indexOf(internalComponents, componentName) !== -1;
 }
@@ -145,6 +149,33 @@ function resultBound(object, path, context, params) {
     return object[path].apply(context, params);
   }
   return object[path];
+}
+
+function nearestEntity($context, predicate) {
+  var foundEntity = null;
+
+  predicate = predicate || isEntity;
+  var predicates = [].concat(predicate);
+  function isTheThing(thing) {
+    return reduce(predicates, function(isThing, predicate) {
+      return isThing || predicate(thing);
+    }, false);
+  }
+
+  if (isObject($context)) {
+    if(isTheThing($context.$data)) {
+      foundEntity = $context.$data;
+    } else if (isArray($context.$parents) && $context.$parents.length) {
+      // search through next parent up the chain
+      each($context.$parents, function(parentViewModel) {
+        if(isTheThing(parentViewModel)) {
+          foundEntity = parentViewModel;
+        }
+      });
+    }
+  }
+
+  return foundEntity;
 }
 
 function forceViewModelComponentConvention(componentLocation) {

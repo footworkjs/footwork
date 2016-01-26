@@ -41,12 +41,20 @@ function componentTriggerafterRender(element, viewModel) {
   if(isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
     viewModel.__private('afterRenderWasTriggered', true);
 
+    function addAnimationClass() {
+      // console.info('componentTriggerafterRender', 'addAnimationClass because was resolved', viewModel.$namespace.getName());
+      setTimeout(function() {
+        runAnimationClassSequenceQueue(addToAndFetchQueue(element, viewModel));
+      }, minimumAnimationDelay);
+    }
+    var resolveFlightTracker = viewModel.__private('resolveFlightTracker') || noop;
+
     var configParams = viewModel.__private('configParams');
     configParams.afterRender.call(viewModel, element);
 
     setTimeout(function() {
-      runAnimationClassSequenceQueue(addToAndFetchQueue(element, viewModel));
-    }, minimumAnimationDelay);
+      resolveFlightTracker(addAnimationClass);
+    }, 0);
   }
 }
 
@@ -66,8 +74,8 @@ fw.bindingHandlers.$life = {
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
     var $parent = bindingContext.$parent;
-    if(isObject($parent) && $parent.__isOutlet && isFunction($parent.$route().__getOnCompleteCallback)) {
-      $parent.$route().__getOnCompleteCallback(element)();
+    if(isObject($parent) && $parent.__isOutlet && isFunction($parent.route().__getOnCompleteCallback)) {
+      $parent.route().__getOnCompleteCallback(element, $parent)();
     }
     componentTriggerafterRender(element, bindingContext.$data);
   }
@@ -93,7 +101,6 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     if(!isInternalComponent(componentName)) {
       callback(function(params, componentInfo) {
         var componentElement = componentInfo.element;
-
         if(isFunction(ViewModel)) {
           return new ViewModel(params);
         }

@@ -47,6 +47,7 @@
     "lodash": "3.3.1",
     "postal.js": "1.0.1",
     "reqwest": "1.1.5",
+    "conduitjs": "0.3.3",
     "jquery": "2.1.4",
     "jquery-mockjax": "2.0.1",
     "console-polyfill": "*",

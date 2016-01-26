@@ -1,31 +1,47 @@
 // framework/entities/bindingInit.js
 // ------------------
 
-function entityBinder(element, params, $parentContext, Entity, $flightTracker, $parentsInFlightChildren) {
+function entityBinder(element, params, $parentContext, Entity, $flightTracker, $parentsInFlightChildren, $outletsInFlightChildren) {
   var entityObj;
-  if( isFunction(Entity) ) {
+  if (isFunction(Entity)) {
     entityObj = new Entity(params);
   } else {
     entityObj = Entity;
   }
   entityObj.$parentContext = $parentContext;
 
-  if(isEntity(entityObj)) {
+  if (isEntity(entityObj)) {
     var resolveFlightTracker =  noop;
 
-    if($flightTracker) {
+    if ($flightTracker) {
       resolveFlightTracker = function(addAnimationClass) {
         var wasResolved = false;
         function resolveThisEntityNow(isResolved) {
-          if(!wasResolved) {
+          function finishResolution() {
+            addAnimationClass();
+            if(fw.isObservable($parentsInFlightChildren) && isFunction($parentsInFlightChildren.remove)) {
+              $parentsInFlightChildren.remove($flightTracker);
+            }
+            if(fw.isObservable($outletsInFlightChildren) && isFunction($outletsInFlightChildren.remove)) {
+              $outletsInFlightChildren.remove($flightTracker);
+            }
+          }
+
+          if (!wasResolved) {
             wasResolved = true;
-            if(isResolved === true) {
-              addAnimationClass();
-              if(fw.isObservable($parentsInFlightChildren) && isFunction($parentsInFlightChildren.remove)) {
-                $parentsInFlightChildren.remove($flightTracker);
-              }
+            if (isResolved === true) {
+              finishResolution();
             } else if(isPromise(isResolved) || (isArray(isResolved) && every(isResolved, isPromise))) {
-              // handle promises here
+              var promises = [].concat(isResolved);
+              var checkPromise = function(promise) {
+                (promise.done || promise.then)(function() {
+                  if(every(promises, promiseIsResolvedOrRejected)) {
+                    finishResolution();
+                  }
+                });
+              };
+
+              each(promises, checkPromise);
             }
           }
         }
@@ -36,14 +52,13 @@ function entityBinder(element, params, $parentContext, Entity, $flightTracker, $
 
         var $inFlightChildren = entityObj.__private('inFlightChildren');
         // if no children then resolve now, otherwise subscribe and wait till its 0
-        if($inFlightChildren().length === 0) {
+        if ($inFlightChildren().length === 0) {
           maybeResolve();
         } else {
           entityObj.$trackSub($inFlightChildren.subscribe(function(inFlightChildren) {
             inFlightChildren.length === 0 && maybeResolve();
           }));
         }
-        console.log('resolveFlightTracker resolved', $inFlightChildren().length);
       };
     }
 
@@ -52,7 +67,7 @@ function entityBinder(element, params, $parentContext, Entity, $flightTracker, $
 
   var childrenToInsert = [];
   each(element.childNodes, function(child) {
-    if(!isUndefined(child)) {
+    if (!isUndefined(child)) {
       childrenToInsert.push(child);
     }
   });
@@ -96,6 +111,24 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
     tagName = element.tagName;
   }
 
+  var $flightTracker = { name: tagName, type: 'component' };
+
+  var $nearestEntity = nearestEntity(bindingContext);
+  if ($nearestEntity) {
+    var $inFlightChildren = $nearestEntity.__private('inFlightChildren');
+    if (isFunction($inFlightChildren) && isFunction($inFlightChildren.push)) {
+      $inFlightChildren.push($flightTracker);
+    }
+  }
+
+  var $nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
+  if ($nearestOutlet) {
+    var $outletsInFlightChildren = $nearestOutlet.inFlightChildren;
+    if (isFunction($outletsInFlightChildren) && isFunction($outletsInFlightChildren.push)) {
+      $outletsInFlightChildren.push($flightTracker);
+    }
+  }
+
   if (isString(tagName)) {
     tagName = tagName.toLowerCase();
     if (entityDescriptors.tagNameIsPresent(tagName)) {
@@ -105,22 +138,15 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
       var resource = entityDescriptors.resourceFor(tagName);
       var getResourceLocationFor = getResourceLocation.bind(resource);
 
+      $flightTracker.name = moduleName;
+      $flightTracker.type = tagName;
+
       if (isNull(moduleName) && isString(values)) {
         moduleName = values;
       }
 
       if (!isUndefined(moduleName) && !isNull(resource)) {
         var resourceLocation = getResourceLocationFor(moduleName);
-
-        var $inFlightChildren;
-        var $flightTracker = { entityName: moduleName, type: tagName };
-        if (isEntity(bindingContext.$data)) {
-          $inFlightChildren = bindingContext.$data.__private('inFlightChildren');
-
-          if (isFunction($inFlightChildren) && isFunction($inFlightChildren.push)) {
-            $inFlightChildren.push($flightTracker);
-          }
-        }
 
         if (isString(resourceLocation)) {
           if (isFunction(require)) {
@@ -133,19 +159,19 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
 
             require([resourceLocation], function(resource) {
               var args = Array.prototype.slice.call(arguments);
-              bindModel(resource, $flightTracker, $inFlightChildren);
+              bindModel(resource, $flightTracker, $inFlightChildren, $outletsInFlightChildren);
             });
           } else {
             throw new Error('Uses require, but no AMD loader is present');
           }
         } else if (isFunction(resourceLocation)) {
-          bindModel(resourceLocation, $flightTracker, $inFlightChildren);
+          bindModel(resourceLocation, $flightTracker, $inFlightChildren, $outletsInFlightChildren);
         } else if (isObject(resourceLocation)) {
           var createInstance = resourceLocation.createViewModel || resourceLocation.createDataModel;
           if(isObject(resourceLocation.instance)) {
-            bindModel(resourceLocation.instance, $flightTracker, $inFlightChildren);
+            bindModel(resourceLocation.instance, $flightTracker, $inFlightChildren, $outletsInFlightChildren);
           } else if (isFunction(createInstance)) {
-            bindModel(createInstance(values.params, { element: element }), $flightTracker, $inFlightChildren);
+            bindModel(createInstance(values.params, { element: element }), $flightTracker, $inFlightChildren, $outletsInFlightChildren);
           }
         }
       }
@@ -166,6 +192,7 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
     }
   }
 
+  element.$flightTracker = $flightTracker;
   return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);
 };
 
