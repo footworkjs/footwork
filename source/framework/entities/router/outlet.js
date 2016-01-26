@@ -85,7 +85,7 @@ function routerOutlet(outletName, componentToDisplayOrOutletViewModel, options) 
 
   if(outletViewModel) {
     var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay]);
-    if(showDuringLoadComponent) {
+    if(showDuringLoadComponent && outletViewModel.loadingDisplay() !== showDuringLoadComponent) {
       outletViewModel.loadingDisplay(showDuringLoadComponent);
     }
     outletViewModel.isChanging(true);
@@ -138,6 +138,8 @@ function routerOutlet(outletName, componentToDisplayOrOutletViewModel, options) 
   return outlet;
 };
 
+var visibleCSS = { 'height': '', 'overflow': '' };
+var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
 function registerOutletComponent() {
   internalComponents.push('outlet');
   fw.components.register('outlet', {
@@ -153,16 +155,16 @@ function registerOutletComponent() {
 
       this.loadingStyle = fw.computed(function() {
         if(this.isLoading()) {
-          return { 'display': 'block' };
+          return visibleCSS;
         }
-        return { 'display': 'none' };
+        return hiddenCSS;
       }, this);
 
       this.contentsStyle = fw.computed(function() {
         if(this.isLoading()) {
-          return { 'display': 'none' };
+          return hiddenCSS;
         }
-        return { 'display': '' };
+        return visibleCSS;
       }, this);
 
       this.outletName = fw.unwrap(params.name);
