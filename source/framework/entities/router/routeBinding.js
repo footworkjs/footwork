@@ -129,19 +129,19 @@ fw.bindingHandlers.$route = {
     };
 
     function setUpElement() {
-      if(!isNullRouter($myRouter)) {
+      if (!isNullRouter($myRouter)) {
         var myCurrentSegment = routeURLWithoutParentPath();
         var routerConfig = $myRouter.__private('configParams');
-        if( element.tagName.toLowerCase() === 'a' ) {
+        if (element.tagName.toLowerCase() === 'a') {
           element.href = (fw.router.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
         }
 
-        if( isObject(stateTracker) ) {
+        if (isObject(stateTracker) && isFunction(stateTracker.dispose)) {
           stateTracker.dispose();
         }
-        stateTracker = $myRouter.currentRoute.subscribe( checkForMatchingSegment.bind(null, myCurrentSegment) );
+        stateTracker = $myRouter.currentRoute.subscribe(checkForMatchingSegment.bind(null, myCurrentSegment));
 
-        if(elementIsSetup === false) {
+        if (elementIsSetup === false) {
           elementIsSetup = true;
           checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
 
@@ -149,11 +149,11 @@ fw.bindingHandlers.$route = {
           fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
             var currentRouteURL = routeURLWithoutParentPath();
             var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
-            if(handlerResult) {
-              if(isString(handlerResult)) {
+            if (handlerResult) {
+              if (isString(handlerResult)) {
                 currentRouteURL = handlerResult;
               }
-              if(isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
+              if (isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
                 $myRouter.setState( currentRouteURL );
               }
             }
@@ -163,13 +163,13 @@ fw.bindingHandlers.$route = {
       }
     }
 
-    if(isObservable(routeHandlerDescription.url)) {
+    if (isObservable(routeHandlerDescription.url)) {
       $myRouter.__private('subscriptions').push( routeHandlerDescription.url.subscribe(setUpElement) );
     }
     setUpElement();
 
     ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-      if(isObject(stateTracker)) {
+      if (isObject(stateTracker)) {
         stateTracker.dispose();
       }
     });
