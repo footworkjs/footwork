@@ -37,12 +37,11 @@ function addToAndFetchQueue(element, viewModel) {
   return animationSequenceQueue;
 }
 
-function componentTriggerafterRender(element, viewModel) {
+function componentTriggerAfterRender(element, viewModel) {
   if(isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
     viewModel.__private('afterRenderWasTriggered', true);
 
     function addAnimationClass() {
-      // console.info('componentTriggerafterRender', 'addAnimationClass because was resolved', viewModel.$namespace.getName());
       setTimeout(function() {
         runAnimationClassSequenceQueue(addToAndFetchQueue(element, viewModel));
       }, minimumAnimationDelay);
@@ -63,7 +62,12 @@ fw.virtualElements.allowedBindings.$life = true;
 fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
-    addClass(element, entityClass);
+
+    var classList = element.className.split(" ");
+    if(!includes(classList, outletLoadingDisplay) && !includes(classList, outletLoadedDisplay)) {
+      // the outlet viewModel and template binding handles its animation state
+      addClass(element, entityClass);
+    }
 
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if(isEntity(viewModel)) {
@@ -73,11 +77,16 @@ fw.bindingHandlers.$life = {
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
+
     var $parent = bindingContext.$parent;
     if(isObject($parent) && $parent.__isOutlet && isFunction($parent.route().__getOnCompleteCallback)) {
       $parent.route().__getOnCompleteCallback(element, $parent)();
     }
-    componentTriggerafterRender(element, bindingContext.$data);
+
+    var classList = element.className.split(" ");
+    if (!includes(classList, outletLoadingDisplay) && !includes(classList, outletLoadedDisplay)) {
+      componentTriggerAfterRender(element, bindingContext.$data);
+    }
   }
 };
 

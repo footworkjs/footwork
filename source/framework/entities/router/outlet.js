@@ -10,13 +10,19 @@ fw.bindingHandlers.$outletBinder = {
   init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
     var parentRouter = nearestParentRouter(bindingContext);
     var outletName = outletViewModel.outletName;
+    var $element = outletViewModel.$element = (element.parentElement || element.parentNode);
 
-    element.parentNode.style.position = 'relative';
+    $element.style.position = 'relative';
 
     if(isRouter(parentRouter)) {
       // register this outlet with the router so that updates will propagate correctly
       // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
       outletViewModel.route = parentRouter.outlet(outletName, outletViewModel);
+
+      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
+        // tell the router to clean up its reference to the outletViewModel
+        parentRouter.outlet(outletName, outletViewModel, false);
+      });
     } else {
       var parentViewModel = (isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
       throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + parentViewModel.$namespace.getName() + '] but no router was defined.');
@@ -25,7 +31,10 @@ fw.bindingHandlers.$outletBinder = {
 };
 
 function routerOutlet(outletName, componentToDisplayOrOutletViewModel, options) {
-  options = options || {};
+  if(arguments.length < 3) {
+    options = {};
+  }
+
   if(isFunction(options)) {
     options = { onComplete: options, onFailure: noop };
   }
@@ -34,6 +43,12 @@ function routerOutlet(outletName, componentToDisplayOrOutletViewModel, options) 
   var componentToDisplay = nullComponent;
   if(isOutletViewModel(componentToDisplayOrOutletViewModel)) {
     outletViewModel = componentToDisplayOrOutletViewModel;
+
+    if(options === false) {
+      // caller indicating this is a cleanup request
+      delete outlets[outletName];
+      return true;
+    }
   } else {
     componentToDisplay = componentToDisplayOrOutletViewModel;
   }
@@ -93,7 +108,6 @@ function routerOutlet(outletName, componentToDisplayOrOutletViewModel, options) 
 
   if(valueHasMutated) {
     var minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
-    var isTransitioning = true;
 
     currentOutletDef.__getOnCompleteCallback = function(element, outletViewModel) {
       var isComplete = element.children.length;
@@ -140,11 +154,13 @@ function routerOutlet(outletName, componentToDisplayOrOutletViewModel, options) 
 
 var visibleCSS = { 'height': '', 'overflow': '' };
 var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
+var outletLoadingDisplay = 'fw-loading-display';
+var outletLoadedDisplay = 'fw-loaded-display';
 function registerOutletComponent() {
   internalComponents.push('outlet');
   fw.components.register('outlet', {
     viewModel: function(params) {
-      windowObject.outlet = this;
+      windowObject.outletViewModel = this;
       this.loadingDisplay = fw.observable(nullComponent);
       this.inFlightChildren = fw.observableArray();
       this.isChanging = fw.observable(true);
@@ -171,10 +187,10 @@ function registerOutletComponent() {
       this.__isOutlet = true;
     },
     template: '<!-- ko $outletBinder -->' +
-                '<div class="fw-loading-display" data-bind="style: loadingStyle">' +
+                '<div class="' + outletLoadingDisplay + '" data-bind="style: loadingStyle">' +
                   '<!-- ko component: loadingDisplay --><!-- /ko -->' +
                 '</div>' +
-                '<div class="fw-loaded-display" data-bind="style: contentsStyle">' +
+                '<div class="' + outletLoadedDisplay + '" data-bind="style: contentsStyle">' +
                   '<!-- ko component: route --><!-- /ko -->' +
                 '</div>' +
               '<!-- /ko -->'

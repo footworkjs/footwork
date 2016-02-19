@@ -121,11 +121,16 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
     }
   }
 
-  var $nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
-  if ($nearestOutlet) {
-    var $outletsInFlightChildren = $nearestOutlet.inFlightChildren;
-    if (isFunction($outletsInFlightChildren) && isFunction($outletsInFlightChildren.push)) {
-      $outletsInFlightChildren.push($flightTracker);
+
+  var parentElement = element.parentElement || element.parentNode;
+  var classList = parentElement.className.split(" ");
+  if (!includes(classList, outletLoadingDisplay) && !includes(classList, outletLoadedDisplay)) {
+    var $nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
+    if ($nearestOutlet) {
+      var $outletsInFlightChildren = $nearestOutlet.inFlightChildren;
+      if (isFunction($outletsInFlightChildren) && isFunction($outletsInFlightChildren.push)) {
+        $outletsInFlightChildren.push($flightTracker);
+      }
     }
   }
 
