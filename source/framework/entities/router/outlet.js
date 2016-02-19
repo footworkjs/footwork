@@ -160,7 +160,6 @@ function registerOutletComponent() {
   internalComponents.push('outlet');
   fw.components.register('outlet', {
     viewModel: function(params) {
-      windowObject.outletViewModel = this;
       this.loadingDisplay = fw.observable(nullComponent);
       this.inFlightChildren = fw.observableArray();
       this.isChanging = fw.observable(true);
@@ -183,14 +182,26 @@ function registerOutletComponent() {
         return visibleCSS;
       }, this);
 
+      this.isLoadingClass = fw.computed(function() {
+        var classState = {};
+        classState[entityAnimateClass] = this.isLoading();
+        return classState;
+      }, this);
+
+      this.isLoadedClass = fw.computed(function() {
+        var classState = {};
+        classState[entityAnimateClass] = !this.isLoading();
+        return classState;
+      }, this);
+
       this.outletName = fw.unwrap(params.name);
       this.__isOutlet = true;
     },
     template: '<!-- ko $outletBinder -->' +
-                '<div class="' + outletLoadingDisplay + '" data-bind="style: loadingStyle">' +
+                '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" data-bind="style: loadingStyle, css: isLoadingClass">' +
                   '<!-- ko component: loadingDisplay --><!-- /ko -->' +
                 '</div>' +
-                '<div class="' + outletLoadedDisplay + '" data-bind="style: contentsStyle">' +
+                '<div class="' + outletLoadedDisplay + ' ' + entityClass + '" data-bind="style: contentsStyle, css: isLoadedClass">' +
                   '<!-- ko component: route --><!-- /ko -->' +
                 '</div>' +
               '<!-- /ko -->'
