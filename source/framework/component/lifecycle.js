@@ -68,8 +68,8 @@ fw.bindingHandlers.$life = {
     element = element.parentElement || element.parentNode;
 
     var $parent = bindingContext.$parent;
-    if(isObject($parent) && $parent.__isOutlet && isFunction($parent.$route().__getOnCompleteCallback)) {
-      $parent.$route().__getOnCompleteCallback(element)();
+    if(isObject($parent) && $parent.__isOutlet && isFunction($parent.route().__getOnCompleteCallback)) {
+      $parent.route().__getOnCompleteCallback(element)();
     }
 
     componentTriggerAfterRender(element, bindingContext.$data);

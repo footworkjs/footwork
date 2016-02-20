@@ -15,7 +15,7 @@ fw.bindingHandlers.$outletBinder = {
     if(isRouter($parentRouter)) {
       // register this outlet with the router so that updates will propagate correctly
       // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
-      outletViewModel.$route = $parentRouter.outlet(outletName);
+      outletViewModel.route = $parentRouter.outlet(outletName);
     } else {
       throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.$namespace.getName() + '] but no router was defined.');
     }
@@ -178,7 +178,7 @@ function registerOutletComponent() {
       this.outletName = fw.unwrap(params.name);
       this.__isOutlet = true;
     },
-    template: '<!-- ko $outletBinder, component: $route --><!-- /ko -->'
+    template: '<!-- ko $outletBinder, component: route --><!-- /ko -->'
   });
 
   internalComponents.push(noComponentSelected);
