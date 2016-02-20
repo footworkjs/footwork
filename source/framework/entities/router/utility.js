@@ -51,7 +51,11 @@ function isRoute(thing) {
   return isObject(thing) && !!thing.__isRoute;
 }
 
-// Recursive function which will locate the nearest $router from a given ko $context
+function isOutletViewModel(thing) {
+  return isObject(thing) && thing.__isOutlet;
+}
+
+// Locate the nearest $router from a given ko $context
 // (travels up through $parentContext chain to find the router if not found on the
 // immediate $context). Returns $nullRouter if none is found.
 function nearestParentRouter($context) {
