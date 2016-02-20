@@ -42,7 +42,7 @@
     }
 
     // list of dependencies to export from the library as .embed properties
-    var embeddedDependencies = [ 'riveter' ];
+    var embeddedDependencies = [ 'riveter', 'Conduit' ];
 
     return (function footwork(embedded, windowObject, _, ko, postal, riveter, jquery, Conduit) {
       var ajax = jquery.ajax;

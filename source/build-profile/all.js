@@ -54,7 +54,7 @@
     }
 
     // list of dependencies to export from the library as .embed properties
-    var embeddedDependencies = [ '_', 'ko', 'riveter', 'postal', 'reqwest' ];
+    var embeddedDependencies = [ '_', 'ko', 'riveter', 'postal', 'reqwest', 'Conduit' ];
 
     return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest, Conduit) {
       var ajax = reqwest.compat;
