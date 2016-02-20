@@ -5,8 +5,8 @@ var noParentViewModelError = { $namespace: { getName: function() { return 'NO-VI
 
 // This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied
 // to the UI and load in various views
-fw.virtualElements.allowedBindings.$bind = true;
-fw.bindingHandlers.$bind = {
+fw.virtualElements.allowedBindings.$outletBinder = true;
+fw.bindingHandlers.$outletBinder = {
   init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
     var $parentViewModel = (isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
     var $parentRouter = nearestParentRouter(bindingContext);
@@ -178,7 +178,7 @@ function registerOutletComponent() {
       this.outletName = fw.unwrap(params.name);
       this.__isOutlet = true;
     },
-    template: '<!-- ko $bind, component: $route --><!-- /ko -->'
+    template: '<!-- ko $outletBinder, component: $route --><!-- /ko -->'
   });
 
   internalComponents.push(noComponentSelected);
