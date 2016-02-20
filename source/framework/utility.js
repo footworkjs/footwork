@@ -151,7 +151,6 @@ function resultBound(object, path, context, params) {
   return object[path];
 }
 
-
 function nearestEntity($context, predicate) {
   var foundEntity = null;
 
