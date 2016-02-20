@@ -46,5 +46,7 @@ root._ = {
   intersection: require('../../../node_modules/lodash/array/intersection'),
   every: require('../../../node_modules/lodash/collection/every'),
   isRegExp: require('../../../node_modules/lodash/lang/isRegExp'),
-  identity: require('../../../node_modules/lodash/utility/identity')
+  identity: require('../../../node_modules/lodash/utility/identity'),
+  includes: require('../../../node_modules/lodash/collection/includes'),
+  partial: require('../../../node_modules/lodash/function/partial')
 };
