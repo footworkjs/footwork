@@ -59,15 +59,5 @@ function isOutletViewModel(thing) {
 // (travels up through $parentContext chain to find the router if not found on the
 // immediate $context). Returns $nullRouter if none is found.
 function nearestParentRouter($context) {
-  var $parentRouter = $nullRouter;
-  if( isObject($context) ) {
-    if( isRouter($context.$data) ) {
-      // found router in this context
-      $parentRouter = $context.$data;
-    } else if( isObject($context.$parentContext) || (isObject($context.$data) && isObject($context.$data.$parentContext)) ) {
-      // search through next parent up the chain
-      $parentRouter = nearestParentRouter( $context.$parentContext || $context.$data.$parentContext );
-    }
-  }
-  return $parentRouter;
+  return nearestEntity($context, isRouter) || $nullRouter;
 }
