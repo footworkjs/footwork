@@ -751,7 +751,7 @@ describe('router', function () {
             controllerRan = true;
             this.outlet('output', 'outletCallbackComponent', function(element) {
               expect(element.tagName.toLowerCase()).to.be('outlet');
-              expect(element.children[0].className).to.be('outletCallbackComponent');
+              expect($(element).find('.outletCallbackComponent').length).to.be(1);
               outletCallbackRan = true;
             });
           }
@@ -811,7 +811,7 @@ describe('router', function () {
             controllerRan = true;
             this.outlet('output', 'outletAfterRouter', function(element) {
               expect(element.tagName.toLowerCase()).to.be('outlet');
-              expect(element.children[0].className).to.be('outletAfterRouter');
+              expect($(element).find('.outletAfterRouter').length).to.be(1);
               outletCallbackRan = true;
             });
           }
@@ -881,7 +881,7 @@ describe('router', function () {
             this.outlet('output', 'outletLoaderTestLoaded', function(element) {
               outletLoaderTest.afterOutlet = true;
               expect(element.tagName.toLowerCase()).to.be('outlet');
-              expect(element.children[0].className).to.be('outletLoaderTestLoaded');
+              expect($(element).find('.outletLoaderTestLoaded').length).to.be(1);
             });
           }
         }
@@ -946,7 +946,7 @@ describe('router', function () {
             this.outlet('output', 'outletLoaderTestCallbackLoaded', function(element) {
               outletLoaderTest.afterOutlet = true;
               expect(element.tagName.toLowerCase()).to.be('outlet');
-              expect(element.children[0].className).to.be('outletLoaderTestCallbackLoaded');
+              expect($(element).find('.outletLoaderTestCallbackLoaded').length).to.be(1);
             });
           }
         }
@@ -1004,7 +1004,7 @@ describe('router', function () {
             this.outlet('output', 'outletLoaderTestMinTimeLoaded', function(element) {
               outletLoaderTest.afterOutlet = true;
               expect(element.tagName.toLowerCase()).to.be('outlet');
-              expect(element.children[0].className).to.be('outletLoaderTestMinTimeLoaded');
+              expect($(element).find('.outletLoaderTestMinTimeLoaded').length).to.be(1);
             });
           }
         }
@@ -1069,7 +1069,7 @@ describe('router', function () {
             this.outlet('output', 'outletLoaderTestMinTimeCallbackLoaded', function(element) {
               outletLoaderTest.afterOutlet = true;
               expect(element.tagName.toLowerCase()).to.be('outlet');
-              expect(element.children[0].className).to.be('outletLoaderTestMinTimeCallbackLoaded');
+              expect($(element).find('.outletLoaderTestMinTimeCallbackLoaded').length).to.be(1);
             });
           }
         }
