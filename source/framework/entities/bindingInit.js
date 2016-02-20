@@ -3,17 +3,17 @@
 
 function entityBinder(element, params, $parentContext, Entity, $flightTracker, $parentsInFlightChildren) {
   var entityObj;
-  if( isFunction(Entity) ) {
+  if (isFunction(Entity)) {
     entityObj = new Entity(params);
   } else {
     entityObj = Entity;
   }
   entityObj.$parentContext = $parentContext;
 
-  if(isEntity(entityObj)) {
+  if (isEntity(entityObj)) {
     var resolveFlightTracker =  noop;
 
-    if($flightTracker) {
+    if ($flightTracker) {
       resolveFlightTracker = function(addAnimationClass) {
         var wasResolved = false;
         function resolveThisEntityNow(isResolved) {
@@ -36,14 +36,13 @@ function entityBinder(element, params, $parentContext, Entity, $flightTracker, $
 
         var $inFlightChildren = entityObj.__private('inFlightChildren');
         // if no children then resolve now, otherwise subscribe and wait till its 0
-        if($inFlightChildren().length === 0) {
+        if ($inFlightChildren().length === 0) {
           maybeResolve();
         } else {
           entityObj.$trackSub($inFlightChildren.subscribe(function(inFlightChildren) {
             inFlightChildren.length === 0 && maybeResolve();
           }));
         }
-        console.log('resolveFlightTracker resolved', $inFlightChildren().length);
       };
     }
 
@@ -52,7 +51,7 @@ function entityBinder(element, params, $parentContext, Entity, $flightTracker, $
 
   var childrenToInsert = [];
   each(element.childNodes, function(child) {
-    if(!isUndefined(child)) {
+    if (!isUndefined(child)) {
       childrenToInsert.push(child);
     }
   });
