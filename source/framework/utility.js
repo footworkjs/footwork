@@ -162,7 +162,7 @@ function nearestEntity($context, predicate) {
     }, false);
   }
 
-  if (isObject($context)) {
+  if(isObject($context)) {
     if(isTheThing($context.$data)) {
       // found $data that matches the predicate(s) in this context
       foundEntity = $context.$data;
@@ -171,7 +171,6 @@ function nearestEntity($context, predicate) {
       foundEntity = nearestEntity($context.$parentContext || $context.$data.$parentContext, predicate);
     }
   }
-
   return foundEntity;
 }
 
