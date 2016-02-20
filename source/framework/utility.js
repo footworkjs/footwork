@@ -151,6 +151,7 @@ function resultBound(object, path, context, params) {
   return object[path];
 }
 
+
 function nearestEntity($context, predicate) {
   var foundEntity = null;
 
@@ -162,19 +163,15 @@ function nearestEntity($context, predicate) {
     }, false);
   }
 
-  if (isObject($context)) {
+  if(isObject($context)) {
     if(isTheThing($context.$data)) {
+      // found $data that matches the predicate(s) in this context
       foundEntity = $context.$data;
-    } else if (isArray($context.$parents) && $context.$parents.length) {
+    } else if(isObject($context.$parentContext) || (isObject($context.$data) && isObject($context.$data.$parentContext))) {
       // search through next parent up the chain
-      each($context.$parents, function(parentViewModel) {
-        if(isTheThing(parentViewModel)) {
-          foundEntity = parentViewModel;
-        }
-      });
+      foundEntity = nearestEntity($context.$parentContext || $context.$data.$parentContext, predicate);
     }
   }
-
   return foundEntity;
 }
 
