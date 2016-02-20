@@ -72,10 +72,22 @@ fw.components.loaders.push(fw.components.requireLoader = {
           template: { require: templatePath }
         };
       }
-      console.info('require component', componentName, configOptions);
     }
 
     callback(configOptions);
+  }
+});
+
+fw.components.loaders.unshift(fw.components.requireResolver = {
+  loadComponent: function(componentName, config, callback) {
+    possiblyGetConfigFromAmd(config, function(loadedConfig) {
+      // TODO: Provide upstream patch which clears out loadingSubscribablesCache when load fails so that
+      // subsequent requests will re-run require
+
+      console.log('resolved component', componentName, config);
+      resolveConfig(componentName, loadedConfig, callback);
+      // fw.components.defaultLoader.loadComponent(componentName, loadedConfig, callback);
+    });
   }
 });
 
@@ -229,16 +241,3 @@ function cloneNodesFromTemplateSourceElement(elemInstance) {
   // understand <template> and just treat it as a regular container
   return fw.utils.cloneNodes(elemInstance.childNodes);
 }
-
-fw.components.loaders.unshift(fw.components.requireResolver = {
-  loadComponent: function(componentName, config, callback) {
-    possiblyGetConfigFromAmd(config, function(loadedConfig) {
-      // TODO: Provide upstream patch which clears out loadingSubscribablesCache when load fails so that
-      // subsequent requests will re-run require
-
-      console.log('resolved component', componentName, config);
-      resolveConfig(componentName, loadedConfig, callback);
-      // fw.components.defaultLoader.loadComponent(componentName, loadedConfig, callback);
-    });
-  }
-});
