@@ -57,7 +57,7 @@ function entityClassFactory(descriptor, configParams) {
       entityMixinOrNothingFrom(descriptorBehavior)
     );
 
-    entityCtor = riveter.compose.apply( undefined, composure );
+    entityCtor = riveter.compose.apply(undefined, composure);
     entityCtor[descriptor.isEntityCtorDuckTag] = true;
     entityCtor.__private = privateData.bind(this, {}, configParams);
   } else {
