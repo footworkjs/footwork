@@ -18,11 +18,11 @@ function assessHistoryState() {
 
 // Override the original applyBindings method to assess history API state and provide viewModel/dataModel/router life-cycle
 var originalApplyBindings = fw.applyBindings;
-fw.applyBindings = function(viewModel, element) {
+fw.applyBindings = function(viewModelOrBindingContext, rootNode) {
   // must initialize default require context (https://github.com/jrburke/requirejs/issues/1305#issuecomment-87924865)
   isFunction(require) && require([]);
 
   assessHistoryState();
-  originalApplyBindings(viewModel, element);
-  setupContextAndLifeCycle(viewModel, element);
+  originalApplyBindings(viewModelOrBindingContext, rootNode);
+  setupContextAndLifeCycle(viewModelOrBindingContext, rootNode);
 };

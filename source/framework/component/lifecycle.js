@@ -37,7 +37,7 @@ function addToAndFetchQueue(element, viewModel) {
   return animationSequenceQueue;
 }
 
-function componentTriggerafterRender(element, viewModel) {
+function componentTriggerAfterRender(element, viewModel) {
   if(isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
     viewModel.__private('afterRenderWasTriggered', true);
 
@@ -55,6 +55,7 @@ fw.virtualElements.allowedBindings.$life = true;
 fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
+
     addClass(element, entityClass);
 
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
@@ -65,11 +66,13 @@ fw.bindingHandlers.$life = {
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
+
     var $parent = bindingContext.$parent;
     if(isObject($parent) && $parent.__isOutlet && isFunction($parent.$route().__getOnCompleteCallback)) {
       $parent.$route().__getOnCompleteCallback(element)();
     }
-    componentTriggerafterRender(element, bindingContext.$data);
+
+    componentTriggerAfterRender(element, bindingContext.$data);
   }
 };
 
@@ -93,7 +96,6 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     if(!isInternalComponent(componentName)) {
       callback(function(params, componentInfo) {
         var componentElement = componentInfo.element;
-
         if(isFunction(ViewModel)) {
           return new ViewModel(params);
         }
