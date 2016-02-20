@@ -133,10 +133,48 @@ function routerOutlet(outletName, componentToDisplay, options) {
   return outlet;
 };
 
+var visibleCSS = { 'height': '', 'overflow': '' };
+var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
+var outletLoadingDisplay = 'fw-loading-display';
+var outletLoadedDisplay = 'fw-loaded-display';
 function registerOutletComponent() {
   internalComponents.push('outlet');
   fw.components.register('outlet', {
     viewModel: function(params) {
+      this.loadingDisplay = fw.observable(nullComponent);
+      this.inFlightChildren = fw.observableArray();
+      this.isChanging = fw.observable(true);
+      this.isTransitioning = fw.observable(false);
+      this.isLoading = fw.computed(function() {
+        return this.inFlightChildren().length > 0 || this.isTransitioning() || this.isChanging();
+      }, this);
+
+      this.loadingStyle = fw.computed(function() {
+        if(this.isLoading()) {
+          return visibleCSS;
+        }
+        return hiddenCSS;
+      }, this);
+
+      this.contentsStyle = fw.computed(function() {
+        if(this.isLoading()) {
+          return hiddenCSS;
+        }
+        return visibleCSS;
+      }, this);
+
+      this.isLoadingClass = fw.computed(function() {
+        var classState = {};
+        classState[entityAnimateClass] = this.isLoading();
+        return classState;
+      }, this);
+
+      this.isLoadedClass = fw.computed(function() {
+        var classState = {};
+        classState[entityAnimateClass] = !this.isLoading();
+        return classState;
+      }, this);
+
       this.outletName = fw.unwrap(params.name);
       this.__isOutlet = true;
     },
