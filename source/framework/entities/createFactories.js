@@ -13,10 +13,9 @@ function entityClassFactory(descriptor, configParams) {
   var entityCtor = null;
   var privateDataMixin = {
     _preInit: function() {
-      var privateDataStore = {
+      this.__private = privateData.bind(this, {
         inFlightChildren: fw.observableArray()
-      };
-      this.__private = privateData.bind(this, privateDataStore, configParams);
+      }, configParams);
     }
   };
 
@@ -59,11 +58,8 @@ function entityClassFactory(descriptor, configParams) {
     );
 
     entityCtor = riveter.compose.apply( undefined, composure );
-
     entityCtor[descriptor.isEntityCtorDuckTag] = true;
-
-    var privateDataStore = {};
-    entityCtor.__private = privateData.bind(this, privateDataStore, configParams);
+    entityCtor.__private = privateData.bind(this, {}, configParams);
   } else {
     // user has specified another entity constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain
     entityCtor = ctor;
