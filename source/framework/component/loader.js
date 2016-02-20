@@ -84,9 +84,7 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
       // TODO: Provide upstream patch which clears out loadingSubscribablesCache when load fails so that
       // subsequent requests will re-run require
 
-      console.log('resolved component', componentName, config);
       resolveConfig(componentName, loadedConfig, callback);
-      // fw.components.defaultLoader.loadComponent(componentName, loadedConfig, callback);
     });
   }
 });
