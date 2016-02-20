@@ -23,9 +23,9 @@ var Router = function(descriptor, configParams) {
 
       function trimBaseRoute(url) {
         var routerConfig = $router.__private('configParams');
-        if( !isNull(routerConfig.baseRoute) && url.indexOf(routerConfig.baseRoute) === 0 ) {
+        if (!isNull(routerConfig.baseRoute) && url.indexOf(routerConfig.baseRoute) === 0) {
           url = url.substr(routerConfig.baseRoute.length);
-          if(url.length > 1) {
+          if (url.length > 1) {
             url = url.replace(hashMatchRegex, '/');
           }
         }
@@ -36,10 +36,10 @@ var Router = function(descriptor, configParams) {
         var urlParts = parseUri(url);
         router.urlParts(urlParts);
 
-        if(!fw.router.html5History()) {
-          if(url.indexOf('#') !== -1) {
+        if (!fw.router.html5History()) {
+          if (url.indexOf('#') !== -1) {
             url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
-          } else if(router.currentState() !== url) {
+          } else if (router.currentState() !== url) {
             url = '/';
           }
         } else {
@@ -53,7 +53,7 @@ var Router = function(descriptor, configParams) {
       function getUnknownRoute() {
         var unknownRoute = findWhere(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
 
-        if( !isNull(unknownRoute) ) {
+        if (!isNull(unknownRoute)) {
           unknownRoute = extend({}, baseRoute, {
             id: unknownRoute.id,
             controller: unknownRoute.controller,
@@ -71,19 +71,19 @@ var Router = function(descriptor, configParams) {
         var unknownRoute = getUnknownRoute();
 
         // If this is a relative router we need to remove the leading parentRoutePath section of the URL
-        if(router.isRelative() && parentRoutePath.length > 0 && (routeIndex = url.indexOf(parentRoutePath + '/')) === 0) {
-          url = url.substr( parentRoutePath.length );
+        if (router.isRelative() && parentRoutePath.length > 0 && (routeIndex = url.indexOf(parentRoutePath + '/')) === 0) {
+          url = url.substr(parentRoutePath.length);
         }
 
         // find all routes with a matching routeString
-        var matchedRoutes = reduce($router.routeDescriptions, function(matches, routeDescription) {
+        var matchedRoutes = reduce($router.routeDescriptions, function (matches, routeDescription) {
           var routeDescRoute = [].concat(routeDescription.route);
-          each(routeDescRoute, function(routeString) {
+          each(routeDescRoute, function (routeString) {
             var routeParams = [];
 
-            if( isString(routeString) ) {
+            if (isString(routeString)) {
               routeParams = url.match(routeStringToRegExp(routeString));
-              if( !isNull(routeParams) && routeDescription.filter.call($router, routeParams, router.urlParts.peek()) ) {
+              if (!isNull(routeParams) && routeDescription.filter.call($router, routeParams, router.urlParts.peek())) {
                 matches.push({
                   routeString: routeString,
                   specificity: routeString.replace(namedParamRegex, "*").length,
@@ -98,9 +98,9 @@ var Router = function(descriptor, configParams) {
 
         // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
         // and convert it into the actual route
-        if(matchedRoutes.length) {
+        if (matchedRoutes.length) {
           var matchedRoute = reduce(matchedRoutes, function(matchedRoute, foundRoute) {
-            if( isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity ) {
+            if (isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity) {
               matchedRoute = foundRoute;
             }
             return matchedRoute;
@@ -138,11 +138,11 @@ var Router = function(descriptor, configParams) {
       }
 
       function RoutedAction(routeDescription) {
-        if(!isUndefined(routeDescription.title)) {
+        if (!isUndefined(routeDescription.title)) {
           document.title = isFunction(routeDescription.title) ? routeDescription.title.apply($router, values(routeDescription.namedParams)) : routeDescription.title;
         }
 
-        if(isUndefined(router.currentRouteDescription) || !sameRouteDescription(router.currentRouteDescription, routeDescription)) {
+        if (isUndefined(router.currentRouteDescription) || !sameRouteDescription(router.currentRouteDescription, routeDescription)) {
           (routeDescription.controller || noop).apply($router, values(routeDescription.namedParams) );
           router.currentRouteDescription = routeDescription;
         }
@@ -151,7 +151,7 @@ var Router = function(descriptor, configParams) {
       function getActionForRoute(routeDescription) {
         var Action;
 
-        if( isRoute(routeDescription) ) {
+        if (isRoute(routeDescription)) {
           Action = RoutedAction.bind($router, routeDescription);
         }
 
@@ -170,7 +170,7 @@ var Router = function(descriptor, configParams) {
         var currentRoute = this.currentRoute();
         var routeSegment = '/';
 
-        if( isRoute(currentRoute) ) {
+        if (isRoute(currentRoute)) {
           routeSegment = (currentRoute.segment === '' ? '/' : currentRoute.segment);
         }
 
@@ -194,11 +194,11 @@ var Router = function(descriptor, configParams) {
 
       var parentPathSubscription;
       var $previousParent = $nullRouter;
-      subscriptions.push(router.parentRouter.subscribe(function( $parentRouter ) {
-        if( !isNullRouter($previousParent) && $previousParent !== $parentRouter ) {
+      subscriptions.push(router.parentRouter.subscribe(function ($parentRouter) {
+        if (!isNullRouter($previousParent) && $previousParent !== $parentRouter) {
           $previousParent.router.childRouters.remove(this);
 
-          if(parentPathSubscription) {
+          if (parentPathSubscription) {
             subscriptions.remove(parentPathSubscription);
             parentPathSubscription.dispose();
           }
@@ -211,11 +211,11 @@ var Router = function(descriptor, configParams) {
       }, this));
 
       // Automatically trigger the new Action() whenever the currentRoute() updates
-      subscriptions.push( router.currentRoute.subscribe(function getActionForRouteAndTrigger( newRoute ) {
+      subscriptions.push(router.currentRoute.subscribe(function getActionForRouteAndTrigger(newRoute) {
         if(router.currentState().length) {
           getActionForRoute(newRoute)( /* get and call the action for the newRoute */ );
         }
-      }, this) );
+      }, this));
 
       this.outlets = {};
       this.outlet = routerOutlet.bind(this);
@@ -225,17 +225,17 @@ var Router = function(descriptor, configParams) {
         });
       }.bind(this);
 
-      if( !isUndefined(routerConfigParams.unknownRoute) ) {
-        if( isFunction(routerConfigParams.unknownRoute) ) {
+      if (!isUndefined(routerConfigParams.unknownRoute)) {
+        if (isFunction(routerConfigParams.unknownRoute)) {
           routerConfigParams.unknownRoute = { controller: routerConfigParams.unknownRoute };
         }
-        routerConfigParams.routes.push( extend( routerConfigParams.unknownRoute, { unknown: true } ) );
+        routerConfigParams.routes.push(extend(routerConfigParams.unknownRoute, { unknown: true }));
       }
-      this.setRoutes( routerConfigParams.routes );
+      this.setRoutes(routerConfigParams.routes);
 
-      if( routerConfigParams.activate === true ) {
+      if (routerConfigParams.activate === true) {
         subscriptions.push(router.context.subscribe(function activateRouterAfterNewContext( $context ) {
-          if( isObject($context) ) {
+          if (isObject($context)) {
             this.activate($context);
           }
         }, this));
@@ -244,7 +244,7 @@ var Router = function(descriptor, configParams) {
       this.matchesRoute = function(routeName, path) {
         var route = getRouteForURL(path);
         routeName = [].concat(routeName);
-        if(!isNull(route)) {
+        if (!isNull(route)) {
           return routeName.indexOf(route.name) !== -1;
         }
         return false;
@@ -265,20 +265,20 @@ var Router = function(descriptor, configParams) {
         $parentRouter = $parentRouter || nearestParentRouter($context);
         this.$namespace.trigger('activated', { context: $context, parentRouter: $parentRouter });
 
-        if( !isNullRouter($parentRouter) ) {
+        if(!isNullRouter($parentRouter)) {
           this.__private('parentRouter')($parentRouter);
-        } else if( isObject($context) ) {
+        } else if (isObject($context)) {
           $parentRouter = nearestParentRouter($context);
-          if( $parentRouter !== this ) {
+          if ($parentRouter !== this) {
             this.__private('parentRouter')($parentRouter);
           }
         }
 
-        if( !this.__private('historyIsEnabled')() ) {
-          if( historyIsReady() && !this.__private('disableHistory')() ) {
-            History.Adapter.bind( windowObject, 'popstate', this.__private('stateChangeHandler', function(event) {
+        if (!this.__private('historyIsEnabled')()) {
+          if (historyIsReady() && !this.__private('disableHistory')()) {
+            History.Adapter.bind(windowObject, 'popstate', this.__private('stateChangeHandler', function (event) {
               var url = '';
-              if(!fw.router.html5History() && windowObject.location.hash.length > 1) {
+              if (!fw.router.html5History() && windowObject.location.hash.length > 1) {
                 url = windowObject.location.hash;
               } else {
                 url = windowObject.location.pathname + windowObject.location.hash;
@@ -292,7 +292,7 @@ var Router = function(descriptor, configParams) {
           }
         }
 
-        if( this.__private('currentState')() === '' ) {
+        if (this.__private('currentState')() === '') {
           this.setState();
         }
         return this;
@@ -305,13 +305,13 @@ var Router = function(descriptor, configParams) {
 
         if(!isNull(namedRoute)) {
           // must convert namedRoute into its URL form
-          var routeDescription = find(this.routeDescriptions, function(route) {
+          var routeDescription = find(this.routeDescriptions, function (route) {
             return route.name === namedRoute;
           });
 
-          if(!isUndefined(routeDescription)) {
+          if (!isUndefined(routeDescription)) {
             url = first([].concat(routeDescription.route));
-            each(routeParams, function(value, fieldName) {
+            each(routeParams, function (value, fieldName) {
               url = url.replace(':' + fieldName, routeParams[fieldName]);
             });
           } else {
@@ -320,43 +320,43 @@ var Router = function(descriptor, configParams) {
         }
 
         var isExternalURL = isString(url);
-        if(!isString(url) && useHistory) {
+        if (!isString(url) && useHistory) {
           url = History.getState().url;
         }
 
-        if(!isExternalURL) {
+        if (!isExternalURL) {
           url = this.__private('normalizeURL')(url);
         }
 
-        if(isFunction(configParams.beforeRoute)) {
+        if (isFunction(configParams.beforeRoute)) {
           continueToRoute = configParams.beforeRoute.call(this, url || '/');
         }
 
-        if(continueToRoute) {
-          if(useHistory) {
-            if(isExternalURL) {
+        if (continueToRoute) {
+          if (useHistory) {
+            if (isExternalURL) {
               var historyAPIWorked = true;
               try {
                 historyAPIWorked = History.pushState(null, '', configParams.baseRoute + this.__private('parentRouter')().path() + url.replace(startingHashRegex, '/'));
-              } catch(historyException) {
+              } catch (historyException) {
                 historyAPIWorked = false;
               } finally {
-                if(historyAPIWorked) {
+                if (historyAPIWorked) {
                   return;
                 }
               }
             } else {
-              this.__private('currentState')( this.__private('normalizeURL')(url) );
+              this.__private('currentState')(this.__private('normalizeURL')(url));
             }
-          } else if(isExternalURL) {
-            this.__private('currentState')( this.__private('normalizeURL')(url) );
+          } else if (isExternalURL) {
+            this.__private('currentState')(this.__private('normalizeURL')(url));
           } else {
             this.__private('currentState')('/');
           }
 
-          if(!historyIsReady()) {
+          if (!historyIsReady()) {
             var routePath = this.path();
-            each(this.__private('childRouters')(), function(childRouter) {
+            each(this.__private('childRouters')(), function (childRouter) {
               childRouter.__private('currentState')(routePath);
             });
           }
@@ -365,27 +365,27 @@ var Router = function(descriptor, configParams) {
         return this;
       },
       dispose: function() {
-        if( !this._isDisposed ) {
+        if(!this._isDisposed) {
           this._isDisposed = true;
 
           var $parentRouter = this.__private('parentRouter')();
-          if( !isNullRouter($parentRouter) ) {
+          if (!isNullRouter($parentRouter)) {
             $parentRouter.__private('childRouters').remove(this);
           }
 
-          if( this.__private('historyIsEnabled')() && historyIsReady() ) {
-            History.Adapter.unbind( this.__private('stateChangeHandler') );
+          if (this.__private('historyIsEnabled')() && historyIsReady()) {
+            History.Adapter.unbind(this.__private('stateChangeHandler'));
           }
 
           this.$namespace.dispose();
           this.$globalNamespace.dispose();
           invoke(this.__private('subscriptions'), 'dispose');
 
-          each(omit(this, function(property) {
+          each(omit(this, function (property) {
             return isEntity(property);
           }), propertyDispose);
 
-          each(omit(this.__private(), function(property) {
+          each(omit(this.__private(), function (property) {
             return isEntity(property);
           }), propertyDispose);
 
