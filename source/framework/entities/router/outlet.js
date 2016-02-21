@@ -13,15 +13,15 @@ fw.bindingHandlers.$outletBinder = {
     var outletName = outletViewModel.outletName;
 
     if(isRouter($parentRouter)) {
-      // register this outlet with the router so that updates will propagate correctly
-      // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
-      outletViewModel.route = $parentRouter.outlet(outletName);
-
+      // register the viewModel with the outlet for future use when its route is changed
       $parentRouter.__private('registerViewModelForOutlet')(outletName, outletViewModel);
       fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
         // tell the router to clean up its reference to the outletViewModel
         $parentRouter.__private('unregisterViewModelForOutlet')(outletName);
       });
+
+      // register this outlet with its $parentRouter
+      outletViewModel.route = $parentRouter.outlet(outletName);
     } else {
       throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.$namespace.getName() + '] but no router was defined.');
     }
@@ -53,6 +53,7 @@ function routerOutlet(outletName, componentToDisplay, options) {
   var outlets = router.outlets;
   var outletProperties = outlets[outletName] || {};
   var outlet = outletProperties.routeObservable;
+  var outletViewModel = outletProperties.outletViewModel;
 
   outletName = fw.unwrap(outletName);
   if(!isObservable(outlet)) {
@@ -94,33 +95,21 @@ function routerOutlet(outletName, componentToDisplay, options) {
     }
   }
 
+  if(outletViewModel) {
+    // Show the loading component (if one is defined)
+    var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || outlet().name]);
+    if(showDuringLoadComponent) {
+      outletViewModel.loadingDisplay(showDuringLoadComponent);
+    }
+    outletViewModel.routeIsLoading(true);
+  }
+
   if(valueHasMutated) {
-    // var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay]);
     var minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
 
-    // var showDuringLoad = {
-    //   name: showDuringLoadComponent,
-    //   loadingFor: componentToDisplay,
-    //   __getOnCompleteCallback: function(element) {
-    //     var outletElement = element.parentNode;
-    //     outletElement.setAttribute('rendered', '');
-
-    //     if(element.children.length) {
-    //       element.children[0].___isLoadingComponent = true;
-    //     }
-
-    //     removeClass(element, entityAnimateClass);
-    //     return function addBindingOnComplete() {
-    //       setTimeout(function() {
-    //         addClass(element, entityAnimateClass);
-    //       }, minimumAnimationDelay);
-    //     };
-    //   }
-    // };
-
     currentOutletDef.__getOnCompleteCallback = function(element) {
-      var outletElement = element.parentNode;
       var changeIsComplete = element.children.length;
+      var outletElement = element.parentNode;
 
       if(!changeWasCompleted && changeIsComplete) {
         changeWasCompleted = true;
@@ -133,6 +122,9 @@ function routerOutlet(outletName, componentToDisplay, options) {
           }, minimumAnimationDelay);
 
           onComplete.call(router, outletElement);
+          if(outletViewModel) {
+            outletViewModel.routeIsLoading(false);
+          }
         };
       } else {
         removeClass(outletElement, entityAnimateClass);
@@ -144,21 +136,16 @@ function routerOutlet(outletName, componentToDisplay, options) {
       activeOutlets.push(outlet);
     }
 
-    // REPLATE SHOWDURING LOAD SHIT NEXT
-    //
-    // if(showDuringLoad.name) {
-    //   clearTimeout(outlet.transitionTimeout);
-    //   outlet(showDuringLoad);
+    if(outletViewModel) {
+      // Tell the outletViewModel to display the temporary loading component for a period of time
+      clearTimeout(outletProperties.transitionTimeout);
+      outletViewModel.isTransitioning(true);
+      outletProperties.transitionTimeout = setTimeout(function() {
+        outletViewModel.isTransitioning(false);
+      }, minTransitionPeriod);
+    }
 
-    //   fw.components.get(currentOutletDef.name, function() {
-    //     // now that its cached and loaded, lets show the desired component
-    //     outlet.transitionTimeout = setTimeout(function() {
-    //       outlet(currentOutletDef);
-    //     }, minTransitionPeriod);
-    //   });
-    // } else {
-      outlet.valueHasMutated();
-    // }
+    outlet.valueHasMutated();
   }
 
   return outlet;
@@ -174,10 +161,10 @@ function registerOutletComponent() {
     viewModel: function(params) {
       this.loadingDisplay = fw.observable(nullComponent);
       this.inFlightChildren = fw.observableArray();
-      this.isChanging = fw.observable(true);
+      this.routeIsLoading = fw.observable(true);
       this.isTransitioning = fw.observable(false);
       this.isLoading = fw.computed(function() {
-        return this.inFlightChildren().length > 0;// || this.isTransitioning() || this.isChanging();
+        return this.inFlightChildren().length > 0 || this.isTransitioning() || this.routeIsLoading();
       }, this);
 
       this.loadingStyle = fw.computed(function() {

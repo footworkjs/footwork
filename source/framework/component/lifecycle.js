@@ -67,9 +67,14 @@ fw.bindingHandlers.$life = {
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
 
-    var $parent = bindingContext.$parent;
-    if(isObject($parent) && $parent.__isOutlet && isFunction($parent.route().__getOnCompleteCallback)) {
-      $parent.route().__getOnCompleteCallback(element)();
+    // if this element is not the 'loading' component of an outlet, then we need to
+    // trigger the onComplete callback
+    var classList = element.className.split(" ");
+    if (!includes(classList, outletLoadingDisplay)) {
+      var $parent = bindingContext.$parent;
+      if(isObject($parent) && $parent.__isOutlet && isFunction($parent.route().__getOnCompleteCallback)) {
+        $parent.route().__getOnCompleteCallback(element)();
+      }
     }
 
     componentTriggerAfterRender(element, bindingContext.$data);
