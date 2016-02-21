@@ -121,10 +121,12 @@ function routerOutlet(outletName, componentToDisplay, options) {
             addClass(outletElement, entityAnimateClass);
           }, minimumAnimationDelay);
 
-          onComplete.call(router, outletElement);
+          var outletViewModel = router.outlets[outletName].outletViewModel;
           if(outletViewModel) {
             outletViewModel.routeIsLoading(false);
           }
+
+          onComplete.call(router, outletElement);
         };
       } else {
         removeClass(outletElement, entityAnimateClass);
