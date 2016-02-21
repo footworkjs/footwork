@@ -9,6 +9,7 @@ var Router = function(descriptor, configParams) {
 
       var router = this.__private();
       this.__private = privateData.bind(this, router, routerConfigParams);
+      this.__private('registerViewModelForOutlet', registerViewModelForOutlet.bind(this));
 
       routerConfigParams.baseRoute = fw.router.baseRoute() + (resultBound(routerConfigParams, 'baseRoute', router) || '');
 

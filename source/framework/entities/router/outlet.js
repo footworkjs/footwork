@@ -16,11 +16,27 @@ fw.bindingHandlers.$outletBinder = {
       // register this outlet with the router so that updates will propagate correctly
       // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
       outletViewModel.route = $parentRouter.outlet(outletName);
+
+      $parentRouter.__private('registerViewModelForOutlet')(outletName, outletViewModel);
+      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
+        // tell the router to clean up its reference to the outletViewModel
+        $parentRouter.__private('unregisterViewModelForOutlet')(outletName);
+      });
     } else {
       throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.$namespace.getName() + '] but no router was defined.');
     }
   }
 };
+
+function registerViewModelForOutlet(outletName, outletViewModel) {
+  var outletProperties = this.outlets[outletName] || {};
+  outletProperties.outletViewModel = outletViewModel;
+}
+
+function unregisterViewModelForOutlet(outletName) {
+  var outletProperties = this.outlets[outletName] || {};
+  delete outletProperties.outletViewModel;
+}
 
 function routerOutlet(outletName, componentToDisplay, options) {
   options = options || {};
@@ -28,11 +44,11 @@ function routerOutlet(outletName, componentToDisplay, options) {
     options = { onComplete: options, onFailure: noop };
   }
 
+  var router = this;
   var changeWasCompleted = false;
   var viewModelParameters = options.params;
   var onComplete = options.onComplete || noop;
   var onFailure = options.onFailure || noop;
-  var router = this;
   var configParams = router.__private('configParams');
   var outlets = router.outlets;
   var outletProperties = outlets[outletName] || {};
@@ -40,15 +56,20 @@ function routerOutlet(outletName, componentToDisplay, options) {
 
   outletName = fw.unwrap(outletName);
   if(!isObservable(outlet)) {
+    // router outlet observable not found, we must create a new one
     outlet = fw.observable({
       name: noComponentSelected,
       params: {},
       __getOnCompleteCallback: function() { return noop; },
       __onFailure: onFailure.bind(router)
-    }).broadcastAs({ name: outletName, namespace: router.$namespace });
+    }).broadcastAs({
+      name: outletName,
+      namespace: router.$namespace
+    });
 
+    // register the new outlet under its outletName
     outlets[outletName] = {
-      viewModel: outletProperties.viewModel || null,
+      outletViewModel: outletProperties.outletViewModel || null,
       routeObservable: outlet
     };
   }
