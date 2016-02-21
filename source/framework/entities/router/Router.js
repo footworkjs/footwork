@@ -263,7 +263,6 @@ var Router = function(descriptor, configParams) {
       activate: function($context, $parentRouter) {
         $context = $context || this.__private('context')();
         $parentRouter = $parentRouter || nearestParentRouter($context);
-        this.$namespace.trigger('activated', { context: $context, parentRouter: $parentRouter });
 
         if(!isNullRouter($parentRouter)) {
           this.__private('parentRouter')($parentRouter);
@@ -295,6 +294,8 @@ var Router = function(descriptor, configParams) {
         if (this.__private('currentState')() === '') {
           this.setState();
         }
+
+        this.$namespace.trigger('activated', { context: $context, parentRouter: $parentRouter });
         return this;
       },
       setState: function(url, routeParams) {

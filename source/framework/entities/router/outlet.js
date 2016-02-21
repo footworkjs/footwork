@@ -28,24 +28,31 @@ function routerOutlet(outletName, componentToDisplay, options) {
     options = { onComplete: options, onFailure: noop };
   }
 
-  var wasCompleted = false;
+  var changeWasCompleted = false;
   var viewModelParameters = options.params;
   var onComplete = options.onComplete || noop;
   var onFailure = options.onFailure || noop;
   var router = this;
+  var configParams = router.__private('configParams');
   var outlets = router.outlets;
+  var outletProperties = outlets[outletName] || {};
+  var outlet = outletProperties.routeObservable;
 
   outletName = fw.unwrap(outletName);
-  if(!isObservable(outlets[outletName])) {
-    outlets[outletName] = fw.observable({
+  if(!isObservable(outlet)) {
+    outlet = fw.observable({
       name: noComponentSelected,
       params: {},
       __getOnCompleteCallback: function() { return noop; },
       __onFailure: onFailure.bind(router)
     }).broadcastAs({ name: outletName, namespace: router.$namespace });
+
+    outlets[outletName] = {
+      viewModel: outletProperties.viewModel || null,
+      routeObservable: outlet
+    };
   }
 
-  var outlet = outlets[outletName];
   var currentOutletDef = outlet();
   var valueHasMutated = false;
   var isInitialLoad = outlet().name === noComponentSelected;
@@ -55,58 +62,59 @@ function routerOutlet(outletName, componentToDisplay, options) {
   }
 
   if(!isUndefined(componentToDisplay)) {
-    if((currentOutletDef.loadingFor || currentOutletDef.name) !== componentToDisplay) {
+    if(currentOutletDef.name !== componentToDisplay) {
       currentOutletDef.name = componentToDisplay;
       valueHasMutated = true;
     }
 
-    if(!isUndefined(viewModelParameters)) {
+    if(isObject(viewModelParameters)) {
       currentOutletDef.params = viewModelParameters;
       valueHasMutated = true;
     }
   }
 
   if(valueHasMutated) {
-    var configParams = router.__private('configParams');
-    var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay]);
+    // var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay]);
     var minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
 
-    var showDuringLoad = {
-      name: showDuringLoadComponent,
-      loadingFor: componentToDisplay,
-      __getOnCompleteCallback: function(element) {
-        element.setAttribute('rendered', '');
+    // var showDuringLoad = {
+    //   name: showDuringLoadComponent,
+    //   loadingFor: componentToDisplay,
+    //   __getOnCompleteCallback: function(element) {
+    //     var outletElement = element.parentNode;
+    //     outletElement.setAttribute('rendered', '');
 
-        if(element.children.length) {
-          element.children[0].___isLoadingComponent = true;
-        }
+    //     if(element.children.length) {
+    //       element.children[0].___isLoadingComponent = true;
+    //     }
 
-        removeClass(element, entityAnimateClass);
-        return function addBindingOnComplete() {
-          setTimeout(function() {
-            addClass(element, entityAnimateClass);
-          }, minimumAnimationDelay);
-        };
-      }
-    };
+    //     removeClass(element, entityAnimateClass);
+    //     return function addBindingOnComplete() {
+    //       setTimeout(function() {
+    //         addClass(element, entityAnimateClass);
+    //       }, minimumAnimationDelay);
+    //     };
+    //   }
+    // };
 
     currentOutletDef.__getOnCompleteCallback = function(element) {
-      var isComplete = element.children.length && isUndefined(element.children[0].___isLoadingComponent);
+      var outletElement = element.parentNode;
+      var changeIsComplete = element.children.length;
 
-      if(!wasCompleted && isComplete) {
-        wasCompleted = true;
+      if(!changeWasCompleted && changeIsComplete) {
+        changeWasCompleted = true;
         activeOutlets.remove(outlet);
-        element.setAttribute('rendered', componentToDisplay);
+        outletElement.setAttribute('rendered', componentToDisplay);
 
         return function addBindingOnComplete() {
           setTimeout(function() {
-            addClass(element, entityAnimateClass);
+            addClass(outletElement, entityAnimateClass);
           }, minimumAnimationDelay);
 
-          onComplete.call(router, element);
+          onComplete.call(router, outletElement);
         };
       } else {
-        removeClass(element, entityAnimateClass);
+        removeClass(outletElement, entityAnimateClass);
         return noop;
       }
     };
@@ -115,19 +123,21 @@ function routerOutlet(outletName, componentToDisplay, options) {
       activeOutlets.push(outlet);
     }
 
-    if(showDuringLoad.name) {
-      clearTimeout(outlet.transitionTimeout);
-      outlet(showDuringLoad);
+    // REPLATE SHOWDURING LOAD SHIT NEXT
+    //
+    // if(showDuringLoad.name) {
+    //   clearTimeout(outlet.transitionTimeout);
+    //   outlet(showDuringLoad);
 
-      fw.components.get(currentOutletDef.name, function() {
-        // now that its cached and loaded, lets show the desired component
-        outlet.transitionTimeout = setTimeout(function() {
-          outlet(currentOutletDef);
-        }, minTransitionPeriod);
-      });
-    } else {
+    //   fw.components.get(currentOutletDef.name, function() {
+    //     // now that its cached and loaded, lets show the desired component
+    //     outlet.transitionTimeout = setTimeout(function() {
+    //       outlet(currentOutletDef);
+    //     }, minTransitionPeriod);
+    //   });
+    // } else {
       outlet.valueHasMutated();
-    }
+    // }
   }
 
   return outlet;
@@ -146,7 +156,7 @@ function registerOutletComponent() {
       this.isChanging = fw.observable(true);
       this.isTransitioning = fw.observable(false);
       this.isLoading = fw.computed(function() {
-        return this.inFlightChildren().length > 0 || this.isTransitioning() || this.isChanging();
+        return this.inFlightChildren().length > 0;// || this.isTransitioning() || this.isChanging();
       }, this);
 
       this.loadingStyle = fw.computed(function() {
@@ -178,7 +188,14 @@ function registerOutletComponent() {
       this.outletName = fw.unwrap(params.name);
       this.__isOutlet = true;
     },
-    template: '<!-- ko $outletBinder, component: route --><!-- /ko -->'
+    template: '<!-- ko $outletBinder -->' +
+                '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" data-bind="style: loadingStyle, css: isLoadingClass">' +
+                  '<!-- ko component: loadingDisplay --><!-- /ko -->' +
+                '</div>' +
+                '<div class="' + outletLoadedDisplay + ' ' + entityClass + '" data-bind="style: contentsStyle, css: isLoadedClass">' +
+                  '<!-- ko component: route --><!-- /ko -->' +
+                '</div>' +
+              '<!-- /ko -->'
   });
 
   internalComponents.push(noComponentSelected);
