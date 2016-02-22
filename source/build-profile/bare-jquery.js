@@ -6,7 +6,7 @@
   } else {
     root.fw = factory(root._, root.ko, root.postal, root.jQuery);
   }
-}(this, function (_, ko, postal, jquery) {
+}(this, function (_, ko, postal, jQuery) {
   var windowObject = window;
 
   window.require = typeof require !== 'undefined' ? require : undefined;
@@ -19,7 +19,7 @@
       _: _,
       ko: ko,
       postal: postal,
-      jquery: jquery
+      jQuery: jQuery
     });
 
     /**
@@ -44,10 +44,10 @@
     // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ 'riveter', 'Conduit' ];
 
-    return (function footwork(embedded, windowObject, _, ko, postal, riveter, jquery, Conduit) {
-      var ajax = jquery.ajax;
+    return (function footwork(embedded, windowObject, _, ko, postal, riveter, jQuery, Conduit) {
+      var ajax = jQuery.ajax;
       //import("../framework/main.js");
       return ko;
-    })(root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.jquery, root.Conduit);
+    })(root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.jQuery, root.Conduit);
   })();
 }));
