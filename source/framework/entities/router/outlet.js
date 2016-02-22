@@ -212,7 +212,6 @@ function registerOutletComponent() {
   fw.components.register(noComponentSelected, {
     template: '<div class="no-component-selected"></div>'
   });
-  internalComponents.push(nullComponent);
   fw.components.register(nullComponent, {
     template: '<div class="null-component"></div>'
   });
