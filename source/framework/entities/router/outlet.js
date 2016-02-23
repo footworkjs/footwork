@@ -185,6 +185,7 @@ function registerOutletComponent() {
 
       function showLoader() {
         outlet.loadingClass(removeAnimation);
+        outlet.loadedClass(removeAnimation);
         outlet.loadedStyle(hiddenCSS);
         outlet.loadingStyle(visibleCSS);
         setTimeout(function() {
@@ -193,6 +194,7 @@ function registerOutletComponent() {
       }
 
       function showLoadedAfterMinimumTransition() {
+        outlet.loadingClass(removeAnimation);
         outlet.loadedClass(removeAnimation);
         outlet.loadedStyle(visibleCSS);
         outlet.loadingStyle(hiddenCSS);

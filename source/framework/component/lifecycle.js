@@ -44,9 +44,11 @@ function componentTriggerAfterRender(element, viewModel) {
     var configParams = viewModel.__private('configParams');
     configParams.afterRender.call(viewModel, element);
 
-    setTimeout(function() {
-      runAnimationClassSequenceQueue(addToAndFetchQueue(element, viewModel));
-    }, minimumAnimationDelay);
+    if(!includes(element.className.split(" "), outletLoadingDisplay)) {
+      setTimeout(function() {
+        runAnimationClassSequenceQueue(addToAndFetchQueue(element, viewModel));
+      }, minimumAnimationDelay);
+    }
   }
 }
 
