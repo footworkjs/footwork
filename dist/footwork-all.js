@@ -9197,12 +9197,16 @@ function registerOutletComponent() {
   fw.components.register('outlet', {
     viewModel: function(params) {
       var outlet = this;
+      windowObject.outlet = this;
 
       this.outletName = fw.unwrap(params.name);
       this.__isOutlet = true;
 
       this.loadingDisplay = fw.observable(nullComponent);
       this.inFlightChildren = fw.observableArray();
+      this.inFlightChildren.subscribe(function(inFlightChildren) {
+        console.info('inFlightChildren', inFlightChildren);
+      });
       this.routeIsLoading = fw.observable(true);
       this.isLoading = fw.computed(function() {
         return this.inFlightChildren().length > 0 || this.routeIsLoading();
@@ -10074,7 +10078,7 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
 
   var $flightTracker = { name: tagName, type: 'component' };
 
-  if(!isString(tagName) || tagName.toLowerCase() !== 'outlet') {
+  if(element.nodeType !== 8 && (!isString(tagName) || tagName.toLowerCase() !== 'outlet')) {
     var $nearestEntity = nearestEntity(bindingContext);
     if ($nearestEntity) {
       var $inFlightChildren = $nearestEntity.__private('inFlightChildren');
