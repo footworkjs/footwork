@@ -161,10 +161,29 @@ function registerOutletComponent() {
 
       this.loadingDisplay = fw.observable(nullComponent);
       this.inFlightChildren = fw.observableArray();
-      this.routeIsLoading = fw.observable(true);
-      this.isLoading = fw.computed(function() {
-        return this.inFlightChildren().length > 0 || this.routeIsLoading();
-      }, this);
+      this.routeIsLoading = fw.observable(false);
+      this.routeIsResolving = fw.observable(false);
+
+      this.routeIsLoadingSub = this.routeIsLoading.subscribe(function(routeIsLoading) {
+        if(routeIsLoading) {
+          outlet.routeIsResolving(true);
+        } else {
+          if(this.flightWatch && isFunction(this.flightWatch.dispose)) {
+            this.flightWatch.dispose();
+          }
+
+          var hadChildren = true;
+          if(outlet.inFlightChildren().length) {
+            this.flightWatch = outlet.inFlightChildren.subscribe(function(inFlightChildren) {
+              if(!inFlightChildren && hadChildren) {
+                outlet.routeIsResolving(false);
+              }
+            });
+          } else {
+            outlet.routeIsResolving(false);
+          }
+        }
+      });
 
       this.loadingStyle = fw.observable();
       this.loadedStyle = fw.observable();
@@ -202,8 +221,8 @@ function registerOutletComponent() {
       }
 
       this.transitionTrigger = fw.computed(function() {
-        var isLoading = this.isLoading();
-        if(isLoading) {
+        var routeIsResolving = this.routeIsResolving();
+        if(routeIsResolving) {
           showLoader();
         } else {
           showLoaded();
