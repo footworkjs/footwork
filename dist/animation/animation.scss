@@ -1,54 +1,54 @@
-$moveDistance: 15px;
-$speed: 0.5s;
-$easing: ease;
+$fw-animation-move-distance: 15px;
+$fw-animation-speed: 0.5s;
+$fw-animation-easing: ease;
 
-@mixin transition($transitionDef) {
-  -webkit-transition: $transitionDef;
-  -moz-transition: $transitionDef;
-  -ms-transition: $transitionDef;
-  -o-transition: $transitionDef;
-  transition: $transitionDef;
+@mixin transition($transition...) {
+  -webkit-transition: $transition;
+  -moz-transition: $transition;
+  -ms-transition: $transition;
+  -o-transition: $transition;
+  transition: $transition;
 }
 
 .fw-entity {
   .fade-in {
     opacity: 0;
-    @include transition(all $speed $easing);
+    @include transition(opacity $fw-animation-speed $fw-animation-easing);
   }
 
   .fade-in-from-left {
     position: relative;
-    left: -$moveDistance;
+    left: -$fw-animation-move-distance;
     opacity: 0;
-    @include transition(all $speed $easing);
+    @include transition(left $fw-animation-speed $fw-animation-easing, opacity $fw-animation-speed $fw-animation-easing);
   }
 
   .fade-in-from-right {
     position: relative;
-    left: $moveDistance;
+    left: $fw-animation-move-distance;
     opacity: 0;
-    @include transition(all $speed $easing);
+    @include transition(left $fw-animation-speed $fw-animation-easing, opacity $fw-animation-speed $fw-animation-easing);
   }
 
   .fade-in-from-top {
     position: relative;
-    top: -$moveDistance;
+    top: -$fw-animation-move-distance;
     opacity: 0;
-    @include transition(all $speed $easing);
+    @include transition(top $fw-animation-speed $fw-animation-easing, opacity $fw-animation-speed $fw-animation-easing);
   }
 
   .fade-in-from-bottom {
     position: relative;
-    top: $moveDistance;
+    top: $fw-animation-move-distance;
     opacity: 0;
-    @include transition(all $speed $easing);
+    @include transition(top $fw-animation-speed $fw-animation-easing, opacity $fw-animation-speed $fw-animation-easing);
   }
 
-  &.fw-entity-bound {
+  &.fw-entity-animate {
     & > .fade-in,
     & > * > .fade-in {
       opacity: 1;
-      @include transition(all $speed $easing);
+      @include transition(opacity $fw-animation-speed $fw-animation-easing);
     }
 
     & > .fade-in-from-left,
@@ -63,7 +63,7 @@ $easing: ease;
       left: 0;
       top: 0;
       opacity: 1;
-      @include transition(all $speed $easing);
+      @include transition(top $fw-animation-speed $fw-animation-easing, left $fw-animation-speed $fw-animation-easing, opacity $fw-animation-speed $fw-animation-easing);
     }
   }
 }
