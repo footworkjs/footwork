@@ -193,31 +193,6 @@ var module = undefined,
     exports = undefined,
     global = undefined;
 
-    if (!Function.prototype.bind) {
-  Function.prototype.bind = function(oThis) {
-    if (typeof this !== 'function') {
-      // closest thing possible to the ECMAScript 5
-      // internal IsCallable function
-      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
-    }
-
-    var aArgs   = Array.prototype.slice.call(arguments, 1),
-        fToBind = this,
-        fNOP    = function() {},
-        fBound  = function() {
-          return fToBind.apply(this instanceof fNOP && oThis
-                 ? this
-                 : oThis,
-                 aArgs.concat(Array.prototype.slice.call(arguments)));
-        };
-
-    fNOP.prototype = this.prototype;
-    fBound.prototype = new fNOP();
-
-    return fBound;
-  };
-}
-
     root.ko = ko;
 
     (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -286,7 +261,7 @@ function findIndex(array, predicate, thisArg) {
 
 module.exports = findIndex;
 
-},{"../internal/baseCallback":39}],2:[function(require,module,exports){
+},{"../internal/baseCallback":40}],2:[function(require,module,exports){
 /**
  * Gets the first element of `array`.
  *
@@ -367,7 +342,7 @@ function indexOf(array, value, fromIndex) {
 
 module.exports = indexOf;
 
-},{"../internal/baseIndexOf":52,"../internal/binaryIndex":70}],4:[function(require,module,exports){
+},{"../internal/baseIndexOf":53,"../internal/binaryIndex":71}],4:[function(require,module,exports){
 var baseIndexOf = require('../internal/baseIndexOf'),
     cacheIndexOf = require('../internal/cacheIndexOf'),
     createCache = require('../internal/createCache'),
@@ -436,7 +411,7 @@ function intersection() {
 
 module.exports = intersection;
 
-},{"../internal/baseIndexOf":52,"../internal/cacheIndexOf":74,"../internal/createCache":80,"../lang/isArguments":110,"../lang/isArray":111}],5:[function(require,module,exports){
+},{"../internal/baseIndexOf":53,"../internal/cacheIndexOf":75,"../internal/createCache":81,"../lang/isArguments":111,"../lang/isArray":112}],5:[function(require,module,exports){
 /**
  * Gets the last element of `array`.
  *
@@ -530,7 +505,7 @@ function every(collection, predicate, thisArg) {
 
 module.exports = every;
 
-},{"../internal/arrayEvery":32,"../internal/baseCallback":39,"../internal/baseEvery":45,"../lang/isArray":111}],10:[function(require,module,exports){
+},{"../internal/arrayEvery":33,"../internal/baseCallback":40,"../internal/baseEvery":46,"../lang/isArray":112}],10:[function(require,module,exports){
 var arrayFilter = require('../internal/arrayFilter'),
     baseCallback = require('../internal/baseCallback'),
     baseFilter = require('../internal/baseFilter'),
@@ -593,7 +568,7 @@ function filter(collection, predicate, thisArg) {
 
 module.exports = filter;
 
-},{"../internal/arrayFilter":33,"../internal/baseCallback":39,"../internal/baseFilter":46,"../lang/isArray":111}],11:[function(require,module,exports){
+},{"../internal/arrayFilter":34,"../internal/baseCallback":40,"../internal/baseFilter":47,"../lang/isArray":112}],11:[function(require,module,exports){
 var baseCallback = require('../internal/baseCallback'),
     baseEach = require('../internal/baseEach'),
     baseFind = require('../internal/baseFind'),
@@ -661,7 +636,7 @@ function find(collection, predicate, thisArg) {
 
 module.exports = find;
 
-},{"../array/findIndex":1,"../internal/baseCallback":39,"../internal/baseEach":44,"../internal/baseFind":47,"../lang/isArray":111}],12:[function(require,module,exports){
+},{"../array/findIndex":1,"../internal/baseCallback":40,"../internal/baseEach":45,"../internal/baseFind":48,"../lang/isArray":112}],12:[function(require,module,exports){
 var baseMatches = require('../internal/baseMatches'),
     find = require('./find');
 
@@ -700,7 +675,7 @@ function findWhere(collection, source) {
 
 module.exports = findWhere;
 
-},{"../internal/baseMatches":59,"./find":11}],13:[function(require,module,exports){
+},{"../internal/baseMatches":60,"./find":11}],13:[function(require,module,exports){
 var arrayEach = require('../internal/arrayEach'),
     baseEach = require('../internal/baseEach'),
     bindCallback = require('../internal/bindCallback'),
@@ -744,7 +719,7 @@ function forEach(collection, iteratee, thisArg) {
 
 module.exports = forEach;
 
-},{"../internal/arrayEach":31,"../internal/baseEach":44,"../internal/bindCallback":72,"../lang/isArray":111}],14:[function(require,module,exports){
+},{"../internal/arrayEach":32,"../internal/baseEach":45,"../internal/bindCallback":73,"../lang/isArray":112}],14:[function(require,module,exports){
 var baseIndexOf = require('../internal/baseIndexOf'),
     isArray = require('../lang/isArray'),
     isLength = require('../internal/isLength'),
@@ -807,7 +782,7 @@ function includes(collection, target, fromIndex) {
 
 module.exports = includes;
 
-},{"../internal/baseIndexOf":52,"../internal/isLength":96,"../lang/isArray":111,"../lang/isString":121,"../object/values":135}],15:[function(require,module,exports){
+},{"../internal/baseIndexOf":53,"../internal/isLength":97,"../lang/isArray":112,"../lang/isString":122,"../object/values":136}],15:[function(require,module,exports){
 var baseInvoke = require('../internal/baseInvoke'),
     baseSlice = require('../internal/baseSlice');
 
@@ -839,7 +814,7 @@ function invoke(collection, methodName) {
 
 module.exports = invoke;
 
-},{"../internal/baseInvoke":53,"../internal/baseSlice":66}],16:[function(require,module,exports){
+},{"../internal/baseInvoke":54,"../internal/baseSlice":67}],16:[function(require,module,exports){
 var arrayMap = require('../internal/arrayMap'),
     baseCallback = require('../internal/baseCallback'),
     baseMap = require('../internal/baseMap'),
@@ -909,7 +884,7 @@ function map(collection, iteratee, thisArg) {
 
 module.exports = map;
 
-},{"../internal/arrayMap":34,"../internal/baseCallback":39,"../internal/baseMap":58,"../lang/isArray":111}],17:[function(require,module,exports){
+},{"../internal/arrayMap":35,"../internal/baseCallback":40,"../internal/baseMap":59,"../lang/isArray":112}],17:[function(require,module,exports){
 var baseProperty = require('../internal/baseProperty'),
     map = require('./map');
 
@@ -942,7 +917,7 @@ function pluck(collection, key) {
 
 module.exports = pluck;
 
-},{"../internal/baseProperty":63,"./map":16}],18:[function(require,module,exports){
+},{"../internal/baseProperty":64,"./map":16}],18:[function(require,module,exports){
 var arrayReduce = require('../internal/arrayReduce'),
     baseCallback = require('../internal/baseCallback'),
     baseEach = require('../internal/baseEach'),
@@ -992,7 +967,7 @@ function reduce(collection, iteratee, accumulator, thisArg) {
 
 module.exports = reduce;
 
-},{"../internal/arrayReduce":35,"../internal/baseCallback":39,"../internal/baseEach":44,"../internal/baseReduce":64,"../lang/isArray":111}],19:[function(require,module,exports){
+},{"../internal/arrayReduce":36,"../internal/baseCallback":40,"../internal/baseEach":45,"../internal/baseReduce":65,"../lang/isArray":112}],19:[function(require,module,exports){
 var arrayFilter = require('../internal/arrayFilter'),
     baseCallback = require('../internal/baseCallback'),
     baseFilter = require('../internal/baseFilter'),
@@ -1055,7 +1030,7 @@ function reject(collection, predicate, thisArg) {
 
 module.exports = reject;
 
-},{"../internal/arrayFilter":33,"../internal/baseCallback":39,"../internal/baseFilter":46,"../lang/isArray":111}],20:[function(require,module,exports){
+},{"../internal/arrayFilter":34,"../internal/baseCallback":40,"../internal/baseFilter":47,"../lang/isArray":112}],20:[function(require,module,exports){
 var arraySome = require('../internal/arraySome'),
     baseCallback = require('../internal/baseCallback'),
     baseSome = require('../internal/baseSome'),
@@ -1120,7 +1095,7 @@ function some(collection, predicate, thisArg) {
 
 module.exports = some;
 
-},{"../internal/arraySome":36,"../internal/baseCallback":39,"../internal/baseSome":67,"../lang/isArray":111}],21:[function(require,module,exports){
+},{"../internal/arraySome":37,"../internal/baseCallback":40,"../internal/baseSome":68,"../lang/isArray":112}],21:[function(require,module,exports){
 var baseMatches = require('../internal/baseMatches'),
     filter = require('./filter');
 
@@ -1159,7 +1134,7 @@ function where(collection, source) {
 
 module.exports = where;
 
-},{"../internal/baseMatches":59,"./filter":10}],22:[function(require,module,exports){
+},{"../internal/baseMatches":60,"./filter":10}],22:[function(require,module,exports){
 var isNative = require('../lang/isNative');
 
 /* Native method references for those with the same name as other `lodash` methods. */
@@ -1185,7 +1160,7 @@ var now = nativeNow || function() {
 
 module.exports = now;
 
-},{"../lang/isNative":115}],23:[function(require,module,exports){
+},{"../lang/isNative":116}],23:[function(require,module,exports){
 (function (global){
 /** Used as the `TypeError` message for "Functions" methods. */
 var FUNC_ERROR_TEXT = 'Expected a function';
@@ -1340,7 +1315,7 @@ bind.placeholder = {};
 
 module.exports = bind;
 
-},{"../internal/baseSlice":66,"../internal/createWrapper":84,"../internal/replaceHolders":104}],26:[function(require,module,exports){
+},{"../internal/baseSlice":67,"../internal/createWrapper":85,"../internal/replaceHolders":105}],26:[function(require,module,exports){
 var isObject = require('../lang/isObject'),
     now = require('../date/now');
 
@@ -1528,7 +1503,7 @@ function debounce(func, wait, options) {
 
 module.exports = debounce;
 
-},{"../date/now":22,"../lang/isObject":118}],27:[function(require,module,exports){
+},{"../date/now":22,"../lang/isObject":119}],27:[function(require,module,exports){
 var before = require('./before');
 
 /**
@@ -1555,6 +1530,58 @@ function once(func) {
 module.exports = once;
 
 },{"./before":24}],28:[function(require,module,exports){
+var baseSlice = require('../internal/baseSlice'),
+    createWrapper = require('../internal/createWrapper'),
+    replaceHolders = require('../internal/replaceHolders');
+
+/** Used to compose bitmasks for wrapper metadata. */
+var PARTIAL_FLAG = 32;
+
+/**
+ * Creates a function that invokes `func` with `partial` arguments prepended
+ * to those provided to the new function. This method is like `_.bind` except
+ * it does **not** alter the `this` binding.
+ *
+ * The `_.partial.placeholder` value, which defaults to `_` in monolithic
+ * builds, may be used as a placeholder for partially applied arguments.
+ *
+ * **Note:** This method does not set the `length` property of partially
+ * applied functions.
+ *
+ * @static
+ * @memberOf _
+ * @category Function
+ * @param {Function} func The function to partially apply arguments to.
+ * @param {...*} [args] The arguments to be partially applied.
+ * @returns {Function} Returns the new partially applied function.
+ * @example
+ *
+ * var greet = function(greeting, name) {
+ *   return greeting + ' ' + name;
+ * };
+ *
+ * var sayHelloTo = _.partial(greet, 'hello');
+ * sayHelloTo('fred');
+ * // => 'hello fred'
+ *
+ * // using placeholders
+ * var greetFred = _.partial(greet, _, 'fred');
+ * greetFred('hi');
+ * // => 'hi fred'
+ */
+function partial(func) {
+  var partials = baseSlice(arguments, 1),
+      holders = replaceHolders(partials, partial.placeholder);
+
+  return createWrapper(func, PARTIAL_FLAG, null, partials, holders);
+}
+
+// Assign default placeholders.
+partial.placeholder = {};
+
+module.exports = partial;
+
+},{"../internal/baseSlice":67,"../internal/createWrapper":85,"../internal/replaceHolders":105}],29:[function(require,module,exports){
 var debounce = require('./debounce'),
     isObject = require('../lang/isObject');
 
@@ -1628,7 +1655,7 @@ function throttle(func, wait, options) {
 
 module.exports = throttle;
 
-},{"../lang/isObject":118,"./debounce":26}],29:[function(require,module,exports){
+},{"../lang/isObject":119,"./debounce":26}],30:[function(require,module,exports){
 (function (global){
 var cachePush = require('./cachePush'),
     isNative = require('../lang/isNative');
@@ -1661,7 +1688,7 @@ SetCache.prototype.push = cachePush;
 module.exports = SetCache;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../lang/isNative":115,"./cachePush":75}],30:[function(require,module,exports){
+},{"../lang/isNative":116,"./cachePush":76}],31:[function(require,module,exports){
 /**
  * Copies the values of `source` to `array`.
  *
@@ -1683,7 +1710,7 @@ function arrayCopy(source, array) {
 
 module.exports = arrayCopy;
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 /**
  * A specialized version of `_.forEach` for arrays without support for callback
  * shorthands or `this` binding.
@@ -1707,7 +1734,7 @@ function arrayEach(array, iteratee) {
 
 module.exports = arrayEach;
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 /**
  * A specialized version of `_.every` for arrays without support for callback
  * shorthands or `this` binding.
@@ -1732,7 +1759,7 @@ function arrayEvery(array, predicate) {
 
 module.exports = arrayEvery;
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 /**
  * A specialized version of `_.filter` for arrays without support for callback
  * shorthands or `this` binding.
@@ -1759,7 +1786,7 @@ function arrayFilter(array, predicate) {
 
 module.exports = arrayFilter;
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 /**
  * A specialized version of `_.map` for arrays without support for callback
  * shorthands or `this` binding.
@@ -1782,7 +1809,7 @@ function arrayMap(array, iteratee) {
 
 module.exports = arrayMap;
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 /**
  * A specialized version of `_.reduce` for arrays without support for callback
  * shorthands or `this` binding.
@@ -1810,7 +1837,7 @@ function arrayReduce(array, iteratee, accumulator, initFromArray) {
 
 module.exports = arrayReduce;
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 /**
  * A specialized version of `_.some` for arrays without support for callback
  * shorthands or `this` binding.
@@ -1835,7 +1862,7 @@ function arraySome(array, predicate) {
 
 module.exports = arraySome;
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 /**
  * Used by `_.defaults` to customize its `_.assign` use.
  *
@@ -1850,7 +1877,7 @@ function assignDefaults(objectValue, sourceValue) {
 
 module.exports = assignDefaults;
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 var baseCopy = require('./baseCopy'),
     keys = require('../object/keys');
 
@@ -1887,7 +1914,7 @@ function baseAssign(object, source, customizer) {
 
 module.exports = baseAssign;
 
-},{"../object/keys":129,"./baseCopy":41}],39:[function(require,module,exports){
+},{"../object/keys":130,"./baseCopy":42}],40:[function(require,module,exports){
 var baseMatches = require('./baseMatches'),
     baseMatchesProperty = require('./baseMatchesProperty'),
     baseProperty = require('./baseProperty'),
@@ -1925,7 +1952,7 @@ function baseCallback(func, thisArg, argCount) {
 
 module.exports = baseCallback;
 
-},{"../utility/identity":139,"./baseMatches":59,"./baseMatchesProperty":60,"./baseProperty":63,"./bindCallback":72,"./isBindable":93}],40:[function(require,module,exports){
+},{"../utility/identity":140,"./baseMatches":60,"./baseMatchesProperty":61,"./baseProperty":64,"./bindCallback":73,"./isBindable":94}],41:[function(require,module,exports){
 var arrayCopy = require('./arrayCopy'),
     arrayEach = require('./arrayEach'),
     baseCopy = require('./baseCopy'),
@@ -2057,7 +2084,7 @@ function baseClone(value, isDeep, customizer, key, object, stackA, stackB) {
 
 module.exports = baseClone;
 
-},{"../lang/isArray":111,"../lang/isObject":118,"../object/keys":129,"./arrayCopy":30,"./arrayEach":31,"./baseCopy":41,"./baseForOwn":51,"./initCloneArray":90,"./initCloneByTag":91,"./initCloneObject":92}],41:[function(require,module,exports){
+},{"../lang/isArray":112,"../lang/isObject":119,"../object/keys":130,"./arrayCopy":31,"./arrayEach":32,"./baseCopy":42,"./baseForOwn":52,"./initCloneArray":91,"./initCloneByTag":92,"./initCloneObject":93}],42:[function(require,module,exports){
 /**
  * Copies the properties of `source` to `object`.
  *
@@ -2084,7 +2111,7 @@ function baseCopy(source, object, props) {
 
 module.exports = baseCopy;
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 (function (global){
 var isObject = require('../lang/isObject');
 
@@ -2111,7 +2138,7 @@ var baseCreate = (function() {
 module.exports = baseCreate;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../lang/isObject":118}],43:[function(require,module,exports){
+},{"../lang/isObject":119}],44:[function(require,module,exports){
 var baseIndexOf = require('./baseIndexOf'),
     cacheIndexOf = require('./cacheIndexOf'),
     createCache = require('./createCache');
@@ -2165,7 +2192,7 @@ function baseDifference(array, values) {
 
 module.exports = baseDifference;
 
-},{"./baseIndexOf":52,"./cacheIndexOf":74,"./createCache":80}],44:[function(require,module,exports){
+},{"./baseIndexOf":53,"./cacheIndexOf":75,"./createCache":81}],45:[function(require,module,exports){
 var baseForOwn = require('./baseForOwn'),
     isLength = require('./isLength'),
     toObject = require('./toObject');
@@ -2197,7 +2224,7 @@ function baseEach(collection, iteratee) {
 
 module.exports = baseEach;
 
-},{"./baseForOwn":51,"./isLength":96,"./toObject":108}],45:[function(require,module,exports){
+},{"./baseForOwn":52,"./isLength":97,"./toObject":109}],46:[function(require,module,exports){
 var baseEach = require('./baseEach');
 
 /**
@@ -2221,7 +2248,7 @@ function baseEvery(collection, predicate) {
 
 module.exports = baseEvery;
 
-},{"./baseEach":44}],46:[function(require,module,exports){
+},{"./baseEach":45}],47:[function(require,module,exports){
 var baseEach = require('./baseEach');
 
 /**
@@ -2245,7 +2272,7 @@ function baseFilter(collection, predicate) {
 
 module.exports = baseFilter;
 
-},{"./baseEach":44}],47:[function(require,module,exports){
+},{"./baseEach":45}],48:[function(require,module,exports){
 /**
  * The base implementation of `_.find`, `_.findLast`, `_.findKey`, and `_.findLastKey`,
  * without support for callback shorthands and `this` binding, which iterates
@@ -2272,7 +2299,7 @@ function baseFind(collection, predicate, eachFunc, retKey) {
 
 module.exports = baseFind;
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 var isArguments = require('../lang/isArguments'),
     isArray = require('../lang/isArray'),
     isLength = require('./isLength'),
@@ -2319,7 +2346,7 @@ function baseFlatten(array, isDeep, isStrict, fromIndex) {
 
 module.exports = baseFlatten;
 
-},{"../lang/isArguments":110,"../lang/isArray":111,"./isLength":96,"./isObjectLike":97}],49:[function(require,module,exports){
+},{"../lang/isArguments":111,"../lang/isArray":112,"./isLength":97,"./isObjectLike":98}],50:[function(require,module,exports){
 var toObject = require('./toObject');
 
 /**
@@ -2351,7 +2378,7 @@ function baseFor(object, iteratee, keysFunc) {
 
 module.exports = baseFor;
 
-},{"./toObject":108}],50:[function(require,module,exports){
+},{"./toObject":109}],51:[function(require,module,exports){
 var baseFor = require('./baseFor'),
     keysIn = require('../object/keysIn');
 
@@ -2370,7 +2397,7 @@ function baseForIn(object, iteratee) {
 
 module.exports = baseForIn;
 
-},{"../object/keysIn":130,"./baseFor":49}],51:[function(require,module,exports){
+},{"../object/keysIn":131,"./baseFor":50}],52:[function(require,module,exports){
 var baseFor = require('./baseFor'),
     keys = require('../object/keys');
 
@@ -2389,7 +2416,7 @@ function baseForOwn(object, iteratee) {
 
 module.exports = baseForOwn;
 
-},{"../object/keys":129,"./baseFor":49}],52:[function(require,module,exports){
+},{"../object/keys":130,"./baseFor":50}],53:[function(require,module,exports){
 var indexOfNaN = require('./indexOfNaN');
 
 /**
@@ -2418,7 +2445,7 @@ function baseIndexOf(array, value, fromIndex) {
 
 module.exports = baseIndexOf;
 
-},{"./indexOfNaN":89}],53:[function(require,module,exports){
+},{"./indexOfNaN":90}],54:[function(require,module,exports){
 var baseEach = require('./baseEach'),
     isLength = require('./isLength');
 
@@ -2448,7 +2475,7 @@ function baseInvoke(collection, methodName, args) {
 
 module.exports = baseInvoke;
 
-},{"./baseEach":44,"./isLength":96}],54:[function(require,module,exports){
+},{"./baseEach":45,"./isLength":97}],55:[function(require,module,exports){
 var baseIsEqualDeep = require('./baseIsEqualDeep');
 
 /**
@@ -2484,7 +2511,7 @@ function baseIsEqual(value, other, customizer, isWhere, stackA, stackB) {
 
 module.exports = baseIsEqual;
 
-},{"./baseIsEqualDeep":55}],55:[function(require,module,exports){
+},{"./baseIsEqualDeep":56}],56:[function(require,module,exports){
 var equalArrays = require('./equalArrays'),
     equalByTag = require('./equalByTag'),
     equalObjects = require('./equalObjects'),
@@ -2587,7 +2614,7 @@ function baseIsEqualDeep(object, other, equalFunc, customizer, isWhere, stackA, 
 
 module.exports = baseIsEqualDeep;
 
-},{"../lang/isArray":111,"../lang/isTypedArray":122,"./equalArrays":85,"./equalByTag":86,"./equalObjects":87}],56:[function(require,module,exports){
+},{"../lang/isArray":112,"../lang/isTypedArray":123,"./equalArrays":86,"./equalByTag":87,"./equalObjects":88}],57:[function(require,module,exports){
 /**
  * The base implementation of `_.isFunction` without support for environments
  * with incorrect `typeof` results.
@@ -2604,7 +2631,7 @@ function baseIsFunction(value) {
 
 module.exports = baseIsFunction;
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 var baseIsEqual = require('./baseIsEqual');
 
 /** Used for native method references. */
@@ -2664,7 +2691,7 @@ function baseIsMatch(object, props, values, strictCompareFlags, customizer) {
 
 module.exports = baseIsMatch;
 
-},{"./baseIsEqual":54}],58:[function(require,module,exports){
+},{"./baseIsEqual":55}],59:[function(require,module,exports){
 var baseEach = require('./baseEach');
 
 /**
@@ -2686,7 +2713,7 @@ function baseMap(collection, iteratee) {
 
 module.exports = baseMap;
 
-},{"./baseEach":44}],59:[function(require,module,exports){
+},{"./baseEach":45}],60:[function(require,module,exports){
 var baseIsMatch = require('./baseIsMatch'),
     isStrictComparable = require('./isStrictComparable'),
     keys = require('../object/keys');
@@ -2733,7 +2760,7 @@ function baseMatches(source) {
 
 module.exports = baseMatches;
 
-},{"../object/keys":129,"./baseIsMatch":57,"./isStrictComparable":98}],60:[function(require,module,exports){
+},{"../object/keys":130,"./baseIsMatch":58,"./isStrictComparable":99}],61:[function(require,module,exports){
 var baseIsEqual = require('./baseIsEqual'),
     isStrictComparable = require('./isStrictComparable');
 
@@ -2759,7 +2786,7 @@ function baseMatchesProperty(key, value) {
 
 module.exports = baseMatchesProperty;
 
-},{"./baseIsEqual":54,"./isStrictComparable":98}],61:[function(require,module,exports){
+},{"./baseIsEqual":55,"./isStrictComparable":99}],62:[function(require,module,exports){
 var arrayEach = require('./arrayEach'),
     baseForOwn = require('./baseForOwn'),
     baseMergeDeep = require('./baseMergeDeep'),
@@ -2809,7 +2836,7 @@ function baseMerge(object, source, customizer, stackA, stackB) {
 
 module.exports = baseMerge;
 
-},{"../lang/isArray":111,"../lang/isObject":118,"../lang/isTypedArray":122,"./arrayEach":31,"./baseForOwn":51,"./baseMergeDeep":62,"./isLength":96,"./isObjectLike":97}],62:[function(require,module,exports){
+},{"../lang/isArray":112,"../lang/isObject":119,"../lang/isTypedArray":123,"./arrayEach":32,"./baseForOwn":52,"./baseMergeDeep":63,"./isLength":97,"./isObjectLike":98}],63:[function(require,module,exports){
 var arrayCopy = require('./arrayCopy'),
     isArguments = require('../lang/isArguments'),
     isArray = require('../lang/isArray'),
@@ -2878,7 +2905,7 @@ function baseMergeDeep(object, source, key, mergeFunc, customizer, stackA, stack
 
 module.exports = baseMergeDeep;
 
-},{"../lang/isArguments":110,"../lang/isArray":111,"../lang/isPlainObject":119,"../lang/isTypedArray":122,"../lang/toPlainObject":124,"./arrayCopy":30,"./isLength":96}],63:[function(require,module,exports){
+},{"../lang/isArguments":111,"../lang/isArray":112,"../lang/isPlainObject":120,"../lang/isTypedArray":123,"../lang/toPlainObject":125,"./arrayCopy":31,"./isLength":97}],64:[function(require,module,exports){
 /**
  * The base implementation of `_.property` which does not coerce `key` to a string.
  *
@@ -2894,7 +2921,7 @@ function baseProperty(key) {
 
 module.exports = baseProperty;
 
-},{}],64:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 /**
  * The base implementation of `_.reduce` and `_.reduceRight` without support
  * for callback shorthands or `this` binding, which iterates over `collection`
@@ -2920,7 +2947,7 @@ function baseReduce(collection, iteratee, accumulator, initFromCollection, eachF
 
 module.exports = baseReduce;
 
-},{}],65:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 var identity = require('../utility/identity'),
     metaMap = require('./metaMap');
 
@@ -2939,7 +2966,7 @@ var baseSetData = !metaMap ? identity : function(func, data) {
 
 module.exports = baseSetData;
 
-},{"../utility/identity":139,"./metaMap":100}],66:[function(require,module,exports){
+},{"../utility/identity":140,"./metaMap":101}],67:[function(require,module,exports){
 /**
  * The base implementation of `_.slice` without an iteratee call guard.
  *
@@ -2973,7 +3000,7 @@ function baseSlice(array, start, end) {
 
 module.exports = baseSlice;
 
-},{}],67:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 var baseEach = require('./baseEach');
 
 /**
@@ -2998,7 +3025,7 @@ function baseSome(collection, predicate) {
 
 module.exports = baseSome;
 
-},{"./baseEach":44}],68:[function(require,module,exports){
+},{"./baseEach":45}],69:[function(require,module,exports){
 /**
  * Converts `value` to a string if it is not one. An empty string is returned
  * for `null` or `undefined` values.
@@ -3016,7 +3043,7 @@ function baseToString(value) {
 
 module.exports = baseToString;
 
-},{}],69:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 /**
  * The base implementation of `_.values` and `_.valuesIn` which creates an
  * array of `object` property values corresponding to the property names
@@ -3040,7 +3067,7 @@ function baseValues(object, props) {
 
 module.exports = baseValues;
 
-},{}],70:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 var binaryIndexBy = require('./binaryIndexBy'),
     identity = require('../utility/identity');
 
@@ -3082,7 +3109,7 @@ function binaryIndex(array, value, retHighest) {
 
 module.exports = binaryIndex;
 
-},{"../utility/identity":139,"./binaryIndexBy":71}],71:[function(require,module,exports){
+},{"../utility/identity":140,"./binaryIndexBy":72}],72:[function(require,module,exports){
 /** Native method references. */
 var floor = Math.floor;
 
@@ -3138,7 +3165,7 @@ function binaryIndexBy(array, value, iteratee, retHighest) {
 
 module.exports = binaryIndexBy;
 
-},{}],72:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 var identity = require('../utility/identity');
 
 /**
@@ -3179,7 +3206,7 @@ function bindCallback(func, thisArg, argCount) {
 
 module.exports = bindCallback;
 
-},{"../utility/identity":139}],73:[function(require,module,exports){
+},{"../utility/identity":140}],74:[function(require,module,exports){
 (function (global){
 var constant = require('../utility/constant'),
     isNative = require('../lang/isNative');
@@ -3238,7 +3265,7 @@ if (!bufferSlice) {
 module.exports = bufferClone;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../lang/isNative":115,"../utility/constant":138}],74:[function(require,module,exports){
+},{"../lang/isNative":116,"../utility/constant":139}],75:[function(require,module,exports){
 var isObject = require('../lang/isObject');
 
 /**
@@ -3259,7 +3286,7 @@ function cacheIndexOf(cache, value) {
 
 module.exports = cacheIndexOf;
 
-},{"../lang/isObject":118}],75:[function(require,module,exports){
+},{"../lang/isObject":119}],76:[function(require,module,exports){
 var isObject = require('../lang/isObject');
 
 /**
@@ -3281,7 +3308,7 @@ function cachePush(value) {
 
 module.exports = cachePush;
 
-},{"../lang/isObject":118}],76:[function(require,module,exports){
+},{"../lang/isObject":119}],77:[function(require,module,exports){
 /* Native method references for those with the same name as other `lodash` methods. */
 var nativeMax = Math.max;
 
@@ -3317,7 +3344,7 @@ function composeArgs(args, partials, holders) {
 
 module.exports = composeArgs;
 
-},{}],77:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 /* Native method references for those with the same name as other `lodash` methods. */
 var nativeMax = Math.max;
 
@@ -3355,7 +3382,7 @@ function composeArgsRight(args, partials, holders) {
 
 module.exports = composeArgsRight;
 
-},{}],78:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 var bindCallback = require('./bindCallback'),
     isIterateeCall = require('./isIterateeCall');
 
@@ -3397,7 +3424,7 @@ function createAssigner(assigner) {
 
 module.exports = createAssigner;
 
-},{"./bindCallback":72,"./isIterateeCall":95}],79:[function(require,module,exports){
+},{"./bindCallback":73,"./isIterateeCall":96}],80:[function(require,module,exports){
 var createCtorWrapper = require('./createCtorWrapper');
 
 /**
@@ -3420,7 +3447,7 @@ function createBindWrapper(func, thisArg) {
 
 module.exports = createBindWrapper;
 
-},{"./createCtorWrapper":81}],80:[function(require,module,exports){
+},{"./createCtorWrapper":82}],81:[function(require,module,exports){
 (function (global){
 var SetCache = require('./SetCache'),
     constant = require('../utility/constant'),
@@ -3446,7 +3473,7 @@ var createCache = !(nativeCreate && Set) ? constant(null) : function(values) {
 module.exports = createCache;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../lang/isNative":115,"../utility/constant":138,"./SetCache":29}],81:[function(require,module,exports){
+},{"../lang/isNative":116,"../utility/constant":139,"./SetCache":30}],82:[function(require,module,exports){
 var baseCreate = require('./baseCreate'),
     isObject = require('../lang/isObject');
 
@@ -3471,7 +3498,7 @@ function createCtorWrapper(Ctor) {
 
 module.exports = createCtorWrapper;
 
-},{"../lang/isObject":118,"./baseCreate":42}],82:[function(require,module,exports){
+},{"../lang/isObject":119,"./baseCreate":43}],83:[function(require,module,exports){
 var arrayCopy = require('./arrayCopy'),
     composeArgs = require('./composeArgs'),
     composeArgsRight = require('./composeArgsRight'),
@@ -3577,7 +3604,7 @@ function createHybridWrapper(func, bitmask, thisArg, partials, holders, partials
 
 module.exports = createHybridWrapper;
 
-},{"./arrayCopy":30,"./composeArgs":76,"./composeArgsRight":77,"./createCtorWrapper":81,"./reorder":103,"./replaceHolders":104}],83:[function(require,module,exports){
+},{"./arrayCopy":31,"./composeArgs":77,"./composeArgsRight":78,"./createCtorWrapper":82,"./reorder":104,"./replaceHolders":105}],84:[function(require,module,exports){
 var createCtorWrapper = require('./createCtorWrapper');
 
 /** Used to compose bitmasks for wrapper metadata. */
@@ -3621,7 +3648,7 @@ function createPartialWrapper(func, bitmask, thisArg, partials) {
 
 module.exports = createPartialWrapper;
 
-},{"./createCtorWrapper":81}],84:[function(require,module,exports){
+},{"./createCtorWrapper":82}],85:[function(require,module,exports){
 var baseSetData = require('./baseSetData'),
     createBindWrapper = require('./createBindWrapper'),
     createHybridWrapper = require('./createHybridWrapper'),
@@ -3709,7 +3736,7 @@ function createWrapper(func, bitmask, thisArg, partials, holders, argPos, ary, a
 
 module.exports = createWrapper;
 
-},{"./baseSetData":65,"./createBindWrapper":79,"./createHybridWrapper":82,"./createPartialWrapper":83,"./getData":88,"./mergeData":99,"./setData":105}],85:[function(require,module,exports){
+},{"./baseSetData":66,"./createBindWrapper":80,"./createHybridWrapper":83,"./createPartialWrapper":84,"./getData":89,"./mergeData":100,"./setData":106}],86:[function(require,module,exports){
 /**
  * A specialized version of `baseIsEqualDeep` for arrays with support for
  * partial deep comparisons.
@@ -3765,7 +3792,7 @@ function equalArrays(array, other, equalFunc, customizer, isWhere, stackA, stack
 
 module.exports = equalArrays;
 
-},{}],86:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 /** `Object#toString` result references. */
 var boolTag = '[object Boolean]',
     dateTag = '[object Date]',
@@ -3816,7 +3843,7 @@ function equalByTag(object, other, tag) {
 
 module.exports = equalByTag;
 
-},{}],87:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 var keys = require('../object/keys');
 
 /** Used for native method references. */
@@ -3890,7 +3917,7 @@ function equalObjects(object, other, equalFunc, customizer, isWhere, stackA, sta
 
 module.exports = equalObjects;
 
-},{"../object/keys":129}],88:[function(require,module,exports){
+},{"../object/keys":130}],89:[function(require,module,exports){
 var metaMap = require('./metaMap'),
     noop = require('../utility/noop');
 
@@ -3907,7 +3934,7 @@ var getData = !metaMap ? noop : function(func) {
 
 module.exports = getData;
 
-},{"../utility/noop":140,"./metaMap":100}],89:[function(require,module,exports){
+},{"../utility/noop":141,"./metaMap":101}],90:[function(require,module,exports){
 /**
  * Gets the index at which the first occurrence of `NaN` is found in `array`.
  * If `fromRight` is provided elements of `array` are iterated from right to left.
@@ -3933,7 +3960,7 @@ function indexOfNaN(array, fromIndex, fromRight) {
 
 module.exports = indexOfNaN;
 
-},{}],90:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 /** Used for native method references. */
 var objectProto = Object.prototype;
 
@@ -3961,7 +3988,7 @@ function initCloneArray(array) {
 
 module.exports = initCloneArray;
 
-},{}],91:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 var bufferClone = require('./bufferClone');
 
 /** `Object#toString` result references. */
@@ -4027,7 +4054,7 @@ function initCloneByTag(object, tag, isDeep) {
 
 module.exports = initCloneByTag;
 
-},{"./bufferClone":73}],92:[function(require,module,exports){
+},{"./bufferClone":74}],93:[function(require,module,exports){
 /**
  * Initializes an object clone.
  *
@@ -4045,7 +4072,7 @@ function initCloneObject(object) {
 
 module.exports = initCloneObject;
 
-},{}],93:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 var baseSetData = require('./baseSetData'),
     isNative = require('../lang/isNative'),
     support = require('../support');
@@ -4085,7 +4112,7 @@ function isBindable(func) {
 
 module.exports = isBindable;
 
-},{"../lang/isNative":115,"../support":137,"./baseSetData":65}],94:[function(require,module,exports){
+},{"../lang/isNative":116,"../support":138,"./baseSetData":66}],95:[function(require,module,exports){
 /**
  * Used as the maximum length of an array-like value.
  * See the [ES spec](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
@@ -4109,7 +4136,7 @@ function isIndex(value, length) {
 
 module.exports = isIndex;
 
-},{}],95:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 var isIndex = require('./isIndex'),
     isLength = require('./isLength'),
     isObject = require('../lang/isObject');
@@ -4143,7 +4170,7 @@ function isIterateeCall(value, index, object) {
 
 module.exports = isIterateeCall;
 
-},{"../lang/isObject":118,"./isIndex":94,"./isLength":96}],96:[function(require,module,exports){
+},{"../lang/isObject":119,"./isIndex":95,"./isLength":97}],97:[function(require,module,exports){
 /**
  * Used as the maximum length of an array-like value.
  * See the [ES spec](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
@@ -4168,7 +4195,7 @@ function isLength(value) {
 
 module.exports = isLength;
 
-},{}],97:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 /**
  * Checks if `value` is object-like.
  *
@@ -4182,7 +4209,7 @@ function isObjectLike(value) {
 
 module.exports = isObjectLike;
 
-},{}],98:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 var isObject = require('../lang/isObject');
 
 /**
@@ -4199,7 +4226,7 @@ function isStrictComparable(value) {
 
 module.exports = isStrictComparable;
 
-},{"../lang/isObject":118}],99:[function(require,module,exports){
+},{"../lang/isObject":119}],100:[function(require,module,exports){
 var arrayCopy = require('./arrayCopy'),
     composeArgs = require('./composeArgs'),
     composeArgsRight = require('./composeArgsRight'),
@@ -4300,7 +4327,7 @@ function mergeData(data, source) {
 
 module.exports = mergeData;
 
-},{"./arrayCopy":30,"./composeArgs":76,"./composeArgsRight":77,"./replaceHolders":104}],100:[function(require,module,exports){
+},{"./arrayCopy":31,"./composeArgs":77,"./composeArgsRight":78,"./replaceHolders":105}],101:[function(require,module,exports){
 (function (global){
 var isNative = require('../lang/isNative');
 
@@ -4313,7 +4340,7 @@ var metaMap = WeakMap && new WeakMap;
 module.exports = metaMap;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../lang/isNative":115}],101:[function(require,module,exports){
+},{"../lang/isNative":116}],102:[function(require,module,exports){
 var toObject = require('./toObject');
 
 /**
@@ -4343,7 +4370,7 @@ function pickByArray(object, props) {
 
 module.exports = pickByArray;
 
-},{"./toObject":108}],102:[function(require,module,exports){
+},{"./toObject":109}],103:[function(require,module,exports){
 var baseForIn = require('./baseForIn');
 
 /**
@@ -4367,7 +4394,7 @@ function pickByCallback(object, predicate) {
 
 module.exports = pickByCallback;
 
-},{"./baseForIn":50}],103:[function(require,module,exports){
+},{"./baseForIn":51}],104:[function(require,module,exports){
 var arrayCopy = require('./arrayCopy'),
     isIndex = require('./isIndex');
 
@@ -4398,7 +4425,7 @@ function reorder(array, indexes) {
 
 module.exports = reorder;
 
-},{"./arrayCopy":30,"./isIndex":94}],104:[function(require,module,exports){
+},{"./arrayCopy":31,"./isIndex":95}],105:[function(require,module,exports){
 /** Used as the internal argument placeholder. */
 var PLACEHOLDER = '__lodash_placeholder__';
 
@@ -4428,7 +4455,7 @@ function replaceHolders(array, placeholder) {
 
 module.exports = replaceHolders;
 
-},{}],105:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 var baseSetData = require('./baseSetData'),
     now = require('../date/now');
 
@@ -4471,7 +4498,7 @@ var setData = (function() {
 
 module.exports = setData;
 
-},{"../date/now":22,"./baseSetData":65}],106:[function(require,module,exports){
+},{"../date/now":22,"./baseSetData":66}],107:[function(require,module,exports){
 var baseForIn = require('./baseForIn'),
     isObjectLike = require('./isObjectLike');
 
@@ -4524,7 +4551,7 @@ function shimIsPlainObject(value) {
 
 module.exports = shimIsPlainObject;
 
-},{"./baseForIn":50,"./isObjectLike":97}],107:[function(require,module,exports){
+},{"./baseForIn":51,"./isObjectLike":98}],108:[function(require,module,exports){
 var isArguments = require('../lang/isArguments'),
     isArray = require('../lang/isArray'),
     isIndex = require('./isIndex'),
@@ -4568,7 +4595,7 @@ function shimKeys(object) {
 
 module.exports = shimKeys;
 
-},{"../lang/isArguments":110,"../lang/isArray":111,"../object/keysIn":130,"../support":137,"./isIndex":94,"./isLength":96}],108:[function(require,module,exports){
+},{"../lang/isArguments":111,"../lang/isArray":112,"../object/keysIn":131,"../support":138,"./isIndex":95,"./isLength":97}],109:[function(require,module,exports){
 var isObject = require('../lang/isObject');
 
 /**
@@ -4584,7 +4611,7 @@ function toObject(value) {
 
 module.exports = toObject;
 
-},{"../lang/isObject":118}],109:[function(require,module,exports){
+},{"../lang/isObject":119}],110:[function(require,module,exports){
 var baseClone = require('../internal/baseClone'),
     bindCallback = require('../internal/bindCallback'),
     isIterateeCall = require('../internal/isIterateeCall');
@@ -4655,7 +4682,7 @@ function clone(value, isDeep, customizer, thisArg) {
 
 module.exports = clone;
 
-},{"../internal/baseClone":40,"../internal/bindCallback":72,"../internal/isIterateeCall":95}],110:[function(require,module,exports){
+},{"../internal/baseClone":41,"../internal/bindCallback":73,"../internal/isIterateeCall":96}],111:[function(require,module,exports){
 var isLength = require('../internal/isLength'),
     isObjectLike = require('../internal/isObjectLike');
 
@@ -4695,7 +4722,7 @@ function isArguments(value) {
 
 module.exports = isArguments;
 
-},{"../internal/isLength":96,"../internal/isObjectLike":97}],111:[function(require,module,exports){
+},{"../internal/isLength":97,"../internal/isObjectLike":98}],112:[function(require,module,exports){
 var isLength = require('../internal/isLength'),
     isNative = require('./isNative'),
     isObjectLike = require('../internal/isObjectLike');
@@ -4738,7 +4765,7 @@ var isArray = nativeIsArray || function(value) {
 
 module.exports = isArray;
 
-},{"../internal/isLength":96,"../internal/isObjectLike":97,"./isNative":115}],112:[function(require,module,exports){
+},{"../internal/isLength":97,"../internal/isObjectLike":98,"./isNative":116}],113:[function(require,module,exports){
 var isObjectLike = require('../internal/isObjectLike');
 
 /** `Object#toString` result references. */
@@ -4776,7 +4803,7 @@ function isBoolean(value) {
 
 module.exports = isBoolean;
 
-},{"../internal/isObjectLike":97}],113:[function(require,module,exports){
+},{"../internal/isObjectLike":98}],114:[function(require,module,exports){
 var baseIsEqual = require('../internal/baseIsEqual'),
     bindCallback = require('../internal/bindCallback'),
     isStrictComparable = require('../internal/isStrictComparable');
@@ -4835,7 +4862,7 @@ function isEqual(value, other, customizer, thisArg) {
 
 module.exports = isEqual;
 
-},{"../internal/baseIsEqual":54,"../internal/bindCallback":72,"../internal/isStrictComparable":98}],114:[function(require,module,exports){
+},{"../internal/baseIsEqual":55,"../internal/bindCallback":73,"../internal/isStrictComparable":99}],115:[function(require,module,exports){
 (function (global){
 var baseIsFunction = require('../internal/baseIsFunction'),
     isNative = require('./isNative');
@@ -4882,7 +4909,7 @@ var isFunction = !(baseIsFunction(/x/) || (Uint8Array && !baseIsFunction(Uint8Ar
 module.exports = isFunction;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../internal/baseIsFunction":56,"./isNative":115}],115:[function(require,module,exports){
+},{"../internal/baseIsFunction":57,"./isNative":116}],116:[function(require,module,exports){
 var escapeRegExp = require('../string/escapeRegExp'),
     isObjectLike = require('../internal/isObjectLike');
 
@@ -4939,7 +4966,7 @@ function isNative(value) {
 
 module.exports = isNative;
 
-},{"../internal/isObjectLike":97,"../string/escapeRegExp":136}],116:[function(require,module,exports){
+},{"../internal/isObjectLike":98,"../string/escapeRegExp":137}],117:[function(require,module,exports){
 /**
  * Checks if `value` is `null`.
  *
@@ -4962,7 +4989,7 @@ function isNull(value) {
 
 module.exports = isNull;
 
-},{}],117:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 var isObjectLike = require('../internal/isObjectLike');
 
 /** `Object#toString` result references. */
@@ -5006,7 +5033,7 @@ function isNumber(value) {
 
 module.exports = isNumber;
 
-},{"../internal/isObjectLike":97}],118:[function(require,module,exports){
+},{"../internal/isObjectLike":98}],119:[function(require,module,exports){
 /**
  * Checks if `value` is the language type of `Object`.
  * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
@@ -5038,7 +5065,7 @@ function isObject(value) {
 
 module.exports = isObject;
 
-},{}],119:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 var isNative = require('./isNative'),
     shimIsPlainObject = require('../internal/shimIsPlainObject');
 
@@ -5102,7 +5129,7 @@ var isPlainObject = !getPrototypeOf ? shimIsPlainObject : function(value) {
 
 module.exports = isPlainObject;
 
-},{"../internal/shimIsPlainObject":106,"./isNative":115}],120:[function(require,module,exports){
+},{"../internal/shimIsPlainObject":107,"./isNative":116}],121:[function(require,module,exports){
 var isObjectLike = require('../internal/isObjectLike');
 
 /** `Object#toString` result references. */
@@ -5140,7 +5167,7 @@ function isRegExp(value) {
 
 module.exports = isRegExp;
 
-},{"../internal/isObjectLike":97}],121:[function(require,module,exports){
+},{"../internal/isObjectLike":98}],122:[function(require,module,exports){
 var isObjectLike = require('../internal/isObjectLike');
 
 /** `Object#toString` result references. */
@@ -5178,7 +5205,7 @@ function isString(value) {
 
 module.exports = isString;
 
-},{"../internal/isObjectLike":97}],122:[function(require,module,exports){
+},{"../internal/isObjectLike":98}],123:[function(require,module,exports){
 var isLength = require('../internal/isLength'),
     isObjectLike = require('../internal/isObjectLike');
 
@@ -5255,7 +5282,7 @@ function isTypedArray(value) {
 
 module.exports = isTypedArray;
 
-},{"../internal/isLength":96,"../internal/isObjectLike":97}],123:[function(require,module,exports){
+},{"../internal/isLength":97,"../internal/isObjectLike":98}],124:[function(require,module,exports){
 /**
  * Checks if `value` is `undefined`.
  *
@@ -5278,7 +5305,7 @@ function isUndefined(value) {
 
 module.exports = isUndefined;
 
-},{}],124:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 var baseCopy = require('../internal/baseCopy'),
     keysIn = require('../object/keysIn');
 
@@ -5311,7 +5338,7 @@ function toPlainObject(value) {
 
 module.exports = toPlainObject;
 
-},{"../internal/baseCopy":41,"../object/keysIn":130}],125:[function(require,module,exports){
+},{"../internal/baseCopy":42,"../object/keysIn":131}],126:[function(require,module,exports){
 var baseAssign = require('../internal/baseAssign'),
     createAssigner = require('../internal/createAssigner');
 
@@ -5348,7 +5375,7 @@ var assign = createAssigner(baseAssign);
 
 module.exports = assign;
 
-},{"../internal/baseAssign":38,"../internal/createAssigner":78}],126:[function(require,module,exports){
+},{"../internal/baseAssign":39,"../internal/createAssigner":79}],127:[function(require,module,exports){
 var arrayCopy = require('../internal/arrayCopy'),
     assign = require('./assign'),
     assignDefaults = require('../internal/assignDefaults');
@@ -5380,10 +5407,10 @@ function defaults(object) {
 
 module.exports = defaults;
 
-},{"../internal/arrayCopy":30,"../internal/assignDefaults":37,"./assign":125}],127:[function(require,module,exports){
+},{"../internal/arrayCopy":31,"../internal/assignDefaults":38,"./assign":126}],128:[function(require,module,exports){
 module.exports = require('./assign');
 
-},{"./assign":125}],128:[function(require,module,exports){
+},{"./assign":126}],129:[function(require,module,exports){
 /** Used for native method references. */
 var objectProto = Object.prototype;
 
@@ -5413,7 +5440,7 @@ function has(object, key) {
 
 module.exports = has;
 
-},{}],129:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 var isLength = require('../internal/isLength'),
     isNative = require('../lang/isNative'),
     isObject = require('../lang/isObject'),
@@ -5463,7 +5490,7 @@ var keys = !nativeKeys ? shimKeys : function(object) {
 
 module.exports = keys;
 
-},{"../internal/isLength":96,"../internal/shimKeys":107,"../lang/isNative":115,"../lang/isObject":118}],130:[function(require,module,exports){
+},{"../internal/isLength":97,"../internal/shimKeys":108,"../lang/isNative":116,"../lang/isObject":119}],131:[function(require,module,exports){
 var isArguments = require('../lang/isArguments'),
     isArray = require('../lang/isArray'),
     isIndex = require('../internal/isIndex'),
@@ -5530,7 +5557,7 @@ function keysIn(object) {
 
 module.exports = keysIn;
 
-},{"../internal/isIndex":94,"../internal/isLength":96,"../lang/isArguments":110,"../lang/isArray":111,"../lang/isObject":118,"../support":137}],131:[function(require,module,exports){
+},{"../internal/isIndex":95,"../internal/isLength":97,"../lang/isArguments":111,"../lang/isArray":112,"../lang/isObject":119,"../support":138}],132:[function(require,module,exports){
 var baseMerge = require('../internal/baseMerge'),
     createAssigner = require('../internal/createAssigner');
 
@@ -5586,7 +5613,7 @@ var merge = createAssigner(baseMerge);
 
 module.exports = merge;
 
-},{"../internal/baseMerge":61,"../internal/createAssigner":78}],132:[function(require,module,exports){
+},{"../internal/baseMerge":62,"../internal/createAssigner":79}],133:[function(require,module,exports){
 var arrayMap = require('../internal/arrayMap'),
     baseDifference = require('../internal/baseDifference'),
     baseFlatten = require('../internal/baseFlatten'),
@@ -5639,7 +5666,7 @@ function omit(object, predicate, thisArg) {
 
 module.exports = omit;
 
-},{"../internal/arrayMap":34,"../internal/baseDifference":43,"../internal/baseFlatten":48,"../internal/bindCallback":72,"../internal/pickByArray":101,"../internal/pickByCallback":102,"./keysIn":130}],133:[function(require,module,exports){
+},{"../internal/arrayMap":35,"../internal/baseDifference":44,"../internal/baseFlatten":49,"../internal/bindCallback":73,"../internal/pickByArray":102,"../internal/pickByCallback":103,"./keysIn":131}],134:[function(require,module,exports){
 var baseFlatten = require('../internal/baseFlatten'),
     bindCallback = require('../internal/bindCallback'),
     pickByArray = require('../internal/pickByArray'),
@@ -5682,7 +5709,7 @@ function pick(object, predicate, thisArg) {
 
 module.exports = pick;
 
-},{"../internal/baseFlatten":48,"../internal/bindCallback":72,"../internal/pickByArray":101,"../internal/pickByCallback":102}],134:[function(require,module,exports){
+},{"../internal/baseFlatten":49,"../internal/bindCallback":73,"../internal/pickByArray":102,"../internal/pickByCallback":103}],135:[function(require,module,exports){
 var isFunction = require('../lang/isFunction');
 
 /**
@@ -5725,7 +5752,7 @@ function result(object, key, defaultValue) {
 
 module.exports = result;
 
-},{"../lang/isFunction":114}],135:[function(require,module,exports){
+},{"../lang/isFunction":115}],136:[function(require,module,exports){
 var baseValues = require('../internal/baseValues'),
     keys = require('./keys');
 
@@ -5760,7 +5787,7 @@ function values(object) {
 
 module.exports = values;
 
-},{"../internal/baseValues":69,"./keys":129}],136:[function(require,module,exports){
+},{"../internal/baseValues":70,"./keys":130}],137:[function(require,module,exports){
 var baseToString = require('../internal/baseToString');
 
 /**
@@ -5794,7 +5821,7 @@ function escapeRegExp(string) {
 
 module.exports = escapeRegExp;
 
-},{"../internal/baseToString":68}],137:[function(require,module,exports){
+},{"../internal/baseToString":69}],138:[function(require,module,exports){
 (function (global){
 var isNative = require('./lang/isNative');
 
@@ -5873,7 +5900,7 @@ var support = {};
 module.exports = support;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./lang/isNative":115}],138:[function(require,module,exports){
+},{"./lang/isNative":116}],139:[function(require,module,exports){
 /**
  * Creates a function that returns `value`.
  *
@@ -5898,7 +5925,7 @@ function constant(value) {
 
 module.exports = constant;
 
-},{}],139:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 /**
  * This method returns the first argument provided to it.
  *
@@ -5920,7 +5947,7 @@ function identity(value) {
 
 module.exports = identity;
 
-},{}],140:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 /**
  * A no-operation function which returns `undefined` regardless of the
  * arguments it receives.
@@ -5941,7 +5968,7 @@ function noop() {
 
 module.exports = noop;
 
-},{}],141:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 var baseToString = require('../internal/baseToString');
 
 /** Used to generate unique IDs. */
@@ -5970,59 +5997,61 @@ function uniqueId(prefix) {
 
 module.exports = uniqueId;
 
-},{"../internal/baseToString":68}],142:[function(require,module,exports){
+},{"../internal/baseToString":69}],143:[function(require,module,exports){
 /**
  * This is for creating a custom build of lodash which only includes the dependencies that footwork needs
  */
 root._ = {
-  isFunction: require('../../node_modules/lodash/lang/isFunction'),
-  isObject: require('../../node_modules/lodash/lang/isObject'),
-  isString: require('../../node_modules/lodash/lang/isString'),
-  isBoolean: require('../../node_modules/lodash/lang/isBoolean'),
-  isNumber: require('../../node_modules/lodash/lang/isNumber'),
-  isUndefined: require('../../node_modules/lodash/lang/isUndefined'),
-  isArray: require('../../node_modules/lodash/lang/isArray'),
-  isNull: require('../../node_modules/lodash/lang/isNull'),
-  contains: require('../../node_modules/lodash/collection/contains'),
-  extend: require('../../node_modules/lodash/object/extend'),
-  pick: require('../../node_modules/lodash/object/pick'),
-  each: require('../../node_modules/lodash/collection/each'),
-  filter: require('../../node_modules/lodash/collection/filter'),
-  bind: require('../../node_modules/lodash/function/bind'),
-  invoke: require('../../node_modules/lodash/collection/invoke'),
-  clone: require('../../node_modules/lodash/lang/clone'),
-  reduce: require('../../node_modules/lodash/collection/reduce'),
-  has: require('../../node_modules/lodash/object/has'),
-  where: require('../../node_modules/lodash/collection/where'),
-  result: require('../../node_modules/lodash/object/result'),
-  uniqueId: require('../../node_modules/lodash/utility/uniqueId'),
-  map: require('../../node_modules/lodash/collection/map'),
-  find: require('../../node_modules/lodash/collection/find'),
-  omit: require('../../node_modules/lodash/object/omit'),
-  indexOf: require('../../node_modules/lodash/array/indexOf'),
-  first: require('../../node_modules/lodash/array/first'),
-  values: require('../../node_modules/lodash/object/values'),
-  reject: require('../../node_modules/lodash/collection/reject'),
-  findWhere: require('../../node_modules/lodash/collection/findWhere'),
-  once: require('../../node_modules/lodash/function/once'),
-  last: require('../../node_modules/lodash/array/last'),
-  isEqual: require('../../node_modules/lodash/lang/isEqual'),
-  defaults: require('../../node_modules/lodash/object/defaults'),
-  noop: require('../../node_modules/lodash/utility/noop'),
-  keys: require('../../node_modules/lodash/object/keys'),
-  merge: require('../../node_modules/lodash/object/merge'),
-  pluck: require('../../node_modules/lodash/collection/pluck'),
-  after: require('../../node_modules/lodash/function/after'),
-  any: require('../../node_modules/lodash/collection/any'),
-  debounce: require('../../node_modules/lodash/function/debounce'),
-  throttle: require('../../node_modules/lodash/function/throttle'),
-  intersection: require('../../node_modules/lodash/array/intersection'),
-  every: require('../../node_modules/lodash/collection/every'),
-  isRegExp: require('../../node_modules/lodash/lang/isRegExp'),
-  identity: require('../../node_modules/lodash/utility/identity')
+  isFunction: require('../../../node_modules/lodash/lang/isFunction'),
+  isObject: require('../../../node_modules/lodash/lang/isObject'),
+  isString: require('../../../node_modules/lodash/lang/isString'),
+  isBoolean: require('../../../node_modules/lodash/lang/isBoolean'),
+  isNumber: require('../../../node_modules/lodash/lang/isNumber'),
+  isUndefined: require('../../../node_modules/lodash/lang/isUndefined'),
+  isArray: require('../../../node_modules/lodash/lang/isArray'),
+  isNull: require('../../../node_modules/lodash/lang/isNull'),
+  contains: require('../../../node_modules/lodash/collection/contains'),
+  extend: require('../../../node_modules/lodash/object/extend'),
+  pick: require('../../../node_modules/lodash/object/pick'),
+  each: require('../../../node_modules/lodash/collection/each'),
+  filter: require('../../../node_modules/lodash/collection/filter'),
+  bind: require('../../../node_modules/lodash/function/bind'),
+  invoke: require('../../../node_modules/lodash/collection/invoke'),
+  clone: require('../../../node_modules/lodash/lang/clone'),
+  reduce: require('../../../node_modules/lodash/collection/reduce'),
+  has: require('../../../node_modules/lodash/object/has'),
+  where: require('../../../node_modules/lodash/collection/where'),
+  result: require('../../../node_modules/lodash/object/result'),
+  uniqueId: require('../../../node_modules/lodash/utility/uniqueId'),
+  map: require('../../../node_modules/lodash/collection/map'),
+  find: require('../../../node_modules/lodash/collection/find'),
+  omit: require('../../../node_modules/lodash/object/omit'),
+  indexOf: require('../../../node_modules/lodash/array/indexOf'),
+  first: require('../../../node_modules/lodash/array/first'),
+  values: require('../../../node_modules/lodash/object/values'),
+  reject: require('../../../node_modules/lodash/collection/reject'),
+  findWhere: require('../../../node_modules/lodash/collection/findWhere'),
+  once: require('../../../node_modules/lodash/function/once'),
+  last: require('../../../node_modules/lodash/array/last'),
+  isEqual: require('../../../node_modules/lodash/lang/isEqual'),
+  defaults: require('../../../node_modules/lodash/object/defaults'),
+  noop: require('../../../node_modules/lodash/utility/noop'),
+  keys: require('../../../node_modules/lodash/object/keys'),
+  merge: require('../../../node_modules/lodash/object/merge'),
+  pluck: require('../../../node_modules/lodash/collection/pluck'),
+  after: require('../../../node_modules/lodash/function/after'),
+  any: require('../../../node_modules/lodash/collection/any'),
+  debounce: require('../../../node_modules/lodash/function/debounce'),
+  throttle: require('../../../node_modules/lodash/function/throttle'),
+  intersection: require('../../../node_modules/lodash/array/intersection'),
+  every: require('../../../node_modules/lodash/collection/every'),
+  isRegExp: require('../../../node_modules/lodash/lang/isRegExp'),
+  identity: require('../../../node_modules/lodash/utility/identity'),
+  includes: require('../../../node_modules/lodash/collection/includes'),
+  partial: require('../../../node_modules/lodash/function/partial')
 };
 
-},{"../../node_modules/lodash/array/first":2,"../../node_modules/lodash/array/indexOf":3,"../../node_modules/lodash/array/intersection":4,"../../node_modules/lodash/array/last":5,"../../node_modules/lodash/collection/any":6,"../../node_modules/lodash/collection/contains":7,"../../node_modules/lodash/collection/each":8,"../../node_modules/lodash/collection/every":9,"../../node_modules/lodash/collection/filter":10,"../../node_modules/lodash/collection/find":11,"../../node_modules/lodash/collection/findWhere":12,"../../node_modules/lodash/collection/invoke":15,"../../node_modules/lodash/collection/map":16,"../../node_modules/lodash/collection/pluck":17,"../../node_modules/lodash/collection/reduce":18,"../../node_modules/lodash/collection/reject":19,"../../node_modules/lodash/collection/where":21,"../../node_modules/lodash/function/after":23,"../../node_modules/lodash/function/bind":25,"../../node_modules/lodash/function/debounce":26,"../../node_modules/lodash/function/once":27,"../../node_modules/lodash/function/throttle":28,"../../node_modules/lodash/lang/clone":109,"../../node_modules/lodash/lang/isArray":111,"../../node_modules/lodash/lang/isBoolean":112,"../../node_modules/lodash/lang/isEqual":113,"../../node_modules/lodash/lang/isFunction":114,"../../node_modules/lodash/lang/isNull":116,"../../node_modules/lodash/lang/isNumber":117,"../../node_modules/lodash/lang/isObject":118,"../../node_modules/lodash/lang/isRegExp":120,"../../node_modules/lodash/lang/isString":121,"../../node_modules/lodash/lang/isUndefined":123,"../../node_modules/lodash/object/defaults":126,"../../node_modules/lodash/object/extend":127,"../../node_modules/lodash/object/has":128,"../../node_modules/lodash/object/keys":129,"../../node_modules/lodash/object/merge":131,"../../node_modules/lodash/object/omit":132,"../../node_modules/lodash/object/pick":133,"../../node_modules/lodash/object/result":134,"../../node_modules/lodash/object/values":135,"../../node_modules/lodash/utility/identity":139,"../../node_modules/lodash/utility/noop":140,"../../node_modules/lodash/utility/uniqueId":141}]},{},[142]);
+},{"../../../node_modules/lodash/array/first":2,"../../../node_modules/lodash/array/indexOf":3,"../../../node_modules/lodash/array/intersection":4,"../../../node_modules/lodash/array/last":5,"../../../node_modules/lodash/collection/any":6,"../../../node_modules/lodash/collection/contains":7,"../../../node_modules/lodash/collection/each":8,"../../../node_modules/lodash/collection/every":9,"../../../node_modules/lodash/collection/filter":10,"../../../node_modules/lodash/collection/find":11,"../../../node_modules/lodash/collection/findWhere":12,"../../../node_modules/lodash/collection/includes":14,"../../../node_modules/lodash/collection/invoke":15,"../../../node_modules/lodash/collection/map":16,"../../../node_modules/lodash/collection/pluck":17,"../../../node_modules/lodash/collection/reduce":18,"../../../node_modules/lodash/collection/reject":19,"../../../node_modules/lodash/collection/where":21,"../../../node_modules/lodash/function/after":23,"../../../node_modules/lodash/function/bind":25,"../../../node_modules/lodash/function/debounce":26,"../../../node_modules/lodash/function/once":27,"../../../node_modules/lodash/function/partial":28,"../../../node_modules/lodash/function/throttle":29,"../../../node_modules/lodash/lang/clone":110,"../../../node_modules/lodash/lang/isArray":112,"../../../node_modules/lodash/lang/isBoolean":113,"../../../node_modules/lodash/lang/isEqual":114,"../../../node_modules/lodash/lang/isFunction":115,"../../../node_modules/lodash/lang/isNull":117,"../../../node_modules/lodash/lang/isNumber":118,"../../../node_modules/lodash/lang/isObject":119,"../../../node_modules/lodash/lang/isRegExp":121,"../../../node_modules/lodash/lang/isString":122,"../../../node_modules/lodash/lang/isUndefined":124,"../../../node_modules/lodash/object/defaults":127,"../../../node_modules/lodash/object/extend":128,"../../../node_modules/lodash/object/has":129,"../../../node_modules/lodash/object/keys":130,"../../../node_modules/lodash/object/merge":132,"../../../node_modules/lodash/object/omit":133,"../../../node_modules/lodash/object/pick":134,"../../../node_modules/lodash/object/result":135,"../../../node_modules/lodash/object/values":136,"../../../node_modules/lodash/utility/identity":140,"../../../node_modules/lodash/utility/noop":141,"../../../node_modules/lodash/utility/uniqueId":142}]},{},[143]);
 
 
     (function() {
@@ -6769,6 +6798,146 @@ root._ = {
     };
     return riveter;
 }));
+    }).call(root);
+
+    (function() {
+      /**
+ * conduitjs - Give any method a pre/post invocation pipeline....
+ * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
+ * Version: v0.3.3
+ * Url: http://github.com/ifandelse/ConduitJS
+ * License: MIT
+ */
+(function (root, factory) {
+    if (typeof module === "object" && module.exports) {
+        // Node, or CommonJS-Like environments
+        module.exports = factory();
+    } else if (typeof define === "function" && define.amd) {
+        // AMD. Register as an anonymous module.
+        define([], factory(root));
+    } else {
+        // Browser globals
+        root.Conduit = factory(root);
+    }
+}(this, function (global, undefined) {
+    function Conduit(options) {
+        if (typeof options.target !== "function") {
+            throw new Error("You can only make functions into Conduits.");
+        }
+        var _steps = {
+            pre: options.pre || [],
+            post: options.post || [],
+            all: []
+        };
+        var _defaultContext = options.context;
+        var _target = options.target;
+        var _targetStep = {
+            isTarget: true,
+            fn: options.sync ?
+            function () {
+                var args = Array.prototype.slice.call(arguments, 0);
+                var result = _target.apply(_defaultContext, args);
+                return result;
+            } : function (next) {
+                var args = Array.prototype.slice.call(arguments, 1);
+                args.splice(1, 1, _target.apply(_defaultContext, args));
+                next.apply(this, args);
+            }
+        };
+        var _genPipeline = function () {
+            _steps.all = _steps.pre.concat([_targetStep].concat(_steps.post));
+        };
+        _genPipeline();
+        var conduit = function () {
+            var idx = 0;
+            var retval;
+            var phase;
+            var next = function next() {
+                var args = Array.prototype.slice.call(arguments, 0);
+                var thisIdx = idx;
+                var step;
+                var nextArgs;
+                idx += 1;
+                if (thisIdx < _steps.all.length) {
+                    step = _steps.all[thisIdx];
+                    phase = (phase === "target") ? "after" : (step.isTarget) ? "target" : "before";
+                    if (options.sync) {
+                        if (phase === "before") {
+                            nextArgs = step.fn.apply(step.context || _defaultContext, args);
+                            next.apply(this, nextArgs || args);
+                        } else {
+                            retval = step.fn.apply(step.context || _defaultContext, args) || retval;
+                            next.apply(this, [retval].concat(args));
+                        }
+                    } else {
+                        step.fn.apply(step.context || _defaultContext, [next].concat(args));
+                    }
+                }
+            };
+            next.apply(this, arguments);
+            return retval;
+        };
+        conduit.steps = function () {
+            return _steps.all;
+        };
+        conduit.context = function (ctx) {
+            if (arguments.length === 0) {
+                return _defaultContext;
+            } else {
+                _defaultContext = ctx;
+            }
+        };
+        conduit.before = function (step, options) {
+            step = typeof step === "function" ? {
+                fn: step
+            } : step;
+            options = options || {};
+            if (options.prepend) {
+                _steps.pre.unshift(step);
+            } else {
+                _steps.pre.push(step);
+            }
+            _genPipeline();
+        };
+        conduit.after = function (step, options) {
+            step = typeof step === "function" ? {
+                fn: step
+            } : step;
+            options = options || {};
+            if (options.prepend) {
+                _steps.post.unshift(step);
+            } else {
+                _steps.post.push(step);
+            }
+            _genPipeline();
+        };
+        conduit.clear = function () {
+            _steps = {
+                pre: [],
+                post: [],
+                all: []
+            };
+            _genPipeline();
+        };
+        conduit.target = function (fn) {
+            if (fn) {
+                _target = fn;
+            }
+            return _target;
+        };
+        return conduit;
+    };
+    return {
+        Sync: function (options) {
+            options.sync = true;
+            return Conduit.call(this, options)
+        },
+        Async: function (options) {
+            return Conduit.call(this, options);
+        }
+    }
+}));
+
     }).call(root);
 
     (function() {
@@ -10800,43 +10969,12 @@ if (typeof JSON !== 'object') {
       }).call(root);
     }
 
-    (function(window) {
-      // Console-polyfill. MIT license.
-// https://github.com/paulmillr/console-polyfill
-// Make it safe to do console.log() always.
-(function(global) {
-  'use strict';
-  global.console = global.console || {};
-  var con = global.console;
-  var prop, method;
-  var empty = {};
-  var dummy = function() {};
-  var properties = 'memory'.split(',');
-  var methods = ('assert,clear,count,debug,dir,dirxml,error,exception,group,' +
-     'groupCollapsed,groupEnd,info,log,markTimeline,profile,profiles,profileEnd,' +
-     'show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn').split(',');
-  while (prop = properties.pop()) if (!con[prop]) con[prop] = empty;
-  while (method = methods.pop()) if (!con[method]) con[method] = dummy;
-})(typeof window === 'undefined' ? this : window);
-// Using `this` for web workers while maintaining compatibility with browser
-// targeted script loaders such as Browserify or Webpack where the only way to
-// get to the global object is via `window`.
-
-    }).call(root, windowObject);
-
     // list of dependencies to export from the library as .embed properties
-    var embeddedDependencies = [ '_', 'ko', 'riveter', 'postal', 'reqwest' ];
+    var embeddedDependencies = [ '_', 'ko', 'riveter', 'postal', 'reqwest', 'Conduit' ];
 
-    return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest) {
+    return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest, Conduit) {
       var ajax = reqwest.compat;
-      // main.js
-// -----------
-
-var fw = ko;
-
-// misc/lodashExtract.js
-// ----------------
-
+      var fw = ko;
 var isFunction = _.isFunction;
 var isObject = _.isObject;
 var isString = _.isString;
@@ -10877,6 +11015,9 @@ var intersection = _.intersection;
 var every = _.every;
 var isRegExp = _.isRegExp;
 var identity = _.identity;
+var includes = _.includes;
+var partial = _.partial;
+
 
 // framework/init.js
 // ------------------
@@ -10897,17 +11038,36 @@ var runPostInit = [];
 var internalComponents = [];
 var entityDescriptors = [];
 var entityMixins = [];
-var footwork = {};
 
-var entityClassName = 'fw-entity';
-var bindingClassName = 'fw-entity-bound';
-var animationIteration = 40;
+var entityClass = 'fw-entity';
+var entityAnimateClass = 'fw-entity-animate';
+var minimumAnimationDelay = 20;
+var defaultAnimationSequenceInterval = 20;
 var isEntityCtor;
 var isEntity;
 var isDataModel;
 var isDataModelCtor;
 var isRouter;
 var activeOutlets = fw.observableArray();
+var DefaultViewModel;
+
+runPostInit.unshift(function() {
+  DefaultViewModel = fw.viewModel.create({
+    namespace: '_DefaultNamespace',
+    autoIncrement: true,
+    initialize: function(params) {
+      if(isObject(params) && isObject(params.$viewModel)) {
+        extend(this, params.$viewModel);
+      }
+    },
+    sequenceAnimations: function() {
+      if(isUndefined(fw.settings.sequenceAnimations) || isNull(fw.settings.sequenceAnimations)) {
+        return defaultAnimationSequenceInterval;
+      }
+      return fw.settings.sequenceAnimations;
+    }
+  });
+});
 
 // framework/utility.js
 // ----------------
@@ -10923,6 +11083,14 @@ var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
 var isFullURL = fw.utils.isFullURL = function(thing) {
   return isString(thing) && isFullURLRegex.test(thing);
 };
+
+function isPromise(thing) {
+  return isObject(thing) && isFunction(thing.then);
+}
+
+function promiseIsResolvedOrRejected(promise) {
+  return isPromise(promise) && isFunction(promise.state) && includes(['resolved', 'rejected'], promise.state());
+}
 
 function isInternalComponent(componentName) {
   return indexOf(internalComponents, componentName) !== -1;
@@ -11054,6 +11222,29 @@ function resultBound(object, path, context, params) {
   return object[path];
 }
 
+function nearestEntity($context, predicate) {
+  var foundEntity = null;
+
+  predicate = predicate || isEntity;
+  var predicates = [].concat(predicate);
+  function isTheThing(thing) {
+    return reduce(predicates, function(isThing, predicate) {
+      return isThing || predicate(thing);
+    }, false);
+  }
+
+  if(isObject($context)) {
+    if(isTheThing($context.$data)) {
+      // found $data that matches the predicate(s) in this context
+      foundEntity = $context.$data;
+    } else if(isObject($context.$parentContext) || (isObject($context.$data) && isObject($context.$data.$parentContext))) {
+      // search through next parent up the chain
+      foundEntity = nearestEntity($context.$parentContext || $context.$data.$parentContext, predicate);
+    }
+  }
+  return foundEntity;
+}
+
 function forceViewModelComponentConvention(componentLocation) {
   if(isObject(componentLocation) && isUndefined(componentLocation.viewModel) && isUndefined(componentLocation.combined)) {
     return {
@@ -11075,13 +11266,8 @@ function getFilenameExtension(fileName) {
 function alwaysPassPredicate() { return true; }
 function emptyStringResult() { return ''; }
 
-/**
- * Dispose of a known property type
- * @param  {object} property Variable/property to dispose of (if needed)
- * @return {undefined}
- */
-function propertyDisposal(property) {
-  if((isObservable(property) || isNamespace(property) || isEntity(property) || isCollection(property) || fw.isBroadcastable(property) || fw.isReceivable(property)) && isFunction(property.dispose)) {
+function propertyDispose(property) {
+  if(isObject(property) && isFunction(property.dispose)) {
     property.dispose();
   }
 }
@@ -11321,8 +11507,29 @@ function getNamespaceName() {
   return this.channel;
 }
 
-// framework/namespace/exports.js
+// framework/namespace/entityMixins.js
 // ----------------
+
+// mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
+entityMixins.push({
+  runBeforeInit: true,
+  _preInit: function( options ) {
+    var $configParams = this.__private('configParams');
+    var mainNamespace = $configParams.namespace || $configParams.name || uniqueId('namespace');
+    this.$namespace = enterNamespaceName( indexedNamespaceName(mainNamespace, $configParams.autoIncrement) );
+    this.$rootNamespace = fw.namespace(mainNamespace);
+    this.$globalNamespace = fw.namespace();
+  },
+  mixin: {
+    getNamespaceName: function() {
+      return this.$namespace.getName();
+    }
+  },
+  _postInit: function( options ) {
+    exitNamespace();
+  }
+});
+
 
 // Return the current namespace name.
 fw.utils.currentNamespaceName = function() {
@@ -11395,29 +11602,6 @@ fw.namespace = function(namespaceName, $parentNamespace) {
 
   return namespace;
 };
-
-// framework/namespace/entityMixins.js
-// ----------------
-
-// mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
-entityMixins.push({
-  runBeforeInit: true,
-  _preInit: function( options ) {
-    var $configParams = this.__private('configParams');
-    var mainNamespace = $configParams.namespace || $configParams.name || uniqueId('namespace');
-    this.$namespace = enterNamespaceName( indexedNamespaceName(mainNamespace, $configParams.autoIncrement) );
-    this.$rootNamespace = fw.namespace(mainNamespace);
-    this.$globalNamespace = fw.namespace();
-  },
-  mixin: {
-    getNamespaceName: function() {
-      return this.$namespace.getName();
-    }
-  },
-  _postInit: function( options ) {
-    exitNamespace();
-  }
-});
 
 
 // framework/broadcastable-receivable/broacastable.js
@@ -11559,8 +11743,6 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   return receivable.refresh();
 };
 
-// framework/broadcastable-receivable/broacastable.js
-// ------------------
 
 fw.isBroadcastable = function(thing) {
   return isObject(thing) && !!thing.__isBroadcastable;
@@ -11569,7 +11751,6 @@ fw.isBroadcastable = function(thing) {
 fw.isReceivable = function(thing) {
   return isObject(thing) && !!thing.__isReceivable;
 };
-
 
 // framework/entities/viewModel/ViewModel.js
 // ------------------
@@ -11591,8 +11772,8 @@ var ViewModel = function(descriptor, configParams) {
           if( configParams.onDispose !== noop ) {
             configParams.onDispose.call(this, this.__private('element'));
           }
-          each(this, propertyDisposal);
-          each(this.__private('subscriptions') || [], propertyDisposal);
+          each(this, propertyDispose);
+          each(this.__private('subscriptions') || [], propertyDispose);
         }
         return this;
       }
@@ -11700,6 +11881,7 @@ fw.sync = function(action, concern, params) {
     throw new Error('Must supply a dataModel or collection to fw.sync()');
   }
 
+  var configParams = concern.__private('configParams');
   var options = extend({
     type: methodMap[action],
     dataType: 'json',
@@ -11708,7 +11890,7 @@ fw.sync = function(action, concern, params) {
     headers: {},
     emulateHTTP: fw.settings.emulateHTTP,
     emulateJSON: fw.settings.emulateJSON
-  }, params);
+  }, resultBound(configParams, 'ajaxOptions', concern, [params]) || {}, params);
 
   if(!isString(options.type)) {
     throw new Error('Invalid action (' + action + ') specified for sync operation');
@@ -11716,7 +11898,6 @@ fw.sync = function(action, concern, params) {
 
   var url = options.url;
   if(isNull(url)) {
-    var configParams = concern.__private('configParams');
     url = configParams.url;
     if(isFunction(url)) {
       url = url.call(concern, action);
@@ -12184,21 +12365,15 @@ function isRoute(thing) {
   return isObject(thing) && !!thing.__isRoute;
 }
 
-// Recursive function which will locate the nearest $router from a given ko $context
+function isOutletViewModel(thing) {
+  return isObject(thing) && thing.__isOutlet;
+}
+
+// Locate the nearest $router from a given ko $context
 // (travels up through $parentContext chain to find the router if not found on the
 // immediate $context). Returns $nullRouter if none is found.
 function nearestParentRouter($context) {
-  var $parentRouter = $nullRouter;
-  if( isObject($context) ) {
-    if( isRouter($context.$data) ) {
-      // found router in this context
-      $parentRouter = $context.$data;
-    } else if( isObject($context.$parentContext) || (isObject($context.$data) && isObject($context.$data.$parentContext)) ) {
-      // search through next parent up the chain
-      $parentRouter = nearestParentRouter( $context.$parentContext || $context.$data.$parentContext );
-    }
-  }
-  return $parentRouter;
+  return nearestEntity($context, isRouter) || $nullRouter;
 }
 
 // framework/entities/router/outlet.js
@@ -12208,22 +12383,39 @@ var noParentViewModelError = { $namespace: { getName: function() { return 'NO-VI
 
 // This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied
 // to the UI and load in various views
-fw.virtualElements.allowedBindings.$bind = true;
-fw.bindingHandlers.$bind = {
+fw.virtualElements.allowedBindings.$outletBinder = true;
+fw.bindingHandlers.$outletBinder = {
   init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
-    var $parentViewModel = ( isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
+    var $parentViewModel = (isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
     var $parentRouter = nearestParentRouter(bindingContext);
     var outletName = outletViewModel.outletName;
 
     if(isRouter($parentRouter)) {
-      // register this outlet with the router so that updates will propagate correctly
-      // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
-      outletViewModel.$route = $parentRouter.outlet(outletName);
+      // register the viewModel with the outlet for future use when its route is changed
+      $parentRouter.__private('registerViewModelForOutlet')(outletName, outletViewModel);
+      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
+        // tell the router to clean up its reference to the outletViewModel
+        $parentRouter.__private('unregisterViewModelForOutlet')(outletName);
+        outletViewModel.dispose();
+      });
+
+      // register this outlet with its $parentRouter
+      outletViewModel.route = $parentRouter.outlet(outletName);
     } else {
       throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.$namespace.getName() + '] but no router was defined.');
     }
   }
 };
+
+function registerViewModelForOutlet(outletName, outletViewModel) {
+  var outletProperties = this.outlets[outletName] || {};
+  outletProperties.outletViewModel = outletViewModel;
+}
+
+function unregisterViewModelForOutlet(outletName) {
+  var outletProperties = this.outlets[outletName] || {};
+  delete outletProperties.outletViewModel;
+}
 
 function routerOutlet(outletName, componentToDisplay, options) {
   options = options || {};
@@ -12231,24 +12423,36 @@ function routerOutlet(outletName, componentToDisplay, options) {
     options = { onComplete: options, onFailure: noop };
   }
 
-  var wasCompleted = false;
+  var router = this;
   var viewModelParameters = options.params;
   var onComplete = options.onComplete || noop;
   var onFailure = options.onFailure || noop;
-  var router = this;
+  var configParams = router.__private('configParams');
   var outlets = router.outlets;
+  var outletProperties = outlets[outletName] || {};
+  var outlet = outletProperties.routeObservable;
+  var outletViewModel = outletProperties.outletViewModel;
 
   outletName = fw.unwrap(outletName);
-  if(!isObservable(outlets[outletName])) {
-    outlets[outletName] = fw.observable({
+  if(!isObservable(outlet)) {
+    // router outlet observable not found, we must create a new one
+    outlet = fw.observable({
       name: noComponentSelected,
       params: {},
       __getOnCompleteCallback: function() { return noop; },
       __onFailure: onFailure.bind(router)
-    }).broadcastAs({ name: outletName, namespace: router.$namespace });
+    }).broadcastAs({
+      name: outletName,
+      namespace: router.$namespace
+    });
+
+    // register the new outlet under its outletName
+    outlets[outletName] = {
+      outletViewModel: outletProperties.outletViewModel || null,
+      routeObservable: outlet
+    };
   }
 
-  var outlet = outlets[outletName];
   var currentOutletDef = outlet();
   var valueHasMutated = false;
   var isInitialLoad = outlet().name === noComponentSelected;
@@ -12258,58 +12462,49 @@ function routerOutlet(outletName, componentToDisplay, options) {
   }
 
   if(!isUndefined(componentToDisplay)) {
-    if((currentOutletDef.loadingFor || currentOutletDef.name) !== componentToDisplay) {
+    if(currentOutletDef.name !== componentToDisplay) {
       currentOutletDef.name = componentToDisplay;
       valueHasMutated = true;
     }
 
-    if(!isUndefined(viewModelParameters)) {
+    if(isObject(viewModelParameters)) {
       currentOutletDef.params = viewModelParameters;
       valueHasMutated = true;
     }
   }
 
+  if(outletViewModel) {
+    // Show the loading component (if one is defined)
+    var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || outlet().name]);
+    if(showDuringLoadComponent) {
+      outletViewModel.loadingDisplay(showDuringLoadComponent);
+    }
+  }
+
   if(valueHasMutated) {
-    var configParams = router.__private('configParams');
-    var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay]);
-    var minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
-
-    var showDuringLoad = {
-      name: showDuringLoadComponent,
-      loadingFor: componentToDisplay,
-      __getOnCompleteCallback: function(element) {
-        element.setAttribute('rendered', '');
-
-        if(element.children.length) {
-          element.children[0].___isLoadingComponent = true;
-        }
-
-        removeClass(element, bindingClassName);
-        return function addBindingOnComplete() {
-          setTimeout(function() {
-            addClass(element, bindingClassName);
-          }, animationIteration);
-        };
-      }
-    };
+    if(outletViewModel) {
+      outletViewModel.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
+      outletViewModel.routeIsLoading(true);
+    }
 
     currentOutletDef.__getOnCompleteCallback = function(element) {
-      var isComplete = element.children.length && isUndefined(element.children[0].___isLoadingComponent);
+      var changeIsComplete = !!element.children.length;
+      var outletElement = element.parentNode;
 
-      if(!wasCompleted && isComplete) {
-        wasCompleted = true;
+      if(changeIsComplete) {
         activeOutlets.remove(outlet);
-        element.setAttribute('rendered', componentToDisplay);
+        outletElement.setAttribute('rendered', (componentToDisplay === nullComponent ? '' : componentToDisplay));
 
         return function addBindingOnComplete() {
-          setTimeout(function() {
-            addClass(element, bindingClassName);
-          }, animationIteration);
+          var outletViewModel = router.outlets[outletName].outletViewModel;
+          if(outletViewModel) {
+            outletViewModel.routeIsLoading(false);
+          }
 
-          onComplete.call(router, element);
+          onComplete.call(router, outletElement);
         };
       } else {
-        removeClass(element, bindingClassName);
+        removeClass(outletElement, entityAnimateClass);
         return noop;
       }
     };
@@ -12318,39 +12513,103 @@ function routerOutlet(outletName, componentToDisplay, options) {
       activeOutlets.push(outlet);
     }
 
-    if(showDuringLoad.name) {
-      clearTimeout(outlet.transitionTimeout);
-      outlet(showDuringLoad);
-
-      fw.components.get(currentOutletDef.name, function() {
-        // now that its cached and loaded, lets show the desired component
-        outlet.transitionTimeout = setTimeout(function() {
-          outlet(currentOutletDef);
-        }, minTransitionPeriod);
-      });
-    } else {
-      outlet.valueHasMutated();
-    }
+    outlet.valueHasMutated();
   }
 
   return outlet;
 };
 
+var outletLoadingDisplay = 'fw-loading-display';
+var outletLoadedDisplay = 'fw-loaded-display';
+var visibleCSS = { 'height': '', 'overflow': '' };
+var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
+var removeAnimation = {};
+removeAnimation[entityAnimateClass] = false;
+var addAnimation = {};
+addAnimation[entityAnimateClass] = true;
+
 function registerOutletComponent() {
   internalComponents.push('outlet');
   fw.components.register('outlet', {
     viewModel: function(params) {
+      var outlet = this;
+
       this.outletName = fw.unwrap(params.name);
       this.__isOutlet = true;
+
+      this.loadingDisplay = fw.observable(nullComponent);
+      this.inFlightChildren = fw.observableArray();
+      this.routeIsLoading = fw.observable(true);
+      this.isLoading = fw.computed(function() {
+        return this.inFlightChildren().length > 0 || this.routeIsLoading();
+      }, this);
+
+      this.loadingStyle = fw.observable();
+      this.loadedStyle = fw.observable();
+      this.loadingClass = fw.observable();
+      this.loadedClass = fw.observable();
+
+      function showLoader() {
+        outlet.loadingClass(removeAnimation);
+        outlet.loadedClass(removeAnimation);
+        outlet.loadedStyle(hiddenCSS);
+        outlet.loadingStyle(visibleCSS);
+        setTimeout(function() {
+          outlet.loadingClass(addAnimation);
+        }, 0);
+      }
+
+      function showLoadedAfterMinimumTransition() {
+        outlet.loadingClass(removeAnimation);
+        outlet.loadedClass(removeAnimation);
+        outlet.loadedStyle(visibleCSS);
+        outlet.loadingStyle(hiddenCSS);
+        setTimeout(function() {
+          outlet.loadedClass(addAnimation);
+        }, 0);
+      }
+
+      var transitionTriggerTimeout;
+      function showLoaded() {
+        clearTimeout(transitionTriggerTimeout);
+        if(outlet.minTransitionPeriod) {
+          transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, outlet.minTransitionPeriod);
+        } else {
+          showLoadedAfterMinimumTransition();
+        }
+      }
+
+      this.transitionTrigger = fw.computed(function() {
+        var isLoading = this.isLoading();
+        if(isLoading) {
+          showLoader();
+        } else {
+          showLoaded();
+        }
+      }, this);
+
+      this.dispose = function() {
+        each(outlet, function(outletProperty) {
+          if(outletProperty && isFunction(outletProperty.dispose)) {
+            outletProperty.dispose();
+          }
+        });
+      };
     },
-    template: '<!-- ko $bind, component: $route --><!-- /ko -->'
+    template: '<!-- ko $outletBinder -->' +
+                '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" data-bind="style: loadingStyle, css: loadingClass">' +
+                  '<!-- ko component: loadingDisplay --><!-- /ko -->' +
+                '</div>' +
+                '<div class="' + outletLoadedDisplay + ' ' + entityClass + '" data-bind="style: loadedStyle, css: loadedClass">' +
+                  '<!-- ko component: route --><!-- /ko -->' +
+                '</div>' +
+              '<!-- /ko -->'
   });
 
   internalComponents.push(noComponentSelected);
   fw.components.register(noComponentSelected, {
     template: '<div class="no-component-selected"></div>'
   });
-  internalComponents.push(nullComponent);
   fw.components.register(nullComponent, {
     template: '<div class="null-component"></div>'
   });
@@ -12489,19 +12748,19 @@ fw.bindingHandlers.$route = {
     };
 
     function setUpElement() {
-      if(!isNullRouter($myRouter)) {
+      if (!isNullRouter($myRouter)) {
         var myCurrentSegment = routeURLWithoutParentPath();
         var routerConfig = $myRouter.__private('configParams');
-        if( element.tagName.toLowerCase() === 'a' ) {
+        if (element.tagName.toLowerCase() === 'a') {
           element.href = (fw.router.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
         }
 
-        if( isObject(stateTracker) ) {
+        if (isObject(stateTracker) && isFunction(stateTracker.dispose)) {
           stateTracker.dispose();
         }
-        stateTracker = $myRouter.currentRoute.subscribe( checkForMatchingSegment.bind(null, myCurrentSegment) );
+        stateTracker = $myRouter.currentRoute.subscribe(checkForMatchingSegment.bind(null, myCurrentSegment));
 
-        if(elementIsSetup === false) {
+        if (elementIsSetup === false) {
           elementIsSetup = true;
           checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
 
@@ -12509,11 +12768,11 @@ fw.bindingHandlers.$route = {
           fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
             var currentRouteURL = routeURLWithoutParentPath();
             var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
-            if(handlerResult) {
-              if(isString(handlerResult)) {
+            if (handlerResult) {
+              if (isString(handlerResult)) {
                 currentRouteURL = handlerResult;
               }
-              if(isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
+              if (isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
                 $myRouter.setState( currentRouteURL );
               }
             }
@@ -12523,44 +12782,18 @@ fw.bindingHandlers.$route = {
       }
     }
 
-    if(isObservable(routeHandlerDescription.url)) {
+    if (isObservable(routeHandlerDescription.url)) {
       $myRouter.__private('subscriptions').push( routeHandlerDescription.url.subscribe(setUpElement) );
     }
     setUpElement();
 
     ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-      if(isObject(stateTracker)) {
+      if (isObject(stateTracker)) {
         stateTracker.dispose();
       }
     });
   }
 };
-
-// framework/entities/router/exports.js
-// -----------
-
-extend(fw.router, {
-  // baseRoute / path which will always be stripped from the URL prior to processing the route
-  baseRoute: fw.observable(''),
-  activeRouteClassName: fw.observable('active'),
-  disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: fw.namespace() }),
-  html5History: function() {
-    return footwork.hasHTML5History;
-  },
-  getNearestParent: function($context) {
-    var $parentRouter = nearestParentRouter($context);
-    return (!isNullRouter($parentRouter) ? $parentRouter : null);
-  }
-});
-
-extend(fw.outlet, {
-  registerView: function(viewName, templateHTML) {
-    fw.components.register(viewName, { template: templateHTML });
-  },
-  registerViewLocation: function(viewName, viewLocation) {
-    fw.components.registerLocation(viewName, { template: viewLocation });
-  }
-});
 
 // framework/entities/router/Router.js
 // ------------------
@@ -12571,8 +12804,10 @@ var Router = function(descriptor, configParams) {
       var $router = this;
       var routerConfigParams = extend({}, configParams);
 
-      var router = {};
+      var router = this.__private();
       this.__private = privateData.bind(this, router, routerConfigParams);
+      this.__private('registerViewModelForOutlet', registerViewModelForOutlet.bind(this));
+      this.__private('unregisterViewModelForOutlet', unregisterViewModelForOutlet.bind(this));
 
       routerConfigParams.baseRoute = fw.router.baseRoute() + (resultBound(routerConfigParams, 'baseRoute', router) || '');
 
@@ -12587,9 +12822,9 @@ var Router = function(descriptor, configParams) {
 
       function trimBaseRoute(url) {
         var routerConfig = $router.__private('configParams');
-        if( !isNull(routerConfig.baseRoute) && url.indexOf(routerConfig.baseRoute) === 0 ) {
+        if (!isNull(routerConfig.baseRoute) && url.indexOf(routerConfig.baseRoute) === 0) {
           url = url.substr(routerConfig.baseRoute.length);
-          if(url.length > 1) {
+          if (url.length > 1) {
             url = url.replace(hashMatchRegex, '/');
           }
         }
@@ -12600,10 +12835,10 @@ var Router = function(descriptor, configParams) {
         var urlParts = parseUri(url);
         router.urlParts(urlParts);
 
-        if(!fw.router.html5History()) {
-          if(url.indexOf('#') !== -1) {
+        if (!fw.router.html5History()) {
+          if (url.indexOf('#') !== -1) {
             url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
-          } else if(router.currentState() !== url) {
+          } else if (router.currentState() !== url) {
             url = '/';
           }
         } else {
@@ -12617,7 +12852,7 @@ var Router = function(descriptor, configParams) {
       function getUnknownRoute() {
         var unknownRoute = findWhere(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
 
-        if( !isNull(unknownRoute) ) {
+        if (!isNull(unknownRoute)) {
           unknownRoute = extend({}, baseRoute, {
             id: unknownRoute.id,
             controller: unknownRoute.controller,
@@ -12635,19 +12870,19 @@ var Router = function(descriptor, configParams) {
         var unknownRoute = getUnknownRoute();
 
         // If this is a relative router we need to remove the leading parentRoutePath section of the URL
-        if(router.isRelative() && parentRoutePath.length > 0 && (routeIndex = url.indexOf(parentRoutePath + '/')) === 0) {
-          url = url.substr( parentRoutePath.length );
+        if (router.isRelative() && parentRoutePath.length > 0 && (routeIndex = url.indexOf(parentRoutePath + '/')) === 0) {
+          url = url.substr(parentRoutePath.length);
         }
 
         // find all routes with a matching routeString
-        var matchedRoutes = reduce($router.routeDescriptions, function(matches, routeDescription) {
+        var matchedRoutes = reduce($router.routeDescriptions, function (matches, routeDescription) {
           var routeDescRoute = [].concat(routeDescription.route);
-          each(routeDescRoute, function(routeString) {
+          each(routeDescRoute, function (routeString) {
             var routeParams = [];
 
-            if( isString(routeString) ) {
+            if (isString(routeString)) {
               routeParams = url.match(routeStringToRegExp(routeString));
-              if( !isNull(routeParams) && routeDescription.filter.call($router, routeParams, router.urlParts.peek()) ) {
+              if (!isNull(routeParams) && routeDescription.filter.call($router, routeParams, router.urlParts.peek())) {
                 matches.push({
                   routeString: routeString,
                   specificity: routeString.replace(namedParamRegex, "*").length,
@@ -12662,9 +12897,9 @@ var Router = function(descriptor, configParams) {
 
         // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
         // and convert it into the actual route
-        if(matchedRoutes.length) {
+        if (matchedRoutes.length) {
           var matchedRoute = reduce(matchedRoutes, function(matchedRoute, foundRoute) {
-            if( isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity ) {
+            if (isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity) {
               matchedRoute = foundRoute;
             }
             return matchedRoute;
@@ -12702,11 +12937,11 @@ var Router = function(descriptor, configParams) {
       }
 
       function RoutedAction(routeDescription) {
-        if(!isUndefined(routeDescription.title)) {
+        if (!isUndefined(routeDescription.title)) {
           document.title = isFunction(routeDescription.title) ? routeDescription.title.apply($router, values(routeDescription.namedParams)) : routeDescription.title;
         }
 
-        if(isUndefined(router.currentRouteDescription) || !sameRouteDescription(router.currentRouteDescription, routeDescription)) {
+        if (isUndefined(router.currentRouteDescription) || !sameRouteDescription(router.currentRouteDescription, routeDescription)) {
           (routeDescription.controller || noop).apply($router, values(routeDescription.namedParams) );
           router.currentRouteDescription = routeDescription;
         }
@@ -12715,7 +12950,7 @@ var Router = function(descriptor, configParams) {
       function getActionForRoute(routeDescription) {
         var Action;
 
-        if( isRoute(routeDescription) ) {
+        if (isRoute(routeDescription)) {
           Action = RoutedAction.bind($router, routeDescription);
         }
 
@@ -12727,14 +12962,14 @@ var Router = function(descriptor, configParams) {
       }, router);
 
       this.currentRoute = router.currentRoute = fw.computed(function() {
-        return getRouteForURL(normalizeURL(this.currentState()) );
+        return getRouteForURL(normalizeURL(this.currentState()));
       }, router);
 
       this.path = router.path = fw.computed(function() {
         var currentRoute = this.currentRoute();
         var routeSegment = '/';
 
-        if( isRoute(currentRoute) ) {
+        if (isRoute(currentRoute)) {
           routeSegment = (currentRoute.segment === '' ? '/' : currentRoute.segment);
         }
 
@@ -12758,11 +12993,11 @@ var Router = function(descriptor, configParams) {
 
       var parentPathSubscription;
       var $previousParent = $nullRouter;
-      subscriptions.push(router.parentRouter.subscribe(function( $parentRouter ) {
-        if( !isNullRouter($previousParent) && $previousParent !== $parentRouter ) {
+      subscriptions.push(router.parentRouter.subscribe(function ($parentRouter) {
+        if (!isNullRouter($previousParent) && $previousParent !== $parentRouter) {
           $previousParent.router.childRouters.remove(this);
 
-          if(parentPathSubscription) {
+          if (parentPathSubscription) {
             subscriptions.remove(parentPathSubscription);
             parentPathSubscription.dispose();
           }
@@ -12775,11 +13010,11 @@ var Router = function(descriptor, configParams) {
       }, this));
 
       // Automatically trigger the new Action() whenever the currentRoute() updates
-      subscriptions.push( router.currentRoute.subscribe(function getActionForRouteAndTrigger( newRoute ) {
+      subscriptions.push(router.currentRoute.subscribe(function getActionForRouteAndTrigger(newRoute) {
         if(router.currentState().length) {
           getActionForRoute(newRoute)( /* get and call the action for the newRoute */ );
         }
-      }, this) );
+      }, this));
 
       this.outlets = {};
       this.outlet = routerOutlet.bind(this);
@@ -12789,17 +13024,17 @@ var Router = function(descriptor, configParams) {
         });
       }.bind(this);
 
-      if( !isUndefined(routerConfigParams.unknownRoute) ) {
-        if( isFunction(routerConfigParams.unknownRoute) ) {
+      if (!isUndefined(routerConfigParams.unknownRoute)) {
+        if (isFunction(routerConfigParams.unknownRoute)) {
           routerConfigParams.unknownRoute = { controller: routerConfigParams.unknownRoute };
         }
-        routerConfigParams.routes.push( extend( routerConfigParams.unknownRoute, { unknown: true } ) );
+        routerConfigParams.routes.push(extend(routerConfigParams.unknownRoute, { unknown: true }));
       }
-      this.setRoutes( routerConfigParams.routes );
+      this.setRoutes(routerConfigParams.routes);
 
-      if( routerConfigParams.activate === true ) {
+      if (routerConfigParams.activate === true) {
         subscriptions.push(router.context.subscribe(function activateRouterAfterNewContext( $context ) {
-          if( isObject($context) ) {
+          if (isObject($context)) {
             this.activate($context);
           }
         }, this));
@@ -12808,7 +13043,7 @@ var Router = function(descriptor, configParams) {
       this.matchesRoute = function(routeName, path) {
         var route = getRouteForURL(path);
         routeName = [].concat(routeName);
-        if(!isNull(route)) {
+        if (!isNull(route)) {
           return routeName.indexOf(route.name) !== -1;
         }
         return false;
@@ -12827,22 +13062,21 @@ var Router = function(descriptor, configParams) {
       activate: function($context, $parentRouter) {
         $context = $context || this.__private('context')();
         $parentRouter = $parentRouter || nearestParentRouter($context);
-        this.$namespace.trigger('activated', { context: $context, parentRouter: $parentRouter });
 
-        if( !isNullRouter($parentRouter) ) {
+        if(!isNullRouter($parentRouter)) {
           this.__private('parentRouter')($parentRouter);
-        } else if( isObject($context) ) {
+        } else if (isObject($context)) {
           $parentRouter = nearestParentRouter($context);
-          if( $parentRouter !== this ) {
+          if ($parentRouter !== this) {
             this.__private('parentRouter')($parentRouter);
           }
         }
 
-        if( !this.__private('historyIsEnabled')() ) {
-          if( historyIsReady() && !this.__private('disableHistory')() ) {
-            History.Adapter.bind( windowObject, 'popstate', this.__private('stateChangeHandler', function(event) {
+        if (!this.__private('historyIsEnabled')()) {
+          if (historyIsReady() && !this.__private('disableHistory')()) {
+            History.Adapter.bind(windowObject, 'popstate', this.__private('stateChangeHandler', function (event) {
               var url = '';
-              if(!fw.router.html5History() && windowObject.location.hash.length > 1) {
+              if (!fw.router.html5History() && windowObject.location.hash.length > 1) {
                 url = windowObject.location.hash;
               } else {
                 url = windowObject.location.pathname + windowObject.location.hash;
@@ -12856,9 +13090,11 @@ var Router = function(descriptor, configParams) {
           }
         }
 
-        if( this.__private('currentState')() === '' ) {
+        if (this.__private('currentState')() === '') {
           this.setState();
         }
+
+        this.$namespace.trigger('activated', { context: $context, parentRouter: $parentRouter });
         return this;
       },
       setState: function(url, routeParams) {
@@ -12869,13 +13105,13 @@ var Router = function(descriptor, configParams) {
 
         if(!isNull(namedRoute)) {
           // must convert namedRoute into its URL form
-          var routeDescription = find(this.routeDescriptions, function(route) {
+          var routeDescription = find(this.routeDescriptions, function (route) {
             return route.name === namedRoute;
           });
 
-          if(!isUndefined(routeDescription)) {
+          if (!isUndefined(routeDescription)) {
             url = first([].concat(routeDescription.route));
-            each(routeParams, function(value, fieldName) {
+            each(routeParams, function (value, fieldName) {
               url = url.replace(':' + fieldName, routeParams[fieldName]);
             });
           } else {
@@ -12884,43 +13120,43 @@ var Router = function(descriptor, configParams) {
         }
 
         var isExternalURL = isString(url);
-        if(!isString(url) && useHistory) {
+        if (!isString(url) && useHistory) {
           url = History.getState().url;
         }
 
-        if(!isExternalURL) {
+        if (!isExternalURL) {
           url = this.__private('normalizeURL')(url);
         }
 
-        if(isFunction(configParams.beforeRoute)) {
+        if (isFunction(configParams.beforeRoute)) {
           continueToRoute = configParams.beforeRoute.call(this, url || '/');
         }
 
-        if(continueToRoute) {
-          if(useHistory) {
-            if(isExternalURL) {
+        if (continueToRoute) {
+          if (useHistory) {
+            if (isExternalURL) {
               var historyAPIWorked = true;
               try {
                 historyAPIWorked = History.pushState(null, '', configParams.baseRoute + this.__private('parentRouter')().path() + url.replace(startingHashRegex, '/'));
-              } catch(historyException) {
+              } catch (historyException) {
                 historyAPIWorked = false;
               } finally {
-                if(historyAPIWorked) {
+                if (historyAPIWorked) {
                   return;
                 }
               }
             } else {
-              this.__private('currentState')( this.__private('normalizeURL')(url) );
+              this.__private('currentState')(this.__private('normalizeURL')(url));
             }
-          } else if(isExternalURL) {
-            this.__private('currentState')( this.__private('normalizeURL')(url) );
+          } else if (isExternalURL) {
+            this.__private('currentState')(this.__private('normalizeURL')(url));
           } else {
             this.__private('currentState')('/');
           }
 
-          if(!historyIsReady()) {
+          if (!historyIsReady()) {
             var routePath = this.path();
-            each(this.__private('childRouters')(), function(childRouter) {
+            each(this.__private('childRouters')(), function (childRouter) {
               childRouter.__private('currentState')(routePath);
             });
           }
@@ -12929,29 +13165,29 @@ var Router = function(descriptor, configParams) {
         return this;
       },
       dispose: function() {
-        if( !this._isDisposed ) {
+        if(!this._isDisposed) {
           this._isDisposed = true;
 
           var $parentRouter = this.__private('parentRouter')();
-          if( !isNullRouter($parentRouter) ) {
+          if (!isNullRouter($parentRouter)) {
             $parentRouter.__private('childRouters').remove(this);
           }
 
-          if( this.__private('historyIsEnabled')() && historyIsReady() ) {
-            History.Adapter.unbind( this.__private('stateChangeHandler') );
+          if (this.__private('historyIsEnabled')() && historyIsReady()) {
+            History.Adapter.unbind(this.__private('stateChangeHandler'));
           }
 
           this.$namespace.dispose();
           this.$globalNamespace.dispose();
           invoke(this.__private('subscriptions'), 'dispose');
 
-          each(omit(this, function(property) {
+          each(omit(this, function (property) {
             return isEntity(property);
-          }), propertyDisposal);
+          }), propertyDispose);
 
-          each(omit(this.__private(), function(property) {
+          each(omit(this.__private(), function (property) {
             return isEntity(property);
-          }), propertyDisposal);
+          }), propertyDispose);
 
           return this;
         }
@@ -12961,9 +13197,36 @@ var Router = function(descriptor, configParams) {
 };
 
 
+extend(fw.router, {
+  // baseRoute / path which will always be stripped from the URL prior to processing the route
+  baseRoute: fw.observable(''),
+  activeRouteClassName: fw.observable('active'),
+  disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: fw.namespace() }),
+  html5History: function() {
+    return hasHTML5History;
+  },
+  getNearestParent: function($context) {
+    var $parentRouter = nearestParentRouter($context);
+    return (!isNullRouter($parentRouter) ? $parentRouter : null);
+  }
+});
+
+extend(fw.outlet, {
+  registerView: function(viewName, templateHTML) {
+    fw.components.register(viewName, { template: templateHTML });
+  },
+  registerViewLocation: function(viewName, viewLocation) {
+    fw.components.registerLocation(viewName, { template: viewLocation });
+  }
+});
+
 
 // framework/entities/descriptorConfig.js
 // ------------------
+
+function resolveEntityImmediately(resolveNow) {
+  resolveNow(true);
+}
 
 entityDescriptors = entityDescriptors.concat([
   {
@@ -12979,6 +13242,8 @@ entityDescriptors = entityDescriptors.concat([
       extend: {},
       mixins: undefined,
       afterRender: noop,
+      resolved: resolveEntityImmediately,
+      sequenceAnimations: false,
       onDispose: noop
     }
   }, {
@@ -12992,12 +13257,15 @@ entityDescriptors = entityDescriptors.concat([
       url: null,
       pkInURL: true,
       parse: false,
+      ajaxOptions: {},
       namespace: undefined,
       autoRegister: false,
       autoIncrement: true,
       extend: {},
       mixins: undefined,
       afterRender: noop,
+      resolved: resolveEntityImmediately,
+      sequenceAnimations: false,
       onDispose: noop
     }
   }, {
@@ -13014,6 +13282,8 @@ entityDescriptors = entityDescriptors.concat([
       extend: {},
       mixins: undefined,
       afterRender: noop,
+      resolved: resolveEntityImmediately,
+      sequenceAnimations: false,
       onDispose: noop,
       baseRoute: null,
       isRelative: true,
@@ -13028,18 +13298,73 @@ entityDescriptors = entityDescriptors.concat([
 // framework/entities/bindingInit.js
 // ------------------
 
-function entityBinder(element, params, Entity) {
+function entityBinder(element, params, $parentContext, Entity, $flightTracker, $parentsInFlightChildren, $outletsInFlightChildren) {
   var entityObj;
-  if( isFunction(Entity) ) {
+  if (isFunction(Entity)) {
     entityObj = new Entity(params);
   } else {
     entityObj = Entity;
   }
-  entityObj.$parentContext = fw.contextFor(element.parentElement || element.parentNode);
+  entityObj.$parentContext = $parentContext;
+
+  if (isEntity(entityObj)) {
+    var resolveFlightTracker =  noop;
+
+    if ($flightTracker) {
+      resolveFlightTracker = function(addAnimationClass) {
+        var wasResolved = false;
+        function resolveThisEntityNow(isResolved) {
+          function finishResolution() {
+            addAnimationClass();
+            if(fw.isObservable($parentsInFlightChildren) && isFunction($parentsInFlightChildren.remove)) {
+              $parentsInFlightChildren.remove($flightTracker);
+            }
+            if(fw.isObservable($outletsInFlightChildren) && isFunction($outletsInFlightChildren.remove)) {
+              $outletsInFlightChildren.remove($flightTracker);
+            }
+          }
+
+          if (!wasResolved) {
+            wasResolved = true;
+            if (isResolved === true) {
+              finishResolution();
+            } else if(isPromise(isResolved) || (isArray(isResolved) && every(isResolved, isPromise))) {
+              var promises = [].concat(isResolved);
+              var checkPromise = function(promise) {
+                (promise.done || promise.then)(function() {
+                  if(every(promises, promiseIsResolvedOrRejected)) {
+                    finishResolution();
+                  }
+                });
+              };
+
+              each(promises, checkPromise);
+            }
+          }
+        }
+
+        function maybeResolve() {
+          entityObj.__private('configParams').resolved.call(entityObj, resolveThisEntityNow);
+        }
+
+        var $inFlightChildren = entityObj.__private('inFlightChildren');
+        // if no children then resolve now, otherwise subscribe and wait till its 0
+        if ($inFlightChildren().length === 0) {
+          maybeResolve();
+        } else {
+          entityObj.$trackSub($inFlightChildren.subscribe(function(inFlightChildren) {
+            inFlightChildren.length === 0 && maybeResolve();
+          }));
+        }
+      };
+    }
+
+    entityObj.__private('resolveFlightTracker', resolveFlightTracker);
+  }
 
   var childrenToInsert = [];
   each(element.childNodes, function(child) {
-    if(!isUndefined(child)) {
+    if (!isUndefined(child)) {
       childrenToInsert.push(child);
     }
   });
@@ -13079,56 +13404,82 @@ function getResourceLocation(moduleName) {
 
 function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
   var theValueAccessor = valueAccessor;
-  if(tagName === '__elementBased') {
+  if (tagName === '__elementBased') {
     tagName = element.tagName;
   }
 
-  if(isString(tagName)) {
+  var $flightTracker = { name: tagName, type: 'component' };
+
+  if(!isString(tagName) || tagName.toLowerCase() !== 'outlet') {
+    var $nearestEntity = nearestEntity(bindingContext);
+    if ($nearestEntity) {
+      var $inFlightChildren = $nearestEntity.__private('inFlightChildren');
+      if (isObservable($inFlightChildren) && isFunction($inFlightChildren.push)) {
+        $inFlightChildren.push($flightTracker);
+      }
+    }
+
+    var $nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
+    if ($nearestOutlet) {
+      var $outletsInFlightChildren = $nearestOutlet.inFlightChildren;
+      if (isObservable($outletsInFlightChildren) && isFunction($outletsInFlightChildren.push)) {
+        $outletsInFlightChildren.push($flightTracker);
+      }
+    }
+  }
+
+  if (isString(tagName)) {
     tagName = tagName.toLowerCase();
-    if( entityDescriptors.tagNameIsPresent(tagName) ) {
+    if (entityDescriptors.tagNameIsPresent(tagName)) {
       var values = valueAccessor();
-      var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
-      var bindModel = entityBinder.bind(null, element, values.params);
+      var moduleName = (!isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined) || element.getAttribute('module') || element.getAttribute('data-module');
+      var bindModel = entityBinder.bind(null, element, values.params, bindingContext);
       var resource = entityDescriptors.resourceFor(tagName);
       var getResourceLocationFor = getResourceLocation.bind(resource);
 
-      if(isNull(moduleName) && isString(values)) {
+      $flightTracker.name = moduleName;
+      $flightTracker.type = tagName;
+
+      if (isNull(moduleName) && isString(values)) {
         moduleName = values;
       }
 
-      if( !isUndefined(moduleName) && !isNull(resource) ) {
+      if (!isUndefined(moduleName) && !isNull(resource)) {
         var resourceLocation = getResourceLocationFor(moduleName);
 
-        if( isString(resourceLocation) ) {
-          if( isFunction(require) ) {
-            if(!require.specified(resourceLocation)) {
-              if( isPath(resourceLocation) ) {
+        if (isString(resourceLocation)) {
+          if (isFunction(require)) {
+            if (!require.specified(resourceLocation)) {
+              if (isPath(resourceLocation)) {
                 resourceLocation = resourceLocation + resource.getFileName(moduleName);
               }
               resourceLocation = require.toUrl(resourceLocation);
             }
 
-            require([ resourceLocation ], bindModel);
+            require([resourceLocation], function(resource) {
+              var args = Array.prototype.slice.call(arguments);
+              bindModel(resource, $flightTracker, $inFlightChildren, $outletsInFlightChildren);
+            });
           } else {
             throw new Error('Uses require, but no AMD loader is present');
           }
-        } else if( isFunction(resourceLocation) ) {
-          bindModel( resourceLocation );
-        } else if( isObject(resourceLocation) ) {
+        } else if (isFunction(resourceLocation)) {
+          bindModel(resourceLocation, $flightTracker, $inFlightChildren, $outletsInFlightChildren);
+        } else if (isObject(resourceLocation)) {
           var createInstance = resourceLocation.createViewModel || resourceLocation.createDataModel;
-          if( isObject(resourceLocation.instance) ) {
-            bindModel( resourceLocation.instance );
-          } else if( isFunction(createInstance) ) {
-            bindModel( createInstance( values.params, { element: element } ) );
+          if(isObject(resourceLocation.instance)) {
+            bindModel(resourceLocation.instance, $flightTracker, $inFlightChildren, $outletsInFlightChildren);
+          } else if (isFunction(createInstance)) {
+            bindModel(createInstance(values.params, { element: element }), $flightTracker, $inFlightChildren, $outletsInFlightChildren);
           }
         }
       }
 
       return { 'controlsDescendantBindings': true };
-    } else if( tagName === 'outlet' ) {
+    } else if (tagName === 'outlet') {
       // we patch in the 'name' of the outlet into the params valueAccessor on the component definition (if necessary and available)
       var outletName = element.getAttribute('name') || element.getAttribute('data-name');
-      if( outletName ) {
+      if(outletName) {
         theValueAccessor = function() {
           var valueAccessorResult = valueAccessor();
           if( !isUndefined(valueAccessorResult.params) && isUndefined(valueAccessorResult.params.name) ) {
@@ -13140,6 +13491,7 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
     }
   }
 
+  element.$flightTracker = $flightTracker;
   return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);
 };
 
@@ -13166,14 +13518,14 @@ fw.bindingHandlers.$viewModel = {
 
 // Provides lifecycle functionality and $context for a given entity and element
 function setupContextAndLifeCycle(entity, element) {
-  if(isEntity(entity) && !entity.__private('afterRenderWasTriggered')) {
+  if (isEntity(entity) && !entity.__private('afterRenderWasTriggered')) {
     entity.__private('afterRenderWasTriggered', true);
     element = element || document.body;
 
     var context;
     var entityContext;
     var $configParams = entity.__private('configParams');
-    if(element.tagName.toLowerCase() === 'binding-wrapper') {
+    if (element.tagName.toLowerCase() === 'binding-wrapper') {
       element = element.parentElement || element.parentNode;
     }
 
@@ -13181,24 +13533,28 @@ function setupContextAndLifeCycle(entity, element) {
     entity.$context = entityContext = fw.contextFor(element);
 
     var afterRender = noop;
-    if(isFunction($configParams.afterRender)) {
+    if (isFunction($configParams.afterRender)) {
       afterRender = $configParams.afterRender;
     }
 
-    $configParams.afterRender = function(containerElement) {
-      addClass(containerElement, entityClassName);
-      setTimeout(function() {
-        addClass(containerElement, bindingClassName);
-      }, animationIteration);
+    var resolveFlightTracker = entity.__private('resolveFlightTracker') || noop;
+    $configParams.afterRender = function (containerElement) {
+      addClass(containerElement, entityClass);
+      function addAnimationClass() {
+        setTimeout(function() {
+          addClass(containerElement, entityAnimateClass);
+        }, minimumAnimationDelay);
+      }
       afterRender.call(this, containerElement);
+      resolveFlightTracker(addAnimationClass);
     };
     $configParams.afterRender.call(entity, element);
 
-    if( isRouter(entity) ) {
+    if (isRouter(entity)) {
       entity.__private('context')(entityContext);
     }
 
-    if( !isUndefined(element) ) {
+    if (!isUndefined(element)) {
       fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
         entity.dispose();
       });
@@ -13209,28 +13565,30 @@ function setupContextAndLifeCycle(entity, element) {
 // framework/entities/applyBinding.js
 // ------------------
 
+var hasHTML5History = false;
 var historyStateAssessed = false;
+
 function assessHistoryState() {
   if(!historyStateAssessed) {
     historyStateAssessed = true;
 
-    footwork.hasHTML5History = !!windowObject.history && !!windowObject.history.pushState;
+    hasHTML5History = !!windowObject.history && !!windowObject.history.pushState;
     if(!isUndefined(windowObject.History) && isObject(windowObject.History.options) && windowObject.History.options.html4Mode) {
       // user is overriding to force html4mode hash-based history
-      footwork.hasHTML5History = false;
+      hasHTML5History = false;
     }
   }
 }
 
 // Override the original applyBindings method to assess history API state and provide viewModel/dataModel/router life-cycle
 var originalApplyBindings = fw.applyBindings;
-fw.applyBindings = function(viewModel, element) {
+fw.applyBindings = function(viewModelOrBindingContext, rootNode) {
   // must initialize default require context (https://github.com/jrburke/requirejs/issues/1305#issuecomment-87924865)
   isFunction(require) && require([]);
 
   assessHistoryState();
-  originalApplyBindings(viewModel, element);
-  setupContextAndLifeCycle(viewModel, element);
+  originalApplyBindings(viewModelOrBindingContext, rootNode);
+  setupContextAndLifeCycle(viewModelOrBindingContext, rootNode);
 };
 
 // framework/entities/createFactories.js
@@ -13240,7 +13598,7 @@ function isBeforeInitMixin(mixin) {
   return !!mixin.runBeforeInit;
 }
 
-function entityMixin(thing) {
+function entityMixinOrNothingFrom(thing) {
   return ((isArray(thing) && thing.length) || isObject(thing) ? thing : {});
 }
 
@@ -13248,8 +13606,9 @@ function entityClassFactory(descriptor, configParams) {
   var entityCtor = null;
   var privateDataMixin = {
     _preInit: function() {
-      var privateDataStore = {};
-      this.__private = privateData.bind(this, privateDataStore, configParams);
+      this.__private = privateData.bind(this, {
+        inFlightChildren: fw.observableArray()
+      }, configParams);
     }
   };
 
@@ -13257,19 +13616,19 @@ function entityClassFactory(descriptor, configParams) {
 
   var descriptorBehavior = [];
   map(descriptor.behavior, function(behavior, index) {
-    descriptorBehavior.push( isFunction(behavior) ? behavior(descriptor, configParams || {}) : behavior );
+    descriptorBehavior.push(isFunction(behavior) ? behavior(descriptor, configParams || {}) : behavior);
   });
 
-  var ctor = configParams.initialize || configParams.viewModel || noop;
+  var ctor = configParams.initialize || noop;
   var userExtendProps = { mixin: configParams.extend || {} };
-  if( !descriptor.isEntityCtor(ctor) ) {
+  if (!descriptor.isEntityCtor(ctor)) {
     var isEntityDuckTagMixin = {};
     isEntityDuckTagMixin[descriptor.isEntityDuckTag] = true;
     isEntityDuckTagMixin = { mixin: isEntityDuckTagMixin };
 
     var newInstanceCheckMixin = {
       _preInit: function() {
-        if(this === windowObject) {
+        if (this === windowObject) {
           throw new Error('Must use the new operator when instantiating a ' + descriptor.methodName + '.');
         }
       }
@@ -13280,33 +13639,30 @@ function entityClassFactory(descriptor, configParams) {
       return mixin;
     });
 
-    var composure = [ ctor ].concat(
-      entityMixin(privateDataMixin),
-      entityMixin(userExtendProps),
-      entityMixin(newInstanceCheckMixin),
-      entityMixin(isEntityDuckTagMixin),
-      entityMixin(afterInitMixins),
-      entityMixin(beforeInitMixins),
-      entityMixin(configParams.mixins),
-      entityMixin(descriptorBehavior)
+    var composure = [ctor].concat(
+      entityMixinOrNothingFrom(privateDataMixin),
+      entityMixinOrNothingFrom(userExtendProps),
+      entityMixinOrNothingFrom(newInstanceCheckMixin),
+      entityMixinOrNothingFrom(isEntityDuckTagMixin),
+      entityMixinOrNothingFrom(afterInitMixins),
+      entityMixinOrNothingFrom(beforeInitMixins),
+      entityMixinOrNothingFrom(configParams.mixins),
+      entityMixinOrNothingFrom(descriptorBehavior)
     );
 
-    entityCtor = riveter.compose.apply( undefined, composure );
-
-    entityCtor[ descriptor.isEntityCtorDuckTag ] = true;
-
-    var privateDataStore = {};
-    entityCtor.__private = privateData.bind(this, privateDataStore, configParams);
+    entityCtor = riveter.compose.apply(undefined, composure);
+    entityCtor[descriptor.isEntityCtorDuckTag] = true;
+    entityCtor.__private = privateData.bind(this, {}, configParams);
   } else {
     // user has specified another entity constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain
     entityCtor = ctor;
   }
 
-  if( !isNull(entityCtor) && isFunction(configParams.parent) ) {
+  if (!isNull(entityCtor) && isFunction(configParams.parent)) {
     entityCtor.inherits(configParams.parent);
   }
 
-  if( configParams.autoRegister ) {
+  if (configParams.autoRegister) {
     descriptor.resource.register(configParams.namespace, entityCtor);
   }
 
@@ -13555,7 +13911,7 @@ fw.components.register = function(componentName, options) {
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || noop,
+    viewModel: viewModel || DefaultViewModel,
     template: options.template
   });
 };
@@ -13616,7 +13972,7 @@ fw.components.defaultLocation = function(location) {
 fw.components.registerLocation = function(componentName, componentLocation, folderOffset) {
   if(isArray(componentName)) {
     each(componentName, function(name) {
-      fw.components.registerLocation(name, componentLocation);
+      fw.components.registerLocation(name, componentLocation, folderOffset);
     });
   }
 
@@ -13702,94 +14058,64 @@ function resourceHelperFactory(descriptor) {
 }
 
 
-// framework/component/exports.js
-// ------------------
-
-// These are tags which are ignored by the custom component loader
-// Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
-var nonComponentTags = [
-  'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont', 'bdi', 'bgsound',
-  'big', 'blink', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
-  'content', 'data', 'datalist', 'dd', 'decorator', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'element',
-  'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'frameset', 'g', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-  'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'isindex', 'kbd', 'keygen', 'label',
-  'legend', 'li', 'link', 'listing', 'main', 'map', 'mark', 'marquee', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'nobr',
-  'noframes', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture', 'polygon', 'path', 'pre',
-  'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'shadow', 'small', 'source', 'spacer',
-  'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'template', 'textarea',
-  'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp', 'rect', 'image',
-  'lineargradient', 'stop', 'line', 'binding-wrapper', 'font'
-];
-
-fw.components.getNormalTagList = function() {
-  return clone(nonComponentTags);
-};
-
-fw.components.getComponentNameForNode = function(node) {
-  var tagName = isString(node.tagName) && node.tagName.toLowerCase();
-
-  if( fw.components.isRegistered(tagName) || fw.components.tagIsComponent(tagName) ) {
-    return tagName;
-  }
-  return null;
-};
-
-fw.components.tagIsComponent = function(tagName, isComponent) {
-  if( isUndefined(isComponent) ) {
-    return indexOf(nonComponentTags, tagName) === -1;
-  }
-
-  if( isArray(tagName) ) {
-    each(tagName, function(tag) {
-      fw.components.tagIsComponent(tag, isComponent);
-    });
-  }
-
-  if(isComponent !== true) {
-    if( contains(nonComponentTags, tagName) === false ) {
-      nonComponentTags.push(tagName);
-    }
-  } else {
-    nonComponentTags = filter(nonComponentTags, function(nonComponentTagName) {
-      return nonComponentTagName !== tagName;
-    });
-  }
-};
-
-fw.component = function(componentDefinition) {
-  if(!isObject(componentDefinition)) {
-    throw new Error('fw.component() must be supplied with a componentDefinition configuration object.');
-  }
-
-  componentDefinition.viewModel = componentDefinition.dataModel || componentDefinition.router || componentDefinition.viewModel;
-
-  return componentDefinition;
-};
-
 // framework/component/lifecycle.js
 // ------------------
 
-function componentTriggerafterRender(element, viewModel) {
+function runAnimationClassSequenceQueue(queue, isRunner) {
+  if(!queue.running || isRunner) {
+    var sequenceIteration = queue.shift();
+
+    if(sequenceIteration) {
+      sequenceIteration.addAnimationClass();
+
+      if(sequenceIteration.nextIteration || queue.length) {
+        queue.running = true;
+        setTimeout(function() {
+          runAnimationClassSequenceQueue(queue, true);
+        }, sequenceIteration.nextIteration);
+      }
+    } else {
+      queue.running = false;
+    }
+  }
+}
+
+var sequenceQueue = {};
+function addToAndFetchQueue(element, viewModel) {
+  var configParams = viewModel.__private('configParams');
+  var sequenceTimeout = resultBound(configParams, 'sequenceAnimations', viewModel) || 0;
+  var animationSequenceQueue = sequenceQueue[configParams.namespace] = (sequenceQueue[configParams.namespace] || []);
+  var newSequenceIteration = {
+    addAnimationClass: function addBindingFromQueue() {
+      addClass(element, entityAnimateClass);
+    },
+    nextIteration: sequenceTimeout
+  };
+
+  animationSequenceQueue.push(newSequenceIteration);
+
+  return animationSequenceQueue;
+}
+
+function componentTriggerAfterRender(element, viewModel) {
   if(isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
     viewModel.__private('afterRenderWasTriggered', true);
-    var configParams = viewModel.__private('configParams');
-    if(isFunction(configParams.afterRender)) {
-      var afterRender = noop;
-      if(isFunction(configParams.afterRender)) {
-        afterRender = configParams.afterRender;
-      }
 
-      configParams.afterRender = function(element) {
+    function addAnimationClass() {
+      var classList = element.className.split(" ");
+      if(!includes(classList, outletLoadingDisplay) && !includes(classList, outletLoadedDisplay)) {
         setTimeout(function() {
-          if(element.className.indexOf(bindingClassName) === -1) {
-            addClass(element, bindingClassName);
-          }
-        }, animationIteration);
-        afterRender.call(this, element);
-      };
-
-      configParams.afterRender.call(viewModel, element);
+          runAnimationClassSequenceQueue(addToAndFetchQueue(element, viewModel));
+        }, minimumAnimationDelay);
+      }
     }
+
+    var resolveFlightTracker = viewModel.__private('resolveFlightTracker') || noop;
+    setTimeout(function() {
+      resolveFlightTracker(addAnimationClass);
+    }, 0);
+
+    viewModel.__private('configParams').afterRender.call(viewModel, element);
   }
 }
 
@@ -13798,7 +14124,12 @@ fw.virtualElements.allowedBindings.$life = true;
 fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
-    addClass(element, entityClassName);
+
+    var classList = element.className.split(" ");
+    if(!includes(classList, outletLoadingDisplay) && !includes(classList, outletLoadedDisplay)) {
+      // the outlet viewModel and template binding handles its animation state
+      addClass(element, entityClass);
+    }
 
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if(isEntity(viewModel)) {
@@ -13808,11 +14139,19 @@ fw.bindingHandlers.$life = {
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
+
+    // if this element is not the 'loading' component of an outlet, then we need to
+    // trigger the onComplete callback
     var $parent = bindingContext.$parent;
-    if(isObject($parent) && $parent.__isOutlet && isFunction($parent.$route().__getOnCompleteCallback)) {
-      $parent.$route().__getOnCompleteCallback(element)();
+    if(isObject($parent) && isObservable($parent.route) && $parent.__isOutlet) {
+      var parentRoute = $parent.route.peek();
+      var classList = element.className.split(" ");
+      if (!includes(classList, outletLoadingDisplay) && isFunction(parentRoute.__getOnCompleteCallback)) {
+        parentRoute.__getOnCompleteCallback(element)();
+      }
     }
-    componentTriggerafterRender(element, bindingContext.$data);
+
+    componentTriggerAfterRender(element, bindingContext.$data);
   }
 };
 
@@ -13821,7 +14160,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
   loadTemplate: function(componentName, config, callback) {
     if(!isInternalComponent(componentName)) {
       // TODO: Handle different types of configs
-      if(isString(config) ) {
+      if(isString(config)) {
         config = '<!-- ko $life -->' + config + '<!-- /ko -->';
       } else {
         throw new Error('Unhandled config type ' + typeof config + '.');
@@ -13836,7 +14175,6 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     if(!isInternalComponent(componentName)) {
       callback(function(params, componentInfo) {
         var componentElement = componentInfo.element;
-
         if(isFunction(ViewModel)) {
           return new ViewModel(params);
         }
@@ -13870,17 +14208,17 @@ fw.components.loaders.push(fw.components.requireLoader = {
       folderOffset = componentName + '/';
     }
 
-    if( isFunction(require) ) {
+    if(isFunction(require)) {
       // load component using knockouts native support for requirejs
-      if( require.specified(componentName) ) {
+      if(require.specified(componentName)) {
         // component already cached, lets use it
         configOptions = {
           require: componentName
         };
-      } else if( isString(componentLocation.combined) ) {
+      } else if(isString(componentLocation.combined)) {
         combinedPath = componentLocation.combined;
 
-        if( isPath(combinedPath) ) {
+        if(isPath(combinedPath)) {
           combinedPath = combinedPath + folderOffset + combinedFile;
         }
 
@@ -13888,18 +14226,18 @@ fw.components.loaders.push(fw.components.requireLoader = {
           require: require.toUrl(combinedPath)
         };
       } else {
-        // check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)
-        if( !isString(componentLocation.viewModel) ) {
+        // check to see if the requested component is template only and should not request a viewModel (we supply a dummy object in its place)
+        if(!isString(componentLocation.viewModel)) {
           // template-only component, substitute with 'blank' viewModel
-          viewModelConfig = { instance: {} };
+          viewModelConfig = DefaultViewModel;
         } else {
           viewModelPath = componentLocation.viewModel;
 
-          if( isPath(viewModelPath) ) {
+          if(isPath(viewModelPath)) {
             viewModelPath = viewModelPath + folderOffset + viewModelFile;
           }
 
-          if( getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel') ) {
+          if(getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel')) {
             viewModelPath += '.' + getComponentExtension(componentName, 'viewModel');
           }
 
@@ -13907,11 +14245,11 @@ fw.components.loaders.push(fw.components.requireLoader = {
         }
 
         templatePath = componentLocation.template;
-        if( isPath(templatePath) ) {
+        if(isPath(templatePath)) {
           templatePath = templatePath + folderOffset + templateFile;
         }
 
-        if( getFilenameExtension(templatePath) !== getComponentExtension(componentName, 'template') ) {
+        if(getFilenameExtension(templatePath) !== getComponentExtension(componentName, 'template')) {
           templatePath += '.' + getComponentExtension(componentName, 'template');
         }
 
@@ -13928,7 +14266,93 @@ fw.components.loaders.push(fw.components.requireLoader = {
   }
 });
 
-// Note that this is a direct lift from the knockoutjs source
+fw.components.loaders.unshift(fw.components.requireResolver = {
+  loadComponent: function(componentName, config, callback) {
+    possiblyGetConfigFromAmd(config, function(loadedConfig) {
+      // TODO: Provide upstream patch which clears out loadingSubscribablesCache when load fails so that
+      // subsequent requests will re-run require
+
+      var origCallback = callback;
+      callback = new Conduit.Sync({ target: callback });
+      callback.before(function(config) {
+        config.createViewModel = new Conduit.Sync({ target: config.createViewModel });
+        config.createViewModel.after(function(viewModel, params, componentInfo) {
+          var $flightTracker = componentInfo.element.$flightTracker;
+
+          var $context = fw.contextFor(componentInfo.element);
+          var $nearestOutlet = nearestEntity($context, isOutletViewModel);
+          var $nearestEntity = nearestEntity($context);
+          var $parentsInFlightChildren;
+          var $outletsInFlightChildren;
+          if($nearestEntity) {
+            $parentsInFlightChildren = $nearestEntity.__private('inFlightChildren');
+          }
+          if($nearestOutlet) {
+            $outletsInFlightChildren = $nearestOutlet.inFlightChildren;
+          }
+
+          if (isEntity(viewModel)) {
+            var resolveFlightTracker =  noop;
+
+            if ($flightTracker) {
+              resolveFlightTracker = function(addAnimationClass) {
+                var wasResolved = false;
+                function resolveThisEntityNow(isResolved) {
+                  function finishResolution() {
+                    addAnimationClass();
+                    if(fw.isObservable($parentsInFlightChildren) && isFunction($parentsInFlightChildren.remove)) {
+                      $parentsInFlightChildren.remove($flightTracker);
+                    }
+                    if(fw.isObservable($outletsInFlightChildren) && isFunction($outletsInFlightChildren.remove)) {
+                      $outletsInFlightChildren.remove($flightTracker);
+                    }
+                  }
+
+                  if (!wasResolved) {
+                    wasResolved = true;
+                    if (isResolved === true) {
+                      finishResolution();
+                    } else if(isPromise(isResolved) || (isArray(isResolved) && every(isResolved, isPromise))) {
+                      var promises = [].concat(isResolved);
+                      var checkPromise = function(promise) {
+                        (promise.done || promise.then)(function() {
+                          if(every(promises, promiseIsResolvedOrRejected)) {
+                            finishResolution();
+                          }
+                        });
+                      };
+
+                      each(promises, checkPromise);
+                    }
+                  }
+                }
+
+                function maybeResolve() {
+                  viewModel.__private('configParams').resolved.call(viewModel, resolveThisEntityNow);
+                }
+
+                var $inFlightChildren = viewModel.__private('inFlightChildren');
+                // if no children then resolve now, otherwise subscribe and wait till its 0
+                if ($inFlightChildren().length === 0) {
+                  maybeResolve();
+                } else {
+                  viewModel.$trackSub($inFlightChildren.subscribe(function(inFlightChildren) {
+                    inFlightChildren.length === 0 && maybeResolve();
+                  }));
+                }
+              };
+            }
+
+            viewModel.__private('resolveFlightTracker', resolveFlightTracker);
+          }
+        });
+      });
+
+      resolveConfig(componentName, loadedConfig, callback);
+    });
+  }
+});
+
 function possiblyGetConfigFromAmd(config, callback) {
   if(isString(config['require'])) {
     if(isFunction(require)) {
@@ -14080,18 +14504,67 @@ function cloneNodesFromTemplateSourceElement(elemInstance) {
   return fw.utils.cloneNodes(elemInstance.childNodes);
 }
 
-fw.components.loaders.unshift(fw.components.requireResolver = {
-  loadComponent: function(componentName, config, callback) {
-    possiblyGetConfigFromAmd(config, function(loadedConfig) {
-      // TODO: Provide upstream patch which clears out loadingSubscribablesCache when load fails so that
-      // subsequent requests will re-run require
 
-      resolveConfig(componentName, loadedConfig, callback);
-      // fw.components.defaultLoader.loadComponent(componentName, loadedConfig, callback);
+// These are tags which are ignored by the custom component loader
+// Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
+var nonComponentTags = [
+  'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont', 'bdi', 'bgsound',
+  'big', 'blink', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
+  'content', 'data', 'datalist', 'dd', 'decorator', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'element',
+  'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'frameset', 'g', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'isindex', 'kbd', 'keygen', 'label',
+  'legend', 'li', 'link', 'listing', 'main', 'map', 'mark', 'marquee', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'nobr',
+  'noframes', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture', 'polygon', 'path', 'pre',
+  'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'shadow', 'small', 'source', 'spacer',
+  'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'template', 'textarea',
+  'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp', 'rect', 'image',
+  'lineargradient', 'stop', 'line', 'binding-wrapper', 'font'
+];
+
+fw.components.getNormalTagList = function() {
+  return clone(nonComponentTags);
+};
+
+fw.components.getComponentNameForNode = function(node) {
+  var tagName = isString(node.tagName) && node.tagName.toLowerCase();
+
+  if( fw.components.isRegistered(tagName) || fw.components.tagIsComponent(tagName) ) {
+    return tagName;
+  }
+  return null;
+};
+
+fw.components.tagIsComponent = function(tagName, isComponent) {
+  if( isUndefined(isComponent) ) {
+    return indexOf(nonComponentTags, tagName) === -1;
+  }
+
+  if( isArray(tagName) ) {
+    each(tagName, function(tag) {
+      fw.components.tagIsComponent(tag, isComponent);
     });
   }
-});
 
+  if(isComponent !== true) {
+    if( contains(nonComponentTags, tagName) === false ) {
+      nonComponentTags.push(tagName);
+    }
+  } else {
+    nonComponentTags = filter(nonComponentTags, function(nonComponentTagName) {
+      return nonComponentTagName !== tagName;
+    });
+  }
+};
+
+fw.component = function(componentDefinition) {
+  if(!isObject(componentDefinition)) {
+    throw new Error('fw.component() must be supplied with a componentDefinition configuration object.');
+  }
+
+  componentDefinition.viewModel = componentDefinition.dataModel || componentDefinition.router || componentDefinition.viewModel;
+
+  return componentDefinition;
+};
 
 // framework/collection/defaultConfig.js
 // ------------------
@@ -14103,6 +14576,7 @@ var defaultCollectionConfig = {
   idAttribute: null,
   disposeOnRemove: true,
   parse: identity,
+  ajaxOptions: {}
 };
 
 // framework/collection/utility.js
@@ -14485,8 +14959,7 @@ each(runPostInit, function(runTask) {
   runTask();
 });
 
-
       return ko;
-    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.reqwest );
+    })(root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.reqwest, root.Conduit);
   })();
 }));

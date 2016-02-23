@@ -35,31 +35,6 @@ var module = undefined,
     exports = undefined,
     global = undefined;
 
-    if (!Function.prototype.bind) {
-  Function.prototype.bind = function(oThis) {
-    if (typeof this !== 'function') {
-      // closest thing possible to the ECMAScript 5
-      // internal IsCallable function
-      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
-    }
-
-    var aArgs   = Array.prototype.slice.call(arguments, 1),
-        fToBind = this,
-        fNOP    = function() {},
-        fBound  = function() {
-          return fToBind.apply(this instanceof fNOP && oThis
-                 ? this
-                 : oThis,
-                 aArgs.concat(Array.prototype.slice.call(arguments)));
-        };
-
-    fNOP.prototype = this.prototype;
-    fBound.prototype = new fNOP();
-
-    return fBound;
-  };
-}
-
 
     _.extend(root, {
       _: _,
@@ -200,6 +175,146 @@ var module = undefined,
 }));
     }).call(root);
 
+    (function() {
+      /**
+ * conduitjs - Give any method a pre/post invocation pipeline....
+ * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
+ * Version: v0.3.3
+ * Url: http://github.com/ifandelse/ConduitJS
+ * License: MIT
+ */
+(function (root, factory) {
+    if (typeof module === "object" && module.exports) {
+        // Node, or CommonJS-Like environments
+        module.exports = factory();
+    } else if (typeof define === "function" && define.amd) {
+        // AMD. Register as an anonymous module.
+        define([], factory(root));
+    } else {
+        // Browser globals
+        root.Conduit = factory(root);
+    }
+}(this, function (global, undefined) {
+    function Conduit(options) {
+        if (typeof options.target !== "function") {
+            throw new Error("You can only make functions into Conduits.");
+        }
+        var _steps = {
+            pre: options.pre || [],
+            post: options.post || [],
+            all: []
+        };
+        var _defaultContext = options.context;
+        var _target = options.target;
+        var _targetStep = {
+            isTarget: true,
+            fn: options.sync ?
+            function () {
+                var args = Array.prototype.slice.call(arguments, 0);
+                var result = _target.apply(_defaultContext, args);
+                return result;
+            } : function (next) {
+                var args = Array.prototype.slice.call(arguments, 1);
+                args.splice(1, 1, _target.apply(_defaultContext, args));
+                next.apply(this, args);
+            }
+        };
+        var _genPipeline = function () {
+            _steps.all = _steps.pre.concat([_targetStep].concat(_steps.post));
+        };
+        _genPipeline();
+        var conduit = function () {
+            var idx = 0;
+            var retval;
+            var phase;
+            var next = function next() {
+                var args = Array.prototype.slice.call(arguments, 0);
+                var thisIdx = idx;
+                var step;
+                var nextArgs;
+                idx += 1;
+                if (thisIdx < _steps.all.length) {
+                    step = _steps.all[thisIdx];
+                    phase = (phase === "target") ? "after" : (step.isTarget) ? "target" : "before";
+                    if (options.sync) {
+                        if (phase === "before") {
+                            nextArgs = step.fn.apply(step.context || _defaultContext, args);
+                            next.apply(this, nextArgs || args);
+                        } else {
+                            retval = step.fn.apply(step.context || _defaultContext, args) || retval;
+                            next.apply(this, [retval].concat(args));
+                        }
+                    } else {
+                        step.fn.apply(step.context || _defaultContext, [next].concat(args));
+                    }
+                }
+            };
+            next.apply(this, arguments);
+            return retval;
+        };
+        conduit.steps = function () {
+            return _steps.all;
+        };
+        conduit.context = function (ctx) {
+            if (arguments.length === 0) {
+                return _defaultContext;
+            } else {
+                _defaultContext = ctx;
+            }
+        };
+        conduit.before = function (step, options) {
+            step = typeof step === "function" ? {
+                fn: step
+            } : step;
+            options = options || {};
+            if (options.prepend) {
+                _steps.pre.unshift(step);
+            } else {
+                _steps.pre.push(step);
+            }
+            _genPipeline();
+        };
+        conduit.after = function (step, options) {
+            step = typeof step === "function" ? {
+                fn: step
+            } : step;
+            options = options || {};
+            if (options.prepend) {
+                _steps.post.unshift(step);
+            } else {
+                _steps.post.push(step);
+            }
+            _genPipeline();
+        };
+        conduit.clear = function () {
+            _steps = {
+                pre: [],
+                post: [],
+                all: []
+            };
+            _genPipeline();
+        };
+        conduit.target = function (fn) {
+            if (fn) {
+                _target = fn;
+            }
+            return _target;
+        };
+        return conduit;
+    };
+    return {
+        Sync: function (options) {
+            options.sync = true;
+            return Conduit.call(this, options)
+        },
+        Async: function (options) {
+            return Conduit.call(this, options);
+        }
+    }
+}));
+
+    }).call(root);
+
     if(root._.isUndefined(root.postal.preserve)) {
       (function() {
         /**
@@ -286,43 +401,12 @@ var module = undefined,
       }).call(root);
     }
 
-    (function(window) {
-      // Console-polyfill. MIT license.
-// https://github.com/paulmillr/console-polyfill
-// Make it safe to do console.log() always.
-(function(global) {
-  'use strict';
-  global.console = global.console || {};
-  var con = global.console;
-  var prop, method;
-  var empty = {};
-  var dummy = function() {};
-  var properties = 'memory'.split(',');
-  var methods = ('assert,clear,count,debug,dir,dirxml,error,exception,group,' +
-     'groupCollapsed,groupEnd,info,log,markTimeline,profile,profiles,profileEnd,' +
-     'show,table,time,timeEnd,timeline,timelineEnd,timeStamp,trace,warn').split(',');
-  while (prop = properties.pop()) if (!con[prop]) con[prop] = empty;
-  while (method = methods.pop()) if (!con[method]) con[method] = dummy;
-})(typeof window === 'undefined' ? this : window);
-// Using `this` for web workers while maintaining compatibility with browser
-// targeted script loaders such as Browserify or Webpack where the only way to
-// get to the global object is via `window`.
-
-    }).call(root, windowObject);
-
     // list of dependencies to export from the library as .embed properties
-    var embeddedDependencies = [ 'riveter' ];
+    var embeddedDependencies = [ 'riveter', 'Conduit' ];
 
-    return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest) {
+    return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest, Conduit) {
       var ajax = reqwest.compat;
-      // main.js
-// -----------
-
-var fw = ko;
-
-// misc/lodashExtract.js
-// ----------------
-
+      var fw = ko;
 var isFunction = _.isFunction;
 var isObject = _.isObject;
 var isString = _.isString;
@@ -363,6 +447,9 @@ var intersection = _.intersection;
 var every = _.every;
 var isRegExp = _.isRegExp;
 var identity = _.identity;
+var includes = _.includes;
+var partial = _.partial;
+
 
 // framework/init.js
 // ------------------
@@ -383,17 +470,36 @@ var runPostInit = [];
 var internalComponents = [];
 var entityDescriptors = [];
 var entityMixins = [];
-var footwork = {};
 
-var entityClassName = 'fw-entity';
-var bindingClassName = 'fw-entity-bound';
-var animationIteration = 40;
+var entityClass = 'fw-entity';
+var entityAnimateClass = 'fw-entity-animate';
+var minimumAnimationDelay = 20;
+var defaultAnimationSequenceInterval = 20;
 var isEntityCtor;
 var isEntity;
 var isDataModel;
 var isDataModelCtor;
 var isRouter;
 var activeOutlets = fw.observableArray();
+var DefaultViewModel;
+
+runPostInit.unshift(function() {
+  DefaultViewModel = fw.viewModel.create({
+    namespace: '_DefaultNamespace',
+    autoIncrement: true,
+    initialize: function(params) {
+      if(isObject(params) && isObject(params.$viewModel)) {
+        extend(this, params.$viewModel);
+      }
+    },
+    sequenceAnimations: function() {
+      if(isUndefined(fw.settings.sequenceAnimations) || isNull(fw.settings.sequenceAnimations)) {
+        return defaultAnimationSequenceInterval;
+      }
+      return fw.settings.sequenceAnimations;
+    }
+  });
+});
 
 // framework/utility.js
 // ----------------
@@ -409,6 +515,14 @@ var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
 var isFullURL = fw.utils.isFullURL = function(thing) {
   return isString(thing) && isFullURLRegex.test(thing);
 };
+
+function isPromise(thing) {
+  return isObject(thing) && isFunction(thing.then);
+}
+
+function promiseIsResolvedOrRejected(promise) {
+  return isPromise(promise) && isFunction(promise.state) && includes(['resolved', 'rejected'], promise.state());
+}
 
 function isInternalComponent(componentName) {
   return indexOf(internalComponents, componentName) !== -1;
@@ -540,6 +654,29 @@ function resultBound(object, path, context, params) {
   return object[path];
 }
 
+function nearestEntity($context, predicate) {
+  var foundEntity = null;
+
+  predicate = predicate || isEntity;
+  var predicates = [].concat(predicate);
+  function isTheThing(thing) {
+    return reduce(predicates, function(isThing, predicate) {
+      return isThing || predicate(thing);
+    }, false);
+  }
+
+  if(isObject($context)) {
+    if(isTheThing($context.$data)) {
+      // found $data that matches the predicate(s) in this context
+      foundEntity = $context.$data;
+    } else if(isObject($context.$parentContext) || (isObject($context.$data) && isObject($context.$data.$parentContext))) {
+      // search through next parent up the chain
+      foundEntity = nearestEntity($context.$parentContext || $context.$data.$parentContext, predicate);
+    }
+  }
+  return foundEntity;
+}
+
 function forceViewModelComponentConvention(componentLocation) {
   if(isObject(componentLocation) && isUndefined(componentLocation.viewModel) && isUndefined(componentLocation.combined)) {
     return {
@@ -561,13 +698,8 @@ function getFilenameExtension(fileName) {
 function alwaysPassPredicate() { return true; }
 function emptyStringResult() { return ''; }
 
-/**
- * Dispose of a known property type
- * @param  {object} property Variable/property to dispose of (if needed)
- * @return {undefined}
- */
-function propertyDisposal(property) {
-  if((isObservable(property) || isNamespace(property) || isEntity(property) || isCollection(property) || fw.isBroadcastable(property) || fw.isReceivable(property)) && isFunction(property.dispose)) {
+function propertyDispose(property) {
+  if(isObject(property) && isFunction(property.dispose)) {
     property.dispose();
   }
 }
@@ -807,8 +939,29 @@ function getNamespaceName() {
   return this.channel;
 }
 
-// framework/namespace/exports.js
+// framework/namespace/entityMixins.js
 // ----------------
+
+// mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
+entityMixins.push({
+  runBeforeInit: true,
+  _preInit: function( options ) {
+    var $configParams = this.__private('configParams');
+    var mainNamespace = $configParams.namespace || $configParams.name || uniqueId('namespace');
+    this.$namespace = enterNamespaceName( indexedNamespaceName(mainNamespace, $configParams.autoIncrement) );
+    this.$rootNamespace = fw.namespace(mainNamespace);
+    this.$globalNamespace = fw.namespace();
+  },
+  mixin: {
+    getNamespaceName: function() {
+      return this.$namespace.getName();
+    }
+  },
+  _postInit: function( options ) {
+    exitNamespace();
+  }
+});
+
 
 // Return the current namespace name.
 fw.utils.currentNamespaceName = function() {
@@ -881,29 +1034,6 @@ fw.namespace = function(namespaceName, $parentNamespace) {
 
   return namespace;
 };
-
-// framework/namespace/entityMixins.js
-// ----------------
-
-// mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
-entityMixins.push({
-  runBeforeInit: true,
-  _preInit: function( options ) {
-    var $configParams = this.__private('configParams');
-    var mainNamespace = $configParams.namespace || $configParams.name || uniqueId('namespace');
-    this.$namespace = enterNamespaceName( indexedNamespaceName(mainNamespace, $configParams.autoIncrement) );
-    this.$rootNamespace = fw.namespace(mainNamespace);
-    this.$globalNamespace = fw.namespace();
-  },
-  mixin: {
-    getNamespaceName: function() {
-      return this.$namespace.getName();
-    }
-  },
-  _postInit: function( options ) {
-    exitNamespace();
-  }
-});
 
 
 // framework/broadcastable-receivable/broacastable.js
@@ -1045,8 +1175,6 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   return receivable.refresh();
 };
 
-// framework/broadcastable-receivable/broacastable.js
-// ------------------
 
 fw.isBroadcastable = function(thing) {
   return isObject(thing) && !!thing.__isBroadcastable;
@@ -1055,7 +1183,6 @@ fw.isBroadcastable = function(thing) {
 fw.isReceivable = function(thing) {
   return isObject(thing) && !!thing.__isReceivable;
 };
-
 
 // framework/entities/viewModel/ViewModel.js
 // ------------------
@@ -1077,8 +1204,8 @@ var ViewModel = function(descriptor, configParams) {
           if( configParams.onDispose !== noop ) {
             configParams.onDispose.call(this, this.__private('element'));
           }
-          each(this, propertyDisposal);
-          each(this.__private('subscriptions') || [], propertyDisposal);
+          each(this, propertyDispose);
+          each(this.__private('subscriptions') || [], propertyDispose);
         }
         return this;
       }
@@ -1186,6 +1313,7 @@ fw.sync = function(action, concern, params) {
     throw new Error('Must supply a dataModel or collection to fw.sync()');
   }
 
+  var configParams = concern.__private('configParams');
   var options = extend({
     type: methodMap[action],
     dataType: 'json',
@@ -1194,7 +1322,7 @@ fw.sync = function(action, concern, params) {
     headers: {},
     emulateHTTP: fw.settings.emulateHTTP,
     emulateJSON: fw.settings.emulateJSON
-  }, params);
+  }, resultBound(configParams, 'ajaxOptions', concern, [params]) || {}, params);
 
   if(!isString(options.type)) {
     throw new Error('Invalid action (' + action + ') specified for sync operation');
@@ -1202,7 +1330,6 @@ fw.sync = function(action, concern, params) {
 
   var url = options.url;
   if(isNull(url)) {
-    var configParams = concern.__private('configParams');
     url = configParams.url;
     if(isFunction(url)) {
       url = url.call(concern, action);
@@ -1670,21 +1797,15 @@ function isRoute(thing) {
   return isObject(thing) && !!thing.__isRoute;
 }
 
-// Recursive function which will locate the nearest $router from a given ko $context
+function isOutletViewModel(thing) {
+  return isObject(thing) && thing.__isOutlet;
+}
+
+// Locate the nearest $router from a given ko $context
 // (travels up through $parentContext chain to find the router if not found on the
 // immediate $context). Returns $nullRouter if none is found.
 function nearestParentRouter($context) {
-  var $parentRouter = $nullRouter;
-  if( isObject($context) ) {
-    if( isRouter($context.$data) ) {
-      // found router in this context
-      $parentRouter = $context.$data;
-    } else if( isObject($context.$parentContext) || (isObject($context.$data) && isObject($context.$data.$parentContext)) ) {
-      // search through next parent up the chain
-      $parentRouter = nearestParentRouter( $context.$parentContext || $context.$data.$parentContext );
-    }
-  }
-  return $parentRouter;
+  return nearestEntity($context, isRouter) || $nullRouter;
 }
 
 // framework/entities/router/outlet.js
@@ -1694,22 +1815,39 @@ var noParentViewModelError = { $namespace: { getName: function() { return 'NO-VI
 
 // This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied
 // to the UI and load in various views
-fw.virtualElements.allowedBindings.$bind = true;
-fw.bindingHandlers.$bind = {
+fw.virtualElements.allowedBindings.$outletBinder = true;
+fw.bindingHandlers.$outletBinder = {
   init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
-    var $parentViewModel = ( isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
+    var $parentViewModel = (isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
     var $parentRouter = nearestParentRouter(bindingContext);
     var outletName = outletViewModel.outletName;
 
     if(isRouter($parentRouter)) {
-      // register this outlet with the router so that updates will propagate correctly
-      // take the observable returned and define it on the outletViewModel so that outlet route changes are reflected in the view
-      outletViewModel.$route = $parentRouter.outlet(outletName);
+      // register the viewModel with the outlet for future use when its route is changed
+      $parentRouter.__private('registerViewModelForOutlet')(outletName, outletViewModel);
+      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
+        // tell the router to clean up its reference to the outletViewModel
+        $parentRouter.__private('unregisterViewModelForOutlet')(outletName);
+        outletViewModel.dispose();
+      });
+
+      // register this outlet with its $parentRouter
+      outletViewModel.route = $parentRouter.outlet(outletName);
     } else {
       throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.$namespace.getName() + '] but no router was defined.');
     }
   }
 };
+
+function registerViewModelForOutlet(outletName, outletViewModel) {
+  var outletProperties = this.outlets[outletName] || {};
+  outletProperties.outletViewModel = outletViewModel;
+}
+
+function unregisterViewModelForOutlet(outletName) {
+  var outletProperties = this.outlets[outletName] || {};
+  delete outletProperties.outletViewModel;
+}
 
 function routerOutlet(outletName, componentToDisplay, options) {
   options = options || {};
@@ -1717,24 +1855,36 @@ function routerOutlet(outletName, componentToDisplay, options) {
     options = { onComplete: options, onFailure: noop };
   }
 
-  var wasCompleted = false;
+  var router = this;
   var viewModelParameters = options.params;
   var onComplete = options.onComplete || noop;
   var onFailure = options.onFailure || noop;
-  var router = this;
+  var configParams = router.__private('configParams');
   var outlets = router.outlets;
+  var outletProperties = outlets[outletName] || {};
+  var outlet = outletProperties.routeObservable;
+  var outletViewModel = outletProperties.outletViewModel;
 
   outletName = fw.unwrap(outletName);
-  if(!isObservable(outlets[outletName])) {
-    outlets[outletName] = fw.observable({
+  if(!isObservable(outlet)) {
+    // router outlet observable not found, we must create a new one
+    outlet = fw.observable({
       name: noComponentSelected,
       params: {},
       __getOnCompleteCallback: function() { return noop; },
       __onFailure: onFailure.bind(router)
-    }).broadcastAs({ name: outletName, namespace: router.$namespace });
+    }).broadcastAs({
+      name: outletName,
+      namespace: router.$namespace
+    });
+
+    // register the new outlet under its outletName
+    outlets[outletName] = {
+      outletViewModel: outletProperties.outletViewModel || null,
+      routeObservable: outlet
+    };
   }
 
-  var outlet = outlets[outletName];
   var currentOutletDef = outlet();
   var valueHasMutated = false;
   var isInitialLoad = outlet().name === noComponentSelected;
@@ -1744,58 +1894,49 @@ function routerOutlet(outletName, componentToDisplay, options) {
   }
 
   if(!isUndefined(componentToDisplay)) {
-    if((currentOutletDef.loadingFor || currentOutletDef.name) !== componentToDisplay) {
+    if(currentOutletDef.name !== componentToDisplay) {
       currentOutletDef.name = componentToDisplay;
       valueHasMutated = true;
     }
 
-    if(!isUndefined(viewModelParameters)) {
+    if(isObject(viewModelParameters)) {
       currentOutletDef.params = viewModelParameters;
       valueHasMutated = true;
     }
   }
 
+  if(outletViewModel) {
+    // Show the loading component (if one is defined)
+    var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || outlet().name]);
+    if(showDuringLoadComponent) {
+      outletViewModel.loadingDisplay(showDuringLoadComponent);
+    }
+  }
+
   if(valueHasMutated) {
-    var configParams = router.__private('configParams');
-    var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay]);
-    var minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
-
-    var showDuringLoad = {
-      name: showDuringLoadComponent,
-      loadingFor: componentToDisplay,
-      __getOnCompleteCallback: function(element) {
-        element.setAttribute('rendered', '');
-
-        if(element.children.length) {
-          element.children[0].___isLoadingComponent = true;
-        }
-
-        removeClass(element, bindingClassName);
-        return function addBindingOnComplete() {
-          setTimeout(function() {
-            addClass(element, bindingClassName);
-          }, animationIteration);
-        };
-      }
-    };
+    if(outletViewModel) {
+      outletViewModel.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
+      outletViewModel.routeIsLoading(true);
+    }
 
     currentOutletDef.__getOnCompleteCallback = function(element) {
-      var isComplete = element.children.length && isUndefined(element.children[0].___isLoadingComponent);
+      var changeIsComplete = !!element.children.length;
+      var outletElement = element.parentNode;
 
-      if(!wasCompleted && isComplete) {
-        wasCompleted = true;
+      if(changeIsComplete) {
         activeOutlets.remove(outlet);
-        element.setAttribute('rendered', componentToDisplay);
+        outletElement.setAttribute('rendered', (componentToDisplay === nullComponent ? '' : componentToDisplay));
 
         return function addBindingOnComplete() {
-          setTimeout(function() {
-            addClass(element, bindingClassName);
-          }, animationIteration);
+          var outletViewModel = router.outlets[outletName].outletViewModel;
+          if(outletViewModel) {
+            outletViewModel.routeIsLoading(false);
+          }
 
-          onComplete.call(router, element);
+          onComplete.call(router, outletElement);
         };
       } else {
-        removeClass(element, bindingClassName);
+        removeClass(outletElement, entityAnimateClass);
         return noop;
       }
     };
@@ -1804,39 +1945,103 @@ function routerOutlet(outletName, componentToDisplay, options) {
       activeOutlets.push(outlet);
     }
 
-    if(showDuringLoad.name) {
-      clearTimeout(outlet.transitionTimeout);
-      outlet(showDuringLoad);
-
-      fw.components.get(currentOutletDef.name, function() {
-        // now that its cached and loaded, lets show the desired component
-        outlet.transitionTimeout = setTimeout(function() {
-          outlet(currentOutletDef);
-        }, minTransitionPeriod);
-      });
-    } else {
-      outlet.valueHasMutated();
-    }
+    outlet.valueHasMutated();
   }
 
   return outlet;
 };
 
+var outletLoadingDisplay = 'fw-loading-display';
+var outletLoadedDisplay = 'fw-loaded-display';
+var visibleCSS = { 'height': '', 'overflow': '' };
+var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
+var removeAnimation = {};
+removeAnimation[entityAnimateClass] = false;
+var addAnimation = {};
+addAnimation[entityAnimateClass] = true;
+
 function registerOutletComponent() {
   internalComponents.push('outlet');
   fw.components.register('outlet', {
     viewModel: function(params) {
+      var outlet = this;
+
       this.outletName = fw.unwrap(params.name);
       this.__isOutlet = true;
+
+      this.loadingDisplay = fw.observable(nullComponent);
+      this.inFlightChildren = fw.observableArray();
+      this.routeIsLoading = fw.observable(true);
+      this.isLoading = fw.computed(function() {
+        return this.inFlightChildren().length > 0 || this.routeIsLoading();
+      }, this);
+
+      this.loadingStyle = fw.observable();
+      this.loadedStyle = fw.observable();
+      this.loadingClass = fw.observable();
+      this.loadedClass = fw.observable();
+
+      function showLoader() {
+        outlet.loadingClass(removeAnimation);
+        outlet.loadedClass(removeAnimation);
+        outlet.loadedStyle(hiddenCSS);
+        outlet.loadingStyle(visibleCSS);
+        setTimeout(function() {
+          outlet.loadingClass(addAnimation);
+        }, 0);
+      }
+
+      function showLoadedAfterMinimumTransition() {
+        outlet.loadingClass(removeAnimation);
+        outlet.loadedClass(removeAnimation);
+        outlet.loadedStyle(visibleCSS);
+        outlet.loadingStyle(hiddenCSS);
+        setTimeout(function() {
+          outlet.loadedClass(addAnimation);
+        }, 0);
+      }
+
+      var transitionTriggerTimeout;
+      function showLoaded() {
+        clearTimeout(transitionTriggerTimeout);
+        if(outlet.minTransitionPeriod) {
+          transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, outlet.minTransitionPeriod);
+        } else {
+          showLoadedAfterMinimumTransition();
+        }
+      }
+
+      this.transitionTrigger = fw.computed(function() {
+        var isLoading = this.isLoading();
+        if(isLoading) {
+          showLoader();
+        } else {
+          showLoaded();
+        }
+      }, this);
+
+      this.dispose = function() {
+        each(outlet, function(outletProperty) {
+          if(outletProperty && isFunction(outletProperty.dispose)) {
+            outletProperty.dispose();
+          }
+        });
+      };
     },
-    template: '<!-- ko $bind, component: $route --><!-- /ko -->'
+    template: '<!-- ko $outletBinder -->' +
+                '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" data-bind="style: loadingStyle, css: loadingClass">' +
+                  '<!-- ko component: loadingDisplay --><!-- /ko -->' +
+                '</div>' +
+                '<div class="' + outletLoadedDisplay + ' ' + entityClass + '" data-bind="style: loadedStyle, css: loadedClass">' +
+                  '<!-- ko component: route --><!-- /ko -->' +
+                '</div>' +
+              '<!-- /ko -->'
   });
 
   internalComponents.push(noComponentSelected);
   fw.components.register(noComponentSelected, {
     template: '<div class="no-component-selected"></div>'
   });
-  internalComponents.push(nullComponent);
   fw.components.register(nullComponent, {
     template: '<div class="null-component"></div>'
   });
@@ -1975,19 +2180,19 @@ fw.bindingHandlers.$route = {
     };
 
     function setUpElement() {
-      if(!isNullRouter($myRouter)) {
+      if (!isNullRouter($myRouter)) {
         var myCurrentSegment = routeURLWithoutParentPath();
         var routerConfig = $myRouter.__private('configParams');
-        if( element.tagName.toLowerCase() === 'a' ) {
+        if (element.tagName.toLowerCase() === 'a') {
           element.href = (fw.router.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
         }
 
-        if( isObject(stateTracker) ) {
+        if (isObject(stateTracker) && isFunction(stateTracker.dispose)) {
           stateTracker.dispose();
         }
-        stateTracker = $myRouter.currentRoute.subscribe( checkForMatchingSegment.bind(null, myCurrentSegment) );
+        stateTracker = $myRouter.currentRoute.subscribe(checkForMatchingSegment.bind(null, myCurrentSegment));
 
-        if(elementIsSetup === false) {
+        if (elementIsSetup === false) {
           elementIsSetup = true;
           checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
 
@@ -1995,11 +2200,11 @@ fw.bindingHandlers.$route = {
           fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
             var currentRouteURL = routeURLWithoutParentPath();
             var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
-            if(handlerResult) {
-              if(isString(handlerResult)) {
+            if (handlerResult) {
+              if (isString(handlerResult)) {
                 currentRouteURL = handlerResult;
               }
-              if(isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
+              if (isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
                 $myRouter.setState( currentRouteURL );
               }
             }
@@ -2009,44 +2214,18 @@ fw.bindingHandlers.$route = {
       }
     }
 
-    if(isObservable(routeHandlerDescription.url)) {
+    if (isObservable(routeHandlerDescription.url)) {
       $myRouter.__private('subscriptions').push( routeHandlerDescription.url.subscribe(setUpElement) );
     }
     setUpElement();
 
     ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-      if(isObject(stateTracker)) {
+      if (isObject(stateTracker)) {
         stateTracker.dispose();
       }
     });
   }
 };
-
-// framework/entities/router/exports.js
-// -----------
-
-extend(fw.router, {
-  // baseRoute / path which will always be stripped from the URL prior to processing the route
-  baseRoute: fw.observable(''),
-  activeRouteClassName: fw.observable('active'),
-  disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: fw.namespace() }),
-  html5History: function() {
-    return footwork.hasHTML5History;
-  },
-  getNearestParent: function($context) {
-    var $parentRouter = nearestParentRouter($context);
-    return (!isNullRouter($parentRouter) ? $parentRouter : null);
-  }
-});
-
-extend(fw.outlet, {
-  registerView: function(viewName, templateHTML) {
-    fw.components.register(viewName, { template: templateHTML });
-  },
-  registerViewLocation: function(viewName, viewLocation) {
-    fw.components.registerLocation(viewName, { template: viewLocation });
-  }
-});
 
 // framework/entities/router/Router.js
 // ------------------
@@ -2057,8 +2236,10 @@ var Router = function(descriptor, configParams) {
       var $router = this;
       var routerConfigParams = extend({}, configParams);
 
-      var router = {};
+      var router = this.__private();
       this.__private = privateData.bind(this, router, routerConfigParams);
+      this.__private('registerViewModelForOutlet', registerViewModelForOutlet.bind(this));
+      this.__private('unregisterViewModelForOutlet', unregisterViewModelForOutlet.bind(this));
 
       routerConfigParams.baseRoute = fw.router.baseRoute() + (resultBound(routerConfigParams, 'baseRoute', router) || '');
 
@@ -2073,9 +2254,9 @@ var Router = function(descriptor, configParams) {
 
       function trimBaseRoute(url) {
         var routerConfig = $router.__private('configParams');
-        if( !isNull(routerConfig.baseRoute) && url.indexOf(routerConfig.baseRoute) === 0 ) {
+        if (!isNull(routerConfig.baseRoute) && url.indexOf(routerConfig.baseRoute) === 0) {
           url = url.substr(routerConfig.baseRoute.length);
-          if(url.length > 1) {
+          if (url.length > 1) {
             url = url.replace(hashMatchRegex, '/');
           }
         }
@@ -2086,10 +2267,10 @@ var Router = function(descriptor, configParams) {
         var urlParts = parseUri(url);
         router.urlParts(urlParts);
 
-        if(!fw.router.html5History()) {
-          if(url.indexOf('#') !== -1) {
+        if (!fw.router.html5History()) {
+          if (url.indexOf('#') !== -1) {
             url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
-          } else if(router.currentState() !== url) {
+          } else if (router.currentState() !== url) {
             url = '/';
           }
         } else {
@@ -2103,7 +2284,7 @@ var Router = function(descriptor, configParams) {
       function getUnknownRoute() {
         var unknownRoute = findWhere(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
 
-        if( !isNull(unknownRoute) ) {
+        if (!isNull(unknownRoute)) {
           unknownRoute = extend({}, baseRoute, {
             id: unknownRoute.id,
             controller: unknownRoute.controller,
@@ -2121,19 +2302,19 @@ var Router = function(descriptor, configParams) {
         var unknownRoute = getUnknownRoute();
 
         // If this is a relative router we need to remove the leading parentRoutePath section of the URL
-        if(router.isRelative() && parentRoutePath.length > 0 && (routeIndex = url.indexOf(parentRoutePath + '/')) === 0) {
-          url = url.substr( parentRoutePath.length );
+        if (router.isRelative() && parentRoutePath.length > 0 && (routeIndex = url.indexOf(parentRoutePath + '/')) === 0) {
+          url = url.substr(parentRoutePath.length);
         }
 
         // find all routes with a matching routeString
-        var matchedRoutes = reduce($router.routeDescriptions, function(matches, routeDescription) {
+        var matchedRoutes = reduce($router.routeDescriptions, function (matches, routeDescription) {
           var routeDescRoute = [].concat(routeDescription.route);
-          each(routeDescRoute, function(routeString) {
+          each(routeDescRoute, function (routeString) {
             var routeParams = [];
 
-            if( isString(routeString) ) {
+            if (isString(routeString)) {
               routeParams = url.match(routeStringToRegExp(routeString));
-              if( !isNull(routeParams) && routeDescription.filter.call($router, routeParams, router.urlParts.peek()) ) {
+              if (!isNull(routeParams) && routeDescription.filter.call($router, routeParams, router.urlParts.peek())) {
                 matches.push({
                   routeString: routeString,
                   specificity: routeString.replace(namedParamRegex, "*").length,
@@ -2148,9 +2329,9 @@ var Router = function(descriptor, configParams) {
 
         // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
         // and convert it into the actual route
-        if(matchedRoutes.length) {
+        if (matchedRoutes.length) {
           var matchedRoute = reduce(matchedRoutes, function(matchedRoute, foundRoute) {
-            if( isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity ) {
+            if (isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity) {
               matchedRoute = foundRoute;
             }
             return matchedRoute;
@@ -2188,11 +2369,11 @@ var Router = function(descriptor, configParams) {
       }
 
       function RoutedAction(routeDescription) {
-        if(!isUndefined(routeDescription.title)) {
+        if (!isUndefined(routeDescription.title)) {
           document.title = isFunction(routeDescription.title) ? routeDescription.title.apply($router, values(routeDescription.namedParams)) : routeDescription.title;
         }
 
-        if(isUndefined(router.currentRouteDescription) || !sameRouteDescription(router.currentRouteDescription, routeDescription)) {
+        if (isUndefined(router.currentRouteDescription) || !sameRouteDescription(router.currentRouteDescription, routeDescription)) {
           (routeDescription.controller || noop).apply($router, values(routeDescription.namedParams) );
           router.currentRouteDescription = routeDescription;
         }
@@ -2201,7 +2382,7 @@ var Router = function(descriptor, configParams) {
       function getActionForRoute(routeDescription) {
         var Action;
 
-        if( isRoute(routeDescription) ) {
+        if (isRoute(routeDescription)) {
           Action = RoutedAction.bind($router, routeDescription);
         }
 
@@ -2213,14 +2394,14 @@ var Router = function(descriptor, configParams) {
       }, router);
 
       this.currentRoute = router.currentRoute = fw.computed(function() {
-        return getRouteForURL(normalizeURL(this.currentState()) );
+        return getRouteForURL(normalizeURL(this.currentState()));
       }, router);
 
       this.path = router.path = fw.computed(function() {
         var currentRoute = this.currentRoute();
         var routeSegment = '/';
 
-        if( isRoute(currentRoute) ) {
+        if (isRoute(currentRoute)) {
           routeSegment = (currentRoute.segment === '' ? '/' : currentRoute.segment);
         }
 
@@ -2244,11 +2425,11 @@ var Router = function(descriptor, configParams) {
 
       var parentPathSubscription;
       var $previousParent = $nullRouter;
-      subscriptions.push(router.parentRouter.subscribe(function( $parentRouter ) {
-        if( !isNullRouter($previousParent) && $previousParent !== $parentRouter ) {
+      subscriptions.push(router.parentRouter.subscribe(function ($parentRouter) {
+        if (!isNullRouter($previousParent) && $previousParent !== $parentRouter) {
           $previousParent.router.childRouters.remove(this);
 
-          if(parentPathSubscription) {
+          if (parentPathSubscription) {
             subscriptions.remove(parentPathSubscription);
             parentPathSubscription.dispose();
           }
@@ -2261,11 +2442,11 @@ var Router = function(descriptor, configParams) {
       }, this));
 
       // Automatically trigger the new Action() whenever the currentRoute() updates
-      subscriptions.push( router.currentRoute.subscribe(function getActionForRouteAndTrigger( newRoute ) {
+      subscriptions.push(router.currentRoute.subscribe(function getActionForRouteAndTrigger(newRoute) {
         if(router.currentState().length) {
           getActionForRoute(newRoute)( /* get and call the action for the newRoute */ );
         }
-      }, this) );
+      }, this));
 
       this.outlets = {};
       this.outlet = routerOutlet.bind(this);
@@ -2275,17 +2456,17 @@ var Router = function(descriptor, configParams) {
         });
       }.bind(this);
 
-      if( !isUndefined(routerConfigParams.unknownRoute) ) {
-        if( isFunction(routerConfigParams.unknownRoute) ) {
+      if (!isUndefined(routerConfigParams.unknownRoute)) {
+        if (isFunction(routerConfigParams.unknownRoute)) {
           routerConfigParams.unknownRoute = { controller: routerConfigParams.unknownRoute };
         }
-        routerConfigParams.routes.push( extend( routerConfigParams.unknownRoute, { unknown: true } ) );
+        routerConfigParams.routes.push(extend(routerConfigParams.unknownRoute, { unknown: true }));
       }
-      this.setRoutes( routerConfigParams.routes );
+      this.setRoutes(routerConfigParams.routes);
 
-      if( routerConfigParams.activate === true ) {
+      if (routerConfigParams.activate === true) {
         subscriptions.push(router.context.subscribe(function activateRouterAfterNewContext( $context ) {
-          if( isObject($context) ) {
+          if (isObject($context)) {
             this.activate($context);
           }
         }, this));
@@ -2294,7 +2475,7 @@ var Router = function(descriptor, configParams) {
       this.matchesRoute = function(routeName, path) {
         var route = getRouteForURL(path);
         routeName = [].concat(routeName);
-        if(!isNull(route)) {
+        if (!isNull(route)) {
           return routeName.indexOf(route.name) !== -1;
         }
         return false;
@@ -2313,22 +2494,21 @@ var Router = function(descriptor, configParams) {
       activate: function($context, $parentRouter) {
         $context = $context || this.__private('context')();
         $parentRouter = $parentRouter || nearestParentRouter($context);
-        this.$namespace.trigger('activated', { context: $context, parentRouter: $parentRouter });
 
-        if( !isNullRouter($parentRouter) ) {
+        if(!isNullRouter($parentRouter)) {
           this.__private('parentRouter')($parentRouter);
-        } else if( isObject($context) ) {
+        } else if (isObject($context)) {
           $parentRouter = nearestParentRouter($context);
-          if( $parentRouter !== this ) {
+          if ($parentRouter !== this) {
             this.__private('parentRouter')($parentRouter);
           }
         }
 
-        if( !this.__private('historyIsEnabled')() ) {
-          if( historyIsReady() && !this.__private('disableHistory')() ) {
-            History.Adapter.bind( windowObject, 'popstate', this.__private('stateChangeHandler', function(event) {
+        if (!this.__private('historyIsEnabled')()) {
+          if (historyIsReady() && !this.__private('disableHistory')()) {
+            History.Adapter.bind(windowObject, 'popstate', this.__private('stateChangeHandler', function (event) {
               var url = '';
-              if(!fw.router.html5History() && windowObject.location.hash.length > 1) {
+              if (!fw.router.html5History() && windowObject.location.hash.length > 1) {
                 url = windowObject.location.hash;
               } else {
                 url = windowObject.location.pathname + windowObject.location.hash;
@@ -2342,9 +2522,11 @@ var Router = function(descriptor, configParams) {
           }
         }
 
-        if( this.__private('currentState')() === '' ) {
+        if (this.__private('currentState')() === '') {
           this.setState();
         }
+
+        this.$namespace.trigger('activated', { context: $context, parentRouter: $parentRouter });
         return this;
       },
       setState: function(url, routeParams) {
@@ -2355,13 +2537,13 @@ var Router = function(descriptor, configParams) {
 
         if(!isNull(namedRoute)) {
           // must convert namedRoute into its URL form
-          var routeDescription = find(this.routeDescriptions, function(route) {
+          var routeDescription = find(this.routeDescriptions, function (route) {
             return route.name === namedRoute;
           });
 
-          if(!isUndefined(routeDescription)) {
+          if (!isUndefined(routeDescription)) {
             url = first([].concat(routeDescription.route));
-            each(routeParams, function(value, fieldName) {
+            each(routeParams, function (value, fieldName) {
               url = url.replace(':' + fieldName, routeParams[fieldName]);
             });
           } else {
@@ -2370,43 +2552,43 @@ var Router = function(descriptor, configParams) {
         }
 
         var isExternalURL = isString(url);
-        if(!isString(url) && useHistory) {
+        if (!isString(url) && useHistory) {
           url = History.getState().url;
         }
 
-        if(!isExternalURL) {
+        if (!isExternalURL) {
           url = this.__private('normalizeURL')(url);
         }
 
-        if(isFunction(configParams.beforeRoute)) {
+        if (isFunction(configParams.beforeRoute)) {
           continueToRoute = configParams.beforeRoute.call(this, url || '/');
         }
 
-        if(continueToRoute) {
-          if(useHistory) {
-            if(isExternalURL) {
+        if (continueToRoute) {
+          if (useHistory) {
+            if (isExternalURL) {
               var historyAPIWorked = true;
               try {
                 historyAPIWorked = History.pushState(null, '', configParams.baseRoute + this.__private('parentRouter')().path() + url.replace(startingHashRegex, '/'));
-              } catch(historyException) {
+              } catch (historyException) {
                 historyAPIWorked = false;
               } finally {
-                if(historyAPIWorked) {
+                if (historyAPIWorked) {
                   return;
                 }
               }
             } else {
-              this.__private('currentState')( this.__private('normalizeURL')(url) );
+              this.__private('currentState')(this.__private('normalizeURL')(url));
             }
-          } else if(isExternalURL) {
-            this.__private('currentState')( this.__private('normalizeURL')(url) );
+          } else if (isExternalURL) {
+            this.__private('currentState')(this.__private('normalizeURL')(url));
           } else {
             this.__private('currentState')('/');
           }
 
-          if(!historyIsReady()) {
+          if (!historyIsReady()) {
             var routePath = this.path();
-            each(this.__private('childRouters')(), function(childRouter) {
+            each(this.__private('childRouters')(), function (childRouter) {
               childRouter.__private('currentState')(routePath);
             });
           }
@@ -2415,29 +2597,29 @@ var Router = function(descriptor, configParams) {
         return this;
       },
       dispose: function() {
-        if( !this._isDisposed ) {
+        if(!this._isDisposed) {
           this._isDisposed = true;
 
           var $parentRouter = this.__private('parentRouter')();
-          if( !isNullRouter($parentRouter) ) {
+          if (!isNullRouter($parentRouter)) {
             $parentRouter.__private('childRouters').remove(this);
           }
 
-          if( this.__private('historyIsEnabled')() && historyIsReady() ) {
-            History.Adapter.unbind( this.__private('stateChangeHandler') );
+          if (this.__private('historyIsEnabled')() && historyIsReady()) {
+            History.Adapter.unbind(this.__private('stateChangeHandler'));
           }
 
           this.$namespace.dispose();
           this.$globalNamespace.dispose();
           invoke(this.__private('subscriptions'), 'dispose');
 
-          each(omit(this, function(property) {
+          each(omit(this, function (property) {
             return isEntity(property);
-          }), propertyDisposal);
+          }), propertyDispose);
 
-          each(omit(this.__private(), function(property) {
+          each(omit(this.__private(), function (property) {
             return isEntity(property);
-          }), propertyDisposal);
+          }), propertyDispose);
 
           return this;
         }
@@ -2447,9 +2629,36 @@ var Router = function(descriptor, configParams) {
 };
 
 
+extend(fw.router, {
+  // baseRoute / path which will always be stripped from the URL prior to processing the route
+  baseRoute: fw.observable(''),
+  activeRouteClassName: fw.observable('active'),
+  disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: fw.namespace() }),
+  html5History: function() {
+    return hasHTML5History;
+  },
+  getNearestParent: function($context) {
+    var $parentRouter = nearestParentRouter($context);
+    return (!isNullRouter($parentRouter) ? $parentRouter : null);
+  }
+});
+
+extend(fw.outlet, {
+  registerView: function(viewName, templateHTML) {
+    fw.components.register(viewName, { template: templateHTML });
+  },
+  registerViewLocation: function(viewName, viewLocation) {
+    fw.components.registerLocation(viewName, { template: viewLocation });
+  }
+});
+
 
 // framework/entities/descriptorConfig.js
 // ------------------
+
+function resolveEntityImmediately(resolveNow) {
+  resolveNow(true);
+}
 
 entityDescriptors = entityDescriptors.concat([
   {
@@ -2465,6 +2674,8 @@ entityDescriptors = entityDescriptors.concat([
       extend: {},
       mixins: undefined,
       afterRender: noop,
+      resolved: resolveEntityImmediately,
+      sequenceAnimations: false,
       onDispose: noop
     }
   }, {
@@ -2478,12 +2689,15 @@ entityDescriptors = entityDescriptors.concat([
       url: null,
       pkInURL: true,
       parse: false,
+      ajaxOptions: {},
       namespace: undefined,
       autoRegister: false,
       autoIncrement: true,
       extend: {},
       mixins: undefined,
       afterRender: noop,
+      resolved: resolveEntityImmediately,
+      sequenceAnimations: false,
       onDispose: noop
     }
   }, {
@@ -2500,6 +2714,8 @@ entityDescriptors = entityDescriptors.concat([
       extend: {},
       mixins: undefined,
       afterRender: noop,
+      resolved: resolveEntityImmediately,
+      sequenceAnimations: false,
       onDispose: noop,
       baseRoute: null,
       isRelative: true,
@@ -2514,18 +2730,73 @@ entityDescriptors = entityDescriptors.concat([
 // framework/entities/bindingInit.js
 // ------------------
 
-function entityBinder(element, params, Entity) {
+function entityBinder(element, params, $parentContext, Entity, $flightTracker, $parentsInFlightChildren, $outletsInFlightChildren) {
   var entityObj;
-  if( isFunction(Entity) ) {
+  if (isFunction(Entity)) {
     entityObj = new Entity(params);
   } else {
     entityObj = Entity;
   }
-  entityObj.$parentContext = fw.contextFor(element.parentElement || element.parentNode);
+  entityObj.$parentContext = $parentContext;
+
+  if (isEntity(entityObj)) {
+    var resolveFlightTracker =  noop;
+
+    if ($flightTracker) {
+      resolveFlightTracker = function(addAnimationClass) {
+        var wasResolved = false;
+        function resolveThisEntityNow(isResolved) {
+          function finishResolution() {
+            addAnimationClass();
+            if(fw.isObservable($parentsInFlightChildren) && isFunction($parentsInFlightChildren.remove)) {
+              $parentsInFlightChildren.remove($flightTracker);
+            }
+            if(fw.isObservable($outletsInFlightChildren) && isFunction($outletsInFlightChildren.remove)) {
+              $outletsInFlightChildren.remove($flightTracker);
+            }
+          }
+
+          if (!wasResolved) {
+            wasResolved = true;
+            if (isResolved === true) {
+              finishResolution();
+            } else if(isPromise(isResolved) || (isArray(isResolved) && every(isResolved, isPromise))) {
+              var promises = [].concat(isResolved);
+              var checkPromise = function(promise) {
+                (promise.done || promise.then)(function() {
+                  if(every(promises, promiseIsResolvedOrRejected)) {
+                    finishResolution();
+                  }
+                });
+              };
+
+              each(promises, checkPromise);
+            }
+          }
+        }
+
+        function maybeResolve() {
+          entityObj.__private('configParams').resolved.call(entityObj, resolveThisEntityNow);
+        }
+
+        var $inFlightChildren = entityObj.__private('inFlightChildren');
+        // if no children then resolve now, otherwise subscribe and wait till its 0
+        if ($inFlightChildren().length === 0) {
+          maybeResolve();
+        } else {
+          entityObj.$trackSub($inFlightChildren.subscribe(function(inFlightChildren) {
+            inFlightChildren.length === 0 && maybeResolve();
+          }));
+        }
+      };
+    }
+
+    entityObj.__private('resolveFlightTracker', resolveFlightTracker);
+  }
 
   var childrenToInsert = [];
   each(element.childNodes, function(child) {
-    if(!isUndefined(child)) {
+    if (!isUndefined(child)) {
       childrenToInsert.push(child);
     }
   });
@@ -2565,56 +2836,82 @@ function getResourceLocation(moduleName) {
 
 function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
   var theValueAccessor = valueAccessor;
-  if(tagName === '__elementBased') {
+  if (tagName === '__elementBased') {
     tagName = element.tagName;
   }
 
-  if(isString(tagName)) {
+  var $flightTracker = { name: tagName, type: 'component' };
+
+  if(!isString(tagName) || tagName.toLowerCase() !== 'outlet') {
+    var $nearestEntity = nearestEntity(bindingContext);
+    if ($nearestEntity) {
+      var $inFlightChildren = $nearestEntity.__private('inFlightChildren');
+      if (isObservable($inFlightChildren) && isFunction($inFlightChildren.push)) {
+        $inFlightChildren.push($flightTracker);
+      }
+    }
+
+    var $nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
+    if ($nearestOutlet) {
+      var $outletsInFlightChildren = $nearestOutlet.inFlightChildren;
+      if (isObservable($outletsInFlightChildren) && isFunction($outletsInFlightChildren.push)) {
+        $outletsInFlightChildren.push($flightTracker);
+      }
+    }
+  }
+
+  if (isString(tagName)) {
     tagName = tagName.toLowerCase();
-    if( entityDescriptors.tagNameIsPresent(tagName) ) {
+    if (entityDescriptors.tagNameIsPresent(tagName)) {
       var values = valueAccessor();
-      var moduleName = ( !isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined ) || element.getAttribute('module') || element.getAttribute('data-module');
-      var bindModel = entityBinder.bind(null, element, values.params);
+      var moduleName = (!isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined) || element.getAttribute('module') || element.getAttribute('data-module');
+      var bindModel = entityBinder.bind(null, element, values.params, bindingContext);
       var resource = entityDescriptors.resourceFor(tagName);
       var getResourceLocationFor = getResourceLocation.bind(resource);
 
-      if(isNull(moduleName) && isString(values)) {
+      $flightTracker.name = moduleName;
+      $flightTracker.type = tagName;
+
+      if (isNull(moduleName) && isString(values)) {
         moduleName = values;
       }
 
-      if( !isUndefined(moduleName) && !isNull(resource) ) {
+      if (!isUndefined(moduleName) && !isNull(resource)) {
         var resourceLocation = getResourceLocationFor(moduleName);
 
-        if( isString(resourceLocation) ) {
-          if( isFunction(require) ) {
-            if(!require.specified(resourceLocation)) {
-              if( isPath(resourceLocation) ) {
+        if (isString(resourceLocation)) {
+          if (isFunction(require)) {
+            if (!require.specified(resourceLocation)) {
+              if (isPath(resourceLocation)) {
                 resourceLocation = resourceLocation + resource.getFileName(moduleName);
               }
               resourceLocation = require.toUrl(resourceLocation);
             }
 
-            require([ resourceLocation ], bindModel);
+            require([resourceLocation], function(resource) {
+              var args = Array.prototype.slice.call(arguments);
+              bindModel(resource, $flightTracker, $inFlightChildren, $outletsInFlightChildren);
+            });
           } else {
             throw new Error('Uses require, but no AMD loader is present');
           }
-        } else if( isFunction(resourceLocation) ) {
-          bindModel( resourceLocation );
-        } else if( isObject(resourceLocation) ) {
+        } else if (isFunction(resourceLocation)) {
+          bindModel(resourceLocation, $flightTracker, $inFlightChildren, $outletsInFlightChildren);
+        } else if (isObject(resourceLocation)) {
           var createInstance = resourceLocation.createViewModel || resourceLocation.createDataModel;
-          if( isObject(resourceLocation.instance) ) {
-            bindModel( resourceLocation.instance );
-          } else if( isFunction(createInstance) ) {
-            bindModel( createInstance( values.params, { element: element } ) );
+          if(isObject(resourceLocation.instance)) {
+            bindModel(resourceLocation.instance, $flightTracker, $inFlightChildren, $outletsInFlightChildren);
+          } else if (isFunction(createInstance)) {
+            bindModel(createInstance(values.params, { element: element }), $flightTracker, $inFlightChildren, $outletsInFlightChildren);
           }
         }
       }
 
       return { 'controlsDescendantBindings': true };
-    } else if( tagName === 'outlet' ) {
+    } else if (tagName === 'outlet') {
       // we patch in the 'name' of the outlet into the params valueAccessor on the component definition (if necessary and available)
       var outletName = element.getAttribute('name') || element.getAttribute('data-name');
-      if( outletName ) {
+      if(outletName) {
         theValueAccessor = function() {
           var valueAccessorResult = valueAccessor();
           if( !isUndefined(valueAccessorResult.params) && isUndefined(valueAccessorResult.params.name) ) {
@@ -2626,6 +2923,7 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
     }
   }
 
+  element.$flightTracker = $flightTracker;
   return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);
 };
 
@@ -2652,14 +2950,14 @@ fw.bindingHandlers.$viewModel = {
 
 // Provides lifecycle functionality and $context for a given entity and element
 function setupContextAndLifeCycle(entity, element) {
-  if(isEntity(entity) && !entity.__private('afterRenderWasTriggered')) {
+  if (isEntity(entity) && !entity.__private('afterRenderWasTriggered')) {
     entity.__private('afterRenderWasTriggered', true);
     element = element || document.body;
 
     var context;
     var entityContext;
     var $configParams = entity.__private('configParams');
-    if(element.tagName.toLowerCase() === 'binding-wrapper') {
+    if (element.tagName.toLowerCase() === 'binding-wrapper') {
       element = element.parentElement || element.parentNode;
     }
 
@@ -2667,24 +2965,28 @@ function setupContextAndLifeCycle(entity, element) {
     entity.$context = entityContext = fw.contextFor(element);
 
     var afterRender = noop;
-    if(isFunction($configParams.afterRender)) {
+    if (isFunction($configParams.afterRender)) {
       afterRender = $configParams.afterRender;
     }
 
-    $configParams.afterRender = function(containerElement) {
-      addClass(containerElement, entityClassName);
-      setTimeout(function() {
-        addClass(containerElement, bindingClassName);
-      }, animationIteration);
+    var resolveFlightTracker = entity.__private('resolveFlightTracker') || noop;
+    $configParams.afterRender = function (containerElement) {
+      addClass(containerElement, entityClass);
+      function addAnimationClass() {
+        setTimeout(function() {
+          addClass(containerElement, entityAnimateClass);
+        }, minimumAnimationDelay);
+      }
       afterRender.call(this, containerElement);
+      resolveFlightTracker(addAnimationClass);
     };
     $configParams.afterRender.call(entity, element);
 
-    if( isRouter(entity) ) {
+    if (isRouter(entity)) {
       entity.__private('context')(entityContext);
     }
 
-    if( !isUndefined(element) ) {
+    if (!isUndefined(element)) {
       fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
         entity.dispose();
       });
@@ -2695,28 +2997,30 @@ function setupContextAndLifeCycle(entity, element) {
 // framework/entities/applyBinding.js
 // ------------------
 
+var hasHTML5History = false;
 var historyStateAssessed = false;
+
 function assessHistoryState() {
   if(!historyStateAssessed) {
     historyStateAssessed = true;
 
-    footwork.hasHTML5History = !!windowObject.history && !!windowObject.history.pushState;
+    hasHTML5History = !!windowObject.history && !!windowObject.history.pushState;
     if(!isUndefined(windowObject.History) && isObject(windowObject.History.options) && windowObject.History.options.html4Mode) {
       // user is overriding to force html4mode hash-based history
-      footwork.hasHTML5History = false;
+      hasHTML5History = false;
     }
   }
 }
 
 // Override the original applyBindings method to assess history API state and provide viewModel/dataModel/router life-cycle
 var originalApplyBindings = fw.applyBindings;
-fw.applyBindings = function(viewModel, element) {
+fw.applyBindings = function(viewModelOrBindingContext, rootNode) {
   // must initialize default require context (https://github.com/jrburke/requirejs/issues/1305#issuecomment-87924865)
   isFunction(require) && require([]);
 
   assessHistoryState();
-  originalApplyBindings(viewModel, element);
-  setupContextAndLifeCycle(viewModel, element);
+  originalApplyBindings(viewModelOrBindingContext, rootNode);
+  setupContextAndLifeCycle(viewModelOrBindingContext, rootNode);
 };
 
 // framework/entities/createFactories.js
@@ -2726,7 +3030,7 @@ function isBeforeInitMixin(mixin) {
   return !!mixin.runBeforeInit;
 }
 
-function entityMixin(thing) {
+function entityMixinOrNothingFrom(thing) {
   return ((isArray(thing) && thing.length) || isObject(thing) ? thing : {});
 }
 
@@ -2734,8 +3038,9 @@ function entityClassFactory(descriptor, configParams) {
   var entityCtor = null;
   var privateDataMixin = {
     _preInit: function() {
-      var privateDataStore = {};
-      this.__private = privateData.bind(this, privateDataStore, configParams);
+      this.__private = privateData.bind(this, {
+        inFlightChildren: fw.observableArray()
+      }, configParams);
     }
   };
 
@@ -2743,19 +3048,19 @@ function entityClassFactory(descriptor, configParams) {
 
   var descriptorBehavior = [];
   map(descriptor.behavior, function(behavior, index) {
-    descriptorBehavior.push( isFunction(behavior) ? behavior(descriptor, configParams || {}) : behavior );
+    descriptorBehavior.push(isFunction(behavior) ? behavior(descriptor, configParams || {}) : behavior);
   });
 
-  var ctor = configParams.initialize || configParams.viewModel || noop;
+  var ctor = configParams.initialize || noop;
   var userExtendProps = { mixin: configParams.extend || {} };
-  if( !descriptor.isEntityCtor(ctor) ) {
+  if (!descriptor.isEntityCtor(ctor)) {
     var isEntityDuckTagMixin = {};
     isEntityDuckTagMixin[descriptor.isEntityDuckTag] = true;
     isEntityDuckTagMixin = { mixin: isEntityDuckTagMixin };
 
     var newInstanceCheckMixin = {
       _preInit: function() {
-        if(this === windowObject) {
+        if (this === windowObject) {
           throw new Error('Must use the new operator when instantiating a ' + descriptor.methodName + '.');
         }
       }
@@ -2766,33 +3071,30 @@ function entityClassFactory(descriptor, configParams) {
       return mixin;
     });
 
-    var composure = [ ctor ].concat(
-      entityMixin(privateDataMixin),
-      entityMixin(userExtendProps),
-      entityMixin(newInstanceCheckMixin),
-      entityMixin(isEntityDuckTagMixin),
-      entityMixin(afterInitMixins),
-      entityMixin(beforeInitMixins),
-      entityMixin(configParams.mixins),
-      entityMixin(descriptorBehavior)
+    var composure = [ctor].concat(
+      entityMixinOrNothingFrom(privateDataMixin),
+      entityMixinOrNothingFrom(userExtendProps),
+      entityMixinOrNothingFrom(newInstanceCheckMixin),
+      entityMixinOrNothingFrom(isEntityDuckTagMixin),
+      entityMixinOrNothingFrom(afterInitMixins),
+      entityMixinOrNothingFrom(beforeInitMixins),
+      entityMixinOrNothingFrom(configParams.mixins),
+      entityMixinOrNothingFrom(descriptorBehavior)
     );
 
-    entityCtor = riveter.compose.apply( undefined, composure );
-
-    entityCtor[ descriptor.isEntityCtorDuckTag ] = true;
-
-    var privateDataStore = {};
-    entityCtor.__private = privateData.bind(this, privateDataStore, configParams);
+    entityCtor = riveter.compose.apply(undefined, composure);
+    entityCtor[descriptor.isEntityCtorDuckTag] = true;
+    entityCtor.__private = privateData.bind(this, {}, configParams);
   } else {
     // user has specified another entity constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain
     entityCtor = ctor;
   }
 
-  if( !isNull(entityCtor) && isFunction(configParams.parent) ) {
+  if (!isNull(entityCtor) && isFunction(configParams.parent)) {
     entityCtor.inherits(configParams.parent);
   }
 
-  if( configParams.autoRegister ) {
+  if (configParams.autoRegister) {
     descriptor.resource.register(configParams.namespace, entityCtor);
   }
 
@@ -3041,7 +3343,7 @@ fw.components.register = function(componentName, options) {
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || noop,
+    viewModel: viewModel || DefaultViewModel,
     template: options.template
   });
 };
@@ -3102,7 +3404,7 @@ fw.components.defaultLocation = function(location) {
 fw.components.registerLocation = function(componentName, componentLocation, folderOffset) {
   if(isArray(componentName)) {
     each(componentName, function(name) {
-      fw.components.registerLocation(name, componentLocation);
+      fw.components.registerLocation(name, componentLocation, folderOffset);
     });
   }
 
@@ -3188,94 +3490,64 @@ function resourceHelperFactory(descriptor) {
 }
 
 
-// framework/component/exports.js
-// ------------------
-
-// These are tags which are ignored by the custom component loader
-// Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
-var nonComponentTags = [
-  'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont', 'bdi', 'bgsound',
-  'big', 'blink', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
-  'content', 'data', 'datalist', 'dd', 'decorator', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'element',
-  'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'frameset', 'g', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-  'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'isindex', 'kbd', 'keygen', 'label',
-  'legend', 'li', 'link', 'listing', 'main', 'map', 'mark', 'marquee', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'nobr',
-  'noframes', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture', 'polygon', 'path', 'pre',
-  'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'shadow', 'small', 'source', 'spacer',
-  'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'template', 'textarea',
-  'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp', 'rect', 'image',
-  'lineargradient', 'stop', 'line', 'binding-wrapper', 'font'
-];
-
-fw.components.getNormalTagList = function() {
-  return clone(nonComponentTags);
-};
-
-fw.components.getComponentNameForNode = function(node) {
-  var tagName = isString(node.tagName) && node.tagName.toLowerCase();
-
-  if( fw.components.isRegistered(tagName) || fw.components.tagIsComponent(tagName) ) {
-    return tagName;
-  }
-  return null;
-};
-
-fw.components.tagIsComponent = function(tagName, isComponent) {
-  if( isUndefined(isComponent) ) {
-    return indexOf(nonComponentTags, tagName) === -1;
-  }
-
-  if( isArray(tagName) ) {
-    each(tagName, function(tag) {
-      fw.components.tagIsComponent(tag, isComponent);
-    });
-  }
-
-  if(isComponent !== true) {
-    if( contains(nonComponentTags, tagName) === false ) {
-      nonComponentTags.push(tagName);
-    }
-  } else {
-    nonComponentTags = filter(nonComponentTags, function(nonComponentTagName) {
-      return nonComponentTagName !== tagName;
-    });
-  }
-};
-
-fw.component = function(componentDefinition) {
-  if(!isObject(componentDefinition)) {
-    throw new Error('fw.component() must be supplied with a componentDefinition configuration object.');
-  }
-
-  componentDefinition.viewModel = componentDefinition.dataModel || componentDefinition.router || componentDefinition.viewModel;
-
-  return componentDefinition;
-};
-
 // framework/component/lifecycle.js
 // ------------------
 
-function componentTriggerafterRender(element, viewModel) {
+function runAnimationClassSequenceQueue(queue, isRunner) {
+  if(!queue.running || isRunner) {
+    var sequenceIteration = queue.shift();
+
+    if(sequenceIteration) {
+      sequenceIteration.addAnimationClass();
+
+      if(sequenceIteration.nextIteration || queue.length) {
+        queue.running = true;
+        setTimeout(function() {
+          runAnimationClassSequenceQueue(queue, true);
+        }, sequenceIteration.nextIteration);
+      }
+    } else {
+      queue.running = false;
+    }
+  }
+}
+
+var sequenceQueue = {};
+function addToAndFetchQueue(element, viewModel) {
+  var configParams = viewModel.__private('configParams');
+  var sequenceTimeout = resultBound(configParams, 'sequenceAnimations', viewModel) || 0;
+  var animationSequenceQueue = sequenceQueue[configParams.namespace] = (sequenceQueue[configParams.namespace] || []);
+  var newSequenceIteration = {
+    addAnimationClass: function addBindingFromQueue() {
+      addClass(element, entityAnimateClass);
+    },
+    nextIteration: sequenceTimeout
+  };
+
+  animationSequenceQueue.push(newSequenceIteration);
+
+  return animationSequenceQueue;
+}
+
+function componentTriggerAfterRender(element, viewModel) {
   if(isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
     viewModel.__private('afterRenderWasTriggered', true);
-    var configParams = viewModel.__private('configParams');
-    if(isFunction(configParams.afterRender)) {
-      var afterRender = noop;
-      if(isFunction(configParams.afterRender)) {
-        afterRender = configParams.afterRender;
-      }
 
-      configParams.afterRender = function(element) {
+    function addAnimationClass() {
+      var classList = element.className.split(" ");
+      if(!includes(classList, outletLoadingDisplay) && !includes(classList, outletLoadedDisplay)) {
         setTimeout(function() {
-          if(element.className.indexOf(bindingClassName) === -1) {
-            addClass(element, bindingClassName);
-          }
-        }, animationIteration);
-        afterRender.call(this, element);
-      };
-
-      configParams.afterRender.call(viewModel, element);
+          runAnimationClassSequenceQueue(addToAndFetchQueue(element, viewModel));
+        }, minimumAnimationDelay);
+      }
     }
+
+    var resolveFlightTracker = viewModel.__private('resolveFlightTracker') || noop;
+    setTimeout(function() {
+      resolveFlightTracker(addAnimationClass);
+    }, 0);
+
+    viewModel.__private('configParams').afterRender.call(viewModel, element);
   }
 }
 
@@ -3284,7 +3556,12 @@ fw.virtualElements.allowedBindings.$life = true;
 fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
-    addClass(element, entityClassName);
+
+    var classList = element.className.split(" ");
+    if(!includes(classList, outletLoadingDisplay) && !includes(classList, outletLoadedDisplay)) {
+      // the outlet viewModel and template binding handles its animation state
+      addClass(element, entityClass);
+    }
 
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if(isEntity(viewModel)) {
@@ -3294,11 +3571,19 @@ fw.bindingHandlers.$life = {
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
+
+    // if this element is not the 'loading' component of an outlet, then we need to
+    // trigger the onComplete callback
     var $parent = bindingContext.$parent;
-    if(isObject($parent) && $parent.__isOutlet && isFunction($parent.$route().__getOnCompleteCallback)) {
-      $parent.$route().__getOnCompleteCallback(element)();
+    if(isObject($parent) && isObservable($parent.route) && $parent.__isOutlet) {
+      var parentRoute = $parent.route.peek();
+      var classList = element.className.split(" ");
+      if (!includes(classList, outletLoadingDisplay) && isFunction(parentRoute.__getOnCompleteCallback)) {
+        parentRoute.__getOnCompleteCallback(element)();
+      }
     }
-    componentTriggerafterRender(element, bindingContext.$data);
+
+    componentTriggerAfterRender(element, bindingContext.$data);
   }
 };
 
@@ -3307,7 +3592,7 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
   loadTemplate: function(componentName, config, callback) {
     if(!isInternalComponent(componentName)) {
       // TODO: Handle different types of configs
-      if(isString(config) ) {
+      if(isString(config)) {
         config = '<!-- ko $life -->' + config + '<!-- /ko -->';
       } else {
         throw new Error('Unhandled config type ' + typeof config + '.');
@@ -3322,7 +3607,6 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     if(!isInternalComponent(componentName)) {
       callback(function(params, componentInfo) {
         var componentElement = componentInfo.element;
-
         if(isFunction(ViewModel)) {
           return new ViewModel(params);
         }
@@ -3356,17 +3640,17 @@ fw.components.loaders.push(fw.components.requireLoader = {
       folderOffset = componentName + '/';
     }
 
-    if( isFunction(require) ) {
+    if(isFunction(require)) {
       // load component using knockouts native support for requirejs
-      if( require.specified(componentName) ) {
+      if(require.specified(componentName)) {
         // component already cached, lets use it
         configOptions = {
           require: componentName
         };
-      } else if( isString(componentLocation.combined) ) {
+      } else if(isString(componentLocation.combined)) {
         combinedPath = componentLocation.combined;
 
-        if( isPath(combinedPath) ) {
+        if(isPath(combinedPath)) {
           combinedPath = combinedPath + folderOffset + combinedFile;
         }
 
@@ -3374,18 +3658,18 @@ fw.components.loaders.push(fw.components.requireLoader = {
           require: require.toUrl(combinedPath)
         };
       } else {
-        // check to see if the requested component is templateOnly and should not request a viewModel (we supply a dummy object in its place)
-        if( !isString(componentLocation.viewModel) ) {
+        // check to see if the requested component is template only and should not request a viewModel (we supply a dummy object in its place)
+        if(!isString(componentLocation.viewModel)) {
           // template-only component, substitute with 'blank' viewModel
-          viewModelConfig = { instance: {} };
+          viewModelConfig = DefaultViewModel;
         } else {
           viewModelPath = componentLocation.viewModel;
 
-          if( isPath(viewModelPath) ) {
+          if(isPath(viewModelPath)) {
             viewModelPath = viewModelPath + folderOffset + viewModelFile;
           }
 
-          if( getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel') ) {
+          if(getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel')) {
             viewModelPath += '.' + getComponentExtension(componentName, 'viewModel');
           }
 
@@ -3393,11 +3677,11 @@ fw.components.loaders.push(fw.components.requireLoader = {
         }
 
         templatePath = componentLocation.template;
-        if( isPath(templatePath) ) {
+        if(isPath(templatePath)) {
           templatePath = templatePath + folderOffset + templateFile;
         }
 
-        if( getFilenameExtension(templatePath) !== getComponentExtension(componentName, 'template') ) {
+        if(getFilenameExtension(templatePath) !== getComponentExtension(componentName, 'template')) {
           templatePath += '.' + getComponentExtension(componentName, 'template');
         }
 
@@ -3414,7 +3698,93 @@ fw.components.loaders.push(fw.components.requireLoader = {
   }
 });
 
-// Note that this is a direct lift from the knockoutjs source
+fw.components.loaders.unshift(fw.components.requireResolver = {
+  loadComponent: function(componentName, config, callback) {
+    possiblyGetConfigFromAmd(config, function(loadedConfig) {
+      // TODO: Provide upstream patch which clears out loadingSubscribablesCache when load fails so that
+      // subsequent requests will re-run require
+
+      var origCallback = callback;
+      callback = new Conduit.Sync({ target: callback });
+      callback.before(function(config) {
+        config.createViewModel = new Conduit.Sync({ target: config.createViewModel });
+        config.createViewModel.after(function(viewModel, params, componentInfo) {
+          var $flightTracker = componentInfo.element.$flightTracker;
+
+          var $context = fw.contextFor(componentInfo.element);
+          var $nearestOutlet = nearestEntity($context, isOutletViewModel);
+          var $nearestEntity = nearestEntity($context);
+          var $parentsInFlightChildren;
+          var $outletsInFlightChildren;
+          if($nearestEntity) {
+            $parentsInFlightChildren = $nearestEntity.__private('inFlightChildren');
+          }
+          if($nearestOutlet) {
+            $outletsInFlightChildren = $nearestOutlet.inFlightChildren;
+          }
+
+          if (isEntity(viewModel)) {
+            var resolveFlightTracker =  noop;
+
+            if ($flightTracker) {
+              resolveFlightTracker = function(addAnimationClass) {
+                var wasResolved = false;
+                function resolveThisEntityNow(isResolved) {
+                  function finishResolution() {
+                    addAnimationClass();
+                    if(fw.isObservable($parentsInFlightChildren) && isFunction($parentsInFlightChildren.remove)) {
+                      $parentsInFlightChildren.remove($flightTracker);
+                    }
+                    if(fw.isObservable($outletsInFlightChildren) && isFunction($outletsInFlightChildren.remove)) {
+                      $outletsInFlightChildren.remove($flightTracker);
+                    }
+                  }
+
+                  if (!wasResolved) {
+                    wasResolved = true;
+                    if (isResolved === true) {
+                      finishResolution();
+                    } else if(isPromise(isResolved) || (isArray(isResolved) && every(isResolved, isPromise))) {
+                      var promises = [].concat(isResolved);
+                      var checkPromise = function(promise) {
+                        (promise.done || promise.then)(function() {
+                          if(every(promises, promiseIsResolvedOrRejected)) {
+                            finishResolution();
+                          }
+                        });
+                      };
+
+                      each(promises, checkPromise);
+                    }
+                  }
+                }
+
+                function maybeResolve() {
+                  viewModel.__private('configParams').resolved.call(viewModel, resolveThisEntityNow);
+                }
+
+                var $inFlightChildren = viewModel.__private('inFlightChildren');
+                // if no children then resolve now, otherwise subscribe and wait till its 0
+                if ($inFlightChildren().length === 0) {
+                  maybeResolve();
+                } else {
+                  viewModel.$trackSub($inFlightChildren.subscribe(function(inFlightChildren) {
+                    inFlightChildren.length === 0 && maybeResolve();
+                  }));
+                }
+              };
+            }
+
+            viewModel.__private('resolveFlightTracker', resolveFlightTracker);
+          }
+        });
+      });
+
+      resolveConfig(componentName, loadedConfig, callback);
+    });
+  }
+});
+
 function possiblyGetConfigFromAmd(config, callback) {
   if(isString(config['require'])) {
     if(isFunction(require)) {
@@ -3566,18 +3936,67 @@ function cloneNodesFromTemplateSourceElement(elemInstance) {
   return fw.utils.cloneNodes(elemInstance.childNodes);
 }
 
-fw.components.loaders.unshift(fw.components.requireResolver = {
-  loadComponent: function(componentName, config, callback) {
-    possiblyGetConfigFromAmd(config, function(loadedConfig) {
-      // TODO: Provide upstream patch which clears out loadingSubscribablesCache when load fails so that
-      // subsequent requests will re-run require
 
-      resolveConfig(componentName, loadedConfig, callback);
-      // fw.components.defaultLoader.loadComponent(componentName, loadedConfig, callback);
+// These are tags which are ignored by the custom component loader
+// Sourced from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
+var nonComponentTags = [
+  'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont', 'bdi', 'bgsound',
+  'big', 'blink', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
+  'content', 'data', 'datalist', 'dd', 'decorator', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'element',
+  'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'frameset', 'g', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'isindex', 'kbd', 'keygen', 'label',
+  'legend', 'li', 'link', 'listing', 'main', 'map', 'mark', 'marquee', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'nobr',
+  'noframes', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture', 'polygon', 'path', 'pre',
+  'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'section', 'select', 'shadow', 'small', 'source', 'spacer',
+  'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'svg', 'table', 'tbody', 'td', 'template', 'textarea',
+  'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr', 'xmp', 'rect', 'image',
+  'lineargradient', 'stop', 'line', 'binding-wrapper', 'font'
+];
+
+fw.components.getNormalTagList = function() {
+  return clone(nonComponentTags);
+};
+
+fw.components.getComponentNameForNode = function(node) {
+  var tagName = isString(node.tagName) && node.tagName.toLowerCase();
+
+  if( fw.components.isRegistered(tagName) || fw.components.tagIsComponent(tagName) ) {
+    return tagName;
+  }
+  return null;
+};
+
+fw.components.tagIsComponent = function(tagName, isComponent) {
+  if( isUndefined(isComponent) ) {
+    return indexOf(nonComponentTags, tagName) === -1;
+  }
+
+  if( isArray(tagName) ) {
+    each(tagName, function(tag) {
+      fw.components.tagIsComponent(tag, isComponent);
     });
   }
-});
 
+  if(isComponent !== true) {
+    if( contains(nonComponentTags, tagName) === false ) {
+      nonComponentTags.push(tagName);
+    }
+  } else {
+    nonComponentTags = filter(nonComponentTags, function(nonComponentTagName) {
+      return nonComponentTagName !== tagName;
+    });
+  }
+};
+
+fw.component = function(componentDefinition) {
+  if(!isObject(componentDefinition)) {
+    throw new Error('fw.component() must be supplied with a componentDefinition configuration object.');
+  }
+
+  componentDefinition.viewModel = componentDefinition.dataModel || componentDefinition.router || componentDefinition.viewModel;
+
+  return componentDefinition;
+};
 
 // framework/collection/defaultConfig.js
 // ------------------
@@ -3589,6 +4008,7 @@ var defaultCollectionConfig = {
   idAttribute: null,
   disposeOnRemove: true,
   parse: identity,
+  ajaxOptions: {}
 };
 
 // framework/collection/utility.js
@@ -3971,8 +4391,7 @@ each(runPostInit, function(runTask) {
   runTask();
 });
 
-
       return ko;
-    })( root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.reqwest );
+    })(root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.reqwest, root.Conduit);
   })();
 }));
