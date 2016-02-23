@@ -3184,16 +3184,12 @@ function registerOutletComponent() {
   fw.components.register('outlet', {
     viewModel: function(params) {
       var outlet = this;
-      windowObject.outlet = this;
 
       this.outletName = fw.unwrap(params.name);
       this.__isOutlet = true;
 
       this.loadingDisplay = fw.observable(nullComponent);
       this.inFlightChildren = fw.observableArray();
-      this.inFlightChildren.subscribe(function(inFlightChildren) {
-        console.info('inFlightChildren', inFlightChildren);
-      });
       this.routeIsLoading = fw.observable(true);
       this.isLoading = fw.computed(function() {
         return this.inFlightChildren().length > 0 || this.routeIsLoading();
