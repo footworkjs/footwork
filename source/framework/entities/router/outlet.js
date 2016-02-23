@@ -18,6 +18,7 @@ fw.bindingHandlers.$outletBinder = {
       fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
         // tell the router to clean up its reference to the outletViewModel
         $parentRouter.__private('unregisterViewModelForOutlet')(outletName);
+        outletViewModel.dispose();
       });
 
       // register this outlet with its $parentRouter
@@ -104,9 +105,8 @@ function routerOutlet(outletName, componentToDisplay, options) {
   }
 
   if(valueHasMutated) {
-    var minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
-
     if(outletViewModel) {
+      outletViewModel.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
       outletViewModel.routeIsLoading(true);
     }
 
@@ -114,10 +114,10 @@ function routerOutlet(outletName, componentToDisplay, options) {
       var changeIsComplete = element.children.length;
       var outletElement = element.parentNode;
 
-      if(!changeWasCompleted && changeIsComplete) {
+      if(changeIsComplete) {
         changeWasCompleted = true;
         activeOutlets.remove(outlet);
-        outletElement.setAttribute('rendered', componentToDisplay);
+        outletElement.setAttribute('rendered', (componentToDisplay === nullComponent ? '' : componentToDisplay));
 
         return function addBindingOnComplete() {
           setTimeout(function() {
@@ -141,71 +141,98 @@ function routerOutlet(outletName, componentToDisplay, options) {
       activeOutlets.push(outlet);
     }
 
-    if(outletViewModel) {
-      // Tell the outletViewModel to display the temporary loading component for a period of time
-      clearTimeout(outletProperties.transitionTimeout);
-      outletViewModel.isTransitioning(true);
-      outletProperties.transitionTimeout = setTimeout(function() {
-        outletViewModel.isTransitioning(false);
-      }, minTransitionPeriod);
-    }
-
     outlet.valueHasMutated();
   }
 
   return outlet;
 };
 
-var visibleCSS = { 'height': '', 'overflow': '' };
-var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
 var outletLoadingDisplay = 'fw-loading-display';
 var outletLoadedDisplay = 'fw-loaded-display';
+var visibleCSS = { 'height': '', 'overflow': '' };
+var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
+var removeAnimation = {};
+removeAnimation[entityAnimateClass] = false;
+var addAnimation = {};
+addAnimation[entityAnimateClass] = true;
+
 function registerOutletComponent() {
   internalComponents.push('outlet');
   fw.components.register('outlet', {
     viewModel: function(params) {
-      this.loadingDisplay = fw.observable(nullComponent);
-      this.inFlightChildren = fw.observableArray();
-      this.routeIsLoading = fw.observable(true);
-      this.isTransitioning = fw.observable(false);
-      this.isLoading = fw.computed(function() {
-        return this.inFlightChildren().length > 0 || this.isTransitioning() || this.routeIsLoading();
-      }, this);
-
-      this.loadingStyle = fw.computed(function() {
-        if(this.isLoading()) {
-          return visibleCSS;
-        }
-        return hiddenCSS;
-      }, this);
-
-      this.contentsStyle = fw.computed(function() {
-        if(this.isLoading()) {
-          return hiddenCSS;
-        }
-        return visibleCSS;
-      }, this);
-
-      this.isLoadingClass = fw.computed(function() {
-        var classState = {};
-        classState[entityAnimateClass] = this.isLoading();
-        return classState;
-      }, this);
-
-      this.isLoadedClass = fw.computed(function() {
-        var classState = {};
-        classState[entityAnimateClass] = !this.isLoading();
-        return classState;
-      }, this);
+      var outlet = this;
 
       this.outletName = fw.unwrap(params.name);
       this.__isOutlet = true;
+
+      if(this.outletName === 'dashboard') {
+        windowObject.dashboard = this;
+      } else {
+        windowObject.outlet = this;
+      }
+
+      this.loadingDisplay = fw.observable(nullComponent);
+      this.inFlightChildren = fw.observableArray();
+      this.routeIsLoading = fw.observable(true);
+      this.isLoading = fw.computed(function() {
+        return this.inFlightChildren().length > 0 || this.routeIsLoading();
+      }, this);
+
+      this.loadingStyle = fw.observable();
+      this.loadedStyle = fw.observable();
+      this.loadingClass = fw.observable();
+      this.loadedClass = fw.observable();
+
+      function showLoader() {
+        outlet.loadingClass(removeAnimation);
+        outlet.loadedStyle(hiddenCSS);
+        outlet.loadingStyle(visibleCSS);
+        setTimeout(function() {
+          outlet.loadingClass(addAnimation);
+        }, 0);
+      }
+
+      function showLoadedAfterMinimumTransition() {
+        outlet.loadedClass(removeAnimation);
+        outlet.loadedStyle(visibleCSS);
+        outlet.loadingStyle(hiddenCSS);
+        setTimeout(function() {
+          outlet.loadedClass(addAnimation);
+        }, 0);
+      }
+
+      var transitionTriggerTimeout;
+      function showLoaded() {
+        clearTimeout(transitionTriggerTimeout);
+        if(outlet.minTransitionPeriod) {
+          transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, outlet.minTransitionPeriod);
+        } else {
+          showLoadedAfterMinimumTransition();
+        }
+      }
+
+      this.transitionTrigger = fw.computed(function() {
+        var isLoading = this.isLoading();
+        if(isLoading) {
+          showLoader();
+        } else {
+          showLoaded();
+        }
+      }, this);
+
+      this.dispose = function() {
+        each(outlet, function(outletProperty) {
+          if(outletProperty && isFunction(outletProperty.dispose)) {
+            outletProperty.dispose();
+          }
+        });
+      };
     },
     template: '<!-- ko $outletBinder -->' +
-                '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" data-bind="style: loadingStyle, css: isLoadingClass">' +
+                '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" data-bind="style: loadingStyle, css: loadingClass">' +
                   '<!-- ko component: loadingDisplay --><!-- /ko -->' +
                 '</div>' +
-                '<div class="' + outletLoadedDisplay + ' ' + entityClass + '" data-bind="style: contentsStyle, css: isLoadedClass">' +
+                '<div class="' + outletLoadedDisplay + ' ' + entityClass + '" data-bind="style: loadedStyle, css: loadedClass">' +
                   '<!-- ko component: route --><!-- /ko -->' +
                 '</div>' +
               '<!-- /ko -->'
