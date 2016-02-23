@@ -129,7 +129,7 @@ describe('components', function () {
     }, 0);
   });
 
-  it('can sequence animations', function(done) {
+  it.skip('can sequence animations', function(done) {
     var container = document.getElementById('afterBindingComponentAnimationSequence');
     var $container = $(container);
 

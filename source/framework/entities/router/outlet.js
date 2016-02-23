@@ -217,15 +217,6 @@ function registerOutletComponent() {
           }
         });
       };
-
-      if(this.outletName === 'dashboard') {
-        windowObject.dashboard = this;
-      } else {
-        windowObject.outlet = this;
-      }
-      outlet.inFlightChildren.subscribe(function(children) {
-        console.info('There are now', children.length, 'children running on the', outlet.outletName, 'outlet.');
-      });
     },
     template: '<!-- ko $outletBinder -->' +
                 '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" data-bind="style: loadingStyle, css: loadingClass">' +
