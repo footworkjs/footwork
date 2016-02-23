@@ -46,7 +46,6 @@ function routerOutlet(outletName, componentToDisplay, options) {
   }
 
   var router = this;
-  var changeWasCompleted = false;
   var viewModelParameters = options.params;
   var onComplete = options.onComplete || noop;
   var onFailure = options.onFailure || noop;
@@ -111,19 +110,14 @@ function routerOutlet(outletName, componentToDisplay, options) {
     }
 
     currentOutletDef.__getOnCompleteCallback = function(element) {
-      var changeIsComplete = element.children.length;
+      var changeIsComplete = !!element.children.length;
       var outletElement = element.parentNode;
 
       if(changeIsComplete) {
-        changeWasCompleted = true;
         activeOutlets.remove(outlet);
         outletElement.setAttribute('rendered', (componentToDisplay === nullComponent ? '' : componentToDisplay));
 
         return function addBindingOnComplete() {
-          setTimeout(function() {
-            addClass(outletElement, entityAnimateClass);
-          }, minimumAnimationDelay);
-
           var outletViewModel = router.outlets[outletName].outletViewModel;
           if(outletViewModel) {
             outletViewModel.routeIsLoading(false);
@@ -164,12 +158,6 @@ function registerOutletComponent() {
 
       this.outletName = fw.unwrap(params.name);
       this.__isOutlet = true;
-
-      if(this.outletName === 'dashboard') {
-        windowObject.dashboard = this;
-      } else {
-        windowObject.outlet = this;
-      }
 
       this.loadingDisplay = fw.observable(nullComponent);
       this.inFlightChildren = fw.observableArray();
@@ -229,6 +217,15 @@ function registerOutletComponent() {
           }
         });
       };
+
+      if(this.outletName === 'dashboard') {
+        windowObject.dashboard = this;
+      } else {
+        windowObject.outlet = this;
+      }
+      outlet.inFlightChildren.subscribe(function(children) {
+        console.info('There are now', children.length, 'children running on the', outlet.outletName, 'outlet.');
+      });
     },
     template: '<!-- ko $outletBinder -->' +
                 '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" data-bind="style: loadingStyle, css: loadingClass">' +

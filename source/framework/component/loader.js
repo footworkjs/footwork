@@ -84,6 +84,82 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
       // TODO: Provide upstream patch which clears out loadingSubscribablesCache when load fails so that
       // subsequent requests will re-run require
 
+      var origCallback = callback;
+      callback = new Conduit.Sync({ target: callback });
+      callback.before(function(config) {
+        config.createViewModel = new Conduit.Sync({ target: config.createViewModel });
+        config.createViewModel.after(function(viewModel, params, componentInfo) {
+          var $flightTracker = componentInfo.element.$flightTracker;
+
+          var $context = fw.contextFor(componentInfo.element);
+          var $nearestOutlet = nearestEntity($context, isOutletViewModel);
+          var $nearestEntity = nearestEntity($context);
+          var $parentsInFlightChildren;
+          var $outletsInFlightChildren;
+          if($nearestEntity) {
+            $parentsInFlightChildren = $nearestEntity.__private('inFlightChildren');
+          }
+          if($nearestOutlet) {
+            $outletsInFlightChildren = $nearestOutlet.inFlightChildren;
+          }
+
+          if (isEntity(viewModel)) {
+            var resolveFlightTracker =  noop;
+
+            if ($flightTracker) {
+              resolveFlightTracker = function(addAnimationClass) {
+                var wasResolved = false;
+                function resolveThisEntityNow(isResolved) {
+                  function finishResolution() {
+                    addAnimationClass();
+                    if(fw.isObservable($parentsInFlightChildren) && isFunction($parentsInFlightChildren.remove)) {
+                      $parentsInFlightChildren.remove($flightTracker);
+                    }
+                    if(fw.isObservable($outletsInFlightChildren) && isFunction($outletsInFlightChildren.remove)) {
+                      $outletsInFlightChildren.remove($flightTracker);
+                    }
+                  }
+
+                  if (!wasResolved) {
+                    wasResolved = true;
+                    if (isResolved === true) {
+                      finishResolution();
+                    } else if(isPromise(isResolved) || (isArray(isResolved) && every(isResolved, isPromise))) {
+                      var promises = [].concat(isResolved);
+                      var checkPromise = function(promise) {
+                        (promise.done || promise.then)(function() {
+                          if(every(promises, promiseIsResolvedOrRejected)) {
+                            finishResolution();
+                          }
+                        });
+                      };
+
+                      each(promises, checkPromise);
+                    }
+                  }
+                }
+
+                function maybeResolve() {
+                  viewModel.__private('configParams').resolved.call(viewModel, resolveThisEntityNow);
+                }
+
+                var $inFlightChildren = viewModel.__private('inFlightChildren');
+                // if no children then resolve now, otherwise subscribe and wait till its 0
+                if ($inFlightChildren().length === 0) {
+                  maybeResolve();
+                } else {
+                  viewModel.$trackSub($inFlightChildren.subscribe(function(inFlightChildren) {
+                    inFlightChildren.length === 0 && maybeResolve();
+                  }));
+                }
+              };
+            }
+
+            viewModel.__private('resolveFlightTracker', resolveFlightTracker);
+          }
+        });
+      });
+
       resolveConfig(componentName, loadedConfig, callback);
     });
   }

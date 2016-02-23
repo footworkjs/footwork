@@ -41,14 +41,21 @@ function componentTriggerAfterRender(element, viewModel) {
   if(isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
     viewModel.__private('afterRenderWasTriggered', true);
 
-    var configParams = viewModel.__private('configParams');
-    configParams.afterRender.call(viewModel, element);
-
-    if(!includes(element.className.split(" "), outletLoadingDisplay)) {
-      setTimeout(function() {
-        runAnimationClassSequenceQueue(addToAndFetchQueue(element, viewModel));
-      }, minimumAnimationDelay);
+    function addAnimationClass() {
+      var classList = element.className.split(" ");
+      if(!includes(classList, outletLoadingDisplay) && !includes(classList, outletLoadedDisplay)) {
+        setTimeout(function() {
+          runAnimationClassSequenceQueue(addToAndFetchQueue(element, viewModel));
+        }, minimumAnimationDelay);
+      }
     }
+
+    var resolveFlightTracker = viewModel.__private('resolveFlightTracker') || noop;
+    setTimeout(function() {
+      resolveFlightTracker(addAnimationClass);
+    }, 0);
+
+    viewModel.__private('configParams').afterRender.call(viewModel, element);
   }
 }
 
@@ -58,7 +65,11 @@ fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
 
-    addClass(element, entityClass);
+    var classList = element.className.split(" ");
+    if(!includes(classList, outletLoadingDisplay) && !includes(classList, outletLoadedDisplay)) {
+      // the outlet viewModel and template binding handles its animation state
+      addClass(element, entityClass);
+    }
 
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if(isEntity(viewModel)) {
@@ -74,7 +85,8 @@ fw.bindingHandlers.$life = {
     var $parent = bindingContext.$parent;
     if(isObject($parent) && isObservable($parent.route) && $parent.__isOutlet) {
       var parentRoute = $parent.route.peek();
-      if (!includes(element.className.split(" "), outletLoadingDisplay) && isFunction(parentRoute.__getOnCompleteCallback)) {
+      var classList = element.className.split(" ");
+      if (!includes(classList, outletLoadingDisplay) && isFunction(parentRoute.__getOnCompleteCallback)) {
         parentRoute.__getOnCompleteCallback(element)();
       }
     }
