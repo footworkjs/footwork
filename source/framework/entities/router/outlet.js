@@ -101,11 +101,14 @@ function routerOutlet(outletName, componentToDisplay, options) {
     if(showDuringLoadComponent) {
       outletViewModel.loadingDisplay(showDuringLoadComponent);
     }
-    outletViewModel.routeIsLoading(true);
   }
 
   if(valueHasMutated) {
     var minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
+
+    if(outletViewModel) {
+      outletViewModel.routeIsLoading(true);
+    }
 
     currentOutletDef.__getOnCompleteCallback = function(element) {
       var changeIsComplete = element.children.length;
