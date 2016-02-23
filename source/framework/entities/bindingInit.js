@@ -113,7 +113,7 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
 
   var $flightTracker = { name: tagName, type: 'component' };
 
-  if(!isString(tagName) || tagName.toLowerCase() !== 'outlet') {
+  if(element.nodeType !== 8 && (!isString(tagName) || tagName.toLowerCase() !== 'outlet')) {
     var $nearestEntity = nearestEntity(bindingContext);
     if ($nearestEntity) {
       var $inFlightChildren = $nearestEntity.__private('inFlightChildren');
