@@ -9203,8 +9203,8 @@ function registerOutletComponent() {
 
       this.loadingDisplay = fw.observable(nullComponent);
       this.inFlightChildren = fw.observableArray();
-      this.routeIsLoading = fw.observable(false);
-      this.routeIsResolving = fw.observable(false);
+      this.routeIsLoading = fw.observable(true);
+      this.routeIsResolving = fw.observable(true);
 
       this.routeIsLoadingSub = this.routeIsLoading.subscribe(function(routeIsLoading) {
         if(routeIsLoading) {
@@ -9214,16 +9214,18 @@ function registerOutletComponent() {
             this.flightWatch.dispose();
           }
 
-          var hadChildren = true;
-          if(outlet.inFlightChildren().length) {
-            this.flightWatch = outlet.inFlightChildren.subscribe(function(inFlightChildren) {
-              if(!inFlightChildren.length && hadChildren) {
-                outlet.routeIsResolving(false);
-              }
-            });
-          } else {
-            outlet.routeIsResolving(false);
-          }
+          // must call setTimeout to allow binding to begin on any subcomponents/etc
+          setTimeout(function() {
+            if(outlet.inFlightChildren().length) {
+              outlet.flightWatch = outlet.inFlightChildren.subscribe(function(inFlightChildren) {
+                if(!inFlightChildren.length) {
+                  outlet.routeIsResolving(false);
+                }
+              });
+            } else {
+              outlet.routeIsResolving(false);
+            }
+          }, 0);
         }
       });
 
