@@ -8712,6 +8712,10 @@ var DataModel = function(descriptor, configParams) {
         }, false);
       }, this);
 
+      this.$isSaving = fw.observable(false);
+      this.$isFetching = fw.observable(false);
+      this.$isDestroying = fw.observable(false);
+
       this.$cid = fw.utils.guid();
 
       this[pkField] = this.$id = fw.observable(params[pkField]).mapTo(pkField);
@@ -8727,14 +8731,21 @@ var DataModel = function(descriptor, configParams) {
         var dataModel = this;
         var id = this[configParams.idAttribute]();
         if(id) {
+          dataModel.$isFetching(true);
+
           // retrieve data dataModel the from server using the id
           var xhr = this.sync('read', dataModel, options);
-          return (xhr.done || xhr.then).call(xhr, function(response) {
-              var parsedResponse = configParams.parse ? configParams.parse(response) : response;
-              if(!isUndefined(parsedResponse[configParams.idAttribute])) {
-                dataModel.set(parsedResponse);
-              }
-            });
+          (xhr.done || xhr.then).call(xhr, function(response) {
+            var parsedResponse = configParams.parse ? configParams.parse(response) : response;
+            if(!isUndefined(parsedResponse[configParams.idAttribute])) {
+              dataModel.set(parsedResponse);
+            }
+          });
+
+          xhr.always(function() {
+            dataModel.$isFetching(false);
+          });
+          return xhr;
         }
       },
 
@@ -8769,7 +8780,12 @@ var DataModel = function(descriptor, configParams) {
 
         var syncPromise = dataModel.sync(method, dataModel, options);
 
-        (syncPromise.done || syncPromise.then).call(syncPromise, function(response) {
+        dataModel.$isSaving(true);
+        syncPromise.always(function() {
+          dataModel.$isSaving(false);
+        });
+
+        (syncPromise.done || syncPromise.then)(function(response) {
           var resourceData = configParams.parse ? configParams.parse(response) : response;
 
           if(options.wait && !isNull(attrs)) {
@@ -8803,6 +8819,7 @@ var DataModel = function(descriptor, configParams) {
           dataModel.$namespace.publish('destroy', options);
         };
 
+        dataModel.$isDestroying(true);
         var xhr = this.sync('delete', this, options);
 
         (xhr.done || xhr.then).call(xhr, function() {
@@ -8810,6 +8827,10 @@ var DataModel = function(descriptor, configParams) {
           if(options.wait) {
             destroy();
           }
+        });
+
+        xhr.always(function() {
+          dataModel.$isDestroying(false);
         });
 
         if(!options.wait) {
@@ -9215,8 +9236,8 @@ function registerOutletComponent() {
         if(routeIsLoading) {
           outlet.routeIsResolving(true);
         } else {
-          if(this.flightWatch && isFunction(this.flightWatch.dispose)) {
-            this.flightWatch.dispose();
+          if(outlet.flightWatch && isFunction(outlet.flightWatch.dispose)) {
+            outlet.flightWatch.dispose();
           }
 
           // must call setTimeout to allow binding to begin on any subcomponents/etc
@@ -9244,6 +9265,7 @@ function registerOutletComponent() {
         outlet.loadedClass(removeAnimation);
         outlet.loadedStyle(hiddenCSS);
         outlet.loadingStyle(visibleCSS);
+
         setTimeout(function() {
           outlet.loadingClass(addAnimation);
         }, 0);
@@ -9254,17 +9276,14 @@ function registerOutletComponent() {
         outlet.loadedClass(removeAnimation);
         outlet.loadedStyle(visibleCSS);
         outlet.loadingStyle(hiddenCSS);
-        setTimeout(function() {
-          outlet.loadedClass(addAnimation);
-          if(resolvedCallbacks.length) {
-            setTimeout(function() {
-              each(resolvedCallbacks, function(callback) {
-                callback();
-              });
-              resolvedCallbacks = [];
-            }, 0);
-          }
-        }, 0);
+        outlet.loadedClass(addAnimation);
+
+        if(resolvedCallbacks.length) {
+          each(resolvedCallbacks, function(callback) {
+            callback();
+          });
+          resolvedCallbacks = [];
+        }
       }
 
       var transitionTriggerTimeout;
@@ -10816,22 +10835,25 @@ function componentTriggerAfterRender(element, viewModel, $context) {
         setTimeout(function() {
           var queue = addToAndFetchQueue(element, viewModel);
           var nearestOutlet = nearestEntity($context, isOutletViewModel);
+
           if(nearestOutlet) {
+            // the parent outlet will run the callback that initiates the animation
+            // sequence (once the rest of its dependencies finish loading as well)
             nearestOutlet.addResolvedCallbackOrExecute(function() {
               runAnimationClassSequenceQueue(queue);
             });
           } else {
+            // no parent outlet found, lets go ahead and run the queue
             runAnimationClassSequenceQueue(queue);
           }
         }, minimumAnimationDelay);
       }
     }
 
-    var resolveFlightTracker = viewModel.__private('resolveFlightTracker') || noop;
-    setTimeout(function() {
-      resolveFlightTracker(addAnimationClass);
-    }, 0);
+    // resolve the flight tracker and trigger the addAnimationClass callback when appropriate
+    (viewModel.__private('resolveFlightTracker') || noop)(addAnimationClass);
 
+    // trigger the user-specified afterRender callback
     viewModel.__private('configParams').afterRender.call(viewModel, element);
   }
 }
@@ -11375,6 +11397,8 @@ fw.collection.create = function(configParams) {
       splice: removeDisposeAndNotify.bind(collection, collection.splice),
       push: addAndNotify.bind(collection, collection.push),
       unshift: addAndNotify.bind(collection, collection.unshift),
+      $isFetching: fw.observable(false),
+      $isCreating: fw.observable(false),
       dispose: function() {
         if(!collection.isDisposed) {
           collection.isDisposed = true;
@@ -11509,6 +11533,7 @@ var collectionMethods = fw.collection.methods = {
       options.parse = true;
     }
 
+    collection.$isFetching(true);
     var xhr = collection.sync('read', collection, options);
 
     (xhr.done || xhr.then).call(xhr, function(resp) {
@@ -11516,6 +11541,10 @@ var collectionMethods = fw.collection.methods = {
       resp = collection.__private('configParams').parse(resp);
       var touchedModels = collection[method](resp, options);
       collection.$namespace.publish('_.change', { touched: touchedModels, serverResponse: resp, options: options });
+    });
+
+    xhr.always(function() {
+      collection.$isFetching(false);
     });
 
     return xhr;
@@ -11619,6 +11648,7 @@ var collectionMethods = fw.collection.methods = {
     var modelSavePromise = null;
 
     if(isDataModel(newModel)) {
+      collection.$isCreating(true);
       modelSavePromise = newModel.save();
 
       if(options.wait) {
@@ -11628,6 +11658,10 @@ var collectionMethods = fw.collection.methods = {
       } else {
         collection.addModel(newModel)
       }
+
+      modelSavePromise.always(function() {
+        collection.$isCreating(false);
+      });
     } else {
       collection.addModel(newModel);
     }

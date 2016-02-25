@@ -70,6 +70,8 @@ fw.collection.create = function(configParams) {
       splice: removeDisposeAndNotify.bind(collection, collection.splice),
       push: addAndNotify.bind(collection, collection.push),
       unshift: addAndNotify.bind(collection, collection.unshift),
+      $isFetching: fw.observable(false),
+      $isCreating: fw.observable(false),
       dispose: function() {
         if(!collection.isDisposed) {
           collection.isDisposed = true;

@@ -17,6 +17,8 @@ var DataModel = function(descriptor, configParams) {
       }, this);
 
       this.$isSaving = fw.observable(false);
+      this.$isFetching = fw.observable(false);
+      this.$isDestroying = fw.observable(false);
 
       this.$cid = fw.utils.guid();
 
@@ -33,14 +35,21 @@ var DataModel = function(descriptor, configParams) {
         var dataModel = this;
         var id = this[configParams.idAttribute]();
         if(id) {
+          dataModel.$isFetching(true);
+
           // retrieve data dataModel the from server using the id
           var xhr = this.sync('read', dataModel, options);
-          return (xhr.done || xhr.then).call(xhr, function(response) {
-              var parsedResponse = configParams.parse ? configParams.parse(response) : response;
-              if(!isUndefined(parsedResponse[configParams.idAttribute])) {
-                dataModel.set(parsedResponse);
-              }
-            });
+          (xhr.done || xhr.then).call(xhr, function(response) {
+            var parsedResponse = configParams.parse ? configParams.parse(response) : response;
+            if(!isUndefined(parsedResponse[configParams.idAttribute])) {
+              dataModel.set(parsedResponse);
+            }
+          });
+
+          xhr.always(function() {
+            dataModel.$isFetching(false);
+          });
+          return xhr;
         }
       },
 
@@ -114,6 +123,7 @@ var DataModel = function(descriptor, configParams) {
           dataModel.$namespace.publish('destroy', options);
         };
 
+        dataModel.$isDestroying(true);
         var xhr = this.sync('delete', this, options);
 
         (xhr.done || xhr.then).call(xhr, function() {
@@ -121,6 +131,10 @@ var DataModel = function(descriptor, configParams) {
           if(options.wait) {
             destroy();
           }
+        });
+
+        xhr.always(function() {
+          dataModel.$isDestroying(false);
         });
 
         if(!options.wait) {
