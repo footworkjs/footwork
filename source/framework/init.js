@@ -11,7 +11,9 @@ fw.viewModel = {};
 fw.dataModel = {};
 fw.router = {};
 fw.outlet = {};
-fw.settings = {};
+fw.settings = {
+  defaultAnimationSequence: 0
+};
 
 var runPostInit = [];
 var internalComponents = [];
@@ -21,7 +23,6 @@ var entityMixins = [];
 var entityClass = 'fw-entity';
 var entityAnimateClass = 'fw-entity-animate';
 var minimumAnimationDelay = 20;
-var defaultAnimationSequenceInterval = 20;
 var isEntityCtor;
 var isEntity;
 var isDataModel;
@@ -41,7 +42,7 @@ runPostInit.unshift(function() {
     },
     sequenceAnimations: function() {
       if(isUndefined(fw.settings.sequenceAnimations) || isNull(fw.settings.sequenceAnimations)) {
-        return defaultAnimationSequenceInterval;
+        return fw.settings.defaultAnimationSequence || 0;
       }
       return fw.settings.sequenceAnimations;
     }

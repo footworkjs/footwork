@@ -55,7 +55,6 @@ function routerOutlet(outletName, componentToDisplay, options) {
   var outlet = outletProperties.routeObservable;
   var outletViewModel = outletProperties.outletViewModel;
 
-  outletName = fw.unwrap(outletName);
   if(!isObservable(outlet)) {
     // router outlet observable not found, we must create a new one
     outlet = fw.observable({
@@ -77,7 +76,6 @@ function routerOutlet(outletName, componentToDisplay, options) {
 
   var currentOutletDef = outlet();
   var valueHasMutated = false;
-  var isInitialLoad = outlet().name === noComponentSelected;
 
   if(arguments.length > 1 && !componentToDisplay) {
     componentToDisplay = nullComponent;
@@ -97,7 +95,7 @@ function routerOutlet(outletName, componentToDisplay, options) {
 
   if(outletViewModel) {
     // Show the loading component (if one is defined)
-    var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || outlet().name]);
+    var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || currentOutletDef.name]);
     if(showDuringLoadComponent) {
       outletViewModel.loadingDisplay(showDuringLoadComponent);
     }
