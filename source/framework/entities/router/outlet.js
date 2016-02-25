@@ -164,6 +164,15 @@ function registerOutletComponent() {
       this.routeIsLoading = fw.observable(true);
       this.routeIsResolving = fw.observable(true);
 
+      var resolvedCallbacks = [];
+      this.addResolvedCallbackOrExecute = function(callback) {
+        if(outlet.routeIsResolving()) {
+          resolvedCallbacks.push(callback);
+        } else {
+          callback();
+        }
+      };
+
       this.routeIsLoadingSub = this.routeIsLoading.subscribe(function(routeIsLoading) {
         if(routeIsLoading) {
           outlet.routeIsResolving(true);
@@ -209,6 +218,14 @@ function registerOutletComponent() {
         outlet.loadingStyle(hiddenCSS);
         setTimeout(function() {
           outlet.loadedClass(addAnimation);
+          if(resolvedCallbacks.length) {
+            setTimeout(function() {
+              each(resolvedCallbacks, function(callback) {
+                callback();
+              });
+              resolvedCallbacks = [];
+            }, 0);
+          }
         }, 0);
       }
 

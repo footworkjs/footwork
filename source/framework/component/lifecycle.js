@@ -37,7 +37,7 @@ function addToAndFetchQueue(element, viewModel) {
   return animationSequenceQueue;
 }
 
-function componentTriggerAfterRender(element, viewModel) {
+function componentTriggerAfterRender(element, viewModel, $context) {
   if(isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
     viewModel.__private('afterRenderWasTriggered', true);
 
@@ -45,7 +45,15 @@ function componentTriggerAfterRender(element, viewModel) {
       var classList = element.className.split(" ");
       if(!includes(classList, outletLoadingDisplay) && !includes(classList, outletLoadedDisplay)) {
         setTimeout(function() {
-          runAnimationClassSequenceQueue(addToAndFetchQueue(element, viewModel));
+          var queue = addToAndFetchQueue(element, viewModel);
+          var nearestOutlet = nearestEntity($context, isOutletViewModel);
+          if(nearestOutlet) {
+            nearestOutlet.addResolvedCallbackOrExecute(function() {
+              runAnimationClassSequenceQueue(queue);
+            });
+          } else {
+            runAnimationClassSequenceQueue(queue);
+          }
         }, minimumAnimationDelay);
       }
     }
@@ -91,7 +99,7 @@ fw.bindingHandlers.$life = {
       }
     }
 
-    componentTriggerAfterRender(element, bindingContext.$data);
+    componentTriggerAfterRender(element, bindingContext.$data, bindingContext);
   }
 };
 
