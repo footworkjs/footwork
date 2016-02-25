@@ -16,6 +16,8 @@ var DataModel = function(descriptor, configParams) {
         }, false);
       }, this);
 
+      this.$isSaving = fw.observable(false);
+
       this.$cid = fw.utils.guid();
 
       this[pkField] = this.$id = fw.observable(params[pkField]).mapTo(pkField);
@@ -73,7 +75,12 @@ var DataModel = function(descriptor, configParams) {
 
         var syncPromise = dataModel.sync(method, dataModel, options);
 
-        (syncPromise.done || syncPromise.then).call(syncPromise, function(response) {
+        dataModel.$isSaving(true);
+        syncPromise.always(function() {
+          dataModel.$isSaving(false);
+        });
+
+        (syncPromise.done || syncPromise.then)(function(response) {
           var resourceData = configParams.parse ? configParams.parse(response) : response;
 
           if(options.wait && !isNull(attrs)) {
