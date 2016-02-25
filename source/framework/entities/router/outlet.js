@@ -99,6 +99,7 @@ function routerOutlet(outletName, componentToDisplay, options) {
     if(showDuringLoadComponent) {
       outletViewModel.loadingDisplay(showDuringLoadComponent);
     }
+    outletViewModel.inFlightChildren.removeAll();
   }
 
   if(valueHasMutated) {

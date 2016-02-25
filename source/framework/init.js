@@ -11,9 +11,7 @@ fw.viewModel = {};
 fw.dataModel = {};
 fw.router = {};
 fw.outlet = {};
-fw.settings = {
-  defaultAnimationSequence: 0
-};
+fw.settings = {};
 
 var runPostInit = [];
 var internalComponents = [];
@@ -41,10 +39,7 @@ runPostInit.unshift(function() {
       }
     },
     sequenceAnimations: function() {
-      if(isUndefined(fw.settings.sequenceAnimations) || isNull(fw.settings.sequenceAnimations)) {
-        return fw.settings.defaultAnimationSequence || 0;
-      }
-      return fw.settings.sequenceAnimations;
+      return result(fw.settings, 'defaultAnimationSequence', 0);
     }
   });
 });
