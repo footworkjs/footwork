@@ -474,7 +474,6 @@ var entityMixins = [];
 var entityClass = 'fw-entity';
 var entityAnimateClass = 'fw-entity-animate';
 var minimumAnimationDelay = 20;
-var defaultAnimationSequenceInterval = 20;
 var isEntityCtor;
 var isEntity;
 var isDataModel;
@@ -493,10 +492,7 @@ runPostInit.unshift(function() {
       }
     },
     sequenceAnimations: function() {
-      if(isUndefined(fw.settings.sequenceAnimations) || isNull(fw.settings.sequenceAnimations)) {
-        return defaultAnimationSequenceInterval;
-      }
-      return fw.settings.sequenceAnimations;
+      return result(fw.settings, 'defaultAnimationSequence', 0);
     }
   });
 });
@@ -1865,7 +1861,6 @@ function routerOutlet(outletName, componentToDisplay, options) {
   var outlet = outletProperties.routeObservable;
   var outletViewModel = outletProperties.outletViewModel;
 
-  outletName = fw.unwrap(outletName);
   if(!isObservable(outlet)) {
     // router outlet observable not found, we must create a new one
     outlet = fw.observable({
@@ -1887,7 +1882,6 @@ function routerOutlet(outletName, componentToDisplay, options) {
 
   var currentOutletDef = outlet();
   var valueHasMutated = false;
-  var isInitialLoad = outlet().name === noComponentSelected;
 
   if(arguments.length > 1 && !componentToDisplay) {
     componentToDisplay = nullComponent;
@@ -1907,13 +1901,15 @@ function routerOutlet(outletName, componentToDisplay, options) {
 
   if(outletViewModel) {
     // Show the loading component (if one is defined)
-    var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || outlet().name]);
+    var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || currentOutletDef.name]);
     if(showDuringLoadComponent) {
       outletViewModel.loadingDisplay(showDuringLoadComponent);
     }
   }
 
   if(valueHasMutated) {
+    clearSequenceQueue();
+
     if(outletViewModel) {
       outletViewModel.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
       outletViewModel.routeIsLoading(true);
@@ -1974,6 +1970,15 @@ function registerOutletComponent() {
       this.routeIsLoading = fw.observable(true);
       this.routeIsResolving = fw.observable(true);
 
+      var resolvedCallbacks = [];
+      this.addResolvedCallbackOrExecute = function(callback) {
+        if(outlet.routeIsResolving()) {
+          resolvedCallbacks.push(callback);
+        } else {
+          callback();
+        }
+      };
+
       this.routeIsLoadingSub = this.routeIsLoading.subscribe(function(routeIsLoading) {
         if(routeIsLoading) {
           outlet.routeIsResolving(true);
@@ -2019,6 +2024,14 @@ function registerOutletComponent() {
         outlet.loadingStyle(hiddenCSS);
         setTimeout(function() {
           outlet.loadedClass(addAnimation);
+          if(resolvedCallbacks.length) {
+            setTimeout(function() {
+              each(resolvedCallbacks, function(callback) {
+                callback();
+              });
+              resolvedCallbacks = [];
+            }, 0);
+          }
         }, 0);
       }
 
@@ -3514,6 +3527,15 @@ function resourceHelperFactory(descriptor) {
 // framework/component/lifecycle.js
 // ------------------
 
+function clearSequenceQueue() {
+  each(sequenceQueue, function(sequence, queueNamespace) {
+    each(sequence, function(sequenceIteration) {
+      sequenceIteration.addAnimationClass();
+    });
+    delete sequenceQueue[queueNamespace];
+  });
+}
+
 function runAnimationClassSequenceQueue(queue, isRunner) {
   if(!queue.running || isRunner) {
     var sequenceIteration = queue.shift();
@@ -3526,6 +3548,8 @@ function runAnimationClassSequenceQueue(queue, isRunner) {
         setTimeout(function() {
           runAnimationClassSequenceQueue(queue, true);
         }, sequenceIteration.nextIteration);
+      } else {
+        queue.running = false;
       }
     } else {
       queue.running = false;
@@ -3536,7 +3560,7 @@ function runAnimationClassSequenceQueue(queue, isRunner) {
 var sequenceQueue = {};
 function addToAndFetchQueue(element, viewModel) {
   var configParams = viewModel.__private('configParams');
-  var sequenceTimeout = resultBound(configParams, 'sequenceAnimations', viewModel) || 0;
+  var sequenceTimeout = resultBound(configParams, 'sequenceAnimations', viewModel) || fw.settings.defaultAnimationSequence || 0;
   var animationSequenceQueue = sequenceQueue[configParams.namespace] = (sequenceQueue[configParams.namespace] || []);
   var newSequenceIteration = {
     addAnimationClass: function addBindingFromQueue() {
@@ -3550,7 +3574,7 @@ function addToAndFetchQueue(element, viewModel) {
   return animationSequenceQueue;
 }
 
-function componentTriggerAfterRender(element, viewModel) {
+function componentTriggerAfterRender(element, viewModel, $context) {
   if(isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
     viewModel.__private('afterRenderWasTriggered', true);
 
@@ -3558,7 +3582,15 @@ function componentTriggerAfterRender(element, viewModel) {
       var classList = element.className.split(" ");
       if(!includes(classList, outletLoadingDisplay) && !includes(classList, outletLoadedDisplay)) {
         setTimeout(function() {
-          runAnimationClassSequenceQueue(addToAndFetchQueue(element, viewModel));
+          var queue = addToAndFetchQueue(element, viewModel);
+          var nearestOutlet = nearestEntity($context, isOutletViewModel);
+          if(nearestOutlet) {
+            nearestOutlet.addResolvedCallbackOrExecute(function() {
+              runAnimationClassSequenceQueue(queue);
+            });
+          } else {
+            runAnimationClassSequenceQueue(queue);
+          }
         }, minimumAnimationDelay);
       }
     }
@@ -3604,7 +3636,7 @@ fw.bindingHandlers.$life = {
       }
     }
 
-    componentTriggerAfterRender(element, bindingContext.$data);
+    componentTriggerAfterRender(element, bindingContext.$data, bindingContext);
   }
 };
 
