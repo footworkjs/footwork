@@ -217,19 +217,14 @@ function registerOutletComponent() {
         outlet.loadedClass(removeAnimation);
         outlet.loadedStyle(visibleCSS);
         outlet.loadingStyle(hiddenCSS);
+        outlet.loadedClass(addAnimation);
 
-        setTimeout(function() {
-          outlet.loadedClass(addAnimation);
-
-          if(resolvedCallbacks.length) {
-            setTimeout(function() {
-              each(resolvedCallbacks, function(callback) {
-                callback();
-              });
-              resolvedCallbacks = [];
-            }, 0);
-          }
-        }, 0);
+        if(resolvedCallbacks.length) {
+          each(resolvedCallbacks, function(callback) {
+            callback();
+          });
+          resolvedCallbacks = [];
+        }
       }
 
       var transitionTriggerTimeout;
