@@ -99,10 +99,11 @@ function routerOutlet(outletName, componentToDisplay, options) {
     if(showDuringLoadComponent) {
       outletViewModel.loadingDisplay(showDuringLoadComponent);
     }
-    outletViewModel.inFlightChildren.removeAll();
   }
 
   if(valueHasMutated) {
+    clearSequenceQueue();
+
     if(outletViewModel) {
       outletViewModel.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
       outletViewModel.routeIsLoading(true);

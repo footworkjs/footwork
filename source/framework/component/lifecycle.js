@@ -1,6 +1,15 @@
 // framework/component/lifecycle.js
 // ------------------
 
+function clearSequenceQueue() {
+  each(sequenceQueue, function(sequence, queueNamespace) {
+    each(sequence, function(sequenceIteration) {
+      sequenceIteration.addAnimationClass();
+    });
+    delete sequenceQueue[queueNamespace];
+  });
+}
+
 function runAnimationClassSequenceQueue(queue, isRunner) {
   if(!queue.running || isRunner) {
     var sequenceIteration = queue.shift();
