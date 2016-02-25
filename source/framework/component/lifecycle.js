@@ -58,22 +58,25 @@ function componentTriggerAfterRender(element, viewModel, $context) {
         setTimeout(function() {
           var queue = addToAndFetchQueue(element, viewModel);
           var nearestOutlet = nearestEntity($context, isOutletViewModel);
+
           if(nearestOutlet) {
+            // the parent outlet will run the callback that initiates the animation
+            // sequence (once the rest of its dependencies finish loading as well)
             nearestOutlet.addResolvedCallbackOrExecute(function() {
               runAnimationClassSequenceQueue(queue);
             });
           } else {
+            // no parent outlet found, lets go ahead and run the queue
             runAnimationClassSequenceQueue(queue);
           }
         }, minimumAnimationDelay);
       }
     }
 
-    var resolveFlightTracker = viewModel.__private('resolveFlightTracker') || noop;
-    setTimeout(function() {
-      resolveFlightTracker(addAnimationClass);
-    }, 0);
+    // resolve the flight tracker and trigger the addAnimationClass callback when appropriate
+    (viewModel.__private('resolveFlightTracker') || noop)(addAnimationClass);
 
+    // trigger the user-specified afterRender callback
     viewModel.__private('configParams').afterRender.call(viewModel, element);
   }
 }

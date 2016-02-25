@@ -177,8 +177,8 @@ function registerOutletComponent() {
         if(routeIsLoading) {
           outlet.routeIsResolving(true);
         } else {
-          if(this.flightWatch && isFunction(this.flightWatch.dispose)) {
-            this.flightWatch.dispose();
+          if(outlet.flightWatch && isFunction(outlet.flightWatch.dispose)) {
+            outlet.flightWatch.dispose();
           }
 
           // must call setTimeout to allow binding to begin on any subcomponents/etc
@@ -206,6 +206,7 @@ function registerOutletComponent() {
         outlet.loadedClass(removeAnimation);
         outlet.loadedStyle(hiddenCSS);
         outlet.loadingStyle(visibleCSS);
+
         setTimeout(function() {
           outlet.loadingClass(addAnimation);
         }, 0);
@@ -216,8 +217,10 @@ function registerOutletComponent() {
         outlet.loadedClass(removeAnimation);
         outlet.loadedStyle(visibleCSS);
         outlet.loadingStyle(hiddenCSS);
+
         setTimeout(function() {
           outlet.loadedClass(addAnimation);
+
           if(resolvedCallbacks.length) {
             setTimeout(function() {
               each(resolvedCallbacks, function(callback) {
