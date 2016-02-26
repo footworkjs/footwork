@@ -11994,9 +11994,6 @@ fw.subscribable.fn.mapTo = function(option) {
 
   var mappings = dataModel.__private('mappings')();
   var primaryKey = getPrimaryKey(dataModel);
-  if( !isUndefined(mappings[mapPath]) && (mapPath !== primaryKey && dataModel.$id.__isOriginalPK)) {
-    throw new Error('the field \'' + mapPath + '\' is already mapped on this dataModel');
-  }
 
   if(!isUndefined(mappings[mapPath]) && isFunction(mappings[mapPath].dispose)) {
     // remapping a path, we need to dispose of the old one first
@@ -12042,23 +12039,21 @@ var DataModel = function(descriptor, configParams) {
       var pkField = configParams.idAttribute;
       this.__private('mappings', fw.observable({}));
 
-      this.$dirty = fw.computed(function() {
+      this.isDirty = fw.computed(function() {
         return reduce(this.__private('mappings')(), function(isDirty, mappedField) {
           return isDirty || mappedField.isDirty();
         }, false);
       }, this);
 
-      this.$isSaving = fw.observable(false);
-      this.$isFetching = fw.observable(false);
-      this.$isDestroying = fw.observable(false);
+      this.isSaving = fw.observable(false);
+      this.isFetching = fw.observable(false);
+      this.isDestroying = fw.observable(false);
 
       this.$cid = fw.utils.guid();
-
       this[pkField] = this.$id = fw.observable(params[pkField]).mapTo(pkField);
-      this.$id.__isOriginalPK = true;
 
-      this.$isNew = fw.computed(function() {
-        return !isUndefined(this.$id());
+      this.isNew = fw.computed(function() {
+        return !isUndefined(this.$id()) && !isNull(this.$id());
       }, this);
     },
     mixin: {
@@ -12067,7 +12062,7 @@ var DataModel = function(descriptor, configParams) {
         var dataModel = this;
         var id = this[configParams.idAttribute]();
         if(id) {
-          dataModel.$isFetching(true);
+          dataModel.isFetching(true);
 
           // retrieve data dataModel the from server using the id
           var xhr = this.sync('read', dataModel, options);
@@ -12078,10 +12073,9 @@ var DataModel = function(descriptor, configParams) {
             }
           });
 
-          xhr.always(function() {
-            dataModel.$isFetching(false);
+          return xhr.always(function() {
+            dataModel.isFetching(false);
           });
-          return xhr;
         }
       },
 
@@ -12116,11 +12110,7 @@ var DataModel = function(descriptor, configParams) {
 
         var syncPromise = dataModel.sync(method, dataModel, options);
 
-        dataModel.$isSaving(true);
-        syncPromise.always(function() {
-          dataModel.$isSaving(false);
-        });
-
+        dataModel.isSaving(true);
         (syncPromise.done || syncPromise.then)(function(response) {
           var resourceData = configParams.parse ? configParams.parse(response) : response;
 
@@ -12137,12 +12127,14 @@ var DataModel = function(descriptor, configParams) {
           dataModel.set(attrs);
         }
 
-        return syncPromise;
+        return syncPromise.always(function() {
+          dataModel.isSaving(false);
+        });;
       },
 
       // DELETE
       destroy: function(options) {
-        if(this.$isNew()) {
+        if(this.isNew()) {
           return false;
         }
 
@@ -12155,7 +12147,7 @@ var DataModel = function(descriptor, configParams) {
           dataModel.$namespace.publish('destroy', options);
         };
 
-        dataModel.$isDestroying(true);
+        dataModel.isDestroying(true);
         var xhr = this.sync('delete', this, options);
 
         (xhr.done || xhr.then).call(xhr, function() {
@@ -12166,7 +12158,7 @@ var DataModel = function(descriptor, configParams) {
         });
 
         xhr.always(function() {
-          dataModel.$isDestroying(false);
+          dataModel.isDestroying(false);
         });
 
         if(!options.wait) {
@@ -14733,8 +14725,8 @@ fw.collection.create = function(configParams) {
       splice: removeDisposeAndNotify.bind(collection, collection.splice),
       push: addAndNotify.bind(collection, collection.push),
       unshift: addAndNotify.bind(collection, collection.unshift),
-      $isFetching: fw.observable(false),
-      $isCreating: fw.observable(false),
+      isFetching: fw.observable(false),
+      isCreating: fw.observable(false),
       dispose: function() {
         if(!collection.isDisposed) {
           collection.isDisposed = true;
@@ -14869,7 +14861,7 @@ var collectionMethods = fw.collection.methods = {
       options.parse = true;
     }
 
-    collection.$isFetching(true);
+    collection.isFetching(true);
     var xhr = collection.sync('read', collection, options);
 
     (xhr.done || xhr.then).call(xhr, function(resp) {
@@ -14879,11 +14871,9 @@ var collectionMethods = fw.collection.methods = {
       collection.$namespace.publish('_.change', { touched: touchedModels, serverResponse: resp, options: options });
     });
 
-    xhr.always(function() {
-      collection.$isFetching(false);
+    return xhr.always(function() {
+      collection.isFetching(false);
     });
-
-    return xhr;
   },
   where: function(modelData, options) {
     var collection = this;
@@ -14984,7 +14974,7 @@ var collectionMethods = fw.collection.methods = {
     var modelSavePromise = null;
 
     if(isDataModel(newModel)) {
-      collection.$isCreating(true);
+      collection.isCreating(true);
       modelSavePromise = newModel.save();
 
       if(options.wait) {
@@ -14996,7 +14986,7 @@ var collectionMethods = fw.collection.methods = {
       }
 
       modelSavePromise.always(function() {
-        collection.$isCreating(false);
+        collection.isCreating(false);
       });
     } else {
       collection.addModel(newModel);

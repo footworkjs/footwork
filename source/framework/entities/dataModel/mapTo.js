@@ -22,9 +22,6 @@ fw.subscribable.fn.mapTo = function(option) {
 
   var mappings = dataModel.__private('mappings')();
   var primaryKey = getPrimaryKey(dataModel);
-  if( !isUndefined(mappings[mapPath]) && (mapPath !== primaryKey && dataModel.$id.__isOriginalPK)) {
-    throw new Error('the field \'' + mapPath + '\' is already mapped on this dataModel');
-  }
 
   if(!isUndefined(mappings[mapPath]) && isFunction(mappings[mapPath].dispose)) {
     // remapping a path, we need to dispose of the old one first

@@ -10,23 +10,21 @@ var DataModel = function(descriptor, configParams) {
       var pkField = configParams.idAttribute;
       this.__private('mappings', fw.observable({}));
 
-      this.$dirty = fw.computed(function() {
+      this.isDirty = fw.computed(function() {
         return reduce(this.__private('mappings')(), function(isDirty, mappedField) {
           return isDirty || mappedField.isDirty();
         }, false);
       }, this);
 
-      this.$isSaving = fw.observable(false);
-      this.$isFetching = fw.observable(false);
-      this.$isDestroying = fw.observable(false);
+      this.isSaving = fw.observable(false);
+      this.isFetching = fw.observable(false);
+      this.isDestroying = fw.observable(false);
 
       this.$cid = fw.utils.guid();
-
       this[pkField] = this.$id = fw.observable(params[pkField]).mapTo(pkField);
-      this.$id.__isOriginalPK = true;
 
-      this.$isNew = fw.computed(function() {
-        return !isUndefined(this.$id());
+      this.isNew = fw.computed(function() {
+        return !isUndefined(this.$id()) && !isNull(this.$id());
       }, this);
     },
     mixin: {
@@ -35,7 +33,7 @@ var DataModel = function(descriptor, configParams) {
         var dataModel = this;
         var id = this[configParams.idAttribute]();
         if(id) {
-          dataModel.$isFetching(true);
+          dataModel.isFetching(true);
 
           // retrieve data dataModel the from server using the id
           var xhr = this.sync('read', dataModel, options);
@@ -46,10 +44,9 @@ var DataModel = function(descriptor, configParams) {
             }
           });
 
-          xhr.always(function() {
-            dataModel.$isFetching(false);
+          return xhr.always(function() {
+            dataModel.isFetching(false);
           });
-          return xhr;
         }
       },
 
@@ -84,11 +81,7 @@ var DataModel = function(descriptor, configParams) {
 
         var syncPromise = dataModel.sync(method, dataModel, options);
 
-        dataModel.$isSaving(true);
-        syncPromise.always(function() {
-          dataModel.$isSaving(false);
-        });
-
+        dataModel.isSaving(true);
         (syncPromise.done || syncPromise.then)(function(response) {
           var resourceData = configParams.parse ? configParams.parse(response) : response;
 
@@ -105,12 +98,14 @@ var DataModel = function(descriptor, configParams) {
           dataModel.set(attrs);
         }
 
-        return syncPromise;
+        return syncPromise.always(function() {
+          dataModel.isSaving(false);
+        });;
       },
 
       // DELETE
       destroy: function(options) {
-        if(this.$isNew()) {
+        if(this.isNew()) {
           return false;
         }
 
@@ -123,7 +118,7 @@ var DataModel = function(descriptor, configParams) {
           dataModel.$namespace.publish('destroy', options);
         };
 
-        dataModel.$isDestroying(true);
+        dataModel.isDestroying(true);
         var xhr = this.sync('delete', this, options);
 
         (xhr.done || xhr.then).call(xhr, function() {
@@ -134,7 +129,7 @@ var DataModel = function(descriptor, configParams) {
         });
 
         xhr.always(function() {
-          dataModel.$isDestroying(false);
+          dataModel.isDestroying(false);
         });
 
         if(!options.wait) {

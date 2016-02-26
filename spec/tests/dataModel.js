@@ -792,7 +792,7 @@ describe('dataModel', function () {
     expect(person.$id).to.be(person.id);
   });
 
-  it('can correctly be flagged as dirty when a mapped field value is altered', function() {
+  it('can correctly be flagged as isDirty when a mapped field value is altered', function() {
     var Person = fw.dataModel.create({
       namespace: 'Person',
       initialize: function(person) {
@@ -819,11 +819,11 @@ describe('dataModel', function () {
     };
     var person = new Person(personData);
 
-    expect(person.$dirty()).to.be(false);
+    expect(person.isDirty()).to.be(false);
 
     person.firstName('test123');
 
-    expect(person.$dirty()).to.be(true);
+    expect(person.isDirty()).to.be(true);
   });
 
   it('can correctly POST data on initial save()', function(done) {

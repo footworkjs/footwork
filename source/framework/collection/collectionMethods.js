@@ -115,7 +115,7 @@ var collectionMethods = fw.collection.methods = {
       options.parse = true;
     }
 
-    collection.$isFetching(true);
+    collection.isFetching(true);
     var xhr = collection.sync('read', collection, options);
 
     (xhr.done || xhr.then).call(xhr, function(resp) {
@@ -125,11 +125,9 @@ var collectionMethods = fw.collection.methods = {
       collection.$namespace.publish('_.change', { touched: touchedModels, serverResponse: resp, options: options });
     });
 
-    xhr.always(function() {
-      collection.$isFetching(false);
+    return xhr.always(function() {
+      collection.isFetching(false);
     });
-
-    return xhr;
   },
   where: function(modelData, options) {
     var collection = this;
@@ -230,7 +228,7 @@ var collectionMethods = fw.collection.methods = {
     var modelSavePromise = null;
 
     if(isDataModel(newModel)) {
-      collection.$isCreating(true);
+      collection.isCreating(true);
       modelSavePromise = newModel.save();
 
       if(options.wait) {
@@ -242,7 +240,7 @@ var collectionMethods = fw.collection.methods = {
       }
 
       modelSavePromise.always(function() {
-        collection.$isCreating(false);
+        collection.isCreating(false);
       });
     } else {
       collection.addModel(newModel);
