@@ -127,7 +127,7 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
                     } else if(isPromise(isResolved) || (isArray(isResolved) && every(isResolved, isPromise))) {
                       var promises = [].concat(isResolved);
                       var checkPromise = function(promise) {
-                        (promise.done || promise.then)(function() {
+                        (promise.done || promise.then).call(promise, function() {
                           if(every(promises, promiseIsResolvedOrRejected)) {
                             finishResolution();
                           }

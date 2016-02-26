@@ -58,35 +58,61 @@ function removeClass(element, className) {
   }
 }
 
-function createRequestLull(operationType, lullTarget, xhr, lullTime) {
-  if(isObservable(lullTarget)) {
-    lullTarget(true);
-    lullTime = (isFunction(lullTime) ? lullTime(operationType) : lullTime);
+function makeOrGetRequest(operationType, requestInfo) {
+  var requestRunning = requestInfo.requestRunning;
+  var requestLull = requestInfo.requestLull;
+  var entity = requestInfo.entity;
+  var createRequest = requestInfo.createRequest;
+  var promiseName = operationType + 'Promise';
+  var request = entity.__private(promiseName);
+  var allowConcurrent = requestInfo.allowConcurrent;
+
+  if((allowConcurrent || !isObservable(requestRunning) || !requestRunning()) || !request) {
+    var newRequest;
+
+    if(allowConcurrent) {
+      request = request || [];
+      request.push(newRequest = createRequest());
+    } else {
+      request = newRequest = createRequest();
+    }
+    entity.__private(promiseName, request);
+
+    requestRunning(true);
+    requestLull = (isFunction(requestLull) ? requestLull(operationType) : requestLull);
 
     var lullFinished = fw.observable(false);
     var requestFinished = fw.observable(false);
 
     var requestWatcher = fw.computed(function() {
       if(lullFinished() && requestFinished()) {
-        lullTarget(false);
+        requestRunning(false);
         requestWatcher.dispose();
       }
     });
 
-    if(lullTime) {
+    if(requestLull) {
       setTimeout(function() {
         lullFinished(true);
-      }, lullTime);
+      }, requestLull);
     } else {
       lullFinished(true);
     }
 
-    xhr.always(function() {
-      requestFinished(true);
+    newRequest.always(function() {
+      if(allowConcurrent) {
+        if(every(request, promiseIsResolvedOrRejected)) {
+          requestFinished(true);
+          entity.__private(promiseName, undefined);
+        }
+      } else {
+        requestFinished(true);
+        entity.__private(promiseName, undefined);
+      }
     });
   }
 
-  return xhr;
+  return newRequest;
 }
 
 /**

@@ -31,101 +31,125 @@ var DataModel = function(descriptor, configParams) {
       // GET from server and set in model
       fetch: function(options) {
         var dataModel = this;
-        var id = this[configParams.idAttribute]();
-        if(id) {
-          // retrieve data dataModel the from server using the id
-          var xhr = this.sync('read', dataModel, options);
+        var requestInfo = {
+          requestRunning: dataModel.isSaving,
+          requestLull: configParams.requestLull,
+          entity: dataModel,
+          createRequest: function() {
+            var id = dataModel[configParams.idAttribute]();
+            if(id) {
+              // retrieve data dataModel the from server using the id
+              var xhr = dataModel.sync('read', dataModel, options);
 
-          (xhr.done || xhr.then).call(xhr, function(response) {
-            var parsedResponse = configParams.parse ? configParams.parse(response) : response;
-            if(!isUndefined(parsedResponse[configParams.idAttribute])) {
-              dataModel.set(parsedResponse);
+              return (xhr.done || xhr.then).call(xhr, function(response) {
+                var parsedResponse = configParams.parse ? configParams.parse(response) : response;
+                if(!isUndefined(parsedResponse[configParams.idAttribute])) {
+                  dataModel.set(parsedResponse);
+                }
+              });
+            } else if(isFunction(Deferred)) {
+              return Deferred(function(def) {
+                def.resolve(false);
+              }).promise();
             }
-          });
+          }
+        };
 
-          return createRequestLull('fetch', dataModel.isFetching, xhr, configParams.requestLull);
-        }
+        return makeOrGetRequest('fetch', requestInfo);
       },
 
       // PUT / POST / PATCH to server
       save: function(key, val, options) {
         var dataModel = this;
         var attrs = null;
+        var requestInfo = {
+          requestRunning: dataModel.isSaving,
+          requestLull: configParams.requestLull,
+          entity: dataModel,
+          createRequest: function() {
+            if(isObject(key)) {
+              attrs = key;
+              options = val;
+            } else {
+              (attrs = {})[key] = val;
+            }
 
-        if(isObject(key)) {
-          attrs = key;
-          options = val;
-        } else {
-          (attrs = {})[key] = val;
-        }
+            if(isObject(options) && isFunction(options.stopPropagation)) {
+              // method called as a result of an event binding, ignore its 'options'
+              options = {};
+            }
 
-        if(isObject(options) && isFunction(options.stopPropagation)) {
-          // method called as a result of an event binding, ignore its 'options'
-          options = {};
-        }
+            options = extend({
+              parse: true,
+              wait: false,
+              patch: false
+            }, options);
 
-        options = extend({
-          parse: true,
-          wait: false,
-          patch: false
-        }, options);
+            var method = isUndefined(dataModel.$id()) ? 'create' : (options.patch ? 'patch' : 'update');
 
-        var method = isUndefined(dataModel.$id()) ? 'create' : (options.patch ? 'patch' : 'update');
+            if(method === 'patch' && !options.attrs) {
+              options.attrs = attrs;
+            }
 
-        if(method === 'patch' && !options.attrs) {
-          options.attrs = attrs;
-        }
+            if(!options.wait && !isNull(attrs)) {
+              dataModel.set(attrs);
+            }
 
-        var syncPromise = dataModel.sync(method, dataModel, options);
+            var xhr = dataModel.sync(method, dataModel, options);
+            return (xhr.done || xhr.then).call(xhr, function(response) {
+              var resourceData = configParams.parse ? configParams.parse(response) : response;
 
-        (syncPromise.done || syncPromise.then)(function(response) {
-          var resourceData = configParams.parse ? configParams.parse(response) : response;
+              if(options.wait && !isNull(attrs)) {
+                resourceData = extend({}, attrs, resourceData);
+              }
 
-          if(options.wait && !isNull(attrs)) {
-            resourceData = extend({}, attrs, resourceData);
+              if(isObject(resourceData)) {
+                dataModel.set(resourceData);
+              }
+            });
           }
+        };
 
-          if(isObject(resourceData)) {
-            dataModel.set(resourceData);
-          }
-        });
-
-        if(!options.wait && !isNull(attrs)) {
-          dataModel.set(attrs);
-        }
-
-        return createRequestLull('save', dataModel.isSaving, syncPromise, configParams.requestLull);
+        return makeOrGetRequest('save', requestInfo);
       },
 
       // DELETE
       destroy: function(options) {
-        if(this.isNew()) {
-          return false;
-        }
-
-        options = options ? clone(options) : {};
         var dataModel = this;
-        var success = options.success;
-        var wait = options.wait;
+        var requestInfo = {
+          requestRunning: dataModel.isDestroying,
+          requestLull: configParams.requestLull,
+          entity: dataModel,
+          createRequest: function() {
+            if(this.isNew()) {
+              return Deferred(function(def) {
+                def.resolve(false);
+              }).promise();
+            }
 
-        var destroy = function() {
-          dataModel.$namespace.publish('destroy', options);
+            options = options ? clone(options) : {};
+            var success = options.success;
+            var wait = options.wait;
+
+            var sendDestroyEvent = function() {
+              dataModel.$namespace.publish('destroy', options);
+            };
+
+            if(!options.wait) {
+              sendDestroyEvent();
+            }
+
+            var xhr = dataModel.sync('delete', dataModel, options);
+            return (xhr.done || xhr.then).call(xhr, function() {
+              dataModel.$id(undefined);
+              if(options.wait) {
+                sendDestroyEvent();
+              }
+            });
+          }
         };
 
-        var xhr = this.sync('delete', this, options);
-
-        (xhr.done || xhr.then).call(xhr, function() {
-          dataModel.$id(undefined);
-          if(options.wait) {
-            destroy();
-          }
-        });
-
-        if(!options.wait) {
-          destroy();
-        }
-
-        return createRequestLull('destroy', dataModel.isDestroying, xhr, configParams.requestLull);
+        return makeOrGetRequest('destroy', requestInfo);
       },
 
       // set attributes in model (clears isDirty on observables/fields it saves to by default)

@@ -557,35 +557,61 @@ function removeClass(element, className) {
   }
 }
 
-function createRequestLull(operationType, lullTarget, xhr, lullTime) {
-  if(isObservable(lullTarget)) {
-    lullTarget(true);
-    lullTime = (isFunction(lullTime) ? lullTime(operationType) : lullTime);
+function makeOrGetRequest(operationType, requestInfo) {
+  var requestRunning = requestInfo.requestRunning;
+  var requestLull = requestInfo.requestLull;
+  var entity = requestInfo.entity;
+  var createRequest = requestInfo.createRequest;
+  var promiseName = operationType + 'Promise';
+  var request = entity.__private(promiseName);
+  var allowConcurrent = requestInfo.allowConcurrent;
+
+  if((allowConcurrent || !isObservable(requestRunning) || !requestRunning()) || !request) {
+    var newRequest;
+
+    if(allowConcurrent) {
+      request = request || [];
+      request.push(newRequest = createRequest());
+    } else {
+      request = newRequest = createRequest();
+    }
+    entity.__private(promiseName, request);
+
+    requestRunning(true);
+    requestLull = (isFunction(requestLull) ? requestLull(operationType) : requestLull);
 
     var lullFinished = fw.observable(false);
     var requestFinished = fw.observable(false);
 
     var requestWatcher = fw.computed(function() {
       if(lullFinished() && requestFinished()) {
-        lullTarget(false);
+        requestRunning(false);
         requestWatcher.dispose();
       }
     });
 
-    if(lullTime) {
+    if(requestLull) {
       setTimeout(function() {
         lullFinished(true);
-      }, lullTime);
+      }, requestLull);
     } else {
       lullFinished(true);
     }
 
-    xhr.always(function() {
-      requestFinished(true);
+    newRequest.always(function() {
+      if(allowConcurrent) {
+        if(every(request, promiseIsResolvedOrRejected)) {
+          requestFinished(true);
+          entity.__private(promiseName, undefined);
+        }
+      } else {
+        requestFinished(true);
+        entity.__private(promiseName, undefined);
+      }
     });
   }
 
-  return xhr;
+  return newRequest;
 }
 
 /**
@@ -1523,101 +1549,125 @@ var DataModel = function(descriptor, configParams) {
       // GET from server and set in model
       fetch: function(options) {
         var dataModel = this;
-        var id = this[configParams.idAttribute]();
-        if(id) {
-          // retrieve data dataModel the from server using the id
-          var xhr = this.sync('read', dataModel, options);
+        var requestInfo = {
+          requestRunning: dataModel.isSaving,
+          requestLull: configParams.requestLull,
+          entity: dataModel,
+          createRequest: function() {
+            var id = dataModel[configParams.idAttribute]();
+            if(id) {
+              // retrieve data dataModel the from server using the id
+              var xhr = dataModel.sync('read', dataModel, options);
 
-          (xhr.done || xhr.then).call(xhr, function(response) {
-            var parsedResponse = configParams.parse ? configParams.parse(response) : response;
-            if(!isUndefined(parsedResponse[configParams.idAttribute])) {
-              dataModel.set(parsedResponse);
+              return (xhr.done || xhr.then).call(xhr, function(response) {
+                var parsedResponse = configParams.parse ? configParams.parse(response) : response;
+                if(!isUndefined(parsedResponse[configParams.idAttribute])) {
+                  dataModel.set(parsedResponse);
+                }
+              });
+            } else if(isFunction(Deferred)) {
+              return Deferred(function(def) {
+                def.resolve(false);
+              }).promise();
             }
-          });
+          }
+        };
 
-          return createRequestLull('fetch', dataModel.isFetching, xhr, configParams.requestLull);
-        }
+        return makeOrGetRequest('fetch', requestInfo);
       },
 
       // PUT / POST / PATCH to server
       save: function(key, val, options) {
         var dataModel = this;
         var attrs = null;
+        var requestInfo = {
+          requestRunning: dataModel.isSaving,
+          requestLull: configParams.requestLull,
+          entity: dataModel,
+          createRequest: function() {
+            if(isObject(key)) {
+              attrs = key;
+              options = val;
+            } else {
+              (attrs = {})[key] = val;
+            }
 
-        if(isObject(key)) {
-          attrs = key;
-          options = val;
-        } else {
-          (attrs = {})[key] = val;
-        }
+            if(isObject(options) && isFunction(options.stopPropagation)) {
+              // method called as a result of an event binding, ignore its 'options'
+              options = {};
+            }
 
-        if(isObject(options) && isFunction(options.stopPropagation)) {
-          // method called as a result of an event binding, ignore its 'options'
-          options = {};
-        }
+            options = extend({
+              parse: true,
+              wait: false,
+              patch: false
+            }, options);
 
-        options = extend({
-          parse: true,
-          wait: false,
-          patch: false
-        }, options);
+            var method = isUndefined(dataModel.$id()) ? 'create' : (options.patch ? 'patch' : 'update');
 
-        var method = isUndefined(dataModel.$id()) ? 'create' : (options.patch ? 'patch' : 'update');
+            if(method === 'patch' && !options.attrs) {
+              options.attrs = attrs;
+            }
 
-        if(method === 'patch' && !options.attrs) {
-          options.attrs = attrs;
-        }
+            if(!options.wait && !isNull(attrs)) {
+              dataModel.set(attrs);
+            }
 
-        var syncPromise = dataModel.sync(method, dataModel, options);
+            var xhr = dataModel.sync(method, dataModel, options);
+            return (xhr.done || xhr.then).call(xhr, function(response) {
+              var resourceData = configParams.parse ? configParams.parse(response) : response;
 
-        (syncPromise.done || syncPromise.then)(function(response) {
-          var resourceData = configParams.parse ? configParams.parse(response) : response;
+              if(options.wait && !isNull(attrs)) {
+                resourceData = extend({}, attrs, resourceData);
+              }
 
-          if(options.wait && !isNull(attrs)) {
-            resourceData = extend({}, attrs, resourceData);
+              if(isObject(resourceData)) {
+                dataModel.set(resourceData);
+              }
+            });
           }
+        };
 
-          if(isObject(resourceData)) {
-            dataModel.set(resourceData);
-          }
-        });
-
-        if(!options.wait && !isNull(attrs)) {
-          dataModel.set(attrs);
-        }
-
-        return createRequestLull('save', dataModel.isSaving, syncPromise, configParams.requestLull);
+        return makeOrGetRequest('save', requestInfo);
       },
 
       // DELETE
       destroy: function(options) {
-        if(this.isNew()) {
-          return false;
-        }
-
-        options = options ? clone(options) : {};
         var dataModel = this;
-        var success = options.success;
-        var wait = options.wait;
+        var requestInfo = {
+          requestRunning: dataModel.isDestroying,
+          requestLull: configParams.requestLull,
+          entity: dataModel,
+          createRequest: function() {
+            if(this.isNew()) {
+              return Deferred(function(def) {
+                def.resolve(false);
+              }).promise();
+            }
 
-        var destroy = function() {
-          dataModel.$namespace.publish('destroy', options);
+            options = options ? clone(options) : {};
+            var success = options.success;
+            var wait = options.wait;
+
+            var sendDestroyEvent = function() {
+              dataModel.$namespace.publish('destroy', options);
+            };
+
+            if(!options.wait) {
+              sendDestroyEvent();
+            }
+
+            var xhr = dataModel.sync('delete', dataModel, options);
+            return (xhr.done || xhr.then).call(xhr, function() {
+              dataModel.$id(undefined);
+              if(options.wait) {
+                sendDestroyEvent();
+              }
+            });
+          }
         };
 
-        var xhr = this.sync('delete', this, options);
-
-        (xhr.done || xhr.then).call(xhr, function() {
-          dataModel.$id(undefined);
-          if(options.wait) {
-            destroy();
-          }
-        });
-
-        if(!options.wait) {
-          destroy();
-        }
-
-        return createRequestLull('destroy', dataModel.isDestroying, xhr, configParams.requestLull);
+        return makeOrGetRequest('destroy', requestInfo);
       },
 
       // set attributes in model (clears isDirty on observables/fields it saves to by default)
@@ -2829,7 +2879,7 @@ function entityBinder(element, params, $parentContext, Entity, $flightTracker, $
             } else if(isPromise(isResolved) || (isArray(isResolved) && every(isResolved, isPromise))) {
               var promises = [].concat(isResolved);
               var checkPromise = function(promise) {
-                (promise.done || promise.then)(function() {
+                (promise.done || promise.then).call(promise, function() {
                   if(every(promises, promiseIsResolvedOrRejected)) {
                     finishResolution();
                   }
@@ -3835,7 +3885,7 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
                     } else if(isPromise(isResolved) || (isArray(isResolved) && every(isResolved, isPromise))) {
                       var promises = [].concat(isResolved);
                       var checkPromise = function(promise) {
-                        (promise.done || promise.then)(function() {
+                        (promise.done || promise.then).call(promise, function() {
                           if(every(promises, promiseIsResolvedOrRejected)) {
                             finishResolution();
                           }
@@ -4311,20 +4361,27 @@ var collectionMethods = fw.collection.methods = {
     var configParams = collection.__private('configParams');
     options = options ? clone(options) : {};
 
-    if(isUndefined(options.parse)) {
-      options.parse = true;
-    }
+    var requestInfo = {
+      requestRunning: collection.isFetching,
+      requestLull: configParams.requestLull,
+      entity: collection,
+      createRequest: function() {
+        if(isUndefined(options.parse)) {
+          options.parse = true;
+        }
 
-    var xhr = collection.sync('read', collection, options);
+        var xhr = collection.sync('read', collection, options);
 
-    (xhr.done || xhr.then).call(xhr, function(resp) {
-      var method = options.reset ? 'reset' : 'set';
-      resp = configParams.parse(resp);
-      var touchedModels = collection[method](resp, options);
-      collection.$namespace.publish('_.change', { touched: touchedModels, serverResponse: resp, options: options });
-    });
+        return (xhr.done || xhr.then).call(xhr, function(resp) {
+          var method = options.reset ? 'reset' : 'set';
+          resp = configParams.parse(resp);
+          var touchedModels = collection[method](resp, options);
+          collection.$namespace.publish('_.change', { touched: touchedModels, serverResponse: resp, options: options });
+        });
+      }
+    };
 
-    return createRequestLull('fetch', collection.isFetching, xhr, configParams.requestLull);
+    return makeOrGetRequest('fetch', requestInfo);
   },
   where: function(modelData, options) {
     var collection = this;
@@ -4413,35 +4470,47 @@ var collectionMethods = fw.collection.methods = {
   },
   create: function(model, options) {
     var collection = this;
+    var castAsDataModel = collection.__private('castAs').dataModel;
     var configParams = collection.__private('configParams');
+    options = options ? clone(options) : {};
+
+    var requestInfo = {
+      requestRunning: collection.isCreating,
+      requestLull: configParams.requestLull,
+      entity: collection,
+      allowConcurrent: true,
+      createRequest: function() {
+        var newModel = castAsDataModel(model);
+        var xhr;
+
+        if(isDataModel(newModel)) {
+          xhr = newModel.save();
+
+          if(options.wait) {
+            (xhr.done || xhr.then).call(xhr, function() {
+              collection.addModel(newModel);
+            });
+          } else {
+            collection.addModel(newModel)
+          }
+        } else {
+          collection.addModel(newModel);
+          if(isFunction(Deferred)) {
+            xhr = Deferred(function(def) {
+              def.resolve(newModel);
+            }).promise();
+          }
+        }
+
+        return xhr;
+      }
+    };
 
     if(!isDataModelCtor(configParams.dataModel)) {
       throw new Error('No dataModel specified, cannot create() a new collection item');
     }
 
-    var castAsDataModel = collection.__private('castAs').dataModel;
-    options = options || {};
-
-    var newModel = castAsDataModel(model);
-    var modelSavePromise = null;
-
-    if(isDataModel(newModel)) {
-      modelSavePromise = newModel.save();
-
-      if(options.wait) {
-        (modelSavePromise.done || modelSavePromise.then).call(modelSavePromise, function() {
-          collection.addModel(newModel);
-        });
-      } else {
-        collection.addModel(newModel)
-      }
-
-      createRequestLull('create', collection.isCreating, modelSavePromise, configParams.requestLull);
-    } else {
-      collection.addModel(newModel);
-    }
-
-    return modelSavePromise;
+    return makeOrGetRequest('create', requestInfo);
   },
   removeModel: function(models) {
     var collection = this;

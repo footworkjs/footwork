@@ -112,20 +112,27 @@ var collectionMethods = fw.collection.methods = {
     var configParams = collection.__private('configParams');
     options = options ? clone(options) : {};
 
-    if(isUndefined(options.parse)) {
-      options.parse = true;
-    }
+    var requestInfo = {
+      requestRunning: collection.isFetching,
+      requestLull: configParams.requestLull,
+      entity: collection,
+      createRequest: function() {
+        if(isUndefined(options.parse)) {
+          options.parse = true;
+        }
 
-    var xhr = collection.sync('read', collection, options);
+        var xhr = collection.sync('read', collection, options);
 
-    (xhr.done || xhr.then).call(xhr, function(resp) {
-      var method = options.reset ? 'reset' : 'set';
-      resp = configParams.parse(resp);
-      var touchedModels = collection[method](resp, options);
-      collection.$namespace.publish('_.change', { touched: touchedModels, serverResponse: resp, options: options });
-    });
+        return (xhr.done || xhr.then).call(xhr, function(resp) {
+          var method = options.reset ? 'reset' : 'set';
+          resp = configParams.parse(resp);
+          var touchedModels = collection[method](resp, options);
+          collection.$namespace.publish('_.change', { touched: touchedModels, serverResponse: resp, options: options });
+        });
+      }
+    };
 
-    return createRequestLull('fetch', collection.isFetching, xhr, configParams.requestLull);
+    return makeOrGetRequest('fetch', requestInfo);
   },
   where: function(modelData, options) {
     var collection = this;
@@ -214,35 +221,47 @@ var collectionMethods = fw.collection.methods = {
   },
   create: function(model, options) {
     var collection = this;
+    var castAsDataModel = collection.__private('castAs').dataModel;
     var configParams = collection.__private('configParams');
+    options = options ? clone(options) : {};
+
+    var requestInfo = {
+      requestRunning: collection.isCreating,
+      requestLull: configParams.requestLull,
+      entity: collection,
+      allowConcurrent: true,
+      createRequest: function() {
+        var newModel = castAsDataModel(model);
+        var xhr;
+
+        if(isDataModel(newModel)) {
+          xhr = newModel.save();
+
+          if(options.wait) {
+            (xhr.done || xhr.then).call(xhr, function() {
+              collection.addModel(newModel);
+            });
+          } else {
+            collection.addModel(newModel)
+          }
+        } else {
+          collection.addModel(newModel);
+          if(isFunction(Deferred)) {
+            xhr = Deferred(function(def) {
+              def.resolve(newModel);
+            }).promise();
+          }
+        }
+
+        return xhr;
+      }
+    };
 
     if(!isDataModelCtor(configParams.dataModel)) {
       throw new Error('No dataModel specified, cannot create() a new collection item');
     }
 
-    var castAsDataModel = collection.__private('castAs').dataModel;
-    options = options || {};
-
-    var newModel = castAsDataModel(model);
-    var modelSavePromise = null;
-
-    if(isDataModel(newModel)) {
-      modelSavePromise = newModel.save();
-
-      if(options.wait) {
-        (modelSavePromise.done || modelSavePromise.then).call(modelSavePromise, function() {
-          collection.addModel(newModel);
-        });
-      } else {
-        collection.addModel(newModel)
-      }
-
-      createRequestLull('create', collection.isCreating, modelSavePromise, configParams.requestLull);
-    } else {
-      collection.addModel(newModel);
-    }
-
-    return modelSavePromise;
+    return makeOrGetRequest('create', requestInfo);
   },
   removeModel: function(models) {
     var collection = this;
