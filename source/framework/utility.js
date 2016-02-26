@@ -68,14 +68,22 @@ function makeOrGetRequest(operationType, requestInfo) {
   var allowConcurrent = requestInfo.allowConcurrent;
 
   if((allowConcurrent || !isObservable(requestRunning) || !requestRunning()) || !request) {
-    var newRequest;
+    var newRequest = createRequest();
+
+    if(!isPromise(newRequest) && isFunction(Deferred)) {
+      var returnValue = newRequest;
+      newRequest = Deferred(function(def) {
+        def.resolve(returnValue);
+      }).promise();
+    }
 
     if(allowConcurrent) {
       request = request || [];
-      request.push(newRequest = createRequest());
+      request.push(newRequest);
     } else {
-      request = newRequest = createRequest();
+      request = newRequest;
     }
+
     entity.__private(promiseName, request);
 
     requestRunning(true);

@@ -47,11 +47,9 @@ var DataModel = function(descriptor, configParams) {
                   dataModel.set(parsedResponse);
                 }
               });
-            } else if(isFunction(Deferred)) {
-              return Deferred(function(def) {
-                def.resolve(false);
-              }).promise();
             }
+
+            return false;
           }
         };
 
@@ -122,9 +120,7 @@ var DataModel = function(descriptor, configParams) {
           entity: dataModel,
           createRequest: function() {
             if(this.isNew()) {
-              return Deferred(function(def) {
-                def.resolve(false);
-              }).promise();
+              return false;
             }
 
             options = options ? clone(options) : {};

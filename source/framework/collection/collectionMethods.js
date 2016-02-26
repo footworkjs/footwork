@@ -245,12 +245,7 @@ var collectionMethods = fw.collection.methods = {
             collection.addModel(newModel)
           }
         } else {
-          collection.addModel(newModel);
-          if(isFunction(Deferred)) {
-            xhr = Deferred(function(def) {
-              def.resolve(newModel);
-            }).promise();
-          }
+          return newModel;
         }
 
         return xhr;
