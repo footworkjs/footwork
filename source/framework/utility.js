@@ -18,7 +18,7 @@ function isPromise(thing) {
 }
 
 function promiseIsResolvedOrRejected(promise) {
-  return isPromise(promise) && isFunction(promise.state) && includes(['resolved', 'rejected'], promise.state());
+  return !isPromise(promise) || includes(['resolved', 'rejected'], promise.state());
 }
 
 function isInternalComponent(componentName) {
@@ -102,10 +102,10 @@ function makeOrGetRequest(operationType, requestInfo) {
       lullFinished(true);
     }
 
-    newRequest.always(function() {
+    isFunction(newRequest.always) && newRequest.always(function() {
       if(every(request, promiseIsResolvedOrRejected)) {
         requestFinished(true);
-        entity.__private(promiseName, undefined);
+        entity.__private(promiseName, []);
       }
     });
   }
