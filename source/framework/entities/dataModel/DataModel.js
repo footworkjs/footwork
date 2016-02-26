@@ -43,14 +43,7 @@ var DataModel = function(descriptor, configParams) {
             }
           });
 
-          if(isObservable(dataModel.isFetching)) {
-            dataModel.isFetching(true);
-            xhr.always(function() {
-              dataModel.isFetching(false);
-            });
-          }
-
-          return xhr;
+          return createRequestLull('fetch', dataModel.isFetching, xhr, configParams.requestLull);
         }
       },
 
@@ -101,14 +94,7 @@ var DataModel = function(descriptor, configParams) {
           dataModel.set(attrs);
         }
 
-        if(isObservable(dataModel.isSaving)) {
-          dataModel.isSaving(true);
-          syncPromise.always(function() {
-            dataModel.isSaving(false);
-          });
-        }
-
-        return syncPromise;
+        return createRequestLull('save', dataModel.isSaving, syncPromise, configParams.requestLull);
       },
 
       // DELETE
@@ -135,18 +121,11 @@ var DataModel = function(descriptor, configParams) {
           }
         });
 
-        if(isObservable(dataModel.isDestroying)) {
-          dataModel.isDestroying(true);
-          xhr.always(function() {
-            dataModel.isDestroying(false);
-          });
-        }
-
         if(!options.wait) {
           destroy();
         }
 
-        return xhr;
+        return createRequestLull('destroy', dataModel.isDestroying, xhr, configParams.requestLull);
       },
 
       // set attributes in model (clears isDirty on observables/fields it saves to by default)

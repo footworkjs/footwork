@@ -109,6 +109,7 @@ var collectionMethods = fw.collection.methods = {
   },
   fetch: function(options) {
     var collection = this;
+    var configParams = collection.__private('configParams');
     options = options ? clone(options) : {};
 
     if(isUndefined(options.parse)) {
@@ -119,19 +120,12 @@ var collectionMethods = fw.collection.methods = {
 
     (xhr.done || xhr.then).call(xhr, function(resp) {
       var method = options.reset ? 'reset' : 'set';
-      resp = collection.__private('configParams').parse(resp);
+      resp = configParams.parse(resp);
       var touchedModels = collection[method](resp, options);
       collection.$namespace.publish('_.change', { touched: touchedModels, serverResponse: resp, options: options });
     });
 
-    if(isObservable(collection.isFetching)) {
-      collection.isFetching(true);
-      xhr.always(function() {
-        collection.isFetching(false);
-      });
-    }
-
-    return xhr;
+    return createRequestLull('fetch', collection.isFetching, xhr, configParams.requestLull);
   },
   where: function(modelData, options) {
     var collection = this;
@@ -220,8 +214,9 @@ var collectionMethods = fw.collection.methods = {
   },
   create: function(model, options) {
     var collection = this;
+    var configParams = collection.__private('configParams');
 
-    if(!isDataModelCtor(collection.__private('configParams').dataModel)) {
+    if(!isDataModelCtor(configParams.dataModel)) {
       throw new Error('No dataModel specified, cannot create() a new collection item');
     }
 
@@ -242,12 +237,7 @@ var collectionMethods = fw.collection.methods = {
         collection.addModel(newModel)
       }
 
-      if(isObservable(collection.isCreating)) {
-        collection.isCreating(true);
-        modelSavePromise.always(function() {
-          collection.isCreating(false);
-        });
-      }
+      createRequestLull('create', collection.isCreating, modelSavePromise, configParams.requestLull);
     } else {
       collection.addModel(newModel);
     }

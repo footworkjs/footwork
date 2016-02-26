@@ -40,6 +40,7 @@ entityDescriptors = entityDescriptors.concat([
       autoIncrement: true,
       extend: {},
       mixins: undefined,
+      requestLull: undefined,
       afterRender: noop,
       resolved: resolveEntityImmediately,
       sequenceAnimations: false,

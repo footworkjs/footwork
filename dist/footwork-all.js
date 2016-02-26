@@ -7789,6 +7789,37 @@ function removeClass(element, className) {
   }
 }
 
+function createRequestLull(operationType, lullTarget, xhr, lullTime) {
+  if(isObservable(lullTarget)) {
+    lullTarget(true);
+    lullTime = (isFunction(lullTime) ? lullTime(operationType) : lullTime);
+
+    var lullFinished = fw.observable(false);
+    var requestFinished = fw.observable(false);
+
+    var requestWatcher = fw.computed(function() {
+      if(lullFinished() && requestFinished()) {
+        lullTarget(false);
+        requestWatcher.dispose();
+      }
+    });
+
+    if(lullTime) {
+      setTimeout(function() {
+        lullFinished(true);
+      }, lullTime);
+    } else {
+      lullFinished(true);
+    }
+
+    xhr.always(function() {
+      requestFinished(true);
+    });
+  }
+
+  return xhr;
+}
+
 /**
  * Performs an equality comparison between two objects while ensuring atleast one or more keys/values match and that all keys/values from object A also exist in B
  * Note: object 'a' can provide a regex value for a property and have it searched matching on the regex value
@@ -8726,10 +8757,9 @@ var DataModel = function(descriptor, configParams) {
         var dataModel = this;
         var id = this[configParams.idAttribute]();
         if(id) {
-          dataModel.isFetching(true);
-
           // retrieve data dataModel the from server using the id
           var xhr = this.sync('read', dataModel, options);
+
           (xhr.done || xhr.then).call(xhr, function(response) {
             var parsedResponse = configParams.parse ? configParams.parse(response) : response;
             if(!isUndefined(parsedResponse[configParams.idAttribute])) {
@@ -8737,9 +8767,7 @@ var DataModel = function(descriptor, configParams) {
             }
           });
 
-          return xhr.always(function() {
-            dataModel.isFetching(false);
-          });
+          return createRequestLull('fetch', dataModel.isFetching, xhr, configParams.requestLull);
         }
       },
 
@@ -8774,7 +8802,6 @@ var DataModel = function(descriptor, configParams) {
 
         var syncPromise = dataModel.sync(method, dataModel, options);
 
-        dataModel.isSaving(true);
         (syncPromise.done || syncPromise.then)(function(response) {
           var resourceData = configParams.parse ? configParams.parse(response) : response;
 
@@ -8791,9 +8818,7 @@ var DataModel = function(descriptor, configParams) {
           dataModel.set(attrs);
         }
 
-        return syncPromise.always(function() {
-          dataModel.isSaving(false);
-        });;
+        return createRequestLull('save', dataModel.isSaving, syncPromise, configParams.requestLull);
       },
 
       // DELETE
@@ -8811,7 +8836,6 @@ var DataModel = function(descriptor, configParams) {
           dataModel.$namespace.publish('destroy', options);
         };
 
-        dataModel.isDestroying(true);
         var xhr = this.sync('delete', this, options);
 
         (xhr.done || xhr.then).call(xhr, function() {
@@ -8821,15 +8845,11 @@ var DataModel = function(descriptor, configParams) {
           }
         });
 
-        xhr.always(function() {
-          dataModel.isDestroying(false);
-        });
-
         if(!options.wait) {
           destroy();
         }
 
-        return xhr;
+        return createRequestLull('destroy', dataModel.isDestroying, xhr, configParams.requestLull);
       },
 
       // set attributes in model (clears isDirty on observables/fields it saves to by default)
@@ -9972,6 +9992,7 @@ entityDescriptors = entityDescriptors.concat([
       autoIncrement: true,
       extend: {},
       mixins: undefined,
+      requestLull: undefined,
       afterRender: noop,
       resolved: resolveEntityImmediately,
       sequenceAnimations: false,
@@ -11519,25 +11540,23 @@ var collectionMethods = fw.collection.methods = {
   },
   fetch: function(options) {
     var collection = this;
+    var configParams = collection.__private('configParams');
     options = options ? clone(options) : {};
 
     if(isUndefined(options.parse)) {
       options.parse = true;
     }
 
-    collection.isFetching(true);
     var xhr = collection.sync('read', collection, options);
 
     (xhr.done || xhr.then).call(xhr, function(resp) {
       var method = options.reset ? 'reset' : 'set';
-      resp = collection.__private('configParams').parse(resp);
+      resp = configParams.parse(resp);
       var touchedModels = collection[method](resp, options);
       collection.$namespace.publish('_.change', { touched: touchedModels, serverResponse: resp, options: options });
     });
 
-    return xhr.always(function() {
-      collection.isFetching(false);
-    });
+    return createRequestLull('fetch', collection.isFetching, xhr, configParams.requestLull);
   },
   where: function(modelData, options) {
     var collection = this;
@@ -11626,8 +11645,9 @@ var collectionMethods = fw.collection.methods = {
   },
   create: function(model, options) {
     var collection = this;
+    var configParams = collection.__private('configParams');
 
-    if(!isDataModelCtor(collection.__private('configParams').dataModel)) {
+    if(!isDataModelCtor(configParams.dataModel)) {
       throw new Error('No dataModel specified, cannot create() a new collection item');
     }
 
@@ -11638,7 +11658,6 @@ var collectionMethods = fw.collection.methods = {
     var modelSavePromise = null;
 
     if(isDataModel(newModel)) {
-      collection.isCreating(true);
       modelSavePromise = newModel.save();
 
       if(options.wait) {
@@ -11649,9 +11668,7 @@ var collectionMethods = fw.collection.methods = {
         collection.addModel(newModel)
       }
 
-      modelSavePromise.always(function() {
-        collection.isCreating(false);
-      });
+      createRequestLull('create', collection.isCreating, modelSavePromise, configParams.requestLull);
     } else {
       collection.addModel(newModel);
     }

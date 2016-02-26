@@ -58,6 +58,37 @@ function removeClass(element, className) {
   }
 }
 
+function createRequestLull(operationType, lullTarget, xhr, lullTime) {
+  if(isObservable(lullTarget)) {
+    lullTarget(true);
+    lullTime = (isFunction(lullTime) ? lullTime(operationType) : lullTime);
+
+    var lullFinished = fw.observable(false);
+    var requestFinished = fw.observable(false);
+
+    var requestWatcher = fw.computed(function() {
+      if(lullFinished() && requestFinished()) {
+        lullTarget(false);
+        requestWatcher.dispose();
+      }
+    });
+
+    if(lullTime) {
+      setTimeout(function() {
+        lullFinished(true);
+      }, lullTime);
+    } else {
+      lullFinished(true);
+    }
+
+    xhr.always(function() {
+      requestFinished(true);
+    });
+  }
+
+  return xhr;
+}
+
 /**
  * Performs an equality comparison between two objects while ensuring atleast one or more keys/values match and that all keys/values from object A also exist in B
  * Note: object 'a' can provide a regex value for a property and have it searched matching on the regex value
