@@ -77,13 +77,8 @@ function makeOrGetRequest(operationType, requestInfo) {
       }).promise();
     }
 
-    if(allowConcurrent) {
-      request = request || [];
-      request.push(newRequest);
-    } else {
-      request = newRequest;
-    }
-
+    request = request || [];
+    request.push(newRequest);
     entity.__private(promiseName, request);
 
     requestRunning(true);
@@ -108,12 +103,7 @@ function makeOrGetRequest(operationType, requestInfo) {
     }
 
     newRequest.always(function() {
-      if(allowConcurrent) {
-        if(every(request, promiseIsResolvedOrRejected)) {
-          requestFinished(true);
-          entity.__private(promiseName, undefined);
-        }
-      } else {
+      if(every(request, promiseIsResolvedOrRejected)) {
         requestFinished(true);
         entity.__private(promiseName, undefined);
       }
