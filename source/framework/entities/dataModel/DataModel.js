@@ -33,10 +33,9 @@ var DataModel = function(descriptor, configParams) {
         var dataModel = this;
         var id = this[configParams.idAttribute]();
         if(id) {
-          dataModel.isFetching(true);
-
           // retrieve data dataModel the from server using the id
           var xhr = this.sync('read', dataModel, options);
+
           (xhr.done || xhr.then).call(xhr, function(response) {
             var parsedResponse = configParams.parse ? configParams.parse(response) : response;
             if(!isUndefined(parsedResponse[configParams.idAttribute])) {
@@ -44,9 +43,14 @@ var DataModel = function(descriptor, configParams) {
             }
           });
 
-          return xhr.always(function() {
-            dataModel.isFetching(false);
-          });
+          if(isObservable(dataModel.isFetching)) {
+            dataModel.isFetching(true);
+            xhr.always(function() {
+              dataModel.isFetching(false);
+            });
+          }
+
+          return xhr;
         }
       },
 
@@ -81,7 +85,6 @@ var DataModel = function(descriptor, configParams) {
 
         var syncPromise = dataModel.sync(method, dataModel, options);
 
-        dataModel.isSaving(true);
         (syncPromise.done || syncPromise.then)(function(response) {
           var resourceData = configParams.parse ? configParams.parse(response) : response;
 
@@ -98,9 +101,14 @@ var DataModel = function(descriptor, configParams) {
           dataModel.set(attrs);
         }
 
-        return syncPromise.always(function() {
-          dataModel.isSaving(false);
-        });;
+        if(isObservable(dataModel.isSaving)) {
+          dataModel.isSaving(true);
+          syncPromise.always(function() {
+            dataModel.isSaving(false);
+          });
+        }
+
+        return syncPromise;
       },
 
       // DELETE
@@ -118,7 +126,6 @@ var DataModel = function(descriptor, configParams) {
           dataModel.$namespace.publish('destroy', options);
         };
 
-        dataModel.isDestroying(true);
         var xhr = this.sync('delete', this, options);
 
         (xhr.done || xhr.then).call(xhr, function() {
@@ -128,9 +135,12 @@ var DataModel = function(descriptor, configParams) {
           }
         });
 
-        xhr.always(function() {
-          dataModel.isDestroying(false);
-        });
+        if(isObservable(dataModel.isDestroying)) {
+          dataModel.isDestroying(true);
+          xhr.always(function() {
+            dataModel.isDestroying(false);
+          });
+        }
 
         if(!options.wait) {
           destroy();
