@@ -45,6 +45,7 @@
     "postal.preserve": "https://github.com/footworkjs/postal.preserve.git#f0a7d2c7b63942e1d98884a8c438a423409118fb",
     "history.js": "https://github.com/footworkjs/history.js.git#ae04b0e41c48a1e2f272cc10e29c2aeaa50d1a86",
     "lodash": "3.3.1",
+    "D.js": "0.7.3",
     "postal.js": "1.0.1",
     "reqwest": "1.1.5",
     "conduitjs": "0.3.3",

@@ -48,7 +48,7 @@
       var ajax = jQuery.ajax;
       var Deferred = jQuery.Deferred;
       //import("../framework/main.js");
-      return ko;
+      return fw;
     })(root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.jQuery, root.Conduit);
   })();
 }));

@@ -36,6 +36,10 @@
     }).call(root);
 
     (function() {
+      //import("../../bower_components/D.js/lib/D.js");
+    }).call(root);
+
+    (function() {
       //import("../../bower_components/riveter/lib/riveter.js");
     }).call(root);
 
@@ -58,12 +62,13 @@
     }
 
     // list of dependencies to export from the library as .embed properties
-    var embeddedDependencies = [ '_', 'ko', 'riveter', 'postal', 'reqwest', 'Conduit' ];
+    var embeddedDependencies = [ '_', 'ko', 'riveter', 'postal', 'reqwest', 'Conduit', 'D' ];
 
-    return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest, Conduit) {
+    return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest, Conduit, D) {
       var ajax = reqwest.compat;
+      var Deferred = D;
       //import("../framework/main.js");
-      return ko;
-    })(root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.reqwest, root.Conduit);
+      return fw;
+    })(root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.reqwest, root.Conduit, root.D);
   })();
 }));
