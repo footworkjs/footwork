@@ -42,7 +42,7 @@ runPostInit.unshift(function() {
       }
     },
     sequenceAnimations: function() {
-      return result(fw.settings, 'defaultAnimationSequence', 0);
+      return result(fw.settings, 'sequenceAnimations', 0);
     }
   });
 });
