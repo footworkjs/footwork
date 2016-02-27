@@ -58,6 +58,12 @@ function removeClass(element, className) {
   }
 }
 
+/**
+ * Creates or returns a promise based on the request specified in requestInfo
+ * @param  {string} operationType The type of operation being made, used as key to cache running requests
+ * @param  {object} requestInfo   Description of the request to make including a createRequest callback to make a new request
+ * @return {Promise}              Ajax Promise
+ */
 function makeOrGetRequest(operationType, requestInfo) {
   var requestRunning = requestInfo.requestRunning;
   var requestLull = requestInfo.requestLull;
