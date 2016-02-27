@@ -119,7 +119,7 @@ var DataModel = function(descriptor, configParams) {
           requestLull: configParams.requestLull,
           entity: dataModel,
           createRequest: function() {
-            if(this.isNew()) {
+            if(dataModel.isNew()) {
               return false;
             }
 

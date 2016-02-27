@@ -64,29 +64,28 @@ function makeOrGetRequest(operationType, requestInfo) {
   var entity = requestInfo.entity;
   var createRequest = requestInfo.createRequest;
   var promiseName = operationType + 'Promise';
-  var request = entity.__private(promiseName);
   var allowConcurrent = requestInfo.allowConcurrent;
+  var requests = entity.__private(promiseName) || [];
+  var theRequest = last(requests);
 
-  if((allowConcurrent || !isObservable(requestRunning) || !requestRunning()) || !request) {
-    var newRequest = createRequest();
+  if((allowConcurrent || !isObservable(requestRunning) || !requestRunning()) || !requests.length) {
+    theRequest = createRequest();
 
-    if(!isPromise(newRequest) && isFunction(Deferred)) {
-      var returnValue = newRequest;
-      newRequest = Deferred(function(def) {
-        def.resolve(returnValue);
+    if(!isPromise(theRequest) && isFunction(Deferred)) {
+      var resolutionValue = theRequest;
+      theRequest = Deferred(function(def) {
+        def.resolve(resolutionValue);
       }).promise();
     }
 
-    request = request || [];
-    request.push(newRequest);
-    entity.__private(promiseName, request);
+    requests = requests || [];
+    requests.push(theRequest);
+    entity.__private(promiseName, requests);
 
     requestRunning(true);
-    requestLull = (isFunction(requestLull) ? requestLull(operationType) : requestLull);
 
     var lullFinished = fw.observable(false);
     var requestFinished = fw.observable(false);
-
     var requestWatcher = fw.computed(function() {
       if(lullFinished() && requestFinished()) {
         requestRunning(false);
@@ -94,6 +93,7 @@ function makeOrGetRequest(operationType, requestInfo) {
       }
     });
 
+    requestLull = (isFunction(requestLull) ? requestLull(operationType) : requestLull);
     if(requestLull) {
       setTimeout(function() {
         lullFinished(true);
@@ -102,15 +102,15 @@ function makeOrGetRequest(operationType, requestInfo) {
       lullFinished(true);
     }
 
-    isFunction(newRequest.always) && newRequest.always(function() {
-      if(every(request, promiseIsResolvedOrRejected)) {
+    isPromise(theRequest) && theRequest.always(function() {
+      if(every(requests, promiseIsResolvedOrRejected)) {
         requestFinished(true);
         entity.__private(promiseName, []);
       }
     });
   }
 
-  return newRequest;
+  return theRequest;
 }
 
 /**
