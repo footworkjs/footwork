@@ -7,6 +7,9 @@ fw.footworkVersion = 'FOOTWORK_VERSION';
 // Expose any embedded dependencies
 fw.embed = embedded;
 
+// Directly expose the Deferred factory
+fw.deferred = Deferred;
+
 fw.viewModel = {};
 fw.dataModel = {};
 fw.router = {};
