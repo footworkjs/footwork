@@ -82,10 +82,8 @@ function makeOrGetRequest(operationType, requestInfo) {
     theRequest = createRequest();
 
     if(!isPromise(theRequest) && isFunction(Deferred)) {
-      var resolutionValue = theRequest;
-      theRequest = Deferred(function(def) {
-        def.resolve(resolutionValue);
-      });
+      // returned value from createRequest() is a value not a promise, lets return the value in a promise
+      theRequest = Deferred().resolve(theRequest);
 
       // extract the promise from the generic (jQuery or D.js) deferred
       theRequest = isFunction(theRequest.promise) ? theRequest.promise() : theRequest.promise;
