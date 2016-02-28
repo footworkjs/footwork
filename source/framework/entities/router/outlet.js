@@ -104,8 +104,8 @@ function routerOutlet(outletName, componentToDisplay, options) {
   if(valueHasMutated) {
     clearSequenceQueue();
 
+    currentOutletDef.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
     if(outletViewModel) {
-      outletViewModel.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
       outletViewModel.routeIsLoading(true);
     }
 
@@ -230,8 +230,9 @@ function registerOutletComponent() {
       var transitionTriggerTimeout;
       function showLoaded() {
         clearTimeout(transitionTriggerTimeout);
-        if(outlet.minTransitionPeriod) {
-          transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, outlet.minTransitionPeriod);
+        var minTransitionPeriod = outlet.route.peek().minTransitionPeriod;
+        if(minTransitionPeriod) {
+          transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, minTransitionPeriod);
         } else {
           showLoadedAfterMinimumTransition();
         }
