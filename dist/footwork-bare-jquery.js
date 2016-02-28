@@ -461,6 +461,9 @@ fw.footworkVersion = '1.2.0';
 // Expose any embedded dependencies
 fw.embed = embedded;
 
+// Directly expose the Deferred factory
+fw.deferred = Deferred;
+
 fw.viewModel = {};
 fw.dataModel = {};
 fw.router = {};
@@ -493,7 +496,7 @@ runPostInit.unshift(function() {
       }
     },
     sequenceAnimations: function() {
-      return result(fw.settings, 'defaultAnimationSequence', 0);
+      return result(fw.settings, 'sequenceAnimations', 0);
     }
   });
 });
@@ -518,7 +521,7 @@ function isPromise(thing) {
 }
 
 function promiseIsResolvedOrRejected(promise) {
-  return isPromise(promise) && isFunction(promise.state) && includes(['resolved', 'rejected'], promise.state());
+  return !isPromise(promise) || includes(['resolved', 'rejected'], promise.state());
 }
 
 function isInternalComponent(componentName) {
@@ -546,44 +549,57 @@ function hasClass(element, className) {
 }
 
 function addClass(element, className) {
-  if( hasClassName(element) && !hasClass(element, className) ) {
+  if(hasClassName(element) && !hasClass(element, className)) {
     element.className += (element.className.length && isNull(element.className.match(/ $/)) ? ' ' : '') + className;
   }
 }
 
 function removeClass(element, className) {
-  if( hasClassName(element) && hasClass(element, className) ) {
+  if(hasClassName(element) && hasClass(element, className)) {
     var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)', 'g');
     element.className = element.className.replace(classNameRegex, ' ');
   }
 }
 
+/**
+ * Creates or returns a promise based on the request specified in requestInfo.
+ * This function also manages a requestRunning observable on the entity which indicates when the request finishes.
+ * Note that there is an optional requestLull which will make the requestRunning observable stay 'true' for
+ * atleast the specified duration. If multiple requests are in progress, then it will wait for all to finish.
+ *
+ * @param  {string} operationType The type of operation being made, used as key to cache running requests
+ * @param  {object} requestInfo   Description of the request to make including a createRequest callback to make a new request
+ * @return {Promise}              Ajax Promise
+ */
 function makeOrGetRequest(operationType, requestInfo) {
   var requestRunning = requestInfo.requestRunning;
   var requestLull = requestInfo.requestLull;
   var entity = requestInfo.entity;
   var createRequest = requestInfo.createRequest;
   var promiseName = operationType + 'Promise';
-  var request = entity.__private(promiseName);
   var allowConcurrent = requestInfo.allowConcurrent;
+  var requests = entity.__private(promiseName) || [];
+  var theRequest = last(requests);
 
-  if((allowConcurrent || !isObservable(requestRunning) || !requestRunning()) || !request) {
-    var newRequest;
+  if((allowConcurrent || !isObservable(requestRunning) || !requestRunning()) || !requests.length) {
+    theRequest = createRequest();
 
-    if(allowConcurrent) {
-      request = request || [];
-      request.push(newRequest = createRequest());
-    } else {
-      request = newRequest = createRequest();
+    if(!isPromise(theRequest) && isFunction(Deferred)) {
+      // returned value from createRequest() is a value not a promise, lets return the value in a promise
+      theRequest = Deferred().resolve(theRequest);
+
+      // extract the promise from the generic (jQuery or D.js) deferred
+      theRequest = isFunction(theRequest.promise) ? theRequest.promise() : theRequest.promise;
     }
-    entity.__private(promiseName, request);
+
+    requests = requests || [];
+    requests.push(theRequest);
+    entity.__private(promiseName, requests);
 
     requestRunning(true);
-    requestLull = (isFunction(requestLull) ? requestLull(operationType) : requestLull);
 
     var lullFinished = fw.observable(false);
     var requestFinished = fw.observable(false);
-
     var requestWatcher = fw.computed(function() {
       if(lullFinished() && requestFinished()) {
         requestRunning(false);
@@ -591,6 +607,7 @@ function makeOrGetRequest(operationType, requestInfo) {
       }
     });
 
+    requestLull = (isFunction(requestLull) ? requestLull(operationType) : requestLull);
     if(requestLull) {
       setTimeout(function() {
         lullFinished(true);
@@ -599,20 +616,17 @@ function makeOrGetRequest(operationType, requestInfo) {
       lullFinished(true);
     }
 
-    newRequest.always(function() {
-      if(allowConcurrent) {
-        if(every(request, promiseIsResolvedOrRejected)) {
+    if(isPromise(theRequest)) {
+      (theRequest.always || theRequest.ensure).call(theRequest, function() {
+        if(every(requests, promiseIsResolvedOrRejected)) {
           requestFinished(true);
-          entity.__private(promiseName, undefined);
+          entity.__private(promiseName, []);
         }
-      } else {
-        requestFinished(true);
-        entity.__private(promiseName, undefined);
-      }
-    });
+      });
+    }
   }
 
-  return newRequest;
+  return theRequest;
 }
 
 /**
@@ -1566,11 +1580,9 @@ var DataModel = function(descriptor, configParams) {
                   dataModel.set(parsedResponse);
                 }
               });
-            } else if(isFunction(Deferred)) {
-              return Deferred(function(def) {
-                def.resolve(false);
-              }).promise();
             }
+
+            return false;
           }
         };
 
@@ -1640,10 +1652,8 @@ var DataModel = function(descriptor, configParams) {
           requestLull: configParams.requestLull,
           entity: dataModel,
           createRequest: function() {
-            if(this.isNew()) {
-              return Deferred(function(def) {
-                def.resolve(false);
-              }).promise();
+            if(dataModel.isNew()) {
+              return false;
             }
 
             options = options ? clone(options) : {};
@@ -1994,8 +2004,8 @@ function routerOutlet(outletName, componentToDisplay, options) {
   if(valueHasMutated) {
     clearSequenceQueue();
 
+    currentOutletDef.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
     if(outletViewModel) {
-      outletViewModel.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
       outletViewModel.routeIsLoading(true);
     }
 
@@ -2120,8 +2130,9 @@ function registerOutletComponent() {
       var transitionTriggerTimeout;
       function showLoaded() {
         clearTimeout(transitionTriggerTimeout);
-        if(outlet.minTransitionPeriod) {
-          transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, outlet.minTransitionPeriod);
+        var minTransitionPeriod = outlet.route.peek().minTransitionPeriod;
+        if(minTransitionPeriod) {
+          transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, minTransitionPeriod);
         } else {
           showLoadedAfterMinimumTransition();
         }
@@ -4495,12 +4506,7 @@ var collectionMethods = fw.collection.methods = {
             collection.addModel(newModel)
           }
         } else {
-          collection.addModel(newModel);
-          if(isFunction(Deferred)) {
-            xhr = Deferred(function(def) {
-              def.resolve(newModel);
-            }).promise();
-          }
+          return newModel;
         }
 
         return xhr;
@@ -4555,7 +4561,7 @@ each(runPostInit, function(runTask) {
   runTask();
 });
 
-      return ko;
+      return fw;
     })(root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.jQuery, root.Conduit);
   })();
 }));

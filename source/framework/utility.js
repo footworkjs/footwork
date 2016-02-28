@@ -46,13 +46,13 @@ function hasClass(element, className) {
 }
 
 function addClass(element, className) {
-  if( hasClassName(element) && !hasClass(element, className) ) {
+  if(hasClassName(element) && !hasClass(element, className)) {
     element.className += (element.className.length && isNull(element.className.match(/ $/)) ? ' ' : '') + className;
   }
 }
 
 function removeClass(element, className) {
-  if( hasClassName(element) && hasClass(element, className) ) {
+  if(hasClassName(element) && hasClass(element, className)) {
     var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)', 'g');
     element.className = element.className.replace(classNameRegex, ' ');
   }
