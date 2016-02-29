@@ -62,9 +62,6 @@ function routerOutlet(outletName, componentToDisplay, options) {
       params: {},
       __getOnCompleteCallback: function() { return noop; },
       __onFailure: onFailure.bind(router)
-    }).broadcastAs({
-      name: outletName,
-      namespace: router.$namespace
     });
 
     // register the new outlet under its outletName
@@ -214,7 +211,6 @@ function registerOutletComponent() {
 
       function showLoadedAfterMinimumTransition() {
         outlet.loadingClass(removeAnimation);
-        outlet.loadedClass(removeAnimation);
         outlet.loadedStyle(visibleCSS);
         outlet.loadingStyle(hiddenCSS);
         outlet.loadedClass(addAnimation);
