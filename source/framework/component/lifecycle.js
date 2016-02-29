@@ -49,9 +49,7 @@ function addToAndFetchQueue(element, viewModel) {
 }
 
 function componentTriggerAfterRender(element, viewModel, $context) {
-  if(isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
-    viewModel.__private('afterRenderWasTriggered', true);
-
+  if(isEntity(viewModel)) {
     function addAnimationClass() {
       var classList = element.className.split(" ");
       if(!includes(classList, outletLoadingDisplay) && !includes(classList, outletLoadedDisplay)) {
