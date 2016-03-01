@@ -60,8 +60,8 @@ function routerOutlet(outletName, componentToDisplay, options) {
     outlet = fw.observable({
       name: noComponentSelected,
       params: {},
-      __getOnCompleteCallback: function() { return noop; },
-      __onFailure: onFailure.bind(router)
+      getOnCompleteCallback: function() { return noop; },
+      onFailure: onFailure.bind(router)
     });
 
     // register the new outlet under its outletName
@@ -106,26 +106,20 @@ function routerOutlet(outletName, componentToDisplay, options) {
       outletViewModel.routeIsLoading(true);
     }
 
-    currentOutletDef.__getOnCompleteCallback = function(element) {
-      var changeIsComplete = !!element.children.length;
+    currentOutletDef.getOnCompleteCallback = function(element) {
       var outletElement = element.parentNode;
 
-      if(changeIsComplete) {
-        activeOutlets.remove(outlet);
-        outletElement.setAttribute('rendered', (componentToDisplay === nullComponent ? '' : componentToDisplay));
+      activeOutlets.remove(outlet);
+      outletElement.setAttribute('rendered', (componentToDisplay === nullComponent ? '' : componentToDisplay));
 
-        return function addBindingOnComplete() {
-          var outletViewModel = router.outlets[outletName].outletViewModel;
-          if(outletViewModel) {
-            outletViewModel.routeIsLoading(false);
-          }
+      return function addBindingOnComplete() {
+        var outletViewModel = router.outlets[outletName].outletViewModel;
+        if(outletViewModel) {
+          outletViewModel.routeIsLoading(false);
+        }
 
-          onComplete.call(router, outletElement);
-        };
-      } else {
-        removeClass(outletElement, entityAnimateClass);
-        return noop;
-      }
+        onComplete.call(router, outletElement);
+      };
     };
 
     if(activeOutlets().indexOf(outlet) === -1) {
@@ -206,7 +200,7 @@ function registerOutletComponent() {
 
         setTimeout(function() {
           outlet.loadingClass(addAnimation);
-        }, 0);
+        }, oneFrame);
       }
 
       function showLoadedAfterMinimumTransition() {

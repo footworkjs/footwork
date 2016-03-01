@@ -52,7 +52,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
       when = predicate;
     } else {
       when = function(updatedValue) {
-        return updatedValue === predicate;
+        return isEqual(updatedValue, predicate);
       };
     }
     return this;

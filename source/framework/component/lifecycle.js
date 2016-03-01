@@ -53,29 +53,27 @@ function componentTriggerAfterRender(element, viewModel, $context) {
     function addAnimationClass() {
       var classList = element.className.split(" ");
       if(!includes(classList, outletLoadingDisplay) && !includes(classList, outletLoadedDisplay)) {
-        setTimeout(function() {
-          var queue = addToAndFetchQueue(element, viewModel);
-          var nearestOutlet = nearestEntity($context, isOutletViewModel);
+        var queue = addToAndFetchQueue(element, viewModel);
+        var nearestOutlet = nearestEntity($context, isOutletViewModel);
 
-          if(nearestOutlet) {
-            // the parent outlet will run the callback that initiates the animation
-            // sequence (once the rest of its dependencies finish loading as well)
-            nearestOutlet.addResolvedCallbackOrExecute(function() {
-              runAnimationClassSequenceQueue(queue);
-            });
-          } else {
-            // no parent outlet found, lets go ahead and run the queue
+        if(nearestOutlet) {
+          // the parent outlet will run the callback that initiates the animation
+          // sequence (once the rest of its dependencies finish loading as well)
+          nearestOutlet.addResolvedCallbackOrExecute(function() {
             runAnimationClassSequenceQueue(queue);
-          }
-        }, minimumAnimationDelay);
+          });
+        } else {
+          // no parent outlet found, lets go ahead and run the queue
+          runAnimationClassSequenceQueue(queue);
+        }
       }
     }
 
-    // resolve the flight tracker and trigger the addAnimationClass callback when appropriate
-    (viewModel.__private('resolveFlightTracker') || noop)(addAnimationClass);
-
     // trigger the user-specified afterRender callback
     viewModel.__private('configParams').afterRender.call(viewModel, element);
+
+    // resolve the flight tracker and trigger the addAnimationClass callback when appropriate
+    (viewModel.__private('resolveFlightTracker') || noop)(addAnimationClass);
   }
 }
 
@@ -106,8 +104,8 @@ fw.bindingHandlers.$life = {
     if(isObject($parent) && isObservable($parent.route) && $parent.__isOutlet) {
       var parentRoute = $parent.route.peek();
       var classList = element.className.split(" ");
-      if (!includes(classList, outletLoadingDisplay) && isFunction(parentRoute.__getOnCompleteCallback)) {
-        parentRoute.__getOnCompleteCallback(element)();
+      if (!includes(classList, outletLoadingDisplay) && isFunction(parentRoute.getOnCompleteCallback)) {
+        parentRoute.getOnCompleteCallback(element)();
       }
     }
 
