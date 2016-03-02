@@ -477,7 +477,7 @@ var entityMixins = [];
 
 var entityClass = 'fw-entity';
 var entityAnimateClass = 'fw-entity-animate';
-var minimumAnimationDelay = 20;
+var oneFrame = 1000 / 60;
 var isEntityCtor;
 var isEntity;
 var isDataModel;
@@ -1233,7 +1233,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
       when = predicate;
     } else {
       when = function(updatedValue) {
-        return updatedValue === predicate;
+        return isEqual(updatedValue, predicate);
       };
     }
     return this;
@@ -1960,11 +1960,8 @@ function routerOutlet(outletName, componentToDisplay, options) {
     outlet = fw.observable({
       name: noComponentSelected,
       params: {},
-      __getOnCompleteCallback: function() { return noop; },
-      __onFailure: onFailure.bind(router)
-    }).broadcastAs({
-      name: outletName,
-      namespace: router.$namespace
+      getOnCompleteCallback: function() { return noop; },
+      onFailure: onFailure.bind(router)
     });
 
     // register the new outlet under its outletName
@@ -2009,26 +2006,20 @@ function routerOutlet(outletName, componentToDisplay, options) {
       outletViewModel.routeIsLoading(true);
     }
 
-    currentOutletDef.__getOnCompleteCallback = function(element) {
-      var changeIsComplete = !!element.children.length;
+    currentOutletDef.getOnCompleteCallback = function(element) {
       var outletElement = element.parentNode;
 
-      if(changeIsComplete) {
-        activeOutlets.remove(outlet);
-        outletElement.setAttribute('rendered', (componentToDisplay === nullComponent ? '' : componentToDisplay));
+      activeOutlets.remove(outlet);
+      outletElement.setAttribute('rendered', (componentToDisplay === nullComponent ? '' : componentToDisplay));
 
-        return function addBindingOnComplete() {
-          var outletViewModel = router.outlets[outletName].outletViewModel;
-          if(outletViewModel) {
-            outletViewModel.routeIsLoading(false);
-          }
+      return function addBindingOnComplete() {
+        var outletViewModel = router.outlets[outletName].outletViewModel;
+        if(outletViewModel) {
+          outletViewModel.routeIsLoading(false);
+        }
 
-          onComplete.call(router, outletElement);
-        };
-      } else {
-        removeClass(outletElement, entityAnimateClass);
-        return noop;
-      }
+        onComplete.call(router, outletElement);
+      };
     };
 
     if(activeOutlets().indexOf(outlet) === -1) {
@@ -2109,12 +2100,11 @@ function registerOutletComponent() {
 
         setTimeout(function() {
           outlet.loadingClass(addAnimation);
-        }, 0);
+        }, oneFrame);
       }
 
       function showLoadedAfterMinimumTransition() {
         outlet.loadingClass(removeAnimation);
-        outlet.loadedClass(removeAnimation);
         outlet.loadedStyle(visibleCSS);
         outlet.loadingStyle(hiddenCSS);
         outlet.loadedClass(addAnimation);
@@ -3078,8 +3068,7 @@ fw.bindingHandlers.$viewModel = {
 
 // Provides lifecycle functionality and $context for a given entity and element
 function setupContextAndLifeCycle(entity, element) {
-  if (isEntity(entity) && !entity.__private('afterRenderWasTriggered')) {
-    entity.__private('afterRenderWasTriggered', true);
+  if (isEntity(entity)) {
     element = element || document.body;
 
     var context;
@@ -3099,14 +3088,11 @@ function setupContextAndLifeCycle(entity, element) {
 
     var resolveFlightTracker = entity.__private('resolveFlightTracker') || noop;
     $configParams.afterRender = function (containerElement) {
-      addClass(containerElement, entityClass);
-      function addAnimationClass() {
-        setTimeout(function() {
-          addClass(containerElement, entityAnimateClass);
-        }, minimumAnimationDelay);
-      }
       afterRender.call(this, containerElement);
-      resolveFlightTracker(addAnimationClass);
+      addClass(containerElement, entityClass);
+      resolveFlightTracker(function addAnimationClass() {
+        addClass(containerElement, entityAnimateClass);
+      });
     };
     $configParams.afterRender.call(entity, element);
 
@@ -3669,35 +3655,31 @@ function addToAndFetchQueue(element, viewModel) {
 }
 
 function componentTriggerAfterRender(element, viewModel, $context) {
-  if(isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
-    viewModel.__private('afterRenderWasTriggered', true);
-
+  if(isEntity(viewModel)) {
     function addAnimationClass() {
       var classList = element.className.split(" ");
       if(!includes(classList, outletLoadingDisplay) && !includes(classList, outletLoadedDisplay)) {
-        setTimeout(function() {
-          var queue = addToAndFetchQueue(element, viewModel);
-          var nearestOutlet = nearestEntity($context, isOutletViewModel);
+        var queue = addToAndFetchQueue(element, viewModel);
+        var nearestOutlet = nearestEntity($context, isOutletViewModel);
 
-          if(nearestOutlet) {
-            // the parent outlet will run the callback that initiates the animation
-            // sequence (once the rest of its dependencies finish loading as well)
-            nearestOutlet.addResolvedCallbackOrExecute(function() {
-              runAnimationClassSequenceQueue(queue);
-            });
-          } else {
-            // no parent outlet found, lets go ahead and run the queue
+        if(nearestOutlet) {
+          // the parent outlet will run the callback that initiates the animation
+          // sequence (once the rest of its dependencies finish loading as well)
+          nearestOutlet.addResolvedCallbackOrExecute(function() {
             runAnimationClassSequenceQueue(queue);
-          }
-        }, minimumAnimationDelay);
+          });
+        } else {
+          // no parent outlet found, lets go ahead and run the queue
+          runAnimationClassSequenceQueue(queue);
+        }
       }
     }
 
-    // resolve the flight tracker and trigger the addAnimationClass callback when appropriate
-    (viewModel.__private('resolveFlightTracker') || noop)(addAnimationClass);
-
     // trigger the user-specified afterRender callback
     viewModel.__private('configParams').afterRender.call(viewModel, element);
+
+    // resolve the flight tracker and trigger the addAnimationClass callback when appropriate
+    (viewModel.__private('resolveFlightTracker') || noop)(addAnimationClass);
   }
 }
 
@@ -3728,8 +3710,8 @@ fw.bindingHandlers.$life = {
     if(isObject($parent) && isObservable($parent.route) && $parent.__isOutlet) {
       var parentRoute = $parent.route.peek();
       var classList = element.className.split(" ");
-      if (!includes(classList, outletLoadingDisplay) && isFunction(parentRoute.__getOnCompleteCallback)) {
-        parentRoute.__getOnCompleteCallback(element)();
+      if (!includes(classList, outletLoadingDisplay) && isFunction(parentRoute.getOnCompleteCallback)) {
+        parentRoute.getOnCompleteCallback(element)();
       }
     }
 
@@ -3940,7 +3922,7 @@ function possiblyGetConfigFromAmd(config, callback) {
     if(isFunction(require)) {
       require([config['require']], callback, function() {
         each(activeOutlets(), function(outlet) {
-          (outlet().__onFailure || noop)();
+          (outlet().onFailure || noop)();
         });
       });
     } else {
