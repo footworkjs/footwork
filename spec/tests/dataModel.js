@@ -1190,7 +1190,7 @@ describe('dataModel', function () {
 
     var Person = fw.dataModel.create({
       namespace: 'Person',
-      pkInURL: false,
+      useKeyInUrl: false,
       url: url + '/:firstName',
       initialize: function(person) {
         person = person || {};

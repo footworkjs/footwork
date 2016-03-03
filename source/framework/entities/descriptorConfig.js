@@ -32,7 +32,7 @@ entityDescriptors = entityDescriptors.concat([
     defaultConfig: {
       idAttribute: 'id',
       url: null,
-      pkInURL: true,
+      useKeyInUrl: true,
       parse: false,
       ajaxOptions: {},
       namespace: undefined,
