@@ -17,6 +17,13 @@ function isPromise(thing) {
   return isObject(thing) && isFunction(thing.then);
 }
 
+function isNode(thing) {
+  return (
+    typeof thing === "object" ? thing instanceof Node :
+    isObject(thing) && isNumber(thing.nodeType) === "number" && isString(thing.nodeName)
+  );
+}
+
 function promiseIsResolvedOrRejected(promise) {
   return !isPromise(promise) || includes(['resolved', 'rejected'], promise.state());
 }

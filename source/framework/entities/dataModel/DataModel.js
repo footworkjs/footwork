@@ -66,10 +66,10 @@ var DataModel = function(descriptor, configParams) {
           requestLull: configParams.requestLull,
           entity: dataModel,
           createRequest: function() {
-            if(isObject(key)) {
+            if(isObject(key) && !isNode(key)) {
               attrs = key;
               options = val;
-            } else {
+            } else if(isString(key) && arguments.length > 1) {
               (attrs = {})[key] = val;
             }
 

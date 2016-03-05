@@ -520,6 +520,13 @@ function isPromise(thing) {
   return isObject(thing) && isFunction(thing.then);
 }
 
+function isNode(thing) {
+  return (
+    typeof thing === "object" ? thing instanceof Node :
+    isObject(thing) && isNumber(thing.nodeType) === "number" && isString(thing.nodeName)
+  );
+}
+
 function promiseIsResolvedOrRejected(promise) {
   return !isPromise(promise) || includes(['resolved', 'rejected'], promise.state());
 }
@@ -1599,10 +1606,10 @@ var DataModel = function(descriptor, configParams) {
           requestLull: configParams.requestLull,
           entity: dataModel,
           createRequest: function() {
-            if(isObject(key)) {
+            if(isObject(key) && !isNode(key)) {
               attrs = key;
               options = val;
-            } else {
+            } else if(isString(key) && arguments.length > 1) {
               (attrs = {})[key] = val;
             }
 
