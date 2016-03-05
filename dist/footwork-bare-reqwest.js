@@ -1867,7 +1867,7 @@ fw.sync = function(action, concern, params) {
     if(isDataModel(concern)) {
       var pkIsSpecifiedByUser = !isNull(url.match(':' + configParams.idAttribute));
       var hasQueryString = !isNull(url.match(/\?/));
-      if(contains(['read', 'update', 'patch', 'delete'], action) && configParams.pkInURL && !pkIsSpecifiedByUser && !hasQueryString) {
+      if(contains(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl && !pkIsSpecifiedByUser && !hasQueryString) {
         // need to append /:id to url
         url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
       }
@@ -3262,7 +3262,7 @@ entityDescriptors = entityDescriptors.concat([
     defaultConfig: {
       idAttribute: 'id',
       url: null,
-      pkInURL: true,
+      useKeyInUrl: true,
       parse: false,
       ajaxOptions: {},
       namespace: undefined,
