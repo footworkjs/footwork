@@ -1557,7 +1557,8 @@ var DataModel = function(descriptor, configParams) {
       this[pkField] = this.$id = fw.observable(params[pkField]).mapTo(pkField);
 
       this.isNew = fw.computed(function() {
-        return !isUndefined(this.$id()) && !isNull(this.$id());
+        var id = this.$id();
+        return isUndefined(id) || isNull(id);
       }, this);
     },
     mixin: {
