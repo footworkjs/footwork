@@ -148,7 +148,7 @@ function regExpIsEqual(a, b, isEq) {
   if(isObject(a) && isObject(b)) {
     return every(reduce(a, function(comparison, paramValue, paramName) {
       var isCongruent = false;
-      var bParamValue = !isUndefined(b[paramName]) && !isNull(b[paramName]) ? (isObject(b[paramName]) ? b[paramName] : b[paramName].toString()) : b[paramName];
+      var bParamValue = b[paramName];
       if(bParamValue) {
         if(isRegExp(paramValue)) {
           isCongruent = !isNull(bParamValue.match(paramValue));
