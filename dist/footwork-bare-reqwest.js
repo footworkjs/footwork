@@ -2173,7 +2173,7 @@ var DataModel = function(descriptor, configParams) {
         each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
           var fieldValue = getNestedReference(attributes, fieldMap);
           if(!isUndefined(fieldValue)) {
-            fieldObservable(fieldValue);
+            fw.isWriteableObservable(fieldObservable) && fieldObservable(fieldValue);
             mappingsChanged = true;
             options.clearDirty && fieldObservable.isDirty(false);
             this.$namespace.publish('_.change.' + fieldMap, fieldValue);
