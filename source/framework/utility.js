@@ -18,9 +18,10 @@ function isPromise(thing) {
 }
 
 function isNode(thing) {
+  var thingIsObject = isObject(thing);
   return (
-    typeof thing === "object" ? thing instanceof Node :
-    isObject(thing) && isNumber(thing.nodeType) === "number" && isString(thing.nodeName)
+    thingIsObject ? thing instanceof Node :
+    thingIsObject && isNumber(thing.nodeType) === "number" && isString(thing.nodeName)
   );
 }
 

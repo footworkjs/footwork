@@ -1,6 +1,11 @@
 // framework/entities/dataModel/DataModel.js
 // ------------------
 
+function dataModelIsNew() {
+  var id = this.$id();
+  return isUndefined(id) || isNull(id);
+}
+
 var DataModel = function(descriptor, configParams) {
   return {
     runBeforeInit: true,
@@ -23,10 +28,7 @@ var DataModel = function(descriptor, configParams) {
       this.$cid = fw.utils.guid();
       this[pkField] = this.$id = fw.observable(params[pkField]).mapTo(pkField);
 
-      this.isNew = fw.computed(function() {
-        var id = this.$id();
-        return isUndefined(id) || isNull(id);
-      }, this);
+      this.isNew = fw.computed(dataModelIsNew, this);
     },
     mixin: {
       // GET from server and set in model

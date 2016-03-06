@@ -11547,9 +11547,10 @@ function isPromise(thing) {
 }
 
 function isNode(thing) {
+  var thingIsObject = isObject(thing);
   return (
-    typeof thing === "object" ? thing instanceof Node :
-    isObject(thing) && isNumber(thing.nodeType) === "number" && isString(thing.nodeName)
+    thingIsObject ? thing instanceof Node :
+    thingIsObject && isNumber(thing.nodeType) === "number" && isString(thing.nodeName)
   );
 }
 
@@ -12543,6 +12544,10 @@ fw.subscribable.fn.mapTo = function(option) {
   if(mapPath === primaryKey) {
     // mapping primary key, update/set the $id property on the dataModel
     dataModel.$id = mappings[mapPath];
+    if(isObservable(dataModel.isNew) && isFunction(dataModel.isNew.dispose)) {
+      dataModel.isNew.dispose();
+    }
+    dataModel.isNew = fw.computed(dataModelIsNew, dataModel);
   }
 
   mappedObservable.isDirty = fw.observable(false);
@@ -12567,6 +12572,11 @@ fw.subscribable.fn.mapTo = function(option) {
 // framework/entities/dataModel/DataModel.js
 // ------------------
 
+function dataModelIsNew() {
+  var id = this.$id();
+  return isUndefined(id) || isNull(id);
+}
+
 var DataModel = function(descriptor, configParams) {
   return {
     runBeforeInit: true,
@@ -12589,10 +12599,7 @@ var DataModel = function(descriptor, configParams) {
       this.$cid = fw.utils.guid();
       this[pkField] = this.$id = fw.observable(params[pkField]).mapTo(pkField);
 
-      this.isNew = fw.computed(function() {
-        var id = this.$id();
-        return isUndefined(id) || isNull(id);
-      }, this);
+      this.isNew = fw.computed(dataModelIsNew, this);
     },
     mixin: {
       // GET from server and set in model

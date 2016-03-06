@@ -34,6 +34,10 @@ fw.subscribable.fn.mapTo = function(option) {
   if(mapPath === primaryKey) {
     // mapping primary key, update/set the $id property on the dataModel
     dataModel.$id = mappings[mapPath];
+    if(isObservable(dataModel.isNew) && isFunction(dataModel.isNew.dispose)) {
+      dataModel.isNew.dispose();
+    }
+    dataModel.isNew = fw.computed(dataModelIsNew, dataModel);
   }
 
   mappedObservable.isDirty = fw.observable(false);
