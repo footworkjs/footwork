@@ -24,6 +24,9 @@ var DataModel = function(descriptor, configParams) {
       this.isSaving = fw.observable(false);
       this.isFetching = fw.observable(false);
       this.isDestroying = fw.observable(false);
+      this.requestInProgress = fw.computed(function() {
+        return this.isSaving() || this.isFetching() || this.isDestroying();
+      }, this);
 
       this.$cid = fw.utils.guid();
       this[pkField] = this.$id = fw.observable(params[pkField]).mapTo(pkField);

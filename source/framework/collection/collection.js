@@ -81,6 +81,10 @@ fw.collection.create = function(configParams) {
       }
     });
 
+    collection.requestInProgress = fw.computed(function() {
+      return this.isFetching() || this.isCreating();
+    }, collection);
+
     if(collectionData) {
       collection.set(collectionData);
     }
