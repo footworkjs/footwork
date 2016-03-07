@@ -37,7 +37,7 @@ fw.subscribable.fn.mapTo = function(option) {
     if(isObservable(dataModel.isNew) && isFunction(dataModel.isNew.dispose)) {
       dataModel.isNew.dispose();
     }
-    dataModel.isNew = fw.computed(dataModelIsNew, dataModel);
+    dataModel.isNew = fw.pureComputed(dataModelIsNew, dataModel);
   }
 
   mappedObservable.isDirty = fw.observable(false);

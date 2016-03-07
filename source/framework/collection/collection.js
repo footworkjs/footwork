@@ -81,7 +81,7 @@ fw.collection.create = function(configParams) {
       }
     });
 
-    collection.requestInProgress = fw.computed(function() {
+    collection.requestInProgress = fw.pureComputed(function() {
       return this.isFetching() || this.isCreating();
     }, collection);
 
