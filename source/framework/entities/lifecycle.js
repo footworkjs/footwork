@@ -3,7 +3,8 @@
 
 // Provides lifecycle functionality and $context for a given entity and element
 function setupContextAndLifeCycle(entity, element) {
-  if (isEntity(entity)) {
+  if (isEntity(entity) && !entity.__private('afterRenderWasTriggered')) {
+    entity.__private('afterRenderWasTriggered', true);
     element = element || document.body;
 
     var context;

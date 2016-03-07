@@ -14112,7 +14112,8 @@ fw.bindingHandlers.$viewModel = {
 
 // Provides lifecycle functionality and $context for a given entity and element
 function setupContextAndLifeCycle(entity, element) {
-  if (isEntity(entity)) {
+  if (isEntity(entity) && !entity.__private('afterRenderWasTriggered')) {
+    entity.__private('afterRenderWasTriggered', true);
     element = element || document.body;
 
     var context;
@@ -14699,7 +14700,9 @@ function addToAndFetchQueue(element, viewModel) {
 }
 
 function componentTriggerAfterRender(element, viewModel, $context) {
-  if(isEntity(viewModel)) {
+  if(isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
+    viewModel.__private('afterRenderWasTriggered', true);
+
     function addAnimationClass() {
       var classList = element.className.split(" ");
       if(!includes(classList, outletLoadingDisplay) && !includes(classList, outletLoadedDisplay)) {
