@@ -341,11 +341,11 @@ function privateData(privateStore, configParams, propName, propValue) {
   }
 }
 
-var nextFrame = window.requestAnimationFrame ||
-                window.webkitRequestAnimationFrame ||
-                window.mozRequestAnimationFrame ||
-                window.oRequestAnimationFrame ||
-                window.msRequestAnimationFrame ||
+var nextFrame = windowObject.requestAnimationFrame ||
+                windowObject.webkitRequestAnimationFrame ||
+                windowObject.mozRequestAnimationFrame ||
+                windowObject.oRequestAnimationFrame ||
+                windowObject.msRequestAnimationFrame ||
                 function(callback) {
                   setTimeout(callback, oneFrame);
                 };
