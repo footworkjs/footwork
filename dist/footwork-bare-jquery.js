@@ -1521,7 +1521,7 @@ fw.subscribable.fn.mapTo = function(option) {
     if(isObservable(dataModel.isNew) && isFunction(dataModel.isNew.dispose)) {
       dataModel.isNew.dispose();
     }
-    dataModel.isNew = fw.computed(dataModelIsNew, dataModel);
+    dataModel.isNew = fw.pureComputed(dataModelIsNew, dataModel);
   }
 
   mappedObservable.isDirty = fw.observable(false);
@@ -1560,7 +1560,7 @@ var DataModel = function(descriptor, configParams) {
       var pkField = configParams.idAttribute;
       this.__private('mappings', fw.observable({}));
 
-      this.isDirty = fw.computed(function() {
+      this.isDirty = fw.pureComputed(function() {
         return reduce(this.__private('mappings')(), function(isDirty, mappedField) {
           return isDirty || mappedField.isDirty();
         }, false);
@@ -1569,14 +1569,14 @@ var DataModel = function(descriptor, configParams) {
       this.isSaving = fw.observable(false);
       this.isFetching = fw.observable(false);
       this.isDestroying = fw.observable(false);
-      this.requestInProgress = fw.computed(function() {
+      this.requestInProgress = fw.pureComputed(function() {
         return this.isSaving() || this.isFetching() || this.isDestroying();
       }, this);
 
       this.$cid = fw.utils.guid();
       this[pkField] = this.$id = fw.observable(params[pkField]).mapTo(pkField);
 
-      this.isNew = fw.computed(dataModelIsNew, this);
+      this.isNew = fw.pureComputed(dataModelIsNew, this);
     },
     mixin: {
       // GET from server and set in model
@@ -3663,7 +3663,9 @@ function addToAndFetchQueue(element, viewModel) {
   var animationSequenceQueue = sequenceQueue[configParams.namespace] = (sequenceQueue[configParams.namespace] || []);
   var newSequenceIteration = {
     addAnimationClass: function addBindingFromQueue() {
-      addClass(element, entityAnimateClass);
+      setTimeout(function() {
+        addClass(element, entityAnimateClass);
+      }, 0);
     },
     nextIteration: sequenceTimeout
   };
@@ -4254,7 +4256,7 @@ fw.collection.create = function(configParams) {
       }
     });
 
-    collection.requestInProgress = fw.computed(function() {
+    collection.requestInProgress = fw.pureComputed(function() {
       return this.isFetching() || this.isCreating();
     }, collection);
 
