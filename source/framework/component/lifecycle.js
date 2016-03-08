@@ -38,9 +38,9 @@ function addToAndFetchQueue(element, viewModel) {
   var animationSequenceQueue = sequenceQueue[configParams.namespace] = (sequenceQueue[configParams.namespace] || []);
   var newSequenceIteration = {
     addAnimationClass: function addBindingFromQueue() {
-      setTimeout(function() {
+      nextFrame(function() {
         addClass(element, entityAnimateClass);
-      }, 0);
+      });
     },
     nextIteration: sequenceTimeout
   };

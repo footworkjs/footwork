@@ -172,8 +172,8 @@ function registerOutletComponent() {
             outlet.flightWatch.dispose();
           }
 
-          // must call setTimeout to allow binding to begin on any subcomponents/etc
-          setTimeout(function() {
+          // must allow binding to begin on any subcomponents/etc
+          nextFrame(function() {
             if(outlet.inFlightChildren().length) {
               outlet.flightWatch = outlet.inFlightChildren.subscribe(function(inFlightChildren) {
                 if(!inFlightChildren.length) {
@@ -183,7 +183,7 @@ function registerOutletComponent() {
             } else {
               outlet.routeIsResolving(false);
             }
-          }, 0);
+          });
         }
       });
 
@@ -198,9 +198,9 @@ function registerOutletComponent() {
         outlet.loadedStyle(hiddenCSS);
         outlet.loadingStyle(visibleCSS);
 
-        setTimeout(function() {
+        nextFrame(function() {
           outlet.loadingClass(addAnimation);
-        }, oneFrame);
+        });
       }
 
       function showLoadedAfterMinimumTransition() {

@@ -340,3 +340,12 @@ function privateData(privateStore, configParams, propName, propValue) {
     return privateStore[propName];
   }
 }
+
+var nextFrame = window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                function(callback) {
+                  setTimeout(callback, oneFrame);
+                };
