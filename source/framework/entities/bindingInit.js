@@ -47,7 +47,7 @@ function entityBinder(element, params, $parentContext, Entity, $flightTracker, $
         }
 
         function maybeResolve() {
-          entityObj.__private('configParams').resolved.call(entityObj, resolveThisEntityNow);
+          entityObj.__private('configParams').afterResolving.call(entityObj, resolveThisEntityNow);
         }
 
         var $inFlightChildren = entityObj.__private('inFlightChildren');

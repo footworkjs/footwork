@@ -140,7 +140,7 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
                 }
 
                 function maybeResolve() {
-                  viewModel.__private('configParams').resolved.call(viewModel, resolveThisEntityNow);
+                  viewModel.__private('configParams').afterResolving.call(viewModel, resolveThisEntityNow);
                 }
 
                 var $inFlightChildren = viewModel.__private('inFlightChildren');

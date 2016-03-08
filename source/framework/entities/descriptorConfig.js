@@ -19,7 +19,7 @@ entityDescriptors = entityDescriptors.concat([
       extend: {},
       mixins: undefined,
       afterRender: noop,
-      resolved: resolveEntityImmediately,
+      afterResolving: resolveEntityImmediately,
       sequenceAnimations: false,
       onDispose: noop
     }
@@ -42,7 +42,7 @@ entityDescriptors = entityDescriptors.concat([
       mixins: undefined,
       requestLull: undefined,
       afterRender: noop,
-      resolved: resolveEntityImmediately,
+      afterResolving: resolveEntityImmediately,
       sequenceAnimations: false,
       onDispose: noop
     }
@@ -60,7 +60,7 @@ entityDescriptors = entityDescriptors.concat([
       extend: {},
       mixins: undefined,
       afterRender: noop,
-      resolved: resolveEntityImmediately,
+      afterResolving: resolveEntityImmediately,
       sequenceAnimations: false,
       onDispose: noop,
       baseRoute: null,
