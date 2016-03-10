@@ -11870,6 +11870,15 @@ function privateData(privateStore, configParams, propName, propValue) {
   }
 }
 
+var nextFrame = windowObject.requestAnimationFrame ||
+                windowObject.webkitRequestAnimationFrame ||
+                windowObject.mozRequestAnimationFrame ||
+                windowObject.oRequestAnimationFrame ||
+                windowObject.msRequestAnimationFrame ||
+                function(callback) {
+                  setTimeout(callback, oneFrame);
+                };
+
 
 // framework/namespace/init.js
 // ----------------
@@ -12592,6 +12601,7 @@ var DataModel = function(descriptor, configParams) {
         }, false);
       }, this);
 
+      this.isCreating = fw.observable(false);
       this.isSaving = fw.observable(false);
       this.isFetching = fw.observable(false);
       this.isDestroying = fw.observable(false);
@@ -12609,7 +12619,7 @@ var DataModel = function(descriptor, configParams) {
       fetch: function(options) {
         var dataModel = this;
         var requestInfo = {
-          requestRunning: dataModel.isSaving,
+          requestRunning: dataModel.isFetching,
           requestLull: configParams.requestLull,
           entity: dataModel,
           createRequest: function() {
@@ -12637,35 +12647,35 @@ var DataModel = function(descriptor, configParams) {
       save: function(key, val, options) {
         var dataModel = this;
         var attrs = null;
+
+        if(isObject(key) && !isNode(key)) {
+          attrs = key;
+          options = val;
+        } else if(isString(key) && arguments.length > 1) {
+          (attrs = {})[key] = val;
+        }
+
+        if(isObject(options) && isFunction(options.stopPropagation)) {
+          // method called as a result of an event binding, ignore its 'options'
+          options = {};
+        }
+
+        options = extend({
+          parse: true,
+          wait: false,
+          patch: false
+        }, options);
+
+        if(method === 'patch' && !options.attrs) {
+          options.attrs = attrs;
+        }
+
+        var method = isUndefined(dataModel.$id()) ? 'create' : (options.patch ? 'patch' : 'update');
         var requestInfo = {
-          requestRunning: dataModel.isSaving,
+          requestRunning: (method === 'create' ? dataModel.isCreating : dataModel.isSaving),
           requestLull: configParams.requestLull,
           entity: dataModel,
           createRequest: function() {
-            if(isObject(key) && !isNode(key)) {
-              attrs = key;
-              options = val;
-            } else if(isString(key) && arguments.length > 1) {
-              (attrs = {})[key] = val;
-            }
-
-            if(isObject(options) && isFunction(options.stopPropagation)) {
-              // method called as a result of an event binding, ignore its 'options'
-              options = {};
-            }
-
-            options = extend({
-              parse: true,
-              wait: false,
-              patch: false
-            }, options);
-
-            var method = isUndefined(dataModel.$id()) ? 'create' : (options.patch ? 'patch' : 'update');
-
-            if(method === 'patch' && !options.attrs) {
-              options.attrs = attrs;
-            }
-
             if(!options.wait && !isNull(attrs)) {
               dataModel.set(attrs);
             }
@@ -13116,8 +13126,8 @@ function registerOutletComponent() {
             outlet.flightWatch.dispose();
           }
 
-          // must call setTimeout to allow binding to begin on any subcomponents/etc
-          setTimeout(function() {
+          // must allow binding to begin on any subcomponents/etc
+          nextFrame(function() {
             if(outlet.inFlightChildren().length) {
               outlet.flightWatch = outlet.inFlightChildren.subscribe(function(inFlightChildren) {
                 if(!inFlightChildren.length) {
@@ -13127,7 +13137,7 @@ function registerOutletComponent() {
             } else {
               outlet.routeIsResolving(false);
             }
-          }, 0);
+          });
         }
       });
 
@@ -13142,9 +13152,9 @@ function registerOutletComponent() {
         outlet.loadedStyle(hiddenCSS);
         outlet.loadingStyle(visibleCSS);
 
-        setTimeout(function() {
+        nextFrame(function() {
           outlet.loadingClass(addAnimation);
-        }, oneFrame);
+        });
       }
 
       function showLoadedAfterMinimumTransition() {
@@ -13835,7 +13845,7 @@ entityDescriptors = entityDescriptors.concat([
       extend: {},
       mixins: undefined,
       afterRender: noop,
-      resolved: resolveEntityImmediately,
+      afterResolving: resolveEntityImmediately,
       sequenceAnimations: false,
       onDispose: noop
     }
@@ -13858,7 +13868,7 @@ entityDescriptors = entityDescriptors.concat([
       mixins: undefined,
       requestLull: undefined,
       afterRender: noop,
-      resolved: resolveEntityImmediately,
+      afterResolving: resolveEntityImmediately,
       sequenceAnimations: false,
       onDispose: noop
     }
@@ -13876,7 +13886,7 @@ entityDescriptors = entityDescriptors.concat([
       extend: {},
       mixins: undefined,
       afterRender: noop,
-      resolved: resolveEntityImmediately,
+      afterResolving: resolveEntityImmediately,
       sequenceAnimations: false,
       onDispose: noop,
       baseRoute: null,
@@ -13938,7 +13948,7 @@ function entityBinder(element, params, $parentContext, Entity, $flightTracker, $
         }
 
         function maybeResolve() {
-          entityObj.__private('configParams').resolved.call(entityObj, resolveThisEntityNow);
+          entityObj.__private('configParams').afterResolving.call(entityObj, resolveThisEntityNow);
         }
 
         var $inFlightChildren = entityObj.__private('inFlightChildren');
@@ -14689,9 +14699,9 @@ function addToAndFetchQueue(element, viewModel) {
   var animationSequenceQueue = sequenceQueue[configParams.namespace] = (sequenceQueue[configParams.namespace] || []);
   var newSequenceIteration = {
     addAnimationClass: function addBindingFromQueue() {
-      setTimeout(function() {
+      nextFrame(function() {
         addClass(element, entityAnimateClass);
-      }, 0);
+      });
     },
     nextIteration: sequenceTimeout
   };
@@ -14941,7 +14951,7 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
                 }
 
                 function maybeResolve() {
-                  viewModel.__private('configParams').resolved.call(viewModel, resolveThisEntityNow);
+                  viewModel.__private('configParams').afterResolving.call(viewModel, resolveThisEntityNow);
                 }
 
                 var $inFlightChildren = viewModel.__private('inFlightChildren');
