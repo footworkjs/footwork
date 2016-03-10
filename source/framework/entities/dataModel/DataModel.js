@@ -21,6 +21,7 @@ var DataModel = function(descriptor, configParams) {
         }, false);
       }, this);
 
+      this.isCreating = fw.observable(false);
       this.isSaving = fw.observable(false);
       this.isFetching = fw.observable(false);
       this.isDestroying = fw.observable(false);
@@ -38,7 +39,7 @@ var DataModel = function(descriptor, configParams) {
       fetch: function(options) {
         var dataModel = this;
         var requestInfo = {
-          requestRunning: dataModel.isSaving,
+          requestRunning: dataModel.isFetching,
           requestLull: configParams.requestLull,
           entity: dataModel,
           createRequest: function() {
@@ -66,35 +67,35 @@ var DataModel = function(descriptor, configParams) {
       save: function(key, val, options) {
         var dataModel = this;
         var attrs = null;
+
+        if(isObject(key) && !isNode(key)) {
+          attrs = key;
+          options = val;
+        } else if(isString(key) && arguments.length > 1) {
+          (attrs = {})[key] = val;
+        }
+
+        if(isObject(options) && isFunction(options.stopPropagation)) {
+          // method called as a result of an event binding, ignore its 'options'
+          options = {};
+        }
+
+        options = extend({
+          parse: true,
+          wait: false,
+          patch: false
+        }, options);
+
+        if(method === 'patch' && !options.attrs) {
+          options.attrs = attrs;
+        }
+
+        var method = isUndefined(dataModel.$id()) ? 'create' : (options.patch ? 'patch' : 'update');
         var requestInfo = {
-          requestRunning: dataModel.isSaving,
+          requestRunning: (method === 'create' ? dataModel.isCreating : dataModel.isSaving),
           requestLull: configParams.requestLull,
           entity: dataModel,
           createRequest: function() {
-            if(isObject(key) && !isNode(key)) {
-              attrs = key;
-              options = val;
-            } else if(isString(key) && arguments.length > 1) {
-              (attrs = {})[key] = val;
-            }
-
-            if(isObject(options) && isFunction(options.stopPropagation)) {
-              // method called as a result of an event binding, ignore its 'options'
-              options = {};
-            }
-
-            options = extend({
-              parse: true,
-              wait: false,
-              patch: false
-            }, options);
-
-            var method = isUndefined(dataModel.$id()) ? 'create' : (options.patch ? 'patch' : 'update');
-
-            if(method === 'patch' && !options.attrs) {
-              options.attrs = attrs;
-            }
-
             if(!options.wait && !isNull(attrs)) {
               dataModel.set(attrs);
             }
