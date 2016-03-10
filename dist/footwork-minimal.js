@@ -3257,7 +3257,7 @@ var DataModel = function(descriptor, configParams) {
       this.isFetching = fw.observable(false);
       this.isDestroying = fw.observable(false);
       this.requestInProgress = fw.pureComputed(function() {
-        return this.isSaving() || this.isFetching() || this.isDestroying();
+        return this.isCreating() || this.isSaving() || this.isFetching() || this.isDestroying();
       }, this);
 
       this.$cid = fw.utils.guid();
