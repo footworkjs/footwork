@@ -341,11 +341,6 @@ function privateData(privateStore, configParams, propName, propValue) {
   }
 }
 
-var nextFrame = windowObject.requestAnimationFrame ||
-                windowObject.webkitRequestAnimationFrame ||
-                windowObject.mozRequestAnimationFrame ||
-                windowObject.oRequestAnimationFrame ||
-                windowObject.msRequestAnimationFrame ||
-                function(callback) {
-                  setTimeout(callback, oneFrame);
-                };
+var nextFrame = function(callback) {
+  setTimeout(callback, oneFrame);
+};
