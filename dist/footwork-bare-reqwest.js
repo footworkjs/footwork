@@ -935,7 +935,7 @@ var entityMixins = [];
 
 var entityClass = 'fw-entity';
 var entityAnimateClass = 'fw-entity-animate';
-var oneFrame = 1000 / 60;
+var oneFrame = (1000 / 20); // assume slower interfaces, 20fps
 var isEntityCtor;
 var isEntity;
 var isDataModel;
@@ -1302,14 +1302,9 @@ function privateData(privateStore, configParams, propName, propValue) {
   }
 }
 
-var nextFrame = windowObject.requestAnimationFrame ||
-                windowObject.webkitRequestAnimationFrame ||
-                windowObject.mozRequestAnimationFrame ||
-                windowObject.oRequestAnimationFrame ||
-                windowObject.msRequestAnimationFrame ||
-                function(callback) {
-                  setTimeout(callback, oneFrame);
-                };
+var nextFrame = function(callback) {
+  setTimeout(callback, oneFrame);
+};
 
 
 // framework/namespace/init.js
