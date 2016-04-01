@@ -2484,6 +2484,7 @@ function routerOutlet(outletName, componentToDisplay, options) {
 
     currentOutletDef.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
     if(outletViewModel) {
+      outletViewModel.inFlightChildren([]);
       outletViewModel.routeIsLoading(true);
     }
 

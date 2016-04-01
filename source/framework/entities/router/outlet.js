@@ -147,7 +147,6 @@ function registerOutletComponent() {
   fw.components.register('outlet', {
     viewModel: function(params) {
       var outlet = this;
-      windowObject.outlet = this;
 
       this.outletName = fw.unwrap(params.name);
       this.__isOutlet = true;
