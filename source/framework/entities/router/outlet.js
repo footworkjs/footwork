@@ -103,6 +103,7 @@ function routerOutlet(outletName, componentToDisplay, options) {
 
     currentOutletDef.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
     if(outletViewModel) {
+      outletViewModel.inFlightChildren([]);
       outletViewModel.routeIsLoading(true);
     }
 
@@ -146,6 +147,7 @@ function registerOutletComponent() {
   fw.components.register('outlet', {
     viewModel: function(params) {
       var outlet = this;
+      windowObject.outlet = this;
 
       this.outletName = fw.unwrap(params.name);
       this.__isOutlet = true;
