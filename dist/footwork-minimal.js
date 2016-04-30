@@ -2127,6 +2127,7 @@ var isRegExp = _.isRegExp;
 var identity = _.identity;
 var includes = _.includes;
 var partial = _.partial;
+var sortBy = _.sortBy;
 
 
 // framework/init.js
@@ -3241,12 +3242,6 @@ var DataModel = function(descriptor, configParams) {
       var pkField = configParams.idAttribute;
       this.__private('mappings', fw.observable({}));
 
-      this.isDirty = fw.pureComputed(function() {
-        return reduce(this.__private('mappings')(), function(isDirty, mappedField) {
-          return isDirty || mappedField.isDirty();
-        }, false);
-      }, this);
-
       this.isCreating = fw.observable(false);
       this.isSaving = fw.observable(false);
       this.isFetching = fw.observable(false);
@@ -3473,6 +3468,12 @@ var DataModel = function(descriptor, configParams) {
         this.$rootNamespace.request.handler('get', function() { return this.get(); }.bind(this));
       }
       this.$namespace.request.handler('get', function() { return this.get(); }.bind(this));
+
+      this.isDirty = fw.computed(function() {
+        return reduce(this.__private('mappings')(), function(isDirty, mappedField) {
+          return isDirty || mappedField.isDirty();
+        }, false);
+      }, this);
 
       exitDataModelContext();
     }
@@ -5995,18 +5996,35 @@ var collectionMethods = fw.collection.methods = {
     var idAttribute = collection.__private('getIdAttribute')();
     var affectedModels = [];
     var absentModels = [];
+    var sortDeltaMap = [];
     options = options || {};
 
-    each(newCollection, function checkModelPresence(modelData) {
+    each(newCollection, function checkModelPresence(modelData, indexOfNewModelData) {
       var modelPresent = false;
       modelData = castAsModelData(modelData);
 
+      sortDeltaMap.push({
+        newModelData: modelData,
+        newPosition: indexOfNewModelData,
+        collectionModel: undefined,
+        oldPosition: undefined
+      });
+
       if(!isUndefined(modelData)) {
-        each(collectionStore, function lookForModel(model) {
+        each(collectionStore, function lookForModel(model, indexOfModel) {
           var collectionModelData = castAsModelData(model);
 
           if(!isUndefined(modelData[idAttribute]) && !isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
             modelPresent = true;
+
+            var deltaDesc = _.find(sortDeltaMap, function(deltaDescObj) { return deltaDescObj.newModelData === modelData; });
+            if(isObject(deltaDesc)) {
+              _.extend(deltaDesc, {
+                collectionModel: model,
+                oldPosition: indexOfModel
+              });
+            }
+
             if(options.merge !== false && !sortOfEqual(collectionModelData, modelData)) {
               // found model, but needs an update
               (model.set || noop).call(model, modelData);
@@ -6019,7 +6037,7 @@ var collectionMethods = fw.collection.methods = {
         if(!modelPresent && options.add !== false) {
           // not found in collection, we have to add this model
           var newModel = castAsDataModel(modelData);
-          collection.push(newModel);
+          collectionStore.push(newModel);
           affectedModels.push(newModel);
         }
       }
@@ -6041,6 +6059,22 @@ var collectionMethods = fw.collection.methods = {
 
       if(absentModels.length) {
         collection.removeAll(absentModels);
+      }
+
+      var hasMovedItems = reduce(sortDeltaMap, function(movedItems, deltaDesc) {
+        return movedItems || deltaDesc.oldPosition !== deltaDesc.newPosition;
+      }, false);
+
+      if(hasMovedItems) {
+        // need to enforce the new sort order on the collection (as described by the new data)
+        collectionStore.splice(0, collectionStore.length);
+        each(sortBy(sortDeltaMap, 'newPosition'), function(sortItem) {
+          collectionStore.push(sortItem.newModelData);
+        });
+      }
+
+      if(affectedModels.length || hasMovedItems) {
+        collection.notifySubscribers();
       }
     }
 
