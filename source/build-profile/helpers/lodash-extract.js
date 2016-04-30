@@ -40,3 +40,4 @@ var isRegExp = _.isRegExp;
 var identity = _.identity;
 var includes = _.includes;
 var partial = _.partial;
+var sortBy = _.sortBy;

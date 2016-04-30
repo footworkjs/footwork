@@ -48,5 +48,6 @@ root._ = {
   isRegExp: require('../../../node_modules/lodash/lang/isRegExp'),
   identity: require('../../../node_modules/lodash/utility/identity'),
   includes: require('../../../node_modules/lodash/collection/includes'),
-  partial: require('../../../node_modules/lodash/function/partial')
+  partial: require('../../../node_modules/lodash/function/partial'),
+  sortBy: require('../../../node_modules/lodash/collection/sortBy')
 };

@@ -15,12 +15,6 @@ var DataModel = function(descriptor, configParams) {
       var pkField = configParams.idAttribute;
       this.__private('mappings', fw.observable({}));
 
-      this.isDirty = fw.pureComputed(function() {
-        return reduce(this.__private('mappings')(), function(isDirty, mappedField) {
-          return isDirty || mappedField.isDirty();
-        }, false);
-      }, this);
-
       this.isCreating = fw.observable(false);
       this.isSaving = fw.observable(false);
       this.isFetching = fw.observable(false);
@@ -247,6 +241,12 @@ var DataModel = function(descriptor, configParams) {
         this.$rootNamespace.request.handler('get', function() { return this.get(); }.bind(this));
       }
       this.$namespace.request.handler('get', function() { return this.get(); }.bind(this));
+
+      this.isDirty = fw.computed(function() {
+        return reduce(this.__private('mappings')(), function(isDirty, mappedField) {
+          return isDirty || mappedField.isDirty();
+        }, false);
+      }, this);
 
       exitDataModelContext();
     }
