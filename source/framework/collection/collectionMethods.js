@@ -93,8 +93,9 @@ var collectionMethods = fw.collection.methods = {
       each(collectionStore, function checkForRemovals(model) {
         var collectionModelData = castAsModelData(model);
         var modelPresent = reduce(newCollection, function(isPresent, modelData) {
-          return isPresent || result(modelData, idAttribute) === collectionModelData[idAttribute];
-        }, !isUndefined(collectionModelData[idAttribute]) ? false : true);
+          var newModelIdValue = result(modelData, idAttribute);
+          return isPresent || (newModelIdValue === collectionModelData[idAttribute] && !isUndefined(newModelIdValue));
+        }, false);
 
         if(!modelPresent) {
           // model currently in collection not found in the supplied newCollection so we need to mark it for removal
