@@ -2912,7 +2912,7 @@ var Router = function(descriptor, configParams) {
           each(routeDescRoute, function (routeString) {
             var routeParams = [];
 
-            if (isString(routeString)) {
+            if (isString(routeString) && isString(url)) {
               routeParams = url.match(routeStringToRegExp(routeString));
               if (!isNull(routeParams) && routeDescription.filter.call($router, routeParams, router.urlParts.peek())) {
                 matches.push({
@@ -4777,35 +4777,18 @@ var collectionMethods = fw.collection.methods = {
     var idAttribute = collection.__private('getIdAttribute')();
     var affectedModels = [];
     var absentModels = [];
-    var sortDeltaMap = [];
     options = options || {};
 
-    each(newCollection, function checkModelPresence(modelData, indexOfNewModelData) {
+    each(newCollection, function checkModelPresence(modelData) {
       var modelPresent = false;
       modelData = castAsModelData(modelData);
 
-      sortDeltaMap.push({
-        newModelData: modelData,
-        newPosition: indexOfNewModelData,
-        collectionModel: undefined,
-        oldPosition: undefined
-      });
-
       if(!isUndefined(modelData)) {
-        each(collectionStore, function lookForModel(model, indexOfModel) {
+        each(collectionStore, function lookForModel(model) {
           var collectionModelData = castAsModelData(model);
 
           if(!isUndefined(modelData[idAttribute]) && !isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
             modelPresent = true;
-
-            var deltaDesc = _.find(sortDeltaMap, function(deltaDescObj) { return deltaDescObj.newModelData === modelData; });
-            if(isObject(deltaDesc)) {
-              _.extend(deltaDesc, {
-                collectionModel: model,
-                oldPosition: indexOfModel
-              });
-            }
-
             if(options.merge !== false && !sortOfEqual(collectionModelData, modelData)) {
               // found model, but needs an update
               (model.set || noop).call(model, modelData);
@@ -4818,7 +4801,7 @@ var collectionMethods = fw.collection.methods = {
         if(!modelPresent && options.add !== false) {
           // not found in collection, we have to add this model
           var newModel = castAsDataModel(modelData);
-          collectionStore.push(newModel);
+          collection.push(newModel);
           affectedModels.push(newModel);
         }
       }
@@ -4828,9 +4811,8 @@ var collectionMethods = fw.collection.methods = {
       each(collectionStore, function checkForRemovals(model) {
         var collectionModelData = castAsModelData(model);
         var modelPresent = reduce(newCollection, function(isPresent, modelData) {
-          var newModelIdValue = result(modelData, idAttribute);
-          return isPresent || (newModelIdValue === collectionModelData[idAttribute] && !isUndefined(newModelIdValue));
-        }, false);
+          return isPresent || result(modelData, idAttribute) === collectionModelData[idAttribute];
+        }, !isUndefined(collectionModelData[idAttribute]) ? false : true);
 
         if(!modelPresent) {
           // model currently in collection not found in the supplied newCollection so we need to mark it for removal
@@ -4841,22 +4823,6 @@ var collectionMethods = fw.collection.methods = {
 
       if(absentModels.length) {
         collection.removeAll(absentModels);
-      }
-
-      var hasMovedItems = reduce(sortDeltaMap, function(movedItems, deltaDesc) {
-        return movedItems || deltaDesc.oldPosition !== deltaDesc.newPosition;
-      }, false);
-
-      if(hasMovedItems) {
-        // need to enforce the new sort order on the collection (as described by the new data)
-        collectionStore.splice(0, collectionStore.length);
-        each(sortBy(sortDeltaMap, 'newPosition'), function(sortItem) {
-          collectionStore.push(sortItem.newModelData);
-        });
-      }
-
-      if(affectedModels.length || hasMovedItems) {
-        collection.notifySubscribers();
       }
     }
 
