@@ -83,7 +83,7 @@ var Router = function(descriptor, configParams) {
           each(routeDescRoute, function (routeString) {
             var routeParams = [];
 
-            if (isString(routeString)) {
+            if (isString(routeString) && isString(url)) {
               routeParams = url.match(routeStringToRegExp(routeString));
               if (!isNull(routeParams) && routeDescription.filter.call($router, routeParams, router.urlParts.peek())) {
                 matches.push({
