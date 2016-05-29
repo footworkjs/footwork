@@ -55,7 +55,7 @@ function entityBinder(element, params, $parentContext, Entity, $flightTracker, $
         if ($inFlightChildren().length === 0) {
           maybeResolve();
         } else {
-          entityObj.disposeWhenDestroyed($inFlightChildren.subscribe(function(inFlightChildren) {
+          entityObj.disposeWithInstance($inFlightChildren.subscribe(function(inFlightChildren) {
             inFlightChildren.length === 0 && maybeResolve();
           }));
         }

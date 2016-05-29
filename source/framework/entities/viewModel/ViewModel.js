@@ -4,11 +4,11 @@
 var ViewModel = function(descriptor, configParams) {
   return {
     mixin: {
-      disposeWhenDestroyed: function(subscription) {
+      disposeWithInstance: function(subscription) {
         if(isArray(subscription)) {
           var self = this;
           each(subscription, function(sub) {
-            self.disposeWhenDestroyed(sub);
+            self.disposeWithInstance(sub);
           });
         } else {
           var subscriptions = this.__private('subscriptions');

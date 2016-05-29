@@ -148,7 +148,7 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
                 if ($inFlightChildren().length === 0) {
                   maybeResolve();
                 } else {
-                  viewModel.disposeWhenDestroyed($inFlightChildren.subscribe(function(inFlightChildren) {
+                  viewModel.disposeWithInstance($inFlightChildren.subscribe(function(inFlightChildren) {
                     inFlightChildren.length === 0 && maybeResolve();
                   }));
                 }

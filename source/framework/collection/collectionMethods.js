@@ -101,7 +101,6 @@ var collectionMethods = fw.collection.methods = {
           }
         });
         collection.$namespace.publish('_.remove', absentModels);
-        // collection.removeAll(absentModels);
       }
     }
 
@@ -118,10 +117,7 @@ var collectionMethods = fw.collection.methods = {
         }
       });
       reSorted.push(currentModel);
-
-      if(foundAtIndex !== modelIndex) {
-        wasResorted = true;
-      }
+      wasResorted = wasResorted || foundAtIndex !== modelIndex;
     });
 
     wasResorted = (wasResorted && reSorted.length && every(reSorted));
