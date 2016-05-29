@@ -4,13 +4,21 @@
 var ViewModel = function(descriptor, configParams) {
   return {
     mixin: {
-      $trackSub: function(subscription) {
-        var subscriptions = this.__private('subscriptions');
-        if(!isArray(subscriptions)) {
-          subscriptions = [];
+      disposeWhenDestroyed: function(subscription) {
+        if(isArray(subscription)) {
+          var self = this;
+          each(subscription, function(sub) {
+            self.disposeWhenDestroyed(sub);
+          });
+        } else {
+          var subscriptions = this.__private('subscriptions');
+          if(!isArray(subscriptions)) {
+            subscriptions = [];
+          }
+
+          subscription && subscriptions.push(subscription);
+          this.__private('subscriptions', subscriptions);
         }
-        subscription && subscriptions.push(subscription);
-        this.__private('subscriptions', subscriptions);
       },
       dispose: function() {
         if( !this._isDisposed ) {

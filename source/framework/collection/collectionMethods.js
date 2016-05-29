@@ -42,9 +42,10 @@ var collectionMethods = fw.collection.methods = {
     var idAttribute = collection.__private('getIdAttribute')();
     var affectedModels = [];
     var absentModels = [];
+    var addedModels = [];
     options = options || {};
 
-    each(newCollection, function checkModelPresence(modelData) {
+    each(newCollection, function checkModelPresence(modelData, indexOfNewModelData) {
       var modelPresent = false;
       modelData = castAsModelData(modelData);
 
@@ -66,18 +67,24 @@ var collectionMethods = fw.collection.methods = {
         if(!modelPresent && options.add !== false) {
           // not found in collection, we have to add this model
           var newModel = castAsDataModel(modelData);
-          collection.push(newModel);
+          collectionStore.push(newModel);
           affectedModels.push(newModel);
+          addedModels.push(newModel);
+          collection.$namespace.publish('_.add', newModel);
         }
       }
     });
 
     if(options.remove !== false) {
-      each(collectionStore, function checkForRemovals(model) {
+      each(collectionStore, function checkForRemovals(model, indexOfModel) {
         var collectionModelData = castAsModelData(model);
-        var modelPresent = reduce(newCollection, function(isPresent, modelData) {
-          return isPresent || result(modelData, idAttribute) === collectionModelData[idAttribute];
-        }, !isUndefined(collectionModelData[idAttribute]) ? false : true);
+        var modelPresent = false;
+
+        if(collectionModelData) {
+          modelPresent = reduce(newCollection, function(isPresent, modelData) {
+            return isPresent || result(modelData, idAttribute) === collectionModelData[idAttribute];
+          }, false);
+        }
 
         if(!modelPresent) {
           // model currently in collection not found in the supplied newCollection so we need to mark it for removal
@@ -87,8 +94,44 @@ var collectionMethods = fw.collection.methods = {
       });
 
       if(absentModels.length) {
-        collection.removeAll(absentModels);
+        each(absentModels, function(modelToRemove) {
+          var indexOfModelToRemove = collectionStore.indexOf(modelToRemove);
+          if(indexOfModelToRemove > -1) {
+            collectionStore.splice(indexOfModelToRemove, 1);
+          }
+        });
+        collection.$namespace.publish('_.remove', absentModels);
+        // collection.removeAll(absentModels);
       }
+    }
+
+    // re-sort based on the newCollection
+    var reSorted = [];
+    var wasResorted = false;
+    each(newCollection, function(newModelData, modelIndex) {
+      newModelData = castAsModelData(newModelData);
+      var foundAtIndex = null;
+      var currentModel = find(collectionStore, function(model, theIndex) {
+        if(sortOfEqual(castAsModelData(model), newModelData)) {
+          foundAtIndex = theIndex;
+          return true;
+        }
+      });
+      reSorted.push(currentModel);
+
+      if(foundAtIndex !== modelIndex) {
+        wasResorted = true;
+      }
+    });
+
+    wasResorted = (wasResorted && reSorted.length && every(reSorted));
+
+    if(wasResorted) {
+      Array.prototype.splice.apply(collectionStore, [0, reSorted.length].concat(reSorted));
+    }
+
+    if(wasResorted || addedModels.length || absentModels.length) {
+      collection.notifySubscribers();
     }
 
     return affectedModels;

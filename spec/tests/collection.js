@@ -29,7 +29,7 @@ describe('collection', function () {
       namespace: 'People',
       dataModel: Person
     });
-    var people = new PeopleCollection();
+    var people = PeopleCollection();
 
     expect(people().length).to.be(0);
 
@@ -91,7 +91,7 @@ describe('collection', function () {
       namespace: 'People',
       dataModel: Person
     });
-    var people = new PeopleCollection();
+    var people = PeopleCollection();
 
     expect(people().length).to.be(0);
 
@@ -140,7 +140,7 @@ describe('collection', function () {
       dataModel: Person
     });
 
-    var people = new PeopleCollection([person1Data, person2Data]);
+    var people = PeopleCollection([person1Data, person2Data]);
 
     expect(people().length).to.be(2);
     expect(people()[0].firstName()).to.be(person1Data.firstName);
@@ -178,7 +178,7 @@ describe('collection', function () {
       dataModel: Person
     });
 
-    var people = new PeopleCollection([person1Data, person2Data]);
+    var people = PeopleCollection([person1Data, person2Data]);
 
     expect(people().length).to.be(2);
     expect(people()[0].firstName()).to.be(person1Data.firstName || null);
@@ -220,7 +220,7 @@ describe('collection', function () {
       dataModel: Person
     });
 
-    var people = new PeopleCollection(persons);
+    var people = PeopleCollection(persons);
 
     expect(people().length).to.be(2);
     people.addModel(persons[0]);
@@ -278,7 +278,7 @@ describe('collection', function () {
       dataModel: Person
     });
 
-    var people = new PeopleCollection(persons);
+    var people = PeopleCollection(persons);
 
     expect(people.findWhere(persons[0])).to.be.an('object');
     expect(people.findWhere({ shouldNotFind: true })).to.be(null);
@@ -339,7 +339,7 @@ describe('collection', function () {
       dataModel: Person
     });
 
-    var people = new PeopleCollection(persons);
+    var people = PeopleCollection(persons);
 
     expect(people.findWhere({ lastName: /FINDME/ })).to.be.an('object');
     expect(people.findWhere({ lastName: /NOTFINDME/ })).to.be(null);
@@ -387,7 +387,7 @@ describe('collection', function () {
       dataModel: Person
     });
 
-    var people = new PeopleCollection(persons);
+    var people = PeopleCollection(persons);
 
     expect(people.where({ commonTerm: persons[2].commonTerm }).length).to.be(2);
   });
@@ -448,7 +448,7 @@ describe('collection', function () {
       dataModel: Person
     });
 
-    var people = new PeopleCollection(persons);
+    var people = PeopleCollection(persons);
 
     var createdPersonData = {
       "firstName": "CreatedPersonFirstNameTest",
@@ -533,7 +533,7 @@ describe('collection', function () {
       dataModel: Person
     });
 
-    var people = new PeopleCollection(persons);
+    var people = PeopleCollection(persons);
 
     expect(people.findWhere(persons[0])).to.be.an('object');
     people.removeModel({ firstName: persons[0].firstName });
@@ -568,7 +568,7 @@ describe('collection', function () {
       namespace: 'People',
       dataModel: Person
     });
-    var people = new PeopleCollection();
+    var people = PeopleCollection();
 
     expect(people().length).to.be(0);
 
@@ -619,7 +619,7 @@ describe('collection', function () {
       namespace: 'PeopleEventCheck',
       dataModel: Person
     });
-    var people = new PeopleCollection();
+    var people = PeopleCollection();
 
     people.$namespace.subscribe('_.*', function(models, envelope) {
       var dataModels = [].concat(models);
@@ -733,7 +733,7 @@ describe('collection', function () {
       namespace: 'People',
       dataModel: Person
     });
-    var people = new PeopleCollection();
+    var people = PeopleCollection();
 
     var resetTriggered = false;
     people.$namespace.subscribe('_.reset', function(resetData) {
@@ -861,7 +861,7 @@ describe('collection', function () {
       }
     });
 
-    var people = new PeopleCollection();
+    var people = PeopleCollection();
 
     var fetchResult = people.fetch();
     expect(fetchResult).to.be.an('object');
@@ -912,7 +912,7 @@ describe('collection', function () {
       url: '/peopleCollectionReset',
       dataModel: Person
     });
-    var people = new PeopleCollection();
+    var people = PeopleCollection();
 
     var resetTriggered = false;
     people.$namespace.subscribe('_.reset', function(resetData) {
@@ -950,7 +950,7 @@ describe('collection', function () {
       namespace: 'PeoplePushEventCheck',
       dataModel: Person
     });
-    var people = new PeopleCollection();
+    var people = PeopleCollection();
 
     var addTriggered = false;
     people.$namespace.subscribe('_.add', function(dataModels) {
@@ -981,7 +981,7 @@ describe('collection', function () {
       namespace: 'PeopleUnshiftEventCheck',
       dataModel: Person
     });
-    var people = new PeopleCollection();
+    var people = PeopleCollection();
 
     var addTriggered = false;
     people.$namespace.subscribe('_.add', function(dataModels) {
@@ -1023,10 +1023,10 @@ describe('collection', function () {
     });
 
     var PeopleCollection = fw.collection.create({
-      namespace: 'PeoplePushEventCheck',
+      namespace: 'PeopleRemoveEventCheck',
       dataModel: Person
     });
-    var people = new PeopleCollection(peopleData);
+    var people = PeopleCollection(peopleData);
 
     var removeTriggered = false;
     people.$namespace.subscribe('_.remove', function(dataModels) {
@@ -1064,10 +1064,10 @@ describe('collection', function () {
     });
 
     var PeopleCollection = fw.collection.create({
-      namespace: 'PeoplePushEventCheck',
+      namespace: 'PeopleRemoveAllEventCheck',
       dataModel: Person
     });
-    var people = new PeopleCollection(peopleData);
+    var people = PeopleCollection(peopleData);
 
     var removeTriggered = false;
     people.$namespace.subscribe('_.remove', function(dataModels) {
@@ -1106,10 +1106,10 @@ describe('collection', function () {
     });
 
     var PeopleCollection = fw.collection.create({
-      namespace: 'PeoplePushEventCheck',
+      namespace: 'PeoplePopRemoveEventCheck',
       dataModel: Person
     });
-    var people = new PeopleCollection(peopleData);
+    var people = PeopleCollection(peopleData);
 
     var removeTriggered = false;
     people.$namespace.subscribe('_.remove', function(dataModels) {
@@ -1148,10 +1148,10 @@ describe('collection', function () {
     });
 
     var PeopleCollection = fw.collection.create({
-      namespace: 'PeoplePushEventCheck',
+      namespace: 'PeopleShiftRemoveEventCheck',
       dataModel: Person
     });
-    var people = new PeopleCollection(peopleData);
+    var people = PeopleCollection(peopleData);
 
     var removeTriggered = false;
     people.$namespace.subscribe('_.remove', function(dataModels) {
@@ -1190,10 +1190,10 @@ describe('collection', function () {
     });
 
     var PeopleCollection = fw.collection.create({
-      namespace: 'PeoplePushEventCheck',
+      namespace: 'PeopleSpliceRemoveEventCheck',
       dataModel: Person
     });
-    var people = new PeopleCollection(peopleData);
+    var people = PeopleCollection(peopleData);
 
     var removeTriggered = false;
     people.$namespace.subscribe('_.remove', function(dataModels) {
@@ -1232,10 +1232,10 @@ describe('collection', function () {
     });
 
     var PeopleCollection = fw.collection.create({
-      namespace: 'PeoplePushEventCheck',
+      namespace: 'PeopleDisposeDataModelsCheck',
       dataModel: Person
     });
-    var people = new PeopleCollection(peopleData);
+    var people = PeopleCollection(peopleData);
 
     expect(people()[0]._isDisposed).to.be(undefined);
     var personRemoved = people.remove(people()[0]);
@@ -1269,11 +1269,11 @@ describe('collection', function () {
     });
 
     var PeopleCollection = fw.collection.create({
-      namespace: 'PeoplePushEventCheck',
+      namespace: 'PeopleDoNotDisposeDataModelsCheck',
       dataModel: Person,
       disposeOnRemove: false
     });
-    var people = new PeopleCollection(peopleData);
+    var people = PeopleCollection(peopleData);
 
     expect(people()[0]._isDisposed).to.be(undefined);
     var personRemoved = people.remove(people()[0]);
