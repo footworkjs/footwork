@@ -1,7 +1,7 @@
 /**
  * footwork.js - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v1.2.0-bare-reqwest
+ * Version: v1.2.1-bare-reqwest
  * Url: http://footworkjs.com
  * License(s): MIT
  */
@@ -915,7 +915,7 @@ var sortBy = _.sortBy;
 // ------------------
 
 // Record the footwork version as of this build.
-fw.footworkVersion = '1.2.0';
+fw.footworkVersion = '1.2.1';
 
 // Expose any embedded dependencies
 fw.embed = embedded;
@@ -3300,7 +3300,7 @@ entityDescriptors = entityDescriptors.concat([
       ajaxOptions: {},
       namespace: undefined,
       autoRegister: false,
-      autoIncrement: true,
+      autoIncrement: false,
       extend: {},
       mixins: undefined,
       requestLull: undefined,
