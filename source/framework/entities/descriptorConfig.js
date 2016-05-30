@@ -37,7 +37,7 @@ entityDescriptors = entityDescriptors.concat([
       ajaxOptions: {},
       namespace: undefined,
       autoRegister: false,
-      autoIncrement: true,
+      autoIncrement: false,
       extend: {},
       mixins: undefined,
       requestLull: undefined,
