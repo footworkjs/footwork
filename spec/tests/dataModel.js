@@ -23,7 +23,7 @@ describe('dataModel', function () {
     var modelA = new ModelA();
 
     expect(modelA.$namespace).to.be.an('object');
-    expect(modelA.$namespace.getName()).to.eql('dataModelA0');
+    expect(modelA.$namespace.getName()).to.eql('dataModelA');
   });
 
   it('has the ability to be instantiated with with extended attributes', function() {
@@ -104,11 +104,11 @@ describe('dataModel', function () {
     });
 
     var modelA = new ModelA();
-    expect(modelA.preSubModelNamespaceName).to.eql('nestedDataModelA0');
-    expect(modelA.postSubModelNamespaceName).to.eql('nestedDataModelA0');
-    expect(modelA.subModelB.preSubModelNamespaceName).to.eql('nestedDataModelB0');
-    expect(modelA.subModelB.postSubModelNamespaceName).to.eql('nestedDataModelB0');
-    expect(modelA.subModelB.subModelC.recordedNamespaceName).to.eql('nestedDataModelC0');
+    expect(modelA.preSubModelNamespaceName).to.eql('nestedDataModelA');
+    expect(modelA.postSubModelNamespaceName).to.eql('nestedDataModelA');
+    expect(modelA.subModelB.preSubModelNamespaceName).to.eql('nestedDataModelB');
+    expect(modelA.subModelB.postSubModelNamespaceName).to.eql('nestedDataModelB');
+    expect(modelA.subModelB.subModelC.recordedNamespaceName).to.eql('nestedDataModelC');
   });
 
   it('calls afterBinding after initialize with the correct target element when creating and binding a new instance', function() {
