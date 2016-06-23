@@ -45,19 +45,23 @@ var collectionMethods = fw.collection.methods = {
     var addedModels = [];
     options = options || {};
 
-    each(newCollection, function checkModelPresence(modelData, indexOfNewModelData) {
+    each(newCollection, function checkModelPresence(modelData) {
       var modelPresent = false;
       modelData = castAsModelData(modelData);
 
       if(!isUndefined(modelData)) {
-        each(collectionStore, function lookForModel(model) {
+        each(collectionStore, function lookForModel(model, indexOfModel) {
           var collectionModelData = castAsModelData(model);
 
           if(!isUndefined(modelData[idAttribute]) && !isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
             modelPresent = true;
             if(options.merge !== false && !sortOfEqual(collectionModelData, modelData)) {
               // found model, but needs an update
-              (model.set || noop).call(model, modelData);
+              if(isFunction(model.set)) {
+                model.set.call(model, modelData);
+              } else {
+                collectionStore[indexOfModel] = modelData;
+              }
               collection.$namespace.publish('_.change', model);
               affectedModels.push(model);
             }

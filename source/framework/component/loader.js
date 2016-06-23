@@ -90,12 +90,12 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
         config.createViewModel = new Conduit.Sync({ target: config.createViewModel });
         config.createViewModel.after(function(viewModel, params, componentInfo) {
           var $flightTracker = componentInfo.element.$flightTracker;
-
           var $context = fw.contextFor(componentInfo.element);
           var $nearestOutlet = nearestEntity($context, isOutletViewModel);
           var $nearestEntity = nearestEntity($context);
           var $parentsInFlightChildren;
           var $outletsInFlightChildren;
+
           if($nearestEntity) {
             $parentsInFlightChildren = $nearestEntity.__private('inFlightChildren');
           }
