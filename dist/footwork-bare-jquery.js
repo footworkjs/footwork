@@ -4415,7 +4415,7 @@ var collectionMethods = fw.collection.methods = {
       Array.prototype.splice.apply(collectionStore, [0, reSorted.length].concat(reSorted));
     }
 
-    if(wasResorted || addedModels.length || absentModels.length) {
+    if(wasResorted || addedModels.length || absentModels.length || affectedModels.length) {
       collection.notifySubscribers();
     }
 
