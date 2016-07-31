@@ -1,4 +1,4 @@
-define(['footwork'], function(fw) {
+define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
   var list = [1,2,3];
 
   describe('list count', function() {

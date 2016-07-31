@@ -28,11 +28,9 @@ require.config({
     "text": "bower_components/requirejs-text/text",
     "footwork": "build/footwork-bare-jquery",
     "knockout": "bower_components/knockoutjs/dist/knockout.debug",
-    "knockout-validation": "bower_components/knockout-validation/dist/knockout.validation",
     "reqwest": "bower_components/reqwest/reqwest",
     "postal": "bower_components/postal.js/lib/postal",
     "lodash": "bower_components/lodash/lodash",
-    "placement": "bower_components/jquery.placement/dist/jquery.placement",
     "jquery": "bower_components/jquery/dist/jquery",
     "history": "bower_components/history.js/scripts/bundled/html5/native.history"
   },

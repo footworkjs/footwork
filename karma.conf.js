@@ -1,6 +1,3 @@
-// Karma configuration
-// Generated on Sun Jul 31 2016 04:37:44 GMT-0500 (CDT)
-
 module.exports = function(config) {
   config.set({
 
@@ -15,12 +12,14 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'test-main.js',
+      'tests/main.js',
       {pattern: 'tests/*.js', included: false},
       {pattern: 'bower_components/lodash/*.js', included: false},
+      {pattern: 'bower_components/requirejs-text/*.js', included: false},
       {pattern: 'bower_components/knockoutjs/dist/*.js', included: false},
       {pattern: 'bower_components/postal.js/lib/*.js', included: false},
       {pattern: 'bower_components/jquery/dist/*.js', included: false},
+      {pattern: 'bower_components/reqwest/reqwest.js', included: false},
       {pattern: 'build/*.js', included: false}
     ],
 
