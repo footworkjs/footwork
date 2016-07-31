@@ -29,22 +29,12 @@ require.config({
     "footwork": "build/footwork-bare-jquery",
     "knockout": "bower_components/knockoutjs/dist/knockout.debug",
     "knockout-validation": "bower_components/knockout-validation/dist/knockout.validation",
-    "moment": "bower_components/moment/moment",
     "reqwest": "bower_components/reqwest/reqwest",
     "postal": "bower_components/postal.js/lib/postal",
     "lodash": "bower_components/lodash/lodash",
     "placement": "bower_components/jquery.placement/dist/jquery.placement",
-    "Conduit": "bower_components/conduitjs/lib/conduit",
     "jquery": "bower_components/jquery/dist/jquery",
-    "datetimepicker": "bower_components/datetimepicker/jquery.datetimepicker",
-    "jquery.iframe-transport": "bower_components/jquery.iframe-transport/jquery.iframe-transport",
-    "jquery-mousewheel": "bower_components/jquery-mousewheel/jquery.mousewheel",
-    "date-functions": "bower_components/php-date-formatter/js/php-date-formatter",
-    "cropper": "bower_components/cropper/dist/cropper",
-    "history": "bower_components/history.js/scripts/bundled/html5/native.history",
-    "noconflict-jquery":  "helper/noconflict-jquery",
-    "file-icons": "config/file-icons",
-    "common-languages": "config/common-languages"
+    "history": "bower_components/history.js/scripts/bundled/html5/native.history"
   },
 
   // we have to kickoff jasmine, as it is asynchronous
