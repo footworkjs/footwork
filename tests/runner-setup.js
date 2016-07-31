@@ -12,23 +12,35 @@ function makeTestContainer(theFixture, containerDOM) {
   return $container.get(0);
 }
 
-var currentOrderIndex = 0;
+var currentCallbackOrderIndex = 0;
 var noop = function() {};
 function ensureCallOrder(orderValue, callback) {
   callback = callback || noop;
   return function() {
-    expect(orderValue).toBe(currentOrderIndex, 'order of callbacks is incorrect');
-    currentOrderIndex++;
+    expect(orderValue).toBe(currentCallbackOrderIndex, 'order of callbacks is incorrect');
+    currentCallbackOrderIndex++;
     return callback.apply(null, arguments);
   };
 }
 function resetCallbackOrder() {
-  currentOrderIndex = 0;
+  currentCallbackOrderIndex = 0;
 }
 
 var fw;
 var $;
 var _;
+var containers = [];
+
+var _fixtureCleanup = fixture.cleanup;
+fixture.cleanup = function(container) {
+  if(!fw) {
+    containers.push(container);
+  } else {
+    typeof container === 'object' && fw.removeNode(container);
+  }
+  _fixtureCleanup.call(fixture);
+};
+
 require(['footwork', 'lodash', 'jquery', 'jquery-mockjax'], function(footwork, lodash, jQuery) {
   fw = footwork;
   $ = jQuery;
@@ -46,14 +58,3 @@ require(['footwork', 'lodash', 'jquery', 'jquery-mockjax'], function(footwork, l
     }
   }
 });
-
-var containers = [];
-var _fixtureCleanup = fixture.cleanup;
-fixture.cleanup = function(container) {
-  if(!fw) {
-    containers.push(container);
-  } else {
-    typeof container === 'object' && fw.removeNode(container);
-  }
-  _fixtureCleanup.call(fixture);
-};

@@ -115,7 +115,6 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('calls afterBinding after initialize with the correct target element when creating and binding a new instance', function() {
       var checkForClass = 'check-for-class';
-      testContainer = makeTestContainer('', '<div class="' + checkForClass + '"></div>');
 
       var ModelA = fw.viewModel.create({
         namespace: 'ModelA',
@@ -125,7 +124,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
         })
       });
 
-      fw.applyBindings(new ModelA(), testContainer);
+      fw.applyBindings(new ModelA(), makeTestContainer('', '<div class="' + checkForClass + '"></div>'));
     });
   });
 });
