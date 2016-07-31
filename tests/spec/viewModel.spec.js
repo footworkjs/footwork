@@ -126,121 +126,105 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       fw.applyBindings(new ModelA(), makeTestContainer('', '<div class="' + checkForClass + '"></div>'));
     });
+
+    it('can register a viewModel', function() {
+      var namespaceName = fw.utils.guid();
+      expect(fw.components.isRegistered(namespaceName)).toBe(false);
+
+      fw.viewModel.register(namespaceName, function() {});
+
+      expect(fw.viewModel.isRegistered(namespaceName)).toBe(true);
+    });
+
+    it('can get a registered viewModel', function() {
+      var namespaceName = fw.utils.guid();
+      expect(fw.components.isRegistered(namespaceName)).toBe(false);
+
+      var RegisteredViewModel = function() {};
+      fw.viewModel.register(namespaceName, RegisteredViewModel);
+
+      expect(fw.viewModel.isRegistered(namespaceName)).toBe(true);
+      expect(fw.viewModel.getRegistered(namespaceName)).toBe(RegisteredViewModel);
+    });
+
+    it('can get all instantiated viewModels', function() {
+      var ViewModel = fw.viewModel.create();
+      var viewModels = [ new ViewModel(), new ViewModel() ];
+
+      expect(_.keys(fw.viewModel.getAll()).length).toBeGreaterThan(0);
+    });
+
+    it('can get all instantiated viewModels of a specific type/name', function() {
+      var viewModels = [];
+      var specificViewModelNamespace = fw.utils.guid();
+      var ViewModel = fw.viewModel.create({ namespace: specificViewModelNamespace });
+      var numToMake = _.random(1,15);
+
+      for(var x = numToMake; x; x--) {
+        viewModels.push( new ViewModel() );
+      }
+
+      expect(fw.viewModel.getAll('getAllSpecificViewModelDoesNotExist').length).toBe(0);
+      expect(fw.viewModel.getAll(specificViewModelNamespace).length).toBe(numToMake);
+    });
+
+    it('can autoRegister a viewModel during class method creation', function() {
+      var namespaceName = fw.utils.guid();
+      expect(fw.viewModel.isRegistered(namespaceName)).toBe(false);
+
+      fw.viewModel.create({
+        namespace: namespaceName,
+        autoRegister: true
+      });
+
+      expect(fw.viewModel.isRegistered(namespaceName)).toBe(true);
+    });
+
+    it('can bind to the DOM using a <viewModel> declaration', function(done) {
+      var wasInitialized = false;
+      var namespaceName = fw.utils.guid();
+      var initializeSpy = jasmine.createSpy();
+
+      fw.viewModel.create({
+        namespace: namespaceName,
+        autoRegister: true,
+        initialize: initializeSpy
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+      fw.start(makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+
+      setTimeout(function() {
+        expect(initializeSpy).toHaveBeenCalledTimes(1);
+        done();
+      }, 0);
+    });
+
+    it('can bind to the DOM using a shared instance', function(done) {
+      var boundPropertyValue = fw.utils.guid();
+
+      fw.viewModel.register(boundPropertyValue, {
+        instance: {
+          boundProperty: boundPropertyValue
+        }
+      });
+
+      var $container = $(makeTestContainer('<viewModel module="' + boundPropertyValue + '">\
+                                              <span class="result" data-bind="text: boundProperty"></span>\
+                                            </viewModel>'));
+      expect($container.find('.result').text()).not.toBe(boundPropertyValue);
+      fw.start($container.get(0));
+
+      setTimeout(function() {
+        expect($container.find('.result').text()).toBe(boundPropertyValue);
+        done();
+      }, 20);
+    });
   });
 });
 
 // describe('viewModel', function () {
 
-//   it('after binding has the correct containing $element referenced', function(done) {
-//     var container = document.getElementById('afterBindingViewModelElementReference');
-
-//     var ModelA = fw.viewModel.create({
-//       namespace: 'ModelA',
-//       afterRender: function(containingElement) {
-//         expect(containingElement).to.be(container);
-//         done();
-//       }
-//     });
-
-//     fw.applyBindings(new ModelA(), container);
-//   });
-
-//   it('can register a viewModel', function() {
-//     expect( fw.components.isRegistered('registeredViewModelCheck') ).to.be(false);
-
-//     fw.viewModel.register('registeredViewModelCheck', function() {});
-
-//     expect( fw.viewModel.isRegistered('registeredViewModelCheck') ).to.be(true);
-//   });
-
-//   it('can get a registered viewModel', function() {
-//     expect( fw.components.isRegistered('registeredViewModelRetrieval') ).to.be(false);
-
-//     var RegisteredViewModelRetrieval = function() {};
-
-//     fw.viewModel.register('registeredViewModelRetrieval', RegisteredViewModelRetrieval);
-
-//     expect( fw.viewModel.isRegistered('registeredViewModelRetrieval') ).to.be(true);
-//     expect( fw.viewModel.getRegistered('registeredViewModelRetrieval') ).to.be(RegisteredViewModelRetrieval);
-//   });
-
-//   it('can get all instantiated viewModels', function() {
-//     var ViewModel = fw.viewModel.create();
-//     var viewModels = [ new ViewModel(), new ViewModel() ];
-
-//     expect(_.keys(fw.viewModel.getAll()).length).to.be.greaterThan(0);
-//   });
-
-//   it('can get all instantiated viewModels of a specific type/name', function() {
-//     var viewModels = [];
-//     var ViewModel = fw.viewModel.create({ namespace: 'getAllSpecificViewModel' });
-//     var numToMake = _.random(1,15);
-
-//     for(var x = numToMake; x; x--) {
-//       viewModels.push( new ViewModel() );
-//     }
-
-//     expect(fw.viewModel.getAll('getAllSpecificViewModelDoesNotExist').length).to.be(0);
-//     expect(fw.viewModel.getAll('getAllSpecificViewModel').length).to.be(numToMake);
-//   });
-
-//   it('can autoRegister a viewModel during class method creation', function() {
-//     var isRegistered = fw.viewModel.isRegistered('autoRegisteredViewModel');
-
-//     expect(isRegistered).to.be(false);
-
-//     fw.viewModel.create({
-//       namespace: 'autoRegisteredViewModel',
-//       autoRegister: true
-//     });
-
-//     isRegistered = fw.viewModel.isRegistered('autoRegisteredViewModel');
-
-//     expect(isRegistered).to.be(true);
-//   });
-
-//   it('can bind to the DOM using a <viewModel> declaration', function(done) {
-//     var wasInitialized = false;
-//     var container = document.getElementById('declarativeViewModel');
-
-//     fw.viewModel.create({
-//       namespace: 'declarativeViewModel',
-//       autoRegister: true,
-//       initialize: function() {
-//         wasInitialized = true;
-//       }
-//     });
-
-//     expect(wasInitialized).to.be(false);
-//     fw.start(container);
-
-//     setTimeout(function() {
-//       expect(wasInitialized).to.be(true);
-//       done();
-//     }, 0);
-//   });
-
-//   it('can bind to the DOM using a shared instance', function(done) {
-//     var wasInitialized = false;
-//     var container = document.getElementById('registeredViewModelInstance');
-//     var boundPropertyValue = 'registeredViewModelInstance';
-
-//     fw.viewModel.register('registeredViewModelInstance', {
-//       instance: {
-//         boundProperty: boundPropertyValue
-//       }
-//     });
-
-//     expect(wasInitialized).to.be(false);
-//     expect($('#registeredViewModelInstance .result').text()).not.to.be(boundPropertyValue);
-
-//     fw.start(container);
-
-//     setTimeout(function() {
-//       expect($('#registeredViewModelInstance .result').text()).to.be(boundPropertyValue);
-//       done();
-//     }, 20);
-//   });
 
 //   it('can bind to the DOM using a generated instance', function(done) {
 //     var wasInitialized = false;

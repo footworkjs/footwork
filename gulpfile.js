@@ -75,7 +75,7 @@ function buildRelease(buildProfile) {
     .pipe(gulp.dest('build/'));
 };
 
-gulp.task('default', ['build-everything', 'tests', 'copy_animation_styles_to_build']);
+gulp.task('default', ['ci', 'copy_animation_styles_to_build']);
 
 function runTests(done) {
   return new Server({
@@ -85,7 +85,7 @@ function runTests(done) {
 }
 
 // Testing tasks
-gulp.task('ci', ['build-everything'], runTests);
+gulp.task('ci', ['build_bare_jquery'], runTests);
 gulp.task('tests', runTests);
 gulp.task('watch-tests', function () {
   gulp.watch(['build/footwork-bare-jquery.js', 'tests/**/*.*'], ['test-now']);
@@ -114,8 +114,8 @@ gulp.task('build_raw', ['lodash_custom'], function() {
   return buildRelease('raw');
 });
 
-gulp.task('dist_animation_styles', function() {
-  gulp.src('./build/animation/**/*')
+gulp.task('dist_animation_styles', ['copy_animation_styles_to_build'], function() {
+  gulp.src(['./build/animation/*.less', './build/animation/*.scss', './build/animation/*.css'])
     .pipe(gulp.dest('./dist/animation'));
 });
 
