@@ -9,7 +9,6 @@ var bump = require('gulp-bump');
 var size = require('gulp-size');
 var replace = require('gulp-replace');
 var Server = require('karma').Server;
-var moment = require('moment');
 var _ = require('lodash');
 var runSequence = require('run-sequence');
 var fs = require('fs');
