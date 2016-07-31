@@ -8,7 +8,7 @@ var rename = require('gulp-rename');
 var bump = require('gulp-bump');
 var size = require('gulp-size');
 var replace = require('gulp-replace');
-var mochaPhantomJS = require('gulp-mocha-phantomjs');
+var Server = require('karma').Server;
 var moment = require('moment');
 var _ = require('lodash');
 var runSequence = require('run-sequence');
@@ -76,29 +76,16 @@ function buildRelease(buildProfile) {
     .pipe(gulp.dest('build/'));
 };
 
-gulp.task('default', ['build-and-test', 'copy_animation_styles_to_build']);
+gulp.task('default', ['build-everything', 'copy_animation_styles_to_build']);
 
 // Testing tasks
-gulp.task('ci', ['test_bare']);
+gulp.task('ci', ['tests']);
 
-gulp.task('build-and-test', ['build-everything', 'test_all', 'test_minimal', 'test_bare']);
-
-gulp.task('test_all', ['build_all'], function() {
-  return gulp
-    .src('spec/runner_all.html')
-    .pipe(mochaPhantomJS({ reporter: reporter }));
-});
-
-gulp.task('test_minimal', ['build_minimal'], function() {
-  return gulp
-    .src('spec/runner_minimal.html')
-    .pipe(mochaPhantomJS({ reporter: reporter }));
-});
-
-gulp.task('test_bare', ['build_bare_jquery'], function() {
-  return gulp
-    .src('spec/runner_bare.html')
-    .pipe(mochaPhantomJS({ reporter: reporter }));
+gulp.task('tests', function (done) {
+  return new Server({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true
+  }, done).start();
 });
 
 // Building tasks
@@ -142,7 +129,7 @@ gulp.task('dist', function(callback) {
   runSequence('build-everything', ['dist_build', 'dist_animation_styles'], callback);
 });
 
-gulp.task('copy_animation_styles_to_build', function() {
+gulp.task('copy_animation_styles_to_build', ['build_animations_css'], function() {
   gulp.src(['./source/animation-styles/*.less', './source/animation-styles/*.scss'])
     .pipe(gulp.dest('./build/animation'));
 });
