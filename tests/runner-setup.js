@@ -3,13 +3,27 @@
  * @param  {mixed} theFixture The fixture
  * @return {DOMNode}          The generated DOM node container
  */
-function makeTestContainer(theFixture) {
-  var $container = $('<div/>');
+function makeTestContainer(theFixture, containerDOM) {
+  var $container = $(containerDOM || '<div/>');
 
   $container.append(theFixture);
   $(document.body).append($container);
 
   return $container.get(0);
+}
+
+var currentOrderIndex = 0;
+var noop = function() {};
+function ensureCallOrder(orderValue, callback) {
+  callback = callback || noop;
+  return function() {
+    expect(orderValue).toBe(currentOrderIndex, 'order of callbacks is incorrect');
+    currentOrderIndex++;
+    return callback.apply(null, arguments);
+  };
+}
+function resetCallbackOrder() {
+  currentOrderIndex = 0;
 }
 
 var fw;
@@ -24,10 +38,22 @@ require(['footwork', 'lodash', 'jquery', 'jquery-mockjax'], function(footwork, l
     logging: false,
     responseTime: 5
   });
+
+  if(containers.length) {
+    var container;
+    while(containers.length) {
+      fixture.cleanup(containers.pop());
+    }
+  }
 });
 
+var containers = [];
 var _fixtureCleanup = fixture.cleanup;
 fixture.cleanup = function(container) {
-  typeof container === 'object' && fw.removeNode(container);
+  if(!fw) {
+    containers.push(container);
+  } else {
+    typeof container === 'object' && fw.removeNode(container);
+  }
   _fixtureCleanup.call(fixture);
 };

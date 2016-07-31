@@ -4,6 +4,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     var testContainer;
 
     beforeEach(function() {
+      resetCallbackOrder();
       jasmine.addMatchers(customMatchers);
       fixture.setBase('tests/assets/fixtures');
     });
@@ -38,8 +39,9 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('correctly names and increments counter for indexed viewModels', function() {
+      var namespaceName = 'IndexedViewModel';
       var IndexedViewModel = fw.viewModel.create({
-        namespace: 'IndexedViewModel',
+        namespace: namespaceName,
         autoIncrement: true
       });
 
@@ -47,104 +49,88 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var secondViewModel = new IndexedViewModel();
       var thirdViewModel = new IndexedViewModel();
 
-      expect(firstViewModel.$namespace.getName()).toBe('IndexedViewModel0');
-      expect(secondViewModel.$namespace.getName()).toBe('IndexedViewModel1');
-      expect(thirdViewModel.$namespace.getName()).toBe('IndexedViewModel2');
+      expect(firstViewModel.$namespace.getName()).toBe(namespaceName + '0');
+      expect(secondViewModel.$namespace.getName()).toBe(namespaceName + '1');
+      expect(thirdViewModel.$namespace.getName()).toBe(namespaceName + '2');
+    });
+
+    it('correctly applies a mixin to a viewModel', function() {
+      var namespaceName = 'IndexedViewModel';
+      var preInitCallback = jasmine.createSpy('preInitCallback').and.callThrough();
+      var postInitCallback = jasmine.createSpy('postInitCallback').and.callThrough();
+
+      var ViewModelWithMixin = fw.viewModel.create({
+        namespace: namespaceName,
+        mixins: [
+          {
+            _preInit: preInitCallback,
+            mixin: {
+              mixinPresent: true
+            },
+            _postInit: postInitCallback
+          }
+        ]
+      });
+
+      var viewModel = new ViewModelWithMixin();
+
+      expect(preInitCallback).toHaveBeenCalled();
+      expect(viewModel.mixinPresent).toBe(true);
+      expect(postInitCallback).toHaveBeenCalled();
+    });
+
+    it('has the ability to create nested viewModels with correctly defined namespaces', function() {
+      var ModelA = fw.viewModel.create({
+        namespace: 'ModelA',
+        initialize: function() {
+          this.preSubModelNamespaceName = fw.utils.currentNamespaceName();
+          this.subModelB = new ModelB();
+          this.postSubModelNamespaceName = fw.utils.currentNamespaceName();
+        }
+      });
+
+      var ModelB = fw.viewModel.create({
+        namespace: 'ModelB',
+        initialize: function() {
+          this.preSubModelNamespaceName = fw.utils.currentNamespaceName();
+          this.subModelC = new ModelC();
+          this.postSubModelNamespaceName = fw.utils.currentNamespaceName();
+        }
+      });
+
+      var ModelC = fw.viewModel.create({
+        namespace: 'ModelC',
+        initialize: function() {
+          this.recordedNamespaceName = fw.utils.currentNamespaceName();
+        }
+      });
+
+      var modelA = new ModelA();
+      expect(modelA.preSubModelNamespaceName).toBe('ModelA');
+      expect(modelA.postSubModelNamespaceName).toBe('ModelA');
+      expect(modelA.subModelB.preSubModelNamespaceName).toBe('ModelB');
+      expect(modelA.subModelB.postSubModelNamespaceName).toBe('ModelB');
+      expect(modelA.subModelB.subModelC.recordedNamespaceName).toBe('ModelC');
+    });
+
+    it('calls afterBinding after initialize with the correct target element when creating and binding a new instance', function() {
+      var checkForClass = 'check-for-class';
+      testContainer = makeTestContainer('', '<div class="' + checkForClass + '"></div>');
+
+      var ModelA = fw.viewModel.create({
+        namespace: 'ModelA',
+        initialize: ensureCallOrder(0),
+        afterRender: ensureCallOrder(1, function(containingElement) {
+          expect(containingElement.className).toBe(checkForClass);
+        })
+      });
+
+      fw.applyBindings(new ModelA(), testContainer);
     });
   });
-
 });
 
 // describe('viewModel', function () {
-
-//   it('correctly applies a mixin to a viewModel', function() {
-//     var ViewModelWithMixin = fw.viewModel.create({
-//       namespace: 'ViewModelWithMixin',
-//       mixins: [
-//         {
-//           _preInit: function() {
-//             this.preInitRan = true;
-//           },
-//           mixin: {
-//             mixinPresent: true
-//           },
-//           _postInit: function() {
-//             this.postInitRan = true;
-//           }
-//         }
-//       ]
-//     });
-
-//     var viewModel = new ViewModelWithMixin();
-
-//     expect(viewModel.preInitRan).to.be(true);
-//     expect(viewModel.mixinPresent).to.be(true);
-//     expect(viewModel.postInitRan).to.be(true);
-//   });
-
-//   it('has the ability to create nested viewModels with correctly defined namespaces', function() {
-//     var ModelA = fw.viewModel.create({
-//       namespace: 'ModelA',
-//       initialize: function() {
-//         this.preSubModelNamespaceName = fw.utils.currentNamespaceName();
-//         this.subModelB = new ModelB();
-//         this.postSubModelNamespaceName = fw.utils.currentNamespaceName();
-//       }
-//     });
-
-//     var ModelB = fw.viewModel.create({
-//       namespace: 'ModelB',
-//       initialize: function() {
-//         this.preSubModelNamespaceName = fw.utils.currentNamespaceName();
-//         this.subModelC = new ModelC();
-//         this.postSubModelNamespaceName = fw.utils.currentNamespaceName();
-//       }
-//     });
-
-//     var ModelC = fw.viewModel.create({
-//       namespace: 'ModelC',
-//       initialize: function() {
-//         this.recordedNamespaceName = fw.utils.currentNamespaceName();
-//       }
-//     });
-
-//     var modelA = new ModelA();
-//     expect(modelA.preSubModelNamespaceName).to.eql('ModelA');
-//     expect(modelA.postSubModelNamespaceName).to.eql('ModelA');
-//     expect(modelA.subModelB.preSubModelNamespaceName).to.eql('ModelB');
-//     expect(modelA.subModelB.postSubModelNamespaceName).to.eql('ModelB');
-//     expect(modelA.subModelB.subModelC.recordedNamespaceName).to.eql('ModelC');
-//   });
-
-//   it('calls afterBinding after initialize with the correct target element when creating and binding a new instance', function() {
-//     var initializeWasCalledFirst = false;
-//     var afterBindingWasCalledSecond = false;
-//     var containerIsTheSame = false;
-//     var container = document.getElementById('afterBindingViewModel');
-
-//     var ModelA = fw.viewModel.create({
-//       namespace: 'ModelA',
-//       initialize: function() {
-//         if(!afterBindingWasCalledSecond) {
-//           initializeWasCalledFirst = true;
-//         }
-//       },
-//       afterRender: function(containingElement) {
-//         if(initializeWasCalledFirst) {
-//           afterBindingWasCalledSecond = true;
-//         }
-//         if(containingElement === container) {
-//           containerIsTheSame = true;
-//         }
-//       }
-//     });
-
-//     var modelA = new ModelA();
-//     fw.applyBindings(modelA, container);
-
-//     expect(afterBindingWasCalledSecond).to.be(true);
-//     expect(containerIsTheSame).to.be(true);
-//   });
 
 //   it('after binding has the correct containing $element referenced', function(done) {
 //     var container = document.getElementById('afterBindingViewModelElementReference');
@@ -358,7 +344,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 //       autoRegister: true,
 //       initialize: function(params) {
 //         expect(params.testValueOne).to.be(1);
-//         expect(params.testValueTwo).to.eql([1,2,3]);
+//         expect(params.testValueTwo).toBe([1,2,3]);
 //         wasInitialized = true;
 //       }
 //     });
