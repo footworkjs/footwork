@@ -7,19 +7,22 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['jasmine', 'requirejs'],
+    frameworks: ['jasmine', 'requirejs', 'fixture'],
 
 
     // list of files / patterns to load in the browser
     files: [
       'tests/main.js',
+      {pattern: 'tests/runner-setup.js', nocache: true},
       {pattern: 'tests/*.js', included: false},
-      {pattern: 'bower_components/lodash/*.js', included: false},
-      {pattern: 'bower_components/requirejs-text/*.js', included: false},
-      {pattern: 'bower_components/knockoutjs/dist/*.js', included: false},
-      {pattern: 'bower_components/postal.js/lib/*.js', included: false},
-      {pattern: 'bower_components/jquery/dist/*.js', included: false},
-      {pattern: 'bower_components/reqwest/reqwest.js', included: false},
+      {pattern: 'tests/assets/**/*.+(html|json|jsonp)', included: false},
+      {pattern: 'bower_components/lodash/*.js', watched: false, included: false},
+      {pattern: 'bower_components/requirejs-text/*.js', watched: false, included: false},
+      {pattern: 'bower_components/knockoutjs/dist/*.js', watched: false, included: false},
+      {pattern: 'bower_components/postal.js/lib/*.js', watched: false, included: false},
+      {pattern: 'bower_components/jquery-mockjax/dist/*.js', watched: false, included: false},
+      {pattern: 'bower_components/jquery/dist/*.js', watched: false, included: false},
+      {pattern: 'bower_components/reqwest/reqwest.js', watched: false, included: false},
       {pattern: 'build/*.js', included: false}
     ],
 
@@ -32,8 +35,14 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
+      'tests/assets/**/*.html'   : ['html2js'],
+      'tests/assets/**/*.json'   : ['json_fixtures']
     },
 
+    // used by the fixture framework
+    jsonFixturesPreprocessor: {
+      variableName: '__json__'
+    },
 
     // test results reporter to use
     // possible values: 'dots', 'progress'

@@ -31,6 +31,7 @@ require.config({
     "reqwest": "bower_components/reqwest/reqwest",
     "postal": "bower_components/postal.js/lib/postal",
     "lodash": "bower_components/lodash/lodash",
+    "jquery-mockjax": "bower_components/jquery-mockjax/dist/jquery.mockjax",
     "jquery": "bower_components/jquery/dist/jquery",
     "history": "bower_components/history.js/scripts/bundled/html5/native.history"
   },
