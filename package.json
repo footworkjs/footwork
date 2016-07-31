@@ -174,6 +174,7 @@
     "karma-spec-reporter": "0.0.23",
     "less-plugin-autoprefix": "1.5.1",
     "less-plugin-clean-css": "1.5.1",
+    "lodash": "3.3.1",
     "phantomjs": "^1.9.19",
     "run-sequence": "*",
     "vinyl-transform": "1.0.0",
