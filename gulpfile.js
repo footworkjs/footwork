@@ -76,7 +76,7 @@ function buildRelease(buildProfile) {
     .pipe(gulp.dest('build/'));
 };
 
-gulp.task('default', ['build-everything', 'copy_animation_styles_to_build']);
+gulp.task('default', ['build-everything', 'tests', 'copy_animation_styles_to_build']);
 
 // Testing tasks
 gulp.task('ci', ['tests']);
@@ -86,6 +86,17 @@ gulp.task('tests', ['build-everything'], function (done) {
     configFile: __dirname + '/karma.conf.js',
     singleRun: true
   }, done).start();
+});
+
+gulp.task('test-now', function (done) {
+  return new Server({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true
+  }, done).start();
+});
+
+gulp.task('watch-tests', function () {
+  gulp.watch(['build/footwork-bare-jquery.js', 'tests/**/*.*'], ['test-now']);
 });
 
 // Building tasks
