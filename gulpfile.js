@@ -81,7 +81,7 @@ gulp.task('default', ['build-everything', 'copy_animation_styles_to_build']);
 // Testing tasks
 gulp.task('ci', ['tests']);
 
-gulp.task('tests', function (done) {
+gulp.task('tests', ['build-everything'], function (done) {
   return new Server({
     configFile: __dirname + '/karma.conf.js',
     singleRun: true
@@ -89,7 +89,7 @@ gulp.task('tests', function (done) {
 });
 
 // Building tasks
-gulp.task('build-everything', ['build_all', 'build_all_with_history', 'build_minimal', 'build_bare_jquery', 'build_bare_reqwest', 'build_raw', 'build_animations_css']);
+gulp.task('build-everything', ['build_all', 'build_all_with_history', 'build_bare_jquery', 'build_bare_reqwest', 'build_raw', 'build_animations_css']);
 
 gulp.task('build_all_with_history', ['lodash_custom'], function() {
   return buildRelease('all-history');
@@ -97,10 +97,6 @@ gulp.task('build_all_with_history', ['lodash_custom'], function() {
 
 gulp.task('build_all', ['lodash_custom'], function() {
   return buildRelease('all');
-});
-
-gulp.task('build_minimal', ['lodash_custom'], function() {
-  return buildRelease('minimal');
 });
 
 gulp.task('build_bare_jquery', ['lodash_custom'], function() {
