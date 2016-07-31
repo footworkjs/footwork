@@ -4,15 +4,16 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     var testContainer;
 
     beforeEach(function() {
-      fixture.setBase('tests/fixtures');
+      jasmine.addMatchers(customMatchers);
+      fixture.setBase('tests/assets/fixtures');
     });
     afterEach(function() {
       fixture.cleanup(testContainer);
     });
 
     it('has the ability to create a viewModel', function() {
-      expect(typeof fw.viewModel.create).toBe('function');
-      expect(typeof (fw.viewModel.create())).toBe('function');
+      expect(fw.viewModel.create).toBeA('function');
+      expect(fw.viewModel.create()).toBeA('function');
     });
 
     it('has the ability to create a viewModel with a correctly defined namespace whos name we can retrieve', function() {
@@ -21,7 +22,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       });
       var modelA = new ModelA();
 
-      expect(typeof modelA.$namespace).toBe('object');
+      expect(modelA.$namespace).toBeAn('object');
       expect(modelA.$namespace.getName()).toBe('ModelA');
     });
 
@@ -35,25 +36,26 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(modelA.extendedAttribute).toBe(true);
     });
+
+    it('correctly names and increments counter for indexed viewModels', function() {
+      var IndexedViewModel = fw.viewModel.create({
+        namespace: 'IndexedViewModel',
+        autoIncrement: true
+      });
+
+      var firstViewModel = new IndexedViewModel();
+      var secondViewModel = new IndexedViewModel();
+      var thirdViewModel = new IndexedViewModel();
+
+      expect(firstViewModel.$namespace.getName()).toBe('IndexedViewModel0');
+      expect(secondViewModel.$namespace.getName()).toBe('IndexedViewModel1');
+      expect(thirdViewModel.$namespace.getName()).toBe('IndexedViewModel2');
+    });
   });
 
 });
 
 // describe('viewModel', function () {
-//   it('correctly names and increments counter for indexed viewModels', function() {
-//     var IndexedViewModel = fw.viewModel.create({
-//       namespace: 'IndexedViewModel',
-//       autoIncrement: true
-//     });
-
-//     var firstViewModel = new IndexedViewModel();
-//     var secondViewModel = new IndexedViewModel();
-//     var thirdViewModel = new IndexedViewModel();
-
-//     expect(firstViewModel.$namespace.getName()).to.eql('IndexedViewModel0');
-//     expect(secondViewModel.$namespace.getName()).to.eql('IndexedViewModel1');
-//     expect(thirdViewModel.$namespace.getName()).to.eql('IndexedViewModel2');
-//   });
 
 //   it('correctly applies a mixin to a viewModel', function() {
 //     var ViewModelWithMixin = fw.viewModel.create({

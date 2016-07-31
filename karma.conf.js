@@ -14,6 +14,7 @@ module.exports = function(config) {
     files: [
       'tests/main.js',
       {pattern: 'tests/runner-setup.js', nocache: true},
+      {pattern: 'tests/assets/customMatchers.js', nocache: true},
       {pattern: 'tests/spec/**/*.js', included: false},
       {pattern: 'tests/assets/**/*.+(html|json|jsonp)', included: false},
       {pattern: 'bower_components/lodash/*.js', watched: false, included: false},
