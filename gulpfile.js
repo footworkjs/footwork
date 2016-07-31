@@ -77,23 +77,16 @@ function buildRelease(buildProfile) {
 
 gulp.task('default', ['build-everything', 'tests', 'copy_animation_styles_to_build']);
 
+function runTests(done) {
+  return new Server({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true
+  }, done).start();
+}
+
 // Testing tasks
-gulp.task('ci', ['tests']);
-
-gulp.task('tests', ['build-everything'], function (done) {
-  return new Server({
-    configFile: __dirname + '/karma.conf.js',
-    singleRun: true
-  }, done).start();
-});
-
-gulp.task('test-now', function (done) {
-  return new Server({
-    configFile: __dirname + '/karma.conf.js',
-    singleRun: true
-  }, done).start();
-});
-
+gulp.task('ci', ['build-everything'], runTests);
+gulp.task('tests', runTests);
 gulp.task('watch-tests', function () {
   gulp.watch(['build/footwork-bare-jquery.js', 'tests/**/*.*'], ['test-now']);
 });
