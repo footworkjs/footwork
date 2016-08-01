@@ -889,8 +889,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(initializeSpy).toHaveBeenCalled();
       expect(person.firstName()).not.toBe(postValue);
+      expect(person.save()).toBeA('promise');
 
-      person.save();
       setTimeout(function() {
         expect(person.$id()).toBe(1);
         expect(person.firstName()).toBe(postValue);
@@ -940,8 +940,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(initializeSpy).toHaveBeenCalled();
       expect(person.firstName()).not.toBe(postValue);
+      expect(person.save()).toBeA('promise');
 
-      person.save();
       setTimeout(function() {
         expect(person.$id()).toBe(1);
         expect(person.firstName()).toBe(postValue);
@@ -996,8 +996,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).toHaveBeenCalled();
       expect(parseSpy).not.toHaveBeenCalled();
       expect(person.firstName()).not.toBe(postValue);
-
-      person.save();
+      expect(person.save()).toBeA('promise');
 
       setTimeout(function() {
         expect(parseSpy).toHaveBeenCalled();
@@ -1041,11 +1040,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(initializeSpy).toHaveBeenCalled();
       expect(person.firstName()).not.toBe(getValue);
-
-      var fetchResult = person.fetch();
-
-      expect(fetchResult).toBeAn('object');
-      expect(fetchResult.done).toBeA('function');
+      expect(person.fetch()).toBeA('promise');
 
       setTimeout(function() {
         expect(person.$id()).toBe(personData.id);
@@ -1094,10 +1089,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).toHaveBeenCalled();
       expect(parseSpy).not.toHaveBeenCalled();
       expect(person.firstName()).not.toBe(getValue);
-
-      var fetchResult = person.fetch();
-
-      expect(fetchResult).toBeA('promise');
+      expect(person.fetch()).toBeA('promise');
 
       setTimeout(function() {
         expect(parseSpy).toHaveBeenCalled();
@@ -1142,10 +1134,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(initializeSpy).toHaveBeenCalled();
       expect(person.firstName()).not.toBe(getValue);
-
-      var fetchResult = person.fetch();
-
-      expect(fetchResult).toBeA('promise');
+      expect(person.fetch()).toBeA('promise');
 
       setTimeout(function() {
         expect(person.customId()).toBe(personData.customId);
@@ -1191,7 +1180,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(initializeSpy).toHaveBeenCalled();
 
-      person.fetch();
+      expect(person.fetch()).toBeA('promise');
 
       setTimeout(function() {
         expect(person.firstName()).toBe(personData.firstName);
@@ -1212,14 +1201,13 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       };
 
       $.mockjax({
-        responseTime: 10,
+        responseTime: 5,
         url: mockUrl + '/' + personData.id,
         type: 'GET',
         responseText: _.extend({}, personData, { firstName: getValue })
       });
 
       var Person = fw.dataModel.create({
-        namespace: 'Person',
         url: ensureCallOrder(1, urlSpy = jasmine.createSpy('urlSpy', function() {
           return mockUrl;
         }).and.callThrough()),
@@ -1240,16 +1228,14 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(urlSpy).not.toHaveBeenCalled();
       expect(person.firstName()).not.toBe(getValue);
 
-      var fetchResult = person.fetch();
-
+      expect(person.fetch()).toBeA('promise');
       expect(urlSpy).toHaveBeenCalled();
-      expect(fetchResult).toBeA('promise');
 
       setTimeout(function() {
         expect(person.$id()).toBe(personData.id);
         expect(person.firstName()).toBe(getValue);
         done();
-      }, 40);
+      }, 20);
     });
 
     it('can correctly fetch() data from the server via a url with interpolated parameters', function(done) {
@@ -1263,14 +1249,13 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       };
 
       $.mockjax({
-        responseTime: 10,
+        responseTime: 5,
         url: mockUrl + '/' + personData.firstName,
         type: 'GET',
         responseText: personData
       });
 
       var Person = fw.dataModel.create({
-        namespace: 'Person',
         useKeyInUrl: false,
         url: mockUrl + '/:firstName',
         initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
@@ -1288,13 +1273,12 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).toHaveBeenCalled();
       expect(person.lastName()).not.toBe(personData.lastName);
 
-      var fetchResult = person.fetch();
-      expect(fetchResult).toBeA('promise');
+      expect(person.fetch()).toBeA('promise');
 
       setTimeout(function() {
         expect(person.lastName()).toBe(personData.lastName);
         done();
-      }, 40);
+      }, 20);
     });
   });
 });
