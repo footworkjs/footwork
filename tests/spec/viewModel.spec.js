@@ -39,7 +39,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('correctly names and increments counter for indexed viewModels', function() {
-      var namespaceName = 'IndexedViewModel';
+      var namespaceName = fw.utils.guid();
       var IndexedViewModel = fw.viewModel.create({
         namespace: namespaceName,
         autoIncrement: true
@@ -55,7 +55,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('correctly applies a mixin to a viewModel', function() {
-      var namespaceName = 'IndexedViewModel';
+      var namespaceName = fw.utils.guid();
       var preInitCallback = jasmine.createSpy('preInitCallback').and.callThrough();
       var postInitCallback = jasmine.createSpy('postInitCallback').and.callThrough();
 
@@ -80,37 +80,44 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('has the ability to create nested viewModels with correctly defined namespaces', function() {
+      var initializeSpyA;
+      var initializeSpyB;
+      var initializeSpyC;
+
       var ModelA = fw.viewModel.create({
         namespace: 'ModelA',
-        initialize: function() {
-          this.preSubModelNamespaceName = fw.utils.currentNamespaceName();
+        initialize: ensureCallOrder(0, initializeSpyA = jasmine.createSpy('initializeSpyA', function() {
+          expect(fw.utils.currentNamespaceName()).toBe('ModelA');
           this.subModelB = new ModelB();
-          this.postSubModelNamespaceName = fw.utils.currentNamespaceName();
-        }
+          expect(fw.utils.currentNamespaceName()).toBe('ModelA');
+        }).and.callThrough())
       });
 
       var ModelB = fw.viewModel.create({
         namespace: 'ModelB',
-        initialize: function() {
-          this.preSubModelNamespaceName = fw.utils.currentNamespaceName();
+        initialize: ensureCallOrder(1, initializeSpyB = jasmine.createSpy('initializeSpyB', function() {
+          expect(fw.utils.currentNamespaceName()).toBe('ModelB');
           this.subModelC = new ModelC();
-          this.postSubModelNamespaceName = fw.utils.currentNamespaceName();
-        }
+          expect(fw.utils.currentNamespaceName()).toBe('ModelB');
+        }).and.callThrough())
       });
 
       var ModelC = fw.viewModel.create({
         namespace: 'ModelC',
-        initialize: function() {
-          this.recordedNamespaceName = fw.utils.currentNamespaceName();
-        }
+        initialize: ensureCallOrder(2, initializeSpyC = jasmine.createSpy('initializeSpyC', function() {
+          expect(fw.utils.currentNamespaceName()).toBe('ModelC');
+        }).and.callThrough())
       });
 
+      expect(initializeSpyA).not.toHaveBeenCalled();
+      expect(initializeSpyB).not.toHaveBeenCalled();
+      expect(initializeSpyC).not.toHaveBeenCalled();
+
       var modelA = new ModelA();
-      expect(modelA.preSubModelNamespaceName).toBe('ModelA');
-      expect(modelA.postSubModelNamespaceName).toBe('ModelA');
-      expect(modelA.subModelB.preSubModelNamespaceName).toBe('ModelB');
-      expect(modelA.subModelB.postSubModelNamespaceName).toBe('ModelB');
-      expect(modelA.subModelB.subModelC.recordedNamespaceName).toBe('ModelC');
+
+      expect(initializeSpyA).toHaveBeenCalled();
+      expect(initializeSpyB).toHaveBeenCalled();
+      expect(initializeSpyC).toHaveBeenCalled();
     });
 
     it('calls afterBinding after initialize with the correct target element when creating and binding a new instance', function() {
