@@ -475,5 +475,161 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
         done();
       }, 40);
     });
+
+    it('can be nested and initialized declaratively', function(done) {
+      var outerInitializeSpy = jasmine.createSpy('outerInitializeSpy');
+      var innerInitializeSpy = jasmine.createSpy('innerInitializeSpy');
+      var outerNamespaceName = fw.utils.guid();
+      var innerNamespaceName = fw.utils.guid();
+
+      fw.router.create({
+        namespace: outerNamespaceName,
+        autoRegister: true,
+        initialize: outerInitializeSpy
+      });
+
+      fw.router.create({
+        namespace: innerNamespaceName,
+        autoRegister: true,
+        initialize: innerInitializeSpy
+      });
+
+      expect(outerInitializeSpy).not.toHaveBeenCalled();
+      expect(innerInitializeSpy).not.toHaveBeenCalled();
+
+      fw.start(makeTestContainer('<router module="' + outerNamespaceName + '">\
+                                    <router module="' + innerNamespaceName + '"></router>\
+                                  </router>'));
+
+      setTimeout(function() {
+        expect(outerInitializeSpy).toHaveBeenCalled();
+        expect(innerInitializeSpy).toHaveBeenCalled();
+        done();
+      }, 20);
+    });
+
+    it('can trigger the default route', function(done) {
+      var namespaceName = fw.utils.guid();
+      var defaultRouteSpy = jasmine.createSpy('defaultRouteSpy');
+
+      fw.router.create({
+        namespace: namespaceName,
+        autoRegister: true,
+        routes: [
+          {
+            route: '/',
+            controller: defaultRouteSpy
+          }
+        ]
+      });
+
+      expect(defaultRouteSpy).not.toHaveBeenCalled();
+
+      fw.start(makeTestContainer('<router module="' + namespaceName + '"></router>'));
+
+      setTimeout(function() {
+        expect(defaultRouteSpy).toHaveBeenCalled();
+        done();
+      }, 20);
+    });
+
+    it('can trigger the unknownRoute', function(done) {
+      var namespaceName = 'unknownRouteCheck';
+      var unknownRouteSpy = jasmine.createSpy('defaultRouteSpy');
+      var initializeSpy;
+      var router;
+
+      fw.router.create({
+        namespace: 'unknownRouteCheck',
+        autoRegister: true,
+        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          router = this;
+        }).and.callThrough()),
+        unknownRoute: {
+          controller: ensureCallOrder(1, unknownRouteSpy)
+        }
+      });
+
+      expect(unknownRouteSpy).not.toHaveBeenCalled();
+      expect(initializeSpy).not.toHaveBeenCalled();
+
+      fw.start(makeTestContainer('<router module="' + namespaceName + '"></router>'));
+
+      expect(initializeSpy).toHaveBeenCalled();
+
+      setTimeout(function() {
+        router.setState('/' + fw.utils.guid());
+        expect(unknownRouteSpy).toHaveBeenCalled();
+        done();
+      }, 40);
+    });
+
+    it('can trigger a specified route', function(done) {
+      var mockUrl = '/' + fw.utils.guid();
+      var namespaceName = fw.utils.guid();
+      var routeSpy = jasmine.createSpy('routeSpy');
+      var initializeSpy;
+      var router;
+
+      fw.router.create({
+        namespace: namespaceName,
+        autoRegister: true,
+        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          router = this;
+        }).and.callThrough()),
+        routes: [
+          {
+            route: mockUrl,
+            controller: routeSpy
+          }
+        ]
+      });
+
+      expect(routeSpy).not.toHaveBeenCalled();
+      expect(initializeSpy).not.toHaveBeenCalled();
+
+      fw.start(makeTestContainer('<router module="' + namespaceName + '"></router>'));
+      expect(initializeSpy).toHaveBeenCalled();
+
+      setTimeout(function() {
+        router.setState(mockUrl);
+        expect(routeSpy).toHaveBeenCalled();
+        done();
+      }, 20);
+    });
+
+    it('can trigger a specified route that is defined within an array of route strings', function(done) {
+      var mockUrl = '/' + fw.utils.guid();
+      var namespaceName = fw.utils.guid();
+      var routeSpy = jasmine.createSpy('routeSpy');
+      var initializeSpy;
+      var router;
+
+      fw.router.create({
+        namespace: namespaceName,
+        autoRegister: true,
+        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          router = this;
+        }).and.callThrough()),
+        routes: [
+          {
+            route: [ mockUrl, mockUrl + '2' ],
+            controller: routeSpy
+          }
+        ]
+      });
+
+      expect(routeSpy).not.toHaveBeenCalled();
+      expect(initializeSpy).not.toHaveBeenCalled();
+
+      fw.start(makeTestContainer('<router module="' + namespaceName + '"></router>'));
+      expect(initializeSpy).toHaveBeenCalled();
+
+      setTimeout(function() {
+        router.setState(mockUrl + '2');
+        expect(routeSpy).toHaveBeenCalled();
+        done();
+      }, 40);
+    });
   });
 });
