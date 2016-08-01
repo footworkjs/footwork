@@ -220,71 +220,71 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
         done();
       }, 20);
     });
+
+    it('can bind to the DOM using a generated instance', function(done) {
+      var boundPropertyValue = fw.utils.guid();
+      var boundPropertyValueElement = boundPropertyValue + '-element';
+      var createViewModelInstance;
+
+      fw.viewModel.register(boundPropertyValue, {
+        createViewModel: createViewModelInstance = jasmine.createSpy('createViewModel', function(params, info) {
+          expect(params.var).toBe(boundPropertyValue);
+          expect(info.element.getAttribute('id')).toBe(boundPropertyValueElement);
+
+          return {
+            boundProperty: boundPropertyValue
+          };
+        }).and.callThrough()
+      });
+
+      expect(createViewModelInstance).not.toHaveBeenCalled();
+      var $container = $(makeTestContainer('<viewModel module="' + boundPropertyValue + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
+                                              <span class="result" data-bind="text: boundProperty"></span>\
+                                            </viewModel>'));
+
+      expect($container.find('.result').text()).not.toBe(boundPropertyValue);
+      fw.start($container.get(0));
+
+      setTimeout(function() {
+        expect(createViewModelInstance).toHaveBeenCalled();
+        expect($container.find('.result').text()).toBe(boundPropertyValue);
+        done();
+      }, 20);
+    });
+
+    it('has the animation classes applied properly', function(done) {
+      var wasInitialized = false;
+      var namespaceName = fw.utils.guid();
+      var container = document.getElementById('afterBindingViewModelAnimation');
+      var theElement;
+      var initializeSpy;
+      var afterRenderSpy;
+
+      fw.viewModel.create({
+        namespace: namespaceName,
+        autoRegister: true,
+        initialize: initializeSpy = jasmine.createSpy('initializeSpy').and.callThrough(),
+        afterRender: afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+          theElement = element;
+          expect(theElement.className.indexOf('fw-entity-animate')).toBe(-1);
+        }).and.callThrough()
+      });
+
+      var $container = $(makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+      fw.start($container.get(0));
+
+      setTimeout(function() {
+        setTimeout(function() {
+          expect(theElement.className.indexOf('fw-entity-animate')).not.toBe(-1);
+          done();
+        }, 100);
+      }, 0);
+    });
   });
 });
 
 // describe('viewModel', function () {
 
-
-//   it('can bind to the DOM using a generated instance', function(done) {
-//     var wasInitialized = false;
-//     var container = document.getElementById('registeredViewModelGenerated');
-//     var boundPropertyValue = 'registeredViewModelGenerated';
-
-//     fw.viewModel.register('registeredViewModelGenerated', {
-//       createViewModel: function(params, info) {
-//         expect(params.var).to.be('registeredViewModelGenerated');
-//         expect(info.element.getAttribute('id')).to.be('registeredViewModelGeneratedElement');
-
-//         return {
-//           boundProperty: boundPropertyValue
-//         };
-//       }
-//     });
-
-//     expect(wasInitialized).to.be(false);
-//     expect($('#registeredViewModelGenerated .result').text()).not.to.be(boundPropertyValue);
-
-//     fw.start(container);
-
-//     setTimeout(function() {
-//       expect($('#registeredViewModelGenerated .result').text()).to.be(boundPropertyValue);
-//       done();
-//     }, 20);
-//   });
-
-//   it('has the animation classes applied properly', function(done) {
-//     var wasInitialized = false;
-//     var container = document.getElementById('afterBindingViewModelAnimation');
-//     var afterBindingCalled = false;
-//     var theElement;
-
-//     fw.viewModel.create({
-//       namespace: 'afterBindingViewModelAnimation',
-//       autoRegister: true,
-//       initialize: function() {
-//         wasInitialized = true;
-//       },
-//       afterRender: function(element) {
-//         afterBindingCalled = true;
-//         theElement = element;
-//         expect(theElement.className.indexOf('fw-entity-animate')).to.be(-1);
-//       }
-//     });
-
-//     expect(afterBindingCalled).to.be(false);
-//     expect(wasInitialized).to.be(false);
-//     fw.start(container);
-
-//     setTimeout(function() {
-//       expect(afterBindingCalled).to.be(true);
-//       expect(wasInitialized).to.be(true);
-//       setTimeout(function() {
-//         expect(theElement.className.indexOf('fw-entity-animate')).to.be.greaterThan(-1);
-//         done();
-//       }, 100);
-//     }, 0);
-//   });
 
 //   it('can nest <viewModel> declarations', function(done) {
 //     var container = document.getElementById('nestedViewModels');
