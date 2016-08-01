@@ -16,7 +16,7 @@ module.exports = function(config) {
       {pattern: 'tests/runner-setup.js', nocache: true},
       {pattern: 'tests/assets/customMatchers.js', nocache: true},
       {pattern: 'tests/spec/**/*.js', included: false},
-      {pattern: 'tests/assets/**/*.+(html|json|jsonp)', included: false},
+      {pattern: 'tests/assets/**/*.+(html|json|jsonp|js)', nocache: true, included: false},
       {pattern: 'bower_components/lodash/*.js', watched: false, included: false},
       {pattern: 'bower_components/requirejs-text/*.js', watched: false, included: false},
       {pattern: 'bower_components/knockoutjs/dist/*.js', watched: false, included: false},

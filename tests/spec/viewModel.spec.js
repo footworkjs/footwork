@@ -322,14 +322,14 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('calls onDispose when the containing element is removed from the DOM', function() {
-      var namespaceName = 'ViewModelWithDispose';
+      var namespaceName = fw.utils.guid();
       var theElement;
       var initializeSpy;
       var afterRenderSpy;
       var onDisposeSpy;
 
       var WrapperViewModel = fw.viewModel.create({
-        initialize: ensureCallOrder(0, jasmine.createSpy('initializeSpy', function() {
+        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           this.showIt = fw.observable(true);
         }).and.callThrough())
       });
@@ -346,7 +346,14 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
         }).and.callThrough())
       });
 
+      expect(initializeSpy).not.toHaveBeenCalled();
+      expect(afterRenderSpy).not.toHaveBeenCalled();
+
       var wrapper = new WrapperViewModel();
+
+      expect(initializeSpy).toHaveBeenCalled();
+      expect(afterRenderSpy).not.toHaveBeenCalled();
+
       fw.applyBindings(wrapper, makeTestContainer('<div data-bind="if: showIt">\
         <viewModel module="' + namespaceName + '"></viewModel>\
       </div>'));
@@ -355,151 +362,149 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       wrapper.showIt(false);
 
+      expect(afterRenderSpy).toHaveBeenCalled();
       expect(onDisposeSpy).toHaveBeenCalled();
+    });
+
+    it('can have a registered location set and retrieved proplerly', function() {
+      var namespaceName = fw.utils.guid();
+      fw.viewModel.registerLocation(namespaceName, '/bogus/path');
+      expect(fw.viewModel.getLocation(namespaceName)).toBe('/bogus/path');
+      fw.viewModel.registerLocation(/regexp.*/, '/bogus/path');
+      expect(fw.viewModel.getLocation('regexp-model')).toBe('/bogus/path');
+    });
+
+    it('can have an array of models registered to a location and retrieved proplerly', function() {
+      var namespaceNames = [ fw.utils.guid(), fw.utils.guid() ];
+      fw.viewModel.registerLocation(namespaceNames, '/bogus/path');
+      expect(fw.viewModel.getLocation(namespaceNames[0])).toBe('/bogus/path');
+      expect(fw.viewModel.getLocation(namespaceNames[1])).toBe('/bogus/path');
+    });
+
+    it('can have a registered location with filename set and retrieved proplerly', function() {
+      var namespaceName = fw.utils.guid();
+      fw.viewModel.registerLocation(namespaceName, '/bogus/path/__file__.js');
+      expect(fw.viewModel.getLocation(namespaceName)).toBe('/bogus/path/__file__.js');
+    });
+
+    it('can have a specific file extension set and used correctly', function() {
+      var namespaceName = fw.utils.guid();
+      var customExtension = '.jscript';
+      fw.viewModel.fileExtensions(customExtension);
+      fw.viewModel.registerLocation(namespaceName, '/bogus/path/');
+
+      expect(fw.viewModel.getFileName(namespaceName)).toBe(namespaceName + customExtension);
+
+      fw.viewModel.fileExtensions('.js');
+    });
+
+    it('can have a callback specified as the extension with it invoked and the return value used', function() {
+      var namespaceName = fw.utils.guid();
+      var customExtension = '.jscriptFunction';
+      fw.viewModel.fileExtensions(function(moduleName) {
+        expect(moduleName).toBe(namespaceName);
+        return customExtension;
+      });
+      fw.viewModel.registerLocation(namespaceName, '/bogus/path/');
+
+      expect(fw.viewModel.getFileName(namespaceName)).toBe(namespaceName + customExtension);
+
+      fw.viewModel.fileExtensions('.js');
+    });
+
+    it('can load via requirejs with a declarative initialization from an already registered module', function(done) {
+      var namespaceName = fw.utils.guid();
+      var initializeSpy = jasmine.createSpy();
+
+      define(namespaceName, ['footwork'], function(fw) {
+        return fw.viewModel.create({
+          initialize: initializeSpy
+        });
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+      fw.start(makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+
+      setTimeout(function() {
+        expect(initializeSpy).toHaveBeenCalled();
+        done();
+      }, 0);
+    });
+
+    it('can load via registered viewModel with a declarative initialization', function(done) {
+      var namespaceName = fw.utils.guid();
+      var initializeSpy = jasmine.createSpy();
+
+      fw.viewModel.register(namespaceName, fw.viewModel.create({
+        initialize: initializeSpy
+      }));
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+      fw.start(makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+
+      setTimeout(function() {
+        expect(initializeSpy).toHaveBeenCalled();
+        done();
+      }, 0);
+    });
+
+    it('can load via requirejs with a declarative initialization from a specified location', function(done) {
+      var namespaceName = 'AMDViewModel';
+      window.AMDViewModelWasLoaded = false;
+
+      fw.viewModel.registerLocation(namespaceName, 'tests/assets/fixtures/');
+
+      expect(window.AMDViewModelWasLoaded).toBe(false);
+      fw.start(makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+
+      setTimeout(function() {
+        expect(window.AMDViewModelWasLoaded).toBe(true);
+        done();
+      }, 40);
+    });
+
+    it('can load via requirejs with a declarative initialization from a specified RegExp-based location', function(done) {
+      window.AMDViewModelRegexpWasLoaded = false;
+
+      fw.viewModel.registerLocation(/AMDViewModelRegexp-.*/, 'tests/assets/fixtures/');
+
+      expect(window.AMDViewModelRegexpWasLoaded).toBe(false);
+      fw.start(makeTestContainer('<viewModel module="AMDViewModelRegexp-test"></viewModel>'));
+
+      setTimeout(function() {
+        expect(window.AMDViewModelRegexpWasLoaded).toBe(true);
+        done();
+      }, 40);
+    });
+
+    it('can load via requirejs with a declarative initialization from a specified location with the full file name', function(done) {
+      var namespaceName = 'AMDViewModelFullName';
+      window.AMDViewModelFullNameWasLoaded = false;
+
+      fw.viewModel.registerLocation(namespaceName, 'tests/assets/fixtures/' + namespaceName + '.js');
+
+      expect(window.AMDViewModelFullNameWasLoaded).toBe(false);
+      fw.start(makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+
+      setTimeout(function() {
+        expect(window.AMDViewModelFullNameWasLoaded).toBe(true);
+        done();
+      }, 40);
+    });
+
+    it('can specify and load via requirejs with the default location', function(done) {
+      window.defaultViewModelLoaded = false;
+
+      fw.viewModel.defaultLocation('tests/assets/fixtures/defaultViewModelLocation/');
+
+      expect(window.defaultViewModelLoaded).toBe(false);
+
+      fw.start(makeTestContainer('<viewModel module="defaultViewModel"></viewModel>'));
+
+      setTimeout(function() {
+        expect(window.defaultViewModelLoaded).toBe(true);
+        done();
+      }, 40);
     });
   });
 });
-
-// describe('viewModel', function () {
-
-
-//   it('can have a registered location set and retrieved proplerly', function() {
-//     fw.viewModel.registerLocation('registeredLocationRetrieval', '/bogus/path');
-//     expect(fw.viewModel.getLocation('registeredLocationRetrieval')).to.be('/bogus/path');
-//     fw.viewModel.registerLocation(/regexp.*/, '/bogus/path');
-//     expect(fw.viewModel.getLocation('regexp-model')).to.be('/bogus/path');
-//   });
-
-//   it('can have an array of models registered to a location and retrieved proplerly', function() {
-//     fw.viewModel.registerLocation(['registeredLocationRetrievalArray1', 'registeredLocationRetrievalArray2'], '/bogus/path');
-//     expect(fw.viewModel.getLocation('registeredLocationRetrievalArray1')).to.be('/bogus/path');
-//     expect(fw.viewModel.getLocation('registeredLocationRetrievalArray2')).to.be('/bogus/path');
-//   });
-
-//   it('can have a registered location with filename set and retrieved proplerly', function() {
-//     fw.viewModel.registerLocation('registeredLocationWithFilenameRetrieval', '/bogus/path/__file__.js');
-//     expect(fw.viewModel.getLocation('registeredLocationWithFilenameRetrieval')).to.be('/bogus/path/__file__.js');
-//   });
-
-//   it('can have a specific file extension set and used correctly', function() {
-//     fw.viewModel.fileExtensions('.jscript');
-//     fw.viewModel.registerLocation('registeredLocationWithExtensionRetrieval', '/bogus/path/');
-
-//     expect(fw.viewModel.getFileName('registeredLocationWithExtensionRetrieval')).to.be('registeredLocationWithExtensionRetrieval.jscript');
-
-//     fw.viewModel.fileExtensions('.js');
-//   });
-
-//   it('can have a callback specified as the extension with it invoked and the return value used', function() {
-//     fw.viewModel.fileExtensions(function(moduleName) {
-//       expect(moduleName).to.be('registeredLocationWithFunctionExtensionRetrieval');
-//       return '.jscriptFunction';
-//     });
-//     fw.viewModel.registerLocation('registeredLocationWithFunctionExtensionRetrieval', '/bogus/path/');
-
-//     expect(fw.viewModel.getFileName('registeredLocationWithFunctionExtensionRetrieval')).to.be('registeredLocationWithFunctionExtensionRetrieval.jscriptFunction');
-
-//     fw.viewModel.fileExtensions('.js');
-//   });
-
-//   it('can load via requirejs with a declarative initialization from an already registered module', function(done) {
-//     var container = document.getElementById('AMDPreRegisteredViewModel');
-//     var viewModelLoaded = false;
-
-//     define('AMDPreRegisteredViewModel', ['footwork'], function(fw) {
-//       return fw.viewModel.create({
-//         initialize: function() {
-//           viewModelLoaded = true;
-//         }
-//       });
-//     });
-
-//     expect(viewModelLoaded).to.be(false);
-//     fw.start(container);
-
-//     setTimeout(function() {
-//       expect(viewModelLoaded).to.be(true);
-//       done();
-//     }, 40);
-//   });
-
-//   it('can load via registered viewModel with a declarative initialization', function(done) {
-//     var container = document.getElementById('registeredViewModel');
-//     var registeredViewModelWasLoaded = false;
-
-//     fw.viewModel.register('registeredViewModel', fw.viewModel.create({
-//       initialize: function() {
-//         registeredViewModelWasLoaded = true;
-//       }
-//     }));
-
-//     expect(registeredViewModelWasLoaded).to.be(false);
-//     fw.start(container);
-
-//     setTimeout(function() {
-//       expect(registeredViewModelWasLoaded).to.be(true);
-//       done();
-//     }, 40);
-//   });
-
-//   it('can load via requirejs with a declarative initialization from a specified location', function(done) {
-//     var container = document.getElementById('AMDViewModel');
-//     window.AMDViewModelWasLoaded = false;
-
-//     fw.viewModel.registerLocation('AMDViewModel', 'testAssets/');
-
-//     expect(window.AMDViewModelWasLoaded).to.be(false);
-//     fw.start(container);
-
-//     setTimeout(function() {
-//       expect(window.AMDViewModelWasLoaded).to.be(true);
-//       done();
-//     }, 40);
-//   });
-
-//   it('can load via requirejs with a declarative initialization from a specified RegExp-based location', function(done) {
-//     var container = document.getElementById('AMDViewModelRegexp');
-//     window.AMDViewModelRegexpWasLoaded = false;
-
-//     fw.viewModel.registerLocation(/AMDViewModelRegexp-.*/, 'testAssets/');
-
-//     expect(window.AMDViewModelRegexpWasLoaded).to.be(false);
-//     fw.start(container);
-
-//     setTimeout(function() {
-//       expect(window.AMDViewModelRegexpWasLoaded).to.be(true);
-//       done();
-//     }, 40);
-//   });
-
-//   it('can load via requirejs with a declarative initialization from a specified location with the full file name', function(done) {
-//     var container = document.getElementById('AMDViewModelFullName');
-//     window.AMDViewModelFullNameWasLoaded = false;
-
-//     fw.viewModel.registerLocation('AMDViewModelFullName', 'testAssets/AMDViewModelFullName.js');
-
-//     expect(window.AMDViewModelFullNameWasLoaded).to.be(false);
-//     fw.start(container);
-
-//     setTimeout(function() {
-//       expect(window.AMDViewModelFullNameWasLoaded).to.be(true);
-//       done();
-//     }, 40);
-//   });
-
-//   it('can specify and load via requirejs with the default location', function(done) {
-//     var container = document.getElementById('defaultViewModelLocation');
-//     window.defaultViewModelLocationLoaded = false;
-
-//     fw.viewModel.defaultLocation('testAssets/defaultViewModelLocation/');
-
-//     expect(window.defaultViewModelLocationLoaded).to.be(false);
-
-//     fw.start(container);
-
-//     setTimeout(function() {
-//       expect(window.defaultViewModelLocationLoaded).to.be(true);
-//       done();
-//     }, 40);
-//   });
-// });
