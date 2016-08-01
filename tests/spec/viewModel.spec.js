@@ -252,94 +252,79 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       }, 20);
     });
 
-    it('has the animation classes applied properly', function(done) {
-      var wasInitialized = false;
+    it('has the animation classes applied properly', function() {
       var namespaceName = fw.utils.guid();
-      var container = document.getElementById('afterBindingViewModelAnimation');
-      var theElement;
+      var $theElement;
       var initializeSpy;
       var afterRenderSpy;
 
       fw.viewModel.create({
         namespace: namespaceName,
         autoRegister: true,
-        initialize: initializeSpy = jasmine.createSpy('initializeSpy').and.callThrough(),
-        afterRender: afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
-          theElement = element;
-          expect(theElement.className.indexOf('fw-entity-animate')).toBe(-1);
+        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy').and.callThrough()),
+        afterRender: ensureCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+          $theElement = $(element);
+          expect($theElement.hasClass('fw-entity-animate')).toBe(false);
+        }).and.callThrough())
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+      expect(afterRenderSpy).not.toHaveBeenCalled();
+      fw.start(makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+
+      expect(initializeSpy).toHaveBeenCalled();
+      expect(afterRenderSpy).toHaveBeenCalled();
+      expect($theElement.hasClass('fw-entity-animate')).toBe(true);
+    });
+
+    it('can nest <viewModel> declarations', function() {
+      var namespaceNameOuter = fw.utils.guid();
+      var namespaceNameInner = fw.utils.guid();
+      var initializeSpy = jasmine.createSpy('initializeSpy');
+
+      fw.viewModel.create({
+        namespace: namespaceNameOuter,
+        autoRegister: true,
+        initialize: ensureCallOrder(0, initializeSpy)
+      });
+
+      fw.viewModel.create({
+        namespace: namespaceNameInner,
+        autoRegister: true,
+        initialize: ensureCallOrder(1, initializeSpy)
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+
+      fw.start(makeTestContainer('<viewModel module="' + namespaceNameOuter + '">\
+        <viewModel module="' + namespaceNameInner + '"></viewModel>\
+      </viewModel>'));
+
+      expect(initializeSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('can pass parameters through a <viewModel> declaration', function() {
+      var namespaceName = fw.utils.guid();
+      var initializeSpy;
+
+      fw.viewModel.create({
+        namespace: namespaceName,
+        autoRegister: true,
+        initialize: initializeSpy = jasmine.createSpy('initializeSpy', function(params) {
+          expect(params.testValueOne).toBe(1);
+          expect(params.testValueTwo).toEqual([1,2,3]);
         }).and.callThrough()
       });
 
-      var $container = $(makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
-      fw.start($container.get(0));
-
-      setTimeout(function() {
-        setTimeout(function() {
-          expect(theElement.className.indexOf('fw-entity-animate')).not.toBe(-1);
-          done();
-        }, 100);
-      }, 0);
+      expect(initializeSpy).not.toHaveBeenCalled();
+      fw.start(makeTestContainer('<viewModel module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></viewModel>'));
+      expect(initializeSpy).toHaveBeenCalled();
     });
   });
 });
 
 // describe('viewModel', function () {
 
-
-//   it('can nest <viewModel> declarations', function(done) {
-//     var container = document.getElementById('nestedViewModels');
-//     var outerWasInitialized = false;
-//     var innerWasInitialized = false;
-
-//     fw.viewModel.create({
-//       namespace: 'nestedViewModelOuter',
-//       autoRegister: true,
-//       initialize: function() {
-//         outerWasInitialized = true;
-//       }
-//     });
-
-//     fw.viewModel.create({
-//       namespace: 'nestedViewModelInner',
-//       autoRegister: true,
-//       initialize: function() {
-//         innerWasInitialized = true;
-//       }
-//     });
-
-//     expect(outerWasInitialized).to.be(false);
-//     expect(innerWasInitialized).to.be(false);
-//     fw.start(container);
-
-//     setTimeout(function() {
-//       expect(outerWasInitialized).to.be(true);
-//       expect(innerWasInitialized).to.be(true);
-//       done();
-//     }, 0);
-//   });
-
-//   it('can pass parameters through a <viewModel> declaration', function(done) {
-//     var wasInitialized = false;
-//     var container = document.getElementById('paramsViewModel');
-
-//     fw.viewModel.create({
-//       namespace: 'paramsViewModel',
-//       autoRegister: true,
-//       initialize: function(params) {
-//         expect(params.testValueOne).to.be(1);
-//         expect(params.testValueTwo).toBe([1,2,3]);
-//         wasInitialized = true;
-//       }
-//     });
-
-//     expect(wasInitialized).to.be(false);
-//     fw.start(container);
-
-//     setTimeout(function() {
-//       expect(wasInitialized).to.be(true);
-//       done();
-//     }, 0);
-//   });
 
 //   it('calls onDispose when the containing element is removed from the DOM', function() {
 //     var container = document.getElementById('onDisposeViewModel');
