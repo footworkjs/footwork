@@ -120,23 +120,30 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpyC).toHaveBeenCalled();
     });
 
-    it('calls afterBinding after initialize with the correct target element when creating and binding a new instance', function() {
+    it('calls afterRender after initialize with the correct target element when creating and binding a new instance', function() {
       var checkForClass = 'check-for-class';
+      var initializeSpy;
+      var afterRenderSpy;
 
       var ModelA = fw.viewModel.create({
-        namespace: 'ModelA',
-        initialize: ensureCallOrder(0),
-        afterRender: ensureCallOrder(1, function(containingElement) {
+        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy')),
+        afterRender: ensureCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
           expect(containingElement.className).toBe(checkForClass);
-        })
+        }).and.callThrough())
       });
 
+      expect(initializeSpy).not.toHaveBeenCalled();
+      expect(afterRenderSpy).not.toHaveBeenCalled();
+
       fw.applyBindings(new ModelA(), makeTestContainer('', '<div class="' + checkForClass + '"></div>'));
+
+      expect(initializeSpy).toHaveBeenCalled();
+      expect(afterRenderSpy).toHaveBeenCalled();
     });
 
     it('can register a viewModel', function() {
       var namespaceName = fw.utils.guid();
-      expect(fw.components.isRegistered(namespaceName)).toBe(false);
+      expect(fw.viewModel.isRegistered(namespaceName)).toBe(false);
 
       fw.viewModel.register(namespaceName, function() {});
 
@@ -145,13 +152,13 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can get a registered viewModel', function() {
       var namespaceName = fw.utils.guid();
-      expect(fw.components.isRegistered(namespaceName)).toBe(false);
+      expect(fw.viewModel.isRegistered(namespaceName)).toBe(false);
 
-      var RegisteredViewModel = function() {};
-      fw.viewModel.register(namespaceName, RegisteredViewModel);
+      var Model = function() {};
+      fw.viewModel.register(namespaceName, Model);
 
       expect(fw.viewModel.isRegistered(namespaceName)).toBe(true);
-      expect(fw.viewModel.getRegistered(namespaceName)).toBe(RegisteredViewModel);
+      expect(fw.viewModel.getRegistered(namespaceName)).toBe(Model);
     });
 
     it('can get all instantiated viewModels', function() {

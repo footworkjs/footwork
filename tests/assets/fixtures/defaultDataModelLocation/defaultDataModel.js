@@ -1,7 +1,7 @@
 define(['footwork'], function(fw) {
   return fw.dataModel.create({
     initialize: function() {
-      window.defaultDataModelLocationLoaded = true;
+      window.defaultDataModelLoaded = true;
     }
   });
 });
