@@ -484,7 +484,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       setTimeout(function() {
         expect(window.AMDDataModelWasLoaded).toBe(true);
         done();
-      }, 40);
+      }, 20);
     });
 
     it('can load via requirejs with a declarative initialization from a specified RegExp-based location', function(done) {
@@ -498,7 +498,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       setTimeout(function() {
         expect(window.AMDDataModelRegexpWasLoaded).toBe(true);
         done();
-      }, 40);
+      }, 20);
     });
 
     it('can load via requirejs with a declarative initialization from a specified location with the full file name', function(done) {
@@ -513,7 +513,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       setTimeout(function() {
         expect(window.AMDDataModelFullNameWasLoaded).toBe(true);
         done();
-      }, 40);
+      }, 20);
     });
 
     it('can specify and load via requirejs with the default location', function(done) {
@@ -528,7 +528,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       setTimeout(function() {
         expect(window.defaultDataModelLoaded).toBe(true);
         done();
-      }, 40);
+      }, 20);
     });
 
     it('can have an observable mapped correctly at the parent level', function() {
@@ -858,11 +858,12 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can correctly POST data on initial save()', function(done) {
       var initializeSpy;
+      var mockUrl = '/' + fw.utils.guid();
       var postValue = '__POST__CHECK__';
 
       $.mockjax({
-        responseTime: 10,
-        url: "/personPOST",
+        responseTime: 5,
+        url: mockUrl,
         type: 'POST',
         responseText: {
           "id": 1,
@@ -873,7 +874,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       });
 
       var Person = fw.dataModel.create({
-        url: '/personPOST',
+        url: mockUrl,
         initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           person = person || {};
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
@@ -894,12 +895,12 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
         expect(person.$id()).toBe(1);
         expect(person.firstName()).toBe(postValue);
         done();
-      }, 40);
+      }, 20);
     });
 
     it('can correctly POST data on initial save() and then PUT on subsequent calls', function(done) {
       var initializeSpy;
-      var postAddress = '/personPOSTPUT';
+      var mockUrl = '/' + fw.utils.guid();
       var postValue = '__POST__CHECK__';
       var putValue = '__PUT__CHECK__';
       var personData = {
@@ -910,21 +911,21 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       };
 
       $.mockjax({
-        responseTime: 10,
-        url: postAddress,
+        responseTime: 5,
+        url: mockUrl,
         type: 'POST',
         responseText: _.extend({}, personData, { firstName: postValue })
       });
 
       $.mockjax({
-        responseTime: 10,
-        url: postAddress + '/1',
+        responseTime: 5,
+        url: mockUrl + '/1',
         type: 'PUT',
         responseText: _.extend({}, personData, { firstName: putValue })
       });
 
       var Person = fw.dataModel.create({
-        url: postAddress,
+        url: mockUrl,
         initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           person = person || {};
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
@@ -944,13 +945,355 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       setTimeout(function() {
         expect(person.$id()).toBe(1);
         expect(person.firstName()).toBe(postValue);
-
         expect(person.firstName()).not.toBe(putValue);
+
         person.save();
         setTimeout(function() {
           expect(person.firstName()).toBe(putValue);
           done();
-        }, 40);
+        }, 20);
+      }, 20);
+    });
+
+    it('can correctly POST data and apply parse() method with return on save()', function(done) {
+      var initializeSpy;
+      var parseSpy;
+      var mockUrl = '/' + fw.utils.guid();
+      var postValue = '__POST__CHECK__';
+
+      var mockResponse = {
+        "id": 1,
+        "firstName": null,
+        "lastName": null,
+        "email": null
+      };
+      $.mockjax({
+        responseTime: 5,
+        url: mockUrl,
+        type: 'POST',
+        responseText: mockResponse
+      });
+
+      var Person = fw.dataModel.create({
+        url: mockUrl,
+        parse: ensureCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
+          response.firstName = postValue;
+          return response;
+        }).and.callThrough()),
+        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          person = person || {};
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+          this.email = fw.observable(person.email || null).mapTo('email');
+        }).and.callThrough())
+      });
+
+      expect(parseSpy).not.toHaveBeenCalled();
+      expect(initializeSpy).not.toHaveBeenCalled();
+
+      var person = new Person();
+
+      expect(initializeSpy).toHaveBeenCalled();
+      expect(parseSpy).not.toHaveBeenCalled();
+      expect(person.firstName()).not.toBe(postValue);
+
+      person.save();
+
+      setTimeout(function() {
+        expect(parseSpy).toHaveBeenCalled();
+        expect(person.$id()).toBe(1);
+        expect(person.firstName()).toBe(postValue);
+        done();
+      }, 20);
+    });
+
+    it('can correctly fetch() data from the server via a pre-filled idAttribute', function(done) {
+      var initializeSpy;
+      var mockUrl = '/' + fw.utils.guid();
+      var getValue = '__GET__CHECK__';
+      var personData = {
+        "id": 100,
+        "firstName": null,
+        "lastName": null,
+        "email": null
+      };
+
+      $.mockjax({
+        responseTime: 5,
+        url: mockUrl + "/" + personData.id,
+        type: 'GET',
+        responseText: _.extend({}, personData, { firstName: getValue })
+      });
+
+      var Person = fw.dataModel.create({
+        url: mockUrl,
+        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          person = person || {};
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+          this.email = fw.observable(person.email || null).mapTo('email');
+        }).and.callThrough())
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+
+      var person = new Person(personData);
+
+      expect(initializeSpy).toHaveBeenCalled();
+      expect(person.firstName()).not.toBe(getValue);
+
+      var fetchResult = person.fetch();
+
+      expect(fetchResult).toBeAn('object');
+      expect(fetchResult.done).toBeA('function');
+
+      setTimeout(function() {
+        expect(person.$id()).toBe(personData.id);
+        expect(person.firstName()).toBe(getValue);
+        done();
+      }, 20);
+    });
+
+    it('can correctly fetch() data from the server with a provided parse() method', function(done) {
+      var initializeSpy;
+      var parseSpy;
+      var mockUrl = '/' + fw.utils.guid();
+      var getValue = '__GET__CHECK__';
+      var personData = {
+        "id": 100,
+        "firstName": null,
+        "lastName": null,
+        "email": null
+      };
+
+      $.mockjax({
+        responseTime: 5,
+        url: mockUrl + '/' + personData.id,
+        type: 'GET',
+        responseText: personData
+      });
+
+      var Person = fw.dataModel.create({
+        url: mockUrl,
+        parse: ensureCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
+          response.firstName = getValue;
+          return response;
+        }).and.callThrough()),
+        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          person = person || {};
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+          this.email = fw.observable(person.email || null).mapTo('email');
+        }).and.callThrough())
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+
+      var person = new Person(personData);
+
+      expect(initializeSpy).toHaveBeenCalled();
+      expect(parseSpy).not.toHaveBeenCalled();
+      expect(person.firstName()).not.toBe(getValue);
+
+      var fetchResult = person.fetch();
+
+      expect(fetchResult).toBeA('promise');
+
+      setTimeout(function() {
+        expect(parseSpy).toHaveBeenCalled();
+        expect(person.$id()).toBe(personData.id);
+        expect(person.firstName()).toBe(getValue);
+        done();
+      }, 20);
+    });
+
+    it('can correctly fetch() data from the server via a pre-filled custom idAttribute', function(done) {
+      var initializeSpy;
+      var mockUrl = '/' + fw.utils.guid();
+      var getValue = '__GET__CUSTOM__CHECK__';
+      var personData = {
+        "customId": 100,
+        "firstName": null,
+        "lastName": null,
+        "email": null
+      };
+
+      $.mockjax({
+        responseTime: 5,
+        url: mockUrl + '/' + personData.customId,
+        type: 'GET',
+        responseText: _.extend({}, personData, { firstName: getValue })
+      });
+
+      var Person = fw.dataModel.create({
+        url: mockUrl,
+        idAttribute: 'customId',
+        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          person = person || {};
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+          this.email = fw.observable(person.email || null).mapTo('email');
+        }).and.callThrough())
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+
+      var person = new Person(personData);
+
+      expect(initializeSpy).toHaveBeenCalled();
+      expect(person.firstName()).not.toBe(getValue);
+
+      var fetchResult = person.fetch();
+
+      expect(fetchResult).toBeA('promise');
+
+      setTimeout(function() {
+        expect(person.customId()).toBe(personData.customId);
+        expect(person.firstName()).toBe(getValue);
+        done();
+      }, 20);
+    });
+
+    it('can correctly fetch() data from the server with overridden ajaxOptions', function(done) {
+      var initializeSpy;
+      var mockUrl = '/' + fw.utils.guid();
+      var personData = {
+        "id": 100,
+        "firstName": fw.utils.guid(),
+        "lastName": null,
+        "email": null
+      };
+
+      $.mockjax({
+        responseTime: 5,
+        url: mockUrl,
+        type: 'GET',
+        responseText: personData
+      });
+
+      var Person = fw.dataModel.create({
+        url: '/' + fw.utils.guid(),
+        ajaxOptions: {
+          url: mockUrl
+        },
+        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          person = person || {};
+          this.id(person.id);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+          this.email = fw.observable(person.email || null).mapTo('email');
+        }).and.callThrough())
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+
+      var person = new Person({ id: personData.id });
+
+      expect(initializeSpy).toHaveBeenCalled();
+
+      person.fetch();
+
+      setTimeout(function() {
+        expect(person.firstName()).toBe(personData.firstName);
+        done();
+      }, 20);
+    });
+
+    it('can correctly fetch() data from the server via a url based on an evaluator function', function(done) {
+      var initializeSpy;
+      var urlSpy;
+      var mockUrl = '/' + fw.utils.guid();
+      var getValue = '__GET__CUSTOM__CHECK__';
+      var personData = {
+        "id": 100,
+        "firstName": null,
+        "lastName": null,
+        "email": null
+      };
+
+      $.mockjax({
+        responseTime: 10,
+        url: mockUrl + '/' + personData.id,
+        type: 'GET',
+        responseText: _.extend({}, personData, { firstName: getValue })
+      });
+
+      var Person = fw.dataModel.create({
+        namespace: 'Person',
+        url: ensureCallOrder(1, urlSpy = jasmine.createSpy('urlSpy', function() {
+          return mockUrl;
+        }).and.callThrough()),
+        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          person = person || {};
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+          this.email = fw.observable(person.email || null).mapTo('email');
+        }).and.callThrough())
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+      expect(urlSpy).not.toHaveBeenCalled();
+
+      var person = new Person(personData);
+
+      expect(initializeSpy).toHaveBeenCalled();
+      expect(urlSpy).not.toHaveBeenCalled();
+      expect(person.firstName()).not.toBe(getValue);
+
+      var fetchResult = person.fetch();
+
+      expect(urlSpy).toHaveBeenCalled();
+      expect(fetchResult).toBeA('promise');
+
+      setTimeout(function() {
+        expect(person.$id()).toBe(personData.id);
+        expect(person.firstName()).toBe(getValue);
+        done();
+      }, 40);
+    });
+
+    it('can correctly fetch() data from the server via a url with interpolated parameters', function(done) {
+      var initializeSpy;
+      var mockUrl = '/' + fw.utils.guid();
+      var personData = {
+        "id": 100,
+        "firstName": 'interpolatedFirstName',
+        "lastName": 'personDataLastName',
+        "email": null
+      };
+
+      $.mockjax({
+        responseTime: 10,
+        url: mockUrl + '/' + personData.firstName,
+        type: 'GET',
+        responseText: personData
+      });
+
+      var Person = fw.dataModel.create({
+        namespace: 'Person',
+        useKeyInUrl: false,
+        url: mockUrl + '/:firstName',
+        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          person = person || {};
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
+          this.email = fw.observable(person.email || null).mapTo('email');
+        }).and.callThrough())
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+
+      var person = new Person({ id: personData.id, firstName: personData.firstName });
+
+      expect(initializeSpy).toHaveBeenCalled();
+      expect(person.lastName()).not.toBe(personData.lastName);
+
+      var fetchResult = person.fetch();
+      expect(fetchResult).toBeA('promise');
+
+      setTimeout(function() {
+        expect(person.lastName()).toBe(personData.lastName);
+        done();
       }, 40);
     });
   });
