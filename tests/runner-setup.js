@@ -19,7 +19,7 @@ function ensureCallOrder(orderValue, callback) {
   return function() {
     expect(orderValue).toBe(currentCallbackOrderIndex, 'order of callbacks is incorrect');
     currentCallbackOrderIndex++;
-    return callback.apply(null, arguments);
+    return callback.apply(this, arguments);
   };
 }
 function resetCallbackOrder() {

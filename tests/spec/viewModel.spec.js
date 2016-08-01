@@ -320,45 +320,48 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       fw.start(makeTestContainer('<viewModel module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></viewModel>'));
       expect(initializeSpy).toHaveBeenCalled();
     });
+
+    it('calls onDispose when the containing element is removed from the DOM', function() {
+      var namespaceName = 'ViewModelWithDispose';
+      var theElement;
+      var initializeSpy;
+      var afterRenderSpy;
+      var onDisposeSpy;
+
+      var WrapperViewModel = fw.viewModel.create({
+        initialize: ensureCallOrder(0, jasmine.createSpy('initializeSpy', function() {
+          this.showIt = fw.observable(true);
+        }).and.callThrough())
+      });
+
+      var ViewModelWithDispose = fw.viewModel.create({
+        namespace: namespaceName,
+        autoRegister: true,
+        afterRender: ensureCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+          theElement = element;
+          expect(theElement.tagName).toBe('VIEWMODEL');
+        }).and.callThrough()),
+        onDispose: ensureCallOrder(2, onDisposeSpy = jasmine.createSpy('onDisposeSpy', function(element) {
+          expect(element).toBe(theElement);
+        }).and.callThrough())
+      });
+
+      var wrapper = new WrapperViewModel();
+      fw.applyBindings(wrapper, makeTestContainer('<div data-bind="if: showIt">\
+        <viewModel module="' + namespaceName + '"></viewModel>\
+      </div>'));
+
+      expect(onDisposeSpy).not.toHaveBeenCalled();
+
+      wrapper.showIt(false);
+
+      expect(onDisposeSpy).toHaveBeenCalled();
+    });
   });
 });
 
 // describe('viewModel', function () {
 
-
-//   it('calls onDispose when the containing element is removed from the DOM', function() {
-//     var container = document.getElementById('onDisposeViewModel');
-//     var onDisposeWasCalled = false;
-
-//     var WrapperViewModel = fw.viewModel.create({
-//       initialize: function() {
-//         this.showIt = fw.observable(true);
-//       }
-//     });
-
-//     var theElement;
-//     var ViewModelWithDispose = fw.viewModel.create({
-//       namespace: 'ViewModelWithDispose',
-//       autoRegister: true,
-//       afterRender: function(element) {
-//         theElement = element;
-//         expect(theElement.tagName).to.be('VIEWMODEL');
-//       },
-//       onDispose: function(element) {
-//         onDisposeWasCalled = true;
-//         expect(element).to.be(theElement);
-//       }
-//     });
-
-//     var wrapper = new WrapperViewModel();
-//     fw.applyBindings(wrapper, container);
-
-//     expect(onDisposeWasCalled).to.be(false);
-
-//     wrapper.showIt(false);
-
-//     expect(onDisposeWasCalled).to.be(true);
-//   });
 
 //   it('can have a registered location set and retrieved proplerly', function() {
 //     fw.viewModel.registerLocation('registeredLocationRetrieval', '/bogus/path');
