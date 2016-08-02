@@ -1936,5 +1936,79 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
         done();
       }, 20);
     });
+
+    it('can have a $route bound link correctly composed with a custom callback handler', function(done) {
+      var container;
+      var mockUrl = '/' + fw.utils.guid();
+      var routerNamespaceName = fw.utils.guid();
+      var viewModelNamespaceName = fw.utils.guid();
+      var viewModelInitializeSpy;
+      var routerInitializeSpy;
+      var customHandlerSpy;
+      var routeSpy = jasmine.createSpy('routeSpy');
+      var allowHandlerEvent = false;
+
+      fw.router.create({
+        namespace: routerNamespaceName,
+        autoRegister: true,
+        routes: [
+          {
+            route: mockUrl,
+            controller: ensureCallOrder(4, routeSpy)
+          }
+        ],
+        initialize: ensureCallOrder(0, routerInitializeSpy = jasmine.createSpy('routerInitializeSpy', function() {
+          this.customEvent = fw.observable('dblclick');
+        }).and.callThrough())
+      });
+
+      fw.viewModel.create({
+        namespace: viewModelNamespaceName,
+        autoRegister: true,
+        initialize: ensureCallOrder(1, viewModelInitializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
+          this.routeHrefBindingCustomHandler = ensureCallOrder([2, 3], customHandlerSpy = jasmine.createSpy('customHandlerSpy', function(event, url) {
+            expect(event).toBeAn('object');
+            expect(url).toBeA('string');
+            return allowHandlerEvent;
+          }).and.callThrough());
+        }).and.callThrough())
+      });
+
+      expect(routerInitializeSpy).not.toHaveBeenCalled();
+      expect(viewModelInitializeSpy).not.toHaveBeenCalled();
+      expect(routeSpy).not.toHaveBeenCalled();
+
+      container = makeTestContainer('<router module="' + routerNamespaceName + '">\
+        <viewModel module="' + viewModelNamespaceName + '">\
+          <a data-bind="$route: { url: \'' + mockUrl + '\', handler: routeHrefBindingCustomHandler }"></a>\
+        </viewModel>\
+      </router>');
+      fw.start(container);
+
+      expect(customHandlerSpy).not.toHaveBeenCalled();
+      expect(routerInitializeSpy).toHaveBeenCalled();
+
+      setTimeout(function() {
+        var $link = $(container).find('a');
+
+        expect(routeSpy).not.toHaveBeenCalled();
+        expect($link.hasClass('active')).toBe(false);
+        expect($link.attr('href')).toBe(mockUrl);
+
+        allowHandlerEvent = false;
+        $link.click();
+        expect(routeSpy).not.toHaveBeenCalled();
+        expect(customHandlerSpy).toHaveBeenCalledTimes(1);
+        expect($link.hasClass('active')).toBe(false);
+
+        allowHandlerEvent = true;
+        $link.click();
+        expect(routeSpy).toHaveBeenCalled();
+        expect(customHandlerSpy).toHaveBeenCalledTimes(2);
+        expect($link.hasClass('active')).toBe(true);
+
+        done();
+      }, 20);
+    });
   });
 });

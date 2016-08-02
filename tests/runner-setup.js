@@ -17,7 +17,11 @@ var noop = function() {};
 function ensureCallOrder(orderValue, callback) {
   callback = callback || noop;
   return function() {
-    expect(orderValue).toBe(currentCallbackOrderIndex, 'order of callbacks is incorrect');
+    if(Object.prototype.toString.call(orderValue) === '[object Array]') {
+      expect(orderValue.shift()).toBe(currentCallbackOrderIndex, 'order of callbacks is incorrect');
+    } else {
+      expect(orderValue).toBe(currentCallbackOrderIndex, 'order of callbacks is incorrect');
+    }
     currentCallbackOrderIndex++;
     return callback.apply(this, arguments);
   };
