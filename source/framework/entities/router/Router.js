@@ -5,7 +5,7 @@ var Router = function(descriptor, configParams) {
   return {
     _preInit: function( params ) {
       var $router = this;
-      var routerConfigParams = extend({}, configParams);
+      var routerConfigParams = extend({ routes: [] }, configParams);
 
       var router = this.__private();
       this.__private = privateData.bind(this, router, routerConfigParams);
@@ -134,11 +134,6 @@ var Router = function(descriptor, configParams) {
         return route || unknownRoute;
       }
 
-      function DefaultAction() {
-        delete router.currentRouteDescription;
-        $router.outlet.reset();
-      }
-
       function RoutedAction(routeDescription) {
         if (!isUndefined(routeDescription.title)) {
           document.title = isFunction(routeDescription.title) ? routeDescription.title.apply($router, values(routeDescription.namedParams)) : routeDescription.title;
@@ -151,13 +146,16 @@ var Router = function(descriptor, configParams) {
       }
 
       function getActionForRoute(routeDescription) {
-        var Action;
+        var Action = function DefaultAction() {
+          delete router.currentRouteDescription;
+          $router.outlet.reset();
+        };
 
         if (isRoute(routeDescription)) {
           Action = RoutedAction.bind($router, routeDescription);
         }
 
-        return Action || DefaultAction;
+        return Action;
       }
 
       router.isRelative = fw.computed(function() {

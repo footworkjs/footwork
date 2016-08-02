@@ -23,7 +23,7 @@ function entityClassFactory(descriptor, configParams) {
 
   var descriptorBehavior = [];
   map(descriptor.behavior, function(behavior, index) {
-    descriptorBehavior.push(isFunction(behavior) ? behavior(descriptor, configParams || {}) : behavior);
+    descriptorBehavior.push(isFunction(behavior) ? behavior(descriptor, configParams) : behavior);
   });
 
   var ctor = configParams.initialize || noop;

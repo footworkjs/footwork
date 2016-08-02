@@ -67,8 +67,7 @@ entityDescriptors = entityDescriptors.concat([
       isRelative: true,
       activate: true,
       beforeRoute: null,
-      minTransitionPeriod: 0,
-      routes: []
+      minTransitionPeriod: 0
     }
   }
 ]);
