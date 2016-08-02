@@ -1946,7 +1946,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var routerInitializeSpy;
       var customHandlerSpy;
       var routeSpy = jasmine.createSpy('routeSpy');
-      var allowHandlerEvent = false;
+      var allowHandlerEvent;
 
       fw.router.create({
         namespace: routerNamespaceName,
@@ -2006,6 +2006,46 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
         expect(routeSpy).toHaveBeenCalled();
         expect(customHandlerSpy).toHaveBeenCalledTimes(2);
         expect($link.hasClass('active')).toBe(true);
+
+        done();
+      }, 20);
+    });
+
+    it('can have a $route bound link correctly composed with a custom URL callback', function(done) {
+      var container;
+      var mockUrl = '/' + fw.utils.guid();
+      var routerNamespaceName = fw.utils.guid();
+      var viewModelNamespaceName = fw.utils.guid();
+      var viewModelInitializeSpy;
+      var initializeSpy;
+      var urlResolverSpy;
+      var allowHandlerEvent;
+
+      fw.router.create({
+        namespace: routerNamespaceName,
+        autoRegister: true,
+        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
+          this.routeHrefBindingCustomUrlCallback = urlResolverSpy = jasmine.createSpy('urlResolverSpy', function() {
+            return mockUrl;
+          }).and.callThrough();
+        }).and.callThrough())
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+
+      container = makeTestContainer('<router module="' + routerNamespaceName + '">\
+        <a data-bind="$route: { url: routeHrefBindingCustomUrlCallback }"></a>\
+      </router>');
+      fw.start(container);
+
+      expect(urlResolverSpy).toHaveBeenCalled();
+      expect(initializeSpy).toHaveBeenCalled();
+
+      setTimeout(function() {
+        var $link = $(container).find('a');
+
+        expect($link.hasClass('active')).toBe(false);
+        expect($link.attr('href')).toBe(mockUrl);
 
         done();
       }, 20);
