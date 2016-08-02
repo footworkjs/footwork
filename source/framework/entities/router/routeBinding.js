@@ -146,7 +146,7 @@ fw.bindingHandlers.$route = {
           checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
 
           $myRouter.__private('parentRouter').subscribe(setUpElement);
-          fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
+          fw.utils.registerEventHandler(element, resultBound(routeHandlerDescription, 'on', $myRouter), function(event) {
             var currentRouteURL = routeURLWithoutParentPath();
             var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
             if (handlerResult) {

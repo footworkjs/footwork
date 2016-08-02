@@ -1513,5 +1513,428 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
         done();
       }, 40);
     });
+
+    it('can have a $route bound link that expresses the default active class when the route matches', function(done) {
+      var container;
+      var mockUrl = '/' + fw.utils.guid();
+      var namespaceName = fw.utils.guid();
+      var initializeSpy = jasmine.createSpy('initializeSpy');
+      var routeSpy = jasmine.createSpy('routeSpy');
+
+      var $container = $(container);
+      var routerInitialized = false;
+      var routeTouched = false;
+
+      fw.router.create({
+        namespace: namespaceName,
+        autoRegister: true,
+        routes: [
+          {
+            route: mockUrl,
+            controller: ensureCallOrder(1, routeSpy)
+          }
+        ],
+        initialize: ensureCallOrder(0, initializeSpy)
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+      expect(routeSpy).not.toHaveBeenCalled();
+
+      container = makeTestContainer('<router module="' + namespaceName + '">\
+        <a data-bind="$route: \'' + mockUrl + '\'"></a>\
+      </router>');
+      fw.start(container);
+
+      expect(initializeSpy).toHaveBeenCalled();
+
+      setTimeout(function() {
+        var $link = $(container).find('a');
+
+        expect(routeSpy).not.toHaveBeenCalled();
+        expect($link.hasClass('active')).toBe(false);
+
+        $link.click();
+        expect(routeSpy).toHaveBeenCalled();
+        expect($link.hasClass('active')).toBe(true);
+
+        done();
+      }, 20);
+    });
+
+    it('can have a $route bound link that expresses a custom \'active\' class when the route matches', function(done) {
+      var container;
+      var mockUrl = '/' + fw.utils.guid();
+      var namespaceName = fw.utils.guid();
+      var activeClassName = fw.utils.guid();
+      var initializeSpy = jasmine.createSpy('initializeSpy');
+      var routeSpy = jasmine.createSpy('routeSpy');
+
+      fw.router.create({
+        namespace: namespaceName,
+        autoRegister: true,
+        routes: [
+          {
+            route: mockUrl,
+            controller: ensureCallOrder(1, routeSpy)
+          }
+        ],
+        initialize: ensureCallOrder(0, initializeSpy)
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+      expect(routeSpy).not.toHaveBeenCalled();
+
+      container = makeTestContainer('<router module="' + namespaceName + '">\
+        <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\' }"></a>\
+      </router>');
+      fw.start(container);
+
+      expect(initializeSpy).toHaveBeenCalled();
+
+      setTimeout(function() {
+        var $link = $(container).find('a');
+
+        expect(routeSpy).not.toHaveBeenCalled();
+        expect($link.hasClass(activeClassName)).toBe(false);
+
+        $link.click();
+        expect(routeSpy).toHaveBeenCalled();
+        expect($link.hasClass(activeClassName)).toBe(true);
+
+        done();
+      }, 20);
+    });
+
+    it('can have a $route bound link that expresses a custom \'active\' class on the direct parent element', function(done) {
+      var container;
+      var mockUrl = '/' + fw.utils.guid();
+      var namespaceName = fw.utils.guid();
+      var activeClassName = fw.utils.guid();
+      var initializeSpy = jasmine.createSpy('initializeSpy');
+      var routeSpy = jasmine.createSpy('routeSpy');
+
+      fw.router.create({
+        namespace: namespaceName,
+        autoRegister: true,
+        routes: [
+          {
+            route: mockUrl,
+            controller: ensureCallOrder(1, routeSpy)
+          }
+        ],
+        initialize: ensureCallOrder(0, initializeSpy)
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+      expect(routeSpy).not.toHaveBeenCalled();
+
+      container = makeTestContainer('<router module="' + namespaceName + '">\
+        <div>\
+          <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\', parentHasState: true }"></a>\
+        </div>\
+      </router>');
+      fw.start(container);
+
+      expect(initializeSpy).toHaveBeenCalled();
+
+      setTimeout(function() {
+        var $link = $(container).find('a');
+
+        expect(routeSpy).not.toHaveBeenCalled();
+        expect($link.parent().hasClass(activeClassName)).toBe(false);
+
+        $link.click();
+        expect(routeSpy).toHaveBeenCalled();
+        expect($link.parent().hasClass(activeClassName)).toBe(true);
+
+        done();
+      }, 20);
+    });
+
+    it('can have a $route bound link that expresses an \'active\' class on the selected parent element', function(done) {
+      var container;
+      var mockUrl = '/' + fw.utils.guid();
+      var namespaceName = fw.utils.guid();
+      var activeClassName = fw.utils.guid();
+      var parentClassName = fw.utils.guid();
+      var initializeSpy = jasmine.createSpy('initializeSpy');
+      var routeSpy = jasmine.createSpy('routeSpy');
+
+      fw.router.create({
+        namespace: namespaceName,
+        autoRegister: true,
+        routes: [
+          {
+            route: mockUrl,
+            controller: ensureCallOrder(1, routeSpy)
+          }
+        ],
+        initialize: ensureCallOrder(0, initializeSpy)
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+      expect(routeSpy).not.toHaveBeenCalled();
+
+      container = makeTestContainer('<router module="' + namespaceName + '">\
+          <div class="parent-class-name">\
+            <div>\
+              <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\', parentHasState: \'.parent-class-name\' }"></a>\
+            </div>\
+          </div>\
+        </router>');
+      fw.start(container);
+
+      expect(initializeSpy).toHaveBeenCalled();
+
+      setTimeout(function() {
+        var $container = $(container);
+        var $link = $container.find('a');
+        var $elementThatHasState = $container.find('.parent-class-name');
+
+        expect(routeSpy).not.toHaveBeenCalled();
+        expect($elementThatHasState.hasClass(activeClassName)).toBe(false);
+
+        $link.click();
+        expect(routeSpy).toHaveBeenCalled();
+        expect($elementThatHasState.hasClass(activeClassName)).toBe(true);
+
+        done();
+      }, 20);
+    });
+
+    it('can have a $route bound link that expresses a custom \'active\' class defined by an observable when the route matches', function(done) {
+      var container;
+      var mockUrl = '/' + fw.utils.guid();
+      var routerNamespaceName = fw.utils.guid();
+      var viewModelNamespaceName = fw.utils.guid();
+      var activeClassName = fw.utils.guid();
+      var parentClassName = fw.utils.guid();
+      var viewModelInitializeSpy;
+      var routerInitializeSpy = jasmine.createSpy('routerInitializeSpy');
+      var routeSpy = jasmine.createSpy('routeSpy');
+
+      fw.viewModel.create({
+        namespace: viewModelNamespaceName,
+        autoRegister: true,
+        initialize: ensureCallOrder(1, viewModelInitializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
+          this.activeClassObservable = fw.observable(activeClassName);
+        }).and.callThrough())
+      });
+
+      fw.router.create({
+        namespace: routerNamespaceName,
+        autoRegister: true,
+        routes: [
+          {
+            route: mockUrl,
+            controller: ensureCallOrder(2, routeSpy)
+          }
+        ],
+        initialize: ensureCallOrder(0, routerInitializeSpy)
+      });
+
+      expect(viewModelInitializeSpy).not.toHaveBeenCalled();
+      expect(routerInitializeSpy).not.toHaveBeenCalled();
+      expect(routeSpy).not.toHaveBeenCalled();
+
+      container = makeTestContainer('<router module="' + routerNamespaceName + '">\
+        <viewModel module="' + viewModelNamespaceName + '">\
+          <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: activeClassObservable }"></a>\
+        </viewModel>\
+      </router>');
+      fw.start(container);
+
+      expect(routerInitializeSpy).toHaveBeenCalled();
+      expect(viewModelInitializeSpy).toHaveBeenCalled();
+
+      setTimeout(function() {
+        var $link = $(container).find('a');
+
+        expect(routeSpy).not.toHaveBeenCalled();
+        expect($link.hasClass(activeClassName)).toBe(false);
+
+        $link.click();
+        expect(routeSpy).toHaveBeenCalled();
+        expect($link.hasClass(activeClassName)).toBe(true);
+
+        done();
+      }, 20);
+    });
+
+    it('can have a $route bound link that disables the active class state based on a raw boolean flag', function(done) {
+      var container;
+      var mockUrl = '/' + fw.utils.guid();
+      var namespaceName = fw.utils.guid();
+      var initializeSpy = jasmine.createSpy('initializeSpy');
+      var routeSpy = jasmine.createSpy('routeSpy');
+
+      fw.router.create({
+        namespace: namespaceName,
+        autoRegister: true,
+        routes: [
+          {
+            route: mockUrl,
+            controller: ensureCallOrder(1, routeSpy)
+          }
+        ],
+        initialize: ensureCallOrder(0, initializeSpy)
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+      expect(routeSpy).not.toHaveBeenCalled();
+
+      container = makeTestContainer('<router module="' + namespaceName + '">\
+        <a data-bind="$route: { url: \'' + mockUrl + '\', addActiveClass: false }"></a>\
+      </router>');
+      fw.start(container);
+
+      expect(initializeSpy).toHaveBeenCalled();
+
+      setTimeout(function() {
+        var $link = $(container).find('a');
+
+        expect(routeSpy).not.toHaveBeenCalled();
+        expect($link.hasClass('active')).toBe(false);
+
+        $link.click();
+        expect(routeSpy).toHaveBeenCalled();
+        expect($link.hasClass('active')).toBe(false);
+
+        done();
+      }, 20);
+    });
+
+    it('can have a $route bound link that disables the active class state using an observable', function(done) {
+      var container;
+      var mockUrl = '/' + fw.utils.guid();
+      var namespaceName = fw.utils.guid();
+      var initializeSpy;
+      var routeSpy = jasmine.createSpy('routeSpy');
+
+      fw.router.create({
+        namespace: namespaceName,
+        autoRegister: true,
+        routes: [
+          {
+            route: mockUrl,
+            controller: ensureCallOrder(1, routeSpy)
+          }
+        ],
+        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          this.disableActiveClass = fw.observable(false);
+        }).and.callThrough())
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+      expect(routeSpy).not.toHaveBeenCalled();
+
+      container = makeTestContainer('<router module="' + namespaceName + '">\
+        <a data-bind="$route: { url: \'' + mockUrl + '\', addActiveClass: disableActiveClass }"></a>\
+      </router>');
+      fw.start(container);
+
+      expect(initializeSpy).toHaveBeenCalled();
+
+      setTimeout(function() {
+        var $link = $(container).find('a');
+
+        expect(routeSpy).not.toHaveBeenCalled();
+        expect($link.hasClass('active')).toBe(false);
+
+        $link.click();
+        expect(routeSpy).toHaveBeenCalled();
+        expect($link.hasClass('active')).toBe(false);
+
+        done();
+      }, 20);
+    });
+
+    it('can have a $route bound link that triggers based on a custom event defined by a string', function(done) {
+      var container;
+      var mockUrl = '/' + fw.utils.guid();
+      var namespaceName = fw.utils.guid();
+      var initializeSpy = jasmine.createSpy('initializeSpy');
+      var routeSpy = jasmine.createSpy('routeSpy');
+
+      fw.router.create({
+        namespace: namespaceName,
+        autoRegister: true,
+        routes: [
+          {
+            route: mockUrl,
+            controller: ensureCallOrder(1, routeSpy)
+          }
+        ],
+        initialize: ensureCallOrder(0, initializeSpy)
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+      expect(routeSpy).not.toHaveBeenCalled();
+
+      container = makeTestContainer('<router module="' + namespaceName + '">\
+        <a data-bind="$route: { url: \'' + mockUrl + '\', on: \'dblclick\' }"></a>\
+      </router>');
+      fw.start(container);
+
+      expect(initializeSpy).toHaveBeenCalled();
+
+      setTimeout(function() {
+        var $link = $(container).find('a');
+
+        expect(routeSpy).not.toHaveBeenCalled();
+        expect($link.hasClass('active')).toBe(false);
+
+        $link.dblclick();
+        expect(routeSpy).toHaveBeenCalled();
+        expect($link.hasClass('active')).toBe(true);
+
+        done();
+      }, 20);
+    });
+
+    it('can have a $route bound link that triggers based on a custom event defined by a callback/observable', function(done) {
+      var container;
+      var mockUrl = '/' + fw.utils.guid();
+      var namespaceName = fw.utils.guid();
+      var initializeSpy;
+      var routeSpy = jasmine.createSpy('routeSpy');
+
+      fw.router.create({
+        namespace: namespaceName,
+        autoRegister: true,
+        routes: [
+          {
+            route: mockUrl,
+            controller: ensureCallOrder(1, routeSpy)
+          }
+        ],
+        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          this.customEvent = fw.observable('dblclick');
+        }).and.callThrough())
+      });
+
+      expect(initializeSpy).not.toHaveBeenCalled();
+      expect(routeSpy).not.toHaveBeenCalled();
+
+      container = makeTestContainer('<router module="' + namespaceName + '">\
+        <a data-bind="$route: { url: \'' + mockUrl + '\', on: customEvent }"></a>\
+      </router>');
+      fw.start(container);
+
+      expect(initializeSpy).toHaveBeenCalled();
+
+      setTimeout(function() {
+        var $link = $(container).find('a');
+
+        expect(routeSpy).not.toHaveBeenCalled();
+        expect($link.hasClass('active')).toBe(false);
+
+        $link.dblclick();
+        expect(routeSpy).toHaveBeenCalled();
+        expect($link.hasClass('active')).toBe(true);
+
+        done();
+      }, 20);
+    });
   });
 });
