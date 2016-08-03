@@ -138,7 +138,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var ModelA = fw.dataModel.create({
         initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy')),
         afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
-          expect(containingElement.className).toBe(checkForClass);
+          expect(containingElement).toHaveClass(checkForClass);
         }).and.callThrough())
       });
 
@@ -221,6 +221,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     it('can bind to the DOM using a shared instance', function(done) {
       var namespaceName = generateNamespaceName();
       var boundPropertyValue = fw.utils.guid();
+      var container;
 
       fw.dataModel.register(namespaceName, {
         instance: {
@@ -228,14 +229,16 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
         }
       });
 
-      var $container = $(makeTestContainer('<dataModel module="' + namespaceName + '">\
-                                              <span class="result" data-bind="text: boundProperty"></span>\
-                                            </dataModel>'));
-      expect($container.find('.result').text()).not.toBe(boundPropertyValue);
-      fw.start($container.get(0));
+      container = makeTestContainer('<dataModel module="' + namespaceName + '">\
+                                       <span class="result" data-bind="text: boundProperty"></span>\
+                                     </dataModel>');
+
+      expect(container).not.toContainText(boundPropertyValue);
+
+      fw.start(container);
 
       setTimeout(function() {
-        expect($container.find('.result').text()).toBe(boundPropertyValue);
+        expect(container).toContainText(boundPropertyValue);
         done();
       }, 20);
     });
@@ -249,7 +252,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       fw.dataModel.register(namespaceName, {
         createDataModel: expectCallOrder(0, createDataModelInstance = jasmine.createSpy('createDataModel', function(params, info) {
           expect(params.var).toBe(boundPropertyValue);
-          expect(info.element.getAttribute('id')).toBe(boundPropertyValueElement);
+          expect(info.element).toHaveId(boundPropertyValueElement);
 
           return {
             boundProperty: boundPropertyValue
@@ -258,23 +261,23 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       });
 
       expect(createDataModelInstance).not.toHaveBeenCalled();
-      var $container = $(makeTestContainer('<dataModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
-                                              <span class="result" data-bind="text: boundProperty"></span>\
-                                            </dataModel>'));
+      var container = makeTestContainer('<dataModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
+                                           <span class="result" data-bind="text: boundProperty"></span>\
+                                         </dataModel>');
 
-      expect($container.find('.result').text()).not.toBe(boundPropertyValue);
-      fw.start($container.get(0));
+      expect(container).not.toContainText(boundPropertyValue);
+      fw.start(container);
 
       setTimeout(function() {
         expect(createDataModelInstance).toHaveBeenCalled();
-        expect($container.find('.result').text()).toBe(boundPropertyValue);
+        expect(container).toContainText(boundPropertyValue);
         done();
       }, 20);
     });
 
     it('has the animation classes applied properly', function() {
       var namespaceName = generateNamespaceName();
-      var $theElement;
+      var theElement;
       var initializeSpy;
       var afterRenderSpy;
 
@@ -283,8 +286,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
         autoRegister: true,
         initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy').and.callThrough()),
         afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
-          $theElement = $(element);
-          expect($theElement.hasClass('fw-entity-animate')).toBe(false);
+          theElement = element;
+          expect(theElement).not.toHaveClass('fw-entity-animate');
         }).and.callThrough())
       });
 
@@ -294,7 +297,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(initializeSpy).toHaveBeenCalled();
       expect(afterRenderSpy).toHaveBeenCalled();
-      expect($theElement.hasClass('fw-entity-animate')).toBe(true);
+      expect(theElement).toHaveClass('fw-entity-animate');
     });
 
     it('can nest <dataModel> declarations', function() {
