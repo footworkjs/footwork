@@ -12,6 +12,16 @@ function makeTestContainer(theFixture, containerDOM) {
   return $container.get(0);
 }
 
+var namespaceCounter = 0;
+function randNamespaceName() {
+  return 'generated-ns' + namespaceCounter++;
+}
+
+var generatedUrlCounter = 0;
+function generateUrl() {
+  return '/generated-url' + generatedUrlCounter++;
+}
+
 var currentCallbackOrderIndex = 0;
 var noop = function() {};
 function ensureCallOrder(orderValue, callback) {

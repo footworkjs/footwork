@@ -76,7 +76,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can have receivable created with a passed in instantiated namespace', function() {
-        var namespace = fw.namespace(fw.utils.guid());
+        var namespace = fw.namespace(randNamespaceName());
 
         var receivable = fw.observable(null).receiveFrom(namespace, 'broadcaster');
         expect(receivable()).toBe(null);
@@ -248,7 +248,8 @@ define(['footwork', 'lodash', 'jquery'],
         var modelBInitializeSpy;
         var whenSpy;
         var modelANamespaceName = fw.utils.guid();
-        var testValue = 'value-that-should-be-visible-from-ModelB-callback';
+        var writableTestValue = 'value-that-should-be-visible-from-ModelB-callback';
+        var nonWrittenTestValue = fw.utils.guid();
 
         var ModelA = fw.viewModel.create({
           namespace: modelANamespaceName,
@@ -263,19 +264,28 @@ define(['footwork', 'lodash', 'jquery'],
 
         var ModelB = fw.viewModel.create({
           initialize: ensureCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
-            this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(ensureCallOrder(2, whenSpy = jasmine.createSpy('whenSpy', function(val) {
-              expect(val).toBe(testValue);
+            this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(ensureCallOrder([2, 3, 4], whenSpy = jasmine.createSpy('whenSpy', function(val) {
+              return val === writableTestValue;
             }).and.callThrough()));
           }).and.callThrough())
         });
 
         expect(modelBInitializeSpy).not.toHaveBeenCalled();
-        new ModelB();
+        var modelB = new ModelB();
         expect(whenSpy).not.toHaveBeenCalled();
         expect(modelBInitializeSpy).toHaveBeenCalled();
 
-        modelA.broadcaster(testValue);
-        expect(whenSpy).toHaveBeenCalled();
+        modelA.broadcaster(nonWrittenTestValue);
+        expect(whenSpy).toHaveBeenCalledTimes(1);
+        expect(modelB.receiver()).not.toBe(nonWrittenTestValue);
+
+        modelA.broadcaster(writableTestValue);
+        expect(whenSpy).toHaveBeenCalledTimes(2);
+        expect(modelB.receiver()).toBe(writableTestValue);
+
+        modelA.broadcaster(nonWrittenTestValue);
+        expect(whenSpy).toHaveBeenCalledTimes(3);
+        expect(modelB.receiver()).not.toBe(nonWrittenTestValue);
       });
     });
   }

@@ -21,13 +21,13 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can create a namespace which we can then use to .getName()', function() {
-        var namespaceName = fw.utils.guid();
+        var namespaceName = randNamespaceName();
         var namespace = fw.namespace(namespaceName);
         expect(namespace.getName()).toBe(namespaceName);
       });
 
       it('has basic pub/sub capability', function() {
-        var namespace = fw.namespace(fw.utils.guid());
+        var namespace = fw.namespace(randNamespaceName());
         var testValue = fw.utils.guid();
         var subscriptionCallbackSpy;
 
@@ -41,7 +41,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can unsubscribe from a subscription', function() {
-        var namespace = fw.namespace(fw.utils.guid());
+        var namespace = fw.namespace(randNamespaceName());
         var subscriptionCallbackSpy = jasmine.createSpy('subscriptionCallbackSpy');
 
         var subscription = namespace.subscribe('testMessageTopic', ensureCallOrder(0, subscriptionCallbackSpy));
@@ -57,7 +57,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('has basic pub/sub capability between different instances on the same namespace', function() {
-        var namespaceName = fw.utils.guid();
+        var namespaceName = randNamespaceName();
         var namespace1 = fw.namespace(namespaceName);
         var namespace2 = fw.namespace(namespaceName);
         var subscriptionCallbackSpy;
@@ -75,7 +75,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can trigger and listen to events', function() {
-        var namespace = fw.namespace(fw.utils.guid());
+        var namespace = fw.namespace(randNamespaceName());
         var handlerCallbackSpy;
 
         namespace.event.handler('testEvent', ensureCallOrder(0, handlerCallbackSpy = jasmine.createSpy('', function(parameter) {
@@ -88,7 +88,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can unregister a handler from an event', function() {
-        var namespace = fw.namespace(fw.utils.guid());
+        var namespace = fw.namespace(randNamespaceName());
         var handlerCallbackSpy;
 
         var eventHandlerCallbackSub = namespace.event.handler('testUnregisterEvent', ensureCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
@@ -106,7 +106,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can trigger, respond, and listen to requests', function() {
-        var namespace = fw.namespace(fw.utils.guid());
+        var namespace = fw.namespace(randNamespaceName());
         var handlerCallbackSpy;
 
         namespace.request.handler('testRequest', ensureCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
@@ -120,7 +120,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can unregister handler for request', function() {
-        var namespace = fw.namespace(fw.utils.guid());
+        var namespace = fw.namespace(randNamespaceName());
         var handlerCallbackSpy;
         var responseValue = 'all-ok';
 
@@ -140,7 +140,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can make requests and listen to multiple responses', function() {
-        var namespaceName = fw.utils.guid();
+        var namespaceName = randNamespaceName();
         var namespaces = _.map([1,2,3], function() {
           return fw.namespace(namespaceName);
         });
@@ -159,7 +159,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can trigger and listen to commands', function() {
-        var namespace = fw.namespace(fw.utils.guid());
+        var namespace = fw.namespace(randNamespaceName());
         var handlerCallbackSpy;
 
         namespace.command.handler('testCommand', ensureCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
@@ -172,7 +172,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can unregister handler for commands', function() {
-        var namespace = fw.namespace(fw.utils.guid());
+        var namespace = fw.namespace(randNamespaceName());
         var handlerCallbackSpy;
 
         var requestHandler = namespace.command.handler('testUnregisteredCommand', ensureCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
@@ -190,7 +190,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can unregister subscription handlers when namespace is disposed', function() {
-        var namespace = fw.namespace(fw.utils.guid());
+        var namespace = fw.namespace(randNamespaceName());
         var handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy');
 
         namespace.subscribe('testDispose', ensureCallOrder(0, handlerCallbackSpy));
@@ -206,7 +206,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can unregister event handlers when namespace is disposed', function() {
-        var namespace = fw.namespace(fw.utils.guid());
+        var namespace = fw.namespace(randNamespaceName());
         var handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy');
 
         namespace.event.handler('testDispose', ensureCallOrder(0, handlerCallbackSpy));
@@ -222,7 +222,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can unregister command handlers when namespace is disposed', function() {
-        var namespace = fw.namespace(fw.utils.guid());
+        var namespace = fw.namespace(randNamespaceName());
         var handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy');
 
         namespace.command.handler('testDispose', ensureCallOrder(0, handlerCallbackSpy));
@@ -238,7 +238,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can unregister request handlers when namespace is disposed', function() {
-        var namespace = fw.namespace(fw.utils.guid());
+        var namespace = fw.namespace(randNamespaceName());
         var handlerCallbackSpy;
         var testValue = fw.utils.guid();
 

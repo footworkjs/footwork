@@ -39,7 +39,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('correctly names and increments counter for indexed routers', function() {
-      var namespaceName = fw.utils.guid();
+      var namespaceName = randNamespaceName();
       var IndexedRouter = fw.router.create({
         namespace: namespaceName,
         autoIncrement: true
@@ -55,7 +55,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('correctly applies a mixin to a router', function() {
-      var namespaceName = fw.utils.guid();
+      var namespaceName = randNamespaceName();
       var preInitCallback = jasmine.createSpy('preInitCallback').and.callThrough();
       var postInitCallback = jasmine.createSpy('postInitCallback').and.callThrough();
 
@@ -142,7 +142,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can register a router', function() {
-      var namespaceName = fw.utils.guid();
+      var namespaceName = randNamespaceName();
       expect(fw.router.isRegistered(namespaceName)).toBe(false);
 
       fw.router.register(namespaceName, function() {});
@@ -151,7 +151,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can get a registered router', function() {
-      var namespaceName = fw.utils.guid();
+      var namespaceName = randNamespaceName();
       expect(fw.router.isRegistered(namespaceName)).toBe(false);
 
       var Model = function() {};
@@ -183,7 +183,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can autoRegister a router during class method creation', function() {
-      var namespaceName = fw.utils.guid();
+      var namespaceName = randNamespaceName();
       expect(fw.router.isRegistered(namespaceName)).toBe(false);
 
       fw.router.create({
@@ -196,7 +196,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can bind to the DOM using a <router> declaration', function(done) {
       var wasInitialized = false;
-      var namespaceName = fw.utils.guid();
+      var namespaceName = randNamespaceName();
       var initializeSpy = jasmine.createSpy();
 
       fw.router.create({
@@ -267,7 +267,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('has the animation classes applied properly', function() {
-      var namespaceName = fw.utils.guid();
+      var namespaceName = randNamespaceName();
       var $theElement;
       var initializeSpy;
       var afterRenderSpy;
@@ -318,7 +318,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can pass parameters through a <router> declaration', function() {
-      var namespaceName = fw.utils.guid();
+      var namespaceName = randNamespaceName();
       var initializeSpy;
 
       fw.router.create({
@@ -336,7 +336,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a registered location set and retrieved proplerly', function() {
-      var namespaceName = fw.utils.guid();
+      var namespaceName = randNamespaceName();
       fw.router.registerLocation(namespaceName, '/bogus/path');
       expect(fw.router.getLocation(namespaceName)).toBe('/bogus/path');
       fw.router.registerLocation(/regexp.*/, '/bogus/path');
@@ -351,13 +351,13 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a registered location with filename set and retrieved proplerly', function() {
-      var namespaceName = fw.utils.guid();
+      var namespaceName = randNamespaceName();
       fw.router.registerLocation(namespaceName, '/bogus/path/__file__.js');
       expect(fw.router.getLocation(namespaceName)).toBe('/bogus/path/__file__.js');
     });
 
     it('can have a specific file extension set and used correctly', function() {
-      var namespaceName = fw.utils.guid();
+      var namespaceName = randNamespaceName();
       var customExtension = '.jscript';
       fw.router.fileExtensions(customExtension);
       fw.router.registerLocation(namespaceName, '/bogus/path/');
@@ -368,7 +368,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a callback specified as the extension with it invoked and the return value used', function() {
-      var namespaceName = fw.utils.guid();
+      var namespaceName = randNamespaceName();
       var customExtension = '.jscriptFunction';
       fw.router.fileExtensions(function(moduleName) {
         expect(moduleName).toBe(namespaceName);
@@ -382,7 +382,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can load via requirejs with a declarative initialization from an already registered module', function(done) {
-      var namespaceName = fw.utils.guid();
+      var namespaceName = randNamespaceName();
       var initializeSpy = jasmine.createSpy();
 
       define(namespaceName, ['footwork'], function(fw) {
@@ -401,7 +401,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can load via registered router with a declarative initialization', function(done) {
-      var namespaceName = fw.utils.guid();
+      var namespaceName = randNamespaceName();
       var initializeSpy = jasmine.createSpy();
 
       fw.router.register(namespaceName, fw.router.create({
@@ -509,7 +509,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can trigger the default route', function(done) {
-      var namespaceName = fw.utils.guid();
+      var namespaceName = randNamespaceName();
       var defaultRouteControllerSpy = jasmine.createSpy('defaultRouteControllerSpy');
 
       fw.router.create({
@@ -558,15 +558,15 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
-        router.setState('/' + fw.utils.guid());
+        router.setState(generateUrl());
         expect(unknownRouteControllerSpy).toHaveBeenCalled();
         done();
       }, 20);
     });
 
     it('can trigger a specified route', function(done) {
-      var mockUrl = '/' + fw.utils.guid();
-      var namespaceName = fw.utils.guid();
+      var mockUrl = generateUrl();
+      var namespaceName = randNamespaceName();
       var routeControllerSpy = jasmine.createSpy('routeControllerSpy');
       var initializeSpy;
       var router;
@@ -599,8 +599,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can trigger a specified route that is defined within an array of route strings', function(done) {
-      var mockUrl = '/' + fw.utils.guid();
-      var namespaceName = fw.utils.guid();
+      var mockUrl = generateUrl();
+      var namespaceName = randNamespaceName();
       var routeControllerSpy = jasmine.createSpy('routeControllerSpy');
       var initializeSpy;
       var router;
@@ -633,8 +633,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can trigger a specified route with a required parameter', function(done) {
-      var mockUrl = '/' + fw.utils.guid();
-      var namespaceName = fw.utils.guid();
+      var mockUrl = generateUrl();
+      var namespaceName = randNamespaceName();
       var routeControllerSpy;
       var initializeSpy;
       var testParam = fw.utils.guid();
@@ -670,8 +670,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can trigger a specified route with an optional parameter with and without the parameter', function(done) {
-      var mockUrl = '/' + fw.utils.guid();
-      var namespaceName = fw.utils.guid();
+      var mockUrl = generateUrl();
+      var namespaceName = randNamespaceName();
       var routeControllerSpy;
       var initializeSpy;
       var optParamNotSuppliedSpy;
@@ -718,9 +718,9 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can manipulate an outlet', function(done) {
-      var manipulateOutletUrl = '/' + fw.utils.guid();
+      var manipulateOutletUrl = generateUrl();
       var manipulateOutletComponentNamespace = fw.utils.guid();
-      var namespaceName = fw.utils.guid();
+      var namespaceName = randNamespaceName();
       var initializeSpy;
       var afterRenderSpy;
       var manipulateOutletControllerSpy;
@@ -792,7 +792,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can see all/multiple referenced outlets defined in its context', function(done) {
-      var namespaceName = fw.utils.guid();
+      var namespaceName = randNamespaceName();
       var initializeSpy;
       var router;
 
@@ -820,8 +820,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have callback triggered after outlet component is resolved and composed', function(done) {
-      var mockUrl = '/' + fw.utils.guid();
-      var namespaceName = fw.utils.guid();
+      var mockUrl = generateUrl();
+      var namespaceName = randNamespaceName();
       var outletCallbackName = fw.utils.guid();
       var initializeSpy;
       var outletCallbackComponentSpy;
@@ -947,7 +947,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can display a temporary loading component in place of a component that is being downloaded', function(done) {
-      var mockUrl = '/' + fw.utils.guid();
+      var mockUrl = generateUrl();
       var outletLoaderTestLoadingNamespace = fw.utils.guid();
       var outletLoaderTestLoadedNamespace = fw.utils.guid();
       var routerNamespace = fw.utils.guid();
@@ -1010,7 +1010,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can display a temporary loading component (source from callback) in place of a component that is being downloaded', function(done) {
-      var mockUrl = '/' + fw.utils.guid();
+      var mockUrl = generateUrl();
       var outletLoaderTestLoadingNamespace = fw.utils.guid();
       var outletLoaderTestLoadedNamespace = fw.utils.guid();
       var routerNamespace = fw.utils.guid();
@@ -1084,7 +1084,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     xit('can display a temporary loading component in place of a component that is being downloaded with a custom minimum transition time', function(done) {
-      var mockUrl = '/' + fw.utils.guid();
+      var mockUrl = generateUrl();
       var outletLoaderTestLoadingNamespace = fw.utils.guid();
       var outletLoaderTestLoadedNamespace = fw.utils.guid();
       var routerNamespace = fw.utils.guid();
@@ -1151,7 +1151,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     xit('can display a temporary loading component in place of a component that is being downloaded with a custom minimum transition time from callback', function(done) {
-      var mockUrl = '/' + fw.utils.guid();
+      var mockUrl = generateUrl();
       var outletLoaderTestLoadingNamespace = fw.utils.guid();
       var outletLoaderTestLoadedNamespace = fw.utils.guid();
       var routerNamespace = fw.utils.guid();
@@ -1351,8 +1351,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can have a $route bound link correctly composed with an href attribute using passed in string route', function(done) {
       var container;
-      var mockUrl = '/' + fw.utils.guid();
-      var namespaceName = fw.utils.guid();
+      var mockUrl = generateUrl();
+      var namespaceName = randNamespaceName();
       var initializeSpy = jasmine.createSpy('initializeSpy');
       var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1397,8 +1397,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can have a $route bound link correctly composed using the elements existing href attribute', function(done) {
       var container;
-      var mockUrl = '/' + fw.utils.guid();
-      var namespaceName = fw.utils.guid();
+      var mockUrl = generateUrl();
+      var namespaceName = randNamespaceName();
       var initializeSpy = jasmine.createSpy('initializeSpy');
       var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1443,7 +1443,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can have a $route bound link correctly composed with an href attribute using an observable', function(done) {
       var container;
-      var mockUrl = '/' + fw.utils.guid();
+      var mockUrl = generateUrl();
       var routerNamespaceName = fw.utils.guid();
       var viewModelNamespaceName = fw.utils.guid();
       var viewModelInitializeSpy;
@@ -1516,8 +1516,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can have a $route bound link that expresses the default active class when the route matches', function(done) {
       var container;
-      var mockUrl = '/' + fw.utils.guid();
-      var namespaceName = fw.utils.guid();
+      var mockUrl = generateUrl();
+      var namespaceName = randNamespaceName();
       var initializeSpy = jasmine.createSpy('initializeSpy');
       var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1563,8 +1563,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can have a $route bound link that expresses a custom \'active\' class when the route matches', function(done) {
       var container;
-      var mockUrl = '/' + fw.utils.guid();
-      var namespaceName = fw.utils.guid();
+      var mockUrl = generateUrl();
+      var namespaceName = randNamespaceName();
       var activeClassName = fw.utils.guid();
       var initializeSpy = jasmine.createSpy('initializeSpy');
       var routeSpy = jasmine.createSpy('routeSpy');
@@ -1607,8 +1607,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can have a $route bound link that expresses a custom \'active\' class on the direct parent element', function(done) {
       var container;
-      var mockUrl = '/' + fw.utils.guid();
-      var namespaceName = fw.utils.guid();
+      var mockUrl = generateUrl();
+      var namespaceName = randNamespaceName();
       var activeClassName = fw.utils.guid();
       var initializeSpy = jasmine.createSpy('initializeSpy');
       var routeSpy = jasmine.createSpy('routeSpy');
@@ -1653,8 +1653,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can have a $route bound link that expresses an \'active\' class on the selected parent element', function(done) {
       var container;
-      var mockUrl = '/' + fw.utils.guid();
-      var namespaceName = fw.utils.guid();
+      var mockUrl = generateUrl();
+      var namespaceName = randNamespaceName();
       var activeClassName = fw.utils.guid();
       var parentClassName = fw.utils.guid();
       var initializeSpy = jasmine.createSpy('initializeSpy');
@@ -1704,7 +1704,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can have a $route bound link that expresses a custom \'active\' class defined by an observable when the route matches', function(done) {
       var container;
-      var mockUrl = '/' + fw.utils.guid();
+      var mockUrl = generateUrl();
       var routerNamespaceName = fw.utils.guid();
       var viewModelNamespaceName = fw.utils.guid();
       var activeClassName = fw.utils.guid();
@@ -1763,8 +1763,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can have a $route bound link that disables the active class state based on a raw boolean flag', function(done) {
       var container;
-      var mockUrl = '/' + fw.utils.guid();
-      var namespaceName = fw.utils.guid();
+      var mockUrl = generateUrl();
+      var namespaceName = randNamespaceName();
       var initializeSpy = jasmine.createSpy('initializeSpy');
       var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1806,8 +1806,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can have a $route bound link that disables the active class state using an observable', function(done) {
       var container;
-      var mockUrl = '/' + fw.utils.guid();
-      var namespaceName = fw.utils.guid();
+      var mockUrl = generateUrl();
+      var namespaceName = randNamespaceName();
       var initializeSpy;
       var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1851,8 +1851,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can have a $route bound link that triggers based on a custom event defined by a string', function(done) {
       var container;
-      var mockUrl = '/' + fw.utils.guid();
-      var namespaceName = fw.utils.guid();
+      var mockUrl = generateUrl();
+      var namespaceName = randNamespaceName();
       var initializeSpy = jasmine.createSpy('initializeSpy');
       var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1894,8 +1894,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can have a $route bound link that triggers based on a custom event defined by a callback/observable', function(done) {
       var container;
-      var mockUrl = '/' + fw.utils.guid();
-      var namespaceName = fw.utils.guid();
+      var mockUrl = generateUrl();
+      var namespaceName = randNamespaceName();
       var initializeSpy;
       var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1939,7 +1939,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can have a $route bound link correctly composed with a custom callback handler', function(done) {
       var container;
-      var mockUrl = '/' + fw.utils.guid();
+      var mockUrl = generateUrl();
       var routerNamespaceName = fw.utils.guid();
       var viewModelNamespaceName = fw.utils.guid();
       var viewModelInitializeSpy;
@@ -2013,7 +2013,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can have a $route bound link correctly composed with a custom URL callback', function(done) {
       var container;
-      var mockUrl = '/' + fw.utils.guid();
+      var mockUrl = generateUrl();
       var routerNamespaceName = fw.utils.guid();
       var viewModelNamespaceName = fw.utils.guid();
       var viewModelInitializeSpy;
