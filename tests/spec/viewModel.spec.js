@@ -39,7 +39,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('correctly names and increments counter for indexed viewModels', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var IndexedViewModel = fw.viewModel.create({
         namespace: namespaceName,
         autoIncrement: true
@@ -55,7 +55,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('correctly applies a mixin to a viewModel', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var preInitCallback = jasmine.createSpy('preInitCallback').and.callThrough();
       var postInitCallback = jasmine.createSpy('postInitCallback').and.callThrough();
 
@@ -142,7 +142,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can register a viewModel', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       expect(fw.viewModel.isRegistered(namespaceName)).toBe(false);
 
       fw.viewModel.register(namespaceName, function() {});
@@ -151,7 +151,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can get a registered viewModel', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       expect(fw.viewModel.isRegistered(namespaceName)).toBe(false);
 
       var Model = function() {};
@@ -183,7 +183,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can autoRegister a viewModel during class method creation', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       expect(fw.viewModel.isRegistered(namespaceName)).toBe(false);
 
       fw.viewModel.create({
@@ -196,7 +196,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can bind to the DOM using a <viewModel> declaration', function(done) {
       var wasInitialized = false;
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var initializeSpy = jasmine.createSpy();
 
       fw.viewModel.create({
@@ -267,7 +267,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('has the animation classes applied properly', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var $theElement;
       var initializeSpy;
       var afterRenderSpy;
@@ -318,7 +318,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can pass parameters through a <viewModel> declaration', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var initializeSpy;
 
       fw.viewModel.create({
@@ -336,7 +336,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('calls onDispose when the containing element is removed from the DOM', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var theElement;
       var initializeSpy;
       var afterRenderSpy;
@@ -381,7 +381,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a registered location set and retrieved proplerly', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       fw.viewModel.registerLocation(namespaceName, '/bogus/path');
       expect(fw.viewModel.getLocation(namespaceName)).toBe('/bogus/path');
       fw.viewModel.registerLocation(/regexp.*/, '/bogus/path');
@@ -396,13 +396,13 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a registered location with filename set and retrieved proplerly', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       fw.viewModel.registerLocation(namespaceName, '/bogus/path/__file__.js');
       expect(fw.viewModel.getLocation(namespaceName)).toBe('/bogus/path/__file__.js');
     });
 
     it('can have a specific file extension set and used correctly', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var customExtension = '.jscript';
       fw.viewModel.fileExtensions(customExtension);
       fw.viewModel.registerLocation(namespaceName, '/bogus/path/');
@@ -413,7 +413,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a callback specified as the extension with it invoked and the return value used', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var customExtension = '.jscriptFunction';
       fw.viewModel.fileExtensions(function(moduleName) {
         expect(moduleName).toBe(namespaceName);
@@ -427,7 +427,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can load via requirejs with a declarative initialization from an already registered module', function(done) {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var initializeSpy = jasmine.createSpy();
 
       define(namespaceName, ['footwork'], function(fw) {
@@ -446,7 +446,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can load via registered viewModel with a declarative initialization', function(done) {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var initializeSpy = jasmine.createSpy();
 
       fw.viewModel.register(namespaceName, fw.viewModel.create({

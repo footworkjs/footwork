@@ -26,7 +26,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('has the ability to create a dataModel with a correctly defined namespace whos name we can retrieve', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var ModelA = fw.dataModel.create({
         namespace: namespaceName
       });
@@ -63,7 +63,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('correctly applies a mixin to a dataModel', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var preInitCallback = jasmine.createSpy('preInitCallback').and.callThrough();
       var postInitCallback = jasmine.createSpy('postInitCallback').and.callThrough();
 
@@ -150,7 +150,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can register a dataModel', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       expect(fw.dataModel.isRegistered(namespaceName)).toBe(false);
 
       fw.dataModel.register(namespaceName, function() {});
@@ -159,7 +159,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can get a registered dataModel', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       expect(fw.dataModel.isRegistered(namespaceName)).toBe(false);
 
       var Model = function() {};
@@ -180,7 +180,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can get all instantiated dataModels of a specific type/name', function() {
       var dataModels = [];
-      var specificDataModelNamespace = randNamespaceName();
+      var specificDataModelNamespace = generateNamespaceName();
       var DataModel = fw.dataModel.create({ namespace: specificDataModelNamespace });
       var numToMake = _.random(1,15);
 
@@ -193,7 +193,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can autoRegister a dataModel during class method creation', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       expect(fw.dataModel.isRegistered(namespaceName)).toBe(false);
 
       fw.dataModel.create({
@@ -206,7 +206,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('can bind to the DOM using a <dataModel> declaration', function(done) {
       var wasInitialized = false;
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var initializeSpy = jasmine.createSpy();
 
       fw.dataModel.create({
@@ -277,7 +277,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('has the animation classes applied properly', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var $theElement;
       var initializeSpy;
       var afterRenderSpy;
@@ -302,8 +302,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can nest <dataModel> declarations', function() {
-      var namespaceNameOuter = randNamespaceName();
-      var namespaceNameInner = randNamespaceName();
+      var namespaceNameOuter = generateNamespaceName();
+      var namespaceNameInner = generateNamespaceName();
       var initializeSpy = jasmine.createSpy('initializeSpy');
 
       fw.dataModel.create({
@@ -328,7 +328,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can pass parameters through a <dataModel> declaration', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var initializeSpy;
 
       fw.dataModel.create({
@@ -346,7 +346,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('calls onDispose when the containing element is removed from the DOM', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var theElement;
       var initializeSpy;
       var afterRenderSpy;
@@ -391,7 +391,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a registered location set and retrieved proplerly', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       fw.dataModel.registerLocation(namespaceName, '/bogus/path');
       expect(fw.dataModel.getLocation(namespaceName)).toBe('/bogus/path');
       fw.dataModel.registerLocation(/regexp.*/, '/bogus/path');
@@ -399,20 +399,20 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have an array of models registered to a location and retrieved proplerly', function() {
-      var namespaceNames = [ randNamespaceName(), randNamespaceName() ];
+      var namespaceNames = [ generateNamespaceName(), generateNamespaceName() ];
       fw.dataModel.registerLocation(namespaceNames, '/bogus/path');
       expect(fw.dataModel.getLocation(namespaceNames[0])).toBe('/bogus/path');
       expect(fw.dataModel.getLocation(namespaceNames[1])).toBe('/bogus/path');
     });
 
     it('can have a registered location with filename set and retrieved proplerly', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       fw.dataModel.registerLocation(namespaceName, '/bogus/path/__file__.js');
       expect(fw.dataModel.getLocation(namespaceName)).toBe('/bogus/path/__file__.js');
     });
 
     it('can have a specific file extension set and used correctly', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var customExtension = '.jscript';
       fw.dataModel.fileExtensions(customExtension);
       fw.dataModel.registerLocation(namespaceName, '/bogus/path/');
@@ -423,7 +423,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a callback specified as the extension with it invoked and the return value used', function() {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var customExtension = '.jscriptFunction';
       fw.dataModel.fileExtensions(function(moduleName) {
         expect(moduleName).toBe(namespaceName);
@@ -437,7 +437,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can load via requirejs with a declarative initialization from an already registered module', function(done) {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var initializeSpy = jasmine.createSpy();
 
       define(namespaceName, ['footwork'], function(fw) {
@@ -456,7 +456,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can load via registered dataModel with a declarative initialization', function(done) {
-      var namespaceName = randNamespaceName();
+      var namespaceName = generateNamespaceName();
       var initializeSpy = jasmine.createSpy();
 
       fw.dataModel.register(namespaceName, fw.dataModel.create({

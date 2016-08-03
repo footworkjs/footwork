@@ -13,7 +13,7 @@ function makeTestContainer(theFixture, containerDOM) {
 }
 
 var namespaceCounter = 0;
-function randNamespaceName() {
+function generateNamespaceName() {
   return 'generated-ns' + namespaceCounter++;
 }
 

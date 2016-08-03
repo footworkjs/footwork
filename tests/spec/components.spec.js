@@ -13,8 +13,8 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can register a component', function() {
-        var namespaceName = randNamespaceName();
-        var invalidNamespaceName = randNamespaceName();
+        var namespaceName = generateNamespaceName();
+        var invalidNamespaceName = generateNamespaceName();
 
         fw.components.register(namespaceName, {
           template: '<div>a template</div>',
@@ -26,7 +26,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can instantiate a registered component via a <declarative> statement', function(done) {
-        var namespaceName = randNamespaceName();
+        var namespaceName = generateNamespaceName();
         var initializeSpy = jasmine.createSpy('initializeSpy');
 
         fw.components.register(namespaceName, {

@@ -76,7 +76,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can have receivable created with a passed in instantiated namespace', function() {
-        var namespace = fw.namespace(randNamespaceName());
+        var namespace = fw.namespace(generateNamespaceName());
 
         var receivable = fw.observable(null).receiveFrom(namespace, 'broadcaster');
         expect(receivable()).toBe(null);
