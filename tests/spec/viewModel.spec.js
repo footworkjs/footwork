@@ -1,5 +1,4 @@
 define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
-
   describe('viewModel', function() {
     var testContainer;
 
@@ -137,7 +136,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).not.toHaveBeenCalled();
       expect(afterRenderSpy).not.toHaveBeenCalled();
 
-      fw.applyBindings(new ModelA(), makeTestContainer('', '<div class="' + checkForClass + '"></div>'));
+      fw.applyBindings(new ModelA(), testContainer = makeTestContainer('', '<div class="' + checkForClass + '"></div>'));
 
       expect(initializeSpy).toHaveBeenCalled();
       expect(afterRenderSpy).toHaveBeenCalled();
@@ -200,7 +199,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       });
 
       expect(initializeSpy).not.toHaveBeenCalled();
-      fw.start(makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+      fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
       setTimeout(function() {
         expect(initializeSpy).toHaveBeenCalledTimes(1);
@@ -211,7 +210,6 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     it('can bind to the DOM using a shared instance', function(done) {
       var namespaceName = generateNamespaceName();
       var boundPropertyValue = fw.utils.guid();
-      var container;
 
       fw.viewModel.register(namespaceName, {
         instance: {
@@ -219,16 +217,16 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
         }
       });
 
-      container = makeTestContainer('<viewModel module="' + namespaceName + '">\
-                                       <span class="result" data-bind="text: boundProperty"></span>\
-                                     </viewModel>');
+      testContainer = makeTestContainer('<viewModel module="' + namespaceName + '">\
+                                           <span class="result" data-bind="text: boundProperty"></span>\
+                                         </viewModel>');
 
-      expect(container).not.toContainText(boundPropertyValue);
+      expect(testContainer).not.toContainText(boundPropertyValue);
 
-      fw.start(container);
+      fw.start(testContainer);
 
       setTimeout(function() {
-        expect(container).toContainText(boundPropertyValue);
+        expect(testContainer).toContainText(boundPropertyValue);
         done();
       }, 20);
     });
@@ -251,16 +249,16 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       });
 
       expect(createViewModelInstance).not.toHaveBeenCalled();
-      var container = makeTestContainer('<viewModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
+      testContainer = makeTestContainer('<viewModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
                                            <span class="result" data-bind="text: boundProperty"></span>\
                                          </viewModel>');
 
-      expect(container).not.toContainText(boundPropertyValue);
-      fw.start(container);
+      expect(testContainer).not.toContainText(boundPropertyValue);
+      fw.start(testContainer);
 
       setTimeout(function() {
         expect(createViewModelInstance).toHaveBeenCalled();
-        expect(container).toContainText(boundPropertyValue);
+        expect(testContainer).toContainText(boundPropertyValue);
         done();
       }, 20);
     });
@@ -283,7 +281,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(initializeSpy).not.toHaveBeenCalled();
       expect(afterRenderSpy).not.toHaveBeenCalled();
-      fw.start(makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+      fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
       expect(initializeSpy).toHaveBeenCalled();
       expect(afterRenderSpy).toHaveBeenCalled();
@@ -309,7 +307,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(initializeSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<viewModel module="' + namespaceNameOuter + '">\
+      fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceNameOuter + '">\
         <viewModel module="' + namespaceNameInner + '"></viewModel>\
       </viewModel>'));
 
@@ -330,7 +328,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       });
 
       expect(initializeSpy).not.toHaveBeenCalled();
-      fw.start(makeTestContainer('<viewModel module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></viewModel>'));
+      fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></viewModel>'));
       expect(initializeSpy).toHaveBeenCalled();
     });
 
@@ -367,7 +365,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).toHaveBeenCalled();
       expect(afterRenderSpy).not.toHaveBeenCalled();
 
-      fw.applyBindings(wrapper, makeTestContainer('<div data-bind="if: showIt">\
+      fw.applyBindings(wrapper, testContainer = makeTestContainer('<div data-bind="if: showIt">\
         <viewModel module="' + namespaceName + '"></viewModel>\
       </div>'));
 
@@ -436,7 +434,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       });
 
       expect(initializeSpy).not.toHaveBeenCalled();
-      fw.start(makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+      fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
       setTimeout(function() {
         expect(initializeSpy).toHaveBeenCalled();
@@ -453,7 +451,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       }));
 
       expect(initializeSpy).not.toHaveBeenCalled();
-      fw.start(makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+      fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
       setTimeout(function() {
         expect(initializeSpy).toHaveBeenCalled();
@@ -468,7 +466,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       fw.viewModel.registerLocation(namespaceName, 'tests/assets/fixtures/');
 
       expect(window.AMDViewModelWasLoaded).toBe(false);
-      fw.start(makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+      fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
       setTimeout(function() {
         expect(window.AMDViewModelWasLoaded).toBe(true);
@@ -482,7 +480,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       fw.viewModel.registerLocation(/AMDViewModelRegexp-.*/, 'tests/assets/fixtures/');
 
       expect(window.AMDViewModelRegexpWasLoaded).toBe(false);
-      fw.start(makeTestContainer('<viewModel module="AMDViewModelRegexp-test"></viewModel>'));
+      fw.start(testContainer = makeTestContainer('<viewModel module="AMDViewModelRegexp-test"></viewModel>'));
 
       setTimeout(function() {
         expect(window.AMDViewModelRegexpWasLoaded).toBe(true);
@@ -497,7 +495,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       fw.viewModel.registerLocation(namespaceName, 'tests/assets/fixtures/' + namespaceName + '.js');
 
       expect(window.AMDViewModelFullNameWasLoaded).toBe(false);
-      fw.start(makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+      fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
       setTimeout(function() {
         expect(window.AMDViewModelFullNameWasLoaded).toBe(true);
@@ -512,7 +510,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(window.defaultViewModelLoaded).toBe(false);
 
-      fw.start(makeTestContainer('<viewModel module="defaultViewModel"></viewModel>'));
+      fw.start(testContainer = makeTestContainer('<viewModel module="defaultViewModel"></viewModel>'));
 
       setTimeout(function() {
         expect(window.defaultViewModelLoaded).toBe(true);

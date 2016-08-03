@@ -2,6 +2,7 @@ define(['footwork', 'lodash', 'jquery'],
   function(fw, _, $) {
     describe('components', function() {
       var testContainer;
+      var footworkAnimationClass = 'fw-entity-animate';
 
       beforeEach(function() {
         resetCallbackOrder();
@@ -40,7 +41,7 @@ define(['footwork', 'lodash', 'jquery'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(makeTestContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = makeTestContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -61,7 +62,7 @@ define(['footwork', 'lodash', 'jquery'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(makeTestContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = makeTestContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -82,7 +83,7 @@ define(['footwork', 'lodash', 'jquery'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(makeTestContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = makeTestContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -102,7 +103,7 @@ define(['footwork', 'lodash', 'jquery'],
           viewModel: fw.viewModel.create({
             initialize: expectCallOrder(0, initializeSpy),
             afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
-              expect(theElement).not.toHaveClass('fw-entity-animate');
+              expect(theElement).not.toHaveClass(footworkAnimationClass);
               theElement = element;
             }).and.callThrough())
           })
@@ -111,15 +112,15 @@ define(['footwork', 'lodash', 'jquery'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).not.toHaveBeenCalled();
 
-        fw.start(makeTestContainer('<' + componentNamespaceName + '></' + componentNamespaceName + '>'));
+        fw.start(testContainer = makeTestContainer('<' + componentNamespaceName + '></' + componentNamespaceName + '>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
-          expect(theElement).not.toHaveClass('fw-entity-animate');
+          expect(theElement).not.toHaveClass(footworkAnimationClass);
 
           setTimeout(function() {
             expect(afterRenderSpy).toHaveBeenCalled();
-            expect(theElement).toHaveClass('fw-entity-animate');
+            expect(theElement).toHaveClass(footworkAnimationClass);
 
             done();
           }, 100);

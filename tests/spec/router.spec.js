@@ -1,5 +1,4 @@
 define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
-
   describe('router', function() {
     var testContainer;
 
@@ -137,7 +136,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).not.toHaveBeenCalled();
       expect(afterRenderSpy).not.toHaveBeenCalled();
 
-      fw.applyBindings(new ModelA(), makeTestContainer('', '<div class="' + checkForClass + '"></div>'));
+      fw.applyBindings(new ModelA(), testContainer = makeTestContainer('', '<div class="' + checkForClass + '"></div>'));
 
       expect(initializeSpy).toHaveBeenCalled();
       expect(afterRenderSpy).toHaveBeenCalled();
@@ -200,7 +199,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       });
 
       expect(initializeSpy).not.toHaveBeenCalled();
-      fw.start(makeTestContainer('<router module="' + namespaceName + '"></router>'));
+      fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
       setTimeout(function() {
         expect(initializeSpy).toHaveBeenCalledTimes(1);
@@ -211,7 +210,6 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     it('can bind to the DOM using a shared instance', function(done) {
       var namespaceName = generateNamespaceName();
       var boundPropertyValue = fw.utils.guid();
-      var container;
 
       fw.router.register(namespaceName, {
         instance: {
@@ -219,16 +217,16 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
         }
       });
 
-      container = makeTestContainer('<router module="' + namespaceName + '">\
-                                       <span class="result" data-bind="text: boundProperty"></span>\
-                                     </router>');
+      testContainer = makeTestContainer('<router module="' + namespaceName + '">\
+                                           <span class="result" data-bind="text: boundProperty"></span>\
+                                         </router>');
 
-      expect(container).not.toContainText(boundPropertyValue);
+      expect(testContainer).not.toContainText(boundPropertyValue);
 
-      fw.start(container);
+      fw.start(testContainer);
 
       setTimeout(function() {
-        expect(container).toContainText(boundPropertyValue);
+        expect(testContainer).toContainText(boundPropertyValue);
         done();
       }, 20);
     });
@@ -251,16 +249,16 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       });
 
       expect(createRouterInstance).not.toHaveBeenCalled();
-      var container = makeTestContainer('<router module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
+      testContainer = makeTestContainer('<router module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
                                            <span class="result" data-bind="text: boundProperty"></span>\
                                          </router>');
 
-      expect(container).not.toContainText(boundPropertyValue);
-      fw.start(container);
+      expect(testContainer).not.toContainText(boundPropertyValue);
+      fw.start(testContainer);
 
       setTimeout(function() {
         expect(createRouterInstance).toHaveBeenCalled();
-        expect(container).toContainText(boundPropertyValue);
+        expect(testContainer).toContainText(boundPropertyValue);
         done();
       }, 20);
     });
@@ -283,7 +281,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(initializeSpy).not.toHaveBeenCalled();
       expect(afterRenderSpy).not.toHaveBeenCalled();
-      fw.start(makeTestContainer('<router module="' + namespaceName + '"></router>'));
+      fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
       expect(initializeSpy).toHaveBeenCalled();
       expect(afterRenderSpy).toHaveBeenCalled();
@@ -309,7 +307,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(initializeSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<router module="' + namespaceNameOuter + '">\
+      fw.start(testContainer = makeTestContainer('<router module="' + namespaceNameOuter + '">\
         <router module="' + namespaceNameInner + '"></router>\
       </router>'));
 
@@ -330,7 +328,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       });
 
       expect(initializeSpy).not.toHaveBeenCalled();
-      fw.start(makeTestContainer('<router module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></router>'));
+      fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></router>'));
       expect(initializeSpy).toHaveBeenCalled();
     });
 
@@ -391,7 +389,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       });
 
       expect(initializeSpy).not.toHaveBeenCalled();
-      fw.start(makeTestContainer('<router module="' + namespaceName + '"></router>'));
+      fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
       setTimeout(function() {
         expect(initializeSpy).toHaveBeenCalled();
@@ -408,7 +406,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       }));
 
       expect(initializeSpy).not.toHaveBeenCalled();
-      fw.start(makeTestContainer('<router module="' + namespaceName + '"></router>'));
+      fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
       setTimeout(function() {
         expect(initializeSpy).toHaveBeenCalled();
@@ -423,7 +421,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       fw.router.registerLocation(namespaceName, 'tests/assets/fixtures/');
 
       expect(window.AMDRouterWasLoaded).toBe(false);
-      fw.start(makeTestContainer('<router module="' + namespaceName + '"></router>'));
+      fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
       setTimeout(function() {
         expect(window.AMDRouterWasLoaded).toBe(true);
@@ -437,7 +435,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       fw.router.registerLocation(/AMDRouterRegexp-.*/, 'tests/assets/fixtures/');
 
       expect(window.AMDRouterRegexpWasLoaded).toBe(false);
-      fw.start(makeTestContainer('<router module="AMDRouterRegexp-test"></router>'));
+      fw.start(testContainer = makeTestContainer('<router module="AMDRouterRegexp-test"></router>'));
 
       setTimeout(function() {
         expect(window.AMDRouterRegexpWasLoaded).toBe(true);
@@ -452,7 +450,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       fw.router.registerLocation(namespaceName, 'tests/assets/fixtures/' + namespaceName + '.js');
 
       expect(window.AMDRouterFullNameWasLoaded).toBe(false);
-      fw.start(makeTestContainer('<router module="' + namespaceName + '"></router>'));
+      fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
       setTimeout(function() {
         expect(window.AMDRouterFullNameWasLoaded).toBe(true);
@@ -467,7 +465,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(window.defaultRouterLoaded).toBe(false);
 
-      fw.start(makeTestContainer('<router module="defaultRouter"></router>'));
+      fw.start(testContainer = makeTestContainer('<router module="defaultRouter"></router>'));
 
       setTimeout(function() {
         expect(window.defaultRouterLoaded).toBe(true);
@@ -496,7 +494,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(outerInitializeSpy).not.toHaveBeenCalled();
       expect(innerInitializeSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<router module="' + outerNamespaceName + '">\
+      fw.start(testContainer = makeTestContainer('<router module="' + outerNamespaceName + '">\
                                     <router module="' + innerNamespaceName + '"></router>\
                                   </router>'));
 
@@ -524,7 +522,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(defaultRouteControllerSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<router module="' + namespaceName + '"></router>'));
+      fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
       setTimeout(function() {
         expect(defaultRouteControllerSpy).toHaveBeenCalled();
@@ -552,7 +550,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(unknownRouteControllerSpy).not.toHaveBeenCalled();
       expect(initializeSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<router module="' + namespaceName + '"></router>'));
+      fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
       expect(initializeSpy).toHaveBeenCalled();
 
@@ -587,7 +585,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(routeControllerSpy).not.toHaveBeenCalled();
       expect(initializeSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<router module="' + namespaceName + '"></router>'));
+      fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
       expect(initializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
@@ -621,7 +619,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(routeControllerSpy).not.toHaveBeenCalled();
       expect(initializeSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<router module="' + namespaceName + '"></router>'));
+      fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
       expect(initializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
@@ -658,7 +656,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(routeControllerSpy).not.toHaveBeenCalled();
       expect(initializeSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<router module="' + namespaceName + '"></router>'));
+      fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
       expect(initializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
@@ -703,7 +701,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(optParamNotSuppliedSpy).not.toHaveBeenCalled();
       expect(optParamSuppliedSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<router module="' + namespaceName + '"></router>'));
+      fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
       setTimeout(function() {
         router.setState(mockUrl + '/optParamNotSupplied');
@@ -726,8 +724,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var clearOutletControllerSpy;
       var manipulateOutletComponentSpy;
       var router;
-      var container;
-      var $container;
+      testContainer;
+      var $testContainer;
 
       fw.components.register(manipulateOutletComponentNamespace, {
         viewModel: expectCallOrder(3, manipulateOutletComponentSpy = jasmine.createSpy('manipulateOutletComponentSpy')),
@@ -762,28 +760,28 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(clearOutletControllerSpy).not.toHaveBeenCalled();
       expect(manipulateOutletComponentSpy).not.toHaveBeenCalled();
 
-      fw.start(container = makeTestContainer('<router module="' + namespaceName + '">\
+      fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '">\
         <outlet name="output"></outlet>\
       </router>'));
-      $container = $(container);
+      $testContainer = $(testContainer);
       expect(initializeSpy).toHaveBeenCalled();
       expect(afterRenderSpy).toHaveBeenCalled();
 
       setTimeout(function() {
-        expect($container.find('outlet[name="output"]').attr('rendered')).not.toBe(manipulateOutletComponentNamespace);
+        expect($testContainer.find('outlet[name="output"]').attr('rendered')).not.toBe(manipulateOutletComponentNamespace);
         router.setState(manipulateOutletUrl);
         expect(manipulateOutletControllerSpy).toHaveBeenCalled();
 
         setTimeout(function() {
-          expect($container.find('outlet[name="output"]').attr('rendered')).toBe(manipulateOutletComponentNamespace);
-          expect($container.find('outlet[name="output"] .component-loaded').length).toBe(1);
+          expect($testContainer.find('outlet[name="output"]').attr('rendered')).toBe(manipulateOutletComponentNamespace);
+          expect($testContainer.find('outlet[name="output"] .component-loaded').length).toBe(1);
 
           router.setState('/clearOutlet');
           expect(clearOutletControllerSpy).toHaveBeenCalled();
 
           setTimeout(function() {
-            expect($container.find('outlet[name="output"]').attr('rendered')).not.toBe(manipulateOutletComponentNamespace);
-            expect($container.find('outlet[name="output"] .component-loaded').length).toBe(0);
+            expect($testContainer.find('outlet[name="output"]').attr('rendered')).not.toBe(manipulateOutletComponentNamespace);
+            expect($testContainer.find('outlet[name="output"] .component-loaded').length).toBe(0);
             done();
           }, 20);
         }, 20);
@@ -805,7 +803,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(initializeSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<router module="' + namespaceName + '">\
+      fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '">\
         <outlet name="output1"></outlet>\
         <outlet name="output2"></outlet>\
         <outlet name="output3"></outlet>\
@@ -854,7 +852,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).not.toHaveBeenCalled();
       expect(outletCallbackComponentSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<router module="' + namespaceName + '">\
+      fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '">\
         <outlet name="output"></outlet>\
       </router>'));
       expect(initializeSpy).toHaveBeenCalled();
@@ -918,7 +916,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeViewModelSpy).not.toHaveBeenCalled();
       expect(initializeComponentViewModelSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<router module="' + routerNamespace + '">\
+      fw.start(testContainer = makeTestContainer('<router module="' + routerNamespace + '">\
         <viewModel module="' + outletControlingViewModelNamespace + '">\
           <div data-bind="if: outletVisible">\
             <outlet name="output"></outlet>\
@@ -990,7 +988,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(changeOutletControllerSpy).not.toHaveBeenCalled();
       expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<router module="' + routerNamespace + '">\
+      fw.start(testContainer = makeTestContainer('<router module="' + routerNamespace + '">\
         <outlet name="output"></outlet>\
       </router>'));
 
@@ -1064,7 +1062,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(changeOutletControllerSpy).not.toHaveBeenCalled();
       expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<router module="' + routerNamespace + '">\
+      fw.start(testContainer = makeTestContainer('<router module="' + routerNamespace + '">\
         <outlet name="output"></outlet>\
       </router>'));
 
@@ -1128,7 +1126,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(changeOutletControllerSpy).not.toHaveBeenCalled();
       expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<router module="' + routerNamespace + '">\
+      fw.start(testContainer = makeTestContainer('<router module="' + routerNamespace + '">\
         <outlet name="output"></outlet>\
       </router>'));
 
@@ -1201,7 +1199,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
       expect(minTransitionPeriodSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<router module="' + routerNamespace + '">\
+      fw.start(testContainer = makeTestContainer('<router module="' + routerNamespace + '">\
         <outlet name="output"></outlet>\
       </router>'));
 
@@ -1261,7 +1259,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(initializeSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<router module="' + outerNestedRouteNamespace + '">\
+      fw.start(testContainer = makeTestContainer('<router module="' + outerNestedRouteNamespace + '">\
         <router module="' + innerNestedRouteNamespace + '">\
           <router module="' + subInnerNestedRouteNamespace + '"></router>\
         </router>\
@@ -1326,7 +1324,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(initializeSpy).not.toHaveBeenCalled();
 
-      fw.start(makeTestContainer('<router module="' + outerNestedRouteNamespace + '">\
+      fw.start(testContainer = makeTestContainer('<router module="' + outerNestedRouteNamespace + '">\
         <router module="' + innerNestedRouteNamespace + '"></router>\
       </router>'));
 
@@ -1349,7 +1347,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a $route bound link correctly composed with an href attribute using passed in string route', function(done) {
-      var container;
+      testContainer;
       var mockUrl = generateUrl();
       var namespaceName = generateNamespaceName();
       var initializeSpy = jasmine.createSpy('initializeSpy');
@@ -1374,15 +1372,15 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).not.toHaveBeenCalled();
       expect(routeSpy).not.toHaveBeenCalled();
 
-      container = makeTestContainer('<router module="' + namespaceName + '">\
+      testContainer = makeTestContainer('<router module="' + namespaceName + '">\
         <a data-bind="$route: \'' + mockUrl + '\'"></a>\
       </router>');
-      fw.start(container);
+      fw.start(testContainer);
 
       expect(initializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
-        var $link = $(container).find('a');
+        var $link = $(testContainer).find('a');
 
         expect(routeSpy).not.toHaveBeenCalled();
         expect($link.attr('href')).toBe(mockUrl);
@@ -1395,7 +1393,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a $route bound link correctly composed using the elements existing href attribute', function(done) {
-      var container;
+      testContainer;
       var mockUrl = generateUrl();
       var namespaceName = generateNamespaceName();
       var initializeSpy = jasmine.createSpy('initializeSpy');
@@ -1420,15 +1418,15 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).not.toHaveBeenCalled();
       expect(routeSpy).not.toHaveBeenCalled();
 
-      container = makeTestContainer('<router module="' + namespaceName + '">\
+      testContainer = makeTestContainer('<router module="' + namespaceName + '">\
         <a href="' + mockUrl + '" data-bind="$route"></a>\
       </router>');
-      fw.start(container);
+      fw.start(testContainer);
 
       expect(initializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
-        var $link = $(container).find('a');
+        var $link = $(testContainer).find('a');
 
         expect(routeSpy).not.toHaveBeenCalled();
         expect($link.attr('href')).toBe(mockUrl);
@@ -1441,7 +1439,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a $route bound link correctly composed with an href attribute using an observable', function(done) {
-      var container;
+      testContainer;
       var mockUrl = generateUrl();
       var routerNamespaceName = fw.utils.guid();
       var viewModelNamespaceName = fw.utils.guid();
@@ -1482,18 +1480,18 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(routeSpy).not.toHaveBeenCalled();
       expect(changedRouteSpy).not.toHaveBeenCalled();
 
-      container = makeTestContainer('<router module="' + routerNamespaceName + '">\
+      testContainer = makeTestContainer('<router module="' + routerNamespaceName + '">\
         <viewModel module="' + viewModelNamespaceName + '">\
           <a data-bind="$route: routeHrefBindingObservable"></a>\
         </viewModel>\
       </router>');
-      fw.start(container);
+      fw.start(testContainer);
 
       expect(routerInitializeSpy).toHaveBeenCalled();
       expect(viewModelInitializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
-        var $link = $(container).find('a');
+        var $link = $(testContainer).find('a');
 
         expect(routeSpy).not.toHaveBeenCalled();
         expect(changedRouteSpy).not.toHaveBeenCalled();
@@ -1514,13 +1512,13 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a $route bound link that expresses the default active class when the route matches', function(done) {
-      var container;
+      testContainer;
       var mockUrl = generateUrl();
       var namespaceName = generateNamespaceName();
       var initializeSpy = jasmine.createSpy('initializeSpy');
       var routeSpy = jasmine.createSpy('routeSpy');
 
-      var $container = $(container);
+      var $testContainer = $(testContainer);
       var routerInitialized = false;
       var routeTouched = false;
 
@@ -1539,15 +1537,15 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).not.toHaveBeenCalled();
       expect(routeSpy).not.toHaveBeenCalled();
 
-      container = makeTestContainer('<router module="' + namespaceName + '">\
+      testContainer = makeTestContainer('<router module="' + namespaceName + '">\
         <a data-bind="$route: \'' + mockUrl + '\'"></a>\
       </router>');
-      fw.start(container);
+      fw.start(testContainer);
 
       expect(initializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
-        var $link = $(container).find('a');
+        var $link = $(testContainer).find('a');
 
         expect(routeSpy).not.toHaveBeenCalled();
         expect($link.hasClass('active')).toBe(false);
@@ -1561,7 +1559,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a $route bound link that expresses a custom \'active\' class when the route matches', function(done) {
-      var container;
+      testContainer;
       var mockUrl = generateUrl();
       var namespaceName = generateNamespaceName();
       var activeClassName = fw.utils.guid();
@@ -1583,15 +1581,15 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).not.toHaveBeenCalled();
       expect(routeSpy).not.toHaveBeenCalled();
 
-      container = makeTestContainer('<router module="' + namespaceName + '">\
+      testContainer = makeTestContainer('<router module="' + namespaceName + '">\
         <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\' }"></a>\
       </router>');
-      fw.start(container);
+      fw.start(testContainer);
 
       expect(initializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
-        var $link = $(container).find('a');
+        var $link = $(testContainer).find('a');
 
         expect(routeSpy).not.toHaveBeenCalled();
         expect($link.hasClass(activeClassName)).toBe(false);
@@ -1605,7 +1603,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a $route bound link that expresses a custom \'active\' class on the direct parent element', function(done) {
-      var container;
+      testContainer;
       var mockUrl = generateUrl();
       var namespaceName = generateNamespaceName();
       var activeClassName = fw.utils.guid();
@@ -1627,17 +1625,17 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).not.toHaveBeenCalled();
       expect(routeSpy).not.toHaveBeenCalled();
 
-      container = makeTestContainer('<router module="' + namespaceName + '">\
+      testContainer = makeTestContainer('<router module="' + namespaceName + '">\
         <div>\
           <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\', parentHasState: true }"></a>\
         </div>\
       </router>');
-      fw.start(container);
+      fw.start(testContainer);
 
       expect(initializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
-        var $link = $(container).find('a');
+        var $link = $(testContainer).find('a');
 
         expect(routeSpy).not.toHaveBeenCalled();
         expect($link.parent().hasClass(activeClassName)).toBe(false);
@@ -1651,7 +1649,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a $route bound link that expresses an \'active\' class on the selected parent element', function(done) {
-      var container;
+      testContainer;
       var mockUrl = generateUrl();
       var namespaceName = generateNamespaceName();
       var activeClassName = fw.utils.guid();
@@ -1674,21 +1672,21 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).not.toHaveBeenCalled();
       expect(routeSpy).not.toHaveBeenCalled();
 
-      container = makeTestContainer('<router module="' + namespaceName + '">\
+      testContainer = makeTestContainer('<router module="' + namespaceName + '">\
           <div class="parent-class-name">\
             <div>\
               <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\', parentHasState: \'.parent-class-name\' }"></a>\
             </div>\
           </div>\
         </router>');
-      fw.start(container);
+      fw.start(testContainer);
 
       expect(initializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
-        var $container = $(container);
-        var $link = $container.find('a');
-        var $elementThatHasState = $container.find('.parent-class-name');
+        var $testContainer = $(testContainer);
+        var $link = $testContainer.find('a');
+        var $elementThatHasState = $testContainer.find('.parent-class-name');
 
         expect(routeSpy).not.toHaveBeenCalled();
         expect($elementThatHasState.hasClass(activeClassName)).toBe(false);
@@ -1702,7 +1700,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a $route bound link that expresses a custom \'active\' class defined by an observable when the route matches', function(done) {
-      var container;
+      testContainer;
       var mockUrl = generateUrl();
       var routerNamespaceName = fw.utils.guid();
       var viewModelNamespaceName = fw.utils.guid();
@@ -1736,18 +1734,18 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(routerInitializeSpy).not.toHaveBeenCalled();
       expect(routeSpy).not.toHaveBeenCalled();
 
-      container = makeTestContainer('<router module="' + routerNamespaceName + '">\
+      testContainer = makeTestContainer('<router module="' + routerNamespaceName + '">\
         <viewModel module="' + viewModelNamespaceName + '">\
           <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: activeClassObservable }"></a>\
         </viewModel>\
       </router>');
-      fw.start(container);
+      fw.start(testContainer);
 
       expect(routerInitializeSpy).toHaveBeenCalled();
       expect(viewModelInitializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
-        var $link = $(container).find('a');
+        var $link = $(testContainer).find('a');
 
         expect(routeSpy).not.toHaveBeenCalled();
         expect($link.hasClass(activeClassName)).toBe(false);
@@ -1761,7 +1759,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a $route bound link that disables the active class state based on a raw boolean flag', function(done) {
-      var container;
+      testContainer;
       var mockUrl = generateUrl();
       var namespaceName = generateNamespaceName();
       var initializeSpy = jasmine.createSpy('initializeSpy');
@@ -1782,15 +1780,15 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).not.toHaveBeenCalled();
       expect(routeSpy).not.toHaveBeenCalled();
 
-      container = makeTestContainer('<router module="' + namespaceName + '">\
+      testContainer = makeTestContainer('<router module="' + namespaceName + '">\
         <a data-bind="$route: { url: \'' + mockUrl + '\', addActiveClass: false }"></a>\
       </router>');
-      fw.start(container);
+      fw.start(testContainer);
 
       expect(initializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
-        var $link = $(container).find('a');
+        var $link = $(testContainer).find('a');
 
         expect(routeSpy).not.toHaveBeenCalled();
         expect($link.hasClass('active')).toBe(false);
@@ -1804,7 +1802,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a $route bound link that disables the active class state using an observable', function(done) {
-      var container;
+      testContainer;
       var mockUrl = generateUrl();
       var namespaceName = generateNamespaceName();
       var initializeSpy;
@@ -1827,15 +1825,15 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).not.toHaveBeenCalled();
       expect(routeSpy).not.toHaveBeenCalled();
 
-      container = makeTestContainer('<router module="' + namespaceName + '">\
+      testContainer = makeTestContainer('<router module="' + namespaceName + '">\
         <a data-bind="$route: { url: \'' + mockUrl + '\', addActiveClass: disableActiveClass }"></a>\
       </router>');
-      fw.start(container);
+      fw.start(testContainer);
 
       expect(initializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
-        var $link = $(container).find('a');
+        var $link = $(testContainer).find('a');
 
         expect(routeSpy).not.toHaveBeenCalled();
         expect($link.hasClass('active')).toBe(false);
@@ -1849,7 +1847,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a $route bound link that triggers based on a custom event defined by a string', function(done) {
-      var container;
+      testContainer;
       var mockUrl = generateUrl();
       var namespaceName = generateNamespaceName();
       var initializeSpy = jasmine.createSpy('initializeSpy');
@@ -1870,15 +1868,15 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).not.toHaveBeenCalled();
       expect(routeSpy).not.toHaveBeenCalled();
 
-      container = makeTestContainer('<router module="' + namespaceName + '">\
+      testContainer = makeTestContainer('<router module="' + namespaceName + '">\
         <a data-bind="$route: { url: \'' + mockUrl + '\', on: \'dblclick\' }"></a>\
       </router>');
-      fw.start(container);
+      fw.start(testContainer);
 
       expect(initializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
-        var $link = $(container).find('a');
+        var $link = $(testContainer).find('a');
 
         expect(routeSpy).not.toHaveBeenCalled();
         expect($link.hasClass('active')).toBe(false);
@@ -1892,7 +1890,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a $route bound link that triggers based on a custom event defined by a callback/observable', function(done) {
-      var container;
+      testContainer;
       var mockUrl = generateUrl();
       var namespaceName = generateNamespaceName();
       var initializeSpy;
@@ -1915,15 +1913,15 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(initializeSpy).not.toHaveBeenCalled();
       expect(routeSpy).not.toHaveBeenCalled();
 
-      container = makeTestContainer('<router module="' + namespaceName + '">\
+      testContainer = makeTestContainer('<router module="' + namespaceName + '">\
         <a data-bind="$route: { url: \'' + mockUrl + '\', on: customEvent }"></a>\
       </router>');
-      fw.start(container);
+      fw.start(testContainer);
 
       expect(initializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
-        var $link = $(container).find('a');
+        var $link = $(testContainer).find('a');
 
         expect(routeSpy).not.toHaveBeenCalled();
         expect($link.hasClass('active')).toBe(false);
@@ -1937,7 +1935,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a $route bound link correctly composed with a custom callback handler', function(done) {
-      var container;
+      testContainer;
       var mockUrl = generateUrl();
       var routerNamespaceName = fw.utils.guid();
       var viewModelNamespaceName = fw.utils.guid();
@@ -1977,18 +1975,18 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(viewModelInitializeSpy).not.toHaveBeenCalled();
       expect(routeSpy).not.toHaveBeenCalled();
 
-      container = makeTestContainer('<router module="' + routerNamespaceName + '">\
+      testContainer = makeTestContainer('<router module="' + routerNamespaceName + '">\
         <viewModel module="' + viewModelNamespaceName + '">\
           <a data-bind="$route: { url: \'' + mockUrl + '\', handler: routeHrefBindingCustomHandler }"></a>\
         </viewModel>\
       </router>');
-      fw.start(container);
+      fw.start(testContainer);
 
       expect(customHandlerSpy).not.toHaveBeenCalled();
       expect(routerInitializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
-        var $link = $(container).find('a');
+        var $link = $(testContainer).find('a');
 
         expect(routeSpy).not.toHaveBeenCalled();
         expect($link.hasClass('active')).toBe(false);
@@ -2011,7 +2009,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can have a $route bound link correctly composed with a custom URL callback', function(done) {
-      var container;
+      testContainer;
       var mockUrl = generateUrl();
       var routerNamespaceName = fw.utils.guid();
       var viewModelNamespaceName = fw.utils.guid();
@@ -2032,16 +2030,16 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       expect(initializeSpy).not.toHaveBeenCalled();
 
-      container = makeTestContainer('<router module="' + routerNamespaceName + '">\
+      testContainer = makeTestContainer('<router module="' + routerNamespaceName + '">\
         <a data-bind="$route: { url: routeHrefBindingCustomUrlCallback }"></a>\
       </router>');
-      fw.start(container);
+      fw.start(testContainer);
 
       expect(urlResolverSpy).toHaveBeenCalled();
       expect(initializeSpy).toHaveBeenCalled();
 
       setTimeout(function() {
-        var $link = $(container).find('a');
+        var $link = $(testContainer).find('a');
 
         expect($link.hasClass('active')).toBe(false);
         expect($link.attr('href')).toBe(mockUrl);
