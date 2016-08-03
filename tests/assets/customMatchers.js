@@ -2,7 +2,7 @@ function checkType(util, customEqualityTesters) {
   return {
     compare: function(actual, expected) {
       var result = {};
-      switch(expected) {
+      switch(expected.toLowerCase()) {
         case 'promise':
           result.pass = util.equals(typeof actual, 'object', customEqualityTesters) && util.equals(typeof actual.done, 'function', customEqualityTesters);
           break;

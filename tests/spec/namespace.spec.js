@@ -41,7 +41,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can unsubscribe from a subscription', function() {
-        var namespace = fw.namespace('basicSubscription');
+        var namespace = fw.namespace(fw.utils.guid());
         var subscriptionCallbackSpy = jasmine.createSpy('subscriptionCallbackSpy');
 
         var subscription = namespace.subscribe('testMessageTopic', ensureCallOrder(0, subscriptionCallbackSpy));
@@ -193,7 +193,7 @@ define(['footwork', 'lodash', 'jquery'],
         var namespace = fw.namespace(fw.utils.guid());
         var handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy');
 
-        namespace.subscribe('testDispose', handlerCallbackSpy);
+        namespace.subscribe('testDispose', ensureCallOrder(0, handlerCallbackSpy));
 
         expect(handlerCallbackSpy).not.toHaveBeenCalled();
 
@@ -209,7 +209,7 @@ define(['footwork', 'lodash', 'jquery'],
         var namespace = fw.namespace(fw.utils.guid());
         var handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy');
 
-        namespace.event.handler('testDispose', handlerCallbackSpy);
+        namespace.event.handler('testDispose', ensureCallOrder(0, handlerCallbackSpy));
 
         expect(handlerCallbackSpy).not.toHaveBeenCalled();
 
@@ -225,7 +225,7 @@ define(['footwork', 'lodash', 'jquery'],
         var namespace = fw.namespace(fw.utils.guid());
         var handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy');
 
-        namespace.command.handler('testDispose', handlerCallbackSpy);
+        namespace.command.handler('testDispose', ensureCallOrder(0, handlerCallbackSpy));
 
         expect(handlerCallbackSpy).not.toHaveBeenCalled();
 
@@ -242,9 +242,9 @@ define(['footwork', 'lodash', 'jquery'],
         var handlerCallbackSpy;
         var testValue = fw.utils.guid();
 
-        namespace.request.handler('testDispose', handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function() {
+        namespace.request.handler('testDispose', ensureCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function() {
           return testValue;
-        }).and.callThrough());
+        }).and.callThrough()));
 
         expect(handlerCallbackSpy).not.toHaveBeenCalled();
 
