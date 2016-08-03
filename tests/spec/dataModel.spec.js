@@ -64,27 +64,29 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
     it('correctly applies a mixin to a dataModel', function() {
       var namespaceName = generateNamespaceName();
-      var preInitCallback = jasmine.createSpy('preInitCallback').and.callThrough();
-      var postInitCallback = jasmine.createSpy('postInitCallback').and.callThrough();
+      var preInitCallbackSpy = jasmine.createSpy('preInitCallbackSpy').and.callThrough();
+      var postInitCallbackSpy = jasmine.createSpy('postInitCallbackSpy').and.callThrough();
+      var initializeSpy = jasmine.createSpy('initializeSpy').and.callThrough();
 
       var DataModelWithMixin = fw.dataModel.create({
         namespace: namespaceName,
+        initialize: expectCallOrder(1, initializeSpy),
         mixins: [
           {
-            _preInit: preInitCallback,
+            _preInit: expectCallOrder(0, preInitCallbackSpy),
             mixin: {
               mixinPresent: true
             },
-            _postInit: postInitCallback
+            _postInit: expectCallOrder(2, postInitCallbackSpy)
           }
         ]
       });
 
       var dataModel = new DataModelWithMixin();
 
-      expect(preInitCallback).toHaveBeenCalled();
+      expect(preInitCallbackSpy).toHaveBeenCalled();
       expect(dataModel.mixinPresent).toBe(true);
-      expect(postInitCallback).toHaveBeenCalled();
+      expect(postInitCallbackSpy).toHaveBeenCalled();
     });
 
     it('has the ability to create nested dataModels with correctly defined namespaces', function() {
@@ -94,7 +96,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       var ModelA = fw.dataModel.create({
         namespace: 'ModelA',
-        initialize: ensureCallOrder(0, initializeSpyA = jasmine.createSpy('initializeSpyA', function() {
+        initialize: expectCallOrder(0, initializeSpyA = jasmine.createSpy('initializeSpyA', function() {
           expect(fw.utils.currentNamespaceName()).toBe('ModelA');
           this.subModelB = new ModelB();
           expect(fw.utils.currentNamespaceName()).toBe('ModelA');
@@ -103,7 +105,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       var ModelB = fw.dataModel.create({
         namespace: 'ModelB',
-        initialize: ensureCallOrder(1, initializeSpyB = jasmine.createSpy('initializeSpyB', function() {
+        initialize: expectCallOrder(1, initializeSpyB = jasmine.createSpy('initializeSpyB', function() {
           expect(fw.utils.currentNamespaceName()).toBe('ModelB');
           this.subModelC = new ModelC();
           expect(fw.utils.currentNamespaceName()).toBe('ModelB');
@@ -112,7 +114,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       var ModelC = fw.dataModel.create({
         namespace: 'ModelC',
-        initialize: ensureCallOrder(2, initializeSpyC = jasmine.createSpy('initializeSpyC', function() {
+        initialize: expectCallOrder(2, initializeSpyC = jasmine.createSpy('initializeSpyC', function() {
           expect(fw.utils.currentNamespaceName()).toBe('ModelC');
         }).and.callThrough())
       });
@@ -134,8 +136,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var afterRenderSpy;
 
       var ModelA = fw.dataModel.create({
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy')),
-        afterRender: ensureCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy')),
+        afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
           expect(containingElement.className).toBe(checkForClass);
         }).and.callThrough())
       });
@@ -149,24 +151,16 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       expect(afterRenderSpy).toHaveBeenCalled();
     });
 
-    it('can register a dataModel', function() {
+    it('can register and get a registered dataModel', function() {
       var namespaceName = generateNamespaceName();
       expect(fw.dataModel.isRegistered(namespaceName)).toBe(false);
 
-      fw.dataModel.register(namespaceName, function() {});
-
-      expect(fw.dataModel.isRegistered(namespaceName)).toBe(true);
-    });
-
-    it('can get a registered dataModel', function() {
-      var namespaceName = generateNamespaceName();
-      expect(fw.dataModel.isRegistered(namespaceName)).toBe(false);
-
-      var Model = function() {};
+      var Model = jasmine.createSpy('Model');
       fw.dataModel.register(namespaceName, Model);
 
       expect(fw.dataModel.isRegistered(namespaceName)).toBe(true);
       expect(fw.dataModel.getRegistered(namespaceName)).toBe(Model);
+      expect(Model).not.toHaveBeenCalled();
     });
 
     ////
@@ -185,10 +179,10 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var numToMake = _.random(1,15);
 
       for(var x = numToMake; x; x--) {
-        dataModels.push( new DataModel() );
+        dataModels.push(new DataModel());
       }
 
-      expect(fw.dataModel.getAll('getAllSpecificDataModelDoesNotExist').length).toBe(0);
+      expect(fw.dataModel.getAll(generateNamespaceName()).length).toBe(0);
       expect(fw.dataModel.getAll(specificDataModelNamespace).length).toBe(numToMake);
     });
 
@@ -225,15 +219,16 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can bind to the DOM using a shared instance', function(done) {
+      var namespaceName = generateNamespaceName();
       var boundPropertyValue = fw.utils.guid();
 
-      fw.dataModel.register(boundPropertyValue, {
+      fw.dataModel.register(namespaceName, {
         instance: {
           boundProperty: boundPropertyValue
         }
       });
 
-      var $container = $(makeTestContainer('<dataModel module="' + boundPropertyValue + '">\
+      var $container = $(makeTestContainer('<dataModel module="' + namespaceName + '">\
                                               <span class="result" data-bind="text: boundProperty"></span>\
                                             </dataModel>'));
       expect($container.find('.result').text()).not.toBe(boundPropertyValue);
@@ -246,23 +241,24 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
     });
 
     it('can bind to the DOM using a generated instance', function(done) {
+      var namespaceName = generateNamespaceName();
       var boundPropertyValue = fw.utils.guid();
       var boundPropertyValueElement = boundPropertyValue + '-element';
       var createDataModelInstance;
 
-      fw.dataModel.register(boundPropertyValue, {
-        createDataModel: createDataModelInstance = jasmine.createSpy('createDataModel', function(params, info) {
+      fw.dataModel.register(namespaceName, {
+        createDataModel: expectCallOrder(0, createDataModelInstance = jasmine.createSpy('createDataModel', function(params, info) {
           expect(params.var).toBe(boundPropertyValue);
           expect(info.element.getAttribute('id')).toBe(boundPropertyValueElement);
 
           return {
             boundProperty: boundPropertyValue
           };
-        }).and.callThrough()
+        }).and.callThrough())
       });
 
       expect(createDataModelInstance).not.toHaveBeenCalled();
-      var $container = $(makeTestContainer('<dataModel module="' + boundPropertyValue + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
+      var $container = $(makeTestContainer('<dataModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
                                               <span class="result" data-bind="text: boundProperty"></span>\
                                             </dataModel>'));
 
@@ -285,8 +281,8 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       fw.dataModel.create({
         namespace: namespaceName,
         autoRegister: true,
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy').and.callThrough()),
-        afterRender: ensureCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy').and.callThrough()),
+        afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
           $theElement = $(element);
           expect($theElement.hasClass('fw-entity-animate')).toBe(false);
         }).and.callThrough())
@@ -309,13 +305,13 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       fw.dataModel.create({
         namespace: namespaceNameOuter,
         autoRegister: true,
-        initialize: ensureCallOrder(0, initializeSpy)
+        initialize: expectCallOrder(0, initializeSpy)
       });
 
       fw.dataModel.create({
         namespace: namespaceNameInner,
         autoRegister: true,
-        initialize: ensureCallOrder(1, initializeSpy)
+        initialize: expectCallOrder(1, initializeSpy)
       });
 
       expect(initializeSpy).not.toHaveBeenCalled();
@@ -353,7 +349,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var onDisposeSpy;
 
       var WrapperDataModel = fw.dataModel.create({
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           this.showIt = fw.observable(true);
         }).and.callThrough())
       });
@@ -361,11 +357,11 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var DataModelWithDispose = fw.dataModel.create({
         namespace: namespaceName,
         autoRegister: true,
-        afterRender: ensureCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+        afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
           theElement = element;
           expect(theElement.tagName).toBe('DATAMODEL');
         }).and.callThrough()),
-        onDispose: ensureCallOrder(2, onDisposeSpy = jasmine.createSpy('onDisposeSpy', function(element) {
+        onDispose: expectCallOrder(2, onDisposeSpy = jasmine.createSpy('onDisposeSpy', function(element) {
           expect(element).toBe(theElement);
         }).and.callThrough())
       });
@@ -535,7 +531,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var initializeSpy;
 
       var Person = fw.dataModel.create({
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           this.firstName = fw.observable(person.firstName).mapTo('firstName');
           this.lastName = fw.observable(person.lastName).mapTo('lastName');
         }).and.callThrough())
@@ -558,7 +554,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var initializeSpy;
 
       var Person = fw.dataModel.create({
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           this.firstName = fw.observable(person.firstName).mapTo('firstName');
           this.lastName = fw.observable(person.lastName).mapTo('lastName');
           this.movieCollection = {
@@ -597,7 +593,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var initializeSpy;
 
       var Person = fw.dataModel.create({
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           this.firstName = fw.observable(person.firstName).mapTo('firstName');
           this.lastName = fw.observable(person.lastName).mapTo('lastName');
           this.movieCollection = {
@@ -633,7 +629,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var initializeSpy;
 
       var Person = fw.dataModel.create({
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           this.firstName = fw.observable(person.firstName).mapTo('firstName');
           this.lastName = fw.observable(person.lastName).mapTo('lastName');
           this.movieCollection = {
@@ -669,7 +665,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var initializeSpy;
 
       var Person = fw.dataModel.create({
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           this.firstName = fw.observable(person.firstName).mapTo('firstName');
           this.lastName = fw.observable(person.lastName).mapTo('lastName');
           this.movieCollection = {
@@ -703,7 +699,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var initializeSpy;
 
       var Person = fw.dataModel.create({
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           this.firstName = fw.observable(person.firstName).mapTo('firstName');
           this.lastName = fw.observable(person.lastName).mapTo('lastName');
           this.movieCollection = {
@@ -756,7 +752,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var initializeSpy;
 
       var Person = fw.dataModel.create({
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           this.firstName = fw.observable().mapTo('firstName');
           this.lastName = fw.observable().mapTo('lastName');
           this.movieCollection = {
@@ -795,7 +791,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var initializeSpy;
 
       var Person = fw.dataModel.create({
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(personData) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(personData) {
           this.firstName = fw.observable().mapTo('firstName');
           this.lastName = fw.observable().mapTo('lastName');
           this.movieCollection = {
@@ -821,7 +817,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var initializeSpy;
 
       var Person = fw.dataModel.create({
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           this.firstName = fw.observable(person.firstName).mapTo('firstName');
           this.lastName = fw.observable(person.lastName).mapTo('lastName');
           this.movieCollection = {
@@ -875,7 +871,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       var Person = fw.dataModel.create({
         url: mockUrl,
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           person = person || {};
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
           this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
@@ -926,7 +922,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       var Person = fw.dataModel.create({
         url: mockUrl,
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           person = person || {};
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
           this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
@@ -976,11 +972,11 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       var Person = fw.dataModel.create({
         url: mockUrl,
-        parse: ensureCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
+        parse: expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
           response.firstName = postValue;
           return response;
         }).and.callThrough()),
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           person = person || {};
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
           this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
@@ -1026,7 +1022,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       var Person = fw.dataModel.create({
         url: mockUrl,
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           person = person || {};
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
           this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
@@ -1070,11 +1066,11 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
 
       var Person = fw.dataModel.create({
         url: mockUrl,
-        parse: ensureCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
+        parse: expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
           response.firstName = getValue;
           return response;
         }).and.callThrough()),
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           person = person || {};
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
           this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
@@ -1120,7 +1116,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var Person = fw.dataModel.create({
         url: mockUrl,
         idAttribute: 'customId',
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           person = person || {};
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
           this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
@@ -1165,7 +1161,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
         ajaxOptions: {
           url: mockUrl
         },
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           person = person || {};
           this.id(person.id);
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
@@ -1208,10 +1204,10 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       });
 
       var Person = fw.dataModel.create({
-        url: ensureCallOrder(1, urlSpy = jasmine.createSpy('urlSpy', function() {
+        url: expectCallOrder(1, urlSpy = jasmine.createSpy('urlSpy', function() {
           return mockUrl;
         }).and.callThrough()),
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           person = person || {};
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
           this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
@@ -1258,7 +1254,7 @@ define(['footwork', 'lodash', 'jquery'], function(fw, _, $) {
       var Person = fw.dataModel.create({
         useKeyInUrl: false,
         url: mockUrl + '/:firstName',
-        initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           person = person || {};
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
           this.lastName = fw.observable(person.lastName || null).mapTo('lastName');

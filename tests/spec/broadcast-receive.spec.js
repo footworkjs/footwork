@@ -16,7 +16,7 @@ define(['footwork', 'lodash', 'jquery'],
         var initializeSpy;
 
         var ModelA = fw.viewModel.create({
-          initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             this.broadcaster = fw.observable().broadcastAs('broadcaster');
           }).and.callThrough())
         });
@@ -32,7 +32,7 @@ define(['footwork', 'lodash', 'jquery'],
         var initializeSpy;
 
         var ModelA = fw.viewModel.create({
-          initialize: ensureCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             this.receiver = fw.observable().receiveFrom('ModelA', 'broadcaster');
           }).and.callThrough())
         });
@@ -51,7 +51,7 @@ define(['footwork', 'lodash', 'jquery'],
 
         var ModelA = fw.viewModel.create({
           namespace: modelANamespaceName,
-          initialize: ensureCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
+          initialize: expectCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
             this.broadcaster = fw.observable().broadcastAs('broadcaster');
           }).and.callThrough())
         });
@@ -61,7 +61,7 @@ define(['footwork', 'lodash', 'jquery'],
         expect(modelAInitializeSpy).toHaveBeenCalled();
 
         var ModelB = fw.viewModel.create({
-          initialize: ensureCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
+          initialize: expectCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
             this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcaster');
           }).and.callThrough())
         });
@@ -115,7 +115,7 @@ define(['footwork', 'lodash', 'jquery'],
 
         var ModelA = fw.viewModel.create({
           namespace: modelANamespaceName,
-          initialize: ensureCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
+          initialize: expectCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
             this.writableBroadcaster = fw.observable().broadcastAs('writableBroadcaster', true);
           }).and.callThrough())
         });
@@ -125,7 +125,7 @@ define(['footwork', 'lodash', 'jquery'],
         expect(modelAInitializeSpy).toHaveBeenCalled();
 
         var ModelB = fw.viewModel.create({
-          initialize: ensureCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
+          initialize: expectCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
             this.writableReceiver = fw.observable().receiveFrom(modelANamespaceName, 'writableBroadcaster', true);
           }).and.callThrough())
         });
@@ -147,7 +147,7 @@ define(['footwork', 'lodash', 'jquery'],
 
         var ModelA = fw.viewModel.create({
           namespace: modelANamespaceName,
-          initialize: ensureCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
+          initialize: expectCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
             this.nonwritableBroadcaster = fw.observable().broadcastAs('nonwritableBroadcaster');
           }).and.callThrough())
         });
@@ -157,7 +157,7 @@ define(['footwork', 'lodash', 'jquery'],
         expect(modelAInitializeSpy).toHaveBeenCalled();
 
         var ModelB = fw.viewModel.create({
-          initialize: ensureCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
+          initialize: expectCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
             this.nonwritableReceiver = fw.observable().receiveFrom(modelANamespaceName, 'nonwritableBroadcaster', true);
           }).and.callThrough())
         });
@@ -180,7 +180,7 @@ define(['footwork', 'lodash', 'jquery'],
 
         var ModelA = fw.viewModel.create({
           namespace: modelANamespaceName,
-          initialize: ensureCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
+          initialize: expectCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
             this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback');
           }).and.callThrough())
         });
@@ -190,8 +190,8 @@ define(['footwork', 'lodash', 'jquery'],
         expect(modelAInitializeSpy).toHaveBeenCalled();
 
         var ModelB = fw.viewModel.create({
-          initialize: ensureCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
-            this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(ensureCallOrder(2, whenSpy = jasmine.createSpy('whenSpy', function() {
+          initialize: expectCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
+            this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(expectCallOrder(2, whenSpy = jasmine.createSpy('whenSpy', function() {
               return true;
             }).and.callThrough()));
           }).and.callThrough())
@@ -216,7 +216,7 @@ define(['footwork', 'lodash', 'jquery'],
 
         var ModelA = fw.viewModel.create({
           namespace: modelANamespaceName,
-          initialize: ensureCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
+          initialize: expectCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
             this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback');
           }).and.callThrough())
         });
@@ -226,8 +226,8 @@ define(['footwork', 'lodash', 'jquery'],
         expect(modelAInitializeSpy).toHaveBeenCalled();
 
         var ModelB = fw.viewModel.create({
-          initialize: ensureCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
-            this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(ensureCallOrder(2, whenSpy = jasmine.createSpy('whenSpy', function() {
+          initialize: expectCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
+            this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(expectCallOrder(2, whenSpy = jasmine.createSpy('whenSpy', function() {
               return false;
             }).and.callThrough()));
           }).and.callThrough())
@@ -253,7 +253,7 @@ define(['footwork', 'lodash', 'jquery'],
 
         var ModelA = fw.viewModel.create({
           namespace: modelANamespaceName,
-          initialize: ensureCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
+          initialize: expectCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
             this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback');
           }).and.callThrough())
         });
@@ -263,8 +263,8 @@ define(['footwork', 'lodash', 'jquery'],
         expect(modelAInitializeSpy).toHaveBeenCalled();
 
         var ModelB = fw.viewModel.create({
-          initialize: ensureCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
-            this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(ensureCallOrder([2, 3, 4], whenSpy = jasmine.createSpy('whenSpy', function(val) {
+          initialize: expectCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
+            this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(expectCallOrder([2, 3, 4], whenSpy = jasmine.createSpy('whenSpy', function(val) {
               return val === writableTestValue;
             }).and.callThrough()));
           }).and.callThrough())

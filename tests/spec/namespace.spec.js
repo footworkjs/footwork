@@ -31,7 +31,7 @@ define(['footwork', 'lodash', 'jquery'],
         var testValue = fw.utils.guid();
         var subscriptionCallbackSpy;
 
-        namespace.subscribe('testMessageTopic', ensureCallOrder(0, subscriptionCallbackSpy = jasmine.createSpy('subscriptionCallbackSpy', function(value) {
+        namespace.subscribe('testMessageTopic', expectCallOrder(0, subscriptionCallbackSpy = jasmine.createSpy('subscriptionCallbackSpy', function(value) {
           expect(value).toBe(testValue);
         })));
 
@@ -44,7 +44,7 @@ define(['footwork', 'lodash', 'jquery'],
         var namespace = fw.namespace(generateNamespaceName());
         var subscriptionCallbackSpy = jasmine.createSpy('subscriptionCallbackSpy');
 
-        var subscription = namespace.subscribe('testMessageTopic', ensureCallOrder(0, subscriptionCallbackSpy));
+        var subscription = namespace.subscribe('testMessageTopic', expectCallOrder(0, subscriptionCallbackSpy));
 
         expect(subscriptionCallbackSpy).not.toHaveBeenCalled();
 
@@ -63,7 +63,7 @@ define(['footwork', 'lodash', 'jquery'],
         var subscriptionCallbackSpy;
         var testValue = fw.utils.guid();
 
-        namespace1.subscribe('testMessageTopic', ensureCallOrder(0, subscriptionCallbackSpy = jasmine.createSpy('', function(parameter) {
+        namespace1.subscribe('testMessageTopic', expectCallOrder(0, subscriptionCallbackSpy = jasmine.createSpy('', function(parameter) {
           expect(parameter).toBe(testValue);
         }).and.callThrough()));
 
@@ -78,7 +78,7 @@ define(['footwork', 'lodash', 'jquery'],
         var namespace = fw.namespace(generateNamespaceName());
         var handlerCallbackSpy;
 
-        namespace.event.handler('testEvent', ensureCallOrder(0, handlerCallbackSpy = jasmine.createSpy('', function(parameter) {
+        namespace.event.handler('testEvent', expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('', function(parameter) {
           expect(parameter).toBe('optionalParam');
         }).and.callThrough()));
 
@@ -91,7 +91,7 @@ define(['footwork', 'lodash', 'jquery'],
         var namespace = fw.namespace(generateNamespaceName());
         var handlerCallbackSpy;
 
-        var eventHandlerCallbackSub = namespace.event.handler('testUnregisterEvent', ensureCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
+        var eventHandlerCallbackSub = namespace.event.handler('testUnregisterEvent', expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
           expect(parameter).toBe('optionalParam');
         }).and.callThrough()));
 
@@ -109,7 +109,7 @@ define(['footwork', 'lodash', 'jquery'],
         var namespace = fw.namespace(generateNamespaceName());
         var handlerCallbackSpy;
 
-        namespace.request.handler('testRequest', ensureCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
+        namespace.request.handler('testRequest', expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
           expect(parameter).toBe('optionalParam');
           return 'all-ok';
         }).and.callThrough()));
@@ -124,7 +124,7 @@ define(['footwork', 'lodash', 'jquery'],
         var handlerCallbackSpy;
         var responseValue = 'all-ok';
 
-        var requestHandler = namespace.request.handler('testUnregisteredRequest', ensureCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
+        var requestHandler = namespace.request.handler('testUnregisteredRequest', expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
           expect(parameter).toBe('optionalParam');
           return responseValue;
         }).and.callThrough()));
@@ -151,7 +151,7 @@ define(['footwork', 'lodash', 'jquery'],
         }).and.callThrough();
 
         _.each(namespaces, function(namespace, indexNumber) {
-          namespace.request.handler('testMultipleRequest', ensureCallOrder(indexNumber, handlerCallbackSpy));
+          namespace.request.handler('testMultipleRequest', expectCallOrder(indexNumber, handlerCallbackSpy));
         });
 
         var namespace = fw.namespace(namespaceName);
@@ -162,7 +162,7 @@ define(['footwork', 'lodash', 'jquery'],
         var namespace = fw.namespace(generateNamespaceName());
         var handlerCallbackSpy;
 
-        namespace.command.handler('testCommand', ensureCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
+        namespace.command.handler('testCommand', expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
           expect(parameter).toBe('optionalParam');
         }).and.callThrough()));
 
@@ -175,7 +175,7 @@ define(['footwork', 'lodash', 'jquery'],
         var namespace = fw.namespace(generateNamespaceName());
         var handlerCallbackSpy;
 
-        var requestHandler = namespace.command.handler('testUnregisteredCommand', ensureCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
+        var requestHandler = namespace.command.handler('testUnregisteredCommand', expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
           expect(parameter).toBe('optionalParam');
         }).and.callThrough()));
 
@@ -193,7 +193,7 @@ define(['footwork', 'lodash', 'jquery'],
         var namespace = fw.namespace(generateNamespaceName());
         var handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy');
 
-        namespace.subscribe('testDispose', ensureCallOrder(0, handlerCallbackSpy));
+        namespace.subscribe('testDispose', expectCallOrder(0, handlerCallbackSpy));
 
         expect(handlerCallbackSpy).not.toHaveBeenCalled();
 
@@ -209,7 +209,7 @@ define(['footwork', 'lodash', 'jquery'],
         var namespace = fw.namespace(generateNamespaceName());
         var handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy');
 
-        namespace.event.handler('testDispose', ensureCallOrder(0, handlerCallbackSpy));
+        namespace.event.handler('testDispose', expectCallOrder(0, handlerCallbackSpy));
 
         expect(handlerCallbackSpy).not.toHaveBeenCalled();
 
@@ -225,7 +225,7 @@ define(['footwork', 'lodash', 'jquery'],
         var namespace = fw.namespace(generateNamespaceName());
         var handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy');
 
-        namespace.command.handler('testDispose', ensureCallOrder(0, handlerCallbackSpy));
+        namespace.command.handler('testDispose', expectCallOrder(0, handlerCallbackSpy));
 
         expect(handlerCallbackSpy).not.toHaveBeenCalled();
 
@@ -242,7 +242,7 @@ define(['footwork', 'lodash', 'jquery'],
         var handlerCallbackSpy;
         var testValue = fw.utils.guid();
 
-        namespace.request.handler('testDispose', ensureCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function() {
+        namespace.request.handler('testDispose', expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function() {
           return testValue;
         }).and.callThrough()));
 

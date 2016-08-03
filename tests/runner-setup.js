@@ -24,7 +24,7 @@ function generateUrl() {
 
 var currentCallbackOrderIndex = 0;
 var noop = function() {};
-function ensureCallOrder(orderValue, callback) {
+function expectCallOrder(orderValue, callback) {
   callback = callback || noop;
   return function() {
     if(Object.prototype.toString.call(orderValue) === '[object Array]') {
