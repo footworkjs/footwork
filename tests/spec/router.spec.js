@@ -333,6 +333,51 @@ define(['footwork', 'lodash', 'jquery'],
         expect(initializeSpy).toHaveBeenCalled();
       });
 
+      xit('calls onDispose when the containing element is removed from the DOM', function() {
+        var namespaceName = generateNamespaceName();
+        var theElement;
+        var initializeSpy;
+        var afterRenderSpy;
+        var onDisposeSpy;
+
+        var WrapperViewModel = fw.viewModel.create({
+          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+            this.showIt = fw.observable(true);
+          }).and.callThrough())
+        });
+
+        var RouterWithDispose = fw.router.create({
+          namespace: namespaceName,
+          autoRegister: true,
+          afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+            theElement = element;
+            expect(theElement.tagName).toBe('ROUTER');
+          }).and.callThrough()),
+          onDispose: expectCallOrder(2, onDisposeSpy = jasmine.createSpy('onDisposeSpy', function(element) {
+            expect(element).toBe(theElement);
+          }).and.callThrough())
+        });
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(afterRenderSpy).not.toHaveBeenCalled();
+
+        var wrapper = new WrapperViewModel();
+
+        expect(initializeSpy).toHaveBeenCalled();
+        expect(afterRenderSpy).not.toHaveBeenCalled();
+
+        fw.applyBindings(wrapper, testContainer = makeTestContainer('<div data-bind="if: showIt">\
+          <router module="' + namespaceName + '"></router>\
+        </div>'));
+
+        expect(onDisposeSpy).not.toHaveBeenCalled();
+
+        wrapper.showIt(false);
+
+        expect(afterRenderSpy).toHaveBeenCalled();
+        expect(onDisposeSpy).toHaveBeenCalled();
+      });
+
       it('can have a registered location set and retrieved proplerly', function() {
         var namespaceName = generateNamespaceName();
         fw.router.registerLocation(namespaceName, '/bogus/path');

@@ -23,7 +23,7 @@ var entityMixins = [];
 
 var entityClass = 'fw-entity';
 var entityAnimateClass = 'fw-entity-animate';
-var oneFrame = (1000 / 20); // assume slower interfaces, 20fps
+var oneFrame = (1000 / 60); // assume slower interfaces, 20fps
 var isEntityCtor;
 var isEntity;
 var isDataModel;
