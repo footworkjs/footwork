@@ -15,20 +15,18 @@ define(['footwork', 'lodash', 'jquery'],
       it('can be instantiated and correctly set() with some data', function() {
         var initializeSpy;
 
-        var person1Data = {
-          "firstName": "PersonFirstNameTest",
-          "lastName": "PersonLastNameTest",
-          "email": "PersonEmailTest"
-        };
-
-        var person2Data = {
-          "firstName": "PersonFirstNameTest",
-          "lastName": "PersonLastNameTest",
-          "email": "PersonEmailTest"
-        };
+        var numPersons = _.random(5, 10);
+        var persons = [];
+        _.each(_.range(0, numPersons), function() {
+          persons.push({
+            "firstName": randomString(20),
+            "lastName": randomString(20),
+            "email": randomString(20)
+          });
+        });
 
         var Person = fw.dataModel.create({
-          initialize: expectCallOrder([0, 1], initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             person = person || {};
             this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
             this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
@@ -46,17 +44,17 @@ define(['footwork', 'lodash', 'jquery'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(people().length).toBe(0);
 
-        people.set([ person1Data, person2Data ]);
+        people.set(persons);
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(initializeSpy).toHaveBeenCalledTimes(persons.length);
 
-        expect(people().length).toBe(2);
-        expect(people()[0].firstName()).toBe(person1Data.firstName);
-        expect(people()[0].lastName()).toBe(person1Data.lastName);
-        expect(people()[0].email()).toBe(person1Data.email);
-        expect(people()[1].firstName()).toBe(person2Data.firstName);
-        expect(people()[1].lastName()).toBe(person2Data.lastName);
-        expect(people()[1].email()).toBe(person2Data.email);
+        expect(people().length).toBe(persons.length);
+
+        _.each(persons, function(personData, personIndex) {
+          expect(people()[personIndex].firstName()).toBe(personData.firstName);
+          expect(people()[personIndex].lastName()).toBe(personData.lastName);
+          expect(people()[personIndex].email()).toBe(personData.email);
+        });
 
         expect(_.partial(people.set, {})).toThrow();
       });
