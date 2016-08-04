@@ -283,9 +283,11 @@ define(['footwork', 'lodash', 'jquery'],
           }, {});
         }
 
-        fw.components.fileExtensions(function getFileExtensions(componentName) {
+        var getFileExtensionsSpy = jasmine.createSpy('getFileExtensionsSpy', function getFileExtensions(componentName) {
           return prependName(componentName);
-        });
+        }).and.callThrough();
+
+        fw.components.fileExtensions(expectCallOrder([0, 1], getFileExtensionsSpy));
 
         var comp1Check = prependName('comp1', true);
         var comp2Check = prependName('comp2', true);
@@ -491,7 +493,7 @@ define(['footwork', 'lodash', 'jquery'],
 
         define(namespaceName, ['footwork'], function(fw) {
           return fw.component({
-            viewModel: viewModelSpy,
+            viewModel: expectCallOrder(0, viewModelSpy),
             template: '<div></div>'
           });
         });
@@ -512,7 +514,7 @@ define(['footwork', 'lodash', 'jquery'],
 
         define(namespaceName, ['footwork'], function(fw) {
           return fw.component({
-            dataModel: dataModelSpy,
+            dataModel: expectCallOrder(0, dataModelSpy),
             template: '<div></div>'
           });
         });
@@ -533,7 +535,7 @@ define(['footwork', 'lodash', 'jquery'],
 
         define(namespaceName, ['footwork'], function(fw) {
           return fw.component({
-            router: routerSpy,
+            router: expectCallOrder(0, routerSpy),
             template: '<div></div>'
           });
         });
@@ -554,7 +556,7 @@ define(['footwork', 'lodash', 'jquery'],
 
         fw.components.registerLocation('template-only-component', { template: 'tests/assets/fixtures/' });
         fw.viewModel.register('templateOnlyInnerCheck', fw.viewModel.create({
-          initialize: initializeSpy
+          initialize: expectCallOrder(0, initializeSpy)
         }));
 
         expect(initializeSpy).not.toHaveBeenCalled();
