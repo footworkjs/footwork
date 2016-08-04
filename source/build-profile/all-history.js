@@ -26,7 +26,7 @@
   window.define = typeof define !== 'undefined' ? define : undefined;
 
   return (function() {
-    //import("helpers/root-masks.js");
+    //import("tools/root-masks.js");
     root.ko = ko;
 
     //import("../../build/lodash-custom.js");
@@ -67,7 +67,7 @@
     return (function footwork(embedded, windowObject, _, ko, postal, riveter, reqwest, Conduit, D) {
       var ajax = reqwest.compat;
       var Deferred = D;
-      //import("../framework/main.js");
+      //import("../../build/footwork-core.js");
       return fw;
     })(root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.reqwest, root.Conduit, root.D);
   })();

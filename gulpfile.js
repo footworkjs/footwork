@@ -35,37 +35,22 @@ var banner = [
   '', ''
 ];
 
-var rawBanner = [
-  '// footwork.js',
-  '// ----------------------------------',
-  '// v<%= pkg.version %>',
-  '//',
-  '// Copyright (c)2014 <%= pkg.author %>.',
-  '// Distributed under <% pkg.licenses.forEach(function( license, idx ){ %><%= license.type %><% if(idx !== pkg.licenses.length-1) { %>, <% } %><% }); %> license',
-  '//',
-  '// <%= pkg.homepage %>',
-  '', ''
-];
-
 function buildRelease(buildProfile) {
   var headerBanner = banner.slice(0).join('\n');
   var pkgData = pkg;
 
-  if(buildProfile === 'raw') {
-    headerBanner = headerBanner + rawBanner.join("\n");
-  } else {
-    pkgData = _.extend({}, pkg, { version: pkg.version + '-' + buildProfile });
-  }
-
-  return gulp
+  pkgData = _.extend({}, pkg, { version: pkg.version + '-' + buildProfile });
+  var stream = gulp
     .src(['source/build-profile/' + buildProfile + '.js'])
     .pipe(header(headerBanner, { pkg: pkgData }))
     .pipe(fileImports())
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
     .pipe(rename('footwork-' + buildProfile + '.js'))
     .pipe(size({ title: '[' + buildProfile + '] Unminified' }))
-    .pipe(gulp.dest('build/'))
-    .pipe(uglify({
+    .pipe(gulp.dest('build/'));
+
+  if(buildProfile !== 'core') {
+    stream.pipe(uglify({
       compress: { negate_iife: false }
     }))
     .pipe(header(headerBanner, { pkg: pkgData }))
@@ -73,6 +58,9 @@ function buildRelease(buildProfile) {
     .pipe(size({ title: '[' + buildProfile + '] Minified' }))
     .pipe(size({ title: '[' + buildProfile + '] Minified', gzip: true }))
     .pipe(gulp.dest('build/'));
+  }
+
+  return stream;
 };
 
 gulp.task('default', ['ci', 'copy_animation_styles_to_build']);
@@ -92,26 +80,26 @@ gulp.task('watch-tests', function () {
 });
 
 // Building tasks
-gulp.task('build-everything', ['build_all', 'build_all_with_history', 'build_bare_jquery', 'build_bare_reqwest', 'build_raw', 'build_animations_css']);
+gulp.task('build-everything', ['build_all', 'build_all_with_history', 'build_bare_jquery', 'build_bare_reqwest']);
 
-gulp.task('build_all_with_history', ['lodash_custom'], function() {
+gulp.task('build_all_with_history', ['build_core'], function() {
   return buildRelease('all-history');
 });
 
-gulp.task('build_all', ['lodash_custom'], function() {
+gulp.task('build_all', ['build_core'], function() {
   return buildRelease('all');
 });
 
-gulp.task('build_bare_jquery', ['lodash_custom'], function() {
+gulp.task('build_bare_jquery', ['build_core'], function() {
   return buildRelease('bare-jquery');
 });
 
-gulp.task('build_bare_reqwest', ['lodash_custom'], function() {
+gulp.task('build_bare_reqwest', ['build_core'], function() {
   return buildRelease('bare-reqwest');
 });
 
-gulp.task('build_raw', ['lodash_custom'], function() {
-  return buildRelease('raw');
+gulp.task('build_core', ['lodash_custom', 'build_animations_css'], function() {
+  return buildRelease('core');
 });
 
 gulp.task('dist_animation_styles', ['copy_animation_styles_to_build'], function() {
@@ -120,7 +108,7 @@ gulp.task('dist_animation_styles', ['copy_animation_styles_to_build'], function(
 });
 
 gulp.task('dist_build', function() {
-  gulp.src(['./build/footwork-*.js', '!./build/footwork-raw*.js'])
+  gulp.src(['./build/footwork-*.js', '!./build/footwork-core*.js', '!./build/lodash-custom.js'])
     .pipe(gulp.dest('./dist'));
 });
 
@@ -152,7 +140,7 @@ gulp.task('set_version', function() {
 });
 
 gulp.task('lodash_custom', function () {
-  return gulp.src('./source/build-profile/helpers/lodash-custom.js')
+  return gulp.src('./source/build-profile/tools/lodash-custom.js')
     .pipe(browserified())
     .pipe(rename('lodash-custom.js'))
     .pipe(gulp.dest('./build'));
