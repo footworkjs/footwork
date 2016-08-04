@@ -40,9 +40,9 @@ function expectCallOrder(orderValue, callback) {
   callback = callback || noop;
   return function() {
     if(Object.prototype.toString.call(orderValue) === '[object Array]') {
-      expect(orderValue.shift()).toBe(currentCallbackOrderIndex, 'order of callbacks specified in array is incorrect');
+      expect(orderValue.shift()).toBe(currentCallbackOrderIndex, '[' + _.result(callback.and || {}, 'identity') + '] order of callbacks specified in array is incorrect');
     } else {
-      expect(orderValue).toBe(currentCallbackOrderIndex, 'order of callback specified is incorrect');
+      expect(orderValue).toBe(currentCallbackOrderIndex, '[' + _.result(callback.and || {}, 'identity') + '] order of callback specified is incorrect');
     }
     currentCallbackOrderIndex++;
     return callback.apply(this, arguments);
