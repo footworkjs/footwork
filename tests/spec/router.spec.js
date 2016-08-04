@@ -159,7 +159,7 @@ define(['footwork', 'lodash', 'jquery'],
         var Router = fw.router.create();
         var routers = [ new Router(), new Router() ];
 
-        expect(_.keys(fw.router.getAll()).length).toBeGreaterThan(0);
+        expect(_.keys(fw.router.getAll())).lengthToBeGreaterThan(0);
       });
 
       it('can get all instantiated routers of a specific type/name', function() {
@@ -172,8 +172,8 @@ define(['footwork', 'lodash', 'jquery'],
           routers.push(new Router());
         }
 
-        expect(fw.router.getAll(generateNamespaceName()).length).toBe(0);
-        expect(fw.router.getAll(specificRouterNamespace).length).toBe(numToMake);
+        expect(fw.router.getAll(generateNamespaceName())).lengthToBe(0);
+        expect(fw.router.getAll(specificRouterNamespace)).lengthToBe(numToMake);
       });
 
       it('can autoRegister a router during class method creation', function() {

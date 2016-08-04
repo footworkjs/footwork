@@ -156,7 +156,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(currentThingLength).toBeGreaterThan(0);
 
           setTimeout(function() {
-            expect($testContainer.find(footworkAnimatedElements).length).toBeGreaterThan(currentThingLength);
+            expect($testContainer.find(footworkAnimatedElements)).lengthToBeGreaterThan(currentThingLength);
             done();
           }, 120);
         }, 40);

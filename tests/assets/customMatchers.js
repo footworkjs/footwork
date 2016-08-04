@@ -24,7 +24,39 @@ function checkType(util, customEqualityTesters) {
   };
 }
 
+function checkLength(util, customEqualityTesters) {
+  return {
+    compare: function(actual, expected) {
+      var result = {
+        pass: util.equals(Object.prototype.toString.call(actual), '[object Array]', customEqualityTesters) && util.equals(actual.length, expected, customEqualityTesters)
+      };
+
+      if(!result.pass) {
+        result.message = '\'' + (typeof actual) + '\' is not ' + expected + ' elements in length';
+      }
+      return result;
+    }
+  };
+}
+
+function checkLengthGreaterThan(util, customEqualityTesters) {
+  return {
+    compare: function(actual, expected) {
+      var result = {
+        pass: util.equals(Object.prototype.toString.call(actual), '[object Array]', customEqualityTesters) && actual.length > expected
+      };
+
+      if(!result.pass) {
+        result.message = '\'' + (typeof actual) + '\' is not ' + expected + ' elements in length';
+      }
+      return result;
+    }
+  };
+}
+
 var customMatchers = {
   toBeA: checkType,
-  toBeAn: checkType
+  toBeAn: checkType,
+  lengthToBe: checkLength,
+  lengthToBeGreaterThan: checkLengthGreaterThan
 };

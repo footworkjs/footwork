@@ -160,7 +160,7 @@ define(['footwork', 'lodash', 'jquery'],
         var ViewModel = fw.viewModel.create();
         var viewModels = [ new ViewModel(), new ViewModel() ];
 
-        expect(_.keys(fw.viewModel.getAll()).length).toBeGreaterThan(0);
+        expect(_.keys(fw.viewModel.getAll())).lengthToBeGreaterThan(0);
       });
 
       it('can get all instantiated viewModels of a specific type/name', function() {
@@ -173,8 +173,8 @@ define(['footwork', 'lodash', 'jquery'],
           viewModels.push(new ViewModel());
         }
 
-        expect(fw.viewModel.getAll(generateNamespaceName()).length).toBe(0);
-        expect(fw.viewModel.getAll(specificViewModelNamespace).length).toBe(numToMake);
+        expect(fw.viewModel.getAll(generateNamespaceName())).lengthToBe(0);
+        expect(fw.viewModel.getAll(specificViewModelNamespace)).lengthToBe(numToMake);
       });
 
       it('can autoRegister a viewModel during class method creation', function() {

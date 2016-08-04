@@ -25,6 +25,7 @@ function generateUrl() {
 function randomString(length) {
   var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   var result = '';
+  length = length || _.random(15, 30);
 
   for (var i = length; i > 0; --i) {
     result += chars[ Math.floor(Math.random() * chars.length) ];

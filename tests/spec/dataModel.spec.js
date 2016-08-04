@@ -164,13 +164,11 @@ define(['footwork', 'lodash', 'jquery'],
         expect(Model).not.toHaveBeenCalled();
       });
 
-      ////
-
       it('can get all instantiated dataModels', function() {
         var DataModel = fw.dataModel.create();
         var dataModels = [ new DataModel(), new DataModel() ];
 
-        expect(_.keys(fw.dataModel.getAll()).length).toBeGreaterThan(0);
+        expect(_.keys(fw.dataModel.getAll())).lengthToBeGreaterThan(0);
       });
 
       it('can get all instantiated dataModels of a specific type/name', function() {
@@ -183,8 +181,8 @@ define(['footwork', 'lodash', 'jquery'],
           dataModels.push(new DataModel());
         }
 
-        expect(fw.dataModel.getAll(generateNamespaceName()).length).toBe(0);
-        expect(fw.dataModel.getAll(specificDataModelNamespace).length).toBe(numToMake);
+        expect(fw.dataModel.getAll(generateNamespaceName())).lengthToBe(0);
+        expect(fw.dataModel.getAll(specificDataModelNamespace)).lengthToBe(numToMake);
       });
 
       it('can autoRegister a dataModel during class method creation', function() {
