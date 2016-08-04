@@ -192,7 +192,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(innerInitializeSpy).toHaveBeenCalled();
 
           done();
-        }, 150);
+        }, 20);
       });
 
       it('can pass params to a component viewModel', function(done) {
