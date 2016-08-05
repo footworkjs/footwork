@@ -25,6 +25,40 @@ var browserified = function() {
   });
 };
 
+// Browsers to run on Sauce Labs
+var customLaunchers = {
+  'SL_Chrome': {
+    base: 'SauceLabs',
+    browserName: 'chrome'
+  },
+  'SL_InternetExplorer': {
+    base: 'SauceLabs',
+    browserName: 'internet explorer',
+    version: '10'
+  },
+  'SL_FireFox': {
+    base: 'SauceLabs',
+    browserName: 'firefox',
+  }
+};
+
+var karmaConfig = {
+  sauce: {
+    sauceLabs: {
+      testName: 'Footwork Unit Tests'
+    },
+    captureTimeout: 120000,
+    customLaunchers: customLaunchers,
+    reporters: ['spec', 'saucelabs'],
+    browsers: Object.keys(customLaunchers),
+    singleRun: true
+  },
+  normal: {
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true
+  }
+};
+
 var banner = [
   '/**',
   ' * <%= pkg.name %> - <%= pkg.description %>',
@@ -66,17 +100,14 @@ function buildRelease(buildProfile) {
 
 gulp.task('default', ['ci', 'copy_animation_styles_to_build']);
 
-function runTests(done) {
-  return new Server({
-    configFile: __dirname + '/karma.conf.js',
-    singleRun: true
-  }, done).start();
-}
-
 // Testing tasks
-gulp.task('ci', ['build_ci'], runTests);
+gulp.task('tests', ['build_ci'], function runTests(done) {
+  return new Server(karmaConfig['normal'], done).start();
+});
 
-gulp.task('tests', runTests);
+gulp.task('ci', ['build_ci'], function runTests(done) {
+  return new Server(karmaConfig['sauce'], done).start();
+});
 
 gulp.task('watch-tests', function () {
   gulp.watch(['build/footwork-bare-jquery.js', 'tests/**/*.*'], ['test-now']);
