@@ -17,15 +17,12 @@ module.exports = function(config) {
     }
   };
 
-  _.reduce(customLaunchers, function (launchers, launcher, launcherName) {
-    launcher[launcherName] = _.extend({
-      'base': 'SauceLabs',
-      'tunnel-identifier': process.env.TRAVIS_JOB_NUMBER,
-      'build': process.env.TRAVIS_JOB_NUMBER,
-      'maxInstances': 1
-    }, launcher);
-    return launchers;
-  }, {});
+  Object.keys(customLaunchers).forEach(function(launcherName) {
+    customLaunchers[launcherName]['base'] = 'SauceLabs';
+    customLaunchers[launcherName]['tunnel-identifier'] = process.env.TRAVIS_JOB_NUMBER;
+    customLaunchers[launcherName]['build'] = process.env.TRAVIS_JOB_NUMBER;
+    customLaunchers[launcherName]['maxInstances'] = 1;
+  });
 
   config.set({
 
