@@ -25,17 +25,6 @@ var browserified = function() {
   });
 };
 
-var karmaConfig = {
-  sauce: {
-    configFile: __dirname + '/karma-sauce.conf.js',
-    singleRun: true
-  },
-  normal: {
-    configFile: __dirname + '/karma.conf.js',
-    singleRun: true
-  }
-};
-
 var banner = [
   '/**',
   ' * <%= pkg.name %> - <%= pkg.description %>',
@@ -79,11 +68,17 @@ gulp.task('default', ['ci', 'copy_animation_styles_to_build']);
 
 // Testing tasks
 gulp.task('tests', ['build_ci'], function runTests(done) {
-  return new Server(karmaConfig['normal'], done).start();
+  return new Server({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true
+  }, done).start();
 });
 
 gulp.task('ci', ['build_ci'], function runTests(done) {
-  return new Server(karmaConfig['sauce'], done).start();
+  return new Server({
+    configFile: __dirname + '/karma-sauce.conf.js',
+    singleRun: true
+  }, done).start();
 });
 
 gulp.task('watch-tests', function () {

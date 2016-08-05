@@ -113,6 +113,9 @@ module.exports = function(config) {
     browsers: Object.keys(customLaunchers).concat('PhantomJS'),
 
 
+    plugins: ['karma-sauce-launcher'],
+
+
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: true,
