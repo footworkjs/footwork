@@ -91,7 +91,9 @@ module.exports = function(config) {
 
 
     sauceLabs: {
-      testName: 'Footwork Unit Tests'
+      testName: 'Footwork Unit Tests',
+      tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER,
+      startConnect: false
     },
     captureTimeout: 120000,
 
@@ -111,7 +113,10 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: Object.keys(customLaunchers),
+    browsers: [
+        'Chrome',
+        'Firefox'
+    ],
 
 
     customLaunchers: customLaunchers,
@@ -126,6 +131,9 @@ module.exports = function(config) {
       'karma-fixture',
       'karma-jasmine-jquery',
       'karma-requirejs',
+      'karma-chrome-launcher',
+      'karma-firefox-launcher',
+      'karma-safari-launcher',
       'karma-spec-reporter'
     ],
 

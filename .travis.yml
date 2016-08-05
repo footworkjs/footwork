@@ -10,9 +10,6 @@ before_install:
   - bower install
 
 script:
-  - sc -u "reflectiv" -k "15210a5c-e40b-4d9a-89b9-c0936d2f56fb" —doctor
-  - sc -u "reflectiv" -k "15210a5c-e40b-4d9a-89b9-c0936d2f56fb" -vv mylog.txt
-  - cat mylog.txt
   - gulp coveralls
 
 addons:
