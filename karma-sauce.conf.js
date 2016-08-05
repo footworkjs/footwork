@@ -21,7 +21,6 @@ module.exports = function(config) {
     customLaunchers[launcherName]['base'] = 'SauceLabs';
     customLaunchers[launcherName]['tunnel-identifier'] = process.env.TRAVIS_JOB_NUMBER;
     customLaunchers[launcherName]['build'] = process.env.TRAVIS_JOB_NUMBER;
-    customLaunchers[launcherName]['maxInstances'] = 1;
   });
 
   config.set({
@@ -110,7 +109,10 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: Object.keys(customLaunchers).concat('PhantomJS'),
+    browsers: Object.keys(customLaunchers),
+
+
+    customLaunchers: customLaunchers,
 
 
     plugins: [
@@ -119,13 +121,9 @@ module.exports = function(config) {
       'karma-html2js-preprocessor',
       'karma-jasmine',
       'karma-json-fixtures-preprocessor',
-      'karma-phantomjs-launcher',
       'karma-fixture',
-      'karma-firefox-launcher',
-      'karma-chrome-launcher',
       'karma-jasmine-jquery',
       'karma-requirejs',
-      'karma-safari-launcher',
       'karma-spec-reporter'
     ],
 
