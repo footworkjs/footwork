@@ -42,6 +42,8 @@ var customLaunchers = {
   }
 };
 
+var definedPlugins = require(__dirname + '/karma.conf.js')
+
 var karmaConfig = {
   sauce: {
     configFile: __dirname + '/karma.conf.js',
@@ -60,7 +62,7 @@ var karmaConfig = {
     }, {}),
     reporters: ['spec', 'saucelabs'],
     browsers: Object.keys(customLaunchers),
-    plugins: ['karma-sauce-launcher'],
+    plugins: ['karma-sauce-launcher', 'karma-jasmine-jquery', 'karma-requirejs', 'karma-fixture', 'karma-jasmine'],
     singleRun: true
   },
   normal: {
