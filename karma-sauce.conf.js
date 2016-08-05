@@ -113,7 +113,21 @@ module.exports = function(config) {
     browsers: Object.keys(customLaunchers).concat('PhantomJS'),
 
 
-    plugins: ['karma-sauce-launcher'],
+    plugins: [
+      'karma-sauce-launcher',
+      'karma-coverage',
+      'karma-html2js-preprocessor',
+      'karma-jasmine',
+      'karma-json-fixtures-preprocessor',
+      'karma-phantomjs-launcher',
+      'karma-fixture',
+      'karma-firefox-launcher',
+      'karma-chrome-launcher',
+      'karma-jasmine-jquery',
+      'karma-requirejs',
+      'karma-safari-launcher',
+      'karma-spec-reporter'
+    ],
 
 
     // Continuous Integration mode
