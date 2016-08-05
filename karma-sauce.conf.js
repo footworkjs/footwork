@@ -1,8 +1,6 @@
 module.exports = function(config) {
 
   console.log('TravisCI Job:', process.env.TRAVIS_JOB_NUMBER);
-  process.env.SAUCE_USERNAME = "reflectiv";
-  process.env.SAUCE_ACCESS_KEY = "brnH8iNtopeteMze9l6oApK9eoIc6EjqcaJcKJknlifEryWLUwRUsm3zi63bVvFOEATuhy82TkkDo57x2COpJbJ0+WqgkDS+Cl90MpQvuEiFj3S0huYjMc8mO9ZxS26wf+waWF+XWoyqvfesOHYwEzRXIw34WoSEhK3Y+9/1sc8=";
 
   // Browsers to run on Sauce Labs
   var customLaunchers = {
