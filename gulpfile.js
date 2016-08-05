@@ -25,42 +25,9 @@ var browserified = function() {
   });
 };
 
-// Browsers to run on Sauce Labs
-var customLaunchers = {
-  'SL_Chrome': {
-    browserName: 'chrome',
-    platform: 'Windows 10'
-  },
-  'SL_InternetExplorer': {
-    browserName: 'internet explorer',
-    version: '10',
-    platform: 'Windows 10'
-  },
-  'SL_FireFox': {
-    browserName: 'firefox',
-    platform: 'Windows 10'
-  }
-};
-
 var karmaConfig = {
   sauce: {
-    configFile: __dirname + '/karma.conf.js',
-    sauceLabs: {
-      testName: 'Footwork Unit Tests'
-    },
-    captureTimeout: 120000,
-    customLaunchers: _.reduce(customLaunchers, function (launchers, launcher, launcherName) {
-      launcher[launcherName] = _.extend({
-        'base': 'SauceLabs',
-        'tunnel-identifier': process.env.TRAVIS_JOB_NUMBER,
-        'build': process.env.TRAVIS_JOB_NUMBER,
-        'maxInstances': 1
-      }, launcher);
-      return launchers;
-    }, {}),
-    reporters: ['spec', 'saucelabs'],
-    browsers: Object.keys(customLaunchers),
-    plugins: ['karma-sauce-launcher', 'karma-jasmine-jquery', 'karma-requirejs', 'karma-fixture', 'karma-jasmine'],
+    configFile: __dirname + '/karma-sauce.conf.js',
     singleRun: true
   },
   normal: {
