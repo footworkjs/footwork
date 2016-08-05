@@ -42,8 +42,6 @@ var customLaunchers = {
   }
 };
 
-var definedPlugins = require(__dirname + '/karma.conf.js')
-
 var karmaConfig = {
   sauce: {
     configFile: __dirname + '/karma.conf.js',
