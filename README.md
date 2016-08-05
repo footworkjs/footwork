@@ -3,7 +3,7 @@
 
 *```A solid footing for web applications.```*
 
-[![Build Status](https://travis-ci.org/footworkjs/footwork.png?branch=master)](https://travis-ci.org/footworkjs/footwork) [![Bower version](https://badge.fury.io/bo/footwork.png)](http://badge.fury.io/bo/footwork)
+[![Build Status](https://travis-ci.org/footworkjs/footwork.png?branch=master)](https://travis-ci.org/footworkjs/footwork) [![Bower version](https://badge.fury.io/bo/footwork.png)](http://badge.fury.io/bo/footwork) [![Test Coverage](https://coveralls.io/repos/github/footworkjs/footwork/badge.svg?branch=master)](https://coveralls.io/repos/github/footworkjs/footwork/badge.svg?branch=master)
 
 ## What is footwork?
 
@@ -68,6 +68,10 @@ gulp build-everything
 
 # build whats necessary for continuous integration tests, and run them
 gulp ci
+
+# start karma for continuous test monitoring
+sudo npm install -g karma-cli
+karma start # access the tests from your browser at: http://[your-server-ip-or-host]:9876/debug.html
 
 # rebuild and deploy assets to /dist (for release)
 gulp dist
