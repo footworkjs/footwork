@@ -1,21 +1,4 @@
 module.exports = function(config) {
-  // Browsers to run on Sauce Labs
-  var customLaunchers = {
-    'SL_Chrome': {
-      base: 'SauceLabs',
-      browserName: 'chrome'
-    },
-    'SL_InternetExplorer': {
-      base: 'SauceLabs',
-      browserName: 'internet explorer',
-      version: '10'
-    },
-    'SL_FireFox': {
-      base: 'SauceLabs',
-      browserName: 'firefox',
-    }
-  };
-
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -88,13 +71,6 @@ module.exports = function(config) {
     // level of logging
     // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
     logLevel: config.LOG_WARN,
-
-
-    sauceLabs: {
-      testName: 'Footwork Framework Tests'
-    },
-    captureTimeout: 120000,
-    customLaunchers: customLaunchers,
 
 
     // enable / disable watching file and executing tests whenever any file changes

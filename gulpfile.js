@@ -95,12 +95,7 @@ gulp.task('default', ['ci', 'copy_animation_styles_to_build']);
 function runTests(done) {
   return new Server({
     configFile: __dirname + '/karma.conf.js',
-    singleRun: true,
-    sauceLabs: {
-      testName: "Footwork unit tests"
-    },
-    reporters: ['saucelabs'],
-    customLaunchers: customLaunchers
+    singleRun: true
   }, done).start();
 }
 
