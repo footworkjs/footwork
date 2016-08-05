@@ -8,6 +8,7 @@ var rename = require('gulp-rename');
 var bump = require('gulp-bump');
 var size = require('gulp-size');
 var replace = require('gulp-replace');
+var coveralls = require('gulp-coveralls');
 var Server = require('karma').Server;
 var _ = require('lodash');
 var runSequence = require('run-sequence');
@@ -74,9 +75,20 @@ function runTests(done) {
 
 // Testing tasks
 gulp.task('ci', ['build_ci'], runTests);
+
 gulp.task('tests', runTests);
+
 gulp.task('watch-tests', function () {
   gulp.watch(['build/footwork-bare-jquery.js', 'tests/**/*.*'], ['test-now']);
+});
+
+gulp.task('coveralls', ['ci'], function () {
+  if (!process.env.CI) {
+    return;
+  }
+
+  return gulp.src(path.join(__dirname, 'build/coverage/report-lcov/lcov.info'))
+    .pipe(coveralls());
 });
 
 // Building tasks

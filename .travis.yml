@@ -10,4 +10,4 @@ before_install:
   - bower install
 
 script:
-  - gulp ci
+  - gulp coveralls
