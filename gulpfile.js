@@ -60,6 +60,7 @@ var karmaConfig = {
     }, {}),
     reporters: ['spec', 'saucelabs'],
     browsers: Object.keys(customLaunchers),
+    plugins: ['karma-sauce-launcher'],
     singleRun: true
   },
   normal: {
