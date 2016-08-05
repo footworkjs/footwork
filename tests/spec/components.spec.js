@@ -123,7 +123,7 @@ define(['footwork', 'lodash', 'jquery'],
           setTimeout(function() {
             expect(theElement).toHaveClass(footworkAnimationClass);
             done();
-          }, 120);
+          }, 20);
         }, 0);
       });
 
@@ -192,7 +192,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(innerInitializeSpy).toHaveBeenCalled();
 
           done();
-        }, 120);
+        }, 20);
       });
 
       it('can pass params to a component viewModel', function(done) {
@@ -215,7 +215,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
           done();
-        }, 120);
+        }, 20);
       });
 
       it('can pass params to a \'default\' component viewModel', function(done) {
@@ -249,7 +249,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(testContainer).toContainText(valueToFind);
 
           done();
-        }, 120);
+        }, 20);
       });
 
       it('can set and return fileExtensions correctly', function() {
@@ -330,7 +330,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(window.defaultComponentLocationLoaded).toBe(true);
           done();
-        }, 120);
+        }, 20);
       });
 
       it('can specify a location and verify it', function() {
@@ -376,7 +376,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(window.registeredComponentLocationLoaded).toBe(true);
           done();
-        }, 120);
+        }, 20);
       });
 
       it('can specify and load via a registered location with a prefixed folder', function(done) {
@@ -394,7 +394,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(window.registeredComponentLocationPrefixedLoaded).toBe(true);
           done();
-        }, 120);
+        }, 20);
       });
 
       it('can specify and load via a registered RegExp-based location', function(done) {
@@ -412,7 +412,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(window.registeredRegExpComponentLocationLoaded).toBe(true);
           done();
-        }, 120);
+        }, 20);
       });
 
       it('can specify and load via a registered location with full file name', function(done) {
@@ -430,7 +430,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(window.registeredComponentLocationFullNameLoaded).toBe(true);
           done();
-        }, 120);
+        }, 20);
       });
 
       it('can specify and load via a registered location for a combined component', function(done) {
@@ -446,7 +446,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(window.registeredComponentLocationLoaded).toBe(true);
           done();
-        }, 120);
+        }, 20);
       });
 
       it('can specify and load via a registered location for a dataModel enabled component', function(done) {
@@ -465,7 +465,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(window.registeredComponentLocationLoaded).toBe(true);
           done();
-        }, 120);
+        }, 20);
       });
 
       it('can specify and load via a registered location for a router enabled component', function(done) {
@@ -484,7 +484,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(window.registeredComponentLocationLoaded).toBe(true);
           done();
-        }, 120);
+        }, 20);
       });
 
       it('can load with a declarative initialization from an already registered combined module with a viewModel', function(done) {
@@ -505,7 +505,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(viewModelSpy).toHaveBeenCalled();
           done();
-        }, 120);
+        }, 20);
       });
 
       it('can load with a declarative initialization from an already registered combined module with a dataModel', function(done) {
@@ -526,7 +526,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(dataModelSpy).toHaveBeenCalled();
           done();
-        }, 120);
+        }, 20);
       });
 
       it('can load with a declarative initialization from an already registered combined module with a router', function(done) {
@@ -547,26 +547,30 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(routerSpy).toHaveBeenCalled();
           done();
-        }, 120);
+        }, 20);
       });
 
       it('can be registered as template only which is resolved and injected correctly', function(done) {
-        var namespaceName = generateNamespaceName();
-        var initializeSpy = jasmine.createSpy('initializeSpy');
+        if(!process.env.TRAVIS_JOB_NUMBER) {
+          var namespaceName = generateNamespaceName();
+          var initializeSpy = jasmine.createSpy('initializeSpy');
 
-        fw.components.registerLocation('template-only-component', { template: 'tests/assets/fixtures/' });
-        fw.viewModel.register('templateOnlyInnerCheck', fw.viewModel.create({
-          initialize: expectCallOrder(0, initializeSpy)
-        }));
+          fw.components.registerLocation('template-only-component', { template: 'tests/assets/fixtures/' });
+          fw.viewModel.register('templateOnlyInnerCheck', fw.viewModel.create({
+            initialize: expectCallOrder(0, initializeSpy)
+          }));
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+          expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<template-only-component></template-only-component>'));
+          fw.start(testContainer = makeTestContainer('<template-only-component></template-only-component>'));
 
-        setTimeout(function() {
-          expect(initializeSpy).toHaveBeenCalled();
+          setTimeout(function() {
+            expect(initializeSpy).toHaveBeenCalled();
+            done();
+          }, 20);
+        } else {
           done();
-        }, 120);
+        }
       });
     });
   }
