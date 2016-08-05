@@ -44,6 +44,7 @@ var customLaunchers = {
 
 var karmaConfig = {
   sauce: {
+    configFile: __dirname + '/karma.conf.js',
     sauceLabs: {
       testName: 'Footwork Unit Tests'
     },
