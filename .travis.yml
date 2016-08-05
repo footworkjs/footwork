@@ -11,3 +11,9 @@ before_install:
 
 script:
   - gulp coveralls
+
+addons:
+  sauce_connect:
+    username: "reflectiv"
+    access_key:
+      secure: "aKVMuH6QD1XGqXdq5sGkARCsq5NyXndR+rOUbn2oW4X62+8ktTEtTJjKPoevwuIkv+iQKfLb/HMKB1kzu29lYC26W1K4SLG2lfTtXdZ+TgrSNO7aBzcuqxs8eZQUWRqYpeMFYphVlyKiuETtag2XrqkeJfBLZbIUC5x1hOX5Gc8="
