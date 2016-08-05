@@ -28,20 +28,17 @@ var browserified = function() {
 // Browsers to run on Sauce Labs
 var customLaunchers = {
   'SL_Chrome': {
-    base: 'SauceLabs',
     browserName: 'chrome',
-    platform: 'windows'
+    platform: 'Windows 10'
   },
   'SL_InternetExplorer': {
-    base: 'SauceLabs',
     browserName: 'internet explorer',
     version: '10',
-    platform: 'windows'
+    platform: 'Windows 10'
   },
   'SL_FireFox': {
-    base: 'SauceLabs',
     browserName: 'firefox',
-    platform: 'windows'
+    platform: 'Windows 10'
   }
 };
 
@@ -51,8 +48,16 @@ var karmaConfig = {
       testName: 'Footwork Unit Tests'
     },
     captureTimeout: 120000,
-    customLaunchers: customLaunchers,
-    reporters: ['dots', 'saucelabs'],
+    customLaunchers: _.reduce(customLaunchers, function (launchers, launcher, launcherName) {
+      launcher[launcherName] = _.extend({
+        'base': 'SauceLabs',
+        'tunnel-identifier': process.env.TRAVIS_JOB_NUMBER,
+        'build': process.env.TRAVIS_JOB_NUMBER,
+        'maxInstances': 1
+      }, launcher);
+      return launchers;
+    }) ,
+    reporters: ['spec', 'saucelabs'],
     browsers: Object.keys(customLaunchers),
     singleRun: true
   },
