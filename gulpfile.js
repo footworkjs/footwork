@@ -6,7 +6,6 @@ var fileImports = require('gulp-imports');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var bump = require('gulp-bump');
-var istanbul = require('gulp-istanbul');
 var size = require('gulp-size');
 var replace = require('gulp-replace');
 var Server = require('karma').Server;
