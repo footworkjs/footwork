@@ -6,6 +6,7 @@ var fileImports = require('gulp-imports');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var bump = require('gulp-bump');
+var istanbul = require('gulp-istanbul');
 var size = require('gulp-size');
 var replace = require('gulp-replace');
 var Server = require('karma').Server;
@@ -49,7 +50,7 @@ function buildRelease(buildProfile) {
     .pipe(size({ title: '[' + buildProfile + '] Unminified' }))
     .pipe(gulp.dest('build/'));
 
-  if(buildProfile !== 'core') {
+  if(['core', 'ci'].indexOf(buildProfile) === -1) {
     stream.pipe(uglify({
       compress: { negate_iife: false }
     }))
@@ -73,7 +74,7 @@ function runTests(done) {
 }
 
 // Testing tasks
-gulp.task('ci', ['build_bare_jquery'], runTests);
+gulp.task('ci', ['build_ci'], runTests);
 gulp.task('tests', runTests);
 gulp.task('watch-tests', function () {
   gulp.watch(['build/footwork-bare-jquery.js', 'tests/**/*.*'], ['test-now']);
@@ -94,6 +95,10 @@ gulp.task('build_bare_jquery', ['build_core'], function() {
   return buildRelease('bare-jquery');
 });
 
+gulp.task('build_ci', ['build_core'], function() {
+  return buildRelease('ci');
+});
+
 gulp.task('build_bare_reqwest', ['build_core'], function() {
   return buildRelease('bare-reqwest');
 });
@@ -108,7 +113,7 @@ gulp.task('dist_animation_styles', ['copy_animation_styles_to_build'], function(
 });
 
 gulp.task('dist_build', function() {
-  gulp.src(['./build/footwork-*.js', '!./build/footwork-core*.js', '!./build/lodash-custom.js'])
+  gulp.src(['./build/footwork-*.js', '!./build/footwork-core.js', '!./build/footwork-ci.js', '!./build/lodash-custom.js'])
     .pipe(gulp.dest('./dist'));
 });
 

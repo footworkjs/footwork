@@ -26,7 +26,7 @@ require.config({
      * have access to them.
      */
     "text": "bower_components/requirejs-text/text",
-    "footwork": "build/footwork-bare-jquery",
+    "footwork": "build/footwork-ci",
     "knockout": "bower_components/knockoutjs/dist/knockout.debug",
     "reqwest": "bower_components/reqwest/reqwest",
     "postal": "bower_components/postal.js/lib/postal",
