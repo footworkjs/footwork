@@ -56,7 +56,7 @@ var karmaConfig = {
         'maxInstances': 1
       }, launcher);
       return launchers;
-    }) ,
+    }, {}),
     reporters: ['spec', 'saucelabs'],
     browsers: Object.keys(customLaunchers),
     singleRun: true
