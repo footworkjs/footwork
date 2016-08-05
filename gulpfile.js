@@ -29,16 +29,19 @@ var browserified = function() {
 var customLaunchers = {
   'SL_Chrome': {
     base: 'SauceLabs',
-    browserName: 'chrome'
+    browserName: 'chrome',
+    platform: 'windows'
   },
   'SL_InternetExplorer': {
     base: 'SauceLabs',
     browserName: 'internet explorer',
-    version: '10'
+    version: '10',
+    platform: 'windows'
   },
   'SL_FireFox': {
     base: 'SauceLabs',
     browserName: 'firefox',
+    platform: 'windows'
   }
 };
 
@@ -49,7 +52,7 @@ var karmaConfig = {
     },
     captureTimeout: 120000,
     customLaunchers: customLaunchers,
-    reporters: ['spec', 'saucelabs'],
+    reporters: ['dots', 'saucelabs'],
     browsers: Object.keys(customLaunchers),
     singleRun: true
   },
