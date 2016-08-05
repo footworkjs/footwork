@@ -1,9 +1,4 @@
-var fs = require('fs');
-
 module.exports = function(config) {
-  process.env.SAUCE_USERNAME = require('./sauce').username;
-  process.env.SAUCE_ACCESS_KEY = require('./sauce').accessKey;
-
   // Browsers to run on Sauce Labs
   var customLaunchers = {
     'SL_Chrome': {
