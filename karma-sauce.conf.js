@@ -8,11 +8,6 @@ module.exports = function(config) {
       browserName: 'chrome',
       platform: 'Windows 10'
     },
-    'SL_InternetExplorer': {
-      browserName: 'internet explorer',
-      version: '10',
-      platform: 'Windows 10'
-    },
     'SL_FireFox': {
       browserName: 'firefox',
       platform: 'Windows 10'
