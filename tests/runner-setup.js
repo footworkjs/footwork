@@ -13,15 +13,11 @@ function makeTestContainer(theFixture, containerDOM) {
 }
 
 var loadedModules = {};
-function registerAsRequirejsModule(name, initializeMethod) {
-  loadedModules[name] = true;
-  return (initializeMethod || noop).bind(this);
-}
-
 function registerFootworkEntity(initializeMethod) {
-  return function entityIntializeCallbackMask() {
-    return registerAsRequirejsModule.call(this, this.$namespace.getName(), initializeMethod);
-  }
+  return function() {
+    loadedModules[this.$namespace.getName()] = true;
+    return (initializeMethod || noop).apply(this, arguments);
+  };
 }
 
 var namespaceCounter = 0;

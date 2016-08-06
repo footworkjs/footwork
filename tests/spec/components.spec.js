@@ -548,19 +548,24 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can be registered as template only which is resolved and injected correctly', function(done) {
-        var initializeSpy = jasmine.createSpy('initializeSpy');
+        var templateNamespaceName = 'template-only-component';
+        var innerViewModelNamespaceName = 'templateOnlyInnerCheck';
 
-        fw.components.registerLocation('template-only-component', { template: 'tests/assets/fixtures/' });
-        fw.viewModel.register('templateOnlyInnerCheck', fw.viewModel.create({
-          initialize: expectCallOrder(0, initializeSpy)
+        fw.components.registerLocation(templateNamespaceName, {
+          template: 'tests/assets/fixtures/'
+        });
+
+        fw.viewModel.register(innerViewModelNamespaceName, fw.viewModel.create({
+          namespace: innerViewModelNamespaceName,
+          initialize: registerFootworkEntity
         }));
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(innerViewModelNamespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<template-only-component></template-only-component>'));
+        fw.start(testContainer = makeTestContainer('<' + templateNamespaceName + '></' + templateNamespaceName + '>'));
 
         setTimeout(function() {
-          expect(initializeSpy).toHaveBeenCalled();
+          expect(innerViewModelNamespaceName).toBeLoaded();
           done();
         }, 40);
       });
