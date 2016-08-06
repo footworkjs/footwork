@@ -1,7 +1,5 @@
 define(['footwork', 'lodash', 'jquery'],
   function(fw, _, $) {
-    var ajaxWait = runningInCI ? 500 : 40;
-
     describe('components', function() {
       var testContainer;
       var footworkAnimationClass = 'fw-entity-animate';
