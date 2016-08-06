@@ -12,8 +12,9 @@ function makeTestContainer(theFixture, containerDOM) {
   return $container.get(0);
 }
 
+var loadedModules = {};
 function registerAsRequirejsModule(name, initializeMethod) {
-  window[name] = true;
+  loadedModules[name] = true;
   return (initializeMethod || noop).bind(this);
 }
 

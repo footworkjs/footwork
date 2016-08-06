@@ -57,12 +57,9 @@ function checkLengthGreaterThan(util, customEqualityTesters) {
 function checkForExternallyLoadedModule(util, customEqualityTesters) {
   return {
     compare: function(actual, expected) {
-      var result = {
-        pass: typeof window[actual] !== 'undefined' && !!window[actual]
-      };
-
+      var result = { pass: !!loadedModules[actual] };
       if(!result.pass) {
-        result.message = 'Expected ' + actual + ' requirejs module to have been loaded.';
+        result.message = 'Expected \'' + actual + '\' requirejs module to have been loaded.';
       }
       return result;
     }
