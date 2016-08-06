@@ -551,7 +551,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can be registered as template only which is resolved and injected correctly', function(done) {
-        if(!process.env.TRAVIS_JOB_NUMBER) {
+        if(!jasmine.getEnv().TRAVIS_JOB_NUMBER) {
           var namespaceName = generateNamespaceName();
           var initializeSpy = jasmine.createSpy('initializeSpy');
 
