@@ -463,59 +463,60 @@ define(['footwork', 'lodash', 'jquery'],
 
       it('can load via requirejs with a declarative initialization from a specified location', function(done) {
         var namespaceName = 'AMDViewModel';
-        window.AMDViewModelWasLoaded = false;
 
         fw.viewModel.registerLocation(namespaceName, 'tests/assets/fixtures/');
 
-        expect(window.AMDViewModelWasLoaded).toBe(false);
+        expect(namespaceName).not.toBeLoaded();
+
         fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
-          expect(window.AMDViewModelWasLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });
 
       it('can load via requirejs with a declarative initialization from a specified RegExp-based location', function(done) {
-        window.AMDViewModelRegexpWasLoaded = false;
+        var namespaceName = 'AMDViewModelRegexp-test';
 
         fw.viewModel.registerLocation(/AMDViewModelRegexp-.*/, 'tests/assets/fixtures/');
 
-        expect(window.AMDViewModelRegexpWasLoaded).toBe(false);
-        fw.start(testContainer = makeTestContainer('<viewModel module="AMDViewModelRegexp-test"></viewModel>'));
+        expect(namespaceName).not.toBeLoaded();
+
+        fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
-          expect(window.AMDViewModelRegexpWasLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });
 
       it('can load via requirejs with a declarative initialization from a specified location with the full file name', function(done) {
         var namespaceName = 'AMDViewModelFullName';
-        window.AMDViewModelFullNameWasLoaded = false;
 
         fw.viewModel.registerLocation(namespaceName, 'tests/assets/fixtures/' + namespaceName + '.js');
 
-        expect(window.AMDViewModelFullNameWasLoaded).toBe(false);
+        expect(namespaceName).not.toBeLoaded();
+
         fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
-          expect(window.AMDViewModelFullNameWasLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });
 
       it('can specify and load via requirejs with the default location', function(done) {
-        window.defaultViewModelLoaded = false;
+        var namespaceName = 'defaultViewModel';
 
         fw.viewModel.defaultLocation('tests/assets/fixtures/defaultViewModelLocation/');
 
-        expect(window.defaultViewModelLoaded).toBe(false);
+        expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<viewModel module="defaultViewModel"></viewModel>'));
+        fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
-          expect(window.defaultViewModelLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });

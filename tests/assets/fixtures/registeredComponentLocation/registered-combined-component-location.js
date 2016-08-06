@@ -1,10 +1,9 @@
 define(['footwork'], function(fw) {
   return fw.component({
     viewModel: fw.viewModel.create({
-      initialize: function() {
-        window.registeredComponentLocationLoaded = true;
-      }
+      namespace: 'registered-combined-component-location',
+      initialize: registerRequirejsModule
     }),
-    template: '<div>combined component</div>'
+    template: '<div></div>'
   });
 });

@@ -316,19 +316,17 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can specify and load via the default location', function(done) {
-        window.defaultComponentLocationLoaded = false;
-
         fw.components.defaultLocation({
           viewModel: 'tests/assets/fixtures/defaultComponentLocation/',
           template: 'tests/assets/fixtures/defaultComponentLocation/'
         });
 
-        expect(window.defaultComponentLocationLoaded).toBe(false);
+        expect('defaultComponentLocation').not.toBeLoaded();
 
         fw.start(testContainer = makeTestContainer('<default-component-location></default-component-location>'));
 
         setTimeout(function() {
-          expect(window.defaultComponentLocationLoaded).toBe(true);
+          expect('defaultComponentLocation').toBeLoaded();
           done();
         }, 40);
       });
@@ -362,127 +360,126 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can specify and load via a registered location', function(done) {
-        window.registeredComponentLocationLoaded = false;
+        var namespaceName = 'registered-component-location';
 
         fw.components.registerLocation('registered-component-location', {
           viewModel: 'tests/assets/fixtures/registeredComponentLocation/',
           template: 'tests/assets/fixtures/registeredComponentLocation/'
         });
 
-        expect(window.registeredComponentLocationLoaded).toBe(false);
+        expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<registered-component-location></registered-component-location>'));
+        fw.start(testContainer = makeTestContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
-          expect(window.registeredComponentLocationLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });
 
       it('can specify and load via a registered location with a prefixed folder', function(done) {
-        window.registeredComponentLocationPrefixedLoaded = false;
+        var namespaceName = 'registered-component-location-prefixed';
 
-        fw.components.registerLocation('registered-component-location-prefixed', {
+        fw.components.registerLocation(namespaceName, {
           viewModel: 'tests/assets/fixtures/',
           template: 'tests/assets/fixtures/'
         }, true);
 
-        expect(window.registeredComponentLocationPrefixedLoaded).toBe(false);
+        expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<registered-component-location-prefixed></registered-component-location-prefixed>'));
+        fw.start(testContainer = makeTestContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
-          expect(window.registeredComponentLocationPrefixedLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });
 
       it('can specify and load via a registered RegExp-based location', function(done) {
-        window.registeredRegExpComponentLocationLoaded = false;
+        var namespaceName = 'registered-regexp-component-location';
 
         fw.components.registerLocation(/registered-regexp-comp.*/, {
           viewModel: 'tests/assets/fixtures/registeredRegExpComponentLocation/',
           template: 'tests/assets/fixtures/registeredRegExpComponentLocation/'
         });
 
-        expect(window.registeredRegExpComponentLocationLoaded).toBe(false);
+        expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<registered-regexp-component-location></registered-regexp-component-location>'));
+        fw.start(testContainer = makeTestContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
-          expect(window.registeredRegExpComponentLocationLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });
 
       it('can specify and load via a registered location with full file name', function(done) {
-        window.registeredComponentLocationFullNameLoaded = false;
+        var namespaceName = 'registered-component-location-fullname';
 
-        fw.components.registerLocation('registered-component-location-fullname', {
+        fw.components.registerLocation(namespaceName, {
           viewModel: 'tests/assets/fixtures/registeredComponentLocation/registeredComponentLocationFullname.js',
           template: 'tests/assets/fixtures/registeredComponentLocation/registeredComponentLocationFullname.html'
         });
 
-        expect(window.registeredComponentLocationFullNameLoaded).toBe(false);
+        expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<registered-component-location-fullname></registered-component-location-fullname>'));
+        fw.start(testContainer = makeTestContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
-          expect(window.registeredComponentLocationFullNameLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });
 
       it('can specify and load via a registered location for a combined component', function(done) {
-        var container = document.getElementById('registeredCombinedComponentLocation');
-        window.registeredComponentLocationLoaded = false;
+        var namespaceName = 'registered-combined-component-location';
 
-        fw.components.registerLocation('registered-combined-component-location', { combined: 'tests/assets/fixtures/registeredComponentLocation/' });
+        fw.components.registerLocation(namespaceName, {
+          combined: 'tests/assets/fixtures/registeredComponentLocation/'
+        });
 
-        expect(window.registeredComponentLocationLoaded).toBe(false);
+        expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<registered-combined-component-location></registered-combined-component-location>'));
+        fw.start(testContainer = makeTestContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
-          expect(window.registeredComponentLocationLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });
 
       it('can specify and load via a registered location for a dataModel enabled component', function(done) {
-        var container = document.getElementById('registeredDataModelComponentLocation');
-        window.registeredComponentLocationLoaded = false;
+        var namespaceName = 'registered-datamodel-component-location';
 
-        fw.components.registerLocation('registered-datamodel-component-location', {
+        fw.components.registerLocation(namespaceName, {
           dataModel: 'tests/assets/fixtures/registeredComponentLocation/',
           template: 'tests/assets/fixtures/registeredComponentLocation/'
         });
 
-        expect(window.registeredComponentLocationLoaded).toBe(false);
+        expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<registered-datamodel-component-location></registered-datamodel-component-location>'));
+        fw.start(testContainer = makeTestContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
-          expect(window.registeredComponentLocationLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });
 
       it('can specify and load via a registered location for a router enabled component', function(done) {
-        var container = document.getElementById('registeredRouterComponentLocation');
-        window.registeredComponentLocationLoaded = false;
+        var namespaceName = 'registered-router-component-location';
 
         fw.components.registerLocation('registered-router-component-location', {
           router: 'tests/assets/fixtures/registeredComponentLocation/',
           template: 'tests/assets/fixtures/registeredComponentLocation/'
         });
 
-        expect(window.registeredComponentLocationLoaded).toBe(false);
+        expect(namespaceName).not.toBeLoaded();
 
         fw.start(testContainer = makeTestContainer('<registered-router-component-location></registered-router-component-location>'));
 
         setTimeout(function() {
-          expect(window.registeredComponentLocationLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });

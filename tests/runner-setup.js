@@ -12,6 +12,14 @@ function makeTestContainer(theFixture, containerDOM) {
   return $container.get(0);
 }
 
+function registerAsRequirejsModule(name) {
+  window[name] = true;
+}
+
+function registerRequirejsModule() {
+  registerAsRequirejsModule(this.$namespace.getName());
+}
+
 var namespaceCounter = 0;
 function generateNamespaceName() {
   return 'generated-ns' + namespaceCounter++;

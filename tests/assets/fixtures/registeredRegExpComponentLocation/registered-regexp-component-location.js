@@ -1,7 +1,6 @@
 define(['footwork'], function(fw) {
   return fw.viewModel.create({
-    initialize: function() {
-      window.registeredRegExpComponentLocationLoaded = true;
-    }
+    namespace: 'registered-regexp-component-location',
+    initialize: registerRequirejsModule
   });
 });

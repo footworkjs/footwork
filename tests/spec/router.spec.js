@@ -462,59 +462,60 @@ define(['footwork', 'lodash', 'jquery'],
 
       it('can load via requirejs with a declarative initialization from a specified location', function(done) {
         var namespaceName = 'AMDRouter';
-        window.AMDRouterWasLoaded = false;
 
         fw.router.registerLocation(namespaceName, 'tests/assets/fixtures/');
 
-        expect(window.AMDRouterWasLoaded).toBe(false);
+        expect(namespaceName).not.toBeLoaded();
+
         fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
-          expect(window.AMDRouterWasLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });
 
       it('can load via requirejs with a declarative initialization from a specified RegExp-based location', function(done) {
-        window.AMDRouterRegexpWasLoaded = false;
+        var namespaceName = 'AMDRouterRegexp-test';
 
         fw.router.registerLocation(/AMDRouterRegexp-.*/, 'tests/assets/fixtures/');
 
-        expect(window.AMDRouterRegexpWasLoaded).toBe(false);
-        fw.start(testContainer = makeTestContainer('<router module="AMDRouterRegexp-test"></router>'));
+        expect(namespaceName).not.toBeLoaded();
+
+        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
-          expect(window.AMDRouterRegexpWasLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });
 
       it('can load via requirejs with a declarative initialization from a specified location with the full file name', function(done) {
         var namespaceName = 'AMDRouterFullName';
-        window.AMDRouterFullNameWasLoaded = false;
 
         fw.router.registerLocation(namespaceName, 'tests/assets/fixtures/' + namespaceName + '.js');
 
-        expect(window.AMDRouterFullNameWasLoaded).toBe(false);
+        expect(namespaceName).not.toBeLoaded();
+
         fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
-          expect(window.AMDRouterFullNameWasLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });
 
       it('can specify and load via requirejs with the default location', function(done) {
-        window.defaultRouterLoaded = false;
+        var namespaceName = 'defaultRouter';
 
         fw.router.defaultLocation('tests/assets/fixtures/defaultRouterLocation/');
 
-        expect(window.defaultRouterLoaded).toBe(false);
+        expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<router module="defaultRouter"></router>'));
+        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
-          expect(window.defaultRouterLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });

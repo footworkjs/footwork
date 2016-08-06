@@ -471,59 +471,60 @@ define(['footwork', 'lodash', 'jquery'],
 
       it('can load via requirejs with a declarative initialization from a specified location', function(done) {
         var namespaceName = 'AMDDataModel';
-        window.AMDDataModelWasLoaded = false;
 
         fw.dataModel.registerLocation(namespaceName, 'tests/assets/fixtures/');
 
-        expect(window.AMDDataModelWasLoaded).toBe(false);
+        expect(namespaceName).not.toBeLoaded();
+
         fw.start(testContainer = makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         setTimeout(function() {
-          expect(window.AMDDataModelWasLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });
 
       it('can load via requirejs with a declarative initialization from a specified RegExp-based location', function(done) {
-        window.AMDDataModelRegexpWasLoaded = false;
+        var namespaceName = 'AMDDataModelRegexp-test';
 
         fw.dataModel.registerLocation(/AMDDataModelRegexp-.*/, 'tests/assets/fixtures/');
 
-        expect(window.AMDDataModelRegexpWasLoaded).toBe(false);
-        fw.start(testContainer = makeTestContainer('<dataModel module="AMDDataModelRegexp-test"></dataModel>'));
+        expect(namespaceName).not.toBeLoaded();
+
+        fw.start(testContainer = makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         setTimeout(function() {
-          expect(window.AMDDataModelRegexpWasLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });
 
       it('can load via requirejs with a declarative initialization from a specified location with the full file name', function(done) {
         var namespaceName = 'AMDDataModelFullName';
-        window.AMDDataModelFullNameWasLoaded = false;
 
         fw.dataModel.registerLocation(namespaceName, 'tests/assets/fixtures/' + namespaceName + '.js');
 
-        expect(window.AMDDataModelFullNameWasLoaded).toBe(false);
+        expect(namespaceName).not.toBeLoaded();
+
         fw.start(testContainer = makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         setTimeout(function() {
-          expect(window.AMDDataModelFullNameWasLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });
 
       it('can specify and load via requirejs with the default location', function(done) {
-        window.defaultDataModelLoaded = false;
+        var namespaceName = 'defaultDataModel';
 
         fw.dataModel.defaultLocation('tests/assets/fixtures/defaultDataModelLocation/');
 
-        expect(window.defaultDataModelLoaded).toBe(false);
+        expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<dataModel module="defaultDataModel"></dataModel>'));
+        fw.start(testContainer = makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         setTimeout(function() {
-          expect(window.defaultDataModelLoaded).toBe(true);
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });

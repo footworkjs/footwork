@@ -64,7 +64,7 @@ function buildRelease(buildProfile) {
   return stream;
 };
 
-gulp.task('default', ['ci', 'copy_animation_styles_to_build']);
+gulp.task('default', ['tests', 'copy_animation_styles_to_build']);
 
 // Testing tasks
 gulp.task('tests', ['build_ci'], function runTests(done) {

@@ -1,7 +1,6 @@
 define(['footwork'], function(fw) {
   return fw.dataModel.create({
-    initialize: function() {
-      window.registeredComponentLocationLoaded = true;
-    }
+    namespace: 'registered-datamodel-component-location',
+    initialize: registerRequirejsModule
   });
 });

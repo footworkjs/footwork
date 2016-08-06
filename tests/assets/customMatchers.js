@@ -54,9 +54,25 @@ function checkLengthGreaterThan(util, customEqualityTesters) {
   };
 }
 
+function checkForExternallyLoadedModule(util, customEqualityTesters) {
+  return {
+    compare: function(actual, expected) {
+      var result = {
+        pass: typeof window[actual] !== 'undefined' && !!window[actual]
+      };
+
+      if(!result.pass) {
+        result.message = 'Expected ' + actual + ' requirejs module to have been loaded.';
+      }
+      return result;
+    }
+  };
+}
+
 var customMatchers = {
   toBeA: checkType,
   toBeAn: checkType,
   lengthToBe: checkLength,
-  lengthToBeGreaterThan: checkLengthGreaterThan
+  lengthToBeGreaterThan: checkLengthGreaterThan,
+  toBeLoaded: checkForExternallyLoadedModule
 };
