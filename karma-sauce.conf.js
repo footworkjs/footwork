@@ -86,9 +86,12 @@ module.exports = function(config) {
     sauceLabs: {
       testName: 'Footwork Unit Tests',
       tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER,
-      startConnect: false
+      startConnect: false,
+      verbose: true,
+      verboseDebugging: false,
     },
     captureTimeout: 120000,
+    browserNoActivityTimeout: 600000,
 
 
     // enable / disable colors in the output (reporters and logs)
