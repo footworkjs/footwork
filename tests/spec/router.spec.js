@@ -1,5 +1,7 @@
 define(['footwork', 'lodash', 'jquery'],
   function(fw, _, $) {
+    var ajaxWait = runningInCI ? 500 : 40;
+
     describe('router', function() {
       var testContainer;
 
@@ -229,7 +231,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(testContainer).toContainText(boundPropertyValue);
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can bind to the DOM using a generated instance', function(done) {
@@ -261,7 +263,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(createRouterInstance).toHaveBeenCalled();
           expect(testContainer).toContainText(boundPropertyValue);
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('has the animation classes applied properly', function() {
@@ -472,7 +474,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can load via requirejs with a declarative initialization from a specified RegExp-based location', function(done) {
@@ -487,7 +489,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can load via requirejs with a declarative initialization from a specified location with the full file name', function(done) {
@@ -502,7 +504,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can specify and load via requirejs with the default location', function(done) {
@@ -517,7 +519,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can be nested and initialized declaratively', function(done) {
@@ -549,7 +551,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(outerInitializeSpy).toHaveBeenCalled();
           expect(innerInitializeSpy).toHaveBeenCalled();
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can trigger the default route', function(done) {
@@ -574,7 +576,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(defaultRouteControllerSpy).toHaveBeenCalled();
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can trigger the unknownRoute', function(done) {
@@ -605,7 +607,7 @@ define(['footwork', 'lodash', 'jquery'],
           router.setState(generateUrl());
           expect(unknownRouteControllerSpy).toHaveBeenCalled();
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can trigger a specified route', function(done) {
@@ -639,7 +641,7 @@ define(['footwork', 'lodash', 'jquery'],
           router.setState(mockUrl);
           expect(routeControllerSpy).toHaveBeenCalled();
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can trigger a specified route that is defined within an array of route strings', function(done) {
@@ -673,7 +675,7 @@ define(['footwork', 'lodash', 'jquery'],
           router.setState(mockUrl + '2');
           expect(routeControllerSpy).toHaveBeenCalled();
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can trigger a specified route with a required parameter', function(done) {
@@ -710,7 +712,7 @@ define(['footwork', 'lodash', 'jquery'],
           router.setState(mockUrl + '/' + testParam);
           expect(routeControllerSpy).toHaveBeenCalled();
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can trigger a specified route with an optional parameter with and without the parameter', function(done) {
@@ -758,7 +760,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(optParamSuppliedSpy).toHaveBeenCalled();
 
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can manipulate an outlet', function(done) {
@@ -830,9 +832,9 @@ define(['footwork', 'lodash', 'jquery'],
               expect($testContainer.find('outlet[name="output"]').attr('rendered')).not.toBe(manipulateOutletComponentNamespace);
               expect($testContainer.find('outlet[name="output"] .component-loaded').length).toBe(0);
               done();
-            }, 500);
-          }, 500);
-        }, 500);
+            }, ajaxWait);
+          }, ajaxWait);
+        }, ajaxWait);
       });
 
       it('can see all/multiple referenced outlets defined in its context', function(done) {
@@ -860,7 +862,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(initializeSpy).toHaveBeenCalled();
           expect(_.keys(router.outlets)).toEqual([ 'output1', 'output2', 'output3' ]);
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can have callback triggered after outlet component is resolved and composed', function(done) {
@@ -912,8 +914,8 @@ define(['footwork', 'lodash', 'jquery'],
             expect(triggerOutletCallbackControllerSpy).toHaveBeenCalled();
             expect(outletCallbackComponentSpy).toHaveBeenCalled();
             done();
-          }, 500);
-        }, 500);
+          }, ajaxWait);
+        }, ajaxWait);
       });
 
       it('can instantiate and properly render an outlet after its router has initialized', function(done) {
@@ -986,8 +988,8 @@ define(['footwork', 'lodash', 'jquery'],
             expect(outletCallbackSpy).toHaveBeenCalled();
             expect(initializeComponentViewModelSpy).toHaveBeenCalled();
             done();
-          }, 500);
-        }, 500);
+          }, ajaxWait);
+        }, ajaxWait);
       });
 
       it('can display a temporary loading component in place of a component that is being downloaded', function(done) {
@@ -1050,7 +1052,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(outletLoaderTestLoadedSpy).toHaveBeenCalled();
           expect(outletCallbackSpy).toHaveBeenCalled();
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can display a temporary loading component (source from callback) in place of a component that is being downloaded', function(done) {
@@ -1124,7 +1126,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(outletLoaderTestLoadedSpy).toHaveBeenCalled();
           expect(outletCallbackSpy).toHaveBeenCalled();
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       xit('can display a temporary loading component in place of a component that is being downloaded with a custom minimum transition time', function(done) {
@@ -1156,7 +1158,7 @@ define(['footwork', 'lodash', 'jquery'],
           namespace: routerNamespace,
           autoRegister: true,
           showDuringLoad: outletLoaderTestLoadingNamespace,
-          minTransitionPeriod: 500,
+          minTransitionPeriod: ajaxWait,
           routes: [
             {
               route: mockUrl,
@@ -1190,8 +1192,8 @@ define(['footwork', 'lodash', 'jquery'],
           setTimeout(function() {
             expect(outletCallbackSpy).toHaveBeenCalled();
             done();
-          }, 500);
-        }, 500);
+          }, ajaxWait);
+        }, ajaxWait);
       });
 
       xit('can display a temporary loading component in place of a component that is being downloaded with a custom minimum transition time from callback', function(done) {
@@ -1227,7 +1229,7 @@ define(['footwork', 'lodash', 'jquery'],
           minTransitionPeriod: expectCallOrder(1, minTransitionPeriodSpy = jasmine.createSpy('minTransitionPeriodSpy', function(outletName, componentToDisplay) {
             expect(outletName).toBe('output');
             expect(componentToDisplay).toBe(outletLoaderTestLoadedNamespace);
-            return 500;
+            return ajaxWait;
           }).and.callThrough()),
           routes: [
             {
@@ -1264,8 +1266,8 @@ define(['footwork', 'lodash', 'jquery'],
           setTimeout(function() {
             expect(outletCallbackSpy).toHaveBeenCalled();
             done();
-          }, 500);
-        }, 500);
+          }, ajaxWait);
+        }, ajaxWait);
       });
 
       it('can have nested/child routers path be dependent on its parents', function(done) {
@@ -1336,7 +1338,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(subInner.path()).toBe('/outerRoute/innerRoute/');
 
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can have a nested/child router which is not relative to its parent', function(done) {
@@ -1390,7 +1392,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(inner.path()).toBe('/outerRoute');
 
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can have a $route bound link correctly composed with an href attribute using passed in string route', function(done) {
@@ -1436,7 +1438,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(routeSpy).toHaveBeenCalled();
 
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can have a $route bound link correctly composed using the elements existing href attribute', function(done) {
@@ -1482,7 +1484,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(routeSpy).toHaveBeenCalled();
 
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can have a $route bound link correctly composed with an href attribute using an observable', function(done) {
@@ -1555,7 +1557,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(changedRouteSpy).toHaveBeenCalled();
 
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can have a $route bound link that expresses the default active class when the route matches', function(done) {
@@ -1602,7 +1604,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect($link.hasClass('active')).toBe(true);
 
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can have a $route bound link that expresses a custom \'active\' class when the route matches', function(done) {
@@ -1646,7 +1648,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect($link.hasClass(activeClassName)).toBe(true);
 
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can have a $route bound link that expresses a custom \'active\' class on the direct parent element', function(done) {
@@ -1692,7 +1694,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect($link.parent().hasClass(activeClassName)).toBe(true);
 
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can have a $route bound link that expresses an \'active\' class on the selected parent element', function(done) {
@@ -1743,7 +1745,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect($elementThatHasState.hasClass(activeClassName)).toBe(true);
 
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can have a $route bound link that expresses a custom \'active\' class defined by an observable when the route matches', function(done) {
@@ -1802,7 +1804,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect($link.hasClass(activeClassName)).toBe(true);
 
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can have a $route bound link that disables the active class state based on a raw boolean flag', function(done) {
@@ -1845,7 +1847,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect($link.hasClass('active')).toBe(false);
 
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can have a $route bound link that disables the active class state using an observable', function(done) {
@@ -1890,7 +1892,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect($link.hasClass('active')).toBe(false);
 
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can have a $route bound link that triggers based on a custom event defined by a string', function(done) {
@@ -1933,7 +1935,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect($link.hasClass('active')).toBe(true);
 
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can have a $route bound link that triggers based on a custom event defined by a callback/observable', function(done) {
@@ -1978,7 +1980,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect($link.hasClass('active')).toBe(true);
 
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can have a $route bound link correctly composed with a custom callback handler', function(done) {
@@ -2052,7 +2054,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect($link.hasClass('active')).toBe(true);
 
           done();
-        }, 500);
+        }, ajaxWait);
       });
 
       it('can have a $route bound link correctly composed with a custom URL callback', function(done) {
@@ -2092,7 +2094,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect($link.attr('href')).toBe(mockUrl);
 
           done();
-        }, 500);
+        }, ajaxWait);
       });
     });
   }

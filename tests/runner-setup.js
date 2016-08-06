@@ -66,6 +66,7 @@ function resetCallbackOrder() {
   currentCallbackOrderIndex = 0;
 }
 
+var runningInCI;
 var fw;
 var $;
 var _;
