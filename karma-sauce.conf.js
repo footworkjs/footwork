@@ -1,13 +1,150 @@
 module.exports = function(config) {
   // Browsers to run on Sauce Labs
   var customLaunchers = {
-    'SL_Chrome': {
-      browserName: 'chrome',
-      platform: 'Windows 10'
+    // OSX
+
+	  // OS10.Firefox
+    "OSX_FireFox_Latest": {
+      browserName: "firefox",
+      platform: "OS X 10.11",
+      version: 'latest'
     },
-    'SL_FireFox': {
-      browserName: 'firefox',
-      platform: 'Windows 10'
+    "OSX_FireFox_Latest_1": {
+      browserName: "firefox",
+      platform: "OS X 10.11",
+      version: 'latest-1'
+    },
+    "OSX_FireFox_Latest_2": {
+      browserName: "firefox",
+      platform: "OS X 10.11",
+      version: 'latest-2'
+    },
+    "OSX_FireFox_Latest_3": {
+      browserName: "firefox",
+      platform: "OS X 10.11",
+      version: 'latest-3'
+    },
+
+	  // OS10.chrome
+    "OSX_Chrome_Latest": {
+      browserName: "chrome",
+      platform: "OS X 10.11",
+      version: 'latest'
+    },
+    "OSX_Chrome_Latest_1": {
+      browserName: "chrome",
+      platform: "OS X 10.11",
+      version: 'latest-1'
+    },
+    "OSX_Chrome_Latest_2": {
+      browserName: "chrome",
+      platform: "OS X 10.11",
+      version: 'latest-2'
+    },
+    "OSX_Chrome_Latest_3": {
+      browserName: "chrome",
+      platform: "OS X 10.11",
+      version: 'latest-3'
+    },
+
+    // OS10.Safari
+    "SL_Safari_9": {
+      browserName: "safari",
+      version: 9,
+      platform: "OS X 10.11"
+    },
+
+    // Windows
+
+    // Windows.Firefox
+    "SL_Windows_FireFox_Latest": {
+      browserName: "firefox",
+      platform: "Windows 10",
+      version: 'latest'
+    },
+    "SL_Windows_FireFox_Latest_1": {
+      browserName: "firefox",
+      platform: "Windows 10",
+      version: 'latest-1'
+    },
+    "SL_Windows_FireFox_Latest_2": {
+      browserName: "firefox",
+      platform: "Windows 10",
+      version: 'latest-2'
+    },
+    "SL_Windows_FireFox_Latest_3": {
+      browserName: "firefox",
+      platform: "Windows 10",
+      version: 'latest-3'
+    },
+
+    // Windows.Chrome
+    "Windows_Chrome_Latest": {
+      browserName: "chrome",
+      platform: "Windows 10",
+      version: 'latest'
+    },
+    "Windows_Chrome_Latest_1": {
+      browserName: "chrome",
+      platform: "Windows 10",
+      version: 'latest-1'
+    },
+    "Windows_Chrome_Latest_2": {
+      browserName: "chrome",
+      platform: "Windows 10",
+      version: 'latest-2'
+    },
+    "Windows_Chrome_Latest_3": {
+      browserName: "chrome",
+      platform: "Windows 10",
+      version: 'latest-3'
+    },
+
+    // Windows.Edge
+    "SL_Edge": {
+      browserName: "MicrosoftEdge",
+      version: "11",
+      platform: "Windows 10"
+    },
+
+    // Windows.IE
+    "SL_InternetExplorer_9": {
+      browserName: "internet explorer",
+      version: "9",
+      platform: "Windows 7"
+    },
+    "SL_InternetExplorer_10": {
+      browserName: "internet explorer",
+      version: "10",
+      platform: "Windows 8.1"
+    },
+    "SL_InternetExplorer_11": {
+      browserName: "internet explorer",
+      version: "11",
+      platform: "Windows 10"
+    },
+
+    // Windows.Opera
+    "SL_Opera": {
+      browserName: "opera",
+      platform: "Windows 7",
+      version: 'latest'
+    },
+
+    // Linux
+
+    // Linux.Firefox
+    "SL_Linux_Firefox": {
+      browserName: "firefox",
+      platform: "Linux",
+      version: 'latest'
+    },
+
+    // Linux.Opera
+    "SL_Opera_Linux": {
+      browserName: "opera",
+      platform: "Linux",
+      version: 'latest'
     }
   };
 
