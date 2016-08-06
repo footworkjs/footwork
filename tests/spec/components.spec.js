@@ -546,29 +546,6 @@ define(['footwork', 'lodash', 'jquery'],
           done();
         }, 40);
       });
-
-      it('can be registered as template only which is resolved and injected correctly', function(done) {
-        var templateNamespaceName = 'template-only-component';
-        var innerViewModelNamespaceName = 'templateOnlyInnerCheck';
-
-        fw.components.registerLocation(templateNamespaceName, {
-          template: 'tests/assets/fixtures/'
-        });
-
-        fw.viewModel.register(innerViewModelNamespaceName, fw.viewModel.create({
-          namespace: innerViewModelNamespaceName,
-          initialize: registerFootworkEntity
-        }));
-
-        expect(innerViewModelNamespaceName).not.toBeLoaded();
-
-        fw.start(testContainer = makeTestContainer('<' + templateNamespaceName + '></' + templateNamespaceName + '>'));
-
-        setTimeout(function() {
-          expect(innerViewModelNamespaceName).toBeLoaded();
-          done();
-        }, 40);
-      });
     });
   }
 );
