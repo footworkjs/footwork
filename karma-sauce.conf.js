@@ -1,7 +1,5 @@
 module.exports = function(config) {
 
-  console.log('TravisCI Job:', process.env.TRAVIS_JOB_NUMBER);
-
   // Browsers to run on Sauce Labs
   var customLaunchers = {
     'SL_Chrome': {
