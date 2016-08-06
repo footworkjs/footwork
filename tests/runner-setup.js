@@ -12,12 +12,15 @@ function makeTestContainer(theFixture, containerDOM) {
   return $container.get(0);
 }
 
-function registerAsRequirejsModule(name) {
+function registerAsRequirejsModule(name, initializeMethod) {
   window[name] = true;
+  return (initializeMethod || noop).bind(this);
 }
 
-function registerFootworkEntity() {
-  registerAsRequirejsModule(this.$namespace.getName());
+function registerFootworkEntity(initializeMethod) {
+  return function entityIntializeCallbackMask() {
+    return registerAsRequirejsModule.call(this, this.$namespace.getName(), initializeMethod);
+  }
 }
 
 var namespaceCounter = 0;
