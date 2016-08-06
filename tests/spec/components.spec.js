@@ -123,7 +123,7 @@ define(['footwork', 'lodash', 'jquery'],
           setTimeout(function() {
             expect(theElement).toHaveClass(footworkAnimationClass);
             done();
-          }, 330);
+          }, 250);
         }, 0);
       });
 
@@ -159,7 +159,7 @@ define(['footwork', 'lodash', 'jquery'],
             expect($testContainer.find(footworkAnimatedElements)).lengthToBeGreaterThan(currentThingLength);
             done();
           }, 120);
-        }, 330);
+        }, 250);
       });
 
       it('can instantiate nested <components>', function(done) {
@@ -192,7 +192,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(innerInitializeSpy).toHaveBeenCalled();
 
           done();
-        }, 330);
+        }, 250);
       });
 
       it('can pass params to a component viewModel', function(done) {
@@ -215,7 +215,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
           done();
-        }, 330);
+        }, 250);
       });
 
       it('can pass params to a \'default\' component viewModel', function(done) {
@@ -249,7 +249,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(testContainer).toContainText(valueToFind);
 
           done();
-        }, 330);
+        }, 250);
       });
 
       it('can set and return fileExtensions correctly', function() {
@@ -330,7 +330,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
           done();
-        }, 330);
+        }, 250);
       });
 
       it('can specify a location and verify it', function() {
@@ -376,7 +376,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
           done();
-        }, 330);
+        }, 250);
       });
 
       it('can specify and load via a registered location with a prefixed folder', function(done) {
@@ -394,7 +394,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
           done();
-        }, 330);
+        }, 250);
       });
 
       it('can specify and load via a registered RegExp-based location', function(done) {
@@ -412,7 +412,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
           done();
-        }, 330);
+        }, 250);
       });
 
       it('can specify and load via a registered location with full file name', function(done) {
@@ -430,7 +430,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
           done();
-        }, 330);
+        }, 250);
       });
 
       it('can specify and load via a registered location for a combined component', function(done) {
@@ -447,7 +447,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
           done();
-        }, 330);
+        }, 250);
       });
 
       it('can specify and load via a registered location for a dataModel enabled component', function(done) {
@@ -465,7 +465,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
           done();
-        }, 330);
+        }, 250);
       });
 
       it('can specify and load via a registered location for a router enabled component', function(done) {
@@ -483,7 +483,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
           done();
-        }, 330);
+        }, 250);
       });
 
       it('can load with a declarative initialization from an already registered combined module with a viewModel', function(done) {
@@ -504,7 +504,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(viewModelSpy).toHaveBeenCalled();
           done();
-        }, 330);
+        }, 250);
       });
 
       it('can load with a declarative initialization from an already registered combined module with a dataModel', function(done) {
@@ -525,7 +525,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(dataModelSpy).toHaveBeenCalled();
           done();
-        }, 330);
+        }, 250);
       });
 
       it('can load with a declarative initialization from an already registered combined module with a router', function(done) {
@@ -546,7 +546,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(routerSpy).toHaveBeenCalled();
           done();
-        }, 330);
+        }, 250);
       });
     });
   }

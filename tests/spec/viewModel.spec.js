@@ -230,7 +230,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(testContainer).toContainText(boundPropertyValue);
           done();
-        }, 330);
+        }, 250);
       });
 
       it('can bind to the DOM using a generated instance', function(done) {
@@ -262,7 +262,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(createViewModelInstance).toHaveBeenCalled();
           expect(testContainer).toContainText(boundPropertyValue);
           done();
-        }, 330);
+        }, 250);
       });
 
       it('has the animation classes applied properly', function() {
@@ -473,7 +473,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
           done();
-        }, 330);
+        }, 250);
       });
 
       it('can load via requirejs with a declarative initialization from a specified RegExp-based location', function(done) {
@@ -488,7 +488,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
           done();
-        }, 330);
+        }, 250);
       });
 
       it('can load via requirejs with a declarative initialization from a specified location with the full file name', function(done) {
@@ -503,7 +503,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
           done();
-        }, 330);
+        }, 250);
       });
 
       it('can specify and load via requirejs with the default location', function(done) {
@@ -518,7 +518,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
           done();
-        }, 330);
+        }, 250);
       });
     });
   }
