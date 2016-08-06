@@ -230,7 +230,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(testContainer).toContainText(boundPropertyValue);
           done();
-        }, 20);
+        }, 40);
       });
 
       it('can bind to the DOM using a generated instance', function(done) {
@@ -262,7 +262,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(createViewModelInstance).toHaveBeenCalled();
           expect(testContainer).toContainText(boundPropertyValue);
           done();
-        }, 20);
+        }, 40);
       });
 
       it('has the animation classes applied properly', function() {

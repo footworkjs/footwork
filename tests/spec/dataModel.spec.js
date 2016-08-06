@@ -238,7 +238,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(testContainer).toContainText(boundPropertyValue);
           done();
-        }, 20);
+        }, 40);
       });
 
       it('can bind to the DOM using a generated instance', function(done) {
@@ -270,7 +270,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(createDataModelInstance).toHaveBeenCalled();
           expect(testContainer).toContainText(boundPropertyValue);
           done();
-        }, 20);
+        }, 40);
       });
 
       it('has the animation classes applied properly', function() {
@@ -481,7 +481,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(window.AMDDataModelWasLoaded).toBe(true);
           done();
-        }, 20);
+        }, 40);
       });
 
       it('can load via requirejs with a declarative initialization from a specified RegExp-based location', function(done) {
@@ -495,7 +495,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(window.AMDDataModelRegexpWasLoaded).toBe(true);
           done();
-        }, 20);
+        }, 40);
       });
 
       it('can load via requirejs with a declarative initialization from a specified location with the full file name', function(done) {
@@ -510,7 +510,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(window.AMDDataModelFullNameWasLoaded).toBe(true);
           done();
-        }, 20);
+        }, 40);
       });
 
       it('can specify and load via requirejs with the default location', function(done) {
@@ -525,7 +525,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(window.defaultDataModelLoaded).toBe(true);
           done();
-        }, 20);
+        }, 40);
       });
 
       it('can have an observable mapped correctly at the parent level', function() {
@@ -892,7 +892,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(person.$id()).toBe(1);
           expect(person.firstName()).toBe(postValue);
           done();
-        }, 20);
+        }, 40);
       });
 
       it('can correctly POST data on initial save() and then PUT on subsequent calls', function(done) {
@@ -948,8 +948,8 @@ define(['footwork', 'lodash', 'jquery'],
           setTimeout(function() {
             expect(person.firstName()).toBe(putValue);
             done();
-          }, 20);
-        }, 20);
+          }, 40);
+        }, 40);
       });
 
       it('can correctly POST data and apply parse() method with return on save()', function(done) {
@@ -1000,7 +1000,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(person.$id()).toBe(1);
           expect(person.firstName()).toBe(postValue);
           done();
-        }, 20);
+        }, 40);
       });
 
       it('can correctly fetch() data from the server via a pre-filled idAttribute', function(done) {
@@ -1043,7 +1043,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(person.$id()).toBe(personData.id);
           expect(person.firstName()).toBe(getValue);
           done();
-        }, 20);
+        }, 40);
       });
 
       it('can correctly fetch() data from the server with a provided parse() method', function(done) {
@@ -1093,7 +1093,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(person.$id()).toBe(personData.id);
           expect(person.firstName()).toBe(getValue);
           done();
-        }, 20);
+        }, 40);
       });
 
       it('can correctly fetch() data from the server via a pre-filled custom idAttribute', function(done) {
@@ -1137,7 +1137,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(person.customId()).toBe(personData.customId);
           expect(person.firstName()).toBe(getValue);
           done();
-        }, 20);
+        }, 40);
       });
 
       it('can correctly fetch() data from the server with overridden ajaxOptions', function(done) {
@@ -1182,7 +1182,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(person.firstName()).toBe(personData.firstName);
           done();
-        }, 20);
+        }, 40);
       });
 
       it('can correctly fetch() data from the server via a url based on an evaluator function', function(done) {
@@ -1232,7 +1232,7 @@ define(['footwork', 'lodash', 'jquery'],
           expect(person.$id()).toBe(personData.id);
           expect(person.firstName()).toBe(getValue);
           done();
-        }, 20);
+        }, 40);
       });
 
       it('can correctly fetch() data from the server via a url with interpolated parameters', function(done) {
@@ -1275,7 +1275,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(person.lastName()).toBe(personData.lastName);
           done();
-        }, 20);
+        }, 40);
       });
     });
   }
