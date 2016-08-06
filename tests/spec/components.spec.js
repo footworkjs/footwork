@@ -551,26 +551,22 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can be registered as template only which is resolved and injected correctly', function(done) {
-        if(!jasmine.getEnv().TRAVIS_JOB_NUMBER) {
-          var namespaceName = generateNamespaceName();
-          var initializeSpy = jasmine.createSpy('initializeSpy');
+        var namespaceName = generateNamespaceName();
+        var initializeSpy = jasmine.createSpy('initializeSpy');
 
-          fw.components.registerLocation('template-only-component', { template: 'tests/assets/fixtures/' });
-          fw.viewModel.register('templateOnlyInnerCheck', fw.viewModel.create({
-            initialize: expectCallOrder(0, initializeSpy)
-          }));
+        fw.components.registerLocation('template-only-component', { template: 'tests/assets/fixtures/' });
+        fw.viewModel.register('templateOnlyInnerCheck', fw.viewModel.create({
+          initialize: expectCallOrder(0, initializeSpy)
+        }));
 
-          expect(initializeSpy).not.toHaveBeenCalled();
+        expect(initializeSpy).not.toHaveBeenCalled();
 
-          fw.start(testContainer = makeTestContainer('<template-only-component></template-only-component>'));
+        fw.start(testContainer = makeTestContainer('<template-only-component></template-only-component>'));
 
-          setTimeout(function() {
-            expect(initializeSpy).toHaveBeenCalled();
-            done();
-          }, 20);
-        } else {
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
           done();
-        }
+        }, 20);
       });
     });
   }
