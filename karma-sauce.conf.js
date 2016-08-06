@@ -14,37 +14,17 @@ module.exports = function(config) {
       platform: "OS X 10.11",
       version: 'latest-1'
     },
-    "OSX_FireFox_Latest_2": {
-      browserName: "firefox",
-      platform: "OS X 10.11",
-      version: 'latest-2'
-    },
-    "OSX_FireFox_Latest_3": {
-      browserName: "firefox",
-      platform: "OS X 10.11",
-      version: 'latest-3'
-    },
 
 	  // OS10.chrome
     "OSX_Chrome_Latest": {
-      browserName: "chrome",
+      browserName: "chrome-1",
       platform: "OS X 10.11",
       version: 'latest'
     },
     "OSX_Chrome_Latest_1": {
       browserName: "chrome",
       platform: "OS X 10.11",
-      version: 'latest-1'
-    },
-    "OSX_Chrome_Latest_2": {
-      browserName: "chrome",
-      platform: "OS X 10.11",
       version: 'latest-2'
-    },
-    "OSX_Chrome_Latest_3": {
-      browserName: "chrome",
-      platform: "OS X 10.11",
-      version: 'latest-3'
     },
 
     // OS10.Safari
@@ -72,11 +52,6 @@ module.exports = function(config) {
       platform: "Windows 10",
       version: 'latest-2'
     },
-    "SL_Windows_FireFox_Latest_3": {
-      browserName: "firefox",
-      platform: "Windows 10",
-      version: 'latest-3'
-    },
 
     // Windows.Chrome
     "Windows_Chrome_Latest": {
@@ -93,11 +68,6 @@ module.exports = function(config) {
       browserName: "chrome",
       platform: "Windows 10",
       version: 'latest-2'
-    },
-    "Windows_Chrome_Latest_3": {
-      browserName: "chrome",
-      platform: "Windows 10",
-      version: 'latest-3'
     },
 
     // Windows.Edge
@@ -122,13 +92,6 @@ module.exports = function(config) {
       browserName: "internet explorer",
       version: "11",
       platform: "Windows 10"
-    },
-
-    // Windows.Opera
-    "SL_Opera": {
-      browserName: "opera",
-      platform: "Windows 7",
-      version: 'latest'
     },
 
     // Linux
@@ -226,7 +189,7 @@ module.exports = function(config) {
       verbose: true,
       verboseDebugging: false,
     },
-    captureTimeout: 120000,
+    captureTimeout: 240000,
     browserNoActivityTimeout: 600000,
 
 
