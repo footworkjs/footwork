@@ -19,6 +19,12 @@ function registerFootworkEntity(initializeMethod) {
     return (initializeMethod || noop).apply(this, arguments);
   };
 }
+function registerEntity(name, initializeMethod) {
+  return function() {
+    loadedModules[name] = true;
+    return (initializeMethod || noop).apply(this, arguments);
+  };
+}
 
 var namespaceCounter = 0;
 function generateNamespaceName() {

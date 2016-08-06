@@ -316,17 +316,19 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can specify and load via the default location', function(done) {
+        var namespaceName = 'default-component-location';
+
         fw.components.defaultLocation({
           viewModel: 'tests/assets/fixtures/defaultComponentLocation/',
           template: 'tests/assets/fixtures/defaultComponentLocation/'
         });
 
-        expect('defaultComponentLocation').not.toBeLoaded();
+        expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<default-component-location></default-component-location>'));
+        fw.start(testContainer = makeTestContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
-          expect('defaultComponentLocation').toBeLoaded();
+          expect(namespaceName).toBeLoaded();
           done();
         }, 40);
       });
