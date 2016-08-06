@@ -16,7 +16,7 @@ function registerAsRequirejsModule(name) {
   window[name] = true;
 }
 
-function registerRequirejsModule() {
+function registerFootworkEntity() {
   registerAsRequirejsModule(this.$namespace.getName());
 }
 
