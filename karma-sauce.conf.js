@@ -36,11 +36,11 @@ module.exports = function(config) {
       version: '50.0'
     },
 
-    "OSX_Chrome_Latest": {
-      browserName: "chrome",
-      platform: "OS X 10.11",
-      version: '51.0'
-    },
+    // "OSX_Chrome_Latest": {
+    //   browserName: "chrome",
+    //   platform: "OS X 10.11",
+    //   version: '51.0'
+    // },
     "OSX_Chrome_Latest_1": {
       browserName: "chrome",
       platform: "OS X 10.11",
@@ -48,16 +48,16 @@ module.exports = function(config) {
     },
 
     //Safari
-    "OSX_Safari_9": {
-      browserName: "safari",
-      platform: "OS X 10.11",
-      version: '9.0'
-    },
-    "OSX_Safari_8": {
-      browserName: "safari",
-      platform: "OS X 10.10",
-      version: '8.0'
-    },
+    // "OSX_Safari_9": {
+    //   browserName: "safari",
+    //   platform: "OS X 10.11",
+    //   version: '9.0'
+    // },
+    // "OSX_Safari_8": {
+    //   browserName: "safari",
+    //   platform: "OS X 10.10",
+    //   version: '8.0'
+    // },
 
     // Edge
     "MS_Edge": {
