@@ -7,16 +7,27 @@ node_js:
 install:
   - npm install -g gulp
   - npm install -g bower
+
+before_script:
   - bower install
 
 branches:
   only:
   - master
 
+env:
+  - TASK=tests
+  - TASK=coveralls
+
 git:
   depth: 5
 
-script: "./tests/ci-tests.sh"
+matrix:
+  allow_failures:
+    - env: "TASK=coveralls"
+
+script:
+  - gulp $TASK
 
 addons:
   sauce_connect:
