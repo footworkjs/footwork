@@ -27,13 +27,6 @@ module.exports = function(config) {
       version: 'latest-2'
     },
 
-    // OS10.Safari
-    "SL_Safari_9": {
-      browserName: "safari",
-      version: 9,
-      platform: "OS X 10.11"
-    },
-
     // Windows
 
     // Windows.Firefox
@@ -57,17 +50,17 @@ module.exports = function(config) {
     "Windows_Chrome_Latest": {
       browserName: "chrome",
       platform: "Windows 10",
-      version: 'latest'
+      version: '52'
     },
     "Windows_Chrome_Latest_1": {
       browserName: "chrome",
       platform: "Windows 10",
-      version: 'latest-1'
+      version: '51'
     },
     "Windows_Chrome_Latest_2": {
       browserName: "chrome",
       platform: "Windows 10",
-      version: 'latest-2'
+      version: '50'
     },
 
     // Windows.Edge
@@ -86,12 +79,12 @@ module.exports = function(config) {
     "SL_InternetExplorer_10": {
       browserName: "internet explorer",
       version: "10",
-      platform: "Windows 8.1"
+      platform: "Windows 8"
     },
     "SL_InternetExplorer_11": {
       browserName: "internet explorer",
       version: "11",
-      platform: "Windows 10"
+      platform: "Windows 8.1"
     },
 
     // Linux

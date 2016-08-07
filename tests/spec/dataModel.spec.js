@@ -214,7 +214,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalledTimes(1);
           done();
-        }, 0);
+        }, 50;
       });
 
       it('can bind to the DOM using a shared instance', function(done) {
@@ -449,7 +449,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
           done();
-        }, 0);
+        }, 50;
       });
 
       it('can load via registered dataModel with a declarative initialization', function(done) {
@@ -466,7 +466,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
           done();
-        }, 0);
+        }, 50;
       });
 
       it('can load via requirejs with a declarative initialization from a specified location', function(done) {
