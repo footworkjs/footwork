@@ -40,14 +40,21 @@ function buildRelease(buildProfile) {
   var headerBanner = banner.slice(0).join('\n');
   var pkgData = pkg;
 
+  var buildFileName = 'footwork-' + buildProfile + '.js';
+  var minBuildFileName = 'footwork-' + buildProfile + '.min.js';
+
+  var fileSize = size({ title: buildFileName });
+  var fileSizeMin = size({ title: minBuildFileName });
+  var fileSizeGzip = size({ gzip: true, title: minBuildFileName });
+
   pkgData = _.extend({}, pkg, { version: pkg.version + '-' + buildProfile });
   var stream = gulp
     .src(['source/build-profile/' + buildProfile + '.js'])
     .pipe(header(headerBanner, { pkg: pkgData }))
     .pipe(fileImports())
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
-    .pipe(rename('footwork-' + buildProfile + '.js'))
-    .pipe(size({ title: '[' + buildProfile + '] Unminified' }))
+    .pipe(rename(buildFileName))
+    .pipe(fileSize)
     .pipe(gulp.dest('build/'));
 
   if(['core', 'ci'].indexOf(buildProfile) === -1) {
@@ -55,9 +62,9 @@ function buildRelease(buildProfile) {
       compress: { negate_iife: false }
     }))
     .pipe(header(headerBanner, { pkg: pkgData }))
-    .pipe(rename('footwork-' + buildProfile + '.min.js'))
-    .pipe(size({ title: '[' + buildProfile + '] Minified' }))
-    .pipe(size({ title: '[' + buildProfile + '] Minified', gzip: true }))
+    .pipe(rename(minBuildFileName))
+    .pipe(fileSizeMin)
+    .pipe(fileSizeGzip)
     .pipe(gulp.dest('build/'));
   }
 

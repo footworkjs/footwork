@@ -67,11 +67,11 @@ module.exports = function(config) {
     // },
 
     // IE
-    "InternetExplorer_9": {
-      browserName: "internet explorer",
-      version: "9.0",
-      platform: "Windows 7"
-    },
+    // "InternetExplorer_9": {
+    //   browserName: "internet explorer",
+    //   version: "9.0",
+    //   platform: "Windows 7"
+    // },
     "InternetExplorer_10": {
       browserName: "internet explorer",
       version: "10.0",
