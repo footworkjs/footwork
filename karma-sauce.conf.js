@@ -64,18 +64,18 @@ module.exports = function(config) {
     },
 
     // Windows.Edge
-    "SL_Edge": {
-      browserName: "MicrosoftEdge",
-      version: "11",
-      platform: "Windows 10"
-    },
+    // "SL_Edge": {
+    //   browserName: "MicrosoftEdge",
+    //   version: "11",
+    //   platform: "Windows 10"
+    // },
 
     // Windows.IE
-    "SL_InternetExplorer_9": {
-      browserName: "internet explorer",
-      version: "9",
-      platform: "Windows 7"
-    },
+    // "SL_InternetExplorer_9": {
+    //   browserName: "internet explorer",
+    //   version: "9",
+    //   platform: "Windows 7"
+    // },
     "SL_InternetExplorer_10": {
       browserName: "internet explorer",
       version: "10",
