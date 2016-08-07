@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 #set -e
 
-gulp tests
+$(npm bin)/karma start ./karma.conf.js

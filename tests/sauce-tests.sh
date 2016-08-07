@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -e
 
-gulp coveralls
+$(npm bin)/karma start ./karma-sauce.conf.js
