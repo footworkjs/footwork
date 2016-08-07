@@ -1,3 +1,2 @@
 #!/usr/bin/env bash
-./smoke-tests.sh && ./sauce-tests.sh
-
+./tests/smoke-tests.sh && ./tests/sauce-tests.sh
