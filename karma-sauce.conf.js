@@ -159,10 +159,10 @@ module.exports = function(config) {
       testName: 'Footwork Unit Tests',
       tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER,
       startConnect: false,
-      verbose: true,
-      verboseDebugging: false,
+      verbose: false,
+      verboseDebugging: false
     },
-    captureTimeout: 340000,
+    captureTimeout: 600000,
     browserNoActivityTimeout: 600000,
 
 
