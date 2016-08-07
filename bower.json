@@ -20,9 +20,7 @@
     "./dist/footwork-bare-jquery.min.js",
     "./dist/footwork-bare-jquery.js",
     "./dist/footwork-bare-reqwest.min.js",
-    "./dist/footwork-bare-reqwest.js",
-    "./dist/footwork-minimal.min.js",
-    "./dist/footwork-minimal.js"
+    "./dist/footwork-bare-reqwest.js"
   ],
   "ignore": [
     "source",
