@@ -94,13 +94,6 @@ module.exports = function(config) {
       browserName: "firefox",
       platform: "Linux",
       version: 'latest'
-    },
-
-    // Linux.Opera
-    "SL_Opera_Linux": {
-      browserName: "opera",
-      platform: "Linux",
-      version: 'latest'
     }
   };
 
