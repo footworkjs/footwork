@@ -140,7 +140,7 @@ module.exports = function(config) {
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['spec', 'coverage', 'saucelabs'],
+    reporters: ['dots', 'coverage', 'saucelabs'],
 
     coverageReporter: {
       dir : 'build/coverage/',
@@ -156,10 +156,14 @@ module.exports = function(config) {
 
 
     sauceLabs: {
-      testName: 'Footwork Unit Tests',
+      testName: 'FootworkJS',
       tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER,
+      build: 'TRAVIS #' + process.env.TRAVIS_BUILD_NUMBER + ' (' + process.env.TRAVIS_BUILD_ID + ')',
       startConnect: false,
       verbose: false,
+      retryLimit: 3,
+      recordVideo: false,
+      recordScreenshots: false,
       verboseDebugging: false
     },
     captureTimeout: 600000,
@@ -181,7 +185,7 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: Object.keys(customLaunchers),
+    browsers: ['PhantomJS'].concat(Object.keys(customLaunchers)),
 
 
     customLaunchers: customLaunchers,

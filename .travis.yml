@@ -4,13 +4,19 @@ sudo: false
 node_js:
   - 0.11
 
-before_install:
+install:
   - npm install -g gulp
   - npm install -g bower
   - bower install
 
-script:
-  - gulp coveralls
+branches:
+  only:
+  - master
+
+git:
+  depth: 5
+
+script: "./tests/ci-tests.sh"
 
 addons:
   sauce_connect:
