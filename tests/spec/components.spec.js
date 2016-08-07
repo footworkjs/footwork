@@ -46,7 +46,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
           done();
-        }, 50;
+        }, 50);
       });
 
       it('can instantiate a registered component via a <declarative> statement with a dataModel', function(done) {
@@ -67,7 +67,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
           done();
-        }, 50;
+        }, 50);
       });
 
       it('can instantiate a registered component via a <declarative> statement with a router', function(done) {
@@ -88,7 +88,7 @@ define(['footwork', 'lodash', 'jquery'],
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
           done();
-        }, 50;
+        }, 50);
       });
 
       it('has the animation classes applied properly', function(done) {
@@ -124,7 +124,7 @@ define(['footwork', 'lodash', 'jquery'],
             expect(theElement).toHaveClass(footworkAnimationClass);
             done();
           }, ajaxWait);
-        }, 50;
+        }, 50);
       });
 
       xit('can sequence animations', function(done) {
