@@ -15,19 +15,16 @@ branches:
   only:
   - master
 
-env:
-  - TASK=tests
-  - TASK=coveralls
-
 git:
   depth: 5
 
 matrix:
   allow_failures:
-    - env: "TASK=coveralls"
+    - script: "gulp coveralls"
 
 script:
-  - gulp $TASK
+  - gulp tests
+  - gulp coveralls
 
 addons:
   sauce_connect:
