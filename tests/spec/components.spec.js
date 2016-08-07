@@ -124,7 +124,7 @@ define(['footwork', 'lodash', 'jquery'],
             expect(theElement).toHaveClass(footworkAnimationClass);
             done();
           }, ajaxWait);
-        }, 50);
+        }, 0);
       });
 
       xit('can sequence animations', function(done) {

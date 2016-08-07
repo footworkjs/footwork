@@ -6,24 +6,24 @@ module.exports = function(config) {
 	  // OS10.Firefox
     "OSX_FireFox_Latest": {
       browserName: "firefox",
-      platform: "OS X 10.11",
+      platform: "OS X 10.9",
       version: 'latest'
     },
     "OSX_FireFox_Latest_1": {
       browserName: "firefox",
-      platform: "OS X 10.11",
+      platform: "OS X 10.9",
       version: 'latest-1'
     },
 
 	  // OS10.chrome
     "OSX_Chrome_Latest": {
       browserName: "chrome-1",
-      platform: "OS X 10.11",
+      platform: "OS X 10.9",
       version: 'latest'
     },
     "OSX_Chrome_Latest_1": {
       browserName: "chrome",
-      platform: "OS X 10.11",
+      platform: "OS X 10.9",
       version: 'latest-2'
     },
 
@@ -182,7 +182,7 @@ module.exports = function(config) {
       verbose: true,
       verboseDebugging: false,
     },
-    captureTimeout: 240000,
+    captureTimeout: 340000,
     browserNoActivityTimeout: 600000,
 
 
