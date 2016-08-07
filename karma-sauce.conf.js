@@ -48,16 +48,16 @@ module.exports = function(config) {
     },
 
     //Safari
-    // "OSX_Safari_9": {
-    //   browserName: "safari",
-    //   platform: "OS X 10.11",
-    //   version: '9.0'
-    // },
-    // "OSX_Safari_8": {
-    //   browserName: "safari",
-    //   platform: "OS X 10.10",
-    //   version: '8.0'
-    // },
+    "OSX_Safari_9": {
+      browserName: "safari",
+      platform: "OS X 10.11",
+      version: '9.0'
+    },
+    "OSX_Safari_8": {
+      browserName: "safari",
+      platform: "OS X 10.10",
+      version: '8.0'
+    },
 
     // Edge
     // "MS_Edge": {
@@ -67,11 +67,11 @@ module.exports = function(config) {
     // },
 
     // IE
-    // "InternetExplorer_9": {
-    //   browserName: "internet explorer",
-    //   version: "9.0",
-    //   platform: "Windows 7"
-    // },
+    "InternetExplorer_9": {
+      browserName: "internet explorer",
+      version: "9.0",
+      platform: "Windows 7"
+    },
     "InternetExplorer_10": {
       browserName: "internet explorer",
       version: "10.0",
@@ -185,7 +185,7 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['PhantomJS'].concat(Object.keys(customLaunchers)),
+    browsers: Object.keys(customLaunchers),
 
 
     customLaunchers: customLaunchers,
