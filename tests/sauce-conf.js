@@ -20,11 +20,12 @@ module.exports = {
     verboseDebugging: false
   },
   captureTimeout: 800000,
+  browserNoActivityTimeout: 800000,
   browsers: Object.keys(customLaunchers),
   customLaunchers: customLaunchers,
   client: {
     env: {
-      AJAX_WAIT: 1000 // time in ms to tell ajax-based tests to wait for (saucelabs runners are very slow)
+      AJAX_WAIT: 1500 // time in ms to tell ajax-based tests to wait for (saucelabs runners are very slow)
     }
   },
   plugins: [
