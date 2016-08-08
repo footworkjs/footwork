@@ -84,22 +84,22 @@ module.exports = {
     platformName: "iOS",
     browserName: "Safari"
   },
-  "IOS_8_4": {
-    appiumVersion: "1.5.3",
-    deviceName: "iPhone 5s Simulator",
-    deviceOrientation: "portrait",
-    platformVersion:"8.4",
-    platformName: "iOS",
-    browserName: "Safari"
-  },
-  // "IPhone_5": {
+  // "IOS_8_4": {
   //   appiumVersion: "1.5.3",
-  //   deviceName: "iPhone 5 Simulator",
+  //   deviceName: "iPhone 5s Simulator",
   //   deviceOrientation: "portrait",
-  //   platformVersion: "8.4",
+  //   platformVersion:"8.4",
   //   platformName: "iOS",
   //   browserName: "Safari"
   // },
+  "IPhone_5": {
+    appiumVersion: "1.5.3",
+    deviceName: "iPhone 5 Simulator",
+    deviceOrientation: "portrait",
+    platformVersion: "8.4",
+    platformName: "iOS",
+    browserName: "Safari"
+  },
 
   // Android
   // "Android_S4": {
