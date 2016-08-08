@@ -90,7 +90,7 @@ gulp.task('smoke', ['tests-with-coverage'], function () {
 
 gulp.task('sauce', ['build_ci'], function(done) {
   return new Server({
-    configFile: __dirname + '/tests/karma-sauce.conf.js',
+    configFile: __dirname + '/karma-sauce.conf.js',
     singleRun: true
   }, done).start();
 });

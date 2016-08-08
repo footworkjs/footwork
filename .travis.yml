@@ -25,7 +25,7 @@ matrix:
   allow_failures:
     - env: "JOB=sauce"
 
-script: "./tests/run.sh"
+script: "./run-tests.sh"
 
 addons:
   sauce_connect:
