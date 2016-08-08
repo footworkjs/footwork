@@ -18,7 +18,7 @@ git:
 
 env:
   matrix:
-    - JOB=smoke
+    - JOB=unit
     - JOB=sauce
 
 matrix:

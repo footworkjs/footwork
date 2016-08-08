@@ -80,7 +80,7 @@ gulp.task('tests-with-coverage', ['build_ci'], function(done) {
   return new Server(require('./tests/karma.conf.js'), done).start();
 });
 
-gulp.task('smoke', ['tests-with-coverage'], function () {
+gulp.task('unit', ['tests-with-coverage'], function () {
   return gulp.src('./build/coverage/report-lcov/lcov.info')
     .pipe(coveralls());
 });

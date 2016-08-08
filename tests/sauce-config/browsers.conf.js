@@ -103,7 +103,7 @@ module.exports = {
     browserName: "Browser",
     platformVersion: "5.1",
     platformName: "Android"
-  }
+  },
 
   // android_4_0:
   //   browserName: android
