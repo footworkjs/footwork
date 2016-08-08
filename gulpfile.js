@@ -77,10 +77,7 @@ gulp.task('default', ['tests', 'copy_animation_styles_to_build']);
 gulp.task('tests', ['tests-with-coverage']);
 
 gulp.task('tests-with-coverage', ['build_ci'], function(done) {
-  return new Server({
-    configFile: __dirname + '/karma.conf.js',
-    singleRun: true
-  }, done).start();
+  return new Server(require('./tests/smoke-conf.js'), done).start();
 });
 
 gulp.task('smoke', ['tests-with-coverage'], function () {
@@ -89,10 +86,7 @@ gulp.task('smoke', ['tests-with-coverage'], function () {
 });
 
 gulp.task('sauce', ['build_ci'], function(done) {
-  return new Server({
-    configFile: __dirname + '/karma-sauce.conf.js',
-    singleRun: true
-  }, done).start();
+  return new Server(_.extend(require('./tests/smoke-conf.js'), require('./tests/sauce-conf.js')), done).start();
 });
 
 gulp.task('watch-tests', function () {

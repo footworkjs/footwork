@@ -166,6 +166,7 @@
     "karma": "^0.13.16",
     "karma-chrome-launcher": "^1.0.1",
     "karma-coverage": "^1.1.1",
+    "karma-env": "^0.1.0",
     "karma-firefox-launcher": "^1.0.0",
     "karma-fixture": "^0.2.5",
     "karma-html2js-preprocessor": "^0.1.0",

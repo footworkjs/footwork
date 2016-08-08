@@ -66,7 +66,7 @@ function resetCallbackOrder() {
   currentCallbackOrderIndex = 0;
 }
 
-var ajaxWait = 700; // delay in ms to wait for ajax requests
+var ajaxWait = window.__env.AJAX_WAIT || 40; // delay in ms to wait for ajax requests
 var fw;
 var $;
 var _;
