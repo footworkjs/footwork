@@ -25,8 +25,7 @@ matrix:
   allow_failures:
     - env: "JOB=sauce"
 
-script:
-  - gulp $JOB
+script: travis_wait 30 gulp $JOB
 
 addons:
   sauce_connect:

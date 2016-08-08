@@ -25,7 +25,7 @@ module.exports = {
   customLaunchers: customLaunchers,
   client: {
     env: {
-      AJAX_WAIT: 1500 // time in ms to tell ajax-based tests to wait for (saucelabs runners are very slow)
+      AJAX_WAIT: 2000 // time in ms to tell ajax-based tests to wait for (saucelabs runners are very slow)
     }
   },
   plugins: [
@@ -37,7 +37,8 @@ module.exports = {
     'karma-jasmine-jquery',
     'karma-requirejs',
     'karma-spec-reporter',
-    'karma-env'
+    'karma-env',
+    'karma-coverage'
   ],
   singleRun: true
 };
