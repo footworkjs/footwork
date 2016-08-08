@@ -74,14 +74,9 @@ function buildRelease(buildProfile) {
 gulp.task('default', ['tests', 'copy_animation_styles_to_build']);
 
 // Testing tasks
-gulp.task('tests', ['build_ci'], function runTests(done) {
-  return new Server({
-    configFile: __dirname + '/karma.conf.js',
-    singleRun: true
-  }, done).start();
-});
+gulp.task('tests', ['tests-with-coverage']);
 
-gulp.task('tests-with-coverage', ['build_ci'], function runTests(done) {
+gulp.task('tests-with-coverage', ['build_ci'], function(done) {
   return new Server({
     configFile: __dirname + '/karma.conf.js',
     singleRun: true
@@ -93,7 +88,7 @@ gulp.task('coveralls', ['tests-with-coverage'], function () {
     .pipe(coveralls());
 });
 
-gulp.task('sauce', ['build_ci'], function runTests(done) {
+gulp.task('sauce', ['build_ci'], function(done) {
   return new Server({
     configFile: __dirname + '/tests/karma-sauce.conf.js',
     singleRun: true
