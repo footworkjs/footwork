@@ -25,7 +25,8 @@ matrix:
   allow_failures:
     - env: "JOB=sauce"
 
-script: gulp $JOB
+script:
+  - gulp $JOB
 
 addons:
   sauce_connect:
