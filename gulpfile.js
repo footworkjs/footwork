@@ -81,20 +81,27 @@ gulp.task('tests', ['build_ci'], function runTests(done) {
   }, done).start();
 });
 
-gulp.task('ci', ['build_ci'], function runTests(done) {
+gulp.task('tests-with-coverage', ['build_ci'], function runTests(done) {
   return new Server({
-    configFile: __dirname + '/karma-sauce.conf.js',
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true
+  }, done).start();
+});
+
+gulp.task('coveralls', ['tests-with-coverage'], function () {
+  return gulp.src('./build/coverage/report-lcov/lcov.info')
+    .pipe(coveralls());
+});
+
+gulp.task('sauce', ['build_ci'], function runTests(done) {
+  return new Server({
+    configFile: __dirname + '/tests/karma-sauce.conf.js',
     singleRun: true
   }, done).start();
 });
 
 gulp.task('watch-tests', function () {
   gulp.watch(['build/footwork-bare-jquery.js', 'tests/**/*.*'], ['test-now']);
-});
-
-gulp.task('coveralls', ['ci'], function () {
-  return gulp.src('./build/coverage/report-lcov/lcov.info')
-    .pipe(coveralls());
 });
 
 // Building tasks

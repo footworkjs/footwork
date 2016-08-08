@@ -18,8 +18,8 @@ git:
 
 env:
   matrix:
-    - JOB=sauce
     - JOB=smoke
+    - JOB=sauce
 
 matrix:
   allow_failures:

@@ -47,17 +47,52 @@ module.exports = function(config) {
       version: '50.0'
     },
 
-    //Safari
-    "OSX_Safari_9": {
-      browserName: "safari",
-      platform: "OS X 10.11",
-      version: '9.0'
+    // Safari
+    // "OSX_Safari_9": {
+    //   browserName: "safari",
+    //   platform: "OS X 10.11",
+    //   version: '9.0'
+    // },
+    // "OSX_Safari_8": {
+    //   browserName: "safari",
+    //   platform: "OS X 10.10",
+    //   version: '8.0'
+    // },
+
+    // Mobile
+    "IPhone_6": {
+      appiumVersion:  "1.5.3",
+      deviceName: "iPhone 6 Simulator",
+      deviceOrientation: "portrait",
+      platformVersion: "9.3",
+      platformName: "iOS",
+      browserName: "Safari"
     },
-    "OSX_Safari_8": {
-      browserName: "safari",
-      platform: "OS X 10.10",
-      version: '8.0'
+    "IPhone_5": {
+      appiumVersion: "1.5.3",
+      deviceName: "iPhone 5 Simulator",
+      deviceOrientation: "portrait",
+      platformVersion: "8.4",
+      platformName: "iOS",
+      browserName: "Safari"
     },
+
+    // Android
+    "Android_S4": {
+      deviceName: "Samsung Galaxy S4 Emulator",
+      deviceOrientation: "portrait",
+      browserName: "Android"
+    },
+    // android_5_1:
+    //   browserName: android
+    //   platform: Linux
+    //   version: "5.1"
+
+    // android_4_0:
+    //   browserName: android
+    //   platform: Linux
+    //   version: "4.0"
+    //   deviceName: "Android Emulator"
 
     // Edge
     // "MS_Edge": {
