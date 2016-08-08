@@ -28,5 +28,17 @@ module.exports = {
       AJAX_WAIT: 2000 // time in ms to tell ajax-based tests to wait for (saucelabs runners are very slow)
     }
   },
+  plugins: [
+    'karma-sauce-launcher',
+    'karma-html2js-preprocessor',
+    'karma-jasmine',
+    'karma-json-fixtures-preprocessor',
+    'karma-fixture',
+    'karma-jasmine-jquery',
+    'karma-requirejs',
+    'karma-spec-reporter',
+    'karma-env',
+    'karma-coverage'
+  ],
   singleRun: true
 };
