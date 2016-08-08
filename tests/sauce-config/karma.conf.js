@@ -1,4 +1,4 @@
-var customLaunchers = require('./sauce-browsers.js');
+var customLaunchers = require('./browsers.conf.js');
 
 Object.keys(customLaunchers).forEach(function(launcherName) {
   customLaunchers[launcherName]['base'] = 'SauceLabs';

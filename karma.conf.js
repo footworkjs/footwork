@@ -1,6 +1,7 @@
-var smokeConfig = require('./tests/smoke-conf.js');
-smokeConfig.singleRun = false;
+var baseConfig = require('./tests/karma.conf.js');
+
+baseConfig.singleRun = false;
 
 module.exports = function(config) {
-  config.set(smokeConfig);
+  config.set(baseConfig);
 }

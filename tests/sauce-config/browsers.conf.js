@@ -56,6 +56,16 @@ module.exports = {
   //   platform: "OS X 10.10",
   //   version: '8.0'
   // },
+  "OSX_Safari_7": {
+    browserName: "safari",
+    platform: "OS X 10.9",
+    version: '7.0'
+  },
+  // "OSX_Safari_6": {
+  //   browserName: "safari",
+  //   platform: "OS X 10.8",
+  //   version: '6.0'
+  // },
 
   // Mobile
   // "IPhone_6": {
@@ -85,6 +95,15 @@ module.exports = {
   //   browserName: android
   //   platform: Linux
   //   version: "5.1"
+  "Android_5_1": {
+    appiumVersion: "1.5.3",
+    deviceName: "Android Emulator",
+    deviceType: "phone",
+    deviceOrientation: "portrait",
+    browserName: "Browser",
+    platformVersion: "5.1",
+    platformName: "Android"
+  }
 
   // android_4_0:
   //   browserName: android
@@ -93,10 +112,10 @@ module.exports = {
   //   deviceName: "Android Emulator"
 
   // Edge
-  "MS_Edge": {
-    browserName: "edge",
-    platform: "Windows 10"
-  },
+  // "MS_Edge": {
+  //   browserName: "edge",
+  //   platform: "Windows 10"
+  // },
 
   // IE
   "InternetExplorer_9": {

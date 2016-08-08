@@ -10,19 +10,19 @@ module.exports = {
 
   // list of files / patterns to load in the browser
   files: [
-    'tests/main.js',
-    {pattern: 'tests/runner-setup.js', nocache: true},
-    {pattern: 'tests/assets/customMatchers.js', nocache: true},
-    {pattern: 'tests/spec/**/*.js', included: false},
-    {pattern: 'tests/assets/**/*.+(html|json|jsonp|js)', nocache: true, included: false},
-    {pattern: 'bower_components/lodash/*.js', watched: false, included: false},
-    {pattern: 'bower_components/requirejs-text/*.js', watched: false, included: false},
-    {pattern: 'bower_components/knockoutjs/dist/*.js', watched: false, included: false},
-    {pattern: 'bower_components/postal.js/lib/*.js', watched: false, included: false},
-    {pattern: 'bower_components/jquery-mockjax/dist/*.js', watched: false, included: false},
-    {pattern: 'bower_components/jquery/dist/*.js', watched: false, included: false},
-    {pattern: 'bower_components/reqwest/reqwest.js', watched: false, included: false},
-    {pattern: 'build/*.js', included: false}
+    'tests/bootstrap.js',
+    { pattern: 'tests/assets/tools.js', nocache: true },
+    { pattern: 'tests/assets/customMatchers.js', nocache: true },
+    { pattern: 'tests/spec/**/*.js', included: false },
+    { pattern: 'tests/assets/**/*.+(html|json|jsonp|js)', nocache: true, included: false },
+    { pattern: 'bower_components/lodash/*.js', watched: false, included: false },
+    { pattern: 'bower_components/requirejs-text/*.js', watched: false, included: false },
+    { pattern: 'bower_components/knockoutjs/dist/*.js', watched: false, included: false },
+    { pattern: 'bower_components/postal.js/lib/*.js', watched: false, included: false },
+    { pattern: 'bower_components/jquery-mockjax/dist/*.js', watched: false, included: false },
+    { pattern: 'bower_components/jquery/dist/*.js', watched: false, included: false },
+    { pattern: 'bower_components/reqwest/reqwest.js', watched: false, included: false },
+    { pattern: 'build/*.js', included: false }
   ],
 
 
