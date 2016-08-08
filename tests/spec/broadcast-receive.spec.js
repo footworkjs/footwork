@@ -7,9 +7,12 @@ define(['footwork', 'lodash', 'jquery'],
         resetCallbackOrder();
         jasmine.addMatchers(customMatchers);
         fixture.setBase('tests/assets/fixtures');
+        originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
       });
       afterEach(function() {
         fixture.cleanup(testContainer);
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
       });
 
       it('has the ability to create model with a broadcastable', function() {

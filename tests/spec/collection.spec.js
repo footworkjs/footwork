@@ -2,14 +2,18 @@ define(['footwork', 'lodash', 'jquery'],
   function(fw, _, $) {
     describe('collection', function() {
       var testContainer;
+      var originalTimeout;
 
       beforeEach(function() {
         resetCallbackOrder();
         jasmine.addMatchers(customMatchers);
         fixture.setBase('tests/assets/fixtures');
+        originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
       });
       afterEach(function() {
         fixture.cleanup(testContainer);
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
       });
 
       it('can be instantiated and correctly set() with some data', function() {
