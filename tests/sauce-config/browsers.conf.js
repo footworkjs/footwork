@@ -51,11 +51,11 @@ module.exports = {
   //   platform: "OS X 10.11",
   //   version: '9.0'
   // },
-  // "OSX_Safari_8": {
-  //   browserName: "safari",
-  //   platform: "OS X 10.10",
-  //   version: '8.0'
-  // },
+  "OSX_Safari_8": {
+    browserName: "safari",
+    platform: "OS X 10.10",
+    version: '8.0'
+  },
   "OSX_Safari_7": {
     browserName: "safari",
     platform: "OS X 10.9",
@@ -68,14 +68,22 @@ module.exports = {
   // },
 
   // Mobile
-  // "IPhone_6": {
-  //   appiumVersion:  "1.5.3",
-  //   deviceName: "iPhone 6 Simulator",
-  //   deviceOrientation: "portrait",
-  //   platformVersion: "9.3",
-  //   platformName: "iOS",
-  //   browserName: "Safari"
-  // },
+  "IOS_9_3": {
+    appiumVersion: "1.5.3",
+    deviceName: "iPhone 6 Simulator",
+    deviceOrientation: "portrait",
+    platformVersion: "9.3",
+    platformName: "iOS",
+    browserName: "Safari"
+  },
+  "IOS_8_4": {
+    appiumVersion: "1.5.3",
+    deviceName: "iPhone 5s Simulator",
+    deviceOrientation: "portrait",
+    platformVersion:"8.4",
+    platformName: "iOS",
+    browserName: "Safari"
+  },
   // "IPhone_5": {
   //   appiumVersion: "1.5.3",
   //   deviceName: "iPhone 5 Simulator",
@@ -102,6 +110,15 @@ module.exports = {
     deviceOrientation: "portrait",
     browserName: "Browser",
     platformVersion: "5.1",
+    platformName: "Android"
+  },
+  "Android_4_4": {
+    appiumVersion: "1.5.3",
+    deviceName: "Android Emulator",
+    deviceType: "phone",
+    deviceOrientation: "portrait",
+    browserName: "Browser",
+    platformVersion: "4.4",
     platformName: "Android"
   },
 
