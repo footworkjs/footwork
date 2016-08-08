@@ -19,8 +19,8 @@ module.exports = {
     recordScreenshots: false,
     verboseDebugging: false
   },
-  captureTimeout: 800000,
-  browserNoActivityTimeout: 800000,
+  captureTimeout: 600000,
+  browserNoActivityTimeout: 600000,
   browsers: Object.keys(customLaunchers),
   customLaunchers: customLaunchers,
   client: {

@@ -3,9 +3,9 @@
 
 *```A solid footing for web applications.```*
 
-[![Build Status](https://travis-ci.org/footworkjs/footwork.png?branch=master)](https://travis-ci.org/footworkjs/footwork) [![Build Status](https://saucelabs.com/buildstatus/reflectiv)](https://saucelabs.com/beta/builds/f16f63ce70534be980b7f17dd0b6825a) [![Test Coverage](https://coveralls.io/repos/github/footworkjs/footwork/badge.svg?branch=master)](https://coveralls.io/github/footworkjs/footwork) [![Bower version](https://badge.fury.io/bo/footwork.svg)](https://badge.fury.io/bo/footwork)
+[![Build Status](https://travis-ci.org/footworkjs/footwork.png?branch=master)](https://travis-ci.org/footworkjs/footwork) [![Build Status](https://saucelabs.com/buildstatus/reflectiv?r=2)](https://saucelabs.com/beta/builds/8341c7ebf22d4123ba8879497405dad8) [![Test Coverage](https://coveralls.io/repos/github/footworkjs/footwork/badge.svg?branch=master)](https://coveralls.io/github/footworkjs/footwork) [![Bower version](https://badge.fury.io/bo/footwork.svg)](https://badge.fury.io/bo/footwork)
 
-[![Build Status](https://saucelabs.com/browser-matrix/reflectiv.svg?r=1)](https://saucelabs.com/u/reflectiv)
+[![Build Status](https://saucelabs.com/browser-matrix/reflectiv.svg?r=2)](https://saucelabs.com/u/reflectiv)
 
 ## What is footwork?
 
@@ -69,7 +69,7 @@ gulp
 gulp build-everything
 
 # build whats necessary for continuous integration tests, and run them
-gulp ci
+gulp tests
 
 # start karma for continuous test monitoring
 sudo npm install -g karma-cli
