@@ -62,18 +62,21 @@ npm install && bower install
 3) **Run a gulp task to build/test/etc:**
 
 ```bash
-# build everything (output in /build) and run extended tests
+# build whats necessary to run tests and then run the tests (coverage report output in build/coverage)
 gulp
 
 # build everything (output in /build)
 gulp build-everything
 
-# build whats necessary for continuous integration tests, and run them
+# build whats necessary for the unit tests, and run them (coverage report output in build/coverage)
 gulp tests
 
-# start karma for continuous test monitoring
-sudo npm install -g karma-cli
-karma start # access the tests from your browser at: http://[your-server-ip-or-host]:9876/debug.html
+# watch for changes in the source code or tests and automatically rebuild and run tests whenever that happens
+gulp watch
+
+# to debug in your own browser: start karma for continuous test monitoring
+sudo npm install -g karma-cli # install karma (if needed)
+karma start # now you can access the tests from your browser at: http://[your-server-ip-or-host]:9876/debug.html
 
 # rebuild and deploy assets to /dist (for release)
 gulp dist

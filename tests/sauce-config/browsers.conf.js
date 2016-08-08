@@ -46,11 +46,11 @@ module.exports = {
   },
 
   // Safari
-  // "OSX_Safari_9": {
-  //   browserName: "safari",
-  //   platform: "OS X 10.11",
-  //   version: '9.0'
-  // },
+  "OSX_Safari_9": {
+    browserName: "safari",
+    platform: "OS X 10.11",
+    version: '9.0'
+  },
   "OSX_Safari_8": {
     browserName: "safari",
     platform: "OS X 10.10",
@@ -73,6 +73,14 @@ module.exports = {
     deviceName: "iPhone 6 Simulator",
     deviceOrientation: "portrait",
     platformVersion: "9.3",
+    platformName: "iOS",
+    browserName: "Safari"
+  },
+  "IOS_9_3": {
+    appiumVersion: "1.5.3",
+    deviceName: "iPhone 6 Simulator",
+    deviceOrientation: "portrait",
+    platformVersion: "9.0",
     platformName: "iOS",
     browserName: "Safari"
   },

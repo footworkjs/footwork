@@ -89,8 +89,8 @@ gulp.task('sauce', ['build_ci'], function(done) {
   return new Server(_.extend(require('./tests/karma.conf.js'), require('./tests/sauce-config/karma.conf.js')), done).start();
 });
 
-gulp.task('watch-tests', function () {
-  gulp.watch(['build/footwork-bare-jquery.js', 'tests/**/*.*'], ['test-now']);
+gulp.task('watch', function (done) {
+  gulp.watch(['build/footwork-bare-jquery.js', 'tests/**/*.*', 'source/**/*.*'], ['tests']);
 });
 
 // Building tasks
