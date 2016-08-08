@@ -83,7 +83,7 @@ gulp.task('tests-with-coverage', ['build_ci'], function(done) {
   }, done).start();
 });
 
-gulp.task('coveralls', ['tests-with-coverage'], function () {
+gulp.task('smoke', ['tests-with-coverage'], function () {
   return gulp.src('./build/coverage/report-lcov/lcov.info')
     .pipe(coveralls());
 });

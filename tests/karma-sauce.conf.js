@@ -60,29 +60,29 @@ module.exports = function(config) {
     // },
 
     // Mobile
-    "IPhone_6": {
-      appiumVersion:  "1.5.3",
-      deviceName: "iPhone 6 Simulator",
-      deviceOrientation: "portrait",
-      platformVersion: "9.3",
-      platformName: "iOS",
-      browserName: "Safari"
-    },
-    "IPhone_5": {
-      appiumVersion: "1.5.3",
-      deviceName: "iPhone 5 Simulator",
-      deviceOrientation: "portrait",
-      platformVersion: "8.4",
-      platformName: "iOS",
-      browserName: "Safari"
-    },
+    // "IPhone_6": {
+    //   appiumVersion:  "1.5.3",
+    //   deviceName: "iPhone 6 Simulator",
+    //   deviceOrientation: "portrait",
+    //   platformVersion: "9.3",
+    //   platformName: "iOS",
+    //   browserName: "Safari"
+    // },
+    // "IPhone_5": {
+    //   appiumVersion: "1.5.3",
+    //   deviceName: "iPhone 5 Simulator",
+    //   deviceOrientation: "portrait",
+    //   platformVersion: "8.4",
+    //   platformName: "iOS",
+    //   browserName: "Safari"
+    // },
 
     // Android
-    "Android_S4": {
-      deviceName: "Samsung Galaxy S4 Emulator",
-      deviceOrientation: "portrait",
-      browserName: "Android"
-    },
+    // "Android_S4": {
+    //   deviceName: "Samsung Galaxy S4 Emulator",
+    //   deviceOrientation: "portrait",
+    //   browserName: "Android"
+    // },
     // android_5_1:
     //   browserName: android
     //   platform: Linux

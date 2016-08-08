@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 
-if [ "$JOB" = "smoke" ]; then
-  echo -e "\nRunning Test Job: smoke\n"
-  gulp coveralls
-elif [ "$JOB" = "sauce" ]; then
-  echo -e "\nRunning Test Job: SauceLabs\n"
-  gulp sauce
+VALID_JOBS=("smoke" "sauce")
+
+if [ "$JOB" == "" ]; then
+  echo "Error: No job specified."
+  exit
+fi
+
+if [[ ${VALID_JOBS[*]} =~ $JOB ]]; then
+  echo -e "\nRunning Test Job: $JOB\n"
+  gulp $JOB
 else
   echo -e "\nUnknown Test Job: [$JOB]\n"
 fi
