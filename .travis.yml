@@ -16,13 +16,16 @@ branches:
 git:
   depth: 5
 
+env:
+  matrix:
+    - JOB=sauce
+    - JOB=smoke
+
 matrix:
   allow_failures:
-    - script: "gulp coveralls"
+    - env: "JOB=sauce"
 
-script:
-  - gulp tests
-  - gulp coveralls
+script: "./tests/run.sh"
 
 addons:
   sauce_connect:
