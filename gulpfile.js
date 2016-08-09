@@ -14,6 +14,7 @@ var _ = require('lodash');
 var runSequence = require('run-sequence');
 var fs = require('fs');
 var sass = require("gulp-sass");
+var autoprefixer = require('gulp-autoprefixer');
 
 var pkg = require('./package.json');
 var reporter = 'list';
@@ -113,6 +114,9 @@ gulp.task('copy_footwork_styles_to_build', ['build_footwork_css'], function() {
 gulp.task('build_footwork_css', function() {
   return gulp.src('./source/footwork.scss')
     .pipe(sass().on('error', sass.logError))
+    .pipe(autoprefixer({
+      browsers: ['last 3 versions', '> 5%', 'Firefox > 3', 'ie >= 9']
+    }))
     .pipe(gulp.dest('./build/styles'));
 });
 
