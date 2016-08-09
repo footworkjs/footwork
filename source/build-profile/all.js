@@ -51,12 +51,6 @@
       //import("../../bower_components/postal.js/lib/postal.js");
     }).call(root);
 
-    if(root._.isUndefined(root.postal.preserve)) {
-      (function() {
-        //import("../../bower_components/postal.preserve/lib/postal.preserve.js");
-      }).call(root);
-    }
-
     // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ '_', 'ko', 'riveter', 'postal', 'reqwest', 'Conduit', 'D' ];
 

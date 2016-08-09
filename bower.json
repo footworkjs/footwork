@@ -2,6 +2,7 @@
   "name": "footwork",
   "description": "A solid footing for knockout applications.",
   "homepage": "http://footworkjs.com",
+  "license": "MIT",
   "keywords": [
     "knockout",
     "SPA",
@@ -12,46 +13,42 @@
     "type": "git",
     "url": "git://github.com/footworkjs/footwork.git"
   },
+  "moduleType": "amd",
   "main": [
-    "./dist/footwork-all.min.js",
-    "./dist/footwork-all.js",
-    "./dist/footwork-all-history.min.js",
-    "./dist/footwork-all-history.js",
     "./dist/footwork-bare-jquery.min.js",
-    "./dist/footwork-bare-jquery.js",
-    "./dist/footwork-bare-reqwest.min.js",
-    "./dist/footwork-bare-reqwest.js"
+    "./dist/footwork.css"
   ],
   "ignore": [
     "source",
-    "spec",
+    "tests",
     "deps",
     "bower_components",
     "node_modules",
     "bower.json",
     "gulpfile.js",
+    "karma.conf.js",
     ".travis.yml",
     ".gitignore",
     "dist/lodash-custom.js",
     "README.md"
   ],
-  "dependencies": {},
-  "devDependencies": {
-    "knockoutjs": "3.4.0",
-    "knockoutjs-nowrapper": "https://github.com/footworkjs/knockout-nowrapper.git#522cfa77b6e0e3bef2d21537f6a1d5fc884be69c",
-    "riveter": "https://github.com/footworkjs/riveter.git#a7916c8e0fd9434876c8defcf34948c724002fbb",
-    "postal.preserve": "https://github.com/footworkjs/postal.preserve.git#f0a7d2c7b63942e1d98884a8c438a423409118fb",
+  "dependencies": {
+    "jquery": ">=2.1.4",
+    "knockoutjs": ">=3.4.0",
     "history.js": "https://github.com/footworkjs/history.js.git#ae04b0e41c48a1e2f272cc10e29c2aeaa50d1a86",
-    "lodash": "3.3.1",
+    "postal.js": "~2.0",
+    "requirejs": "*",
+    "lodash": "~4.14",
+    "requirejs-text": "*"
+  },
+  "devDependencies": {
+    "knockoutjs-nowrapper": "https://github.com/footworkjs/knockout-nowrapper.git#522cfa77b6e0e3bef2d21537f6a1d5fc884be69c",
+    "riveter": "https://github.com/footworkjs/riveter.git#414bacc15e2a8d754d45c9512f389c3b53160d8a",
     "D.js": "0.7.3",
-    "postal.js": "1.0.1",
     "reqwest": "1.1.5",
     "conduitjs": "0.3.3",
-    "jquery": "2.1.4",
     "jquery-mockjax": "2.0.1",
     "console-polyfill": "*",
-    "requirejs": "*",
-    "requirejs-text": "*",
     "expect": "0.1.2",
     "mocha": "*"
   }

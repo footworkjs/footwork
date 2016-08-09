@@ -3,7 +3,7 @@
 
 function removeDisposeAndNotify(originalFunction) {
   var removedItems = originalFunction.apply(this, Array.prototype.slice.call(arguments).splice(1));
-  this.__private('configParams').disposeOnRemove && invoke(removedItems, 'dispose');
+  this.__private('configParams').disposeOnRemove && invokeMap(removedItems, 'dispose');
   this.$namespace.publish('_.remove', removedItems);
   return removedItems;
 }
@@ -76,7 +76,7 @@ fw.collection.create = function(configParams) {
         if(!collection.isDisposed) {
           collection.isDisposed = true;
           collection.$namespace.dispose();
-          invoke(collection(), 'dispose');
+          invokeMap(collection(), 'dispose');
         }
       }
     });

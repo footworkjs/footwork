@@ -32,13 +32,6 @@
       //import("../../bower_components/conduitjs/lib/conduit.js");
     }).call(root);
 
-    if(root._.isUndefined(root.postal.preserve)) {
-      /* istanbul ignore next */
-      (function() {
-        //import("../../bower_components/postal.preserve/lib/postal.preserve.js");
-      }).call(root);
-    }
-
     var embeddedDependencies = [ 'riveter', 'Conduit' ];
 
     return (function footwork(embedded, windowObject, _, ko, postal, riveter, jQuery, Conduit) {

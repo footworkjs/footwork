@@ -55,8 +55,8 @@ function getEntityComparator(methodName, compFunctions, entityDescriptor) {
 }
 
 runPostInit.unshift(function() {
-  var entityCtorComparators = pluck(entityDescriptors, 'isEntityCtor');
-  var entityComparators = pluck(entityDescriptors, 'isEntity');
+  var entityCtorComparators = map(entityDescriptors, 'isEntityCtor');
+  var entityComparators = map(entityDescriptors, 'isEntity');
 
   isEntityCtor = function(thing) {
     return reduce(entityCtorComparators, function(isThing, comparator) {

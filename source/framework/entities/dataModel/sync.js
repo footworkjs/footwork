@@ -53,7 +53,7 @@ fw.sync = function(action, concern, params) {
     if(isDataModel(concern)) {
       var pkIsSpecifiedByUser = !isNull(url.match(':' + configParams.idAttribute));
       var hasQueryString = !isNull(url.match(/\?/));
-      if(contains(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl && !pkIsSpecifiedByUser && !hasQueryString) {
+      if(includes(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl && !pkIsSpecifiedByUser && !hasQueryString) {
         // need to append /:id to url
         url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
       }
@@ -78,7 +78,7 @@ fw.sync = function(action, concern, params) {
     }
   }
 
-  if(isNull(options.data) && concern && contains(['create', 'update', 'patch'], action)) {
+  if(isNull(options.data) && concern && includes(['create', 'update', 'patch'], action)) {
     options.contentType = 'application/json';
     options.data = JSON.stringify(options.attrs || concern.get());
   }
@@ -91,7 +91,7 @@ fw.sync = function(action, concern, params) {
 
   // For older servers, emulate HTTP by mimicking the HTTP method with `_method`
   // And an `X-HTTP-Method-Override` header.
-  if(options.emulateHTTP && contains(['PUT', 'DELETE', 'PATCH'], options.type)) {
+  if(options.emulateHTTP && includes(['PUT', 'DELETE', 'PATCH'], options.type)) {
     options.type = 'POST';
 
     if(options.emulateJSON) {

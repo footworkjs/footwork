@@ -9,7 +9,7 @@ function findParentNode(element, selector) {
   if(element.parentNode && isFunction(element.parentNode.querySelectorAll)) {
     var parentNode = element.parentNode;
     var matches = parentNode.querySelectorAll(selector);
-    if(matches.length && contains(matches, element)) {
+    if(matches.length && includes(matches, element)) {
       return element;
     }
     return findParentNode(parentNode, selector);

@@ -165,15 +165,16 @@ var DataModel = function(descriptor, configParams) {
         }, options);
 
         var mappingsChanged = false;
+        var model = this;
         each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
           var fieldValue = getNestedReference(attributes, fieldMap);
           if(!isUndefined(fieldValue)) {
             fw.isWriteableObservable(fieldObservable) && fieldObservable(fieldValue);
             mappingsChanged = true;
             options.clearDirty && fieldObservable.isDirty(false);
-            this.$namespace.publish('_.change.' + fieldMap, fieldValue);
+            model.$namespace.publish('_.change.' + fieldMap, fieldValue);
           }
-        }, this);
+        });
 
         if(mappingsChanged && options.clearDirty) {
           // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function

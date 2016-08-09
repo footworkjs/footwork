@@ -53,7 +53,7 @@ var Router = function(descriptor, configParams) {
       router.normalizeURL = normalizeURL;
 
       function getUnknownRoute() {
-        var unknownRoute = findWhere(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
+        var unknownRoute = find(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
 
         if (!isNull(unknownRoute)) {
           unknownRoute = extend({}, baseRoute, {
@@ -380,13 +380,13 @@ var Router = function(descriptor, configParams) {
 
           this.$namespace.dispose();
           this.$globalNamespace.dispose();
-          invoke(this.__private('subscriptions'), 'dispose');
+          invokeMap(this.__private('subscriptions'), 'dispose');
 
-          each(omit(this, function (property) {
+          each(omitBy(this, function (property) {
             return isEntity(property);
           }), propertyDispose);
 
-          each(omit(this.__private(), function (property) {
+          each(omitBy(this.__private(), function (property) {
             return isEntity(property);
           }), propertyDispose);
 

@@ -29,7 +29,7 @@ function registerNamespaceEventHandler(eventKey, callback, context) {
     callback = callback.bind(context);
   }
 
-  var handlerSubscription = this._subscribe('event.' + eventKey, callback).enlistPreserved();
+  var handlerSubscription = this._subscribe('event.' + eventKey, callback);
   this.eventHandlers.push(handlerSubscription);
 
   return handlerSubscription;
@@ -53,7 +53,7 @@ function registerNamespaceCommandHandler(commandKey, callback, context) {
     callback = callback.bind(context);
   }
 
-  var handlerSubscription = this._subscribe('command.' + commandKey, callback).enlistPreserved();
+  var handlerSubscription = this._subscribe('command.' + commandKey, callback);
   this.commandHandlers.push(handlerSubscription);
 
   return handlerSubscription;
@@ -102,7 +102,7 @@ var handlerRepos = ['requestHandlers', 'commandHandlers', 'eventHandlers', 'subs
 function disconnectNamespaceHandlers() {
   var namespace = this;
   each(handlerRepos, function(handlerRepo) {
-    invoke(namespace[handlerRepo], 'unsubscribe');
+    invokeMap(namespace[handlerRepo], 'unsubscribe');
   });
   return this;
 }

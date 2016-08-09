@@ -42,7 +42,7 @@ fw.components.tagIsComponent = function(tagName, isComponent) {
   }
 
   if(isComponent !== true) {
-    if( contains(nonComponentTags, tagName) === false ) {
+    if( includes(nonComponentTags, tagName) === false ) {
       nonComponentTags.push(tagName);
     }
   } else {

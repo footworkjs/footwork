@@ -31,7 +31,7 @@ fw.namespace = function(namespaceName, $parentNamespace) {
       callback = callback.bind(context);
     }
     var subscription = namespace._subscribe.call(namespace, topic, callback);
-    subscriptions.push( subscription );
+    subscriptions.push(subscription);
     return subscription;
   };
   namespace.unsubscribe = unregisterNamespaceHandler;
@@ -67,7 +67,7 @@ fw.namespace = function(namespaceName, $parentNamespace) {
     return enterNamespace( this );
   };
   namespace.exit = function() {
-    if( fw.utils.currentNamespaceName() === this.getName() ) {
+    if(fw.utils.currentNamespaceName() === this.getName()) {
       return exitNamespace();
     }
   };

@@ -55,12 +55,6 @@
       //import("../../bower_components/history.js/scripts/bundled-uncompressed/html4+html5/native.history.js");
     }).call(root, windowObject);
 
-    if(root._.isUndefined(root.postal.preserve)) {
-      (function() {
-        //import("../../bower_components/postal.preserve/lib/postal.preserve.js");
-      }).call(root);
-    }
-
     // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ '_', 'ko', 'riveter', 'postal', 'reqwest', 'Conduit', 'D' ];
 

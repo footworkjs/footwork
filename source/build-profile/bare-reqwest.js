@@ -39,12 +39,6 @@
       //import("../../bower_components/D.js/lib/D.js");
     }).call(root);
 
-    if(root._.isUndefined(root.postal.preserve)) {
-      (function() {
-        //import("../../bower_components/postal.preserve/lib/postal.preserve.js");
-      }).call(root);
-    }
-
     // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ 'riveter', 'Conduit', 'D' ];
 

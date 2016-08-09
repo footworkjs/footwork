@@ -62,8 +62,8 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
   }) );
 
   broadcastable.dispose = function() {
-    invoke(namespaceSubscriptions, 'unsubscribe');
-    invoke(subscriptions, 'dispose');
+    invokeMap(namespaceSubscriptions, 'unsubscribe');
+    invokeMap(subscriptions, 'dispose');
     if( isLocalNamespace ) {
       namespace.dispose();
     }

@@ -40,7 +40,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
 
   var observableDispose = receivable.dispose;
   receivable.dispose = function() {
-    invoke(namespaceSubscriptions, 'unsubscribe');
+    invokeMap(namespaceSubscriptions, 'unsubscribe');
     if( isLocalNamespace ) {
       namespace.dispose();
     }
