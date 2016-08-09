@@ -48,40 +48,22 @@
       "required": [],
       "optional": []
     },
-    "minimal": {
-      "required": [
-        {
-          "label": "KnockoutJS",
-          "url": "http://knockoutjs.com/",
-          "note": "Any version >= 3.2.0"
-        },
-        {
-          "label": "Lodash",
-          "url": "https://lodash.com/"
-        }
-      ],
-      "optional": [
-        {
-          "label": "History.js",
-          "url": "https://github.com/browserstate/history.js/",
-          "note": "Used for browser history and router integration"
-        }
-      ]
-    },
     "bare-reqwest": {
       "required": [
         {
           "label": "KnockoutJS",
           "url": "http://knockoutjs.com/",
-          "note": "Any version >= 3.2.0"
+          "note": ">= v3.4.0"
         },
         {
           "label": "Lodash",
-          "url": "https://lodash.com/"
+          "url": "https://lodash.com/",
+          "note": ">= v4.14.2"
         },
         {
           "label": "postal.js",
-          "url": "https://github.com/postaljs/postal.js"
+          "url": "https://github.com/postaljs/postal.js",
+          "note": ">= v2.0"
         },
         {
           "label": "reqwest",
@@ -102,15 +84,17 @@
         {
           "label": "KnockoutJS",
           "url": "http://knockoutjs.com/",
-          "note": "Any version >= 3.2.0"
+          "note": ">= v3.4.0"
         },
         {
           "label": "Lodash",
-          "url": "https://lodash.com/"
+          "url": "https://lodash.com/",
+          "note": ">= v4.14.2"
         },
         {
           "label": "postal.js",
-          "url": "https://github.com/postaljs/postal.js"
+          "url": "https://github.com/postaljs/postal.js",
+          "note": ">= v2.0"
         },
         {
           "label": "jQuery",
@@ -148,12 +132,12 @@
     "gulp-coveralls": "^0.1.4",
     "gulp-header": "1.2.2",
     "gulp-imports": "0.0.3",
-    "gulp-less": "3.0.5",
     "gulp-notify": "2.2.0",
     "gulp-plumber": "1.0.1",
     "gulp-rename": "^1.2.0",
     "gulp-replace": "0.5.4",
     "gulp-requirejs-optimize": "0.3.1",
+    "gulp-sass": "^2.3.2",
     "gulp-size": "~0.3.1",
     "gulp-sourcemaps": "1.5.2",
     "gulp-uglify": "^0.3.0",

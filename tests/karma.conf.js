@@ -37,10 +37,12 @@ module.exports = {
     'tests/assets/**/*.json': ['json_fixtures']
   },
 
+
   // used by the fixture framework
   jsonFixturesPreprocessor: {
     variableName: '__json__'
   },
+
 
   // test results reporter to use
   // possible values: 'dots', 'progress'

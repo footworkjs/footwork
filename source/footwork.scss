@@ -68,39 +68,35 @@ $fw-animation-easing: ease;
   }
 }
 
-// Source: https://github.com/tobiasahlin/SpinKit/blob/master/examples/7-three-bounce.html
-.spinner {
-  margin: 100px auto 0;
-  width: 70px;
+// Source: https://github.com/tobiasahlin/SpinKit/blob/master/scss/spinners/3-wave.scss
+$spinkit-spinner-margin: 40px auto !default;
+$spinkit-size: 40px !default;
+$spinkit-spinner-color: #333 !default;
+.sk-wave {
+  $rectCount: 5;
+  $animationDuration: 1.2s;
+  $delayRange: 0.4s;
+
+  margin: $spinkit-spinner-margin;
+  width: $spinkit-size * 1.25;
+  height: $spinkit-size;
   text-align: center;
-}
+  font-size: 10px;
 
-.spinner > div {
-  width: 18px;
-  height: 18px;
-  background-color: #333;
-
-  border-radius: 100%;
-  display: inline-block;
-  animation: sk-bouncedelay 1.4s infinite ease-in-out both;
-}
-
-.spinner .bounce1 {
-  -webkit-animation-delay: -0.32s;
-  animation-delay: -0.32s;
-}
-
-.spinner .bounce2 {
-  -webkit-animation-delay: -0.16s;
-  animation-delay: -0.16s;
-}
-
-@keyframes sk-bouncedelay {
-  0%, 80%, 100% {
-    -webkit-transform: scale(0);
-    transform: scale(0);
-  } 40% {
-    -webkit-transform: scale(1.0);
-    transform: scale(1.0);
+  .sk-rect {
+    background-color: $spinkit-spinner-color;
+    height: 100%;
+    width: 6px;
+    display: inline-block;
+    animation: sk-waveStretchDelay $animationDuration infinite ease-in-out;
   }
+
+  @for $i from 1 through $rectCount {
+    .sk-rect#{$i} { animation-delay: - $animationDuration + $delayRange / ($rectCount - 1) * ($i - 1); }
+  }
+}
+
+@keyframes sk-waveStretchDelay {
+  0%, 40%, 100% { transform: scaleY(0.4) }
+  20% { transform: scaleY(1.0) }
 }

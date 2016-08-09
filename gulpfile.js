@@ -13,7 +13,7 @@ var Server = require('karma').Server;
 var _ = require('lodash');
 var runSequence = require('run-sequence');
 var fs = require('fs');
-var less = require('gulp-less');
+var sass = require("gulp-sass");
 
 var pkg = require('./package.json');
 var reporter = 'list';
@@ -92,7 +92,7 @@ gulp.task('build_core', ['lodash_custom'], function() {
 });
 
 gulp.task('dist_footwork_styles', ['copy_footwork_styles_to_build'], function() {
-  gulp.src(['./build/styles/*.less', './build/styles/*.scss', './build/styles/*.css'])
+  gulp.src(['./build/styles/*.scss', './build/styles/*.css'])
     .pipe(gulp.dest('./dist'));
 });
 
@@ -105,14 +105,14 @@ gulp.task('dist', function(done) {
   runSequence('build-everything', ['dist_build', 'dist_footwork_styles'], done);
 });
 
-gulp.task('copy_footwork_styles_to_build', ['build_footworks_css'], function() {
-  gulp.src(['./source/styles/*.less', './source/styles/*.scss'])
+gulp.task('copy_footwork_styles_to_build', ['build_footwork_css'], function() {
+  gulp.src(['./source/footwork.scss'])
     .pipe(gulp.dest('./build/styles'));
 });
 
-gulp.task('build_footworks_css', function() {
-  return gulp.src('./source/styles/footwork.less')
-    .pipe(less())
+gulp.task('build_footwork_css', function() {
+  return gulp.src('./source/footwork.scss')
+    .pipe(sass().on('error', sass.logError))
     .pipe(gulp.dest('./build/styles'));
 });
 

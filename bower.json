@@ -33,12 +33,12 @@
     "README.md"
   ],
   "dependencies": {
-    "jquery": ">=2.1.4",
+    "jquery": ">=2.0",
     "knockoutjs": ">=3.4.0",
     "history.js": "https://github.com/footworkjs/history.js.git#ae04b0e41c48a1e2f272cc10e29c2aeaa50d1a86",
-    "postal.js": "~2.0",
+    "postal.js": "2.0.4",
     "requirejs": "*",
-    "lodash": "~4.14",
+    "lodash": "^4.12",
     "requirejs-text": "*"
   },
   "devDependencies": {

@@ -2,6 +2,7 @@
 // ------------------
 
 var noParentViewModelError = { $namespace: { getName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } } };
+var defaultLoadingComponent = 'default-loading-display';
 
 // This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied
 // to the UI and load in various views
@@ -93,6 +94,11 @@ function routerOutlet(outletName, componentToDisplay, options) {
   if(outletViewModel) {
     // Show the loading component (if one is defined)
     var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || currentOutletDef.name]);
+
+    if(showDuringLoadComponent === true || (!showDuringLoadComponent &&  resultBound(fw.router, 'showDefaultLoader', router, [outletName, componentToDisplay || currentOutletDef.name]))) {
+      showDuringLoadComponent = defaultLoadingComponent;
+    }
+
     if(showDuringLoadComponent) {
       outletViewModel.loadingDisplay(showDuringLoadComponent);
     }
@@ -265,4 +271,17 @@ function registerOutletComponent() {
   });
 };
 
+function registerDefaultLoadingDisplayComponent() {
+  fw.components.register(defaultLoadingComponent, {
+    template: '<div class="sk-wave">\
+                <div class="sk-rect sk-rect1"></div>\
+                <div class="sk-rect sk-rect2"></div>\
+                <div class="sk-rect sk-rect3"></div>\
+                <div class="sk-rect sk-rect4"></div>\
+                <div class="sk-rect sk-rect5"></div>\
+              </div>'
+  });
+}
+
 runPostInit.push(registerOutletComponent);
+runPostInit.push(registerDefaultLoadingDisplayComponent);
