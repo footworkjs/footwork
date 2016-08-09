@@ -138,7 +138,7 @@ module.exports = {
 
   // Edge
   "MS_Edge": {
-    browserName: "edge",
+    browserName: "MicrosoftEdge",
     platform: "Windows 10",
     version: "13.10586"
   },
