@@ -36,45 +36,12 @@ var banner = [
   '', ''
 ];
 
-function buildRelease(buildProfile) {
-  var headerBanner = banner.slice(0).join('\n');
-  var pkgData = pkg;
-
-  var buildFileName = 'footwork-' + buildProfile + '.js';
-  var minBuildFileName = 'footwork-' + buildProfile + '.min.js';
-
-  var fileSize = size({ title: buildFileName });
-  var fileSizeMin = size({ title: minBuildFileName });
-  var fileSizeGzip = size({ gzip: true, title: minBuildFileName });
-
-  pkgData = _.extend({}, pkg, { version: pkg.version + '-' + buildProfile });
-  var stream = gulp
-    .src(['source/build-profile/' + buildProfile + '.js'])
-    .pipe(header(headerBanner, { pkg: pkgData }))
-    .pipe(fileImports())
-    .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
-    .pipe(rename(buildFileName))
-    .pipe(fileSize)
-    .pipe(gulp.dest('build/'));
-
-  if(['core', 'ci'].indexOf(buildProfile) === -1) {
-    stream.pipe(uglify({
-      compress: { negate_iife: false }
-    }))
-    .pipe(header(headerBanner, { pkg: pkgData }))
-    .pipe(rename(minBuildFileName))
-    .pipe(fileSizeMin)
-    .pipe(fileSizeGzip)
-    .pipe(gulp.dest('build/'));
-  }
-
-  return stream;
-};
-
-gulp.task('default', ['tests', 'copy_animation_styles_to_build']);
+gulp.task('default', ['test-and-build-all', 'copy_animation_styles_to_build']);
 
 // Testing tasks
 gulp.task('tests', ['tests-with-coverage']);
+
+gulp.task('test-and-build-all', ['tests-with-coverage', 'build-everything']);
 
 gulp.task('tests-with-coverage', ['build_ci'], function(done) {
   return new Server(require('./tests/karma.conf.js'), done).start();
@@ -90,7 +57,11 @@ gulp.task('sauce', ['build_ci'], function(done) {
 });
 
 gulp.task('watch', function () {
-  gulp.watch(['build/footwork-bare-jquery.js', 'tests/**/*.*', 'source/**/*.*'], ['tests']);
+  gulp.watch(['tests/**/*.*', 'source/**/*.*'], ['tests']);
+});
+
+gulp.task('watch-everything', function () {
+  gulp.watch(['tests/**/*.*', 'source/**/*.*'], ['test-and-build-all']);
 });
 
 // Building tasks
@@ -130,8 +101,8 @@ gulp.task('dist_build', function() {
     .pipe(gulp.dest('./dist'));
 });
 
-gulp.task('dist', function(callback) {
-  runSequence('build-everything', ['dist_build', 'dist_animation_styles'], callback);
+gulp.task('dist', function(done) {
+  runSequence('build-everything', ['dist_build', 'dist_animation_styles'], done);
 });
 
 gulp.task('copy_animation_styles_to_build', ['build_animations_css'], function() {
@@ -163,3 +134,38 @@ gulp.task('lodash_custom', function () {
     .pipe(rename('lodash-custom.js'))
     .pipe(gulp.dest('./build'));
 });
+
+function buildRelease(buildProfile) {
+  var headerBanner = banner.slice(0).join('\n');
+  var pkgData = pkg;
+
+  var buildFileName = 'footwork-' + buildProfile + '.js';
+  var minBuildFileName = 'footwork-' + buildProfile + '.min.js';
+
+  var fileSize = size({ title: buildFileName });
+  var fileSizeMin = size({ title: minBuildFileName });
+  var fileSizeGzip = size({ gzip: true, title: minBuildFileName });
+
+  pkgData = _.extend({}, pkg, { version: pkg.version + '-' + buildProfile });
+  var stream = gulp
+    .src(['source/build-profile/' + buildProfile + '.js'])
+    .pipe(header(headerBanner, { pkg: pkgData }))
+    .pipe(fileImports())
+    .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
+    .pipe(rename(buildFileName))
+    .pipe(fileSize)
+    .pipe(gulp.dest('build/'));
+
+  if(['core', 'ci'].indexOf(buildProfile) === -1) {
+    stream.pipe(uglify({
+      compress: { negate_iife: false }
+    }))
+    .pipe(header(headerBanner, { pkg: pkgData }))
+    .pipe(rename(minBuildFileName))
+    .pipe(fileSizeMin)
+    .pipe(fileSizeGzip)
+    .pipe(gulp.dest('build/'));
+  }
+
+  return stream;
+};
