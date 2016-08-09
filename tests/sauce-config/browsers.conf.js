@@ -41,24 +41,24 @@ module.exports = {
     version: '48.0'
   },
 
-  "OSX_Chrome_Latest_1": {
+  "OSX_Chrome_Latest": {
     browserName: "chrome",
     platform: "OS X 10.11",
     version: '50.0'
   },
 
   // Safari
-  "OSX_Safari_9": {
+  "Safari_9": {
     browserName: "safari",
     platform: "OS X 10.11",
     version: '9.0'
   },
-  "OSX_Safari_8": {
+  "Safari_8": {
     browserName: "safari",
     platform: "OS X 10.10",
     version: '8.0'
   },
-  "OSX_Safari_7": {
+  "Safari_7": {
     browserName: "safari",
     platform: "OS X 10.9",
     version: '7.0'

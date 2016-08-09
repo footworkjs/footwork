@@ -36,7 +36,7 @@ var banner = [
   '', ''
 ];
 
-gulp.task('default', ['test-and-build-all', 'copy_animation_styles_to_build']);
+gulp.task('default', ['test-and-build-all', 'copy_footwork_styles_to_build']);
 
 // Testing tasks
 gulp.task('tests', ['tests-with-coverage']);
@@ -44,7 +44,7 @@ gulp.task('tests', ['tests-with-coverage']);
 gulp.task('test-and-build-all', ['tests-with-coverage', 'build-everything']);
 
 gulp.task('tests-with-coverage', ['build_ci'], function(done) {
-  return new Server(require('./tests/karma.conf.js'), done).start();
+  return new Server(_.extend(require('./tests/karma.conf.js'), require('./tests/karma-coverage.conf.js')), done).start();
 });
 
 gulp.task('unit', ['tests-with-coverage'], function () {
@@ -65,7 +65,7 @@ gulp.task('watch-everything', function () {
 });
 
 // Building tasks
-gulp.task('build-everything', ['build_all', 'build_all_with_history', 'build_bare_jquery', 'build_bare_reqwest']);
+gulp.task('build-everything', ['build_ci', 'build_all', 'build_all_with_history', 'build_bare_jquery', 'build_bare_reqwest', 'copy_footwork_styles_to_build']);
 
 gulp.task('build_all_with_history', ['build_core'], function() {
   return buildRelease('all-history');
@@ -87,13 +87,13 @@ gulp.task('build_bare_reqwest', ['build_core'], function() {
   return buildRelease('bare-reqwest');
 });
 
-gulp.task('build_core', ['lodash_custom', 'build_animations_css'], function() {
+gulp.task('build_core', ['lodash_custom'], function() {
   return buildRelease('core');
 });
 
-gulp.task('dist_animation_styles', ['copy_animation_styles_to_build'], function() {
-  gulp.src(['./build/animation/*.less', './build/animation/*.scss', './build/animation/*.css'])
-    .pipe(gulp.dest('./dist/animation'));
+gulp.task('dist_footwork_styles', ['copy_footwork_styles_to_build'], function() {
+  gulp.src(['./build/styles/*.less', './build/styles/*.scss', './build/styles/*.css'])
+    .pipe(gulp.dest('./dist'));
 });
 
 gulp.task('dist_build', function() {
@@ -102,18 +102,18 @@ gulp.task('dist_build', function() {
 });
 
 gulp.task('dist', function(done) {
-  runSequence('build-everything', ['dist_build', 'dist_animation_styles'], done);
+  runSequence('build-everything', ['dist_build', 'dist_footwork_styles'], done);
 });
 
-gulp.task('copy_animation_styles_to_build', ['build_animations_css'], function() {
-  gulp.src(['./source/animation-styles/*.less', './source/animation-styles/*.scss'])
-    .pipe(gulp.dest('./build/animation'));
+gulp.task('copy_footwork_styles_to_build', ['build_footworks_css'], function() {
+  gulp.src(['./source/styles/*.less', './source/styles/*.scss'])
+    .pipe(gulp.dest('./build/styles'));
 });
 
-gulp.task('build_animations_css', function() {
-  return gulp.src('./source/animation-styles/animation.less')
+gulp.task('build_footworks_css', function() {
+  return gulp.src('./source/styles/footwork.less')
     .pipe(less())
-    .pipe(gulp.dest('./build/animation'));
+    .pipe(gulp.dest('./build/styles'));
 });
 
 gulp.task('set_version', function() {

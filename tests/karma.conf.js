@@ -33,7 +33,6 @@ module.exports = {
   // preprocess matching files before serving them to the browser
   // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
   preprocessors: {
-    'build/footwork-ci.js': 'coverage',
     'tests/assets/**/*.html': ['html2js'],
     'tests/assets/**/*.json': ['json_fixtures']
   },
@@ -46,15 +45,7 @@ module.exports = {
   // test results reporter to use
   // possible values: 'dots', 'progress'
   // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-  reporters: ['spec', 'coverage'],
-
-  coverageReporter: {
-    dir : 'build/coverage/',
-    reporters: [
-      { type: 'html', subdir: 'report-html' },
-      { type: 'lcov', subdir: 'report-lcov' }
-    ]
-  },
+  reporters: ['spec'],
 
 
   // web server port
