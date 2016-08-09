@@ -67,6 +67,7 @@ function resetCallbackOrder() {
 }
 
 var ajaxWait = window.__env.AJAX_WAIT; // delay in ms to wait for ajax requests
+var jasmineTimeout = window.__env.JASMINE_TIMEOUT; // time that jasmine will wait for async requests to complete
 var fw;
 var $;
 var _;

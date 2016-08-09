@@ -25,7 +25,8 @@ module.exports = {
   customLaunchers: customLaunchers,
   client: {
     env: {
-      AJAX_WAIT: 2000 // time in ms to tell ajax-based tests to wait for (saucelabs runners are very slow)
+      AJAX_WAIT: 2000, // time in ms to tell ajax-based tests to wait for (saucelabs runners are very slow)
+      JASMINE_TIMEOUT: 20000 // time that jasmine will wait for async requests to complete
     }
   },
   plugins: [

@@ -8,7 +8,7 @@ define(['footwork', 'lodash', 'jquery'],
         jasmine.addMatchers(customMatchers);
         fixture.setBase('tests/assets/fixtures');
         originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineTimeout;
       });
       afterEach(function() {
         fixture.cleanup(testContainer);

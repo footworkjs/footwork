@@ -94,7 +94,8 @@ module.exports = {
 
   client: {
     env: {
-      AJAX_WAIT: 100 // time in ms to tell ajax-based tests to wait for
+      AJAX_WAIT: 100, // time in ms to tell ajax-based tests to wait for
+      JASMINE_TIMEOUT: 20000 // time that jasmine will wait for async requests to complete
     }
   },
 
