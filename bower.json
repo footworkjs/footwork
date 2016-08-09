@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "knockoutjs-nowrapper": "https://github.com/footworkjs/knockout-nowrapper.git#522cfa77b6e0e3bef2d21537f6a1d5fc884be69c",
-    "riveter": "https://github.com/footworkjs/riveter.git#414bacc15e2a8d754d45c9512f389c3b53160d8a",
+    "riveter": "https://github.com/footworkjs/riveter.git#54996cd16a852000f268c1914d9461d09a5176ec",
     "D.js": "0.7.3",
     "reqwest": "1.1.5",
     "conduitjs": "0.3.3",
