@@ -1,7 +1,7 @@
 /**
  * footwork.js - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v1.2.1-bare-jquery
+ * Version: v1.3.0-bare-jquery
  * Url: http://footworkjs.com
  * License(s): MIT
  */
@@ -152,13 +152,14 @@ var module = undefined,
         var res = ctor.extend({
             constructor: function ( /* options */ ) {
                 var args = slice.call(arguments, 0);
+                var self = this;
                 _.each(mixin.preInit, function (initializer) {
-                    initializer.apply(this, args);
-                }, this);
+                    initializer.apply(self, args);
+                });
                 ctor.prototype.constructor.apply(this, args);
                 _.each(mixin.postInit, function (initializer) {
-                    initializer.apply(this, args);
-                }, this);
+                    initializer.apply(self, args);
+                });
             }
         });
         riveter.rivet(res);
@@ -312,94 +313,7 @@ var module = undefined,
         }
     }
 }));
-
     }).call(root);
-
-    if(root._.isUndefined(root.postal.preserve)) {
-      (function() {
-        /**
- * postal.preserve - Add-on for postal.js that provides message durability features.
- * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
- * Version: v0.1.0
- * Url: http://github.com/postaljs/postal.preserve
- * License(s): MIT
- */
-(function (root, factory) {
-    if (typeof module === "object" && module.exports) {
-        // Node, or CommonJS-Like environments
-        module.exports = function (postal) {
-            factory(require("lodash"), postal, this);
-        };
-    } else if (typeof define === "function" && define.amd) {
-        // AMD. Register as an anonymous module.
-        define(["lodash", "postal"], function (_, postal) {
-            return factory(_, postal, root);
-        });
-    } else {
-        // Browser globals
-        root.postal = factory(root._, root.postal, root);
-    }
-}(this, function (_, postal, global, undefined) {
-    var plugin = postal.preserve = {
-        store: {},
-        expiring: []
-    };
-    var system = postal.channel(postal.configuration.SYSTEM_CHANNEL);
-    var dtSort = function (a, b) {
-        return b.expires - a.expires;
-    };
-    var tap = postal.addWireTap(function (d, e) {
-        var channel = e.channel;
-        var topic = e.topic;
-        if (e.headers && e.headers.preserve) {
-            plugin.store[channel] = plugin.store[channel] || {};
-            plugin.store[channel][topic] = plugin.store[channel][topic] || [];
-            plugin.store[channel][topic].push(e);
-            // a bit harder to read, but trying to make
-            // traversing expired messages faster than
-            // iterating the store object's multiple arrays
-            if (e.headers.expires) {
-                plugin.expiring.push({
-                    expires: e.headers.expires,
-                    purge: function () {
-                        plugin.store[channel][topic] = _.without(plugin.store[channel][topic], e);
-                        plugin.expiring = _.without(plugin.expiring, this);
-                    }
-                });
-                plugin.expiring.sort(dtSort);
-            }
-        }
-    });
-    function purgeExpired() {
-        var dt = new Date();
-        var expired = _.filter(plugin.expiring, function (x) {
-            return x.expires < dt;
-        });
-        while (expired.length) {
-            expired.pop().purge();
-        }
-    }
-    postal.SubscriptionDefinition.prototype.enlistPreserved = function () {
-        var channel = this.channel;
-        var binding = this.topic;
-        var self = this;
-        purgeExpired(true);
-        if (plugin.store[channel]) {
-            _.each(plugin.store[channel], function (msgs, topic) {
-                if (postal.configuration.resolver.compare(binding, topic)) {
-                    _.each(msgs, function (env) {
-                        self.callback.call(
-                        self.context || (self.callback.context && self.callback.context()) || this, env.data, env);
-                    });
-                }
-            });
-        }
-        return this;
-    };
-    return postal;
-}));
-      }).call(root);
-    }
 
     // list of dependencies to export from the library as .embed properties
     var embeddedDependencies = [ 'riveter', 'Conduit' ];
@@ -407,7 +321,15 @@ var module = undefined,
     return (function footwork(embedded, windowObject, _, ko, postal, riveter, jQuery, Conduit) {
       var ajax = jQuery.ajax;
       var Deferred = jQuery.Deferred;
-      var fw = ko;
+      /**
+ * footwork.js - A solid footing for web applications.
+ * Author: Jonathan Newman (http://staticty.pe)
+ * Version: v1.3.0-core
+ * Url: http://footworkjs.com
+ * License(s): MIT
+ */
+
+var fw = ko;
 var isFunction = _.isFunction;
 var isObject = _.isObject;
 var isString = _.isString;
@@ -422,16 +344,15 @@ var pick = _.pick;
 var each = _.each;
 var filter = _.filter;
 var bind = _.bind;
-var invoke = _.invoke;
+var invokeMap = _.invokeMap;
 var clone = _.clone;
 var reduce = _.reduce;
 var has = _.has;
-var where = _.where;
 var result = _.result;
 var uniqueId = _.uniqueId;
 var map = _.map;
 var find = _.find;
-var omit = _.omit;
+var omitBy = _.omitBy;
 var indexOf = _.indexOf;
 var values = _.values;
 var reject = _.reject;
@@ -457,7 +378,7 @@ var sortBy = _.sortBy;
 // ------------------
 
 // Record the footwork version as of this build.
-fw.footworkVersion = '1.2.1';
+fw.footworkVersion = '1.3.0';
 
 // Expose any embedded dependencies
 fw.embed = embedded;
@@ -478,7 +399,7 @@ var entityMixins = [];
 
 var entityClass = 'fw-entity';
 var entityAnimateClass = 'fw-entity-animate';
-var oneFrame = (1000 / 20); // assume slower interfaces, 20fps
+var oneFrame = (1000 / 30);
 var isEntityCtor;
 var isEntity;
 var isDataModel;
@@ -938,7 +859,7 @@ function registerNamespaceEventHandler(eventKey, callback, context) {
     callback = callback.bind(context);
   }
 
-  var handlerSubscription = this._subscribe('event.' + eventKey, callback).enlistPreserved();
+  var handlerSubscription = this._subscribe('event.' + eventKey, callback);
   this.eventHandlers.push(handlerSubscription);
 
   return handlerSubscription;
@@ -962,7 +883,7 @@ function registerNamespaceCommandHandler(commandKey, callback, context) {
     callback = callback.bind(context);
   }
 
-  var handlerSubscription = this._subscribe('command.' + commandKey, callback).enlistPreserved();
+  var handlerSubscription = this._subscribe('command.' + commandKey, callback);
   this.commandHandlers.push(handlerSubscription);
 
   return handlerSubscription;
@@ -1011,7 +932,7 @@ var handlerRepos = ['requestHandlers', 'commandHandlers', 'eventHandlers', 'subs
 function disconnectNamespaceHandlers() {
   var namespace = this;
   each(handlerRepos, function(handlerRepo) {
-    invoke(namespace[handlerRepo], 'unsubscribe');
+    invokeMap(namespace[handlerRepo], 'unsubscribe');
   });
   return this;
 }
@@ -1072,7 +993,7 @@ fw.namespace = function(namespaceName, $parentNamespace) {
       callback = callback.bind(context);
     }
     var subscription = namespace._subscribe.call(namespace, topic, callback);
-    subscriptions.push( subscription );
+    subscriptions.push(subscription);
     return subscription;
   };
   namespace.unsubscribe = unregisterNamespaceHandler;
@@ -1108,7 +1029,7 @@ fw.namespace = function(namespaceName, $parentNamespace) {
     return enterNamespace( this );
   };
   namespace.exit = function() {
-    if( fw.utils.currentNamespaceName() === this.getName() ) {
+    if(fw.utils.currentNamespaceName() === this.getName()) {
       return exitNamespace();
     }
   };
@@ -1181,8 +1102,8 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
   }) );
 
   broadcastable.dispose = function() {
-    invoke(namespaceSubscriptions, 'unsubscribe');
-    invoke(subscriptions, 'dispose');
+    invokeMap(namespaceSubscriptions, 'unsubscribe');
+    invokeMap(subscriptions, 'dispose');
     if( isLocalNamespace ) {
       namespace.dispose();
     }
@@ -1234,7 +1155,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
 
   var observableDispose = receivable.dispose;
   receivable.dispose = function() {
-    invoke(namespaceSubscriptions, 'unsubscribe');
+    invokeMap(namespaceSubscriptions, 'unsubscribe');
     if( isLocalNamespace ) {
       namespace.dispose();
     }
@@ -1430,7 +1351,7 @@ fw.sync = function(action, concern, params) {
     if(isDataModel(concern)) {
       var pkIsSpecifiedByUser = !isNull(url.match(':' + configParams.idAttribute));
       var hasQueryString = !isNull(url.match(/\?/));
-      if(contains(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl && !pkIsSpecifiedByUser && !hasQueryString) {
+      if(includes(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl && !pkIsSpecifiedByUser && !hasQueryString) {
         // need to append /:id to url
         url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
       }
@@ -1455,7 +1376,7 @@ fw.sync = function(action, concern, params) {
     }
   }
 
-  if(isNull(options.data) && concern && contains(['create', 'update', 'patch'], action)) {
+  if(isNull(options.data) && concern && includes(['create', 'update', 'patch'], action)) {
     options.contentType = 'application/json';
     options.data = JSON.stringify(options.attrs || concern.get());
   }
@@ -1468,7 +1389,7 @@ fw.sync = function(action, concern, params) {
 
   // For older servers, emulate HTTP by mimicking the HTTP method with `_method`
   // And an `X-HTTP-Method-Override` header.
-  if(options.emulateHTTP && contains(['PUT', 'DELETE', 'PATCH'], options.type)) {
+  if(options.emulateHTTP && includes(['PUT', 'DELETE', 'PATCH'], options.type)) {
     options.type = 'POST';
 
     if(options.emulateJSON) {
@@ -1723,15 +1644,16 @@ var DataModel = function(descriptor, configParams) {
         }, options);
 
         var mappingsChanged = false;
+        var model = this;
         each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
           var fieldValue = getNestedReference(attributes, fieldMap);
           if(!isUndefined(fieldValue)) {
             fw.isWriteableObservable(fieldObservable) && fieldObservable(fieldValue);
             mappingsChanged = true;
             options.clearDirty && fieldObservable.isDirty(false);
-            this.$namespace.publish('_.change.' + fieldMap, fieldValue);
+            model.$namespace.publish('_.change.' + fieldMap, fieldValue);
           }
-        }, this);
+        });
 
         if(mappingsChanged && options.clearDirty) {
           // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function
@@ -1934,6 +1856,7 @@ function nearestParentRouter($context) {
 // ------------------
 
 var noParentViewModelError = { $namespace: { getName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } } };
+var defaultLoadingComponent = 'default-loading-display';
 
 // This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied
 // to the UI and load in various views
@@ -2025,6 +1948,11 @@ function routerOutlet(outletName, componentToDisplay, options) {
   if(outletViewModel) {
     // Show the loading component (if one is defined)
     var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || currentOutletDef.name]);
+
+    if(showDuringLoadComponent === true || (!showDuringLoadComponent &&  resultBound(fw.router, 'showDefaultLoader', router, [outletName, componentToDisplay || currentOutletDef.name]))) {
+      showDuringLoadComponent = defaultLoadingComponent;
+    }
+
     if(showDuringLoadComponent) {
       outletViewModel.loadingDisplay(showDuringLoadComponent);
     }
@@ -2197,7 +2125,20 @@ function registerOutletComponent() {
   });
 };
 
+function registerDefaultLoadingDisplayComponent() {
+  fw.components.register(defaultLoadingComponent, {
+    template: '<div class="sk-wave">\
+                <div class="sk-rect sk-rect1"></div>\
+                <div class="sk-rect sk-rect2"></div>\
+                <div class="sk-rect sk-rect3"></div>\
+                <div class="sk-rect sk-rect4"></div>\
+                <div class="sk-rect sk-rect5"></div>\
+              </div>'
+  });
+}
+
 runPostInit.push(registerOutletComponent);
+runPostInit.push(registerDefaultLoadingDisplayComponent);
 
 // framework/entities/router/routeBinding.js
 // -----------
@@ -2210,7 +2151,7 @@ function findParentNode(element, selector) {
   if(element.parentNode && isFunction(element.parentNode.querySelectorAll)) {
     var parentNode = element.parentNode;
     var matches = parentNode.querySelectorAll(selector);
-    if(matches.length && contains(matches, element)) {
+    if(matches.length && includes(matches, element)) {
       return element;
     }
     return findParentNode(parentNode, selector);
@@ -2347,7 +2288,7 @@ fw.bindingHandlers.$route = {
           checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
 
           $myRouter.__private('parentRouter').subscribe(setUpElement);
-          fw.utils.registerEventHandler(element, routeHandlerDescription.on, function(event) {
+          fw.utils.registerEventHandler(element, resultBound(routeHandlerDescription, 'on', $myRouter), function(event) {
             var currentRouteURL = routeURLWithoutParentPath();
             var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
             if (handlerResult) {
@@ -2384,7 +2325,7 @@ var Router = function(descriptor, configParams) {
   return {
     _preInit: function( params ) {
       var $router = this;
-      var routerConfigParams = extend({}, configParams);
+      var routerConfigParams = extend({ routes: [] }, configParams);
 
       var router = this.__private();
       this.__private = privateData.bind(this, router, routerConfigParams);
@@ -2432,7 +2373,7 @@ var Router = function(descriptor, configParams) {
       router.normalizeURL = normalizeURL;
 
       function getUnknownRoute() {
-        var unknownRoute = findWhere(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
+        var unknownRoute = find(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
 
         if (!isNull(unknownRoute)) {
           unknownRoute = extend({}, baseRoute, {
@@ -2513,11 +2454,6 @@ var Router = function(descriptor, configParams) {
         return route || unknownRoute;
       }
 
-      function DefaultAction() {
-        delete router.currentRouteDescription;
-        $router.outlet.reset();
-      }
-
       function RoutedAction(routeDescription) {
         if (!isUndefined(routeDescription.title)) {
           document.title = isFunction(routeDescription.title) ? routeDescription.title.apply($router, values(routeDescription.namedParams)) : routeDescription.title;
@@ -2530,13 +2466,16 @@ var Router = function(descriptor, configParams) {
       }
 
       function getActionForRoute(routeDescription) {
-        var Action;
+        var Action = function DefaultAction() {
+          delete router.currentRouteDescription;
+          $router.outlet.reset();
+        };
 
         if (isRoute(routeDescription)) {
           Action = RoutedAction.bind($router, routeDescription);
         }
 
-        return Action || DefaultAction;
+        return Action;
       }
 
       router.isRelative = fw.computed(function() {
@@ -2761,13 +2700,13 @@ var Router = function(descriptor, configParams) {
 
           this.$namespace.dispose();
           this.$globalNamespace.dispose();
-          invoke(this.__private('subscriptions'), 'dispose');
+          invokeMap(this.__private('subscriptions'), 'dispose');
 
-          each(omit(this, function (property) {
+          each(omitBy(this, function (property) {
             return isEntity(property);
           }), propertyDispose);
 
-          each(omit(this.__private(), function (property) {
+          each(omitBy(this.__private(), function (property) {
             return isEntity(property);
           }), propertyDispose);
 
@@ -2872,8 +2811,7 @@ entityDescriptors = entityDescriptors.concat([
       isRelative: true,
       activate: true,
       beforeRoute: null,
-      minTransitionPeriod: 0,
-      routes: []
+      minTransitionPeriod: 0
     }
   }
 ]);
@@ -3196,7 +3134,7 @@ function entityClassFactory(descriptor, configParams) {
 
   var descriptorBehavior = [];
   map(descriptor.behavior, function(behavior, index) {
-    descriptorBehavior.push(isFunction(behavior) ? behavior(descriptor, configParams || {}) : behavior);
+    descriptorBehavior.push(isFunction(behavior) ? behavior(descriptor, configParams) : behavior);
   });
 
   var ctor = configParams.initialize || noop;
@@ -3317,8 +3255,8 @@ function getEntityComparator(methodName, compFunctions, entityDescriptor) {
 }
 
 runPostInit.unshift(function() {
-  var entityCtorComparators = pluck(entityDescriptors, 'isEntityCtor');
-  var entityComparators = pluck(entityDescriptors, 'isEntity');
+  var entityCtorComparators = map(entityDescriptors, 'isEntityCtor');
+  var entityComparators = map(entityDescriptors, 'isEntity');
 
   isEntityCtor = function(thing) {
     return reduce(entityCtorComparators, function(isThing, comparator) {
@@ -3591,7 +3529,7 @@ fw.components.getLocation = function(componentName) {
   if( isUndefined(componentName) ) {
     return fw.components.resourceLocations;
   }
-  return omit(fw.components.getRegisteredLocation(componentName) || defaultComponentLocation, isNull);
+  return omitBy(fw.components.getRegisteredLocation(componentName) || defaultComponentLocation, isNull);
 };
 
 // framework/resource/createResource.js
@@ -4148,7 +4086,7 @@ fw.components.tagIsComponent = function(tagName, isComponent) {
   }
 
   if(isComponent !== true) {
-    if( contains(nonComponentTags, tagName) === false ) {
+    if( includes(nonComponentTags, tagName) === false ) {
       nonComponentTags.push(tagName);
     }
   } else {
@@ -4193,7 +4131,7 @@ function isCollection(thing) {
 
 function removeDisposeAndNotify(originalFunction) {
   var removedItems = originalFunction.apply(this, Array.prototype.slice.call(arguments).splice(1));
-  this.__private('configParams').disposeOnRemove && invoke(removedItems, 'dispose');
+  this.__private('configParams').disposeOnRemove && invokeMap(removedItems, 'dispose');
   this.$namespace.publish('_.remove', removedItems);
   return removedItems;
 }
@@ -4266,7 +4204,7 @@ fw.collection.create = function(configParams) {
         if(!collection.isDisposed) {
           collection.isDisposed = true;
           collection.$namespace.dispose();
-          invoke(collection(), 'dispose');
+          invokeMap(collection(), 'dispose');
         }
       }
     });
@@ -4627,6 +4565,7 @@ fw.start = function(targetElement) {
 each(runPostInit, function(runTask) {
   runTask();
 });
+
 
       return fw;
     })(root._.pick(root, embeddedDependencies), windowObject, root._, root.ko, root.postal, root.riveter, root.jQuery, root.Conduit);
