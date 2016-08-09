@@ -64,7 +64,31 @@ module.exports = {
     version: '7.0'
   },
 
-  // Mobile
+  // Edge
+  "MS_Edge": {
+    browserName: "MicrosoftEdge",
+    platform: "Windows 10",
+    version: "13.10586"
+  },
+
+  // IE
+  "InternetExplorer_9": {
+    browserName: "internet explorer",
+    version: "9.0",
+    platform: "Windows 7"
+  },
+  "InternetExplorer_10": {
+    browserName: "internet explorer",
+    version: "10.0",
+    platform: "Windows 8"
+  },
+  "InternetExplorer_11": {
+    browserName: "internet explorer",
+    version: "11.103",
+    platform: "Windows 10"
+  },
+
+  // IPhone
   "IOS_9_3": {
     appiumVersion: "1.5.3",
     deviceName: "iPhone 6 Simulator",
@@ -100,6 +124,15 @@ module.exports = {
     platformVersion: "5.1",
     platformName: "Android"
   },
+  "Android_5_0": {
+    appiumVersion: "1.5.3",
+    deviceName: "Android Emulator",
+    deviceType: "phone",
+    deviceOrientation: "portrait",
+    browserName: "Browser",
+    platformVersion: "5.0",
+    platformName: "Android"
+  },
   "Android_4_4": {
     appiumVersion: "1.5.3",
     deviceName: "Android Emulator",
@@ -108,29 +141,5 @@ module.exports = {
     browserName: "Browser",
     platformVersion: "4.4",
     platformName: "Android"
-  },
-
-  // Edge
-  "MS_Edge": {
-    browserName: "MicrosoftEdge",
-    platform: "Windows 10",
-    version: "13.10586"
-  },
-
-  // IE
-  "InternetExplorer_9": {
-    browserName: "internet explorer",
-    version: "9.0",
-    platform: "Windows 7"
-  },
-  "InternetExplorer_10": {
-    browserName: "internet explorer",
-    version: "10.0",
-    platform: "Windows 8"
-  },
-  "InternetExplorer_11": {
-    browserName: "internet explorer",
-    version: "11.103",
-    platform: "Windows 10"
   }
 };
