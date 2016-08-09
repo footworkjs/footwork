@@ -37,12 +37,11 @@ function generateUrl() {
 }
 
 function randomString(length) {
-  var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  var charSet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   var result = '';
-  length = length || _.random(15, 30);
 
-  for (var i = length; i > 0; --i) {
-    result += chars[ Math.floor(Math.random() * chars.length) ];
+  for (var i = length || _.random(15, 30); i > 0; --i) {
+    result += _.sample(charSet);
   }
 
   return result;
@@ -66,12 +65,27 @@ function resetCallbackOrder() {
   currentCallbackOrderIndex = 0;
 }
 
+var testContainer;
+var originalTimeout;
+function prepareTestEnv() {
+  resetCallbackOrder();
+  jasmine.addMatchers(customMatchers);
+  fixture.setBase('tests/assets/fixtures');
+  originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineTimeout;
+}
+function cleanTestEnv() {
+  fixture.cleanup(testContainer);
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
+}
+
 var ajaxWait = window.__env.AJAX_WAIT; // delay in ms to wait for ajax requests
 var jasmineTimeout = window.__env.JASMINE_TIMEOUT; // time that jasmine will wait for async requests to complete
 var fw;
 var $;
 var _;
 var containers = [];
+var footworkAnimationClass = 'fw-entity-animate';
 
 var _fixtureCleanup = fixture.cleanup;
 fixture.cleanup = function(container) {

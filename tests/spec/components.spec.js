@@ -1,21 +1,8 @@
 define(['footwork', 'lodash', 'jquery'],
   function(fw, _, $) {
     describe('components', function() {
-      var testContainer;
-      var footworkAnimationClass = 'fw-entity-animate';
-      var originalTimeout;
-
-      beforeEach(function() {
-        resetCallbackOrder();
-        jasmine.addMatchers(customMatchers);
-        fixture.setBase('tests/assets/fixtures');
-        originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineTimeout;
-      });
-      afterEach(function() {
-        fixture.cleanup(testContainer);
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-      });
+      beforeEach(prepareTestEnv);
+      afterEach(cleanTestEnv);
 
       it('can register a component', function() {
         var namespaceName = generateNamespaceName();
@@ -226,7 +213,7 @@ define(['footwork', 'lodash', 'jquery'],
         var viewModelNamespaceName = generateNamespaceName();
         var componentNamespaceName = generateNamespaceName();
         var initializeSpy;
-        var valueToFind = fw.utils.guid();
+        var valueToFind = randomString();
 
         fw.components.register(componentNamespaceName, {
           template: '<div class="passed-value" data-bind="text: someVariable"></div>'

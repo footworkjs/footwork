@@ -1,20 +1,8 @@
 define(['footwork', 'lodash', 'jquery'],
   function(fw, _, $) {
     describe('namespace', function() {
-      var testContainer;
-      var originalTimeout;
-
-      beforeEach(function() {
-        resetCallbackOrder();
-        jasmine.addMatchers(customMatchers);
-        fixture.setBase('tests/assets/fixtures');
-        originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineTimeout;
-      });
-      afterEach(function() {
-        fixture.cleanup(testContainer);
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-      });
+      beforeEach(prepareTestEnv);
+      afterEach(cleanTestEnv);
 
       it('has the ability to create a namespace', function() {
         var namespace = fw.namespace('testNamespaceCreation');
@@ -32,7 +20,7 @@ define(['footwork', 'lodash', 'jquery'],
 
       it('has basic pub/sub capability', function() {
         var namespace = fw.namespace(generateNamespaceName());
-        var testValue = fw.utils.guid();
+        var testValue = randomString();
         var subscriptionCallbackSpy;
 
         namespace.subscribe('testMessageTopic', expectCallOrder(0, subscriptionCallbackSpy = jasmine.createSpy('subscriptionCallbackSpy', function(value) {
@@ -65,7 +53,7 @@ define(['footwork', 'lodash', 'jquery'],
         var namespace1 = fw.namespace(namespaceName);
         var namespace2 = fw.namespace(namespaceName);
         var subscriptionCallbackSpy;
-        var testValue = fw.utils.guid();
+        var testValue = randomString();
 
         namespace1.subscribe('testMessageTopic', expectCallOrder(0, subscriptionCallbackSpy = jasmine.createSpy('', function(parameter) {
           expect(parameter).toBe(testValue);
@@ -244,7 +232,7 @@ define(['footwork', 'lodash', 'jquery'],
       it('can unregister request handlers when namespace is disposed', function() {
         var namespace = fw.namespace(generateNamespaceName());
         var handlerCallbackSpy;
-        var testValue = fw.utils.guid();
+        var testValue = randomString();
 
         namespace.request.handler('testDispose', expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function() {
           return testValue;

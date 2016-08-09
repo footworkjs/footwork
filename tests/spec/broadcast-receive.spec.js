@@ -1,19 +1,8 @@
 define(['footwork', 'lodash', 'jquery'],
   function(fw, _, $) {
     describe('broadcast-receive', function() {
-      var testContainer;
-
-      beforeEach(function() {
-        resetCallbackOrder();
-        jasmine.addMatchers(customMatchers);
-        fixture.setBase('tests/assets/fixtures');
-        originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineTimeout;
-      });
-      afterEach(function() {
-        fixture.cleanup(testContainer);
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-      });
+      beforeEach(prepareTestEnv);
+      afterEach(cleanTestEnv);
 
       it('has the ability to create model with a broadcastable', function() {
         var initializeSpy;
@@ -50,7 +39,7 @@ define(['footwork', 'lodash', 'jquery'],
       it('modelB receivable can receive data from the modelA broadcastable', function() {
         var modelAInitializeSpy;
         var modelBInitializeSpy;
-        var modelANamespaceName = fw.utils.guid();
+        var modelANamespaceName = generateNamespaceName();
 
         var ModelA = fw.viewModel.create({
           namespace: modelANamespaceName,
@@ -73,7 +62,7 @@ define(['footwork', 'lodash', 'jquery'],
         var modelB = new ModelB();
         expect(modelBInitializeSpy).toHaveBeenCalled();
 
-        var testValue = 'a-specific-value';
+        var testValue = randomString();
         modelA.broadcaster(testValue);
         expect(modelB.receiver()).toBe(testValue);
       });
@@ -84,29 +73,31 @@ define(['footwork', 'lodash', 'jquery'],
         var receivable = fw.observable(null).receiveFrom(namespace, 'broadcaster');
         expect(receivable()).toBe(null);
 
-        var broadcastable = fw.observable('testValue').broadcastAs({ name: 'broadcaster', namespace: namespace });
+        var broadcastable = fw.observable(randomString()).broadcastAs({ name: 'broadcaster', namespace: namespace });
         expect(receivable()).toBe(broadcastable());
       });
 
       it('can have standalone broadcastable created with alternative syntax', function() {
-        var receivable = fw.observable(null).receiveFrom('alternativeSyntaxTestNamespace', 'broadcaster');
+        var namespaceName = generateNamespaceName();
+        var receivable = fw.observable(null).receiveFrom(namespaceName, 'broadcaster');
 
         expect(receivable()).toBe(null);
 
-        var broadcastable = fw.observable('testValue').broadcastAs({ name: 'broadcaster', namespace: 'alternativeSyntaxTestNamespace' });
+        var broadcastable = fw.observable().broadcastAs({ name: 'broadcaster', namespace: namespaceName });
         expect(receivable()).toBe(broadcastable());
 
-        var broadcastable = fw.observable('testValue2').broadcastAs('broadcaster', 'alternativeSyntaxTestNamespace');
+        var broadcastable = fw.observable().broadcastAs('broadcaster', namespaceName);
         expect(receivable()).toBe(broadcastable());
       });
 
       it('can have standalone broadcastable created with alternative syntax and a passed in instantiated namespace', function() {
-        var namespace = fw.namespace('alternativeSyntaxTestNamespaceInstance');
-        var receivable = fw.observable(null).receiveFrom('alternativeSyntaxTestNamespaceInstance', 'broadcaster');
+        var namespaceName = generateNamespaceName();
+        var namespace = fw.namespace(namespaceName);
+        var receivable = fw.observable(null).receiveFrom(namespaceName, 'broadcaster');
 
         expect(receivable()).toBe(null);
 
-        var broadcastable = fw.observable('testValue').broadcastAs({ name: 'broadcaster', namespace: namespace });
+        var broadcastable = fw.observable(randomString()).broadcastAs({ name: 'broadcaster', namespace: namespace });
 
         expect(receivable()).toBe(broadcastable());
       });
@@ -114,7 +105,7 @@ define(['footwork', 'lodash', 'jquery'],
       it('modelB can write to a receivable and modelA sees the new data on a writable broadcastable', function() {
         var modelAInitializeSpy;
         var modelBInitializeSpy;
-        var modelANamespaceName = fw.utils.guid();
+        var modelANamespaceName = generateNamespaceName();
 
         var ModelA = fw.viewModel.create({
           namespace: modelANamespaceName,
@@ -137,7 +128,7 @@ define(['footwork', 'lodash', 'jquery'],
         var modelB = new ModelB();
         expect(modelBInitializeSpy).toHaveBeenCalled();
 
-        var testValue = 'a-different-specific-value';
+        var testValue = randomString();
         modelB.writableReceiver(testValue);
 
         expect(modelA.writableBroadcaster()).toBe(testValue);
@@ -146,7 +137,7 @@ define(['footwork', 'lodash', 'jquery'],
       it('when modelB tries to write to receivable modelA does not see the data on a non-writable broadcastable and the receivable is not set to the new value', function() {
         var modelAInitializeSpy;
         var modelBInitializeSpy;
-        var modelANamespaceName = fw.utils.guid();
+        var modelANamespaceName = generateNamespaceName();
 
         var ModelA = fw.viewModel.create({
           namespace: modelANamespaceName,
@@ -169,7 +160,7 @@ define(['footwork', 'lodash', 'jquery'],
         var modelB = new ModelB();
         expect(modelBInitializeSpy).toHaveBeenCalled();
 
-        var testValue = 'specific-value-that-should-not-be-seen';
+        var testValue = randomString();
         modelB.nonwritableReceiver(testValue);
         expect(modelB.nonwritableReceiver()).not.toBe(testValue);
         expect(modelA.nonwritableBroadcaster()).not.toBe(testValue);
@@ -179,7 +170,7 @@ define(['footwork', 'lodash', 'jquery'],
         var modelAInitializeSpy;
         var modelBInitializeSpy;
         var whenSpy;
-        var modelANamespaceName = fw.utils.guid();
+        var modelANamespaceName = generateNamespaceName();
 
         var ModelA = fw.viewModel.create({
           namespace: modelANamespaceName,
@@ -205,7 +196,7 @@ define(['footwork', 'lodash', 'jquery'],
         expect(whenSpy).not.toHaveBeenCalled();
         expect(modelBInitializeSpy).toHaveBeenCalled();
 
-        var testValue = 'value-that-should-be-visible-from-ModelB';
+        var testValue = randomString();
         modelA.broadcaster(testValue);
         expect(whenSpy).toHaveBeenCalled();
         expect(modelB.receiver()).toBe(testValue);
@@ -215,7 +206,8 @@ define(['footwork', 'lodash', 'jquery'],
         var modelAInitializeSpy;
         var modelBInitializeSpy;
         var whenSpy;
-        var modelANamespaceName = fw.utils.guid();
+        var modelANamespaceName = generateNamespaceName();
+        var valuethatFailsWhenValidator = randomString();
 
         var ModelA = fw.viewModel.create({
           namespace: modelANamespaceName,
@@ -241,7 +233,7 @@ define(['footwork', 'lodash', 'jquery'],
         expect(whenSpy).not.toHaveBeenCalled();
         expect(modelBInitializeSpy).toHaveBeenCalled();
 
-        modelA.broadcaster('value-that-should-NOT-be-visible-from-ModelB');
+        modelA.broadcaster(valuethatFailsWhenValidator);
         expect(whenSpy).toHaveBeenCalled();
         expect(modelB.receiver()).toBe(undefined);
       });
@@ -250,9 +242,9 @@ define(['footwork', 'lodash', 'jquery'],
         var modelAInitializeSpy;
         var modelBInitializeSpy;
         var whenSpy;
-        var modelANamespaceName = fw.utils.guid();
-        var writableTestValue = 'value-that-should-be-visible-from-ModelB-callback';
-        var nonWrittenTestValue = fw.utils.guid();
+        var modelANamespaceName = generateNamespaceName();
+        var writableTestValue = randomString();
+        var nonWrittenTestValue = randomString();
 
         var ModelA = fw.viewModel.create({
           namespace: modelANamespaceName,

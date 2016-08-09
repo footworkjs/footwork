@@ -1,20 +1,8 @@
 define(['footwork', 'lodash', 'jquery'],
   function(fw, _, $) {
     describe('router', function() {
-      var testContainer;
-      var originalTimeout;
-
-      beforeEach(function() {
-        resetCallbackOrder();
-        jasmine.addMatchers(customMatchers);
-        fixture.setBase('tests/assets/fixtures');
-        originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineTimeout;
-      });
-      afterEach(function() {
-        fixture.cleanup(testContainer);
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-      });
+      beforeEach(prepareTestEnv);
+      afterEach(cleanTestEnv);
 
       it('has the ability to create a router', function() {
         expect(fw.router.create).toBeA('function');
@@ -214,7 +202,7 @@ define(['footwork', 'lodash', 'jquery'],
 
       it('can bind to the DOM using a shared instance', function(done) {
         var namespaceName = generateNamespaceName();
-        var boundPropertyValue = fw.utils.guid();
+        var boundPropertyValue = randomString();
 
         fw.router.register(namespaceName, {
           instance: {
@@ -238,7 +226,7 @@ define(['footwork', 'lodash', 'jquery'],
 
       it('can bind to the DOM using a generated instance', function(done) {
         var namespaceName = generateNamespaceName();
-        var boundPropertyValue = fw.utils.guid();
+        var boundPropertyValue = randomString();
         var boundPropertyValueElement = boundPropertyValue + '-element';
         var createRouterInstance;
 
@@ -294,8 +282,8 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can nest <router> declarations', function() {
-        var namespaceNameOuter = fw.utils.guid();
-        var namespaceNameInner = fw.utils.guid();
+        var namespaceNameOuter = randomString();
+        var namespaceNameInner = randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy');
 
         fw.router.create({
@@ -391,7 +379,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can have an array of models registered to a location and retrieved proplerly', function() {
-        var namespaceNames = [ fw.utils.guid(), fw.utils.guid() ];
+        var namespaceNames = [ generateNamespaceName(), generateNamespaceName() ];
         fw.router.registerLocation(namespaceNames, '/bogus/path');
         expect(fw.router.getLocation(namespaceNames[0])).toBe('/bogus/path');
         expect(fw.router.getLocation(namespaceNames[1])).toBe('/bogus/path');
@@ -527,8 +515,8 @@ define(['footwork', 'lodash', 'jquery'],
       it('can be nested and initialized declaratively', function(done) {
         var outerInitializeSpy = jasmine.createSpy('outerInitializeSpy');
         var innerInitializeSpy = jasmine.createSpy('innerInitializeSpy');
-        var outerNamespaceName = fw.utils.guid();
-        var innerNamespaceName = fw.utils.guid();
+        var outerNamespaceName = randomString();
+        var innerNamespaceName = randomString();
 
         fw.router.create({
           namespace: outerNamespaceName,
@@ -685,7 +673,7 @@ define(['footwork', 'lodash', 'jquery'],
         var namespaceName = generateNamespaceName();
         var routeControllerSpy;
         var initializeSpy;
-        var testParam = fw.utils.guid();
+        var testParam = randomString();
         var router;
 
         fw.router.create({
@@ -724,7 +712,7 @@ define(['footwork', 'lodash', 'jquery'],
         var initializeSpy;
         var optParamNotSuppliedSpy;
         var optParamSuppliedSpy;
-        var testParam = fw.utils.guid();
+        var testParam = randomString();
         var router;
 
         fw.router.create({
@@ -767,7 +755,7 @@ define(['footwork', 'lodash', 'jquery'],
 
       it('can manipulate an outlet', function(done) {
         var manipulateOutletUrl = generateUrl();
-        var manipulateOutletComponentNamespace = fw.utils.guid();
+        var manipulateOutletComponentNamespace = randomString();
         var namespaceName = generateNamespaceName();
         var initializeSpy;
         var afterRenderSpy;
@@ -870,7 +858,7 @@ define(['footwork', 'lodash', 'jquery'],
       it('can have callback triggered after outlet component is resolved and composed', function(done) {
         var mockUrl = generateUrl();
         var namespaceName = generateNamespaceName();
-        var outletCallbackName = fw.utils.guid();
+        var outletCallbackName = randomString();
         var initializeSpy;
         var outletCallbackComponentSpy;
         var triggerOutletCallbackControllerSpy;
@@ -921,9 +909,9 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can instantiate and properly render an outlet after its router has initialized', function(done) {
-        var outletControlingViewModelNamespace = fw.utils.guid();
-        var outletComponentNamespace = fw.utils.guid();
-        var routerNamespace = fw.utils.guid();
+        var outletControlingViewModelNamespace = randomString();
+        var outletComponentNamespace = randomString();
+        var routerNamespace = randomString();
         var initializeSpy;
         var changeOutletControllerSpy;
         var outletCallbackSpy;
@@ -996,9 +984,9 @@ define(['footwork', 'lodash', 'jquery'],
 
       it('can display a temporary loading component in place of a component that is being downloaded', function(done) {
         var mockUrl = generateUrl();
-        var outletLoaderTestLoadingNamespace = fw.utils.guid();
-        var outletLoaderTestLoadedNamespace = fw.utils.guid();
-        var routerNamespace = fw.utils.guid();
+        var outletLoaderTestLoadingNamespace = randomString();
+        var outletLoaderTestLoadedNamespace = randomString();
+        var routerNamespace = randomString();
         var changeOutletControllerSpy;
         var outletCallbackSpy;
         var outletLoaderTestLoadingSpy;
@@ -1059,9 +1047,9 @@ define(['footwork', 'lodash', 'jquery'],
 
       it('can display a temporary loading component (source from callback) in place of a component that is being downloaded', function(done) {
         var mockUrl = generateUrl();
-        var outletLoaderTestLoadingNamespace = fw.utils.guid();
-        var outletLoaderTestLoadedNamespace = fw.utils.guid();
-        var routerNamespace = fw.utils.guid();
+        var outletLoaderTestLoadingNamespace = randomString();
+        var outletLoaderTestLoadedNamespace = randomString();
+        var routerNamespace = randomString();
         var changeOutletControllerSpy;
         var outletCallbackSpy;
         var outletLoaderTestLoadingSpy;
@@ -1133,9 +1121,9 @@ define(['footwork', 'lodash', 'jquery'],
 
       xit('can display a temporary loading component in place of a component that is being downloaded with a custom minimum transition time', function(done) {
         var mockUrl = generateUrl();
-        var outletLoaderTestLoadingNamespace = fw.utils.guid();
-        var outletLoaderTestLoadedNamespace = fw.utils.guid();
-        var routerNamespace = fw.utils.guid();
+        var outletLoaderTestLoadingNamespace = randomString();
+        var outletLoaderTestLoadedNamespace = randomString();
+        var routerNamespace = randomString();
         var changeOutletControllerSpy;
         var outletCallbackSpy;
         var outletLoaderTestLoadingSpy;
@@ -1200,9 +1188,9 @@ define(['footwork', 'lodash', 'jquery'],
 
       xit('can display a temporary loading component in place of a component that is being downloaded with a custom minimum transition time from callback', function(done) {
         var mockUrl = generateUrl();
-        var outletLoaderTestLoadingNamespace = fw.utils.guid();
-        var outletLoaderTestLoadedNamespace = fw.utils.guid();
-        var routerNamespace = fw.utils.guid();
+        var outletLoaderTestLoadingNamespace = randomString();
+        var outletLoaderTestLoadedNamespace = randomString();
+        var routerNamespace = randomString();
         var changeOutletControllerSpy;
         var outletCallbackSpy;
         var outletLoaderTestLoadingSpy;
@@ -1273,9 +1261,9 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can have nested/child routers path be dependent on its parents', function(done) {
-        var outerNestedRouteNamespace = fw.utils.guid();
-        var innerNestedRouteNamespace = fw.utils.guid();
-        var subInnerNestedRouteNamespace = fw.utils.guid();
+        var outerNestedRouteNamespace = randomString();
+        var innerNestedRouteNamespace = randomString();
+        var subInnerNestedRouteNamespace = randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy');
 
         fw.router.create({
@@ -1344,8 +1332,8 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can have a nested/child router which is not relative to its parent', function(done) {
-        var outerNestedRouteNamespace = fw.utils.guid();
-        var innerNestedRouteNamespace = fw.utils.guid();
+        var outerNestedRouteNamespace = randomString();
+        var innerNestedRouteNamespace = randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy');
 
         fw.router.create({
@@ -1492,8 +1480,8 @@ define(['footwork', 'lodash', 'jquery'],
       it('can have a $route bound link correctly composed with an href attribute using an observable', function(done) {
         testContainer;
         var mockUrl = generateUrl();
-        var routerNamespaceName = fw.utils.guid();
-        var viewModelNamespaceName = fw.utils.guid();
+        var routerNamespaceName = randomString();
+        var viewModelNamespaceName = randomString();
         var viewModelInitializeSpy;
         var routerInitializeSpy = jasmine.createSpy('routerInitializeSpy');
         var routeSpy = jasmine.createSpy('routeSpy');
@@ -1613,7 +1601,7 @@ define(['footwork', 'lodash', 'jquery'],
         testContainer;
         var mockUrl = generateUrl();
         var namespaceName = generateNamespaceName();
-        var activeClassName = fw.utils.guid();
+        var activeClassName = randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy');
         var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1657,7 +1645,7 @@ define(['footwork', 'lodash', 'jquery'],
         testContainer;
         var mockUrl = generateUrl();
         var namespaceName = generateNamespaceName();
-        var activeClassName = fw.utils.guid();
+        var activeClassName = randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy');
         var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1703,8 +1691,8 @@ define(['footwork', 'lodash', 'jquery'],
         testContainer;
         var mockUrl = generateUrl();
         var namespaceName = generateNamespaceName();
-        var activeClassName = fw.utils.guid();
-        var parentClassName = fw.utils.guid();
+        var activeClassName = randomString();
+        var parentClassName = randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy');
         var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1753,10 +1741,10 @@ define(['footwork', 'lodash', 'jquery'],
       it('can have a $route bound link that expresses a custom \'active\' class defined by an observable when the route matches', function(done) {
         testContainer;
         var mockUrl = generateUrl();
-        var routerNamespaceName = fw.utils.guid();
-        var viewModelNamespaceName = fw.utils.guid();
-        var activeClassName = fw.utils.guid();
-        var parentClassName = fw.utils.guid();
+        var routerNamespaceName = randomString();
+        var viewModelNamespaceName = randomString();
+        var activeClassName = randomString();
+        var parentClassName = randomString();
         var viewModelInitializeSpy;
         var routerInitializeSpy = jasmine.createSpy('routerInitializeSpy');
         var routeSpy = jasmine.createSpy('routeSpy');
@@ -1988,8 +1976,8 @@ define(['footwork', 'lodash', 'jquery'],
       it('can have a $route bound link correctly composed with a custom callback handler', function(done) {
         testContainer;
         var mockUrl = generateUrl();
-        var routerNamespaceName = fw.utils.guid();
-        var viewModelNamespaceName = fw.utils.guid();
+        var routerNamespaceName = randomString();
+        var viewModelNamespaceName = randomString();
         var viewModelInitializeSpy;
         var routerInitializeSpy;
         var customHandlerSpy;
@@ -2062,8 +2050,8 @@ define(['footwork', 'lodash', 'jquery'],
       it('can have a $route bound link correctly composed with a custom URL callback', function(done) {
         testContainer;
         var mockUrl = generateUrl();
-        var routerNamespaceName = fw.utils.guid();
-        var viewModelNamespaceName = fw.utils.guid();
+        var routerNamespaceName = randomString();
+        var viewModelNamespaceName = randomString();
         var viewModelInitializeSpy;
         var initializeSpy;
         var urlResolverSpy;

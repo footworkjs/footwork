@@ -1,21 +1,8 @@
 define(['footwork', 'lodash', 'jquery'],
   function(fw, _, $) {
     describe('dataModel', function() {
-      var testContainer;
-      var footworkAnimationClass = 'fw-entity-animate';
-      var originalTimeout;
-
-      beforeEach(function() {
-        resetCallbackOrder();
-        jasmine.addMatchers(customMatchers);
-        fixture.setBase('tests/assets/fixtures');
-        originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineTimeout;
-      });
-      afterEach(function() {
-        fixture.cleanup(testContainer);
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-      });
+      beforeEach(prepareTestEnv);
+      afterEach(cleanTestEnv);
 
       it('has the ability to create a dataModel', function() {
         expect(fw.dataModel.create).toBeA('function');
@@ -223,7 +210,7 @@ define(['footwork', 'lodash', 'jquery'],
 
       it('can bind to the DOM using a shared instance', function(done) {
         var namespaceName = generateNamespaceName();
-        var boundPropertyValue = fw.utils.guid();
+        var boundPropertyValue = randomString();
 
         fw.dataModel.register(namespaceName, {
           instance: {
@@ -247,7 +234,7 @@ define(['footwork', 'lodash', 'jquery'],
 
       it('can bind to the DOM using a generated instance', function(done) {
         var namespaceName = generateNamespaceName();
-        var boundPropertyValue = fw.utils.guid();
+        var boundPropertyValue = randomString();
         var boundPropertyValueElement = boundPropertyValue + '-element';
         var createDataModelInstance;
 
@@ -1150,7 +1137,7 @@ define(['footwork', 'lodash', 'jquery'],
         var mockUrl = generateUrl();
         var personData = {
           "id": 100,
-          "firstName": fw.utils.guid(),
+          "firstName": randomString(),
           "lastName": null,
           "email": null
         };

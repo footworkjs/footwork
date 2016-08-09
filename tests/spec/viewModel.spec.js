@@ -1,21 +1,8 @@
 define(['footwork', 'lodash', 'jquery'],
   function(fw, _, $) {
     describe('viewModel', function() {
-      var testContainer;
-      var footworkAnimationClass = 'fw-entity-animate';
-      var originalTimeout;
-
-      beforeEach(function() {
-        resetCallbackOrder();
-        jasmine.addMatchers(customMatchers);
-        fixture.setBase('tests/assets/fixtures');
-        originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineTimeout;
-      });
-      afterEach(function() {
-        fixture.cleanup(testContainer);
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
-      });
+      beforeEach(prepareTestEnv);
+      afterEach(cleanTestEnv);
 
       it('has the ability to create a viewModel', function() {
         expect(fw.viewModel.create).toBeA('function');
@@ -215,7 +202,7 @@ define(['footwork', 'lodash', 'jquery'],
 
       it('can bind to the DOM using a shared instance', function(done) {
         var namespaceName = generateNamespaceName();
-        var boundPropertyValue = fw.utils.guid();
+        var boundPropertyValue = randomString();
 
         fw.viewModel.register(namespaceName, {
           instance: {
@@ -239,7 +226,7 @@ define(['footwork', 'lodash', 'jquery'],
 
       it('can bind to the DOM using a generated instance', function(done) {
         var namespaceName = generateNamespaceName();
-        var boundPropertyValue = fw.utils.guid();
+        var boundPropertyValue = randomString();
         var boundPropertyValueElement = boundPropertyValue + '-element';
         var createViewModelInstance;
 
@@ -295,8 +282,8 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can nest <viewModel> declarations', function() {
-        var namespaceNameOuter = fw.utils.guid();
-        var namespaceNameInner = fw.utils.guid();
+        var namespaceNameOuter = randomString();
+        var namespaceNameInner = randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy');
 
         fw.viewModel.create({
@@ -392,7 +379,7 @@ define(['footwork', 'lodash', 'jquery'],
       });
 
       it('can have an array of models registered to a location and retrieved proplerly', function() {
-        var namespaceNames = [ fw.utils.guid(), fw.utils.guid() ];
+        var namespaceNames = [ generateNamespaceName(), generateNamespaceName() ];
         fw.viewModel.registerLocation(namespaceNames, '/bogus/path');
         expect(fw.viewModel.getLocation(namespaceNames[0])).toBe('/bogus/path');
         expect(fw.viewModel.getLocation(namespaceNames[1])).toBe('/bogus/path');
