@@ -76,30 +76,30 @@ module.exports = {
     platformName: "iOS",
     browserName: "Safari"
   },
-  "IOS_9_3": {
+  "IOS_9_0": {
     appiumVersion: "1.5.3",
-    deviceName: "iPhone 6 Simulator",
+    deviceName: "iPhone 6 Plus Simulator",
     deviceOrientation: "portrait",
     platformVersion: "9.0",
     platformName: "iOS",
     browserName: "Safari"
   },
-  // "IOS_8_4": {
-  //   appiumVersion: "1.5.3",
-  //   deviceName: "iPhone 5s Simulator",
-  //   deviceOrientation: "portrait",
-  //   platformVersion:"8.4",
-  //   platformName: "iOS",
-  //   browserName: "Safari"
-  // },
-  "IPhone_5": {
+  "IOS_8_1": {
     appiumVersion: "1.5.3",
-    deviceName: "iPhone 5 Simulator",
+    deviceName: "iPhone 4s Simulator",
     deviceOrientation: "portrait",
-    platformVersion: "8.4",
+    platformVersion: "8.1",
     platformName: "iOS",
     browserName: "Safari"
   },
+  // "IPhone_5": {
+  //   appiumVersion: "1.5.3",
+  //   deviceName: "iPhone 5 Simulator",
+  //   deviceOrientation: "portrait",
+  //   platformVersion: "8.4",
+  //   platformName: "iOS",
+  //   browserName: "Safari"
+  // },
 
   // Android
   // "Android_S4": {
