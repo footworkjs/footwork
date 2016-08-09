@@ -16,10 +16,11 @@ module.exports = {
     platform: "Linux",
     version: '45.0'
   },
-  "Linux_Firefox_Latest_1": {
+
+  "OSX_Firefox_Latest": {
     browserName: "firefox",
-    platform: "Linux",
-    version: '44.0'
+    platform: "OS X 10.11",
+    version: '47.0'
   },
 
   // Chrome
@@ -34,11 +35,12 @@ module.exports = {
     version: '50.0'
   },
 
-  // "OSX_Chrome_Latest": {
-  //   browserName: "chrome",
-  //   platform: "OS X 10.11",
-  //   version: '51.0'
-  // },
+  "Linux_Chrome_Latest": {
+    browserName: "chrome",
+    platform: "Linux",
+    version: '48.0'
+  },
+
   "OSX_Chrome_Latest_1": {
     browserName: "chrome",
     platform: "OS X 10.11",
@@ -61,11 +63,6 @@ module.exports = {
     platform: "OS X 10.9",
     version: '7.0'
   },
-  // "OSX_Safari_6": {
-  //   browserName: "safari",
-  //   platform: "OS X 10.8",
-  //   version: '6.0'
-  // },
 
   // Mobile
   "IOS_9_3": {
@@ -92,25 +89,8 @@ module.exports = {
     platformName: "iOS",
     browserName: "Safari"
   },
-  // "IPhone_5": {
-  //   appiumVersion: "1.5.3",
-  //   deviceName: "iPhone 5 Simulator",
-  //   deviceOrientation: "portrait",
-  //   platformVersion: "8.4",
-  //   platformName: "iOS",
-  //   browserName: "Safari"
-  // },
 
   // Android
-  // "Android_S4": {
-  //   deviceName: "Samsung Galaxy S4 Emulator",
-  //   deviceOrientation: "portrait",
-  //   browserName: "Android"
-  // },
-  // android_5_1:
-  //   browserName: android
-  //   platform: Linux
-  //   version: "5.1"
   "Android_5_1": {
     appiumVersion: "1.5.3",
     deviceName: "Android Emulator",
@@ -129,12 +109,6 @@ module.exports = {
     platformVersion: "4.4",
     platformName: "Android"
   },
-
-  // android_4_0:
-  //   browserName: android
-  //   platform: Linux
-  //   version: "4.0"
-  //   deviceName: "Android Emulator"
 
   // Edge
   "MS_Edge": {
