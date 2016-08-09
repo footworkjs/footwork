@@ -3,9 +3,9 @@
 
 *```A solid footing for web applications.```*
 
-[![Build Status](https://travis-ci.org/footworkjs/footwork.png?branch=master)](https://travis-ci.org/footworkjs/footwork) [![Build Status](https://saucelabs.com/buildstatus/reflectiv?r=2)](https://saucelabs.com/u/reflectiv) [![Test Coverage](https://coveralls.io/repos/github/footworkjs/footwork/badge.svg?branch=master)](https://coveralls.io/github/footworkjs/footwork) [![Bower version](https://badge.fury.io/bo/footwork.svg)](https://badge.fury.io/bo/footwork)
+[![Build Status](https://travis-ci.org/footworkjs/footwork.png?branch=master)](https://travis-ci.org/footworkjs/footwork) [![Build Status](https://saucelabs.com/buildstatus/reflectiv?r=3)](https://saucelabs.com/u/reflectiv) [![Test Coverage](https://coveralls.io/repos/github/footworkjs/footwork/badge.svg?branch=master)](https://coveralls.io/github/footworkjs/footwork) [![Bower version](https://badge.fury.io/bo/footwork.svg)](https://badge.fury.io/bo/footwork)
 
-[![Build Status](https://saucelabs.com/browser-matrix/reflectiv.svg?r=5)](https://saucelabs.com/u/reflectiv)
+[![Build Status](https://saucelabs.com/browser-matrix/reflectiv.svg?r=6)](https://saucelabs.com/u/reflectiv)
 
 ## What is footwork?
 
@@ -71,7 +71,7 @@ gulp build-everything
 # build whats necessary for the unit tests, and run them (coverage report output in build/coverage)
 gulp tests
 
-# watch for changes in the source code/tests and automatically rebuild whats necessary for unit tests + run tests
+# watch for changes in the source code/tests and automatically rebuild whats necessary + run tests
 gulp watch
 
 # watch for changes in the source code/tests and automatically rebuild everything + run tests
@@ -79,7 +79,7 @@ gulp watch-everything
 
 # to debug in your own browser: start karma for continuous test monitoring
 sudo npm install -g karma-cli # install karma (if needed)
-karma start # now you can access the tests from your browser at: http://[your-server-ip-or-host]:9876/debug.html
+karma start # now access the tests from your browser at: http://[your-server-ip-or-host]:9876/debug.html
 
 # rebuild and deploy assets to /dist (for release)
 gulp dist
