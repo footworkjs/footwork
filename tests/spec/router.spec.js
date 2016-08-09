@@ -394,6 +394,7 @@ define(['footwork', 'lodash', 'jquery'],
       it('can have a specific file extension set and used correctly', function() {
         var namespaceName = generateNamespaceName();
         var customExtension = '.jscript';
+
         fw.router.fileExtensions(customExtension);
         fw.router.registerLocation(namespaceName, '/bogus/path/');
 
@@ -405,6 +406,7 @@ define(['footwork', 'lodash', 'jquery'],
       it('can have a callback specified as the extension with it invoked and the return value used', function() {
         var namespaceName = generateNamespaceName();
         var customExtension = '.jscriptFunction';
+
         fw.router.fileExtensions(function(moduleName) {
           expect(moduleName).toBe(namespaceName);
           return customExtension;

@@ -14,13 +14,13 @@ module.exports = {
     build: 'TRAVIS #' + process.env.TRAVIS_BUILD_NUMBER + ' (' + process.env.TRAVIS_BUILD_ID + ')',
     startConnect: false,
     verbose: false,
-    retryLimit: 3,
+    retryLimit: 4,
     recordVideo: false,
     recordScreenshots: false,
     verboseDebugging: false
   },
-  captureTimeout: 500000,
-  browserNoActivityTimeout: 500000,
+  captureTimeout: 550000,
+  browserNoActivityTimeout: 550000,
   browsers: Object.keys(customLaunchers),
   customLaunchers: customLaunchers,
   client: {
