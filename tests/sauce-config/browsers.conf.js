@@ -137,10 +137,11 @@ module.exports = {
   //   deviceName: "Android Emulator"
 
   // Edge
-  // "MS_Edge": {
-  //   browserName: "edge",
-  //   platform: "Windows 10"
-  // },
+  "MS_Edge": {
+    browserName: "edge",
+    platform: "Windows 10",
+    version: "13.10586"
+  },
 
   // IE
   "InternetExplorer_9": {
