@@ -848,7 +848,7 @@ define(['footwork', 'lodash', 'jquery'],
       it('can correctly POST data on initial save()', function(done) {
         var initializeSpy;
         var mockUrl = generateUrl();
-        var postValue = '__POST__CHECK__';
+        var postValue = randomString();
 
         $.mockjax({
           responseTime: 5,
@@ -890,8 +890,8 @@ define(['footwork', 'lodash', 'jquery'],
       it('can correctly POST data on initial save() and then PUT on subsequent calls', function(done) {
         var initializeSpy;
         var mockUrl = generateUrl();
-        var postValue = '__POST__CHECK__';
-        var putValue = '__PUT__CHECK__';
+        var postValue = randomString();
+        var putValue = randomString();
         var personData = {
           "id": 1,
           "firstName": null,
@@ -948,7 +948,7 @@ define(['footwork', 'lodash', 'jquery'],
         var initializeSpy;
         var parseSpy;
         var mockUrl = generateUrl();
-        var postValue = '__POST__CHECK__';
+        var postValue = randomString();
 
         var mockResponse = {
           "id": 1,
