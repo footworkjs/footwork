@@ -1,4 +1,4 @@
-define(['footwork', 'lodash', 'jquery'],
+define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
   function(fw, _, $) {
     describe('broadcast-receive', function() {
       beforeEach(prepareTestEnv);

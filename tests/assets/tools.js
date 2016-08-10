@@ -149,6 +149,11 @@ function prepareTestEnv() {
   fixture.setBase('tests/assets/fixtures');
   originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
   jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineTimeout;
+
+  _.extend($.mockjaxSettings, {
+    logging: false,
+    responseTime: 5
+  });
 }
 function cleanTestEnv() {
   fixture.cleanup(testContainer);
@@ -177,11 +182,6 @@ require(['footwork', 'lodash', 'jquery', 'jquery-mockjax'], function(footwork, l
   fw = footwork;
   $ = jQuery;
   _ = lodash;
-
-  _.extend($.mockjaxSettings, {
-    logging: false,
-    responseTime: 5
-  });
 
   if(containers.length) {
     var container;
