@@ -19,8 +19,8 @@ module.exports = {
     recordScreenshots: false,
     verboseDebugging: false
   },
-  captureTimeout: 550000,
-  browserNoActivityTimeout: 550000,
+  captureTimeout: 200000,
+  browserNoActivityTimeout: 200000,
   browsers: Object.keys(customLaunchers),
   customLaunchers: customLaunchers,
   client: {
@@ -42,5 +42,5 @@ module.exports = {
     'karma-coverage'
   ],
   singleRun: true,
-  concurrency: 2
+  concurrency: 4
 };
