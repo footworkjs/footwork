@@ -41,5 +41,6 @@ module.exports = {
     'karma-env',
     'karma-coverage'
   ],
-  singleRun: true
+  singleRun: true,
+  concurrency: 2
 };

@@ -15,13 +15,12 @@
   },
   "moduleType": "amd",
   "main": [
-    "./dist/footwork-bare-jquery.min.js",
+    "./dist/footwork-all-history.min.js",
     "./dist/footwork.css"
   ],
   "ignore": [
     "source",
     "tests",
-    "deps",
     "bower_components",
     "node_modules",
     "bower.json",
@@ -45,8 +44,6 @@
     "riveter": "https://github.com/footworkjs/riveter.git#54996cd16a852000f268c1914d9461d09a5176ec",
     "knockoutjs-nowrapper": "https://github.com/footworkjs/knockout-nowrapper.git#522cfa77b6e0e3bef2d21537f6a1d5fc884be69c",
     "history.js": "https://github.com/footworkjs/history.js.git#ae04b0e41c48a1e2f272cc10e29c2aeaa50d1a86",
-    "jquery-mockjax": "2.0.1",
-    "expect": "0.1.2",
-    "mocha": "*"
+    "jquery-mockjax": "2.0.1"
   }
 }
