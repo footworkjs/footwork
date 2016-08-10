@@ -19,6 +19,8 @@ require.config({
   // dynamically load all test files
   deps: allTestFiles,
 
+  waitSeconds: 600,
+
   paths: {
     /**
      * Note that if you add any new bower assets you will need to also add a reference
