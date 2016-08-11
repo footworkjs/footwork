@@ -65,7 +65,6 @@ define(['jquery', 'lodash', 'customMatchers'],
       currentCallbackOrderIndex = 0;
     }
 
-    var testContainer;
     var jasmineDefaultTimeoutInterval;
     function prepareTestEnv() {
       resetCallbackOrder();
@@ -74,7 +73,7 @@ define(['jquery', 'lodash', 'customMatchers'],
       jasmine.DEFAULT_TIMEOUT_INTERVAL = window.__env.JASMINE_TIMEOUT; // time that jasmine will wait for async requests to complete
     }
     function cleanTestEnv() {
-      fixture.cleanup(testContainer);
+      fixture.cleanup();
       jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineDefaultTimeoutInterval;
     }
 
