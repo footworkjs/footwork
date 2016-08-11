@@ -1,8 +1,8 @@
-define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
-  function(fw, _, $) {
+define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
+  function(fw, _, $, tools) {
     describe('dataModel', function() {
-      beforeEach(prepareTestEnv);
-      afterEach(cleanTestEnv);
+      beforeEach(tools.prepareTestEnv);
+      afterEach(tools.cleanTestEnv);
 
       it('has the ability to create a dataModel', function() {
         expect(fw.dataModel.create).toBeA('function');
@@ -18,7 +18,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('has the ability to create a dataModel with a correctly defined namespace whos name we can retrieve', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var ModelA = fw.dataModel.create({
           namespace: namespaceName
         });
@@ -55,21 +55,21 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('correctly applies a mixin to a dataModel', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var preInitCallbackSpy = jasmine.createSpy('preInitCallbackSpy').and.callThrough();
         var postInitCallbackSpy = jasmine.createSpy('postInitCallbackSpy').and.callThrough();
         var initializeSpy = jasmine.createSpy('initializeSpy').and.callThrough();
 
         var DataModelWithMixin = fw.dataModel.create({
           namespace: namespaceName,
-          initialize: expectCallOrder(1, initializeSpy),
+          initialize: tools.expectCallOrder(1, initializeSpy),
           mixins: [
             {
-              _preInit: expectCallOrder(0, preInitCallbackSpy),
+              _preInit: tools.expectCallOrder(0, preInitCallbackSpy),
               mixin: {
                 mixinPresent: true
               },
-              _postInit: expectCallOrder(2, postInitCallbackSpy)
+              _postInit: tools.expectCallOrder(2, postInitCallbackSpy)
             }
           ]
         });
@@ -88,7 +88,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         var ModelA = fw.dataModel.create({
           namespace: 'ModelA',
-          initialize: expectCallOrder(0, initializeSpyA = jasmine.createSpy('initializeSpyA', function() {
+          initialize: tools.expectCallOrder(0, initializeSpyA = jasmine.createSpy('initializeSpyA', function() {
             expect(fw.utils.currentNamespaceName()).toBe('ModelA');
             this.subModelB = new ModelB();
             expect(fw.utils.currentNamespaceName()).toBe('ModelA');
@@ -97,7 +97,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         var ModelB = fw.dataModel.create({
           namespace: 'ModelB',
-          initialize: expectCallOrder(1, initializeSpyB = jasmine.createSpy('initializeSpyB', function() {
+          initialize: tools.expectCallOrder(1, initializeSpyB = jasmine.createSpy('initializeSpyB', function() {
             expect(fw.utils.currentNamespaceName()).toBe('ModelB');
             this.subModelC = new ModelC();
             expect(fw.utils.currentNamespaceName()).toBe('ModelB');
@@ -106,7 +106,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         var ModelC = fw.dataModel.create({
           namespace: 'ModelC',
-          initialize: expectCallOrder(2, initializeSpyC = jasmine.createSpy('initializeSpyC', function() {
+          initialize: tools.expectCallOrder(2, initializeSpyC = jasmine.createSpy('initializeSpyC', function() {
             expect(fw.utils.currentNamespaceName()).toBe('ModelC');
           }).and.callThrough())
         });
@@ -128,8 +128,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var afterRenderSpy;
 
         var ModelA = fw.dataModel.create({
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy')),
-          afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy')),
+          afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
             expect(containingElement).toHaveClass(checkForClass);
           }).and.callThrough())
         });
@@ -137,14 +137,14 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).not.toHaveBeenCalled();
 
-        fw.applyBindings(new ModelA(), testContainer = makeTestContainer('', '<div class="' + checkForClass + '"></div>'));
+        fw.applyBindings(new ModelA(), testContainer = tools.makeTestContainer('', '<div class="' + checkForClass + '"></div>'));
 
         expect(initializeSpy).toHaveBeenCalled();
         expect(afterRenderSpy).toHaveBeenCalled();
       });
 
       it('can register and get a registered dataModel', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         expect(fw.dataModel.isRegistered(namespaceName)).toBe(false);
 
         var Model = jasmine.createSpy('Model');
@@ -164,7 +164,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can get all instantiated dataModels of a specific type/name', function() {
         var dataModels = [];
-        var specificDataModelNamespace = generateNamespaceName();
+        var specificDataModelNamespace = tools.generateNamespaceName();
         var DataModel = fw.dataModel.create({ namespace: specificDataModelNamespace });
         var numToMake = _.random(1,15);
 
@@ -172,12 +172,12 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           dataModels.push(new DataModel());
         }
 
-        expect(fw.dataModel.getAll(generateNamespaceName())).lengthToBe(0);
+        expect(fw.dataModel.getAll(tools.generateNamespaceName())).lengthToBe(0);
         expect(fw.dataModel.getAll(specificDataModelNamespace)).lengthToBe(numToMake);
       });
 
       it('can autoRegister a dataModel during class method creation', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         expect(fw.dataModel.isRegistered(namespaceName)).toBe(false);
 
         fw.dataModel.create({
@@ -190,7 +190,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can bind to the DOM using a <dataModel> declaration', function(done) {
         var wasInitialized = false;
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy();
 
         fw.dataModel.create({
@@ -200,7 +200,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalledTimes(1);
@@ -209,8 +209,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can bind to the DOM using a shared instance', function(done) {
-        var namespaceName = generateNamespaceName();
-        var boundPropertyValue = randomString();
+        var namespaceName = tools.generateNamespaceName();
+        var boundPropertyValue = tools.randomString();
 
         fw.dataModel.register(namespaceName, {
           instance: {
@@ -218,7 +218,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           }
         });
 
-        testContainer = makeTestContainer('<dataModel module="' + namespaceName + '">\
+        testContainer = tools.makeTestContainer('<dataModel module="' + namespaceName + '">\
                                              <span class="result" data-bind="text: boundProperty"></span>\
                                            </dataModel>');
 
@@ -233,13 +233,13 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can bind to the DOM using a generated instance', function(done) {
-        var namespaceName = generateNamespaceName();
-        var boundPropertyValue = randomString();
+        var namespaceName = tools.generateNamespaceName();
+        var boundPropertyValue = tools.randomString();
         var boundPropertyValueElement = boundPropertyValue + '-element';
         var createDataModelInstance;
 
         fw.dataModel.register(namespaceName, {
-          createDataModel: expectCallOrder(0, createDataModelInstance = jasmine.createSpy('createDataModel', function(params, info) {
+          createDataModel: tools.expectCallOrder(0, createDataModelInstance = jasmine.createSpy('createDataModel', function(params, info) {
             expect(params.var).toBe(boundPropertyValue);
             expect(info.element).toHaveId(boundPropertyValueElement);
 
@@ -250,7 +250,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         });
 
         expect(createDataModelInstance).not.toHaveBeenCalled();
-        testContainer = makeTestContainer('<dataModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
+        testContainer = tools.makeTestContainer('<dataModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
                                              <span class="result" data-bind="text: boundProperty"></span>\
                                            </dataModel>');
 
@@ -265,7 +265,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('has the animation classes applied properly', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var theElement;
         var initializeSpy;
         var afterRenderSpy;
@@ -273,8 +273,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         fw.dataModel.create({
           namespace: namespaceName,
           autoRegister: true,
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy').and.callThrough()),
-          afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy').and.callThrough()),
+          afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
             theElement = element;
             expect(theElement).not.toHaveClass(footworkAnimationClass);
           }).and.callThrough())
@@ -282,7 +282,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         expect(initializeSpy).toHaveBeenCalled();
         expect(afterRenderSpy).toHaveBeenCalled();
@@ -290,25 +290,25 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can nest <dataModel> declarations', function() {
-        var namespaceNameOuter = generateNamespaceName();
-        var namespaceNameInner = generateNamespaceName();
+        var namespaceNameOuter = tools.generateNamespaceName();
+        var namespaceNameInner = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy('initializeSpy');
 
         fw.dataModel.create({
           namespace: namespaceNameOuter,
           autoRegister: true,
-          initialize: expectCallOrder(0, initializeSpy)
+          initialize: tools.expectCallOrder(0, initializeSpy)
         });
 
         fw.dataModel.create({
           namespace: namespaceNameInner,
           autoRegister: true,
-          initialize: expectCallOrder(1, initializeSpy)
+          initialize: tools.expectCallOrder(1, initializeSpy)
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<dataModel module="' + namespaceNameOuter + '">\
+        fw.start(testContainer = tools.makeTestContainer('<dataModel module="' + namespaceNameOuter + '">\
           <dataModel module="' + namespaceNameInner + '"></dataModel>\
         </dataModel>'));
 
@@ -316,7 +316,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can pass parameters through a <dataModel> declaration', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy;
 
         fw.dataModel.create({
@@ -329,19 +329,19 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = makeTestContainer('<dataModel module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></dataModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<dataModel module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></dataModel>'));
         expect(initializeSpy).toHaveBeenCalled();
       });
 
       it('calls onDispose when the containing element is removed from the DOM', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var theElement;
         var initializeSpy;
         var afterRenderSpy;
         var onDisposeSpy;
 
         var WrapperDataModel = fw.dataModel.create({
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             this.showIt = fw.observable(true);
           }).and.callThrough())
         });
@@ -349,11 +349,11 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var DataModelWithDispose = fw.dataModel.create({
           namespace: namespaceName,
           autoRegister: true,
-          afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+          afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
             theElement = element;
             expect(theElement.tagName).toBe('DATAMODEL');
           }).and.callThrough()),
-          onDispose: expectCallOrder(2, onDisposeSpy = jasmine.createSpy('onDisposeSpy', function(element) {
+          onDispose: tools.expectCallOrder(2, onDisposeSpy = jasmine.createSpy('onDisposeSpy', function(element) {
             expect(element).toBe(theElement);
           }).and.callThrough())
         });
@@ -366,7 +366,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(initializeSpy).toHaveBeenCalled();
         expect(afterRenderSpy).not.toHaveBeenCalled();
 
-        fw.applyBindings(wrapper, testContainer = makeTestContainer('<div data-bind="if: showIt">\
+        fw.applyBindings(wrapper, testContainer = tools.makeTestContainer('<div data-bind="if: showIt">\
           <dataModel module="' + namespaceName + '"></dataModel>\
         </div>'));
 
@@ -379,7 +379,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can have a registered location set and retrieved proplerly', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         fw.dataModel.registerLocation(namespaceName, '/bogus/path');
         expect(fw.dataModel.getLocation(namespaceName)).toBe('/bogus/path');
         fw.dataModel.registerLocation(/regexp.*/, '/bogus/path');
@@ -387,20 +387,20 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can have an array of models registered to a location and retrieved proplerly', function() {
-        var namespaceNames = [ generateNamespaceName(), generateNamespaceName() ];
+        var namespaceNames = [ tools.generateNamespaceName(), tools.generateNamespaceName() ];
         fw.dataModel.registerLocation(namespaceNames, '/bogus/path');
         expect(fw.dataModel.getLocation(namespaceNames[0])).toBe('/bogus/path');
         expect(fw.dataModel.getLocation(namespaceNames[1])).toBe('/bogus/path');
       });
 
       it('can have a registered location with filename set and retrieved proplerly', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         fw.dataModel.registerLocation(namespaceName, '/bogus/path/__file__.js');
         expect(fw.dataModel.getLocation(namespaceName)).toBe('/bogus/path/__file__.js');
       });
 
       it('can have a specific file extension set and used correctly', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var customExtension = '.jscript';
         fw.dataModel.fileExtensions(customExtension);
         fw.dataModel.registerLocation(namespaceName, '/bogus/path/');
@@ -411,7 +411,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can have a callback specified as the extension with it invoked and the return value used', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var customExtension = '.jscriptFunction';
         fw.dataModel.fileExtensions(function(moduleName) {
           expect(moduleName).toBe(namespaceName);
@@ -425,7 +425,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can load via requirejs with a declarative initialization from an already registered module', function(done) {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy();
 
         define(namespaceName, ['footwork'], function(fw) {
@@ -435,7 +435,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -444,7 +444,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can load via registered dataModel with a declarative initialization', function(done) {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy();
 
         fw.dataModel.register(namespaceName, fw.dataModel.create({
@@ -452,7 +452,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         }));
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -467,7 +467,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -482,7 +482,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -497,7 +497,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -512,7 +512,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -524,7 +524,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var initializeSpy;
 
         var Person = fw.dataModel.create({
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             this.firstName = fw.observable(person.firstName).mapTo('firstName');
             this.lastName = fw.observable(person.lastName).mapTo('lastName');
           }).and.callThrough())
@@ -547,7 +547,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var initializeSpy;
 
         var Person = fw.dataModel.create({
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             this.firstName = fw.observable(person.firstName).mapTo('firstName');
             this.lastName = fw.observable(person.lastName).mapTo('lastName');
             this.movieCollection = {
@@ -586,7 +586,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var initializeSpy;
 
         var Person = fw.dataModel.create({
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             this.firstName = fw.observable(person.firstName).mapTo('firstName');
             this.lastName = fw.observable(person.lastName).mapTo('lastName');
             this.movieCollection = {
@@ -622,7 +622,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var initializeSpy;
 
         var Person = fw.dataModel.create({
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             this.firstName = fw.observable(person.firstName).mapTo('firstName');
             this.lastName = fw.observable(person.lastName).mapTo('lastName');
             this.movieCollection = {
@@ -658,7 +658,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var initializeSpy;
 
         var Person = fw.dataModel.create({
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             this.firstName = fw.observable(person.firstName).mapTo('firstName');
             this.lastName = fw.observable(person.lastName).mapTo('lastName');
             this.movieCollection = {
@@ -692,7 +692,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var initializeSpy;
 
         var Person = fw.dataModel.create({
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             this.firstName = fw.observable(person.firstName).mapTo('firstName');
             this.lastName = fw.observable(person.lastName).mapTo('lastName');
             this.movieCollection = {
@@ -745,7 +745,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var initializeSpy;
 
         var Person = fw.dataModel.create({
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             this.firstName = fw.observable().mapTo('firstName');
             this.lastName = fw.observable().mapTo('lastName');
             this.movieCollection = {
@@ -784,7 +784,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var initializeSpy;
 
         var Person = fw.dataModel.create({
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(personData) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(personData) {
             this.firstName = fw.observable().mapTo('firstName');
             this.lastName = fw.observable().mapTo('lastName');
             this.movieCollection = {
@@ -810,7 +810,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var initializeSpy;
 
         var Person = fw.dataModel.create({
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             this.firstName = fw.observable(person.firstName).mapTo('firstName');
             this.lastName = fw.observable(person.lastName).mapTo('lastName');
             this.movieCollection = {
@@ -847,8 +847,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can correctly POST data on initial save()', function(done) {
         var initializeSpy;
-        var mockUrl = generateUrl();
-        var postValue = randomString();
+        var mockUrl = tools.generateUrl();
+        var postValue = tools.randomString();
 
         $.mockjax({
           responseTime: 5,
@@ -864,7 +864,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         var Person = fw.dataModel.create({
           url: mockUrl,
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             person = person || {};
             this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
             this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
@@ -889,9 +889,9 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can correctly POST data on initial save() and then PUT on subsequent calls', function(done) {
         var initializeSpy;
-        var mockUrl = generateUrl();
-        var postValue = randomString();
-        var putValue = randomString();
+        var mockUrl = tools.generateUrl();
+        var postValue = tools.randomString();
+        var putValue = tools.randomString();
         var personData = {
           "id": 1,
           "firstName": null,
@@ -915,7 +915,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         var Person = fw.dataModel.create({
           url: mockUrl,
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             person = person || {};
             this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
             this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
@@ -947,8 +947,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       it('can correctly POST data and apply parse() method with return on save()', function(done) {
         var initializeSpy;
         var parseSpy;
-        var mockUrl = generateUrl();
-        var postValue = randomString();
+        var mockUrl = tools.generateUrl();
+        var postValue = tools.randomString();
 
         var mockResponse = {
           "id": 1,
@@ -965,11 +965,11 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         var Person = fw.dataModel.create({
           url: mockUrl,
-          parse: expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
+          parse: tools.expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
             response.firstName = postValue;
             return response;
           }).and.callThrough()),
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             person = person || {};
             this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
             this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
@@ -997,7 +997,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can correctly fetch() data from the server via a pre-filled idAttribute', function(done) {
         var initializeSpy;
-        var mockUrl = generateUrl();
+        var mockUrl = tools.generateUrl();
         var getValue = '__GET__CHECK__';
         var personData = {
           "id": 100,
@@ -1015,7 +1015,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         var Person = fw.dataModel.create({
           url: mockUrl,
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             person = person || {};
             this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
             this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
@@ -1041,7 +1041,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       it('can correctly fetch() data from the server with a provided parse() method', function(done) {
         var initializeSpy;
         var parseSpy;
-        var mockUrl = generateUrl();
+        var mockUrl = tools.generateUrl();
         var getValue = '__GET__CHECK__';
         var personData = {
           "id": 100,
@@ -1059,11 +1059,11 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         var Person = fw.dataModel.create({
           url: mockUrl,
-          parse: expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
+          parse: tools.expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
             response.firstName = getValue;
             return response;
           }).and.callThrough()),
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             person = person || {};
             this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
             this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
@@ -1090,7 +1090,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can correctly fetch() data from the server via a pre-filled custom idAttribute', function(done) {
         var initializeSpy;
-        var mockUrl = generateUrl();
+        var mockUrl = tools.generateUrl();
         var getValue = '__GET__CUSTOM__CHECK__';
         var personData = {
           "customId": 100,
@@ -1109,7 +1109,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var Person = fw.dataModel.create({
           url: mockUrl,
           idAttribute: 'customId',
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             person = person || {};
             this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
             this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
@@ -1134,10 +1134,10 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can correctly fetch() data from the server with overridden ajaxOptions', function(done) {
         var initializeSpy;
-        var mockUrl = generateUrl();
+        var mockUrl = tools.generateUrl();
         var personData = {
           "id": 100,
-          "firstName": randomString(),
+          "firstName": tools.randomString(),
           "lastName": null,
           "email": null
         };
@@ -1154,7 +1154,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           ajaxOptions: {
             url: mockUrl
           },
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             person = person || {};
             this.id(person.id);
             this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
@@ -1180,7 +1180,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       it('can correctly fetch() data from the server via a url based on an evaluator function', function(done) {
         var initializeSpy;
         var urlSpy;
-        var mockUrl = generateUrl();
+        var mockUrl = tools.generateUrl();
         var getValue = '__GET__CUSTOM__CHECK__';
         var personData = {
           "id": 100,
@@ -1197,10 +1197,10 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         });
 
         var Person = fw.dataModel.create({
-          url: expectCallOrder(1, urlSpy = jasmine.createSpy('urlSpy', function() {
+          url: tools.expectCallOrder(1, urlSpy = jasmine.createSpy('urlSpy', function() {
             return mockUrl;
           }).and.callThrough()),
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             person = person || {};
             this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
             this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
@@ -1229,7 +1229,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can correctly fetch() data from the server via a url with interpolated parameters', function(done) {
         var initializeSpy;
-        var mockUrl = generateUrl();
+        var mockUrl = tools.generateUrl();
         var personData = {
           "id": 100,
           "firstName": 'interpolatedFirstName',
@@ -1247,7 +1247,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var Person = fw.dataModel.create({
           useKeyInUrl: false,
           url: mockUrl + '/:firstName',
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             person = person || {};
             this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
             this.lastName = fw.observable(person.lastName || null).mapTo('lastName');

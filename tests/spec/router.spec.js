@@ -1,8 +1,8 @@
-define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
-  function(fw, _, $) {
+define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
+  function(fw, _, $, tools) {
     describe('router', function() {
-      beforeEach(prepareTestEnv);
-      afterEach(cleanTestEnv);
+      beforeEach(tools.prepareTestEnv);
+      afterEach(tools.cleanTestEnv);
 
       it('has the ability to create a router', function() {
         expect(fw.router.create).toBeA('function');
@@ -31,7 +31,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('correctly names and increments counter for indexed routers', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var IndexedRouter = fw.router.create({
           namespace: namespaceName,
           autoIncrement: true
@@ -47,21 +47,21 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('correctly applies a mixin to a router', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var preInitCallbackSpy = jasmine.createSpy('preInitCallbackSpy').and.callThrough();
         var postInitCallbackSpy = jasmine.createSpy('postInitCallbackSpy').and.callThrough();
         var initializeSpy = jasmine.createSpy('initializeSpy').and.callThrough();
 
         var RouterWithMixin = fw.router.create({
           namespace: namespaceName,
-          initialize: expectCallOrder(1, initializeSpy),
+          initialize: tools.expectCallOrder(1, initializeSpy),
           mixins: [
             {
-              _preInit: expectCallOrder(0, preInitCallbackSpy),
+              _preInit: tools.expectCallOrder(0, preInitCallbackSpy),
               mixin: {
                 mixinPresent: true
               },
-              _postInit: expectCallOrder(2, postInitCallbackSpy)
+              _postInit: tools.expectCallOrder(2, postInitCallbackSpy)
             }
           ]
         });
@@ -80,7 +80,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         var ModelA = fw.router.create({
           namespace: 'ModelA',
-          initialize: expectCallOrder(0, initializeSpyA = jasmine.createSpy('initializeSpyA', function() {
+          initialize: tools.expectCallOrder(0, initializeSpyA = jasmine.createSpy('initializeSpyA', function() {
             expect(fw.utils.currentNamespaceName()).toBe('ModelA');
             this.subModelB = new ModelB();
             expect(fw.utils.currentNamespaceName()).toBe('ModelA');
@@ -89,7 +89,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         var ModelB = fw.router.create({
           namespace: 'ModelB',
-          initialize: expectCallOrder(1, initializeSpyB = jasmine.createSpy('initializeSpyB', function() {
+          initialize: tools.expectCallOrder(1, initializeSpyB = jasmine.createSpy('initializeSpyB', function() {
             expect(fw.utils.currentNamespaceName()).toBe('ModelB');
             this.subModelC = new ModelC();
             expect(fw.utils.currentNamespaceName()).toBe('ModelB');
@@ -98,7 +98,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         var ModelC = fw.router.create({
           namespace: 'ModelC',
-          initialize: expectCallOrder(2, initializeSpyC = jasmine.createSpy('initializeSpyC', function() {
+          initialize: tools.expectCallOrder(2, initializeSpyC = jasmine.createSpy('initializeSpyC', function() {
             expect(fw.utils.currentNamespaceName()).toBe('ModelC');
           }).and.callThrough())
         });
@@ -120,8 +120,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var afterRenderSpy;
 
         var ModelA = fw.router.create({
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy')),
-          afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy')),
+          afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
             expect(containingElement).toHaveClass(checkForClass);
           }).and.callThrough())
         });
@@ -129,14 +129,14 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).not.toHaveBeenCalled();
 
-        fw.applyBindings(new ModelA(), testContainer = makeTestContainer('', '<div class="' + checkForClass + '"></div>'));
+        fw.applyBindings(new ModelA(), testContainer = tools.makeTestContainer('', '<div class="' + checkForClass + '"></div>'));
 
         expect(initializeSpy).toHaveBeenCalled();
         expect(afterRenderSpy).toHaveBeenCalled();
       });
 
       it('can register and get a registered router', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         expect(fw.router.isRegistered(namespaceName)).toBe(false);
 
         var Model = jasmine.createSpy('Model');
@@ -156,7 +156,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can get all instantiated routers of a specific type/name', function() {
         var routers = [];
-        var specificRouterNamespace = generateNamespaceName();
+        var specificRouterNamespace = tools.generateNamespaceName();
         var Router = fw.router.create({ namespace: specificRouterNamespace });
         var numToMake = _.random(1,15);
 
@@ -164,12 +164,12 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routers.push(new Router());
         }
 
-        expect(fw.router.getAll(generateNamespaceName())).lengthToBe(0);
+        expect(fw.router.getAll(tools.generateNamespaceName())).lengthToBe(0);
         expect(fw.router.getAll(specificRouterNamespace)).lengthToBe(numToMake);
       });
 
       it('can autoRegister a router during class method creation', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         expect(fw.router.isRegistered(namespaceName)).toBe(false);
 
         fw.router.create({
@@ -182,7 +182,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can bind to the DOM using a <router> declaration', function(done) {
         var wasInitialized = false;
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy();
 
         fw.router.create({
@@ -192,7 +192,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalledTimes(1);
@@ -201,8 +201,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can bind to the DOM using a shared instance', function(done) {
-        var namespaceName = generateNamespaceName();
-        var boundPropertyValue = randomString();
+        var namespaceName = tools.generateNamespaceName();
+        var boundPropertyValue = tools.randomString();
 
         fw.router.register(namespaceName, {
           instance: {
@@ -210,7 +210,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           }
         });
 
-        testContainer = makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
                                              <span class="result" data-bind="text: boundProperty"></span>\
                                            </router>');
 
@@ -225,13 +225,13 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can bind to the DOM using a generated instance', function(done) {
-        var namespaceName = generateNamespaceName();
-        var boundPropertyValue = randomString();
+        var namespaceName = tools.generateNamespaceName();
+        var boundPropertyValue = tools.randomString();
         var boundPropertyValueElement = boundPropertyValue + '-element';
         var createRouterInstance;
 
         fw.router.register(namespaceName, {
-          createViewModel: expectCallOrder(0, createRouterInstance = jasmine.createSpy('createRouterInstance', function(params, info) {
+          createViewModel: tools.expectCallOrder(0, createRouterInstance = jasmine.createSpy('createRouterInstance', function(params, info) {
             expect(params.var).toBe(boundPropertyValue);
             expect(info.element).toHaveId(boundPropertyValueElement);
 
@@ -242,7 +242,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         });
 
         expect(createRouterInstance).not.toHaveBeenCalled();
-        testContainer = makeTestContainer('<router module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
+        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
                                              <span class="result" data-bind="text: boundProperty"></span>\
                                            </router>');
 
@@ -257,7 +257,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('has the animation classes applied properly', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var theElement;
         var initializeSpy;
         var afterRenderSpy;
@@ -265,8 +265,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         fw.router.create({
           namespace: namespaceName,
           autoRegister: true,
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy').and.callThrough()),
-          afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy').and.callThrough()),
+          afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
             theElement = element;
             expect(theElement).not.toHaveClass('fw-entity-animate');
           }).and.callThrough())
@@ -274,7 +274,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
         expect(initializeSpy).toHaveBeenCalled();
         expect(afterRenderSpy).toHaveBeenCalled();
@@ -282,25 +282,25 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can nest <router> declarations', function() {
-        var namespaceNameOuter = randomString();
-        var namespaceNameInner = randomString();
+        var namespaceNameOuter = tools.randomString();
+        var namespaceNameInner = tools.randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy');
 
         fw.router.create({
           namespace: namespaceNameOuter,
           autoRegister: true,
-          initialize: expectCallOrder(0, initializeSpy)
+          initialize: tools.expectCallOrder(0, initializeSpy)
         });
 
         fw.router.create({
           namespace: namespaceNameInner,
           autoRegister: true,
-          initialize: expectCallOrder(1, initializeSpy)
+          initialize: tools.expectCallOrder(1, initializeSpy)
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceNameOuter + '">\
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceNameOuter + '">\
           <router module="' + namespaceNameInner + '"></router>\
         </router>'));
 
@@ -308,7 +308,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can pass parameters through a <router> declaration', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy;
 
         fw.router.create({
@@ -321,19 +321,19 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></router>'));
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></router>'));
         expect(initializeSpy).toHaveBeenCalled();
       });
 
       xit('calls onDispose when the containing element is removed from the DOM', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var theElement;
         var initializeSpy;
         var afterRenderSpy;
         var onDisposeSpy;
 
         var WrapperViewModel = fw.viewModel.create({
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             this.showIt = fw.observable(true);
           }).and.callThrough())
         });
@@ -341,11 +341,11 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var RouterWithDispose = fw.router.create({
           namespace: namespaceName,
           autoRegister: true,
-          afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+          afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
             theElement = element;
             expect(theElement.tagName).toBe('ROUTER');
           }).and.callThrough()),
-          onDispose: expectCallOrder(2, onDisposeSpy = jasmine.createSpy('onDisposeSpy', function(element) {
+          onDispose: tools.expectCallOrder(2, onDisposeSpy = jasmine.createSpy('onDisposeSpy', function(element) {
             expect(element).toBe(theElement);
           }).and.callThrough())
         });
@@ -358,7 +358,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(initializeSpy).toHaveBeenCalled();
         expect(afterRenderSpy).not.toHaveBeenCalled();
 
-        fw.applyBindings(wrapper, testContainer = makeTestContainer('<div data-bind="if: showIt">\
+        fw.applyBindings(wrapper, testContainer = tools.makeTestContainer('<div data-bind="if: showIt">\
           <router module="' + namespaceName + '"></router>\
         </div>'));
 
@@ -371,7 +371,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can have a registered location set and retrieved proplerly', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         fw.router.registerLocation(namespaceName, '/bogus/path');
         expect(fw.router.getLocation(namespaceName)).toBe('/bogus/path');
         fw.router.registerLocation(/regexp.*/, '/bogus/path');
@@ -379,20 +379,20 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can have an array of models registered to a location and retrieved proplerly', function() {
-        var namespaceNames = [ generateNamespaceName(), generateNamespaceName() ];
+        var namespaceNames = [ tools.generateNamespaceName(), tools.generateNamespaceName() ];
         fw.router.registerLocation(namespaceNames, '/bogus/path');
         expect(fw.router.getLocation(namespaceNames[0])).toBe('/bogus/path');
         expect(fw.router.getLocation(namespaceNames[1])).toBe('/bogus/path');
       });
 
       it('can have a registered location with filename set and retrieved proplerly', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         fw.router.registerLocation(namespaceName, '/bogus/path/__file__.js');
         expect(fw.router.getLocation(namespaceName)).toBe('/bogus/path/__file__.js');
       });
 
       it('can have a specific file extension set and used correctly', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var customExtension = '.jscript';
 
         fw.router.fileExtensions(customExtension);
@@ -404,7 +404,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can have a callback specified as the extension with it invoked and the return value used', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var customExtension = '.jscriptFunction';
 
         fw.router.fileExtensions(function(moduleName) {
@@ -419,7 +419,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can load via requirejs with a declarative initialization from an already registered module', function(done) {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy();
 
         define(namespaceName, ['footwork'], function(fw) {
@@ -429,7 +429,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -438,7 +438,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can load via registered router with a declarative initialization', function(done) {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy();
 
         fw.router.register(namespaceName, fw.router.create({
@@ -446,7 +446,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         }));
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -461,7 +461,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -476,7 +476,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -491,7 +491,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -506,7 +506,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -517,8 +517,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       it('can be nested and initialized declaratively', function(done) {
         var outerInitializeSpy = jasmine.createSpy('outerInitializeSpy');
         var innerInitializeSpy = jasmine.createSpy('innerInitializeSpy');
-        var outerNamespaceName = randomString();
-        var innerNamespaceName = randomString();
+        var outerNamespaceName = tools.randomString();
+        var innerNamespaceName = tools.randomString();
 
         fw.router.create({
           namespace: outerNamespaceName,
@@ -535,7 +535,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(outerInitializeSpy).not.toHaveBeenCalled();
         expect(innerInitializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + outerNamespaceName + '">\
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + outerNamespaceName + '">\
                                       <router module="' + innerNamespaceName + '"></router>\
                                     </router>'));
 
@@ -547,7 +547,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can trigger the default route', function(done) {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var defaultRouteControllerSpy = jasmine.createSpy('defaultRouteControllerSpy');
 
         fw.router.create({
@@ -563,7 +563,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(defaultRouteControllerSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           expect(defaultRouteControllerSpy).toHaveBeenCalled();
@@ -580,31 +580,31 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         fw.router.create({
           namespace: 'unknownRouteCheck',
           autoRegister: true,
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             router = this;
           }).and.callThrough()),
           unknownRoute: {
-            controller: expectCallOrder(1, unknownRouteControllerSpy)
+            controller: tools.expectCallOrder(1, unknownRouteControllerSpy)
           }
         });
 
         expect(unknownRouteControllerSpy).not.toHaveBeenCalled();
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
         expect(initializeSpy).toHaveBeenCalled();
 
         setTimeout(function() {
-          router.setState(generateUrl());
+          router.setState(tools.generateUrl());
           expect(unknownRouteControllerSpy).toHaveBeenCalled();
           done();
         }, ajaxWait);
       });
 
       it('can trigger a specified route', function(done) {
-        var mockUrl = generateUrl();
-        var namespaceName = generateNamespaceName();
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
         var routeControllerSpy = jasmine.createSpy('routeControllerSpy');
         var initializeSpy;
         var router;
@@ -612,7 +612,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         fw.router.create({
           namespace: namespaceName,
           autoRegister: true,
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             router = this;
           }).and.callThrough()),
           routes: [
@@ -626,7 +626,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(routeControllerSpy).not.toHaveBeenCalled();
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
         expect(initializeSpy).toHaveBeenCalled();
 
         setTimeout(function() {
@@ -637,8 +637,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can trigger a specified route that is defined within an array of route strings', function(done) {
-        var mockUrl = generateUrl();
-        var namespaceName = generateNamespaceName();
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
         var routeControllerSpy = jasmine.createSpy('routeControllerSpy');
         var initializeSpy;
         var router;
@@ -646,7 +646,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         fw.router.create({
           namespace: namespaceName,
           autoRegister: true,
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             router = this;
           }).and.callThrough()),
           routes: [
@@ -660,7 +660,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(routeControllerSpy).not.toHaveBeenCalled();
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
         expect(initializeSpy).toHaveBeenCalled();
 
         setTimeout(function() {
@@ -671,23 +671,23 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can trigger a specified route with a required parameter', function(done) {
-        var mockUrl = generateUrl();
-        var namespaceName = generateNamespaceName();
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
         var routeControllerSpy;
         var initializeSpy;
-        var testParam = randomString();
+        var testParam = tools.randomString();
         var router;
 
         fw.router.create({
           namespace: namespaceName,
           autoRegister: true,
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             router = this;
           }).and.callThrough()),
           routes: [
             {
               route: mockUrl + '/:testParam',
-              controller: expectCallOrder(1, routeControllerSpy = jasmine.createSpy('routeControllerSpy', function(passedTestParam) {
+              controller: tools.expectCallOrder(1, routeControllerSpy = jasmine.createSpy('routeControllerSpy', function(passedTestParam) {
                 expect(passedTestParam).toBe(testParam);
               }).and.callThrough())
             }
@@ -697,7 +697,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(routeControllerSpy).not.toHaveBeenCalled();
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
         expect(initializeSpy).toHaveBeenCalled();
 
         setTimeout(function() {
@@ -708,30 +708,30 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can trigger a specified route with an optional parameter with and without the parameter', function(done) {
-        var mockUrl = generateUrl();
-        var namespaceName = generateNamespaceName();
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
         var routeControllerSpy;
         var initializeSpy;
         var optParamNotSuppliedSpy;
         var optParamSuppliedSpy;
-        var testParam = randomString();
+        var testParam = tools.randomString();
         var router;
 
         fw.router.create({
           namespace: namespaceName,
           autoRegister: true,
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             router = this;
           }).and.callThrough()),
           routes: [
             {
               route: mockUrl + '/optParamNotSupplied(/:testParam)',
-              controller: expectCallOrder(1, optParamNotSuppliedSpy = jasmine.createSpy('optParamNotSuppliedSpy', function(testParam) {
+              controller: tools.expectCallOrder(1, optParamNotSuppliedSpy = jasmine.createSpy('optParamNotSuppliedSpy', function(testParam) {
                 expect(testParam).toBe(undefined);
               }).and.callThrough())
             }, {
               route: mockUrl + '/optParamSupplied(/:testParam)',
-              controller: expectCallOrder(2, optParamSuppliedSpy = jasmine.createSpy('optParamSuppliedSpy', function(passedTestParam) {
+              controller: tools.expectCallOrder(2, optParamSuppliedSpy = jasmine.createSpy('optParamSuppliedSpy', function(passedTestParam) {
                 expect(passedTestParam).toBe(testParam);
               }).and.callThrough())
             }
@@ -742,7 +742,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(optParamNotSuppliedSpy).not.toHaveBeenCalled();
         expect(optParamSuppliedSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           router.setState(mockUrl + '/optParamNotSupplied');
@@ -756,9 +756,9 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can manipulate an outlet', function(done) {
-        var manipulateOutletUrl = generateUrl();
-        var manipulateOutletComponentNamespace = randomString();
-        var namespaceName = generateNamespaceName();
+        var manipulateOutletUrl = tools.generateUrl();
+        var manipulateOutletComponentNamespace = tools.randomString();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy;
         var afterRenderSpy;
         var manipulateOutletControllerSpy;
@@ -769,26 +769,26 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var $testContainer;
 
         fw.components.register(manipulateOutletComponentNamespace, {
-          viewModel: expectCallOrder(3, manipulateOutletComponentSpy = jasmine.createSpy('manipulateOutletComponentSpy')),
+          viewModel: tools.expectCallOrder(3, manipulateOutletComponentSpy = jasmine.createSpy('manipulateOutletComponentSpy')),
           template: '<div class="component-loaded"></div>'
         });
 
         fw.router.create({
           namespace: namespaceName,
           autoRegister: true,
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             router = this;
           }).and.callThrough()),
-          afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy')),
+          afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy')),
           routes: [
             {
               route: manipulateOutletUrl,
-              controller: expectCallOrder(2, manipulateOutletControllerSpy = jasmine.createSpy('manipulateOutletControllerSpy', function() {
+              controller: tools.expectCallOrder(2, manipulateOutletControllerSpy = jasmine.createSpy('manipulateOutletControllerSpy', function() {
                 this.outlet('output', manipulateOutletComponentNamespace);
               }).and.callThrough())
             }, {
               route: '/clearOutlet',
-              controller: expectCallOrder(4, clearOutletControllerSpy = jasmine.createSpy('clearOutletControllerSpy', function() {
+              controller: tools.expectCallOrder(4, clearOutletControllerSpy = jasmine.createSpy('clearOutletControllerSpy', function() {
                 this.outlet('output', false);
               }).and.callThrough())
             }
@@ -801,7 +801,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(clearOutletControllerSpy).not.toHaveBeenCalled();
         expect(manipulateOutletComponentSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '">\
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
           <outlet name="output"></outlet>\
         </router>'));
         $testContainer = $(testContainer);
@@ -830,21 +830,21 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can see all/multiple referenced outlets defined in its context', function(done) {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy;
         var router;
 
         fw.router.create({
           namespace: namespaceName,
           autoRegister: true,
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             router = this;
           }).and.callThrough())
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '">\
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
           <outlet name="output1"></outlet>\
           <outlet name="output2"></outlet>\
           <outlet name="output3"></outlet>\
@@ -858,30 +858,30 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can have callback triggered after outlet component is resolved and composed', function(done) {
-        var mockUrl = generateUrl();
-        var namespaceName = generateNamespaceName();
-        var outletCallbackName = randomString();
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
+        var outletCallbackName = tools.randomString();
         var initializeSpy;
         var outletCallbackComponentSpy;
         var triggerOutletCallbackControllerSpy;
         var router;
 
         fw.components.register(outletCallbackName, {
-          viewModel: expectCallOrder(1, outletCallbackComponentSpy = jasmine.createSpy('outletCallbackComponentSpy')),
+          viewModel: tools.expectCallOrder(1, outletCallbackComponentSpy = jasmine.createSpy('outletCallbackComponentSpy')),
           template: '<div class="' + outletCallbackName + '"></div>'
         });
 
         fw.router.create({
           namespace: namespaceName,
           autoRegister: true,
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             router = this;
           }).and.callThrough()),
           routes: [
             {
               route: mockUrl,
               controller: function() {
-                this.outlet('output', outletCallbackName, expectCallOrder(2, triggerOutletCallbackControllerSpy = jasmine.createSpy('triggerOutletCallbackControllerSpy', function(element) {
+                this.outlet('output', outletCallbackName, tools.expectCallOrder(2, triggerOutletCallbackControllerSpy = jasmine.createSpy('triggerOutletCallbackControllerSpy', function(element) {
                   expect(element.tagName.toLowerCase()).toBe('outlet');
                   expect($(element).find('.' + outletCallbackName).length).toBe(1);
                 })));
@@ -893,7 +893,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(outletCallbackComponentSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + namespaceName + '">\
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
           <outlet name="output"></outlet>\
         </router>'));
         expect(initializeSpy).toHaveBeenCalled();
@@ -911,9 +911,9 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can instantiate and properly render an outlet after its router has initialized', function(done) {
-        var outletControlingViewModelNamespace = randomString();
-        var outletComponentNamespace = randomString();
-        var routerNamespace = randomString();
+        var outletControlingViewModelNamespace = tools.randomString();
+        var outletComponentNamespace = tools.randomString();
+        var routerNamespace = tools.randomString();
         var initializeSpy;
         var changeOutletControllerSpy;
         var outletCallbackSpy;
@@ -923,12 +923,12 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var viewModel;
 
         fw.components.register(outletComponentNamespace, {
-          viewModel: expectCallOrder(3, initializeComponentViewModelSpy = jasmine.createSpy('initializeComponentViewModelSpy')),
+          viewModel: tools.expectCallOrder(3, initializeComponentViewModelSpy = jasmine.createSpy('initializeComponentViewModelSpy')),
           template: '<div class="' + outletComponentNamespace + '"></div>'
         });
 
         fw.viewModel.register(outletControlingViewModelNamespace, fw.viewModel.create({
-          initialize: expectCallOrder(1, initializeViewModelSpy = jasmine.createSpy('initializeViewModelSpy', function() {
+          initialize: tools.expectCallOrder(1, initializeViewModelSpy = jasmine.createSpy('initializeViewModelSpy', function() {
             viewModel = this;
             this.outletVisible = fw.observable(false);
           }).and.callThrough())
@@ -937,14 +937,14 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         fw.router.create({
           namespace: routerNamespace,
           autoRegister: true,
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             router = this;
           }).and.callThrough()),
           routes: [
             {
               route: '/outletAfterRouter',
-              controller: expectCallOrder(2, changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                this.outlet('output', outletComponentNamespace, expectCallOrder(4, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+              controller: tools.expectCallOrder(2, changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
+                this.outlet('output', outletComponentNamespace, tools.expectCallOrder(4, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                   expect(element.tagName.toLowerCase()).toBe('outlet');
                   expect($(element).find('.' + outletComponentNamespace).length).toBe(1);
                 }).and.callThrough()));
@@ -957,7 +957,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(initializeViewModelSpy).not.toHaveBeenCalled();
         expect(initializeComponentViewModelSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + routerNamespace + '">\
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + routerNamespace + '">\
           <viewModel module="' + outletControlingViewModelNamespace + '">\
             <div data-bind="if: outletVisible">\
               <outlet name="output"></outlet>\
@@ -985,10 +985,10 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can display a temporary loading component in place of a component that is being downloaded', function(done) {
-        var mockUrl = generateUrl();
-        var outletLoaderTestLoadingNamespace = randomString();
-        var outletLoaderTestLoadedNamespace = randomString();
-        var routerNamespace = randomString();
+        var mockUrl = tools.generateUrl();
+        var outletLoaderTestLoadingNamespace = tools.randomString();
+        var outletLoaderTestLoadedNamespace = tools.randomString();
+        var routerNamespace = tools.randomString();
         var changeOutletControllerSpy;
         var outletCallbackSpy;
         var outletLoaderTestLoadingSpy;
@@ -999,13 +999,13 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         }
 
         fw.components.register(outletLoaderTestLoadingNamespace, {
-          viewModel: expectCallOrder(1, outletLoaderTestLoadingSpy = jasmine.createSpy('outletLoaderTestLoadingSpy')),
+          viewModel: tools.expectCallOrder(1, outletLoaderTestLoadingSpy = jasmine.createSpy('outletLoaderTestLoadingSpy')),
           template: '<div class="' + outletLoaderTestLoadingNamespace + '"></div>',
           synchronous: true
         });
 
         fw.components.register(outletLoaderTestLoadedNamespace, {
-          viewModel: expectCallOrder(2, outletLoaderTestLoadedSpy = jasmine.createSpy('outletLoaderTestLoadedSpy')),
+          viewModel: tools.expectCallOrder(2, outletLoaderTestLoadedSpy = jasmine.createSpy('outletLoaderTestLoadedSpy')),
           template: '<div class="' + outletLoaderTestLoadedNamespace + '"></div>'
         });
 
@@ -1016,8 +1016,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routes: [
             {
               route: mockUrl,
-              controller: expectCallOrder(0, changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                this.outlet('output', outletLoaderTestLoadedNamespace, expectCallOrder(3, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+              controller: tools.expectCallOrder(0, changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
+                this.outlet('output', outletLoaderTestLoadedNamespace, tools.expectCallOrder(3, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                   expect(element.tagName.toLowerCase()).toBe('outlet');
                   expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
                 }).and.callThrough()));
@@ -1029,7 +1029,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(changeOutletControllerSpy).not.toHaveBeenCalled();
         expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + routerNamespace + '">\
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + routerNamespace + '">\
           <outlet name="output"></outlet>\
         </router>'));
 
@@ -1048,10 +1048,10 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can display a temporary loading component (source from callback) in place of a component that is being downloaded', function(done) {
-        var mockUrl = generateUrl();
-        var outletLoaderTestLoadingNamespace = randomString();
-        var outletLoaderTestLoadedNamespace = randomString();
-        var routerNamespace = randomString();
+        var mockUrl = tools.generateUrl();
+        var outletLoaderTestLoadingNamespace = tools.randomString();
+        var outletLoaderTestLoadedNamespace = tools.randomString();
+        var routerNamespace = tools.randomString();
         var changeOutletControllerSpy;
         var outletCallbackSpy;
         var outletLoaderTestLoadingSpy;
@@ -1065,23 +1065,23 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         }
 
         fw.components.register(outletLoaderTestLoadingNamespace, {
-          viewModel: expectCallOrder(3, outletLoaderTestLoadingSpy = jasmine.createSpy('outletLoaderTestLoadingSpy')),
+          viewModel: tools.expectCallOrder(3, outletLoaderTestLoadingSpy = jasmine.createSpy('outletLoaderTestLoadingSpy')),
           template: '<div class="' + outletLoaderTestLoadingNamespace + '"></div>',
           synchronous: true
         });
 
         fw.components.register(outletLoaderTestLoadedNamespace, {
-          viewModel: expectCallOrder(4, outletLoaderTestLoadedSpy = jasmine.createSpy('outletLoaderTestLoadedSpy')),
+          viewModel: tools.expectCallOrder(4, outletLoaderTestLoadedSpy = jasmine.createSpy('outletLoaderTestLoadedSpy')),
           template: '<div class="' + outletLoaderTestLoadedNamespace + '"></div>'
         });
 
         fw.router.create({
           namespace: routerNamespace,
           autoRegister: true,
-          initialize: expectCallOrder(0, initializeRouterSpy = jasmine.createSpy('initializeRouterSpy', function() {
+          initialize: tools.expectCallOrder(0, initializeRouterSpy = jasmine.createSpy('initializeRouterSpy', function() {
             theRouter = this;
           }).and.callThrough()),
-          showDuringLoad: expectCallOrder(2, showDuringLoadSpy = jasmine.createSpy('showDuringLoadSpy', function(outletName, componentToDisplay) {
+          showDuringLoad: tools.expectCallOrder(2, showDuringLoadSpy = jasmine.createSpy('showDuringLoadSpy', function(outletName, componentToDisplay) {
             expect(this).toBe(theRouter);
             expect(outletName).toBe('output');
             expect(componentToDisplay).toBe(outletLoaderTestLoadedNamespace);
@@ -1090,8 +1090,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routes: [
             {
               route: mockUrl,
-              controller: expectCallOrder(1, changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                this.outlet('output', outletLoaderTestLoadedNamespace, expectCallOrder(5, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+              controller: tools.expectCallOrder(1, changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
+                this.outlet('output', outletLoaderTestLoadedNamespace, tools.expectCallOrder(5, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                   expect(element.tagName.toLowerCase()).toBe('outlet');
                   expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
                 }).and.callThrough()));
@@ -1103,7 +1103,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(changeOutletControllerSpy).not.toHaveBeenCalled();
         expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + routerNamespace + '">\
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + routerNamespace + '">\
           <outlet name="output"></outlet>\
         </router>'));
 
@@ -1122,10 +1122,10 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       xit('can display a temporary loading component in place of a component that is being downloaded with a custom minimum transition time', function(done) {
-        var mockUrl = generateUrl();
-        var outletLoaderTestLoadingNamespace = randomString();
-        var outletLoaderTestLoadedNamespace = randomString();
-        var routerNamespace = randomString();
+        var mockUrl = tools.generateUrl();
+        var outletLoaderTestLoadingNamespace = tools.randomString();
+        var outletLoaderTestLoadedNamespace = tools.randomString();
+        var routerNamespace = tools.randomString();
         var changeOutletControllerSpy;
         var outletCallbackSpy;
         var outletLoaderTestLoadingSpy;
@@ -1136,13 +1136,13 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         }
 
         fw.components.register(outletLoaderTestLoadingNamespace, {
-          viewModel: expectCallOrder(1, outletLoaderTestLoadingSpy = jasmine.createSpy('outletLoaderTestLoadingSpy')),
+          viewModel: tools.expectCallOrder(1, outletLoaderTestLoadingSpy = jasmine.createSpy('outletLoaderTestLoadingSpy')),
           template: '<div class="' + outletLoaderTestLoadingNamespace + '"></div>',
           synchronous: true
         });
 
         fw.components.register(outletLoaderTestLoadedNamespace, {
-          viewModel: expectCallOrder(2, outletLoaderTestLoadedSpy = jasmine.createSpy('outletLoaderTestLoadedSpy')),
+          viewModel: tools.expectCallOrder(2, outletLoaderTestLoadedSpy = jasmine.createSpy('outletLoaderTestLoadedSpy')),
           template: '<div class="' + outletLoaderTestLoadedNamespace + '"></div>'
         });
 
@@ -1154,8 +1154,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routes: [
             {
               route: mockUrl,
-              controller: expectCallOrder(0, changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                this.outlet('output', outletLoaderTestLoadedNamespace, expectCallOrder(3, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+              controller: tools.expectCallOrder(0, changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
+                this.outlet('output', outletLoaderTestLoadedNamespace, tools.expectCallOrder(3, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                   expect(element.tagName.toLowerCase()).toBe('outlet');
                   expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
                 }).and.callThrough()));
@@ -1167,7 +1167,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(changeOutletControllerSpy).not.toHaveBeenCalled();
         expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + routerNamespace + '">\
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + routerNamespace + '">\
           <outlet name="output"></outlet>\
         </router>'));
 
@@ -1189,10 +1189,10 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       xit('can display a temporary loading component in place of a component that is being downloaded with a custom minimum transition time from callback', function(done) {
-        var mockUrl = generateUrl();
-        var outletLoaderTestLoadingNamespace = randomString();
-        var outletLoaderTestLoadedNamespace = randomString();
-        var routerNamespace = randomString();
+        var mockUrl = tools.generateUrl();
+        var outletLoaderTestLoadingNamespace = tools.randomString();
+        var outletLoaderTestLoadedNamespace = tools.randomString();
+        var routerNamespace = tools.randomString();
         var changeOutletControllerSpy;
         var outletCallbackSpy;
         var outletLoaderTestLoadingSpy;
@@ -1204,13 +1204,13 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         }
 
         fw.components.register(outletLoaderTestLoadingNamespace, {
-          viewModel: expectCallOrder(2, outletLoaderTestLoadingSpy = jasmine.createSpy('outletLoaderTestLoadingSpy')),
+          viewModel: tools.expectCallOrder(2, outletLoaderTestLoadingSpy = jasmine.createSpy('outletLoaderTestLoadingSpy')),
           template: '<div class="' + outletLoaderTestLoadingNamespace + '"></div>',
           synchronous: true
         });
 
         fw.components.register(outletLoaderTestLoadedNamespace, {
-          viewModel: expectCallOrder(3, outletLoaderTestLoadedSpy = jasmine.createSpy('outletLoaderTestLoadedSpy')),
+          viewModel: tools.expectCallOrder(3, outletLoaderTestLoadedSpy = jasmine.createSpy('outletLoaderTestLoadedSpy')),
           template: '<div class="' + outletLoaderTestLoadedNamespace + '"></div>'
         });
 
@@ -1218,7 +1218,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           namespace: routerNamespace,
           autoRegister: true,
           showDuringLoad: outletLoaderTestLoadingNamespace,
-          minTransitionPeriod: expectCallOrder(1, minTransitionPeriodSpy = jasmine.createSpy('minTransitionPeriodSpy', function(outletName, componentToDisplay) {
+          minTransitionPeriod: tools.expectCallOrder(1, minTransitionPeriodSpy = jasmine.createSpy('minTransitionPeriodSpy', function(outletName, componentToDisplay) {
             expect(outletName).toBe('output');
             expect(componentToDisplay).toBe(outletLoaderTestLoadedNamespace);
             return ajaxWait;
@@ -1226,8 +1226,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routes: [
             {
               route: mockUrl,
-              controller: expectCallOrder(0, changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                this.outlet('output', outletLoaderTestLoadedNamespace, expectCallOrder(4, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+              controller: tools.expectCallOrder(0, changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
+                this.outlet('output', outletLoaderTestLoadedNamespace, tools.expectCallOrder(4, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                   expect(element.tagName.toLowerCase()).toBe('outlet');
                   expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
                 }).and.callThrough()));
@@ -1240,7 +1240,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
         expect(minTransitionPeriodSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + routerNamespace + '">\
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + routerNamespace + '">\
           <outlet name="output"></outlet>\
         </router>'));
 
@@ -1263,9 +1263,9 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can have nested/child routers path be dependent on its parents', function(done) {
-        var outerNestedRouteNamespace = randomString();
-        var innerNestedRouteNamespace = randomString();
-        var subInnerNestedRouteNamespace = randomString();
+        var outerNestedRouteNamespace = tools.randomString();
+        var innerNestedRouteNamespace = tools.randomString();
+        var subInnerNestedRouteNamespace = tools.randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy');
 
         fw.router.create({
@@ -1275,7 +1275,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
             { route: '/' },
             { route: '/outerRoute' }
           ],
-          initialize: expectCallOrder(0, initializeSpy)
+          initialize: tools.expectCallOrder(0, initializeSpy)
         });
 
         fw.router.create({
@@ -1285,13 +1285,13 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
             { route: '/' },
             { route: '/innerRoute' }
           ],
-          initialize: expectCallOrder(1, initializeSpy)
+          initialize: tools.expectCallOrder(1, initializeSpy)
         });
 
         fw.router.create({
           namespace: subInnerNestedRouteNamespace,
           autoRegister: true,
-          initialize: expectCallOrder(2, initializeSpy)
+          initialize: tools.expectCallOrder(2, initializeSpy)
         });
 
         function router(name) {
@@ -1300,7 +1300,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + outerNestedRouteNamespace + '">\
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + outerNestedRouteNamespace + '">\
           <router module="' + innerNestedRouteNamespace + '">\
             <router module="' + subInnerNestedRouteNamespace + '"></router>\
           </router>\
@@ -1334,8 +1334,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can have a nested/child router which is not relative to its parent', function(done) {
-        var outerNestedRouteNamespace = randomString();
-        var innerNestedRouteNamespace = randomString();
+        var outerNestedRouteNamespace = tools.randomString();
+        var innerNestedRouteNamespace = tools.randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy');
 
         fw.router.create({
@@ -1345,7 +1345,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
             { route: '/' },
             { route: '/outerRoute' }
           ],
-          initialize: expectCallOrder(0, initializeSpy)
+          initialize: tools.expectCallOrder(0, initializeSpy)
         });
 
         fw.router.create({
@@ -1356,7 +1356,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
             { route: '/' },
             { route: '/outerRoute' }
           ],
-          initialize: expectCallOrder(1, initializeSpy)
+          initialize: tools.expectCallOrder(1, initializeSpy)
         });
 
         function router(name) {
@@ -1365,7 +1365,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<router module="' + outerNestedRouteNamespace + '">\
+        fw.start(testContainer = tools.makeTestContainer('<router module="' + outerNestedRouteNamespace + '">\
           <router module="' + innerNestedRouteNamespace + '"></router>\
         </router>'));
 
@@ -1389,8 +1389,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can have a $route bound link correctly composed with an href attribute using passed in string route', function(done) {
         testContainer;
-        var mockUrl = generateUrl();
-        var namespaceName = generateNamespaceName();
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy('initializeSpy');
         var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1400,10 +1400,10 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routes: [
             {
               route: mockUrl,
-              controller: expectCallOrder(1, routeSpy)
+              controller: tools.expectCallOrder(1, routeSpy)
             }
           ],
-          initialize: expectCallOrder(0, initializeSpy)
+          initialize: tools.expectCallOrder(0, initializeSpy)
         });
 
         function router(name) {
@@ -1413,7 +1413,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
           <a data-bind="$route: \'' + mockUrl + '\'"></a>\
         </router>');
         fw.start(testContainer);
@@ -1435,8 +1435,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can have a $route bound link correctly composed using the elements existing href attribute', function(done) {
         testContainer;
-        var mockUrl = generateUrl();
-        var namespaceName = generateNamespaceName();
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy('initializeSpy');
         var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1446,10 +1446,10 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routes: [
             {
               route: mockUrl,
-              controller: expectCallOrder(1, routeSpy)
+              controller: tools.expectCallOrder(1, routeSpy)
             }
           ],
-          initialize: expectCallOrder(0, initializeSpy)
+          initialize: tools.expectCallOrder(0, initializeSpy)
         });
 
         function router(name) {
@@ -1459,7 +1459,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
           <a href="' + mockUrl + '" data-bind="$route"></a>\
         </router>');
         fw.start(testContainer);
@@ -1481,9 +1481,9 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can have a $route bound link correctly composed with an href attribute using an observable', function(done) {
         testContainer;
-        var mockUrl = generateUrl();
-        var routerNamespaceName = randomString();
-        var viewModelNamespaceName = randomString();
+        var mockUrl = tools.generateUrl();
+        var routerNamespaceName = tools.randomString();
+        var viewModelNamespaceName = tools.randomString();
         var viewModelInitializeSpy;
         var routerInitializeSpy = jasmine.createSpy('routerInitializeSpy');
         var routeSpy = jasmine.createSpy('routeSpy');
@@ -1495,19 +1495,19 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routes: [
             {
               route: '/routeHrefBindingObservable',
-              controller: expectCallOrder(2, routeSpy)
+              controller: tools.expectCallOrder(2, routeSpy)
             }, {
               route: '/routeHrefBindingObservableChangedRoute',
-              controller: expectCallOrder(3, changedRouteSpy)
+              controller: tools.expectCallOrder(3, changedRouteSpy)
             }
           ],
-          initialize: expectCallOrder(0, routerInitializeSpy)
+          initialize: tools.expectCallOrder(0, routerInitializeSpy)
         });
 
         fw.viewModel.create({
           namespace: viewModelNamespaceName,
           autoRegister: true,
-          initialize: expectCallOrder(1, viewModelInitializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
+          initialize: tools.expectCallOrder(1, viewModelInitializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
             this.routeHrefBindingObservable = fw.observable('/routeHrefBindingObservable');
           }).and.callThrough())
         });
@@ -1521,7 +1521,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(routeSpy).not.toHaveBeenCalled();
         expect(changedRouteSpy).not.toHaveBeenCalled();
 
-        testContainer = makeTestContainer('<router module="' + routerNamespaceName + '">\
+        testContainer = tools.makeTestContainer('<router module="' + routerNamespaceName + '">\
           <viewModel module="' + viewModelNamespaceName + '">\
             <a data-bind="$route: routeHrefBindingObservable"></a>\
           </viewModel>\
@@ -1554,8 +1554,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can have a $route bound link that expresses the default active class when the route matches', function(done) {
         testContainer;
-        var mockUrl = generateUrl();
-        var namespaceName = generateNamespaceName();
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy('initializeSpy');
         var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1569,16 +1569,16 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routes: [
             {
               route: mockUrl,
-              controller: expectCallOrder(1, routeSpy)
+              controller: tools.expectCallOrder(1, routeSpy)
             }
           ],
-          initialize: expectCallOrder(0, initializeSpy)
+          initialize: tools.expectCallOrder(0, initializeSpy)
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
           <a data-bind="$route: \'' + mockUrl + '\'"></a>\
         </router>');
         fw.start(testContainer);
@@ -1601,9 +1601,9 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can have a $route bound link that expresses a custom \'active\' class when the route matches', function(done) {
         testContainer;
-        var mockUrl = generateUrl();
-        var namespaceName = generateNamespaceName();
-        var activeClassName = randomString();
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
+        var activeClassName = tools.randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy');
         var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1613,16 +1613,16 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routes: [
             {
               route: mockUrl,
-              controller: expectCallOrder(1, routeSpy)
+              controller: tools.expectCallOrder(1, routeSpy)
             }
           ],
-          initialize: expectCallOrder(0, initializeSpy)
+          initialize: tools.expectCallOrder(0, initializeSpy)
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
           <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\' }"></a>\
         </router>');
         fw.start(testContainer);
@@ -1645,9 +1645,9 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can have a $route bound link that expresses a custom \'active\' class on the direct parent element', function(done) {
         testContainer;
-        var mockUrl = generateUrl();
-        var namespaceName = generateNamespaceName();
-        var activeClassName = randomString();
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
+        var activeClassName = tools.randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy');
         var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1657,16 +1657,16 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routes: [
             {
               route: mockUrl,
-              controller: expectCallOrder(1, routeSpy)
+              controller: tools.expectCallOrder(1, routeSpy)
             }
           ],
-          initialize: expectCallOrder(0, initializeSpy)
+          initialize: tools.expectCallOrder(0, initializeSpy)
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
           <div>\
             <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\', parentHasState: true }"></a>\
           </div>\
@@ -1691,10 +1691,10 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can have a $route bound link that expresses an \'active\' class on the selected parent element', function(done) {
         testContainer;
-        var mockUrl = generateUrl();
-        var namespaceName = generateNamespaceName();
-        var activeClassName = randomString();
-        var parentClassName = randomString();
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
+        var activeClassName = tools.randomString();
+        var parentClassName = tools.randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy');
         var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1704,16 +1704,16 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routes: [
             {
               route: mockUrl,
-              controller: expectCallOrder(1, routeSpy)
+              controller: tools.expectCallOrder(1, routeSpy)
             }
           ],
-          initialize: expectCallOrder(0, initializeSpy)
+          initialize: tools.expectCallOrder(0, initializeSpy)
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
             <div class="parent-class-name">\
               <div>\
                 <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\', parentHasState: \'.parent-class-name\' }"></a>\
@@ -1742,11 +1742,11 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can have a $route bound link that expresses a custom \'active\' class defined by an observable when the route matches', function(done) {
         testContainer;
-        var mockUrl = generateUrl();
-        var routerNamespaceName = randomString();
-        var viewModelNamespaceName = randomString();
-        var activeClassName = randomString();
-        var parentClassName = randomString();
+        var mockUrl = tools.generateUrl();
+        var routerNamespaceName = tools.randomString();
+        var viewModelNamespaceName = tools.randomString();
+        var activeClassName = tools.randomString();
+        var parentClassName = tools.randomString();
         var viewModelInitializeSpy;
         var routerInitializeSpy = jasmine.createSpy('routerInitializeSpy');
         var routeSpy = jasmine.createSpy('routeSpy');
@@ -1754,7 +1754,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         fw.viewModel.create({
           namespace: viewModelNamespaceName,
           autoRegister: true,
-          initialize: expectCallOrder(1, viewModelInitializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
+          initialize: tools.expectCallOrder(1, viewModelInitializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
             this.activeClassObservable = fw.observable(activeClassName);
           }).and.callThrough())
         });
@@ -1765,17 +1765,17 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routes: [
             {
               route: mockUrl,
-              controller: expectCallOrder(2, routeSpy)
+              controller: tools.expectCallOrder(2, routeSpy)
             }
           ],
-          initialize: expectCallOrder(0, routerInitializeSpy)
+          initialize: tools.expectCallOrder(0, routerInitializeSpy)
         });
 
         expect(viewModelInitializeSpy).not.toHaveBeenCalled();
         expect(routerInitializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = makeTestContainer('<router module="' + routerNamespaceName + '">\
+        testContainer = tools.makeTestContainer('<router module="' + routerNamespaceName + '">\
           <viewModel module="' + viewModelNamespaceName + '">\
             <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: activeClassObservable }"></a>\
           </viewModel>\
@@ -1801,8 +1801,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can have a $route bound link that disables the active class state based on a raw boolean flag', function(done) {
         testContainer;
-        var mockUrl = generateUrl();
-        var namespaceName = generateNamespaceName();
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy('initializeSpy');
         var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1812,16 +1812,16 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routes: [
             {
               route: mockUrl,
-              controller: expectCallOrder(1, routeSpy)
+              controller: tools.expectCallOrder(1, routeSpy)
             }
           ],
-          initialize: expectCallOrder(0, initializeSpy)
+          initialize: tools.expectCallOrder(0, initializeSpy)
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
           <a data-bind="$route: { url: \'' + mockUrl + '\', addActiveClass: false }"></a>\
         </router>');
         fw.start(testContainer);
@@ -1844,8 +1844,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can have a $route bound link that disables the active class state using an observable', function(done) {
         testContainer;
-        var mockUrl = generateUrl();
-        var namespaceName = generateNamespaceName();
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy;
         var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1855,10 +1855,10 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routes: [
             {
               route: mockUrl,
-              controller: expectCallOrder(1, routeSpy)
+              controller: tools.expectCallOrder(1, routeSpy)
             }
           ],
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             this.disableActiveClass = fw.observable(false);
           }).and.callThrough())
         });
@@ -1866,7 +1866,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
           <a data-bind="$route: { url: \'' + mockUrl + '\', addActiveClass: disableActiveClass }"></a>\
         </router>');
         fw.start(testContainer);
@@ -1889,8 +1889,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can have a $route bound link that triggers based on a custom event defined by a string', function(done) {
         testContainer;
-        var mockUrl = generateUrl();
-        var namespaceName = generateNamespaceName();
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy('initializeSpy');
         var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1900,16 +1900,16 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routes: [
             {
               route: mockUrl,
-              controller: expectCallOrder(1, routeSpy)
+              controller: tools.expectCallOrder(1, routeSpy)
             }
           ],
-          initialize: expectCallOrder(0, initializeSpy)
+          initialize: tools.expectCallOrder(0, initializeSpy)
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
           <a data-bind="$route: { url: \'' + mockUrl + '\', on: \'dblclick\' }"></a>\
         </router>');
         fw.start(testContainer);
@@ -1932,8 +1932,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can have a $route bound link that triggers based on a custom event defined by a callback/observable', function(done) {
         testContainer;
-        var mockUrl = generateUrl();
-        var namespaceName = generateNamespaceName();
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy;
         var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1943,10 +1943,10 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routes: [
             {
               route: mockUrl,
-              controller: expectCallOrder(1, routeSpy)
+              controller: tools.expectCallOrder(1, routeSpy)
             }
           ],
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             this.customEvent = fw.observable('dblclick');
           }).and.callThrough())
         });
@@ -1954,7 +1954,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
           <a data-bind="$route: { url: \'' + mockUrl + '\', on: customEvent }"></a>\
         </router>');
         fw.start(testContainer);
@@ -1977,9 +1977,9 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can have a $route bound link correctly composed with a custom callback handler', function(done) {
         testContainer;
-        var mockUrl = generateUrl();
-        var routerNamespaceName = randomString();
-        var viewModelNamespaceName = randomString();
+        var mockUrl = tools.generateUrl();
+        var routerNamespaceName = tools.randomString();
+        var viewModelNamespaceName = tools.randomString();
         var viewModelInitializeSpy;
         var routerInitializeSpy;
         var customHandlerSpy;
@@ -1992,10 +1992,10 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           routes: [
             {
               route: mockUrl,
-              controller: expectCallOrder(4, routeSpy)
+              controller: tools.expectCallOrder(4, routeSpy)
             }
           ],
-          initialize: expectCallOrder(0, routerInitializeSpy = jasmine.createSpy('routerInitializeSpy', function() {
+          initialize: tools.expectCallOrder(0, routerInitializeSpy = jasmine.createSpy('routerInitializeSpy', function() {
             this.customEvent = fw.observable('dblclick');
           }).and.callThrough())
         });
@@ -2003,8 +2003,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         fw.viewModel.create({
           namespace: viewModelNamespaceName,
           autoRegister: true,
-          initialize: expectCallOrder(1, viewModelInitializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
-            this.routeHrefBindingCustomHandler = expectCallOrder([2, 3], customHandlerSpy = jasmine.createSpy('customHandlerSpy', function(event, url) {
+          initialize: tools.expectCallOrder(1, viewModelInitializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
+            this.routeHrefBindingCustomHandler = tools.expectCallOrder([2, 3], customHandlerSpy = jasmine.createSpy('customHandlerSpy', function(event, url) {
               expect(event).toBeAn('object');
               expect(url).toBeA('string');
               return allowHandlerEvent;
@@ -2016,7 +2016,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(viewModelInitializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = makeTestContainer('<router module="' + routerNamespaceName + '">\
+        testContainer = tools.makeTestContainer('<router module="' + routerNamespaceName + '">\
           <viewModel module="' + viewModelNamespaceName + '">\
             <a data-bind="$route: { url: \'' + mockUrl + '\', handler: routeHrefBindingCustomHandler }"></a>\
           </viewModel>\
@@ -2051,9 +2051,9 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can have a $route bound link correctly composed with a custom URL callback', function(done) {
         testContainer;
-        var mockUrl = generateUrl();
-        var routerNamespaceName = randomString();
-        var viewModelNamespaceName = randomString();
+        var mockUrl = tools.generateUrl();
+        var routerNamespaceName = tools.randomString();
+        var viewModelNamespaceName = tools.randomString();
         var viewModelInitializeSpy;
         var initializeSpy;
         var urlResolverSpy;
@@ -2062,7 +2062,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         fw.router.create({
           namespace: routerNamespaceName,
           autoRegister: true,
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
             this.routeHrefBindingCustomUrlCallback = urlResolverSpy = jasmine.createSpy('urlResolverSpy', function() {
               return mockUrl;
             }).and.callThrough();
@@ -2071,7 +2071,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        testContainer = makeTestContainer('<router module="' + routerNamespaceName + '">\
+        testContainer = tools.makeTestContainer('<router module="' + routerNamespaceName + '">\
           <a data-bind="$route: { url: routeHrefBindingCustomUrlCallback }"></a>\
         </router>');
         fw.start(testContainer);

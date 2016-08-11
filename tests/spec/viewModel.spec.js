@@ -1,8 +1,8 @@
-define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
-  function(fw, _, $) {
+define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
+  function(fw, _, $, tools) {
     describe('viewModel', function() {
-      beforeEach(prepareTestEnv);
-      afterEach(cleanTestEnv);
+      beforeEach(tools.prepareTestEnv);
+      afterEach(tools.cleanTestEnv);
 
       it('has the ability to create a viewModel', function() {
         expect(fw.viewModel.create).toBeA('function');
@@ -31,7 +31,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('correctly names and increments counter for indexed viewModels', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var IndexedViewModel = fw.viewModel.create({
           namespace: namespaceName,
           autoIncrement: true
@@ -47,21 +47,21 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('correctly applies a mixin to a viewModel', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var preInitCallbackSpy = jasmine.createSpy('preInitCallbackSpy').and.callThrough();
         var postInitCallbackSpy = jasmine.createSpy('postInitCallbackSpy').and.callThrough();
         var initializeSpy = jasmine.createSpy('initializeSpy').and.callThrough();
 
         var ViewModelWithMixin = fw.viewModel.create({
           namespace: namespaceName,
-          initialize: expectCallOrder(1, initializeSpy),
+          initialize: tools.expectCallOrder(1, initializeSpy),
           mixins: [
             {
-              _preInit: expectCallOrder(0, preInitCallbackSpy),
+              _preInit: tools.expectCallOrder(0, preInitCallbackSpy),
               mixin: {
                 mixinPresent: true
               },
-              _postInit: expectCallOrder(2, postInitCallbackSpy)
+              _postInit: tools.expectCallOrder(2, postInitCallbackSpy)
             }
           ]
         });
@@ -80,7 +80,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         var ModelA = fw.viewModel.create({
           namespace: 'ModelA',
-          initialize: expectCallOrder(0, initializeSpyA = jasmine.createSpy('initializeSpyA', function() {
+          initialize: tools.expectCallOrder(0, initializeSpyA = jasmine.createSpy('initializeSpyA', function() {
             expect(fw.utils.currentNamespaceName()).toBe('ModelA');
             this.subModelB = new ModelB();
             expect(fw.utils.currentNamespaceName()).toBe('ModelA');
@@ -89,7 +89,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         var ModelB = fw.viewModel.create({
           namespace: 'ModelB',
-          initialize: expectCallOrder(1, initializeSpyB = jasmine.createSpy('initializeSpyB', function() {
+          initialize: tools.expectCallOrder(1, initializeSpyB = jasmine.createSpy('initializeSpyB', function() {
             expect(fw.utils.currentNamespaceName()).toBe('ModelB');
             this.subModelC = new ModelC();
             expect(fw.utils.currentNamespaceName()).toBe('ModelB');
@@ -98,7 +98,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         var ModelC = fw.viewModel.create({
           namespace: 'ModelC',
-          initialize: expectCallOrder(2, initializeSpyC = jasmine.createSpy('initializeSpyC', function() {
+          initialize: tools.expectCallOrder(2, initializeSpyC = jasmine.createSpy('initializeSpyC', function() {
             expect(fw.utils.currentNamespaceName()).toBe('ModelC');
           }).and.callThrough())
         });
@@ -120,8 +120,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var afterRenderSpy;
 
         var ModelA = fw.viewModel.create({
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy')),
-          afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy')),
+          afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
             expect(containingElement).toHaveClass(checkForClass);
           }).and.callThrough())
         });
@@ -129,14 +129,14 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).not.toHaveBeenCalled();
 
-        fw.applyBindings(new ModelA(), testContainer = makeTestContainer('', '<div class="' + checkForClass + '"></div>'));
+        fw.applyBindings(new ModelA(), testContainer = tools.makeTestContainer('', '<div class="' + checkForClass + '"></div>'));
 
         expect(initializeSpy).toHaveBeenCalled();
         expect(afterRenderSpy).toHaveBeenCalled();
       });
 
       it('can register and get a registered viewModel', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         expect(fw.viewModel.isRegistered(namespaceName)).toBe(false);
 
         var Model = jasmine.createSpy('Model');
@@ -156,7 +156,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can get all instantiated viewModels of a specific type/name', function() {
         var viewModels = [];
-        var specificViewModelNamespace = generateNamespaceName();
+        var specificViewModelNamespace = tools.generateNamespaceName();
         var ViewModel = fw.viewModel.create({ namespace: specificViewModelNamespace });
         var numToMake = _.random(1,15);
 
@@ -164,12 +164,12 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           viewModels.push(new ViewModel());
         }
 
-        expect(fw.viewModel.getAll(generateNamespaceName())).lengthToBe(0);
+        expect(fw.viewModel.getAll(tools.generateNamespaceName())).lengthToBe(0);
         expect(fw.viewModel.getAll(specificViewModelNamespace)).lengthToBe(numToMake);
       });
 
       it('can autoRegister a viewModel during class method creation', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         expect(fw.viewModel.isRegistered(namespaceName)).toBe(false);
 
         fw.viewModel.create({
@@ -182,7 +182,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can bind to the DOM using a <viewModel> declaration', function(done) {
         var wasInitialized = false;
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy();
 
         fw.viewModel.create({
@@ -192,7 +192,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalledTimes(1);
@@ -201,8 +201,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can bind to the DOM using a shared instance', function(done) {
-        var namespaceName = generateNamespaceName();
-        var boundPropertyValue = randomString();
+        var namespaceName = tools.generateNamespaceName();
+        var boundPropertyValue = tools.randomString();
 
         fw.viewModel.register(namespaceName, {
           instance: {
@@ -210,7 +210,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           }
         });
 
-        testContainer = makeTestContainer('<viewModel module="' + namespaceName + '">\
+        testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '">\
                                              <span class="result" data-bind="text: boundProperty"></span>\
                                            </viewModel>');
 
@@ -225,13 +225,13 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can bind to the DOM using a generated instance', function(done) {
-        var namespaceName = generateNamespaceName();
-        var boundPropertyValue = randomString();
+        var namespaceName = tools.generateNamespaceName();
+        var boundPropertyValue = tools.randomString();
         var boundPropertyValueElement = boundPropertyValue + '-element';
         var createViewModelInstance;
 
         fw.viewModel.register(namespaceName, {
-          createViewModel: expectCallOrder(0, createViewModelInstance = jasmine.createSpy('createViewModel', function(params, info) {
+          createViewModel: tools.expectCallOrder(0, createViewModelInstance = jasmine.createSpy('createViewModel', function(params, info) {
             expect(params.var).toBe(boundPropertyValue);
             expect(info.element).toHaveId(boundPropertyValueElement);
 
@@ -242,7 +242,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         });
 
         expect(createViewModelInstance).not.toHaveBeenCalled();
-        testContainer = makeTestContainer('<viewModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
+        testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
                                              <span class="result" data-bind="text: boundProperty"></span>\
                                            </viewModel>');
 
@@ -257,7 +257,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('has the animation classes applied properly', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var theElement;
         var initializeSpy;
         var afterRenderSpy;
@@ -265,8 +265,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         fw.viewModel.create({
           namespace: namespaceName,
           autoRegister: true,
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy').and.callThrough()),
-          afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy').and.callThrough()),
+          afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
             theElement = element;
             expect(theElement).not.toHaveClass(footworkAnimationClass);
           }).and.callThrough())
@@ -274,7 +274,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         expect(initializeSpy).toHaveBeenCalled();
         expect(afterRenderSpy).toHaveBeenCalled();
@@ -282,25 +282,25 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can nest <viewModel> declarations', function() {
-        var namespaceNameOuter = randomString();
-        var namespaceNameInner = randomString();
+        var namespaceNameOuter = tools.randomString();
+        var namespaceNameInner = tools.randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy');
 
         fw.viewModel.create({
           namespace: namespaceNameOuter,
           autoRegister: true,
-          initialize: expectCallOrder(0, initializeSpy)
+          initialize: tools.expectCallOrder(0, initializeSpy)
         });
 
         fw.viewModel.create({
           namespace: namespaceNameInner,
           autoRegister: true,
-          initialize: expectCallOrder(1, initializeSpy)
+          initialize: tools.expectCallOrder(1, initializeSpy)
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceNameOuter + '">\
+        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceNameOuter + '">\
           <viewModel module="' + namespaceNameInner + '"></viewModel>\
         </viewModel>'));
 
@@ -308,7 +308,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can pass parameters through a <viewModel> declaration', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy;
 
         fw.viewModel.create({
@@ -321,19 +321,19 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></viewModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></viewModel>'));
         expect(initializeSpy).toHaveBeenCalled();
       });
 
       it('calls onDispose when the containing element is removed from the DOM', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var theElement;
         var initializeSpy;
         var afterRenderSpy;
         var onDisposeSpy;
 
         var WrapperViewModel = fw.viewModel.create({
-          initialize: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             this.showIt = fw.observable(true);
           }).and.callThrough())
         });
@@ -341,11 +341,11 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var ViewModelWithDispose = fw.viewModel.create({
           namespace: namespaceName,
           autoRegister: true,
-          afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+          afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
             theElement = element;
             expect(theElement.tagName).toBe('VIEWMODEL');
           }).and.callThrough()),
-          onDispose: expectCallOrder(2, onDisposeSpy = jasmine.createSpy('onDisposeSpy', function(element) {
+          onDispose: tools.expectCallOrder(2, onDisposeSpy = jasmine.createSpy('onDisposeSpy', function(element) {
             expect(element).toBe(theElement);
           }).and.callThrough())
         });
@@ -358,7 +358,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         expect(initializeSpy).toHaveBeenCalled();
         expect(afterRenderSpy).not.toHaveBeenCalled();
 
-        fw.applyBindings(wrapper, testContainer = makeTestContainer('<div data-bind="if: showIt">\
+        fw.applyBindings(wrapper, testContainer = tools.makeTestContainer('<div data-bind="if: showIt">\
           <viewModel module="' + namespaceName + '"></viewModel>\
         </div>'));
 
@@ -371,7 +371,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can have a registered location set and retrieved proplerly', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         fw.viewModel.registerLocation(namespaceName, '/bogus/path');
         expect(fw.viewModel.getLocation(namespaceName)).toBe('/bogus/path');
         fw.viewModel.registerLocation(/regexp.*/, '/bogus/path');
@@ -379,20 +379,20 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can have an array of models registered to a location and retrieved proplerly', function() {
-        var namespaceNames = [ generateNamespaceName(), generateNamespaceName() ];
+        var namespaceNames = [ tools.generateNamespaceName(), tools.generateNamespaceName() ];
         fw.viewModel.registerLocation(namespaceNames, '/bogus/path');
         expect(fw.viewModel.getLocation(namespaceNames[0])).toBe('/bogus/path');
         expect(fw.viewModel.getLocation(namespaceNames[1])).toBe('/bogus/path');
       });
 
       it('can have a registered location with filename set and retrieved proplerly', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         fw.viewModel.registerLocation(namespaceName, '/bogus/path/__file__.js');
         expect(fw.viewModel.getLocation(namespaceName)).toBe('/bogus/path/__file__.js');
       });
 
       it('can have a specific file extension set and used correctly', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var customExtension = '.jscript';
         fw.viewModel.fileExtensions(customExtension);
         fw.viewModel.registerLocation(namespaceName, '/bogus/path/');
@@ -403,7 +403,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can have a callback specified as the extension with it invoked and the return value used', function() {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var customExtension = '.jscriptFunction';
         fw.viewModel.fileExtensions(function(moduleName) {
           expect(moduleName).toBe(namespaceName);
@@ -417,7 +417,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can load via requirejs with a declarative initialization from an already registered module', function(done) {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy();
 
         define(namespaceName, ['footwork'], function(fw) {
@@ -427,7 +427,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -436,7 +436,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can load via registered viewModel with a declarative initialization', function(done) {
-        var namespaceName = generateNamespaceName();
+        var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy();
 
         fw.viewModel.register(namespaceName, fw.viewModel.create({
@@ -444,7 +444,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         }));
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -459,7 +459,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -474,7 +474,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -489,7 +489,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -504,7 +504,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();

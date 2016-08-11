@@ -11,7 +11,6 @@ module.exports = {
   // list of files / patterns to load in the browser
   files: [
     'tests/bootstrap.js',
-    'tests/assets/tools.js',
     { pattern: 'tests/spec/**/*.js', included: false },
     { pattern: 'tests/assets/**/*.+(html|json|jsonp|js)', nocache: true, included: false },
     { pattern: 'bower_components/lodash/*.js', watched: false, included: false },

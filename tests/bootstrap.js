@@ -2,6 +2,9 @@ var ajaxWait = window.__env.AJAX_WAIT; // delay in ms to wait for ajax requests
 var footworkAnimationClass = 'fw-entity-animate';
 var allTestFiles = [];
 var TEST_REGEXP = /(spec)\.js$/i;
+var loadedModules = {};
+var registerFootworkEntity;
+var registerEntity;
 
 // Get a list of all the test files to include
 Object.keys(window.__karma__.files).forEach(function(file) {
@@ -37,7 +40,9 @@ require.config({
     "lodash": "bower_components/lodash/lodash",
     "jquery-mockjax": "bower_components/jquery-mockjax/dist/jquery.mockjax",
     "jquery": "bower_components/jquery/dist/jquery",
-    "history": "bower_components/history.js/scripts/bundled/html5/native.history"
+    "history": "bower_components/history.js/scripts/bundled/html5/native.history",
+    "customMatchers": "tests/assets/customMatchers",
+    "tools": "tests/assets/tools"
   },
 
   // we have to kickoff jasmine, as it is asynchronous
