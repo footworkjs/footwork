@@ -146,7 +146,6 @@
     "gulp-webserver": "0.9.1",
     "jasmine-core": "^2.4.1",
     "jasmine-jquery": "^2.1.1",
-    "jasmine-test-container-support": "^0.1.2",
     "jquery": "2.1.4",
     "jquery-mockjax": "2.0.1",
     "karma": "^0.13.16",
