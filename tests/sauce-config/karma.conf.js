@@ -14,7 +14,7 @@ module.exports = {
     build: 'TRAVIS #' + process.env.TRAVIS_BUILD_NUMBER + ' (' + process.env.TRAVIS_BUILD_ID + ')',
     startConnect: false,
     verbose: false,
-    retryLimit: 4,
+    retryLimit: 2,
     recordVideo: false,
     recordScreenshots: false,
     verboseDebugging: false
@@ -42,5 +42,5 @@ module.exports = {
     'karma-coverage'
   ],
   singleRun: true,
-  concurrency: 3
+  concurrency: 4
 };
