@@ -11,6 +11,7 @@ module.exports = {
   // list of files / patterns to load in the browser
   files: [
     'tests/bootstrap.js',
+    'tests/assets/test.css',
     { pattern: 'tests/spec/**/*.js', included: false },
     { pattern: 'tests/assets/**/*.+(html|json|jsonp|js)', nocache: true, included: false },
     { pattern: 'bower_components/lodash/*.js', watched: false, included: false },
@@ -20,7 +21,8 @@ module.exports = {
     { pattern: 'bower_components/jquery-mockjax/dist/*.js', watched: false, included: false },
     { pattern: 'bower_components/jquery/dist/*.js', watched: false, included: false },
     { pattern: 'bower_components/reqwest/reqwest.js', watched: false, included: false },
-    { pattern: 'build/*.js', included: false }
+    { pattern: 'build/*.js', included: false },
+    { pattern: 'dist/gh-footwork-logo.png', included: false }
   ],
 
 

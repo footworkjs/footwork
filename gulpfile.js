@@ -80,7 +80,7 @@ gulp.task('build_bare_jquery', ['build_core'], function() {
   return buildRelease('bare-jquery');
 });
 
-gulp.task('build_ci', ['build_core'], function() {
+gulp.task('build_ci', ['build_core', 'build_ci_css'], function() {
   return buildRelease('ci');
 });
 
@@ -92,13 +92,22 @@ gulp.task('build_core', ['lodash_custom'], function() {
   return buildRelease('core');
 });
 
+gulp.task('build_ci_css', function() {
+  return gulp.src(['./tests/assets/test.scss'])
+    .pipe(sass().on('error', sass.logError))
+    .pipe(autoprefixer({
+      browsers: ['last 3 versions', '> 5%', 'Firefox > 3', 'ie >= 9']
+    }))
+    .pipe(gulp.dest('./tests/assets'));
+});
+
 gulp.task('dist_footwork_styles', ['copy_footwork_styles_to_build'], function() {
-  gulp.src(['./build/styles/*.scss', './build/styles/*.css'])
+  return gulp.src(['./build/styles/*.scss', './build/styles/*.css'])
     .pipe(gulp.dest('./dist'));
 });
 
 gulp.task('dist_build', function() {
-  gulp.src(['./build/footwork-*.js', '!./build/footwork-core.js', '!./build/footwork-ci.js', '!./build/lodash-custom.js'])
+  return gulp.src(['./build/footwork-*.js', '!./build/footwork-core.js', '!./build/footwork-ci.js', '!./build/lodash-custom.js'])
     .pipe(gulp.dest('./dist'));
 });
 
@@ -107,7 +116,7 @@ gulp.task('dist', function(done) {
 });
 
 gulp.task('copy_footwork_styles_to_build', ['build_footwork_css'], function() {
-  gulp.src(['./source/footwork.scss'])
+  return gulp.src(['./source/footwork.scss'])
     .pipe(gulp.dest('./build/styles'));
 });
 

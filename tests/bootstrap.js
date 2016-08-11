@@ -6,6 +6,7 @@ var registerEntity;
 var testContainer;
 var allTestFiles = [];
 var TEST_REGEXP = /(spec)\.js$/i;
+var currentSpec;
 
 // Get a list of all the test files to include
 Object.keys(window.__karma__.files).forEach(function(file) {
@@ -17,6 +18,23 @@ Object.keys(window.__karma__.files).forEach(function(file) {
     allTestFiles.push(normalizedTestModule);
   }
 });
+
+var JsApiReporter = jasmine.JsApiReporter;
+function Env(options) {
+  JsApiReporter.call(this, options);
+
+  this.specStarted = function(result) {
+    this.currentSpec = result;
+  };
+
+  this.specDone = function(result) {
+    this.currentSpec = null;
+  };
+}
+var environment = new Env({
+  timer: new jasmine.Timer()
+});
+jasmine.getEnv().addReporter(environment);
 
 require.config({
   // Karma serves files under /base, which is the basePath from your config file
@@ -48,8 +66,8 @@ require.config({
 
   // we have to kickoff jasmine, as it is asynchronous
   callback: function() {
-    require(['lodash', 'jquery', 'jquery-mockjax'],
-      function(_, $) {
+    require(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
+      function(fw, _, $) {
         fixture.setBase('tests/assets/fixtures');
 
         // tell mockjax to do its work quietly and quickly before we begin our tests

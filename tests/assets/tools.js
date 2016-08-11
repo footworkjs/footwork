@@ -1,15 +1,31 @@
-define(['jquery', 'lodash', 'customMatchers'],
-  function($, _, customMatchers) {
+define(['footwork', 'jquery', 'lodash', 'customMatchers'],
+  function(fw, $, _, customMatchers) {
+    var $body = $(document.body);
+    var defaultSpec = { description: 'Test Container' };
+
+    $body.append('<div id="tests">\
+      <div id="test-title">\
+        <img src="/base/dist/gh-footwork-logo.png">\
+        <span class="version">footwork v' + fw.footworkVersion + '</span>\
+      </div>\
+      <div id="test-output"></div>\
+    </div>');
+    $body.append('<div class="information"><a href="http://footworkjs.com">footworkjs.com</a> - A solid footing for web applications.</div>');
+    var $testOutput = $body.find('#test-output');
+
     /**
      * Helper which makes a new DOM node that we can use to put our test fixture into. Once created it is inserted into the DOM and returned.
      * @param  {mixed} theFixture The fixture
      * @return {DOMNode}          The generated DOM node container
      */
+    var $wrapper;
     function makeTestContainer(theFixture, containerDOM) {
+      $wrapper = $('<div class="test-wrapper running"><div class="wrapper-title">' + environment.currentSpec.fullName + '</div></div>');
       var $container = $(containerDOM || '<div/>');
+      $wrapper.append($container);
 
       $container.append(theFixture);
-      $(document.body).append($container);
+      $testOutput.append($wrapper);
 
       return $container.get(0);
     }
@@ -73,6 +89,19 @@ define(['jquery', 'lodash', 'customMatchers'],
       jasmine.DEFAULT_TIMEOUT_INTERVAL = window.__env.JASMINE_TIMEOUT; // time that jasmine will wait for async requests to complete
     }
     function cleanTestEnv() {
+      var failedTests = environment.currentSpec.failedExpectations;
+      var specStatus = 'passed';
+
+      if(failedTests.length) {
+        specStatus = 'failed';
+      }
+
+      $wrapper && $wrapper
+        .removeClass('running')
+        .addClass(specStatus);
+
+      $wrapper = undefined;
+
       fixture.cleanup();
       jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineDefaultTimeoutInterval;
     }
