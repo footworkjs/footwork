@@ -51,6 +51,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can be instantiated and correctly set() with some data and options', function() {
         var initializeSpy;
+        var noMergeValue = randomString();
 
         var persons = [
           {
@@ -106,8 +107,8 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
           expect(personsList[personIndex].email()).toBe(personData.email);
         });
 
-        people.set([ _.extend({}, persons[0], { firstName: 'NOMERGE' }) ], { merge: false });
-        expect(people.get(persons[0].id).firstName()).not.toBe('NOMERGE');
+        people.set([ _.extend({}, persons[0], { firstName: noMergeValue }) ], { merge: false });
+        expect(people.get(persons[0].id).firstName()).not.toBe(noMergeValue);
 
         people.set(persons);
         expect(people()).lengthToBe(4);
@@ -164,7 +165,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
 
       it('can be instantiated with some data and then add()ed onto correctly', function() {
         var initializeSpy;
-        var insertTestValue = 'InsertAtTest';
+        var insertTestValue = randomString();
         var insertPosition = 2;
 
         var persons = [
@@ -264,6 +265,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
       });
 
       it('can find an item that matches a set of attributes in a complex set of models', function() {
+        var valueToFind = randomString();
         var persons = [
           {
             firstName: 'PersonFirstNameTest',
@@ -271,7 +273,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
             attributes: {
               nested: {
                 nested2: {
-                  value: 'findme!'
+                  value: valueToFind
                 }
               }
             }
@@ -290,7 +292,7 @@ define(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
         var people = fw.collection(persons);
 
         expect(people()).lengthToBe(persons.length);
-        expect(people.where({ attributes: { nested: { nested2: { value: 'findme!' } } } })).lengthToBe(1);
+        expect(people.where({ attributes: { nested: { nested2: { value: valueToFind } } } })).lengthToBe(1);
       });
 
       it('can find an individual model that matches a regex attribute', function() {

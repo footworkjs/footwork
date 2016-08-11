@@ -164,7 +164,6 @@ var ajaxWait = window.__env.AJAX_WAIT; // delay in ms to wait for ajax requests
 var jasmineTimeout = window.__env.JASMINE_TIMEOUT; // time that jasmine will wait for async requests to complete
 var fw;
 var $;
-var _;
 var containers = [];
 var footworkAnimationClass = 'fw-entity-animate';
 
@@ -181,7 +180,6 @@ fixture.cleanup = function(container) {
 require(['footwork', 'lodash', 'jquery', 'jquery-mockjax'], function(footwork, lodash, jQuery) {
   fw = footwork;
   $ = jQuery;
-  _ = lodash;
 
   if(containers.length) {
     var container;

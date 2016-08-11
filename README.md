@@ -3,11 +3,11 @@
 
 *```A solid footing for web applications.```*
 
-[![Build Status](https://travis-ci.org/footworkjs/footwork.png?branch=master)](https://travis-ci.org/footworkjs/footwork) [![Build Status](https://saucelabs.com/buildstatus/reflectiv?r=3)](https://saucelabs.com/u/reflectiv) [![Test Coverage](https://coveralls.io/repos/github/footworkjs/footwork/badge.svg?branch=master)](https://coveralls.io/github/footworkjs/footwork) [![Bower version](https://badge.fury.io/bo/footwork.svg)](https://badge.fury.io/bo/footwork)
+[![Build Status](https://travis-ci.org/footworkjs/footwork.png?branch=master)](https://travis-ci.org/footworkjs/footwork) [![Build Status](https://saucelabs.com/buildstatus/reflectiv?r=4)](https://saucelabs.com/u/reflectiv) [![Test Coverage](https://coveralls.io/repos/github/footworkjs/footwork/badge.svg?branch=master)](https://coveralls.io/github/footworkjs/footwork) [![Bower version](https://badge.fury.io/bo/footwork.svg)](https://badge.fury.io/bo/footwork)
 
-[![Build Status](https://saucelabs.com/browser-matrix/reflectiv.svg?r=6)](https://saucelabs.com/u/reflectiv)
+[![Build Status](https://saucelabs.com/browser-matrix/reflectiv.svg?r=7)](https://saucelabs.com/u/reflectiv)
 
-## What is footwork?
+## What is Footwork?
 
 Footwork is a front-end javascript framework built upon open source technologies. It uses novel combinations of several design patterns and libraries to enable the creation of expressive, low-boilerplate, highly modularized, maintainable, and reusable web components and applications.
 
@@ -35,7 +35,7 @@ It is recommended you use either the Yeoman generator to bootstrap your applicat
 
 If you need further setup help, refer to the [Get Started](http://footworkjs.com/get-started "Get Started") page.
 
-### Building footwork from source and running tests
+### Building Footwork from source and running tests
 
 1) **Clone the repo from GitHub:**
 
