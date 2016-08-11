@@ -142,32 +142,14 @@ function resetCallbackOrder() {
 }
 
 var testContainer;
-var originalTimeout;
+var jasmineDefaultTimeoutInterval;
 function prepareTestEnv() {
   resetCallbackOrder();
   jasmine.addMatchers(customMatchers);
-  fixture.setBase('tests/assets/fixtures');
-  originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineTimeout;
+  jasmineDefaultTimeoutInterval = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = window.__env.JASMINE_TIMEOUT; // time that jasmine will wait for async requests to complete
 }
 function cleanTestEnv() {
   fixture.cleanup(testContainer);
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineDefaultTimeoutInterval;
 }
-
-var ajaxWait = window.__env.AJAX_WAIT; // delay in ms to wait for ajax requests
-var jasmineTimeout = window.__env.JASMINE_TIMEOUT; // time that jasmine will wait for async requests to complete
-var fw;
-var $;
-var containers = [];
-var footworkAnimationClass = 'fw-entity-animate';
-
-// var _fixtureCleanup = fixture.cleanup;
-// fixture.cleanup = function(container) {
-//   if(!fw) {
-//     containers.push(container);
-//   } else {
-//     typeof container === 'object' && fw.removeNode(container);
-//   }
-//   _fixtureCleanup.call(fixture);
-// };

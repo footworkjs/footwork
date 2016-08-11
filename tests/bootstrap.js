@@ -1,3 +1,5 @@
+var ajaxWait = window.__env.AJAX_WAIT; // delay in ms to wait for ajax requests
+var footworkAnimationClass = 'fw-entity-animate';
 var allTestFiles = [];
 var TEST_REGEXP = /(spec)\.js$/i;
 
@@ -42,6 +44,8 @@ require.config({
   callback: function() {
     require(['lodash', 'jquery', 'jquery-mockjax'],
       function(_, $) {
+        fixture.setBase('tests/assets/fixtures');
+
         // tell mockjax to do its work quietly and quickly before we begin our tests
         _.extend($.mockjaxSettings, {
           logging: false,
