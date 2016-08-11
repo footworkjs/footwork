@@ -13,7 +13,11 @@
     "type": "git",
     "url": "git://github.com/footworkjs/footwork.git"
   },
-  "moduleType": "amd",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
   "main": [
     "./dist/footwork-all-history.min.js",
     "./dist/footwork.css"

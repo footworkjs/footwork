@@ -80,10 +80,10 @@ var customMatchers = {
  * @return {DOMNode}          The generated DOM node container
  */
 function makeTestContainer(theFixture, containerDOM) {
-  var $container = $(containerDOM || '<div/>');
+  var $container = $j(containerDOM || '<div/>');
 
   $container.append(theFixture);
-  $(document.body).append($container);
+  $j(document.body).append($container);
 
   return $container.get(0);
 }
@@ -149,11 +149,6 @@ function prepareTestEnv() {
   fixture.setBase('tests/assets/fixtures');
   originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
   jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineTimeout;
-
-  _.extend($.mockjaxSettings, {
-    logging: false,
-    responseTime: 5
-  });
 }
 function cleanTestEnv() {
   fixture.cleanup(testContainer);
@@ -167,24 +162,12 @@ var $;
 var containers = [];
 var footworkAnimationClass = 'fw-entity-animate';
 
-var _fixtureCleanup = fixture.cleanup;
-fixture.cleanup = function(container) {
-  if(!fw) {
-    containers.push(container);
-  } else {
-    typeof container === 'object' && fw.removeNode(container);
-  }
-  _fixtureCleanup.call(fixture);
-};
-
-require(['footwork', 'lodash', 'jquery', 'jquery-mockjax'], function(footwork, lodash, jQuery) {
-  fw = footwork;
-  $ = jQuery;
-
-  if(containers.length) {
-    var container;
-    while(containers.length) {
-      fixture.cleanup(containers.pop());
-    }
-  }
-});
+// var _fixtureCleanup = fixture.cleanup;
+// fixture.cleanup = function(container) {
+//   if(!fw) {
+//     containers.push(container);
+//   } else {
+//     typeof container === 'object' && fw.removeNode(container);
+//   }
+//   _fixtureCleanup.call(fixture);
+// };

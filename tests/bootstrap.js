@@ -39,5 +39,18 @@ require.config({
   },
 
   // we have to kickoff jasmine, as it is asynchronous
-  callback: window.__karma__.start
+  callback: function() {
+    require(['lodash', 'jquery', 'jquery-mockjax'],
+      function(_, $) {
+        // tell mockjax to do its work quietly and quickly before we begin our tests
+        _.extend($.mockjaxSettings, {
+          logging: false,
+          responseTime: 5
+        });
+
+        // start the tests
+        window.__karma__.start();
+      }
+    );
+  }
 });
