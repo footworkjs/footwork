@@ -6,10 +6,10 @@ define(['jquery', 'lodash', 'customMatchers'],
      * @return {DOMNode}          The generated DOM node container
      */
     function makeTestContainer(theFixture, containerDOM) {
-      var $container = $j(containerDOM || '<div/>');
+      var $container = $(containerDOM || '<div/>');
 
       $container.append(theFixture);
-      $j(document.body).append($container);
+      $(document.body).append($container);
 
       return $container.get(0);
     }
