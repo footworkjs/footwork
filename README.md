@@ -27,7 +27,7 @@ For more details, see:
 
   * [Skeleton Application](https://github.com/footworkjs/skeleton-app#readme "Skeleton Application") (based on the Yeoman generator)
   
-  * [Install via Bower](http://footworkjs.com/get-started#bower)
+  * [Install via Bower](http://footworkjs.com/get-started#bower) (```bower install footwork --save```)
 
   * [Direct Download](http://footworkjs.com/get-started#download)
 
