@@ -118,7 +118,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         }, 0);
       });
 
-      it('can sequence animations', function(done) {
+      xit('can sequence animations', function(done) {
         var componentNamespaceName = tools.generateNamespaceName();
         var footworkAnimatedElements = '.' + footworkAnimationClass;
 

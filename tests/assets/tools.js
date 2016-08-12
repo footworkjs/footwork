@@ -10,7 +10,7 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
         <span class="version">footwork v' + fw.footworkVersion + '</span>\
         <div class="results">\
           <div class="passed result"><span class="icon icon-thumbs-up"></span>Passed: <span class="display">0</span></div>\
-          <div class="failed result"><span class="icon icon-thumbs-down"></span>Failed: <span class="display">0</span></div>\
+          <div class="failed result"><span class="icon icon-bug"></span>Failed: <span class="display">0</span></div>\
           <div class="pending result"><span class="icon icon-clock-o"></span>Pending: <span class="display">0</span></div>\
         </div>\
       </div>\
@@ -28,10 +28,9 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
      * @param  {mixed} theFixture The fixture
      * @return {DOMNode}          The generated DOM node container
      */
-    var $wrapper;
-    function makeTestContainer(theFixture, containerDOM) {
+    makeTestContainer = function makeTestContainer(theFixture, containerDOM) {
       $wrapper = $('<div class="test-wrapper running">\
-        <div class="wrapper-title"><span class="icon"></span> ' + environment.currentSpec.fullName + '</div>\
+        <div class="wrapper-title"><span class="icon"></span> ' + (environment.currentSpec || { fullName: 'Unknown' }).fullName + '</div>\
       </div>');
       $innerContainer = $('<div class="display"></div>');
       var $container = $(containerDOM || '<div/>');

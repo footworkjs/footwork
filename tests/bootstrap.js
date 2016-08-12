@@ -6,6 +6,7 @@ var registerEntity;
 var testContainer;
 var allTestFiles = [];
 var TEST_REGEXP = /(spec)\.js$/i;
+var makeTestContainer;
 
 // Get a list of all the test files to include
 Object.keys(window.__karma__.files).forEach(function(file) {
@@ -34,6 +35,7 @@ var environment = new Env({
   timer: new jasmine.Timer()
 });
 
+var $wrapper;
 var testResults = {
   passed: 0,
   failed: 0,
@@ -57,6 +59,9 @@ var jasmineInterface = {
 
   xit: function(desc, func) {
     testResults.pending++;
+    environment.currentSpec = { fullName: desc };
+    makeTestContainer();
+    $wrapper = undefined;
     return env.xit(desc, func);
   },
 
