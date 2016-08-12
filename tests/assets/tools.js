@@ -95,7 +95,7 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
     }
 
     function addErrorsToWrapper(failedTests) {
-      $wrapper.find('.wrapper-title > .icon').addClass('icon-bug');
+      $wrapper && $wrapper.find('.wrapper-title > .icon').addClass('icon-bug');
       $errorContainer = $('<div class="failed-tests"></div>');
       _.each(failedTests, function(failedTest) {
         $errorContainer.append('<div class="test">\
@@ -103,7 +103,7 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
           <pre class="stack">' + failedTest.stack + '</pre>\
         </div>');
       });
-      $wrapper.append($errorContainer);
+      $wrapper && $wrapper.append($errorContainer);
     }
 
     var jasmineDefaultTimeoutInterval;
