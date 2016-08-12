@@ -6,7 +6,6 @@ var registerEntity;
 var testContainer;
 var allTestFiles = [];
 var TEST_REGEXP = /(spec)\.js$/i;
-var currentSpec;
 
 // Get a list of all the test files to include
 Object.keys(window.__karma__.files).forEach(function(file) {

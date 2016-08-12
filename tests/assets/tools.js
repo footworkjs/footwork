@@ -21,8 +21,10 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
     var $wrapper;
     function makeTestContainer(theFixture, containerDOM) {
       $wrapper = $('<div class="test-wrapper running"><div class="wrapper-title">' + environment.currentSpec.fullName + '</div></div>');
+      $innerContainer = $('<div class="display"></div>');
       var $container = $(containerDOM || '<div/>');
-      $wrapper.append($container);
+      $innerContainer.append($container);
+      $wrapper.append($innerContainer);
 
       $container.append(theFixture);
       $testOutput.append($wrapper);
@@ -81,6 +83,17 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
       currentCallbackOrderIndex = 0;
     }
 
+    function addErrorsToWrapper(failedTests) {
+      $errorContainer = $('<div class="failed-tests"></div>');
+      _.each(failedTests, function(failedTest) {
+        $errorContainer.append('<div class="test">\
+          <div class="message">' + failedTest.message + '</div>\
+          <pre class="stack">' + failedTest.stack + '</pre>\
+        </div>');
+      });
+      $wrapper.append($errorContainer);
+    }
+
     var jasmineDefaultTimeoutInterval;
     function prepareTestEnv() {
       resetCallbackOrder();
@@ -94,6 +107,8 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
 
       if(failedTests.length) {
         specStatus = 'failed';
+
+        addErrorsToWrapper(failedTests);
       }
 
       $wrapper && $wrapper
