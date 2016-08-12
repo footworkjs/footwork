@@ -2,7 +2,8 @@ $containerColor: #d4d4d4;
 $spacing: 10px;
 $borderWidth: 5px;
 
-$runningColor: #a9dfff;
+$pendingColor: #a9dfff;
+$runningColor: #dddddd;
 $passColor: #a9ffb4;
 $failedColor: #ffa9a9;
 
@@ -21,11 +22,12 @@ $failedColor: #ffa9a9;
 
 body {
   font: 13px Arial;
+  background: #d0d0d0;
+  padding: 0;
+  margin: 0;
 }
 
 #tests {
-  border: $borderWidth solid $containerColor;
-  border-radius: 5px;
   background: #f5f5f5;
   box-shadow: 0 1px 3px -1px black;
   max-width: 960px;
@@ -45,7 +47,7 @@ body {
     .version {
       position: absolute;
       top: 0;
-      right: 5px;
+      right: $spacing;
       font-weight: normal;
       font-size: 13px;
     }
@@ -66,8 +68,7 @@ body {
         font-size: 15px;
         text-align: center;
         color: white;
-        margin-left: 5px;
-        border-radius: 3px;
+        margin-left: $spacing;
         border: 1px solid transparent;
         box-sizing: border-box;
         padding-left: $iconWidth;
@@ -120,16 +121,20 @@ body {
     .test-wrapper {
       $minTestHeight: 30px;
 
-      background: #d6d6d6;
+      background-color: $pendingColor;
       min-height: $minTestHeight;
       line-height: $minTestHeight;
-      transition: all 0.3s ease;
+      transition: background-color 0.3s ease;
       border: 1px solid transparent;
       margin: 0;
 
       &.running {
         background: $runningColor;
         border-color: darken($runningColor, 20%);
+
+        .wrapper-title {
+          background: $runningColor;
+        }
       }
 
       &.passed {
@@ -171,8 +176,10 @@ body {
       .wrapper-title {
         font-size: 11px;
         font-weight: bold;
-        color: #555;
+        color: black;
         padding: 0 $spacing;
+        transition: background-color 0.3s ease;
+        background: $pendingColor;
 
         & > .icon {
           font-size: 15px;
@@ -225,9 +232,11 @@ body {
   font-size: 12px;
   max-width: 960px;
   margin: 10px auto;
+  color: #eee;
 
   a {
     text-decoration: none;
+    color: white;
 
     &:hover {
       text-decoration: underline;

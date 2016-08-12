@@ -61,6 +61,7 @@ var jasmineInterface = {
     testResults.pending++;
     environment.currentSpec = { fullName: desc };
     makeTestContainer();
+    $wrapper.removeClass('running')
     $wrapper = undefined;
     return env.xit(desc, func);
   },
@@ -93,6 +94,13 @@ var jasmineInterface = {
   jsApiReporter: new jasmine.JsApiReporter({
     timer: new jasmine.Timer()
   })
+};
+
+jasmine.addCustomEqualityTester = function(tester) {
+  env.addCustomEqualityTester(tester);
+};
+jasmine.addMatchers = function(matchers) {
+  return env.addMatchers(matchers);
 };
 
 if (typeof window == "undefined" && typeof exports === "object") {
