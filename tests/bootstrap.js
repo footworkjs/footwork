@@ -61,7 +61,10 @@ var jasmineInterface = {
     testResults.pending++;
     environment.currentSpec = { fullName: desc };
     makeTestContainer();
-    $wrapper.removeClass('running')
+    $wrapper.removeClass('running');
+    $wrapper.find('.icon-refresh')
+      .removeClass('icon-refresh')
+      .addClass('icon-clock-o');
     $wrapper = undefined;
     return env.xit(desc, func);
   },

@@ -30,7 +30,7 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
      */
     makeTestContainer = function makeTestContainer(theFixture, containerDOM) {
       $wrapper = $('<div class="test-wrapper running">\
-        <div class="wrapper-title"><span class="icon"></span> ' + (environment.currentSpec || { fullName: 'Unknown' }).fullName + '</div>\
+        <div class="wrapper-title"><span class="icon icon-refresh"></span> ' + (environment.currentSpec || { fullName: 'Unknown' }).fullName + '</div>\
       </div>');
       $innerContainer = $('<div class="display"></div>');
       var $container = $(containerDOM || '<div/>');
