@@ -32,10 +32,10 @@ body {
   margin: 0 auto;
 
   #test-title {
-    font-weight: bold;
     line-height: 30px;
     border-bottom: 1px solid $containerColor;
     padding: $spacing;
+    position: relative;
     @include clearblock;
 
     img {
@@ -43,11 +43,74 @@ body {
     }
 
     .version {
+      position: absolute;
+      top: 0;
+      right: 5px;
       font-weight: normal;
       font-size: 13px;
+    }
+
+    .results {
       float: right;
-      position: relative;
-      top: -$spacing;
+      padding-top: 30px;
+
+      .result {
+        $iconWidth: 30px;
+        $darkColor: 50%;
+        $veryDarkColor: 70%;
+        $resultHeight: 30px;
+
+        float: right;
+        width: 130px;
+        line-height: $resultHeight;
+        font-size: 15px;
+        text-align: center;
+        color: white;
+        margin-left: 5px;
+        border-radius: 3px;
+        border: 1px solid transparent;
+        box-sizing: border-box;
+        padding-left: $iconWidth;
+        position: relative;
+
+        .icon {
+          position: absolute;
+          left: 0;
+          line-height: $resultHeight;
+          text-align: center;
+          display: block;
+          width: $iconWidth;
+          border-right: 1px solid transparent;
+        }
+
+        &.pending {
+          background: darken($runningColor, $darkColor);
+          border-color: darken($runningColor, $veryDarkColor);
+          .icon {
+            border-color: darken($runningColor, $veryDarkColor);
+          }
+        }
+
+        &.passed {
+          background: darken($passColor, $darkColor);
+          border-color: darken($passColor, $veryDarkColor);
+          .icon {
+            border-color: darken($passColor, $veryDarkColor);
+          }
+        }
+
+        &.failed {
+          background: darken($failedColor, $darkColor);
+          border-color: darken($failedColor, $veryDarkColor);
+          .icon {
+            border-color: darken($failedColor, $veryDarkColor);
+          }
+        }
+
+        .display {
+          font-weight: bold;
+        }
+      }
     }
   }
 
@@ -55,9 +118,11 @@ body {
     padding: $spacing;
 
     .test-wrapper {
+      $minTestHeight: 30px;
+
       background: #d6d6d6;
-      min-height: 25px;
-      line-height: 25px;
+      min-height: $minTestHeight;
+      line-height: $minTestHeight;
       transition: all 0.3s ease;
       border: 1px solid transparent;
       margin: 0;
@@ -76,12 +141,6 @@ body {
           padding-left: 5px;
           background: darken($passColor, 60%);
           color: white;
-
-          & > .icon {
-            float: left;
-            line-height: 25px;
-            padding-right: 5px;
-          }
         }
       }
 
@@ -96,13 +155,6 @@ body {
           background: darken($failedColor, 60%);
           color: white;
           padding-left: 0;
-
-          & > .icon {
-            font-size: 15px;
-            float: left;
-            line-height: 25px;
-            padding-right: 5px;
-          }
         }
 
         .display {
@@ -121,6 +173,13 @@ body {
         font-weight: bold;
         color: #555;
         padding: 0 $spacing;
+
+        & > .icon {
+          font-size: 15px;
+          float: left;
+          line-height: $minTestHeight;
+          padding: 0 10px 0 5px;
+        }
       }
 
       .display {

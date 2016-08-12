@@ -33,6 +33,73 @@ function Env(options) {
 var environment = new Env({
   timer: new jasmine.Timer()
 });
+
+var testResults = {
+  passed: 0,
+  failed: 0,
+  pending: 0
+};
+
+var env = jasmine.getEnv();
+var jasmineInterface = {
+  describe: function(description, specDefinitions) {
+    return env.describe(description, specDefinitions);
+  },
+
+  xdescribe: function(description, specDefinitions) {
+    testResults.pending++;
+    return env.xdescribe(description, specDefinitions);
+  },
+
+  it: function(desc, func) {
+    return env.it(desc, func);
+  },
+
+  xit: function(desc, func) {
+    testResults.pending++;
+    return env.xit(desc, func);
+  },
+
+  beforeEach: function(beforeEachFunction) {
+    return env.beforeEach(beforeEachFunction);
+  },
+
+  afterEach: function(afterEachFunction) {
+    return env.afterEach(afterEachFunction);
+  },
+
+  expect: function(actual) {
+    return env.expect(actual);
+  },
+
+  pending: function() {
+    testResults.pending++;
+    return env.pending();
+  },
+
+  spyOn: function(obj, methodName) {
+    return env.spyOn(obj, methodName);
+  },
+
+  addCustomEqualityTester: function(tester) {
+    env.addCustomEqualityTester(tester);
+  },
+
+  jsApiReporter: new jasmine.JsApiReporter({
+    timer: new jasmine.Timer()
+  })
+};
+
+if (typeof window == "undefined" && typeof exports === "object") {
+  Object.keys(jasmineInterface).forEach(function(methodName) {
+    exports[methodName] = jasmineInterface[methodName];
+  });
+} else {
+  Object.keys(jasmineInterface).forEach(function(methodName) {
+    window[methodName] = jasmineInterface[methodName];
+  });
+}
+
 jasmine.getEnv().addReporter(environment);
 
 require.config({

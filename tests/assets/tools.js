@@ -3,15 +3,25 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
     var $body = $(document.body);
     var defaultSpec = { description: 'Test Container' };
 
+    // Create overall test container/frame
     $body.append('<div id="tests">\
       <div id="test-title">\
         <img src="/base/dist/gh-footwork-logo.png">\
         <span class="version">footwork v' + fw.footworkVersion + '</span>\
+        <div class="results">\
+          <div class="passed result"><span class="icon icon-thumbs-up"></span>Passed: <span class="display">0</span></div>\
+          <div class="failed result"><span class="icon icon-thumbs-down"></span>Failed: <span class="display">0</span></div>\
+          <div class="pending result"><span class="icon icon-clock-o"></span>Pending: <span class="display">0</span></div>\
+        </div>\
       </div>\
       <div id="test-output"></div>\
     </div>');
     $body.append('<div class="information"><a href="http://footworkjs.com">footworkjs.com</a> - A solid footing for web applications.</div>');
+
     var $testOutput = $body.find('#test-output');
+    var $passedTestResults = $body.find('.passed.result .display');
+    var $failedTestResults = $body.find('.failed.result .display');
+    var $pendingTestResults = $body.find('.pending.result .display');
 
     /**
      * Helper which makes a new DOM node that we can use to put our test fixture into. Once created it is inserted into the DOM and returned.
@@ -104,15 +114,25 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
       jasmineDefaultTimeoutInterval = jasmine.DEFAULT_TIMEOUT_INTERVAL;
       jasmine.DEFAULT_TIMEOUT_INTERVAL = window.__env.JASMINE_TIMEOUT; // time that jasmine will wait for async requests to complete
     }
+
+    function renderTestResults() {
+      $passedTestResults.text(testResults.passed);
+      $failedTestResults.text(testResults.failed);
+      $pendingTestResults.text(testResults.pending);
+    }
+
     function cleanTestEnv() {
       var failedTests = environment.currentSpec.failedExpectations;
+      var passedTests = environment.currentSpec.passedExpectations;
       var specStatus = 'passed';
 
       if(failedTests.length) {
+        testResults.failed += 1;
         specStatus = 'failed';
 
         addErrorsToWrapper(failedTests);
       } else {
+        testResults.passed += 1;
         $wrapper && $wrapper.find('.wrapper-title > .icon').addClass('icon-thumbs-up');
       }
 
@@ -121,6 +141,7 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
         .addClass(specStatus);
 
       $wrapper = undefined;
+      renderTestResults();
 
       fixture.cleanup();
       jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineDefaultTimeoutInterval;
