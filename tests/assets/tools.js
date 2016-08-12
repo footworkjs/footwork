@@ -20,7 +20,9 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
      */
     var $wrapper;
     function makeTestContainer(theFixture, containerDOM) {
-      $wrapper = $('<div class="test-wrapper running"><div class="wrapper-title">' + environment.currentSpec.fullName + '</div></div>');
+      $wrapper = $('<div class="test-wrapper running">\
+        <div class="wrapper-title"><span class="icon"></span> ' + environment.currentSpec.fullName + '</div>\
+      </div>');
       $innerContainer = $('<div class="display"></div>');
       var $container = $(containerDOM || '<div/>');
       $innerContainer.append($container);
@@ -84,10 +86,11 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
     }
 
     function addErrorsToWrapper(failedTests) {
+      $wrapper.find('.wrapper-title > .icon').addClass('icon-bug');
       $errorContainer = $('<div class="failed-tests"></div>');
       _.each(failedTests, function(failedTest) {
         $errorContainer.append('<div class="test">\
-          <div class="message">' + failedTest.message + '</div>\
+          <div class="message"><span class="failure"><span class="icon-stop-circle"></span> FAILURE:</span> ' + failedTest.message + '</div>\
           <pre class="stack">' + failedTest.stack + '</pre>\
         </div>');
       });
@@ -109,6 +112,8 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
         specStatus = 'failed';
 
         addErrorsToWrapper(failedTests);
+      } else {
+        $wrapper.find('.wrapper-title > .icon').addClass('icon-thumbs-up');
       }
 
       $wrapper && $wrapper

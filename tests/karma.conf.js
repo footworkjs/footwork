@@ -12,6 +12,8 @@ module.exports = {
   files: [
     'tests/bootstrap.js',
     'tests/assets/test.css',
+    'tests/assets/fonts.css',
+    { pattern: 'tests/assets/fonts/**/*.*', included: false },
     { pattern: 'tests/spec/**/*.js', included: false },
     { pattern: 'tests/assets/**/*.+(html|json|jsonp|js)', nocache: true, included: false },
     { pattern: 'bower_components/lodash/*.js', watched: false, included: false },

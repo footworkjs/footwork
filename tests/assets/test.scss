@@ -70,26 +70,39 @@ body {
       &.passed {
         background: $passColor;
         border-color: darken($passColor, 60%);
-        opacity: 0.7;
+        opacity: 0.6;
 
         .wrapper-title {
+          padding-left: 5px;
           background: darken($passColor, 60%);
           color: white;
+
+          & > .icon {
+            float: left;
+            line-height: 25px;
+            padding-right: 5px;
+          }
         }
       }
 
       &.failed {
         background: darken($failedColor, 60%);
         border-color: darken($failedColor, 60%);
-        border-left-width: 5px;
-        border-right-width: 5px;
-        border-bottom-width: 5px;
-        border-radius: 5px;
+        padding: 0 5px 5px 5px;
+        border-radius: 3px;
         margin: 20px 0 !important;
 
         .wrapper-title {
           background: darken($failedColor, 60%);
           color: white;
+          padding-left: 0;
+
+          & > .icon {
+            font-size: 15px;
+            float: left;
+            line-height: 25px;
+            padding-right: 5px;
+          }
         }
 
         .display {
@@ -116,11 +129,16 @@ body {
 
       .failed-tests {
         margin-top: 5px;
-        padding: 5px;
+        padding: 0 5px 5px 5px;
         border-radius: 3px;
         background: white;
 
         .test {
+          .failure {
+            color: crimson;
+            font-weight: bold;
+          }
+
           .stack {
             color: #777;
             max-width: 100%;
@@ -128,6 +146,7 @@ body {
             margin: 0;
             background: #e6e6e6;
             padding: 0 5px;
+            max-height: 300px;
           }
         }
 
