@@ -35,16 +35,18 @@ var environment = new Env({
   timer: new jasmine.Timer()
 });
 
-var $wrapper;
 var testResults = {
   passed: 0,
   failed: 0,
   pending: 0
 };
 
+var specWrappers = {};
 var env = jasmine.getEnv();
+var currentDescription;
 var jasmineInterface = {
   describe: function(description, specDefinitions) {
+    currentDescription = description;
     return env.describe(description, specDefinitions);
   },
 
@@ -54,18 +56,17 @@ var jasmineInterface = {
   },
 
   it: function(desc, func) {
+    makeTestContainer(currentDescription + ' ' + desc);
     return env.it(desc, func);
   },
 
   xit: function(desc, func) {
     testResults.pending++;
-    environment.currentSpec = { fullName: desc };
-    makeTestContainer();
-    $wrapper.removeClass('running');
+    var $wrapper = makeTestContainer(currentDescription + ' ' + desc);
+    $wrapper.removeClass('running').removeClass('waiting').addClass('pending');
     $wrapper.find('.icon-refresh')
       .removeClass('icon-refresh')
       .addClass('icon-clock-o');
-    $wrapper = undefined;
     return env.xit(desc, func);
   },
 
@@ -83,6 +84,11 @@ var jasmineInterface = {
 
   pending: function() {
     testResults.pending++;
+    var $wrapper = makeTestContainer(currentDescription + ' ' + desc);
+    $wrapper.removeClass('running').removeClass('waiting').addClass('pending');
+    $wrapper.find('.icon-refresh')
+      .removeClass('icon-refresh')
+      .addClass('icon-clock-o');
     return env.pending();
   },
 

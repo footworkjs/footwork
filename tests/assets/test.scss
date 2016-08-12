@@ -7,6 +7,8 @@ $runningColor: #dddddd;
 $passColor: #a9ffb4;
 $failedColor: #ffa9a9;
 
+$transitionTime: 0.5s;
+
 @mixin clearblock {
   display: block;
 
@@ -124,11 +126,18 @@ body {
       background-color: $pendingColor;
       min-height: $minTestHeight;
       line-height: $minTestHeight;
-      transition: background-color 0.3s ease;
-      border: 1px solid transparent;
+      transition: background-color $transitionTime ease, border-color $transitionTime ease;
+      border: 1px solid $runningColor;
       margin: 0;
+      display: none;
+      margin-bottom: 10px;
+
+      &.pending {
+        display: block;
+      }
 
       &.running {
+        display: block;
         background: $runningColor;
         border-color: darken($runningColor, 20%);
 
@@ -138,6 +147,7 @@ body {
       }
 
       &.passed {
+        display: block;
         background: $passColor;
         border-color: darken($passColor, 60%);
         opacity: 0.6;
@@ -150,6 +160,7 @@ body {
       }
 
       &.failed {
+        display: block;
         background: darken($failedColor, 60%);
         border-color: darken($failedColor, 60%);
         padding: 0 5px 5px 5px;
@@ -178,7 +189,7 @@ body {
         font-weight: bold;
         color: black;
         padding: 0 5px;
-        transition: background-color 0.3s ease;
+        transition: background-color $transitionTime ease, border-color $transitionTime ease;
         background: $pendingColor;
 
         & > .icon {
@@ -220,9 +231,6 @@ body {
           margin-top: $spacing;
         }
       }
-    }
-    .test-wrapper + .test-wrapper {
-      margin-top: 10px;
     }
   }
 }

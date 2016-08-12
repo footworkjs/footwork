@@ -129,7 +129,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).not.toHaveBeenCalled();
 
-        fw.applyBindings(new ModelA(), testContainer = tools.makeTestContainer('', '<div class="' + checkForClass + '"></div>'));
+        fw.applyBindings(new ModelA(), testContainer = tools.getFixtureContainer('', '<div class="' + checkForClass + '"></div>'));
 
         expect(initializeSpy).toHaveBeenCalled();
         expect(afterRenderSpy).toHaveBeenCalled();
@@ -192,7 +192,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalledTimes(1);
@@ -210,7 +210,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
           }
         });
 
-        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
                                              <span class="result" data-bind="text: boundProperty"></span>\
                                            </router>');
 
@@ -242,7 +242,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         });
 
         expect(createRouterInstance).not.toHaveBeenCalled();
-        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
+        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
                                              <span class="result" data-bind="text: boundProperty"></span>\
                                            </router>');
 
@@ -274,7 +274,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
 
         expect(initializeSpy).toHaveBeenCalled();
         expect(afterRenderSpy).toHaveBeenCalled();
@@ -300,7 +300,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceNameOuter + '">\
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceNameOuter + '">\
           <router module="' + namespaceNameInner + '"></router>\
         </router>'));
 
@@ -321,7 +321,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></router>'));
         expect(initializeSpy).toHaveBeenCalled();
       });
 
@@ -358,7 +358,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(initializeSpy).toHaveBeenCalled();
         expect(afterRenderSpy).not.toHaveBeenCalled();
 
-        fw.applyBindings(wrapper, testContainer = tools.makeTestContainer('<div data-bind="if: showIt">\
+        fw.applyBindings(wrapper, testContainer = tools.getFixtureContainer('<div data-bind="if: showIt">\
           <router module="' + namespaceName + '"></router>\
         </div>'));
 
@@ -429,7 +429,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -446,7 +446,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         }));
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -461,7 +461,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -476,7 +476,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -491,7 +491,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -506,7 +506,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -535,7 +535,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(outerInitializeSpy).not.toHaveBeenCalled();
         expect(innerInitializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + outerNamespaceName + '">\
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + outerNamespaceName + '">\
                                       <router module="' + innerNamespaceName + '"></router>\
                                     </router>'));
 
@@ -563,7 +563,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         expect(defaultRouteControllerSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           expect(defaultRouteControllerSpy).toHaveBeenCalled();
@@ -591,7 +591,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(unknownRouteControllerSpy).not.toHaveBeenCalled();
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
 
         expect(initializeSpy).toHaveBeenCalled();
 
@@ -626,7 +626,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(routeControllerSpy).not.toHaveBeenCalled();
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
         expect(initializeSpy).toHaveBeenCalled();
 
         setTimeout(function() {
@@ -660,7 +660,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(routeControllerSpy).not.toHaveBeenCalled();
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
         expect(initializeSpy).toHaveBeenCalled();
 
         setTimeout(function() {
@@ -697,7 +697,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(routeControllerSpy).not.toHaveBeenCalled();
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
         expect(initializeSpy).toHaveBeenCalled();
 
         setTimeout(function() {
@@ -742,7 +742,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(optParamNotSuppliedSpy).not.toHaveBeenCalled();
         expect(optParamSuppliedSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
           router.setState(mockUrl + '/optParamNotSupplied');
@@ -801,7 +801,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(clearOutletControllerSpy).not.toHaveBeenCalled();
         expect(manipulateOutletComponentSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
           <outlet name="output"></outlet>\
         </router>'));
         $testContainer = $(testContainer);
@@ -844,7 +844,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
           <outlet name="output1"></outlet>\
           <outlet name="output2"></outlet>\
           <outlet name="output3"></outlet>\
@@ -893,7 +893,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(outletCallbackComponentSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
           <outlet name="output"></outlet>\
         </router>'));
         expect(initializeSpy).toHaveBeenCalled();
@@ -957,7 +957,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(initializeViewModelSpy).not.toHaveBeenCalled();
         expect(initializeComponentViewModelSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + routerNamespace + '">\
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + routerNamespace + '">\
           <viewModel module="' + outletControlingViewModelNamespace + '">\
             <div data-bind="if: outletVisible">\
               <outlet name="output"></outlet>\
@@ -1029,7 +1029,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(changeOutletControllerSpy).not.toHaveBeenCalled();
         expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + routerNamespace + '">\
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + routerNamespace + '">\
           <outlet name="output"></outlet>\
         </router>'));
 
@@ -1103,7 +1103,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(changeOutletControllerSpy).not.toHaveBeenCalled();
         expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + routerNamespace + '">\
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + routerNamespace + '">\
           <outlet name="output"></outlet>\
         </router>'));
 
@@ -1167,7 +1167,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(changeOutletControllerSpy).not.toHaveBeenCalled();
         expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + routerNamespace + '">\
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + routerNamespace + '">\
           <outlet name="output"></outlet>\
         </router>'));
 
@@ -1240,7 +1240,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
         expect(minTransitionPeriodSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + routerNamespace + '">\
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + routerNamespace + '">\
           <outlet name="output"></outlet>\
         </router>'));
 
@@ -1300,7 +1300,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + outerNestedRouteNamespace + '">\
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + outerNestedRouteNamespace + '">\
           <router module="' + innerNestedRouteNamespace + '">\
             <router module="' + subInnerNestedRouteNamespace + '"></router>\
           </router>\
@@ -1365,7 +1365,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<router module="' + outerNestedRouteNamespace + '">\
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + outerNestedRouteNamespace + '">\
           <router module="' + innerNestedRouteNamespace + '"></router>\
         </router>'));
 
@@ -1413,7 +1413,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
           <a data-bind="$route: \'' + mockUrl + '\'"></a>\
         </router>');
         fw.start(testContainer);
@@ -1459,7 +1459,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
           <a href="' + mockUrl + '" data-bind="$route"></a>\
         </router>');
         fw.start(testContainer);
@@ -1521,7 +1521,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(routeSpy).not.toHaveBeenCalled();
         expect(changedRouteSpy).not.toHaveBeenCalled();
 
-        testContainer = tools.makeTestContainer('<router module="' + routerNamespaceName + '">\
+        testContainer = tools.getFixtureContainer('<router module="' + routerNamespaceName + '">\
           <viewModel module="' + viewModelNamespaceName + '">\
             <a data-bind="$route: routeHrefBindingObservable"></a>\
           </viewModel>\
@@ -1578,7 +1578,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
           <a data-bind="$route: \'' + mockUrl + '\'"></a>\
         </router>');
         fw.start(testContainer);
@@ -1622,7 +1622,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
           <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\' }"></a>\
         </router>');
         fw.start(testContainer);
@@ -1666,7 +1666,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
           <div>\
             <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\', parentHasState: true }"></a>\
           </div>\
@@ -1713,7 +1713,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
             <div class="parent-class-name">\
               <div>\
                 <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\', parentHasState: \'.parent-class-name\' }"></a>\
@@ -1775,7 +1775,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(routerInitializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = tools.makeTestContainer('<router module="' + routerNamespaceName + '">\
+        testContainer = tools.getFixtureContainer('<router module="' + routerNamespaceName + '">\
           <viewModel module="' + viewModelNamespaceName + '">\
             <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: activeClassObservable }"></a>\
           </viewModel>\
@@ -1821,7 +1821,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
           <a data-bind="$route: { url: \'' + mockUrl + '\', addActiveClass: false }"></a>\
         </router>');
         fw.start(testContainer);
@@ -1866,7 +1866,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
           <a data-bind="$route: { url: \'' + mockUrl + '\', addActiveClass: disableActiveClass }"></a>\
         </router>');
         fw.start(testContainer);
@@ -1909,7 +1909,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
           <a data-bind="$route: { url: \'' + mockUrl + '\', on: \'dblclick\' }"></a>\
         </router>');
         fw.start(testContainer);
@@ -1954,7 +1954,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = tools.makeTestContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
           <a data-bind="$route: { url: \'' + mockUrl + '\', on: customEvent }"></a>\
         </router>');
         fw.start(testContainer);
@@ -2016,7 +2016,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(viewModelInitializeSpy).not.toHaveBeenCalled();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        testContainer = tools.makeTestContainer('<router module="' + routerNamespaceName + '">\
+        testContainer = tools.getFixtureContainer('<router module="' + routerNamespaceName + '">\
           <viewModel module="' + viewModelNamespaceName + '">\
             <a data-bind="$route: { url: \'' + mockUrl + '\', handler: routeHrefBindingCustomHandler }"></a>\
           </viewModel>\
@@ -2071,7 +2071,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        testContainer = tools.makeTestContainer('<router module="' + routerNamespaceName + '">\
+        testContainer = tools.getFixtureContainer('<router module="' + routerNamespaceName + '">\
           <a data-bind="$route: { url: routeHrefBindingCustomUrlCallback }"></a>\
         </router>');
         fw.start(testContainer);

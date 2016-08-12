@@ -129,7 +129,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).not.toHaveBeenCalled();
 
-        fw.applyBindings(new ModelA(), testContainer = tools.makeTestContainer('', '<div class="' + checkForClass + '"></div>'));
+        fw.applyBindings(new ModelA(), testContainer = tools.getFixtureContainer('', '<div class="' + checkForClass + '"></div>'));
 
         expect(initializeSpy).toHaveBeenCalled();
         expect(afterRenderSpy).toHaveBeenCalled();
@@ -192,7 +192,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalledTimes(1);
@@ -210,7 +210,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
           }
         });
 
-        testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '">\
+        testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '">\
                                              <span class="result" data-bind="text: boundProperty"></span>\
                                            </viewModel>');
 
@@ -242,7 +242,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         });
 
         expect(createViewModelInstance).not.toHaveBeenCalled();
-        testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
+        testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
                                              <span class="result" data-bind="text: boundProperty"></span>\
                                            </viewModel>');
 
@@ -274,7 +274,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         expect(initializeSpy).toHaveBeenCalled();
         expect(afterRenderSpy).toHaveBeenCalled();
@@ -300,7 +300,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceNameOuter + '">\
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceNameOuter + '">\
           <viewModel module="' + namespaceNameInner + '"></viewModel>\
         </viewModel>'));
 
@@ -321,7 +321,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></viewModel>'));
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></viewModel>'));
         expect(initializeSpy).toHaveBeenCalled();
       });
 
@@ -358,7 +358,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(initializeSpy).toHaveBeenCalled();
         expect(afterRenderSpy).not.toHaveBeenCalled();
 
-        fw.applyBindings(wrapper, testContainer = tools.makeTestContainer('<div data-bind="if: showIt">\
+        fw.applyBindings(wrapper, testContainer = tools.getFixtureContainer('<div data-bind="if: showIt">\
           <viewModel module="' + namespaceName + '"></viewModel>\
         </div>'));
 
@@ -427,7 +427,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -444,7 +444,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         }));
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -459,7 +459,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -474,7 +474,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -489,7 +489,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -504,7 +504,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.makeTestContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();

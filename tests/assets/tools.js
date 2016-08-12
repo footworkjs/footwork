@@ -28,20 +28,29 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
      * @param  {mixed} theFixture The fixture
      * @return {DOMNode}          The generated DOM node container
      */
-    makeTestContainer = function makeTestContainer(theFixture, containerDOM) {
-      $wrapper = $('<div class="test-wrapper running">\
-        <div class="wrapper-title"><span class="icon icon-refresh"></span> ' + (environment.currentSpec || { fullName: 'Unknown' }).fullName + '</div>\
+    makeTestContainer = function makeTestContainer(fullName) {
+      $wrapper = $('<div class="test-wrapper waiting">\
+        <div class="wrapper-title"><span class="icon icon-refresh"></span> <span class="test-title">' + fullName + '</span></div>\
+        <div class="display"></div>\
       </div>');
-      $innerContainer = $('<div class="display"></div>');
-      var $container = $(containerDOM || '<div/>');
-      $innerContainer.append($container);
-      $wrapper.append($innerContainer);
+      $testOutput.prepend($wrapper);
+      specWrappers[fullName] = $wrapper;
 
+      return $wrapper;
+    }
+
+    getFixtureContainer = function(theFixture, containerDOM) {
+      var currentSpec = (environment.currentSpec || { fullName: 'Unknown' });
+      var $wrapper = specWrappers[currentSpec.fullName];
+      var $container = $(containerDOM || '<div/>');
+      var $display = $wrapper.find('.display');
+
+      $wrapper.addClass('running').removeClass('waiting');
       $container.append(theFixture);
-      $testOutput.append($wrapper);
+      $display.append($container);
 
       return $container.get(0);
-    }
+    };
 
     registerFootworkEntity = function (initializeMethod) {
       return function() {
@@ -95,6 +104,9 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
     }
 
     function addErrorsToWrapper(failedTests) {
+      var currentSpec = (environment.currentSpec || { fullName: currentTestDescription || 'Unknown' });
+      var $wrapper = specWrappers[currentSpec.fullName];
+
       $wrapper && $wrapper.find('.wrapper-title > .icon').addClass('icon-bug');
       $errorContainer = $('<div class="failed-tests"></div>');
       _.each(failedTests, function(failedTest) {
@@ -124,6 +136,9 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
       var failedTests = environment.currentSpec.failedExpectations;
       var passedTests = environment.currentSpec.passedExpectations;
       var specStatus = 'passed';
+      var currentSpec = (environment.currentSpec || { fullName: currentTestDescription || 'Unknown' });
+      var $wrapper = specWrappers[currentSpec.fullName];
+      $wrapper.removeClass('running');
 
       if(failedTests.length) {
         testResults.failed += 1;
@@ -138,8 +153,8 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
       $wrapper && $wrapper
         .removeClass('running')
         .addClass(specStatus);
-
       $wrapper = undefined;
+      currentTestDescription = '';
       renderTestResults();
 
       fixture.cleanup();
@@ -147,7 +162,7 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
     }
 
     return {
-      makeTestContainer: makeTestContainer,
+      getFixtureContainer: getFixtureContainer,
       generateNamespaceName: generateNamespaceName,
       generateUrl: generateUrl,
       randomString: randomString,
