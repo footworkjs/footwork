@@ -113,7 +113,7 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
 
         addErrorsToWrapper(failedTests);
       } else {
-        $wrapper.find('.wrapper-title > .icon').addClass('icon-thumbs-up');
+        $wrapper && $wrapper.find('.wrapper-title > .icon').addClass('icon-thumbs-up');
       }
 
       $wrapper && $wrapper
