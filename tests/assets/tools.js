@@ -92,7 +92,7 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers', 'reporter', 'container
       jasmine.DEFAULT_TIMEOUT_INTERVAL = window.__env.JASMINE_TIMEOUT; // time that jasmine will wait for async requests to complete
     }
 
-    function renderTestResults() {
+    function renderTestSummary() {
       $passedTestResults.text(testResults.passed);
       $failedTestResults.text(testResults.failed);
       $pendingTestResults.text(testResults.pending);
@@ -120,9 +120,8 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers', 'reporter', 'container
       $wrapper && $wrapper
         .removeClass('running')
         .addClass(specStatus);
-      $wrapper = undefined;
 
-      renderTestResults();
+      renderTestSummary();
       fixture.cleanup();
       jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineDefaultTimeoutInterval;
     }
