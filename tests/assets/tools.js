@@ -1,23 +1,6 @@
-define(['footwork', 'jquery', 'lodash', 'customMatchers', 'reporter'],
+define(['footwork', 'jquery', 'lodash', 'customMatchers', 'reporter', 'container'],
   function(fw, $, _, customMatchers) {
     var $body = $(document.body);
-    var defaultSpec = { description: 'Test Container' };
-
-    // Create overall test container/frame
-    $body.append('<div id="tests">\
-      <div id="test-title">\
-        <a href="http://footworkjs.com" target="_blank"><img src="/base/dist/gh-footwork-logo.png"></a>\
-        <span class="version">footwork v' + fw.footworkVersion + '</span>\
-        <div class="results">\
-          <div class="passed result"><span class="icon icon-thumbs-up"></span>Passed: <span class="display">0</span></div>\
-          <div class="failed result"><span class="icon icon-bug"></span>Failed: <span class="display">0</span></div>\
-          <div class="pending result"><span class="icon icon-clock-o"></span>Pending: <span class="display">0</span></div>\
-        </div>\
-      </div>\
-      <div id="test-output"></div>\
-    </div>');
-    $body.append('<div class="information"><a href="http://footworkjs.com">footworkjs.com</a> - A solid footing for web applications.</div>');
-
     var $testOutput = $body.find('#test-output');
     var $passedTestResults = $body.find('.passed.result .display');
     var $failedTestResults = $body.find('.failed.result .display');

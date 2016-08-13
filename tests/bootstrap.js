@@ -54,12 +54,13 @@ require.config({
     "history": "bower_components/history.js/scripts/bundled/html5/native.history",
     "customMatchers": "tests/assets/customMatchers",
     "tools": "tests/assets/tools",
-    "reporter": "tests/assets/reporter"
+    "reporter": "tests/assets/reporter",
+    "container": "tests/assets/container"
   },
 
   // we have to kickoff jasmine, as it is asynchronous
   callback: function() {
-    require(['footwork', 'lodash', 'jquery', 'jquery-mockjax', 'reporter'],
+    require(['footwork', 'lodash', 'jquery', 'jquery-mockjax', 'reporter', 'container'],
       function(fw, _, $) {
         fixture.setBase('tests/assets/fixtures');
 

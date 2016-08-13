@@ -1,5 +1,10 @@
-define(['lodash'],
-  function(_) {
+define(['lodash', 'jquery'],
+  function(_, $) {
+    /**
+     * This module bootstraps the 'reporter' used to hook into for the HTML display of
+     * the tests when you debug in a browser.
+     */
+
     var JsApiReporter = jasmine.JsApiReporter;
     function Env(options) {
       JsApiReporter.call(this, options);
@@ -85,14 +90,10 @@ define(['lodash'],
       return env.addMatchers(matchers);
     };
 
-    if (typeof window == "undefined" && typeof exports === "object") {
-      Object.keys(jasmineInterface).forEach(function(methodName) {
-        exports[methodName] = jasmineInterface[methodName];
-      });
+    if (typeof window === "undefined" && typeof exports === "object") {
+      _.extend(exports, jasmineInterface);
     } else {
-      Object.keys(jasmineInterface).forEach(function(methodName) {
-        window[methodName] = jasmineInterface[methodName];
-      });
+      _.extend(window, jasmineInterface);
     }
 
     jasmine.getEnv().addReporter(environment);
