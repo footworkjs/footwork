@@ -1,9 +1,21 @@
-define(['lodash', 'jquery'],
+define(['lodash', 'jquery', 'container'],
   function(_, $) {
     /**
      * This module bootstraps the 'reporter' used to hook into for the HTML display of
      * the tests when you debug in a browser.
      */
+
+    var $testOutput = $('body').find('#test-output');
+    function makeTestContainer(fullName) {
+      var $wrapper = $('<div class="test-wrapper waiting">\
+        <div class="wrapper-title"><span class="icon icon-play"></span> <span class="test-title">' + fullName + '</span></div>\
+        <div class="display"></div>\
+      </div>');
+      $testOutput.prepend($wrapper);
+      specWrappers[fullName] = $wrapper;
+
+      return $wrapper;
+    }
 
     var JsApiReporter = jasmine.JsApiReporter;
     function Env(options) {

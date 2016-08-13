@@ -3,10 +3,6 @@ var footworkAnimationClass = 'fw-entity-animate';
 var loadedModules = {};
 var registerFootworkEntity;
 var registerEntity;
-var allTestFiles = [];
-var TEST_REGEXP = /(spec)\.js$/i;
-var makeTestContainer;
-var getFixtureContainer;
 var specWrappers = {};
 var currentDescription;
 var environment;
@@ -16,6 +12,9 @@ var testResults = {
   failed: 0,
   pending: 0
 };
+
+var allTestFiles = [];
+var TEST_REGEXP = /(spec)\.js$/i;
 
 // Get a list of all the test files to include
 Object.keys(window.__karma__.files).forEach(function(file) {

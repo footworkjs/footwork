@@ -1,28 +1,11 @@
 define(['footwork', 'jquery', 'lodash', 'customMatchers', 'reporter', 'container'],
   function(fw, $, _, customMatchers) {
     var $body = $(document.body);
-    var $testOutput = $body.find('#test-output');
     var $passedTestResults = $body.find('.passed.result .display');
     var $failedTestResults = $body.find('.failed.result .display');
     var $pendingTestResults = $body.find('.pending.result .display');
 
-    /**
-     * Helper which makes a new DOM node that we can use to put our test fixture into. Once created it is inserted into the DOM and returned.
-     * @param  {mixed} theFixture The fixture
-     * @return {DOMNode}          The generated DOM node container
-     */
-    makeTestContainer = function makeTestContainer(fullName) {
-      $wrapper = $('<div class="test-wrapper waiting">\
-        <div class="wrapper-title"><span class="icon icon-play"></span> <span class="test-title">' + fullName + '</span></div>\
-        <div class="display"></div>\
-      </div>');
-      $testOutput.prepend($wrapper);
-      specWrappers[fullName] = $wrapper;
-
-      return $wrapper;
-    }
-
-    getFixtureContainer = function(theFixture, containerDOM) {
+    var getFixtureContainer = function(theFixture, containerDOM) {
       var currentSpec = (environment.currentSpec || { fullName: 'Unknown' });
       var $wrapper = specWrappers[currentSpec.fullName];
       var $container = $(containerDOM || '<div/>');
