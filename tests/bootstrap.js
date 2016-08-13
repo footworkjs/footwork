@@ -3,10 +3,19 @@ var footworkAnimationClass = 'fw-entity-animate';
 var loadedModules = {};
 var registerFootworkEntity;
 var registerEntity;
-var testContainer;
 var allTestFiles = [];
 var TEST_REGEXP = /(spec)\.js$/i;
 var makeTestContainer;
+var getFixtureContainer;
+var specWrappers = {};
+var currentDescription;
+var environment;
+
+var testResults = {
+  passed: 0,
+  failed: 0,
+  pending: 0
+};
 
 // Get a list of all the test files to include
 Object.keys(window.__karma__.files).forEach(function(file) {
@@ -18,111 +27,6 @@ Object.keys(window.__karma__.files).forEach(function(file) {
     allTestFiles.push(normalizedTestModule);
   }
 });
-
-var JsApiReporter = jasmine.JsApiReporter;
-function Env(options) {
-  JsApiReporter.call(this, options);
-
-  this.specStarted = function(result) {
-    this.currentSpec = result;
-  };
-
-  this.specDone = function(result) {
-    this.currentSpec = null;
-  };
-}
-var environment = new Env({
-  timer: new jasmine.Timer()
-});
-
-var testResults = {
-  passed: 0,
-  failed: 0,
-  pending: 0
-};
-
-var specWrappers = {};
-var env = jasmine.getEnv();
-var currentDescription;
-var jasmineInterface = {
-  describe: function(description, specDefinitions) {
-    currentDescription = description;
-    return env.describe(description, specDefinitions);
-  },
-
-  xdescribe: function(description, specDefinitions) {
-    testResults.pending++;
-    return env.xdescribe(description, specDefinitions);
-  },
-
-  it: function(desc, func) {
-    makeTestContainer(currentDescription + ' ' + desc);
-    return env.it(desc, func);
-  },
-
-  xit: function(desc, func) {
-    testResults.pending++;
-    var $wrapper = makeTestContainer(currentDescription + ' ' + desc);
-    $wrapper.removeClass('running').removeClass('waiting').addClass('pending');
-    $wrapper.find('.icon-refresh')
-      .removeClass('icon-refresh')
-      .addClass('icon-clock-o');
-    return env.xit(desc, func);
-  },
-
-  beforeEach: function(beforeEachFunction) {
-    return env.beforeEach(beforeEachFunction);
-  },
-
-  afterEach: function(afterEachFunction) {
-    return env.afterEach(afterEachFunction);
-  },
-
-  expect: function(actual) {
-    return env.expect(actual);
-  },
-
-  pending: function() {
-    testResults.pending++;
-    var $wrapper = makeTestContainer(currentDescription + ' ' + desc);
-    $wrapper.removeClass('running').removeClass('waiting').addClass('pending');
-    $wrapper.find('.icon-refresh')
-      .removeClass('icon-refresh')
-      .addClass('icon-clock-o');
-    return env.pending();
-  },
-
-  spyOn: function(obj, methodName) {
-    return env.spyOn(obj, methodName);
-  },
-
-  addCustomEqualityTester: function(tester) {
-    env.addCustomEqualityTester(tester);
-  },
-
-  jsApiReporter: new jasmine.JsApiReporter({
-    timer: new jasmine.Timer()
-  })
-};
-
-jasmine.addCustomEqualityTester = function(tester) {
-  env.addCustomEqualityTester(tester);
-};
-jasmine.addMatchers = function(matchers) {
-  return env.addMatchers(matchers);
-};
-
-if (typeof window == "undefined" && typeof exports === "object") {
-  Object.keys(jasmineInterface).forEach(function(methodName) {
-    exports[methodName] = jasmineInterface[methodName];
-  });
-} else {
-  Object.keys(jasmineInterface).forEach(function(methodName) {
-    window[methodName] = jasmineInterface[methodName];
-  });
-}
-
-jasmine.getEnv().addReporter(environment);
 
 require.config({
   // Karma serves files under /base, which is the basePath from your config file
@@ -149,12 +53,13 @@ require.config({
     "jquery": "bower_components/jquery/dist/jquery",
     "history": "bower_components/history.js/scripts/bundled/html5/native.history",
     "customMatchers": "tests/assets/customMatchers",
-    "tools": "tests/assets/tools"
+    "tools": "tests/assets/tools",
+    "reporter": "tests/assets/reporter"
   },
 
   // we have to kickoff jasmine, as it is asynchronous
   callback: function() {
-    require(['footwork', 'lodash', 'jquery', 'jquery-mockjax'],
+    require(['footwork', 'lodash', 'jquery', 'jquery-mockjax', 'reporter'],
       function(fw, _, $) {
         fixture.setBase('tests/assets/fixtures');
 

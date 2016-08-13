@@ -1,4 +1,4 @@
-define(['footwork', 'jquery', 'lodash', 'customMatchers'],
+define(['footwork', 'jquery', 'lodash', 'customMatchers', 'reporter'],
   function(fw, $, _, customMatchers) {
     var $body = $(document.body);
     var defaultSpec = { description: 'Test Container' };
@@ -6,7 +6,7 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
     // Create overall test container/frame
     $body.append('<div id="tests">\
       <div id="test-title">\
-        <img src="/base/dist/gh-footwork-logo.png">\
+        <a href="http://footworkjs.com" target="_blank"><img src="/base/dist/gh-footwork-logo.png"></a>\
         <span class="version">footwork v' + fw.footworkVersion + '</span>\
         <div class="results">\
           <div class="passed result"><span class="icon icon-thumbs-up"></span>Passed: <span class="display">0</span></div>\
@@ -30,7 +30,7 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
      */
     makeTestContainer = function makeTestContainer(fullName) {
       $wrapper = $('<div class="test-wrapper waiting">\
-        <div class="wrapper-title"><span class="icon icon-refresh"></span> <span class="test-title">' + fullName + '</span></div>\
+        <div class="wrapper-title"><span class="icon icon-play"></span> <span class="test-title">' + fullName + '</span></div>\
         <div class="display"></div>\
       </div>');
       $testOutput.prepend($wrapper);
@@ -138,6 +138,7 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
       var specStatus = 'passed';
       var currentSpec = (environment.currentSpec || { fullName: currentTestDescription || 'Unknown' });
       var $wrapper = specWrappers[currentSpec.fullName];
+
       $wrapper.removeClass('running');
 
       if(failedTests.length) {
@@ -154,9 +155,8 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers'],
         .removeClass('running')
         .addClass(specStatus);
       $wrapper = undefined;
-      currentTestDescription = '';
-      renderTestResults();
 
+      renderTestResults();
       fixture.cleanup();
       jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineDefaultTimeoutInterval;
     }
