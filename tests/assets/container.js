@@ -1,12 +1,9 @@
 define(['lodash', 'footwork', 'jquery'],
   function(_, fw, $) {
     /**
-     * This module creates the overall test container/frame you see when viewing the test runner in a browser.
+     * Create the overall test container/frame you see when viewing the test runner in a browser.
      */
-
-    var $body = $(document.body);
-
-    $body.append('<div id="tests">\
+    $(document.body).append('<div id="tests">\
       <div id="test-title">\
         <a href="http://footworkjs.com" target="_blank"><img src="/base/dist/gh-footwork-logo.png"></a>\
         <span class="version">footwork v' + fw.footworkVersion + '</span>\
