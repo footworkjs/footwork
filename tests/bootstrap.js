@@ -4,7 +4,6 @@ var loadedModules = {};
 var registerFootworkEntity;
 var registerEntity;
 var specWrappers = {};
-var currentDescription;
 var environment;
 
 var testResults = {

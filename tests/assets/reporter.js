@@ -33,6 +33,7 @@ define(['lodash', 'jquery', 'container'],
       timer: new jasmine.Timer()
     });
 
+    var currentDescription;
     var env = jasmine.getEnv();
     var jasmineInterface = {
       describe: function(description, specDefinitions) {
