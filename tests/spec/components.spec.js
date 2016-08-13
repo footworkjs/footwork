@@ -118,15 +118,15 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         }, 0);
       });
 
-      xit('can sequence animations', function(done) {
+      it('can sequence animations', function(done) {
         var componentNamespaceName = tools.generateNamespaceName();
         var footworkAnimatedElements = '.' + footworkAnimationClass;
 
         fw.components.register(componentNamespaceName, {
-          template: '<div>a template</div>',
-          sequenceAnimations: 20,
+          template: '<div class="fade-in-from-bottom">a template</div>',
           viewModel: fw.viewModel.create({
-            namespace: tools.generateNamespaceName()
+            namespace: componentNamespaceName,
+            sequenceAnimations: 50
           })
         });
 
@@ -150,7 +150,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
             expect($testContainer.find(footworkAnimatedElements)).lengthToBeGreaterThan(currentThingLength);
             done();
           }, 120);
-        }, ajaxWait);
+        }, 100);
       });
 
       it('can instantiate nested <components>', function(done) {

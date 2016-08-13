@@ -13,6 +13,7 @@ module.exports = {
     'tests/bootstrap.js',
     'tests/assets/test.css',
     'tests/assets/fonts.css',
+    'build/styles/footwork.css',
     { pattern: 'tests/assets/fonts/**/*.*', included: false },
     { pattern: 'tests/spec/**/*.js', included: false },
     { pattern: 'tests/assets/**/*.+(html|json|jsonp|js)', nocache: true, included: false },

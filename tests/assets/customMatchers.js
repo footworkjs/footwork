@@ -45,7 +45,7 @@ define(['lodash'],
       return {
         compare: function(actual, expected) {
           var result = {
-            pass: util.equals(Object.prototype.toString.call(actual), '[object Array]', customEqualityTesters) && actual.length > expected
+            pass: !_.isUndefined(actual) && actual.length > expected
           };
 
           if(!result.pass) {
