@@ -91,9 +91,9 @@ module.exports = {
   // IPhone
   "IOS_9_3": {
     appiumVersion: "1.5.3",
-    deviceName: "iPhone 6 Simulator",
+    deviceName: "iPhone Simulator",
     deviceOrientation: "portrait",
-    platformVersion: "9.3",
+    platformVersion: "9.2",
     platformName: "iOS",
     browserName: "Safari"
   },
