@@ -325,7 +325,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(initializeSpy).toHaveBeenCalled();
       });
 
-      xit('calls onDispose when the containing element is removed from the DOM', function() {
+      it('calls onDispose when the containing element is removed from the DOM', function() {
         var namespaceName = tools.generateNamespaceName();
         var theElement;
         var initializeSpy;

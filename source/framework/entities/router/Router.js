@@ -390,6 +390,10 @@ var Router = function(descriptor, configParams) {
             return isEntity(property);
           }), propertyDispose);
 
+          if(configParams.onDispose !== noop) {
+            configParams.onDispose.call(this, this.__private('element'));
+          }
+
           return this;
         }
       }

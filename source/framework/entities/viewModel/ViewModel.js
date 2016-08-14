@@ -21,9 +21,9 @@ var ViewModel = function(descriptor, configParams) {
         }
       },
       dispose: function() {
-        if( !this._isDisposed ) {
+        if(!this._isDisposed) {
           this._isDisposed = true;
-          if( configParams.onDispose !== noop ) {
+          if(configParams.onDispose !== noop) {
             configParams.onDispose.call(this, this.__private('element'));
           }
           each(this, propertyDispose);
@@ -34,7 +34,7 @@ var ViewModel = function(descriptor, configParams) {
     },
     _postInit: function() {
       this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
-        if( isString(options.namespaceName) || isArray(options.namespaceName) ) {
+        if(isString(options.namespaceName) || isArray(options.namespaceName)) {
           var myNamespaceName = this.$namespace.getName();
           if(isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
             return this;
