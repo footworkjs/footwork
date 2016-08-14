@@ -21,6 +21,7 @@ var internalComponents = [];
 var entityDescriptors = [];
 var entityMixins = [];
 
+var entityWrapperElement = 'binding-wrapper';
 var entityClass = 'fw-entity';
 var entityAnimateClass = 'fw-entity-animate';
 var oneFrame = (1000 / 30);

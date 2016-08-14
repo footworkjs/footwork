@@ -74,7 +74,7 @@ function entityBinder(element, params, $parentContext, Entity, $flightTracker, $
 
   // Have to create a wrapper element for the contents of the element. Cannot bind to
   // existing element as it has already been bound against.
-  var wrapperNode = document.createElement('binding-wrapper');
+  var wrapperNode = document.createElement(entityWrapperElement);
   element.insertBefore(wrapperNode, element.firstChild);
 
   each(childrenToInsert, function(child) {
