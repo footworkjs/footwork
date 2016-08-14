@@ -126,7 +126,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
           template: '<div class="fade-in-from-bottom">a template</div>',
           viewModel: fw.viewModel.create({
             namespace: componentNamespaceName,
-            sequenceAnimations: 50
+            sequenceAnimations: 30
           })
         });
 
@@ -137,7 +137,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(testContainer).not.toContainElement(footworkAnimatedElements);
 
         fw.applyBindings({
-          things: [ {}, {}, {}, {}, {} ]
+          things: [ {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {} ]
         }, testContainer);
 
         setTimeout(function() {

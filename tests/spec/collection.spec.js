@@ -772,7 +772,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
           expect(peopleAjaxOptions()[0].firstName).toBe(persons[0].firstName);
 
           done();
-        }, 40);
+        }, 100);
       });
 
       it('can correctly fetch(), parse and set data from the server', function(done) {
@@ -816,7 +816,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
           expect(_.sample(people()).flag).toBe(true);
 
           done();
-        }, 40);
+        }, 100);
       });
 
       it('can correctly fetch() and reset data from the server', function(done) {
@@ -873,7 +873,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
           expect(people()[0].firstName()).toBe(persons[0].firstName);
 
           done();
-        }, 40);
+        }, 100);
       });
 
       it('can .push() correctly', function() {
