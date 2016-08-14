@@ -123,9 +123,12 @@ function routerOutlet(outletName, componentToDisplay, options) {
         var outletViewModel = router.outlets[outletName].outletViewModel;
         if(outletViewModel) {
           outletViewModel.routeIsLoading(false);
+          outletViewModel.routeOnComplete = function() {
+            onComplete.call(router, outletElement);
+          };
+        } else {
+          onComplete.call(router, outletElement);
         }
-
-        onComplete.call(router, outletElement);
       };
     };
 
@@ -185,10 +188,12 @@ function registerOutletComponent() {
               outlet.flightWatch = outlet.inFlightChildren.subscribe(function(inFlightChildren) {
                 if(!inFlightChildren.length) {
                   outlet.routeIsResolving(false);
+                  isFunction(outlet.routeOnComplete) && outlet.routeOnComplete();
                 }
               });
             } else {
               outlet.routeIsResolving(false);
+              isFunction(outlet.routeOnComplete) && outlet.routeOnComplete();
             }
           });
         }

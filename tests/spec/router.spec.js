@@ -1121,7 +1121,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         }, ajaxWait);
       });
 
-      xit('can display a temporary loading component in place of a component that is being downloaded with a custom minimum transition time', function(done) {
+      it('can display a temporary loading component in place of a component that is being downloaded with a custom minimum transition time', function(done) {
         var mockUrl = tools.generateUrl();
         var outletLoaderTestLoadingNamespace = tools.randomString();
         var outletLoaderTestLoadedNamespace = tools.randomString();
@@ -1150,7 +1150,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
           namespace: routerNamespace,
           autoRegister: true,
           showDuringLoad: outletLoaderTestLoadingNamespace,
-          minTransitionPeriod: ajaxWait,
+          minTransitionPeriod: 75,
           routes: [
             {
               route: mockUrl,
@@ -1180,15 +1180,17 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         setTimeout(function() {
           expect(outletLoaderTestLoadingSpy).toHaveBeenCalled();
           expect(outletLoaderTestLoadedSpy).toHaveBeenCalled();
+          expect(testContainer).not.toContainElement('.fw-loaded-display.' + footworkAnimationClass);
           expect(outletCallbackSpy).not.toHaveBeenCalled();
           setTimeout(function() {
+            expect(testContainer).toContainElement('.fw-loaded-display.' + footworkAnimationClass);
             expect(outletCallbackSpy).toHaveBeenCalled();
             done();
-          }, ajaxWait);
-        }, ajaxWait);
+          }, 120);
+        }, 20);
       });
 
-      xit('can display a temporary loading component in place of a component that is being downloaded with a custom minimum transition time from callback', function(done) {
+      it('can display a temporary loading component in place of a component that is being downloaded with a custom minimum transition time from callback', function(done) {
         var mockUrl = tools.generateUrl();
         var outletLoaderTestLoadingNamespace = tools.randomString();
         var outletLoaderTestLoadedNamespace = tools.randomString();
@@ -1221,7 +1223,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
           minTransitionPeriod: tools.expectCallOrder(1, minTransitionPeriodSpy = jasmine.createSpy('minTransitionPeriodSpy', function(outletName, componentToDisplay) {
             expect(outletName).toBe('output');
             expect(componentToDisplay).toBe(outletLoaderTestLoadedNamespace);
-            return ajaxWait;
+            return 75;
           }).and.callThrough()),
           routes: [
             {
@@ -1258,8 +1260,8 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
           setTimeout(function() {
             expect(outletCallbackSpy).toHaveBeenCalled();
             done();
-          }, ajaxWait);
-        }, ajaxWait);
+          }, 120);
+        }, 20);
       });
 
       it('can have nested/child routers path be dependent on its parents', function(done) {
