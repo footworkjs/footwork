@@ -89,14 +89,6 @@ module.exports = {
   },
 
   // IPhone
-  "IOS_9_3": {
-    appiumVersion: "1.5.3",
-    deviceName: "iPhone 6 Simulator",
-    deviceOrientation: "portrait",
-    platformVersion: "9.3",
-    platformName: "iOS",
-    browserName: "Safari"
-  },
   "IOS_9_0": {
     appiumVersion: "1.5.3",
     deviceName: "iPhone 6 Plus Simulator",
@@ -110,6 +102,14 @@ module.exports = {
     deviceName: "iPhone 4s Simulator",
     deviceOrientation: "portrait",
     platformVersion: "8.1",
+    platformName: "iOS",
+    browserName: "Safari"
+  },
+  "IOS_7_0": {
+    appiumVersion: "1.5.3",
+    deviceName: "iPhone Simulator",
+    deviceOrientation: "portrait",
+    platformVersion: "7.0",
     platformName: "iOS",
     browserName: "Safari"
   },

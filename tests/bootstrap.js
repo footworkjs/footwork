@@ -68,6 +68,8 @@ require.config({
           responseTime: 5
         });
 
+        console.info('ajaxWait: ' + ajaxWait);
+
         // start the tests
         window.__karma__.start();
       }
