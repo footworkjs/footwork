@@ -106,7 +106,7 @@ module.exports = {
     browserName: "Safari"
   },
   "IOS_7_0": {
-    appiumVersion: "1.5.3",
+    appiumVersion: "1.4.16",
     deviceName: "iPhone Simulator",
     deviceOrientation: "portrait",
     platformVersion: "7.0",
