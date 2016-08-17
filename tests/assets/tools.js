@@ -4,8 +4,45 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers', 'reporter', 'container
     var $passedTestResults = $body.find('.passed.result .display');
     var $failedTestResults = $body.find('.failed.result .display');
     var $pendingTestResults = $body.find('.pending.result .display');
+    var currentCallbackOrderIndex = 0;
+    var jasmineDefaultTimeoutInterval;
+    var namespaceCounter = 0;
+    var generatedUrlCounter = 0;
 
-    var getFixtureContainer = function(theFixture, containerDOM) {
+    /**
+     * Wrap the passed in callback (initializeMethod) with a function that registers the footwork entity when it is called.
+     * This is used to test the loading of footwork modules
+     *
+     * @param {function} initializeMethod The method you want to wrap which when called will register itself as loaded
+     */
+    registerFootworkEntity = function (initializeMethod) {
+      return function() {
+        loadedModules[this.$namespace.getName()] = true;
+        return (initializeMethod || _.noop).apply(this, arguments);
+      };
+    }
+
+    /**
+     * Wrap the passed in callback (initializeMethod) with a function that registers the module when it is called.
+     *
+     * @param {string} name The name you want registered when this function is called
+     * @param {function} initializeMethod The method you want to wrap which when called will register itself as loaded
+     */
+    registerEntity = function (name, initializeMethod) {
+      return function() {
+        loadedModules[name] = true;
+        return (initializeMethod || _.noop).apply(this, arguments);
+      };
+    }
+
+    /**
+     * Create and return a container to perform test in
+     *
+     * @param {string} theFixture The fixture you want to generate and return a container for
+     * @param {string} containerDOM The wrapper to insert the fixture into (optional)
+     * @returns {element} The generated container to perform tests with
+     */
+    function getFixtureContainer(theFixture, containerDOM) {
       var currentSpec = (environment.currentSpec || { fullName: 'Unknown' });
       var $wrapper = specWrappers[currentSpec.fullName];
       var $container = $(containerDOM || '<div/>');
@@ -18,29 +55,30 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers', 'reporter', 'container
       return $container.get(0);
     };
 
-    registerFootworkEntity = function (initializeMethod) {
-      return function() {
-        loadedModules[this.$namespace.getName()] = true;
-        return (initializeMethod || _.noop).apply(this, arguments);
-      };
-    }
-    registerEntity = function (name, initializeMethod) {
-      return function() {
-        loadedModules[name] = true;
-        return (initializeMethod || _.noop).apply(this, arguments);
-      };
-    }
-
-    var namespaceCounter = 0;
+    /**
+     * Create a namespace name to use in tests
+     *
+     * @returns {string} The namespace name
+     */
     function generateNamespaceName() {
       return 'generated-ns' + namespaceCounter++;
     }
 
-    var generatedUrlCounter = 0;
+    /**
+     * Create a url to use in tests
+     *
+     * @returns {string} The url
+     */
     function generateUrl() {
       return '/generated-url' + generatedUrlCounter++;
     }
 
+    /**
+     * Generate a string of the length given (or a random length if none provided)
+     *
+     * @param {int} length (optional)
+     * @returns {string} The generated string
+     */
     function randomString(length) {
       var charSet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
       var result = '';
@@ -52,7 +90,13 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers', 'reporter', 'container
       return result;
     }
 
-    var currentCallbackOrderIndex = 0;
+    /**
+     * Checks that a callback has occured in a specified order
+     *
+     * @param {array|int} orderValue The order expected for the callback
+     * @param {any} callback The callback to check when called
+     * @returns {function} The original function wrapped which will check when it is called during the test
+     */
     function expectCallOrder(orderValue, callback) {
       callback = callback || _.noop;
       return function() {
@@ -65,10 +109,12 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers', 'reporter', 'container
         return callback.apply(this, arguments);
       };
     }
-    function resetCallbackOrder() {
-      currentCallbackOrderIndex = 0;
-    }
 
+    /**
+     * Adds error output for a test to its wrapper
+     *
+     * @param {array} failedTests The failed tests
+     */
     function addErrorsToWrapper(failedTests) {
       var currentSpec = (environment.currentSpec || { fullName: currentTestDescription || 'Unknown' });
       var $wrapper = specWrappers[currentSpec.fullName];
@@ -84,20 +130,28 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers', 'reporter', 'container
       $wrapper && $wrapper.append($errorContainer);
     }
 
-    var jasmineDefaultTimeoutInterval;
+    /**
+     * Prepare the test environment for a test
+     */
     function prepareTestEnv() {
-      resetCallbackOrder();
+      currentCallbackOrderIndex = 0;
       jasmine.addMatchers(customMatchers);
       jasmineDefaultTimeoutInterval = jasmine.DEFAULT_TIMEOUT_INTERVAL;
       jasmine.DEFAULT_TIMEOUT_INTERVAL = window.__env.JASMINE_TIMEOUT; // time that jasmine will wait for async requests to complete
     }
 
+    /**
+     * Update the summary at the top with the current test pass/fail/pend values
+     */
     function renderTestSummary() {
       $passedTestResults.text(testResults.passed);
       $failedTestResults.text(testResults.failed);
       $pendingTestResults.text(testResults.pending);
     }
 
+    /**
+     * Clean the test environment
+     */
     function cleanTestEnv() {
       var failedTests = environment.currentSpec.failedExpectations;
       var passedTests = environment.currentSpec.passedExpectations;
