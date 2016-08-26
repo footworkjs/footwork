@@ -40,14 +40,6 @@ function getModelFileName(descriptor, modelName) {
   return fileName;
 }
 
-function setDefaultModelLocation(descriptor, path) {
-  if( isString(path) ) {
-    descriptor.defaultLocation = path;
-  }
-
-  return descriptor.defaultLocation;
-}
-
 function registerModelLocation(descriptor, modelName, location) {
   if( isArray(modelName) ) {
     each(modelName, function(name) {
@@ -79,7 +71,7 @@ function getModelResourceLocation(descriptor, modelName) {
     return descriptor.resourceLocations;
   }
 
-  return modelResourceLocation(descriptor, modelName) || descriptor.defaultLocation;
+  return modelResourceLocation(descriptor, modelName);
 }
 
 var $globalNamespace = fw.namespace();

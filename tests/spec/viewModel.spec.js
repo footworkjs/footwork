@@ -496,21 +496,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
           done();
         }, ajaxWait);
       });
-
-      it('can specify and load via requirejs with the default location', function(done) {
-        var namespaceName = 'defaultViewModel';
-
-        fw.viewModel.defaultLocation('tests/assets/fixtures/defaultViewModelLocation/');
-
-        expect(namespaceName).not.toBeLoaded();
-
-        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
-
-        setTimeout(function() {
-          expect(namespaceName).toBeLoaded();
-          done();
-        }, ajaxWait);
-      });
     });
   }
 );

@@ -9,7 +9,6 @@ entityDescriptors = entityDescriptors.concat([
   {
     tagName: 'viewmodel',
     methodName: 'viewModel',
-    defaultLocation: '/viewModel/',
     resource: fw.viewModel,
     behavior: [ ViewModel ],
     defaultConfig: {
@@ -26,7 +25,6 @@ entityDescriptors = entityDescriptors.concat([
   }, {
     tagName: 'datamodel',
     methodName: 'dataModel',
-    defaultLocation: '/dataModel/',
     resource: fw.dataModel,
     behavior: [ ViewModel, DataModel ],
     defaultConfig: {
@@ -49,7 +47,6 @@ entityDescriptors = entityDescriptors.concat([
   }, {
     tagName: 'router',
     methodName: 'router',
-    defaultLocation: '/',
     resource: fw.router,
     behavior: [ ViewModel, Router ],
     defaultConfig: {

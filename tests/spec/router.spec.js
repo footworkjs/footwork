@@ -499,21 +499,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         }, ajaxWait);
       });
 
-      it('can specify and load via requirejs with the default location', function(done) {
-        var namespaceName = 'defaultRouter';
-
-        fw.router.defaultLocation('tests/assets/fixtures/defaultRouterLocation/');
-
-        expect(namespaceName).not.toBeLoaded();
-
-        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
-
-        setTimeout(function() {
-          expect(namespaceName).toBeLoaded();
-          done();
-        }, ajaxWait);
-      });
-
       it('can be nested and initialized declaratively', function(done) {
         var outerInitializeSpy = jasmine.createSpy('outerInitializeSpy');
         var innerInitializeSpy = jasmine.createSpy('innerInitializeSpy');

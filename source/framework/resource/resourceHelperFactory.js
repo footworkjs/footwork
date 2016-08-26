@@ -11,7 +11,6 @@ function resourceHelperFactory(descriptor) {
     registerLocation: registerModelLocation.bind(null, descriptor),
     locationIsRegistered: modelLocationIsRegistered.bind(null, descriptor),
     getLocation: getModelResourceLocation.bind(null, descriptor),
-    defaultLocation: setDefaultModelLocation.bind(null, descriptor),
     fileExtensions: descriptor.fileExtensions,
     resourceLocations: descriptor.resourceLocations
   };

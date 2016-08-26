@@ -505,21 +505,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         }, ajaxWait);
       });
 
-      it('can specify and load via requirejs with the default location', function(done) {
-        var namespaceName = 'defaultDataModel';
-
-        fw.dataModel.defaultLocation('tests/assets/fixtures/defaultDataModelLocation/');
-
-        expect(namespaceName).not.toBeLoaded();
-
-        fw.start(testContainer = tools.getFixtureContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
-
-        setTimeout(function() {
-          expect(namespaceName).toBeLoaded();
-          done();
-        }, ajaxWait);
-      });
-
       it('can have an observable mapped correctly at the parent level', function() {
         var initializeSpy;
 
