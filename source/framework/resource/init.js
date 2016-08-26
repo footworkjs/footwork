@@ -15,8 +15,3 @@ var defaultComponentFileExtensions = {
   template: '.html'
 };
 
-var defaultComponentLocation = extend({}, baseComponentLocation, {
-  viewModel: '/viewModel/',
-  template: '/component/'
-});
-

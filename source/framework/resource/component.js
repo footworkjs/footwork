@@ -100,5 +100,5 @@ fw.components.getLocation = function(componentName) {
   if( isUndefined(componentName) ) {
     return fw.components.resourceLocations;
   }
-  return omitBy(fw.components.getRegisteredLocation(componentName) || defaultComponentLocation, isNull);
+  return omitBy(fw.components.getRegisteredLocation(componentName), isNull);
 };
