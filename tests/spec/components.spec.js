@@ -306,24 +306,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(fw.components.tagIsComponent(componentName)).toBe(false);
       });
 
-      it('can specify and load via the default location', function(done) {
-        var namespaceName = 'default-component-location';
-
-        fw.components.defaultLocation({
-          viewModel: 'tests/assets/fixtures/defaultComponentLocation/',
-          template: 'tests/assets/fixtures/defaultComponentLocation/'
-        });
-
-        expect(namespaceName).not.toBeLoaded();
-
-        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
-
-        setTimeout(function() {
-          expect(namespaceName).toBeLoaded();
-          done();
-        }, ajaxWait);
-      });
-
       it('can specify a location and verify it', function() {
         var namespaceName = tools.generateNamespaceName();
         var location = {

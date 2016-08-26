@@ -58,19 +58,6 @@ fw.components.getFileName = function(componentName, fileType) {
   return fileName + (fileExtension !== getFilenameExtension(fileName) ? ('.' + fileExtension) : '');
 };
 
-fw.components.defaultLocation = function(location) {
-  if( isString(location) ) {
-    defaultComponentLocation = extend({}, baseComponentLocation, {
-      viewModel: location,
-      template: location
-    });
-  } else if(isObject(location)) {
-    defaultComponentLocation = extend({}, baseComponentLocation, location);
-  }
-
-  return defaultComponentLocation;
-};
-
 fw.components.registerLocation = function(componentName, componentLocation, folderOffset) {
   if(isArray(componentName)) {
     each(componentName, function(name) {
