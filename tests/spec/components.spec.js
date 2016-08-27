@@ -391,23 +391,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         }, ajaxWait);
       });
 
-      it('can specify and load via a registered location for a combined component', function(done) {
-        var namespaceName = 'registered-combined-component-location';
-
-        fw.components.registerLocation(namespaceName, {
-          combined: 'tests/assets/fixtures/registeredComponentLocation/'
-        });
-
-        expect(namespaceName).not.toBeLoaded();
-
-        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
-
-        setTimeout(function() {
-          expect(namespaceName).toBeLoaded();
-          done();
-        }, ajaxWait);
-      });
-
       it('can specify and load via a registered location for a dataModel enabled component', function(done) {
         var namespaceName = 'registered-datamodel-component-location';
 

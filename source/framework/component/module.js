@@ -13,13 +13,3 @@ fw.components.getComponentNameForNode = function(node) {
   }
   return null;
 };
-
-fw.component = function(componentDefinition) {
-  if(!isObject(componentDefinition)) {
-    throw new Error('fw.component() must be supplied with a componentDefinition configuration object.');
-  }
-
-  componentDefinition.viewModel = componentDefinition.dataModel || componentDefinition.router || componentDefinition.viewModel;
-
-  return componentDefinition;
-};
