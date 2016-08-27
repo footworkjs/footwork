@@ -291,21 +291,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         expect(fw.components.fileExtensions()).toEqual(originalExtensions);
       });
 
-      it('can get the normal tag list', function() {
-        var tagList = fw.components.getNormalTagList();
-        expect(tagList).toContain('div');
-        expect(tagList).toContain('span');
-        expect(tagList).toContain('canvas');
-      });
-
-      it('can set a tag as not being a component', function() {
-        var componentName = tools.generateNamespaceName();
-
-        expect(fw.components.tagIsComponent(componentName)).toBe(true);
-        fw.components.tagIsComponent(componentName, false);
-        expect(fw.components.tagIsComponent(componentName)).toBe(false);
-      });
-
       it('can specify a location and verify it', function() {
         var namespaceName = tools.generateNamespaceName();
         var location = {
@@ -455,69 +440,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
-          done();
-        }, ajaxWait);
-      });
-
-      it('can load with a declarative initialization from an already registered combined module with a viewModel', function(done) {
-        var viewModelSpy = jasmine.createSpy('viewModelSpy');
-        var namespaceName = tools.generateNamespaceName();
-
-        define(namespaceName, ['footwork'], function(fw) {
-          return fw.component({
-            viewModel: tools.expectCallOrder(0, viewModelSpy),
-            template: '<div></div>'
-          });
-        });
-
-        expect(viewModelSpy).not.toHaveBeenCalled();
-
-        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
-
-        setTimeout(function() {
-          expect(viewModelSpy).toHaveBeenCalled();
-          done();
-        }, ajaxWait);
-      });
-
-      it('can load with a declarative initialization from an already registered combined module with a dataModel', function(done) {
-        var dataModelSpy = jasmine.createSpy('dataModelSpy');
-        var namespaceName = tools.generateNamespaceName();
-
-        define(namespaceName, ['footwork'], function(fw) {
-          return fw.component({
-            dataModel: tools.expectCallOrder(0, dataModelSpy),
-            template: '<div></div>'
-          });
-        });
-
-        expect(dataModelSpy).not.toHaveBeenCalled();
-
-        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
-
-        setTimeout(function() {
-          expect(dataModelSpy).toHaveBeenCalled();
-          done();
-        }, ajaxWait);
-      });
-
-      it('can load with a declarative initialization from an already registered combined module with a router', function(done) {
-        var routerSpy = jasmine.createSpy('routerSpy');
-        var namespaceName = tools.generateNamespaceName();
-
-        define(namespaceName, ['footwork'], function(fw) {
-          return fw.component({
-            router: tools.expectCallOrder(0, routerSpy),
-            template: '<div></div>'
-          });
-        });
-
-        expect(routerSpy).not.toHaveBeenCalled();
-
-        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
-
-        setTimeout(function() {
-          expect(routerSpy).toHaveBeenCalled();
           done();
         }, ajaxWait);
       });

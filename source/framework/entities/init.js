@@ -27,6 +27,11 @@ entityDescriptors = map(entityDescriptors, function prepareDescriptor(descriptor
 });
 
 extend(entityDescriptors, {
+  getTags: function() {
+    return map(this, function(descriptor) {
+      return descriptor.tagName;
+    });
+  },
   tagNameIsPresent: function isEntityTagNameDescriptorPresent(tagName) {
     return filter(this, function matchingTagNames(descriptor) {
       return descriptor.tagName === tagName;
