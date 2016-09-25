@@ -131,19 +131,5 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
     } else {
       callback(null);
     }
-  },
-  loadViewModel: function(componentName, config, callback) {
-    var ViewModel = config.viewModel || config;
-    if(!isInternalComponent(componentName)) {
-      callback(function(params, componentInfo) {
-        var componentElement = componentInfo.element;
-        if(isFunction(ViewModel)) {
-          return new ViewModel(params);
-        }
-        return ViewModel;
-      });
-    } else {
-      callback(null);
-    }
   }
 });
