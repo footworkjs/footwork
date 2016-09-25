@@ -93,6 +93,10 @@ fw.bindingHandlers.$life = {
       addClass(element, entityClass);
     }
 
+    if(isEntity(viewModel) && !viewModel.__private('element')) {
+      viewModel.__private('element', element);
+    }
+
     fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if(isEntity(viewModel)) {
         viewModel.dispose();
@@ -185,9 +189,9 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
           // Element ID - find it, then copy its child nodes
           var elemInstance = document.getElementById(element);
           if (elemInstance) {
-              callback(wrapWithLifeCycle(cloneNodesFromTemplateSourceElement(elemInstance)));
+            callback(wrapWithLifeCycle(cloneNodesFromTemplateSourceElement(elemInstance)));
           } else {
-              errorCallback('Cannot find element with ID ' + element);
+            errorCallback('Cannot find element with ID ' + element);
           }
         } else {
           errorCallback('Unknown element type: ' + element);
