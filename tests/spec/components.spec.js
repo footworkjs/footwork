@@ -82,6 +82,58 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         }, 50);
       });
 
+      it('calls the dispose() callback of a viewModel when the parent component is removed from the DOM', function(done) {
+        var componentNamespaceName = tools.generateNamespaceName();
+        var viewModelNamespaceName = tools.generateNamespaceName();
+        var viewModelInitializeSpy;
+        var componentInitializeSpy;
+        var componentOnDisposeSpy;
+        var containerViewModel;
+
+        fw.viewModel.register(viewModelNamespaceName, fw.viewModel.create({
+          namespace: viewModelNamespaceName,
+          initialize: tools.expectCallOrder(0, viewModelInitializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
+            this.show = fw.observable(true);
+            containerViewModel = this;
+          }).and.callThrough())
+        }));
+
+        fw.components.register(componentNamespaceName, {
+          template: '<span data-bind="text: someProperty"></span>',
+          viewModel: fw.viewModel.create({
+            namespace: componentNamespaceName,
+            initialize: tools.expectCallOrder(1, componentInitializeSpy = jasmine.createSpy('componentInitializeSpy', function() {
+              this.someProperty = tools.randomString();
+            }).and.callThrough()),
+            onDispose: tools.expectCallOrder(2, componentOnDisposeSpy = jasmine.createSpy('componentOnDisposeSpy', function(containingElement) {
+              expect(containingElement.tagName).toBe(componentNamespaceName.toUpperCase());
+            }).and.callThrough())
+          })
+        });
+
+        expect(viewModelInitializeSpy).not.toHaveBeenCalled();
+        expect(componentInitializeSpy).not.toHaveBeenCalled();
+        expect(componentOnDisposeSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer = tools.getFixtureContainer(
+          '<viewModel module="' + viewModelNamespaceName + '">\
+            <div data-bind="if: show">\
+              <' + componentNamespaceName + '></' + componentNamespaceName + '>\
+            </div>\
+          </viewModel>')
+        );
+
+        setTimeout(function() {
+          expect(viewModelInitializeSpy).toHaveBeenCalled();
+          expect(componentInitializeSpy).toHaveBeenCalled();
+
+          containerViewModel.show(false);
+
+          expect(componentOnDisposeSpy).toHaveBeenCalled();
+          done();
+        }, 50);
+      });
+
       it('has the animation classes applied properly', function(done) {
         var componentNamespaceName = tools.generateNamespaceName();
         var viewModelNamespaceName = tools.generateNamespaceName();
