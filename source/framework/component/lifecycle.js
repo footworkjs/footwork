@@ -117,17 +117,86 @@ fw.bindingHandlers.$life = {
   }
 };
 
+function cloneNodesFromTemplateSourceElement(elemInstance) {
+  switch (fw.utils.tagNameLower(elemInstance)) {
+    case 'script':
+      return fw.utils.parseHtmlFragment(elemInstance.text);
+    case 'textarea':
+      return fw.utils.parseHtmlFragment(elemInstance.value);
+    case 'template':
+      // For browsers with proper <template> element support (i.e., where the .content property
+      // gives a document fragment), use that document fragment.
+      if (isDocumentFragment(elemInstance.content)) {
+        return fw.utils.cloneNodes(elemInstance.content.childNodes);
+      }
+  }
+
+  // Regular elements such as <div>, and <template> elements on old browsers that don't really
+  // understand <template> and just treat it as a regular container
+  return fw.utils.cloneNodes(elemInstance.childNodes);
+}
+
+function isDocumentFragment(obj) {
+  if (window['DocumentFragment']) {
+    return obj instanceof DocumentFragment;
+  } else {
+    return obj && obj.nodeType === 11;
+  }
+}
+
+function isDomElement(obj) {
+  if (window['HTMLElement']) {
+    return obj instanceof HTMLElement;
+  } else {
+    return obj && obj.tagName && obj.nodeType === 1;
+  }
+}
+
+function wrapWithLifeCycle(template) {
+  var templateString = (isString(template) ? template : '');
+  var wrapper = fw.utils.parseHtmlFragment('<!-- ko $life -->' + templateString + '<!-- /ko -->');
+
+  if(templateString.length) {
+    return wrapper;
+  }
+
+  return [].concat(wrapper[0], template, wrapper[1]);
+}
+
 // Custom loader used to wrap components with the $life custom binding
 fw.components.loaders.unshift( fw.components.componentWrapper = {
-  loadTemplate: function(componentName, config, callback) {
+  loadTemplate: function(componentName, templateConfig, callback) {
     if(!isInternalComponent(componentName)) {
-      // TODO: Handle different types of configs
-      if(isString(config)) {
-        config = '<!-- ko $life -->' + config + '<!-- /ko -->';
+      if (typeof templateConfig === 'string') {
+        // Markup - parse it
+        callback(wrapWithLifeCycle(templateConfig));
+      } else if (templateConfig instanceof Array) {
+        // Assume already an array of DOM nodes
+        callback(wrapWithLifeCycle(templateConfig));
+      } else if (isDocumentFragment(templateConfig)) {
+        // Document fragment - use its child nodes
+        callback(wrapWithLifeCycle(fw.utils.makeArray(templateConfig.childNodes)));
+      } else if (templateConfig['element']) {
+        var element = templateConfig['element'];
+        if (isDomElement(element)) {
+          // Element instance - copy its child nodes
+          callback(wrapWithLifeCycle(cloneNodesFromTemplateSourceElement(element)));
+        } else if (typeof element === 'string') {
+          // Element ID - find it, then copy its child nodes
+          var elemInstance = document.getElementById(element);
+          if (elemInstance) {
+              callback(wrapWithLifeCycle(cloneNodesFromTemplateSourceElement(elemInstance)));
+          } else {
+              errorCallback('Cannot find element with ID ' + element);
+          }
+        } else {
+          errorCallback('Unknown element type: ' + element);
+        }
       } else {
-        throw new Error('Unhandled config type ' + typeof config + '.');
+        errorCallback('Unknown template value: ' + templateConfig);
       }
-      fw.components.defaultLoader.loadTemplate(componentName, config, callback);
+
+      // fw.components.defaultLoader.loadTemplate(componentName, templateConfig, callback);
     } else {
       callback(null);
     }

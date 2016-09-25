@@ -35,11 +35,11 @@ function isInternalComponent(componentName) {
 
 function isPath(pathOrFile) {
   return isString(pathOrFile) && trailingSlashRegex.test(pathOrFile);
-};
+}
 
 function hasPathStart(path) {
   return isString(path) && startingSlashRegex.test(path);
-};
+}
 
 function hasHashStart(string) {
   return isString(string) && startingHashRegex.test(string);
