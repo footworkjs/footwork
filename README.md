@@ -26,7 +26,7 @@ For more details, see:
   * [Install via Yeoman](https://github.com/footworkjs/generator-footwork#readme "FootworkJS Yeoman Generator") (recommended)
 
   * [Skeleton Application](https://github.com/footworkjs/skeleton-app#readme "Skeleton Application") (based on the Yeoman generator)
-  
+
   * [Install via Bower](http://footworkjs.com/get-started#bower) (```bower install footwork --save```)
 
   * [Direct Download](http://footworkjs.com/get-started#download)
@@ -37,53 +37,47 @@ If you need further setup help, refer to the [Get Started](http://footworkjs.com
 
 ### Building Footwork from source and running tests
 
-1) **Clone the repo from GitHub:**
+1. **Clone the repo from GitHub:**
+  
+      git clone https://github.com/footworkjs/footwork.git
+      cd footwork
 
-```bash
-git clone https://github.com/footworkjs/footwork.git
-cd footwork
-```
+1. **Acquire build dependencies:**
+  
+  Make sure you have [node.js](http://nodejs.org/) installed in your environment. Footwork additionally requires [gulp](http://gulpjs.com/) plus several [bower](http://bower.io/) and [NPM](https://www.npmjs.com/) dependencies when building from source...to install those run:
+  
+      # install gulp (javascript task runner, http://gulpjs.com/)
+      npm install -g gulp # you may need to run this under sudo
 
-2) **Acquire build dependencies:**
+      # install bower (package manager, http://bower.io/)
+      npm install -g bower # you may need to run this under sudo
 
-Make sure you have [node.js](http://nodejs.org/) installed in your environment. Footwork additionally requires [gulp](http://gulpjs.com/) plus several [bower](http://bower.io/) and [NPM](https://www.npmjs.com/) dependencies when building from source...to install those run:
+      # download dependencies from npm (https://www.npmjs.com/) and bower (http://bower.io/)
+      npm install && bower install
 
-```bash
-# install gulp (javascript task runner, http://gulpjs.com/)
-npm install -g gulp # you may need to run this under sudo
+1. **Run a gulp task to build/test/etc:**
+  
+      # build everything and then run the unit tests (coverage report output in build/coverage)
+      gulp
 
-# install bower (package manager, http://bower.io/)
-npm install -g bower # you may need to run this under sudo
+      # build everything (output in /build)
+      gulp build-everything
 
-# download dependencies from npm (https://www.npmjs.com/) and bower (http://bower.io/)
-npm install && bower install
-```
+      # build whats necessary for the unit tests, and run them (coverage report output in build/coverage)
+      gulp tests
 
-3) **Run a gulp task to build/test/etc:**
+      # watch for changes in the source code/tests and automatically rebuild whats necessary + run tests
+      gulp watch
 
-```bash
-# build everything and then run the unit tests (coverage report output in build/coverage)
-gulp
+      # watch for changes in the source code/tests and automatically rebuild everything + run tests
+      gulp watch-everything
 
-# build everything (output in /build)
-gulp build-everything
+      # to debug in your own browser: start karma for continuous test monitoring
+      sudo npm install -g karma-cli # install karma (if needed)
+      karma start # now access the tests from your browser at: http://[your-server-ip-or-host]:9876/debug.html
 
-# build whats necessary for the unit tests, and run them (coverage report output in build/coverage)
-gulp tests
-
-# watch for changes in the source code/tests and automatically rebuild whats necessary + run tests
-gulp watch
-
-# watch for changes in the source code/tests and automatically rebuild everything + run tests
-gulp watch-everything
-
-# to debug in your own browser: start karma for continuous test monitoring
-sudo npm install -g karma-cli # install karma (if needed)
-karma start # now access the tests from your browser at: http://[your-server-ip-or-host]:9876/debug.html
-
-# rebuild and deploy assets to /dist (for release)
-gulp dist
-```
+      # rebuild and deploy assets to /dist (for release)
+      gulp dist
 
 ### Documentation and Website Contributions
 
