@@ -199,8 +199,6 @@ fw.components.loaders.unshift( fw.components.componentWrapper = {
       } else {
         throw new Error('Unhandled config type: ' + typeof templateConfig + '.');
       }
-
-      // fw.components.defaultLoader.loadTemplate(componentName, templateConfig, callback);
     } else {
       callback(null);
     }
