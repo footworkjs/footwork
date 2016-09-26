@@ -89,6 +89,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
         var componentInitializeSpy;
         var componentOnDisposeSpy;
         var containerViewModel;
+        var valueToCheckFor = tools.randomString();
 
         fw.viewModel.register(viewModelNamespaceName, fw.viewModel.create({
           namespace: viewModelNamespaceName,
@@ -103,7 +104,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
           viewModel: fw.viewModel.create({
             namespace: componentNamespaceName,
             initialize: tools.expectCallOrder(1, componentInitializeSpy = jasmine.createSpy('componentInitializeSpy', function() {
-              this.someProperty = tools.randomString();
+              this.someProperty = valueToCheckFor;
             }).and.callThrough()),
             onDispose: tools.expectCallOrder(2, componentOnDisposeSpy = jasmine.createSpy('componentOnDisposeSpy', function(containingElement) {
               expect(containingElement.tagName).toBe(componentNamespaceName.toUpperCase());
@@ -120,16 +121,18 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
             <div data-bind="if: show">\
               <' + componentNamespaceName + '></' + componentNamespaceName + '>\
             </div>\
-          </viewModel>')
-        );
+          </viewModel>'
+        ));
 
         setTimeout(function() {
           expect(viewModelInitializeSpy).toHaveBeenCalled();
           expect(componentInitializeSpy).toHaveBeenCalled();
+          expect(testContainer).toContainText(valueToCheckFor);
 
           containerViewModel.show(false);
 
           expect(componentOnDisposeSpy).toHaveBeenCalled();
+          expect(testContainer).not.toContainText(valueToCheckFor);
           done();
         }, 50);
       });
