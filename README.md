@@ -7,7 +7,7 @@
 
 [![Build Status](https://saucelabs.com/browser-matrix/reflectiv.svg?r=7)](https://saucelabs.com/u/reflectiv)
 
-## What is Footwork?
+### What is Footwork?
 
 Footwork is a front-end javascript framework built upon open source technologies. It uses novel combinations of several design patterns and libraries to enable the creation of expressive, low-boilerplate, highly modularized, maintainable, and reusable web components and applications.
 
@@ -20,6 +20,8 @@ For more details, see:
 * [Get Started](http://footworkjs.com/get-started "Get Started")
 
 [![Join the chat at https://gitter.im/footworkjs/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/footworkjs/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+========
 
 ### Downloading / Installing footwork.js
 
@@ -34,6 +36,8 @@ For more details, see:
 It is recommended you use either the Yeoman generator to bootstrap your application, or the Skeleton Application as a template for your own. This is primarily because in order to use some of the features found in Footwork other resources (such as RequireJS) are needed and in some cases they have their own configuration/etc. The Yeoman generator and Skeleton provide sane defaults and best-use recommendations.
 
 If you need further setup help, refer to the [Get Started](http://footworkjs.com/get-started "Get Started") page.
+
+========
 
 ### Building Footwork from source and running tests
 
