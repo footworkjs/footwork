@@ -39,45 +39,68 @@ If you need further setup help, refer to the [Get Started](http://footworkjs.com
 
 1. **Clone the repo from GitHub:**
   
-      git clone https://github.com/footworkjs/footwork.git
-      cd footwork
+        git clone https://github.com/footworkjs/footwork.git
+        cd footwork
+
+1. **Install Node.js (if needed):**
+
+  This is platform specific. Your OS may already include it, however if not please see: [Installing Node](https://docs.npmjs.com/getting-started/installing-node).
+
+1. **Install gulp and bower globally (if needed):**
+
+  * gulp
+  
+          sudo npm install -g gulp-cli
+
+  * bower
+  
+          sudo npm install -g bower
 
 1. **Acquire build dependencies:**
-  
-  Make sure you have [node.js](http://nodejs.org/) installed in your environment. Footwork additionally requires [gulp](http://gulpjs.com/) plus several [bower](http://bower.io/) and [NPM](https://www.npmjs.com/) dependencies when building from source...to install those run:
-  
-      # install gulp (javascript task runner, http://gulpjs.com/)
-      npm install -g gulp # you may need to run this under sudo
 
-      # install bower (package manager, http://bower.io/)
-      npm install -g bower # you may need to run this under sudo
+  * ...from npm (https://www.npmjs.com/)
+  
+          npm install
 
-      # download dependencies from npm (https://www.npmjs.com/) and bower (http://bower.io/)
-      npm install && bower install
+  * ...and from bower (http://bower.io/)
+  
+          bower install
 
 1. **Run a gulp task to build/test/etc:**
   
-        # build everything and then run the unit tests (coverage report output in build/coverage)
-        gulp
+  * Build everything (output in /build) and then run the unit tests (coverage report output in build/coverage):
+  
+          gulp
 
-        # build everything (output in /build)
-        gulp build-everything
+  * Build everything (output in /build)
+  
+          gulp build-everything
 
-        # build whats necessary for the unit tests, and run them (coverage report output in build/coverage)
-        gulp tests
+  * Build whats necessary for the unit tests, and run them (coverage report output in build/coverage):
+  
+          gulp tests
 
-        # watch for changes in the source code/tests and automatically rebuild whats necessary + run tests
-        gulp watch
+  * Watch for changes in the source code/tests and automatically rebuild whats necessary + run tests:
+  
+          gulp watch
 
-        # watch for changes in the source code/tests and automatically rebuild everything + run tests
-        gulp watch-everything
+  * Watch for changes in the source code/tests and automatically rebuild everything + run tests:
+  
+          gulp watch-everything
 
-        # to debug in your own browser: start karma for continuous test monitoring
-        sudo npm install -g karma-cli # install karma (if needed)
-        karma start # now access the tests from your browser at: http://[your-server-ip-or-host]:9876/debug.html
+  * Debug in your own browser:
+  
+    * Install karma (if needed)
 
-        # rebuild and deploy assets to /dist (for release)
-        gulp dist
+            sudo npm install -g karma-cli
+          
+    * Access/Debug the tests from your browser at: http://localhost:9876/debug.html
+
+            karma start
+
+  * Rebuild and deploy assets to /dist (for release):
+  
+          gulp dist
 
 ### Documentation and Website Contributions
 
