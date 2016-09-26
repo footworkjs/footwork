@@ -57,27 +57,27 @@ If you need further setup help, refer to the [Get Started](http://footworkjs.com
 
 1. **Run a gulp task to build/test/etc:**
   
-      # build everything and then run the unit tests (coverage report output in build/coverage)
-      gulp
+        # build everything and then run the unit tests (coverage report output in build/coverage)
+        gulp
 
-      # build everything (output in /build)
-      gulp build-everything
+        # build everything (output in /build)
+        gulp build-everything
 
-      # build whats necessary for the unit tests, and run them (coverage report output in build/coverage)
-      gulp tests
+        # build whats necessary for the unit tests, and run them (coverage report output in build/coverage)
+        gulp tests
 
-      # watch for changes in the source code/tests and automatically rebuild whats necessary + run tests
-      gulp watch
+        # watch for changes in the source code/tests and automatically rebuild whats necessary + run tests
+        gulp watch
 
-      # watch for changes in the source code/tests and automatically rebuild everything + run tests
-      gulp watch-everything
+        # watch for changes in the source code/tests and automatically rebuild everything + run tests
+        gulp watch-everything
 
-      # to debug in your own browser: start karma for continuous test monitoring
-      sudo npm install -g karma-cli # install karma (if needed)
-      karma start # now access the tests from your browser at: http://[your-server-ip-or-host]:9876/debug.html
+        # to debug in your own browser: start karma for continuous test monitoring
+        sudo npm install -g karma-cli # install karma (if needed)
+        karma start # now access the tests from your browser at: http://[your-server-ip-or-host]:9876/debug.html
 
-      # rebuild and deploy assets to /dist (for release)
-      gulp dist
+        # rebuild and deploy assets to /dist (for release)
+        gulp dist
 
 ### Documentation and Website Contributions
 
