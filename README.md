@@ -48,11 +48,11 @@ If you need further setup help, refer to the [Get Started](http://footworkjs.com
 
 1. **Install gulp and bower globally (if needed):**
 
-  * gulp
+  * [gulp](http://gulpjs.com/)
   
           sudo npm install -g gulp-cli
 
-  * bower
+  * [bower](http://bower.io/)
   
           sudo npm install -g bower
 
@@ -94,7 +94,7 @@ If you need further setup help, refer to the [Get Started](http://footworkjs.com
 
             sudo npm install -g karma-cli
           
-    * Access/Debug the tests from your browser at: http://localhost:9876/debug.html
+    * Access/Debug the tests from your browser at: [http://localhost:9876/debug.html](http://localhost:9876/debug.html)
 
             karma start
 
