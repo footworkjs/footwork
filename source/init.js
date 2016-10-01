@@ -5,14 +5,3 @@ require('es6-promise').polyfill();
 
 // Record the footwork version as of this build.
 fw.footworkVersion = 'FOOTWORK_VERSION';
-
-// Expose any embedded dependencies
-fw.embed = {};
-
-fw.Promise = require('es6-promise').Promise;
-
-fw.viewModel = {};
-fw.dataModel = {};
-fw.router = {};
-fw.outlet = {};
-fw.settings = {};

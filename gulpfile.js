@@ -150,7 +150,7 @@ gulp.task('lodash_custom', function () {
 });
 
 gulp.task('tbuild', function () {
-  return gulp.src('./source/main.js')
+  return gulp.src('./source/footwork.js')
     .pipe(browserified({
       standalone: 'footwork',
       debug: true
