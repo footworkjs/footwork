@@ -155,6 +155,7 @@ gulp.task('tbuild', function () {
       standalone: 'footwork',
       debug: true
     }))
+    .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
     .pipe(rename('footwork.js'))
     .pipe(gulp.dest('./build'));
 });
