@@ -84,10 +84,6 @@ function entityBinder(element, params, $parentContext, Entity, $flightTracker, $
   fw.applyBindings(entityObj, wrapperNode);
 };
 
-// Monkey patch enables the entity to initialize a viewModel and bind to the html as intended (with lifecycle events)
-// TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
-var originalComponentInit = fw.bindingHandlers.component.init;
-
 function getResourceLocation(moduleName) {
   var resource = this;
   var resourceLocation = null;
@@ -104,6 +100,10 @@ function getResourceLocation(moduleName) {
 
   return resourceLocation;
 }
+
+// Monkey patch enables the entity to initialize a viewModel and bind to the html as intended (with lifecycle events)
+// TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
+var originalComponentInit = fw.bindingHandlers.component.init;
 
 function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
   var theValueAccessor = valueAccessor;
@@ -160,7 +160,6 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
             }
 
             require([resourceLocation], function(resource) {
-              var args = Array.prototype.slice.call(arguments);
               bindModel(resource, $flightTracker, $inFlightChildren, $outletsInFlightChildren);
             });
           } else {

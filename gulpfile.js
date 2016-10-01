@@ -20,9 +20,10 @@ var pkg = require('./package.json');
 var reporter = 'list';
 var args = require('yargs').argv;
 
-var browserified = function() {
+var browserified = function(options) {
+  options = options || {};
   return transform(function(filename) {
-    return browserify(filename).bundle();
+    return browserify(filename, options).bundle();
   });
 };
 
@@ -146,6 +147,20 @@ gulp.task('lodash_custom', function () {
     .pipe(browserified())
     .pipe(rename('lodash-custom.js'))
     .pipe(gulp.dest('./build'));
+});
+
+gulp.task('tbuild', function () {
+  return gulp.src('./source/main.js')
+    .pipe(browserified({
+      standalone: 'footwork',
+      debug: true
+    }))
+    .pipe(rename('footwork.js'))
+    .pipe(gulp.dest('./build'));
+});
+
+gulp.task('twatch', function () {
+  gulp.watch(['tests/**/*.*', 'source/**/*.*'], ['tbuild']);
 });
 
 function buildRelease(buildProfile) {

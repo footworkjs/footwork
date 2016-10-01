@@ -1,8 +1,6 @@
 // framework/component/loader.js
 // ------------------
 
-// This loader is a catch-all in the instance a registered component cannot be found.
-// The loader will attempt to use requirejs via knockouts integrated support if it is available.
 fw.components.loaders.push(fw.components.requireLoader = {
   getConfig: function(componentName, callback) {
     var combinedFile = fw.components.getFileName(componentName, 'combined');
