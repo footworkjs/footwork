@@ -1,8 +1,7 @@
-var fw = require('../bower_components/knockoutjs/dist/knockout.js');
-var postal = require('../bower_components/postal.js/lib/postal.js');
-var _ = require('./lodash.js');
+var postal = require('../bower_components/postal.js/lib/postal');
+var _ = require('./lodash');
 
-var nsProto = require('./namespace-proto.js');
+var nsProto = require('./namespace-proto');
 
 // Prepare an empty namespace stack.
 // This is where footwork registers its current working namespace name. Each new namespace is
@@ -38,13 +37,13 @@ function isNamespace(thing) {
 // The namespace object returned from this method also has a pointer to its parent
 function enterNamespaceName(namespaceName) {
   namespaceStack.unshift(namespaceName);
-  return fw.namespace(fw.utils.currentNamespaceName());
+  return Namespace(currentNamespaceName());
 }
 
 // enterNamespace() uses a current namespace definition as the one to enter into.
-function enterNamespace(namespace) {
-  namespaceStack.unshift(namespace.getName());
-  return namespace;
+function enterNamespace(ns) {
+  namespaceStack.unshift(ns.getName());
+  return ns;
 }
 
 // Called at the after a model constructor function is run. exitNamespace()
@@ -52,20 +51,21 @@ function enterNamespace(namespace) {
 // next namespace in the stack
 function exitNamespace() {
   namespaceStack.shift();
-  return fw.utils.currentNamespace();
+  return currentNamespace();
 }
 
-fw.utils.currentNamespaceName = function() {
+// Return the current namespace channel name.
+function currentNamespaceName() {
   return namespaceStack[0];
 };
 
-// Return the current namespace channel.
-fw.utils.currentNamespace = function() {
-  return fw.namespace(fw.utils.currentNamespaceName());
+// Return instance of the current namespace channel.
+function currentNamespace() {
+  return Namespace(currentNamespaceName());
 };
 
 // Creates and returns a new namespace instance
-fw.namespace = function(namespaceName, $parentNamespace) {
+function Namespace(namespaceName, $parentNamespace) {
   if (!_.isUndefined($parentNamespace)) {
     if (_.isString($parentNamespace)) {
       namespaceName = $parentNamespace + '.' + namespaceName;
@@ -73,55 +73,77 @@ fw.namespace = function(namespaceName, $parentNamespace) {
       namespaceName = $parentNamespace.channel + '.' + namespaceName;
     }
   }
-  var namespace = postal.channel(namespaceName);
+  var ns = postal.channel(namespaceName);
 
-  var subscriptions = namespace.subscriptions = [];
-  namespace._subscribe = namespace.subscribe;
-  namespace.subscribe = function(topic, callback, context) {
+  var subscriptions = ns.subscriptions = [];
+  ns._subscribe = ns.subscribe;
+  ns.subscribe = function(topic, callback, context) {
     if (arguments.length > 2) {
       callback = callback.bind(context);
     }
-    var subscription = namespace._subscribe.call(namespace, topic, callback);
+    var subscription = ns._subscribe.call(ns, topic, callback);
     subscriptions.push(subscription);
     return subscription;
   };
-  namespace.unsubscribe = nsProto.unregisterNamespaceHandler;
+  ns.unsubscribe = nsProto.unregisterNamespaceHandler;
 
-  namespace._publish = namespace.publish;
-  namespace.publish = function(envelope, callback, context) {
+  ns._publish = ns.publish;
+  ns.publish = function(envelope, callback, context) {
     if(arguments.length > 2) {
       callback = callback.bind(context);
     }
-    namespace._publish.call(namespace, envelope, callback);
+    ns._publish.call(ns, envelope, callback);
   };
 
-  namespace.__isNamespace = true;
-  namespace.dispose = nsProto.disconnectNamespaceHandlers.bind(namespace);
+  ns.__isNamespace = true;
+  ns.dispose = nsProto.disconnectNamespaceHandlers.bind(ns);
 
-  namespace.commandHandlers = [];
-  namespace.command = nsProto.sendCommandToNamespace.bind(namespace);
-  namespace.command.handler = nsProto.registerNamespaceCommandHandler.bind(namespace);
-  namespace.command.unregister = nsProto.unregisterNamespaceHandler;
+  ns.commandHandlers = [];
+  ns.command = nsProto.sendCommandToNamespace.bind(ns);
+  ns.command.handler = nsProto.registerNamespaceCommandHandler.bind(ns);
+  ns.command.unregister = nsProto.unregisterNamespaceHandler;
 
-  namespace.requestHandlers = [];
-  namespace.request = nsProto.requestResponseFromNamespace.bind(namespace);
-  namespace.request.handler = nsProto.registerNamespaceRequestHandler.bind(namespace);
-  namespace.request.unregister = nsProto.unregisterNamespaceHandler;
+  ns.requestHandlers = [];
+  ns.request = nsProto.requestResponseFromNamespace.bind(ns);
+  ns.request.handler = nsProto.registerNamespaceRequestHandler.bind(ns);
+  ns.request.unregister = nsProto.unregisterNamespaceHandler;
 
-  namespace.eventHandlers = [];
-  namespace.event = namespace.trigger = nsProto.triggerEventOnNamespace.bind(namespace);
-  namespace.event.handler = nsProto.registerNamespaceEventHandler.bind(namespace);
-  namespace.event.unregister = nsProto.unregisterNamespaceHandler;
+  ns.eventHandlers = [];
+  ns.event = ns.trigger = nsProto.triggerEventOnNamespace.bind(ns);
+  ns.event.handler = nsProto.registerNamespaceEventHandler.bind(ns);
+  ns.event.unregister = nsProto.unregisterNamespaceHandler;
 
-  namespace.getName = nsProto.getNamespaceName.bind(namespace);
-  namespace.enter = function() {
-    return enterNamespace( this );
+  ns.getName = nsProto.getNamespaceName.bind(ns);
+  ns.enter = function() {
+    return enterNamespace(this);
   };
-  namespace.exit = function() {
-    if (fw.utils.currentNamespaceName() === this.getName()) {
+  ns.exit = function() {
+    if (currentNamespaceName() === this.getName()) {
       return exitNamespace();
     }
   };
 
-  return namespace;
+  return ns;
 };
+
+// mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
+require('./entity-mixins').push({
+  runBeforeInit: true,
+  _preInit: function(options) {
+    var $configParams = this.__private('configParams');
+    var namespaceName = $configParams.namespace || $configParams.name || uniqueId('namespace');
+    this.$namespace = enterNamespaceName(indexedNamespaceName(namespaceName, $configParams.autoIncrement));
+    this.$rootNamespace = Namespace(namespaceName);
+    this.$globalNamespace = Namespace();
+  },
+  mixin: {
+    getNamespaceName: function() {
+      return this.$namespace.getName();
+    }
+  },
+  _postInit: function(options) {
+    exitNamespace();
+  }
+});
+
+module.exports = Namespace;

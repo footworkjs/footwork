@@ -1,6 +1,12 @@
-require('./binding/start.js');
-require('./init.js');
-require('./namespace.js');
+var fw = require('../bower_components/knockoutjs/dist/knockout');
 
-module.exports = require('../bower_components/knockoutjs/dist/knockout.js');
+require('./util');
+require('./init');
+require('./entity-mixins');
+require('./binding/start');
+
+fw.namespace = require('./namespace');
+require('./broadcastable-receivable');
+
+module.exports = fw;
 
