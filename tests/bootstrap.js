@@ -42,10 +42,7 @@ require.config({
      * have access to them.
      */
     "text": "bower_components/requirejs-text/text",
-    "footwork": "build/footwork-ci",
-    "knockout": "bower_components/knockoutjs/dist/knockout.debug",
-    "reqwest": "bower_components/reqwest/reqwest",
-    "postal": "bower_components/postal.js/lib/postal",
+    "footwork": "build/footwork",
     "lodash": "bower_components/lodash/lodash",
     "jquery-mockjax": "bower_components/jquery-mockjax/dist/jquery.mockjax",
     "jquery": "bower_components/jquery/dist/jquery",

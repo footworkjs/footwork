@@ -45,5 +45,6 @@ module.exports = {
   identity: require('../node_modules/lodash/identity'),
   includes: require('../node_modules/lodash/includes'),
   partial: require('../node_modules/lodash/partial'),
-  sortBy: require('../node_modules/lodash/sortBy')
+  sortBy: require('../node_modules/lodash/sortBy'),
+  noConflict: function noConflict() { return this; }
 };

@@ -42,68 +42,27 @@ var banner = [
 gulp.task('default', ['build']);
 
 // Testing tasks
-gulp.task('tests', ['tests-with-coverage']);
-
-gulp.task('test-and-build-all', ['tests-with-coverage', 'build-everything']);
-
-gulp.task('tests-with-coverage', ['build_ci'], function(done) {
+gulp.task('tests', ['build'], function(done) {
   return new Server(_.extend(require('./tests/karma.conf.js'), require('./tests/karma-coverage.conf.js')), done).start();
 });
 
-gulp.task('unit', ['tests-with-coverage'], function () {
+gulp.task('sauce', ['build'], function(done) {
+  return new Server(_.extend(require('./tests/karma.conf.js'), require('./tests/sauce-config/karma.conf.js')), done).start();
+});
+
+gulp.task('unit', ['tests'], function () {
   return gulp.src('./build/coverage/report-lcov/lcov.info')
     .pipe(coveralls());
 });
 
-gulp.task('sauce', ['build_ci'], function(done) {
-  return new Server(_.extend(require('./tests/karma.conf.js'), require('./tests/sauce-config/karma.conf.js')), done).start();
-});
-
-gulp.task('watch-everything', function () {
-  gulp.watch(['tests/**/*.*', 'source/**/*.*'], ['test-and-build-all']);
-});
-
 // Building tasks
-gulp.task('build_ci_css', function() {
-  return gulp.src(['./tests/assets/test.scss'])
-    .pipe(sass().on('error', sass.logError))
-    .pipe(autoprefixer({
-      browsers: ['last 3 versions', '> 5%', 'Firefox > 3', 'ie >= 9']
-    }))
-    .pipe(gulp.dest('./tests/assets'));
-});
-
-gulp.task('dist_footwork_styles', ['build_footwork_css'], function() {
-  return gulp.src(['./build/styles/*.scss', './build/styles/*.css'])
-    .pipe(gulp.dest('./dist'));
-});
-
-gulp.task('copy_footwork_styles_to_build', function() {
-  return gulp.src(['./source/footwork.scss'])
-    .pipe(gulp.dest('./build/styles'));
-});
-
-gulp.task('build_footwork_css', ['copy_footwork_styles_to_build'], function() {
-  return gulp.src('./source/footwork.scss')
-    .pipe(sass().on('error', sass.logError))
-    .pipe(autoprefixer({
-      browsers: ['last 3 versions', '> 5%', 'Firefox > 3', 'ie >= 9']
-    }))
-    .pipe(gulp.dest('./build/styles'));
-});
-
-gulp.task('build', ['build_footwork_css'], function () {
+gulp.task('build', ['build_footwork_css', 'build_ci_css'], function () {
   var fileSize = size({ title: 'footwork.js' });
-  var debug = false;
-
-  if(args.hasOwnProperty("debug")) {
-    debug = true;
-  }
 
   return gulp.src('./source/footwork.js')
     .pipe(browserified({
       standalone: 'footwork',
-      debug: debug
+      debug: args.hasOwnProperty("debug")
     }))
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
     .pipe(replace('.footwork=', '.fw=')) // Replace the globals reference with 'fw' but leave module references as 'footwork'
@@ -130,9 +89,29 @@ gulp.task('build_min', ['build'], function() {
     .pipe(gulp.dest('build/'));
 });
 
-gulp.task('dist', ['build_min', 'dist_footwork_styles'], function() {
-  return gulp.src(['./build/footwork.js', './build/footwork.min.js'])
+gulp.task('dist', ['build_min'], function() {
+  return gulp.src(['./build/footwork.js', './build/footwork.min.js', './build/styles/*.scss', './build/styles/*.css'])
     .pipe(gulp.dest('./dist'));
+});
+
+
+gulp.task('build_ci_css', function() {
+  return gulp.src(['./tests/assets/test.scss'])
+    .pipe(sass().on('error', sass.logError))
+    .pipe(autoprefixer({
+      browsers: ['last 3 versions', '> 5%', 'Firefox > 3', 'ie >= 9']
+    }))
+    .pipe(gulp.dest('./tests/assets'));
+});
+
+gulp.task('build_footwork_css', function() {
+  return gulp.src('./source/footwork.scss')
+    .pipe(gulp.dest('./build/styles'))
+    .pipe(sass().on('error', sass.logError))
+    .pipe(autoprefixer({
+      browsers: ['last 3 versions', '> 5%', 'Firefox > 3', 'ie >= 9']
+    }))
+    .pipe(gulp.dest('./build/styles'));
 });
 
 gulp.task('watch', function () {
