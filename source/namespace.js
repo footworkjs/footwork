@@ -1,7 +1,16 @@
 var postal = require('../bower_components/postal.js/lib/postal');
 var _ = require('./lodash');
 
-var nsProto = require('./namespace-proto');
+var namespaceProto = require('./namespace-proto');
+var disconnectNamespaceHandlers = namespaceProto.disconnectNamespaceHandlers;
+var sendCommandToNamespace = namespaceProto.sendCommandToNamespace;
+var registerNamespaceCommandHandler = namespaceProto.registerNamespaceCommandHandler;
+var unregisterNamespaceHandler = namespaceProto.unregisterNamespaceHandler;
+var getNamespaceName = namespaceProto.getNamespaceName;
+var triggerEventOnNamespace = namespaceProto.triggerEventOnNamespace;
+var requestResponseFromNamespace = namespaceProto.requestResponseFromNamespace;
+var registerNamespaceRequestHandler = namespaceProto.registerNamespaceRequestHandler;
+var registerNamespaceEventHandler = namespaceProto.registerNamespaceEventHandler;
 
 // Prepare an empty namespace stack.
 // This is where footwork registers its current working namespace name. Each new namespace is
@@ -85,7 +94,7 @@ function Namespace(namespaceName, $parentNamespace) {
     subscriptions.push(subscription);
     return subscription;
   };
-  ns.unsubscribe = nsProto.unregisterNamespaceHandler;
+  ns.unsubscribe = unregisterNamespaceHandler;
 
   ns._publish = ns.publish;
   ns.publish = function(envelope, callback, context) {
@@ -96,24 +105,24 @@ function Namespace(namespaceName, $parentNamespace) {
   };
 
   ns.__isNamespace = true;
-  ns.dispose = nsProto.disconnectNamespaceHandlers.bind(ns);
+  ns.dispose = disconnectNamespaceHandlers.bind(ns);
 
   ns.commandHandlers = [];
-  ns.command = nsProto.sendCommandToNamespace.bind(ns);
-  ns.command.handler = nsProto.registerNamespaceCommandHandler.bind(ns);
-  ns.command.unregister = nsProto.unregisterNamespaceHandler;
+  ns.command = sendCommandToNamespace.bind(ns);
+  ns.command.handler = registerNamespaceCommandHandler.bind(ns);
+  ns.command.unregister = unregisterNamespaceHandler;
 
   ns.requestHandlers = [];
-  ns.request = nsProto.requestResponseFromNamespace.bind(ns);
-  ns.request.handler = nsProto.registerNamespaceRequestHandler.bind(ns);
-  ns.request.unregister = nsProto.unregisterNamespaceHandler;
+  ns.request = requestResponseFromNamespace.bind(ns);
+  ns.request.handler = registerNamespaceRequestHandler.bind(ns);
+  ns.request.unregister = unregisterNamespaceHandler;
 
   ns.eventHandlers = [];
-  ns.event = ns.trigger = nsProto.triggerEventOnNamespace.bind(ns);
-  ns.event.handler = nsProto.registerNamespaceEventHandler.bind(ns);
-  ns.event.unregister = nsProto.unregisterNamespaceHandler;
+  ns.event = ns.trigger = triggerEventOnNamespace.bind(ns);
+  ns.event.handler = registerNamespaceEventHandler.bind(ns);
+  ns.event.unregister = unregisterNamespaceHandler;
 
-  ns.getName = nsProto.getNamespaceName.bind(ns);
+  ns.getName = getNamespaceName.bind(ns);
   ns.enter = function() {
     return enterNamespace(this);
   };

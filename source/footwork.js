@@ -10,6 +10,7 @@ require('./broadcastable-receivable');
 
 var ViewModel = require('./entities/ViewModel');
 var DataModel = require('./entities/DataModel');
+var Router = require('./entities/Router');
 
 module.exports = fw;
 

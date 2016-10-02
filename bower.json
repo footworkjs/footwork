@@ -36,20 +36,18 @@
     "README.md"
   ],
   "dependencies": {
-    "knockoutjs": "3.4.0",
     "jquery": "*",
     "reqwest": "1.1.5",
     "lodash": "^4.12",
-    "postal.js": "https://github.com/footworkjs/postal.js#c90b301edaf4645c89c8e246a16ee618c37b40b9",
     "history.js": "*",
     "requirejs": "*",
     "requirejs-text": "*"
   },
   "devDependencies": {
-    "D.js": "0.7.3",
     "conduitjs": "0.3.3",
-    "riveter": "https://github.com/footworkjs/riveter.git#54996cd16a852000f268c1914d9461d09a5176ec",
-    "knockoutjs-nowrapper": "https://github.com/footworkjs/knockout-nowrapper.git#522cfa77b6e0e3bef2d21537f6a1d5fc884be69c",
+    "postal.js": "https://github.com/footworkjs/postal.js#c90b301edaf4645c89c8e246a16ee618c37b40b9",
+    "knockoutjs": "3.4.0",
+    "riveter": "https://github.com/footworkjs/riveter.git#6d8a110f39fab17076e25b5ab68fc4628afd2472",
     "history.js": "https://github.com/footworkjs/history.js.git#ae04b0e41c48a1e2f272cc10e29c2aeaa50d1a86",
     "jquery-mockjax": "2.0.1"
   }

@@ -3,6 +3,9 @@ var _ = require('../lodash');
 var dataContext = require('./DataModel/data-context');
 var dataTools = require('./DataModel/data-tools');
 
+var getNestedReference = dataTools.getNestedReference;
+var insertValueIntoObject = dataTools.insertValueIntoObject;
+
 function dataModelIsNew() {
   var id = this.$id();
   return _.isUndefined(id) || _.isNull(id);
