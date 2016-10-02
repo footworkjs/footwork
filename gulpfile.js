@@ -5,6 +5,7 @@ var header = require('gulp-header');
 var fileImports = require('gulp-imports');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
+var chalk = require('chalk');
 var bump = require('gulp-bump');
 var size = require('gulp-size');
 var replace = require('gulp-replace');
@@ -172,6 +173,8 @@ gulp.task('build', ['copy_footwork_styles_to_build'], function () {
 });
 
 gulp.task('build_min', ['build', 'copy_footwork_styles_to_build'], function() {
+  console.log(chalk.green('Note: ') + chalk.yellow('Sit tight, minification can take a few minutes, see: ') + chalk.white('https://github.com/knockout/knockout/issues/1652'));
+
   var headerBanner = banner.slice(0).join('\n');
   var fileSizeMin = size({ title: 'footwork.min.js' });
   var fileSizeGzip = size({ gzip: true, title: 'footwork.min.js' });
