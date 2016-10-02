@@ -40,7 +40,7 @@
     "jquery": "*",
     "reqwest": "1.1.5",
     "lodash": "^4.12",
-    "postal.js": "2.0.4",
+    "postal.js": "https://github.com/footworkjs/postal.js#c90b301edaf4645c89c8e246a16ee618c37b40b9",
     "history.js": "*",
     "requirejs": "*",
     "requirejs-text": "*"

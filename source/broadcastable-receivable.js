@@ -1,6 +1,7 @@
 var fw = require('../bower_components/knockoutjs/dist/knockout.js');
 var postal = require('../bower_components/postal.js/lib/postal.js');
 var _ = require('./lodash.js');
+var util = require('./util.js');
 
 fw.isBroadcastable = function(thing) {
   return isObject(thing) && !!thing.__isBroadcastable;
@@ -88,7 +89,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   var receivable = this;
   var namespaceSubscriptions = [];
   var isLocalNamespace = false;
-  var when = alwaysPassPredicate;
+  var when = util.alwaysPassPredicate;
 
   if (isString(namespace)) {
     namespace = fw.namespace(namespace);
