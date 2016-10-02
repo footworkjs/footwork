@@ -38,7 +38,7 @@ var banner = [
   '', ''
 ];
 
-gulp.task('default', ['test-and-build-all', 'copy_footwork_styles_to_build']);
+gulp.task('default', ['build']);
 
 // Testing tasks
 gulp.task('tests', ['tests-with-coverage']);
@@ -112,9 +112,9 @@ gulp.task('dist_build', function() {
     .pipe(gulp.dest('./dist'));
 });
 
-gulp.task('dist', function(done) {
-  runSequence('build-everything', ['dist_build', 'dist_footwork_styles'], done);
-});
+// gulp.task('dist', function(done) {
+//   runSequence('build-everything', ['dist_build', 'dist_footwork_styles'], done);
+// });
 
 gulp.task('copy_footwork_styles_to_build', ['build_footwork_css'], function() {
   return gulp.src(['./source/footwork.scss'])
@@ -149,16 +149,47 @@ gulp.task('lodash_custom', function () {
     .pipe(gulp.dest('./build'));
 });
 
-gulp.task('tbuild', function () {
+gulp.task('build', ['copy_footwork_styles_to_build'], function () {
+  var headerBanner = banner.slice(0).join('\n');
+  var fileSize = size({ title: 'footwork.js' });
+  var debug = false;
+
+  if(args.hasOwnProperty("debug")) {
+    debug = true;
+  }
+
   return gulp.src('./source/footwork.js')
     .pipe(browserified({
       standalone: 'footwork',
-      // debug: true
+      debug: debug
     }))
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
-    .pipe(replace('.footwork=', '.fw='))
+    .pipe(replace('.footwork=', '.fw=')) // Replace the globals reference with 'fw' but leave module references as 'footwork'
+    .pipe(header(headerBanner, { pkg: pkg }))
     .pipe(rename('footwork.js'))
+    .pipe(fileSize)
     .pipe(gulp.dest('./build'));
+});
+
+gulp.task('build_min', ['build', 'copy_footwork_styles_to_build'], function() {
+  var headerBanner = banner.slice(0).join('\n');
+  var fileSizeMin = size({ title: 'footwork.min.js' });
+  var fileSizeGzip = size({ gzip: true, title: 'footwork.min.js' });
+
+  return gulp.src('./build/footwork.js')
+    .pipe(uglify({
+      compress: { negate_iife: false }
+    }))
+    .pipe(header(headerBanner, { pkg: pkg }))
+    .pipe(rename('footwork.min.js'))
+    .pipe(fileSizeMin)
+    .pipe(fileSizeGzip)
+    .pipe(gulp.dest('build/'));
+});
+
+gulp.task('dist', ['build_min', 'dist_footwork_styles'], function() {
+  return gulp.src(['./build/footwork.js', './build/footwork.min.js'])
+    .pipe(gulp.dest('./dist'));
 });
 
 gulp.task('twatch', function () {
