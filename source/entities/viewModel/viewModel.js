@@ -1,4 +1,7 @@
+var fw = require('../../../bower_components/knockoutjs/dist/knockout');
 var _ = require('../../lodash');
+
+fw.viewModel = {};
 
 module.exports = function ViewModel(descriptor, configParams) {
   return {

@@ -4,6 +4,8 @@ var dataContext = require('./data-context');
 var dataTools = require('./data-tools');
 require('./mapTo');
 
+fw.dataModel = {};
+
 var getNestedReference = dataTools.getNestedReference;
 var insertValueIntoObject = dataTools.insertValueIntoObject;
 

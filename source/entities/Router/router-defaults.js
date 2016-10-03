@@ -1,3 +1,7 @@
+var _ = require('../../lodash');
+var util = require('../../util');
+
+var alwaysPassPredicate = util.alwaysPassPredicate;
 var noComponentSelected = '_noComponentSelected';
 var nullComponent = '_nullComponent';
 var invalidRoutePathIdentifier = '___invalid-route';
@@ -5,8 +9,8 @@ var invalidRoutePathIdentifier = '___invalid-route';
 var routesAreCaseSensitive = true;
 
 var nullRouterData = {
-  context: noop,
-  childRouters: extend( noop.bind(), { push: noop } ),
+  context: _.noop,
+  childRouters: _.extend( _.noop.bind(), { push: _.noop } ),
   isRelative: function() { return false; }
 };
 
@@ -22,7 +26,7 @@ var $nullRouter = {
 };
 
 var baseRoute = {
-  controller: noop,
+  controller: _.noop,
   indexedParams: [],
   namedParams: {},
   __isRoute: true
