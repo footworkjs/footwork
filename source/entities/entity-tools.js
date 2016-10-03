@@ -2,6 +2,7 @@ var fw = require('../../bower_components/knockoutjs/dist/knockout');
 var riveter = require('../../bower_components/riveter/lib/riveter');
 var _ = require('../misc/lodash');
 var entityMixins = require('./entity-mixins');
+var entityDescriptors = require('./entity-descriptors');
 var privateData = require('../misc/privateData');
 
 function prepareDescriptor(descriptor) {
@@ -98,7 +99,30 @@ function entityClassFactory(descriptor, configParams) {
   return entityCtor;
 }
 
+
 module.exports = {
   prepareDescriptor: prepareDescriptor,
-  entityClassFactory: entityClassFactory
+  entityClassFactory: entityClassFactory,
+  init: function() {
+    var entityCtorComparators = _.map(entityDescriptors, 'isEntityCtor');
+    var entityComparators = _.map(entityDescriptors, 'isEntity');
+
+    var isEntityCtor = function isEntityCtor(thing) {
+      return _.reduce(entityCtorComparators, function(isThing, comparator) {
+        return isThing || comparator(thing);
+      }, false);
+    };
+
+    var isEntity = function isEntity(thing) {
+      return _.reduce(entityComparators, function(isThing, comparator) {
+        return isThing || comparator(thing);
+      }, false);
+    };
+
+    this.isEntityCtor = isEntityCtor;
+    this.isEntity = isEntity;
+    this.isDataModelCtor = entityDescriptors.getDescriptor('dataModel').isEntityCtor;
+    this.isDataModel = entityDescriptors.getDescriptor('dataModel').isEntity;
+    this.isRouter = entityDescriptors.getDescriptor('router').isEntity;
+  }
 };

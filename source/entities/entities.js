@@ -4,3 +4,5 @@ var _ = require('../misc/lodash');
 require('./viewModel/viewModel');
 require('./dataModel/dataModel');
 require('./router/router');
+
+require('./entity-tools').init();
