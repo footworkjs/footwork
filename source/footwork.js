@@ -8,9 +8,6 @@ fw.namespace = require('./namespace');
 fw.embed = require('./embed-exports');
 
 require('./broadcastable-receivable');
-
-var ViewModel = require('./entities/ViewModel');
-var DataModel = require('./entities/DataModel');
-var Router = require('./entities/Router');
+require('./entities/entities');
 
 module.exports = fw;

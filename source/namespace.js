@@ -136,7 +136,7 @@ function Namespace(namespaceName, $parentNamespace) {
 };
 
 // mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
-require('./entity-mixins').push({
+require('./entities/entity-mixins').push({
   runBeforeInit: true,
   _preInit: function(options) {
     var $configParams = this.__private('configParams');

@@ -1,7 +1,8 @@
-var fw = require('../../bower_components/knockoutjs/dist/knockout');
-var _ = require('../lodash');
-var dataContext = require('./DataModel/data-context');
-var dataTools = require('./DataModel/data-tools');
+var fw = require('../../../bower_components/knockoutjs/dist/knockout');
+var _ = require('../../lodash');
+var dataContext = require('./data-context');
+var dataTools = require('./data-tools');
+require('./mapTo');
 
 var getNestedReference = dataTools.getNestedReference;
 var insertValueIntoObject = dataTools.insertValueIntoObject;

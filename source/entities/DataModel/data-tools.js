@@ -36,7 +36,7 @@ function getNestedReference(rootObject, fieldMap) {
     }
   }
 
-  return !_.isString(propName) ? rootObject : result(rootObject || {}, propName);
+  return !_.isString(propName) ? rootObject : _.result(rootObject || {}, propName);
 }
 
 module.exports = {

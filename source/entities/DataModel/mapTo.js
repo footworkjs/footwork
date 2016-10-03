@@ -1,4 +1,4 @@
-var fw = require('../../bower_components/knockoutjs/dist/knockout');
+var fw = require('../../../bower_components/knockoutjs/dist/knockout');
 var _ = require('../../lodash');
 var dataContext = require('./data-context');
 

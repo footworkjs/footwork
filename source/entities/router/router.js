@@ -1,9 +1,16 @@
-var fw = require('../../bower_components/knockoutjs/dist/knockout');
-var _ = require('../lodash');
-var routerTools = require('./Router/router-tools.js');
+var fw = require('../../../bower_components/knockoutjs/dist/knockout');
+var _ = require('../../lodash');
+var routerTools = require('./router-tools.js');
 
 var hashMatchRegex = routerTools.hashMatchRegex;
 var namedParamRegex = routerTools.namedParamRegex;
+var isNullRouter = routerTools.isNullRouter;
+var transformRouteConfigToDesc = routerTools.transformRouteConfigToDesc;
+var sameRouteDescription = routerTools.sameRouteDescription;
+var routeStringToRegExp = routerTools.routeStringToRegExp;
+var historyIsReady = routerTools.historyIsReady;
+var isRoute = routerTools.isRoute;
+var nearestParentRouter = routerTools.nearestParentRouter;
 
 module.exports = function Router(descriptor, configParams) {
   return {
