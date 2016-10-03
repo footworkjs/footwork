@@ -36,11 +36,6 @@ function indexedNamespaceName(name, autoIncrement) {
   return name + (autoIncrement === true ? namespaceNameCounter[name] : '');
 }
 
-// Duck type check for a namespace object
-function isNamespace(thing) {
-  return _.isObject(thing) && !!thing.__isNamespace;
-}
-
 // enterNamespaceName() adds a namespaceName onto the namespace stack at the current index,
 // 'entering' into that namespace (it is now the current namespace).
 // The namespace object returned from this method also has a pointer to its parent
@@ -74,7 +69,7 @@ function currentNamespace() {
 };
 
 // Creates and returns a new namespace instance
-function Namespace(namespaceName, $parentNamespace) {
+var Namespace = function Namespace(namespaceName, $parentNamespace) {
   if (!_.isUndefined($parentNamespace)) {
     if (_.isString($parentNamespace)) {
       namespaceName = $parentNamespace + '.' + namespaceName;
@@ -133,6 +128,10 @@ function Namespace(namespaceName, $parentNamespace) {
   };
 
   return ns;
+};
+
+Namespace.isNamespace = function isNamespace(thing) {
+  return _.isObject(thing) && !!thing.__isNamespace;
 };
 
 // mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc

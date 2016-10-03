@@ -99,7 +99,6 @@ function entityClassFactory(descriptor, configParams) {
   return entityCtor;
 }
 
-
 module.exports = {
   prepareDescriptor: prepareDescriptor,
   entityClassFactory: entityClassFactory,

@@ -2,13 +2,14 @@ var fw = require('../bower_components/knockoutjs/dist/knockout.js');
 var postal = require('../bower_components/postal.js/lib/postal.js');
 var _ = require('./misc/lodash.js');
 var util = require('./misc/util.js');
+var isNamespace = require('./namespace/namespace').isNamespace;
 
 fw.isBroadcastable = function(thing) {
-  return isObject(thing) && !!thing.__isBroadcastable;
+  return _.isObject(thing) && !!thing.__isBroadcastable;
 };
 
 fw.isReceivable = function(thing) {
-  return isObject(thing) && !!thing.__isReceivable;
+  return _.isObject(thing) && !!thing.__isReceivable;
 };
 
 // factory method which turns an observable into a broadcastable
@@ -19,19 +20,19 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
   var namespaceSubscriptions = [];
   var isLocalNamespace = false;
 
-  if (isObject(varName)) {
+  if (_.isObject(varName)) {
     option = varName;
   } else {
-    if (isBoolean(option)) {
+    if (_.isBoolean(option)) {
       option = {
         name: varName,
         writable: option
       };
-    } else if(isObject(option)) {
+    } else if(_.isObject(option)) {
       option = extend({
         name: varName
       }, option);
-    } else if(isString(option)) {
+    } else if(_.isString(option)) {
       option = extend({
         name: varName,
         namespace: option
@@ -44,7 +45,7 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
   }
 
   namespace = option.namespace || fw.utils.currentNamespace();
-  if(isString(namespace)) {
+  if(_.isString(namespace)) {
     namespace = fw.namespace(namespace);
     isLocalNamespace = true;
   }
@@ -91,7 +92,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   var isLocalNamespace = false;
   var when = util.alwaysPassPredicate;
 
-  if (isString(namespace)) {
+  if (_.isString(namespace)) {
     namespace = fw.namespace(namespace);
     isLocalNamespace = true;
   }

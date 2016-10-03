@@ -421,7 +421,23 @@ var Router = module.exports = function Router(descriptor, configParams) {
   };
 };
 
-fw.router = {};
+fw.router = {
+  baseRoute: fw.observable(''),
+  activeRouteClassName: fw.observable('active'),
+  disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: fw.namespace() }),
+  html5History: function() {
+    var hasHTML5History = !!window.history && !!window.history.pushState;
+    if(!_.isUndefined(window.History) && _.isObject(window.History.options) && window.History.options.html4Mode) {
+      // user is overriding to force html4mode hash-based history
+      hasHTML5History = false;
+    }
+    return hasHTML5History;
+  },
+  getNearestParent: function($context) {
+    var $parentRouter = nearestParentRouter($context);
+    return (!isNullRouter($parentRouter) ? $parentRouter : null);
+  }
+};
 
 var descriptor;
 entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
