@@ -1,7 +1,7 @@
 var fw = require('../bower_components/knockoutjs/dist/knockout.js');
 var postal = require('../bower_components/postal.js/lib/postal.js');
-var _ = require('./lodash.js');
-var util = require('./util.js');
+var _ = require('./misc/lodash.js');
+var util = require('./misc/util.js');
 
 fw.isBroadcastable = function(thing) {
   return isObject(thing) && !!thing.__isBroadcastable;

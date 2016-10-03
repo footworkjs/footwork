@@ -1,12 +1,12 @@
 var fw = require('../bower_components/knockoutjs/dist/knockout');
 
-require('./init');
+require('./misc/init');
 require('./binding/start');
 
-fw.sync = require('./sync');
-fw.namespace = require('./namespace');
-fw.embed = require('./embed-exports');
+fw.sync = require('./misc/sync');
+fw.embed = require('./misc/embed-exports');
 
+fw.namespace = require('./namespace/namespace');
 require('./broadcastable-receivable');
 require('./entities/entities');
 

@@ -1,5 +1,5 @@
-var _ = require('../../lodash');
-var util = require('../../util');
+var _ = require('../../misc/lodash');
+var util = require('../../misc/util');
 
 var alwaysPassPredicate = util.alwaysPassPredicate;
 var noComponentSelected = '_noComponentSelected';

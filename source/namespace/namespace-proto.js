@@ -1,4 +1,4 @@
-var _ = require('./lodash');
+var _ = require('../misc/lodash');
 
 function createEnvelope(topic, data, expires) {
   var envelope = {

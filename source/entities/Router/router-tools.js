@@ -1,4 +1,4 @@
-var _ = require('../../lodash');
+var _ = require('../../misc/lodash');
 
 var optionalParamRegex = /\((.*?)\)/g;
 var namedParamRegex = /(\(\?)?:\w+/g;

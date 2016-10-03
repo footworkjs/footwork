@@ -1,8 +1,9 @@
 var fw = require('../../../bower_components/knockoutjs/dist/knockout');
-var _ = require('../../lodash');
+var _ = require('../../misc/lodash');
 
 var entityDescriptors = require('../entity-descriptors');
 var entityTools = require('../entity-tools');
+var entityClassFactory = entityTools.entityClassFactory;
 
 var ViewModel = module.exports = function ViewModel(descriptor, configParams) {
   return {
@@ -52,10 +53,13 @@ var ViewModel = module.exports = function ViewModel(descriptor, configParams) {
   };
 };
 
-entityDescriptors.push(entityTools.prepareDescriptor({
+fw.viewModel = {};
+
+var descriptor;
+entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
   tagName: 'viewmodel',
   methodName: 'viewModel',
-  resource: fw.viewModel = {},
+  resource: fw.viewModel,
   behavior: [ ViewModel ],
   defaultConfig: {
     namespace: undefined,
@@ -71,3 +75,5 @@ entityDescriptors.push(entityTools.prepareDescriptor({
     onDispose: _.noop
   }
 }));
+
+fw.viewModel.create = entityTools.entityClassFactory.bind(null, descriptor);

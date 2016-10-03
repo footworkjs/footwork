@@ -1,5 +1,5 @@
 var fw = require('../../../bower_components/knockoutjs/dist/knockout');
-var _ = require('../../lodash');
+var _ = require('../../misc/lodash');
 
 var entityDescriptors = require('../entity-descriptors');
 var entityTools = require('../entity-tools');
@@ -423,7 +423,8 @@ var Router = module.exports = function Router(descriptor, configParams) {
 
 fw.router = {};
 
-entityDescriptors.push(entityTools.prepareDescriptor({
+var descriptor;
+entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
   tagName: 'router',
   methodName: 'router',
   resource: fw.router,
@@ -448,3 +449,5 @@ entityDescriptors.push(entityTools.prepareDescriptor({
     minTransitionPeriod: 0
   }
 }));
+
+fw.router.create = entityTools.entityClassFactory.bind(null, descriptor);

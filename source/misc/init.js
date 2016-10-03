@@ -1,4 +1,4 @@
-var fw = require('../bower_components/knockoutjs/dist/knockout.js');
+var fw = require('../../bower_components/knockoutjs/dist/knockout.js');
 
 // Polyfill ES6 promises for IE9
 require('es6-promise').polyfill();

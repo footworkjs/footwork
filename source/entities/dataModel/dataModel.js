@@ -1,5 +1,5 @@
 var fw = require('../../../bower_components/knockoutjs/dist/knockout');
-var _ = require('../../lodash');
+var _ = require('../../misc/lodash');
 
 var entityDescriptors = require('../entity-descriptors');
 var entityTools = require('../entity-tools');
@@ -267,7 +267,8 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
 
 fw.dataModel = {};
 
-entityDescriptors.push(entityTools.prepareDescriptor({
+var descriptor;
+entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
   tagName: 'datamodel',
   methodName: 'dataModel',
   resource: fw.dataModel,
@@ -292,3 +293,5 @@ entityDescriptors.push(entityTools.prepareDescriptor({
     onDispose: _.noop
   }
 }));
+
+fw.dataModel.create = entityTools.entityClassFactory.bind(null, descriptor);

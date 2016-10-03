@@ -1,5 +1,5 @@
-var postal = require('../bower_components/postal.js/lib/postal');
-var _ = require('./lodash');
+var postal = require('../../bower_components/postal.js/lib/postal');
+var _ = require('../misc/lodash');
 
 var namespaceProto = require('./namespace-proto');
 var disconnectNamespaceHandlers = namespaceProto.disconnectNamespaceHandlers;
@@ -136,7 +136,7 @@ function Namespace(namespaceName, $parentNamespace) {
 };
 
 // mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
-require('./entities/entity-mixins').push({
+require('../entities/entity-mixins').push({
   runBeforeInit: true,
   _preInit: function(options) {
     var $configParams = this.__private('configParams');
