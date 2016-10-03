@@ -1,9 +1,10 @@
 var fw = require('../../../bower_components/knockoutjs/dist/knockout');
 var _ = require('../../lodash');
 
-fw.viewModel = {};
+var entityDescriptors = require('../entity-descriptors');
+var entityTools = require('../entity-tools');
 
-module.exports = function ViewModel(descriptor, configParams) {
+var ViewModel = module.exports = function ViewModel(descriptor, configParams) {
   return {
     mixin: {
       disposeWithInstance: function(subscription) {
@@ -50,3 +51,23 @@ module.exports = function ViewModel(descriptor, configParams) {
     }
   };
 };
+
+entityDescriptors.push(entityTools.prepareDescriptor({
+  tagName: 'viewmodel',
+  methodName: 'viewModel',
+  resource: fw.viewModel = {},
+  behavior: [ ViewModel ],
+  defaultConfig: {
+    namespace: undefined,
+    autoRegister: false,
+    autoIncrement: false,
+    extend: {},
+    mixins: undefined,
+    afterRender: _.noop,
+    afterResolving: function resolveEntityImmediately(resolveNow) {
+      resolveNow(true);
+    },
+    sequenceAnimations: false,
+    onDispose: _.noop
+  }
+}));

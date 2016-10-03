@@ -1,6 +1,10 @@
 var fw = require('../../../bower_components/knockoutjs/dist/knockout');
 var _ = require('../../lodash');
 
+var entityDescriptors = require('../entity-descriptors');
+var entityTools = require('../entity-tools');
+var ViewModel = require('../viewModel/viewModel');
+
 var routerTools = require('./router-tools.js');
 var hashMatchRegex = routerTools.hashMatchRegex;
 var namedParamRegex = routerTools.namedParamRegex;
@@ -17,9 +21,7 @@ var noComponentSelected = routerDefaults.noComponentSelected;
 var $nullRouter = routerDefaults.$nullRouter;
 var baseRoute = routerDefaults.baseRoute;
 
-fw.router = {};
-
-module.exports = function Router(descriptor, configParams) {
+var Router = module.exports = function Router(descriptor, configParams) {
   return {
     _preInit: function( params ) {
       var $router = this;
@@ -418,3 +420,31 @@ module.exports = function Router(descriptor, configParams) {
     }
   };
 };
+
+fw.router = {};
+
+entityDescriptors.push(entityTools.prepareDescriptor({
+  tagName: 'router',
+  methodName: 'router',
+  resource: fw.router,
+  behavior: [ ViewModel, Router ],
+  defaultConfig: {
+    namespace: '$router',
+    autoRegister: false,
+    autoIncrement: false,
+    showDuringLoad: noComponentSelected,
+    extend: {},
+    mixins: undefined,
+    afterRender: _.noop,
+    afterResolving: function resolveEntityImmediately(resolveNow) {
+      resolveNow(true);
+    },
+    sequenceAnimations: false,
+    onDispose: _.noop,
+    baseRoute: null,
+    isRelative: true,
+    activate: true,
+    beforeRoute: null,
+    minTransitionPeriod: 0
+  }
+}));

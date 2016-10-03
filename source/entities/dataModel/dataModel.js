@@ -1,10 +1,13 @@
 var fw = require('../../../bower_components/knockoutjs/dist/knockout');
 var _ = require('../../lodash');
+
+var entityDescriptors = require('../entity-descriptors');
+var entityTools = require('../entity-tools');
+var ViewModel = require('../viewModel/viewModel');
+
 var dataContext = require('./data-context');
 var dataTools = require('./data-tools');
 require('./mapTo');
-
-fw.dataModel = {};
 
 var getNestedReference = dataTools.getNestedReference;
 var insertValueIntoObject = dataTools.insertValueIntoObject;
@@ -14,7 +17,7 @@ function dataModelIsNew() {
   return _.isUndefined(id) || _.isNull(id);
 }
 
-module.exports = function DataModel(descriptor, configParams) {
+var DataModel = module.exports = function DataModel(descriptor, configParams) {
   return {
     runBeforeInit: true,
     _preInit: function(params) {
@@ -261,3 +264,31 @@ module.exports = function DataModel(descriptor, configParams) {
     }
   };
 };
+
+fw.dataModel = {};
+
+entityDescriptors.push(entityTools.prepareDescriptor({
+  tagName: 'datamodel',
+  methodName: 'dataModel',
+  resource: fw.dataModel,
+  behavior: [ ViewModel, DataModel ],
+  defaultConfig: {
+    idAttribute: 'id',
+    url: null,
+    useKeyInUrl: true,
+    parse: false,
+    ajaxOptions: {},
+    namespace: undefined,
+    autoRegister: false,
+    autoIncrement: false,
+    extend: {},
+    mixins: undefined,
+    requestLull: undefined,
+    afterRender: _.noop,
+    afterResolving: function resolveEntityImmediately(resolveNow) {
+      resolveNow(true);
+    },
+    sequenceAnimations: false,
+    onDispose: _.noop
+  }
+}));
