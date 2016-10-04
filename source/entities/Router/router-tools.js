@@ -1,5 +1,9 @@
 var _ = require('../../misc/lodash');
 
+var entityTools = require('../entity-tools');
+var isRouter = entityTools.isRouter;
+var nearestEntity = entityTools.nearestEntity;
+
 var optionalParamRegex = /\((.*?)\)/g;
 var namedParamRegex = /(\(\?)?:\w+/g;
 var splatParamRegex = /\*\w*/g;
@@ -30,7 +34,7 @@ function routeStringToRegExp(routeString) {
 
 function historyIsReady() {
   var typeOfHistory = typeof History;
-  var isReady = ['function','object'].indexOf(typeOfHistory) !== -1 && has(History, 'Adapter');
+  var isReady = ['function','object'].indexOf(typeOfHistory) !== -1 && _.has(History, 'Adapter');
 
   if(isReady && !History.Adapter.isSetup) {
     History.Adapter.isSetup = true;
@@ -38,7 +42,7 @@ function historyIsReady() {
     // why .unbind() is not already present in History.js is beyond me
     History.Adapter.unbind = function(callback) {
       each(History.Adapter.handlers, function(handler) {
-        handler.statechange = filter(handler.statechange, function(stateChangeHandler) {
+        handler.statechange = _.filter(handler.statechange, function(stateChangeHandler) {
           return stateChangeHandler !== callback;
         });
       });

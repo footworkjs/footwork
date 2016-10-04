@@ -99,27 +99,48 @@ function entityClassFactory(descriptor, configParams) {
   return entityCtor;
 }
 
+function isEntityCtor(thing) {
+  return _.reduce(_.map(entityDescriptors, 'isEntityCtor'), function(isThing, comparator) {
+    return isThing || comparator(thing);
+  }, false);
+};
+
+function isEntity(thing) {
+  return _.reduce(_.map(entityDescriptors, 'isEntity'), function(isThing, comparator) {
+    return isThing || comparator(thing);
+  }, false);
+};
+
+function nearestEntity($context, predicate) {
+  var foundEntity = null;
+
+  predicate = predicate || isEntity;
+  var predicates = [].concat(predicate);
+  function isTheThing(thing) {
+    return reduce(predicates, function(isThing, predicate) {
+      return isThing || predicate(thing);
+    }, false);
+  }
+
+  if(_.isObject($context)) {
+    if(isTheThing($context.$data)) {
+      // found $data that matches the predicate(s) in this context
+      foundEntity = $context.$data;
+    } else if(_.isObject($context.$parentContext) || (_.isObject($context.$data) && _.isObject($context.$data.$parentContext))) {
+      // search through next parent up the chain
+      foundEntity = nearestEntity($context.$parentContext || $context.$data.$parentContext, predicate);
+    }
+  }
+  return foundEntity;
+}
+
 module.exports = {
   prepareDescriptor: prepareDescriptor,
   entityClassFactory: entityClassFactory,
+  isEntityCtor: isEntityCtor,
+  isEntity: isEntity,
+  nearestEntity: nearestEntity,
   init: function() {
-    var entityCtorComparators = _.map(entityDescriptors, 'isEntityCtor');
-    var entityComparators = _.map(entityDescriptors, 'isEntity');
-
-    var isEntityCtor = function isEntityCtor(thing) {
-      return _.reduce(entityCtorComparators, function(isThing, comparator) {
-        return isThing || comparator(thing);
-      }, false);
-    };
-
-    var isEntity = function isEntity(thing) {
-      return _.reduce(entityComparators, function(isThing, comparator) {
-        return isThing || comparator(thing);
-      }, false);
-    };
-
-    this.isEntityCtor = isEntityCtor;
-    this.isEntity = isEntity;
     this.isDataModelCtor = entityDescriptors.getDescriptor('dataModel').isEntityCtor;
     this.isDataModel = entityDescriptors.getDescriptor('dataModel').isEntity;
     this.isRouter = entityDescriptors.getDescriptor('router').isEntity;

@@ -1,3 +1,5 @@
+var resultBound = require('./util').resultBound;
+
 // Map from CRUD to HTTP for our default `fw.sync` implementation.
 var methodMap = {
   'create': 'POST',

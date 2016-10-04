@@ -17,6 +17,14 @@ function dataModelIsNew() {
   return _.isUndefined(id) || _.isNull(id);
 }
 
+function isNode(thing) {
+  var thingIsObject = _.isObject(thing);
+  return (
+    thingIsObject ? thing instanceof Node :
+    thingIsObject && _.isNumber(thing.nodeType) === "number" && _.isString(thing.nodeName)
+  );
+}
+
 var DataModel = module.exports = function DataModel(descriptor, configParams) {
   return {
     runBeforeInit: true,

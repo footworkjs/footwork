@@ -4,6 +4,9 @@ var _ = require('../../misc/lodash');
 var entityDescriptors = require('../entity-descriptors');
 var entityTools = require('../entity-tools');
 var ViewModel = require('../viewModel/viewModel');
+require('./outlet.js');
+
+var resultBound = require('../../misc/util').resultBound;
 
 var routerTools = require('./router-tools.js');
 var hashMatchRegex = routerTools.hashMatchRegex;
