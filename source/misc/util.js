@@ -1,4 +1,5 @@
 var _ = require('./lodash');
+var minFramesPerSecond = require('./config').minFramesPerSecond;
 
 function alwaysPassPredicate() {
   return true;
@@ -53,11 +54,16 @@ function removeClass(element, className) {
   }
 }
 
+var nextFrame = function(callback) {
+  setTimeout(callback, 1000 / minFramesPerSecond);
+};
+
 module.exports = {
   alwaysPassPredicate: alwaysPassPredicate,
   resultBound: resultBound,
   isPromise: isPromise,
   promiseIsResolvedOrRejected: promiseIsResolvedOrRejected,
   addClass: addClass,
-  removeClass: removeClass
+  removeClass: removeClass,
+  nextFrame: nextFrame
 };

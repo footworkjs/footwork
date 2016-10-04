@@ -4,7 +4,7 @@ var _ = require('../../misc/lodash');
 var entityDescriptors = require('../entity-descriptors');
 var entityTools = require('../entity-tools');
 var ViewModel = require('../viewModel/viewModel');
-require('./outlet.js');
+require('./outlet/outlet.js');
 
 var resultBound = require('../../misc/util').resultBound;
 
@@ -23,6 +23,16 @@ var routerDefaults = require('./router-defaults.js');
 var noComponentSelected = routerDefaults.noComponentSelected;
 var $nullRouter = routerDefaults.$nullRouter;
 var baseRoute = routerDefaults.baseRoute;
+
+function registerViewModelForOutlet(outletName, outletViewModel) {
+  var outletProperties = this.outlets[outletName] || {};
+  outletProperties.outletViewModel = outletViewModel;
+}
+
+function unregisterViewModelForOutlet(outletName) {
+  var outletProperties = this.outlets[outletName] || {};
+  delete outletProperties.outletViewModel;
+}
 
 var Router = module.exports = function Router(descriptor, configParams) {
   return {

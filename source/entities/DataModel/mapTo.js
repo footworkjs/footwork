@@ -1,6 +1,6 @@
 var fw = require('../../../bower_components/knockoutjs/dist/knockout');
 var _ = require('../../misc/lodash');
-var dataContext = require('./data-context');
+var dataModelContext = require('./dataModel-context');
 
 function getPrimaryKey(dataModel) {
   return dataModel.__private('configParams').idAttribute;
@@ -13,7 +13,7 @@ fw.subscribable.fn.mapTo = function(option) {
 
   if(_.isString(option)) {
     mapPath = option;
-    dataModel = dataContext.current();
+    dataModel = dataModelContext.current();
   } else if(_.isObject(option)) {
     mapPath = option.path;
     dataModel = option.dataModel;

@@ -77,3 +77,16 @@ entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
 }));
 
 fw.viewModel.create = entityTools.entityClassFactory.bind(null, descriptor);
+
+require('../../misc/config').DefaultViewModel = fw.viewModel.create({
+  namespace: '_DefaultViewModelNamespace',
+  autoIncrement: true,
+  initialize: function(params) {
+    if(_.isObject(params) && _.isObject(params.$viewModel)) {
+      extend(this, params.$viewModel);
+    }
+  },
+  sequenceAnimations: function() {
+    return result(fw.settings, 'sequenceAnimations', 0);
+  }
+});

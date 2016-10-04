@@ -38,6 +38,7 @@ var baseRouteDescription = {
 };
 
 module.exports = {
+  defaultLoadingComponent: 'default-loading-display',
   noComponentSelected: noComponentSelected,
   nullComponent: nullComponent,
   invalidRoutePathIdentifier: invalidRoutePathIdentifier,

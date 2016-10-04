@@ -1,6 +1,12 @@
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
 var _ = require('../misc/lodash');
-var resultBound = require('../misc/util').resultBound;
+
+var entityAnimateClass = require('../misc/config').entityAnimateClass;
+
+var util = require('../misc/util');
+var resultBound = util.resultBound;
+var addClass = util.addClass;
+var nextFrame = util.nextFram;
 
 var sequenceQueue = {};
 

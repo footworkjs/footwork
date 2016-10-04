@@ -5,7 +5,7 @@ var entityDescriptors = require('../entity-descriptors');
 var entityTools = require('../entity-tools');
 var ViewModel = require('../viewModel/viewModel');
 
-var dataContext = require('./data-context');
+var dataModelContext = require('./dataModel-context');
 var dataTools = require('./data-tools');
 require('./mapTo');
 
@@ -30,7 +30,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
     runBeforeInit: true,
     _preInit: function(params) {
       params = params || {};
-      dataContext.enter(this);
+      dataModelContext.enter(this);
       var pkField = configParams.idAttribute;
       this.__private('mappings', fw.observable({}));
 
@@ -268,7 +268,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
         }, false);
       }, this);
 
-      dataContext.exit();
+      dataModelContext.exit();
     }
   };
 };

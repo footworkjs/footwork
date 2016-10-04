@@ -1,1 +1,1 @@
-require('./component-sequence');
+require('./sequencing');
