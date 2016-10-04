@@ -1,5 +1,6 @@
 var _ = require('../../misc/lodash');
 var util = require('../../misc/util');
+var entityAnimateClass = require('../../misc/config').entityAnimateClass;
 
 var alwaysPassPredicate = util.alwaysPassPredicate;
 var noComponentSelected = '_noComponentSelected';
@@ -46,5 +47,7 @@ module.exports = {
   nullRouterData: nullRouterData,
   $nullRouter: $nullRouter,
   baseRoute: baseRoute,
-  baseRouteDescription: baseRouteDescription
+  baseRouteDescription: baseRouteDescription,
+  outletLoadingDisplay: 'fw-loading-display',
+  outletLoadedDisplay: 'fw-loaded-display'
 };

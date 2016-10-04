@@ -36,7 +36,7 @@ function unregisterViewModelForOutlet(outletName) {
 
 var Router = module.exports = function Router(descriptor, configParams) {
   return {
-    _preInit: function( params ) {
+    _preInit: function(params) {
       var $router = this;
       var routerConfigParams = extend({ routes: [] }, configParams);
 
@@ -86,7 +86,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
       router.normalizeURL = normalizeURL;
 
       function getUnknownRoute() {
-        var unknownRoute = find(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
+        var unknownRoute = _.find(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
 
         if (!_.isNull(unknownRoute)) {
           unknownRoute = extend({}, baseRoute, {
@@ -173,7 +173,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
         }
 
         if (_.isUndefined(router.currentRouteDescription) || !sameRouteDescription(router.currentRouteDescription, routeDescription)) {
-          (routeDescription.controller || noop).apply($router, values(routeDescription.namedParams) );
+          (routeDescription.controller || _.noop).apply($router, values(routeDescription.namedParams) );
           router.currentRouteDescription = routeDescription;
         }
       }
@@ -339,7 +339,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
 
         if(!_.isNull(namedRoute)) {
           // must convert namedRoute into its URL form
-          var routeDescription = find(this.routeDescriptions, function (route) {
+          var routeDescription = _.find(this.routeDescriptions, function (route) {
             return route.name === namedRoute;
           });
 
@@ -423,7 +423,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
             return isEntity(property);
           }), propertyDispose);
 
-          if(configParams.onDispose !== noop) {
+          if(configParams.onDispose !== _.noop) {
             configParams.onDispose.call(this, this.__private('element'));
           }
 
