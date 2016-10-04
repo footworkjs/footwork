@@ -4,7 +4,7 @@ var _ = require('../../misc/lodash');
 var entityDescriptors = require('../entity-descriptors');
 var entityTools = require('../entity-tools');
 var ViewModel = require('../viewModel/viewModel');
-require('./outlet/outlet.js');
+var routerOutlet = require('./outlet/outlet.js');
 
 var resultBound = require('../../misc/util').resultBound;
 

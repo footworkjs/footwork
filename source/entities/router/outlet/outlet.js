@@ -12,3 +12,5 @@ fw.outlet = {
 require('./outlet-binder');
 require('./outlet-component');
 require('./loading-component');
+
+module.exports = require('./router-outlet');
