@@ -4,11 +4,13 @@ var _ = require('../../misc/lodash');
 var entityDescriptors = require('../entity-descriptors');
 var entityTools = require('../entity-tools');
 var ViewModel = require('../viewModel/viewModel');
-var routerOutlet = require('./outlet/outlet.js');
+var routerOutlet = require('./outlet/outlet');
 
 var resultBound = require('../../misc/util').resultBound;
 
-var routerTools = require('./router-tools.js');
+require('./route-binding');
+
+var routerTools = require('./router-tools');
 var hashMatchRegex = routerTools.hashMatchRegex;
 var namedParamRegex = routerTools.namedParamRegex;
 var isNullRouter = routerTools.isNullRouter;
@@ -19,7 +21,7 @@ var historyIsReady = routerTools.historyIsReady;
 var isRoute = routerTools.isRoute;
 var nearestParentRouter = routerTools.nearestParentRouter;
 
-var routerDefaults = require('./router-defaults.js');
+var routerDefaults = require('./router-defaults');
 var noComponentSelected = routerDefaults.noComponentSelected;
 var $nullRouter = routerDefaults.$nullRouter;
 var baseRoute = routerDefaults.baseRoute;

@@ -1,4 +1,5 @@
 var _ = require('./lodash');
+
 var minFramesPerSecond = require('./config').minFramesPerSecond;
 
 function alwaysPassPredicate() {
@@ -54,9 +55,24 @@ function removeClass(element, className) {
   }
 }
 
-var nextFrame = function(callback) {
+function nextFrame(callback) {
   setTimeout(callback, 1000 / minFramesPerSecond);
 };
+
+var trailingSlashRegex = /\/$/;
+function isPath(pathOrFile) {
+  return _.isString(pathOrFile) && trailingSlashRegex.test(pathOrFile);
+}
+
+var startingSlashRegex = /^\//;
+function hasPathStart(path) {
+  return _.isString(path) && startingSlashRegex.test(path);
+}
+
+var startingHashRegex = /^#/;
+function hasHashStart(string) {
+  return _.isString(string) && startingHashRegex.test(string);
+}
 
 module.exports = {
   alwaysPassPredicate: alwaysPassPredicate,
@@ -65,5 +81,8 @@ module.exports = {
   promiseIsResolvedOrRejected: promiseIsResolvedOrRejected,
   addClass: addClass,
   removeClass: removeClass,
-  nextFrame: nextFrame
+  nextFrame: nextFrame,
+  isPath: isPath,
+  hasPathStart: hasPathStart,
+  hasHashStart: hasHashStart
 };
