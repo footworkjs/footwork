@@ -3,6 +3,7 @@ var _ = require('../../misc/lodash');
 
 var entityBinder = require('./entity-binder');
 var nearestEntity = require('../entity-tools').nearestEntity;
+var isOutletViewModel = require('../router/router-tools').isOutletViewModel;
 
 function getResourceLocation(moduleName) {
   var resource = this;

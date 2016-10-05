@@ -1,7 +1,7 @@
 var _ = require('../misc/lodash');
 
 module.exports = _.extend([
-  /* filled in by various modules */
+  /* filled in by viewModel/dataModel/router modules */
 ], {
   getTags: function() {
     return _.map(this, function(descriptor) {
