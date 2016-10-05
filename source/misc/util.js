@@ -74,6 +74,74 @@ function hasHashStart(string) {
   return _.isString(string) && startingHashRegex.test(string);
 }
 
+/**
+ * Creates or returns a promise based on the request specified in requestInfo.
+ * This function also manages a requestRunning observable on the entity which indicates when the request finishes.
+ * Note that there is an optional requestLull which will make the requestRunning observable stay 'true' for
+ * atleast the specified duration. If multiple requests are in progress, then it will wait for all to finish.
+ *
+ * @param  {string} operationType The type of operation being made, used as key to cache running requests
+ * @param  {object} requestInfo   Description of the request to make including a createRequest callback to make a new request
+ * @return {Promise}              Ajax Promise
+ */
+function makeOrGetRequest(operationType, requestInfo) {
+  var requestRunning = requestInfo.requestRunning;
+  var requestLull = requestInfo.requestLull;
+  var entity = requestInfo.entity;
+  var createRequest = requestInfo.createRequest;
+  var promiseName = operationType + 'Promise';
+  var allowConcurrent = requestInfo.allowConcurrent;
+  var requests = entity.__private(promiseName) || [];
+  var theRequest = last(requests);
+
+  if((allowConcurrent || !isObservable(requestRunning) || !requestRunning()) || !requests.length) {
+    theRequest = createRequest();
+
+    if(!isPromise(theRequest) && isFunction(Deferred)) {
+      // returned value from createRequest() is a value not a promise, lets return the value in a promise
+      theRequest = Deferred().resolve(theRequest);
+
+      // extract the promise from the generic (jQuery or D.js) deferred
+      theRequest = isFunction(theRequest.promise) ? theRequest.promise() : theRequest.promise;
+    }
+
+    requests = requests || [];
+    requests.push(theRequest);
+    entity.__private(promiseName, requests);
+
+    requestRunning(true);
+
+    var lullFinished = fw.observable(false);
+    var requestFinished = fw.observable(false);
+    var requestWatcher = fw.computed(function() {
+      if(lullFinished() && requestFinished()) {
+        requestRunning(false);
+        requestWatcher.dispose();
+      }
+    });
+
+    requestLull = (isFunction(requestLull) ? requestLull(operationType) : requestLull);
+    if(requestLull) {
+      setTimeout(function() {
+        lullFinished(true);
+      }, requestLull);
+    } else {
+      lullFinished(true);
+    }
+
+    if(isPromise(theRequest)) {
+      (theRequest.always || theRequest.ensure).call(theRequest, function() {
+        if(every(requests, promiseIsResolvedOrRejected)) {
+          requestFinished(true);
+          entity.__private(promiseName, []);
+        }
+      });
+    }
+  }
+
+  return theRequest;
+}
+
 module.exports = {
   alwaysPassPredicate: alwaysPassPredicate,
   resultBound: resultBound,
@@ -84,5 +152,6 @@ module.exports = {
   nextFrame: nextFrame,
   isPath: isPath,
   hasPathStart: hasPathStart,
-  hasHashStart: hasHashStart
+  hasHashStart: hasHashStart,
+  makeOrGetRequest: makeOrGetRequest
 };

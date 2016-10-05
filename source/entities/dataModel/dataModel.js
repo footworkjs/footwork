@@ -6,11 +6,14 @@ var entityTools = require('../entity-tools');
 var ViewModel = require('../viewModel/viewModel');
 
 var dataModelContext = require('./dataModel-context');
-var dataTools = require('./data-tools');
-require('./mapTo');
+var makeOrGetRequest = require('../../misc/util').makeOrGetRequest;
 
+var dataTools = require('./data-tools');
 var getNestedReference = dataTools.getNestedReference;
 var insertValueIntoObject = dataTools.insertValueIntoObject;
+
+require('./mapTo');
+
 
 function dataModelIsNew() {
   var id = this.$id();
