@@ -2,6 +2,7 @@ var fw = require('../bower_components/knockoutjs/dist/knockout');
 
 require('./misc/init');
 require('./binding/start');
+require('./binding/applyBindings');
 
 fw.sync = require('./misc/sync');
 fw.embed = require('./misc/embed-exports');
