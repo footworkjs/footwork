@@ -42,7 +42,7 @@ function runAnimationClassSequenceQueue(queue, isRunner) {
 
 function addToAndFetchQueue(element, viewModel) {
   var configParams = viewModel.__private('configParams');
-  var sequenceTimeout = resultBound(configParams, 'sequenceAnimations', viewModel) || fw.settings.defaultAnimationSequence || 0;
+  var sequenceTimeout = resultBound(configParams, 'sequenceAnimations', viewModel) || 0;
   var animationSequenceQueue = sequenceQueue[configParams.namespace] = (sequenceQueue[configParams.namespace] || []);
   var newSequenceIteration = {
     addAnimationClass: function addBindingFromQueue() {

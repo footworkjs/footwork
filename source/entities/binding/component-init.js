@@ -12,7 +12,7 @@ function getResourceLocation(moduleName) {
   if (resource.isRegistered(moduleName)) {
     // viewModel was manually registered, we preferentially use it
     resourceLocation = resource.getRegistered(moduleName);
-  } else if (_.isFunction(require) && _.isFunction(require.specified) && require.specified(moduleName)) {
+  } else if (_.isFunction(window.require) && _.isFunction(window.require.specified) && window.require.specified(moduleName)) {
     // we have found a matching resource that is already cached by require, lets use it
     resourceLocation = moduleName;
   } else {
@@ -72,15 +72,15 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
         var resourceLocation = getResourceLocationFor(moduleName);
 
         if (_.isString(resourceLocation)) {
-          if (_.isFunction(require)) {
-            if (!require.specified(resourceLocation)) {
+          if (_.isFunction(window.require)) {
+            if (!window.require.specified(resourceLocation)) {
               if (isPath(resourceLocation)) {
                 resourceLocation = resourceLocation + resource.getFileName(moduleName);
               }
               resourceLocation = require.toUrl(resourceLocation);
             }
 
-            require([resourceLocation], function(resource) {
+            window.require([resourceLocation], function(resource) {
               bindModel(resource, $flightTracker, $inFlightChildren, $outletsInFlightChildren);
             });
           } else {

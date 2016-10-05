@@ -16,6 +16,7 @@ var runSequence = require('run-sequence');
 var fs = require('fs');
 var sass = require("gulp-sass");
 var autoprefixer = require('gulp-autoprefixer');
+var derequire = require('gulp-derequire');
 
 var pkg = require('./package.json');
 var reporter = 'list';
@@ -64,6 +65,7 @@ gulp.task('build', ['build_footwork_css', 'build_ci_css'], function () {
       standalone: 'footwork',
       debug: args.hasOwnProperty("debug")
     }))
+    .pipe(derequire())
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
     .pipe(replace('.footwork=', '.fw=')) // Replace the globals reference with 'fw' but leave module references as 'footwork'
     .pipe(header(banner, { pkg: pkg }))

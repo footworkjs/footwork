@@ -14,7 +14,6 @@ var insertValueIntoObject = dataTools.insertValueIntoObject;
 
 require('./mapTo');
 
-
 function dataModelIsNew() {
   var id = this.$id();
   return _.isUndefined(id) || _.isNull(id);

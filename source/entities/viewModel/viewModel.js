@@ -83,10 +83,7 @@ require('../../misc/config').DefaultViewModel = fw.viewModel.create({
   autoIncrement: true,
   initialize: function(params) {
     if(_.isObject(params) && _.isObject(params.$viewModel)) {
-      extend(this, params.$viewModel);
+      _.extend(this, params.$viewModel);
     }
-  },
-  sequenceAnimations: function() {
-    return result(fw.settings, 'sequenceAnimations', 0);
   }
 });

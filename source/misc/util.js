@@ -1,7 +1,5 @@
 var _ = require('./lodash');
 
-var minFramesPerSecond = require('./config').minFramesPerSecond;
-
 function alwaysPassPredicate() {
   return true;
 }
@@ -56,7 +54,7 @@ function removeClass(element, className) {
 }
 
 function nextFrame(callback) {
-  setTimeout(callback, 1000 / minFramesPerSecond);
+  setTimeout(callback, 1000 / 30);
 };
 
 var trailingSlashRegex = /\/$/;
@@ -92,17 +90,17 @@ function makeOrGetRequest(operationType, requestInfo) {
   var promiseName = operationType + 'Promise';
   var allowConcurrent = requestInfo.allowConcurrent;
   var requests = entity.__private(promiseName) || [];
-  var theRequest = last(requests);
+  var theRequest = _.last(requests);
 
-  if((allowConcurrent || !isObservable(requestRunning) || !requestRunning()) || !requests.length) {
+  if((allowConcurrent || !fw.isObservable(requestRunning) || !requestRunning()) || !requests.length) {
     theRequest = createRequest();
 
-    if(!isPromise(theRequest) && isFunction(Deferred)) {
+    if(!isPromise(theRequest) && _.isFunction(Deferred)) {
       // returned value from createRequest() is a value not a promise, lets return the value in a promise
       theRequest = Deferred().resolve(theRequest);
 
       // extract the promise from the generic (jQuery or D.js) deferred
-      theRequest = isFunction(theRequest.promise) ? theRequest.promise() : theRequest.promise;
+      theRequest = _.isFunction(theRequest.promise) ? theRequest.promise() : theRequest.promise;
     }
 
     requests = requests || [];
@@ -120,7 +118,7 @@ function makeOrGetRequest(operationType, requestInfo) {
       }
     });
 
-    requestLull = (isFunction(requestLull) ? requestLull(operationType) : requestLull);
+    requestLull = (_.isFunction(requestLull) ? requestLull(operationType) : requestLull);
     if(requestLull) {
       setTimeout(function() {
         lullFinished(true);
@@ -131,7 +129,7 @@ function makeOrGetRequest(operationType, requestInfo) {
 
     if(isPromise(theRequest)) {
       (theRequest.always || theRequest.ensure).call(theRequest, function() {
-        if(every(requests, promiseIsResolvedOrRejected)) {
+        if(_.every(requests, promiseIsResolvedOrRejected)) {
           requestFinished(true);
           entity.__private(promiseName, []);
         }

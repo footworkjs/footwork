@@ -1,4 +1,4 @@
-module.exports = function privateData(privateStore, configParams, propName, propValue) {
+function privateData(privateStore, configParams, propName, propValue) {
   var isGetBaseObjOp = arguments.length === 2;
   var isReadOp = arguments.length === 3;
   var isWriteOp = arguments.length === 4;
@@ -11,4 +11,6 @@ module.exports = function privateData(privateStore, configParams, propName, prop
     privateStore[propName] = propValue;
     return privateStore[propName];
   }
-};
+}
+
+module.exports = privateData;
