@@ -6,11 +6,12 @@ require('./binding/applyBindings');
 
 fw.sync = require('./misc/sync');
 fw.embed = require('./misc/embed-exports');
-
 fw.namespace = require('./namespace/namespace');
+
 require('./broadcastable-receivable');
 require('./entities/entities');
 require('./resource/resource');
 require('./component/component');
+require('./collection/collection');
 
 module.exports = fw;

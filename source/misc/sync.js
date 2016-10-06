@@ -1,4 +1,5 @@
 var resultBound = require('./util').resultBound;
+var isCollection = require('../collection/collection-tools').isCollection;
 
 // Map from CRUD to HTTP for our default `fw.sync` implementation.
 var methodMap = {
