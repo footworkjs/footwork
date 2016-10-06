@@ -58,7 +58,7 @@ function entityClassFactory(descriptor, configParams) {
 
     var newInstanceCheckMixin = {
       _preInit: function() {
-        if (this === windowObject) {
+        if (this === window) {
           throw new Error('Must use the new operator when instantiating a ' + descriptor.methodName + '.');
         }
       }
@@ -139,10 +139,5 @@ module.exports = {
   entityClassFactory: entityClassFactory,
   isEntityCtor: isEntityCtor,
   isEntity: isEntity,
-  nearestEntity: nearestEntity,
-  init: function() {
-    this.isDataModelCtor = entityDescriptors.getDescriptor('dataModel').isEntityCtor;
-    this.isDataModel = entityDescriptors.getDescriptor('dataModel').isEntity;
-    this.isRouter = entityDescriptors.getDescriptor('router').isEntity;
-  }
+  nearestEntity: nearestEntity
 };

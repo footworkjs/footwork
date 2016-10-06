@@ -9,7 +9,12 @@ var entityTools = require('../entities/entity-tools');
 var nearestEntity = entityTools.nearestEntity;
 var isEntity = entityTools.isEntity;
 
+var routerDefaults = require('../entities/router/router-defaults');
+var outletLoadedDisplay = routerDefaults.outletLoadedDisplay;
+var outletLoadingDisplay = routerDefaults.outletLoadingDisplay;
+
 var addClass = require('../misc/util').addClass;
+var entityClass = require('../misc/config').entityClass;
 
 function componentTriggerAfterRender(element, viewModel, $context) {
   if(isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
@@ -70,7 +75,7 @@ fw.bindingHandlers.$life = {
     // if this element is not the 'loading' component of an outlet, then we need to
     // trigger the onComplete callback
     var $parent = bindingContext.$parent;
-    if (_.isObject($parent) && _.isObservable($parent.route) && $parent.__isOutlet) {
+    if (_.isObject($parent) && fw.isObservable($parent.route) && $parent.__isOutlet) {
       var parentRoute = $parent.route.peek();
       var classList = element.className.split(" ");
       if (!_.includes(classList, outletLoadingDisplay) && _.isFunction(parentRoute.getOnCompleteCallback)) {

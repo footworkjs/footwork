@@ -1,30 +1,31 @@
 var _ = require('../misc/lodash');
 
-function createEnvelope(topic, data, expires) {
+/**
+ * Create postal message envelope using a given topic, data, and expiration
+ *
+ * @param {any} topic
+ * @param {any} data
+ * @param {any} expires
+ * @returns {object} postal.js envelope
+ */
+function createEnvelope(topic, data) {
   var envelope = {
     topic: topic,
     data: data
   };
 
-  if( !_.isUndefined(expires) ) {
-    envelope.headers = { preserve: true };
-    if(expires instanceof Date) {
-      envelope.expires = expires;
-    }
-  }
-
   return envelope;
 }
 
 // Method used to trigger an event on a namespace
-function triggerEventOnNamespace(eventKey, params, expires) {
-  this.publish( createEnvelope('event.' + eventKey, params, expires) );
+function triggerEventOnNamespace(eventKey, params) {
+  this.publish(createEnvelope('event.' + eventKey, params));
   return this;
 }
 
 // Method used to register an event handler on a namespace
 function registerNamespaceEventHandler(eventKey, callback, context) {
-  if( !_.isUndefined(context) ) {
+  if (!_.isUndefined(context)) {
     callback = callback.bind(context);
   }
 
@@ -41,8 +42,8 @@ function unregisterNamespaceHandler(handlerSubscription) {
 }
 
 // Method used to send a command to a namespace
-function sendCommandToNamespace(commandKey, params, expires) {
-  this.publish(createEnvelope('command.' + commandKey, params, expires));
+function sendCommandToNamespace(commandKey, params) {
+  this.publish(createEnvelope('command.' + commandKey, params));
   return this;
 }
 
@@ -72,7 +73,7 @@ function requestResponseFromNamespace(requestKey, params, allowMultipleResponses
     }
   });
 
-  this.publish( createEnvelope('request.' + requestKey, params) );
+  this.publish(createEnvelope('request.' + requestKey, params));
   responseSubscription.unsubscribe();
 
   return response;

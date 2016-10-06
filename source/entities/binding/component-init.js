@@ -5,6 +5,8 @@ var entityBinder = require('./entity-binder');
 var nearestEntity = require('../entity-tools').nearestEntity;
 var isOutletViewModel = require('../router/router-tools').isOutletViewModel;
 
+var entityDescriptors = require('./../entity-descriptors');
+
 function getResourceLocation(moduleName) {
   var resource = this;
   var resourceLocation = null;
@@ -38,7 +40,7 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
     var $nearestEntity = nearestEntity(bindingContext);
     if ($nearestEntity) {
       var $inFlightChildren = $nearestEntity.__private('inFlightChildren');
-      if (_.isObservable($inFlightChildren) && _.isFunction($inFlightChildren.push)) {
+      if (fw.isObservable($inFlightChildren) && _.isFunction($inFlightChildren.push)) {
         $inFlightChildren.push($flightTracker);
       }
     }
@@ -46,7 +48,7 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
     var $nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
     if ($nearestOutlet) {
       var $outletsInFlightChildren = $nearestOutlet.inFlightChildren;
-      if (_.isObservable($outletsInFlightChildren) && _.isFunction($outletsInFlightChildren.push)) {
+      if (fw.isObservable($outletsInFlightChildren) && _.isFunction($outletsInFlightChildren.push)) {
         $outletsInFlightChildren.push($flightTracker);
       }
     }

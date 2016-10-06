@@ -74,7 +74,7 @@ module.exports = function entityBinder(element, params, $parentContext, Entity, 
 
   var childrenToInsert = [];
   _.each(element.childNodes, function(child) {
-    if (!isUndefined(child)) {
+    if (!_.isUndefined(child)) {
       childrenToInsert.push(child);
     }
   });

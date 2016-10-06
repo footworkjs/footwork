@@ -1,72 +1,23 @@
 var postal = require('../../bower_components/postal.js/lib/postal');
 var _ = require('../misc/lodash');
 
-var namespaceProto = require('./namespace-proto');
-var disconnectNamespaceHandlers = namespaceProto.disconnectNamespaceHandlers;
-var sendCommandToNamespace = namespaceProto.sendCommandToNamespace;
-var registerNamespaceCommandHandler = namespaceProto.registerNamespaceCommandHandler;
-var unregisterNamespaceHandler = namespaceProto.unregisterNamespaceHandler;
-var getNamespaceName = namespaceProto.getNamespaceName;
-var triggerEventOnNamespace = namespaceProto.triggerEventOnNamespace;
-var requestResponseFromNamespace = namespaceProto.requestResponseFromNamespace;
-var registerNamespaceRequestHandler = namespaceProto.registerNamespaceRequestHandler;
-var registerNamespaceEventHandler = namespaceProto.registerNamespaceEventHandler;
+var namespaceMethods = require('./namespace-methods');
+var disconnectNamespaceHandlers = namespaceMethods.disconnectNamespaceHandlers;
+var sendCommandToNamespace = namespaceMethods.sendCommandToNamespace;
+var registerNamespaceCommandHandler = namespaceMethods.registerNamespaceCommandHandler;
+var unregisterNamespaceHandler = namespaceMethods.unregisterNamespaceHandler;
+var getNamespaceName = namespaceMethods.getNamespaceName;
+var triggerEventOnNamespace = namespaceMethods.triggerEventOnNamespace;
+var requestResponseFromNamespace = namespaceMethods.requestResponseFromNamespace;
+var registerNamespaceRequestHandler = namespaceMethods.registerNamespaceRequestHandler;
+var registerNamespaceEventHandler = namespaceMethods.registerNamespaceEventHandler;
 
-// Prepare an empty namespace stack.
-// This is where footwork registers its current working namespace name. Each new namespace is
-// 'unshifted' and 'shifted' as they are entered and exited, keeping the most current at
-// index 0.
-var namespaceStack = [];
-
-// This counter is used when model options { autoIncrement: true } and more than one model
-// having the same namespace is instantiated. This is used in the event you do not want
-// multiple copies of the same model to share the same namespace (if they do share a
-// namespace, they receive all of the same events/messages/commands/etc).
-var namespaceNameCounter = {};
-
-// Returns a normalized namespace name based off of 'name'. It will register the name counter
-// if not present and increment it if it is, then return the name (with the counter appended
-// if autoIncrement === true and the counter is > 0).
-function indexedNamespaceName(name, autoIncrement) {
-  if (_.isUndefined(namespaceNameCounter[name])) {
-    namespaceNameCounter[name] = 0;
-  } else {
-    namespaceNameCounter[name]++;
-  }
-  return name + (autoIncrement === true ? namespaceNameCounter[name] : '');
-}
-
-// enterNamespaceName() adds a namespaceName onto the namespace stack at the current index,
-// 'entering' into that namespace (it is now the current namespace).
-// The namespace object returned from this method also has a pointer to its parent
-function enterNamespaceName(namespaceName) {
-  namespaceStack.unshift(namespaceName);
-  return Namespace(currentNamespaceName());
-}
-
-// enterNamespace() uses a current namespace definition as the one to enter into.
-function enterNamespace(ns) {
-  namespaceStack.unshift(ns.getName());
-  return ns;
-}
-
-// Called at the after a model constructor function is run. exitNamespace()
-// will shift the current namespace off of the stack, 'exiting' to the
-// next namespace in the stack
-function exitNamespace() {
-  namespaceStack.shift();
-  return currentNamespace();
-}
-
-// Return the current namespace channel name.
-function currentNamespaceName() {
-  return namespaceStack[0];
-};
-
-// Return instance of the current namespace channel.
-function currentNamespace() {
-  return Namespace(currentNamespaceName());
-};
+var namespaceTools = require('./namespace-tools');
+var enterNamespace = namespaceTools.enterNamespace;
+var enterNamespaceName = namespaceTools.enterNamespaceName;
+var currentNamespaceName = namespaceTools.currentNamespaceName;
+var exitNamespace = namespaceTools.exitNamespace;
+var indexedNamespaceName = namespaceTools.indexedNamespaceName;
 
 // Creates and returns a new namespace instance
 var Namespace = function Namespace(namespaceName, $parentNamespace) {

@@ -6,7 +6,11 @@ var entityTools = require('../entity-tools');
 var ViewModel = require('../viewModel/viewModel');
 var routerOutlet = require('./outlet/outlet');
 
-var resultBound = require('../../misc/util').resultBound;
+var privateData = require('../../misc/privateData');
+
+var util = require('../../misc/util');
+var resultBound = util.resultBound;
+var parseUri = util.parseUri;
 
 require('./route-binding');
 
@@ -310,12 +314,12 @@ var Router = module.exports = function Router(descriptor, configParams) {
 
         if (!this.__private('historyIsEnabled')()) {
           if (historyIsReady() && !this.__private('disableHistory')()) {
-            History.Adapter.bind(windowObject, 'popstate', this.__private('stateChangeHandler', function (event) {
+            History.Adapter.bind(window, 'popstate', this.__private('stateChangeHandler', function (event) {
               var url = '';
-              if (!fw.router.html5History() && windowObject.location.hash.length > 1) {
-                url = windowObject.location.hash;
+              if (!fw.router.html5History() && window.location.hash.length > 1) {
+                url = window.location.hash;
               } else {
-                url = windowObject.location.pathname + windowObject.location.hash;
+                url = window.location.pathname + window.location.hash;
               }
 
               this.__private('currentState')( this.__private('normalizeURL')(url) );
@@ -480,5 +484,9 @@ entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
     minTransitionPeriod: 0
   }
 }));
+
+_.extend(entityTools, {
+  isRouter: entityDescriptors.getDescriptor('router').isEntity
+});
 
 fw.router.create = entityTools.entityClassFactory.bind(null, descriptor);

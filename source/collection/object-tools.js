@@ -13,12 +13,12 @@ function regExpIsEqual(a, b, isEq) {
   isEq = isEq || regExpIsEqual;
 
   if(_.isObject(a) && _.isObject(b)) {
-    return _.every(reduce(a, function(comparison, paramValue, paramName) {
+    return _.every(_.reduce(a, function(comparison, paramValue, paramName) {
       var isCongruent = false;
       var bParamValue = b[paramName];
       if(bParamValue) {
         if(_.isRegExp(paramValue)) {
-          isCongruent = !isNull(bParamValue.match(paramValue));
+          isCongruent = !_.isNull(bParamValue.match(paramValue));
         } else {
           isCongruent = isEq(paramValue, bParamValue);
         }
@@ -40,10 +40,10 @@ function regExpIsEqual(a, b, isEq) {
  * @return boolean   Result of equality comparison
  */
 function commonKeysEqual(a, b, isEq) {
-  isEq = isEq || isEqual;
+  isEq = isEq || _.isEqual;
 
   if(_.isObject(a) && _.isObject(b)) {
-    var commonKeys = _.intersection(keys(a), _.keys(b));
+    var commonKeys = _.intersection(_.keys(a), _.keys(b));
     return commonKeys.length > 0 && isEq(_.pick(a, commonKeys), _.pick(b, commonKeys));
   } else {
     return a === b;
@@ -59,7 +59,7 @@ function commonKeysEqual(a, b, isEq) {
  * @return boolean   Result of equality comparison
  */
 function sortOfEqual(a, b, isEq) {
-  isEq = isEq || isEqual;
+  isEq = isEq || _.isEqual;
 
   if(_.isObject(a) && _.isObject(b)) {
     var AKeys = _.keys(a);

@@ -10,7 +10,12 @@ var util = require('../misc/util');
 var isPath = util.isPath;
 var getFilenameExtension = util.getFilenameExtension;
 
+var entityTools = require('../entities/entity-tools');
+var nearestEntity = entityTools.nearestEntity;
+var isEntity = entityTools.isEntity;
+
 var getComponentExtension = require('../resource/component-resource').getComponentExtension;
+var isOutletViewModel = require('../entities/router/router-tools').isOutletViewModel;
 
 fw.components.loaders.push(fw.components.requireLoader = {
   getConfig: function(componentName, callback) {

@@ -37,7 +37,7 @@ module.exports = function sync(action, concern, params) {
   //   emulateJSON: fw.settings.emulateJSON
   // }, resultBound(configParams, 'ajaxOptions', concern, [params]) || {}, params);
 
-  // if(!isString(options.type)) {
+  // if(!_.isString(options.type)) {
   //   throw new Error('Invalid action (' + action + ') specified for sync operation');
   // }
 
@@ -46,14 +46,14 @@ module.exports = function sync(action, concern, params) {
   //   url = configParams.url;
   //   if(_.isFunction(url)) {
   //     url = url.call(concern, action);
-  //   } else if(!isString(url)) {
+  //   } else if(!_.isString(url)) {
   //     var thing = (isDataModel(concern) && 'dataModel') || (isCollection(concern) && 'collection') || 'UNKNOWN';
   //     throw new Error('Must provide a URL for/on a ' + thing + ' configuration in order to call .sync() on it');
   //   }
 
   //   if(isDataModel(concern)) {
-  //     var pkIsSpecifiedByUser = !isNull(url.match(':' + configParams.idAttribute));
-  //     var hasQueryString = !isNull(url.match(/\?/));
+  //     var pkIsSpecifiedByUser = !_.isNull(url.match(':' + configParams.idAttribute));
+  //     var hasQueryString = !_.isNull(url.match(/\?/));
   //     if(_.includes(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl && !pkIsSpecifiedByUser && !hasQueryString) {
   //       // need to append /:id to url
   //       url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
@@ -62,7 +62,7 @@ module.exports = function sync(action, concern, params) {
   // }
 
   // var urlPieces = (url || noURLError()).match(parseURLRegex);
-  // if(!isNull(urlPieces)) {
+  // if(!_.isNull(urlPieces)) {
   //   var baseURL = urlPieces[1] || '';
   //   options.url = baseURL + _.last(urlPieces);
   // } else {

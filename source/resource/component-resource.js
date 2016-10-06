@@ -6,6 +6,7 @@ var DefaultViewModel = require('../misc/config').DefaultViewModel;
 var util = require('../misc/util');
 var isPath = util.isPath;
 var getFilenameExtension = util.getFilenameExtension;
+var regExpMatch = /^\/|\/$/g;
 
 fw.components.resourceLocations = {};
 

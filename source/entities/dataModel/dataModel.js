@@ -12,8 +12,6 @@ var dataTools = require('./data-tools');
 var getNestedReference = dataTools.getNestedReference;
 var insertValueIntoObject = dataTools.insertValueIntoObject;
 
-require('./mapTo');
-
 function dataModelIsNew() {
   var id = this.$id();
   return _.isUndefined(id) || _.isNull(id);
@@ -209,7 +207,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
           return _.reduce(referenceField, function(jsObject, fieldMap) {
             return _.merge(jsObject, dataModel.get(fieldMap, true));
           }, {});
-        } else if(!_.isUndefined(referenceField) && !isString(referenceField)) {
+        } else if(!_.isUndefined(referenceField) && !_.isString(referenceField)) {
           throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.get().');
         }
 
@@ -305,3 +303,10 @@ entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
 }));
 
 fw.dataModel.create = entityTools.entityClassFactory.bind(null, descriptor);
+
+_.extend(entityTools, {
+  isDataModelCtor: entityDescriptors.getDescriptor('dataModel').isEntityCtor,
+  isDataModel: entityDescriptors.getDescriptor('dataModel').isEntity
+});
+
+require('./mapTo');

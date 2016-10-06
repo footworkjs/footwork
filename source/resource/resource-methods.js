@@ -3,6 +3,7 @@ var _ = require('../misc/lodash');
 
 var isNamespace = require('../namespace/namespace').isNamespace;
 var isPath = require('../misc/util').isPath;
+var regExpMatch = /^\/|\/$/g;
 
 function isRegistered(descriptor, resourceName) {
   return !_.isUndefined(descriptor.registered[resourceName]);
