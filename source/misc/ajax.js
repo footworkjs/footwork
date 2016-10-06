@@ -1,4 +1,10 @@
-var resultBound = require('./util').resultBound;
+var _ = require('./lodash');
+var fw = require('../../bower_components/knockoutjs/dist/knockout');
+
+var util = require('./util');
+var resultBound = util.resultBound;
+var promiseIsResolvedOrRejected = util.promiseIsResolvedOrRejected;
+
 var isCollection = require('../collection/collection-tools').isCollection;
 
 // Map from CRUD to HTTP for our default `fw.sync` implementation.
@@ -17,7 +23,71 @@ function noURLError() {
   throw new Error('A "url" property or function must be specified');
 };
 
-module.exports = function sync(action, concern, params) {
+/**
+ * Creates or returns a promise based on the request specified in requestInfo.
+ * This function also manages a requestRunning observable on the entity which indicates when the request finishes.
+ * Note that there is an optional requestLull which will make the requestRunning observable stay 'true' for
+ * atleast the specified duration. If multiple requests are in progress, then it will wait for all to finish.
+ *
+ * @param  {string} operationType The type of operation being made, used as key to cache running requests
+ * @param  {object} requestInfo   Description of the request to make including a createRequest callback to make a new request
+ * @return {Promise}              Ajax Promise
+ */
+function makeOrGetRequest(operationType, requestInfo) {
+  var requestRunning = requestInfo.requestRunning;
+  var requestLull = requestInfo.requestLull;
+  var entity = requestInfo.entity;
+  var createRequest = requestInfo.createRequest;
+  var promiseName = operationType + 'Promise';
+  var allowConcurrent = requestInfo.allowConcurrent;
+  var requests = entity.__private(promiseName) || [];
+  var theRequest = _.last(requests);
+
+  if((allowConcurrent || !fw.isObservable(requestRunning) || !requestRunning()) || !requests.length) {
+    theRequest = createRequest();
+
+    if(!isPromise(theRequest)) {
+      // returned value from createRequest() is a value not a promise, lets return the value in a promise
+      theRequest = Promise().resolve(theRequest);
+    }
+
+    requests.push(theRequest);
+    entity.__private(promiseName, requests);
+
+    requestRunning(true);
+
+    var lullFinished = fw.observable(false);
+    var requestFinished = fw.observable(false);
+    var requestWatcher = fw.computed(function() {
+      if(lullFinished() && requestFinished()) {
+        requestRunning(false);
+        requestWatcher.dispose();
+      }
+    });
+
+    requestLull = (_.isFunction(requestLull) ? requestLull(operationType) : requestLull);
+    if(requestLull) {
+      setTimeout(function() {
+        lullFinished(true);
+      }, requestLull);
+    } else {
+      lullFinished(true);
+    }
+
+    if(isPromise(theRequest)) {
+      theRequest.then(function() {
+        if(_.every(requests, promiseIsResolvedOrRejected)) {
+          requestFinished(true);
+          entity.__private(promiseName, []);
+        }
+      });
+    }
+  }
+
+  return theRequest;
+}
+
+function sync(action, concern, params) {
   throw new Error('TODO: This needs to be refactored with fetch()');
   // params = params || {};
   // action = action || 'noAction';
@@ -118,3 +188,8 @@ module.exports = function sync(action, concern, params) {
   // concern.$namespace.publish('_.request', { dataModel: concern, xhr: xhr, options: options });
   // return xhr;
 };
+
+module.exports = {
+  sync: sync,
+  makeOrGetRequest: makeOrGetRequest
+}

@@ -6,7 +6,7 @@ var entityTools = require('../entity-tools');
 var ViewModel = require('../viewModel/viewModel');
 
 var dataModelContext = require('./dataModel-context');
-var makeOrGetRequest = require('../../misc/util').makeOrGetRequest;
+var makeOrGetRequest = require('../../misc/ajax').makeOrGetRequest;
 
 var dataTools = require('./data-tools');
 var getNestedReference = dataTools.getNestedReference;

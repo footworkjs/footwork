@@ -50,12 +50,14 @@ require.config({
     "customMatchers": "tests/assets/customMatchers",
     "tools": "tests/assets/tools",
     "reporter": "tests/assets/reporter",
-    "container": "tests/assets/container"
+    "container": "tests/assets/container",
+    "fetch-mock": "node_modules/fetch-mock/es5/client-browserified",
+    "promise-polyfill": "bower_components/es6-promise-polyfill/promise"
   },
 
   // we have to kickoff jasmine, as it is asynchronous
   callback: function() {
-    require(['footwork', 'lodash', 'jquery', 'jquery-mockjax', 'reporter', 'container'],
+    require(['footwork', 'lodash', 'jquery', 'reporter', 'container', 'promise-polyfill'],
       function(fw, _, $) {
         fixture.setBase('tests/assets/fixtures');
 

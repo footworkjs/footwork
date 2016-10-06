@@ -1,5 +1,5 @@
-define(['footwork', 'lodash', 'jquery', 'tools', 'jquery-mockjax'],
-  function(fw, _, $, tools) {
+define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
+  function(fw, _, $, tools, fetchMock) {
     describe('viewModel', function() {
       beforeEach(tools.prepareTestEnv);
       afterEach(tools.cleanTestEnv);

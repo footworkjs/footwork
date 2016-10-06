@@ -1,6 +1,6 @@
 {
   "name": "footwork",
-  "description": "A solid footing for knockout applications.",
+  "description": "A solid footing for web applications.",
   "homepage": "http://footworkjs.com",
   "license": "MIT",
   "keywords": [
@@ -19,7 +19,7 @@
     "node"
   ],
   "main": [
-    "./dist/footwork-all-history.min.js",
+    "./dist/footwork.min.js",
     "./dist/footwork.css"
   ],
   "ignore": [
@@ -36,19 +36,16 @@
     "README.md"
   ],
   "dependencies": {
-    "reqwest": "1.1.5",
-    "lodash": "^4.12",
     "history.js": "*",
     "requirejs": "*",
     "requirejs-text": "*",
-    "es6-promise-polyfill": "^1.1.1"
+    "es6-promise-polyfill": "*"
   },
   "devDependencies": {
     "conduitjs": "0.3.3",
+    "lodash": "^4.12",
     "postal.js": "https://github.com/footworkjs/postal.js#1c0f05fba21520a6c968e67a8dbb4f053d5d9f72",
     "knockoutjs": "3.4.0",
-    "riveter": "https://github.com/footworkjs/riveter.git#19284fbe487225f09cbceee4e4ea2a98ad71e8c2",
-    "history.js": "https://github.com/footworkjs/history.js.git#ae04b0e41c48a1e2f272cc10e29c2aeaa50d1a86",
-    "jquery-mockjax": "2.0.1"
+    "riveter": "https://github.com/footworkjs/riveter.git#19284fbe487225f09cbceee4e4ea2a98ad71e8c2"
   }
 }

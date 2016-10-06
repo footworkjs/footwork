@@ -24,6 +24,8 @@ module.exports = {
     { pattern: 'bower_components/jquery-mockjax/dist/*.js', watched: false, included: false },
     { pattern: 'bower_components/jquery/dist/*.js', watched: false, included: false },
     { pattern: 'bower_components/reqwest/reqwest.js', watched: false, included: false },
+    { pattern: 'bower_components/es6-promise-polyfill/promise.js', watched: false, included: false },
+    { pattern: 'node_modules/fetch-mock/es5/client-browserified.js', watched: false, included: false },
     { pattern: 'build/*.js', included: false },
     { pattern: 'dist/gh-footwork-logo.png', included: false }
   ],

@@ -2,7 +2,7 @@ var fw = require('../bower_components/knockoutjs/dist/knockout');
 
 require('./misc/init');
 
-fw.sync = require('./misc/sync');
+fw.sync = require('./misc/ajax').sync;
 fw.embed = require('./misc/embed-exports');
 fw.namespace = require('./namespace/namespace');
 
