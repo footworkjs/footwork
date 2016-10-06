@@ -10,6 +10,7 @@ fw.embed = require('./misc/embed-exports');
 fw.namespace = require('./namespace/namespace');
 require('./broadcastable-receivable');
 require('./entities/entities');
+require('./resource/resource');
 require('./component/component');
 
 module.exports = fw;

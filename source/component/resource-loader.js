@@ -3,6 +3,7 @@
 
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
 var _ = require('../misc/lodash');
+var DefaultViewModel = require('../misc/config').DefaultViewModel;
 
 fw.components.loaders.push(fw.components.requireLoader = {
   getConfig: function(componentName, callback) {
