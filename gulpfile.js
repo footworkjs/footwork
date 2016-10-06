@@ -123,11 +123,7 @@ gulp.task('watch', function () {
 });
 
 gulp.task('set_version', function() {
-  if(typeof args.ver !== 'undefined') {
-    pkg.version = args.ver;
-  }
-
   return gulp.src(['./package.json'])
-    .pipe(bump({ version: pkg.version }))
+    .pipe(bump({ version: args.ver || pkg.version }))
     .pipe(gulp.dest('./'));
 });
