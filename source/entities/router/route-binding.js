@@ -5,6 +5,8 @@ var util = require('../../misc/util');
 var hasPathStart = util.hasPathStart;
 var hasHashStart = util.hasHashStart;
 
+var nearestParentRouter = require('./router-tools').nearestParentRouter
+
 function findParentNode(element, selector) {
   if (selector === true) {
     return element.parentNode;

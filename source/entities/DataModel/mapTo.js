@@ -1,6 +1,7 @@
 var fw = require('../../../bower_components/knockoutjs/dist/knockout');
 var _ = require('../../misc/lodash');
 var dataModelContext = require('./dataModel-context');
+var dataModelIsNew = require('./data-tools').dataModelIsNew;
 
 var isDataModel = require('../entity-tools').isDataModel;
 
@@ -53,7 +54,7 @@ fw.subscribable.fn.mapTo = function(option) {
     mappedObservable.isDirty(true);
   });
 
-  var disposeObservable = mappedObservable.dispose || noop;
+  var disposeObservable = mappedObservable.dispose || _.noop;
   if(_.isFunction(mappedObservable.dispose)) {
     mappedObservable.dispose = function() {
       changeSubscription.dispose();

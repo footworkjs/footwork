@@ -12,6 +12,7 @@ var isEntity = entityTools.isEntity;
 var routerDefaults = require('../entities/router/router-defaults');
 var outletLoadedDisplay = routerDefaults.outletLoadedDisplay;
 var outletLoadingDisplay = routerDefaults.outletLoadingDisplay;
+var isOutletViewModel = require('../entities/router/router-tools').isOutletViewModel;
 
 var addClass = require('../misc/util').addClass;
 var entityClass = require('../misc/config').entityClass;

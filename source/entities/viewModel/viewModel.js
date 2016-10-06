@@ -55,12 +55,26 @@ var ViewModel = module.exports = function ViewModel(descriptor, configParams) {
 
 fw.viewModel = {};
 
+var methodName = 'viewModel';
+var isEntityCtorDuckTag = '__is' + methodName + 'Ctor';
+var isEntityDuckTag = '__is' + methodName;
+function isViewModelCtor(thing) {
+  return _.isFunction(thing) && !!thing[ isEntityCtorDuckTag ];
+}
+function isViewModel(thing) {
+  return _.isObject(thing) && !!thing[ isEntityDuckTag ];
+}
+
 var descriptor;
 entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
-  tagName: 'viewmodel',
-  methodName: 'viewModel',
+  tagName: methodName.toLowerCase(),
+  methodName: methodName,
   resource: fw.viewModel,
   behavior: [ ViewModel ],
+  isEntityCtorDuckTag: isEntityCtorDuckTag,
+  isEntityDuckTag: isEntityDuckTag,
+  isEntityCtor: isViewModelCtor,
+  isEntity: isViewModel,
   defaultConfig: {
     namespace: undefined,
     autoRegister: false,

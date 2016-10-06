@@ -12,15 +12,7 @@ function prepareDescriptor(descriptor) {
     resourceLocations: {},
     registered: {},
     fileExtensions: fw.observable('.js'),
-    referenceNamespace: (_.isString(descriptor.methodName) ? ('__' + descriptor.methodName + 'Reference') : undefined),
-    isEntityCtorDuckTag: '__is' + methodName + 'Ctor',
-    isEntityDuckTag: '__is' + methodName,
-    isEntityCtor: function isEntityCtor(thing) {
-      return _.isFunction(thing) && !!thing[ this.isEntityCtorDuckTag ];
-    }.bind(descriptor),
-    isEntity: function isEntity(thing) {
-      return _.isObject(thing) && !!thing[ this.isEntityDuckTag ];
-    }.bind(descriptor)
+    referenceNamespace: (_.isString(descriptor.methodName) ? ('__' + descriptor.methodName + 'Reference') : undefined)
   }, descriptor);
 }
 

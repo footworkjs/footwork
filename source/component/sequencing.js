@@ -6,7 +6,7 @@ var entityAnimateClass = require('../misc/config').entityAnimateClass;
 var util = require('../misc/util');
 var resultBound = util.resultBound;
 var addClass = util.addClass;
-var nextFrame = util.nextFram;
+var nextFrame = util.nextFrame;
 
 var sequenceQueue = {};
 

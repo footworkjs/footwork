@@ -11,11 +11,7 @@ var makeOrGetRequest = require('../../misc/util').makeOrGetRequest;
 var dataTools = require('./data-tools');
 var getNestedReference = dataTools.getNestedReference;
 var insertValueIntoObject = dataTools.insertValueIntoObject;
-
-function dataModelIsNew() {
-  var id = this.$id();
-  return _.isUndefined(id) || _.isNull(id);
-}
+var dataModelIsNew = dataTools.dataModelIsNew;
 
 function isNode(thing) {
   var thingIsObject = _.isObject(thing);
@@ -275,12 +271,26 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
 
 fw.dataModel = {};
 
+var methodName = 'dataModel';
+var isEntityCtorDuckTag = '__is' + methodName + 'Ctor';
+var isEntityDuckTag = '__is' + methodName;
+function isDataModelCtor(thing) {
+  return _.isFunction(thing) && !!thing[ isEntityCtorDuckTag ];
+}
+function isDataModel(thing) {
+  return _.isObject(thing) && !!thing[ isEntityDuckTag ];
+}
+
 var descriptor;
 entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
-  tagName: 'datamodel',
-  methodName: 'dataModel',
+  tagName: methodName.toLowerCase(),
+  methodName: methodName,
   resource: fw.dataModel,
   behavior: [ ViewModel, DataModel ],
+  isEntityCtorDuckTag: isEntityCtorDuckTag,
+  isEntityDuckTag: isEntityDuckTag,
+  isEntityCtor: isDataModelCtor,
+  isEntity: isDataModel,
   defaultConfig: {
     idAttribute: 'id',
     url: null,
@@ -305,8 +315,8 @@ entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
 fw.dataModel.create = entityTools.entityClassFactory.bind(null, descriptor);
 
 _.extend(entityTools, {
-  isDataModelCtor: entityDescriptors.getDescriptor('dataModel').isEntityCtor,
-  isDataModel: entityDescriptors.getDescriptor('dataModel').isEntity
+  isDataModelCtor: isDataModelCtor,
+  isDataModel: isDataModel
 });
 
 require('./mapTo');

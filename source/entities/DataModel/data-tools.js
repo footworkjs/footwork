@@ -39,7 +39,18 @@ function getNestedReference(rootObject, fieldMap) {
   return !_.isString(propName) ? rootObject : _.result(rootObject || {}, propName);
 }
 
+/**
+ * Given the dataModel as the context, it will return whether or not it is 'new' (has been read from or saved to the server)
+ *
+ * @returns {boolean} true if it is new, false if not
+ */
+function dataModelIsNew() {
+  var id = this.$id();
+  return _.isUndefined(id) || _.isNull(id);
+}
+
 module.exports = {
   insertValueIntoObject: insertValueIntoObject,
-  getNestedReference: getNestedReference
+  getNestedReference: getNestedReference,
+  dataModelIsNew: dataModelIsNew
 };

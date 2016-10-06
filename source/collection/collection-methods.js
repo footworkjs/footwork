@@ -6,6 +6,10 @@ var regExpIsEqual = objectTools.regExpIsEqual;
 var commonKeysEqual = objectTools.commonKeysEqual;
 var sortOfEqual = objectTools.sortOfEqual;
 
+var entityTools = require('../entities/entity-tools');
+var isDataModelCtor = entityTools.isDataModelCtor;
+var isDataModel = entityTools.isDataModel;
+
 function sync() {
   return fw.sync.apply(this, arguments);
 }

@@ -4,6 +4,8 @@ var entityTools = require('../entity-tools');
 var isRouter = entityTools.isRouter;
 var nearestEntity = entityTools.nearestEntity;
 
+var $nullRouter = require('./router-defaults').$nullRouter;
+
 var optionalParamRegex = /\((.*?)\)/g;
 var namedParamRegex = /(\(\?)?:\w+/g;
 var splatParamRegex = /\*\w*/g;
@@ -64,9 +66,14 @@ function isOutletViewModel(thing) {
   return _.isObject(thing) && thing.__isOutlet;
 }
 
-// Locate the nearest $router from a given ko $context
-// (travels up through $parentContext chain to find the router if not found on the
-// immediate $context). Returns $nullRouter if none is found.
+/**
+ * Locate the nearest $router from a given ko $context
+ * (travels up through $parentContext chain to find the router if not found on the
+ * immediate $context). Returns $nullRouter if none is found.
+ *
+ * @param {object} $context
+ * @returns {object} router instance or $nullRouter if none found
+ */
 function nearestParentRouter($context) {
   return nearestEntity($context, isRouter) || $nullRouter;
 }
@@ -74,7 +81,6 @@ function nearestParentRouter($context) {
 module.exports = {
   namedParamRegex: namedParamRegex,
   hashMatchRegex: hashMatchRegex,
-
   transformRouteConfigToDesc: transformRouteConfigToDesc,
   sameRouteDescription: sameRouteDescription,
   routeStringToRegExp: routeStringToRegExp,

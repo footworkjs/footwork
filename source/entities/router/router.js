@@ -458,12 +458,26 @@ fw.router = {
   }
 };
 
+var methodName = 'router';
+var isEntityCtorDuckTag = '__is' + methodName + 'Ctor';
+var isEntityDuckTag = '__is' + methodName;
+function isRouterCtor(thing) {
+  return _.isFunction(thing) && !!thing[ isEntityCtorDuckTag ];
+}
+function isRouter(thing) {
+  return _.isObject(thing) && !!thing[ isEntityDuckTag ];
+}
+
 var descriptor;
 entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
-  tagName: 'router',
-  methodName: 'router',
+  tagName: methodName.toLowerCase(),
+  methodName: methodName,
   resource: fw.router,
   behavior: [ ViewModel, Router ],
+  isEntityCtorDuckTag: isEntityCtorDuckTag,
+  isEntityDuckTag: isEntityDuckTag,
+  isEntityCtor: isRouterCtor,
+  isEntity: isRouter,
   defaultConfig: {
     namespace: '$router',
     autoRegister: false,
@@ -486,7 +500,7 @@ entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
 }));
 
 _.extend(entityTools, {
-  isRouter: entityDescriptors.getDescriptor('router').isEntity
+  isRouter: isRouter
 });
 
 fw.router.create = entityTools.entityClassFactory.bind(null, descriptor);

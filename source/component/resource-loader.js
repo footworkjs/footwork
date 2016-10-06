@@ -118,7 +118,7 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
           }
 
           if (isEntity(viewModel)) {
-            var resolveFlightTracker =  noop;
+            var resolveFlightTracker =  _.noop;
 
             if ($flightTracker) {
               resolveFlightTracker = function(addAnimationClass) {

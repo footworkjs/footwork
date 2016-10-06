@@ -54,6 +54,16 @@ function getComponentExtension(componentName, fileType) {
   return fileExtension.replace(/^\./, '') || '';
 }
 
+function forceViewModelComponentConvention(componentLocation) {
+  if(_.isObject(componentLocation) && _.isUndefined(componentLocation.viewModel) && _.isUndefined(componentLocation.combined)) {
+    return {
+      viewModel: componentLocation.dataModel || componentLocation.router,
+      template: componentLocation.template
+    };
+  }
+  return componentLocation;
+}
+
 fw.components.getFileName = function(componentName, fileType) {
   var fileName = componentName;
   var fileExtension = getComponentExtension(componentName, fileType);
