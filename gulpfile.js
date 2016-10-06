@@ -76,7 +76,7 @@ gulp.task('build', ['build_footwork_css', 'build_ci_css'], function () {
     .pipe(gulp.dest('./build'));
 });
 
-gulp.task('build_min', ['build'], function() {
+gulp.task('minify', ['build'], function() {
   console.log(chalk.yellow('Sit tight, minification can take a few minutes (See: ') + chalk.white('https://github.com/knockout/knockout/issues/1652') + chalk.yellow(')'));
 
   var fileSizeMin = size({ title: 'footwork.min.js' });
@@ -93,7 +93,7 @@ gulp.task('build_min', ['build'], function() {
     .pipe(gulp.dest('build/'));
 });
 
-gulp.task('dist', ['build_min'], function() {
+gulp.task('dist', ['minify'], function() {
   return gulp.src(['./build/footwork.js', './build/footwork.min.js', './build/styles/*.scss', './build/styles/*.css'])
     .pipe(gulp.dest('./dist'));
 });
