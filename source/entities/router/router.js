@@ -40,7 +40,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
   return {
     _preInit: function(params) {
       var $router = this;
-      var routerConfigParams = extend({ routes: [] }, configParams);
+      var routerConfigParams = _.extend({ routes: [] }, configParams);
 
       var router = this.__private();
       this.__private = privateData.bind(this, router, routerConfigParams);
@@ -91,7 +91,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
         var unknownRoute = _.find(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
 
         if (!_.isNull(unknownRoute)) {
-          unknownRoute = extend({}, baseRoute, {
+          unknownRoute = _.extend({}, baseRoute, {
             id: unknownRoute.id,
             controller: unknownRoute.controller,
             title: unknownRoute.title,
@@ -113,7 +113,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
         }
 
         // find all routes with a matching routeString
-        var matchedRoutes = reduce($router.routeDescriptions, function (matches, routeDescription) {
+        var matchedRoutes = _.reduce($router.routeDescriptions, function (matches, routeDescription) {
           var routeDescRoute = [].concat(routeDescription.route);
           _.each(routeDescRoute, function (routeString) {
             var routeParams = [];
@@ -136,7 +136,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
         // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
         // and convert it into the actual route
         if (matchedRoutes.length) {
-          var matchedRoute = reduce(matchedRoutes, function(matchedRoute, foundRoute) {
+          var matchedRoute = _.reduce(matchedRoutes, function(matchedRoute, foundRoute) {
             if (_.isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity) {
               matchedRoute = foundRoute;
             }
@@ -144,17 +144,17 @@ var Router = module.exports = function Router(descriptor, configParams) {
           }, null);
           var routeDescription = matchedRoute.routeDescription;
           var routeString = matchedRoute.routeString;
-          var routeParams = clone(matchedRoute.routeParams);
+          var routeParams = _.clone(matchedRoute.routeParams);
           var splatSegment = routeParams.pop() || '';
-          var routeParamNames = map(routeString.match(namedParamRegex), function(param) {
+          var routeParamNames = _.map(routeString.match(namedParamRegex), function(param) {
             return param.replace(':', '');
           });
-          var namedParams = reduce(routeParamNames, function(parameterNames, parameterName, index) {
+          var namedParams = _.reduce(routeParamNames, function(parameterNames, parameterName, index) {
             parameterNames[parameterName] = routeParams[index + 1];
             return parameterNames;
           }, {});
 
-          route = extend({}, baseRoute, {
+          route = _.extend({}, baseRoute, {
             id: routeDescription.id,
             controller: routeDescription.controller,
             title: routeDescription.title,
@@ -171,11 +171,11 @@ var Router = module.exports = function Router(descriptor, configParams) {
 
       function RoutedAction(routeDescription) {
         if (!_.isUndefined(routeDescription.title)) {
-          document.title = _.isFunction(routeDescription.title) ? routeDescription.title.apply($router, values(routeDescription.namedParams)) : routeDescription.title;
+          document.title = _.isFunction(routeDescription.title) ? routeDescription.title.apply($router, _.values(routeDescription.namedParams)) : routeDescription.title;
         }
 
         if (_.isUndefined(router.currentRouteDescription) || !sameRouteDescription(router.currentRouteDescription, routeDescription)) {
-          (routeDescription.controller || _.noop).apply($router, values(routeDescription.namedParams) );
+          (routeDescription.controller || _.noop).apply($router, _.values(routeDescription.namedParams) );
           router.currentRouteDescription = routeDescription;
         }
       }
@@ -264,7 +264,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
         if (_.isFunction(routerConfigParams.unknownRoute)) {
           routerConfigParams.unknownRoute = { controller: routerConfigParams.unknownRoute };
         }
-        routerConfigParams.routes.push(extend(routerConfigParams.unknownRoute, { unknown: true }));
+        routerConfigParams.routes.push(_.extend(routerConfigParams.unknownRoute, { unknown: true }));
       }
       this.setRoutes(routerConfigParams.routes);
 
@@ -292,7 +292,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
         return this;
       },
       addRoutes: function(routeConfig) {
-        this.routeDescriptions = this.routeDescriptions.concat( map(isArray(routeConfig) ? routeConfig : [routeConfig], transformRouteConfigToDesc) );
+        this.routeDescriptions = this.routeDescriptions.concat(_.map(_.isArray(routeConfig) ? routeConfig : [routeConfig], transformRouteConfigToDesc));
         return this;
       },
       activate: function($context, $parentRouter) {
@@ -346,7 +346,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
           });
 
           if (!_.isUndefined(routeDescription)) {
-            url = first([].concat(routeDescription.route));
+            url = _.first([].concat(routeDescription.route));
             _.each(routeParams, function (value, fieldName) {
               url = url.replace(':' + fieldName, routeParams[fieldName]);
             });
@@ -415,13 +415,13 @@ var Router = module.exports = function Router(descriptor, configParams) {
 
           this.$namespace.dispose();
           this.$globalNamespace.dispose();
-          invokeMap(this.__private('subscriptions'), 'dispose');
+          _.invokeMap(this.__private('subscriptions'), 'dispose');
 
-          _.each(omitBy(this, function (property) {
+          _.each(_.omitBy(this, function (property) {
             return isEntity(property);
           }), propertyDispose);
 
-          _.each(omitBy(this.__private(), function (property) {
+          _.each(_.omitBy(this.__private(), function (property) {
             return isEntity(property);
           }), propertyDispose);
 

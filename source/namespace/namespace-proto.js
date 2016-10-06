@@ -100,7 +100,7 @@ function registerNamespaceRequestHandler(requestKey, callback, context) {
 var handlerRepos = [ 'requestHandlers', 'commandHandlers', 'eventHandlers', 'subscriptions' ];
 function disconnectNamespaceHandlers() {
   var namespace = this;
-  each(handlerRepos, function(handlerRepo) {
+  _.each(handlerRepos, function(handlerRepo) {
     _.invokeMap(namespace[handlerRepo], 'unsubscribe');
   });
   return this;

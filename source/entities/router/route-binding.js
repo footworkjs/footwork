@@ -66,7 +66,7 @@ fw.bindingHandlers.$route = {
       var myLinkPath = routeURL || '';
 
       if(!_.isNull(routeURL)) {
-        if(isUndefined(routeURL)) {
+        if(_.isUndefined(routeURL)) {
           routeURL = myLinkPath;
         }
 

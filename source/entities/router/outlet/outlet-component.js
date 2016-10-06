@@ -90,7 +90,7 @@ fw.components.register('outlet', {
       outlet.loadedClass(addAnimation);
 
       if(resolvedCallbacks.length) {
-        each(resolvedCallbacks, function(callback) {
+        _.each(resolvedCallbacks, function(callback) {
           callback();
         });
         resolvedCallbacks = [];
@@ -118,7 +118,7 @@ fw.components.register('outlet', {
     }, this);
 
     this.dispose = function() {
-      each(outlet, function(outletProperty) {
+      _.each(outlet, function(outletProperty) {
         if(outletProperty && _.isFunction(outletProperty.dispose)) {
           outletProperty.dispose();
         }

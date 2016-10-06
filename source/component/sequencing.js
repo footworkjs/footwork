@@ -11,8 +11,8 @@ var nextFrame = util.nextFram;
 var sequenceQueue = {};
 
 function clearSequenceQueue() {
-  each(sequenceQueue, function(sequence, queueNamespace) {
-    each(sequence, function(sequenceIteration) {
+  _.each(sequenceQueue, function(sequence, queueNamespace) {
+    _.each(sequence, function(sequenceIteration) {
       sequenceIteration.addAnimationClass();
     });
     delete sequenceQueue[queueNamespace];

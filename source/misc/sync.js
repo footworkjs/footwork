@@ -27,7 +27,7 @@ module.exports = function sync(action, concern, params) {
   // }
 
   // var configParams = concern.__private('configParams');
-  // var options = extend({
+  // var options = _.extend({
   //   type: methodMap[action],
   //   dataType: 'json',
   //   url: null,
@@ -42,9 +42,9 @@ module.exports = function sync(action, concern, params) {
   // }
 
   // var url = options.url;
-  // if(isNull(url)) {
+  // if(_.isNull(url)) {
   //   url = configParams.url;
-  //   if(isFunction(url)) {
+  //   if(_.isFunction(url)) {
   //     url = url.call(concern, action);
   //   } else if(!isString(url)) {
   //     var thing = (isDataModel(concern) && 'dataModel') || (isCollection(concern) && 'collection') || 'UNKNOWN';
@@ -54,7 +54,7 @@ module.exports = function sync(action, concern, params) {
   //   if(isDataModel(concern)) {
   //     var pkIsSpecifiedByUser = !isNull(url.match(':' + configParams.idAttribute));
   //     var hasQueryString = !isNull(url.match(/\?/));
-  //     if(includes(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl && !pkIsSpecifiedByUser && !hasQueryString) {
+  //     if(_.includes(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl && !pkIsSpecifiedByUser && !hasQueryString) {
   //       // need to append /:id to url
   //       url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
   //     }
@@ -64,7 +64,7 @@ module.exports = function sync(action, concern, params) {
   // var urlPieces = (url || noURLError()).match(parseURLRegex);
   // if(!isNull(urlPieces)) {
   //   var baseURL = urlPieces[1] || '';
-  //   options.url = baseURL + last(urlPieces);
+  //   options.url = baseURL + _.last(urlPieces);
   // } else {
   //   options.url = url;
   // }
@@ -73,13 +73,13 @@ module.exports = function sync(action, concern, params) {
   //   // replace any interpolated parameters
   //   var urlParams = options.url.match(parseParamsRegex);
   //   if(urlParams) {
-  //     each(urlParams, function(param) {
+  //     _.each(urlParams, function(param) {
   //       options.url = options.url.replace(param, concern.get(param.substr(1)));
   //     });
   //   }
   // }
 
-  // if(isNull(options.data) && concern && includes(['create', 'update', 'patch'], action)) {
+  // if(_.isNull(options.data) && concern && _.includes(['create', 'update', 'patch'], action)) {
   //   options.contentType = 'application/json';
   //   options.data = JSON.stringify(options.attrs || concern.get());
   // }
@@ -92,13 +92,13 @@ module.exports = function sync(action, concern, params) {
 
   // // For older servers, emulate HTTP by mimicking the HTTP method with `_method`
   // // And an `X-HTTP-Method-Override` header.
-  // if(options.emulateHTTP && includes(['PUT', 'DELETE', 'PATCH'], options.type)) {
+  // if(options.emulateHTTP && _.includes(['PUT', 'DELETE', 'PATCH'], options.type)) {
   //   options.type = 'POST';
 
   //   if(options.emulateJSON) {
   //     options.data._method = options.type;
   //   }
-  //   extend(options.headers, { 'X-HTTP-Method-Override': options.type });
+  //   _.extend(options.headers, { 'X-HTTP-Method-Override': options.type });
   // }
 
   // // Don't process data on a non-GET request.

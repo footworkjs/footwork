@@ -88,9 +88,9 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
           }
         } else if (_.isFunction(resourceLocation)) {
           bindModel(resourceLocation, $flightTracker, $inFlightChildren, $outletsInFlightChildren);
-        } else if (isObject(resourceLocation)) {
+        } else if (_.isObject(resourceLocation)) {
           var createInstance = resourceLocation.createViewModel || resourceLocation.createDataModel;
-          if (isObject(resourceLocation.instance)) {
+          if (_.isObject(resourceLocation.instance)) {
             bindModel(resourceLocation.instance, $flightTracker, $inFlightChildren, $outletsInFlightChildren);
           } else if (_.isFunction(createInstance)) {
             bindModel(createInstance(values.params, { element: element }), $flightTracker, $inFlightChildren, $outletsInFlightChildren);

@@ -12,12 +12,12 @@ var _ = require('../misc/lodash');
 function regExpIsEqual(a, b, isEq) {
   isEq = isEq || regExpIsEqual;
 
-  if(isObject(a) && isObject(b)) {
-    return every(reduce(a, function(comparison, paramValue, paramName) {
+  if(_.isObject(a) && _.isObject(b)) {
+    return _.every(reduce(a, function(comparison, paramValue, paramName) {
       var isCongruent = false;
       var bParamValue = b[paramName];
       if(bParamValue) {
-        if(isRegExp(paramValue)) {
+        if(_.isRegExp(paramValue)) {
           isCongruent = !isNull(bParamValue.match(paramValue));
         } else {
           isCongruent = isEq(paramValue, bParamValue);
@@ -42,9 +42,9 @@ function regExpIsEqual(a, b, isEq) {
 function commonKeysEqual(a, b, isEq) {
   isEq = isEq || isEqual;
 
-  if(isObject(a) && isObject(b)) {
-    var commonKeys = intersection(keys(a), keys(b));
-    return commonKeys.length > 0 && isEq(pick(a, commonKeys), pick(b, commonKeys));
+  if(_.isObject(a) && _.isObject(b)) {
+    var commonKeys = _.intersection(keys(a), _.keys(b));
+    return commonKeys.length > 0 && isEq(_.pick(a, commonKeys), _.pick(b, commonKeys));
   } else {
     return a === b;
   }
@@ -61,14 +61,14 @@ function commonKeysEqual(a, b, isEq) {
 function sortOfEqual(a, b, isEq) {
   isEq = isEq || isEqual;
 
-  if(isObject(a) && isObject(b)) {
-    var AKeys = keys(a);
-    var BKeys = keys(b);
-    var commonKeys = intersection(AKeys, BKeys);
-    var hasAllAKeys = every(AKeys, function(Akey) {
+  if(_.isObject(a) && _.isObject(b)) {
+    var AKeys = _.keys(a);
+    var BKeys = _.keys(b);
+    var commonKeys = _.intersection(AKeys, BKeys);
+    var hasAllAKeys = _.every(AKeys, function(Akey) {
       return BKeys.indexOf(Akey) !== -1;
     })
-    return commonKeys.length > 0 && hasAllAKeys && isEq(pick(a, commonKeys), pick(b, commonKeys));
+    return commonKeys.length > 0 && hasAllAKeys && isEq(_.pick(a, commonKeys), _.pick(b, commonKeys));
   } else {
     return a === b;
   }

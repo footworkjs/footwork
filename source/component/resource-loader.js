@@ -133,17 +133,17 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
                     wasResolved = true;
                     if (isResolved === true) {
                       finishResolution();
-                    } else if(isPromise(isResolved) || (isArray(isResolved) && every(isResolved, isPromise))) {
+                    } else if(isPromise(isResolved) || (_.isArray(isResolved) && _.every(isResolved, isPromise))) {
                       var promises = [].concat(isResolved);
                       var checkPromise = function(promise) {
                         (promise.done || promise.then).call(promise, function() {
-                          if(every(promises, promiseIsResolvedOrRejected)) {
+                          if(_.every(promises, promiseIsResolvedOrRejected)) {
                             finishResolution();
                           }
                         });
                       };
 
-                      each(promises, checkPromise);
+                      _.each(promises, checkPromise);
                     }
                   }
                 }
@@ -178,7 +178,7 @@ function possiblyGetConfigFromAmd(config, callback) {
   if(_.isString(config['require'])) {
     if(_.isFunction(require)) {
       require([config['require']], callback, function() {
-        each(activeOutlets(), function(outlet) {
+        _.each(activeOutlets(), function(outlet) {
           (outlet().onFailure || noop)();
         });
       });

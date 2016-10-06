@@ -4,6 +4,6 @@ module.exports = _.extend([
   /* filled in by various modules */
 ], {
   isInternalComponent: function (componentName) {
-    return indexOf(this, componentName) !== -1;
+    return _.indexOf(this, componentName) !== -1;
   }
 });

@@ -133,7 +133,7 @@ function set(newCollection, options) {
     wasResorted = wasResorted || foundAtIndex !== modelIndex;
   });
 
-  wasResorted = (wasResorted && reSorted.length && every(reSorted));
+  wasResorted = (wasResorted && reSorted.length && _.every(reSorted));
 
   if(wasResorted) {
     Array.prototype.splice.apply(collectionStore, [0, reSorted.length].concat(reSorted));
@@ -164,7 +164,7 @@ function reset(newCollection) {
 function fetch(options) {
   var collection = this;
   var configParams = collection.__private('configParams');
-  options = options ? clone(options) : {};
+  options = options ? _.clone(options) : {};
 
   var requestInfo = {
     requestRunning: collection.isFetching,
@@ -224,7 +224,7 @@ function addModel(models, options) {
   var affectedModels = [];
   options = options || {};
 
-  if(isObject(models)) {
+  if(_.isObject(models)) {
     models = [models];
   }
   if(!_.isArray(models)) {
@@ -237,8 +237,8 @@ function addModel(models, options) {
     var castAsModelData = collection.__private('castAs').modelData;
     var idAttribute = collection.__private('getIdAttribute')();
 
-    if(isNumber(options.at)) {
-      var newModels = map(models, castAsDataModel);
+    if(_.isNumber(options.at)) {
+      var newModels = _.map(models, castAsDataModel);
 
       collectionData.splice.apply(collectionData, [options.at, 0].concat(newModels));
       affectedModels.concat(newModels);
@@ -281,7 +281,7 @@ function create(model, options) {
   var collection = this;
   var castAsDataModel = collection.__private('castAs').dataModel;
   var configParams = collection.__private('configParams');
-  options = options ? clone(options) : {};
+  options = options ? _.clone(options) : {};
 
   var requestInfo = {
     requestRunning: collection.isCreating,
@@ -321,7 +321,7 @@ function removeModel(models) {
   var collection = this;
   var affectedModels = [];
 
-  if(isObject(models)) {
+  if(_.isObject(models)) {
     models = [models];
   }
   if(!_.isArray(models)) {

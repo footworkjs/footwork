@@ -6,7 +6,7 @@ function alwaysPassPredicate() {
 
 /**
  * Return the 'result' of a property on an object, either via calling it (using the supplied context and params) or the raw value if it is a non-function value.
- * Note: This is similar to underscore/lodash result() but allows you to provide the context and parameters to potential callbacks
+ * Note: This is similar to underscore/lodash _.result() but allows you to provide the context and parameters to potential callbacks
  *
  * @param  {object} object  Object to read property from
  * @param  {string} path    Property name
@@ -149,7 +149,7 @@ function makeOrGetRequest(operationType, requestInfo) {
 function getFilenameExtension(fileName) {
   var extension = '';
   if(fileName.indexOf('.') !== -1) {
-    extension = last(fileName.split('.'));
+    extension = _.last(fileName.split('.'));
   }
   return extension;
 }

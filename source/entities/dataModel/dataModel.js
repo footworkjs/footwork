@@ -83,19 +83,19 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
         var dataModel = this;
         var attrs = null;
 
-        if(isObject(key) && !isNode(key)) {
+        if(_.isObject(key) && !isNode(key)) {
           attrs = key;
           options = val;
-        } else if(isString(key) && arguments.length > 1) {
+        } else if(_.isString(key) && arguments.length > 1) {
           (attrs = {})[key] = val;
         }
 
-        if(isObject(options) && isFunction(options.stopPropagation)) {
+        if(_.isObject(options) && _.isFunction(options.stopPropagation)) {
           // method called as a result of an event binding, ignore its 'options'
           options = {};
         }
 
-        options = extend({
+        options = _.extend({
           parse: true,
           wait: false,
           patch: false
@@ -120,10 +120,10 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
               var resourceData = configParams.parse ? configParams.parse(response) : response;
 
               if(options.wait && !_.isNull(attrs)) {
-                resourceData = extend({}, attrs, resourceData);
+                resourceData = _.extend({}, attrs, resourceData);
               }
 
-              if(isObject(resourceData)) {
+              if(_.isObject(resourceData)) {
                 dataModel.set(resourceData);
               }
             });
@@ -145,7 +145,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
               return false;
             }
 
-            options = options ? clone(options) : {};
+            options = options ? _.clone(options) : {};
             var success = options.success;
             var wait = options.wait;
 
@@ -174,20 +174,20 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
       set: function(key, value, options) {
         var attributes = {};
 
-        if(isString(key)) {
+        if(_.isString(key)) {
           attributes = insertValueIntoObject(attributes, key, value);
-        } else if(isObject(key)) {
+        } else if(_.isObject(key)) {
           attributes = key;
           options = value;
         }
 
-        options = extend({
+        options = _.extend({
           clearDirty: true
         }, options);
 
         var mappingsChanged = false;
         var model = this;
-        each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
+        _.each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
           var fieldValue = getNestedReference(attributes, fieldMap);
           if(!_.isUndefined(fieldValue)) {
             fw.isWriteableObservable(fieldObservable) && fieldObservable(fieldValue);
@@ -205,15 +205,15 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
 
       get: function(referenceField, includeRoot) {
         var dataModel = this;
-        if(isArray(referenceField)) {
-          return reduce(referenceField, function(jsObject, fieldMap) {
-            return merge(jsObject, dataModel.get(fieldMap, true));
+        if(_.isArray(referenceField)) {
+          return _.reduce(referenceField, function(jsObject, fieldMap) {
+            return _.merge(jsObject, dataModel.get(fieldMap, true));
           }, {});
         } else if(!_.isUndefined(referenceField) && !isString(referenceField)) {
           throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.get().');
         }
 
-        var mappedObject = reduce(this.__private('mappings')(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+        var mappedObject = _.reduce(this.__private('mappings')(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
           if(_.isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
             insertValueIntoObject(jsObject, fieldMap, fieldObservable());
           }
@@ -235,7 +235,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
         if(!_.isUndefined(field)) {
           var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
         }
-        each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
+        _.each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
           if(_.isUndefined(field) || fieldMap.match(fieldMatch)) {
             fieldObservable.isDirty(false);
           }
@@ -252,7 +252,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
 
       dirtyMap: function() {
         var tree = {};
-        each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
+        _.each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
           tree[fieldMap] = fieldObservable.isDirty();
         });
         return tree;
@@ -265,7 +265,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
       this.$namespace.request.handler('get', function() { return this.get(); }.bind(this));
 
       this.isDirty = fw.computed(function() {
-        return reduce(this.__private('mappings')(), function(isDirty, mappedField) {
+        return _.reduce(this.__private('mappings')(), function(isDirty, mappedField) {
           return isDirty || mappedField.isDirty();
         }, false);
       }, this);

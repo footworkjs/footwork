@@ -29,11 +29,11 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
         writable: option
       };
     } else if(_.isObject(option)) {
-      option = extend({
+      option = _.extend({
         name: varName
       }, option);
     } else if(_.isString(option)) {
-      option = extend({
+      option = _.extend({
         name: varName,
         namespace: option
       }, option);
@@ -131,11 +131,11 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   };
 
   receivable.when = function(predicate) {
-    if (isFunction(predicate)) {
+    if (_.isFunction(predicate)) {
       when = predicate;
     } else {
       when = function(updatedValue) {
-        return isEqual(updatedValue, predicate);
+        return _.isEqual(updatedValue, predicate);
       };
     }
     return this;

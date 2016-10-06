@@ -11,11 +11,11 @@ var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatchRegex = /(^\/#)/;
 
 function transformRouteConfigToDesc(routeDesc) {
-  return extend({ id: uniqueId('route') }, baseRouteDescription, routeDesc );
+  return _.extend({ id: _.uniqueId('route') }, baseRouteDescription, routeDesc );
 }
 
 function sameRouteDescription(desc1, desc2) {
-  return desc1.id === desc2.id && isEqual(desc1.indexedParams, desc2.indexedParams) && isEqual(desc1.namedParams, desc2.namedParams);
+  return desc1.id === desc2.id && _.isEqual(desc1.indexedParams, desc2.indexedParams) && _.isEqual(desc1.namedParams, desc2.namedParams);
 }
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine
@@ -41,7 +41,7 @@ function historyIsReady() {
 
     // why .unbind() is not already present in History.js is beyond me
     History.Adapter.unbind = function(callback) {
-      each(History.Adapter.handlers, function(handler) {
+      _.each(History.Adapter.handlers, function(handler) {
         handler.statechange = _.filter(handler.statechange, function(stateChangeHandler) {
           return stateChangeHandler !== callback;
         });
@@ -53,15 +53,15 @@ function historyIsReady() {
 }
 
 function isNullRouter(thing) {
-  return isObject(thing) && !!thing.__isNullRouter;
+  return _.isObject(thing) && !!thing.__isNullRouter;
 }
 
 function isRoute(thing) {
-  return isObject(thing) && !!thing.__isRoute;
+  return _.isObject(thing) && !!thing.__isRoute;
 }
 
 function isOutletViewModel(thing) {
-  return isObject(thing) && thing.__isOutlet;
+  return _.isObject(thing) && thing.__isOutlet;
 }
 
 // Locate the nearest $router from a given ko $context

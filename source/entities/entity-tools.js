@@ -117,7 +117,7 @@ function nearestEntity($context, predicate) {
   predicate = predicate || isEntity;
   var predicates = [].concat(predicate);
   function isTheThing(thing) {
-    return reduce(predicates, function(isThing, predicate) {
+    return _.reduce(predicates, function(isThing, predicate) {
       return isThing || predicate(thing);
     }, false);
   }

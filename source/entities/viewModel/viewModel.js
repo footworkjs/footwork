@@ -40,7 +40,7 @@ var ViewModel = module.exports = function ViewModel(descriptor, configParams) {
       this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
         if(_.isString(options.namespaceName) || _.isArray(options.namespaceName)) {
           var myNamespaceName = this.$namespace.getName();
-          if(_.isArray(options.namespaceName) && indexOf(options.namespaceName, myNamespaceName) !== -1) {
+          if(_.isArray(options.namespaceName) && _.indexOf(options.namespaceName, myNamespaceName) !== -1) {
             return this;
           } else if(_.isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
             return this;

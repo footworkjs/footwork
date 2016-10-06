@@ -1,8 +1,11 @@
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
 var _ = require('../misc/lodash');
 
-var isPath = require('../misc/util').isPath;
 var DefaultViewModel = require('../misc/config').DefaultViewModel;
+
+var util = require('../misc/util');
+var isPath = util.isPath;
+var getFilenameExtension = util.getFilenameExtension;
 
 fw.components.resourceLocations = {};
 
@@ -39,7 +42,7 @@ function getComponentExtension(componentName, fileType) {
 
   if (_.isFunction(componentExtensions)) {
     fileExtension = componentExtensions(componentName)[fileType];
-  } else if(_.isObject(componentExtensions)) {
+  } else if (_.isObject(componentExtensions)) {
     if (_.isFunction(componentExtensions[fileType])) {
       fileExtension = componentExtensions[fileType](componentName);
     } else {
@@ -81,7 +84,7 @@ var baseComponentLocation = {
 
 fw.components.registerLocation = function(componentName, componentLocation, folderOffset) {
   if (_.isArray(componentName)) {
-    each(componentName, function(name) {
+    _.each(componentName, function(name) {
       fw.components.registerLocation(name, componentLocation, folderOffset);
     });
   }
@@ -100,7 +103,7 @@ fw.components.registerLocation = function(componentName, componentLocation, fold
 };
 
 fw.components.getRegisteredLocation = function(componentName) {
-  return reduce(fw.components.resourceLocations, function(registeredLocation, location, registeredComponentName) {
+  return _.reduce(fw.components.resourceLocations, function(registeredLocation, location, registeredComponentName) {
     if (!registeredLocation) {
       if (!_.isNull(registeredComponentName.match(regExpMatch)) && !_.isNull(componentName.match(registeredComponentName.replace(regExpMatch, '')))) {
         registeredLocation = location;
