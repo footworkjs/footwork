@@ -17,6 +17,7 @@ var fs = require('fs');
 var sass = require("gulp-sass");
 var autoprefixer = require('gulp-autoprefixer');
 var derequire = require('gulp-derequire');
+var plumber = require('gulp-plumber');
 
 var pkg = require('./package.json');
 var reporter = 'list';
@@ -61,6 +62,7 @@ gulp.task('build', ['build_footwork_css', 'build_ci_css'], function () {
   var fileSize = size({ title: 'footwork.js' });
 
   return gulp.src('./source/footwork.js')
+    .pipe(plumber())
     .pipe(browserified({
       standalone: 'footwork',
       debug: args.hasOwnProperty("debug")
