@@ -1,4 +1,5 @@
 var _ = require('../misc/lodash');
+var fw = require('../../bower_components/knockoutjs/dist/knockout');
 
 var entityTools = require('./entity-tools');
 var isEntity = entityTools.isEntity;
@@ -7,6 +8,7 @@ var isRouter = entityTools.isRouter;
 var config = require('../misc/config');
 var entityAnimateClass = config.entityAnimateClass;
 var entityClass = config.entityClass;
+var entityWrapperElement = config.entityWrapperElement;
 
 var addClass = require('../misc/util').addClass;
 

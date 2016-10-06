@@ -1,4 +1,5 @@
 var _ = require('./lodash');
+var fw = require('../../bower_components/knockoutjs/dist/knockout');
 
 function alwaysPassPredicate() {
   return true;
@@ -211,6 +212,12 @@ parseUri.options = {
   }
 };
 
+function propertyDispose(property) {
+  if(_.isObject(property) && _.isFunction(property.dispose)) {
+    property.dispose();
+  }
+}
+
 module.exports = {
   alwaysPassPredicate: alwaysPassPredicate,
   resultBound: resultBound,
@@ -225,5 +232,6 @@ module.exports = {
   makeOrGetRequest: makeOrGetRequest,
   getFilenameExtension: getFilenameExtension,
   guid: guid,
-  parseUri: parseUri
+  parseUri: parseUri,
+  propertyDispose: propertyDispose
 };

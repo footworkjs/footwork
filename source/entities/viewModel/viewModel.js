@@ -4,6 +4,7 @@ var _ = require('../../misc/lodash');
 var entityDescriptors = require('../entity-descriptors');
 var entityTools = require('../entity-tools');
 var entityClassFactory = entityTools.entityClassFactory;
+var propertyDispose = require('../../misc/util').propertyDispose;
 
 var ViewModel = module.exports = function ViewModel(descriptor, configParams) {
   return {
@@ -27,7 +28,7 @@ var ViewModel = module.exports = function ViewModel(descriptor, configParams) {
       dispose: function() {
         if(!this._isDisposed) {
           this._isDisposed = true;
-          if(configParams.onDispose !== noop) {
+          if(configParams.onDispose !== _.noop) {
             configParams.onDispose.call(this, this.__private('element'));
           }
           _.each(this, propertyDispose);

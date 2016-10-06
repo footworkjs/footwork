@@ -10,6 +10,8 @@ var entityTools = require('../entities/entity-tools');
 var isDataModelCtor = entityTools.isDataModelCtor;
 var isDataModel = entityTools.isDataModel;
 
+var makeOrGetRequest = require('../misc/util').makeOrGetRequest;
+
 function sync() {
   return fw.sync.apply(this, arguments);
 }
