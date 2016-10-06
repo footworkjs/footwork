@@ -2,8 +2,15 @@
 // ------------------
 
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
+var Conduit = require('../../bower_components/conduitjs/lib/conduit');
 var _ = require('../misc/lodash');
 var DefaultViewModel = require('../misc/config').DefaultViewModel;
+
+var util = require('../misc/util');
+var isPath = util.isPath;
+var getFilenameExtension = util.getFilenameExtension;
+
+var getComponentExtension = require('../resource/component-resource').getComponentExtension;
 
 fw.components.loaders.push(fw.components.requireLoader = {
   getConfig: function(componentName, callback) {
@@ -18,18 +25,18 @@ fw.components.loaders.push(fw.components.requireLoader = {
     var combinedPath;
     var viewModelConfig;
 
-    if(folderOffset !== '') {
+    if (folderOffset !== '') {
       folderOffset = componentName + '/';
     }
 
-    if(isFunction(require)) {
+    if (_.isFunction(require)) {
       // load component using knockouts native support for requirejs
       if(require.specified(componentName)) {
         // component already cached, lets use it
         configOptions = {
           require: componentName
         };
-      } else if(isString(componentLocation.combined)) {
+      } else if (_.isString(componentLocation.combined)) {
         combinedPath = componentLocation.combined;
 
         if(isPath(combinedPath)) {
@@ -41,7 +48,7 @@ fw.components.loaders.push(fw.components.requireLoader = {
         };
       } else {
         // check to see if the requested component is template only and should not request a viewModel (we supply a dummy object in its place)
-        if(!isString(componentLocation.viewModel)) {
+        if (!_.isString(componentLocation.viewModel)) {
           // template-only component, substitute with 'blank' viewModel
           viewModelConfig = DefaultViewModel;
         } else {
@@ -59,11 +66,11 @@ fw.components.loaders.push(fw.components.requireLoader = {
         }
 
         templatePath = componentLocation.template;
-        if(isPath(templatePath)) {
+        if (isPath(templatePath)) {
           templatePath = templatePath + folderOffset + templateFile;
         }
 
-        if(getFilenameExtension(templatePath) !== getComponentExtension(componentName, 'template')) {
+        if (getFilenameExtension(templatePath) !== getComponentExtension(componentName, 'template')) {
           templatePath += '.' + getComponentExtension(componentName, 'template');
         }
 
@@ -114,10 +121,10 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
                 function resolveThisEntityNow(isResolved) {
                   function finishResolution() {
                     addAnimationClass();
-                    if(fw.isObservable($parentsInFlightChildren) && isFunction($parentsInFlightChildren.remove)) {
+                    if(fw.isObservable($parentsInFlightChildren) && _.isFunction($parentsInFlightChildren.remove)) {
                       $parentsInFlightChildren.remove($flightTracker);
                     }
-                    if(fw.isObservable($outletsInFlightChildren) && isFunction($outletsInFlightChildren.remove)) {
+                    if(fw.isObservable($outletsInFlightChildren) && _.isFunction($outletsInFlightChildren.remove)) {
                       $outletsInFlightChildren.remove($flightTracker);
                     }
                   }
@@ -168,8 +175,8 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
 });
 
 function possiblyGetConfigFromAmd(config, callback) {
-  if(isString(config['require'])) {
-    if(isFunction(require)) {
+  if(_.isString(config['require'])) {
+    if(_.isFunction(require)) {
       require([config['require']], callback, function() {
         each(activeOutlets(), function(outlet) {
           (outlet().onFailure || noop)();

@@ -36,12 +36,12 @@
     "README.md"
   ],
   "dependencies": {
-    "jquery": "*",
     "reqwest": "1.1.5",
     "lodash": "^4.12",
     "history.js": "*",
     "requirejs": "*",
-    "requirejs-text": "*"
+    "requirejs-text": "*",
+    "es6-promise-polyfill": "^1.1.1"
   },
   "devDependencies": {
     "conduitjs": "0.3.3",

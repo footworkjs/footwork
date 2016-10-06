@@ -12,7 +12,6 @@ var replace = require('gulp-replace');
 var coveralls = require('gulp-coveralls');
 var Server = require('karma').Server;
 var _ = require('lodash');
-var runSequence = require('run-sequence');
 var fs = require('fs');
 var sass = require("gulp-sass");
 var autoprefixer = require('gulp-autoprefixer');
@@ -73,7 +72,7 @@ gulp.task('build', ['build_footwork_css', 'build_ci_css'], function () {
     }))
     .pipe(derequire())
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
-    .pipe(replace('.footwork=', '.fw=')) // Replace the globals reference with 'fw' but leave module references as 'footwork'
+    .pipe(replace('.footwork=', '.fw=')) // Replace the globals export reference with 'fw' but leave module (CommonJS/AMD) names as 'footwork'
     .pipe(header(banner, { pkg: pkg }))
     .pipe(rename('footwork.js'))
     .pipe(fileSize)

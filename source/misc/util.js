@@ -140,6 +140,20 @@ function makeOrGetRequest(operationType, requestInfo) {
   return theRequest;
 }
 
+/**
+ * Return the trailing file extension from a given string.
+ *
+ * @param {string} fileName
+ * @returns {string} The extension at the end of the file (ie: txt)
+ */
+function getFilenameExtension(fileName) {
+  var extension = '';
+  if(fileName.indexOf('.') !== -1) {
+    extension = last(fileName.split('.'));
+  }
+  return extension;
+}
+
 module.exports = {
   alwaysPassPredicate: alwaysPassPredicate,
   resultBound: resultBound,
@@ -151,5 +165,6 @@ module.exports = {
   isPath: isPath,
   hasPathStart: hasPathStart,
   hasHashStart: hasHashStart,
-  makeOrGetRequest: makeOrGetRequest
+  makeOrGetRequest: makeOrGetRequest,
+  getFilenameExtension: getFilenameExtension
 };

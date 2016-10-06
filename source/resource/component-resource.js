@@ -26,6 +26,13 @@ fw.components.register = function(componentName, options) {
   });
 };
 
+/**
+ * Return the file name extension for the given componentName and fileType.
+ *
+ * @param {string} componentName
+ * @param {string} fileType (combined/viewModel/template)
+ * @returns {string} the file extension (ie: 'js')
+ */
 function getComponentExtension(componentName, fileType) {
   var componentExtensions = fw.components.fileExtensions();
   var fileExtension = '';
@@ -115,4 +122,8 @@ fw.components.getLocation = function(componentName) {
     return fw.components.resourceLocations;
   }
   return _.omitBy(fw.components.getRegisteredLocation(componentName), _.isNull);
+};
+
+module.exports = {
+  getComponentExtension: getComponentExtension
 };
