@@ -23,6 +23,10 @@ var pkg = require('./package.json');
 var reporter = 'list';
 var args = require('yargs').argv;
 
+var autoprefixOptions = {
+  browsers: ['last 3 versions', '> 5%', 'Firefox > 3', 'ie >= 9']
+};
+
 var browserified = function(options) {
   options = options || {};
   return transform(function(filename) {
@@ -102,9 +106,7 @@ gulp.task('dist', ['minify'], function() {
 gulp.task('build_ci_css', function() {
   return gulp.src(['./tests/assets/test.scss'])
     .pipe(sass().on('error', sass.logError))
-    .pipe(autoprefixer({
-      browsers: ['last 3 versions', '> 5%', 'Firefox > 3', 'ie >= 9']
-    }))
+    .pipe(autoprefixer(autoprefixOptions))
     .pipe(gulp.dest('./tests/assets'));
 });
 
@@ -112,9 +114,7 @@ gulp.task('build_footwork_css', function() {
   return gulp.src('./source/footwork.scss')
     .pipe(gulp.dest('./build/styles'))
     .pipe(sass().on('error', sass.logError))
-    .pipe(autoprefixer({
-      browsers: ['last 3 versions', '> 5%', 'Firefox > 3', 'ie >= 9']
-    }))
+    .pipe(autoprefixer(autoprefixOptions))
     .pipe(gulp.dest('./build/styles'));
 });
 
@@ -123,13 +123,11 @@ gulp.task('watch', function () {
 });
 
 gulp.task('set_version', function() {
-  var version = pkg.version;
   if(typeof args.ver !== 'undefined') {
-    version = args.ver;
-    pkg.version = version;
+    pkg.version = args.ver;
   }
 
   return gulp.src(['./package.json'])
-    .pipe(bump({ version: version }))
+    .pipe(bump({ version: pkg.version }))
     .pipe(gulp.dest('./'));
 });
