@@ -32,7 +32,7 @@ function getComponentExtension(componentName, fileType) {
 
   if (_.isFunction(componentExtensions)) {
     fileExtension = componentExtensions(componentName)[fileType];
-  } else if( isObject(componentExtensions)) {
+  } else if(_.isObject(componentExtensions)) {
     if (_.isFunction(componentExtensions[fileType])) {
       fileExtension = componentExtensions[fileType](componentName);
     } else {
@@ -73,29 +73,29 @@ var baseComponentLocation = {
 };
 
 fw.components.registerLocation = function(componentName, componentLocation, folderOffset) {
-  if(_.isArray(componentName)) {
+  if (_.isArray(componentName)) {
     each(componentName, function(name) {
       fw.components.registerLocation(name, componentLocation, folderOffset);
     });
   }
 
-  if(_.isString(componentLocation)) {
-    componentLocation = extend({}, baseComponentLocation, {
+  if (_.isString(componentLocation)) {
+    componentLocation = _.extend({}, baseComponentLocation, {
       viewModel: componentLocation,
       template: componentLocation,
       folderOffset: !!folderOffset
     });
-  } else if(isObject(componentLocation)) {
+  } else if (_.isObject(componentLocation)) {
     componentLocation.folderOffset = !!folderOffset;
   }
 
-  fw.components.resourceLocations[componentName] = extend({}, baseComponentLocation, forceViewModelComponentConvention(componentLocation));
+  fw.components.resourceLocations[componentName] = _.extend({}, baseComponentLocation, forceViewModelComponentConvention(componentLocation));
 };
 
 fw.components.getRegisteredLocation = function(componentName) {
   return reduce(fw.components.resourceLocations, function(registeredLocation, location, registeredComponentName) {
-    if(!registeredLocation) {
-      if(!isNull(registeredComponentName.match(regExpMatch)) && !isNull(componentName.match(registeredComponentName.replace(regExpMatch, '')))) {
+    if (!registeredLocation) {
+      if (!_.isNull(registeredComponentName.match(regExpMatch)) && !_.isNull(componentName.match(registeredComponentName.replace(regExpMatch, '')))) {
         registeredLocation = location;
       } else if(componentName === registeredComponentName) {
         registeredLocation = location;
@@ -111,8 +111,8 @@ fw.components.locationIsRegistered = function(componentName) {
 
 // Return the component resource definition for the supplied componentName
 fw.components.getLocation = function(componentName) {
-  if( isUndefined(componentName) ) {
+  if (_.isUndefined(componentName)) {
     return fw.components.resourceLocations;
   }
-  return omitBy(fw.components.getRegisteredLocation(componentName), isNull);
+  return _.omitBy(fw.components.getRegisteredLocation(componentName), _.isNull);
 };
