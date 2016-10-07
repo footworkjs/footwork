@@ -51,13 +51,12 @@ require.config({
     "tools": "tests/assets/tools",
     "reporter": "tests/assets/reporter",
     "container": "tests/assets/container",
-    "fetch-mock": "node_modules/fetch-mock/es5/client-browserified",
-    "promise-polyfill": "bower_components/promise-polyfill/promise"
+    "fetch-mock": "node_modules/fetch-mock/es5/client-browserified"
   },
 
   // we have to kickoff jasmine, as it is asynchronous
   callback: function() {
-    require(['footwork', 'lodash', 'jquery', 'reporter', 'container', 'promise-polyfill'],
+    require(['footwork', 'lodash', 'jquery', 'reporter', 'container'],
       function(fw, _, $) {
         fixture.setBase('tests/assets/fixtures');
 
