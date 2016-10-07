@@ -52,7 +52,7 @@ require.config({
     "reporter": "tests/assets/reporter",
     "container": "tests/assets/container",
     "fetch-mock": "node_modules/fetch-mock/es5/client-browserified",
-    "promise-polyfill": "bower_components/es6-promise-polyfill/promise"
+    "promise-polyfill": "bower_components/promise-polyfill/promise"
   },
 
   // we have to kickoff jasmine, as it is asynchronous

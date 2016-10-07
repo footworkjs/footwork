@@ -39,7 +39,8 @@
     "history.js": "*",
     "requirejs": "*",
     "requirejs-text": "*",
-    "es6-promise-polyfill": "*"
+    "promise-polyfill": "*",
+    "fetch-polyfill": "*"
   },
   "devDependencies": {
     "conduitjs": "0.3.3",
