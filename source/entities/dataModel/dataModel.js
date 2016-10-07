@@ -6,7 +6,6 @@ var entityTools = require('../entity-tools');
 var ViewModel = require('../viewModel/viewModel');
 
 var dataModelContext = require('./dataModel-context');
-var makeOrGetRequest = require('../../misc/ajax').makeOrGetRequest;
 
 var dataTools = require('./data-tools');
 var getNestedReference = dataTools.getNestedReference;
@@ -57,19 +56,21 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
               // retrieve data dataModel the from server using the id
               var xhr = dataModel.sync('read', dataModel, options);
 
-              return (xhr.done || xhr.then).call(xhr, function(response) {
-                var parsedResponse = configParams.parse ? configParams.parse(response) : response;
-                if(!_.isUndefined(parsedResponse[configParams.idAttribute])) {
-                  dataModel.set(parsedResponse);
+              xhr.then(function(response) { return response.json(); }).then(function(data) {
+                var parsedData = configParams.parse ? configParams.parse(data) : data;
+                if(!_.isUndefined(parsedData[configParams.idAttribute])) {
+                  dataModel.set(parsedData);
                 }
               });
+
+              return xhr;
             }
 
             return false;
           }
         };
 
-        return makeOrGetRequest('fetch', requestInfo);
+        return require('../../misc/ajax').makeOrGetRequest('fetch', requestInfo);
       },
 
       // PUT / POST / PATCH to server

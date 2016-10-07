@@ -142,7 +142,7 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
                       var promises = [].concat(isResolved);
                       var checkPromise = function(promise) {
                         (promise.done || promise.then).call(promise, function() {
-                          if(_.every(promises, promiseIsResolvedOrRejected)) {
+                          if(_.every(promises, promiseIsFulfilled)) {
                             finishResolution();
                           }
                         });

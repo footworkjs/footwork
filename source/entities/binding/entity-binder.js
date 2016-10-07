@@ -4,7 +4,7 @@ var _ = require('../../misc/lodash');
 var util = require('../../misc/util');
 var isPromise = util.isPromise;
 var isPath = util.isPath;
-var promiseIsResolvedOrRejected = util.promiseIsResolvedOrRejected;
+var promiseIsFulfilled = util.promiseIsFulfilled;
 
 var isEntity = require('../entity-tools').isEntity;
 
@@ -42,7 +42,7 @@ module.exports = function entityBinder(element, params, $parentContext, Entity, 
               var promises = [].concat(isResolved);
               var checkPromise = function(promise) {
                 (promise.done || promise.then).call(promise, function() {
-                  if(_.every(promises, promiseIsResolvedOrRejected)) {
+                  if(_.every(promises, promiseIsFulfilled)) {
                     finishResolution();
                   }
                 });

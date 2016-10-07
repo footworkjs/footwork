@@ -3,9 +3,8 @@ var fw = require('../../bower_components/knockoutjs/dist/knockout');
 
 var util = require('./util');
 var resultBound = util.resultBound;
-var promiseIsResolvedOrRejected = util.promiseIsResolvedOrRejected;
-
-var isCollection = require('../collection/collection-tools').isCollection;
+var promiseIsFulfilled = util.promiseIsFulfilled;
+var isPromise = util.isPromise;
 
 // Map from CRUD to HTTP for our default `fw.sync` implementation.
 var methodMap = {
@@ -46,7 +45,7 @@ function makeOrGetRequest(operationType, requestInfo) {
   if((allowConcurrent || !fw.isObservable(requestRunning) || !requestRunning()) || !requests.length) {
     theRequest = createRequest();
 
-    if(!isPromise(theRequest)) {
+    if (!isPromise(theRequest)) {
       // returned value from createRequest() is a value not a promise, lets return the value in a promise
       theRequest = Promise().resolve(theRequest);
     }
@@ -59,14 +58,14 @@ function makeOrGetRequest(operationType, requestInfo) {
     var lullFinished = fw.observable(false);
     var requestFinished = fw.observable(false);
     var requestWatcher = fw.computed(function() {
-      if(lullFinished() && requestFinished()) {
+      if (lullFinished() && requestFinished()) {
         requestRunning(false);
         requestWatcher.dispose();
       }
     });
 
     requestLull = (_.isFunction(requestLull) ? requestLull(operationType) : requestLull);
-    if(requestLull) {
+    if (requestLull) {
       setTimeout(function() {
         lullFinished(true);
       }, requestLull);
@@ -74,9 +73,9 @@ function makeOrGetRequest(operationType, requestInfo) {
       lullFinished(true);
     }
 
-    if(isPromise(theRequest)) {
+    if (isPromise(theRequest)) {
       theRequest.then(function() {
-        if(_.every(requests, promiseIsResolvedOrRejected)) {
+        if (_.every(requests, promiseIsFulfilled)) {
           requestFinished(true);
           entity.__private(promiseName, []);
         }
@@ -88,106 +87,95 @@ function makeOrGetRequest(operationType, requestInfo) {
 }
 
 function sync(action, concern, params) {
-  throw new Error('TODO: This needs to be refactored with fetch()');
-  // params = params || {};
-  // action = action || 'noAction';
+  var isDataModel = require('../entities/entity-tools').isDataModel;
+  var isCollection = require('../collection/collection-tools').isCollection;
 
-  // if(!isDataModel(concern) && !isCollection(concern)) {
-  //   throw new Error('Must supply a dataModel or collection to fw.sync()');
-  // }
+  params = params || {};
+  action = action || 'noAction';
 
-  // var configParams = concern.__private('configParams');
-  // var options = _.extend({
-  //   type: methodMap[action],
-  //   dataType: 'json',
-  //   url: null,
-  //   data: null,
-  //   headers: {},
-  //   emulateHTTP: fw.settings.emulateHTTP,
-  //   emulateJSON: fw.settings.emulateJSON
-  // }, resultBound(configParams, 'ajaxOptions', concern, [params]) || {}, params);
+  if (!isDataModel(concern) && !isCollection(concern)) {
+    throw new Error('Must supply a dataModel or collection to fw.sync()');
+  }
 
-  // if(!_.isString(options.type)) {
-  //   throw new Error('Invalid action (' + action + ') specified for sync operation');
-  // }
+  if (!_.isString(methodMap[action])) {
+    throw new Error('Invalid action (' + action + ') specified for sync operation');
+  }
 
-  // var url = options.url;
-  // if(_.isNull(url)) {
-  //   url = configParams.url;
-  //   if(_.isFunction(url)) {
-  //     url = url.call(concern, action);
-  //   } else if(!_.isString(url)) {
-  //     var thing = (isDataModel(concern) && 'dataModel') || (isCollection(concern) && 'collection') || 'UNKNOWN';
-  //     throw new Error('Must provide a URL for/on a ' + thing + ' configuration in order to call .sync() on it');
-  //   }
+  var configParams = concern.__private('configParams');
+  var options = _.extend({
+    method: methodMap[action].toUpperCase(),
+    url: null,
+    body: null,
+    headers: {}
+  }, resultBound(configParams, 'ajaxOptions', concern, [params]) || {}, params);
 
-  //   if(isDataModel(concern)) {
-  //     var pkIsSpecifiedByUser = !_.isNull(url.match(':' + configParams.idAttribute));
-  //     var hasQueryString = !_.isNull(url.match(/\?/));
-  //     if(_.includes(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl && !pkIsSpecifiedByUser && !hasQueryString) {
-  //       // need to append /:id to url
-  //       url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
-  //     }
-  //   }
-  // }
+  if (!_.isString(options.method)) {
+    throw new Error('Invalid action (' + action + ') specified for sync operation');
+  }
 
-  // var urlPieces = (url || noURLError()).match(parseURLRegex);
-  // if(!_.isNull(urlPieces)) {
-  //   var baseURL = urlPieces[1] || '';
-  //   options.url = baseURL + _.last(urlPieces);
-  // } else {
-  //   options.url = url;
-  // }
+  var url = options.url;
+  if (_.isNull(url)) {
+    url = configParams.url;
+    if (_.isFunction(url)) {
+      url = url.call(concern, action);
+    } else if (!_.isString(url)) {
+      var thing = (isDataModel(concern) && 'dataModel') || (isCollection(concern) && 'collection') || 'UNKNOWN';
+      throw new Error('Must provide a URL for/on a ' + thing + ' configuration in order to call .sync() on it');
+    }
 
-  // if(isDataModel(concern)) {
-  //   // replace any interpolated parameters
-  //   var urlParams = options.url.match(parseParamsRegex);
-  //   if(urlParams) {
-  //     _.each(urlParams, function(param) {
-  //       options.url = options.url.replace(param, concern.get(param.substr(1)));
-  //     });
-  //   }
-  // }
+    if (isDataModel(concern)) {
+      var pkIsSpecifiedByUser = !_.isNull(url.match(':' + configParams.idAttribute));
+      var hasQueryString = !_.isNull(url.match(/\?/));
+      if (_.includes(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl && !pkIsSpecifiedByUser && !hasQueryString) {
+        // need to append /:id to url
+        url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
+      }
+    }
+  }
 
-  // if(_.isNull(options.data) && concern && _.includes(['create', 'update', 'patch'], action)) {
-  //   options.contentType = 'application/json';
-  //   options.data = JSON.stringify(options.attrs || concern.get());
-  // }
+  var urlPieces = (url || noURLError()).match(parseURLRegex);
+  if (!_.isNull(urlPieces)) {
+    var baseURL = urlPieces[1] || '';
+    url = baseURL + _.last(urlPieces);
+  }
 
-  // // For older servers, emulate JSON by encoding the request into an HTML-form.
-  // if(options.emulateJSON) {
-  //   options.contentType = 'application/x-www-form-urlencoded';
-  //   options.data = options.data ? { model: options.data } : {};
-  // }
+  if (isDataModel(concern)) {
+    // replace any interpolated parameters
+    var urlParams = url.match(parseParamsRegex);
+    if (urlParams) {
+      _.each(urlParams, function(param) {
+        url = url.replace(param, concern.get(param.substr(1)));
+      });
+    }
+  }
 
-  // // For older servers, emulate HTTP by mimicking the HTTP method with `_method`
-  // // And an `X-HTTP-Method-Override` header.
-  // if(options.emulateHTTP && _.includes(['PUT', 'DELETE', 'PATCH'], options.type)) {
-  //   options.type = 'POST';
+  if (_.isNull(options.body) && concern && _.includes(['create', 'update', 'patch'], action)) {
+    options.contentType = 'application/json';
+    options.body = JSON.stringify(options.attrs || concern.get());
+  }
 
-  //   if(options.emulateJSON) {
-  //     options.data._method = options.type;
-  //   }
-  //   _.extend(options.headers, { 'X-HTTP-Method-Override': options.type });
-  // }
-
-  // // Don't process data on a non-GET request.
-  // if(options.type !== 'GET' && !options.emulateJSON) {
-  //   options.processData = false;
-  // }
-
-  // // Pass along `textStatus` and `errorThrown` from jQuery.
-  // var error = options.error;
-  // options.error = function(xhr, textStatus, errorThrown) {
-  //   options.textStatus = textStatus;
-  //   options.errorThrown = errorThrown;
-  //   if (error) error.call(options.context, xhr, textStatus, errorThrown);
-  // };
-
-  // var xhr = options.xhr = fw.ajax(options);
-  // concern.$namespace.publish('_.request', { dataModel: concern, xhr: xhr, options: options });
-  // return xhr;
+  var xhr = options.xhr = makePromiseQueryable(fetch(url, options));
+  concern.$namespace.publish('_.request', { dataModel: concern, xhr: xhr, options: options });
+  return xhr;
 };
+
+function makePromiseQueryable(promise) {
+  if (promise.isResolved) {
+    return promise;
+  }
+
+  var isResolved = false;
+  var isRejected = false;
+
+  // Observe the promise, saving the fulfillment in a closure scope.
+  var result = promise.then(
+    function(v) { isResolved = true; return v; },
+    function(e) { isRejected = true; throw e; });
+  result.isFulfilled = function() { return isResolved || isRejected; };
+  result.isResolved = function() { return isResolved; }
+  result.isRejected = function() { return isRejected; }
+  return result;
+}
 
 module.exports = {
   sync: sync,

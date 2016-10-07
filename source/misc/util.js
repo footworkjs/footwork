@@ -28,8 +28,8 @@ function isPromise(thing) {
   return _.isObject(thing) && _.isFunction(thing.then);
 }
 
-function promiseIsResolvedOrRejected(promise) {
-  return !isPromise(promise) || _.includes(['resolved', 'rejected'], promise.state());
+function promiseIsFulfilled(promise) {
+  return !isPromise(promise) || promise.isFulfilled();
 }
 
 function hasClassName(element) {
@@ -153,7 +153,7 @@ module.exports = {
   alwaysPassPredicate: alwaysPassPredicate,
   resultBound: resultBound,
   isPromise: isPromise,
-  promiseIsResolvedOrRejected: promiseIsResolvedOrRejected,
+  promiseIsFulfilled: promiseIsFulfilled,
   addClass: addClass,
   removeClass: removeClass,
   nextFrame: nextFrame,
