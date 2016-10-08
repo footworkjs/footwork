@@ -45,6 +45,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
     mixin: {
       // GET from server and set in model
       fetch: function(options) {
+        var ajax = require('../../misc/ajax');
         var dataModel = this;
         var requestInfo = {
           requestRunning: dataModel.isFetching,
@@ -56,12 +57,16 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
               // retrieve data dataModel the from server using the id
               var xhr = dataModel.sync('read', dataModel, options);
 
-              xhr.then(function(response) { return response.json(); }).then(function(data) {
-                var parsedData = configParams.parse ? configParams.parse(data) : data;
-                if(!_.isUndefined(parsedData[configParams.idAttribute])) {
-                  dataModel.set(parsedData);
-                }
-              });
+              xhr
+                .then(function(response) {
+                  return _.inRange(response.status, 200, 300) ? response.json() : false;
+                })
+                .then(function(data) {
+                  var parsedData = configParams.parse ? configParams.parse(data) : data;
+                  if(!_.isUndefined(parsedData[configParams.idAttribute])) {
+                    dataModel.set(parsedData);
+                  }
+                });
 
               return xhr;
             }
@@ -70,11 +75,12 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
           }
         };
 
-        return require('../../misc/ajax').makeOrGetRequest('fetch', requestInfo);
+        return ajax.makeOrGetRequest('fetch', requestInfo);
       },
 
       // PUT / POST / PATCH to server
       save: function(key, val, options) {
+        var ajax = require('../../misc/ajax');
         var dataModel = this;
         var attrs = null;
 
@@ -110,26 +116,35 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
               dataModel.set(attrs);
             }
 
+            // retrieve data dataModel the from server using the id
             var xhr = dataModel.sync(method, dataModel, options);
-            return (xhr.done || xhr.then).call(xhr, function(response) {
-              var resourceData = configParams.parse ? configParams.parse(response) : response;
 
-              if(options.wait && !_.isNull(attrs)) {
-                resourceData = _.extend({}, attrs, resourceData);
-              }
+            xhr
+              .then(function(response) {
+                return _.inRange(response.status, 200, 300) ? response.json() : false;
+              })
+              .then(function(data) {
+                var parsedData = configParams.parse ? configParams.parse(data) : data;
 
-              if(_.isObject(resourceData)) {
-                dataModel.set(resourceData);
-              }
-            });
+                if(options.wait && !_.isNull(attrs)) {
+                  parsedData = _.extend({}, attrs, parsedData);
+                }
+
+                if(_.isObject(parsedData)) {
+                  dataModel.set(parsedData);
+                }
+              });
+
+            return xhr;
           }
         };
 
-        return makeOrGetRequest('save', requestInfo);
+        return ajax.makeOrGetRequest('save', requestInfo);
       },
 
       // DELETE
       destroy: function(options) {
+        var ajax = require('../../misc/ajax');
         var dataModel = this;
         var requestInfo = {
           requestRunning: dataModel.isDestroying,
@@ -153,16 +168,21 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
             }
 
             var xhr = dataModel.sync('delete', dataModel, options);
-            return (xhr.done || xhr.then).call(xhr, function() {
-              dataModel.$id(undefined);
-              if(options.wait) {
-                sendDestroyEvent();
-              }
-            });
+
+            xhr
+              .then(function(response) {
+                return _.inRange(response.status, 200, 300) ? response.json() : false;
+              })
+              .then(function(data) {
+                dataModel.$id(undefined);
+                if(options.wait) {
+                  sendDestroyEvent();
+                }
+              });
           }
         };
 
-        return makeOrGetRequest('destroy', requestInfo);
+        return ajax.makeOrGetRequest('destroy', requestInfo);
       },
 
       // set attributes in model (clears isDirty on observables/fields it saves to by default)

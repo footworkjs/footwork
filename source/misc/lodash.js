@@ -46,5 +46,6 @@ module.exports = {
   includes: require('../../node_modules/lodash/includes'),
   partial: require('../../node_modules/lodash/partial'),
   sortBy: require('../../node_modules/lodash/sortBy'),
+  inRange: require('../../node_modules/lodash/inRange'),
   noConflict: function noConflict() { return this; }
 };
