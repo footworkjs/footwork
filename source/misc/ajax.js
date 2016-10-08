@@ -86,6 +86,14 @@ function makeOrGetRequest(operationType, requestInfo) {
   return theRequest;
 }
 
+/**
+ * Create an xmlhttprequest based on the desired action (read/write/etc), concern (dataModel/collection), and optional params.
+ *
+ * @param {string} action
+ * @param {object} concern
+ * @param {object} params
+ * @returns {object} htr
+ */
 function sync(action, concern, params) {
   var isDataModel = require('../entities/entity-tools').isDataModel;
   var isCollection = require('../collection/collection-tools').isCollection;
@@ -177,7 +185,25 @@ function makePromiseQueryable(promise) {
   return result;
 }
 
+/**
+ * Take a fetch'd xmlhttprequest and handle the response. Takes into account valid 200-299 response codes.
+ * Also handles parse errors in the response which is supposed to be valid JSON.
+ *
+ * @param {object} xhr
+ * @returns {object} xhr
+ */
+function handleJsonResponse(xhr) {
+  return xhr.then(function(response) {
+      return _.inRange(response.status, 200, 300) ? response.json() : false;
+    })
+    .catch(function(parseError) {
+      console.error(parseError);
+      return false;
+    });
+}
+
 module.exports = {
   sync: sync,
-  makeOrGetRequest: makeOrGetRequest
+  makeOrGetRequest: makeOrGetRequest,
+  handleJsonResponse: handleJsonResponse
 }

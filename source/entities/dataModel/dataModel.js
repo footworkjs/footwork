@@ -57,10 +57,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
               // retrieve data dataModel the from server using the id
               var xhr = dataModel.sync('read', dataModel, options);
 
-              xhr
-                .then(function(response) {
-                  return _.inRange(response.status, 200, 300) ? response.json() : false;
-                })
+              ajax.handleJsonResponse(xhr)
                 .then(function(data) {
                   var parsedData = configParams.parse ? configParams.parse(data) : data;
                   if(!_.isUndefined(parsedData[configParams.idAttribute])) {
@@ -119,10 +116,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
             // retrieve data dataModel the from server using the id
             var xhr = dataModel.sync(method, dataModel, options);
 
-            xhr
-              .then(function(response) {
-                return _.inRange(response.status, 200, 300) ? response.json() : false;
-              })
+            ajax.handleJsonResponse(xhr)
               .then(function(data) {
                 var parsedData = configParams.parse ? configParams.parse(data) : data;
 
@@ -169,16 +163,15 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
 
             var xhr = dataModel.sync('delete', dataModel, options);
 
-            xhr
-              .then(function(response) {
-                return _.inRange(response.status, 200, 300) ? response.json() : false;
-              })
+            ajax.handleJsonResponse(xhr)
               .then(function(data) {
                 dataModel.$id(undefined);
                 if(options.wait) {
                   sendDestroyEvent();
                 }
               });
+
+            return xhr;
           }
         };
 
