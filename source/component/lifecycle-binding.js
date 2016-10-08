@@ -18,7 +18,7 @@ var addClass = require('../misc/util').addClass;
 var entityClass = require('../misc/config').entityClass;
 
 function componentTriggerAfterRender(element, viewModel, $context) {
-  if(isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
+  if (isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
     viewModel.__private('afterRenderWasTriggered', true);
 
     function addAnimationClass() {

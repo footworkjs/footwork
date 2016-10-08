@@ -17,7 +17,7 @@ var nullRouterData = {
 
 var $nullRouter = {
   __private: function(propName) {
-    if(arguments.length) {
+    if (arguments.length) {
       return nullRouterData[propName];
     }
     return nullRouterData;

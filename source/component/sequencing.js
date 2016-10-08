@@ -20,13 +20,13 @@ function clearSequenceQueue() {
 }
 
 function runAnimationClassSequenceQueue(queue, isRunner) {
-  if(!queue.running || isRunner) {
+  if (!queue.running || isRunner) {
     var sequenceIteration = queue.shift();
 
-    if(sequenceIteration) {
+    if (sequenceIteration) {
       sequenceIteration.addAnimationClass();
 
-      if(sequenceIteration.nextIteration || queue.length) {
+      if (sequenceIteration.nextIteration || queue.length) {
         queue.running = true;
         setTimeout(function() {
           runAnimationClassSequenceQueue(queue, true);

@@ -35,7 +35,7 @@ fw.components.register('outlet', {
 
     var resolvedCallbacks = [];
     this.addResolvedCallbackOrExecute = function(callback) {
-      if(outlet.routeIsResolving()) {
+      if (outlet.routeIsResolving()) {
         resolvedCallbacks.push(callback);
       } else {
         callback();
@@ -43,18 +43,18 @@ fw.components.register('outlet', {
     };
 
     this.routeIsLoadingSub = this.routeIsLoading.subscribe(function(routeIsLoading) {
-      if(routeIsLoading) {
+      if (routeIsLoading) {
         outlet.routeIsResolving(true);
       } else {
-        if(outlet.flightWatch && _.isFunction(outlet.flightWatch.dispose)) {
+        if (outlet.flightWatch && _.isFunction(outlet.flightWatch.dispose)) {
           outlet.flightWatch.dispose();
         }
 
         // must allow binding to begin on any subcomponents/etc
         nextFrame(function() {
-          if(outlet.inFlightChildren().length) {
+          if (outlet.inFlightChildren().length) {
             outlet.flightWatch = outlet.inFlightChildren.subscribe(function(inFlightChildren) {
-              if(!inFlightChildren.length) {
+              if (!inFlightChildren.length) {
                 outlet.routeIsResolving(false);
                 _.isFunction(outlet.routeOnComplete) && outlet.routeOnComplete();
               }
@@ -89,7 +89,7 @@ fw.components.register('outlet', {
       outlet.loadingStyle(hiddenCSS);
       outlet.loadedClass(addAnimation);
 
-      if(resolvedCallbacks.length) {
+      if (resolvedCallbacks.length) {
         _.each(resolvedCallbacks, function(callback) {
           callback();
         });
@@ -101,7 +101,7 @@ fw.components.register('outlet', {
     function showLoaded() {
       clearTimeout(transitionTriggerTimeout);
       var minTransitionPeriod = outlet.route.peek().minTransitionPeriod;
-      if(minTransitionPeriod) {
+      if (minTransitionPeriod) {
         transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, minTransitionPeriod);
       } else {
         showLoadedAfterMinimumTransition();
@@ -110,7 +110,7 @@ fw.components.register('outlet', {
 
     this.transitionTrigger = fw.computed(function() {
       var routeIsResolving = this.routeIsResolving();
-      if(routeIsResolving) {
+      if (routeIsResolving) {
         showLoader();
       } else {
         showLoaded();
@@ -119,7 +119,7 @@ fw.components.register('outlet', {
 
     this.dispose = function() {
       _.each(outlet, function(outletProperty) {
-        if(outletProperty && _.isFunction(outletProperty.dispose)) {
+        if (outletProperty && _.isFunction(outletProperty.dispose)) {
           outletProperty.dispose();
         }
       });

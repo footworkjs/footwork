@@ -44,7 +44,7 @@ var Namespace = function Namespace(namespaceName, $parentNamespace) {
 
   ns._publish = ns.publish;
   ns.publish = function(envelope, callback, context) {
-    if(arguments.length > 2) {
+    if (arguments.length > 2) {
       callback = callback.bind(context);
     }
     ns._publish.call(ns, envelope, callback);

@@ -10,7 +10,7 @@ var defaultLoadingComponent = routerDefaults.defaultLoadingComponent;
 
 module.exports = function routerOutlet(outletName, componentToDisplay, options) {
   options = options || {};
-  if(_.isFunction(options)) {
+  if (_.isFunction(options)) {
     options = { onComplete: options, onFailure: _.noop };
   }
 
@@ -24,7 +24,7 @@ module.exports = function routerOutlet(outletName, componentToDisplay, options) 
   var outlet = outletProperties.routeObservable;
   var outletViewModel = outletProperties.outletViewModel;
 
-  if(!fw.isObservable(outlet)) {
+  if (!fw.isObservable(outlet)) {
     // router outlet observable not found, we must create a new one
     outlet = fw.observable({
       name: noComponentSelected,
@@ -43,40 +43,40 @@ module.exports = function routerOutlet(outletName, componentToDisplay, options) 
   var currentOutletDef = outlet();
   var valueHasMutated = false;
 
-  if(arguments.length > 1 && !componentToDisplay) {
+  if (arguments.length > 1 && !componentToDisplay) {
     componentToDisplay = nullComponent;
   }
 
-  if(!_.isUndefined(componentToDisplay)) {
-    if(currentOutletDef.name !== componentToDisplay) {
+  if (!_.isUndefined(componentToDisplay)) {
+    if (currentOutletDef.name !== componentToDisplay) {
       currentOutletDef.name = componentToDisplay;
       valueHasMutated = true;
     }
 
-    if(_.isObject(viewModelParameters)) {
+    if (_.isObject(viewModelParameters)) {
       currentOutletDef.params = viewModelParameters;
       valueHasMutated = true;
     }
   }
 
-  if(outletViewModel) {
+  if (outletViewModel) {
     // Show the loading component (if one is defined)
     var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || currentOutletDef.name]);
 
-    if(showDuringLoadComponent === true || (!showDuringLoadComponent &&  resultBound(fw.router, 'showDefaultLoader', router, [outletName, componentToDisplay || currentOutletDef.name]))) {
+    if (showDuringLoadComponent === true || (!showDuringLoadComponent &&  resultBound(fw.router, 'showDefaultLoader', router, [outletName, componentToDisplay || currentOutletDef.name]))) {
       showDuringLoadComponent = defaultLoadingComponent;
     }
 
-    if(showDuringLoadComponent) {
+    if (showDuringLoadComponent) {
       outletViewModel.loadingDisplay(showDuringLoadComponent);
     }
   }
 
-  if(valueHasMutated) {
+  if (valueHasMutated) {
     clearSequenceQueue();
 
     currentOutletDef.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
-    if(outletViewModel) {
+    if (outletViewModel) {
       outletViewModel.inFlightChildren([]);
       outletViewModel.routeIsLoading(true);
     }
@@ -89,7 +89,7 @@ module.exports = function routerOutlet(outletName, componentToDisplay, options) 
 
       return function addBindingOnComplete() {
         var outletViewModel = router.outlets[outletName].outletViewModel;
-        if(outletViewModel) {
+        if (outletViewModel) {
           outletViewModel.routeIsLoading(false);
           outletViewModel.routeOnComplete = function() {
             onComplete.call(router, outletElement);
@@ -100,7 +100,7 @@ module.exports = function routerOutlet(outletName, componentToDisplay, options) 
       };
     };
 
-    if(activeOutlets().indexOf(outlet) === -1) {
+    if (activeOutlets().indexOf(outlet) === -1) {
       activeOutlets.push(outlet);
     }
 

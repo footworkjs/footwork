@@ -36,7 +36,7 @@ fw.components.loaders.push(fw.components.requireLoader = {
 
     if (_.isFunction(require)) {
       // load component using knockouts native support for requirejs
-      if(require.specified(componentName)) {
+      if (require.specified(componentName)) {
         // component already cached, lets use it
         configOptions = {
           require: componentName
@@ -44,7 +44,7 @@ fw.components.loaders.push(fw.components.requireLoader = {
       } else if (_.isString(componentLocation.combined)) {
         combinedPath = componentLocation.combined;
 
-        if(isPath(combinedPath)) {
+        if (isPath(combinedPath)) {
           combinedPath = combinedPath + folderOffset + combinedFile;
         }
 
@@ -59,11 +59,11 @@ fw.components.loaders.push(fw.components.requireLoader = {
         } else {
           viewModelPath = componentLocation.viewModel;
 
-          if(isPath(viewModelPath)) {
+          if (isPath(viewModelPath)) {
             viewModelPath = viewModelPath + folderOffset + viewModelFile;
           }
 
-          if(getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel')) {
+          if (getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel')) {
             viewModelPath += '.' + getComponentExtension(componentName, 'viewModel');
           }
 
@@ -110,10 +110,10 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
           var $parentsInFlightChildren;
           var $outletsInFlightChildren;
 
-          if($nearestEntity) {
+          if ($nearestEntity) {
             $parentsInFlightChildren = $nearestEntity.__private('inFlightChildren');
           }
-          if($nearestOutlet) {
+          if ($nearestOutlet) {
             $outletsInFlightChildren = $nearestOutlet.inFlightChildren;
           }
 
@@ -126,10 +126,10 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
                 function resolveThisEntityNow(isResolved) {
                   function finishResolution() {
                     addAnimationClass();
-                    if(fw.isObservable($parentsInFlightChildren) && _.isFunction($parentsInFlightChildren.remove)) {
+                    if (fw.isObservable($parentsInFlightChildren) && _.isFunction($parentsInFlightChildren.remove)) {
                       $parentsInFlightChildren.remove($flightTracker);
                     }
-                    if(fw.isObservable($outletsInFlightChildren) && _.isFunction($outletsInFlightChildren.remove)) {
+                    if (fw.isObservable($outletsInFlightChildren) && _.isFunction($outletsInFlightChildren.remove)) {
                       $outletsInFlightChildren.remove($flightTracker);
                     }
                   }
@@ -138,11 +138,11 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
                     wasResolved = true;
                     if (isResolved === true) {
                       finishResolution();
-                    } else if(isPromise(isResolved) || (_.isArray(isResolved) && _.every(isResolved, isPromise))) {
+                    } else if (isPromise(isResolved) || (_.isArray(isResolved) && _.every(isResolved, isPromise))) {
                       var promises = [].concat(isResolved);
                       var checkPromise = function(promise) {
                         (promise.done || promise.then).call(promise, function() {
-                          if(_.every(promises, promiseIsFulfilled)) {
+                          if (_.every(promises, promiseIsFulfilled)) {
                             finishResolution();
                           }
                         });
@@ -180,8 +180,8 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
 });
 
 function possiblyGetConfigFromAmd(config, callback) {
-  if(_.isString(config['require'])) {
-    if(_.isFunction(require)) {
+  if (_.isString(config['require'])) {
+    if (_.isFunction(require)) {
       require([config['require']], callback, function() {
         _.each(activeOutlets(), function(outlet) {
           (outlet().onFailure || noop)();
@@ -233,7 +233,7 @@ function resolveConfig(componentName, config, callback) {
 // Note that this is a direct lift from the knockoutjs source
 function getFirstResultFromLoaders(methodName, argsExceptCallback, callback, candidateLoaders) {
   // On the first call in the stack, start with the full set of loaders
-  if(!candidateLoaders) {
+  if (!candidateLoaders) {
     candidateLoaders = fw.components['loaders'].slice(0); // Use a copy, because we'll be mutating this array
   }
 

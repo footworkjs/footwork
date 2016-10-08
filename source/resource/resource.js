@@ -31,7 +31,7 @@ function resourceHelperFactory(descriptor) {
     resourceLocations: descriptor.resourceLocations
   };
 
-  if(!_.isUndefined(descriptor.referenceNamespace)) {
+  if (!_.isUndefined(descriptor.referenceNamespace)) {
     // Returns a reference to the specified models.
     // If no name is supplied, a reference to an array containing all viewModel references is returned.
     resourceMethods.getAll = getModelReferences.bind(null, descriptor);
@@ -41,7 +41,7 @@ function resourceHelperFactory(descriptor) {
 }
 
 _.each(require('../entities/entity-descriptors'), function(descriptor) {
-  if(!_.isUndefined(descriptor.resource)) {
+  if (!_.isUndefined(descriptor.resource)) {
     _.extend(descriptor.resource, resourceHelperFactory(descriptor));
   }
 });

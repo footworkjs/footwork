@@ -37,7 +37,7 @@ var PlainCollectionConstructor;
 fw.collection = _.extend(function(collectionData) {
   collectionData = collectionData || [];
 
-  if(_.isUndefined(PlainCollectionConstructor)) {
+  if (_.isUndefined(PlainCollectionConstructor)) {
     PlainCollectionConstructor = fw.collection.create();
   }
   return PlainCollectionConstructor(collectionData);
@@ -53,10 +53,10 @@ fw.collection.create = function(configParams) {
     var privateStuff = {
       castAs: {
         modelData: function(modelData, attribute) {
-          if(isDataModel(modelData)) {
+          if (isDataModel(modelData)) {
             return modelData.getData(attribute);
           }
-          if(_.isUndefined(attribute)) {
+          if (_.isUndefined(attribute)) {
             return modelData;
           }
           return _.result(modelData, attribute);
@@ -67,8 +67,8 @@ fw.collection.create = function(configParams) {
       },
       getIdAttribute: function(options) {
         var idAttribute = configParams.idAttribute || (options || {}).idAttribute;
-        if(_.isUndefined(idAttribute) || _.isNull(idAttribute)) {
-          if(isDataModelCtor(DataModelCtor)) {
+        if (_.isUndefined(idAttribute) || _.isNull(idAttribute)) {
+          if (isDataModelCtor(DataModelCtor)) {
             return DataModelCtor.__private('configParams').idAttribute;
           }
         }
@@ -90,7 +90,7 @@ fw.collection.create = function(configParams) {
       isFetching: fw.observable(false),
       isCreating: fw.observable(false),
       dispose: function() {
-        if(!collection.isDisposed) {
+        if (!collection.isDisposed) {
           collection.isDisposed = true;
           collection.$namespace.dispose();
           _.invokeMap(collection(), 'dispose');
@@ -102,7 +102,7 @@ fw.collection.create = function(configParams) {
       return this.isFetching() || this.isCreating();
     }, collection);
 
-    if(collectionData) {
+    if (collectionData) {
       collection.set(collectionData);
     }
 

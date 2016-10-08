@@ -15,7 +15,7 @@ module.exports = _.extend([
   },
   resourceFor: function getResourceForEntityTagName(tagName) {
     return _.reduce(this, function(resource, descriptor) {
-      if(descriptor.tagName === tagName) {
+      if (descriptor.tagName === tagName) {
         resource = descriptor.resource;
       }
       return resource;

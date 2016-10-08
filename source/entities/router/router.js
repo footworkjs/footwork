@@ -220,7 +220,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
         var route = state;
         var params = state.params;
 
-        if(_.isObject(state)) {
+        if (_.isObject(state)) {
           route = state.name;
           params = params || {};
         }
@@ -251,7 +251,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
 
       // Automatically trigger the new Action() whenever the currentRoute() updates
       subscriptions.push(router.currentRoute.subscribe(function getActionForRouteAndTrigger(newRoute) {
-        if(router.currentState().length) {
+        if (router.currentState().length) {
           getActionForRoute(newRoute)( /* get and call the action for the newRoute */ );
         }
       }, this));
@@ -303,7 +303,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
         $context = $context || this.__private('context')();
         $parentRouter = $parentRouter || nearestParentRouter($context);
 
-        if(!isNullRouter($parentRouter)) {
+        if (!isNullRouter($parentRouter)) {
           this.__private('parentRouter')($parentRouter);
         } else if (_.isObject($context)) {
           $parentRouter = nearestParentRouter($context);
@@ -343,7 +343,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
         var continueToRoute = true;
         var useHistory = this.__private('historyIsEnabled')() && !this.__private('disableHistory')() && _.isFunction(History.getState);
 
-        if(!_.isNull(namedRoute)) {
+        if (!_.isNull(namedRoute)) {
           // must convert namedRoute into its URL form
           var routeDescription = _.find(this.routeDescriptions, function (route) {
             return route.name === namedRoute;
@@ -405,7 +405,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
         return this;
       },
       dispose: function() {
-        if(!this._isDisposed) {
+        if (!this._isDisposed) {
           this._isDisposed = true;
 
           var $parentRouter = this.__private('parentRouter')();
@@ -429,7 +429,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
             return isEntity(property);
           }), propertyDispose);
 
-          if(configParams.onDispose !== _.noop) {
+          if (configParams.onDispose !== _.noop) {
             configParams.onDispose.call(this, this.__private('element'));
           }
 
@@ -446,7 +446,7 @@ fw.router = {
   disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: fw.namespace() }),
   html5History: function() {
     var hasHTML5History = !!window.history && !!window.history.pushState;
-    if(!_.isUndefined(window.History) && _.isObject(window.History.options) && window.History.options.html4Mode) {
+    if (!_.isUndefined(window.History) && _.isObject(window.History.options) && window.History.options.html4Mode) {
       // user is overriding to force html4mode hash-based history
       hasHTML5History = false;
     }

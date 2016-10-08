@@ -46,7 +46,7 @@ function pluck(attribute) {
 }
 
 function set(newCollection, options) {
-  if(!_.isArray(newCollection)) {
+  if (!_.isArray(newCollection)) {
     throw new Error('collection.set() must be passed an array of data/dataModels');
   }
 
@@ -64,15 +64,15 @@ function set(newCollection, options) {
     var modelPresent = false;
     modelData = castAsModelData(modelData);
 
-    if(!_.isUndefined(modelData)) {
+    if (!_.isUndefined(modelData)) {
       _.each(collectionStore, function lookForModel(model, indexOfModel) {
         var collectionModelData = castAsModelData(model);
 
-        if(!_.isUndefined(modelData[idAttribute]) && !_.isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
+        if (!_.isUndefined(modelData[idAttribute]) && !_.isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
           modelPresent = true;
-          if(options.merge !== false && !sortOfEqual(collectionModelData, modelData)) {
+          if (options.merge !== false && !sortOfEqual(collectionModelData, modelData)) {
             // found model, but needs an update
-            if(_.isFunction(model.set)) {
+            if (_.isFunction(model.set)) {
               model.set.call(model, modelData);
             } else {
               collectionStore[indexOfModel] = modelData;
@@ -83,7 +83,7 @@ function set(newCollection, options) {
         }
       });
 
-      if(!modelPresent && options.add !== false) {
+      if (!modelPresent && options.add !== false) {
         // not found in collection, we have to add this model
         var newModel = castAsDataModel(modelData);
         collectionStore.push(newModel);
@@ -94,28 +94,28 @@ function set(newCollection, options) {
     }
   });
 
-  if(options.remove !== false) {
+  if (options.remove !== false) {
     _.each(collectionStore, function checkForRemovals(model, indexOfModel) {
       var collectionModelData = castAsModelData(model);
       var modelPresent = false;
 
-      if(collectionModelData) {
+      if (collectionModelData) {
         modelPresent = _.reduce(newCollection, function(isPresent, modelData) {
           return isPresent || _.result(modelData, idAttribute) === collectionModelData[idAttribute];
         }, false);
       }
 
-      if(!modelPresent) {
+      if (!modelPresent) {
         // model currently in collection not found in the supplied newCollection so we need to mark it for removal
         absentModels.push(model);
         affectedModels.push(model);
       }
     });
 
-    if(absentModels.length) {
+    if (absentModels.length) {
       _.each(absentModels, function(modelToRemove) {
         var indexOfModelToRemove = collectionStore.indexOf(modelToRemove);
-        if(indexOfModelToRemove > -1) {
+        if (indexOfModelToRemove > -1) {
           collectionStore.splice(indexOfModelToRemove, 1);
         }
       });
@@ -130,7 +130,7 @@ function set(newCollection, options) {
     newModelData = castAsModelData(newModelData);
     var foundAtIndex = null;
     var currentModel = _.find(collectionStore, function(model, theIndex) {
-      if(sortOfEqual(castAsModelData(model), newModelData)) {
+      if (sortOfEqual(castAsModelData(model), newModelData)) {
         foundAtIndex = theIndex;
         return true;
       }
@@ -141,11 +141,11 @@ function set(newCollection, options) {
 
   wasResorted = (wasResorted && reSorted.length && _.every(reSorted));
 
-  if(wasResorted) {
+  if (wasResorted) {
     Array.prototype.splice.apply(collectionStore, [0, reSorted.length].concat(reSorted));
   }
 
-  if(wasResorted || addedModels.length || absentModels.length || affectedModels.length) {
+  if (wasResorted || addedModels.length || absentModels.length || affectedModels.length) {
     collection.notifySubscribers();
   }
 
@@ -168,6 +168,7 @@ function reset(newCollection) {
 }
 
 function fetch(options) {
+  var ajax = require('../misc/ajax');
   var collection = this;
   var configParams = collection.__private('configParams');
   options = options ? _.clone(options) : {};
@@ -177,18 +178,26 @@ function fetch(options) {
     requestLull: configParams.requestLull,
     entity: collection,
     createRequest: function() {
-      if(_.isUndefined(options.parse)) {
+      if (_.isUndefined(options.parse)) {
         options.parse = true;
       }
 
       var xhr = collection.sync('read', collection, options);
 
-      return (xhr.done || xhr.then).call(xhr, function(resp) {
-        var method = options.reset ? 'reset' : 'set';
-        resp = configParams.parse(resp);
-        var touchedModels = collection[method](resp, options);
-        collection.$namespace.publish('_.change', { touched: touchedModels, serverResponse: resp, options: options });
-      });
+      ajax.handleJsonResponse(xhr)
+        .then(function handleResponseData(data) {
+          var method = options.reset ? 'reset' : 'set';
+          data = configParams.parse(data);
+          var touchedModels = collection[method](data, options);
+
+          collection.$namespace.publish('_.change', {
+            touched: touchedModels,
+            serverResponse: data,
+            options: options
+          });
+        });
+
+      return xhr;
     }
   };
 
@@ -203,7 +212,7 @@ function where(modelData, options) {
 
   return _.reduce(collection(), function findModel(foundModels, model) {
     var thisModelData = castAsModelData(model);
-    if(regExpIsEqual(modelData, thisModelData, options.isEqual)) {
+    if (regExpIsEqual(modelData, thisModelData, options.isEqual)) {
       foundModels.push(options.getData ? thisModelData : model);
     }
     return foundModels;
@@ -218,7 +227,7 @@ function findWhere(modelData, options) {
 
   return _.reduce(collection(), function findModel(foundModel, model) {
     var thisModelData = castAsModelData(model);
-    if(_.isNull(foundModel) && regExpIsEqual(modelData, thisModelData, options.isEqual)) {
+    if (_.isNull(foundModel) && regExpIsEqual(modelData, thisModelData, options.isEqual)) {
       return options.getData ? thisModelData : model;
     }
     return foundModel;
@@ -230,20 +239,20 @@ function addModel(models, options) {
   var affectedModels = [];
   options = options || {};
 
-  if(_.isObject(models)) {
+  if (_.isObject(models)) {
     models = [models];
   }
-  if(!_.isArray(models)) {
+  if (!_.isArray(models)) {
     models = !_.isUndefined(models) && !_.isNull(models) ? [models] : [];
   }
 
-  if(models.length) {
+  if (models.length) {
     var collectionData = collection();
     var castAsDataModel = collection.__private('castAs').dataModel;
     var castAsModelData = collection.__private('castAs').modelData;
     var idAttribute = collection.__private('getIdAttribute')();
 
-    if(_.isNumber(options.at)) {
+    if (_.isNumber(options.at)) {
       var newModels = _.map(models, castAsDataModel);
 
       collectionData.splice.apply(collectionData, [options.at, 0].concat(newModels));
@@ -259,9 +268,9 @@ function addModel(models, options) {
         _.each(collectionData, function lookForModel(model) {
           var collectionModelData = castAsModelData(model);
 
-          if(!_.isUndefined(theModelData[idAttribute]) && !_.isNull(theModelData[idAttribute]) && theModelData[idAttribute] === collectionModelData[idAttribute]) {
+          if (!_.isUndefined(theModelData[idAttribute]) && !_.isNull(theModelData[idAttribute]) && theModelData[idAttribute] === collectionModelData[idAttribute]) {
             modelPresent = true;
-            if(options.merge && !sortOfEqual(theModelData, collectionModelData)) {
+            if (options.merge && !sortOfEqual(theModelData, collectionModelData)) {
               // found model, but needs an update
               (model.set || noop).call(model, theModelData);
               collection.$namespace.publish('_.change', model);
@@ -270,7 +279,7 @@ function addModel(models, options) {
           }
         });
 
-        if(!modelPresent) {
+        if (!modelPresent) {
           // not found in collection, we have to add this model
           var newModel = castAsDataModel(modelData);
           collection.push(newModel);
@@ -298,10 +307,10 @@ function create(model, options) {
       var newModel = castAsDataModel(model);
       var xhr;
 
-      if(isDataModel(newModel)) {
+      if (isDataModel(newModel)) {
         xhr = newModel.save();
 
-        if(options.wait) {
+        if (options.wait) {
           (xhr.done || xhr.then).call(xhr, function() {
             collection.addModel(newModel);
           });
@@ -316,7 +325,7 @@ function create(model, options) {
     }
   };
 
-  if(!isDataModelCtor(configParams.dataModel)) {
+  if (!isDataModelCtor(configParams.dataModel)) {
     throw new Error('No dataModel specified, cannot create() a new collection item');
   }
 
@@ -327,25 +336,25 @@ function removeModel(models) {
   var collection = this;
   var affectedModels = [];
 
-  if(_.isObject(models)) {
+  if (_.isObject(models)) {
     models = [models];
   }
-  if(!_.isArray(models)) {
+  if (!_.isArray(models)) {
     models = !_.isUndefined(models) && !_.isNull(models) ? [models] : [];
   }
 
   return _.reduce(models, function(removedModels, model) {
     var removed = null;
-    if(isDataModel(model)) {
+    if (isDataModel(model)) {
       removed = collection.remove(model);
     } else {
       var modelsToRemove = collection.where(model);
-      if(!_.isNull(modelsToRemove)) {
+      if (!_.isNull(modelsToRemove)) {
         removed = collection.removeAll(modelsToRemove);
       }
     }
 
-    if(!_.isNull(removed)) {
+    if (!_.isNull(removed)) {
       return removedModels.concat(removed);
     }
     return removedModels;

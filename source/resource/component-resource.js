@@ -55,7 +55,7 @@ function getComponentExtension(componentName, fileType) {
 }
 
 function forceViewModelComponentConvention(componentLocation) {
-  if(_.isObject(componentLocation) && _.isUndefined(componentLocation.viewModel) && _.isUndefined(componentLocation.combined)) {
+  if (_.isObject(componentLocation) && _.isUndefined(componentLocation.viewModel) && _.isUndefined(componentLocation.combined)) {
     return {
       viewModel: componentLocation.dataModel || componentLocation.router,
       template: componentLocation.template
@@ -118,7 +118,7 @@ fw.components.getRegisteredLocation = function(componentName) {
     if (!registeredLocation) {
       if (!_.isNull(registeredComponentName.match(regExpMatch)) && !_.isNull(componentName.match(registeredComponentName.replace(regExpMatch, '')))) {
         registeredLocation = location;
-      } else if(componentName === registeredComponentName) {
+      } else if (componentName === registeredComponentName) {
         registeredLocation = location;
       }
     }

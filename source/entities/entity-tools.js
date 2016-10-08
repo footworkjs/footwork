@@ -114,11 +114,11 @@ function nearestEntity($context, predicate) {
     }, false);
   }
 
-  if(_.isObject($context)) {
-    if(isTheThing($context.$data)) {
+  if (_.isObject($context)) {
+    if (isTheThing($context.$data)) {
       // found $data that matches the predicate(s) in this context
       foundEntity = $context.$data;
-    } else if(_.isObject($context.$parentContext) || (_.isObject($context.$data) && _.isObject($context.$data.$parentContext))) {
+    } else if (_.isObject($context.$parentContext) || (_.isObject($context.$data) && _.isObject($context.$data.$parentContext))) {
       // search through next parent up the chain
       foundEntity = nearestEntity($context.$parentContext || $context.$data.$parentContext, predicate);
     }

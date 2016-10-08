@@ -26,10 +26,10 @@ module.exports = function entityBinder(element, params, $parentContext, Entity, 
         function resolveThisEntityNow(isResolved) {
           function finishResolution() {
             addAnimationClass();
-            if(fw.isObservable($parentsInFlightChildren) && _.isFunction($parentsInFlightChildren.remove)) {
+            if (fw.isObservable($parentsInFlightChildren) && _.isFunction($parentsInFlightChildren.remove)) {
               $parentsInFlightChildren.remove($flightTracker);
             }
-            if(fw.isObservable($outletsInFlightChildren) && _.isFunction($outletsInFlightChildren.remove)) {
+            if (fw.isObservable($outletsInFlightChildren) && _.isFunction($outletsInFlightChildren.remove)) {
               $outletsInFlightChildren.remove($flightTracker);
             }
           }
@@ -38,11 +38,11 @@ module.exports = function entityBinder(element, params, $parentContext, Entity, 
             wasResolved = true;
             if (isResolved === true) {
               finishResolution();
-            } else if(isPromise(isResolved) || (_.isArray(isResolved) && _.every(isResolved, isPromise))) {
+            } else if (isPromise(isResolved) || (_.isArray(isResolved) && _.every(isResolved, isPromise))) {
               var promises = [].concat(isResolved);
               var checkPromise = function(promise) {
                 (promise.done || promise.then).call(promise, function() {
-                  if(_.every(promises, promiseIsFulfilled)) {
+                  if (_.every(promises, promiseIsFulfilled)) {
                     finishResolution();
                   }
                 });

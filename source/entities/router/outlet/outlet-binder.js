@@ -13,7 +13,7 @@ fw.bindingHandlers.$outletBinder = {
     var $parentRouter = nearestParentRouter(bindingContext);
     var outletName = outletViewModel.outletName;
 
-    if(isRouter($parentRouter)) {
+    if (isRouter($parentRouter)) {
       // register the viewModel with the outlet for future use when its route is changed
       $parentRouter.__private('registerViewModelForOutlet')(outletName, outletViewModel);
       fw.utils.domNodeDisposal.addDisposeCallback(element, function() {

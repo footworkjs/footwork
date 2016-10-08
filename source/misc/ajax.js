@@ -42,7 +42,7 @@ function makeOrGetRequest(operationType, requestInfo) {
   var requests = entity.__private(promiseName) || [];
   var theRequest = _.last(requests);
 
-  if((allowConcurrent || !fw.isObservable(requestRunning) || !requestRunning()) || !requests.length) {
+  if ((allowConcurrent || !fw.isObservable(requestRunning) || !requestRunning()) || !requests.length) {
     theRequest = createRequest();
 
     if (!isPromise(theRequest)) {

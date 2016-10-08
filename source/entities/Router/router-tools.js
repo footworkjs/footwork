@@ -38,7 +38,7 @@ function historyIsReady() {
   var typeOfHistory = typeof History;
   var isReady = ['function','object'].indexOf(typeOfHistory) !== -1 && _.has(History, 'Adapter');
 
-  if(isReady && !History.Adapter.isSetup) {
+  if (isReady && !History.Adapter.isSetup) {
     History.Adapter.isSetup = true;
 
     // why .unbind() is not already present in History.js is beyond me

@@ -3,11 +3,11 @@ function privateData(privateStore, configParams, propName, propValue) {
   var isReadOp = arguments.length === 3;
   var isWriteOp = arguments.length === 4;
 
-  if(isGetBaseObjOp) {
+  if (isGetBaseObjOp) {
     return privateStore;
-  } else if(isReadOp) {
+  } else if (isReadOp) {
      return propName === 'configParams' ? configParams : privateStore[propName];
-  } else if(isWriteOp) {
+  } else if (isWriteOp) {
     privateStore[propName] = propValue;
     return privateStore[propName];
   }

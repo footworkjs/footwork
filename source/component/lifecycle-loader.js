@@ -6,7 +6,7 @@ var internalComponents = require('./internal-components');
 // Custom loader used to wrap components with the $life custom binding
 fw.components.loaders.unshift( fw.components.lifecycleLoader = {
   loadTemplate: function(componentName, templateConfig, callback) {
-    if(!internalComponents.isInternalComponent(componentName)) {
+    if (!internalComponents.isInternalComponent(componentName)) {
       if (typeof templateConfig === 'string') {
         // Markup - parse it
         callback(wrapWithLifeCycle(templateConfig));
@@ -80,7 +80,7 @@ function wrapWithLifeCycle(template) {
   var templateString = (_.isString(template) ? template : '');
   var wrapper = fw.utils.parseHtmlFragment('<!-- ko $life -->' + templateString + '<!-- /ko -->');
 
-  if(templateString.length) {
+  if (templateString.length) {
     return wrapper;
   }
 

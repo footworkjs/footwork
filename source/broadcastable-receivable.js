@@ -28,11 +28,11 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
         name: varName,
         writable: option
       };
-    } else if(_.isObject(option)) {
+    } else if (_.isObject(option)) {
       option = _.extend({
         name: varName
       }, option);
-    } else if(_.isString(option)) {
+    } else if (_.isString(option)) {
       option = _.extend({
         name: varName,
         namespace: option
@@ -45,16 +45,16 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
   }
 
   namespace = option.namespace || fw.utils.currentNamespace();
-  if(_.isString(namespace)) {
+  if (_.isString(namespace)) {
     namespace = fw.namespace(namespace);
     isLocalNamespace = true;
   }
 
-  if(!isNamespace(namespace)) {
+  if (!isNamespace(namespace)) {
     throw new Error('Invalid namespace provided for broadcastAs() observable.');
   }
 
-  if( option.writable ) {
+  if ( option.writable ) {
     namespaceSubscriptions.push(namespace.subscribe('__change.' + option.name, function(newValue) {
       broadcastable(newValue);
     }));

@@ -53,14 +53,14 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
           entity: dataModel,
           createRequest: function() {
             var id = dataModel[configParams.idAttribute]();
-            if(id) {
+            if (id) {
               // retrieve data dataModel the from server using the id
               var xhr = dataModel.sync('read', dataModel, options);
 
               ajax.handleJsonResponse(xhr)
-                .then(function(data) {
+                .then(function handleResponseData(data) {
                   var parsedData = configParams.parse ? configParams.parse(data) : data;
-                  if(!_.isUndefined(parsedData[configParams.idAttribute])) {
+                  if (!_.isUndefined(parsedData[configParams.idAttribute])) {
                     dataModel.set(parsedData);
                   }
                 });
@@ -81,14 +81,14 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
         var dataModel = this;
         var attrs = null;
 
-        if(_.isObject(key) && !isNode(key)) {
+        if (_.isObject(key) && !isNode(key)) {
           attrs = key;
           options = val;
-        } else if(_.isString(key) && arguments.length > 1) {
+        } else if (_.isString(key) && arguments.length > 1) {
           (attrs = {})[key] = val;
         }
 
-        if(_.isObject(options) && _.isFunction(options.stopPropagation)) {
+        if (_.isObject(options) && _.isFunction(options.stopPropagation)) {
           // method called as a result of an event binding, ignore its 'options'
           options = {};
         }
@@ -99,7 +99,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
           patch: false
         }, options);
 
-        if(method === 'patch' && !options.attrs) {
+        if (method === 'patch' && !options.attrs) {
           options.attrs = attrs;
         }
 
@@ -109,7 +109,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
           requestLull: configParams.requestLull,
           entity: dataModel,
           createRequest: function() {
-            if(!options.wait && !_.isNull(attrs)) {
+            if (!options.wait && !_.isNull(attrs)) {
               dataModel.set(attrs);
             }
 
@@ -117,14 +117,14 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
             var xhr = dataModel.sync(method, dataModel, options);
 
             ajax.handleJsonResponse(xhr)
-              .then(function(data) {
+              .then(function handleResponseData(data) {
                 var parsedData = configParams.parse ? configParams.parse(data) : data;
 
-                if(options.wait && !_.isNull(attrs)) {
+                if (options.wait && !_.isNull(attrs)) {
                   parsedData = _.extend({}, attrs, parsedData);
                 }
 
-                if(_.isObject(parsedData)) {
+                if (_.isObject(parsedData)) {
                   dataModel.set(parsedData);
                 }
               });
@@ -145,7 +145,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
           requestLull: configParams.requestLull,
           entity: dataModel,
           createRequest: function() {
-            if(dataModel.isNew()) {
+            if (dataModel.isNew()) {
               return false;
             }
 
@@ -157,16 +157,16 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
               dataModel.$namespace.publish('destroy', options);
             };
 
-            if(!options.wait) {
+            if (!options.wait) {
               sendDestroyEvent();
             }
 
             var xhr = dataModel.sync('delete', dataModel, options);
 
             ajax.handleJsonResponse(xhr)
-              .then(function(data) {
+              .then(function handleResponseData(data) {
                 dataModel.$id(undefined);
-                if(options.wait) {
+                if (options.wait) {
                   sendDestroyEvent();
                 }
               });
@@ -182,9 +182,9 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
       set: function(key, value, options) {
         var attributes = {};
 
-        if(_.isString(key)) {
+        if (_.isString(key)) {
           attributes = insertValueIntoObject(attributes, key, value);
-        } else if(_.isObject(key)) {
+        } else if (_.isObject(key)) {
           attributes = key;
           options = value;
         }
@@ -197,7 +197,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
         var model = this;
         _.each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
           var fieldValue = getNestedReference(attributes, fieldMap);
-          if(!_.isUndefined(fieldValue)) {
+          if (!_.isUndefined(fieldValue)) {
             fw.isWriteableObservable(fieldObservable) && fieldObservable(fieldValue);
             mappingsChanged = true;
             options.clearDirty && fieldObservable.isDirty(false);
@@ -205,7 +205,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
           }
         });
 
-        if(mappingsChanged && options.clearDirty) {
+        if (mappingsChanged && options.clearDirty) {
           // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function
           this.__private('mappings').valueHasMutated();
         }
@@ -213,16 +213,16 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
 
       get: function(referenceField, includeRoot) {
         var dataModel = this;
-        if(_.isArray(referenceField)) {
+        if (_.isArray(referenceField)) {
           return _.reduce(referenceField, function(jsObject, fieldMap) {
             return _.merge(jsObject, dataModel.get(fieldMap, true));
           }, {});
-        } else if(!_.isUndefined(referenceField) && !_.isString(referenceField)) {
+        } else if (!_.isUndefined(referenceField) && !_.isString(referenceField)) {
           throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.get().');
         }
 
         var mappedObject = _.reduce(this.__private('mappings')(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
-          if(_.isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
+          if (_.isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
             insertValueIntoObject(jsObject, fieldMap, fieldObservable());
           }
           return jsObject;
@@ -240,11 +240,11 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
       },
 
       clean: function(field) {
-        if(!_.isUndefined(field)) {
+        if (!_.isUndefined(field)) {
           var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
         }
         _.each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
-          if(_.isUndefined(field) || fieldMap.match(fieldMatch)) {
+          if (_.isUndefined(field) || fieldMap.match(fieldMatch)) {
             fieldObservable.isDirty(false);
           }
         });
@@ -267,7 +267,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
       }
     },
     _postInit: function() {
-      if(configParams.autoIncrement) {
+      if (configParams.autoIncrement) {
         this.$rootNamespace.request.handler('get', function() { return this.get(); }.bind(this));
       }
       this.$namespace.request.handler('get', function() { return this.get(); }.bind(this));

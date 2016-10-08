@@ -18,7 +18,7 @@ function resultBound(object, path, context, params) {
   params = params || [];
   context = context || object;
 
-  if(_.isFunction(object[path])) {
+  if (_.isFunction(object[path])) {
     return object[path].apply(context, params);
   }
   return object[path];
@@ -41,13 +41,13 @@ function hasClass(element, className) {
 }
 
 function addClass(element, className) {
-  if(hasClassName(element) && !hasClass(element, className)) {
+  if (hasClassName(element) && !hasClass(element, className)) {
     element.className += (element.className.length && _.isNull(element.className.match(/ $/)) ? ' ' : '') + className;
   }
 }
 
 function removeClass(element, className) {
-  if(hasClassName(element) && hasClass(element, className)) {
+  if (hasClassName(element) && hasClass(element, className)) {
     var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)', 'g');
     element.className = element.className.replace(classNameRegex, ' ');
   }
@@ -80,7 +80,7 @@ function hasHashStart(string) {
  */
 function getFilenameExtension(fileName) {
   var extension = '';
-  if(fileName.indexOf('.') !== -1) {
+  if (fileName.indexOf('.') !== -1) {
     extension = _.last(fileName.split('.'));
   }
   return extension;
@@ -122,7 +122,7 @@ function parseUri(str) {
 
   uri[ options.q.name ] = {};
   uri[ options.key[12] ].replace(options.q.parser, function ($0, $1, $2) {
-    if($1) {
+    if ($1) {
       uri[options.q.name][$1] = $2;
     }
   });
@@ -144,7 +144,7 @@ parseUri.options = {
 };
 
 function propertyDispose(property) {
-  if(_.isObject(property) && _.isFunction(property.dispose)) {
+  if (_.isObject(property) && _.isFunction(property.dispose)) {
     property.dispose();
   }
 }

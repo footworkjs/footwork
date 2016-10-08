@@ -1,13 +1,13 @@
 var _ = require('../../misc/lodash');
 
 function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
-  if(_.isString(fieldMap)) {
+  if (_.isString(fieldMap)) {
     return insertValueIntoObject(rootObject, fieldMap.split('.'), fieldValue);
   }
 
   var propName = fieldMap.shift();
-  if(fieldMap.length) {
-    if(_.isUndefined(rootObject[propName])) {
+  if (fieldMap.length) {
+    if (_.isUndefined(rootObject[propName])) {
       // nested property, lets add the container object
       rootObject[propName] = {};
     }
@@ -23,14 +23,14 @@ function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
 function getNestedReference(rootObject, fieldMap) {
   var propName = fieldMap;
 
-  if(!_.isUndefined(fieldMap)) {
-    if(_.isString(fieldMap)) {
+  if (!_.isUndefined(fieldMap)) {
+    if (_.isString(fieldMap)) {
       // initial call with string based fieldMap, recurse into main loop
       return getNestedReference(rootObject, fieldMap.split('.'));
     }
 
     propName = fieldMap.shift();
-    if(fieldMap.length) {
+    if (fieldMap.length) {
       // recurse into the next layer
       return getNestedReference((rootObject || {})[propName], fieldMap);
     }
