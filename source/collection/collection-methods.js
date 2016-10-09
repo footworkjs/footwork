@@ -293,6 +293,7 @@ function addModel(models, options) {
 }
 
 function create(model, options) {
+  var ajax = require('../misc/ajax');
   var collection = this;
   var castAsDataModel = collection.__private('castAs').dataModel;
   var configParams = collection.__private('configParams');
@@ -311,9 +312,10 @@ function create(model, options) {
         xhr = newModel.save();
 
         if (options.wait) {
-          (xhr.done || xhr.then).call(xhr, function() {
-            collection.addModel(newModel);
-          });
+          ajax.handleJsonResponse(xhr)
+            .then(function(newModel) {
+              collection.addModel(newModel);
+            });
         } else {
           collection.addModel(newModel)
         }

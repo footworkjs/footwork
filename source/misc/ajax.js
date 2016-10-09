@@ -190,11 +190,11 @@ function makePromiseQueryable(promise) {
  * Also handles parse errors in the response which is supposed to be valid JSON.
  *
  * @param {object} xhr
- * @returns {object} xhr
+ * @returns {object} xhr with parsed JSON response result
  */
 function handleJsonResponse(xhr) {
   return xhr.then(function(response) {
-      return _.inRange(response.status, 200, 300) ? response.json() : false;
+      return _.inRange(response.status, 200, 300) ? response.clone().json() : false;
     })
     .catch(function(parseError) {
       console.error(parseError);

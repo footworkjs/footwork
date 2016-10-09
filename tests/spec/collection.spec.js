@@ -386,8 +386,8 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
       it('can create a new model and add it to the collection correctly', function(done) {
         var initializeSpy;
-        var ajaxDoneSpy;
 
+        var destUrl = tools.generateUrl();
         var responseValue = {
           success: true,
           randomValueToFind: tools.randomString()
@@ -400,20 +400,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
             lastName: tools.randomString(),
             email: tools.randomString()
           });
-        });
-
-        var destUrl = tools.generateUrl();
-        $.mockjax({
-          responseTime: 5,
-          url: destUrl,
-          type: 'POST',
-          responseText: responseValue
-        });
-        $.mockjax({
-          responseTime: 5,
-          url: destUrl,
-          type: 'PUT',
-          responseText: responseValue
         });
 
         var Person = fw.dataModel.create({
@@ -450,27 +436,30 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(people.findWhere(noWaitCreatedPersonData)).toBe(null);
 
-        ajaxDoneSpy = jasmine.createSpy('ajaxDoneSpy', function(response) {
-          expect(response).toEqual(responseValue);
+        var ajaxNoWaitSpy = jasmine.createSpy('ajaxNoWaitSpy', function(response) {
+          expect(response).toEqual(noWaitCreatedPersonData);
         }).and.callThrough();
-
-        people
-          .create(noWaitCreatedPersonData)
-          .done(ajaxDoneSpy);
+        fetchMock.restore().post(destUrl, noWaitCreatedPersonData);
+        tools.handleJsonResponse(people.create(noWaitCreatedPersonData))
+          .then(ajaxNoWaitSpy);
 
         expect(people.findWhere(noWaitCreatedPersonData)).toBeAn('object');
 
-        people
-          .create(createdPersonData, { wait: true })
-          .done(ajaxDoneSpy);
+        var ajaxDoneSpy = jasmine.createSpy('ajaxDoneSpy', function(response) {
+          expect(response).toEqual(createdPersonData);
+        }).and.callThrough();
+        fetchMock.restore().post(destUrl, createdPersonData);
+        tools.handleJsonResponse(people.create(createdPersonData, { wait: true }))
+          .then(ajaxDoneSpy);
 
         expect(people.findWhere(createdPersonData)).toBe(null);
 
         setTimeout(function() {
-          expect(ajaxDoneSpy).toHaveBeenCalledTimes(2);
+          expect(ajaxNoWaitSpy).toHaveBeenCalled();
+          expect(ajaxDoneSpy).toHaveBeenCalled();
           expect(people.findWhere(createdPersonData)).toBeAn('object');
           done();
-        }, 10);
+        }, 100);
       });
 
       it('can initialize and manipulate a plain collection including removal of an item', function() {

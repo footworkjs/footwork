@@ -180,6 +180,23 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers', 'reporter', 'container
       jasmine.DEFAULT_TIMEOUT_INTERVAL = jasmineDefaultTimeoutInterval;
     }
 
+    /**
+     * Take a fetch'd xmlhttprequest and handle the response. Takes into account valid 200-299 response codes.
+     * Also handles parse errors in the response which is supposed to be valid JSON.
+     *
+     * @param {object} xhr
+     * @returns {object} xhr with parsed JSON response result
+     */
+    function handleJsonResponse(xhr) {
+      return xhr.then(function(response) {
+          return _.inRange(response.status, 200, 300) ? response.clone().json() : false;
+        })
+        .catch(function(parseError) {
+          console.error(parseError);
+          return false;
+        });
+    }
+
     return {
       getFixtureContainer: getFixtureContainer,
       generateNamespaceName: generateNamespaceName,
@@ -187,7 +204,8 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers', 'reporter', 'container
       randomString: randomString,
       expectCallOrder: expectCallOrder,
       prepareTestEnv: prepareTestEnv,
-      cleanTestEnv: cleanTestEnv
+      cleanTestEnv: cleanTestEnv,
+      handleJsonResponse: handleJsonResponse
     };
   }
 );
