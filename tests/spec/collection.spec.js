@@ -706,20 +706,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        $.mockjax({
-          responseTime: 5,
-          url: getMockUrl,
-          type: 'GET',
-          responseText: persons
-        });
-
-        $.mockjax({
-          responseTime: 5,
-          url: getOverrideMockUrl,
-          type: 'GET',
-          responseText: persons
-        });
-
         var PeopleCollection = fw.collection.create({
           namespace: namespaceName,
           url: getMockUrl,
@@ -744,10 +730,12 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           expect(changeData.options).toEqual({ parse: true });
         })));
 
+        fetchMock.restore().get(getMockUrl, persons);
         var fetchResult = people.fetch();
         expect(fetchResult).toBeAn('object');
         expect((fetchResult.done || fetchResult.then)).toBeA('function');
 
+        fetchMock.restore().get(getOverrideMockUrl, persons);
         peopleAjaxOptions.fetch();
 
         expect(changeEventSpy).not.toHaveBeenCalled();
@@ -776,13 +764,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        $.mockjax({
-          responseTime: 5,
-          url: mockUrl,
-          type: 'GET',
-          responseText: persons
-        });
-
         var PeopleCollection = fw.collection.create({
           url: mockUrl,
           parse: tools.expectCallOrder(0, parseSpy = jasmine.createSpy('parseSpy', function(people) {
@@ -795,6 +776,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         var people = PeopleCollection();
 
+        fetchMock.restore().get(mockUrl, persons);
         expect(people.fetch()).toBeA('promise');
         expect(people()).lengthToBe(0);
         expect(parseSpy).not.toHaveBeenCalled();

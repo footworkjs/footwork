@@ -1,5 +1,5 @@
-define(['footwork', 'jquery', 'lodash', 'customMatchers', 'reporter', 'container'],
-  function(fw, $, _, customMatchers) {
+define(['footwork', 'jquery', 'lodash', 'customMatchers', 'fetch-mock', 'reporter', 'container'],
+  function(fw, $, _, customMatchers, fetchMock) {
     var $body = $(document.body);
     var $passedTestResults = $body.find('.passed.result .display');
     var $failedTestResults = $body.find('.failed.result .display');
@@ -134,6 +134,7 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers', 'reporter', 'container
      * Prepare the test environment for a test
      */
     function prepareTestEnv() {
+      fetchMock.restore();
       currentCallbackOrderIndex = 0;
       jasmine.addMatchers(customMatchers);
       jasmineDefaultTimeoutInterval = jasmine.DEFAULT_TIMEOUT_INTERVAL;
