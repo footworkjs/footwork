@@ -4,8 +4,14 @@ var _ = require('../../misc/lodash');
 var util = require('../../misc/util');
 var hasPathStart = util.hasPathStart;
 var hasHashStart = util.hasHashStart;
+var resultBound  = util.resultBound;
+var startingHashRegex = util.startingHashRegex;
+var removeClass = util.removeClass;
+var addClass = util.addClass;
 
-var nearestParentRouter = require('./router-tools').nearestParentRouter
+var routerTools = require('./router-tools');
+var nearestParentRouter = routerTools.nearestParentRouter;
+var isNullRouter = routerTools.isNullRouter;
 
 function findParentNode(element, selector) {
   if (selector === true) {
@@ -23,6 +29,11 @@ function findParentNode(element, selector) {
 
   return undefined;
 }
+
+var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
+var isFullURL = fw.utils.isFullURL = function(thing) {
+  return _.isString(thing) && isFullURLRegex.test(thing);
+};
 
 fw.bindingHandlers.$route = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
@@ -88,7 +99,7 @@ fw.bindingHandlers.$route = {
             }
           }
 
-          if (includeParentPath && !_.isNullRouter($myRouter)) {
+          if (includeParentPath && !isNullRouter($myRouter)) {
             myLinkPath = $myRouter.__private('parentRouter')().path() + myLinkPath;
           }
 
@@ -135,7 +146,7 @@ fw.bindingHandlers.$route = {
     };
 
     function setUpElement() {
-      if (!_.isNullRouter($myRouter)) {
+      if (!isNullRouter($myRouter)) {
         var myCurrentSegment = routeURLWithoutParentPath();
         var routerConfig = $myRouter.__private('configParams');
         if (element.tagName.toLowerCase() === 'a') {
@@ -169,12 +180,12 @@ fw.bindingHandlers.$route = {
       }
     }
 
-    if (isObservable(routeHandlerDescription.url)) {
+    if (fw.isObservable(routeHandlerDescription.url)) {
       $myRouter.__private('subscriptions').push( routeHandlerDescription.url.subscribe(setUpElement) );
     }
     setUpElement();
 
-    ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+    fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
       if (_.isObject(stateTracker)) {
         stateTracker.dispose();
       }

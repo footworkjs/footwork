@@ -7,6 +7,7 @@ var routerDefaults = require('../router-defaults');
 var noComponentSelected = routerDefaults.noComponentSelected;
 var nullComponent = routerDefaults.nullComponent;
 var defaultLoadingComponent = routerDefaults.defaultLoadingComponent;
+var activeOutlets = routerDefaults.activeOutlets;
 
 module.exports = function routerOutlet(outletName, componentToDisplay, options) {
   options = options || {};

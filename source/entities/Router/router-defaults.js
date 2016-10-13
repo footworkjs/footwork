@@ -1,4 +1,5 @@
 var _ = require('../../misc/lodash');
+var fw = require('../../../bower_components/knockoutjs/dist/knockout');
 var util = require('../../misc/util');
 var entityAnimateClass = require('../../misc/config').entityAnimateClass;
 
@@ -49,5 +50,6 @@ module.exports = {
   baseRoute: baseRoute,
   baseRouteDescription: baseRouteDescription,
   outletLoadingDisplay: 'fw-loading-display',
-  outletLoadedDisplay: 'fw-loaded-display'
+  outletLoadedDisplay: 'fw-loaded-display',
+  activeOutlets: fw.observableArray()
 };

@@ -11,6 +11,7 @@ var privateData = require('../../misc/privateData');
 var util = require('../../misc/util');
 var resultBound = util.resultBound;
 var parseUri = util.parseUri;
+var startingHashRegex = util.startingHashRegex;
 
 require('./route-binding');
 

@@ -17,6 +17,7 @@ var methodMap = {
 
 var parseURLRegex = /^(http[s]*:\/\/[a-zA-Z0-9:\.]*)*([\/]{0,1}[\w\.:\/-]*)$/;
 var parseParamsRegex = /(:[\w\.]+)/g;
+var trailingSlashRegex = /\/$/;
 
 function noURLError() {
   throw new Error('A "url" property or function must be specified');

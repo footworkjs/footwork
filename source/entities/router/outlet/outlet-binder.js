@@ -1,6 +1,5 @@
 var fw = require('../../../../bower_components/knockoutjs/dist/knockout');
 var _ = require('../../../misc/lodash');
-var isRouter = require('../../entity-tools').isRouter;
 var nearestParentRouter = require('../router-tools').nearestParentRouter;
 
 var noParentViewModelError = { $namespace: { getName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } } };
@@ -12,6 +11,7 @@ fw.bindingHandlers.$outletBinder = {
     var $parentViewModel = (_.isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
     var $parentRouter = nearestParentRouter(bindingContext);
     var outletName = outletViewModel.outletName;
+    var isRouter = require('../../entity-tools').isRouter;
 
     if (isRouter($parentRouter)) {
       // register the viewModel with the outlet for future use when its route is changed

@@ -4,7 +4,10 @@ var entityTools = require('../entity-tools');
 var isRouter = entityTools.isRouter;
 var nearestEntity = entityTools.nearestEntity;
 
-var $nullRouter = require('./router-defaults').$nullRouter;
+var routerDefaults = require('./router-defaults');
+var $nullRouter = routerDefaults.$nullRouter;
+var baseRouteDescription = routerDefaults.baseRouteDescription;
+var routesAreCaseSensitive = routerDefaults.routesAreCaseSensitive;
 
 var optionalParamRegex = /\((.*?)\)/g;
 var namedParamRegex = /(\(\?)?:\w+/g;

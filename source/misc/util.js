@@ -163,5 +163,6 @@ module.exports = {
   getFilenameExtension: getFilenameExtension,
   guid: guid,
   parseUri: parseUri,
-  propertyDispose: propertyDispose
+  propertyDispose: propertyDispose,
+  startingHashRegex: startingHashRegex
 };

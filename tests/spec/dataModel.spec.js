@@ -834,18 +834,12 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var initializeSpy;
         var mockUrl = tools.generateUrl();
         var postValue = tools.randomString();
-
-        $.mockjax({
-          responseTime: 5,
-          url: mockUrl,
-          type: 'POST',
-          responseText: {
-            "id": 1,
-            "firstName": postValue,
-            "lastName": null,
-            "email": null
-          }
-        });
+        var responseData = {
+          "id": 1,
+          "firstName": postValue,
+          "lastName": null,
+          "email": null
+        };
 
         var Person = fw.dataModel.create({
           url: mockUrl,
@@ -863,6 +857,8 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(initializeSpy).toHaveBeenCalled();
         expect(person.firstName()).not.toBe(postValue);
+
+        fetchMock.restore().post(mockUrl, responseData);
         expect(person.save()).toBeA('promise');
 
         setTimeout(function() {
@@ -884,20 +880,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           "email": null
         };
 
-        $.mockjax({
-          responseTime: 5,
-          url: mockUrl,
-          type: 'POST',
-          responseText: _.extend({}, personData, { firstName: postValue })
-        });
-
-        $.mockjax({
-          responseTime: 5,
-          url: mockUrl + '/1',
-          type: 'PUT',
-          responseText: _.extend({}, personData, { firstName: putValue })
-        });
-
         var Person = fw.dataModel.create({
           url: mockUrl,
           initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
@@ -914,6 +896,8 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(initializeSpy).toHaveBeenCalled();
         expect(person.firstName()).not.toBe(postValue);
+
+        fetchMock.restore().post(mockUrl, _.extend({}, personData, { firstName: postValue }));
         expect(person.save()).toBeA('promise');
 
         setTimeout(function() {
@@ -921,6 +905,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           expect(person.firstName()).toBe(postValue);
           expect(person.firstName()).not.toBe(putValue);
 
+          fetchMock.restore().put(mockUrl + '/1', _.extend({}, personData, { firstName: putValue }));
           person.save();
           setTimeout(function() {
             expect(person.firstName()).toBe(putValue);
@@ -941,12 +926,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           "lastName": null,
           "email": null
         };
-        $.mockjax({
-          responseTime: 5,
-          url: mockUrl,
-          type: 'POST',
-          responseText: mockResponse
-        });
 
         var Person = fw.dataModel.create({
           url: mockUrl,
@@ -970,6 +949,8 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(initializeSpy).toHaveBeenCalled();
         expect(parseSpy).not.toHaveBeenCalled();
         expect(person.firstName()).not.toBe(postValue);
+
+        fetchMock.restore().post(mockUrl, mockResponse);
         expect(person.save()).toBeA('promise');
 
         setTimeout(function() {
@@ -991,13 +972,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           "email": null
         };
 
-        $.mockjax({
-          responseTime: 5,
-          url: mockUrl + "/" + personData.id,
-          type: 'GET',
-          responseText: _.extend({}, personData, { firstName: getValue })
-        });
-
         var Person = fw.dataModel.create({
           url: mockUrl,
           initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
@@ -1014,6 +988,8 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(initializeSpy).toHaveBeenCalled();
         expect(person.firstName()).not.toBe(getValue);
+
+        fetchMock.restore().get(mockUrl + "/" + personData.id, _.extend({}, personData, { firstName: getValue }));
         expect(person.fetch()).toBeA('promise');
 
         setTimeout(function() {
@@ -1034,13 +1010,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           "lastName": null,
           "email": null
         };
-
-        $.mockjax({
-          responseTime: 5,
-          url: mockUrl + '/' + personData.id,
-          type: 'GET',
-          responseText: personData
-        });
 
         var Person = fw.dataModel.create({
           url: mockUrl,
@@ -1063,6 +1032,8 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(initializeSpy).toHaveBeenCalled();
         expect(parseSpy).not.toHaveBeenCalled();
         expect(person.firstName()).not.toBe(getValue);
+
+        fetchMock.restore().get(mockUrl + '/' + personData.id, personData);
         expect(person.fetch()).toBeA('promise');
 
         setTimeout(function() {
@@ -1084,13 +1055,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           "email": null
         };
 
-        $.mockjax({
-          responseTime: 5,
-          url: mockUrl + '/' + personData.customId,
-          type: 'GET',
-          responseText: _.extend({}, personData, { firstName: getValue })
-        });
-
         var Person = fw.dataModel.create({
           url: mockUrl,
           idAttribute: 'customId',
@@ -1108,6 +1072,8 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(initializeSpy).toHaveBeenCalled();
         expect(person.firstName()).not.toBe(getValue);
+
+        fetchMock.restore().get(mockUrl + '/' + personData.customId, _.extend({}, personData, { firstName: getValue }));
         expect(person.fetch()).toBeA('promise');
 
         setTimeout(function() {
@@ -1126,13 +1092,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           "lastName": null,
           "email": null
         };
-
-        $.mockjax({
-          responseTime: 5,
-          url: mockUrl,
-          type: 'GET',
-          responseText: personData
-        });
 
         var Person = fw.dataModel.create({
           url: mockUrl,
@@ -1154,6 +1113,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(initializeSpy).toHaveBeenCalled();
 
+        fetchMock.restore().get(mockUrl, personData);
         expect(person.fetch()).toBeA('promise');
 
         setTimeout(function() {
@@ -1173,13 +1133,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           "lastName": null,
           "email": null
         };
-
-        $.mockjax({
-          responseTime: 5,
-          url: mockUrl + '/' + personData.id,
-          type: 'GET',
-          responseText: _.extend({}, personData, { firstName: getValue })
-        });
 
         var Person = fw.dataModel.create({
           url: tools.expectCallOrder(1, urlSpy = jasmine.createSpy('urlSpy', function() {
@@ -1202,6 +1155,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(urlSpy).not.toHaveBeenCalled();
         expect(person.firstName()).not.toBe(getValue);
 
+        fetchMock.restore().get(mockUrl + '/' + personData.id, _.extend({}, personData, { firstName: getValue }));
         expect(person.fetch()).toBeA('promise');
         expect(urlSpy).toHaveBeenCalled();
 
@@ -1222,13 +1176,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           "email": null
         };
 
-        $.mockjax({
-          responseTime: 5,
-          url: mockUrl + '/' + personData.firstName,
-          type: 'GET',
-          responseText: personData
-        });
-
         var Person = fw.dataModel.create({
           useKeyInUrl: false,
           url: mockUrl + '/:firstName',
@@ -1247,6 +1194,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(initializeSpy).toHaveBeenCalled();
         expect(person.lastName()).not.toBe(personData.lastName);
 
+        fetchMock.restore().get(mockUrl + '/' + personData.firstName, personData);
         expect(person.fetch()).toBeA('promise');
 
         setTimeout(function() {

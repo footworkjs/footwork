@@ -16,6 +16,7 @@ var isEntity = entityTools.isEntity;
 
 var getComponentExtension = require('../resource/component-resource').getComponentExtension;
 var isOutletViewModel = require('../entities/router/router-tools').isOutletViewModel;
+var activeOutlets = require('../entities/router/router-defaults').activeOutlets;
 
 fw.components.loaders.push(fw.components.requireLoader = {
   getConfig: function(componentName, callback) {
