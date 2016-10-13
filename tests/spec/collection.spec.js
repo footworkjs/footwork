@@ -571,7 +571,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
               var fieldNames = _.keys(person);
 
               if(collectionEvent === '_.add') {
-                expect(dataModel.__isDataModel).toBe(true)
+                expect(dataModel.__isdataModel).toBe(true)
               }
 
               if(_.isEqual(person, _.pick(dataModel.get(), fieldNames))) {
@@ -862,7 +862,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var addTriggered = false;
         people.$namespace.subscribe('_.add', tools.expectCallOrder(1, addSpy = jasmine.createSpy('addSpy', function(dataModels) {
           _.each(dataModels, function(dataModel) {
-            expect(dataModel.__isDataModel).toBe(true)
+            expect(dataModel.__isdataModel).toBe(true)
           });
         })));
 
@@ -873,7 +873,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(addSpy).toHaveBeenCalled();
         expect(initializeSpy).toHaveBeenCalled();
-        expect(people()[0].__isDataModel).toBe(true);
+        expect(people()[0].__isdataModel).toBe(true);
       });
 
       it('can .unshift() correctly', function() {
@@ -897,7 +897,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var addTriggered = false;
         people.$namespace.subscribe('_.add', tools.expectCallOrder(1, addSpy = jasmine.createSpy('addSpy', function(dataModels) {
           _.each(dataModels, function(dataModel) {
-            expect(dataModel.__isDataModel).toBe(true)
+            expect(dataModel.__isdataModel).toBe(true)
           });
         }).and.callThrough()));
 
@@ -908,7 +908,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(addSpy).toHaveBeenCalled();
         expect(initializeSpy).toHaveBeenCalled();
-        expect(people()[0].__isDataModel).toBe(true);
+        expect(people()[0].__isdataModel).toBe(true);
       });
 
       it('.remove() correctly triggers _.remove event', function() {
