@@ -33,7 +33,7 @@ fw.components.loaders.push(fw.components.requireLoader = {
         }
 
         configOptions = {
-          require: require.toUrl(combinedPath)
+          require: window.require.toUrl(combinedPath)
         };
       } else {
         // check to see if the requested component is template only and should not request a viewModel (we supply a dummy object in its place)

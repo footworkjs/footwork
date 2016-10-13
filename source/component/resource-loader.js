@@ -34,9 +34,9 @@ fw.components.loaders.push(fw.components.requireLoader = {
       folderOffset = componentName + '/';
     }
 
-    if (_.isFunction(require)) {
+    if (_.isFunction(window.require)) {
       // load component using knockouts native support for requirejs
-      if (require.specified(componentName)) {
+      if (window.require.specified(componentName)) {
         // component already cached, lets use it
         configOptions = {
           require: componentName
@@ -49,7 +49,7 @@ fw.components.loaders.push(fw.components.requireLoader = {
         }
 
         configOptions = {
-          require: require.toUrl(combinedPath)
+          require: window.require.toUrl(combinedPath)
         };
       } else {
         // check to see if the requested component is template only and should not request a viewModel (we supply a dummy object in its place)
@@ -67,7 +67,7 @@ fw.components.loaders.push(fw.components.requireLoader = {
             viewModelPath += '.' + getComponentExtension(componentName, 'viewModel');
           }
 
-          viewModelConfig = { require: require.toUrl(viewModelPath) };
+          viewModelConfig = { require: window.require.toUrl(viewModelPath) };
         }
 
         templatePath = componentLocation.template;
@@ -79,7 +79,7 @@ fw.components.loaders.push(fw.components.requireLoader = {
           templatePath += '.' + getComponentExtension(componentName, 'template');
         }
 
-        templatePath = 'text!' + templatePath;
+        templatePath = 'text!' + window.require.toUrl(templatePath);
 
         configOptions = {
           viewModel: viewModelConfig,
@@ -181,8 +181,8 @@ fw.components.loaders.unshift(fw.components.requireResolver = {
 
 function possiblyGetConfigFromAmd(config, callback) {
   if (_.isString(config['require'])) {
-    if (_.isFunction(require)) {
-      require([config['require']], callback, function() {
+    if (_.isFunction(window.require)) {
+      window.require([config['require']], callback, function() {
         _.each(activeOutlets(), function(outlet) {
           (outlet().onFailure || noop)();
         });
