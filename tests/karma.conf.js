@@ -24,9 +24,10 @@ module.exports = {
     { pattern: 'bower_components/jquery-mockjax/dist/*.js', watched: false, included: false },
     { pattern: 'bower_components/jquery/dist/*.js', watched: false, included: false },
     { pattern: 'bower_components/reqwest/reqwest.js', watched: false, included: false },
-    { pattern: 'bower_components/promise-polyfill/promise.js', watched: false, included: true },
-    { pattern: 'bower_components/fetch-polyfill/fetch.js', watched: false, included: true },
+    { pattern: 'node_modules/babel-polyfill/dist/polyfill.js', watched: false, included: true },
+    { pattern: 'node_modules/whatwg-fetch/fetch.js', watched: false, included: true },
     { pattern: 'node_modules/fetch-mock/es5/client-browserified.js', watched: false, included: false },
+
     { pattern: 'build/*.js', included: false },
     { pattern: 'dist/gh-footwork-logo.png', included: false }
   ],
@@ -96,6 +97,11 @@ module.exports = {
       AJAX_WAIT: 100, // time in ms to tell ajax-based tests to wait for
       JASMINE_TIMEOUT: 20000 // time that jasmine will wait for async requests to complete
     }
+  },
+
+  phantomjsLauncher: {
+    // Have phantomjs exit if a ResourceError is encountered (useful if karma exits without killing phantom)
+    exitOnResourceError: true
   },
 
   // Continuous Integration mode
