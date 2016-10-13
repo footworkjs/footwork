@@ -821,13 +821,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        $.mockjax({
-          responseTime: 5,
-          url: mockUrl,
-          type: 'GET',
-          responseText: persons
-        });
-
         var Person = fw.dataModel.create({
           initialize: tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
             person = person || {};
@@ -850,6 +843,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           expect(resetData.newModels).toBeAn('array');
         })));
 
+        fetchMock.restore().get(mockUrl, persons);
         expect(people.fetch({ reset: true })).toBeA('promise');
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(resetSpy).not.toHaveBeenCalled();

@@ -6,7 +6,7 @@ define(['lodash'],
           var result = {};
           switch(expected.toLowerCase()) {
             case 'promise':
-              result.pass = util.equals(typeof actual, 'object', customEqualityTesters) && util.equals(typeof actual.done, 'function', customEqualityTesters);
+              result.pass = util.equals(typeof actual, 'object', customEqualityTesters) && util.equals(typeof actual.then, 'function', customEqualityTesters);
               break;
 
             case 'array':
