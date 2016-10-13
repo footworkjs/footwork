@@ -313,8 +313,8 @@ function create(model, options) {
 
         if (options.wait) {
           ajax.handleJsonResponse(xhr)
-            .then(function(newModel) {
-              collection.addModel(newModel);
+            .then(function(responseData) {
+              responseData && collection.addModel(newModel);
             });
         } else {
           collection.addModel(newModel)
