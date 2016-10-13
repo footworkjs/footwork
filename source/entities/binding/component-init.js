@@ -4,6 +4,7 @@ var _ = require('../../misc/lodash');
 var entityBinder = require('./entity-binder');
 var nearestEntity = require('../entity-tools').nearestEntity;
 var isOutletViewModel = require('../router/router-tools').isOutletViewModel;
+var isPath = require('../../misc/util').isPath;
 
 var entityDescriptors = require('./../entity-descriptors');
 
@@ -79,7 +80,7 @@ function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, 
               if (isPath(resourceLocation)) {
                 resourceLocation = resourceLocation + resource.getFileName(moduleName);
               }
-              resourceLocation = require.toUrl(resourceLocation);
+              resourceLocation = window.require.toUrl(resourceLocation);
             }
 
             window.require([resourceLocation], function(resource) {

@@ -6,6 +6,7 @@ var isPromise = util.isPromise;
 var isPath = util.isPath;
 var promiseIsFulfilled = util.promiseIsFulfilled;
 
+var entityWrapperElement = require('../../misc/config').entityWrapperElement;
 var isEntity = require('../entity-tools').isEntity;
 
 module.exports = function entityBinder(element, params, $parentContext, Entity, $flightTracker, $parentsInFlightChildren, $outletsInFlightChildren) {

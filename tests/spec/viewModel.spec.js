@@ -180,7 +180,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(fw.viewModel.isRegistered(namespaceName)).toBe(true);
       });
 
-      it('can bind to the DOM using a <viewModel> declaration', function(done) {
+      it('can bind to the DOM using a &lt;viewModel&gt; declaration', function(done) {
         var wasInitialized = false;
         var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy();

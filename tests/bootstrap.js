@@ -60,12 +60,6 @@ require.config({
       function(fw, _, $) {
         fixture.setBase('tests/assets/fixtures');
 
-        // tell mockjax to do its work quietly and quickly before we begin our tests
-        _.extend($.mockjaxSettings, {
-          logging: false,
-          responseTime: 5
-        });
-
         console.info('ajaxWait: ' + ajaxWait);
 
         // start the tests
