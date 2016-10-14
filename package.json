@@ -86,8 +86,9 @@
     "lodash": "4.14.2",
     "phantomjs": "^1.9.19",
     "postal": "^2.0.4",
+    "requirejs": "^2.3.2",
     "vinyl-transform": "1.0.0",
-    "yargs": "*",
-    "whatwg-fetch": "^1.0.0"
+    "whatwg-fetch": "^1.0.0",
+    "yargs": "*"
   }
 }
