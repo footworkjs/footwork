@@ -45,7 +45,7 @@
   "devDependencies": {
     "conduitjs": "0.3.3",
     "lodash": "^4.12",
-    "postal.js": "https://github.com/footworkjs/postal.js#1c0f05fba21520a6c968e67a8dbb4f053d5d9f72",
+    "postal.js": "https://github.com/footworkjs/postal.js.git#1c0f05fba21520a6c968e67a8dbb4f053d5d9f72",
     "knockoutjs": "3.4.0",
     "riveter": "https://github.com/footworkjs/riveter.git#19284fbe487225f09cbceee4e4ea2a98ad71e8c2"
   }
