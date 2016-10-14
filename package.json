@@ -13,7 +13,7 @@
       ],
       "urls": [
         {
-          "url": "https://github.com/reflectiveSingleton"
+          "url": "https://github.com/jonbnewman"
         },
         {
           "url": "http://staticty.pe"
@@ -43,7 +43,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/reflectiveSingleton/footwork.git"
+    "url": "git://github.com/footworkjs/footwork.git"
   },
   "devDependencies": {
     "babel-polyfill": "^6.16.0",

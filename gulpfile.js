@@ -99,7 +99,6 @@ gulp.task('dist', ['minify'], function() {
     .pipe(gulp.dest('./dist'));
 });
 
-
 gulp.task('build_ci_css', function() {
   return gulp.src(['./tests/assets/test.scss'])
     .pipe(sass().on('error', sass.logError))
