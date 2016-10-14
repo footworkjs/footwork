@@ -1,14 +1,12 @@
-// framework/component/loader.js
-// ------------------
-
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
 var Conduit = require('../../bower_components/conduitjs/lib/conduit');
 var _ = require('../misc/lodash');
-var DefaultViewModel = require('../misc/config').DefaultViewModel;
 
 var util = require('../misc/util');
 var isPath = util.isPath;
 var getFilenameExtension = util.getFilenameExtension;
+var isDocumentFragment = util.isDocumentFragment;
+var isDomElement = util.isDomElement;
 
 var entityTools = require('../entities/entity-tools');
 var nearestEntity = entityTools.nearestEntity;
@@ -56,7 +54,7 @@ fw.components.loaders.push(fw.components.requireLoader = {
         // check to see if the requested component is template only and should not request a viewModel (we supply a dummy object in its place)
         if (!_.isString(componentLocation.viewModel)) {
           // template-only component, substitute with 'blank' viewModel
-          viewModelConfig = DefaultViewModel;
+          viewModelConfig = require('../misc/config').DefaultViewModel;
         } else {
           viewModelPath = componentLocation.viewModel;
 
@@ -196,7 +194,6 @@ function possiblyGetConfigFromAmd(config, callback) {
   }
 }
 
-// Note that this is a direct lift from the knockoutjs source
 function resolveConfig(componentName, config, callback) {
   var result = {};
   var makeCallBackWhenZero = 2;
@@ -231,7 +228,6 @@ function resolveConfig(componentName, config, callback) {
   }
 }
 
-// Note that this is a direct lift from the knockoutjs source
 function getFirstResultFromLoaders(methodName, argsExceptCallback, callback, candidateLoaders) {
   // On the first call in the stack, start with the full set of loaders
   if (!candidateLoaders) {
@@ -279,7 +275,6 @@ function getFirstResultFromLoaders(methodName, argsExceptCallback, callback, can
   }
 }
 
-// Note that this is a direct lift from the knockoutjs source
 function resolveTemplate(templateConfig, callback) {
   if (typeof templateConfig === 'string') {
     // Markup - parse it
@@ -311,7 +306,6 @@ function resolveTemplate(templateConfig, callback) {
   }
 }
 
-// Note that this is a direct lift from the knockoutjs source
 function cloneNodesFromTemplateSourceElement(elemInstance) {
   switch (fw.utils.tagNameLower(elemInstance)) {
     case 'script':

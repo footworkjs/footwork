@@ -1,7 +1,5 @@
 var _ = require('../misc/lodash');
 
-require('./component-resource');
-
 var resourceMethods = require('./resource-methods');
 var getModelFileName = resourceMethods.getModelFileName;
 var register = resourceMethods.register;

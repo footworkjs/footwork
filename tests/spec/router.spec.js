@@ -750,7 +750,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var clearOutletControllerSpy;
         var manipulateOutletComponentSpy;
         var router;
-        testContainer;
+        var testContainer;
         var $testContainer;
 
         fw.components.register(manipulateOutletComponentNamespace, {
@@ -1375,7 +1375,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can have a $route bound link correctly composed with an href attribute using passed in string route', function(done) {
-        testContainer;
+        var testContainer;
         var mockUrl = tools.generateUrl();
         var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy('initializeSpy');
@@ -1421,7 +1421,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can have a $route bound link correctly composed using the elements existing href attribute', function(done) {
-        testContainer;
+        var testContainer;
         var mockUrl = tools.generateUrl();
         var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy('initializeSpy');
@@ -1467,7 +1467,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can have a $route bound link correctly composed with an href attribute using an observable', function(done) {
-        testContainer;
+        var testContainer;
         var mockUrl = tools.generateUrl();
         var routerNamespaceName = tools.randomString();
         var viewModelNamespaceName = tools.randomString();
@@ -1540,7 +1540,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can have a $route bound link that expresses the default active class when the route matches', function(done) {
-        testContainer;
+        var testContainer;
         var mockUrl = tools.generateUrl();
         var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy('initializeSpy');
@@ -1587,7 +1587,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can have a $route bound link that expresses a custom \'active\' class when the route matches', function(done) {
-        testContainer;
+        var testContainer;
         var mockUrl = tools.generateUrl();
         var namespaceName = tools.generateNamespaceName();
         var activeClassName = tools.randomString();
@@ -1631,7 +1631,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can have a $route bound link that expresses a custom \'active\' class on the direct parent element', function(done) {
-        testContainer;
+        var testContainer;
         var mockUrl = tools.generateUrl();
         var namespaceName = tools.generateNamespaceName();
         var activeClassName = tools.randomString();
@@ -1677,7 +1677,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can have a $route bound link that expresses an \'active\' class on the selected parent element', function(done) {
-        testContainer;
+        var testContainer;
         var mockUrl = tools.generateUrl();
         var namespaceName = tools.generateNamespaceName();
         var activeClassName = tools.randomString();
@@ -1728,7 +1728,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can have a $route bound link that expresses a custom \'active\' class defined by an observable when the route matches', function(done) {
-        testContainer;
+        var testContainer;
         var mockUrl = tools.generateUrl();
         var routerNamespaceName = tools.randomString();
         var viewModelNamespaceName = tools.randomString();
@@ -1787,7 +1787,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can have a $route bound link that disables the active class state based on a raw boolean flag', function(done) {
-        testContainer;
+        var testContainer;
         var mockUrl = tools.generateUrl();
         var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy('initializeSpy');
@@ -1830,7 +1830,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can have a $route bound link that disables the active class state using an observable', function(done) {
-        testContainer;
+        var testContainer;
         var mockUrl = tools.generateUrl();
         var namespaceName = tools.generateNamespaceName();
         var initializeSpy;
@@ -1875,7 +1875,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can have a $route bound link that triggers based on a custom event defined by a string', function(done) {
-        testContainer;
+        var testContainer;
         var mockUrl = tools.generateUrl();
         var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy('initializeSpy');
@@ -1918,7 +1918,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can have a $route bound link that triggers based on a custom event defined by a callback/observable', function(done) {
-        testContainer;
+        var testContainer;
         var mockUrl = tools.generateUrl();
         var namespaceName = tools.generateNamespaceName();
         var initializeSpy;
@@ -1963,7 +1963,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can have a $route bound link correctly composed with a custom callback handler', function(done) {
-        testContainer;
+        var testContainer;
         var mockUrl = tools.generateUrl();
         var routerNamespaceName = tools.randomString();
         var viewModelNamespaceName = tools.randomString();
@@ -2037,7 +2037,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can have a $route bound link correctly composed with a custom URL callback', function(done) {
-        testContainer;
+        var testContainer;
         var mockUrl = tools.generateUrl();
         var routerNamespaceName = tools.randomString();
         var viewModelNamespaceName = tools.randomString();

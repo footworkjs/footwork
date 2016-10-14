@@ -1,8 +1,6 @@
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
 var _ = require('../misc/lodash');
 
-var DefaultViewModel = require('../misc/config').DefaultViewModel;
-
 var util = require('../misc/util');
 var isPath = util.isPath;
 var getFilenameExtension = util.getFilenameExtension;
@@ -25,7 +23,7 @@ fw.components.register = function(componentName, options) {
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || DefaultViewModel,
+    viewModel: viewModel || require('../misc/config').DefaultViewModel,
     template: options.template
   });
 };

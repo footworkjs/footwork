@@ -2,16 +2,19 @@ var fw = require('../../../bower_components/knockoutjs/dist/knockout');
 var _ = require('../../misc/lodash');
 
 var entityDescriptors = require('../entity-descriptors');
-var entityTools = require('../entity-tools');
 var ViewModel = require('../viewModel/viewModel');
 var routerOutlet = require('./outlet/outlet');
 
 var privateData = require('../../misc/privateData');
 
+var entityTools = require('../entity-tools');
+var isEntity = entityTools.isEntity;
+
 var util = require('../../misc/util');
 var resultBound = util.resultBound;
 var parseUri = util.parseUri;
 var startingHashRegex = util.startingHashRegex;
+var propertyDispose = util.propertyDispose;
 
 require('./route-binding');
 

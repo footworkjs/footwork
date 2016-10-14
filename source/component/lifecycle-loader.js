@@ -3,8 +3,12 @@ var _ = require('../misc/lodash');
 
 var internalComponents = require('./internal-components');
 
+var util = require('../misc/util');
+var isDocumentFragment = util.isDocumentFragment;
+var isDomElement = util.isDomElement;
+
 // Custom loader used to wrap components with the $life custom binding
-fw.components.loaders.unshift( fw.components.lifecycleLoader = {
+fw.components.loaders.unshift(fw.components.lifecycleLoader = {
   loadTemplate: function(componentName, templateConfig, callback) {
     if (!internalComponents.isInternalComponent(componentName)) {
       if (typeof templateConfig === 'string') {
@@ -60,24 +64,8 @@ function cloneNodesFromTemplateSourceElement(elemInstance) {
   return fw.utils.cloneNodes(elemInstance.childNodes);
 }
 
-function isDocumentFragment(obj) {
-  if (window['DocumentFragment']) {
-    return obj instanceof DocumentFragment;
-  } else {
-    return obj && obj.nodeType === 11;
-  }
-}
-
-function isDomElement(obj) {
-  if (window['HTMLElement']) {
-    return obj instanceof HTMLElement;
-  } else {
-    return obj && obj.tagName && obj.nodeType === 1;
-  }
-}
-
 function wrapWithLifeCycle(template) {
-  var templateString = (_.isString(template) ? template : '');
+  var templateString = _.isString(template) ? template : '';
   var wrapper = fw.utils.parseHtmlFragment('<!-- ko $life -->' + templateString + '<!-- /ko -->');
 
   if (templateString.length) {

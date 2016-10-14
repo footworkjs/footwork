@@ -171,7 +171,7 @@ fw.bindingHandlers.$route = {
                 currentRouteURL = handlerResult;
               }
               if (_.isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
-                $myRouter.setState( currentRouteURL );
+                $myRouter.setState(currentRouteURL);
               }
             }
             return true;
@@ -181,7 +181,7 @@ fw.bindingHandlers.$route = {
     }
 
     if (fw.isObservable(routeHandlerDescription.url)) {
-      $myRouter.__private('subscriptions').push( routeHandlerDescription.url.subscribe(setUpElement) );
+      $myRouter.__private('subscriptions').push(routeHandlerDescription.url.subscribe(setUpElement));
     }
     setUpElement();
 

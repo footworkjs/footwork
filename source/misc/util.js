@@ -149,6 +149,22 @@ function propertyDispose(property) {
   }
 }
 
+function isDocumentFragment(obj) {
+  if (window['DocumentFragment']) {
+    return obj instanceof DocumentFragment;
+  } else {
+    return obj && obj.nodeType === 11;
+  }
+}
+
+function isDomElement(obj) {
+  if (window['HTMLElement']) {
+    return obj instanceof HTMLElement;
+  } else {
+    return obj && obj.tagName && obj.nodeType === 1;
+  }
+}
+
 module.exports = {
   alwaysPassPredicate: alwaysPassPredicate,
   resultBound: resultBound,
@@ -164,5 +180,7 @@ module.exports = {
   guid: guid,
   parseUri: parseUri,
   propertyDispose: propertyDispose,
+  isDocumentFragment: isDocumentFragment,
+  isDomElement: isDomElement,
   startingHashRegex: startingHashRegex
 };

@@ -1,8 +1,6 @@
 var _ = require('../../misc/lodash');
 
-var entityTools = require('../entity-tools');
-var isRouter = entityTools.isRouter;
-var nearestEntity = entityTools.nearestEntity;
+var nearestEntity = require('../entity-tools').nearestEntity;
 
 var routerDefaults = require('./router-defaults');
 var $nullRouter = routerDefaults.$nullRouter;
@@ -78,7 +76,7 @@ function isOutletViewModel(thing) {
  * @returns {object} router instance or $nullRouter if none found
  */
 function nearestParentRouter($context) {
-  return nearestEntity($context, isRouter) || $nullRouter;
+  return nearestEntity($context, require('../entity-tools').isRouter) || $nullRouter;
 }
 
 module.exports = {
