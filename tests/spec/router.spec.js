@@ -180,7 +180,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(fw.router.isRegistered(namespaceName)).toBe(true);
       });
 
-      it('can bind to the DOM using a <router> declaration', function(done) {
+      it('can bind to the DOM using a &lt;router&gt; declaration', function(done) {
         var wasInitialized = false;
         var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy();
