@@ -2,7 +2,6 @@ var gulp = require('gulp');
 var browserify = require('browserify');
 var transform = require('vinyl-transform');
 var header = require('gulp-header');
-var fileImports = require('gulp-imports');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var chalk = require('chalk');
@@ -74,13 +73,12 @@ gulp.task('build', ['build_footwork_css', 'build_ci_css'], function () {
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
     .pipe(replace('.footwork=', '.fw=')) // Replace the globals export reference with 'fw' but leave module (CommonJS/AMD) names as 'footwork'
     .pipe(header(banner, { pkg: pkg }))
-    .pipe(rename('footwork.js'))
     .pipe(fileSize)
     .pipe(gulp.dest('./build'));
 });
 
 gulp.task('minify', ['build'], function() {
-  console.log(chalk.yellow('Sit tight, minification can take a few minutes (See: ') + chalk.white('https://github.com/knockout/knockout/issues/1652') + chalk.yellow(')'));
+  console.log(chalk.yellow('Please wait, minification can take a few minutes (See: ') + chalk.white('https://github.com/knockout/knockout/issues/1652') + chalk.yellow(')'));
 
   var fileSizeMin = size({ title: 'footwork.min.js' });
   var fileSizeGzip = size({ gzip: true, title: 'footwork.min.js' });
@@ -111,6 +109,7 @@ gulp.task('build_ci_css', function() {
 
 gulp.task('build_footwork_css', function() {
   return gulp.src('./source/footwork.scss')
+    .pipe(plumber())
     .pipe(gulp.dest('./build/styles'))
     .pipe(sass().on('error', sass.logError))
     .pipe(autoprefixer(autoprefixOptions))
