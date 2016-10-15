@@ -32,7 +32,6 @@
     "karma.conf.js",
     ".travis.yml",
     ".gitignore",
-    "dist/lodash-custom.js",
     "README.md"
   ],
   "dependencies": {

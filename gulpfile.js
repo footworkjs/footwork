@@ -41,7 +41,7 @@ var banner = [
   ' * License(s): <% pkg.licenses.forEach(function( license, idx ){ %><%= license.type %><% if(idx !== pkg.licenses.length-1) { %>, <% } %><% }); %>',
   ' */',
   '', ''
-].slice(0).join('\n');
+].join('\n');
 
 gulp.task('default', ['build']);
 
