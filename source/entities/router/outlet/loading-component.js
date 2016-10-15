@@ -1,4 +1,6 @@
+/* istanbul ignore next */
 var fw = require('../../../../bower_components/knockoutjs/dist/knockout');
+
 var defaultLoadingComponent = require('../router-defaults').defaultLoadingComponent;
 
 fw.components.register(defaultLoadingComponent, {

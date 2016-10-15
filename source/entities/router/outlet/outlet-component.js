@@ -1,5 +1,8 @@
+/* istanbul ignore next */
 var fw = require('../../../../bower_components/knockoutjs/dist/knockout');
+/* istanbul ignore next */
 var _ = require('../../../misc/lodash');
+
 var internalComponents = require('../../../component/internal-components');
 var nextFrame = require('../../../misc/util').nextFrame;
 

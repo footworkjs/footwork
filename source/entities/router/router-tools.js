@@ -1,3 +1,4 @@
+/* istanbul ignore next */
 var _ = require('../../misc/lodash');
 
 var nearestEntity = require('../entity-tools').nearestEntity;

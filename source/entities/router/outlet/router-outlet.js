@@ -1,5 +1,8 @@
+/* istanbul ignore next */
 var fw = require('../../../../bower_components/knockoutjs/dist/knockout');
+/* istanbul ignore next */
 var _ = require('../../../misc/lodash');
+
 var resultBound = require('../../../misc/util').resultBound;
 var clearSequenceQueue = require('../../../component/sequencing').clearSequenceQueue;
 

@@ -1,3 +1,4 @@
+/* istanbul ignore next */
 var _ = require('../misc/lodash');
 
 module.exports = _.extend([

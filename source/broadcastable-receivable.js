@@ -1,6 +1,10 @@
+/* istanbul ignore next */
 var fw = require('../bower_components/knockoutjs/dist/knockout.js');
+/* istanbul ignore next */
 var postal = require('../bower_components/postal.js/lib/postal.js');
+/* istanbul ignore next */
 var _ = require('./misc/lodash.js');
+
 var util = require('./misc/util.js');
 var isNamespace = require('./namespace/namespace').isNamespace;
 

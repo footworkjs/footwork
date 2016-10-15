@@ -1,3 +1,4 @@
+/* istanbul ignore next */
 var fw = require('../../../../bower_components/knockoutjs/dist/knockout');
 
 fw.outlet = {

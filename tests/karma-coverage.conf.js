@@ -1,6 +1,6 @@
 module.exports = {
   preprocessors: {
-    'build/footwork-ci.js': 'coverage',
+    'build/footwork.js': 'coverage',
     'tests/assets/**/*.html': ['html2js'],
     'tests/assets/**/*.json': ['json_fixtures']
   },

@@ -1,4 +1,6 @@
+/* istanbul ignore next */
 var _ = require('../misc/lodash');
+/* istanbul ignore next */
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
 
 require('./sequencing');

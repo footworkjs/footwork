@@ -1,7 +1,9 @@
+/* istanbul ignore next */
 var fw = require('../../../../bower_components/knockoutjs/dist/knockout');
+/* istanbul ignore next */
 var _ = require('../../../misc/lodash');
-var nearestParentRouter = require('../router-tools').nearestParentRouter;
 
+var nearestParentRouter = require('../router-tools').nearestParentRouter;
 var noParentViewModelError = { $namespace: { getName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } } };
 
 // This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied to the UI and load in various views
