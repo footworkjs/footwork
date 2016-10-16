@@ -44,7 +44,6 @@ require.config({
     "text": "bower_components/requirejs-text/text",
     "footwork": "build/footwork",
     "lodash": "bower_components/lodash/lodash",
-    "jquery-mockjax": "bower_components/jquery-mockjax/dist/jquery.mockjax",
     "jquery": "bower_components/jquery/dist/jquery",
     "history": "bower_components/history.js/scripts/bundled/html5/native.history",
     "customMatchers": "tests/assets/customMatchers",

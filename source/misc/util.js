@@ -172,6 +172,7 @@ module.exports = {
   isPromise: isPromise,
   promiseIsFulfilled: promiseIsFulfilled,
   addClass: addClass,
+  hasClass: hasClass,
   removeClass: removeClass,
   nextFrame: nextFrame,
   isPath: isPath,

@@ -36,26 +36,6 @@ function routeStringToRegExp(routeString) {
   return new RegExp('^' + routeString + (routeString !== '/' ? '(\\/.*)*$' : '$'), routesAreCaseSensitive ? undefined : 'i');
 }
 
-function historyIsReady() {
-  var typeOfHistory = typeof History;
-  var isReady = ['function','object'].indexOf(typeOfHistory) !== -1 && _.has(History, 'Adapter');
-
-  if (isReady && !History.Adapter.isSetup) {
-    History.Adapter.isSetup = true;
-
-    // why .unbind() is not already present in History.js is beyond me
-    History.Adapter.unbind = function(callback) {
-      _.each(History.Adapter.handlers, function(handler) {
-        handler.statechange = _.filter(handler.statechange, function(stateChangeHandler) {
-          return stateChangeHandler !== callback;
-        });
-      });
-    };
-  }
-
-  return isReady;
-}
-
 function isNullRouter(thing) {
   return _.isObject(thing) && !!thing.__isNullRouter;
 }
@@ -86,7 +66,6 @@ module.exports = {
   transformRouteConfigToDesc: transformRouteConfigToDesc,
   sameRouteDescription: sameRouteDescription,
   routeStringToRegExp: routeStringToRegExp,
-  historyIsReady: historyIsReady,
   isNullRouter: isNullRouter,
   isRoute: isRoute,
   isOutletViewModel: isOutletViewModel,

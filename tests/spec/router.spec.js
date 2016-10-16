@@ -4,6 +4,8 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       beforeEach(tools.prepareTestEnv);
       afterEach(tools.cleanTestEnv);
 
+      fw.router.disableHistory();
+
       it('has the ability to create a router', function() {
         expect(fw.router.create).toBeA('function');
         expect(fw.router.create()).toBeA('function');

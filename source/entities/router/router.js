@@ -17,6 +17,7 @@ var resultBound = util.resultBound;
 var parseUri = util.parseUri;
 var startingHashRegex = util.startingHashRegex;
 var propertyDispose = util.propertyDispose;
+var alwaysPassPredicate = util.alwaysPassPredicate;
 
 require('./route-binding');
 
@@ -27,7 +28,6 @@ var isNullRouter = routerTools.isNullRouter;
 var transformRouteConfigToDesc = routerTools.transformRouteConfigToDesc;
 var sameRouteDescription = routerTools.sameRouteDescription;
 var routeStringToRegExp = routerTools.routeStringToRegExp;
-var historyIsReady = routerTools.historyIsReady;
 var isRoute = routerTools.isRoute;
 var nearestParentRouter = routerTools.nearestParentRouter;
 
@@ -64,8 +64,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
       router.childRouters = fw.observableArray();
       router.parentRouter = fw.observable($nullRouter);
       router.context = fw.observable();
-      router.historyIsEnabled = fw.observable(false);
-      router.disableHistory = fw.observable().receiveFrom(this.$globalNamespace, 'disableHistory');
+      router.historyPopstateListener = fw.observable();
       router.currentState = fw.observable('').broadcastAs('currentState');
 
       function trimBaseRoute(url) {
@@ -82,18 +81,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
       function normalizeURL(url) {
         var urlParts = parseUri(url);
         router.urlParts(urlParts);
-
-        if (!fw.router.html5History()) {
-          if (url.indexOf('#') !== -1) {
-            url = '/' + urlParts.anchor.replace(startingSlashRegex, '');
-          } else if (router.currentState() !== url) {
-            url = '/';
-          }
-        } else {
-          url = urlParts.path;
-        }
-
-        return trimBaseRoute(url);
+        return trimBaseRoute(urlParts.path);
       }
       router.normalizeURL = normalizeURL;
 
@@ -306,48 +294,45 @@ var Router = module.exports = function Router(descriptor, configParams) {
         return this;
       },
       activate: function($context, $parentRouter) {
-        $context = $context || this.__private('context')();
+        var self = this;
+        $context = $context || self.__private('context')();
         $parentRouter = $parentRouter || nearestParentRouter($context);
 
         if (!isNullRouter($parentRouter)) {
-          this.__private('parentRouter')($parentRouter);
+          self.__private('parentRouter')($parentRouter);
         } else if (_.isObject($context)) {
           $parentRouter = nearestParentRouter($context);
-          if ($parentRouter !== this) {
-            this.__private('parentRouter')($parentRouter);
+          if ($parentRouter !== self) {
+            self.__private('parentRouter')($parentRouter);
           }
         }
 
-        if (!this.__private('historyIsEnabled')()) {
-          if (historyIsReady() && !this.__private('disableHistory')()) {
-            History.Adapter.bind(window, 'popstate', this.__private('stateChangeHandler', function (event) {
-              var url = '';
-              if (!fw.router.html5History() && window.location.hash.length > 1) {
-                url = window.location.hash;
-              } else {
-                url = window.location.pathname + window.location.hash;
-              }
+        if (!self.__private('historyPopstateListener')()) {
+          var popstateEvent = function() {
+            var location = window.history.location || window.location;
+            self.__private('currentState')(self.__private('normalizeURL')(location.pathname + location.hash));
+          };
 
-              this.__private('currentState')( this.__private('normalizeURL')(url) );
-            }.bind(this) ));
-            this.__private('historyIsEnabled')(true);
-          } else {
-            this.__private('historyIsEnabled')(false);
-          }
+          (function(eventInfo) {
+            window[eventInfo[0]](eventInfo[1] + 'popstate', popstateEvent, false);
+          })(window.addEventListener ? ['addEventListener', ''] : ['attachEvent', 'on']);
+
+          self.__private('historyPopstateListener')(popstateEvent);
         }
 
-        if (this.__private('currentState')() === '') {
-          this.setState();
+        if (self.__private('currentState')() === '') {
+          self.setState();
         }
 
-        this.$namespace.trigger('activated', { context: $context, parentRouter: $parentRouter });
-        return this;
+        self.$namespace.trigger('activated', { context: $context, parentRouter: $parentRouter });
+        return self;
       },
       setState: function(url, routeParams) {
+        var self = this;
         var namedRoute = _.isObject(routeParams) ? url : null;
         var configParams = this.__private('configParams');
-        var continueToRoute = true;
-        var useHistory = this.__private('historyIsEnabled')() && !this.__private('disableHistory')() && _.isFunction(History.getState);
+        var useHistory = this.__private('historyPopstateListener')() && fw.router.disableHistory();
+        var location = window.history.location || window.location;
 
         if (!_.isNull(namedRoute)) {
           // must convert namedRoute into its URL form
@@ -365,47 +350,27 @@ var Router = module.exports = function Router(descriptor, configParams) {
           }
         }
 
-        var isExternalURL = _.isString(url);
-        if (!_.isString(url) && useHistory) {
-          url = History.getState().url;
+        if (!_.isString(url)) {
+          url = useHistory ? location.pathname : '/';
         }
 
+        var isExternalURL = fw.utils.isFullURL(url);
         if (!isExternalURL) {
           url = this.__private('normalizeURL')(url);
         }
 
-        if (_.isFunction(configParams.beforeRoute)) {
-          continueToRoute = configParams.beforeRoute.call(this, url || '/');
-        }
-
-        if (continueToRoute) {
+        var shouldContinueToRoute = resultBound(configParams, 'beforeRoute', this, [url || '/']);
+        if (shouldContinueToRoute && !isExternalURL) {
           if (useHistory) {
-            if (isExternalURL) {
-              var historyAPIWorked = true;
-              try {
-                historyAPIWorked = History.pushState(null, '', configParams.baseRoute + this.__private('parentRouter')().path() + url.replace(startingHashRegex, '/'));
-              } catch (historyException) {
-                historyAPIWorked = false;
-              } finally {
-                if (historyAPIWorked) {
-                  return;
-                }
-              }
-            } else {
-              this.__private('currentState')(this.__private('normalizeURL')(url));
-            }
-          } else if (isExternalURL) {
-            this.__private('currentState')(this.__private('normalizeURL')(url));
-          } else {
-            this.__private('currentState')('/');
+            var destination = configParams.baseRoute + this.__private('parentRouter')().path() + url.replace(startingHashRegex, '/');
+            history.pushState(null, '', destination);
           }
+          this.__private('currentState')(url);
 
-          if (!historyIsReady()) {
-            var routePath = this.path();
-            _.each(this.__private('childRouters')(), function (childRouter) {
-              childRouter.__private('currentState')(routePath);
-            });
-          }
+          var routePath = this.path();
+          _.each(this.__private('childRouters')(), function (childRouter) {
+            childRouter.__private('currentState')(routePath);
+          });
         }
 
         return this;
@@ -419,8 +384,11 @@ var Router = module.exports = function Router(descriptor, configParams) {
             $parentRouter.__private('childRouters').remove(this);
           }
 
-          if (this.__private('historyIsEnabled')() && historyIsReady()) {
-            History.Adapter.unbind(this.__private('stateChangeHandler'));
+          var historyPopstateListener = this.__private('historyPopstateListener')();
+          if (historyPopstateListener) {
+            (function(eventInfo) {
+              window[eventInfo[0]](eventInfo[1] + 'popstate', historyPopstateListener);
+            })(window.removeEventListener ? ['removeEventListener', ''] : ['detachEvent', 'on']);
           }
 
           this.$namespace.dispose();
@@ -449,15 +417,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
 fw.router = {
   baseRoute: fw.observable(''),
   activeRouteClassName: fw.observable('active'),
-  disableHistory: fw.observable(false).broadcastAs({ name: 'disableHistory', namespace: fw.namespace() }),
-  html5History: function() {
-    var hasHTML5History = !!window.history && !!window.history.pushState;
-    if (!_.isUndefined(window.History) && _.isObject(window.History.options) && window.History.options.html4Mode) {
-      // user is overriding to force html4mode hash-based history
-      hasHTML5History = false;
-    }
-    return hasHTML5History;
-  },
+  disableHistory: fw.observable(false),
   getNearestParent: function($context) {
     var $parentRouter = nearestParentRouter($context);
     return (!isNullRouter($parentRouter) ? $parentRouter : null);
@@ -500,7 +460,7 @@ entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
     baseRoute: null,
     isRelative: true,
     activate: true,
-    beforeRoute: null,
+    beforeRoute: alwaysPassPredicate,
     minTransitionPeriod: 0
   }
 }));

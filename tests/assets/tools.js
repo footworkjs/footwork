@@ -53,7 +53,7 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers', 'fetch-mock', 'reporte
       $display.append($container);
 
       return $container.get(0);
-    };
+    }
 
     /**
      * Create a namespace name to use in tests
@@ -99,7 +99,7 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers', 'fetch-mock', 'reporte
      */
     function expectCallOrder(orderValue, callback) {
       callback = callback || _.noop;
-      return function() {
+      return function callbackOrderCheck() {
         if(Object.prototype.toString.call(orderValue) === '[object Array]') {
           expect(orderValue.shift()).toBe(currentCallbackOrderIndex, '[' + _.result(callback.and || {}, 'identity') + '] order of callbacks specified in array is incorrect');
         } else {

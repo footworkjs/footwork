@@ -22,6 +22,7 @@ module.exports = {
     { pattern: 'bower_components/knockoutjs/dist/*.js', watched: false, included: false },
     { pattern: 'bower_components/postal.js/lib/*.js', watched: false, included: false },
     { pattern: 'bower_components/jquery/dist/*.js', watched: false, included: false },
+    { pattern: 'node_modules/html5-history-api/history.js', watched: false, included: true },
     { pattern: 'node_modules/babel-polyfill/dist/polyfill.js', watched: false, included: true },
     { pattern: 'node_modules/whatwg-fetch/fetch.js', watched: false, included: true },
     { pattern: 'node_modules/fetch-mock/es5/client-browserified.js', watched: false, included: false },
@@ -92,7 +93,7 @@ module.exports = {
 
   client: {
     env: {
-      AJAX_WAIT: 100, // time in ms to tell ajax-based tests to wait for
+      AJAX_WAIT: 200, // time in ms to tell ajax-based tests to wait for
       JASMINE_TIMEOUT: 20000 // time that jasmine will wait for async requests to complete
     }
   },

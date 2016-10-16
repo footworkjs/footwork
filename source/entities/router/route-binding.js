@@ -10,6 +10,7 @@ var resultBound  = util.resultBound;
 var startingHashRegex = util.startingHashRegex;
 var removeClass = util.removeClass;
 var addClass = util.addClass;
+var hasClass = util.hasClass;
 
 var routerTools = require('./router-tools');
 var nearestParentRouter = routerTools.nearestParentRouter;
@@ -56,7 +57,7 @@ fw.bindingHandlers.$route = {
           return false;
         }
 
-        if ( !isFullURL(url) && event.which !== 2 ) {
+        if (!isFullURL(url) && event.which !== 2) {
           event.preventDefault();
           return true;
         }
@@ -66,7 +67,7 @@ fw.bindingHandlers.$route = {
 
     if (_.isFunction(routeParams) || _.isString(routeParams)) {
       routeHandlerDescription.url = routeParams;
-    } else if ( _.isObject(routeParams) ) {
+    } else if (_.isObject(routeParams)) {
       _.extend(routeHandlerDescription, routeParams);
     }
 
@@ -104,10 +105,6 @@ fw.bindingHandlers.$route = {
           if (includeParentPath && !isNullRouter($myRouter)) {
             myLinkPath = $myRouter.__private('parentRouter')().path() + myLinkPath;
           }
-
-          if (fw.router.html5History() === false) {
-            myLinkPath = '#' + (myLinkPath.indexOf('/') === 0 ? myLinkPath.substring(1) : myLinkPath);
-          }
         }
 
         return myLinkPath;
@@ -134,7 +131,7 @@ fw.bindingHandlers.$route = {
             if (!_.isNull(newRoute) && newRoute.segment === mySegment && _.isString(activeRouteClassName) && activeRouteClassName.length) {
               // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
               addClass(elementWithState, activeRouteClassName);
-            } else if ( hasClass(elementWithState, activeRouteClassName) ) {
+            } else if (hasClass(elementWithState, activeRouteClassName)) {
               removeClass(elementWithState, activeRouteClassName);
             }
           }
@@ -152,7 +149,7 @@ fw.bindingHandlers.$route = {
         var myCurrentSegment = routeURLWithoutParentPath();
         var routerConfig = $myRouter.__private('configParams');
         if (element.tagName.toLowerCase() === 'a') {
-          element.href = (fw.router.html5History() ? '' : '/') + routerConfig.baseRoute + routeURLWithParentPath();
+          element.href = routerConfig.baseRoute + routeURLWithParentPath();
         }
 
         if (_.isObject(stateTracker) && _.isFunction(stateTracker.dispose)) {
