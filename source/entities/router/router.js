@@ -331,7 +331,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
         var self = this;
         var namedRoute = _.isObject(routeParams) ? url : null;
         var configParams = this.__private('configParams');
-        var useHistory = this.__private('historyPopstateListener')() && fw.router.disableHistory();
+        var useHistory = this.__private('historyPopstateListener')() && !fw.router.disableHistory();
         var location = window.history.location || window.location;
 
         if (!_.isNull(namedRoute)) {
