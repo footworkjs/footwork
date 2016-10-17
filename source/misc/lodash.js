@@ -1,7 +1,3 @@
-/**
- * Custom build of lodash which only includes the dependencies that footwork needs
- */
-
 /* istanbul ignore next */
 module.exports = {
   isFunction: require('../../node_modules/lodash/isFunction'),
