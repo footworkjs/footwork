@@ -60,7 +60,7 @@ gulp.task('unit', ['tests'], function () {
 });
 
 // Building tasks
-gulp.task('build', ['build_footwork_css', 'build_ci_css'], function () {
+gulp.task('build', ['build_footwork_css', 'build_test_css'], function () {
   var fileSize = size({ title: 'footwork.js' });
 
   return gulp.src('./source/footwork.js')
@@ -78,7 +78,7 @@ gulp.task('build', ['build_footwork_css', 'build_ci_css'], function () {
 });
 
 gulp.task('minify', ['build'], function() {
-  console.log(chalk.yellow('Please wait, minification can take a few minutes (See: ') + chalk.white('https://github.com/knockout/knockout/issues/1652') + chalk.yellow(')'));
+  console.log(chalk.yellow('Please wait: Minification can take a few minutes (See: ') + chalk.white('https://github.com/knockout/knockout/issues/1652') + chalk.yellow(')'));
 
   var fileSizeMin = size({ title: 'footwork.min.js' });
   var fileSizeGzip = size({ gzip: true, title: 'footwork.min.js' });
@@ -95,11 +95,11 @@ gulp.task('minify', ['build'], function() {
 });
 
 gulp.task('dist', ['minify'], function() {
-  return gulp.src(['./build/footwork.js', './build/footwork.min.js', './build/styles/*.scss', './build/styles/*.css'])
+  return gulp.src(['./build/*.js', './build/styles/*.scss', './build/styles/*.css'])
     .pipe(gulp.dest('./dist'));
 });
 
-gulp.task('build_ci_css', function() {
+gulp.task('build_test_css', function() {
   return gulp.src(['./tests/assets/test.scss'])
     .pipe(sass().on('error', sass.logError))
     .pipe(autoprefixer(autoprefixOptions))
