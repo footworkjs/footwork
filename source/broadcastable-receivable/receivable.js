@@ -41,7 +41,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
     return this;
   };
 
-  namespaceSubscriptions.push(namespace.subscribe( variable, function(newValue) {
+  namespaceSubscriptions.push(namespace.subscribe(variable, function(newValue) {
     if (when(newValue)) {
       target(newValue);
     } else {
