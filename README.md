@@ -92,6 +92,10 @@ If you need further setup help, refer to the [Get Started](http://footworkjs.com
   
           gulp watch --debug
 
+  * Build everything, minify, and deploy assets to /dist (for release):
+  
+          gulp dist
+
   * To debug the tests in your own browser:
   
     * Install karma (if needed)
@@ -101,10 +105,6 @@ If you need further setup help, refer to the [Get Started](http://footworkjs.com
     * Access/Debug the tests from your browser at: [http://localhost:9876/debug.html](http://localhost:9876/debug.html)
 
             karma start
-
-  * Rebuild and deploy assets to /dist (for release):
-  
-          gulp dist
 
 ### Documentation and Website Contributions
 
