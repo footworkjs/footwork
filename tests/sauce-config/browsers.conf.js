@@ -126,9 +126,9 @@ module.exports = {
   },
   "Android_4_4": {
     appiumVersion: "1.5.3",
-    deviceName: "Samsung Galaxy S4 Emulator",
+    deviceName: "Android Emulator",
     deviceOrientation: "portrait",
-    browserName: "chrome",
+    browserName: "Browser",
     platformVersion: "4.4",
     platformName: "Android"
   }

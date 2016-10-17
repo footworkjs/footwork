@@ -8,7 +8,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var initializeSpy;
 
         var persons = [];
-        _.each(_.range(0, _.random(5, 10)), function() {
+        _.each(_.range(1, _.random(5, 10)), function() {
           persons.push({
             firstName: tools.randomString(),
             lastName: tools.randomString(),
@@ -127,7 +127,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var initializeSpy;
 
         var persons = [];
-        _.each(_.range(0, _.random(5, 10)), function() {
+        _.each(_.range(1, _.random(5, 10)), function() {
           persons.push({
             firstName: tools.randomString(),
             lastName: tools.randomString(),
@@ -209,7 +209,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
       it('can have data plucked from its entries', function() {
         var persons = [];
-        _.each(_.range(0, _.random(5, 10)), function() {
+        _.each(_.range(1, _.random(5, 10)), function() {
           persons.push({
             firstName: tools.randomString(),
             lastName: tools.randomString(),
@@ -394,7 +394,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         };
 
         var persons = [];
-        _.each(_.range(0, _.random(5, 10)), function() {
+        _.each(_.range(1, _.random(5, 10)), function() {
           persons.push({
             firstName: tools.randomString(),
             lastName: tools.randomString(),
@@ -464,7 +464,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
       it('can initialize and manipulate a plain collection including removal of an item', function() {
         var persons = [];
-        _.each(_.range(0, _.random(5, 10)), function() {
+        _.each(_.range(1, _.random(5, 10)), function() {
           persons.push({
             firstName: tools.randomString(),
             lastName: tools.randomString(),
@@ -487,7 +487,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       it('can have a dataModel based collection be serialized to a POJO correctly', function() {
         var initializeSpy;
         var persons = [];
-        _.each(_.range(0, _.random(5, 10)), function() {
+        _.each(_.range(1, _.random(5, 10)), function() {
           persons.push({
             id: undefined,
             firstName: tools.randomString(),
@@ -648,7 +648,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var initializeSpy;
         var resetSpy;
         var persons = [];
-        _.each(_.range(0, _.random(5, 10)), function(id) {
+        _.each(_.range(1, _.random(5, 10)), function(id) {
           persons.push({
             id: id,
             firstName: tools.randomString(),
@@ -698,7 +698,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var ajaxOptionsSpy;
         var changeEventSpy;
         var persons = [];
-        _.each(_.range(0, _.random(5, 10)), function(id) {
+        _.each(_.range(2, _.random(5, 10)), function(id) {
           persons.push({
             firstName: tools.randomString(),
             lastName: tools.randomString(),
@@ -756,7 +756,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var mockUrl = tools.generateUrl();
         var parseSpy;
         var persons = [];
-        _.each(_.range(0, _.random(5, 10)), function(id) {
+        _.each(_.range(1, _.random(5, 10)), function(id) {
           persons.push({
             firstName: tools.randomString(),
             lastName: tools.randomString(),
@@ -795,7 +795,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var initializeSpy;
         var resetSpy;
         var persons = [];
-        _.each(_.range(0, _.random(5, 10)), function(id) {
+        _.each(_.range(1, _.random(5, 10)), function(id) {
           persons.push({
             firstName: tools.randomString(),
             lastName: tools.randomString(),
@@ -916,7 +916,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var removeSpy = jasmine.createSpy('removeSpy');
 
         var persons = [];
-        _.each(_.range(0, _.random(5, 10)), function(id) {
+        _.each(_.range(1, _.random(5, 10)), function(id) {
           persons.push({
             id: id,
             firstName: tools.randomString(),
@@ -953,7 +953,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var removeSpy = jasmine.createSpy('removeSpy');
 
         var persons = [];
-        _.each(_.range(0, _.random(5, 10)), function(id) {
+        _.each(_.range(1, _.random(5, 10)), function(id) {
           persons.push({
             id: id,
             firstName: tools.randomString(),
@@ -990,7 +990,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var removeSpy = jasmine.createSpy('removeSpy');
 
         var persons = [];
-        _.each(_.range(0, _.random(5, 10)), function(id) {
+        _.each(_.range(1, _.random(5, 10)), function(id) {
           persons.push({
             id: id,
             firstName: tools.randomString(),
@@ -1027,7 +1027,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var removeSpy = jasmine.createSpy('removeSpy');
 
         var persons = [];
-        _.each(_.range(0, _.random(5, 10)), function(id) {
+        _.each(_.range(1, _.random(5, 10)), function(id) {
           persons.push({
             id: id,
             firstName: tools.randomString(),
@@ -1064,7 +1064,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var removeSpy = jasmine.createSpy('removeSpy');
 
         var persons = [];
-        _.each(_.range(0, _.random(5, 10)), function(id) {
+        _.each(_.range(1, _.random(5, 10)), function(id) {
           persons.push({
             id: id,
             firstName: tools.randomString(),
@@ -1107,7 +1107,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var initializeSpy;
 
         var persons = [];
-        _.each(_.range(0, _.random(5, 10)), function(id) {
+        _.each(_.range(1, _.random(5, 10)), function(id) {
           persons.push({
             id: id,
             firstName: tools.randomString(),
@@ -1144,7 +1144,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var initializeSpy;
 
         var persons = [];
-        _.each(_.range(0, _.random(5, 10)), function(id) {
+        _.each(_.range(1, _.random(5, 10)), function(id) {
           persons.push({
             id: id,
             firstName: tools.randomString(),
