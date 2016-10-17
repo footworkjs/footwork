@@ -72,27 +72,27 @@ If you need further setup help, refer to the [Get Started](http://footworkjs.com
 
 1. **Run a gulp task to build/test/etc:**
   
-  * Build everything (output in /build) and then run the unit tests (coverage report output in build/coverage):
+  * Build everything (output in /build):
   
           gulp
 
-  * Build everything (output in /build)
-  
-          gulp build-everything
-
-  * Build whats necessary for the unit tests, and run them (coverage report output in build/coverage):
+  * Build everything and run tests (coverage report output in build/coverage):
   
           gulp tests
 
-  * Watch for changes in the source code/tests and automatically rebuild whats necessary + run tests:
+  * Watch for changes in the source code/tests and automatically rebuild + run tests:
   
           gulp watch
-
-  * Watch for changes in the source code/tests and automatically rebuild everything + run tests:
   
-          gulp watch-everything
+  * Build everything + generate source map for debugging (output in /build):
+  
+          gulp --debug
+  
+  * Watch for changes in the source code/tests and automatically rebuild (including source map for debugging) + run tests:
+  
+          gulp watch --debug
 
-  * Debug in your own browser:
+  * To debug the tests in your own browser:
   
     * Install karma (if needed)
 
