@@ -58,10 +58,6 @@ require.config({
     require(['footwork', 'lodash', 'jquery', 'reporter', 'container'],
       function(fw, _, $) {
         fixture.setBase('tests/assets/fixtures');
-
-        console.info('ajaxWait: ' + ajaxWait);
-
-        // start the tests
         window.__karma__.start();
       }
     );
