@@ -19,8 +19,6 @@ module.exports = {
     { pattern: 'tests/assets/**/*.+(html|json|jsonp|js)', nocache: true, included: false },
     { pattern: 'bower_components/lodash/dist/*.js', watched: false, included: false },
     { pattern: 'bower_components/requirejs-text/*.js', watched: false, included: false },
-    { pattern: 'bower_components/knockoutjs/dist/*.js', watched: false, included: false },
-    { pattern: 'bower_components/postal.js/lib/*.js', watched: false, included: false },
     { pattern: 'bower_components/jquery/dist/*.js', watched: false, included: false },
     { pattern: 'node_modules/html5-history-api/history.js', watched: false, included: true },
     { pattern: 'node_modules/whatwg-fetch/fetch.js', watched: false, included: true },

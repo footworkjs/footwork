@@ -1,5 +1,5 @@
-var _ = require('lodash');
 var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
 
 var util = require('../../misc/util');
 var entityAnimateClass = require('../../misc/config').entityAnimateClass;
