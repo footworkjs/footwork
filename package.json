@@ -24,6 +24,7 @@
   ],
   "version": "2.0.0",
   "homepage": "http://footworkjs.com",
+  "license": "MIT",
   "licenses": [
     {
       "type": "MIT",
@@ -84,7 +85,7 @@
     "knockout": "3.4.0",
     "less-plugin-autoprefix": "1.5.1",
     "less-plugin-clean-css": "1.5.1",
-    "lodash": "git+https://github.com/footworkjs/lodash.git#930e2eabb05e704de65441ba8cec6906965a4a14",
+    "lodash": "git+https://github.com/footworkjs/lodash.git#cd2d57b64993a2eded63036651eeff11e97ae8ae",
     "phantomjs": "^1.9.19",
     "postal": "2.0.4",
     "requirejs": "^2.2.0",

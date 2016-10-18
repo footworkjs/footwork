@@ -80,7 +80,7 @@ If you need further setup help, refer to the [Get Started](http://footworkjs.com
   
           gulp tests
 
-  * Watch for changes in the source code/tests and automatically rebuild + run tests:
+  * Watch for changes in the source code and automatically rebuild:
   
           gulp watch
   
@@ -88,9 +88,13 @@ If you need further setup help, refer to the [Get Started](http://footworkjs.com
   
           gulp --debug
   
-  * Watch for changes in the source code/tests and automatically rebuild (including source map for debugging) + run tests:
+  * Watch for changes in the source code and automatically rebuild (including source map for debugging):
   
           gulp watch --debug
+  
+  * Watch for changes in the source code/tests and automatically rebuild (including source map for debugging) + run tests:
+  
+          gulp watch-test
 
   * Build everything, minify, and deploy assets to /dist (for release):
   

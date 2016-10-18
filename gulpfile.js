@@ -137,6 +137,10 @@ gulp.task('build_footwork_css', function() {
 });
 
 gulp.task('watch', function () {
+  gulp.watch(['source/**/*.*'], ['build']);
+});
+
+gulp.task('watch-test', function () {
   gulp.watch(['tests/**/*.*', 'source/**/*.*'], ['tests']);
 });
 
