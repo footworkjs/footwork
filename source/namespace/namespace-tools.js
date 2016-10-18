@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var fw = require('../../bower_components/knockoutjs/dist/knockout');
+var fw = require('knockout/build/output/knockout-latest');
 
 // Prepare an empty namespace stack.
 // This is where footwork registers its current working namespace name. Each new namespace is

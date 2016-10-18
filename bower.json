@@ -41,9 +41,7 @@
     "fetch-polyfill": "*"
   },
   "devDependencies": {
-    "conduitjs": "0.3.3",
     "lodash": "^4.12",
-    "knockoutjs": "3.4.0",
     "jquery": "1.12.4"
   }
 }

@@ -1,5 +1,5 @@
-var fw = require('../../bower_components/knockoutjs/dist/knockout');
-var Conduit = require('../../bower_components/conduitjs/lib/conduit');
+var fw = require('knockout/build/output/knockout-latest');
+var Conduit = require('conduitjs');
 var _ = require('lodash');
 
 var util = require('../misc/util');

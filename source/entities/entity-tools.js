@@ -1,4 +1,4 @@
-var fw = require('../../bower_components/knockoutjs/dist/knockout');
+var fw = require('knockout/build/output/knockout-latest');
 var riveter = require('riveter');
 
 var _ = require('lodash');

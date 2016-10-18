@@ -1,4 +1,4 @@
-var fw = require('../../bower_components/knockoutjs/dist/knockout');
+var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
 var util = require('../misc/util');

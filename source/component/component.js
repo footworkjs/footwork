@@ -1,6 +1,6 @@
 var _ = require('lodash');
 
-var fw = require('../../bower_components/knockoutjs/dist/knockout');
+var fw = require('knockout/build/output/knockout-latest');
 
 require('./sequencing');
 require('./lifecycle-loader');

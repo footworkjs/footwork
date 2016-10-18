@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var fw = require('../../bower_components/knockoutjs/dist/knockout');
+var fw = require('knockout/build/output/knockout-latest');
 
 var entityTools = require('./entity-tools');
 var isEntity = entityTools.isEntity;
