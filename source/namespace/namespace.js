@@ -1,5 +1,5 @@
-var postal = require('../../bower_components/postal.js/lib/postal');
-var _ = require('../misc/lodash');
+var postal = require('postal');
+var _ = require('lodash');
 
 var namespaceMethods = require('./namespace-methods');
 var disconnectNamespaceHandlers = namespaceMethods.disconnectNamespaceHandlers;

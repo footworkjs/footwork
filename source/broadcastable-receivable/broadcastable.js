@@ -1,7 +1,6 @@
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
-var postal = require('../../bower_components/postal.js/lib/postal');
-
-var _ = require('../misc/lodash');
+var postal = require('postal');
+var _ = require('lodash');
 
 var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;
 var isNamespace = require('../namespace/namespace').isNamespace;

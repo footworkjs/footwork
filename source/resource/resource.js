@@ -1,4 +1,4 @@
-var _ = require('../misc/lodash');
+var _ = require('lodash');
 
 var resourceMethods = require('./resource-methods');
 var getModelFileName = resourceMethods.getModelFileName;

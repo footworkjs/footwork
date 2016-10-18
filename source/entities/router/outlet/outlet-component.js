@@ -1,5 +1,5 @@
 var fw = require('../../../../bower_components/knockoutjs/dist/knockout');
-var _ = require('../../../misc/lodash');
+var _ = require('lodash');
 
 var internalComponents = require('../../../component/internal-components');
 var nextFrame = require('../../../misc/util').nextFrame;

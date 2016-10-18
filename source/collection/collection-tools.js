@@ -1,4 +1,4 @@
-var _ = require('../misc/lodash');
+var _ = require('lodash');
 
 function isCollection(thing) {
   return _.isObject(thing) && !!thing.__isCollection;

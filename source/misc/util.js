@@ -1,4 +1,4 @@
-var _ = require('./lodash');
+var _ = require('lodash');
 
 function alwaysPassPredicate() {
   return true;
@@ -12,7 +12,7 @@ function alwaysPassPredicate() {
  * @param  {string} path    Property name
  * @param  {mixed}  context Context to call the (if existant) function with
  * @param  {array}  params  Parameters to call the callback (object properties) with
- * @return {mixed}          The result of the property on the object
+ * @returns {mixed}          The result of the property on the object
  */
 function resultBound(object, path, context, params) {
   params = params || [];
@@ -143,12 +143,23 @@ parseUri.options = {
   }
 };
 
+/**
+ * Calls dispose() on the supplied property if it exists.
+ *
+ * @param {any} property
+ */
 function propertyDispose(property) {
   if (_.isObject(property) && _.isFunction(property.dispose)) {
     property.dispose();
   }
 }
 
+/**
+ * Determine if the supplied object is a DocumentFragment instance.
+ *
+ * @param {any} obj
+ * @returns {boolean} True if it is a DocumentFragment, false if not
+ */
 function isDocumentFragment(obj) {
   if (window['DocumentFragment']) {
     return obj instanceof DocumentFragment;
@@ -157,6 +168,12 @@ function isDocumentFragment(obj) {
   }
 }
 
+/**
+ * Determine if the supplied object is a HTMLElement instance.
+ *
+ * @param {any} obj
+ * @returns {boolean} True if it is a HTMLElement, false if not
+ */
 function isDomElement(obj) {
   if (window['HTMLElement']) {
     return obj instanceof HTMLElement;

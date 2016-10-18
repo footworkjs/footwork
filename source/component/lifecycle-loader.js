@@ -1,5 +1,5 @@
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
-var _ = require('../misc/lodash');
+var _ = require('lodash');
 
 var internalComponents = require('./internal-components');
 
@@ -45,6 +45,12 @@ fw.components.loaders.unshift(fw.components.lifecycleLoader = {
   }
 });
 
+/**
+ * Clone and return the nodes from the source element.
+ *
+ * @param {DOMNode} elemInstance
+ * @returns {[DOMNodes]} The cloned DOM nodes
+ */
 function cloneNodesFromTemplateSourceElement(elemInstance) {
   switch (fw.utils.tagNameLower(elemInstance)) {
     case 'script':
@@ -64,6 +70,13 @@ function cloneNodesFromTemplateSourceElement(elemInstance) {
   return fw.utils.cloneNodes(elemInstance.childNodes);
 }
 
+/**
+ * Wrap the supplied template with the lifecycle binding. This enables footwork to track when
+ * the instance is bound to or removed from the dom, triggering its various lifecycle events.
+ *
+ * @param {string|[DOMNodes]} template
+ * @returns {[DOMNodes]} The wrapped component
+ */
 function wrapWithLifeCycle(template) {
   var templateString = _.isString(template) ? template : '';
   var wrapper = fw.utils.parseHtmlFragment('<!-- ko $life -->' + templateString + '<!-- /ko -->');

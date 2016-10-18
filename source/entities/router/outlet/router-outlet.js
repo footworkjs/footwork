@@ -1,5 +1,5 @@
 var fw = require('../../../../bower_components/knockoutjs/dist/knockout');
-var _ = require('../../../misc/lodash');
+var _ = require('lodash');
 
 var resultBound = require('../../../misc/util').resultBound;
 var clearSequenceQueue = require('../../../component/sequencing').clearSequenceQueue;

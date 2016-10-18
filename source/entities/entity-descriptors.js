@@ -1,4 +1,4 @@
-var _ = require('../misc/lodash');
+var _ = require('lodash');
 
 module.exports = _.extend([
   /* filled in by viewModel/dataModel/router modules */

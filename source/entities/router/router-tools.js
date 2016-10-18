@@ -1,4 +1,4 @@
-var _ = require('../../misc/lodash');
+var _ = require('lodash');
 
 var nearestEntity = require('../entity-tools').nearestEntity;
 

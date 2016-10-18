@@ -1,5 +1,5 @@
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
-var _ = require('../misc/lodash');
+var _ = require('lodash');
 
 var objectTools = require('./object-tools');
 var regExpIsEqual = objectTools.regExpIsEqual;

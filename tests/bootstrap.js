@@ -43,7 +43,7 @@ require.config({
      */
     "text": "bower_components/requirejs-text/text",
     "footwork": "build/footwork",
-    "lodash": "bower_components/lodash/lodash",
+    "lodash": "bower_components/lodash/dist/lodash",
     "jquery": "bower_components/jquery/dist/jquery",
     "history": "bower_components/history.js/scripts/bundled/html5/native.history",
     "customMatchers": "tests/assets/customMatchers",
@@ -57,6 +57,7 @@ require.config({
   callback: function() {
     require(['footwork', 'lodash', 'jquery', 'reporter', 'container'],
       function(fw, _, $) {
+        window.fw = fw;
         fixture.setBase('tests/assets/fixtures');
         window.__karma__.start();
       }

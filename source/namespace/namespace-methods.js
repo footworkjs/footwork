@@ -1,4 +1,4 @@
-var _ = require('../misc/lodash');
+var _ = require('lodash');
 
 /**
  * Create postal message envelope using a given topic, data, and expiration

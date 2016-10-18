@@ -1,4 +1,4 @@
-var _ = require('../../misc/lodash');
+var _ = require('lodash');
 
 function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
   if (_.isString(fieldMap)) {

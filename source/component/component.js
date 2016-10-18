@@ -1,4 +1,4 @@
-var _ = require('../misc/lodash');
+var _ = require('lodash');
 
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
 

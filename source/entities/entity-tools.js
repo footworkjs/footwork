@@ -1,7 +1,7 @@
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
-var riveter = require('../../bower_components/riveter/lib/riveter');
+var riveter = require('riveter');
 
-var _ = require('../misc/lodash');
+var _ = require('lodash');
 
 var entityMixins = require('./entity-mixins');
 var entityDescriptors = require('./entity-descriptors');

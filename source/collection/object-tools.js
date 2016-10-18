@@ -1,5 +1,5 @@
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
-var _ = require('../misc/lodash');
+var _ = require('lodash');
 
 /**
  * Performs an equality comparison between two objects while ensuring atleast one or more keys/values match and that all keys/values from object A also exist in B

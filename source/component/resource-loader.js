@@ -1,6 +1,6 @@
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
 var Conduit = require('../../bower_components/conduitjs/lib/conduit');
-var _ = require('../misc/lodash');
+var _ = require('lodash');
 
 var util = require('../misc/util');
 var isPath = util.isPath;
