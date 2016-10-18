@@ -17,6 +17,8 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(fw.components.isRegistered(namespaceName)).toBe(true);
         expect(fw.components.isRegistered(invalidNamespaceName)).not.toBe(true);
         expect(viewModelSpy).not.toHaveBeenCalled();
+
+        expect(fw.components.getFileName(namespaceName)).toBe(null);
       });
 
       it('can instantiate a registered component via a <declarative> statement', function(done) {
@@ -300,15 +302,19 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
       it('can set and return fileExtensions correctly', function() {
         var originalExtensions = fw.components.fileExtensions();
+        var fileName = tools.randomString();
         var extensions = {
           combined: '.combinedTest',
           viewModel: '.viewModelTest',
-          template: '.templateTest'
+          template: function() {
+            return '.templateTest';
+          }
         };
 
         expect(fw.components.fileExtensions()).not.toEqual(extensions);
         fw.components.fileExtensions(extensions);
         expect(fw.components.fileExtensions()).toEqual(extensions);
+        expect(fw.components.getFileName(fileName, 'template')).toEqual(fileName + extensions.template());
 
         // reset extensions back to normal
         fw.components.fileExtensions(originalExtensions);
@@ -322,9 +328,11 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           return _.reduce({
             combined: '.' + name + 'combinedTest',
             viewModel: '.' + name + 'viewModelTest',
-            template: '.' + name + 'templateTest'
+            template: function() {
+              return (withName ? name : '') + '.' + 'templateTest';
+            }
           }, function(ext, extension, property) {
-            ext[property] = (withName ? name : '') + extension;
+            ext[property] = _.isFunction(extension) ? extension() : (withName ? name : '');
             return ext;
           }, {});
         }
@@ -333,13 +341,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           return prependName(componentName);
         }).and.callThrough();
 
-        fw.components.fileExtensions(tools.expectCallOrder([0, 1], getFileExtensionsSpy));
+        fw.components.fileExtensions(tools.expectCallOrder([0, 1, 2], getFileExtensionsSpy));
 
         var comp1Check = prependName('comp1', true);
         var comp2Check = prependName('comp2', true);
 
         expect(fw.components.getFileName('comp1', 'viewModel')).toEqual(comp1Check.viewModel);
         expect(fw.components.getFileName('comp2', 'viewModel')).toEqual(comp2Check.viewModel);
+        expect(fw.components.getFileName('comp2', 'template')).toEqual(comp2Check.template);
 
         // reset extensions back to normal
         fw.components.fileExtensions(originalExtensions);

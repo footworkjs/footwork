@@ -78,8 +78,6 @@ fw.components.getFileName = function(componentName, fileType) {
       if (_.isString(registeredLocation[fileType])) {
         // full filename was supplied, lets return that
         fileName = _.last(registeredLocation[fileType].split('/'));
-      } else {
-        return null;
       }
     }
   }
