@@ -68,6 +68,7 @@
     "gulp-uglify": "^0.3.0",
     "gulp-watch": "4.3.5",
     "html5-history-api": "^4.2.7",
+    "istanbul": "^0.4.5",
     "jasmine-core": "^2.4.1",
     "jasmine-jquery": "^2.1.1",
     "jquery": "1.12.4",
