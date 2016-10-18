@@ -3,9 +3,9 @@
 
 *```A solid footing for web applications.```*
 
-[![Build Status](https://travis-ci.org/footworkjs/footwork.png?branch=master)](https://travis-ci.org/footworkjs/footwork) [![Build Status](https://saucelabs.com/buildstatus/reflectiv)](https://saucelabs.com/u/reflectiv) [![Test Coverage](https://coveralls.io/repos/github/footworkjs/footwork/badge.svg?branch=master)](https://coveralls.io/github/footworkjs/footwork) [![Bower version](https://badge.fury.io/bo/footwork.svg)](https://badge.fury.io/bo/footwork)
+[![Build Status](https://travis-ci.org/footworkjs/footwork.png?branch=master?r=100)](https://travis-ci.org/footworkjs/footwork) [![Build Status](https://saucelabs.com/buildstatus/reflectiv?r=100)](https://saucelabs.com/u/reflectiv) [![Test Coverage](https://coveralls.io/repos/github/footworkjs/footwork/badge.svg?branch=master?r=100)](https://coveralls.io/github/footworkjs/footwork) [![Bower version](https://badge.fury.io/bo/footwork.svg)](https://badge.fury.io/bo/footwork)
 
-[![Build Status](https://saucelabs.com/browser-matrix/reflectiv.svg)](https://saucelabs.com/u/reflectiv)
+[![Build Status](https://saucelabs.com/browser-matrix/reflectiv.svg?r=100)](https://saucelabs.com/u/reflectiv)
 
 ### What is Footwork?
 
@@ -106,11 +106,9 @@ If you need further setup help, refer to the [Get Started](http://footworkjs.com
 
             karma start
 
-### Documentation and Website Contributions
+### Documentation Contributions
 
-There is a companion repository located at [https://github.com/footworkjs/footworkjs.com](https://github.com/footworkjs/footworkjs.com).
-
-If you wish to contribute to the documentation or main website you can do that here.
+There is a companion repository located at [https://github.com/footworkjs/footwork-docs](https://github.com/footworkjs/footwork-docs).
 
 ### License
 

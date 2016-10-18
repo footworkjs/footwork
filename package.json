@@ -6,30 +6,19 @@
     {
       "name": "Jonathan Newman",
       "email": "jonathan@staticty.pe",
+      "url": "https://github.com/jonbnewman",
       "contribution": [
         "creator",
         "code",
         "documentation"
-      ],
-      "urls": [
-        {
-          "url": "https://github.com/jonbnewman"
-        },
-        {
-          "url": "http://staticty.pe"
-        }
       ]
     },
     {
       "name": "Travis Miller",
       "email": "travis@travisamiller.com",
+      "url": "http://travisamiller.com",
       "contribution": [
         "framework name"
-      ],
-      "urls": [
-        {
-          "url": "http://travisamiller.com"
-        }
       ]
     }
   ],
@@ -41,10 +30,15 @@
       "url": "http://www.opensource.org/licenses/mit-license.php"
     }
   ],
+  "bugs": {
+    "url" : "https://github.com/footworkjs/footwork/issues",
+    "email" : "bugs@footworkjs.com"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/footworkjs/footwork.git"
   },
+  "main": "dist/footwork.js",
   "devDependencies": {
     "babel-polyfill": "^6.16.0",
     "bower": "*",
