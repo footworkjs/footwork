@@ -1,5 +1,6 @@
 module.exports = {
   postal: require('postal'),
   riveter: require('riveter'),
-  Conduit: require('conduitjs')
+  conduitjs: require('conduitjs'),
+  lodash: require('lodash')
 };
