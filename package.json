@@ -30,9 +30,11 @@
       "url": "http://www.opensource.org/licenses/mit-license.php"
     }
   ],
+  "files": [
+    "dist"
+  ],
   "bugs": {
-    "url" : "https://github.com/footworkjs/footwork/issues",
-    "email" : "bugs@footworkjs.com"
+    "url" : "https://github.com/footworkjs/footwork/issues"
   },
   "repository": {
     "type": "git",
