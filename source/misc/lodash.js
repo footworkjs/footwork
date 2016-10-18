@@ -1,3 +1,4 @@
+/* istanbul ignore next */
 module.exports = {
   isFunction: require('../../node_modules/lodash/isFunction'),
   isObject: require('../../node_modules/lodash/isObject'),
