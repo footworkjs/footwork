@@ -1,6 +1,6 @@
 var gulp = require('gulp');
 var browserify = require('browserify');
-var transform = require('vinyl-transform');
+var istanbul = require('browserify-istanbul');
 var header = require('gulp-header');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
@@ -25,13 +25,6 @@ var autoprefixOptions = {
   browsers: ['last 3 versions', '> 5%', 'Firefox > 3', 'ie >= 9']
 };
 
-var browserified = function(options) {
-  options = options || {};
-  return transform(function(filename) {
-    return browserify(filename, options).bundle();
-  });
-};
-
 var banner = [
   '/**',
   ' * <%= pkg.name %> - <%= pkg.description %>',
@@ -46,7 +39,7 @@ var banner = [
 gulp.task('default', ['build']);
 
 // Testing tasks
-gulp.task('tests', ['build'], function(done) {
+gulp.task('tests', ['bundle-covered'], function(done) {
   return new Server(_.extend(require('./tests/karma.conf.js'), require('./tests/karma-coverage.conf.js')), done).start();
 });
 
@@ -59,16 +52,44 @@ gulp.task('unit', ['tests'], function () {
     .pipe(coveralls());
 });
 
-// Building tasks
-gulp.task('build', ['build_footwork_css', 'build_test_css'], function () {
-  var fileSize = size({ title: 'footwork.js' });
+var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
 
-  return gulp.src('./source/footwork.js')
-    .pipe(plumber())
-    .pipe(browserified({
+var bundleConfig = {
+  src: './source/footwork.js',
+  outputDir: './build/',
+  outputFile: 'footwork.js'
+};
+
+function bundle (bundler) {
+  return bundler
+    .bundle()
+    .pipe(source(bundleConfig.src))
+    .pipe(buffer())
+    .pipe(rename(bundleConfig.outputFile))
+    .pipe(gulp.dest(bundleConfig.outputDir));
+}
+
+gulp.task('bundle-covered', function () {
+    return bundle(browserify(bundleConfig.src, {
       standalone: 'footwork',
       debug: args.hasOwnProperty("debug")
-    }))
+    }).transform(istanbul));
+});
+
+gulp.task('bundle', function () {
+    return bundle(browserify(bundleConfig.src, {
+      standalone: 'footwork',
+      debug: args.hasOwnProperty("debug")
+    }));
+});
+
+// Building tasks
+gulp.task('build', ['bundle', 'build_footwork_css', 'build_test_css'], function () {
+  var fileSize = size({ title: 'footwork.js' });
+
+  return gulp.src('./build/footwork.js')
+    .pipe(plumber())
     .pipe(derequire())
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
     .pipe(replace('.footwork=', '.fw=')) // Replace the globals export reference with 'fw' but leave module (CommonJS/AMD) names as 'footwork'
