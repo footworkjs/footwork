@@ -1,8 +1,6 @@
-/* istanbul ignore next */
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
-/* istanbul ignore next */
 var riveter = require('../../bower_components/riveter/lib/riveter');
-/* istanbul ignore next */
+
 var _ = require('../misc/lodash');
 
 var entityMixins = require('./entity-mixins');

@@ -1,6 +1,4 @@
-/* istanbul ignore next */
 var postal = require('../../bower_components/postal.js/lib/postal');
-/* istanbul ignore next */
 var _ = require('../misc/lodash');
 
 var namespaceMethods = require('./namespace-methods');

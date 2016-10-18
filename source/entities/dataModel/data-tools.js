@@ -1,4 +1,3 @@
-/* istanbul ignore next */
 var _ = require('../../misc/lodash');
 
 function insertValueIntoObject(rootObject, fieldMap, fieldValue) {

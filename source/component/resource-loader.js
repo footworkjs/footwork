@@ -1,8 +1,5 @@
-/* istanbul ignore next */
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
-/* istanbul ignore next */
 var Conduit = require('../../bower_components/conduitjs/lib/conduit');
-/* istanbul ignore next */
 var _ = require('../misc/lodash');
 
 var util = require('../misc/util');

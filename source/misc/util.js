@@ -1,4 +1,3 @@
-/* istanbul ignore next */
 var _ = require('./lodash');
 
 function alwaysPassPredicate() {

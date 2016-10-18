@@ -1,8 +1,6 @@
-/* istanbul ignore next */
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
-/* istanbul ignore next */
 var postal = require('../../bower_components/postal.js/lib/postal');
-/* istanbul ignore next */
+
 var _ = require('../misc/lodash');
 
 var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;

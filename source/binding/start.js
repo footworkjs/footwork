@@ -1,4 +1,3 @@
-/* istanbul ignore next */
 var fw = require('../../bower_components/knockoutjs/dist/knockout');
 
 // 'start' up the framework at the targetElement (or document.body by default)
