@@ -117,5 +117,3 @@ There is a companion repository located at [https://github.com/footworkjs/footwo
 ### License
 
 MIT license - [http://www.opensource.org/licenses/mit-license.php](http://www.opensource.org/licenses/mit-license.php)
-
-[![Analytics](https://ga-beacon.appspot.com/UA-52543452-1/footwork/GITHUB-ROOT)](https://github.com/footworkjs/ga-beacon)
