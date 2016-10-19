@@ -11,10 +11,8 @@ var replace = require('gulp-replace');
 var coveralls = require('gulp-coveralls');
 var Server = require('karma').Server;
 var _ = require('lodash');
-var fs = require('fs');
 var sass = require("gulp-sass");
 var autoprefixer = require('gulp-autoprefixer');
-var derequire = require('gulp-derequire');
 var plumber = require('gulp-plumber');
 
 var pkg = require('./package.json');
@@ -52,6 +50,11 @@ gulp.task('unit', ['tests'], function () {
     .pipe(coveralls());
 });
 
+gulp.task('watch-test', function () {
+  gulp.watch(['tests/**/*.*', 'source/**/*.*'], ['tests']);
+});
+
+// Building tasks
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 
@@ -84,13 +87,11 @@ gulp.task('bundle', function () {
     }));
 });
 
-// Building tasks
 gulp.task('build', ['bundle', 'build_footwork_css', 'build_test_css'], function () {
   var fileSize = size({ title: 'footwork.js' });
 
   return gulp.src('./build/footwork.js')
     .pipe(plumber())
-    .pipe(derequire())
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
     .pipe(replace('.footwork=', '.fw=')) // Replace the globals export reference with 'fw' but leave module (CommonJS/AMD) names as 'footwork'
     .pipe(header(banner, { pkg: pkg }))
@@ -122,6 +123,7 @@ gulp.task('dist', ['minify'], function() {
 
 gulp.task('build_test_css', function() {
   return gulp.src(['./tests/assets/test.scss'])
+    .pipe(plumber())
     .pipe(sass().on('error', sass.logError))
     .pipe(autoprefixer(autoprefixOptions))
     .pipe(gulp.dest('./tests/assets'));
@@ -138,10 +140,6 @@ gulp.task('build_footwork_css', function() {
 
 gulp.task('watch', function () {
   gulp.watch(['source/**/*.*'], ['build']);
-});
-
-gulp.task('watch-test', function () {
-  gulp.watch(['tests/**/*.*', 'source/**/*.*'], ['tests']);
 });
 
 gulp.task('set_version', function() {
