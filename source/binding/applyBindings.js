@@ -1,17 +1,24 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var entityLifecycle = require('../entities/entity-lifecycle');
+var entityTools = require('../entities/entity-tools');
+var isEntity = entityTools.isEntity;
+var isRouter = entityTools.isRouter;
 
-// Override the original applyBindings method to assess history API state and provide viewModel/dataModel/router life-cycle
+// Override the original applyBindings method to provide viewModel/dataModel/router life-cycle events
 var originalApplyBindings = fw.applyBindings;
-var callRequire = 'require';
 fw.applyBindings = function(viewModelOrBindingContext, rootNode) {
-  if (_.isFunction(window.require)) {
-    // must initialize default require context (https://github.com/jrburke/requirejs/issues/1305#issuecomment-87924865)
-    window.require([]);
-  }
-
   originalApplyBindings(viewModelOrBindingContext, rootNode);
-  entityLifecycle(viewModelOrBindingContext, rootNode);
+
+  if(isEntity(viewModelOrBindingContext)) {
+    var configParams = viewModelOrBindingContext.__private.configParams;
+
+    // trigger afterRender on the viewModel
+    configParams.afterRender.call(viewModelOrBindingContext, rootNode);
+
+    // supply the context to the instance if it is a router
+    if (isRouter(viewModelOrBindingContext)) {
+      viewModelOrBindingContext.__private.context(fw.contextFor(rootNode));
+    }
+  }
 };

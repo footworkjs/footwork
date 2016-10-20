@@ -16,23 +16,23 @@ var ViewModel = module.exports = function ViewModel(descriptor, configParams) {
             self.disposeWithInstance(sub);
           });
         } else {
-          var subscriptions = this.__private('subscriptions');
+          var subscriptions = this.__private.subscriptions;
           if (!_.isArray(subscriptions)) {
             subscriptions = [];
           }
 
           subscription && subscriptions.push(subscription);
-          this.__private('subscriptions', subscriptions);
+          this.__private.subscriptions = subscriptions;
         }
       },
       dispose: function() {
         if (!this._isDisposed) {
           this._isDisposed = true;
           if (configParams.onDispose !== _.noop) {
-            configParams.onDispose.call(this, this.__private('element'));
+            configParams.onDispose.call(this, this.__private.element);
           }
           _.each(this, propertyDispose);
-          _.each(this.__private('subscriptions') || [], propertyDispose);
+          _.each(this.__private.subscriptions || [], propertyDispose);
         }
         return this;
       }

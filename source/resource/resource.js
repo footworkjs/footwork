@@ -1,14 +1,132 @@
+var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var resourceMethods = require('./resource-methods');
-var getModelFileName = resourceMethods.getModelFileName;
-var register = resourceMethods.register;
-var isRegistered = resourceMethods.isRegistered;
-var getRegistered = resourceMethods.getRegistered;
-var registerModelLocation = resourceMethods.registerModelLocation;
-var modelLocationIsRegistered = resourceMethods.modelLocationIsRegistered;
-var getModelResourceLocation = resourceMethods.getModelResourceLocation;
-var getModelReferences = resourceMethods.getModelReferences;
+var isNamespace = require('../namespace/namespace').isNamespace;
+var isPath = require('../misc/util').isPath;
+var regExpMatch = /^\/|\/$/g;
+
+function isRegistered(descriptor, resourceName) {
+  return !_.isUndefined(descriptor.registered[resourceName]);
+};
+
+function getRegistered(descriptor, resourceName) {
+  return descriptor.registered[resourceName];
+};
+
+function register(descriptor, resourceName, resource) {
+  descriptor.registered[resourceName] = resource;
+};
+
+function getModelExtension(dataModelExtensions, modelName) {
+  var fileExtension = '';
+
+  if (_.isFunction(dataModelExtensions)) {
+    fileExtension = dataModelExtensions(modelName);
+  } else if (_.isString(dataModelExtensions)) {
+    fileExtension = dataModelExtensions;
+  }
+
+  return fileExtension.replace(/^\./, '') || '';
+}
+
+function getFileName(descriptor, modelName) {
+  var modelResourceLocations = descriptor.resourceLocations;
+  var fileName = modelName + '.' + getModelExtension(descriptor.fileExtensions(), modelName);
+
+  if (!_.isUndefined(modelResourceLocations[modelName])) {
+    var registeredLocation = modelResourceLocations[modelName];
+    if (_.isString(registeredLocation) && !isPath(registeredLocation)) {
+      // full filename was supplied, lets return that
+      fileName = _.last(registeredLocation.split('/'));
+    }
+  }
+
+  return fileName;
+}
+
+function registerLocation(descriptor, modelName, location) {
+  if (_.isArray(modelName)) {
+    _.each(modelName, function(name) {
+      registerLocation(descriptor, name, location);
+    });
+  }
+  descriptor.resourceLocations[ modelName ] = location;
+}
+
+function modelResourceLocation(descriptor, modelName) {
+  return _.reduce(descriptor.resourceLocations, function(registeredLocation, location, registeredName) {
+    if (!registeredLocation) {
+      if (!_.isNull(registeredName.match(regExpMatch)) && !_.isNull(modelName.match(registeredName.replace(regExpMatch, '')))) {
+        registeredLocation = location;
+      } else if (modelName === registeredName) {
+        registeredLocation = location;
+      }
+    }
+    return registeredLocation;
+  }, undefined);
+}
+
+function getLocation(descriptor, modelName) {
+  if (_.isUndefined(modelName)) {
+    return descriptor.resourceLocations;
+  }
+
+  return modelResourceLocation(descriptor, modelName);
+}
+
+function locationIsRegistered(descriptor, modelName) {
+  return !!modelResourceLocation(descriptor, modelName);
+}
+
+var $globalNamespace = fw.namespace();
+function getModelReferences(descriptor, namespaceName, options) {
+  options = options || {};
+  if (_.isString(namespaceName) || _.isArray(namespaceName)) {
+    options.namespaceName = namespaceName;
+  }
+
+  var references = _.reduce($globalNamespace.request(descriptor.referenceNamespace, _.extend({ includeOutlets: false }, options), true), function(models, model) {
+    if (!_.isUndefined(model)) {
+      var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
+      if (!_.isNull(namespaceName)) {
+        if (_.isUndefined(models[namespaceName])) {
+          models[namespaceName] = [model];
+        } else {
+          models[namespaceName].push(model);
+        }
+      }
+    }
+    return models;
+  }, {});
+
+  var referenceKeys = _.keys(references);
+  if (_.isString(namespaceName)) {
+    if (referenceKeys.length === 1) {
+      return references[referenceKeys[0]] || [];
+    }
+    return [];
+  }
+  return references;
+}
+
+
+function getResourceOrLocation(descriptor, moduleName) {
+  var resource = descriptor.resource;
+  var resourceOrLocation = null;
+
+  if (resource.isRegistered(moduleName)) {
+    // viewModel was manually registered
+    resourceOrLocation = resource.getRegistered(moduleName);
+  } else if (_.isFunction(window.require) && _.isFunction(window.require.specified) && window.require.specified(moduleName)) {
+    // found a matching resource that is already cached by require
+    resourceOrLocation = moduleName;
+  } else {
+    resourceOrLocation = resource.getLocation(moduleName);
+  }
+
+  return resourceOrLocation;
+}
+
 
 /**
  * Hydrates each entity resource with the necessary utility methods.
@@ -18,13 +136,15 @@ var getModelReferences = resourceMethods.getModelReferences;
  */
 function resourceHelperFactory(descriptor) {
   var resourceMethods = {
-    getFileName: getModelFileName.bind(null, descriptor),
+    getFileName: getFileName.bind(null, descriptor),
     register: register.bind(null, descriptor),
     isRegistered: isRegistered.bind(null, descriptor),
     getRegistered: getRegistered.bind(null, descriptor),
-    registerLocation: registerModelLocation.bind(null, descriptor),
-    locationIsRegistered: modelLocationIsRegistered.bind(null, descriptor),
-    getLocation: getModelResourceLocation.bind(null, descriptor),
+    registerLocation: registerLocation.bind(null, descriptor),
+    locationIsRegistered: locationIsRegistered.bind(null, descriptor),
+    getLocation: getLocation.bind(null, descriptor),
+    getResourceOrLocation: getResourceOrLocation.bind(null, descriptor),
+
     fileExtensions: descriptor.fileExtensions,
     resourceLocations: descriptor.resourceLocations
   };

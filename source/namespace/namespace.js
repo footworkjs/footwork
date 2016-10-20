@@ -89,7 +89,7 @@ Namespace.isNamespace = function isNamespace(thing) {
 require('../entities/entity-mixins').push({
   runBeforeInit: true,
   _preInit: function(options) {
-    var $configParams = this.__private('configParams');
+    var $configParams = this.__private.configParams;
     var namespaceName = $configParams.namespace || $configParams.name || _.uniqueId('namespace');
     this.$namespace = enterNamespaceName(indexedNamespaceName(namespaceName, $configParams.autoIncrement));
     this.$rootNamespace = Namespace(namespaceName);

@@ -40,7 +40,7 @@ function makeOrGetRequest(operationType, requestInfo) {
   var createRequest = requestInfo.createRequest;
   var promiseName = operationType + 'Promise';
   var allowConcurrent = requestInfo.allowConcurrent;
-  var requests = entity.__private(promiseName) || [];
+  var requests = entity.__private[promiseName] || [];
   var theRequest = _.last(requests);
 
   if ((allowConcurrent || !fw.isObservable(requestRunning) || !requestRunning()) || !requests.length) {
@@ -52,7 +52,7 @@ function makeOrGetRequest(operationType, requestInfo) {
     }
 
     requests.push(theRequest);
-    entity.__private(promiseName, requests);
+    entity.__private[promiseName] = requests;
 
     requestRunning(true);
 
@@ -78,7 +78,7 @@ function makeOrGetRequest(operationType, requestInfo) {
       theRequest.then(function() {
         if (_.every(requests, promiseIsFulfilled)) {
           requestFinished(true);
-          entity.__private(promiseName, []);
+          entity.__private.promiseName = [];
         }
       });
     }
@@ -110,7 +110,7 @@ function sync(action, concern, params) {
     throw new Error('Invalid action (' + action + ') specified for sync operation');
   }
 
-  var configParams = concern.__private('configParams');
+  var configParams = concern.__private.configParams;
   var options = _.extend({
     method: methodMap[action].toUpperCase(),
     url: null,

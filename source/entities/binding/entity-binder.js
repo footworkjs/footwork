@@ -9,7 +9,7 @@ var promiseIsFulfilled = util.promiseIsFulfilled;
 var entityWrapperElement = require('../../misc/config').entityWrapperElement;
 var isEntity = require('../entity-tools').isEntity;
 
-module.exports = function entityBinder(element, params, $parentContext, Entity, $flightTracker, $parentsInFlightChildren, $outletsInFlightChildren) {
+module.exports = function entityBinder(element, params, $parentContext, Entity, flightTracker, parentsInFlightChildren, outletsInFlightChildren) {
   var entityObj;
   if (_.isFunction(Entity)) {
     entityObj = new Entity(params);
@@ -21,17 +21,17 @@ module.exports = function entityBinder(element, params, $parentContext, Entity, 
   if (isEntity(entityObj)) {
     var resolveFlightTracker =  _.noop;
 
-    if ($flightTracker) {
+    if (flightTracker) {
       resolveFlightTracker = function(addAnimationClass) {
         var wasResolved = false;
         function resolveThisEntityNow(isResolved) {
           function finishResolution() {
             addAnimationClass();
-            if (fw.isObservable($parentsInFlightChildren) && _.isFunction($parentsInFlightChildren.remove)) {
-              $parentsInFlightChildren.remove($flightTracker);
+            if (fw.isObservable(parentsInFlightChildren) && _.isFunction(parentsInFlightChildren.remove)) {
+              parentsInFlightChildren.remove(flightTracker);
             }
-            if (fw.isObservable($outletsInFlightChildren) && _.isFunction($outletsInFlightChildren.remove)) {
-              $outletsInFlightChildren.remove($flightTracker);
+            if (fw.isObservable(outletsInFlightChildren) && _.isFunction(outletsInFlightChildren.remove)) {
+              outletsInFlightChildren.remove(flightTracker);
             }
           }
 
@@ -55,22 +55,22 @@ module.exports = function entityBinder(element, params, $parentContext, Entity, 
         }
 
         function maybeResolve() {
-          entityObj.__private('configParams').afterResolving.call(entityObj, resolveThisEntityNow);
+          entityObj.__private.configParams.afterResolving.call(entityObj, resolveThisEntityNow);
         }
 
-        var $inFlightChildren = entityObj.__private('inFlightChildren');
+        var inFlightChildren = entityObj.__private.inFlightChildren;
         // if no children then resolve now, otherwise subscribe and wait till its 0
-        if ($inFlightChildren().length === 0) {
+        if (inFlightChildren().length === 0) {
           maybeResolve();
         } else {
-          entityObj.disposeWithInstance($inFlightChildren.subscribe(function(inFlightChildren) {
+          entityObj.disposeWithInstance(inFlightChildren.subscribe(function(inFlightChildren) {
             inFlightChildren.length === 0 && maybeResolve();
           }));
         }
       };
     }
 
-    entityObj.__private('resolveFlightTracker', resolveFlightTracker);
+    entityObj.__private.resolveFlightTracker = resolveFlightTracker;
   }
 
   var childrenToInsert = [];

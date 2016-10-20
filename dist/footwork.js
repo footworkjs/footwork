@@ -1,172 +1,35 @@
 /**
- * footwork.js - A solid footing for web applications.
+ * footwork - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
  * Version: v2.0.0
  * Url: http://footworkjs.com
- * License(s): MIT
+ * License: MIT
  */
 
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),o.fw=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),o.fw=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
 
 fw.footworkVersion = '2.0.0';
 
-fw.namespace = _dereq_('./namespace/namespace');
-fw.embed = _dereq_('./misc/embed-exports');
-fw.sync = _dereq_('./misc/ajax').sync;
-fw.utils.guid = _dereq_('./misc/util').guid;
+fw.namespace = require('./namespace/namespace');
+fw.embed = require('./misc/embed-exports');
+fw.sync = require('./misc/ajax').sync;
+fw.utils.guid = require('./misc/util').guid;
 
-_dereq_('./broadcastable-receivable/broadcastable');
-_dereq_('./broadcastable-receivable/receivable');
+require('./broadcastable-receivable/broadcastable');
+require('./broadcastable-receivable/receivable');
 
-_dereq_('./entities/entities');
-_dereq_('./resource/resource');
-_dereq_('./component/component');
-_dereq_('./collection/collection');
+require('./entities/entities');
+require('./resource/resource');
+require('./component/component');
+require('./collection/collection');
 
-_dereq_('./binding/applyBindings');
-_dereq_('./binding/start');
+require('./binding/applyBindings');
+require('./binding/start');
 
 module.exports = fw;
 
-},{"./binding/applyBindings":7,"./binding/start":8,"./broadcastable-receivable/broadcastable":9,"./broadcastable-receivable/receivable":10,"./collection/collection":13,"./component/component":15,"./entities/entities":27,"./misc/ajax":42,"./misc/embed-exports":44,"./misc/util":46,"./namespace/namespace":49,"./resource/resource":52,"knockout/build/output/knockout-latest":3}],2:[function(_dereq_,module,exports){
-/**
- * conduitjs - Give any method a pre/post invocation pipeline....
- * Author: Jim Cowart (http://freshbrewedcode.com/jimcowart)
- * Version: v0.3.3
- * Url: http://github.com/ifandelse/ConduitJS
- * License: MIT
- */
-(function (root, factory) {
-    if (typeof module === "object" && module.exports) {
-        // Node, or CommonJS-Like environments
-        module.exports = factory();
-    } else if (typeof define === "function" && define.amd) {
-        // AMD. Register as an anonymous module.
-        define([], factory(root));
-    } else {
-        // Browser globals
-        root.Conduit = factory(root);
-    }
-}(this, function (global, undefined) {
-    function Conduit(options) {
-        if (typeof options.target !== "function") {
-            throw new Error("You can only make functions into Conduits.");
-        }
-        var _steps = {
-            pre: options.pre || [],
-            post: options.post || [],
-            all: []
-        };
-        var _defaultContext = options.context;
-        var _target = options.target;
-        var _targetStep = {
-            isTarget: true,
-            fn: options.sync ?
-            function () {
-                var args = Array.prototype.slice.call(arguments, 0);
-                var result = _target.apply(_defaultContext, args);
-                return result;
-            } : function (next) {
-                var args = Array.prototype.slice.call(arguments, 1);
-                args.splice(1, 1, _target.apply(_defaultContext, args));
-                next.apply(this, args);
-            }
-        };
-        var _genPipeline = function () {
-            _steps.all = _steps.pre.concat([_targetStep].concat(_steps.post));
-        };
-        _genPipeline();
-        var conduit = function () {
-            var idx = 0;
-            var retval;
-            var phase;
-            var next = function next() {
-                var args = Array.prototype.slice.call(arguments, 0);
-                var thisIdx = idx;
-                var step;
-                var nextArgs;
-                idx += 1;
-                if (thisIdx < _steps.all.length) {
-                    step = _steps.all[thisIdx];
-                    phase = (phase === "target") ? "after" : (step.isTarget) ? "target" : "before";
-                    if (options.sync) {
-                        if (phase === "before") {
-                            nextArgs = step.fn.apply(step.context || _defaultContext, args);
-                            next.apply(this, nextArgs || args);
-                        } else {
-                            retval = step.fn.apply(step.context || _defaultContext, args) || retval;
-                            next.apply(this, [retval].concat(args));
-                        }
-                    } else {
-                        step.fn.apply(step.context || _defaultContext, [next].concat(args));
-                    }
-                }
-            };
-            next.apply(this, arguments);
-            return retval;
-        };
-        conduit.steps = function () {
-            return _steps.all;
-        };
-        conduit.context = function (ctx) {
-            if (arguments.length === 0) {
-                return _defaultContext;
-            } else {
-                _defaultContext = ctx;
-            }
-        };
-        conduit.before = function (step, options) {
-            step = typeof step === "function" ? {
-                fn: step
-            } : step;
-            options = options || {};
-            if (options.prepend) {
-                _steps.pre.unshift(step);
-            } else {
-                _steps.pre.push(step);
-            }
-            _genPipeline();
-        };
-        conduit.after = function (step, options) {
-            step = typeof step === "function" ? {
-                fn: step
-            } : step;
-            options = options || {};
-            if (options.prepend) {
-                _steps.post.unshift(step);
-            } else {
-                _steps.post.push(step);
-            }
-            _genPipeline();
-        };
-        conduit.clear = function () {
-            _steps = {
-                pre: [],
-                post: [],
-                all: []
-            };
-            _genPipeline();
-        };
-        conduit.target = function (fn) {
-            if (fn) {
-                _target = fn;
-            }
-            return _target;
-        };
-        return conduit;
-    };
-    return {
-        Sync: function (options) {
-            options.sync = true;
-            return Conduit.call(this, options)
-        },
-        Async: function (options) {
-            return Conduit.call(this, options);
-        }
-    }
-}));
-},{}],3:[function(_dereq_,module,exports){
+},{"./binding/applyBindings":5,"./binding/start":6,"./broadcastable-receivable/broadcastable":7,"./broadcastable-receivable/receivable":8,"./collection/collection":11,"./component/component":15,"./entities/entities":21,"./misc/ajax":28,"./misc/embed-exports":30,"./misc/util":31,"./namespace/namespace":34,"./resource/resource":36,"knockout/build/output/knockout-latest":2}],2:[function(require,module,exports){
 /*!
  * Knockout JavaScript library v3.4.0
  * (c) Steven Sanderson - http://knockoutjs.com/
@@ -291,7 +154,7 @@ b.nodes():null)return a.a.V(c.cloneNode(!0).childNodes);b=b.text();return a.a.ma
 k||(k=b.text()||"",k=v.template(null,"{{ko_with $item.koBindingContext}}"+k+"{{/ko_with}}"),b.data("precompiled",k));b=[e.$data];e=v.extend({koBindingContext:e},f.templateOptions);e=v.tmpl(k,b,e);e.appendTo(g.createElement("div"));v.fragments={};return e};this.createJavaScriptEvaluatorBlock=function(a){return"{{ko_code ((function() { return "+a+" })()) }}"};this.addTemplate=function(a,b){u.write("<script type='text/html' id='"+a+"'>"+b+"\x3c/script>")};0<a&&(v.tmpl.tag.ko_code={open:"__.push($1 || '');"},
 v.tmpl.tag.ko_with={open:"with($1) {",close:"} "})};a.vb.prototype=new a.O;var b=new a.vb;0<b.$c&&a.Db(b);a.b("jqueryTmplTemplateEngine",a.vb)})()})})();})();
 
-},{}],4:[function(_dereq_,module,exports){
+},{}],3:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -7400,7 +7263,7 @@ v.tmpl.tag.ko_with={open:"with($1) {",close:"} "})};a.vb.prototype=new a.O;var b
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],5:[function(_dereq_,module,exports){
+},{}],4:[function(require,module,exports){
 /**
  * postal - Pub/Sub library providing wildcard subscriptions, complex message handling, etc.  Works server and client-side.
  * Author: Jim Cowart (http://ifandelse.com)
@@ -7419,7 +7282,7 @@ v.tmpl.tag.ko_with={open:"with($1) {",close:"} "})};a.vb.prototype=new a.O;var b
 	
 	} else if ( typeof module === "object" && module.exports ) {
 		// Node, or CommonJS-Like environments
-		module.exports = factory( _dereq_( "lodash" ), this );
+		module.exports = factory( require( "lodash" ), this );
 	} else {
 		// Browser globals
 		root.postal = factory( root._, root );
@@ -8081,142 +7944,34 @@ _.extend( postal, {
 	return postal;
 } ) );
 
-},{"lodash":4}],6:[function(_dereq_,module,exports){
-/**
- * riveter - Mix-in, inheritance and constructor extend behavior for your JavaScript enjoyment.
- * © 2012 - Copyright appendTo, LLC 
- * Author(s): Jim Cowart, Nicholas Cloud, Doug Neiner
- * Version: v0.1.2
- * Url: https://github.com/a2labs/riveter
- * License(s): MIT, GPL
- */
-(function (root, factory) {
-    module.exports = factory(_dereq_("lodash"), this);
-}(this, function (_, global, undefined) {
-    var slice = Array.prototype.slice;
-    var riveter = function () {
-        var args = slice.call(arguments, 0);
-        while (args.length) {
-            riveter.rivet(args.shift());
-        }
-    };
-    riveter.rivet = function (fn) {
-        if (!fn.hasOwnProperty("extend")) {
-            fn.extend = function (props, ctorProps) {
-                return riveter.extend(fn, props, ctorProps);
-            };
-        }
-        if (!fn.hasOwnProperty("compose")) {
-            fn.compose = function () {
-                return riveter.compose.apply(this, [fn].concat(slice.call(arguments, 0)));
-            };
-        }
-        if (!fn.hasOwnProperty("inherits")) {
-            fn.inherits = function (parent, ctorProps) {
-                riveter.inherits(fn, parent, ctorProps);
-            };
-        }
-        if (!fn.hasOwnProperty("mixin")) {
-            fn.mixin = function () {
-                riveter.mixin.apply(this, ([fn].concat(slice.call(arguments, 0))));
-            };
-        }
-    };
-    riveter.inherits = function (child, parent, ctorProps) {
-        var childProto;
-        var TmpCtor = function () {};
-        var Child = function () {
-            parent.apply(this, arguments);
-        };
-        if (typeof child === "object") {
-            if (child.hasOwnProperty("constructor")) {
-                Child = child.constructor;
-            }
-            childProto = child;
-        } else {
-            Child = child;
-            childProto = child.prototype;
-        }
-        riveter.rivet(Child);
-        _.defaults(Child, parent, ctorProps);
-        TmpCtor.prototype = parent.prototype;
-        Child.prototype = new TmpCtor();
-        _.extend(Child.prototype, childProto, {
-            constructor: Child
-        });
-        Child.__super = parent;
-        // Next line is all about Backbone compatibility
-        Child.__super__ = parent.prototype;
-        return Child;
-    };
-    riveter.extend = function (ctor, props, ctorProps) {
-        return riveter.inherits(props, ctor, ctorProps);
-    };
-    riveter.compose = function () {
-        var args = slice.call(arguments, 0);
-        var ctor = args.shift();
-        riveter.rivet(ctor);
-        var mixin = _.reduce(args, function (memo, val) {
-            if (val.hasOwnProperty("_preInit")) {
-                memo.preInit.push(val._preInit);
-            }
-            if (val.hasOwnProperty("_postInit")) {
-                memo.postInit.push(val._postInit);
-            }
-            val = val.mixin || val;
-            memo.items.push(val);
-            return memo;
-        }, {
-            items: [],
-            preInit: [],
-            postInit: []
-        });
-        var res = ctor.extend({
-            constructor: function ( /* options */ ) {
-                var args = slice.call(arguments, 0);
-                var self = this;
-                _.each(mixin.preInit, function (initializer) {
-                    initializer.apply(self, args);
-                });
-                ctor.prototype.constructor.apply(this, args);
-                _.each(mixin.postInit, function (initializer) {
-                    initializer.apply(self, args);
-                });
-            }
-        });
-        riveter.rivet(res);
-        _.defaults(res.prototype, _.extend.apply(null, [{}].concat(mixin.items)));
-        return res;
-    };
-    riveter.mixin = function () {
-        var args = slice.call(arguments, 0);
-        var ctor = args.shift();
-        riveter.rivet(ctor);
-        _.defaults(ctor.prototype, _.extend.apply(null, [{}].concat(args)));
-    };
-    return riveter;
-}));
-},{"lodash":4}],7:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
+},{"lodash":3}],5:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
 
-var entityLifecycle = _dereq_('../entities/entity-lifecycle');
+var entityTools = require('../entities/entity-tools');
+var isEntity = entityTools.isEntity;
+var isRouter = entityTools.isRouter;
 
-// Override the original applyBindings method to assess history API state and provide viewModel/dataModel/router life-cycle
+// Override the original applyBindings method to provide viewModel/dataModel/router life-cycle events
 var originalApplyBindings = fw.applyBindings;
-var callRequire = 'require';
 fw.applyBindings = function(viewModelOrBindingContext, rootNode) {
-  if (_.isFunction(window.require)) {
-    // must initialize default require context (https://github.com/jrburke/requirejs/issues/1305#issuecomment-87924865)
-    window.require([]);
-  }
-
   originalApplyBindings(viewModelOrBindingContext, rootNode);
-  entityLifecycle(viewModelOrBindingContext, rootNode);
+
+  if(isEntity(viewModelOrBindingContext)) {
+    var configParams = viewModelOrBindingContext.__private.configParams;
+
+    // trigger afterRender on the viewModel
+    configParams.afterRender.call(viewModelOrBindingContext, rootNode);
+
+    // supply the context to the instance if it is a router
+    if (isRouter(viewModelOrBindingContext)) {
+      viewModelOrBindingContext.__private.context(fw.contextFor(rootNode));
+    }
+  }
 };
 
-},{"../entities/entity-lifecycle":29,"knockout/build/output/knockout-latest":3,"lodash":4}],8:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
+},{"../entities/entity-tools":24,"knockout/build/output/knockout-latest":2,"lodash":3}],6:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
 
 // 'start' up the framework at the targetElement (or document.body by default)
 fw.start = function(targetElement) {
@@ -8224,13 +7979,13 @@ fw.start = function(targetElement) {
   fw.applyBindings({}, targetElement);
 };
 
-},{"knockout/build/output/knockout-latest":3}],9:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var postal = _dereq_('postal');
-var _ = _dereq_('lodash');
+},{"knockout/build/output/knockout-latest":2}],7:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var postal = require('postal');
+var _ = require('lodash');
 
-var alwaysPassPredicate = _dereq_('../misc/util').alwaysPassPredicate;
-var isNamespace = _dereq_('../namespace/namespace').isNamespace;
+var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;
+var isNamespace = require('../namespace/namespace').isNamespace;
 
 fw.isBroadcastable = function(thing) {
   return _.isObject(thing) && !!thing.__isBroadcastable;
@@ -8308,13 +8063,13 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
   return broadcastable.broadcast();
 };
 
-},{"../misc/util":46,"../namespace/namespace":49,"knockout/build/output/knockout-latest":3,"lodash":4,"postal":5}],10:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var postal = _dereq_('postal');
-var _ = _dereq_('lodash');
+},{"../misc/util":31,"../namespace/namespace":34,"knockout/build/output/knockout-latest":2,"lodash":3,"postal":4}],8:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var postal = require('postal');
+var _ = require('lodash');
 
-var alwaysPassPredicate = _dereq_('../misc/util').alwaysPassPredicate;
-var isNamespace = _dereq_('../namespace/namespace').isNamespace;
+var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;
+var isNamespace = require('../namespace/namespace').isNamespace;
 
 fw.isReceivable = function(thing) {
   return _.isObject(thing) && !!thing.__isReceivable;
@@ -8381,20 +8136,20 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   return receivable.refresh();
 };
 
-},{"../misc/util":46,"../namespace/namespace":49,"knockout/build/output/knockout-latest":3,"lodash":4,"postal":5}],11:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
+},{"../misc/util":31,"../namespace/namespace":34,"knockout/build/output/knockout-latest":2,"lodash":3,"postal":4}],9:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
 
-var objectTools = _dereq_('./object-tools');
+var objectTools = require('./object-tools');
 var regExpIsEqual = objectTools.regExpIsEqual;
 var commonKeysEqual = objectTools.commonKeysEqual;
 var sortOfEqual = objectTools.sortOfEqual;
 
-var entityTools = _dereq_('../entities/entity-tools');
+var entityTools = require('../entities/entity-tools');
 var isDataModelCtor = entityTools.isDataModelCtor;
 var isDataModel = entityTools.isDataModel;
 
-var makeOrGetRequest = _dereq_('../misc/ajax').makeOrGetRequest;
+var makeOrGetRequest = require('../misc/ajax').makeOrGetRequest;
 
 function sync() {
   return fw.sync.apply(this, arguments);
@@ -8403,13 +8158,13 @@ function sync() {
 function get(id) {
   var collection = this;
   return _.find(collection(), function findModelWithId(model) {
-    return _.result(model, collection.__private('getIdAttribute')()) === id || _.result(model, '$id') === id || _.result(model, '$cid') === id;
+    return _.result(model, collection.__private.getIdAttribute()) === id || _.result(model, '$id') === id || _.result(model, '$cid') === id;
   });
 }
 
 function getData() {
   var collection = this;
-  var castAsModelData = collection.__private('castAs').modelData;
+  var castAsModelData = collection.__private.castAs.modelData;
   return _.reduce(collection(), function(models, model) {
     models.push(castAsModelData(model));
     return models;
@@ -8422,7 +8177,7 @@ function toJSON() {
 
 function pluck(attribute) {
   var collection = this;
-  var castAsModelData = collection.__private('castAs').modelData;
+  var castAsModelData = collection.__private.castAs.modelData;
   return _.reduce(collection(), function(pluckedValues, model) {
     pluckedValues.push(castAsModelData(model, attribute));
     return pluckedValues;
@@ -8436,9 +8191,9 @@ function set(newCollection, options) {
 
   var collection = this;
   var collectionStore = collection();
-  var castAsDataModel = collection.__private('castAs').dataModel;
-  var castAsModelData = collection.__private('castAs').modelData;
-  var idAttribute = collection.__private('getIdAttribute')();
+  var castAsDataModel = collection.__private.castAs.dataModel;
+  var castAsModelData = collection.__private.castAs.modelData;
+  var idAttribute = collection.__private.getIdAttribute();
   var affectedModels = [];
   var absentModels = [];
   var addedModels = [];
@@ -8539,7 +8294,7 @@ function set(newCollection, options) {
 function reset(newCollection) {
   var collection = this;
   var oldModels = collection.removeAll();
-  var castAsDataModel = collection.__private('castAs').dataModel;
+  var castAsDataModel = collection.__private.castAs.dataModel;
 
   collection(_.reduce(newCollection, function(newModels, modelData) {
     newModels.push(castAsDataModel(modelData));
@@ -8552,9 +8307,9 @@ function reset(newCollection) {
 }
 
 function fetch(options) {
-  var ajax = _dereq_('../misc/ajax');
+  var ajax = require('../misc/ajax');
   var collection = this;
-  var configParams = collection.__private('configParams');
+  var configParams = collection.__private.configParams;
   options = options ? _.clone(options) : {};
 
   var requestInfo = {
@@ -8590,7 +8345,7 @@ function fetch(options) {
 
 function where(modelData, options) {
   var collection = this;
-  var castAsModelData = collection.__private('castAs').modelData;
+  var castAsModelData = collection.__private.castAs.modelData;
   options = options || {};
   modelData = castAsModelData(modelData);
 
@@ -8605,7 +8360,7 @@ function where(modelData, options) {
 
 function findWhere(modelData, options) {
   var collection = this;
-  var castAsModelData = collection.__private('castAs').modelData;
+  var castAsModelData = collection.__private.castAs.modelData;
   options = options || {};
   modelData = castAsModelData(modelData);
 
@@ -8632,9 +8387,9 @@ function addModel(models, options) {
 
   if (models.length) {
     var collectionData = collection();
-    var castAsDataModel = collection.__private('castAs').dataModel;
-    var castAsModelData = collection.__private('castAs').modelData;
-    var idAttribute = collection.__private('getIdAttribute')();
+    var castAsDataModel = collection.__private.castAs.dataModel;
+    var castAsModelData = collection.__private.castAs.modelData;
+    var idAttribute = collection.__private.getIdAttribute();
 
     if (_.isNumber(options.at)) {
       var newModels = _.map(models, castAsDataModel);
@@ -8677,10 +8432,10 @@ function addModel(models, options) {
 }
 
 function create(model, options) {
-  var ajax = _dereq_('../misc/ajax');
+  var ajax = require('../misc/ajax');
   var collection = this;
-  var castAsDataModel = collection.__private('castAs').dataModel;
-  var configParams = collection.__private('configParams');
+  var castAsDataModel = collection.__private.castAs.dataModel;
+  var configParams = collection.__private.configParams;
   options = options ? _.clone(options) : {};
 
   var requestInfo = {
@@ -8763,8 +8518,8 @@ module.exports = {
   removeModel: removeModel
 };
 
-},{"../entities/entity-tools":31,"../misc/ajax":42,"./object-tools":14,"knockout/build/output/knockout-latest":3,"lodash":4}],12:[function(_dereq_,module,exports){
-var _ = _dereq_('lodash');
+},{"../entities/entity-tools":24,"../misc/ajax":28,"./object-tools":12,"knockout/build/output/knockout-latest":2,"lodash":3}],10:[function(require,module,exports){
+var _ = require('lodash');
 
 function isCollection(thing) {
   return _.isObject(thing) && !!thing.__isCollection;
@@ -8774,14 +8529,13 @@ module.exports = {
   isCollection: isCollection
 };
 
-},{"lodash":4}],13:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
+},{"lodash":3}],11:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
 
-var privateData = _dereq_('../misc/privateData');
-var collectionMethods = _dereq_('./collection-methods');
+var collectionMethods = require('./collection-methods');
 
-var entityTools = _dereq_('../entities/entity-tools');
+var entityTools = require('../entities/entity-tools');
 var isDataModel = entityTools.isDataModel;
 var isDataModelCtor = entityTools.isDataModelCtor;
 
@@ -8797,13 +8551,13 @@ var defaultCollectionConfig = {
 
 function removeDisposeAndNotify(originalFunction) {
   var removedItems = originalFunction.apply(this, Array.prototype.slice.call(arguments).splice(1));
-  this.__private('configParams').disposeOnRemove && _.invokeMap(removedItems, 'dispose');
+  this.__private.configParams.disposeOnRemove && _.invokeMap(removedItems, 'dispose');
   this.$namespace.publish('_.remove', removedItems);
   return removedItems;
 }
 
 function addAndNotify(originalFunction) {
-  var addItems = _.map(Array.prototype.slice.call(arguments).splice(1), this.__private('castAs').dataModel);
+  var addItems = _.map(Array.prototype.slice.call(arguments).splice(1), this.__private.castAs.dataModel);
   var originalResult = originalFunction.apply(this, addItems);
   this.$namespace.publish('_.add', addItems);
   return originalResult;
@@ -8811,14 +8565,14 @@ function addAndNotify(originalFunction) {
 
 var PlainCollectionConstructor;
 
-fw.collection = _.extend(function(collectionData) {
+fw.collection = function(collectionData) {
   collectionData = collectionData || [];
 
   if (_.isUndefined(PlainCollectionConstructor)) {
     PlainCollectionConstructor = fw.collection.create();
   }
   return PlainCollectionConstructor(collectionData);
-}, collectionMethods);
+};
 
 fw.collection.create = function(configParams) {
   configParams = configParams || {};
@@ -8827,37 +8581,36 @@ fw.collection.create = function(configParams) {
     configParams = _.extend({}, defaultCollectionConfig, configParams);
     var DataModelCtor = configParams.dataModel;
     var collection = fw.observableArray();
-    var privateStuff = {
-      castAs: {
-        modelData: function(modelData, attribute) {
-          if (isDataModel(modelData)) {
-            return modelData.getData(attribute);
-          }
-          if (_.isUndefined(attribute)) {
-            return modelData;
-          }
-          return _.result(modelData, attribute);
-        },
-        dataModel: function(modelData) {
-          return isDataModelCtor(DataModelCtor) && !isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;
-        }
-      },
-      getIdAttribute: function(options) {
-        var idAttribute = configParams.idAttribute || (options || {}).idAttribute;
-        if (_.isUndefined(idAttribute) || _.isNull(idAttribute)) {
-          if (isDataModelCtor(DataModelCtor)) {
-            return DataModelCtor.__private('configParams').idAttribute;
-          }
-        }
-        return idAttribute || 'id';
-      }
-    };
 
     _.extend(collection, collectionMethods, {
       $namespace: fw.namespace(configParams.namespace || _.uniqueId('collection')),
-      __originalData: collectionData,
       __isCollection: true,
-      __private: privateData.bind(this, privateStuff, configParams),
+      __private: {
+        configParams: configParams,
+        castAs: {
+          modelData: function(modelData, attribute) {
+            if (isDataModel(modelData)) {
+              return modelData.getData(attribute);
+            }
+            if (_.isUndefined(attribute)) {
+              return modelData;
+            }
+            return _.result(modelData, attribute);
+          },
+          dataModel: function(modelData) {
+            return isDataModelCtor(DataModelCtor) && !isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;
+          }
+        },
+        getIdAttribute: function(options) {
+          var idAttribute = configParams.idAttribute || (options || {}).idAttribute;
+          if (_.isUndefined(idAttribute) || _.isNull(idAttribute)) {
+            if (isDataModelCtor(DataModelCtor)) {
+              return DataModelCtor.__private.configParams.idAttribute;
+            }
+          }
+          return idAttribute || 'id';
+        }
+      },
       remove: removeDisposeAndNotify.bind(collection, collection.remove),
       pop: removeDisposeAndNotify.bind(collection, collection.pop),
       shift: removeDisposeAndNotify.bind(collection, collection.shift),
@@ -8887,9 +8640,9 @@ fw.collection.create = function(configParams) {
   };
 };
 
-},{"../entities/entity-tools":31,"../misc/privateData":45,"./collection-methods":11,"knockout/build/output/knockout-latest":3,"lodash":4}],14:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
+},{"../entities/entity-tools":24,"./collection-methods":9,"knockout/build/output/knockout-latest":2,"lodash":3}],12:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
 
 /**
  * Performs an equality comparison between two objects while ensuring atleast one or more keys/values match and that all keys/values from object A also exist in B
@@ -8970,17 +8723,74 @@ module.exports = {
   sortOfEqual: sortOfEqual
 };
 
-},{"knockout/build/output/knockout-latest":3,"lodash":4}],15:[function(_dereq_,module,exports){
-var _ = _dereq_('lodash');
+},{"knockout/build/output/knockout-latest":2,"lodash":3}],13:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
 
-var fw = _dereq_('knockout/build/output/knockout-latest');
+var nearestEntity = require('../entities/entity-tools').nearestEntity;
+var isOutletViewModel = require('../entities/router/router-tools').isOutletViewModel;
+var entityDescriptors = require('../entities/entity-descriptors');
 
-_dereq_('./sequencing');
-_dereq_('./lifecycle-loader');
-_dereq_('./lifecycle-binding');
-_dereq_('./resource-loader');
+var originalComponentInit = fw.bindingHandlers.component.init;
+var componentRegistry = require('./component-registry');
+var componentId = 0;
 
-var entityDescriptors = _dereq_('../entities/entity-descriptors');
+/**
+ * Monkey patch to bootstrap a component, tagging it with the flightTracker.
+ *
+ * @param {any} element
+ * @param {any} valueAccessor
+ * @param {any} allBindings
+ * @param {any} viewModel
+ * @param {any} bindingContext
+ * @returns
+ */
+function componentInit(element, valueAccessor, allBindings, viewModel, bindingContext) {
+  var tagName = element.tagName;
+  var flightTracker = componentId++;
+
+  if (element.nodeType !== 8) {
+    var nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
+    if (nearestOutlet) {
+      var outletsInFlightChildren = nearestOutlet.inFlightChildren;
+      if (fw.isObservable(outletsInFlightChildren) && _.isFunction(outletsInFlightChildren.push)) {
+        outletsInFlightChildren.push(flightTracker);
+      }
+    }
+  }
+
+  if (entityDescriptors.tagNameIsPresent(tagName)) {
+    componentRegistry[flightTracker] = {
+      moduleName: element.getAttribute('module') || element.getAttribute('data-module'),
+      children: element.children
+    };
+  }
+
+  element.flightTracker = flightTracker;
+  return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);
+};
+
+fw.bindingHandlers.component.init = componentInit;
+
+},{"../entities/entity-descriptors":22,"../entities/entity-tools":24,"../entities/router/router-tools":26,"./component-registry":14,"knockout/build/output/knockout-latest":2,"lodash":3}],14:[function(require,module,exports){
+/**
+ * Registry which stores component information as it is loaded.
+ * This information is used by footwork to bootstrap the component/entity.
+ */
+module.exports = [];
+
+},{}],15:[function(require,module,exports){
+var _ = require('lodash');
+
+var fw = require('knockout/build/output/knockout-latest');
+
+require('./sequencing');
+require('./lifecycle-loader');
+require('./lifecycle-binding');
+require('./resource-loader');
+require('./component-init');
+
+var entityDescriptors = require('../entities/entity-descriptors');
 
 fw.components.getComponentNameForNode = function(node) {
   var tagName = _.isString(node.tagName) && node.tagName.toLowerCase();
@@ -8994,8 +8804,8 @@ fw.components.getComponentNameForNode = function(node) {
   return null;
 };
 
-},{"../entities/entity-descriptors":28,"./lifecycle-binding":17,"./lifecycle-loader":18,"./resource-loader":19,"./sequencing":20,"knockout/build/output/knockout-latest":3,"lodash":4}],16:[function(_dereq_,module,exports){
-var _ = _dereq_('lodash');
+},{"../entities/entity-descriptors":22,"./component-init":13,"./lifecycle-binding":17,"./lifecycle-loader":18,"./resource-loader":19,"./sequencing":20,"knockout/build/output/knockout-latest":2,"lodash":3}],16:[function(require,module,exports){
+var _ = require('lodash');
 
 module.exports = _.extend([
   /* filled in by various modules */
@@ -9005,54 +8815,97 @@ module.exports = _.extend([
   }
 });
 
-},{"lodash":4}],17:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
+},{"lodash":3}],17:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
 
-var sequencing = _dereq_('./sequencing');
+var sequencing = require('./sequencing');
 var addToAndFetchQueue = sequencing.addToAndFetchQueue;
 var runAnimationClassSequenceQueue = sequencing.runAnimationClassSequenceQueue;
 
-var entityTools = _dereq_('../entities/entity-tools');
+var entityTools = require('../entities/entity-tools');
 var nearestEntity = entityTools.nearestEntity;
 var isEntity = entityTools.isEntity;
 
-var routerDefaults = _dereq_('../entities/router/router-defaults');
+var routerDefaults = require('../entities/router/router-defaults');
 var outletLoadedDisplay = routerDefaults.outletLoadedDisplay;
 var outletLoadingDisplay = routerDefaults.outletLoadingDisplay;
-var isOutletViewModel = _dereq_('../entities/router/router-tools').isOutletViewModel;
+var isOutletViewModel = require('../entities/router/router-tools').isOutletViewModel;
 
-var addClass = _dereq_('../misc/util').addClass;
-var entityClass = _dereq_('../misc/config').entityClass;
+var util = require('../misc/util');
+var addClass = util.addClass;
+var isPromise = util.isPromise;
+var promiseIsFulfilled = util.promiseIsFulfilled;
 
-function componentTriggerAfterRender(element, viewModel, $context) {
-  if (isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
-    viewModel.__private('afterRenderWasTriggered', true);
+var entityClass = require('../misc/config').entityClass;
 
-    function addAnimationClass() {
-      var classList = element.className.split(" ");
-      if (!_.includes(classList, outletLoadingDisplay) && !_.includes(classList, outletLoadedDisplay)) {
-        var queue = addToAndFetchQueue(element, viewModel);
-        var nearestOutlet = nearestEntity($context, isOutletViewModel);
+/**
+ * Mark the component as resolved on the parent outlet (if it exists) and supply the resolveThisEntityNow callback which
+ * takes the user supplied isResolved value and adds the animation class via addAnimationClass when it has resolved.
+ *
+ * @param {DOMElement} element
+ * @param {object} viewModel
+ * @param {object} $context
+ * @param {function} addAnimationClass
+ */
+function resolveComponent(element, viewModel, $context, addAnimationClass) {
+  var flightTracker = element.flightTracker;
+  var nearestOutlet = nearestEntity($context, isOutletViewModel);
+  var outletsInFlightChildren;
 
-        if (nearestOutlet) {
-          // the parent outlet will run the callback that initiates the animation
-          // sequence (once the rest of its dependencies finish loading as well)
-          nearestOutlet.addResolvedCallbackOrExecute(function() {
-            runAnimationClassSequenceQueue(queue);
-          });
-        } else {
-          // no parent outlet found, lets go ahead and run the queue
-          runAnimationClassSequenceQueue(queue);
+  if (nearestOutlet) {
+    outletsInFlightChildren = nearestOutlet.inFlightChildren;
+  }
+
+  function finishResolution() {
+    addAnimationClass();
+    if (fw.isObservable(outletsInFlightChildren) && _.isFunction(outletsInFlightChildren.remove)) {
+      outletsInFlightChildren.remove(flightTracker);
+    }
+  }
+
+  if (isEntity(viewModel)) {
+    var wasResolved = false;
+    function resolveThisEntityNow(isResolved) {
+
+      if (!wasResolved) {
+        wasResolved = true;
+        if (isResolved === true) {
+          finishResolution();
+        } else if (isPromise(isResolved) || _.isArray(isResolved)) {
+          if(!_.every(isResolved, isPromise)) {
+            throw new Error('Can only pass array of promises to resolved()');
+          }
+
+          var promises = [].concat(isResolved);
+          var checkPromise = function(promise) {
+            promise.then(function() {
+              if (_.every(promises, promiseIsFulfilled)) {
+                finishResolution();
+              }
+            });
+          };
+
+          _.each(promises, checkPromise);
         }
       }
     }
 
-    // trigger the user-specified afterRender callback
-    viewModel.__private('configParams').afterRender.call(viewModel, element);
+    function maybeResolve() {
+      viewModel.__private.configParams.afterResolving.call(viewModel, resolveThisEntityNow);
+    }
 
-    // resolve the flight tracker and trigger the addAnimationClass callback when appropriate
-    (viewModel.__private('resolveFlightTracker') || _.noop)(addAnimationClass);
+    var inFlightChildren = viewModel.__private.inFlightChildren;
+    // if no children then resolve now, otherwise subscribe and wait till its 0
+    if (inFlightChildren().length === 0) {
+      maybeResolve();
+    } else {
+      viewModel.disposeWithInstance(inFlightChildren.subscribe(function(inFlightChildren) {
+        inFlightChildren.length === 0 && maybeResolve();
+      }));
+    }
+  } else {
+    finishResolution();
   }
 }
 
@@ -9068,41 +8921,64 @@ fw.bindingHandlers.$life = {
       addClass(element, entityClass);
     }
 
-    if (isEntity(viewModel) && !viewModel.__private('element')) {
-      viewModel.__private('element', element);
-    }
-
-    fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
-      if (isEntity(viewModel)) {
-        viewModel.dispose();
+    if (isEntity(viewModel)) {
+      if(!viewModel.__private.element) {
+        viewModel.__private.element = element;
+        fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
+          viewModel.dispose();
+        });
       }
-    });
+    }
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
 
     // if this element is not the 'loading' component of an outlet, then we need to
     // trigger the onComplete callback
-    var $parent = bindingContext.$parent;
-    if (_.isObject($parent) && fw.isObservable($parent.route) && $parent.__isOutlet) {
-      var parentRoute = $parent.route.peek();
+    if (isOutletViewModel(bindingContext.$parent)) {
+      var parentRoute = bindingContext.$parent.route.peek();
       var classList = element.className.split(" ");
       if (!_.includes(classList, outletLoadingDisplay) && _.isFunction(parentRoute.getOnCompleteCallback)) {
         parentRoute.getOnCompleteCallback(element)();
       }
     }
 
-    componentTriggerAfterRender(element, bindingContext.$data, bindingContext);
+    if (isEntity(viewModel) && !viewModel.__private.afterRenderWasTriggered) {
+      viewModel.__private.afterRenderWasTriggered = true;
+
+      // trigger the user-specified afterRender callback
+      viewModel.__private.configParams.afterRender.call(viewModel, element);
+    }
+
+    // resolve the flight tracker and trigger the addAnimationClass callback when appropriate
+    resolveComponent(element, viewModel, bindingContext, function addAnimationClass() {
+      var classList = element.className.split(" ");
+      if (!_.includes(classList, outletLoadingDisplay) && !_.includes(classList, outletLoadedDisplay)) {
+        var queue = addToAndFetchQueue(element, viewModel);
+        var nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
+
+        if (nearestOutlet) {
+          // the parent outlet will run the callback that initiates the animation
+          // sequence (once the rest of its dependencies finish loading as well)
+          nearestOutlet.addResolvedCallbackOrExecute(function() {
+            runAnimationClassSequenceQueue(queue);
+          });
+        } else {
+          // no parent outlet found, lets go ahead and run the queue
+          runAnimationClassSequenceQueue(queue);
+        }
+      }
+    });
   }
 };
 
-},{"../entities/entity-tools":31,"../entities/router/router-defaults":38,"../entities/router/router-tools":39,"../misc/config":43,"../misc/util":46,"./sequencing":20,"knockout/build/output/knockout-latest":3,"lodash":4}],18:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
+},{"../entities/entity-tools":24,"../entities/router/router-defaults":25,"../entities/router/router-tools":26,"../misc/config":29,"../misc/util":31,"./sequencing":20,"knockout/build/output/knockout-latest":2,"lodash":3}],18:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
 
-var internalComponents = _dereq_('./internal-components');
+var internalComponents = require('./internal-components');
 
-var util = _dereq_('../misc/util');
+var util = require('../misc/util');
 var isDocumentFragment = util.isDocumentFragment;
 var isDomElement = util.isDomElement;
 
@@ -9187,93 +9063,102 @@ function wrapWithLifeCycle(template) {
   return [].concat(wrapper[0], template, wrapper[1]);
 }
 
-},{"../misc/util":46,"./internal-components":16,"knockout/build/output/knockout-latest":3,"lodash":4}],19:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var Conduit = _dereq_('conduitjs');
-var _ = _dereq_('lodash');
+},{"../misc/util":31,"./internal-components":16,"knockout/build/output/knockout-latest":2,"lodash":3}],19:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
 
-var util = _dereq_('../misc/util');
+var util = require('../misc/util');
 var isPath = util.isPath;
 var getFilenameExtension = util.getFilenameExtension;
-var isDocumentFragment = util.isDocumentFragment;
-var isDomElement = util.isDomElement;
 
-var entityTools = _dereq_('../entities/entity-tools');
-var nearestEntity = entityTools.nearestEntity;
-var isEntity = entityTools.isEntity;
-
-var getComponentExtension = _dereq_('../resource/component-resource').getComponentExtension;
-var isOutletViewModel = _dereq_('../entities/router/router-tools').isOutletViewModel;
-var activeOutlets = _dereq_('../entities/router/router-defaults').activeOutlets;
+var entityDescriptors = require('../entities/entity-descriptors');
+var getComponentExtension = require('../resource/component-resource').getComponentExtension;
 
 fw.components.loaders.push(fw.components.requireLoader = {
   getConfig: function(componentName, callback) {
-    var combinedFile = fw.components.getFileName(componentName, 'combined');
-    var viewModelFile = fw.components.getFileName(componentName, 'viewModel');
-    var templateFile = fw.components.getFileName(componentName, 'template');
-    var componentLocation = fw.components.getLocation(componentName);
-    var folderOffset = componentLocation.folderOffset || '';
     var configOptions = null;
-    var viewModelPath;
-    var templatePath;
-    var combinedPath;
-    var viewModelConfig;
+    var descriptor = entityDescriptors.getDescriptor(componentName);
 
-    if (folderOffset !== '') {
-      folderOffset = componentName + '/';
-    }
+    if(descriptor) {
+      // this component is a viewModel/dataModel/router entity
+      var componentRegistry = _.last(require('./component-registry'));
+      var moduleName = componentRegistry.moduleName;
 
-    if (_.isFunction(window.require)) {
-      // load component using knockouts native support for requirejs
-      if (window.require.specified(componentName)) {
-        // component already cached, lets use it
-        configOptions = {
-          require: componentName
-        };
-      } else if (_.isString(componentLocation.combined)) {
-        combinedPath = componentLocation.combined;
+      var viewModelResourceOrLocation = descriptor.resource.getResourceOrLocation(moduleName);
+      if(_.isString(viewModelResourceOrLocation)) {
+        viewModelResourceOrLocation = { require: viewModelResourceOrLocation + descriptor.resource.getFileName(moduleName) };
+      }
 
-        if (isPath(combinedPath)) {
-          combinedPath = combinedPath + folderOffset + combinedFile;
-        }
+      configOptions = {
+        template: componentRegistry.children,
+        viewModel: viewModelResourceOrLocation
+      };
+    } else {
+      // this is a normal component
+      var folderOffset = componentLocation.folderOffset || '';
+      var componentLocation = fw.components.getLocation(componentName);
+      var combinedFile = fw.components.getFileName(componentName, 'combined');
+      var viewModelFile = fw.components.getFileName(componentName, 'viewModel');
+      var templateFile = fw.components.getFileName(componentName, 'template');
 
-        configOptions = {
-          require: window.require.toUrl(combinedPath)
-        };
-      } else {
-        // check to see if the requested component is template only and should not request a viewModel (we supply a dummy object in its place)
-        if (!_.isString(componentLocation.viewModel)) {
-          // template-only component, substitute with 'blank' viewModel
-          viewModelConfig = _dereq_('../misc/config').DefaultViewModel;
+      if (folderOffset !== '') {
+        folderOffset = componentName + '/';
+      }
+
+      if (_.isFunction(window.require)) {
+        // load component using knockouts native support for requirejs
+        if (window.require.specified(componentName)) {
+          // component already cached, lets use it
+          configOptions = {
+            require: componentName
+          };
+        } else if (_.isString(componentLocation.combined)) {
+          var combinedPath = componentLocation.combined;
+
+          if (isPath(combinedPath)) {
+            combinedPath = combinedPath + folderOffset + combinedFile;
+          }
+
+          configOptions = {
+            require: window.require.toUrl(combinedPath)
+          };
         } else {
-          viewModelPath = componentLocation.viewModel;
+          var viewModelConfig;
 
-          if (isPath(viewModelPath)) {
-            viewModelPath = viewModelPath + folderOffset + viewModelFile;
+          // check to see if the requested component is template only and should not request a viewModel (we supply a dummy object in its place)
+          if (!_.isString(componentLocation.viewModel)) {
+            // template-only component, substitute with 'blank' viewModel
+            viewModelConfig = require('../misc/config').DefaultViewModel;
+          } else {
+            var viewModelPath = componentLocation.viewModel;
+
+            if (isPath(viewModelPath)) {
+              viewModelPath = viewModelPath + folderOffset + viewModelFile;
+            }
+
+            if (getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel')) {
+              viewModelPath += '.' + getComponentExtension(componentName, 'viewModel');
+            }
+
+            viewModelConfig = { require: window.require.toUrl(viewModelPath) };
           }
 
-          if (getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel')) {
-            viewModelPath += '.' + getComponentExtension(componentName, 'viewModel');
+          var templatePath = componentLocation.template;
+          if (isPath(templatePath)) {
+            templatePath = templatePath + folderOffset + templateFile;
           }
 
-          viewModelConfig = { require: window.require.toUrl(viewModelPath) };
+          if (getFilenameExtension(templatePath) !== getComponentExtension(componentName, 'template')) {
+            templatePath += '.' + getComponentExtension(componentName, 'template');
+          }
+
+          templatePath = 'text!' + window.require.toUrl(templatePath);
+
+          configOptions = {
+            viewModel: viewModelConfig,
+            template: { require: templatePath }
+          };
         }
-
-        templatePath = componentLocation.template;
-        if (isPath(templatePath)) {
-          templatePath = templatePath + folderOffset + templateFile;
-        }
-
-        if (getFilenameExtension(templatePath) !== getComponentExtension(componentName, 'template')) {
-          templatePath += '.' + getComponentExtension(componentName, 'template');
-        }
-
-        templatePath = 'text!' + window.require.toUrl(templatePath);
-
-        configOptions = {
-          viewModel: viewModelConfig,
-          template: { require: templatePath }
-        };
       }
     }
 
@@ -9281,247 +9166,13 @@ fw.components.loaders.push(fw.components.requireLoader = {
   }
 });
 
-fw.components.loaders.unshift(fw.components.requireResolver = {
-  loadComponent: function(componentName, config, callback) {
-    possiblyGetConfigFromAmd(config, function(loadedConfig) {
-      // TODO: Provide upstream patch which clears out loadingSubscribablesCache when load fails so that
-      // subsequent requests will re-run require
+},{"../entities/entity-descriptors":22,"../misc/config":29,"../misc/util":31,"../resource/component-resource":35,"./component-registry":14,"knockout/build/output/knockout-latest":2,"lodash":3}],20:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
 
-      var origCallback = callback;
-      callback = new Conduit.Sync({ target: callback });
-      callback.before(function(config) {
-        config.createViewModel = new Conduit.Sync({ target: config.createViewModel });
-        config.createViewModel.after(function(viewModel, params, componentInfo) {
-          var $flightTracker = componentInfo.element.$flightTracker;
-          var $context = fw.contextFor(componentInfo.element);
-          var $nearestOutlet = nearestEntity($context, isOutletViewModel);
-          var $nearestEntity = nearestEntity($context);
-          var $parentsInFlightChildren;
-          var $outletsInFlightChildren;
+var entityAnimateClass = require('../misc/config').entityAnimateClass;
 
-          if ($nearestEntity) {
-            $parentsInFlightChildren = $nearestEntity.__private('inFlightChildren');
-          }
-          if ($nearestOutlet) {
-            $outletsInFlightChildren = $nearestOutlet.inFlightChildren;
-          }
-
-          if (isEntity(viewModel)) {
-            var resolveFlightTracker =  _.noop;
-
-            if ($flightTracker) {
-              resolveFlightTracker = function(addAnimationClass) {
-                var wasResolved = false;
-                function resolveThisEntityNow(isResolved) {
-                  function finishResolution() {
-                    addAnimationClass();
-                    if (fw.isObservable($parentsInFlightChildren) && _.isFunction($parentsInFlightChildren.remove)) {
-                      $parentsInFlightChildren.remove($flightTracker);
-                    }
-                    if (fw.isObservable($outletsInFlightChildren) && _.isFunction($outletsInFlightChildren.remove)) {
-                      $outletsInFlightChildren.remove($flightTracker);
-                    }
-                  }
-
-                  if (!wasResolved) {
-                    wasResolved = true;
-                    if (isResolved === true) {
-                      finishResolution();
-                    } else if (isPromise(isResolved) || (_.isArray(isResolved) && _.every(isResolved, isPromise))) {
-                      var promises = [].concat(isResolved);
-                      var checkPromise = function(promise) {
-                        (promise.done || promise.then).call(promise, function() {
-                          if (_.every(promises, promiseIsFulfilled)) {
-                            finishResolution();
-                          }
-                        });
-                      };
-
-                      _.each(promises, checkPromise);
-                    }
-                  }
-                }
-
-                function maybeResolve() {
-                  viewModel.__private('configParams').afterResolving.call(viewModel, resolveThisEntityNow);
-                }
-
-                var $inFlightChildren = viewModel.__private('inFlightChildren');
-                // if no children then resolve now, otherwise subscribe and wait till its 0
-                if ($inFlightChildren().length === 0) {
-                  maybeResolve();
-                } else {
-                  viewModel.disposeWithInstance($inFlightChildren.subscribe(function(inFlightChildren) {
-                    inFlightChildren.length === 0 && maybeResolve();
-                  }));
-                }
-              };
-            }
-
-            viewModel.__private('resolveFlightTracker', resolveFlightTracker);
-          }
-        });
-      });
-
-      resolveConfig(componentName, loadedConfig, callback);
-    });
-  }
-});
-
-function possiblyGetConfigFromAmd(config, callback) {
-  if (_.isString(config['require'])) {
-    if (_.isFunction(window.require)) {
-      window.require([config['require']], callback, function() {
-        _.each(activeOutlets(), function(outlet) {
-          (outlet().onFailure || noop)();
-        });
-      });
-    } else {
-      throw new Error('Uses require, but no AMD loader is present');
-    }
-  } else {
-    callback(config);
-  }
-}
-
-function resolveConfig(componentName, config, callback) {
-  var result = {};
-  var makeCallBackWhenZero = 2;
-  var tryIssueCallback = function() {
-    if (--makeCallBackWhenZero === 0) {
-      callback(result);
-    }
-  };
-  var templateConfig = config['template'];
-  var viewModelConfig = config['viewModel'];
-
-  if (templateConfig) {
-    possiblyGetConfigFromAmd(templateConfig, function(loadedConfig) {
-      getFirstResultFromLoaders('loadTemplate', [componentName, loadedConfig], function(resolvedTemplate) {
-        result['template'] = resolvedTemplate;
-        tryIssueCallback();
-      });
-    });
-  } else {
-    tryIssueCallback();
-  }
-
-  if (viewModelConfig) {
-    possiblyGetConfigFromAmd(viewModelConfig, function(loadedConfig) {
-      getFirstResultFromLoaders('loadViewModel', [componentName, loadedConfig], function(resolvedViewModel) {
-        result['createViewModel'] = resolvedViewModel;
-        tryIssueCallback();
-      });
-    });
-  } else {
-    tryIssueCallback();
-  }
-}
-
-function getFirstResultFromLoaders(methodName, argsExceptCallback, callback, candidateLoaders) {
-  // On the first call in the stack, start with the full set of loaders
-  if (!candidateLoaders) {
-    candidateLoaders = fw.components['loaders'].slice(0); // Use a copy, because we'll be mutating this array
-  }
-
-  // Try the next candidate
-  var currentCandidateLoader = candidateLoaders.shift();
-  if (currentCandidateLoader) {
-    var methodInstance = currentCandidateLoader[methodName];
-    if (methodInstance) {
-      var wasAborted = false;
-      var synchronousReturnValue = methodInstance.apply(currentCandidateLoader, argsExceptCallback.concat(function(result) {
-        if (wasAborted) {
-          callback(null);
-        } else if (result !== null) {
-          // This candidate returned a value. Use it.
-          callback(result);
-        } else {
-          // Try the next candidate
-          getFirstResultFromLoaders(methodName, argsExceptCallback, callback, candidateLoaders);
-        }
-      }));
-
-      // Currently, loaders may not return anything synchronously. This leaves open the possibility
-      // that we'll extend the API to support synchronous return values in the future. It won't be
-      // a breaking change, because currently no loader is allowed to return anything except undefined.
-      if (synchronousReturnValue !== undefined) {
-        wasAborted = true;
-
-        // Method to suppress exceptions will remain undocumented. This is only to keep
-        // KO's specs running tidily, since we can observe the loading got aborted without
-        // having exceptions cluttering up the console too.
-        if (!currentCandidateLoader['suppressLoaderExceptions']) {
-          throw new Error('Component loaders must supply values by invoking the callback, not by returning values synchronously.');
-        }
-      }
-    } else {
-      // This candidate doesn't have the relevant handler. Synchronously move on to the next one.
-      getFirstResultFromLoaders(methodName, argsExceptCallback, callback, candidateLoaders);
-    }
-  } else {
-    // No candidates returned a value
-    callback(null);
-  }
-}
-
-function resolveTemplate(templateConfig, callback) {
-  if (typeof templateConfig === 'string') {
-    // Markup - parse it
-    callback(fw.utils.parseHtmlFragment(templateConfig));
-  } else if (templateConfig instanceof Array) {
-    // Assume already an array of DOM nodes - pass through unchanged
-    callback(templateConfig);
-  } else if (isDocumentFragment(templateConfig)) {
-    // Document fragment - use its child nodes
-    callback(fw.utils.makeArray(templateConfig.childNodes));
-  } else if (templateConfig['element']) {
-    var element = templateConfig['element'];
-    if (isDomElement(element)) {
-      // Element instance - copy its child nodes
-      callback(cloneNodesFromTemplateSourceElement(element));
-    } else if (typeof element === 'string') {
-      // Element ID - find it, then copy its child nodes
-      var elemInstance = document.getElementById(element);
-      if (elemInstance) {
-        callback(cloneNodesFromTemplateSourceElement(elemInstance));
-      } else {
-        throw new Error('Cannot find element with ID ' + element);
-      }
-    } else {
-      throw new Error('Unknown element type: ' + element);
-    }
-  } else {
-    throw new Error('Unknown template value: ' + templateConfig);
-  }
-}
-
-function cloneNodesFromTemplateSourceElement(elemInstance) {
-  switch (fw.utils.tagNameLower(elemInstance)) {
-    case 'script':
-      return fw.utils.parseHtmlFragment(elemInstance.text);
-    case 'textarea':
-      return fw.utils.parseHtmlFragment(elemInstance.value);
-    case 'template':
-      // For browsers with proper <template> element support (i.e., where the .content property
-      // gives a document fragment), use that document fragment.
-      if (isDocumentFragment(elemInstance.content)) {
-        return fw.utils.cloneNodes(elemInstance.content.childNodes);
-      }
-  }
-
-  // Regular elements such as <div>, and <template> elements on old browsers that don't really
-  // understand <template> and just treat it as a regular container
-  return fw.utils.cloneNodes(elemInstance.childNodes);
-}
-
-},{"../entities/entity-tools":31,"../entities/router/router-defaults":38,"../entities/router/router-tools":39,"../misc/config":43,"../misc/util":46,"../resource/component-resource":50,"conduitjs":2,"knockout/build/output/knockout-latest":3,"lodash":4}],20:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
-
-var entityAnimateClass = _dereq_('../misc/config').entityAnimateClass;
-
-var util = _dereq_('../misc/util');
+var util = require('../misc/util');
 var resultBound = util.resultBound;
 var addClass = util.addClass;
 var nextFrame = util.nextFrame;
@@ -9559,7 +9210,7 @@ function runAnimationClassSequenceQueue(queue, isRunner) {
 }
 
 function addToAndFetchQueue(element, viewModel) {
-  var configParams = viewModel.__private('configParams');
+  var configParams = viewModel.__private.configParams;
   var sequenceTimeout = resultBound(configParams, 'sequenceAnimations', viewModel) || 0;
   var animationSequenceQueue = sequenceQueue[configParams.namespace] = (sequenceQueue[configParams.namespace] || []);
   var newSequenceIteration = {
@@ -9582,721 +9233,18 @@ module.exports = {
   addToAndFetchQueue: addToAndFetchQueue
 };
 
-},{"../misc/config":43,"../misc/util":46,"knockout/build/output/knockout-latest":3,"lodash":4}],21:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
-
-var entityBinder = _dereq_('./entity-binder');
-var nearestEntity = _dereq_('../entity-tools').nearestEntity;
-var isOutletViewModel = _dereq_('../router/router-tools').isOutletViewModel;
-var isPath = _dereq_('../../misc/util').isPath;
-
-var entityDescriptors = _dereq_('./../entity-descriptors');
-
-function getResourceLocation(moduleName) {
-  var resource = this;
-  var resourceLocation = null;
-
-  if (resource.isRegistered(moduleName)) {
-    // viewModel was manually registered, we preferentially use it
-    resourceLocation = resource.getRegistered(moduleName);
-  } else if (_.isFunction(window.require) && _.isFunction(window.require.specified) && window.require.specified(moduleName)) {
-    // we have found a matching resource that is already cached by require, lets use it
-    resourceLocation = moduleName;
-  } else {
-    resourceLocation = resource.getLocation(moduleName);
-  }
-
-  return resourceLocation;
-}
-
-// Monkey patch enables the entity to initialize a viewModel and bind to the html as intended (with lifecycle events)
-// TODO: Do this differently once this is resolved: https://github.com/knockout/knockout/issues/1463
-var originalComponentInit = fw.bindingHandlers.component.init;
-
-function initEntityTag(tagName, element, valueAccessor, allBindings, viewModel, bindingContext) {
-  var theValueAccessor = valueAccessor;
-  if (tagName === '__elementBased') {
-    tagName = element.tagName;
-  }
-
-  var $flightTracker = { name: tagName, type: 'component' };
-
-  if (element.nodeType !== 8 && (!_.isString(tagName) || tagName.toLowerCase() !== 'outlet')) {
-    var $nearestEntity = nearestEntity(bindingContext);
-    if ($nearestEntity) {
-      var $inFlightChildren = $nearestEntity.__private('inFlightChildren');
-      if (fw.isObservable($inFlightChildren) && _.isFunction($inFlightChildren.push)) {
-        $inFlightChildren.push($flightTracker);
-      }
-    }
-
-    var $nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
-    if ($nearestOutlet) {
-      var $outletsInFlightChildren = $nearestOutlet.inFlightChildren;
-      if (fw.isObservable($outletsInFlightChildren) && _.isFunction($outletsInFlightChildren.push)) {
-        $outletsInFlightChildren.push($flightTracker);
-      }
-    }
-  }
-
-  if (_.isString(tagName)) {
-    tagName = tagName.toLowerCase();
-    if (entityDescriptors.tagNameIsPresent(tagName)) {
-      var values = valueAccessor();
-      var moduleName = (!_.isUndefined(values.params) ? fw.unwrap(values.params.name) : undefined) || element.getAttribute('module') || element.getAttribute('data-module');
-      var bindModel = entityBinder.bind(null, element, values.params, bindingContext);
-      var resource = entityDescriptors.resourceFor(tagName);
-      var getResourceLocationFor = getResourceLocation.bind(resource);
-
-      $flightTracker.name = moduleName;
-      $flightTracker.type = tagName;
-
-      if (_.isNull(moduleName) && _.isString(values)) {
-        moduleName = values;
-      }
-
-      if (!_.isUndefined(moduleName) && !_.isNull(resource)) {
-        var resourceLocation = getResourceLocationFor(moduleName);
-
-        if (_.isString(resourceLocation)) {
-          if (_.isFunction(window.require)) {
-            if (!window.require.specified(resourceLocation)) {
-              if (isPath(resourceLocation)) {
-                resourceLocation = resourceLocation + resource.getFileName(moduleName);
-              }
-              resourceLocation = window.require.toUrl(resourceLocation);
-            }
-
-            window.require([resourceLocation], function(resource) {
-              bindModel(resource, $flightTracker, $inFlightChildren, $outletsInFlightChildren);
-            });
-          } else {
-            throw new Error('Uses require, but no AMD loader is present');
-          }
-        } else if (_.isFunction(resourceLocation)) {
-          bindModel(resourceLocation, $flightTracker, $inFlightChildren, $outletsInFlightChildren);
-        } else if (_.isObject(resourceLocation)) {
-          var createInstance = resourceLocation.createViewModel || resourceLocation.createDataModel;
-          if (_.isObject(resourceLocation.instance)) {
-            bindModel(resourceLocation.instance, $flightTracker, $inFlightChildren, $outletsInFlightChildren);
-          } else if (_.isFunction(createInstance)) {
-            bindModel(createInstance(values.params, { element: element }), $flightTracker, $inFlightChildren, $outletsInFlightChildren);
-          }
-        }
-      }
-
-      return { 'controlsDescendantBindings': true };
-    } else if (tagName === 'outlet') {
-      // we patch in the 'name' of the outlet into the params valueAccessor on the component definition (if necessary and available)
-      var outletName = element.getAttribute('name') || element.getAttribute('data-name');
-      if (outletName) {
-        theValueAccessor = function valueAccessorMask() {
-          var valueAccessorResult = valueAccessor();
-          if (!_.isUndefined(valueAccessorResult.params) && _.isUndefined(valueAccessorResult.params.name)) {
-            valueAccessorResult.params.name = outletName;
-          }
-          return valueAccessorResult;
-        };
-      }
-    }
-  }
-
-  element.$flightTracker = $flightTracker;
-  return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);
-};
-
-fw.bindingHandlers.component.init = initEntityTag.bind(null, '__elementBased');
-
-},{"../../misc/util":46,"../entity-tools":31,"../router/router-tools":39,"./../entity-descriptors":28,"./entity-binder":22,"knockout/build/output/knockout-latest":3,"lodash":4}],22:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
-
-var util = _dereq_('../../misc/util');
-var isPromise = util.isPromise;
-var isPath = util.isPath;
-var promiseIsFulfilled = util.promiseIsFulfilled;
-
-var entityWrapperElement = _dereq_('../../misc/config').entityWrapperElement;
-var isEntity = _dereq_('../entity-tools').isEntity;
-
-module.exports = function entityBinder(element, params, $parentContext, Entity, $flightTracker, $parentsInFlightChildren, $outletsInFlightChildren) {
-  var entityObj;
-  if (_.isFunction(Entity)) {
-    entityObj = new Entity(params);
-  } else {
-    entityObj = Entity;
-  }
-  entityObj.$parentContext = $parentContext;
-
-  if (isEntity(entityObj)) {
-    var resolveFlightTracker =  _.noop;
-
-    if ($flightTracker) {
-      resolveFlightTracker = function(addAnimationClass) {
-        var wasResolved = false;
-        function resolveThisEntityNow(isResolved) {
-          function finishResolution() {
-            addAnimationClass();
-            if (fw.isObservable($parentsInFlightChildren) && _.isFunction($parentsInFlightChildren.remove)) {
-              $parentsInFlightChildren.remove($flightTracker);
-            }
-            if (fw.isObservable($outletsInFlightChildren) && _.isFunction($outletsInFlightChildren.remove)) {
-              $outletsInFlightChildren.remove($flightTracker);
-            }
-          }
-
-          if (!wasResolved) {
-            wasResolved = true;
-            if (isResolved === true) {
-              finishResolution();
-            } else if (isPromise(isResolved) || (_.isArray(isResolved) && _.every(isResolved, isPromise))) {
-              var promises = [].concat(isResolved);
-              var checkPromise = function(promise) {
-                (promise.done || promise.then).call(promise, function() {
-                  if (_.every(promises, promiseIsFulfilled)) {
-                    finishResolution();
-                  }
-                });
-              };
-
-              _.each(promises, checkPromise);
-            }
-          }
-        }
-
-        function maybeResolve() {
-          entityObj.__private('configParams').afterResolving.call(entityObj, resolveThisEntityNow);
-        }
-
-        var $inFlightChildren = entityObj.__private('inFlightChildren');
-        // if no children then resolve now, otherwise subscribe and wait till its 0
-        if ($inFlightChildren().length === 0) {
-          maybeResolve();
-        } else {
-          entityObj.disposeWithInstance($inFlightChildren.subscribe(function(inFlightChildren) {
-            inFlightChildren.length === 0 && maybeResolve();
-          }));
-        }
-      };
-    }
-
-    entityObj.__private('resolveFlightTracker', resolveFlightTracker);
-  }
-
-  var childrenToInsert = [];
-  _.each(element.childNodes, function(child) {
-    if (!_.isUndefined(child)) {
-      childrenToInsert.push(child);
-    }
-  });
-
-  // Have to create a wrapper element for the contents of the element. Cannot bind to
-  // existing element as it has already been bound against.
-  var wrapperNode = document.createElement(entityWrapperElement);
-  element.insertBefore(wrapperNode, element.firstChild);
-
-  _.each(childrenToInsert, function(child) {
-    wrapperNode.appendChild(child);
-  });
-
-  fw.applyBindings(entityObj, wrapperNode);
-};
-
-},{"../../misc/config":43,"../../misc/util":46,"../entity-tools":31,"knockout/build/output/knockout-latest":3,"lodash":4}],23:[function(_dereq_,module,exports){
-var _ = _dereq_('lodash');
-
-function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
-  if (_.isString(fieldMap)) {
-    return insertValueIntoObject(rootObject, fieldMap.split('.'), fieldValue);
-  }
-
-  var propName = fieldMap.shift();
-  if (fieldMap.length) {
-    if (_.isUndefined(rootObject[propName])) {
-      // nested property, lets add the container object
-      rootObject[propName] = {};
-    }
-    // recurse into the next layer
-    insertValueIntoObject(rootObject[propName], fieldMap, fieldValue);
-  } else {
-    rootObject[propName] = fieldValue;
-  }
-
-  return rootObject;
-}
-
-function getNestedReference(rootObject, fieldMap) {
-  var propName = fieldMap;
-
-  if (!_.isUndefined(fieldMap)) {
-    if (_.isString(fieldMap)) {
-      // initial call with string based fieldMap, recurse into main loop
-      return getNestedReference(rootObject, fieldMap.split('.'));
-    }
-
-    propName = fieldMap.shift();
-    if (fieldMap.length) {
-      // recurse into the next layer
-      return getNestedReference((rootObject || {})[propName], fieldMap);
-    }
-  }
-
-  return !_.isString(propName) ? rootObject : _.result(rootObject || {}, propName);
-}
-
-/**
- * Given the dataModel as the context, it will return whether or not it is 'new' (has been read from or saved to the server)
- *
- * @returns {boolean} true if it is new, false if not
- */
-function dataModelIsNew() {
-  var id = this.$id();
-  return _.isUndefined(id) || _.isNull(id);
-}
-
-module.exports = {
-  insertValueIntoObject: insertValueIntoObject,
-  getNestedReference: getNestedReference,
-  dataModelIsNew: dataModelIsNew
-};
-
-},{"lodash":4}],24:[function(_dereq_,module,exports){
-var dataModelContext = [];
-
-module.exports = {
-  enter: function enterDataModelContext(dataModel) {
-    dataModelContext.unshift(dataModel);
-  },
-  exit: function exitDataModelContext() {
-    dataModelContext.shift();
-  },
-  getCurrent: function currentDataModelContext() {
-    return dataModelContext.length ? dataModelContext[0] : null;
-  }
-};
-
-},{}],25:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
-
-var entityDescriptors = _dereq_('../entity-descriptors');
-var entityTools = _dereq_('../entity-tools');
-var ViewModel = _dereq_('../viewModel/viewModel');
-
-var dataModelContext = _dereq_('./dataModel-context');
-
-var dataTools = _dereq_('./data-tools');
-var getNestedReference = dataTools.getNestedReference;
-var insertValueIntoObject = dataTools.insertValueIntoObject;
-var dataModelIsNew = dataTools.dataModelIsNew;
-
-function isNode(thing) {
-  var thingIsObject = _.isObject(thing);
-  return (
-    thingIsObject ? thing instanceof Node :
-    thingIsObject && _.isNumber(thing.nodeType) === "number" && _.isString(thing.nodeName)
-  );
-}
-
-var DataModel = module.exports = function DataModel(descriptor, configParams) {
-  return {
-    runBeforeInit: true,
-    _preInit: function(params) {
-      params = params || {};
-      dataModelContext.enter(this);
-      var pkField = configParams.idAttribute;
-      this.__private('mappings', fw.observable({}));
-
-      this.isCreating = fw.observable(false);
-      this.isSaving = fw.observable(false);
-      this.isFetching = fw.observable(false);
-      this.isDestroying = fw.observable(false);
-      this.requestInProgress = fw.pureComputed(function() {
-        return this.isCreating() || this.isSaving() || this.isFetching() || this.isDestroying();
-      }, this);
-
-      this.$cid = fw.utils.guid();
-      this[pkField] = this.$id = fw.observable(params[pkField]).mapTo(pkField);
-
-      this.isNew = fw.pureComputed(dataModelIsNew, this);
-    },
-    mixin: {
-      // GET from server and set in model
-      fetch: function(options) {
-        var ajax = _dereq_('../../misc/ajax');
-        var dataModel = this;
-        var requestInfo = {
-          requestRunning: dataModel.isFetching,
-          requestLull: configParams.requestLull,
-          entity: dataModel,
-          createRequest: function() {
-            var id = dataModel[configParams.idAttribute]();
-            if (id) {
-              // retrieve data dataModel the from server using the id
-              var xhr = dataModel.sync('read', dataModel, options);
-
-              ajax.handleJsonResponse(xhr)
-                .then(function handleResponseData(data) {
-                  var parsedData = configParams.parse ? configParams.parse(data) : data;
-                  if (!_.isUndefined(parsedData[configParams.idAttribute])) {
-                    dataModel.set(parsedData);
-                  }
-                });
-
-              return xhr;
-            }
-
-            return false;
-          }
-        };
-
-        return ajax.makeOrGetRequest('fetch', requestInfo);
-      },
-
-      // PUT / POST / PATCH to server
-      save: function(key, val, options) {
-        var ajax = _dereq_('../../misc/ajax');
-        var dataModel = this;
-        var attrs = null;
-
-        if (_.isObject(key) && !isNode(key)) {
-          attrs = key;
-          options = val;
-        } else if (_.isString(key) && arguments.length > 1) {
-          (attrs = {})[key] = val;
-        }
-
-        if (_.isObject(options) && _.isFunction(options.stopPropagation)) {
-          // method called as a result of an event binding, ignore its 'options'
-          options = {};
-        }
-
-        options = _.extend({
-          parse: true,
-          wait: false,
-          patch: false
-        }, options);
-
-        if (method === 'patch' && !options.attrs) {
-          options.attrs = attrs;
-        }
-
-        var method = _.isUndefined(dataModel.$id()) ? 'create' : (options.patch ? 'patch' : 'update');
-        var requestInfo = {
-          requestRunning: (method === 'create' ? dataModel.isCreating : dataModel.isSaving),
-          requestLull: configParams.requestLull,
-          entity: dataModel,
-          createRequest: function() {
-            if (!options.wait && !_.isNull(attrs)) {
-              dataModel.set(attrs);
-            }
-
-            // retrieve data dataModel the from server using the id
-            var xhr = dataModel.sync(method, dataModel, options);
-
-            ajax.handleJsonResponse(xhr)
-              .then(function handleResponseData(data) {
-                var parsedData = configParams.parse ? configParams.parse(data) : data;
-
-                if (options.wait && !_.isNull(attrs)) {
-                  parsedData = _.extend({}, attrs, parsedData);
-                }
-
-                if (_.isObject(parsedData)) {
-                  dataModel.set(parsedData);
-                }
-              });
-
-            return xhr;
-          }
-        };
-
-        return ajax.makeOrGetRequest('save', requestInfo);
-      },
-
-      // DELETE
-      destroy: function(options) {
-        var ajax = _dereq_('../../misc/ajax');
-        var dataModel = this;
-        var requestInfo = {
-          requestRunning: dataModel.isDestroying,
-          requestLull: configParams.requestLull,
-          entity: dataModel,
-          createRequest: function() {
-            if (dataModel.isNew()) {
-              return false;
-            }
-
-            options = options ? _.clone(options) : {};
-            var success = options.success;
-            var wait = options.wait;
-
-            var sendDestroyEvent = function() {
-              dataModel.$namespace.publish('destroy', options);
-            };
-
-            if (!options.wait) {
-              sendDestroyEvent();
-            }
-
-            var xhr = dataModel.sync('delete', dataModel, options);
-
-            ajax.handleJsonResponse(xhr)
-              .then(function handleResponseData(data) {
-                dataModel.$id(undefined);
-                if (options.wait) {
-                  sendDestroyEvent();
-                }
-              });
-
-            return xhr;
-          }
-        };
-
-        return ajax.makeOrGetRequest('destroy', requestInfo);
-      },
-
-      // set attributes in model (clears isDirty on observables/fields it saves to by default)
-      set: function(key, value, options) {
-        var attributes = {};
-
-        if (_.isString(key)) {
-          attributes = insertValueIntoObject(attributes, key, value);
-        } else if (_.isObject(key)) {
-          attributes = key;
-          options = value;
-        }
-
-        options = _.extend({
-          clearDirty: true
-        }, options);
-
-        var mappingsChanged = false;
-        var model = this;
-        _.each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
-          var fieldValue = getNestedReference(attributes, fieldMap);
-          if (!_.isUndefined(fieldValue)) {
-            fw.isWriteableObservable(fieldObservable) && fieldObservable(fieldValue);
-            mappingsChanged = true;
-            options.clearDirty && fieldObservable.isDirty(false);
-            model.$namespace.publish('_.change.' + fieldMap, fieldValue);
-          }
-        });
-
-        if (mappingsChanged && options.clearDirty) {
-          // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function
-          this.__private('mappings').valueHasMutated();
-        }
-      },
-
-      get: function(referenceField, includeRoot) {
-        var dataModel = this;
-        if (_.isArray(referenceField)) {
-          return _.reduce(referenceField, function(jsObject, fieldMap) {
-            return _.merge(jsObject, dataModel.get(fieldMap, true));
-          }, {});
-        } else if (!_.isUndefined(referenceField) && !_.isString(referenceField)) {
-          throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.get().');
-        }
-
-        var mappedObject = _.reduce(this.__private('mappings')(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
-          if (_.isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
-            insertValueIntoObject(jsObject, fieldMap, fieldObservable());
-          }
-          return jsObject;
-        }, {});
-
-        return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
-      },
-
-      getData: function() {
-        return this.get();
-      },
-
-      toJSON: function() {
-        return JSON.stringify(this.getData());
-      },
-
-      clean: function(field) {
-        if (!_.isUndefined(field)) {
-          var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
-        }
-        _.each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
-          if (_.isUndefined(field) || fieldMap.match(fieldMatch)) {
-            fieldObservable.isDirty(false);
-          }
-        });
-      },
-
-      sync: function() {
-        return fw.sync.apply(this, arguments);
-      },
-
-      hasMappedField: function(referenceField) {
-        return !!this.__private('mappings')()[referenceField];
-      },
-
-      dirtyMap: function() {
-        var tree = {};
-        _.each(this.__private('mappings')(), function(fieldObservable, fieldMap) {
-          tree[fieldMap] = fieldObservable.isDirty();
-        });
-        return tree;
-      }
-    },
-    _postInit: function() {
-      if (configParams.autoIncrement) {
-        this.$rootNamespace.request.handler('get', function() { return this.get(); }.bind(this));
-      }
-      this.$namespace.request.handler('get', function() { return this.get(); }.bind(this));
-
-      this.isDirty = fw.computed(function() {
-        return _.reduce(this.__private('mappings')(), function(isDirty, mappedField) {
-          return isDirty || mappedField.isDirty();
-        }, false);
-      }, this);
-
-      dataModelContext.exit();
-    }
-  };
-};
-
-fw.dataModel = {};
-
-var methodName = 'dataModel';
-var isEntityCtorDuckTag = '__is' + methodName + 'Ctor';
-var isEntityDuckTag = '__is' + methodName;
-function isDataModelCtor(thing) {
-  return _.isFunction(thing) && !!thing[ isEntityCtorDuckTag ];
-}
-function isDataModel(thing) {
-  return _.isObject(thing) && !!thing[ isEntityDuckTag ];
-}
-
-var descriptor;
-entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
-  tagName: methodName.toLowerCase(),
-  methodName: methodName,
-  resource: fw.dataModel,
-  behavior: [ ViewModel, DataModel ],
-  isEntityCtorDuckTag: isEntityCtorDuckTag,
-  isEntityDuckTag: isEntityDuckTag,
-  isEntityCtor: isDataModelCtor,
-  isEntity: isDataModel,
-  defaultConfig: {
-    idAttribute: 'id',
-    url: null,
-    useKeyInUrl: true,
-    parse: false,
-    ajaxOptions: {},
-    namespace: undefined,
-    autoRegister: false,
-    autoIncrement: false,
-    extend: {},
-    mixins: undefined,
-    requestLull: undefined,
-    afterRender: _.noop,
-    afterResolving: function resolveEntityImmediately(resolveNow) {
-      resolveNow(true);
-    },
-    sequenceAnimations: false,
-    onDispose: _.noop
-  }
-}));
-
-fw.dataModel.create = entityTools.entityClassFactory.bind(null, descriptor);
-
-_.extend(entityTools, {
-  isDataModelCtor: isDataModelCtor,
-  isDataModel: isDataModel
-});
-
-_dereq_('./mapTo');
-
-},{"../../misc/ajax":42,"../entity-descriptors":28,"../entity-tools":31,"../viewModel/viewModel":41,"./data-tools":23,"./dataModel-context":24,"./mapTo":26,"knockout/build/output/knockout-latest":3,"lodash":4}],26:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
-
-var dataModelContext = _dereq_('./dataModel-context');
-var dataModelIsNew = _dereq_('./data-tools').dataModelIsNew;
-
-var isDataModel = _dereq_('../entity-tools').isDataModel;
-
-function getPrimaryKey(dataModel) {
-  return dataModel.__private('configParams').idAttribute;
-}
-
-fw.subscribable.fn.mapTo = function(option) {
-  var mappedObservable = this;
-  var mapPath;
-  var dataModel;
-
-  if (_.isString(option)) {
-    mapPath = option;
-    dataModel = dataModelContext.getCurrent();
-  } else if (_.isObject(option)) {
-    mapPath = option.path;
-    dataModel = option.dataModel;
-  } else {
-    throw new Error('Invalid options supplied to mapTo');
-  }
-
-  if (!isDataModel(dataModel)) {
-    throw new Error('No dataModel context found/supplied for mapTo observable');
-  }
-
-  var mappings = dataModel.__private('mappings')();
-  var primaryKey = getPrimaryKey(dataModel);
-
-  if (!_.isUndefined(mappings[mapPath]) && _.isFunction(mappings[mapPath].dispose)) {
-    // remapping a path, we need to dispose of the old one first
-    mappings[mapPath].dispose();
-  }
-
-  // add/set the registry entry for the mapped observable
-  mappings[mapPath] = mappedObservable;
-
-  if (mapPath === primaryKey) {
-    // mapping primary key, update/set the $id property on the dataModel
-    dataModel.$id = mappings[mapPath];
-    if (fw.isObservable(dataModel.isNew) && _.isFunction(dataModel.isNew.dispose)) {
-      dataModel.isNew.dispose();
-    }
-    dataModel.isNew = fw.pureComputed(dataModelIsNew, dataModel);
-  }
-
-  mappedObservable.isDirty = fw.observable(false);
-  var changeSubscription = mappedObservable.subscribe(function(value) {
-    dataModel.$namespace.publish('_.change', { param: mapPath, value: value });
-    mappedObservable.isDirty(true);
-  });
-
-  var disposeObservable = mappedObservable.dispose || _.noop;
-  if (_.isFunction(mappedObservable.dispose)) {
-    mappedObservable.dispose = function() {
-      changeSubscription.dispose();
-      disposeObservable.call(mappedObservable);
-    };
-  }
-
-  dataModel.__private('mappings').valueHasMutated();
-
-  return mappedObservable;
-};
-
-},{"../entity-tools":31,"./data-tools":23,"./dataModel-context":24,"knockout/build/output/knockout-latest":3,"lodash":4}],27:[function(_dereq_,module,exports){
+},{"../misc/config":29,"../misc/util":31,"knockout/build/output/knockout-latest":2,"lodash":3}],21:[function(require,module,exports){
 // component-resource overwrites fw.components.register, needed by router entity
-_dereq_('../resource/component-resource');
+require('../resource/component-resource');
 
-_dereq_('./viewModel/viewModel');
-_dereq_('./dataModel/dataModel');
-_dereq_('./router/router');
+require('./testModel/testModel');
+// require('./dataModel/dataModel');
+// require('./router/router');
 
-_dereq_('./binding/component-init');
+require('./testModel/testModel');
 
-},{"../resource/component-resource":50,"./binding/component-init":21,"./dataModel/dataModel":25,"./router/router":40,"./viewModel/viewModel":41}],28:[function(_dereq_,module,exports){
-var _ = _dereq_('lodash');
+},{"../resource/component-resource":35,"./testModel/testModel":27}],22:[function(require,module,exports){
+var _ = require('lodash');
 
 module.exports = _.extend([
   /* filled in by viewModel/dataModel/router modules */
@@ -10307,8 +9255,9 @@ module.exports = _.extend([
     });
   },
   tagNameIsPresent: function isEntityTagNameDescriptorPresent(tagName) {
+    tagName = _.isString(tagName) ? tagName.toLowerCase() : null;
     return _.filter(this, function matchingTagNames(descriptor) {
-      return descriptor.tagName === tagName;
+      return descriptor.tagName.toLowerCase() === tagName;
     }).length > 0;
   },
   resourceFor: function getResourceForEntityTagName(tagName) {
@@ -10319,92 +9268,26 @@ module.exports = _.extend([
       return resource;
     }, null);
   },
-  getDescriptor: function getDescriptor(methodName) {
+  getDescriptor: function getDescriptor(tagName) {
+    tagName = _.isString(tagName) ? tagName.toLowerCase() : null;
     return _.reduce(this, function reduceDescriptor(foundDescriptor, descriptor) {
-      return descriptor.methodName === methodName ? descriptor : foundDescriptor;
+      return descriptor.tagName.toLowerCase() === tagName ? descriptor : foundDescriptor;
     }, null);
   }
 });
 
-},{"lodash":4}],29:[function(_dereq_,module,exports){
-var _ = _dereq_('lodash');
-var fw = _dereq_('knockout/build/output/knockout-latest');
-
-var entityTools = _dereq_('./entity-tools');
-var isEntity = entityTools.isEntity;
-var isRouter = entityTools.isRouter;
-
-var config = _dereq_('../misc/config');
-var entityAnimateClass = config.entityAnimateClass;
-var entityClass = config.entityClass;
-var entityWrapperElement = config.entityWrapperElement;
-
-var addClass = _dereq_('../misc/util').addClass;
-
-/**
- * This method is used by applyBindings to bootstrap the lifecycle of an entity (if that is what was bound).
- *
- * @param {viewModel} entity
- * @param {DOMElement} element
- */
-function entityLifecycle(entity, element) {
-  if (isEntity(entity) && !entity.__private('afterRenderWasTriggered')) {
-    entity.__private('afterRenderWasTriggered', true);
-    element = element || document.body;
-
-    var context;
-    var entityContext;
-    var $configParams = entity.__private('configParams');
-    if (element.tagName.toLowerCase() === entityWrapperElement) {
-      element = element.parentElement || element.parentNode;
-    }
-
-    entity.__private('element', element);
-    entity.$context = entityContext = fw.contextFor(element);
-
-    var afterRender = _.noop;
-    if (_.isFunction($configParams.afterRender)) {
-      afterRender = $configParams.afterRender;
-    }
-
-    var resolveFlightTracker = entity.__private('resolveFlightTracker') || _.noop;
-    $configParams.afterRender = function (containerElement) {
-      afterRender.call(this, containerElement);
-      addClass(containerElement, entityClass);
-      resolveFlightTracker(function addAnimationClass() {
-        addClass(containerElement, entityAnimateClass);
-      });
-    };
-    $configParams.afterRender.call(entity, element);
-
-    if (isRouter(entity)) {
-      entity.__private('context')(entityContext);
-    }
-
-    if (!_.isUndefined(element)) {
-      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
-        entity.dispose();
-      });
-    }
-  }
-}
-
-module.exports = entityLifecycle;
-
-},{"../misc/config":43,"../misc/util":46,"./entity-tools":31,"knockout/build/output/knockout-latest":3,"lodash":4}],30:[function(_dereq_,module,exports){
+},{"lodash":3}],23:[function(require,module,exports){
 module.exports = [
   /* filled in by various modules */
 ];
 
-},{}],31:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var riveter = _dereq_('riveter');
+},{}],24:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
 
-var _ = _dereq_('lodash');
+var _ = require('lodash');
 
-var entityMixins = _dereq_('./entity-mixins');
-var entityDescriptors = _dereq_('./entity-descriptors');
-var privateData = _dereq_('../misc/privateData');
+var entityMixins = require('./entity-mixins');
+var entityDescriptors = require('./entity-descriptors');
 
 function prepareDescriptor(descriptor) {
   var methodName = descriptor.methodName.charAt(0).toUpperCase() + descriptor.methodName.slice(1);
@@ -10415,81 +9298,6 @@ function prepareDescriptor(descriptor) {
     fileExtensions: fw.observable('.js'),
     referenceNamespace: (_.isString(descriptor.methodName) ? ('__' + descriptor.methodName + 'Reference') : undefined)
   }, descriptor);
-}
-
-function isBeforeInitMixin(mixin) {
-  return !!mixin.runBeforeInit;
-}
-
-function entityMixinOrNothingFrom(thing) {
-  return ((_.isArray(thing) && thing.length) || _.isObject(thing) ? thing : {});
-}
-
-function entityClassFactory(descriptor, configParams) {
-  var entityCtor = null;
-  var privateDataMixin = {
-    _preInit: function() {
-      this.__private = privateData.bind(this, {
-        inFlightChildren: fw.observableArray()
-      }, configParams);
-    }
-  };
-
-  configParams = _.extend({}, descriptor.defaultConfig, configParams || {});
-
-  var descriptorBehavior = [];
-  _.map(descriptor.behavior, function(behavior, index) {
-    descriptorBehavior.push(_.isFunction(behavior) ? behavior(descriptor, configParams) : behavior);
-  });
-
-  var ctor = configParams.initialize || _.noop;
-  var userExtendProps = { mixin: configParams.extend || {} };
-  if (!descriptor.isEntityCtor(ctor)) {
-    var isEntityDuckTagMixin = {};
-    isEntityDuckTagMixin[descriptor.isEntityDuckTag] = true;
-    isEntityDuckTagMixin = { mixin: isEntityDuckTagMixin };
-
-    var newInstanceCheckMixin = {
-      _preInit: function() {
-        if (this === window) {
-          throw new Error('Must use the new operator when instantiating a ' + descriptor.methodName + '.');
-        }
-      }
-    };
-    var afterInitMixins = _.reject(entityMixins, isBeforeInitMixin);
-    var beforeInitMixins = _.map(_.filter(entityMixins, isBeforeInitMixin), function(mixin) {
-      delete mixin.runBeforeInit;
-      return mixin;
-    });
-
-    var composure = [ctor].concat(
-      entityMixinOrNothingFrom(privateDataMixin),
-      entityMixinOrNothingFrom(userExtendProps),
-      entityMixinOrNothingFrom(newInstanceCheckMixin),
-      entityMixinOrNothingFrom(isEntityDuckTagMixin),
-      entityMixinOrNothingFrom(afterInitMixins),
-      entityMixinOrNothingFrom(beforeInitMixins),
-      entityMixinOrNothingFrom(configParams.mixins),
-      entityMixinOrNothingFrom(descriptorBehavior)
-    );
-
-    entityCtor = riveter.compose.apply(undefined, composure);
-    entityCtor[descriptor.isEntityCtorDuckTag] = true;
-    entityCtor.__private = privateData.bind(this, {}, configParams);
-  } else {
-    // user has specified another entity constructor as the 'initialize' function, we extend it with the current constructor to create an inheritance chain
-    entityCtor = ctor;
-  }
-
-  if (!_.isNull(entityCtor) && _.isFunction(configParams.parent)) {
-    entityCtor.inherits(configParams.parent);
-  }
-
-  if (configParams.autoRegister) {
-    descriptor.resource.register(configParams.namespace, entityCtor);
-  }
-
-  return entityCtor;
 }
 
 function isEntityCtor(thing) {
@@ -10529,539 +9337,20 @@ function nearestEntity($context, predicate) {
 
 module.exports = {
   prepareDescriptor: prepareDescriptor,
-  entityClassFactory: entityClassFactory,
   isEntityCtor: isEntityCtor,
   isEntity: isEntity,
+  isRouter: _.noop,
+  isDataModel: _.noop,
+  isDataModelCtor: _.noop,
   nearestEntity: nearestEntity
 };
 
-},{"../misc/privateData":45,"./entity-descriptors":28,"./entity-mixins":30,"knockout/build/output/knockout-latest":3,"lodash":4,"riveter":6}],32:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-
-var defaultLoadingComponent = _dereq_('../router-defaults').defaultLoadingComponent;
-
-fw.components.register(defaultLoadingComponent, {
-  template: '<div class="sk-wave fade-in">\
-              <div class="sk-rect sk-rect1"></div>\
-              <div class="sk-rect sk-rect2"></div>\
-              <div class="sk-rect sk-rect3"></div>\
-              <div class="sk-rect sk-rect4"></div>\
-              <div class="sk-rect sk-rect5"></div>\
-            </div>'
-});
-
-},{"../router-defaults":38,"knockout/build/output/knockout-latest":3}],33:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
-
-var nearestParentRouter = _dereq_('../router-tools').nearestParentRouter;
-var noParentViewModelError = { $namespace: { getName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } } };
-
-// This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied to the UI and load in various views
-fw.virtualElements.allowedBindings.$outletBinder = true;
-fw.bindingHandlers.$outletBinder = {
-  init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
-    var $parentViewModel = (_.isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
-    var $parentRouter = nearestParentRouter(bindingContext);
-    var outletName = outletViewModel.outletName;
-    var isRouter = _dereq_('../../entity-tools').isRouter;
-
-    if (isRouter($parentRouter)) {
-      // register the viewModel with the outlet for future use when its route is changed
-      $parentRouter.__private('registerViewModelForOutlet')(outletName, outletViewModel);
-      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
-        // tell the router to clean up its reference to the outletViewModel
-        $parentRouter.__private('unregisterViewModelForOutlet')(outletName);
-        outletViewModel.dispose();
-      });
-
-      // register this outlet with its $parentRouter
-      outletViewModel.route = $parentRouter.outlet(outletName);
-    } else {
-      throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.$namespace.getName() + '] but no router was defined.');
-    }
-  }
-};
-
-},{"../../entity-tools":31,"../router-tools":39,"knockout/build/output/knockout-latest":3,"lodash":4}],34:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
-
-var internalComponents = _dereq_('../../../component/internal-components');
-var nextFrame = _dereq_('../../../misc/util').nextFrame;
-
-var config = _dereq_('../../../misc/config');
-var entityAnimateClass = config.entityAnimateClass;
-var entityClass = config.entityClass;
-
-var routerDefaults = _dereq_('../router-defaults');
-var noComponentSelected = routerDefaults.noComponentSelected;
-var nullComponent = routerDefaults.nullComponent;
-var outletLoadingDisplay = routerDefaults.outletLoadingDisplay;
-var outletLoadedDisplay = routerDefaults.outletLoadedDisplay;
-
-var visibleCSS = { 'height': '', 'overflow': '' };
-var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
-var removeAnimation = {};
-removeAnimation[entityAnimateClass] = false;
-var addAnimation = {};
-addAnimation[entityAnimateClass] = true;
-
-internalComponents.push('outlet');
-fw.components.register('outlet', {
-  viewModel: function(params) {
-    var outlet = this;
-
-    this.outletName = fw.unwrap(params.name);
-    this.__isOutlet = true;
-
-    this.loadingDisplay = fw.observable(nullComponent);
-    this.inFlightChildren = fw.observableArray();
-    this.routeIsLoading = fw.observable(true);
-    this.routeIsResolving = fw.observable(true);
-
-    var resolvedCallbacks = [];
-    this.addResolvedCallbackOrExecute = function(callback) {
-      if (outlet.routeIsResolving()) {
-        resolvedCallbacks.push(callback);
-      } else {
-        callback();
-      }
-    };
-
-    this.routeIsLoadingSub = this.routeIsLoading.subscribe(function(routeIsLoading) {
-      if (routeIsLoading) {
-        outlet.routeIsResolving(true);
-      } else {
-        if (outlet.flightWatch && _.isFunction(outlet.flightWatch.dispose)) {
-          outlet.flightWatch.dispose();
-        }
-
-        // must allow binding to begin on any subcomponents/etc
-        nextFrame(function() {
-          if (outlet.inFlightChildren().length) {
-            outlet.flightWatch = outlet.inFlightChildren.subscribe(function(inFlightChildren) {
-              if (!inFlightChildren.length) {
-                outlet.routeIsResolving(false);
-                _.isFunction(outlet.routeOnComplete) && outlet.routeOnComplete();
-              }
-            });
-          } else {
-            outlet.routeIsResolving(false);
-            _.isFunction(outlet.routeOnComplete) && outlet.routeOnComplete();
-          }
-        });
-      }
-    });
-
-    this.loadingStyle = fw.observable();
-    this.loadedStyle = fw.observable();
-    this.loadingClass = fw.observable();
-    this.loadedClass = fw.observable();
-
-    function showLoader() {
-      outlet.loadingClass(removeAnimation);
-      outlet.loadedClass(removeAnimation);
-      outlet.loadedStyle(hiddenCSS);
-      outlet.loadingStyle(visibleCSS);
-
-      nextFrame(function() {
-        outlet.loadingClass(addAnimation);
-      });
-    }
-
-    function showLoadedAfterMinimumTransition() {
-      outlet.loadingClass(removeAnimation);
-      outlet.loadedStyle(visibleCSS);
-      outlet.loadingStyle(hiddenCSS);
-      outlet.loadedClass(addAnimation);
-
-      if (resolvedCallbacks.length) {
-        _.each(resolvedCallbacks, function(callback) {
-          callback();
-        });
-        resolvedCallbacks = [];
-      }
-    }
-
-    var transitionTriggerTimeout;
-    function showLoaded() {
-      clearTimeout(transitionTriggerTimeout);
-      var minTransitionPeriod = outlet.route.peek().minTransitionPeriod;
-      if (minTransitionPeriod) {
-        transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, minTransitionPeriod);
-      } else {
-        showLoadedAfterMinimumTransition();
-      }
-    }
-
-    this.transitionTrigger = fw.computed(function() {
-      var routeIsResolving = this.routeIsResolving();
-      if (routeIsResolving) {
-        showLoader();
-      } else {
-        showLoaded();
-      }
-    }, this);
-
-    this.dispose = function() {
-      _.each(outlet, function(outletProperty) {
-        if (outletProperty && _.isFunction(outletProperty.dispose)) {
-          outletProperty.dispose();
-        }
-      });
-    };
-  },
-  template: '<!-- ko $outletBinder -->' +
-              '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" data-bind="style: loadingStyle, css: loadingClass">' +
-                '<!-- ko component: loadingDisplay --><!-- /ko -->' +
-              '</div>' +
-              '<div class="' + outletLoadedDisplay + ' ' + entityClass + '" data-bind="style: loadedStyle, css: loadedClass">' +
-                '<!-- ko component: route --><!-- /ko -->' +
-              '</div>' +
-            '<!-- /ko -->'
-});
-
-internalComponents.push(noComponentSelected);
-fw.components.register(noComponentSelected, {
-  template: '<div class="no-component-selected"></div>'
-});
-fw.components.register(nullComponent, {
-  template: '<div class="null-component"></div>'
-});
-
-},{"../../../component/internal-components":16,"../../../misc/config":43,"../../../misc/util":46,"../router-defaults":38,"knockout/build/output/knockout-latest":3,"lodash":4}],35:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-
-fw.outlet = {
-  registerView: function(viewName, templateHTML) {
-    fw.components.register(viewName, { template: templateHTML });
-  },
-  registerViewLocation: function(viewName, viewLocation) {
-    fw.components.registerLocation(viewName, { template: viewLocation });
-  }
-};
-
-_dereq_('./outlet-binder');
-_dereq_('./outlet-component');
-_dereq_('./loading-component');
-
-module.exports = _dereq_('./router-outlet');
-
-},{"./loading-component":32,"./outlet-binder":33,"./outlet-component":34,"./router-outlet":36,"knockout/build/output/knockout-latest":3}],36:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
-
-var resultBound = _dereq_('../../../misc/util').resultBound;
-var clearSequenceQueue = _dereq_('../../../component/sequencing').clearSequenceQueue;
-
-var routerDefaults = _dereq_('../router-defaults');
-var noComponentSelected = routerDefaults.noComponentSelected;
-var nullComponent = routerDefaults.nullComponent;
-var defaultLoadingComponent = routerDefaults.defaultLoadingComponent;
-var activeOutlets = routerDefaults.activeOutlets;
-
-module.exports = function routerOutlet(outletName, componentToDisplay, options) {
-  options = options || {};
-  if (_.isFunction(options)) {
-    options = { onComplete: options, onFailure: _.noop };
-  }
-
-  var router = this;
-  var viewModelParameters = options.params;
-  var onComplete = options.onComplete || _.noop;
-  var onFailure = options.onFailure || _.noop;
-  var configParams = router.__private('configParams');
-  var outlets = router.outlets;
-  var outletProperties = outlets[outletName] || {};
-  var outlet = outletProperties.routeObservable;
-  var outletViewModel = outletProperties.outletViewModel;
-
-  if (!fw.isObservable(outlet)) {
-    // router outlet observable not found, we must create a new one
-    outlet = fw.observable({
-      name: noComponentSelected,
-      params: {},
-      getOnCompleteCallback: function() { return _.noop; },
-      onFailure: onFailure.bind(router)
-    });
-
-    // register the new outlet under its outletName
-    outlets[outletName] = {
-      outletViewModel: outletProperties.outletViewModel || null,
-      routeObservable: outlet
-    };
-  }
-
-  var currentOutletDef = outlet();
-  var valueHasMutated = false;
-
-  if (arguments.length > 1 && !componentToDisplay) {
-    componentToDisplay = nullComponent;
-  }
-
-  if (!_.isUndefined(componentToDisplay)) {
-    if (currentOutletDef.name !== componentToDisplay) {
-      currentOutletDef.name = componentToDisplay;
-      valueHasMutated = true;
-    }
-
-    if (_.isObject(viewModelParameters)) {
-      currentOutletDef.params = viewModelParameters;
-      valueHasMutated = true;
-    }
-  }
-
-  if (outletViewModel) {
-    // Show the loading component (if one is defined)
-    var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || currentOutletDef.name]);
-
-    if (showDuringLoadComponent === true || (!showDuringLoadComponent &&  resultBound(fw.router, 'showDefaultLoader', router, [outletName, componentToDisplay || currentOutletDef.name]))) {
-      showDuringLoadComponent = defaultLoadingComponent;
-    }
-
-    if (showDuringLoadComponent) {
-      outletViewModel.loadingDisplay(showDuringLoadComponent);
-    }
-  }
-
-  if (valueHasMutated) {
-    clearSequenceQueue();
-
-    currentOutletDef.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
-    if (outletViewModel) {
-      outletViewModel.inFlightChildren([]);
-      outletViewModel.routeIsLoading(true);
-    }
-
-    currentOutletDef.getOnCompleteCallback = function(element) {
-      var outletElement = element.parentNode;
-
-      activeOutlets.remove(outlet);
-      outletElement.setAttribute('rendered', (componentToDisplay === nullComponent ? '' : componentToDisplay));
-
-      return function addBindingOnComplete() {
-        var outletViewModel = router.outlets[outletName].outletViewModel;
-        if (outletViewModel) {
-          outletViewModel.routeIsLoading(false);
-          outletViewModel.routeOnComplete = function() {
-            onComplete.call(router, outletElement);
-          };
-        } else {
-          onComplete.call(router, outletElement);
-        }
-      };
-    };
-
-    if (activeOutlets().indexOf(outlet) === -1) {
-      activeOutlets.push(outlet);
-    }
-
-    outlet.valueHasMutated();
-  }
-
-  return outlet;
-};
-
-},{"../../../component/sequencing":20,"../../../misc/util":46,"../router-defaults":38,"knockout/build/output/knockout-latest":3,"lodash":4}],37:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
-
-var util = _dereq_('../../misc/util');
-var hasPathStart = util.hasPathStart;
-var hasHashStart = util.hasHashStart;
-var resultBound  = util.resultBound;
-var startingHashRegex = util.startingHashRegex;
-var removeClass = util.removeClass;
-var addClass = util.addClass;
-var hasClass = util.hasClass;
-
-var routerTools = _dereq_('./router-tools');
-var nearestParentRouter = routerTools.nearestParentRouter;
-var isNullRouter = routerTools.isNullRouter;
-
-function findParentNode(element, selector) {
-  if (selector === true) {
-    return element.parentNode;
-  }
-
-  if (element.parentNode && _.isFunction(element.parentNode.querySelectorAll)) {
-    var parentNode = element.parentNode;
-    var matches = parentNode.querySelectorAll(selector);
-    if (matches.length && _.includes(matches, element)) {
-      return element;
-    }
-    return findParentNode(parentNode, selector);
-  }
-
-  return undefined;
-}
-
-var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
-var isFullURL = fw.utils.isFullURL = function(thing) {
-  return _.isString(thing) && isFullURLRegex.test(thing);
-};
-
-fw.bindingHandlers.$route = {
-  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    var $myRouter = nearestParentRouter(bindingContext);
-    var routeParams = valueAccessor();
-    var elementIsSetup = false;
-    var stateTracker = null;
-    var hashOnly = null;
-
-    var routeHandlerDescription = {
-      on: 'click',
-      url: function defaultURLForRoute() { return element.getAttribute('href'); },
-      addActiveClass: true,
-      activeClass: null,
-      parentHasState: false,
-      handler: function defaultHandlerForRouteBinding(event, url) {
-        if (hashOnly) {
-          return false;
-        }
-
-        if (!isFullURL(url) && event.which !== 2) {
-          event.preventDefault();
-          return true;
-        }
-        return false;
-      }
-    };
-
-    if (_.isFunction(routeParams) || _.isString(routeParams)) {
-      routeHandlerDescription.url = routeParams;
-    } else if (_.isObject(routeParams)) {
-      _.extend(routeHandlerDescription, routeParams);
-    }
-
-    var routeHandlerDescriptionURL = routeHandlerDescription.url;
-    if (!_.isFunction(routeHandlerDescriptionURL)) {
-      routeHandlerDescription.url = function() { return routeHandlerDescriptionURL; };
-    }
-
-    function getRouteURL(includeParentPath) {
-      var parentRoutePath = '';
-      var routeURL = routeHandlerDescription.url();
-      var myLinkPath = routeURL || '';
-
-      if (!_.isNull(routeURL)) {
-        if (_.isUndefined(routeURL)) {
-          routeURL = myLinkPath;
-        }
-
-        if (!isFullURL(myLinkPath)) {
-          if (!hasPathStart(myLinkPath)) {
-            var currentRoute = $myRouter.currentRoute();
-            if (hasHashStart(myLinkPath)) {
-              if (!_.isNull(currentRoute)) {
-                myLinkPath = $myRouter.currentRoute().segment + myLinkPath;
-              }
-              hashOnly = true;
-            } else {
-              // relative url, prepend current segment
-              if (!_.isNull(currentRoute)) {
-                myLinkPath = $myRouter.currentRoute().segment + '/' + myLinkPath;
-              }
-            }
-          }
-
-          if (includeParentPath && !isNullRouter($myRouter)) {
-            myLinkPath = $myRouter.__private('parentRouter')().path() + myLinkPath;
-          }
-        }
-
-        return myLinkPath;
-      }
-
-      return null;
-    };
-    var routeURLWithParentPath = getRouteURL.bind(null, true);
-    var routeURLWithoutParentPath = getRouteURL.bind(null, false);
-
-    function checkForMatchingSegment(mySegment, newRoute) {
-      if (_.isString(mySegment)) {
-        var currentRoute = $myRouter.currentRoute();
-        var elementWithState = routeHandlerDescription.parentHasState ? findParentNode(element, routeHandlerDescription.parentHasState) : element;
-        var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', $myRouter) || fw.router.activeRouteClassName();
-        mySegment = mySegment.replace(startingHashRegex, '/');
-
-        if (_.isObject(currentRoute)) {
-          if (resultBound(routeHandlerDescription, 'addActiveClass', $myRouter)) {
-            if (mySegment === '/') {
-              mySegment = '';
-            }
-
-            if (!_.isNull(newRoute) && newRoute.segment === mySegment && _.isString(activeRouteClassName) && activeRouteClassName.length) {
-              // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
-              addClass(elementWithState, activeRouteClassName);
-            } else if (hasClass(elementWithState, activeRouteClassName)) {
-              removeClass(elementWithState, activeRouteClassName);
-            }
-          }
-        }
-      }
-
-      if (_.isNull(newRoute)) {
-        // No route currently selected, remove the activeRouteClassName from the elementWithState
-        removeClass(elementWithState, activeRouteClassName);
-      }
-    };
-
-    function setUpElement() {
-      if (!isNullRouter($myRouter)) {
-        var myCurrentSegment = routeURLWithoutParentPath();
-        var routerConfig = $myRouter.__private('configParams');
-        if (element.tagName.toLowerCase() === 'a') {
-          element.href = routerConfig.baseRoute + routeURLWithParentPath();
-        }
-
-        if (_.isObject(stateTracker) && _.isFunction(stateTracker.dispose)) {
-          stateTracker.dispose();
-        }
-        stateTracker = $myRouter.currentRoute.subscribe(checkForMatchingSegment.bind(null, myCurrentSegment));
-
-        if (elementIsSetup === false) {
-          elementIsSetup = true;
-          checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
-
-          $myRouter.__private('parentRouter').subscribe(setUpElement);
-          fw.utils.registerEventHandler(element, resultBound(routeHandlerDescription, 'on', $myRouter), function(event) {
-            var currentRouteURL = routeURLWithoutParentPath();
-            var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
-            if (handlerResult) {
-              if (_.isString(handlerResult)) {
-                currentRouteURL = handlerResult;
-              }
-              if (_.isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
-                $myRouter.setState(currentRouteURL);
-              }
-            }
-            return true;
-          });
-        }
-      }
-    }
-
-    if (fw.isObservable(routeHandlerDescription.url)) {
-      $myRouter.__private('subscriptions').push(routeHandlerDescription.url.subscribe(setUpElement));
-    }
-    setUpElement();
-
-    fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
-      if (_.isObject(stateTracker)) {
-        stateTracker.dispose();
-      }
-    });
-  }
-};
-
-},{"../../misc/util":46,"./router-tools":39,"knockout/build/output/knockout-latest":3,"lodash":4}],38:[function(_dereq_,module,exports){
-var _ = _dereq_('lodash');
-var fw = _dereq_('knockout/build/output/knockout-latest');
-
-var util = _dereq_('../../misc/util');
-var entityAnimateClass = _dereq_('../../misc/config').entityAnimateClass;
+},{"./entity-descriptors":22,"./entity-mixins":23,"knockout/build/output/knockout-latest":2,"lodash":3}],25:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
+
+var util = require('../../misc/util');
+var entityAnimateClass = require('../../misc/config').entityAnimateClass;
 
 var alwaysPassPredicate = util.alwaysPassPredicate;
 var noComponentSelected = '_noComponentSelected';
@@ -11114,12 +9403,12 @@ module.exports = {
   activeOutlets: fw.observableArray()
 };
 
-},{"../../misc/config":43,"../../misc/util":46,"knockout/build/output/knockout-latest":3,"lodash":4}],39:[function(_dereq_,module,exports){
-var _ = _dereq_('lodash');
+},{"../../misc/config":29,"../../misc/util":31,"knockout/build/output/knockout-latest":2,"lodash":3}],26:[function(require,module,exports){
+var _ = require('lodash');
 
-var nearestEntity = _dereq_('../entity-tools').nearestEntity;
+var nearestEntity = require('../entity-tools').nearestEntity;
 
-var routerDefaults = _dereq_('./router-defaults');
+var routerDefaults = require('./router-defaults');
 var $nullRouter = routerDefaults.$nullRouter;
 var baseRouteDescription = routerDefaults.baseRouteDescription;
 var routesAreCaseSensitive = routerDefaults.routesAreCaseSensitive;
@@ -11173,7 +9462,7 @@ function isOutletViewModel(thing) {
  * @returns {object} router instance or $nullRouter if none found
  */
 function nearestParentRouter($context) {
-  return nearestEntity($context, _dereq_('../entity-tools').isRouter) || $nullRouter;
+  return nearestEntity($context, require('../entity-tools').isRouter) || $nullRouter;
 }
 
 module.exports = {
@@ -11188,563 +9477,34 @@ module.exports = {
   nearestParentRouter: nearestParentRouter
 };
 
-},{"../entity-tools":31,"./router-defaults":38,"lodash":4}],40:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
-
-var entityDescriptors = _dereq_('../entity-descriptors');
-var ViewModel = _dereq_('../viewModel/viewModel');
-var routerOutlet = _dereq_('./outlet/outlet');
-
-var privateData = _dereq_('../../misc/privateData');
-
-var entityTools = _dereq_('../entity-tools');
-var isEntity = entityTools.isEntity;
-
-var util = _dereq_('../../misc/util');
-var resultBound = util.resultBound;
-var parseUri = util.parseUri;
-var startingHashRegex = util.startingHashRegex;
-var propertyDispose = util.propertyDispose;
-var alwaysPassPredicate = util.alwaysPassPredicate;
-
-_dereq_('./route-binding');
-
-var routerTools = _dereq_('./router-tools');
-var hashMatchRegex = routerTools.hashMatchRegex;
-var namedParamRegex = routerTools.namedParamRegex;
-var isNullRouter = routerTools.isNullRouter;
-var transformRouteConfigToDesc = routerTools.transformRouteConfigToDesc;
-var sameRouteDescription = routerTools.sameRouteDescription;
-var routeStringToRegExp = routerTools.routeStringToRegExp;
-var isRoute = routerTools.isRoute;
-var nearestParentRouter = routerTools.nearestParentRouter;
-
-var routerDefaults = _dereq_('./router-defaults');
-var noComponentSelected = routerDefaults.noComponentSelected;
-var $nullRouter = routerDefaults.$nullRouter;
-var baseRoute = routerDefaults.baseRoute;
-
-function registerViewModelForOutlet(outletName, outletViewModel) {
-  var outletProperties = this.outlets[outletName] || {};
-  outletProperties.outletViewModel = outletViewModel;
-}
-
-function unregisterViewModelForOutlet(outletName) {
-  var outletProperties = this.outlets[outletName] || {};
-  delete outletProperties.outletViewModel;
-}
-
-var Router = module.exports = function Router(descriptor, configParams) {
-  return {
-    _preInit: function(params) {
-      var $router = this;
-      var routerConfigParams = _.extend({ routes: [] }, configParams);
-
-      var router = this.__private();
-      this.__private = privateData.bind(this, router, routerConfigParams);
-      this.__private('registerViewModelForOutlet', registerViewModelForOutlet.bind(this));
-      this.__private('unregisterViewModelForOutlet', unregisterViewModelForOutlet.bind(this));
-
-      routerConfigParams.baseRoute = fw.router.baseRoute() + (resultBound(routerConfigParams, 'baseRoute', router) || '');
-
-      var subscriptions = router.subscriptions = fw.observableArray();
-      router.urlParts = fw.observable();
-      router.childRouters = fw.observableArray();
-      router.parentRouter = fw.observable($nullRouter);
-      router.context = fw.observable();
-      router.historyPopstateListener = fw.observable();
-      router.currentState = fw.observable('').broadcastAs('currentState');
-
-      function trimBaseRoute(url) {
-        var routerConfig = $router.__private('configParams');
-        if (!_.isNull(routerConfig.baseRoute) && url.indexOf(routerConfig.baseRoute) === 0) {
-          url = url.substr(routerConfig.baseRoute.length);
-          if (url.length > 1) {
-            url = url.replace(hashMatchRegex, '/');
-          }
-        }
-        return url;
-      }
-
-      function normalizeURL(url) {
-        var urlParts = parseUri(url);
-        router.urlParts(urlParts);
-        return trimBaseRoute(urlParts.path);
-      }
-      router.normalizeURL = normalizeURL;
-
-      function getUnknownRoute() {
-        var unknownRoute = _.find(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
-
-        if (!_.isNull(unknownRoute)) {
-          unknownRoute = _.extend({}, baseRoute, {
-            id: unknownRoute.id,
-            controller: unknownRoute.controller,
-            title: unknownRoute.title,
-            segment: ''
-          });
-        }
-
-        return unknownRoute;
-      }
-
-      function getRouteForURL(url) {
-        var route = null;
-        var parentRoutePath = router.parentRouter().path() || '';
-        var unknownRoute = getUnknownRoute();
-
-        // If this is a relative router we need to remove the leading parentRoutePath section of the URL
-        if (router.isRelative() && parentRoutePath.length > 0 && (routeIndex = url.indexOf(parentRoutePath + '/')) === 0) {
-          url = url.substr(parentRoutePath.length);
-        }
-
-        // find all routes with a matching routeString
-        var matchedRoutes = _.reduce($router.routeDescriptions, function (matches, routeDescription) {
-          var routeDescRoute = [].concat(routeDescription.route);
-          _.each(routeDescRoute, function (routeString) {
-            var routeParams = [];
-
-            if (_.isString(routeString) && _.isString(url)) {
-              routeParams = url.match(routeStringToRegExp(routeString));
-              if (!_.isNull(routeParams) && routeDescription.filter.call($router, routeParams, router.urlParts.peek())) {
-                matches.push({
-                  routeString: routeString,
-                  specificity: routeString.replace(namedParamRegex, "*").length,
-                  routeDescription: routeDescription,
-                  routeParams: routeParams
-                });
-              }
-            }
-          });
-          return matches;
-        }, []);
-
-        // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
-        // and convert it into the actual route
-        if (matchedRoutes.length) {
-          var matchedRoute = _.reduce(matchedRoutes, function(matchedRoute, foundRoute) {
-            if (_.isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity) {
-              matchedRoute = foundRoute;
-            }
-            return matchedRoute;
-          }, null);
-          var routeDescription = matchedRoute.routeDescription;
-          var routeString = matchedRoute.routeString;
-          var routeParams = _.clone(matchedRoute.routeParams);
-          var splatSegment = routeParams.pop() || '';
-          var routeParamNames = _.map(routeString.match(namedParamRegex), function(param) {
-            return param.replace(':', '');
-          });
-          var namedParams = _.reduce(routeParamNames, function(parameterNames, parameterName, index) {
-            parameterNames[parameterName] = routeParams[index + 1];
-            return parameterNames;
-          }, {});
-
-          route = _.extend({}, baseRoute, {
-            id: routeDescription.id,
-            controller: routeDescription.controller,
-            title: routeDescription.title,
-            name: routeDescription.name,
-            url: url,
-            segment: url.substr(0, url.length - splatSegment.length),
-            indexedParams: routeParams,
-            namedParams: namedParams
-          });
-        }
-
-        return route || unknownRoute;
-      }
-
-      function RoutedAction(routeDescription) {
-        if (!_.isUndefined(routeDescription.title)) {
-          document.title = _.isFunction(routeDescription.title) ? routeDescription.title.apply($router, _.values(routeDescription.namedParams)) : routeDescription.title;
-        }
-
-        if (_.isUndefined(router.currentRouteDescription) || !sameRouteDescription(router.currentRouteDescription, routeDescription)) {
-          (routeDescription.controller || _.noop).apply($router, _.values(routeDescription.namedParams) );
-          router.currentRouteDescription = routeDescription;
-        }
-      }
-
-      function getActionForRoute(routeDescription) {
-        var Action = function DefaultAction() {
-          delete router.currentRouteDescription;
-          $router.outlet.reset();
-        };
-
-        if (isRoute(routeDescription)) {
-          Action = RoutedAction.bind($router, routeDescription);
-        }
-
-        return Action;
-      }
-
-      router.isRelative = fw.computed(function() {
-        return routerConfigParams.isRelative && !isNullRouter( this.parentRouter() );
-      }, router);
-
-      this.currentRoute = router.currentRoute = fw.computed(function() {
-        return getRouteForURL(normalizeURL(this.currentState()));
-      }, router);
-
-      this.path = router.path = fw.computed(function() {
-        var currentRoute = this.currentRoute();
-        var routeSegment = '/';
-
-        if (isRoute(currentRoute)) {
-          routeSegment = (currentRoute.segment === '' ? '/' : currentRoute.segment);
-        }
-
-        return (this.isRelative() ? this.parentRouter().path() : '') + routeSegment;
-      }, router);
-
-      this.$namespace.command.handler('setState', function(state) {
-        var route = state;
-        var params = state.params;
-
-        if (_.isObject(state)) {
-          route = state.name;
-          params = params || {};
-        }
-
-        $router.setState(route, params);
-      });
-      this.$namespace.request.handler('currentRoute', function() { return $router.__private('currentRoute')(); });
-      this.$namespace.request.handler('urlParts', function() { return $router.__private('urlParts')(); });
-      this.$namespace.command.handler('activate', function() { $router.activate(); });
-
-      var parentPathSubscription;
-      var $previousParent = $nullRouter;
-      subscriptions.push(router.parentRouter.subscribe(function ($parentRouter) {
-        if (!isNullRouter($previousParent) && $previousParent !== $parentRouter) {
-          $previousParent.router.childRouters.remove(this);
-
-          if (parentPathSubscription) {
-            subscriptions.remove(parentPathSubscription);
-            parentPathSubscription.dispose();
-          }
-          subscriptions.push(parentPathSubscription = $parentRouter.path.subscribe(function triggerRouteRecompute() {
-            $router.router.currentState.notifySubscribers();
-          }));
-        }
-        $parentRouter.__private('childRouters').push(this);
-        $previousParent = $parentRouter;
-      }, this));
-
-      // Automatically trigger the new Action() whenever the currentRoute() updates
-      subscriptions.push(router.currentRoute.subscribe(function getActionForRouteAndTrigger(newRoute) {
-        if (router.currentState().length) {
-          getActionForRoute(newRoute)( /* get and call the action for the newRoute */ );
-        }
-      }, this));
-
-      this.outlets = {};
-      this.outlet = routerOutlet.bind(this);
-      this.outlet.reset = function() {
-        _.each( this.outlets, function(outlet) {
-          outlet({ name: noComponentSelected, params: {} });
-        });
-      }.bind(this);
-
-      if (!_.isUndefined(routerConfigParams.unknownRoute)) {
-        if (_.isFunction(routerConfigParams.unknownRoute)) {
-          routerConfigParams.unknownRoute = { controller: routerConfigParams.unknownRoute };
-        }
-        routerConfigParams.routes.push(_.extend(routerConfigParams.unknownRoute, { unknown: true }));
-      }
-      this.setRoutes(routerConfigParams.routes);
-
-      if (routerConfigParams.activate === true) {
-        subscriptions.push(router.context.subscribe(function activateRouterAfterNewContext( $context ) {
-          if (_.isObject($context)) {
-            this.activate($context);
-          }
-        }, this));
-      }
-
-      this.matchesRoute = function(routeName, path) {
-        var route = getRouteForURL(path);
-        routeName = [].concat(routeName);
-        if (!_.isNull(route)) {
-          return routeName.indexOf(route.name) !== -1;
-        }
-        return false;
-      };
-    },
-    mixin: {
-      setRoutes: function(routeDesc) {
-        this.routeDescriptions = [];
-        this.addRoutes(routeDesc);
-        return this;
-      },
-      addRoutes: function(routeConfig) {
-        this.routeDescriptions = this.routeDescriptions.concat(_.map(_.isArray(routeConfig) ? routeConfig : [routeConfig], transformRouteConfigToDesc));
-        return this;
-      },
-      activate: function($context, $parentRouter) {
-        var self = this;
-        $context = $context || self.__private('context')();
-        $parentRouter = $parentRouter || nearestParentRouter($context);
-
-        if (!isNullRouter($parentRouter)) {
-          self.__private('parentRouter')($parentRouter);
-        } else if (_.isObject($context)) {
-          $parentRouter = nearestParentRouter($context);
-          if ($parentRouter !== self) {
-            self.__private('parentRouter')($parentRouter);
-          }
-        }
-
-        if (!self.__private('historyPopstateListener')()) {
-          var popstateEvent = function() {
-            var location = window.history.location || window.location;
-            self.__private('currentState')(self.__private('normalizeURL')(location.pathname + location.hash));
-          };
-
-          (function(eventInfo) {
-            window[eventInfo[0]](eventInfo[1] + 'popstate', popstateEvent, false);
-          })(window.addEventListener ? ['addEventListener', ''] : ['attachEvent', 'on']);
-
-          self.__private('historyPopstateListener')(popstateEvent);
-        }
-
-        if (self.__private('currentState')() === '') {
-          self.setState();
-        }
-
-        self.$namespace.trigger('activated', { context: $context, parentRouter: $parentRouter });
-        return self;
-      },
-      setState: function(url, routeParams) {
-        var self = this;
-        var namedRoute = _.isObject(routeParams) ? url : null;
-        var configParams = this.__private('configParams');
-        var useHistory = this.__private('historyPopstateListener')() && !fw.router.disableHistory();
-        var location = window.history.location || window.location;
-
-        if (!_.isNull(namedRoute)) {
-          // must convert namedRoute into its URL form
-          var routeDescription = _.find(this.routeDescriptions, function (route) {
-            return route.name === namedRoute;
-          });
-
-          if (!_.isUndefined(routeDescription)) {
-            url = _.first([].concat(routeDescription.route));
-            _.each(routeParams, function (value, fieldName) {
-              url = url.replace(':' + fieldName, routeParams[fieldName]);
-            });
-          } else {
-            throw new Error('Could not locate named route: ' + namedRoute);
-          }
-        }
-
-        if (!_.isString(url)) {
-          url = useHistory ? location.pathname : '/';
-        }
-
-        var isExternalURL = fw.utils.isFullURL(url);
-        if (!isExternalURL) {
-          url = this.__private('normalizeURL')(url);
-        }
-
-        var shouldContinueToRoute = resultBound(configParams, 'beforeRoute', this, [url || '/']);
-        if (shouldContinueToRoute && !isExternalURL) {
-          if (useHistory) {
-            var destination = configParams.baseRoute + this.__private('parentRouter')().path() + url.replace(startingHashRegex, '/');
-            history.pushState(null, '', destination);
-          }
-          this.__private('currentState')(url);
-
-          var routePath = this.path();
-          _.each(this.__private('childRouters')(), function (childRouter) {
-            childRouter.__private('currentState')(routePath);
-          });
-        }
-
-        return this;
-      },
-      dispose: function() {
-        if (!this._isDisposed) {
-          this._isDisposed = true;
-
-          var $parentRouter = this.__private('parentRouter')();
-          if (!isNullRouter($parentRouter)) {
-            $parentRouter.__private('childRouters').remove(this);
-          }
-
-          var historyPopstateListener = this.__private('historyPopstateListener')();
-          if (historyPopstateListener) {
-            (function(eventInfo) {
-              window[eventInfo[0]](eventInfo[1] + 'popstate', historyPopstateListener);
-            })(window.removeEventListener ? ['removeEventListener', ''] : ['detachEvent', 'on']);
-          }
-
-          this.$namespace.dispose();
-          this.$globalNamespace.dispose();
-          _.invokeMap(this.__private('subscriptions'), 'dispose');
-
-          _.each(_.omitBy(this, function (property) {
-            return isEntity(property);
-          }), propertyDispose);
-
-          _.each(_.omitBy(this.__private(), function (property) {
-            return isEntity(property);
-          }), propertyDispose);
-
-          if (configParams.onDispose !== _.noop) {
-            configParams.onDispose.call(this, this.__private('element'));
-          }
-
-          return this;
-        }
-      }
-    }
-  };
-};
-
-fw.router = {
-  baseRoute: fw.observable(''),
-  activeRouteClassName: fw.observable('active'),
-  disableHistory: fw.observable(false),
-  getNearestParent: function($context) {
-    var $parentRouter = nearestParentRouter($context);
-    return (!isNullRouter($parentRouter) ? $parentRouter : null);
-  }
-};
-
-var methodName = 'router';
-var isEntityCtorDuckTag = '__is' + methodName + 'Ctor';
-var isEntityDuckTag = '__is' + methodName;
-function isRouterCtor(thing) {
-  return _.isFunction(thing) && !!thing[ isEntityCtorDuckTag ];
-}
-function isRouter(thing) {
-  return _.isObject(thing) && !!thing[ isEntityDuckTag ];
-}
+},{"../entity-tools":24,"./router-defaults":25,"lodash":3}],27:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
+
+var entityDescriptors = require('../entity-descriptors');
+var capitalizeFirstLetter = require('../../misc/util').capitalizeFirstLetter;
+
+var entityName = 'viewModel';
+var entityResource = fw[entityName] = {};
+var isEntityCtorDuckTag = '__is' + capitalizeFirstLetter(entityName) + 'Ctor';
+var isEntityDuckTag = '__is' + capitalizeFirstLetter(entityName);
 
 var descriptor;
 entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
-  tagName: methodName.toLowerCase(),
-  methodName: methodName,
-  resource: fw.router,
-  behavior: [ ViewModel, Router ],
+  tagName: entityName.toLowerCase(),
+  entityName: entityName,
+  resource: entityResource,
   isEntityCtorDuckTag: isEntityCtorDuckTag,
   isEntityDuckTag: isEntityDuckTag,
-  isEntityCtor: isRouterCtor,
-  isEntity: isRouter,
-  defaultConfig: {
-    namespace: '$router',
-    autoRegister: false,
-    autoIncrement: false,
-    showDuringLoad: noComponentSelected,
-    extend: {},
-    mixins: undefined,
-    afterRender: _.noop,
-    afterResolving: function resolveEntityImmediately(resolveNow) {
-      resolveNow(true);
-    },
-    sequenceAnimations: false,
-    onDispose: _.noop,
-    baseRoute: null,
-    isRelative: true,
-    activate: true,
-    beforeRoute: alwaysPassPredicate,
-    minTransitionPeriod: 0
-  }
-}));
-
-_.extend(entityTools, {
-  isRouter: isRouter
-});
-
-fw.router.create = entityTools.entityClassFactory.bind(null, descriptor);
-
-},{"../../misc/privateData":45,"../../misc/util":46,"../entity-descriptors":28,"../entity-tools":31,"../viewModel/viewModel":41,"./outlet/outlet":35,"./route-binding":37,"./router-defaults":38,"./router-tools":39,"knockout/build/output/knockout-latest":3,"lodash":4}],41:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
-
-var entityDescriptors = _dereq_('../entity-descriptors');
-var entityTools = _dereq_('../entity-tools');
-var entityClassFactory = entityTools.entityClassFactory;
-var propertyDispose = _dereq_('../../misc/util').propertyDispose;
-
-var ViewModel = module.exports = function ViewModel(descriptor, configParams) {
-  return {
-    mixin: {
-      disposeWithInstance: function(subscription) {
-        if (_.isArray(subscription)) {
-          var self = this;
-          _.each(subscription, function(sub) {
-            self.disposeWithInstance(sub);
-          });
-        } else {
-          var subscriptions = this.__private('subscriptions');
-          if (!_.isArray(subscriptions)) {
-            subscriptions = [];
-          }
-
-          subscription && subscriptions.push(subscription);
-          this.__private('subscriptions', subscriptions);
-        }
-      },
-      dispose: function() {
-        if (!this._isDisposed) {
-          this._isDisposed = true;
-          if (configParams.onDispose !== _.noop) {
-            configParams.onDispose.call(this, this.__private('element'));
-          }
-          _.each(this, propertyDispose);
-          _.each(this.__private('subscriptions') || [], propertyDispose);
-        }
-        return this;
-      }
-    },
-    _postInit: function() {
-      this.$globalNamespace.request.handler(descriptor.referenceNamespace, function(options) {
-        if (_.isString(options.namespaceName) || _.isArray(options.namespaceName)) {
-          var myNamespaceName = this.$namespace.getName();
-          if (_.isArray(options.namespaceName) && _.indexOf(options.namespaceName, myNamespaceName) !== -1) {
-            return this;
-          } else if (_.isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
-            return this;
-          }
-        } else {
-          return this;
-        }
-      }.bind(this));
-    }
-  };
-};
-
-fw.viewModel = {};
-
-var methodName = 'viewModel';
-var isEntityCtorDuckTag = '__is' + methodName + 'Ctor';
-var isEntityDuckTag = '__is' + methodName;
-function isViewModelCtor(thing) {
-  return _.isFunction(thing) && !!thing[ isEntityCtorDuckTag ];
-}
-function isViewModel(thing) {
-  return _.isObject(thing) && !!thing[ isEntityDuckTag ];
-}
-
-var descriptor;
-entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
-  tagName: methodName.toLowerCase(),
-  methodName: methodName,
-  resource: fw.viewModel,
-  behavior: [ ViewModel ],
-  isEntityCtorDuckTag: isEntityCtorDuckTag,
-  isEntityDuckTag: isEntityDuckTag,
-  isEntityCtor: isViewModelCtor,
-  isEntity: isViewModel,
+  isEntityCtor: function (thing) {
+    return _.isFunction(thing) && !!thing[ isEntityCtorDuckTag ];
+  },
+  isEntity: function (thing) {
+    return _.isObject(thing) && !!thing[ isEntityDuckTag ];
+  },
   defaultConfig: {
     namespace: undefined,
     autoRegister: false,
-    autoIncrement: false,
-    extend: {},
-    mixins: undefined,
     afterRender: _.noop,
     afterResolving: function resolveEntityImmediately(resolveNow) {
       resolveNow(true);
@@ -11754,23 +9514,40 @@ entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
   }
 }));
 
-fw.viewModel.create = entityTools.entityClassFactory.bind(null, descriptor);
+// Form 1
+// function TestModel() {
+//   fw.viewModel.setConfig(this, {
+//     // configuration options
+//     namespace: 'testModel',
+//     afterBinding: function() {}
+//   });
+//
+//   this.someProperty = fw.observable('someValue');
+// }
 
-_dereq_('../../misc/config').DefaultViewModel = fw.viewModel.create({
-  namespace: '_DefaultViewModelNamespace',
-  autoIncrement: true,
-  initialize: function(params) {
-    if (_.isObject(params) && _.isObject(params.$viewModel)) {
-      _.extend(this, params.$viewModel);
-    }
+// Form 2
+// var TestModel = fw.viewModel.create({
+//   // configuration options
+//   initialize: function TestModel() {
+//     this.someProperty = fw.observable();
+//   },
+//   namespace: 'TestModel',
+//   afterBinding: function() {}
+// });
+
+require('../../misc/config').ViewModel = function ViewModel(params) {
+  if (_.isObject(params) && _.isObject(params.$viewModel)) {
+    _.extend(this, params.$viewModel);
   }
-});
+};
 
-},{"../../misc/config":43,"../../misc/util":46,"../entity-descriptors":28,"../entity-tools":31,"knockout/build/output/knockout-latest":3,"lodash":4}],42:[function(_dereq_,module,exports){
-var _ = _dereq_('lodash');
-var fw = _dereq_('knockout/build/output/knockout-latest');
 
-var util = _dereq_('./util');
+
+},{"../../misc/config":29,"../../misc/util":31,"../entity-descriptors":22,"knockout/build/output/knockout-latest":2,"lodash":3}],28:[function(require,module,exports){
+var _ = require('lodash');
+var fw = require('knockout/build/output/knockout-latest');
+
+var util = require('./util');
 var resultBound = util.resultBound;
 var promiseIsFulfilled = util.promiseIsFulfilled;
 var isPromise = util.isPromise;
@@ -11809,7 +9586,7 @@ function makeOrGetRequest(operationType, requestInfo) {
   var createRequest = requestInfo.createRequest;
   var promiseName = operationType + 'Promise';
   var allowConcurrent = requestInfo.allowConcurrent;
-  var requests = entity.__private(promiseName) || [];
+  var requests = entity.__private[promiseName] || [];
   var theRequest = _.last(requests);
 
   if ((allowConcurrent || !fw.isObservable(requestRunning) || !requestRunning()) || !requests.length) {
@@ -11821,7 +9598,7 @@ function makeOrGetRequest(operationType, requestInfo) {
     }
 
     requests.push(theRequest);
-    entity.__private(promiseName, requests);
+    entity.__private[promiseName] = requests;
 
     requestRunning(true);
 
@@ -11847,7 +9624,7 @@ function makeOrGetRequest(operationType, requestInfo) {
       theRequest.then(function() {
         if (_.every(requests, promiseIsFulfilled)) {
           requestFinished(true);
-          entity.__private(promiseName, []);
+          entity.__private.promiseName = [];
         }
       });
     }
@@ -11865,8 +9642,8 @@ function makeOrGetRequest(operationType, requestInfo) {
  * @returns {object} htr
  */
 function sync(action, concern, params) {
-  var isDataModel = _dereq_('../entities/entity-tools').isDataModel;
-  var isCollection = _dereq_('../collection/collection-tools').isCollection;
+  var isDataModel = require('../entities/entity-tools').isDataModel;
+  var isCollection = require('../collection/collection-tools').isCollection;
 
   params = params || {};
   action = action || 'noAction';
@@ -11879,7 +9656,7 @@ function sync(action, concern, params) {
     throw new Error('Invalid action (' + action + ') specified for sync operation');
   }
 
-  var configParams = concern.__private('configParams');
+  var configParams = concern.__private.configParams;
   var options = _.extend({
     method: methodMap[action].toUpperCase(),
     url: null,
@@ -11978,40 +9755,21 @@ module.exports = {
   handleJsonResponse: handleJsonResponse
 }
 
-},{"../collection/collection-tools":12,"../entities/entity-tools":31,"./util":46,"knockout/build/output/knockout-latest":3,"lodash":4}],43:[function(_dereq_,module,exports){
+},{"../collection/collection-tools":10,"../entities/entity-tools":24,"./util":31,"knockout/build/output/knockout-latest":2,"lodash":3}],29:[function(require,module,exports){
 module.exports = {
   entityClass: 'fw-entity',
   entityAnimateClass: 'fw-entity-animate',
   entityWrapperElement: 'binding-wrapper'
 };
 
-},{}],44:[function(_dereq_,module,exports){
+},{}],30:[function(require,module,exports){
 module.exports = {
-  postal: _dereq_('postal'),
-  riveter: _dereq_('riveter'),
-  Conduit: _dereq_('conduitjs')
+  postal: require('postal'),
+  lodash: require('lodash')
 };
 
-},{"conduitjs":2,"postal":5,"riveter":6}],45:[function(_dereq_,module,exports){
-function privateData(privateStore, configParams, propName, propValue) {
-  var isGetBaseObjOp = arguments.length === 2;
-  var isReadOp = arguments.length === 3;
-  var isWriteOp = arguments.length === 4;
-
-  if (isGetBaseObjOp) {
-    return privateStore;
-  } else if (isReadOp) {
-     return propName === 'configParams' ? configParams : privateStore[propName];
-  } else if (isWriteOp) {
-    privateStore[propName] = propValue;
-    return privateStore[propName];
-  }
-}
-
-module.exports = privateData;
-
-},{}],46:[function(_dereq_,module,exports){
-var _ = _dereq_('lodash');
+},{"lodash":3,"postal":4}],31:[function(require,module,exports){
+var _ = require('lodash');
 
 function alwaysPassPredicate() {
   return true;
@@ -12195,6 +9953,16 @@ function isDomElement(obj) {
   }
 }
 
+/**
+ * Capitalize the first letter of the supplied string.
+ *
+ * @param {string} str
+ * @returns {string} The original string with the first character upper-cased
+ */
+function capitalizeFirstLetter(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 module.exports = {
   alwaysPassPredicate: alwaysPassPredicate,
   resultBound: resultBound,
@@ -12213,11 +9981,12 @@ module.exports = {
   propertyDispose: propertyDispose,
   isDocumentFragment: isDocumentFragment,
   isDomElement: isDomElement,
-  startingHashRegex: startingHashRegex
+  startingHashRegex: startingHashRegex,
+  capitalizeFirstLetter: capitalizeFirstLetter
 };
 
-},{"lodash":4}],47:[function(_dereq_,module,exports){
-var _ = _dereq_('lodash');
+},{"lodash":3}],32:[function(require,module,exports){
+var _ = require('lodash');
 
 /**
  * Create postal message envelope using a given topic, data, and expiration
@@ -12343,9 +10112,9 @@ module.exports = {
   getNamespaceName: getNamespaceName
 };
 
-},{"lodash":4}],48:[function(_dereq_,module,exports){
-var _ = _dereq_('lodash');
-var fw = _dereq_('knockout/build/output/knockout-latest');
+},{"lodash":3}],33:[function(require,module,exports){
+var _ = require('lodash');
+var fw = require('knockout/build/output/knockout-latest');
 
 // Prepare an empty namespace stack.
 // This is where footwork registers its current working namespace name. Each new namespace is
@@ -12450,11 +10219,11 @@ module.exports = {
   currentNamespaceName: currentNamespaceName
 };
 
-},{"knockout/build/output/knockout-latest":3,"lodash":4}],49:[function(_dereq_,module,exports){
-var postal = _dereq_('postal');
-var _ = _dereq_('lodash');
+},{"knockout/build/output/knockout-latest":2,"lodash":3}],34:[function(require,module,exports){
+var postal = require('postal');
+var _ = require('lodash');
 
-var namespaceMethods = _dereq_('./namespace-methods');
+var namespaceMethods = require('./namespace-methods');
 var disconnectNamespaceHandlers = namespaceMethods.disconnectNamespaceHandlers;
 var sendCommandToNamespace = namespaceMethods.sendCommandToNamespace;
 var registerNamespaceCommandHandler = namespaceMethods.registerNamespaceCommandHandler;
@@ -12465,7 +10234,7 @@ var requestResponseFromNamespace = namespaceMethods.requestResponseFromNamespace
 var registerNamespaceRequestHandler = namespaceMethods.registerNamespaceRequestHandler;
 var registerNamespaceEventHandler = namespaceMethods.registerNamespaceEventHandler;
 
-var namespaceTools = _dereq_('./namespace-tools');
+var namespaceTools = require('./namespace-tools');
 var enterNamespace = namespaceTools.enterNamespace;
 var enterNamespaceName = namespaceTools.enterNamespaceName;
 var currentNamespaceName = namespaceTools.currentNamespaceName;
@@ -12539,10 +10308,10 @@ Namespace.isNamespace = function isNamespace(thing) {
 };
 
 // mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
-_dereq_('../entities/entity-mixins').push({
+require('../entities/entity-mixins').push({
   runBeforeInit: true,
   _preInit: function(options) {
-    var $configParams = this.__private('configParams');
+    var $configParams = this.__private.configParams;
     var namespaceName = $configParams.namespace || $configParams.name || _.uniqueId('namespace');
     this.$namespace = enterNamespaceName(indexedNamespaceName(namespaceName, $configParams.autoIncrement));
     this.$rootNamespace = Namespace(namespaceName);
@@ -12560,11 +10329,11 @@ _dereq_('../entities/entity-mixins').push({
 
 module.exports = Namespace;
 
-},{"../entities/entity-mixins":30,"./namespace-methods":47,"./namespace-tools":48,"lodash":4,"postal":5}],50:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
+},{"../entities/entity-mixins":23,"./namespace-methods":32,"./namespace-tools":33,"lodash":3,"postal":4}],35:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
 
-var util = _dereq_('../misc/util');
+var util = require('../misc/util');
 var isPath = util.isPath;
 var getFilenameExtension = util.getFilenameExtension;
 var regExpMatch = /^\/|\/$/g;
@@ -12586,7 +10355,7 @@ fw.components.register = function(componentName, options) {
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || _dereq_('../misc/config').DefaultViewModel,
+    viewModel: viewModel || require('../misc/config').DefaultViewModel,
     template: options.template
   });
 };
@@ -12701,12 +10470,12 @@ module.exports = {
   getComponentExtension: getComponentExtension
 };
 
-},{"../misc/config":43,"../misc/util":46,"knockout/build/output/knockout-latest":3,"lodash":4}],51:[function(_dereq_,module,exports){
-var fw = _dereq_('knockout/build/output/knockout-latest');
-var _ = _dereq_('lodash');
+},{"../misc/config":29,"../misc/util":31,"knockout/build/output/knockout-latest":2,"lodash":3}],36:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
 
-var isNamespace = _dereq_('../namespace/namespace').isNamespace;
-var isPath = _dereq_('../misc/util').isPath;
+var isNamespace = require('../namespace/namespace').isNamespace;
+var isPath = require('../misc/util').isPath;
 var regExpMatch = /^\/|\/$/g;
 
 function isRegistered(descriptor, resourceName) {
@@ -12733,7 +10502,7 @@ function getModelExtension(dataModelExtensions, modelName) {
   return fileExtension.replace(/^\./, '') || '';
 }
 
-function getModelFileName(descriptor, modelName) {
+function getFileName(descriptor, modelName) {
   var modelResourceLocations = descriptor.resourceLocations;
   var fileName = modelName + '.' + getModelExtension(descriptor.fileExtensions(), modelName);
 
@@ -12748,10 +10517,10 @@ function getModelFileName(descriptor, modelName) {
   return fileName;
 }
 
-function registerModelLocation(descriptor, modelName, location) {
+function registerLocation(descriptor, modelName, location) {
   if (_.isArray(modelName)) {
     _.each(modelName, function(name) {
-      registerModelLocation(descriptor, name, location);
+      registerLocation(descriptor, name, location);
     });
   }
   descriptor.resourceLocations[ modelName ] = location;
@@ -12770,16 +10539,16 @@ function modelResourceLocation(descriptor, modelName) {
   }, undefined);
 }
 
-function modelLocationIsRegistered(descriptor, modelName) {
-  return !!modelResourceLocation(descriptor, modelName);
-}
-
-function getModelResourceLocation(descriptor, modelName) {
+function getLocation(descriptor, modelName) {
   if (_.isUndefined(modelName)) {
     return descriptor.resourceLocations;
   }
 
   return modelResourceLocation(descriptor, modelName);
+}
+
+function locationIsRegistered(descriptor, modelName) {
+  return !!modelResourceLocation(descriptor, modelName);
 }
 
 var $globalNamespace = fw.namespace();
@@ -12813,30 +10582,24 @@ function getModelReferences(descriptor, namespaceName, options) {
   return references;
 }
 
-module.exports = {
-  isRegistered: isRegistered,
-  getRegistered: getRegistered,
-  register: register,
-  getModelFileName: getModelFileName,
-  registerModelLocation: registerModelLocation,
-  modelResourceLocation: modelResourceLocation,
-  modelLocationIsRegistered: modelLocationIsRegistered,
-  getModelResourceLocation: getModelResourceLocation,
-  getModelReferences: getModelReferences
-};
 
-},{"../misc/util":46,"../namespace/namespace":49,"knockout/build/output/knockout-latest":3,"lodash":4}],52:[function(_dereq_,module,exports){
-var _ = _dereq_('lodash');
+function getResourceOrLocation(descriptor, moduleName) {
+  var resource = descriptor.resource;
+  var resourceOrLocation = null;
 
-var resourceMethods = _dereq_('./resource-methods');
-var getModelFileName = resourceMethods.getModelFileName;
-var register = resourceMethods.register;
-var isRegistered = resourceMethods.isRegistered;
-var getRegistered = resourceMethods.getRegistered;
-var registerModelLocation = resourceMethods.registerModelLocation;
-var modelLocationIsRegistered = resourceMethods.modelLocationIsRegistered;
-var getModelResourceLocation = resourceMethods.getModelResourceLocation;
-var getModelReferences = resourceMethods.getModelReferences;
+  if (resource.isRegistered(moduleName)) {
+    // viewModel was manually registered
+    resourceOrLocation = resource.getRegistered(moduleName);
+  } else if (_.isFunction(window.require) && _.isFunction(window.require.specified) && window.require.specified(moduleName)) {
+    // found a matching resource that is already cached by require
+    resourceOrLocation = moduleName;
+  } else {
+    resourceOrLocation = resource.getLocation(moduleName);
+  }
+
+  return resourceOrLocation;
+}
+
 
 /**
  * Hydrates each entity resource with the necessary utility methods.
@@ -12846,13 +10609,15 @@ var getModelReferences = resourceMethods.getModelReferences;
  */
 function resourceHelperFactory(descriptor) {
   var resourceMethods = {
-    getFileName: getModelFileName.bind(null, descriptor),
+    getFileName: getFileName.bind(null, descriptor),
     register: register.bind(null, descriptor),
     isRegistered: isRegistered.bind(null, descriptor),
     getRegistered: getRegistered.bind(null, descriptor),
-    registerLocation: registerModelLocation.bind(null, descriptor),
-    locationIsRegistered: modelLocationIsRegistered.bind(null, descriptor),
-    getLocation: getModelResourceLocation.bind(null, descriptor),
+    registerLocation: registerLocation.bind(null, descriptor),
+    locationIsRegistered: locationIsRegistered.bind(null, descriptor),
+    getLocation: getLocation.bind(null, descriptor),
+    getResourceOrLocation: getResourceOrLocation.bind(null, descriptor),
+
     fileExtensions: descriptor.fileExtensions,
     resourceLocations: descriptor.resourceLocations
   };
@@ -12866,11 +10631,11 @@ function resourceHelperFactory(descriptor) {
   return resourceMethods;
 }
 
-_.each(_dereq_('../entities/entity-descriptors'), function(descriptor) {
+_.each(require('../entities/entity-descriptors'), function(descriptor) {
   if (!_.isUndefined(descriptor.resource)) {
     _.extend(descriptor.resource, resourceHelperFactory(descriptor));
   }
 });
 
-},{"../entities/entity-descriptors":28,"./resource-methods":51,"lodash":4}]},{},[1])(1)
+},{"../entities/entity-descriptors":22,"../misc/util":31,"../namespace/namespace":34,"knockout/build/output/knockout-latest":2,"lodash":3}]},{},[1])(1)
 });

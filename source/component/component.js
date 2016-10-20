@@ -6,6 +6,7 @@ require('./sequencing');
 require('./lifecycle-loader');
 require('./lifecycle-binding');
 require('./resource-loader');
+require('./component-init');
 
 var entityDescriptors = require('../entities/entity-descriptors');
 

@@ -14,37 +14,79 @@ var outletLoadedDisplay = routerDefaults.outletLoadedDisplay;
 var outletLoadingDisplay = routerDefaults.outletLoadingDisplay;
 var isOutletViewModel = require('../entities/router/router-tools').isOutletViewModel;
 
-var addClass = require('../misc/util').addClass;
+var util = require('../misc/util');
+var addClass = util.addClass;
+var isPromise = util.isPromise;
+var promiseIsFulfilled = util.promiseIsFulfilled;
+
 var entityClass = require('../misc/config').entityClass;
 
-function componentTriggerAfterRender(element, viewModel, $context) {
-  if (isEntity(viewModel) && !viewModel.__private('afterRenderWasTriggered')) {
-    viewModel.__private('afterRenderWasTriggered', true);
+/**
+ * Mark the component as resolved on the parent outlet (if it exists) and supply the resolveThisEntityNow callback which
+ * takes the user supplied isResolved value and adds the animation class via addAnimationClass when it has resolved.
+ *
+ * @param {DOMElement} element
+ * @param {object} viewModel
+ * @param {object} $context
+ * @param {function} addAnimationClass
+ */
+function resolveComponent(element, viewModel, $context, addAnimationClass) {
+  var flightTracker = element.flightTracker;
+  var nearestOutlet = nearestEntity($context, isOutletViewModel);
+  var outletsInFlightChildren;
 
-    function addAnimationClass() {
-      var classList = element.className.split(" ");
-      if (!_.includes(classList, outletLoadingDisplay) && !_.includes(classList, outletLoadedDisplay)) {
-        var queue = addToAndFetchQueue(element, viewModel);
-        var nearestOutlet = nearestEntity($context, isOutletViewModel);
+  if (nearestOutlet) {
+    outletsInFlightChildren = nearestOutlet.inFlightChildren;
+  }
 
-        if (nearestOutlet) {
-          // the parent outlet will run the callback that initiates the animation
-          // sequence (once the rest of its dependencies finish loading as well)
-          nearestOutlet.addResolvedCallbackOrExecute(function() {
-            runAnimationClassSequenceQueue(queue);
-          });
-        } else {
-          // no parent outlet found, lets go ahead and run the queue
-          runAnimationClassSequenceQueue(queue);
+  function finishResolution() {
+    addAnimationClass();
+    if (fw.isObservable(outletsInFlightChildren) && _.isFunction(outletsInFlightChildren.remove)) {
+      outletsInFlightChildren.remove(flightTracker);
+    }
+  }
+
+  if (isEntity(viewModel)) {
+    var wasResolved = false;
+    function resolveThisEntityNow(isResolved) {
+      if (!wasResolved) {
+        wasResolved = true;
+        if (isResolved === true) {
+          finishResolution();
+        } else if (isPromise(isResolved) || _.isArray(isResolved)) {
+          if(!_.every(isResolved, isPromise)) {
+            throw new Error('Can only pass array of promises to resolved()');
+          }
+
+          var promises = [].concat(isResolved);
+          var checkPromise = function(promise) {
+            promise.then(function() {
+              if (_.every(promises, promiseIsFulfilled)) {
+                finishResolution();
+              }
+            });
+          };
+
+          _.each(promises, checkPromise);
         }
       }
     }
 
-    // trigger the user-specified afterRender callback
-    viewModel.__private('configParams').afterRender.call(viewModel, element);
+    function maybeResolve() {
+      viewModel.__private.configParams.afterResolving.call(viewModel, resolveThisEntityNow);
+    }
 
-    // resolve the flight tracker and trigger the addAnimationClass callback when appropriate
-    (viewModel.__private('resolveFlightTracker') || _.noop)(addAnimationClass);
+    var inFlightChildren = viewModel.__private.inFlightChildren;
+    // if no children then resolve now, otherwise subscribe and wait till its 0
+    if (inFlightChildren().length === 0) {
+      maybeResolve();
+    } else {
+      viewModel.disposeWithInstance(inFlightChildren.subscribe(function(inFlightChildren) {
+        inFlightChildren.length === 0 && maybeResolve();
+      }));
+    }
+  } else {
+    finishResolution();
   }
 }
 
@@ -60,30 +102,53 @@ fw.bindingHandlers.$life = {
       addClass(element, entityClass);
     }
 
-    if (isEntity(viewModel) && !viewModel.__private('element')) {
-      viewModel.__private('element', element);
-    }
-
-    fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
-      if (isEntity(viewModel)) {
-        viewModel.dispose();
+    if (isEntity(viewModel)) {
+      if(!viewModel.__private.element) {
+        viewModel.__private.element = element;
+        fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
+          viewModel.dispose();
+        });
       }
-    });
+    }
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
 
     // if this element is not the 'loading' component of an outlet, then we need to
     // trigger the onComplete callback
-    var $parent = bindingContext.$parent;
-    if (_.isObject($parent) && fw.isObservable($parent.route) && $parent.__isOutlet) {
-      var parentRoute = $parent.route.peek();
+    if (isOutletViewModel(bindingContext.$parent)) {
+      var parentRoute = bindingContext.$parent.route.peek();
       var classList = element.className.split(" ");
       if (!_.includes(classList, outletLoadingDisplay) && _.isFunction(parentRoute.getOnCompleteCallback)) {
         parentRoute.getOnCompleteCallback(element)();
       }
     }
 
-    componentTriggerAfterRender(element, bindingContext.$data, bindingContext);
+    if (isEntity(viewModel) && !viewModel.__private.afterRenderWasTriggered) {
+      viewModel.__private.afterRenderWasTriggered = true;
+
+      // trigger the user-specified afterRender callback
+      viewModel.__private.configParams.afterRender.call(viewModel, element);
+    }
+
+    // resolve the flight tracker and trigger the addAnimationClass callback when appropriate
+    resolveComponent(element, viewModel, bindingContext, function addAnimationClass() {
+      var classList = element.className.split(" ");
+      if (!_.includes(classList, outletLoadingDisplay) && !_.includes(classList, outletLoadedDisplay)) {
+        var queue = addToAndFetchQueue(element, viewModel);
+        var nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
+
+        if (nearestOutlet) {
+          // the parent outlet will run the callback that initiates the animation
+          // sequence (once the rest of its dependencies finish loading as well)
+          nearestOutlet.addResolvedCallbackOrExecute(function() {
+            runAnimationClassSequenceQueue(queue);
+          });
+        } else {
+          // no parent outlet found, lets go ahead and run the queue
+          runAnimationClassSequenceQueue(queue);
+        }
+      }
+    });
   }
 };

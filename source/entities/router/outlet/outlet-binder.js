@@ -15,10 +15,10 @@ fw.bindingHandlers.$outletBinder = {
 
     if (isRouter($parentRouter)) {
       // register the viewModel with the outlet for future use when its route is changed
-      $parentRouter.__private('registerViewModelForOutlet')(outletName, outletViewModel);
+      $parentRouter.__private.registerViewModelForOutlet(outletName, outletViewModel);
       fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
         // tell the router to clean up its reference to the outletViewModel
-        $parentRouter.__private('unregisterViewModelForOutlet')(outletName);
+        $parentRouter.__private.unregisterViewModelForOutlet(outletName);
         outletViewModel.dispose();
       });
 

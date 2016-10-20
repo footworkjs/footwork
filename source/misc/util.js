@@ -182,6 +182,16 @@ function isDomElement(obj) {
   }
 }
 
+/**
+ * Capitalize the first letter of the supplied string.
+ *
+ * @param {string} str
+ * @returns {string} The original string with the first character upper-cased
+ */
+function capitalizeFirstLetter(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 module.exports = {
   alwaysPassPredicate: alwaysPassPredicate,
   resultBound: resultBound,
@@ -200,5 +210,6 @@ module.exports = {
   propertyDispose: propertyDispose,
   isDocumentFragment: isDocumentFragment,
   isDomElement: isDomElement,
-  startingHashRegex: startingHashRegex
+  startingHashRegex: startingHashRegex,
+  capitalizeFirstLetter: capitalizeFirstLetter
 };
