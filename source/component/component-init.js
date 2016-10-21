@@ -23,10 +23,6 @@ function componentInit(element, valueAccessor, allBindings, viewModel, bindingCo
   var tagName = element.tagName;
   var flightTracker = componentId++;
 
-  if(flightTracker > 3) {
-    throw new Error('fark');
-  }
-
   if (element.nodeType !== 8) {
     var nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
     if (nearestOutlet) {

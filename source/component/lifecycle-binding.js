@@ -51,7 +51,7 @@ function resolveComponent(element, viewModel, $context, addAnimationClass) {
 
   if (isEntity(viewModel)) {
     var wasResolved = false;
-    function resolveThisEntityNow(isResolved) {
+    function resolveInstanceNow(isResolved) {
       if (!wasResolved) {
         wasResolved = true;
         if (isResolved === true) {
@@ -76,7 +76,7 @@ function resolveComponent(element, viewModel, $context, addAnimationClass) {
     }
 
     function maybeResolve() {
-      viewModel[privateDataSymbol].configParams.afterResolving.call(viewModel, resolveThisEntityNow);
+      viewModel[privateDataSymbol].configParams.afterResolving.call(viewModel, resolveInstanceNow);
     }
 
     var inFlightChildren = viewModel[privateDataSymbol].inFlightChildren;
@@ -135,8 +135,7 @@ fw.bindingHandlers.$life = {
 
     // resolve the flight tracker and trigger the addAnimationClass callback when appropriate
     resolveComponent(element, viewModel, bindingContext, function addAnimationClass() {
-      var classList = element.className.split(" ");
-      if (!_.includes(classList, outletLoadingDisplay) && !_.includes(classList, outletLoadedDisplay)) {
+      if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
         var queue = addToAndFetchQueue(element, viewModel);
         var nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
 

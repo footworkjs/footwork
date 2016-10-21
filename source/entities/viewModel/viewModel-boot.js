@@ -2,11 +2,22 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 
-module.exports = function viewModelBoot(descriptor, isEntityDuckTag, instance, configParams) {
+/**
+ * Bootstrap an instance with viewModel capabilities (lifecycle/etc).
+ *
+ * @param {any} descriptor
+ * @param {any} isEntityDuckTag
+ * @param {any} instance
+ * @param {any} configParams
+ * @returns {object} The instance that was passed in
+ */
+function viewModelBoot(descriptor, isEntityDuckTag, instance, configParams) {
   if(_.isUndefined(instance[privateDataSymbol])) {
     instance[isEntityDuckTag] = true;
 
-    configParams = _.extend({}, descriptor.defaultConfig, configParams);
+    configParams = _.extend({}, descriptor.defaultConfig, {
+      namespace: configParams.namespace ? null : _.unique(descriptor.entityName)
+    }, configParams);
 
     instance[privateDataSymbol] = {
       configParams: configParams,
@@ -20,18 +31,14 @@ module.exports = function viewModelBoot(descriptor, isEntityDuckTag, instance, c
     instance.disposeWithInstance(globalNS);
 
     /**
-     * This request handler returns references to the instance to the requester.
+     * This request handler returns references of the instance to the requester.
      */
     globalNS.request.handler(descriptor.referenceNamespace, function(options) {
-      if (_.isString(options.namespaceName) || _.isArray(options.namespaceName)) {
-        var myNamespaceName = configParams.namespace;
-        if (_.isArray(options.namespaceName) && _.indexOf(options.namespaceName, myNamespaceName) !== -1) {
-          return this;
-        } else if (_.isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
-          return this;
-        }
-      } else {
-        return this;
+      var myNamespaceName = configParams.namespace;
+      if (_.isArray(options.namespaceName) && options.namespaceName.indexOf(myNamespaceName) !== -1) {
+        return instance;
+      } else if (_.isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+        return instance;
       }
     });
   } else {
@@ -39,4 +46,6 @@ module.exports = function viewModelBoot(descriptor, isEntityDuckTag, instance, c
   }
 
   return instance;
-};
+}
+
+module.exports = viewModelBoot;
