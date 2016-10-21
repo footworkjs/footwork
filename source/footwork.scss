@@ -2,6 +2,10 @@ $fw-animation-move-distance: 15px;
 $fw-animation-speed: 0.5s;
 $fw-animation-easing: ease;
 
+viewModel, dataModel, router {
+  display: block;
+}
+
 .fw-entity {
   .fade-in {
     opacity: 0;
