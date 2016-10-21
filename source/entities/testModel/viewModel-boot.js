@@ -18,4 +18,6 @@ module.exports = function viewModelBoot(descriptor, isEntityDuckTag, instance, c
   } else {
     throw new Error('Cannot boot an instance more than once.');
   }
+
+  return instance;
 };
