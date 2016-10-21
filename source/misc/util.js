@@ -193,6 +193,16 @@ function capitalizeFirstLetter(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+/**
+ * Return the private data of a viewModel if it exists
+ *
+ * @param {any} instance
+ * @returns {object} The private data on the instance (if found)
+ */
+function getPrivateData(instance) {
+  return instance[require('./config').privateDataSymbol];
+}
+
 module.exports = {
   alwaysPassPredicate: alwaysPassPredicate,
   resultBound: resultBound,

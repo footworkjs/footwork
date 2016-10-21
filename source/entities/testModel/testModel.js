@@ -6,10 +6,13 @@ var prepareDescriptor = require('../entity-tools').prepareDescriptor;
 var capitalizeFirstLetter = require('../../misc/util').capitalizeFirstLetter;
 
 var entityName = 'viewModel';
-var entityResource = fw[entityName] = {};
 var isEntityCtorDuckTag = '__is' + capitalizeFirstLetter(entityName) + 'Ctor';
 var isEntityDuckTag = '__is' + capitalizeFirstLetter(entityName);
 
+var entityResource = fw[entityName] = {
+  boot: require('./viewModel-boot'),
+  getPrivateData: require('../../misc/util').getPrivateData
+};
 
 var descriptor;
 entityDescriptors.push(descriptor = prepareDescriptor({
