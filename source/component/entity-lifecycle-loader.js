@@ -4,8 +4,9 @@ var _ = require('lodash');
 var entityDescriptors = require('../entities/entity-descriptors');
 
 /**
- * This component loader wraps viewModel/dataModel/router declarative element contents with the
- * $life binding which enables the lifecycle hooks (afterBinding/afterRender/onDispose).
+ * This component loader has two functions:
+ * 1. wraps viewModel/dataModel/router declarative element contents with the $life binding which enables the lifecycle hooks (afterBinding/afterRender/onDispose).
+ * 2. provides either the entity constructor itself or the require path to get the entity
  */
 fw.components.loaders.unshift(fw.components.entityLifecycleLoader = {
   getConfig: function(componentName, callback) {
