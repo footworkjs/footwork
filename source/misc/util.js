@@ -275,7 +275,7 @@ function getPrivateData(instance) {
  * @param {any} str
  * @returns {Symbol|string} The identifier
  */
-function getSymbol(str) {
+function makeSymbol(str) {
   return typeof Symbol === 'function' ? Symbol(str) : str;
 }
 
@@ -300,5 +300,5 @@ module.exports = {
   startingHashRegex: startingHashRegex,
   capitalizeFirstLetter: capitalizeFirstLetter,
   getPrivateData: getPrivateData,
-  getSymbol: getSymbol
+  makeSymbol: makeSymbol
 };

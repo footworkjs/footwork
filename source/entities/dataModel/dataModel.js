@@ -6,6 +6,7 @@ var entityTools = require('../entity-tools');
 var ViewModel = require('../viewModel/viewModel');
 
 var dataModelContext = require('./dataModel-context');
+var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 
 var dataTools = require('./data-tools');
 var getNestedReference = dataTools.getNestedReference;
@@ -27,7 +28,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
       params = params || {};
       dataModelContext.enter(this);
       var pkField = configParams.idAttribute;
-      this.__private.mappings = fw.observable({});
+      this[privateDataSymbol].mappings = fw.observable({});
 
       this.isCreating = fw.observable(false);
       this.isSaving = fw.observable(false);
@@ -195,7 +196,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
 
         var mappingsChanged = false;
         var model = this;
-        _.each(this.__private.mappings(), function(fieldObservable, fieldMap) {
+        _.each(this[privateDataSymbol].mappings(), function(fieldObservable, fieldMap) {
           var fieldValue = getNestedReference(attributes, fieldMap);
           if (!_.isUndefined(fieldValue)) {
             fw.isWriteableObservable(fieldObservable) && fieldObservable(fieldValue);
@@ -207,7 +208,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
 
         if (mappingsChanged && options.clearDirty) {
           // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function
-          this.__private.mappings.valueHasMutated();
+          this[privateDataSymbol].mappings.valueHasMutated();
         }
       },
 
@@ -221,7 +222,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
           throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.get().');
         }
 
-        var mappedObject = _.reduce(this.__private.mappings(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+        var mappedObject = _.reduce(this[privateDataSymbol].mappings(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
           if (_.isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
             insertValueIntoObject(jsObject, fieldMap, fieldObservable());
           }
@@ -243,7 +244,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
         if (!_.isUndefined(field)) {
           var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
         }
-        _.each(this.__private.mappings(), function(fieldObservable, fieldMap) {
+        _.each(this[privateDataSymbol].mappings(), function(fieldObservable, fieldMap) {
           if (_.isUndefined(field) || fieldMap.match(fieldMatch)) {
             fieldObservable.isDirty(false);
           }
@@ -255,12 +256,12 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
       },
 
       hasMappedField: function(referenceField) {
-        return !!this.__private.mappings()[referenceField];
+        return !!this[privateDataSymbol].mappings()[referenceField];
       },
 
       dirtyMap: function() {
         var tree = {};
-        _.each(this.__private.mappings(), function(fieldObservable, fieldMap) {
+        _.each(this[privateDataSymbol].mappings(), function(fieldObservable, fieldMap) {
           tree[fieldMap] = fieldObservable.isDirty();
         });
         return tree;
@@ -273,7 +274,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
       this.$namespace.request.handler('get', function() { return this.get(); }.bind(this));
 
       this.isDirty = fw.computed(function() {
-        return _.reduce(this.__private.mappings(), function(isDirty, mappedField) {
+        return _.reduce(this[privateDataSymbol].mappings(), function(isDirty, mappedField) {
           return isDirty || mappedField.isDirty();
         }, false);
       }, this);

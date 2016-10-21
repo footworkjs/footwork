@@ -3,25 +3,24 @@ var _ = require('lodash');
 
 var entityDescriptors = require('../entity-descriptors');
 var prepareDescriptor = require('../entity-tools').prepareDescriptor;
-var capitalizeFirstLetter = require('../../misc/util').capitalizeFirstLetter;
+
+var util = require('../../misc/util');
+var capitalizeFirstLetter = util.capitalizeFirstLetter;
+var makeSymbol = util.makeSymbol;
 
 var entityName = 'viewModel';
-var isEntityDuckTag = '__is' + capitalizeFirstLetter(entityName);
-
-var entityResource = fw[entityName] = {
-  boot: require('./viewModel-boot'),
-  getPrivateData: require('../../misc/util').getPrivateData
-};
+var isEntityDuckTag = makeSymbol('__is' + capitalizeFirstLetter(entityName));
+var entityResource = fw[entityName] = {};
 
 var descriptor;
 entityDescriptors.push(descriptor = prepareDescriptor({
   tagName: entityName.toLowerCase(),
   entityName: entityName,
   resource: entityResource,
-  isEntityDuckTag: require('../../misc/util').getSymbol(isEntityDuckTag),
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[ isEntityDuckTag ];
   },
+  mixin: require('./viewModel-mixin'),
   defaultConfig: {
     namespace: undefined,
     autoRegister: false,
@@ -34,30 +33,14 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   }
 }));
 
+_.extend(fw[entityName], {
+  boot: _.partial(require('./viewModel-boot'), descriptor, isEntityDuckTag),
+  getPrivateData: require('../../misc/util').getPrivateData
+});
+
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 
-// Form 1
-// function TestModel() {
-//   fw.viewModel.setConfig(this, {
-//     // configuration options
-//     namespace: 'testModel',
-//     afterBinding: function() {}
-//   });
-//
-//   this.someProperty = fw.observable('someValue');
-// }
-
-// Form 2
-// var TestModel = fw.viewModel.create({
-//   // configuration options
-//   initialize: function TestModel() {
-//     this.someProperty = fw.observable();
-//   },
-//   namespace: 'TestModel',
-//   afterBinding: function() {}
-// });
-
-require('../../misc/config').ViewModel = function ViewModel(params) {
+require('../../misc/config')[capitalizeFirstLetter(entityName)] = function (params) {
   if (_.isObject(params) && _.isObject(params.$viewModel)) {
     _.extend(this, params.$viewModel);
   }

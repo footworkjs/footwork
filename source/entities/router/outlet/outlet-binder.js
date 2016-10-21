@@ -1,6 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
+var privateDataSymbol = require('../../../misc/config').privateDataSymbol;
 var nearestParentRouter = require('../router-tools').nearestParentRouter;
 var noParentViewModelError = { $namespace: { getName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } } };
 
@@ -15,10 +16,10 @@ fw.bindingHandlers.$outletBinder = {
 
     if (isRouter($parentRouter)) {
       // register the viewModel with the outlet for future use when its route is changed
-      $parentRouter.__private.registerViewModelForOutlet(outletName, outletViewModel);
+      $parentRouter[privateDataSymbol].registerViewModelForOutlet(outletName, outletViewModel);
       fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
         // tell the router to clean up its reference to the outletViewModel
-        $parentRouter.__private.unregisterViewModelForOutlet(outletName);
+        $parentRouter[privateDataSymbol].unregisterViewModelForOutlet(outletName);
         outletViewModel.dispose();
       });
 

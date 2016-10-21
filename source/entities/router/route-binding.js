@@ -14,6 +14,8 @@ var routerTools = require('./router-tools');
 var nearestParentRouter = routerTools.nearestParentRouter;
 var isNullRouter = routerTools.isNullRouter;
 
+var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+
 function findParentNode(element, selector) {
   if (selector === true) {
     return element.parentNode;
@@ -101,7 +103,7 @@ fw.bindingHandlers.$route = {
           }
 
           if (includeParentPath && !isNullRouter($myRouter)) {
-            myLinkPath = $myRouter.__private.parentRouter().path() + myLinkPath;
+            myLinkPath = $myRouter[privateDataSymbol].parentRouter().path() + myLinkPath;
           }
         }
 
@@ -145,7 +147,7 @@ fw.bindingHandlers.$route = {
     function setUpElement() {
       if (!isNullRouter($myRouter)) {
         var myCurrentSegment = routeURLWithoutParentPath();
-        var routerConfig = $myRouter.__private.configParams;
+        var routerConfig = $myRouter[privateDataSymbol].configParams;
         if (element.tagName.toLowerCase() === 'a') {
           element.href = routerConfig.baseRoute + routeURLWithParentPath();
         }
@@ -159,7 +161,7 @@ fw.bindingHandlers.$route = {
           elementIsSetup = true;
           checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
 
-          $myRouter.__private.parentRouter.subscribe(setUpElement);
+          $myRouter[privateDataSymbol].parentRouter.subscribe(setUpElement);
           fw.utils.registerEventHandler(element, resultBound(routeHandlerDescription, 'on', $myRouter), function(event) {
             var currentRouteURL = routeURLWithoutParentPath();
             var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
@@ -178,7 +180,7 @@ fw.bindingHandlers.$route = {
     }
 
     if (fw.isObservable(routeHandlerDescription.url)) {
-      $myRouter.__private.subscriptions.push(routeHandlerDescription.url.subscribe(setUpElement));
+      $myRouter[privateDataSymbol].subscriptions.push(routeHandlerDescription.url.subscribe(setUpElement));
     }
     setUpElement();
 

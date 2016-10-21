@@ -6,6 +6,8 @@ var resultBound = util.resultBound;
 var promiseIsFulfilled = util.promiseIsFulfilled;
 var isPromise = util.isPromise;
 
+var privateDataSymbol = require('./config').privateDataSymbol;
+
 // Map from CRUD to HTTP for our default `fw.sync` implementation.
 var methodMap = {
   'create': 'POST',
@@ -40,7 +42,7 @@ function makeOrGetRequest(operationType, requestInfo) {
   var createRequest = requestInfo.createRequest;
   var promiseName = operationType + 'Promise';
   var allowConcurrent = requestInfo.allowConcurrent;
-  var requests = entity.__private[promiseName] || [];
+  var requests = entity[privateDataSymbol][promiseName] || [];
   var theRequest = _.last(requests);
 
   if ((allowConcurrent || !fw.isObservable(requestRunning) || !requestRunning()) || !requests.length) {
@@ -52,7 +54,7 @@ function makeOrGetRequest(operationType, requestInfo) {
     }
 
     requests.push(theRequest);
-    entity.__private[promiseName] = requests;
+    entity[privateDataSymbol][promiseName] = requests;
 
     requestRunning(true);
 
@@ -78,7 +80,7 @@ function makeOrGetRequest(operationType, requestInfo) {
       theRequest.then(function() {
         if (_.every(requests, promiseIsFulfilled)) {
           requestFinished(true);
-          entity.__private.promiseName = [];
+          entity[privateDataSymbol].promiseName = [];
         }
       });
     }
@@ -110,7 +112,7 @@ function sync(action, concern, params) {
     throw new Error('Invalid action (' + action + ') specified for sync operation');
   }
 
-  var configParams = concern.__private.configParams;
+  var configParams = concern[privateDataSymbol].configParams;
   var options = _.extend({
     method: methodMap[action].toUpperCase(),
     url: null,

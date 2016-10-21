@@ -5,9 +5,10 @@ var dataModelContext = require('./dataModel-context');
 var dataModelIsNew = require('./data-tools').dataModelIsNew;
 
 var isDataModel = require('../entity-tools').isDataModel;
+var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 
 function getPrimaryKey(dataModel) {
-  return dataModel.__private.configParams.idAttribute;
+  return dataModel[privateDataSymbol].configParams.idAttribute;
 }
 
 fw.subscribable.fn.mapTo = function(option) {
@@ -29,7 +30,7 @@ fw.subscribable.fn.mapTo = function(option) {
     throw new Error('No dataModel context found/supplied for mapTo observable');
   }
 
-  var mappings = dataModel.__private.mappings();
+  var mappings = dataModel[privateDataSymbol].mappings();
   var primaryKey = getPrimaryKey(dataModel);
 
   if (!_.isUndefined(mappings[mapPath]) && _.isFunction(mappings[mapPath].dispose)) {
@@ -63,7 +64,7 @@ fw.subscribable.fn.mapTo = function(option) {
     };
   }
 
-  dataModel.__private.mappings.valueHasMutated();
+  dataModel[privateDataSymbol].mappings.valueHasMutated();
 
   return mappedObservable;
 };

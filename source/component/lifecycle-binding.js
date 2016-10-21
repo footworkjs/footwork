@@ -16,10 +16,13 @@ var isOutletViewModel = require('../entities/router/router-tools').isOutletViewM
 
 var util = require('../misc/util');
 var addClass = util.addClass;
+var hasClass = util.hasClass;
 var isPromise = util.isPromise;
 var promiseIsFulfilled = util.promiseIsFulfilled;
 
-var entityClass = require('../misc/config').entityClass;
+var config = require('../misc/config');
+var entityClass = config.entityClass;
+var privateDataSymbol = config.privateDataSymbol;
 
 /**
  * Mark the component as resolved on the parent outlet (if it exists) and supply the resolveThisEntityNow callback which
@@ -32,17 +35,17 @@ var entityClass = require('../misc/config').entityClass;
  */
 function resolveComponent(element, viewModel, $context, addAnimationClass) {
   var flightTracker = element.flightTracker;
-  var nearestOutlet = nearestEntity($context, isOutletViewModel);
-  var outletsInFlightChildren;
+  var inFlightChildren;
 
-  if (nearestOutlet) {
-    outletsInFlightChildren = nearestOutlet.inFlightChildren;
+  var parentEntity = nearestEntity($context);
+  if (parentEntity) {
+    inFlightChildren = parentEntity.inFlightChildren;
   }
 
   function finishResolution() {
     addAnimationClass();
-    if (fw.isObservable(outletsInFlightChildren) && _.isFunction(outletsInFlightChildren.remove)) {
-      outletsInFlightChildren.remove(flightTracker);
+    if (fw.isObservable(inFlightChildren) && _.isFunction(inFlightChildren.remove)) {
+      inFlightChildren.remove(flightTracker);
     }
   }
 
@@ -73,10 +76,10 @@ function resolveComponent(element, viewModel, $context, addAnimationClass) {
     }
 
     function maybeResolve() {
-      viewModel.__private.configParams.afterResolving.call(viewModel, resolveThisEntityNow);
+      viewModel[privateDataSymbol].configParams.afterResolving.call(viewModel, resolveThisEntityNow);
     }
 
-    var inFlightChildren = viewModel.__private.inFlightChildren;
+    var inFlightChildren = viewModel[privateDataSymbol].inFlightChildren;
     // if no children then resolve now, otherwise subscribe and wait till its 0
     if (inFlightChildren().length === 0) {
       maybeResolve();
@@ -96,15 +99,14 @@ fw.bindingHandlers.$life = {
   init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
 
-    var classList = element.className.split(" ");
-    if (!_.includes(classList, outletLoadingDisplay) && !_.includes(classList, outletLoadedDisplay)) {
+    if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
       // the outlet viewModel and template binding handles its animation state
       addClass(element, entityClass);
     }
 
     if (isEntity(viewModel)) {
-      if(!viewModel.__private.element) {
-        viewModel.__private.element = element;
+      if(!viewModel[privateDataSymbol].element) {
+        viewModel[privateDataSymbol].element = element;
         fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
           viewModel.dispose();
         });
@@ -124,11 +126,11 @@ fw.bindingHandlers.$life = {
       }
     }
 
-    if (isEntity(viewModel) && !viewModel.__private.afterRenderWasTriggered) {
-      viewModel.__private.afterRenderWasTriggered = true;
+    if (isEntity(viewModel) && !viewModel[privateDataSymbol].afterRenderWasTriggered) {
+      viewModel[privateDataSymbol].afterRenderWasTriggered = true;
 
       // trigger the user-specified afterRender callback
-      viewModel.__private.configParams.afterRender.call(viewModel, element);
+      viewModel[privateDataSymbol].configParams.afterRender.call(viewModel, element);
     }
 
     // resolve the flight tracker and trigger the addAnimationClass callback when appropriate

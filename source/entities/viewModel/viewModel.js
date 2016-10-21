@@ -5,6 +5,7 @@ var entityDescriptors = require('../entity-descriptors');
 var entityTools = require('../entity-tools');
 var entityClassFactory = entityTools.entityClassFactory;
 var propertyDispose = require('../../misc/util').propertyDispose;
+var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 
 var ViewModel = module.exports = function ViewModel(descriptor, configParams) {
   return {
@@ -16,23 +17,23 @@ var ViewModel = module.exports = function ViewModel(descriptor, configParams) {
             self.disposeWithInstance(sub);
           });
         } else {
-          var subscriptions = this.__private.subscriptions;
+          var subscriptions = this[privateDataSymbol].subscriptions;
           if (!_.isArray(subscriptions)) {
             subscriptions = [];
           }
 
           subscription && subscriptions.push(subscription);
-          this.__private.subscriptions = subscriptions;
+          this[privateDataSymbol].subscriptions = subscriptions;
         }
       },
       dispose: function() {
         if (!this._isDisposed) {
           this._isDisposed = true;
           if (configParams.onDispose !== _.noop) {
-            configParams.onDispose.call(this, this.__private.element);
+            configParams.onDispose.call(this, this[privateDataSymbol].element);
           }
           _.each(this, propertyDispose);
-          _.each(this.__private.subscriptions || [], propertyDispose);
+          _.each(this[privateDataSymbol].subscriptions || [], propertyDispose);
         }
         return this;
       }

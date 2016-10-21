@@ -11,6 +11,7 @@ var isDataModelCtor = entityTools.isDataModelCtor;
 var isDataModel = entityTools.isDataModel;
 
 var makeOrGetRequest = require('../misc/ajax').makeOrGetRequest;
+var privateDataSymbol = require('../misc/config').privateDataSymbol;
 
 function sync() {
   return fw.sync.apply(this, arguments);
@@ -19,13 +20,13 @@ function sync() {
 function get(id) {
   var collection = this;
   return _.find(collection(), function findModelWithId(model) {
-    return _.result(model, collection.__private.getIdAttribute()) === id || _.result(model, '$id') === id || _.result(model, '$cid') === id;
+    return _.result(model, collection[privateDataSymbol].getIdAttribute()) === id || _.result(model, '$id') === id || _.result(model, '$cid') === id;
   });
 }
 
 function getData() {
   var collection = this;
-  var castAsModelData = collection.__private.castAs.modelData;
+  var castAsModelData = collection[privateDataSymbol].castAs.modelData;
   return _.reduce(collection(), function(models, model) {
     models.push(castAsModelData(model));
     return models;
@@ -38,7 +39,7 @@ function toJSON() {
 
 function pluck(attribute) {
   var collection = this;
-  var castAsModelData = collection.__private.castAs.modelData;
+  var castAsModelData = collection[privateDataSymbol].castAs.modelData;
   return _.reduce(collection(), function(pluckedValues, model) {
     pluckedValues.push(castAsModelData(model, attribute));
     return pluckedValues;
@@ -52,9 +53,9 @@ function set(newCollection, options) {
 
   var collection = this;
   var collectionStore = collection();
-  var castAsDataModel = collection.__private.castAs.dataModel;
-  var castAsModelData = collection.__private.castAs.modelData;
-  var idAttribute = collection.__private.getIdAttribute();
+  var castAsDataModel = collection[privateDataSymbol].castAs.dataModel;
+  var castAsModelData = collection[privateDataSymbol].castAs.modelData;
+  var idAttribute = collection[privateDataSymbol].getIdAttribute();
   var affectedModels = [];
   var absentModels = [];
   var addedModels = [];
@@ -155,7 +156,7 @@ function set(newCollection, options) {
 function reset(newCollection) {
   var collection = this;
   var oldModels = collection.removeAll();
-  var castAsDataModel = collection.__private.castAs.dataModel;
+  var castAsDataModel = collection[privateDataSymbol].castAs.dataModel;
 
   collection(_.reduce(newCollection, function(newModels, modelData) {
     newModels.push(castAsDataModel(modelData));
@@ -170,7 +171,7 @@ function reset(newCollection) {
 function fetch(options) {
   var ajax = require('../misc/ajax');
   var collection = this;
-  var configParams = collection.__private.configParams;
+  var configParams = collection[privateDataSymbol].configParams;
   options = options ? _.clone(options) : {};
 
   var requestInfo = {
@@ -206,7 +207,7 @@ function fetch(options) {
 
 function where(modelData, options) {
   var collection = this;
-  var castAsModelData = collection.__private.castAs.modelData;
+  var castAsModelData = collection[privateDataSymbol].castAs.modelData;
   options = options || {};
   modelData = castAsModelData(modelData);
 
@@ -221,7 +222,7 @@ function where(modelData, options) {
 
 function findWhere(modelData, options) {
   var collection = this;
-  var castAsModelData = collection.__private.castAs.modelData;
+  var castAsModelData = collection[privateDataSymbol].castAs.modelData;
   options = options || {};
   modelData = castAsModelData(modelData);
 
@@ -248,9 +249,9 @@ function addModel(models, options) {
 
   if (models.length) {
     var collectionData = collection();
-    var castAsDataModel = collection.__private.castAs.dataModel;
-    var castAsModelData = collection.__private.castAs.modelData;
-    var idAttribute = collection.__private.getIdAttribute();
+    var castAsDataModel = collection[privateDataSymbol].castAs.dataModel;
+    var castAsModelData = collection[privateDataSymbol].castAs.modelData;
+    var idAttribute = collection[privateDataSymbol].getIdAttribute();
 
     if (_.isNumber(options.at)) {
       var newModels = _.map(models, castAsDataModel);
@@ -295,8 +296,8 @@ function addModel(models, options) {
 function create(model, options) {
   var ajax = require('../misc/ajax');
   var collection = this;
-  var castAsDataModel = collection.__private.castAs.dataModel;
-  var configParams = collection.__private.configParams;
+  var castAsDataModel = collection[privateDataSymbol].castAs.dataModel;
+  var configParams = collection[privateDataSymbol].configParams;
   options = options ? _.clone(options) : {};
 
   var requestInfo = {

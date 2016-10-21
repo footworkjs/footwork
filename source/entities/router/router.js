@@ -4,6 +4,7 @@ var _ = require('lodash');
 var entityDescriptors = require('../entity-descriptors');
 var ViewModel = require('../viewModel/viewModel');
 var routerOutlet = require('./outlet/outlet');
+var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 
 var entityTools = require('../entity-tools');
 var isEntity = entityTools.isEntity;
@@ -48,7 +49,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
       var $router = this;
       var routerConfigParams = _.extend({ routes: [] }, configParams);
 
-      var router = this.__private = {
+      var router = this[privateDataSymbol] = {
         configParams: routerConfigParams
       };
       router.registerViewModelForOutlet = registerViewModelForOutlet.bind(this);
@@ -65,7 +66,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
       router.currentState = fw.observable('').broadcastAs('currentState');
 
       function trimBaseRoute(url) {
-        var routerConfig = $router.__private.configParams;
+        var routerConfig = $router[privateDataSymbol].configParams;
         if (!_.isNull(routerConfig.baseRoute) && url.indexOf(routerConfig.baseRoute) === 0) {
           url = url.substr(routerConfig.baseRoute.length);
           if (url.length > 1) {
@@ -218,8 +219,8 @@ var Router = module.exports = function Router(descriptor, configParams) {
 
         $router.setState(route, params);
       });
-      this.$namespace.request.handler('currentRoute', function() { return $router.__private.currentRoute(); });
-      this.$namespace.request.handler('urlParts', function() { return $router.__private.urlParts(); });
+      this.$namespace.request.handler('currentRoute', function() { return $router[privateDataSymbol].currentRoute(); });
+      this.$namespace.request.handler('urlParts', function() { return $router[privateDataSymbol].urlParts(); });
       this.$namespace.command.handler('activate', function() { $router.activate(); });
 
       var parentPathSubscription;
@@ -236,7 +237,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
             $router.router.currentState.notifySubscribers();
           }));
         }
-        $parentRouter.__private.childRouters.push(this);
+        $parentRouter[privateDataSymbol].childRouters.push(this);
         $previousParent = $parentRouter;
       }, this));
 
@@ -292,32 +293,32 @@ var Router = module.exports = function Router(descriptor, configParams) {
       },
       activate: function($context, $parentRouter) {
         var self = this;
-        $context = $context || self.__private.context();
+        $context = $context || self[privateDataSymbol].context();
         $parentRouter = $parentRouter || nearestParentRouter($context);
 
         if (!isNullRouter($parentRouter)) {
-          self.__private.parentRouter($parentRouter);
+          self[privateDataSymbol].parentRouter($parentRouter);
         } else if (_.isObject($context)) {
           $parentRouter = nearestParentRouter($context);
           if ($parentRouter !== self) {
-            self.__private.parentRouter($parentRouter);
+            self[privateDataSymbol].parentRouter($parentRouter);
           }
         }
 
-        if (!self.__private.historyPopstateListener()) {
+        if (!self[privateDataSymbol].historyPopstateListener()) {
           var popstateEvent = function() {
             var location = window.history.location || window.location;
-            self.__private.currentState(self.__private.normalizeURL(location.pathname + location.hash));
+            self[privateDataSymbol].currentState(self[privateDataSymbol].normalizeURL(location.pathname + location.hash));
           };
 
           (function(eventInfo) {
             window[eventInfo[0]](eventInfo[1] + 'popstate', popstateEvent, false);
           })(window.addEventListener ? ['addEventListener', ''] : ['attachEvent', 'on']);
 
-          self.__private.historyPopstateListener(popstateEvent);
+          self[privateDataSymbol].historyPopstateListener(popstateEvent);
         }
 
-        if (self.__private.currentState() === '') {
+        if (self[privateDataSymbol].currentState() === '') {
           self.setState();
         }
 
@@ -327,8 +328,8 @@ var Router = module.exports = function Router(descriptor, configParams) {
       setState: function(url, routeParams) {
         var self = this;
         var namedRoute = _.isObject(routeParams) ? url : null;
-        var configParams = this.__private.configParams;
-        var useHistory = this.__private.historyPopstateListener() && !fw.router.disableHistory();
+        var configParams = this[privateDataSymbol].configParams;
+        var useHistory = this[privateDataSymbol].historyPopstateListener() && !fw.router.disableHistory();
         var location = window.history.location || window.location;
 
         if (!_.isNull(namedRoute)) {
@@ -353,20 +354,20 @@ var Router = module.exports = function Router(descriptor, configParams) {
 
         var isExternalURL = fw.utils.isFullURL(url);
         if (!isExternalURL) {
-          url = this.__private.normalizeURL(url);
+          url = this[privateDataSymbol].normalizeURL(url);
         }
 
         var shouldContinueToRoute = resultBound(configParams, 'beforeRoute', this, [url || '/']);
         if (shouldContinueToRoute && !isExternalURL) {
           if (useHistory) {
-            var destination = configParams.baseRoute + this.__private.parentRouter().path() + url.replace(startingHashRegex, '/');
+            var destination = configParams.baseRoute + this[privateDataSymbol].parentRouter().path() + url.replace(startingHashRegex, '/');
             history.pushState(null, '', destination);
           }
-          this.__private.currentState(url);
+          this[privateDataSymbol].currentState(url);
 
           var routePath = this.path();
-          _.each(this.__private.childRouters(), function (childRouter) {
-            childRouter.__private.currentState(routePath);
+          _.each(this[privateDataSymbol].childRouters(), function (childRouter) {
+            childRouter[privateDataSymbol].currentState(routePath);
           });
         }
 
@@ -376,12 +377,12 @@ var Router = module.exports = function Router(descriptor, configParams) {
         if (!this._isDisposed) {
           this._isDisposed = true;
 
-          var $parentRouter = this.__private.parentRouter();
+          var $parentRouter = this[privateDataSymbol].parentRouter();
           if (!isNullRouter($parentRouter)) {
-            $parentRouter.__private.childRouters.remove(this);
+            $parentRouter[privateDataSymbol].childRouters.remove(this);
           }
 
-          var historyPopstateListener = this.__private.historyPopstateListener();
+          var historyPopstateListener = this[privateDataSymbol].historyPopstateListener();
           if (historyPopstateListener) {
             (function(eventInfo) {
               window[eventInfo[0]](eventInfo[1] + 'popstate', historyPopstateListener);
@@ -390,18 +391,18 @@ var Router = module.exports = function Router(descriptor, configParams) {
 
           this.$namespace.dispose();
           this.$globalNamespace.dispose();
-          _.invokeMap(this.__private.subscriptions, 'dispose');
+          _.invokeMap(this[privateDataSymbol].subscriptions, 'dispose');
 
           _.each(_.omitBy(this, function (property) {
             return isEntity(property);
           }), propertyDispose);
 
-          _.each(_.omitBy(this.__private, function (property) {
+          _.each(_.omitBy(this[privateDataSymbol], function (property) {
             return isEntity(property);
           }), propertyDispose);
 
           if (configParams.onDispose !== _.noop) {
-            configParams.onDispose.call(this, this.__private.element);
+            configParams.onDispose.call(this, this[privateDataSymbol].element);
           }
 
           return this;

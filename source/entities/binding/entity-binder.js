@@ -6,7 +6,10 @@ var isPromise = util.isPromise;
 var isPath = util.isPath;
 var promiseIsFulfilled = util.promiseIsFulfilled;
 
-var entityWrapperElement = require('../../misc/config').entityWrapperElement;
+var config = require('../../misc/config');
+var entityWrapperElement = config.entityWrapperElement;
+var privateDataSymbol = config.privateDataSymbol;
+
 var isEntity = require('../entity-tools').isEntity;
 
 module.exports = function entityBinder(element, params, $parentContext, Entity, flightTracker, parentsInFlightChildren, outletsInFlightChildren) {
@@ -55,10 +58,10 @@ module.exports = function entityBinder(element, params, $parentContext, Entity, 
         }
 
         function maybeResolve() {
-          entityObj.__private.configParams.afterResolving.call(entityObj, resolveThisEntityNow);
+          entityObj[privateDataSymbol].configParams.afterResolving.call(entityObj, resolveThisEntityNow);
         }
 
-        var inFlightChildren = entityObj.__private.inFlightChildren;
+        var inFlightChildren = entityObj[privateDataSymbol].inFlightChildren;
         // if no children then resolve now, otherwise subscribe and wait till its 0
         if (inFlightChildren().length === 0) {
           maybeResolve();
@@ -70,7 +73,7 @@ module.exports = function entityBinder(element, params, $parentContext, Entity, 
       };
     }
 
-    entityObj.__private.resolveFlightTracker = resolveFlightTracker;
+    entityObj[privateDataSymbol].resolveFlightTracker = resolveFlightTracker;
   }
 
   var childrenToInsert = [];

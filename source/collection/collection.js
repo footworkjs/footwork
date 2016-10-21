@@ -2,6 +2,7 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
 var collectionMethods = require('./collection-methods');
+var privateDataSymbol = require('../misc/config').privateDataSymbol;
 
 var entityTools = require('../entities/entity-tools');
 var isDataModel = entityTools.isDataModel;
@@ -19,13 +20,13 @@ var defaultCollectionConfig = {
 
 function removeDisposeAndNotify(originalFunction) {
   var removedItems = originalFunction.apply(this, Array.prototype.slice.call(arguments).splice(1));
-  this.__private.configParams.disposeOnRemove && _.invokeMap(removedItems, 'dispose');
+  this[privateDataSymbol].configParams.disposeOnRemove && _.invokeMap(removedItems, 'dispose');
   this.$namespace.publish('_.remove', removedItems);
   return removedItems;
 }
 
 function addAndNotify(originalFunction) {
-  var addItems = _.map(Array.prototype.slice.call(arguments).splice(1), this.__private.castAs.dataModel);
+  var addItems = _.map(Array.prototype.slice.call(arguments).splice(1), this[privateDataSymbol].castAs.dataModel);
   var originalResult = originalFunction.apply(this, addItems);
   this.$namespace.publish('_.add', addItems);
   return originalResult;
@@ -73,7 +74,7 @@ fw.collection.create = function(configParams) {
           var idAttribute = configParams.idAttribute || (options || {}).idAttribute;
           if (_.isUndefined(idAttribute) || _.isNull(idAttribute)) {
             if (isDataModelCtor(DataModelCtor)) {
-              return DataModelCtor.__private.configParams.idAttribute;
+              return DataModelCtor[privateDataSymbol].configParams.idAttribute;
             }
           }
           return idAttribute || 'id';

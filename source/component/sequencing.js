@@ -1,7 +1,9 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var entityAnimateClass = require('../misc/config').entityAnimateClass;
+var config = require('../misc/config');
+var entityAnimateClass = config.entityAnimateClass;
+var privateDataSymbol = config.privateDataSymbol;
 
 var util = require('../misc/util');
 var resultBound = util.resultBound;
@@ -41,7 +43,7 @@ function runAnimationClassSequenceQueue(queue, isRunner) {
 }
 
 function addToAndFetchQueue(element, viewModel) {
-  var configParams = (viewModel.__private || {}).configParams || {};
+  var configParams = (viewModel[privateDataSymbol] || {}).configParams || {};
   var sequenceTimeout = resultBound(configParams, 'sequenceAnimations', viewModel) || 0;
   var namespaceName = configParams.namespace || _.uniqueId('instance');
   var animationSequenceQueue = sequenceQueue[namespaceName] = (sequenceQueue[namespaceName] || []);

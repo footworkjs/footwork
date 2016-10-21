@@ -1,6 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
+var privateDataSymbol = require('../../../misc/config').privateDataSymbol;
 var resultBound = require('../../../misc/util').resultBound;
 var clearSequenceQueue = require('../../../component/sequencing').clearSequenceQueue;
 
@@ -20,7 +21,7 @@ module.exports = function routerOutlet(outletName, componentToDisplay, options) 
   var viewModelParameters = options.params;
   var onComplete = options.onComplete || _.noop;
   var onFailure = options.onFailure || _.noop;
-  var configParams = router.__private.configParams;
+  var configParams = router[privateDataSymbol].configParams;
   var outlets = router.outlets;
   var outletProperties = outlets[outletName] || {};
   var outlet = outletProperties.routeObservable;
