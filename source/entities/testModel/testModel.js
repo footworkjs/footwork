@@ -6,7 +6,6 @@ var prepareDescriptor = require('../entity-tools').prepareDescriptor;
 var capitalizeFirstLetter = require('../../misc/util').capitalizeFirstLetter;
 
 var entityName = 'viewModel';
-var isEntityCtorDuckTag = '__is' + capitalizeFirstLetter(entityName) + 'Ctor';
 var isEntityDuckTag = '__is' + capitalizeFirstLetter(entityName);
 
 var entityResource = fw[entityName] = {
@@ -19,11 +18,7 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   tagName: entityName.toLowerCase(),
   entityName: entityName,
   resource: entityResource,
-  isEntityCtorDuckTag: isEntityCtorDuckTag,
-  isEntityDuckTag: isEntityDuckTag,
-  isEntityCtor: function (thing) {
-    return _.isFunction(thing) && !!thing[ isEntityCtorDuckTag ];
-  },
+  isEntityDuckTag: require('../../misc/util').getSymbol(isEntityDuckTag),
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[ isEntityDuckTag ];
   },
@@ -38,6 +33,8 @@ entityDescriptors.push(descriptor = prepareDescriptor({
     onDispose: _.noop
   }
 }));
+
+fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 
 // Form 1
 // function TestModel() {

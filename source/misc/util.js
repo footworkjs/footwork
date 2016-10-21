@@ -1,5 +1,10 @@
 var _ = require('lodash');
 
+/**
+ * Function which always returns true (a predicate function that always passes as 'true')
+ *
+ * @returns true
+ */
 function alwaysPassPredicate() {
   return true;
 }
@@ -25,28 +30,64 @@ function resultBound(object, path, context, params) {
   return object[path];
 }
 
+/**
+ * Determine whether or not the supplied thing is a promise or not
+ *
+ * @param {any} thing
+ * @returns {boolean} true if it is a promise, false if not
+ */
 function isPromise(thing) {
   return _.isObject(thing) && _.isFunction(thing.then);
 }
 
+/**
+ * Determines whether or not a promise has been fulfilled.
+ *
+ * @param {any} promise
+ * @returns {boolean} true if fulfilled, false if not
+ */
 function promiseIsFulfilled(promise) {
   return !isPromise(promise) || promise.isFulfilled();
 }
-
+/**
+ * Determines whether or not an element has a className property
+ *
+ * @param {any} element
+ * @returns {boolean} true if it has the property, false if not
+ */
 function hasClassName(element) {
   return _.isObject(element) && _.isString(element.className);
 }
 
+/**
+ * Determines whether or not the supplied element has the given className.
+ *
+ * @param {any} element
+ * @param {any} className
+ * @returns {boolean} true if it has the class, false if not
+ */
 function hasClass(element, className) {
   return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
 }
 
+/**
+ * Add the specified className to the given element if it is not already there.
+ *
+ * @param {any} element
+ * @param {any} className
+ */
 function addClass(element, className) {
   if (hasClassName(element) && !hasClass(element, className)) {
     element.className += (element.className.length && _.isNull(element.className.match(/ $/)) ? ' ' : '') + className;
   }
 }
 
+/**
+ * Remove the specified className from the given element if it exists.
+ *
+ * @param {any} element
+ * @param {any} className
+ */
 function removeClass(element, className) {
   if (hasClassName(element) && hasClass(element, className)) {
     var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)', 'g');
@@ -54,21 +95,46 @@ function removeClass(element, className) {
   }
 }
 
+/**
+ * Call the supplied callback after the minimum transition time (the next frame).
+ *
+ * @param {any} callback
+ */
 function nextFrame(callback) {
   setTimeout(callback, 1000 / 30);
 };
 
 var trailingSlashRegex = /\/$/;
+
+/**
+ * Determines whether or not the supplied pathOrFile is a path.
+ *
+ * @param {any} pathOrFile
+ * @returns {boolean} true if the supplied pathOrFile is a path, false if not
+ */
 function isPath(pathOrFile) {
   return _.isString(pathOrFile) && trailingSlashRegex.test(pathOrFile);
 }
 
 var startingSlashRegex = /^\//;
+
+/**
+ * Determine whether or not the supplied path starts with a slash (/) (is the start of a path)
+ *
+ * @param {any} path
+ * @returns {boolean} true if the supplied path starts with a slash (/), false if not
+ */
 function hasPathStart(path) {
   return _.isString(path) && startingSlashRegex.test(path);
 }
 
 var startingHashRegex = /^#/;
+/**
+ * Determine whether or not the supplied string starts with a hash mark (#)
+ *
+ * @param {any} string
+ * @returns {boolean} true if the supplied value starts with a hash mark (#)
+ */
 function hasHashStart(string) {
   return _.isString(string) && startingHashRegex.test(string);
 }
@@ -203,6 +269,16 @@ function getPrivateData(instance) {
   return instance[require('./config').privateDataSymbol];
 }
 
+/**
+ * Return either the supplied string key (if Symbol() capability not present) or return a symbol based on that same key.
+ *
+ * @param {any} str
+ * @returns {Symbol|string} The identifier
+ */
+function getSymbol(str) {
+  return typeof Symbol === 'function' ? Symbol(str) : str;
+}
+
 module.exports = {
   alwaysPassPredicate: alwaysPassPredicate,
   resultBound: resultBound,
@@ -222,5 +298,7 @@ module.exports = {
   isDocumentFragment: isDocumentFragment,
   isDomElement: isDomElement,
   startingHashRegex: startingHashRegex,
-  capitalizeFirstLetter: capitalizeFirstLetter
+  capitalizeFirstLetter: capitalizeFirstLetter,
+  getPrivateData: getPrivateData,
+  getSymbol: getSymbol
 };
