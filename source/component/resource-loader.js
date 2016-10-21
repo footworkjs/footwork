@@ -5,7 +5,6 @@ var util = require('../misc/util');
 var isPath = util.isPath;
 var getFilenameExtension = util.getFilenameExtension;
 
-var entityDescriptors = require('../entities/entity-descriptors');
 var getComponentExtension = require('../resource/component-resource').getComponentExtension;
 
 fw.components.loaders.push(fw.components.registeredLocationLoader = {
