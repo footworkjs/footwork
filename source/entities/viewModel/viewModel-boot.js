@@ -15,6 +15,25 @@ module.exports = function viewModelBoot(descriptor, isEntityDuckTag, instance, c
     };
 
     _.extend(instance, descriptor.mixin);
+
+    var globalNS = fw.namespace();
+    instance.disposeWithInstance(globalNS);
+
+    /**
+     * This request handler returns references to the instance to the requester.
+     */
+    globalNS.request.handler(descriptor.referenceNamespace, function(options) {
+      if (_.isString(options.namespaceName) || _.isArray(options.namespaceName)) {
+        var myNamespaceName = configParams.namespace;
+        if (_.isArray(options.namespaceName) && _.indexOf(options.namespaceName, myNamespaceName) !== -1) {
+          return this;
+        } else if (_.isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+          return this;
+        }
+      } else {
+        return this;
+      }
+    });
   } else {
     throw new Error('Cannot boot an instance more than once.');
   }
