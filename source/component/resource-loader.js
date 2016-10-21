@@ -8,32 +8,41 @@ var getFilenameExtension = util.getFilenameExtension;
 var entityDescriptors = require('../entities/entity-descriptors');
 var getComponentExtension = require('../resource/component-resource').getComponentExtension;
 
-fw.components.loaders.push(fw.components.requireLoader = {
+fw.components.loaders.unshift(fw.components.entityLoader = {
   getConfig: function(componentName, callback) {
     var configOptions = null;
     var descriptor = entityDescriptors.getDescriptor(componentName);
 
     if(descriptor) {
       // this component is a viewModel/dataModel/router entity
-      var componentRegistry = _.last(require('./component-registry'));
-      var moduleName = componentRegistry.moduleName;
+      var moduleName = _.last(require('./component-registry'));
+      var viewModelOrLocation = descriptor.resource.getResourceOrLocation(moduleName);
 
-      var viewModelResourceOrLocation = descriptor.resource.getResourceOrLocation(moduleName);
-      if(_.isString(viewModelResourceOrLocation)) {
-        viewModelResourceOrLocation = { require: viewModelResourceOrLocation + descriptor.resource.getFileName(moduleName) };
+      if(_.isString(viewModelOrLocation)) {
+        viewModelOrLocation = { require: viewModelOrLocation + descriptor.resource.getFileName(moduleName) };
       }
 
-      configOptions = {
-        template: componentRegistry.children,
-        viewModel: viewModelResourceOrLocation
-      };
+      callback({
+        viewModel: viewModelOrLocation,
+        template: '<!-- ko $life, template: { nodes: $componentTemplateNodes, data: $data } --><!-- /ko -->'
+      });
     } else {
-      // this is a normal component
-      var folderOffset = componentLocation.folderOffset || '';
-      var componentLocation = fw.components.getLocation(componentName);
+      callback(null);
+    }
+  }
+});
+
+fw.components.loaders.push(fw.components.registeredLocationLoader = {
+  getConfig: function(componentName, callback) {
+    // this is a normal component
+    var configOptions = null;
+    var componentLocation = fw.components.getLocation(componentName);
+
+    if(componentLocation) {
       var combinedFile = fw.components.getFileName(componentName, 'combined');
       var viewModelFile = fw.components.getFileName(componentName, 'viewModel');
       var templateFile = fw.components.getFileName(componentName, 'template');
+      var folderOffset = componentLocation.folderOffset || '';
 
       if (folderOffset !== '') {
         folderOffset = componentName + '/';

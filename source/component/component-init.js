@@ -23,6 +23,10 @@ function componentInit(element, valueAccessor, allBindings, viewModel, bindingCo
   var tagName = element.tagName;
   var flightTracker = componentId++;
 
+  if(flightTracker > 3) {
+    throw new Error('fark');
+  }
+
   if (element.nodeType !== 8) {
     var nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
     if (nearestOutlet) {
@@ -34,14 +38,11 @@ function componentInit(element, valueAccessor, allBindings, viewModel, bindingCo
   }
 
   if (entityDescriptors.tagNameIsPresent(tagName)) {
-    componentRegistry[flightTracker] = {
-      moduleName: element.getAttribute('module') || element.getAttribute('data-module'),
-      children: element.children
-    };
+    componentRegistry[flightTracker] = element.getAttribute('module') || element.getAttribute('data-module');
   }
 
   element.flightTracker = flightTracker;
-  return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);
+  return originalComponentInit(element, valueAccessor, allBindings, viewModel, bindingContext);
 };
 
 fw.bindingHandlers.component.init = componentInit;

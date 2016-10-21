@@ -15,6 +15,7 @@ function alwaysPassPredicate() {
  * @returns {mixed}          The result of the property on the object
  */
 function resultBound(object, path, context, params) {
+  object = object || {};
   params = params || [];
   context = context || object;
 

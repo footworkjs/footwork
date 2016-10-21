@@ -1,16 +1,25 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var internalComponents = require('./internal-components');
+var entityDescriptors = require('../entities/entity-descriptors');
 
 var util = require('../misc/util');
 var isDocumentFragment = util.isDocumentFragment;
 var isDomElement = util.isDomElement;
 
+function makeArray(arrayLikeObject) {
+  var result = [];
+  for (var i = 0, j = arrayLikeObject.length; i < j; i++) {
+    result.push(arrayLikeObject[i]);
+  };
+  return result;
+}
+
 // Custom loader used to wrap components with the $life custom binding
 fw.components.loaders.unshift(fw.components.lifecycleLoader = {
   loadTemplate: function(componentName, templateConfig, callback) {
-    if (!internalComponents.isInternalComponent(componentName)) {
+    if(!entityDescriptors.getDescriptor(componentName)) {
+      // This is a regular component (not an entity) we need to wrap it with the $life binding
       if (typeof templateConfig === 'string') {
         // Markup - parse it
         callback(wrapWithLifeCycle(templateConfig));
@@ -40,6 +49,7 @@ fw.components.loaders.unshift(fw.components.lifecycleLoader = {
         throw new Error('Unhandled config type: ' + typeof templateConfig + '.');
       }
     } else {
+      // This is an entity we need to leave this alone (there is another loader which wraps these)
       callback(null);
     }
   }
