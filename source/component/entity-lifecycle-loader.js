@@ -14,7 +14,7 @@ fw.components.loaders.unshift(fw.components.entityLifecycleLoader = {
 
     if(descriptor) {
       // this component is a viewModel/dataModel/router entity
-      var moduleName = _.last(require('./component-registry'));
+      var moduleName = require('./component-registry').pop();
       var viewModelOrLocation = descriptor.resource.getResourceOrLocation(moduleName);
 
       if(_.isString(viewModelOrLocation)) {
@@ -25,6 +25,9 @@ fw.components.loaders.unshift(fw.components.entityLifecycleLoader = {
         viewModel: viewModelOrLocation,
         template: '<!-- ko $life, template: { nodes: $componentTemplateNodes, data: $data } --><!-- /ko -->'
       });
+
+      // ensure that getConfig is called again when a new declaration is encountered
+      fw.components.clearCachedDefinition(componentName);
     } else {
       callback(null);
     }

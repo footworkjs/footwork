@@ -8,30 +8,6 @@ var getFilenameExtension = util.getFilenameExtension;
 var entityDescriptors = require('../entities/entity-descriptors');
 var getComponentExtension = require('../resource/component-resource').getComponentExtension;
 
-fw.components.loaders.unshift(fw.components.entityLoader = {
-  getConfig: function(componentName, callback) {
-    var configOptions = null;
-    var descriptor = entityDescriptors.getDescriptor(componentName);
-
-    if(descriptor) {
-      // this component is a viewModel/dataModel/router entity
-      var moduleName = _.last(require('./component-registry'));
-      var viewModelOrLocation = descriptor.resource.getResourceOrLocation(moduleName);
-
-      if(_.isString(viewModelOrLocation)) {
-        viewModelOrLocation = { require: viewModelOrLocation + descriptor.resource.getFileName(moduleName) };
-      }
-
-      callback({
-        viewModel: viewModelOrLocation,
-        template: '<!-- ko $life, template: { nodes: $componentTemplateNodes, data: $data } --><!-- /ko -->'
-      });
-    } else {
-      callback(null);
-    }
-  }
-});
-
 fw.components.loaders.push(fw.components.registeredLocationLoader = {
   getConfig: function(componentName, callback) {
     // this is a normal component
