@@ -30,6 +30,11 @@ function componentInit(element, valueAccessor, allBindings, viewModel, bindingCo
       if (fw.isObservable(inFlightChildren) && _.isFunction(inFlightChildren.push)) {
         inFlightChildren.push(flightTracker);
       }
+
+      // ensure that if the element is removed before its other resources are resolved that the flightTracker is removed/cleared
+      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
+        inFlightChildren.remove(flightTracker);
+      });
     }
   }
 
