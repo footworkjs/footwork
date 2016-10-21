@@ -36,11 +36,6 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   }
 }));
 
-fw.components.register(entityName, {
-  viewModel: _.noop,
-  template: ''
-});
-
 // Form 1
 // function TestModel() {
 //   fw.viewModel.setConfig(this, {

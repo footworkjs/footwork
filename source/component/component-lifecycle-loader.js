@@ -15,8 +15,11 @@ function makeArray(arrayLikeObject) {
   return result;
 }
 
-// Custom loader used to wrap components with the $life custom binding
-fw.components.loaders.unshift(fw.components.lifecycleLoader = {
+/**
+ * The component lifecycle loader wraps all non-entity (viewModel/dataModel/router) custom component
+ * contents with the $life binding which enables the lifecycle hooks (afterBinding/afterRender/onDispose).
+ */
+fw.components.loaders.unshift(fw.components.componentLifecycleLoader = {
   loadTemplate: function(componentName, templateConfig, callback) {
     if(!entityDescriptors.getDescriptor(componentName)) {
       // This is a regular component (not an entity) we need to wrap it with the $life binding
@@ -28,7 +31,7 @@ fw.components.loaders.unshift(fw.components.lifecycleLoader = {
         callback(wrapWithLifeCycle(templateConfig));
       } else if (isDocumentFragment(templateConfig)) {
         // Document fragment - use its child nodes
-        callback(wrapWithLifeCycle(fw.utils.makeArray(templateConfig.childNodes)));
+        callback(wrapWithLifeCycle(makeArray(templateConfig.childNodes)));
       } else if (templateConfig['element']) {
         var element = templateConfig['element'];
         if (isDomElement(element)) {
@@ -49,7 +52,7 @@ fw.components.loaders.unshift(fw.components.lifecycleLoader = {
         throw new Error('Unhandled config type: ' + typeof templateConfig + '.');
       }
     } else {
-      // This is an entity we need to leave this alone (there is another loader which wraps these)
+      // This is an entity, leave it to the entity lifecycle loader
       callback(null);
     }
   }

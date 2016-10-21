@@ -3,7 +3,8 @@ var _ = require('lodash');
 var fw = require('knockout/build/output/knockout-latest');
 
 require('./sequencing');
-require('./lifecycle-loader');
+require('./component-lifecycle-loader');
+require('./entity-lifecycle-loader');
 require('./lifecycle-binding');
 require('./resource-loader');
 require('./component-init');
