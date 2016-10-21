@@ -10,15 +10,14 @@ var makeSymbol = util.makeSymbol;
 
 var entityName = 'viewModel';
 var isEntityDuckTag = makeSymbol('__is' + capitalizeFirstLetter(entityName));
-var entityResource = fw[entityName] = {};
 
 var descriptor;
 entityDescriptors.push(descriptor = prepareDescriptor({
   tagName: entityName.toLowerCase(),
   entityName: entityName,
-  resource: entityResource,
+  resource: fw[entityName] = {},
   isEntity: function (thing) {
-    return _.isObject(thing) && !!thing[ isEntityDuckTag ];
+    return _.isObject(thing) && !!thing[isEntityDuckTag];
   },
   mixin: require('./viewModel-mixin'),
   defaultConfig: {
@@ -40,7 +39,7 @@ _.extend(fw[entityName], {
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 
-require('../../misc/config')[capitalizeFirstLetter(entityName)] = function (params) {
+require('../../misc/config')[capitalizeFirstLetter(entityName)] = function DefaultInstance(params) {
   if (_.isObject(params) && _.isObject(params.$viewModel)) {
     _.extend(this, params.$viewModel);
   }

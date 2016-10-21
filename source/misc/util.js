@@ -216,7 +216,7 @@ parseUri.options = {
  * @param {any} property
  */
 function propertyDispose(property) {
-  if (_.isObject(property) && _.isFunction(property.dispose)) {
+  if (!_.isUndefined(property) && _.isFunction(property.dispose)) {
     property.dispose();
   }
 }

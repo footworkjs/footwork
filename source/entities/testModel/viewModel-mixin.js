@@ -16,19 +16,19 @@ module.exports = {
       }
 
       _.each(self, propertyDispose);
-      _.each(self[privateDataSymbol].subscriptions, propertyDispose);
+      _.each(self[privateDataSymbol].disposableItems, propertyDispose);
     }
 
     return self;
   },
-  disposeWithInstance: function disposeWithInstance(subscription) {
-    if (_.isArray(subscription)) {
+  disposeWithInstance: function disposeWithInstance(disposableItem) {
+    if (_.isArray(disposableItem)) {
       var self = this;
-      _.each(subscription, function(sub) {
-        self.disposeWithInstance(sub);
+      _.each(disposableItem, function(item) {
+        self.disposeWithInstance(item);
       });
-    } else if(subscription) {
-      this[privateDataSymbol].subscriptions.push(subscription);
+    } else if(disposableItem) {
+      this[privateDataSymbol].disposableItems.push(disposableItem);
     }
   }
 };

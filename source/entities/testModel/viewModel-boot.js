@@ -10,7 +10,7 @@ module.exports = function viewModelBoot(descriptor, isEntityDuckTag, instance, c
 
     instance[privateDataSymbol] = {
       configParams: configParams,
-      subscriptions: [],
+      disposableItems: [],
       inFlightChildren: fw.observableArray()
     };
 
