@@ -35,17 +35,17 @@ var privateDataSymbol = config.privateDataSymbol;
  */
 function resolveComponent(element, viewModel, $context, addAnimationClass) {
   var flightTracker = element.flightTracker;
-  var inFlightChildren;
+  var parentInFlightChildren;
 
   var parentEntity = nearestEntity($context);
   if (parentEntity) {
-    inFlightChildren = parentEntity.inFlightChildren;
+    parentInFlightChildren = parentEntity[privateDataSymbol].inFlightChildren;
   }
 
   function finishResolution() {
     addAnimationClass();
-    if (fw.isObservable(inFlightChildren) && _.isFunction(inFlightChildren.remove)) {
-      inFlightChildren.remove(flightTracker);
+    if (fw.isObservable(parentInFlightChildren) && _.isFunction(parentInFlightChildren.remove)) {
+      parentInFlightChildren.remove(flightTracker);
     }
   }
 

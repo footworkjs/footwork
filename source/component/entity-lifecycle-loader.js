@@ -15,7 +15,7 @@ fw.components.loaders.unshift(fw.components.entityLifecycleLoader = {
 
     if(descriptor) {
       // this component is a viewModel/dataModel/router entity
-      var moduleName = require('./component-registry').pop();
+      var moduleName = require('./component-registry').pop().moduleName;
       var viewModelOrLocation = descriptor.resource.getResourceOrLocation(moduleName);
 
       if(_.isString(viewModelOrLocation)) {

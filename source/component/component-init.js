@@ -1,12 +1,12 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
+var privateDataSymbol = require('../misc/config').privateDataSymbol;
 var nearestEntity = require('../entities/entity-tools').nearestEntity;
 var isOutletViewModel = require('../entities/router/router-tools').isOutletViewModel;
 var entityDescriptors = require('../entities/entity-descriptors');
 
 var originalComponentInit = fw.bindingHandlers.component.init;
-var componentRegistry = require('./component-registry');
 var componentId = 0;
 
 /**
@@ -21,20 +21,20 @@ var componentId = 0;
  */
 function componentInit(element, valueAccessor, allBindings, viewModel, bindingContext) {
   var tagName = element.tagName;
-  var flightTracker = componentId++;
+  var flightTracker = { moduleName: element.getAttribute('module') || element.getAttribute('data-module') };
 
   if (element.nodeType !== 8) {
-    var nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
-    if (nearestOutlet) {
-      var outletsInFlightChildren = nearestOutlet.inFlightChildren;
-      if (fw.isObservable(outletsInFlightChildren) && _.isFunction(outletsInFlightChildren.push)) {
-        outletsInFlightChildren.push(flightTracker);
+    var closestEntity = nearestEntity(bindingContext);
+    if (closestEntity) {
+      var inFlightChildren = closestEntity[privateDataSymbol].inFlightChildren;
+      if (fw.isObservable(inFlightChildren) && _.isFunction(inFlightChildren.push)) {
+        inFlightChildren.push(flightTracker);
       }
     }
   }
 
   if (entityDescriptors.tagNameIsPresent(tagName)) {
-    componentRegistry[flightTracker] = element.getAttribute('module') || element.getAttribute('data-module');
+    require('./component-registry').push(flightTracker);
   }
 
   element.flightTracker = flightTracker;
