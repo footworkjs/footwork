@@ -6,10 +6,10 @@ var prepareDescriptor = require('../entity-tools').prepareDescriptor;
 
 var util = require('../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
-var makeSymbol = util.makeSymbol;
+var getSymbol = util.getSymbol;
 
 var entityName = 'viewModel';
-var isEntityDuckTag = makeSymbol('__is' + capitalizeFirstLetter(entityName));
+var isEntityDuckTag = getSymbol('__is' + capitalizeFirstLetter(entityName));
 
 var descriptor;
 entityDescriptors.push(descriptor = prepareDescriptor({

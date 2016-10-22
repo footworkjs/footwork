@@ -275,8 +275,8 @@ function getPrivateData (instance) {
  * @param {any} str
  * @returns {Symbol|string} The identifier
  */
-function makeSymbol (str) {
-  return typeof Symbol === 'function' ? Symbol(str.replace('__', '')) : /* istanbul ignore next */ str;
+function getSymbol (str) {
+  return typeof Symbol === 'function' && typeof Symbol.for === 'function' ? Symbol.for(str.replace('__', '')) : /* istanbul ignore next */ str;
 }
 
 /**
@@ -323,7 +323,7 @@ module.exports = {
   startingHashRegex: startingHashRegex,
   capitalizeFirstLetter: capitalizeFirstLetter,
   getPrivateData: getPrivateData,
-  makeSymbol: makeSymbol,
+  getSymbol: getSymbol,
   makeArray: makeArray,
   isAmdResolved: isAmdResolved
 };

@@ -18,7 +18,7 @@ var originalComponentInit = fw.bindingHandlers.component.init;
  */
 function componentInit (element, valueAccessor, allBindings, viewModel, bindingContext) {
   var tagName = element.tagName;
-  var loadingTracker = element.loadingTracker = {
+  var loadingTracker = element[require('../misc/util').getSymbol('__loadingTracker')] = {
     tagName: tagName,
     moduleName: element.getAttribute('module') || /* istanbul ignore next */ element.getAttribute('data-module')
   };

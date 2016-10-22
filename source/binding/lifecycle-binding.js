@@ -20,6 +20,7 @@ var addClass = util.addClass;
 var hasClass = util.hasClass;
 var isPromise = util.isPromise;
 var promiseIsFulfilled = util.promiseIsFulfilled;
+var getSymbol = util.getSymbol;
 
 var config = require('../misc/config');
 var entityClass = config.entityClass;
@@ -101,7 +102,7 @@ fw.bindingHandlers.$lifecycle = {
  * @param {function} addAnimationClass
  */
 function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationClass) {
-  var loadingTracker = element.loadingTracker;
+  var loadingTracker = element[getSymbol('__loadingTracker')];
   var parentInFlightChildren;
 
   var parentEntity = nearestEntity($context);
