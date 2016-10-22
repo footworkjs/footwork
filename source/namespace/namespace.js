@@ -87,24 +87,4 @@ Namespace.isNamespace = function isNamespace (thing) {
   return _.isObject(thing) && !!thing.__isNamespace;
 };
 
-// mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
-require('../entities/entity-mixins').push({
-  runBeforeInit: true,
-  _preInit: function (options) {
-    var $configParams = this[privateDataSymbol].configParams;
-    var namespaceName = $configParams.namespace || $configParams.name || _.uniqueId('namespace');
-    this.$namespace = enterNamespaceName(indexedNamespaceName(namespaceName, $configParams.autoIncrement));
-    this.$rootNamespace = Namespace(namespaceName);
-    this.$globalNamespace = Namespace();
-  },
-  mixin: {
-    getNamespaceName: function () {
-      return this.$namespace.getName();
-    }
-  },
-  _postInit: function (options) {
-    exitNamespace();
-  }
-});
-
 module.exports = Namespace;

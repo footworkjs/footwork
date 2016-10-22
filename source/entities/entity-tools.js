@@ -1,7 +1,6 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var entityMixins = require('./entity-mixins');
 var entityDescriptors = require('./entity-descriptors');
 var capitalizeFirstLetter = require('../misc/util').capitalizeFirstLetter;
 
