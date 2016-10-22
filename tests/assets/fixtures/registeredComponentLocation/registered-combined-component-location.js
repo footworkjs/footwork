@@ -1,9 +1,10 @@
 define(['footwork'], function(fw) {
   return fw.component({
-    viewModel: fw.viewModel.create({
-      namespace: 'registered-combined-component-location',
-      initialize: registerFootworkEntity()
-    }),
+    viewModel: function() {
+      registerFootworkEntity(fw.viewModel.boot(this, {
+        namespace: 'registered-combined-component-location'
+      }));
+    },
     template: '<div></div>'
   });
 });

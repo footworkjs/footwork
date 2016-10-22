@@ -1,4 +1,4 @@
-var fw = require('knockout/build/output/knockout-latest');
+var fw = require('knockout');
 var _ = require('lodash');
 
 var entityDescriptors = require('./entity-descriptors');
@@ -48,6 +48,26 @@ function nearestEntity ($context, predicate) {
   return foundEntity;
 }
 
+/**
+ * This request handler returns references of the instance to the requester when it matches the passed in namespaceName.
+ *
+ * @param {any} instance
+ * @param {any} options
+ * @returns {object} the instance passed in if the passed in namespace matches
+ */
+function instanceRequestHandler (instance, options) {
+  if (_.isString(options.namespaceName) || _.isArray(options.namespaceName)) {
+    var myNamespaceName = instance.$namespace.getName();
+    if (_.isArray(options.namespaceName) && _.indexOf(options.namespaceName, myNamespaceName) !== -1) {
+      return instance;
+    } else if (_.isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+      return instance;
+    }
+  } else {
+    return instance;
+  }
+}
+
 module.exports = {
   prepareDescriptor: prepareDescriptor,
   isEntityCtor: isEntityCtor,
@@ -55,5 +75,6 @@ module.exports = {
   isRouter: _.noop,
   isDataModel: _.noop,
   isDataModelCtor: _.noop,
-  nearestEntity: nearestEntity
+  nearestEntity: nearestEntity,
+  instanceRequestHandler: instanceRequestHandler
 };

@@ -1,4 +1,4 @@
-var fw = require('knockout/build/output/knockout-latest');
+var fw = require('knockout');
 var _ = require('lodash');
 
 var entityDescriptors = require('../entity-descriptors');

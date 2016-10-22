@@ -1,4 +1,4 @@
-var fw = require('knockout/build/output/knockout-latest');
+var fw = require('knockout');
 var _ = require('lodash');
 
 var entityDescriptors = require('../entity-descriptors');
@@ -16,13 +16,13 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   tagName: entityName.toLowerCase(),
   entityName: entityName,
   resource: fw[entityName] = {},
+  isEntityDuckTag: isEntityDuckTag,
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
   },
   mixin: require('./viewModel-mixin'),
   defaultConfig: {
     namespace: undefined,
-    autoRegister: false,
     afterRender: _.noop,
     afterResolving: function resolveEntityImmediately (resolveNow) {
       resolveNow(true);
@@ -33,7 +33,7 @@ entityDescriptors.push(descriptor = prepareDescriptor({
 }));
 
 _.extend(fw[entityName], {
-  boot: _.partial(require('./viewModel-bootstrap'), descriptor, isEntityDuckTag),
+  boot: require('./viewModel-bootstrap'),
   getPrivateData: require('../../misc/util').getPrivateData
 });
 

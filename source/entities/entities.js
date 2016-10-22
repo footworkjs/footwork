@@ -2,5 +2,5 @@
 require('../resource/component-resource');
 
 require('./viewModel/viewModel');
-// require('./dataModel/dataModel');
+require('./dataModel/dataModel');
 // require('./router/router');

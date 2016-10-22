@@ -1,6 +1,7 @@
 define(['footwork'], function(fw) {
-  return fw.router.create({
-    namespace: 'AMDRouterRegexp-test',
-    initialize: registerFootworkEntity()
-  });
+  return function() {
+    registerFootworkEntity(fw.router.boot(this, {
+      namespace: 'AMDRouterRegexp-test'
+    }));
+  };
 });

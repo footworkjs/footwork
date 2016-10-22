@@ -1,6 +1,7 @@
 define(['footwork'], function(fw) {
-  return fw.viewModel.create({
-    namespace: 'defaultViewModel',
-    initialize: registerFootworkEntity()
-  });
+  return function() {
+    registerFootworkEntity(fw.viewModel.boot(this, {
+      namespace: 'defaultViewModel'
+    }));
+  };
 });

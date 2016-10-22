@@ -1,24 +1,27 @@
-var fw = require('knockout/build/output/knockout-latest');
+var fw = require('knockout');
 var _ = require('lodash');
 var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+
+var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
 
 /**
  * Bootstrap an instance with viewModel capabilities (lifecycle/etc).
  *
- * @param {any} descriptor
- * @param {any} isEntityDuckTag
  * @param {any} instance
  * @param {any} configParams
  * @returns {object} The instance that was passed in
  */
-function viewModelBootstrap (descriptor, isEntityDuckTag, instance, configParams) {
+function viewModelBootstrap (instance, configParams, addingInstanceRequestHandlerLater) {
   if(!instance) {
     throw new Error('Must supply the instance (this) to boot()');
   }
 
-  if (_.isUndefined(instance[privateDataSymbol])) {
+  var descriptor = require('../entity-descriptors').getDescriptor('viewModel');
+
+  var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
+  if (!hasBeenBootstrapped) {
+    instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
     configParams = configParams || {};
-    instance[isEntityDuckTag] = true;
 
     configParams = _.extend({}, descriptor.defaultConfig, {
       namespace: configParams.namespace ? null : _.uniqueId(descriptor.entityName)
@@ -34,24 +37,11 @@ function viewModelBootstrap (descriptor, isEntityDuckTag, instance, configParams
       $namespace: fw.namespace(configParams.namespace)
     });
 
-    var globalNS = fw.namespace();
-    instance.disposeWithInstance(globalNS);
-
-    /**
-     * This request handler returns references of the instance to the requester.
-     */
-    globalNS.request.handler(descriptor.referenceNamespace, function (options) {
-      if (_.isString(options.namespaceName) || _.isArray(options.namespaceName)) {
-        var myNamespaceName = instance.$namespace.getName();
-        if (_.isArray(options.namespaceName) && _.indexOf(options.namespaceName, myNamespaceName) !== -1) {
-          return instance;
-        } else if (_.isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
-          return instance;
-        }
-      } else {
-        return instance;
-      }
-    });
+    if(!addingInstanceRequestHandlerLater) {
+      var globalNS = fw.namespace();
+      instance.disposeWithInstance(globalNS);
+      globalNS.request.handler(descriptor.referenceNamespace, _.partial(instanceRequestHandler, instance));
+    }
   } else {
     throw new Error('Cannot boot an instance more than once.');
   }

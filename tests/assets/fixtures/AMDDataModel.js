@@ -1,6 +1,7 @@
 define(['footwork'], function(fw) {
-  return fw.dataModel.create({
-    namespace: 'AMDDataModel',
-    initialize: registerFootworkEntity()
-  });
+  return function() {
+    registerFootworkEntity(fw.dataModel.boot(this, {
+      namespace: 'AMDDataModel'
+    }));
+  };
 });

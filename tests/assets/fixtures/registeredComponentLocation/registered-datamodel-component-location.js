@@ -1,6 +1,7 @@
 define(['footwork'], function(fw) {
-  return fw.dataModel.create({
-    namespace: 'registered-datamodel-component-location',
-    initialize: registerFootworkEntity()
-  });
+  return function() {
+    registerFootworkEntity(fw.dataModel.boot(this, {
+      namespace: 'registered-datamodel-component-location'
+    }));
+  };
 });

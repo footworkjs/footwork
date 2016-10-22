@@ -1,4 +1,4 @@
-var fw = require('knockout/build/output/knockout-latest');
+var fw = require('knockout');
 
 var defaultLoadingComponent = require('../router-defaults').defaultLoadingComponent;
 

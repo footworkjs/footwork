@@ -1,6 +1,7 @@
 define(['footwork'], function(fw) {
-  return fw.router.create({
-    namespace: 'registered-router-component-location',
-    initialize: registerFootworkEntity()
-  });
+  return function() {
+    registerFootworkEntity(fw.router.boot(this, {
+      namespace: 'registered-router-component-location'
+    }));
+  };
 });

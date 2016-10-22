@@ -1,6 +1,7 @@
 define(['footwork'], function(fw) {
-  return fw.viewModel.create({
-    namespace: 'default-component-location',
-    initialize: registerFootworkEntity()
-  });
+  return function() {
+    registerFootworkEntity(fw.viewModel.boot(this, {
+      namespace: 'default-component-location'
+    }));
+  };
 });
