@@ -12,8 +12,8 @@ var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
  * @returns {object} The instance that was passed in
  */
 function dataModelBootstrap (instance, configParams) {
-  if(!instance) {
-    throw new Error('Must supply the instance (this) to boot()');
+  if (!instance) {
+    throw new Error('Must supply the instance to boot()');
   }
 
   var descriptor = require('../entity-descriptors').getDescriptor('dataModel');

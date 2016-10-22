@@ -14,14 +14,6 @@ module.exports = _.extend([
       return descriptor.tagName.toLowerCase() === tagName;
     }).length > 0;
   },
-  resourceFor: function getResourceForEntityTagName (tagName) {
-    return _.reduce(this, function (resource, descriptor) {
-      if (descriptor.tagName === tagName) {
-        resource = descriptor.resource;
-      }
-      return resource;
-    }, null);
-  },
   getDescriptor: function getDescriptor (tagName) {
     tagName = _.isString(tagName) ? tagName.toLowerCase() : null;
     return _.reduce(this, function reduceDescriptor (foundDescriptor, descriptor) {
