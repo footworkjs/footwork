@@ -2,11 +2,10 @@ var _ = require('lodash');
 
 var fw = require('knockout/build/output/knockout-latest');
 
-require('./sequencing');
-require('./component-lifecycle-loader');
-require('./entity-lifecycle-loader');
 require('./lifecycle-binding');
-require('./resource-loader');
+require('./entity-loader');
+require('./component-lifecycle-loader');
+require('./component-resource-loader');
 require('./component-init');
 
 var entityDescriptors = require('../entities/entity-descriptors');

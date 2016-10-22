@@ -71,7 +71,7 @@ fw.bindingHandlers.$life = {
     }
 
     // resolve the flight tracker and trigger the addAnimationClass callback when appropriate
-    resolveComponent(element, viewModel, bindingContext, function addAnimationClass() {
+    resolveTrackerAndAnimate(element, viewModel, bindingContext, function addAnimationClass() {
       if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
         var queue = addToAndFetchQueue(element, viewModel);
         var nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
@@ -92,7 +92,7 @@ fw.bindingHandlers.$life = {
 };
 
 /**
- * Mark the component as resolved on the parent entity (if it exists) and supply the resolveInstanceNow callback to afterResolving which
+ * Mark the element/tracker as resolved on the parent entity (if it exists) and supply the resolveInstanceNow callback to afterResolving which
  * takes the user supplied isResolved value and adds the animation class via addAnimationClass when it has resolved.
  *
  * @param {DOMElement} element
@@ -100,7 +100,7 @@ fw.bindingHandlers.$life = {
  * @param {object} $context
  * @param {function} addAnimationClass
  */
-function resolveComponent(element, viewModel, $context, addAnimationClass) {
+function resolveTrackerAndAnimate(element, viewModel, $context, addAnimationClass) {
   var flightTracker = element.flightTracker;
   var parentInFlightChildren;
 
