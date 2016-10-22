@@ -3,6 +3,7 @@ var _ = require('lodash');
 
 var privateDataSymbol = require('../misc/config').privateDataSymbol;
 var nearestEntity = require('../entities/entity-tools').nearestEntity;
+var getSymbol = require('../misc/util').getSymbol;
 var entityDescriptors = require('../entities/entity-descriptors');
 var originalComponentInit = fw.bindingHandlers.component.init;
 
@@ -18,7 +19,7 @@ var originalComponentInit = fw.bindingHandlers.component.init;
  */
 function componentInit (element, valueAccessor, allBindings, viewModel, bindingContext) {
   var tagName = element.tagName;
-  var loadingTracker = element[require('../misc/util').getSymbol('__loadingTracker')] = {
+  var loadingTracker = element[getSymbol('loadingTracker')] = {
     tagName: tagName,
     moduleName: element.getAttribute('module') || /* istanbul ignore next */ element.getAttribute('data-module')
   };

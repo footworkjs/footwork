@@ -9,7 +9,7 @@ var capitalizeFirstLetter = util.capitalizeFirstLetter;
 var getSymbol = util.getSymbol;
 
 var entityName = 'router';
-var isEntityDuckTag = getSymbol('__is' + capitalizeFirstLetter(entityName));
+var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
 
 var descriptor;
 entityDescriptors.push(descriptor = prepareDescriptor({

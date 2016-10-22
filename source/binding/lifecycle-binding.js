@@ -102,7 +102,7 @@ fw.bindingHandlers.$lifecycle = {
  * @param {function} addAnimationClass
  */
 function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationClass) {
-  var loadingTracker = element[getSymbol('__loadingTracker')];
+  var loadingTracker = element[getSymbol('loadingTracker')];
   var parentInFlightChildren;
 
   var parentEntity = nearestEntity($context);
