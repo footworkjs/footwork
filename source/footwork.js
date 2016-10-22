@@ -15,6 +15,7 @@ require('./resource/resource');
 require('./component/component');
 require('./collection/collection');
 
+require('./binding/lifecycle-binding');
 require('./binding/applyBindings');
 require('./binding/start');
 

@@ -1,7 +1,6 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-require('./lifecycle-binding');
 require('./component-init');
 require('./loaders/entity-loader');
 require('./loaders/component-lifecycle-loader');
