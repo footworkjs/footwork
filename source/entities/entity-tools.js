@@ -15,13 +15,13 @@ function prepareDescriptor(descriptor) {
 }
 
 function isEntityCtor(thing) {
-  return _.reduce(_.map(entityDescriptors, 'isEntityCtor'), function(isThing, comparator) {
+  return _.reduce(_.map(entityDescriptors, 'isEntityCtor'), function (isThing, comparator) {
     return isThing || comparator(thing);
   }, false);
 };
 
 function isEntity(thing) {
-  return _.reduce(_.map(entityDescriptors, 'isEntity'), function(isThing, comparator) {
+  return _.reduce(_.map(entityDescriptors, 'isEntity'), function (isThing, comparator) {
     return isThing || comparator(thing);
   }, false);
 };
@@ -31,8 +31,8 @@ function nearestEntity($context, predicate) {
 
   predicate = predicate || isEntity;
   var predicates = [].concat(predicate);
-  function isTheThing(thing) {
-    return _.reduce(predicates, function(isThing, predicate) {
+ function isTheThing (thing) {
+    return _.reduce(predicates, function (isThing, predicate) {
       return isThing || predicate(thing);
     }, false);
   }

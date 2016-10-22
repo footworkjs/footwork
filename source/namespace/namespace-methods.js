@@ -65,7 +65,7 @@ function requestResponseFromNamespace(requestKey, params, allowMultipleResponses
   var response = undefined;
   var responseSubscription;
 
-  responseSubscription = this._subscribe('request.' + requestKey + '.response', function(reqResponse) {
+  responseSubscription = this._subscribe('request.' + requestKey + '.response', function (reqResponse) {
     if (_.isUndefined(response)) {
       response = allowMultipleResponses ? [reqResponse] : reqResponse;
     } else if (allowMultipleResponses) {
@@ -86,7 +86,7 @@ function registerNamespaceRequestHandler(requestKey, callback, context) {
     callback = callback.bind(context);
   }
 
-  var requestHandler = function(params) {
+  var requestHandler = function (params) {
     var callbackResponse = callback(params);
     this.publish(createEnvelope('request.' + requestKey + '.response', callbackResponse));
   }.bind(this);
@@ -101,7 +101,7 @@ function registerNamespaceRequestHandler(requestKey, callback, context) {
 var handlerRepos = [ 'requestHandlers', 'commandHandlers', 'eventHandlers', 'subscriptions' ];
 function disconnectNamespaceHandlers() {
   var namespace = this;
-  _.each(handlerRepos, function(handlerRepo) {
+  _.each(handlerRepos, function (handlerRepo) {
     _.invokeMap(namespace[handlerRepo], 'unsubscribe');
   });
   return this;

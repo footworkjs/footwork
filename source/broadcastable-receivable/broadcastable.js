@@ -5,12 +5,12 @@ var _ = require('lodash');
 var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;
 var isNamespace = require('../namespace/namespace').isNamespace;
 
-fw.isBroadcastable = function(thing) {
+fw.isBroadcastable = function (thing) {
   return _.isObject(thing) && !!thing.__isBroadcastable;
 };
 
 // factory method which turns an observable into a broadcastable
-fw.subscribable.fn.broadcastAs = function(varName, option) {
+fw.subscribable.fn.broadcastAs = function (varName, option) {
   var broadcastable = this;
   var namespace;
   var subscriptions = [];
@@ -52,24 +52,24 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
   }
 
   if (option.writable) {
-    namespaceSubscriptions.push(namespace.subscribe('__change.' + option.name, function(newValue) {
+    namespaceSubscriptions.push(namespace.subscribe('__change.' + option.name, function (newValue) {
       broadcastable(newValue);
     }));
   }
 
-  broadcastable.broadcast = function() {
+  broadcastable.broadcast = function () {
     namespace.publish(option.name, broadcastable());
     return this;
   };
 
-  namespaceSubscriptions.push(namespace.subscribe('__refresh.' + option.name, function() {
+  namespaceSubscriptions.push(namespace.subscribe('__refresh.' + option.name, function () {
     namespace.publish(option.name, broadcastable());
   }));
-  subscriptions.push(broadcastable.subscribe(function(newValue) {
+  subscriptions.push(broadcastable.subscribe(function (newValue) {
     namespace.publish(option.name, newValue);
   }));
 
-  broadcastable.dispose = function() {
+  broadcastable.dispose = function () {
     _.invokeMap(namespaceSubscriptions, 'unsubscribe');
     _.invokeMap(subscriptions, 'dispose');
     if (isLocalNamespace) {

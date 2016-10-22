@@ -24,7 +24,7 @@ entityDescriptors.push(descriptor = prepareDescriptor({
     namespace: undefined,
     autoRegister: false,
     afterRender: _.noop,
-    afterResolving: function resolveEntityImmediately(resolveNow) {
+    afterResolving: function resolveEntityImmediately (resolveNow) {
       resolveNow(true);
     },
     sequenceAnimations: false,
@@ -39,7 +39,7 @@ _.extend(fw[entityName], {
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 
-require('../../misc/config')[capitalizeFirstLetter(entityName)] = function DefaultInstance(params) {
+require('../../misc/config')[capitalizeFirstLetter(entityName)] = function DefaultInstance (params) {
   if (_.isObject(params) && _.isObject(params.$viewModel)) {
     _.extend(this, params.$viewModel);
   }

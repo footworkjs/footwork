@@ -13,8 +13,8 @@ var nextFrame = util.nextFrame;
 var sequenceQueue = {};
 
 function clearSequenceQueue() {
-  _.each(sequenceQueue, function(sequence, queueNamespace) {
-    _.each(sequence, function(sequenceIteration) {
+  _.each(sequenceQueue, function (sequence, queueNamespace) {
+    _.each(sequence, function (sequenceIteration) {
       sequenceIteration.addAnimationClass();
     });
     delete sequenceQueue[queueNamespace];
@@ -30,7 +30,7 @@ function runAnimationClassSequenceQueue(queue, isRunner) {
 
       if (sequenceIteration.nextIteration || queue.length) {
         queue.running = true;
-        setTimeout(function() {
+        setTimeout(function () {
           runAnimationClassSequenceQueue(queue, true);
         }, sequenceIteration.nextIteration);
       } else {
@@ -48,8 +48,8 @@ function addToAndFetchQueue(element, viewModel) {
   var namespaceName = configParams.namespace;
   var animationSequenceQueue = sequenceQueue[namespaceName] = (sequenceQueue[namespaceName] || []);
   var newSequenceIteration = {
-    addAnimationClass: function addBindingFromQueue() {
-      nextFrame(function() {
+    addAnimationClass: function addBindingFromQueue () {
+      nextFrame(function () {
         addClass(element, entityAnimateClass);
       });
     },

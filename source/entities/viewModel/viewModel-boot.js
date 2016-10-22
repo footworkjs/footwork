@@ -33,7 +33,7 @@ function viewModelBoot(descriptor, isEntityDuckTag, instance, configParams) {
     /**
      * This request handler returns references of the instance to the requester.
      */
-    globalNS.request.handler(descriptor.referenceNamespace, function(options) {
+    globalNS.request.handler(descriptor.referenceNamespace, function (options) {
       var myNamespaceName = configParams.namespace;
       if (_.isArray(options.namespaceName) && options.namespaceName.indexOf(myNamespaceName) !== -1) {
         return instance;

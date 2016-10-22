@@ -15,7 +15,7 @@ fw.components.fileExtensions = fw.observable({
 });
 
 var originalComponentRegisterFunc = fw.components.register;
-fw.components.register = function(componentName, options) {
+fw.components.register = function (componentName, options) {
   var viewModel = options.viewModel || options.dataModel || options.router;
 
   if (!_.isString(componentName)) {
@@ -62,7 +62,7 @@ function forceViewModelComponentConvention(componentLocation) {
   return componentLocation;
 }
 
-fw.components.getFileName = function(componentName, fileType) {
+fw.components.getFileName = function (componentName, fileType) {
   var fileName = componentName;
   var fileExtension = getComponentExtension(componentName, fileType);
 
@@ -89,9 +89,9 @@ var baseComponentLocation = {
   template: null
 };
 
-fw.components.registerLocation = function(componentName, componentLocation, folderOffset) {
+fw.components.registerLocation = function (componentName, componentLocation, folderOffset) {
   if (_.isArray(componentName)) {
-    _.each(componentName, function(name) {
+    _.each(componentName, function (name) {
       fw.components.registerLocation(name, componentLocation, folderOffset);
     });
   }
@@ -109,8 +109,8 @@ fw.components.registerLocation = function(componentName, componentLocation, fold
   fw.components.resourceLocations[componentName] = _.extend({}, baseComponentLocation, forceViewModelComponentConvention(componentLocation));
 };
 
-fw.components.getRegisteredLocation = function(componentName) {
-  return _.reduce(fw.components.resourceLocations, function(registeredLocation, location, registeredComponentName) {
+fw.components.getRegisteredLocation = function (componentName) {
+  return _.reduce(fw.components.resourceLocations, function (registeredLocation, location, registeredComponentName) {
     if (!registeredLocation) {
       if (!_.isNull(registeredComponentName.match(regExpMatch)) && !_.isNull(componentName.match(registeredComponentName.replace(regExpMatch, '')))) {
         registeredLocation = location;
@@ -122,12 +122,12 @@ fw.components.getRegisteredLocation = function(componentName) {
   }, undefined);
 };
 
-fw.components.locationIsRegistered = function(componentName) {
+fw.components.locationIsRegistered = function (componentName) {
   return !!fw.components.getRegisteredLocation(componentName);
 };
 
 // Return the component resource definition for the supplied componentName
-fw.components.getLocation = function(componentName) {
+fw.components.getLocation = function (componentName) {
   if (_.isUndefined(componentName)) {
     return fw.components.resourceLocations;
   }

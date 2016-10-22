@@ -46,7 +46,7 @@ function getFileName(descriptor, modelName) {
 
 function registerLocation(descriptor, modelName, location) {
   if (_.isArray(modelName)) {
-    _.each(modelName, function(name) {
+    _.each(modelName, function (name) {
       registerLocation(descriptor, name, location);
     });
   }
@@ -54,7 +54,7 @@ function registerLocation(descriptor, modelName, location) {
 }
 
 function modelResourceLocation(descriptor, modelName) {
-  return _.reduce(descriptor.resourceLocations, function(registeredLocation, location, registeredName) {
+  return _.reduce(descriptor.resourceLocations, function (registeredLocation, location, registeredName) {
     if (!registeredLocation) {
       if (!_.isNull(registeredName.match(regExpMatch)) && !_.isNull(modelName.match(registeredName.replace(regExpMatch, '')))) {
         registeredLocation = location;
@@ -85,7 +85,7 @@ function getModelReferences(descriptor, namespaceName, options) {
     options.namespaceName = namespaceName;
   }
 
-  var references = _.reduce($globalNamespace.request(descriptor.referenceNamespace, _.extend({ includeOutlets: false }, options), true), function(models, model) {
+  var references = _.reduce($globalNamespace.request(descriptor.referenceNamespace, _.extend({ includeOutlets: false }, options), true), function (models, model) {
     if (!_.isUndefined(model)) {
       var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
       if (!_.isNull(namespaceName)) {
@@ -158,7 +158,7 @@ function resourceHelperFactory(descriptor) {
   return resourceMethods;
 }
 
-_.each(require('../entities/entity-descriptors'), function(descriptor) {
+_.each(require('../entities/entity-descriptors'), function (descriptor) {
   if (!_.isUndefined(descriptor.resource)) {
     _.extend(descriptor.resource, resourceHelperFactory(descriptor));
   }

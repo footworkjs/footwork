@@ -30,7 +30,7 @@ var privateDataSymbol = config.privateDataSymbol;
  */
 fw.virtualElements.allowedBindings.$life = true;
 fw.bindingHandlers.$life = {
-  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+  init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
 
     if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
@@ -41,7 +41,7 @@ fw.bindingHandlers.$life = {
     if (isEntity(viewModel)) {
       // need to provide the element for when onDispose is called
       viewModel[privateDataSymbol].element = element;
-      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
+      fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
         viewModel.dispose();
       });
     }
@@ -51,7 +51,7 @@ fw.bindingHandlers.$life = {
       viewModel[privateDataSymbol].context(bindingContext);
     }
   },
-  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+  update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
 
     // if this element is not the 'loading' component of an outlet, then we need to
@@ -71,7 +71,7 @@ fw.bindingHandlers.$life = {
     }
 
     // resolve the flight tracker and trigger the addAnimationClass callback when appropriate
-    resolveTrackerAndAnimate(element, viewModel, bindingContext, function addAnimationClass() {
+    resolveTrackerAndAnimate(element, viewModel, bindingContext, function addAnimationClass () {
       if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
         var queue = addToAndFetchQueue(element, viewModel);
         var nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
@@ -79,7 +79,7 @@ fw.bindingHandlers.$life = {
         if (nearestOutlet) {
           // the parent outlet will run the callback that initiates the animation
           // sequence (once the rest of its dependencies finish loading as well)
-          nearestOutlet.addResolvedCallbackOrExecute(function() {
+          nearestOutlet.addResolvedCallbackOrExecute(function () {
             runAnimationClassSequenceQueue(queue);
           });
         } else {
@@ -109,7 +109,7 @@ function resolveTrackerAndAnimate(element, viewModel, $context, addAnimationClas
     parentInFlightChildren = parentEntity[privateDataSymbol].inFlightChildren;
   }
 
-  function finishResolution() {
+ function finishResolution () {
     addAnimationClass();
     if (fw.isObservable(parentInFlightChildren) && _.isFunction(parentInFlightChildren.remove)) {
       parentInFlightChildren.remove(flightTracker);
@@ -118,7 +118,7 @@ function resolveTrackerAndAnimate(element, viewModel, $context, addAnimationClas
 
   if (isEntity(viewModel)) {
     var wasResolved = false;
-    function resolveInstanceNow(isResolved) {
+   function resolveInstanceNow (isResolved) {
       if (!wasResolved) {
         wasResolved = true;
         if (isResolved === true) {
@@ -129,8 +129,8 @@ function resolveTrackerAndAnimate(element, viewModel, $context, addAnimationClas
           }
 
           var promises = [].concat(isResolved);
-          var checkPromise = function(promise) {
-            promise.then(function() {
+          var checkPromise = function (promise) {
+            promise.then(function () {
               if (_.every(promises, promiseIsFulfilled)) {
                 finishResolution();
               }
@@ -142,7 +142,7 @@ function resolveTrackerAndAnimate(element, viewModel, $context, addAnimationClas
       }
     }
 
-    function maybeResolve() {
+   function maybeResolve () {
       viewModel[privateDataSymbol].configParams.afterResolving.call(viewModel, resolveInstanceNow);
     }
 
@@ -151,7 +151,7 @@ function resolveTrackerAndAnimate(element, viewModel, $context, addAnimationClas
     if (inFlightChildren().length === 0) {
       maybeResolve();
     } else {
-      viewModel.disposeWithInstance(inFlightChildren.subscribe(function(inFlightChildren) {
+      viewModel.disposeWithInstance(inFlightChildren.subscribe(function (inFlightChildren) {
         inFlightChildren.length === 0 && maybeResolve();
       }));
     }

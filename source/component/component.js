@@ -8,7 +8,7 @@ require('./loaders/component-resource-loader');
 
 var entityDescriptors = require('../entities/entity-descriptors');
 
-fw.components.getComponentNameForNode = function(node) {
+fw.components.getComponentNameForNode = function (node) {
   var tagName = _.isString(node.tagName) && node.tagName.toLowerCase();
 
   if(fw.components.isRegistered(tagName)

@@ -27,7 +27,7 @@ function routeStringToRegExp(routeString) {
   routeString = routeString
     .replace(escapeRegex, "\\$&")
     .replace(optionalParamRegex, "(?:$1)?")
-    .replace(namedParamRegex, function(match, optional) {
+    .replace(namedParamRegex, function (match, optional) {
       return optional ? match : "([^\/]+)";
     })
     .replace(splatParamRegex, "(.*?)");

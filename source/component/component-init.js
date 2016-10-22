@@ -35,7 +35,7 @@ function componentInit(element, valueAccessor, allBindings, viewModel, bindingCo
       }
 
       // ensure that if the element is removed before its other resources are resolved that the flightTracker is removed/cleared
-      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
+      fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
         inFlightChildren.remove(flightTracker);
       });
     }

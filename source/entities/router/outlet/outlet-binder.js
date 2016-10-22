@@ -3,12 +3,12 @@ var _ = require('lodash');
 
 var privateDataSymbol = require('../../../misc/config').privateDataSymbol;
 var nearestParentRouter = require('../router-tools').nearestParentRouter;
-var noParentViewModelError = { $namespace: { getName: function() { return 'NO-VIEWMODEL-IN-CONTEXT'; } } };
+var noParentViewModelError = { $namespace: { getName: function () { return 'NO-VIEWMODEL-IN-CONTEXT'; } } };
 
 // This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied to the UI and load in various views
 fw.virtualElements.allowedBindings.$outletBinder = true;
 fw.bindingHandlers.$outletBinder = {
-  init: function(element, valueAccessor, allBindings, outletViewModel, bindingContext) {
+  init: function (element, valueAccessor, allBindings, outletViewModel, bindingContext) {
     var $parentViewModel = (_.isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
     var $parentRouter = nearestParentRouter(bindingContext);
     var outletName = outletViewModel.outletName;
@@ -17,7 +17,7 @@ fw.bindingHandlers.$outletBinder = {
     if (isRouter($parentRouter)) {
       // register the viewModel with the outlet for future use when its route is changed
       $parentRouter[privateDataSymbol].registerViewModelForOutlet(outletName, outletViewModel);
-      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
+      fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
         // tell the router to clean up its reference to the outletViewModel
         $parentRouter[privateDataSymbol].unregisterViewModelForOutlet(outletName);
         outletViewModel.dispose();

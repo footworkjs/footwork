@@ -21,10 +21,10 @@ function isNode(thing) {
   );
 }
 
-var DataModel = module.exports = function DataModel(descriptor, configParams) {
+var DataModel = module.exports = function DataModel (descriptor, configParams) {
   return {
     runBeforeInit: true,
-    _preInit: function(params) {
+    _preInit: function (params) {
       params = params || {};
       dataModelContext.enter(this);
       var pkField = configParams.idAttribute;
@@ -34,7 +34,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
       this.isSaving = fw.observable(false);
       this.isFetching = fw.observable(false);
       this.isDestroying = fw.observable(false);
-      this.requestInProgress = fw.pureComputed(function() {
+      this.requestInProgress = fw.pureComputed(function () {
         return this.isCreating() || this.isSaving() || this.isFetching() || this.isDestroying();
       }, this);
 
@@ -45,14 +45,14 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
     },
     mixin: {
       // GET from server and set in model
-      fetch: function(options) {
+      fetch: function (options) {
         var ajax = require('../../misc/ajax');
         var dataModel = this;
         var requestInfo = {
           requestRunning: dataModel.isFetching,
           requestLull: configParams.requestLull,
           entity: dataModel,
-          createRequest: function() {
+          createRequest: function () {
             var id = dataModel[configParams.idAttribute]();
             if (id) {
               // retrieve data dataModel the from server using the id
@@ -77,7 +77,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
       },
 
       // PUT / POST / PATCH to server
-      save: function(key, val, options) {
+      save: function (key, val, options) {
         var ajax = require('../../misc/ajax');
         var dataModel = this;
         var attrs = null;
@@ -109,7 +109,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
           requestRunning: (method === 'create' ? dataModel.isCreating : dataModel.isSaving),
           requestLull: configParams.requestLull,
           entity: dataModel,
-          createRequest: function() {
+          createRequest: function () {
             if (!options.wait && !_.isNull(attrs)) {
               dataModel.set(attrs);
             }
@@ -138,14 +138,14 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
       },
 
       // DELETE
-      destroy: function(options) {
+      destroy: function (options) {
         var ajax = require('../../misc/ajax');
         var dataModel = this;
         var requestInfo = {
           requestRunning: dataModel.isDestroying,
           requestLull: configParams.requestLull,
           entity: dataModel,
-          createRequest: function() {
+          createRequest: function () {
             if (dataModel.isNew()) {
               return false;
             }
@@ -154,7 +154,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
             var success = options.success;
             var wait = options.wait;
 
-            var sendDestroyEvent = function() {
+            var sendDestroyEvent = function () {
               dataModel.$namespace.publish('destroy', options);
             };
 
@@ -180,7 +180,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
       },
 
       // set attributes in model (clears isDirty on observables/fields it saves to by default)
-      set: function(key, value, options) {
+      set: function (key, value, options) {
         var attributes = {};
 
         if (_.isString(key)) {
@@ -196,7 +196,7 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
 
         var mappingsChanged = false;
         var model = this;
-        _.each(this[privateDataSymbol].mappings(), function(fieldObservable, fieldMap) {
+        _.each(this[privateDataSymbol].mappings(), function (fieldObservable, fieldMap) {
           var fieldValue = getNestedReference(attributes, fieldMap);
           if (!_.isUndefined(fieldValue)) {
             fw.isWriteableObservable(fieldObservable) && fieldObservable(fieldValue);
@@ -212,17 +212,17 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
         }
       },
 
-      get: function(referenceField, includeRoot) {
+      get: function (referenceField, includeRoot) {
         var dataModel = this;
         if (_.isArray(referenceField)) {
-          return _.reduce(referenceField, function(jsObject, fieldMap) {
+          return _.reduce(referenceField, function (jsObject, fieldMap) {
             return _.merge(jsObject, dataModel.get(fieldMap, true));
           }, {});
         } else if (!_.isUndefined(referenceField) && !_.isString(referenceField)) {
           throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.get().');
         }
 
-        var mappedObject = _.reduce(this[privateDataSymbol].mappings(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+        var mappedObject = _.reduce(this[privateDataSymbol].mappings(), function reduceModelToObject (jsObject, fieldObservable, fieldMap) {
           if (_.isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
             insertValueIntoObject(jsObject, fieldMap, fieldObservable());
           }
@@ -232,49 +232,49 @@ var DataModel = module.exports = function DataModel(descriptor, configParams) {
         return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
       },
 
-      getData: function() {
+      getData: function () {
         return this.get();
       },
 
-      toJSON: function() {
+      toJSON: function () {
         return JSON.stringify(this.getData());
       },
 
-      clean: function(field) {
+      clean: function (field) {
         if (!_.isUndefined(field)) {
           var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
         }
-        _.each(this[privateDataSymbol].mappings(), function(fieldObservable, fieldMap) {
+        _.each(this[privateDataSymbol].mappings(), function (fieldObservable, fieldMap) {
           if (_.isUndefined(field) || fieldMap.match(fieldMatch)) {
             fieldObservable.isDirty(false);
           }
         });
       },
 
-      sync: function() {
+      sync: function () {
         return fw.sync.apply(this, arguments);
       },
 
-      hasMappedField: function(referenceField) {
+      hasMappedField: function (referenceField) {
         return !!this[privateDataSymbol].mappings()[referenceField];
       },
 
-      dirtyMap: function() {
+      dirtyMap: function () {
         var tree = {};
-        _.each(this[privateDataSymbol].mappings(), function(fieldObservable, fieldMap) {
+        _.each(this[privateDataSymbol].mappings(), function (fieldObservable, fieldMap) {
           tree[fieldMap] = fieldObservable.isDirty();
         });
         return tree;
       }
     },
-    _postInit: function() {
+    _postInit: function () {
       if (configParams.autoIncrement) {
-        this.$rootNamespace.request.handler('get', function() { return this.get(); }.bind(this));
+        this.$rootNamespace.request.handler('get', function () { return this.get(); }.bind(this));
       }
-      this.$namespace.request.handler('get', function() { return this.get(); }.bind(this));
+      this.$namespace.request.handler('get', function () { return this.get(); }.bind(this));
 
-      this.isDirty = fw.computed(function() {
-        return _.reduce(this[privateDataSymbol].mappings(), function(isDirty, mappedField) {
+      this.isDirty = fw.computed(function () {
+        return _.reduce(this[privateDataSymbol].mappings(), function (isDirty, mappedField) {
           return isDirty || mappedField.isDirty();
         }, false);
       }, this);
@@ -319,7 +319,7 @@ entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
     mixins: undefined,
     requestLull: undefined,
     afterRender: _.noop,
-    afterResolving: function resolveEntityImmediately(resolveNow) {
+    afterResolving: function resolveEntityImmediately (resolveNow) {
       resolveNow(true);
     },
     sequenceAnimations: false,

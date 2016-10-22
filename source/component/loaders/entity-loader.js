@@ -9,7 +9,7 @@ var entityDescriptors = require('../../entities/entity-descriptors');
  * 2. provides either the entity constructor itself or the require path to get the entity
  */
 fw.components.loaders.unshift(fw.components.entityLifecycleLoader = {
-  getConfig: function(componentName, callback) {
+  getConfig: function (componentName, callback) {
     var configOptions = null;
     var descriptor = entityDescriptors.getDescriptor(componentName);
 

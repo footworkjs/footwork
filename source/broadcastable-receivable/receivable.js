@@ -5,12 +5,12 @@ var _ = require('lodash');
 var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;
 var isNamespace = require('../namespace/namespace').isNamespace;
 
-fw.isReceivable = function(thing) {
+fw.isReceivable = function (thing) {
   return _.isObject(thing) && !!thing.__isReceivable;
 };
 
 // factory method which turns an observable into a receivable
-fw.subscribable.fn.receiveFrom = function(namespace, variable) {
+fw.subscribable.fn.receiveFrom = function (namespace, variable) {
   var target = this;
   var receivable = this;
   var namespaceSubscriptions = [];
@@ -28,17 +28,17 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
 
   receivable = fw.computed({
     read: target,
-    write: function(value) {
+    write: function (value) {
       namespace.publish('__change.' + variable, value);
     }
   });
 
-  receivable.refresh = function() {
+  receivable.refresh = function () {
     namespace.publish('__refresh.' + variable);
     return this;
   };
 
-  namespaceSubscriptions.push(namespace.subscribe(variable, function(newValue) {
+  namespaceSubscriptions.push(namespace.subscribe(variable, function (newValue) {
     if (when(newValue)) {
       target(newValue);
     } else {
@@ -47,7 +47,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   }));
 
   var observableDispose = receivable.dispose;
-  receivable.dispose = function() {
+  receivable.dispose = function () {
     _.invokeMap(namespaceSubscriptions, 'unsubscribe');
     if (isLocalNamespace) {
       namespace.dispose();
@@ -55,11 +55,11 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
     observableDispose.call(receivable);
   };
 
-  receivable.when = function(predicate) {
+  receivable.when = function (predicate) {
     if (_.isFunction(predicate)) {
       when = predicate;
     } else {
-      when = function(updatedValue) {
+      when = function (updatedValue) {
         return _.isEqual(updatedValue, predicate);
       };
     }

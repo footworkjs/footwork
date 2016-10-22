@@ -13,7 +13,7 @@ function regExpIsEqual(a, b, isEq) {
   isEq = isEq || regExpIsEqual;
 
   if (_.isObject(a) && _.isObject(b)) {
-    return _.every(_.reduce(a, function(comparison, paramValue, paramName) {
+    return _.every(_.reduce(a, function (comparison, paramValue, paramName) {
       var isCongruent = false;
       var bParamValue = b[paramName];
       if (bParamValue) {
@@ -65,7 +65,7 @@ function sortOfEqual(a, b, isEq) {
     var AKeys = _.keys(a);
     var BKeys = _.keys(b);
     var commonKeys = _.intersection(AKeys, BKeys);
-    var hasAllAKeys = _.every(AKeys, function(Akey) {
+    var hasAllAKeys = _.every(AKeys, function (Akey) {
       return BKeys.indexOf(Akey) !== -1;
     })
     return commonKeys.length > 0 && hasAllAKeys && isEq(_.pick(a, commonKeys), _.pick(b, commonKeys));

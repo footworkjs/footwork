@@ -11,7 +11,7 @@ function getPrimaryKey(dataModel) {
   return dataModel[privateDataSymbol].configParams.idAttribute;
 }
 
-fw.subscribable.fn.mapTo = function(option) {
+fw.subscribable.fn.mapTo = function (option) {
   var mappedObservable = this;
   var mapPath;
   var dataModel;
@@ -51,14 +51,14 @@ fw.subscribable.fn.mapTo = function(option) {
   }
 
   mappedObservable.isDirty = fw.observable(false);
-  var changeSubscription = mappedObservable.subscribe(function(value) {
+  var changeSubscription = mappedObservable.subscribe(function (value) {
     dataModel.$namespace.publish('_.change', { param: mapPath, value: value });
     mappedObservable.isDirty(true);
   });
 
   var disposeObservable = mappedObservable.dispose || _.noop;
   if (_.isFunction(mappedObservable.dispose)) {
-    mappedObservable.dispose = function() {
+    mappedObservable.dispose = function () {
       changeSubscription.dispose();
       disposeObservable.call(mappedObservable);
     };

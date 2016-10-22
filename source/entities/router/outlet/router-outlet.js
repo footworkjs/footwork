@@ -11,7 +11,7 @@ var nullComponent = routerDefaults.nullComponent;
 var defaultLoadingComponent = routerDefaults.defaultLoadingComponent;
 var activeOutlets = routerDefaults.activeOutlets;
 
-module.exports = function routerOutlet(outletName, componentToDisplay, options) {
+module.exports = function routerOutlet (outletName, componentToDisplay, options) {
   options = options || {};
   if (_.isFunction(options)) {
     options = { onComplete: options, onFailure: _.noop };
@@ -32,7 +32,7 @@ module.exports = function routerOutlet(outletName, componentToDisplay, options) 
     outlet = fw.observable({
       name: noComponentSelected,
       params: {},
-      getOnCompleteCallback: function() { return _.noop; },
+      getOnCompleteCallback: function () { return _.noop; },
       onFailure: onFailure.bind(router)
     });
 
@@ -84,17 +84,17 @@ module.exports = function routerOutlet(outletName, componentToDisplay, options) 
       outletViewModel.routeIsLoading(true);
     }
 
-    currentOutletDef.getOnCompleteCallback = function(element) {
+    currentOutletDef.getOnCompleteCallback = function (element) {
       var outletElement = element.parentNode;
 
       activeOutlets.remove(outlet);
       outletElement.setAttribute('rendered', (componentToDisplay === nullComponent ? '' : componentToDisplay));
 
-      return function addBindingOnComplete() {
+      return function addBindingOnComplete () {
         var outletViewModel = router.outlets[outletName].outletViewModel;
         if (outletViewModel) {
           outletViewModel.routeIsLoading(false);
-          outletViewModel.routeOnComplete = function() {
+          outletViewModel.routeOnComplete = function () {
             onComplete.call(router, outletElement);
           };
         } else {

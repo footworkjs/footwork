@@ -34,12 +34,12 @@ function findParentNode(element, selector) {
 }
 
 var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
-var isFullURL = fw.utils.isFullURL = function(thing) {
+var isFullURL = fw.utils.isFullURL = function (thing) {
   return _.isString(thing) && isFullURLRegex.test(thing);
 };
 
 fw.bindingHandlers.$route = {
-  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+  init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
     var $myRouter = nearestParentRouter(bindingContext);
     var routeParams = valueAccessor();
     var elementIsSetup = false;
@@ -48,11 +48,11 @@ fw.bindingHandlers.$route = {
 
     var routeHandlerDescription = {
       on: 'click',
-      url: function defaultURLForRoute() { return element.getAttribute('href'); },
+      url: function defaultURLForRoute () { return element.getAttribute('href'); },
       addActiveClass: true,
       activeClass: null,
       parentHasState: false,
-      handler: function defaultHandlerForRouteBinding(event, url) {
+      handler: function defaultHandlerForRouteBinding (event, url) {
         if (hashOnly) {
           return false;
         }
@@ -73,10 +73,10 @@ fw.bindingHandlers.$route = {
 
     var routeHandlerDescriptionURL = routeHandlerDescription.url;
     if (!_.isFunction(routeHandlerDescriptionURL)) {
-      routeHandlerDescription.url = function() { return routeHandlerDescriptionURL; };
+      routeHandlerDescription.url = function () { return routeHandlerDescriptionURL; };
     }
 
-    function getRouteURL(includeParentPath) {
+   function getRouteURL (includeParentPath) {
       var parentRoutePath = '';
       var routeURL = routeHandlerDescription.url();
       var myLinkPath = routeURL || '';
@@ -115,7 +115,7 @@ fw.bindingHandlers.$route = {
     var routeURLWithParentPath = getRouteURL.bind(null, true);
     var routeURLWithoutParentPath = getRouteURL.bind(null, false);
 
-    function checkForMatchingSegment(mySegment, newRoute) {
+   function checkForMatchingSegment (mySegment, newRoute) {
       if (_.isString(mySegment)) {
         var currentRoute = $myRouter.currentRoute();
         var elementWithState = routeHandlerDescription.parentHasState ? findParentNode(element, routeHandlerDescription.parentHasState) : element;
@@ -144,7 +144,7 @@ fw.bindingHandlers.$route = {
       }
     };
 
-    function setUpElement() {
+   function setUpElement () {
       if (!isNullRouter($myRouter)) {
         var myCurrentSegment = routeURLWithoutParentPath();
         var routerConfig = $myRouter[privateDataSymbol].configParams;
@@ -162,7 +162,7 @@ fw.bindingHandlers.$route = {
           checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
 
           $myRouter[privateDataSymbol].parentRouter.subscribe(setUpElement);
-          fw.utils.registerEventHandler(element, resultBound(routeHandlerDescription, 'on', $myRouter), function(event) {
+          fw.utils.registerEventHandler(element, resultBound(routeHandlerDescription, 'on', $myRouter), function (event) {
             var currentRouteURL = routeURLWithoutParentPath();
             var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
             if (handlerResult) {
@@ -184,7 +184,7 @@ fw.bindingHandlers.$route = {
     }
     setUpElement();
 
-    fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
+    fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
       if (_.isObject(stateTracker)) {
         stateTracker.dispose();
       }

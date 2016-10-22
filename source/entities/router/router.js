@@ -43,9 +43,9 @@ function unregisterViewModelForOutlet(outletName) {
   delete outletProperties.outletViewModel;
 }
 
-var Router = module.exports = function Router(descriptor, configParams) {
+var Router = module.exports = function Router (descriptor, configParams) {
   return {
-    _preInit: function(params) {
+    _preInit: function (params) {
       var $router = this;
       var routerConfigParams = _.extend({ routes: [] }, configParams);
 
@@ -65,7 +65,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
       router.historyPopstateListener = fw.observable();
       router.currentState = fw.observable('').broadcastAs('currentState');
 
-      function trimBaseRoute(url) {
+     function trimBaseRoute (url) {
         var routerConfig = $router[privateDataSymbol].configParams;
         if (!_.isNull(routerConfig.baseRoute) && url.indexOf(routerConfig.baseRoute) === 0) {
           url = url.substr(routerConfig.baseRoute.length);
@@ -76,14 +76,14 @@ var Router = module.exports = function Router(descriptor, configParams) {
         return url;
       }
 
-      function normalizeURL(url) {
+     function normalizeURL (url) {
         var urlParts = parseUri(url);
         router.urlParts(urlParts);
         return trimBaseRoute(urlParts.path);
       }
       router.normalizeURL = normalizeURL;
 
-      function getUnknownRoute() {
+     function getUnknownRoute () {
         var unknownRoute = _.find(($router.routeDescriptions || []).reverse(), { unknown: true }) || null;
 
         if (!_.isNull(unknownRoute)) {
@@ -98,7 +98,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
         return unknownRoute;
       }
 
-      function getRouteForURL(url) {
+     function getRouteForURL (url) {
         var route = null;
         var parentRoutePath = router.parentRouter().path() || '';
         var unknownRoute = getUnknownRoute();
@@ -132,7 +132,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
         // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
         // and convert it into the actual route
         if (matchedRoutes.length) {
-          var matchedRoute = _.reduce(matchedRoutes, function(matchedRoute, foundRoute) {
+          var matchedRoute = _.reduce(matchedRoutes, function (matchedRoute, foundRoute) {
             if (_.isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity) {
               matchedRoute = foundRoute;
             }
@@ -142,10 +142,10 @@ var Router = module.exports = function Router(descriptor, configParams) {
           var routeString = matchedRoute.routeString;
           var routeParams = _.clone(matchedRoute.routeParams);
           var splatSegment = routeParams.pop() || '';
-          var routeParamNames = _.map(routeString.match(namedParamRegex), function(param) {
+          var routeParamNames = _.map(routeString.match(namedParamRegex), function (param) {
             return param.replace(':', '');
           });
-          var namedParams = _.reduce(routeParamNames, function(parameterNames, parameterName, index) {
+          var namedParams = _.reduce(routeParamNames, function (parameterNames, parameterName, index) {
             parameterNames[parameterName] = routeParams[index + 1];
             return parameterNames;
           }, {});
@@ -165,7 +165,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
         return route || unknownRoute;
       }
 
-      function RoutedAction(routeDescription) {
+     function RoutedAction (routeDescription) {
         if (!_.isUndefined(routeDescription.title)) {
           document.title = _.isFunction(routeDescription.title) ? routeDescription.title.apply($router, _.values(routeDescription.namedParams)) : routeDescription.title;
         }
@@ -176,8 +176,8 @@ var Router = module.exports = function Router(descriptor, configParams) {
         }
       }
 
-      function getActionForRoute(routeDescription) {
-        var Action = function DefaultAction() {
+     function getActionForRoute (routeDescription) {
+        var Action = function DefaultAction () {
           delete router.currentRouteDescription;
           $router.outlet.reset();
         };
@@ -189,15 +189,15 @@ var Router = module.exports = function Router(descriptor, configParams) {
         return Action;
       }
 
-      router.isRelative = fw.computed(function() {
+      router.isRelative = fw.computed(function () {
         return routerConfigParams.isRelative && !isNullRouter( this.parentRouter() );
       }, router);
 
-      this.currentRoute = router.currentRoute = fw.computed(function() {
+      this.currentRoute = router.currentRoute = fw.computed(function () {
         return getRouteForURL(normalizeURL(this.currentState()));
       }, router);
 
-      this.path = router.path = fw.computed(function() {
+      this.path = router.path = fw.computed(function () {
         var currentRoute = this.currentRoute();
         var routeSegment = '/';
 
@@ -208,7 +208,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
         return (this.isRelative() ? this.parentRouter().path() : '') + routeSegment;
       }, router);
 
-      this.$namespace.command.handler('setState', function(state) {
+      this.$namespace.command.handler('setState', function (state) {
         var route = state;
         var params = state.params;
 
@@ -219,9 +219,9 @@ var Router = module.exports = function Router(descriptor, configParams) {
 
         $router.setState(route, params);
       });
-      this.$namespace.request.handler('currentRoute', function() { return $router[privateDataSymbol].currentRoute(); });
-      this.$namespace.request.handler('urlParts', function() { return $router[privateDataSymbol].urlParts(); });
-      this.$namespace.command.handler('activate', function() { $router.activate(); });
+      this.$namespace.request.handler('currentRoute', function () { return $router[privateDataSymbol].currentRoute(); });
+      this.$namespace.request.handler('urlParts', function () { return $router[privateDataSymbol].urlParts(); });
+      this.$namespace.command.handler('activate', function () { $router.activate(); });
 
       var parentPathSubscription;
       var $previousParent = $nullRouter;
@@ -250,8 +250,8 @@ var Router = module.exports = function Router(descriptor, configParams) {
 
       this.outlets = {};
       this.outlet = routerOutlet.bind(this);
-      this.outlet.reset = function() {
-        _.each( this.outlets, function(outlet) {
+      this.outlet.reset = function () {
+        _.each( this.outlets, function (outlet) {
           outlet({ name: noComponentSelected, params: {} });
         });
       }.bind(this);
@@ -272,7 +272,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
         }, this));
       }
 
-      this.matchesRoute = function(routeName, path) {
+      this.matchesRoute = function (routeName, path) {
         var route = getRouteForURL(path);
         routeName = [].concat(routeName);
         if (!_.isNull(route)) {
@@ -282,16 +282,16 @@ var Router = module.exports = function Router(descriptor, configParams) {
       };
     },
     mixin: {
-      setRoutes: function(routeDesc) {
+      setRoutes: function (routeDesc) {
         this.routeDescriptions = [];
         this.addRoutes(routeDesc);
         return this;
       },
-      addRoutes: function(routeConfig) {
+      addRoutes: function (routeConfig) {
         this.routeDescriptions = this.routeDescriptions.concat(_.map(_.isArray(routeConfig) ? routeConfig : [routeConfig], transformRouteConfigToDesc));
         return this;
       },
-      activate: function($context, $parentRouter) {
+      activate: function ($context, $parentRouter) {
         var self = this;
         $context = $context || self[privateDataSymbol].context();
         $parentRouter = $parentRouter || nearestParentRouter($context);
@@ -306,12 +306,12 @@ var Router = module.exports = function Router(descriptor, configParams) {
         }
 
         if (!self[privateDataSymbol].historyPopstateListener()) {
-          var popstateEvent = function() {
+          var popstateEvent = function () {
             var location = window.history.location || window.location;
             self[privateDataSymbol].currentState(self[privateDataSymbol].normalizeURL(location.pathname + location.hash));
           };
 
-          (function(eventInfo) {
+          (function (eventInfo) {
             window[eventInfo[0]](eventInfo[1] + 'popstate', popstateEvent, false);
           })(window.addEventListener ? ['addEventListener', ''] : ['attachEvent', 'on']);
 
@@ -325,7 +325,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
         self.$namespace.trigger('activated', { context: $context, parentRouter: $parentRouter });
         return self;
       },
-      setState: function(url, routeParams) {
+      setState: function (url, routeParams) {
         var self = this;
         var namedRoute = _.isObject(routeParams) ? url : null;
         var configParams = this[privateDataSymbol].configParams;
@@ -373,7 +373,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
 
         return this;
       },
-      dispose: function() {
+      dispose: function () {
         if (!this._isDisposed) {
           this._isDisposed = true;
 
@@ -384,7 +384,7 @@ var Router = module.exports = function Router(descriptor, configParams) {
 
           var historyPopstateListener = this[privateDataSymbol].historyPopstateListener();
           if (historyPopstateListener) {
-            (function(eventInfo) {
+            (function (eventInfo) {
               window[eventInfo[0]](eventInfo[1] + 'popstate', historyPopstateListener);
             })(window.removeEventListener ? ['removeEventListener', ''] : ['detachEvent', 'on']);
           }
@@ -416,7 +416,7 @@ fw.router = {
   baseRoute: fw.observable(''),
   activeRouteClassName: fw.observable('active'),
   disableHistory: fw.observable(false),
-  getNearestParent: function($context) {
+  getNearestParent: function ($context) {
     var $parentRouter = nearestParentRouter($context);
     return (!isNullRouter($parentRouter) ? $parentRouter : null);
   }
@@ -450,7 +450,7 @@ entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
     extend: {},
     mixins: undefined,
     afterRender: _.noop,
-    afterResolving: function resolveEntityImmediately(resolveNow) {
+    afterResolving: function resolveEntityImmediately (resolveNow) {
       resolveNow(true);
     },
     sequenceAnimations: false,

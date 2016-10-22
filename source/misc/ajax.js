@@ -60,7 +60,7 @@ function makeOrGetRequest(operationType, requestInfo) {
 
     var lullFinished = fw.observable(false);
     var requestFinished = fw.observable(false);
-    var requestWatcher = fw.computed(function() {
+    var requestWatcher = fw.computed(function () {
       if (lullFinished() && requestFinished()) {
         requestRunning(false);
         requestWatcher.dispose();
@@ -69,7 +69,7 @@ function makeOrGetRequest(operationType, requestInfo) {
 
     requestLull = (_.isFunction(requestLull) ? requestLull(operationType) : requestLull);
     if (requestLull) {
-      setTimeout(function() {
+      setTimeout(function () {
         lullFinished(true);
       }, requestLull);
     } else {
@@ -77,7 +77,7 @@ function makeOrGetRequest(operationType, requestInfo) {
     }
 
     if (isPromise(theRequest)) {
-      theRequest.then(function() {
+      theRequest.then(function () {
         if (_.every(requests, promiseIsFulfilled)) {
           requestFinished(true);
           entity[privateDataSymbol].promiseName = [];
@@ -154,7 +154,7 @@ function sync(action, concern, params) {
     // replace any interpolated parameters
     var urlParams = url.match(parseParamsRegex);
     if (urlParams) {
-      _.each(urlParams, function(param) {
+      _.each(urlParams, function (param) {
         url = url.replace(param, concern.get(param.substr(1)));
       });
     }
@@ -180,11 +180,11 @@ function makePromiseQueryable(promise) {
 
   // Observe the promise, saving the fulfillment in a closure scope.
   var result = promise.then(
-    function(v) { isResolved = true; return v; },
-    function(e) { isRejected = true; throw e; });
-  result.isFulfilled = function() { return isResolved || isRejected; };
-  result.isResolved = function() { return isResolved; }
-  result.isRejected = function() { return isRejected; }
+    function (v) { isResolved = true; return v; },
+    function (e) { isRejected = true; throw e; });
+  result.isFulfilled = function () { return isResolved || isRejected; };
+  result.isResolved = function () { return isResolved; }
+  result.isRejected = function () { return isRejected; }
   return result;
 }
 
@@ -196,10 +196,10 @@ function makePromiseQueryable(promise) {
  * @returns {object} xhr with parsed JSON response result
  */
 function handleJsonResponse(xhr) {
-  return xhr.then(function(response) {
+  return xhr.then(function (response) {
       return _.inRange(response.status, 200, 300) ? response.clone().json() : false;
     })
-    .catch(function(parseError) {
+    .catch(function (parseError) {
       console.error(parseError);
       return false;
     });

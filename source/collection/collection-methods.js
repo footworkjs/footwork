@@ -19,7 +19,7 @@ function sync() {
 
 function get(id) {
   var collection = this;
-  return _.find(collection(), function findModelWithId(model) {
+  return _.find(collection(), function findModelWithId (model) {
     return _.result(model, collection[privateDataSymbol].getIdAttribute()) === id || _.result(model, '$id') === id || _.result(model, '$cid') === id;
   });
 }
@@ -27,7 +27,7 @@ function get(id) {
 function getData() {
   var collection = this;
   var castAsModelData = collection[privateDataSymbol].castAs.modelData;
-  return _.reduce(collection(), function(models, model) {
+  return _.reduce(collection(), function (models, model) {
     models.push(castAsModelData(model));
     return models;
   }, []);
@@ -40,7 +40,7 @@ function toJSON() {
 function pluck(attribute) {
   var collection = this;
   var castAsModelData = collection[privateDataSymbol].castAs.modelData;
-  return _.reduce(collection(), function(pluckedValues, model) {
+  return _.reduce(collection(), function (pluckedValues, model) {
     pluckedValues.push(castAsModelData(model, attribute));
     return pluckedValues;
   }, []);
@@ -61,12 +61,12 @@ function set(newCollection, options) {
   var addedModels = [];
   options = options || {};
 
-  _.each(newCollection, function checkModelPresence(modelData) {
+  _.each(newCollection, function checkModelPresence (modelData) {
     var modelPresent = false;
     modelData = castAsModelData(modelData);
 
     if (!_.isUndefined(modelData)) {
-      _.each(collectionStore, function lookForModel(model, indexOfModel) {
+      _.each(collectionStore, function lookForModel (model, indexOfModel) {
         var collectionModelData = castAsModelData(model);
 
         if (!_.isUndefined(modelData[idAttribute]) && !_.isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
@@ -96,12 +96,12 @@ function set(newCollection, options) {
   });
 
   if (options.remove !== false) {
-    _.each(collectionStore, function checkForRemovals(model, indexOfModel) {
+    _.each(collectionStore, function checkForRemovals (model, indexOfModel) {
       var collectionModelData = castAsModelData(model);
       var modelPresent = false;
 
       if (collectionModelData) {
-        modelPresent = _.reduce(newCollection, function(isPresent, modelData) {
+        modelPresent = _.reduce(newCollection, function (isPresent, modelData) {
           return isPresent || _.result(modelData, idAttribute) === collectionModelData[idAttribute];
         }, false);
       }
@@ -114,7 +114,7 @@ function set(newCollection, options) {
     });
 
     if (absentModels.length) {
-      _.each(absentModels, function(modelToRemove) {
+      _.each(absentModels, function (modelToRemove) {
         var indexOfModelToRemove = collectionStore.indexOf(modelToRemove);
         if (indexOfModelToRemove > -1) {
           collectionStore.splice(indexOfModelToRemove, 1);
@@ -127,10 +127,10 @@ function set(newCollection, options) {
   // re-sort based on the newCollection
   var reSorted = [];
   var wasResorted = false;
-  _.each(newCollection, function(newModelData, modelIndex) {
+  _.each(newCollection, function (newModelData, modelIndex) {
     newModelData = castAsModelData(newModelData);
     var foundAtIndex = null;
-    var currentModel = _.find(collectionStore, function(model, theIndex) {
+    var currentModel = _.find(collectionStore, function (model, theIndex) {
       if (sortOfEqual(castAsModelData(model), newModelData)) {
         foundAtIndex = theIndex;
         return true;
@@ -158,7 +158,7 @@ function reset(newCollection) {
   var oldModels = collection.removeAll();
   var castAsDataModel = collection[privateDataSymbol].castAs.dataModel;
 
-  collection(_.reduce(newCollection, function(newModels, modelData) {
+  collection(_.reduce(newCollection, function (newModels, modelData) {
     newModels.push(castAsDataModel(modelData));
     return newModels;
   }, []));
@@ -178,7 +178,7 @@ function fetch(options) {
     requestRunning: collection.isFetching,
     requestLull: configParams.requestLull,
     entity: collection,
-    createRequest: function() {
+    createRequest: function () {
       if (_.isUndefined(options.parse)) {
         options.parse = true;
       }
@@ -211,7 +211,7 @@ function where(modelData, options) {
   options = options || {};
   modelData = castAsModelData(modelData);
 
-  return _.reduce(collection(), function findModel(foundModels, model) {
+  return _.reduce(collection(), function findModel (foundModels, model) {
     var thisModelData = castAsModelData(model);
     if (regExpIsEqual(modelData, thisModelData, options.isEqual)) {
       foundModels.push(options.getData ? thisModelData : model);
@@ -226,7 +226,7 @@ function findWhere(modelData, options) {
   options = options || {};
   modelData = castAsModelData(modelData);
 
-  return _.reduce(collection(), function findModel(foundModel, model) {
+  return _.reduce(collection(), function findModel (foundModel, model) {
     var thisModelData = castAsModelData(model);
     if (_.isNull(foundModel) && regExpIsEqual(modelData, thisModelData, options.isEqual)) {
       return options.getData ? thisModelData : model;
@@ -262,11 +262,11 @@ function addModel(models, options) {
 
       collection.valueHasMutated();
     } else {
-      _.each(models, function checkModelPresence(modelData) {
+      _.each(models, function checkModelPresence (modelData) {
         var modelPresent = false;
         var theModelData = castAsModelData(modelData);
 
-        _.each(collectionData, function lookForModel(model) {
+        _.each(collectionData, function lookForModel (model) {
           var collectionModelData = castAsModelData(model);
 
           if (!_.isUndefined(theModelData[idAttribute]) && !_.isNull(theModelData[idAttribute]) && theModelData[idAttribute] === collectionModelData[idAttribute]) {
@@ -305,7 +305,7 @@ function create(model, options) {
     requestLull: configParams.requestLull,
     entity: collection,
     allowConcurrent: true,
-    createRequest: function() {
+    createRequest: function () {
       var newModel = castAsDataModel(model);
       var xhr;
 
@@ -314,7 +314,7 @@ function create(model, options) {
 
         if (options.wait) {
           ajax.handleJsonResponse(xhr)
-            .then(function(responseData) {
+            .then(function (responseData) {
               responseData && collection.addModel(newModel);
             });
         } else {
@@ -346,7 +346,7 @@ function removeModel(models) {
     models = !_.isUndefined(models) && !_.isNull(models) ? [models] : [];
   }
 
-  return _.reduce(models, function(removedModels, model) {
+  return _.reduce(models, function (removedModels, model) {
     var removed = null;
     if (isDataModel(model)) {
       removed = collection.remove(model);

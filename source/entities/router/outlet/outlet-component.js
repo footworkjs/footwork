@@ -23,7 +23,7 @@ addAnimation[entityAnimateClass] = true;
 
 internalComponents.push('outlet');
 fw.components.register('outlet', {
-  viewModel: function(params) {
+  viewModel: function (params) {
     var outlet = this;
 
     this.outletName = fw.unwrap(params.name);
@@ -35,7 +35,7 @@ fw.components.register('outlet', {
     this.routeIsResolving = fw.observable(true);
 
     var resolvedCallbacks = [];
-    this.addResolvedCallbackOrExecute = function(callback) {
+    this.addResolvedCallbackOrExecute = function (callback) {
       if (outlet.routeIsResolving()) {
         resolvedCallbacks.push(callback);
       } else {
@@ -43,7 +43,7 @@ fw.components.register('outlet', {
       }
     };
 
-    this.routeIsLoadingSub = this.routeIsLoading.subscribe(function(routeIsLoading) {
+    this.routeIsLoadingSub = this.routeIsLoading.subscribe(function (routeIsLoading) {
       if (routeIsLoading) {
         outlet.routeIsResolving(true);
       } else {
@@ -52,9 +52,9 @@ fw.components.register('outlet', {
         }
 
         // must allow binding to begin on any subcomponents/etc
-        nextFrame(function() {
+        nextFrame(function () {
           if (outlet.inFlightChildren().length) {
-            outlet.flightWatch = outlet.inFlightChildren.subscribe(function(inFlightChildren) {
+            outlet.flightWatch = outlet.inFlightChildren.subscribe(function (inFlightChildren) {
               if (!inFlightChildren.length) {
                 outlet.routeIsResolving(false);
                 _.isFunction(outlet.routeOnComplete) && outlet.routeOnComplete();
@@ -73,25 +73,25 @@ fw.components.register('outlet', {
     this.loadingClass = fw.observable();
     this.loadedClass = fw.observable();
 
-    function showLoader() {
+   function showLoader () {
       outlet.loadingClass(removeAnimation);
       outlet.loadedClass(removeAnimation);
       outlet.loadedStyle(hiddenCSS);
       outlet.loadingStyle(visibleCSS);
 
-      nextFrame(function() {
+      nextFrame(function () {
         outlet.loadingClass(addAnimation);
       });
     }
 
-    function showLoadedAfterMinimumTransition() {
+   function showLoadedAfterMinimumTransition () {
       outlet.loadingClass(removeAnimation);
       outlet.loadedStyle(visibleCSS);
       outlet.loadingStyle(hiddenCSS);
       outlet.loadedClass(addAnimation);
 
       if (resolvedCallbacks.length) {
-        _.each(resolvedCallbacks, function(callback) {
+        _.each(resolvedCallbacks, function (callback) {
           callback();
         });
         resolvedCallbacks = [];
@@ -99,7 +99,7 @@ fw.components.register('outlet', {
     }
 
     var transitionTriggerTimeout;
-    function showLoaded() {
+   function showLoaded () {
       clearTimeout(transitionTriggerTimeout);
       var minTransitionPeriod = outlet.route.peek().minTransitionPeriod;
       if (minTransitionPeriod) {
@@ -109,7 +109,7 @@ fw.components.register('outlet', {
       }
     }
 
-    this.transitionTrigger = fw.computed(function() {
+    this.transitionTrigger = fw.computed(function () {
       var routeIsResolving = this.routeIsResolving();
       if (routeIsResolving) {
         showLoader();
@@ -118,8 +118,8 @@ fw.components.register('outlet', {
       }
     }, this);
 
-    this.dispose = function() {
-      _.each(outlet, function(outletProperty) {
+    this.dispose = function () {
+      _.each(outlet, function (outletProperty) {
         if (outletProperty && _.isFunction(outletProperty.dispose)) {
           outletProperty.dispose();
         }

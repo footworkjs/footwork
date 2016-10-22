@@ -34,7 +34,7 @@ function addAndNotify(originalFunction) {
 
 var PlainCollectionConstructor;
 
-fw.collection = function(collectionData) {
+fw.collection = function (collectionData) {
   collectionData = collectionData || [];
 
   if (_.isUndefined(PlainCollectionConstructor)) {
@@ -43,10 +43,10 @@ fw.collection = function(collectionData) {
   return PlainCollectionConstructor(collectionData);
 };
 
-fw.collection.create = function(configParams) {
+fw.collection.create = function (configParams) {
   configParams = configParams || {};
 
-  return function CollectionConstructor(collectionData) {
+  return function CollectionConstructor (collectionData) {
     configParams = _.extend({}, defaultCollectionConfig, configParams);
     var DataModelCtor = configParams.dataModel;
     var collection = fw.observableArray();
@@ -57,7 +57,7 @@ fw.collection.create = function(configParams) {
       __private: {
         configParams: configParams,
         castAs: {
-          modelData: function(modelData, attribute) {
+          modelData: function (modelData, attribute) {
             if (isDataModel(modelData)) {
               return modelData.getData(attribute);
             }
@@ -66,11 +66,11 @@ fw.collection.create = function(configParams) {
             }
             return _.result(modelData, attribute);
           },
-          dataModel: function(modelData) {
+          dataModel: function (modelData) {
             return isDataModelCtor(DataModelCtor) && !isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;
           }
         },
-        getIdAttribute: function(options) {
+        getIdAttribute: function (options) {
           var idAttribute = configParams.idAttribute || (options || {}).idAttribute;
           if (_.isUndefined(idAttribute) || _.isNull(idAttribute)) {
             if (isDataModelCtor(DataModelCtor)) {
@@ -88,7 +88,7 @@ fw.collection.create = function(configParams) {
       unshift: addAndNotify.bind(collection, collection.unshift),
       isFetching: fw.observable(false),
       isCreating: fw.observable(false),
-      dispose: function() {
+      dispose: function () {
         if (!collection.isDisposed) {
           collection.isDisposed = true;
           collection.$namespace.dispose();
@@ -97,7 +97,7 @@ fw.collection.create = function(configParams) {
       }
     });
 
-    collection.requestInProgress = fw.pureComputed(function() {
+    collection.requestInProgress = fw.pureComputed(function () {
       return this.isFetching() || this.isCreating();
     }, collection);
 

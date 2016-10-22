@@ -22,7 +22,7 @@ var indexedNamespaceName = namespaceTools.indexedNamespaceName;
 var privateDataSymbol = require('../misc/config').privateDataSymbol;
 
 // Creates and returns a new namespace instance
-var Namespace = function Namespace(namespaceName, $parentNamespace) {
+var Namespace = function Namespace (namespaceName, $parentNamespace) {
   if (!_.isUndefined($parentNamespace)) {
     if (_.isString($parentNamespace)) {
       namespaceName = $parentNamespace + '.' + namespaceName;
@@ -34,7 +34,7 @@ var Namespace = function Namespace(namespaceName, $parentNamespace) {
 
   var subscriptions = ns.subscriptions = [];
   ns._subscribe = ns.subscribe;
-  ns.subscribe = function(topic, callback, context) {
+  ns.subscribe = function (topic, callback, context) {
     if (arguments.length > 2) {
       callback = callback.bind(context);
     }
@@ -45,7 +45,7 @@ var Namespace = function Namespace(namespaceName, $parentNamespace) {
   ns.unsubscribe = unregisterNamespaceHandler;
 
   ns._publish = ns.publish;
-  ns.publish = function(envelope, callback, context) {
+  ns.publish = function (envelope, callback, context) {
     if (arguments.length > 2) {
       callback = callback.bind(context);
     }
@@ -71,10 +71,10 @@ var Namespace = function Namespace(namespaceName, $parentNamespace) {
   ns.event.unregister = unregisterNamespaceHandler;
 
   ns.getName = getNamespaceName.bind(ns);
-  ns.enter = function() {
+  ns.enter = function () {
     return enterNamespace(this);
   };
-  ns.exit = function() {
+  ns.exit = function () {
     if (currentNamespaceName() === this.getName()) {
       return exitNamespace();
     }
@@ -83,14 +83,14 @@ var Namespace = function Namespace(namespaceName, $parentNamespace) {
   return ns;
 };
 
-Namespace.isNamespace = function isNamespace(thing) {
+Namespace.isNamespace = function isNamespace (thing) {
   return _.isObject(thing) && !!thing.__isNamespace;
 };
 
 // mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
 require('../entities/entity-mixins').push({
   runBeforeInit: true,
-  _preInit: function(options) {
+  _preInit: function (options) {
     var $configParams = this[privateDataSymbol].configParams;
     var namespaceName = $configParams.namespace || $configParams.name || _.uniqueId('namespace');
     this.$namespace = enterNamespaceName(indexedNamespaceName(namespaceName, $configParams.autoIncrement));
@@ -98,11 +98,11 @@ require('../entities/entity-mixins').push({
     this.$globalNamespace = Namespace();
   },
   mixin: {
-    getNamespaceName: function() {
+    getNamespaceName: function () {
       return this.$namespace.getName();
     }
   },
-  _postInit: function(options) {
+  _postInit: function (options) {
     exitNamespace();
   }
 });
