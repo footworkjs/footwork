@@ -1,4 +1,4 @@
-var fw = require('knockout');
+var fw = require('knockout/build/output/knockout-latest');
 var postal = require('postal');
 var _ = require('lodash');
 

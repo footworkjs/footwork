@@ -1,4 +1,4 @@
-var fw = require('knockout');
+var fw = require('knockout/build/output/knockout-latest');
 
 fw.outlet = {
   registerView: function (viewName, templateHTML) {
