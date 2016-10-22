@@ -30,7 +30,9 @@ function viewModelBoot (descriptor, isEntityDuckTag, instance, configParams) {
       inFlightChildren: fw.observableArray()
     };
 
-    _.extend(instance, descriptor.mixin);
+    _.extend(instance, descriptor.mixin, {
+      $namespace: fw.namespace(configParams.namespace)
+    });
 
     var globalNS = fw.namespace();
     instance.disposeWithInstance(globalNS);
