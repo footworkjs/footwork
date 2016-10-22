@@ -1,8 +1,6 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var entityDescriptors = require('../../entities/entity-descriptors');
-
 /**
  * This component loader has two functions:
  * 1. wraps viewModel/dataModel/router declarative element contents with the $life binding which enables the lifecycle hooks (afterBinding/afterRender/onDispose).
@@ -11,7 +9,7 @@ var entityDescriptors = require('../../entities/entity-descriptors');
 fw.components.loaders.unshift(fw.components.entityLoader = {
   getConfig: function (componentName, callback) {
     var configOptions = null;
-    var descriptor = entityDescriptors.getDescriptor(componentName);
+    var descriptor = require('../../entities/entity-descriptors').getDescriptor(componentName);
 
     if (descriptor) {
       // this component is a viewModel/dataModel/router entity

@@ -66,7 +66,7 @@ function cloneNodes (nodesArray) {
 }
 
 /**
- * Clone and return the nodes from the source element.
+ * Clone and return the nodes from the elemInstance.
  *
  * @param {DOMNode} elemInstance
  * @returns {[DOMNodes]} The cloned DOM nodes
@@ -91,7 +91,7 @@ function cloneNodesFromTemplateSourceElement (elemInstance) {
 }
 
 /**
- * Wrap the supplied template with the lifecycle binding. This enables footwork to track when
+ * Wrap the supplied template with the $life binding. This enables footwork to track when
  * the instance is bound to or removed from the dom, triggering its various lifecycle events.
  *
  * @param {string|[DOMNodes]} template

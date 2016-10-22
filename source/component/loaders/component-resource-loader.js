@@ -7,6 +7,11 @@ var getFilenameExtension = util.getFilenameExtension;
 
 var getComponentExtension = require('../../resource/component-resource').getComponentExtension;
 
+/**
+ * The component resource loader tells footwork where the components assets are. It uses the supplied configuration to use AMD to download
+ * them (the viewModel/template) if possible. After downloading these resources its template is then wrapped by the component lifecycle
+ * loader and then bootstrapped.
+ */
 fw.components.loaders.push(fw.components.componentResourceLoader = {
   getConfig: function (componentName, callback) {
     // this is a normal component

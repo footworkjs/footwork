@@ -7,7 +7,7 @@ var makeArray = require('../misc/util').makeArray;
 // Override the original applyBindings method to provide viewModel/dataModel/router life-cycle events
 var originalApplyBindings = fw.applyBindings;
 fw.applyBindings = function (viewModelOrBindingContext, rootNode) {
-  rootNode = rootNode || document.body;
+  rootNode = rootNode || window.document.body;
 
   if (isEntity(viewModelOrBindingContext)) {
     originalApplyBindings(viewModelOrBindingContext, wrapWithLifeCycle(rootNode));

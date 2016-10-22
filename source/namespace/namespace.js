@@ -12,15 +12,6 @@ var requestResponseFromNamespace = namespaceMethods.requestResponseFromNamespace
 var registerNamespaceRequestHandler = namespaceMethods.registerNamespaceRequestHandler;
 var registerNamespaceEventHandler = namespaceMethods.registerNamespaceEventHandler;
 
-var namespaceTools = require('./namespace-tools');
-var enterNamespace = namespaceTools.enterNamespace;
-var enterNamespaceName = namespaceTools.enterNamespaceName;
-var currentNamespaceName = namespaceTools.currentNamespaceName;
-var exitNamespace = namespaceTools.exitNamespace;
-var indexedNamespaceName = namespaceTools.indexedNamespaceName;
-
-var privateDataSymbol = require('../misc/config').privateDataSymbol;
-
 // Creates and returns a new namespace instance
 var Namespace = function Namespace (namespaceName, $parentNamespace) {
   if (!_.isUndefined($parentNamespace)) {
@@ -71,14 +62,6 @@ var Namespace = function Namespace (namespaceName, $parentNamespace) {
   ns.event.unregister = unregisterNamespaceHandler;
 
   ns.getName = getNamespaceName.bind(ns);
-  ns.enter = function () {
-    return enterNamespace(this);
-  };
-  ns.exit = function () {
-    if (currentNamespaceName() === this.getName()) {
-      return exitNamespace();
-    }
-  };
 
   return ns;
 };
