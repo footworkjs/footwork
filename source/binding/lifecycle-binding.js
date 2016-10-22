@@ -124,7 +124,7 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
         if (isResolved === true) {
           finishResolution();
         } else if (isPromise(isResolved) || _.isArray(isResolved)) {
-          if(!_.every(isResolved, isPromise)) {
+          if (!_.every(isResolved, isPromise)) {
             throw new Error('Can only pass array of promises to resolved()');
           }
 

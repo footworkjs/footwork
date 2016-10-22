@@ -9,7 +9,7 @@ var originalApplyBindings = fw.applyBindings;
 fw.applyBindings = function (viewModelOrBindingContext, rootNode) {
   rootNode = rootNode || document.body;
 
-  if(isEntity(viewModelOrBindingContext)) {
+  if (isEntity(viewModelOrBindingContext)) {
     originalApplyBindings(viewModelOrBindingContext, wrapWithLifeCycle(rootNode));
   } else {
     originalApplyBindings(viewModelOrBindingContext, rootNode);

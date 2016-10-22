@@ -27,7 +27,7 @@ module.exports = {
       _.each(disposableItem, function (item) {
         self.disposeWithInstance(item);
       });
-    } else if(disposableItem) {
+    } else if (disposableItem) {
       self[privateDataSymbol].disposableItems.push(disposableItem);
     }
   }

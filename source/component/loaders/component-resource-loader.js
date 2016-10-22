@@ -13,7 +13,7 @@ fw.components.loaders.push(fw.components.registeredLocationLoader = {
     var configOptions = null;
     var componentLocation = fw.components.getLocation(componentName);
 
-    if(componentLocation) {
+    if (componentLocation) {
       var combinedFile = fw.components.getFileName(componentName, 'combined');
       var viewModelFile = fw.components.getFileName(componentName, 'viewModel');
       var templateFile = fw.components.getFileName(componentName, 'template');

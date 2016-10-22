@@ -14,7 +14,7 @@ var makeArray = util.makeArray;
  */
 fw.components.loaders.unshift(fw.components.componentLifecycleLoader = {
   loadTemplate: function (componentName, templateConfig, callback) {
-    if(!entityDescriptors.getDescriptor(componentName)) {
+    if (!entityDescriptors.getDescriptor(componentName)) {
       // This is a regular component (not an entity) we need to wrap it with the $life binding
       if (typeof templateConfig === 'string') {
         // Markup - parse it
