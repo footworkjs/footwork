@@ -1,7 +1,9 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var isAmdResolved = require('../../misc/util').isAmdResolved;
+var util = require('../../misc/util');
+var isAmdResolved = util.isAmdResolved;
+var isPath = util.isPath;
 
 /**
  * This component loader has two functions:
@@ -20,8 +22,12 @@ fw.components.loaders.unshift(fw.components.entityLoader = {
 
       if (_.isString(viewModelOrLocation)) {
         // assume string is a location/path, append the filename to it and set it as a require dependency
+        if(isPath(viewModelOrLocation)) {
+          viewModelOrLocation = viewModelOrLocation + descriptor.resource.getFileName(moduleName);
+        }
+
         viewModelOrLocation = {
-          require: isAmdResolved(moduleName) ? moduleName : (viewModelOrLocation + descriptor.resource.getFileName(moduleName))
+          require: isAmdResolved(moduleName) ? moduleName : window.require.toUrl(viewModelOrLocation)
         };
       }
 

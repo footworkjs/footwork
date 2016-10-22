@@ -10,16 +10,14 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers', 'fetch-mock', 'reporte
     var generatedUrlCounter = 0;
 
     /**
-     * Wrap the passed in callback (initializeMethod) with a function that registers the footwork entity when it is called.
-     * This is used to test the loading of footwork modules
+     * Register the passed in entity as having been loaded.
      *
      * @param {function} initializeMethod The method you want to wrap which when called will register itself as loaded
+     * @returns {object} entity the entity that was passed in
      */
-    registerFootworkEntity = function (initializeMethod) {
-      return function() {
-        loadedModules[this.$namespace.getName()] = true;
-        return (initializeMethod || _.noop).apply(this, arguments);
-      };
+    registerFootworkEntity = function (entity) {
+      loadedModules[entity.$namespace.getName()] = true;
+      return entity;
     }
 
     /**

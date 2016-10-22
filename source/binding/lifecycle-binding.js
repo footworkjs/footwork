@@ -34,9 +34,7 @@ fw.bindingHandlers.$lifecycle = {
     element = element.parentElement || element.parentNode;
 
     // ensure that getConfig is called again when another viewModel/dataModel/router declaration is encountered
-    _.each(require('../entities/entity-descriptors').getTags(), function(tagName) {
-      fw.components.clearCachedDefinition(tagName);
-    });
+    _.each(require('../entities/entity-descriptors').getTags(), fw.components.clearCachedDefinition);
 
     if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
       // the outlet viewModel and template binding handles its animation state
