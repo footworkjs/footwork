@@ -26,10 +26,10 @@ var entityClass = config.entityClass;
 var privateDataSymbol = config.privateDataSymbol;
 
 /**
- * The $life binding provides lifecycle events for components/viewModels/dataModels/routers
+ * The $lifecycle binding provides lifecycle events for components/viewModels/dataModels/routers
  */
-fw.virtualElements.allowedBindings.$life = true;
-fw.bindingHandlers.$life = {
+fw.virtualElements.allowedBindings.$lifecycle = true;
+fw.bindingHandlers.$lifecycle = {
   init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
 

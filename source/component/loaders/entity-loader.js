@@ -3,7 +3,7 @@ var _ = require('lodash');
 
 /**
  * This component loader has two functions:
- * 1. wraps viewModel/dataModel/router declarative element contents with the $life binding which enables the lifecycle hooks (afterBinding/afterRender/onDispose).
+ * 1. wraps viewModel/dataModel/router declarative element contents with the $lifecycle binding which enables the lifecycle hooks (afterBinding/afterRender/onDispose).
  * 2. provides either the entity constructor itself or the require path to get the entity
  */
 fw.components.loaders.unshift(fw.components.entityLoader = {
@@ -23,7 +23,7 @@ fw.components.loaders.unshift(fw.components.entityLoader = {
 
       callback({
         viewModel: viewModelOrLocation,
-        template: '<!-- ko $life, template: { nodes: $componentTemplateNodes, data: $data } --><!-- /ko -->'
+        template: '<!-- ko $lifecycle, template: { nodes: $componentTemplateNodes, data: $data } --><!-- /ko -->'
       });
 
       // ensure that getConfig is called again when another declaration is encountered

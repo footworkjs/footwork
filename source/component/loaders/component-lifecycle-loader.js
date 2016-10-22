@@ -10,12 +10,12 @@ var makeArray = util.makeArray;
 
 /**
  * The component lifecycle loader wraps all non-viewModel/dataModel/router custom component
- * contents with the $life binding which enables the lifecycle hooks (afterBinding/afterRender/onDispose).
+ * contents with the $lifecycle binding which enables the lifecycle hooks (afterBinding/afterRender/onDispose).
  */
 fw.components.loaders.unshift(fw.components.componentLifecycleLoader = {
   loadTemplate: function (componentName, templateConfig, callback) {
     if (!entityDescriptors.getDescriptor(componentName)) {
-      // This is a regular component (not an entity) we need to wrap it with the $life binding
+      // This is a regular component (not an entity) we need to wrap it with the $lifecycle binding
       if (typeof templateConfig === 'string') {
         // Markup - parse it
         callback(wrapWithLifeCycle(templateConfig));
@@ -91,7 +91,7 @@ function cloneNodesFromTemplateSourceElement (elemInstance) {
 }
 
 /**
- * Wrap the supplied template with the $life binding. This enables footwork to track when
+ * Wrap the supplied template with the $lifecycle binding. This enables footwork to track when
  * the instance is bound to or removed from the dom, triggering its various lifecycle events.
  *
  * @param {string|[DOMNodes]} template
@@ -99,7 +99,7 @@ function cloneNodesFromTemplateSourceElement (elemInstance) {
  */
 function wrapWithLifeCycle (template) {
   var templateString = _.isString(template) ? template : '';
-  var wrapper = fw.utils.parseHtmlFragment('<!-- ko $life -->' + templateString + '<!-- /ko -->');
+  var wrapper = fw.utils.parseHtmlFragment('<!-- ko $lifecycle -->' + templateString + '<!-- /ko -->');
 
   if (templateString.length) {
     return wrapper;

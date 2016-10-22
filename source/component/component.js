@@ -2,9 +2,11 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
 require('./component-init');
+
+// Custom loaders used to load resources and wrap them with the $lifecycle binding
 require('./loaders/entity-loader');
-require('./loaders/component-lifecycle-loader');
 require('./loaders/component-resource-loader');
+require('./loaders/component-lifecycle-loader');
 
 var entityDescriptors = require('../entities/entity-descriptors');
 

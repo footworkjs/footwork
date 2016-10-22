@@ -24,7 +24,7 @@ fw.applyBindings = function (viewModelOrBindingContext, rootNode) {
  * @returns {[DOMNodes]} The wrapped component
  */
 function wrapWithLifeCycle (rootNode) {
-  var wrapper = fw.utils.parseHtmlFragment('<!-- ko $life --><!-- /ko -->');
+  var wrapper = fw.utils.parseHtmlFragment('<!-- ko $lifecycle --><!-- /ko -->');
 
   wrapper = [].concat(wrapper[0], makeArray(rootNode.childNodes), wrapper[1]);
   _.each(wrapper, function (node) {
