@@ -13,7 +13,7 @@ fw.components.loaders.unshift(fw.components.entityLoader = {
 
     if (descriptor) {
       // this component is a viewModel/dataModel/router entity
-      var moduleName = require('../flight-tracker').get().moduleName;
+      var moduleName = require('../loading-tracker').get().moduleName;
       var viewModelOrLocation = descriptor.resource.getResourceOrLocation(moduleName);
 
       if (_.isString(viewModelOrLocation)) {

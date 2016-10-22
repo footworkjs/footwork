@@ -5,8 +5,8 @@
 var currentlyLoading;
 
 module.exports = {
-  set: function (flightTracker) {
-    currentlyLoading = flightTracker;
+  set: function (loadingTracker) {
+    currentlyLoading = loadingTracker;
   },
   get: function () {
     return currentlyLoading;

@@ -101,18 +101,18 @@ fw.bindingHandlers.$life = {
  * @param {function} addAnimationClass
  */
 function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationClass) {
-  var flightTracker = element.flightTracker;
+  var loadingTracker = element.loadingTracker;
   var parentInFlightChildren;
 
   var parentEntity = nearestEntity($context);
   if (parentEntity) {
-    parentInFlightChildren = parentEntity[privateDataSymbol].inFlightChildren;
+    parentInFlightChildren = parentEntity[privateDataSymbol].loadingChildren;
   }
 
  function finishResolution () {
     addAnimationClass();
     if (fw.isObservable(parentInFlightChildren) && _.isFunction(parentInFlightChildren.remove)) {
-      parentInFlightChildren.remove(flightTracker);
+      parentInFlightChildren.remove(loadingTracker);
     }
   }
 
@@ -146,13 +146,13 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
       viewModel[privateDataSymbol].configParams.afterResolving.call(viewModel, resolveInstanceNow);
     }
 
-    var inFlightChildren = viewModel[privateDataSymbol].inFlightChildren;
+    var loadingChildren = viewModel[privateDataSymbol].loadingChildren;
     // if no children then resolve now, otherwise subscribe and wait till its 0
-    if (inFlightChildren().length === 0) {
+    if (loadingChildren().length === 0) {
       maybeResolve();
     } else {
-      viewModel.disposeWithInstance(inFlightChildren.subscribe(function (inFlightChildren) {
-        inFlightChildren.length === 0 && maybeResolve();
+      viewModel.disposeWithInstance(loadingChildren.subscribe(function (loadingChildren) {
+        loadingChildren.length === 0 && maybeResolve();
       }));
     }
   } else {

@@ -276,7 +276,7 @@ function getPrivateData (instance) {
  * @returns {Symbol|string} The identifier
  */
 function makeSymbol (str) {
-  return typeof Symbol === 'function' ? Symbol(str) : str;
+  return typeof Symbol === 'function' ? Symbol(str.replace('__', '')) : /* istanbul ignore next */ str;
 }
 
 /**

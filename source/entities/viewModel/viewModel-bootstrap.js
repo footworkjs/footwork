@@ -11,7 +11,7 @@ var privateDataSymbol = require('../../misc/config').privateDataSymbol;
  * @param {any} configParams
  * @returns {object} The instance that was passed in
  */
-function viewModelBoot (descriptor, isEntityDuckTag, instance, configParams) {
+function viewModelBootstrap (descriptor, isEntityDuckTag, instance, configParams) {
   if(!instance) {
     throw new Error('Must supply the instance (this) to boot()');
   }
@@ -27,7 +27,7 @@ function viewModelBoot (descriptor, isEntityDuckTag, instance, configParams) {
     instance[privateDataSymbol] = {
       configParams: configParams,
       disposableItems: [],
-      inFlightChildren: fw.observableArray()
+      loadingChildren: fw.observableArray()
     };
 
     _.extend(instance, descriptor.mixin, {
@@ -41,10 +41,14 @@ function viewModelBoot (descriptor, isEntityDuckTag, instance, configParams) {
      * This request handler returns references of the instance to the requester.
      */
     globalNS.request.handler(descriptor.referenceNamespace, function (options) {
-      var myNamespaceName = configParams.namespace;
-      if (_.isArray(options.namespaceName) && options.namespaceName.indexOf(myNamespaceName) !== -1) {
-        return instance;
-      } else if (_.isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+      if (_.isString(options.namespaceName) || _.isArray(options.namespaceName)) {
+        var myNamespaceName = instance.$namespace.getName();
+        if (_.isArray(options.namespaceName) && _.indexOf(options.namespaceName, myNamespaceName) !== -1) {
+          return instance;
+        } else if (_.isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+          return instance;
+        }
+      } else {
         return instance;
       }
     });
@@ -55,4 +59,4 @@ function viewModelBoot (descriptor, isEntityDuckTag, instance, configParams) {
   return instance;
 }
 
-module.exports = viewModelBoot;
+module.exports = viewModelBootstrap;

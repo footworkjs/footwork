@@ -30,7 +30,7 @@ fw.components.register('outlet', {
     this.__isOutlet = true;
 
     this.loadingDisplay = fw.observable(nullComponent);
-    this.inFlightChildren = fw.observableArray();
+    this.loadingChildren = fw.observableArray();
     this.routeIsLoading = fw.observable(true);
     this.routeIsResolving = fw.observable(true);
 
@@ -53,9 +53,9 @@ fw.components.register('outlet', {
 
         // must allow binding to begin on any subcomponents/etc
         nextFrame(function () {
-          if (outlet.inFlightChildren().length) {
-            outlet.flightWatch = outlet.inFlightChildren.subscribe(function (inFlightChildren) {
-              if (!inFlightChildren.length) {
+          if (outlet.loadingChildren().length) {
+            outlet.flightWatch = outlet.loadingChildren.subscribe(function (loadingChildren) {
+              if (!loadingChildren.length) {
                 outlet.routeIsResolving(false);
                 _.isFunction(outlet.routeOnComplete) && outlet.routeOnComplete();
               }

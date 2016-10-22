@@ -7,7 +7,7 @@ var entityDescriptors = require('../entities/entity-descriptors');
 var originalComponentInit = fw.bindingHandlers.component.init;
 
 /**
- * Monkey patch to bootstrap a component, tagging it with the flightTracker.
+ * Monkey patch to bootstrap a component, tagging it with the loadingTracker.
  *
  * @param {any} element
  * @param {any} valueAccessor
@@ -18,7 +18,7 @@ var originalComponentInit = fw.bindingHandlers.component.init;
  */
 function componentInit (element, valueAccessor, allBindings, viewModel, bindingContext) {
   var tagName = element.tagName;
-  var flightTracker = element.flightTracker = {
+  var loadingTracker = element.loadingTracker = {
     tagName: tagName,
     moduleName: element.getAttribute('module') || element.getAttribute('data-module')
   };
@@ -26,20 +26,20 @@ function componentInit (element, valueAccessor, allBindings, viewModel, bindingC
   if (element.nodeType !== 8) {
     var closestEntity = nearestEntity(bindingContext);
     if (closestEntity) {
-      var inFlightChildren = closestEntity[privateDataSymbol].inFlightChildren;
-      if (fw.isObservable(inFlightChildren) && _.isFunction(inFlightChildren.push)) {
-        inFlightChildren.push(flightTracker);
+      var loadingChildren = closestEntity[privateDataSymbol].loadingChildren;
+      if (fw.isObservable(loadingChildren) && _.isFunction(loadingChildren.push)) {
+        loadingChildren.push(loadingTracker);
       }
 
-      // ensure that if the element is removed before its other resources are resolved that the flightTracker is removed/cleared
+      // ensure that if the element is removed before its other resources are resolved that the loadingTracker is removed/cleared
       fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
-        inFlightChildren.remove(flightTracker);
+        loadingChildren.remove(loadingTracker);
       });
     }
   }
 
   if (entityDescriptors.tagNameIsPresent(tagName)) {
-    require('./flight-tracker').set(flightTracker);
+    require('./loading-tracker').set(loadingTracker);
   }
 
   return originalComponentInit(element, valueAccessor, allBindings, viewModel, bindingContext);

@@ -33,7 +33,7 @@ entityDescriptors.push(descriptor = prepareDescriptor({
 }));
 
 _.extend(fw[entityName], {
-  boot: _.partial(require('./viewModel-boot'), descriptor, isEntityDuckTag),
+  boot: _.partial(require('./viewModel-bootstrap'), descriptor, isEntityDuckTag),
   getPrivateData: require('../../misc/util').getPrivateData
 });
 
