@@ -59,6 +59,20 @@ fw.components.loaders.unshift(fw.components.componentLifecycleLoader = {
 });
 
 /**
+ * Clone and return the supplied DOM nodes in the nodesArray
+ *
+ * @param {any} nodesArray
+ * @returns {array} New array of DOM nodes
+ */
+function cloneNodes(nodesArray) {
+  for (var i = 0, j = nodesArray.length, newNodesArray = []; i < j; i++) {
+    var clonedNode = nodesArray[i].cloneNode(true);
+    newNodesArray.push(clonedNode);
+  }
+  return newNodesArray;
+}
+
+/**
  * Clone and return the nodes from the source element.
  *
  * @param {DOMNode} elemInstance
@@ -74,13 +88,13 @@ function cloneNodesFromTemplateSourceElement(elemInstance) {
       // For browsers with proper <template> element support (i.e., where the .content property
       // gives a document fragment), use that document fragment.
       if (isDocumentFragment(elemInstance.content)) {
-        return fw.utils.cloneNodes(elemInstance.content.childNodes);
+        return cloneNodes(elemInstance.content.childNodes);
       }
   }
 
   // Regular elements such as <div>, and <template> elements on old browsers that don't really
   // understand <template> and just treat it as a regular container
-  return fw.utils.cloneNodes(elemInstance.childNodes);
+  return cloneNodes(elemInstance.childNodes);
 }
 
 /**

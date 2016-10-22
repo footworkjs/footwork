@@ -1,25 +1,48 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var privateDataSymbol = require('../misc/config').privateDataSymbol;
-var entityTools = require('../entities/entity-tools');
-var isEntity = entityTools.isEntity;
-var isRouter = entityTools.isRouter;
+var isEntity = require('../entities/entity-tools').isEntity;
 
 // Override the original applyBindings method to provide viewModel/dataModel/router life-cycle events
 var originalApplyBindings = fw.applyBindings;
 fw.applyBindings = function(viewModelOrBindingContext, rootNode) {
-  originalApplyBindings(viewModelOrBindingContext, rootNode);
+  rootNode = rootNode || document.body;
 
   if(isEntity(viewModelOrBindingContext)) {
-    var configParams = viewModelOrBindingContext[privateDataSymbol].configParams;
-
-    // trigger afterRender on the viewModel
-    configParams.afterRender.call(viewModelOrBindingContext, rootNode);
-
-    // supply the context to the instance if it is a router
-    if (isRouter(viewModelOrBindingContext)) {
-      viewModelOrBindingContext[privateDataSymbol].context(fw.contextFor(rootNode));
-    }
+    originalApplyBindings(viewModelOrBindingContext, wrapWithLifeCycle(rootNode));
+  } else {
+    originalApplyBindings(viewModelOrBindingContext, rootNode);
   }
 };
+
+
+/**
+ * Wrap the supplied template with the lifecycle binding. This enables footwork to track when
+ * the instance is bound to or removed from the dom, triggering its various lifecycle events.
+ *
+ * @param {string|[DOMNodes]} template
+ * @returns {[DOMNodes]} The wrapped component
+ */
+function wrapWithLifeCycle(rootNode) {
+  var wrapper = fw.utils.parseHtmlFragment('<!-- ko $life --><!-- /ko -->');
+
+  wrapper = [].concat(wrapper[0], makeArray(rootNode.childNodes), wrapper[1]);
+  _.each(wrapper, function(node) {
+    rootNode.appendChild(node);
+  });
+
+  return rootNode;
+}
+
+/**
+ * Convert the supplied arrayLikeObject into an array of its elements
+ *
+ * @param {any} arrayLikeObject
+ * @returns {array} New array of original children
+ */
+function makeArray(arrayLikeObject) {
+  for (var i = 0, j = arrayLikeObject.length, convertedArray = []; i < j; i++) {
+    convertedArray.push(arrayLikeObject[i]);
+  }
+  return convertedArray;
+}

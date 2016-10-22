@@ -21,7 +21,10 @@ var componentId = 0;
  */
 function componentInit(element, valueAccessor, allBindings, viewModel, bindingContext) {
   var tagName = element.tagName;
-  var flightTracker = { moduleName: element.getAttribute('module') || element.getAttribute('data-module') };
+  var flightTracker = {
+    tagName: tagName,
+    moduleName: element.getAttribute('module') || element.getAttribute('data-module')
+  };
 
   if (element.nodeType !== 8) {
     var closestEntity = nearestEntity(bindingContext);
@@ -39,9 +42,10 @@ function componentInit(element, valueAccessor, allBindings, viewModel, bindingCo
   }
 
   if (entityDescriptors.tagNameIsPresent(tagName)) {
-    require('./component-registry').push(flightTracker);
+    require('./flight-tracker').set(flightTracker);
   }
 
+  // provide the flightTracker on the element so that the lifecycle binder can resolve/clear it once it has loaded
   element.flightTracker = flightTracker;
   return originalComponentInit(element, valueAccessor, allBindings, viewModel, bindingContext);
 };

@@ -8,6 +8,7 @@ var runAnimationClassSequenceQueue = sequencing.runAnimationClassSequenceQueue;
 var entityTools = require('../entities/entity-tools');
 var nearestEntity = entityTools.nearestEntity;
 var isEntity = entityTools.isEntity;
+var isRouter = entityTools.isRouter;
 
 var routerDefaults = require('../entities/router/router-defaults');
 var outletLoadedDisplay = routerDefaults.outletLoadedDisplay;
@@ -105,12 +106,16 @@ fw.bindingHandlers.$life = {
     }
 
     if (isEntity(viewModel)) {
-      if(!viewModel[privateDataSymbol].element) {
-        viewModel[privateDataSymbol].element = element;
-        fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
-          viewModel.dispose();
-        });
-      }
+      // need to provide the element for when onDispose is called
+      viewModel[privateDataSymbol].element = element;
+      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
+        viewModel.dispose();
+      });
+    }
+
+    // if this is a router, provide the bindingContext so it can bootstrap its nested outlets/etc
+    if (isRouter(viewModel)) {
+      viewModel[privateDataSymbol].context(bindingContext);
     }
   },
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
