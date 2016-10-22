@@ -1,7 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var entityDescriptors = require('../entities/entity-descriptors');
+var entityDescriptors = require('../../entities/entity-descriptors');
 
 /**
  * This component loader has two functions:
@@ -15,7 +15,7 @@ fw.components.loaders.unshift(fw.components.entityLifecycleLoader = {
 
     if(descriptor) {
       // this component is a viewModel/dataModel/router entity
-      var moduleName = require('./flight-tracker').get().moduleName;
+      var moduleName = require('../flight-tracker').get().moduleName;
       var viewModelOrLocation = descriptor.resource.getResourceOrLocation(moduleName);
 
       if(_.isString(viewModelOrLocation)) {
@@ -27,7 +27,7 @@ fw.components.loaders.unshift(fw.components.entityLifecycleLoader = {
         template: '<!-- ko $life, template: { nodes: $componentTemplateNodes, data: $data } --><!-- /ko -->'
       });
 
-      // ensure that getConfig is called again when a new declaration is encountered
+      // ensure that getConfig is called again when another declaration is encountered
       fw.components.clearCachedDefinition(componentName);
     } else {
       callback(null);

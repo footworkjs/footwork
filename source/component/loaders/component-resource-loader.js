@@ -1,11 +1,11 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var util = require('../misc/util');
+var util = require('../../misc/util');
 var isPath = util.isPath;
 var getFilenameExtension = util.getFilenameExtension;
 
-var getComponentExtension = require('../resource/component-resource').getComponentExtension;
+var getComponentExtension = require('../../resource/component-resource').getComponentExtension;
 
 fw.components.loaders.push(fw.components.registeredLocationLoader = {
   getConfig: function(componentName, callback) {
@@ -46,7 +46,7 @@ fw.components.loaders.push(fw.components.registeredLocationLoader = {
           // check to see if the requested component is template only and should not request a viewModel (we supply a dummy object in its place)
           if (!_.isString(componentLocation.viewModel)) {
             // template-only component, substitute with 'blank' viewModel
-            viewModelConfig = require('../misc/config').DefaultViewModel;
+            viewModelConfig = require('../../misc/config').DefaultViewModel;
           } else {
             var viewModelPath = componentLocation.viewModel;
 
