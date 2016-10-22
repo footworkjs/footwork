@@ -279,6 +279,19 @@ function makeSymbol(str) {
   return typeof Symbol === 'function' ? Symbol(str) : str;
 }
 
+/**
+ * Convert the supplied arrayLikeObject into an array of its elements
+ *
+ * @param {any} arrayLikeObject
+ * @returns {array} New array of original children
+ */
+function makeArray(arrayLikeObject) {
+  for (var i = 0, j = arrayLikeObject.length, convertedArray = []; i < j; i++) {
+    convertedArray.push(arrayLikeObject[i]);
+  }
+  return convertedArray;
+}
+
 module.exports = {
   alwaysPassPredicate: alwaysPassPredicate,
   resultBound: resultBound,
@@ -300,5 +313,6 @@ module.exports = {
   startingHashRegex: startingHashRegex,
   capitalizeFirstLetter: capitalizeFirstLetter,
   getPrivateData: getPrivateData,
-  makeSymbol: makeSymbol
+  makeSymbol: makeSymbol,
+  makeArray: makeArray
 };

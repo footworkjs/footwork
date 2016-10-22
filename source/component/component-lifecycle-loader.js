@@ -6,14 +6,7 @@ var entityDescriptors = require('../entities/entity-descriptors');
 var util = require('../misc/util');
 var isDocumentFragment = util.isDocumentFragment;
 var isDomElement = util.isDomElement;
-
-function makeArray(arrayLikeObject) {
-  var result = [];
-  for (var i = 0, j = arrayLikeObject.length; i < j; i++) {
-    result.push(arrayLikeObject[i]);
-  };
-  return result;
-}
+var makeArray = util.makeArray;
 
 /**
  * The component lifecycle loader wraps all non-entity (viewModel/dataModel/router) custom component

@@ -2,6 +2,7 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
 var isEntity = require('../entities/entity-tools').isEntity;
+var makeArray = require('../misc/util').makeArray;
 
 // Override the original applyBindings method to provide viewModel/dataModel/router life-cycle events
 var originalApplyBindings = fw.applyBindings;
@@ -15,9 +16,8 @@ fw.applyBindings = function(viewModelOrBindingContext, rootNode) {
   }
 };
 
-
 /**
- * Wrap the supplied template with the lifecycle binding. This enables footwork to track when
+ * Wrap the supplied rootNode with the lifecycle binding. This enables footwork to track when
  * the instance is bound to or removed from the dom, triggering its various lifecycle events.
  *
  * @param {string|[DOMNodes]} template
@@ -32,17 +32,4 @@ function wrapWithLifeCycle(rootNode) {
   });
 
   return rootNode;
-}
-
-/**
- * Convert the supplied arrayLikeObject into an array of its elements
- *
- * @param {any} arrayLikeObject
- * @returns {array} New array of original children
- */
-function makeArray(arrayLikeObject) {
-  for (var i = 0, j = arrayLikeObject.length, convertedArray = []; i < j; i++) {
-    convertedArray.push(arrayLikeObject[i]);
-  }
-  return convertedArray;
 }
