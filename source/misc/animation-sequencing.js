@@ -12,7 +12,7 @@ var nextFrame = util.nextFrame;
 
 var sequenceQueue = {};
 
-function clearSequenceQueue() {
+function clearSequenceQueue () {
   _.each(sequenceQueue, function (sequence, queueNamespace) {
     _.each(sequence, function (sequenceIteration) {
       sequenceIteration.addAnimationClass();
@@ -21,7 +21,7 @@ function clearSequenceQueue() {
   });
 }
 
-function runAnimationClassSequenceQueue(queue, isRunner) {
+function runAnimationClassSequenceQueue (queue, isRunner) {
   if (!queue.running || isRunner) {
     var sequenceIteration = queue.shift();
 
@@ -42,7 +42,7 @@ function runAnimationClassSequenceQueue(queue, isRunner) {
   }
 }
 
-function addToAndFetchQueue(element, viewModel) {
+function addToAndFetchQueue (element, viewModel) {
   var configParams = (viewModel[privateDataSymbol] || {}).configParams || {};
   var sequenceTimeout = resultBound(configParams, 'sequenceAnimations', viewModel) || 0;
   var namespaceName = configParams.namespace;

@@ -13,7 +13,7 @@ var getNestedReference = dataTools.getNestedReference;
 var insertValueIntoObject = dataTools.insertValueIntoObject;
 var dataModelIsNew = dataTools.dataModelIsNew;
 
-function isNode(thing) {
+function isNode (thing) {
   var thingIsObject = _.isObject(thing);
   return (
     thingIsObject ? thing instanceof Node :
@@ -59,7 +59,7 @@ var DataModel = module.exports = function DataModel (descriptor, configParams) {
               var xhr = dataModel.sync('read', dataModel, options);
 
               ajax.handleJsonResponse(xhr)
-                .then(function handleResponseData(data) {
+                .then(function handleResponseData (data) {
                   var parsedData = configParams.parse ? configParams.parse(data) : data;
                   if (!_.isUndefined(parsedData[configParams.idAttribute])) {
                     dataModel.set(parsedData);
@@ -118,7 +118,7 @@ var DataModel = module.exports = function DataModel (descriptor, configParams) {
             var xhr = dataModel.sync(method, dataModel, options);
 
             ajax.handleJsonResponse(xhr)
-              .then(function handleResponseData(data) {
+              .then(function handleResponseData (data) {
                 var parsedData = configParams.parse ? configParams.parse(data) : data;
 
                 if (options.wait && !_.isNull(attrs)) {
@@ -165,7 +165,7 @@ var DataModel = module.exports = function DataModel (descriptor, configParams) {
             var xhr = dataModel.sync('delete', dataModel, options);
 
             ajax.handleJsonResponse(xhr)
-              .then(function handleResponseData(data) {
+              .then(function handleResponseData (data) {
                 dataModel.$id(undefined);
                 if (options.wait) {
                   sendDestroyEvent();
@@ -289,10 +289,10 @@ fw.dataModel = {};
 var methodName = 'dataModel';
 var isEntityCtorDuckTag = '__is' + methodName + 'Ctor';
 var isEntityDuckTag = '__is' + methodName;
-function isDataModelCtor(thing) {
+function isDataModelCtor (thing) {
   return _.isFunction(thing) && !!thing[ isEntityCtorDuckTag ];
 }
-function isDataModel(thing) {
+function isDataModel (thing) {
   return _.isObject(thing) && !!thing[ isEntityDuckTag ];
 }
 

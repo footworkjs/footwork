@@ -35,7 +35,7 @@ fw.components.register = function (componentName, options) {
  * @param {string} fileType (combined/viewModel/template)
  * @returns {string} the file extension (ie: 'js')
  */
-function getComponentExtension(componentName, fileType) {
+function getComponentExtension (componentName, fileType) {
   var componentExtensions = fw.components.fileExtensions();
   var fileExtension = '';
 
@@ -52,7 +52,7 @@ function getComponentExtension(componentName, fileType) {
   return fileExtension.replace(/^\./, '') || '';
 }
 
-function forceViewModelComponentConvention(componentLocation) {
+function forceViewModelComponentConvention (componentLocation) {
   if (_.isObject(componentLocation) && _.isUndefined(componentLocation.viewModel) && _.isUndefined(componentLocation.combined)) {
     return {
       viewModel: componentLocation.dataModel || componentLocation.router,

@@ -19,7 +19,7 @@ var componentId = 0;
  * @param {any} bindingContext
  * @returns
  */
-function componentInit(element, valueAccessor, allBindings, viewModel, bindingContext) {
+function componentInit (element, valueAccessor, allBindings, viewModel, bindingContext) {
   var tagName = element.tagName;
   var flightTracker = {
     tagName: tagName,

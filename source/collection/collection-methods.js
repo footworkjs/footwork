@@ -13,18 +13,18 @@ var isDataModel = entityTools.isDataModel;
 var makeOrGetRequest = require('../misc/ajax').makeOrGetRequest;
 var privateDataSymbol = require('../misc/config').privateDataSymbol;
 
-function sync() {
+function sync () {
   return fw.sync.apply(this, arguments);
 }
 
-function get(id) {
+function get (id) {
   var collection = this;
   return _.find(collection(), function findModelWithId (model) {
     return _.result(model, collection[privateDataSymbol].getIdAttribute()) === id || _.result(model, '$id') === id || _.result(model, '$cid') === id;
   });
 }
 
-function getData() {
+function getData () {
   var collection = this;
   var castAsModelData = collection[privateDataSymbol].castAs.modelData;
   return _.reduce(collection(), function (models, model) {
@@ -33,11 +33,11 @@ function getData() {
   }, []);
 }
 
-function toJSON() {
+function toJSON () {
   return JSON.stringify(this.getData());
 }
 
-function pluck(attribute) {
+function pluck (attribute) {
   var collection = this;
   var castAsModelData = collection[privateDataSymbol].castAs.modelData;
   return _.reduce(collection(), function (pluckedValues, model) {
@@ -46,7 +46,7 @@ function pluck(attribute) {
   }, []);
 }
 
-function set(newCollection, options) {
+function set (newCollection, options) {
   if (!_.isArray(newCollection)) {
     throw new Error('collection.set() must be passed an array of data/dataModels');
   }
@@ -153,7 +153,7 @@ function set(newCollection, options) {
   return affectedModels;
 }
 
-function reset(newCollection) {
+function reset (newCollection) {
   var collection = this;
   var oldModels = collection.removeAll();
   var castAsDataModel = collection[privateDataSymbol].castAs.dataModel;
@@ -168,7 +168,7 @@ function reset(newCollection) {
   return collection();
 }
 
-function fetch(options) {
+function fetch (options) {
   var ajax = require('../misc/ajax');
   var collection = this;
   var configParams = collection[privateDataSymbol].configParams;
@@ -186,7 +186,7 @@ function fetch(options) {
       var xhr = collection.sync('read', collection, options);
 
       ajax.handleJsonResponse(xhr)
-        .then(function handleResponseData(data) {
+        .then(function handleResponseData (data) {
           var method = options.reset ? 'reset' : 'set';
           data = configParams.parse(data);
           var touchedModels = collection[method](data, options);
@@ -205,7 +205,7 @@ function fetch(options) {
   return makeOrGetRequest('fetch', requestInfo);
 }
 
-function where(modelData, options) {
+function where (modelData, options) {
   var collection = this;
   var castAsModelData = collection[privateDataSymbol].castAs.modelData;
   options = options || {};
@@ -220,7 +220,7 @@ function where(modelData, options) {
   }, []);
 }
 
-function findWhere(modelData, options) {
+function findWhere (modelData, options) {
   var collection = this;
   var castAsModelData = collection[privateDataSymbol].castAs.modelData;
   options = options || {};
@@ -235,7 +235,7 @@ function findWhere(modelData, options) {
   }, null);
 }
 
-function addModel(models, options) {
+function addModel (models, options) {
   var collection = this;
   var affectedModels = [];
   options = options || {};
@@ -293,7 +293,7 @@ function addModel(models, options) {
   return affectedModels;
 }
 
-function create(model, options) {
+function create (model, options) {
   var ajax = require('../misc/ajax');
   var collection = this;
   var castAsDataModel = collection[privateDataSymbol].castAs.dataModel;
@@ -335,7 +335,7 @@ function create(model, options) {
   return makeOrGetRequest('create', requestInfo);
 }
 
-function removeModel(models) {
+function removeModel (models) {
   var collection = this;
   var affectedModels = [];
 

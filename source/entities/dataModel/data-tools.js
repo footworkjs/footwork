@@ -1,6 +1,6 @@
 var _ = require('lodash');
 
-function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
+function insertValueIntoObject (rootObject, fieldMap, fieldValue) {
   if (_.isString(fieldMap)) {
     return insertValueIntoObject(rootObject, fieldMap.split('.'), fieldValue);
   }
@@ -20,7 +20,7 @@ function insertValueIntoObject(rootObject, fieldMap, fieldValue) {
   return rootObject;
 }
 
-function getNestedReference(rootObject, fieldMap) {
+function getNestedReference (rootObject, fieldMap) {
   var propName = fieldMap;
 
   if (!_.isUndefined(fieldMap)) {
@@ -44,7 +44,7 @@ function getNestedReference(rootObject, fieldMap) {
  *
  * @returns {boolean} true if it is new, false if not
  */
-function dataModelIsNew() {
+function dataModelIsNew () {
   var id = this.$id();
   return _.isUndefined(id) || _.isNull(id);
 }

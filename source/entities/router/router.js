@@ -33,12 +33,12 @@ var noComponentSelected = routerDefaults.noComponentSelected;
 var $nullRouter = routerDefaults.$nullRouter;
 var baseRoute = routerDefaults.baseRoute;
 
-function registerViewModelForOutlet(outletName, outletViewModel) {
+function registerViewModelForOutlet (outletName, outletViewModel) {
   var outletProperties = this.outlets[outletName] || {};
   outletProperties.outletViewModel = outletViewModel;
 }
 
-function unregisterViewModelForOutlet(outletName) {
+function unregisterViewModelForOutlet (outletName) {
   var outletProperties = this.outlets[outletName] || {};
   delete outletProperties.outletViewModel;
 }
@@ -233,7 +233,7 @@ var Router = module.exports = function Router (descriptor, configParams) {
             subscriptions.remove(parentPathSubscription);
             parentPathSubscription.dispose();
           }
-          subscriptions.push(parentPathSubscription = $parentRouter.path.subscribe(function triggerRouteRecompute() {
+          subscriptions.push(parentPathSubscription = $parentRouter.path.subscribe(function triggerRouteRecompute () {
             $router.router.currentState.notifySubscribers();
           }));
         }
@@ -242,7 +242,7 @@ var Router = module.exports = function Router (descriptor, configParams) {
       }, this));
 
       // Automatically trigger the new Action() whenever the currentRoute() updates
-      subscriptions.push(router.currentRoute.subscribe(function getActionForRouteAndTrigger(newRoute) {
+      subscriptions.push(router.currentRoute.subscribe(function getActionForRouteAndTrigger (newRoute) {
         if (router.currentState().length) {
           getActionForRoute(newRoute)( /* get and call the action for the newRoute */ );
         }
@@ -265,7 +265,7 @@ var Router = module.exports = function Router (descriptor, configParams) {
       this.setRoutes(routerConfigParams.routes);
 
       if (routerConfigParams.activate === true) {
-        subscriptions.push(router.context.subscribe(function activateRouterAfterNewContext( $context ) {
+        subscriptions.push(router.context.subscribe(function activateRouterAfterNewContext ( $context ) {
           if (_.isObject($context)) {
             this.activate($context);
           }
@@ -425,10 +425,10 @@ fw.router = {
 var methodName = 'router';
 var isEntityCtorDuckTag = '__is' + methodName + 'Ctor';
 var isEntityDuckTag = '__is' + methodName;
-function isRouterCtor(thing) {
+function isRouterCtor (thing) {
   return _.isFunction(thing) && !!thing[ isEntityCtorDuckTag ];
 }
-function isRouter(thing) {
+function isRouter (thing) {
   return _.isObject(thing) && !!thing[ isEntityDuckTag ];
 }
 

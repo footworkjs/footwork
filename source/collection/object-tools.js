@@ -9,7 +9,7 @@ var _ = require('lodash');
  * @param  {function} isEqual evauluator to use (optional)
  * @return boolean   Result of equality comparison
  */
-function regExpIsEqual(a, b, isEq) {
+function regExpIsEqual (a, b, isEq) {
   isEq = isEq || regExpIsEqual;
 
   if (_.isObject(a) && _.isObject(b)) {
@@ -39,7 +39,7 @@ function regExpIsEqual(a, b, isEq) {
  * @param  {function} isEqual evauluator to use (optional)
  * @return boolean   Result of equality comparison
  */
-function commonKeysEqual(a, b, isEq) {
+function commonKeysEqual (a, b, isEq) {
   isEq = isEq || _.isEqual;
 
   if (_.isObject(a) && _.isObject(b)) {
@@ -58,7 +58,7 @@ function commonKeysEqual(a, b, isEq) {
  * @param  {function} isEqual evauluator to use (optional)
  * @return boolean   Result of equality comparison
  */
-function sortOfEqual(a, b, isEq) {
+function sortOfEqual (a, b, isEq) {
   isEq = isEq || _.isEqual;
 
   if (_.isObject(a) && _.isObject(b)) {

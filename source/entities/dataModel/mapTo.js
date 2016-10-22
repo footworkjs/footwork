@@ -7,7 +7,7 @@ var dataModelIsNew = require('./data-tools').dataModelIsNew;
 var isDataModel = require('../entity-tools').isDataModel;
 var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 
-function getPrimaryKey(dataModel) {
+function getPrimaryKey (dataModel) {
   return dataModel[privateDataSymbol].configParams.idAttribute;
 }
 

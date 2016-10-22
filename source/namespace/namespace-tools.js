@@ -22,7 +22,7 @@ var namespaceNameCounter = {};
  * @param {boolean} autoIncrement flag indicating whether or not to autoincrement the namespace
  * @returns {string} indexed namespace name
  */
-function indexedNamespaceName(name, autoIncrement) {
+function indexedNamespaceName (name, autoIncrement) {
   if (_.isUndefined(namespaceNameCounter[name])) {
     namespaceNameCounter[name] = 0;
   } else {
@@ -39,7 +39,7 @@ function indexedNamespaceName(name, autoIncrement) {
  * @param {string} namespaceName
  * @returns {object} namespace
  */
-function enterNamespaceName(namespaceName) {
+function enterNamespaceName (namespaceName) {
   namespaceStack.unshift(namespaceName);
   return fw.namespace(currentNamespaceName());
 }
@@ -52,7 +52,7 @@ function enterNamespaceName(namespaceName) {
  * @param {any} ns
  * @returns {object} namespace
  */
-function enterNamespace(ns) {
+function enterNamespace (ns) {
   namespaceStack.unshift(ns.getName());
   return ns;
 }
@@ -66,7 +66,7 @@ function enterNamespace(ns) {
  *
  * @returns {object} namespace
  */
-function exitNamespace() {
+function exitNamespace () {
   namespaceStack.shift();
   return currentNamespace();
 }
@@ -77,7 +77,7 @@ function exitNamespace() {
  *
  * @returns {string} namespaceName
  */
-function currentNamespaceName() {
+function currentNamespaceName () {
   return namespaceStack[0];
 };
 
@@ -86,7 +86,7 @@ function currentNamespaceName() {
  *
  * @returns {object} namespace
  */
-function currentNamespace() {
+function currentNamespace () {
   return fw.namespace(currentNamespaceName());
 };
 

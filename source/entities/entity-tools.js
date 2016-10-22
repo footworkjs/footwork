@@ -5,7 +5,7 @@ var entityMixins = require('./entity-mixins');
 var entityDescriptors = require('./entity-descriptors');
 var capitalizeFirstLetter = require('../misc/util').capitalizeFirstLetter;
 
-function prepareDescriptor(descriptor) {
+function prepareDescriptor (descriptor) {
   return _.extend({
     resourceLocations: {},
     registered: {},
@@ -14,19 +14,19 @@ function prepareDescriptor(descriptor) {
   }, descriptor);
 }
 
-function isEntityCtor(thing) {
+function isEntityCtor (thing) {
   return _.reduce(_.map(entityDescriptors, 'isEntityCtor'), function (isThing, comparator) {
     return isThing || comparator(thing);
   }, false);
 };
 
-function isEntity(thing) {
+function isEntity (thing) {
   return _.reduce(_.map(entityDescriptors, 'isEntity'), function (isThing, comparator) {
     return isThing || comparator(thing);
   }, false);
 };
 
-function nearestEntity($context, predicate) {
+function nearestEntity ($context, predicate) {
   var foundEntity = null;
 
   predicate = predicate || isEntity;

@@ -8,7 +8,7 @@ var _ = require('lodash');
  * @param {any} expires
  * @returns {object} postal.js envelope
  */
-function createEnvelope(topic, data) {
+function createEnvelope (topic, data) {
   var envelope = {
     topic: topic,
     data: data
@@ -18,13 +18,13 @@ function createEnvelope(topic, data) {
 }
 
 // Method used to trigger an event on a namespace
-function triggerEventOnNamespace(eventKey, params) {
+function triggerEventOnNamespace (eventKey, params) {
   this.publish(createEnvelope('event.' + eventKey, params));
   return this;
 }
 
 // Method used to register an event handler on a namespace
-function registerNamespaceEventHandler(eventKey, callback, context) {
+function registerNamespaceEventHandler (eventKey, callback, context) {
   if (!_.isUndefined(context)) {
     callback = callback.bind(context);
   }
@@ -36,19 +36,19 @@ function registerNamespaceEventHandler(eventKey, callback, context) {
 }
 
 // Method used to unregister an event handler on a namespace
-function unregisterNamespaceHandler(handlerSubscription) {
+function unregisterNamespaceHandler (handlerSubscription) {
   handlerSubscription.unsubscribe();
   return this;
 }
 
 // Method used to send a command to a namespace
-function sendCommandToNamespace(commandKey, params) {
+function sendCommandToNamespace (commandKey, params) {
   this.publish(createEnvelope('command.' + commandKey, params));
   return this;
 }
 
 // Method used to register a command handler on a namespace
-function registerNamespaceCommandHandler(commandKey, callback, context) {
+function registerNamespaceCommandHandler (commandKey, callback, context) {
   if (!_.isUndefined(context)) {
     callback = callback.bind(context);
   }
@@ -61,7 +61,7 @@ function registerNamespaceCommandHandler(commandKey, callback, context) {
 
 // Method used to issue a request for data from a namespace, returning the response (or undefined if no response)
 // This method will return an array of responses if more than one is received.
-function requestResponseFromNamespace(requestKey, params, allowMultipleResponses) {
+function requestResponseFromNamespace (requestKey, params, allowMultipleResponses) {
   var response = undefined;
   var responseSubscription;
 
@@ -81,7 +81,7 @@ function requestResponseFromNamespace(requestKey, params, allowMultipleResponses
 
 // Method used to register a request handler on a namespace.
 // Requests sent using the specified requestKey will be called and passed in any params specified, the return value is passed back to the issuer
-function registerNamespaceRequestHandler(requestKey, callback, context) {
+function registerNamespaceRequestHandler (requestKey, callback, context) {
   if (!_.isUndefined(context)) {
     callback = callback.bind(context);
   }
@@ -99,7 +99,7 @@ function registerNamespaceRequestHandler(requestKey, callback, context) {
 
 // This effectively shuts down all requests, commands, events, and subscriptions by unsubscribing all handlers on a discreet namespace object
 var handlerRepos = [ 'requestHandlers', 'commandHandlers', 'eventHandlers', 'subscriptions' ];
-function disconnectNamespaceHandlers() {
+function disconnectNamespaceHandlers () {
   var namespace = this;
   _.each(handlerRepos, function (handlerRepo) {
     _.invokeMap(namespace[handlerRepo], 'unsubscribe');
@@ -107,7 +107,7 @@ function disconnectNamespaceHandlers() {
   return this;
 }
 
-function getNamespaceName() {
+function getNamespaceName () {
   return this.channel;
 }
 

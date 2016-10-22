@@ -16,7 +16,7 @@ var isNullRouter = routerTools.isNullRouter;
 
 var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 
-function findParentNode(element, selector) {
+function findParentNode (element, selector) {
   if (selector === true) {
     return element.parentNode;
   }

@@ -5,7 +5,7 @@ var _ = require('lodash');
  *
  * @returns true
  */
-function alwaysPassPredicate() {
+function alwaysPassPredicate () {
   return true;
 }
 
@@ -19,7 +19,7 @@ function alwaysPassPredicate() {
  * @param  {array}  params  Parameters to call the callback (object properties) with
  * @returns {mixed}          The result of the property on the object
  */
-function resultBound(object, path, context, params) {
+function resultBound (object, path, context, params) {
   object = object || {};
   params = params || [];
   context = context || object;
@@ -36,7 +36,7 @@ function resultBound(object, path, context, params) {
  * @param {any} thing
  * @returns {boolean} true if it is a promise, false if not
  */
-function isPromise(thing) {
+function isPromise (thing) {
   return _.isObject(thing) && _.isFunction(thing.then);
 }
 
@@ -46,7 +46,7 @@ function isPromise(thing) {
  * @param {any} promise
  * @returns {boolean} true if fulfilled, false if not
  */
-function promiseIsFulfilled(promise) {
+function promiseIsFulfilled (promise) {
   return !isPromise(promise) || promise.isFulfilled();
 }
 /**
@@ -55,7 +55,7 @@ function promiseIsFulfilled(promise) {
  * @param {any} element
  * @returns {boolean} true if it has the property, false if not
  */
-function hasClassName(element) {
+function hasClassName (element) {
   return _.isObject(element) && _.isString(element.className);
 }
 
@@ -66,7 +66,7 @@ function hasClassName(element) {
  * @param {any} className
  * @returns {boolean} true if it has the class, false if not
  */
-function hasClass(element, className) {
+function hasClass (element, className) {
   return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
 }
 
@@ -76,7 +76,7 @@ function hasClass(element, className) {
  * @param {any} element
  * @param {any} className
  */
-function addClass(element, className) {
+function addClass (element, className) {
   if (hasClassName(element) && !hasClass(element, className)) {
     element.className += (element.className.length && _.isNull(element.className.match(/ $/)) ? ' ' : '') + className;
   }
@@ -88,7 +88,7 @@ function addClass(element, className) {
  * @param {any} element
  * @param {any} className
  */
-function removeClass(element, className) {
+function removeClass (element, className) {
   if (hasClassName(element) && hasClass(element, className)) {
     var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)', 'g');
     element.className = element.className.replace(classNameRegex, ' ');
@@ -100,7 +100,7 @@ function removeClass(element, className) {
  *
  * @param {any} callback
  */
-function nextFrame(callback) {
+function nextFrame (callback) {
   setTimeout(callback, 1000 / 30);
 };
 
@@ -112,7 +112,7 @@ var trailingSlashRegex = /\/$/;
  * @param {any} pathOrFile
  * @returns {boolean} true if the supplied pathOrFile is a path, false if not
  */
-function isPath(pathOrFile) {
+function isPath (pathOrFile) {
   return _.isString(pathOrFile) && trailingSlashRegex.test(pathOrFile);
 }
 
@@ -124,7 +124,7 @@ var startingSlashRegex = /^\//;
  * @param {any} path
  * @returns {boolean} true if the supplied path starts with a slash (/), false if not
  */
-function hasPathStart(path) {
+function hasPathStart (path) {
   return _.isString(path) && startingSlashRegex.test(path);
 }
 
@@ -135,7 +135,7 @@ var startingHashRegex = /^#/;
  * @param {any} string
  * @returns {boolean} true if the supplied value starts with a hash mark (#)
  */
-function hasHashStart(string) {
+function hasHashStart (string) {
   return _.isString(string) && startingHashRegex.test(string);
 }
 
@@ -145,7 +145,7 @@ function hasHashStart(string) {
  * @param {string} fileName
  * @returns {string} The extension at the end of the file (ie: txt)
  */
-function getFilenameExtension(fileName) {
+function getFilenameExtension (fileName) {
   var extension = '';
   if (fileName.indexOf('.') !== -1) {
     extension = _.last(fileName.split('.'));
@@ -177,7 +177,7 @@ var guid = (function () {
  * @param {string} url
  * @returns {object} The parsed url data
  */
-function parseUri(str) {
+function parseUri (str) {
   var options = parseUri.options;
   var matchParts = options.parser[ options.strictMode ? "strict" : "loose" ].exec(str);
   var uri = {};
@@ -215,7 +215,7 @@ parseUri.options = {
  *
  * @param {any} property
  */
-function propertyDispose(property) {
+function propertyDispose (property) {
   if (!_.isUndefined(property) && _.isFunction(property.dispose)) {
     property.dispose();
   }
@@ -227,7 +227,7 @@ function propertyDispose(property) {
  * @param {any} obj
  * @returns {boolean} True if it is a DocumentFragment, false if not
  */
-function isDocumentFragment(obj) {
+function isDocumentFragment (obj) {
   if (window['DocumentFragment']) {
     return obj instanceof DocumentFragment;
   } else {
@@ -241,7 +241,7 @@ function isDocumentFragment(obj) {
  * @param {any} obj
  * @returns {boolean} True if it is a HTMLElement, false if not
  */
-function isDomElement(obj) {
+function isDomElement (obj) {
   if (window['HTMLElement']) {
     return obj instanceof HTMLElement;
   } else {
@@ -255,7 +255,7 @@ function isDomElement(obj) {
  * @param {string} str
  * @returns {string} The original string with the first character upper-cased
  */
-function capitalizeFirstLetter(str) {
+function capitalizeFirstLetter (str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
@@ -265,7 +265,7 @@ function capitalizeFirstLetter(str) {
  * @param {any} instance
  * @returns {object} The private data on the instance (if found)
  */
-function getPrivateData(instance) {
+function getPrivateData (instance) {
   return instance[require('./config').privateDataSymbol];
 }
 
@@ -275,7 +275,7 @@ function getPrivateData(instance) {
  * @param {any} str
  * @returns {Symbol|string} The identifier
  */
-function makeSymbol(str) {
+function makeSymbol (str) {
   return typeof Symbol === 'function' ? Symbol(str) : str;
 }
 
@@ -285,7 +285,7 @@ function makeSymbol(str) {
  * @param {any} arrayLikeObject
  * @returns {array} New array of original children
  */
-function makeArray(arrayLikeObject) {
+function makeArray (arrayLikeObject) {
   for (var i = 0, j = arrayLikeObject.length, convertedArray = []; i < j; i++) {
     convertedArray.push(arrayLikeObject[i]);
   }

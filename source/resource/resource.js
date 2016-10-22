@@ -5,19 +5,19 @@ var isNamespace = require('../namespace/namespace').isNamespace;
 var isPath = require('../misc/util').isPath;
 var regExpMatch = /^\/|\/$/g;
 
-function isRegistered(descriptor, resourceName) {
+function isRegistered (descriptor, resourceName) {
   return !_.isUndefined(descriptor.registered[resourceName]);
 };
 
-function getRegistered(descriptor, resourceName) {
+function getRegistered (descriptor, resourceName) {
   return descriptor.registered[resourceName];
 };
 
-function register(descriptor, resourceName, resource) {
+function register (descriptor, resourceName, resource) {
   descriptor.registered[resourceName] = resource;
 };
 
-function getModelExtension(dataModelExtensions, modelName) {
+function getModelExtension (dataModelExtensions, modelName) {
   var fileExtension = '';
 
   if (_.isFunction(dataModelExtensions)) {
@@ -29,7 +29,7 @@ function getModelExtension(dataModelExtensions, modelName) {
   return fileExtension.replace(/^\./, '') || '';
 }
 
-function getFileName(descriptor, modelName) {
+function getFileName (descriptor, modelName) {
   var modelResourceLocations = descriptor.resourceLocations;
   var fileName = modelName + '.' + getModelExtension(descriptor.fileExtensions(), modelName);
 
@@ -44,7 +44,7 @@ function getFileName(descriptor, modelName) {
   return fileName;
 }
 
-function registerLocation(descriptor, modelName, location) {
+function registerLocation (descriptor, modelName, location) {
   if (_.isArray(modelName)) {
     _.each(modelName, function (name) {
       registerLocation(descriptor, name, location);
@@ -53,7 +53,7 @@ function registerLocation(descriptor, modelName, location) {
   descriptor.resourceLocations[ modelName ] = location;
 }
 
-function modelResourceLocation(descriptor, modelName) {
+function modelResourceLocation (descriptor, modelName) {
   return _.reduce(descriptor.resourceLocations, function (registeredLocation, location, registeredName) {
     if (!registeredLocation) {
       if (!_.isNull(registeredName.match(regExpMatch)) && !_.isNull(modelName.match(registeredName.replace(regExpMatch, '')))) {
@@ -66,7 +66,7 @@ function modelResourceLocation(descriptor, modelName) {
   }, undefined);
 }
 
-function getLocation(descriptor, modelName) {
+function getLocation (descriptor, modelName) {
   if (_.isUndefined(modelName)) {
     return descriptor.resourceLocations;
   }
@@ -74,12 +74,12 @@ function getLocation(descriptor, modelName) {
   return modelResourceLocation(descriptor, modelName);
 }
 
-function locationIsRegistered(descriptor, modelName) {
+function locationIsRegistered (descriptor, modelName) {
   return !!modelResourceLocation(descriptor, modelName);
 }
 
 var $globalNamespace = fw.namespace();
-function getModelReferences(descriptor, namespaceName, options) {
+function getModelReferences (descriptor, namespaceName, options) {
   options = options || {};
   if (_.isString(namespaceName) || _.isArray(namespaceName)) {
     options.namespaceName = namespaceName;
@@ -110,7 +110,7 @@ function getModelReferences(descriptor, namespaceName, options) {
 }
 
 
-function getResourceOrLocation(descriptor, moduleName) {
+function getResourceOrLocation (descriptor, moduleName) {
   var resource = descriptor.resource;
   var resourceOrLocation = null;
 
@@ -134,7 +134,7 @@ function getResourceOrLocation(descriptor, moduleName) {
  * @param {object} descriptor (as defined in each entity and extended onto the entity-descriptors)
  * @returns
  */
-function resourceHelperFactory(descriptor) {
+function resourceHelperFactory (descriptor) {
   var resourceMethods = {
     getFileName: getFileName.bind(null, descriptor),
     register: register.bind(null, descriptor),

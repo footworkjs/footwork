@@ -57,7 +57,7 @@ fw.components.loaders.unshift(fw.components.componentLifecycleLoader = {
  * @param {any} nodesArray
  * @returns {array} New array of DOM nodes
  */
-function cloneNodes(nodesArray) {
+function cloneNodes (nodesArray) {
   for (var i = 0, j = nodesArray.length, newNodesArray = []; i < j; i++) {
     var clonedNode = nodesArray[i].cloneNode(true);
     newNodesArray.push(clonedNode);
@@ -71,7 +71,7 @@ function cloneNodes(nodesArray) {
  * @param {DOMNode} elemInstance
  * @returns {[DOMNodes]} The cloned DOM nodes
  */
-function cloneNodesFromTemplateSourceElement(elemInstance) {
+function cloneNodesFromTemplateSourceElement (elemInstance) {
   switch (fw.utils.tagNameLower(elemInstance)) {
     case 'script':
       return fw.utils.parseHtmlFragment(elemInstance.text);
@@ -97,7 +97,7 @@ function cloneNodesFromTemplateSourceElement(elemInstance) {
  * @param {string|[DOMNodes]} template
  * @returns {[DOMNodes]} The wrapped component
  */
-function wrapWithLifeCycle(template) {
+function wrapWithLifeCycle (template) {
   var templateString = _.isString(template) ? template : '';
   var wrapper = fw.utils.parseHtmlFragment('<!-- ko $life -->' + templateString + '<!-- /ko -->');
 

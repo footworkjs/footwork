@@ -21,7 +21,7 @@ var parseURLRegex = /^(http[s]*:\/\/[a-zA-Z0-9:\.]*)*([\/]{0,1}[\w\.:\/-]*)$/;
 var parseParamsRegex = /(:[\w\.]+)/g;
 var trailingSlashRegex = /\/$/;
 
-function noURLError() {
+function noURLError () {
   throw new Error('A "url" property or function must be specified');
 };
 
@@ -35,7 +35,7 @@ function noURLError() {
  * @param  {object} requestInfo   Description of the request to make including a createRequest callback to make a new request
  * @return {Promise}              Ajax Promise
  */
-function makeOrGetRequest(operationType, requestInfo) {
+function makeOrGetRequest (operationType, requestInfo) {
   var requestRunning = requestInfo.requestRunning;
   var requestLull = requestInfo.requestLull;
   var entity = requestInfo.entity;
@@ -97,7 +97,7 @@ function makeOrGetRequest(operationType, requestInfo) {
  * @param {object} params
  * @returns {object} htr
  */
-function sync(action, concern, params) {
+function sync (action, concern, params) {
   var isDataModel = require('../entities/entity-tools').isDataModel;
   var isCollection = require('../collection/collection-tools').isCollection;
 
@@ -170,7 +170,7 @@ function sync(action, concern, params) {
   return xhr;
 };
 
-function makePromiseQueryable(promise) {
+function makePromiseQueryable (promise) {
   if (promise.isResolved) {
     return promise;
   }
@@ -195,7 +195,7 @@ function makePromiseQueryable(promise) {
  * @param {object} xhr
  * @returns {object} xhr with parsed JSON response result
  */
-function handleJsonResponse(xhr) {
+function handleJsonResponse (xhr) {
   return xhr.then(function (response) {
       return _.inRange(response.status, 200, 300) ? response.clone().json() : false;
     })

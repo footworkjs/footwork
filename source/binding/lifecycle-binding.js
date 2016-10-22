@@ -100,7 +100,7 @@ fw.bindingHandlers.$life = {
  * @param {object} $context
  * @param {function} addAnimationClass
  */
-function resolveTrackerAndAnimate(element, viewModel, $context, addAnimationClass) {
+function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationClass) {
   var flightTracker = element.flightTracker;
   var parentInFlightChildren;
 
