@@ -26,7 +26,73 @@ var entityClass = config.entityClass;
 var privateDataSymbol = config.privateDataSymbol;
 
 /**
- * Mark the component as resolved on the parent outlet (if it exists) and supply the resolveThisEntityNow callback which
+ * The $life binding provides lifecycle events for components/viewModels/dataModels/routers
+ */
+fw.virtualElements.allowedBindings.$life = true;
+fw.bindingHandlers.$life = {
+  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    element = element.parentElement || element.parentNode;
+
+    if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
+      // the outlet viewModel and template binding handles its animation state
+      addClass(element, entityClass);
+    }
+
+    if (isEntity(viewModel)) {
+      // need to provide the element for when onDispose is called
+      viewModel[privateDataSymbol].element = element;
+      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
+        viewModel.dispose();
+      });
+    }
+
+    // if this is a router, provide the bindingContext so it can bootstrap its nested outlets/etc
+    if (isRouter(viewModel)) {
+      viewModel[privateDataSymbol].context(bindingContext);
+    }
+  },
+  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    element = element.parentElement || element.parentNode;
+
+    // if this element is not the 'loading' component of an outlet, then we need to
+    // trigger the onComplete callback
+    if (isOutletViewModel(bindingContext.$parent)) {
+      var parentRoute = bindingContext.$parent.route.peek();
+      if (!hasClass(element, outletLoadingDisplay) && _.isFunction(parentRoute.getOnCompleteCallback)) {
+        parentRoute.getOnCompleteCallback(element)();
+      }
+    }
+
+    if (isEntity(viewModel) && !viewModel[privateDataSymbol].afterRenderWasTriggered) {
+      viewModel[privateDataSymbol].afterRenderWasTriggered = true;
+
+      // trigger the user-specified afterRender callback
+      viewModel[privateDataSymbol].configParams.afterRender.call(viewModel, element);
+    }
+
+    // resolve the flight tracker and trigger the addAnimationClass callback when appropriate
+    resolveComponent(element, viewModel, bindingContext, function addAnimationClass() {
+      if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
+        var queue = addToAndFetchQueue(element, viewModel);
+        var nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
+
+        if (nearestOutlet) {
+          // the parent outlet will run the callback that initiates the animation
+          // sequence (once the rest of its dependencies finish loading as well)
+          nearestOutlet.addResolvedCallbackOrExecute(function() {
+            runAnimationClassSequenceQueue(queue);
+          });
+        } else {
+          // no parent outlet found, lets go ahead and run the queue
+          runAnimationClassSequenceQueue(queue);
+        }
+      }
+    });
+  }
+};
+
+/**
+ * Mark the component as resolved on the parent entity (if it exists) and supply the resolveInstanceNow callback to afterResolving which
  * takes the user supplied isResolved value and adds the animation class via addAnimationClass when it has resolved.
  *
  * @param {DOMElement} element
@@ -93,68 +159,3 @@ function resolveComponent(element, viewModel, $context, addAnimationClass) {
     finishResolution();
   }
 }
-
-// $life wrapper binding to provide lifecycle events for components
-fw.virtualElements.allowedBindings.$life = true;
-fw.bindingHandlers.$life = {
-  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    element = element.parentElement || element.parentNode;
-
-    if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
-      // the outlet viewModel and template binding handles its animation state
-      addClass(element, entityClass);
-    }
-
-    if (isEntity(viewModel)) {
-      // need to provide the element for when onDispose is called
-      viewModel[privateDataSymbol].element = element;
-      fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
-        viewModel.dispose();
-      });
-    }
-
-    // if this is a router, provide the bindingContext so it can bootstrap its nested outlets/etc
-    if (isRouter(viewModel)) {
-      viewModel[privateDataSymbol].context(bindingContext);
-    }
-  },
-  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    element = element.parentElement || element.parentNode;
-
-    // if this element is not the 'loading' component of an outlet, then we need to
-    // trigger the onComplete callback
-    if (isOutletViewModel(bindingContext.$parent)) {
-      var parentRoute = bindingContext.$parent.route.peek();
-      var classList = element.className.split(" ");
-      if (!_.includes(classList, outletLoadingDisplay) && _.isFunction(parentRoute.getOnCompleteCallback)) {
-        parentRoute.getOnCompleteCallback(element)();
-      }
-    }
-
-    if (isEntity(viewModel) && !viewModel[privateDataSymbol].afterRenderWasTriggered) {
-      viewModel[privateDataSymbol].afterRenderWasTriggered = true;
-
-      // trigger the user-specified afterRender callback
-      viewModel[privateDataSymbol].configParams.afterRender.call(viewModel, element);
-    }
-
-    // resolve the flight tracker and trigger the addAnimationClass callback when appropriate
-    resolveComponent(element, viewModel, bindingContext, function addAnimationClass() {
-      if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
-        var queue = addToAndFetchQueue(element, viewModel);
-        var nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
-
-        if (nearestOutlet) {
-          // the parent outlet will run the callback that initiates the animation
-          // sequence (once the rest of its dependencies finish loading as well)
-          nearestOutlet.addResolvedCallbackOrExecute(function() {
-            runAnimationClassSequenceQueue(queue);
-          });
-        } else {
-          // no parent outlet found, lets go ahead and run the queue
-          runAnimationClassSequenceQueue(queue);
-        }
-      }
-    });
-  }
-};
