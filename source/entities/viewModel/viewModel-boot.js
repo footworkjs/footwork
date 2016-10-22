@@ -12,11 +12,16 @@ var privateDataSymbol = require('../../misc/config').privateDataSymbol;
  * @returns {object} The instance that was passed in
  */
 function viewModelBoot (descriptor, isEntityDuckTag, instance, configParams) {
+  if(!instance) {
+    throw new Error('Must supply the instance (this) to boot()');
+  }
+
   if (_.isUndefined(instance[privateDataSymbol])) {
+    configParams = configParams || {};
     instance[isEntityDuckTag] = true;
 
     configParams = _.extend({}, descriptor.defaultConfig, {
-      namespace: configParams.namespace ? null : _.unique(descriptor.entityName)
+      namespace: configParams.namespace ? null : _.uniqueId(descriptor.entityName)
     }, configParams);
 
     instance[privateDataSymbol] = {

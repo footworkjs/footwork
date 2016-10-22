@@ -17,6 +17,7 @@ fw.components.loaders.unshift(fw.components.entityLoader = {
       var viewModelOrLocation = descriptor.resource.getResourceOrLocation(moduleName);
 
       if (_.isString(viewModelOrLocation)) {
+        // assume string is a location/path, append the filename to it and set it as a require dependency
         viewModelOrLocation = { require: viewModelOrLocation + descriptor.resource.getFileName(moduleName) };
       }
 

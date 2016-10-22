@@ -9,7 +9,7 @@ var isDomElement = util.isDomElement;
 var makeArray = util.makeArray;
 
 /**
- * The component lifecycle loader wraps all non-entity (viewModel/dataModel/router) custom component
+ * The component lifecycle loader wraps all non-viewModel/dataModel/router custom component
  * contents with the $life binding which enables the lifecycle hooks (afterBinding/afterRender/onDispose).
  */
 fw.components.loaders.unshift(fw.components.componentLifecycleLoader = {
