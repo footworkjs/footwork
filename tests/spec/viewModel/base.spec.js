@@ -79,6 +79,146 @@ define(['footwork', 'lodash', 'tools'],
 
         expect(_.keys(fw.viewModel.getAll())).lengthToBeGreaterThan(0);
       });
+
+      it('can get all instantiated viewModels of a specific type/name', function() {
+        var viewModels = [];
+        var specificViewModelNamespace = tools.generateNamespaceName();
+        var ViewModel = function() {
+          fw.viewModel.boot(this, { namespace: specificViewModelNamespace });
+        };
+        var numToMake = _.random(1,15);
+
+        for(var x = numToMake; x; x--) {
+          viewModels.push(new ViewModel());
+        }
+
+        expect(fw.viewModel.getAll(tools.generateNamespaceName())).lengthToBe(0);
+        expect(fw.viewModel.getAll(specificViewModelNamespace)).lengthToBe(numToMake);
+      });
+
+      it('can bind to the DOM using a &lt;viewModel&gt; declaration', function(done) {
+        var wasInitialized = false;
+        var namespaceName = tools.generateNamespaceName();
+        var ViewModelSpy = jasmine.createSpy('ViewModelSpy', function() {
+          fw.viewModel.boot(this, {
+            namespace: namespaceName
+          });
+        }).and.callThrough();
+
+        fw.viewModel.register(namespaceName, ViewModelSpy);
+
+        expect(ViewModelSpy).not.toHaveBeenCalled();
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+
+        setTimeout(function() {
+          expect(ViewModelSpy).toHaveBeenCalledTimes(1);
+          done();
+        }, 50);
+      });
+
+      it('can bind to the DOM using a shared instance', function(done) {
+        var namespaceName = tools.generateNamespaceName();
+        var boundPropertyValue = tools.randomString();
+
+        fw.viewModel.register(namespaceName, {
+          instance: {
+            boundProperty: boundPropertyValue
+          }
+        });
+
+        testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '">\
+                                             <span class="result" data-bind="text: boundProperty"></span>\
+                                           </viewModel>');
+
+        expect(testContainer).not.toContainText(boundPropertyValue);
+
+        fw.start(testContainer);
+
+        setTimeout(function() {
+          expect(testContainer).toContainText(boundPropertyValue);
+          done();
+        }, ajaxWait);
+      });
+
+      it('can bind to the DOM using a generated instance', function(done) {
+        var namespaceName = tools.generateNamespaceName();
+        var boundPropertyValue = tools.randomString();
+        var boundPropertyValueElement = boundPropertyValue + '-element';
+        var createViewModelInstance;
+
+        fw.viewModel.register(namespaceName, {
+          createViewModel: tools.expectCallOrder(0, createViewModelInstance = jasmine.createSpy('createViewModel', function(params, info) {
+            expect(params.var).toBe(boundPropertyValue);
+            expect(info.element).toHaveId(boundPropertyValueElement);
+
+            return {
+              boundProperty: boundPropertyValue
+            };
+          }).and.callThrough())
+        });
+
+        expect(createViewModelInstance).not.toHaveBeenCalled();
+        testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
+                                             <span class="result" data-bind="text: boundProperty"></span>\
+                                           </viewModel>');
+
+        expect(testContainer).not.toContainText(boundPropertyValue);
+        fw.start(testContainer);
+
+        setTimeout(function() {
+          expect(createViewModelInstance).toHaveBeenCalled();
+          expect(testContainer).toContainText(boundPropertyValue);
+          done();
+        }, ajaxWait);
+      });
+
+      it('has the animation classes applied properly', function(done) {
+        var namespaceName = tools.generateNamespaceName();
+        var theElement;
+        var initializeSpy;
+        var afterRenderSpy;
+
+        fw.viewModel.register(namespaceName, tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.viewModel.boot(this, {
+            namespace: namespaceName,
+            afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+              theElement = element;
+              expect(theElement).not.toHaveClass(footworkAnimationClass);
+            }).and.callThrough())
+          });
+        }).and.callThrough()));
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(afterRenderSpy).toBe(undefined);
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+          expect(afterRenderSpy).toHaveBeenCalled();
+          expect(theElement).toHaveClass(footworkAnimationClass);
+          done();
+        }, ajaxWait);
+      });
+
+      it('can nest <viewModel> declarations', function(done) {
+        var namespaceNameOuter = tools.randomString();
+        var namespaceNameInner = tools.randomString();
+        var initializeSpy = jasmine.createSpy('initializeSpy', function() { fw.viewModel.boot(this); });
+
+        fw.viewModel.register(namespaceNameOuter, tools.expectCallOrder(0, initializeSpy));
+        fw.viewModel.register(namespaceNameInner, tools.expectCallOrder(1, initializeSpy));
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceNameOuter + '">\
+          <viewModel module="' + namespaceNameInner + '"></viewModel>\
+        </viewModel>'));
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalledTimes(2);
+          done();
+        }, ajaxWait);
+      });
     });
   }
 );
