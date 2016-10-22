@@ -3,7 +3,7 @@ var _ = require('lodash');
 
 var privateDataSymbol = require('../../../misc/config').privateDataSymbol;
 var resultBound = require('../../../misc/util').resultBound;
-var clearSequenceQueue = require('../../../component/sequencing').clearSequenceQueue;
+var clearSequenceQueue = require('../../../misc/animation-sequencing').clearSequenceQueue;
 
 var routerDefaults = require('../router-defaults');
 var noComponentSelected = routerDefaults.noComponentSelected;

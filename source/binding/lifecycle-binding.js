@@ -1,7 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var sequencing = require('../component/sequencing');
+var sequencing = require('../misc/animation-sequencing');
 var addToAndFetchQueue = sequencing.addToAndFetchQueue;
 var runAnimationClassSequenceQueue = sequencing.runAnimationClassSequenceQueue;
 

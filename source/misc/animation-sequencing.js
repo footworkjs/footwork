@@ -1,11 +1,11 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var config = require('../misc/config');
+var config = require('./config');
 var entityAnimateClass = config.entityAnimateClass;
 var privateDataSymbol = config.privateDataSymbol;
 
-var util = require('../misc/util');
+var util = require('./util');
 var resultBound = util.resultBound;
 var addClass = util.addClass;
 var nextFrame = util.nextFrame;
