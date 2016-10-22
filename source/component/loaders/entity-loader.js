@@ -8,7 +8,7 @@ var entityDescriptors = require('../../entities/entity-descriptors');
  * 1. wraps viewModel/dataModel/router declarative element contents with the $life binding which enables the lifecycle hooks (afterBinding/afterRender/onDispose).
  * 2. provides either the entity constructor itself or the require path to get the entity
  */
-fw.components.loaders.unshift(fw.components.entityLifecycleLoader = {
+fw.components.loaders.unshift(fw.components.entityLoader = {
   getConfig: function (componentName, callback) {
     var configOptions = null;
     var descriptor = entityDescriptors.getDescriptor(componentName);

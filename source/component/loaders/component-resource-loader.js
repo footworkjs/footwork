@@ -7,7 +7,7 @@ var getFilenameExtension = util.getFilenameExtension;
 
 var getComponentExtension = require('../../resource/component-resource').getComponentExtension;
 
-fw.components.loaders.push(fw.components.registeredLocationLoader = {
+fw.components.loaders.push(fw.components.componentResourceLoader = {
   getConfig: function (componentName, callback) {
     // this is a normal component
     var configOptions = null;
