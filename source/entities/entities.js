@@ -3,4 +3,4 @@ require('../resource/component-resource');
 
 require('./viewModel/viewModel');
 require('./dataModel/dataModel');
-// require('./router/router');
+require('./router/router');
