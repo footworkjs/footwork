@@ -1,8 +1,11 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
+var util = require('../misc/util');
+var isPath = util.isPath;
+var isAmdResolved = util.isAmdResolved;
+
 var isNamespace = require('../namespace/namespace').isNamespace;
-var isPath = require('../misc/util').isPath;
 var regExpMatch = /^\/|\/$/g;
 
 function isRegistered (descriptor, resourceName) {
@@ -117,7 +120,7 @@ function getResourceOrLocation (descriptor, moduleName) {
   if (resource.isRegistered(moduleName)) {
     // viewModel was manually registered
     resourceOrLocation = resource.getRegistered(moduleName);
-  } else if (_.isFunction(window.require) && _.isFunction(window.require.specified) && window.require.specified(moduleName)) {
+  } else if (isAmdResolved(moduleName)) {
     // found a matching resource that is already cached by require
     resourceOrLocation = moduleName;
   } else {

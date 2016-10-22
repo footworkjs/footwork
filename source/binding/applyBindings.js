@@ -9,6 +9,11 @@ var originalApplyBindings = fw.applyBindings;
 fw.applyBindings = function (viewModelOrBindingContext, rootNode) {
   rootNode = rootNode || window.document.body;
 
+  if (_.isFunction(window.require)) {
+    // must initialize default require context (https://github.com/jrburke/requirejs/issues/1305#issuecomment-87924865)
+    window.require([]);
+  }
+
   if (isEntity(viewModelOrBindingContext)) {
     originalApplyBindings(viewModelOrBindingContext, wrapWithLifeCycle(rootNode));
   } else {

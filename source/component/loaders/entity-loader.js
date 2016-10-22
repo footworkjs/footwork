@@ -1,6 +1,8 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
+var isAmdResolved = require('../../misc/util').isAmdResolved;
+
 /**
  * This component loader has two functions:
  * 1. wraps viewModel/dataModel/router declarative element contents with the $lifecycle binding which enables the lifecycle hooks (afterBinding/afterRender/onDispose).
@@ -18,16 +20,15 @@ fw.components.loaders.unshift(fw.components.entityLoader = {
 
       if (_.isString(viewModelOrLocation)) {
         // assume string is a location/path, append the filename to it and set it as a require dependency
-        viewModelOrLocation = { require: viewModelOrLocation + descriptor.resource.getFileName(moduleName) };
+        viewModelOrLocation = {
+          require: isAmdResolved(moduleName) ? moduleName : (viewModelOrLocation + descriptor.resource.getFileName(moduleName))
+        };
       }
 
       callback({
         viewModel: viewModelOrLocation,
         template: '<!-- ko $lifecycle, template: { nodes: $componentTemplateNodes, data: $data } --><!-- /ko -->'
       });
-
-      // ensure that getConfig is called again when another declaration is encountered
-      fw.components.clearCachedDefinition(componentName);
     } else {
       callback(null);
     }

@@ -96,7 +96,7 @@ define(['footwork', 'lodash', 'tools'],
         expect(fw.viewModel.getAll(specificViewModelNamespace)).lengthToBe(numToMake);
       });
 
-      it('can bind to the DOM using a &lt;viewModel&gt; declaration', function(done) {
+      it('can bind to the DOM using a viewModel declaration', function(done) {
         var wasInitialized = false;
         var namespaceName = tools.generateNamespaceName();
         var ViewModelSpy = jasmine.createSpy('ViewModelSpy', function() {
@@ -113,7 +113,7 @@ define(['footwork', 'lodash', 'tools'],
         setTimeout(function() {
           expect(ViewModelSpy).toHaveBeenCalledTimes(1);
           done();
-        }, 50);
+        }, ajaxWait);
       });
 
       it('can bind to the DOM using a shared instance', function(done) {
@@ -200,7 +200,7 @@ define(['footwork', 'lodash', 'tools'],
         }, ajaxWait);
       });
 
-      it('can nest <viewModel> declarations', function(done) {
+      it('can nest viewModel declarations', function(done) {
         var namespaceNameOuter = tools.randomString();
         var namespaceNameInner = tools.randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy', function() { fw.viewModel.boot(this); });
@@ -216,6 +216,153 @@ define(['footwork', 'lodash', 'tools'],
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalledTimes(2);
+          done();
+        }, ajaxWait);
+      });
+
+      it('can pass parameters through a viewModel declaration', function(done) {
+        var namespaceName = tools.generateNamespaceName();
+        var initializeSpy;
+
+        fw.viewModel.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function(params) {
+          fw.viewModel.boot(this);
+          expect(params.testValueOne).toBe(1);
+          expect(params.testValueTwo).toEqual([1,2,3]);
+        }).and.callThrough());
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></viewModel>'));
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+          done();
+        }, ajaxWait);
+      });
+
+      it('calls onDispose when the containing element is removed from the DOM', function(done) {
+        var namespaceName = tools.generateNamespaceName();
+        var theElement;
+        var initializeSpy;
+        var afterRenderSpy;
+        var onDisposeSpy;
+
+        var WrapperViewModel = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.viewModel.boot(this);
+          this.showIt = fw.observable(true);
+        }).and.callThrough());
+
+        fw.viewModel.register(namespaceName, function() {
+          fw.viewModel.boot(this, {
+            namespace: namespaceName,
+            afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+              theElement = element;
+              expect(theElement.tagName).toBe('VIEWMODEL');
+            }).and.callThrough()),
+            onDispose: tools.expectCallOrder(2, onDisposeSpy = jasmine.createSpy('onDisposeSpy', function(element) {
+              expect(element).toBe(theElement);
+            }).and.callThrough())
+          });
+        });
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(afterRenderSpy).toBe(undefined);
+
+        var wrapper = new WrapperViewModel();
+
+        expect(initializeSpy).toHaveBeenCalled();
+        expect(afterRenderSpy).toBe(undefined);
+
+        fw.applyBindings(wrapper, testContainer = tools.getFixtureContainer('<div data-bind="if: showIt">\
+          <viewModel module="' + namespaceName + '"></viewModel>\
+        </div>'));
+
+        setTimeout(function() {
+          expect(onDisposeSpy).not.toHaveBeenCalled();
+
+          wrapper.showIt(false);
+
+          expect(afterRenderSpy).toHaveBeenCalled();
+          expect(onDisposeSpy).toHaveBeenCalled();
+          done();
+        }, ajaxWait);
+      });
+
+      it('can have a registered location set and retrieved proplerly', function() {
+        var namespaceName = tools.generateNamespaceName();
+        fw.viewModel.registerLocation(namespaceName, '/bogus/path');
+        expect(fw.viewModel.getLocation(namespaceName)).toBe('/bogus/path');
+        fw.viewModel.registerLocation(/regexp.*/, '/bogus/path');
+        expect(fw.viewModel.getLocation('regexp-model')).toBe('/bogus/path');
+      });
+
+      it('can have an array of models registered to a location and retrieved proplerly', function() {
+        var namespaceNames = [ tools.generateNamespaceName(), tools.generateNamespaceName() ];
+        fw.viewModel.registerLocation(namespaceNames, '/bogus/path');
+        expect(fw.viewModel.getLocation(namespaceNames[0])).toBe('/bogus/path');
+        expect(fw.viewModel.getLocation(namespaceNames[1])).toBe('/bogus/path');
+      });
+
+      it('can have a registered location with filename set and retrieved proplerly', function() {
+        var namespaceName = tools.generateNamespaceName();
+        fw.viewModel.registerLocation(namespaceName, '/bogus/path/__file__.js');
+        expect(fw.viewModel.getLocation(namespaceName)).toBe('/bogus/path/__file__.js');
+      });
+
+      it('can have a specific file extension set and used correctly', function() {
+        var namespaceName = tools.generateNamespaceName();
+        var customExtension = '.jscript';
+        fw.viewModel.fileExtensions(customExtension);
+        fw.viewModel.registerLocation(namespaceName, '/bogus/path/');
+
+        expect(fw.viewModel.getFileName(namespaceName)).toBe(namespaceName + customExtension);
+
+        fw.viewModel.fileExtensions('.js');
+      });
+
+      it('can have a callback specified as the extension with it invoked and the return value used', function() {
+        var namespaceName = tools.generateNamespaceName();
+        var customExtension = '.jscriptFunction';
+        fw.viewModel.fileExtensions(function(moduleName) {
+          expect(moduleName).toBe(namespaceName);
+          return customExtension;
+        });
+        fw.viewModel.registerLocation(namespaceName, '/bogus/path/');
+
+        expect(fw.viewModel.getFileName(namespaceName)).toBe(namespaceName + customExtension);
+
+        fw.viewModel.fileExtensions('.js');
+      });
+
+      it('can load via requirejs with a declarative initialization from an already registered module', function(done) {
+        var namespaceName = tools.generateNamespaceName();
+        var initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.viewModel.boot(this, { namespace: namespaceName });
+        });
+
+        define(namespaceName, ['footwork'], function(fw) {
+          return initializeSpy;
+        });
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+          done();
+        }, ajaxWait);
+      });
+
+      it('can load via registered viewModel with a declarative initialization', function(done) {
+        var namespaceName = tools.generateNamespaceName();
+        var initializeSpy = jasmine.createSpy('initializeSpy', function() { fw.viewModel.boot(this, { namespace: namespaceName }); });
+
+        fw.viewModel.register(namespaceName, initializeSpy);
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
           done();
         }, ajaxWait);
       });
