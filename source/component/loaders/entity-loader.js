@@ -22,7 +22,7 @@ fw.components.loaders.unshift(fw.components.entityLoader = {
 
       if (_.isString(viewModelOrLocation)) {
         // assume string is a location/path, append the filename to it and set it as a require dependency
-        if(isPath(viewModelOrLocation)) {
+        if (isPath(viewModelOrLocation)) {
           viewModelOrLocation = viewModelOrLocation + descriptor.resource.getFileName(moduleName);
         }
 

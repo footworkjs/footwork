@@ -29,7 +29,7 @@ function clearSequenceQueue () {
  * This method takes a list of callbacks and runs each in sequence using the stored nextIteration as the next offset.
  *
  * @param {any} queue The queue to run
- * @param {any} runNextStepNow (internal use) this flag tells the method to run the next step in the queue
+ * @param {any} runNextStepNow (used for recursion) this flag tells the method to run the next step in the queue
  */
 function runAnimationSequenceQueue (queue, runNextStepNow) {
   if (!queue.running || runNextStepNow) {

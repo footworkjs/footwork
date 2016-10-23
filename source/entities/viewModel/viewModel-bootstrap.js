@@ -37,7 +37,7 @@ function viewModelBootstrap (instance, configParams, addingInstanceRequestHandle
       $namespace: fw.namespace(configParams.namespace)
     });
 
-    if(!addingInstanceRequestHandlerLater) {
+    if (!addingInstanceRequestHandlerLater) {
       var globalNS = fw.namespace();
       instance.disposeWithInstance(globalNS);
       globalNS.request.handler(descriptor.referenceNamespace, _.partial(instanceRequestHandler, instance));
