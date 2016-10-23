@@ -5,6 +5,8 @@ var util = require('../../misc/util');
 var isAmdResolved = util.isAmdResolved;
 var isPath = util.isPath;
 
+var bindingElement = require('../../binding/binding-element');
+
 /**
  * This component loader has two functions:
  * 1. wraps viewModel/dataModel/router declarative element contents with the $lifecycle binding which enables the lifecycle hooks (afterBinding/afterRender/onDispose).
@@ -33,7 +35,7 @@ fw.components.loaders.unshift(fw.components.entityLoader = {
 
       callback({
         viewModel: viewModelOrLocation,
-        template: '<!-- ko $lifecycle, template: { nodes: $componentTemplateNodes, data: $data } --><!-- /ko -->'
+        template: bindingElement.open.prefix + '$lifecycle, template: { nodes: $componentTemplateNodes, data: $data }' + bindingElement.open.postfix + bindingElement.close
       });
     } else {
       callback(null);

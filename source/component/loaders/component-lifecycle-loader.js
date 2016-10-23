@@ -2,6 +2,7 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
 var entityDescriptors = require('../../entities/entity-descriptors');
+var bindingElement = require('../../binding/binding-element');
 
 var util = require('../../misc/util');
 var isDocumentFragment = util.isDocumentFragment;
@@ -99,7 +100,7 @@ function cloneNodesFromTemplateSourceElement (elemInstance) {
  */
 function wrapWithLifeCycle (template) {
   var templateString = _.isString(template) ? template : '';
-  var wrapper = fw.utils.parseHtmlFragment('<!-- ko $lifecycle -->' + templateString + '<!-- /ko -->');
+  var wrapper = fw.utils.parseHtmlFragment(bindingElement.open.prefix + '$lifecycle' + bindingElement.open.postfix + templateString + bindingElement.close);
 
   if (templateString.length) {
     return wrapper;

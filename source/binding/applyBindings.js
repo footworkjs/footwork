@@ -1,6 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
+var bindingElement = require('../binding/binding-element');
 var isEntity = require('../entities/entity-tools').isEntity;
 var makeArray = require('../misc/util').makeArray;
 
@@ -29,7 +30,7 @@ fw.applyBindings = function (viewModelOrBindingContext, rootNode) {
  * @returns {[DOMNodes]} The wrapped component
  */
 function wrapWithLifeCycle (rootNode) {
-  var wrapper = fw.utils.parseHtmlFragment('<!-- ko $lifecycle --><!-- /ko -->');
+  var wrapper = fw.utils.parseHtmlFragment(bindingElement.open.prefix + '$lifecycle' + bindingElement.open.postfix + bindingElement.close);
 
   wrapper = [].concat(wrapper[0], makeArray(rootNode.childNodes), wrapper[1]);
   _.each(wrapper, function (node) {

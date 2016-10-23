@@ -1,7 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
-var postal = require('postal');
 
+var defaultChannel = require('postal').channel();
 var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
 var entityDescriptors = require('../entity-descriptors');
@@ -30,9 +30,8 @@ function routerBootstrap (instance, configParams) {
 
     // setup the request handler which returns the instance
     // note we are wiring up the request handler manually so that an entire namespace does not need instantiating for this callback
-    var instanceChannel = postal.channel();
-    instance.disposeWithInstance(instanceChannel.subscribe('request.' + descriptor.referenceNamespace, function (params) {
-      instanceChannel.publish({
+    instance.disposeWithInstance(defaultChannel.subscribe('request.' + descriptor.referenceNamespace, function (params) {
+      defaultChannel.publish({
         topic: 'request.' + descriptor.referenceNamespace + '.response',
         data: instanceRequestHandler(instance, params)
       });
