@@ -10,12 +10,16 @@ var resolveEntityImmediately = entityTools.resolveEntityImmediately;
 var util = require('../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
 var getSymbol = util.getSymbol;
+var alwaysPassPredicate = util.alwaysPassPredicate;
 
 var entityName = 'router';
 var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
 
 fw[entityName] = {
-  boot: require('./router-bootstrap')
+  boot: require('./router-bootstrap'),
+  baseRoute: fw.observable(''),
+  activeRouteClassName: fw.observable('active'),
+  disableHistory: fw.observable(false)
 };
 
 var descriptor;
@@ -29,7 +33,13 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   },
   mixin: require('./router-mixin'),
   defaultConfig: {
-    /* fill in later */
+    showDuringLoad: require('./router-defaults').noComponentSelected,
+    onDispose: _.noop,
+    baseRoute: null,
+    isRelative: true,
+    activate: true,
+    beforeRoute: alwaysPassPredicate,
+    minTransitionPeriod: 0
   }
 }));
 

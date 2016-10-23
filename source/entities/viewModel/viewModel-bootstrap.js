@@ -47,8 +47,6 @@ function viewModelBootstrap (instance, configParams, isAddingInstanceRequestHand
         });
       }));
     }
-  } else {
-    throw new Error('Cannot boot an instance more than once.');
   }
 
   return instance;

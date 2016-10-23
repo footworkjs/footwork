@@ -59,6 +59,29 @@ function nearestParentRouter ($context) {
   return nearestEntity($context, require('../entity-tools').isRouter) || $nullRouter;
 }
 
+/**
+ * Register an outlets viewModel with its parent router.
+ *
+ * @param {object} router the router to register with
+ * @param {string} outletName the name (property) of the outlet
+ * @param {object} outletViewModel the outlets viewModel to register with the router
+ */
+function registerViewModelForOutlet(router, outletName, outletViewModel) {
+  var outletProperties = this.outlets[outletName] || {};
+  outletProperties.outletViewModel = outletViewModel;
+}
+
+/**
+ * Unregister an outlets viewModel from its associated router.
+ *
+ * @param {object} router the router to unregister from
+ * @param {string} outletName the name (property) of the outlet
+ */
+function unregisterViewModelForOutlet(router, outletName) {
+  var outletProperties = this.outlets[outletName] || {};
+  delete outletProperties.outletViewModel;
+}
+
 module.exports = {
   namedParamRegex: namedParamRegex,
   hashMatchRegex: hashMatchRegex,
@@ -68,5 +91,7 @@ module.exports = {
   isNullRouter: isNullRouter,
   isRoute: isRoute,
   isOutletViewModel: isOutletViewModel,
-  nearestParentRouter: nearestParentRouter
+  nearestParentRouter: nearestParentRouter,
+  registerViewModelForOutlet: registerViewModelForOutlet,
+  unregisterViewModelForOutlet: unregisterViewModelForOutlet
 };
