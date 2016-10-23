@@ -15,9 +15,15 @@ var testResults = {
 var allTestFiles = [];
 var TEST_REGEXP = /(spec)\.js$/i;
 
+/**
+ * Determine whether the passed in file is listed in the tests array (or if tests is undefined or 'all' then return true always)
+ *
+ * @param {any} file
+ * @param {array|string} tests [tests] to run, or if a string is supplied it will always return true (ie: pass in 'all')
+ * @returns {boolean} True if the test should be run, false if not
+ */
 function shouldRunTest(file, tests) {
-  var typeOfTests = typeof tests;
-  if(typeOfTests !== 'undefined' && typeOfTests !== 'string') {
+  if(Object.prototype.toString.call(tests) === '[object Array]') {
     var shouldRun = false;
     tests.forEach(function(validTestModule) {
       if(file.match(validTestModule)) {
@@ -74,9 +80,9 @@ require.config({
 
   // we have to kickoff jasmine, as it is asynchronous
   callback: function() {
-    require(['footwork', 'lodash', 'jquery', 'reporter', 'container'],
-      function(fw, _, $) {
-        window.fw = fw;
+    require(['footwork', 'reporter', 'container'],
+      function(fw) {
+        window.fw = fw; // export footwork so the user has access to it in the console
         fixture.setBase('tests/assets/fixtures');
         window.__karma__.start();
       }
