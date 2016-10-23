@@ -98,13 +98,12 @@ function makeOrGetRequest (operationType, requestInfo) {
  * @returns {object} htr
  */
 function sync (action, concern, params) {
-  var isDataModel = require('../entities/entity-tools').isDataModel;
   var isCollection = require('../collection/collection-tools').isCollection;
 
   params = params || {};
   action = action || 'noAction';
 
-  if (!isDataModel(concern) && !isCollection(concern)) {
+  if (!fw.isDataModel(concern) && !isCollection(concern)) {
     throw new Error('Must supply a dataModel or collection to fw.sync()');
   }
 
@@ -130,11 +129,11 @@ function sync (action, concern, params) {
     if (_.isFunction(url)) {
       url = url.call(concern, action);
     } else if (!_.isString(url)) {
-      var thing = (isDataModel(concern) && 'dataModel') || (isCollection(concern) && 'collection') || 'UNKNOWN';
+      var thing = (fw.isDataModel(concern) && 'dataModel') || (isCollection(concern) && 'collection') || 'UNKNOWN';
       throw new Error('Must provide a URL for/on a ' + thing + ' configuration in order to call .sync() on it');
     }
 
-    if (isDataModel(concern)) {
+    if (fw.isDataModel(concern)) {
       var pkIsSpecifiedByUser = !_.isNull(url.match(':' + configParams.idAttribute));
       var hasQueryString = !_.isNull(url.match(/\?/));
       if (_.includes(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl && !pkIsSpecifiedByUser && !hasQueryString) {
@@ -150,7 +149,7 @@ function sync (action, concern, params) {
     url = baseURL + _.last(urlPieces);
   }
 
-  if (isDataModel(concern)) {
+  if (fw.isDataModel(concern)) {
     // replace any interpolated parameters
     var urlParams = url.match(parseParamsRegex);
     if (urlParams) {

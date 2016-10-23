@@ -38,6 +38,7 @@ function mapTo(mapPath, dataModel) {
   if (mapPath === primaryKey) {
     // mapping primary key, update/set the $id property on the dataModel
     dataModel.$id = mappings[mapPath];
+
     if (fw.isObservable(dataModel.isNew) && _.isFunction(dataModel.isNew.dispose)) {
       dataModel.isNew.dispose();
     }

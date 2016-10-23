@@ -15,6 +15,7 @@ var getNestedReference = dataTools.getNestedReference;
 function fetchModel (options) {
   var ajax = require('../../misc/ajax');
   var dataModel = this;
+  var configParams = dataModel[privateDataSymbol].configParams;
   var requestInfo = {
     requestRunning: dataModel.isFetching,
     requestLull: configParams.requestLull,
@@ -54,6 +55,7 @@ function fetchModel (options) {
 function save (key, val, options) {
   var ajax = require('../../misc/ajax');
   var dataModel = this;
+  var configParams = dataModel[privateDataSymbol].configParams;
   var attrs = null;
 
   if (_.isObject(key) && !isNode(key)) {
@@ -120,6 +122,7 @@ function save (key, val, options) {
 function destroy (options) {
   var ajax = require('../../misc/ajax');
   var dataModel = this;
+  var configParams = dataModel[privateDataSymbol].configParams;
   var requestInfo = {
     requestRunning: dataModel.isDestroying,
     requestLull: configParams.requestLull,
