@@ -15,6 +15,20 @@ var testResults = {
 var allTestFiles = [];
 var TEST_REGEXP = /(spec)\.js$/i;
 
+function shouldRunTest(file, tests) {
+  var typeOfTests = typeof tests;
+  if(typeOfTests !== 'undefined' && typeOfTests !== 'string') {
+    var shouldRun = false;
+    tests.forEach(function(validTestModule) {
+      if(file.match(validTestModule)) {
+        shouldRun = true;
+      }
+    });
+    return shouldRun;
+  }
+  return true;
+}
+
 // Get a list of all the test files to include
 Object.keys(window.__karma__.files).forEach(function(file) {
   if (TEST_REGEXP.test(file)) {
@@ -22,7 +36,12 @@ Object.keys(window.__karma__.files).forEach(function(file) {
     // If you require sub-dependencies of test files to be loaded as-is (requiring file extension)
     // then do not normalize the paths
     var normalizedTestModule = file.replace(/^\/base\/|\.js$/g, '');
-    (normalizedTestModule.match('viewModel') || normalizedTestModule.match('dataModel') || normalizedTestModule.match('router')) && allTestFiles.push(normalizedTestModule);
+
+    shouldRunTest(normalizedTestModule, [
+      'viewModel',
+      'dataModel',
+      'router'
+    ]) && allTestFiles.push(normalizedTestModule);
   }
 });
 

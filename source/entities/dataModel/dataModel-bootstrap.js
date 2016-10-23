@@ -1,7 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 
+var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
 
 /**
