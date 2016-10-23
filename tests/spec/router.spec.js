@@ -1,5 +1,5 @@
-define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
-  function(fw, _, $, tools, fetchMock) {
+define(['footwork', 'lodash', 'jquery', 'tools'],
+  function(fw, _, $, tools) {
     describe('router', function() {
       beforeEach(tools.prepareTestEnv);
       afterEach(tools.cleanTestEnv);
@@ -47,7 +47,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var ModelA = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.router.boot(this, {
             afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
-              expect(containingElement).toHaveClass(checkForClass);
+              expect(containingElement.className.indexOf(checkForClass)).not.toBe(-1);
             }).and.callThrough())
           });
 
@@ -124,22 +124,22 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var namespaceName = tools.generateNamespaceName();
         var boundPropertyValue = tools.randomString();
 
-        fw.router.register(namespaceName, {
+        fw.viewModel.register(namespaceName, {
           instance: {
             boundProperty: boundPropertyValue
           }
         });
 
-        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
+        testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '">\
                                              <span class="result" data-bind="text: boundProperty"></span>\
-                                           </router>');
+                                           </viewModel>');
 
-        expect(testContainer).not.toContainText(boundPropertyValue);
+        expect(testContainer.innerHTML.indexOf(boundPropertyValue)).toBe(-1);
 
         fw.start(testContainer);
 
         setTimeout(function() {
-          expect(testContainer).toContainText(boundPropertyValue);
+          expect(testContainer.innerHTML.indexOf(boundPropertyValue)).not.toBe(-1);
           done();
         }, ajaxWait);
       });
@@ -148,12 +148,12 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var namespaceName = tools.generateNamespaceName();
         var boundPropertyValue = tools.randomString();
         var boundPropertyValueElement = boundPropertyValue + '-element';
-        var createRouterInstance;
+        var createViewModelInstance;
 
-        fw.router.register(namespaceName, {
-          createViewModel: tools.expectCallOrder(0, createRouterInstance = jasmine.createSpy('createRouter', function(params, info) {
-            expect(params.var).toBe(boundPropertyValue);
-            expect(info.element).toHaveId(boundPropertyValueElement);
+        fw.viewModel.register(namespaceName, {
+          createViewModel: tools.expectCallOrder(0, createViewModelInstance = jasmine.createSpy('createViewModel', function(params, info) {
+            expect(params.thing).toBe(boundPropertyValue);
+            expect(info.element.id).toBe(boundPropertyValueElement);
 
             return {
               boundProperty: boundPropertyValue
@@ -161,17 +161,17 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           }).and.callThrough())
         });
 
-        expect(createRouterInstance).not.toHaveBeenCalled();
-        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
+        expect(createViewModelInstance).not.toHaveBeenCalled();
+        testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="thing: \'' + boundPropertyValue + '\'">\
                                              <span class="result" data-bind="text: boundProperty"></span>\
-                                           </router>');
+                                           </viewModel>');
 
-        expect(testContainer).not.toContainText(boundPropertyValue);
         fw.start(testContainer);
+        expect(testContainer.children[0].innerHTML.indexOf(boundPropertyValue)).toBe(-1);
 
         setTimeout(function() {
-          expect(createRouterInstance).toHaveBeenCalled();
-          expect(testContainer).toContainText(boundPropertyValue);
+          expect(createViewModelInstance).toHaveBeenCalled();
+          expect(testContainer.innerHTML.indexOf(boundPropertyValue)).not.toBe(-1);
           done();
         }, ajaxWait);
       });
@@ -182,24 +182,24 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var initializeSpy;
         var afterRenderSpy;
 
-        fw.router.register(namespaceName, tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
-          fw.router.boot(this, {
+        fw.viewModel.register(namespaceName, tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.viewModel.boot(this, {
             namespace: namespaceName,
             afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
               theElement = element;
-              expect(theElement).not.toHaveClass(footworkAnimationClass);
+              expect(theElement.className.indexOf(footworkAnimationClass)).toBe(-1);
             }).and.callThrough())
           });
         }).and.callThrough()));
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).toBe(undefined);
-        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
           expect(afterRenderSpy).toHaveBeenCalled();
-          expect(theElement).toHaveClass(footworkAnimationClass);
+          expect(theElement.className.indexOf(footworkAnimationClass)).not.toBe(-1);
           done();
         }, ajaxWait);
       });

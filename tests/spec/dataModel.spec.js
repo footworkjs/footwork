@@ -1,5 +1,5 @@
-define(['footwork', 'lodash', 'tools', 'fetch-mock'],
-  function(fw, _, tools, fetchMock) {
+define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
+  function(fw, $, _, tools, fetchMock) {
     describe('dataModel', function() {
       beforeEach(tools.prepareTestEnv);
       afterEach(tools.cleanTestEnv);
@@ -43,7 +43,7 @@ define(['footwork', 'lodash', 'tools', 'fetch-mock'],
         var ModelA = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.dataModel.boot(this, {
             afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
-              expect(containingElement).toHaveClass(checkForClass);
+              expect(containingElement.className.indexOf(checkForClass)).not.toBe(-1);
             }).and.callThrough())
           });
 
@@ -130,12 +130,12 @@ define(['footwork', 'lodash', 'tools', 'fetch-mock'],
                                              <span class="result" data-bind="text: boundProperty"></span>\
                                            </dataModel>');
 
-        expect(testContainer).not.toContainText(boundPropertyValue);
+        expect(testContainer.innerHTML.indexOf(boundPropertyValue)).toBe(-1);
 
         fw.start(testContainer);
 
         setTimeout(function() {
-          expect(testContainer).toContainText(boundPropertyValue);
+          expect(testContainer.innerHTML.indexOf(boundPropertyValue)).not.toBe(-1);
           done();
         }, ajaxWait);
       });
@@ -148,8 +148,8 @@ define(['footwork', 'lodash', 'tools', 'fetch-mock'],
 
         fw.dataModel.register(namespaceName, {
           createViewModel: tools.expectCallOrder(0, createDataModelInstance = jasmine.createSpy('createDataModel', function(params, info) {
-            expect(params.var).toBe(boundPropertyValue);
-            expect(info.element).toHaveId(boundPropertyValueElement);
+            expect(params.thing).toBe(boundPropertyValue);
+            expect(info.element.id).toBe(boundPropertyValueElement);
 
             return {
               boundProperty: boundPropertyValue
@@ -158,16 +158,16 @@ define(['footwork', 'lodash', 'tools', 'fetch-mock'],
         });
 
         expect(createDataModelInstance).not.toHaveBeenCalled();
-        testContainer = tools.getFixtureContainer('<dataModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="var: \'' + boundPropertyValue + '\'">\
+        testContainer = tools.getFixtureContainer('<dataModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="thing: \'' + boundPropertyValue + '\'">\
                                              <span class="result" data-bind="text: boundProperty"></span>\
                                            </dataModel>');
 
-        expect(testContainer).not.toContainText(boundPropertyValue);
         fw.start(testContainer);
+        expect(testContainer.children[0].innerHTML.indexOf(boundPropertyValue)).toBe(-1);
 
         setTimeout(function() {
           expect(createDataModelInstance).toHaveBeenCalled();
-          expect(testContainer).toContainText(boundPropertyValue);
+          expect(testContainer.innerHTML.indexOf(boundPropertyValue)).not.toBe(-1);
           done();
         }, ajaxWait);
       });
@@ -183,7 +183,7 @@ define(['footwork', 'lodash', 'tools', 'fetch-mock'],
             namespace: namespaceName,
             afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
               theElement = element;
-              expect(theElement).not.toHaveClass(footworkAnimationClass);
+              expect(theElement.className.indexOf(footworkAnimationClass)).toBe(-1);
             }).and.callThrough())
           });
         }).and.callThrough()));
@@ -195,7 +195,7 @@ define(['footwork', 'lodash', 'tools', 'fetch-mock'],
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
           expect(afterRenderSpy).toHaveBeenCalled();
-          expect(theElement).toHaveClass(footworkAnimationClass);
+          expect(theElement.className.indexOf(footworkAnimationClass)).not.toBe(-1);
           done();
         }, ajaxWait);
       });
