@@ -767,340 +767,345 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         }, ajaxWait);
       });
 
-      // it('can correctly POST data on initial save() and then PUT on subsequent calls', function(done) {
-      //   var initializeSpy;
-      //   var mockUrl = tools.generateUrl();
-      //   var postValue = tools.randomString();
-      //   var putValue = tools.randomString();
-      //   var personData = {
-      //     "id": 1,
-      //     "firstName": null,
-      //     "lastName": null,
-      //     "email": null
-      //   };
+      it('can correctly POST data on initial save() and then PUT on subsequent calls', function(done) {
+        var initializeSpy;
+        var mockUrl = tools.generateUrl();
+        var postValue = tools.randomString();
+        var putValue = tools.randomString();
+        var personData = {
+          "id": 1,
+          "firstName": null,
+          "lastName": null,
+          "email": null
+        };
 
-      //   var Person = fw.dataModel.create({
-      //     url: mockUrl,
-      //     initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-      //       person = person || {};
-      //       this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-      //       this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-      //       this.email = fw.observable(person.email || null).mapTo('email');
-      //     }).and.callThrough())
-      //   });
+        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            url: mockUrl
+          });
+          person = person || {};
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
-      //   expect(initializeSpy).not.toHaveBeenCalled();
+        expect(initializeSpy).not.toHaveBeenCalled();
 
-      //   var person = new Person();
+        var person = new Person();
 
-      //   expect(initializeSpy).toHaveBeenCalled();
-      //   expect(person.firstName()).not.toBe(postValue);
+        expect(initializeSpy).toHaveBeenCalled();
+        expect(person.firstName()).not.toBe(postValue);
 
-      //   fetchMock.restore().post(mockUrl, _.extend({}, personData, { firstName: postValue }));
-      //   expect(person.save()).toBeA('promise');
+        fetchMock.restore().post(mockUrl, _.extend({}, personData, { firstName: postValue }));
+        expect(person.save()).toBeA('promise');
 
-      //   setTimeout(function() {
-      //     expect(person.$id()).toBe(1);
-      //     expect(person.firstName()).toBe(postValue);
-      //     expect(person.firstName()).not.toBe(putValue);
+        setTimeout(function() {
+          expect(person.$id()).toBe(1);
+          expect(person.firstName()).toBe(postValue);
+          expect(person.firstName()).not.toBe(putValue);
 
-      //     fetchMock.restore().put(mockUrl + '/1', _.extend({}, personData, { firstName: putValue }));
-      //     person.save();
-      //     setTimeout(function() {
-      //       expect(person.firstName()).toBe(putValue);
-      //       done();
-      //     }, ajaxWait);
-      //   }, ajaxWait);
-      // });
+          fetchMock.restore().put(mockUrl + '/1', _.extend({}, personData, { firstName: putValue }));
+          person.save();
+          setTimeout(function() {
+            expect(person.firstName()).toBe(putValue);
+            done();
+          }, ajaxWait);
+        }, ajaxWait);
+      });
 
-      // it('can correctly POST data and apply parse() method with return on save()', function(done) {
-      //   var initializeSpy;
-      //   var parseSpy;
-      //   var mockUrl = tools.generateUrl();
-      //   var postValue = tools.randomString();
+      it('can correctly POST data and apply parse() method with return on save()', function(done) {
+        var initializeSpy;
+        var parseSpy;
+        var mockUrl = tools.generateUrl();
+        var postValue = tools.randomString();
 
-      //   var mockResponse = {
-      //     "id": 1,
-      //     "firstName": null,
-      //     "lastName": null,
-      //     "email": null
-      //   };
+        var mockResponse = {
+          "id": 1,
+          "firstName": null,
+          "lastName": null,
+          "email": null
+        };
 
-      //   var Person = fw.dataModel.create({
-      //     url: mockUrl,
-      //     parse: tools.expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
-      //       response.firstName = postValue;
-      //       return response;
-      //     }).and.callThrough()),
-      //     initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-      //       person = person || {};
-      //       this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-      //       this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-      //       this.email = fw.observable(person.email || null).mapTo('email');
-      //     }).and.callThrough())
-      //   });
+        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            url: mockUrl,
+            parse: tools.expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
+              response.firstName = postValue;
+              return response;
+            }).and.callThrough()),
+          });
+          person = person || {};
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough())
 
-      //   expect(parseSpy).not.toHaveBeenCalled();
-      //   expect(initializeSpy).not.toHaveBeenCalled();
+        expect(parseSpy).toBe(undefined);
+        expect(initializeSpy).not.toHaveBeenCalled();
 
-      //   var person = new Person();
+        var person = new Person();
 
-      //   expect(initializeSpy).toHaveBeenCalled();
-      //   expect(parseSpy).not.toHaveBeenCalled();
-      //   expect(person.firstName()).not.toBe(postValue);
+        expect(initializeSpy).toHaveBeenCalled();
+        expect(parseSpy).not.toHaveBeenCalled();
+        expect(person.firstName()).not.toBe(postValue);
 
-      //   fetchMock.restore().post(mockUrl, mockResponse);
-      //   expect(person.save()).toBeA('promise');
+        fetchMock.restore().post(mockUrl, mockResponse);
+        expect(person.save()).toBeA('promise');
 
-      //   setTimeout(function() {
-      //     expect(parseSpy).toHaveBeenCalled();
-      //     expect(person.$id()).toBe(1);
-      //     expect(person.firstName()).toBe(postValue);
-      //     done();
-      //   }, ajaxWait);
-      // });
+        setTimeout(function() {
+          expect(parseSpy).toHaveBeenCalled();
+          expect(person.$id()).toBe(1);
+          expect(person.firstName()).toBe(postValue);
+          done();
+        }, ajaxWait);
+      });
 
-      // it('can correctly fetch() data from the server via a pre-filled idAttribute', function(done) {
-      //   var initializeSpy;
-      //   var mockUrl = tools.generateUrl();
-      //   var getValue = '__GET__CHECK__';
-      //   var personData = {
-      //     "id": 100,
-      //     "firstName": null,
-      //     "lastName": null,
-      //     "email": null
-      //   };
+      it('can correctly fetch() data from the server via a pre-filled idAttribute', function(done) {
+        var initializeSpy;
+        var mockUrl = tools.generateUrl();
+        var getValue = '__GET__CHECK__';
+        var personData = {
+          "id": 100,
+          "firstName": null,
+          "lastName": null,
+          "email": null
+        };
 
-      //   var Person = fw.dataModel.create({
-      //     url: mockUrl,
-      //     initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-      //       person = person || {};
-      //       this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-      //       this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-      //       this.email = fw.observable(person.email || null).mapTo('email');
-      //     }).and.callThrough())
-      //   });
+        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            url: mockUrl
+          });
+          person = person || {};
+          this.id = fw.observable(person.id || null).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough())
 
-      //   expect(initializeSpy).not.toHaveBeenCalled();
+        expect(initializeSpy).not.toHaveBeenCalled();
 
-      //   var person = new Person(personData);
+        var person = new Person(personData);
 
-      //   expect(initializeSpy).toHaveBeenCalled();
-      //   expect(person.firstName()).not.toBe(getValue);
+        expect(initializeSpy).toHaveBeenCalled();
+        expect(person.firstName()).not.toBe(getValue);
 
-      //   fetchMock.restore().get(mockUrl + "/" + personData.id, _.extend({}, personData, { firstName: getValue }));
-      //   expect(person.fetch()).toBeA('promise');
+        fetchMock.restore().get(mockUrl + "/" + personData.id, _.extend({}, personData, { firstName: getValue }));
+        expect(person.fetch()).toBeA('promise');
 
-      //   setTimeout(function() {
-      //     expect(person.$id()).toBe(personData.id);
-      //     expect(person.firstName()).toBe(getValue);
-      //     done();
-      //   }, ajaxWait);
-      // });
+        setTimeout(function() {
+          expect(person.$id()).toBe(personData.id);
+          expect(person.firstName()).toBe(getValue);
+          done();
+        }, ajaxWait);
+      });
 
-      // it('can correctly fetch() data from the server with a provided parse() method', function(done) {
-      //   var initializeSpy;
-      //   var parseSpy;
-      //   var mockUrl = tools.generateUrl();
-      //   var getValue = '__GET__CHECK__';
-      //   var personData = {
-      //     "id": 100,
-      //     "firstName": null,
-      //     "lastName": null,
-      //     "email": null
-      //   };
+      it('can correctly fetch() data from the server with a provided parse() method', function(done) {
+        var initializeSpy;
+        var parseSpy;
+        var mockUrl = tools.generateUrl();
+        var getValue = '__GET__CHECK__';
+        var personData = {
+          "id": 100,
+          "firstName": null,
+          "lastName": null,
+          "email": null
+        };
 
-      //   var Person = fw.dataModel.create({
-      //     url: mockUrl,
-      //     parse: tools.expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
-      //       response.firstName = getValue;
-      //       return response;
-      //     }).and.callThrough()),
-      //     initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-      //       person = person || {};
-      //       this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-      //       this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-      //       this.email = fw.observable(person.email || null).mapTo('email');
-      //     }).and.callThrough())
-      //   });
+        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            url: mockUrl,
+            parse: tools.expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
+              response.firstName = getValue;
+              return response;
+            }).and.callThrough())
+          });
+          person = person || {};
+          this.id = fw.observable(person.id || null).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough())
 
-      //   expect(initializeSpy).not.toHaveBeenCalled();
+        expect(initializeSpy).not.toHaveBeenCalled();
 
-      //   var person = new Person(personData);
+        var person = new Person(personData);
 
-      //   expect(initializeSpy).toHaveBeenCalled();
-      //   expect(parseSpy).not.toHaveBeenCalled();
-      //   expect(person.firstName()).not.toBe(getValue);
+        expect(initializeSpy).toHaveBeenCalled();
+        expect(parseSpy).not.toHaveBeenCalled();
+        expect(person.firstName()).not.toBe(getValue);
 
-      //   fetchMock.restore().get(mockUrl + '/' + personData.id, personData);
-      //   expect(person.fetch()).toBeA('promise');
+        fetchMock.restore().get(mockUrl + '/' + personData.id, personData);
+        expect(person.fetch()).toBeA('promise');
 
-      //   setTimeout(function() {
-      //     expect(parseSpy).toHaveBeenCalled();
-      //     expect(person.$id()).toBe(personData.id);
-      //     expect(person.firstName()).toBe(getValue);
-      //     done();
-      //   }, ajaxWait);
-      // });
+        setTimeout(function() {
+          expect(parseSpy).toHaveBeenCalled();
+          expect(person.$id()).toBe(personData.id);
+          expect(person.firstName()).toBe(getValue);
+          done();
+        }, ajaxWait);
+      });
 
-      // it('can correctly fetch() data from the server via a pre-filled custom idAttribute', function(done) {
-      //   var initializeSpy;
-      //   var mockUrl = tools.generateUrl();
-      //   var getValue = '__GET__CUSTOM__CHECK__';
-      //   var personData = {
-      //     "customId": 100,
-      //     "firstName": null,
-      //     "lastName": null,
-      //     "email": null
-      //   };
+      it('can correctly fetch() data from the server via a pre-filled custom idAttribute', function(done) {
+        var initializeSpy;
+        var mockUrl = tools.generateUrl();
+        var getValue = '__GET__CUSTOM__CHECK__';
+        var personData = {
+          "customId": 100,
+          "firstName": null,
+          "lastName": null,
+          "email": null
+        };
 
-      //   var Person = fw.dataModel.create({
-      //     url: mockUrl,
-      //     idAttribute: 'customId',
-      //     initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-      //       person = person || {};
-      //       this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-      //       this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-      //       this.email = fw.observable(person.email || null).mapTo('email');
-      //     }).and.callThrough())
-      //   });
+        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            url: mockUrl,
+            idAttribute: 'customId'
+          });
+          person = person || {};
+          this.customId = fw.observable(person.customId || null).mapTo('customId', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough())
 
-      //   expect(initializeSpy).not.toHaveBeenCalled();
+        expect(initializeSpy).not.toHaveBeenCalled();
 
-      //   var person = new Person(personData);
+        var person = new Person(personData);
 
-      //   expect(initializeSpy).toHaveBeenCalled();
-      //   expect(person.firstName()).not.toBe(getValue);
+        expect(initializeSpy).toHaveBeenCalled();
+        expect(person.firstName()).not.toBe(getValue);
 
-      //   fetchMock.restore().get(mockUrl + '/' + personData.customId, _.extend({}, personData, { firstName: getValue }));
-      //   expect(person.fetch()).toBeA('promise');
+        fetchMock.restore().get(mockUrl + '/' + personData.customId, _.extend({}, personData, { firstName: getValue }));
+        expect(person.fetch()).toBeA('promise');
 
-      //   setTimeout(function() {
-      //     expect(person.customId()).toBe(personData.customId);
-      //     expect(person.firstName()).toBe(getValue);
-      //     done();
-      //   }, ajaxWait);
-      // });
+        setTimeout(function() {
+          expect(person.customId()).toBe(personData.customId);
+          expect(person.firstName()).toBe(getValue);
+          done();
+        }, ajaxWait);
+      });
 
-      // it('can correctly fetch() data from the server with overridden ajaxOptions', function(done) {
-      //   var initializeSpy;
-      //   var mockUrl = tools.generateUrl();
-      //   var personData = {
-      //     "id": 100,
-      //     "firstName": tools.randomString(),
-      //     "lastName": null,
-      //     "email": null
-      //   };
+      it('can correctly fetch() data from the server with overridden ajaxOptions', function(done) {
+        var initializeSpy;
+        var mockUrl = tools.generateUrl();
+        var personData = {
+          "id": 100,
+          "firstName": tools.randomString(),
+          "lastName": null,
+          "email": null
+        };
 
-      //   var Person = fw.dataModel.create({
-      //     url: mockUrl,
-      //     ajaxOptions: {
-      //       url: mockUrl
-      //     },
-      //     initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-      //       person = person || {};
-      //       this.id(person.id);
-      //       this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-      //       this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-      //       this.email = fw.observable(person.email || null).mapTo('email');
-      //     }).and.callThrough())
-      //   });
+        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            url: mockUrl,
+            ajaxOptions: {
+              url: mockUrl
+            }
+          });
+          person = person || {};
+          this.id = fw.observable(person.id || null).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough())
 
-      //   expect(initializeSpy).not.toHaveBeenCalled();
+        expect(initializeSpy).not.toHaveBeenCalled();
 
-      //   var person = new Person({ id: personData.id });
+        var person = new Person({ id: personData.id });
 
-      //   expect(initializeSpy).toHaveBeenCalled();
+        expect(initializeSpy).toHaveBeenCalled();
 
-      //   fetchMock.restore().get(mockUrl, personData);
-      //   expect(person.fetch()).toBeA('promise');
+        fetchMock.restore().get(mockUrl, personData);
+        expect(person.fetch()).toBeA('promise');
 
-      //   setTimeout(function() {
-      //     expect(person.firstName()).toBe(personData.firstName);
-      //     done();
-      //   }, ajaxWait);
-      // });
+        setTimeout(function() {
+          expect(person.firstName()).toBe(personData.firstName);
+          done();
+        }, ajaxWait);
+      });
 
-      // it('can correctly fetch() data from the server via a url based on an evaluator function', function(done) {
-      //   var initializeSpy;
-      //   var urlSpy;
-      //   var mockUrl = tools.generateUrl();
-      //   var getValue = '__GET__CUSTOM__CHECK__';
-      //   var personData = {
-      //     "id": 100,
-      //     "firstName": null,
-      //     "lastName": null,
-      //     "email": null
-      //   };
+      it('can correctly fetch() data from the server via a url based on an evaluator function', function(done) {
+        var initializeSpy;
+        var urlSpy;
+        var mockUrl = tools.generateUrl();
+        var getValue = '__GET__CUSTOM__CHECK__';
+        var personData = {
+          "id": 100,
+          "firstName": null,
+          "lastName": null,
+          "email": null
+        };
 
-      //   var Person = fw.dataModel.create({
-      //     url: tools.expectCallOrder(1, urlSpy = jasmine.createSpy('urlSpy', function() {
-      //       return mockUrl;
-      //     }).and.callThrough()),
-      //     initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-      //       person = person || {};
-      //       this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-      //       this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-      //       this.email = fw.observable(person.email || null).mapTo('email');
-      //     }).and.callThrough())
-      //   });
+        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            url: tools.expectCallOrder(1, urlSpy = jasmine.createSpy('urlSpy', function() {
+              return mockUrl;
+            }).and.callThrough())
+          });
+          person = person || {};
+          this.id = fw.observable(person.id || null).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough())
 
-      //   expect(initializeSpy).not.toHaveBeenCalled();
-      //   expect(urlSpy).not.toHaveBeenCalled();
+        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(urlSpy).toBe(undefined);
 
-      //   var person = new Person(personData);
+        var person = new Person(personData);
 
-      //   expect(initializeSpy).toHaveBeenCalled();
-      //   expect(urlSpy).not.toHaveBeenCalled();
-      //   expect(person.firstName()).not.toBe(getValue);
+        expect(initializeSpy).toHaveBeenCalled();
+        expect(urlSpy).not.toHaveBeenCalled();
+        expect(person.firstName()).not.toBe(getValue);
 
-      //   fetchMock.restore().get(mockUrl + '/' + personData.id, _.extend({}, personData, { firstName: getValue }));
-      //   expect(person.fetch()).toBeA('promise');
-      //   expect(urlSpy).toHaveBeenCalled();
+        fetchMock.restore().get(mockUrl + '/' + personData.id, _.extend({}, personData, { firstName: getValue }));
+        expect(person.fetch()).toBeA('promise');
+        expect(urlSpy).toHaveBeenCalled();
 
-      //   setTimeout(function() {
-      //     expect(person.$id()).toBe(personData.id);
-      //     expect(person.firstName()).toBe(getValue);
-      //     done();
-      //   }, ajaxWait);
-      // });
+        setTimeout(function() {
+          expect(person.$id()).toBe(personData.id);
+          expect(person.firstName()).toBe(getValue);
+          done();
+        }, ajaxWait);
+      });
 
-      // it('can correctly fetch() data from the server via a url with interpolated parameters', function(done) {
-      //   var initializeSpy;
-      //   var mockUrl = tools.generateUrl();
-      //   var personData = {
-      //     "id": 100,
-      //     "firstName": 'interpolatedFirstName',
-      //     "lastName": 'personDataLastName',
-      //     "email": null
-      //   };
+      it('can correctly fetch() data from the server via a url with interpolated parameters', function(done) {
+        var initializeSpy;
+        var mockUrl = tools.generateUrl();
+        var personData = {
+          "id": 100,
+          "firstName": 'interpolatedFirstName',
+          "lastName": 'personDataLastName',
+          "email": null
+        };
 
-      //   var Person = fw.dataModel.create({
-      //     useKeyInUrl: false,
-      //     url: mockUrl + '/:firstName',
-      //     initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-      //       person = person || {};
-      //       this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-      //       this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-      //       this.email = fw.observable(person.email || null).mapTo('email');
-      //     }).and.callThrough())
-      //   });
+        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            useKeyInUrl: false,
+            url: mockUrl + '/:firstName'
+          });
+          person = person || {};
+          this.id = fw.observable(person.id || null).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough())
 
-      //   expect(initializeSpy).not.toHaveBeenCalled();
+        expect(initializeSpy).not.toHaveBeenCalled();
 
-      //   var person = new Person({ id: personData.id, firstName: personData.firstName });
+        var person = new Person({ id: personData.id, firstName: personData.firstName });
 
-      //   expect(initializeSpy).toHaveBeenCalled();
-      //   expect(person.lastName()).not.toBe(personData.lastName);
+        expect(initializeSpy).toHaveBeenCalled();
+        expect(person.lastName()).not.toBe(personData.lastName);
 
-      //   fetchMock.restore().get(mockUrl + '/' + personData.firstName, personData);
-      //   expect(person.fetch()).toBeA('promise');
+        fetchMock.restore().get(mockUrl + '/' + personData.firstName, personData);
+        expect(person.fetch()).toBeA('promise');
 
-      //   setTimeout(function() {
-      //     expect(person.lastName()).toBe(personData.lastName);
-      //     done();
-      //   }, ajaxWait);
-      // });
+        setTimeout(function() {
+          expect(person.lastName()).toBe(personData.lastName);
+          done();
+        }, ajaxWait);
+      });
     });
   }
 );

@@ -34,9 +34,9 @@ entityDescriptors.push(descriptor = prepareDescriptor({
     idAttribute: 'id',
     useKeyInUrl: true,
     url: null,
-    parse: false,
+    parse: false, // identity?
     ajaxOptions: {},
-    requestLull: undefined
+    requestLull: 0
   }
 }));
 

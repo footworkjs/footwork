@@ -21,7 +21,7 @@ function fetchModel (options) {
     requestLull: configParams.requestLull,
     entity: dataModel,
     createRequest: function() {
-      var id = dataModel[configParams.idAttribute]();
+      var id = _.result(dataModel, configParams.idAttribute) || _.result(dataModel, '$id');
       if (id) {
         // retrieve data dataModel the from server using the id
         var xhr = dataModel.sync('read', dataModel, options);
@@ -170,6 +170,8 @@ function destroy (options) {
  */
 function set (key, value, options) {
   var attributes = {};
+  var dataModel = this;
+  var configParams = dataModel[privateDataSymbol].configParams;
 
   if (_.isString(key)) {
     attributes = insertValueIntoObject(attributes, key, value);
@@ -193,6 +195,12 @@ function set (key, value, options) {
       model.$namespace.publish('_.change.' + fieldMap, fieldValue);
     }
   });
+
+  // make sure that if the user supplied an id value that it is written to whatever available $id is available
+  // by default dataModels are instantiated with a $id, leaving it up to the user to (re)map it as desired
+  if(attributes[configParams.idAttribute] && !fw.isObservable(dataModel[configParams.idAttribute])) {
+    dataModel.$id(attributes[configParams.idAttribute]);
+  }
 
   if (mappingsChanged && options.clearDirty) {
     // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function

@@ -50,7 +50,7 @@ function makeOrGetRequest (operationType, requestInfo) {
 
     if (!isPromise(theRequest)) {
       // returned value from createRequest() is a value not a promise, lets return the value in a promise
-      theRequest = Promise().resolve(theRequest);
+      theRequest = makePromiseQueryable(Promise.resolve(theRequest));
     }
 
     requests.push(theRequest);
