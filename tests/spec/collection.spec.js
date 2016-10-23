@@ -16,14 +16,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -77,14 +77,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           }
         ];
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, persons.length + 3), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length + 3), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -135,14 +135,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -179,15 +179,15 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           }
         ];
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, persons.length + 2), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-            this.somethingNotProvidedFor = fw.observable().mapTo('somethingNotProvidedFor');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length + 2), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+          this.somethingNotProvidedFor = fw.observable().mapTo('somethingNotProvidedFor', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -220,7 +220,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var people = fw.collection(persons);
         expect(people()).lengthToBe(persons.length);
 
-        expect(people.pluck('firstName')).toEqual(_.reduce(persons, function(values, person) {
+        expect(people.pluck('firstName', this)).toEqual(_.reduce(persons, function(values, person) {
           values.push(person['firstName']);
           return values;
         }, []));
@@ -239,15 +239,15 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           }
         ];
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, persons.length + 2), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-            this.somethingNotProvidedFor = fw.observable().mapTo('somethingNotProvidedFor');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length + 2), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+          this.somethingNotProvidedFor = fw.observable().mapTo('somethingNotProvidedFor', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -308,15 +308,15 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           }
         ];
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-            this.somethingNotProvidedFor = fw.observable().mapTo('somethingNotProvidedFor');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+          this.somethingNotProvidedFor = fw.observable().mapTo('somethingNotProvidedFor', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -359,16 +359,16 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           }
         ];
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-            this.somethingNotProvidedFor = fw.observable().mapTo('somethingNotProvidedFor');
-            this.commonTerm = fw.observable(person.commonTerm).mapTo('commonTerm');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+          this.somethingNotProvidedFor = fw.observable().mapTo('somethingNotProvidedFor', this);
+          this.commonTerm = fw.observable(person.commonTerm).mapTo('commonTerm', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -402,15 +402,16 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        var Person = fw.dataModel.create({
-          url: destUrl,
-          initialize: tools.expectCallOrder(_.range(0, persons.length + 2), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length + 2), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            url: destUrl
+          });
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -496,14 +497,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -538,14 +539,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           }
         };
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, _.values(peopleData).length + 2), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, _.values(peopleData).length + 2), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
         var unexpectedEvents = {};
         var recordedEvents = {
@@ -571,7 +572,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
               var fieldNames = _.keys(person);
 
               if(collectionEvent === '_.add') {
-                expect(dataModel.__isdataModel).toBe(true)
+                expect(fw.isDataModel(dataModel)).toBe(true)
               }
 
               if(_.isEqual(person, _.pick(dataModel.get(), fieldNames))) {
@@ -658,14 +659,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         });
         var randomPerson = _.sample(persons);
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, persons.length * 2), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length * 2), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -803,14 +804,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           url: mockUrl,
@@ -845,14 +846,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var initializeSpy;
         var addSpy;
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -862,7 +863,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var addTriggered = false;
         people.$namespace.subscribe('_.add', tools.expectCallOrder(1, addSpy = jasmine.createSpy('addSpy', function(dataModels) {
           _.each(dataModels, function(dataModel) {
-            expect(dataModel.__isdataModel).toBe(true)
+            expect(fw.isDataModel(dataModel)).toBe(true)
           });
         })));
 
@@ -873,21 +874,21 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(addSpy).toHaveBeenCalled();
         expect(initializeSpy).toHaveBeenCalled();
-        expect(people()[0].__isdataModel).toBe(true);
+        expect(fw.isDataModel(people()[0])).toBe(true);
       });
 
       it('can .unshift() correctly', function() {
         var initializeSpy;
         var addSpy;
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -897,7 +898,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var addTriggered = false;
         people.$namespace.subscribe('_.add', tools.expectCallOrder(1, addSpy = jasmine.createSpy('addSpy', function(dataModels) {
           _.each(dataModels, function(dataModel) {
-            expect(dataModel.__isdataModel).toBe(true)
+            expect(fw.isDataModel(dataModel)).toBe(true)
           });
         }).and.callThrough()));
 
@@ -908,7 +909,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(addSpy).toHaveBeenCalled();
         expect(initializeSpy).toHaveBeenCalled();
-        expect(people()[0].__isdataModel).toBe(true);
+        expect(fw.isDataModel(people()[0])).toBe(true);
       });
 
       it('.remove() correctly triggers _.remove event', function() {
@@ -925,14 +926,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -962,14 +963,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -999,14 +1000,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -1036,14 +1037,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -1073,14 +1074,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -1116,14 +1117,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person
@@ -1131,11 +1132,11 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var people = PeopleCollection(persons);
 
         expect(people()).lengthToBe(persons.length);
-        expect(people()[0]._isDisposed).toBe(undefined);
+        expect(fw.utils.getPrivateData(people()[0]).isDisposed).toBe(undefined);
 
         var personRemoved = people.remove(people()[0])[0];
 
-        expect(personRemoved._isDisposed).toBe(true);
+        expect(fw.utils.getPrivateData(personRemoved).isDisposed).toBe(true);
         expect(personRemoved.get()).toEqual(persons[0]);
         expect(people()).lengthToBe(persons.length - 1);
       });
@@ -1153,14 +1154,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        var Person = fw.dataModel.create({
-          initialize: tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-            person = person || {};
-            this.firstName = fw.observable(person.firstName || null).mapTo('firstName');
-            this.lastName = fw.observable(person.lastName || null).mapTo('lastName');
-            this.email = fw.observable(person.email || null).mapTo('email');
-          }).and.callThrough())
-        });
+        var Person = tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
 
         var PeopleCollection = fw.collection.create({
           dataModel: Person,
@@ -1169,11 +1170,11 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var people = PeopleCollection(persons);
 
         expect(people()).lengthToBe(persons.length);
-        expect(people()[0]._isDisposed).toBe(undefined);
+        expect(fw.utils.getPrivateData(people()[0]).isDisposed).toBe(undefined);
 
         var personRemoved = people.remove(people()[0])[0];
 
-        expect(personRemoved._isDisposed).not.toBe(true);
+        expect(fw.utils.getPrivateData(personRemoved).isDisposed).not.toBe(true);
         expect(personRemoved.get()).toEqual(persons[0]);
         expect(people()).lengthToBe(persons.length - 1);
       });

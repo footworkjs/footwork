@@ -1,9 +1,12 @@
+var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
+var getSymbol = require('../misc/util').getSymbol;
+
 function isCollection (thing) {
-  return _.isObject(thing) && !!thing.__isCollection;
+  return _.isObject(thing) && !!thing[getSymbol('isCollection')];
 }
 
 module.exports = {
-  isCollection: isCollection
+  isCollection: fw.isCollection = isCollection
 };

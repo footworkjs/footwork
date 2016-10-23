@@ -6,10 +6,6 @@ var regExpIsEqual = objectTools.regExpIsEqual;
 var commonKeysEqual = objectTools.commonKeysEqual;
 var sortOfEqual = objectTools.sortOfEqual;
 
-var entityTools = require('../entities/entity-tools');
-var isDataModelCtor = entityTools.isDataModelCtor;
-var isDataModel = entityTools.isDataModel;
-
 var makeOrGetRequest = require('../misc/ajax').makeOrGetRequest;
 var privateDataSymbol = require('../misc/config').privateDataSymbol;
 
@@ -102,7 +98,8 @@ function set (newCollection, options) {
 
       if (collectionModelData) {
         modelPresent = _.reduce(newCollection, function (isPresent, modelData) {
-          return isPresent || _.result(modelData, idAttribute) === collectionModelData[idAttribute];
+          var bothValuesAreFalsey = !_.result(modelData, idAttribute) && !collectionModelData[idAttribute];
+          return isPresent || (_.result(modelData, idAttribute) === collectionModelData[idAttribute] || bothValuesAreFalsey);
         }, false);
       }
 
@@ -309,7 +306,7 @@ function create (model, options) {
       var newModel = castAsDataModel(model);
       var xhr;
 
-      if (isDataModel(newModel)) {
+      if (fw.isDataModel(newModel)) {
         xhr = newModel.save();
 
         if (options.wait) {
@@ -328,7 +325,7 @@ function create (model, options) {
     }
   };
 
-  if (!isDataModelCtor(configParams.dataModel)) {
+  if (!_.isFunction(configParams.dataModel)) {
     throw new Error('No dataModel specified, cannot create() a new collection item');
   }
 
@@ -348,7 +345,7 @@ function removeModel (models) {
 
   return _.reduce(models, function (removedModels, model) {
     var removed = null;
-    if (isDataModel(model)) {
+    if (fw.isDataModel(model)) {
       removed = collection.remove(model);
     } else {
       var modelsToRemove = collection.where(model);

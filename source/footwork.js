@@ -5,7 +5,9 @@ fw.footworkVersion = 'FOOTWORK_VERSION';
 fw.namespace = require('./namespace/namespace');
 fw.embed = require('./misc/embed-exports');
 fw.sync = require('./misc/ajax').sync;
+
 fw.utils.guid = require('./misc/util').guid;
+fw.utils.getPrivateData = require('./misc/util').getPrivateData;
 
 require('./broadcastable-receivable/broadcastable');
 require('./broadcastable-receivable/receivable');

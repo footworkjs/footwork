@@ -521,7 +521,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
             comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy', this),
             horror: fw.observableArray(person.movies.horror).mapTo('movies.horror', this)
           };
-        }).and.callThrough())
+        }).and.callThrough());
 
         var personData = {
           firstName: 'John',
@@ -838,7 +838,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
           this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
           this.email = fw.observable(person.email || null).mapTo('email', this);
-        }).and.callThrough())
+        }).and.callThrough());
 
         expect(parseSpy).toBe(undefined);
         expect(initializeSpy).not.toHaveBeenCalled();
@@ -880,7 +880,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
           this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
           this.email = fw.observable(person.email || null).mapTo('email', this);
-        }).and.callThrough())
+        }).and.callThrough());
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
@@ -924,7 +924,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
           this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
           this.email = fw.observable(person.email || null).mapTo('email', this);
-        }).and.callThrough())
+        }).and.callThrough());
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
@@ -966,7 +966,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
           this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
           this.email = fw.observable(person.email || null).mapTo('email', this);
-        }).and.callThrough())
+        }).and.callThrough());
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
@@ -1007,7 +1007,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
           this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
           this.email = fw.observable(person.email || null).mapTo('email', this);
-        }).and.callThrough())
+        }).and.callThrough());
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
@@ -1047,7 +1047,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
           this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
           this.email = fw.observable(person.email || null).mapTo('email', this);
-        }).and.callThrough())
+        }).and.callThrough());
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(urlSpy).toBe(undefined);
@@ -1089,7 +1089,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
           this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
           this.email = fw.observable(person.email || null).mapTo('email', this);
-        }).and.callThrough())
+        }).and.callThrough());
 
         expect(initializeSpy).not.toHaveBeenCalled();
 

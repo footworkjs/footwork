@@ -1,5 +1,5 @@
-var _ = require('lodash');
 var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
 
 var util = require('./util');
 var resultBound = util.resultBound;
@@ -7,6 +7,8 @@ var promiseIsFulfilled = util.promiseIsFulfilled;
 var isPromise = util.isPromise;
 
 var privateDataSymbol = require('./config').privateDataSymbol;
+
+require('../collection/collection-tools');
 
 // Map from CRUD to HTTP for our default `fw.sync` implementation.
 var methodMap = {
@@ -98,12 +100,10 @@ function makeOrGetRequest (operationType, requestInfo) {
  * @returns {object} htr
  */
 function sync (action, concern, params) {
-  var isCollection = require('../collection/collection-tools').isCollection;
-
   params = params || {};
   action = action || 'noAction';
 
-  if (!fw.isDataModel(concern) && !isCollection(concern)) {
+  if (!fw.isDataModel(concern) && !fw.isCollection(concern)) {
     throw new Error('Must supply a dataModel or collection to fw.sync()');
   }
 
@@ -129,7 +129,7 @@ function sync (action, concern, params) {
     if (_.isFunction(url)) {
       url = url.call(concern, action);
     } else if (!_.isString(url)) {
-      var thing = (fw.isDataModel(concern) && 'dataModel') || (isCollection(concern) && 'collection') || 'UNKNOWN';
+      var thing = (fw.isDataModel(concern) && 'dataModel') || (fw.isCollection(concern) && 'collection') || 'UNKNOWN';
       throw new Error('Must provide a URL for/on a ' + thing + ' configuration in order to call .sync() on it');
     }
 

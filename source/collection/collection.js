@@ -3,10 +3,7 @@ var _ = require('lodash');
 
 var collectionMethods = require('./collection-methods');
 var privateDataSymbol = require('../misc/config').privateDataSymbol;
-
-var entityTools = require('../entities/entity-tools');
-var isDataModel = entityTools.isDataModel;
-var isDataModelCtor = entityTools.isDataModelCtor;
+var getSymbol = require('../misc/util').getSymbol;
 
 var defaultCollectionConfig = {
   namespace: null,
@@ -53,33 +50,6 @@ fw.collection.create = function (configParams) {
 
     _.extend(collection, collectionMethods, {
       $namespace: fw.namespace(configParams.namespace || _.uniqueId('collection')),
-      __isCollection: true,
-      __private: {
-        configParams: configParams,
-        castAs: {
-          modelData: function (modelData, attribute) {
-            if (isDataModel(modelData)) {
-              return modelData.getData(attribute);
-            }
-            if (_.isUndefined(attribute)) {
-              return modelData;
-            }
-            return _.result(modelData, attribute);
-          },
-          dataModel: function (modelData) {
-            return isDataModelCtor(DataModelCtor) && !isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;
-          }
-        },
-        getIdAttribute: function (options) {
-          var idAttribute = configParams.idAttribute || (options || {}).idAttribute;
-          if (_.isUndefined(idAttribute) || _.isNull(idAttribute)) {
-            if (isDataModelCtor(DataModelCtor)) {
-              return DataModelCtor[privateDataSymbol].configParams.idAttribute;
-            }
-          }
-          return idAttribute || 'id';
-        }
-      },
       remove: removeDisposeAndNotify.bind(collection, collection.remove),
       pop: removeDisposeAndNotify.bind(collection, collection.pop),
       shift: removeDisposeAndNotify.bind(collection, collection.shift),
@@ -89,13 +59,35 @@ fw.collection.create = function (configParams) {
       isFetching: fw.observable(false),
       isCreating: fw.observable(false),
       dispose: function () {
-        if (!collection.isDisposed) {
-          collection.isDisposed = true;
+        if (!collection[privateDataSymbol].isDisposed) {
+          collection[privateDataSymbol].isDisposed = true;
           collection.$namespace.dispose();
           _.invokeMap(collection(), 'dispose');
         }
       }
     });
+
+    collection[getSymbol('isCollection')] = true;
+    collection[privateDataSymbol] = {
+      configParams: configParams,
+      castAs: {
+        modelData: function (modelData, attribute) {
+          if (fw.isDataModel(modelData)) {
+            return modelData.getData(attribute);
+          }
+          if (_.isUndefined(attribute)) {
+            return modelData;
+          }
+          return _.result(modelData, attribute);
+        },
+        dataModel: function (modelData) {
+          return _.isFunction(DataModelCtor) && !fw.isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;
+        }
+      },
+      getIdAttribute: function (options) {
+        return configParams.idAttribute || (options || {}).idAttribute || 'id';
+      }
+    };
 
     collection.requestInProgress = fw.pureComputed(function () {
       return this.isFetching() || this.isCreating();

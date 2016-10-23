@@ -80,7 +80,7 @@ function save (key, val, options) {
     options.attrs = attrs;
   }
 
-  var method = _.isUndefined(dataModel.$id()) ? 'create' : (options.patch ? 'patch' : 'update');
+  var method = !dataModel.$id() ? 'create' : (options.patch ? 'patch' : 'update');
   var requestInfo = {
     requestRunning: (method === 'create' ? dataModel.isCreating : dataModel.isSaving),
     requestLull: configParams.requestLull,

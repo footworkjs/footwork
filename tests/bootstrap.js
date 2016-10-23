@@ -47,7 +47,8 @@ Object.keys(window.__karma__.files).forEach(function(file) {
       'viewModel',
       'dataModel',
       'router',
-      'namespace'
+      'namespace',
+      'collection'
     ]) && allTestFiles.push(normalizedTestModule);
   }
 });
