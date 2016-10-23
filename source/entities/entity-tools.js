@@ -68,10 +68,20 @@ function instanceRequestHandler (instance, options) {
   }
 }
 
+/**
+ * Function which calls resolveNow to resolve the entity immediately
+ *
+ * @param {function} resolveNow
+ */
+function resolveEntityImmediately(resolveNow) {
+  resolveNow(true);
+}
+
 module.exports = {
   prepareDescriptor: prepareDescriptor,
   isEntityCtor: isEntityCtor,
   isEntity: isEntity,
   nearestEntity: nearestEntity,
-  instanceRequestHandler: instanceRequestHandler
+  instanceRequestHandler: instanceRequestHandler,
+  resolveEntityImmediately: resolveEntityImmediately
 };

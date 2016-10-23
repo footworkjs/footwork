@@ -20,9 +20,9 @@ function viewModelBootstrap (instance, configParams, isAddingInstanceRequestHand
   var descriptor = require('../entity-descriptors').getDescriptor('viewModel');
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
   if (!hasBeenBootstrapped) {
-    instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
     configParams = configParams || {};
 
+    instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
     configParams = _.extend({}, descriptor.defaultConfig, {
       namespace: configParams.namespace ? null : _.uniqueId(descriptor.entityName)
     }, configParams);

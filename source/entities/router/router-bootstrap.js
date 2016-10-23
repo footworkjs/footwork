@@ -26,7 +26,7 @@ function routerBootstrap (instance, configParams) {
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
   if (!hasBeenBootstrapped) {
     instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
-    configParams = configParams || {};
+    configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.defaultConfig, configParams || {});
 
     instance[privateDataSymbol].context = fw.observable();
 

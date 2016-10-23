@@ -2,7 +2,10 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
 var entityDescriptors = require('../entity-descriptors');
-var prepareDescriptor = require('../entity-tools').prepareDescriptor;
+
+var entityTools = require('../entity-tools');
+var prepareDescriptor = entityTools.prepareDescriptor;
+var resolveEntityImmediately = entityTools.resolveEntityImmediately;
 
 var util = require('../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
@@ -26,13 +29,7 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   },
   mixin: require('./router-mixin'),
   defaultConfig: {
-    namespace: undefined,
-    afterRender: _.noop,
-    afterResolving: function resolveEntityImmediately (resolveNow) {
-      resolveNow(true);
-    },
-    sequenceAnimations: false,
-    onDispose: _.noop
+    /* fill in later */
   }
 }));
 

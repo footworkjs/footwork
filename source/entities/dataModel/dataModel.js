@@ -4,7 +4,10 @@ var _ = require('lodash');
 require('./mapTo');
 
 var entityDescriptors = require('../entity-descriptors');
-var prepareDescriptor = require('../entity-tools').prepareDescriptor;
+
+var entityTools = require('../entity-tools');
+var prepareDescriptor = entityTools.prepareDescriptor;
+var resolveEntityImmediately = entityTools.resolveEntityImmediately;
 
 var util = require('../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
@@ -28,13 +31,12 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   },
   mixin: require('./dataModel-mixin'),
   defaultConfig: {
-    namespace: undefined,
-    afterRender: _.noop,
-    afterResolving: function resolveEntityImmediately (resolveNow) {
-      resolveNow(true);
-    },
-    sequenceAnimations: false,
-    onDispose: _.noop
+    idAttribute: 'id',
+    useKeyInUrl: true,
+    url: null,
+    parse: false,
+    ajaxOptions: {},
+    requestLull: undefined
   }
 }));
 

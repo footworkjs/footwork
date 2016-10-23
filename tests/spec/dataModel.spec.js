@@ -434,80 +434,79 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         expect(person.hasMappedField('lastName')).toBe(true);
       });
 
-      // it('can have an observable mapped correctly at a nested level', function() {
-      //   var initializeSpy;
+      it('can have an observable mapped correctly at a nested level', function() {
+        var initializeSpy;
 
-      //   var Person = fw.dataModel.create({
-      //     initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-      //       this.firstName = fw.observable(person.firstName).mapTo('firstName');
-      //       this.lastName = fw.observable(person.lastName).mapTo('lastName');
-      //       this.movieCollection = {
-      //         action: fw.observableArray(person.movies.action).mapTo('movies.action'),
-      //         drama: fw.observableArray(person.movies.drama).mapTo('movies.drama'),
-      //         comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy'),
-      //         horror: fw.observableArray(person.movies.horror).mapTo('movies.horror')
-      //       };
-      //     }).and.callThrough())
-      //   });
+        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          this.firstName = fw.observable(person.firstName).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName).mapTo('lastName', this);
+          this.movieCollection = {
+            action: fw.observableArray(person.movies.action).mapTo('movies.action', this),
+            drama: fw.observableArray(person.movies.drama).mapTo('movies.drama', this),
+            comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy', this),
+            horror: fw.observableArray(person.movies.horror).mapTo('movies.horror', this)
+          };
+        }).and.callThrough());
 
-      //   expect(initializeSpy).not.toHaveBeenCalled();
+        expect(initializeSpy).not.toHaveBeenCalled();
 
-      //   var person = new Person({
-      //     firstName: 'John',
-      //     lastName: 'Smith',
-      //     movies: {
-      //       action: ['Commando', 'Predator', 'Timecop', 'Terminator'],
-      //       drama: ['The Shawshank Redemption'],
-      //       comedy: ['Dumb and Dumber', 'Billy Madison'],
-      //       horror: ['Friday the 13th', 'Jason']
-      //     }
-      //   });
+        var person = new Person({
+          firstName: 'John',
+          lastName: 'Smith',
+          movies: {
+            action: ['Commando', 'Predator', 'Timecop', 'Terminator'],
+            drama: ['The Shawshank Redemption'],
+            comedy: ['Dumb and Dumber', 'Billy Madison'],
+            horror: ['Friday the 13th', 'Jason']
+          }
+        });
 
-      //   expect(initializeSpy).toHaveBeenCalled();
+        expect(initializeSpy).toHaveBeenCalled();
 
-      //   expect(person.hasMappedField('firstName')).toBe(true);
-      //   expect(person.hasMappedField('lastName')).toBe(true);
-      //   expect(person.hasMappedField('movies.action')).toBe(true);
-      //   expect(person.hasMappedField('movies.drama')).toBe(true);
-      //   expect(person.hasMappedField('movies.comedy')).toBe(true);
-      //   expect(person.hasMappedField('movies.horror')).toBe(true);
-      // });
+        expect(person.hasMappedField('firstName')).toBe(true);
+        expect(person.hasMappedField('lastName')).toBe(true);
+        expect(person.hasMappedField('movies.action')).toBe(true);
+        expect(person.hasMappedField('movies.drama')).toBe(true);
+        expect(person.hasMappedField('movies.comedy')).toBe(true);
+        expect(person.hasMappedField('movies.horror')).toBe(true);
+      });
 
-      // it('can have observables mapped and retreived correctly via get', function() {
-      //   var initializeSpy;
+      it('can have observables mapped and retreived correctly via get', function() {
+        var initializeSpy;
 
-      //   var Person = fw.dataModel.create({
-      //     initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-      //       this.firstName = fw.observable(person.firstName).mapTo('firstName');
-      //       this.lastName = fw.observable(person.lastName).mapTo('lastName');
-      //       this.movieCollection = {
-      //         action: fw.observableArray(person.movies.action).mapTo('movies.action'),
-      //         drama: fw.observableArray(person.movies.drama).mapTo('movies.drama'),
-      //         comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy'),
-      //         horror: fw.observableArray(person.movies.horror).mapTo('movies.horror')
-      //       };
-      //     }).and.callThrough())
-      //   });
+        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName).mapTo('lastName', this);
+          this.movieCollection = {
+            action: fw.observableArray(person.movies.action).mapTo('movies.action', this),
+            drama: fw.observableArray(person.movies.drama).mapTo('movies.drama', this),
+            comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy', this),
+            horror: fw.observableArray(person.movies.horror).mapTo('movies.horror', this)
+          };
+        }).and.callThrough());
 
-      //   var personData = {
-      //     id: undefined,
-      //     firstName: 'John',
-      //     lastName: 'Smith',
-      //     movies: {
-      //       action: ['Commando', 'Predator', 'Timecop', 'Terminator'],
-      //       drama: ['The Shawshank Redemption'],
-      //       comedy: ['Dumb and Dumber', 'Billy Madison'],
-      //       horror: ['Friday the 13th', 'Jason']
-      //     }
-      //   };
+        var personData = {
+          id: undefined,
+          firstName: 'John',
+          lastName: 'Smith',
+          movies: {
+            action: ['Commando', 'Predator', 'Timecop', 'Terminator'],
+            drama: ['The Shawshank Redemption'],
+            comedy: ['Dumb and Dumber', 'Billy Madison'],
+            horror: ['Friday the 13th', 'Jason']
+          }
+        };
 
-      //   expect(initializeSpy).not.toHaveBeenCalled();
+        expect(initializeSpy).not.toHaveBeenCalled();
 
-      //   var person = new Person(personData);
+        var person = new Person(personData);
 
-      //   expect(initializeSpy).toHaveBeenCalled();
-      //   expect(person.get()).toEqual(personData);
-      // });
+        expect(initializeSpy).toHaveBeenCalled();
+        expect(person.get()).toEqual(personData);
+      });
 
       // it('can have observables mapped and a specific one retreived correctly via get', function() {
       //   var initializeSpy;
