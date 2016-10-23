@@ -1,6 +1,8 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
+require('./mapTo');
+
 var entityDescriptors = require('../entity-descriptors');
 var prepareDescriptor = require('../entity-tools').prepareDescriptor;
 
@@ -11,11 +13,15 @@ var getSymbol = util.getSymbol;
 var entityName = 'dataModel';
 var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
 
+fw[entityName] = {
+  boot: require('./dataModel-bootstrap')
+};
+
 var descriptor;
 entityDescriptors.push(descriptor = prepareDescriptor({
   tagName: entityName.toLowerCase(),
   entityName: entityName,
-  resource: fw[entityName] = {},
+  resource: fw[entityName],
   isEntityDuckTag: isEntityDuckTag,
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
@@ -31,11 +37,6 @@ entityDescriptors.push(descriptor = prepareDescriptor({
     onDispose: _.noop
   }
 }));
-
-_.extend(fw[entityName], {
-  boot: require('./dataModel-bootstrap'),
-  getPrivateData: require('../../misc/util').getPrivateData
-});
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 

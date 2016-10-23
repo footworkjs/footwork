@@ -48,7 +48,7 @@ fw.bindingHandlers.$lifecycle = {
     }
 
     // if this is a router, provide the bindingContext so it can bootstrap its nested outlets/etc
-    if (isRouter(viewModel)) {
+    if (fw.isRouter(viewModel)) {
       viewModel[privateDataSymbol].context(bindingContext);
     }
   },

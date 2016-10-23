@@ -72,9 +72,6 @@ module.exports = {
   prepareDescriptor: prepareDescriptor,
   isEntityCtor: isEntityCtor,
   isEntity: isEntity,
-  isRouter: _.noop,
-  isDataModel: _.noop,
-  isDataModelCtor: _.noop,
   nearestEntity: nearestEntity,
   instanceRequestHandler: instanceRequestHandler
 };

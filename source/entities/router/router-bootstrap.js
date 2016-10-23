@@ -28,8 +28,14 @@ function routerBootstrap (instance, configParams) {
     instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
     configParams = configParams || {};
 
-    // setup the request handler which returns the instance
-    // note we are wiring up the request handler manually so that an entire namespace does not need instantiating for this callback
+    instance[privateDataSymbol].context = fw.observable();
+
+    _.extend(instance, descriptor.mixin, {
+      /* fill this in */
+    });
+
+    // Setup the request handler which returns the instance (fw.router.getAll())
+    // Note: We are wiring up the request handler manually so that an entire namespace does not need instantiating for this callback
     instance.disposeWithInstance(defaultChannel.subscribe('request.' + descriptor.referenceNamespace, function (params) {
       defaultChannel.publish({
         topic: 'request.' + descriptor.referenceNamespace + '.response',

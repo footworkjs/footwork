@@ -127,8 +127,8 @@ define(['footwork', 'jquery', 'lodash', 'tools'],
         });
 
         testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '">\
-                                             <span class="result" data-bind="text: boundProperty"></span>\
-                                           </viewModel>');
+                                                     <span class="result" data-bind="text: boundProperty"></span>\
+                                                   </viewModel>');
 
         expect(testContainer.innerHTML.indexOf(boundPropertyValue)).toBe(-1);
 
@@ -159,8 +159,8 @@ define(['footwork', 'jquery', 'lodash', 'tools'],
 
         expect(createViewModelInstance).not.toHaveBeenCalled();
         testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="thing: \'' + boundPropertyValue + '\'">\
-                                             <span class="result" data-bind="text: boundProperty"></span>\
-                                           </viewModel>');
+                                                     <span class="result" data-bind="text: boundProperty"></span>\
+                                                   </viewModel>');
 
         fw.start(testContainer);
         expect(testContainer.children[0].innerHTML.indexOf(boundPropertyValue)).toBe(-1);

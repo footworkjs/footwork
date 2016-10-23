@@ -412,28 +412,27 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         }, ajaxWait);
       });
 
-      // it('can have an observable mapped correctly at the parent level', function() {
-      //   var initializeSpy;
+      it('can have an observable mapped correctly at the parent level', function() {
+        var initializeSpy;
 
-      //   var Person = fw.dataModel.create({
-      //     initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
-      //       this.firstName = fw.observable(person.firstName).mapTo('firstName');
-      //       this.lastName = fw.observable(person.lastName).mapTo('lastName');
-      //     }).and.callThrough())
-      //   });
+        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          this.firstName = fw.observable(person.firstName).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName).mapTo('lastName', this);
+        }).and.callThrough());
 
-      //   expect(initializeSpy).not.toHaveBeenCalled();
+        expect(initializeSpy).not.toHaveBeenCalled();
 
-      //   var person = new Person({
-      //     firstName: 'John',
-      //     lastName: 'Smith'
-      //   });
+        var person = new Person({
+          firstName: 'John',
+          lastName: 'Smith'
+        });
 
-      //   expect(initializeSpy).toHaveBeenCalled();
+        expect(initializeSpy).toHaveBeenCalled();
 
-      //   expect(person.hasMappedField('firstName')).toBe(true);
-      //   expect(person.hasMappedField('lastName')).toBe(true);
-      // });
+        expect(person.hasMappedField('firstName')).toBe(true);
+        expect(person.hasMappedField('lastName')).toBe(true);
+      });
 
       // it('can have an observable mapped correctly at a nested level', function() {
       //   var initializeSpy;

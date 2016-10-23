@@ -38,8 +38,8 @@ function viewModelBootstrap (instance, configParams, isAddingInstanceRequestHand
     });
 
     if (!isAddingInstanceRequestHandlerLater) {
-      // setup the request handler which returns the instance
-      // note we are wiring up the request handler manually so that an entire namespace does not need instantiating for this callback
+      // Setup the request handler which returns the instance (fw.viewModel.getAll())
+      // Note: We are wiring up the request handler manually so that an entire namespace does not need instantiating for this callback
       instance.disposeWithInstance(defaultChannel.subscribe('request.' + descriptor.referenceNamespace, function (params) {
         defaultChannel.publish({
           topic: 'request.' + descriptor.referenceNamespace + '.response',
