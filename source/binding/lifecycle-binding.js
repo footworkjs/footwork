@@ -39,17 +39,16 @@ fw.bindingHandlers.$lifecycle = {
       addClass(element, entityClass);
     }
 
-    if (isEntity(viewModel)) {
-      // need to provide the element for when onDispose is called
+    if (fw.isViewModel(viewModel)) {
+      // routers are activated when the binding context is supplied
+      viewModel[privateDataSymbol].context(bindingContext);
+
+      // provide the element for when onDispose is called
       viewModel[privateDataSymbol].element = element;
+
       fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
         viewModel.dispose();
       });
-    }
-
-    // if this is a router, provide the bindingContext so it can bootstrap its nested outlets/etc
-    if (fw.isRouter(viewModel)) {
-      viewModel[privateDataSymbol].context(bindingContext);
     }
   },
   update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {

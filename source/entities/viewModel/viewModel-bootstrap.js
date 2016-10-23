@@ -30,7 +30,8 @@ function viewModelBootstrap (instance, configParams, isAddingInstanceRequestHand
     instance[privateDataSymbol] = {
       configParams: configParams,
       disposableItems: [],
-      loadingChildren: fw.observableArray()
+      loadingChildren: fw.observableArray(),
+      context: fw.observable()
     };
 
     _.extend(instance, descriptor.mixin, {
