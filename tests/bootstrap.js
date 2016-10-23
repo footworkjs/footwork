@@ -18,8 +18,8 @@ var TEST_REGEXP = /(spec)\.js$/i;
 /**
  * Determine whether the passed in file is listed in the tests array (or if tests is undefined or 'all' then return true always)
  *
- * @param {any} file
- * @param {array|string} tests [tests] to run, or if a string is supplied it will always return true (ie: pass in 'all')
+ * @param {string} file the filename to check against
+ * @param {array|string} tests [tests] to run, or if a 'string' is supplied it will always return true (ie: pass in 'all')
  * @returns {boolean} True if the test should be run, false if not
  */
 function shouldRunTest(file, tests) {
@@ -46,7 +46,8 @@ Object.keys(window.__karma__.files).forEach(function(file) {
     shouldRunTest(normalizedTestModule, [
       'viewModel',
       'dataModel',
-      'router'
+      'router',
+      'namespace'
     ]) && allTestFiles.push(normalizedTestModule);
   }
 });
