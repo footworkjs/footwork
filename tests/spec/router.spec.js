@@ -416,37 +416,37 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         }, ajaxWait);
       });
 
-      // it('can be nested and initialized declaratively', function(done) {
-      //   var outerInitializeSpy = jasmine.createSpy('outerInitializeSpy');
-      //   var innerInitializeSpy = jasmine.createSpy('innerInitializeSpy');
-      //   var outerNamespaceName = tools.randomString();
-      //   var innerNamespaceName = tools.randomString();
+      it('can be nested and initialized declaratively', function(done) {
+        var outerInitializeSpy;
+        var innerInitializeSpy;
+        var outerNamespaceName = tools.randomString();
+        var innerNamespaceName = tools.randomString();
 
-      //   fw.router.create({
-      //     namespace: outerNamespaceName,
-      //     autoRegister: true,
-      //     initialize: outerInitializeSpy
-      //   });
+        fw.router.register(outerNamespaceName, outerInitializeSpy = jasmine.createSpy('outerInitializeSpy', function() {
+          fw.router.boot(this, {
+            namespace: outerNamespaceName
+          });
+        }).and.callThrough());
 
-      //   fw.router.create({
-      //     namespace: innerNamespaceName,
-      //     autoRegister: true,
-      //     initialize: innerInitializeSpy
-      //   });
+        fw.router.register(innerNamespaceName, innerInitializeSpy = jasmine.createSpy('innerInitializeSpy', function() {
+          fw.router.boot(this, {
+            namespace: innerNamespaceName
+          });
+        }).and.callThrough());
 
-      //   expect(outerInitializeSpy).not.toHaveBeenCalled();
-      //   expect(innerInitializeSpy).not.toHaveBeenCalled();
+        expect(outerInitializeSpy).not.toHaveBeenCalled();
+        expect(innerInitializeSpy).not.toHaveBeenCalled();
 
-      //   fw.start(testContainer = tools.getFixtureContainer('<router module="' + outerNamespaceName + '">\
-      //                                 <router module="' + innerNamespaceName + '"></router>\
-      //                               </router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + outerNamespaceName + '">\
+                                      <router module="' + innerNamespaceName + '"></router>\
+                                    </router>'));
 
-      //   setTimeout(function() {
-      //     expect(outerInitializeSpy).toHaveBeenCalled();
-      //     expect(innerInitializeSpy).toHaveBeenCalled();
-      //     done();
-      //   }, ajaxWait);
-      // });
+        setTimeout(function() {
+          expect(outerInitializeSpy).toHaveBeenCalled();
+          expect(innerInitializeSpy).toHaveBeenCalled();
+          done();
+        }, ajaxWait);
+      });
 
       // it('can trigger the default route', function(done) {
       //   var namespaceName = tools.generateNamespaceName();
