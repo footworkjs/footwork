@@ -1,9 +1,9 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var sequencing = require('../misc/animation-sequencing');
-var addToAndFetchQueue = sequencing.addToAndFetchQueue;
-var runAnimationClassSequenceQueue = sequencing.runAnimationClassSequenceQueue;
+var animationSequencing = require('./animation-sequencing');
+var addToAndFetchQueue = animationSequencing.addToAndFetchQueue;
+var runAnimationSequenceQueue = animationSequencing.runAnimationSequenceQueue;
 
 var entityTools = require('../entities/entity-tools');
 var nearestEntity = entityTools.nearestEntity;
@@ -81,11 +81,11 @@ fw.bindingHandlers.$lifecycle = {
           // the parent outlet will run the callback that initiates the animation
           // sequence (once the rest of its dependencies finish loading as well)
           nearestOutlet.addResolvedCallbackOrExecute(function () {
-            runAnimationClassSequenceQueue(queue);
+            runAnimationSequenceQueue(queue);
           });
         } else {
           // no parent outlet found, lets go ahead and run the queue
-          runAnimationClassSequenceQueue(queue);
+          runAnimationSequenceQueue(queue);
         }
       }
     });

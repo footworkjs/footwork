@@ -1,11 +1,11 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var config = require('./config');
+var config = require('../misc/config');
 var entityAnimateClass = config.entityAnimateClass;
 var privateDataSymbol = config.privateDataSymbol;
 
-var util = require('./util');
+var util = require('../misc/util');
 var resultBound = util.resultBound;
 var addClass = util.addClass;
 var nextFrame = util.nextFrame;
@@ -29,10 +29,10 @@ function clearSequenceQueue () {
  * This method takes a list of callbacks and runs each in sequence using the stored nextIteration as the next offset.
  *
  * @param {any} queue The queue to run
- * @param {any} isRunner (internal use) this flag tells the method to run the next step in the queue
+ * @param {any} runNextStepNow (internal use) this flag tells the method to run the next step in the queue
  */
-function runAnimationClassSequenceQueue (queue, isRunner) {
-  if (!queue.running || isRunner) {
+function runAnimationSequenceQueue (queue, runNextStepNow) {
+  if (!queue.running || runNextStepNow) {
     var sequenceIteration = queue.shift();
 
     if (sequenceIteration) {
@@ -41,7 +41,7 @@ function runAnimationClassSequenceQueue (queue, isRunner) {
       if (sequenceIteration.nextIteration || queue.length) {
         queue.running = true;
         setTimeout(function () {
-          runAnimationClassSequenceQueue(queue, true);
+          runAnimationSequenceQueue(queue, true);
         }, sequenceIteration.nextIteration);
       } else {
         queue.running = false;
@@ -81,6 +81,6 @@ function addToAndFetchQueue (element, viewModel) {
 
 module.exports = {
   clearSequenceQueue: clearSequenceQueue,
-  runAnimationClassSequenceQueue: runAnimationClassSequenceQueue,
+  runAnimationSequenceQueue: runAnimationSequenceQueue,
   addToAndFetchQueue: addToAndFetchQueue
 };
