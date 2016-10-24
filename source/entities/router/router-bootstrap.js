@@ -20,6 +20,10 @@ var isRoute = routerTools.isRoute;
 
 var routerDefaults = require('./router-defaults');
 var nullRouter = routerDefaults.nullRouter;
+var noComponentSelected = routerDefaults.noComponentSelected;
+
+require('./route-binding');
+var routerOutlet = require('./outlet/outlet');
 
 /**
  * Bootstrap an instance with router capabilities (fetch/save/mapTo/etc).
@@ -41,12 +45,22 @@ function routerBootstrap (instance, configParams) {
   if (!hasBeenBootstrapped) {
     instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
     configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.defaultConfig, {
-      baseRoute: fw.router.baseRoute() + (resultBound(configParams, 'baseRoute', instance) || '')
+      baseRoute: fw.router.baseRoute() + resultBound(configParams, 'baseRoute', instance)
     }, configParams || {});
 
     _.extend(instance, descriptor.mixin, {
-      currentState: fw.observable()
+      currentState: fw.observable(),
+      outlet: routerOutlet.bind(instance)
     });
+
+    instance.setRoutes(configParams.routes);
+
+    instance[privateDataSymbol].outlets = {};
+    instance.outlet.reset = function () {
+      _.each(instance[privateDataSymbol].outlets, function (outlet) {
+        outlet({ name: noComponentSelected, params: {} });
+      });
+    };
 
     _.extend(instance[privateDataSymbol], {
       registerViewModelForOutlet: _.partial(registerViewModelForOutlet, instance),
@@ -59,12 +73,19 @@ function routerBootstrap (instance, configParams) {
     });
 
     _.extend(instance[privateDataSymbol], {
+      /**
+       * Computed which determines whether or not the router is configured and in a context which
+       * makes it (and its routes) relative to its parent.
+       */
       isRelative: fw.computed(function () {
         return configParams.isRelative && !isNullRouter(instance[privateDataSymbol].parentRouter());
       })
     });
 
     _.extend(instance[privateDataSymbol], {
+      /**
+       * Computed which gets/updates the currentRoute for the current given currentState of the router
+       */
       currentRoute: fw.computed(function () {
         return getRouteForURL(instance, normalizeURL(instance, instance.currentState()));
       })
@@ -101,7 +122,7 @@ function routerBootstrap (instance, configParams) {
         params = params || {};
       }
 
-      router.setState(route, params);
+      instance.setState(route, params);
     });
 
     // Automatically trigger the new Action() whenever the currentRoute() updates

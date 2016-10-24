@@ -4,6 +4,7 @@ var _ = require('lodash');
 require('./mapTo');
 
 var entityDescriptors = require('../entity-descriptors');
+var resourceHelperFactory = require('../../misc/resource-tools').resourceHelperFactory;
 
 var entityTools = require('../entity-tools');
 var prepareDescriptor = entityTools.prepareDescriptor;
@@ -41,6 +42,9 @@ entityDescriptors.push(descriptor = prepareDescriptor({
 }));
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
+
+// Add/extend on the various resource methods (registerLocation/etc)
+_.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
 require('../../misc/config')[capitalizeFirstLetter(entityName)] = function DefaultInstance (params) {
   if (_.isObject(params) && _.isObject(params.$viewModel)) {

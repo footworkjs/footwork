@@ -147,9 +147,9 @@ fw.bindingHandlers.$route = {
    function setUpElement () {
       if (!isNullRouter($myRouter)) {
         var myCurrentSegment = routeURLWithoutParentPath();
-        var routerConfig = $myRouter[privateDataSymbol].configParams;
+        var configParams = $myRouter[privateDataSymbol].configParams;
         if (element.tagName.toLowerCase() === 'a') {
-          element.href = routerConfig.baseRoute + routeURLWithParentPath();
+          element.href = configParams.baseRoute + routeURLWithParentPath();
         }
 
         if (_.isObject(stateTracker) && _.isFunction(stateTracker.dispose)) {
@@ -180,7 +180,7 @@ fw.bindingHandlers.$route = {
     }
 
     if (fw.isObservable(routeHandlerDescription.url)) {
-      $myRouter[privateDataSymbol].subscriptions.push(routeHandlerDescription.url.subscribe(setUpElement));
+      $myRouter.disposeWithInstance(routeHandlerDescription.url.subscribe(setUpElement));
     }
     setUpElement();
 

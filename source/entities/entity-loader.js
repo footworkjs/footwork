@@ -1,11 +1,12 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var util = require('../../misc/util');
+var util = require('../misc/util');
 var isAmdResolved = util.isAmdResolved;
 var isPath = util.isPath;
 
-var bindingElement = require('../../binding/binding-element');
+var bindingElement = require('../binding/binding-element');
+var getLoadingTracker = require('../misc/loading-tracker').get;
 
 /**
  * This component loader has two functions:
@@ -15,11 +16,11 @@ var bindingElement = require('../../binding/binding-element');
 fw.components.loaders.unshift(fw.components.entityLoader = {
   getConfig: function (componentName, callback) {
     var configOptions = null;
-    var descriptor = require('../../entities/entity-descriptors').getDescriptor(componentName);
+    var descriptor = require('./entity-descriptors').getDescriptor(componentName);
 
     if (descriptor) {
       // this component is a viewModel/dataModel/router entity
-      var moduleName = require('../loading-tracker').get().moduleName;
+      var moduleName = getLoadingTracker().moduleName;
       var viewModelOrLocation = descriptor.resource.getResourceOrLocation(moduleName);
 
       if (_.isString(viewModelOrLocation)) {

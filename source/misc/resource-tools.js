@@ -161,8 +161,31 @@ function resourceHelperFactory (descriptor) {
   return resourceMethods;
 }
 
-_.each(require('../entities/entity-descriptors'), function (descriptor) {
-  if (!_.isUndefined(descriptor.resource)) {
-    _.extend(descriptor.resource, resourceHelperFactory(descriptor));
+/**
+ * Return the file name extension for the given componentName and fileType.
+ *
+ * @param {string} componentName
+ * @param {string} fileType (combined/viewModel/template)
+ * @returns {string} the file extension (ie: 'js')
+ */
+function getComponentExtension (componentName, fileType) {
+  var componentExtensions = fw.components.fileExtensions();
+  var fileExtension = '';
+
+  if (_.isFunction(componentExtensions)) {
+    fileExtension = componentExtensions(componentName)[fileType];
+  } else if (_.isObject(componentExtensions)) {
+    if (_.isFunction(componentExtensions[fileType])) {
+      fileExtension = componentExtensions[fileType](componentName);
+    } else {
+      fileExtension = componentExtensions[fileType] || '';
+    }
   }
-});
+
+  return fileExtension.replace(/^\./, '') || '';
+}
+
+module.exports = {
+  resourceHelperFactory: resourceHelperFactory,
+  getComponentExtension: getComponentExtension
+};

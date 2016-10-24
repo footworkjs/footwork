@@ -2,6 +2,7 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
 var entityDescriptors = require('../entity-descriptors');
+var resourceHelperFactory = require('../../misc/resource-tools').resourceHelperFactory;
 
 var entityTools = require('../entity-tools');
 var prepareDescriptor = entityTools.prepareDescriptor;
@@ -35,8 +36,8 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   defaultConfig: {
     showDuringLoad: require('./router-defaults').noComponentSelected,
     onDispose: _.noop,
-    baseRoute: null,
-    isRelative: true,
+    baseRoute: '',
+    isRelative: false,
     activate: true,
     beforeRoute: alwaysPassPredicate,
     minTransitionPeriod: 0
@@ -44,6 +45,9 @@ entityDescriptors.push(descriptor = prepareDescriptor({
 }));
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
+
+// Add/extend on the various resource methods (registerLocation/etc)
+_.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
 require('../../misc/config')[capitalizeFirstLetter(entityName)] = function DefaultInstance (params) {
   if (_.isObject(params) && _.isObject(params.$viewModel)) {

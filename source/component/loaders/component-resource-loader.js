@@ -5,7 +5,7 @@ var util = require('../../misc/util');
 var isPath = util.isPath;
 var getFilenameExtension = util.getFilenameExtension;
 
-var getComponentExtension = require('../../resource/component-resource').getComponentExtension;
+var getComponentExtension = require('../../misc/resource-tools').getComponentExtension;
 
 /**
  * The component resource loader tells footwork where the components assets are. It uses the supplied configuration to use AMD to download

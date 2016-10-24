@@ -1,5 +1,4 @@
-// component-resource overwrites fw.components.register, needed by router entity
-require('../resource/component-resource');
+require('./entity-loader');
 
 require('./viewModel/viewModel');
 require('./dataModel/dataModel');

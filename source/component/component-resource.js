@@ -6,6 +6,8 @@ var isPath = util.isPath;
 var getFilenameExtension = util.getFilenameExtension;
 var regExpMatch = /^\/|\/$/g;
 
+var getComponentExtension = require('../misc/resource-tools').getComponentExtension;
+
 fw.components.resourceLocations = {};
 
 fw.components.fileExtensions = fw.observable({
@@ -27,30 +29,6 @@ fw.components.register = function (componentName, options) {
     template: options.template
   });
 };
-
-/**
- * Return the file name extension for the given componentName and fileType.
- *
- * @param {string} componentName
- * @param {string} fileType (combined/viewModel/template)
- * @returns {string} the file extension (ie: 'js')
- */
-function getComponentExtension (componentName, fileType) {
-  var componentExtensions = fw.components.fileExtensions();
-  var fileExtension = '';
-
-  if (_.isFunction(componentExtensions)) {
-    fileExtension = componentExtensions(componentName)[fileType];
-  } else if (_.isObject(componentExtensions)) {
-    if (_.isFunction(componentExtensions[fileType])) {
-      fileExtension = componentExtensions[fileType](componentName);
-    } else {
-      fileExtension = componentExtensions[fileType] || '';
-    }
-  }
-
-  return fileExtension.replace(/^\./, '') || '';
-}
 
 function forceViewModelComponentConvention (componentLocation) {
   if (_.isObject(componentLocation) && _.isUndefined(componentLocation.viewModel) && _.isUndefined(componentLocation.combined)) {
@@ -132,8 +110,4 @@ fw.components.getLocation = function (componentName) {
     return fw.components.resourceLocations;
   }
   return _.omitBy(fw.components.getRegisteredLocation(componentName), _.isNull);
-};
-
-module.exports = {
-  getComponentExtension: getComponentExtension
 };

@@ -8,8 +8,8 @@ module.exports = {
     var self = this;
 
     if (!self[privateDataSymbol].isDisposed) {
-      var configParams = self[privateDataSymbol].configParams;
       self[privateDataSymbol].isDisposed = true;
+      var configParams = self[privateDataSymbol].configParams;
 
       if (configParams.onDispose !== _.noop) {
         configParams.onDispose.call(self, self[privateDataSymbol].element);

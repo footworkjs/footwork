@@ -2,6 +2,7 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
 var privateDataSymbol = require('../misc/config').privateDataSymbol;
+var setLoadingTracker = require('../misc/loading-tracker').set;
 var nearestEntity = require('../entities/entity-tools').nearestEntity;
 var getSymbol = require('../misc/util').getSymbol;
 var entityDescriptors = require('../entities/entity-descriptors');
@@ -18,13 +19,13 @@ var originalComponentInit = fw.bindingHandlers.component.init;
  * @returns
  */
 function componentInit (element, valueAccessor, allBindings, viewModel, bindingContext) {
-  var tagName = element.tagName;
+  var tagName = (element.tagName || '').toLowerCase();
   var loadingTracker = element[getSymbol('loadingTracker')] = {
     tagName: tagName,
     moduleName: element.getAttribute('module') || /* istanbul ignore next */ element.getAttribute('data-module')
   };
 
-  if (element.nodeType !== 8) {
+  if (element.nodeType !== 8 && tagName !== 'outlet') {
     var closestEntity = nearestEntity(bindingContext);
     if (closestEntity) {
       closestEntity[privateDataSymbol].loadingChildren.push(loadingTracker);
@@ -38,10 +39,10 @@ function componentInit (element, valueAccessor, allBindings, viewModel, bindingC
 
   if (entityDescriptors.tagNameIsPresent(tagName)) {
     // save the tracker so that the (./loaders/entity-loader) loader can find out what module was requested (the element is not available to it so we save it here for reference later)
-    require('./loading-tracker').set(loadingTracker);
+    setLoadingTracker(loadingTracker);
 
     // ensure that the (./loaders/entity-loader) getConfig callback is run every time a viewModel/dataModel/router declaration is encountered
-    fw.components.clearCachedDefinition(tagName.toLowerCase());
+    fw.components.clearCachedDefinition(tagName);
   }
 
   return originalComponentInit(element, valueAccessor, allBindings, viewModel, bindingContext);

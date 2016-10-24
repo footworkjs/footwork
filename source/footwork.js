@@ -13,7 +13,6 @@ require('./broadcastable-receivable/broadcastable');
 require('./broadcastable-receivable/receivable');
 
 require('./entities/entities');
-require('./resource/resource');
 require('./component/component');
 require('./collection/collection');
 
