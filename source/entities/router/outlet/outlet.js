@@ -2,9 +2,7 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
 var entityDescriptors = require('../../entity-descriptors');
-
-var entityTools = require('../../entity-tools');
-var prepareDescriptor = entityTools.prepareDescriptor;
+var prepareDescriptor = require('../../entity-tools').prepareDescriptor;
 
 var util = require('../../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
@@ -35,10 +33,31 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
   },
-  mixin: require('./outlet-mixin'),
   defaultConfig: {}
 }));
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 
+var routerDefaults = require('../router-defaults');
+var noComponentSelected = routerDefaults.noComponentSelected;
+var nullComponent = routerDefaults.nullComponent;
+var defaultLoadingComponent = routerDefaults.defaultLoadingComponent;
+
+fw.components.register(noComponentSelected, {
+  template: '<div class="no-component-selected"></div>'
+});
+
+fw.components.register(nullComponent, {
+  template: '<div class="null-component"></div>'
+});
+
+fw.components.register(defaultLoadingComponent, {
+  template: '<div class="sk-wave fade-in">\
+              <div class="sk-rect sk-rect1"></div>\
+              <div class="sk-rect sk-rect2"></div>\
+              <div class="sk-rect sk-rect3"></div>\
+              <div class="sk-rect sk-rect4"></div>\
+              <div class="sk-rect sk-rect5"></div>\
+            </div>'
+});
 

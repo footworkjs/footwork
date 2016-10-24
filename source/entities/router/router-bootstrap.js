@@ -46,18 +46,17 @@ function routerBootstrap (instance, configParams) {
     }, configParams || {});
 
     _.extend(instance, descriptor.mixin, {
-      currentState: fw.observable(),
-      // outlet: routerOutlet.bind(instance)
+      currentState: fw.observable()
     });
 
     instance.setRoutes(configParams.routes);
 
     instance[privateDataSymbol].outlets = {};
-    // instance.outlet.reset = function () {
-    //   _.each(instance[privateDataSymbol].outlets, function (outlet) {
-    //     outlet({ name: noComponentSelected, params: {} });
-    //   });
-    // };
+    instance.outlet.reset = function () {
+      _.each(instance[privateDataSymbol].outlets, function (outlet) {
+        outlet({ name: noComponentSelected, params: {} });
+      });
+    };
 
     _.extend(instance[privateDataSymbol], {
       registerViewModelForOutlet: _.partial(registerViewModelForOutlet, instance),

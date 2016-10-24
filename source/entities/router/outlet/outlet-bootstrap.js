@@ -11,6 +11,9 @@ var config = require('../../../misc/config');
 var privateDataSymbol = config.privateDataSymbol;
 var entityAnimateClass = config.entityAnimateClass;
 
+var routerDefaults = require('../../router/router-defaults');
+var nullComponent = routerDefaults.nullComponent;
+
 var visibleCSS = { 'height': '', 'overflow': '' };
 var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
 var removeAnimation = {};
