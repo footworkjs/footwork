@@ -13,7 +13,6 @@ var isRouter = entityTools.isRouter;
 var routerDefaults = require('../entities/router/router-defaults');
 var outletLoadedDisplay = routerDefaults.outletLoadedDisplay;
 var outletLoadingDisplay = routerDefaults.outletLoadingDisplay;
-var isOutletViewModel = require('../entities/router/router-tools').isOutletViewModel;
 
 var util = require('../misc/util');
 var addClass = util.addClass;
@@ -56,7 +55,7 @@ fw.bindingHandlers.$lifecycle = {
 
     // if this element is not the 'loading' component of an outlet, then we need to
     // trigger the onComplete callback
-    if (isOutletViewModel(bindingContext.$parent)) {
+    if (fw.isOutlet(bindingContext.$parent)) {
       var parentRoute = bindingContext.$parent.route.peek();
       if (!hasClass(element, outletLoadingDisplay) && _.isFunction(parentRoute.getOnCompleteCallback)) {
         parentRoute.getOnCompleteCallback(element)();
@@ -74,7 +73,7 @@ fw.bindingHandlers.$lifecycle = {
     resolveTrackerAndAnimate(element, viewModel, bindingContext, function addAnimationClass () {
       if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
         var queue = addToAndFetchQueue(element, viewModel);
-        var nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
+        var nearestOutlet = nearestEntity(bindingContext, fw.isOutlet);
 
         if (nearestOutlet) {
           // the parent outlet will run the callback that initiates the animation

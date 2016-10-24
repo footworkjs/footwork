@@ -15,6 +15,8 @@ fw.bindingHandlers.$outlet = {
   init: function (element, valueAccessor, allBindings, outletViewModel, bindingContext) {
     var parentViewModel = (_.isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
     var parentRouter = nearestParentRouter(bindingContext);
+
+    element = element.parentNode;
     var outletName = element.getAttribute('name') || element.getAttribute('data-name');
 
     if (fw.isRouter(parentRouter)) {

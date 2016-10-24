@@ -8,6 +8,12 @@ var isPath = util.isPath;
 var bindingElement = require('../../../binding/binding-element');
 var getLoadingTracker = require('../../../misc/loading-tracker').get;
 
+var routerDefaults = require('../router-defaults');
+var outletLoadedDisplay = routerDefaults.outletLoadedDisplay;
+var outletLoadingDisplay = routerDefaults.outletLoadingDisplay;
+
+var entityClass = require('../../../misc/config').entityClass;
+
 function Outlet() {
   fw.outlet.boot(this);
 }
@@ -21,7 +27,7 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
   getConfig: function (componentName, callback) {
     if (componentName === 'outlet') {
       callback({
-        viewModel: { createViewModel: Outlet },
+        viewModel: Outlet,
         template: bindingElement.open.prefix + '$lifecycle, $outlet' + bindingElement.open.postfix +
           '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" ' +
             'data-bind="style: loadingStyle, css: loadingClass, component: loadingDisplay"></div>' +
@@ -29,6 +35,14 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
             'data-bind="style: loadedStyle, css: loadedClass, component: route"></div>' +
         bindingElement.close
 
+          // bindingElement.open.prefix + '$outlet' + bindingElement.open.postfix +
+          //   bindingElement.open.prefix + '$lifecycle' + bindingElement.open.postfix +
+          //     '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" ' +
+          //       'data-bind="style: loadingStyle, css: loadingClass, component: loadingDisplay"></div>' +
+          //     '<div class="' + outletLoadedDisplay + ' ' + entityClass + '" ' +
+          //       'data-bind="style: loadedStyle, css: loadedClass, component: route"></div>' +
+          //   bindingElement.close +
+          // bindingElement.close
       });
     } else {
       callback(null);

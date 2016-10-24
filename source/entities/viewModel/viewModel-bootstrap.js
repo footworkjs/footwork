@@ -12,12 +12,14 @@ var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
  * @param {any} configParams
  * @returns {object} The instance that was passed in
  */
-function viewModelBootstrap (instance, configParams, isAddingInstanceRequestHandlerLater) {
+function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
   if (!instance) {
     throw new Error('Must supply the instance to boot()');
   }
 
   var descriptor = require('../entity-descriptors').getDescriptor('viewModel');
+  requestHandlerDescriptor = requestHandlerDescriptor || descriptor;
+
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
   if (!hasBeenBootstrapped) {
     configParams = configParams || {};
@@ -38,16 +40,14 @@ function viewModelBootstrap (instance, configParams, isAddingInstanceRequestHand
       $namespace: fw.namespace(configParams.namespace)
     });
 
-    if (!isAddingInstanceRequestHandlerLater) {
-      // Setup the request handler which returns the instance (fw.viewModel.getAll())
-      // Note: We are wiring up the request handler manually so that an entire namespace does not need instantiating for this callback
-      instance.disposeWithInstance(defaultChannel.subscribe('request.' + descriptor.referenceNamespace, function (params) {
-        defaultChannel.publish({
-          topic: 'request.' + descriptor.referenceNamespace + '.response',
-          data: instanceRequestHandler(instance, params)
-        });
-      }));
-    }
+    // Setup the request handler which returns the instance (fw.viewModel.getAll())
+    // Note: We are wiring up the request handler manually so that an entire namespace does not need instantiating for this callback
+    instance.disposeWithInstance(defaultChannel.subscribe('request.' + requestHandlerDescriptor.referenceNamespace, function (params) {
+      defaultChannel.publish({
+        topic: 'request.' + requestHandlerDescriptor.referenceNamespace + '.response',
+        data: instanceRequestHandler(instance, params)
+      });
+    }));
   }
 
   return instance;

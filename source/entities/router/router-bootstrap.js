@@ -34,10 +34,11 @@ function routerBootstrap (instance, configParams) {
     throw new Error('Must supply the instance to boot()');
   }
 
-  // bootstrap/mixin viewModel functionality
-  viewModelBootstrap(instance, configParams, true);
-
   var descriptor = entityDescriptors.getDescriptor('router');
+
+  // bootstrap/mixin viewModel functionality
+  viewModelBootstrap(instance, configParams, descriptor);
+
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
   if (!hasBeenBootstrapped) {
     instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
@@ -99,15 +100,6 @@ function routerBootstrap (instance, configParams) {
         return (instance[privateDataSymbol].isRelative() ? instance[privateDataSymbol].parentRouter()[privateDataSymbol].path() : '') + routeSegment;
       })
     });
-
-    // Setup the request handler which returns the instance (fw.router.getAll())
-    // Note: We are wiring up the request handler manually so that an entire namespace does not need instantiating for this callback
-    instance.disposeWithInstance(defaultChannel.subscribe('request.' + descriptor.referenceNamespace, function (params) {
-      defaultChannel.publish({
-        topic: 'request.' + descriptor.referenceNamespace + '.response',
-        data: instanceRequestHandler(instance, params)
-      });
-    }));
 
     instance.$namespace.command.handler('setState', function (state) {
       var route = state;

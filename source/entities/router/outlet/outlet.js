@@ -9,7 +9,7 @@ var capitalizeFirstLetter = util.capitalizeFirstLetter;
 var getSymbol = util.getSymbol;
 
 require('./outlet-loader');
-require('./outlet-binder');
+require('./outlet-binding');
 
 var entityName = 'outlet';
 var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));

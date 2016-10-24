@@ -49,10 +49,6 @@ function isRoute (thing) {
   return _.isObject(thing) && !!thing.__isRoute;
 }
 
-function isOutletViewModel (thing) {
-  return _.isObject(thing) && thing.__isOutlet;
-}
-
 /**
  * Locate the nearest router from a given ko $context
  * (travels up through $parentContext chain to find the router if not found on the
@@ -62,7 +58,7 @@ function isOutletViewModel (thing) {
  * @returns {object} router instance or nullRouter if none found
  */
 function nearestParentRouter ($context) {
-  return nearestEntity($context, require('../entity-tools').isRouter) || nullRouter;
+  return nearestEntity($context, fw.isRouter) || nullRouter;
 }
 
 /**
@@ -73,7 +69,7 @@ function nearestParentRouter ($context) {
  * @param {object} outletViewModel the outlets viewModel to register with the router
  */
 function registerViewModelForOutlet(router, outletName, outletViewModel) {
-  var outletProperties = router.outlets[outletName] || {};
+  var outletProperties = router[privateDataSymbol].outlets[outletName] = router[privateDataSymbol].outlets[outletName] || {};
   outletProperties.outletViewModel = outletViewModel;
 }
 
@@ -84,7 +80,7 @@ function registerViewModelForOutlet(router, outletName, outletViewModel) {
  * @param {string} outletName the name (property) of the outlet
  */
 function unregisterViewModelForOutlet(router, outletName) {
-  var outletProperties = router.outlets[outletName] || {};
+  var outletProperties = router[privateDataSymbol].outlets[outletName] || {};
   delete outletProperties.outletViewModel;
 }
 
@@ -219,7 +215,6 @@ module.exports = {
   routeStringToRegExp: routeStringToRegExp,
   isNullRouter: isNullRouter,
   isRoute: isRoute,
-  isOutletViewModel: isOutletViewModel,
   nearestParentRouter: nearestParentRouter,
   registerViewModelForOutlet: registerViewModelForOutlet,
   unregisterViewModelForOutlet: unregisterViewModelForOutlet,
