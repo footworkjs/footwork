@@ -1,10 +1,10 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var entityDescriptors = require('../../entities/entity-descriptors');
-var bindingElement = require('../../binding/binding-element');
+var entityDescriptors = require('../entities/entity-descriptors');
+var bindingElement = require('../binding/binding-element');
 
-var util = require('../../misc/util');
+var util = require('../misc/util');
 var isDocumentFragment = util.isDocumentFragment;
 var isDomElement = util.isDomElement;
 var makeArray = util.makeArray;
