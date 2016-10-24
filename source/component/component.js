@@ -6,7 +6,7 @@ var isPath = util.isPath;
 var getFilenameExtension = util.getFilenameExtension;
 var regExpMatch = /^\/|\/$/g;
 
-require('./component-init');
+require('./component-binding-init');
 
 // Custom loader used to locate or load component resources (viewModel/template)
 require('./component-resource-loader');

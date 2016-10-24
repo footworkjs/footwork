@@ -6,7 +6,7 @@ var setLoadingTracker = require('../misc/loading-tracker').set;
 var nearestEntity = require('../entities/entity-tools').nearestEntity;
 var getSymbol = require('../misc/util').getSymbol;
 var entityDescriptors = require('../entities/entity-descriptors');
-var originalComponentInit = fw.bindingHandlers.component.init;
+var originalComponentBindingInit = fw.bindingHandlers.component.init;
 
 /**
  * Monkey patch to bootstrap a component, tagging it with the loadingTracker.
@@ -18,7 +18,7 @@ var originalComponentInit = fw.bindingHandlers.component.init;
  * @param {any} bindingContext
  * @returns
  */
-function componentInit (element, valueAccessor, allBindings, viewModel, bindingContext) {
+function componentBindingInit (element, valueAccessor, allBindings, viewModel, bindingContext) {
   var tagName = (element.tagName || '').toLowerCase();
   var loadingTracker = element[getSymbol('loadingTracker')] = {
     tagName: tagName,
@@ -45,7 +45,7 @@ function componentInit (element, valueAccessor, allBindings, viewModel, bindingC
     fw.components.clearCachedDefinition(tagName);
   }
 
-  return originalComponentInit(element, valueAccessor, allBindings, viewModel, bindingContext);
+  return originalComponentBindingInit(element, valueAccessor, allBindings, viewModel, bindingContext);
 };
 
-fw.bindingHandlers.component.init = componentInit;
+fw.bindingHandlers.component.init = componentBindingInit;
