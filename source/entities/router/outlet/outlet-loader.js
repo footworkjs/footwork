@@ -8,7 +8,7 @@ var isPath = util.isPath;
 var bindingElement = require('../../../binding/binding-element');
 var getLoadingTracker = require('../../../misc/loading-tracker').get;
 
-function outletViewModel() {
+function Outlet() {
   fw.outlet.boot(this);
 }
 
@@ -21,14 +21,12 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
   getConfig: function (componentName, callback) {
     if (componentName === 'outlet') {
       callback({
-        viewModel: { createViewModel: outletViewModel },
+        viewModel: { createViewModel: Outlet },
         template: bindingElement.open.prefix + '$lifecycle, $outlet' + bindingElement.open.postfix +
-          '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" data-bind="style: loadingStyle, css: loadingClass">' +
-            '<!-- ko component: loadingDisplay --><!-- /ko -->' +
-          '</div>' +
-          '<div class="' + outletLoadedDisplay + ' ' + entityClass + '" data-bind="style: loadedStyle, css: loadedClass">' +
-            '<!-- ko component: route --><!-- /ko -->' +
-          '</div>' +
+          '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" ' +
+            'data-bind="style: loadingStyle, css: loadingClass, component: loadingDisplay"></div>' +
+          '<div class="' + outletLoadedDisplay + ' ' + entityClass + '" ' +
+            'data-bind="style: loadedStyle, css: loadedClass, component: route"></div>' +
         bindingElement.close
 
       });
