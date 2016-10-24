@@ -3,10 +3,7 @@ var _ = require('lodash');
 
 var entityDescriptors = require('../entity-descriptors');
 var resourceHelperFactory = require('../../misc/resource-tools').resourceHelperFactory;
-
-var entityTools = require('../entity-tools');
-var prepareDescriptor = entityTools.prepareDescriptor;
-var resolveEntityImmediately = entityTools.resolveEntityImmediately;
+var prepareDescriptor = require('../entity-tools').prepareDescriptor;
 
 var util = require('../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
@@ -15,6 +12,9 @@ var alwaysPassPredicate = util.alwaysPassPredicate;
 
 var entityName = 'router';
 var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
+
+require('./route-binding');
+require('./outlet/outlet');
 
 fw[entityName] = {
   boot: require('./router-bootstrap'),

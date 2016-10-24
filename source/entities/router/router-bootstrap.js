@@ -22,11 +22,8 @@ var routerDefaults = require('./router-defaults');
 var nullRouter = routerDefaults.nullRouter;
 var noComponentSelected = routerDefaults.noComponentSelected;
 
-require('./route-binding');
-var routerOutlet = require('./outlet/outlet');
-
 /**
- * Bootstrap an instance with router capabilities (fetch/save/mapTo/etc).
+ * Bootstrap an instance with router capabilities (state management, outlet control, etc).
  *
  * @param {any} instance
  * @param {any} configParams
@@ -50,17 +47,17 @@ function routerBootstrap (instance, configParams) {
 
     _.extend(instance, descriptor.mixin, {
       currentState: fw.observable(),
-      outlet: routerOutlet.bind(instance)
+      // outlet: routerOutlet.bind(instance)
     });
 
     instance.setRoutes(configParams.routes);
 
     instance[privateDataSymbol].outlets = {};
-    instance.outlet.reset = function () {
-      _.each(instance[privateDataSymbol].outlets, function (outlet) {
-        outlet({ name: noComponentSelected, params: {} });
-      });
-    };
+    // instance.outlet.reset = function () {
+    //   _.each(instance[privateDataSymbol].outlets, function (outlet) {
+    //     outlet({ name: noComponentSelected, params: {} });
+    //   });
+    // };
 
     _.extend(instance[privateDataSymbol], {
       registerViewModelForOutlet: _.partial(registerViewModelForOutlet, instance),

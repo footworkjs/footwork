@@ -15,10 +15,10 @@ var getLoadingTracker = require('../misc/loading-tracker').get;
  */
 fw.components.loaders.unshift(fw.components.entityLoader = {
   getConfig: function (componentName, callback) {
-    var configOptions = null;
-    var descriptor = require('./entity-descriptors').getDescriptor(componentName);
+    var descriptor;
 
-    if (descriptor) {
+    // Make sure this is a non-outlet element (outlets are bootstrapped by their own loader)
+    if (componentName !== 'outlet' && (descriptor = require('./entity-descriptors').getDescriptor(componentName))) {
       // this component is a viewModel/dataModel/router entity
       var moduleName = getLoadingTracker().moduleName;
       var viewModelOrLocation = descriptor.resource.getResourceOrLocation(moduleName);
@@ -32,6 +32,10 @@ fw.components.loaders.unshift(fw.components.entityLoader = {
         viewModelOrLocation = {
           require: isAmdResolved(moduleName) ? moduleName : window.require.toUrl(viewModelOrLocation)
         };
+      }
+
+      if(_.isUndefined(viewModelOrLocation)) {
+        throw new Error('The \'' + moduleName + '\' ' + descriptor.entityName + ' module must be registered before it can be used.');
       }
 
       callback({

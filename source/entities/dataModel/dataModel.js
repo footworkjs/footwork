@@ -5,10 +5,7 @@ require('./mapTo');
 
 var entityDescriptors = require('../entity-descriptors');
 var resourceHelperFactory = require('../../misc/resource-tools').resourceHelperFactory;
-
-var entityTools = require('../entity-tools');
-var prepareDescriptor = entityTools.prepareDescriptor;
-var resolveEntityImmediately = entityTools.resolveEntityImmediately;
+var prepareDescriptor = require('../entity-tools').prepareDescriptor;
 
 var util = require('../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;

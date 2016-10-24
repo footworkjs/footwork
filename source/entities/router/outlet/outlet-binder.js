@@ -5,28 +5,26 @@ var privateDataSymbol = require('../../../misc/config').privateDataSymbol;
 var nearestParentRouter = require('../router-tools').nearestParentRouter;
 var noParentViewModelError = { $namespace: { getName: function () { return 'NO-VIEWMODEL-IN-CONTEXT'; } } };
 
-// This custom binding binds the outlet element to the $outlet on the router, changes on its 'route' (component definition observable) will be applied to the UI and load in various views
-fw.virtualElements.allowedBindings.$outletBinder = true;
-fw.bindingHandlers.$outletBinder = {
+/**
+ * This custom binding:
+ * 1. binds the outlet element to the $outlet on the router
+ * 2. enables changes on the outlet 'route' (component definition observable) to be applied to the UI and load in various views
+ */
+fw.virtualElements.allowedBindings.$outlet = true;
+fw.bindingHandlers.$outlet = {
   init: function (element, valueAccessor, allBindings, outletViewModel, bindingContext) {
-    var $parentViewModel = (_.isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
-    var $parentRouter = nearestParentRouter(bindingContext);
-    var outletName = outletViewModel.outletName;
-    var isRouter = require('../../entity-tools').isRouter;
+    var parentViewModel = (_.isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
+    var parentRouter = nearestParentRouter(bindingContext);
+    var outletName = element.getAttribute('name') || element.getAttribute('data-name');
 
-    if (isRouter($parentRouter)) {
+    if (fw.isRouter(parentRouter)) {
       // register the viewModel with the outlet for future use when its route is changed
-      $parentRouter[privateDataSymbol].registerViewModelForOutlet(outletName, outletViewModel);
-      fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
-        // tell the router to clean up its reference to the outletViewModel
-        $parentRouter[privateDataSymbol].unregisterViewModelForOutlet(outletName);
-        outletViewModel.dispose();
-      });
+      parentRouter[privateDataSymbol].registerViewModelForOutlet(outletName, outletViewModel);
 
-      // register this outlet with its $parentRouter
-      outletViewModel.route = $parentRouter.outlet(outletName);
+      // register this outlet and get the component binding route observable with its parentRouter
+      outletViewModel.route = parentRouter.outlet(outletName);
     } else {
-      throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + $parentViewModel.$namespace.getName() + '] but no router was defined.');
+      throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + parentViewModel.$namespace.getName() + '] but no router was defined.');
     }
   }
 };
