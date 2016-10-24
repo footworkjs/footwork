@@ -1,31 +1,26 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var util = require('../../misc/util');
-var entityAnimateClass = require('../../misc/config').entityAnimateClass;
+var config = require('../../misc/config');
+var entityAnimateClass = config.entityAnimateClass;
+var privateDataSymbol = config.privateDataSymbol;
 
-var alwaysPassPredicate = util.alwaysPassPredicate;
+var alwaysPassPredicate = require('../../misc/util').alwaysPassPredicate;
+var getSymbol = require('../../misc/util').getSymbol;
+
 var noComponentSelected = '_noComponentSelected';
 var nullComponent = '_nullComponent';
 var invalidRoutePathIdentifier = '___invalid-route';
 
 var routesAreCaseSensitive = true;
 
-var nullRouterData = {
+var nullRouter = {};
+nullRouter[getSymbol('isNullRouter')] = true;
+nullRouter[privateDataSymbol] = {
   context: _.noop,
   childRouters: _.extend( _.noop.bind(), { push: _.noop } ),
-  isRelative: function () { return false; }
-};
-
-var $nullRouter = {
-  __private: function (propName) {
-    if (arguments.length) {
-      return nullRouterData[propName];
-    }
-    return nullRouterData;
-  },
-  path: function () { return ''; },
-  __isNullRouter: true
+  isRelative: function () { return false; },
+  path: function () { return ''; }
 };
 
 var baseRoute = {
@@ -46,8 +41,7 @@ module.exports = {
   nullComponent: nullComponent,
   invalidRoutePathIdentifier: invalidRoutePathIdentifier,
   routesAreCaseSensitive: routesAreCaseSensitive,
-  nullRouterData: nullRouterData,
-  $nullRouter: $nullRouter,
+  nullRouter: nullRouter,
   baseRoute: baseRoute,
   baseRouteDescription: baseRouteDescription,
   outletLoadingDisplay: 'fw-loading-display',
