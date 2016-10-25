@@ -76,7 +76,6 @@ module.exports = {
     if (outletViewModel) {
       // Show the loading component (if one is defined)
       var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || currentOutletDef.name]);
-
       if (showDuringLoadComponent === true) {
         showDuringLoadComponent = defaultLoadingComponent;
       }
@@ -91,7 +90,7 @@ module.exports = {
 
       currentOutletDef.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
       if (outletViewModel) {
-        outletViewModel.loadingChildren([]);
+        outletViewModel[privateDataSymbol].loadingChildren.removeAll();
         outletViewModel.routeIsLoading(true);
       }
 

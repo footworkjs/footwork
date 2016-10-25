@@ -54,7 +54,7 @@ function dataModelBootstrap (instance, configParams) {
       })
     });
   } else {
-    throw new Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once!');
+    throw new Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
   }
 
   return instance;

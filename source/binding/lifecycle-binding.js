@@ -53,9 +53,8 @@ fw.bindingHandlers.$lifecycle = {
   update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
 
-    // if this element is not the 'loading' component of an outlet, then we need to
-    // trigger the onComplete callback
-    if (fw.isOutlet(bindingContext.$parent)) {
+    if (hasClass(element, outletLoadedDisplay) &&
+        (fw.isOutlet(bindingContext.$parent) && fw.isObservable(bindingContext.$parent.route))) {
       var parentRoute = bindingContext.$parent.route.peek();
       if (!hasClass(element, outletLoadingDisplay) && _.isFunction(parentRoute.getOnCompleteCallback)) {
         parentRoute.getOnCompleteCallback(element)();
