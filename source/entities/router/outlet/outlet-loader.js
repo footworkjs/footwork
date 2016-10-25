@@ -5,23 +5,21 @@ var util = require('../../../misc/util');
 var isAmdResolved = util.isAmdResolved;
 var isPath = util.isPath;
 
-var bindingElement = require('../../../binding/binding-element');
-var getLoadingTracker = require('../../../misc/loading-tracker').get;
-
 var routerDefaults = require('../router-defaults');
 var outletLoadedDisplay = routerDefaults.outletLoadedDisplay;
 var outletLoadingDisplay = routerDefaults.outletLoadingDisplay;
 
 var entityClass = require('../../../misc/config').entityClass;
+var bindingElement = require('../../../binding/binding-element');
 
 function Outlet() {
   fw.outlet.boot(this);
 }
 
 /**
- * This outlet loader has two functions:
- * 1. provides the outlet template used to programmatically control display/output of its area via the component: binding
- * 2. provides the outlet viewModel to bind against and control an outlets display
+ * The outlet loader has two functions:
+ * 1. provides the outlet viewModel constructor to bind against and control an outlets display
+ * 2. provides the outlet template bound against the viewModel which is used to control display/output of its area via the component: display binding
  */
 fw.components.loaders.unshift(fw.components.outletLoader = {
   getConfig: function (componentName, callback) {

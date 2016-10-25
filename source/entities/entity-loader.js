@@ -17,7 +17,10 @@ fw.components.loaders.unshift(fw.components.entityLoader = {
   getConfig: function (componentName, callback) {
     var descriptor;
 
-    // Make sure this is a non-outlet element (outlets are bootstrapped by their own loader)
+    /**
+     * This loader is for all entity-descriptors that are not outlets.
+     * Outlets are loaded/bootstrapped by the 'router/outlet/outlet-loader'.
+     */
     if (componentName !== 'outlet' && (descriptor = require('./entity-descriptors').getDescriptor(componentName))) {
       // this component is a viewModel/dataModel/router entity
       var moduleName = getLoadingTracker().moduleName;
