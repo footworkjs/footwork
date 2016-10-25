@@ -48,7 +48,8 @@ Object.keys(window.__karma__.files).forEach(function(file) {
       'dataModel',
       'router',
       'namespace',
-      'collection'
+      'collection',
+      'component'
     ]) && allTestFiles.push(normalizedTestModule);
   }
 });
