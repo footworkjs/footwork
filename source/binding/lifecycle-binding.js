@@ -55,9 +55,9 @@ fw.bindingHandlers.$lifecycle = {
 
     // if this is the lifecycle update on an outlets display we need to run its callback
     if (hasClass(element, outletLoadedDisplay)) {
-      var parentRoute = bindingContext.$parent.route.peek();
-      if (!hasClass(element, outletLoadingDisplay) && _.isFunction(parentRoute.getOnCompleteCallback)) {
-        var outletLoadingIsCompleted = parentRoute.getOnCompleteCallback(element);
+      var outletDisplay = bindingContext.$parent.display.peek();
+      if (!hasClass(element, outletLoadingDisplay) && _.isFunction(outletDisplay.getOnCompleteCallback)) {
+        var outletLoadingIsCompleted = outletDisplay.getOnCompleteCallback(element);
         outletLoadingIsCompleted();
       }
     }

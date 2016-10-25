@@ -32,7 +32,7 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
           '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" ' +
             'data-bind="style: loadingStyle, css: loadingClass, component: loadingDisplay"></div>' +
           '<div class="' + outletLoadedDisplay + ' ' + entityClass + '" ' +
-            'data-bind="style: loadedStyle, css: loadedClass, component: route"></div>' +
+            'data-bind="style: loadedStyle, css: loadedClass, component: display"></div>' +
         bindingElement.close
       });
     } else {

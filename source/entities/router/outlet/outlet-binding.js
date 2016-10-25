@@ -18,14 +18,14 @@ fw.bindingHandlers.$outlet = {
     var outletName = element.getAttribute('name') || element.getAttribute('data-name');
 
     if (fw.isRouter(parentRouter)) {
-      // register the viewModel with the outlet for future use when its route is changed
+      // register the outlet with its parent router so it can manipulate it
       parentRouter[privateDataSymbol].registerOutlet(outletName, outletViewModel);
       fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
         parentRouter[privateDataSymbol].unregisterOutlet(outletName);
       });
 
-      // register this outlet and get the component binding route observable with its parentRouter
-      outletViewModel.route = parentRouter.outlet(outletName);
+      // attach the observable from the parentRouter that contains the component binding definition to display for this outlet
+      outletViewModel.display = parentRouter.outlet(outletName);
     } else {
       throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + parentViewModel.$namespace.getName() + '] but no router was defined.');
     }
