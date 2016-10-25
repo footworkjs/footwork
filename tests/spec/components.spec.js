@@ -139,249 +139,212 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         }, ajaxWait);
       });
 
-      // it('has the animation classes applied properly', function(done) {
-      //   var componentNamespaceName = tools.generateNamespaceName();
-      //   var viewModelNamespaceName = tools.generateNamespaceName();
-      //   var initializeSpy = jasmine.createSpy('initializeSpy');
-      //   var afterRenderSpy;
-      //   var theElement;
+      it('has the animation classes applied properly', function(done) {
+        var componentNamespaceName = tools.generateNamespaceName();
+        var viewModelNamespaceName = tools.generateNamespaceName();
+        var initializeSpy;
+        var afterRenderSpy;
+        var theElement;
 
-      //   fw.components.register(componentNamespaceName, {
-      //     template: '<div>a template</div>',
-      //     viewModel: fw.viewModel.create({
-      //       initialize: tools.expectCallOrder(0, initializeSpy),
-      //       afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
-      //         expect(theElement).not.toHaveClass(footworkAnimationClass);
-      //         theElement = element;
-      //       }).and.callThrough())
-      //     })
-      //   });
+        fw.components.register(componentNamespaceName, {
+          template: '<div>a template</div>',
+          viewModel: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+            fw.viewModel.boot(this, {
+              afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+                theElement = element;
+                expect($(theElement).hasClass(footworkAnimationClass)).toBe(false);
+              }).and.callThrough())
+            })
+          }).and.callThrough())
+        });
 
-      //   expect(initializeSpy).not.toHaveBeenCalled();
+        expect(initializeSpy).not.toHaveBeenCalled();
 
-      //   fw.start(testContainer = tools.getFixtureContainer('<' + componentNamespaceName + '></' + componentNamespaceName + '>'));
+        fw.start(testContainer = tools.getFixtureContainer('<' + componentNamespaceName + '></' + componentNamespaceName + '>'));
 
-      //   expect(afterRenderSpy).not.toHaveBeenCalled();
+        expect(afterRenderSpy).toBe(undefined);
 
-      //   setTimeout(function() {
-      //     expect(initializeSpy).toHaveBeenCalled();
-      //     expect(theElement).not.toHaveClass(footworkAnimationClass);
-      //     expect(afterRenderSpy).toHaveBeenCalled();
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+          expect($(theElement).hasClass(footworkAnimationClass)).toBe(false);
+          expect(afterRenderSpy).toHaveBeenCalled();
 
-      //     setTimeout(function() {
-      //       expect(theElement).toHaveClass(footworkAnimationClass);
-      //       done();
-      //     }, ajaxWait);
-      //   }, 0);
-      // });
+          setTimeout(function() {
+            expect($(theElement).hasClass(footworkAnimationClass)).toBe(true);
+            done();
+          }, ajaxWait);
+        }, 0);
+      });
 
-      // it('can sequence animations', function(done) {
-      //   var componentNamespaceName = tools.generateNamespaceName();
-      //   var footworkAnimatedElements = '.' + footworkAnimationClass;
+      it('can sequence animations', function(done) {
+        var componentNamespaceName = tools.generateNamespaceName();
+        var footworkAnimatedElements = '.' + footworkAnimationClass;
 
-      //   fw.components.register(componentNamespaceName, {
-      //     template: '<div class="fade-in-from-bottom">a template</div>',
-      //     viewModel: fw.viewModel.create({
-      //       namespace: componentNamespaceName,
-      //       sequenceAnimations: 30
-      //     })
-      //   });
+        fw.components.register(componentNamespaceName, {
+          template: '<div class="fade-in-from-bottom">a template</div>',
+          viewModel: function() {
+            fw.viewModel.boot(this, {
+              namespace: componentNamespaceName,
+              sequenceAnimations: 30
+            })
+          }
+        });
 
-      //   testContainer = tools.getFixtureContainer('<div data-bind="foreach: things">\
-      //     <' + componentNamespaceName + '></' + componentNamespaceName + '>\
-      //   </div>');
+        testContainer = tools.getFixtureContainer('<div data-bind="foreach: things">\
+          <' + componentNamespaceName + '></' + componentNamespaceName + '>\
+        </div>');
 
-      //   expect(testContainer).not.toContainElement(footworkAnimatedElements);
+        expect($(testContainer).find(footworkAnimatedElements).length).toBe(0);
 
-      //   fw.applyBindings({
-      //     things: [ {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {} ]
-      //   }, testContainer);
+        fw.applyBindings({
+          things: [ {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {} ]
+        }, testContainer);
 
-      //   setTimeout(function() {
-      //     var $testContainer = $(testContainer);
-      //     var currentThingLength = $testContainer.find(footworkAnimatedElements).length;
+        setTimeout(function() {
+          var $testContainer = $(testContainer);
+          var currentThingLength = $testContainer.find(footworkAnimatedElements).length;
 
-      //     expect(currentThingLength).toBeGreaterThan(0);
+          expect(currentThingLength).toBeGreaterThan(0);
 
-      //     setTimeout(function() {
-      //       expect($testContainer.find(footworkAnimatedElements)).lengthToBeGreaterThan(currentThingLength);
-      //       done();
-      //     }, 120);
-      //   }, 100);
-      // });
+          setTimeout(function() {
+            expect($testContainer.find(footworkAnimatedElements)).lengthToBeGreaterThan(currentThingLength);
+            done();
+          }, 120);
+        }, 100);
+      });
 
-      // it('can instantiate nested <components>', function(done) {
-      //   var outerInitializeSpy = jasmine.createSpy('outerInitializeSpy');
-      //   var innerInitializeSpy = jasmine.createSpy('innerInitializeSpy');
-      //   var outerComponentNamespaceName = tools.generateNamespaceName();
-      //   var innerComponentNamespaceName = tools.generateNamespaceName();
+      it('can instantiate nested <components>', function(done) {
+        var outerInitializeSpy = jasmine.createSpy('outerInitializeSpy');
+        var innerInitializeSpy = jasmine.createSpy('innerInitializeSpy');
+        var outerComponentNamespaceName = tools.generateNamespaceName();
+        var innerComponentNamespaceName = tools.generateNamespaceName();
 
-      //   fw.components.register(outerComponentNamespaceName, {
-      //     template: '<' + innerComponentNamespaceName + '></' + innerComponentNamespaceName + '>',
-      //     viewModel: fw.viewModel.create({
-      //       initialize: tools.expectCallOrder(0, outerInitializeSpy)
-      //     })
-      //   });
+        fw.components.register(outerComponentNamespaceName, {
+          template: '<' + innerComponentNamespaceName + '></' + innerComponentNamespaceName + '>',
+          viewModel: tools.expectCallOrder(0, outerInitializeSpy)
+        });
 
-      //   fw.components.register(innerComponentNamespaceName, {
-      //     template: '<div class="' + innerComponentNamespaceName + '"></div>',
-      //     viewModel: fw.viewModel.create({
-      //       initialize: tools.expectCallOrder(1, innerInitializeSpy)
-      //     })
-      //   });
+        fw.components.register(innerComponentNamespaceName, {
+          template: '<div class="' + innerComponentNamespaceName + '"></div>',
+          viewModel: tools.expectCallOrder(1, innerInitializeSpy)
+        });
 
-      //   expect(outerInitializeSpy).not.toHaveBeenCalled();
-      //   expect(innerInitializeSpy).not.toHaveBeenCalled();
+        expect(outerInitializeSpy).not.toHaveBeenCalled();
+        expect(innerInitializeSpy).not.toHaveBeenCalled();
 
-      //   fw.start(testContainer = tools.getFixtureContainer('<' + outerComponentNamespaceName + '></' + outerComponentNamespaceName + '>'));
+        fw.start(testContainer = tools.getFixtureContainer('<' + outerComponentNamespaceName + '></' + outerComponentNamespaceName + '>'));
 
-      //   setTimeout(function() {
-      //     expect(outerInitializeSpy).toHaveBeenCalled();
-      //     expect(innerInitializeSpy).toHaveBeenCalled();
+        setTimeout(function() {
+          expect(outerInitializeSpy).toHaveBeenCalled();
+          expect(innerInitializeSpy).toHaveBeenCalled();
 
-      //     done();
-      //   }, ajaxWait);
-      // });
+          done();
+        }, ajaxWait);
+      });
 
-      // it('can pass params to a component viewModel', function(done) {
-      //   var componentNamespaceName = tools.generateNamespaceName();
-      //   var initializeSpy;
+      it('can pass params to a component viewModel', function(done) {
+        var componentNamespaceName = tools.generateNamespaceName();
+        var initializeSpy;
 
-      //   fw.components.register(componentNamespaceName, {
-      //     template: '<div></div>',
-      //     viewModel: fw.viewModel.create({
-      //       initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(params) {
-      //         expect(params).toEqual({ testValueOne: 1, testValueTwo: [1,2,3] });
-      //       }))
-      //     })
-      //   });
+        fw.components.register(componentNamespaceName, {
+          template: '<div></div>',
+          viewModel: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(params) {
+            expect(params).toEqual({ testValueOne: 1, testValueTwo: [1,2,3] });
+          }))
+        });
 
-      //   expect(initializeSpy).not.toHaveBeenCalled();
+        expect(initializeSpy).not.toHaveBeenCalled();
 
-      //   fw.start(testContainer = tools.getFixtureContainer('<' + componentNamespaceName + ' params="testValueOne: 1, testValueTwo: [1,2,3]"></' + componentNamespaceName + '>'));
+        fw.start(testContainer = tools.getFixtureContainer('<' + componentNamespaceName + ' params="testValueOne: 1, testValueTwo: [1,2,3]"></' + componentNamespaceName + '>'));
 
-      //   setTimeout(function() {
-      //     expect(initializeSpy).toHaveBeenCalled();
-      //     done();
-      //   }, ajaxWait);
-      // });
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+          done();
+        }, ajaxWait);
+      });
 
-      // it('can pass params to a \'default\' component viewModel', function(done) {
-      //   var viewModelNamespaceName = tools.generateNamespaceName();
-      //   var componentNamespaceName = tools.generateNamespaceName();
-      //   var initializeSpy;
-      //   var valueToFind = tools.randomString();
+      it('can set and return fileExtensions correctly', function() {
+        var originalExtensions = fw.components.fileExtensions();
+        var fileName = tools.randomString();
+        var extensions = {
+          combined: '.combinedTest',
+          viewModel: '.viewModelTest',
+          template: function() {
+            return '.templateTest';
+          }
+        };
 
-      //   fw.components.register(componentNamespaceName, {
-      //     template: '<div class="passed-value" data-bind="text: someVariable"></div>'
-      //   });
+        expect(fw.components.fileExtensions()).not.toEqual(extensions);
+        fw.components.fileExtensions(extensions);
+        expect(fw.components.fileExtensions()).toEqual(extensions);
+        expect(fw.components.getFileName(fileName, 'template')).toEqual(fileName + extensions.template());
 
-      //   fw.viewModel.register(viewModelNamespaceName, fw.viewModel.create({
-      //     initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
-      //       this.boundViewModel = {
-      //         someVariable: valueToFind
-      //       };
-      //     }).and.callThrough())
-      //   }));
+        // reset extensions back to normal
+        fw.components.fileExtensions(originalExtensions);
+        expect(fw.components.fileExtensions()).not.toEqual(extensions);
+      });
 
-      //   expect(initializeSpy).not.toHaveBeenCalled();
+      it('can set fileExtensions via a callback', function() {
+        var originalExtensions = fw.components.fileExtensions();
 
-      //   fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + viewModelNamespaceName + '">\
-      //     <div data-bind="with: boundViewModel">\
-      //       <' + componentNamespaceName + ' params="$viewModel: $data"></' + componentNamespaceName + '>\
-      //     </div>\
-      //   </viewModel>'));
+        function prependName(name, withName) {
+          return _.reduce({
+            combined: '.' + name + 'combinedTest',
+            viewModel: '.' + name + 'viewModelTest',
+            template: function() {
+              return (withName ? name : '') + '.' + 'templateTest';
+            }
+          }, function(ext, extension, property) {
+            ext[property] = _.isFunction(extension) ? extension() : (withName ? name : '');
+            return ext;
+          }, {});
+        }
 
-      //   setTimeout(function() {
-      //     expect(initializeSpy).toHaveBeenCalled();
-      //     expect(testContainer).toContainText(valueToFind);
+        var getFileExtensionsSpy = jasmine.createSpy('getFileExtensionsSpy', function getFileExtensions(componentName) {
+          return prependName(componentName);
+        }).and.callThrough();
 
-      //     done();
-      //   }, ajaxWait);
-      // });
+        fw.components.fileExtensions(tools.expectCallOrder([0, 1, 2], getFileExtensionsSpy));
 
-      // it('can set and return fileExtensions correctly', function() {
-      //   var originalExtensions = fw.components.fileExtensions();
-      //   var fileName = tools.randomString();
-      //   var extensions = {
-      //     combined: '.combinedTest',
-      //     viewModel: '.viewModelTest',
-      //     template: function() {
-      //       return '.templateTest';
-      //     }
-      //   };
+        var comp1Check = prependName('comp1', true);
+        var comp2Check = prependName('comp2', true);
 
-      //   expect(fw.components.fileExtensions()).not.toEqual(extensions);
-      //   fw.components.fileExtensions(extensions);
-      //   expect(fw.components.fileExtensions()).toEqual(extensions);
-      //   expect(fw.components.getFileName(fileName, 'template')).toEqual(fileName + extensions.template());
+        expect(fw.components.getFileName('comp1', 'viewModel')).toEqual(comp1Check.viewModel);
+        expect(fw.components.getFileName('comp2', 'viewModel')).toEqual(comp2Check.viewModel);
+        expect(fw.components.getFileName('comp2', 'template')).toEqual(comp2Check.template);
 
-      //   // reset extensions back to normal
-      //   fw.components.fileExtensions(originalExtensions);
-      //   expect(fw.components.fileExtensions()).not.toEqual(extensions);
-      // });
+        // reset extensions back to normal
+        fw.components.fileExtensions(originalExtensions);
+        expect(fw.components.fileExtensions()).toEqual(originalExtensions);
+      });
 
-      // it('can set fileExtensions via a callback', function() {
-      //   var originalExtensions = fw.components.fileExtensions();
+      it('can specify a location and verify it', function() {
+        var namespaceName = tools.generateNamespaceName();
+        var location = {
+          viewModel: 'tests/assets/fixtures/registeredComponentLocation/',
+          template: 'tests/assets/fixtures/registeredComponentLocation/'
+        };
 
-      //   function prependName(name, withName) {
-      //     return _.reduce({
-      //       combined: '.' + name + 'combinedTest',
-      //       viewModel: '.' + name + 'viewModelTest',
-      //       template: function() {
-      //         return (withName ? name : '') + '.' + 'templateTest';
-      //       }
-      //     }, function(ext, extension, property) {
-      //       ext[property] = _.isFunction(extension) ? extension() : (withName ? name : '');
-      //       return ext;
-      //     }, {});
-      //   }
+        fw.components.registerLocation(namespaceName, location);
+        fw.components.registerLocation(/^regexp-test.*$/, location);
 
-      //   var getFileExtensionsSpy = jasmine.createSpy('getFileExtensionsSpy', function getFileExtensions(componentName) {
-      //     return prependName(componentName);
-      //   }).and.callThrough();
+        expect(fw.components.getLocation(namespaceName)).toEqual(location);
+        expect(fw.components.getLocation('regexp-test-regexp')).toEqual(location);
+      });
 
-      //   fw.components.fileExtensions(tools.expectCallOrder([0, 1, 2], getFileExtensionsSpy));
+      it('can register an array of components to a location and retrieve them proplerly', function() {
+        var location = {
+          viewModel: 'tests/assets/fixtures/registeredComponentLocation/',
+          template: 'tests/assets/fixtures/registeredComponentLocation/'
+        };
 
-      //   var comp1Check = prependName('comp1', true);
-      //   var comp2Check = prependName('comp2', true);
+        var namespaceNames = [tools.generateNamespaceName(), tools.generateNamespaceName(), tools.generateNamespaceName()];
+        fw.components.registerLocation(namespaceNames, location);
 
-      //   expect(fw.components.getFileName('comp1', 'viewModel')).toEqual(comp1Check.viewModel);
-      //   expect(fw.components.getFileName('comp2', 'viewModel')).toEqual(comp2Check.viewModel);
-      //   expect(fw.components.getFileName('comp2', 'template')).toEqual(comp2Check.template);
-
-      //   // reset extensions back to normal
-      //   fw.components.fileExtensions(originalExtensions);
-      //   expect(fw.components.fileExtensions()).toEqual(originalExtensions);
-      // });
-
-      // it('can specify a location and verify it', function() {
-      //   var namespaceName = tools.generateNamespaceName();
-      //   var location = {
-      //     viewModel: 'tests/assets/fixtures/registeredComponentLocation/',
-      //     template: 'tests/assets/fixtures/registeredComponentLocation/'
-      //   };
-
-      //   fw.components.registerLocation(namespaceName, location);
-      //   fw.components.registerLocation(/^regexp-test.*$/, location);
-
-      //   expect(fw.components.getLocation(namespaceName)).toEqual(location);
-      //   expect(fw.components.getLocation('regexp-test-regexp')).toEqual(location);
-      // });
-
-      // it('can register an array of components to a location and retrieve them proplerly', function() {
-      //   var location = {
-      //     viewModel: 'tests/assets/fixtures/registeredComponentLocation/',
-      //     template: 'tests/assets/fixtures/registeredComponentLocation/'
-      //   };
-
-      //   var namespaceNames = [tools.generateNamespaceName(), tools.generateNamespaceName(), tools.generateNamespaceName()];
-      //   fw.components.registerLocation(namespaceNames, location);
-
-      //   _.each(namespaceNames, function(namespaceName) {
-      //     expect(fw.components.getLocation(namespaceName)).toEqual(location);
-      //   });
-      // });
+        _.each(namespaceNames, function(namespaceName) {
+          expect(fw.components.getLocation(namespaceName)).toEqual(location);
+        });
+      });
 
       // it('can specify and load via a registered location', function(done) {
       //   var namespaceName = 'registered-component-location';
