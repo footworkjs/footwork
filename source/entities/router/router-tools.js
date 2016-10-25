@@ -58,7 +58,7 @@ function isRoute (thing) {
  * @returns {object} router instance or nullRouter if none found
  */
 function nearestParentRouter ($context) {
-  return nearestEntity($context, fw.isRouter) || nullRouter;
+  return nearestEntity($context.$parentContext, fw.isRouter) || nullRouter;
 }
 
 /**

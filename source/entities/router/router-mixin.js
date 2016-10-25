@@ -6,12 +6,14 @@ var routerTools = require('./router-tools');
 var isNullRouter = routerTools.isNullRouter;
 var transformRouteConfigToDesc = routerTools.transformRouteConfigToDesc;
 var nearestParentRouter = routerTools.nearestParentRouter;
+var normalizeURL = routerTools.normalizeURL;
 
 var isEntity = require('../entity-tools').isEntity;
 
 var util = require('../../misc/util');
 var resultBound = util.resultBound;
 var propertyDispose = util.propertyDispose;
+var startingHashRegex = util.startingHashRegex;
 
 var viewModelMixinDispose = require('../viewModel/viewModel-mixin').dispose;
 var clearSequenceQueue = require('../../binding/animation-sequencing').clearSequenceQueue;
@@ -158,7 +160,7 @@ module.exports = {
       self[privateDataSymbol].historyPopstateListener(popstateEvent);
     }
 
-    if (self.currentState() === '') {
+    if (!self.currentState()) {
       self.setState();
     }
 
@@ -171,6 +173,8 @@ module.exports = {
     var configParams = self[privateDataSymbol].configParams;
     var useHistory = self[privateDataSymbol].historyPopstateListener() && !fw.router.disableHistory();
     var location = window.history.location || window.location;
+
+    self[privateDataSymbol].setStateHasRun = true;
 
     if (!_.isNull(namedRoute)) {
       // must convert namedRoute into its URL form

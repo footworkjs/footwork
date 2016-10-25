@@ -43,14 +43,12 @@ function routerBootstrap (instance, configParams) {
   if (!hasBeenBootstrapped) {
     instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
     configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.defaultConfig, {
-      baseRoute: fw.router.baseRoute() + resultBound(configParams, 'baseRoute', instance)
+      baseRoute: fw.router.baseRoute() + (resultBound(configParams, 'baseRoute', instance) || '')
     }, configParams || {});
 
     _.extend(instance, descriptor.mixin, {
       currentState: fw.observable()
     });
-
-    instance.setRoutes(configParams.routes);
 
     instance[privateDataSymbol].outlets = {};
     instance.outlet.reset = function () {
@@ -119,6 +117,16 @@ function routerBootstrap (instance, configParams) {
         triggerRoute(instance, newRoute);
       }
     }));
+
+    if (configParams.activate === true) {
+      instance.disposeWithInstance(instance[privateDataSymbol].context.subscribe(function activateRouterAfterBindingContext(context) {
+        if (_.isObject(context)) {
+          instance.activate(context);
+        }
+      }));
+    }
+
+    instance.setRoutes(configParams.routes);
   } else {
     throw new Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
   }

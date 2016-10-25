@@ -4,9 +4,9 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
       beforeEach(tools.prepareTestEnv);
       afterEach(tools.cleanTestEnv);
 
-      // beforeAll(function() {
-      //   fw.router.disableHistory(true);
-      // });
+      beforeAll(function() {
+        fw.router.disableHistory(true);
+      });
 
       it('has the ability to create a router', function() {
         var BadRouter = function Router() {
@@ -448,30 +448,31 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         }, ajaxWait);
       });
 
-      // it('can trigger the default route', function(done) {
-      //   var namespaceName = tools.generateNamespaceName();
-      //   var defaultRouteControllerSpy = jasmine.createSpy('defaultRouteControllerSpy');
+      it('can trigger the default route', function(done) {
+        var namespaceName = tools.generateNamespaceName();
+        var defaultRouteControllerSpy = jasmine.createSpy('defaultRouteControllerSpy');
 
-      //   fw.router.create({
-      //     namespace: namespaceName,
-      //     autoRegister: true,
-      //     routes: [
-      //       {
-      //         route: '/',
-      //         controller: defaultRouteControllerSpy
-      //       }
-      //     ]
-      //   });
+        fw.router.register(namespaceName, function() {
+          fw.router.boot(this, {
+            namespace: namespaceName,
+            routes: [
+              {
+                route: '/',
+                controller: defaultRouteControllerSpy
+              }
+            ]
+          });
+        });
 
-      //   expect(defaultRouteControllerSpy).not.toHaveBeenCalled();
+        expect(defaultRouteControllerSpy).not.toHaveBeenCalled();
 
-      //   fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
 
-      //   setTimeout(function() {
-      //     expect(defaultRouteControllerSpy).toHaveBeenCalled();
-      //     done();
-      //   }, ajaxWait);
-      // });
+        setTimeout(function() {
+          expect(defaultRouteControllerSpy).toHaveBeenCalled();
+          done();
+        }, ajaxWait);
+      });
 
       // it('can trigger the unknownRoute', function(done) {
       //   var namespaceName = 'unknownRouteCheck';
