@@ -183,28 +183,20 @@ function getRouteForURL (router, url) {
   return route || unknownRoute;
 }
 
-function RoutedAction (router, routeDescription) {
-  if (!_.isUndefined(routeDescription.title)) {
-    window.document.title = _.isFunction(routeDescription.title) ? routeDescription.title.apply(router, _.values(routeDescription.namedParams)) : routeDescription.title;
-  }
+function triggerRoute (router, routeDescription) {
+  if (isRoute(routeDescription)) {
+    if (!_.isUndefined(routeDescription.title)) {
+      window.document.title = _.isFunction(routeDescription.title) ? routeDescription.title.apply(router, _.values(routeDescription.namedParams)) : routeDescription.title;
+    }
 
-  if (_.isUndefined(router[privateDataSymbol].currentRouteDescription) || !sameRouteDescription(router[privateDataSymbol].currentRouteDescription, routeDescription)) {
-    (routeDescription.controller || _.noop).apply(router, _.values(routeDescription.namedParams));
-    router[privateDataSymbol].currentRouteDescription = routeDescription;
-  }
-}
-
-function getActionForRoute (routeDescription) {
-  var Action = function DefaultAction () {
+    if (_.isUndefined(router[privateDataSymbol].currentRouteDescription) || !sameRouteDescription(router[privateDataSymbol].currentRouteDescription, routeDescription)) {
+      (routeDescription.controller || _.noop).apply(router, _.values(routeDescription.namedParams));
+      router[privateDataSymbol].currentRouteDescription = routeDescription;
+    }
+  } else {
     delete router.currentRouteDescription;
     router.outlet.reset();
-  };
-
-  if (isRoute(routeDescription)) {
-    Action = RoutedAction.bind(router, routeDescription);
   }
-
-  return Action;
 }
 
 module.exports = {
@@ -222,5 +214,5 @@ module.exports = {
   normalizeURL: normalizeURL,
   getUnknownRoute: getUnknownRoute,
   getRouteForURL: getRouteForURL,
-  getActionForRoute: getActionForRoute
+  triggerRoute: triggerRoute
 };

@@ -15,6 +15,10 @@ var makeArray = util.makeArray;
  */
 fw.components.loaders.unshift(fw.components.componentLifecycleLoader = {
   loadTemplate: function (componentName, templateConfig, callback) {
+    /**
+     * This loader is only for non-viewModel/dataModel/router components.
+     * viewModels/dataModels/routers have their own loader which handles them (../entities/entity-loader)
+     */
     if (!entityDescriptors.getDescriptor(componentName)) {
       // This is a regular component (not an entity) we need to wrap it with the $lifecycle binding
       if (typeof templateConfig === 'string') {

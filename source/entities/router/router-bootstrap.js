@@ -15,7 +15,7 @@ var trimBaseRoute = routerTools.trimBaseRoute;
 var normalizeURL = routerTools.normalizeURL;
 var isNullRouter = routerTools.isNullRouter;
 var getRouteForURL = routerTools.getRouteForURL;
-var getActionForRoute = routerTools.getActionForRoute;
+var triggerRoute = routerTools.triggerRoute;
 var isRoute = routerTools.isRoute;
 
 var routerDefaults = require('./router-defaults');
@@ -116,7 +116,7 @@ function routerBootstrap (instance, configParams) {
     // Automatically trigger the new Action() whenever the currentRoute() updates
     instance.disposeWithInstance(instance[privateDataSymbol].currentRoute.subscribe(function getActionForRouteAndTrigger (newRoute) {
       if (instance.currentState().length) {
-        getActionForRoute(newRoute)( /* get and call the action for the newRoute */ );
+        triggerRoute(instance, newRoute);
       }
     }));
   } else {
