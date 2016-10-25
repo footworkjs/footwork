@@ -9,8 +9,8 @@ var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
 var resultBound = require('../../misc/util').resultBound;
 
 var routerTools = require('./router-tools');
-var registerViewModelForOutlet = routerTools.registerViewModelForOutlet;
-var unregisterViewModelForOutlet = routerTools.unregisterViewModelForOutlet;
+var registerOutlet = routerTools.registerOutlet;
+var unregisterOutlet = routerTools.unregisterOutlet;
 var trimBaseRoute = routerTools.trimBaseRoute;
 var normalizeURL = routerTools.normalizeURL;
 var isNullRouter = routerTools.isNullRouter;
@@ -60,8 +60,8 @@ function routerBootstrap (instance, configParams) {
     };
 
     _.extend(instance[privateDataSymbol], {
-      registerViewModelForOutlet: _.partial(registerViewModelForOutlet, instance),
-      unregisterViewModelForOutlet: _.partial(unregisterViewModelForOutlet, instance),
+      registerOutlet: _.partial(registerOutlet, instance),
+      unregisterOutlet: _.partial(unregisterOutlet, instance),
       childRouters: fw.observableArray(),
       parentRouter: fw.observable(nullRouter),
       historyPopstateListener: fw.observable(),

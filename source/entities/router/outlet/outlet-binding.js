@@ -6,9 +6,7 @@ var nearestParentRouter = require('../router-tools').nearestParentRouter;
 var noParentViewModelError = { $namespace: { getName: function () { return 'NO-VIEWMODEL-IN-CONTEXT'; } } };
 
 /**
- * This custom binding:
- * 1. binds the outlet element to the $outlet on the router
- * 2. enables changes on the outlet 'route' (component definition observable) to be applied to the UI and load in various views
+ * This custom binding binds/registers the outlet on the router
  */
 fw.virtualElements.allowedBindings.$outlet = true;
 fw.bindingHandlers.$outlet = {
@@ -21,7 +19,10 @@ fw.bindingHandlers.$outlet = {
 
     if (fw.isRouter(parentRouter)) {
       // register the viewModel with the outlet for future use when its route is changed
-      parentRouter[privateDataSymbol].registerViewModelForOutlet(outletName, outletViewModel);
+      parentRouter[privateDataSymbol].registerOutlet(outletName, outletViewModel);
+      fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
+        parentRouter[privateDataSymbol].unregisterOutlet(outletName);
+      });
 
       // register this outlet and get the component binding route observable with its parentRouter
       outletViewModel.route = parentRouter.outlet(outletName);

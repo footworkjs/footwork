@@ -68,7 +68,7 @@ function nearestParentRouter ($context) {
  * @param {string} outletName the name (property) of the outlet
  * @param {object} outletViewModel the outlets viewModel to register with the router
  */
-function registerViewModelForOutlet(router, outletName, outletViewModel) {
+function registerOutlet(router, outletName, outletViewModel) {
   var outletProperties = router[privateDataSymbol].outlets[outletName] = router[privateDataSymbol].outlets[outletName] || {};
   outletProperties.outletViewModel = outletViewModel;
 }
@@ -79,7 +79,7 @@ function registerViewModelForOutlet(router, outletName, outletViewModel) {
  * @param {object} router the router to unregister from
  * @param {string} outletName the name (property) of the outlet
  */
-function unregisterViewModelForOutlet(router, outletName) {
+function unregisterOutlet(router, outletName) {
   var outletProperties = router[privateDataSymbol].outlets[outletName] || {};
   delete outletProperties.outletViewModel;
 }
@@ -216,8 +216,8 @@ module.exports = {
   isNullRouter: isNullRouter,
   isRoute: isRoute,
   nearestParentRouter: nearestParentRouter,
-  registerViewModelForOutlet: registerViewModelForOutlet,
-  unregisterViewModelForOutlet: unregisterViewModelForOutlet,
+  registerOutlet: registerOutlet,
+  unregisterOutlet: unregisterOutlet,
   trimBaseRoute: trimBaseRoute,
   normalizeURL: normalizeURL,
   getUnknownRoute: getUnknownRoute,

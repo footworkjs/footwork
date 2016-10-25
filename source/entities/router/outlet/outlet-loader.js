@@ -34,15 +34,6 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
           '<div class="' + outletLoadedDisplay + ' ' + entityClass + '" ' +
             'data-bind="style: loadedStyle, css: loadedClass, component: route"></div>' +
         bindingElement.close
-
-          // bindingElement.open.prefix + '$outlet' + bindingElement.open.postfix +
-          //   bindingElement.open.prefix + '$lifecycle' + bindingElement.open.postfix +
-          //     '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" ' +
-          //       'data-bind="style: loadingStyle, css: loadingClass, component: loadingDisplay"></div>' +
-          //     '<div class="' + outletLoadedDisplay + ' ' + entityClass + '" ' +
-          //       'data-bind="style: loadedStyle, css: loadedClass, component: route"></div>' +
-          //   bindingElement.close +
-          // bindingElement.close
       });
     } else {
       callback(null);
