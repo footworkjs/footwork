@@ -346,113 +346,113 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         });
       });
 
-      // it('can specify and load via a registered location', function(done) {
-      //   var namespaceName = 'registered-component-location';
+      it('can specify and load via a registered location', function(done) {
+        var namespaceName = 'registered-component-location';
 
-      //   fw.components.registerLocation('registered-component-location', {
-      //     viewModel: 'tests/assets/fixtures/registeredComponentLocation/',
-      //     template: 'tests/assets/fixtures/registeredComponentLocation/'
-      //   });
+        fw.components.registerLocation('registered-component-location', {
+          viewModel: 'tests/assets/fixtures/registeredComponentLocation/',
+          template: 'tests/assets/fixtures/registeredComponentLocation/'
+        });
 
-      //   expect(namespaceName).not.toBeLoaded();
+        expect(namespaceName).not.toBeLoaded();
 
-      //   fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
-      //   setTimeout(function() {
-      //     expect(namespaceName).toBeLoaded();
-      //     done();
-      //   }, ajaxWait);
-      // });
+        setTimeout(function() {
+          expect(namespaceName).toBeLoaded();
+          done();
+        }, ajaxWait);
+      });
 
-      // it('can specify and load via a registered location with a prefixed folder', function(done) {
-      //   var namespaceName = 'registered-component-location-prefixed';
+      it('can specify and load via a registered location with a prefixed folder', function(done) {
+        var namespaceName = 'registered-component-location-prefixed';
 
-      //   fw.components.registerLocation(namespaceName, {
-      //     viewModel: 'tests/assets/fixtures/',
-      //     template: 'tests/assets/fixtures/'
-      //   }, true);
+        fw.components.registerLocation(namespaceName, {
+          viewModel: 'tests/assets/fixtures/',
+          template: 'tests/assets/fixtures/'
+        }, true);
 
-      //   expect(namespaceName).not.toBeLoaded();
+        expect(namespaceName).not.toBeLoaded();
 
-      //   fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
-      //   setTimeout(function() {
-      //     expect(namespaceName).toBeLoaded();
-      //     done();
-      //   }, ajaxWait);
-      // });
+        setTimeout(function() {
+          expect(namespaceName).toBeLoaded();
+          done();
+        }, ajaxWait);
+      });
 
-      // it('can specify and load via a registered RegExp-based location', function(done) {
-      //   var namespaceName = 'registered-regexp-component-location';
+      it('can specify and load via a registered RegExp-based location', function(done) {
+        var namespaceName = 'registered-regexp-component-location';
 
-      //   fw.components.registerLocation(/registered-regexp-comp.*/, {
-      //     viewModel: 'tests/assets/fixtures/registeredRegExpComponentLocation/',
-      //     template: 'tests/assets/fixtures/registeredRegExpComponentLocation/'
-      //   });
+        fw.components.registerLocation(/registered-regexp-comp.*/, {
+          viewModel: 'tests/assets/fixtures/registeredRegExpComponentLocation/',
+          template: 'tests/assets/fixtures/registeredRegExpComponentLocation/'
+        });
 
-      //   expect(namespaceName).not.toBeLoaded();
+        expect(namespaceName).not.toBeLoaded();
 
-      //   fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
-      //   setTimeout(function() {
-      //     expect(namespaceName).toBeLoaded();
-      //     done();
-      //   }, ajaxWait);
-      // });
+        setTimeout(function() {
+          expect(namespaceName).toBeLoaded();
+          done();
+        }, ajaxWait);
+      });
 
-      // it('can specify and load via a registered location with full file name', function(done) {
-      //   var namespaceName = 'registered-component-location-fullname';
+      it('can specify and load via a registered location with full file name', function(done) {
+        var namespaceName = 'registered-component-location-fullname';
 
-      //   fw.components.registerLocation(namespaceName, {
-      //     viewModel: 'tests/assets/fixtures/registeredComponentLocation/registeredComponentLocationFullname.js',
-      //     template: 'tests/assets/fixtures/registeredComponentLocation/registeredComponentLocationFullname.html'
-      //   });
+        fw.components.registerLocation(namespaceName, {
+          viewModel: 'tests/assets/fixtures/registeredComponentLocation/registeredComponentLocationFullname.js',
+          template: 'tests/assets/fixtures/registeredComponentLocation/registeredComponentLocationFullname.html'
+        });
 
-      //   expect(namespaceName).not.toBeLoaded();
+        expect(namespaceName).not.toBeLoaded();
 
-      //   fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
-      //   setTimeout(function() {
-      //     expect(namespaceName).toBeLoaded();
-      //     done();
-      //   }, ajaxWait);
-      // });
+        setTimeout(function() {
+          expect(namespaceName).toBeLoaded();
+          done();
+        }, ajaxWait);
+      });
 
-      // it('can specify and load via a registered location for a dataModel enabled component', function(done) {
-      //   var namespaceName = 'registered-datamodel-component-location';
+      it('can specify and load via a registered location for a dataModel enabled component', function(done) {
+        var namespaceName = 'registered-datamodel-component-location';
 
-      //   fw.components.registerLocation(namespaceName, {
-      //     dataModel: 'tests/assets/fixtures/registeredComponentLocation/',
-      //     template: 'tests/assets/fixtures/registeredComponentLocation/'
-      //   });
+        fw.components.registerLocation(namespaceName, {
+          dataModel: 'tests/assets/fixtures/registeredComponentLocation/',
+          template: 'tests/assets/fixtures/registeredComponentLocation/'
+        });
 
-      //   expect(namespaceName).not.toBeLoaded();
+        expect(namespaceName).not.toBeLoaded();
 
-      //   fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
-      //   setTimeout(function() {
-      //     expect(namespaceName).toBeLoaded();
-      //     done();
-      //   }, ajaxWait);
-      // });
+        setTimeout(function() {
+          expect(namespaceName).toBeLoaded();
+          done();
+        }, ajaxWait);
+      });
 
-      // it('can specify and load via a registered location for a router enabled component', function(done) {
-      //   var namespaceName = 'registered-router-component-location';
+      it('can specify and load via a registered location for a router enabled component', function(done) {
+        var namespaceName = 'registered-router-component-location';
 
-      //   fw.components.registerLocation(namespaceName, {
-      //     router: 'tests/assets/fixtures/registeredComponentLocation/',
-      //     template: 'tests/assets/fixtures/registeredComponentLocation/'
-      //   });
+        fw.components.registerLocation(namespaceName, {
+          router: 'tests/assets/fixtures/registeredComponentLocation/',
+          template: 'tests/assets/fixtures/registeredComponentLocation/'
+        });
 
-      //   expect(namespaceName).not.toBeLoaded();
+        expect(namespaceName).not.toBeLoaded();
 
-      //   fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
-      //   setTimeout(function() {
-      //     expect(namespaceName).toBeLoaded();
-      //     done();
-      //   }, ajaxWait);
-      // });
+        setTimeout(function() {
+          expect(namespaceName).toBeLoaded();
+          done();
+        }, ajaxWait);
+      });
     });
   }
 );
