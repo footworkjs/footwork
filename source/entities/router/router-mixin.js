@@ -98,7 +98,7 @@ module.exports = {
         var outletElement = element.parentNode;
 
         activeOutlets.remove(outlet);
-        outletElement.setAttribute('rendered', (componentToDisplay === nullComponent ? '' : componentToDisplay));
+        outletElement.setAttribute('data-rendered', (componentToDisplay === nullComponent ? '' : componentToDisplay));
 
         return function addBindingOnComplete () {
           var outletViewModel = outlets[outletName].outletViewModel;

@@ -53,22 +53,22 @@ fw.bindingHandlers.$lifecycle = {
   update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentElement || element.parentNode;
 
-    if (hasClass(element, outletLoadedDisplay) &&
-        (fw.isOutlet(bindingContext.$parent) && fw.isObservable(bindingContext.$parent.route))) {
+    // if this is the lifecycle update on an outlets display we need to run its callback
+    if (hasClass(element, outletLoadedDisplay)) {
       var parentRoute = bindingContext.$parent.route.peek();
       if (!hasClass(element, outletLoadingDisplay) && _.isFunction(parentRoute.getOnCompleteCallback)) {
-        parentRoute.getOnCompleteCallback(element)();
+        var outletLoadingIsCompleted = parentRoute.getOnCompleteCallback(element);
+        outletLoadingIsCompleted();
       }
     }
 
+    // trigger the user-specified afterRender callback
     if (isEntity(viewModel) && !viewModel[privateDataSymbol].afterRenderWasTriggered) {
       viewModel[privateDataSymbol].afterRenderWasTriggered = true;
-
-      // trigger the user-specified afterRender callback
       viewModel[privateDataSymbol].configParams.afterRender.call(viewModel, element);
     }
 
-    // resolve the flight tracker and trigger the addAnimationClass callback when appropriate
+    // resolve the loadingTracker and trigger the addAnimationClass callback when appropriate
     resolveTrackerAndAnimate(element, viewModel, bindingContext, function addAnimationClass () {
       if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
         var queue = addToAndFetchQueue(element, viewModel);

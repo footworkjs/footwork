@@ -711,19 +711,19 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
       //   expect(afterRenderSpy).toHaveBeenCalled();
 
       //   setTimeout(function() {
-      //     expect($testContainer.find('outlet[name="output"]').attr('rendered')).not.toBe(manipulateOutletComponentNamespace);
+      //     expect($testContainer.find('outlet[name="output"]').attr('data-rendered')).not.toBe(manipulateOutletComponentNamespace);
       //     router.setState(manipulateOutletUrl);
       //     expect(manipulateOutletControllerSpy).toHaveBeenCalled();
 
       //     setTimeout(function() {
-      //       expect($testContainer.find('outlet[name="output"]').attr('rendered')).toBe(manipulateOutletComponentNamespace);
+      //       expect($testContainer.find('outlet[name="output"]').attr('data-rendered')).toBe(manipulateOutletComponentNamespace);
       //       expect($testContainer.find('outlet[name="output"] .component-loaded').length).toBe(1);
 
       //       router.setState('/clearOutlet');
       //       expect(clearOutletControllerSpy).toHaveBeenCalled();
 
       //       setTimeout(function() {
-      //         expect($testContainer.find('outlet[name="output"]').attr('rendered')).not.toBe(manipulateOutletComponentNamespace);
+      //         expect($testContainer.find('outlet[name="output"]').attr('data-rendered')).not.toBe(manipulateOutletComponentNamespace);
       //         expect($testContainer.find('outlet[name="output"] .component-loaded').length).toBe(0);
       //         done();
       //       }, ajaxWait);
