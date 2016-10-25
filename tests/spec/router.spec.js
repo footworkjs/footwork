@@ -474,36 +474,34 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         }, ajaxWait);
       });
 
-      // it('can trigger the unknownRoute', function(done) {
-      //   var namespaceName = 'unknownRouteCheck';
-      //   var unknownRouteControllerSpy = jasmine.createSpy('defaultRouteSpy');
-      //   var initializeSpy;
-      //   var router;
+      it('can trigger the unknownRoute', function(done) {
+        var namespaceName = 'unknownRouteCheck';
+        var unknownRouteControllerSpy = jasmine.createSpy('defaultRouteSpy');
+        var initializeSpy;
+        var router;
 
-      //   fw.router.create({
-      //     namespace: 'unknownRouteCheck',
-      //     autoRegister: true,
-      //     initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
-      //       router = this;
-      //     }).and.callThrough()),
-      //     unknownRoute: {
-      //       controller: tools.expectCallOrder(1, unknownRouteControllerSpy)
-      //     }
-      //   });
+        fw.router.register(namespaceName, tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.router.boot(this, {
+            namespace: 'unknownRouteCheck',
+            routes: [
+              { unknown: true, controller: tools.expectCallOrder(1, unknownRouteControllerSpy) }
+            ]
+          });
+          router = this;
+        }).and.callThrough()));
 
-      //   expect(unknownRouteControllerSpy).not.toHaveBeenCalled();
-      //   expect(initializeSpy).not.toHaveBeenCalled();
+        expect(unknownRouteControllerSpy).not.toHaveBeenCalled();
+        expect(initializeSpy).not.toHaveBeenCalled();
 
-      //   fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
 
-      //   expect(initializeSpy).toHaveBeenCalled();
-
-      //   setTimeout(function() {
-      //     router.setState(tools.generateUrl());
-      //     expect(unknownRouteControllerSpy).toHaveBeenCalled();
-      //     done();
-      //   }, ajaxWait);
-      // });
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+          router.setState(tools.generateUrl());
+          expect(unknownRouteControllerSpy).toHaveBeenCalled();
+          done();
+        }, ajaxWait);
+      });
 
       // it('can trigger a specified route', function(done) {
       //   var mockUrl = tools.generateUrl();
