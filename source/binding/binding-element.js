@@ -19,6 +19,7 @@ var bindingElement = {
       prefix: '<' + bindingElement.oldExploderTagName + ' data-bind="',
       postfix: '">'
     };
+    bindingElement.close = '</' + bindingElement.oldExploderTagName + '>';
   }
 })();
 
