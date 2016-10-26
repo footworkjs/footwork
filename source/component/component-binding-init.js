@@ -26,6 +26,11 @@ function componentBindingInit (element, valueAccessor, allBindings, viewModel, b
     elementName: element.getAttribute('name') || /* istanbul ignore next */ element.getAttribute('data-name')
   };
 
+  /**
+   * If this is not an outlet we need to add ourselves to the parent loadingChildren observableArray.
+   * Once this component is loaded the $lifecycle binding then removes the loadingTracker from the observableArray
+   * The loadingTracker observableArray is used to trigger when an instance and all its children are fully 'resolved' (bound and rendered)
+   */
   if (tagName !== 'outlet') {
     var closestEntity = nearestEntity(bindingContext);
     if (closestEntity) {
