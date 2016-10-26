@@ -60,21 +60,10 @@ function routerBootstrap (instance, configParams) {
     _.extend(instance[privateDataSymbol], {
       registerOutlet: _.partial(registerOutlet, instance),
       unregisterOutlet: _.partial(unregisterOutlet, instance),
-      childRouters: fw.observableArray(),
       parentRouter: fw.observable(nullRouter),
       historyPopstateListener: fw.observable(),
       urlParts: fw.observable(),
       routeDescriptions: []
-    });
-
-    _.extend(instance[privateDataSymbol], {
-      /**
-       * Computed which determines whether or not the router is configured and in a context which
-       * makes it (and its routes) relative to its parent.
-       */
-      isRelative: fw.computed(function () {
-        return configParams.isRelative && !isNullRouter(instance[privateDataSymbol].parentRouter());
-      })
     });
 
     _.extend(instance[privateDataSymbol], {
@@ -95,7 +84,7 @@ function routerBootstrap (instance, configParams) {
           routeSegment = (currentRoute.segment === '' ? '/' : currentRoute.segment);
         }
 
-        return (instance[privateDataSymbol].isRelative() ? instance[privateDataSymbol].parentRouter()[privateDataSymbol].path() : '') + routeSegment;
+        return routeSegment;
       })
     });
 

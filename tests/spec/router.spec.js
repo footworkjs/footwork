@@ -1160,204 +1160,84 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         }, 0);
       });
 
-      // it('can display a temporary loading component in place of a component that is being downloaded with a custom minimum transition time from callback', function(done) {
-      //   var mockUrl = tools.generateUrl();
-      //   var outletLoaderTestLoadingNamespace = tools.randomString();
-      //   var outletLoaderTestLoadedNamespace = tools.randomString();
-      //   var routerNamespace = tools.randomString();
-      //   var changeOutletControllerSpy;
-      //   var outletCallbackSpy;
-      //   var outletLoaderTestLoadingSpy;
-      //   var outletLoaderTestLoadedSpy;
-      //   var minTransitionPeriodSpy;
+      it('can display a temporary loading component in place of a component that is being downloaded with a custom minimum transition time from callback', function(done) {
+        var mockUrl = tools.generateUrl();
+        var outletLoaderTestLoadingNamespace = tools.randomString();
+        var outletLoaderTestLoadedNamespace = tools.randomString();
+        var routerNamespace = tools.randomString();
+        var changeOutletControllerSpy;
+        var outletCallbackSpy;
+        var outletLoaderTestLoadingSpy;
+        var outletLoaderTestLoadedSpy;
+        var minTransitionPeriodSpy;
 
-      //   function router(name) {
-      //     return fw.router.getAll(name)[0];
-      //   }
+        function router(name) {
+          return fw.router.getAll(name)[0];
+        }
 
-      //   fw.components.register(outletLoaderTestLoadingNamespace, {
-      //     viewModel: tools.expectCallOrder(2, outletLoaderTestLoadingSpy = jasmine.createSpy('outletLoaderTestLoadingSpy')),
-      //     template: '<div class="' + outletLoaderTestLoadingNamespace + '"></div>',
-      //     synchronous: true
-      //   });
+        fw.components.register(outletLoaderTestLoadingNamespace, {
+          viewModel: outletLoaderTestLoadingSpy = jasmine.createSpy('outletLoaderTestLoadingSpy'),
+          template: '<div class="' + outletLoaderTestLoadingNamespace + '"></div>',
+          synchronous: true
+        });
 
-      //   fw.components.register(outletLoaderTestLoadedNamespace, {
-      //     viewModel: tools.expectCallOrder(3, outletLoaderTestLoadedSpy = jasmine.createSpy('outletLoaderTestLoadedSpy')),
-      //     template: '<div class="' + outletLoaderTestLoadedNamespace + '"></div>'
-      //   });
+        fw.components.register(outletLoaderTestLoadedNamespace, {
+          viewModel: outletLoaderTestLoadedSpy = jasmine.createSpy('outletLoaderTestLoadedSpy'),
+          template: '<div class="' + outletLoaderTestLoadedNamespace + '"></div>'
+        });
 
-      //   fw.router.create({
-      //     namespace: routerNamespace,
-      //     autoRegister: true,
-      //     showDuringLoad: outletLoaderTestLoadingNamespace,
-      //     minTransitionPeriod: tools.expectCallOrder(1, minTransitionPeriodSpy = jasmine.createSpy('minTransitionPeriodSpy', function(outletName, componentToDisplay) {
-      //       expect(outletName).toBe('output');
-      //       expect(componentToDisplay).toBe(outletLoaderTestLoadedNamespace);
-      //       return 75;
-      //     }).and.callThrough()),
-      //     routes: [
-      //       {
-      //         route: mockUrl,
-      //         controller: tools.expectCallOrder(0, changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-      //           this.outlet('output', outletLoaderTestLoadedNamespace, tools.expectCallOrder(4, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
-      //             expect(element.tagName.toLowerCase()).toBe('outlet');
-      //             expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
-      //           }).and.callThrough()));
-      //         }).and.callThrough())
-      //       }
-      //     ]
-      //   });
+        fw.router.register(routerNamespace, function() {
+          fw.router.boot(this, {
+            namespace: routerNamespace,
+            showDuringLoad: outletLoaderTestLoadingNamespace,
+            minTransitionPeriod: minTransitionPeriodSpy = jasmine.createSpy('minTransitionPeriodSpy', function(outletName, componentToDisplay) {
+              expect(outletName).toBe('output');
+              expect(componentToDisplay).toBe(outletLoaderTestLoadedNamespace);
+              return 75;
+            }).and.callThrough(),
+            routes: [
+              {
+                route: mockUrl,
+                controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
+                  this.outlet('output', outletLoaderTestLoadedNamespace, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                    expect(element.tagName.toLowerCase()).toBe('outlet');
+                    expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
+                  }).and.callThrough());
+                }).and.callThrough()
+              }
+            ]
+          });
+        });
 
-      //   expect(changeOutletControllerSpy).not.toHaveBeenCalled();
-      //   expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
-      //   expect(minTransitionPeriodSpy).not.toHaveBeenCalled();
+        expect(changeOutletControllerSpy).toBe(undefined);
+        expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
+        expect(minTransitionPeriodSpy).toBe(undefined);
 
-      //   fw.start(testContainer = tools.getFixtureContainer('<router module="' + routerNamespace + '">\
-      //     <outlet name="output"></outlet>\
-      //   </router>'));
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + routerNamespace + '">\
+          <outlet name="output"></outlet>\
+        </router>'));
 
-      //   router(routerNamespace).setState(mockUrl);
-      //   expect(minTransitionPeriodSpy).toHaveBeenCalled();
+        expect(outletLoaderTestLoadingSpy).not.toHaveBeenCalled();
 
-      //   expect(changeOutletControllerSpy).toHaveBeenCalled();
-      //   expect(outletCallbackSpy).not.toHaveBeenCalled();
-      //   expect(outletLoaderTestLoadingSpy).not.toHaveBeenCalled();
+        setTimeout(function() {
+          router(routerNamespace).setState(mockUrl);
 
-      //   setTimeout(function() {
-      //     expect(outletLoaderTestLoadingSpy).toHaveBeenCalled();
-      //     expect(outletLoaderTestLoadedSpy).toHaveBeenCalled();
-      //     expect(outletCallbackSpy).not.toHaveBeenCalled();
-      //     setTimeout(function() {
-      //       expect(outletCallbackSpy).toHaveBeenCalled();
-      //       done();
-      //     }, 120);
-      //   }, 20);
-      // });
+          expect(outletLoaderTestLoadingSpy).toHaveBeenCalled();
+          expect(minTransitionPeriodSpy).toHaveBeenCalled();
+          expect(changeOutletControllerSpy).toHaveBeenCalled();
+          expect(outletCallbackSpy).not.toHaveBeenCalled();
 
-      // it('can have nested/child routers path be dependent on its parents', function(done) {
-      //   var outerNestedRouteNamespace = tools.randomString();
-      //   var innerNestedRouteNamespace = tools.randomString();
-      //   var subInnerNestedRouteNamespace = tools.randomString();
-      //   var initializeSpy = jasmine.createSpy('initializeSpy');
+          setTimeout(function() {
+            expect(outletLoaderTestLoadedSpy).toHaveBeenCalled();
+            expect(outletCallbackSpy).not.toHaveBeenCalled();
 
-      //   fw.router.create({
-      //     namespace: outerNestedRouteNamespace,
-      //     autoRegister: true,
-      //     routes: [
-      //       { route: '/' },
-      //       { route: '/outerRoute' }
-      //     ],
-      //     initialize: tools.expectCallOrder(0, initializeSpy)
-      //   });
-
-      //   fw.router.create({
-      //     namespace: innerNestedRouteNamespace,
-      //     autoRegister: true,
-      //     routes: [
-      //       { route: '/' },
-      //       { route: '/innerRoute' }
-      //     ],
-      //     initialize: tools.expectCallOrder(1, initializeSpy)
-      //   });
-
-      //   fw.router.create({
-      //     namespace: subInnerNestedRouteNamespace,
-      //     autoRegister: true,
-      //     initialize: tools.expectCallOrder(2, initializeSpy)
-      //   });
-
-      //   function router(name) {
-      //     return fw.router.getAll(name)[0];
-      //   }
-
-      //   expect(initializeSpy).not.toHaveBeenCalled();
-
-      //   fw.start(testContainer = tools.getFixtureContainer('<router module="' + outerNestedRouteNamespace + '">\
-      //     <router module="' + innerNestedRouteNamespace + '">\
-      //       <router module="' + subInnerNestedRouteNamespace + '"></router>\
-      //     </router>\
-      //   </router>'));
-
-      //   expect(initializeSpy).toHaveBeenCalledTimes(3);
-
-      //   setTimeout(function() {
-      //     var outer = router(outerNestedRouteNamespace);
-      //     var inner = router(innerNestedRouteNamespace);
-      //     var subInner = router(subInnerNestedRouteNamespace);
-
-      //     expect(outer.path()).toBe('/');
-      //     expect(inner.path()).toBe('//');
-      //     expect(subInner.path()).toBe('///');
-
-      //     outer.setState('/outerRoute');
-
-      //     expect(outer.path()).toBe('/outerRoute');
-      //     expect(inner.path()).toBe('/outerRoute/');
-      //     expect(subInner.path()).toBe('/outerRoute//');
-
-      //     inner.setState('/innerRoute');
-
-      //     expect(outer.path()).toBe('/outerRoute');
-      //     expect(inner.path()).toBe('/outerRoute/innerRoute');
-      //     expect(subInner.path()).toBe('/outerRoute/innerRoute/');
-
-      //     done();
-      //   }, ajaxWait);
-      // });
-
-      // it('can have a nested/child router which is not relative to its parent', function(done) {
-      //   var outerNestedRouteNamespace = tools.randomString();
-      //   var innerNestedRouteNamespace = tools.randomString();
-      //   var initializeSpy = jasmine.createSpy('initializeSpy');
-
-      //   fw.router.create({
-      //     namespace: outerNestedRouteNamespace,
-      //     autoRegister: true,
-      //     routes: [
-      //       { route: '/' },
-      //       { route: '/outerRoute' }
-      //     ],
-      //     initialize: tools.expectCallOrder(0, initializeSpy)
-      //   });
-
-      //   fw.router.create({
-      //     namespace: innerNestedRouteNamespace,
-      //     autoRegister: true,
-      //     isRelative: false,
-      //     routes: [
-      //       { route: '/' },
-      //       { route: '/outerRoute' }
-      //     ],
-      //     initialize: tools.expectCallOrder(1, initializeSpy)
-      //   });
-
-      //   function router(name) {
-      //     return fw.router.getAll(name)[0];
-      //   }
-
-      //   expect(initializeSpy).not.toHaveBeenCalled();
-
-      //   fw.start(testContainer = tools.getFixtureContainer('<router module="' + outerNestedRouteNamespace + '">\
-      //     <router module="' + innerNestedRouteNamespace + '"></router>\
-      //   </router>'));
-
-      //   expect(initializeSpy).toHaveBeenCalledTimes(2);
-
-      //   setTimeout(function() {
-      //     var outer = router(outerNestedRouteNamespace);
-      //     var inner = router(innerNestedRouteNamespace);
-
-      //     expect(outer.path()).toBe('/');
-      //     expect(inner.path()).toBe('/');
-
-      //     outer.setState('/outerRoute');
-
-      //     expect(outer.path()).toBe('/outerRoute');
-      //     expect(inner.path()).toBe('/outerRoute');
-
-      //     done();
-      //   }, ajaxWait);
-      // });
+            setTimeout(function() {
+              expect(outletCallbackSpy).toHaveBeenCalled();
+              done();
+            }, 120);
+          }, 20);
+        }, 0);
+      });
 
       // it('can have a $route bound link correctly composed with an href attribute using passed in string route', function(done) {
       //   var testContainer;

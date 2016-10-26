@@ -118,13 +118,7 @@ function getUnknownRoute (router) {
 
 function getRouteForURL (router, url) {
   var route = null;
-  var parentRoutePath = router[privateDataSymbol].parentRouter()[privateDataSymbol].path() || '';
   var unknownRoute = getUnknownRoute(router);
-
-  // If this is a relative router we need to remove the leading parentRoutePath section of the URL
-  if (router[privateDataSymbol].isRelative() && parentRoutePath.length > 0 && (routeIndex = url.indexOf(parentRoutePath + '/')) === 0) {
-    url = url.substr(parentRoutePath.length);
-  }
 
   // find all routes with a matching routeString
   var matchedRoutes = _.reduce(router[privateDataSymbol].routeDescriptions, function (matches, routeDescription) {

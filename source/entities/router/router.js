@@ -37,7 +37,6 @@ entityDescriptors.push(descriptor = prepareDescriptor({
     showDuringLoad: require('./router-defaults').noComponentSelected,
     onDispose: _.noop,
     baseRoute: '',
-    isRelative: false,
     activate: true,
     beforeRoute: alwaysPassPredicate,
     minTransitionPeriod: 0

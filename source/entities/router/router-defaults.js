@@ -18,8 +18,6 @@ var nullRouter = {};
 nullRouter[getSymbol('isNullRouter')] = true;
 nullRouter[privateDataSymbol] = {
   context: _.noop,
-  childRouters: _.extend( _.noop.bind(), { push: _.noop } ),
-  isRelative: function () { return false; },
   path: function () { return ''; }
 };
 

@@ -208,11 +208,6 @@ module.exports = {
         history.pushState(null, '', destination);
       }
       self.currentState(url);
-
-      var routePath = self[privateDataSymbol].path();
-      _.each(self[privateDataSymbol].childRouters(), function (childRouter) {
-        childRouter.currentState(routePath);
-      });
     }
 
     return self;
@@ -221,11 +216,6 @@ module.exports = {
     if (!this[privateDataSymbol].isDisposed) {
       // first run all of the standard viewModel disposal logic
       viewModelMixinDispose.call(this);
-
-      var $parentRouter = this[privateDataSymbol].parentRouter();
-      if (!isNullRouter($parentRouter)) {
-        $parentRouter[privateDataSymbol].childRouters.remove(this);
-      }
 
       var historyPopstateListener = this[privateDataSymbol].historyPopstateListener();
       if (historyPopstateListener) {
