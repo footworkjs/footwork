@@ -1155,8 +1155,8 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
               expect($(testContainer).find('.fw-loaded-display.' + footworkAnimationClass)).lengthToBeGreaterThan(0);
               expect(outletCallbackSpy).toHaveBeenCalled();
               done();
-            }, 120);
-          }, 20);
+            }, 140);
+          }, 10);
         }, 0);
       });
 
@@ -1234,8 +1234,8 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
             setTimeout(function() {
               expect(outletCallbackSpy).toHaveBeenCalled();
               done();
-            }, 120);
-          }, 20);
+            }, 140);
+          }, 10);
         }, 0);
       });
 

@@ -184,7 +184,7 @@ function triggerRoute (router, routeDescription) {
     }
 
     if (_.isUndefined(router[privateDataSymbol].currentRouteDescription) || !sameRouteDescription(router[privateDataSymbol].currentRouteDescription, routeDescription)) {
-      (routeDescription.controller || _.noop).apply(router, _.values(routeDescription.namedParams));
+      routeDescription.controller.apply(router, _.values(routeDescription.namedParams));
       router[privateDataSymbol].currentRouteDescription = routeDescription;
     }
   } else {
