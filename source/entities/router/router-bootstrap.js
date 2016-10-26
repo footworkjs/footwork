@@ -51,11 +51,6 @@ function routerBootstrap (instance, configParams) {
     });
 
     instance[privateDataSymbol].outlets = {};
-    instance.outlet.reset = function () {
-      _.each(instance[privateDataSymbol].outlets, function (outlet) {
-        outlet({ name: noComponentSelected, params: {} });
-      });
-    };
 
     _.extend(instance[privateDataSymbol], {
       registerOutlet: _.partial(registerOutlet, instance),

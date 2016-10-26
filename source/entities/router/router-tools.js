@@ -187,9 +187,6 @@ function triggerRoute (router, routeDescription) {
       routeDescription.controller.apply(router, _.values(routeDescription.namedParams));
       router[privateDataSymbol].currentRouteDescription = routeDescription;
     }
-  } else {
-    delete router.currentRouteDescription;
-    router.outlet.reset();
   }
 }
 

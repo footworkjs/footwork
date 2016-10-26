@@ -660,36 +660,37 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         var afterRenderSpy;
         var manipulateOutletControllerSpy;
         var clearOutletControllerSpy;
+        var emptyOutletControllerSpy;
         var manipulateOutletComponentSpy;
         var router;
         var testContainer;
         var $testContainer;
 
         fw.components.register(manipulateOutletComponentNamespace, {
-          viewModel: tools.expectCallOrder(3, manipulateOutletComponentSpy = jasmine.createSpy('manipulateOutletComponentSpy')),
+          viewModel: manipulateOutletComponentSpy = jasmine.createSpy('manipulateOutletComponentSpy'),
           template: '<div class="component-loaded"></div>'
         });
 
-        fw.router.register(namespaceName, tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+        fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.router.boot(this, {
             namespace: namespaceName,
-            afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy')),
+            afterRender: afterRenderSpy = jasmine.createSpy('afterRenderSpy'),
             routes: [
               {
                 route: manipulateOutletUrl,
-                controller: tools.expectCallOrder(2, manipulateOutletControllerSpy = jasmine.createSpy('manipulateOutletControllerSpy', function() {
+                controller: manipulateOutletControllerSpy = jasmine.createSpy('manipulateOutletControllerSpy', function() {
                   this.outlet('output', manipulateOutletComponentNamespace);
-                }).and.callThrough())
+                }).and.callThrough()
               }, {
                 route: '/clearOutlet',
-                controller: tools.expectCallOrder(4, clearOutletControllerSpy = jasmine.createSpy('clearOutletControllerSpy', function() {
+                controller: clearOutletControllerSpy = jasmine.createSpy('clearOutletControllerSpy', function() {
                   this.outlet('output', false);
-                }).and.callThrough())
+                }).and.callThrough()
               }
             ]
           });
           router = this;
-        }).and.callThrough()));
+        }).and.callThrough());
 
         expect(manipulateOutletControllerSpy).toBe(undefined);
         expect(initializeSpy).not.toHaveBeenCalled();
@@ -1156,7 +1157,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
               expect(outletCallbackSpy).toHaveBeenCalled();
               done();
             }, 140);
-          }, 10);
+          }, 0);
         }, 0);
       });
 
@@ -1235,7 +1236,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
               expect(outletCallbackSpy).toHaveBeenCalled();
               done();
             }, 140);
-          }, 10);
+          }, 0);
         }, 0);
       });
 

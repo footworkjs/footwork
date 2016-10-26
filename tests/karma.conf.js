@@ -82,7 +82,6 @@ module.exports = {
     'karma-jasmine',
     'karma-json-fixtures-preprocessor',
     'karma-fixture',
-    'karma-jasmine-jquery',
     'karma-phantomjs-launcher',
     'karma-requirejs',
     'karma-spec-reporter',
