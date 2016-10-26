@@ -63,7 +63,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         }, ajaxWait);
       });
 
-      it('can instantiate a registered component via a <declarative> statement with a router', function(done) {
+      it('can instantiate a registered component via a declarative statement with a router', function(done) {
         var namespaceName = tools.generateNamespaceName();
         var initializeSpy;
 
@@ -80,6 +80,112 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
+          done();
+        }, ajaxWait);
+      });
+
+      it('can instantiate a component registered using an element sourced from its id as its template', function(done) {
+        var namespaceName = tools.generateNamespaceName();
+        var textToFind = tools.randomString();
+        var initializeSpy;
+
+        fw.components.register(namespaceName, {
+          template: { element: namespaceName },
+          viewModel: initializeSpy = jasmine.createSpy('initializeSpy', function() {
+            fw.viewModel.boot(this);
+          }).and.callThrough()
+        });
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer = tools.getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>'));
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+          expect($(testContainer).find(namespaceName).text().indexOf(textToFind)).not.toBe(-1);
+          done();
+        }, ajaxWait);
+      });
+
+      it('can properly throw an error when specifying an incorrect element sourced from its id as its template', function() {
+        var namespaceName = tools.generateNamespaceName();
+        var textToFind = tools.randomString();
+        var initializeSpy;
+
+        fw.components.register(namespaceName, {
+          template: { element: namespaceName + 'NOMATCH' },
+          viewModel: initializeSpy = jasmine.createSpy('initializeSpy', function() {
+            fw.viewModel.boot(this);
+          }).and.callThrough()
+        });
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        expect(function() {
+          fw.start(testContainer = tools.getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>'));
+        }).toThrow();
+      });
+
+      it('can properly throw an error when specifying an incorrect element config for its template', function() {
+        var namespaceName = tools.generateNamespaceName();
+        var textToFind = tools.randomString();
+        var initializeSpy;
+
+        fw.components.register(namespaceName, {
+          template: { element: null },
+          viewModel: initializeSpy = jasmine.createSpy('initializeSpy', function() {
+            fw.viewModel.boot(this);
+          }).and.callThrough()
+        });
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        expect(function() {
+          fw.start(testContainer = tools.getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>'));
+        }).toThrow();
+      });
+
+      it('can properly throw an error when specifying an incorrect template config', function() {
+        var namespaceName = tools.generateNamespaceName();
+        var textToFind = tools.randomString();
+        var initializeSpy;
+
+        fw.components.register(namespaceName, {
+          template: { myName: 'Batman' },
+          viewModel: initializeSpy = jasmine.createSpy('initializeSpy', function() {
+            fw.viewModel.boot(this);
+          }).and.callThrough()
+        });
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        expect(function() {
+          fw.start(testContainer = tools.getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>'));
+        }).toThrow();
+      });
+
+      it('can instantiate a component registered using an element instance as its template', function(done) {
+        var namespaceName = tools.generateNamespaceName();
+        var textToFind = tools.randomString();
+        var initializeSpy;
+
+        testContainer = tools.getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>');
+
+        fw.components.register(namespaceName, {
+          template: { element: document.getElementById(namespaceName) },
+          viewModel: initializeSpy = jasmine.createSpy('initializeSpy', function() {
+            fw.viewModel.boot(this);
+          }).and.callThrough(),
+          synchronous: true
+        });
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer);
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+          expect($(testContainer).find(namespaceName).text().indexOf(textToFind)).not.toBe(-1);
           done();
         }, ajaxWait);
       });

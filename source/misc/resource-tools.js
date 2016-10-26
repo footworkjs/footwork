@@ -8,25 +8,46 @@ var isAmdResolved = util.isAmdResolved;
 var isNamespace = require('../namespace/namespace').isNamespace;
 var regExpMatch = /^\/|\/$/g;
 
+/**
+ * Determines whether or not the supplied resourceName has been registered on the entity descriptor.
+ *
+ * @param {object} descriptor The entity descriptor
+ * @param {string} resourceName The name of the resource to look for
+ * @returns {boolean} True if the resource is registered
+ */
 function isRegistered (descriptor, resourceName) {
   return !_.isUndefined(descriptor.registered[resourceName]);
 };
 
+/**
+ * Return the resource registered on the descriptor using the specified resourceName.
+ *
+ * @param {object} descriptor The entity descriptor
+ * @param {string} resourceName The name of the resource to look for
+ * @returns {object} The descriptor or undefined if not found
+ */
 function getRegistered (descriptor, resourceName) {
   return descriptor.registered[resourceName];
 };
 
+/**
+ * Register a resource using a given resourceName on a descriptor.
+ *
+ * @param {object} descriptor The entity descriptor
+ * @param {string} resourceName The name of the resource to register with
+ * @param {any} resource The item to register
+ */
 function register (descriptor, resourceName, resource) {
   descriptor.registered[resourceName] = resource;
 };
 
-function getModelExtension (dataModelExtensions, modelName) {
+function getModelExtension (extensions, modelName) {
   var fileExtension = '';
 
-  if (_.isFunction(dataModelExtensions)) {
-    fileExtension = dataModelExtensions(modelName);
-  } else if (_.isString(dataModelExtensions)) {
-    fileExtension = dataModelExtensions;
+  if (_.isFunction(extensions)) {
+    fileExtension = extensions(modelName);
+  } else if (_.isString(extensions)) {
+    fileExtension = extensions;
   }
 
   return fileExtension.replace(/^\./, '') || '';

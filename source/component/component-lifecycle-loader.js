@@ -77,7 +77,7 @@ function cloneNodes (nodesArray) {
  * @returns {[DOMNodes]} The cloned DOM nodes
  */
 function cloneNodesFromTemplateSourceElement (elemInstance) {
-  switch (fw.utils.tagNameLower(elemInstance)) {
+  switch (elemInstance.tagName.toLowerCase()) {
     case 'script':
       return fw.utils.parseHtmlFragment(elemInstance.text);
     case 'textarea':

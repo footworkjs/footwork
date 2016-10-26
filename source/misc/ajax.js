@@ -169,6 +169,12 @@ function sync (action, concern, params) {
   return xhr;
 };
 
+/**
+ * Place isFulfilled/isRejected/isResolved hooks onto a promise which can be used to syncronously determine a promises state.
+ *
+ * @param {promise} promise
+ * @returns {promise} the instrumented promise
+ */
 function makePromiseQueryable (promise) {
   if (promise.isResolved) {
     return promise;
