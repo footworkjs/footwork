@@ -17,7 +17,6 @@ var routesAreCaseSensitive = true;
 var nullRouter = {};
 nullRouter[getSymbol('isNullRouter')] = true;
 nullRouter[privateDataSymbol] = {
-  context: _.noop,
   path: function () { return ''; }
 };
 

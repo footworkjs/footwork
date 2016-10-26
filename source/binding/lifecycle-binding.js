@@ -38,10 +38,12 @@ fw.bindingHandlers.$lifecycle = {
       addClass(element, entityClass);
     }
 
-    if (fw.isViewModel(viewModel)) {
-      // routers are activated when the binding context is supplied
-      viewModel[privateDataSymbol].context(bindingContext);
+    // if this is a router and its configured to do so, activate it now that its being bound
+    if (fw.isRouter(viewModel) && viewModel[privateDataSymbol].configParams.activate) {
+      viewModel.activate();
+    }
 
+    if (fw.isViewModel(viewModel)) {
       // provide the element for when onDispose is called
       viewModel[privateDataSymbol].element = element;
 

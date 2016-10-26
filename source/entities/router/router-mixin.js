@@ -133,19 +133,8 @@ module.exports = {
     this[privateDataSymbol].routeDescriptions = this[privateDataSymbol].routeDescriptions.concat(_.map(_.isArray(routeConfig) ? routeConfig : [routeConfig], transformRouteConfigToDesc));
     return this;
   },
-  activate: function ($context, $parentRouter) {
+  activate: function () {
     var self = this;
-    $context = $context || self[privateDataSymbol].context();
-    $parentRouter = $parentRouter || nearestParentRouter($context);
-
-    if (!isNullRouter($parentRouter)) {
-      self[privateDataSymbol].parentRouter($parentRouter);
-    } else if (_.isObject($context)) {
-      $parentRouter = nearestParentRouter($context);
-      if ($parentRouter !== self) {
-        self[privateDataSymbol].parentRouter($parentRouter);
-      }
-    }
 
     if (!self[privateDataSymbol].historyPopstateListener()) {
       var popstateEvent = function () {
@@ -164,7 +153,7 @@ module.exports = {
       self.setState();
     }
 
-    self.$namespace.trigger('activated', { context: $context, parentRouter: $parentRouter });
+    self.$namespace.trigger('activated');
     return self;
   },
   setState: function (url, routeParams) {

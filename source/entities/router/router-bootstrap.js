@@ -100,18 +100,10 @@ function routerBootstrap (instance, configParams) {
       instance.setState(route, params);
     });
 
-    // Automatically trigger the new Action() whenever the currentRoute() updates
+    // Automatically trigger the routes controller whenever the currentRoute() updates
     instance.disposeWithInstance(instance[privateDataSymbol].currentRoute.subscribe(function routeTrigger (newRoute) {
       triggerRoute(instance, newRoute);
     }));
-
-    if (configParams.activate === true) {
-      instance.disposeWithInstance(instance[privateDataSymbol].context.subscribe(function activateRouterAfterBindingContext(context) {
-        if (_.isObject(context)) {
-          instance.activate(context);
-        }
-      }));
-    }
 
     instance.setRoutes(configParams.routes);
   } else {
