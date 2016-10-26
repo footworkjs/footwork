@@ -1284,261 +1284,267 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         }, ajaxWait);
       });
 
-      // it('can have a $route bound link correctly composed using the elements existing href attribute', function(done) {
-      //   var testContainer;
-      //   var mockUrl = tools.generateUrl();
-      //   var namespaceName = tools.generateNamespaceName();
-      //   var initializeSpy = jasmine.createSpy('initializeSpy');
-      //   var routeSpy = jasmine.createSpy('routeSpy');
+      it('can have a $route bound link correctly composed using the elements existing href attribute', function(done) {
+        var testContainer;
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
+        var initializeSpy;
+        var routeSpy = jasmine.createSpy('routeSpy');
 
-      //   fw.router.create({
-      //     namespace: namespaceName,
-      //     autoRegister: true,
-      //     routes: [
-      //       {
-      //         route: mockUrl,
-      //         controller: tools.expectCallOrder(1, routeSpy)
-      //       }
-      //     ],
-      //     initialize: tools.expectCallOrder(0, initializeSpy)
-      //   });
+        fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.router.boot(this, {
+            namespace: namespaceName,
+            routes: [
+              {
+                route: mockUrl,
+                controller: routeSpy
+              }
+            ]
+          });
+        }).and.callThrough());
 
-      //   function router(name) {
-      //     return fw.router.getAll(name)[0];
-      //   }
+        function router(name) {
+          return fw.router.getAll(name)[0];
+        }
 
-      //   expect(initializeSpy).not.toHaveBeenCalled();
-      //   expect(routeSpy).not.toHaveBeenCalled();
+        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(routeSpy).not.toHaveBeenCalled();
 
-      //   testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
-      //     <a href="' + mockUrl + '" data-bind="$route"></a>\
-      //   </router>');
-      //   fw.start(testContainer);
+        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
+          <a href="' + mockUrl + '" data-bind="$route"></a>\
+        </router>');
+        fw.start(testContainer);
 
-      //   expect(initializeSpy).toHaveBeenCalled();
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+          var $link = $(testContainer).find('a');
 
-      //   setTimeout(function() {
-      //     var $link = $(testContainer).find('a');
+          expect(routeSpy).not.toHaveBeenCalled();
+          expect($link.attr('href')).toBe(mockUrl);
 
-      //     expect(routeSpy).not.toHaveBeenCalled();
-      //     expect($link.attr('href')).toBe(mockUrl);
+          $link.click();
+          expect(routeSpy).toHaveBeenCalled();
 
-      //     $link.click();
-      //     expect(routeSpy).toHaveBeenCalled();
+          done();
+        }, ajaxWait);
+      });
 
-      //     done();
-      //   }, ajaxWait);
-      // });
+      it('can have a $route bound link correctly composed with an href attribute using an observable', function(done) {
+        var testContainer;
+        var mockUrl = tools.generateUrl();
+        var routerNamespaceName = tools.randomString();
+        var viewModelNamespaceName = tools.randomString();
+        var viewModelInitializeSpy;
+        var routerInitializeSpy;
+        var routeSpy = jasmine.createSpy('routeSpy');
+        var changedRouteSpy = jasmine.createSpy('changedRouteSpy');
 
-      // it('can have a $route bound link correctly composed with an href attribute using an observable', function(done) {
-      //   var testContainer;
-      //   var mockUrl = tools.generateUrl();
-      //   var routerNamespaceName = tools.randomString();
-      //   var viewModelNamespaceName = tools.randomString();
-      //   var viewModelInitializeSpy;
-      //   var routerInitializeSpy = jasmine.createSpy('routerInitializeSpy');
-      //   var routeSpy = jasmine.createSpy('routeSpy');
-      //   var changedRouteSpy = jasmine.createSpy('changedRouteSpy');
+        fw.router.register(routerNamespaceName, routerInitializeSpy = jasmine.createSpy('routerInitializeSpy', function() {
+          fw.router.boot(this, {
+            namespace: routerNamespaceName,
+            routes: [
+              {
+                route: '/routeHrefBindingObservable',
+                controller: routeSpy
+              }, {
+                route: '/routeHrefBindingObservableChangedRoute',
+                controller: changedRouteSpy
+              }
+            ],
+          });
+        }).and.callThrough());
 
-      //   fw.router.create({
-      //     namespace: routerNamespaceName,
-      //     autoRegister: true,
-      //     routes: [
-      //       {
-      //         route: '/routeHrefBindingObservable',
-      //         controller: tools.expectCallOrder(2, routeSpy)
-      //       }, {
-      //         route: '/routeHrefBindingObservableChangedRoute',
-      //         controller: tools.expectCallOrder(3, changedRouteSpy)
-      //       }
-      //     ],
-      //     initialize: tools.expectCallOrder(0, routerInitializeSpy)
-      //   });
+        fw.viewModel.register(viewModelNamespaceName, viewModelInitializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
+          fw.viewModel.boot(this, {
+            namespace: viewModelNamespaceName,
+          });
+          this.routeHrefBindingObservable = fw.observable('/routeHrefBindingObservable');
+        }).and.callThrough());
 
-      //   fw.viewModel.create({
-      //     namespace: viewModelNamespaceName,
-      //     autoRegister: true,
-      //     initialize: tools.expectCallOrder(1, viewModelInitializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
-      //       this.routeHrefBindingObservable = fw.observable('/routeHrefBindingObservable');
-      //     }).and.callThrough())
-      //   });
+        function viewModel(name) {
+          return fw.viewModel.getAll(name)[0];
+        }
 
-      //   function viewModel(name) {
-      //     return fw.viewModel.getAll(name)[0];
-      //   }
+        expect(routerInitializeSpy).not.toHaveBeenCalled();
+        expect(viewModelInitializeSpy).not.toHaveBeenCalled();
+        expect(routeSpy).not.toHaveBeenCalled();
+        expect(changedRouteSpy).not.toHaveBeenCalled();
 
-      //   expect(routerInitializeSpy).not.toHaveBeenCalled();
-      //   expect(viewModelInitializeSpy).not.toHaveBeenCalled();
-      //   expect(routeSpy).not.toHaveBeenCalled();
-      //   expect(changedRouteSpy).not.toHaveBeenCalled();
+        testContainer = tools.getFixtureContainer('<router module="' + routerNamespaceName + '">\
+          <viewModel module="' + viewModelNamespaceName + '">\
+            <a data-bind="$route: routeHrefBindingObservable"></a>\
+          </viewModel>\
+        </router>');
+        fw.start(testContainer);
 
-      //   testContainer = tools.getFixtureContainer('<router module="' + routerNamespaceName + '">\
-      //     <viewModel module="' + viewModelNamespaceName + '">\
-      //       <a data-bind="$route: routeHrefBindingObservable"></a>\
-      //     </viewModel>\
-      //   </router>');
-      //   fw.start(testContainer);
+        setTimeout(function() {
+          expect(routerInitializeSpy).toHaveBeenCalled();
+          expect(viewModelInitializeSpy).toHaveBeenCalled();
 
-      //   expect(routerInitializeSpy).toHaveBeenCalled();
-      //   expect(viewModelInitializeSpy).toHaveBeenCalled();
+          setTimeout(function() {
+            var $link = $(testContainer).find('a');
 
-      //   setTimeout(function() {
-      //     var $link = $(testContainer).find('a');
+            expect(routeSpy).not.toHaveBeenCalled();
+            expect(changedRouteSpy).not.toHaveBeenCalled();
+            expect($link.attr('href')).toBe('/routeHrefBindingObservable');
 
-      //     expect(routeSpy).not.toHaveBeenCalled();
-      //     expect(changedRouteSpy).not.toHaveBeenCalled();
-      //     expect($link.attr('href')).toBe('/routeHrefBindingObservable');
+            $link.click();
+            expect(routeSpy).toHaveBeenCalled();
+            expect(changedRouteSpy).not.toHaveBeenCalled();
 
-      //     $link.click();
-      //     expect(routeSpy).toHaveBeenCalled();
-      //     expect(changedRouteSpy).not.toHaveBeenCalled();
+            viewModel(viewModelNamespaceName).routeHrefBindingObservable('/routeHrefBindingObservableChangedRoute');
+            expect($link.attr('href')).toBe('/routeHrefBindingObservableChangedRoute');
 
-      //     viewModel(viewModelNamespaceName).routeHrefBindingObservable('/routeHrefBindingObservableChangedRoute');
-      //     expect($link.attr('href')).toBe('/routeHrefBindingObservableChangedRoute');
+            $link.click();
+            expect(changedRouteSpy).toHaveBeenCalled();
 
-      //     $link.click();
-      //     expect(changedRouteSpy).toHaveBeenCalled();
+            done();
+          }, ajaxWait);
+        }, 0);
+      });
 
-      //     done();
-      //   }, ajaxWait);
-      // });
+      it('can have a $route bound link that expresses the default active class when the route matches', function(done) {
+        var testContainer;
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
+        var initializeSpy;
+        var routeSpy = jasmine.createSpy('routeSpy');
 
-      // it('can have a $route bound link that expresses the default active class when the route matches', function(done) {
-      //   var testContainer;
-      //   var mockUrl = tools.generateUrl();
-      //   var namespaceName = tools.generateNamespaceName();
-      //   var initializeSpy = jasmine.createSpy('initializeSpy');
-      //   var routeSpy = jasmine.createSpy('routeSpy');
+        var $testContainer = $(testContainer);
+        var routerInitialized = false;
+        var routeTouched = false;
 
-      //   var $testContainer = $(testContainer);
-      //   var routerInitialized = false;
-      //   var routeTouched = false;
+        fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.router.boot(this, {
+            namespace: namespaceName,
+            routes: [
+              {
+                route: mockUrl,
+                controller: routeSpy
+              }
+            ]
+          });
+        }).and.callThrough());
 
-      //   fw.router.create({
-      //     namespace: namespaceName,
-      //     autoRegister: true,
-      //     routes: [
-      //       {
-      //         route: mockUrl,
-      //         controller: tools.expectCallOrder(1, routeSpy)
-      //       }
-      //     ],
-      //     initialize: tools.expectCallOrder(0, initializeSpy)
-      //   });
+        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(routeSpy).not.toHaveBeenCalled();
 
-      //   expect(initializeSpy).not.toHaveBeenCalled();
-      //   expect(routeSpy).not.toHaveBeenCalled();
+        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
+          <a data-bind="$route: \'' + mockUrl + '\'"></a>\
+        </router>');
+        fw.start(testContainer);
 
-      //   testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
-      //     <a data-bind="$route: \'' + mockUrl + '\'"></a>\
-      //   </router>');
-      //   fw.start(testContainer);
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
 
-      //   expect(initializeSpy).toHaveBeenCalled();
+          setTimeout(function() {
+            var $link = $(testContainer).find('a');
 
-      //   setTimeout(function() {
-      //     var $link = $(testContainer).find('a');
+            expect(routeSpy).not.toHaveBeenCalled();
+            expect($link.hasClass('active')).toBe(false);
 
-      //     expect(routeSpy).not.toHaveBeenCalled();
-      //     expect($link.hasClass('active')).toBe(false);
+            $link.click();
+            expect(routeSpy).toHaveBeenCalled();
+            expect($link.hasClass('active')).toBe(true);
 
-      //     $link.click();
-      //     expect(routeSpy).toHaveBeenCalled();
-      //     expect($link.hasClass('active')).toBe(true);
+            done();
+          }, ajaxWait);
+        }, 0);
+      });
 
-      //     done();
-      //   }, ajaxWait);
-      // });
+      it('can have a $route bound link that expresses a custom \'active\' class when the route matches', function(done) {
+        var testContainer;
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
+        var activeClassName = tools.randomString();
+        var initializeSpy;
+        var routeSpy = jasmine.createSpy('routeSpy');
 
-      // it('can have a $route bound link that expresses a custom \'active\' class when the route matches', function(done) {
-      //   var testContainer;
-      //   var mockUrl = tools.generateUrl();
-      //   var namespaceName = tools.generateNamespaceName();
-      //   var activeClassName = tools.randomString();
-      //   var initializeSpy = jasmine.createSpy('initializeSpy');
-      //   var routeSpy = jasmine.createSpy('routeSpy');
+        fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.router.boot(this, {
+            namespace: namespaceName,
+            routes: [
+              {
+                route: mockUrl,
+                controller: routeSpy
+              }
+            ],
+            initialize: initializeSpy
+          });
+        }).and.callThrough());
 
-      //   fw.router.create({
-      //     namespace: namespaceName,
-      //     autoRegister: true,
-      //     routes: [
-      //       {
-      //         route: mockUrl,
-      //         controller: tools.expectCallOrder(1, routeSpy)
-      //       }
-      //     ],
-      //     initialize: tools.expectCallOrder(0, initializeSpy)
-      //   });
+        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(routeSpy).not.toHaveBeenCalled();
 
-      //   expect(initializeSpy).not.toHaveBeenCalled();
-      //   expect(routeSpy).not.toHaveBeenCalled();
+        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
+          <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\' }"></a>\
+        </router>');
+        fw.start(testContainer);
 
-      //   testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
-      //     <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\' }"></a>\
-      //   </router>');
-      //   fw.start(testContainer);
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
 
-      //   expect(initializeSpy).toHaveBeenCalled();
+          setTimeout(function() {
+            var $link = $(testContainer).find('a');
 
-      //   setTimeout(function() {
-      //     var $link = $(testContainer).find('a');
+            expect(routeSpy).not.toHaveBeenCalled();
+            expect($link.hasClass(activeClassName)).toBe(false);
 
-      //     expect(routeSpy).not.toHaveBeenCalled();
-      //     expect($link.hasClass(activeClassName)).toBe(false);
+            $link.click();
+            expect(routeSpy).toHaveBeenCalled();
+            expect($link.hasClass(activeClassName)).toBe(true);
 
-      //     $link.click();
-      //     expect(routeSpy).toHaveBeenCalled();
-      //     expect($link.hasClass(activeClassName)).toBe(true);
+            done();
+          }, ajaxWait);
+        }, 0);
+      });
 
-      //     done();
-      //   }, ajaxWait);
-      // });
+      it('can have a $route bound link that expresses a custom \'active\' class on the direct parent element', function(done) {
+        var testContainer;
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
+        var activeClassName = tools.randomString();
+        var initializeSpy = jasmine.createSpy('initializeSpy');
+        var routeSpy = jasmine.createSpy('routeSpy');
 
-      // it('can have a $route bound link that expresses a custom \'active\' class on the direct parent element', function(done) {
-      //   var testContainer;
-      //   var mockUrl = tools.generateUrl();
-      //   var namespaceName = tools.generateNamespaceName();
-      //   var activeClassName = tools.randomString();
-      //   var initializeSpy = jasmine.createSpy('initializeSpy');
-      //   var routeSpy = jasmine.createSpy('routeSpy');
+        fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.router.boot(this, {
+            namespace: namespaceName,
+            routes: [
+              {
+                route: mockUrl,
+                controller: routeSpy
+              }
+            ],
+            initialize: initializeSpy
+          });
+        }).and.callThrough());
 
-      //   fw.router.create({
-      //     namespace: namespaceName,
-      //     autoRegister: true,
-      //     routes: [
-      //       {
-      //         route: mockUrl,
-      //         controller: tools.expectCallOrder(1, routeSpy)
-      //       }
-      //     ],
-      //     initialize: tools.expectCallOrder(0, initializeSpy)
-      //   });
+        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(routeSpy).not.toHaveBeenCalled();
 
-      //   expect(initializeSpy).not.toHaveBeenCalled();
-      //   expect(routeSpy).not.toHaveBeenCalled();
+        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
+          <div>\
+            <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\', parentHasState: true }"></a>\
+          </div>\
+        </router>');
+        fw.start(testContainer);
 
-      //   testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
-      //     <div>\
-      //       <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\', parentHasState: true }"></a>\
-      //     </div>\
-      //   </router>');
-      //   fw.start(testContainer);
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
 
-      //   expect(initializeSpy).toHaveBeenCalled();
+          var $link = $(testContainer).find('a');
 
-      //   setTimeout(function() {
-      //     var $link = $(testContainer).find('a');
+          expect(routeSpy).not.toHaveBeenCalled();
+          expect($link.parent().hasClass(activeClassName)).toBe(false);
 
-      //     expect(routeSpy).not.toHaveBeenCalled();
-      //     expect($link.parent().hasClass(activeClassName)).toBe(false);
+          $link.click();
+          expect(routeSpy).toHaveBeenCalled();
+          expect($link.parent().hasClass(activeClassName)).toBe(true);
 
-      //     $link.click();
-      //     expect(routeSpy).toHaveBeenCalled();
-      //     expect($link.parent().hasClass(activeClassName)).toBe(true);
-
-      //     done();
-      //   }, ajaxWait);
-      // });
+          done();
+        }, ajaxWait);
+      });
 
       // it('can have a $route bound link that expresses an \'active\' class on the selected parent element', function(done) {
       //   var testContainer;
