@@ -35,7 +35,6 @@ module.exports = {
     'karma-jasmine',
     'karma-json-fixtures-preprocessor',
     'karma-fixture',
-    'karma-jasmine-jquery',
     'karma-requirejs',
     'karma-spec-reporter',
     'karma-env',

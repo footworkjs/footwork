@@ -19,6 +19,60 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(fw.isBroadcastable(modelA.broadcaster)).toBe(true);
       });
 
+      it('has the ability to create a broadcastable based on a string identifier', function() {
+        var namespaceName = tools.randomString();
+        var testValue = tools.randomString();
+
+        var broadcaster = fw.observable(testValue).broadcastAs('broadcaster', namespaceName);
+        var receiver = fw.observable().receiveFrom(namespaceName, 'broadcaster');
+
+        expect(receiver()).toBe(testValue);
+      });
+
+      it('throws an error when an invalid namespace is specified for a broadcastable', function() {
+        expect(function() {fw.observable().broadcastAs('something', null)}).toThrow();
+      });
+
+      it('throws an error when an invalid namespace is specified for a receivable', function() {
+        expect(function() {fw.observable().receiveFrom(null, 'something')}).toThrow();
+      });
+
+      it('can create and dispose of a broadcastable correctly', function() {
+        var namespaceName = tools.randomString();
+        var testValue = tools.randomString();
+        var testValue2 = tools.randomString();
+        var testValue3 = tools.randomString();
+
+        var broadcaster = fw.observable(testValue).broadcastAs('broadcaster', namespaceName);
+        var receiver = fw.observable().receiveFrom(namespaceName, 'broadcaster');
+
+        expect(receiver()).toBe(testValue);
+        broadcaster(testValue2);
+        expect(receiver()).toBe(testValue2);
+
+        broadcaster.dispose();
+        broadcaster(testValue3);
+        expect(receiver()).not.toBe(testValue3);
+      });
+
+      it('can create and dispose of a receivable correctly', function() {
+        var namespaceName = tools.randomString();
+        var testValue = tools.randomString();
+        var testValue2 = tools.randomString();
+        var testValue3 = tools.randomString();
+
+        var broadcaster = fw.observable(testValue).broadcastAs('broadcaster', namespaceName);
+        var receiver = fw.observable().receiveFrom(namespaceName, 'broadcaster');
+
+        expect(receiver()).toBe(testValue);
+        broadcaster(testValue2);
+        expect(receiver()).toBe(testValue2);
+
+        receiver.dispose();
+        broadcaster(testValue3);
+        expect(receiver()).not.toBe(testValue3);
+      });
+
       it('has the ability to create model with a receivable', function() {
         var initializeSpy;
 
@@ -105,70 +159,50 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(modelA.writableBroadcaster()).toBe(testValue);
       });
 
-      it('when modelB tries to write to receivable modelA does not see the data on a non-writable broadcastable and the receivable is not set to the new value', function() {
+      it('cannot write to non-writable broadcastable', function() {
         var modelAInitializeSpy;
         var modelBInitializeSpy;
         var modelANamespaceName = tools.generateNamespaceName();
 
-        var ModelA = modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
-          fw.viewModel.boot(this, {
-            namespace: modelANamespaceName,
-          });
-          this.nonwritableBroadcaster = fw.observable().broadcastAs('nonwritableBroadcaster', this);
-        }).and.callThrough();
-
-        expect(modelAInitializeSpy).not.toHaveBeenCalled();
-        var modelA = new ModelA();
-        expect(modelAInitializeSpy).toHaveBeenCalled();
-
-        var ModelB = modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
-          fw.viewModel.boot(this);
-          this.nonwritableReceiver = fw.observable().receiveFrom(modelANamespaceName, 'nonwritableBroadcaster');
-        }).and.callThrough()
-
-        expect(modelBInitializeSpy).not.toHaveBeenCalled();
-        var modelB = new ModelB();
-        expect(modelBInitializeSpy).toHaveBeenCalled();
+        var nonwritableBroadcaster = fw.observable().broadcastAs('nonwritableBroadcaster', modelANamespaceName);
+        var nonwritableReceiver = fw.observable().receiveFrom(modelANamespaceName, 'nonwritableBroadcaster');
 
         var testValue = tools.randomString();
-        modelB.nonwritableReceiver(testValue);
-        expect(modelB.nonwritableReceiver()).not.toBe(testValue);
-        expect(modelA.nonwritableBroadcaster()).not.toBe(testValue);
+        nonwritableReceiver(testValue);
+        expect(nonwritableReceiver()).not.toBe(testValue);
+        expect(nonwritableBroadcaster()).not.toBe(testValue);
       });
 
       it('receivable with .when() specified writes when callback returns true', function() {
-        var modelAInitializeSpy;
-        var modelBInitializeSpy;
         var whenSpy;
         var modelANamespaceName = tools.generateNamespaceName();
 
-        var ModelA = modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
-          fw.viewModel.boot(this, {
-            namespace: modelANamespaceName,
-          });
-          this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback', this);
-        }).and.callThrough();
+        var broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback', modelANamespaceName);
+        var receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(whenSpy = jasmine.createSpy('whenSpy', function() {
+          return true;
+        }).and.callThrough());
 
-        expect(modelAInitializeSpy).not.toHaveBeenCalled();
-        var modelA = new ModelA();
-        expect(modelAInitializeSpy).toHaveBeenCalled();
-
-        var ModelB = modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
-          fw.viewModel.boot(this);
-          this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(whenSpy = jasmine.createSpy('whenSpy', function() {
-            return true;
-          }).and.callThrough());
-        }).and.callThrough();
-
-        expect(modelBInitializeSpy).not.toHaveBeenCalled();
-        var modelB = new ModelB();
         expect(whenSpy).not.toHaveBeenCalled();
-        expect(modelBInitializeSpy).toHaveBeenCalled();
 
         var testValue = tools.randomString();
-        modelA.broadcaster(testValue);
+        broadcaster(testValue);
         expect(whenSpy).toHaveBeenCalled();
-        expect(modelB.receiver()).toBe(testValue);
+        expect(receiver()).toBe(testValue);
+      });
+
+      it('receivable with .when() specified writes when callback matches a specific value', function() {
+        var modelANamespaceName = tools.generateNamespaceName();
+        var writableValue = tools.randomString();
+
+        var broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback', modelANamespaceName);
+        var receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(writableValue);
+
+        var testValue = tools.randomString();
+        broadcaster(testValue);
+        expect(receiver()).not.toBe(testValue);
+
+        broadcaster(writableValue);
+        expect(receiver()).toBe(writableValue);
       });
 
       it('receivable with .when() specified does NOT write when callback returns false', function() {

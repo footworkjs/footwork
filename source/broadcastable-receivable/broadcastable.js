@@ -22,8 +22,8 @@ fw.subscribable.fn.broadcastAs = function (varName, fromInstanceOrNamespace, isW
     namespace = fromInstanceOrNamespace.$namespace;
   } else if (isNamespace(fromInstanceOrNamespace)) {
     namespace = fromInstanceOrNamespace;
-  } else if (_.isString(namespace)) {
-    namespace = fw.namespace(namespace);
+  } else if (_.isString(fromInstanceOrNamespace)) {
+    namespace = fw.namespace(fromInstanceOrNamespace);
     isLocalNamespace = true;
   } else {
     throw new Error('Invalid namespace provided for broadcastAs() observable.');
