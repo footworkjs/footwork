@@ -76,7 +76,7 @@ fw.bindingHandlers.$route = {
       routeHandlerDescription.url = function () { return routeHandlerDescriptionURL; };
     }
 
-   function getRouteURL (includeParentPath) {
+    function getRouteURL () {
       var parentRoutePath = '';
       var routeURL = routeHandlerDescription.url();
       var myLinkPath = routeURL || '';
@@ -88,22 +88,18 @@ fw.bindingHandlers.$route = {
 
         if (!isFullURL(myLinkPath)) {
           if (!hasPathStart(myLinkPath)) {
-            var currentRoute = $myRouter.currentRoute();
+            var currentRoute = $myRouter[privateDataSymbol].currentRoute();
             if (hasHashStart(myLinkPath)) {
               if (!_.isNull(currentRoute)) {
-                myLinkPath = $myRouter.currentRoute().segment + myLinkPath;
+                myLinkPath = $myRouter[privateDataSymbol].currentRoute().segment + myLinkPath;
               }
               hashOnly = true;
             } else {
               // relative url, prepend current segment
               if (!_.isNull(currentRoute)) {
-                myLinkPath = $myRouter.currentRoute().segment + '/' + myLinkPath;
+                myLinkPath = $myRouter[privateDataSymbol].currentRoute().segment + '/' + myLinkPath;
               }
             }
-          }
-
-          if (includeParentPath && !isNullRouter($myRouter)) {
-            myLinkPath = $myRouter[privateDataSymbol].parentRouter().path() + myLinkPath;
           }
         }
 
@@ -112,12 +108,10 @@ fw.bindingHandlers.$route = {
 
       return null;
     };
-    var routeURLWithParentPath = getRouteURL.bind(null, true);
-    var routeURLWithoutParentPath = getRouteURL.bind(null, false);
 
-   function checkForMatchingSegment (mySegment, newRoute) {
+    function checkForMatchingSegment (mySegment, newRoute) {
       if (_.isString(mySegment)) {
-        var currentRoute = $myRouter.currentRoute();
+        var currentRoute = $myRouter[privateDataSymbol].currentRoute();
         var elementWithState = routeHandlerDescription.parentHasState ? findParentNode(element, routeHandlerDescription.parentHasState) : element;
         var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', $myRouter) || fw.router.activeRouteClassName();
         mySegment = mySegment.replace(startingHashRegex, '/');
@@ -144,26 +138,25 @@ fw.bindingHandlers.$route = {
       }
     };
 
-   function setUpElement () {
+    function setUpElement () {
       if (!isNullRouter($myRouter)) {
-        var myCurrentSegment = routeURLWithoutParentPath();
+        var myCurrentSegment = getRouteURL();
         var configParams = $myRouter[privateDataSymbol].configParams;
         if (element.tagName.toLowerCase() === 'a') {
-          element.href = configParams.baseRoute + routeURLWithParentPath();
+          element.href = configParams.baseRoute + getRouteURL();
         }
 
         if (_.isObject(stateTracker) && _.isFunction(stateTracker.dispose)) {
           stateTracker.dispose();
         }
-        stateTracker = $myRouter.currentRoute.subscribe(checkForMatchingSegment.bind(null, myCurrentSegment));
+        stateTracker = $myRouter[privateDataSymbol].currentRoute.subscribe(checkForMatchingSegment.bind(null, myCurrentSegment));
 
         if (elementIsSetup === false) {
           elementIsSetup = true;
-          checkForMatchingSegment(myCurrentSegment, $myRouter.currentRoute());
+          checkForMatchingSegment(myCurrentSegment, $myRouter[privateDataSymbol].currentRoute());
 
-          $myRouter[privateDataSymbol].parentRouter.subscribe(setUpElement);
           fw.utils.registerEventHandler(element, resultBound(routeHandlerDescription, 'on', $myRouter), function (event) {
-            var currentRouteURL = routeURLWithoutParentPath();
+            var currentRouteURL = getRouteURL();
             var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
             if (handlerResult) {
               if (_.isString(handlerResult)) {
