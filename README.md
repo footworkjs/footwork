@@ -3,7 +3,7 @@
 
 *```A solid footing for web applications.```*
 
-[![Build Status](https://travis-ci.org/footworkjs/footwork.png?branch=master)](https://travis-ci.org/footworkjs/footwork) [![Build Status](https://saucelabs.com/buildstatus/reflectiv)](https://saucelabs.com/u/reflectiv) [![Test Coverage](https://coveralls.io/repos/github/footworkjs/footwork/badge.svg?branch=master&r=100)](https://coveralls.io/github/footworkjs/footwork) [![Bower version](https://badge.fury.io/bo/footwork.svg)](https://badge.fury.io/bo/footwork)
+[![Build Status](https://travis-ci.org/footworkjs/footwork.png?branch=master)](https://travis-ci.org/footworkjs/footwork) [![Build Status](https://saucelabs.com/buildstatus/reflectiv)](https://saucelabs.com/u/reflectiv) [![Test Coverage](https://coveralls.io/repos/github/footworkjs/footwork/badge.svg?branch=master&r=101)](https://coveralls.io/github/footworkjs/footwork) [![Bower version](https://badge.fury.io/bo/footwork.svg)](https://badge.fury.io/bo/footwork)
 
 [![Build Status](https://saucelabs.com/browser-matrix/reflectiv.svg)](https://saucelabs.com/u/reflectiv)
 
@@ -52,23 +52,15 @@ If you need further setup help, refer to the [Get Started](http://footworkjs.com
 
 1. **Install gulp and bower globally (if needed):**
 
-  * [gulp](http://gulpjs.com/)
+  * [gulp](http://gulpjs.com/) and [bower](http://bower.io/)
   
-          sudo npm install -g gulp-cli
-
-  * [bower](http://bower.io/)
-  
-          sudo npm install -g bower
+          sudo npm install -g gulp-cli bower
 
 1. **Acquire build dependencies:**
 
-  * ...from npm (https://www.npmjs.com/)
+  * ...from npm (https://www.npmjs.com/) and bower (http://bower.io/)
   
-          npm install
-
-  * ...and from bower (http://bower.io/)
-  
-          bower install
+          npm install && bower Install
 
 1. **Run a gulp task to build/test/etc:**
   
