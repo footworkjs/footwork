@@ -14,22 +14,24 @@ fw.footworkVersion = '2.0.0';
 fw.namespace = require('./namespace/namespace');
 fw.embed = require('./misc/embed-exports');
 fw.sync = require('./misc/ajax').sync;
+
 fw.utils.guid = require('./misc/util').guid;
+fw.utils.getPrivateData = require('./misc/util').getPrivateData;
 
 require('./broadcastable-receivable/broadcastable');
 require('./broadcastable-receivable/receivable');
 
 require('./entities/entities');
-require('./resource/resource');
 require('./component/component');
 require('./collection/collection');
 
+require('./binding/lifecycle-binding');
 require('./binding/applyBindings');
 require('./binding/start');
 
 module.exports = fw;
 
-},{"./binding/applyBindings":5,"./binding/start":6,"./broadcastable-receivable/broadcastable":7,"./broadcastable-receivable/receivable":8,"./collection/collection":11,"./component/component":15,"./entities/entities":21,"./misc/ajax":28,"./misc/embed-exports":30,"./misc/util":31,"./namespace/namespace":34,"./resource/resource":36,"knockout/build/output/knockout-latest":2}],2:[function(require,module,exports){
+},{"./binding/applyBindings":6,"./binding/lifecycle-binding":8,"./binding/start":9,"./broadcastable-receivable/broadcastable":10,"./broadcastable-receivable/receivable":11,"./collection/collection":14,"./component/component":19,"./entities/entities":25,"./misc/ajax":42,"./misc/embed-exports":44,"./misc/util":47,"./namespace/namespace":49,"knockout/build/output/knockout-latest":2}],2:[function(require,module,exports){
 /*!
  * Knockout JavaScript library v3.4.0
  * (c) Steven Sanderson - http://knockoutjs.com/
@@ -7948,110 +7950,384 @@ _.extend( postal, {
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var entityTools = require('../entities/entity-tools');
-var isEntity = entityTools.isEntity;
-var isRouter = entityTools.isRouter;
+var config = require('../misc/config');
+var entityAnimateClass = config.entityAnimateClass;
+var privateDataSymbol = config.privateDataSymbol;
+
+var util = require('../misc/util');
+var resultBound = util.resultBound;
+var addClass = util.addClass;
+var nextFrame = util.nextFrame;
+
+var sequenceQueue = {};
+
+/**
+ * Clear (run all of) the animation sequence queues immediately.
+ */
+function clearSequenceQueue () {
+  _.each(sequenceQueue, function (sequence, queueNamespace) {
+    _.each(sequence, function (sequenceIteration) {
+      sequenceIteration.addAnimationClass();
+    });
+    delete sequenceQueue[queueNamespace];
+  });
+}
+
+/**
+ * Run the specified queue if it is not already running.
+ * This method takes a list of callbacks and runs each in sequence using the stored nextIteration as the next offset.
+ *
+ * @param {any} queue The queue to run
+ * @param {any} runNextStepNow (used for recursion) this flag tells the method to run the next step in the queue
+ */
+function runAnimationSequenceQueue (queue, runNextStepNow) {
+  if (!queue.running || runNextStepNow) {
+    var sequenceIteration = queue.shift();
+
+    if (sequenceIteration) {
+      sequenceIteration.addAnimationClass();
+
+      if (sequenceIteration.nextIteration || queue.length) {
+        queue.running = true;
+        setTimeout(function () {
+          runAnimationSequenceQueue(queue, true);
+        }, sequenceIteration.nextIteration);
+      } else {
+        queue.running = false;
+      }
+    } else {
+      queue.running = false;
+    }
+  }
+}
+
+/**
+ * Add an element to be displayed into a queue. Either add to an existing one or insert into and return a new queue.
+ * New queues are created based on the namespace of the viewModel and whether or not the viewModel is configured for/with a sequenceAnimations property
+ *
+ * @param {any} element The element that needs the animation class added
+ * @param {any} viewModel The viewModel that contains a sequenceAnimations configuration option
+ * @returns {object} queue The animation sequence queue
+ */
+function addToAndFetchQueue (element, viewModel) {
+  var configParams = (viewModel[privateDataSymbol] || {}).configParams || {};
+  var sequenceTimeout = resultBound(configParams, 'sequenceAnimations', viewModel) || 0;
+  var namespaceName = configParams.namespace;
+  var animationSequenceQueue = sequenceQueue[namespaceName] = (sequenceQueue[namespaceName] || []);
+  var newSequenceIteration = {
+    addAnimationClass: function addBindingFromQueue () {
+      nextFrame(function () {
+        addClass(element, entityAnimateClass);
+      });
+    },
+    nextIteration: sequenceTimeout
+  };
+
+  animationSequenceQueue.push(newSequenceIteration);
+
+  return animationSequenceQueue;
+}
+
+module.exports = {
+  clearSequenceQueue: clearSequenceQueue,
+  runAnimationSequenceQueue: runAnimationSequenceQueue,
+  addToAndFetchQueue: addToAndFetchQueue
+};
+
+},{"../misc/config":43,"../misc/util":47,"knockout/build/output/knockout-latest":2,"lodash":3}],6:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
+
+var bindingElement = require('../binding/binding-element');
+var isEntity = require('../entities/entity-tools').isEntity;
+var makeArray = require('../misc/util').makeArray;
 
 // Override the original applyBindings method to provide viewModel/dataModel/router life-cycle events
 var originalApplyBindings = fw.applyBindings;
-fw.applyBindings = function(viewModelOrBindingContext, rootNode) {
-  originalApplyBindings(viewModelOrBindingContext, rootNode);
+fw.applyBindings = function (viewModelOrBindingContext, rootNode) {
+  rootNode = rootNode || window.document.body;
 
-  if(isEntity(viewModelOrBindingContext)) {
-    var configParams = viewModelOrBindingContext.__private.configParams;
+  if (_.isFunction(window.require)) {
+    // must initialize default require context (https://github.com/jrburke/requirejs/issues/1305#issuecomment-87924865)
+    window.require([]);
+  }
 
-    // trigger afterRender on the viewModel
-    configParams.afterRender.call(viewModelOrBindingContext, rootNode);
-
-    // supply the context to the instance if it is a router
-    if (isRouter(viewModelOrBindingContext)) {
-      viewModelOrBindingContext.__private.context(fw.contextFor(rootNode));
-    }
+  if (isEntity(viewModelOrBindingContext)) {
+    originalApplyBindings(viewModelOrBindingContext, wrapWithLifeCycle(rootNode));
+  } else {
+    originalApplyBindings(viewModelOrBindingContext, rootNode);
   }
 };
 
-},{"../entities/entity-tools":24,"knockout/build/output/knockout-latest":2,"lodash":3}],6:[function(require,module,exports){
+/**
+ * Wrap the supplied rootNode with the lifecycle binding. This enables footwork to track when
+ * the instance is bound to or removed from the dom, triggering its various lifecycle events.
+ *
+ * @param {string|[DOMNodes]} template
+ * @returns {[DOMNodes]} The wrapped component
+ */
+function wrapWithLifeCycle (rootNode) {
+  var wrapper = fw.utils.parseHtmlFragment(bindingElement.open.prefix + '$lifecycle' + bindingElement.open.postfix + bindingElement.close);
+
+  wrapper = [].concat(wrapper[0], makeArray(rootNode.childNodes), wrapper[1]);
+  _.each(wrapper, function (node) {
+    rootNode.appendChild(node);
+  });
+
+  return rootNode;
+}
+
+},{"../binding/binding-element":7,"../entities/entity-tools":28,"../misc/util":47,"knockout/build/output/knockout-latest":2,"lodash":3}],7:[function(require,module,exports){
+var oldExploderVersion = 8;
+var bindingElement = {
+  oldExploderTagName: 'div',
+  open: {
+    prefix: '<!-- ko ',
+    postfix: ' -->'
+  },
+  close: '<!-- /ko -->'
+};
+
+/* istanbul ignore next */
+(function checkForOldIE () {
+  var clientNavigator = navigator.userAgent.toLowerCase();
+  var exploderVersion = (clientNavigator.indexOf('msie') != -1) ? parseInt(clientNavigator.split('msie')[1]) : (oldExploderVersion + 1);
+
+  if (exploderVersion <= oldExploderVersion) {
+    // client is using an older IE, we have to initialize the wrapper with a normal element (ie < 9 doesn't support virtual elements)
+    bindingElement.open = {
+      prefix: '<' + bindingElement.oldExploderTagName + ' data-bind="',
+      postfix: '">'
+    };
+    bindingElement.close = '</' + bindingElement.oldExploderTagName + '>';
+  }
+})();
+
+module.exports = bindingElement;
+
+},{}],8:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
+
+var animationSequencing = require('./animation-sequencing');
+var addToAndFetchQueue = animationSequencing.addToAndFetchQueue;
+var runAnimationSequenceQueue = animationSequencing.runAnimationSequenceQueue;
+
+var entityTools = require('../entities/entity-tools');
+var nearestEntity = entityTools.nearestEntity;
+var isEntity = entityTools.isEntity;
+var isRouter = entityTools.isRouter;
+
+var routerDefaults = require('../entities/router/router-defaults');
+var outletLoadedDisplay = routerDefaults.outletLoadedDisplay;
+var outletLoadingDisplay = routerDefaults.outletLoadingDisplay;
+
+var util = require('../misc/util');
+var addClass = util.addClass;
+var hasClass = util.hasClass;
+var isPromise = util.isPromise;
+var promiseIsFulfilled = util.promiseIsFulfilled;
+var getSymbol = util.getSymbol;
+
+var config = require('../misc/config');
+var entityClass = config.entityClass;
+var privateDataSymbol = config.privateDataSymbol;
+
+/**
+ * The $lifecycle binding provides lifecycle events for components/viewModels/dataModels/routers
+ */
+fw.virtualElements.allowedBindings.$lifecycle = true;
+fw.bindingHandlers.$lifecycle = {
+  init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+    element = element.parentElement || element.parentNode;
+
+    if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
+      // the outlet viewModel and template binding handles its animation state
+      addClass(element, entityClass);
+    }
+
+    // if this is a router and its configured to do so, activate it now that its being bound
+    if (fw.isRouter(viewModel) && viewModel[privateDataSymbol].configParams.activate) {
+      viewModel.activate();
+    }
+
+    if (fw.isViewModel(viewModel)) {
+      // provide the element for when onDispose is called
+      viewModel[privateDataSymbol].element = element;
+
+      fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
+        viewModel.dispose();
+      });
+    }
+  },
+  update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+    element = element.parentElement || element.parentNode;
+
+    // if this is the lifecycle update on an outlets display we need to run its callback
+    if (hasClass(element, outletLoadedDisplay)) {
+      var outletDisplay = bindingContext.$parent.display.peek();
+      if (!hasClass(element, outletLoadingDisplay) && _.isFunction(outletDisplay.getOnCompleteCallback)) {
+        var outletLoadingIsCompleted = outletDisplay.getOnCompleteCallback(element);
+        outletLoadingIsCompleted();
+      }
+    }
+
+    // trigger the user-specified afterRender callback
+    if (isEntity(viewModel) && !viewModel[privateDataSymbol].afterRenderWasTriggered) {
+      viewModel[privateDataSymbol].afterRenderWasTriggered = true;
+      viewModel[privateDataSymbol].configParams.afterRender.call(viewModel, element);
+    }
+
+    // resolve the loadingTracker and trigger the addAnimationClass callback when appropriate
+    resolveTrackerAndAnimate(element, viewModel, bindingContext, function addAnimationClass () {
+      if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
+        var queue = addToAndFetchQueue(element, viewModel);
+        var nearestOutlet = nearestEntity(bindingContext, fw.isOutlet);
+
+        if (nearestOutlet) {
+          // the parent outlet will run the callback that initiates the animation
+          // sequence (once the rest of its dependencies finish loading as well)
+          nearestOutlet.addResolvedCallbackOrExecute(function () {
+            runAnimationSequenceQueue(queue);
+          });
+        } else {
+          // no parent outlet found, lets go ahead and run the queue
+          runAnimationSequenceQueue(queue);
+        }
+      }
+    });
+  }
+};
+
+/**
+ * Mark the element/tracker as resolved on the parent entity (if it exists) and supply the resolveInstanceNow callback to afterResolving which
+ * takes the user supplied isResolved value and adds the animation class via addAnimationClass when it has resolved.
+ *
+ * @param {DOMElement} element
+ * @param {object} viewModel
+ * @param {object} $context
+ * @param {function} addAnimationClass
+ */
+function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationClass) {
+  var loadingTracker = element[getSymbol('loadingTracker')];
+  var parentInFlightChildren;
+
+  var parentEntity = nearestEntity($context);
+  if (parentEntity) {
+    parentInFlightChildren = parentEntity[privateDataSymbol].loadingChildren;
+  }
+
+ function finishResolution () {
+    addAnimationClass();
+    if (fw.isObservable(parentInFlightChildren) && _.isFunction(parentInFlightChildren.remove)) {
+      parentInFlightChildren.remove(loadingTracker);
+    }
+  }
+
+  if (isEntity(viewModel)) {
+    var wasResolved = false;
+   function resolveInstanceNow (isResolved) {
+      if (!wasResolved) {
+        wasResolved = true;
+        if (isResolved === true) {
+          finishResolution();
+        } else if (isPromise(isResolved) || _.isArray(isResolved)) {
+          if (!_.every(isResolved, isPromise)) {
+            throw new Error('Can only pass array of promises to resolved()');
+          }
+
+          var promises = [].concat(isResolved);
+          var checkPromise = function (promise) {
+            promise.then(function () {
+              if (_.every(promises, promiseIsFulfilled)) {
+                finishResolution();
+              }
+            });
+          };
+
+          _.each(promises, checkPromise);
+        }
+      }
+    }
+
+   function maybeResolve () {
+      viewModel[privateDataSymbol].configParams.afterResolving.call(viewModel, resolveInstanceNow);
+    }
+
+    var loadingChildren = viewModel[privateDataSymbol].loadingChildren;
+    // if no children then resolve now, otherwise subscribe and wait till its 0
+    if (loadingChildren().length === 0) {
+      maybeResolve();
+    } else {
+      viewModel.disposeWithInstance(loadingChildren.subscribe(function (loadingChildren) {
+        loadingChildren.length === 0 && maybeResolve();
+      }));
+    }
+  } else {
+    finishResolution();
+  }
+}
+
+},{"../entities/entity-tools":28,"../entities/router/router-defaults":35,"../misc/config":43,"../misc/util":47,"./animation-sequencing":5,"knockout/build/output/knockout-latest":2,"lodash":3}],9:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 
 // 'start' up the framework at the targetElement (or document.body by default)
-fw.start = function(targetElement) {
+fw.start = function (targetElement) {
   targetElement = targetElement || window.document.body;
   fw.applyBindings({}, targetElement);
 };
 
-},{"knockout/build/output/knockout-latest":2}],7:[function(require,module,exports){
+},{"knockout/build/output/knockout-latest":2}],10:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var postal = require('postal');
 var _ = require('lodash');
 
 var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;
 var isNamespace = require('../namespace/namespace').isNamespace;
+var isBroadcastableSymbol = require('../misc/util').getSymbol('isBroadcastable');
 
-fw.isBroadcastable = function(thing) {
-  return _.isObject(thing) && !!thing.__isBroadcastable;
+fw.isBroadcastable = function (thing) {
+  return _.isObject(thing) && !!thing[isBroadcastableSymbol];
 };
 
 // factory method which turns an observable into a broadcastable
-fw.subscribable.fn.broadcastAs = function(varName, option) {
+fw.subscribable.fn.broadcastAs = function (varName, fromInstanceOrNamespace, isWritable) {
   var broadcastable = this;
   var namespace;
   var subscriptions = [];
   var namespaceSubscriptions = [];
   var isLocalNamespace = false;
 
-  if (_.isObject(varName)) {
-    option = varName;
-  } else {
-    if (_.isBoolean(option)) {
-      option = {
-        name: varName,
-        writable: option
-      };
-    } else if (_.isObject(option)) {
-      option = _.extend({
-        name: varName
-      }, option);
-    } else if (_.isString(option)) {
-      option = _.extend({
-        name: varName,
-        namespace: option
-      }, option);
-    } else {
-      option = {
-        name: varName
-      };
-    }
-  }
-
-  namespace = option.namespace || fw.utils.currentNamespace();
-  if (_.isString(namespace)) {
+  if(fw.isViewModel(fromInstanceOrNamespace)) {
+    namespace = fromInstanceOrNamespace.$namespace;
+  } else if (isNamespace(fromInstanceOrNamespace)) {
+    namespace = fromInstanceOrNamespace;
+  } else if (_.isString(namespace)) {
     namespace = fw.namespace(namespace);
     isLocalNamespace = true;
-  }
-
-  if (!isNamespace(namespace)) {
+  } else {
     throw new Error('Invalid namespace provided for broadcastAs() observable.');
   }
 
-  if (option.writable) {
-    namespaceSubscriptions.push(namespace.subscribe('__change.' + option.name, function(newValue) {
+  if (isWritable) {
+    namespaceSubscriptions.push(namespace.subscribe('__change.' + varName, function (newValue) {
       broadcastable(newValue);
     }));
   }
 
-  broadcastable.broadcast = function() {
-    namespace.publish(option.name, broadcastable());
+  broadcastable.broadcast = function () {
+    namespace.publish(varName, broadcastable());
     return this;
   };
 
-  namespaceSubscriptions.push(namespace.subscribe('__refresh.' + option.name, function() {
-    namespace.publish(option.name, broadcastable());
+  namespaceSubscriptions.push(namespace.subscribe('__refresh.' + varName, function () {
+    namespace.publish(varName, broadcastable());
   }));
-  subscriptions.push(broadcastable.subscribe(function(newValue) {
-    namespace.publish(option.name, newValue);
+  subscriptions.push(broadcastable.subscribe(function (newValue) {
+    namespace.publish(varName, newValue);
   }));
 
-  broadcastable.dispose = function() {
+  broadcastable.dispose = function () {
     _.invokeMap(namespaceSubscriptions, 'unsubscribe');
     _.invokeMap(subscriptions, 'dispose');
     if (isLocalNamespace) {
@@ -8059,24 +8335,25 @@ fw.subscribable.fn.broadcastAs = function(varName, option) {
     }
   };
 
-  broadcastable.__isBroadcastable = true;
+  broadcastable[isBroadcastableSymbol] = true;
   return broadcastable.broadcast();
 };
 
-},{"../misc/util":31,"../namespace/namespace":34,"knockout/build/output/knockout-latest":2,"lodash":3,"postal":4}],8:[function(require,module,exports){
+},{"../misc/util":47,"../namespace/namespace":49,"knockout/build/output/knockout-latest":2,"lodash":3,"postal":4}],11:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var postal = require('postal');
 var _ = require('lodash');
 
 var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;
 var isNamespace = require('../namespace/namespace').isNamespace;
+var isReceivableSymbol = require('../misc/util').getSymbol('isReceivable');
 
-fw.isReceivable = function(thing) {
-  return _.isObject(thing) && !!thing.__isReceivable;
+fw.isReceivable = function (thing) {
+  return _.isObject(thing) && !!thing[isReceivableSymbol];
 };
 
 // factory method which turns an observable into a receivable
-fw.subscribable.fn.receiveFrom = function(namespace, variable) {
+fw.subscribable.fn.receiveFrom = function (namespace, variable) {
   var target = this;
   var receivable = this;
   var namespaceSubscriptions = [];
@@ -8086,25 +8363,23 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   if (_.isString(namespace)) {
     namespace = fw.namespace(namespace);
     isLocalNamespace = true;
-  }
-
-  if (!isNamespace(namespace)) {
+  } else if (!isNamespace(namespace)) {
     throw new Error('Invalid namespace provided for receiveFrom() observable.');
   }
 
   receivable = fw.computed({
     read: target,
-    write: function(value) {
+    write: function (value) {
       namespace.publish('__change.' + variable, value);
     }
   });
 
-  receivable.refresh = function() {
+  receivable.refresh = function () {
     namespace.publish('__refresh.' + variable);
     return this;
   };
 
-  namespaceSubscriptions.push(namespace.subscribe(variable, function(newValue) {
+  namespaceSubscriptions.push(namespace.subscribe(variable, function (newValue) {
     if (when(newValue)) {
       target(newValue);
     } else {
@@ -8113,7 +8388,7 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
   }));
 
   var observableDispose = receivable.dispose;
-  receivable.dispose = function() {
+  receivable.dispose = function () {
     _.invokeMap(namespaceSubscriptions, 'unsubscribe');
     if (isLocalNamespace) {
       namespace.dispose();
@@ -8121,22 +8396,22 @@ fw.subscribable.fn.receiveFrom = function(namespace, variable) {
     observableDispose.call(receivable);
   };
 
-  receivable.when = function(predicate) {
+  receivable.when = function (predicate) {
     if (_.isFunction(predicate)) {
       when = predicate;
     } else {
-      when = function(updatedValue) {
+      when = function (updatedValue) {
         return _.isEqual(updatedValue, predicate);
       };
     }
     return this;
   };
 
-  receivable.__isReceivable = true;
+  receivable[isReceivableSymbol] = true;
   return receivable.refresh();
 };
 
-},{"../misc/util":31,"../namespace/namespace":34,"knockout/build/output/knockout-latest":2,"lodash":3,"postal":4}],9:[function(require,module,exports){
+},{"../misc/util":47,"../namespace/namespace":49,"knockout/build/output/knockout-latest":2,"lodash":3,"postal":4}],12:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -8145,66 +8420,63 @@ var regExpIsEqual = objectTools.regExpIsEqual;
 var commonKeysEqual = objectTools.commonKeysEqual;
 var sortOfEqual = objectTools.sortOfEqual;
 
-var entityTools = require('../entities/entity-tools');
-var isDataModelCtor = entityTools.isDataModelCtor;
-var isDataModel = entityTools.isDataModel;
-
 var makeOrGetRequest = require('../misc/ajax').makeOrGetRequest;
+var privateDataSymbol = require('../misc/config').privateDataSymbol;
 
-function sync() {
+function sync () {
   return fw.sync.apply(this, arguments);
 }
 
-function get(id) {
+function get (id) {
   var collection = this;
-  return _.find(collection(), function findModelWithId(model) {
-    return _.result(model, collection.__private.getIdAttribute()) === id || _.result(model, '$id') === id || _.result(model, '$cid') === id;
+  return _.find(collection(), function findModelWithId (model) {
+    return _.result(model, collection[privateDataSymbol].getIdAttribute()) === id || _.result(model, '$id') === id || _.result(model, '$cid') === id;
   });
 }
 
-function getData() {
+function getData () {
   var collection = this;
-  var castAsModelData = collection.__private.castAs.modelData;
-  return _.reduce(collection(), function(models, model) {
+  var castAsModelData = collection[privateDataSymbol].castAs.modelData;
+  return _.reduce(collection(), function (models, model) {
     models.push(castAsModelData(model));
     return models;
   }, []);
 }
 
-function toJSON() {
+function toJSON () {
   return JSON.stringify(this.getData());
 }
 
-function pluck(attribute) {
+function pluck (attribute) {
   var collection = this;
-  var castAsModelData = collection.__private.castAs.modelData;
-  return _.reduce(collection(), function(pluckedValues, model) {
+  var castAsModelData = collection[privateDataSymbol].castAs.modelData;
+  return _.reduce(collection(), function (pluckedValues, model) {
     pluckedValues.push(castAsModelData(model, attribute));
     return pluckedValues;
   }, []);
 }
 
-function set(newCollection, options) {
+function set (newCollection, options) {
   if (!_.isArray(newCollection)) {
     throw new Error('collection.set() must be passed an array of data/dataModels');
   }
 
   var collection = this;
   var collectionStore = collection();
-  var castAsDataModel = collection.__private.castAs.dataModel;
-  var castAsModelData = collection.__private.castAs.modelData;
-  var idAttribute = collection.__private.getIdAttribute();
+  var castAsDataModel = collection[privateDataSymbol].castAs.dataModel;
+  var castAsModelData = collection[privateDataSymbol].castAs.modelData;
+  var idAttribute = collection[privateDataSymbol].getIdAttribute();
   var affectedModels = [];
   var absentModels = [];
   var addedModels = [];
   options = options || {};
 
-  _.each(newCollection, function checkModelPresence(modelData) {
+  _.each(newCollection, function checkModelPresence (modelData) {
     var modelPresent = false;
     modelData = castAsModelData(modelData);
 
     if (!_.isUndefined(modelData)) {
-      _.each(collectionStore, function lookForModel(model, indexOfModel) {
+      _.each(collectionStore, function lookForModel (model, indexOfModel) {
         var collectionModelData = castAsModelData(model);
 
         if (!_.isUndefined(modelData[idAttribute]) && !_.isNull(modelData[idAttribute]) && modelData[idAttribute] === collectionModelData[idAttribute]) {
@@ -8234,13 +8506,14 @@ function set(newCollection, options) {
   });
 
   if (options.remove !== false) {
-    _.each(collectionStore, function checkForRemovals(model, indexOfModel) {
+    _.each(collectionStore, function checkForRemovals (model, indexOfModel) {
       var collectionModelData = castAsModelData(model);
       var modelPresent = false;
 
       if (collectionModelData) {
-        modelPresent = _.reduce(newCollection, function(isPresent, modelData) {
-          return isPresent || _.result(modelData, idAttribute) === collectionModelData[idAttribute];
+        modelPresent = _.reduce(newCollection, function (isPresent, modelData) {
+          var bothValuesAreFalsey = !_.result(modelData, idAttribute) && !collectionModelData[idAttribute];
+          return isPresent || (_.result(modelData, idAttribute) === collectionModelData[idAttribute] || bothValuesAreFalsey);
         }, false);
       }
 
@@ -8252,7 +8525,7 @@ function set(newCollection, options) {
     });
 
     if (absentModels.length) {
-      _.each(absentModels, function(modelToRemove) {
+      _.each(absentModels, function (modelToRemove) {
         var indexOfModelToRemove = collectionStore.indexOf(modelToRemove);
         if (indexOfModelToRemove > -1) {
           collectionStore.splice(indexOfModelToRemove, 1);
@@ -8265,10 +8538,10 @@ function set(newCollection, options) {
   // re-sort based on the newCollection
   var reSorted = [];
   var wasResorted = false;
-  _.each(newCollection, function(newModelData, modelIndex) {
+  _.each(newCollection, function (newModelData, modelIndex) {
     newModelData = castAsModelData(newModelData);
     var foundAtIndex = null;
-    var currentModel = _.find(collectionStore, function(model, theIndex) {
+    var currentModel = _.find(collectionStore, function (model, theIndex) {
       if (sortOfEqual(castAsModelData(model), newModelData)) {
         foundAtIndex = theIndex;
         return true;
@@ -8291,12 +8564,12 @@ function set(newCollection, options) {
   return affectedModels;
 }
 
-function reset(newCollection) {
+function reset (newCollection) {
   var collection = this;
   var oldModels = collection.removeAll();
-  var castAsDataModel = collection.__private.castAs.dataModel;
+  var castAsDataModel = collection[privateDataSymbol].castAs.dataModel;
 
-  collection(_.reduce(newCollection, function(newModels, modelData) {
+  collection(_.reduce(newCollection, function (newModels, modelData) {
     newModels.push(castAsDataModel(modelData));
     return newModels;
   }, []));
@@ -8306,17 +8579,17 @@ function reset(newCollection) {
   return collection();
 }
 
-function fetch(options) {
+function fetch (options) {
   var ajax = require('../misc/ajax');
   var collection = this;
-  var configParams = collection.__private.configParams;
+  var configParams = collection[privateDataSymbol].configParams;
   options = options ? _.clone(options) : {};
 
   var requestInfo = {
     requestRunning: collection.isFetching,
     requestLull: configParams.requestLull,
     entity: collection,
-    createRequest: function() {
+    createRequest: function () {
       if (_.isUndefined(options.parse)) {
         options.parse = true;
       }
@@ -8324,7 +8597,7 @@ function fetch(options) {
       var xhr = collection.sync('read', collection, options);
 
       ajax.handleJsonResponse(xhr)
-        .then(function handleResponseData(data) {
+        .then(function handleResponseData (data) {
           var method = options.reset ? 'reset' : 'set';
           data = configParams.parse(data);
           var touchedModels = collection[method](data, options);
@@ -8343,13 +8616,13 @@ function fetch(options) {
   return makeOrGetRequest('fetch', requestInfo);
 }
 
-function where(modelData, options) {
+function where (modelData, options) {
   var collection = this;
-  var castAsModelData = collection.__private.castAs.modelData;
+  var castAsModelData = collection[privateDataSymbol].castAs.modelData;
   options = options || {};
   modelData = castAsModelData(modelData);
 
-  return _.reduce(collection(), function findModel(foundModels, model) {
+  return _.reduce(collection(), function findModel (foundModels, model) {
     var thisModelData = castAsModelData(model);
     if (regExpIsEqual(modelData, thisModelData, options.isEqual)) {
       foundModels.push(options.getData ? thisModelData : model);
@@ -8358,13 +8631,13 @@ function where(modelData, options) {
   }, []);
 }
 
-function findWhere(modelData, options) {
+function findWhere (modelData, options) {
   var collection = this;
-  var castAsModelData = collection.__private.castAs.modelData;
+  var castAsModelData = collection[privateDataSymbol].castAs.modelData;
   options = options || {};
   modelData = castAsModelData(modelData);
 
-  return _.reduce(collection(), function findModel(foundModel, model) {
+  return _.reduce(collection(), function findModel (foundModel, model) {
     var thisModelData = castAsModelData(model);
     if (_.isNull(foundModel) && regExpIsEqual(modelData, thisModelData, options.isEqual)) {
       return options.getData ? thisModelData : model;
@@ -8373,7 +8646,7 @@ function findWhere(modelData, options) {
   }, null);
 }
 
-function addModel(models, options) {
+function addModel (models, options) {
   var collection = this;
   var affectedModels = [];
   options = options || {};
@@ -8387,9 +8660,9 @@ function addModel(models, options) {
 
   if (models.length) {
     var collectionData = collection();
-    var castAsDataModel = collection.__private.castAs.dataModel;
-    var castAsModelData = collection.__private.castAs.modelData;
-    var idAttribute = collection.__private.getIdAttribute();
+    var castAsDataModel = collection[privateDataSymbol].castAs.dataModel;
+    var castAsModelData = collection[privateDataSymbol].castAs.modelData;
+    var idAttribute = collection[privateDataSymbol].getIdAttribute();
 
     if (_.isNumber(options.at)) {
       var newModels = _.map(models, castAsDataModel);
@@ -8400,11 +8673,11 @@ function addModel(models, options) {
 
       collection.valueHasMutated();
     } else {
-      _.each(models, function checkModelPresence(modelData) {
+      _.each(models, function checkModelPresence (modelData) {
         var modelPresent = false;
         var theModelData = castAsModelData(modelData);
 
-        _.each(collectionData, function lookForModel(model) {
+        _.each(collectionData, function lookForModel (model) {
           var collectionModelData = castAsModelData(model);
 
           if (!_.isUndefined(theModelData[idAttribute]) && !_.isNull(theModelData[idAttribute]) && theModelData[idAttribute] === collectionModelData[idAttribute]) {
@@ -8431,11 +8704,11 @@ function addModel(models, options) {
   return affectedModels;
 }
 
-function create(model, options) {
+function create (model, options) {
   var ajax = require('../misc/ajax');
   var collection = this;
-  var castAsDataModel = collection.__private.castAs.dataModel;
-  var configParams = collection.__private.configParams;
+  var castAsDataModel = collection[privateDataSymbol].castAs.dataModel;
+  var configParams = collection[privateDataSymbol].configParams;
   options = options ? _.clone(options) : {};
 
   var requestInfo = {
@@ -8443,16 +8716,16 @@ function create(model, options) {
     requestLull: configParams.requestLull,
     entity: collection,
     allowConcurrent: true,
-    createRequest: function() {
+    createRequest: function () {
       var newModel = castAsDataModel(model);
       var xhr;
 
-      if (isDataModel(newModel)) {
+      if (fw.isDataModel(newModel)) {
         xhr = newModel.save();
 
         if (options.wait) {
           ajax.handleJsonResponse(xhr)
-            .then(function(responseData) {
+            .then(function (responseData) {
               responseData && collection.addModel(newModel);
             });
         } else {
@@ -8466,14 +8739,14 @@ function create(model, options) {
     }
   };
 
-  if (!isDataModelCtor(configParams.dataModel)) {
+  if (!_.isFunction(configParams.dataModel)) {
     throw new Error('No dataModel specified, cannot create() a new collection item');
   }
 
   return makeOrGetRequest('create', requestInfo);
 }
 
-function removeModel(models) {
+function removeModel (models) {
   var collection = this;
   var affectedModels = [];
 
@@ -8484,9 +8757,9 @@ function removeModel(models) {
     models = !_.isUndefined(models) && !_.isNull(models) ? [models] : [];
   }
 
-  return _.reduce(models, function(removedModels, model) {
+  return _.reduce(models, function (removedModels, model) {
     var removed = null;
-    if (isDataModel(model)) {
+    if (fw.isDataModel(model)) {
       removed = collection.remove(model);
     } else {
       var modelsToRemove = collection.where(model);
@@ -8518,26 +8791,27 @@ module.exports = {
   removeModel: removeModel
 };
 
-},{"../entities/entity-tools":24,"../misc/ajax":28,"./object-tools":12,"knockout/build/output/knockout-latest":2,"lodash":3}],10:[function(require,module,exports){
+},{"../misc/ajax":42,"../misc/config":43,"./object-tools":15,"knockout/build/output/knockout-latest":2,"lodash":3}],13:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-function isCollection(thing) {
-  return _.isObject(thing) && !!thing.__isCollection;
+var getSymbol = require('../misc/util').getSymbol;
+
+function isCollection (thing) {
+  return _.isObject(thing) && !!thing[getSymbol('isCollection')];
 }
 
 module.exports = {
-  isCollection: isCollection
+  isCollection: fw.isCollection = isCollection
 };
 
-},{"lodash":3}],11:[function(require,module,exports){
+},{"../misc/util":47,"knockout/build/output/knockout-latest":2,"lodash":3}],14:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
 var collectionMethods = require('./collection-methods');
-
-var entityTools = require('../entities/entity-tools');
-var isDataModel = entityTools.isDataModel;
-var isDataModelCtor = entityTools.isDataModelCtor;
+var privateDataSymbol = require('../misc/config').privateDataSymbol;
+var getSymbol = require('../misc/util').getSymbol;
 
 var defaultCollectionConfig = {
   namespace: null,
@@ -8549,15 +8823,15 @@ var defaultCollectionConfig = {
   ajaxOptions: {}
 };
 
-function removeDisposeAndNotify(originalFunction) {
+function removeDisposeAndNotify (originalFunction) {
   var removedItems = originalFunction.apply(this, Array.prototype.slice.call(arguments).splice(1));
-  this.__private.configParams.disposeOnRemove && _.invokeMap(removedItems, 'dispose');
+  this[privateDataSymbol].configParams.disposeOnRemove && _.invokeMap(removedItems, 'dispose');
   this.$namespace.publish('_.remove', removedItems);
   return removedItems;
 }
 
-function addAndNotify(originalFunction) {
-  var addItems = _.map(Array.prototype.slice.call(arguments).splice(1), this.__private.castAs.dataModel);
+function addAndNotify (originalFunction) {
+  var addItems = _.map(Array.prototype.slice.call(arguments).splice(1), this[privateDataSymbol].castAs.dataModel);
   var originalResult = originalFunction.apply(this, addItems);
   this.$namespace.publish('_.add', addItems);
   return originalResult;
@@ -8565,7 +8839,7 @@ function addAndNotify(originalFunction) {
 
 var PlainCollectionConstructor;
 
-fw.collection = function(collectionData) {
+fw.collection = function (collectionData) {
   collectionData = collectionData || [];
 
   if (_.isUndefined(PlainCollectionConstructor)) {
@@ -8574,43 +8848,16 @@ fw.collection = function(collectionData) {
   return PlainCollectionConstructor(collectionData);
 };
 
-fw.collection.create = function(configParams) {
+fw.collection.create = function (configParams) {
   configParams = configParams || {};
 
-  return function CollectionConstructor(collectionData) {
+  return function CollectionConstructor (collectionData) {
     configParams = _.extend({}, defaultCollectionConfig, configParams);
     var DataModelCtor = configParams.dataModel;
     var collection = fw.observableArray();
 
     _.extend(collection, collectionMethods, {
       $namespace: fw.namespace(configParams.namespace || _.uniqueId('collection')),
-      __isCollection: true,
-      __private: {
-        configParams: configParams,
-        castAs: {
-          modelData: function(modelData, attribute) {
-            if (isDataModel(modelData)) {
-              return modelData.getData(attribute);
-            }
-            if (_.isUndefined(attribute)) {
-              return modelData;
-            }
-            return _.result(modelData, attribute);
-          },
-          dataModel: function(modelData) {
-            return isDataModelCtor(DataModelCtor) && !isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;
-          }
-        },
-        getIdAttribute: function(options) {
-          var idAttribute = configParams.idAttribute || (options || {}).idAttribute;
-          if (_.isUndefined(idAttribute) || _.isNull(idAttribute)) {
-            if (isDataModelCtor(DataModelCtor)) {
-              return DataModelCtor.__private.configParams.idAttribute;
-            }
-          }
-          return idAttribute || 'id';
-        }
-      },
       remove: removeDisposeAndNotify.bind(collection, collection.remove),
       pop: removeDisposeAndNotify.bind(collection, collection.pop),
       shift: removeDisposeAndNotify.bind(collection, collection.shift),
@@ -8619,16 +8866,38 @@ fw.collection.create = function(configParams) {
       unshift: addAndNotify.bind(collection, collection.unshift),
       isFetching: fw.observable(false),
       isCreating: fw.observable(false),
-      dispose: function() {
-        if (!collection.isDisposed) {
-          collection.isDisposed = true;
+      dispose: function () {
+        if (!collection[privateDataSymbol].isDisposed) {
+          collection[privateDataSymbol].isDisposed = true;
           collection.$namespace.dispose();
           _.invokeMap(collection(), 'dispose');
         }
       }
     });
 
-    collection.requestInProgress = fw.pureComputed(function() {
+    collection[getSymbol('isCollection')] = true;
+    collection[privateDataSymbol] = {
+      configParams: configParams,
+      castAs: {
+        modelData: function (modelData, attribute) {
+          if (fw.isDataModel(modelData)) {
+            return modelData.getData(attribute);
+          }
+          if (_.isUndefined(attribute)) {
+            return modelData;
+          }
+          return _.result(modelData, attribute);
+        },
+        dataModel: function (modelData) {
+          return _.isFunction(DataModelCtor) && !fw.isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;
+        }
+      },
+      getIdAttribute: function (options) {
+        return configParams.idAttribute || (options || {}).idAttribute || 'id';
+      }
+    };
+
+    collection.requestInProgress = fw.pureComputed(function () {
       return this.isFetching() || this.isCreating();
     }, collection);
 
@@ -8640,7 +8909,7 @@ fw.collection.create = function(configParams) {
   };
 };
 
-},{"../entities/entity-tools":24,"./collection-methods":9,"knockout/build/output/knockout-latest":2,"lodash":3}],12:[function(require,module,exports){
+},{"../misc/config":43,"../misc/util":47,"./collection-methods":12,"knockout/build/output/knockout-latest":2,"lodash":3}],15:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -8652,11 +8921,11 @@ var _ = require('lodash');
  * @param  {function} isEqual evauluator to use (optional)
  * @return boolean   Result of equality comparison
  */
-function regExpIsEqual(a, b, isEq) {
+function regExpIsEqual (a, b, isEq) {
   isEq = isEq || regExpIsEqual;
 
   if (_.isObject(a) && _.isObject(b)) {
-    return _.every(_.reduce(a, function(comparison, paramValue, paramName) {
+    return _.every(_.reduce(a, function (comparison, paramValue, paramName) {
       var isCongruent = false;
       var bParamValue = b[paramName];
       if (bParamValue) {
@@ -8682,7 +8951,7 @@ function regExpIsEqual(a, b, isEq) {
  * @param  {function} isEqual evauluator to use (optional)
  * @return boolean   Result of equality comparison
  */
-function commonKeysEqual(a, b, isEq) {
+function commonKeysEqual (a, b, isEq) {
   isEq = isEq || _.isEqual;
 
   if (_.isObject(a) && _.isObject(b)) {
@@ -8701,14 +8970,14 @@ function commonKeysEqual(a, b, isEq) {
  * @param  {function} isEqual evauluator to use (optional)
  * @return boolean   Result of equality comparison
  */
-function sortOfEqual(a, b, isEq) {
+function sortOfEqual (a, b, isEq) {
   isEq = isEq || _.isEqual;
 
   if (_.isObject(a) && _.isObject(b)) {
     var AKeys = _.keys(a);
     var BKeys = _.keys(b);
     var commonKeys = _.intersection(AKeys, BKeys);
-    var hasAllAKeys = _.every(AKeys, function(Akey) {
+    var hasAllAKeys = _.every(AKeys, function (Akey) {
       return BKeys.indexOf(Akey) !== -1;
     })
     return commonKeys.length > 0 && hasAllAKeys && isEq(_.pick(a, commonKeys), _.pick(b, commonKeys));
@@ -8723,20 +8992,19 @@ module.exports = {
   sortOfEqual: sortOfEqual
 };
 
-},{"knockout/build/output/knockout-latest":2,"lodash":3}],13:[function(require,module,exports){
+},{"knockout/build/output/knockout-latest":2,"lodash":3}],16:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
+var privateDataSymbol = require('../misc/config').privateDataSymbol;
+var setLoadingTracker = require('../misc/loading-tracker').set;
 var nearestEntity = require('../entities/entity-tools').nearestEntity;
-var isOutletViewModel = require('../entities/router/router-tools').isOutletViewModel;
+var getSymbol = require('../misc/util').getSymbol;
 var entityDescriptors = require('../entities/entity-descriptors');
-
-var originalComponentInit = fw.bindingHandlers.component.init;
-var componentRegistry = require('./component-registry');
-var componentId = 0;
+var originalComponentBindingInit = fw.bindingHandlers.component.init;
 
 /**
- * Monkey patch to bootstrap a component, tagging it with the flightTracker.
+ * Monkey patch to bootstrap a component, tagging it with the loadingTracker.
  *
  * @param {any} element
  * @param {any} valueAccessor
@@ -8745,247 +9013,68 @@ var componentId = 0;
  * @param {any} bindingContext
  * @returns
  */
-function componentInit(element, valueAccessor, allBindings, viewModel, bindingContext) {
-  var tagName = element.tagName;
-  var flightTracker = componentId++;
+function componentBindingInit (element, valueAccessor, allBindings, viewModel, bindingContext) {
+  var tagName = (element.tagName || '').toLowerCase();
+  var loadingTracker = element[getSymbol('loadingTracker')] = {
+    tagName: tagName,
+    moduleName: element.getAttribute('module') || /* istanbul ignore next */ element.getAttribute('data-module'),
+    elementName: element.getAttribute('name') || /* istanbul ignore next */ element.getAttribute('data-name')
+  };
 
-  if (element.nodeType !== 8) {
-    var nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
-    if (nearestOutlet) {
-      var outletsInFlightChildren = nearestOutlet.inFlightChildren;
-      if (fw.isObservable(outletsInFlightChildren) && _.isFunction(outletsInFlightChildren.push)) {
-        outletsInFlightChildren.push(flightTracker);
-      }
+  /**
+   * If this is not an outlet we need to add ourselves to the parent loadingChildren observableArray.
+   * Once this component is loaded the $lifecycle binding then removes the loadingTracker from the observableArray
+   * The loadingTracker observableArray is used to trigger when an instance and all its children are fully 'resolved' (bound and rendered)
+   */
+  if (tagName !== 'outlet') {
+    var closestEntity = nearestEntity(bindingContext);
+    if (closestEntity) {
+      closestEntity[privateDataSymbol].loadingChildren.push(loadingTracker);
+
+      // ensure that if the element is removed before its other resources are resolved that the loadingTracker is removed/cleared
+      fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
+        closestEntity[privateDataSymbol].loadingChildren.remove(loadingTracker);
+      });
     }
   }
 
   if (entityDescriptors.tagNameIsPresent(tagName)) {
-    componentRegistry[flightTracker] = {
-      moduleName: element.getAttribute('module') || element.getAttribute('data-module'),
-      children: element.children
-    };
+    // save the tracker so that the (./loaders/entity-loader) loader can find out what module was requested (the element is not available to it so we save it here for reference later)
+    setLoadingTracker(loadingTracker);
+
+    // ensure that the (./loaders/entity-loader) getConfig callback is run every time a viewModel/dataModel/router/outlet declaration is encountered
+    fw.components.clearCachedDefinition(tagName);
   }
 
-  element.flightTracker = flightTracker;
-  return originalComponentInit(element, theValueAccessor, allBindings, viewModel, bindingContext);
+  return originalComponentBindingInit(element, valueAccessor, allBindings, viewModel, bindingContext);
 };
 
-fw.bindingHandlers.component.init = componentInit;
+fw.bindingHandlers.component.init = componentBindingInit;
 
-},{"../entities/entity-descriptors":22,"../entities/entity-tools":24,"../entities/router/router-tools":26,"./component-registry":14,"knockout/build/output/knockout-latest":2,"lodash":3}],14:[function(require,module,exports){
-/**
- * Registry which stores component information as it is loaded.
- * This information is used by footwork to bootstrap the component/entity.
- */
-module.exports = [];
-
-},{}],15:[function(require,module,exports){
-var _ = require('lodash');
-
+},{"../entities/entity-descriptors":26,"../entities/entity-tools":28,"../misc/config":43,"../misc/loading-tracker":45,"../misc/util":47,"knockout/build/output/knockout-latest":2,"lodash":3}],17:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
-
-require('./sequencing');
-require('./lifecycle-loader');
-require('./lifecycle-binding');
-require('./resource-loader');
-require('./component-init');
+var _ = require('lodash');
 
 var entityDescriptors = require('../entities/entity-descriptors');
-
-fw.components.getComponentNameForNode = function(node) {
-  var tagName = _.isString(node.tagName) && node.tagName.toLowerCase();
-
-  if(fw.components.isRegistered(tagName)
-     || fw.components.locationIsRegistered(tagName)
-     || entityDescriptors.tagNameIsPresent(tagName)) {
-    return tagName;
-  }
-
-  return null;
-};
-
-},{"../entities/entity-descriptors":22,"./component-init":13,"./lifecycle-binding":17,"./lifecycle-loader":18,"./resource-loader":19,"./sequencing":20,"knockout/build/output/knockout-latest":2,"lodash":3}],16:[function(require,module,exports){
-var _ = require('lodash');
-
-module.exports = _.extend([
-  /* filled in by various modules */
-], {
-  isInternalComponent: function (componentName) {
-    return _.indexOf(this, componentName) !== -1;
-  }
-});
-
-},{"lodash":3}],17:[function(require,module,exports){
-var fw = require('knockout/build/output/knockout-latest');
-var _ = require('lodash');
-
-var sequencing = require('./sequencing');
-var addToAndFetchQueue = sequencing.addToAndFetchQueue;
-var runAnimationClassSequenceQueue = sequencing.runAnimationClassSequenceQueue;
-
-var entityTools = require('../entities/entity-tools');
-var nearestEntity = entityTools.nearestEntity;
-var isEntity = entityTools.isEntity;
-
-var routerDefaults = require('../entities/router/router-defaults');
-var outletLoadedDisplay = routerDefaults.outletLoadedDisplay;
-var outletLoadingDisplay = routerDefaults.outletLoadingDisplay;
-var isOutletViewModel = require('../entities/router/router-tools').isOutletViewModel;
-
-var util = require('../misc/util');
-var addClass = util.addClass;
-var isPromise = util.isPromise;
-var promiseIsFulfilled = util.promiseIsFulfilled;
-
-var entityClass = require('../misc/config').entityClass;
-
-/**
- * Mark the component as resolved on the parent outlet (if it exists) and supply the resolveThisEntityNow callback which
- * takes the user supplied isResolved value and adds the animation class via addAnimationClass when it has resolved.
- *
- * @param {DOMElement} element
- * @param {object} viewModel
- * @param {object} $context
- * @param {function} addAnimationClass
- */
-function resolveComponent(element, viewModel, $context, addAnimationClass) {
-  var flightTracker = element.flightTracker;
-  var nearestOutlet = nearestEntity($context, isOutletViewModel);
-  var outletsInFlightChildren;
-
-  if (nearestOutlet) {
-    outletsInFlightChildren = nearestOutlet.inFlightChildren;
-  }
-
-  function finishResolution() {
-    addAnimationClass();
-    if (fw.isObservable(outletsInFlightChildren) && _.isFunction(outletsInFlightChildren.remove)) {
-      outletsInFlightChildren.remove(flightTracker);
-    }
-  }
-
-  if (isEntity(viewModel)) {
-    var wasResolved = false;
-    function resolveThisEntityNow(isResolved) {
-
-      if (!wasResolved) {
-        wasResolved = true;
-        if (isResolved === true) {
-          finishResolution();
-        } else if (isPromise(isResolved) || _.isArray(isResolved)) {
-          if(!_.every(isResolved, isPromise)) {
-            throw new Error('Can only pass array of promises to resolved()');
-          }
-
-          var promises = [].concat(isResolved);
-          var checkPromise = function(promise) {
-            promise.then(function() {
-              if (_.every(promises, promiseIsFulfilled)) {
-                finishResolution();
-              }
-            });
-          };
-
-          _.each(promises, checkPromise);
-        }
-      }
-    }
-
-    function maybeResolve() {
-      viewModel.__private.configParams.afterResolving.call(viewModel, resolveThisEntityNow);
-    }
-
-    var inFlightChildren = viewModel.__private.inFlightChildren;
-    // if no children then resolve now, otherwise subscribe and wait till its 0
-    if (inFlightChildren().length === 0) {
-      maybeResolve();
-    } else {
-      viewModel.disposeWithInstance(inFlightChildren.subscribe(function(inFlightChildren) {
-        inFlightChildren.length === 0 && maybeResolve();
-      }));
-    }
-  } else {
-    finishResolution();
-  }
-}
-
-// $life wrapper binding to provide lifecycle events for components
-fw.virtualElements.allowedBindings.$life = true;
-fw.bindingHandlers.$life = {
-  init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    element = element.parentElement || element.parentNode;
-
-    var classList = element.className.split(" ");
-    if (!_.includes(classList, outletLoadingDisplay) && !_.includes(classList, outletLoadedDisplay)) {
-      // the outlet viewModel and template binding handles its animation state
-      addClass(element, entityClass);
-    }
-
-    if (isEntity(viewModel)) {
-      if(!viewModel.__private.element) {
-        viewModel.__private.element = element;
-        fw.utils.domNodeDisposal.addDisposeCallback(element, function() {
-          viewModel.dispose();
-        });
-      }
-    }
-  },
-  update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    element = element.parentElement || element.parentNode;
-
-    // if this element is not the 'loading' component of an outlet, then we need to
-    // trigger the onComplete callback
-    if (isOutletViewModel(bindingContext.$parent)) {
-      var parentRoute = bindingContext.$parent.route.peek();
-      var classList = element.className.split(" ");
-      if (!_.includes(classList, outletLoadingDisplay) && _.isFunction(parentRoute.getOnCompleteCallback)) {
-        parentRoute.getOnCompleteCallback(element)();
-      }
-    }
-
-    if (isEntity(viewModel) && !viewModel.__private.afterRenderWasTriggered) {
-      viewModel.__private.afterRenderWasTriggered = true;
-
-      // trigger the user-specified afterRender callback
-      viewModel.__private.configParams.afterRender.call(viewModel, element);
-    }
-
-    // resolve the flight tracker and trigger the addAnimationClass callback when appropriate
-    resolveComponent(element, viewModel, bindingContext, function addAnimationClass() {
-      var classList = element.className.split(" ");
-      if (!_.includes(classList, outletLoadingDisplay) && !_.includes(classList, outletLoadedDisplay)) {
-        var queue = addToAndFetchQueue(element, viewModel);
-        var nearestOutlet = nearestEntity(bindingContext, isOutletViewModel);
-
-        if (nearestOutlet) {
-          // the parent outlet will run the callback that initiates the animation
-          // sequence (once the rest of its dependencies finish loading as well)
-          nearestOutlet.addResolvedCallbackOrExecute(function() {
-            runAnimationClassSequenceQueue(queue);
-          });
-        } else {
-          // no parent outlet found, lets go ahead and run the queue
-          runAnimationClassSequenceQueue(queue);
-        }
-      }
-    });
-  }
-};
-
-},{"../entities/entity-tools":24,"../entities/router/router-defaults":25,"../entities/router/router-tools":26,"../misc/config":29,"../misc/util":31,"./sequencing":20,"knockout/build/output/knockout-latest":2,"lodash":3}],18:[function(require,module,exports){
-var fw = require('knockout/build/output/knockout-latest');
-var _ = require('lodash');
-
-var internalComponents = require('./internal-components');
+var bindingElement = require('../binding/binding-element');
 
 var util = require('../misc/util');
 var isDocumentFragment = util.isDocumentFragment;
 var isDomElement = util.isDomElement;
+var makeArray = util.makeArray;
 
-// Custom loader used to wrap components with the $life custom binding
-fw.components.loaders.unshift(fw.components.lifecycleLoader = {
-  loadTemplate: function(componentName, templateConfig, callback) {
-    if (!internalComponents.isInternalComponent(componentName)) {
+/**
+ * The component lifecycle loader wraps all non-viewModel/dataModel/router custom component
+ * contents with the $lifecycle binding which enables the lifecycle hooks (afterBinding/afterRender/onDispose).
+ */
+fw.components.loaders.unshift(fw.components.componentLifecycleLoader = {
+  loadTemplate: function (componentName, templateConfig, callback) {
+    /**
+     * This loader is only for non-viewModel/dataModel/router components.
+     * viewModels/dataModels/routers have their own loader which handles them (../entities/entity-loader)
+     */
+    if (!entityDescriptors.getDescriptor(componentName)) {
+      // This is a regular component (not an entity) we need to wrap it with the $lifecycle binding
       if (typeof templateConfig === 'string') {
         // Markup - parse it
         callback(wrapWithLifeCycle(templateConfig));
@@ -8994,7 +9083,7 @@ fw.components.loaders.unshift(fw.components.lifecycleLoader = {
         callback(wrapWithLifeCycle(templateConfig));
       } else if (isDocumentFragment(templateConfig)) {
         // Document fragment - use its child nodes
-        callback(wrapWithLifeCycle(fw.utils.makeArray(templateConfig.childNodes)));
+        callback(wrapWithLifeCycle(makeArray(templateConfig.childNodes)));
       } else if (templateConfig['element']) {
         var element = templateConfig['element'];
         if (isDomElement(element)) {
@@ -9015,18 +9104,33 @@ fw.components.loaders.unshift(fw.components.lifecycleLoader = {
         throw new Error('Unhandled config type: ' + typeof templateConfig + '.');
       }
     } else {
+      // This is an entity, leave it to the entity lifecycle loader
       callback(null);
     }
   }
 });
 
 /**
- * Clone and return the nodes from the source element.
+ * Clone and return the supplied DOM nodes in the nodesArray
+ *
+ * @param {any} nodesArray
+ * @returns {array} New array of DOM nodes
+ */
+function cloneNodes (nodesArray) {
+  for (var i = 0, j = nodesArray.length, newNodesArray = []; i < j; i++) {
+    var clonedNode = nodesArray[i].cloneNode(true);
+    newNodesArray.push(clonedNode);
+  }
+  return newNodesArray;
+}
+
+/**
+ * Clone and return the nodes from the elemInstance.
  *
  * @param {DOMNode} elemInstance
  * @returns {[DOMNodes]} The cloned DOM nodes
  */
-function cloneNodesFromTemplateSourceElement(elemInstance) {
+function cloneNodesFromTemplateSourceElement (elemInstance) {
   switch (fw.utils.tagNameLower(elemInstance)) {
     case 'script':
       return fw.utils.parseHtmlFragment(elemInstance.text);
@@ -9036,25 +9140,25 @@ function cloneNodesFromTemplateSourceElement(elemInstance) {
       // For browsers with proper <template> element support (i.e., where the .content property
       // gives a document fragment), use that document fragment.
       if (isDocumentFragment(elemInstance.content)) {
-        return fw.utils.cloneNodes(elemInstance.content.childNodes);
+        return cloneNodes(elemInstance.content.childNodes);
       }
   }
 
   // Regular elements such as <div>, and <template> elements on old browsers that don't really
   // understand <template> and just treat it as a regular container
-  return fw.utils.cloneNodes(elemInstance.childNodes);
+  return cloneNodes(elemInstance.childNodes);
 }
 
 /**
- * Wrap the supplied template with the lifecycle binding. This enables footwork to track when
+ * Wrap the supplied template with the $lifecycle binding. This enables footwork to track when
  * the instance is bound to or removed from the dom, triggering its various lifecycle events.
  *
  * @param {string|[DOMNodes]} template
  * @returns {[DOMNodes]} The wrapped component
  */
-function wrapWithLifeCycle(template) {
+function wrapWithLifeCycle (template) {
   var templateString = _.isString(template) ? template : '';
-  var wrapper = fw.utils.parseHtmlFragment('<!-- ko $life -->' + templateString + '<!-- /ko -->');
+  var wrapper = fw.utils.parseHtmlFragment(bindingElement.open.prefix + '$lifecycle' + bindingElement.open.postfix + templateString + bindingElement.close);
 
   if (templateString.length) {
     return wrapper;
@@ -9063,7 +9167,7 @@ function wrapWithLifeCycle(template) {
   return [].concat(wrapper[0], template, wrapper[1]);
 }
 
-},{"../misc/util":31,"./internal-components":16,"knockout/build/output/knockout-latest":2,"lodash":3}],19:[function(require,module,exports){
+},{"../binding/binding-element":7,"../entities/entity-descriptors":26,"../misc/util":47,"knockout/build/output/knockout-latest":2,"lodash":3}],18:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -9071,35 +9175,24 @@ var util = require('../misc/util');
 var isPath = util.isPath;
 var getFilenameExtension = util.getFilenameExtension;
 
-var entityDescriptors = require('../entities/entity-descriptors');
-var getComponentExtension = require('../resource/component-resource').getComponentExtension;
+var getComponentExtension = require('../misc/resource-tools').getComponentExtension;
 
-fw.components.loaders.push(fw.components.requireLoader = {
-  getConfig: function(componentName, callback) {
+/**
+ * The component resource loader tells footwork where the components assets are. It uses the supplied configuration to use AMD to download
+ * them (the viewModel/template) if possible. After downloading these resources its template is then wrapped by the component lifecycle
+ * loader and then bootstrapped.
+ */
+fw.components.loaders.push(fw.components.componentResourceLoader = {
+  getConfig: function (componentName, callback) {
+    // this is a normal component
     var configOptions = null;
-    var descriptor = entityDescriptors.getDescriptor(componentName);
+    var componentLocation = fw.components.getLocation(componentName);
 
-    if(descriptor) {
-      // this component is a viewModel/dataModel/router entity
-      var componentRegistry = _.last(require('./component-registry'));
-      var moduleName = componentRegistry.moduleName;
-
-      var viewModelResourceOrLocation = descriptor.resource.getResourceOrLocation(moduleName);
-      if(_.isString(viewModelResourceOrLocation)) {
-        viewModelResourceOrLocation = { require: viewModelResourceOrLocation + descriptor.resource.getFileName(moduleName) };
-      }
-
-      configOptions = {
-        template: componentRegistry.children,
-        viewModel: viewModelResourceOrLocation
-      };
-    } else {
-      // this is a normal component
-      var folderOffset = componentLocation.folderOffset || '';
-      var componentLocation = fw.components.getLocation(componentName);
+    if (componentLocation) {
       var combinedFile = fw.components.getFileName(componentName, 'combined');
       var viewModelFile = fw.components.getFileName(componentName, 'viewModel');
       var templateFile = fw.components.getFileName(componentName, 'template');
+      var folderOffset = componentLocation.folderOffset || '';
 
       if (folderOffset !== '') {
         folderOffset = componentName + '/';
@@ -9166,159 +9259,825 @@ fw.components.loaders.push(fw.components.requireLoader = {
   }
 });
 
-},{"../entities/entity-descriptors":22,"../misc/config":29,"../misc/util":31,"../resource/component-resource":35,"./component-registry":14,"knockout/build/output/knockout-latest":2,"lodash":3}],20:[function(require,module,exports){
+},{"../misc/config":43,"../misc/resource-tools":46,"../misc/util":47,"knockout/build/output/knockout-latest":2,"lodash":3}],19:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var entityAnimateClass = require('../misc/config').entityAnimateClass;
-
 var util = require('../misc/util');
-var resultBound = util.resultBound;
-var addClass = util.addClass;
-var nextFrame = util.nextFrame;
+var isPath = util.isPath;
+var getFilenameExtension = util.getFilenameExtension;
+var regExpMatch = /^\/|\/$/g;
 
-var sequenceQueue = {};
+require('./component-binding-init');
 
-function clearSequenceQueue() {
-  _.each(sequenceQueue, function(sequence, queueNamespace) {
-    _.each(sequence, function(sequenceIteration) {
-      sequenceIteration.addAnimationClass();
-    });
-    delete sequenceQueue[queueNamespace];
+// Custom loader used to locate or load component resources (viewModel/template)
+require('./component-resource-loader');
+
+// Custom loader used to wrap components with the $lifecycle binding
+require('./component-lifecycle-loader');
+
+var getComponentExtension = require('../misc/resource-tools').getComponentExtension;
+
+fw.components.resourceLocations = {};
+
+fw.components.fileExtensions = fw.observable({
+  combined: '.js',
+  viewModel: '.js',
+  template: '.html'
+});
+
+var originalComponentRegisterFunc = fw.components.register;
+fw.components.register = function (componentName, options) {
+  var viewModel = options.viewModel || options.dataModel || options.router;
+
+  if (!_.isString(componentName)) {
+    throw new Error('Components must be provided a componentName.');
+  }
+
+  originalComponentRegisterFunc(componentName, {
+    viewModel: viewModel || require('../misc/config').DefaultViewModel,
+    template: options.template
   });
+};
+
+function forceViewModelComponentConvention (componentLocation) {
+  if (_.isObject(componentLocation) && _.isUndefined(componentLocation.viewModel) && _.isUndefined(componentLocation.combined)) {
+    return {
+      viewModel: componentLocation.dataModel || componentLocation.router,
+      template: componentLocation.template
+    };
+  }
+  return componentLocation;
 }
 
-function runAnimationClassSequenceQueue(queue, isRunner) {
-  if (!queue.running || isRunner) {
-    var sequenceIteration = queue.shift();
+fw.components.getFileName = function (componentName, fileType) {
+  var fileName = componentName;
+  var fileExtension = getComponentExtension(componentName, fileType);
 
-    if (sequenceIteration) {
-      sequenceIteration.addAnimationClass();
+  if (fw.components.isRegistered(componentName)) {
+    return null;
+  }
 
-      if (sequenceIteration.nextIteration || queue.length) {
-        queue.running = true;
-        setTimeout(function() {
-          runAnimationClassSequenceQueue(queue, true);
-        }, sequenceIteration.nextIteration);
-      } else {
-        queue.running = false;
+  if (fw.components.locationIsRegistered(componentName)) {
+    var registeredLocation = fw.components.getLocation(componentName);
+    if (!_.isUndefined(registeredLocation[fileType]) && !isPath(registeredLocation[fileType])) {
+      if (_.isString(registeredLocation[fileType])) {
+        // full filename was supplied, lets return that
+        fileName = _.last(registeredLocation[fileType].split('/'));
       }
-    } else {
-      queue.running = false;
     }
   }
+
+  return fileName + (fileExtension !== getFilenameExtension(fileName) ? ('.' + fileExtension) : '');
+};
+
+var baseComponentLocation = {
+  combined: null,
+  viewModel: null,
+  template: null
+};
+
+fw.components.registerLocation = function (componentName, componentLocation, folderOffset) {
+  if (_.isArray(componentName)) {
+    _.each(componentName, function (name) {
+      fw.components.registerLocation(name, componentLocation, folderOffset);
+    });
+  }
+
+  if (_.isString(componentLocation)) {
+    componentLocation = _.extend({}, baseComponentLocation, {
+      viewModel: componentLocation,
+      template: componentLocation,
+      folderOffset: !!folderOffset
+    });
+  } else if (_.isObject(componentLocation)) {
+    componentLocation.folderOffset = !!folderOffset;
+  }
+
+  fw.components.resourceLocations[componentName] = _.extend({}, baseComponentLocation, forceViewModelComponentConvention(componentLocation));
+};
+
+fw.components.getRegisteredLocation = function (componentName) {
+  return _.reduce(fw.components.resourceLocations, function (registeredLocation, location, registeredComponentName) {
+    if (!registeredLocation) {
+      if (!_.isNull(registeredComponentName.match(regExpMatch)) && !_.isNull(componentName.match(registeredComponentName.replace(regExpMatch, '')))) {
+        registeredLocation = location;
+      } else if (componentName === registeredComponentName) {
+        registeredLocation = location;
+      }
+    }
+    return registeredLocation;
+  }, undefined);
+};
+
+fw.components.locationIsRegistered = function (componentName) {
+  return !!fw.components.getRegisteredLocation(componentName);
+};
+
+// Return the component resource definition for the supplied componentName
+fw.components.getLocation = function (componentName) {
+  if (_.isUndefined(componentName)) {
+    return fw.components.resourceLocations;
+  }
+  return _.omitBy(fw.components.getRegisteredLocation(componentName), _.isNull);
+};
+
+
+var entityDescriptors = require('../entities/entity-descriptors');
+
+fw.components.getComponentNameForNode = function (node) {
+  var tagName = _.isString(node.tagName) && node.tagName.toLowerCase();
+
+  if (fw.components.isRegistered(tagName)
+     || fw.components.locationIsRegistered(tagName)
+     || entityDescriptors.tagNameIsPresent(tagName)
+     || tagName === 'outlet') {
+    return tagName;
+  }
+
+  return null;
+};
+
+},{"../entities/entity-descriptors":26,"../misc/config":43,"../misc/resource-tools":46,"../misc/util":47,"./component-binding-init":16,"./component-lifecycle-loader":17,"./component-resource-loader":18,"knockout/build/output/knockout-latest":2,"lodash":3}],20:[function(require,module,exports){
+var _ = require('lodash');
+
+function insertValueIntoObject (rootObject, fieldMap, fieldValue) {
+  if (_.isString(fieldMap)) {
+    return insertValueIntoObject(rootObject, fieldMap.split('.'), fieldValue);
+  }
+
+  var propName = fieldMap.shift();
+  if (fieldMap.length) {
+    if (_.isUndefined(rootObject[propName])) {
+      // nested property, lets add the container object
+      rootObject[propName] = {};
+    }
+    // recurse into the next layer
+    insertValueIntoObject(rootObject[propName], fieldMap, fieldValue);
+  } else {
+    rootObject[propName] = fieldValue;
+  }
+
+  return rootObject;
 }
 
-function addToAndFetchQueue(element, viewModel) {
-  var configParams = viewModel.__private.configParams;
-  var sequenceTimeout = resultBound(configParams, 'sequenceAnimations', viewModel) || 0;
-  var animationSequenceQueue = sequenceQueue[configParams.namespace] = (sequenceQueue[configParams.namespace] || []);
-  var newSequenceIteration = {
-    addAnimationClass: function addBindingFromQueue() {
-      nextFrame(function() {
-        addClass(element, entityAnimateClass);
-      });
-    },
-    nextIteration: sequenceTimeout
-  };
+function getNestedReference (rootObject, fieldMap) {
+  var propName = fieldMap;
 
-  animationSequenceQueue.push(newSequenceIteration);
+  if (!_.isUndefined(fieldMap)) {
+    if (_.isString(fieldMap)) {
+      // initial call with string based fieldMap, recurse into main loop
+      return getNestedReference(rootObject, fieldMap.split('.'));
+    }
 
-  return animationSequenceQueue;
+    propName = fieldMap.shift();
+    if (fieldMap.length) {
+      // recurse into the next layer
+      return getNestedReference((rootObject || {})[propName], fieldMap);
+    }
+  }
+
+  return !_.isString(propName) ? rootObject : _.result(rootObject || {}, propName);
 }
 
 module.exports = {
-  clearSequenceQueue: clearSequenceQueue,
-  runAnimationClassSequenceQueue: runAnimationClassSequenceQueue,
-  addToAndFetchQueue: addToAndFetchQueue
+  insertValueIntoObject: insertValueIntoObject,
+  getNestedReference: getNestedReference
 };
 
-},{"../misc/config":29,"../misc/util":31,"knockout/build/output/knockout-latest":2,"lodash":3}],21:[function(require,module,exports){
-// component-resource overwrites fw.components.register, needed by router entity
-require('../resource/component-resource');
+},{"lodash":3}],21:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
 
-require('./testModel/testModel');
-// require('./dataModel/dataModel');
-// require('./router/router');
+var defaultChannel = require('postal').channel();
+var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
+var entityDescriptors = require('../entity-descriptors');
+var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
 
-require('./testModel/testModel');
+/**
+ * Bootstrap an instance with dataModel capabilities (fetch/save/mapTo/etc).
+ *
+ * @param {any} instance
+ * @param {any} configParams
+ * @returns {object} The instance that was passed in
+ */
+function dataModelBootstrap (instance, configParams) {
+  if (!instance) {
+    throw new Error('Must supply the instance to boot()');
+  }
 
-},{"../resource/component-resource":35,"./testModel/testModel":27}],22:[function(require,module,exports){
+  var descriptor = entityDescriptors.getDescriptor('dataModel');
+
+  // bootstrap/mixin viewModel functionality
+  viewModelBootstrap(instance, configParams, descriptor);
+
+  var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
+  if (!hasBeenBootstrapped) {
+    instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
+    configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.defaultConfig, configParams || {});
+
+    instance[privateDataSymbol].mappings = fw.observable({});
+
+    _.extend(instance, descriptor.mixin, {
+      $cid: fw.utils.guid(),
+      $id: fw.observable().mapTo(configParams.idAttribute, instance),
+      isCreating: fw.observable(false),
+      isSaving: fw.observable(false),
+      isFetching: fw.observable(false),
+      isDestroying: fw.observable(false),
+      isDirty: fw.computed(function() {
+        return _.reduce(instance[privateDataSymbol].mappings(), function(isDirty, mappedField) {
+          return isDirty || mappedField.isDirty();
+        }, false);
+      })
+    });
+
+    _.extend(instance, {
+      requestInProgress: fw.computed(function() {
+        return instance.isCreating() || instance.isSaving() || instance.isFetching() || instance.isDestroying();
+      }),
+      isNew: fw.computed(function() {
+        return !!instance.$id();
+      })
+    });
+  } else {
+    throw new Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
+  }
+
+  return instance;
+}
+
+module.exports = dataModelBootstrap;
+
+},{"../../misc/config":43,"../entity-descriptors":26,"../entity-tools":28,"../viewModel/viewModel-bootstrap":39,"knockout/build/output/knockout-latest":2,"lodash":3,"postal":4}],22:[function(require,module,exports){
+var _ = require('lodash');
+
+var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+
+var dataTools = require('./data-tools');
+var insertValueIntoObject = dataTools.insertValueIntoObject;
+var getNestedReference = dataTools.getNestedReference;
+
+/**
+ * GET from server and set in model
+ *
+ * @param {object} options (optional) Options passed to sync()
+ * @returns {object} Promise Promise for the HTTP Request
+ */
+function fetchModel (options) {
+  var ajax = require('../../misc/ajax');
+  var dataModel = this;
+  var configParams = dataModel[privateDataSymbol].configParams;
+  var requestInfo = {
+    requestRunning: dataModel.isFetching,
+    requestLull: configParams.requestLull,
+    entity: dataModel,
+    createRequest: function() {
+      var id = _.result(dataModel, configParams.idAttribute) || _.result(dataModel, '$id');
+      if (id) {
+        // retrieve data dataModel the from server using the id
+        var xhr = dataModel.sync('read', dataModel, options);
+
+        ajax.handleJsonResponse(xhr)
+          .then(function handleResponseData(data) {
+            var parsedData = configParams.parse ? configParams.parse(data) : data;
+            if (!_.isUndefined(parsedData[configParams.idAttribute])) {
+              dataModel.set(parsedData);
+            }
+          });
+
+        return xhr;
+      }
+
+      return false;
+    }
+  };
+
+  return ajax.makeOrGetRequest('fetch', requestInfo);
+}
+
+/**
+ * PUT / POST / PATCH to server
+ *
+ * @param {string} (optional) key
+ * @param {any} (optional) val
+ * @param {object} options (optional) Options passed to sync()
+ * @returns {object} Promise Promise for the HTTP Request
+ */
+function save (key, val, options) {
+  var ajax = require('../../misc/ajax');
+  var dataModel = this;
+  var configParams = dataModel[privateDataSymbol].configParams;
+  var attrs = null;
+
+  if (_.isObject(key) && !isNode(key)) {
+    attrs = key;
+    options = val;
+  } else if (_.isString(key) && arguments.length > 1) {
+    (attrs = {})[key] = val;
+  }
+
+  if (_.isObject(options) && _.isFunction(options.stopPropagation)) {
+    // method called as a result of an event binding, ignore its 'options'
+    options = {};
+  }
+
+  options = _.extend({
+    parse: true,
+    wait: false,
+    patch: false
+  }, options);
+
+  if (method === 'patch' && !options.attrs) {
+    options.attrs = attrs;
+  }
+
+  var method = !dataModel.$id() ? 'create' : (options.patch ? 'patch' : 'update');
+  var requestInfo = {
+    requestRunning: (method === 'create' ? dataModel.isCreating : dataModel.isSaving),
+    requestLull: configParams.requestLull,
+    entity: dataModel,
+    createRequest: function() {
+      if (!options.wait && !_.isNull(attrs)) {
+        dataModel.set(attrs);
+      }
+
+      // retrieve data dataModel the from server using the id
+      var xhr = dataModel.sync(method, dataModel, options);
+
+      ajax.handleJsonResponse(xhr)
+        .then(function handleResponseData(data) {
+          var parsedData = configParams.parse ? configParams.parse(data) : data;
+
+          if (options.wait && !_.isNull(attrs)) {
+            parsedData = _.extend({}, attrs, parsedData);
+          }
+
+          if (_.isObject(parsedData)) {
+            dataModel.set(parsedData);
+          }
+        });
+
+      return xhr;
+    }
+  };
+
+  return ajax.makeOrGetRequest('save', requestInfo);
+}
+
+/**
+ * Delete/destroy the data on the server.
+ *
+ * @param {object} options (optional) Options passed to sync()
+ * @returns {object} Promise Promise for the HTTP Request
+ */
+function destroy (options) {
+  var ajax = require('../../misc/ajax');
+  var dataModel = this;
+  var configParams = dataModel[privateDataSymbol].configParams;
+  var requestInfo = {
+    requestRunning: dataModel.isDestroying,
+    requestLull: configParams.requestLull,
+    entity: dataModel,
+    createRequest: function() {
+      if (dataModel.isNew()) {
+        return false;
+      }
+
+      options = options ? _.clone(options) : {};
+      var success = options.success;
+      var wait = options.wait;
+
+      var sendDestroyEvent = function() {
+        dataModel.$namespace.publish('destroy', options);
+      };
+
+      if (!options.wait) {
+        sendDestroyEvent();
+      }
+
+      var xhr = dataModel.sync('delete', dataModel, options);
+
+      ajax.handleJsonResponse(xhr)
+        .then(function handleResponseData(data) {
+          dataModel.$id(undefined);
+          if (options.wait) {
+            sendDestroyEvent();
+          }
+        });
+
+      return xhr;
+    }
+  };
+
+  return ajax.makeOrGetRequest('destroy', requestInfo);
+}
+
+/**
+ * set attributes in model (clears isDirty on observables/fields it saves to by default)
+ *
+ * @param {string} key
+ * @param {any} value
+ * @param {object} options
+ */
+function set (key, value, options) {
+  var attributes = {};
+  var dataModel = this;
+  var configParams = dataModel[privateDataSymbol].configParams;
+
+  if (_.isString(key)) {
+    attributes = insertValueIntoObject(attributes, key, value);
+  } else if (_.isObject(key)) {
+    attributes = key;
+    options = value;
+  }
+
+  options = _.extend({
+    clearDirty: true
+  }, options);
+
+  var mappingsChanged = false;
+  var model = this;
+  _.each(this[privateDataSymbol].mappings(), function(fieldObservable, fieldMap) {
+    var fieldValue = getNestedReference(attributes, fieldMap);
+    if (!_.isUndefined(fieldValue)) {
+      fw.isWriteableObservable(fieldObservable) && fieldObservable(fieldValue);
+      mappingsChanged = true;
+      options.clearDirty && fieldObservable.isDirty(false);
+      model.$namespace.publish('_.change.' + fieldMap, fieldValue);
+    }
+  });
+
+  // make sure that if the user supplied an id value that it is written to whatever available $id is available
+  // by default dataModels are instantiated with a $id, leaving it up to the user to (re)map it as desired
+  if(attributes[configParams.idAttribute] && !fw.isObservable(dataModel[configParams.idAttribute])) {
+    dataModel.$id(attributes[configParams.idAttribute]);
+  }
+
+  if (mappingsChanged && options.clearDirty) {
+    // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function
+    this[privateDataSymbol].mappings.valueHasMutated();
+  }
+
+  return this;
+}
+
+/**
+ * Convert the dataModel values into its corresponding POJO and return the result.
+ *
+ * @param {string} referenceField (optional) if included it will only get the referenceField (mapped)
+ * @param {boolean} includeRoot (optional) if true it will include the root object in the result
+ * @returns {object} The POJO representation of the dataModel
+ */
+function getData (referenceField, includeRoot) {
+  var dataModel = this;
+  if (_.isArray(referenceField)) {
+    return _.reduce(referenceField, function(jsObject, fieldMap) {
+      return _.merge(jsObject, dataModel.get(fieldMap, true));
+    }, {});
+  } else if (!_.isUndefined(referenceField) && !_.isString(referenceField)) {
+    throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.get().');
+  }
+
+  var mappedObject = _.reduce(this[privateDataSymbol].mappings(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+    if (_.isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
+      insertValueIntoObject(jsObject, fieldMap, fieldObservable());
+    }
+    return jsObject;
+  }, {});
+
+  return includeRoot ? mappedObject : getNestedReference(mappedObject, referenceField);
+}
+
+/**
+ * Convert the dataModel into a serialized JSON string
+ *
+ * @returns {string} The stringified result of the data
+ */
+function toJSON () {
+  return JSON.stringify(this.getData());
+}
+
+/**
+ * Clear the dataModel of any dirty flags (if field is specified it will only clear that mapped field)
+ *
+ * @param {string} field (optional) If supplied the method will only clear the specified field
+ */
+function clean (field) {
+  if (!_.isUndefined(field)) {
+    var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
+  }
+  _.each(this[privateDataSymbol].mappings(), function(fieldObservable, fieldMap) {
+    if (_.isUndefined(field) || fieldMap.match(fieldMatch)) {
+      fieldObservable.isDirty(false);
+    }
+  });
+
+  return this;
+}
+
+/**
+ * Locally overridable proxy method for main sync() call
+ *
+ * @returns Promise The sync request promise
+ */
+function sync () {
+  return fw.sync.apply(this, arguments);
+}
+
+/**
+ * Determines whether or not the passed in field has been mapped on the dataModel
+ *
+ * @param {string} referenceField The path/mapped field you wish to check for
+ * @returns {boolean} true if the field has been mapped, false if not
+ */
+function hasMappedField (referenceField) {
+  return !!this[privateDataSymbol].mappings()[referenceField];
+}
+
+/**
+ * Returns all of the mapped fields which are dirty.
+ *
+ * @returns {array} The list of dirty field mappings
+ */
+function dirtyMap () {
+  var tree = {};
+  _.each(this[privateDataSymbol].mappings(), function(fieldObservable, fieldMap) {
+    tree[fieldMap] = fieldObservable.isDirty();
+  });
+  return tree;
+}
+
+module.exports = {
+  fetch: fetchModel,
+  save: save,
+  destroy: destroy,
+  set: set,
+  get: getData,
+  getData: getData,
+  toJSON: toJSON,
+  clean: clean,
+  sync: sync,
+  hasMappedField: hasMappedField,
+  dirtyMap: dirtyMap
+};
+
+
+
+},{"../../misc/ajax":42,"../../misc/config":43,"./data-tools":20,"lodash":3}],23:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
+
+require('./mapTo');
+
+var entityDescriptors = require('../entity-descriptors');
+var resourceHelperFactory = require('../../misc/resource-tools').resourceHelperFactory;
+var prepareDescriptor = require('../entity-tools').prepareDescriptor;
+
+var util = require('../../misc/util');
+var capitalizeFirstLetter = util.capitalizeFirstLetter;
+var getSymbol = util.getSymbol;
+
+var entityName = 'dataModel';
+var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
+
+fw[entityName] = {
+  boot: require('./dataModel-bootstrap')
+};
+
+var descriptor;
+entityDescriptors.push(descriptor = prepareDescriptor({
+  tagName: entityName.toLowerCase(),
+  entityName: entityName,
+  resource: fw[entityName],
+  isEntityDuckTag: isEntityDuckTag,
+  isEntity: function (thing) {
+    return _.isObject(thing) && !!thing[isEntityDuckTag];
+  },
+  mixin: require('./dataModel-mixin'),
+  defaultConfig: {
+    idAttribute: 'id',
+    useKeyInUrl: true,
+    url: null,
+    parse: false, // identity?
+    ajaxOptions: {},
+    requestLull: 0
+  }
+}));
+
+fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
+
+// Add/extend on the various resource methods (registerLocation/etc)
+_.extend(descriptor.resource, resourceHelperFactory(descriptor));
+
+require('../../misc/config')[capitalizeFirstLetter(entityName)] = function DefaultInstance (params) {
+  fw.dataModel.boot(this);
+  if (_.isObject(params) && _.isObject(params.$viewModel)) {
+    _.extend(this, params.$viewModel);
+  }
+};
+
+
+
+},{"../../misc/config":43,"../../misc/resource-tools":46,"../../misc/util":47,"../entity-descriptors":26,"../entity-tools":28,"./dataModel-bootstrap":21,"./dataModel-mixin":22,"./mapTo":24,"knockout/build/output/knockout-latest":2,"lodash":3}],24:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
+
+var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+
+function getPrimaryKey (dataModel) {
+  return dataModel[privateDataSymbol].configParams.idAttribute;
+}
+
+/**
+ * Take the desired mapPath and wire it into the dataModel. This enables footwork to hook into
+ * your observables and map their values back to its POJO form and for communication with the server.
+ *
+ * @param {string} mapPath The path you wish to map
+ * @param {object} dataModel The dataModel instance you are mapping the observable/path to
+ * @returns {observable} The mapped observable
+ */
+function mapTo(mapPath, dataModel) {
+  var mappedObservable = this;
+  var mapPath;
+  var dataModel;
+
+  if (!fw.isDataModel(dataModel)) {
+    throw new Error('No dataModel context supplied for mapTo observable');
+  }
+
+  var mappings = dataModel[privateDataSymbol].mappings();
+  var primaryKey = getPrimaryKey(dataModel);
+
+  if (!_.isUndefined(mappings[mapPath]) && _.isFunction(mappings[mapPath].dispose)) {
+    // remapping a path, we need to dispose of the old one first
+    mappings[mapPath].dispose();
+  }
+
+  // add/set the registry entry for the mapped observable
+  mappings[mapPath] = mappedObservable;
+
+  if (mapPath === primaryKey) {
+    // mapping primary key, update/set the $id property on the dataModel
+    dataModel.$id = mappings[mapPath];
+
+    if (fw.isObservable(dataModel.isNew) && _.isFunction(dataModel.isNew.dispose)) {
+      dataModel.isNew.dispose();
+    }
+    dataModel.isNew = fw.computed(function() {
+      return !!dataModel.$id();
+    });
+  }
+
+  mappedObservable.isDirty = fw.observable(false);
+  var changeSubscription = mappedObservable.subscribe(function (value) {
+    dataModel.$namespace.publish('_.change', { param: mapPath, value: value });
+    mappedObservable.isDirty(true);
+  });
+
+  var disposeObservable = mappedObservable.dispose || _.noop;
+  if (_.isFunction(mappedObservable.dispose)) {
+    mappedObservable.dispose = function () {
+      changeSubscription.dispose();
+      disposeObservable.call(mappedObservable);
+    };
+  }
+
+  dataModel[privateDataSymbol].mappings.valueHasMutated();
+
+  return mappedObservable;
+}
+
+fw.subscribable.fn.mapTo = mapTo;
+
+},{"../../misc/config":43,"knockout/build/output/knockout-latest":2,"lodash":3}],25:[function(require,module,exports){
+/**
+ * This loader wraps the elements with the $lifecycle as well as sources the viewModel/router/dataModel
+ */
+require('./entity-loader');
+
+/**
+ * These are the 'entities' (footwork-ized view models with lifecycle/etc hooks) that are bootstrapped by the above entity-loader
+ */
+require('./viewModel/viewModel');
+require('./dataModel/dataModel');
+require('./router/router');
+
+},{"./dataModel/dataModel":23,"./entity-loader":27,"./router/router":38,"./viewModel/viewModel":41}],26:[function(require,module,exports){
 var _ = require('lodash');
 
 module.exports = _.extend([
   /* filled in by viewModel/dataModel/router modules */
 ], {
-  getTags: function() {
-    return _.map(this, function(descriptor) {
+  getTags: function () {
+    return _.map(this, function (descriptor) {
       return descriptor.tagName;
     });
   },
-  tagNameIsPresent: function isEntityTagNameDescriptorPresent(tagName) {
+  tagNameIsPresent: function isEntityTagNameDescriptorPresent (tagName) {
     tagName = _.isString(tagName) ? tagName.toLowerCase() : null;
-    return _.filter(this, function matchingTagNames(descriptor) {
+    return _.filter(this, function matchingTagNames (descriptor) {
       return descriptor.tagName.toLowerCase() === tagName;
     }).length > 0;
   },
-  resourceFor: function getResourceForEntityTagName(tagName) {
-    return _.reduce(this, function(resource, descriptor) {
-      if (descriptor.tagName === tagName) {
-        resource = descriptor.resource;
-      }
-      return resource;
-    }, null);
-  },
-  getDescriptor: function getDescriptor(tagName) {
+  getDescriptor: function getDescriptor (tagName) {
     tagName = _.isString(tagName) ? tagName.toLowerCase() : null;
-    return _.reduce(this, function reduceDescriptor(foundDescriptor, descriptor) {
+    return _.reduce(this, function reduceDescriptor (foundDescriptor, descriptor) {
       return descriptor.tagName.toLowerCase() === tagName ? descriptor : foundDescriptor;
     }, null);
   }
 });
 
-},{"lodash":3}],23:[function(require,module,exports){
-module.exports = [
-  /* filled in by various modules */
-];
-
-},{}],24:[function(require,module,exports){
+},{"lodash":3}],27:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
-
 var _ = require('lodash');
 
-var entityMixins = require('./entity-mixins');
+var util = require('../misc/util');
+var isAmdResolved = util.isAmdResolved;
+var isPath = util.isPath;
+
+var bindingElement = require('../binding/binding-element');
+var getLoadingTracker = require('../misc/loading-tracker').get;
+
+/**
+ * This component loader has two functions:
+ * 1. wraps viewModel/dataModel/router declarative element contents with the $lifecycle binding which enables the lifecycle hooks (afterBinding/afterRender/onDispose).
+ * 2. provides either the entity constructor itself or the require path to get the entity
+ */
+fw.components.loaders.unshift(fw.components.entityLoader = {
+  getConfig: function (componentName, callback) {
+    var descriptor;
+
+    /**
+     * This loader is for all entity-descriptors that are not outlets.
+     * Outlets are loaded/bootstrapped by the 'router/outlet/outlet-loader'.
+     */
+    if (componentName !== 'outlet' && (descriptor = require('./entity-descriptors').getDescriptor(componentName))) {
+      // this component is a viewModel/dataModel/router entity
+      var moduleName = getLoadingTracker().moduleName;
+      var viewModelOrLocation = descriptor.resource.getResourceOrLocation(moduleName);
+
+      if (_.isString(viewModelOrLocation)) {
+        // assume string is a location/path, append the filename to it and set it as a require dependency
+        if (isPath(viewModelOrLocation)) {
+          viewModelOrLocation = viewModelOrLocation + descriptor.resource.getFileName(moduleName);
+        }
+
+        viewModelOrLocation = {
+          require: isAmdResolved(moduleName) ? moduleName : window.require.toUrl(viewModelOrLocation)
+        };
+      }
+
+      if(_.isUndefined(viewModelOrLocation)) {
+        throw new Error('The \'' + moduleName + '\' ' + descriptor.entityName + ' module must be registered before it can be used.');
+      }
+
+      callback({
+        viewModel: viewModelOrLocation,
+        template: bindingElement.open.prefix + '$lifecycle, template: { nodes: $componentTemplateNodes, data: $data }' + bindingElement.open.postfix + bindingElement.close
+      });
+    } else {
+      callback(null);
+    }
+  }
+});
+
+},{"../binding/binding-element":7,"../misc/loading-tracker":45,"../misc/util":47,"./entity-descriptors":26,"knockout/build/output/knockout-latest":2,"lodash":3}],28:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
+
 var entityDescriptors = require('./entity-descriptors');
+var capitalizeFirstLetter = require('../misc/util').capitalizeFirstLetter;
 
-function prepareDescriptor(descriptor) {
-  var methodName = descriptor.methodName.charAt(0).toUpperCase() + descriptor.methodName.slice(1);
-
+function prepareDescriptor (descriptor) {
   return _.extend({
     resourceLocations: {},
     registered: {},
     fileExtensions: fw.observable('.js'),
-    referenceNamespace: (_.isString(descriptor.methodName) ? ('__' + descriptor.methodName + 'Reference') : undefined)
+    referenceNamespace: '__' + capitalizeFirstLetter(descriptor.entityName) + 'Reference'
   }, descriptor);
 }
 
-function isEntityCtor(thing) {
-  return _.reduce(_.map(entityDescriptors, 'isEntityCtor'), function(isThing, comparator) {
+function isEntityCtor (thing) {
+  return _.reduce(_.map(entityDescriptors, 'isEntityCtor'), function (isThing, comparator) {
     return isThing || comparator(thing);
   }, false);
 };
 
-function isEntity(thing) {
-  return _.reduce(_.map(entityDescriptors, 'isEntity'), function(isThing, comparator) {
+function isEntity (thing) {
+  return _.reduce(_.map(entityDescriptors, 'isEntity'), function (isThing, comparator) {
     return isThing || comparator(thing);
   }, false);
 };
 
-function nearestEntity($context, predicate) {
+function nearestEntity ($context, predicate) {
   var foundEntity = null;
 
   predicate = predicate || isEntity;
   var predicates = [].concat(predicate);
-  function isTheThing(thing) {
-    return _.reduce(predicates, function(isThing, predicate) {
+ function isTheThing (thing) {
+    return _.reduce(predicates, function (isThing, predicate) {
       return isThing || predicate(thing);
     }, false);
   }
@@ -9335,45 +10094,651 @@ function nearestEntity($context, predicate) {
   return foundEntity;
 }
 
+/**
+ * This request handler returns references of the instance to the requester when it matches the passed in namespaceName.
+ *
+ * @param {any} instance
+ * @param {any} options
+ * @returns {object} the instance passed in if the passed in namespace matches
+ */
+function instanceRequestHandler (instance, options) {
+  if (_.isString(options.namespaceName) || _.isArray(options.namespaceName)) {
+    var myNamespaceName = instance.$namespace.getName();
+    if (_.isArray(options.namespaceName) && _.indexOf(options.namespaceName, myNamespaceName) !== -1) {
+      return instance;
+    } else if (_.isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+      return instance;
+    }
+  } else {
+    return instance;
+  }
+}
+
+/**
+ * Function which calls resolveNow to resolve the entity immediately
+ *
+ * @param {function} resolveNow
+ */
+function resolveEntityImmediately(resolveNow) {
+  resolveNow(true);
+}
+
 module.exports = {
   prepareDescriptor: prepareDescriptor,
   isEntityCtor: isEntityCtor,
   isEntity: isEntity,
-  isRouter: _.noop,
-  isDataModel: _.noop,
-  isDataModelCtor: _.noop,
-  nearestEntity: nearestEntity
+  nearestEntity: nearestEntity,
+  instanceRequestHandler: instanceRequestHandler,
+  resolveEntityImmediately: resolveEntityImmediately
 };
 
-},{"./entity-descriptors":22,"./entity-mixins":23,"knockout/build/output/knockout-latest":2,"lodash":3}],25:[function(require,module,exports){
+},{"../misc/util":47,"./entity-descriptors":26,"knockout/build/output/knockout-latest":2,"lodash":3}],29:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
+
+var privateDataSymbol = require('../../../misc/config').privateDataSymbol;
+var nearestParentRouter = require('../router-tools').nearestParentRouter;
+var noParentViewModelError = { $namespace: { getName: function () { return 'NO-VIEWMODEL-IN-CONTEXT'; } } };
+
+/**
+ * This custom binding binds/registers the outlet on the router
+ */
+fw.virtualElements.allowedBindings.$outlet = true;
+fw.bindingHandlers.$outlet = {
+  init: function (element, valueAccessor, allBindings, outletViewModel, bindingContext) {
+    var parentViewModel = (_.isObject(bindingContext) ? (bindingContext.$parent || noParentViewModelError) : noParentViewModelError);
+    var parentRouter = nearestParentRouter(bindingContext);
+
+    element = element.parentNode;
+    var outletName = element.getAttribute('name') || element.getAttribute('data-name');
+
+    if (fw.isRouter(parentRouter)) {
+      // register the outlet with its parent router so it can manipulate it
+      parentRouter[privateDataSymbol].registerOutlet(outletName, outletViewModel);
+      fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
+        parentRouter[privateDataSymbol].unregisterOutlet(outletName);
+      });
+
+      // attach the observable from the parentRouter that contains the component binding definition to display for this outlet
+      outletViewModel.display = parentRouter.outlet(outletName);
+    } else {
+      throw new Error('Outlet [' + outletName + '] defined inside of viewModel [' + parentViewModel.$namespace.getName() + '] but no router was defined.');
+    }
+  }
+};
+
+},{"../../../misc/config":43,"../router-tools":37,"knockout/build/output/knockout-latest":2,"lodash":3}],30:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
+
+var defaultChannel = require('postal').channel();
+var instanceRequestHandler = require('../../entity-tools').instanceRequestHandler;
+var entityDescriptors = require('../../entity-descriptors');
+var viewModelBootstrap = require('../../viewModel/viewModel-bootstrap');
+var nextFrame = require('../../../misc/util').nextFrame;
+
+var config = require('../../../misc/config');
+var privateDataSymbol = config.privateDataSymbol;
+var entityAnimateClass = config.entityAnimateClass;
+
+var routerDefaults = require('../../router/router-defaults');
+var nullComponent = routerDefaults.nullComponent;
+
+var visibleCSS = { 'height': '', 'overflow': '' };
+var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
+var removeAnimation = {};
+removeAnimation[entityAnimateClass] = false;
+var addAnimation = {};
+addAnimation[entityAnimateClass] = true;
+
+/**
+ * Bootstrap an instance with outlet capabilities.
+ *
+ * @param {any} instance
+ * @param {any} configParams
+ * @returns {object} The instance that was passed in
+ */
+function outletBootstrap (instance, configParams) {
+  if (!instance) {
+    throw new Error('Must supply the instance to boot()');
+  }
+
+  var descriptor = entityDescriptors.getDescriptor('outlet');
+
+  // bootstrap/mixin viewModel functionality
+  viewModelBootstrap(instance, configParams, descriptor);
+
+  var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
+  if (!hasBeenBootstrapped) {
+    instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
+
+    instance.loadingDisplay = fw.observable(nullComponent);
+    instance.routeIsLoading = fw.observable(true);
+    instance.routeIsResolving = fw.observable(true);
+
+    var resolvedCallbacks = [];
+    instance.addResolvedCallbackOrExecute = function(callback) {
+      if (instance.routeIsResolving()) {
+        resolvedCallbacks.push(callback);
+      } else {
+        callback();
+      }
+    };
+
+    instance.disposeWithInstance(instance.routeIsLoading.subscribe(function(routeIsLoading) {
+      if (routeIsLoading) {
+        instance.routeIsResolving(true);
+      } else {
+        if (instance.loadingChildrenWatch && _.isFunction(instance.loadingChildrenWatch.dispose)) {
+          instance.loadingChildrenWatch.dispose();
+        }
+
+        // must allow binding to begin on any subcomponents/etc
+        nextFrame(function() {
+          if (instance[privateDataSymbol].loadingChildren().length) {
+            instance.loadingChildrenWatch = instance[privateDataSymbol].loadingChildren.subscribe(function(loadingChildren) {
+              if (!loadingChildren.length) {
+                instance.routeIsResolving(false);
+                _.isFunction(instance.routeOnComplete) && instance.routeOnComplete();
+              }
+            });
+          } else {
+            instance.routeIsResolving(false);
+            _.isFunction(instance.routeOnComplete) && instance.routeOnComplete();
+          }
+        });
+      }
+    }));
+
+    instance.loadingStyle = fw.observable();
+    instance.loadedStyle = fw.observable();
+    instance.loadingClass = fw.observable();
+    instance.loadedClass = fw.observable();
+
+    function showLoader() {
+      instance.loadingClass(removeAnimation);
+      instance.loadedClass(removeAnimation);
+      instance.loadedStyle(hiddenCSS);
+      instance.loadingStyle(visibleCSS);
+
+      nextFrame(function() {
+        instance.loadingClass(addAnimation);
+      });
+    }
+
+    function showLoadedAfterMinimumTransition() {
+      instance.loadingClass(removeAnimation);
+      instance.loadedStyle(visibleCSS);
+      instance.loadingStyle(hiddenCSS);
+      instance.loadedClass(addAnimation);
+
+      if (resolvedCallbacks.length) {
+        _.each(resolvedCallbacks, function(callback) {
+          callback();
+        });
+        resolvedCallbacks = [];
+      }
+    }
+
+    var transitionTriggerTimeout;
+    function showLoaded() {
+      clearTimeout(transitionTriggerTimeout);
+      var minTransitionPeriod = instance.display.peek().minTransitionPeriod;
+      if (minTransitionPeriod) {
+        transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, minTransitionPeriod);
+      } else {
+        showLoadedAfterMinimumTransition();
+      }
+    }
+
+    instance.transitionTrigger = fw.computed(function() {
+      var routeIsResolving = instance.routeIsResolving();
+      if (routeIsResolving) {
+        showLoader();
+      } else {
+        showLoaded();
+      }
+    });
+  } else {
+    throw new Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
+  }
+
+  return instance;
+}
+
+module.exports = outletBootstrap;
+
+},{"../../../misc/config":43,"../../../misc/util":47,"../../entity-descriptors":26,"../../entity-tools":28,"../../router/router-defaults":35,"../../viewModel/viewModel-bootstrap":39,"knockout/build/output/knockout-latest":2,"lodash":3,"postal":4}],31:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
+
+var util = require('../../../misc/util');
+var isAmdResolved = util.isAmdResolved;
+var isPath = util.isPath;
+
+var routerDefaults = require('../router-defaults');
+var outletLoadedDisplay = routerDefaults.outletLoadedDisplay;
+var outletLoadingDisplay = routerDefaults.outletLoadingDisplay;
+
+var entityClass = require('../../../misc/config').entityClass;
+var bindingElement = require('../../../binding/binding-element');
+
+function Outlet() {
+  fw.outlet.boot(this);
+}
+
+/**
+ * The outlet loader has two functions:
+ * 1. provides the outlet viewModel constructor to bind against and control an outlets display
+ * 2. provides the outlet template bound against the viewModel which is used to control display/output of its area via the component: display binding
+ */
+fw.components.loaders.unshift(fw.components.outletLoader = {
+  getConfig: function (componentName, callback) {
+    if (componentName === 'outlet') {
+      callback({
+        viewModel: Outlet,
+        template: bindingElement.open.prefix + '$lifecycle, $outlet' + bindingElement.open.postfix +
+          '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" ' +
+            'data-bind="style: loadingStyle, css: loadingClass, component: loadingDisplay"></div>' +
+          '<div class="' + outletLoadedDisplay + ' ' + entityClass + '" ' +
+            'data-bind="style: loadedStyle, css: loadedClass, component: display"></div>' +
+        bindingElement.close
+      });
+    } else {
+      callback(null);
+    }
+  }
+});
+
+},{"../../../binding/binding-element":7,"../../../misc/config":43,"../../../misc/util":47,"../router-defaults":35,"knockout/build/output/knockout-latest":2,"lodash":3}],32:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
+
+var entityDescriptors = require('../../entity-descriptors');
+var prepareDescriptor = require('../../entity-tools').prepareDescriptor;
+
+var util = require('../../../misc/util');
+var capitalizeFirstLetter = util.capitalizeFirstLetter;
+var getSymbol = util.getSymbol;
+
+require('./outlet-loader');
+require('./outlet-binding');
+
+var entityName = 'outlet';
+var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
+
+fw[entityName] = {
+  boot: require('./outlet-bootstrap'),
+  registerView: function (viewName, templateHTML) {
+    fw.components.register(viewName, { template: templateHTML });
+  },
+  registerViewLocation: function (viewName, viewLocation) {
+    fw.components.registerLocation(viewName, { template: viewLocation });
+  }
+};
+
+var descriptor;
+entityDescriptors.push(descriptor = prepareDescriptor({
+  tagName: entityName.toLowerCase(),
+  entityName: entityName,
+  resource: fw[entityName],
+  isEntityDuckTag: isEntityDuckTag,
+  isEntity: function (thing) {
+    return _.isObject(thing) && !!thing[isEntityDuckTag];
+  },
+  defaultConfig: {}
+}));
+
+fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
+
+var routerDefaults = require('../router-defaults');
+fw.components.register(routerDefaults.noComponentSelected, {
+  template: '<div class="no-component-selected"></div>',
+  synchronus: true
+});
+fw.components.register(routerDefaults.nullComponent, {
+  template: '<div class="null-component"></div>',
+  synchronus: true
+});
+fw.components.register(routerDefaults.defaultLoadingComponent, {
+  template: '<div class="sk-wave fade-in">\
+              <div class="sk-rect sk-rect1"></div>\
+              <div class="sk-rect sk-rect2"></div>\
+              <div class="sk-rect sk-rect3"></div>\
+              <div class="sk-rect sk-rect4"></div>\
+              <div class="sk-rect sk-rect5"></div>\
+            </div>',
+  synchronus: true
+});
+
+
+},{"../../../misc/util":47,"../../entity-descriptors":26,"../../entity-tools":28,"../router-defaults":35,"./outlet-binding":29,"./outlet-bootstrap":30,"./outlet-loader":31,"knockout/build/output/knockout-latest":2,"lodash":3}],33:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
 var util = require('../../misc/util');
-var entityAnimateClass = require('../../misc/config').entityAnimateClass;
+var hasPathStart = util.hasPathStart;
+var hasHashStart = util.hasHashStart;
+var resultBound  = util.resultBound;
+var startingHashRegex = util.startingHashRegex;
+var removeClass = util.removeClass;
+var addClass = util.addClass;
+var hasClass = util.hasClass;
 
-var alwaysPassPredicate = util.alwaysPassPredicate;
+var routerTools = require('./router-tools');
+var nearestParentRouter = routerTools.nearestParentRouter;
+var isNullRouter = routerTools.isNullRouter;
+
+var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+
+function findParentNode (element, selector) {
+  if (selector === true) {
+    return element.parentNode;
+  }
+
+  if (element.parentNode && _.isFunction(element.parentNode.querySelectorAll)) {
+    var parentNode = element.parentNode;
+    var matches = parentNode.querySelectorAll(selector);
+    if (matches.length && _.includes(matches, element)) {
+      return element;
+    }
+    return findParentNode(parentNode, selector);
+  }
+
+  return undefined;
+}
+
+var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
+var isFullURL = fw.utils.isFullURL = function (thing) {
+  return _.isString(thing) && isFullURLRegex.test(thing);
+};
+
+fw.bindingHandlers.$route = {
+  init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+    var $myRouter = nearestParentRouter(bindingContext);
+    var routeParams = valueAccessor();
+    var elementIsSetup = false;
+    var stateTracker = null;
+    var hashOnly = null;
+
+    var routeHandlerDescription = {
+      on: 'click',
+      url: function defaultURLForRoute () { return element.getAttribute('href'); },
+      addActiveClass: true,
+      activeClass: null,
+      parentHasState: false,
+      handler: function defaultHandlerForRouteBinding (event, url) {
+        if (hashOnly) {
+          return false;
+        }
+
+        if (!isFullURL(url) && event.which !== 2) {
+          event.preventDefault();
+          return true;
+        }
+        return false;
+      }
+    };
+
+    if (_.isFunction(routeParams) || _.isString(routeParams)) {
+      routeHandlerDescription.url = routeParams;
+    } else if (_.isObject(routeParams)) {
+      _.extend(routeHandlerDescription, routeParams);
+    }
+
+    var routeHandlerDescriptionURL = routeHandlerDescription.url;
+    if (!_.isFunction(routeHandlerDescriptionURL)) {
+      routeHandlerDescription.url = function () { return routeHandlerDescriptionURL; };
+    }
+
+    function getRouteURL () {
+      var parentRoutePath = '';
+      var routeURL = routeHandlerDescription.url();
+      var myLinkPath = routeURL || '';
+
+      if (!_.isNull(routeURL)) {
+        if (_.isUndefined(routeURL)) {
+          routeURL = myLinkPath;
+        }
+
+        if (!isFullURL(myLinkPath)) {
+          if (!hasPathStart(myLinkPath)) {
+            var currentRoute = $myRouter[privateDataSymbol].currentRoute();
+            if (hasHashStart(myLinkPath)) {
+              if (!_.isNull(currentRoute)) {
+                myLinkPath = $myRouter[privateDataSymbol].currentRoute().segment + myLinkPath;
+              }
+              hashOnly = true;
+            } else {
+              // relative url, prepend current segment
+              if (!_.isNull(currentRoute)) {
+                myLinkPath = $myRouter[privateDataSymbol].currentRoute().segment + '/' + myLinkPath;
+              }
+            }
+          }
+        }
+
+        return myLinkPath;
+      }
+
+      return null;
+    };
+
+    function checkForMatchingSegment (mySegment, newRoute) {
+      if (_.isString(mySegment)) {
+        var currentRoute = $myRouter[privateDataSymbol].currentRoute();
+        var elementWithState = routeHandlerDescription.parentHasState ? findParentNode(element, routeHandlerDescription.parentHasState) : element;
+        var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', $myRouter) || fw.router.activeRouteClassName();
+        mySegment = mySegment.replace(startingHashRegex, '/');
+
+        if (_.isObject(currentRoute)) {
+          if (resultBound(routeHandlerDescription, 'addActiveClass', $myRouter)) {
+            if (mySegment === '/') {
+              mySegment = '';
+            }
+
+            if (!_.isNull(newRoute) && newRoute.segment === mySegment && _.isString(activeRouteClassName) && activeRouteClassName.length) {
+              // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
+              addClass(elementWithState, activeRouteClassName);
+            } else if (hasClass(elementWithState, activeRouteClassName)) {
+              removeClass(elementWithState, activeRouteClassName);
+            }
+          }
+        }
+      }
+
+      if (_.isNull(newRoute)) {
+        // No route currently selected, remove the activeRouteClassName from the elementWithState
+        removeClass(elementWithState, activeRouteClassName);
+      }
+    };
+
+    function setUpElement () {
+      if (!isNullRouter($myRouter)) {
+        var myCurrentSegment = getRouteURL();
+        var configParams = $myRouter[privateDataSymbol].configParams;
+        if (element.tagName.toLowerCase() === 'a') {
+          element.href = configParams.baseRoute + getRouteURL();
+        }
+
+        if (_.isObject(stateTracker) && _.isFunction(stateTracker.dispose)) {
+          stateTracker.dispose();
+        }
+        stateTracker = $myRouter[privateDataSymbol].currentRoute.subscribe(checkForMatchingSegment.bind(null, myCurrentSegment));
+
+        if (elementIsSetup === false) {
+          elementIsSetup = true;
+          checkForMatchingSegment(myCurrentSegment, $myRouter[privateDataSymbol].currentRoute());
+
+          fw.utils.registerEventHandler(element, resultBound(routeHandlerDescription, 'on', $myRouter), function (event) {
+            var currentRouteURL = getRouteURL();
+            var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
+            if (handlerResult) {
+              if (_.isString(handlerResult)) {
+                currentRouteURL = handlerResult;
+              }
+              if (_.isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
+                $myRouter.setState(currentRouteURL);
+              }
+            }
+            return true;
+          });
+        }
+      }
+    }
+
+    if (fw.isObservable(routeHandlerDescription.url)) {
+      $myRouter.disposeWithInstance(routeHandlerDescription.url.subscribe(setUpElement));
+    }
+    setUpElement();
+
+    fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
+      if (_.isObject(stateTracker)) {
+        stateTracker.dispose();
+      }
+    });
+  }
+};
+
+},{"../../misc/config":43,"../../misc/util":47,"./router-tools":37,"knockout/build/output/knockout-latest":2,"lodash":3}],34:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
+
+var defaultChannel = require('postal').channel();
+var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
+var entityDescriptors = require('../entity-descriptors');
+var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
+var resultBound = require('../../misc/util').resultBound;
+
+var routerTools = require('./router-tools');
+var registerOutlet = routerTools.registerOutlet;
+var unregisterOutlet = routerTools.unregisterOutlet;
+var trimBaseRoute = routerTools.trimBaseRoute;
+var normalizeURL = routerTools.normalizeURL;
+var isNullRouter = routerTools.isNullRouter;
+var getRouteForURL = routerTools.getRouteForURL;
+var triggerRoute = routerTools.triggerRoute;
+var isRoute = routerTools.isRoute;
+
+var routerDefaults = require('./router-defaults');
+var nullRouter = routerDefaults.nullRouter;
+var noComponentSelected = routerDefaults.noComponentSelected;
+
+/**
+ * Bootstrap an instance with router capabilities (state management, outlet control, etc).
+ *
+ * @param {any} instance
+ * @param {any} configParams
+ * @returns {object} The instance that was passed in
+ */
+function routerBootstrap (instance, configParams) {
+  if (!instance) {
+    throw new Error('Must supply the instance to boot()');
+  }
+
+  var descriptor = entityDescriptors.getDescriptor('router');
+
+  // bootstrap/mixin viewModel functionality
+  viewModelBootstrap(instance, configParams, descriptor);
+
+  var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
+  if (!hasBeenBootstrapped) {
+    instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
+    configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.defaultConfig, {
+      baseRoute: fw.router.baseRoute() + (resultBound(configParams, 'baseRoute', instance) || '')
+    }, configParams || {});
+
+    _.extend(instance, descriptor.mixin, {
+      currentState: fw.observable()
+    });
+
+    instance[privateDataSymbol].outlets = {};
+    instance.outlet.reset = function () {
+      _.each(instance[privateDataSymbol].outlets, function (outlet) {
+        outlet({ name: noComponentSelected, params: {} });
+      });
+    };
+
+    _.extend(instance[privateDataSymbol], {
+      registerOutlet: _.partial(registerOutlet, instance),
+      unregisterOutlet: _.partial(unregisterOutlet, instance),
+      parentRouter: fw.observable(nullRouter),
+      historyPopstateListener: fw.observable(),
+      urlParts: fw.observable(),
+      routeDescriptions: []
+    });
+
+    _.extend(instance[privateDataSymbol], {
+      /**
+       * Computed which gets/updates the currentRoute for the current given currentState of the router
+       */
+      currentRoute: fw.computed(function () {
+        return getRouteForURL(instance, normalizeURL(instance, instance.currentState()));
+      })
+    });
+
+    _.extend(instance[privateDataSymbol], {
+      path: fw.computed(function () {
+        var currentRoute = instance[privateDataSymbol].currentRoute();
+        var routeSegment = '/';
+
+        if (isRoute(currentRoute)) {
+          routeSegment = (currentRoute.segment === '' ? '/' : currentRoute.segment);
+        }
+
+        return routeSegment;
+      })
+    });
+
+    instance.$namespace.command.handler('setState', function (state) {
+      var route = state;
+      var params = state.params;
+
+      if (_.isObject(state)) {
+        route = state.name;
+        params = params || {};
+      }
+
+      instance.setState(route, params);
+    });
+
+    // Automatically trigger the routes controller whenever the currentRoute() updates
+    instance.disposeWithInstance(instance[privateDataSymbol].currentRoute.subscribe(function routeTrigger (newRoute) {
+      triggerRoute(instance, newRoute);
+    }));
+
+    instance.setRoutes(configParams.routes);
+  } else {
+    throw new Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
+  }
+
+  return instance;
+}
+
+module.exports = routerBootstrap;
+
+},{"../../misc/config":43,"../../misc/util":47,"../entity-descriptors":26,"../entity-tools":28,"../viewModel/viewModel-bootstrap":39,"./router-defaults":35,"./router-tools":37,"knockout/build/output/knockout-latest":2,"lodash":3,"postal":4}],35:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
+
+var config = require('../../misc/config');
+var entityAnimateClass = config.entityAnimateClass;
+var privateDataSymbol = config.privateDataSymbol;
+
+var alwaysPassPredicate = require('../../misc/util').alwaysPassPredicate;
+var getSymbol = require('../../misc/util').getSymbol;
+
 var noComponentSelected = '_noComponentSelected';
 var nullComponent = '_nullComponent';
 var invalidRoutePathIdentifier = '___invalid-route';
 
 var routesAreCaseSensitive = true;
 
-var nullRouterData = {
-  context: _.noop,
-  childRouters: _.extend( _.noop.bind(), { push: _.noop } ),
-  isRelative: function() { return false; }
-};
-
-var $nullRouter = {
-  __private: function(propName) {
-    if (arguments.length) {
-      return nullRouterData[propName];
-    }
-    return nullRouterData;
-  },
-  path: function() { return ''; },
-  __isNullRouter: true
+var nullRouter = {};
+nullRouter[getSymbol('isNullRouter')] = true;
+nullRouter[privateDataSymbol] = {
+  path: function () { return ''; }
 };
 
 var baseRoute = {
@@ -9394,8 +10759,7 @@ module.exports = {
   nullComponent: nullComponent,
   invalidRoutePathIdentifier: invalidRoutePathIdentifier,
   routesAreCaseSensitive: routesAreCaseSensitive,
-  nullRouterData: nullRouterData,
-  $nullRouter: $nullRouter,
+  nullRouter: nullRouter,
   baseRoute: baseRoute,
   baseRouteDescription: baseRouteDescription,
   outletLoadingDisplay: 'fw-loading-display',
@@ -9403,15 +10767,246 @@ module.exports = {
   activeOutlets: fw.observableArray()
 };
 
-},{"../../misc/config":29,"../../misc/util":31,"knockout/build/output/knockout-latest":2,"lodash":3}],26:[function(require,module,exports){
+},{"../../misc/config":43,"../../misc/util":47,"knockout/build/output/knockout-latest":2,"lodash":3}],36:[function(require,module,exports){
+var _ = require('lodash');
+
+var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+
+var routerTools = require('./router-tools');
+var isNullRouter = routerTools.isNullRouter;
+var transformRouteConfigToDesc = routerTools.transformRouteConfigToDesc;
+var nearestParentRouter = routerTools.nearestParentRouter;
+var normalizeURL = routerTools.normalizeURL;
+
+var isEntity = require('../entity-tools').isEntity;
+
+var util = require('../../misc/util');
+var resultBound = util.resultBound;
+var propertyDispose = util.propertyDispose;
+var startingHashRegex = util.startingHashRegex;
+
+var viewModelMixinDispose = require('../viewModel/viewModel-mixin').dispose;
+var clearSequenceQueue = require('../../binding/animation-sequencing').clearSequenceQueue;
+var routerDefaults = require('./router-defaults');
+var noComponentSelected = routerDefaults.noComponentSelected;
+var nullComponent = routerDefaults.nullComponent;
+var defaultLoadingComponent = routerDefaults.defaultLoadingComponent;
+var activeOutlets = routerDefaults.activeOutlets;
+
+module.exports = {
+  outlet: function (outletName, componentToDisplay, options) {
+    options = options || {};
+    if (_.isFunction(options)) {
+      options = { onComplete: options, onFailure: _.noop };
+    }
+
+    var router = this;
+    var viewModelParameters = options.params;
+    var onComplete = options.onComplete || _.noop;
+    var onFailure = options.onFailure || _.noop;
+    var configParams = router[privateDataSymbol].configParams;
+    var outlets = router[privateDataSymbol].outlets;
+    var outletProperties = outlets[outletName] || {};
+    var outlet = outletProperties.routeObservable;
+    var outletViewModel = outletProperties.outletViewModel;
+
+    if (!fw.isObservable(outlet)) {
+      // router outlet observable not found, we must create a new one
+      outlet = fw.observable({
+        name: noComponentSelected,
+        params: {},
+        getOnCompleteCallback: function () { return _.noop; },
+        onFailure: onFailure.bind(router)
+      });
+
+      // register the new outlet under its outletName
+      outlets[outletName] = {
+        outletViewModel: outletProperties.outletViewModel || null,
+        routeObservable: outlet
+      };
+    }
+
+    var currentOutletDef = outlet();
+    var valueHasMutated = false;
+
+    if (arguments.length > 1 && !componentToDisplay) {
+      componentToDisplay = nullComponent;
+    }
+
+    if (!_.isUndefined(componentToDisplay)) {
+      if (currentOutletDef.name !== componentToDisplay) {
+        currentOutletDef.name = componentToDisplay;
+        valueHasMutated = true;
+      }
+
+      if (_.isObject(viewModelParameters)) {
+        currentOutletDef.params = viewModelParameters;
+        valueHasMutated = true;
+      }
+    }
+
+    if (outletViewModel) {
+      // Show the loading component (if one is defined)
+      var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || currentOutletDef.name]);
+      if (showDuringLoadComponent === true) {
+        showDuringLoadComponent = defaultLoadingComponent;
+      }
+
+      if (showDuringLoadComponent) {
+        outletViewModel.loadingDisplay(showDuringLoadComponent);
+      }
+    }
+
+    if (valueHasMutated) {
+      clearSequenceQueue();
+
+      currentOutletDef.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
+      if (outletViewModel) {
+        outletViewModel[privateDataSymbol].loadingChildren.removeAll();
+        outletViewModel.routeIsLoading(true);
+      }
+
+      currentOutletDef.getOnCompleteCallback = function (element) {
+        var outletElement = element.parentNode;
+
+        activeOutlets.remove(outlet);
+        outletElement.setAttribute('data-rendered', (componentToDisplay === nullComponent ? '' : componentToDisplay));
+
+        return function addBindingOnComplete () {
+          var outletViewModel = outlets[outletName].outletViewModel;
+          if (outletViewModel) {
+            outletViewModel.routeIsLoading(false);
+            outletViewModel.routeOnComplete = function () {
+              onComplete.call(router, outletElement);
+            };
+          } else {
+            onComplete.call(router, outletElement);
+          }
+        };
+      };
+
+      if (activeOutlets().indexOf(outlet) === -1) {
+        activeOutlets.push(outlet);
+      }
+
+      outlet.valueHasMutated();
+    }
+
+    return outlet;
+  },
+  setRoutes: function (routeDesc) {
+    this[privateDataSymbol].routeDescriptions = [];
+    this.addRoutes(routeDesc);
+    return this;
+  },
+  addRoutes: function (routeConfig) {
+    this[privateDataSymbol].routeDescriptions = this[privateDataSymbol].routeDescriptions.concat(_.map(_.isArray(routeConfig) ? routeConfig : [routeConfig], transformRouteConfigToDesc));
+    return this;
+  },
+  activate: function () {
+    var self = this;
+
+    if (!self[privateDataSymbol].historyPopstateListener()) {
+      var popstateEvent = function () {
+        var location = window.history.location || window.location;
+        self.currentState(normalizeURL(self, location.pathname + location.hash));
+      };
+
+      (function (eventInfo) {
+        window[eventInfo[0]](eventInfo[1] + 'popstate', popstateEvent, false);
+      })(window.addEventListener ? ['addEventListener', ''] : ['attachEvent', 'on']);
+
+      self[privateDataSymbol].historyPopstateListener(popstateEvent);
+    }
+
+    if (!self.currentState()) {
+      self.setState();
+    }
+
+    self.$namespace.trigger('activated');
+    return self;
+  },
+  setState: function (url, routeParams) {
+    var self = this;
+    var namedRoute = _.isObject(routeParams) ? url : null;
+    var configParams = self[privateDataSymbol].configParams;
+    var useHistory = self[privateDataSymbol].historyPopstateListener() && !fw.router.disableHistory();
+    var location = window.history.location || window.location;
+
+    self[privateDataSymbol].setStateHasRun = true;
+
+    if (!_.isNull(namedRoute)) {
+      // must convert namedRoute into its URL form
+      var routeDescription = _.find(self[privateDataSymbol].routeDescriptions, function (route) {
+        return route.name === namedRoute;
+      });
+
+      if (!_.isUndefined(routeDescription)) {
+        url = _.first([].concat(routeDescription.route));
+        _.each(routeParams, function (value, fieldName) {
+          url = url.replace(':' + fieldName, routeParams[fieldName]);
+        });
+      } else {
+        throw new Error('Could not locate named route: ' + namedRoute);
+      }
+    }
+
+    if (!_.isString(url)) {
+      url = useHistory ? location.pathname : '/';
+    }
+
+    var isExternalURL = fw.utils.isFullURL(url);
+    if (!isExternalURL) {
+      url = normalizeURL(self, url);
+    }
+
+    var shouldContinueToRoute = resultBound(configParams, 'beforeRoute', self, [url || '/']);
+    if (shouldContinueToRoute && !isExternalURL) {
+      if (useHistory) {
+        var destination = configParams.baseRoute + self[privateDataSymbol].parentRouter()[privateDataSymbol].path() + url.replace(startingHashRegex, '/');
+        history.pushState(null, '', destination);
+      }
+      self.currentState(url);
+    }
+
+    return self;
+  },
+  dispose: function () {
+    if (!this[privateDataSymbol].isDisposed) {
+      // first run all of the standard viewModel disposal logic
+      viewModelMixinDispose.call(this);
+
+      var historyPopstateListener = this[privateDataSymbol].historyPopstateListener();
+      if (historyPopstateListener) {
+        (function (eventInfo) {
+          window[eventInfo[0]](eventInfo[1] + 'popstate', historyPopstateListener);
+        })(window.removeEventListener ? ['removeEventListener', ''] : ['detachEvent', 'on']);
+      }
+
+      _.each(this[privateDataSymbol], propertyDispose);
+
+      return this;
+    }
+  }
+};
+
+
+
+},{"../../binding/animation-sequencing":5,"../../misc/config":43,"../../misc/util":47,"../entity-tools":28,"../viewModel/viewModel-mixin":40,"./router-defaults":35,"./router-tools":37,"lodash":3}],37:[function(require,module,exports){
 var _ = require('lodash');
 
 var nearestEntity = require('../entity-tools').nearestEntity;
+var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+
+var util = require('../../misc/util');
+var getSymbol = util.getSymbol;
+var parseUri = util.parseUri;
 
 var routerDefaults = require('./router-defaults');
-var $nullRouter = routerDefaults.$nullRouter;
+var nullRouter = routerDefaults.nullRouter;
 var baseRouteDescription = routerDefaults.baseRouteDescription;
 var routesAreCaseSensitive = routerDefaults.routesAreCaseSensitive;
+var baseRoute = routerDefaults.baseRoute;
 
 var optionalParamRegex = /\((.*?)\)/g;
 var namedParamRegex = /(\(\?)?:\w+/g;
@@ -9419,21 +11014,21 @@ var splatParamRegex = /\*\w*/g;
 var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatchRegex = /(^\/#)/;
 
-function transformRouteConfigToDesc(routeDesc) {
+function transformRouteConfigToDesc (routeDesc) {
   return _.extend({ id: _.uniqueId('route') }, baseRouteDescription, routeDesc );
 }
 
-function sameRouteDescription(desc1, desc2) {
+function sameRouteDescription (desc1, desc2) {
   return desc1.id === desc2.id && _.isEqual(desc1.indexedParams, desc2.indexedParams) && _.isEqual(desc1.namedParams, desc2.namedParams);
 }
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine
 // whether that uri matches the described route as well as parse and retrieve its tokens
-function routeStringToRegExp(routeString) {
+function routeStringToRegExp (routeString) {
   routeString = routeString
     .replace(escapeRegex, "\\$&")
     .replace(optionalParamRegex, "(?:$1)?")
-    .replace(namedParamRegex, function(match, optional) {
+    .replace(namedParamRegex, function (match, optional) {
       return optional ? match : "([^\/]+)";
     })
     .replace(splatParamRegex, "(.*?)");
@@ -9441,28 +11036,156 @@ function routeStringToRegExp(routeString) {
   return new RegExp('^' + routeString + (routeString !== '/' ? '(\\/.*)*$' : '$'), routesAreCaseSensitive ? undefined : 'i');
 }
 
-function isNullRouter(thing) {
-  return _.isObject(thing) && !!thing.__isNullRouter;
+function isNullRouter (thing) {
+  return _.isObject(thing) && !!thing[getSymbol('isNullRouter')];
 }
 
-function isRoute(thing) {
+function isRoute (thing) {
   return _.isObject(thing) && !!thing.__isRoute;
 }
 
-function isOutletViewModel(thing) {
-  return _.isObject(thing) && thing.__isOutlet;
+/**
+ * Locate the nearest router from a given ko $context
+ * (travels up through $parentContext chain to find the router if not found on the
+ * immediate $context). Returns nullRouter if none is found.
+ *
+ * @param {object} $context
+ * @returns {object} router instance or nullRouter if none found
+ */
+function nearestParentRouter ($context) {
+  return nearestEntity($context.$parentContext, fw.isRouter) || nullRouter;
 }
 
 /**
- * Locate the nearest $router from a given ko $context
- * (travels up through $parentContext chain to find the router if not found on the
- * immediate $context). Returns $nullRouter if none is found.
+ * Register an outlets viewModel with its parent router.
  *
- * @param {object} $context
- * @returns {object} router instance or $nullRouter if none found
+ * @param {object} router the router to register with
+ * @param {string} outletName the name (property) of the outlet
+ * @param {object} outletViewModel the outlets viewModel to register with the router
  */
-function nearestParentRouter($context) {
-  return nearestEntity($context, require('../entity-tools').isRouter) || $nullRouter;
+function registerOutlet(router, outletName, outletViewModel) {
+  var outletProperties = router[privateDataSymbol].outlets[outletName] = router[privateDataSymbol].outlets[outletName] || {};
+  outletProperties.outletViewModel = outletViewModel;
+}
+
+/**
+ * Unregister an outlets viewModel from its associated router.
+ *
+ * @param {object} router the router to unregister from
+ * @param {string} outletName the name (property) of the outlet
+ */
+function unregisterOutlet(router, outletName) {
+  var outletProperties = router[privateDataSymbol].outlets[outletName] || {};
+  delete outletProperties.outletViewModel;
+}
+
+function trimBaseRoute (router, url) {
+  var configParams = router[privateDataSymbol].configParams;
+  if (configParams.baseRoute && url.indexOf(configParams.baseRoute) === 0) {
+    url = url.substr(configParams.baseRoute.length);
+    if (url.length > 1) {
+      url = url.replace(hashMatchRegex, '/');
+    }
+  }
+  return url;
+}
+
+function normalizeURL (router, url) {
+  var urlParts = parseUri(url);
+  router[privateDataSymbol].urlParts(urlParts);
+  return trimBaseRoute(router, urlParts.path);
+}
+
+function getUnknownRoute (router) {
+  var unknownRoute = _.find(router[privateDataSymbol].routeDescriptions.reverse(), { unknown: true }) || null;
+
+  if (!_.isNull(unknownRoute)) {
+    unknownRoute = _.extend({}, baseRoute, {
+      id: unknownRoute.id,
+      controller: unknownRoute.controller,
+      title: unknownRoute.title,
+      segment: ''
+    });
+  }
+
+  return unknownRoute;
+}
+
+function getRouteForURL (router, url) {
+  var route = null;
+  var unknownRoute = getUnknownRoute(router);
+
+  // find all routes with a matching routeString
+  var matchedRoutes = _.reduce(router[privateDataSymbol].routeDescriptions, function (matches, routeDescription) {
+    var routeDescRoute = [].concat(routeDescription.route);
+    _.each(routeDescRoute, function (routeString) {
+      var routeParams = [];
+
+      if (_.isString(routeString) && _.isString(url)) {
+        routeParams = url.match(routeStringToRegExp(routeString));
+        if (!_.isNull(routeParams) && routeDescription.filter.call(router, routeParams, router[privateDataSymbol].urlParts.peek())) {
+          matches.push({
+            routeString: routeString,
+            specificity: routeString.replace(namedParamRegex, "*").length,
+            routeDescription: routeDescription,
+            routeParams: routeParams
+          });
+        }
+      }
+    });
+    return matches;
+  }, []);
+
+  // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
+  // and convert it into the actual route
+  if (matchedRoutes.length) {
+    var matchedRoute = _.reduce(matchedRoutes, function (matchedRoute, foundRoute) {
+      if (_.isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity) {
+        matchedRoute = foundRoute;
+      }
+      return matchedRoute;
+    }, null);
+    var routeDescription = matchedRoute.routeDescription;
+    var routeString = matchedRoute.routeString;
+    var routeParams = _.clone(matchedRoute.routeParams);
+    var splatSegment = routeParams.pop() || '';
+    var routeParamNames = _.map(routeString.match(namedParamRegex), function (param) {
+      return param.replace(':', '');
+    });
+    var namedParams = _.reduce(routeParamNames, function (parameterNames, parameterName, index) {
+      parameterNames[parameterName] = routeParams[index + 1];
+      return parameterNames;
+    }, {});
+
+    route = _.extend({}, baseRoute, {
+      id: routeDescription.id,
+      controller: routeDescription.controller,
+      title: routeDescription.title,
+      name: routeDescription.name,
+      url: url,
+      segment: url.substr(0, url.length - splatSegment.length),
+      indexedParams: routeParams,
+      namedParams: namedParams
+    });
+  }
+
+  return route || unknownRoute;
+}
+
+function triggerRoute (router, routeDescription) {
+  if (isRoute(routeDescription)) {
+    if (!_.isUndefined(routeDescription.title)) {
+      window.document.title = _.isFunction(routeDescription.title) ? routeDescription.title.apply(router, _.values(routeDescription.namedParams)) : routeDescription.title;
+    }
+
+    if (_.isUndefined(router[privateDataSymbol].currentRouteDescription) || !sameRouteDescription(router[privateDataSymbol].currentRouteDescription, routeDescription)) {
+      routeDescription.controller.apply(router, _.values(routeDescription.namedParams));
+      router[privateDataSymbol].currentRouteDescription = routeDescription;
+    }
+  } else {
+    delete router.currentRouteDescription;
+    router.outlet.reset();
+  }
 }
 
 module.exports = {
@@ -9473,69 +11196,210 @@ module.exports = {
   routeStringToRegExp: routeStringToRegExp,
   isNullRouter: isNullRouter,
   isRoute: isRoute,
-  isOutletViewModel: isOutletViewModel,
-  nearestParentRouter: nearestParentRouter
+  nearestParentRouter: nearestParentRouter,
+  registerOutlet: registerOutlet,
+  unregisterOutlet: unregisterOutlet,
+  trimBaseRoute: trimBaseRoute,
+  normalizeURL: normalizeURL,
+  getUnknownRoute: getUnknownRoute,
+  getRouteForURL: getRouteForURL,
+  triggerRoute: triggerRoute
 };
 
-},{"../entity-tools":24,"./router-defaults":25,"lodash":3}],27:[function(require,module,exports){
+},{"../../misc/config":43,"../../misc/util":47,"../entity-tools":28,"./router-defaults":35,"lodash":3}],38:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
 var entityDescriptors = require('../entity-descriptors');
-var capitalizeFirstLetter = require('../../misc/util').capitalizeFirstLetter;
+var resourceHelperFactory = require('../../misc/resource-tools').resourceHelperFactory;
+var prepareDescriptor = require('../entity-tools').prepareDescriptor;
 
-var entityName = 'viewModel';
-var entityResource = fw[entityName] = {};
-var isEntityCtorDuckTag = '__is' + capitalizeFirstLetter(entityName) + 'Ctor';
-var isEntityDuckTag = '__is' + capitalizeFirstLetter(entityName);
+var util = require('../../misc/util');
+var capitalizeFirstLetter = util.capitalizeFirstLetter;
+var getSymbol = util.getSymbol;
+var alwaysPassPredicate = util.alwaysPassPredicate;
+
+var entityName = 'router';
+var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
+
+require('./route-binding');
+require('./outlet/outlet');
+
+fw[entityName] = {
+  boot: require('./router-bootstrap'),
+  baseRoute: fw.observable(''),
+  activeRouteClassName: fw.observable('active'),
+  disableHistory: fw.observable(false)
+};
 
 var descriptor;
-entityDescriptors.push(descriptor = entityTools.prepareDescriptor({
+entityDescriptors.push(descriptor = prepareDescriptor({
   tagName: entityName.toLowerCase(),
   entityName: entityName,
-  resource: entityResource,
-  isEntityCtorDuckTag: isEntityCtorDuckTag,
+  resource: fw[entityName],
   isEntityDuckTag: isEntityDuckTag,
-  isEntityCtor: function (thing) {
-    return _.isFunction(thing) && !!thing[ isEntityCtorDuckTag ];
-  },
   isEntity: function (thing) {
-    return _.isObject(thing) && !!thing[ isEntityDuckTag ];
+    return _.isObject(thing) && !!thing[isEntityDuckTag];
   },
+  mixin: require('./router-mixin'),
+  defaultConfig: {
+    showDuringLoad: require('./router-defaults').noComponentSelected,
+    onDispose: _.noop,
+    baseRoute: '',
+    activate: true,
+    beforeRoute: alwaysPassPredicate,
+    minTransitionPeriod: 0
+  }
+}));
+
+fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
+
+// Add/extend on the various resource methods (registerLocation/etc)
+_.extend(descriptor.resource, resourceHelperFactory(descriptor));
+
+},{"../../misc/resource-tools":46,"../../misc/util":47,"../entity-descriptors":26,"../entity-tools":28,"./outlet/outlet":32,"./route-binding":33,"./router-bootstrap":34,"./router-defaults":35,"./router-mixin":36,"knockout/build/output/knockout-latest":2,"lodash":3}],39:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
+
+var defaultChannel = require('postal').channel();
+var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
+
+/**
+ * Bootstrap an instance with viewModel capabilities (lifecycle/etc).
+ *
+ * @param {any} instance
+ * @param {any} configParams
+ * @returns {object} The instance that was passed in
+ */
+function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
+  if (!instance) {
+    throw new Error('Must supply the instance to boot()');
+  }
+
+  var descriptor = require('../entity-descriptors').getDescriptor('viewModel');
+  requestHandlerDescriptor = requestHandlerDescriptor || descriptor;
+
+  var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
+  if (!hasBeenBootstrapped) {
+    configParams = configParams || {};
+
+    instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
+    configParams = _.extend({}, descriptor.defaultConfig, {
+      namespace: configParams.namespace ? null : _.uniqueId(descriptor.entityName)
+    }, configParams);
+
+    instance[privateDataSymbol] = {
+      configParams: configParams,
+      disposableItems: [],
+      loadingChildren: fw.observableArray()
+    };
+
+    _.extend(instance, descriptor.mixin, {
+      $namespace: fw.namespace(configParams.namespace)
+    });
+
+    // Setup the request handler which returns the instance (fw.viewModel.getAll())
+    // Note: We are wiring up the request handler manually so that an entire namespace does not need instantiating for this callback
+    instance.disposeWithInstance(defaultChannel.subscribe('request.' + requestHandlerDescriptor.referenceNamespace, function (params) {
+      defaultChannel.publish({
+        topic: 'request.' + requestHandlerDescriptor.referenceNamespace + '.response',
+        data: instanceRequestHandler(instance, params)
+      });
+    }));
+  }
+
+  return instance;
+}
+
+module.exports = viewModelBootstrap;
+
+},{"../../misc/config":43,"../entity-descriptors":26,"../entity-tools":28,"knockout/build/output/knockout-latest":2,"lodash":3,"postal":4}],40:[function(require,module,exports){
+var _ = require('lodash');
+
+var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+var propertyDispose = require('../../misc/util').propertyDispose;
+
+module.exports = {
+  dispose: function dispose () {
+    var self = this;
+
+    if (!self[privateDataSymbol].isDisposed) {
+      self[privateDataSymbol].isDisposed = true;
+      var configParams = self[privateDataSymbol].configParams;
+
+      if (configParams.onDispose !== _.noop) {
+        configParams.onDispose.call(self, self[privateDataSymbol].element);
+      }
+
+      _.each(self, propertyDispose);
+      _.each(self[privateDataSymbol].disposableItems, propertyDispose);
+    }
+
+    return self;
+  },
+  disposeWithInstance: function disposeWithInstance (disposableItem) {
+    var self = this;
+    if (_.isArray(disposableItem)) {
+      _.each(disposableItem, function (item) {
+        self.disposeWithInstance(item);
+      });
+    } else if (disposableItem) {
+      self[privateDataSymbol].disposableItems.push(disposableItem);
+    }
+  }
+};
+
+
+
+},{"../../misc/config":43,"../../misc/util":47,"lodash":3}],41:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
+
+var entityDescriptors = require('../entity-descriptors');
+var resourceHelperFactory = require('../../misc/resource-tools').resourceHelperFactory;
+
+var entityTools = require('../entity-tools');
+var prepareDescriptor = entityTools.prepareDescriptor;
+var resolveEntityImmediately = entityTools.resolveEntityImmediately;
+
+var util = require('../../misc/util');
+var capitalizeFirstLetter = util.capitalizeFirstLetter;
+var getSymbol = util.getSymbol;
+
+var entityName = 'viewModel';
+var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
+
+fw[entityName] = {
+  boot: require('./viewModel-bootstrap')
+};
+
+var descriptor;
+entityDescriptors.push(descriptor = prepareDescriptor({
+  tagName: entityName.toLowerCase(),
+  entityName: entityName,
+  resource: fw[entityName],
+  isEntityDuckTag: isEntityDuckTag,
+  isEntity: function (thing) {
+    return _.isObject(thing) && !!thing[isEntityDuckTag];
+  },
+  mixin: require('./viewModel-mixin'),
   defaultConfig: {
     namespace: undefined,
-    autoRegister: false,
     afterRender: _.noop,
-    afterResolving: function resolveEntityImmediately(resolveNow) {
-      resolveNow(true);
-    },
+    afterResolving: resolveEntityImmediately,
     sequenceAnimations: false,
     onDispose: _.noop
   }
 }));
 
-// Form 1
-// function TestModel() {
-//   fw.viewModel.setConfig(this, {
-//     // configuration options
-//     namespace: 'testModel',
-//     afterBinding: function() {}
-//   });
-//
-//   this.someProperty = fw.observable('someValue');
-// }
+fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 
-// Form 2
-// var TestModel = fw.viewModel.create({
-//   // configuration options
-//   initialize: function TestModel() {
-//     this.someProperty = fw.observable();
-//   },
-//   namespace: 'TestModel',
-//   afterBinding: function() {}
-// });
+// Add/extend on the various resource methods (registerLocation/etc)
+_.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
-require('../../misc/config').ViewModel = function ViewModel(params) {
+require('../../misc/config')[capitalizeFirstLetter(entityName)] = function DefaultInstance (params) {
+  fw.viewModel.boot(this);
   if (_.isObject(params) && _.isObject(params.$viewModel)) {
     _.extend(this, params.$viewModel);
   }
@@ -9543,14 +11407,18 @@ require('../../misc/config').ViewModel = function ViewModel(params) {
 
 
 
-},{"../../misc/config":29,"../../misc/util":31,"../entity-descriptors":22,"knockout/build/output/knockout-latest":2,"lodash":3}],28:[function(require,module,exports){
-var _ = require('lodash');
+},{"../../misc/config":43,"../../misc/resource-tools":46,"../../misc/util":47,"../entity-descriptors":26,"../entity-tools":28,"./viewModel-bootstrap":39,"./viewModel-mixin":40,"knockout/build/output/knockout-latest":2,"lodash":3}],42:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
+var _ = require('lodash');
 
 var util = require('./util');
 var resultBound = util.resultBound;
 var promiseIsFulfilled = util.promiseIsFulfilled;
 var isPromise = util.isPromise;
+
+var privateDataSymbol = require('./config').privateDataSymbol;
+
+require('../collection/collection-tools');
 
 // Map from CRUD to HTTP for our default `fw.sync` implementation.
 var methodMap = {
@@ -9565,7 +11433,7 @@ var parseURLRegex = /^(http[s]*:\/\/[a-zA-Z0-9:\.]*)*([\/]{0,1}[\w\.:\/-]*)$/;
 var parseParamsRegex = /(:[\w\.]+)/g;
 var trailingSlashRegex = /\/$/;
 
-function noURLError() {
+function noURLError () {
   throw new Error('A "url" property or function must be specified');
 };
 
@@ -9579,14 +11447,14 @@ function noURLError() {
  * @param  {object} requestInfo   Description of the request to make including a createRequest callback to make a new request
  * @return {Promise}              Ajax Promise
  */
-function makeOrGetRequest(operationType, requestInfo) {
+function makeOrGetRequest (operationType, requestInfo) {
   var requestRunning = requestInfo.requestRunning;
   var requestLull = requestInfo.requestLull;
   var entity = requestInfo.entity;
   var createRequest = requestInfo.createRequest;
   var promiseName = operationType + 'Promise';
   var allowConcurrent = requestInfo.allowConcurrent;
-  var requests = entity.__private[promiseName] || [];
+  var requests = entity[privateDataSymbol][promiseName] || [];
   var theRequest = _.last(requests);
 
   if ((allowConcurrent || !fw.isObservable(requestRunning) || !requestRunning()) || !requests.length) {
@@ -9594,17 +11462,17 @@ function makeOrGetRequest(operationType, requestInfo) {
 
     if (!isPromise(theRequest)) {
       // returned value from createRequest() is a value not a promise, lets return the value in a promise
-      theRequest = Promise().resolve(theRequest);
+      theRequest = makePromiseQueryable(Promise.resolve(theRequest));
     }
 
     requests.push(theRequest);
-    entity.__private[promiseName] = requests;
+    entity[privateDataSymbol][promiseName] = requests;
 
     requestRunning(true);
 
     var lullFinished = fw.observable(false);
     var requestFinished = fw.observable(false);
-    var requestWatcher = fw.computed(function() {
+    var requestWatcher = fw.computed(function () {
       if (lullFinished() && requestFinished()) {
         requestRunning(false);
         requestWatcher.dispose();
@@ -9613,7 +11481,7 @@ function makeOrGetRequest(operationType, requestInfo) {
 
     requestLull = (_.isFunction(requestLull) ? requestLull(operationType) : requestLull);
     if (requestLull) {
-      setTimeout(function() {
+      setTimeout(function () {
         lullFinished(true);
       }, requestLull);
     } else {
@@ -9621,10 +11489,10 @@ function makeOrGetRequest(operationType, requestInfo) {
     }
 
     if (isPromise(theRequest)) {
-      theRequest.then(function() {
+      theRequest.then(function () {
         if (_.every(requests, promiseIsFulfilled)) {
           requestFinished(true);
-          entity.__private.promiseName = [];
+          entity[privateDataSymbol].promiseName = [];
         }
       });
     }
@@ -9641,14 +11509,11 @@ function makeOrGetRequest(operationType, requestInfo) {
  * @param {object} params
  * @returns {object} htr
  */
-function sync(action, concern, params) {
-  var isDataModel = require('../entities/entity-tools').isDataModel;
-  var isCollection = require('../collection/collection-tools').isCollection;
-
+function sync (action, concern, params) {
   params = params || {};
   action = action || 'noAction';
 
-  if (!isDataModel(concern) && !isCollection(concern)) {
+  if (!fw.isDataModel(concern) && !fw.isCollection(concern)) {
     throw new Error('Must supply a dataModel or collection to fw.sync()');
   }
 
@@ -9656,7 +11521,7 @@ function sync(action, concern, params) {
     throw new Error('Invalid action (' + action + ') specified for sync operation');
   }
 
-  var configParams = concern.__private.configParams;
+  var configParams = concern[privateDataSymbol].configParams;
   var options = _.extend({
     method: methodMap[action].toUpperCase(),
     url: null,
@@ -9674,11 +11539,11 @@ function sync(action, concern, params) {
     if (_.isFunction(url)) {
       url = url.call(concern, action);
     } else if (!_.isString(url)) {
-      var thing = (isDataModel(concern) && 'dataModel') || (isCollection(concern) && 'collection') || 'UNKNOWN';
+      var thing = (fw.isDataModel(concern) && 'dataModel') || (fw.isCollection(concern) && 'collection') || 'UNKNOWN';
       throw new Error('Must provide a URL for/on a ' + thing + ' configuration in order to call .sync() on it');
     }
 
-    if (isDataModel(concern)) {
+    if (fw.isDataModel(concern)) {
       var pkIsSpecifiedByUser = !_.isNull(url.match(':' + configParams.idAttribute));
       var hasQueryString = !_.isNull(url.match(/\?/));
       if (_.includes(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl && !pkIsSpecifiedByUser && !hasQueryString) {
@@ -9694,11 +11559,11 @@ function sync(action, concern, params) {
     url = baseURL + _.last(urlPieces);
   }
 
-  if (isDataModel(concern)) {
+  if (fw.isDataModel(concern)) {
     // replace any interpolated parameters
     var urlParams = url.match(parseParamsRegex);
     if (urlParams) {
-      _.each(urlParams, function(param) {
+      _.each(urlParams, function (param) {
         url = url.replace(param, concern.get(param.substr(1)));
       });
     }
@@ -9714,7 +11579,7 @@ function sync(action, concern, params) {
   return xhr;
 };
 
-function makePromiseQueryable(promise) {
+function makePromiseQueryable (promise) {
   if (promise.isResolved) {
     return promise;
   }
@@ -9724,11 +11589,11 @@ function makePromiseQueryable(promise) {
 
   // Observe the promise, saving the fulfillment in a closure scope.
   var result = promise.then(
-    function(v) { isResolved = true; return v; },
-    function(e) { isRejected = true; throw e; });
-  result.isFulfilled = function() { return isResolved || isRejected; };
-  result.isResolved = function() { return isResolved; }
-  result.isRejected = function() { return isRejected; }
+    function (v) { isResolved = true; return v; },
+    function (e) { isRejected = true; throw e; });
+  result.isFulfilled = function () { return isResolved || isRejected; };
+  result.isResolved = function () { return isResolved; }
+  result.isRejected = function () { return isRejected; }
   return result;
 }
 
@@ -9739,11 +11604,11 @@ function makePromiseQueryable(promise) {
  * @param {object} xhr
  * @returns {object} xhr with parsed JSON response result
  */
-function handleJsonResponse(xhr) {
-  return xhr.then(function(response) {
+function handleJsonResponse (xhr) {
+  return xhr.then(function (response) {
       return _.inRange(response.status, 200, 300) ? response.clone().json() : false;
     })
-    .catch(function(parseError) {
+    .catch(function (parseError) {
       console.error(parseError);
       return false;
     });
@@ -9755,23 +11620,238 @@ module.exports = {
   handleJsonResponse: handleJsonResponse
 }
 
-},{"../collection/collection-tools":10,"../entities/entity-tools":24,"./util":31,"knockout/build/output/knockout-latest":2,"lodash":3}],29:[function(require,module,exports){
+},{"../collection/collection-tools":13,"./config":43,"./util":47,"knockout/build/output/knockout-latest":2,"lodash":3}],43:[function(require,module,exports){
 module.exports = {
   entityClass: 'fw-entity',
   entityAnimateClass: 'fw-entity-animate',
-  entityWrapperElement: 'binding-wrapper'
+  entityWrapperElement: 'binding-wrapper',
+  privateDataSymbol: require('./util').getSymbol('footwork')
 };
 
-},{}],30:[function(require,module,exports){
+},{"./util":47}],44:[function(require,module,exports){
 module.exports = {
   postal: require('postal'),
   lodash: require('lodash')
 };
 
-},{"lodash":3,"postal":4}],31:[function(require,module,exports){
+},{"lodash":3,"postal":4}],45:[function(require,module,exports){
+/**
+ * Registry which stores component information as it is loaded.
+ * This information is used by footwork to bootstrap the component/entity.
+ */
+var currentlyLoading;
+
+module.exports = {
+  set: function (loadingTracker) {
+    currentlyLoading = loadingTracker;
+  },
+  get: function () {
+    return currentlyLoading;
+  }
+};
+
+},{}],46:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-function alwaysPassPredicate() {
+var util = require('../misc/util');
+var isPath = util.isPath;
+var isAmdResolved = util.isAmdResolved;
+
+var isNamespace = require('../namespace/namespace').isNamespace;
+var regExpMatch = /^\/|\/$/g;
+
+function isRegistered (descriptor, resourceName) {
+  return !_.isUndefined(descriptor.registered[resourceName]);
+};
+
+function getRegistered (descriptor, resourceName) {
+  return descriptor.registered[resourceName];
+};
+
+function register (descriptor, resourceName, resource) {
+  descriptor.registered[resourceName] = resource;
+};
+
+function getModelExtension (dataModelExtensions, modelName) {
+  var fileExtension = '';
+
+  if (_.isFunction(dataModelExtensions)) {
+    fileExtension = dataModelExtensions(modelName);
+  } else if (_.isString(dataModelExtensions)) {
+    fileExtension = dataModelExtensions;
+  }
+
+  return fileExtension.replace(/^\./, '') || '';
+}
+
+function getFileName (descriptor, modelName) {
+  var modelResourceLocations = descriptor.resourceLocations;
+  var fileName = modelName + '.' + getModelExtension(descriptor.fileExtensions(), modelName);
+
+  if (!_.isUndefined(modelResourceLocations[modelName])) {
+    var registeredLocation = modelResourceLocations[modelName];
+    if (_.isString(registeredLocation) && !isPath(registeredLocation)) {
+      // full filename was supplied, lets return that
+      fileName = _.last(registeredLocation.split('/'));
+    }
+  }
+
+  return fileName;
+}
+
+function registerLocation (descriptor, modelName, location) {
+  if (_.isArray(modelName)) {
+    _.each(modelName, function (name) {
+      registerLocation(descriptor, name, location);
+    });
+  }
+  descriptor.resourceLocations[ modelName ] = location;
+}
+
+function modelResourceLocation (descriptor, modelName) {
+  return _.reduce(descriptor.resourceLocations, function (registeredLocation, location, registeredName) {
+    if (!registeredLocation) {
+      if (!_.isNull(registeredName.match(regExpMatch)) && !_.isNull(modelName.match(registeredName.replace(regExpMatch, '')))) {
+        registeredLocation = location;
+      } else if (modelName === registeredName) {
+        registeredLocation = location;
+      }
+    }
+    return registeredLocation;
+  }, undefined);
+}
+
+function getLocation (descriptor, modelName) {
+  if (_.isUndefined(modelName)) {
+    return descriptor.resourceLocations;
+  }
+
+  return modelResourceLocation(descriptor, modelName);
+}
+
+function locationIsRegistered (descriptor, modelName) {
+  return !!modelResourceLocation(descriptor, modelName);
+}
+
+var $globalNamespace = fw.namespace();
+function getModelReferences (descriptor, namespaceName, options) {
+  options = options || {};
+  if (_.isString(namespaceName) || _.isArray(namespaceName)) {
+    options.namespaceName = namespaceName;
+  }
+
+  var references = _.reduce($globalNamespace.request(descriptor.referenceNamespace, _.extend({ includeOutlets: false }, options), true), function (models, model) {
+    if (!_.isUndefined(model)) {
+      var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
+      if (!_.isNull(namespaceName)) {
+        if (_.isUndefined(models[namespaceName])) {
+          models[namespaceName] = [model];
+        } else {
+          models[namespaceName].push(model);
+        }
+      }
+    }
+    return models;
+  }, {});
+
+  var referenceKeys = _.keys(references);
+  if (_.isString(namespaceName)) {
+    if (referenceKeys.length === 1) {
+      return references[referenceKeys[0]] || [];
+    }
+    return [];
+  }
+  return references;
+}
+
+
+function getResourceOrLocation (descriptor, moduleName) {
+  var resource = descriptor.resource;
+  var resourceOrLocation = null;
+
+  if (resource.isRegistered(moduleName)) {
+    // viewModel was manually registered
+    resourceOrLocation = resource.getRegistered(moduleName);
+  } else if (isAmdResolved(moduleName)) {
+    // found a matching resource that is already cached by require
+    resourceOrLocation = moduleName;
+  } else {
+    resourceOrLocation = resource.getLocation(moduleName);
+  }
+
+  return resourceOrLocation;
+}
+
+
+/**
+ * Hydrates each entity resource with the necessary utility methods.
+ *
+ * @param {object} descriptor (as defined in each entity and extended onto the entity-descriptors)
+ * @returns
+ */
+function resourceHelperFactory (descriptor) {
+  var resourceMethods = {
+    getFileName: getFileName.bind(null, descriptor),
+    register: register.bind(null, descriptor),
+    isRegistered: isRegistered.bind(null, descriptor),
+    getRegistered: getRegistered.bind(null, descriptor),
+    registerLocation: registerLocation.bind(null, descriptor),
+    locationIsRegistered: locationIsRegistered.bind(null, descriptor),
+    getLocation: getLocation.bind(null, descriptor),
+    getResourceOrLocation: getResourceOrLocation.bind(null, descriptor),
+
+    fileExtensions: descriptor.fileExtensions,
+    resourceLocations: descriptor.resourceLocations
+  };
+
+  if (!_.isUndefined(descriptor.referenceNamespace)) {
+    // Returns a reference to the specified models.
+    // If no name is supplied, a reference to an array containing all viewModel references is returned.
+    resourceMethods.getAll = getModelReferences.bind(null, descriptor);
+  }
+
+  return resourceMethods;
+}
+
+/**
+ * Return the file name extension for the given componentName and fileType.
+ *
+ * @param {string} componentName
+ * @param {string} fileType (combined/viewModel/template)
+ * @returns {string} the file extension (ie: 'js')
+ */
+function getComponentExtension (componentName, fileType) {
+  var componentExtensions = fw.components.fileExtensions();
+  var fileExtension = '';
+
+  if (_.isFunction(componentExtensions)) {
+    fileExtension = componentExtensions(componentName)[fileType];
+  } else if (_.isObject(componentExtensions)) {
+    if (_.isFunction(componentExtensions[fileType])) {
+      fileExtension = componentExtensions[fileType](componentName);
+    } else {
+      fileExtension = componentExtensions[fileType] || '';
+    }
+  }
+
+  return fileExtension.replace(/^\./, '') || '';
+}
+
+module.exports = {
+  resourceHelperFactory: resourceHelperFactory,
+  getComponentExtension: getComponentExtension
+};
+
+},{"../misc/util":47,"../namespace/namespace":49,"knockout/build/output/knockout-latest":2,"lodash":3}],47:[function(require,module,exports){
+var _ = require('lodash');
+
+/**
+ * Function which always returns true (a predicate function that always passes as 'true')
+ *
+ * @returns true
+ */
+function alwaysPassPredicate () {
   return true;
 }
 
@@ -9785,7 +11865,8 @@ function alwaysPassPredicate() {
  * @param  {array}  params  Parameters to call the callback (object properties) with
  * @returns {mixed}          The result of the property on the object
  */
-function resultBound(object, path, context, params) {
+function resultBound (object, path, context, params) {
+  object = object || {};
   params = params || [];
   context = context || object;
 
@@ -9795,51 +11876,112 @@ function resultBound(object, path, context, params) {
   return object[path];
 }
 
-function isPromise(thing) {
+/**
+ * Determine whether or not the supplied thing is a promise or not
+ *
+ * @param {any} thing
+ * @returns {boolean} true if it is a promise, false if not
+ */
+function isPromise (thing) {
   return _.isObject(thing) && _.isFunction(thing.then);
 }
 
-function promiseIsFulfilled(promise) {
+/**
+ * Determines whether or not a promise has been fulfilled.
+ *
+ * @param {any} promise
+ * @returns {boolean} true if fulfilled, false if not
+ */
+function promiseIsFulfilled (promise) {
   return !isPromise(promise) || promise.isFulfilled();
 }
-
-function hasClassName(element) {
+/**
+ * Determines whether or not an element has a className property
+ *
+ * @param {any} element
+ * @returns {boolean} true if it has the property, false if not
+ */
+function hasClassName (element) {
   return _.isObject(element) && _.isString(element.className);
 }
 
-function hasClass(element, className) {
+/**
+ * Determines whether or not the supplied element has the given className.
+ *
+ * @param {any} element
+ * @param {any} className
+ * @returns {boolean} true if it has the class, false if not
+ */
+function hasClass (element, className) {
   return element.className.match( new RegExp('(\\s|^)' + className + '(\\s|$)') );
 }
 
-function addClass(element, className) {
+/**
+ * Add the specified className to the given element if it is not already there.
+ *
+ * @param {any} element
+ * @param {any} className
+ */
+function addClass (element, className) {
   if (hasClassName(element) && !hasClass(element, className)) {
     element.className += (element.className.length && _.isNull(element.className.match(/ $/)) ? ' ' : '') + className;
   }
 }
 
-function removeClass(element, className) {
+/**
+ * Remove the specified className from the given element if it exists.
+ *
+ * @param {any} element
+ * @param {any} className
+ */
+function removeClass (element, className) {
   if (hasClassName(element) && hasClass(element, className)) {
     var classNameRegex = new RegExp('(\\s|^)' + className + '(\\s|$)', 'g');
     element.className = element.className.replace(classNameRegex, ' ');
   }
 }
 
-function nextFrame(callback) {
+/**
+ * Call the supplied callback after the minimum transition time (the next frame).
+ *
+ * @param {any} callback
+ */
+function nextFrame (callback) {
   setTimeout(callback, 1000 / 30);
 };
 
 var trailingSlashRegex = /\/$/;
-function isPath(pathOrFile) {
+
+/**
+ * Determines whether or not the supplied pathOrFile is a path.
+ *
+ * @param {any} pathOrFile
+ * @returns {boolean} true if the supplied pathOrFile is a path, false if not
+ */
+function isPath (pathOrFile) {
   return _.isString(pathOrFile) && trailingSlashRegex.test(pathOrFile);
 }
 
 var startingSlashRegex = /^\//;
-function hasPathStart(path) {
+
+/**
+ * Determine whether or not the supplied path starts with a slash (/) (is the start of a path)
+ *
+ * @param {any} path
+ * @returns {boolean} true if the supplied path starts with a slash (/), false if not
+ */
+function hasPathStart (path) {
   return _.isString(path) && startingSlashRegex.test(path);
 }
 
 var startingHashRegex = /^#/;
-function hasHashStart(string) {
+/**
+ * Determine whether or not the supplied string starts with a hash mark (#)
+ *
+ * @param {any} string
+ * @returns {boolean} true if the supplied value starts with a hash mark (#)
+ */
+function hasHashStart (string) {
   return _.isString(string) && startingHashRegex.test(string);
 }
 
@@ -9849,7 +11991,7 @@ function hasHashStart(string) {
  * @param {string} fileName
  * @returns {string} The extension at the end of the file (ie: txt)
  */
-function getFilenameExtension(fileName) {
+function getFilenameExtension (fileName) {
   var extension = '';
   if (fileName.indexOf('.') !== -1) {
     extension = _.last(fileName.split('.'));
@@ -9863,13 +12005,13 @@ function getFilenameExtension(fileName) {
  *
  * @returns {string} The GUID
  */
-var guid = (function() {
-  function s4() {
+var guid = (function () {
+ function s4() {
     return Math.floor((1 + Math.random()) * 0x10000)
                .toString(16)
                .substring(1);
   }
-  return function() {
+  return function () {
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
            s4() + '-' + s4() + s4() + s4();
   };
@@ -9881,7 +12023,7 @@ var guid = (function() {
  * @param {string} url
  * @returns {object} The parsed url data
  */
-function parseUri(str) {
+function parseUri (str) {
   var options = parseUri.options;
   var matchParts = options.parser[ options.strictMode ? "strict" : "loose" ].exec(str);
   var uri = {};
@@ -9919,8 +12061,8 @@ parseUri.options = {
  *
  * @param {any} property
  */
-function propertyDispose(property) {
-  if (_.isObject(property) && _.isFunction(property.dispose)) {
+function propertyDispose (property) {
+  if (!_.isUndefined(property) && _.isFunction(property.dispose)) {
     property.dispose();
   }
 }
@@ -9931,7 +12073,7 @@ function propertyDispose(property) {
  * @param {any} obj
  * @returns {boolean} True if it is a DocumentFragment, false if not
  */
-function isDocumentFragment(obj) {
+function isDocumentFragment (obj) {
   if (window['DocumentFragment']) {
     return obj instanceof DocumentFragment;
   } else {
@@ -9945,7 +12087,7 @@ function isDocumentFragment(obj) {
  * @param {any} obj
  * @returns {boolean} True if it is a HTMLElement, false if not
  */
-function isDomElement(obj) {
+function isDomElement (obj) {
   if (window['HTMLElement']) {
     return obj instanceof HTMLElement;
   } else {
@@ -9959,8 +12101,51 @@ function isDomElement(obj) {
  * @param {string} str
  * @returns {string} The original string with the first character upper-cased
  */
-function capitalizeFirstLetter(str) {
+function capitalizeFirstLetter (str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
+ * Return the private data of a viewModel if it exists
+ *
+ * @param {any} instance
+ * @returns {object} The private data on the instance (if found)
+ */
+function getPrivateData (instance) {
+  return instance[require('./config').privateDataSymbol];
+}
+
+/**
+ * Return either the supplied string key (if Symbol() capability not present) or return a symbol based on that same key.
+ *
+ * @param {any} str
+ * @returns {Symbol|string} The identifier
+ */
+function getSymbol (str) {
+  return typeof Symbol === 'function' && typeof Symbol.for === 'function' ? Symbol.for(str) : /* istanbul ignore next */ ('__' + str);
+}
+
+/**
+ * Convert the supplied arrayLikeObject into an array of its elements
+ *
+ * @param {any} arrayLikeObject
+ * @returns {array} New array of original children
+ */
+function makeArray (arrayLikeObject) {
+  for (var i = 0, j = arrayLikeObject.length, convertedArray = []; i < j; i++) {
+    convertedArray.push(arrayLikeObject[i]);
+  }
+  return convertedArray;
+}
+
+/**
+ * Determine whether or not the specified module name has already been resolved by AMD/RequireJS
+ *
+ * @param {any} moduleName
+ * @returns
+ */
+function isAmdResolved(moduleName) {
+  return _.isFunction(window.require) && _.isFunction(window.require.specified) && window.require.specified(moduleName);
 }
 
 module.exports = {
@@ -9982,10 +12167,14 @@ module.exports = {
   isDocumentFragment: isDocumentFragment,
   isDomElement: isDomElement,
   startingHashRegex: startingHashRegex,
-  capitalizeFirstLetter: capitalizeFirstLetter
+  capitalizeFirstLetter: capitalizeFirstLetter,
+  getPrivateData: getPrivateData,
+  getSymbol: getSymbol,
+  makeArray: makeArray,
+  isAmdResolved: isAmdResolved
 };
 
-},{"lodash":3}],32:[function(require,module,exports){
+},{"./config":43,"lodash":3}],48:[function(require,module,exports){
 var _ = require('lodash');
 
 /**
@@ -9996,7 +12185,7 @@ var _ = require('lodash');
  * @param {any} expires
  * @returns {object} postal.js envelope
  */
-function createEnvelope(topic, data) {
+function createEnvelope (topic, data) {
   var envelope = {
     topic: topic,
     data: data
@@ -10006,13 +12195,13 @@ function createEnvelope(topic, data) {
 }
 
 // Method used to trigger an event on a namespace
-function triggerEventOnNamespace(eventKey, params) {
+function triggerEventOnNamespace (eventKey, params) {
   this.publish(createEnvelope('event.' + eventKey, params));
   return this;
 }
 
 // Method used to register an event handler on a namespace
-function registerNamespaceEventHandler(eventKey, callback, context) {
+function registerNamespaceEventHandler (eventKey, callback, context) {
   if (!_.isUndefined(context)) {
     callback = callback.bind(context);
   }
@@ -10024,19 +12213,19 @@ function registerNamespaceEventHandler(eventKey, callback, context) {
 }
 
 // Method used to unregister an event handler on a namespace
-function unregisterNamespaceHandler(handlerSubscription) {
+function unregisterNamespaceHandler (handlerSubscription) {
   handlerSubscription.unsubscribe();
   return this;
 }
 
 // Method used to send a command to a namespace
-function sendCommandToNamespace(commandKey, params) {
+function sendCommandToNamespace (commandKey, params) {
   this.publish(createEnvelope('command.' + commandKey, params));
   return this;
 }
 
 // Method used to register a command handler on a namespace
-function registerNamespaceCommandHandler(commandKey, callback, context) {
+function registerNamespaceCommandHandler (commandKey, callback, context) {
   if (!_.isUndefined(context)) {
     callback = callback.bind(context);
   }
@@ -10049,11 +12238,11 @@ function registerNamespaceCommandHandler(commandKey, callback, context) {
 
 // Method used to issue a request for data from a namespace, returning the response (or undefined if no response)
 // This method will return an array of responses if more than one is received.
-function requestResponseFromNamespace(requestKey, params, allowMultipleResponses) {
+function requestResponseFromNamespace (requestKey, params, allowMultipleResponses) {
   var response = undefined;
   var responseSubscription;
 
-  responseSubscription = this._subscribe('request.' + requestKey + '.response', function(reqResponse) {
+  responseSubscription = this._subscribe('request.' + requestKey + '.response', function (reqResponse) {
     if (_.isUndefined(response)) {
       response = allowMultipleResponses ? [reqResponse] : reqResponse;
     } else if (allowMultipleResponses) {
@@ -10069,12 +12258,12 @@ function requestResponseFromNamespace(requestKey, params, allowMultipleResponses
 
 // Method used to register a request handler on a namespace.
 // Requests sent using the specified requestKey will be called and passed in any params specified, the return value is passed back to the issuer
-function registerNamespaceRequestHandler(requestKey, callback, context) {
+function registerNamespaceRequestHandler (requestKey, callback, context) {
   if (!_.isUndefined(context)) {
     callback = callback.bind(context);
   }
 
-  var requestHandler = function(params) {
+  var requestHandler = function (params) {
     var callbackResponse = callback(params);
     this.publish(createEnvelope('request.' + requestKey + '.response', callbackResponse));
   }.bind(this);
@@ -10087,15 +12276,15 @@ function registerNamespaceRequestHandler(requestKey, callback, context) {
 
 // This effectively shuts down all requests, commands, events, and subscriptions by unsubscribing all handlers on a discreet namespace object
 var handlerRepos = [ 'requestHandlers', 'commandHandlers', 'eventHandlers', 'subscriptions' ];
-function disconnectNamespaceHandlers() {
+function disconnectNamespaceHandlers () {
   var namespace = this;
-  _.each(handlerRepos, function(handlerRepo) {
+  _.each(handlerRepos, function (handlerRepo) {
     _.invokeMap(namespace[handlerRepo], 'unsubscribe');
   });
   return this;
 }
 
-function getNamespaceName() {
+function getNamespaceName () {
   return this.channel;
 }
 
@@ -10112,114 +12301,7 @@ module.exports = {
   getNamespaceName: getNamespaceName
 };
 
-},{"lodash":3}],33:[function(require,module,exports){
-var _ = require('lodash');
-var fw = require('knockout/build/output/knockout-latest');
-
-// Prepare an empty namespace stack.
-// This is where footwork registers its current working namespace name. Each new namespace is
-// 'unshifted' and 'shifted' as they are entered and exited, keeping the most current at
-// index 0.
-var namespaceStack = [];
-
-// This counter is used when model options { autoIncrement: true } and more than one model
-// having the same namespace is instantiated. This is used in the event you do not want
-// multiple copies of the same model to share the same namespace (if they do share a
-// namespace, they receive all of the same events/messages/commands/etc).
-var namespaceNameCounter = {};
-
-/**
- * Returns a normalized namespace name based off of 'name'. It will register the name counter
- * if not present and increment it if it is, then return the name (with the counter appended
- * if autoIncrement === true and the counter is > 0).
- *
- * @param {string} name namespace name
- * @param {boolean} autoIncrement flag indicating whether or not to autoincrement the namespace
- * @returns {string} indexed namespace name
- */
-function indexedNamespaceName(name, autoIncrement) {
-  if (_.isUndefined(namespaceNameCounter[name])) {
-    namespaceNameCounter[name] = 0;
-  } else {
-    namespaceNameCounter[name]++;
-  }
-  return name + (autoIncrement === true ? namespaceNameCounter[name] : '');
-}
-
-/**
- * Enter a namespace context using the given namespaceName. This makes it so that any
- * broadcastable/receivable made can have a 'default' namespace which is the one lexically
- * local to it.
- *
- * @param {string} namespaceName
- * @returns {object} namespace
- */
-function enterNamespaceName(namespaceName) {
-  namespaceStack.unshift(namespaceName);
-  return fw.namespace(currentNamespaceName());
-}
-
-/**
- * Enter a namespace context using the given namespace instance. This makes it so that any
- * broadcastable/receivable made can have a 'default' namespace which is the one lexically
- * local to it.
- *
- * @param {any} ns
- * @returns {object} namespace
- */
-function enterNamespace(ns) {
-  namespaceStack.unshift(ns.getName());
-  return ns;
-}
-
-// Called at the after a model constructor function is run. exitNamespace()
-// will shift the current namespace off of the stack, 'exiting' to the
-// next namespace in the stack
-
-/**
- * Exit the current namespace context (leaving you in the context above that, if there is one)
- *
- * @returns {object} namespace
- */
-function exitNamespace() {
-  namespaceStack.shift();
-  return currentNamespace();
-}
-
-
-/**
- * Return the current namespace channel name.
- *
- * @returns {string} namespaceName
- */
-function currentNamespaceName() {
-  return namespaceStack[0];
-};
-
-/**
- * Return instance of the current namespace channel.
- *
- * @returns {object} namespace
- */
-function currentNamespace() {
-  return fw.namespace(currentNamespaceName());
-};
-
-_.extend(fw.utils, {
-  currentNamespaceName: currentNamespaceName,
-  currentNamespace: currentNamespace
-});
-
-module.exports = {
-  indexedNamespaceName: indexedNamespaceName,
-  enterNamespace: enterNamespace,
-  enterNamespaceName: enterNamespaceName,
-  exitNamespace: exitNamespace,
-  currentNamespace: currentNamespace,
-  currentNamespaceName: currentNamespaceName
-};
-
-},{"knockout/build/output/knockout-latest":2,"lodash":3}],34:[function(require,module,exports){
+},{"lodash":3}],49:[function(require,module,exports){
 var postal = require('postal');
 var _ = require('lodash');
 
@@ -10234,15 +12316,8 @@ var requestResponseFromNamespace = namespaceMethods.requestResponseFromNamespace
 var registerNamespaceRequestHandler = namespaceMethods.registerNamespaceRequestHandler;
 var registerNamespaceEventHandler = namespaceMethods.registerNamespaceEventHandler;
 
-var namespaceTools = require('./namespace-tools');
-var enterNamespace = namespaceTools.enterNamespace;
-var enterNamespaceName = namespaceTools.enterNamespaceName;
-var currentNamespaceName = namespaceTools.currentNamespaceName;
-var exitNamespace = namespaceTools.exitNamespace;
-var indexedNamespaceName = namespaceTools.indexedNamespaceName;
-
 // Creates and returns a new namespace instance
-var Namespace = function Namespace(namespaceName, $parentNamespace) {
+var Namespace = function Namespace (namespaceName, $parentNamespace) {
   if (!_.isUndefined($parentNamespace)) {
     if (_.isString($parentNamespace)) {
       namespaceName = $parentNamespace + '.' + namespaceName;
@@ -10254,7 +12329,7 @@ var Namespace = function Namespace(namespaceName, $parentNamespace) {
 
   var subscriptions = ns.subscriptions = [];
   ns._subscribe = ns.subscribe;
-  ns.subscribe = function(topic, callback, context) {
+  ns.subscribe = function (topic, callback, context) {
     if (arguments.length > 2) {
       callback = callback.bind(context);
     }
@@ -10265,7 +12340,7 @@ var Namespace = function Namespace(namespaceName, $parentNamespace) {
   ns.unsubscribe = unregisterNamespaceHandler;
 
   ns._publish = ns.publish;
-  ns.publish = function(envelope, callback, context) {
+  ns.publish = function (envelope, callback, context) {
     if (arguments.length > 2) {
       callback = callback.bind(context);
     }
@@ -10291,351 +12366,15 @@ var Namespace = function Namespace(namespaceName, $parentNamespace) {
   ns.event.unregister = unregisterNamespaceHandler;
 
   ns.getName = getNamespaceName.bind(ns);
-  ns.enter = function() {
-    return enterNamespace(this);
-  };
-  ns.exit = function() {
-    if (currentNamespaceName() === this.getName()) {
-      return exitNamespace();
-    }
-  };
 
   return ns;
 };
 
-Namespace.isNamespace = function isNamespace(thing) {
+Namespace.isNamespace = function isNamespace (thing) {
   return _.isObject(thing) && !!thing.__isNamespace;
 };
 
-// mixin provided to viewModels which enables namespace capabilities including pub/sub, cqrs, etc
-require('../entities/entity-mixins').push({
-  runBeforeInit: true,
-  _preInit: function(options) {
-    var $configParams = this.__private.configParams;
-    var namespaceName = $configParams.namespace || $configParams.name || _.uniqueId('namespace');
-    this.$namespace = enterNamespaceName(indexedNamespaceName(namespaceName, $configParams.autoIncrement));
-    this.$rootNamespace = Namespace(namespaceName);
-    this.$globalNamespace = Namespace();
-  },
-  mixin: {
-    getNamespaceName: function() {
-      return this.$namespace.getName();
-    }
-  },
-  _postInit: function(options) {
-    exitNamespace();
-  }
-});
-
 module.exports = Namespace;
 
-},{"../entities/entity-mixins":23,"./namespace-methods":32,"./namespace-tools":33,"lodash":3,"postal":4}],35:[function(require,module,exports){
-var fw = require('knockout/build/output/knockout-latest');
-var _ = require('lodash');
-
-var util = require('../misc/util');
-var isPath = util.isPath;
-var getFilenameExtension = util.getFilenameExtension;
-var regExpMatch = /^\/|\/$/g;
-
-fw.components.resourceLocations = {};
-
-fw.components.fileExtensions = fw.observable({
-  combined: '.js',
-  viewModel: '.js',
-  template: '.html'
-});
-
-var originalComponentRegisterFunc = fw.components.register;
-fw.components.register = function(componentName, options) {
-  var viewModel = options.viewModel || options.dataModel || options.router;
-
-  if (!_.isString(componentName)) {
-    throw new Error('Components must be provided a componentName.');
-  }
-
-  originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || require('../misc/config').DefaultViewModel,
-    template: options.template
-  });
-};
-
-/**
- * Return the file name extension for the given componentName and fileType.
- *
- * @param {string} componentName
- * @param {string} fileType (combined/viewModel/template)
- * @returns {string} the file extension (ie: 'js')
- */
-function getComponentExtension(componentName, fileType) {
-  var componentExtensions = fw.components.fileExtensions();
-  var fileExtension = '';
-
-  if (_.isFunction(componentExtensions)) {
-    fileExtension = componentExtensions(componentName)[fileType];
-  } else if (_.isObject(componentExtensions)) {
-    if (_.isFunction(componentExtensions[fileType])) {
-      fileExtension = componentExtensions[fileType](componentName);
-    } else {
-      fileExtension = componentExtensions[fileType] || '';
-    }
-  }
-
-  return fileExtension.replace(/^\./, '') || '';
-}
-
-function forceViewModelComponentConvention(componentLocation) {
-  if (_.isObject(componentLocation) && _.isUndefined(componentLocation.viewModel) && _.isUndefined(componentLocation.combined)) {
-    return {
-      viewModel: componentLocation.dataModel || componentLocation.router,
-      template: componentLocation.template
-    };
-  }
-  return componentLocation;
-}
-
-fw.components.getFileName = function(componentName, fileType) {
-  var fileName = componentName;
-  var fileExtension = getComponentExtension(componentName, fileType);
-
-  if (fw.components.isRegistered(componentName)) {
-    return null;
-  }
-
-  if (fw.components.locationIsRegistered(componentName)) {
-    var registeredLocation = fw.components.getLocation(componentName);
-    if (!_.isUndefined(registeredLocation[fileType]) && !isPath(registeredLocation[fileType])) {
-      if (_.isString(registeredLocation[fileType])) {
-        // full filename was supplied, lets return that
-        fileName = _.last(registeredLocation[fileType].split('/'));
-      }
-    }
-  }
-
-  return fileName + (fileExtension !== getFilenameExtension(fileName) ? ('.' + fileExtension) : '');
-};
-
-var baseComponentLocation = {
-  combined: null,
-  viewModel: null,
-  template: null
-};
-
-fw.components.registerLocation = function(componentName, componentLocation, folderOffset) {
-  if (_.isArray(componentName)) {
-    _.each(componentName, function(name) {
-      fw.components.registerLocation(name, componentLocation, folderOffset);
-    });
-  }
-
-  if (_.isString(componentLocation)) {
-    componentLocation = _.extend({}, baseComponentLocation, {
-      viewModel: componentLocation,
-      template: componentLocation,
-      folderOffset: !!folderOffset
-    });
-  } else if (_.isObject(componentLocation)) {
-    componentLocation.folderOffset = !!folderOffset;
-  }
-
-  fw.components.resourceLocations[componentName] = _.extend({}, baseComponentLocation, forceViewModelComponentConvention(componentLocation));
-};
-
-fw.components.getRegisteredLocation = function(componentName) {
-  return _.reduce(fw.components.resourceLocations, function(registeredLocation, location, registeredComponentName) {
-    if (!registeredLocation) {
-      if (!_.isNull(registeredComponentName.match(regExpMatch)) && !_.isNull(componentName.match(registeredComponentName.replace(regExpMatch, '')))) {
-        registeredLocation = location;
-      } else if (componentName === registeredComponentName) {
-        registeredLocation = location;
-      }
-    }
-    return registeredLocation;
-  }, undefined);
-};
-
-fw.components.locationIsRegistered = function(componentName) {
-  return !!fw.components.getRegisteredLocation(componentName);
-};
-
-// Return the component resource definition for the supplied componentName
-fw.components.getLocation = function(componentName) {
-  if (_.isUndefined(componentName)) {
-    return fw.components.resourceLocations;
-  }
-  return _.omitBy(fw.components.getRegisteredLocation(componentName), _.isNull);
-};
-
-module.exports = {
-  getComponentExtension: getComponentExtension
-};
-
-},{"../misc/config":29,"../misc/util":31,"knockout/build/output/knockout-latest":2,"lodash":3}],36:[function(require,module,exports){
-var fw = require('knockout/build/output/knockout-latest');
-var _ = require('lodash');
-
-var isNamespace = require('../namespace/namespace').isNamespace;
-var isPath = require('../misc/util').isPath;
-var regExpMatch = /^\/|\/$/g;
-
-function isRegistered(descriptor, resourceName) {
-  return !_.isUndefined(descriptor.registered[resourceName]);
-};
-
-function getRegistered(descriptor, resourceName) {
-  return descriptor.registered[resourceName];
-};
-
-function register(descriptor, resourceName, resource) {
-  descriptor.registered[resourceName] = resource;
-};
-
-function getModelExtension(dataModelExtensions, modelName) {
-  var fileExtension = '';
-
-  if (_.isFunction(dataModelExtensions)) {
-    fileExtension = dataModelExtensions(modelName);
-  } else if (_.isString(dataModelExtensions)) {
-    fileExtension = dataModelExtensions;
-  }
-
-  return fileExtension.replace(/^\./, '') || '';
-}
-
-function getFileName(descriptor, modelName) {
-  var modelResourceLocations = descriptor.resourceLocations;
-  var fileName = modelName + '.' + getModelExtension(descriptor.fileExtensions(), modelName);
-
-  if (!_.isUndefined(modelResourceLocations[modelName])) {
-    var registeredLocation = modelResourceLocations[modelName];
-    if (_.isString(registeredLocation) && !isPath(registeredLocation)) {
-      // full filename was supplied, lets return that
-      fileName = _.last(registeredLocation.split('/'));
-    }
-  }
-
-  return fileName;
-}
-
-function registerLocation(descriptor, modelName, location) {
-  if (_.isArray(modelName)) {
-    _.each(modelName, function(name) {
-      registerLocation(descriptor, name, location);
-    });
-  }
-  descriptor.resourceLocations[ modelName ] = location;
-}
-
-function modelResourceLocation(descriptor, modelName) {
-  return _.reduce(descriptor.resourceLocations, function(registeredLocation, location, registeredName) {
-    if (!registeredLocation) {
-      if (!_.isNull(registeredName.match(regExpMatch)) && !_.isNull(modelName.match(registeredName.replace(regExpMatch, '')))) {
-        registeredLocation = location;
-      } else if (modelName === registeredName) {
-        registeredLocation = location;
-      }
-    }
-    return registeredLocation;
-  }, undefined);
-}
-
-function getLocation(descriptor, modelName) {
-  if (_.isUndefined(modelName)) {
-    return descriptor.resourceLocations;
-  }
-
-  return modelResourceLocation(descriptor, modelName);
-}
-
-function locationIsRegistered(descriptor, modelName) {
-  return !!modelResourceLocation(descriptor, modelName);
-}
-
-var $globalNamespace = fw.namespace();
-function getModelReferences(descriptor, namespaceName, options) {
-  options = options || {};
-  if (_.isString(namespaceName) || _.isArray(namespaceName)) {
-    options.namespaceName = namespaceName;
-  }
-
-  var references = _.reduce($globalNamespace.request(descriptor.referenceNamespace, _.extend({ includeOutlets: false }, options), true), function(models, model) {
-    if (!_.isUndefined(model)) {
-      var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
-      if (!_.isNull(namespaceName)) {
-        if (_.isUndefined(models[namespaceName])) {
-          models[namespaceName] = [model];
-        } else {
-          models[namespaceName].push(model);
-        }
-      }
-    }
-    return models;
-  }, {});
-
-  var referenceKeys = _.keys(references);
-  if (_.isString(namespaceName)) {
-    if (referenceKeys.length === 1) {
-      return references[referenceKeys[0]] || [];
-    }
-    return [];
-  }
-  return references;
-}
-
-
-function getResourceOrLocation(descriptor, moduleName) {
-  var resource = descriptor.resource;
-  var resourceOrLocation = null;
-
-  if (resource.isRegistered(moduleName)) {
-    // viewModel was manually registered
-    resourceOrLocation = resource.getRegistered(moduleName);
-  } else if (_.isFunction(window.require) && _.isFunction(window.require.specified) && window.require.specified(moduleName)) {
-    // found a matching resource that is already cached by require
-    resourceOrLocation = moduleName;
-  } else {
-    resourceOrLocation = resource.getLocation(moduleName);
-  }
-
-  return resourceOrLocation;
-}
-
-
-/**
- * Hydrates each entity resource with the necessary utility methods.
- *
- * @param {object} descriptor (as defined in each entity and extended onto the entity-descriptors)
- * @returns
- */
-function resourceHelperFactory(descriptor) {
-  var resourceMethods = {
-    getFileName: getFileName.bind(null, descriptor),
-    register: register.bind(null, descriptor),
-    isRegistered: isRegistered.bind(null, descriptor),
-    getRegistered: getRegistered.bind(null, descriptor),
-    registerLocation: registerLocation.bind(null, descriptor),
-    locationIsRegistered: locationIsRegistered.bind(null, descriptor),
-    getLocation: getLocation.bind(null, descriptor),
-    getResourceOrLocation: getResourceOrLocation.bind(null, descriptor),
-
-    fileExtensions: descriptor.fileExtensions,
-    resourceLocations: descriptor.resourceLocations
-  };
-
-  if (!_.isUndefined(descriptor.referenceNamespace)) {
-    // Returns a reference to the specified models.
-    // If no name is supplied, a reference to an array containing all viewModel references is returned.
-    resourceMethods.getAll = getModelReferences.bind(null, descriptor);
-  }
-
-  return resourceMethods;
-}
-
-_.each(require('../entities/entity-descriptors'), function(descriptor) {
-  if (!_.isUndefined(descriptor.resource)) {
-    _.extend(descriptor.resource, resourceHelperFactory(descriptor));
-  }
-});
-
-},{"../entities/entity-descriptors":22,"../misc/util":31,"../namespace/namespace":34,"knockout/build/output/knockout-latest":2,"lodash":3}]},{},[1])(1)
+},{"./namespace-methods":48,"lodash":3,"postal":4}]},{},[1])(1)
 });

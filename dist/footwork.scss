@@ -2,6 +2,10 @@ $fw-animation-move-distance: 15px;
 $fw-animation-speed: 0.5s;
 $fw-animation-easing: ease;
 
+viewModel, dataModel, router {
+  display: block;
+}
+
 .fw-entity {
   .fade-in {
     opacity: 0;
@@ -37,8 +41,7 @@ $fw-animation-easing: ease;
   }
 
   &.fw-entity-animate {
-    & > .fade-in,
-    & > * > .fade-in {
+    & > .fade-in {
       opacity: 1;
       transition: opacity $fw-animation-speed $fw-animation-easing;
     }
@@ -46,11 +49,7 @@ $fw-animation-easing: ease;
     & > .fade-in-from-left,
     & > .fade-in-from-right,
     & > .fade-in-from-top,
-    & > .fade-in-from-bottom,
-    & > * > .fade-in-from-left,
-    & > * > .fade-in-from-right,
-    & > * > .fade-in-from-top,
-    & > * > .fade-in-from-bottom {
+    & > .fade-in-from-bottom {
       position: relative;
       left: 0;
       top: 0;
