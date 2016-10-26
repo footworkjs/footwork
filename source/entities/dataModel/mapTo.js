@@ -43,7 +43,7 @@ function mapTo(mapPath, dataModel) {
       dataModel.isNew.dispose();
     }
     dataModel.isNew = fw.computed(function() {
-      return !!dataModel.$id();
+      return !dataModel.$id();
     });
   }
 

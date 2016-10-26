@@ -574,6 +574,40 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
         expect(initializeSpy).toHaveBeenCalled();
         expect(person.get(['firstName', 'lastName'])).toEqual(_.pick(personData, ['firstName', 'lastName']));
+        expect(function() { person.get(null); }).toThrow();
+      });
+
+      it('can have observables mapped and converted into JSON form using JSON.stringify', function() {
+        var initializeSpy;
+
+        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          this.firstName = fw.observable(person.firstName).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName).mapTo('lastName', this);
+          this.movieCollection = {
+            action: fw.observableArray(person.movies.action).mapTo('movies.action', this),
+            drama: fw.observableArray(person.movies.drama).mapTo('movies.drama', this),
+            comedy: fw.observableArray(person.movies.comedy).mapTo('movies.comedy', this),
+            horror: fw.observableArray(person.movies.horror).mapTo('movies.horror', this)
+          };
+        }).and.callThrough());
+
+        var personData = {
+          firstName: 'John',
+          lastName: 'Smith',
+          movies: {
+            action: ['Commando', 'Predator', 'Timecop', 'Terminator'],
+            drama: ['The Shawshank Redemption'],
+            comedy: ['Dumb and Dumber', 'Billy Madison'],
+            horror: ['Friday the 13th', 'Jason']
+          }
+        };
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+        var person = new Person(personData);
+
+        expect(initializeSpy).toHaveBeenCalled();
+        expect(JSON.parse(JSON.stringify(person))).toEqual(personData);
       });
 
       it('can have a correct dirtyMap() produced', function() {
@@ -620,6 +654,18 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         expect(person.dirtyMap()).toEqual({
           "id": false,
           "firstName": true,
+          "lastName": false,
+          "movies.action": false,
+          "movies.drama": false,
+          "movies.comedy": true,
+          "movies.horror": false
+        });
+
+        person.clean('firstName');
+
+        expect(person.dirtyMap()).toEqual({
+          "id": false,
+          "firstName": false,
           "lastName": false,
           "movies.action": false,
           "movies.drama": false,
@@ -764,6 +810,52 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           expect(person.$id()).toBe(1);
           expect(person.firstName()).toBe(postValue);
           done();
+        }, ajaxWait);
+      });
+
+      it('can correctly DELETE data on destroy()', function(done) {
+        var initializeSpy;
+        var mockUrl = tools.generateUrl();
+        var postValue = tools.randomString();
+        var responseData = {
+          "id": 1,
+          "firstName": postValue,
+          "lastName": null,
+          "email": null
+        };
+
+        var Person = function(person) {
+          fw.dataModel.boot(this, {
+            url: mockUrl,
+            useKeyInUrl: false
+          });
+
+          person = person || {};
+          this.id = fw.observable(person.id || null).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        };
+
+        var person = new Person(responseData);
+        var nonPerson = new Person(_.extend({}, responseData, { id: undefined }));
+
+        fetchMock.restore().delete(mockUrl, responseData);
+
+        var destroyPromise;
+        var nonPersonDestroyPromise;
+        expect(destroyPromise = person.destroy()).toBeA('promise');
+        expect(nonPersonDestroyPromise = nonPerson.destroy()).toBeA('promise');
+
+        setTimeout(function() {
+          destroyPromise.then(function(response) {
+            expect(response.status).toBe(200);
+
+            nonPersonDestroyPromise.then(function(response) {
+              expect(response).toBe(false);
+              done();
+            });
+          });
         }, ajaxWait);
       });
 

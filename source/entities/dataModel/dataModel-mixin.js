@@ -243,7 +243,7 @@ function getData (referenceField, includeRoot) {
  * @returns {string} The stringified result of the data
  */
 function toJSON () {
-  return JSON.stringify(this.getData());
+  return this.getData();
 }
 
 /**

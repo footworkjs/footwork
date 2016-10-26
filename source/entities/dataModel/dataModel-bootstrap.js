@@ -48,7 +48,7 @@ function dataModelBootstrap (instance, configParams) {
         return instance.isCreating() || instance.isSaving() || instance.isFetching() || instance.isDestroying();
       }),
       isNew: fw.computed(function() {
-        return !!instance.$id();
+        return !instance.$id();
       })
     });
   } else {
