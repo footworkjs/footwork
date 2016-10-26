@@ -43,14 +43,16 @@ Object.keys(window.__karma__.files).forEach(function(file) {
     // then do not normalize the paths
     var normalizedTestModule = file.replace(/^\/base\/|\.js$/g, '');
 
-    shouldRunTest(normalizedTestModule, [
+    // use the shouldRunTest callback below to limit the tests to an individual file or files
+    /* shouldRunTest(normalizedTestModule, [
       'viewModel',
       'dataModel',
       'router',
       'namespace',
       'collection',
-      'component'
-    ]) && allTestFiles.push(normalizedTestModule);
+      'component',
+      'broadcast-receive'
+    ]) && */ allTestFiles.push(normalizedTestModule);
   }
 });
 

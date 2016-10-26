@@ -4,9 +4,10 @@ var _ = require('lodash');
 
 var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;
 var isNamespace = require('../namespace/namespace').isNamespace;
+var isReceivableSymbol = require('../misc/util').getSymbol('isReceivable');
 
 fw.isReceivable = function (thing) {
-  return _.isObject(thing) && !!thing.__isReceivable;
+  return _.isObject(thing) && !!thing[isReceivableSymbol];
 };
 
 // factory method which turns an observable into a receivable
@@ -20,9 +21,7 @@ fw.subscribable.fn.receiveFrom = function (namespace, variable) {
   if (_.isString(namespace)) {
     namespace = fw.namespace(namespace);
     isLocalNamespace = true;
-  }
-
-  if (!isNamespace(namespace)) {
+  } else if (!isNamespace(namespace)) {
     throw new Error('Invalid namespace provided for receiveFrom() observable.');
   }
 
@@ -66,6 +65,6 @@ fw.subscribable.fn.receiveFrom = function (namespace, variable) {
     return this;
   };
 
-  receivable.__isReceivable = true;
+  receivable[isReceivableSymbol] = true;
   return receivable.refresh();
 };

@@ -7,11 +7,10 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       it('has the ability to create model with a broadcastable', function() {
         var initializeSpy;
 
-        var ModelA = fw.viewModel.create({
-          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
-            this.broadcaster = fw.observable().broadcastAs('broadcaster');
-          }).and.callThrough())
-        });
+        var ModelA = initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.viewModel.boot(this);
+          this.broadcaster = fw.observable().broadcastAs('broadcaster', this);
+        }).and.callThrough();
 
         expect(initializeSpy).not.toHaveBeenCalled();
         var modelA = new ModelA();
@@ -23,11 +22,10 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       it('has the ability to create model with a receivable', function() {
         var initializeSpy;
 
-        var ModelA = fw.viewModel.create({
-          initialize: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
-            this.receiver = fw.observable().receiveFrom('ModelA', 'broadcaster');
-          }).and.callThrough())
-        });
+        var ModelA = initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.viewModel.boot(this);
+          this.receiver = fw.observable().receiveFrom('ModelA', 'broadcaster');
+        }).and.callThrough();
 
         expect(initializeSpy).not.toHaveBeenCalled();
         var modelA = new ModelA();
@@ -41,22 +39,21 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var modelBInitializeSpy;
         var modelANamespaceName = tools.generateNamespaceName();
 
-        var ModelA = fw.viewModel.create({
-          namespace: modelANamespaceName,
-          initialize: tools.expectCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
-            this.broadcaster = fw.observable().broadcastAs('broadcaster');
-          }).and.callThrough())
-        });
+        var ModelA = modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
+          fw.viewModel.boot(this, {
+            namespace: modelANamespaceName
+          });
+          this.broadcaster = fw.observable().broadcastAs('broadcaster', this);
+        }).and.callThrough();
 
         expect(modelAInitializeSpy).not.toHaveBeenCalled();
         var modelA = new ModelA();
         expect(modelAInitializeSpy).toHaveBeenCalled();
 
-        var ModelB = fw.viewModel.create({
-          initialize: tools.expectCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
-            this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcaster');
-          }).and.callThrough())
-        });
+        var ModelB = modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
+          fw.viewModel.boot(this);
+          this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcaster');
+        }).and.callThrough();
 
         expect(modelBInitializeSpy).not.toHaveBeenCalled();
         var modelB = new ModelB();
@@ -73,32 +70,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var receivable = fw.observable(null).receiveFrom(namespace, 'broadcaster');
         expect(receivable()).toBe(null);
 
-        var broadcastable = fw.observable(tools.randomString()).broadcastAs({ name: 'broadcaster', namespace: namespace });
-        expect(receivable()).toBe(broadcastable());
-      });
-
-      it('can have standalone broadcastable created with alternative syntax', function() {
-        var namespaceName = tools.generateNamespaceName();
-        var receivable = fw.observable(null).receiveFrom(namespaceName, 'broadcaster');
-
-        expect(receivable()).toBe(null);
-
-        var broadcastable = fw.observable().broadcastAs({ name: 'broadcaster', namespace: namespaceName });
-        expect(receivable()).toBe(broadcastable());
-
-        var broadcastable = fw.observable().broadcastAs('broadcaster', namespaceName);
-        expect(receivable()).toBe(broadcastable());
-      });
-
-      it('can have standalone broadcastable created with alternative syntax and a passed in instantiated namespace', function() {
-        var namespaceName = tools.generateNamespaceName();
-        var namespace = fw.namespace(namespaceName);
-        var receivable = fw.observable(null).receiveFrom(namespaceName, 'broadcaster');
-
-        expect(receivable()).toBe(null);
-
-        var broadcastable = fw.observable(tools.randomString()).broadcastAs({ name: 'broadcaster', namespace: namespace });
-
+        var broadcastable = fw.observable(tools.randomString()).broadcastAs('broadcaster', namespace);
         expect(receivable()).toBe(broadcastable());
       });
 
@@ -107,22 +79,21 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var modelBInitializeSpy;
         var modelANamespaceName = tools.generateNamespaceName();
 
-        var ModelA = fw.viewModel.create({
-          namespace: modelANamespaceName,
-          initialize: tools.expectCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
-            this.writableBroadcaster = fw.observable().broadcastAs('writableBroadcaster', true);
-          }).and.callThrough())
-        });
+        var ModelA = modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
+          fw.viewModel.boot(this, {
+            namespace: modelANamespaceName,
+          });
+          this.writableBroadcaster = fw.observable().broadcastAs('writableBroadcaster', this, true);
+        }).and.callThrough()
 
         expect(modelAInitializeSpy).not.toHaveBeenCalled();
         var modelA = new ModelA();
         expect(modelAInitializeSpy).toHaveBeenCalled();
 
-        var ModelB = fw.viewModel.create({
-          initialize: tools.expectCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
-            this.writableReceiver = fw.observable().receiveFrom(modelANamespaceName, 'writableBroadcaster', true);
-          }).and.callThrough())
-        });
+        var ModelB = modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
+          fw.viewModel.boot(this);
+          this.writableReceiver = fw.observable().receiveFrom(modelANamespaceName, 'writableBroadcaster');
+        }).and.callThrough()
 
         expect(modelBInitializeSpy).not.toHaveBeenCalled();
         var modelB = new ModelB();
@@ -139,22 +110,21 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var modelBInitializeSpy;
         var modelANamespaceName = tools.generateNamespaceName();
 
-        var ModelA = fw.viewModel.create({
-          namespace: modelANamespaceName,
-          initialize: tools.expectCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
-            this.nonwritableBroadcaster = fw.observable().broadcastAs('nonwritableBroadcaster');
-          }).and.callThrough())
-        });
+        var ModelA = modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
+          fw.viewModel.boot(this, {
+            namespace: modelANamespaceName,
+          });
+          this.nonwritableBroadcaster = fw.observable().broadcastAs('nonwritableBroadcaster', this);
+        }).and.callThrough();
 
         expect(modelAInitializeSpy).not.toHaveBeenCalled();
         var modelA = new ModelA();
         expect(modelAInitializeSpy).toHaveBeenCalled();
 
-        var ModelB = fw.viewModel.create({
-          initialize: tools.expectCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
-            this.nonwritableReceiver = fw.observable().receiveFrom(modelANamespaceName, 'nonwritableBroadcaster', true);
-          }).and.callThrough())
-        });
+        var ModelB = modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
+          fw.viewModel.boot(this);
+          this.nonwritableReceiver = fw.observable().receiveFrom(modelANamespaceName, 'nonwritableBroadcaster');
+        }).and.callThrough()
 
         expect(modelBInitializeSpy).not.toHaveBeenCalled();
         var modelB = new ModelB();
@@ -172,24 +142,23 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var whenSpy;
         var modelANamespaceName = tools.generateNamespaceName();
 
-        var ModelA = fw.viewModel.create({
-          namespace: modelANamespaceName,
-          initialize: tools.expectCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
-            this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback');
-          }).and.callThrough())
-        });
+        var ModelA = modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
+          fw.viewModel.boot(this, {
+            namespace: modelANamespaceName,
+          });
+          this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback', this);
+        }).and.callThrough();
 
         expect(modelAInitializeSpy).not.toHaveBeenCalled();
         var modelA = new ModelA();
         expect(modelAInitializeSpy).toHaveBeenCalled();
 
-        var ModelB = fw.viewModel.create({
-          initialize: tools.expectCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
-            this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(tools.expectCallOrder(2, whenSpy = jasmine.createSpy('whenSpy', function() {
-              return true;
-            }).and.callThrough()));
-          }).and.callThrough())
-        });
+        var ModelB = modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
+          fw.viewModel.boot(this);
+          this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(whenSpy = jasmine.createSpy('whenSpy', function() {
+            return true;
+          }).and.callThrough());
+        }).and.callThrough();
 
         expect(modelBInitializeSpy).not.toHaveBeenCalled();
         var modelB = new ModelB();
@@ -207,33 +176,32 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var modelBInitializeSpy;
         var whenSpy;
         var modelANamespaceName = tools.generateNamespaceName();
-        var valuethatFailsWhenValidator = tools.randomString();
 
-        var ModelA = fw.viewModel.create({
-          namespace: modelANamespaceName,
-          initialize: tools.expectCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
-            this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback');
-          }).and.callThrough())
-        });
+        var ModelA = modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
+          fw.viewModel.boot(this, {
+            namespace: modelANamespaceName,
+          });
+          this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback', this);
+        }).and.callThrough();
 
         expect(modelAInitializeSpy).not.toHaveBeenCalled();
         var modelA = new ModelA();
         expect(modelAInitializeSpy).toHaveBeenCalled();
 
-        var ModelB = fw.viewModel.create({
-          initialize: tools.expectCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
-            this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(tools.expectCallOrder(2, whenSpy = jasmine.createSpy('whenSpy', function() {
-              return false;
-            }).and.callThrough()));
-          }).and.callThrough())
-        });
+        var ModelB = modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
+          fw.viewModel.boot(this);
+          this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(whenSpy = jasmine.createSpy('whenSpy', function() {
+            return false;
+          }).and.callThrough());
+        }).and.callThrough();
 
         expect(modelBInitializeSpy).not.toHaveBeenCalled();
         var modelB = new ModelB();
         expect(whenSpy).not.toHaveBeenCalled();
         expect(modelBInitializeSpy).toHaveBeenCalled();
 
-        modelA.broadcaster(valuethatFailsWhenValidator);
+        var testValue = tools.randomString();
+        modelA.broadcaster(testValue);
         expect(whenSpy).toHaveBeenCalled();
         expect(modelB.receiver()).toBe(undefined);
       });
@@ -246,24 +214,23 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var writableTestValue = tools.randomString();
         var nonWrittenTestValue = tools.randomString();
 
-        var ModelA = fw.viewModel.create({
-          namespace: modelANamespaceName,
-          initialize: tools.expectCallOrder(0, modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
-            this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback');
-          }).and.callThrough())
-        });
+        var ModelA = modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
+          fw.viewModel.boot(this, {
+            namespace: modelANamespaceName,
+          });
+          this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback', this);
+        }).and.callThrough();
 
         expect(modelAInitializeSpy).not.toHaveBeenCalled();
         var modelA = new ModelA();
         expect(modelAInitializeSpy).toHaveBeenCalled();
 
-        var ModelB = fw.viewModel.create({
-          initialize: tools.expectCallOrder(1, modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
-            this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(tools.expectCallOrder([2, 3, 4], whenSpy = jasmine.createSpy('whenSpy', function(val) {
-              return val === writableTestValue;
-            }).and.callThrough()));
-          }).and.callThrough())
-        });
+        var ModelB = modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
+          this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(whenSpy = jasmine.createSpy('whenSpy', function(val) {
+            return val === writableTestValue;
+          }).and.callThrough());
+        }).and.callThrough();
+
 
         expect(modelBInitializeSpy).not.toHaveBeenCalled();
         var modelB = new ModelB();
