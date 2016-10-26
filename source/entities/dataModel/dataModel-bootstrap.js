@@ -1,9 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var defaultChannel = require('postal').channel();
 var privateDataSymbol = require('../../misc/config').privateDataSymbol;
-var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
 var entityDescriptors = require('../entity-descriptors');
 var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
 

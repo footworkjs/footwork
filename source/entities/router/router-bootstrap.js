@@ -1,9 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var defaultChannel = require('postal').channel();
 var privateDataSymbol = require('../../misc/config').privateDataSymbol;
-var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
 var entityDescriptors = require('../entity-descriptors');
 var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
 var resultBound = require('../../misc/util').resultBound;
@@ -11,9 +9,7 @@ var resultBound = require('../../misc/util').resultBound;
 var routerTools = require('./router-tools');
 var registerOutlet = routerTools.registerOutlet;
 var unregisterOutlet = routerTools.unregisterOutlet;
-var trimBaseRoute = routerTools.trimBaseRoute;
 var normalizeURL = routerTools.normalizeURL;
-var isNullRouter = routerTools.isNullRouter;
 var getRouteForURL = routerTools.getRouteForURL;
 var triggerRoute = routerTools.triggerRoute;
 var isRoute = routerTools.isRoute;
@@ -57,7 +53,6 @@ function routerBootstrap (instance, configParams) {
       unregisterOutlet: _.partial(unregisterOutlet, instance),
       parentRouter: fw.observable(nullRouter),
       historyPopstateListener: fw.observable(),
-      urlParts: fw.observable(),
       routeDescriptions: []
     });
 

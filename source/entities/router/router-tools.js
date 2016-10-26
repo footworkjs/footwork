@@ -96,9 +96,7 @@ function trimBaseRoute (router, url) {
 }
 
 function normalizeURL (router, url) {
-  var urlParts = parseUri(url);
-  router[privateDataSymbol].urlParts(urlParts);
-  return trimBaseRoute(router, urlParts.path);
+  return trimBaseRoute(router, parseUri(url).path);
 }
 
 function getUnknownRoute (router) {
@@ -128,7 +126,7 @@ function getRouteForURL (router, url) {
 
       if (_.isString(routeString) && _.isString(url)) {
         routeParams = url.match(routeStringToRegExp(routeString));
-        if (!_.isNull(routeParams) && routeDescription.filter.call(router, routeParams, router[privateDataSymbol].urlParts.peek())) {
+        if (!_.isNull(routeParams) && routeDescription.filter.call(router, routeParams)) {
           matches.push({
             routeString: routeString,
             specificity: routeString.replace(namedParamRegex, "*").length,
