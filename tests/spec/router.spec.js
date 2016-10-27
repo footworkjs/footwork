@@ -735,6 +735,38 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         }, ajaxWait);
       });
 
+      it('can properly unregister an outlet with its parent router', function(done) {
+        var namespaceName = tools.generateNamespaceName();
+        var initializeSpy;
+        var router;
+        var outletName = tools.randomString();
+
+        fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.router.boot(this, {
+            namespace: namespaceName
+          });
+          this.show = fw.observable(true);
+          router = this;
+        }).and.callThrough());
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
+          <!-- ko if: show -->\
+            <outlet name="' + outletName + '"></outlet>\
+          <!-- /ko -->\
+        </router>'));
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+          expect(fw.utils.getPrivateData(router).outlets[outletName]).not.toBe(undefined);
+
+          router.show(false);
+          expect(fw.utils.getPrivateData(router).outlets[outletName]).toBe(undefined);
+          done();
+        }, ajaxWait);
+      });
+
       it('can have callback triggered after outlet component is resolved and composed', function(done) {
         var mockUrl = tools.generateUrl();
         var namespaceName = tools.generateNamespaceName();
@@ -1935,6 +1967,32 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
             done();
           }, ajaxWait);
         }, 0);
+      });
+
+      it('can trigger a route via the setState command', function() {
+        var namespaceName = tools.generateNamespaceName();
+        var mockUrl = tools.generateUrl();
+        var routeSpy = jasmine.createSpy('routeSpy');
+        var MyRouter = function() {
+          fw.router.boot(this, {
+            namespace: namespaceName,
+            routes: [
+              {
+                route: mockUrl,
+                controller: routeSpy
+              }
+            ]
+          });
+        };
+
+        var router = new MyRouter();
+        expect(routeSpy).not.toHaveBeenCalled();
+
+        router.activate();
+        expect(routeSpy).not.toHaveBeenCalled();
+
+        fw.namespace(namespaceName).command('setState', mockUrl);
+        expect(routeSpy).toHaveBeenCalled();
       });
     });
   }

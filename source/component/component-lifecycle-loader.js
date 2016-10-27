@@ -83,6 +83,7 @@ function cloneNodesFromTemplateSourceElement (elemInstance) {
     case 'textarea':
       return fw.utils.parseHtmlFragment(elemInstance.value);
     case 'template':
+      /* istanbul ignore if */
       // For browsers with proper <template> element support (i.e., where the .content property
       // gives a document fragment), use that document fragment.
       if (isDocumentFragment(elemInstance.content)) {

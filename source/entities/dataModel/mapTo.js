@@ -27,11 +27,6 @@ function mapTo(mapPath, dataModel) {
   var mappings = dataModel[privateDataSymbol].mappings();
   var primaryKey = getPrimaryKey(dataModel);
 
-  if (!_.isUndefined(mappings[mapPath]) && _.isFunction(mappings[mapPath].dispose)) {
-    // remapping a path, we need to dispose of the old one first
-    mappings[mapPath].dispose();
-  }
-
   // add/set the registry entry for the mapped observable
   mappings[mapPath] = mappedObservable;
 
@@ -54,12 +49,10 @@ function mapTo(mapPath, dataModel) {
   });
 
   var disposeObservable = mappedObservable.dispose || _.noop;
-  if (_.isFunction(mappedObservable.dispose)) {
-    mappedObservable.dispose = function () {
-      changeSubscription.dispose();
-      disposeObservable.call(mappedObservable);
-    };
-  }
+  mappedObservable.dispose = function () {
+    changeSubscription.dispose();
+    disposeObservable.call(mappedObservable);
+  };
 
   dataModel[privateDataSymbol].mappings.valueHasMutated();
 

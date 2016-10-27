@@ -1,5 +1,5 @@
-define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
-  function(fw, _, $, tools, fetchMock) {
+define(['footwork', 'tools'],
+  function(fw, tools) {
     describe('broadcast-receive', function() {
       beforeEach(tools.prepareTestEnv);
       afterEach(tools.cleanTestEnv);

@@ -70,9 +70,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var namespace = fw.namespace(tools.generateNamespaceName());
         var handlerCallbackSpy;
 
-        namespace.event.handler('testEvent', tools.expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('', function(parameter) {
+        namespace.event.handler('testEvent', handlerCallbackSpy = jasmine.createSpy('', function(parameter) {
           expect(parameter).toBe('optionalParam');
-        }).and.callThrough()));
+        }).and.callThrough());
+
+        var testContext = Symbol('testContext');
+        namespace.event.handler('testEvent', handlerCallbackSpy = jasmine.createSpy('', function(parameter) {
+          expect(this).toBe(testContext);
+        }).and.callThrough(), testContext);
 
         expect(handlerCallbackSpy).not.toHaveBeenCalled();
         namespace.trigger('testEvent', 'optionalParam');
@@ -101,10 +106,12 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var namespace = fw.namespace(tools.generateNamespaceName());
         var handlerCallbackSpy;
 
-        namespace.request.handler('testRequest', tools.expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
+        var testContext = Symbol('testContext');
+        namespace.request.handler('testRequest', handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
           expect(parameter).toBe('optionalParam');
+          expect(this).toBe(testContext);
           return 'all-ok';
-        }).and.callThrough()));
+        }).and.callThrough(), testContext);
 
         expect(handlerCallbackSpy).not.toHaveBeenCalled();
         expect(namespace.request('testRequest', 'optionalParam')).toBe('all-ok');
@@ -154,9 +161,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var namespace = fw.namespace(tools.generateNamespaceName());
         var handlerCallbackSpy;
 
-        namespace.command.handler('testCommand', tools.expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
+        namespace.command.handler('testCommand', handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
           expect(parameter).toBe('optionalParam');
-        }).and.callThrough()));
+        }).and.callThrough());
+
+        var testContext = Symbol('testContext');
+        namespace.command.handler('testCommand', handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
+          expect(this).toBe(testContext);
+        }).and.callThrough(), testContext);
 
         expect(handlerCallbackSpy).not.toHaveBeenCalled();
         namespace.command('testCommand', 'optionalParam');

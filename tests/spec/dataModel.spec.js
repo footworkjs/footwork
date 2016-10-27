@@ -393,7 +393,11 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         }, ajaxWait);
       });
 
-      it('can have an observable mapped correctly at the parent level', function() {
+      it('mapTo correctly throws error without a specified instance', function() {
+        expect(function() {fw.observable().mapTo('firstName')}).toThrow();
+      });
+
+      it('can have an observable mapped and remapped correctly at the parent level', function() {
         var initializeSpy;
 
         var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
@@ -451,6 +455,54 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         expect(person.hasMappedField('movies.drama')).toBe(true);
         expect(person.hasMappedField('movies.comedy')).toBe(true);
         expect(person.hasMappedField('movies.horror')).toBe(true);
+      });
+
+      it('can have mapped observables disposed of properly when parent dataModel is removed from the DOM', function(done) {
+        var wasInitialized = false;
+        var namespaceName = tools.generateNamespaceName();
+        var containerViewModelNamespace = tools.generateNamespaceName();
+        var containerVM;
+        var dataModel;
+
+        fw.viewModel.register(containerViewModelNamespace, function ContainerViewModel() {
+          containerVM = this;
+          this.show = fw.observable(true);
+        });
+
+        var DataModelSpy = jasmine.createSpy('DataModelSpy', function() {
+          dataModel = this;
+          fw.dataModel.boot(this, {
+            namespace: namespaceName
+          });
+          this.prop = fw.observable().mapTo('prop', this);
+        }).and.callThrough();
+
+        fw.dataModel.register(namespaceName, DataModelSpy);
+
+        expect(DataModelSpy).not.toHaveBeenCalled();
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + containerViewModelNamespace + '">\
+          <!-- ko if: show -->\
+            <dataModel module="' + namespaceName + '"></dataModel>\
+          <!-- /ko -->\
+        </viewModel>'));
+
+        setTimeout(function() {
+          expect(DataModelSpy).toHaveBeenCalledTimes(1);
+          expect(dataModel.isDirty()).toBe(false);
+
+          dataModel.prop('something');
+          expect(dataModel.isDirty()).toBe(true);
+
+          dataModel.clean();
+          expect(dataModel.isDirty()).toBe(false);
+
+          containerVM.show(false);
+          expect(dataModel.isDirty()).toBe(false);
+          dataModel.prop('something');
+          expect(dataModel.isDirty()).toBe(false);
+
+          done();
+        }, ajaxWait);
       });
 
       it('can have observables mapped and retreived correctly via get', function() {

@@ -80,8 +80,7 @@ function registerOutlet(router, outletName, outletViewModel) {
  * @param {string} outletName the name (property) of the outlet
  */
 function unregisterOutlet(router, outletName) {
-  var outletProperties = router[privateDataSymbol].outlets[outletName] || {};
-  delete outletProperties.outletViewModel;
+  delete router[privateDataSymbol].outlets[outletName];
 }
 
 function trimBaseRoute (router, url) {

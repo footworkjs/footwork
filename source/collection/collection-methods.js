@@ -3,7 +3,6 @@ var _ = require('lodash');
 
 var objectTools = require('./object-tools');
 var regExpIsEqual = objectTools.regExpIsEqual;
-var commonKeysEqual = objectTools.commonKeysEqual;
 var sortOfEqual = objectTools.sortOfEqual;
 
 var makeOrGetRequest = require('../misc/ajax').makeOrGetRequest;

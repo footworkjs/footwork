@@ -164,12 +164,119 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         }).toThrow();
       });
 
+      it('can instantiate a component registered using an array of DOM nodes as its template', function(done) {
+        var namespaceName = tools.generateNamespaceName();
+        var textToFind = tools.randomString();
+        var initializeSpy;
+
+        testContainer = tools.getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>');
+
+        var theDOMNode = document.createElement("div");
+        theDOMNode.innerText = textToFind;
+
+        fw.components.register(namespaceName, {
+          template: [ theDOMNode ],
+          viewModel: initializeSpy = jasmine.createSpy('initializeSpy', function() {
+            fw.viewModel.boot(this);
+          }).and.callThrough(),
+          synchronous: true
+        });
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer);
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+          expect($(testContainer).find(namespaceName).text().indexOf(textToFind)).not.toBe(-1);
+          done();
+        }, ajaxWait);
+      });
+
       it('can instantiate a component registered using an element instance as its template', function(done) {
         var namespaceName = tools.generateNamespaceName();
         var textToFind = tools.randomString();
         var initializeSpy;
 
         testContainer = tools.getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>');
+
+        fw.components.register(namespaceName, {
+          template: { element: document.getElementById(namespaceName) },
+          viewModel: initializeSpy = jasmine.createSpy('initializeSpy', function() {
+            fw.viewModel.boot(this);
+          }).and.callThrough(),
+          synchronous: true
+        });
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer);
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+          expect($(testContainer).find(namespaceName).text().indexOf(textToFind)).not.toBe(-1);
+          done();
+        }, ajaxWait);
+      });
+
+      it('can instantiate a component registered using a template element as its template', function(done) {
+        var namespaceName = tools.generateNamespaceName();
+        var textToFind = tools.randomString();
+        var initializeSpy;
+
+        testContainer = tools.getFixtureContainer('<template id=' + namespaceName + '>' + textToFind + '</template><' + namespaceName + '></' + namespaceName + '>');
+
+        fw.components.register(namespaceName, {
+          template: { element: document.getElementById(namespaceName) },
+          viewModel: initializeSpy = jasmine.createSpy('initializeSpy', function() {
+            fw.viewModel.boot(this);
+          }).and.callThrough(),
+          synchronous: true
+        });
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer);
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+          expect($(testContainer).find(namespaceName).text().indexOf(textToFind)).not.toBe(-1);
+          done();
+        }, ajaxWait);
+      });
+
+      it('can instantiate a component registered using a script element as its template', function(done) {
+        var namespaceName = tools.generateNamespaceName();
+        var textToFind = tools.randomString();
+        var initializeSpy;
+
+        testContainer = tools.getFixtureContainer('<script id=' + namespaceName + ' type="text">' + textToFind + '</script><' + namespaceName + '></' + namespaceName + '>');
+
+        fw.components.register(namespaceName, {
+          template: { element: document.getElementById(namespaceName) },
+          viewModel: initializeSpy = jasmine.createSpy('initializeSpy', function() {
+            fw.viewModel.boot(this);
+          }).and.callThrough(),
+          synchronous: true
+        });
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer);
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+          expect($(testContainer).find(namespaceName).text().indexOf(textToFind)).not.toBe(-1);
+          done();
+        }, ajaxWait);
+      });
+
+      it('can instantiate a component registered using a textarea element as its template', function(done) {
+        var namespaceName = tools.generateNamespaceName();
+        var textToFind = tools.randomString();
+        var initializeSpy;
+
+        testContainer = tools.getFixtureContainer('<textarea id=' + namespaceName + '>' + textToFind + '</textarea><' + namespaceName + '></' + namespaceName + '>');
 
         fw.components.register(namespaceName, {
           template: { element: document.getElementById(namespaceName) },
