@@ -30,7 +30,7 @@ function getData () {
 }
 
 function toJSON () {
-  return JSON.stringify(this.getData());
+  return this.getData();
 }
 
 function pluck (attribute) {

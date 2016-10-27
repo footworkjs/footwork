@@ -337,25 +337,6 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         fw.router.fileExtensions('.js');
       });
 
-      it('can load via requirejs with a declarative initialization from an already registered module', function(done) {
-        var namespaceName = tools.generateNamespaceName();
-        var initializeSpy = jasmine.createSpy('initializeSpy', function() {
-          fw.router.boot(this, { namespace: namespaceName });
-        });
-
-        define(namespaceName, ['footwork'], function(fw) {
-          return initializeSpy;
-        });
-
-        expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
-
-        setTimeout(function() {
-          expect(initializeSpy).toHaveBeenCalled();
-          done();
-        }, ajaxWait);
-      });
-
       it('can load via registered router with a declarative initialization', function(done) {
         var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy('initializeSpy', function() { fw.router.boot(this, { namespace: namespaceName }); });
@@ -1243,6 +1224,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
       it('can have a $route bound link correctly composed with an href attribute using passed in string route', function(done) {
         var testContainer;
         var mockUrl = tools.generateUrl();
+        var hashMockUrl = '#hash-only-url';
         var namespaceName = tools.generateNamespaceName();
         var initializeSpy;
         var routeSpy = jasmine.createSpy('routeSpy');
@@ -1267,16 +1249,19 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="$route: \'' + mockUrl + '\'"></a>\
+          <a class="mockUrl" data-bind="$route: \'' + mockUrl + '\'"></a>\
+          <a class="hashMockUrl" data-bind="$route: \'' + hashMockUrl + '\'"></a>\
         </router>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
 
-          var $link = $(testContainer).find('a');
+          var $link = $(testContainer).find('a.mockUrl');
+          var $hashLink = $(testContainer).find('a.hashMockUrl');
 
           expect(routeSpy).not.toHaveBeenCalled();
           expect($link.attr('href')).toBe(mockUrl);
+          expect($hashLink.attr('href')).toBe(hashMockUrl);
 
           $link.click();
           expect(routeSpy).toHaveBeenCalled();
@@ -1573,6 +1558,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
             <div class="parent-class-name">\
               <div>\
                 <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\', parentHasState: \'.parent-class-name\' }"></a>\
+                <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\', parentHasState: \'.parent-class-name-graceful-failure-does-not-exist\' }"></a>\
               </div>\
             </div>\
           </router>');

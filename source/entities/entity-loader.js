@@ -1,10 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var util = require('../misc/util');
-var isAmdResolved = util.isAmdResolved;
-var isPath = util.isPath;
-
+var isPath = require('../misc/util').isPath;
 var bindingElement = require('../binding/binding-element');
 var getLoadingTracker = require('../misc/loading-tracker').get;
 
@@ -33,10 +30,11 @@ fw.components.loaders.unshift(fw.components.entityLoader = {
         }
 
         viewModelOrLocation = {
-          require: isAmdResolved(moduleName) ? moduleName : window.require.toUrl(viewModelOrLocation)
+          require: window.require.toUrl(viewModelOrLocation)
         };
       }
 
+      /* istanbul ignore if */
       if(_.isUndefined(viewModelOrLocation)) {
         throw new Error('The \'' + moduleName + '\' ' + descriptor.entityName + ' module must be registered before it can be used.');
       }

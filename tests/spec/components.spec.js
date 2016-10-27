@@ -470,6 +470,23 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         }, ajaxWait);
       });
 
+      it('can specify and load via a registered combined component module', function(done) {
+        var namespaceName = 'registered-combined-component-location';
+
+        fw.components.registerLocation(namespaceName, {
+          combined: 'tests/assets/fixtures/registeredComponentLocation/registered-combined-component-location.js'
+        });
+
+        expect(namespaceName).not.toBeLoaded();
+
+        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+
+        setTimeout(function() {
+          expect(namespaceName).toBeLoaded();
+          done();
+        }, ajaxWait);
+      });
+
       it('can specify and load via a registered location with a prefixed folder', function(done) {
         var namespaceName = 'registered-component-location-prefixed';
 

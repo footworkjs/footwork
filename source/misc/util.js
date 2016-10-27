@@ -292,16 +292,6 @@ function makeArray (arrayLikeObject) {
   return convertedArray;
 }
 
-/**
- * Determine whether or not the specified module name has already been resolved by AMD/RequireJS
- *
- * @param {any} moduleName
- * @returns
- */
-function isAmdResolved(moduleName) {
-  return _.isFunction(window.require) && _.isFunction(window.require.specified) && window.require.specified(moduleName);
-}
-
 module.exports = {
   alwaysPassPredicate: alwaysPassPredicate,
   resultBound: resultBound,
@@ -324,6 +314,5 @@ module.exports = {
   capitalizeFirstLetter: capitalizeFirstLetter,
   getPrivateData: getPrivateData,
   getSymbol: getSymbol,
-  makeArray: makeArray,
-  isAmdResolved: isAmdResolved
+  makeArray: makeArray
 };

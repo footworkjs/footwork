@@ -333,25 +333,6 @@ define(['footwork', 'jquery', 'lodash', 'tools'],
         fw.viewModel.fileExtensions('.js');
       });
 
-      it('can load via requirejs with a declarative initialization from an already registered module', function(done) {
-        var namespaceName = tools.generateNamespaceName();
-        var initializeSpy = jasmine.createSpy('initializeSpy', function() {
-          fw.viewModel.boot(this, { namespace: namespaceName });
-        });
-
-        define(namespaceName, ['footwork'], function(fw) {
-          return initializeSpy;
-        });
-
-        expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
-
-        setTimeout(function() {
-          expect(initializeSpy).toHaveBeenCalled();
-          done();
-        }, ajaxWait);
-      });
-
       it('can load via registered viewModel with a declarative initialization', function(done) {
         var namespaceName = tools.generateNamespaceName();
         var initializeSpy = jasmine.createSpy('initializeSpy', function() { fw.viewModel.boot(this, { namespace: namespaceName }); });

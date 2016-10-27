@@ -141,9 +141,6 @@ function getResourceOrLocation (descriptor, moduleName) {
   if (resource.isRegistered(moduleName)) {
     // viewModel was manually registered
     resourceOrLocation = resource.getRegistered(moduleName);
-  } else if (isAmdResolved(moduleName)) {
-    // found a matching resource that is already cached by require
-    resourceOrLocation = moduleName;
   } else {
     resourceOrLocation = resource.getLocation(moduleName);
   }

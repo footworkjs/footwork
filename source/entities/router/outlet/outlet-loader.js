@@ -1,10 +1,6 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var util = require('../../../misc/util');
-var isAmdResolved = util.isAmdResolved;
-var isPath = util.isPath;
-
 var routerDefaults = require('../router-defaults');
 var outletLoadedDisplay = routerDefaults.outletLoadedDisplay;
 var outletLoadingDisplay = routerDefaults.outletLoadingDisplay;
@@ -31,7 +27,8 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
             'data-bind="style: loadingStyle, css: loadingClass, component: loadingDisplay"></div>' +
           '<div class="' + outletLoadedDisplay + ' ' + entityClass + '" ' +
             'data-bind="style: loadedStyle, css: loadedClass, component: display"></div>' +
-        bindingElement.close
+        bindingElement.close,
+        synchronous: true
       });
     } else {
       callback(null);

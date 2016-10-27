@@ -30,12 +30,7 @@ fw.components.loaders.push(fw.components.componentResourceLoader = {
 
       if (_.isFunction(window.require)) {
         // load component using knockouts native support for requirejs
-        if (window.require.specified(componentName)) {
-          // component already cached, lets use it
-          configOptions = {
-            require: componentName
-          };
-        } else if (_.isString(componentLocation.combined)) {
+        if (_.isString(componentLocation.combined)) {
           var combinedPath = componentLocation.combined;
 
           if (isPath(combinedPath)) {
