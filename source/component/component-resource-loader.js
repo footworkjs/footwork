@@ -46,7 +46,7 @@ fw.components.loaders.push(fw.components.componentResourceLoader = {
           // check to see if the requested component is template only and should not request a viewModel (we supply a dummy object in its place)
           if (!_.isString(componentLocation.viewModel)) {
             // template-only component, substitute with 'blank' viewModel
-            viewModelConfig = require('../misc/config').DefaultViewModel;
+            viewModelConfig = require('../misc/config').ViewModel;
           } else {
             var viewModelPath = componentLocation.viewModel;
 

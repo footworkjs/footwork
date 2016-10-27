@@ -33,7 +33,7 @@ fw.components.register = function (componentName, options) {
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || require('../misc/config').DefaultViewModel,
+    viewModel: viewModel || require('../misc/config').ViewModel,
     template: options.template
   });
 };
