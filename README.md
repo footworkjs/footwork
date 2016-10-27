@@ -46,21 +46,17 @@ If you need further setup help, refer to the [Get Started](http://footworkjs.com
         git clone https://github.com/footworkjs/footwork.git
         cd footwork
 
-1. **Install Node.js (if needed):**
+1. **Install Node.js and NPM (if needed):**
 
   This is platform specific. Your OS may already include it, however if not please see: [Installing Node](https://docs.npmjs.com/getting-started/installing-node).
 
-1. **Install gulp and bower globally (if needed):**
+1. **Install [gulp](http://gulpjs.com/) and [bower](http://bower.io/) globally (if needed):** 
 
-  * [gulp](http://gulpjs.com/) and [bower](http://bower.io/)
-  
-          sudo npm install -g gulp-cli bower
+        sudo npm install -g gulp-cli bower
 
-1. **Acquire build dependencies:**
+1. **Acquire build dependencies:** (from npm and bower)
 
-  * ...from npm (https://www.npmjs.com/) and bower (http://bower.io/)
-  
-          npm install && bower Install
+        npm install && bower Install
 
 1. **Run a gulp task to build/test/etc:**
   
@@ -93,7 +89,11 @@ If you need further setup help, refer to the [Get Started](http://footworkjs.com
           gulp dist
 
   * To debug the tests in your own browser:
-  
+    
+    * Make sure your build is made *without* being instrumented for test coverage by running the default build task (otherwise debugging might be a bit difficult):
+
+            gulp
+
     * Install karma (if needed)
 
             sudo npm install -g karma-cli
