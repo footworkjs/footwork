@@ -5,7 +5,7 @@ module.exports = {
   },
   reporters: ['spec', 'coverage'],
   coverageReporter: {
-    dir : 'build/coverage/',
+    dir : 'build/coverage-reports/',
     reporters: [
       { type: 'html', subdir: 'report-html' },
       { type: 'lcov', subdir: 'report-lcov' }

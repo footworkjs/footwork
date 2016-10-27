@@ -14,6 +14,8 @@ var _ = require('lodash');
 var sass = require("gulp-sass");
 var autoprefixer = require('gulp-autoprefixer');
 var plumber = require('gulp-plumber');
+var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
 
 var pkg = require('./package.json');
 var reporter = 'list';
@@ -34,30 +36,6 @@ var banner = [
   '', ''
 ].join('\n');
 
-gulp.task('default', ['build']);
-
-// Testing tasks
-gulp.task('tests', ['bundle-covered'], function(done) {
-  return new Server(_.extend(require('./tests/karma.conf.js'), require('./tests/karma-coverage.conf.js')), done).start();
-});
-
-gulp.task('sauce', ['build'], function(done) {
-  return new Server(_.extend(require('./tests/karma.conf.js'), require('./tests/sauce-config/karma.conf.js')), done).start();
-});
-
-gulp.task('unit', ['tests'], function () {
-  return gulp.src('./build/coverage/report-lcov/lcov.info')
-    .pipe(coveralls());
-});
-
-gulp.task('watch-test', function () {
-  gulp.watch(['tests/**/*.*', 'source/**/*.*'], ['tests']);
-});
-
-// Building tasks
-var source = require('vinyl-source-stream');
-var buffer = require('vinyl-buffer');
-
 var bundleConfig = {
   src: './source/footwork.js',
   outputDir: './build/',
@@ -73,6 +51,27 @@ function bundle (bundler) {
     .pipe(gulp.dest(bundleConfig.outputDir));
 }
 
+gulp.task('default', ['build']);
+
+// Testing tasks
+gulp.task('tests', ['bundle-covered'], function(done) {
+  return new Server(_.extend(require('./tests/karma.conf.js'), require('./tests/karma-coverage.conf.js')), done).start();
+});
+
+gulp.task('sauce', ['build'], function(done) {
+  return new Server(_.extend(require('./tests/karma.conf.js'), require('./tests/sauce-config/karma.conf.js')), done).start();
+});
+
+gulp.task('unit', ['tests'], function () {
+  return gulp.src('./build/coverage-reports/report-lcov/lcov.info')
+    .pipe(coveralls());
+});
+
+gulp.task('watch-test', function () {
+  gulp.watch(['tests/**/*.*', 'source/**/*.*'], ['tests']);
+});
+
+// Building tasks
 gulp.task('bundle-covered', function () {
     return bundle(browserify(bundleConfig.src, {
       standalone: 'footwork',
