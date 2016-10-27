@@ -74,7 +74,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           expect(parameter).toBe('optionalParam');
         }).and.callThrough());
 
-        var testContext = Symbol('testContext');
+        var testContext = { textContext: true };
         namespace.event.handler('testEvent', handlerCallbackSpy = jasmine.createSpy('', function(parameter) {
           expect(this).toBe(testContext);
         }).and.callThrough(), testContext);
@@ -106,7 +106,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var namespace = fw.namespace(tools.generateNamespaceName());
         var handlerCallbackSpy;
 
-        var testContext = Symbol('testContext');
+        var testContext = { textContext: true };
         namespace.request.handler('testRequest', handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
           expect(parameter).toBe('optionalParam');
           expect(this).toBe(testContext);
@@ -165,7 +165,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           expect(parameter).toBe('optionalParam');
         }).and.callThrough());
 
-        var testContext = Symbol('testContext');
+        var testContext = { textContext: true };
         namespace.command.handler('testCommand', handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
           expect(this).toBe(testContext);
         }).and.callThrough(), testContext);
