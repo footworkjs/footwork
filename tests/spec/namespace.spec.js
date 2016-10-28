@@ -22,10 +22,12 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var namespace = fw.namespace(tools.generateNamespaceName());
         var testValue = tools.randomString();
         var subscriptionCallbackSpy;
+        var testContext = { testContext: true };
 
         namespace.subscribe('testMessageTopic', tools.expectCallOrder(0, subscriptionCallbackSpy = jasmine.createSpy('subscriptionCallbackSpy', function(value) {
           expect(value).toBe(testValue);
-        })));
+          expect(this).toBe(testContext);
+        })), testContext);
 
         expect(subscriptionCallbackSpy).not.toHaveBeenCalled();
         namespace.publish('testMessageTopic', testValue);

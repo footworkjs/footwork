@@ -13,14 +13,7 @@ var registerNamespaceRequestHandler = namespaceMethods.registerNamespaceRequestH
 var registerNamespaceEventHandler = namespaceMethods.registerNamespaceEventHandler;
 
 // Creates and returns a new namespace instance
-var Namespace = function Namespace (namespaceName, $parentNamespace) {
-  if (!_.isUndefined($parentNamespace)) {
-    if (_.isString($parentNamespace)) {
-      namespaceName = $parentNamespace + '.' + namespaceName;
-    } else if (!_.isUndefined($parentNamespace.channel)) {
-      namespaceName = $parentNamespace.channel + '.' + namespaceName;
-    }
-  }
+var Namespace = function Namespace (namespaceName) {
   var ns = postal.channel(namespaceName);
 
   var subscriptions = ns.subscriptions = [];
