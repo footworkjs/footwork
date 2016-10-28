@@ -577,6 +577,26 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         }, ajaxWait);
       });
 
+      it('can specify and load a template-only component via a registered location', function(done) {
+        var namespaceName = 'template-only-component';
+        var templateOnlyInnerCheckSpy = jasmine.createSpy();
+
+        fw.viewModel.register('templateOnlyInnerCheck', templateOnlyInnerCheckSpy);
+
+        fw.components.registerLocation(namespaceName, {
+          template: 'tests/assets/fixtures/' + namespaceName + '.html'
+        });
+
+        expect(templateOnlyInnerCheckSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+
+        setTimeout(function() {
+          expect(templateOnlyInnerCheckSpy).toHaveBeenCalled();
+          done();
+        }, ajaxWait);
+      });
+
       it('can specify and load via a registered combined component module', function(done) {
         var namespaceName = 'registered-combined-component-location';
 
