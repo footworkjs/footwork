@@ -1765,6 +1765,66 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         }, 0);
       });
 
+      it('can have a $route bound link with its active class removed properly when the route switches away from it', function(done) {
+        var testContainer;
+        var mockUrl = tools.generateUrl();
+        var mockUrl2 = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
+        var initializeSpy;
+        var routeSpy = jasmine.createSpy('routeSpy');
+        var theRouter;
+
+        fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.router.boot(this, {
+            namespace: namespaceName,
+            routes: [
+              {
+                route: mockUrl,
+                controller: routeSpy
+              },
+              {
+                route: mockUrl2,
+                controller: routeSpy
+              }
+            ]
+          });
+          theRouter = this;
+        }).and.callThrough());
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(routeSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
+          <a class="' + mockUrl.replace('/', '') + '" data-bind="$route: \'' + mockUrl + '\'"></a>\
+          <a class="' + mockUrl2.replace('/', '') + '" data-bind="$route: \'' + mockUrl2 + '\'"></a>\
+        </router>'));
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+
+          setTimeout(function() {
+            var $mockUrl = $(testContainer).find('a.' + mockUrl.replace('/', ''));
+            var $mockUrl2 = $(testContainer).find('a.' + mockUrl2.replace('/', ''));
+
+            expect(routeSpy).not.toHaveBeenCalled();
+            expect($mockUrl.hasClass('active')).toBe(false);
+            expect($mockUrl2.hasClass('active')).toBe(false);
+
+            $mockUrl.click();
+            expect(routeSpy).toHaveBeenCalled();
+            expect($mockUrl.hasClass('active')).toBe(true);
+            expect($mockUrl2.hasClass('active')).toBe(false);
+
+            $mockUrl2.click();
+            expect(routeSpy).toHaveBeenCalledTimes(2);
+            expect($mockUrl.hasClass('active')).toBe(false);
+            expect($mockUrl2.hasClass('active')).toBe(true);
+
+            done();
+          }, ajaxWait);
+        }, 10);
+      });
+
       it('can have a $route bound link that triggers based on a custom event defined by a string', function(done) {
         var testContainer;
         var mockUrl = tools.generateUrl();
