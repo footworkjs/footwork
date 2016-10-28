@@ -48,8 +48,9 @@ fw.components.loaders.push(fw.components.componentResourceLoader = {
             viewModelPath = viewModelPath + folderOffset + fw.components.getFileName(componentName, 'viewModel');
           }
 
-          if (getFilenameExtension(viewModelPath) !== getComponentExtension(componentName, 'viewModel')) {
-            viewModelPath += '.' + getComponentExtension(componentName, 'viewModel');
+          var componentViewModelExtension = getComponentExtension(componentName, 'viewModel');
+          if (getFilenameExtension(viewModelPath) !== componentViewModelExtension) {
+            viewModelPath += '.' + componentViewModelExtension;
           }
 
           viewModelConfig = { require: window.require.toUrl(viewModelPath) };
@@ -60,8 +61,9 @@ fw.components.loaders.push(fw.components.componentResourceLoader = {
           templatePath = templatePath + folderOffset + fw.components.getFileName(componentName, 'template');
         }
 
-        if (getFilenameExtension(templatePath) !== getComponentExtension(componentName, 'template')) {
-          templatePath += '.' + getComponentExtension(componentName, 'template');
+        var templateFileExtension = getComponentExtension(componentName, 'template');
+        if (getFilenameExtension(templatePath) !== templateFileExtension) {
+          templatePath += '.' + templateFileExtension;
         }
 
         templatePath = 'text!' + window.require.toUrl(templatePath);
