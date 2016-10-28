@@ -11,17 +11,20 @@ fw.isReceivable = function (thing) {
 };
 
 // factory method which turns an observable into a receivable
-fw.subscribable.fn.receiveFrom = function (namespace, variable) {
+fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
   var target = this;
   var receivable = this;
   var namespaceSubscriptions = [];
   var isLocalNamespace = false;
   var when = alwaysPassPredicate;
+  var namespace;
 
-  if (_.isString(namespace)) {
-    namespace = fw.namespace(namespace);
+  if (_.isString(instanceOrNamespaceName)) {
+    namespace = fw.namespace(instanceOrNamespaceName);
     isLocalNamespace = true;
-  } else if (!isNamespace(namespace)) {
+  } else if (isNamespace(instanceOrNamespaceName)) {
+    namespace = instanceOrNamespaceName;
+  } else {
     throw new Error('Invalid namespace provided for receiveFrom() observable.');
   }
 

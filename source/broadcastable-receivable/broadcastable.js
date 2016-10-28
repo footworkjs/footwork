@@ -11,19 +11,19 @@ fw.isBroadcastable = function (thing) {
 };
 
 // factory method which turns an observable into a broadcastable
-fw.subscribable.fn.broadcastAs = function (varName, fromInstanceOrNamespace, isWritable) {
+fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWritable) {
   var broadcastable = this;
   var namespace;
   var subscriptions = [];
   var namespaceSubscriptions = [];
   var isLocalNamespace = false;
 
-  if(fw.isViewModel(fromInstanceOrNamespace)) {
-    namespace = fromInstanceOrNamespace.$namespace;
-  } else if (isNamespace(fromInstanceOrNamespace)) {
-    namespace = fromInstanceOrNamespace;
-  } else if (_.isString(fromInstanceOrNamespace)) {
-    namespace = fw.namespace(fromInstanceOrNamespace);
+  if(fw.isViewModel(instanceOrNamespaceName)) {
+    namespace = instanceOrNamespaceName.$namespace;
+  } else if (isNamespace(instanceOrNamespaceName)) {
+    namespace = instanceOrNamespaceName;
+  } else if (_.isString(instanceOrNamespaceName)) {
+    namespace = fw.namespace(instanceOrNamespaceName);
     isLocalNamespace = true;
   } else {
     throw new Error('Invalid namespace provided for broadcastAs() observable.');

@@ -9,7 +9,7 @@ define(['footwork', 'tools'],
 
         var ModelA = initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.viewModel.boot(this);
-          this.broadcaster = fw.observable().broadcastAs('broadcaster', this);
+          this.broadcaster = fw.observable().broadcast('broadcaster', this);
         }).and.callThrough();
 
         expect(initializeSpy).not.toHaveBeenCalled();
@@ -23,18 +23,18 @@ define(['footwork', 'tools'],
         var namespaceName = tools.randomString();
         var testValue = tools.randomString();
 
-        var broadcaster = fw.observable(testValue).broadcastAs('broadcaster', namespaceName);
-        var receiver = fw.observable().receiveFrom(namespaceName, 'broadcaster');
+        var broadcaster = fw.observable(testValue).broadcast('broadcaster', namespaceName);
+        var receiver = fw.observable().receive('broadcaster', namespaceName);
 
         expect(receiver()).toBe(testValue);
       });
 
       it('throws an error when an invalid namespace is specified for a broadcastable', function() {
-        expect(function() {fw.observable().broadcastAs('something', null)}).toThrow();
+        expect(function() {fw.observable().broadcast('something', null)}).toThrow();
       });
 
       it('throws an error when an invalid namespace is specified for a receivable', function() {
-        expect(function() {fw.observable().receiveFrom(null, 'something')}).toThrow();
+        expect(function() {fw.observable().receive('something', null)}).toThrow();
       });
 
       it('can create and dispose of a broadcastable correctly', function() {
@@ -43,8 +43,8 @@ define(['footwork', 'tools'],
         var testValue2 = tools.randomString();
         var testValue3 = tools.randomString();
 
-        var broadcaster = fw.observable(testValue).broadcastAs('broadcaster', namespaceName);
-        var receiver = fw.observable().receiveFrom(namespaceName, 'broadcaster');
+        var broadcaster = fw.observable(testValue).broadcast('broadcaster', namespaceName);
+        var receiver = fw.observable().receive('broadcaster', namespaceName);
 
         expect(receiver()).toBe(testValue);
         broadcaster(testValue2);
@@ -61,8 +61,8 @@ define(['footwork', 'tools'],
         var testValue2 = tools.randomString();
         var testValue3 = tools.randomString();
 
-        var broadcaster = fw.observable(testValue).broadcastAs('broadcaster', namespaceName);
-        var receiver = fw.observable().receiveFrom(namespaceName, 'broadcaster');
+        var broadcaster = fw.observable(testValue).broadcast('broadcaster', namespaceName);
+        var receiver = fw.observable().receive('broadcaster', namespaceName);
 
         expect(receiver()).toBe(testValue);
         broadcaster(testValue2);
@@ -78,7 +78,7 @@ define(['footwork', 'tools'],
 
         var ModelA = initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.viewModel.boot(this);
-          this.receiver = fw.observable().receiveFrom('ModelA', 'broadcaster');
+          this.receiver = fw.observable().receive('broadcaster', 'ModelA');
         }).and.callThrough();
 
         expect(initializeSpy).not.toHaveBeenCalled();
@@ -97,7 +97,7 @@ define(['footwork', 'tools'],
           fw.viewModel.boot(this, {
             namespace: modelANamespaceName
           });
-          this.broadcaster = fw.observable().broadcastAs('broadcaster', this);
+          this.broadcaster = fw.observable().broadcast('broadcaster', this);
         }).and.callThrough();
 
         expect(modelAInitializeSpy).not.toHaveBeenCalled();
@@ -106,7 +106,7 @@ define(['footwork', 'tools'],
 
         var ModelB = modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
           fw.viewModel.boot(this);
-          this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcaster');
+          this.receiver = fw.observable().receive('broadcaster', modelANamespaceName);
         }).and.callThrough();
 
         expect(modelBInitializeSpy).not.toHaveBeenCalled();
@@ -121,10 +121,10 @@ define(['footwork', 'tools'],
       it('can have receivable created with a passed in instantiated namespace', function() {
         var namespace = fw.namespace(tools.generateNamespaceName());
 
-        var receivable = fw.observable(null).receiveFrom(namespace, 'broadcaster');
+        var receivable = fw.observable(null).receive('broadcaster', namespace);
         expect(receivable()).toBe(null);
 
-        var broadcastable = fw.observable(tools.randomString()).broadcastAs('broadcaster', namespace);
+        var broadcastable = fw.observable(tools.randomString()).broadcast('broadcaster', namespace);
         expect(receivable()).toBe(broadcastable());
       });
 
@@ -137,7 +137,7 @@ define(['footwork', 'tools'],
           fw.viewModel.boot(this, {
             namespace: modelANamespaceName,
           });
-          this.writableBroadcaster = fw.observable().broadcastAs('writableBroadcaster', this, true);
+          this.writableBroadcaster = fw.observable().broadcast('writableBroadcaster', this, true);
         }).and.callThrough()
 
         expect(modelAInitializeSpy).not.toHaveBeenCalled();
@@ -146,7 +146,7 @@ define(['footwork', 'tools'],
 
         var ModelB = modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
           fw.viewModel.boot(this);
-          this.writableReceiver = fw.observable().receiveFrom(modelANamespaceName, 'writableBroadcaster');
+          this.writableReceiver = fw.observable().receive('writableBroadcaster', modelANamespaceName);
         }).and.callThrough()
 
         expect(modelBInitializeSpy).not.toHaveBeenCalled();
@@ -164,8 +164,8 @@ define(['footwork', 'tools'],
         var modelBInitializeSpy;
         var modelANamespaceName = tools.generateNamespaceName();
 
-        var nonwritableBroadcaster = fw.observable().broadcastAs('nonwritableBroadcaster', modelANamespaceName);
-        var nonwritableReceiver = fw.observable().receiveFrom(modelANamespaceName, 'nonwritableBroadcaster');
+        var nonwritableBroadcaster = fw.observable().broadcast('nonwritableBroadcaster', modelANamespaceName);
+        var nonwritableReceiver = fw.observable().receive('nonwritableBroadcaster', modelANamespaceName);
 
         var testValue = tools.randomString();
         nonwritableReceiver(testValue);
@@ -177,8 +177,8 @@ define(['footwork', 'tools'],
         var whenSpy;
         var modelANamespaceName = tools.generateNamespaceName();
 
-        var broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback', modelANamespaceName);
-        var receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(whenSpy = jasmine.createSpy('whenSpy', function() {
+        var broadcaster = fw.observable().broadcast('broadcasterToTestWhenCallback', modelANamespaceName);
+        var receiver = fw.observable().receive('broadcasterToTestWhenCallback', modelANamespaceName).when(whenSpy = jasmine.createSpy('whenSpy', function() {
           return true;
         }).and.callThrough());
 
@@ -194,8 +194,8 @@ define(['footwork', 'tools'],
         var modelANamespaceName = tools.generateNamespaceName();
         var writableValue = tools.randomString();
 
-        var broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback', modelANamespaceName);
-        var receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(writableValue);
+        var broadcaster = fw.observable().broadcast('broadcasterToTestWhenCallback', modelANamespaceName);
+        var receiver = fw.observable().receive('broadcasterToTestWhenCallback', modelANamespaceName).when(writableValue);
 
         var testValue = tools.randomString();
         broadcaster(testValue);
@@ -215,7 +215,7 @@ define(['footwork', 'tools'],
           fw.viewModel.boot(this, {
             namespace: modelANamespaceName,
           });
-          this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback', this);
+          this.broadcaster = fw.observable().broadcast('broadcasterToTestWhenCallback', this);
         }).and.callThrough();
 
         expect(modelAInitializeSpy).not.toHaveBeenCalled();
@@ -224,7 +224,7 @@ define(['footwork', 'tools'],
 
         var ModelB = modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
           fw.viewModel.boot(this);
-          this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(whenSpy = jasmine.createSpy('whenSpy', function() {
+          this.receiver = fw.observable().receive('broadcasterToTestWhenCallback', modelANamespaceName).when(whenSpy = jasmine.createSpy('whenSpy', function() {
             return false;
           }).and.callThrough());
         }).and.callThrough();
@@ -252,7 +252,7 @@ define(['footwork', 'tools'],
           fw.viewModel.boot(this, {
             namespace: modelANamespaceName,
           });
-          this.broadcaster = fw.observable().broadcastAs('broadcasterToTestWhenCallback', this);
+          this.broadcaster = fw.observable().broadcast('broadcasterToTestWhenCallback', this);
         }).and.callThrough();
 
         expect(modelAInitializeSpy).not.toHaveBeenCalled();
@@ -260,11 +260,10 @@ define(['footwork', 'tools'],
         expect(modelAInitializeSpy).toHaveBeenCalled();
 
         var ModelB = modelBInitializeSpy = jasmine.createSpy('modelBInitializeSpy', function() {
-          this.receiver = fw.observable().receiveFrom(modelANamespaceName, 'broadcasterToTestWhenCallback').when(whenSpy = jasmine.createSpy('whenSpy', function(val) {
+          this.receiver = fw.observable().receive('broadcasterToTestWhenCallback', modelANamespaceName).when(whenSpy = jasmine.createSpy('whenSpy', function(val) {
             return val === writableTestValue;
           }).and.callThrough());
         }).and.callThrough();
-
 
         expect(modelBInitializeSpy).not.toHaveBeenCalled();
         var modelB = new ModelB();
