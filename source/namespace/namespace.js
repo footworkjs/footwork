@@ -28,14 +28,6 @@ var Namespace = function Namespace (namespaceName) {
   };
   ns.unsubscribe = unregisterNamespaceHandler;
 
-  ns._publish = ns.publish;
-  ns.publish = function (envelope, callback, context) {
-    if (arguments.length > 2) {
-      callback = callback.bind(context);
-    }
-    ns._publish.call(ns, envelope, callback);
-  };
-
   ns.__isNamespace = true;
   ns.dispose = disconnectNamespaceHandlers.bind(ns);
 

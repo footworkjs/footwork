@@ -29,6 +29,7 @@ addAnimation[entityAnimateClass] = true;
  * @returns {object} The instance that was passed in
  */
 function outletBootstrap (instance, configParams) {
+  /* istanbul ignore if */
   if (!instance) {
     throw new Error('Must supply the instance to boot()');
   }
@@ -59,6 +60,7 @@ function outletBootstrap (instance, configParams) {
       if (routeIsLoading) {
         instance.routeIsResolving(true);
       } else {
+        /* istanbul ignore next */
         if (instance.loadingChildrenWatch && _.isFunction(instance.loadingChildrenWatch.dispose)) {
           instance.loadingChildrenWatch.dispose();
         }
@@ -66,6 +68,7 @@ function outletBootstrap (instance, configParams) {
         // must allow binding to begin on any subcomponents/etc
         nextFrame(function() {
           if (instance[privateDataSymbol].loadingChildren().length) {
+            /* istanbul ignore next */
             instance.loadingChildrenWatch = instance[privateDataSymbol].loadingChildren.subscribe(function(loadingChildren) {
               if (!loadingChildren.length) {
                 instance.routeIsResolving(false);
@@ -130,6 +133,7 @@ function outletBootstrap (instance, configParams) {
       }
     });
   } else {
+    /* istanbul ignore next */
     throw new Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
   }
 

@@ -210,7 +210,7 @@ module.exports = {
       if (historyPopstateListener) {
         (function (eventInfo) {
           window[eventInfo[0]](eventInfo[1] + 'popstate', historyPopstateListener);
-        })(window.removeEventListener ? ['removeEventListener', ''] : ['detachEvent', 'on']);
+        })(window.removeEventListener ? ['removeEventListener', ''] : /* istanbul ignore next */ ['detachEvent', 'on']);
       }
 
       _.each(this[privateDataSymbol], propertyDispose);
