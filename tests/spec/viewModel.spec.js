@@ -94,6 +94,7 @@ define(['footwork', 'jquery', 'lodash', 'tools'],
 
         expect(fw.viewModel.getAll(tools.generateNamespaceName())).lengthToBe(0);
         expect(fw.viewModel.getAll(specificViewModelNamespace)).lengthToBe(numToMake);
+        expect(fw.viewModel.getAll([specificViewModelNamespace])[specificViewModelNamespace]).lengthToBe(numToMake);
       });
 
       it('can bind to the DOM using a viewModel declaration', function(done) {
@@ -237,6 +238,35 @@ define(['footwork', 'jquery', 'lodash', 'tools'],
           expect(initializeSpy).toHaveBeenCalled();
           done();
         }, ajaxWait);
+      });
+
+      it('can dispose of items properly', function() {
+        var namespaceName = tools.generateNamespaceName();
+        var checkValue = tools.randomString();
+        var initializeSpy;
+        var callbackSpy = jasmine.createSpy('callbackSpy');
+        var callbackArraySpy = jasmine.createSpy('callbackArraySpy');
+        var ns = fw.namespace(namespaceName);
+
+        function MyViewModel(params) {
+          fw.viewModel.boot(this);
+          var ns = fw.namespace(namespaceName);
+          this.disposeWithInstance(ns.subscribe('testCall', callbackSpy));
+          this.disposeWithInstance([ns.subscribe('testCall', callbackArraySpy)]);
+        };
+
+        var myVM = new MyViewModel();
+        expect(callbackSpy).not.toHaveBeenCalled();
+
+        ns.publish('testCall');
+        expect(callbackSpy).toHaveBeenCalled();
+        expect(callbackArraySpy).toHaveBeenCalled();
+
+        myVM.dispose();
+
+        ns.publish('testCall');
+        expect(callbackSpy).toHaveBeenCalledTimes(1);
+        expect(callbackArraySpy).toHaveBeenCalledTimes(1);
       });
 
       it('calls onDispose when the containing element is removed from the DOM', function(done) {

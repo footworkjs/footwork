@@ -45,9 +45,6 @@ _.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
 require('../../misc/config')[capitalizeFirstLetter(entityName)] = function DefaultInstance (params) {
   fw.dataModel.boot(this);
-  if (_.isObject(params) && _.isObject(params.$viewModel)) {
-    _.extend(this, params.$viewModel);
-  }
 };
 
 
