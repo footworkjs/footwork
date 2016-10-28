@@ -90,8 +90,8 @@ fw.collection.create = function (configParams) {
     };
 
     collection.requestInProgress = fw.pureComputed(function () {
-      return this.isFetching() || this.isCreating();
-    }, collection);
+      return collection.isFetching() || collection.isCreating();
+    });
 
     if (collectionData) {
       collection.set(collectionData);

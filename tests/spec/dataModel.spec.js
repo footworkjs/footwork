@@ -808,6 +808,22 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         expect(person.isDirty()).toBe(true);
       });
 
+      it('can correctly throw an error when a requested operation occurs without a url specified', function() {
+        var initializeSpy;
+
+        var Person = initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+        }).and.callThrough();
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        var person = new Person();
+
+        expect(initializeSpy).toHaveBeenCalled();
+
+        expect(function() { person.save() }).toThrow();
+      });
+
       it('can correctly POST data on initial save()', function(done) {
         var initializeSpy;
         var mockUrl = tools.generateUrl();
@@ -1022,6 +1038,101 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           expect(person.firstName()).toBe(getValue);
           done();
         }, ajaxWait);
+      });
+
+      it('can correctly fetch() data from the server with a specified requestLull time', function(done) {
+        var lulledInitializeSpy;
+        var lulledCallbackInitializeSpy;
+        var initializeSpy;
+        var requestLullCallbackSpy = jasmine.createSpy('requestLullCallbackSpy', function(operationType) {
+          expect(operationType).toBe('fetch');
+          return 150;
+        }).and.callThrough();
+        var mockUrl = tools.generateUrl();
+        var getValue = '__GET__CHECK__';
+        var personData = {
+          "id": 100,
+          "firstName": null,
+          "lastName": null,
+          "email": null
+        };
+
+        var LulledPerson = lulledInitializeSpy = jasmine.createSpy('lulledInitializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            url: mockUrl,
+            requestLull: 150
+          });
+          person = person || {};
+          this.id = fw.observable(person.id || null).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough();
+
+        var LulledPersonWithCallback = lulledCallbackInitializeSpy = jasmine.createSpy('lulledCallbackInitializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            url: mockUrl,
+            requestLull: requestLullCallbackSpy
+          });
+          person = person || {};
+          this.id = fw.observable(person.id || null).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough();
+
+        var Person = initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            url: mockUrl
+          });
+          person = person || {};
+          this.id = fw.observable(person.id || null).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough();
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(lulledInitializeSpy).not.toHaveBeenCalled();
+        expect(lulledCallbackInitializeSpy).not.toHaveBeenCalled();
+        expect(requestLullCallbackSpy).not.toHaveBeenCalled();
+
+        var lulledPerson = new LulledPerson(personData);
+        var lulledPersonWithCallback = new LulledPersonWithCallback(personData);
+        var person = new Person(personData);
+
+        expect(lulledInitializeSpy).toHaveBeenCalled();
+        expect(lulledPerson.firstName()).not.toBe(getValue);
+
+        expect(lulledCallbackInitializeSpy).toHaveBeenCalled();
+        expect(requestLullCallbackSpy).not.toHaveBeenCalled();
+        expect(lulledPersonWithCallback.firstName()).not.toBe(getValue);
+
+        expect(initializeSpy).toHaveBeenCalled();
+        expect(person.firstName()).not.toBe(getValue);
+
+        fetchMock.restore().get(mockUrl + "/" + personData.id, _.extend({}, personData, { firstName: getValue }));
+        expect(lulledPerson.fetch()).toBeA('promise');
+        expect(lulledPersonWithCallback.fetch()).toBeA('promise');
+        expect(person.fetch()).toBeA('promise');
+
+        expect(requestLullCallbackSpy).toHaveBeenCalled();
+
+        setTimeout(function() {
+          expect(lulledPerson.requestInProgress()).toBe(true);
+          expect(lulledPerson.firstName()).toBe(getValue);
+          expect(lulledPersonWithCallback.requestInProgress()).toBe(true);
+          expect(lulledPersonWithCallback.firstName()).toBe(getValue);
+
+          expect(person.requestInProgress()).toBe(false);
+          expect(person.firstName()).toBe(getValue);
+
+          setTimeout(function() {
+            expect(lulledPerson.requestInProgress()).toBe(false);
+            expect(lulledPersonWithCallback.requestInProgress()).toBe(false);
+            done();
+          }, 200);
+        }, 20);
       });
 
       it('can correctly fetch() data from the server with a provided parse() method', function(done) {

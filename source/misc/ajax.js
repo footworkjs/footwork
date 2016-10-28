@@ -129,8 +129,7 @@ function sync (action, concern, params) {
     if (_.isFunction(url)) {
       url = url.call(concern, action);
     } else if (!_.isString(url)) {
-      var thing = (fw.isDataModel(concern) && 'dataModel') || (fw.isCollection(concern) && 'collection') || 'UNKNOWN';
-      throw new Error('Must provide a URL for/on a ' + thing + ' configuration in order to call .sync() on it');
+      noURLError();
     }
 
     if (fw.isDataModel(concern)) {
@@ -204,7 +203,7 @@ function handleJsonResponse (xhr) {
   return xhr.then(function (response) {
       return _.inRange(response.status, 200, 300) ? response.clone().json() : false;
     })
-    .catch(function (parseError) {
+    .catch( /* istanbul ignore next */ function (parseError) {
       console.error(parseError);
       return false;
     });
