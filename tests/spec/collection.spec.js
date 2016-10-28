@@ -29,6 +29,9 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           dataModel: Person
         });
 
+        var plainEmptyCollection = fw.collection();
+        expect(plainEmptyCollection()).toEqual([]);
+
         var people = PeopleCollection();
 
         expect(initializeSpy).not.toHaveBeenCalled();
@@ -47,6 +50,10 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         });
 
         expect(_.partial(people.set, {})).toThrow();
+
+        people.dispose();
+
+        expect(fw.utils.getPrivateData(people).isDisposed).toBe(true);
       });
 
       it('can be instantiated and correctly set() with some data and options', function() {
@@ -736,12 +743,16 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(fetchResult).toBeAn('object');
         expect((fetchResult.done || fetchResult.then)).toBeA('function');
 
+        expect(people.requestInProgress()).toBe(true);
+
         fetchMock.restore().get(getOverrideMockUrl, persons);
         peopleAjaxOptions.fetch();
 
         expect(changeEventSpy).not.toHaveBeenCalled();
 
         setTimeout(function() {
+          expect(people.requestInProgress()).toBe(false);
+
           expect(changeEventSpy).toHaveBeenCalled();
           expect(people()).lengthToBe(persons.length);
           expect(people()[0].firstName).toBe(persons[0].firstName);
