@@ -132,6 +132,7 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers', 'fetch-mock', 'reporte
      * Prepare the test environment for a test
      */
     function prepareTestEnv() {
+      loadedModules = [];
       fetchMock.restore();
       currentCallbackOrderIndex = 0;
       jasmine.addMatchers(customMatchers);
