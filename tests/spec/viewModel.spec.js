@@ -422,6 +422,104 @@ define(['footwork', 'jquery', 'lodash', 'tools'],
           done();
         }, ajaxWait);
       });
+
+      it('can wait for a sub-component to be resolved before its parent is resolved', function(done) {
+        var parentNamespaceName = tools.generateNamespaceName();
+        var childNamespaceName = tools.generateNamespaceName();
+        var parentResolver;
+        var childResolver;
+
+        fw.viewModel.register(parentNamespaceName, function() {
+          fw.viewModel.boot(this, {
+            namespace: parentNamespaceName,
+            afterResolving: parentResolver = jasmine.createSpy('parentResolver', function(resolve) {
+              expect(childResolver).toHaveBeenCalled();
+              resolve(true);
+              done();
+            }).and.callThrough()
+          });
+        });
+
+        fw.viewModel.register(childNamespaceName, function() {
+          fw.viewModel.boot(this, {
+            namespace: childNamespaceName,
+            afterResolving: childResolver = jasmine.createSpy('childResolver', function(resolve) {
+              setTimeout(function() {
+                expect(parentResolver).not.toHaveBeenCalled();
+                resolve(true);
+              }, 150);
+            }).and.callThrough()
+          });
+        });
+
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + parentNamespaceName + '">' +
+          '<viewModel module="' + childNamespaceName + '"></viewModel>' +
+        '</viewModel>'));
+      });
+
+      it('can wait for a sub-component with promises to be resolved before its parent is resolved', function(done) {
+        var parentNamespaceName = tools.generateNamespaceName();
+        var childNamespaceName = tools.generateNamespaceName();
+        var parentResolver;
+        var childResolver;
+
+        fw.viewModel.register(parentNamespaceName, function() {
+          fw.viewModel.boot(this, {
+            namespace: parentNamespaceName,
+            afterResolving: parentResolver = jasmine.createSpy('parentResolver', function(resolve) {
+              expect(childResolver).toHaveBeenCalled();
+              expect(promiseResolvedSpy).toHaveBeenCalledTimes(2);
+              resolve(true);
+              done();
+            }).and.callThrough()
+          });
+        });
+
+        var promiseResolvedSpy = jasmine.createSpy('promiseResolvedSpy');
+        var promiseA = new Promise(function(resolve) {
+          setTimeout(function() {
+            resolve(true);
+          }, 60);
+        }).then(promiseResolvedSpy);
+        var promiseB = new Promise(function(resolve) {
+          setTimeout(function() {
+            resolve(true);
+          }, 75);
+        }).then(promiseResolvedSpy);
+        fw.viewModel.register(childNamespaceName, function() {
+          fw.viewModel.boot(this, {
+            namespace: childNamespaceName,
+            afterResolving: childResolver = jasmine.createSpy('childResolver', function(resolve) {
+              setTimeout(function() {
+                expect(parentResolver).not.toHaveBeenCalled();
+                resolve([promiseA, promiseB]);
+              }, 25);
+            }).and.callThrough()
+          });
+        });
+
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + parentNamespaceName + '">' +
+          '<viewModel module="' + childNamespaceName + '"></viewModel>' +
+        '</viewModel>'));
+      });
+
+      it('will correctly throw an error when a non-promise is passed in to resolve as part of array of promises', function(done) {
+        var namespaceName = tools.generateNamespaceName();
+
+        fw.viewModel.register(namespaceName, function() {
+          fw.viewModel.boot(this, {
+            namespace: namespaceName,
+            afterResolving: function(resolve) {
+              expect(function() {
+                resolve([false]);
+              }).toThrow();
+              done();
+            }
+          });
+        });
+
+        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + namespaceName + '"></viewModel>'))
+      });
     });
   }
 );

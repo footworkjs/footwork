@@ -212,5 +212,6 @@ function handleJsonResponse (xhr) {
 module.exports = {
   sync: sync,
   makeOrGetRequest: makeOrGetRequest,
-  handleJsonResponse: handleJsonResponse
+  handleJsonResponse: handleJsonResponse,
+  makePromiseQueryable: makePromiseQueryable
 }

@@ -25,13 +25,15 @@ var config = require('../misc/config');
 var entityClass = config.entityClass;
 var privateDataSymbol = config.privateDataSymbol;
 
+var makePromiseQueryable = require('../misc/ajax').makePromiseQueryable;
+
 /**
  * The $lifecycle binding provides lifecycle events for components/viewModels/dataModels/routers
  */
 fw.virtualElements.allowedBindings.$lifecycle = true;
 fw.bindingHandlers.$lifecycle = {
   init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-    element = element.parentElement || element.parentNode;
+    element = element.parentNode;
 
     if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
       // the outlet viewModel and template binding handles its animation state
@@ -53,7 +55,7 @@ fw.bindingHandlers.$lifecycle = {
     }
   },
   update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-    element = element.parentElement || element.parentNode;
+    element = element.parentNode;
 
     // if this is the lifecycle update on an outlets display we need to run its callback
     if (hasClass(element, outletLoadedDisplay)) {
@@ -102,23 +104,23 @@ fw.bindingHandlers.$lifecycle = {
  */
 function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationClass) {
   var loadingTracker = element[getSymbol('loadingTracker')];
-  var parentInFlightChildren;
+  var loadingParentChildren;
 
-  var parentEntity = nearestEntity($context);
+  var parentEntity = nearestEntity($context.$parentContext);
   if (parentEntity) {
-    parentInFlightChildren = parentEntity[privateDataSymbol].loadingChildren;
+    loadingParentChildren = parentEntity[privateDataSymbol].loadingChildren;
   }
 
  function finishResolution () {
     addAnimationClass();
-    if (fw.isObservable(parentInFlightChildren) && _.isFunction(parentInFlightChildren.remove)) {
-      parentInFlightChildren.remove(loadingTracker);
+    if (fw.isObservable(loadingParentChildren) && _.isFunction(loadingParentChildren.remove)) {
+      loadingParentChildren.remove(loadingTracker);
     }
   }
 
   if (isEntity(viewModel)) {
     var wasResolved = false;
-   function resolveInstanceNow (isResolved) {
+    function resolveInstanceNow (isResolved) {
       if (!wasResolved) {
         wasResolved = true;
         if (isResolved === true) {
@@ -128,7 +130,7 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
             throw new Error('Can only pass array of promises to resolved()');
           }
 
-          var promises = [].concat(isResolved);
+          var promises = _.map([].concat(isResolved), makePromiseQueryable);
           var checkPromise = function (promise) {
             promise.then(function () {
               if (_.every(promises, promiseIsFulfilled)) {
@@ -146,15 +148,19 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
       viewModel[privateDataSymbol].configParams.afterResolving.call(viewModel, resolveInstanceNow);
     }
 
-    var loadingChildren = viewModel[privateDataSymbol].loadingChildren;
-    // if no children then resolve now, otherwise subscribe and wait till its 0
-    if (loadingChildren().length === 0) {
-      maybeResolve();
-    } else {
-      viewModel.disposeWithInstance(loadingChildren.subscribe(function (loadingChildren) {
-        loadingChildren.length === 0 && maybeResolve();
-      }));
-    }
+    // have to delay child check for one tick to let sub-components/entities begin binding
+    setTimeout(function() {
+      var loadingChildren = viewModel[privateDataSymbol].loadingChildren;
+
+      // if there are no children then resolve now, otherwise subscribe and wait till its 0 (all children resolved)
+      if (loadingChildren().length === 0) {
+        maybeResolve();
+      } else {
+        viewModel.disposeWithInstance(loadingChildren.subscribe(function (loadingChildren) {
+          loadingChildren.length === 0 && maybeResolve();
+        }));
+      }
+    }, 0);
   } else {
     finishResolution();
   }
