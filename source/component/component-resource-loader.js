@@ -1,10 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var util = require('../misc/util');
-var isPath = util.isPath;
-var getFilenameExtension = util.getFilenameExtension;
-var getComponentExtension = require('../misc/resource-tools').getComponentExtension;
+var isPath = require('../misc/util').isPath;
 
 /**
  * The component resource loader tells footwork where to load the components assets from. It uses the supplied configuration to use AMD to download
@@ -48,22 +45,12 @@ fw.components.loaders.push(fw.components.componentResourceLoader = {
             viewModelPath = viewModelPath + folderOffset + fw.components.getFileName(componentName, 'viewModel');
           }
 
-          var componentViewModelExtension = getComponentExtension(componentName, 'viewModel');
-          if (getFilenameExtension(viewModelPath) !== componentViewModelExtension) {
-            viewModelPath += '.' + componentViewModelExtension;
-          }
-
           viewModelConfig = { require: window.require.toUrl(viewModelPath) };
         }
 
         var templatePath = componentLocation.template;
         if (isPath(templatePath)) {
           templatePath = templatePath + folderOffset + fw.components.getFileName(componentName, 'template');
-        }
-
-        var templateFileExtension = getComponentExtension(componentName, 'template');
-        if (getFilenameExtension(templatePath) !== templateFileExtension) {
-          templatePath += '.' + templateFileExtension;
         }
 
         templatePath = 'text!' + window.require.toUrl(templatePath);

@@ -137,6 +137,7 @@ module.exports = {
     var self = this;
 
     if (!self[privateDataSymbol].historyPopstateListener()) {
+      /* istanbul ignore next */
       var popstateEvent = function () {
         var location = window.history.location || window.location;
         self.currentState(normalizeURL(self, location.pathname + location.hash));

@@ -862,6 +862,108 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         }, ajaxWait);
       });
 
+      it('can correctly save() data with specified object of data', function(done) {
+        var initializeSpy;
+        var mockUrl = tools.generateUrl();
+        var postValue = tools.randomString();
+        var saveDataSpy = jasmine.createSpy('saveDataSpy');
+        var responseData = {
+          "id": 1,
+          "firstName": postValue,
+          "lastName": null,
+          "email": null
+        };
+        var saveData = {
+          "id": 2,
+          "firstName": postValue,
+          "lastName": null,
+          "email": null
+        };
+
+        var Person = initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            url: mockUrl
+          });
+          person = person || {};
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough();
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        var person = new Person();
+
+        expect(initializeSpy).toHaveBeenCalled();
+        expect(person.firstName()).not.toBe(postValue);
+
+        fetchMock.restore().post(mockUrl, saveDataSpy = jasmine.createSpy('saveDataSpy', function(url, options) {
+          var data = JSON.parse(options.body);
+          expect(data).toEqual(saveData);
+          return { body: responseData };
+        }).and.callThrough());
+        expect(person.save(saveData)).toBeA('promise');
+
+        setTimeout(function() {
+          expect(person.$id()).toBe(1);
+          expect(person.firstName()).toBe(postValue);
+
+          expect(saveDataSpy).toHaveBeenCalled();
+          done();
+        }, ajaxWait);
+      });
+
+      it('can correctly save() data with specified key/value pair of data', function(done) {
+        var initializeSpy;
+        var mockUrl = tools.generateUrl();
+        var postValue = tools.randomString();
+        var saveDataSpy = jasmine.createSpy('saveDataSpy');
+        var responseData = {
+          "id": 1,
+          "firstName": postValue,
+          "lastName": null,
+          "email": null
+        };
+        var saveData = {
+          "id": 2,
+          "firstName": postValue,
+          "lastName": null,
+          "email": null
+        };
+
+        var Person = initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            url: mockUrl
+          });
+          person = person || {};
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough();
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        var person = new Person();
+
+        expect(initializeSpy).toHaveBeenCalled();
+        expect(person.firstName()).not.toBe(postValue);
+
+        fetchMock.restore().post(mockUrl, saveDataSpy = jasmine.createSpy('saveDataSpy', function(url, options) {
+          var data = JSON.parse(options.body);
+          expect(data).toEqual({ firstName: postValue });
+          return { body: responseData };
+        }).and.callThrough());
+        expect(person.save('firstName', postValue)).toBeA('promise');
+
+        setTimeout(function() {
+          expect(person.$id()).toBe(1);
+          expect(person.firstName()).toBe(postValue);
+
+          expect(saveDataSpy).toHaveBeenCalled();
+          done();
+        }, ajaxWait);
+      });
+
       it('can correctly DELETE data on destroy()', function(done) {
         var initializeSpy;
         var mockUrl = tools.generateUrl();

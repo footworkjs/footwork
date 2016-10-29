@@ -681,12 +681,16 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         var clearOutletControllerSpy;
         var emptyOutletControllerSpy;
         var manipulateOutletComponentSpy;
+        var outletOnCompleteSpy = jasmine.createSpy();
         var router;
         var testContainer;
         var $testContainer;
+        var passedInParams = { params: true };
 
         fw.components.register(manipulateOutletComponentNamespace, {
-          viewModel: manipulateOutletComponentSpy = jasmine.createSpy('manipulateOutletComponentSpy'),
+          viewModel: manipulateOutletComponentSpy = jasmine.createSpy('manipulateOutletComponentSpy', function(params) {
+            expect(params).toBe(passedInParams);
+          }).and.callThrough(),
           template: '<div class="component-loaded"></div>'
         });
 
@@ -697,8 +701,8 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
             routes: [
               {
                 route: manipulateOutletUrl,
-                controller: manipulateOutletControllerSpy = jasmine.createSpy('manipulateOutletControllerSpy', function() {
-                  this.outlet('output', manipulateOutletComponentNamespace);
+                controller: manipulateOutletControllerSpy = jasmine.createSpy('manipulateOutletControllerSpy', function(params) {
+                  this.outlet('output', manipulateOutletComponentNamespace, { params: passedInParams, onComplete: outletOnCompleteSpy });
                 }).and.callThrough()
               }, {
                 route: '/clearOutlet',
@@ -740,6 +744,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
             setTimeout(function() {
               expect($testContainer.find('outlet[name="output"]').attr('data-rendered')).not.toBe(manipulateOutletComponentNamespace);
               expect($testContainer.find('outlet[name="output"] .component-loaded').length).toBe(0);
+              expect(outletOnCompleteSpy).toHaveBeenCalled();
               done();
             }, ajaxWait);
           }, ajaxWait);
@@ -988,6 +993,63 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
           expect(changeOutletControllerSpy).toHaveBeenCalled();
           expect(outletCallbackSpy).not.toHaveBeenCalled();
           expect(outletLoaderTestLoadingSpy).toHaveBeenCalled();
+
+          setTimeout(function() {
+            expect(outletLoaderTestLoadedSpy).toHaveBeenCalled();
+            expect(outletCallbackSpy).toHaveBeenCalled();
+            done();
+          }, ajaxWait);
+        }, 0);
+      });
+
+      it('can display the default temporary loading component in place of a component that is being downloaded', function(done) {
+        var mockUrl = tools.generateUrl();
+        var outletLoaderTestLoadingNamespace = tools.randomString();
+        var outletLoaderTestLoadedNamespace = tools.randomString();
+        var routerNamespace = tools.randomString();
+        var changeOutletControllerSpy;
+        var outletCallbackSpy;
+        var outletLoaderTestLoadedSpy;
+
+        function router(name) {
+          return fw.router.getAll(name)[0];
+        }
+
+        fw.components.register(outletLoaderTestLoadedNamespace, {
+          viewModel: outletLoaderTestLoadedSpy = jasmine.createSpy('outletLoaderTestLoadedSpy'),
+          template: '<div class="' + outletLoaderTestLoadedNamespace + '"></div>'
+        });
+
+        fw.router.register(routerNamespace, function() {
+          fw.router.boot(this, {
+            namespace: routerNamespace,
+            showDuringLoad: true,
+            routes: [
+              {
+                route: mockUrl,
+                controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
+                  this.outlet('output', outletLoaderTestLoadedNamespace, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                    expect(element.tagName.toLowerCase()).toBe('outlet');
+                    expect($(element).find('.default-loading-display').length).toBe(1);
+                  }).and.callThrough());
+                }).and.callThrough()
+              }
+            ]
+          });
+        });
+
+        expect(changeOutletControllerSpy).toBe(undefined);
+        expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + routerNamespace + '">\
+          <outlet name="output"></outlet>\
+        </router>'));
+
+        setTimeout(function() {
+          router(routerNamespace).setState(mockUrl);
+
+          expect(changeOutletControllerSpy).toHaveBeenCalled();
+          expect(outletCallbackSpy).not.toHaveBeenCalled();
 
           setTimeout(function() {
             expect(outletLoaderTestLoadedSpy).toHaveBeenCalled();

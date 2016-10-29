@@ -6,6 +6,14 @@ var dataTools = require('./data-tools');
 var insertValueIntoObject = dataTools.insertValueIntoObject;
 var getNestedReference = dataTools.getNestedReference;
 
+function isNode(thing) {
+  var thingIsObject = _.isObject(thing);
+  return (
+    thingIsObject ? thing instanceof Node :
+    thingIsObject && _.isNumber(thing.nodeType) === "number" && _.isString(thing.nodeName)
+  );
+}
+
 /**
  * GET from server and set in model
  *
@@ -63,6 +71,7 @@ function save (key, val, options) {
     options = val;
   } else if (_.isString(key) && arguments.length > 1) {
     (attrs = {})[key] = val;
+    options = _.extend(options || {}, { attrs: attrs });
   }
 
   if (_.isObject(options) && _.isFunction(options.stopPropagation)) {
