@@ -31,7 +31,7 @@ For more details, see:
 
   * [Install via Bower](http://footworkjs.com/get-started#bower) (```bower install footwork --save```)
 
-  * [Direct Download](https://github.com/footworkjs/footwork/blob/master/dist/footwork.js)
+  * [Direct Download](https://github.com/footworkjs/footwork/blob/master/dist)
 
 It is recommended you use either the Yeoman generator to bootstrap your application, or the Skeleton Application as a template for your own. This is primarily because in order to use some of the features found in Footwork other resources (such as RequireJS) are needed and in some cases they have their own configuration/etc. The Yeoman generator and Skeleton provide sane defaults and best-use recommendations.
 
