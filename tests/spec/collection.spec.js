@@ -492,6 +492,21 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(removedModels).toEqual([randomPerson]);
       });
 
+      it('can be serialized into JSON correctly', function() {
+        var persons = [];
+        _.each(_.range(1, _.random(5, 10)), function() {
+          persons.push({
+            firstName: tools.randomString(),
+            lastName: tools.randomString(),
+            email: tools.randomString()
+          });
+        });
+
+        var people = fw.collection(persons);
+
+        expect(JSON.stringify(people)).toEqual(JSON.stringify(persons));
+      });
+
       it('can have a dataModel based collection be serialized to a POJO correctly', function() {
         var initializeSpy;
         var persons = [];
