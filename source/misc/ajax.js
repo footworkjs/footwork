@@ -112,16 +112,6 @@ function sync (action, concern, params) {
   }
 
   var configParams = concern[privateDataSymbol].configParams;
-  var options = _.extend({
-    method: methodMap[action].toUpperCase(),
-    body: null,
-    headers: {}
-  }, resultBound(configParams, 'fetchOptions', concern, [params]) || {}, params);
-
-  if (!_.isString(options.method)) {
-    throw new Error('Invalid action (' + action + ') specified for sync operation');
-  }
-
   var url = configParams.url;
   if (_.isFunction(url)) {
     url = url.call(concern, action);
@@ -152,6 +142,19 @@ function sync (action, concern, params) {
         url = url.replace(param, concern.get(param.substr(1)));
       });
     }
+  }
+
+  var options = _.extend({
+      method: methodMap[action].toUpperCase(),
+      body: null,
+      headers: {}
+    },
+    resultBound(fw, 'fetchOptions', concern, [params]) || {},
+    resultBound(configParams, 'fetchOptions', concern, [params]) || {},
+    params);
+
+  if (!_.isString(options.method)) {
+    throw new Error('Invalid action (' + action + ') specified for sync operation');
   }
 
   if (_.isNull(options.body) && concern && _.includes(['create', 'update', 'patch'], action)) {
@@ -204,6 +207,8 @@ function handleJsonResponse (xhr) {
       return false;
     });
 }
+
+fw.fetchOptions = {};
 
 module.exports = {
   sync: sync,
