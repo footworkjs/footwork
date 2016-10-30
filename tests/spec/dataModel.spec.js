@@ -1363,6 +1363,48 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         }, ajaxWait);
       });
 
+      it('can correctly fetch() data from the server with overridden global fetchOptions', function(done) {
+        var initializeSpy;
+        var mockUrl = tools.generateUrl();
+        var personData = {
+          "id": 100,
+          "firstName": tools.randomString(),
+          "lastName": null,
+          "email": null
+        };
+
+        fw.fetchOptions = {
+          method: 'post'
+        };
+
+        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            url: mockUrl,
+            useKeyInUrl: false
+          });
+          person = person || {};
+          this.id = fw.observable(person.id || null).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        var person = new Person({ id: personData.id });
+
+        expect(initializeSpy).toHaveBeenCalled();
+
+        fetchMock.restore().post(mockUrl, personData);
+        expect(person.fetch()).toBeA('promise');
+
+        setTimeout(function() {
+          expect(person.firstName()).toBe(personData.firstName);
+          fw.fetchOptions = {};
+          done();
+        }, ajaxWait);
+      });
+
       it('can correctly fetch() data from the server via a url based on an evaluator function', function(done) {
         var initializeSpy;
         var urlSpy;
