@@ -19,7 +19,7 @@
     "node"
   ],
   "main": [
-    "./dist/footwork.min.js",
+    "./dist/footwork.js",
     "./dist/footwork.css"
   ],
   "ignore": [
