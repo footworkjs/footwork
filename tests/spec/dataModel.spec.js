@@ -1323,7 +1323,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         }, ajaxWait);
       });
 
-      it('can correctly fetch() data from the server with overridden ajaxOptions', function(done) {
+      it('can correctly fetch() data from the server with overridden fetchOptions', function(done) {
         var initializeSpy;
         var mockUrl = tools.generateUrl();
         var personData = {
@@ -1336,8 +1336,9 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
-            ajaxOptions: {
-              url: mockUrl
+            useKeyInUrl: false,
+            fetchOptions: {
+              method: 'post'
             }
           });
           person = person || {};
@@ -1353,7 +1354,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
         expect(initializeSpy).toHaveBeenCalled();
 
-        fetchMock.restore().get(mockUrl, personData);
+        fetchMock.restore().post(mockUrl, personData);
         expect(person.fetch()).toBeA('promise');
 
         setTimeout(function() {

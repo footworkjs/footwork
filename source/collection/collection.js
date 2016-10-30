@@ -12,7 +12,7 @@ var defaultCollectionConfig = {
   idAttribute: null,
   disposeOnRemove: true,
   parse: _.identity,
-  ajaxOptions: {}
+  fetchOptions: {}
 };
 
 function removeDisposeAndNotify (originalFunction) {

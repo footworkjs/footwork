@@ -114,31 +114,27 @@ function sync (action, concern, params) {
   var configParams = concern[privateDataSymbol].configParams;
   var options = _.extend({
     method: methodMap[action].toUpperCase(),
-    url: null,
     body: null,
     headers: {}
-  }, resultBound(configParams, 'ajaxOptions', concern, [params]) || {}, params);
+  }, resultBound(configParams, 'fetchOptions', concern, [params]) || {}, params);
 
   if (!_.isString(options.method)) {
     throw new Error('Invalid action (' + action + ') specified for sync operation');
   }
 
-  var url = options.url;
-  if (_.isNull(url)) {
-    url = configParams.url;
-    if (_.isFunction(url)) {
-      url = url.call(concern, action);
-    } else if (!_.isString(url)) {
-      noURLError();
-    }
+  var url = configParams.url;
+  if (_.isFunction(url)) {
+    url = url.call(concern, action);
+  } else if (!_.isString(url)) {
+    noURLError();
+  }
 
-    if (fw.isDataModel(concern)) {
-      var pkIsSpecifiedByUser = !_.isNull(url.match(':' + configParams.idAttribute));
-      var hasQueryString = !_.isNull(url.match(/\?/));
-      if (_.includes(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl && !pkIsSpecifiedByUser && !hasQueryString) {
-        // need to append /:id to url
-        url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
-      }
+  if (fw.isDataModel(concern)) {
+    var pkIsSpecifiedByUser = !_.isNull(url.match(':' + configParams.idAttribute));
+    var hasQueryString = !_.isNull(url.match(/\?/));
+    if (_.includes(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl && !pkIsSpecifiedByUser && !hasQueryString) {
+      // need to append /:id to url
+      url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
     }
   }
 
@@ -201,7 +197,7 @@ function makePromiseQueryable (promise) {
  */
 function handleJsonResponse (xhr) {
   return xhr.then(function (response) {
-      return _.inRange(response.status, 200, 300) ? response.clone().json() : false;
+      return _.inRange(response.status, 200, 400) ? response.clone().json() : false;
     })
     .catch( /* istanbul ignore next */ function (parseError) {
       console.error(parseError);

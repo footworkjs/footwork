@@ -228,6 +228,7 @@ function propertyDispose (property) {
  * @returns {boolean} True if it is a DocumentFragment, false if not
  */
 function isDocumentFragment (obj) {
+  /* istanbul ignore else */
   if (window['DocumentFragment']) {
     return obj instanceof DocumentFragment;
   } else {
@@ -242,6 +243,7 @@ function isDocumentFragment (obj) {
  * @returns {boolean} True if it is a HTMLElement, false if not
  */
 function isDomElement (obj) {
+  /* istanbul ignore else */
   if (window['HTMLElement']) {
     return obj instanceof HTMLElement;
   } else {

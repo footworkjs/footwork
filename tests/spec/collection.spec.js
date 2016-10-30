@@ -718,7 +718,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var namespaceName = tools.generateNamespaceName();
         var getMockUrl = tools.generateUrl();
         var getOverrideMockUrl = tools.generateUrl();
-        var ajaxOptionsSpy;
+        var fetchOptionsSpy;
         var changeEventSpy;
         var persons = [];
         _.each(_.range(2, _.random(5, 10)), function(id) {
@@ -736,10 +736,10 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var people = PeopleCollection();
         var PeopleCollectionAjaxOptions = fw.collection.create({
           namespace: namespaceName,
-          url: '/invalid',
-          ajaxOptions: tools.expectCallOrder(0, ajaxOptionsSpy = jasmine.createSpy('ajaxOptionsSpy', function() {
+          url: getOverrideMockUrl,
+          fetchOptions: tools.expectCallOrder(0, fetchOptionsSpy = jasmine.createSpy('fetchOptionsSpy', function() {
             return {
-              url: getOverrideMockUrl
+              method: 'post'
             };
           }).and.callThrough())
         });
@@ -760,7 +760,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(people.requestInProgress()).toBe(true);
 
-        fetchMock.restore().get(getOverrideMockUrl, persons);
+        fetchMock.restore().post(getOverrideMockUrl, persons);
         peopleAjaxOptions.fetch();
 
         expect(changeEventSpy).not.toHaveBeenCalled();
