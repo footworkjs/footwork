@@ -8823,7 +8823,7 @@ var defaultCollectionConfig = {
   idAttribute: null,
   disposeOnRemove: true,
   parse: _.identity,
-  ajaxOptions: {}
+  fetchOptions: {}
 };
 
 function removeDisposeAndNotify (originalFunction) {
@@ -9830,7 +9830,7 @@ entityDescriptors.push(descriptor = prepareDescriptor({
     useKeyInUrl: true,
     url: null,
     parse: false, // identity?
-    ajaxOptions: {},
+    fetchOptions: {},
     requestLull: 0
   }
 }));
@@ -9840,7 +9840,7 @@ fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 // Add/extend on the various resource methods (registerLocation/etc)
 _.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
-require('../../misc/config')[capitalizeFirstLetter(entityName)] = function DefaultInstance (params) {
+require('../../misc/config')[capitalizeFirstLetter(entityName)] = function DataModel (params) {
   fw.dataModel.boot(this);
 };
 
@@ -10259,6 +10259,9 @@ function outletBootstrap (instance, configParams) {
         showLoadedAfterMinimumTransition();
       }
     }
+
+    instance.showLoader = showLoader;
+    instance.showLoaded = showLoaded;
 
     instance.transitionTrigger = fw.computed(function() {
       var routeIsResolving = instance.routeIsResolving();
@@ -11350,7 +11353,7 @@ fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 // Add/extend on the various resource methods (registerLocation/etc)
 _.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
-require('../../misc/config')[capitalizeFirstLetter(entityName)] = function DefaultInstance (params) {
+require('../../misc/config')[capitalizeFirstLetter(entityName)] = function ViewModel (params) {
   fw.viewModel.boot(this);
 };
 
@@ -11471,50 +11474,54 @@ function sync (action, concern, params) {
   }
 
   var configParams = concern[privateDataSymbol].configParams;
-  var options = _.extend({
-    method: methodMap[action].toUpperCase(),
-    url: null,
-    body: null,
-    headers: {}
-  }, resultBound(configParams, 'ajaxOptions', concern, [params]) || {}, params);
 
-  if (!_.isString(options.method)) {
-    throw new Error('Invalid action (' + action + ') specified for sync operation');
+  // grab the url
+  var url = configParams.url;
+  if (_.isFunction(url)) {
+    url = url.call(concern, action);
+  } else if (!_.isString(url)) {
+    noURLError();
   }
 
-  var url = options.url;
-  if (_.isNull(url)) {
-    url = configParams.url;
-    if (_.isFunction(url)) {
-      url = url.call(concern, action);
-    } else if (!_.isString(url)) {
-      noURLError();
-    }
-
-    if (fw.isDataModel(concern)) {
-      var pkIsSpecifiedByUser = !_.isNull(url.match(':' + configParams.idAttribute));
-      var hasQueryString = !_.isNull(url.match(/\?/));
-      if (_.includes(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl && !pkIsSpecifiedByUser && !hasQueryString) {
-        // need to append /:id to url
-        url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
-      }
+  // add the :id to the url if needed
+  if (fw.isDataModel(concern)) {
+    var pkIsSpecifiedByUser = !_.isNull(url.match(':' + configParams.idAttribute));
+    var hasQueryString = !_.isNull(url.match(/\?/));
+    if (_.includes(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl && !pkIsSpecifiedByUser && !hasQueryString) {
+      // need to append /:id to url
+      url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
     }
   }
 
+  // make sure it begins with the baseUrl
   var urlPieces = (url || noURLError()).match(parseURLRegex);
   if (!_.isNull(urlPieces)) {
     var baseURL = urlPieces[1] || '';
     url = baseURL + _.last(urlPieces);
   }
 
+  // replace any interpolated parameters
   if (fw.isDataModel(concern)) {
-    // replace any interpolated parameters
     var urlParams = url.match(parseParamsRegex);
     if (urlParams) {
       _.each(urlParams, function (param) {
         url = url.replace(param, concern.get(param.substr(1)));
       });
     }
+  }
+
+  // construct the fetch options object
+  var options = _.extend({
+      method: methodMap[action].toUpperCase(),
+      body: null,
+      headers: {}
+    },
+    resultBound(fw, 'fetchOptions', concern, [params]) || {},
+    resultBound(configParams, 'fetchOptions', concern, [params]) || {},
+    params);
+
+  if (!_.isString(options.method)) {
+    throw new Error('Invalid action (' + action + ') specified for sync operation');
   }
 
   if (_.isNull(options.body) && concern && _.includes(['create', 'update', 'patch'], action)) {
@@ -11560,13 +11567,15 @@ function makePromiseQueryable (promise) {
  */
 function handleJsonResponse (xhr) {
   return xhr.then(function (response) {
-      return _.inRange(response.status, 200, 300) ? response.clone().json() : false;
+      return _.inRange(response.status, 200, 400) ? response.clone().json() : false;
     })
     .catch( /* istanbul ignore next */ function (parseError) {
       console.error(parseError);
       return false;
     });
 }
+
+fw.fetchOptions = {};
 
 module.exports = {
   sync: sync,
@@ -11579,7 +11588,6 @@ module.exports = {
 module.exports = {
   entityClass: 'fw-entity',
   entityAnimateClass: 'fw-entity-animate',
-  entityWrapperElement: 'binding-wrapper',
   privateDataSymbol: require('./util').getSymbol('footwork')
 };
 
