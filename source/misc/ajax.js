@@ -112,6 +112,8 @@ function sync (action, concern, params) {
   }
 
   var configParams = concern[privateDataSymbol].configParams;
+
+  // grab the url
   var url = configParams.url;
   if (_.isFunction(url)) {
     url = url.call(concern, action);
@@ -119,6 +121,7 @@ function sync (action, concern, params) {
     noURLError();
   }
 
+  // add the :id to the url if needed
   if (fw.isDataModel(concern)) {
     var pkIsSpecifiedByUser = !_.isNull(url.match(':' + configParams.idAttribute));
     var hasQueryString = !_.isNull(url.match(/\?/));
@@ -128,14 +131,15 @@ function sync (action, concern, params) {
     }
   }
 
+  // make sure it begins with the baseUrl
   var urlPieces = (url || noURLError()).match(parseURLRegex);
   if (!_.isNull(urlPieces)) {
     var baseURL = urlPieces[1] || '';
     url = baseURL + _.last(urlPieces);
   }
 
+  // replace any interpolated parameters
   if (fw.isDataModel(concern)) {
-    // replace any interpolated parameters
     var urlParams = url.match(parseParamsRegex);
     if (urlParams) {
       _.each(urlParams, function (param) {
@@ -144,6 +148,7 @@ function sync (action, concern, params) {
     }
   }
 
+  // construct the fetch options object
   var options = _.extend({
       method: methodMap[action].toUpperCase(),
       body: null,
