@@ -124,6 +124,9 @@ function outletBootstrap (instance, configParams) {
       }
     }
 
+    instance.showLoader = showLoader;
+    instance.showLoaded = showLoaded;
+
     instance.transitionTrigger = fw.computed(function() {
       var routeIsResolving = instance.routeIsResolving();
       if (routeIsResolving) {

@@ -43,7 +43,7 @@ fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 // Add/extend on the various resource methods (registerLocation/etc)
 _.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
-require('../../misc/config')[capitalizeFirstLetter(entityName)] = function DefaultInstance (params) {
+require('../../misc/config')[capitalizeFirstLetter(entityName)] = function ViewModel (params) {
   fw.viewModel.boot(this);
 };
 
