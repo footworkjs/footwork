@@ -74,7 +74,7 @@ fw.bindingHandlers.$lifecycle = {
 
     // resolve the loadingTracker and trigger the addAnimationClass callback when appropriate
     resolveTrackerAndAnimate(element, viewModel, bindingContext, function addAnimationClass () {
-      if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
+      if (document.body.contains(element) && !hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
         var queue = addToAndFetchQueue(element, viewModel);
         var nearestOutlet = nearestEntity(bindingContext, fw.isOutlet);
 

@@ -8,7 +8,6 @@ var privateDataSymbol = config.privateDataSymbol;
 var util = require('../misc/util');
 var resultBound = util.resultBound;
 var addClass = util.addClass;
-var nextFrame = util.nextFrame;
 
 var sequenceQueue = {};
 
@@ -32,15 +31,14 @@ function clearSequenceQueue () {
  * @param {any} runNextStepNow (used for recursion) this flag tells the method to run the next step in the queue
  */
 function runAnimationSequenceQueue (queue, runNextStepNow) {
-  if (!queue.running || runNextStepNow) {
+  if (_.isUndefined(queue.running) || queue.running === false || runNextStepNow) {
     var sequenceIteration = queue.shift();
 
     if (sequenceIteration) {
       sequenceIteration.addAnimationClass();
 
       if (sequenceIteration.nextIteration || queue.length) {
-        queue.running = true;
-        setTimeout(function () {
+        queue.running = setTimeout(function () {
           runAnimationSequenceQueue(queue, true);
         }, sequenceIteration.nextIteration);
       } else {
@@ -67,12 +65,15 @@ function addToAndFetchQueue (element, viewModel) {
   var animationSequenceQueue = sequenceQueue[namespaceName] = (sequenceQueue[namespaceName] || []);
   var newSequenceIteration = {
     addAnimationClass: function addBindingFromQueue () {
-      nextFrame(function () {
-        addClass(element, entityAnimateClass);
-      });
+      addClass(element, entityAnimateClass);
     },
     nextIteration: sequenceTimeout
   };
+
+  fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
+    clearTimeout(newSequenceIteration.running);
+    _.remove(animationSequenceQueue, newSequenceIteration);
+  });
 
   animationSequenceQueue.push(newSequenceIteration);
 
