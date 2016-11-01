@@ -89,7 +89,7 @@ require.config({
       function(fw) {
         window.fw = fw; // export footwork so the user has access to it in the console
         fixture.setBase('tests/assets/fixtures');
-        window.__karma__.start();
+        setTimeout(window.__karma__.start, ajaxWait);
       }
     );
   }
