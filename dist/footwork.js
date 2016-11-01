@@ -8229,7 +8229,7 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
         if (isResolved === true) {
           finishResolution();
         } else if (isPromise(isResolved) || _.isArray(isResolved)) {
-          if (!_.every(isResolved, isPromise)) {
+          if (!_.every([].concat(isResolved), isPromise)) {
             throw new Error('Can only pass array of promises to resolved()');
           }
 
@@ -11525,7 +11525,7 @@ function sync (action, concern, params) {
   }
 
   if (_.isNull(options.body) && concern && _.includes(['create', 'update', 'patch'], action)) {
-    options.contentType = 'application/json';
+    options.headers['content-type'] = 'application/json';
     options.body = JSON.stringify(options.attrs || concern.get());
   }
 
