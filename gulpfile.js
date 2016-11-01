@@ -116,7 +116,7 @@ gulp.task('minify', ['build'], function() {
 });
 
 gulp.task('dist', ['minify'], function() {
-  return gulp.src(['./build/*.js', './build/styles/*.scss', './build/styles/*.css'])
+  return gulp.src(['./build/*.js', './build/*.scss', './build/*.css'])
     .pipe(gulp.dest('./dist'));
 });
 
@@ -131,10 +131,10 @@ gulp.task('build_test_css', function() {
 gulp.task('build_footwork_css', function() {
   return gulp.src('./source/footwork.scss')
     .pipe(plumber())
-    .pipe(gulp.dest('./build/styles'))
+    .pipe(gulp.dest('./build'))
     .pipe(sass().on('error', sass.logError))
     .pipe(autoprefixer(autoprefixOptions))
-    .pipe(gulp.dest('./build/styles'));
+    .pipe(gulp.dest('./build'));
 });
 
 gulp.task('watch', function () {
