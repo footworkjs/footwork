@@ -852,7 +852,10 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         expect(initializeSpy).toHaveBeenCalled();
         expect(person.firstName()).not.toBe(postValue);
 
-        fetchMock.restore().post(mockUrl, responseData);
+        fetchMock.restore().post(mockUrl, function(url, options) {
+          expect(options.headers['content-type']).toBe('application/json');
+          return responseData;
+        });
         expect(person.save()).toBeA('promise');
 
         setTimeout(function() {

@@ -163,7 +163,7 @@ function sync (action, concern, params) {
   }
 
   if (_.isNull(options.body) && concern && _.includes(['create', 'update', 'patch'], action)) {
-    options.contentType = 'application/json';
+    options.headers['content-type'] = 'application/json';
     options.body = JSON.stringify(options.attrs || concern.get());
   }
 
