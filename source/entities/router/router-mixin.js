@@ -1,14 +1,13 @@
 var _ = require('lodash');
 
 var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+var isEntity = require('../entity-tools').isEntity;
 
 var routerTools = require('./router-tools');
 var isNullRouter = routerTools.isNullRouter;
 var transformRouteConfigToDesc = routerTools.transformRouteConfigToDesc;
 var nearestParentRouter = routerTools.nearestParentRouter;
 var normalizeURL = routerTools.normalizeURL;
-
-var isEntity = require('../entity-tools').isEntity;
 
 var util = require('../../misc/util');
 var resultBound = util.resultBound;
@@ -98,28 +97,16 @@ module.exports = {
       };
     }
 
-    var currentOutletDef = outlet();
-    var valueHasMutated = false;
-
     if (arguments.length > 1 && !componentToDisplay) {
       componentToDisplay = nullComponent;
     }
 
-    if (!_.isUndefined(componentToDisplay)) {
-      if (currentOutletDef.name !== componentToDisplay) {
-        currentOutletDef.name = componentToDisplay;
-        valueHasMutated = true;
-      }
+    // grab and set the loadingDisplay if needed
+    if (outletViewModel && (!outletViewModel[privateDataSymbol].outletIsSetup || componentToDisplay)) {
+      outletViewModel[privateDataSymbol].outletIsSetup = true;
 
-      if (_.isObject(viewModelParameters)) {
-        currentOutletDef.params = viewModelParameters;
-        valueHasMutated = true;
-      }
-    }
-
-    if (outletViewModel) {
       // Show the loading component (if one is defined)
-      var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || currentOutletDef.name]);
+      var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || outlet().name]);
       if (showDuringLoadComponent === true) {
         showDuringLoadComponent = defaultLoadingComponent;
       }
@@ -129,39 +116,53 @@ module.exports = {
       }
     }
 
-    if (valueHasMutated) {
-      clearSequenceQueue();
+    var outletHasMutated = false;
+    if (!_.isUndefined(componentToDisplay)) {
+      var currentOutletDef = outlet();
 
-      currentOutletDef.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
-      if (outletViewModel) {
-        outletViewModel[privateDataSymbol].loadingChildren.removeAll();
-        outletViewModel.routeIsLoading(true);
+      if (currentOutletDef.name !== componentToDisplay) {
+        currentOutletDef.name = componentToDisplay;
+        outletHasMutated = true;
+      }
+      if (_.isObject(viewModelParameters)) {
+        currentOutletDef.params = viewModelParameters;
+        outletHasMutated = true;
       }
 
-      currentOutletDef.getOnCompleteCallback = function (element) {
-        var outletElement = element.parentNode;
+      if (outletHasMutated) {
+        clearSequenceQueue();
 
-        activeOutlets.remove(outlet);
-        outletElement.setAttribute('data-rendered', (componentToDisplay === nullComponent ? '' : componentToDisplay));
+        currentOutletDef.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
+        if (outletViewModel) {
+          outletViewModel[privateDataSymbol].loadingChildren.removeAll();
+          outletViewModel.routeIsLoading(true);
+        }
 
-        return function addBindingOnComplete () {
-          var outletViewModel = outlets[outletName].outletViewModel;
-          if (outletViewModel) {
-            outletViewModel.routeIsLoading(false);
-            outletViewModel.routeOnComplete = function () {
+        currentOutletDef.getOnCompleteCallback = function (element) {
+          var outletElement = element.parentNode;
+
+          activeOutlets.remove(outlet);
+          outletElement.setAttribute('data-rendered', (componentToDisplay === nullComponent ? '' : componentToDisplay));
+
+          return function addBindingOnComplete () {
+            var outletViewModel = outlets[outletName].outletViewModel;
+            if (outletViewModel) {
+              outletViewModel.routeIsLoading(false);
+              outletViewModel.routeOnComplete = function () {
+                onComplete.call(router, outletElement);
+              };
+            } else {
               onComplete.call(router, outletElement);
-            };
-          } else {
-            onComplete.call(router, outletElement);
-          }
+            }
+          };
         };
-      };
 
-      if (activeOutlets().indexOf(outlet) === -1) {
-        activeOutlets.push(outlet);
+        if (activeOutlets().indexOf(outlet) === -1) {
+          activeOutlets.push(outlet);
+        }
+
+        outlet.valueHasMutated();
       }
-
-      outlet.valueHasMutated();
     }
 
     return outlet;
