@@ -2,10 +2,7 @@ var _ = require('lodash');
 
 var nearestEntity = require('../entity-tools').nearestEntity;
 var privateDataSymbol = require('../../misc/config').privateDataSymbol;
-
-var util = require('../../misc/util');
-var getSymbol = util.getSymbol;
-var parseUri = util.parseUri;
+var getSymbol = require('../../misc/util').getSymbol;
 
 var routerDefaults = require('./router-defaults');
 var nullRouter = routerDefaults.nullRouter;

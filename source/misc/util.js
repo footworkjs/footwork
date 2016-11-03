@@ -172,45 +172,6 @@ var guid = (function () {
 })();
 
 /**
- * parseUri() originally sourced from: http://blog.stevenlevithan.com/archives/parseuri
- *
- * @param {string} url
- * @returns {object} The parsed url data
- */
-function parseUri (str) {
-  var options = parseUri.options;
-  var matchParts = options.parser[ options.strictMode ? "strict" : "loose" ].exec(str);
-  var uri = {};
-  var i = 14;
-
-  while (i--) {
-    uri[ options.key[i] ] = matchParts[i] || "";
-  }
-
-  uri[ options.q.name ] = {};
-  uri[ options.key[12] ].replace(options.q.parser, function ($0, $1, $2) {
-    if ($1) {
-      uri[options.q.name][$1] = $2;
-    }
-  });
-
-  return uri;
-};
-
-parseUri.options = {
-  strictMode: false,
-  key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
-  q: {
-    name:   "queryKey",
-    parser: /(?:^|&)([^&=]*)=?([^&]*)/g
-  },
-  parser: {
-    strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
-    loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
-  }
-};
-
-/**
  * Calls dispose() on the supplied property if it exists.
  *
  * @param {any} property
@@ -308,7 +269,6 @@ module.exports = {
   hasHashStart: hasHashStart,
   getFilenameExtension: getFilenameExtension,
   guid: guid,
-  parseUri: parseUri,
   propertyDispose: propertyDispose,
   isDocumentFragment: isDocumentFragment,
   isDomElement: isDomElement,
