@@ -3,6 +3,7 @@ var _ = require('lodash');
 
 var entityDescriptors = require('../../entity-descriptors');
 var prepareDescriptor = require('../../entity-tools').prepareDescriptor;
+var getModelReferences = require('../../../misc/resource-tools').getModelReferences;
 
 var util = require('../../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
@@ -35,6 +36,8 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   },
   defaultConfig: {}
 }));
+
+fw[entityName].get = getModelReferences.bind(null, descriptor);
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 

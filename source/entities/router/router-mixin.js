@@ -23,6 +23,50 @@ var nullComponent = routerDefaults.nullComponent;
 var defaultLoadingComponent = routerDefaults.defaultLoadingComponent;
 var activeOutlets = routerDefaults.activeOutlets;
 
+function changeRoute(router, historyMethod, route, routeParams) {
+  var namedRoute = _.isObject(routeParams) ? route : null;
+  var configParams = router[privateDataSymbol].configParams;
+  var useHistory = router[privateDataSymbol].activated && router[privateDataSymbol].historyPopstateListener() && !fw.router.disableHistory();
+  var location = window.history.location || window.location;
+
+  if (!_.isNull(namedRoute)) {
+    // must convert namedRoute into its URL form
+    var routeDescription = _.find(router[privateDataSymbol].routeDescriptions, function (route) {
+      return route.name === namedRoute;
+    });
+
+    if (!_.isUndefined(routeDescription)) {
+      route = _.first([].concat(routeDescription.route));
+      _.each(routeParams, function (value, fieldName) {
+        route = route.replace(':' + fieldName, routeParams[fieldName]);
+      });
+    } else {
+      throw new Error('Could not locate named route: ' + namedRoute);
+    }
+  }
+
+  if (!_.isString(route)) {
+    route = useHistory ? location.pathname : '/';
+  }
+
+  var isExternalURL = fw.utils.isFullURL(route);
+  if (!isExternalURL) {
+    route = normalizeURL(router, route);
+  }
+
+  var shouldContinueToRoute = resultBound(configParams, 'beforeRoute', router, [route || '/']);
+  if (shouldContinueToRoute && !isExternalURL) {
+    if (useHistory) {
+      var destination = configParams.baseRoute + router[privateDataSymbol].parentRouter()[privateDataSymbol].path() + route.replace(startingHashRegex, '/');
+      var method = historyMethod + 'State';
+      history[method](null, '', destination);
+    }
+    router.currentState(route);
+  }
+
+  return router;
+}
+
 module.exports = {
   outlet: function (outletName, componentToDisplay, options) {
     options = options || {};
@@ -151,55 +195,20 @@ module.exports = {
     }
 
     if (!self.currentState()) {
-      self.setState();
+      self.pushRoute();
     }
 
+    self[privateDataSymbol].activated = true;
     self.$namespace.trigger('activated');
+
     return self;
   },
-  setState: function (url, routeParams) {
-    var self = this;
-    var namedRoute = _.isObject(routeParams) ? url : null;
-    var configParams = self[privateDataSymbol].configParams;
-    var useHistory = self[privateDataSymbol].historyPopstateListener() && !fw.router.disableHistory();
-    var location = window.history.location || window.location;
-
-    self[privateDataSymbol].setStateHasRun = true;
-
-    if (!_.isNull(namedRoute)) {
-      // must convert namedRoute into its URL form
-      var routeDescription = _.find(self[privateDataSymbol].routeDescriptions, function (route) {
-        return route.name === namedRoute;
-      });
-
-      if (!_.isUndefined(routeDescription)) {
-        url = _.first([].concat(routeDescription.route));
-        _.each(routeParams, function (value, fieldName) {
-          url = url.replace(':' + fieldName, routeParams[fieldName]);
-        });
-      } else {
-        throw new Error('Could not locate named route: ' + namedRoute);
-      }
-    }
-
-    if (!_.isString(url)) {
-      url = useHistory ? location.pathname : '/';
-    }
-
-    var isExternalURL = fw.utils.isFullURL(url);
-    if (!isExternalURL) {
-      url = normalizeURL(self, url);
-    }
-
-    var shouldContinueToRoute = resultBound(configParams, 'beforeRoute', self, [url || '/']);
-    if (shouldContinueToRoute && !isExternalURL) {
-      if (useHistory) {
-        var destination = configParams.baseRoute + self[privateDataSymbol].parentRouter()[privateDataSymbol].path() + url.replace(startingHashRegex, '/');
-        history.pushState(null, '', destination);
-      }
-      self.currentState(url);
-    }
-
+  replaceRoute: function (route, routeParams) {
+    changeRoute(this, 'replace', route, routeParams);
+    return self;
+  },
+  pushRoute: function (route, routeParams) {
+    changeRoute(this, 'push', route, routeParams);
     return self;
   },
   dispose: function () {

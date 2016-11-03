@@ -78,7 +78,7 @@ function routerBootstrap (instance, configParams) {
       })
     });
 
-    instance.$namespace.command.handler('setState', function (state) {
+    instance.$namespace.command.handler('pushRoute', function (state) {
       var route = state;
       var params = state.params;
 
@@ -87,7 +87,19 @@ function routerBootstrap (instance, configParams) {
         params = params || {};
       }
 
-      instance.setState(route, params);
+      instance.pushRoute(route, params);
+    });
+
+    instance.$namespace.command.handler('replaceRoute', function (state) {
+      var route = state;
+      var params = state.params;
+
+      if (_.isObject(state)) {
+        route = state.name;
+        params = params || {};
+      }
+
+      instance.replaceRoute(route, params);
     });
 
     // Automatically trigger the routes controller whenever the currentRoute() updates

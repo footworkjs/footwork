@@ -39,7 +39,7 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
       $namespace: fw.namespace(configParams.namespace)
     });
 
-    // Setup the request handler which returns the instance (fw.viewModel.getAll())
+    // Setup the request handler which returns the instance (fw.viewModel.get())
     // Note: We are wiring up the request handler manually so that an entire namespace does not need instantiating for this callback
     instance.disposeWithInstance(defaultChannel.subscribe('request.' + requestHandlerDescriptor.referenceNamespace, function (params) {
       defaultChannel.publish({

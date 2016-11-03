@@ -102,20 +102,18 @@ function locationIsRegistered (descriptor, modelName) {
   return !!modelResourceLocation(descriptor, modelName);
 }
 
-var $globalNamespace = fw.namespace();
-function getModelReferences (descriptor, namespaceName, options) {
-  options = options || {};
-  if (_.isString(namespaceName) || _.isArray(namespaceName)) {
-    options.namespaceName = namespaceName;
-  }
-
-  var references = _.reduce($globalNamespace.request(descriptor.referenceNamespace, _.extend({ includeOutlets: false }, options), true), function (models, model) {
+var defaultNamespace = fw.namespace();
+function getModelReferences (descriptor, namespaceName) {
+  var references = _.reduce(defaultNamespace.request(descriptor.referenceNamespace, namespaceName, true), function (models, model) {
     if (!_.isUndefined(model)) {
       var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
       if (!_.isNull(namespaceName)) {
         if (_.isUndefined(models[namespaceName])) {
-          models[namespaceName] = [model];
+          models[namespaceName] = model;
         } else {
+          if(!_.isArray(models[namespaceName])) {
+            models[namespaceName] = [models[namespaceName]];
+          }
           models[namespaceName].push(model);
         }
       }
@@ -123,12 +121,8 @@ function getModelReferences (descriptor, namespaceName, options) {
     return models;
   }, {});
 
-  var referenceKeys = _.keys(references);
   if (_.isString(namespaceName)) {
-    if (referenceKeys.length === 1) {
-      return references[referenceKeys[0]] || [];
-    }
-    return [];
+    return references[namespaceName];
   }
   return references;
 }
@@ -173,7 +167,7 @@ function resourceHelperFactory (descriptor) {
   if (!_.isUndefined(descriptor.referenceNamespace)) {
     // Returns a reference to the specified models.
     // If no name is supplied, a reference to an array containing all viewModel references is returned.
-    resourceMethods.getAll = getModelReferences.bind(null, descriptor);
+    resourceMethods.get = getModelReferences.bind(null, descriptor);
   }
 
   return resourceMethods;
@@ -205,5 +199,6 @@ function getComponentExtension (componentName, fileType) {
 
 module.exports = {
   resourceHelperFactory: resourceHelperFactory,
-  getComponentExtension: getComponentExtension
+  getComponentExtension: getComponentExtension,
+  getModelReferences: getModelReferences
 };

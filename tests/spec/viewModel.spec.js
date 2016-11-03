@@ -77,24 +77,30 @@ define(['footwork', 'jquery', 'lodash', 'tools'],
         };
         var viewModels = [ new ViewModel(), new ViewModel() ];
 
-        expect(_.keys(fw.viewModel.getAll())).lengthToBeGreaterThan(0);
+        expect(_.keys(fw.viewModel.get())).lengthToBeGreaterThan(0);
       });
 
-      it('can get all instantiated viewModels of a specific type/name', function() {
+      it('can get instantiated viewModels', function() {
         var viewModels = [];
         var specificViewModelNamespace = tools.generateNamespaceName();
         var ViewModel = function() {
           fw.viewModel.boot(this, { namespace: specificViewModelNamespace });
         };
-        var numToMake = _.random(1,15);
+        var numToMake = _.random(2,15);
 
         for(var x = numToMake; x; x--) {
           viewModels.push(new ViewModel());
         }
 
-        expect(fw.viewModel.getAll(tools.generateNamespaceName())).lengthToBe(0);
-        expect(fw.viewModel.getAll(specificViewModelNamespace)).lengthToBe(numToMake);
-        expect(fw.viewModel.getAll([specificViewModelNamespace])[specificViewModelNamespace]).lengthToBe(numToMake);
+        var singleViewModelNamespace = tools.generateNamespaceName();
+        new (function() {
+          fw.viewModel.boot(this, { namespace: singleViewModelNamespace });
+        })();
+        expect(fw.viewModel.get(singleViewModelNamespace)).toBeAn('object');
+
+        expect(fw.viewModel.get(tools.generateNamespaceName())).toBe(undefined);
+        expect(fw.viewModel.get(specificViewModelNamespace)).lengthToBe(numToMake);
+        expect(fw.viewModel.get([specificViewModelNamespace])[specificViewModelNamespace]).lengthToBe(numToMake);
       });
 
       it('can bind to the DOM using a viewModel declaration', function(done) {

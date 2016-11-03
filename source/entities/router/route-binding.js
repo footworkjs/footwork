@@ -163,7 +163,7 @@ fw.bindingHandlers.$route = {
                 currentRouteURL = handlerResult;
               }
               if (_.isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
-                $myRouter.setState(currentRouteURL);
+                $myRouter.pushRoute(currentRouteURL);
               }
             }
             return true;

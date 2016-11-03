@@ -77,23 +77,29 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         };
         var dataModels = [ new DataModel(), new DataModel() ];
 
-        expect(_.keys(fw.dataModel.getAll())).lengthToBeGreaterThan(0);
+        expect(_.keys(fw.dataModel.get())).lengthToBeGreaterThan(0);
       });
 
-      it('can get all instantiated dataModels of a specific type/name', function() {
+      it('can get instantiated dataModels', function() {
         var dataModels = [];
         var specificDataModelNamespace = tools.generateNamespaceName();
         var DataModel = function() {
           fw.dataModel.boot(this, { namespace: specificDataModelNamespace });
         };
-        var numToMake = _.random(1,15);
+        var numToMake = _.random(2,15);
+
+        var singleDataModelNamespace = tools.generateNamespaceName();
+        new (function() {
+          fw.dataModel.boot(this, { namespace: singleDataModelNamespace });
+        })();
+        expect(fw.dataModel.get(singleDataModelNamespace)).toBeAn('object');
 
         for(var x = numToMake; x; x--) {
           dataModels.push(new DataModel());
         }
 
-        expect(fw.dataModel.getAll(tools.generateNamespaceName())).lengthToBe(0);
-        expect(fw.dataModel.getAll(specificDataModelNamespace)).lengthToBe(numToMake);
+        expect(fw.dataModel.get(tools.generateNamespaceName())).toBe(undefined);
+        expect(fw.dataModel.get(specificDataModelNamespace)).lengthToBe(numToMake);
       });
 
       it('can bind to the DOM using a dataModel declaration', function(done) {

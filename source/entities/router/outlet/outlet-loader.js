@@ -9,7 +9,9 @@ var entityClass = require('../../../misc/config').entityClass;
 var bindingElement = require('../../../binding/binding-element');
 
 function Outlet() {
-  fw.outlet.boot(this);
+  fw.outlet.boot(this, {
+    namespace: _.uniqueId('outlet')
+  });
 }
 
 /**

@@ -71,12 +71,12 @@ function nearestEntity ($context, predicate) {
  * @param {any} options
  * @returns {object} the instance passed in if the passed in namespace matches
  */
-function instanceRequestHandler (instance, options) {
-  if (_.isString(options.namespaceName) || _.isArray(options.namespaceName)) {
+function instanceRequestHandler (instance, namespaceName) {
+  if (_.isString(namespaceName) || _.isArray(namespaceName)) {
     var myNamespaceName = instance.$namespace.getName();
-    if (_.isArray(options.namespaceName) && _.indexOf(options.namespaceName, myNamespaceName) !== -1) {
+    if (_.isArray(namespaceName) && _.indexOf(namespaceName, myNamespaceName) !== -1) {
       return instance;
-    } else if (_.isString(options.namespaceName) && options.namespaceName === myNamespaceName) {
+    } else if (_.isString(namespaceName) && namespaceName === myNamespaceName) {
       return instance;
     }
   } else {
