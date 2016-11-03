@@ -1,5 +1,5 @@
 var ajaxWait = window.__env.AJAX_WAIT; // delay in ms to wait for ajax requests
-var footworkAnimationClass = 'fw-entity-animate';
+var footworkAnimationClass = 'fw-entity-resolved';
 var loadedModules = {};
 var registerFootworkEntity;
 var registerEntity;

@@ -40,7 +40,7 @@ viewModel, dataModel, router {
     transition: top $fw-animation-speed $fw-animation-easing, opacity $fw-animation-speed $fw-animation-easing;
   }
 
-  &.fw-entity-animate {
+  &.fw-entity-resolved {
     & > .fade-in {
       opacity: 1;
       transition: opacity $fw-animation-speed $fw-animation-easing;

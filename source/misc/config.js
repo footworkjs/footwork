@@ -1,5 +1,5 @@
 module.exports = {
   entityClass: 'fw-entity',
-  entityAnimateClass: 'fw-entity-animate',
+  entityAnimateClass: 'fw-entity-resolved',
   privateDataSymbol: require('./util').getSymbol('footwork')
 };
