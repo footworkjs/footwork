@@ -50,7 +50,7 @@ define(['lodash'],
           };
 
           if (!result.pass) {
-            result.message = '\'' + (typeof actual) + '\' is not ' + expected + ' elements in length, it is ' + actual.length + ' elements in length';
+            result.message = '\'' + (typeof actual) + '\' is not ' + expected + ' elements in length, it is ' + (actual || {}).length + ' elements in length';
           }
           return result;
         }
