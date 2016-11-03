@@ -435,35 +435,9 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         }, ajaxWait);
       });
 
-      it('can trigger the default route', function(done) {
-        var namespaceName = tools.generateNamespaceName();
-        var defaultRouteControllerSpy = jasmine.createSpy('defaultRouteControllerSpy');
-
-        fw.router.register(namespaceName, function() {
-          fw.router.boot(this, {
-            namespace: namespaceName,
-            routes: [
-              {
-                route: '/',
-                controller: defaultRouteControllerSpy
-              }
-            ]
-          });
-        });
-
-        expect(defaultRouteControllerSpy).not.toHaveBeenCalled();
-
-        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
-
-        setTimeout(function() {
-          expect(defaultRouteControllerSpy).toHaveBeenCalled();
-          done();
-        }, ajaxWait);
-      });
-
       it('can trigger the unknownRoute', function(done) {
         var namespaceName = 'unknownRouteCheck';
-        var unknownRouteControllerSpy = jasmine.createSpy('defaultRouteSpy');
+        var unknownRouteControllerSpy = jasmine.createSpy('unknownRouteControllerSpy');
         var initializeSpy;
         var router;
 

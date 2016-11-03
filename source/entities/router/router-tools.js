@@ -94,8 +94,22 @@ function trimBaseRoute (router, url) {
   return url;
 }
 
+/**
+ * Remove the query string and hash from a url
+ *
+ * @param {string} url The url to remove the query string and hash from
+ * @returns {string} the stripped url
+ */
+function stripQueryStringAndHashFromPath (url) {
+  if(url) {
+    return url.split("?")[0].split("#")[0];
+  } else {
+    return url;
+  }
+}
+
 function normalizeURL (router, url) {
-  return trimBaseRoute(router, parseUri(url).path);
+  return trimBaseRoute(router, url);
 }
 
 function getUnknownRoute (router) {
@@ -200,6 +214,7 @@ module.exports = {
   unregisterOutlet: unregisterOutlet,
   trimBaseRoute: trimBaseRoute,
   normalizeURL: normalizeURL,
+  stripQueryStringAndHashFromPath: stripQueryStringAndHashFromPath,
   getUnknownRoute: getUnknownRoute,
   getRouteForURL: getRouteForURL,
   triggerRoute: triggerRoute

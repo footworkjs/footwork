@@ -45,9 +45,7 @@ function changeRoute(router, historyMethod, route, routeParams) {
     }
   }
 
-  if (!_.isString(route)) {
-    route = useHistory ? location.pathname : '/';
-  }
+  route = route || location.pathname;
 
   var isExternalURL = fw.utils.isFullURL(route);
   if (!isExternalURL) {

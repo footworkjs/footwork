@@ -13,10 +13,13 @@ var normalizeURL = routerTools.normalizeURL;
 var getRouteForURL = routerTools.getRouteForURL;
 var triggerRoute = routerTools.triggerRoute;
 var isRoute = routerTools.isRoute;
+var stripQueryStringAndHashFromPath = routerTools.stripQueryStringAndHashFromPath;
+
 
 var routerDefaults = require('./router-defaults');
 var nullRouter = routerDefaults.nullRouter;
 var noComponentSelected = routerDefaults.noComponentSelected;
+
 
 /**
  * Bootstrap an instance with router capabilities (state management, outlet control, etc).
@@ -61,7 +64,7 @@ function routerBootstrap (instance, configParams) {
        * Computed which gets/updates the currentRoute for the current given currentState of the router
        */
       currentRoute: fw.computed(function () {
-        return getRouteForURL(instance, normalizeURL(instance, instance.currentState()));
+        return getRouteForURL(instance, normalizeURL(instance, stripQueryStringAndHashFromPath(instance.currentState())));
       })
     });
 
