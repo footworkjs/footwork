@@ -2,7 +2,10 @@ var _ = require('lodash');
 
 var nearestEntity = require('../entity-tools').nearestEntity;
 var privateDataSymbol = require('../../misc/config').privateDataSymbol;
-var getSymbol = require('../../misc/util').getSymbol;
+
+var util = require('../../misc/util');
+var getSymbol = util.getSymbol;
+var resultBound = util.resultBound;
 
 var routerDefaults = require('./router-defaults');
 var nullRouter = routerDefaults.nullRouter;
@@ -89,6 +92,54 @@ function trimBaseRoute (router, url) {
     }
   }
   return url;
+}
+
+/**
+ * Change the route on the specified router to the specified route using the specified historyMethod and routeParams
+ *
+ * @param {object} router The router instance to manipulate
+ * @param {string} historyMethod push/replace the url onto the history stack (if using history)
+ * @param {string} route The desired route to change to
+ * @param {object} routeParams (optional) parameters to pass to the route controller
+ * @returns {object} the router
+ */
+function changeRoute(router, historyMethod, route, routeParams) {
+  var namedRoute = _.isObject(routeParams) ? route : null;
+  var configParams = router[privateDataSymbol].configParams;
+  var useHistory = router[privateDataSymbol].activated && router[privateDataSymbol].historyPopstateListener() && !fw.router.disableHistory();
+  var location = window.history.location || window.location;
+
+  if (!_.isNull(namedRoute)) {
+    // must convert namedRoute into its URL form
+    var routeDescription = _.find(router[privateDataSymbol].routeDescriptions, function (route) {
+      return route.name === namedRoute;
+    });
+
+    if (!_.isUndefined(routeDescription)) {
+      route = _.first([].concat(routeDescription.route));
+      _.each(routeParams, function (value, fieldName) {
+        route = route.replace(':' + fieldName, routeParams[fieldName]);
+      });
+    } else {
+      throw new Error('Could not locate named route: ' + namedRoute);
+    }
+  }
+
+  route = route || location.pathname;
+
+  var isExternalURL = fw.utils.isFullURL(route);
+  if (!isExternalURL) {
+    route = normalizeURL(router, route);
+
+    if (!isExternalURL && resultBound(configParams, 'beforeRoute', router, [route || '/'])) {
+      if (useHistory) {
+        history[historyMethod + 'State'](null, '', configParams.baseRoute + route);
+      }
+      router.currentState(route);
+    }
+  }
+
+  return router;
 }
 
 /**
@@ -211,6 +262,7 @@ module.exports = {
   unregisterOutlet: unregisterOutlet,
   trimBaseRoute: trimBaseRoute,
   normalizeURL: normalizeURL,
+  changeRoute: changeRoute,
   stripQueryStringAndHashFromPath: stripQueryStringAndHashFromPath,
   getUnknownRoute: getUnknownRoute,
   getRouteForURL: getRouteForURL,

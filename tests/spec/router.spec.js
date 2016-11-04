@@ -1511,6 +1511,55 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         }, 0);
       });
 
+      it('can have a $route bound link that uses replaceRoute on its parent router', function(done) {
+        var testContainer;
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
+        var initializeSpy;
+        var routeSpy = jasmine.createSpy('routeSpy');
+
+        var $testContainer = $(testContainer);
+        var routerInitialized = false;
+        var routeTouched = false;
+
+        fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.router.boot(this, {
+            namespace: namespaceName,
+            routes: [
+              {
+                route: mockUrl,
+                controller: routeSpy
+              }
+            ]
+          });
+        }).and.callThrough());
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(routeSpy).not.toHaveBeenCalled();
+
+        testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
+          <a data-bind="$route: { url: \'' + mockUrl + '\', pushRoute: false }"></a>\
+        </router>');
+        fw.start(testContainer);
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+
+          setTimeout(function() {
+            var $link = $(testContainer).find('a');
+
+            expect(routeSpy).not.toHaveBeenCalled();
+            expect($link.hasClass('active')).toBe(false);
+
+            $link.click();
+            expect(routeSpy).toHaveBeenCalled();
+            expect($link.hasClass('active')).toBe(true);
+
+            done();
+          }, ajaxWait);
+        }, 0);
+      });
+
       it('can have a $route bound link that expresses the default active class when the route matches', function(done) {
         var testContainer;
         var mockUrl = tools.generateUrl();

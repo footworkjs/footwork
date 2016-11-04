@@ -54,7 +54,6 @@ function routerBootstrap (instance, configParams) {
     _.extend(instance[privateDataSymbol], {
       registerOutlet: _.partial(registerOutlet, instance),
       unregisterOutlet: _.partial(unregisterOutlet, instance),
-      parentRouter: fw.observable(nullRouter),
       historyPopstateListener: fw.observable(),
       routeDescriptions: []
     });

@@ -52,6 +52,7 @@ fw.bindingHandlers.$route = {
       addActiveClass: true,
       activeClass: null,
       parentHasState: false,
+      pushState: true,
       handler: function defaultHandlerForRouteBinding (event, url) {
         if (hashOnly) {
           return false;
@@ -163,7 +164,7 @@ fw.bindingHandlers.$route = {
                 currentRouteURL = handlerResult;
               }
               if (_.isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
-                $myRouter.pushRoute(currentRouteURL);
+                $myRouter[(routeHandlerDescription.pushState ? 'push' : 'replace') + 'Route'](currentRouteURL);
               }
             }
             return true;

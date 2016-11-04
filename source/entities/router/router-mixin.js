@@ -6,8 +6,8 @@ var isEntity = require('../entity-tools').isEntity;
 var routerTools = require('./router-tools');
 var isNullRouter = routerTools.isNullRouter;
 var transformRouteConfigToDesc = routerTools.transformRouteConfigToDesc;
-var nearestParentRouter = routerTools.nearestParentRouter;
 var normalizeURL = routerTools.normalizeURL;
+var changeRoute = routerTools.changeRoute;
 
 var util = require('../../misc/util');
 var resultBound = util.resultBound;
@@ -21,48 +21,6 @@ var noComponentSelected = routerDefaults.noComponentSelected;
 var nullComponent = routerDefaults.nullComponent;
 var defaultLoadingComponent = routerDefaults.defaultLoadingComponent;
 var activeOutlets = routerDefaults.activeOutlets;
-
-function changeRoute(router, historyMethod, route, routeParams) {
-  var namedRoute = _.isObject(routeParams) ? route : null;
-  var configParams = router[privateDataSymbol].configParams;
-  var useHistory = router[privateDataSymbol].activated && router[privateDataSymbol].historyPopstateListener() && !fw.router.disableHistory();
-  var location = window.history.location || window.location;
-
-  if (!_.isNull(namedRoute)) {
-    // must convert namedRoute into its URL form
-    var routeDescription = _.find(router[privateDataSymbol].routeDescriptions, function (route) {
-      return route.name === namedRoute;
-    });
-
-    if (!_.isUndefined(routeDescription)) {
-      route = _.first([].concat(routeDescription.route));
-      _.each(routeParams, function (value, fieldName) {
-        route = route.replace(':' + fieldName, routeParams[fieldName]);
-      });
-    } else {
-      throw new Error('Could not locate named route: ' + namedRoute);
-    }
-  }
-
-  route = route || location.pathname;
-
-  var isExternalURL = fw.utils.isFullURL(route);
-  if (!isExternalURL) {
-    route = normalizeURL(router, route);
-  }
-
-  var shouldContinueToRoute = resultBound(configParams, 'beforeRoute', router, [route || '/']);
-  if (shouldContinueToRoute && !isExternalURL) {
-    if (useHistory) {
-      var destination = configParams.baseRoute + router[privateDataSymbol].parentRouter()[privateDataSymbol].path() + route.replace(startingHashRegex, '/');
-      var method = historyMethod + 'State';
-      history[method](null, '', destination);
-    }
-    router.currentState(route);
-  }
-
-  return router;
-}
 
 module.exports = {
   outlet: function (outletName, componentToDisplay, options) {
