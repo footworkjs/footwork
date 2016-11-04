@@ -126,12 +126,14 @@ module.exports = {
     return outlet;
   },
   setRoutes: function (routeDesc) {
-    this[privateDataSymbol].routeDescriptions = [];
-    this.addRoutes(routeDesc);
+    this[privateDataSymbol].routes = [];
+    routeDesc && this.addRoutes(routeDesc);
     return this;
   },
   addRoutes: function (routeConfig) {
-    this[privateDataSymbol].routeDescriptions = this[privateDataSymbol].routeDescriptions.concat(_.map(_.isArray(routeConfig) ? routeConfig : [routeConfig], transformRouteConfigToDesc));
+    if(routeConfig) {
+      this[privateDataSymbol].routes = this[privateDataSymbol].routes.concat(routeConfig);
+    }
     return this;
   },
   activate: function () {

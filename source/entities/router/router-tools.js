@@ -6,6 +6,7 @@ var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 var util = require('../../misc/util');
 var getSymbol = util.getSymbol;
 var resultBound = util.resultBound;
+var alwaysPassPredicate = util.alwaysPassPredicate;
 
 var routerDefaults = require('./router-defaults');
 var nullRouter = routerDefaults.nullRouter;
@@ -20,7 +21,7 @@ var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatchRegex = /(^\/#)/;
 
 function transformRouteConfigToDesc (routeDesc) {
-  return _.extend({ id: _.uniqueId('route') }, baseRouteDescription, routeDesc );
+  return _.extend({}, routeDesc );
 }
 
 function sameRouteDescription (desc1, desc2) {
@@ -111,7 +112,7 @@ function changeRoute(router, historyMethod, route, routeParams) {
 
   if (!_.isNull(namedRoute)) {
     // must convert namedRoute into its URL form
-    var routeDescription = _.find(router[privateDataSymbol].routeDescriptions, function (route) {
+    var routeDescription = _.find(router[privateDataSymbol].routes, function (route) {
       return route.name === namedRoute;
     });
 
@@ -161,7 +162,7 @@ function normalizeURL (router, url) {
 }
 
 function getUnknownRoute (router) {
-  var unknownRoute = _.find(router[privateDataSymbol].routeDescriptions.reverse(), { unknown: true }) || null;
+  var unknownRoute = _.find(router[privateDataSymbol].routes.reverse(), { unknown: true }) || null;
 
   if (!_.isNull(unknownRoute)) {
     unknownRoute = _.extend({}, baseRoute, {
@@ -178,27 +179,30 @@ function getUnknownRoute (router) {
 function getRouteForURL (router, url) {
   var route = null;
   var unknownRoute = getUnknownRoute(router);
+  var matchedRoutes = [];
 
   // find all routes with a matching routeString
-  var matchedRoutes = _.reduce(router[privateDataSymbol].routeDescriptions, function (matches, routeDescription) {
-    var routeDescRoute = [].concat(routeDescription.route);
-    _.each(routeDescRoute, function (routeString) {
-      var routeParams = [];
+  if(router[privateDataSymbol].routes) {
+    matchedRoutes = _.reduce(router[privateDataSymbol].routes, function (matches, routeDescription) {
+      var routeDescRoute = [].concat(routeDescription.route);
+      _.each(routeDescRoute, function (routeString) {
+        var routeParams = [];
 
-      if (_.isString(routeString) && _.isString(url)) {
-        routeParams = url.match(routeStringToRegExp(routeString));
-        if (!_.isNull(routeParams) && routeDescription.filter.call(router, routeParams)) {
-          matches.push({
-            routeString: routeString,
-            specificity: routeString.replace(namedParamRegex, "*").length,
-            routeDescription: routeDescription,
-            routeParams: routeParams
-          });
+        if (_.isString(routeString) && _.isString(url)) {
+          routeParams = url.match(routeStringToRegExp(routeString));
+          if (!_.isNull(routeParams) && (routeDescription.filter || alwaysPassPredicate).call(router, routeParams)) {
+            matches.push({
+              routeString: routeString,
+              specificity: routeString.replace(namedParamRegex, "*").length,
+              routeDescription: routeDescription,
+              routeParams: routeParams
+            });
+          }
         }
-      }
-    });
-    return matches;
-  }, []);
+      });
+      return matches;
+    }, []);
+  }
 
   // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
   // and convert it into the actual route

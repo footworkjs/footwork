@@ -5,7 +5,6 @@ var config = require('../../misc/config');
 var entityAnimateClass = config.entityAnimateClass;
 var privateDataSymbol = config.privateDataSymbol;
 
-var alwaysPassPredicate = require('../../misc/util').alwaysPassPredicate;
 var getSymbol = require('../../misc/util').getSymbol;
 
 var noComponentSelected = '_noComponentSelected';
@@ -27,11 +26,6 @@ var baseRoute = {
   __isRoute: true
 };
 
-var baseRouteDescription = {
-  filter: alwaysPassPredicate,
-  __isRouteDesc: true
-};
-
 module.exports = {
   defaultLoadingComponent: 'default-loading-display',
   noComponentSelected: noComponentSelected,
@@ -40,7 +34,6 @@ module.exports = {
   routesAreCaseSensitive: routesAreCaseSensitive,
   nullRouter: nullRouter,
   baseRoute: baseRoute,
-  baseRouteDescription: baseRouteDescription,
   outletLoadingDisplay: 'fw-loading-display',
   outletLoadedDisplay: 'fw-loaded-display',
   activeOutlets: fw.observableArray()
