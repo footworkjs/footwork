@@ -1,0 +1,55 @@
+.fw-entity {
+  .fade-in {
+    opacity: 0;
+    transition: opacity $fw-animation-speed $fw-animation-easing;
+  }
+
+  .fade-in-from-left {
+    position: relative;
+    left: -$fw-animation-move-distance;
+    opacity: 0;
+    transition: left $fw-animation-speed $fw-animation-easing, opacity $fw-animation-speed $fw-animation-easing;
+  }
+
+  .fade-in-from-right {
+    position: relative;
+    left: $fw-animation-move-distance;
+    opacity: 0;
+    transition: left $fw-animation-speed $fw-animation-easing, opacity $fw-animation-speed $fw-animation-easing;
+  }
+
+  .fade-in-from-top {
+    position: relative;
+    top: -$fw-animation-move-distance;
+    opacity: 0;
+    transition: top $fw-animation-speed $fw-animation-easing, opacity $fw-animation-speed $fw-animation-easing;
+  }
+
+  .fade-in-from-bottom {
+    position: relative;
+    top: $fw-animation-move-distance;
+    opacity: 0;
+    transition: top $fw-animation-speed $fw-animation-easing, opacity $fw-animation-speed $fw-animation-easing;
+  }
+
+  &.fw-entity-resolved {
+    & > .fade-in {
+      opacity: 1;
+      transition: opacity $fw-animation-speed $fw-animation-easing;
+    }
+
+    & > .fade-in-from-left,
+    & > .fade-in-from-right,
+    & > .fade-in-from-top,
+    & > .fade-in-from-bottom,
+    & > .fw-old-browser > .fade-in-from-left,
+    & > .fw-old-browser > .fade-in-from-right,
+    & > .fw-old-browser > .fade-in-from-top,
+    & > .fw-old-browser > .fade-in-from-bottom {
+      left: 0;
+      top: 0;
+      opacity: 1;
+      transition: top $fw-animation-speed $fw-animation-easing, left $fw-animation-speed $fw-animation-easing, opacity $fw-animation-speed $fw-animation-easing;
+    }
+  }
+}

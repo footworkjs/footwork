@@ -1,6 +1,7 @@
 var oldExploderVersion = 8;
 var bindingElement = {
   oldExploderTagName: 'div',
+  oldExploderClassName: 'fw-old-browser',
   open: {
     prefix: '<!-- ko ',
     postfix: ' -->'
@@ -16,7 +17,7 @@ var bindingElement = {
   if (exploderVersion <= oldExploderVersion) {
     // client is using an older IE, we have to initialize the wrapper with a normal element (ie < 9 doesn't support virtual elements)
     bindingElement.open = {
-      prefix: '<' + bindingElement.oldExploderTagName + ' data-bind="',
+      prefix: '<' + bindingElement.oldExploderTagName + ' class="' + bindingElement.oldIeClassName + '" data-bind="',
       postfix: '">'
     };
     bindingElement.close = '</' + bindingElement.oldExploderTagName + '>';

@@ -40,7 +40,7 @@ var isFullURL = fw.utils.isFullURL = function (thing) {
 
 fw.bindingHandlers.$route = {
   init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-    var $myRouter = nearestParentRouter(bindingContext);
+    var router = nearestParentRouter(bindingContext);
     var routeParams = valueAccessor();
     var elementIsSetup = false;
     var stateTracker = null;
@@ -89,16 +89,16 @@ fw.bindingHandlers.$route = {
 
         if (!isFullURL(myLinkPath)) {
           if (!hasPathStart(myLinkPath)) {
-            var currentRoute = $myRouter[privateDataSymbol].currentRoute();
+            var currentRoute = router[privateDataSymbol].currentRoute();
             if (hasHashStart(myLinkPath)) {
               if (!_.isNull(currentRoute)) {
-                myLinkPath = $myRouter[privateDataSymbol].currentRoute().segment + myLinkPath;
+                myLinkPath = router[privateDataSymbol].currentRoute().segment + myLinkPath;
               }
               hashOnly = true;
             } else {
               // relative url, prepend current segment
               if (!_.isNull(currentRoute)) {
-                myLinkPath = $myRouter[privateDataSymbol].currentRoute().segment + '/' + myLinkPath;
+                myLinkPath = router[privateDataSymbol].currentRoute().segment + '/' + myLinkPath;
               }
             }
           }
@@ -112,13 +112,13 @@ fw.bindingHandlers.$route = {
 
     function checkForMatchingSegment (mySegment, newRoute) {
       if (_.isString(mySegment)) {
-        var currentRoute = $myRouter[privateDataSymbol].currentRoute();
+        var currentRoute = router[privateDataSymbol].currentRoute();
         var elementWithState = routeHandlerDescription.parentHasState ? findParentNode(element, routeHandlerDescription.parentHasState) : element;
-        var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', $myRouter) || fw.router.activeRouteClassName();
+        var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router) || fw.router.activeRouteClassName();
         mySegment = mySegment.replace(startingHashRegex, '/');
 
         if (_.isObject(currentRoute)) {
-          if (resultBound(routeHandlerDescription, 'addActiveClass', $myRouter)) {
+          if (resultBound(routeHandlerDescription, 'addActiveClass', router)) {
             if (mySegment === '/') {
               mySegment = '';
             }
@@ -140,9 +140,9 @@ fw.bindingHandlers.$route = {
     };
 
     function setUpElement () {
-      if (!isNullRouter($myRouter)) {
+      if (!isNullRouter(router)) {
         var myCurrentSegment = getRouteURL();
-        var configParams = $myRouter[privateDataSymbol].configParams;
+        var configParams = router[privateDataSymbol].configParams;
         if (element.tagName.toLowerCase() === 'a') {
           element.href = configParams.baseRoute + getRouteURL();
         }
@@ -150,13 +150,13 @@ fw.bindingHandlers.$route = {
         if (_.isObject(stateTracker) && _.isFunction(stateTracker.dispose)) {
           stateTracker.dispose();
         }
-        stateTracker = $myRouter[privateDataSymbol].currentRoute.subscribe(checkForMatchingSegment.bind(null, myCurrentSegment));
+        stateTracker = router[privateDataSymbol].currentRoute.subscribe(checkForMatchingSegment.bind(null, myCurrentSegment));
 
         if (elementIsSetup === false) {
           elementIsSetup = true;
-          checkForMatchingSegment(myCurrentSegment, $myRouter[privateDataSymbol].currentRoute());
+          checkForMatchingSegment(myCurrentSegment, router[privateDataSymbol].currentRoute());
 
-          fw.utils.registerEventHandler(element, resultBound(routeHandlerDescription, 'on', $myRouter), function (event) {
+          fw.utils.registerEventHandler(element, resultBound(routeHandlerDescription, 'on', router), function (event) {
             var currentRouteURL = getRouteURL();
             var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
             if (handlerResult) {
@@ -164,7 +164,7 @@ fw.bindingHandlers.$route = {
                 currentRouteURL = handlerResult;
               }
               if (_.isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
-                $myRouter[(routeHandlerDescription.pushState ? 'push' : 'replace') + 'Route'](currentRouteURL);
+                router[(resultBound(routeHandlerDescription, 'pushState', router) ? 'push' : 'replace') + 'Route'](currentRouteURL);
               }
             }
             return true;
@@ -174,7 +174,7 @@ fw.bindingHandlers.$route = {
     }
 
     if (fw.isObservable(routeHandlerDescription.url)) {
-      $myRouter.disposeWithInstance(routeHandlerDescription.url.subscribe(setUpElement));
+      router.disposeWithInstance(routeHandlerDescription.url.subscribe(setUpElement));
     }
     setUpElement();
 
