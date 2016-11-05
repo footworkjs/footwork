@@ -173,7 +173,6 @@ function getUnknownRoute (routes) {
 
   if (!_.isNull(unknownRoute)) {
     unknownRoute = _.extend({}, baseRoute, {
-      id: unknownRoute.id,
       controller: unknownRoute.controller,
       title: unknownRoute.title,
       segment: '',
@@ -234,7 +233,6 @@ function getRouteForURL (router, routes, url) {
     }, {});
 
     route = _.extend({}, baseRoute, {
-      id: routeDescription.id,
       controller: routeDescription.controller,
       title: routeDescription.title,
       name: routeDescription.name,

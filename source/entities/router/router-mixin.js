@@ -5,7 +5,6 @@ var isEntity = require('../entity-tools').isEntity;
 
 var routerTools = require('./router-tools');
 var isNullRouter = routerTools.isNullRouter;
-var transformRouteConfigToDesc = routerTools.transformRouteConfigToDesc;
 var trimBaseRoute = routerTools.trimBaseRoute;
 var changeRoute = routerTools.changeRoute;
 
