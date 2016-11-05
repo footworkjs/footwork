@@ -2170,7 +2170,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         }, 0);
       });
 
-      it('can trigger a route via the replaceState command', function() {
+      it('can trigger a route via the pushState command', function() {
         var namespaceName = tools.generateNamespaceName();
         var mockUrl = tools.generateUrl();
         var routeSpy = jasmine.createSpy('routeSpy');
@@ -2192,7 +2192,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         router.$activated(true);
         expect(routeSpy).not.toHaveBeenCalled();
 
-        fw.namespace(namespaceName).command('replaceState', mockUrl);
+        fw.namespace(namespaceName).command('pushState', mockUrl);
         expect(routeSpy).toHaveBeenCalled();
       });
 
