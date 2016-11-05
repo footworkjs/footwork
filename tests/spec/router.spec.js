@@ -497,11 +497,11 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
 
-          router.replaceState(mockUrl);
+          router.pushState(mockUrl);
           expect(routeControllerSpy).toHaveBeenCalled();
           expect(router.$currentRoute().route).toBe(mockUrl);
 
-          router.replaceState(mockUrl2);
+          router.pushState(mockUrl2);
           expect(routeControllerSpy).toHaveBeenCalledTimes(2);
           expect(router.$currentRoute().route).toBe(mockUrl2);
 
