@@ -538,10 +538,10 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
-          router.replaceState(mockNamedState, { named: true });
+          router.pushState(mockNamedState, { named: true });
           expect(routeControllerSpy).toHaveBeenCalled();
 
-          expect(function() {router.replaceState('state-that-does-not-exist', { named: true })}).toThrow();
+          expect(function() {router.pushState('state-that-does-not-exist', { named: true })}).toThrow();
 
           done();
         }, ajaxWait);
