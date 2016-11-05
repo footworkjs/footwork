@@ -164,7 +164,8 @@ function getUnknownRoute (routes) {
       id: unknownRoute.id,
       controller: unknownRoute.controller,
       title: unknownRoute.title,
-      segment: ''
+      segment: '',
+      routeDescription: unknownRoute
     });
   }
 
@@ -228,7 +229,8 @@ function getRouteForURL (router, routes, url) {
       url: url,
       segment: url.substr(0, url.length - splatSegment.length),
       indexedParams: routeParams,
-      namedParams: namedParams
+      namedParams: namedParams,
+      routeDescription: routeDescription
     });
   }
 
