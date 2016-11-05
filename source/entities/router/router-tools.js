@@ -20,7 +20,7 @@ var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatchRegex = /(^\/#)/;
 
 function sameRouteDescription (desc1, desc2) {
-  return desc1.routeDescription === desc2.routeDescription && _.isEqual(desc1.indexedParams, desc2.indexedParams) && _.isEqual(desc1.namedParams, desc2.namedParams);
+  return desc1.routeDescription === desc2.routeDescription && _.isEqual(desc1.namedParams, desc2.namedParams);
 }
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine
