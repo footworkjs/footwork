@@ -2189,7 +2189,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         var router = new MyRouter();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        router.activate();
+        router.$activated(true);
         expect(routeSpy).not.toHaveBeenCalled();
 
         fw.namespace(namespaceName).command('replaceState', mockUrl);
@@ -2215,7 +2215,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         var router = new MyRouter();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        router.activate();
+        router.$activated(true);
         expect(routeSpy).not.toHaveBeenCalled();
 
         fw.namespace(namespaceName).command('replaceState', mockUrl);

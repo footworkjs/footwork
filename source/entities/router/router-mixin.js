@@ -125,10 +125,6 @@ module.exports = {
 
     return outlet;
   },
-  activate: function () {
-    this.$activated(true);
-    return self;
-  },
   replaceState: function (route, routeParams) {
     changeRoute(this, 'replace', route, routeParams);
     return self;
