@@ -499,9 +499,11 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
 
           router.replaceState(mockUrl);
           expect(routeControllerSpy).toHaveBeenCalled();
+          expect(router.$currentRoute().route).toBe(mockUrl);
 
           router.replaceState(mockUrl2);
           expect(routeControllerSpy).toHaveBeenCalledTimes(2);
+          expect(router.$currentRoute().route).toBe(mockUrl2);
 
           done();
         }, ajaxWait);
