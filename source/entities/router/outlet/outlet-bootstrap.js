@@ -31,7 +31,7 @@ addAnimation[entityAnimateClass] = true;
 function outletBootstrap (instance, configParams) {
   /* istanbul ignore if */
   if (!instance) {
-    throw new Error('Must supply the instance to boot()');
+    throw Error('Must supply the instance to boot()');
   }
 
   var descriptor = entityDescriptors.getDescriptor('outlet');
@@ -137,7 +137,7 @@ function outletBootstrap (instance, configParams) {
     });
   } else {
     /* istanbul ignore next */
-    throw new Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
+    throw Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
   }
 
   return instance;

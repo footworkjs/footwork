@@ -131,7 +131,7 @@ function changeRoute (router, historyMethod, route, routeParams) {
           route = route.replace(':' + fieldName, routeParams[fieldName]);
         });
       } else {
-        throw new Error('Could not locate named route: ' + namedRoute);
+        throw Error('Could not locate named route: ' + namedRoute);
       }
     }
 

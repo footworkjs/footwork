@@ -52,8 +52,9 @@ function makeOrGetRequest (operationType, requestInfo) {
 
     if (!isPromise(theRequest)) {
       // returned value from createRequest() is a value not a promise, lets return the value in a promise
-      theRequest = makePromiseQueryable(Promise.resolve(theRequest));
+      theRequest = Promise.resolve(theRequest);
     }
+    theRequest = makePromiseQueryable(theRequest);
 
     requests.push(theRequest);
     entity[privateDataSymbol][promiseName] = requests;
@@ -205,12 +206,11 @@ function makePromiseQueryable (promise) {
  */
 function handleJsonResponse (xhr) {
   return xhr.then(function (response) {
-      return _.inRange(response.status, 200, 400) ? response.clone().json() : false;
+      if(response.ok) {
+        return response.clone().json();
+      }
     })
-    .catch( /* istanbul ignore next */ function (parseError) {
-      console.error(parseError);
-      return false;
-    });
+    .catch( /* istanbul ignore next */ _.noop);
 }
 
 fw.fetchOptions = {};

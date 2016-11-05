@@ -8,7 +8,7 @@ var sortOfEqual = objectTools.sortOfEqual;
 var makeOrGetRequest = require('../misc/ajax').makeOrGetRequest;
 var privateDataSymbol = require('../misc/config').privateDataSymbol;
 
-function sync () {
+function collectionSync () {
   return fw.sync.apply(this, arguments);
 }
 
@@ -183,15 +183,17 @@ function fetch (options) {
 
       ajax.handleJsonResponse(xhr)
         .then(function handleResponseData (data) {
-          var method = options.reset ? 'reset' : 'set';
-          data = configParams.parse(data);
-          var touchedModels = collection[method](data, options);
+          if(data) {
+            var method = options.reset ? 'reset' : 'set';
+            data = configParams.parse(data);
+            var touchedModels = collection[method](data, options);
 
-          collection.$namespace.publish('_.change', {
-            touched: touchedModels,
-            serverResponse: data,
-            options: options
-          });
+            collection.$namespace.publish('_.change', {
+              touched: touchedModels,
+              serverResponse: data,
+              options: options
+            });
+          }
         });
 
       return xhr;
@@ -361,7 +363,7 @@ function removeModel (models) {
 }
 
 module.exports = {
-  sync: sync,
+  sync: collectionSync,
   get: get,
   getData: getData,
   toJSON: toJSON,

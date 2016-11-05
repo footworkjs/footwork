@@ -278,7 +278,7 @@ function clean (field) {
  *
  * @returns Promise The sync request promise
  */
-function sync () {
+function dataModelSync () {
   return fw.sync.apply(this, arguments);
 }
 
@@ -314,7 +314,7 @@ module.exports = {
   getData: getData,
   toJSON: toJSON,
   clean: clean,
-  sync: sync,
+  sync: dataModelSync,
   hasMappedField: hasMappedField,
   dirtyMap: dirtyMap
 };

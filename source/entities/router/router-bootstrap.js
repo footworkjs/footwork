@@ -30,7 +30,7 @@ var noComponentSelected = routerDefaults.noComponentSelected;
  */
 function routerBootstrap (instance, configParams) {
   if (!instance) {
-    throw new Error('Must supply the instance to boot()');
+    throw Error('Must supply the instance to boot()');
   }
 
   var descriptor = entityDescriptors.getDescriptor('router');
@@ -148,7 +148,7 @@ function routerBootstrap (instance, configParams) {
       })
     );
   } else {
-    throw new Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
+    throw Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
   }
 
   return instance;
