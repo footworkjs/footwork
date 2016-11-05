@@ -111,7 +111,7 @@ function changeRoute(router, historyMethod, route, routeParams) {
 
   if (!_.isNull(namedRoute)) {
     // must convert namedRoute into its URL form
-    var routeDescription = _.find(router[privateDataSymbol].routes(), function (route) {
+    var routeDescription = _.find(router.$routes(), function (route) {
       return route.name === namedRoute;
     });
 
@@ -161,7 +161,7 @@ function normalizeURL (router, url) {
 }
 
 function getUnknownRoute (router) {
-  var unknownRoute = _.find(router[privateDataSymbol].routes().reverse(), { unknown: true }) || null;
+  var unknownRoute = _.find(router.$routes().reverse(), { unknown: true }) || null;
 
   if (!_.isNull(unknownRoute)) {
     unknownRoute = _.extend({}, baseRoute, {
@@ -179,10 +179,11 @@ function getRouteForURL (router, url) {
   var route = null;
   var unknownRoute = getUnknownRoute(router);
   var matchedRoutes = [];
+  var routes = router.$routes();
 
   // find all routes with a matching routeString
-  if(router[privateDataSymbol].routes()) {
-    matchedRoutes = _.reduce(router[privateDataSymbol].routes(), function (matches, routeDescription) {
+  if(routes) {
+    matchedRoutes = _.reduce(routes, function (matches, routeDescription) {
       var routeDescRoute = [].concat(routeDescription.route);
       _.each(routeDescRoute, function (routeString) {
         var routeParams = [];

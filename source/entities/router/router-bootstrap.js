@@ -50,12 +50,12 @@ function routerBootstrap (instance, configParams) {
     });
 
     instance[privateDataSymbol].outlets = {};
+    instance.$routes = fw.collection(configParams.routes);
 
     _.extend(instance[privateDataSymbol], {
       registerOutlet: _.partial(registerOutlet, instance),
       unregisterOutlet: _.partial(unregisterOutlet, instance),
-      historyPopstateListener: fw.observable(),
-      routes: fw.collection()
+      historyPopstateListener: fw.observable()
     });
 
     _.extend(instance[privateDataSymbol], {
@@ -108,8 +108,6 @@ function routerBootstrap (instance, configParams) {
     instance.disposeWithInstance(instance[privateDataSymbol].currentRoute.subscribe(function routeTrigger (newRoute) {
       triggerRoute(instance, newRoute);
     }));
-
-    instance.setRoutes(configParams.routes);
   } else {
     throw new Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
   }
