@@ -164,7 +164,7 @@ fw.bindingHandlers.$route = {
                 currentRouteURL = handlerResult;
               }
               if (_.isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
-                router[(resultBound(routeHandlerDescription, 'pushState', router) ? 'push' : 'replace') + 'Route'](currentRouteURL);
+                router[(resultBound(routeHandlerDescription, 'pushState', router) ? 'push' : 'replace') + 'State'](currentRouteURL);
               }
             }
             return true;

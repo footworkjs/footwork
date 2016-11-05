@@ -9,7 +9,7 @@ var resultBound = require('../../misc/util').resultBound;
 var routerTools = require('./router-tools');
 var registerOutlet = routerTools.registerOutlet;
 var unregisterOutlet = routerTools.unregisterOutlet;
-var normalizeURL = routerTools.normalizeURL;
+var trimBaseRoute = routerTools.trimBaseRoute;
 var getRouteForURL = routerTools.getRouteForURL;
 var triggerRoute = routerTools.triggerRoute;
 var isRoute = routerTools.isRoute;
@@ -46,11 +46,10 @@ function routerBootstrap (instance, configParams) {
     }, configParams || {});
 
     _.extend(instance, descriptor.mixin, {
-      currentState: fw.observable()
+      $currentState: fw.observable()
     });
 
     instance[privateDataSymbol].outlets = {};
-    instance.$routes = fw.collection(configParams.routes);
 
     _.extend(instance[privateDataSymbol], {
       registerOutlet: _.partial(registerOutlet, instance),
@@ -58,29 +57,28 @@ function routerBootstrap (instance, configParams) {
       historyPopstateListener: fw.observable()
     });
 
+    instance.$routes = fw.collection(configParams.routes);
     _.extend(instance[privateDataSymbol], {
       /**
-       * Computed which gets/updates the currentRoute for the current given currentState of the router
+       * Computed which evaluates the currentRoute for the current given $currentState and set of routes
        */
       currentRoute: fw.computed(function () {
-        return getRouteForURL(instance, normalizeURL(instance, stripQueryStringAndHashFromPath(instance.currentState())));
+        var routes = instance.$routes();
+        var $currentState = instance.$currentState();
+        return getRouteForURL(instance, routes, trimBaseRoute(instance, stripQueryStringAndHashFromPath($currentState)));
       })
     });
 
-    _.extend(instance[privateDataSymbol], {
-      path: fw.computed(function () {
-        var currentRoute = instance[privateDataSymbol].currentRoute();
-        var routeSegment = '/';
-
-        if (isRoute(currentRoute)) {
-          routeSegment = (currentRoute.segment === '' ? '/' : currentRoute.segment);
-        }
-
-        return routeSegment;
-      })
+    instance.$currentRoute = fw.computed(function() {
+      var currentRoute = instance[privateDataSymbol].currentRoute();
+      if(currentRoute) {
+        return currentRoute.routeDescription;
+      } else {
+        return null;
+      }
     });
 
-    instance.$namespace.command.handler('pushRoute', function (state) {
+    instance.$namespace.command.handler('pushState', function (state) {
       var route = state;
       var params = state.params;
 
@@ -89,10 +87,10 @@ function routerBootstrap (instance, configParams) {
         params = params || {};
       }
 
-      instance.pushRoute(route, params);
+      instance.pushState(route, params);
     });
 
-    instance.$namespace.command.handler('replaceRoute', function (state) {
+    instance.$namespace.command.handler('replaceState', function (state) {
       var route = state;
       var params = state.params;
 
@@ -101,7 +99,7 @@ function routerBootstrap (instance, configParams) {
         params = params || {};
       }
 
-      instance.replaceRoute(route, params);
+      instance.replaceState(route, params);
     });
 
     // Automatically trigger the routes controller whenever the currentRoute() updates

@@ -458,7 +458,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
-          router.pushRoute(tools.generateUrl());
+          router.replaceState(tools.generateUrl());
           expect(unknownRouteControllerSpy).toHaveBeenCalled();
           done();
         }, ajaxWait);
@@ -497,10 +497,10 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
 
-          router.pushRoute(mockUrl);
+          router.replaceState(mockUrl);
           expect(routeControllerSpy).toHaveBeenCalled();
 
-          router.pushRoute(mockUrl2);
+          router.replaceState(mockUrl2);
           expect(routeControllerSpy).toHaveBeenCalledTimes(2);
 
           done();
@@ -536,10 +536,10 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
-          router.pushRoute(mockNamedState, { named: true });
+          router.replaceState(mockNamedState, { named: true });
           expect(routeControllerSpy).toHaveBeenCalled();
 
-          expect(function() {router.pushRoute('state-that-does-not-exist', { named: true })}).toThrow();
+          expect(function() {router.replaceState('state-that-does-not-exist', { named: true })}).toThrow();
 
           done();
         }, ajaxWait);
@@ -572,7 +572,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
-          router.pushRoute(mockUrl + '2');
+          router.replaceState(mockUrl + '2');
           expect(routeControllerSpy).toHaveBeenCalled();
           done();
         }, ajaxWait);
@@ -608,7 +608,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
-          router.pushRoute(mockUrl + '/' + testParam);
+          router.replaceState(mockUrl + '/' + testParam);
           expect(routeControllerSpy).toHaveBeenCalled();
           done();
         }, ajaxWait);
@@ -651,10 +651,10 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
 
         setTimeout(function() {
-          router.pushRoute(mockUrl + '/optParamNotSupplied');
+          router.replaceState(mockUrl + '/optParamNotSupplied');
           expect(optParamNotSuppliedSpy).toHaveBeenCalled();
 
-          router.pushRoute(mockUrl + '/optParamSupplied/' + testParam);
+          router.replaceState(mockUrl + '/optParamSupplied/' + testParam);
           expect(optParamSuppliedSpy).toHaveBeenCalled();
 
           done();
@@ -721,14 +721,14 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
           expect(afterRenderSpy).toHaveBeenCalled();
 
           expect($testContainer.find('outlet[name="output"]').attr('data-rendered')).not.toBe(manipulateOutletComponentNamespace);
-          router.pushRoute(manipulateOutletUrl);
+          router.replaceState(manipulateOutletUrl);
           expect(manipulateOutletControllerSpy).toHaveBeenCalled();
 
           setTimeout(function() {
             expect($testContainer.find('outlet[name="output"]').attr('data-rendered')).toBe(manipulateOutletComponentNamespace);
             expect($testContainer.find('outlet[name="output"] .component-loaded').length).toBe(1);
 
-            router.pushRoute('/clearOutlet');
+            router.replaceState('/clearOutlet');
             expect(clearOutletControllerSpy).toHaveBeenCalled();
 
             setTimeout(function() {
@@ -842,7 +842,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
 
-          router.pushRoute(mockUrl);
+          router.replaceState(mockUrl);
           expect(triggerOutletCallbackControllerSpy).not.toHaveBeenCalled();
 
           setTimeout(function() {
@@ -912,7 +912,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
           expect(initializeSpy).toHaveBeenCalled();
           expect(initializeViewModelSpy).toHaveBeenCalled();
 
-          router.pushRoute('/outletAfterRouter');
+          router.replaceState('/outletAfterRouter');
 
           expect(outletCallbackSpy).not.toHaveBeenCalled();
           expect(viewModel).toBeAn('object');
@@ -978,7 +978,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         </router>'));
 
         setTimeout(function() {
-          router(routerNamespace).pushRoute(mockUrl);
+          router(routerNamespace).replaceState(mockUrl);
 
           expect(changeOutletControllerSpy).toHaveBeenCalled();
           expect(outletCallbackSpy).not.toHaveBeenCalled();
@@ -1036,7 +1036,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         </router>'));
 
         setTimeout(function() {
-          router(routerNamespace).pushRoute(mockUrl);
+          router(routerNamespace).replaceState(mockUrl);
 
           expect(changeOutletControllerSpy).toHaveBeenCalled();
           expect(outletCallbackSpy).not.toHaveBeenCalled();
@@ -1103,7 +1103,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         </router>'));
 
         setTimeout(function() {
-          router(routerNamespace).pushRoute(mockUrl);
+          router(routerNamespace).replaceState(mockUrl);
 
           expect(changeOutletControllerSpy).toHaveBeenCalled();
           expect(outletCallbackSpy).not.toHaveBeenCalled();
@@ -1176,7 +1176,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         expect(outletLoaderTestLoadingSpy).not.toHaveBeenCalled();
 
         setTimeout(function() {
-          router(routerNamespace).pushRoute(mockUrl);
+          router(routerNamespace).replaceState(mockUrl);
           expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
           expect(outletLoaderTestLoadingSpy).toHaveBeenCalled();
 
@@ -1244,7 +1244,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         </router>'));
 
         setTimeout(function() {
-          router(routerNamespace).pushRoute(mockUrl);
+          router(routerNamespace).replaceState(mockUrl);
 
           expect(changeOutletControllerSpy).toHaveBeenCalled();
           expect(outletCallbackSpy).not.toHaveBeenCalled();
@@ -1324,7 +1324,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         expect(outletLoaderTestLoadingSpy).not.toHaveBeenCalled();
 
         setTimeout(function() {
-          router(routerNamespace).pushRoute(mockUrl);
+          router(routerNamespace).replaceState(mockUrl);
 
           expect(outletLoaderTestLoadingSpy).toHaveBeenCalled();
           expect(minTransitionPeriodSpy).toHaveBeenCalled();
@@ -1511,7 +1511,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         }, 0);
       });
 
-      it('can have a $route bound link that uses replaceRoute on its parent router', function(done) {
+      it('can have a $route bound link that uses replaceState on its parent router', function(done) {
         var testContainer;
         var mockUrl = tools.generateUrl();
         var namespaceName = tools.generateNamespaceName();
@@ -1538,7 +1538,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="$route: { url: \'' + mockUrl + '\', pushRoute: false }"></a>\
+          <a data-bind="$route: { url: \'' + mockUrl + '\', replaceState: false }"></a>\
         </router>');
         fw.start(testContainer);
 
@@ -2168,7 +2168,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         }, 0);
       });
 
-      it('can trigger a route via the pushRoute command', function() {
+      it('can trigger a route via the replaceState command', function() {
         var namespaceName = tools.generateNamespaceName();
         var mockUrl = tools.generateUrl();
         var routeSpy = jasmine.createSpy('routeSpy');
@@ -2190,11 +2190,11 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         router.activate();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        fw.namespace(namespaceName).command('pushRoute', mockUrl);
+        fw.namespace(namespaceName).command('replaceState', mockUrl);
         expect(routeSpy).toHaveBeenCalled();
       });
 
-      it('can trigger a route via the replaceRoute command', function() {
+      it('can trigger a route via the replaceState command', function() {
         var namespaceName = tools.generateNamespaceName();
         var mockUrl = tools.generateUrl();
         var routeSpy = jasmine.createSpy('routeSpy');
@@ -2216,7 +2216,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         router.activate();
         expect(routeSpy).not.toHaveBeenCalled();
 
-        fw.namespace(namespaceName).command('replaceRoute', mockUrl);
+        fw.namespace(namespaceName).command('replaceState', mockUrl);
         expect(routeSpy).toHaveBeenCalled();
       });
     });

@@ -129,13 +129,13 @@ function changeRoute(router, historyMethod, route, routeParams) {
 
   var isExternalURL = fw.utils.isFullURL(route);
   if (!isExternalURL) {
-    route = normalizeURL(router, route);
+    route = trimBaseRoute(router, route);
 
     if (!isExternalURL && resultBound(configParams, 'beforeRoute', router, [route || '/'])) {
       if (useHistory) {
         history[historyMethod + 'State'](null, '', configParams.baseRoute + route);
       }
-      router.currentState(route);
+      router.$currentState(route);
     }
   }
 
@@ -156,12 +156,8 @@ function stripQueryStringAndHashFromPath (url) {
   }
 }
 
-function normalizeURL (router, url) {
-  return trimBaseRoute(router, url);
-}
-
-function getUnknownRoute (router) {
-  var unknownRoute = _.find(router.$routes().reverse(), { unknown: true }) || null;
+function getUnknownRoute (routes) {
+  var unknownRoute = _.find(routes.reverse(), { unknown: true }) || null;
 
   if (!_.isNull(unknownRoute)) {
     unknownRoute = _.extend({}, baseRoute, {
@@ -175,11 +171,10 @@ function getUnknownRoute (router) {
   return unknownRoute;
 }
 
-function getRouteForURL (router, url) {
+function getRouteForURL (router, routes, url) {
   var route = null;
-  var unknownRoute = getUnknownRoute(router);
+  var unknownRoute = getUnknownRoute(routes);
   var matchedRoutes = [];
-  var routes = router.$routes();
 
   // find all routes with a matching routeString
   if(routes) {
@@ -265,7 +260,6 @@ module.exports = {
   registerOutlet: registerOutlet,
   unregisterOutlet: unregisterOutlet,
   trimBaseRoute: trimBaseRoute,
-  normalizeURL: normalizeURL,
   changeRoute: changeRoute,
   stripQueryStringAndHashFromPath: stripQueryStringAndHashFromPath,
   getUnknownRoute: getUnknownRoute,

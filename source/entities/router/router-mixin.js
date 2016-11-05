@@ -6,7 +6,7 @@ var isEntity = require('../entity-tools').isEntity;
 var routerTools = require('./router-tools');
 var isNullRouter = routerTools.isNullRouter;
 var transformRouteConfigToDesc = routerTools.transformRouteConfigToDesc;
-var normalizeURL = routerTools.normalizeURL;
+var trimBaseRoute = routerTools.trimBaseRoute;
 var changeRoute = routerTools.changeRoute;
 
 var util = require('../../misc/util');
@@ -132,7 +132,7 @@ module.exports = {
       /* istanbul ignore next */
       var popstateEvent = function () {
         var location = window.history.location || window.location;
-        self.currentState(normalizeURL(self, location.pathname + location.hash));
+        self.$currentState(trimBaseRoute(self, location.pathname + location.hash));
       };
 
       (function (eventInfo) {
@@ -142,8 +142,8 @@ module.exports = {
       self[privateDataSymbol].historyPopstateListener(popstateEvent);
     }
 
-    if (!self.currentState()) {
-      self.pushRoute();
+    if (!self.$currentState()) {
+      self.pushState();
     }
 
     self[privateDataSymbol].activated = true;
@@ -151,11 +151,11 @@ module.exports = {
 
     return self;
   },
-  replaceRoute: function (route, routeParams) {
+  replaceState: function (route, routeParams) {
     changeRoute(this, 'replace', route, routeParams);
     return self;
   },
-  pushRoute: function (route, routeParams) {
+  pushState: function (route, routeParams) {
     changeRoute(this, 'push', route, routeParams);
     return self;
   },
