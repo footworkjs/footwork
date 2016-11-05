@@ -45,28 +45,23 @@ function routerBootstrap (instance, configParams) {
       baseRoute: fw.router.baseRoute() + (resultBound(configParams, 'baseRoute', instance) || '')
     }, configParams || {});
 
-    _.extend(instance, descriptor.mixin, {
-      $currentState: fw.observable()
-    });
-
-    instance[privateDataSymbol].outlets = {};
-
     _.extend(instance[privateDataSymbol], {
       registerOutlet: _.partial(registerOutlet, instance),
       unregisterOutlet: _.partial(unregisterOutlet, instance),
-      historyPopstateListener: fw.observable()
+      historyPopstateListener: fw.observable(),
+      outlets: {}
     });
 
-    instance.$routes = fw.collection(configParams.routes);
-    _.extend(instance[privateDataSymbol], {
-      /**
-       * Computed which evaluates the currentRoute for the current given $currentState and set of routes
-       */
-      currentRoute: fw.computed(function () {
-        var routes = instance.$routes();
-        var $currentState = instance.$currentState();
-        return getRouteForURL(instance, routes, trimBaseRoute(instance, stripQueryStringAndHashFromPath($currentState)));
-      })
+    _.extend(instance, descriptor.mixin, {
+      $currentState: fw.observable(),
+      $activated: fw.observable(false),
+      $routes: fw.collection(configParams.routes)
+    });
+
+    instance[privateDataSymbol].currentRoute = fw.computed(function () {
+      var routes = instance.$routes();
+      var $currentState = instance.$currentState();
+      return getRouteForURL(instance, routes, trimBaseRoute(instance, stripQueryStringAndHashFromPath($currentState)));
     });
 
     instance.$currentRoute = fw.computed(function() {
@@ -102,10 +97,56 @@ function routerBootstrap (instance, configParams) {
       instance.replaceState(route, params);
     });
 
-    // Automatically trigger the routes controller whenever the currentRoute() updates
-    instance.disposeWithInstance(instance[privateDataSymbol].currentRoute.subscribe(function routeTrigger (newRoute) {
-      triggerRoute(instance, newRoute);
-    }));
+    instance.disposeWithInstance(
+      fw.computed(function() {
+        // Automatically trigger the currentRoute controller whenever the currentRoute() updates and the router is activated
+        var currentRoute = instance[privateDataSymbol].currentRoute();
+        var activated = instance.$activated();
+        if(activated && currentRoute) {
+          triggerRoute(instance, currentRoute);
+        }
+      }),
+      instance.$activated.subscribe(function(activated) {
+        // activate/deactivate the router when the $activated flag is set
+        if(activated) {
+          // activate the router
+
+          // set the current state as of page-load
+          var location = window.history.location || window.location;
+          instance[privateDataSymbol].activating = true;
+          instance.pushState(location.pathname + location.search + location.hash);
+          instance[privateDataSymbol].activating = false;
+
+          // setup html5 history event listener
+          if(!fw.router.disableHistory()) {
+            /* istanbul ignore next */
+            var popstateEvent = function () {
+              var location = window.history.location || window.location;
+              instance.$currentState(trimBaseRoute(instance, location.pathname + location.search + location.hash));
+            };
+
+            (function (eventInfo) {
+              window[eventInfo[0]](eventInfo[1] + 'popstate', popstateEvent, false);
+            })(window.addEventListener ? ['addEventListener', ''] : /* istanbul ignore next */ ['attachEvent', 'on']);
+
+            instance[privateDataSymbol].historyPopstateListener(popstateEvent);
+          }
+
+          // notify any listeners of the activation event
+          instance.$namespace.trigger('activated');
+        } else {
+          // deactivate the router
+
+          // dispose of the html5 history event listener
+          var historyPopstateListener = instance[privateDataSymbol].historyPopstateListener();
+          if (historyPopstateListener) {
+            (function (eventInfo) {
+              window[eventInfo[0]](eventInfo[1] + 'popstate', historyPopstateListener);
+            })(window.removeEventListener ? ['removeEventListener', ''] : /* istanbul ignore next */ ['detachEvent', 'on']);
+          }
+        }
+      })
+    );
   } else {
     throw new Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
   }

@@ -24,7 +24,7 @@ function transformRouteConfigToDesc (routeDesc) {
 }
 
 function sameRouteDescription (desc1, desc2) {
-  return desc1.id === desc2.id && _.isEqual(desc1.indexedParams, desc2.indexedParams) && _.isEqual(desc1.namedParams, desc2.namedParams);
+  return desc1.routeDescription === desc2.routeDescription && _.isEqual(desc1.indexedParams, desc2.indexedParams) && _.isEqual(desc1.namedParams, desc2.namedParams);
 }
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine
@@ -68,7 +68,7 @@ function nearestParentRouter ($context) {
  * @param {string} outletName the name (property) of the outlet
  * @param {object} outletViewModel the outlets viewModel to register with the router
  */
-function registerOutlet(router, outletName, outletViewModel) {
+function registerOutlet (router, outletName, outletViewModel) {
   var outletProperties = router[privateDataSymbol].outlets[outletName] = router[privateDataSymbol].outlets[outletName] || {};
   outletProperties.outletViewModel = outletViewModel;
 }
@@ -79,7 +79,7 @@ function registerOutlet(router, outletName, outletViewModel) {
  * @param {object} router the router to unregister from
  * @param {string} outletName the name (property) of the outlet
  */
-function unregisterOutlet(router, outletName) {
+function unregisterOutlet (router, outletName) {
   delete router[privateDataSymbol].outlets[outletName];
 }
 
@@ -94,6 +94,19 @@ function trimBaseRoute (router, url) {
   return url;
 }
 
+function triggerRoute (router, routeDescription) {
+  if (isRoute(routeDescription)) {
+    if (!_.isUndefined(routeDescription.title)) {
+      window.document.title = _.isFunction(routeDescription.title) ? routeDescription.title.apply(router, _.values(routeDescription.namedParams)) : routeDescription.title;
+    }
+
+    if (_.isUndefined(router[privateDataSymbol].currentRouteDescription) || !sameRouteDescription(router[privateDataSymbol].currentRouteDescription, routeDescription)) {
+      routeDescription.controller.apply(router, _.values(routeDescription.namedParams));
+      router[privateDataSymbol].currentRouteDescription = routeDescription;
+    }
+  }
+}
+
 /**
  * Change the route on the specified router to the specified route using the specified historyMethod and routeParams
  *
@@ -103,39 +116,38 @@ function trimBaseRoute (router, url) {
  * @param {object} routeParams (optional) parameters to pass to the route controller
  * @returns {object} the router
  */
-function changeRoute(router, historyMethod, route, routeParams) {
-  var namedRoute = _.isObject(routeParams) ? route : null;
-  var configParams = router[privateDataSymbol].configParams;
-  var useHistory = router[privateDataSymbol].activated && router[privateDataSymbol].historyPopstateListener() && !fw.router.disableHistory();
-  var location = window.history.location || window.location;
+function changeRoute (router, historyMethod, route, routeParams) {
+  if(router.$activated()) {
+    var namedRoute = _.isObject(routeParams) ? route : null;
+    var configParams = router[privateDataSymbol].configParams;
+    route = route;
 
-  if (!_.isNull(namedRoute)) {
-    // must convert namedRoute into its URL form
-    var routeDescription = _.find(router.$routes(), function (route) {
-      return route.name === namedRoute;
-    });
-
-    if (!_.isUndefined(routeDescription)) {
-      route = _.first([].concat(routeDescription.route));
-      _.each(routeParams, function (value, fieldName) {
-        route = route.replace(':' + fieldName, routeParams[fieldName]);
+    if (!_.isNull(namedRoute)) {
+      // must convert namedRoute into its URL form
+      var routeDescription = _.find(router.$routes(), function (route) {
+        return route.name === namedRoute;
       });
-    } else {
-      throw new Error('Could not locate named route: ' + namedRoute);
-    }
-  }
 
-  route = route || location.pathname;
-
-  var isExternalURL = fw.utils.isFullURL(route);
-  if (!isExternalURL) {
-    route = trimBaseRoute(router, route);
-
-    if (!isExternalURL && resultBound(configParams, 'beforeRoute', router, [route || '/'])) {
-      if (useHistory) {
-        history[historyMethod + 'State'](null, '', configParams.baseRoute + route);
+      if (!_.isUndefined(routeDescription)) {
+        // render the url of the named route to store in the $currentState
+        route = routeDescription.route;
+        _.each(routeParams, function (value, fieldName) {
+          route = route.replace(':' + fieldName, routeParams[fieldName]);
+        });
+      } else {
+        throw new Error('Could not locate named route: ' + namedRoute);
       }
-      router.$currentState(route);
+    }
+
+    if (!fw.utils.isFullURL(route)) {
+      route = trimBaseRoute(router, route);
+
+      if (resultBound(configParams, 'beforeRoute', router, [route || '/'])) {
+        if (!router[privateDataSymbol].activating && route && router[privateDataSymbol].historyPopstateListener() && !fw.router.disableHistory()) {
+          history[historyMethod + 'State'](null, '', configParams.baseRoute + route);
+        }
+        router.$currentState(route);
+      }
     }
   }
 
@@ -235,19 +247,6 @@ function getRouteForURL (router, routes, url) {
   }
 
   return route || unknownRoute;
-}
-
-function triggerRoute (router, routeDescription) {
-  if (isRoute(routeDescription)) {
-    if (!_.isUndefined(routeDescription.title)) {
-      window.document.title = _.isFunction(routeDescription.title) ? routeDescription.title.apply(router, _.values(routeDescription.namedParams)) : routeDescription.title;
-    }
-
-    if (_.isUndefined(router[privateDataSymbol].currentRouteDescription) || !sameRouteDescription(router[privateDataSymbol].currentRouteDescription, routeDescription)) {
-      routeDescription.controller.apply(router, _.values(routeDescription.namedParams));
-      router[privateDataSymbol].currentRouteDescription = routeDescription;
-    }
-  }
 }
 
 module.exports = {

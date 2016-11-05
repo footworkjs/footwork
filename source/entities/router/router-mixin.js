@@ -126,29 +126,7 @@ module.exports = {
     return outlet;
   },
   activate: function () {
-    var self = this;
-
-    if (!self[privateDataSymbol].historyPopstateListener()) {
-      /* istanbul ignore next */
-      var popstateEvent = function () {
-        var location = window.history.location || window.location;
-        self.$currentState(trimBaseRoute(self, location.pathname + location.hash));
-      };
-
-      (function (eventInfo) {
-        window[eventInfo[0]](eventInfo[1] + 'popstate', popstateEvent, false);
-      })(window.addEventListener ? ['addEventListener', ''] : ['attachEvent', 'on']);
-
-      self[privateDataSymbol].historyPopstateListener(popstateEvent);
-    }
-
-    if (!self.$currentState()) {
-      self.pushState();
-    }
-
-    self[privateDataSymbol].activated = true;
-    self.$namespace.trigger('activated');
-
+    this.$activated(true);
     return self;
   },
   replaceState: function (route, routeParams) {
@@ -164,13 +142,10 @@ module.exports = {
       // first run all of the standard viewModel disposal logic
       viewModelMixinDispose.call(this);
 
-      var historyPopstateListener = this[privateDataSymbol].historyPopstateListener();
-      if (historyPopstateListener) {
-        (function (eventInfo) {
-          window[eventInfo[0]](eventInfo[1] + 'popstate', historyPopstateListener);
-        })(window.removeEventListener ? ['removeEventListener', ''] : /* istanbul ignore next */ ['detachEvent', 'on']);
-      }
+      // deactivate the router (unbinds the history event listener)
+      this.$activated(false);
 
+      // dispose of all privately stored properties
       _.each(this[privateDataSymbol], propertyDispose);
 
       return this;
