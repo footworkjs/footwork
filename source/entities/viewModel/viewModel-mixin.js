@@ -23,6 +23,11 @@ module.exports = {
   },
   disposeWithInstance: function disposeWithInstance (disposableItem) {
     var self = this;
+
+    if(arguments.length > 1) {
+      disposableItem = Array.prototype.slice.call(arguments);
+    }
+
     if (_.isArray(disposableItem)) {
       _.each(disposableItem, function (item) {
         self.disposeWithInstance(item);
