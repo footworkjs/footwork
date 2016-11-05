@@ -19,10 +19,6 @@ var splatParamRegex = /\*\w*/g;
 var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatchRegex = /(^\/#)/;
 
-function transformRouteConfigToDesc (routeDesc) {
-  return _.extend({}, routeDesc );
-}
-
 function sameRouteDescription (desc1, desc2) {
   return desc1.routeDescription === desc2.routeDescription && _.isEqual(desc1.indexedParams, desc2.indexedParams) && _.isEqual(desc1.namedParams, desc2.namedParams);
 }
@@ -250,7 +246,6 @@ function getRouteForURL (router, routes, url) {
 module.exports = {
   namedParamRegex: namedParamRegex,
   hashMatchRegex: hashMatchRegex,
-  transformRouteConfigToDesc: transformRouteConfigToDesc,
   sameRouteDescription: sameRouteDescription,
   routeStringToRegExp: routeStringToRegExp,
   isNullRouter: isNullRouter,
