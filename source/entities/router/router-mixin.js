@@ -126,13 +126,18 @@ module.exports = {
     return outlet;
   },
   setRoutes: function (routeDesc) {
-    this[privateDataSymbol].routes = [];
+    this[privateDataSymbol].routes([]);
     routeDesc && this.addRoutes(routeDesc);
     return this;
   },
   addRoutes: function (routeConfig) {
+    var routes = this[privateDataSymbol].routes();
     if(routeConfig) {
-      this[privateDataSymbol].routes = this[privateDataSymbol].routes.concat(routeConfig);
+      routeConfig = _.isArray(routeConfig) ? routeConfig : [routeConfig];
+      _.each(routeConfig, function addSpecificRoute(route) {
+        routes.push(route);
+      });
+      this[privateDataSymbol].routes.valueHasMutated();
     }
     return this;
   },

@@ -10,7 +10,6 @@ var alwaysPassPredicate = util.alwaysPassPredicate;
 
 var routerDefaults = require('./router-defaults');
 var nullRouter = routerDefaults.nullRouter;
-var baseRouteDescription = routerDefaults.baseRouteDescription;
 var routesAreCaseSensitive = routerDefaults.routesAreCaseSensitive;
 var baseRoute = routerDefaults.baseRoute;
 
@@ -112,7 +111,7 @@ function changeRoute(router, historyMethod, route, routeParams) {
 
   if (!_.isNull(namedRoute)) {
     // must convert namedRoute into its URL form
-    var routeDescription = _.find(router[privateDataSymbol].routes, function (route) {
+    var routeDescription = _.find(router[privateDataSymbol].routes(), function (route) {
       return route.name === namedRoute;
     });
 
@@ -162,7 +161,7 @@ function normalizeURL (router, url) {
 }
 
 function getUnknownRoute (router) {
-  var unknownRoute = _.find(router[privateDataSymbol].routes.reverse(), { unknown: true }) || null;
+  var unknownRoute = _.find(router[privateDataSymbol].routes().reverse(), { unknown: true }) || null;
 
   if (!_.isNull(unknownRoute)) {
     unknownRoute = _.extend({}, baseRoute, {
@@ -182,8 +181,8 @@ function getRouteForURL (router, url) {
   var matchedRoutes = [];
 
   // find all routes with a matching routeString
-  if(router[privateDataSymbol].routes) {
-    matchedRoutes = _.reduce(router[privateDataSymbol].routes, function (matches, routeDescription) {
+  if(router[privateDataSymbol].routes()) {
+    matchedRoutes = _.reduce(router[privateDataSymbol].routes(), function (matches, routeDescription) {
       var routeDescRoute = [].concat(routeDescription.route);
       _.each(routeDescRoute, function (routeString) {
         var routeParams = [];
