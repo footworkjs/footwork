@@ -25,13 +25,12 @@ module.exports = {
   outlet: function (outletName, componentToDisplay, options) {
     options = options || {};
     if (_.isFunction(options)) {
-      options = { onComplete: options, onFailure: _.noop };
+      options = { onComplete: options };
     }
 
     var router = this;
     var viewModelParameters = options.params;
     var onComplete = options.onComplete || _.noop;
-    var onFailure = options.onFailure || _.noop;
     var configParams = router[privateDataSymbol].configParams;
     var outlets = router[privateDataSymbol].outlets;
     var outletProperties = outlets[outletName] || {};
@@ -43,8 +42,7 @@ module.exports = {
       outlet = fw.observable({
         name: noComponentSelected,
         params: {},
-        getOnCompleteCallback: function () { return _.noop; },
-        onFailure: onFailure.bind(router)
+        getOnCompleteCallback: function () { return _.noop; }
       });
 
       // register the new outlet under its outletName
