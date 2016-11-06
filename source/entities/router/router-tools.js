@@ -19,8 +19,8 @@ var splatParamRegex = /\*\w*/g;
 var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatchRegex = /(^\/#)/;
 
-function sameRouteDescription (desc1, desc2) {
-  return desc1.routeConfiguration === desc2.routeConfiguration && _.isEqual(desc1.routeParams, desc2.routeParams);
+function sameRoute (route1, route2) {
+  return route1.routeConfiguration === route2.routeConfiguration && _.isEqual(route1.routeParams, route2.routeParams);
 }
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine
@@ -90,15 +90,15 @@ function trimBaseRoute (router, url) {
   return url;
 }
 
-function triggerRoute (router, routeDescription) {
-  if (isRoute(routeDescription)) {
-    if (!_.isUndefined(routeDescription.title)) {
-      window.document.title = _.isFunction(routeDescription.title) ? routeDescription.title.apply(router, _.values(routeDescription.routeParams)) : routeDescription.title;
+function triggerRoute (router, route) {
+  if (isRoute(route)) {
+    if (!_.isUndefined(route.title)) {
+      window.document.title = _.isFunction(route.title) ? route.title.apply(router, _.values(route.routeParams)) : route.title;
     }
 
-    if (_.isUndefined(router[privateDataSymbol].currentRouteDescription) || !sameRouteDescription(router[privateDataSymbol].currentRouteDescription, routeDescription)) {
-      routeDescription.controller.apply(router, _.values(routeDescription.routeParams));
-      router[privateDataSymbol].currentRouteDescription = routeDescription;
+    if (_.isUndefined(router[privateDataSymbol].previousRoute) || !sameRoute(router[privateDataSymbol].previousRoute, route)) {
+      route.controller.apply(router, _.values(route.routeParams));
+      router[privateDataSymbol].previousRoute = route;
     }
   }
 }
@@ -165,16 +165,15 @@ function stripQueryStringAndHashFromPath (url) {
 }
 
 function getRouteForURL (router, routes, url) {
-  var route;
+  var currentRouteDetails;
   var matchedRoutes = [];
-  var matchedRoute;
   var routeConfiguration;
 
   // find all routes with a matching routeString
   if(routes) {
     matchedRoutes = _.reduce(routes, function (matches, routeConfiguration) {
-      var routeDescRoute = [].concat(routeConfiguration.route);
-      _.each(routeDescRoute, function (routeString) {
+      var routeConfigRoute = [].concat(routeConfiguration.route);
+      _.each(routeConfigRoute, function (routeString) {
         var routeParams = [];
 
         if (_.isString(routeString) && _.isString(url)) {
@@ -196,16 +195,12 @@ function getRouteForURL (router, routes, url) {
   // If there are matchedRoutes, find the one with the highest 'specificity' (longest matching routeString)
   // and convert it into the actual route
   if (matchedRoutes.length) {
-    matchedRoute = _.reduce(matchedRoutes, function (matchedRoute, foundRoute) {
+    var matchedRoute = _.reduce(matchedRoutes, function (matchedRoute, foundRoute) {
       if (_.isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity) {
         matchedRoute = foundRoute;
       }
       return matchedRoute;
     }, null);
-  }
-
-  if(matchedRoute) {
-    routeConfiguration = matchedRoute.routeConfiguration;
 
     var routeString = matchedRoute.routeString;
     var routeParams = _.clone(matchedRoute.routeParams);
@@ -218,16 +213,18 @@ function getRouteForURL (router, routes, url) {
       return parameterNames;
     }, {});
 
-    route = {
+    currentRouteDetails = {
       url: url,
       segment: url.substr(0, url.length - splatSegment.length),
       routeParams: routeParams
     };
+
+    routeConfiguration = matchedRoute.routeConfiguration;
   } else {
     routeConfiguration = _.find(routes, { unknown: true }) || {};
   }
 
-  return _.extend({}, {
+  return _.extend({
     routeConfiguration: routeConfiguration,
     controller: routeConfiguration.controller || _.noop,
     name: routeConfiguration.name,
@@ -235,7 +232,7 @@ function getRouteForURL (router, routes, url) {
     segment: '',
     routeParams: {},
     __isRoute: true
-  }, route);
+  }, currentRouteDetails);
 }
 
 /**
@@ -251,7 +248,6 @@ function getLocation() {
 module.exports = {
   namedParamRegex: namedParamRegex,
   hashMatchRegex: hashMatchRegex,
-  sameRouteDescription: sameRouteDescription,
   routeStringToRegExp: routeStringToRegExp,
   isNullRouter: isNullRouter,
   isRoute: isRoute,
