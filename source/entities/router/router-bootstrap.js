@@ -16,11 +16,6 @@ var isRoute = routerTools.isRoute;
 var stripQueryStringAndHashFromPath = routerTools.stripQueryStringAndHashFromPath;
 var getLocation = routerTools.getLocation;
 
-
-var routerDefaults = require('./router-defaults');
-var nullRouter = routerDefaults.nullRouter;
-var noComponentSelected = routerDefaults.noComponentSelected;
-
 /**
  * Bootstrap an instance with router capabilities (state management, outlet control, etc).
  *
