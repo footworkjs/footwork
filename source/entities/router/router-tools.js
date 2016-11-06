@@ -168,6 +168,7 @@ function getRouteForURL (router, routes, url) {
   var route;
   var matchedRoutes = [];
   var matchedRoute;
+  var routeConfiguration;
 
   // find all routes with a matching routeString
   if(routes) {
@@ -204,7 +205,8 @@ function getRouteForURL (router, routes, url) {
   }
 
   if(matchedRoute) {
-    var routeConfiguration = matchedRoute.routeConfiguration;
+    routeConfiguration = matchedRoute.routeConfiguration;
+
     var routeString = matchedRoute.routeString;
     var routeParams = _.clone(matchedRoute.routeParams);
     var splatSegment = routeParams.pop() || '';
@@ -217,34 +219,25 @@ function getRouteForURL (router, routes, url) {
     }, {});
 
     route = {
-      controller: routeConfiguration.controller,
-      title: routeConfiguration.title,
-      name: routeConfiguration.name,
       url: url,
       segment: url.substr(0, url.length - splatSegment.length),
-      routeParams: routeParams,
-      routeConfiguration: routeConfiguration
+      routeParams: routeParams
     };
   } else {
-    route = getUnknownRoute(routes);
-  }
-
-  return _.extend({}, baseRoute, route);
-}
-
-function getUnknownRoute (routes) {
-  var unknownRoute = _.find(routes, { unknown: true });
-
-  if (unknownRoute) {
-    unknownRoute = {
-      controller: unknownRoute.controller,
-      title: unknownRoute.title,
-      name: unknownRoute.name,
-      routeConfiguration: unknownRoute
+    routeConfiguration = _.find(routes, { unknown: true }) || {
+      controller: _.noop
     };
   }
 
-  return unknownRoute;
+  return _.extend({}, {
+    routeConfiguration: routeConfiguration,
+    controller: routeConfiguration.controller,
+    name: routeConfiguration.name,
+    title: routeConfiguration.title,
+    segment: '',
+    routeParams: {},
+    __isRoute: true
+  }, route);
 }
 
 /**

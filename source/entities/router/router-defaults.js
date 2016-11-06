@@ -16,13 +16,6 @@ var routesAreCaseSensitive = true;
 var nullRouter = {};
 nullRouter[getSymbol('isNullRouter')] = true;
 
-var baseRoute = {
-  controller: _.noop,
-  segment: '',
-  routeParams: {},
-  __isRoute: true
-};
-
 module.exports = {
   defaultLoadingComponent: 'default-loading-display',
   noComponentSelected: noComponentSelected,
@@ -30,7 +23,6 @@ module.exports = {
   invalidRoutePathIdentifier: invalidRoutePathIdentifier,
   routesAreCaseSensitive: routesAreCaseSensitive,
   nullRouter: nullRouter,
-  baseRoute: baseRoute,
   outletLoadingDisplay: 'fw-loading-display',
   outletLoadedDisplay: 'fw-loaded-display',
   activeOutlets: fw.observableArray()
