@@ -15,14 +15,10 @@ var routesAreCaseSensitive = true;
 
 var nullRouter = {};
 nullRouter[getSymbol('isNullRouter')] = true;
-nullRouter[privateDataSymbol] = {
-  path: function () { return ''; }
-};
 
 var baseRoute = {
   controller: _.noop,
-  indexedParams: [],
-  namedParams: {},
+  routeParams: {},
   __isRoute: true
 };
 

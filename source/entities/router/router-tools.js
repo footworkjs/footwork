@@ -20,7 +20,7 @@ var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatchRegex = /(^\/#)/;
 
 function sameRouteDescription (desc1, desc2) {
-  return desc1.routeDescription === desc2.routeDescription && _.isEqual(desc1.namedParams, desc2.namedParams);
+  return desc1.routeDescription === desc2.routeDescription && _.isEqual(desc1.routeParams, desc2.routeParams);
 }
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine
@@ -93,11 +93,11 @@ function trimBaseRoute (router, url) {
 function triggerRoute (router, routeDescription) {
   if (isRoute(routeDescription)) {
     if (!_.isUndefined(routeDescription.title)) {
-      window.document.title = _.isFunction(routeDescription.title) ? routeDescription.title.apply(router, _.values(routeDescription.namedParams)) : routeDescription.title;
+      window.document.title = _.isFunction(routeDescription.title) ? routeDescription.title.apply(router, _.values(routeDescription.routeParams)) : routeDescription.title;
     }
 
     if (_.isUndefined(router[privateDataSymbol].currentRouteDescription) || !sameRouteDescription(router[privateDataSymbol].currentRouteDescription, routeDescription)) {
-      routeDescription.controller.apply(router, _.values(routeDescription.namedParams));
+      routeDescription.controller.apply(router, _.values(routeDescription.routeParams));
       router[privateDataSymbol].currentRouteDescription = routeDescription;
     }
   }
@@ -223,7 +223,7 @@ function getRouteForURL (router, routes, url) {
     var routeParamNames = _.map(routeString.match(namedParamRegex), function (param) {
       return param.replace(':', '');
     });
-    var namedParams = _.reduce(routeParamNames, function (parameterNames, parameterName, index) {
+    var routeParams = _.reduce(routeParamNames, function (parameterNames, parameterName, index) {
       parameterNames[parameterName] = routeParams[index + 1];
       return parameterNames;
     }, {});
@@ -234,8 +234,7 @@ function getRouteForURL (router, routes, url) {
       name: routeDescription.name,
       url: url,
       segment: url.substr(0, url.length - splatSegment.length),
-      indexedParams: routeParams,
-      namedParams: namedParams,
+      routeParams: routeParams,
       routeDescription: routeDescription
     });
   }
