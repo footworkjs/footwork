@@ -39,17 +39,20 @@ viewModel, dataModel, router {
   -moz-transition: top 0.5s ease, opacity 0.5s ease;
   transition: top 0.5s ease, opacity 0.5s ease; }
 
-.fw-entity.fw-entity-animate > .fade-in {
+.fw-entity.fw-entity-resolved > .fade-in {
   opacity: 1;
   -webkit-transition: opacity 0.5s ease;
   -moz-transition: opacity 0.5s ease;
   transition: opacity 0.5s ease; }
 
-.fw-entity.fw-entity-animate > .fade-in-from-left,
-.fw-entity.fw-entity-animate > .fade-in-from-right,
-.fw-entity.fw-entity-animate > .fade-in-from-top,
-.fw-entity.fw-entity-animate > .fade-in-from-bottom {
-  position: relative;
+.fw-entity.fw-entity-resolved > .fade-in-from-left,
+.fw-entity.fw-entity-resolved > .fade-in-from-right,
+.fw-entity.fw-entity-resolved > .fade-in-from-top,
+.fw-entity.fw-entity-resolved > .fade-in-from-bottom,
+.fw-entity.fw-entity-resolved > .fw-old-browser > .fade-in-from-left,
+.fw-entity.fw-entity-resolved > .fw-old-browser > .fade-in-from-right,
+.fw-entity.fw-entity-resolved > .fw-old-browser > .fade-in-from-top,
+.fw-entity.fw-entity-resolved > .fw-old-browser > .fade-in-from-bottom {
   left: 0;
   top: 0;
   opacity: 1;
