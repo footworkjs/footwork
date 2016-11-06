@@ -68,7 +68,7 @@ function routerBootstrap (instance, configParams) {
     instance.$currentRoute = fw.computed(function() {
       var currentRoute = instance[privateDataSymbol].currentRoute();
       if(currentRoute) {
-        return currentRoute.routeDescription;
+        return currentRoute.routeConfiguration;
       } else {
         return null;
       }

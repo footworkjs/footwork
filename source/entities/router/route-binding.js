@@ -91,14 +91,14 @@ fw.bindingHandlers.$route = {
           if (!hasPathStart(myLinkPath)) {
             var currentRoute = router[privateDataSymbol].currentRoute();
             if (hasHashStart(myLinkPath)) {
-              if (!_.isNull(currentRoute)) {
-                myLinkPath = router[privateDataSymbol].currentRoute().segment + myLinkPath;
+              if (currentRoute) {
+                myLinkPath = currentRoute.segment + myLinkPath;
               }
               hashOnly = true;
             } else {
               // relative url, prepend current segment
-              if (!_.isNull(currentRoute)) {
-                myLinkPath = router[privateDataSymbol].currentRoute().segment + '/' + myLinkPath;
+              if (currentRoute) {
+                myLinkPath = currentRoute.segment + '/' + myLinkPath;
               }
             }
           }
@@ -111,31 +111,33 @@ fw.bindingHandlers.$route = {
     };
 
     function checkForMatchingSegment (mySegment, newRoute) {
-      if (_.isString(mySegment)) {
-        var currentRoute = router[privateDataSymbol].currentRoute();
-        var elementWithState = routeHandlerDescription.parentHasState ? findParentNode(element, routeHandlerDescription.parentHasState) : element;
-        var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router) || fw.router.activeRouteClassName();
-        mySegment = mySegment.replace(startingHashRegex, '/');
+      var elementWithState = routeHandlerDescription.parentHasState ? findParentNode(element, routeHandlerDescription.parentHasState) : element;
+      if (elementWithState) {
+        if(_.isString(mySegment)) {
+          var currentRoute = router[privateDataSymbol].currentRoute();
+          var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router) || fw.router.activeRouteClassName();
+          mySegment = mySegment.replace(startingHashRegex, '/');
 
-        if (_.isObject(currentRoute)) {
-          if (resultBound(routeHandlerDescription, 'addActiveClass', router)) {
-            if (mySegment === '/') {
-              mySegment = '';
-            }
+          if (_.isObject(currentRoute)) {
+            if (resultBound(routeHandlerDescription, 'addActiveClass', router)) {
+              if (mySegment === '/') {
+                mySegment = '';
+              }
 
-            if (!_.isNull(newRoute) && newRoute.segment === mySegment && _.isString(activeRouteClassName) && activeRouteClassName.length) {
-              // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
-              addClass(elementWithState, activeRouteClassName);
-            } else if (hasClass(elementWithState, activeRouteClassName)) {
-              removeClass(elementWithState, activeRouteClassName);
+              if (!_.isNull(newRoute) && newRoute.segment === mySegment && _.isString(activeRouteClassName) && activeRouteClassName.length) {
+                // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
+                addClass(elementWithState, activeRouteClassName);
+              } else if (hasClass(elementWithState, activeRouteClassName)) {
+                removeClass(elementWithState, activeRouteClassName);
+              }
             }
           }
         }
-      }
 
-      if (_.isNull(newRoute)) {
-        // No route currently selected, remove the activeRouteClassName from the elementWithState
-        removeClass(elementWithState, activeRouteClassName);
+        if (_.isNull(newRoute)) {
+          // No route currently selected, remove the activeRouteClassName from the elementWithState
+          removeClass(elementWithState, activeRouteClassName);
+        }
       }
     };
 

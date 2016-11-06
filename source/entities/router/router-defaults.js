@@ -18,6 +18,7 @@ nullRouter[getSymbol('isNullRouter')] = true;
 
 var baseRoute = {
   controller: _.noop,
+  segment: '',
   routeParams: {},
   __isRoute: true
 };

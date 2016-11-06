@@ -20,7 +20,7 @@ var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatchRegex = /(^\/#)/;
 
 function sameRouteDescription (desc1, desc2) {
-  return desc1.routeDescription === desc2.routeDescription && _.isEqual(desc1.routeParams, desc2.routeParams);
+  return desc1.routeConfiguration === desc2.routeConfiguration && _.isEqual(desc1.routeParams, desc2.routeParams);
 }
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine
@@ -164,40 +164,25 @@ function stripQueryStringAndHashFromPath (url) {
   }
 }
 
-function getUnknownRoute (routes) {
-  var unknownRoute = _.find(routes.reverse(), { unknown: true }) || null;
-
-  if (!_.isNull(unknownRoute)) {
-    unknownRoute = _.extend({}, baseRoute, {
-      controller: unknownRoute.controller,
-      title: unknownRoute.title,
-      segment: '',
-      routeDescription: unknownRoute
-    });
-  }
-
-  return unknownRoute;
-}
-
 function getRouteForURL (router, routes, url) {
-  var route = null;
-  var unknownRoute = getUnknownRoute(routes);
+  var route;
   var matchedRoutes = [];
+  var matchedRoute;
 
   // find all routes with a matching routeString
   if(routes) {
-    matchedRoutes = _.reduce(routes, function (matches, routeDescription) {
-      var routeDescRoute = [].concat(routeDescription.route);
+    matchedRoutes = _.reduce(routes, function (matches, routeConfiguration) {
+      var routeDescRoute = [].concat(routeConfiguration.route);
       _.each(routeDescRoute, function (routeString) {
         var routeParams = [];
 
         if (_.isString(routeString) && _.isString(url)) {
           routeParams = url.match(routeStringToRegExp(routeString));
-          if (!_.isNull(routeParams) && (routeDescription.filter || alwaysPassPredicate).call(router, routeParams)) {
+          if (!_.isNull(routeParams) && (routeConfiguration.filter || alwaysPassPredicate).call(router, routeParams)) {
             matches.push({
               routeString: routeString,
               specificity: routeString.replace(namedParamRegex, "*").length,
-              routeDescription: routeDescription,
+              routeConfiguration: routeConfiguration,
               routeParams: routeParams
             });
           }
@@ -207,16 +192,19 @@ function getRouteForURL (router, routes, url) {
     }, []);
   }
 
-  // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
+  // If there are matchedRoutes, find the one with the highest 'specificity' (longest matching routeString)
   // and convert it into the actual route
   if (matchedRoutes.length) {
-    var matchedRoute = _.reduce(matchedRoutes, function (matchedRoute, foundRoute) {
+    matchedRoute = _.reduce(matchedRoutes, function (matchedRoute, foundRoute) {
       if (_.isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity) {
         matchedRoute = foundRoute;
       }
       return matchedRoute;
     }, null);
-    var routeDescription = matchedRoute.routeDescription;
+  }
+
+  if(matchedRoute) {
+    var routeConfiguration = matchedRoute.routeConfiguration;
     var routeString = matchedRoute.routeString;
     var routeParams = _.clone(matchedRoute.routeParams);
     var splatSegment = routeParams.pop() || '';
@@ -228,18 +216,35 @@ function getRouteForURL (router, routes, url) {
       return parameterNames;
     }, {});
 
-    route = _.extend({}, baseRoute, {
-      controller: routeDescription.controller,
-      title: routeDescription.title,
-      name: routeDescription.name,
+    route = {
+      controller: routeConfiguration.controller,
+      title: routeConfiguration.title,
+      name: routeConfiguration.name,
       url: url,
       segment: url.substr(0, url.length - splatSegment.length),
       routeParams: routeParams,
-      routeDescription: routeDescription
-    });
+      routeConfiguration: routeConfiguration
+    };
+  } else {
+    route = getUnknownRoute(routes);
   }
 
-  return route || unknownRoute;
+  return _.extend({}, baseRoute, route);
+}
+
+function getUnknownRoute (routes) {
+  var unknownRoute = _.find(routes, { unknown: true });
+
+  if (unknownRoute) {
+    unknownRoute = {
+      controller: unknownRoute.controller,
+      title: unknownRoute.title,
+      name: unknownRoute.name,
+      routeConfiguration: unknownRoute
+    };
+  }
+
+  return unknownRoute;
 }
 
 /**
@@ -265,7 +270,6 @@ module.exports = {
   trimBaseRoute: trimBaseRoute,
   changeRoute: changeRoute,
   stripQueryStringAndHashFromPath: stripQueryStringAndHashFromPath,
-  getUnknownRoute: getUnknownRoute,
   getRouteForURL: getRouteForURL,
   triggerRoute: triggerRoute,
   getLocation: getLocation
