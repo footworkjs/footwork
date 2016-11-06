@@ -115,10 +115,10 @@ function routerBootstrap (instance, configParams) {
         } else {
           // deactivate the router
 
-          // dispose of the html5 history event listener
+          // dispose of the history popstate event listener
           var historyPopstateListener = instance[privateDataSymbol].historyPopstateListener();
           if (historyPopstateListener) {
-            (function (eventInfo) {
+            (function popStateListener (eventInfo) {
               window[eventInfo[0]](eventInfo[1] + 'popstate', historyPopstateListener);
             })(window.removeEventListener ? ['removeEventListener', ''] : /* istanbul ignore next */ ['detachEvent', 'on']);
           }
