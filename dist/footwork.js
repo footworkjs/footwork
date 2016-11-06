@@ -8180,7 +8180,7 @@ var bindingElement = {
   if (exploderVersion <= oldExploderVersion) {
     // client is using an older IE, we have to initialize the wrapper with a normal element (ie < 9 doesn't support virtual elements)
     bindingElement.open = {
-      prefix: '<' + bindingElement.oldExploderTagName + ' class="' + bindingElement.oldIeClassName + '" data-bind="',
+      prefix: '<' + bindingElement.oldExploderTagName + ' class="' + bindingElement.oldExploderClassName + '" data-bind="',
       postfix: '">'
     };
     bindingElement.close = '</' + bindingElement.oldExploderTagName + '>';
@@ -10571,14 +10571,14 @@ fw.bindingHandlers.$route = {
           if (!hasPathStart(myLinkPath)) {
             var currentRoute = router[privateDataSymbol].currentRoute();
             if (hasHashStart(myLinkPath)) {
-              if (!_.isNull(currentRoute)) {
-                myLinkPath = router[privateDataSymbol].currentRoute().segment + myLinkPath;
+              if (currentRoute) {
+                myLinkPath = currentRoute.segment + myLinkPath;
               }
               hashOnly = true;
             } else {
               // relative url, prepend current segment
-              if (!_.isNull(currentRoute)) {
-                myLinkPath = router[privateDataSymbol].currentRoute().segment + '/' + myLinkPath;
+              if (currentRoute) {
+                myLinkPath = currentRoute.segment + '/' + myLinkPath;
               }
             }
           }
@@ -10591,31 +10591,33 @@ fw.bindingHandlers.$route = {
     };
 
     function checkForMatchingSegment (mySegment, newRoute) {
-      if (_.isString(mySegment)) {
-        var currentRoute = router[privateDataSymbol].currentRoute();
-        var elementWithState = routeHandlerDescription.parentHasState ? findParentNode(element, routeHandlerDescription.parentHasState) : element;
-        var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router) || fw.router.activeRouteClassName();
-        mySegment = mySegment.replace(startingHashRegex, '/');
+      var elementWithState = routeHandlerDescription.parentHasState ? findParentNode(element, routeHandlerDescription.parentHasState) : element;
+      if (elementWithState) {
+        if(_.isString(mySegment)) {
+          var currentRoute = router[privateDataSymbol].currentRoute();
+          var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router) || fw.router.activeRouteClassName();
+          mySegment = mySegment.replace(startingHashRegex, '/');
 
-        if (_.isObject(currentRoute)) {
-          if (resultBound(routeHandlerDescription, 'addActiveClass', router)) {
-            if (mySegment === '/') {
-              mySegment = '';
-            }
+          if (_.isObject(currentRoute)) {
+            if (resultBound(routeHandlerDescription, 'addActiveClass', router)) {
+              if (mySegment === '/') {
+                mySegment = '';
+              }
 
-            if (!_.isNull(newRoute) && newRoute.segment === mySegment && _.isString(activeRouteClassName) && activeRouteClassName.length) {
-              // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
-              addClass(elementWithState, activeRouteClassName);
-            } else if (hasClass(elementWithState, activeRouteClassName)) {
-              removeClass(elementWithState, activeRouteClassName);
+              if (!_.isNull(newRoute) && newRoute.segment === mySegment && _.isString(activeRouteClassName) && activeRouteClassName.length) {
+                // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
+                addClass(elementWithState, activeRouteClassName);
+              } else if (hasClass(elementWithState, activeRouteClassName)) {
+                removeClass(elementWithState, activeRouteClassName);
+              }
             }
           }
         }
-      }
 
-      if (_.isNull(newRoute)) {
-        // No route currently selected, remove the activeRouteClassName from the elementWithState
-        removeClass(elementWithState, activeRouteClassName);
+        if (_.isNull(newRoute)) {
+          // No route currently selected, remove the activeRouteClassName from the elementWithState
+          removeClass(elementWithState, activeRouteClassName);
+        }
       }
     };
 
@@ -10683,11 +10685,7 @@ var getRouteForURL = routerTools.getRouteForURL;
 var triggerRoute = routerTools.triggerRoute;
 var isRoute = routerTools.isRoute;
 var stripQueryStringAndHashFromPath = routerTools.stripQueryStringAndHashFromPath;
-
-
-var routerDefaults = require('./router-defaults');
-var nullRouter = routerDefaults.nullRouter;
-var noComponentSelected = routerDefaults.noComponentSelected;
+var getLocation = routerTools.getLocation;
 
 /**
  * Bootstrap an instance with router capabilities (state management, outlet control, etc).
@@ -10736,7 +10734,7 @@ function routerBootstrap (instance, configParams) {
     instance.$currentRoute = fw.computed(function() {
       var currentRoute = instance[privateDataSymbol].currentRoute();
       if(currentRoute) {
-        return currentRoute.routeDescription;
+        return currentRoute.routeConfiguration;
       } else {
         return null;
       }
@@ -10760,17 +10758,15 @@ function routerBootstrap (instance, configParams) {
           // activate the router
 
           // set the current state as of page-load
-          var location = window.history.location || window.location;
           instance[privateDataSymbol].activating = true;
-          instance.pushState(location.pathname + location.search + location.hash);
+          instance.pushState(getLocation());
           instance[privateDataSymbol].activating = false;
 
           // setup html5 history event listener
           if(!fw.router.disableHistory()) {
             /* istanbul ignore next */
             var popstateEvent = function () {
-              var location = window.history.location || window.location;
-              instance.$currentState(trimBaseRoute(instance, location.pathname + location.search + location.hash));
+              instance.$currentState(trimBaseRoute(instance, getLocation()));
             };
 
             (function (eventInfo) {
@@ -10785,10 +10781,10 @@ function routerBootstrap (instance, configParams) {
         } else {
           // deactivate the router
 
-          // dispose of the html5 history event listener
+          // dispose of the history popstate event listener
           var historyPopstateListener = instance[privateDataSymbol].historyPopstateListener();
           if (historyPopstateListener) {
-            (function (eventInfo) {
+            (function popStateListener (eventInfo) {
               window[eventInfo[0]](eventInfo[1] + 'popstate', historyPopstateListener);
             })(window.removeEventListener ? ['removeEventListener', ''] : /* istanbul ignore next */ ['detachEvent', 'on']);
           }
@@ -10818,7 +10814,7 @@ function routerStateChangeCommandHandler (instance, mode, state) {
 
 module.exports = routerBootstrap;
 
-},{"../../misc/config":43,"../../misc/util":47,"../entity-descriptors":26,"../viewModel/viewModel-bootstrap":39,"./router-defaults":35,"./router-tools":37,"knockout/build/output/knockout-latest":2,"lodash":3}],35:[function(require,module,exports){
+},{"../../misc/config":43,"../../misc/util":47,"../entity-descriptors":26,"../viewModel/viewModel-bootstrap":39,"./router-tools":37,"knockout/build/output/knockout-latest":2,"lodash":3}],35:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -10836,16 +10832,6 @@ var routesAreCaseSensitive = true;
 
 var nullRouter = {};
 nullRouter[getSymbol('isNullRouter')] = true;
-nullRouter[privateDataSymbol] = {
-  path: function () { return ''; }
-};
-
-var baseRoute = {
-  controller: _.noop,
-  indexedParams: [],
-  namedParams: {},
-  __isRoute: true
-};
 
 module.exports = {
   defaultLoadingComponent: 'default-loading-display',
@@ -10854,7 +10840,6 @@ module.exports = {
   invalidRoutePathIdentifier: invalidRoutePathIdentifier,
   routesAreCaseSensitive: routesAreCaseSensitive,
   nullRouter: nullRouter,
-  baseRoute: baseRoute,
   outletLoadingDisplay: 'fw-loading-display',
   outletLoadedDisplay: 'fw-loaded-display',
   activeOutlets: fw.observableArray()
@@ -11033,8 +11018,8 @@ var splatParamRegex = /\*\w*/g;
 var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 var hashMatchRegex = /(^\/#)/;
 
-function sameRouteDescription (desc1, desc2) {
-  return desc1.routeDescription === desc2.routeDescription && _.isEqual(desc1.namedParams, desc2.namedParams);
+function sameRoute (route1, route2) {
+  return route1.routeConfiguration === route2.routeConfiguration && _.isEqual(route1.routeParams, route2.routeParams);
 }
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine
@@ -11104,15 +11089,15 @@ function trimBaseRoute (router, url) {
   return url;
 }
 
-function triggerRoute (router, routeDescription) {
-  if (isRoute(routeDescription)) {
-    if (!_.isUndefined(routeDescription.title)) {
-      window.document.title = _.isFunction(routeDescription.title) ? routeDescription.title.apply(router, _.values(routeDescription.namedParams)) : routeDescription.title;
+function triggerRoute (router, route) {
+  if (isRoute(route)) {
+    if (!_.isUndefined(route.title)) {
+      window.document.title = _.isFunction(route.title) ? route.title.apply(router, _.values(route.routeParams)) : route.title;
     }
 
-    if (_.isUndefined(router[privateDataSymbol].currentRouteDescription) || !sameRouteDescription(router[privateDataSymbol].currentRouteDescription, routeDescription)) {
-      routeDescription.controller.apply(router, _.values(routeDescription.namedParams));
-      router[privateDataSymbol].currentRouteDescription = routeDescription;
+    if (_.isUndefined(router[privateDataSymbol].previousRoute) || !sameRoute(router[privateDataSymbol].previousRoute, route)) {
+      route.controller.apply(router, _.values(route.routeParams));
+      router[privateDataSymbol].previousRoute = route;
     }
   }
 }
@@ -11178,40 +11163,25 @@ function stripQueryStringAndHashFromPath (url) {
   }
 }
 
-function getUnknownRoute (routes) {
-  var unknownRoute = _.find(routes.reverse(), { unknown: true }) || null;
-
-  if (!_.isNull(unknownRoute)) {
-    unknownRoute = _.extend({}, baseRoute, {
-      controller: unknownRoute.controller,
-      title: unknownRoute.title,
-      segment: '',
-      routeDescription: unknownRoute
-    });
-  }
-
-  return unknownRoute;
-}
-
 function getRouteForURL (router, routes, url) {
-  var route = null;
-  var unknownRoute = getUnknownRoute(routes);
+  var currentRouteDetails;
   var matchedRoutes = [];
+  var routeConfiguration;
 
   // find all routes with a matching routeString
   if(routes) {
-    matchedRoutes = _.reduce(routes, function (matches, routeDescription) {
-      var routeDescRoute = [].concat(routeDescription.route);
-      _.each(routeDescRoute, function (routeString) {
+    matchedRoutes = _.reduce(routes, function (matches, routeConfiguration) {
+      var routeConfigRoute = [].concat(routeConfiguration.route);
+      _.each(routeConfigRoute, function (routeString) {
         var routeParams = [];
 
         if (_.isString(routeString) && _.isString(url)) {
           routeParams = url.match(routeStringToRegExp(routeString));
-          if (!_.isNull(routeParams) && (routeDescription.filter || alwaysPassPredicate).call(router, routeParams)) {
+          if (!_.isNull(routeParams) && (routeConfiguration.filter || alwaysPassPredicate).call(router, routeParams)) {
             matches.push({
               routeString: routeString,
               specificity: routeString.replace(namedParamRegex, "*").length,
-              routeDescription: routeDescription,
+              routeConfiguration: routeConfiguration,
               routeParams: routeParams
             });
           }
@@ -11221,7 +11191,7 @@ function getRouteForURL (router, routes, url) {
     }, []);
   }
 
-  // If there are matchedRoutes, find the one with the highest 'specificity' (longest normalized matching routeString)
+  // If there are matchedRoutes, find the one with the highest 'specificity' (longest matching routeString)
   // and convert it into the actual route
   if (matchedRoutes.length) {
     var matchedRoute = _.reduce(matchedRoutes, function (matchedRoute, foundRoute) {
@@ -11230,37 +11200,53 @@ function getRouteForURL (router, routes, url) {
       }
       return matchedRoute;
     }, null);
-    var routeDescription = matchedRoute.routeDescription;
+
     var routeString = matchedRoute.routeString;
     var routeParams = _.clone(matchedRoute.routeParams);
     var splatSegment = routeParams.pop() || '';
     var routeParamNames = _.map(routeString.match(namedParamRegex), function (param) {
       return param.replace(':', '');
     });
-    var namedParams = _.reduce(routeParamNames, function (parameterNames, parameterName, index) {
+    var routeParams = _.reduce(routeParamNames, function (parameterNames, parameterName, index) {
       parameterNames[parameterName] = routeParams[index + 1];
       return parameterNames;
     }, {});
 
-    route = _.extend({}, baseRoute, {
-      controller: routeDescription.controller,
-      title: routeDescription.title,
-      name: routeDescription.name,
+    currentRouteDetails = {
       url: url,
       segment: url.substr(0, url.length - splatSegment.length),
-      indexedParams: routeParams,
-      namedParams: namedParams,
-      routeDescription: routeDescription
-    });
+      routeParams: routeParams
+    };
+
+    routeConfiguration = matchedRoute.routeConfiguration;
+  } else {
+    routeConfiguration = _.find(routes, { unknown: true }) || {};
   }
 
-  return route || unknownRoute;
+  return _.extend({
+    routeConfiguration: routeConfiguration,
+    controller: routeConfiguration.controller || _.noop,
+    name: routeConfiguration.name,
+    title: routeConfiguration.title,
+    segment: '',
+    routeParams: {},
+    __isRoute: true
+  }, currentRouteDetails);
+}
+
+/**
+ * Returns the current location of the browser, including the query string and hash portions
+ *
+ * @returns {string} the current location url
+ */
+function getLocation() {
+  var location = window.history.location || window.location;
+  return location.pathname + location.search + location.hash;
 }
 
 module.exports = {
   namedParamRegex: namedParamRegex,
   hashMatchRegex: hashMatchRegex,
-  sameRouteDescription: sameRouteDescription,
   routeStringToRegExp: routeStringToRegExp,
   isNullRouter: isNullRouter,
   isRoute: isRoute,
@@ -11270,9 +11256,9 @@ module.exports = {
   trimBaseRoute: trimBaseRoute,
   changeRoute: changeRoute,
   stripQueryStringAndHashFromPath: stripQueryStringAndHashFromPath,
-  getUnknownRoute: getUnknownRoute,
   getRouteForURL: getRouteForURL,
-  triggerRoute: triggerRoute
+  triggerRoute: triggerRoute,
+  getLocation: getLocation
 };
 
 },{"../../misc/config":43,"../../misc/util":47,"../entity-tools":28,"./router-defaults":35,"lodash":3}],38:[function(require,module,exports){
