@@ -2297,7 +2297,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         expect(routeSpy).toHaveBeenCalledTimes(1);
         router.$activated(true);
 
-        fw.namespace(namespaceName).command('replaceState', mockUrl2);
+        fw.namespace(namespaceName).command('pushState', mockUrl2);
         expect(routeSpy).toHaveBeenCalledTimes(2);
         router.$activated(false);
 
@@ -2305,7 +2305,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         expect(routeSpy).toHaveBeenCalledTimes(2);
         router.$activated(true);
 
-        fw.namespace(namespaceName).command('replaceState', mockUrl);
+        fw.namespace(namespaceName).command('pushState', mockUrl);
         expect(routeSpy).toHaveBeenCalledTimes(3);
       });
     });
