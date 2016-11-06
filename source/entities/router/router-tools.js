@@ -224,14 +224,12 @@ function getRouteForURL (router, routes, url) {
       routeParams: routeParams
     };
   } else {
-    routeConfiguration = _.find(routes, { unknown: true }) || {
-      controller: _.noop
-    };
+    routeConfiguration = _.find(routes, { unknown: true }) || {};
   }
 
   return _.extend({}, {
     routeConfiguration: routeConfiguration,
-    controller: routeConfiguration.controller,
+    controller: routeConfiguration.controller || _.noop,
     name: routeConfiguration.name,
     title: routeConfiguration.title,
     segment: '',
