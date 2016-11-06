@@ -47,7 +47,7 @@ fw.components.loaders.unshift(fw.components.componentLifecycleLoader = {
           errorCallback('Unknown element type: ' + element);
         }
       } else {
-        throw new Error('Unhandled config type: ' + typeof templateConfig + '.');
+        throw Error('Unhandled config type: ' + typeof templateConfig + '.');
       }
     } else {
       // This is an entity, leave it to the entity lifecycle loader

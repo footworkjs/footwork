@@ -8,7 +8,7 @@ var outletLoadingDisplay = routerDefaults.outletLoadingDisplay;
 var entityClass = require('../../../misc/config').entityClass;
 var bindingElement = require('../../../binding/binding-element');
 
-function Outlet() {
+function Outlet () {
   fw.outlet.boot(this, {
     namespace: _.uniqueId('outlet')
   });

@@ -14,7 +14,7 @@ var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
  */
 function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
   if (!instance) {
-    throw new Error('Must supply the instance to boot()');
+    throw Error('Must supply the instance to boot()');
   }
 
   var descriptor = require('../entity-descriptors').getDescriptor('viewModel');
@@ -22,11 +22,10 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
 
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
   if (!hasBeenBootstrapped) {
-    configParams = configParams || {};
+    instance[descriptor.isEntityDuckTag] = true;
 
-    instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
     configParams = _.extend({}, descriptor.defaultConfig, {
-      namespace: configParams.namespace ? null : _.uniqueId(descriptor.entityName)
+      namespace: (configParams || {}).namespace ? null : _.uniqueId(descriptor.entityName)
     }, configParams);
 
     instance[privateDataSymbol] = {

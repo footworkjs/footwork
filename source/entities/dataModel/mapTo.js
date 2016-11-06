@@ -15,13 +15,13 @@ function getPrimaryKey (dataModel) {
  * @param {object} dataModel The dataModel instance you are mapping the observable/path to
  * @returns {observable} The mapped observable
  */
-function mapTo(mapPath, dataModel) {
+function mapTo (mapPath, dataModel) {
   var mappedObservable = this;
   var mapPath;
   var dataModel;
 
   if (!fw.isDataModel(dataModel)) {
-    throw new Error('No dataModel context supplied for mapTo observable');
+    throw Error('No dataModel context supplied for mapTo observable');
   }
 
   var mappings = dataModel[privateDataSymbol].mappings();

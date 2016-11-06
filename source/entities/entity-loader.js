@@ -36,7 +36,7 @@ fw.components.loaders.unshift(fw.components.entityLoader = {
 
       /* istanbul ignore if */
       if(_.isUndefined(viewModelOrLocation)) {
-        throw new Error('The \'' + moduleName + '\' ' + descriptor.entityName + ' module must be registered before it can be used.');
+        throw Error('The \'' + moduleName + '\' ' + descriptor.entityName + ' module must be registered before it can be used.');
       }
 
       callback({

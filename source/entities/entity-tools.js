@@ -89,7 +89,7 @@ function instanceRequestHandler (instance, namespaceName) {
  *
  * @param {function} resolveNow
  */
-function resolveEntityImmediately(resolveNow) {
+function resolveEntityImmediately (resolveNow) {
   resolveNow(true);
 }
 

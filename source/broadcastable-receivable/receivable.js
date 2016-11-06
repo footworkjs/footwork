@@ -25,7 +25,7 @@ fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
   } else if (isNamespace(instanceOrNamespaceName)) {
     namespace = instanceOrNamespaceName;
   } else {
-    throw new Error('Invalid namespace provided for receiveFrom() observable.');
+    throw Error('Invalid namespace provided for receiveFrom() observable.');
   }
 
   receivable = fw.computed({

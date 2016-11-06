@@ -88,7 +88,7 @@ function outletBootstrap (instance, configParams) {
     instance.loadingClass = fw.observable();
     instance.loadedClass = fw.observable();
 
-    function showLoader() {
+    function showLoader () {
       instance.loadingClass(removeAnimation);
       instance.loadedClass(removeAnimation);
       instance.loadedStyle(hiddenCSS);
@@ -99,7 +99,7 @@ function outletBootstrap (instance, configParams) {
       });
     }
 
-    function showLoadedAfterMinimumTransition() {
+    function showLoadedAfterMinimumTransition () {
       instance.loadingClass(removeAnimation);
       instance.loadedStyle(visibleCSS);
       instance.loadingStyle(hiddenCSS);
@@ -114,7 +114,7 @@ function outletBootstrap (instance, configParams) {
     }
 
     var transitionTriggerTimeout;
-    function showLoaded() {
+    function showLoaded () {
       clearTimeout(transitionTriggerTimeout);
       var minTransitionPeriod = instance.display.peek().minTransitionPeriod;
       if (minTransitionPeriod) {

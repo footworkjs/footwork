@@ -29,7 +29,7 @@ fw.components.register = function (componentName, options) {
   var viewModel = options.viewModel || options.dataModel || options.router;
 
   if (!_.isString(componentName)) {
-    throw new Error('Components must be provided a componentName.');
+    throw Error('Components must be provided a componentName.');
   }
 
   originalComponentRegisterFunc(componentName, {

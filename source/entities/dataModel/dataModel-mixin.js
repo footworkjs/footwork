@@ -6,7 +6,7 @@ var dataTools = require('./data-tools');
 var insertValueIntoObject = dataTools.insertValueIntoObject;
 var getNestedReference = dataTools.getNestedReference;
 
-function isNode(thing) {
+function isNode (thing) {
   var thingIsObject = _.isObject(thing);
   return (
     thingIsObject ? thing instanceof Node :
@@ -35,7 +35,7 @@ function fetchModel (options) {
         var xhr = dataModel.sync('read', dataModel, options);
 
         ajax.handleJsonResponse(xhr)
-          .then(function handleResponseData(data) {
+          .then(function handleResponseData (data) {
             var parsedData = configParams.parse ? configParams.parse(data) : data;
             if (!_.isUndefined(parsedData[configParams.idAttribute])) {
               dataModel.set(parsedData);
@@ -103,7 +103,7 @@ function save (key, val, options) {
       var xhr = dataModel.sync(method, dataModel, options);
 
       ajax.handleJsonResponse(xhr)
-        .then(function handleResponseData(data) {
+        .then(function handleResponseData (data) {
           var parsedData = configParams.parse ? configParams.parse(data) : data;
 
           if (options.wait && !_.isNull(attrs)) {
@@ -156,7 +156,7 @@ function destroy (options) {
       var xhr = dataModel.sync('delete', dataModel, options);
 
       ajax.handleJsonResponse(xhr)
-        .then(function handleResponseData(data) {
+        .then(function handleResponseData (data) {
           dataModel.$id(undefined);
           if (options.wait) {
             sendDestroyEvent();
@@ -233,10 +233,10 @@ function getData (referenceField, includeRoot) {
       return _.merge(jsObject, dataModel.get(fieldMap, true));
     }, {});
   } else if (!_.isUndefined(referenceField) && !_.isString(referenceField)) {
-    throw new Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.get().');
+    throw Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.get().');
   }
 
-  var mappedObject = _.reduce(this[privateDataSymbol].mappings(), function reduceModelToObject(jsObject, fieldObservable, fieldMap) {
+  var mappedObject = _.reduce(this[privateDataSymbol].mappings(), function reduceModelToObject (jsObject, fieldObservable, fieldMap) {
     if (_.isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
       insertValueIntoObject(jsObject, fieldMap, fieldObservable());
     }

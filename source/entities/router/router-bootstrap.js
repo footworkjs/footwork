@@ -20,7 +20,6 @@ var routerDefaults = require('./router-defaults');
 var nullRouter = routerDefaults.nullRouter;
 var noComponentSelected = routerDefaults.noComponentSelected;
 
-
 /**
  * Bootstrap an instance with router capabilities (state management, outlet control, etc).
  *
@@ -40,7 +39,8 @@ function routerBootstrap (instance, configParams) {
 
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
   if (!hasBeenBootstrapped) {
-    instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
+    instance[descriptor.isEntityDuckTag] = true;
+
     configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.defaultConfig, {
       baseRoute: fw.router.baseRoute() + (resultBound(configParams, 'baseRoute', instance) || '')
     }, configParams || {});
@@ -73,29 +73,8 @@ function routerBootstrap (instance, configParams) {
       }
     });
 
-    instance.$namespace.command.handler('pushState', function (state) {
-      var route = state;
-      var params = state.params;
-
-      if (_.isObject(state)) {
-        route = state.name;
-        params = params || {};
-      }
-
-      instance.pushState(route, params);
-    });
-
-    instance.$namespace.command.handler('replaceState', function (state) {
-      var route = state;
-      var params = state.params;
-
-      if (_.isObject(state)) {
-        route = state.name;
-        params = params || {};
-      }
-
-      instance.replaceState(route, params);
-    });
+    instance.$namespace.command.handler('pushState', _.partial(routerStateChangeCommandHandler, instance, 'push'));
+    instance.$namespace.command.handler('replaceState', _.partial(routerStateChangeCommandHandler, instance, 'replace'));
 
     instance.disposeWithInstance(
       fw.computed(function() {
@@ -152,6 +131,20 @@ function routerBootstrap (instance, configParams) {
   }
 
   return instance;
+}
+
+function routerStateChangeCommandHandler (instance, mode, state) {
+  var route;
+  var params;
+
+  if (_.isObject(state)) {
+    route = state.name;
+    params = state.params || {};
+  } else {
+    route = state;
+  }
+
+  instance[mode + 'State'](route, params);
 }
 
 module.exports = routerBootstrap;

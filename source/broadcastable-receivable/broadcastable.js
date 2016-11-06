@@ -26,7 +26,7 @@ fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWri
     namespace = fw.namespace(instanceOrNamespaceName);
     isLocalNamespace = true;
   } else {
-    throw new Error('Invalid namespace provided for broadcastAs() observable.');
+    throw Error('Invalid namespace provided for broadcastAs() observable.');
   }
 
   if (isWritable) {

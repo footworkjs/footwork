@@ -14,7 +14,7 @@ var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
  */
 function dataModelBootstrap (instance, configParams) {
   if (!instance) {
-    throw new Error('Must supply the instance to boot()');
+    throw Error('Must supply the instance to boot()');
   }
 
   var descriptor = entityDescriptors.getDescriptor('dataModel');
@@ -24,10 +24,9 @@ function dataModelBootstrap (instance, configParams) {
 
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
   if (!hasBeenBootstrapped) {
-    instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
-    configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.defaultConfig, configParams || {});
-
+    instance[descriptor.isEntityDuckTag] = true;
     instance[privateDataSymbol].mappings = fw.observable({});
+    configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.defaultConfig, configParams || {});
 
     _.extend(instance, descriptor.mixin, {
       $cid: fw.utils.guid(),
@@ -52,7 +51,7 @@ function dataModelBootstrap (instance, configParams) {
       })
     });
   } else {
-    throw new Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
+    throw Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
   }
 
   return instance;

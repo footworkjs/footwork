@@ -538,7 +538,47 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
-          router.pushState(mockNamedState, { named: true });
+          router.pushState(mockNamedState, { name: true });
+          expect(routeControllerSpy).toHaveBeenCalled();
+
+          expect(function() {router.pushState('state-that-does-not-exist', { named: true })}).toThrow();
+
+          done();
+        }, ajaxWait);
+      });
+
+      it('can trigger a specified name-based route with a command', function(done) {
+        var mockNamedState = tools.randomString();
+        var mockUrl = tools.generateUrl();
+        var namespaceName = tools.generateNamespaceName();
+        var routeControllerSpy = jasmine.createSpy('routeControllerSpy');
+        var initializeSpy;
+        var router;
+
+        fw.router.register(namespaceName, tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.router.boot(this, {
+            namespace: namespaceName,
+            routes: [
+              {
+                route: mockUrl,
+                name: mockNamedState,
+                controller: routeControllerSpy
+              }
+            ]
+          });
+          router = this;
+        }).and.callThrough()));
+
+        expect(routeControllerSpy).not.toHaveBeenCalled();
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer = tools.getFixtureContainer('<router module="' + namespaceName + '"></router>'));
+
+        var routerNS = fw.namespace(namespaceName);
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+          routerNS.command('pushState', { name: mockNamedState });
           expect(routeControllerSpy).toHaveBeenCalled();
 
           expect(function() {router.pushState('state-that-does-not-exist', { named: true })}).toThrow();
@@ -2220,6 +2260,53 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
 
         fw.namespace(namespaceName).command('replaceState', mockUrl);
         expect(routeSpy).toHaveBeenCalled();
+      });
+
+      it('can be activated and deactivated', function() {
+        var namespaceName = tools.generateNamespaceName();
+        var mockUrl = tools.generateUrl();
+        var mockUrl2 = tools.generateUrl();
+        var routeSpy = jasmine.createSpy('routeSpy');
+        var MyRouter = function() {
+          fw.router.boot(this, {
+            namespace: namespaceName,
+            routes: [
+              {
+                route: mockUrl,
+                controller: routeSpy
+              },
+              {
+                route: mockUrl2,
+                controller: routeSpy
+              }
+            ]
+          });
+        };
+
+        var router = new MyRouter();
+        expect(routeSpy).not.toHaveBeenCalled();
+
+        router.$activated(true);
+        expect(routeSpy).not.toHaveBeenCalled();
+
+        fw.namespace(namespaceName).command('replaceState', mockUrl);
+        expect(routeSpy).toHaveBeenCalled();
+        router.$activated(false);
+
+        fw.namespace(namespaceName).command('replaceState', mockUrl2);
+        expect(routeSpy).toHaveBeenCalledTimes(1);
+        router.$activated(true);
+
+        fw.namespace(namespaceName).command('replaceState', mockUrl2);
+        expect(routeSpy).toHaveBeenCalledTimes(2);
+        router.$activated(false);
+
+        fw.namespace(namespaceName).command('replaceState', mockUrl);
+        expect(routeSpy).toHaveBeenCalledTimes(2);
+        router.$activated(true);
+
+        fw.namespace(namespaceName).command('replaceState', mockUrl);
+        expect(routeSpy).toHaveBeenCalledTimes(3);
       });
     });
   }

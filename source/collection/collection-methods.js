@@ -43,7 +43,7 @@ function pluck (attribute) {
 
 function set (newCollection, options) {
   if (!_.isArray(newCollection)) {
-    throw new Error('collection.set() must be passed an array of data/dataModels');
+    throw Error('collection.set() must be passed an array of data/dataModels');
   }
 
   var collection = this;
@@ -327,7 +327,7 @@ function create (model, options) {
   };
 
   if (!_.isFunction(configParams.dataModel)) {
-    throw new Error('No dataModel specified, cannot create() a new collection item');
+    throw Error('No dataModel specified, cannot create() a new collection item');
   }
 
   return makeOrGetRequest('create', requestInfo);

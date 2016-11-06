@@ -24,7 +24,7 @@ var parseParamsRegex = /(:[\w\.]+)/g;
 var trailingSlashRegex = /\/$/;
 
 function noURLError () {
-  throw new Error('A "url" property or function must be specified');
+  throw Error('A "url" property or function must be specified');
 };
 
 /**
@@ -105,11 +105,11 @@ function sync (action, concern, params) {
   action = action || 'noAction';
 
   if (!fw.isDataModel(concern) && !fw.isCollection(concern)) {
-    throw new Error('Must supply a dataModel or collection to fw.sync()');
+    throw Error('Must supply a dataModel or collection to fw.sync()');
   }
 
   if (!_.isString(methodMap[action])) {
-    throw new Error('Invalid action (' + action + ') specified for sync operation');
+    throw Error('Invalid action (' + action + ') specified for sync operation');
   }
 
   var configParams = concern[privateDataSymbol].configParams;
@@ -155,12 +155,12 @@ function sync (action, concern, params) {
       body: null,
       headers: {}
     },
-    resultBound(fw, 'fetchOptions', concern, [params]) || {},
-    resultBound(configParams, 'fetchOptions', concern, [params]) || {},
+    resultBound(fw, 'fetchOptions', concern, [action, concern, params]) || {},
+    resultBound(configParams, 'fetchOptions', concern, [action, concern, params]) || {},
     params);
 
   if (!_.isString(options.method)) {
-    throw new Error('Invalid action (' + action + ') specified for sync operation');
+    throw Error('Invalid action (' + action + ') specified for sync operation');
   }
 
   if (_.isNull(options.body) && concern && _.includes(['create', 'update', 'patch'], action)) {
