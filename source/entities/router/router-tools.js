@@ -243,6 +243,16 @@ function getRouteForURL (router, routes, url) {
   return route || unknownRoute;
 }
 
+/**
+ * Returns the current location of the browser, including the query string and hash portions
+ *
+ * @returns {string} the current location url
+ */
+function getLocation() {
+  var location = window.history.location || window.location;
+  return location.pathname + location.search + location.hash;
+}
+
 module.exports = {
   namedParamRegex: namedParamRegex,
   hashMatchRegex: hashMatchRegex,
@@ -258,5 +268,6 @@ module.exports = {
   stripQueryStringAndHashFromPath: stripQueryStringAndHashFromPath,
   getUnknownRoute: getUnknownRoute,
   getRouteForURL: getRouteForURL,
-  triggerRoute: triggerRoute
+  triggerRoute: triggerRoute,
+  getLocation: getLocation
 };

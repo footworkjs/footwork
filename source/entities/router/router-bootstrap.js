@@ -14,6 +14,7 @@ var getRouteForURL = routerTools.getRouteForURL;
 var triggerRoute = routerTools.triggerRoute;
 var isRoute = routerTools.isRoute;
 var stripQueryStringAndHashFromPath = routerTools.stripQueryStringAndHashFromPath;
+var getLocation = routerTools.getLocation;
 
 
 var routerDefaults = require('./router-defaults');
@@ -91,17 +92,15 @@ function routerBootstrap (instance, configParams) {
           // activate the router
 
           // set the current state as of page-load
-          var location = window.history.location || window.location;
           instance[privateDataSymbol].activating = true;
-          instance.pushState(location.pathname + location.search + location.hash);
+          instance.pushState(getLocation());
           instance[privateDataSymbol].activating = false;
 
           // setup html5 history event listener
           if(!fw.router.disableHistory()) {
             /* istanbul ignore next */
             var popstateEvent = function () {
-              var location = window.history.location || window.location;
-              instance.$currentState(trimBaseRoute(instance, location.pathname + location.search + location.hash));
+              instance.$currentState(trimBaseRoute(instance, getLocation()));
             };
 
             (function (eventInfo) {
