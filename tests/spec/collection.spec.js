@@ -737,21 +737,21 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var PeopleCollectionAjaxOptions = fw.collection.create({
           namespace: namespaceName,
           url: getOverrideMockUrl,
-          fetchOptions: tools.expectCallOrder(0, fetchOptionsSpy = jasmine.createSpy('fetchOptionsSpy', function() {
+          fetchOptions: fetchOptionsSpy = jasmine.createSpy('fetchOptionsSpy', function() {
             return {
               method: 'post'
             };
-          }).and.callThrough())
+          }).and.callThrough()
         });
         var peopleAjaxOptions = PeopleCollectionAjaxOptions();
 
         var changeEventCalled = false;
-        fw.namespace(namespaceName).subscribe('_.change', tools.expectCallOrder([1, 2], changeEventSpy = jasmine.createSpy('changeEventSpy', function(changeData) {
+        fw.namespace(namespaceName).subscribe('_.change', changeEventSpy = jasmine.createSpy('changeEventSpy', function(changeData) {
           expect(changeData).toBeAn('object');
           expect(changeData.touched).lengthToBe(persons.length);
           expect(changeData.serverResponse).toEqual(persons);
           expect(changeData.options).toEqual({ parse: true });
-        })));
+        }));
 
         fetchMock.restore().get(getMockUrl, persons);
         var fetchResult = people.fetch();
