@@ -46,7 +46,7 @@ define(['lodash'],
       return {
         compare: function (actual, expected) {
           var result = {
-            pass: !actual || parseInt(actual.length) === parseInt(expected)
+            pass: (!actual && !expected) || parseInt((actual || []).length) === parseInt(expected)
           };
 
           if (!result.pass) {
@@ -65,7 +65,7 @@ define(['lodash'],
           };
 
           if (!result.pass) {
-            result.message = '\'' + (typeof actual) + '\' is not ' + expected + ' elements in length, it is ' + actual.length + ' elements in length';
+            result.message = '\'' + (typeof actual) + '\' is not greater than ' + expected + ' elements in length, it is ' + actual.length + ' elements in length';
           }
           return result;
         }
