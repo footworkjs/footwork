@@ -793,12 +793,12 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         var PeopleCollection = fw.collection.create({
           url: mockUrl,
-          parse: tools.expectCallOrder(0, parseSpy = jasmine.createSpy('parseSpy', function(people) {
+          parse: parseSpy = jasmine.createSpy('parseSpy', function(people) {
             return _.map(people, function(person) {
               person.flag = true;
               return person;
             });
-          }).and.callThrough())
+          }).and.callThrough()
         });
 
         var people = PeopleCollection();
