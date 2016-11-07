@@ -97,8 +97,8 @@ function triggerRoute (router, route) {
     }
 
     if (_.isUndefined(router[privateDataSymbol].previousRoute) || !sameRoute(router[privateDataSymbol].previousRoute, route)) {
-      route.controller.apply(router, _.values(route.routeParams));
       router[privateDataSymbol].previousRoute = route;
+      route.controller.apply(router, _.values(route.routeParams));
     }
   }
 }
