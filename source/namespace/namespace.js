@@ -12,6 +12,8 @@ var requestResponseFromNamespace = namespaceMethods.requestResponseFromNamespace
 var registerNamespaceRequestHandler = namespaceMethods.registerNamespaceRequestHandler;
 var registerNamespaceEventHandler = namespaceMethods.registerNamespaceEventHandler;
 
+var isNullRouterSymbol = require('../misc/util').getSymbol('isNullRouter');
+
 // Creates and returns a new namespace instance
 var Namespace = function Namespace (namespaceName) {
   var ns = postal.channel(namespaceName);
@@ -28,7 +30,7 @@ var Namespace = function Namespace (namespaceName) {
   };
   ns.unsubscribe = unregisterNamespaceHandler;
 
-  ns.__isNamespace = true;
+  ns[isNullRouterSymbol] = true;
   ns.dispose = disconnectNamespaceHandlers.bind(ns);
 
   ns.commandHandlers = [];
@@ -52,7 +54,7 @@ var Namespace = function Namespace (namespaceName) {
 };
 
 Namespace.isNamespace = function isNamespace (thing) {
-  return _.isObject(thing) && !!thing.__isNamespace;
+  return _.isObject(thing) && !!thing[isNullRouterSymbol];
 };
 
 module.exports = Namespace;

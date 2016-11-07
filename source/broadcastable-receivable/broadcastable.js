@@ -1,5 +1,4 @@
 var fw = require('knockout/build/output/knockout-latest');
-var postal = require('postal');
 var _ = require('lodash');
 
 var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;
