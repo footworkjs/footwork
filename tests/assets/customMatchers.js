@@ -46,7 +46,7 @@ define(['lodash'],
       return {
         compare: function (actual, expected) {
           var result = {
-            pass: !_.isUndefined(actual) && actual.length === expected
+            pass: !actual || parseInt(actual.length) === parseInt(expected)
           };
 
           if (!result.pass) {
