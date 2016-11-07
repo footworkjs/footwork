@@ -39,7 +39,9 @@ var banner = [
 var bundleConfig = {
   src: './source/footwork.js',
   outputDir: './build/',
-  outputFile: 'footwork.js'
+  outputFile: 'footwork.js',
+  minOutputFile: 'footwork.min.js',
+  moduleName: 'fw'
 };
 
 function bundle (bundler) {
@@ -74,25 +76,24 @@ gulp.task('watch-test', function () {
 // Building tasks
 gulp.task('bundle-covered', function () {
     return bundle(browserify(bundleConfig.src, {
-      standalone: 'footwork',
+      standalone: bundleConfig.moduleName,
       debug: args.hasOwnProperty("debug")
     }).transform(istanbul));
 });
 
 gulp.task('bundle', function () {
     return bundle(browserify(bundleConfig.src, {
-      standalone: 'footwork',
+      standalone: bundleConfig.moduleName,
       debug: args.hasOwnProperty("debug")
     }));
 });
 
 gulp.task('build', ['bundle', 'build_footwork_css', 'build_test_css'], function () {
-  var fileSize = size({ title: 'footwork.js' });
+  var fileSize = size({ title: bundleConfig.outputFile });
 
-  return gulp.src('./build/footwork.js')
+  return gulp.src('./build/' + bundleConfig.outputFile)
     .pipe(plumber())
     .pipe(replace(/FOOTWORK_VERSION/g, pkg.version))
-    .pipe(replace('.footwork=', '.fw=')) // Replace the globals export reference with 'fw' but leave module (CommonJS/AMD) names as 'footwork'
     .pipe(header(banner, { pkg: pkg }))
     .pipe(fileSize)
     .pipe(gulp.dest('./build'));
@@ -101,15 +102,15 @@ gulp.task('build', ['bundle', 'build_footwork_css', 'build_test_css'], function 
 gulp.task('minify', ['build'], function() {
   console.log(chalk.yellow('Please wait: Minification can take a few minutes (See: ') + chalk.white('https://github.com/knockout/knockout/issues/1652') + chalk.yellow(')'));
 
-  var fileSizeMin = size({ title: 'footwork.min.js' });
-  var fileSizeGzip = size({ gzip: true, title: 'footwork.min.js' });
+  var fileSizeMin = size({ title: bundleConfig.minOutputFile });
+  var fileSizeGzip = size({ gzip: true, title: bundleConfig.minOutputFile });
 
-  return gulp.src('./build/footwork.js')
+  return gulp.src('./build/' + bundleConfig.outputFile)
     .pipe(uglify({
       compress: { negate_iife: false }
     }))
     .pipe(header(banner, { pkg: pkg }))
-    .pipe(rename('footwork.min.js'))
+    .pipe(rename(bundleConfig.minOutputFile))
     .pipe(fileSizeMin)
     .pipe(fileSizeGzip)
     .pipe(gulp.dest('build/'));
