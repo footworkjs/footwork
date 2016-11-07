@@ -830,14 +830,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        var Person = tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this);
           person = person || {};
           this.id = fw.observable(person.id).mapTo('id', this);
           this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
           this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
           this.email = fw.observable(person.email || null).mapTo('email', this);
-        }).and.callThrough());
+        }).and.callThrough();
 
         var PeopleCollection = fw.collection.create({
           url: mockUrl,
@@ -846,11 +846,11 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         var people = PeopleCollection();
 
-        people.$namespace.subscribe('_.reset', tools.expectCallOrder(persons.length, resetSpy = jasmine.createSpy('resetSpy', function(resetData) {
+        people.$namespace.subscribe('_.reset', resetSpy = jasmine.createSpy('resetSpy', function(resetData) {
           expect(resetData).toBeAn('object');
           expect(resetData.oldModels).toBeAn('array');
           expect(resetData.newModels).toBeAn('array');
-        })));
+        }));
 
         fetchMock.restore().get(mockUrl, persons);
         expect(people.fetch({ reset: true })).toBeA('promise');
