@@ -54,6 +54,10 @@ fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
     if (isLocalNamespace) {
       namespace.dispose();
     }
+
+    if(_.isFunction(target.dispose)) {
+      target.dispose();
+    }
     observableDispose.call(receivable);
   };
 
