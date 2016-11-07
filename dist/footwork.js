@@ -6,7 +6,7 @@
  * License: MIT
  */
 
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),o.fw=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.fw=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 
 fw.footworkVersion = '2.0.0';
@@ -8369,7 +8369,6 @@ fw.start = function (targetElement) {
 
 },{"knockout/build/output/knockout-latest":2}],10:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
-var postal = require('postal');
 var _ = require('lodash');
 
 var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;
@@ -8429,9 +8428,8 @@ fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWri
   return broadcastable.broadcast();
 };
 
-},{"../misc/util":47,"../namespace/namespace":49,"knockout/build/output/knockout-latest":2,"lodash":3,"postal":4}],11:[function(require,module,exports){
+},{"../misc/util":47,"../namespace/namespace":49,"knockout/build/output/knockout-latest":2,"lodash":3}],11:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
-var postal = require('postal');
 var _ = require('lodash');
 
 var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;
@@ -8486,6 +8484,10 @@ fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
     if (isLocalNamespace) {
       namespace.dispose();
     }
+
+    if(_.isFunction(target.dispose)) {
+      target.dispose();
+    }
     observableDispose.call(receivable);
   };
 
@@ -8504,7 +8506,7 @@ fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
   return receivable.refresh();
 };
 
-},{"../misc/util":47,"../namespace/namespace":49,"knockout/build/output/knockout-latest":2,"lodash":3,"postal":4}],12:[function(require,module,exports){
+},{"../misc/util":47,"../namespace/namespace":49,"knockout/build/output/knockout-latest":2,"lodash":3}],12:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -10227,7 +10229,6 @@ fw.bindingHandlers.$outlet = {
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var defaultChannel = require('postal').channel();
 var instanceRequestHandler = require('../../entity-tools').instanceRequestHandler;
 var entityDescriptors = require('../../entity-descriptors');
 var viewModelBootstrap = require('../../viewModel/viewModel-bootstrap');
@@ -10371,7 +10372,7 @@ function outletBootstrap (instance, configParams) {
 
 module.exports = outletBootstrap;
 
-},{"../../../misc/config":43,"../../../misc/util":47,"../../entity-descriptors":26,"../../entity-tools":28,"../../router/router-defaults":35,"../../viewModel/viewModel-bootstrap":39,"knockout/build/output/knockout-latest":2,"lodash":3,"postal":4}],31:[function(require,module,exports){
+},{"../../../misc/config":43,"../../../misc/util":47,"../../entity-descriptors":26,"../../entity-tools":28,"../../router/router-defaults":35,"../../viewModel/viewModel-bootstrap":39,"knockout/build/output/knockout-latest":2,"lodash":3}],31:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -11096,8 +11097,8 @@ function triggerRoute (router, route) {
     }
 
     if (_.isUndefined(router[privateDataSymbol].previousRoute) || !sameRoute(router[privateDataSymbol].previousRoute, route)) {
-      route.controller.apply(router, _.values(route.routeParams));
       router[privateDataSymbol].previousRoute = route;
+      route.controller.apply(router, _.values(route.routeParams));
     }
   }
 }
@@ -11697,11 +11698,10 @@ module.exports = {
 
 },{"./util":47}],44:[function(require,module,exports){
 module.exports = {
-  postal: require('postal'),
   lodash: require('lodash')
 };
 
-},{"lodash":3,"postal":4}],45:[function(require,module,exports){
+},{"lodash":3}],45:[function(require,module,exports){
 /**
  * Registry which stores component information as it is loaded.
  * This information is used by footwork to bootstrap the component/entity.
@@ -12347,6 +12347,8 @@ var requestResponseFromNamespace = namespaceMethods.requestResponseFromNamespace
 var registerNamespaceRequestHandler = namespaceMethods.registerNamespaceRequestHandler;
 var registerNamespaceEventHandler = namespaceMethods.registerNamespaceEventHandler;
 
+var isNullRouterSymbol = require('../misc/util').getSymbol('isNullRouter');
+
 // Creates and returns a new namespace instance
 var Namespace = function Namespace (namespaceName) {
   var ns = postal.channel(namespaceName);
@@ -12363,7 +12365,7 @@ var Namespace = function Namespace (namespaceName) {
   };
   ns.unsubscribe = unregisterNamespaceHandler;
 
-  ns.__isNamespace = true;
+  ns[isNullRouterSymbol] = true;
   ns.dispose = disconnectNamespaceHandlers.bind(ns);
 
   ns.commandHandlers = [];
@@ -12387,10 +12389,10 @@ var Namespace = function Namespace (namespaceName) {
 };
 
 Namespace.isNamespace = function isNamespace (thing) {
-  return _.isObject(thing) && !!thing.__isNamespace;
+  return _.isObject(thing) && !!thing[isNullRouterSymbol];
 };
 
 module.exports = Namespace;
 
-},{"./namespace-methods":48,"lodash":3,"postal":4}]},{},[1])(1)
+},{"../misc/util":47,"./namespace-methods":48,"lodash":3,"postal":4}]},{},[1])(1)
 });
