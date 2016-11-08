@@ -12,7 +12,8 @@ var defaultCollectionConfig = {
   idAttribute: null,
   disposeOnRemove: true,
   parse: _.identity,
-  fetchOptions: {}
+  fetchOptions: {},
+  disposeItems: true
 };
 
 function removeDisposeAndNotify (originalFunction) {
@@ -55,7 +56,10 @@ fw.collection = function createCollection (collectionData, configParams) {
       if (!collection[privateDataSymbol].isDisposed) {
         collection[privateDataSymbol].isDisposed = true;
         collection.$namespace.dispose();
-        _.invokeMap(collection(), 'dispose');
+
+        if(configParams.disposeItems) {
+          _.invokeMap(collection(), 'dispose');
+        }
       }
     }
   });
