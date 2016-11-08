@@ -70,11 +70,6 @@ require.config({
   waitSeconds: 600,
 
   paths: {
-    /**
-     * Note that if you add any new bower assets you will need to also add a reference
-     * to them in the files section of karma.conf.js. This will allow the unit tests to
-     * have access to them.
-     */
     "text": "bower_components/requirejs-text/text",
     "footwork": "build/footwork",
     "lodash": "bower_components/lodash/dist/lodash",
