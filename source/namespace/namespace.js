@@ -1,6 +1,4 @@
-var config = require('../misc/config');
-var privateDataSymbol = config.privateDataSymbol;
-var defaultNamespace = config.defaultNamespace;
+var privateDataSymbol = require('../misc/config').privateDataSymbol;
 
 /**
  * Construct a new namespace instance.
@@ -14,7 +12,7 @@ function Namespace (namespaceName) {
   }
 
   this[privateDataSymbol] = {
-    namespaceName: namespaceName || defaultNamespace,
+    namespaceName: namespaceName || '__footwork',
     subscriptions: []
   };
 };

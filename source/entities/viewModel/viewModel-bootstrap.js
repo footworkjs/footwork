@@ -1,12 +1,10 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
+var entityDescriptors = require('../entity-descriptors');
 var postbox = require('../../namespace/postbox');
 var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
-
-var config = require('../../misc/config');
-var privateDataSymbol = config.privateDataSymbol;
-var defaultNamespace = config.defaultNamespace;
+var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 
 /**
  * Bootstrap an instance with viewModel capabilities (lifecycle/etc).
@@ -20,7 +18,7 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
     throw Error('Must supply the instance to boot()');
   }
 
-  var descriptor = require('../entity-descriptors').getDescriptor('viewModel');
+  var descriptor = entityDescriptors.getDescriptor('viewModel');
   requestHandlerDescriptor = requestHandlerDescriptor || descriptor;
 
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
@@ -44,8 +42,8 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
     // Setup the request handler which returns the instance (fw.viewModel.get())
     // Note: We are wiring up the request handler manually so that an entire namespace does not need instantiating for this callback
     instance.disposeWithInstance(postbox.subscribe(function instanceResponseHandler (params) {
-      postbox.notifySubscribers(instanceRequestHandler(instance, params), defaultNamespace + '.request.' + requestHandlerDescriptor.referenceNamespace + '.response');
-    }, null, defaultNamespace + '.request.' + requestHandlerDescriptor.referenceNamespace));
+      postbox.notifySubscribers(instanceRequestHandler(instance, params), '__footwork.request.' + requestHandlerDescriptor.referenceNamespace + '.response');
+    }, null, '__footwork.request.' + requestHandlerDescriptor.referenceNamespace));
   }
 
   return instance;
