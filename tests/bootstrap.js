@@ -15,6 +15,10 @@ var testResults = {
 var allTestFiles = [];
 var TEST_REGEXP = /(spec)\.js$/i;
 
+var clientNavigator = navigator.userAgent.toLowerCase();
+var isExploder = (clientNavigator.indexOf('msie') != -1);
+var ieVersion = isExploder ? parseInt(clientNavigator.split('msie')[1]) : undefined;
+
 /**
  * Determine whether the passed in file is listed in the tests array (or if tests is undefined or 'all' then return true always)
  *
@@ -33,6 +37,20 @@ function shouldRunTest(file, tests) {
     return shouldRun;
   }
   return true;
+}
+
+if (!Object.keys) {
+  Object.keys = function(obj) {
+    var keys = [];
+
+    for (var i in obj) {
+      if (obj.hasOwnProperty(i)) {
+        keys.push(i);
+      }
+    }
+
+    return keys;
+  };
 }
 
 // Get a list of all the test files to include
@@ -86,12 +104,19 @@ require.config({
 
   // we have to kickoff jasmine, as it is asynchronous
   callback: function() {
-    require(['footwork', 'reporter', 'container'],
-      function(fw) {
-        window.fw = fw; // export footwork so the user has access to it in the console
-        fixture.setBase('tests/assets/fixtures');
-        setTimeout(window.__karma__.start, ajaxWait);
-      }
-    );
+    function runTests (fw) {
+      window.fw = fw; // export footwork so the user has access to it in the console
+      fixture.setBase('tests/assets/fixtures');
+      setTimeout(window.__karma__.start, ajaxWait);
+    }
+
+    if(isExploder && ieVersion < 9) {
+      // ie < 9 requires shimming
+      require(['es5-shim'], function() {
+        require(['footwork', 'reporter', 'container'], runTests);
+      });
+    } else {
+      require(['footwork', 'reporter', 'container'], runTests);
+    }
   }
 });
