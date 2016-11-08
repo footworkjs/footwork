@@ -50,13 +50,13 @@ If you need further setup help, refer to the [Get Started](http://footworkjs.com
 
   This is platform specific. Your OS may already include it, however if not please see: [Installing Node](https://docs.npmjs.com/getting-started/installing-node).
 
-1. **Install [gulp](http://gulpjs.com/) and [bower](http://bower.io/) globally (if needed):** 
+1. **Install [gulp](http://gulpjs.com/) globally (if needed):** 
 
-        sudo npm install -g gulp-cli bower
+        sudo npm install -g gulp-cli
 
-1. **Acquire build dependencies:** (from npm and bower)
+1. **Acquire build dependencies:**
 
-        npm install && bower Install
+        npm install
 
 1. **Run a gulp task to build/test/etc:**
   
