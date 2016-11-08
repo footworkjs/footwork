@@ -57,7 +57,7 @@ fw.collection = function createCollection (collectionData, configParams) {
         collection[privateDataSymbol].isDisposed = true;
         collection.$namespace.dispose();
 
-        if(configParams.disposeItems) {
+        if(_.result(configParams, 'disposeItems')) {
           _.invokeMap(collection(), 'dispose');
         }
       }
