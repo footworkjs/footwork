@@ -1131,6 +1131,43 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(people()).lengthToBe(persons.length - 1);
       });
 
+      it('can have disposal of dataModels disabled correctly', function() {
+        var initializeSpy;
+
+        var persons = [];
+        _.each(_.range(1, _.random(5, 10)), function(id) {
+          persons.push({
+            id: id,
+            firstName: tools.randomString(),
+            lastName: tools.randomString(),
+            email: tools.randomString()
+          });
+        });
+
+        var Person = tools.expectCallOrder(_.range(0, persons.length), initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this);
+          person = person || {};
+          this.id = fw.observable(person.id).mapTo('id', this);
+          this.firstName = fw.observable(person.firstName || null).mapTo('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).mapTo('lastName', this);
+          this.email = fw.observable(person.email || null).mapTo('email', this);
+        }).and.callThrough());
+
+        var people = fw.collection(persons, {
+          dataModel: Person,
+          disposeItems: false
+        });
+
+        expect(people()).lengthToBe(persons.length);
+        expect(fw.utils.getPrivateData(people()[0]).isDisposed).toBe(undefined);
+
+        var personRemoved = people.remove(people()[0])[0];
+
+        expect(fw.utils.getPrivateData(personRemoved).isDisposed).toBe(true);
+        expect(personRemoved.get()).toEqual(persons[0]);
+        expect(people()).lengthToBe(persons.length - 1);
+      });
+
       it('can be configured to not dispose of dataModels when removed', function() {
         var initializeSpy;
 
