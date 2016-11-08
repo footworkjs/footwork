@@ -23,13 +23,12 @@ function publish (topic, data) {
  * @param {any} context the context given to the callback
  * @returns {object} the subscription that was created
  */
-function subscribe (topic, callback, context, registerForDisposal) {
-  registerForDisposal = _.isUndefined(registerForDisposal) || registerForDisposal;
+function subscribe (topic, callback, context) {
   if(arguments.length > 2) {
     callback = callback.bind(context);
   }
   var subscription = postbox.subscribe(callback, null, this[privateDataSymbol].namespaceName + '.' + topic);
-  registerForDisposal && this[privateDataSymbol].subscriptions.push(subscription);
+  this[privateDataSymbol].subscriptions.push(subscription);
   return subscription;
 }
 
@@ -40,7 +39,7 @@ function subscribe (topic, callback, context, registerForDisposal) {
  * @returns {object} the namespace instance
  */
 function unsubscribe (subscription) {
-  _.isFunction(subscription.dispose) && subscription.dispose();
+  subscription && _.isFunction(subscription.dispose) && subscription.dispose();
   return this;
 }
 
@@ -48,11 +47,11 @@ function unsubscribe (subscription) {
  * Issue a request for data using the supplied topic and params and return the response.
  *
  * @param {string} topic the topic/data you are requesting
- * @param {any} params any data to pass along to the handler on the other side
- * @param {boolean} allowMultipleResponses if true then all the responses will be returned in an array, if false only the first to respond will be returned
+ * @param {any} requestParams any data to pass along to the handler on the other side
+ * @param {boolean} allowMultipleResponses if true then all the responses will be returned in an array, if false (or not defined) only the first response will be returned
  * @returns {any} the returned data (or undefined)
  */
-function request (topic, data, allowMultipleResponses) {
+function request (topic, requestParams, allowMultipleResponses) {
   var response = undefined;
 
   var responseSubscription = postbox.subscribe(function (reqResponse) {
@@ -63,7 +62,7 @@ function request (topic, data, allowMultipleResponses) {
     }
   }, null, this[privateDataSymbol].namespaceName + '.request.' + topic + '.response');
 
-  postbox.notifySubscribers(data, this[privateDataSymbol].namespaceName + '.request.' + topic);
+  postbox.notifySubscribers(requestParams, this[privateDataSymbol].namespaceName + '.request.' + topic);
   responseSubscription.dispose();
 
   return response;

@@ -1,6 +1,6 @@
-var privateDataSymbol = require('../misc/config').privateDataSymbol;
-var namespaceMethods = require('./namespace-methods');
-var defaultNamespace = require('../misc/config').defaultNamespace;
+var config = require('../misc/config');
+var privateDataSymbol = config.privateDataSymbol;
+var defaultNamespace = config.defaultNamespace;
 
 /**
  * Construct a new namespace instance.
@@ -19,12 +19,14 @@ function Namespace (namespaceName) {
   };
 };
 
-Namespace.prototype.dispose = namespaceMethods.dispose;
+var namespaceMethods = require('./namespace-methods');
+
 Namespace.prototype.publish = namespaceMethods.publish;
 Namespace.prototype.subscribe = namespaceMethods.subscribe;
 Namespace.prototype.unsubscribe = namespaceMethods.unsubscribe;
 Namespace.prototype.request = namespaceMethods.request;
 Namespace.prototype.requestHandler = namespaceMethods.requestHandler;
 Namespace.prototype.getName = namespaceMethods.getName;
+Namespace.prototype.dispose = namespaceMethods.dispose;
 
 module.exports = Namespace;
