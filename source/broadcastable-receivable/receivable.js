@@ -2,7 +2,6 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
 var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;
-var isNamespace = require('../namespace/namespace').isNamespace;
 var isReceivableSymbol = require('../misc/util').getSymbol('isReceivable');
 
 fw.isReceivable = function (thing) {
@@ -21,7 +20,7 @@ fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
   if (_.isString(instanceOrNamespaceName)) {
     namespace = fw.namespace(instanceOrNamespaceName);
     isLocalNamespace = true;
-  } else if (isNamespace(instanceOrNamespaceName)) {
+  } else if (fw.isNamespace(instanceOrNamespaceName)) {
     namespace = instanceOrNamespaceName;
   } else {
     throw Error('Invalid namespace provided for receiveFrom() observable.');

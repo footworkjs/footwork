@@ -69,8 +69,8 @@ function routerBootstrap (instance, configParams) {
       }
     });
 
-    instance.$namespace.command.handler('pushState', _.partial(routerStateChangeCommandHandler, instance, 'push'));
-    instance.$namespace.command.handler('replaceState', _.partial(routerStateChangeCommandHandler, instance, 'replace'));
+    instance.$namespace.subscribe('pushState', _.partial(routerStateChangeCommandHandler, instance, 'push'));
+    instance.$namespace.subscribe('replaceState', _.partial(routerStateChangeCommandHandler, instance, 'replace'));
 
     instance.disposeWithInstance(
       fw.computed(function() {
@@ -106,7 +106,7 @@ function routerBootstrap (instance, configParams) {
           }
 
           // notify any listeners of the activation event
-          instance.$namespace.trigger('activated');
+          instance.$namespace.publish('activated', true);
         } else {
           // deactivate the router
 

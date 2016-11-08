@@ -1,125 +1,122 @@
 var _ = require('lodash');
 
+var postbox = require('./postbox');
+var privateDataSymbol = require('../misc/config').privateDataSymbol;
+
 /**
- * Create postal message envelope using a given topic, data, and expiration
+ * Publish data on a topic of a namespace.
  *
  * @param {any} topic
  * @param {any} data
- * @param {any} expires
- * @returns {object} postal.js envelope
+ * @returns {object} the namespace instance
  */
-function createEnvelope (topic, data) {
-  var envelope = {
-    topic: topic,
-    data: data
-  };
-
-  return envelope;
-}
-
-// Method used to trigger an event on a namespace
-function triggerEventOnNamespace (eventKey, params) {
-  this.publish(createEnvelope('event.' + eventKey, params));
+function publish (topic, data) {
+  postbox.notifySubscribers(data, this[privateDataSymbol].namespaceName + '.' + topic);
   return this;
 }
 
-// Method used to register an event handler on a namespace
-function registerNamespaceEventHandler (eventKey, callback, context) {
-  if (!_.isUndefined(context)) {
+/**
+ * Subscribe to a topic on a namespace.
+ *
+ * @param {string} topic the topic string, or thing/message that you want to subscribe to
+ * @param {function} callback the callback triggered with the data
+ * @param {any} context the context given to the callback
+ * @returns {object} the subscription that was created
+ */
+function subscribe (topic, callback, context, registerForDisposal) {
+  registerForDisposal = _.isUndefined(registerForDisposal) || registerForDisposal;
+  if(arguments.length > 2) {
     callback = callback.bind(context);
   }
-
-  var handlerSubscription = this._subscribe('event.' + eventKey, callback);
-  this.eventHandlers.push(handlerSubscription);
-
-  return handlerSubscription;
+  var subscription = postbox.subscribe(callback, null, this[privateDataSymbol].namespaceName + '.' + topic);
+  registerForDisposal && this[privateDataSymbol].subscriptions.push(subscription);
+  return subscription;
 }
 
-// Method used to unregister an event handler on a namespace
-function unregisterNamespaceHandler (handlerSubscription) {
-  handlerSubscription.unsubscribe();
+/**
+ * Unsubscribe a namespace subscription.
+ *
+ * @param {object} subscription the subscription to unsubscribe
+ * @returns {object} the namespace instance
+ */
+function unsubscribe (subscription) {
+  _.isFunction(subscription.dispose) && subscription.dispose();
   return this;
 }
 
-// Method used to send a command to a namespace
-function sendCommandToNamespace (commandKey, params) {
-  this.publish(createEnvelope('command.' + commandKey, params));
-  return this;
-}
-
-// Method used to register a command handler on a namespace
-function registerNamespaceCommandHandler (commandKey, callback, context) {
-  if (!_.isUndefined(context)) {
-    callback = callback.bind(context);
-  }
-
-  var handlerSubscription = this._subscribe('command.' + commandKey, callback);
-  this.commandHandlers.push(handlerSubscription);
-
-  return handlerSubscription;
-}
-
-// Method used to issue a request for data from a namespace, returning the response (or undefined if no response)
-// This method will return an array of responses if more than one is received.
-function requestResponseFromNamespace (requestKey, params, allowMultipleResponses) {
+/**
+ * Issue a request for data using the supplied topic and params and return the response.
+ *
+ * @param {string} topic the topic/data you are requesting
+ * @param {any} params any data to pass along to the handler on the other side
+ * @param {boolean} allowMultipleResponses if true then all the responses will be returned in an array, if false only the first to respond will be returned
+ * @returns {any} the returned data (or undefined)
+ */
+function request (topic, data, allowMultipleResponses) {
   var response = undefined;
-  var responseSubscription;
 
-  responseSubscription = this._subscribe('request.' + requestKey + '.response', function (reqResponse) {
+  var responseSubscription = postbox.subscribe(function (reqResponse) {
     if (_.isUndefined(response)) {
       response = allowMultipleResponses ? [reqResponse] : reqResponse;
     } else if (allowMultipleResponses) {
       response.push(reqResponse);
     }
-  });
+  }, null, this[privateDataSymbol].namespaceName + '.request.' + topic + '.response');
 
-  this.publish(createEnvelope('request.' + requestKey, params));
-  responseSubscription.unsubscribe();
+  postbox.notifySubscribers(data, this[privateDataSymbol].namespaceName + '.request.' + topic);
+  responseSubscription.dispose();
 
   return response;
 }
 
-// Method used to register a request handler on a namespace.
-// Requests sent using the specified requestKey will be called and passed in any params specified, the return value is passed back to the issuer
-function registerNamespaceRequestHandler (requestKey, callback, context) {
+/**
+ * Create a request handler to respond to the requested topic using the specified callback.
+ *
+ * @param {string} topic
+ * @param {function} callback the callback which is passed the topic data and whos return result is send to back to the requester
+ * @param {any} context the context given to the callback
+ * @returns {object} the request subscription that was created
+ */
+function requestHandler (topic, callback, context) {
+  var self = this;
+
   if (!_.isUndefined(context)) {
     callback = callback.bind(context);
   }
 
-  var requestHandler = function (params) {
-    var callbackResponse = callback(params);
-    this.publish(createEnvelope('request.' + requestKey + '.response', callbackResponse));
-  }.bind(this);
+  var subscription = postbox.subscribe(function (reqResponse) {
+    postbox.notifySubscribers(callback(reqResponse), self[privateDataSymbol].namespaceName + '.request.' + topic + '.response');
+  }, null, this[privateDataSymbol].namespaceName + '.request.' + topic);
 
-  var handlerSubscription = this._subscribe('request.' + requestKey, requestHandler);
-  this.requestHandlers.push(handlerSubscription);
+  this[privateDataSymbol].subscriptions.push(subscription);
 
-  return handlerSubscription;
+  return subscription;
 }
 
-// This effectively shuts down all requests, commands, events, and subscriptions by unsubscribing all handlers on a discreet namespace object
-var handlerRepos = [ 'requestHandlers', 'commandHandlers', 'eventHandlers', 'subscriptions' ];
-function disconnectNamespaceHandlers () {
-  var namespace = this;
-  _.each(handlerRepos, function (handlerRepo) {
-    _.invokeMap(namespace[handlerRepo], 'unsubscribe');
-  });
+/**
+ * Dispose of the namespace (clear all subscriptions/handlers)
+ *
+ * @returns {object} the namespace instance
+ */
+function dispose () {
+  _.invokeMap(this[privateDataSymbol].subscriptions, 'dispose');
   return this;
 }
 
-function getNamespaceName () {
-  return this.channel;
+/**
+ * Return the name of the namespace
+ * @returns {string} the namespace name
+ */
+function getName () {
+  return this[privateDataSymbol].namespaceName;
 }
 
 module.exports = {
-  createEnvelope: createEnvelope,
-  triggerEventOnNamespace: triggerEventOnNamespace,
-  registerNamespaceEventHandler: registerNamespaceEventHandler,
-  unregisterNamespaceHandler: unregisterNamespaceHandler,
-  sendCommandToNamespace: sendCommandToNamespace,
-  registerNamespaceCommandHandler: registerNamespaceCommandHandler,
-  requestResponseFromNamespace: requestResponseFromNamespace,
-  registerNamespaceRequestHandler: registerNamespaceRequestHandler,
-  disconnectNamespaceHandlers: disconnectNamespaceHandlers,
-  getNamespaceName: getNamespaceName
+  publish: publish,
+  subscribe: subscribe,
+  unsubscribe: unsubscribe,
+  request: request,
+  requestHandler: requestHandler,
+  dispose: dispose,
+  getName: getName
 };

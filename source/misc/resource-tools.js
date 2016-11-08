@@ -5,7 +5,6 @@ var util = require('../misc/util');
 var isPath = util.isPath;
 var isAmdResolved = util.isAmdResolved;
 
-var isNamespace = require('../namespace/namespace').isNamespace;
 var regExpMatch = /^\/|\/$/g;
 
 /**
@@ -106,7 +105,7 @@ var defaultNamespace = fw.namespace();
 function getModelReferences (descriptor, namespaceName) {
   var references = _.reduce(defaultNamespace.request(descriptor.referenceNamespace, namespaceName, true), function (models, model) {
     if (!_.isUndefined(model)) {
-      var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
+      var namespaceName = fw.isNamespace(model.$namespace) ? model.$namespace.getName() : null;
       if (!_.isNull(namespaceName)) {
         if (_.isUndefined(models[namespaceName])) {
           models[namespaceName] = model;

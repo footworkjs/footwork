@@ -9,7 +9,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(namespace).toBeAn('object');
         expect(namespace.publish).toBeA('function');
         expect(namespace.subscribe).toBeA('function');
-        expect(namespace.channel).toBe('testNamespaceCreation');
+        expect(namespace.getName()).toBe('testNamespaceCreation');
       });
 
       it('can create a namespace which we can then use to .getName()', function() {
@@ -68,48 +68,12 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(subscriptionCallbackSpy).toHaveBeenCalled();
       });
 
-      it('can trigger and listen to events', function() {
-        var namespace = fw.namespace(tools.generateNamespaceName());
-        var handlerCallbackSpy;
-
-        namespace.event.handler('testEvent', handlerCallbackSpy = jasmine.createSpy('', function(parameter) {
-          expect(parameter).toBe('optionalParam');
-        }).and.callThrough());
-
-        var testContext = { textContext: true };
-        namespace.event.handler('testEvent', handlerCallbackSpy = jasmine.createSpy('', function(parameter) {
-          expect(this).toBe(testContext);
-        }).and.callThrough(), testContext);
-
-        expect(handlerCallbackSpy).not.toHaveBeenCalled();
-        namespace.trigger('testEvent', 'optionalParam');
-        expect(handlerCallbackSpy).toHaveBeenCalled();
-      });
-
-      it('can unregister a handler from an event', function() {
-        var namespace = fw.namespace(tools.generateNamespaceName());
-        var handlerCallbackSpy;
-
-        var eventHandlerCallbackSub = namespace.event.handler('testUnregisterEvent', tools.expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
-          expect(parameter).toBe('optionalParam');
-        }).and.callThrough()));
-
-        expect(handlerCallbackSpy).not.toHaveBeenCalled();
-
-        namespace.trigger('testUnregisterEvent', 'optionalParam');
-        expect(handlerCallbackSpy).toHaveBeenCalledTimes(1);
-
-        namespace.event.unregister(eventHandlerCallbackSub);
-        namespace.trigger('testUnregisterEvent', 'optionalParam');
-        expect(handlerCallbackSpy).toHaveBeenCalledTimes(1);
-      });
-
       it('can trigger, respond, and listen to requests', function() {
         var namespace = fw.namespace(tools.generateNamespaceName());
         var handlerCallbackSpy;
 
         var testContext = { textContext: true };
-        namespace.request.handler('testRequest', handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
+        namespace.requestHandler('testRequest', handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
           expect(parameter).toBe('optionalParam');
           expect(this).toBe(testContext);
           return 'all-ok';
@@ -125,7 +89,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var handlerCallbackSpy;
         var responseValue = 'all-ok';
 
-        var requestHandler = namespace.request.handler('testUnregisteredRequest', tools.expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
+        var requestHandler = namespace.requestHandler('testUnregisteredRequest', tools.expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
           expect(parameter).toBe('optionalParam');
           return responseValue;
         }).and.callThrough()));
@@ -134,7 +98,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(namespace.request('testUnregisteredRequest', 'optionalParam')).toBe(responseValue);
         expect(handlerCallbackSpy).toHaveBeenCalledTimes(1);
 
-        namespace.request.unregister(requestHandler);
+        requestHandler.dispose();
 
         expect(namespace.request('testUnregisteredRequest', 'optionalParam')).toBe(undefined);
         expect(handlerCallbackSpy).toHaveBeenCalledTimes(1);
@@ -152,47 +116,11 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         }).and.callThrough();
 
         _.each(namespaces, function(namespace, indexNumber) {
-          namespace.request.handler('testMultipleRequest', tools.expectCallOrder(indexNumber, handlerCallbackSpy));
+          namespace.requestHandler('testMultipleRequest', tools.expectCallOrder(indexNumber, handlerCallbackSpy));
         });
 
         var namespace = fw.namespace(namespaceName);
         expect(namespace.request('testMultipleRequest', 'optionalParam', true)).toEqual(['all-ok', 'all-ok', 'all-ok']);
-      });
-
-      it('can trigger and listen to commands', function() {
-        var namespace = fw.namespace(tools.generateNamespaceName());
-        var handlerCallbackSpy;
-
-        namespace.command.handler('testCommand', handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
-          expect(parameter).toBe('optionalParam');
-        }).and.callThrough());
-
-        var testContext = { textContext: true };
-        namespace.command.handler('testCommand', handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
-          expect(this).toBe(testContext);
-        }).and.callThrough(), testContext);
-
-        expect(handlerCallbackSpy).not.toHaveBeenCalled();
-        namespace.command('testCommand', 'optionalParam');
-        expect(handlerCallbackSpy).toHaveBeenCalled();
-      });
-
-      it('can unregister handler for commands', function() {
-        var namespace = fw.namespace(tools.generateNamespaceName());
-        var handlerCallbackSpy;
-
-        var requestHandler = namespace.command.handler('testUnregisteredCommand', tools.expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
-          expect(parameter).toBe('optionalParam');
-        }).and.callThrough()));
-
-        expect(handlerCallbackSpy).not.toHaveBeenCalled();
-        namespace.command('testUnregisteredCommand', 'optionalParam');
-        expect(handlerCallbackSpy).toHaveBeenCalledTimes(1);
-
-        namespace.command.unregister(requestHandler);
-
-        namespace.command('testUnregisteredCommand', 'optionalParam');
-        expect(handlerCallbackSpy).toHaveBeenCalledTimes(1);
       });
 
       it('can unregister subscription handlers when namespace is disposed', function() {
@@ -215,31 +143,15 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var namespace = fw.namespace(tools.generateNamespaceName());
         var handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy');
 
-        namespace.event.handler('testDispose', tools.expectCallOrder(0, handlerCallbackSpy));
+        namespace.subscribe('testDispose', tools.expectCallOrder(0, handlerCallbackSpy));
 
         expect(handlerCallbackSpy).not.toHaveBeenCalled();
 
-        namespace.trigger('testDispose');
+        namespace.publish('testDispose');
         expect(handlerCallbackSpy).toHaveBeenCalledTimes(1);
         namespace.dispose();
 
-        namespace.trigger('testDispose');
-        expect(handlerCallbackSpy).toHaveBeenCalledTimes(1);
-      });
-
-      it('can unregister command handlers when namespace is disposed', function() {
-        var namespace = fw.namespace(tools.generateNamespaceName());
-        var handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy');
-
-        namespace.command.handler('testDispose', tools.expectCallOrder(0, handlerCallbackSpy));
-
-        expect(handlerCallbackSpy).not.toHaveBeenCalled();
-
-        namespace.command('testDispose');
-        expect(handlerCallbackSpy).toHaveBeenCalledTimes(1);
-        namespace.dispose();
-
-        namespace.command('testDispose');
+        namespace.publish('testDispose');
         expect(handlerCallbackSpy).toHaveBeenCalledTimes(1);
       });
 
@@ -248,7 +160,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         var handlerCallbackSpy;
         var testValue = tools.randomString();
 
-        namespace.request.handler('testDispose', tools.expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function() {
+        namespace.requestHandler('testDispose', tools.expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function() {
           return testValue;
         }).and.callThrough()));
 

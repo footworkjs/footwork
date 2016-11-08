@@ -3,9 +3,11 @@ var fw = require('knockout/build/output/knockout-latest');
 fw.footworkVersion = 'FOOTWORK_VERSION';
 
 fw.namespace = require('./namespace/namespace');
-fw.embed = require('./misc/embed-exports');
-fw.sync = require('./misc/ajax').sync;
+fw.isNamespace = function(thing) {
+  return thing instanceof fw.namespace;
+};
 
+fw.sync = require('./misc/ajax').sync;
 fw.utils.guid = require('./misc/util').guid;
 fw.utils.getPrivateData = require('./misc/util').getPrivateData;
 

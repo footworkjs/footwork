@@ -578,7 +578,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
-          routerNS.command('pushState', { name: mockNamedState });
+          routerNS.publish('pushState', { name: mockNamedState });
           expect(routeControllerSpy).toHaveBeenCalled();
 
           expect(function() {router.pushState('state-that-does-not-exist', { named: true })}).toThrow();
@@ -2232,7 +2232,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         router.$activated(true);
         expect(routeSpy).not.toHaveBeenCalled();
 
-        fw.namespace(namespaceName).command('pushState', mockUrl);
+        fw.namespace(namespaceName).publish('pushState', mockUrl);
         expect(routeSpy).toHaveBeenCalled();
       });
 
@@ -2258,7 +2258,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         router.$activated(true);
         expect(routeSpy).not.toHaveBeenCalled();
 
-        fw.namespace(namespaceName).command('replaceState', mockUrl);
+        fw.namespace(namespaceName).publish('replaceState', mockUrl);
         expect(routeSpy).toHaveBeenCalled();
       });
 
@@ -2289,23 +2289,25 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
         router.$activated(true);
         expect(routeSpy).not.toHaveBeenCalled();
 
-        fw.namespace(namespaceName).command('replaceState', mockUrl);
+        var routerNS = fw.namespace(namespaceName);
+
+        routerNS.publish('replaceState', mockUrl);
         expect(routeSpy).toHaveBeenCalled();
         router.$activated(false);
 
-        fw.namespace(namespaceName).command('replaceState', mockUrl2);
+        routerNS.publish('replaceState', mockUrl2);
         expect(routeSpy).toHaveBeenCalledTimes(1);
         router.$activated(true);
 
-        fw.namespace(namespaceName).command('pushState', mockUrl2);
+        routerNS.publish('pushState', mockUrl2);
         expect(routeSpy).toHaveBeenCalledTimes(2);
         router.$activated(false);
 
-        fw.namespace(namespaceName).command('replaceState', mockUrl);
+        routerNS.publish('replaceState', mockUrl);
         expect(routeSpy).toHaveBeenCalledTimes(2);
         router.$activated(true);
 
-        fw.namespace(namespaceName).command('pushState', mockUrl);
+        routerNS.publish('pushState', mockUrl);
         expect(routeSpy).toHaveBeenCalledTimes(3);
       });
     });

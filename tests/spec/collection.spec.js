@@ -585,15 +585,14 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         });
         var people = PeopleCollection();
 
-        people.$namespace.subscribe('_.*', function(models, envelope) {
+        function eventChecker(collectionEvent, models) {
           var dataModels = [].concat(models);
-          var collectionEvent = envelope.topic;
           _.each(dataModels, function(dataModel) {
             _.each(peopleData, function(person, varName) {
               var expectedEventKey = varName + ' ' + collectionEvent;
               var fieldNames = _.keys(person);
 
-              if(collectionEvent === '_.add') {
+              if(collectionEvent === 'add') {
                 expect(fw.isDataModel(dataModel)).toBe(true)
               }
 
@@ -609,7 +608,11 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
               }
             });
           });
-        });
+        }
+
+        people.$namespace.subscribe('_.add', _.partial(eventChecker, '_.add'));
+        people.$namespace.subscribe('_.change', _.partial(eventChecker, '_.change'));
+        people.$namespace.subscribe('_.remove', _.partial(eventChecker, '_.remove'));
 
         expect(recordedEvents).toEqual({
           'person1Data _.add': 0,

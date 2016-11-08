@@ -2,7 +2,6 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
 var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;
-var isNamespace = require('../namespace/namespace').isNamespace;
 var isBroadcastableSymbol = require('../misc/util').getSymbol('isBroadcastable');
 
 fw.isBroadcastable = function (thing) {
@@ -19,7 +18,7 @@ fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWri
 
   if(fw.isViewModel(instanceOrNamespaceName)) {
     namespace = instanceOrNamespaceName.$namespace;
-  } else if (isNamespace(instanceOrNamespaceName)) {
+  } else if (fw.isNamespace(instanceOrNamespaceName)) {
     namespace = instanceOrNamespaceName;
   } else if (_.isString(instanceOrNamespaceName)) {
     namespace = fw.namespace(instanceOrNamespaceName);

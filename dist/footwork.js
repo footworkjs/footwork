@@ -12,9 +12,11 @@ var fw = require('knockout/build/output/knockout-latest');
 fw.footworkVersion = '2.0.0';
 
 fw.namespace = require('./namespace/namespace');
-fw.embed = require('./misc/embed-exports');
-fw.sync = require('./misc/ajax').sync;
+fw.isNamespace = function(thing) {
+  return thing instanceof fw.namespace;
+};
 
+fw.sync = require('./misc/ajax').sync;
 fw.utils.guid = require('./misc/util').guid;
 fw.utils.getPrivateData = require('./misc/util').getPrivateData;
 
@@ -31,7 +33,7 @@ require('./binding/start');
 
 module.exports = fw;
 
-},{"./binding/applyBindings":6,"./binding/lifecycle-binding":8,"./binding/start":9,"./broadcastable-receivable/broadcastable":10,"./broadcastable-receivable/receivable":11,"./collection/collection":14,"./component/component":19,"./entities/entities":25,"./misc/ajax":42,"./misc/embed-exports":44,"./misc/util":47,"./namespace/namespace":49,"knockout/build/output/knockout-latest":2}],2:[function(require,module,exports){
+},{"./binding/applyBindings":5,"./binding/lifecycle-binding":7,"./binding/start":8,"./broadcastable-receivable/broadcastable":9,"./broadcastable-receivable/receivable":10,"./collection/collection":13,"./component/component":18,"./entities/entities":24,"./misc/ajax":41,"./misc/util":45,"./namespace/namespace":47,"knockout/build/output/knockout-latest":2}],2:[function(require,module,exports){
 /*!
  * Knockout JavaScript library v3.4.0
  * (c) Steven Sanderson - http://knockoutjs.com/
@@ -7353,687 +7355,6 @@ v.tmpl.tag.ko_with={open:"with($1) {",close:"} "})};a.vb.prototype=new a.O;var b
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],4:[function(require,module,exports){
-/**
- * postal - Pub/Sub library providing wildcard subscriptions, complex message handling, etc.  Works server and client-side.
- * Author: Jim Cowart (http://ifandelse.com)
- * Version: v2.0.4
- * Url: http://github.com/postaljs/postal.js
- * License(s): MIT
- */
-
-( function( root, factory ) {
-	
-	if ( typeof define === "function" && define.amd ) {
-		// AMD. Register as an anonymous module.
-		define( [ "lodash" ], function( _ ) {
-			return factory( _, root );
-		} );
-	
-	} else if ( typeof module === "object" && module.exports ) {
-		// Node, or CommonJS-Like environments
-		module.exports = factory( require( "lodash" ), this );
-	} else {
-		// Browser globals
-		root.postal = factory( root._, root );
-	}
-}( this, function( _, global, undefined ) {
-	var prevPostal = global && global.postal;
-	var prevLodash = global && global._;
-	if ( prevLodash && prevLodash !== _ ) {
-		_ = _.noConflict();
-	}
-	var _defaultConfig = {
-		DEFAULT_CHANNEL: "/",
-		SYSTEM_CHANNEL: "postal",
-		enableSystemMessages: true,
-		cacheKeyDelimiter: "|",
-		autoCompactResolver: false
-	};
-	var postal = {
-		configuration: _.extend( {}, _defaultConfig )
-	};
-	var _config = postal.configuration;
-
-	
-
-var ChannelDefinition = function( channelName, bus ) {
-	this.bus = bus;
-	this.channel = channelName || _config.DEFAULT_CHANNEL;
-};
-
-ChannelDefinition.prototype.subscribe = function() {
-	return this.bus.subscribe( {
-		channel: this.channel,
-		topic: ( arguments.length === 1 ? arguments[ 0 ].topic : arguments[ 0 ] ),
-		callback: ( arguments.length === 1 ? arguments[ 0 ].callback : arguments[ 1 ] )
-	} );
-};
-
-/*
-    publish( envelope [, callback ] );
-    publish( topic, data [, callback ] );
-*/
-ChannelDefinition.prototype.publish = function() {
-	var envelope = {};
-	var callback;
-	if ( typeof arguments[ 0 ] === "string" ) {
-		envelope.topic = arguments[ 0 ];
-		envelope.data = arguments[ 1 ];
-		callback = arguments[ 2 ];
-	} else {
-		envelope = arguments[ 0 ];
-		callback = arguments[ 1 ];
-	}
-	if ( typeof envelope !== "object" ) {
-		throw new Error( "The first argument to ChannelDefinition.publish should be either an envelope object or a string topic." );
-	}
-	envelope.channel = this.channel;
-	this.bus.publish( envelope, callback );
-};
-
-	
-var SubscriptionDefinition = function( channel, topic, callback ) {
-	if ( arguments.length !== 3 ) {
-		throw new Error( "You must provide a channel, topic and callback when creating a SubscriptionDefinition instance." );
-	}
-	if ( topic.length === 0 ) {
-		throw new Error( "Topics cannot be empty" );
-	}
-	this.channel = channel;
-	this.topic = topic;
-	this.callback = callback;
-	this.pipeline = [];
-	this.cacheKeys = [];
-	this._context = undefined;
-};
-
-var ConsecutiveDistinctPredicate = function() {
-	var previous;
-	return function( data ) {
-		var eq = false;
-		if ( typeof data === "string" ) {
-			eq = data === previous;
-			previous = data;
-		} else {
-			eq = _.isEqual( data, previous );
-			previous = _.extend( {}, data );
-		}
-		return !eq;
-	};
-};
-
-var DistinctPredicate = function DistinctPredicateFactory() {
-	var previous = [];
-	return function DistinctPredicate( data ) {
-		var isDistinct = !_.some( previous, function( p ) {
-			return _.isEqual( data, p );
-		} );
-		if ( isDistinct ) {
-			previous.push( data );
-		}
-		return isDistinct;
-	};
-};
-
-SubscriptionDefinition.prototype = {
-
-	"catch": function( errorHandler ) {
-		var original = this.callback;
-		var safeCallback = function() {
-			try {
-				original.apply( this, arguments );
-			} catch ( err ) {
-				errorHandler( err, arguments[ 0 ] );
-			}
-		};
-		this.callback = safeCallback;
-		return this;
-	},
-
-	defer: function defer() {
-		return this.delay( 0 );
-	},
-
-	disposeAfter: function disposeAfter( maxCalls ) {
-		if ( typeof maxCalls !== "number" || maxCalls <= 0 ) {
-			throw new Error( "The value provided to disposeAfter (maxCalls) must be a number greater than zero." );
-		}
-		var dispose = _.after( maxCalls, this.unsubscribe.bind( this ) );
-		this.pipeline.push( function( data, env, next ) {
-			next( data, env );
-			dispose();
-		} );
-		return this;
-	},
-
-	distinct: function distinct() {
-		return this.constraint( new DistinctPredicate() );
-	},
-
-	distinctUntilChanged: function distinctUntilChanged() {
-		return this.constraint( new ConsecutiveDistinctPredicate() );
-	},
-
-	invokeSubscriber: function invokeSubscriber( data, env ) {
-		if ( !this.inactive ) {
-			var self = this;
-			var pipeline = self.pipeline;
-			var len = pipeline.length;
-			var context = self._context;
-			var idx = -1;
-			var invoked = false;
-			if ( !len ) {
-				self.callback.call( context, data, env );
-				invoked = true;
-			} else {
-				pipeline = pipeline.concat( [ self.callback ] );
-				var step = function step( d, e ) {
-					idx += 1;
-					if ( idx < len ) {
-						pipeline[ idx ].call( context, d, e, step );
-					} else {
-						self.callback.call( context, d, e );
-						invoked = true;
-					}
-				};
-				step( data, env, 0 );
-			}
-			return invoked;
-		}
-	},
-
-	logError: function logError() {
-		
-		if ( console ) {
-			var report;
-			if ( console.warn ) {
-				report = console.warn;
-			} else {
-				report = console.log;
-			}
-			this.catch( report );
-		}
-		return this;
-	},
-
-	once: function once() {
-		return this.disposeAfter( 1 );
-	},
-
-	subscribe: function subscribe( callback ) {
-		this.callback = callback;
-		return this;
-	},
-
-	unsubscribe: function unsubscribe() {
-		
-		if ( !this.inactive ) {
-			postal.unsubscribe( this );
-		}
-	},
-
-	constraint: function constraint( predicate ) {
-		if ( typeof predicate !== "function" ) {
-			throw new Error( "Predicate constraint must be a function" );
-		}
-		this.pipeline.push( function( data, env, next ) {
-			if ( predicate.call( this, data, env ) ) {
-				next( data, env );
-			}
-		} );
-		return this;
-	},
-
-	constraints: function constraints( predicates ) {
-		var self = this;
-		
-		_.each( predicates, function( predicate ) {
-			self.constraint( predicate );
-		} );
-		return self;
-	},
-
-	context: function contextSetter( context ) {
-		this._context = context;
-		return this;
-	},
-
-	debounce: function debounce( milliseconds, immediate ) {
-		if ( typeof milliseconds !== "number" ) {
-			throw new Error( "Milliseconds must be a number" );
-		}
-
-		var options = {};
-
-		if ( !!immediate === true ) { 
-			options.leading = true;
-			options.trailing = false;
-		}
-
-		this.pipeline.push(
-			_.debounce( function( data, env, next ) {
-				next( data, env );
-			},
-				milliseconds,
-				options
-			)
-		);
-		return this;
-	},
-
-	delay: function delay( milliseconds ) {
-		if ( typeof milliseconds !== "number" ) {
-			throw new Error( "Milliseconds must be a number" );
-		}
-		var self = this;
-		self.pipeline.push( function( data, env, next ) {
-			setTimeout( function() {
-				next( data, env );
-			}, milliseconds );
-		} );
-		return this;
-	},
-
-	throttle: function throttle( milliseconds ) {
-		if ( typeof milliseconds !== "number" ) {
-			throw new Error( "Milliseconds must be a number" );
-		}
-		var fn = function( data, env, next ) {
-			next( data, env );
-		};
-		this.pipeline.push( _.throttle( fn, milliseconds ) );
-		return this;
-	}
-};
-
-	
-
-
-var bindingsResolver = _config.resolver = {
-	cache: {},
-	regex: {},
-	enableCache: true,
-
-	compare: function compare( binding, topic, headerOptions ) {
-		var pattern;
-		var rgx;
-		var prevSegment;
-		var cacheKey = topic + _config.cacheKeyDelimiter + binding;
-		var result = ( this.cache[ cacheKey ] );
-		var opt = headerOptions || {};
-		var saveToCache = this.enableCache && !opt.resolverNoCache;
-		// result is cached?
-		if ( result === true ) {
-			return result;
-		}
-		// plain string matching?
-		if ( binding.indexOf( "#" ) === -1 && binding.indexOf( "*" ) === -1 ) {
-			result = ( topic === binding );
-			if ( saveToCache ) {
-				this.cache[ cacheKey ] = result;
-			}
-			return result;
-		}
-		// ah, regex matching, then
-		if ( !( rgx = this.regex[ binding ] ) ) {
-			pattern = "^" + _.map( binding.split( "." ), function mapTopicBinding( segment ) {
-					var res = "";
-					if ( !!prevSegment ) {
-						res = prevSegment !== "#" ? "\\.\\b" : "\\b";
-					}
-					if ( segment === "#" ) {
-						res += "[\\s\\S]*";
-					} else if ( segment === "*" ) {
-						res += "[^.]+";
-					} else {
-						res += segment;
-					}
-					prevSegment = segment;
-					return res;
-				} ).join( "" ) + "$";
-			rgx = this.regex[ binding ] = new RegExp( pattern );
-		}
-		result = rgx.test( topic );
-		if ( saveToCache ) {
-			this.cache[ cacheKey ] = result;
-		}
-		return result;
-	},
-
-	reset: function reset() {
-		this.cache = {};
-		this.regex = {};
-	},
-
-	purge: function( options ) {
-		var self = this;
-		var keyDelimiter = _config.cacheKeyDelimiter;
-		var matchPredicate = function( val, key ) {
-			var split = key.split( keyDelimiter );
-			var topic = split[ 0 ];
-			var binding = split[ 1 ];
-			if ( ( typeof options.topic === "undefined" || options.topic === topic ) &&
-					( typeof options.binding === "undefined" || options.binding === binding ) ) {
-				delete self.cache[ key ];
-			}
-		};
-
-		var compactPredicate = function( val, key ) {
-			var split = key.split( keyDelimiter );
-			if ( postal.getSubscribersFor( { topic: split[ 0 ] } ).length === 0 ) {
-				delete self.cache[ key ];
-			}
-		};
-
-		if ( typeof options === "undefined" ) {
-			this.reset();
-		} else {
-			var handler = options.compact === true ? compactPredicate : matchPredicate;
-			_.each( this.cache, handler );
-		}
-	}
-};
-
-	
-
-
-var pubInProgress = 0;
-var unSubQueue = [];
-var autoCompactIndex = 0;
-
-function clearUnSubQueue() {
-	while ( unSubQueue.length ) {
-		postal.unsubscribe( unSubQueue.shift() );
-	}
-}
-
-function getCachePurger( subDef, key, cache ) {
-	return function( sub, i, list ) {
-		if ( sub === subDef ) {
-			list.splice( i, 1 );
-		}
-		if ( list.length === 0 ) {
-			delete cache[ key ];
-		}
-	};
-}
-
-function getCacher( topic, pubCache, cacheKey, done, envelope ) {
-	var headers = envelope && envelope.headers || {};
-	return function( subDef ) {
-		var cache;
-		if ( _config.resolver.compare( subDef.topic, topic, headers ) ) {
-			if ( !headers.resolverNoCache ) {
-				cache = pubCache[ cacheKey ] = ( pubCache[ cacheKey ] || [] );
-				cache.push( subDef );
-			}
-			subDef.cacheKeys.push( cacheKey );
-			if ( done ) {
-				done( subDef );
-			}
-		}
-	};
-}
-
-function getSystemMessage( kind, subDef ) {
-	return {
-		channel: _config.SYSTEM_CHANNEL,
-		topic: "subscription." + kind,
-		data: {
-			event: "subscription." + kind,
-			channel: subDef.channel,
-			topic: subDef.topic
-		}
-	};
-}
-
-var sysCreatedMessage = getSystemMessage.bind( undefined, "created" );
-var sysRemovedMessage = getSystemMessage.bind( undefined, "removed" );
-
-function getPredicate( options, resolver ) {
-	if ( typeof options === "function" ) {
-		return options;
-	} else if ( !options ) {
-		return function() {
-			return true;
-		};
-	} else {
-		return function( sub ) {
-			var compared = 0;
-			var matched = 0;
-			_.each( options, function( val, prop ) {
-				compared += 1;
-				if (
-				// We use the bindings resolver to compare the options.topic to subDef.topic
-				( prop === "topic" && resolver.compare( sub.topic, options.topic, { resolverNoCache: true } ) ) ||
-						( prop === "context" && options.context === sub._context ) ||
-						// Any other potential prop/value matching outside topic & context...
-						( sub[ prop ] === options[ prop ] ) ) {
-					matched += 1;
-				}
-			} );
-			return compared === matched;
-		};
-	}
-}
-
-_.extend( postal, {
-	cache: {},
-	subscriptions: {},
-	wireTaps: [],
-
-	ChannelDefinition: ChannelDefinition,
-	SubscriptionDefinition: SubscriptionDefinition,
-
-	channel: function channel( channelName ) {
-		return new ChannelDefinition( channelName, this );
-	},
-
-	addWireTap: function addWireTap( callback ) {
-		var self = this;
-		self.wireTaps.push( callback );
-		return function() {
-			var idx = self.wireTaps.indexOf( callback );
-			if ( idx !== -1 ) {
-				self.wireTaps.splice( idx, 1 );
-			}
-		};
-	},
-
-	noConflict: function noConflict() {
-		
-		if ( typeof window === "undefined" || ( typeof window !== "undefined" && typeof define === "function" && define.amd ) ) {
-			throw new Error( "noConflict can only be used in browser clients which aren't using AMD modules" );
-		}
-		global.postal = prevPostal;
-		return this;
-	},
-
-	getSubscribersFor: function getSubscribersFor( options ) {
-		var result = [];
-		var self = this;
-		_.each( self.subscriptions, function( channel ) {
-			_.each( channel, function( subList ) {
-				result = result.concat( _.filter( subList, getPredicate( options, _config.resolver ) ) );
-			} );
-		} );
-		return result;
-	},
-
-	publish: function publish( envelope, cb ) {
-		++pubInProgress;
-		var channel = envelope.channel = envelope.channel || _config.DEFAULT_CHANNEL;
-		var topic = envelope.topic;
-		envelope.timeStamp = new Date();
-		if ( this.wireTaps.length ) {
-			_.each( this.wireTaps, function( tap ) {
-				tap( envelope.data, envelope, pubInProgress );
-			} );
-		}
-		var cacheKey = channel + _config.cacheKeyDelimiter + topic;
-		var cache = this.cache[ cacheKey ];
-		var skipped = 0;
-		var activated = 0;
-		if ( !cache ) {
-			var cacherFn = getCacher(
-				topic,
-				this.cache,
-				cacheKey,
-				function( candidate ) {
-					if ( candidate.invokeSubscriber( envelope.data, envelope ) ) {
-						activated++;
-					} else {
-						skipped++;
-					}
-				},
-				envelope
-			);
-			_.each( this.subscriptions[ channel ], function( candidates ) {
-				_.each( candidates, cacherFn );
-			} );
-		} else {
-			_.each( cache, function( subDef ) {
-				if ( subDef.invokeSubscriber( envelope.data, envelope ) ) {
-					activated++;
-				} else {
-					skipped++;
-				}
-			} );
-		}
-		if ( --pubInProgress === 0 ) {
-			clearUnSubQueue();
-		}
-		if ( cb ) {
-			cb( {
-				activated: activated,
-				skipped: skipped
-			} );
-		}
-	},
-
-	reset: function reset() {
-		this.unsubscribeFor();
-		_config.resolver.reset();
-		this.subscriptions = {};
-		this.cache = {};
-	},
-
-	subscribe: function subscribe( options ) {
-		var subscriptions = this.subscriptions;
-		var subDef = new SubscriptionDefinition( options.channel || _config.DEFAULT_CHANNEL, options.topic, options.callback );
-		var channel = subscriptions[ subDef.channel ];
-		var channelLen = subDef.channel.length;
-		var subs;
-		if ( !channel ) {
-			channel = subscriptions[ subDef.channel ] = {};
-		}
-		subs = subscriptions[ subDef.channel ][ subDef.topic ];
-		if ( !subs ) {
-			subs = subscriptions[ subDef.channel ][ subDef.topic ] = [];
-		}
-		// First, add the SubscriptionDefinition to the channel list
-		subs.push( subDef );
-		// Next, add the SubscriptionDefinition to any relevant existing cache(s)
-		var cache = this.cache;
-		_.each( _.keys( cache ), function( cacheKey ) {
-			if ( cacheKey.substr( 0, channelLen ) === subDef.channel ) {
-				getCacher(
-					cacheKey.split( _config.cacheKeyDelimiter )[1],
-					cache,
-					cacheKey )( subDef );
-			}
-		} );
-		
-		if ( _config.enableSystemMessages ) {
-			this.publish( sysCreatedMessage( subDef ) );
-		}
-		return subDef;
-	},
-
-	unsubscribe: function unsubscribe() {
-		var unSubLen = arguments.length;
-		var unSubIdx = 0;
-		var subDef;
-		var channelSubs;
-		var topicSubs;
-		var idx;
-		for ( ; unSubIdx < unSubLen; unSubIdx++ ) {
-			subDef = arguments[ unSubIdx ];
-			subDef.inactive = true;
-			if ( pubInProgress ) {
-				unSubQueue.push( subDef );
-				return;
-			}
-			channelSubs = this.subscriptions[ subDef.channel ];
-			topicSubs = channelSubs && channelSubs[ subDef.topic ];
-			
-			if ( topicSubs ) {
-				var len = topicSubs.length;
-				idx = 0;
-				// remove SubscriptionDefinition from channel list
-				while ( idx < len ) {
-					
-					if ( topicSubs[ idx ] === subDef ) {
-						topicSubs.splice( idx, 1 );
-						break;
-					}
-					idx += 1;
-				}
-				if ( topicSubs.length === 0 ) {
-					delete channelSubs[ subDef.topic ];
-					if ( !_.keys( channelSubs ).length ) {
-						delete this.subscriptions[ subDef.channel ];
-					}
-				}
-				// remove SubscriptionDefinition from postal cache
-				if ( subDef.cacheKeys && subDef.cacheKeys.length ) {
-					var key;
-					while ( key = subDef.cacheKeys.pop() ) {
-						_.each( this.cache[ key ], getCachePurger( subDef, key, this.cache ) );
-					}
-				}
-				if ( typeof _config.resolver.purge === "function" ) {
-					// check to see if relevant resolver cache entries can be purged
-					var autoCompact = _config.autoCompactResolver === true ?
-						0 : typeof _config.autoCompactResolver === "number" ?
-							( _config.autoCompactResolver - 1 ) : false;
-					if ( autoCompact >= 0 && autoCompactIndex === autoCompact ) {
-						_config.resolver.purge( { compact: true } );
-						autoCompactIndex = 0;
-					} else if ( autoCompact >= 0 && autoCompactIndex < autoCompact ) {
-						autoCompactIndex += 1;
-					}
-				}
-			}
-			if ( _config.enableSystemMessages ) {
-				this.publish( sysRemovedMessage( subDef ) );
-			}
-		}
-	},
-
-	unsubscribeFor: function unsubscribeFor( options ) {
-		var toDispose = [];
-		
-		if ( this.subscriptions ) {
-			toDispose = this.getSubscribersFor( options );
-			this.unsubscribe.apply( this, toDispose );
-		}
-	}
-} );
-
-
-	
-	if ( global && Object.prototype.hasOwnProperty.call( global, "__postalReady__" ) && _.isArray( global.__postalReady__ ) ) {
-		while ( global.__postalReady__.length ) {
-			global.__postalReady__.shift().onReady( postal );
-		}
-	}
-	
-
-	return postal;
-} ) );
-
-},{"lodash":3}],5:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -8122,7 +7443,7 @@ module.exports = {
   addToAndFetchQueue: addToAndFetchQueue
 };
 
-},{"../misc/config":43,"../misc/util":47,"knockout/build/output/knockout-latest":2,"lodash":3}],6:[function(require,module,exports){
+},{"../misc/config":42,"../misc/util":45,"knockout/build/output/knockout-latest":2,"lodash":3}],5:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -8160,7 +7481,7 @@ function wrapWithLifeCycle (rootNode) {
   return rootNode;
 }
 
-},{"../binding/binding-element":7,"../entities/entity-tools":28,"../misc/util":47,"knockout/build/output/knockout-latest":2,"lodash":3}],7:[function(require,module,exports){
+},{"../binding/binding-element":6,"../entities/entity-tools":27,"../misc/util":45,"knockout/build/output/knockout-latest":2,"lodash":3}],6:[function(require,module,exports){
 var oldExploderVersion = 8;
 var bindingElement = {
   oldExploderTagName: 'div',
@@ -8189,7 +7510,7 @@ var bindingElement = {
 
 module.exports = bindingElement;
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -8358,7 +7679,7 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
   }
 }
 
-},{"../entities/entity-tools":28,"../entities/router/router-defaults":35,"../misc/ajax":42,"../misc/config":43,"../misc/util":47,"./animation-sequencing":5,"knockout/build/output/knockout-latest":2,"lodash":3}],9:[function(require,module,exports){
+},{"../entities/entity-tools":27,"../entities/router/router-defaults":34,"../misc/ajax":41,"../misc/config":42,"../misc/util":45,"./animation-sequencing":4,"knockout/build/output/knockout-latest":2,"lodash":3}],8:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 
 // 'start' up the framework at the targetElement (or document.body by default)
@@ -8367,12 +7688,11 @@ fw.start = function (targetElement) {
   fw.applyBindings({}, targetElement);
 };
 
-},{"knockout/build/output/knockout-latest":2}],10:[function(require,module,exports){
+},{"knockout/build/output/knockout-latest":2}],9:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
 var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;
-var isNamespace = require('../namespace/namespace').isNamespace;
 var isBroadcastableSymbol = require('../misc/util').getSymbol('isBroadcastable');
 
 fw.isBroadcastable = function (thing) {
@@ -8389,7 +7709,7 @@ fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWri
 
   if(fw.isViewModel(instanceOrNamespaceName)) {
     namespace = instanceOrNamespaceName.$namespace;
-  } else if (isNamespace(instanceOrNamespaceName)) {
+  } else if (fw.isNamespace(instanceOrNamespaceName)) {
     namespace = instanceOrNamespaceName;
   } else if (_.isString(instanceOrNamespaceName)) {
     namespace = fw.namespace(instanceOrNamespaceName);
@@ -8428,12 +7748,11 @@ fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWri
   return broadcastable.broadcast();
 };
 
-},{"../misc/util":47,"../namespace/namespace":49,"knockout/build/output/knockout-latest":2,"lodash":3}],11:[function(require,module,exports){
+},{"../misc/util":45,"knockout/build/output/knockout-latest":2,"lodash":3}],10:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
 var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;
-var isNamespace = require('../namespace/namespace').isNamespace;
 var isReceivableSymbol = require('../misc/util').getSymbol('isReceivable');
 
 fw.isReceivable = function (thing) {
@@ -8452,7 +7771,7 @@ fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
   if (_.isString(instanceOrNamespaceName)) {
     namespace = fw.namespace(instanceOrNamespaceName);
     isLocalNamespace = true;
-  } else if (isNamespace(instanceOrNamespaceName)) {
+  } else if (fw.isNamespace(instanceOrNamespaceName)) {
     namespace = instanceOrNamespaceName;
   } else {
     throw Error('Invalid namespace provided for receiveFrom() observable.');
@@ -8506,7 +7825,7 @@ fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
   return receivable.refresh();
 };
 
-},{"../misc/util":47,"../namespace/namespace":49,"knockout/build/output/knockout-latest":2,"lodash":3}],12:[function(require,module,exports){
+},{"../misc/util":45,"knockout/build/output/knockout-latest":2,"lodash":3}],11:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -8887,7 +8206,7 @@ module.exports = {
   removeModel: removeModel
 };
 
-},{"../misc/ajax":42,"../misc/config":43,"./object-tools":15,"knockout/build/output/knockout-latest":2,"lodash":3}],13:[function(require,module,exports){
+},{"../misc/ajax":41,"../misc/config":42,"./object-tools":14,"knockout/build/output/knockout-latest":2,"lodash":3}],12:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -8901,7 +8220,7 @@ module.exports = {
   isCollection: fw.isCollection = isCollection
 };
 
-},{"../misc/util":47,"knockout/build/output/knockout-latest":2,"lodash":3}],14:[function(require,module,exports){
+},{"../misc/util":45,"knockout/build/output/knockout-latest":2,"lodash":3}],13:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -9005,7 +8324,7 @@ fw.collection.create = function (configParams) {
   };
 };
 
-},{"../misc/config":43,"../misc/util":47,"./collection-methods":12,"knockout/build/output/knockout-latest":2,"lodash":3}],15:[function(require,module,exports){
+},{"../misc/config":42,"../misc/util":45,"./collection-methods":11,"knockout/build/output/knockout-latest":2,"lodash":3}],14:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -9069,7 +8388,7 @@ module.exports = {
   sortOfEqual: sortOfEqual
 };
 
-},{"knockout/build/output/knockout-latest":2,"lodash":3}],16:[function(require,module,exports){
+},{"knockout/build/output/knockout-latest":2,"lodash":3}],15:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -9128,7 +8447,7 @@ function componentBindingInit (element, valueAccessor, allBindings, viewModel, b
 
 fw.bindingHandlers.component.init = componentBindingInit;
 
-},{"../entities/entity-descriptors":26,"../entities/entity-tools":28,"../misc/config":43,"../misc/loading-tracker":45,"../misc/util":47,"knockout/build/output/knockout-latest":2,"lodash":3}],17:[function(require,module,exports){
+},{"../entities/entity-descriptors":25,"../entities/entity-tools":27,"../misc/config":42,"../misc/loading-tracker":43,"../misc/util":45,"knockout/build/output/knockout-latest":2,"lodash":3}],16:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -9245,7 +8564,7 @@ function wrapWithLifeCycle (template) {
   return [].concat(wrapper[0], template, wrapper[1]);
 }
 
-},{"../binding/binding-element":7,"../entities/entity-descriptors":26,"../misc/util":47,"knockout/build/output/knockout-latest":2,"lodash":3}],18:[function(require,module,exports){
+},{"../binding/binding-element":6,"../entities/entity-descriptors":25,"../misc/util":45,"knockout/build/output/knockout-latest":2,"lodash":3}],17:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -9314,7 +8633,7 @@ fw.components.loaders.push(fw.components.componentResourceLoader = {
   }
 });
 
-},{"../misc/config":43,"../misc/util":47,"knockout/build/output/knockout-latest":2,"lodash":3}],19:[function(require,module,exports){
+},{"../misc/config":42,"../misc/util":45,"knockout/build/output/knockout-latest":2,"lodash":3}],18:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -9453,7 +8772,7 @@ fw.components.getComponentNameForNode = function (node) {
   return null;
 };
 
-},{"../entities/entity-descriptors":26,"../misc/config":43,"../misc/resource-tools":46,"../misc/util":47,"./component-binding-init":16,"./component-lifecycle-loader":17,"./component-resource-loader":18,"knockout/build/output/knockout-latest":2,"lodash":3}],20:[function(require,module,exports){
+},{"../entities/entity-descriptors":25,"../misc/config":42,"../misc/resource-tools":44,"../misc/util":45,"./component-binding-init":15,"./component-lifecycle-loader":16,"./component-resource-loader":17,"knockout/build/output/knockout-latest":2,"lodash":3}],19:[function(require,module,exports){
 var _ = require('lodash');
 
 function insertValueIntoObject (rootObject, fieldMap, fieldValue) {
@@ -9500,7 +8819,7 @@ module.exports = {
   getNestedReference: getNestedReference
 };
 
-},{"lodash":3}],21:[function(require,module,exports){
+},{"lodash":3}],20:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -9562,7 +8881,7 @@ function dataModelBootstrap (instance, configParams) {
 
 module.exports = dataModelBootstrap;
 
-},{"../../misc/config":43,"../entity-descriptors":26,"../viewModel/viewModel-bootstrap":39,"knockout/build/output/knockout-latest":2,"lodash":3}],22:[function(require,module,exports){
+},{"../../misc/config":42,"../entity-descriptors":25,"../viewModel/viewModel-bootstrap":38,"knockout/build/output/knockout-latest":2,"lodash":3}],21:[function(require,module,exports){
 var _ = require('lodash');
 
 var privateDataSymbol = require('../../misc/config').privateDataSymbol;
@@ -9886,7 +9205,7 @@ module.exports = {
 
 
 
-},{"../../misc/ajax":42,"../../misc/config":43,"./data-tools":20,"lodash":3}],23:[function(require,module,exports){
+},{"../../misc/ajax":41,"../../misc/config":42,"./data-tools":19,"lodash":3}],22:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -9938,7 +9257,7 @@ require('../../misc/config')[capitalizeFirstLetter(entityName)] = function DataM
 
 
 
-},{"../../misc/config":43,"../../misc/resource-tools":46,"../../misc/util":47,"../entity-descriptors":26,"../entity-tools":28,"./dataModel-bootstrap":21,"./dataModel-mixin":22,"./mapTo":24,"knockout/build/output/knockout-latest":2,"lodash":3}],24:[function(require,module,exports){
+},{"../../misc/config":42,"../../misc/resource-tools":44,"../../misc/util":45,"../entity-descriptors":25,"../entity-tools":27,"./dataModel-bootstrap":20,"./dataModel-mixin":21,"./mapTo":23,"knockout/build/output/knockout-latest":2,"lodash":3}],23:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -10002,7 +9321,7 @@ function mapTo (mapPath, dataModel) {
 
 fw.subscribable.fn.mapTo = mapTo;
 
-},{"../../misc/config":43,"knockout/build/output/knockout-latest":2,"lodash":3}],25:[function(require,module,exports){
+},{"../../misc/config":42,"knockout/build/output/knockout-latest":2,"lodash":3}],24:[function(require,module,exports){
 /**
  * This loader wraps the elements with the $lifecycle as well as sources the viewModel/router/dataModel
  */
@@ -10015,7 +9334,7 @@ require('./viewModel/viewModel');
 require('./dataModel/dataModel');
 require('./router/router');
 
-},{"./dataModel/dataModel":23,"./entity-loader":27,"./router/router":38,"./viewModel/viewModel":41}],26:[function(require,module,exports){
+},{"./dataModel/dataModel":22,"./entity-loader":26,"./router/router":37,"./viewModel/viewModel":40}],25:[function(require,module,exports){
 var _ = require('lodash');
 
 module.exports = _.extend([
@@ -10035,7 +9354,7 @@ module.exports = _.extend([
   }
 });
 
-},{"lodash":3}],27:[function(require,module,exports){
+},{"lodash":3}],26:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -10087,7 +9406,7 @@ fw.components.loaders.unshift(fw.components.entityLoader = {
   }
 });
 
-},{"../binding/binding-element":7,"../misc/loading-tracker":45,"../misc/util":47,"./entity-descriptors":26,"knockout/build/output/knockout-latest":2,"lodash":3}],28:[function(require,module,exports){
+},{"../binding/binding-element":6,"../misc/loading-tracker":43,"../misc/util":45,"./entity-descriptors":25,"knockout/build/output/knockout-latest":2,"lodash":3}],27:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -10191,7 +9510,7 @@ module.exports = {
   resolveEntityImmediately: resolveEntityImmediately
 };
 
-},{"../misc/util":47,"./entity-descriptors":26,"knockout/build/output/knockout-latest":2,"lodash":3}],29:[function(require,module,exports){
+},{"../misc/util":45,"./entity-descriptors":25,"knockout/build/output/knockout-latest":2,"lodash":3}],28:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -10225,7 +9544,7 @@ fw.bindingHandlers.$outlet = {
   }
 };
 
-},{"../../../misc/config":43,"../router-tools":37,"knockout/build/output/knockout-latest":2,"lodash":3}],30:[function(require,module,exports){
+},{"../../../misc/config":42,"../router-tools":36,"knockout/build/output/knockout-latest":2,"lodash":3}],29:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -10372,7 +9691,7 @@ function outletBootstrap (instance, configParams) {
 
 module.exports = outletBootstrap;
 
-},{"../../../misc/config":43,"../../../misc/util":47,"../../entity-descriptors":26,"../../entity-tools":28,"../../router/router-defaults":35,"../../viewModel/viewModel-bootstrap":39,"knockout/build/output/knockout-latest":2,"lodash":3}],31:[function(require,module,exports){
+},{"../../../misc/config":42,"../../../misc/util":45,"../../entity-descriptors":25,"../../entity-tools":27,"../../router/router-defaults":34,"../../viewModel/viewModel-bootstrap":38,"knockout/build/output/knockout-latest":2,"lodash":3}],30:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -10413,7 +9732,7 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
   }
 });
 
-},{"../../../binding/binding-element":7,"../../../misc/config":43,"../router-defaults":35,"knockout/build/output/knockout-latest":2,"lodash":3}],32:[function(require,module,exports){
+},{"../../../binding/binding-element":6,"../../../misc/config":42,"../router-defaults":34,"knockout/build/output/knockout-latest":2,"lodash":3}],31:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -10478,7 +9797,7 @@ fw.components.register(routerDefaults.defaultLoadingComponent, {
 });
 
 
-},{"../../../misc/resource-tools":46,"../../../misc/util":47,"../../entity-descriptors":26,"../../entity-tools":28,"../router-defaults":35,"./outlet-binding":29,"./outlet-bootstrap":30,"./outlet-loader":31,"knockout/build/output/knockout-latest":2,"lodash":3}],33:[function(require,module,exports){
+},{"../../../misc/resource-tools":44,"../../../misc/util":45,"../../entity-descriptors":25,"../../entity-tools":27,"../router-defaults":34,"./outlet-binding":28,"./outlet-bootstrap":29,"./outlet-loader":30,"knockout/build/output/knockout-latest":2,"lodash":3}],32:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -10669,7 +9988,7 @@ fw.bindingHandlers.$route = {
   }
 };
 
-},{"../../misc/config":43,"../../misc/util":47,"./router-tools":37,"knockout/build/output/knockout-latest":2,"lodash":3}],34:[function(require,module,exports){
+},{"../../misc/config":42,"../../misc/util":45,"./router-tools":36,"knockout/build/output/knockout-latest":2,"lodash":3}],33:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -10741,8 +10060,8 @@ function routerBootstrap (instance, configParams) {
       }
     });
 
-    instance.$namespace.command.handler('pushState', _.partial(routerStateChangeCommandHandler, instance, 'push'));
-    instance.$namespace.command.handler('replaceState', _.partial(routerStateChangeCommandHandler, instance, 'replace'));
+    instance.$namespace.subscribe('pushState', _.partial(routerStateChangeCommandHandler, instance, 'push'));
+    instance.$namespace.subscribe('replaceState', _.partial(routerStateChangeCommandHandler, instance, 'replace'));
 
     instance.disposeWithInstance(
       fw.computed(function() {
@@ -10778,7 +10097,7 @@ function routerBootstrap (instance, configParams) {
           }
 
           // notify any listeners of the activation event
-          instance.$namespace.trigger('activated');
+          instance.$namespace.publish('activated', true);
         } else {
           // deactivate the router
 
@@ -10815,7 +10134,7 @@ function routerStateChangeCommandHandler (instance, mode, state) {
 
 module.exports = routerBootstrap;
 
-},{"../../misc/config":43,"../../misc/util":47,"../entity-descriptors":26,"../viewModel/viewModel-bootstrap":39,"./router-tools":37,"knockout/build/output/knockout-latest":2,"lodash":3}],35:[function(require,module,exports){
+},{"../../misc/config":42,"../../misc/util":45,"../entity-descriptors":25,"../viewModel/viewModel-bootstrap":38,"./router-tools":36,"knockout/build/output/knockout-latest":2,"lodash":3}],34:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -10846,7 +10165,7 @@ module.exports = {
   activeOutlets: fw.observableArray()
 };
 
-},{"../../misc/config":43,"../../misc/util":47,"knockout/build/output/knockout-latest":2,"lodash":3}],36:[function(require,module,exports){
+},{"../../misc/config":42,"../../misc/util":45,"knockout/build/output/knockout-latest":2,"lodash":3}],35:[function(require,module,exports){
 var _ = require('lodash');
 
 var privateDataSymbol = require('../../misc/config').privateDataSymbol;
@@ -10997,7 +10316,7 @@ module.exports = {
 
 
 
-},{"../../binding/animation-sequencing":5,"../../misc/config":43,"../../misc/util":47,"../entity-tools":28,"../viewModel/viewModel-mixin":40,"./router-defaults":35,"./router-tools":37,"lodash":3}],37:[function(require,module,exports){
+},{"../../binding/animation-sequencing":4,"../../misc/config":42,"../../misc/util":45,"../entity-tools":27,"../viewModel/viewModel-mixin":39,"./router-defaults":34,"./router-tools":36,"lodash":3}],36:[function(require,module,exports){
 var _ = require('lodash');
 
 var nearestEntity = require('../entity-tools').nearestEntity;
@@ -11262,7 +10581,7 @@ module.exports = {
   getLocation: getLocation
 };
 
-},{"../../misc/config":43,"../../misc/util":47,"../entity-tools":28,"./router-defaults":35,"lodash":3}],38:[function(require,module,exports){
+},{"../../misc/config":42,"../../misc/util":45,"../entity-tools":27,"./router-defaults":34,"lodash":3}],37:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -11313,11 +10632,11 @@ fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 // Add/extend on the various resource methods (registerLocation/etc)
 _.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
-},{"../../misc/resource-tools":46,"../../misc/util":47,"../entity-descriptors":26,"../entity-tools":28,"./outlet/outlet":32,"./route-binding":33,"./router-bootstrap":34,"./router-defaults":35,"./router-mixin":36,"knockout/build/output/knockout-latest":2,"lodash":3}],39:[function(require,module,exports){
+},{"../../misc/resource-tools":44,"../../misc/util":45,"../entity-descriptors":25,"../entity-tools":27,"./outlet/outlet":31,"./route-binding":32,"./router-bootstrap":33,"./router-defaults":34,"./router-mixin":35,"knockout/build/output/knockout-latest":2,"lodash":3}],38:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var defaultChannel = require('postal').channel();
+var postbox = require('../../namespace/postbox');
 var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
 
@@ -11356,12 +10675,9 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
 
     // Setup the request handler which returns the instance (fw.viewModel.get())
     // Note: We are wiring up the request handler manually so that an entire namespace does not need instantiating for this callback
-    instance.disposeWithInstance(defaultChannel.subscribe('request.' + requestHandlerDescriptor.referenceNamespace, function (params) {
-      defaultChannel.publish({
-        topic: 'request.' + requestHandlerDescriptor.referenceNamespace + '.response',
-        data: instanceRequestHandler(instance, params)
-      });
-    }));
+    instance.disposeWithInstance(postbox.subscribe(function instanceResponseHandler (params) {
+      postbox.notifySubscribers(instanceRequestHandler(instance, params), configParams.namespace + '.request.' + requestHandlerDescriptor.referenceNamespace + '.response');
+    }, null, configParams.namespace + '.request.' + requestHandlerDescriptor.referenceNamespace));
   }
 
   return instance;
@@ -11369,7 +10685,7 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
 
 module.exports = viewModelBootstrap;
 
-},{"../../misc/config":43,"../entity-descriptors":26,"../entity-tools":28,"knockout/build/output/knockout-latest":2,"lodash":3,"postal":4}],40:[function(require,module,exports){
+},{"../../misc/config":42,"../../namespace/postbox":48,"../entity-descriptors":25,"../entity-tools":27,"knockout/build/output/knockout-latest":2,"lodash":3}],39:[function(require,module,exports){
 var _ = require('lodash');
 
 var privateDataSymbol = require('../../misc/config').privateDataSymbol;
@@ -11412,7 +10728,7 @@ module.exports = {
 
 
 
-},{"../../misc/config":43,"../../misc/util":47,"lodash":3}],41:[function(require,module,exports){
+},{"../../misc/config":42,"../../misc/util":45,"lodash":3}],40:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -11464,7 +10780,7 @@ require('../../misc/config')[capitalizeFirstLetter(entityName)] = function ViewM
 
 
 
-},{"../../misc/config":43,"../../misc/resource-tools":46,"../../misc/util":47,"../entity-descriptors":26,"../entity-tools":28,"./viewModel-bootstrap":39,"./viewModel-mixin":40,"knockout/build/output/knockout-latest":2,"lodash":3}],42:[function(require,module,exports){
+},{"../../misc/config":42,"../../misc/resource-tools":44,"../../misc/util":45,"../entity-descriptors":25,"../entity-tools":27,"./viewModel-bootstrap":38,"./viewModel-mixin":39,"knockout/build/output/knockout-latest":2,"lodash":3}],41:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -11689,19 +11005,14 @@ module.exports = {
   makePromiseQueryable: makePromiseQueryable
 }
 
-},{"../collection/collection-tools":13,"./config":43,"./util":47,"knockout/build/output/knockout-latest":2,"lodash":3}],43:[function(require,module,exports){
+},{"../collection/collection-tools":12,"./config":42,"./util":45,"knockout/build/output/knockout-latest":2,"lodash":3}],42:[function(require,module,exports){
 module.exports = {
   entityClass: 'fw-entity',
   entityAnimateClass: 'fw-entity-resolved',
   privateDataSymbol: require('./util').getSymbol('footwork')
 };
 
-},{"./util":47}],44:[function(require,module,exports){
-module.exports = {
-  lodash: require('lodash')
-};
-
-},{"lodash":3}],45:[function(require,module,exports){
+},{"./util":45}],43:[function(require,module,exports){
 /**
  * Registry which stores component information as it is loaded.
  * This information is used by footwork to bootstrap the component/entity.
@@ -11717,7 +11028,7 @@ module.exports = {
   }
 };
 
-},{}],46:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
@@ -11725,7 +11036,6 @@ var util = require('../misc/util');
 var isPath = util.isPath;
 var isAmdResolved = util.isAmdResolved;
 
-var isNamespace = require('../namespace/namespace').isNamespace;
 var regExpMatch = /^\/|\/$/g;
 
 /**
@@ -11826,7 +11136,7 @@ var defaultNamespace = fw.namespace();
 function getModelReferences (descriptor, namespaceName) {
   var references = _.reduce(defaultNamespace.request(descriptor.referenceNamespace, namespaceName, true), function (models, model) {
     if (!_.isUndefined(model)) {
-      var namespaceName = isNamespace(model.$namespace) ? model.$namespace.getName() : null;
+      var namespaceName = fw.isNamespace(model.$namespace) ? model.$namespace.getName() : null;
       if (!_.isNull(namespaceName)) {
         if (_.isUndefined(models[namespaceName])) {
           models[namespaceName] = model;
@@ -11923,7 +11233,7 @@ module.exports = {
   getModelReferences: getModelReferences
 };
 
-},{"../misc/util":47,"../namespace/namespace":49,"knockout/build/output/knockout-latest":2,"lodash":3}],47:[function(require,module,exports){
+},{"../misc/util":45,"knockout/build/output/knockout-latest":2,"lodash":3}],45:[function(require,module,exports){
 var _ = require('lodash');
 
 /**
@@ -12205,194 +11515,168 @@ module.exports = {
   makeArray: makeArray
 };
 
-},{"./config":43,"lodash":3}],48:[function(require,module,exports){
+},{"./config":42,"lodash":3}],46:[function(require,module,exports){
 var _ = require('lodash');
 
+var postbox = require('./postbox');
+var privateDataSymbol = require('../misc/config').privateDataSymbol;
+
 /**
- * Create postal message envelope using a given topic, data, and expiration
+ * Publish data on a topic of a namespace.
  *
  * @param {any} topic
  * @param {any} data
- * @param {any} expires
- * @returns {object} postal.js envelope
+ * @returns {object} the namespace instance
  */
-function createEnvelope (topic, data) {
-  var envelope = {
-    topic: topic,
-    data: data
-  };
-
-  return envelope;
-}
-
-// Method used to trigger an event on a namespace
-function triggerEventOnNamespace (eventKey, params) {
-  this.publish(createEnvelope('event.' + eventKey, params));
+function publish (topic, data) {
+  postbox.notifySubscribers(data, this[privateDataSymbol].namespaceName + '.' + topic);
   return this;
 }
 
-// Method used to register an event handler on a namespace
-function registerNamespaceEventHandler (eventKey, callback, context) {
-  if (!_.isUndefined(context)) {
+/**
+ * Subscribe to a topic on a namespace.
+ *
+ * @param {string} topic the topic string, or thing/message that you want to subscribe to
+ * @param {function} callback the callback triggered with the data
+ * @param {any} context the context given to the callback
+ * @returns {object} the subscription that was created
+ */
+function subscribe (topic, callback, context, registerForDisposal) {
+  registerForDisposal = _.isUndefined(registerForDisposal) || registerForDisposal;
+  if(arguments.length > 2) {
     callback = callback.bind(context);
   }
-
-  var handlerSubscription = this._subscribe('event.' + eventKey, callback);
-  this.eventHandlers.push(handlerSubscription);
-
-  return handlerSubscription;
+  var subscription = postbox.subscribe(callback, null, this[privateDataSymbol].namespaceName + '.' + topic);
+  registerForDisposal && this[privateDataSymbol].subscriptions.push(subscription);
+  return subscription;
 }
 
-// Method used to unregister an event handler on a namespace
-function unregisterNamespaceHandler (handlerSubscription) {
-  handlerSubscription.unsubscribe();
+/**
+ * Unsubscribe a namespace subscription.
+ *
+ * @param {object} subscription the subscription to unsubscribe
+ * @returns {object} the namespace instance
+ */
+function unsubscribe (subscription) {
+  _.isFunction(subscription.unsubscribe) && subscription.unsubscribe();
   return this;
 }
 
-// Method used to send a command to a namespace
-function sendCommandToNamespace (commandKey, params) {
-  this.publish(createEnvelope('command.' + commandKey, params));
-  return this;
-}
-
-// Method used to register a command handler on a namespace
-function registerNamespaceCommandHandler (commandKey, callback, context) {
-  if (!_.isUndefined(context)) {
-    callback = callback.bind(context);
-  }
-
-  var handlerSubscription = this._subscribe('command.' + commandKey, callback);
-  this.commandHandlers.push(handlerSubscription);
-
-  return handlerSubscription;
-}
-
-// Method used to issue a request for data from a namespace, returning the response (or undefined if no response)
-// This method will return an array of responses if more than one is received.
-function requestResponseFromNamespace (requestKey, params, allowMultipleResponses) {
+/**
+ * Issue a request for data using the supplied topic and params and return the response.
+ *
+ * @param {string} topic the topic/data you are requesting
+ * @param {any} params any data to pass along to the handler on the other side
+ * @param {boolean} allowMultipleResponses if true then all the responses will be returned in an array, if false only the first to respond will be returned
+ * @returns {any} the returned data (or undefined)
+ */
+function request (topic, params, allowMultipleResponses) {
   var response = undefined;
-  var responseSubscription;
 
-  responseSubscription = this._subscribe('request.' + requestKey + '.response', function (reqResponse) {
+  var responseSubscription = this.subscribe('request.' + topic + '.response', function (reqResponse) {
     if (_.isUndefined(response)) {
       response = allowMultipleResponses ? [reqResponse] : reqResponse;
     } else if (allowMultipleResponses) {
       response.push(reqResponse);
     }
-  });
+  }, null, false);
 
-  this.publish(createEnvelope('request.' + requestKey, params));
-  responseSubscription.unsubscribe();
+  this.publish('request.' + topic, params);
+  responseSubscription.dispose();
 
   return response;
 }
 
-// Method used to register a request handler on a namespace.
-// Requests sent using the specified requestKey will be called and passed in any params specified, the return value is passed back to the issuer
-function registerNamespaceRequestHandler (requestKey, callback, context) {
+/**
+ * Create a request handler to respond to the requested topic using the specified callback.
+ *
+ * @param {string} topic
+ * @param {function} callback the callback which is passed the topic data and whos return result is send to back to the requester
+ * @param {any} context the context given to the callback
+ * @returns {object} the request subscription that was created
+ */
+function requestHandler (topic, callback, context) {
+  var self = this;
+
   if (!_.isUndefined(context)) {
     callback = callback.bind(context);
   }
 
   var requestHandler = function (params) {
     var callbackResponse = callback(params);
-    this.publish(createEnvelope('request.' + requestKey + '.response', callbackResponse));
-  }.bind(this);
+    self.publish('request.' + topic + '.response', callbackResponse);
+  };
 
-  var handlerSubscription = this._subscribe('request.' + requestKey, requestHandler);
-  this.requestHandlers.push(handlerSubscription);
-
-  return handlerSubscription;
+  return this.subscribe('request.' + topic, requestHandler);
 }
 
-// This effectively shuts down all requests, commands, events, and subscriptions by unsubscribing all handlers on a discreet namespace object
-var handlerRepos = [ 'requestHandlers', 'commandHandlers', 'eventHandlers', 'subscriptions' ];
-function disconnectNamespaceHandlers () {
-  var namespace = this;
-  _.each(handlerRepos, function (handlerRepo) {
-    _.invokeMap(namespace[handlerRepo], 'unsubscribe');
-  });
+/**
+ * Dispose of the namespace (clear all subscriptions/handlers)
+ *
+ * @returns {object} the namespace instance
+ */
+function dispose () {
+  _.invokeMap(this[privateDataSymbol].subscriptions, 'dispose');
   return this;
 }
 
-function getNamespaceName () {
-  return this.channel;
+/**
+ * Return the name of the namespace
+ * @returns {string} the namespace name
+ */
+function getName () {
+  return this[privateDataSymbol].namespaceName;
 }
 
 module.exports = {
-  createEnvelope: createEnvelope,
-  triggerEventOnNamespace: triggerEventOnNamespace,
-  registerNamespaceEventHandler: registerNamespaceEventHandler,
-  unregisterNamespaceHandler: unregisterNamespaceHandler,
-  sendCommandToNamespace: sendCommandToNamespace,
-  registerNamespaceCommandHandler: registerNamespaceCommandHandler,
-  requestResponseFromNamespace: requestResponseFromNamespace,
-  registerNamespaceRequestHandler: registerNamespaceRequestHandler,
-  disconnectNamespaceHandlers: disconnectNamespaceHandlers,
-  getNamespaceName: getNamespaceName
+  publish: publish,
+  subscribe: subscribe,
+  unsubscribe: unsubscribe,
+  request: request,
+  requestHandler: requestHandler,
+  dispose: dispose,
+  getName: getName
 };
 
-},{"lodash":3}],49:[function(require,module,exports){
-var postal = require('postal');
-var _ = require('lodash');
-
+},{"../misc/config":42,"./postbox":48,"lodash":3}],47:[function(require,module,exports){
+var privateDataSymbol = require('../misc/config').privateDataSymbol;
 var namespaceMethods = require('./namespace-methods');
-var disconnectNamespaceHandlers = namespaceMethods.disconnectNamespaceHandlers;
-var sendCommandToNamespace = namespaceMethods.sendCommandToNamespace;
-var registerNamespaceCommandHandler = namespaceMethods.registerNamespaceCommandHandler;
-var unregisterNamespaceHandler = namespaceMethods.unregisterNamespaceHandler;
-var getNamespaceName = namespaceMethods.getNamespaceName;
-var triggerEventOnNamespace = namespaceMethods.triggerEventOnNamespace;
-var requestResponseFromNamespace = namespaceMethods.requestResponseFromNamespace;
-var registerNamespaceRequestHandler = namespaceMethods.registerNamespaceRequestHandler;
-var registerNamespaceEventHandler = namespaceMethods.registerNamespaceEventHandler;
 
-var isNullRouterSymbol = require('../misc/util').getSymbol('isNullRouter');
+/**
+ * Construct a new namespace instance.
+ *
+ * @param {string} namespaceName
+ * @returns
+ */
+function Namespace (namespaceName) {
+  if (!(this instanceof Namespace)) {
+    return new Namespace(namespaceName);
+  }
 
-// Creates and returns a new namespace instance
-var Namespace = function Namespace (namespaceName) {
-  var ns = postal.channel(namespaceName);
-
-  var subscriptions = ns.subscriptions = [];
-  ns._subscribe = ns.subscribe;
-  ns.subscribe = function (topic, callback, context) {
-    if (arguments.length > 2) {
-      callback = callback.bind(context);
-    }
-    var subscription = ns._subscribe.call(ns, topic, callback);
-    subscriptions.push(subscription);
-    return subscription;
+  this[privateDataSymbol] = {
+    namespaceName: namespaceName || '__fwDefault',
+    subscriptions: []
   };
-  ns.unsubscribe = unregisterNamespaceHandler;
-
-  ns[isNullRouterSymbol] = true;
-  ns.dispose = disconnectNamespaceHandlers.bind(ns);
-
-  ns.commandHandlers = [];
-  ns.command = sendCommandToNamespace.bind(ns);
-  ns.command.handler = registerNamespaceCommandHandler.bind(ns);
-  ns.command.unregister = unregisterNamespaceHandler;
-
-  ns.requestHandlers = [];
-  ns.request = requestResponseFromNamespace.bind(ns);
-  ns.request.handler = registerNamespaceRequestHandler.bind(ns);
-  ns.request.unregister = unregisterNamespaceHandler;
-
-  ns.eventHandlers = [];
-  ns.event = ns.trigger = triggerEventOnNamespace.bind(ns);
-  ns.event.handler = registerNamespaceEventHandler.bind(ns);
-  ns.event.unregister = unregisterNamespaceHandler;
-
-  ns.getName = getNamespaceName.bind(ns);
-
-  return ns;
 };
 
-Namespace.isNamespace = function isNamespace (thing) {
-  return _.isObject(thing) && !!thing[isNullRouterSymbol];
-};
+Namespace.prototype.dispose = namespaceMethods.dispose;
+Namespace.prototype.publish = namespaceMethods.publish;
+Namespace.prototype.subscribe = namespaceMethods.subscribe;
+Namespace.prototype.unsubscribe = namespaceMethods.unsubscribe;
+Namespace.prototype.request = namespaceMethods.request;
+Namespace.prototype.requestHandler = namespaceMethods.requestHandler;
+Namespace.prototype.getName = namespaceMethods.getName;
 
 module.exports = Namespace;
 
-},{"../misc/util":47,"./namespace-methods":48,"lodash":3,"postal":4}]},{},[1])(1)
+},{"../misc/config":42,"./namespace-methods":46}],48:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+
+/**
+ * This module simply returns the subscribable used to abstract the pub/sub functionality in footwork.
+ * Reference: http://www.knockmeout.net/2012/05/using-ko-native-pubsub.html
+ */
+module.exports = new fw.subscribable();
+
+},{"knockout/build/output/knockout-latest":2}]},{},[1])(1)
 });

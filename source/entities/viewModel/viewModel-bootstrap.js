@@ -1,9 +1,12 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('lodash');
 
-var defaultChannel = require('postal').channel();
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+var postbox = require('../../namespace/postbox');
 var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
+
+var config = require('../../misc/config');
+var privateDataSymbol = config.privateDataSymbol;
+var defaultNamespace = config.defaultNamespace;
 
 /**
  * Bootstrap an instance with viewModel capabilities (lifecycle/etc).
@@ -25,7 +28,7 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
     instance[descriptor.isEntityDuckTag] = true;
 
     configParams = _.extend({}, descriptor.defaultConfig, {
-      namespace: (configParams || {}).namespace ? null : _.uniqueId(descriptor.entityName)
+      namespace: (configParams || {}).namespace ? null : _.uniqueId('instance')
     }, configParams);
 
     instance[privateDataSymbol] = {
@@ -40,12 +43,9 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
 
     // Setup the request handler which returns the instance (fw.viewModel.get())
     // Note: We are wiring up the request handler manually so that an entire namespace does not need instantiating for this callback
-    instance.disposeWithInstance(defaultChannel.subscribe('request.' + requestHandlerDescriptor.referenceNamespace, function (params) {
-      defaultChannel.publish({
-        topic: 'request.' + requestHandlerDescriptor.referenceNamespace + '.response',
-        data: instanceRequestHandler(instance, params)
-      });
-    }));
+    instance.disposeWithInstance(postbox.subscribe(function instanceResponseHandler (params) {
+      postbox.notifySubscribers(instanceRequestHandler(instance, params), defaultNamespace + '.request.' + requestHandlerDescriptor.referenceNamespace + '.response');
+    }, null, defaultNamespace + '.request.' + requestHandlerDescriptor.referenceNamespace));
   }
 
   return instance;
