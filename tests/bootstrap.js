@@ -86,14 +86,12 @@ require.config({
 
   // we have to kickoff jasmine, as it is asynchronous
   callback: function() {
-    require(['es5-shim'], function() {
-      require(['footwork', 'reporter', 'container'],
-        function(fw) {
-          window.fw = fw; // export footwork so the user has access to it in the console
-          fixture.setBase('tests/assets/fixtures');
-          setTimeout(window.__karma__.start, ajaxWait);
-        }
-      );
-    });
+    require(['footwork', 'reporter', 'container'],
+      function(fw) {
+        window.fw = fw; // export footwork so the user has access to it in the console
+        fixture.setBase('tests/assets/fixtures');
+        setTimeout(window.__karma__.start, ajaxWait);
+      }
+    );
   }
 });
