@@ -239,7 +239,7 @@ function getPrivateData (instance) {
  * @returns {Symbol|string} The identifier
  */
 function getSymbol (str) {
-  return typeof Symbol === 'function' && typeof Symbol.for === 'function' ? Symbol.for(str) : /* istanbul ignore next */ ('__' + str);
+  return typeof Symbol === 'function' && typeof Symbol['for'] === 'function' ? Symbol['for'](str) : /* istanbul ignore next */ ('__' + str);
 }
 
 /**

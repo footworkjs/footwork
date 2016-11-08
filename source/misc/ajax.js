@@ -207,10 +207,13 @@ function makePromiseQueryable (promise) {
 function handleJsonResponse (xhr) {
   return xhr.then(function (response) {
       if(response.ok) {
-        return response.clone().json();
+        var json;
+        try {
+          json = response.clone().json();
+        } catch(e) {}
+        return json;
       }
-    })
-    .catch( /* istanbul ignore next */ _.noop);
+    });
 }
 
 fw.fetchOptions = {};

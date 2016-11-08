@@ -38,7 +38,8 @@
     "requirejs": "*",
     "requirejs-text": "*",
     "promise-polyfill": "*",
-    "fetch-polyfill": "*"
+    "fetch-polyfill": "*",
+    "es5-shim": "^4.5.9"
   },
   "devDependencies": {
     "lodash": "^4.12",

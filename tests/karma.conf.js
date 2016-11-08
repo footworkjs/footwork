@@ -25,6 +25,7 @@ module.exports = {
     { pattern: 'node_modules/whatwg-fetch/fetch.js', watched: false, included: true },
     { pattern: 'node_modules/babel-polyfill/dist/polyfill.js', watched: false, included: true },
     { pattern: 'node_modules/fetch-mock/es5/client-browserified.js', watched: false, included: false },
+    { pattern: 'bower_components/es5-shim/es5-shim.js', watched: false, included: false },
 
     { pattern: 'build/*.js', included: false },
     { pattern: 'dist/gh-footwork-logo.png', included: false }

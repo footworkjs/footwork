@@ -80,17 +80,20 @@ require.config({
     "tools": "tests/assets/tools",
     "reporter": "tests/assets/reporter",
     "container": "tests/assets/container",
-    "fetch-mock": "node_modules/fetch-mock/es5/client-browserified"
+    "fetch-mock": "node_modules/fetch-mock/es5/client-browserified",
+    "es5-shim": "bower_components/es5-shim/es5-shim"
   },
 
   // we have to kickoff jasmine, as it is asynchronous
   callback: function() {
-    require(['footwork', 'reporter', 'container'],
-      function(fw) {
-        window.fw = fw; // export footwork so the user has access to it in the console
-        fixture.setBase('tests/assets/fixtures');
-        setTimeout(window.__karma__.start, ajaxWait);
-      }
-    );
+    require(['es5-shim'], function() {
+      require(['footwork', 'reporter'],
+        function(fw) {
+          window.fw = fw; // export footwork so the user has access to it in the console
+          fixture.setBase('tests/assets/fixtures');
+          setTimeout(window.__karma__.start, ajaxWait);
+        }
+      );
+    });
   }
 });
