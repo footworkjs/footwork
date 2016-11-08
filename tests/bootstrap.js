@@ -93,6 +93,7 @@ require.config({
 
     if(isExploder && ieVersion < 9) {
       // ie < 9 requires shimming
+      // ie8 does not work at the moment, many attempts were made, all have failed, too small user base to care more (it was also EOL'd by MSFT)
       require(['es5-shim'], function() {
         require(['footwork', 'reporter', 'container'], runTests);
       });

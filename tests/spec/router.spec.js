@@ -1500,7 +1500,7 @@ define(['footwork', 'lodash', 'jquery', 'tools'],
                 route: '/routeHrefBindingObservableChangedRoute',
                 controller: changedRouteSpy
               }
-            ],
+            ]
           });
         }).and.callThrough());
 

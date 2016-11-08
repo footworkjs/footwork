@@ -189,11 +189,14 @@ define(['footwork', 'jquery', 'lodash', 'customMatchers', 'fetch-mock', 'reporte
      */
     function handleJsonResponse(xhr) {
       return xhr.then(function(response) {
-          return _.inRange(response.status, 200, 300) ? response.clone().json() : false;
-        })
-        .catch(function(parseError) {
-          console.error(parseError);
-          return false;
+          var json;
+          try {
+            json = response.clone().json();
+          } catch (e) {
+            console.error(parseError);
+            return false;
+          }
+          return json;
         });
     }
 

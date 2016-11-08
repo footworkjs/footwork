@@ -734,7 +734,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         var PeopleCollection = fw.collection.create({
           namespace: namespaceName,
-          url: getMockUrl,
+          url: getMockUrl
         });
         var people = PeopleCollection();
         var PeopleCollectionAjaxOptions = fw.collection.create({

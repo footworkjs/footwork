@@ -135,7 +135,7 @@ define(['footwork', 'tools'],
 
         var ModelA = modelAInitializeSpy = jasmine.createSpy('modelAInitializeSpy', function() {
           fw.viewModel.boot(this, {
-            namespace: modelANamespaceName,
+            namespace: modelANamespaceName
           });
           this.writableBroadcaster = fw.observable().broadcast('writableBroadcaster', this, true);
         }).and.callThrough()
