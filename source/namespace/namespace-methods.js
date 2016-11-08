@@ -1,4 +1,4 @@
-var _ = require('lodash');
+var _ = require('footwork-lodash');
 
 var postbox = require('./postbox');
 var privateDataSymbol = require('../misc/config').privateDataSymbol;

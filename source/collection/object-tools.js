@@ -1,5 +1,5 @@
 var fw = require('knockout/build/output/knockout-latest');
-var _ = require('lodash');
+var _ = require('footwork-lodash');
 
 /**
  * Performs an equality comparison between two objects while ensuring atleast one or more keys/values match and that all keys/values from object A also exist in B

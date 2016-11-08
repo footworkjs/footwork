@@ -1,4 +1,4 @@
-var _ = require('lodash');
+var _ = require('footwork-lodash');
 
 /**
  * Function which always returns true (a predicate function that always passes as 'true')

@@ -1,5 +1,5 @@
 var fw = require('knockout/build/output/knockout-latest');
-var _ = require('lodash');
+var _ = require('footwork-lodash');
 
 var util = require('./util');
 var resultBound = util.resultBound;

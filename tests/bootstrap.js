@@ -70,11 +70,10 @@ require.config({
   waitSeconds: 600,
 
   paths: {
-    "text": "bower_components/requirejs-text/text",
+    "text": "node_modules/requirejs-text/text",
     "footwork": "build/footwork",
-    "lodash": "bower_components/lodash/dist/lodash",
-    "jquery": "bower_components/jquery/dist/jquery",
-    "history": "bower_components/history.js/scripts/bundled/html5/native.history",
+    "lodash": "node_modules/lodash/lodash",
+    "jquery": "node_modules/jquery/dist/jquery",
     "customMatchers": "tests/assets/customMatchers",
     "tools": "tests/assets/tools",
     "reporter": "tests/assets/reporter",

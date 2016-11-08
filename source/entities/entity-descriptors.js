@@ -1,4 +1,4 @@
-var _ = require('lodash');
+var _ = require('footwork-lodash');
 
 module.exports = _.extend([
   /* filled in by viewModel/dataModel/router modules */

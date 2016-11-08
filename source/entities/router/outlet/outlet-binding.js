@@ -1,5 +1,5 @@
 var fw = require('knockout/build/output/knockout-latest');
-var _ = require('lodash');
+var _ = require('footwork-lodash');
 
 var privateDataSymbol = require('../../../misc/config').privateDataSymbol;
 var nearestParentRouter = require('../router-tools').nearestParentRouter;

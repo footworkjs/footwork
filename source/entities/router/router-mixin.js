@@ -1,4 +1,4 @@
-var _ = require('lodash');
+var _ = require('footwork-lodash');
 
 var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 var isEntity = require('../entity-tools').isEntity;

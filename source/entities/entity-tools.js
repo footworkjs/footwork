@@ -1,5 +1,5 @@
 var fw = require('knockout/build/output/knockout-latest');
-var _ = require('lodash');
+var _ = require('footwork-lodash');
 
 var entityDescriptors = require('./entity-descriptors');
 var capitalizeFirstLetter = require('../misc/util').capitalizeFirstLetter;
