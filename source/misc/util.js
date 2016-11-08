@@ -229,7 +229,7 @@ function capitalizeFirstLetter (str) {
  * @returns {object} The private data on the instance (if found)
  */
 function getPrivateData (instance) {
-  return instance[require('./config').privateDataSymbol];
+  return instance && instance[require('./config').privateDataSymbol];
 }
 
 /**

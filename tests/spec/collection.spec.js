@@ -1161,11 +1161,10 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(people()).lengthToBe(persons.length);
         expect(fw.utils.getPrivateData(people()[0]).isDisposed).toBe(undefined);
 
-        var personRemoved = people.remove(people()[0])[0];
+        var personRemoved = people()[0];
+        people.dispose();
 
-        expect(fw.utils.getPrivateData(personRemoved).isDisposed).toBe(true);
-        expect(personRemoved.get()).toEqual(persons[0]);
-        expect(people()).lengthToBe(persons.length - 1);
+        expect(fw.utils.getPrivateData(personRemoved).isDisposed).not.toBe(true);
       });
 
       it('can be configured to not dispose of dataModels when removed', function() {
