@@ -25,14 +25,12 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.email = fw.observable(person.email || null).mapTo('email', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
-          dataModel: Person
-        });
-
         var plainEmptyCollection = fw.collection();
         expect(plainEmptyCollection()).toEqual([]);
 
-        var people = PeopleCollection();
+        var people = fw.collection({
+          dataModel: Person
+        });
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(people()).lengthToBe(0);
@@ -93,11 +91,9 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.email = fw.observable(person.email || null).mapTo('email', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
+        var people = fw.collection({
           dataModel: Person
         });
-
-        var people = PeopleCollection();
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(people()).lengthToBe(0);
@@ -151,13 +147,11 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.email = fw.observable(person.email || null).mapTo('email', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
-          dataModel: Person
-        });
-
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        var people = PeopleCollection(persons);
+        var people = fw.collection(persons, {
+          dataModel: Person
+        });
 
         expect(initializeSpy).toHaveBeenCalledTimes(persons.length);
         expect(people()).lengthToBe(persons.length);
@@ -196,13 +190,11 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.somethingNotProvidedFor = fw.observable().mapTo('somethingNotProvidedFor', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
-          dataModel: Person
-        });
-
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        var people = PeopleCollection(persons);
+        var people = fw.collection(persons, {
+          dataModel: Person
+        });
 
         expect(initializeSpy).toHaveBeenCalledTimes(persons.length);
         expect(people()).lengthToBe(persons.length);
@@ -256,13 +248,11 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.somethingNotProvidedFor = fw.observable().mapTo('somethingNotProvidedFor', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
-          dataModel: Person
-        });
-
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        var people = PeopleCollection(persons);
+        var people = fw.collection(persons, {
+          dataModel: Person
+        });
 
         expect(people()).lengthToBe(persons.length);
         expect(initializeSpy).toHaveBeenCalledTimes(persons.length);
@@ -325,13 +315,11 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.somethingNotProvidedFor = fw.observable().mapTo('somethingNotProvidedFor', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
-          dataModel: Person
-        });
-
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        var people = PeopleCollection(persons);
+        var people = fw.collection(persons, {
+          dataModel: Person
+        });
 
         expect(initializeSpy).toHaveBeenCalledTimes(persons.length);
         expect(people()).lengthToBe(persons.length);
@@ -377,13 +365,11 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.commonTerm = fw.observable(person.commonTerm).mapTo('commonTerm', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
-          dataModel: Person
-        });
-
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        var people = PeopleCollection(persons);
+        var people = fw.collection(persons, {
+          dataModel: Person
+        });
 
         expect(initializeSpy).toHaveBeenCalledTimes(persons.length);
         expect(people()).lengthToBe(persons.length);
@@ -420,13 +406,11 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.email = fw.observable(person.email || null).mapTo('email', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
-          dataModel: Person
-        });
-
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        var people = PeopleCollection(persons);
+        var people = fw.collection(persons, {
+          dataModel: Person
+        });
 
         expect(initializeSpy).toHaveBeenCalledTimes(persons.length);
         expect(people()).lengthToBe(persons.length);
@@ -528,11 +512,9 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.email = fw.observable(person.email || null).mapTo('email', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
+        var people = fw.collection({
           dataModel: Person
         });
-
-        var people = PeopleCollection();
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(people()).lengthToBe(0);
@@ -580,10 +562,9 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           'person2Data _.remove': 0
         };
 
-        var PeopleCollection = fw.collection.create({
+        var people = fw.collection({
           dataModel: Person
         });
-        var people = PeopleCollection();
 
         function eventChecker(collectionEvent, models) {
           var dataModels = [].concat(models);
@@ -693,10 +674,9 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.email = fw.observable(person.email || null).mapTo('email', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
+        var people = fw.collection({
           dataModel: Person
         });
-        var people = PeopleCollection();
 
         var resetTriggered = false;
         people.$namespace.subscribe('_.reset', resetSpy = jasmine.createSpy('resetSpy', function(resetData) {
@@ -732,12 +712,11 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        var PeopleCollection = fw.collection.create({
+        var people = fw.collection({
           namespace: namespaceName,
           url: getMockUrl
         });
-        var people = PeopleCollection();
-        var PeopleCollectionAjaxOptions = fw.collection.create({
+        var peopleAjaxOptions = fw.collection({
           namespace: namespaceName,
           url: getOverrideMockUrl,
           fetchOptions: fetchOptionsSpy = jasmine.createSpy('fetchOptionsSpy', function() {
@@ -746,7 +725,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
             };
           }).and.callThrough()
         });
-        var peopleAjaxOptions = PeopleCollectionAjaxOptions();
 
         var changeEventCalled = false;
         fw.namespace(namespaceName).subscribe('_.change', changeEventSpy = jasmine.createSpy('changeEventSpy', function(changeData) {
@@ -794,7 +772,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           });
         });
 
-        var PeopleCollection = fw.collection.create({
+        var people = fw.collection({
           url: mockUrl,
           parse: parseSpy = jasmine.createSpy('parseSpy', function(people) {
             return _.map(people, function(person) {
@@ -803,8 +781,6 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
             });
           }).and.callThrough()
         });
-
-        var people = PeopleCollection();
 
         fetchMock.restore().get(mockUrl, persons);
         expect(people.fetch()).toBeA('promise');
@@ -842,12 +818,10 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.email = fw.observable(person.email || null).mapTo('email', this);
         }).and.callThrough();
 
-        var PeopleCollection = fw.collection.create({
+        var people = fw.collection({
           url: mockUrl,
           dataModel: Person
         });
-
-        var people = PeopleCollection();
 
         people.$namespace.subscribe('_.reset', resetSpy = jasmine.createSpy('resetSpy', function(resetData) {
           expect(resetData).toBeAn('object');
@@ -884,10 +858,9 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.email = fw.observable(person.email || null).mapTo('email', this);
         }).and.callThrough();
 
-        var PeopleCollection = fw.collection.create({
+        var people = fw.collection({
           dataModel: Person
         });
-        var people = PeopleCollection();
 
         var addTriggered = false;
         people.$namespace.subscribe('_.add', addSpy = jasmine.createSpy('addSpy', function(dataModels) {
@@ -919,10 +892,9 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.email = fw.observable(person.email || null).mapTo('email', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
+        var people = fw.collection({
           dataModel: Person
         });
-        var people = PeopleCollection();
 
         var addTriggered = false;
         people.$namespace.subscribe('_.add', tools.expectCallOrder(1, addSpy = jasmine.createSpy('addSpy', function(dataModels) {
@@ -964,11 +936,9 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.email = fw.observable(person.email || null).mapTo('email', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
+        var people = fw.collection(persons, {
           dataModel: Person
         });
-
-        var people = PeopleCollection(persons);
         people.$namespace.subscribe('_.remove', tools.expectCallOrder(persons.length, removeSpy));
 
         expect(removeSpy).not.toHaveBeenCalled();
@@ -1001,11 +971,9 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.email = fw.observable(person.email || null).mapTo('email', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
+        var people = fw.collection(persons, {
           dataModel: Person
         });
-
-        var people = PeopleCollection(persons);
         people.$namespace.subscribe('_.remove', tools.expectCallOrder(persons.length, removeSpy));
 
         expect(removeSpy).not.toHaveBeenCalled();
@@ -1038,11 +1006,9 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.email = fw.observable(person.email || null).mapTo('email', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
+        var people = fw.collection(persons, {
           dataModel: Person
         });
-
-        var people = PeopleCollection(persons);
         people.$namespace.subscribe('_.remove', tools.expectCallOrder(persons.length, removeSpy));
 
         expect(removeSpy).not.toHaveBeenCalled();
@@ -1075,11 +1041,9 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.email = fw.observable(person.email || null).mapTo('email', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
+        var people = fw.collection(persons, {
           dataModel: Person
         });
-
-        var people = PeopleCollection(persons);
         people.$namespace.subscribe('_.remove', tools.expectCallOrder(persons.length, removeSpy));
 
         expect(removeSpy).not.toHaveBeenCalled();
@@ -1112,11 +1076,9 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.email = fw.observable(person.email || null).mapTo('email', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
+        var people = fw.collection(persons, {
           dataModel: Person
         });
-
-        var people = PeopleCollection(persons);
         people.$namespace.subscribe('_.remove', tools.expectCallOrder(persons.length, removeSpy));
 
         expect(removeSpy).not.toHaveBeenCalled();
@@ -1155,10 +1117,9 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.email = fw.observable(person.email || null).mapTo('email', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
+        var people = fw.collection(persons, {
           dataModel: Person
         });
-        var people = PeopleCollection(persons);
 
         expect(people()).lengthToBe(persons.length);
         expect(fw.utils.getPrivateData(people()[0]).isDisposed).toBe(undefined);
@@ -1192,11 +1153,10 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           this.email = fw.observable(person.email || null).mapTo('email', this);
         }).and.callThrough());
 
-        var PeopleCollection = fw.collection.create({
+        var people = fw.collection(persons, {
           dataModel: Person,
           disposeOnRemove: false
         });
-        var people = PeopleCollection(persons);
 
         expect(people()).lengthToBe(persons.length);
         expect(fw.utils.getPrivateData(people()[0]).isDisposed).toBe(undefined);

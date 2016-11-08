@@ -29,74 +29,66 @@ function addAndNotify (originalFunction) {
   return originalResult;
 }
 
-var PlainCollectionConstructor;
-
-fw.collection = function (collectionData) {
-  collectionData = collectionData || [];
-
-  if (_.isUndefined(PlainCollectionConstructor)) {
-    PlainCollectionConstructor = fw.collection.create();
+fw.collection = function createCollection (collectionData, configParams) {
+  if(!_.isArray(collectionData)) {
+    configParams = collectionData;
+    collectionData = [];
   }
-  return PlainCollectionConstructor(collectionData);
-};
 
-fw.collection.create = function (configParams) {
-  configParams = configParams || {};
+  collectionData = collectionData || [];
+  configParams = _.extend({}, defaultCollectionConfig, configParams);
 
-  return function CollectionConstructor (collectionData) {
-    configParams = _.extend({}, defaultCollectionConfig, configParams);
-    var DataModelCtor = configParams.dataModel;
-    var collection = fw.observableArray();
+  var DataModelCtor = configParams.dataModel;
+  var collection = fw.observableArray();
 
-    _.extend(collection, collectionMethods, {
-      $namespace: fw.namespace(configParams.namespace || _.uniqueId('collection')),
-      remove: _.bind(removeDisposeAndNotify, collection, collection.remove),
-      pop: _.bind(removeDisposeAndNotify, collection, collection.pop),
-      shift: _.bind(removeDisposeAndNotify, collection, collection.shift),
-      splice: _.bind(removeDisposeAndNotify, collection, collection.splice),
-      push: _.bind(addAndNotify, collection, collection.push),
-      unshift: _.bind(addAndNotify, collection, collection.unshift),
-      isFetching: fw.observable(false),
-      isCreating: fw.observable(false),
-      dispose: function () {
-        if (!collection[privateDataSymbol].isDisposed) {
-          collection[privateDataSymbol].isDisposed = true;
-          collection.$namespace.dispose();
-          _.invokeMap(collection(), 'dispose');
-        }
+  _.extend(collection, collectionMethods, {
+    $namespace: fw.namespace(configParams.namespace || _.uniqueId('collection')),
+    remove: _.bind(removeDisposeAndNotify, collection, collection.remove),
+    pop: _.bind(removeDisposeAndNotify, collection, collection.pop),
+    shift: _.bind(removeDisposeAndNotify, collection, collection.shift),
+    splice: _.bind(removeDisposeAndNotify, collection, collection.splice),
+    push: _.bind(addAndNotify, collection, collection.push),
+    unshift: _.bind(addAndNotify, collection, collection.unshift),
+    isFetching: fw.observable(false),
+    isCreating: fw.observable(false),
+    dispose: function () {
+      if (!collection[privateDataSymbol].isDisposed) {
+        collection[privateDataSymbol].isDisposed = true;
+        collection.$namespace.dispose();
+        _.invokeMap(collection(), 'dispose');
       }
-    });
-
-    collection[getSymbol('isCollection')] = true;
-    collection[privateDataSymbol] = {
-      configParams: configParams,
-      castAs: {
-        modelData: function (modelData, attribute) {
-          if (fw.isDataModel(modelData)) {
-            return modelData.getData(attribute);
-          }
-          if (_.isUndefined(attribute)) {
-            return modelData;
-          }
-          return _.result(modelData, attribute);
-        },
-        dataModel: function (modelData) {
-          return _.isFunction(DataModelCtor) && !fw.isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;
-        }
-      },
-      getIdAttribute: function (options) {
-        return configParams.idAttribute || (options || {}).idAttribute || 'id';
-      }
-    };
-
-    collection.requestInProgress = fw.pureComputed(function () {
-      return collection.isFetching() || collection.isCreating();
-    });
-
-    if (collectionData) {
-      collection.set(collectionData);
     }
+  });
 
-    return collection;
+  collection[getSymbol('isCollection')] = true;
+  collection[privateDataSymbol] = {
+    configParams: configParams,
+    castAs: {
+      modelData: function (modelData, attribute) {
+        if (fw.isDataModel(modelData)) {
+          return modelData.getData(attribute);
+        }
+        if (_.isUndefined(attribute)) {
+          return modelData;
+        }
+        return _.result(modelData, attribute);
+      },
+      dataModel: function (modelData) {
+        return _.isFunction(DataModelCtor) && !fw.isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;
+      }
+    },
+    getIdAttribute: function (options) {
+      return configParams.idAttribute || (options || {}).idAttribute || 'id';
+    }
   };
+
+  collection.requestInProgress = fw.pureComputed(function () {
+    return collection.isFetching() || collection.isCreating();
+  });
+
+  if (collectionData) {
+    collection.set(collectionData);
+  }
+
+  return collection;
 };
