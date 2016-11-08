@@ -38,11 +38,11 @@
     "requirejs": "*",
     "requirejs-text": "*",
     "promise-polyfill": "*",
-    "fetch-polyfill": "*",
-    "es5-shim": "*"
+    "fetch-polyfill": "*"
   },
   "devDependencies": {
     "lodash": "^4.12",
-    "jquery": "1.12.4"
+    "jquery": "1.12.4",
+    "es5-shim": "*"
   }
 }
