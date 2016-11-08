@@ -39,20 +39,6 @@ function shouldRunTest(file, tests) {
   return true;
 }
 
-if (!Object.keys) {
-  Object.keys = function(obj) {
-    var keys = [];
-
-    for (var i in obj) {
-      if (obj.hasOwnProperty(i)) {
-        keys.push(i);
-      }
-    }
-
-    return keys;
-  };
-}
-
 // Get a list of all the test files to include
 Object.keys(window.__karma__.files).forEach(function(file) {
   if (TEST_REGEXP.test(file)) {

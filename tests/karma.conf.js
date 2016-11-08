@@ -10,7 +10,7 @@ module.exports = {
 
   // list of files / patterns to load in the browser
   files: [
-    'tests/assets/objectKeys.js',
+    'tests/assets/polyfills.js',
     'tests/bootstrap.js',
     'tests/assets/test.css',
     'tests/assets/fonts.css',
