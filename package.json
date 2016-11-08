@@ -75,7 +75,7 @@
     "knockout": "3.4.1",
     "less-plugin-autoprefix": "1.5.1",
     "less-plugin-clean-css": "1.5.1",
-    "lodash": "git+https://github.com/footworkjs/lodash.git#bb66f041cea940d05434ca8ef75d95d9ee6b8072",
+    "lodash": "git+https://github.com/footworkjs/lodash.git#84111e29097586aa91b618263ecf833277a10513",
     "phantomjs": "^1.9.19",
     "requirejs": "^2.2.0",
     "vinyl-buffer": "^1.0.0",

@@ -50,12 +50,12 @@ fw.collection.create = function (configParams) {
 
     _.extend(collection, collectionMethods, {
       $namespace: fw.namespace(configParams.namespace || _.uniqueId('collection')),
-      remove: removeDisposeAndNotify.bind(collection, collection.remove),
-      pop: removeDisposeAndNotify.bind(collection, collection.pop),
-      shift: removeDisposeAndNotify.bind(collection, collection.shift),
-      splice: removeDisposeAndNotify.bind(collection, collection.splice),
-      push: addAndNotify.bind(collection, collection.push),
-      unshift: addAndNotify.bind(collection, collection.unshift),
+      remove: _.bind(removeDisposeAndNotify, collection, collection.remove),
+      pop: _.bind(removeDisposeAndNotify, collection, collection.pop),
+      shift: _.bind(removeDisposeAndNotify, collection, collection.shift),
+      splice: _.bind(removeDisposeAndNotify, collection, collection.splice),
+      push: _.bind(addAndNotify, collection, collection.push),
+      unshift: _.bind(addAndNotify, collection, collection.unshift),
       isFetching: fw.observable(false),
       isCreating: fw.observable(false),
       dispose: function () {

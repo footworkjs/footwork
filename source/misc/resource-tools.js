@@ -150,14 +150,14 @@ function getResourceOrLocation (descriptor, moduleName) {
  */
 function resourceHelperFactory (descriptor) {
   var resourceMethods = {
-    getFileName: getFileName.bind(null, descriptor),
-    register: register.bind(null, descriptor),
-    isRegistered: isRegistered.bind(null, descriptor),
-    getRegistered: getRegistered.bind(null, descriptor),
-    registerLocation: registerLocation.bind(null, descriptor),
-    locationIsRegistered: locationIsRegistered.bind(null, descriptor),
-    getLocation: getLocation.bind(null, descriptor),
-    getResourceOrLocation: getResourceOrLocation.bind(null, descriptor),
+    getFileName: _.partial(getFileName, descriptor),
+    register: _.partial(register, descriptor),
+    isRegistered: _.partial(isRegistered, descriptor),
+    getRegistered: _.partial(getRegistered, descriptor),
+    registerLocation: _.partial(registerLocation, descriptor),
+    locationIsRegistered: _.partial(locationIsRegistered, descriptor),
+    getLocation: _.partial(getLocation, descriptor),
+    getResourceOrLocation: _.partial(getResourceOrLocation, descriptor),
 
     fileExtensions: descriptor.fileExtensions,
     resourceLocations: descriptor.resourceLocations
@@ -166,7 +166,7 @@ function resourceHelperFactory (descriptor) {
   if (!_.isUndefined(descriptor.referenceNamespace)) {
     // Returns a reference to the specified models.
     // If no name is supplied, a reference to an array containing all viewModel references is returned.
-    resourceMethods.get = getModelReferences.bind(null, descriptor);
+    resourceMethods.get = _.partial(getModelReferences, descriptor);
   }
 
   return resourceMethods;

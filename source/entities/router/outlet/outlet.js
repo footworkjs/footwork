@@ -37,7 +37,7 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   defaultConfig: {}
 }));
 
-fw[entityName].get = getModelReferences.bind(null, descriptor);
+fw[entityName].get = _.partial(getModelReferences, descriptor);
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 

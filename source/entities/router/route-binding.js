@@ -152,7 +152,7 @@ fw.bindingHandlers.$route = {
         if (_.isObject(stateTracker) && _.isFunction(stateTracker.dispose)) {
           stateTracker.dispose();
         }
-        stateTracker = router[privateDataSymbol].currentRoute.subscribe(checkForMatchingSegment.bind(null, myCurrentSegment));
+        stateTracker = router[privateDataSymbol].currentRoute.subscribe(_.partial(checkForMatchingSegment, myCurrentSegment));
 
         if (elementIsSetup === false) {
           elementIsSetup = true;

@@ -25,7 +25,7 @@ function publish (topic, data) {
  */
 function subscribe (topic, callback, context) {
   if(arguments.length > 2) {
-    callback = callback.bind(context);
+    callback = _.bind(callback, context);
   }
   var subscription = postbox.subscribe(callback, null, this[privateDataSymbol].namespaceName + '.' + topic);
   this[privateDataSymbol].subscriptions.push(subscription);
@@ -80,7 +80,7 @@ function requestHandler (topic, callback, context) {
   var self = this;
 
   if (!_.isUndefined(context)) {
-    callback = callback.bind(context);
+    callback = _.bind(callback, context);
   }
 
   var subscription = postbox.subscribe(function (reqResponse) {
