@@ -1231,9 +1231,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         setTimeout(function() {
           expect(lulledPerson.requestInProgress()).toBe(true);
-          expect(lulledPerson.firstName()).toBe(getValue);
           expect(lulledPersonWithCallback.requestInProgress()).toBe(true);
-          expect(lulledPersonWithCallback.firstName()).toBe(getValue);
 
           expect(person.requestInProgress()).toBe(false);
           expect(person.firstName()).toBe(getValue);
