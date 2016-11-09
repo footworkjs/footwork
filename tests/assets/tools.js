@@ -194,7 +194,7 @@ function handleJsonResponse(xhr) {
       try {
         json = response.clone().json();
       } catch (e) {
-        console.error(parseError);
+        console.error(e);
         return false;
       }
       return json;

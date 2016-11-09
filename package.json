@@ -37,7 +37,6 @@
   },
   "main": "dist/footwork.js",
   "devDependencies": {
-    "babel-polyfill": "^6.16.0",
     "bower": "*",
     "browserify": "8.1.3",
     "browserify-istanbul": "^2.0.0",
@@ -80,13 +79,12 @@
     "phantomjs": "^1.9.19",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
-    "whatwg-fetch": "^1.0.0",
     "yargs": "*"
   },
   "dependencies": {
     "requirejs": "*",
     "requirejs-text": "*",
-    "promise-polyfill": "*",
-    "fetch-polyfill": "*"
+    "es6-promise": "*",
+    "whatwg-fetch": "*"
   }
 }

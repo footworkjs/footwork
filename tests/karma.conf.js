@@ -16,9 +16,8 @@ module.exports = {
     { pattern: 'node_modules/lodash/lodash.js', watched: false, included: false },
     { pattern: 'node_modules/requirejs-text/*.js', watched: false, included: false },
     { pattern: 'node_modules/fetch-mock/es5/client-browserified.js', watched: false, included: false },
-
-    { pattern: 'node_modules/babel-polyfill/dist/polyfill.js', watched: false, included: true },
-    { pattern: 'node_modules/whatwg-fetch/fetch.js', watched: false, included: true },
+    { pattern: 'node_modules/es6-promise/dist/es6-promise.js', watched: false, included: false },
+    { pattern: 'node_modules/whatwg-fetch/fetch.js', watched: false, included: false },
 
     { pattern: 'build/*.js', included: false },
     { pattern: 'dist/gh-footwork-logo.png', included: false },

@@ -55,9 +55,25 @@ require.config({
     "text": "node_modules/requirejs-text/text",
     "footwork": "build/footwork",
     "lodash": "node_modules/lodash/lodash",
+    "es6-promise": "node_modules/es6-promise/dist/es6-promise",
+    "es6promise-polyboot": "tests/assets/es6promise-polyboot",
+    "fetch": "node_modules/whatwg-fetch/fetch",
     "fetch-mock": "node_modules/fetch-mock/es5/client-browserified"
+  },
+  "shim": {
+    "fetch-mock": ["es6-promise", "fetch"]
+  },
+  map: {
+    "*": {
+      "es6-promise": "es6promise-polyboot"
+    },
+    "es6promise-polyboot": {
+      "es6-promise": "es6-promise"
+    }
   },
 
   // we have to kickoff jasmine, as it is asynchronous
-  callback: window.__karma__.start
+  callback: function() {
+    require(['es6-promise', 'fetch'], window.__karma__.start);
+  }
 });

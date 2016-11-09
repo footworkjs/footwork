@@ -37,7 +37,7 @@
   "dependencies": {
     "requirejs": "*",
     "requirejs-text": "*",
-    "promise-polyfill": "*",
-    "fetch-polyfill": "*"
+    "es6-promise": "*",
+    "fetch": "*"
   }
 }

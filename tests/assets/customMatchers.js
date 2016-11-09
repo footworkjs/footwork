@@ -8,6 +8,10 @@ function capitalizeFirstLetter (str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+function getSymbol (str) {
+  return typeof Symbol === 'function' && typeof Symbol['for'] === 'function' ? Symbol['for'](str) : /* istanbul ignore next */ ('__' + str);
+}
+
 function checkType (util, customEqualityTesters) {
   return {
     compare: function (actual, expected) {
@@ -24,7 +28,7 @@ function checkType (util, customEqualityTesters) {
         case 'viewmodel':
         case 'datamodel':
         case 'router':
-          result.pass = !!actual[Symbol.for('is' + capitalizeFirstLetter(expected))];
+          result.pass = !!actual[getSymbol('is' + capitalizeFirstLetter(expected))];
           break;
 
         default:
