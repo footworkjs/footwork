@@ -10,20 +10,11 @@ module.exports = {
 
   // list of files / patterns to load in the browser
   files: [
-    'node_modules/jquery/dist/jquery.js',
-
-    'tests/assets/polyfills.js',
-    'tests/assets/customMatchers.js',
-    'tests/assets/container.js',
-    'tests/assets/tools.js',
-    'tests/assets/reporter.js',
-
-    { pattern: 'tests/assets/fonts/**/*.*', included: false },
     { pattern: 'tests/spec/*.js', nocache: true, included: false },
+    { pattern: 'tests/assets/fonts/**/*.*', included: false },
     { pattern: 'tests/assets/**/*.+(html|json|jsonp|js)', nocache: true, included: false },
     { pattern: 'node_modules/lodash/lodash.js', watched: false, included: false },
     { pattern: 'node_modules/requirejs-text/*.js', watched: false, included: false },
-    { pattern: 'node_modules/jquery/dist/*.js', watched: false, included: false },
     { pattern: 'node_modules/fetch-mock/es5/client-browserified.js', watched: false, included: false },
 
     { pattern: 'node_modules/babel-polyfill/dist/polyfill.js', watched: false, included: true },
@@ -36,6 +27,11 @@ module.exports = {
     'tests/assets/fonts.css',
     'build/footwork.css',
 
+    'node_modules/jquery/dist/jquery.js',
+    'tests/assets/customMatchers.js',
+    'tests/assets/container.js',
+    'tests/assets/tools.js',
+    'tests/assets/reporter.js',
     'tests/bootstrap.js'
   ],
 
