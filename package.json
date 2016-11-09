@@ -78,11 +78,15 @@
     "footwork-lodash": "git+https://github.com/footworkjs/footwork-lodash.git#694e740d4e846cf8a5330e7996d304636deb49fb",
     "lodash": "4.16.6",
     "phantomjs": "^1.9.19",
-    "requirejs": "^2.2.0",
-    "requirejs-text": "2.0.12",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "whatwg-fetch": "^1.0.0",
     "yargs": "*"
+  },
+  "dependencies": {
+    "requirejs": "*",
+    "requirejs-text": "*",
+    "promise-polyfill": "*",
+    "fetch-polyfill": "*"
   }
 }
