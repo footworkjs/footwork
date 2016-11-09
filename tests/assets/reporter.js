@@ -52,7 +52,7 @@ var jasmineInterface = {
   xit: function(desc, func) {
     testResults.pending++;
     var $wrapper = makeTestContainer(currentDescription + ' ' + desc);
-    $wrapper.removeClass('running').removeClass('waiting').addClass('pending');
+    $wrapper.removeClass('running waiting').addClass('pending');
     $wrapper.find('.icon-play')
       .removeClass('icon-play')
       .addClass('icon-clock-o');
@@ -74,7 +74,7 @@ var jasmineInterface = {
   pending: function() {
     testResults.pending++;
     var $wrapper = makeTestContainer(currentDescription + ' ' + desc);
-    $wrapper.removeClass('running').removeClass('waiting').addClass('pending');
+    $wrapper.removeClass('running waiting').addClass('pending');
     $wrapper.find('.icon-play')
       .removeClass('icon-play')
       .addClass('icon-clock-o');
