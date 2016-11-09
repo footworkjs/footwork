@@ -3,6 +3,7 @@
  * the tests when you debug in a browser.
  */
 
+var specWrappers = {};
 var $testOutput = $('body').find('#test-output');
 function makeTestContainer(fullName) {
   var $wrapper = $('<div class="test-wrapper waiting">\
@@ -27,12 +28,18 @@ function Env(options) {
     this.currentSpec = null;
   };
 }
-environment = new Env({
+var environment = new Env({
   timer: new jasmine.Timer()
 });
 
 var currentDescription;
 var env = jasmine.getEnv();
+var testResults = {
+  passed: 0,
+  failed: 0,
+  pending: 0
+};
+
 var jasmineInterface = {
   describe: function(description, specDefinitions) {
     currentDescription = description;

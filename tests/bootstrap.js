@@ -1,23 +1,5 @@
-var ajaxWait = window.__env.AJAX_WAIT; // delay in ms to wait for ajax requests
-var footworkAnimationClass = 'fw-entity-resolved';
-var loadedModules = {};
-var registerFootworkEntity;
-var registerEntity;
-var specWrappers = {};
-var environment;
-
-var testResults = {
-  passed: 0,
-  failed: 0,
-  pending: 0
-};
-
 var allTestFiles = [];
 var TEST_REGEXP = /(spec)\.js$/i;
-
-var clientNavigator = navigator.userAgent.toLowerCase();
-var isExploder = (clientNavigator.indexOf('msie') != -1);
-var ieVersion = isExploder ? parseInt(clientNavigator.split('msie')[1]) : undefined;
 
 /**
  * Determine whether the passed in file is listed in the tests array (or if tests is undefined or 'all' then return true always)
@@ -73,26 +55,9 @@ require.config({
     "text": "node_modules/requirejs-text/text",
     "footwork": "build/footwork",
     "lodash": "node_modules/lodash/lodash",
-    "jquery": "node_modules/jquery/dist/jquery",
-    "fetch-mock": "node_modules/fetch-mock/es5/client-browserified",
-    "es5-shim": "bower_components/es5-shim/es5-shim"
+    "fetch-mock": "node_modules/fetch-mock/es5/client-browserified"
   },
 
   // we have to kickoff jasmine, as it is asynchronous
-  callback: function() {
-    function runTests () {
-      fixture.setBase('tests/assets/fixtures');
-      window.__karma__.start();
-    }
-
-    require(['footwork'], function() {
-      if(isExploder && ieVersion < 9) {
-        // ie < 9 requires shimming
-        // ie8 does not work at the moment, many attempts were made, all have failed, too small user base to care more (it was also EOL'd by MSFT)
-        require(['es5-shim'], runTests);
-      } else {
-        runTests();
-      }
-    });
-  }
+  callback: window.__karma__.start
 });

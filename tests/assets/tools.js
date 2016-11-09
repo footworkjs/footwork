@@ -6,6 +6,9 @@ var currentCallbackOrderIndex = 0;
 var jasmineDefaultTimeoutInterval;
 var namespaceCounter = 0;
 var generatedUrlCounter = 0;
+var loadedModules = {};
+var footworkAnimationClass = 'fw-entity-resolved';
+var ajaxWait = window.__env.AJAX_WAIT; // delay in ms to wait for ajax requests
 
 /**
  * Register the passed in entity as having been loaded.
@@ -13,7 +16,7 @@ var generatedUrlCounter = 0;
  * @param {function} initializeMethod The method you want to wrap which when called will register itself as loaded
  * @returns {object} entity the entity that was passed in
  */
-registerFootworkEntity = function (entity) {
+var registerFootworkEntity = function (entity) {
   loadedModules[entity.$namespace.getName()] = true;
   return entity;
 }
@@ -24,7 +27,7 @@ registerFootworkEntity = function (entity) {
  * @param {string} name The name you want registered when this function is called
  * @param {function} initializeMethod The method you want to wrap which when called will register itself as loaded
  */
-registerEntity = function (name, initializeMethod) {
+var registerEntity = function (name, initializeMethod) {
   return function() {
     loadedModules[name] = true;
     return (initializeMethod || function() {}).apply(this, arguments);
@@ -130,6 +133,7 @@ function addErrorsToWrapper(failedTests) {
  * Prepare the test environment for a test
  */
 function prepareTestEnv() {
+  fixture.setBase('tests/assets/fixtures');
   loadedModules = [];
   currentCallbackOrderIndex = 0;
   jasmine.addMatchers(customMatchers);

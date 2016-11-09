@@ -39,8 +39,5 @@
     "requirejs-text": "*",
     "promise-polyfill": "*",
     "fetch-polyfill": "*"
-  },
-  "devDependencies": {
-    "es5-shim": "*"
   }
 }
