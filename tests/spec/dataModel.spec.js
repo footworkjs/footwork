@@ -1242,7 +1242,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             expect(lulledPerson.requestInProgress()).toBe(false);
             expect(lulledPersonWithCallback.requestInProgress()).toBe(false);
             done();
-          }, ajaxWait);
+          }, 250);
         }, 20);
       });
 
