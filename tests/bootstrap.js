@@ -74,30 +74,25 @@ require.config({
     "footwork": "build/footwork",
     "lodash": "node_modules/lodash/lodash",
     "jquery": "node_modules/jquery/dist/jquery",
-    "customMatchers": "tests/assets/customMatchers",
-    "tools": "tests/assets/tools",
-    "reporter": "tests/assets/reporter",
-    "container": "tests/assets/container",
     "fetch-mock": "node_modules/fetch-mock/es5/client-browserified",
     "es5-shim": "bower_components/es5-shim/es5-shim"
   },
 
   // we have to kickoff jasmine, as it is asynchronous
   callback: function() {
-    function runTests (fw) {
-      window.fw = fw; // export footwork so the user has access to it in the console
+    function runTests () {
       fixture.setBase('tests/assets/fixtures');
-      setTimeout(window.__karma__.start, ajaxWait);
+      window.__karma__.start();
     }
 
-    if(isExploder && ieVersion < 9) {
-      // ie < 9 requires shimming
-      // ie8 does not work at the moment, many attempts were made, all have failed, too small user base to care more (it was also EOL'd by MSFT)
-      require(['es5-shim'], function() {
-        require(['footwork', 'reporter', 'container'], runTests);
-      });
-    } else {
-      require(['footwork', 'reporter', 'container'], runTests);
-    }
+    require(['footwork'], function() {
+      if(isExploder && ieVersion < 9) {
+        // ie < 9 requires shimming
+        // ie8 does not work at the moment, many attempts were made, all have failed, too small user base to care more (it was also EOL'd by MSFT)
+        require(['es5-shim'], runTests);
+      } else {
+        runTests();
+      }
+    });
   }
 });

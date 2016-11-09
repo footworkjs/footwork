@@ -39,7 +39,6 @@ fw.collection = function createCollection (collectionData, configParams) {
   collectionData = collectionData || [];
   configParams = _.extend({}, defaultCollectionConfig, configParams);
 
-  var DataModelCtor = configParams.dataModel;
   var collection = fw.observableArray();
 
   _.extend(collection, collectionMethods, {
@@ -78,6 +77,7 @@ fw.collection = function createCollection (collectionData, configParams) {
         return _.result(modelData, attribute);
       },
       dataModel: function (modelData) {
+        var DataModelCtor = configParams.dataModel;
         return _.isFunction(DataModelCtor) && !fw.isDataModel(modelData) ? (new DataModelCtor(modelData)) : modelData;
       }
     },

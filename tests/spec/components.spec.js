@@ -1,12 +1,12 @@
-define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
-  function(fw, _, $, tools, fetchMock) {
+define(['footwork', 'lodash', 'fetch-mock'],
+  function(fw, _, fetchMock) {
     describe('components', function() {
-      beforeEach(tools.prepareTestEnv);
-      afterEach(tools.cleanTestEnv);
+      beforeEach(prepareTestEnv);
+      afterEach(cleanTestEnv);
 
       it('can register a component', function() {
-        var namespaceName = tools.generateNamespaceName();
-        var invalidNamespaceName = tools.generateNamespaceName();
+        var namespaceName = generateNamespaceName();
+        var invalidNamespaceName = generateNamespaceName();
         var viewModelSpy = jasmine.createSpy('viewModelSpy');
 
         fw.components.register(namespaceName, {
@@ -22,19 +22,19 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can instantiate a registered component via a <declarative> statement', function(done) {
-        var namespaceName = tools.generateNamespaceName();
+        var namespaceName = generateNamespaceName();
         var initializeSpy;
 
         fw.components.register(namespaceName, {
           template: '<div>a template</div>',
-          viewModel: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          viewModel: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             fw.viewModel.boot(this);
           }).and.callThrough())
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -43,19 +43,19 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can instantiate a registered component via a <declarative> statement with a dataModel', function(done) {
-        var namespaceName = tools.generateNamespaceName();
+        var namespaceName = generateNamespaceName();
         var initializeSpy;
 
         fw.components.register(namespaceName, {
           template: '<div>a template</div>',
-          viewModel: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          viewModel: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             fw.viewModel.boot(this);
           }).and.callThrough())
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -64,19 +64,19 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can instantiate a registered component via a declarative statement with a router', function(done) {
-        var namespaceName = tools.generateNamespaceName();
+        var namespaceName = generateNamespaceName();
         var initializeSpy;
 
         fw.components.register(namespaceName, {
           template: '<div>a template</div>',
-          viewModel: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          viewModel: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             fw.viewModel.boot(this);
           }).and.callThrough())
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -85,8 +85,8 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can instantiate a component registered using an element sourced from its id as its template', function(done) {
-        var namespaceName = tools.generateNamespaceName();
-        var textToFind = tools.randomString();
+        var namespaceName = generateNamespaceName();
+        var textToFind = randomString();
         var initializeSpy;
 
         fw.components.register(namespaceName, {
@@ -98,7 +98,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -108,8 +108,8 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can properly throw an error when specifying an incorrect element sourced from its id as its template', function() {
-        var namespaceName = tools.generateNamespaceName();
-        var textToFind = tools.randomString();
+        var namespaceName = generateNamespaceName();
+        var textToFind = randomString();
         var initializeSpy;
 
         fw.components.register(namespaceName, {
@@ -122,13 +122,13 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(initializeSpy).not.toHaveBeenCalled();
 
         expect(function() {
-          fw.start(testContainer = tools.getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>'));
+          fw.start(testContainer = getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>'));
         }).toThrow();
       });
 
       it('can properly throw an error when specifying an incorrect element config for its template', function() {
-        var namespaceName = tools.generateNamespaceName();
-        var textToFind = tools.randomString();
+        var namespaceName = generateNamespaceName();
+        var textToFind = randomString();
         var initializeSpy;
 
         fw.components.register(namespaceName, {
@@ -141,13 +141,13 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(initializeSpy).not.toHaveBeenCalled();
 
         expect(function() {
-          fw.start(testContainer = tools.getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>'));
+          fw.start(testContainer = getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>'));
         }).toThrow();
       });
 
       it('can properly throw an error when specifying an incorrect template config', function() {
-        var namespaceName = tools.generateNamespaceName();
-        var textToFind = tools.randomString();
+        var namespaceName = generateNamespaceName();
+        var textToFind = randomString();
         var initializeSpy;
 
         fw.components.register(namespaceName, {
@@ -160,16 +160,16 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(initializeSpy).not.toHaveBeenCalled();
 
         expect(function() {
-          fw.start(testContainer = tools.getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>'));
+          fw.start(testContainer = getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>'));
         }).toThrow();
       });
 
       it('can instantiate a component registered using an array of DOM nodes as its template', function(done) {
-        var namespaceName = tools.generateNamespaceName();
-        var textToFind = tools.randomString();
+        var namespaceName = generateNamespaceName();
+        var textToFind = randomString();
         var initializeSpy;
 
-        testContainer = tools.getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>');
+        testContainer = getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>');
 
         var theDOMNode = document.createElement("div");
         theDOMNode.innerText = textToFind;
@@ -194,11 +194,11 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can instantiate a component registered using an element instance as its template', function(done) {
-        var namespaceName = tools.generateNamespaceName();
-        var textToFind = tools.randomString();
+        var namespaceName = generateNamespaceName();
+        var textToFind = randomString();
         var initializeSpy;
 
-        testContainer = tools.getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>');
+        testContainer = getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>');
 
         fw.components.register(namespaceName, {
           template: { element: document.getElementById(namespaceName) },
@@ -220,11 +220,11 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can instantiate a component registered using a template element as its template', function(done) {
-        var namespaceName = tools.generateNamespaceName();
-        var textToFind = tools.randomString();
+        var namespaceName = generateNamespaceName();
+        var textToFind = randomString();
         var initializeSpy;
 
-        testContainer = tools.getFixtureContainer('<template id=' + namespaceName + '>' + textToFind + '</template><' + namespaceName + '></' + namespaceName + '>');
+        testContainer = getFixtureContainer('<template id=' + namespaceName + '>' + textToFind + '</template><' + namespaceName + '></' + namespaceName + '>');
 
         fw.components.register(namespaceName, {
           template: { element: document.getElementById(namespaceName) },
@@ -246,11 +246,11 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can instantiate a component registered using a script element as its template', function(done) {
-        var namespaceName = tools.generateNamespaceName();
-        var textToFind = tools.randomString();
+        var namespaceName = generateNamespaceName();
+        var textToFind = randomString();
         var initializeSpy;
 
-        testContainer = tools.getFixtureContainer('<script id=' + namespaceName + ' type="text">' + textToFind + '</script><' + namespaceName + '></' + namespaceName + '>');
+        testContainer = getFixtureContainer('<script id=' + namespaceName + ' type="text">' + textToFind + '</script><' + namespaceName + '></' + namespaceName + '>');
 
         fw.components.register(namespaceName, {
           template: { element: document.getElementById(namespaceName) },
@@ -272,11 +272,11 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can instantiate a component registered using a textarea element as its template', function(done) {
-        var namespaceName = tools.generateNamespaceName();
-        var textToFind = tools.randomString();
+        var namespaceName = generateNamespaceName();
+        var textToFind = randomString();
         var initializeSpy;
 
-        testContainer = tools.getFixtureContainer('<textarea id=' + namespaceName + '>' + textToFind + '</textarea><' + namespaceName + '></' + namespaceName + '>');
+        testContainer = getFixtureContainer('<textarea id=' + namespaceName + '>' + textToFind + '</textarea><' + namespaceName + '></' + namespaceName + '>');
 
         fw.components.register(namespaceName, {
           template: { element: document.getElementById(namespaceName) },
@@ -298,15 +298,15 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('calls the dispose() callback of a viewModel when the parent component is removed from the DOM', function(done) {
-        var componentNamespaceName = tools.generateNamespaceName();
-        var viewModelNamespaceName = tools.generateNamespaceName();
+        var componentNamespaceName = generateNamespaceName();
+        var viewModelNamespaceName = generateNamespaceName();
         var viewModelInitializeSpy;
         var componentInitializeSpy;
         var componentOnDisposeSpy;
         var containerViewModel;
-        var valueToCheckFor = tools.randomString();
+        var valueToCheckFor = randomString();
 
-        fw.viewModel.register(viewModelNamespaceName, tools.expectCallOrder(0, viewModelInitializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
+        fw.viewModel.register(viewModelNamespaceName, expectCallOrder(0, viewModelInitializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
           fw.viewModel.boot(this, {
             namespace: viewModelNamespaceName
           });
@@ -316,10 +316,10 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         fw.components.register(componentNamespaceName, {
           template: '<span data-bind="text: someProperty"></span>',
-          viewModel: tools.expectCallOrder(1, componentInitializeSpy = jasmine.createSpy('componentInitializeSpy', function() {
+          viewModel: expectCallOrder(1, componentInitializeSpy = jasmine.createSpy('componentInitializeSpy', function() {
             fw.viewModel.boot(this, {
               namespace: componentNamespaceName,
-              onDispose: tools.expectCallOrder(2, componentOnDisposeSpy = jasmine.createSpy('componentOnDisposeSpy', function(containingElement) {
+              onDispose: expectCallOrder(2, componentOnDisposeSpy = jasmine.createSpy('componentOnDisposeSpy', function(containingElement) {
                 expect(containingElement.tagName).toBe(componentNamespaceName.toUpperCase());
               }).and.callThrough())
             });
@@ -331,7 +331,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
         expect(componentInitializeSpy).not.toHaveBeenCalled();
         expect(componentOnDisposeSpy).toBe(undefined);
 
-        fw.start(testContainer = tools.getFixtureContainer(
+        fw.start(testContainer = getFixtureContainer(
           '<viewModel module="' + viewModelNamespaceName + '">\
             <div class="content" data-bind="if: show">\
               <' + componentNamespaceName + '></' + componentNamespaceName + '>\
@@ -353,17 +353,17 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('has the animation classes applied properly', function(done) {
-        var componentNamespaceName = tools.generateNamespaceName();
-        var viewModelNamespaceName = tools.generateNamespaceName();
+        var componentNamespaceName = generateNamespaceName();
+        var viewModelNamespaceName = generateNamespaceName();
         var initializeSpy;
         var afterRenderSpy;
         var theElement;
 
         fw.components.register(componentNamespaceName, {
           template: '<div>a template</div>',
-          viewModel: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          viewModel: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
             fw.viewModel.boot(this, {
-              afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+              afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
                 theElement = element;
                 expect($(theElement).hasClass(footworkAnimationClass)).toBe(false);
               }).and.callThrough())
@@ -373,7 +373,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.getFixtureContainer('<' + componentNamespaceName + '></' + componentNamespaceName + '>'));
+        fw.start(testContainer = getFixtureContainer('<' + componentNamespaceName + '></' + componentNamespaceName + '>'));
 
         expect(afterRenderSpy).toBe(undefined);
 
@@ -390,7 +390,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can sequence animations', function(done) {
-        var componentNamespaceName = tools.generateNamespaceName();
+        var componentNamespaceName = generateNamespaceName();
         var footworkAnimatedElements = '.' + footworkAnimationClass;
 
         fw.components.register(componentNamespaceName, {
@@ -403,7 +403,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           }
         });
 
-        testContainer = tools.getFixtureContainer('<div data-bind="foreach: things">\
+        testContainer = getFixtureContainer('<div data-bind="foreach: things">\
           <' + componentNamespaceName + '></' + componentNamespaceName + '>\
         </div>');
 
@@ -429,23 +429,23 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       it('can instantiate nested <components>', function(done) {
         var outerInitializeSpy = jasmine.createSpy('outerInitializeSpy');
         var innerInitializeSpy = jasmine.createSpy('innerInitializeSpy');
-        var outerComponentNamespaceName = tools.generateNamespaceName();
-        var innerComponentNamespaceName = tools.generateNamespaceName();
+        var outerComponentNamespaceName = generateNamespaceName();
+        var innerComponentNamespaceName = generateNamespaceName();
 
         fw.components.register(outerComponentNamespaceName, {
           template: '<' + innerComponentNamespaceName + '></' + innerComponentNamespaceName + '>',
-          viewModel: tools.expectCallOrder(0, outerInitializeSpy)
+          viewModel: expectCallOrder(0, outerInitializeSpy)
         });
 
         fw.components.register(innerComponentNamespaceName, {
           template: '<div class="' + innerComponentNamespaceName + '"></div>',
-          viewModel: tools.expectCallOrder(1, innerInitializeSpy)
+          viewModel: expectCallOrder(1, innerInitializeSpy)
         });
 
         expect(outerInitializeSpy).not.toHaveBeenCalled();
         expect(innerInitializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.getFixtureContainer('<' + outerComponentNamespaceName + '></' + outerComponentNamespaceName + '>'));
+        fw.start(testContainer = getFixtureContainer('<' + outerComponentNamespaceName + '></' + outerComponentNamespaceName + '>'));
 
         setTimeout(function() {
           expect(outerInitializeSpy).toHaveBeenCalled();
@@ -456,19 +456,19 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can pass params to a component viewModel', function(done) {
-        var componentNamespaceName = tools.generateNamespaceName();
+        var componentNamespaceName = generateNamespaceName();
         var initializeSpy;
 
         fw.components.register(componentNamespaceName, {
           template: '<div></div>',
-          viewModel: tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(params) {
+          viewModel: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(params) {
             expect(params).toEqual({ testValueOne: 1, testValueTwo: [1,2,3] });
           }))
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.getFixtureContainer('<' + componentNamespaceName + ' params="testValueOne: 1, testValueTwo: [1,2,3]"></' + componentNamespaceName + '>'));
+        fw.start(testContainer = getFixtureContainer('<' + componentNamespaceName + ' params="testValueOne: 1, testValueTwo: [1,2,3]"></' + componentNamespaceName + '>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -478,7 +478,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
       it('can set and return fileExtensions correctly', function() {
         var originalExtensions = fw.components.fileExtensions();
-        var fileName = tools.randomString();
+        var fileName = randomString();
         var extensions = {
           combined: '.combinedTest',
           viewModel: '.viewModelTest',
@@ -517,7 +517,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           return prependName(componentName);
         }).and.callThrough();
 
-        fw.components.fileExtensions(tools.expectCallOrder([0, 1, 2], getFileExtensionsSpy));
+        fw.components.fileExtensions(expectCallOrder([0, 1, 2], getFileExtensionsSpy));
 
         var comp1Check = prependName('comp1', true);
         var comp2Check = prependName('comp2', true);
@@ -532,7 +532,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
       });
 
       it('can specify a location and verify it', function() {
-        var namespaceName = tools.generateNamespaceName();
+        var namespaceName = generateNamespaceName();
         var location = {
           viewModel: 'tests/assets/fixtures/registeredComponentLocation/',
           template: 'tests/assets/fixtures/registeredComponentLocation/'
@@ -551,7 +551,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
           template: 'tests/assets/fixtures/registeredComponentLocation/'
         };
 
-        var namespaceNames = [tools.generateNamespaceName(), tools.generateNamespaceName(), tools.generateNamespaceName()];
+        var namespaceNames = [generateNamespaceName(), generateNamespaceName(), generateNamespaceName()];
         fw.components.registerLocation(namespaceNames, location);
 
         _.each(namespaceNames, function(namespaceName) {
@@ -569,7 +569,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -589,7 +589,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(templateOnlyInnerCheckSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
           expect(templateOnlyInnerCheckSpy).toHaveBeenCalled();
@@ -606,7 +606,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -623,7 +623,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -641,7 +641,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -659,7 +659,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -677,7 +677,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -695,7 +695,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -713,7 +713,7 @@ define(['footwork', 'lodash', 'jquery', 'tools', 'fetch-mock'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.start(testContainer = getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();

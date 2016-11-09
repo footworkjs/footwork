@@ -1,3 +1,4 @@
+var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var privateDataSymbol = require('../../misc/config').privateDataSymbol;

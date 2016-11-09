@@ -1,4 +1,5 @@
 var _ = require('footwork-lodash');
+var fw = require('knockout/build/output/knockout-latest');
 
 var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 var isEntity = require('../entity-tools').isEntity;

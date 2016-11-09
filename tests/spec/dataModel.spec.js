@@ -1,8 +1,8 @@
-define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
-  function(fw, $, _, tools, fetchMock) {
+define(['footwork', 'lodash', 'fetch-mock'],
+  function(fw, _, fetchMock) {
     describe('dataModel', function() {
-      beforeEach(tools.prepareTestEnv);
-      afterEach(tools.cleanTestEnv);
+      beforeEach(prepareTestEnv);
+      afterEach(cleanTestEnv);
 
       it('has the ability to create a dataModel', function() {
         var BadDataModel = function DataModel() {
@@ -22,7 +22,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       });
 
       it('has the ability to create a dataModel with a correctly defined namespace whos name we can retrieve', function() {
-        var namespaceName = tools.generateNamespaceName();
+        var namespaceName = generateNamespaceName();
         var Model = function () {
           var self = fw.dataModel.boot(this, {
             namespace: namespaceName
@@ -40,9 +40,9 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         var initializeSpy;
         var afterRenderSpy;
 
-        var ModelA = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+        var ModelA = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.dataModel.boot(this, {
-            afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
+            afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
               expect(containingElement.className.indexOf(checkForClass)).not.toBe(-1);
             }).and.callThrough())
           });
@@ -53,14 +53,14 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).toBe(undefined);
 
-        fw.applyBindings(new ModelA(), testContainer = tools.getFixtureContainer('', '<div class="' + checkForClass + '"></div>'));
+        fw.applyBindings(new ModelA(), testContainer = getFixtureContainer('', '<div class="' + checkForClass + '"></div>'));
 
         expect(initializeSpy).toHaveBeenCalled();
         expect(afterRenderSpy).toHaveBeenCalled();
       });
 
       it('can register and get a registered dataModel', function() {
-        var namespaceName = tools.generateNamespaceName();
+        var namespaceName = generateNamespaceName();
         expect(fw.dataModel.isRegistered(namespaceName)).toBe(false);
 
         var Model = jasmine.createSpy('Model');
@@ -82,13 +82,13 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
       it('can get instantiated dataModels', function() {
         var dataModels = [];
-        var specificDataModelNamespace = tools.generateNamespaceName();
+        var specificDataModelNamespace = generateNamespaceName();
         var DataModel = function() {
           fw.dataModel.boot(this, { namespace: specificDataModelNamespace });
         };
         var numToMake = _.random(2,15);
 
-        var singleDataModelNamespace = tools.generateNamespaceName();
+        var singleDataModelNamespace = generateNamespaceName();
         new (function() {
           fw.dataModel.boot(this, { namespace: singleDataModelNamespace });
         })();
@@ -98,13 +98,13 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           dataModels.push(new DataModel());
         }
 
-        expect(fw.dataModel.get(tools.generateNamespaceName())).toBe(undefined);
+        expect(fw.dataModel.get(generateNamespaceName())).toBe(undefined);
         expect(fw.dataModel.get(specificDataModelNamespace)).lengthToBe(numToMake);
       });
 
       it('can bind to the DOM using a dataModel declaration', function(done) {
         var wasInitialized = false;
-        var namespaceName = tools.generateNamespaceName();
+        var namespaceName = generateNamespaceName();
         var DataModelSpy = jasmine.createSpy('DataModelSpy', function() {
           fw.dataModel.boot(this, {
             namespace: namespaceName
@@ -114,7 +114,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         fw.dataModel.register(namespaceName, DataModelSpy);
 
         expect(DataModelSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = tools.getFixtureContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
+        fw.start(testContainer = getFixtureContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         setTimeout(function() {
           expect(DataModelSpy).toHaveBeenCalledTimes(1);
@@ -123,8 +123,8 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       });
 
       it('can bind to the DOM using a shared instance', function(done) {
-        var namespaceName = tools.generateNamespaceName();
-        var boundPropertyValue = tools.randomString();
+        var namespaceName = generateNamespaceName();
+        var boundPropertyValue = randomString();
 
         fw.dataModel.register(namespaceName, {
           instance: {
@@ -132,7 +132,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           }
         });
 
-        testContainer = tools.getFixtureContainer('<dataModel module="' + namespaceName + '">\
+        testContainer = getFixtureContainer('<dataModel module="' + namespaceName + '">\
                                              <span class="result" data-bind="text: boundProperty"></span>\
                                            </dataModel>');
 
@@ -147,13 +147,13 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       });
 
       it('can bind to the DOM using a generated instance', function(done) {
-        var namespaceName = tools.generateNamespaceName();
-        var boundPropertyValue = tools.randomString();
+        var namespaceName = generateNamespaceName();
+        var boundPropertyValue = randomString();
         var boundPropertyValueElement = boundPropertyValue + '-element';
         var createDataModelInstance;
 
         fw.dataModel.register(namespaceName, {
-          createViewModel: tools.expectCallOrder(0, createDataModelInstance = jasmine.createSpy('createDataModel', function(params, info) {
+          createViewModel: expectCallOrder(0, createDataModelInstance = jasmine.createSpy('createDataModel', function(params, info) {
             expect(params.thing).toBe(boundPropertyValue);
             expect(info.element.id).toBe(boundPropertyValueElement);
 
@@ -164,7 +164,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         });
 
         expect(createDataModelInstance).not.toHaveBeenCalled();
-        testContainer = tools.getFixtureContainer('<dataModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="thing: \'' + boundPropertyValue + '\'">\
+        testContainer = getFixtureContainer('<dataModel module="' + namespaceName + '" id="' + boundPropertyValueElement + '" params="thing: \'' + boundPropertyValue + '\'">\
                                              <span class="result" data-bind="text: boundProperty"></span>\
                                            </dataModel>');
 
@@ -179,15 +179,15 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       });
 
       it('has the animation classes applied properly', function(done) {
-        var namespaceName = tools.generateNamespaceName();
+        var namespaceName = generateNamespaceName();
         var theElement;
         var initializeSpy;
         var afterRenderSpy;
 
-        fw.dataModel.register(namespaceName, tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+        fw.dataModel.register(namespaceName, expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.dataModel.boot(this, {
             namespace: namespaceName,
-            afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+            afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
               theElement = element;
               expect(theElement.className.indexOf(footworkAnimationClass)).toBe(-1);
             }).and.callThrough())
@@ -196,7 +196,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).toBe(undefined);
-        fw.start(testContainer = tools.getFixtureContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
+        fw.start(testContainer = getFixtureContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -207,16 +207,16 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       });
 
       it('can nest dataModel declarations', function(done) {
-        var namespaceNameOuter = tools.randomString();
-        var namespaceNameInner = tools.randomString();
+        var namespaceNameOuter = randomString();
+        var namespaceNameInner = randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy', function() { fw.dataModel.boot(this); });
 
-        fw.dataModel.register(namespaceNameOuter, tools.expectCallOrder(0, initializeSpy));
-        fw.dataModel.register(namespaceNameInner, tools.expectCallOrder(1, initializeSpy));
+        fw.dataModel.register(namespaceNameOuter, expectCallOrder(0, initializeSpy));
+        fw.dataModel.register(namespaceNameInner, expectCallOrder(1, initializeSpy));
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.start(testContainer = tools.getFixtureContainer('<dataModel module="' + namespaceNameOuter + '">\
+        fw.start(testContainer = getFixtureContainer('<dataModel module="' + namespaceNameOuter + '">\
           <dataModel module="' + namespaceNameInner + '"></dataModel>\
         </dataModel>'));
 
@@ -227,7 +227,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       });
 
       it('can pass parameters through a dataModel declaration', function(done) {
-        var namespaceName = tools.generateNamespaceName();
+        var namespaceName = generateNamespaceName();
         var initializeSpy;
 
         fw.dataModel.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function(params) {
@@ -237,7 +237,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         }).and.callThrough());
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = tools.getFixtureContainer('<dataModel module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></dataModel>'));
+        fw.start(testContainer = getFixtureContainer('<dataModel module="' + namespaceName + '" params="testValueOne: 1, testValueTwo: [1,2,3]"></dataModel>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -246,13 +246,13 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       });
 
       it('calls onDispose when the containing element is removed from the DOM', function(done) {
-        var namespaceName = tools.generateNamespaceName();
+        var namespaceName = generateNamespaceName();
         var theElement;
         var initializeSpy;
         var afterRenderSpy;
         var onDisposeSpy;
 
-        var WrapperDataModel = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+        var WrapperDataModel = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.dataModel.boot(this);
           this.showIt = fw.observable(true);
         }).and.callThrough());
@@ -260,11 +260,11 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         fw.dataModel.register(namespaceName, function() {
           fw.dataModel.boot(this, {
             namespace: namespaceName,
-            afterRender: tools.expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+            afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
               theElement = element;
               expect(theElement.tagName).toBe('DATAMODEL');
             }).and.callThrough()),
-            onDispose: tools.expectCallOrder(2, onDisposeSpy = jasmine.createSpy('onDisposeSpy', function(element) {
+            onDispose: expectCallOrder(2, onDisposeSpy = jasmine.createSpy('onDisposeSpy', function(element) {
               expect(element).toBe(theElement);
             }).and.callThrough())
           });
@@ -278,7 +278,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         expect(initializeSpy).toHaveBeenCalled();
         expect(afterRenderSpy).toBe(undefined);
 
-        fw.applyBindings(wrapper, testContainer = tools.getFixtureContainer('<div data-bind="if: showIt">\
+        fw.applyBindings(wrapper, testContainer = getFixtureContainer('<div data-bind="if: showIt">\
           <dataModel module="' + namespaceName + '"></dataModel>\
         </div>'));
 
@@ -294,7 +294,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       });
 
       it('can have a registered location set and retrieved proplerly', function() {
-        var namespaceName = tools.generateNamespaceName();
+        var namespaceName = generateNamespaceName();
         fw.dataModel.registerLocation(namespaceName, '/bogus/path');
         expect(fw.dataModel.getLocation(namespaceName)).toBe('/bogus/path');
         fw.dataModel.registerLocation(/regexp.*/, '/bogus/path');
@@ -302,20 +302,20 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       });
 
       it('can have an array of models registered to a location and retrieved proplerly', function() {
-        var namespaceNames = [ tools.generateNamespaceName(), tools.generateNamespaceName() ];
+        var namespaceNames = [ generateNamespaceName(), generateNamespaceName() ];
         fw.dataModel.registerLocation(namespaceNames, '/bogus/path');
         expect(fw.dataModel.getLocation(namespaceNames[0])).toBe('/bogus/path');
         expect(fw.dataModel.getLocation(namespaceNames[1])).toBe('/bogus/path');
       });
 
       it('can have a registered location with filename set and retrieved proplerly', function() {
-        var namespaceName = tools.generateNamespaceName();
+        var namespaceName = generateNamespaceName();
         fw.dataModel.registerLocation(namespaceName, '/bogus/path/__file__.js');
         expect(fw.dataModel.getLocation(namespaceName)).toBe('/bogus/path/__file__.js');
       });
 
       it('can have a specific file extension set and used correctly', function() {
-        var namespaceName = tools.generateNamespaceName();
+        var namespaceName = generateNamespaceName();
         var customExtension = '.jscript';
         fw.dataModel.fileExtensions(customExtension);
         fw.dataModel.registerLocation(namespaceName, '/bogus/path/');
@@ -326,7 +326,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       });
 
       it('can have a callback specified as the extension with it invoked and the return value used', function() {
-        var namespaceName = tools.generateNamespaceName();
+        var namespaceName = generateNamespaceName();
         var customExtension = '.jscriptFunction';
         fw.dataModel.fileExtensions(function(moduleName) {
           expect(moduleName).toBe(namespaceName);
@@ -340,13 +340,13 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       });
 
       it('can load via registered dataModel with a declarative initialization', function(done) {
-        var namespaceName = tools.generateNamespaceName();
+        var namespaceName = generateNamespaceName();
         var initializeSpy = jasmine.createSpy('initializeSpy', function() { fw.dataModel.boot(this, { namespace: namespaceName }); });
 
         fw.dataModel.register(namespaceName, initializeSpy);
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = tools.getFixtureContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
+        fw.start(testContainer = getFixtureContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
@@ -361,7 +361,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.getFixtureContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
+        fw.start(testContainer = getFixtureContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -376,7 +376,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.getFixtureContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
+        fw.start(testContainer = getFixtureContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -391,7 +391,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
         expect(namespaceName).not.toBeLoaded();
 
-        fw.start(testContainer = tools.getFixtureContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
+        fw.start(testContainer = getFixtureContainer('<dataModel module="' + namespaceName + '"></dataModel>'));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
@@ -406,7 +406,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       it('can have an observable mapped and remapped correctly at the parent level', function() {
         var initializeSpy;
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this);
           this.firstName = fw.observable(person.firstName).mapTo('firstName', this);
           this.lastName = fw.observable(person.lastName).mapTo('lastName', this);
@@ -428,7 +428,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       it('can have an observable mapped correctly at a nested level', function() {
         var initializeSpy;
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this);
           this.firstName = fw.observable(person.firstName).mapTo('firstName', this);
           this.lastName = fw.observable(person.lastName).mapTo('lastName', this);
@@ -465,8 +465,8 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
       it('can have mapped observables disposed of properly when parent dataModel is removed from the DOM', function(done) {
         var wasInitialized = false;
-        var namespaceName = tools.generateNamespaceName();
-        var containerViewModelNamespace = tools.generateNamespaceName();
+        var namespaceName = generateNamespaceName();
+        var containerViewModelNamespace = generateNamespaceName();
         var containerVM;
         var dataModel;
 
@@ -486,7 +486,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
         fw.dataModel.register(namespaceName, DataModelSpy);
 
         expect(DataModelSpy).not.toHaveBeenCalled();
-        fw.start(testContainer = tools.getFixtureContainer('<viewModel module="' + containerViewModelNamespace + '">\
+        fw.start(testContainer = getFixtureContainer('<viewModel module="' + containerViewModelNamespace + '">\
           <!-- ko if: show -->\
             <dataModel module="' + namespaceName + '"></dataModel>\
           <!-- /ko -->\
@@ -514,7 +514,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       it('can have observables mapped and retreived correctly via get', function() {
         var initializeSpy;
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this);
           this.id = fw.observable(person.id).mapTo('id', this);
           this.firstName = fw.observable(person.firstName).mapTo('firstName', this);
@@ -550,7 +550,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       it('can have observables mapped and a specific one retreived correctly via get', function() {
         var initializeSpy;
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this);
           this.firstName = fw.observable(person.firstName).mapTo('firstName', this);
           this.lastName = fw.observable(person.lastName).mapTo('lastName', this);
@@ -585,7 +585,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       it('can have observables mapped and an array of values retreived correctly via get', function() {
         var initializeSpy;
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this);
           this.firstName = fw.observable(person.firstName).mapTo('firstName', this);
           this.lastName = fw.observable(person.lastName).mapTo('lastName', this);
@@ -619,7 +619,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       it('can have observables mapped and converted into JSON form using JSON.stringify', function() {
         var initializeSpy;
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this);
           this.firstName = fw.observable(person.firstName).mapTo('firstName', this);
           this.lastName = fw.observable(person.lastName).mapTo('lastName', this);
@@ -652,7 +652,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       it('can have a correct dirtyMap() produced', function() {
         var initializeSpy;
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this);
           this.firstName = fw.observable(person.firstName).mapTo('firstName', this);
           this.lastName = fw.observable(person.lastName).mapTo('lastName', this);
@@ -716,7 +716,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       it('can load data in using dataModel.set()', function() {
         var initializeSpy;
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this);
           this.firstName = fw.observable().mapTo('firstName', this);
           this.lastName = fw.observable().mapTo('lastName', this);
@@ -754,7 +754,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       it('can (re)map the primary key', function() {
         var initializeSpy;
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(personData) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(personData) {
           fw.dataModel.boot(this);
           this.firstName = fw.observable().mapTo('firstName', this);
           this.lastName = fw.observable().mapTo('lastName', this);
@@ -779,7 +779,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       it('can correctly be flagged as isDirty when a mapped field value is altered', function() {
         var initializeSpy;
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this);
           this.firstName = fw.observable(person.firstName).mapTo('firstName', this);
           this.lastName = fw.observable(person.lastName).mapTo('lastName', this);
@@ -832,8 +832,8 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
       it('can correctly POST data on initial save()', function(done) {
         var initializeSpy;
-        var mockUrl = tools.generateUrl();
-        var postValue = tools.randomString();
+        var mockUrl = generateUrl();
+        var postValue = randomString();
         var responseData = {
           "id": 1,
           "firstName": postValue,
@@ -841,7 +841,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           "email": null
         };
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl
           });
@@ -873,8 +873,8 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
       it('can correctly save() data with specified object of data', function(done) {
         var initializeSpy;
-        var mockUrl = tools.generateUrl();
-        var postValue = tools.randomString();
+        var mockUrl = generateUrl();
+        var postValue = randomString();
         var saveDataSpy = jasmine.createSpy('saveDataSpy');
         var responseData = {
           "id": 1,
@@ -924,8 +924,8 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
       it('can correctly save() data with specified key/value pair of data', function(done) {
         var initializeSpy;
-        var mockUrl = tools.generateUrl();
-        var postValue = tools.randomString();
+        var mockUrl = generateUrl();
+        var postValue = randomString();
         var saveDataSpy = jasmine.createSpy('saveDataSpy');
         var responseData = {
           "id": 1,
@@ -975,8 +975,8 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
       it('can correctly DELETE data on destroy()', function(done) {
         var initializeSpy;
-        var mockUrl = tools.generateUrl();
-        var postValue = tools.randomString();
+        var mockUrl = generateUrl();
+        var postValue = randomString();
         var responseData = {
           "id": 1,
           "firstName": postValue,
@@ -1021,9 +1021,9 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
       it('can correctly POST data on initial save() and then PUT on subsequent calls', function(done) {
         var initializeSpy;
-        var mockUrl = tools.generateUrl();
-        var postValue = tools.randomString();
-        var putValue = tools.randomString();
+        var mockUrl = generateUrl();
+        var postValue = randomString();
+        var putValue = randomString();
         var personData = {
           "id": 1,
           "firstName": null,
@@ -1031,7 +1031,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           "email": null
         };
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl
           });
@@ -1068,8 +1068,8 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       it('can correctly POST data and apply parse() method with return on save()', function(done) {
         var initializeSpy;
         var parseSpy;
-        var mockUrl = tools.generateUrl();
-        var postValue = tools.randomString();
+        var mockUrl = generateUrl();
+        var postValue = randomString();
 
         var mockResponse = {
           "id": 1,
@@ -1078,10 +1078,10 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           "email": null
         };
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
-            parse: tools.expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
+            parse: expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
               response.firstName = postValue;
               return response;
             }).and.callThrough()),
@@ -1114,7 +1114,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
       it('can correctly fetch() data from the server via a pre-filled idAttribute', function(done) {
         var initializeSpy;
-        var mockUrl = tools.generateUrl();
+        var mockUrl = generateUrl();
         var getValue = '__GET__CHECK__';
         var personData = {
           "id": 100,
@@ -1123,7 +1123,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           "email": null
         };
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl
           });
@@ -1159,7 +1159,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           expect(operationType).toBe('fetch');
           return 150;
         }).and.callThrough();
-        var mockUrl = tools.generateUrl();
+        var mockUrl = generateUrl();
         var getValue = '__GET__CHECK__';
         var personData = {
           "id": 100,
@@ -1249,7 +1249,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       it('can correctly fetch() data from the server with a provided parse() method', function(done) {
         var initializeSpy;
         var parseSpy;
-        var mockUrl = tools.generateUrl();
+        var mockUrl = generateUrl();
         var getValue = '__GET__CHECK__';
         var personData = {
           "id": 100,
@@ -1258,10 +1258,10 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           "email": null
         };
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
-            parse: tools.expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
+            parse: expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
               response.firstName = getValue;
               return response;
             }).and.callThrough())
@@ -1294,7 +1294,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
       it('can correctly fetch() data from the server via a pre-filled custom idAttribute', function(done) {
         var initializeSpy;
-        var mockUrl = tools.generateUrl();
+        var mockUrl = generateUrl();
         var getValue = '__GET__CUSTOM__CHECK__';
         var personData = {
           "customId": 100,
@@ -1303,7 +1303,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           "email": null
         };
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
             idAttribute: 'customId'
@@ -1334,15 +1334,15 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
       it('can correctly fetch() data from the server with overridden fetchOptions', function(done) {
         var initializeSpy;
-        var mockUrl = tools.generateUrl();
+        var mockUrl = generateUrl();
         var personData = {
           "id": 100,
-          "firstName": tools.randomString(),
+          "firstName": randomString(),
           "lastName": null,
           "email": null
         };
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
             useKeyInUrl: false,
@@ -1374,10 +1374,10 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
       it('can correctly fetch() data from the server with overridden global fetchOptions', function(done) {
         var initializeSpy;
-        var mockUrl = tools.generateUrl();
+        var mockUrl = generateUrl();
         var personData = {
           "id": 100,
-          "firstName": tools.randomString(),
+          "firstName": randomString(),
           "lastName": null,
           "email": null
         };
@@ -1386,7 +1386,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           method: 'post'
         };
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
             useKeyInUrl: false
@@ -1417,7 +1417,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
       it('can correctly fetch() data from the server via a url based on an evaluator function', function(done) {
         var initializeSpy;
         var urlSpy;
-        var mockUrl = tools.generateUrl();
+        var mockUrl = generateUrl();
         var getValue = '__GET__CUSTOM__CHECK__';
         var personData = {
           "id": 100,
@@ -1426,9 +1426,9 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           "email": null
         };
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
-            url: tools.expectCallOrder(1, urlSpy = jasmine.createSpy('urlSpy', function() {
+            url: expectCallOrder(1, urlSpy = jasmine.createSpy('urlSpy', function() {
               return mockUrl;
             }).and.callThrough())
           });
@@ -1461,7 +1461,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
 
       it('can correctly fetch() data from the server via a url with interpolated parameters', function(done) {
         var initializeSpy;
-        var mockUrl = tools.generateUrl();
+        var mockUrl = generateUrl();
         var personData = {
           "id": 100,
           "firstName": 'interpolatedFirstName',
@@ -1469,7 +1469,7 @@ define(['footwork', 'jquery', 'lodash', 'tools', 'fetch-mock'],
           "email": null
         };
 
-        var Person = tools.expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
             useKeyInUrl: false,
             url: mockUrl + '/:firstName'
