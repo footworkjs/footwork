@@ -1,8 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
-
+var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 var dataTools = require('./data-tools');
 var insertValueIntoObject = dataTools.insertValueIntoObject;
 var getNestedReference = dataTools.getNestedReference;

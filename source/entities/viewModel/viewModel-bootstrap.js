@@ -4,7 +4,7 @@ var _ = require('footwork-lodash');
 var entityDescriptors = require('../entity-descriptors');
 var postbox = require('../../namespace/postbox');
 var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 
 /**
  * Bootstrap an instance with viewModel capabilities (lifecycle/etc).

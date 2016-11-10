@@ -9,12 +9,12 @@ var startingHashRegex = util.startingHashRegex;
 var removeClass = util.removeClass;
 var addClass = util.addClass;
 var hasClass = util.hasClass;
+var privateDataSymbol = util.getSymbol('footwork');
 
 var routerTools = require('./router-tools');
 var nearestParentRouter = routerTools.nearestParentRouter;
 var isNullRouter = routerTools.isNullRouter;
 
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 
 function findParentNode (element, selector) {
   if (selector === true) {

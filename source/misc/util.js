@@ -223,16 +223,6 @@ function capitalizeFirstLetter (str) {
 }
 
 /**
- * Return the private data of a viewModel if it exists
- *
- * @param {any} instance
- * @returns {object} The private data on the instance (if found)
- */
-function getPrivateData (instance) {
-  return instance && instance[require('./config').privateDataSymbol];
-}
-
-/**
  * Return either the supplied string key (if Symbol() capability not present) or return a symbol based on that same key.
  *
  * @param {any} str
@@ -240,6 +230,18 @@ function getPrivateData (instance) {
  */
 function getSymbol (str) {
   return typeof Symbol === 'function' && typeof Symbol['for'] === 'function' ? Symbol['for'](str) : /* istanbul ignore next */ ('__' + str);
+}
+
+var privateDataSymbol = getSymbol('footwork');
+
+/**
+ * Return the private data of a viewModel if it exists
+ *
+ * @param {any} instance
+ * @returns {object} The private data on the instance (if found)
+ */
+function getPrivateData (instance) {
+  return instance && instance[privateDataSymbol];
 }
 
 /**

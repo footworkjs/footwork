@@ -2,7 +2,7 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var collectionMethods = require('./collection-methods');
-var privateDataSymbol = require('../misc/config').privateDataSymbol;
+var privateDataSymbol = require('../misc/util').getSymbol('footwork');
 var getSymbol = require('../misc/util').getSymbol;
 
 var defaultCollectionConfig = {

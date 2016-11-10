@@ -1,7 +1,7 @@
 var _ = require('footwork-lodash');
 
 var postbox = require('./postbox');
-var privateDataSymbol = require('../misc/config').privateDataSymbol;
+var privateDataSymbol = require('../misc/util').getSymbol('footwork');
 
 /**
  * Publish data on a topic of a namespace.

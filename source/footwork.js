@@ -1,6 +1,12 @@
 var fw = require('knockout/build/output/knockout-latest');
+var util = require('./misc/util');
 
+fw.animationClass = {
+  creation: 'fw-entity',
+  afterResolution: 'fw-entity-resolved'
+};
 fw.footworkVersion = 'FOOTWORK_VERSION';
+fw[util.getSymbol('footwork')] = { /* internal data registration point */ };
 
 fw.namespace = require('./namespace/namespace');
 fw.isNamespace = function(thing) {
@@ -8,8 +14,8 @@ fw.isNamespace = function(thing) {
 };
 
 fw.sync = require('./misc/ajax').sync;
-fw.utils.guid = require('./misc/util').guid;
-fw.utils.getPrivateData = require('./misc/util').getPrivateData;
+fw.utils.guid = util.guid;
+fw.utils.getPrivateData = util.getPrivateData;
 
 require('./broadcastable-receivable/broadcastable');
 require('./broadcastable-receivable/receivable');

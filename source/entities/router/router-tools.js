@@ -2,12 +2,12 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var nearestEntity = require('../entity-tools').nearestEntity;
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 
 var util = require('../../misc/util');
 var getSymbol = util.getSymbol;
 var resultBound = util.resultBound;
 var alwaysPassPredicate = util.alwaysPassPredicate;
+var privateDataSymbol = util.getSymbol('footwork');
 
 var routerDefaults = require('./router-defaults');
 var nullRouter = routerDefaults.nullRouter;

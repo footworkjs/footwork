@@ -1,13 +1,10 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var config = require('../misc/config');
-var entityAnimateClass = config.entityAnimateClass;
-var privateDataSymbol = config.privateDataSymbol;
-
 var util = require('../misc/util');
 var resultBound = util.resultBound;
 var addClass = util.addClass;
+var privateDataSymbol = util.getSymbol('footwork');
 
 var sequenceQueue = {};
 
@@ -65,7 +62,7 @@ function addToAndFetchQueue (element, viewModel) {
   var animationSequenceQueue = sequenceQueue[namespaceName] = (sequenceQueue[namespaceName] || []);
   var newSequenceIteration = {
     addAnimationClass: function addBindingFromQueue () {
-      addClass(element, entityAnimateClass);
+      addClass(element, fw.animationClass.afterResolution);
     },
     nextIteration: sequenceTimeout
   };

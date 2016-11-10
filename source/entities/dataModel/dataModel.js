@@ -10,6 +10,7 @@ var prepareDescriptor = require('../entity-tools').prepareDescriptor;
 var util = require('../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
 var getSymbol = util.getSymbol;
+var privateDataSymbol = util.getSymbol('footwork');
 
 var entityName = 'dataModel';
 var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
@@ -43,7 +44,7 @@ fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 // Add/extend on the various resource methods (registerLocation/etc)
 _.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
-require('../../misc/config')[capitalizeFirstLetter(entityName)] = function DataModel (params) {
+fw[privateDataSymbol][capitalizeFirstLetter(entityName)] = function DataModel (params) {
   fw.dataModel.boot(this);
 };
 

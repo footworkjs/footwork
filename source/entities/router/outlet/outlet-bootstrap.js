@@ -4,11 +4,10 @@ var _ = require('footwork-lodash');
 var instanceRequestHandler = require('../../entity-tools').instanceRequestHandler;
 var entityDescriptors = require('../../entity-descriptors');
 var viewModelBootstrap = require('../../viewModel/viewModel-bootstrap');
-var nextFrame = require('../../../misc/util').nextFrame;
 
-var config = require('../../../misc/config');
-var privateDataSymbol = config.privateDataSymbol;
-var entityAnimateClass = config.entityAnimateClass;
+var util = require('../../../misc/util');
+var nextFrame = util.nextFrame;
+var privateDataSymbol = util.getSymbol('footwork');
 
 var routerDefaults = require('../../router/router-defaults');
 var nullComponent = routerDefaults.nullComponent;
@@ -16,9 +15,9 @@ var nullComponent = routerDefaults.nullComponent;
 var visibleCSS = { 'height': '', 'overflow': '' };
 var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
 var removeAnimation = {};
-removeAnimation[entityAnimateClass] = false;
+removeAnimation[fw.animationClass.afterResolution] = false;
 var addAnimation = {};
-addAnimation[entityAnimateClass] = true;
+addAnimation[fw.animationClass.afterResolution] = true;
 
 /**
  * Bootstrap an instance with outlet capabilities.

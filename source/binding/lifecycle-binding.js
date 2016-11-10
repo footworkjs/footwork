@@ -20,10 +20,7 @@ var hasClass = util.hasClass;
 var isPromise = util.isPromise;
 var promiseIsFulfilled = util.promiseIsFulfilled;
 var getSymbol = util.getSymbol;
-
-var config = require('../misc/config');
-var entityClass = config.entityClass;
-var privateDataSymbol = config.privateDataSymbol;
+var privateDataSymbol = util.getSymbol('footwork');
 
 var makePromiseQueryable = require('../misc/ajax').makePromiseQueryable;
 
@@ -37,7 +34,7 @@ fw.bindingHandlers.$lifecycle = {
 
     if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
       // the outlet viewModel and template binding handles its animation state
-      addClass(element, entityClass);
+      addClass(element, fw.animationClass.creation);
     }
 
     // if this is a router and its configured to do so, activate it now that its being bound

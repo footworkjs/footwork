@@ -5,8 +5,7 @@ var util = require('./util');
 var resultBound = util.resultBound;
 var promiseIsFulfilled = util.promiseIsFulfilled;
 var isPromise = util.isPromise;
-
-var privateDataSymbol = require('./config').privateDataSymbol;
+var privateDataSymbol = util.getSymbol('footwork');
 
 require('../collection/collection-tools');
 

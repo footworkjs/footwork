@@ -1,7 +1,9 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var isPath = require('../misc/util').isPath;
+var util = require('../misc/util');
+var isPath = util.isPath;
+var privateDataSymbol = util.getSymbol('footwork');
 
 /**
  * The component resource loader tells footwork where to load the components assets from. It uses the supplied configuration to use AMD to download
@@ -36,7 +38,7 @@ fw.components.loaders.push(fw.components.componentResourceLoader = {
 
         if (!_.isString(componentLocation.viewModel)) {
           // template-only component, substitute with 'blank' viewModel
-          viewModelConfig = require('../misc/config').ViewModel;
+          viewModelConfig = fw[privateDataSymbol].ViewModel;
         } else {
           // user has supplied the location of the viewModel, specify require config to download
           var viewModelPath = componentLocation.viewModel;

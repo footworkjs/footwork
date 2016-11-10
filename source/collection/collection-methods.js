@@ -6,7 +6,7 @@ var regExpIsEqual = objectTools.regExpIsEqual;
 var sortOfEqual = objectTools.sortOfEqual;
 
 var makeOrGetRequest = require('../misc/ajax').makeOrGetRequest;
-var privateDataSymbol = require('../misc/config').privateDataSymbol;
+var privateDataSymbol = require('../misc/util').getSymbol('footwork');
 
 function collectionSync () {
   return fw.sync.apply(this, arguments);

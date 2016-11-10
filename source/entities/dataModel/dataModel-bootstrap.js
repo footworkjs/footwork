@@ -1,7 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 var entityDescriptors = require('../entity-descriptors');
 var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
 

@@ -1,7 +1,8 @@
 var _ = require('footwork-lodash');
 
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
-var propertyDispose = require('../../misc/util').propertyDispose;
+var util = require('../../misc/util');
+var privateDataSymbol = util.getSymbol('footwork');
+var propertyDispose = util.propertyDispose;
 
 module.exports = {
   dispose: function dispose () {

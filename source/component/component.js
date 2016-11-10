@@ -4,6 +4,7 @@ var _ = require('footwork-lodash');
 var util = require('../misc/util');
 var isPath = util.isPath;
 var getFilenameExtension = util.getFilenameExtension;
+var privateDataSymbol = util.getSymbol('footwork');
 var regExpMatch = /^\/|\/$/g;
 
 require('./component-binding-init');
@@ -33,7 +34,7 @@ fw.components.register = function (componentName, options) {
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || require('../misc/config').ViewModel,
+    viewModel: viewModel || fw[privateDataSymbol].ViewModel,
     template: options.template
   });
 };

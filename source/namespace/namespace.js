@@ -1,4 +1,4 @@
-var privateDataSymbol = require('../misc/config').privateDataSymbol;
+var privateDataSymbol = require('../misc/util').getSymbol('footwork');
 
 /**
  * Construct a new namespace instance.

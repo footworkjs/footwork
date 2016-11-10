@@ -1,12 +1,11 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
+var bindingElement = require('../../../binding/binding-element');
 var routerDefaults = require('../router-defaults');
 var outletLoadedDisplay = routerDefaults.outletLoadedDisplay;
 var outletLoadingDisplay = routerDefaults.outletLoadingDisplay;
 
-var entityClass = require('../../../misc/config').entityClass;
-var bindingElement = require('../../../binding/binding-element');
 
 function Outlet () {
   fw.outlet.boot(this, {
@@ -25,9 +24,9 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
       callback({
         viewModel: Outlet,
         template: bindingElement.open.prefix + '$lifecycle, $outlet' + bindingElement.open.postfix +
-          '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" ' +
+          '<div class="' + outletLoadingDisplay + ' ' + fw.animationClass.creation + '" ' +
             'data-bind="style: loadingStyle, css: loadingClass, component: loadingDisplay"></div>' +
-          '<div class="' + outletLoadedDisplay + ' ' + entityClass + '" ' +
+          '<div class="' + outletLoadedDisplay + ' ' + fw.animationClass.creation + '" ' +
             'data-bind="style: loadedStyle, css: loadedClass, component: display"></div>' +
         bindingElement.close,
         synchronous: true

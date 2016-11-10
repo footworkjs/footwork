@@ -1,7 +1,6 @@
 var _ = require('footwork-lodash');
 var fw = require('knockout/build/output/knockout-latest');
 
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 var isEntity = require('../entity-tools').isEntity;
 
 var routerTools = require('./router-tools');
@@ -13,6 +12,7 @@ var util = require('../../misc/util');
 var resultBound = util.resultBound;
 var propertyDispose = util.propertyDispose;
 var startingHashRegex = util.startingHashRegex;
+var privateDataSymbol = util.getSymbol('footwork');
 
 var viewModelMixinDispose = require('../viewModel/viewModel-mixin').dispose;
 var clearSequenceQueue = require('../../binding/animation-sequencing').clearSequenceQueue;
