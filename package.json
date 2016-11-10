@@ -1,25 +1,12 @@
 {
   "name": "footwork",
-  "description": "A solid footing for web applications.",
+  "description": "Knockout-based SPA frontend javascript framework.",
   "author": "Jonathan Newman (http://staticty.pe)",
   "contributors": [
     {
       "name": "Jonathan Newman",
       "email": "jonathan@staticty.pe",
-      "url": "https://github.com/jonbnewman",
-      "contribution": [
-        "creator",
-        "code",
-        "documentation"
-      ]
-    },
-    {
-      "name": "Travis Miller",
-      "email": "travis@travisamiller.com",
-      "url": "http://travisamiller.com",
-      "contribution": [
-        "framework name"
-      ]
+      "url": "https://github.com/jonbnewman"
     }
   ],
   "version": "2.0.0",
