@@ -190,7 +190,7 @@ define(['footwork', 'lodash'],
             namespace: namespaceName,
             afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
               theElement = element;
-              expect(theElement.className.indexOf(footworkAnimationClass)).toBe(-1);
+              expect(theElement.className.indexOf(fw.animationClass.afterResolution)).toBe(-1);
             }).and.callThrough())
           });
         }).and.callThrough()));
@@ -202,7 +202,7 @@ define(['footwork', 'lodash'],
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
           expect(afterRenderSpy).toHaveBeenCalled();
-          expect(theElement.className.indexOf(footworkAnimationClass)).not.toBe(-1);
+          expect(theElement.className.indexOf(fw.animationClass.afterResolution)).not.toBe(-1);
           done();
         }, ajaxWait);
       });

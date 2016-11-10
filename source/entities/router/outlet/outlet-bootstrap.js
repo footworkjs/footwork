@@ -14,10 +14,19 @@ var nullComponent = routerDefaults.nullComponent;
 
 var visibleCSS = { 'height': '', 'overflow': '' };
 var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
-var removeAnimation = {};
-removeAnimation[fw.animationClass.afterResolution] = false;
-var addAnimation = {};
-addAnimation[fw.animationClass.afterResolution] = true;
+
+
+function addAnimation () {
+  var addAnimation = {};
+  addAnimation[fw.animationClass.afterResolution] = true;
+  return addAnimation;
+}
+
+function removeAnimation () {
+  var removeAnimation = {};
+  removeAnimation[fw.animationClass.afterResolution] = false;
+  return removeAnimation;
+}
 
 /**
  * Bootstrap an instance with outlet capabilities.
@@ -87,21 +96,23 @@ function outletBootstrap (instance, configParams) {
     instance.loadedClass = fw.observable();
 
     function showLoader () {
-      instance.loadingClass(removeAnimation);
-      instance.loadedClass(removeAnimation);
+      var removeAnim = removeAnimation();
+
+      instance.loadingClass(removeAnim);
+      instance.loadedClass(removeAnim);
       instance.loadedStyle(hiddenCSS);
       instance.loadingStyle(visibleCSS);
 
       nextFrame(function() {
-        instance.loadingClass(addAnimation);
+        instance.loadingClass(addAnimation());
       });
     }
 
     function showLoadedAfterMinimumTransition () {
-      instance.loadingClass(removeAnimation);
+      instance.loadingClass(removeAnimation());
       instance.loadedStyle(visibleCSS);
       instance.loadingStyle(hiddenCSS);
-      instance.loadedClass(addAnimation);
+      instance.loadedClass(addAnimation());
 
       if (resolvedCallbacks.length) {
         _.each(resolvedCallbacks, function(callback) {

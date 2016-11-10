@@ -7,7 +7,6 @@ var jasmineDefaultTimeoutInterval;
 var namespaceCounter = 0;
 var generatedUrlCounter = 0;
 var loadedModules = {};
-var footworkAnimationClass = 'fw-entity-resolved';
 var ajaxWait = window.__env.AJAX_WAIT; // delay in ms to wait for ajax requests
 
 /**
