@@ -62,6 +62,7 @@
     "less-plugin-autoprefix": "1.5.1",
     "less-plugin-clean-css": "1.5.1",
     "footwork-lodash": "git+https://github.com/footworkjs/footwork-lodash.git#694e740d4e846cf8a5330e7996d304636deb49fb",
+    "footwork-animate": "git+https://github.com/footworkjs/footwork-animate.git#25e0c04a9d350d79cbde61ad6c4a8c1c506c25d3",
     "lodash": "4.16.6",
     "phantomjs": "^1.9.19",
     "vinyl-buffer": "^1.0.0",
@@ -69,9 +70,10 @@
     "yargs": "*"
   },
   "dependencies": {
+    "animate.css": "^3.5.2",
+    "es6-promise": "*",
     "requirejs": "*",
     "requirejs-text": "*",
-    "es6-promise": "*",
     "whatwg-fetch": "*"
   }
 }
