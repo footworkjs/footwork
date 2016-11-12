@@ -1,5 +1,10 @@
 @import "../../node_modules/footwork-animate/source/_base";
 
+$animatedClass: 'fw-entity-resolved';
+$animationSpeed: 0.5s;
+$normalDistance: 50px;
+$bigDistance: 200px;
+
 @import "../../node_modules/footwork-animate/source/fading_entrances/fadeIn";
 @import "../../node_modules/footwork-animate/source/fading_entrances/fadeInDown";
 @import "../../node_modules/footwork-animate/source/fading_entrances/fadeInDownBig";
