@@ -8,8 +8,14 @@
 
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.fw=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
+var util = require('./misc/util');
 
+fw.animationClass = {
+  creation: 'fw-entity',
+  afterResolution: 'fw-entity-resolved'
+};
 fw.footworkVersion = '2.0.0';
+fw[util.getSymbol('footwork')] = { /* internal data registration point */ };
 
 fw.namespace = require('./namespace/namespace');
 fw.isNamespace = function(thing) {
@@ -17,8 +23,8 @@ fw.isNamespace = function(thing) {
 };
 
 fw.sync = require('./misc/ajax').sync;
-fw.utils.guid = require('./misc/util').guid;
-fw.utils.getPrivateData = require('./misc/util').getPrivateData;
+fw.utils.guid = util.guid;
+fw.utils.getPrivateData = util.getPrivateData;
 
 require('./broadcastable-receivable/broadcastable');
 require('./broadcastable-receivable/receivable');
@@ -33,7 +39,7 @@ require('./binding/start');
 
 module.exports = fw;
 
-},{"./binding/applyBindings":5,"./binding/lifecycle-binding":7,"./binding/start":8,"./broadcastable-receivable/broadcastable":9,"./broadcastable-receivable/receivable":10,"./collection/collection":13,"./component/component":18,"./entities/entities":24,"./misc/ajax":41,"./misc/util":45,"./namespace/namespace":47,"knockout/build/output/knockout-latest":3}],2:[function(require,module,exports){
+},{"./binding/applyBindings":5,"./binding/lifecycle-binding":7,"./binding/start":8,"./broadcastable-receivable/broadcastable":9,"./broadcastable-receivable/receivable":10,"./collection/collection":13,"./component/component":18,"./entities/entities":24,"./misc/ajax":41,"./misc/util":44,"./namespace/namespace":46,"knockout/build/output/knockout-latest":3}],2:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -6558,13 +6564,10 @@ new a.O;var b=new a.vb;0<b.ad&&a.Db(b);a.b("jqueryTmplTemplateEngine",a.vb)})()}
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var config = require('../misc/config');
-var entityAnimateClass = config.entityAnimateClass;
-var privateDataSymbol = config.privateDataSymbol;
-
 var util = require('../misc/util');
 var resultBound = util.resultBound;
 var addClass = util.addClass;
+var privateDataSymbol = util.getSymbol('footwork');
 
 var sequenceQueue = {};
 
@@ -6622,7 +6625,7 @@ function addToAndFetchQueue (element, viewModel) {
   var animationSequenceQueue = sequenceQueue[namespaceName] = (sequenceQueue[namespaceName] || []);
   var newSequenceIteration = {
     addAnimationClass: function addBindingFromQueue () {
-      addClass(element, entityAnimateClass);
+      addClass(element, fw.animationClass.afterResolution);
     },
     nextIteration: sequenceTimeout
   };
@@ -6643,7 +6646,7 @@ module.exports = {
   addToAndFetchQueue: addToAndFetchQueue
 };
 
-},{"../misc/config":42,"../misc/util":45,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],5:[function(require,module,exports){
+},{"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],5:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -6681,7 +6684,7 @@ function wrapWithLifeCycle (rootNode) {
   return rootNode;
 }
 
-},{"../binding/binding-element":6,"../entities/entity-tools":27,"../misc/util":45,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],6:[function(require,module,exports){
+},{"../binding/binding-element":6,"../entities/entity-tools":27,"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],6:[function(require,module,exports){
 var oldExploderVersion = 8;
 var bindingElement = {
   oldExploderTagName: 'div',
@@ -6733,10 +6736,7 @@ var hasClass = util.hasClass;
 var isPromise = util.isPromise;
 var promiseIsFulfilled = util.promiseIsFulfilled;
 var getSymbol = util.getSymbol;
-
-var config = require('../misc/config');
-var entityClass = config.entityClass;
-var privateDataSymbol = config.privateDataSymbol;
+var privateDataSymbol = util.getSymbol('footwork');
 
 var makePromiseQueryable = require('../misc/ajax').makePromiseQueryable;
 
@@ -6750,7 +6750,7 @@ fw.bindingHandlers.$lifecycle = {
 
     if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
       // the outlet viewModel and template binding handles its animation state
-      addClass(element, entityClass);
+      addClass(element, fw.animationClass.creation);
     }
 
     // if this is a router and its configured to do so, activate it now that its being bound
@@ -6879,7 +6879,7 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
   }
 }
 
-},{"../entities/entity-tools":27,"../entities/router/router-defaults":34,"../misc/ajax":41,"../misc/config":42,"../misc/util":45,"./animation-sequencing":4,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],8:[function(require,module,exports){
+},{"../entities/entity-tools":27,"../entities/router/router-defaults":34,"../misc/ajax":41,"../misc/util":44,"./animation-sequencing":4,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],8:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 
 // 'start' up the framework at the targetElement (or document.body by default)
@@ -6948,7 +6948,7 @@ fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWri
   return broadcastable.broadcast();
 };
 
-},{"../misc/util":45,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],10:[function(require,module,exports){
+},{"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],10:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7025,7 +7025,7 @@ fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
   return receivable.refresh();
 };
 
-},{"../misc/util":45,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],11:[function(require,module,exports){
+},{"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],11:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7034,7 +7034,7 @@ var regExpIsEqual = objectTools.regExpIsEqual;
 var sortOfEqual = objectTools.sortOfEqual;
 
 var makeOrGetRequest = require('../misc/ajax').makeOrGetRequest;
-var privateDataSymbol = require('../misc/config').privateDataSymbol;
+var privateDataSymbol = require('../misc/util').getSymbol('footwork');
 
 function collectionSync () {
   return fw.sync.apply(this, arguments);
@@ -7406,7 +7406,7 @@ module.exports = {
   removeModel: removeModel
 };
 
-},{"../misc/ajax":41,"../misc/config":42,"./object-tools":14,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],12:[function(require,module,exports){
+},{"../misc/ajax":41,"../misc/util":44,"./object-tools":14,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],12:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7420,12 +7420,12 @@ module.exports = {
   isCollection: fw.isCollection = isCollection
 };
 
-},{"../misc/util":45,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],13:[function(require,module,exports){
+},{"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],13:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var collectionMethods = require('./collection-methods');
-var privateDataSymbol = require('../misc/config').privateDataSymbol;
+var privateDataSymbol = require('../misc/util').getSymbol('footwork');
 var getSymbol = require('../misc/util').getSymbol;
 
 var defaultCollectionConfig = {
@@ -7520,7 +7520,7 @@ fw.collection = function createCollection (collectionData, configParams) {
   return collection;
 };
 
-},{"../misc/config":42,"../misc/util":45,"./collection-methods":11,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],14:[function(require,module,exports){
+},{"../misc/util":44,"./collection-methods":11,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],14:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7588,12 +7588,12 @@ module.exports = {
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var privateDataSymbol = require('../misc/config').privateDataSymbol;
 var setLoadingTracker = require('../misc/loading-tracker').set;
 var nearestEntity = require('../entities/entity-tools').nearestEntity;
 var getSymbol = require('../misc/util').getSymbol;
 var entityDescriptors = require('../entities/entity-descriptors');
 var originalComponentBindingInit = fw.bindingHandlers.component.init;
+var privateDataSymbol = getSymbol('footwork');
 
 /**
  * Monkey patch to bootstrap a component, tagging it with the loadingTracker.
@@ -7643,7 +7643,7 @@ function componentBindingInit (element, valueAccessor, allBindings, viewModel, b
 
 fw.bindingHandlers.component.init = componentBindingInit;
 
-},{"../entities/entity-descriptors":25,"../entities/entity-tools":27,"../misc/config":42,"../misc/loading-tracker":43,"../misc/util":45,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],16:[function(require,module,exports){
+},{"../entities/entity-descriptors":25,"../entities/entity-tools":27,"../misc/loading-tracker":42,"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],16:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7760,11 +7760,13 @@ function wrapWithLifeCycle (template) {
   return [].concat(wrapper[0], template, wrapper[1]);
 }
 
-},{"../binding/binding-element":6,"../entities/entity-descriptors":25,"../misc/util":45,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],17:[function(require,module,exports){
+},{"../binding/binding-element":6,"../entities/entity-descriptors":25,"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],17:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var isPath = require('../misc/util').isPath;
+var util = require('../misc/util');
+var isPath = util.isPath;
+var privateDataSymbol = util.getSymbol('footwork');
 
 /**
  * The component resource loader tells footwork where to load the components assets from. It uses the supplied configuration to use AMD to download
@@ -7799,7 +7801,7 @@ fw.components.loaders.push(fw.components.componentResourceLoader = {
 
         if (!_.isString(componentLocation.viewModel)) {
           // template-only component, substitute with 'blank' viewModel
-          viewModelConfig = require('../misc/config').ViewModel;
+          viewModelConfig = fw[privateDataSymbol].ViewModel;
         } else {
           // user has supplied the location of the viewModel, specify require config to download
           var viewModelPath = componentLocation.viewModel;
@@ -7829,13 +7831,14 @@ fw.components.loaders.push(fw.components.componentResourceLoader = {
   }
 });
 
-},{"../misc/config":42,"../misc/util":45,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],18:[function(require,module,exports){
+},{"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],18:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var util = require('../misc/util');
 var isPath = util.isPath;
 var getFilenameExtension = util.getFilenameExtension;
+var privateDataSymbol = util.getSymbol('footwork');
 var regExpMatch = /^\/|\/$/g;
 
 require('./component-binding-init');
@@ -7865,7 +7868,7 @@ fw.components.register = function (componentName, options) {
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || require('../misc/config').ViewModel,
+    viewModel: viewModel || fw[privateDataSymbol].ViewModel,
     template: options.template
   });
 };
@@ -7968,7 +7971,7 @@ fw.components.getComponentNameForNode = function (node) {
   return null;
 };
 
-},{"../entities/entity-descriptors":25,"../misc/config":42,"../misc/resource-tools":44,"../misc/util":45,"./component-binding-init":15,"./component-lifecycle-loader":16,"./component-resource-loader":17,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],19:[function(require,module,exports){
+},{"../entities/entity-descriptors":25,"../misc/resource-tools":43,"../misc/util":44,"./component-binding-init":15,"./component-lifecycle-loader":16,"./component-resource-loader":17,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],19:[function(require,module,exports){
 var _ = require('footwork-lodash');
 
 function insertValueIntoObject (rootObject, fieldMap, fieldValue) {
@@ -8019,7 +8022,7 @@ module.exports = {
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 var entityDescriptors = require('../entity-descriptors');
 var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
 
@@ -8077,12 +8080,11 @@ function dataModelBootstrap (instance, configParams) {
 
 module.exports = dataModelBootstrap;
 
-},{"../../misc/config":42,"../entity-descriptors":25,"../viewModel/viewModel-bootstrap":38,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],21:[function(require,module,exports){
+},{"../../misc/util":44,"../entity-descriptors":25,"../viewModel/viewModel-bootstrap":38,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],21:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
-
+var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 var dataTools = require('./data-tools');
 var insertValueIntoObject = dataTools.insertValueIntoObject;
 var getNestedReference = dataTools.getNestedReference;
@@ -8402,7 +8404,7 @@ module.exports = {
 
 
 
-},{"../../misc/ajax":41,"../../misc/config":42,"./data-tools":19,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],22:[function(require,module,exports){
+},{"../../misc/ajax":41,"../../misc/util":44,"./data-tools":19,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],22:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8415,6 +8417,7 @@ var prepareDescriptor = require('../entity-tools').prepareDescriptor;
 var util = require('../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
 var getSymbol = util.getSymbol;
+var privateDataSymbol = util.getSymbol('footwork');
 
 var entityName = 'dataModel';
 var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
@@ -8448,17 +8451,17 @@ fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 // Add/extend on the various resource methods (registerLocation/etc)
 _.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
-require('../../misc/config')[capitalizeFirstLetter(entityName)] = function DataModel (params) {
+fw[privateDataSymbol][capitalizeFirstLetter(entityName)] = function DataModel (params) {
   fw.dataModel.boot(this);
 };
 
 
 
-},{"../../misc/config":42,"../../misc/resource-tools":44,"../../misc/util":45,"../entity-descriptors":25,"../entity-tools":27,"./dataModel-bootstrap":20,"./dataModel-mixin":21,"./mapTo":23,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],23:[function(require,module,exports){
+},{"../../misc/resource-tools":43,"../../misc/util":44,"../entity-descriptors":25,"../entity-tools":27,"./dataModel-bootstrap":20,"./dataModel-mixin":21,"./mapTo":23,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],23:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 
 function getPrimaryKey (dataModel) {
   return dataModel[privateDataSymbol].configParams.idAttribute;
@@ -8518,7 +8521,7 @@ function mapTo (mapPath, dataModel) {
 
 fw.subscribable.fn.mapTo = mapTo;
 
-},{"../../misc/config":42,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],24:[function(require,module,exports){
+},{"../../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],24:[function(require,module,exports){
 /**
  * This loader wraps the elements with the $lifecycle as well as sources the viewModel/router/dataModel
  */
@@ -8603,7 +8606,7 @@ fw.components.loaders.unshift(fw.components.entityLoader = {
   }
 });
 
-},{"../binding/binding-element":6,"../misc/loading-tracker":43,"../misc/util":45,"./entity-descriptors":25,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],27:[function(require,module,exports){
+},{"../binding/binding-element":6,"../misc/loading-tracker":42,"../misc/util":44,"./entity-descriptors":25,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],27:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8707,11 +8710,11 @@ module.exports = {
   resolveEntityImmediately: resolveEntityImmediately
 };
 
-},{"../misc/util":45,"./entity-descriptors":25,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],28:[function(require,module,exports){
+},{"../misc/util":44,"./entity-descriptors":25,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],28:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var privateDataSymbol = require('../../../misc/config').privateDataSymbol;
+var privateDataSymbol = require('../../../misc/util').getSymbol('footwork');
 var nearestParentRouter = require('../router-tools').nearestParentRouter;
 
 /**
@@ -8741,28 +8744,36 @@ fw.bindingHandlers.$outlet = {
   }
 };
 
-},{"../../../misc/config":42,"../router-tools":36,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],29:[function(require,module,exports){
+},{"../../../misc/util":44,"../router-tools":36,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],29:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var instanceRequestHandler = require('../../entity-tools').instanceRequestHandler;
 var entityDescriptors = require('../../entity-descriptors');
 var viewModelBootstrap = require('../../viewModel/viewModel-bootstrap');
-var nextFrame = require('../../../misc/util').nextFrame;
 
-var config = require('../../../misc/config');
-var privateDataSymbol = config.privateDataSymbol;
-var entityAnimateClass = config.entityAnimateClass;
+var util = require('../../../misc/util');
+var nextFrame = util.nextFrame;
+var privateDataSymbol = util.getSymbol('footwork');
 
 var routerDefaults = require('../../router/router-defaults');
 var nullComponent = routerDefaults.nullComponent;
 
 var visibleCSS = { 'height': '', 'overflow': '' };
 var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
-var removeAnimation = {};
-removeAnimation[entityAnimateClass] = false;
-var addAnimation = {};
-addAnimation[entityAnimateClass] = true;
+
+
+function addAnimation () {
+  var addAnimation = {};
+  addAnimation[fw.animationClass.afterResolution] = true;
+  return addAnimation;
+}
+
+function removeAnimation () {
+  var removeAnimation = {};
+  removeAnimation[fw.animationClass.afterResolution] = false;
+  return removeAnimation;
+}
 
 /**
  * Bootstrap an instance with outlet capabilities.
@@ -8832,21 +8843,23 @@ function outletBootstrap (instance, configParams) {
     instance.loadedClass = fw.observable();
 
     function showLoader () {
-      instance.loadingClass(removeAnimation);
-      instance.loadedClass(removeAnimation);
+      var removeAnim = removeAnimation();
+
+      instance.loadingClass(removeAnim);
+      instance.loadedClass(removeAnim);
       instance.loadedStyle(hiddenCSS);
       instance.loadingStyle(visibleCSS);
 
       nextFrame(function() {
-        instance.loadingClass(addAnimation);
+        instance.loadingClass(addAnimation());
       });
     }
 
     function showLoadedAfterMinimumTransition () {
-      instance.loadingClass(removeAnimation);
+      instance.loadingClass(removeAnimation());
       instance.loadedStyle(visibleCSS);
       instance.loadingStyle(hiddenCSS);
-      instance.loadedClass(addAnimation);
+      instance.loadedClass(addAnimation());
 
       if (resolvedCallbacks.length) {
         _.each(resolvedCallbacks, function(callback) {
@@ -8888,16 +8901,15 @@ function outletBootstrap (instance, configParams) {
 
 module.exports = outletBootstrap;
 
-},{"../../../misc/config":42,"../../../misc/util":45,"../../entity-descriptors":25,"../../entity-tools":27,"../../router/router-defaults":34,"../../viewModel/viewModel-bootstrap":38,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],30:[function(require,module,exports){
+},{"../../../misc/util":44,"../../entity-descriptors":25,"../../entity-tools":27,"../../router/router-defaults":34,"../../viewModel/viewModel-bootstrap":38,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],30:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
+var bindingElement = require('../../../binding/binding-element');
 var routerDefaults = require('../router-defaults');
 var outletLoadedDisplay = routerDefaults.outletLoadedDisplay;
 var outletLoadingDisplay = routerDefaults.outletLoadingDisplay;
 
-var entityClass = require('../../../misc/config').entityClass;
-var bindingElement = require('../../../binding/binding-element');
 
 function Outlet () {
   fw.outlet.boot(this, {
@@ -8916,9 +8928,9 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
       callback({
         viewModel: Outlet,
         template: bindingElement.open.prefix + '$lifecycle, $outlet' + bindingElement.open.postfix +
-          '<div class="' + outletLoadingDisplay + ' ' + entityClass + '" ' +
+          '<div class="' + outletLoadingDisplay + ' ' + fw.animationClass.creation + '" ' +
             'data-bind="style: loadingStyle, css: loadingClass, component: loadingDisplay"></div>' +
-          '<div class="' + outletLoadedDisplay + ' ' + entityClass + '" ' +
+          '<div class="' + outletLoadedDisplay + ' ' + fw.animationClass.creation + '" ' +
             'data-bind="style: loadedStyle, css: loadedClass, component: display"></div>' +
         bindingElement.close,
         synchronous: true
@@ -8929,7 +8941,7 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
   }
 });
 
-},{"../../../binding/binding-element":6,"../../../misc/config":42,"../router-defaults":34,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],31:[function(require,module,exports){
+},{"../../../binding/binding-element":6,"../router-defaults":34,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],31:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8994,7 +9006,7 @@ fw.components.register(routerDefaults.defaultLoadingComponent, {
 });
 
 
-},{"../../../misc/resource-tools":44,"../../../misc/util":45,"../../entity-descriptors":25,"../../entity-tools":27,"../router-defaults":34,"./outlet-binding":28,"./outlet-bootstrap":29,"./outlet-loader":30,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],32:[function(require,module,exports){
+},{"../../../misc/resource-tools":43,"../../../misc/util":44,"../../entity-descriptors":25,"../../entity-tools":27,"../router-defaults":34,"./outlet-binding":28,"./outlet-bootstrap":29,"./outlet-loader":30,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],32:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9006,12 +9018,12 @@ var startingHashRegex = util.startingHashRegex;
 var removeClass = util.removeClass;
 var addClass = util.addClass;
 var hasClass = util.hasClass;
+var privateDataSymbol = util.getSymbol('footwork');
 
 var routerTools = require('./router-tools');
 var nearestParentRouter = routerTools.nearestParentRouter;
 var isNullRouter = routerTools.isNullRouter;
 
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 
 function findParentNode (element, selector) {
   if (selector === true) {
@@ -9185,11 +9197,11 @@ fw.bindingHandlers.$route = {
   }
 };
 
-},{"../../misc/config":42,"../../misc/util":45,"./router-tools":36,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],33:[function(require,module,exports){
+},{"../../misc/util":44,"./router-tools":36,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],33:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 var entityDescriptors = require('../entity-descriptors');
 var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
 var resultBound = require('../../misc/util').resultBound;
@@ -9331,42 +9343,28 @@ function routerStateChangeCommandHandler (instance, mode, state) {
 
 module.exports = routerBootstrap;
 
-},{"../../misc/config":42,"../../misc/util":45,"../entity-descriptors":25,"../viewModel/viewModel-bootstrap":38,"./router-tools":36,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],34:[function(require,module,exports){
+},{"../../misc/util":44,"../entity-descriptors":25,"../viewModel/viewModel-bootstrap":38,"./router-tools":36,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],34:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
-var _ = require('footwork-lodash');
-
-var config = require('../../misc/config');
-var entityAnimateClass = config.entityAnimateClass;
-var privateDataSymbol = config.privateDataSymbol;
-
-var getSymbol = require('../../misc/util').getSymbol;
-
-var noComponentSelected = '_noComponentSelected';
-var nullComponent = '_nullComponent';
-var invalidRoutePathIdentifier = '___invalid-route';
-
-var routesAreCaseSensitive = true;
 
 var nullRouter = {};
-nullRouter[getSymbol('isNullRouter')] = true;
+nullRouter[require('../../misc/util').getSymbol('isNullRouter')] = true;
 
 module.exports = {
   defaultLoadingComponent: 'default-loading-display',
-  noComponentSelected: noComponentSelected,
-  nullComponent: nullComponent,
-  invalidRoutePathIdentifier: invalidRoutePathIdentifier,
-  routesAreCaseSensitive: routesAreCaseSensitive,
+  noComponentSelected: '_noComponentSelected',
+  nullComponent: '_nullComponent',
+  invalidRoutePathIdentifier: '___invalid-route',
+  routesAreCaseSensitive: true,
   nullRouter: nullRouter,
   outletLoadingDisplay: 'fw-loading-display',
   outletLoadedDisplay: 'fw-loaded-display',
   activeOutlets: fw.observableArray()
 };
 
-},{"../../misc/config":42,"../../misc/util":45,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],35:[function(require,module,exports){
+},{"../../misc/util":44,"knockout/build/output/knockout-latest":3}],35:[function(require,module,exports){
 var _ = require('footwork-lodash');
 var fw = require('knockout/build/output/knockout-latest');
 
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 var isEntity = require('../entity-tools').isEntity;
 
 var routerTools = require('./router-tools');
@@ -9378,6 +9376,7 @@ var util = require('../../misc/util');
 var resultBound = util.resultBound;
 var propertyDispose = util.propertyDispose;
 var startingHashRegex = util.startingHashRegex;
+var privateDataSymbol = util.getSymbol('footwork');
 
 var viewModelMixinDispose = require('../viewModel/viewModel-mixin').dispose;
 var clearSequenceQueue = require('../../binding/animation-sequencing').clearSequenceQueue;
@@ -9514,17 +9513,17 @@ module.exports = {
 
 
 
-},{"../../binding/animation-sequencing":4,"../../misc/config":42,"../../misc/util":45,"../entity-tools":27,"../viewModel/viewModel-mixin":39,"./router-defaults":34,"./router-tools":36,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],36:[function(require,module,exports){
+},{"../../binding/animation-sequencing":4,"../../misc/util":44,"../entity-tools":27,"../viewModel/viewModel-mixin":39,"./router-defaults":34,"./router-tools":36,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],36:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var nearestEntity = require('../entity-tools').nearestEntity;
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
 
 var util = require('../../misc/util');
 var getSymbol = util.getSymbol;
 var resultBound = util.resultBound;
 var alwaysPassPredicate = util.alwaysPassPredicate;
+var privateDataSymbol = util.getSymbol('footwork');
 
 var routerDefaults = require('./router-defaults');
 var nullRouter = routerDefaults.nullRouter;
@@ -9780,7 +9779,7 @@ module.exports = {
   getLocation: getLocation
 };
 
-},{"../../misc/config":42,"../../misc/util":45,"../entity-tools":27,"./router-defaults":34,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],37:[function(require,module,exports){
+},{"../../misc/util":44,"../entity-tools":27,"./router-defaults":34,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],37:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9831,14 +9830,14 @@ fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 // Add/extend on the various resource methods (registerLocation/etc)
 _.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
-},{"../../misc/resource-tools":44,"../../misc/util":45,"../entity-descriptors":25,"../entity-tools":27,"./outlet/outlet":31,"./route-binding":32,"./router-bootstrap":33,"./router-defaults":34,"./router-mixin":35,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],38:[function(require,module,exports){
+},{"../../misc/resource-tools":43,"../../misc/util":44,"../entity-descriptors":25,"../entity-tools":27,"./outlet/outlet":31,"./route-binding":32,"./router-bootstrap":33,"./router-defaults":34,"./router-mixin":35,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],38:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var entityDescriptors = require('../entity-descriptors');
 var postbox = require('../../namespace/postbox');
 var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
+var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 
 /**
  * Bootstrap an instance with viewModel capabilities (lifecycle/etc).
@@ -9885,11 +9884,12 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
 
 module.exports = viewModelBootstrap;
 
-},{"../../misc/config":42,"../../namespace/postbox":48,"../entity-descriptors":25,"../entity-tools":27,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],39:[function(require,module,exports){
+},{"../../misc/util":44,"../../namespace/postbox":47,"../entity-descriptors":25,"../entity-tools":27,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],39:[function(require,module,exports){
 var _ = require('footwork-lodash');
 
-var privateDataSymbol = require('../../misc/config').privateDataSymbol;
-var propertyDispose = require('../../misc/util').propertyDispose;
+var util = require('../../misc/util');
+var privateDataSymbol = util.getSymbol('footwork');
+var propertyDispose = util.propertyDispose;
 
 module.exports = {
   dispose: function dispose () {
@@ -9928,7 +9928,7 @@ module.exports = {
 
 
 
-},{"../../misc/config":42,"../../misc/util":45,"footwork-lodash":2}],40:[function(require,module,exports){
+},{"../../misc/util":44,"footwork-lodash":2}],40:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9942,6 +9942,7 @@ var resolveEntityImmediately = entityTools.resolveEntityImmediately;
 var util = require('../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
 var getSymbol = util.getSymbol;
+var privateDataSymbol = util.getSymbol('footwork');
 
 var entityName = 'viewModel';
 var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
@@ -9974,13 +9975,13 @@ fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 // Add/extend on the various resource methods (registerLocation/etc)
 _.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
-require('../../misc/config')[capitalizeFirstLetter(entityName)] = function ViewModel (params) {
+fw[privateDataSymbol][capitalizeFirstLetter(entityName)] = function ViewModel (params) {
   fw.viewModel.boot(this);
 };
 
 
 
-},{"../../misc/config":42,"../../misc/resource-tools":44,"../../misc/util":45,"../entity-descriptors":25,"../entity-tools":27,"./viewModel-bootstrap":38,"./viewModel-mixin":39,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],41:[function(require,module,exports){
+},{"../../misc/resource-tools":43,"../../misc/util":44,"../entity-descriptors":25,"../entity-tools":27,"./viewModel-bootstrap":38,"./viewModel-mixin":39,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],41:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9988,8 +9989,7 @@ var util = require('./util');
 var resultBound = util.resultBound;
 var promiseIsFulfilled = util.promiseIsFulfilled;
 var isPromise = util.isPromise;
-
-var privateDataSymbol = require('./config').privateDataSymbol;
+var privateDataSymbol = util.getSymbol('footwork');
 
 require('../collection/collection-tools');
 
@@ -10208,14 +10208,7 @@ module.exports = {
   makePromiseQueryable: makePromiseQueryable
 }
 
-},{"../collection/collection-tools":12,"./config":42,"./util":45,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],42:[function(require,module,exports){
-module.exports = {
-  entityClass: 'fw-entity',
-  entityAnimateClass: 'fw-entity-resolved',
-  privateDataSymbol: require('./util').getSymbol('footwork')
-};
-
-},{"./util":45}],43:[function(require,module,exports){
+},{"../collection/collection-tools":12,"./util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],42:[function(require,module,exports){
 /**
  * Registry which stores component information as it is loaded.
  * This information is used by footwork to bootstrap the component/entity.
@@ -10231,7 +10224,7 @@ module.exports = {
   }
 };
 
-},{}],44:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -10436,7 +10429,7 @@ module.exports = {
   getModelReferences: getModelReferences
 };
 
-},{"../misc/util":45,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],45:[function(require,module,exports){
+},{"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],44:[function(require,module,exports){
 var _ = require('footwork-lodash');
 
 /**
@@ -10662,16 +10655,6 @@ function capitalizeFirstLetter (str) {
 }
 
 /**
- * Return the private data of a viewModel if it exists
- *
- * @param {any} instance
- * @returns {object} The private data on the instance (if found)
- */
-function getPrivateData (instance) {
-  return instance && instance[require('./config').privateDataSymbol];
-}
-
-/**
  * Return either the supplied string key (if Symbol() capability not present) or return a symbol based on that same key.
  *
  * @param {any} str
@@ -10679,6 +10662,18 @@ function getPrivateData (instance) {
  */
 function getSymbol (str) {
   return typeof Symbol === 'function' && typeof Symbol['for'] === 'function' ? Symbol['for'](str) : /* istanbul ignore next */ ('__' + str);
+}
+
+var privateDataSymbol = getSymbol('footwork');
+
+/**
+ * Return the private data of a viewModel if it exists
+ *
+ * @param {any} instance
+ * @returns {object} The private data on the instance (if found)
+ */
+function getPrivateData (instance) {
+  return instance && instance[privateDataSymbol];
 }
 
 /**
@@ -10718,11 +10713,11 @@ module.exports = {
   makeArray: makeArray
 };
 
-},{"./config":42,"footwork-lodash":2}],46:[function(require,module,exports){
+},{"footwork-lodash":2}],45:[function(require,module,exports){
 var _ = require('footwork-lodash');
 
 var postbox = require('./postbox');
-var privateDataSymbol = require('../misc/config').privateDataSymbol;
+var privateDataSymbol = require('../misc/util').getSymbol('footwork');
 
 /**
  * Publish data on a topic of a namespace.
@@ -10841,8 +10836,8 @@ module.exports = {
   getName: getName
 };
 
-},{"../misc/config":42,"./postbox":48,"footwork-lodash":2}],47:[function(require,module,exports){
-var privateDataSymbol = require('../misc/config').privateDataSymbol;
+},{"../misc/util":44,"./postbox":47,"footwork-lodash":2}],46:[function(require,module,exports){
+var privateDataSymbol = require('../misc/util').getSymbol('footwork');
 
 /**
  * Construct a new namespace instance.
@@ -10873,7 +10868,7 @@ Namespace.prototype.dispose = namespaceMethods.dispose;
 
 module.exports = Namespace;
 
-},{"../misc/config":42,"./namespace-methods":46}],48:[function(require,module,exports){
+},{"../misc/util":44,"./namespace-methods":45}],47:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 
 /**

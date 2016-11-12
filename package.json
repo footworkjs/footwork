@@ -1,6 +1,6 @@
 {
   "name": "footwork",
-  "description": "Knockout-based SPA frontend javascript framework.",
+  "description": "A solid footing for web applications.",
   "author": "Jonathan Newman (http://staticty.pe)",
   "contributors": [
     {
@@ -62,7 +62,7 @@
     "less-plugin-autoprefix": "1.5.1",
     "less-plugin-clean-css": "1.5.1",
     "footwork-lodash": "2.0.0",
-    "footwork-animate": "2.0.0",
+    "footwork-animate": "2.0.1",
     "lodash": "4.16.6",
     "phantomjs": "^1.9.19",
     "vinyl-buffer": "^1.0.0",

@@ -1,34 +1,6 @@
-@import "../../node_modules/footwork-animate/source/_base";
-
 $animatedClass: 'fw-entity-resolved';
 $animationSpeed: 0.5s;
 $normalDistance: 50px;
 $bigDistance: 200px;
 
-@import "../../node_modules/footwork-animate/source/fading_entrances/fadeIn";
-@import "../../node_modules/footwork-animate/source/fading_entrances/fadeInDown";
-@import "../../node_modules/footwork-animate/source/fading_entrances/fadeInDownBig";
-@import "../../node_modules/footwork-animate/source/fading_entrances/fadeInUp";
-@import "../../node_modules/footwork-animate/source/fading_entrances/fadeInUpBig";
-@import "../../node_modules/footwork-animate/source/fading_entrances/fadeInLeft";
-@import "../../node_modules/footwork-animate/source/fading_entrances/fadeInLeftBig";
-@import "../../node_modules/footwork-animate/source/fading_entrances/fadeInRight";
-@import "../../node_modules/footwork-animate/source/fading_entrances/fadeInRightBig";
-@import "../../node_modules/footwork-animate/source/flippers/flipInX";
-@import "../../node_modules/footwork-animate/source/flippers/flipInY";
-@import "../../node_modules/footwork-animate/source/lightspeed/lightSpeedIn";
-@import "../../node_modules/footwork-animate/source/rotating_entrances/rotateIn";
-@import "../../node_modules/footwork-animate/source/rotating_entrances/rotateInDownLeft";
-@import "../../node_modules/footwork-animate/source/rotating_entrances/rotateInDownRight";
-@import "../../node_modules/footwork-animate/source/rotating_entrances/rotateInUpLeft";
-@import "../../node_modules/footwork-animate/source/rotating_entrances/rotateInUpRight";
-@import "../../node_modules/footwork-animate/source/sliding_entrances/slideInUp";
-@import "../../node_modules/footwork-animate/source/sliding_entrances/slideInDown";
-@import "../../node_modules/footwork-animate/source/sliding_entrances/slideInLeft";
-@import "../../node_modules/footwork-animate/source/sliding_entrances/slideInRight";
-@import "../../node_modules/footwork-animate/source/specials/rollIn";
-@import "../../node_modules/footwork-animate/source/zooming_entrances/zoomIn";
-@import "../../node_modules/footwork-animate/source/zooming_entrances/zoomInUp";
-@import "../../node_modules/footwork-animate/source/zooming_entrances/zoomInDown";
-@import "../../node_modules/footwork-animate/source/zooming_entrances/zoomInLeft";
-@import "../../node_modules/footwork-animate/source/zooming_entrances/zoomInRight";
+@import "../../node_modules/footwork-animate/animate.scss";
