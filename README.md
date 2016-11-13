@@ -122,9 +122,17 @@ For information on how to use FootworkJS please [see the main website](http://fo
       karma start
       ```
 
-### Documentation Contributions
+### Documentation and Website Contributions
 
-There is a companion repository located at [https://github.com/footworkjs/footwork-documentation](https://github.com/footworkjs/footwork-documentation).
+There are companion repositories for both the documentation and website, please contribute to those:
+
+* Documentation
+
+  [https://github.com/footworkjs/footwork-documentation](https://github.com/footworkjs/footwork-documentation)
+
+* Website
+
+  [https://github.com/footworkjs/footwork-website](https://github.com/footworkjs/footwork-website)
 
 ### License
 
