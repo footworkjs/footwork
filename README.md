@@ -9,15 +9,9 @@
 
 ### What is Footwork?
 
-Footwork is a front-end javascript framework built upon open source technologies. It uses novel combinations of several design patterns and libraries to enable the creation of expressive, low-boilerplate, highly modularized, maintainable, and reusable web components and applications.
+Footwork is a frontend javascript framework based on [KnockoutJS](http://knockoutjs.com/) that aims to be fully featured, extendable, and easy to use.
 
-For more details, see:
-
-* [Main Website](http://footworkjs.com/ "http://footworkjs.com")
-
-* [Documentation/API](http://footworkjs.com/docs/list "Documentation and API information")
-
-* [Get Started](http://footworkjs.com/get-started "Get Started")
+For more details, [see the main website](http://footworkjs.com/ "http://footworkjs.com").
 
 [![Join the chat at https://gitter.im/footworkjs/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/footworkjs/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -25,17 +19,23 @@ For more details, see:
 
 ### Downloading / Installing footwork.js
 
-  * [Install via Yeoman](https://github.com/footworkjs/generator-footwork#readme "FootworkJS Yeoman Generator") (recommended)
+* You can install via bower:
 
-  * [Skeleton Application](https://github.com/footworkjs/skeleton-app#readme "Skeleton Application") (based on the Yeoman generator)
+  ```bash
+  $ bower install footwork --save
+  ```
 
-  * [Install via Bower](http://footworkjs.com/get-started#bower) (```bower install footwork --save```)
+* or you can install via npm:
 
-  * [Direct Download](https://github.com/footworkjs/footwork/blob/master/dist)
+  ```bash
+  $ npm install footwork --save
+  ```
 
-It is recommended you use either the Yeoman generator to bootstrap your application, or the Skeleton Application as a template for your own. This is primarily because in order to use some of the features found in Footwork other resources (such as RequireJS) are needed and in some cases they have their own configuration/etc. The Yeoman generator and Skeleton provide sane defaults and best-use recommendations.
+* or you can download it directly:
 
-If you need further setup help, refer to the [Get Started](http://footworkjs.com/get-started "Get Started") page.
+  https://github.com/footworkjs/footwork/blob/master/dist
+
+For information on how to use FootworkJS please [see the main website](http://footworkjs.com/ "http://footworkjs.com").
 
 ========
 
