@@ -9,7 +9,7 @@
 
 ### What is Footwork?
 
-Footwork is a frontend javascript framework based on [KnockoutJS](http://knockoutjs.com/) that aims to be fully featured, extendable, and easy to use.
+Footwork is a frontend javascript framework based on [KnockoutJS](http://knockoutjs.com/) that aims to be fully featured, expressive, and easy to use while remaining as idiomatic and compatible with Knockout and its existing code base as possible.
 
 For more details, [see the main website](http://footworkjs.com/ "http://footworkjs.com").
 
@@ -17,7 +17,7 @@ For more details, [see the main website](http://footworkjs.com/ "http://footwork
 
 ========
 
-### Downloading / Installing footwork.js
+### Downloading / Installing Footwork
 
 * You can install via bower:
 
