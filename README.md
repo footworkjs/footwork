@@ -43,8 +43,10 @@ If you need further setup help, refer to the [Get Started](http://footworkjs.com
 
 1. **Clone the repo from GitHub:**
   
-        git clone https://github.com/footworkjs/footwork.git
-        cd footwork
+  ```bash
+  git clone https://github.com/footworkjs/footwork.git
+  cd footwork
+  ```
 
 1. **Install Node.js and NPM (if needed):**
 
@@ -52,59 +54,77 @@ If you need further setup help, refer to the [Get Started](http://footworkjs.com
 
 1. **Install [gulp](http://gulpjs.com/) globally (if needed):** 
 
-        sudo npm install -g gulp-cli
+  ```bash
+  sudo npm install -g gulp-cli
+  ```
 
 1. **Acquire build dependencies:**
 
-        npm install
+  ```bash
+  npm install
+  ```
 
 1. **Run a gulp task to build/test/etc:**
   
   * Build everything (output in /build):
   
-          gulp
+    ```bash
+    gulp
+    ```
+  
+  * You can include the `---debug` option on any of the build/testing tasks to include/generate a source map in the output:
+  
+    ```bash
+    gulp --debug
+    ```
 
   * Build everything and run tests (coverage report output in build/coverage):
   
-          gulp tests
+    ```bash
+    gulp tests
+    ```
 
   * Watch for changes in the source code and automatically rebuild:
   
-          gulp watch
+    ```bash
+    gulp watch
+    ```
   
-  * Build everything + generate source map for debugging (output in /build):
+  * Watch for changes in the source code/tests and automatically rebuild + run tests:
   
-          gulp --debug
-  
-  * Watch for changes in the source code and automatically rebuild (including source map for debugging):
-  
-          gulp watch --debug
-  
-  * Watch for changes in the source code/tests and automatically rebuild (including source map for debugging) + run tests:
-  
-          gulp watch-test
+    ```bash
+    gulp watch-test
+    ```
 
-  * Build everything, minify, and deploy assets to /dist (for release):
+  * Build everything, minify, and deploy to /dist (for release):
   
-          gulp dist
+    ```bash
+    gulp dist
+    ```
 
   * To debug the tests in your own browser:
     
     * Make sure your build is made *without* being instrumented for test coverage by running the default build task (otherwise debugging might be a bit difficult):
 
-            gulp
+      ```bash
+      gulp
+      ```
 
     * Install karma (if needed)
 
-            sudo npm install -g karma-cli
-          
+      ```bash
+      sudo npm install -g karma-cli
+      ```
+         
     * Start karma and then you can access/debug the tests from your browser at: [http://localhost:9876/debug.html](http://localhost:9876/debug.html)
 
-            karma start
+      ```bash
+      karma start
+      ```
 
 ### Documentation Contributions
 
-There is a companion repository located at [https://github.com/footworkjs/footwork-docs](https://github.com/footworkjs/footwork-docs).
+There is a companion repository located at [https://github.com/footworkjs/footwork-documentation](https://github.com/footworkjs/footwork-documentation).
 
 ### License
 
