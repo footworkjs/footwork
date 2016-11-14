@@ -1,32 +1,6 @@
 viewModel, dataModel, router, outlet {
   display: block; }
 
-.animated {
-  -webkit-animation-duration: 0.5s;
-     -moz-animation-duration: 0.5s;
-          animation-duration: 0.5s;
-  -webkit-animation-fill-mode: both;
-     -moz-animation-fill-mode: both;
-          animation-fill-mode: both; }
-
-.animated.infinite {
-  -webkit-animation-iteration-count: infinite;
-     -moz-animation-iteration-count: infinite;
-          animation-iteration-count: infinite; }
-
-.animated.hinge {
-  -webkit-animation-duration: 1s;
-     -moz-animation-duration: 1s;
-          animation-duration: 1s; }
-
-.animated.flipOutX,
-.animated.flipOutY,
-.animated.bounceIn,
-.animated.bounceOut {
-  -webkit-animation-duration: 0.5s;
-     -moz-animation-duration: 0.5s;
-          animation-duration: 0.5s; }
-
 .fadeIn {
   opacity: 0; }
 

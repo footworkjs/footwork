@@ -62,17 +62,11 @@
     "less-plugin-autoprefix": "1.5.1",
     "less-plugin-clean-css": "1.5.1",
     "footwork-lodash": "2.0.0",
-    "footwork-animate": "3.5.6",
+    "footwork-animate": "3.5.7",
     "lodash": "4.16.6",
     "phantomjs": "^1.9.19",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "yargs": "*"
-  },
-  "dependencies": {
-    "es6-promise": "*",
-    "requirejs": "*",
-    "requirejs-text": "*",
-    "whatwg-fetch": "*"
   }
 }

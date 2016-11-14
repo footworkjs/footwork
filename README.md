@@ -78,7 +78,7 @@ For information on how to use FootworkJS please [see the main website](http://fo
     gulp --debug
     ```
 
-  * Build everything and run tests (coverage report output in build/coverage):
+  * Build everything and run tests (coverage report output in build/coverage-reports):
   
     ```bash
     gulp tests

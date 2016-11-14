@@ -33,11 +33,5 @@
     ".travis.yml",
     ".gitignore",
     "README.md"
-  ],
-  "dependencies": {
-    "requirejs": "*",
-    "requirejs-text": "*",
-    "es6-promise": "*",
-    "fetch": "*"
-  }
+  ]
 }
