@@ -10,7 +10,7 @@ var privateDataSymbol = util.getSymbol('footwork');
  * them (the viewModel/template) if possible. After downloading these resources its template is then wrapped by the component lifecycle
  * loader and then bootstrapped.
  */
-fw.components.loaders.push(fw.components.componentResourceLoader = {
+fw.components.loaders.push(fw.components.locationLoader = {
   getConfig: function (componentName, callback) {
     var configOptions = null;
     var componentLocation;
