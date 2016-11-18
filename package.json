@@ -65,6 +65,8 @@
     "footwork-animate": "3.5.12",
     "requirejs": "*",
     "requirejs-text": "*",
+    "es6-promise": "*",
+    "whatwg-fetch": "*",
     "lodash": "4.16.6",
     "phantomjs": "^1.9.19",
     "vinyl-buffer": "^1.0.0",
