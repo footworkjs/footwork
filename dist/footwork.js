@@ -11,8 +11,7 @@ var fw = require('knockout/build/output/knockout-latest');
 var util = require('./misc/util');
 
 fw.animationClass = {
-  creation: 'fw-entity',
-  afterResolution: 'fw-entity-resolved'
+  animateIn: 'animateIn'
 };
 fw.footworkVersion = '2.0.0';
 fw[util.getSymbol('footwork')] = { /* internal data registration point */ };
@@ -6625,7 +6624,7 @@ function addToAndFetchQueue (element, viewModel) {
   var animationSequenceQueue = sequenceQueue[namespaceName] = (sequenceQueue[namespaceName] || []);
   var newSequenceIteration = {
     addAnimationClass: function addBindingFromQueue () {
-      addClass(element, fw.animationClass.afterResolution);
+      addClass(element, fw.animationClass.animateIn);
     },
     nextIteration: sequenceTimeout
   };
@@ -6747,11 +6746,6 @@ fw.virtualElements.allowedBindings.$lifecycle = true;
 fw.bindingHandlers.$lifecycle = {
   init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentNode;
-
-    if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
-      // the outlet viewModel and template binding handles its animation state
-      addClass(element, fw.animationClass.creation);
-    }
 
     // if this is a router and its configured to do so, activate it now that its being bound
     if (fw.isRouter(viewModel) && viewModel[privateDataSymbol].configParams.activate) {
@@ -8765,13 +8759,13 @@ var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
 
 function addAnimation () {
   var addAnimation = {};
-  addAnimation[fw.animationClass.afterResolution] = true;
+  addAnimation[fw.animationClass.animateIn] = true;
   return addAnimation;
 }
 
 function removeAnimation () {
   var removeAnimation = {};
-  removeAnimation[fw.animationClass.afterResolution] = false;
+  removeAnimation[fw.animationClass.animateIn] = false;
   return removeAnimation;
 }
 
@@ -8928,9 +8922,9 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
       callback({
         viewModel: Outlet,
         template: bindingElement.open.prefix + '$lifecycle, $outlet' + bindingElement.open.postfix +
-          '<div class="' + outletLoadingDisplay + ' ' + fw.animationClass.creation + '" ' +
+          '<div class="' + outletLoadingDisplay + '" ' +
             'data-bind="style: loadingStyle, css: loadingClass, component: loadingDisplay"></div>' +
-          '<div class="' + outletLoadedDisplay + ' ' + fw.animationClass.creation + '" ' +
+          '<div class="' + outletLoadedDisplay + '" ' +
             'data-bind="style: loadedStyle, css: loadedClass, component: display"></div>' +
         bindingElement.close,
         synchronous: true
