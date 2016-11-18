@@ -62,7 +62,7 @@
     "less-plugin-autoprefix": "1.5.1",
     "less-plugin-clean-css": "1.5.1",
     "footwork-lodash": "2.0.0",
-    "footwork-animate": "3.5.9",
+    "footwork-animate": "3.5.10",
     "lodash": "4.16.6",
     "phantomjs": "^1.9.19",
     "vinyl-buffer": "^1.0.0",
