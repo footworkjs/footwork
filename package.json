@@ -63,6 +63,8 @@
     "less-plugin-clean-css": "1.5.1",
     "footwork-lodash": "2.0.0",
     "footwork-animate": "3.5.12",
+    "requirejs": "*",
+    "requirejs-text": "*",
     "lodash": "4.16.6",
     "phantomjs": "^1.9.19",
     "vinyl-buffer": "^1.0.0",
