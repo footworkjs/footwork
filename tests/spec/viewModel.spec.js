@@ -207,6 +207,39 @@ define(['footwork', 'lodash'],
         }, ajaxWait);
       });
 
+      it('can disable animation class addition', function(done) {
+        var namespaceName = generateNamespaceName();
+        var theElement;
+        var initializeSpy;
+        var afterRenderSpy;
+
+        var oldAnimateIn = fw.animationClass.animateIn;
+        fw.animationClass.animateIn = null;
+
+        fw.viewModel.register(namespaceName, expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.viewModel.boot(this, {
+            namespace: namespaceName,
+            afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+              theElement = element;
+              expect(theElement.className.indexOf(fw.animationClass.animateIn)).toBe(-1);
+            }).and.callThrough())
+          });
+        }).and.callThrough()));
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(afterRenderSpy).toBe(undefined);
+        fw.start(testContainer = getFixtureContainer('<viewModel module="' + namespaceName + '"></viewModel>'));
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+          expect(afterRenderSpy).toHaveBeenCalled();
+          expect(theElement.className.indexOf(fw.animationClass.animateIn)).toBe(-1);
+
+          fw.animationClass.animateIn = oldAnimateIn;
+          done();
+        }, ajaxWait);
+      });
+
       it('can nest viewModel declarations', function(done) {
         var namespaceNameOuter = randomString();
         var namespaceNameInner = randomString();
