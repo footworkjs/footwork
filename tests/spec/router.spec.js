@@ -193,7 +193,7 @@ define(['footwork', 'lodash'],
             namespace: namespaceName,
             afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
               theElement = element;
-              expect(theElement.className.indexOf(fw.animationClass.afterResolution)).toBe(-1);
+              expect(theElement.className.indexOf(fw.animationClass.animateIn)).toBe(-1);
             }).and.callThrough())
           });
         }).and.callThrough()));
@@ -205,7 +205,7 @@ define(['footwork', 'lodash'],
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
           expect(afterRenderSpy).toHaveBeenCalled();
-          expect(theElement.className.indexOf(fw.animationClass.afterResolution)).not.toBe(-1);
+          expect(theElement.className.indexOf(fw.animationClass.animateIn)).not.toBe(-1);
           done();
         }, ajaxWait);
       });
@@ -1294,11 +1294,11 @@ define(['footwork', 'lodash'],
 
           setTimeout(function() {
             expect(outletLoaderTestLoadedSpy).toHaveBeenCalled();
-            expect($(testContainer).find('.fw-loaded-display.' + fw.animationClass.afterResolution)).lengthToBe(0);
+            expect($(testContainer).find('.fw-loaded-display.' + fw.animationClass.animateIn)).lengthToBe(0);
             expect(outletCallbackSpy).not.toHaveBeenCalled();
 
             setTimeout(function() {
-              expect($(testContainer).find('.fw-loaded-display.' + fw.animationClass.afterResolution)).lengthToBeGreaterThan(0);
+              expect($(testContainer).find('.fw-loaded-display.' + fw.animationClass.animateIn)).lengthToBeGreaterThan(0);
               expect(outletCallbackSpy).toHaveBeenCalled();
               done();
             }, 240);

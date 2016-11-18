@@ -62,7 +62,7 @@ function addToAndFetchQueue (element, viewModel) {
   var animationSequenceQueue = sequenceQueue[namespaceName] = (sequenceQueue[namespaceName] || []);
   var newSequenceIteration = {
     addAnimationClass: function addBindingFromQueue () {
-      addClass(element, fw.animationClass.afterResolution);
+      addClass(element, fw.animationClass.animateIn);
     },
     nextIteration: sequenceTimeout
   };

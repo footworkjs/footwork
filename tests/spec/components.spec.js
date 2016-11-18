@@ -365,7 +365,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             fw.viewModel.boot(this, {
               afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
                 theElement = element;
-                expect($(theElement).hasClass(fw.animationClass.afterResolution)).toBe(false);
+                expect($(theElement).hasClass(fw.animationClass.animateIn)).toBe(false);
               }).and.callThrough())
             })
           }).and.callThrough())
@@ -379,11 +379,11 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
-          expect($(theElement).hasClass(fw.animationClass.afterResolution)).toBe(false);
+          expect($(theElement).hasClass(fw.animationClass.animateIn)).toBe(false);
           expect(afterRenderSpy).toHaveBeenCalled();
 
           setTimeout(function() {
-            expect($(theElement).hasClass(fw.animationClass.afterResolution)).toBe(true);
+            expect($(theElement).hasClass(fw.animationClass.animateIn)).toBe(true);
             done();
           }, ajaxWait);
         }, 0);
@@ -391,7 +391,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can sequence animations', function(done) {
         var componentNamespaceName = generateNamespaceName();
-        var footworkAnimatedElements = '.' + fw.animationClass.afterResolution;
+        var footworkAnimatedElements = '.' + fw.animationClass.animateIn;
 
         fw.components.register(componentNamespaceName, {
           template: '<div class="fade-in-from-bottom">a template</div>',

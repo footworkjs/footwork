@@ -32,11 +32,6 @@ fw.bindingHandlers.$lifecycle = {
   init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
     element = element.parentNode;
 
-    if (!hasClass(element, outletLoadingDisplay) && !hasClass(element, outletLoadedDisplay)) {
-      // the outlet viewModel and template binding handles its animation state
-      addClass(element, fw.animationClass.creation);
-    }
-
     // if this is a router and its configured to do so, activate it now that its being bound
     if (fw.isRouter(viewModel) && viewModel[privateDataSymbol].configParams.activate) {
       viewModel.$activated(true);

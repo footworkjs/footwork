@@ -24,9 +24,9 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
       callback({
         viewModel: Outlet,
         template: bindingElement.open.prefix + '$lifecycle, $outlet' + bindingElement.open.postfix +
-          '<div class="' + outletLoadingDisplay + ' ' + fw.animationClass.creation + '" ' +
+          '<div class="' + outletLoadingDisplay + '" ' +
             'data-bind="style: loadingStyle, css: loadingClass, component: loadingDisplay"></div>' +
-          '<div class="' + outletLoadedDisplay + ' ' + fw.animationClass.creation + '" ' +
+          '<div class="' + outletLoadedDisplay + '" ' +
             'data-bind="style: loadedStyle, css: loadedClass, component: display"></div>' +
         bindingElement.close,
         synchronous: true

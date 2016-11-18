@@ -18,13 +18,13 @@ var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
 
 function addAnimation () {
   var addAnimation = {};
-  addAnimation[fw.animationClass.afterResolution] = true;
+  addAnimation[fw.animationClass.animateIn] = true;
   return addAnimation;
 }
 
 function removeAnimation () {
   var removeAnimation = {};
-  removeAnimation[fw.animationClass.afterResolution] = false;
+  removeAnimation[fw.animationClass.animateIn] = false;
   return removeAnimation;
 }
 

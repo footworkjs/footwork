@@ -2,8 +2,7 @@ var fw = require('knockout/build/output/knockout-latest');
 var util = require('./misc/util');
 
 fw.animationClass = {
-  creation: 'fw-entity',
-  afterResolution: 'fw-entity-resolved'
+  animateIn: 'animateIn'
 };
 fw.footworkVersion = 'FOOTWORK_VERSION';
 fw[util.getSymbol('footwork')] = { /* internal data registration point */ };
