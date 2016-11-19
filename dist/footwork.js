@@ -6785,15 +6785,17 @@ fw.bindingHandlers.$lifecycle = {
         var queue = addToAndFetchQueue(element, viewModel);
         var nearestOutlet = nearestEntity(bindingContext, fw.isOutlet);
 
-        if (nearestOutlet) {
-          // the parent outlet will run the callback that initiates the animation
-          // sequence (once the rest of its dependencies finish loading as well)
-          nearestOutlet.addResolvedCallbackOrExecute(function () {
+        if(fw.animationClass.animateIn) {
+          if (nearestOutlet) {
+            // the parent outlet will run the callback that initiates the animation
+            // sequence (once the rest of its dependencies finish loading as well)
+            nearestOutlet.addResolvedCallbackOrExecute(function () {
+              runAnimationSequenceQueue(queue);
+            });
+          } else {
+            // no parent outlet found, lets go ahead and run the queue
             runAnimationSequenceQueue(queue);
-          });
-        } else {
-          // no parent outlet found, lets go ahead and run the queue
-          runAnimationSequenceQueue(queue);
+          }
         }
       }
     });

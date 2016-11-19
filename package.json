@@ -62,7 +62,7 @@
     "less-plugin-autoprefix": "1.5.1",
     "less-plugin-clean-css": "1.5.1",
     "footwork-lodash": "2.0.0",
-    "footwork-animate": "3.5.12",
+    "footwork-animate": "3.5.13",
     "requirejs": "*",
     "requirejs-text": "*",
     "es6-promise": "*",
