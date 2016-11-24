@@ -6888,7 +6888,6 @@ fw.start = function (targetElement) {
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;
 var isBroadcastableSymbol = require('../misc/util').getSymbol('isBroadcastable');
 
 fw.isBroadcastable = function (thing) {
@@ -6897,10 +6896,9 @@ fw.isBroadcastable = function (thing) {
 
 // factory method which turns an observable into a broadcastable
 fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWritable) {
-  var broadcastable = this;
+  var target = this;
   var namespace;
   var subscriptions = [];
-  var namespaceSubscriptions = [];
   var isLocalNamespace = false;
 
   if(fw.isViewModel(instanceOrNamespaceName)) {
@@ -6915,33 +6913,35 @@ fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWri
   }
 
   if (isWritable) {
-    namespaceSubscriptions.push(namespace.subscribe('__change.' + varName, function (newValue) {
-      broadcastable(newValue);
+    subscriptions.push(namespace.subscribe('__change.' + varName, function (newValue) {
+      target(newValue);
     }));
   }
 
-  broadcastable.broadcast = function () {
-    namespace.publish(varName, broadcastable());
+  target.broadcast = function () {
+    namespace.publish(varName, target());
     return this;
   };
 
-  namespaceSubscriptions.push(namespace.subscribe('__refresh.' + varName, function () {
-    namespace.publish(varName, broadcastable());
+  subscriptions.push(namespace.subscribe('__refresh.' + varName, function () {
+    namespace.publish(varName, target());
   }));
-  subscriptions.push(broadcastable.subscribe(function (newValue) {
+  subscriptions.push(target.subscribe(function (newValue) {
     namespace.publish(varName, newValue);
   }));
 
-  broadcastable.dispose = function () {
-    _.invokeMap(namespaceSubscriptions, 'unsubscribe');
+  var targetDispose = target.dispose || _.noop;
+  target.dispose = function () {
     _.invokeMap(subscriptions, 'dispose');
     if (isLocalNamespace) {
       namespace.dispose();
     }
+
+    targetDispose.call(target);
   };
 
-  broadcastable[isBroadcastableSymbol] = true;
-  return broadcastable.broadcast();
+  target[isBroadcastableSymbol] = true;
+  return target.broadcast();
 };
 
 },{"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],10:[function(require,module,exports){
@@ -6958,10 +6958,8 @@ fw.isReceivable = function (thing) {
 // factory method which turns an observable into a receivable
 fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
   var target = this;
-  var receivable = this;
-  var namespaceSubscriptions = [];
+  var subscriptions = [];
   var isLocalNamespace = false;
-  var when = alwaysPassPredicate;
   var namespace;
 
   if (_.isString(instanceOrNamespaceName)) {
@@ -6973,7 +6971,7 @@ fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
     throw Error('Invalid namespace provided for receiveFrom() observable.');
   }
 
-  receivable = fw.computed({
+  var receivable = fw.computed({
     read: target,
     write: function (value) {
       namespace.publish('__change.' + variable, value);
@@ -6985,36 +6983,20 @@ fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
     return this;
   };
 
-  namespaceSubscriptions.push(namespace.subscribe(variable, function (newValue) {
-    if (when(newValue)) {
-      target(newValue);
-    } else {
-      target(undefined);
-    }
+  subscriptions.push(namespace.subscribe(variable, function (newValue) {
+    target(newValue);
   }));
 
-  var observableDispose = receivable.dispose;
+  var targetDispose = target.dispose || _.noop;
+  var receivableDispose = receivable.dispose;
   receivable.dispose = function () {
-    _.invokeMap(namespaceSubscriptions, 'unsubscribe');
+    _.invokeMap(subscriptions, 'dispose');
     if (isLocalNamespace) {
       namespace.dispose();
     }
 
-    if(_.isFunction(target.dispose)) {
-      target.dispose();
-    }
-    observableDispose.call(receivable);
-  };
-
-  receivable.when = function (predicate) {
-    if (_.isFunction(predicate)) {
-      when = predicate;
-    } else {
-      when = function (updatedValue) {
-        return _.isEqual(updatedValue, predicate);
-      };
-    }
-    return this;
+    receivableDispose.call(receivable);
+    targetDispose.call(target);
   };
 
   receivable[isReceivableSymbol] = true;
