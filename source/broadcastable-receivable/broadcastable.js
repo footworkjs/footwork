@@ -1,7 +1,6 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var alwaysPassPredicate = require('../misc/util').alwaysPassPredicate;
 var isBroadcastableSymbol = require('../misc/util').getSymbol('isBroadcastable');
 
 fw.isBroadcastable = function (thing) {
@@ -10,7 +9,7 @@ fw.isBroadcastable = function (thing) {
 
 // factory method which turns an observable into a broadcastable
 fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWritable) {
-  var broadcastable = this;
+  var target = this;
   var namespace;
   var subscriptions = [];
   var isLocalNamespace = false;
@@ -28,29 +27,32 @@ fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWri
 
   if (isWritable) {
     subscriptions.push(namespace.subscribe('__change.' + varName, function (newValue) {
-      broadcastable(newValue);
+      target(newValue);
     }));
   }
 
-  broadcastable.broadcast = function () {
-    namespace.publish(varName, broadcastable());
+  target.broadcast = function () {
+    namespace.publish(varName, target());
     return this;
   };
 
   subscriptions.push(namespace.subscribe('__refresh.' + varName, function () {
-    namespace.publish(varName, broadcastable());
+    namespace.publish(varName, target());
   }));
-  subscriptions.push(broadcastable.subscribe(function (newValue) {
+  subscriptions.push(target.subscribe(function (newValue) {
     namespace.publish(varName, newValue);
   }));
 
-  broadcastable.dispose = function () {
+  var targetDispose = target.dispose || _.noop;
+  target.dispose = function () {
     _.invokeMap(subscriptions, 'dispose');
     if (isLocalNamespace) {
       namespace.dispose();
     }
+
+    targetDispose.call(target);
   };
 
-  broadcastable[isBroadcastableSymbol] = true;
-  return broadcastable.broadcast();
+  target[isBroadcastableSymbol] = true;
+  return target.broadcast();
 };

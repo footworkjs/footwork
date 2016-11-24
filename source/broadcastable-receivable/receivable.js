@@ -11,7 +11,6 @@ fw.isReceivable = function (thing) {
 // factory method which turns an observable into a receivable
 fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
   var target = this;
-  var receivable = this;
   var subscriptions = [];
   var isLocalNamespace = false;
   var namespace;
@@ -25,7 +24,7 @@ fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
     throw Error('Invalid namespace provided for receiveFrom() observable.');
   }
 
-  receivable = fw.computed({
+  var receivable = fw.computed({
     read: target,
     write: function (value) {
       namespace.publish('__change.' + variable, value);
@@ -41,17 +40,16 @@ fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
     target(newValue);
   }));
 
-  var observableDispose = receivable.dispose;
+  var targetDispose = target.dispose || _.noop;
+  var receivableDispose = receivable.dispose;
   receivable.dispose = function () {
     _.invokeMap(subscriptions, 'dispose');
     if (isLocalNamespace) {
       namespace.dispose();
     }
 
-    if(_.isFunction(target.dispose)) {
-      target.dispose();
-    }
-    observableDispose.call(receivable);
+    receivableDispose.call(receivable);
+    targetDispose.call(target);
   };
 
   receivable[isReceivableSymbol] = true;
