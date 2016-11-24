@@ -13,7 +13,6 @@ fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWri
   var broadcastable = this;
   var namespace;
   var subscriptions = [];
-  var namespaceSubscriptions = [];
   var isLocalNamespace = false;
 
   if(fw.isViewModel(instanceOrNamespaceName)) {
@@ -28,7 +27,7 @@ fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWri
   }
 
   if (isWritable) {
-    namespaceSubscriptions.push(namespace.subscribe('__change.' + varName, function (newValue) {
+    subscriptions.push(namespace.subscribe('__change.' + varName, function (newValue) {
       broadcastable(newValue);
     }));
   }
@@ -38,7 +37,7 @@ fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWri
     return this;
   };
 
-  namespaceSubscriptions.push(namespace.subscribe('__refresh.' + varName, function () {
+  subscriptions.push(namespace.subscribe('__refresh.' + varName, function () {
     namespace.publish(varName, broadcastable());
   }));
   subscriptions.push(broadcastable.subscribe(function (newValue) {
@@ -46,7 +45,6 @@ fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWri
   }));
 
   broadcastable.dispose = function () {
-    _.invokeMap(namespaceSubscriptions, 'unsubscribe');
     _.invokeMap(subscriptions, 'dispose');
     if (isLocalNamespace) {
       namespace.dispose();

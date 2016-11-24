@@ -12,9 +12,8 @@ fw.isReceivable = function (thing) {
 fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
   var target = this;
   var receivable = this;
-  var namespaceSubscriptions = [];
+  var subscriptions = [];
   var isLocalNamespace = false;
-  var when = alwaysPassPredicate;
   var namespace;
 
   if (_.isString(instanceOrNamespaceName)) {
@@ -38,17 +37,13 @@ fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
     return this;
   };
 
-  namespaceSubscriptions.push(namespace.subscribe(variable, function (newValue) {
-    if (when(newValue)) {
-      target(newValue);
-    } else {
-      target(undefined);
-    }
+  subscriptions.push(namespace.subscribe(variable, function (newValue) {
+    target(newValue);
   }));
 
   var observableDispose = receivable.dispose;
   receivable.dispose = function () {
-    _.invokeMap(namespaceSubscriptions, 'unsubscribe');
+    _.invokeMap(subscriptions, 'dispose');
     if (isLocalNamespace) {
       namespace.dispose();
     }
@@ -57,17 +52,6 @@ fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
       target.dispose();
     }
     observableDispose.call(receivable);
-  };
-
-  receivable.when = function (predicate) {
-    if (_.isFunction(predicate)) {
-      when = predicate;
-    } else {
-      when = function (updatedValue) {
-        return _.isEqual(updatedValue, predicate);
-      };
-    }
-    return this;
   };
 
   receivable[isReceivableSymbol] = true;
