@@ -103,6 +103,8 @@ function sync (action, concern, params) {
   params = params || {};
   action = action || 'noAction';
 
+  var urlPieces;
+
   if (!fw.isDataModel(concern) && !fw.isCollection(concern)) {
     throw Error('Must supply a dataModel or collection to fw.sync()');
   }
@@ -122,17 +124,20 @@ function sync (action, concern, params) {
   }
 
   // add the :id to the url if needed
-  if (fw.isDataModel(concern)) {
-    var pkIsSpecifiedByUser = !_.isNull(url.match(':' + configParams.idAttribute));
-    var hasQueryString = !_.isNull(url.match(/\?/));
-    if (_.includes(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl && !pkIsSpecifiedByUser && !hasQueryString) {
-      // need to append /:id to url
-      url = url.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute;
+  if (fw.isDataModel(concern) && _.includes(['read', 'update', 'patch', 'delete'], action) && configParams.useKeyInUrl) {
+    urlPieces = url.split('?');
+    var urlRoute = urlPieces.shift();
+
+    var queryString = '';
+    if(urlPieces.length) {
+      queryString = '?' + urlPieces.join('?');
     }
+
+    url = urlRoute.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute + queryString;
   }
 
   // make sure it begins with the baseUrl
-  var urlPieces = (url || noURLError()).match(parseURLRegex);
+  urlPieces = (url || noURLError()).match(parseURLRegex);
   if (!_.isNull(urlPieces)) {
     var baseURL = urlPieces[1] || '';
     url = baseURL + _.last(urlPieces);
