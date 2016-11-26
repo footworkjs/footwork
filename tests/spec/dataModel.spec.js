@@ -1156,6 +1156,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var lulledCallbackInitializeSpy;
         var initializeSpy;
         var requestLullCallbackSpy = jasmine.createSpy('requestLullCallbackSpy', function(operationType) {
+          expect(this).toBeA('dataModel');
           expect(operationType).toBe('fetch');
           return 150;
         }).and.callThrough();
