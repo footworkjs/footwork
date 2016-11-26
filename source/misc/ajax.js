@@ -69,7 +69,7 @@ function makeOrGetRequest (operationType, requestInfo) {
       }
     });
 
-    requestLull = (_.isFunction(requestLull) ? requestLull(operationType) : requestLull);
+    requestLull = (_.isFunction(requestLull) ? requestLull.call(entity, operationType) : requestLull);
     if (requestLull) {
       setTimeout(function () {
         lullFinished(true);
