@@ -103,8 +103,6 @@ function sync (action, concern, params) {
   params = params || {};
   action = action || 'noAction';
 
-  var urlPieces;
-
   if (!fw.isDataModel(concern) && !fw.isCollection(concern)) {
     throw Error('Must supply a dataModel or collection to fw.sync()');
   }
@@ -113,13 +111,11 @@ function sync (action, concern, params) {
     throw Error('Invalid action (' + action + ') specified for sync operation');
   }
 
+  var urlPieces;
   var configParams = concern[privateDataSymbol].configParams;
+  var url = resultBound(configParams, 'url', concern);
 
-  // grab the url
-  var url = configParams.url;
-  if (_.isFunction(url)) {
-    url = url.call(concern, action);
-  } else if (!_.isString(url)) {
+  if (!_.isString(url)) {
     noURLError();
   }
 
