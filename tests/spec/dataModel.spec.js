@@ -987,7 +987,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var Person = function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
-            useKeyInUrl: false
+            useIdInUrl: false
           });
 
           person = person || {};
@@ -1341,7 +1341,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
-            useKeyInUrl: false,
+            useIdInUrl: false,
             fetchOptions: {
               method: 'post'
             }
@@ -1385,7 +1385,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
-            useKeyInUrl: false
+            useIdInUrl: false
           });
           person = person || {};
           this.id = fw.observable(person.id || null).mapTo('id', this);
@@ -1467,7 +1467,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
-            useKeyInUrl: false,
+            useIdInUrl: false,
             url: mockUrl + '/:firstName'
           });
           person = person || {};
