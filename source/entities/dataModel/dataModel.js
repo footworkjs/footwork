@@ -1,7 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-require('./mapTo');
+require('./map');
 
 var entityDescriptors = require('../entity-descriptors');
 var resourceHelperFactory = require('../../misc/resource-tools').resourceHelperFactory;

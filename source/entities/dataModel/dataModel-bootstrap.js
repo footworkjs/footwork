@@ -6,7 +6,7 @@ var entityDescriptors = require('../entity-descriptors');
 var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
 
 /**
- * Bootstrap an instance with dataModel capabilities (fetch/save/mapTo/etc).
+ * Bootstrap an instance with dataModel capabilities (fetch/save/map/etc).
  *
  * @param {any} instance
  * @param {any} configParams
@@ -30,7 +30,7 @@ function dataModelBootstrap (instance, configParams) {
 
     _.extend(instance, descriptor.mixin, {
       $cid: fw.utils.guid(),
-      $id: fw.observable().mapTo(configParams.idAttribute, instance),
+      $id: fw.observable().map(configParams.idAttribute, instance),
       isCreating: fw.observable(false),
       isSaving: fw.observable(false),
       isFetching: fw.observable(false),
