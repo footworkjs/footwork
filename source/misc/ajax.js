@@ -96,12 +96,11 @@ function makeOrGetRequest (operationType, requestInfo) {
  *
  * @param {string} action
  * @param {object} concern
- * @param {object} params
+ * @param {object} options
  * @returns {object} htr
  */
-function sync (action, concern, params) {
-  params = params || {};
-  action = action || 'noAction';
+function sync (action, concern, options) {
+  action = action || 'no-action';
 
   if (!fw.isDataModel(concern) && !fw.isCollection(concern)) {
     throw Error('Must supply a dataModel or collection to fw.sync()');
@@ -150,14 +149,14 @@ function sync (action, concern, params) {
   }
 
   // construct the fetch options object
-  var options = _.extend({
+  options = _.extend({
       method: methodMap[action].toUpperCase(),
       body: null,
       headers: {}
     },
-    resultBound(fw, 'fetchOptions', concern, [action, concern, params]) || {},
-    resultBound(configParams, 'fetchOptions', concern, [action, concern, params]) || {},
-    params);
+    resultBound(fw, 'fetchOptions', concern, [action, options]) || {},
+    resultBound(configParams, 'fetchOptions', concern, [action, options]) || {},
+    options || {});
 
   if (!_.isString(options.method)) {
     throw Error('Invalid action (' + action + ') specified for sync operation');
