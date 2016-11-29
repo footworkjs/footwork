@@ -36,7 +36,7 @@ function fetchModel (options) {
 
         ajax.handleJsonResponse(xhr)
           .then(function handleResponseData (data) {
-            var parsedData = configParams.parse ? configParams.parse(data) : data;
+            var parsedData = configParams.parse ? configParams.parse.call(dataModel, data, 'read') : data;
             if (!_.isUndefined(parsedData[configParams.idAttribute])) {
               dataModel.set(parsedData);
             }
@@ -104,7 +104,7 @@ function save (key, val, options) {
 
       ajax.handleJsonResponse(xhr)
         .then(function handleResponseData (data) {
-          var parsedData = configParams.parse ? configParams.parse(data) : data;
+          var parsedData = configParams.parse ? configParams.parse.call(dataModel, data, method) : data;
 
           if (options.wait && !_.isNull(attrs)) {
             parsedData = _.extend({}, attrs, parsedData);

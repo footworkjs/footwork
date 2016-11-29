@@ -1081,7 +1081,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
-            parse: expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
+            parse: expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response, requestType) {
+              expect(this).toBeA('dataModel');
+              expect(requestType).toBe('create');
               response.firstName = postValue;
               return response;
             }).and.callThrough()),
@@ -1258,7 +1260,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
-            parse: expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response) {
+            parse: expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response, requestType) {
+              expect(this).toBeA('dataModel');
+              expect(requestType).toBe('read');
               response.firstName = getValue;
               return response;
             }).and.callThrough())
