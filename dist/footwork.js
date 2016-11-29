@@ -8005,7 +8005,7 @@ var entityDescriptors = require('../entity-descriptors');
 var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
 
 /**
- * Bootstrap an instance with dataModel capabilities (fetch/save/mapTo/etc).
+ * Bootstrap an instance with dataModel capabilities (fetch/save/map/etc).
  *
  * @param {any} instance
  * @param {any} configParams
@@ -8029,7 +8029,7 @@ function dataModelBootstrap (instance, configParams) {
 
     _.extend(instance, descriptor.mixin, {
       $cid: fw.utils.guid(),
-      $id: fw.observable().mapTo(configParams.idAttribute, instance),
+      $id: fw.observable().map(configParams.idAttribute, instance),
       isCreating: fw.observable(false),
       isSaving: fw.observable(false),
       isFetching: fw.observable(false),
@@ -8097,7 +8097,7 @@ function fetchModel (options) {
 
         ajax.handleJsonResponse(xhr)
           .then(function handleResponseData (data) {
-            var parsedData = configParams.parse ? configParams.parse(data) : data;
+            var parsedData = configParams.parse ? configParams.parse.call(dataModel, data, 'read') : data;
             if (!_.isUndefined(parsedData[configParams.idAttribute])) {
               dataModel.set(parsedData);
             }
@@ -8165,7 +8165,7 @@ function save (key, val, options) {
 
       ajax.handleJsonResponse(xhr)
         .then(function handleResponseData (data) {
-          var parsedData = configParams.parse ? configParams.parse(data) : data;
+          var parsedData = configParams.parse ? configParams.parse.call(dataModel, data, method) : data;
 
           if (options.wait && !_.isNull(attrs)) {
             parsedData = _.extend({}, attrs, parsedData);
@@ -8386,7 +8386,7 @@ module.exports = {
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-require('./mapTo');
+require('./map');
 
 var entityDescriptors = require('../entity-descriptors');
 var resourceHelperFactory = require('../../misc/resource-tools').resourceHelperFactory;
@@ -8435,7 +8435,7 @@ fw[privateDataSymbol][capitalizeFirstLetter(entityName)] = function DataModel (p
 
 
 
-},{"../../misc/resource-tools":43,"../../misc/util":44,"../entity-descriptors":25,"../entity-tools":27,"./dataModel-bootstrap":20,"./dataModel-mixin":21,"./mapTo":23,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],23:[function(require,module,exports){
+},{"../../misc/resource-tools":43,"../../misc/util":44,"../entity-descriptors":25,"../entity-tools":27,"./dataModel-bootstrap":20,"./dataModel-mixin":21,"./map":23,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],23:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8453,13 +8453,13 @@ function getPrimaryKey (dataModel) {
  * @param {object} dataModel The dataModel instance you are mapping the observable/path to
  * @returns {observable} The mapped observable
  */
-function mapTo (mapPath, dataModel) {
+function map (mapPath, dataModel) {
   var mappedObservable = this;
   var mapPath;
   var dataModel;
 
   if (!fw.isDataModel(dataModel)) {
-    throw Error('No dataModel context supplied for mapTo observable');
+    throw Error('No dataModel context supplied for map observable');
   }
 
   var mappings = dataModel[privateDataSymbol].mappings();
@@ -8497,7 +8497,7 @@ function mapTo (mapPath, dataModel) {
   return mappedObservable;
 }
 
-fw.subscribable.fn.mapTo = mapTo;
+fw.subscribable.fn.map = map;
 
 },{"../../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],24:[function(require,module,exports){
 /**
@@ -10031,7 +10031,7 @@ function makeOrGetRequest (operationType, requestInfo) {
       }
     });
 
-    requestLull = (_.isFunction(requestLull) ? requestLull(operationType) : requestLull);
+    requestLull = (_.isFunction(requestLull) ? requestLull.call(entity, operationType) : requestLull);
     if (requestLull) {
       setTimeout(function () {
         lullFinished(true);
@@ -10058,14 +10058,11 @@ function makeOrGetRequest (operationType, requestInfo) {
  *
  * @param {string} action
  * @param {object} concern
- * @param {object} params
+ * @param {object} options
  * @returns {object} htr
  */
-function sync (action, concern, params) {
-  params = params || {};
-  action = action || 'noAction';
-
-  var urlPieces;
+function sync (action, concern, options) {
+  action = action || 'no-action';
 
   if (!fw.isDataModel(concern) && !fw.isCollection(concern)) {
     throw Error('Must supply a dataModel or collection to fw.sync()');
@@ -10075,13 +10072,11 @@ function sync (action, concern, params) {
     throw Error('Invalid action (' + action + ') specified for sync operation');
   }
 
+  var urlPieces;
   var configParams = concern[privateDataSymbol].configParams;
+  var url = resultBound(configParams, 'url', concern);
 
-  // grab the url
-  var url = configParams.url;
-  if (_.isFunction(url)) {
-    url = url.call(concern, action);
-  } else if (!_.isString(url)) {
+  if (!_.isString(url)) {
     noURLError();
   }
 
@@ -10116,14 +10111,14 @@ function sync (action, concern, params) {
   }
 
   // construct the fetch options object
-  var options = _.extend({
+  options = _.extend({
       method: methodMap[action].toUpperCase(),
       body: null,
       headers: {}
     },
-    resultBound(fw, 'fetchOptions', concern, [action, concern, params]) || {},
-    resultBound(configParams, 'fetchOptions', concern, [action, concern, params]) || {},
-    params);
+    resultBound(fw, 'fetchOptions', concern, [action, options]) || {},
+    resultBound(configParams, 'fetchOptions', concern, [action, options]) || {},
+    options || {});
 
   if (!_.isString(options.method)) {
     throw Error('Invalid action (' + action + ') specified for sync operation');
