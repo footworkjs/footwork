@@ -1153,6 +1153,50 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, ajaxWait);
       });
 
+      it('can correctly generate rejected promise from fetch() requested without an idAttribute value', function(done) {
+        var initializeSpy;
+        var mockUrl = generateUrl();
+        var getValue = randomString();
+        var personData = {
+          "id": null,
+          "firstName": null,
+          "lastName": null,
+          "email": null
+        };
+        var rejectSpy = jasmine.createSpy('rejectSpy');
+        var thenSpy = jasmine.createSpy('thenSpy');
+
+        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            url: mockUrl
+          });
+          person = person || {};
+          this.id = fw.observable(person.id || null).map('id', this);
+          this.firstName = fw.observable(person.firstName || null).map('firstName', this);
+          this.lastName = fw.observable(person.lastName || null).map('lastName', this);
+          this.email = fw.observable(person.email || null).map('email', this);
+        }).and.callThrough());
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        var person = new Person(personData);
+
+        expect(initializeSpy).toHaveBeenCalled();
+        expect(person.firstName()).not.toBe(getValue);
+
+        var promise = person.fetch();
+        expect(promise).toBeA('promise');
+        expect(person.firstName()).not.toBe(getValue);
+        
+        promise.then(thenSpy, rejectSpy);
+
+        setTimeout(function() {
+          expect(thenSpy).not.toHaveBeenCalled();
+          expect(rejectSpy).toHaveBeenCalled();
+          done();
+        }, ajaxWait);
+      });
+
       it('can correctly fetch() data from the server with a specified requestLull time', function(done) {
         var lulledInitializeSpy;
         var lulledCallbackInitializeSpy;

@@ -43,9 +43,9 @@ function fetchModel (options) {
           });
 
         return xhr;
+      } else {
+        return Promise.reject(new Error("Must have ID provided to a dataModel in order to fetch its data"));
       }
-
-      return false;
     }
   };
 
