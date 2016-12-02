@@ -118,7 +118,7 @@ function sync (action, concern, options) {
     method = methodMap[action];
 
     // add the :id to the url if needed
-    if (fw.isDataModel(concern) && _.includes(['read', 'update', 'patch', 'delete'], action) && configParams.useIdInUrl) {
+    if (fw.isDataModel(concern) && _.includes(['read', 'update', 'patch', 'delete'], action)) {
       urlPieces = url.split('?');
       var urlRoute = urlPieces.shift();
 

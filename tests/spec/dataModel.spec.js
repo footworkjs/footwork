@@ -975,7 +975,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can correctly DELETE data on destroy()', function(done) {
         var initializeSpy;
-        var mockUrl = generateUrl();
         var postValue = randomString();
         var responseData = {
           "id": 1,
@@ -983,11 +982,11 @@ define(['footwork', 'lodash', 'fetch-mock'],
           "lastName": null,
           "email": null
         };
+        var mockUrl = generateUrl();
 
         var Person = function(person) {
           fw.dataModel.boot(this, {
-            url: mockUrl,
-            useIdInUrl: false
+            url: mockUrl
           });
 
           person = person || {};
@@ -1000,7 +999,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var person = new Person(responseData);
         var nonPerson = new Person(_.extend({}, responseData, { id: undefined }));
 
-        fetchMock.restore().delete(mockUrl, responseData);
+        fetchMock.restore().delete(mockUrl + '/' + responseData.id, responseData);
 
         var destroyPromise;
         var nonPersonDestroyPromise;
@@ -1379,18 +1378,17 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can correctly fetch() data from the server with overridden fetchOptions', function(done) {
         var initializeSpy;
-        var mockUrl = generateUrl();
         var personData = {
           "id": 100,
           "firstName": randomString(),
           "lastName": null,
           "email": null
         };
+        var mockUrl = generateUrl();
 
         var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
-            useIdInUrl: false,
             fetchOptions: {
               method: 'post'
             }
@@ -1408,7 +1406,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         expect(initializeSpy).toHaveBeenCalled();
 
-        fetchMock.restore().post(mockUrl, personData);
+        fetchMock.restore().post(mockUrl + '/' + personData.id, personData);
         expect(person.fetch()).toBeA('promise');
 
         setTimeout(function() {
@@ -1419,13 +1417,13 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can correctly fetch() data from the server with overridden global fetchOptions', function(done) {
         var initializeSpy;
-        var mockUrl = generateUrl();
         var personData = {
           "id": 100,
           "firstName": randomString(),
           "lastName": null,
           "email": null
         };
+        var mockUrl = generateUrl();
 
         fw.fetchOptions = {
           method: 'post'
@@ -1433,8 +1431,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
-            url: mockUrl,
-            useIdInUrl: false
+            url: mockUrl
           });
           person = person || {};
           this.id = fw.observable(person.id || null).map('id', this);
@@ -1449,7 +1446,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         expect(initializeSpy).toHaveBeenCalled();
 
-        fetchMock.restore().post(mockUrl, personData);
+        fetchMock.restore().post(mockUrl + '/' + personData.id, personData);
         expect(person.fetch()).toBeA('promise');
 
         setTimeout(function() {
@@ -1679,7 +1676,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
-            useIdInUrl: false,
             url: mockUrl + '/:firstName'
           });
           person = person || {};
@@ -1696,7 +1692,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(initializeSpy).toHaveBeenCalled();
         expect(person.lastName()).not.toBe(personData.lastName);
 
-        fetchMock.restore().get(mockUrl + '/' + personData.firstName, personData);
+        fetchMock.restore().get(mockUrl + '/' + personData.firstName + '/' + personData.id, personData);
         expect(person.fetch()).toBeA('promise');
 
         setTimeout(function() {

@@ -31,7 +31,6 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   mixin: require('./dataModel-mixin'),
   defaultConfig: {
     idAttribute: 'id',
-    useIdInUrl: true,
     url: null,
     parse: false, // identity?
     fetchOptions: {},
