@@ -1583,7 +1583,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var getValue = randomString();
         var personData = {
           "id": 100,
-          "firstName": null
+          "firstName": randomString()
         };
 
         var createUrl = generateUrl();
@@ -1601,7 +1601,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
               },
               'read': function() {
                 expect(this).toBeA('dataModel');
-                return 'GET ' + readUrl;
+                return 'GET ' + readUrl + '/:firstName';
               },
               'update': function() {
                 expect(this).toBeA('dataModel');
@@ -1629,7 +1629,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         fetchMock.post(createUrl, postSpy);
 
         var readSpy = jasmine.createSpy('readSpy').and.returnValue(personData);
-        fetchMock.get(readUrl, readSpy);
+        fetchMock.get(readUrl + '/' + personData.firstName, readSpy);
 
         var updateSpy = jasmine.createSpy('updateSpy').and.returnValue(personData);
         fetchMock.put(updateUrl, updateSpy);
