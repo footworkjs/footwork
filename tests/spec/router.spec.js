@@ -719,12 +719,7 @@ define(['footwork', 'lodash'],
         var $testContainer;
         var passedInParams = { params: true };
 
-        fw.components.register(manipulateOutletComponentNamespace, {
-          viewModel: manipulateOutletComponentSpy = jasmine.createSpy('manipulateOutletComponentSpy', function(params) {
-            expect(params).toBe(passedInParams);
-          }).and.callThrough(),
-          template: '<div class="component-loaded"></div>'
-        });
+        fw.outlet.registerViewLocation(manipulateOutletComponentNamespace, 'tests/assets/fixtures/manipulateOutlet.html');
 
         fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.router.boot(this, {
@@ -751,7 +746,6 @@ define(['footwork', 'lodash'],
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).toBe(undefined);
         expect(clearOutletControllerSpy).toBe(undefined);
-        expect(manipulateOutletComponentSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
           <outlet name="output"></outlet>\
@@ -768,7 +762,7 @@ define(['footwork', 'lodash'],
 
           setTimeout(function() {
             expect($testContainer.find('outlet[name="output"]').attr('data-rendered')).toBe(manipulateOutletComponentNamespace);
-            expect($testContainer.find('outlet[name="output"] .component-loaded').length).toBe(1);
+            expect($testContainer.find('outlet[name="output"] .manipulateOutlet')).lengthToBe(1);
 
             router.replaceState('/clearOutlet');
             expect(clearOutletControllerSpy).toHaveBeenCalled();
@@ -907,40 +901,36 @@ define(['footwork', 'lodash'],
         var router;
         var viewModel;
 
-        fw.components.register(outletComponentNamespace, {
-          viewModel: expectCallOrder(3, initializeComponentViewModelSpy = jasmine.createSpy('initializeComponentViewModelSpy')),
-          template: '<div class="' + outletComponentNamespace + '"></div>'
-        });
+        fw.outlet.registerView(outletComponentNamespace, '<div class="' + outletComponentNamespace + '"></div>');
 
-        fw.viewModel.register(outletControlingViewModelNamespace, expectCallOrder(1, initializeViewModelSpy = jasmine.createSpy('initializeViewModelSpy', function() {
+        fw.viewModel.register(outletControlingViewModelNamespace, initializeViewModelSpy = jasmine.createSpy('initializeViewModelSpy', function() {
           fw.viewModel.boot(this, {
             namespace: outletControlingViewModelNamespace
           });
           viewModel = this;
           this.outletVisible = fw.observable(false);
-        }).and.callThrough()));
+        }).and.callThrough());
 
-        fw.router.register(routerNamespace, expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+        fw.router.register(routerNamespace, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.router.boot(this, {
             namespace: routerNamespace,
             routes: [
               {
                 route: '/outletAfterRouter',
-                controller: expectCallOrder(2, changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', outletComponentNamespace, expectCallOrder(4, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                controller:changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
+                  this.outlet('output', outletComponentNamespace, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
                     expect($(element).find('.' + outletComponentNamespace).length).toBe(1);
-                  }).and.callThrough()));
-                }).and.callThrough())
+                  }).and.callThrough());
+                }).and.callThrough()
               }
             ]
           });
           router = this;
-        }).and.callThrough()));
+        }).and.callThrough());
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(initializeViewModelSpy).not.toHaveBeenCalled();
-        expect(initializeComponentViewModelSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + routerNamespace + '">\
           <viewModel module="' + outletControlingViewModelNamespace + '">\
@@ -963,7 +953,7 @@ define(['footwork', 'lodash'],
 
           setTimeout(function() {
             expect(outletCallbackSpy).toHaveBeenCalled();
-            expect(initializeComponentViewModelSpy).toHaveBeenCalled();
+            expect($(testContainer).find('.' + outletComponentNamespace)).lengthToBe(1);
             done();
           }, ajaxWait);
         }, ajaxWait);

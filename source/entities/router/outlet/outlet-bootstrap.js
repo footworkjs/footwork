@@ -36,11 +36,6 @@ function removeAnimation () {
  * @returns {object} The instance that was passed in
  */
 function outletBootstrap (instance, configParams) {
-  /* istanbul ignore if */
-  if (!instance) {
-    throw Error('Must supply the instance to boot()');
-  }
-
   var descriptor = entityDescriptors.getDescriptor('outlet');
 
   // bootstrap/mixin viewModel functionality
@@ -56,6 +51,7 @@ function outletBootstrap (instance, configParams) {
 
     var resolvedCallbacks = [];
     instance.addResolvedCallbackOrExecute = function(callback) {
+      /* istanbul ignore else */
       if (instance.routeIsResolving()) {
         resolvedCallbacks.push(callback);
       } else {
@@ -144,9 +140,6 @@ function outletBootstrap (instance, configParams) {
         showLoaded();
       }
     });
-  } else {
-    /* istanbul ignore next */
-    throw Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
   }
 
   return instance;
