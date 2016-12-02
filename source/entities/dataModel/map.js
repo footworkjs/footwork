@@ -18,7 +18,6 @@ function getPrimaryKey (dataModel) {
 function map (mapPath, dataModel) {
   var mappedObservable = this;
   var mapPath;
-  var dataModel;
 
   if (!fw.isDataModel(dataModel)) {
     throw Error('No dataModel context supplied for map observable');
