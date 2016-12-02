@@ -26,7 +26,7 @@ function dataModelBootstrap (instance, configParams) {
   if (!hasBeenBootstrapped) {
     instance[descriptor.isEntityDuckTag] = true;
     instance[privateDataSymbol].mappings = fw.observable({});
-    configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.defaultConfig, configParams || {});
+    configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.resource.defaultConfig, configParams || {});
 
     _.extend(instance, descriptor.mixin, {
       $cid: fw.utils.guid(),

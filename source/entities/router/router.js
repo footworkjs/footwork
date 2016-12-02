@@ -20,7 +20,15 @@ fw[entityName] = {
   boot: require('./router-bootstrap'),
   baseRoute: fw.observable(''),
   activeRouteClassName: fw.observable('active'),
-  disableHistory: fw.observable(false)
+  disableHistory: fw.observable(false),
+  defaultConfig: {
+    showDuringLoad: require('./router-defaults').noComponentSelected,
+    onDispose: _.noop,
+    baseRoute: '',
+    activate: true,
+    beforeRoute: alwaysPassPredicate,
+    minTransitionPeriod: 0
+  }
 };
 
 var descriptor;
@@ -32,15 +40,7 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
   },
-  mixin: require('./router-mixin'),
-  defaultConfig: {
-    showDuringLoad: require('./router-defaults').noComponentSelected,
-    onDispose: _.noop,
-    baseRoute: '',
-    activate: true,
-    beforeRoute: alwaysPassPredicate,
-    minTransitionPeriod: 0
-  }
+  mixin: require('./router-mixin')
 }));
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;

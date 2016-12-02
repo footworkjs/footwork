@@ -17,7 +17,14 @@ var entityName = 'viewModel';
 var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
 
 fw[entityName] = {
-  boot: require('./viewModel-bootstrap')
+  boot: require('./viewModel-bootstrap'),
+  defaultConfig: {
+    namespace: undefined,
+    afterRender: _.noop,
+    afterResolving: resolveEntityImmediately,
+    sequenceAnimations: false,
+    onDispose: _.noop
+  }
 };
 
 var descriptor;
@@ -29,14 +36,7 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
   },
-  mixin: require('./viewModel-mixin'),
-  defaultConfig: {
-    namespace: undefined,
-    afterRender: _.noop,
-    afterResolving: resolveEntityImmediately,
-    sequenceAnimations: false,
-    onDispose: _.noop
-  }
+  mixin: require('./viewModel-mixin')
 }));
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;

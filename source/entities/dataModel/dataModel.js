@@ -16,7 +16,14 @@ var entityName = 'dataModel';
 var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
 
 fw[entityName] = {
-  boot: require('./dataModel-bootstrap')
+  boot: require('./dataModel-bootstrap'),
+  defaultConfig: {
+    idAttribute: 'id',
+    url: null,
+    parse: _.identity,
+    fetchOptions: {},
+    requestLull: 0
+  }
 };
 
 var descriptor;
@@ -28,14 +35,7 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
   },
-  mixin: require('./dataModel-mixin'),
-  defaultConfig: {
-    idAttribute: 'id',
-    url: null,
-    parse: false, // identity?
-    fetchOptions: {},
-    requestLull: 0
-  }
+  mixin: require('./dataModel-mixin')
 }));
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;

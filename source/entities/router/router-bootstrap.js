@@ -37,7 +37,7 @@ function routerBootstrap (instance, configParams) {
   if (!hasBeenBootstrapped) {
     instance[descriptor.isEntityDuckTag] = true;
 
-    configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.defaultConfig, {
+    configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.resource.defaultConfig, {
       baseRoute: fw.router.baseRoute() + (resultBound(configParams, 'baseRoute', instance) || '')
     }, configParams || {});
 

@@ -5,6 +5,7 @@ var entityDescriptors = require('../entity-descriptors');
 var postbox = require('../../namespace/postbox');
 var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
+var resultBound = require('../../misc/util').resultBound;
 
 /**
  * Bootstrap an instance with viewModel capabilities (lifecycle/etc).
@@ -25,7 +26,7 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
   if (!hasBeenBootstrapped) {
     instance[descriptor.isEntityDuckTag] = true;
 
-    configParams = _.extend({}, descriptor.defaultConfig, {
+    configParams = _.extend({}, descriptor.resource.defaultConfig, {
       namespace: (configParams || {}).namespace ? null : _.uniqueId('instance')
     }, configParams);
 
@@ -36,7 +37,7 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
     };
 
     _.extend(instance, descriptor.mixin, {
-      $namespace: fw.namespace(configParams.namespace)
+      $namespace: fw.namespace(resultBound(configParams, 'namespace', instance))
     });
 
     // Setup the request handler which returns the instance (fw.viewModel.get())
