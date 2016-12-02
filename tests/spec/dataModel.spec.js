@@ -1117,7 +1117,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
       it('can correctly fetch() data from the server via a pre-filled idAttribute', function(done) {
         var initializeSpy;
         var mockUrl = generateUrl();
-        var getValue = '__GET__CHECK__';
+        var getValue = randomString();
         var personData = {
           "id": 100,
           "firstName": null,
@@ -1187,7 +1187,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var promise = person.fetch();
         expect(promise).toBeA('promise');
         expect(person.firstName()).not.toBe(getValue);
-        
+
         promise.then(thenSpy, rejectSpy);
 
         setTimeout(function() {
@@ -1207,7 +1207,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           return 150;
         }).and.callThrough();
         var mockUrl = generateUrl();
-        var getValue = '__GET__CHECK__';
+        var getValue = randomString();
         var personData = {
           "id": 100,
           "firstName": null,
@@ -1293,7 +1293,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var initializeSpy;
         var parseSpy;
         var mockUrl = generateUrl();
-        var getValue = '__GET__CHECK__';
+        var getValue = randomString();
         var personData = {
           "id": 100,
           "firstName": null,
@@ -1340,7 +1340,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
       it('can correctly fetch() data from the server via a pre-filled custom idAttribute', function(done) {
         var initializeSpy;
         var mockUrl = generateUrl();
-        var getValue = '__GET__CUSTOM__CHECK__';
+        var getValue = randomString();
         var personData = {
           "customId": 100,
           "firstName": null,
@@ -1463,7 +1463,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var initializeSpy;
         var urlSpy;
         var mockUrl = generateUrl();
-        var getValue = '__GET__CUSTOM__CHECK__';
+        var getValue = randomString();
         var personData = {
           "id": 100,
           "firstName": null,
@@ -1500,6 +1500,169 @@ define(['footwork', 'lodash', 'fetch-mock'],
         setTimeout(function() {
           expect(person.$id()).toBe(personData.id);
           expect(person.firstName()).toBe(getValue);
+          done();
+        }, ajaxWait);
+      });
+
+      it('can correctly construct and issue requests via a url based on a explicit action definitions', function(done) {
+        var initializeSpy;
+        var getValue = randomString();
+        var personData = {
+          "id": 100,
+          "firstName": null
+        };
+
+        var createUrl = generateUrl();
+        var readUrl = generateUrl();
+        var updateUrl = generateUrl();
+        var deleteUrl = generateUrl();
+        var patchUrl = generateUrl();
+
+        var Person = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            url: {
+              'create': 'POST ' + createUrl,
+              'read': 'GET ' + readUrl,
+              'update': 'PUT ' + updateUrl,
+              'delete': 'DELETE ' + deleteUrl,
+              'patch': 'PATCH ' + patchUrl
+            }
+          });
+          person = person || {};
+          this.id = fw.observable(person.id).map('id', this);
+          this.firstName = fw.observable(person.firstName).map('firstName', this);
+        }).and.callThrough();
+
+        // reset fetchMock
+        fetchMock.restore();
+
+        var postSpy = jasmine.createSpy('postSpy').and.returnValue(personData);
+        fetchMock.post(createUrl, postSpy);
+
+        var readSpy = jasmine.createSpy('readSpy').and.returnValue(personData);
+        fetchMock.get(readUrl, readSpy);
+
+        var updateSpy = jasmine.createSpy('updateSpy').and.returnValue(personData);
+        fetchMock.put(updateUrl, updateSpy);
+
+        var deleteSpy = jasmine.createSpy('deleteSpy').and.returnValue(personData);
+        fetchMock.delete(deleteUrl, deleteSpy);
+
+        var patchSpy = jasmine.createSpy('patchSpy').and.returnValue(personData);
+        fetchMock.patch(patchUrl, patchSpy);
+
+        expect(Person).not.toHaveBeenCalled();
+
+        var createPerson = new Person();
+        var readPerson = new Person(personData);
+        var updatePerson = new Person(personData);
+        var deletePerson = new Person(personData);
+        var patchPerson = new Person(personData);
+
+        expect(Person).toHaveBeenCalled();
+
+        expect(createPerson.save()).toBeA('promise');
+        expect(readPerson.fetch()).toBeA('promise');
+        expect(updatePerson.save()).toBeA('promise');
+        expect(deletePerson.destroy()).toBeA('promise');
+        expect(patchPerson.save(null, null, { patch: true })).toBeA('promise');
+
+        setTimeout(function() {
+          expect(postSpy).toHaveBeenCalled();
+          expect(readSpy).toHaveBeenCalled();
+          expect(updateSpy).toHaveBeenCalled();
+          expect(deleteSpy).toHaveBeenCalled();
+          expect(patchSpy).toHaveBeenCalled();
+
+          done();
+        }, ajaxWait);
+      });
+
+      it('can correctly construct and issue requests via a url based on a explicit action definitions defined by a callback', function(done) {
+        var initializeSpy;
+        var getValue = randomString();
+        var personData = {
+          "id": 100,
+          "firstName": null
+        };
+
+        var createUrl = generateUrl();
+        var readUrl = generateUrl();
+        var updateUrl = generateUrl();
+        var deleteUrl = generateUrl();
+        var patchUrl = generateUrl();
+
+        var Person = jasmine.createSpy('initializeSpy', function(person) {
+          fw.dataModel.boot(this, {
+            url: {
+              'create': function() {
+                expect(this).toBeA('dataModel');
+                return 'POST ' + createUrl;
+              },
+              'read': function() {
+                expect(this).toBeA('dataModel');
+                return 'GET ' + readUrl;
+              },
+              'update': function() {
+                expect(this).toBeA('dataModel');
+                return 'PUT ' + updateUrl;
+              },
+              'delete': function() {
+                expect(this).toBeA('dataModel');
+                return 'DELETE ' + deleteUrl;
+              },
+              'patch': function() {
+                expect(this).toBeA('dataModel');
+                return 'PATCH ' + patchUrl;
+              }
+            }
+          });
+          person = person || {};
+          this.id = fw.observable(person.id).map('id', this);
+          this.firstName = fw.observable(person.firstName).map('firstName', this);
+        }).and.callThrough();
+
+        // reset fetchMock
+        fetchMock.restore();
+
+        var postSpy = jasmine.createSpy('postSpy').and.returnValue(personData);
+        fetchMock.post(createUrl, postSpy);
+
+        var readSpy = jasmine.createSpy('readSpy').and.returnValue(personData);
+        fetchMock.get(readUrl, readSpy);
+
+        var updateSpy = jasmine.createSpy('updateSpy').and.returnValue(personData);
+        fetchMock.put(updateUrl, updateSpy);
+
+        var deleteSpy = jasmine.createSpy('deleteSpy').and.returnValue(personData);
+        fetchMock.delete(deleteUrl, deleteSpy);
+
+        var patchSpy = jasmine.createSpy('patchSpy').and.returnValue(personData);
+        fetchMock.patch(patchUrl, patchSpy);
+
+        expect(Person).not.toHaveBeenCalled();
+
+        var createPerson = new Person();
+        var readPerson = new Person(personData);
+        var updatePerson = new Person(personData);
+        var deletePerson = new Person(personData);
+        var patchPerson = new Person(personData);
+
+        expect(Person).toHaveBeenCalled();
+
+        expect(createPerson.save()).toBeA('promise');
+        expect(readPerson.fetch()).toBeA('promise');
+        expect(updatePerson.save()).toBeA('promise');
+        expect(deletePerson.destroy()).toBeA('promise');
+        expect(patchPerson.save(null, null, { patch: true })).toBeA('promise');
+
+        setTimeout(function() {
+          expect(postSpy).toHaveBeenCalled();
+          expect(readSpy).toHaveBeenCalled();
+          expect(updateSpy).toHaveBeenCalled();
+          expect(deleteSpy).toHaveBeenCalled();
+          expect(patchSpy).toHaveBeenCalled();
+
           done();
         }, ajaxWait);
       });

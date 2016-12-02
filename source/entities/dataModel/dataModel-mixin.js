@@ -85,11 +85,11 @@ function save (key, val, options) {
     patch: false
   }, options);
 
+  var method = !dataModel.$id() ? 'create' : (options.patch ? 'patch' : 'update');
   if (method === 'patch' && !options.attrs) {
     options.attrs = attrs;
   }
 
-  var method = !dataModel.$id() ? 'create' : (options.patch ? 'patch' : 'update');
   var requestInfo = {
     requestRunning: (method === 'create' ? dataModel.isCreating : dataModel.isSaving),
     requestLull: configParams.requestLull,

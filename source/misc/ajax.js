@@ -9,7 +9,7 @@ var privateDataSymbol = util.getSymbol('footwork');
 
 require('../collection/collection-tools');
 
-// Map from CRUD to HTTP for our default `fw.sync` implementation.
+// Map from CRUD to REST for our default implementation.
 var methodMap = {
   'create': 'POST',
   'update': 'PUT',
@@ -21,10 +21,6 @@ var methodMap = {
 var parseURLRegex = /^(http[s]*:\/\/[a-zA-Z0-9:\.]*)*([\/]{0,1}[\w\.:\/-]*)$/;
 var parseParamsRegex = /(:[\w\.]+)/g;
 var trailingSlashRegex = /\/$/;
-
-function noURLError () {
-  throw Error('A "url" property or function must be specified');
-};
 
 /**
  * Creates or returns a promise based on the request specified in requestInfo.
@@ -91,6 +87,22 @@ function makeOrGetRequest (operationType, requestInfo) {
   return theRequest;
 }
 
+function MyModel () {
+  var self = fw.dataModel.boot({
+    url: '/test/url'
+  });
+
+  var self = fw.dataModel.boot({
+    url: {
+      'create': 'POST /test/url',
+      'update': 'PUT /test/url/:id',
+      'patch':  'PATCH /test/url/:id',
+      'delete': 'DELETE /test/url/:id',
+      'read':   'GET /test/url/:id'
+    }
+  });
+}
+
 /**
  * Create an xmlhttprequest based on the desired action (read/write/etc), concern (dataModel/collection), and optional params.
  *
@@ -100,42 +112,49 @@ function makeOrGetRequest (operationType, requestInfo) {
  * @returns {object} htr
  */
 function sync (action, concern, options) {
-  action = action || 'no-action';
-
   if (!fw.isDataModel(concern) && !fw.isCollection(concern)) {
-    throw Error('Must supply a dataModel or collection to fw.sync()');
-  }
-
-  if (!_.isString(methodMap[action])) {
-    throw Error('Invalid action (' + action + ') specified for sync operation');
+    throw Error('Must supply a dataModel or collection to sync');
   }
 
   var urlPieces;
   var configParams = concern[privateDataSymbol].configParams;
+
+  var method;
   var url = resultBound(configParams, 'url', concern);
+  if (_.isObject(url)) {
+    // user is explicitly defining the individual request method and url
+    var userAction = resultBound(url, action, concern, [action, options]);
+    if (_.isString(userAction)) {
+      userAction = userAction.split(' ');
+      method = userAction.shift();
+      url = userAction.join(' ');
+    }
+  } else if (_.isString(url)) {
+    // string specified, use the default method for this action and url
+    method = methodMap[action];
+
+    // add the :id to the url if needed
+    if (fw.isDataModel(concern) && _.includes(['read', 'update', 'patch', 'delete'], action) && configParams.useIdInUrl) {
+      urlPieces = url.split('?');
+      var urlRoute = urlPieces.shift();
+
+      var queryString = '';
+      if (urlPieces.length) {
+        queryString = '?' + urlPieces.join('?');
+      }
+
+      url = urlRoute.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute + queryString;
+    }
+  }
 
   if (!_.isString(url)) {
-    noURLError();
+    throw Error('A url must be specified for sync operation');
   }
 
-  // add the :id to the url if needed
-  if (fw.isDataModel(concern) && _.includes(['read', 'update', 'patch', 'delete'], action) && configParams.useIdInUrl) {
-    urlPieces = url.split('?');
-    var urlRoute = urlPieces.shift();
-
-    var queryString = '';
-    if(urlPieces.length) {
-      queryString = '?' + urlPieces.join('?');
-    }
-
-    url = urlRoute.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute + queryString;
-  }
-
-  // make sure it begins with the baseUrl
-  urlPieces = (url || noURLError()).match(parseURLRegex);
-  if (!_.isNull(urlPieces)) {
-    var baseURL = urlPieces[1] || '';
-    url = baseURL + _.last(urlPieces);
+  if (!_.isString(method)) {
+    throw Error('Invalid method (' + method + ') resolved for sync operation');
+  } else {
+    method = method.toUpperCase();
   }
 
   // replace any interpolated parameters
@@ -150,7 +169,7 @@ function sync (action, concern, options) {
 
   // construct the fetch options object
   options = _.extend({
-      method: methodMap[action].toUpperCase(),
+      method: method,
       body: null,
       headers: {}
     },
