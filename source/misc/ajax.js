@@ -87,22 +87,6 @@ function makeOrGetRequest (operationType, requestInfo) {
   return theRequest;
 }
 
-function MyModel () {
-  var self = fw.dataModel.boot({
-    url: '/test/url'
-  });
-
-  var self = fw.dataModel.boot({
-    url: {
-      'create': 'POST /test/url',
-      'update': 'PUT /test/url/:id',
-      'patch':  'PATCH /test/url/:id',
-      'delete': 'DELETE /test/url/:id',
-      'read':   'GET /test/url/:id'
-    }
-  });
-}
-
 /**
  * Create an xmlhttprequest based on the desired action (read/write/etc), concern (dataModel/collection), and optional params.
  *
