@@ -37,25 +37,24 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('calls afterRender after initialize with the correct target element when creating and binding a new instance', function() {
         var checkForClass = 'check-for-class';
-        var initializeSpy;
         var afterRenderSpy;
 
-        var ModelA = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+        var ModelA = jasmine.createSpy('ModelASpy', function() {
           fw.dataModel.boot(this, {
-            afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
+            afterRender: afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
               expect(containingElement.className.indexOf(checkForClass)).not.toBe(-1);
-            }).and.callThrough())
+            }).and.callThrough()
           });
 
           expect(afterRenderSpy).not.toHaveBeenCalled();
-        }).and.callThrough());
+        }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(ModelA).not.toHaveBeenCalled();
         expect(afterRenderSpy).toBe(undefined);
 
         fw.applyBindings(new ModelA(), testContainer = getFixtureContainer('', '<div class="' + checkForClass + '"></div>'));
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(ModelA).toHaveBeenCalled();
         expect(afterRenderSpy).toHaveBeenCalled();
       });
 
@@ -153,14 +152,14 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var createDataModelInstance;
 
         fw.dataModel.register(namespaceName, {
-          createViewModel: expectCallOrder(0, createDataModelInstance = jasmine.createSpy('createDataModel', function(params, info) {
+          createViewModel: createDataModelInstance = jasmine.createSpy('createDataModel', function(params, info) {
             expect(params.thing).toBe(boundPropertyValue);
             expect(info.element.id).toBe(boundPropertyValueElement);
 
             return {
               boundProperty: boundPropertyValue
             };
-          }).and.callThrough())
+          }).and.callThrough()
         });
 
         expect(createDataModelInstance).not.toHaveBeenCalled();
@@ -184,15 +183,15 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var initializeSpy;
         var afterRenderSpy;
 
-        fw.dataModel.register(namespaceName, expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+        fw.dataModel.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.dataModel.boot(this, {
             namespace: namespaceName,
-            afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+            afterRender: afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
               theElement = element;
               expect(theElement.className.indexOf(fw.animationClass.animateIn)).toBe(-1);
-            }).and.callThrough())
+            }).and.callThrough()
           });
-        }).and.callThrough()));
+        }).and.callThrough());
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).toBe(undefined);
@@ -211,8 +210,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var namespaceNameInner = randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy', function() { fw.dataModel.boot(this); });
 
-        fw.dataModel.register(namespaceNameOuter, expectCallOrder(0, initializeSpy));
-        fw.dataModel.register(namespaceNameInner, expectCallOrder(1, initializeSpy));
+        fw.dataModel.register(namespaceNameOuter, initializeSpy);
+        fw.dataModel.register(namespaceNameInner, initializeSpy);
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
@@ -252,21 +251,21 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var afterRenderSpy;
         var onDisposeSpy;
 
-        var WrapperDataModel = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+        var WrapperDataModel = initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.dataModel.boot(this);
           this.showIt = fw.observable(true);
-        }).and.callThrough());
+        }).and.callThrough();
 
         fw.dataModel.register(namespaceName, function() {
           fw.dataModel.boot(this, {
             namespace: namespaceName,
-            afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+            afterRender: afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
               theElement = element;
               expect(theElement.tagName).toBe('DATAMODEL');
-            }).and.callThrough()),
-            onDispose: expectCallOrder(2, onDisposeSpy = jasmine.createSpy('onDisposeSpy', function(element) {
+            }).and.callThrough(),
+            onDispose: onDisposeSpy = jasmine.createSpy('onDisposeSpy', function(element) {
               expect(element).toBe(theElement);
-            }).and.callThrough())
+            }).and.callThrough()
           });
         });
 
@@ -404,31 +403,27 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can have an observable mapped and remapped correctly at the parent level', function() {
-        var initializeSpy;
-
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this);
           this.firstName = fw.observable(person.firstName).map('firstName', this);
           this.lastName = fw.observable(person.lastName).map('lastName', this);
-        }).and.callThrough());
+        }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person({
           firstName: 'John',
           lastName: 'Smith'
         });
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
 
         expect(person.hasMappedField('firstName')).toBe(true);
         expect(person.hasMappedField('lastName')).toBe(true);
       });
 
       it('can have an observable mapped correctly at a nested level', function() {
-        var initializeSpy;
-
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this);
           this.firstName = fw.observable(person.firstName).map('firstName', this);
           this.lastName = fw.observable(person.lastName).map('lastName', this);
@@ -438,9 +433,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
             comedy: fw.observableArray(person.movies.comedy).map('movies.comedy', this),
             horror: fw.observableArray(person.movies.horror).map('movies.horror', this)
           };
-        }).and.callThrough());
+        }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person({
           firstName: 'John',
@@ -453,7 +448,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           }
         });
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
 
         expect(person.hasMappedField('firstName')).toBe(true);
         expect(person.hasMappedField('lastName')).toBe(true);
@@ -512,9 +507,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can have observables mapped and retreived correctly via get', function() {
-        var initializeSpy;
-
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this);
           this.id = fw.observable(person.id).map('id', this);
           this.firstName = fw.observable(person.firstName).map('firstName', this);
@@ -525,7 +518,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             comedy: fw.observableArray(person.movies.comedy).map('movies.comedy', this),
             horror: fw.observableArray(person.movies.horror).map('movies.horror', this)
           };
-        }).and.callThrough());
+        }).and.callThrough();
 
         var personData = {
           id: undefined,
@@ -539,18 +532,16 @@ define(['footwork', 'lodash', 'fetch-mock'],
           }
         };
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person(personData);
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
         expect(person.get()).toEqual(personData);
       });
 
       it('can have observables mapped and a specific one retreived correctly via get', function() {
-        var initializeSpy;
-
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this);
           this.firstName = fw.observable(person.firstName).map('firstName', this);
           this.lastName = fw.observable(person.lastName).map('lastName', this);
@@ -560,7 +551,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             comedy: fw.observableArray(person.movies.comedy).map('movies.comedy', this),
             horror: fw.observableArray(person.movies.horror).map('movies.horror', this)
           };
-        }).and.callThrough());
+        }).and.callThrough();
 
         var personData = {
           firstName: 'John',
@@ -573,19 +564,17 @@ define(['footwork', 'lodash', 'fetch-mock'],
           }
         };
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
         var person = new Person(personData);
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
         expect(person.get('firstName')).toEqual(personData.firstName);
         expect(person.get('movies')).toEqual(personData.movies);
         expect(person.get('movies.action')).toEqual(personData.movies.action);
       });
 
       it('can have observables mapped and an array of values retreived correctly via get', function() {
-        var initializeSpy;
-
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this);
           this.firstName = fw.observable(person.firstName).map('firstName', this);
           this.lastName = fw.observable(person.lastName).map('lastName', this);
@@ -595,7 +584,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             comedy: fw.observableArray(person.movies.comedy).map('movies.comedy', this),
             horror: fw.observableArray(person.movies.horror).map('movies.horror', this)
           };
-        }).and.callThrough());
+        }).and.callThrough();
 
         var personData = {
           firstName: 'John',
@@ -608,18 +597,16 @@ define(['footwork', 'lodash', 'fetch-mock'],
           }
         };
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
         var person = new Person(personData);
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
         expect(person.get(['firstName', 'lastName'])).toEqual(_.pick(personData, ['firstName', 'lastName']));
         expect(function() { person.get(null); }).toThrow();
       });
 
       it('can have observables mapped and converted into JSON form using JSON.stringify', function() {
-        var initializeSpy;
-
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this);
           this.firstName = fw.observable(person.firstName).map('firstName', this);
           this.lastName = fw.observable(person.lastName).map('lastName', this);
@@ -629,7 +616,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             comedy: fw.observableArray(person.movies.comedy).map('movies.comedy', this),
             horror: fw.observableArray(person.movies.horror).map('movies.horror', this)
           };
-        }).and.callThrough());
+        }).and.callThrough();
 
         var personData = {
           firstName: 'John',
@@ -642,17 +629,15 @@ define(['footwork', 'lodash', 'fetch-mock'],
           }
         };
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
         var person = new Person(personData);
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
         expect(JSON.parse(JSON.stringify(person))).toEqual(personData);
       });
 
       it('can have a correct dirtyMap() produced', function() {
-        var initializeSpy;
-
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this);
           this.id = fw.observable(person.id).map('id', this);
           this.firstName = fw.observable(person.firstName).map('firstName', this);
@@ -663,9 +648,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
             comedy: fw.observableArray(person.movies.comedy).map('movies.comedy', this),
             horror: fw.observableArray(person.movies.horror).map('movies.horror', this)
           };
-        }).and.callThrough());
+        }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
         var person = new Person({
           firstName: 'John',
           lastName: 'Smith',
@@ -676,7 +661,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             horror: ['Friday the 13th', 'Jason']
           }
         });
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
 
         expect(person.dirtyMap()).toEqual({
           "id": false,
@@ -715,9 +700,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can load data in using dataModel.set()', function() {
-        var initializeSpy;
-
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this);
           this.firstName = fw.observable().map('firstName', this);
           this.lastName = fw.observable().map('lastName', this);
@@ -727,7 +710,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             comedy: fw.observableArray().map('movies.comedy', this),
             horror: fw.observableArray().map('movies.horror', this)
           };
-        }).and.callThrough());
+        }).and.callThrough();
 
         var personData = {
           firstName: 'John',
@@ -740,11 +723,11 @@ define(['footwork', 'lodash', 'fetch-mock'],
           }
         };
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person();
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
         expect(person.firstName()).toEqual(undefined);
 
         person.set(personData);
@@ -753,9 +736,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can (re)map the primary key', function() {
-        var initializeSpy;
-
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(personData) {
+        var Person = jasmine.createSpy('PersonSpy', function(personData) {
           fw.dataModel.boot(this);
           this.firstName = fw.observable().map('firstName', this);
           this.lastName = fw.observable().map('lastName', this);
@@ -772,19 +753,17 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
           this.id = fw.observable(true).map('id', this);
           expect(this.isNew()).toBe(false);
-        }).and.callThrough());
+        }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person();
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
       });
 
       it('can correctly be flagged as isDirty when a mapped field value is altered', function() {
-        var initializeSpy;
-
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this);
           this.firstName = fw.observable(person.firstName).map('firstName', this);
           this.lastName = fw.observable(person.lastName).map('lastName', this);
@@ -794,7 +773,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             comedy: fw.observableArray(person.movies.comedy).map('movies.comedy', this),
             horror: fw.observableArray(person.movies.horror).map('movies.horror', this)
           };
-        }).and.callThrough());
+        }).and.callThrough();
 
         var personData = {
           firstName: 'John',
@@ -807,11 +786,11 @@ define(['footwork', 'lodash', 'fetch-mock'],
           }
         };
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person(personData);
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
         expect(person.isDirty()).toBe(false);
 
         person.firstName('test123');
@@ -820,23 +799,20 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly throw an error when a requested operation occurs without a url specified', function() {
-        var initializeSpy;
-
-        var Person = initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this);
         }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person();
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
 
         expect(function() { person.save() }).toThrow();
       });
 
       it('can correctly POST data on initial save()', function(done) {
-        var initializeSpy;
         var mockUrl = generateUrl();
         var postValue = randomString();
         var responseData = {
@@ -846,7 +822,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           "email": null
         };
 
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl
           });
@@ -855,13 +831,13 @@ define(['footwork', 'lodash', 'fetch-mock'],
           this.firstName = fw.observable(person.firstName).map('firstName', this);
           this.lastName = fw.observable(person.lastName).map('lastName', this);
           this.email = fw.observable(person.email).map('email', this);
-        }).and.callThrough());
+        }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person();
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
         expect(person.firstName()).not.toBe(postValue);
 
         fetchMock.restore().post(mockUrl, function(url, options) {
@@ -878,7 +854,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly save() data with specified object of data', function(done) {
-        var initializeSpy;
         var mockUrl = generateUrl();
         var postValue = randomString();
         var saveDataSpy = jasmine.createSpy('saveDataSpy');
@@ -895,7 +870,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           "email": null
         };
 
-        var Person = initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl
           });
@@ -906,11 +881,11 @@ define(['footwork', 'lodash', 'fetch-mock'],
           this.email = fw.observable(person.email).map('email', this);
         }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person();
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
         expect(person.firstName()).not.toBe(postValue);
 
         fetchMock.restore().post(mockUrl, saveDataSpy = jasmine.createSpy('saveDataSpy', function(url, options) {
@@ -930,7 +905,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly save() data with specified key/value pair of data', function(done) {
-        var initializeSpy;
         var mockUrl = generateUrl();
         var postValue = randomString();
         var saveDataSpy = jasmine.createSpy('saveDataSpy');
@@ -947,7 +921,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           "email": null
         };
 
-        var Person = initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl
           });
@@ -958,11 +932,11 @@ define(['footwork', 'lodash', 'fetch-mock'],
           this.email = fw.observable(person.email).map('email', this);
         }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person();
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
         expect(person.firstName()).not.toBe(postValue);
 
         fetchMock.restore().post(mockUrl, saveDataSpy = jasmine.createSpy('saveDataSpy', function(url, options) {
@@ -982,7 +956,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly DELETE data on destroy()', function(done) {
-        var initializeSpy;
         var postValue = randomString();
         var responseData = {
           "id": 1,
@@ -1027,7 +1000,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly POST data on initial save() and then PUT on subsequent calls', function(done) {
-        var initializeSpy;
         var mockUrl = generateUrl();
         var postValue = randomString();
         var putValue = randomString();
@@ -1038,7 +1010,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           "email": null
         };
 
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl
           });
@@ -1047,13 +1019,13 @@ define(['footwork', 'lodash', 'fetch-mock'],
           this.firstName = fw.observable(person.firstName || null).map('firstName', this);
           this.lastName = fw.observable(person.lastName || null).map('lastName', this);
           this.email = fw.observable(person.email || null).map('email', this);
-        }).and.callThrough());
+        }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person();
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
         expect(person.firstName()).not.toBe(postValue);
 
         fetchMock.restore().post(mockUrl, _.extend({}, personData, { firstName: postValue }));
@@ -1074,7 +1046,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly POST data and apply parse() method with return on save()', function(done) {
-        var initializeSpy;
         var parseSpy;
         var mockUrl = generateUrl();
         var postValue = randomString();
@@ -1086,29 +1057,29 @@ define(['footwork', 'lodash', 'fetch-mock'],
           "email": null
         };
 
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
-            parse: expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response, requestType) {
+            parse: parseSpy = jasmine.createSpy('parseSpy', function(response, requestType) {
               expect(this).toBeA('dataModel');
               expect(requestType).toBe('create');
               response.firstName = postValue;
               return response;
-            }).and.callThrough()),
+            }).and.callThrough(),
           });
           person = person || {};
           this.id = fw.observable(person.id).map('id', this);
           this.firstName = fw.observable(person.firstName || null).map('firstName', this);
           this.lastName = fw.observable(person.lastName || null).map('lastName', this);
           this.email = fw.observable(person.email || null).map('email', this);
-        }).and.callThrough());
+        }).and.callThrough();
 
         expect(parseSpy).toBe(undefined);
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person();
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
         expect(parseSpy).not.toHaveBeenCalled();
         expect(person.firstName()).not.toBe(postValue);
 
@@ -1124,7 +1095,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly fetch() data from the server via a pre-filled idAttribute', function(done) {
-        var initializeSpy;
         var mockUrl = generateUrl();
         var getValue = randomString();
         var personData = {
@@ -1134,7 +1104,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           "email": null
         };
 
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl
           });
@@ -1143,13 +1113,13 @@ define(['footwork', 'lodash', 'fetch-mock'],
           this.firstName = fw.observable(person.firstName || null).map('firstName', this);
           this.lastName = fw.observable(person.lastName || null).map('lastName', this);
           this.email = fw.observable(person.email || null).map('email', this);
-        }).and.callThrough());
+        }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person(personData);
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
         expect(person.firstName()).not.toBe(getValue);
 
         fetchMock.restore().get(mockUrl + "/" + personData.id, _.extend({}, personData, { firstName: getValue }));
@@ -1163,7 +1133,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly generate rejected promise from fetch() requested without an idAttribute value', function(done) {
-        var initializeSpy;
         var mockUrl = generateUrl();
         var getValue = randomString();
         var personData = {
@@ -1175,7 +1144,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var rejectSpy = jasmine.createSpy('rejectSpy');
         var thenSpy = jasmine.createSpy('thenSpy');
 
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl
           });
@@ -1184,13 +1153,13 @@ define(['footwork', 'lodash', 'fetch-mock'],
           this.firstName = fw.observable(person.firstName || null).map('firstName', this);
           this.lastName = fw.observable(person.lastName || null).map('lastName', this);
           this.email = fw.observable(person.email || null).map('email', this);
-        }).and.callThrough());
+        }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person(personData);
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
         expect(person.firstName()).not.toBe(getValue);
 
         var promise = person.fetch();
@@ -1207,8 +1176,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly fetch() data from the server with a specified requestLull time', function(done) {
-        var lulledInitializeSpy;
-        var lulledCallbackInitializeSpy;
         var initializeSpy;
         var requestLullCallbackSpy = jasmine.createSpy('requestLullCallbackSpy', function(operationType) {
           expect(this).toBeA('dataModel');
@@ -1224,7 +1191,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           "email": null
         };
 
-        var LulledPerson = lulledInitializeSpy = jasmine.createSpy('lulledInitializeSpy', function(person) {
+        var LulledPerson = jasmine.createSpy('LulledPersonSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
             requestLull: 150
@@ -1236,7 +1203,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           this.email = fw.observable(person.email || null).map('email', this);
         }).and.callThrough();
 
-        var LulledPersonWithCallback = lulledCallbackInitializeSpy = jasmine.createSpy('lulledCallbackInitializeSpy', function(person) {
+        var LulledPersonWithCallback = jasmine.createSpy('LulledPersonWithCallbackSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
             requestLull: requestLullCallbackSpy
@@ -1260,18 +1227,18 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }).and.callThrough();
 
         expect(initializeSpy).not.toHaveBeenCalled();
-        expect(lulledInitializeSpy).not.toHaveBeenCalled();
-        expect(lulledCallbackInitializeSpy).not.toHaveBeenCalled();
+        expect(LulledPerson).not.toHaveBeenCalled();
+        expect(LulledPersonWithCallback).not.toHaveBeenCalled();
         expect(requestLullCallbackSpy).not.toHaveBeenCalled();
 
         var lulledPerson = new LulledPerson(personData);
         var lulledPersonWithCallback = new LulledPersonWithCallback(personData);
         var person = new Person(personData);
 
-        expect(lulledInitializeSpy).toHaveBeenCalled();
+        expect(LulledPerson).toHaveBeenCalled();
         expect(lulledPerson.firstName()).not.toBe(getValue);
 
-        expect(lulledCallbackInitializeSpy).toHaveBeenCalled();
+        expect(LulledPersonWithCallback).toHaveBeenCalled();
         expect(requestLullCallbackSpy).not.toHaveBeenCalled();
         expect(lulledPersonWithCallback.firstName()).not.toBe(getValue);
 
@@ -1299,7 +1266,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly fetch() data from the server with a provided parse() method', function(done) {
-        var initializeSpy;
         var parseSpy;
         var mockUrl = generateUrl();
         var getValue = randomString();
@@ -1310,28 +1276,28 @@ define(['footwork', 'lodash', 'fetch-mock'],
           "email": null
         };
 
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
-            parse: expectCallOrder(1, parseSpy = jasmine.createSpy('parseSpy', function(response, requestType) {
+            parse: parseSpy = jasmine.createSpy('parseSpy', function(response, requestType) {
               expect(this).toBeA('dataModel');
               expect(requestType).toBe('read');
               response.firstName = getValue;
               return response;
-            }).and.callThrough())
+            }).and.callThrough()
           });
           person = person || {};
           this.id = fw.observable(person.id || null).map('id', this);
           this.firstName = fw.observable(person.firstName || null).map('firstName', this);
           this.lastName = fw.observable(person.lastName || null).map('lastName', this);
           this.email = fw.observable(person.email || null).map('email', this);
-        }).and.callThrough());
+        }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person(personData);
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
         expect(parseSpy).not.toHaveBeenCalled();
         expect(person.firstName()).not.toBe(getValue);
 
@@ -1347,7 +1313,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly fetch() data from the server via a pre-filled custom idAttribute', function(done) {
-        var initializeSpy;
         var mockUrl = generateUrl();
         var getValue = randomString();
         var personData = {
@@ -1357,7 +1322,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           "email": null
         };
 
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
             idAttribute: 'customId'
@@ -1367,13 +1332,13 @@ define(['footwork', 'lodash', 'fetch-mock'],
           this.firstName = fw.observable(person.firstName || null).map('firstName', this);
           this.lastName = fw.observable(person.lastName || null).map('lastName', this);
           this.email = fw.observable(person.email || null).map('email', this);
-        }).and.callThrough());
+        }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person(personData);
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
         expect(person.firstName()).not.toBe(getValue);
 
         fetchMock.restore().get(mockUrl + '/' + personData.customId, _.extend({}, personData, { firstName: getValue }));
@@ -1387,7 +1352,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly fetch() data from the server with overridden fetchOptions', function(done) {
-        var initializeSpy;
         var personData = {
           "id": 100,
           "firstName": randomString(),
@@ -1396,7 +1360,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         };
         var mockUrl = generateUrl();
 
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl,
             fetchOptions: {
@@ -1408,13 +1372,13 @@ define(['footwork', 'lodash', 'fetch-mock'],
           this.firstName = fw.observable(person.firstName || null).map('firstName', this);
           this.lastName = fw.observable(person.lastName || null).map('lastName', this);
           this.email = fw.observable(person.email || null).map('email', this);
-        }).and.callThrough());
+        }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person({ id: personData.id });
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
 
         fetchMock.restore().post(mockUrl + '/' + personData.id, personData);
         expect(person.fetch()).toBeA('promise');
@@ -1426,7 +1390,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly fetch() data from the server with overridden global fetchOptions', function(done) {
-        var initializeSpy;
         var personData = {
           "id": 100,
           "firstName": randomString(),
@@ -1439,7 +1402,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           method: 'post'
         };
 
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl
           });
@@ -1448,13 +1411,13 @@ define(['footwork', 'lodash', 'fetch-mock'],
           this.firstName = fw.observable(person.firstName || null).map('firstName', this);
           this.lastName = fw.observable(person.lastName || null).map('lastName', this);
           this.email = fw.observable(person.email || null).map('email', this);
-        }).and.callThrough());
+        }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person({ id: personData.id });
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
 
         fetchMock.restore().post(mockUrl + '/' + personData.id, personData);
         expect(person.fetch()).toBeA('promise');
@@ -1467,7 +1430,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly fetch() data from the server via a url based on an evaluator function', function(done) {
-        var initializeSpy;
         var urlSpy;
         var mockUrl = generateUrl();
         var getValue = randomString();
@@ -1478,25 +1440,25 @@ define(['footwork', 'lodash', 'fetch-mock'],
           "email": null
         };
 
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this, {
-            url: expectCallOrder(1, urlSpy = jasmine.createSpy('urlSpy', function() {
+            url: urlSpy = jasmine.createSpy('urlSpy', function() {
               return mockUrl;
-            }).and.callThrough())
+            }).and.callThrough()
           });
           person = person || {};
           this.id = fw.observable(person.id || null).map('id', this);
           this.firstName = fw.observable(person.firstName || null).map('firstName', this);
           this.lastName = fw.observable(person.lastName || null).map('lastName', this);
           this.email = fw.observable(person.email || null).map('email', this);
-        }).and.callThrough());
+        }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
         expect(urlSpy).toBe(undefined);
 
         var person = new Person(personData);
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
         expect(urlSpy).not.toHaveBeenCalled();
         expect(person.firstName()).not.toBe(getValue);
 
@@ -1512,7 +1474,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly construct and issue requests via a url based on a explicit action definitions', function(done) {
-        var initializeSpy;
         var getValue = randomString();
         var personData = {
           "id": 100,
@@ -1525,7 +1486,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var deleteUrl = generateUrl();
         var patchUrl = generateUrl();
 
-        var Person = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this, {
             url: {
               'create': 'POST ' + createUrl,
@@ -1586,7 +1547,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly construct and issue requests via a url based on a explicit action definitions defined by a callback', function(done) {
-        var initializeSpy;
         var getValue = randomString();
         var personData = {
           "id": 100,
@@ -1599,7 +1559,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var deleteUrl = generateUrl();
         var patchUrl = generateUrl();
 
-        var Person = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this, {
             url: {
               'create': function() {
@@ -1675,7 +1635,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly fetch() data from the server via a url with interpolated parameters', function(done) {
-        var initializeSpy;
         var mockUrl = generateUrl();
         var personData = {
           "id": 100,
@@ -1684,7 +1643,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           "email": null
         };
 
-        var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this, {
             url: mockUrl + '/:firstName'
           });
@@ -1693,13 +1652,13 @@ define(['footwork', 'lodash', 'fetch-mock'],
           this.firstName = fw.observable(person.firstName || null).map('firstName', this);
           this.lastName = fw.observable(person.lastName || null).map('lastName', this);
           this.email = fw.observable(person.email || null).map('email', this);
-        }).and.callThrough());
+        }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(Person).not.toHaveBeenCalled();
 
         var person = new Person({ id: personData.id, firstName: personData.firstName });
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(Person).toHaveBeenCalled();
         expect(person.lastName()).not.toBe(personData.lastName);
 
         fetchMock.restore().get(mockUrl + '/' + personData.firstName + '/' + personData.id, personData);

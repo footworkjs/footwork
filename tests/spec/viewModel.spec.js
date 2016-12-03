@@ -37,25 +37,24 @@ define(['footwork', 'lodash'],
 
       it('calls afterRender after initialize with the correct target element when creating and binding a new instance', function() {
         var checkForClass = 'check-for-class';
-        var initializeSpy;
         var afterRenderSpy;
 
-        var ModelA = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+        var ModelA = jasmine.createSpy('ModelASpy', function() {
           fw.viewModel.boot(this, {
-            afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
+            afterRender: afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(containingElement) {
               expect(containingElement.className.indexOf(checkForClass)).not.toBe(-1);
-            }).and.callThrough())
+            }).and.callThrough()
           });
 
           expect(afterRenderSpy).not.toHaveBeenCalled();
-        }).and.callThrough());
+        }).and.callThrough();
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(ModelA).not.toHaveBeenCalled();
         expect(afterRenderSpy).toBe(undefined);
 
         fw.applyBindings(new ModelA(), testContainer = getFixtureContainer('', '<div class="' + checkForClass + '"></div>'));
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(ModelA).toHaveBeenCalled();
         expect(afterRenderSpy).toHaveBeenCalled();
       });
 
@@ -154,14 +153,14 @@ define(['footwork', 'lodash'],
         var createViewModelInstance;
 
         fw.viewModel.register(namespaceName, {
-          createViewModel: expectCallOrder(0, createViewModelInstance = jasmine.createSpy('createViewModel', function(params, info) {
+          createViewModel: createViewModelInstance = jasmine.createSpy('createViewModel', function(params, info) {
             expect(params.thing).toBe(boundPropertyValue);
             expect(info.element.id).toBe(boundPropertyValueElement);
 
             return {
               boundProperty: boundPropertyValue
             };
-          }).and.callThrough())
+          }).and.callThrough()
         });
 
         expect(createViewModelInstance).not.toHaveBeenCalled();
@@ -185,15 +184,15 @@ define(['footwork', 'lodash'],
         var initializeSpy;
         var afterRenderSpy;
 
-        fw.viewModel.register(namespaceName, expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+        fw.viewModel.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.viewModel.boot(this, {
             namespace: namespaceName,
-            afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+            afterRender: afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
               theElement = element;
               expect(theElement.className.indexOf(fw.animationClass.animateIn)).toBe(-1);
-            }).and.callThrough())
+            }).and.callThrough()
           });
-        }).and.callThrough()));
+        }).and.callThrough());
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).toBe(undefined);
@@ -216,15 +215,15 @@ define(['footwork', 'lodash'],
         var oldAnimateIn = fw.animationClass.animateIn;
         fw.animationClass.animateIn = null;
 
-        fw.viewModel.register(namespaceName, expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+        fw.viewModel.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.viewModel.boot(this, {
             namespace: namespaceName,
-            afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+            afterRender: afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
               theElement = element;
               expect(theElement.className.indexOf(fw.animationClass.animateIn)).toBe(-1);
-            }).and.callThrough())
+            }).and.callThrough()
           });
-        }).and.callThrough()));
+        }).and.callThrough());
 
         expect(initializeSpy).not.toHaveBeenCalled();
         expect(afterRenderSpy).toBe(undefined);
@@ -245,8 +244,8 @@ define(['footwork', 'lodash'],
         var namespaceNameInner = randomString();
         var initializeSpy = jasmine.createSpy('initializeSpy', function() { fw.viewModel.boot(this); });
 
-        fw.viewModel.register(namespaceNameOuter, expectCallOrder(0, initializeSpy));
-        fw.viewModel.register(namespaceNameInner, expectCallOrder(1, initializeSpy));
+        fw.viewModel.register(namespaceNameOuter, initializeSpy);
+        fw.viewModel.register(namespaceNameInner, initializeSpy);
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
@@ -311,34 +310,33 @@ define(['footwork', 'lodash'],
       it('calls onDispose when the containing element is removed from the DOM', function(done) {
         var namespaceName = generateNamespaceName();
         var theElement;
-        var initializeSpy;
         var afterRenderSpy;
         var onDisposeSpy;
 
-        var WrapperViewModel = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+        var WrapperViewModel = jasmine.createSpy('WrapperViewModelSpy', function() {
           fw.viewModel.boot(this);
           this.showIt = fw.observable(true);
-        }).and.callThrough());
+        }).and.callThrough();
 
         fw.viewModel.register(namespaceName, function() {
           fw.viewModel.boot(this, {
             namespace: namespaceName,
-            afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+            afterRender: afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
               theElement = element;
               expect(theElement.tagName).toBe('VIEWMODEL');
-            }).and.callThrough()),
-            onDispose: expectCallOrder(2, onDisposeSpy = jasmine.createSpy('onDisposeSpy', function(element) {
+            }).and.callThrough(),
+            onDispose: onDisposeSpy = jasmine.createSpy('onDisposeSpy', function(element) {
               expect(element).toBe(theElement);
-            }).and.callThrough())
+            }).and.callThrough()
           });
         });
 
-        expect(initializeSpy).not.toHaveBeenCalled();
+        expect(WrapperViewModel).not.toHaveBeenCalled();
         expect(afterRenderSpy).toBe(undefined);
 
         var wrapper = new WrapperViewModel();
 
-        expect(initializeSpy).toHaveBeenCalled();
+        expect(WrapperViewModel).toHaveBeenCalled();
         expect(afterRenderSpy).toBe(undefined);
 
         fw.applyBindings(wrapper, testContainer = getFixtureContainer('<div data-bind="if: showIt">\

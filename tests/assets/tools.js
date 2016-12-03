@@ -89,26 +89,6 @@ function randomString(length) {
 }
 
 /**
- * Checks that a callback has occured in a specified order
- *
- * @param {array|int} orderValue The order expected for the callback
- * @param {any} callback The callback to check when called
- * @returns {function} The original function wrapped which will check when it is called during the test
- */
-function expectCallOrder(orderValue, callback) {
-  callback = callback || _.noop;
-  return function callbackOrderCheck() {
-    if(Object.prototype.toString.call(orderValue) === '[object Array]') {
-      expect(orderValue.shift()).toBe(currentCallbackOrderIndex, '[' + _.result(callback.and || {}, 'identity') + '] order of callbacks specified in array is incorrect');
-    } else {
-      expect(orderValue).toBe(currentCallbackOrderIndex, '[' + _.result(callback.and || {}, 'identity') + '] order of callback specified is incorrect');
-    }
-    currentCallbackOrderIndex++;
-    return callback.apply(this, arguments);
-  };
-}
-
-/**
  * Adds error output for a test to its wrapper
  *
  * @param {array} failedTests The failed tests

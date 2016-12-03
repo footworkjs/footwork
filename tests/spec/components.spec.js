@@ -27,9 +27,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         fw.components.register(namespaceName, {
           template: '<div>a template</div>',
-          viewModel: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          viewModel: initializeSpy = jasmine.createSpy('initializeSpy', function() {
             fw.viewModel.boot(this);
-          }).and.callThrough())
+          }).and.callThrough()
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
@@ -48,9 +48,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         fw.components.register(namespaceName, {
           template: '<div>a template</div>',
-          viewModel: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          viewModel: initializeSpy = jasmine.createSpy('initializeSpy', function() {
             fw.viewModel.boot(this);
-          }).and.callThrough())
+          }).and.callThrough()
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
@@ -69,9 +69,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         fw.components.register(namespaceName, {
           template: '<div>a template</div>',
-          viewModel: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          viewModel: initializeSpy = jasmine.createSpy('initializeSpy', function() {
             fw.viewModel.boot(this);
-          }).and.callThrough())
+          }).and.callThrough()
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
@@ -306,25 +306,25 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var containerViewModel;
         var valueToCheckFor = randomString();
 
-        fw.viewModel.register(viewModelNamespaceName, expectCallOrder(0, viewModelInitializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
+        fw.viewModel.register(viewModelNamespaceName, viewModelInitializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
           fw.viewModel.boot(this, {
             namespace: viewModelNamespaceName
           });
           this.show = fw.observable(true);
           containerViewModel = this;
-        }).and.callThrough()));
+        }).and.callThrough());
 
         fw.components.register(componentNamespaceName, {
           template: '<span data-bind="text: someProperty"></span>',
-          viewModel: expectCallOrder(1, componentInitializeSpy = jasmine.createSpy('componentInitializeSpy', function() {
+          viewModel: componentInitializeSpy = jasmine.createSpy('componentInitializeSpy', function() {
             fw.viewModel.boot(this, {
               namespace: componentNamespaceName,
-              onDispose: expectCallOrder(2, componentOnDisposeSpy = jasmine.createSpy('componentOnDisposeSpy', function(containingElement) {
+              onDispose: componentOnDisposeSpy = jasmine.createSpy('componentOnDisposeSpy', function(containingElement) {
                 expect(containingElement.tagName).toBe(componentNamespaceName.toUpperCase());
-              }).and.callThrough())
+              }).and.callThrough()
             });
             this.someProperty = valueToCheckFor;
-          }).and.callThrough())
+          }).and.callThrough()
         });
 
         expect(viewModelInitializeSpy).not.toHaveBeenCalled();
@@ -361,14 +361,14 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         fw.components.register(componentNamespaceName, {
           template: '<div>a template</div>',
-          viewModel: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          viewModel: initializeSpy = jasmine.createSpy('initializeSpy', function() {
             fw.viewModel.boot(this, {
-              afterRender: expectCallOrder(1, afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
+              afterRender: afterRenderSpy = jasmine.createSpy('afterRenderSpy', function(element) {
                 theElement = element;
                 expect($(theElement).hasClass(fw.animationClass.animateIn)).toBe(false);
-              }).and.callThrough())
+              }).and.callThrough()
             })
-          }).and.callThrough())
+          }).and.callThrough()
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
@@ -434,12 +434,12 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         fw.components.register(outerComponentNamespaceName, {
           template: '<' + innerComponentNamespaceName + '></' + innerComponentNamespaceName + '>',
-          viewModel: expectCallOrder(0, outerInitializeSpy)
+          viewModel: outerInitializeSpy
         });
 
         fw.components.register(innerComponentNamespaceName, {
           template: '<div class="' + innerComponentNamespaceName + '"></div>',
-          viewModel: expectCallOrder(1, innerInitializeSpy)
+          viewModel: innerInitializeSpy
         });
 
         expect(outerInitializeSpy).not.toHaveBeenCalled();
@@ -461,9 +461,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         fw.components.register(componentNamespaceName, {
           template: '<div></div>',
-          viewModel: expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(params) {
+          viewModel: initializeSpy = jasmine.createSpy('initializeSpy', function(params) {
             expect(params).toEqual({ testValueOne: 1, testValueTwo: [1,2,3] });
-          }))
+          })
         });
 
         expect(initializeSpy).not.toHaveBeenCalled();
@@ -517,7 +517,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           return prependName(componentName);
         }).and.callThrough();
 
-        fw.components.fileExtensions(expectCallOrder([0, 1, 2], getFileExtensionsSpy));
+        fw.components.fileExtensions(getFileExtensionsSpy);
 
         var comp1Check = prependName('comp1', true);
         var comp2Check = prependName('comp2', true);

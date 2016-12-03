@@ -24,10 +24,10 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var subscriptionCallbackSpy;
         var testContext = { testContext: true };
 
-        namespace.subscribe('testMessageTopic', expectCallOrder(0, subscriptionCallbackSpy = jasmine.createSpy('subscriptionCallbackSpy', function(value) {
+        namespace.subscribe('testMessageTopic', subscriptionCallbackSpy = jasmine.createSpy('subscriptionCallbackSpy', function(value) {
           expect(value).toBe(testValue);
           expect(this).toBe(testContext);
-        })), testContext);
+        }), testContext);
 
         expect(subscriptionCallbackSpy).not.toHaveBeenCalled();
         namespace.publish('testMessageTopic', testValue);
@@ -38,7 +38,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var namespace = fw.namespace(generateNamespaceName());
         var subscriptionCallbackSpy = jasmine.createSpy('subscriptionCallbackSpy');
 
-        var subscription = namespace.subscribe('testMessageTopic', expectCallOrder(0, subscriptionCallbackSpy));
+        var subscription = namespace.subscribe('testMessageTopic', subscriptionCallbackSpy);
 
         expect(subscriptionCallbackSpy).not.toHaveBeenCalled();
 
@@ -57,9 +57,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var subscriptionCallbackSpy;
         var testValue = randomString();
 
-        namespace1.subscribe('testMessageTopic', expectCallOrder(0, subscriptionCallbackSpy = jasmine.createSpy('', function(parameter) {
+        namespace1.subscribe('testMessageTopic', subscriptionCallbackSpy = jasmine.createSpy('', function(parameter) {
           expect(parameter).toBe(testValue);
-        }).and.callThrough()));
+        }).and.callThrough());
 
         expect(subscriptionCallbackSpy).not.toHaveBeenCalled();
 
@@ -89,10 +89,10 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var handlerCallbackSpy;
         var responseValue = 'all-ok';
 
-        var requestHandler = namespace.requestHandler('testUnregisteredRequest', expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
+        var requestHandler = namespace.requestHandler('testUnregisteredRequest', handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function(parameter) {
           expect(parameter).toBe('optionalParam');
           return responseValue;
-        }).and.callThrough()));
+        }).and.callThrough());
 
         expect(handlerCallbackSpy).not.toHaveBeenCalled();
         expect(namespace.request('testUnregisteredRequest', 'optionalParam')).toBe(responseValue);
@@ -116,7 +116,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }).and.callThrough();
 
         _.each(namespaces, function(namespace, indexNumber) {
-          namespace.requestHandler('testMultipleRequest', expectCallOrder(indexNumber, handlerCallbackSpy));
+          namespace.requestHandler('testMultipleRequest', handlerCallbackSpy);
         });
 
         var namespace = fw.namespace(namespaceName);
@@ -127,7 +127,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var namespace = fw.namespace(generateNamespaceName());
         var handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy');
 
-        namespace.subscribe('testDispose', expectCallOrder(0, handlerCallbackSpy));
+        namespace.subscribe('testDispose', handlerCallbackSpy);
 
         expect(handlerCallbackSpy).not.toHaveBeenCalled();
 
@@ -143,7 +143,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var namespace = fw.namespace(generateNamespaceName());
         var handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy');
 
-        namespace.subscribe('testDispose', expectCallOrder(0, handlerCallbackSpy));
+        namespace.subscribe('testDispose', handlerCallbackSpy);
 
         expect(handlerCallbackSpy).not.toHaveBeenCalled();
 
@@ -160,9 +160,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var handlerCallbackSpy;
         var testValue = randomString();
 
-        namespace.requestHandler('testDispose', expectCallOrder(0, handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function() {
+        namespace.requestHandler('testDispose', handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function() {
           return testValue;
-        }).and.callThrough()));
+        }).and.callThrough());
 
         expect(handlerCallbackSpy).not.toHaveBeenCalled();
 
