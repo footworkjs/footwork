@@ -39,8 +39,9 @@ function dataModelBootstrap (instance, configParams) {
     });
 
     instance.$removeMap = function(path) {
-      var mappings = instance[privateDataSymbol].mappings();
-      delete mappings[path];
+      var mappedObservable = instance[privateDataSymbol].mappings()[path];
+      mappedObservable && mappedObservable.dispose();
+      delete instance[privateDataSymbol].mappings()[path];
       instance[privateDataSymbol].mappings.notifySubscribers();
     };
 
