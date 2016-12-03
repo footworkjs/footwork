@@ -291,11 +291,10 @@ function hasMappedField (referenceField) {
  * @returns {array} The list of dirty field mappings
  */
 function dirtyMap () {
-  var tree = {};
-  _.each(this[privateDataSymbol].mappings(), function(fieldObservable, fieldMap) {
-    tree[fieldMap] = fieldObservable.isDirty();
-  });
-  return tree;
+  return _.reduce(this[privateDataSymbol].mappings(), function(map, mappedObservable, path) {
+    map[path] = mappedObservable.isDirty();
+    return map;
+  }, {});
 }
 
 module.exports = {

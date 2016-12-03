@@ -35,11 +35,7 @@ function dataModelBootstrap (instance, configParams) {
       isFetching: fw.observable(false),
       isDestroying: fw.observable(false),
       isNew: fw.observable(true),
-      isDirty: fw.computed(function() {
-        return _.reduce(instance[privateDataSymbol].mappings(), function(isDirty, mappedField) {
-          return isDirty || mappedField.isDirty();
-        }, false);
-      })
+      isDirty: fw.observable(false)
     });
 
     _.extend(instance, {

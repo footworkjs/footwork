@@ -7,6 +7,13 @@ function getPrimaryKey (dataModel) {
   return dataModel[privateDataSymbol].configParams.idAttribute;
 }
 
+function evalDirtyState (dataModel) {
+  var mappings = dataModel[privateDataSymbol].mappings();
+  return _.reduce(mappings, function(dirty, mappedObservable, path) {
+    return dirty || mappedObservable.isDirty();
+  }, false);
+}
+
 /**
  * Take the desired mapPath and wire it into the dataModel. This enables footwork to hook into
  * your observables and map their values back to its POJO form and for communication with the server.
@@ -43,11 +50,15 @@ function map (mapPath, dataModel) {
     dataModel.$namespace.publish('_.change', { param: mapPath, value: value });
     mappedObservable.isDirty(true);
   });
+  var isDirtySubscription = mappedObservable.isDirty.subscribe(function (isDirty) {
+    dataModel.isDirty(evalDirtyState(dataModel));
+  });
 
   var disposeObservable = mappedObservable.dispose || _.noop;
   mappedObservable.dispose = function () {
     primaryKeySubscription && primaryKeySubscription.dispose();
     changeSubscription.dispose();
+    isDirtySubscription.dispose();
     disposeObservable.call(mappedObservable);
   };
 
