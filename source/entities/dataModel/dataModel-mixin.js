@@ -176,17 +176,9 @@ function destroy (options) {
  * @param {any} value
  * @param {object} options
  */
-function set (key, value, options) {
-  var attributes = {};
+function set (attributes, options) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
-
-  if (_.isString(key)) {
-    attributes = insertValueIntoObject(attributes, key, value);
-  } else if (_.isObject(key)) {
-    attributes = key;
-    options = value;
-  }
 
   options = _.extend({
     clearDirty: true

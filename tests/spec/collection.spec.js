@@ -652,7 +652,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can be instantiated and reset() correctly', function() {
-        var initializeSpy;
         var resetSpy;
         var persons = [];
         _.each(_.range(1, 8), function(id) {
@@ -665,14 +664,14 @@ define(['footwork', 'lodash', 'fetch-mock'],
         });
         var randomPerson = _.sample(persons);
 
-        var Person = initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
+        var Person = function(person) {
           fw.dataModel.boot(this);
           person = person || {};
           this.id = fw.observable(person.id).map('id', this);
           this.firstName = fw.observable(person.firstName || null).map('firstName', this);
           this.lastName = fw.observable(person.lastName || null).map('lastName', this);
           this.email = fw.observable(person.email || null).map('email', this);
-        }).and.callThrough();
+        };
 
         var people = fw.collection({
           dataModel: Person
