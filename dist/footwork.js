@@ -7021,7 +7021,7 @@ function collectionSync () {
 function get (id) {
   var collection = this;
   return _.find(collection(), function findModelWithId (model) {
-    return _.result(model, collection[privateDataSymbol].getIdAttribute()) === id || _.result(model, '$id') === id || _.result(model, '$cid') === id;
+    return _.result(model, collection[privateDataSymbol].getIdAttribute()) === id;
   });
 }
 
@@ -8024,29 +8024,22 @@ function dataModelBootstrap (instance, configParams) {
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
   if (!hasBeenBootstrapped) {
     instance[descriptor.isEntityDuckTag] = true;
+    instance[privateDataSymbol].idAttributeObservable = _.noop;
     instance[privateDataSymbol].mappings = fw.observable({});
-    configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.defaultConfig, configParams || {});
+    configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.resource.defaultConfig, configParams || {});
 
     _.extend(instance, descriptor.mixin, {
-      $cid: fw.utils.guid(),
-      $id: fw.observable().map(configParams.idAttribute, instance),
       isCreating: fw.observable(false),
       isSaving: fw.observable(false),
       isFetching: fw.observable(false),
       isDestroying: fw.observable(false),
-      isDirty: fw.computed(function() {
-        return _.reduce(instance[privateDataSymbol].mappings(), function(isDirty, mappedField) {
-          return isDirty || mappedField.isDirty();
-        }, false);
-      })
+      isNew: fw.observable(true),
+      isDirty: fw.observable(false)
     });
 
     _.extend(instance, {
-      requestInProgress: fw.computed(function() {
+      requestInProgress: fw.computed(function computeIfRequestInProgress () {
         return instance.isCreating() || instance.isSaving() || instance.isFetching() || instance.isDestroying();
-      }),
-      isNew: fw.computed(function() {
-        return !instance.$id();
       })
     });
   } else {
@@ -8090,8 +8083,7 @@ function fetchModel (options) {
     requestLull: configParams.requestLull,
     entity: dataModel,
     createRequest: function() {
-      var id = _.result(dataModel, configParams.idAttribute) || _.result(dataModel, '$id');
-      if (id) {
+      if (!dataModel.isNew()) {
         // retrieve data dataModel the from server using the id
         var xhr = dataModel.sync('read', dataModel, options);
 
@@ -8104,9 +8096,9 @@ function fetchModel (options) {
           });
 
         return xhr;
+      } else {
+        return Promise.reject(new Error("Must have ID provided to a dataModel in order to fetch its data"));
       }
-
-      return false;
     }
   };
 
@@ -8146,11 +8138,11 @@ function save (key, val, options) {
     patch: false
   }, options);
 
+  var method = dataModel.isNew() ? 'create' : (options.patch ? 'patch' : 'update');
   if (method === 'patch' && !options.attrs) {
     options.attrs = attrs;
   }
 
-  var method = !dataModel.$id() ? 'create' : (options.patch ? 'patch' : 'update');
   var requestInfo = {
     requestRunning: (method === 'create' ? dataModel.isCreating : dataModel.isSaving),
     requestLull: configParams.requestLull,
@@ -8218,7 +8210,7 @@ function destroy (options) {
 
       ajax.handleJsonResponse(xhr)
         .then(function handleResponseData (data) {
-          dataModel.$id(undefined);
+          dataModel[privateDataSymbol].idAttributeObservable(undefined);
           if (options.wait) {
             sendDestroyEvent();
           }
@@ -8265,12 +8257,6 @@ function set (key, value, options) {
       model.$namespace.publish('_.change.' + fieldMap, fieldValue);
     }
   });
-
-  // make sure that if the user supplied an id value that it is written to whatever available $id is available
-  // by default dataModels are instantiated with a $id, leaving it up to the user to (re)map it as desired
-  if(attributes[configParams.idAttribute] && !fw.isObservable(dataModel[configParams.idAttribute])) {
-    dataModel.$id(attributes[configParams.idAttribute]);
-  }
 
   if (mappingsChanged && options.clearDirty) {
     // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function
@@ -8359,11 +8345,10 @@ function hasMappedField (referenceField) {
  * @returns {array} The list of dirty field mappings
  */
 function dirtyMap () {
-  var tree = {};
-  _.each(this[privateDataSymbol].mappings(), function(fieldObservable, fieldMap) {
-    tree[fieldMap] = fieldObservable.isDirty();
-  });
-  return tree;
+  return _.reduce(this[privateDataSymbol].mappings(), function(map, mappedObservable, path) {
+    map[path] = mappedObservable.isDirty();
+    return map;
+  }, {});
 }
 
 module.exports = {
@@ -8401,7 +8386,14 @@ var entityName = 'dataModel';
 var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
 
 fw[entityName] = {
-  boot: require('./dataModel-bootstrap')
+  boot: require('./dataModel-bootstrap'),
+  defaultConfig: {
+    idAttribute: 'id',
+    url: null,
+    parse: _.identity,
+    fetchOptions: {},
+    requestLull: 0
+  }
 };
 
 var descriptor;
@@ -8413,15 +8405,7 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
   },
-  mixin: require('./dataModel-mixin'),
-  defaultConfig: {
-    idAttribute: 'id',
-    useIdInUrl: true,
-    url: null,
-    parse: false, // identity?
-    fetchOptions: {},
-    requestLull: 0
-  }
+  mixin: require('./dataModel-mixin')
 }));
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
@@ -8441,8 +8425,15 @@ var _ = require('footwork-lodash');
 
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 
-function getPrimaryKey (dataModel) {
+function idAttributePath (dataModel) {
   return dataModel[privateDataSymbol].configParams.idAttribute;
+}
+
+function evalDirtyState (dataModel) {
+  var mappings = dataModel[privateDataSymbol].mappings();
+  return _.reduce(mappings, function(dirty, mappedObservable, path) {
+    return dirty || mappedObservable.isDirty();
+  }, false);
 }
 
 /**
@@ -8454,29 +8445,25 @@ function getPrimaryKey (dataModel) {
  * @returns {observable} The mapped observable
  */
 function map (mapPath, dataModel) {
-  var mappedObservable = this;
-  var mapPath;
-  var dataModel;
-
   if (!fw.isDataModel(dataModel)) {
     throw Error('No dataModel context supplied for map observable');
   }
 
   var mappings = dataModel[privateDataSymbol].mappings();
-  var primaryKey = getPrimaryKey(dataModel);
+  var mappedObservable = this;
+  var idAttributeSubscription;
 
-  // add/set the registry entry for the mapped observable
+  // set the registry entry for the mapped observable
   mappings[mapPath] = mappedObservable;
 
-  if (mapPath === primaryKey) {
-    // mapping primary key, update/set the $id property on the dataModel
-    dataModel.$id = mappings[mapPath];
+  if (mapPath === idAttributePath(dataModel)) {
+    dataModel[privateDataSymbol].idAttributeObservable = mappedObservable;
+    dataModel.isNew(!mappedObservable());
 
-    if (fw.isObservable(dataModel.isNew) && _.isFunction(dataModel.isNew.dispose)) {
-      dataModel.isNew.dispose();
-    }
-    dataModel.isNew = fw.computed(function() {
-      return !dataModel.$id();
+    // dispose of the old primary key subscription and create subscription to new primary key observable
+    idAttributeSubscription && idAttributeSubscription.dispose();
+    idAttributeSubscription = mappedObservable.subscribe(function determineIfModelIsNew (idAttributeValue) {
+      dataModel.isNew(!idAttributeValue);
     });
   }
 
@@ -8485,10 +8472,15 @@ function map (mapPath, dataModel) {
     dataModel.$namespace.publish('_.change', { param: mapPath, value: value });
     mappedObservable.isDirty(true);
   });
+  var isDirtySubscription = mappedObservable.isDirty.subscribe(function (isDirty) {
+    dataModel.isDirty(evalDirtyState(dataModel));
+  });
 
   var disposeObservable = mappedObservable.dispose || _.noop;
   mappedObservable.dispose = function () {
+    idAttributeSubscription && idAttributeSubscription.dispose();
     changeSubscription.dispose();
+    isDirtySubscription.dispose();
     disposeObservable.call(mappedObservable);
   };
 
@@ -8761,11 +8753,6 @@ function removeAnimation () {
  * @returns {object} The instance that was passed in
  */
 function outletBootstrap (instance, configParams) {
-  /* istanbul ignore if */
-  if (!instance) {
-    throw Error('Must supply the instance to boot()');
-  }
-
   var descriptor = entityDescriptors.getDescriptor('outlet');
 
   // bootstrap/mixin viewModel functionality
@@ -8781,6 +8768,7 @@ function outletBootstrap (instance, configParams) {
 
     var resolvedCallbacks = [];
     instance.addResolvedCallbackOrExecute = function(callback) {
+      /* istanbul ignore else */
       if (instance.routeIsResolving()) {
         resolvedCallbacks.push(callback);
       } else {
@@ -8869,9 +8857,6 @@ function outletBootstrap (instance, configParams) {
         showLoaded();
       }
     });
-  } else {
-    /* istanbul ignore next */
-    throw Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
   }
 
   return instance;
@@ -9215,7 +9200,7 @@ function routerBootstrap (instance, configParams) {
   if (!hasBeenBootstrapped) {
     instance[descriptor.isEntityDuckTag] = true;
 
-    configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.defaultConfig, {
+    configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.resource.defaultConfig, {
       baseRoute: fw.router.baseRoute() + (resultBound(configParams, 'baseRoute', instance) || '')
     }, configParams || {});
 
@@ -9780,7 +9765,15 @@ fw[entityName] = {
   boot: require('./router-bootstrap'),
   baseRoute: fw.observable(''),
   activeRouteClassName: fw.observable('active'),
-  disableHistory: fw.observable(false)
+  disableHistory: fw.observable(false),
+  defaultConfig: {
+    showDuringLoad: require('./router-defaults').noComponentSelected,
+    onDispose: _.noop,
+    baseRoute: '',
+    activate: true,
+    beforeRoute: alwaysPassPredicate,
+    minTransitionPeriod: 0
+  }
 };
 
 var descriptor;
@@ -9792,15 +9785,7 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
   },
-  mixin: require('./router-mixin'),
-  defaultConfig: {
-    showDuringLoad: require('./router-defaults').noComponentSelected,
-    onDispose: _.noop,
-    baseRoute: '',
-    activate: true,
-    beforeRoute: alwaysPassPredicate,
-    minTransitionPeriod: 0
-  }
+  mixin: require('./router-mixin')
 }));
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
@@ -9816,6 +9801,7 @@ var entityDescriptors = require('../entity-descriptors');
 var postbox = require('../../namespace/postbox');
 var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
+var resultBound = require('../../misc/util').resultBound;
 
 /**
  * Bootstrap an instance with viewModel capabilities (lifecycle/etc).
@@ -9836,7 +9822,7 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
   if (!hasBeenBootstrapped) {
     instance[descriptor.isEntityDuckTag] = true;
 
-    configParams = _.extend({}, descriptor.defaultConfig, {
+    configParams = _.extend({}, descriptor.resource.defaultConfig, {
       namespace: (configParams || {}).namespace ? null : _.uniqueId('instance')
     }, configParams);
 
@@ -9847,7 +9833,7 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
     };
 
     _.extend(instance, descriptor.mixin, {
-      $namespace: fw.namespace(configParams.namespace)
+      $namespace: fw.namespace(resultBound(configParams, 'namespace', instance))
     });
 
     // Setup the request handler which returns the instance (fw.viewModel.get())
@@ -9926,7 +9912,14 @@ var entityName = 'viewModel';
 var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
 
 fw[entityName] = {
-  boot: require('./viewModel-bootstrap')
+  boot: require('./viewModel-bootstrap'),
+  defaultConfig: {
+    namespace: undefined,
+    afterRender: _.noop,
+    afterResolving: resolveEntityImmediately,
+    sequenceAnimations: false,
+    onDispose: _.noop
+  }
 };
 
 var descriptor;
@@ -9938,14 +9931,7 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
   },
-  mixin: require('./viewModel-mixin'),
-  defaultConfig: {
-    namespace: undefined,
-    afterRender: _.noop,
-    afterResolving: resolveEntityImmediately,
-    sequenceAnimations: false,
-    onDispose: _.noop
-  }
+  mixin: require('./viewModel-mixin')
 }));
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
@@ -9971,7 +9957,7 @@ var privateDataSymbol = util.getSymbol('footwork');
 
 require('../collection/collection-tools');
 
-// Map from CRUD to HTTP for our default `fw.sync` implementation.
+// Map from CRUD to REST for our default implementation.
 var methodMap = {
   'create': 'POST',
   'update': 'PUT',
@@ -9983,10 +9969,6 @@ var methodMap = {
 var parseURLRegex = /^(http[s]*:\/\/[a-zA-Z0-9:\.]*)*([\/]{0,1}[\w\.:\/-]*)$/;
 var parseParamsRegex = /(:[\w\.]+)/g;
 var trailingSlashRegex = /\/$/;
-
-function noURLError () {
-  throw Error('A "url" property or function must be specified');
-};
 
 /**
  * Creates or returns a promise based on the request specified in requestInfo.
@@ -10062,42 +10044,49 @@ function makeOrGetRequest (operationType, requestInfo) {
  * @returns {object} htr
  */
 function sync (action, concern, options) {
-  action = action || 'no-action';
-
   if (!fw.isDataModel(concern) && !fw.isCollection(concern)) {
-    throw Error('Must supply a dataModel or collection to fw.sync()');
-  }
-
-  if (!_.isString(methodMap[action])) {
-    throw Error('Invalid action (' + action + ') specified for sync operation');
+    throw Error('Must supply a dataModel or collection to sync');
   }
 
   var urlPieces;
   var configParams = concern[privateDataSymbol].configParams;
+
+  var method;
   var url = resultBound(configParams, 'url', concern);
+  if (_.isObject(url)) {
+    // user is explicitly defining the individual request method and url
+    var userAction = resultBound(url, action, concern, [action, options]);
+    if (_.isString(userAction)) {
+      userAction = userAction.split(' ');
+      method = userAction.shift();
+      url = userAction.join(' ');
+    }
+  } else if (_.isString(url)) {
+    // string specified, use the default method for this action and url
+    method = methodMap[action];
+
+    // add the :id to the url if needed
+    if (fw.isDataModel(concern) && _.includes(['read', 'update', 'patch', 'delete'], action)) {
+      urlPieces = url.split('?');
+      var urlRoute = urlPieces.shift();
+
+      var queryString = '';
+      if (urlPieces.length) {
+        queryString = '?' + urlPieces.join('?');
+      }
+
+      url = urlRoute.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute + queryString;
+    }
+  }
 
   if (!_.isString(url)) {
-    noURLError();
+    throw Error('A url must be specified for sync operation');
   }
 
-  // add the :id to the url if needed
-  if (fw.isDataModel(concern) && _.includes(['read', 'update', 'patch', 'delete'], action) && configParams.useIdInUrl) {
-    urlPieces = url.split('?');
-    var urlRoute = urlPieces.shift();
-
-    var queryString = '';
-    if(urlPieces.length) {
-      queryString = '?' + urlPieces.join('?');
-    }
-
-    url = urlRoute.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute + queryString;
-  }
-
-  // make sure it begins with the baseUrl
-  urlPieces = (url || noURLError()).match(parseURLRegex);
-  if (!_.isNull(urlPieces)) {
-    var baseURL = urlPieces[1] || '';
-    url = baseURL + _.last(urlPieces);
+  if (!_.isString(method)) {
+    throw Error('Invalid method (' + method + ') resolved for sync operation');
+  } else {
+    method = method.toUpperCase();
   }
 
   // replace any interpolated parameters
@@ -10112,7 +10101,7 @@ function sync (action, concern, options) {
 
   // construct the fetch options object
   options = _.extend({
-      method: methodMap[action].toUpperCase(),
+      method: method,
       body: null,
       headers: {}
     },
