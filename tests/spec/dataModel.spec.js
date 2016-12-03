@@ -85,7 +85,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var DataModel = function() {
           fw.dataModel.boot(this, { namespace: specificDataModelNamespace });
         };
-        var numToMake = _.random(8);
+        var numToMake = 8;
 
         var singleDataModelNamespace = generateNamespaceName();
         new (function() {
