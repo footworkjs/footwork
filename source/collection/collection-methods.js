@@ -15,7 +15,11 @@ function collectionSync () {
 function get (id) {
   var collection = this;
   return _.find(collection(), function findModelWithId (model) {
-    return _.result(model, collection[privateDataSymbol].getIdAttribute()) === id || _.result(model, '$id') === id || _.result(model, '$cid') === id;
+    var found = _.result(model, collection[privateDataSymbol].getIdAttribute()) === id;
+    if(fw.isDataModel(model) && !found) {
+      found = model[privateDataSymbol].primaryKey() === id;
+    }
+    return found;
   });
 }
 

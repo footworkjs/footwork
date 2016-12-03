@@ -29,8 +29,7 @@ function fetchModel (options) {
     requestLull: configParams.requestLull,
     entity: dataModel,
     createRequest: function() {
-      var id = _.result(dataModel, configParams.idAttribute);
-      if (id) {
+      if (!dataModel.isNew()) {
         // retrieve data dataModel the from server using the id
         var xhr = dataModel.sync('read', dataModel, options);
 
@@ -85,7 +84,7 @@ function save (key, val, options) {
     patch: false
   }, options);
 
-  var method = !dataModel.$id() ? 'create' : (options.patch ? 'patch' : 'update');
+  var method = dataModel.isNew() ? 'create' : (options.patch ? 'patch' : 'update');
   if (method === 'patch' && !options.attrs) {
     options.attrs = attrs;
   }
@@ -157,7 +156,7 @@ function destroy (options) {
 
       ajax.handleJsonResponse(xhr)
         .then(function handleResponseData (data) {
-          dataModel.$id(undefined);
+          dataModel[privateDataSymbol].primaryKey(undefined);
           if (options.wait) {
             sendDestroyEvent();
           }
@@ -204,12 +203,6 @@ function set (key, value, options) {
       model.$namespace.publish('_.change.' + fieldMap, fieldValue);
     }
   });
-
-  // make sure that if the user supplied an id value that it is written to whatever available $id is available
-  // by default dataModels are instantiated with a $id, leaving it up to the user to (re)map it as desired
-  if(attributes[configParams.idAttribute] && !fw.isObservable(dataModel[configParams.idAttribute])) {
-    dataModel.$id(attributes[configParams.idAttribute]);
-  }
 
   if (mappingsChanged && options.clearDirty) {
     // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function

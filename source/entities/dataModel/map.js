@@ -16,28 +16,25 @@ function getPrimaryKey (dataModel) {
  * @returns {observable} The mapped observable
  */
 function map (mapPath, dataModel) {
-  var mappedObservable = this;
-  var mapPath;
-
   if (!fw.isDataModel(dataModel)) {
     throw Error('No dataModel context supplied for map observable');
   }
 
   var mappings = dataModel[privateDataSymbol].mappings();
-  var primaryKey = getPrimaryKey(dataModel);
+  var mappedObservable = this;
+  var primaryKeySubscription;
 
-  // add/set the registry entry for the mapped observable
+  // set the registry entry for the mapped observable
   mappings[mapPath] = mappedObservable;
 
-  if (mapPath === primaryKey) {
-    // mapping primary key, update/set the $id property on the dataModel
-    dataModel.$id = mappings[mapPath];
+  if (mapPath === getPrimaryKey(dataModel)) {
+    dataModel[privateDataSymbol].primaryKey = mappedObservable;
+    dataModel.isNew(!mappedObservable());
 
-    if (fw.isObservable(dataModel.isNew) && _.isFunction(dataModel.isNew.dispose)) {
-      dataModel.isNew.dispose();
-    }
-    dataModel.isNew = fw.computed(function() {
-      return !dataModel.$id();
+    // dispose of the old primary key subscription and create subscription to new primary key observable
+    primaryKeySubscription && primaryKeySubscription.dispose();
+    primaryKeySubscription = mappedObservable.subscribe(function determineIfModelIsNew (primaryKeyValue) {
+      dataModel.isNew(!primaryKeyValue);
     });
   }
 
@@ -49,6 +46,7 @@ function map (mapPath, dataModel) {
 
   var disposeObservable = mappedObservable.dispose || _.noop;
   mappedObservable.dispose = function () {
+    primaryKeySubscription && primaryKeySubscription.dispose();
     changeSubscription.dispose();
     disposeObservable.call(mappedObservable);
   };

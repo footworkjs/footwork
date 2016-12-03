@@ -654,6 +654,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         var Person = expectCallOrder(0, initializeSpy = jasmine.createSpy('initializeSpy', function(person) {
           fw.dataModel.boot(this);
+          this.id = fw.observable(person.id).map('id', this);
           this.firstName = fw.observable(person.firstName).map('firstName', this);
           this.lastName = fw.observable(person.lastName).map('lastName', this);
           this.movieCollection = {
@@ -758,6 +759,10 @@ define(['footwork', 'lodash', 'fetch-mock'],
           fw.dataModel.boot(this);
           this.firstName = fw.observable().map('firstName', this);
           this.lastName = fw.observable().map('lastName', this);
+
+          this.id = fw.observable().map('id', this);
+          expect(this.isNew()).toBe(true);
+
           this.movieCollection = {
             action: fw.observableArray().map('movies.action', this),
             drama: fw.observableArray().map('movies.drama', this),
@@ -765,7 +770,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
             horror: fw.observableArray().map('movies.horror', this)
           };
 
-          this.id = fw.observable().map('id', this);
+          this.id = fw.observable(true).map('id', this);
+          expect(this.isNew()).toBe(false);
         }).and.callThrough());
 
         expect(initializeSpy).not.toHaveBeenCalled();
@@ -773,7 +779,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var person = new Person();
 
         expect(initializeSpy).toHaveBeenCalled();
-        expect(person.$id).toBe(person.id);
       });
 
       it('can correctly be flagged as isDirty when a mapped field value is altered', function() {
@@ -846,9 +851,10 @@ define(['footwork', 'lodash', 'fetch-mock'],
             url: mockUrl
           });
           person = person || {};
-          this.firstName = fw.observable(person.firstName || null).map('firstName', this);
-          this.lastName = fw.observable(person.lastName || null).map('lastName', this);
-          this.email = fw.observable(person.email || null).map('email', this);
+          this.id = fw.observable(person.id).map('id', this);
+          this.firstName = fw.observable(person.firstName).map('firstName', this);
+          this.lastName = fw.observable(person.lastName).map('lastName', this);
+          this.email = fw.observable(person.email).map('email', this);
         }).and.callThrough());
 
         expect(initializeSpy).not.toHaveBeenCalled();
@@ -865,7 +871,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(person.save()).toBeA('promise');
 
         setTimeout(function() {
-          expect(person.$id()).toBe(1);
+          expect(person.id()).toBe(1);
           expect(person.firstName()).toBe(postValue);
           done();
         }, ajaxWait);
@@ -894,9 +900,10 @@ define(['footwork', 'lodash', 'fetch-mock'],
             url: mockUrl
           });
           person = person || {};
-          this.firstName = fw.observable(person.firstName || null).map('firstName', this);
-          this.lastName = fw.observable(person.lastName || null).map('lastName', this);
-          this.email = fw.observable(person.email || null).map('email', this);
+          this.id = fw.observable(person.id).map('id', this);
+          this.firstName = fw.observable(person.firstName).map('firstName', this);
+          this.lastName = fw.observable(person.lastName).map('lastName', this);
+          this.email = fw.observable(person.email).map('email', this);
         }).and.callThrough();
 
         expect(initializeSpy).not.toHaveBeenCalled();
@@ -914,7 +921,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(person.save(saveData)).toBeA('promise');
 
         setTimeout(function() {
-          expect(person.$id()).toBe(1);
+          expect(person.id()).toBe(1);
           expect(person.firstName()).toBe(postValue);
 
           expect(saveDataSpy).toHaveBeenCalled();
@@ -945,9 +952,10 @@ define(['footwork', 'lodash', 'fetch-mock'],
             url: mockUrl
           });
           person = person || {};
-          this.firstName = fw.observable(person.firstName || null).map('firstName', this);
-          this.lastName = fw.observable(person.lastName || null).map('lastName', this);
-          this.email = fw.observable(person.email || null).map('email', this);
+          this.id = fw.observable(person.id).map('id', this);
+          this.firstName = fw.observable(person.firstName).map('firstName', this);
+          this.lastName = fw.observable(person.lastName).map('lastName', this);
+          this.email = fw.observable(person.email).map('email', this);
         }).and.callThrough();
 
         expect(initializeSpy).not.toHaveBeenCalled();
@@ -965,7 +973,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(person.save('firstName', postValue)).toBeA('promise');
 
         setTimeout(function() {
-          expect(person.$id()).toBe(1);
+          expect(person.id()).toBe(1);
           expect(person.firstName()).toBe(postValue);
 
           expect(saveDataSpy).toHaveBeenCalled();
@@ -1035,6 +1043,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             url: mockUrl
           });
           person = person || {};
+          this.id = fw.observable(person.id).map('id', this);
           this.firstName = fw.observable(person.firstName || null).map('firstName', this);
           this.lastName = fw.observable(person.lastName || null).map('lastName', this);
           this.email = fw.observable(person.email || null).map('email', this);
@@ -1051,7 +1060,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(person.save()).toBeA('promise');
 
         setTimeout(function() {
-          expect(person.$id()).toBe(1);
+          expect(person.id()).toBe(1);
           expect(person.firstName()).toBe(postValue);
           expect(person.firstName()).not.toBe(putValue);
 
@@ -1088,6 +1097,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             }).and.callThrough()),
           });
           person = person || {};
+          this.id = fw.observable(person.id).map('id', this);
           this.firstName = fw.observable(person.firstName || null).map('firstName', this);
           this.lastName = fw.observable(person.lastName || null).map('lastName', this);
           this.email = fw.observable(person.email || null).map('email', this);
@@ -1107,7 +1117,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         setTimeout(function() {
           expect(parseSpy).toHaveBeenCalled();
-          expect(person.$id()).toBe(1);
+          expect(person.id()).toBe(1);
           expect(person.firstName()).toBe(postValue);
           done();
         }, ajaxWait);
@@ -1146,7 +1156,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(person.fetch()).toBeA('promise');
 
         setTimeout(function() {
-          expect(person.$id()).toBe(personData.id);
+          expect(person.id()).toBe(personData.id);
           expect(person.firstName()).toBe(getValue);
           done();
         }, ajaxWait);
@@ -1330,7 +1340,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         setTimeout(function() {
           expect(parseSpy).toHaveBeenCalled();
-          expect(person.$id()).toBe(personData.id);
+          expect(person.id()).toBe(personData.id);
           expect(person.firstName()).toBe(getValue);
           done();
         }, ajaxWait);
@@ -1495,7 +1505,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(urlSpy).toHaveBeenCalled();
 
         setTimeout(function() {
-          expect(person.$id()).toBe(personData.id);
+          expect(person.id()).toBe(personData.id);
           expect(person.firstName()).toBe(getValue);
           done();
         }, ajaxWait);
