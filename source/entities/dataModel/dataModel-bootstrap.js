@@ -29,7 +29,6 @@ function dataModelBootstrap (instance, configParams) {
     configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.resource.defaultConfig, configParams || {});
 
     _.extend(instance, descriptor.mixin, {
-      $cid: fw.utils.guid(),
       $id: fw.observable().map(configParams.idAttribute, instance),
       isCreating: fw.observable(false),
       isSaving: fw.observable(false),

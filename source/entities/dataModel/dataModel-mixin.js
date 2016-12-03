@@ -29,7 +29,7 @@ function fetchModel (options) {
     requestLull: configParams.requestLull,
     entity: dataModel,
     createRequest: function() {
-      var id = _.result(dataModel, configParams.idAttribute) || _.result(dataModel, '$id');
+      var id = _.result(dataModel, configParams.idAttribute);
       if (id) {
         // retrieve data dataModel the from server using the id
         var xhr = dataModel.sync('read', dataModel, options);
