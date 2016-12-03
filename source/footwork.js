@@ -13,7 +13,6 @@ fw.isNamespace = function(thing) {
 };
 
 fw.sync = require('./misc/ajax').sync;
-fw.utils.guid = util.guid;
 fw.utils.getPrivateData = util.getPrivateData;
 
 require('./broadcastable-receivable/broadcastable');
