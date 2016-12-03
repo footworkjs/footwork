@@ -4,6 +4,7 @@ var _ = require('footwork-lodash');
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 var entityDescriptors = require('../entity-descriptors');
 var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
+var evalDirtyState = require('./data-tools').evalDirtyState;
 
 /**
  * Bootstrap an instance with dataModel capabilities (fetch/save/map/etc).
@@ -38,18 +39,19 @@ function dataModelBootstrap (instance, configParams) {
       isDirty: fw.observable(false)
     });
 
-    instance.$removeMap = function(path) {
-      var mappedObservable = instance[privateDataSymbol].mappings()[path];
-      mappedObservable && mappedObservable.dispose();
-      delete instance[privateDataSymbol].mappings()[path];
-      instance[privateDataSymbol].mappings.notifySubscribers();
-    };
-
     _.extend(instance, {
       requestInProgress: fw.computed(function computeIfRequestInProgress () {
         return instance.isCreating() || instance.isSaving() || instance.isFetching() || instance.isDestroying();
       })
     });
+
+    instance.$removeMap = function (path) {
+      var mappedObservable = instance[privateDataSymbol].mappings()[path];
+      mappedObservable && mappedObservable.dispose();
+      delete instance[privateDataSymbol].mappings()[path];
+      instance[privateDataSymbol].mappings.notifySubscribers();
+      instance.isDirty(evalDirtyState(instance));
+    };
   } else {
     throw Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
   }

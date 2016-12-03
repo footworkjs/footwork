@@ -1,5 +1,7 @@
 var _ = require('footwork-lodash');
 
+var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
+
 function insertValueIntoObject (rootObject, fieldMap, fieldValue) {
   if (_.isString(fieldMap)) {
     return insertValueIntoObject(rootObject, fieldMap.split('.'), fieldValue);
@@ -39,7 +41,15 @@ function getNestedReference (rootObject, fieldMap) {
   return !_.isString(propName) ? rootObject : _.result(rootObject || {}, propName);
 }
 
+function evalDirtyState (dataModel) {
+  var mappings = dataModel[privateDataSymbol].mappings();
+  return _.reduce(mappings, function(dirty, mappedObservable, path) {
+    return dirty || mappedObservable.isDirty();
+  }, false);
+}
+
 module.exports = {
   insertValueIntoObject: insertValueIntoObject,
-  getNestedReference: getNestedReference
+  getNestedReference: getNestedReference,
+  evalDirtyState: evalDirtyState
 };

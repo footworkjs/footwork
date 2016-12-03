@@ -2,16 +2,10 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
+var evalDirtyState = require('./data-tools').evalDirtyState;
 
 function idAttributePath (dataModel) {
   return dataModel[privateDataSymbol].configParams.idAttribute;
-}
-
-function evalDirtyState (dataModel) {
-  var mappings = dataModel[privateDataSymbol].mappings();
-  return _.reduce(mappings, function(dirty, mappedObservable, path) {
-    return dirty || mappedObservable.isDirty();
-  }, false);
 }
 
 /**
