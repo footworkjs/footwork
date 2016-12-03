@@ -25,7 +25,7 @@ function dataModelBootstrap (instance, configParams) {
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
   if (!hasBeenBootstrapped) {
     instance[descriptor.isEntityDuckTag] = true;
-    instance[privateDataSymbol].primaryKey = _.noop;
+    instance[privateDataSymbol].idAttributeObservable = _.noop;
     instance[privateDataSymbol].mappings = fw.observable({});
     configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.resource.defaultConfig, configParams || {});
 
@@ -39,7 +39,7 @@ function dataModelBootstrap (instance, configParams) {
     });
 
     _.extend(instance, {
-      requestInProgress: fw.computed(function() {
+      requestInProgress: fw.computed(function computeIfRequestInProgress () {
         return instance.isCreating() || instance.isSaving() || instance.isFetching() || instance.isDestroying();
       })
     });

@@ -156,7 +156,7 @@ function destroy (options) {
 
       ajax.handleJsonResponse(xhr)
         .then(function handleResponseData (data) {
-          dataModel[privateDataSymbol].primaryKey(undefined);
+          dataModel[privateDataSymbol].idAttributeObservable(undefined);
           if (options.wait) {
             sendDestroyEvent();
           }

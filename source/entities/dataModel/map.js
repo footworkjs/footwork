@@ -3,7 +3,7 @@ var _ = require('footwork-lodash');
 
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 
-function getPrimaryKey (dataModel) {
+function idAttributePath (dataModel) {
   return dataModel[privateDataSymbol].configParams.idAttribute;
 }
 
@@ -29,19 +29,19 @@ function map (mapPath, dataModel) {
 
   var mappings = dataModel[privateDataSymbol].mappings();
   var mappedObservable = this;
-  var primaryKeySubscription;
+  var idAttributeSubscription;
 
   // set the registry entry for the mapped observable
   mappings[mapPath] = mappedObservable;
 
-  if (mapPath === getPrimaryKey(dataModel)) {
-    dataModel[privateDataSymbol].primaryKey = mappedObservable;
+  if (mapPath === idAttributePath(dataModel)) {
+    dataModel[privateDataSymbol].idAttributeObservable = mappedObservable;
     dataModel.isNew(!mappedObservable());
 
     // dispose of the old primary key subscription and create subscription to new primary key observable
-    primaryKeySubscription && primaryKeySubscription.dispose();
-    primaryKeySubscription = mappedObservable.subscribe(function determineIfModelIsNew (primaryKeyValue) {
-      dataModel.isNew(!primaryKeyValue);
+    idAttributeSubscription && idAttributeSubscription.dispose();
+    idAttributeSubscription = mappedObservable.subscribe(function determineIfModelIsNew (idAttributeValue) {
+      dataModel.isNew(!idAttributeValue);
     });
   }
 
@@ -56,7 +56,7 @@ function map (mapPath, dataModel) {
 
   var disposeObservable = mappedObservable.dispose || _.noop;
   mappedObservable.dispose = function () {
-    primaryKeySubscription && primaryKeySubscription.dispose();
+    idAttributeSubscription && idAttributeSubscription.dispose();
     changeSubscription.dispose();
     isDirtySubscription.dispose();
     disposeObservable.call(mappedObservable);

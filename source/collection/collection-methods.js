@@ -17,7 +17,7 @@ function get (id) {
   return _.find(collection(), function findModelWithId (model) {
     var found = _.result(model, collection[privateDataSymbol].getIdAttribute()) === id;
     if(fw.isDataModel(model) && !found) {
-      found = model[privateDataSymbol].primaryKey() === id;
+      found = model[privateDataSymbol].idAttributeObservable() === id;
     }
     return found;
   });
