@@ -85,7 +85,7 @@ define(['footwork', 'lodash'],
         var ViewModel = function() {
           fw.viewModel.boot(this, { namespace: specificViewModelNamespace });
         };
-        var numToMake = _.random(2,15);
+        var numToMake = 8;
 
         for(var x = numToMake; x; x--) {
           viewModels.push(new ViewModel());

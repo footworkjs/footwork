@@ -23,24 +23,19 @@ function evalDirtyState (dataModel) {
  * @returns {observable} The mapped observable
  */
 function map (mapPath, dataModel) {
+  var mappedObservable = this;
+
   if (!fw.isDataModel(dataModel)) {
     throw Error('No dataModel context supplied for map observable');
   }
-
-  var mappings = dataModel[privateDataSymbol].mappings();
-  var mappedObservable = this;
-  var idAttributeSubscription;
-
-  // set the registry entry for the mapped observable
-  mappings[mapPath] = mappedObservable;
 
   if (mapPath === idAttributePath(dataModel)) {
     dataModel[privateDataSymbol].idAttributeObservable = mappedObservable;
     dataModel.isNew(!mappedObservable());
 
     // dispose of the old primary key subscription and create subscription to new primary key observable
-    idAttributeSubscription && idAttributeSubscription.dispose();
-    idAttributeSubscription = mappedObservable.subscribe(function determineIfModelIsNew (idAttributeValue) {
+    dataModel[privateDataSymbol].idAttributeSubscription && dataModel[privateDataSymbol].idAttributeSubscription.dispose();
+    dataModel[privateDataSymbol].idAttributeSubscription = mappedObservable.subscribe(function determineIfModelIsNew (idAttributeValue) {
       dataModel.isNew(!idAttributeValue);
     });
   }
@@ -56,12 +51,13 @@ function map (mapPath, dataModel) {
 
   var disposeObservable = mappedObservable.dispose || _.noop;
   mappedObservable.dispose = function () {
-    idAttributeSubscription && idAttributeSubscription.dispose();
+    dataModel[privateDataSymbol].idAttributeSubscription && dataModel[privateDataSymbol].idAttributeSubscription.dispose();
     changeSubscription.dispose();
     isDirtySubscription.dispose();
     disposeObservable.call(mappedObservable);
   };
 
+  dataModel[privateDataSymbol].mappings()[mapPath] = mappedObservable;
   dataModel[privateDataSymbol].mappings.valueHasMutated();
 
   return mappedObservable;

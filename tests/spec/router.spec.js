@@ -89,7 +89,7 @@ define(['footwork', 'lodash'],
         var Router = function() {
           fw.router.boot(this, { namespace: specificRouterNamespace });
         };
-        var numToMake = _.random(2,15);
+        var numToMake = 8;
 
         for(var x = numToMake; x; x--) {
           routers.push(new Router());

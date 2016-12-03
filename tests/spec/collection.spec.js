@@ -703,7 +703,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var fetchOptionsSpy;
         var changeEventSpy;
         var persons = [];
-        _.each(_.range(2, _.random(5, 10)), function(id) {
+        _.each(_.range(1, 8), function(id) {
           persons.push({
             firstName: randomString(),
             lastName: randomString(),

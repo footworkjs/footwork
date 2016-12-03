@@ -172,9 +172,9 @@ function destroy (options) {
 /**
  * set attributes in model (clears isDirty on observables/fields it saves to by default)
  *
- * @param {string} key
- * @param {any} value
+ * @param {object} attributes The attributes you want to set (only mapped values will be written)
  * @param {object} options
+ * @returns {object} The dataModel instance for chaining
  */
 function set (attributes, options) {
   var dataModel = this;

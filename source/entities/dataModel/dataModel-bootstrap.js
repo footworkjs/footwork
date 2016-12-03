@@ -38,6 +38,12 @@ function dataModelBootstrap (instance, configParams) {
       isDirty: fw.observable(false)
     });
 
+    instance.$removeMap = function(path) {
+      var mappings = instance[privateDataSymbol].mappings();
+      delete mappings[path];
+      instance[privateDataSymbol].mappings.notifySubscribers();
+    };
+
     _.extend(instance, {
       requestInProgress: fw.computed(function computeIfRequestInProgress () {
         return instance.isCreating() || instance.isSaving() || instance.isFetching() || instance.isDestroying();

@@ -85,7 +85,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var DataModel = function() {
           fw.dataModel.boot(this, { namespace: specificDataModelNamespace });
         };
-        var numToMake = _.random(2,15);
+        var numToMake = _.random(8);
 
         var singleDataModelNamespace = generateNamespaceName();
         new (function() {
@@ -420,6 +420,36 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         expect(person.hasMappedField('firstName')).toBe(true);
         expect(person.hasMappedField('lastName')).toBe(true);
+      });
+
+      it('can have an observable mapped and unmapped correctly', function() {
+        var Person = jasmine.createSpy('PersonSpy', function(person) {
+          fw.dataModel.boot(this);
+          this.firstName = fw.observable(person.firstName).map('firstName', this);
+          this.lastName = fw.observable(person.lastName).map('lastName', this);
+        }).and.callThrough();
+
+        expect(Person).not.toHaveBeenCalled();
+
+        var personData = {
+          firstName: randomString(),
+          lastName: randomString()
+        };
+        var personDataNoFirstName = {
+          lastName: personData.lastName
+        };
+
+        var person = new Person(personData);
+
+        expect(Person).toHaveBeenCalled();
+
+        expect(person.hasMappedField('firstName')).toBe(true);
+        expect(person.hasMappedField('lastName')).toBe(true);
+        expect(person.get()).toEqual(personData);
+
+        person.$removeMap('firstName');
+        expect(person.hasMappedField('firstName')).toBe(false);
+        expect(person.get()).toEqual(personDataNoFirstName);
       });
 
       it('can have an observable mapped correctly at a nested level', function() {
