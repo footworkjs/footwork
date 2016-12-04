@@ -5,6 +5,7 @@ var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 var dataTools = require('./data-tools');
 var insertValueIntoObject = dataTools.insertValueIntoObject;
 var getNestedReference = dataTools.getNestedReference;
+var evalDirtyState = dataTools.evalDirtyState;
 
 function isNode (thing) {
   var thingIsObject = _.isObject(thing);
@@ -54,29 +55,15 @@ function fetchModel (options) {
 /**
  * PUT / POST / PATCH to server
  *
- * @param {string} (optional) key
- * @param {any} (optional) val
+ * @param {string} (optional) attrs
  * @param {object} options (optional) Options passed to sync()
  * @returns {object} Promise Promise for the HTTP Request
  */
-function save (key, val, options) {
+function save (attrs, options) {
   var ajax = require('../../misc/ajax');
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
-  var attrs = null;
-
-  if (_.isObject(key) && !isNode(key)) {
-    attrs = key;
-    options = val;
-  } else if (_.isString(key) && arguments.length > 1) {
-    (attrs = {})[key] = val;
-    options = _.extend(options || {}, { attrs: attrs });
-  }
-
-  if (_.isObject(options) && _.isFunction(options.stopPropagation)) {
-    // method called as a result of an event binding, ignore its 'options'
-    options = {};
-  }
+  var attrs = isNode(attrs) ? {} : attrs;
 
   options = _.extend({
     parse: true,
@@ -125,7 +112,7 @@ function save (key, val, options) {
  * Delete/destroy the data on the server.
  *
  * @param {object} options (optional) Options passed to sync()
- * @returns {object} Promise Promise for the HTTP Request
+ * @returns {object} Promise for the HTTP Request
  */
 function destroy (options) {
   var ajax = require('../../misc/ajax');
@@ -144,7 +131,7 @@ function destroy (options) {
       var success = options.success;
       var wait = options.wait;
 
-      var sendDestroyEvent = function() {
+      function sendDestroyEvent () {
         dataModel.$namespace.publish('destroy', options);
       };
 
@@ -173,32 +160,28 @@ function destroy (options) {
  * set attributes in model (clears isDirty on observables/fields it saves to by default)
  *
  * @param {object} attributes The attributes you want to set (only mapped values will be written)
- * @param {object} options
+ * @param {object} clearDirty flag indicating whether or not to clear the isDirty flag on any set observables
  * @returns {object} The dataModel instance for chaining
  */
-function set (attributes, options) {
+function set (attributes, clearDirty) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
 
-  options = _.extend({
-    clearDirty: true
-  }, options);
+  clearDirty = clearDirty || _.isUndefined(clearDirty);
 
   var mappingsChanged = false;
-  var model = this;
   _.each(this[privateDataSymbol].mappings(), function(fieldObservable, fieldMap) {
     var fieldValue = getNestedReference(attributes, fieldMap);
     if (!_.isUndefined(fieldValue)) {
       fw.isWriteableObservable(fieldObservable) && fieldObservable(fieldValue);
       mappingsChanged = true;
-      options.clearDirty && fieldObservable.isDirty(false);
-      model.$namespace.publish('_.change.' + fieldMap, fieldValue);
+      clearDirty && fieldObservable.isDirty(false);
+      dataModel.$namespace.publish('_.change.' + fieldMap, fieldValue);
     }
   });
 
-  if (mappingsChanged && options.clearDirty) {
-    // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function
-    this[privateDataSymbol].mappings.valueHasMutated();
+  if (mappingsChanged && clearDirty) {
+    dataModel.isDirty(evalDirtyState(dataModel));
   }
 
   return this;
