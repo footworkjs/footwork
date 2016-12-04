@@ -170,13 +170,12 @@ function set (attributes, clearDirty) {
   clearDirty = clearDirty || _.isUndefined(clearDirty);
 
   var mappingsChanged = false;
-  _.each(this[privateDataSymbol].mappings(), function(fieldObservable, fieldMap) {
+  _.each(this[privateDataSymbol].mappings, function(fieldObservable, fieldMap) {
     var fieldValue = getNestedReference(attributes, fieldMap);
     if (!_.isUndefined(fieldValue)) {
       fw.isWriteableObservable(fieldObservable) && fieldObservable(fieldValue);
       mappingsChanged = true;
       clearDirty && fieldObservable.isDirty(false);
-      dataModel.$namespace.publish('_.change.' + fieldMap, fieldValue);
     }
   });
 
@@ -204,7 +203,7 @@ function getData (referenceField, includeRoot) {
     throw Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.get().');
   }
 
-  var mappedObject = _.reduce(this[privateDataSymbol].mappings(), function reduceModelToObject (jsObject, fieldObservable, fieldMap) {
+  var mappedObject = _.reduce(this[privateDataSymbol].mappings, function reduceModelToObject (jsObject, fieldObservable, fieldMap) {
     if (_.isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
       insertValueIntoObject(jsObject, fieldMap, fieldObservable());
     }
@@ -232,7 +231,7 @@ function clean (field) {
   if (!_.isUndefined(field)) {
     var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
   }
-  _.each(this[privateDataSymbol].mappings(), function(fieldObservable, fieldMap) {
+  _.each(this[privateDataSymbol].mappings, function(fieldObservable, fieldMap) {
     if (_.isUndefined(field) || fieldMap.match(fieldMatch)) {
       fieldObservable.isDirty(false);
     }
@@ -257,7 +256,7 @@ function dataModelSync () {
  * @returns {boolean} true if the field has been mapped, false if not
  */
 function hasMappedField (referenceField) {
-  return !!this[privateDataSymbol].mappings()[referenceField];
+  return !!this[privateDataSymbol].mappings[referenceField];
 }
 
 /**
@@ -266,7 +265,7 @@ function hasMappedField (referenceField) {
  * @returns {array} The list of dirty field mappings
  */
 function dirtyMap () {
-  return _.reduce(this[privateDataSymbol].mappings(), function(map, mappedObservable, path) {
+  return _.reduce(this[privateDataSymbol].mappings, function(map, mappedObservable, path) {
     map[path] = mappedObservable.isDirty();
     return map;
   }, {});

@@ -42,8 +42,7 @@ function getNestedReference (rootObject, fieldMap) {
 }
 
 function evalDirtyState (dataModel) {
-  var mappings = dataModel[privateDataSymbol].mappings();
-  return _.reduce(mappings, function(dirty, mappedObservable, path) {
+  return _.reduce(dataModel[privateDataSymbol].mappings, function(dirty, mappedObservable, path) {
     return dirty || mappedObservable.isDirty();
   }, false);
 }

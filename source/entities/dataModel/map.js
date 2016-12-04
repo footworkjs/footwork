@@ -51,8 +51,7 @@ function map (mapPath, dataModel) {
     disposeObservable.call(mappedObservable);
   };
 
-  dataModel[privateDataSymbol].mappings()[mapPath] = mappedObservable;
-  dataModel[privateDataSymbol].mappings.valueHasMutated();
+  dataModel[privateDataSymbol].mappings[mapPath] = mappedObservable;
 
   return mappedObservable;
 }

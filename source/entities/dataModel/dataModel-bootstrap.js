@@ -27,7 +27,7 @@ function dataModelBootstrap (instance, configParams) {
   if (!hasBeenBootstrapped) {
     instance[descriptor.isEntityDuckTag] = true;
     instance[privateDataSymbol].idAttributeObservable = _.noop;
-    instance[privateDataSymbol].mappings = fw.observable({});
+    instance[privateDataSymbol].mappings = {};
     configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.resource.defaultConfig, configParams || {});
 
     _.extend(instance, descriptor.mixin, {
@@ -46,10 +46,9 @@ function dataModelBootstrap (instance, configParams) {
     });
 
     instance.$removeMap = function (path) {
-      var mappedObservable = instance[privateDataSymbol].mappings()[path];
+      var mappedObservable = instance[privateDataSymbol].mappings[path];
       mappedObservable && mappedObservable.dispose();
-      delete instance[privateDataSymbol].mappings()[path];
-      instance[privateDataSymbol].mappings.notifySubscribers();
+      delete instance[privateDataSymbol].mappings[path];
       instance.isDirty(evalDirtyState(instance));
     };
   } else {
