@@ -1,3 +1,5 @@
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('footwork-lodash');
 var privateDataSymbol = require('../misc/util').getSymbol('footwork');
 
 /**
@@ -17,14 +19,10 @@ function Namespace (namespaceName) {
   };
 };
 
-var namespaceMethods = require('./namespace-methods');
+_.extend(Namespace.prototype, require('./namespace-methods'));
 
-Namespace.prototype.publish = namespaceMethods.publish;
-Namespace.prototype.subscribe = namespaceMethods.subscribe;
-Namespace.prototype.unsubscribe = namespaceMethods.unsubscribe;
-Namespace.prototype.request = namespaceMethods.request;
-Namespace.prototype.requestHandler = namespaceMethods.requestHandler;
-Namespace.prototype.getName = namespaceMethods.getName;
-Namespace.prototype.dispose = namespaceMethods.dispose;
+fw.namespace = Namespace;
 
-module.exports = Namespace;
+fw.isNamespace = function(thing) {
+  return thing instanceof fw.namespace;
+};

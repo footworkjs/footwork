@@ -469,7 +469,61 @@ define(['footwork', 'lodash'],
         }, ajaxWait);
       });
 
-      it('can trigger a specified route', function(done) {
+      it('can trigger a specified route and have the title set correctly', function(done) {
+        var mockUrl = generateUrl();
+        var mockUrl2 = generateUrl();
+        var namespaceName = generateNamespaceName();
+        var routeControllerSpy = jasmine.createSpy('routeControllerSpy');
+        var initializeSpy;
+        var router;
+        var testTitle = randomString();
+        var testTitle2 = randomString();
+
+        fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.router.boot(this, {
+            namespace: namespaceName,
+            routes: [
+              {
+                route: mockUrl,
+                title: testTitle,
+                controller: routeControllerSpy
+              },
+              {
+                route: mockUrl2,
+                title: function() {
+                  return testTitle2;
+                },
+                controller: routeControllerSpy
+              }
+            ]
+          });
+          router = this;
+        }).and.callThrough());
+
+        expect(routeControllerSpy).not.toHaveBeenCalled();
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '"></router>'));
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+
+          router.pushState(mockUrl);
+          expect(routeControllerSpy).toHaveBeenCalled();
+          expect(router.$currentRoute().route).toBe(mockUrl);
+          expect(document.title).toBe(testTitle);
+
+          router.pushState(mockUrl2);
+          expect(routeControllerSpy).toHaveBeenCalledTimes(2);
+          expect(router.$currentRoute().route).toBe(mockUrl2);
+          expect(document.title).toBe(testTitle2);
+
+          done();
+        }, ajaxWait);
+      });
+
+      it('can trigger a specified route while removing the configured baseRoute', function(done) {
+        var baseRoute = generateUrl();
         var mockUrl = generateUrl();
         var mockUrl2 = generateUrl();
         var namespaceName = generateNamespaceName();
@@ -480,6 +534,7 @@ define(['footwork', 'lodash'],
         fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.router.boot(this, {
             namespace: namespaceName,
+            baseRoute: baseRoute,
             routes: [
               {
                 route: mockUrl,
@@ -502,11 +557,11 @@ define(['footwork', 'lodash'],
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
 
-          router.pushState(mockUrl);
+          router.pushState(baseRoute + mockUrl);
           expect(routeControllerSpy).toHaveBeenCalled();
           expect(router.$currentRoute().route).toBe(mockUrl);
 
-          router.pushState(mockUrl2);
+          router.pushState(baseRoute + mockUrl2);
           expect(routeControllerSpy).toHaveBeenCalledTimes(2);
           expect(router.$currentRoute().route).toBe(mockUrl2);
 

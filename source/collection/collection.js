@@ -5,6 +5,10 @@ var collectionMethods = require('./collection-methods');
 var privateDataSymbol = require('../misc/util').getSymbol('footwork');
 var getSymbol = require('../misc/util').getSymbol;
 
+fw.isCollection = function (thing) {
+  return _.isObject(thing) && !!thing[getSymbol('isCollection')];
+};
+
 var defaultCollectionConfig = {
   namespace: null,
   url: null,

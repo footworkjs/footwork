@@ -7,8 +7,6 @@ var promiseIsFulfilled = util.promiseIsFulfilled;
 var isPromise = util.isPromise;
 var privateDataSymbol = util.getSymbol('footwork');
 
-require('../collection/collection-tools');
-
 // Map from CRUD to REST for our default implementation.
 var methodMap = {
   'create': 'POST',
@@ -226,9 +224,9 @@ function handleJsonResponse (xhr) {
 }
 
 fw.fetchOptions = {};
+fw.sync = sync;
 
 module.exports = {
-  sync: sync,
   makeOrGetRequest: makeOrGetRequest,
   handleJsonResponse: handleJsonResponse,
   makePromiseQueryable: makePromiseQueryable

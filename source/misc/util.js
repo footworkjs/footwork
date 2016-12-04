@@ -1,3 +1,4 @@
+var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 /**
@@ -238,6 +239,8 @@ function makeArray (arrayLikeObject) {
   }
   return convertedArray;
 }
+
+fw.utils.getPrivateData = getPrivateData;
 
 module.exports = {
   alwaysPassPredicate: alwaysPassPredicate,

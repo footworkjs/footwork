@@ -8,6 +8,10 @@ var privateDataSymbol = util.getSymbol('footwork');
 
 var sequenceQueue = {};
 
+fw.animationClass = {
+  animateIn: 'animateIn'
+};
+
 /**
  * Clear (run all of) the animation sequence queues immediately.
  */

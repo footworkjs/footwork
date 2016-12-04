@@ -34,7 +34,7 @@ fw.components.register = function (componentName, options) {
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || fw[privateDataSymbol].ViewModel,
+    viewModel: viewModel,
     template: options.template
   });
 };

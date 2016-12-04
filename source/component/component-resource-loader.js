@@ -38,7 +38,7 @@ fw.components.loaders.push(fw.components.locationLoader = {
 
         if (!_.isString(componentLocation.viewModel)) {
           // template-only component, substitute with 'blank' viewModel
-          viewModelConfig = fw[privateDataSymbol].ViewModel;
+          viewModelConfig = _.noop;
         } else {
           // user has supplied the location of the viewModel, specify require config to download
           var viewModelPath = componentLocation.viewModel;

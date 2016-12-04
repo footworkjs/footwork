@@ -82,7 +82,7 @@ function unregisterOutlet (router, outletName) {
 
 function trimBaseRoute (router, url) {
   var configParams = router[privateDataSymbol].configParams;
-  if (configParams.baseRoute && url.indexOf(configParams.baseRoute) === 0) {
+  if (configParams.baseRoute && url && url.indexOf(configParams.baseRoute) === 0) {
     url = url.substr(configParams.baseRoute.length);
     if (url.length > 1) {
       url = url.replace(hashMatchRegex, '/');
@@ -140,6 +140,7 @@ function changeRoute (router, historyMethod, route, routeParams) {
       route = trimBaseRoute(router, route);
 
       if (resultBound(configParams, 'beforeRoute', router, [route || '/'])) {
+        /* istanbul ignore if */
         if (!router[privateDataSymbol].activating && route && router[privateDataSymbol].historyPopstateListener() && !fw.router.disableHistory()) {
           history[historyMethod + 'State'](null, '', configParams.baseRoute + route);
         }

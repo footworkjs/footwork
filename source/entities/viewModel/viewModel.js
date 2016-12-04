@@ -43,8 +43,4 @@ fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 // Add/extend on the various resource methods (registerLocation/etc)
 _.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
-fw[privateDataSymbol][capitalizeFirstLetter(entityName)] = function ViewModel (params) {
-  fw.viewModel.boot(this);
-};
-
 
