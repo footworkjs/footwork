@@ -45,51 +45,20 @@ function outletBootstrap (instance, configParams) {
   if (!hasBeenBootstrapped) {
     instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
 
-    instance.loadingDisplay = fw.observable(nullComponent);
-    instance.routeIsLoading = fw.observable(true);
-    instance.routeIsResolving = fw.observable(true);
-
     var resolvedCallbacks = [];
-    instance.addResolvedCallbackOrExecute = function(callback) {
-      /* istanbul ignore else */
-      if (instance.routeIsResolving()) {
-        resolvedCallbacks.push(callback);
-      } else {
-        callback();
-      }
-    };
-
-    instance.disposeWithInstance(instance.routeIsLoading.subscribe(function(routeIsLoading) {
-      if (routeIsLoading) {
-        instance.routeIsResolving(true);
-      } else {
-        /* istanbul ignore next */
-        if (instance.loadingChildrenWatch && _.isFunction(instance.loadingChildrenWatch.dispose)) {
-          instance.loadingChildrenWatch.dispose();
+    _.extend(instance, {
+      loadingDisplay: fw.observable(nullComponent),
+      routeIsLoading: fw.observable(true),
+      routeIsResolving: fw.observable(true),
+      addResolvedCallbackOrExecute: function (callback) {
+        /* istanbul ignore else */
+        if (instance.routeIsResolving()) {
+          resolvedCallbacks.push(callback);
+        } else {
+          callback();
         }
-
-        // must allow binding to begin on any subcomponents/etc
-        nextFrame(function() {
-          if (instance[privateDataSymbol].loadingChildren().length) {
-            /* istanbul ignore next */
-            instance.loadingChildrenWatch = instance[privateDataSymbol].loadingChildren.subscribe(function(loadingChildren) {
-              if (!loadingChildren.length) {
-                instance.routeIsResolving(false);
-                _.isFunction(instance.routeOnComplete) && instance.routeOnComplete();
-              }
-            });
-          } else {
-            instance.routeIsResolving(false);
-            _.isFunction(instance.routeOnComplete) && instance.routeOnComplete();
-          }
-        });
       }
-    }));
-
-    instance.loadingStyle = fw.observable();
-    instance.loadedStyle = fw.observable();
-    instance.loadingClass = fw.observable();
-    instance.loadedClass = fw.observable();
+    });
 
     function showLoader () {
       var removeAnim = removeAnimation();
@@ -129,8 +98,14 @@ function outletBootstrap (instance, configParams) {
       }
     }
 
-    instance.showLoader = showLoader;
-    instance.showLoaded = showLoaded;
+    _.extend(instance, {
+      loadingStyle: fw.observable(),
+      loadedStyle: fw.observable(),
+      loadingClass: fw.observable(),
+      loadedClass: fw.observable(),
+      showLoader: showLoader,
+      showLoaded: showLoaded
+    });
 
     instance.transitionTrigger = fw.computed(function() {
       var routeIsResolving = instance.routeIsResolving();
@@ -140,6 +115,33 @@ function outletBootstrap (instance, configParams) {
         showLoaded();
       }
     });
+
+    instance.disposeWithInstance(instance.routeIsLoading.subscribe(function disposeWithInstanceCallback (routeIsLoading) {
+      if (routeIsLoading) {
+        instance.routeIsResolving(true);
+      } else {
+        /* istanbul ignore next */
+        if (instance.loadingChildrenWatch && _.isFunction(instance.loadingChildrenWatch.dispose)) {
+          instance.loadingChildrenWatch.dispose();
+        }
+
+        // must allow binding to begin on any subcomponents/etc
+        nextFrame(function() {
+          if (instance[privateDataSymbol].loadingChildren().length) {
+            /* istanbul ignore next */
+            instance.loadingChildrenWatch = instance[privateDataSymbol].loadingChildren.subscribe(function(loadingChildren) {
+              if (!loadingChildren.length) {
+                instance.routeIsResolving(false);
+                _.isFunction(instance.routeOnComplete) && instance.routeOnComplete();
+              }
+            });
+          } else {
+            instance.routeIsResolving(false);
+            _.isFunction(instance.routeOnComplete) && instance.routeOnComplete();
+          }
+        });
+      }
+    }));
   }
 
   return instance;
