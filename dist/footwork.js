@@ -22,7 +22,6 @@ fw.isNamespace = function(thing) {
 };
 
 fw.sync = require('./misc/ajax').sync;
-fw.utils.guid = util.guid;
 fw.utils.getPrivateData = util.getPrivateData;
 
 require('./broadcastable-receivable/broadcastable');
@@ -7952,6 +7951,8 @@ fw.components.getComponentNameForNode = function (node) {
 },{"../entities/entity-descriptors":25,"../misc/resource-tools":43,"../misc/util":44,"./component-binding-init":15,"./component-lifecycle-loader":16,"./component-resource-loader":17,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],19:[function(require,module,exports){
 var _ = require('footwork-lodash');
 
+var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
+
 function insertValueIntoObject (rootObject, fieldMap, fieldValue) {
   if (_.isString(fieldMap)) {
     return insertValueIntoObject(rootObject, fieldMap.split('.'), fieldValue);
@@ -7991,18 +7992,27 @@ function getNestedReference (rootObject, fieldMap) {
   return !_.isString(propName) ? rootObject : _.result(rootObject || {}, propName);
 }
 
+function evalDirtyState (dataModel) {
+  var mappings = dataModel[privateDataSymbol].mappings();
+  return _.reduce(mappings, function(dirty, mappedObservable, path) {
+    return dirty || mappedObservable.isDirty();
+  }, false);
+}
+
 module.exports = {
   insertValueIntoObject: insertValueIntoObject,
-  getNestedReference: getNestedReference
+  getNestedReference: getNestedReference,
+  evalDirtyState: evalDirtyState
 };
 
-},{"footwork-lodash":2}],20:[function(require,module,exports){
+},{"../../misc/util":44,"footwork-lodash":2}],20:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 var entityDescriptors = require('../entity-descriptors');
 var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
+var evalDirtyState = require('./data-tools').evalDirtyState;
 
 /**
  * Bootstrap an instance with dataModel capabilities (fetch/save/map/etc).
@@ -8042,6 +8052,14 @@ function dataModelBootstrap (instance, configParams) {
         return instance.isCreating() || instance.isSaving() || instance.isFetching() || instance.isDestroying();
       })
     });
+
+    instance.$removeMap = function (path) {
+      var mappedObservable = instance[privateDataSymbol].mappings()[path];
+      mappedObservable && mappedObservable.dispose();
+      delete instance[privateDataSymbol].mappings()[path];
+      instance[privateDataSymbol].mappings.notifySubscribers();
+      instance.isDirty(evalDirtyState(instance));
+    };
   } else {
     throw Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
   }
@@ -8051,7 +8069,7 @@ function dataModelBootstrap (instance, configParams) {
 
 module.exports = dataModelBootstrap;
 
-},{"../../misc/util":44,"../entity-descriptors":25,"../viewModel/viewModel-bootstrap":38,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],21:[function(require,module,exports){
+},{"../../misc/util":44,"../entity-descriptors":25,"../viewModel/viewModel-bootstrap":38,"./data-tools":19,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],21:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8226,21 +8244,13 @@ function destroy (options) {
 /**
  * set attributes in model (clears isDirty on observables/fields it saves to by default)
  *
- * @param {string} key
- * @param {any} value
+ * @param {object} attributes The attributes you want to set (only mapped values will be written)
  * @param {object} options
+ * @returns {object} The dataModel instance for chaining
  */
-function set (key, value, options) {
-  var attributes = {};
+function set (attributes, options) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
-
-  if (_.isString(key)) {
-    attributes = insertValueIntoObject(attributes, key, value);
-  } else if (_.isObject(key)) {
-    attributes = key;
-    options = value;
-  }
 
   options = _.extend({
     clearDirty: true
@@ -8424,16 +8434,10 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
+var evalDirtyState = require('./data-tools').evalDirtyState;
 
 function idAttributePath (dataModel) {
   return dataModel[privateDataSymbol].configParams.idAttribute;
-}
-
-function evalDirtyState (dataModel) {
-  var mappings = dataModel[privateDataSymbol].mappings();
-  return _.reduce(mappings, function(dirty, mappedObservable, path) {
-    return dirty || mappedObservable.isDirty();
-  }, false);
 }
 
 /**
@@ -8445,24 +8449,19 @@ function evalDirtyState (dataModel) {
  * @returns {observable} The mapped observable
  */
 function map (mapPath, dataModel) {
+  var mappedObservable = this;
+
   if (!fw.isDataModel(dataModel)) {
     throw Error('No dataModel context supplied for map observable');
   }
-
-  var mappings = dataModel[privateDataSymbol].mappings();
-  var mappedObservable = this;
-  var idAttributeSubscription;
-
-  // set the registry entry for the mapped observable
-  mappings[mapPath] = mappedObservable;
 
   if (mapPath === idAttributePath(dataModel)) {
     dataModel[privateDataSymbol].idAttributeObservable = mappedObservable;
     dataModel.isNew(!mappedObservable());
 
     // dispose of the old primary key subscription and create subscription to new primary key observable
-    idAttributeSubscription && idAttributeSubscription.dispose();
-    idAttributeSubscription = mappedObservable.subscribe(function determineIfModelIsNew (idAttributeValue) {
+    dataModel[privateDataSymbol].idAttributeSubscription && dataModel[privateDataSymbol].idAttributeSubscription.dispose();
+    dataModel[privateDataSymbol].idAttributeSubscription = mappedObservable.subscribe(function determineIfModelIsNew (idAttributeValue) {
       dataModel.isNew(!idAttributeValue);
     });
   }
@@ -8478,12 +8477,13 @@ function map (mapPath, dataModel) {
 
   var disposeObservable = mappedObservable.dispose || _.noop;
   mappedObservable.dispose = function () {
-    idAttributeSubscription && idAttributeSubscription.dispose();
+    dataModel[privateDataSymbol].idAttributeSubscription && dataModel[privateDataSymbol].idAttributeSubscription.dispose();
     changeSubscription.dispose();
     isDirtySubscription.dispose();
     disposeObservable.call(mappedObservable);
   };
 
+  dataModel[privateDataSymbol].mappings()[mapPath] = mappedObservable;
   dataModel[privateDataSymbol].mappings.valueHasMutated();
 
   return mappedObservable;
@@ -8491,7 +8491,7 @@ function map (mapPath, dataModel) {
 
 fw.subscribable.fn.map = map;
 
-},{"../../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],24:[function(require,module,exports){
+},{"../../misc/util":44,"./data-tools":19,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],24:[function(require,module,exports){
 /**
  * This loader wraps the elements with the $lifecycle as well as sources the viewModel/router/dataModel
  */
@@ -10553,24 +10553,6 @@ function getFilenameExtension (fileName) {
 }
 
 /**
- * Generate a random pseudo-GUID
- * http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
- *
- * @returns {string} The GUID
- */
-var guid = (function () {
- function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-               .toString(16)
-               .substring(1);
-  }
-  return function () {
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-           s4() + '-' + s4() + s4() + s4();
-  };
-})();
-
-/**
  * Calls dispose() on the supplied property if it exists.
  *
  * @param {any} property
@@ -10669,7 +10651,6 @@ module.exports = {
   hasPathStart: hasPathStart,
   hasHashStart: hasHashStart,
   getFilenameExtension: getFilenameExtension,
-  guid: guid,
   propertyDispose: propertyDispose,
   isDocumentFragment: isDocumentFragment,
   isDomElement: isDomElement,
