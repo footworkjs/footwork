@@ -1,6 +1,9 @@
 var fw = require('knockout/build/output/knockout-latest');
 
-fw.footworkVersion = 'FOOTWORK_VERSION';
+fw.version = {
+  knockout: fw.version,
+  footwork: 'FOOTWORK_VERSION'
+};
 
 require('./namespace/namespace');
 require('./broadcastable-receivable/broadcastable');
