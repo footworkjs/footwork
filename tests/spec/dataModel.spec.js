@@ -10,6 +10,12 @@ define(['footwork', 'lodash', 'fetch-mock'],
         };
         expect(function() { new BadDataModel() }).toThrow();
 
+        var AlsoBadDataModel = function DataModel() {
+          fw.dataModel.boot(this);
+          fw.dataModel.boot(this);
+        };
+        expect(function() { new AlsoBadDataModel() }).toThrow();
+
         var DataModel = function DataModel() {
           var self = fw.dataModel.boot(this);
           expect(self).toBe(this);

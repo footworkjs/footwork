@@ -10,9 +10,15 @@ define(['footwork', 'lodash'],
 
       it('has the ability to create a router', function() {
         var BadRouter = function Router() {
-          var self = fw.router.boot();
+          fw.router.boot();
         };
         expect(function() { new BadRouter() }).toThrow();
+
+        var AlsoBadRouter = function Router() {
+          fw.router.boot(this);
+          fw.router.boot(this);
+        };
+        expect(function() { new AlsoBadRouter() }).toThrow();
 
         var Router = function Router() {
           var self = fw.router.boot(this);

@@ -167,6 +167,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
       it('can be instantiated with some data and then add()ed onto correctly', function() {
         var initializeSpy;
         var insertTestValue = randomString();
+        var insertTestValue2 = randomString();
         var insertPosition = 2;
 
         var persons = [
@@ -204,6 +205,20 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         people.addModel(_.extend(persons[0], { firstName: insertTestValue }), { at: insertPosition });
         expect(people()[insertPosition].firstName()).toBe(insertTestValue);
+
+        var mergePerson = {
+          id: 100,
+          firstName: randomString(),
+          lastName: randomString(),
+          email: randomString()
+        };
+        people.addModel(mergePerson);
+        var merger = people.findWhere(mergePerson);
+        expect(merger.firstName()).toEqual(mergePerson.firstName);
+
+        mergePerson.firstName = 'findme';
+        people.addModel(mergePerson, { merge: true });
+        expect(merger.firstName()).toBe(mergePerson.firstName);
       });
 
       it('can have data plucked from its entries', function() {

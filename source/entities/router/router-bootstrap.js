@@ -92,8 +92,8 @@ function routerBootstrap (instance, configParams) {
           instance[privateDataSymbol].activating = false;
 
           // setup html5 history event listener
+          /* istanbul ignore if */
           if(!fw.router.disableHistory()) {
-            /* istanbul ignore next */
             var popstateEvent = function () {
               instance.$currentState(trimBaseRoute(instance, getLocation()));
             };
@@ -112,6 +112,7 @@ function routerBootstrap (instance, configParams) {
 
           // dispose of the history popstate event listener
           var historyPopstateListener = instance[privateDataSymbol].historyPopstateListener();
+          /* istanbul ignore if */
           if (historyPopstateListener) {
             (function popStateListener (eventInfo) {
               window[eventInfo[0]](eventInfo[1] + 'popstate', historyPopstateListener);

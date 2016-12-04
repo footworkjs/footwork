@@ -241,9 +241,6 @@ function addModel (models, options) {
   if (_.isObject(models)) {
     models = [models];
   }
-  if (!_.isArray(models)) {
-    models = !_.isUndefined(models) && !_.isNull(models) ? [models] : [];
-  }
 
   if (models.length) {
     var collectionData = collection();
@@ -271,7 +268,12 @@ function addModel (models, options) {
             modelPresent = true;
             if (options.merge && !sortOfEqual(theModelData, collectionModelData)) {
               // found model, but needs an update
-              (model.set || noop).call(model, theModelData);
+              if (fw.isDataModel(model)) {
+                model.set(theModelData);
+              } else {
+                _.extend(model, theModelData);
+              }
+
               collection.$namespace.publish('_.change', model);
               affectedModels.push(model);
             }
