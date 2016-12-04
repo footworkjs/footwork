@@ -35,33 +35,33 @@ function routerBootstrap (instance, configParams) {
 
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
   if (!hasBeenBootstrapped) {
+    var privateData = instance[privateDataSymbol];
     instance[descriptor.isEntityDuckTag] = true;
 
-    configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.resource.defaultConfig, {
-      baseRoute: fw.router.baseRoute() + (resultBound(configParams, 'baseRoute', instance) || '')
-    }, configParams || {});
-
-    _.extend(instance[privateDataSymbol], {
+    _.extend(privateData, {
       registerOutlet: _.partial(registerOutlet, instance),
       unregisterOutlet: _.partial(unregisterOutlet, instance),
       historyPopstateListener: fw.observable(),
-      outlets: {}
+      outlets: {},
+      configParams: _.extend(privateData.configParams, descriptor.resource.defaultConfig, {
+        baseRoute: fw.router.baseRoute() + (resultBound(configParams, 'baseRoute', instance) || '')
+      }, configParams || {})
     });
 
-    _.extend(instance, descriptor.mixin, {
+    _.extend(instance, require('./router-methods'), {
       $currentState: fw.observable(),
       $activated: fw.observable(false),
-      $routes: fw.collection(configParams.routes)
+      $routes: fw.collection(privateData.configParams.routes)
     });
 
-    instance[privateDataSymbol].currentRoute = fw.computed(function () {
+    privateData.currentRoute = fw.computed(function () {
       var routes = instance.$routes();
       var $currentState = instance.$currentState();
       return getRouteForURL(instance, routes, trimBaseRoute(instance, stripQueryStringAndHashFromPath($currentState)));
     });
 
     instance.$currentRoute = fw.computed(function() {
-      var currentRoute = instance[privateDataSymbol].currentRoute();
+      var currentRoute = privateData.currentRoute();
       if(currentRoute) {
         return currentRoute.routeConfiguration;
       } else {

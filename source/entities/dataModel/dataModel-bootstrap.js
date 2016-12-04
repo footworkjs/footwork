@@ -25,12 +25,16 @@ function dataModelBootstrap (instance, configParams) {
 
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
   if (!hasBeenBootstrapped) {
+    var privateData = instance[privateDataSymbol];
     instance[descriptor.isEntityDuckTag] = true;
-    instance[privateDataSymbol].idAttributeObservable = _.noop;
-    instance[privateDataSymbol].mappings = {};
-    configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.resource.defaultConfig, configParams || {});
 
-    _.extend(instance, descriptor.mixin, {
+    _.extend(privateData, {
+      idAttributeObservable: _.noop,
+      mappings: {},
+      configParams: _.extend(privateData.configParams, descriptor.resource.defaultConfig, configParams || {})
+    });
+
+    _.extend(instance, require('./dataModel-methods'), {
       isCreating: fw.observable(false),
       isSaving: fw.observable(false),
       isFetching: fw.observable(false),
@@ -46,10 +50,11 @@ function dataModelBootstrap (instance, configParams) {
     });
 
     instance.$removeMap = function (path) {
-      var mappedObservable = instance[privateDataSymbol].mappings[path];
-      mappedObservable && mappedObservable.dispose();
-      delete instance[privateDataSymbol].mappings[path];
-      instance.isDirty(evalDirtyState(instance));
+      if (privateData.mappings[path]) {
+        privateData.mappings[path].dispose();
+        delete privateData.mappings[path];
+        instance.isDirty(evalDirtyState(instance));
+      }
     };
   } else {
     throw Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');

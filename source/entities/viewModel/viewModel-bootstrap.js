@@ -36,7 +36,7 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
       loadingChildren: fw.observableArray()
     };
 
-    _.extend(instance, descriptor.mixin, {
+    _.extend(instance, require('./viewModel-methods'), {
       $namespace: fw.namespace(resultBound(configParams, 'namespace', instance))
     });
 

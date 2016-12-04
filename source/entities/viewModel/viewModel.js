@@ -35,8 +35,7 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   isEntityDuckTag: isEntityDuckTag,
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
-  },
-  mixin: require('./viewModel-mixin')
+  }
 }));
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;

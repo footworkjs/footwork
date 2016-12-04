@@ -14,7 +14,7 @@ var propertyDispose = util.propertyDispose;
 var startingHashRegex = util.startingHashRegex;
 var privateDataSymbol = util.getSymbol('footwork');
 
-var viewModelMixinDispose = require('../viewModel/viewModel-mixin').dispose;
+var viewModelMethodDispose = require('../viewModel/viewModel-methods').dispose;
 var clearSequenceQueue = require('../../binding/animation-sequencing').clearSequenceQueue;
 var routerDefaults = require('./router-defaults');
 var noComponentSelected = routerDefaults.noComponentSelected;
@@ -134,7 +134,7 @@ module.exports = {
   dispose: function () {
     if (!this[privateDataSymbol].isDisposed) {
       // first run all of the standard viewModel disposal logic
-      viewModelMixinDispose.call(this);
+      viewModelMethodDispose.call(this);
 
       // deactivate the router (unbinds the history event listener)
       this.$activated(false);
