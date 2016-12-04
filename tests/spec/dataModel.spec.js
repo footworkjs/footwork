@@ -1470,7 +1470,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             url: {
               'create': 'POST ' + createUrl,
               'read': 'GET ' + readUrl,
-              'update': 'PUT ' + updateUrl,
+              'update': updateUrl, // test url only (footwork should fill in request method from default list)
               'delete': 'DELETE ' + deleteUrl,
               'patch': 'PATCH ' + patchUrl
             }

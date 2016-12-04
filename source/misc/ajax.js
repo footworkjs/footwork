@@ -106,12 +106,19 @@ function sync (action, concern, options) {
   var method;
   var url = resultBound(configParams, 'url', concern);
   if (_.isObject(url)) {
-    // user is explicitly defining the individual request method and url
-    var userAction = resultBound(url, action, concern, [action, options]);
-    if (_.isString(userAction)) {
-      userAction = userAction.split(' ');
-      method = userAction.shift();
-      url = userAction.join(' ');
+    // user is explicitly defining the individual request url or method+url
+    var requestAction = resultBound(url, action, concern, [action, options]);
+    if (_.isString(requestAction)) {
+      if(requestAction.indexOf(' ') !== -1) {
+        // method url
+        requestAction = requestAction.split(' ');
+        method = requestAction[0];
+        url = requestAction[1];
+      } else {
+        // url
+        method = methodMap[action];
+        url = requestAction;
+      }
     }
   } else if (_.isString(url)) {
     // string specified, use the default method for this action and url
