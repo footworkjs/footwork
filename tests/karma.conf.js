@@ -19,14 +19,14 @@ module.exports = {
     { pattern: 'node_modules/es6-promise/dist/es6-promise.*', watched: false, included: false },
     { pattern: 'node_modules/whatwg-fetch/fetch.js', watched: false, included: false },
 
-    { pattern: 'build/*.js', nocache: true, watched: false, included: false },
-    { pattern: 'dist/gh-footwork-logo.png', included: false },
+    { pattern: 'build/*.js', nocache: true, watched: true, included: false },
+    { pattern: 'dist/gh-footwork-logo.png', watched: false, included: false },
 
     { pattern: 'tests/assets/test.css', watched: false },
     { pattern: 'tests/assets/fonts.css', watched: false },
     { pattern: 'build/footwork.css', watched: false },
 
-    'node_modules/jquery/dist/jquery.js',
+    { pattern: 'node_modules/jquery/dist/jquery.js', watched: false },
     'tests/assets/customMatchers.js',
     'tests/assets/container.js',
     'tests/assets/tools.js',
