@@ -3,7 +3,7 @@ var _ = require('footwork-lodash');
 
 var privateDataSymbol = require('../misc/util').getSymbol('footwork');
 
-// Namespace postbox-based communication based loosely on: http://www.knockmeout.net/2012/05/using-ko-native-pubsub.html
+// Namespace postbox-based communication based on: http://www.knockmeout.net/2012/05/using-ko-native-pubsub.html
 var postboxes = {};
 
 /**
@@ -33,7 +33,7 @@ function Namespace (namespaceName) {
     postbox: postbox(namespaceName),
     subscriptions: []
   };
-};
+}
 
 _.extend(Namespace.prototype, require('./namespace-methods'));
 
