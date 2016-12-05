@@ -3,7 +3,6 @@ var _ = require('footwork-lodash');
 
 var entityDescriptors = require('../entity-descriptors');
 var postbox = require('../../namespace/postbox');
-var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 var resultBound = require('../../misc/util').resultBound;
 
@@ -40,11 +39,18 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
       $namespace: fw.namespace(resultBound(configParams, 'namespace', instance))
     });
 
-    // Setup the request handler which returns the instance (fw.viewModel.get())
-    // Note: We are wiring up the request handler manually so that an entire namespace does not need instantiating for this callback
-    instance.disposeWithInstance(postbox.subscribe(function instanceResponseHandler (params) {
-      postbox.notifySubscribers(instanceRequestHandler(instance, params), '__footwork.request.' + requestHandlerDescriptor.referenceNamespace + '.response');
-    }, null, '__footwork.request.' + requestHandlerDescriptor.referenceNamespace));
+    // Setup the request handler which returns the instance
+    instance.disposeWithInstance(fw.namespace(requestHandlerDescriptor.referenceNamespace).requestHandler('ref', function(namespaceName) {
+      if (_.isString(namespaceName) || _.isArray(namespaceName)) {
+        if (_.isArray(namespaceName) && _.indexOf(namespaceName, configParams.namespace) !== -1) {
+          return instance;
+        } else if (_.isString(namespaceName) && namespaceName === configParams.namespace) {
+          return instance;
+        }
+      } else {
+        return instance;
+      }
+    }));
   }
 
   return instance;

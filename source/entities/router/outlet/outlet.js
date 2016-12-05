@@ -2,7 +2,6 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var entityDescriptors = require('../../entity-descriptors');
-var prepareDescriptor = require('../../entity-tools').prepareDescriptor;
 var getModelReferences = require('../../../entities/resource-tools').getModelReferences;
 
 var util = require('../../../misc/util');
@@ -25,8 +24,7 @@ fw[entityName] = {
   }
 };
 
-var descriptor;
-entityDescriptors.push(descriptor = prepareDescriptor({
+var descriptor = {
   tagName: entityName.toLowerCase(),
   entityName: entityName,
   resource: fw[entityName],
@@ -34,8 +32,12 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
   },
-  defaultConfig: {}
-}));
+  resourceLocations: {},
+  registered: {},
+  fileExtensions: fw.observable('.js'),
+  referenceNamespace: '__' + capitalizeFirstLetter(entityName) + 'Reference'
+};
+entityDescriptors.push(descriptor);
 
 fw[entityName].get = _.partial(getModelReferences, descriptor);
 

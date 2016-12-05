@@ -1,7 +1,6 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var instanceRequestHandler = require('../../entity-tools').instanceRequestHandler;
 var entityDescriptors = require('../../entity-descriptors');
 var viewModelBootstrap = require('../../viewModel/viewModel-bootstrap');
 

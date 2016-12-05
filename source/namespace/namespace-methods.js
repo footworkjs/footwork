@@ -1,6 +1,5 @@
 var _ = require('footwork-lodash');
 
-var postbox = require('./postbox');
 var privateDataSymbol = require('../misc/util').getSymbol('footwork');
 
 /**
@@ -11,7 +10,7 @@ var privateDataSymbol = require('../misc/util').getSymbol('footwork');
  * @returns {object} the namespace instance
  */
 function publish (topic, data) {
-  postbox.notifySubscribers(data, this[privateDataSymbol].namespaceName + '.' + topic);
+  this[privateDataSymbol].postbox.notifySubscribers(data, topic);
   return this;
 }
 
@@ -27,7 +26,7 @@ function subscribe (topic, callback, context) {
   if (arguments.length > 2) {
     callback = _.bind(callback, context);
   }
-  var subscription = postbox.subscribe(callback, null, this[privateDataSymbol].namespaceName + '.' + topic);
+  var subscription = this[privateDataSymbol].postbox.subscribe(callback, null, topic);
   this[privateDataSymbol].subscriptions.push(subscription);
   return subscription;
 }
@@ -54,15 +53,15 @@ function unsubscribe (subscription) {
 function request (topic, requestParams, allowMultipleResponses) {
   var response = undefined;
 
-  var responseSubscription = postbox.subscribe(function (reqResponse) {
+  var responseSubscription = this[privateDataSymbol].postbox.subscribe(function (reqResponse) {
     if (_.isUndefined(response)) {
       response = allowMultipleResponses ? [reqResponse] : reqResponse;
     } else if (allowMultipleResponses) {
       response.push(reqResponse);
     }
-  }, null, this[privateDataSymbol].namespaceName + '.request.' + topic + '.response');
+  }, null, 'req.' + topic + '.resp');
 
-  postbox.notifySubscribers(requestParams, this[privateDataSymbol].namespaceName + '.request.' + topic);
+  this[privateDataSymbol].postbox.notifySubscribers(requestParams, 'req.' + topic);
   responseSubscription.dispose();
 
   return response;
@@ -83,11 +82,11 @@ function requestHandler (topic, callback, context) {
     callback = _.bind(callback, context);
   }
 
-  var subscription = postbox.subscribe(function (reqResponse) {
-    postbox.notifySubscribers(callback(reqResponse), self[privateDataSymbol].namespaceName + '.request.' + topic + '.response');
-  }, null, this[privateDataSymbol].namespaceName + '.request.' + topic);
+  var subscription = self[privateDataSymbol].postbox.subscribe(function (reqResponse) {
+    self[privateDataSymbol].postbox.notifySubscribers(callback(reqResponse), 'req.' + topic + '.resp');
+  }, null, 'req.' + topic);
 
-  this[privateDataSymbol].subscriptions.push(subscription);
+  self[privateDataSymbol].subscriptions.push(subscription);
 
   return subscription;
 }

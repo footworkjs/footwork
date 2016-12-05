@@ -4,15 +4,6 @@ var _ = require('footwork-lodash');
 var entityDescriptors = require('./entity-descriptors');
 var capitalizeFirstLetter = require('../misc/util').capitalizeFirstLetter;
 
-function prepareDescriptor (descriptor) {
-  return _.extend({
-    resourceLocations: {},
-    registered: {},
-    fileExtensions: fw.observable('.js'),
-    referenceNamespace: '__' + capitalizeFirstLetter(descriptor.entityName) + 'Reference'
-  }, descriptor);
-}
-
 /**
  * Determines whether or not the passed in instance is an 'entity' (a viewModel/dataModel/router/outlet view model instance)
  *
@@ -65,26 +56,6 @@ function nearestEntity ($context, predicate) {
 }
 
 /**
- * This request handler returns references of the instance to the requester when it matches the passed in namespaceName.
- *
- * @param {any} instance
- * @param {any} options
- * @returns {object} the instance passed in if the passed in namespace matches
- */
-function instanceRequestHandler (instance, namespaceName) {
-  if (_.isString(namespaceName) || _.isArray(namespaceName)) {
-    var myNamespaceName = instance.$namespace.getName();
-    if (_.isArray(namespaceName) && _.indexOf(namespaceName, myNamespaceName) !== -1) {
-      return instance;
-    } else if (_.isString(namespaceName) && namespaceName === myNamespaceName) {
-      return instance;
-    }
-  } else {
-    return instance;
-  }
-}
-
-/**
  * Function which calls resolveNow to resolve the entity immediately
  *
  * @param {function} resolveNow
@@ -94,9 +65,7 @@ function resolveEntityImmediately (resolveNow) {
 }
 
 module.exports = {
-  prepareDescriptor: prepareDescriptor,
   isEntity: isEntity,
   nearestEntity: nearestEntity,
-  instanceRequestHandler: instanceRequestHandler,
   resolveEntityImmediately: resolveEntityImmediately
 };

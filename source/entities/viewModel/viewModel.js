@@ -5,7 +5,6 @@ var entityDescriptors = require('../entity-descriptors');
 var resourceHelperFactory = require('../../entities/resource-tools').resourceHelperFactory;
 
 var entityTools = require('../entity-tools');
-var prepareDescriptor = entityTools.prepareDescriptor;
 var resolveEntityImmediately = entityTools.resolveEntityImmediately;
 
 var util = require('../../misc/util');
@@ -27,16 +26,20 @@ fw[entityName] = {
   }
 };
 
-var descriptor;
-entityDescriptors.push(descriptor = prepareDescriptor({
+var descriptor = {
   tagName: entityName.toLowerCase(),
   entityName: entityName,
   resource: fw[entityName],
   isEntityDuckTag: isEntityDuckTag,
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
-  }
-}));
+  },
+  resourceLocations: {},
+  registered: {},
+  fileExtensions: fw.observable('.js'),
+  referenceNamespace: '__' + capitalizeFirstLetter(entityName) + 'Reference'
+};
+entityDescriptors.push(descriptor);
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 

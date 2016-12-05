@@ -5,6 +5,8 @@ var util = require('../misc/util');
 var isPath = util.isPath;
 var isAmdResolved = util.isAmdResolved;
 
+var postbox = require('../namespace/postbox');
+
 var regExpMatch = /^\/|\/$/g;
 
 /**
@@ -101,9 +103,9 @@ function locationIsRegistered (descriptor, modelName) {
   return !!modelResourceLocation(descriptor, modelName);
 }
 
-var defaultNamespace = fw.namespace();
 function getModelReferences (descriptor, namespaceName) {
-  var references = _.reduce(defaultNamespace.request(descriptor.referenceNamespace, namespaceName, true), function (models, model) {
+  var referenceNamespace = fw.namespace(descriptor.referenceNamespace);
+  var references = _.reduce(referenceNamespace.request('ref', namespaceName, true), function (models, model) {
     if (!_.isUndefined(model)) {
       var namespaceName = fw.isNamespace(model.$namespace) ? model.$namespace.getName() : null;
       if (!_.isNull(namespaceName)) {

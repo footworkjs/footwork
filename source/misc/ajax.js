@@ -175,9 +175,13 @@ function sync (action, concern, options) {
     options.body = JSON.stringify(options.attrs || concern.get());
   }
 
-  var xhr = options.xhr = makePromiseQueryable(fetch(url, options));
-  concern.$namespace.publish('_.request', { dataModel: concern, xhr: xhr, options: options });
-  return xhr;
+  var promise = makePromiseQueryable(fetch(url, options));
+
+  var requestNotice = { url: url, request: promise, options: options };
+  requestNotice[fw.isDataModel(concern) ? 'dataModel' : 'collection'] = concern;
+  concern.$namespace.publish('_.request', requestNotice);
+
+  return promise;
 };
 
 /**
