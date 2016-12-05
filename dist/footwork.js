@@ -7589,8 +7589,7 @@ function componentBindingInit (element, valueAccessor, allBindings, viewModel, b
   var tagName = (element.tagName || '').toLowerCase();
   var loadingTracker = element[getSymbol('loadingTracker')] = {
     tagName: tagName,
-    moduleName: element.getAttribute('module') || /* istanbul ignore next */ element.getAttribute('data-module'),
-    elementName: element.getAttribute('name') || /* istanbul ignore next */ element.getAttribute('data-name')
+    moduleName: element.getAttribute('module') || element.getAttribute('data-module')
   };
 
   /**
@@ -7611,10 +7610,10 @@ function componentBindingInit (element, valueAccessor, allBindings, viewModel, b
   }
 
   if (entityDescriptors.tagNameIsPresent(tagName)) {
-    // save the tracker so that the (./loaders/entity-loader) loader can find out what module was requested (the element is not available to it so we save it here for reference later)
+    // save the tracker so that the (../entities/entity-loader) loader can find out what module was requested (the element is not available to it so we save it here for reference later)
     setLoadingTracker(loadingTracker);
 
-    // ensure that the (./loaders/entity-loader) getConfig callback is run every time a viewModel/dataModel/router/outlet declaration is encountered
+    // ensure that the (../entities/entity-loader) getConfig callback is run every time a viewModel/dataModel/router/outlet declaration is encountered
     fw.components.clearCachedDefinition(tagName);
   }
 
