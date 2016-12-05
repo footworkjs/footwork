@@ -3,7 +3,6 @@ var _ = require('footwork-lodash');
 
 var util = require('../misc/util');
 var isPath = util.isPath;
-var getFilenameExtension = util.getFilenameExtension;
 var privateDataSymbol = util.getSymbol('footwork');
 var regExpMatch = /^\/|\/$/g;
 
@@ -15,7 +14,7 @@ require('./component-resource-loader');
 // Custom loader used to wrap components with the $lifecycle binding
 require('./component-lifecycle-loader');
 
-var getComponentExtension = require('../misc/resource-tools').getComponentExtension;
+var getComponentExtension = require('../entities/resource-tools').getComponentExtension;
 
 fw.components.resourceLocations = {};
 
@@ -38,6 +37,20 @@ fw.components.register = function (componentName, options) {
     template: options.template
   });
 };
+
+/**
+ * Return the trailing file extension from a given string.
+ *
+ * @param {string} fileName
+ * @returns {string} The extension at the end of the file (ie: txt)
+ */
+function getFilenameExtension (fileName) {
+  var extension = '';
+  if (fileName.indexOf('.') !== -1) {
+    extension = _.last(fileName.split('.'));
+  }
+  return extension;
+}
 
 function forceViewModelComponentConvention (componentLocation) {
   if (_.isObject(componentLocation) && _.isUndefined(componentLocation.viewModel) && _.isUndefined(componentLocation.combined)) {

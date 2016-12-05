@@ -141,20 +141,6 @@ function hasHashStart (string) {
 }
 
 /**
- * Return the trailing file extension from a given string.
- *
- * @param {string} fileName
- * @returns {string} The extension at the end of the file (ie: txt)
- */
-function getFilenameExtension (fileName) {
-  var extension = '';
-  if (fileName.indexOf('.') !== -1) {
-    extension = _.last(fileName.split('.'));
-  }
-  return extension;
-}
-
-/**
  * Calls dispose() on the supplied property if it exists.
  *
  * @param {any} property
@@ -254,7 +240,6 @@ module.exports = {
   isPath: isPath,
   hasPathStart: hasPathStart,
   hasHashStart: hasHashStart,
-  getFilenameExtension: getFilenameExtension,
   propertyDispose: propertyDispose,
   isDocumentFragment: isDocumentFragment,
   isDomElement: isDomElement,

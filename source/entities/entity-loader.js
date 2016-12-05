@@ -3,7 +3,7 @@ var _ = require('footwork-lodash');
 
 var isPath = require('../misc/util').isPath;
 var bindingElement = require('../binding/binding-element');
-var getLoadingTracker = require('../misc/loading-tracker').get;
+var getLoadingTracker = require('../binding/loading-tracker').get;
 
 /**
  * This component loader has two functions:

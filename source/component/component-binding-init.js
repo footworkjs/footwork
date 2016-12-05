@@ -1,7 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var setLoadingTracker = require('../misc/loading-tracker').set;
+var setLoadingTracker = require('../binding/loading-tracker').set;
 var nearestEntity = require('../entities/entity-tools').nearestEntity;
 var getSymbol = require('../misc/util').getSymbol;
 var entityDescriptors = require('../entities/entity-descriptors');

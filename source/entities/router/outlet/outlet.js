@@ -3,7 +3,7 @@ var _ = require('footwork-lodash');
 
 var entityDescriptors = require('../../entity-descriptors');
 var prepareDescriptor = require('../../entity-tools').prepareDescriptor;
-var getModelReferences = require('../../../misc/resource-tools').getModelReferences;
+var getModelReferences = require('../../../entities/resource-tools').getModelReferences;
 
 var util = require('../../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
