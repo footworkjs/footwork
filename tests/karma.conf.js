@@ -11,7 +11,7 @@ module.exports = {
   // list of files / patterns to load in the browser
   files: [
     { pattern: 'tests/spec/*.js', nocache: true, included: false },
-    { pattern: 'tests/assets/fonts/**/*.*', included: false },
+    { pattern: 'tests/assets/fonts/**/*.*', watched: false, included: false },
     { pattern: 'tests/assets/**/*.+(html|json|jsonp|js)', nocache: true, included: false },
     { pattern: 'node_modules/lodash/lodash.js', watched: false, included: false },
     { pattern: 'node_modules/requirejs-text/*.js', watched: false, included: false },
@@ -19,12 +19,12 @@ module.exports = {
     { pattern: 'node_modules/es6-promise/dist/es6-promise.*', watched: false, included: false },
     { pattern: 'node_modules/whatwg-fetch/fetch.js', watched: false, included: false },
 
-    { pattern: 'build/*.js', included: false },
+    { pattern: 'build/*.js', nocache: true, watched: false, included: false },
     { pattern: 'dist/gh-footwork-logo.png', included: false },
 
-    'tests/assets/test.css',
-    'tests/assets/fonts.css',
-    'build/footwork.css',
+    { pattern: 'tests/assets/test.css', watched: false },
+    { pattern: 'tests/assets/fonts.css', watched: false },
+    { pattern: 'build/footwork.css', watched: false },
 
     'node_modules/jquery/dist/jquery.js',
     'tests/assets/customMatchers.js',
