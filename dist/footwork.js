@@ -8,22 +8,13 @@
 
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.fw=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
-var util = require('./misc/util');
 
-fw.animationClass = {
-  animateIn: 'animateIn'
-};
-fw.footworkVersion = '2.0.0';
-fw[util.getSymbol('footwork')] = { /* internal data registration point */ };
-
-fw.namespace = require('./namespace/namespace');
-fw.isNamespace = function(thing) {
-  return thing instanceof fw.namespace;
+fw.version = {
+  knockout: fw.version,
+  footwork: '2.0.0'
 };
 
-fw.sync = require('./misc/ajax').sync;
-fw.utils.getPrivateData = util.getPrivateData;
-
+require('./namespace/namespace');
 require('./broadcastable-receivable/broadcastable');
 require('./broadcastable-receivable/receivable');
 
@@ -37,7 +28,7 @@ require('./binding/start');
 
 module.exports = fw;
 
-},{"./binding/applyBindings":5,"./binding/lifecycle-binding":7,"./binding/start":8,"./broadcastable-receivable/broadcastable":9,"./broadcastable-receivable/receivable":10,"./collection/collection":13,"./component/component":18,"./entities/entities":24,"./misc/ajax":41,"./misc/util":44,"./namespace/namespace":46,"knockout/build/output/knockout-latest":3}],2:[function(require,module,exports){
+},{"./binding/applyBindings":5,"./binding/lifecycle-binding":7,"./binding/start":9,"./broadcastable-receivable/broadcastable":10,"./broadcastable-receivable/receivable":11,"./collection/collection":13,"./component/component":18,"./entities/entities":24,"./namespace/namespace":45,"knockout/build/output/knockout-latest":3}],2:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -6569,6 +6560,10 @@ var privateDataSymbol = util.getSymbol('footwork');
 
 var sequenceQueue = {};
 
+fw.animationClass = {
+  animateIn: 'animateIn'
+};
+
 /**
  * Clear (run all of) the animation sequence queues immediately.
  */
@@ -6644,7 +6639,7 @@ module.exports = {
   addToAndFetchQueue: addToAndFetchQueue
 };
 
-},{"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],5:[function(require,module,exports){
+},{"../misc/util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],5:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -6682,7 +6677,7 @@ function wrapWithLifeCycle (rootNode) {
   return rootNode;
 }
 
-},{"../binding/binding-element":6,"../entities/entity-tools":27,"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],6:[function(require,module,exports){
+},{"../binding/binding-element":6,"../entities/entity-tools":27,"../misc/util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],6:[function(require,module,exports){
 var oldExploderVersion = 8;
 var bindingElement = {
   oldExploderTagName: 'div',
@@ -6784,7 +6779,7 @@ fw.bindingHandlers.$lifecycle = {
         var queue = addToAndFetchQueue(element, viewModel);
         var nearestOutlet = nearestEntity(bindingContext, fw.isOutlet);
 
-        if(fw.animationClass.animateIn) {
+        if (fw.animationClass.animateIn) {
           if (nearestOutlet) {
             // the parent outlet will run the callback that initiates the animation
             // sequence (once the rest of its dependencies finish loading as well)
@@ -6857,7 +6852,7 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
     }
 
     // have to delay child check for one tick to let sub-components/entities begin binding
-    setTimeout(function() {
+    setTimeout(function () {
       var loadingChildren = viewModel[privateDataSymbol].loadingChildren;
 
       // if there are no children then resolve now, otherwise subscribe and wait till its 0 (all children resolved)
@@ -6874,7 +6869,23 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
   }
 }
 
-},{"../entities/entity-tools":27,"../entities/router/router-defaults":34,"../misc/ajax":41,"../misc/util":44,"./animation-sequencing":4,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],8:[function(require,module,exports){
+},{"../entities/entity-tools":27,"../entities/router/router-defaults":35,"../misc/ajax":42,"../misc/util":43,"./animation-sequencing":4,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],8:[function(require,module,exports){
+/**
+ * Registry which stores component information as it is loaded.
+ * This information is used by footwork to bootstrap the component/entity.
+ */
+var currentlyLoading;
+
+module.exports = {
+  set: function (loadingTracker) {
+    currentlyLoading = loadingTracker;
+  },
+  get: function () {
+    return currentlyLoading;
+  }
+};
+
+},{}],9:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 
 // 'start' up the framework at the targetElement (or document.body by default)
@@ -6883,7 +6894,7 @@ fw.start = function (targetElement) {
   fw.applyBindings({}, targetElement);
 };
 
-},{"knockout/build/output/knockout-latest":3}],9:[function(require,module,exports){
+},{"knockout/build/output/knockout-latest":3}],10:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -6900,7 +6911,7 @@ fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWri
   var subscriptions = [];
   var isLocalNamespace = false;
 
-  if(fw.isViewModel(instanceOrNamespaceName)) {
+  if (fw.isViewModel(instanceOrNamespaceName)) {
     namespace = instanceOrNamespaceName.$namespace;
   } else if (fw.isNamespace(instanceOrNamespaceName)) {
     namespace = instanceOrNamespaceName;
@@ -6943,7 +6954,7 @@ fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWri
   return target.broadcast();
 };
 
-},{"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],10:[function(require,module,exports){
+},{"../misc/util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],11:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7002,7 +7013,7 @@ fw.subscribable.fn.receive = function (variable, instanceOrNamespaceName) {
   return receivable.refresh();
 };
 
-},{"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],11:[function(require,module,exports){
+},{"../misc/util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],12:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7188,7 +7199,7 @@ function fetch (options) {
 
       ajax.handleJsonResponse(xhr)
         .then(function handleResponseData (data) {
-          if(data) {
+          if (data) {
             var method = options.reset ? 'reset' : 'set';
             data = configParams.parse(data);
             var touchedModels = collection[method](data, options);
@@ -7246,9 +7257,6 @@ function addModel (models, options) {
   if (_.isObject(models)) {
     models = [models];
   }
-  if (!_.isArray(models)) {
-    models = !_.isUndefined(models) && !_.isNull(models) ? [models] : [];
-  }
 
   if (models.length) {
     var collectionData = collection();
@@ -7276,7 +7284,12 @@ function addModel (models, options) {
             modelPresent = true;
             if (options.merge && !sortOfEqual(theModelData, collectionModelData)) {
               // found model, but needs an update
-              (model.set || noop).call(model, theModelData);
+              if (fw.isDataModel(model)) {
+                model.set(theModelData);
+              } else {
+                _.extend(model, theModelData);
+              }
+
               collection.$namespace.publish('_.change', model);
               affectedModels.push(model);
             }
@@ -7383,27 +7396,17 @@ module.exports = {
   removeModel: removeModel
 };
 
-},{"../misc/ajax":41,"../misc/util":44,"./object-tools":14,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],12:[function(require,module,exports){
-var fw = require('knockout/build/output/knockout-latest');
-var _ = require('footwork-lodash');
-
-var getSymbol = require('../misc/util').getSymbol;
-
-function isCollection (thing) {
-  return _.isObject(thing) && !!thing[getSymbol('isCollection')];
-}
-
-module.exports = {
-  isCollection: fw.isCollection = isCollection
-};
-
-},{"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],13:[function(require,module,exports){
+},{"../misc/ajax":42,"../misc/util":43,"./object-tools":14,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],13:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var collectionMethods = require('./collection-methods');
 var privateDataSymbol = require('../misc/util').getSymbol('footwork');
 var getSymbol = require('../misc/util').getSymbol;
+
+fw.isCollection = function (thing) {
+  return _.isObject(thing) && !!thing[getSymbol('isCollection')];
+};
 
 var defaultCollectionConfig = {
   namespace: null,
@@ -7431,7 +7434,7 @@ function addAndNotify (originalFunction) {
 }
 
 fw.collection = function createCollection (collectionData, configParams) {
-  if(!_.isArray(collectionData)) {
+  if (!_.isArray(collectionData)) {
     configParams = collectionData;
     collectionData = [];
   }
@@ -7456,7 +7459,7 @@ fw.collection = function createCollection (collectionData, configParams) {
         collection[privateDataSymbol].isDisposed = true;
         collection.$namespace.dispose();
 
-        if(_.result(configParams, 'disposeItems')) {
+        if (_.result(configParams, 'disposeItems')) {
           _.invokeMap(collection(), 'dispose');
         }
       }
@@ -7497,7 +7500,7 @@ fw.collection = function createCollection (collectionData, configParams) {
   return collection;
 };
 
-},{"../misc/util":44,"./collection-methods":11,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],14:[function(require,module,exports){
+},{"../misc/util":43,"./collection-methods":12,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],14:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7565,7 +7568,7 @@ module.exports = {
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var setLoadingTracker = require('../misc/loading-tracker').set;
+var setLoadingTracker = require('../binding/loading-tracker').set;
 var nearestEntity = require('../entities/entity-tools').nearestEntity;
 var getSymbol = require('../misc/util').getSymbol;
 var entityDescriptors = require('../entities/entity-descriptors');
@@ -7620,7 +7623,7 @@ function componentBindingInit (element, valueAccessor, allBindings, viewModel, b
 
 fw.bindingHandlers.component.init = componentBindingInit;
 
-},{"../entities/entity-descriptors":25,"../entities/entity-tools":27,"../misc/loading-tracker":42,"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],16:[function(require,module,exports){
+},{"../binding/loading-tracker":8,"../entities/entity-descriptors":25,"../entities/entity-tools":27,"../misc/util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],16:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7737,7 +7740,7 @@ function wrapWithLifeCycle (template) {
   return [].concat(wrapper[0], template, wrapper[1]);
 }
 
-},{"../binding/binding-element":6,"../entities/entity-descriptors":25,"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],17:[function(require,module,exports){
+},{"../binding/binding-element":6,"../entities/entity-descriptors":25,"../misc/util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],17:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -7778,7 +7781,7 @@ fw.components.loaders.push(fw.components.locationLoader = {
 
         if (!_.isString(componentLocation.viewModel)) {
           // template-only component, substitute with 'blank' viewModel
-          viewModelConfig = fw[privateDataSymbol].ViewModel;
+          viewModelConfig = _.noop;
         } else {
           // user has supplied the location of the viewModel, specify require config to download
           var viewModelPath = componentLocation.viewModel;
@@ -7808,13 +7811,12 @@ fw.components.loaders.push(fw.components.locationLoader = {
   }
 });
 
-},{"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],18:[function(require,module,exports){
+},{"../misc/util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],18:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var util = require('../misc/util');
 var isPath = util.isPath;
-var getFilenameExtension = util.getFilenameExtension;
 var privateDataSymbol = util.getSymbol('footwork');
 var regExpMatch = /^\/|\/$/g;
 
@@ -7826,7 +7828,7 @@ require('./component-resource-loader');
 // Custom loader used to wrap components with the $lifecycle binding
 require('./component-lifecycle-loader');
 
-var getComponentExtension = require('../misc/resource-tools').getComponentExtension;
+var getComponentExtension = require('../entities/resource-tools').getComponentExtension;
 
 fw.components.resourceLocations = {};
 
@@ -7845,10 +7847,24 @@ fw.components.register = function (componentName, options) {
   }
 
   originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel || fw[privateDataSymbol].ViewModel,
+    viewModel: viewModel,
     template: options.template
   });
 };
+
+/**
+ * Return the trailing file extension from a given string.
+ *
+ * @param {string} fileName
+ * @returns {string} The extension at the end of the file (ie: txt)
+ */
+function getFilenameExtension (fileName) {
+  var extension = '';
+  if (fileName.indexOf('.') !== -1) {
+    extension = _.last(fileName.split('.'));
+  }
+  return extension;
+}
 
 function forceViewModelComponentConvention (componentLocation) {
   if (_.isObject(componentLocation) && _.isUndefined(componentLocation.viewModel) && _.isUndefined(componentLocation.combined)) {
@@ -7948,7 +7964,7 @@ fw.components.getComponentNameForNode = function (node) {
   return null;
 };
 
-},{"../entities/entity-descriptors":25,"../misc/resource-tools":43,"../misc/util":44,"./component-binding-init":15,"./component-lifecycle-loader":16,"./component-resource-loader":17,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],19:[function(require,module,exports){
+},{"../entities/entity-descriptors":25,"../entities/resource-tools":28,"../misc/util":43,"./component-binding-init":15,"./component-lifecycle-loader":16,"./component-resource-loader":17,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],19:[function(require,module,exports){
 var _ = require('footwork-lodash');
 
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
@@ -7993,8 +8009,7 @@ function getNestedReference (rootObject, fieldMap) {
 }
 
 function evalDirtyState (dataModel) {
-  var mappings = dataModel[privateDataSymbol].mappings();
-  return _.reduce(mappings, function(dirty, mappedObservable, path) {
+  return _.reduce(dataModel[privateDataSymbol].mappings, function (dirty, mappedObservable, path) {
     return dirty || mappedObservable.isDirty();
   }, false);
 }
@@ -8005,7 +8020,7 @@ module.exports = {
   evalDirtyState: evalDirtyState
 };
 
-},{"../../misc/util":44,"footwork-lodash":2}],20:[function(require,module,exports){
+},{"../../misc/util":43,"footwork-lodash":2}],20:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8033,12 +8048,16 @@ function dataModelBootstrap (instance, configParams) {
 
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
   if (!hasBeenBootstrapped) {
+    var privateData = instance[privateDataSymbol];
     instance[descriptor.isEntityDuckTag] = true;
-    instance[privateDataSymbol].idAttributeObservable = _.noop;
-    instance[privateDataSymbol].mappings = fw.observable({});
-    configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.resource.defaultConfig, configParams || {});
 
-    _.extend(instance, descriptor.mixin, {
+    _.extend(privateData, {
+      idAttributeObservable: _.noop,
+      mappings: {},
+      configParams: _.extend(privateData.configParams, descriptor.resource.defaultConfig, configParams || {})
+    });
+
+    _.extend(instance, require('./dataModel-methods'), {
       isCreating: fw.observable(false),
       isSaving: fw.observable(false),
       isFetching: fw.observable(false),
@@ -8054,11 +8073,11 @@ function dataModelBootstrap (instance, configParams) {
     });
 
     instance.$removeMap = function (path) {
-      var mappedObservable = instance[privateDataSymbol].mappings()[path];
-      mappedObservable && mappedObservable.dispose();
-      delete instance[privateDataSymbol].mappings()[path];
-      instance[privateDataSymbol].mappings.notifySubscribers();
-      instance.isDirty(evalDirtyState(instance));
+      if (privateData.mappings[path]) {
+        privateData.mappings[path].dispose();
+        delete privateData.mappings[path];
+        instance.isDirty(evalDirtyState(instance));
+      }
     };
   } else {
     throw Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
@@ -8069,7 +8088,7 @@ function dataModelBootstrap (instance, configParams) {
 
 module.exports = dataModelBootstrap;
 
-},{"../../misc/util":44,"../entity-descriptors":25,"../viewModel/viewModel-bootstrap":38,"./data-tools":19,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],21:[function(require,module,exports){
+},{"../../misc/util":43,"../entity-descriptors":25,"../viewModel/viewModel-bootstrap":39,"./data-tools":19,"./dataModel-methods":21,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],21:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8077,6 +8096,7 @@ var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 var dataTools = require('./data-tools');
 var insertValueIntoObject = dataTools.insertValueIntoObject;
 var getNestedReference = dataTools.getNestedReference;
+var evalDirtyState = dataTools.evalDirtyState;
 
 function isNode (thing) {
   var thingIsObject = _.isObject(thing);
@@ -8100,7 +8120,7 @@ function fetchModel (options) {
     requestRunning: dataModel.isFetching,
     requestLull: configParams.requestLull,
     entity: dataModel,
-    createRequest: function() {
+    createRequest: function () {
       if (!dataModel.isNew()) {
         // retrieve data dataModel the from server using the id
         var xhr = dataModel.sync('read', dataModel, options);
@@ -8126,29 +8146,15 @@ function fetchModel (options) {
 /**
  * PUT / POST / PATCH to server
  *
- * @param {string} (optional) key
- * @param {any} (optional) val
+ * @param {string} (optional) attrs
  * @param {object} options (optional) Options passed to sync()
  * @returns {object} Promise Promise for the HTTP Request
  */
-function save (key, val, options) {
+function save (attrs, options) {
   var ajax = require('../../misc/ajax');
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
-  var attrs = null;
-
-  if (_.isObject(key) && !isNode(key)) {
-    attrs = key;
-    options = val;
-  } else if (_.isString(key) && arguments.length > 1) {
-    (attrs = {})[key] = val;
-    options = _.extend(options || {}, { attrs: attrs });
-  }
-
-  if (_.isObject(options) && _.isFunction(options.stopPropagation)) {
-    // method called as a result of an event binding, ignore its 'options'
-    options = {};
-  }
+  var attrs = isNode(attrs) ? {} : attrs;
 
   options = _.extend({
     parse: true,
@@ -8165,7 +8171,7 @@ function save (key, val, options) {
     requestRunning: (method === 'create' ? dataModel.isCreating : dataModel.isSaving),
     requestLull: configParams.requestLull,
     entity: dataModel,
-    createRequest: function() {
+    createRequest: function () {
       if (!options.wait && !_.isNull(attrs)) {
         dataModel.set(attrs);
       }
@@ -8197,7 +8203,7 @@ function save (key, val, options) {
  * Delete/destroy the data on the server.
  *
  * @param {object} options (optional) Options passed to sync()
- * @returns {object} Promise Promise for the HTTP Request
+ * @returns {object} Promise for the HTTP Request
  */
 function destroy (options) {
   var ajax = require('../../misc/ajax');
@@ -8207,7 +8213,7 @@ function destroy (options) {
     requestRunning: dataModel.isDestroying,
     requestLull: configParams.requestLull,
     entity: dataModel,
-    createRequest: function() {
+    createRequest: function () {
       if (dataModel.isNew()) {
         return false;
       }
@@ -8216,7 +8222,7 @@ function destroy (options) {
       var success = options.success;
       var wait = options.wait;
 
-      var sendDestroyEvent = function() {
+      function sendDestroyEvent () {
         dataModel.$namespace.publish('destroy', options);
       };
 
@@ -8245,32 +8251,27 @@ function destroy (options) {
  * set attributes in model (clears isDirty on observables/fields it saves to by default)
  *
  * @param {object} attributes The attributes you want to set (only mapped values will be written)
- * @param {object} options
+ * @param {object} clearDirty flag indicating whether or not to clear the isDirty flag on any set observables
  * @returns {object} The dataModel instance for chaining
  */
-function set (attributes, options) {
+function set (attributes, clearDirty) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
 
-  options = _.extend({
-    clearDirty: true
-  }, options);
+  clearDirty = clearDirty || _.isUndefined(clearDirty);
 
   var mappingsChanged = false;
-  var model = this;
-  _.each(this[privateDataSymbol].mappings(), function(fieldObservable, fieldMap) {
+  _.each(this[privateDataSymbol].mappings, function (fieldObservable, fieldMap) {
     var fieldValue = getNestedReference(attributes, fieldMap);
     if (!_.isUndefined(fieldValue)) {
       fw.isWriteableObservable(fieldObservable) && fieldObservable(fieldValue);
       mappingsChanged = true;
-      options.clearDirty && fieldObservable.isDirty(false);
-      model.$namespace.publish('_.change.' + fieldMap, fieldValue);
+      clearDirty && fieldObservable.isDirty(false);
     }
   });
 
-  if (mappingsChanged && options.clearDirty) {
-    // we updated the dirty state of a/some field(s), lets tell the dataModel $dirty computed to (re)run its evaluator function
-    this[privateDataSymbol].mappings.valueHasMutated();
+  if (mappingsChanged && clearDirty) {
+    dataModel.isDirty(evalDirtyState(dataModel));
   }
 
   return this;
@@ -8286,14 +8287,14 @@ function set (attributes, options) {
 function getData (referenceField, includeRoot) {
   var dataModel = this;
   if (_.isArray(referenceField)) {
-    return _.reduce(referenceField, function(jsObject, fieldMap) {
+    return _.reduce(referenceField, function (jsObject, fieldMap) {
       return _.merge(jsObject, dataModel.get(fieldMap, true));
     }, {});
   } else if (!_.isUndefined(referenceField) && !_.isString(referenceField)) {
     throw Error(dataModel.$namespace.getName() + ': Invalid referenceField [' + typeof referenceField + '] provided to dataModel.get().');
   }
 
-  var mappedObject = _.reduce(this[privateDataSymbol].mappings(), function reduceModelToObject (jsObject, fieldObservable, fieldMap) {
+  var mappedObject = _.reduce(this[privateDataSymbol].mappings, function reduceModelToObject (jsObject, fieldObservable, fieldMap) {
     if (_.isUndefined(referenceField) || ( fieldMap.indexOf(referenceField) === 0 && (fieldMap.length === referenceField.length || fieldMap.substr(referenceField.length, 1) === '.')) ) {
       insertValueIntoObject(jsObject, fieldMap, fieldObservable());
     }
@@ -8321,7 +8322,7 @@ function clean (field) {
   if (!_.isUndefined(field)) {
     var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
   }
-  _.each(this[privateDataSymbol].mappings(), function(fieldObservable, fieldMap) {
+  _.each(this[privateDataSymbol].mappings, function (fieldObservable, fieldMap) {
     if (_.isUndefined(field) || fieldMap.match(fieldMatch)) {
       fieldObservable.isDirty(false);
     }
@@ -8346,7 +8347,7 @@ function dataModelSync () {
  * @returns {boolean} true if the field has been mapped, false if not
  */
 function hasMappedField (referenceField) {
-  return !!this[privateDataSymbol].mappings()[referenceField];
+  return !!this[privateDataSymbol].mappings[referenceField];
 }
 
 /**
@@ -8355,7 +8356,7 @@ function hasMappedField (referenceField) {
  * @returns {array} The list of dirty field mappings
  */
 function dirtyMap () {
-  return _.reduce(this[privateDataSymbol].mappings(), function(map, mappedObservable, path) {
+  return _.reduce(this[privateDataSymbol].mappings, function (map, mappedObservable, path) {
     map[path] = mappedObservable.isDirty();
     return map;
   }, {});
@@ -8377,14 +8378,14 @@ module.exports = {
 
 
 
-},{"../../misc/ajax":41,"../../misc/util":44,"./data-tools":19,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],22:[function(require,module,exports){
+},{"../../misc/ajax":42,"../../misc/util":43,"./data-tools":19,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],22:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 require('./map');
 
 var entityDescriptors = require('../entity-descriptors');
-var resourceHelperFactory = require('../../misc/resource-tools').resourceHelperFactory;
+var resourceHelperFactory = require('../../entities/resource-tools').resourceHelperFactory;
 var prepareDescriptor = require('../entity-tools').prepareDescriptor;
 
 var util = require('../../misc/util');
@@ -8414,8 +8415,7 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   isEntityDuckTag: isEntityDuckTag,
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
-  },
-  mixin: require('./dataModel-mixin')
+  }
 }));
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
@@ -8423,13 +8423,9 @@ fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 // Add/extend on the various resource methods (registerLocation/etc)
 _.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
-fw[privateDataSymbol][capitalizeFirstLetter(entityName)] = function DataModel (params) {
-  fw.dataModel.boot(this);
-};
 
 
-
-},{"../../misc/resource-tools":43,"../../misc/util":44,"../entity-descriptors":25,"../entity-tools":27,"./dataModel-bootstrap":20,"./dataModel-mixin":21,"./map":23,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],23:[function(require,module,exports){
+},{"../../entities/resource-tools":28,"../../misc/util":43,"../entity-descriptors":25,"../entity-tools":27,"./dataModel-bootstrap":20,"./map":23,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],23:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8483,15 +8479,14 @@ function map (mapPath, dataModel) {
     disposeObservable.call(mappedObservable);
   };
 
-  dataModel[privateDataSymbol].mappings()[mapPath] = mappedObservable;
-  dataModel[privateDataSymbol].mappings.valueHasMutated();
+  dataModel[privateDataSymbol].mappings[mapPath] = mappedObservable;
 
   return mappedObservable;
 }
 
 fw.subscribable.fn.map = map;
 
-},{"../../misc/util":44,"./data-tools":19,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],24:[function(require,module,exports){
+},{"../../misc/util":43,"./data-tools":19,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],24:[function(require,module,exports){
 /**
  * This loader wraps the elements with the $lifecycle as well as sources the viewModel/router/dataModel
  */
@@ -8504,7 +8499,7 @@ require('./viewModel/viewModel');
 require('./dataModel/dataModel');
 require('./router/router');
 
-},{"./dataModel/dataModel":22,"./entity-loader":26,"./router/router":37,"./viewModel/viewModel":40}],25:[function(require,module,exports){
+},{"./dataModel/dataModel":22,"./entity-loader":26,"./router/router":38,"./viewModel/viewModel":41}],25:[function(require,module,exports){
 var _ = require('footwork-lodash');
 
 module.exports = _.extend([
@@ -8530,7 +8525,7 @@ var _ = require('footwork-lodash');
 
 var isPath = require('../misc/util').isPath;
 var bindingElement = require('../binding/binding-element');
-var getLoadingTracker = require('../misc/loading-tracker').get;
+var getLoadingTracker = require('../binding/loading-tracker').get;
 
 /**
  * This component loader has two functions:
@@ -8562,7 +8557,7 @@ fw.components.loaders.unshift(fw.components.entityLoader = {
       }
 
       /* istanbul ignore if */
-      if(_.isUndefined(viewModelOrLocation)) {
+      if (_.isUndefined(viewModelOrLocation)) {
         throw Error('The \'' + moduleName + '\' ' + descriptor.entityName + ' module must be registered before it can be used.');
       }
 
@@ -8576,7 +8571,7 @@ fw.components.loaders.unshift(fw.components.entityLoader = {
   }
 });
 
-},{"../binding/binding-element":6,"../misc/loading-tracker":42,"../misc/util":44,"./entity-descriptors":25,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],27:[function(require,module,exports){
+},{"../binding/binding-element":6,"../binding/loading-tracker":8,"../misc/util":43,"./entity-descriptors":25,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],27:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8680,7 +8675,212 @@ module.exports = {
   resolveEntityImmediately: resolveEntityImmediately
 };
 
-},{"../misc/util":44,"./entity-descriptors":25,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],28:[function(require,module,exports){
+},{"../misc/util":43,"./entity-descriptors":25,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],28:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('footwork-lodash');
+
+var util = require('../misc/util');
+var isPath = util.isPath;
+var isAmdResolved = util.isAmdResolved;
+
+var regExpMatch = /^\/|\/$/g;
+
+/**
+ * Determines whether or not the supplied resourceName has been registered on the entity descriptor.
+ *
+ * @param {object} descriptor The entity descriptor
+ * @param {string} resourceName The name of the resource to look for
+ * @returns {boolean} True if the resource is registered
+ */
+function isRegistered (descriptor, resourceName) {
+  return !_.isUndefined(descriptor.registered[resourceName]);
+};
+
+/**
+ * Return the resource registered on the descriptor using the specified resourceName.
+ *
+ * @param {object} descriptor The entity descriptor
+ * @param {string} resourceName The name of the resource to look for
+ * @returns {object} The descriptor or undefined if not found
+ */
+function getRegistered (descriptor, resourceName) {
+  return descriptor.registered[resourceName];
+};
+
+/**
+ * Register a resource using a given resourceName on a descriptor.
+ *
+ * @param {object} descriptor The entity descriptor
+ * @param {string} resourceName The name of the resource to register with
+ * @param {any} resource The item to register
+ */
+function register (descriptor, resourceName, resource) {
+  descriptor.registered[resourceName] = resource;
+};
+
+function getModelExtension (extensions, modelName) {
+  var fileExtension = '';
+
+  if (_.isFunction(extensions)) {
+    fileExtension = extensions(modelName);
+  } else if (_.isString(extensions)) {
+    fileExtension = extensions;
+  }
+
+  return fileExtension.replace(/^\./, '') || '';
+}
+
+function getFileName (descriptor, modelName) {
+  var modelResourceLocations = descriptor.resourceLocations;
+  var fileName = modelName + '.' + getModelExtension(descriptor.fileExtensions(), modelName);
+
+  if (!_.isUndefined(modelResourceLocations[modelName])) {
+    var registeredLocation = modelResourceLocations[modelName];
+    if (_.isString(registeredLocation) && !isPath(registeredLocation)) {
+      // full filename was supplied, lets return that
+      fileName = _.last(registeredLocation.split('/'));
+    }
+  }
+
+  return fileName;
+}
+
+function registerLocation (descriptor, modelName, location) {
+  if (_.isArray(modelName)) {
+    _.each(modelName, function (name) {
+      registerLocation(descriptor, name, location);
+    });
+  }
+  descriptor.resourceLocations[ modelName ] = location;
+}
+
+function modelResourceLocation (descriptor, modelName) {
+  return _.reduce(descriptor.resourceLocations, function (registeredLocation, location, registeredName) {
+    if (!registeredLocation) {
+      if (!_.isNull(registeredName.match(regExpMatch)) && !_.isNull(modelName.match(registeredName.replace(regExpMatch, '')))) {
+        registeredLocation = location;
+      } else if (modelName === registeredName) {
+        registeredLocation = location;
+      }
+    }
+    return registeredLocation;
+  }, undefined);
+}
+
+function getLocation (descriptor, modelName) {
+  if (_.isUndefined(modelName)) {
+    return descriptor.resourceLocations;
+  }
+
+  return modelResourceLocation(descriptor, modelName);
+}
+
+function locationIsRegistered (descriptor, modelName) {
+  return !!modelResourceLocation(descriptor, modelName);
+}
+
+var defaultNamespace = fw.namespace();
+function getModelReferences (descriptor, namespaceName) {
+  var references = _.reduce(defaultNamespace.request(descriptor.referenceNamespace, namespaceName, true), function (models, model) {
+    if (!_.isUndefined(model)) {
+      var namespaceName = fw.isNamespace(model.$namespace) ? model.$namespace.getName() : null;
+      if (!_.isNull(namespaceName)) {
+        if (_.isUndefined(models[namespaceName])) {
+          models[namespaceName] = model;
+        } else {
+          if (!_.isArray(models[namespaceName])) {
+            models[namespaceName] = [models[namespaceName]];
+          }
+          models[namespaceName].push(model);
+        }
+      }
+    }
+    return models;
+  }, {});
+
+  if (_.isString(namespaceName)) {
+    return references[namespaceName];
+  }
+  return references;
+}
+
+
+function getResourceOrLocation (descriptor, moduleName) {
+  var resource = descriptor.resource;
+  var resourceOrLocation = null;
+
+  if (resource.isRegistered(moduleName)) {
+    // viewModel was manually registered
+    resourceOrLocation = resource.getRegistered(moduleName);
+  } else {
+    resourceOrLocation = resource.getLocation(moduleName);
+  }
+
+  return resourceOrLocation;
+}
+
+
+/**
+ * Hydrates each entity resource with the necessary utility methods.
+ *
+ * @param {object} descriptor (as defined in each entity and extended onto the entity-descriptors)
+ * @returns
+ */
+function resourceHelperFactory (descriptor) {
+  var resourceMethods = {
+    getFileName: _.partial(getFileName, descriptor),
+    register: _.partial(register, descriptor),
+    isRegistered: _.partial(isRegistered, descriptor),
+    getRegistered: _.partial(getRegistered, descriptor),
+    registerLocation: _.partial(registerLocation, descriptor),
+    locationIsRegistered: _.partial(locationIsRegistered, descriptor),
+    getLocation: _.partial(getLocation, descriptor),
+    getResourceOrLocation: _.partial(getResourceOrLocation, descriptor),
+
+    fileExtensions: descriptor.fileExtensions,
+    resourceLocations: descriptor.resourceLocations
+  };
+
+  if (!_.isUndefined(descriptor.referenceNamespace)) {
+    // Returns a reference to the specified models.
+    // If no name is supplied, a reference to an array containing all viewModel references is returned.
+    resourceMethods.get = _.partial(getModelReferences, descriptor);
+  }
+
+  return resourceMethods;
+}
+
+/**
+ * Return the file name extension for the given componentName and fileType.
+ *
+ * @param {string} componentName
+ * @param {string} fileType (combined/viewModel/template)
+ * @returns {string} the file extension (ie: 'js')
+ */
+function getComponentExtension (componentName, fileType) {
+  var componentExtensions = fw.components.fileExtensions();
+  var fileExtension = '';
+
+  if (_.isFunction(componentExtensions)) {
+    fileExtension = componentExtensions(componentName)[fileType];
+  } else if (_.isObject(componentExtensions)) {
+    if (_.isFunction(componentExtensions[fileType])) {
+      fileExtension = componentExtensions[fileType](componentName);
+    } else {
+      fileExtension = componentExtensions[fileType] || '';
+    }
+  }
+
+  return fileExtension.replace(/^\./, '') || '';
+}
+
+module.exports = {
+  resourceHelperFactory: resourceHelperFactory,
+  getComponentExtension: getComponentExtension,
+  getModelReferences: getModelReferences
+};
+
+},{"../misc/util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],29:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8714,7 +8914,7 @@ fw.bindingHandlers.$outlet = {
   }
 };
 
-},{"../../../misc/util":44,"../router-tools":36,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],29:[function(require,module,exports){
+},{"../../../misc/util":43,"../router-tools":37,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],30:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8762,51 +8962,20 @@ function outletBootstrap (instance, configParams) {
   if (!hasBeenBootstrapped) {
     instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
 
-    instance.loadingDisplay = fw.observable(nullComponent);
-    instance.routeIsLoading = fw.observable(true);
-    instance.routeIsResolving = fw.observable(true);
-
     var resolvedCallbacks = [];
-    instance.addResolvedCallbackOrExecute = function(callback) {
-      /* istanbul ignore else */
-      if (instance.routeIsResolving()) {
-        resolvedCallbacks.push(callback);
-      } else {
-        callback();
-      }
-    };
-
-    instance.disposeWithInstance(instance.routeIsLoading.subscribe(function(routeIsLoading) {
-      if (routeIsLoading) {
-        instance.routeIsResolving(true);
-      } else {
-        /* istanbul ignore next */
-        if (instance.loadingChildrenWatch && _.isFunction(instance.loadingChildrenWatch.dispose)) {
-          instance.loadingChildrenWatch.dispose();
+    _.extend(instance, {
+      loadingDisplay: fw.observable(nullComponent),
+      routeIsLoading: fw.observable(true),
+      routeIsResolving: fw.observable(true),
+      addResolvedCallbackOrExecute: function (callback) {
+        /* istanbul ignore else */
+        if (instance.routeIsResolving()) {
+          resolvedCallbacks.push(callback);
+        } else {
+          callback();
         }
-
-        // must allow binding to begin on any subcomponents/etc
-        nextFrame(function() {
-          if (instance[privateDataSymbol].loadingChildren().length) {
-            /* istanbul ignore next */
-            instance.loadingChildrenWatch = instance[privateDataSymbol].loadingChildren.subscribe(function(loadingChildren) {
-              if (!loadingChildren.length) {
-                instance.routeIsResolving(false);
-                _.isFunction(instance.routeOnComplete) && instance.routeOnComplete();
-              }
-            });
-          } else {
-            instance.routeIsResolving(false);
-            _.isFunction(instance.routeOnComplete) && instance.routeOnComplete();
-          }
-        });
       }
-    }));
-
-    instance.loadingStyle = fw.observable();
-    instance.loadedStyle = fw.observable();
-    instance.loadingClass = fw.observable();
-    instance.loadedClass = fw.observable();
+    });
 
     function showLoader () {
       var removeAnim = removeAnimation();
@@ -8816,7 +8985,7 @@ function outletBootstrap (instance, configParams) {
       instance.loadedStyle(hiddenCSS);
       instance.loadingStyle(visibleCSS);
 
-      nextFrame(function() {
+      nextFrame(function () {
         instance.loadingClass(addAnimation());
       });
     }
@@ -8828,7 +8997,7 @@ function outletBootstrap (instance, configParams) {
       instance.loadedClass(addAnimation());
 
       if (resolvedCallbacks.length) {
-        _.each(resolvedCallbacks, function(callback) {
+        _.each(resolvedCallbacks, function (callback) {
           callback();
         });
         resolvedCallbacks = [];
@@ -8846,10 +9015,16 @@ function outletBootstrap (instance, configParams) {
       }
     }
 
-    instance.showLoader = showLoader;
-    instance.showLoaded = showLoaded;
+    _.extend(instance, {
+      loadingStyle: fw.observable(),
+      loadedStyle: fw.observable(),
+      loadingClass: fw.observable(),
+      loadedClass: fw.observable(),
+      showLoader: showLoader,
+      showLoaded: showLoaded
+    });
 
-    instance.transitionTrigger = fw.computed(function() {
+    instance.transitionTrigger = fw.computed(function () {
       var routeIsResolving = instance.routeIsResolving();
       if (routeIsResolving) {
         showLoader();
@@ -8857,6 +9032,33 @@ function outletBootstrap (instance, configParams) {
         showLoaded();
       }
     });
+
+    instance.disposeWithInstance(instance.routeIsLoading.subscribe(function disposeWithInstanceCallback (routeIsLoading) {
+      if (routeIsLoading) {
+        instance.routeIsResolving(true);
+      } else {
+        /* istanbul ignore next */
+        if (instance.loadingChildrenWatch && _.isFunction(instance.loadingChildrenWatch.dispose)) {
+          instance.loadingChildrenWatch.dispose();
+        }
+
+        // must allow binding to begin on any subcomponents/etc
+        nextFrame(function () {
+          if (instance[privateDataSymbol].loadingChildren().length) {
+            /* istanbul ignore next */
+            instance.loadingChildrenWatch = instance[privateDataSymbol].loadingChildren.subscribe(function (loadingChildren) {
+              if (!loadingChildren.length) {
+                instance.routeIsResolving(false);
+                _.isFunction(instance.routeOnComplete) && instance.routeOnComplete();
+              }
+            });
+          } else {
+            instance.routeIsResolving(false);
+            _.isFunction(instance.routeOnComplete) && instance.routeOnComplete();
+          }
+        });
+      }
+    }));
   }
 
   return instance;
@@ -8864,7 +9066,7 @@ function outletBootstrap (instance, configParams) {
 
 module.exports = outletBootstrap;
 
-},{"../../../misc/util":44,"../../entity-descriptors":25,"../../entity-tools":27,"../../router/router-defaults":34,"../../viewModel/viewModel-bootstrap":38,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],30:[function(require,module,exports){
+},{"../../../misc/util":43,"../../entity-descriptors":25,"../../entity-tools":27,"../../router/router-defaults":35,"../../viewModel/viewModel-bootstrap":39,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],31:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8904,13 +9106,13 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
   }
 });
 
-},{"../../../binding/binding-element":6,"../router-defaults":34,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],31:[function(require,module,exports){
+},{"../../../binding/binding-element":6,"../router-defaults":35,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],32:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var entityDescriptors = require('../../entity-descriptors');
 var prepareDescriptor = require('../../entity-tools').prepareDescriptor;
-var getModelReferences = require('../../../misc/resource-tools').getModelReferences;
+var getModelReferences = require('../../../entities/resource-tools').getModelReferences;
 
 var util = require('../../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
@@ -8969,7 +9171,7 @@ fw.components.register(routerDefaults.defaultLoadingComponent, {
 });
 
 
-},{"../../../misc/resource-tools":43,"../../../misc/util":44,"../../entity-descriptors":25,"../../entity-tools":27,"../router-defaults":34,"./outlet-binding":28,"./outlet-bootstrap":29,"./outlet-loader":30,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],32:[function(require,module,exports){
+},{"../../../entities/resource-tools":28,"../../../misc/util":43,"../../entity-descriptors":25,"../../entity-tools":27,"../router-defaults":35,"./outlet-binding":29,"./outlet-bootstrap":30,"./outlet-loader":31,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],33:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9085,7 +9287,7 @@ fw.bindingHandlers.$route = {
     function checkForMatchingSegment (mySegment, newRoute) {
       var elementWithState = routeHandlerDescription.parentHasState ? findParentNode(element, routeHandlerDescription.parentHasState) : element;
       if (elementWithState) {
-        if(_.isString(mySegment)) {
+        if (_.isString(mySegment)) {
           var currentRoute = router[privateDataSymbol].currentRoute();
           var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router) || fw.router.activeRouteClassName();
           mySegment = mySegment.replace(startingHashRegex, '/');
@@ -9160,7 +9362,7 @@ fw.bindingHandlers.$route = {
   }
 };
 
-},{"../../misc/util":44,"./router-tools":36,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],33:[function(require,module,exports){
+},{"../../misc/util":43,"./router-tools":37,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],34:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9198,34 +9400,34 @@ function routerBootstrap (instance, configParams) {
 
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
   if (!hasBeenBootstrapped) {
+    var privateData = instance[privateDataSymbol];
     instance[descriptor.isEntityDuckTag] = true;
 
-    configParams = _.extend(instance[privateDataSymbol].configParams, descriptor.resource.defaultConfig, {
-      baseRoute: fw.router.baseRoute() + (resultBound(configParams, 'baseRoute', instance) || '')
-    }, configParams || {});
-
-    _.extend(instance[privateDataSymbol], {
+    _.extend(privateData, {
       registerOutlet: _.partial(registerOutlet, instance),
       unregisterOutlet: _.partial(unregisterOutlet, instance),
       historyPopstateListener: fw.observable(),
-      outlets: {}
+      outlets: {},
+      configParams: _.extend(privateData.configParams, descriptor.resource.defaultConfig, {
+        baseRoute: fw.router.baseRoute() + (resultBound(configParams, 'baseRoute', instance) || '')
+      }, configParams || {})
     });
 
-    _.extend(instance, descriptor.mixin, {
+    _.extend(instance, require('./router-methods'), {
       $currentState: fw.observable(),
       $activated: fw.observable(false),
-      $routes: fw.collection(configParams.routes)
+      $routes: fw.collection(privateData.configParams.routes)
     });
 
-    instance[privateDataSymbol].currentRoute = fw.computed(function () {
+    privateData.currentRoute = fw.computed(function () {
       var routes = instance.$routes();
       var $currentState = instance.$currentState();
       return getRouteForURL(instance, routes, trimBaseRoute(instance, stripQueryStringAndHashFromPath($currentState)));
     });
 
-    instance.$currentRoute = fw.computed(function() {
-      var currentRoute = instance[privateDataSymbol].currentRoute();
-      if(currentRoute) {
+    instance.$currentRoute = fw.computed(function () {
+      var currentRoute = privateData.currentRoute();
+      if (currentRoute) {
         return currentRoute.routeConfiguration;
       } else {
         return null;
@@ -9236,17 +9438,17 @@ function routerBootstrap (instance, configParams) {
     instance.$namespace.subscribe('replaceState', _.partial(routerStateChangeCommandHandler, instance, 'replace'));
 
     instance.disposeWithInstance(
-      fw.computed(function() {
+      fw.computed(function () {
         // Automatically trigger the currentRoute controller whenever the currentRoute() updates and the router is activated
         var currentRoute = instance[privateDataSymbol].currentRoute();
         var activated = instance.$activated();
-        if(activated && currentRoute) {
+        if (activated && currentRoute) {
           triggerRoute(instance, currentRoute);
         }
       }),
-      instance.$activated.subscribe(function(activated) {
+      instance.$activated.subscribe(function (activated) {
         // activate/deactivate the router when the $activated flag is set
-        if(activated) {
+        if (activated) {
           // activate the router
 
           // set the current state as of page-load
@@ -9255,8 +9457,8 @@ function routerBootstrap (instance, configParams) {
           instance[privateDataSymbol].activating = false;
 
           // setup html5 history event listener
-          if(!fw.router.disableHistory()) {
-            /* istanbul ignore next */
+          /* istanbul ignore if */
+          if (!fw.router.disableHistory()) {
             var popstateEvent = function () {
               instance.$currentState(trimBaseRoute(instance, getLocation()));
             };
@@ -9275,6 +9477,7 @@ function routerBootstrap (instance, configParams) {
 
           // dispose of the history popstate event listener
           var historyPopstateListener = instance[privateDataSymbol].historyPopstateListener();
+          /* istanbul ignore if */
           if (historyPopstateListener) {
             (function popStateListener (eventInfo) {
               window[eventInfo[0]](eventInfo[1] + 'popstate', historyPopstateListener);
@@ -9306,7 +9509,7 @@ function routerStateChangeCommandHandler (instance, mode, state) {
 
 module.exports = routerBootstrap;
 
-},{"../../misc/util":44,"../entity-descriptors":25,"../viewModel/viewModel-bootstrap":38,"./router-tools":36,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],34:[function(require,module,exports){
+},{"../../misc/util":43,"../entity-descriptors":25,"../viewModel/viewModel-bootstrap":39,"./router-methods":36,"./router-tools":37,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],35:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 
 var nullRouter = {};
@@ -9324,7 +9527,7 @@ module.exports = {
   activeOutlets: fw.observableArray()
 };
 
-},{"../../misc/util":44,"knockout/build/output/knockout-latest":3}],35:[function(require,module,exports){
+},{"../../misc/util":43,"knockout/build/output/knockout-latest":3}],36:[function(require,module,exports){
 var _ = require('footwork-lodash');
 var fw = require('knockout/build/output/knockout-latest');
 
@@ -9341,7 +9544,7 @@ var propertyDispose = util.propertyDispose;
 var startingHashRegex = util.startingHashRegex;
 var privateDataSymbol = util.getSymbol('footwork');
 
-var viewModelMixinDispose = require('../viewModel/viewModel-mixin').dispose;
+var viewModelMethodDispose = require('../viewModel/viewModel-methods').dispose;
 var clearSequenceQueue = require('../../binding/animation-sequencing').clearSequenceQueue;
 var routerDefaults = require('./router-defaults');
 var noComponentSelected = routerDefaults.noComponentSelected;
@@ -9461,7 +9664,7 @@ module.exports = {
   dispose: function () {
     if (!this[privateDataSymbol].isDisposed) {
       // first run all of the standard viewModel disposal logic
-      viewModelMixinDispose.call(this);
+      viewModelMethodDispose.call(this);
 
       // deactivate the router (unbinds the history event listener)
       this.$activated(false);
@@ -9476,7 +9679,7 @@ module.exports = {
 
 
 
-},{"../../binding/animation-sequencing":4,"../../misc/util":44,"../entity-tools":27,"../viewModel/viewModel-mixin":39,"./router-defaults":34,"./router-tools":36,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],36:[function(require,module,exports){
+},{"../../binding/animation-sequencing":4,"../../misc/util":43,"../entity-tools":27,"../viewModel/viewModel-methods":40,"./router-defaults":35,"./router-tools":37,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],37:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9561,7 +9764,7 @@ function unregisterOutlet (router, outletName) {
 
 function trimBaseRoute (router, url) {
   var configParams = router[privateDataSymbol].configParams;
-  if (configParams.baseRoute && url.indexOf(configParams.baseRoute) === 0) {
+  if (configParams.baseRoute && url && url.indexOf(configParams.baseRoute) === 0) {
     url = url.substr(configParams.baseRoute.length);
     if (url.length > 1) {
       url = url.replace(hashMatchRegex, '/');
@@ -9593,7 +9796,7 @@ function triggerRoute (router, route) {
  * @returns {object} the router
  */
 function changeRoute (router, historyMethod, route, routeParams) {
-  if(router.$activated()) {
+  if (router.$activated()) {
     var namedRoute = _.isObject(routeParams) ? route : null;
     var configParams = router[privateDataSymbol].configParams;
     route = route;
@@ -9619,6 +9822,7 @@ function changeRoute (router, historyMethod, route, routeParams) {
       route = trimBaseRoute(router, route);
 
       if (resultBound(configParams, 'beforeRoute', router, [route || '/'])) {
+        /* istanbul ignore if */
         if (!router[privateDataSymbol].activating && route && router[privateDataSymbol].historyPopstateListener() && !fw.router.disableHistory()) {
           history[historyMethod + 'State'](null, '', configParams.baseRoute + route);
         }
@@ -9637,7 +9841,7 @@ function changeRoute (router, historyMethod, route, routeParams) {
  * @returns {string} the stripped url
  */
 function stripQueryStringAndHashFromPath (url) {
-  if(url) {
+  if (url) {
     return url.split("?")[0].split("#")[0];
   } else {
     return url;
@@ -9650,7 +9854,7 @@ function getRouteForURL (router, routes, url) {
   var routeConfiguration;
 
   // find all routes with a matching routeString
-  if(routes) {
+  if (routes) {
     matchedRoutes = _.reduce(routes, function (matches, routeConfiguration) {
       var routeConfigRoute = [].concat(routeConfiguration.route);
       _.each(routeConfigRoute, function (routeString) {
@@ -9720,7 +9924,7 @@ function getRouteForURL (router, routes, url) {
  *
  * @returns {string} the current location url
  */
-function getLocation() {
+function getLocation () {
   var location = window.history.location || window.location;
   return location.pathname + location.search + location.hash;
 }
@@ -9742,12 +9946,12 @@ module.exports = {
   getLocation: getLocation
 };
 
-},{"../../misc/util":44,"../entity-tools":27,"./router-defaults":34,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],37:[function(require,module,exports){
+},{"../../misc/util":43,"../entity-tools":27,"./router-defaults":35,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],38:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var entityDescriptors = require('../entity-descriptors');
-var resourceHelperFactory = require('../../misc/resource-tools').resourceHelperFactory;
+var resourceHelperFactory = require('../../entities/resource-tools').resourceHelperFactory;
 var prepareDescriptor = require('../entity-tools').prepareDescriptor;
 
 var util = require('../../misc/util');
@@ -9784,8 +9988,7 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   isEntityDuckTag: isEntityDuckTag,
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
-  },
-  mixin: require('./router-mixin')
+  }
 }));
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
@@ -9793,7 +9996,7 @@ fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 // Add/extend on the various resource methods (registerLocation/etc)
 _.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
-},{"../../misc/resource-tools":43,"../../misc/util":44,"../entity-descriptors":25,"../entity-tools":27,"./outlet/outlet":31,"./route-binding":32,"./router-bootstrap":33,"./router-defaults":34,"./router-mixin":35,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],38:[function(require,module,exports){
+},{"../../entities/resource-tools":28,"../../misc/util":43,"../entity-descriptors":25,"../entity-tools":27,"./outlet/outlet":32,"./route-binding":33,"./router-bootstrap":34,"./router-defaults":35,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],39:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9832,7 +10035,7 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
       loadingChildren: fw.observableArray()
     };
 
-    _.extend(instance, descriptor.mixin, {
+    _.extend(instance, require('./viewModel-methods'), {
       $namespace: fw.namespace(resultBound(configParams, 'namespace', instance))
     });
 
@@ -9848,7 +10051,7 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
 
 module.exports = viewModelBootstrap;
 
-},{"../../misc/util":44,"../../namespace/postbox":47,"../entity-descriptors":25,"../entity-tools":27,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],39:[function(require,module,exports){
+},{"../../misc/util":43,"../../namespace/postbox":46,"../entity-descriptors":25,"../entity-tools":27,"./viewModel-methods":40,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],40:[function(require,module,exports){
 var _ = require('footwork-lodash');
 
 var util = require('../../misc/util');
@@ -9876,7 +10079,7 @@ module.exports = {
   disposeWithInstance: function disposeWithInstance (disposableItem) {
     var self = this;
 
-    if(arguments.length > 1) {
+    if (arguments.length > 1) {
       disposableItem = Array.prototype.slice.call(arguments);
     }
 
@@ -9892,12 +10095,12 @@ module.exports = {
 
 
 
-},{"../../misc/util":44,"footwork-lodash":2}],40:[function(require,module,exports){
+},{"../../misc/util":43,"footwork-lodash":2}],41:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var entityDescriptors = require('../entity-descriptors');
-var resourceHelperFactory = require('../../misc/resource-tools').resourceHelperFactory;
+var resourceHelperFactory = require('../../entities/resource-tools').resourceHelperFactory;
 
 var entityTools = require('../entity-tools');
 var prepareDescriptor = entityTools.prepareDescriptor;
@@ -9930,8 +10133,7 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   isEntityDuckTag: isEntityDuckTag,
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
-  },
-  mixin: require('./viewModel-mixin')
+  }
 }));
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
@@ -9939,13 +10141,9 @@ fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 // Add/extend on the various resource methods (registerLocation/etc)
 _.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
-fw[privateDataSymbol][capitalizeFirstLetter(entityName)] = function ViewModel (params) {
-  fw.viewModel.boot(this);
-};
 
 
-
-},{"../../misc/resource-tools":43,"../../misc/util":44,"../entity-descriptors":25,"../entity-tools":27,"./viewModel-bootstrap":38,"./viewModel-mixin":39,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],41:[function(require,module,exports){
+},{"../../entities/resource-tools":28,"../../misc/util":43,"../entity-descriptors":25,"../entity-tools":27,"./viewModel-bootstrap":39,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],42:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9954,8 +10152,6 @@ var resultBound = util.resultBound;
 var promiseIsFulfilled = util.promiseIsFulfilled;
 var isPromise = util.isPromise;
 var privateDataSymbol = util.getSymbol('footwork');
-
-require('../collection/collection-tools');
 
 // Map from CRUD to REST for our default implementation.
 var methodMap = {
@@ -10054,12 +10250,19 @@ function sync (action, concern, options) {
   var method;
   var url = resultBound(configParams, 'url', concern);
   if (_.isObject(url)) {
-    // user is explicitly defining the individual request method and url
-    var userAction = resultBound(url, action, concern, [action, options]);
-    if (_.isString(userAction)) {
-      userAction = userAction.split(' ');
-      method = userAction.shift();
-      url = userAction.join(' ');
+    // user is explicitly defining the individual request url or method+url
+    var requestAction = resultBound(url, action, concern, [action, options]);
+    if (_.isString(requestAction)) {
+      if (requestAction.indexOf(' ') !== -1) {
+        // method url
+        requestAction = requestAction.split(' ');
+        method = requestAction[0];
+        url = requestAction[1];
+      } else {
+        // url
+        method = methodMap[action];
+        url = requestAction;
+      }
     }
   } else if (_.isString(url)) {
     // string specified, use the default method for this action and url
@@ -10156,7 +10359,7 @@ function makePromiseQueryable (promise) {
  */
 function handleJsonResponse (xhr) {
   return xhr.then(function (response) {
-      if(response.ok) {
+      if (response.ok) {
         var json;
         try {
           json = response.clone().json();
@@ -10167,236 +10370,16 @@ function handleJsonResponse (xhr) {
 }
 
 fw.fetchOptions = {};
+fw.sync = sync;
 
 module.exports = {
-  sync: sync,
   makeOrGetRequest: makeOrGetRequest,
   handleJsonResponse: handleJsonResponse,
   makePromiseQueryable: makePromiseQueryable
 }
 
-},{"../collection/collection-tools":12,"./util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],42:[function(require,module,exports){
-/**
- * Registry which stores component information as it is loaded.
- * This information is used by footwork to bootstrap the component/entity.
- */
-var currentlyLoading;
-
-module.exports = {
-  set: function (loadingTracker) {
-    currentlyLoading = loadingTracker;
-  },
-  get: function () {
-    return currentlyLoading;
-  }
-};
-
-},{}],43:[function(require,module,exports){
+},{"./util":43,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],43:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
-var _ = require('footwork-lodash');
-
-var util = require('../misc/util');
-var isPath = util.isPath;
-var isAmdResolved = util.isAmdResolved;
-
-var regExpMatch = /^\/|\/$/g;
-
-/**
- * Determines whether or not the supplied resourceName has been registered on the entity descriptor.
- *
- * @param {object} descriptor The entity descriptor
- * @param {string} resourceName The name of the resource to look for
- * @returns {boolean} True if the resource is registered
- */
-function isRegistered (descriptor, resourceName) {
-  return !_.isUndefined(descriptor.registered[resourceName]);
-};
-
-/**
- * Return the resource registered on the descriptor using the specified resourceName.
- *
- * @param {object} descriptor The entity descriptor
- * @param {string} resourceName The name of the resource to look for
- * @returns {object} The descriptor or undefined if not found
- */
-function getRegistered (descriptor, resourceName) {
-  return descriptor.registered[resourceName];
-};
-
-/**
- * Register a resource using a given resourceName on a descriptor.
- *
- * @param {object} descriptor The entity descriptor
- * @param {string} resourceName The name of the resource to register with
- * @param {any} resource The item to register
- */
-function register (descriptor, resourceName, resource) {
-  descriptor.registered[resourceName] = resource;
-};
-
-function getModelExtension (extensions, modelName) {
-  var fileExtension = '';
-
-  if (_.isFunction(extensions)) {
-    fileExtension = extensions(modelName);
-  } else if (_.isString(extensions)) {
-    fileExtension = extensions;
-  }
-
-  return fileExtension.replace(/^\./, '') || '';
-}
-
-function getFileName (descriptor, modelName) {
-  var modelResourceLocations = descriptor.resourceLocations;
-  var fileName = modelName + '.' + getModelExtension(descriptor.fileExtensions(), modelName);
-
-  if (!_.isUndefined(modelResourceLocations[modelName])) {
-    var registeredLocation = modelResourceLocations[modelName];
-    if (_.isString(registeredLocation) && !isPath(registeredLocation)) {
-      // full filename was supplied, lets return that
-      fileName = _.last(registeredLocation.split('/'));
-    }
-  }
-
-  return fileName;
-}
-
-function registerLocation (descriptor, modelName, location) {
-  if (_.isArray(modelName)) {
-    _.each(modelName, function (name) {
-      registerLocation(descriptor, name, location);
-    });
-  }
-  descriptor.resourceLocations[ modelName ] = location;
-}
-
-function modelResourceLocation (descriptor, modelName) {
-  return _.reduce(descriptor.resourceLocations, function (registeredLocation, location, registeredName) {
-    if (!registeredLocation) {
-      if (!_.isNull(registeredName.match(regExpMatch)) && !_.isNull(modelName.match(registeredName.replace(regExpMatch, '')))) {
-        registeredLocation = location;
-      } else if (modelName === registeredName) {
-        registeredLocation = location;
-      }
-    }
-    return registeredLocation;
-  }, undefined);
-}
-
-function getLocation (descriptor, modelName) {
-  if (_.isUndefined(modelName)) {
-    return descriptor.resourceLocations;
-  }
-
-  return modelResourceLocation(descriptor, modelName);
-}
-
-function locationIsRegistered (descriptor, modelName) {
-  return !!modelResourceLocation(descriptor, modelName);
-}
-
-var defaultNamespace = fw.namespace();
-function getModelReferences (descriptor, namespaceName) {
-  var references = _.reduce(defaultNamespace.request(descriptor.referenceNamespace, namespaceName, true), function (models, model) {
-    if (!_.isUndefined(model)) {
-      var namespaceName = fw.isNamespace(model.$namespace) ? model.$namespace.getName() : null;
-      if (!_.isNull(namespaceName)) {
-        if (_.isUndefined(models[namespaceName])) {
-          models[namespaceName] = model;
-        } else {
-          if(!_.isArray(models[namespaceName])) {
-            models[namespaceName] = [models[namespaceName]];
-          }
-          models[namespaceName].push(model);
-        }
-      }
-    }
-    return models;
-  }, {});
-
-  if (_.isString(namespaceName)) {
-    return references[namespaceName];
-  }
-  return references;
-}
-
-
-function getResourceOrLocation (descriptor, moduleName) {
-  var resource = descriptor.resource;
-  var resourceOrLocation = null;
-
-  if (resource.isRegistered(moduleName)) {
-    // viewModel was manually registered
-    resourceOrLocation = resource.getRegistered(moduleName);
-  } else {
-    resourceOrLocation = resource.getLocation(moduleName);
-  }
-
-  return resourceOrLocation;
-}
-
-
-/**
- * Hydrates each entity resource with the necessary utility methods.
- *
- * @param {object} descriptor (as defined in each entity and extended onto the entity-descriptors)
- * @returns
- */
-function resourceHelperFactory (descriptor) {
-  var resourceMethods = {
-    getFileName: _.partial(getFileName, descriptor),
-    register: _.partial(register, descriptor),
-    isRegistered: _.partial(isRegistered, descriptor),
-    getRegistered: _.partial(getRegistered, descriptor),
-    registerLocation: _.partial(registerLocation, descriptor),
-    locationIsRegistered: _.partial(locationIsRegistered, descriptor),
-    getLocation: _.partial(getLocation, descriptor),
-    getResourceOrLocation: _.partial(getResourceOrLocation, descriptor),
-
-    fileExtensions: descriptor.fileExtensions,
-    resourceLocations: descriptor.resourceLocations
-  };
-
-  if (!_.isUndefined(descriptor.referenceNamespace)) {
-    // Returns a reference to the specified models.
-    // If no name is supplied, a reference to an array containing all viewModel references is returned.
-    resourceMethods.get = _.partial(getModelReferences, descriptor);
-  }
-
-  return resourceMethods;
-}
-
-/**
- * Return the file name extension for the given componentName and fileType.
- *
- * @param {string} componentName
- * @param {string} fileType (combined/viewModel/template)
- * @returns {string} the file extension (ie: 'js')
- */
-function getComponentExtension (componentName, fileType) {
-  var componentExtensions = fw.components.fileExtensions();
-  var fileExtension = '';
-
-  if (_.isFunction(componentExtensions)) {
-    fileExtension = componentExtensions(componentName)[fileType];
-  } else if (_.isObject(componentExtensions)) {
-    if (_.isFunction(componentExtensions[fileType])) {
-      fileExtension = componentExtensions[fileType](componentName);
-    } else {
-      fileExtension = componentExtensions[fileType] || '';
-    }
-  }
-
-  return fileExtension.replace(/^\./, '') || '';
-}
-
-module.exports = {
-  resourceHelperFactory: resourceHelperFactory,
-  getComponentExtension: getComponentExtension,
-  getModelReferences: getModelReferences
-};
-
-},{"../misc/util":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],44:[function(require,module,exports){
 var _ = require('footwork-lodash');
 
 /**
@@ -10539,20 +10522,6 @@ function hasHashStart (string) {
 }
 
 /**
- * Return the trailing file extension from a given string.
- *
- * @param {string} fileName
- * @returns {string} The extension at the end of the file (ie: txt)
- */
-function getFilenameExtension (fileName) {
-  var extension = '';
-  if (fileName.indexOf('.') !== -1) {
-    extension = _.last(fileName.split('.'));
-  }
-  return extension;
-}
-
-/**
  * Calls dispose() on the supplied property if it exists.
  *
  * @param {any} property
@@ -10638,6 +10607,8 @@ function makeArray (arrayLikeObject) {
   return convertedArray;
 }
 
+fw.utils.getPrivateData = getPrivateData;
+
 module.exports = {
   alwaysPassPredicate: alwaysPassPredicate,
   resultBound: resultBound,
@@ -10650,7 +10621,6 @@ module.exports = {
   isPath: isPath,
   hasPathStart: hasPathStart,
   hasHashStart: hasHashStart,
-  getFilenameExtension: getFilenameExtension,
   propertyDispose: propertyDispose,
   isDocumentFragment: isDocumentFragment,
   isDomElement: isDomElement,
@@ -10661,7 +10631,7 @@ module.exports = {
   makeArray: makeArray
 };
 
-},{"footwork-lodash":2}],45:[function(require,module,exports){
+},{"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],44:[function(require,module,exports){
 var _ = require('footwork-lodash');
 
 var postbox = require('./postbox');
@@ -10688,7 +10658,7 @@ function publish (topic, data) {
  * @returns {object} the subscription that was created
  */
 function subscribe (topic, callback, context) {
-  if(arguments.length > 2) {
+  if (arguments.length > 2) {
     callback = _.bind(callback, context);
   }
   var subscription = postbox.subscribe(callback, null, this[privateDataSymbol].namespaceName + '.' + topic);
@@ -10784,7 +10754,9 @@ module.exports = {
   getName: getName
 };
 
-},{"../misc/util":44,"./postbox":47,"footwork-lodash":2}],46:[function(require,module,exports){
+},{"../misc/util":43,"./postbox":46,"footwork-lodash":2}],45:[function(require,module,exports){
+var fw = require('knockout/build/output/knockout-latest');
+var _ = require('footwork-lodash');
 var privateDataSymbol = require('../misc/util').getSymbol('footwork');
 
 /**
@@ -10804,19 +10776,15 @@ function Namespace (namespaceName) {
   };
 };
 
-var namespaceMethods = require('./namespace-methods');
+_.extend(Namespace.prototype, require('./namespace-methods'));
 
-Namespace.prototype.publish = namespaceMethods.publish;
-Namespace.prototype.subscribe = namespaceMethods.subscribe;
-Namespace.prototype.unsubscribe = namespaceMethods.unsubscribe;
-Namespace.prototype.request = namespaceMethods.request;
-Namespace.prototype.requestHandler = namespaceMethods.requestHandler;
-Namespace.prototype.getName = namespaceMethods.getName;
-Namespace.prototype.dispose = namespaceMethods.dispose;
+fw.namespace = Namespace;
 
-module.exports = Namespace;
+fw.isNamespace = function (thing) {
+  return thing instanceof fw.namespace;
+};
 
-},{"../misc/util":44,"./namespace-methods":45}],47:[function(require,module,exports){
+},{"../misc/util":43,"./namespace-methods":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],46:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 
 /**
