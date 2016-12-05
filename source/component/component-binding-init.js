@@ -22,8 +22,7 @@ function componentBindingInit (element, valueAccessor, allBindings, viewModel, b
   var tagName = (element.tagName || '').toLowerCase();
   var loadingTracker = element[getSymbol('loadingTracker')] = {
     tagName: tagName,
-    moduleName: element.getAttribute('module') || /* istanbul ignore next */ element.getAttribute('data-module'),
-    elementName: element.getAttribute('name') || /* istanbul ignore next */ element.getAttribute('data-name')
+    moduleName: element.getAttribute('module') || element.getAttribute('data-module')
   };
 
   /**
