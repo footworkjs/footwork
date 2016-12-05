@@ -7,7 +7,6 @@ var resolveEntityImmediately = entityTools.resolveEntityImmediately;
 var util = require('../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
 var getSymbol = util.getSymbol;
-var privateDataSymbol = util.getSymbol('footwork');
 
 var entityName = 'viewModel';
 var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
