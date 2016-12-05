@@ -8385,7 +8385,6 @@ require('./map');
 
 var entityDescriptors = require('../entity-descriptors');
 var resourceHelperFactory = require('../../entities/resource-tools').resourceHelperFactory;
-var prepareDescriptor = require('../entity-tools').prepareDescriptor;
 
 var util = require('../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
@@ -8406,16 +8405,20 @@ fw[entityName] = {
   }
 };
 
-var descriptor;
-entityDescriptors.push(descriptor = prepareDescriptor({
+var descriptor = {
   tagName: entityName.toLowerCase(),
   entityName: entityName,
   resource: fw[entityName],
   isEntityDuckTag: isEntityDuckTag,
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
-  }
-}));
+  },
+  resourceLocations: {},
+  registered: {},
+  fileExtensions: fw.observable('.js'),
+  referenceNamespace: '__' + capitalizeFirstLetter(entityName) + 'Reference'
+};
+entityDescriptors.push(descriptor);
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 
@@ -8424,7 +8427,7 @@ _.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
 
 
-},{"../../entities/resource-tools":28,"../../misc/util":43,"../entity-descriptors":25,"../entity-tools":27,"./dataModel-bootstrap":20,"./map":23,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],23:[function(require,module,exports){
+},{"../../entities/resource-tools":28,"../../misc/util":43,"../entity-descriptors":25,"./dataModel-bootstrap":20,"./map":23,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],23:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8577,15 +8580,6 @@ var _ = require('footwork-lodash');
 var entityDescriptors = require('./entity-descriptors');
 var capitalizeFirstLetter = require('../misc/util').capitalizeFirstLetter;
 
-function prepareDescriptor (descriptor) {
-  return _.extend({
-    resourceLocations: {},
-    registered: {},
-    fileExtensions: fw.observable('.js'),
-    referenceNamespace: '__' + capitalizeFirstLetter(descriptor.entityName) + 'Reference'
-  }, descriptor);
-}
-
 /**
  * Determines whether or not the passed in instance is an 'entity' (a viewModel/dataModel/router/outlet view model instance)
  *
@@ -8638,26 +8632,6 @@ function nearestEntity ($context, predicate) {
 }
 
 /**
- * This request handler returns references of the instance to the requester when it matches the passed in namespaceName.
- *
- * @param {any} instance
- * @param {any} options
- * @returns {object} the instance passed in if the passed in namespace matches
- */
-function instanceRequestHandler (instance, namespaceName) {
-  if (_.isString(namespaceName) || _.isArray(namespaceName)) {
-    var myNamespaceName = instance.$namespace.getName();
-    if (_.isArray(namespaceName) && _.indexOf(namespaceName, myNamespaceName) !== -1) {
-      return instance;
-    } else if (_.isString(namespaceName) && namespaceName === myNamespaceName) {
-      return instance;
-    }
-  } else {
-    return instance;
-  }
-}
-
-/**
  * Function which calls resolveNow to resolve the entity immediately
  *
  * @param {function} resolveNow
@@ -8667,10 +8641,8 @@ function resolveEntityImmediately (resolveNow) {
 }
 
 module.exports = {
-  prepareDescriptor: prepareDescriptor,
   isEntity: isEntity,
   nearestEntity: nearestEntity,
-  instanceRequestHandler: instanceRequestHandler,
   resolveEntityImmediately: resolveEntityImmediately
 };
 
@@ -8778,9 +8750,8 @@ function locationIsRegistered (descriptor, modelName) {
   return !!modelResourceLocation(descriptor, modelName);
 }
 
-var defaultNamespace = fw.namespace();
 function getModelReferences (descriptor, namespaceName) {
-  var references = _.reduce(defaultNamespace.request(descriptor.referenceNamespace, namespaceName, true), function (models, model) {
+  var references = _.reduce(fw.namespace(descriptor.referenceNamespace).request('ref', namespaceName, true), function (models, model) {
     if (!_.isUndefined(model)) {
       var namespaceName = fw.isNamespace(model.$namespace) ? model.$namespace.getName() : null;
       if (!_.isNull(namespaceName)) {
@@ -8917,7 +8888,6 @@ fw.bindingHandlers.$outlet = {
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var instanceRequestHandler = require('../../entity-tools').instanceRequestHandler;
 var entityDescriptors = require('../../entity-descriptors');
 var viewModelBootstrap = require('../../viewModel/viewModel-bootstrap');
 
@@ -9065,7 +9035,7 @@ function outletBootstrap (instance, configParams) {
 
 module.exports = outletBootstrap;
 
-},{"../../../misc/util":43,"../../entity-descriptors":25,"../../entity-tools":27,"../../router/router-defaults":35,"../../viewModel/viewModel-bootstrap":39,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],31:[function(require,module,exports){
+},{"../../../misc/util":43,"../../entity-descriptors":25,"../../router/router-defaults":35,"../../viewModel/viewModel-bootstrap":39,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],31:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9110,7 +9080,6 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var entityDescriptors = require('../../entity-descriptors');
-var prepareDescriptor = require('../../entity-tools').prepareDescriptor;
 var getModelReferences = require('../../../entities/resource-tools').getModelReferences;
 
 var util = require('../../../misc/util');
@@ -9133,8 +9102,7 @@ fw[entityName] = {
   }
 };
 
-var descriptor;
-entityDescriptors.push(descriptor = prepareDescriptor({
+var descriptor = {
   tagName: entityName.toLowerCase(),
   entityName: entityName,
   resource: fw[entityName],
@@ -9142,8 +9110,12 @@ entityDescriptors.push(descriptor = prepareDescriptor({
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
   },
-  defaultConfig: {}
-}));
+  resourceLocations: {},
+  registered: {},
+  fileExtensions: fw.observable('.js'),
+  referenceNamespace: '__' + capitalizeFirstLetter(entityName) + 'Reference'
+};
+entityDescriptors.push(descriptor);
 
 fw[entityName].get = _.partial(getModelReferences, descriptor);
 
@@ -9160,17 +9132,17 @@ fw.components.register(routerDefaults.nullComponent, {
 });
 fw.components.register(routerDefaults.defaultLoadingComponent, {
   template: '<div class="sk-wave ' + routerDefaults.defaultLoadingComponent + ' fade-in">\
-              <div class="sk-rect sk-rect1"></div>\
-              <div class="sk-rect sk-rect2"></div>\
-              <div class="sk-rect sk-rect3"></div>\
-              <div class="sk-rect sk-rect4"></div>\
-              <div class="sk-rect sk-rect5"></div>\
+               <div class="sk-rect sk-rect1"></div>\
+               <div class="sk-rect sk-rect2"></div>\
+               <div class="sk-rect sk-rect3"></div>\
+               <div class="sk-rect sk-rect4"></div>\
+               <div class="sk-rect sk-rect5"></div>\
             </div>',
   synchronus: true
 });
 
 
-},{"../../../entities/resource-tools":28,"../../../misc/util":43,"../../entity-descriptors":25,"../../entity-tools":27,"../router-defaults":35,"./outlet-binding":29,"./outlet-bootstrap":30,"./outlet-loader":31,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],33:[function(require,module,exports){
+},{"../../../entities/resource-tools":28,"../../../misc/util":43,"../../entity-descriptors":25,"../router-defaults":35,"./outlet-binding":29,"./outlet-bootstrap":30,"./outlet-loader":31,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],33:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9951,7 +9923,6 @@ var _ = require('footwork-lodash');
 
 var entityDescriptors = require('../entity-descriptors');
 var resourceHelperFactory = require('../../entities/resource-tools').resourceHelperFactory;
-var prepareDescriptor = require('../entity-tools').prepareDescriptor;
 
 var util = require('../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
@@ -9979,29 +9950,31 @@ fw[entityName] = {
   }
 };
 
-var descriptor;
-entityDescriptors.push(descriptor = prepareDescriptor({
+var descriptor = {
   tagName: entityName.toLowerCase(),
   entityName: entityName,
   resource: fw[entityName],
   isEntityDuckTag: isEntityDuckTag,
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
-  }
-}));
+  },
+  resourceLocations: {},
+  registered: {},
+  fileExtensions: fw.observable('.js'),
+  referenceNamespace: '__' + capitalizeFirstLetter(entityName) + 'Reference'
+};
+entityDescriptors.push(descriptor);
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 
 // Add/extend on the various resource methods (registerLocation/etc)
 _.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
-},{"../../entities/resource-tools":28,"../../misc/util":43,"../entity-descriptors":25,"../entity-tools":27,"./outlet/outlet":32,"./route-binding":33,"./router-bootstrap":34,"./router-defaults":35,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],39:[function(require,module,exports){
+},{"../../entities/resource-tools":28,"../../misc/util":43,"../entity-descriptors":25,"./outlet/outlet":32,"./route-binding":33,"./router-bootstrap":34,"./router-defaults":35,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],39:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var entityDescriptors = require('../entity-descriptors');
-var postbox = require('../../namespace/postbox');
-var instanceRequestHandler = require('../entity-tools').instanceRequestHandler;
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 var resultBound = require('../../misc/util').resultBound;
 
@@ -10038,11 +10011,18 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
       $namespace: fw.namespace(resultBound(configParams, 'namespace', instance))
     });
 
-    // Setup the request handler which returns the instance (fw.viewModel.get())
-    // Note: We are wiring up the request handler manually so that an entire namespace does not need instantiating for this callback
-    instance.disposeWithInstance(postbox.subscribe(function instanceResponseHandler (params) {
-      postbox.notifySubscribers(instanceRequestHandler(instance, params), '__footwork.request.' + requestHandlerDescriptor.referenceNamespace + '.response');
-    }, null, '__footwork.request.' + requestHandlerDescriptor.referenceNamespace));
+    // Setup the request handler which returns the instance
+    instance.disposeWithInstance(fw.namespace(requestHandlerDescriptor.referenceNamespace).requestHandler('ref', function(namespaceName) {
+      if (_.isString(namespaceName) || _.isArray(namespaceName)) {
+        if (_.isArray(namespaceName) && _.indexOf(namespaceName, configParams.namespace) !== -1) {
+          return instance;
+        } else if (_.isString(namespaceName) && namespaceName === configParams.namespace) {
+          return instance;
+        }
+      } else {
+        return instance;
+      }
+    }));
   }
 
   return instance;
@@ -10050,7 +10030,7 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
 
 module.exports = viewModelBootstrap;
 
-},{"../../misc/util":43,"../../namespace/postbox":46,"../entity-descriptors":25,"../entity-tools":27,"./viewModel-methods":40,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],40:[function(require,module,exports){
+},{"../../misc/util":43,"../entity-descriptors":25,"./viewModel-methods":40,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],40:[function(require,module,exports){
 var _ = require('footwork-lodash');
 
 var util = require('../../misc/util');
@@ -10102,7 +10082,6 @@ var entityDescriptors = require('../entity-descriptors');
 var resourceHelperFactory = require('../../entities/resource-tools').resourceHelperFactory;
 
 var entityTools = require('../entity-tools');
-var prepareDescriptor = entityTools.prepareDescriptor;
 var resolveEntityImmediately = entityTools.resolveEntityImmediately;
 
 var util = require('../../misc/util');
@@ -10124,16 +10103,20 @@ fw[entityName] = {
   }
 };
 
-var descriptor;
-entityDescriptors.push(descriptor = prepareDescriptor({
+var descriptor = {
   tagName: entityName.toLowerCase(),
   entityName: entityName,
   resource: fw[entityName],
   isEntityDuckTag: isEntityDuckTag,
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
-  }
-}));
+  },
+  resourceLocations: {},
+  registered: {},
+  fileExtensions: fw.observable('.js'),
+  referenceNamespace: '__' + capitalizeFirstLetter(entityName) + 'Reference'
+};
+entityDescriptors.push(descriptor);
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 
@@ -10320,9 +10303,13 @@ function sync (action, concern, options) {
     options.body = JSON.stringify(options.attrs || concern.get());
   }
 
-  var xhr = options.xhr = makePromiseQueryable(fetch(url, options));
-  concern.$namespace.publish('_.request', { dataModel: concern, xhr: xhr, options: options });
-  return xhr;
+  var promise = makePromiseQueryable(fetch(url, options));
+
+  var requestNotice = { url: url, request: promise, options: options };
+  requestNotice[fw.isDataModel(concern) ? 'dataModel' : 'collection'] = concern;
+  concern.$namespace.publish('_.request', requestNotice);
+
+  return promise;
 };
 
 /**
@@ -10633,7 +10620,6 @@ module.exports = {
 },{"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],44:[function(require,module,exports){
 var _ = require('footwork-lodash');
 
-var postbox = require('./postbox');
 var privateDataSymbol = require('../misc/util').getSymbol('footwork');
 
 /**
@@ -10644,7 +10630,7 @@ var privateDataSymbol = require('../misc/util').getSymbol('footwork');
  * @returns {object} the namespace instance
  */
 function publish (topic, data) {
-  postbox.notifySubscribers(data, this[privateDataSymbol].namespaceName + '.' + topic);
+  this[privateDataSymbol].postbox.notifySubscribers(data, topic);
   return this;
 }
 
@@ -10660,7 +10646,7 @@ function subscribe (topic, callback, context) {
   if (arguments.length > 2) {
     callback = _.bind(callback, context);
   }
-  var subscription = postbox.subscribe(callback, null, this[privateDataSymbol].namespaceName + '.' + topic);
+  var subscription = this[privateDataSymbol].postbox.subscribe(callback, null, topic);
   this[privateDataSymbol].subscriptions.push(subscription);
   return subscription;
 }
@@ -10687,15 +10673,15 @@ function unsubscribe (subscription) {
 function request (topic, requestParams, allowMultipleResponses) {
   var response = undefined;
 
-  var responseSubscription = postbox.subscribe(function (reqResponse) {
+  var responseSubscription = this[privateDataSymbol].postbox.subscribe(function (reqResponse) {
     if (_.isUndefined(response)) {
       response = allowMultipleResponses ? [reqResponse] : reqResponse;
     } else if (allowMultipleResponses) {
       response.push(reqResponse);
     }
-  }, null, this[privateDataSymbol].namespaceName + '.request.' + topic + '.response');
+  }, null, 'req.' + topic + '.resp');
 
-  postbox.notifySubscribers(requestParams, this[privateDataSymbol].namespaceName + '.request.' + topic);
+  this[privateDataSymbol].postbox.notifySubscribers(requestParams, 'req.' + topic);
   responseSubscription.dispose();
 
   return response;
@@ -10716,11 +10702,11 @@ function requestHandler (topic, callback, context) {
     callback = _.bind(callback, context);
   }
 
-  var subscription = postbox.subscribe(function (reqResponse) {
-    postbox.notifySubscribers(callback(reqResponse), self[privateDataSymbol].namespaceName + '.request.' + topic + '.response');
-  }, null, this[privateDataSymbol].namespaceName + '.request.' + topic);
+  var subscription = self[privateDataSymbol].postbox.subscribe(function (reqResponse) {
+    self[privateDataSymbol].postbox.notifySubscribers(callback(reqResponse), 'req.' + topic + '.resp');
+  }, null, 'req.' + topic);
 
-  this[privateDataSymbol].subscriptions.push(subscription);
+  self[privateDataSymbol].subscriptions.push(subscription);
 
   return subscription;
 }
@@ -10753,10 +10739,25 @@ module.exports = {
   getName: getName
 };
 
-},{"../misc/util":43,"./postbox":46,"footwork-lodash":2}],45:[function(require,module,exports){
+},{"../misc/util":43,"footwork-lodash":2}],45:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
+
 var privateDataSymbol = require('../misc/util').getSymbol('footwork');
+
+// Namespace postbox-based communication based on: http://www.knockmeout.net/2012/05/using-ko-native-pubsub.html
+var postboxes = {};
+
+/**
+ * Generate and/or return the postbox communications channel for a given namespaceName
+ *
+ * @param {string} namespaceName The namespace channel for the postbox
+ * @returns {object} subscribable communications channel
+ */
+function postbox (namespaceName) {
+  postboxes[namespaceName] = postboxes[namespaceName] || new fw.subscribable();
+  return postboxes[namespaceName];
+}
 
 /**
  * Construct a new namespace instance.
@@ -10771,9 +10772,10 @@ function Namespace (namespaceName) {
 
   this[privateDataSymbol] = {
     namespaceName: namespaceName || '__footwork',
+    postbox: postbox(namespaceName),
     subscriptions: []
   };
-};
+}
 
 _.extend(Namespace.prototype, require('./namespace-methods'));
 
@@ -10783,14 +10785,5 @@ fw.isNamespace = function (thing) {
   return thing instanceof fw.namespace;
 };
 
-},{"../misc/util":43,"./namespace-methods":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],46:[function(require,module,exports){
-var fw = require('knockout/build/output/knockout-latest');
-
-/**
- * This module simply returns the subscribable used to abstract the pub/sub functionality in footwork.
- * Reference: http://www.knockmeout.net/2012/05/using-ko-native-pubsub.html
- */
-module.exports = new fw.subscribable();
-
-},{"knockout/build/output/knockout-latest":3}]},{},[1])(1)
+},{"../misc/util":43,"./namespace-methods":44,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}]},{},[1])(1)
 });
