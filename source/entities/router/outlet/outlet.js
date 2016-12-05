@@ -1,9 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var entityDescriptors = require('../../entity-descriptors');
 var getModelReferences = require('../../../entities/resource-tools').getModelReferences;
-
 var util = require('../../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
 var getSymbol = util.getSymbol;
@@ -37,7 +35,7 @@ var descriptor = {
   fileExtensions: fw.observable('.js'),
   referenceNamespace: '__' + capitalizeFirstLetter(entityName) + 'Reference'
 };
-entityDescriptors.push(descriptor);
+require('../../entity-descriptors').push(descriptor);
 
 fw[entityName].get = _.partial(getModelReferences, descriptor);
 
