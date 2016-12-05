@@ -110,7 +110,7 @@ function getModelReferences (descriptor, namespaceName) {
         if (_.isUndefined(models[namespaceName])) {
           models[namespaceName] = model;
         } else {
-          if(!_.isArray(models[namespaceName])) {
+          if (!_.isArray(models[namespaceName])) {
             models[namespaceName] = [models[namespaceName]];
           }
           models[namespaceName].push(model);

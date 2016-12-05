@@ -35,7 +35,7 @@ function addAndNotify (originalFunction) {
 }
 
 fw.collection = function createCollection (collectionData, configParams) {
-  if(!_.isArray(collectionData)) {
+  if (!_.isArray(collectionData)) {
     configParams = collectionData;
     collectionData = [];
   }
@@ -60,7 +60,7 @@ fw.collection = function createCollection (collectionData, configParams) {
         collection[privateDataSymbol].isDisposed = true;
         collection.$namespace.dispose();
 
-        if(_.result(configParams, 'disposeItems')) {
+        if (_.result(configParams, 'disposeItems')) {
           _.invokeMap(collection(), 'dispose');
         }
       }

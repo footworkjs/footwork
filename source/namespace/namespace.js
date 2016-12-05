@@ -23,6 +23,6 @@ _.extend(Namespace.prototype, require('./namespace-methods'));
 
 fw.namespace = Namespace;
 
-fw.isNamespace = function(thing) {
+fw.isNamespace = function (thing) {
   return thing instanceof fw.namespace;
 };

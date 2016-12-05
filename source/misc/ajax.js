@@ -107,7 +107,7 @@ function sync (action, concern, options) {
     // user is explicitly defining the individual request url or method+url
     var requestAction = resultBound(url, action, concern, [action, options]);
     if (_.isString(requestAction)) {
-      if(requestAction.indexOf(' ') !== -1) {
+      if (requestAction.indexOf(' ') !== -1) {
         // method url
         requestAction = requestAction.split(' ');
         method = requestAction[0];
@@ -213,7 +213,7 @@ function makePromiseQueryable (promise) {
  */
 function handleJsonResponse (xhr) {
   return xhr.then(function (response) {
-      if(response.ok) {
+      if (response.ok) {
         var json;
         try {
           json = response.clone().json();

@@ -14,7 +14,7 @@ fw.subscribable.fn.broadcast = function (varName, instanceOrNamespaceName, isWri
   var subscriptions = [];
   var isLocalNamespace = false;
 
-  if(fw.isViewModel(instanceOrNamespaceName)) {
+  if (fw.isViewModel(instanceOrNamespaceName)) {
     namespace = instanceOrNamespaceName.$namespace;
   } else if (fw.isNamespace(instanceOrNamespaceName)) {
     namespace = instanceOrNamespaceName;

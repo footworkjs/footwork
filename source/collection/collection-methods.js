@@ -183,7 +183,7 @@ function fetch (options) {
 
       ajax.handleJsonResponse(xhr)
         .then(function handleResponseData (data) {
-          if(data) {
+          if (data) {
             var method = options.reset ? 'reset' : 'set';
             data = configParams.parse(data);
             var touchedModels = collection[method](data, options);

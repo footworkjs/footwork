@@ -25,7 +25,7 @@ module.exports = {
   disposeWithInstance: function disposeWithInstance (disposableItem) {
     var self = this;
 
-    if(arguments.length > 1) {
+    if (arguments.length > 1) {
       disposableItem = Array.prototype.slice.call(arguments);
     }
 

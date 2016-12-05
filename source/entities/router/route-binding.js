@@ -113,7 +113,7 @@ fw.bindingHandlers.$route = {
     function checkForMatchingSegment (mySegment, newRoute) {
       var elementWithState = routeHandlerDescription.parentHasState ? findParentNode(element, routeHandlerDescription.parentHasState) : element;
       if (elementWithState) {
-        if(_.isString(mySegment)) {
+        if (_.isString(mySegment)) {
           var currentRoute = router[privateDataSymbol].currentRoute();
           var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router) || fw.router.activeRouteClassName();
           mySegment = mySegment.replace(startingHashRegex, '/');

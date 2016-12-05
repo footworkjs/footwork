@@ -68,7 +68,7 @@ function outletBootstrap (instance, configParams) {
       instance.loadedStyle(hiddenCSS);
       instance.loadingStyle(visibleCSS);
 
-      nextFrame(function() {
+      nextFrame(function () {
         instance.loadingClass(addAnimation());
       });
     }
@@ -80,7 +80,7 @@ function outletBootstrap (instance, configParams) {
       instance.loadedClass(addAnimation());
 
       if (resolvedCallbacks.length) {
-        _.each(resolvedCallbacks, function(callback) {
+        _.each(resolvedCallbacks, function (callback) {
           callback();
         });
         resolvedCallbacks = [];
@@ -107,7 +107,7 @@ function outletBootstrap (instance, configParams) {
       showLoaded: showLoaded
     });
 
-    instance.transitionTrigger = fw.computed(function() {
+    instance.transitionTrigger = fw.computed(function () {
       var routeIsResolving = instance.routeIsResolving();
       if (routeIsResolving) {
         showLoader();
@@ -126,10 +126,10 @@ function outletBootstrap (instance, configParams) {
         }
 
         // must allow binding to begin on any subcomponents/etc
-        nextFrame(function() {
+        nextFrame(function () {
           if (instance[privateDataSymbol].loadingChildren().length) {
             /* istanbul ignore next */
-            instance.loadingChildrenWatch = instance[privateDataSymbol].loadingChildren.subscribe(function(loadingChildren) {
+            instance.loadingChildrenWatch = instance[privateDataSymbol].loadingChildren.subscribe(function (loadingChildren) {
               if (!loadingChildren.length) {
                 instance.routeIsResolving(false);
                 _.isFunction(instance.routeOnComplete) && instance.routeOnComplete();

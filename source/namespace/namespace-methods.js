@@ -24,7 +24,7 @@ function publish (topic, data) {
  * @returns {object} the subscription that was created
  */
 function subscribe (topic, callback, context) {
-  if(arguments.length > 2) {
+  if (arguments.length > 2) {
     callback = _.bind(callback, context);
   }
   var subscription = postbox.subscribe(callback, null, this[privateDataSymbol].namespaceName + '.' + topic);

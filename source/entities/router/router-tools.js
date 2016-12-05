@@ -114,7 +114,7 @@ function triggerRoute (router, route) {
  * @returns {object} the router
  */
 function changeRoute (router, historyMethod, route, routeParams) {
-  if(router.$activated()) {
+  if (router.$activated()) {
     var namedRoute = _.isObject(routeParams) ? route : null;
     var configParams = router[privateDataSymbol].configParams;
     route = route;
@@ -159,7 +159,7 @@ function changeRoute (router, historyMethod, route, routeParams) {
  * @returns {string} the stripped url
  */
 function stripQueryStringAndHashFromPath (url) {
-  if(url) {
+  if (url) {
     return url.split("?")[0].split("#")[0];
   } else {
     return url;
@@ -172,7 +172,7 @@ function getRouteForURL (router, routes, url) {
   var routeConfiguration;
 
   // find all routes with a matching routeString
-  if(routes) {
+  if (routes) {
     matchedRoutes = _.reduce(routes, function (matches, routeConfiguration) {
       var routeConfigRoute = [].concat(routeConfiguration.route);
       _.each(routeConfigRoute, function (routeString) {
@@ -242,7 +242,7 @@ function getRouteForURL (router, routes, url) {
  *
  * @returns {string} the current location url
  */
-function getLocation() {
+function getLocation () {
   var location = window.history.location || window.location;
   return location.pathname + location.search + location.hash;
 }

@@ -70,7 +70,7 @@ fw.bindingHandlers.$lifecycle = {
         var queue = addToAndFetchQueue(element, viewModel);
         var nearestOutlet = nearestEntity(bindingContext, fw.isOutlet);
 
-        if(fw.animationClass.animateIn) {
+        if (fw.animationClass.animateIn) {
           if (nearestOutlet) {
             // the parent outlet will run the callback that initiates the animation
             // sequence (once the rest of its dependencies finish loading as well)
@@ -143,7 +143,7 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
     }
 
     // have to delay child check for one tick to let sub-components/entities begin binding
-    setTimeout(function() {
+    setTimeout(function () {
       var loadingChildren = viewModel[privateDataSymbol].loadingChildren;
 
       // if there are no children then resolve now, otherwise subscribe and wait till its 0 (all children resolved)

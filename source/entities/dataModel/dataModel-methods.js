@@ -29,7 +29,7 @@ function fetchModel (options) {
     requestRunning: dataModel.isFetching,
     requestLull: configParams.requestLull,
     entity: dataModel,
-    createRequest: function() {
+    createRequest: function () {
       if (!dataModel.isNew()) {
         // retrieve data dataModel the from server using the id
         var xhr = dataModel.sync('read', dataModel, options);
@@ -80,7 +80,7 @@ function save (attrs, options) {
     requestRunning: (method === 'create' ? dataModel.isCreating : dataModel.isSaving),
     requestLull: configParams.requestLull,
     entity: dataModel,
-    createRequest: function() {
+    createRequest: function () {
       if (!options.wait && !_.isNull(attrs)) {
         dataModel.set(attrs);
       }
@@ -122,7 +122,7 @@ function destroy (options) {
     requestRunning: dataModel.isDestroying,
     requestLull: configParams.requestLull,
     entity: dataModel,
-    createRequest: function() {
+    createRequest: function () {
       if (dataModel.isNew()) {
         return false;
       }
@@ -170,7 +170,7 @@ function set (attributes, clearDirty) {
   clearDirty = clearDirty || _.isUndefined(clearDirty);
 
   var mappingsChanged = false;
-  _.each(this[privateDataSymbol].mappings, function(fieldObservable, fieldMap) {
+  _.each(this[privateDataSymbol].mappings, function (fieldObservable, fieldMap) {
     var fieldValue = getNestedReference(attributes, fieldMap);
     if (!_.isUndefined(fieldValue)) {
       fw.isWriteableObservable(fieldObservable) && fieldObservable(fieldValue);
@@ -196,7 +196,7 @@ function set (attributes, clearDirty) {
 function getData (referenceField, includeRoot) {
   var dataModel = this;
   if (_.isArray(referenceField)) {
-    return _.reduce(referenceField, function(jsObject, fieldMap) {
+    return _.reduce(referenceField, function (jsObject, fieldMap) {
       return _.merge(jsObject, dataModel.get(fieldMap, true));
     }, {});
   } else if (!_.isUndefined(referenceField) && !_.isString(referenceField)) {
@@ -231,7 +231,7 @@ function clean (field) {
   if (!_.isUndefined(field)) {
     var fieldMatch = new RegExp('^' + field + '$|^' + field + '\..*');
   }
-  _.each(this[privateDataSymbol].mappings, function(fieldObservable, fieldMap) {
+  _.each(this[privateDataSymbol].mappings, function (fieldObservable, fieldMap) {
     if (_.isUndefined(field) || fieldMap.match(fieldMatch)) {
       fieldObservable.isDirty(false);
     }
@@ -265,7 +265,7 @@ function hasMappedField (referenceField) {
  * @returns {array} The list of dirty field mappings
  */
 function dirtyMap () {
-  return _.reduce(this[privateDataSymbol].mappings, function(map, mappedObservable, path) {
+  return _.reduce(this[privateDataSymbol].mappings, function (map, mappedObservable, path) {
     map[path] = mappedObservable.isDirty();
     return map;
   }, {});

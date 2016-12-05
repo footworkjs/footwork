@@ -60,9 +60,9 @@ function routerBootstrap (instance, configParams) {
       return getRouteForURL(instance, routes, trimBaseRoute(instance, stripQueryStringAndHashFromPath($currentState)));
     });
 
-    instance.$currentRoute = fw.computed(function() {
+    instance.$currentRoute = fw.computed(function () {
       var currentRoute = privateData.currentRoute();
-      if(currentRoute) {
+      if (currentRoute) {
         return currentRoute.routeConfiguration;
       } else {
         return null;
@@ -73,17 +73,17 @@ function routerBootstrap (instance, configParams) {
     instance.$namespace.subscribe('replaceState', _.partial(routerStateChangeCommandHandler, instance, 'replace'));
 
     instance.disposeWithInstance(
-      fw.computed(function() {
+      fw.computed(function () {
         // Automatically trigger the currentRoute controller whenever the currentRoute() updates and the router is activated
         var currentRoute = instance[privateDataSymbol].currentRoute();
         var activated = instance.$activated();
-        if(activated && currentRoute) {
+        if (activated && currentRoute) {
           triggerRoute(instance, currentRoute);
         }
       }),
-      instance.$activated.subscribe(function(activated) {
+      instance.$activated.subscribe(function (activated) {
         // activate/deactivate the router when the $activated flag is set
-        if(activated) {
+        if (activated) {
           // activate the router
 
           // set the current state as of page-load
@@ -93,7 +93,7 @@ function routerBootstrap (instance, configParams) {
 
           // setup html5 history event listener
           /* istanbul ignore if */
-          if(!fw.router.disableHistory()) {
+          if (!fw.router.disableHistory()) {
             var popstateEvent = function () {
               instance.$currentState(trimBaseRoute(instance, getLocation()));
             };
