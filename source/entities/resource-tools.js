@@ -5,8 +5,6 @@ var util = require('../misc/util');
 var isPath = util.isPath;
 var isAmdResolved = util.isAmdResolved;
 
-var postbox = require('../namespace/postbox');
-
 var regExpMatch = /^\/|\/$/g;
 
 /**

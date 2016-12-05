@@ -2,7 +2,6 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var entityDescriptors = require('../entity-descriptors');
-var postbox = require('../../namespace/postbox');
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 var resultBound = require('../../misc/util').resultBound;
 
