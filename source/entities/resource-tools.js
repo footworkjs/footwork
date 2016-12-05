@@ -104,8 +104,7 @@ function locationIsRegistered (descriptor, modelName) {
 }
 
 function getModelReferences (descriptor, namespaceName) {
-  var referenceNamespace = fw.namespace(descriptor.referenceNamespace);
-  var references = _.reduce(referenceNamespace.request('ref', namespaceName, true), function (models, model) {
+  var references = _.reduce(fw.namespace(descriptor.referenceNamespace).request('ref', namespaceName, true), function (models, model) {
     if (!_.isUndefined(model)) {
       var namespaceName = fw.isNamespace(model.$namespace) ? model.$namespace.getName() : null;
       if (!_.isNull(namespaceName)) {
