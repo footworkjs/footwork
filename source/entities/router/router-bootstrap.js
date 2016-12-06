@@ -44,8 +44,7 @@ function routerBootstrap (instance, configParams) {
       historyPopstateListener: fw.observable(),
       outlets: {},
       configParams: _.extend(privateData.configParams, descriptor.resource.defaultConfig, {
-        baseRoute: fw.router.baseRoute + (resultBound(configParams, 'baseRoute', instance) || ''),
-        activeClass: fw.router.activeClass
+        baseRoute: fw.router.baseRoute + (resultBound(configParams, 'baseRoute', instance) || '')
       }, configParams || {})
     });
 

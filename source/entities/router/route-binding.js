@@ -51,17 +51,15 @@ fw.bindingHandlers.$route = {
       url: function defaultURLForRoute () { return element.getAttribute('href'); },
       activeClass: fw.router.activeClass,
       parentHasState: false,
-      pushState: true,
+      history: 'push',
       handler: function defaultHandlerForRouteBinding (event, url) {
-        if (hashOnly) {
-          return false;
-        }
-
-        if (!isFullURL(url) && event.which !== 2) {
+        /* istanbul ignore else */
+        if (!hashOnly && !isFullURL(url) && event.which !== 2) {
           event.preventDefault();
           return true;
+        } else {
+          return false;
         }
-        return false;
       }
     };
 
@@ -165,7 +163,7 @@ fw.bindingHandlers.$route = {
                 currentRouteURL = handlerResult;
               }
               if (_.isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
-                router[(resultBound(routeHandlerDescription, 'pushState', router) ? 'push' : 'replace') + 'State'](currentRouteURL);
+                router[resultBound(routeHandlerDescription, 'history', router) + 'State'](currentRouteURL);
               }
             }
             return true;
