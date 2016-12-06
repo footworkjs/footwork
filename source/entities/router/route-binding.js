@@ -49,8 +49,7 @@ fw.bindingHandlers.$route = {
     var routeHandlerDescription = {
       on: 'click',
       url: function defaultURLForRoute () { return element.getAttribute('href'); },
-      addActiveClass: true,
-      activeClass: null,
+      activeClass: fw.router.activeClass,
       parentHasState: false,
       pushState: true,
       handler: function defaultHandlerForRouteBinding (event, url) {
@@ -115,16 +114,16 @@ fw.bindingHandlers.$route = {
       if (elementWithState) {
         if (_.isString(mySegment)) {
           var currentRoute = router[privateDataSymbol].currentRoute();
-          var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router) || fw.router.activeRouteClassName;
+          var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router);
           mySegment = mySegment.replace(startingHashRegex, '/');
 
           if (_.isObject(currentRoute)) {
-            if (resultBound(routeHandlerDescription, 'addActiveClass', router)) {
+            if (_.isString(activeRouteClassName) && activeRouteClassName.length) {
               if (mySegment === '/') {
                 mySegment = '';
               }
 
-              if (!_.isNull(newRoute) && newRoute.segment === mySegment && _.isString(activeRouteClassName) && activeRouteClassName.length) {
+              if (!_.isNull(newRoute) && newRoute.segment === mySegment) {
                 // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
                 addClass(elementWithState, activeRouteClassName);
               } else if (hasClass(elementWithState, activeRouteClassName)) {

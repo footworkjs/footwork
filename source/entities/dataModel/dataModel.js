@@ -1,8 +1,6 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-require('./map');
-
 var util = require('../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
 var getSymbol = util.getSymbol;
@@ -35,6 +33,7 @@ var descriptor = {
   referenceNamespace: '__' + capitalizeFirstLetter(entityName) + 'Reference'
 };
 
+require('./map');
 require('../resource-tools').addResourceTools(descriptor);
 require('../entity-descriptors').push(descriptor);
 

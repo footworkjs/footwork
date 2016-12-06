@@ -15,7 +15,7 @@ require('./outlet/outlet');
 fw[entityName] = {
   boot: require('./router-bootstrap'),
   baseRoute: '',
-  activeRouteClassName: 'active',
+  activeClass: 'active',
   disableHistory: false,
   fileExtensions: '.js',
   defaultConfig: {

@@ -1893,7 +1893,7 @@ define(['footwork', 'lodash'],
         }, 0);
       });
 
-      it('can have a $route bound link that disables the active class state based on a raw boolean flag', function(done) {
+      it('can have a $route bound link that disables the active class state based on activeClass being falsey', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
         var namespaceName = generateNamespaceName();
@@ -1916,7 +1916,7 @@ define(['footwork', 'lodash'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="$route: { url: \'' + mockUrl + '\', addActiveClass: false }"></a>\
+          <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: false }"></a>\
         </router>'));
 
         setTimeout(function() {
@@ -1961,7 +1961,7 @@ define(['footwork', 'lodash'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="$route: { url: \'' + mockUrl + '\', addActiveClass: disableActiveClass }"></a>\
+          <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: disableActiveClass }"></a>\
         </router>'));
 
         setTimeout(function() {
