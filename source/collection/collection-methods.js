@@ -63,6 +63,12 @@ function collectionSync () {
   return fw.sync.apply(this, arguments);
 }
 
+/**
+ * Get the collection item with the specified id
+ *
+ * @param {any} id The id (mapped via idAttribute config option) of the entry to get
+ * @returns {any} the found result (if any)
+ */
 function get (id) {
   var collection = this;
   return _.find(collection(), function findModelWithId (model) {
@@ -70,6 +76,11 @@ function get (id) {
   });
 }
 
+/**
+ * Get the data of the collection. This returns the raw POJO version of the collection.
+ *
+ * @returns {array} The collection of data
+ */
 function getData () {
   var collection = this;
   var castAsModelData = collection[privateDataSymbol].castAs.modelData;
@@ -79,6 +90,11 @@ function getData () {
   }, []);
 }
 
+/**
+ * Convert the collection to its plain object form for toJSON support.
+ *
+ * @returns {array} The collection of data
+ */
 function toJSON () {
   return this.getData();
 }
