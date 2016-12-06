@@ -38,20 +38,6 @@ fw.components.register = function (componentName, options) {
   });
 };
 
-/**
- * Return the trailing file extension from a given string.
- *
- * @param {string} fileName
- * @returns {string} The extension at the end of the file (ie: txt)
- */
-function getFilenameExtension (fileName) {
-  var extension = '';
-  if (fileName.indexOf('.') !== -1) {
-    extension = _.last(fileName.split('.'));
-  }
-  return extension;
-}
-
 function forceViewModelComponentConvention (componentLocation) {
   if (_.isObject(componentLocation) && _.isUndefined(componentLocation.viewModel) && _.isUndefined(componentLocation.combined)) {
     return {
@@ -66,10 +52,6 @@ fw.components.getFileName = function (componentName, fileType) {
   var fileName = componentName;
   var fileExtension = getComponentExtension(componentName, fileType);
 
-  if (fw.components.isRegistered(componentName)) {
-    return null;
-  }
-
   if (fw.components.locationIsRegistered(componentName)) {
     var registeredLocation = fw.components.getLocation(componentName);
     if (!_.isUndefined(registeredLocation[fileType]) && !isPath(registeredLocation[fileType])) {
@@ -80,7 +62,7 @@ fw.components.getFileName = function (componentName, fileType) {
     }
   }
 
-  return fileName + (fileExtension !== getFilenameExtension(fileName) ? ('.' + fileExtension) : '');
+  return fileName + '.' + fileExtension;
 };
 
 var baseComponentLocation = {
