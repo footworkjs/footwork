@@ -520,23 +520,41 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         _.each(namespaceNames, function(namespaceName) {
           expect(fw.components.getLocation(namespaceName)).toEqual(location);
+          expect(_.keys(fw.components.getLocation())).lengthToBeGreaterThan(0);
         });
       });
 
       it('can specify and load via a registered location', function(done) {
         var namespaceName = 'registered-component-location';
+        var namespaceNameSinglestring = 'registered-component-location-singlestring';
+        var namespaceNameFullpath = 'registered-component-location-fullpath';
 
         fw.components.registerLocation('registered-component-location', {
           viewModel: 'tests/assets/fixtures/registeredComponentLocation/',
           template: 'tests/assets/fixtures/registeredComponentLocation/'
         });
 
-        expect(namespaceName).not.toBeLoaded();
+        fw.components.registerLocation('registered-component-location-singlestring', 'tests/assets/fixtures/registeredComponentLocation/');
 
-        fw.start(testContainer = getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>'));
+        fw.components.registerLocation('registered-component-location-fullpath', {
+          viewModel: 'tests/assets/fixtures/registeredComponentLocation/registered-component-location-fullpath.js',
+          template: 'tests/assets/fixtures/registeredComponentLocation/registered-component-location-fullpath.html'
+        });
+
+        expect(namespaceName).not.toBeLoaded();
+        expect(namespaceNameSinglestring).not.toBeLoaded();
+        expect(namespaceNameFullpath).not.toBeLoaded();
+
+        fw.start(testContainer = getFixtureContainer('\
+          <' + namespaceName + '></' + namespaceName + '>\
+          <' + namespaceNameSinglestring + '></' + namespaceNameSinglestring + '>\
+          <' + namespaceNameFullpath + '></' + namespaceNameFullpath + '>\
+        '));
 
         setTimeout(function() {
           expect(namespaceName).toBeLoaded();
+          expect(namespaceNameSinglestring).toBeLoaded();
+          expect(namespaceNameFullpath).toBeLoaded();
           done();
         }, ajaxWait);
       });

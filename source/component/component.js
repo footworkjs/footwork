@@ -49,26 +49,7 @@ function forceViewModelComponentConvention (componentLocation) {
 }
 
 fw.components.getFileName = function (componentName, fileType) {
-  var fileName = componentName;
-  var fileExtension = getComponentExtension(componentName, fileType);
-
-  if (fw.components.locationIsRegistered(componentName)) {
-    var registeredLocation = fw.components.getLocation(componentName);
-    if (!_.isUndefined(registeredLocation[fileType]) && !isPath(registeredLocation[fileType])) {
-      if (_.isString(registeredLocation[fileType])) {
-        // full filename was supplied, lets return that
-        fileName = _.last(registeredLocation[fileType].split('/'));
-      }
-    }
-  }
-
-  return fileName + '.' + fileExtension;
-};
-
-var baseComponentLocation = {
-  combined: null,
-  viewModel: null,
-  template: null
+  return componentName + '.' + getComponentExtension(componentName, fileType);
 };
 
 fw.components.registerLocation = function (componentName, componentLocation, folderOffset) {
@@ -79,7 +60,7 @@ fw.components.registerLocation = function (componentName, componentLocation, fol
   }
 
   if (_.isString(componentLocation)) {
-    componentLocation = _.extend({}, baseComponentLocation, {
+    componentLocation = _.extend({}, {
       viewModel: componentLocation,
       template: componentLocation,
       folderOffset: !!folderOffset
@@ -88,7 +69,7 @@ fw.components.registerLocation = function (componentName, componentLocation, fol
     componentLocation.folderOffset = !!folderOffset;
   }
 
-  fw.components.registeredLocations[componentName] = _.extend({}, baseComponentLocation, forceViewModelComponentConvention(componentLocation));
+  fw.components.registeredLocations[componentName] = _.extend({}, forceViewModelComponentConvention(componentLocation));
 };
 
 fw.components.getRegisteredLocation = function (componentName) {
