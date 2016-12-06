@@ -8,8 +8,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var initializeSpy;
 
         var persons = [];
-        _.each(_.range(1, 8), function() {
+        _.each(_.range(1, 8), function(id) {
           persons.push({
+            id: id,
             firstName: randomString(),
             lastName: randomString(),
             email: randomString()
@@ -45,6 +46,15 @@ define(['footwork', 'lodash', 'fetch-mock'],
           expect(personsList[personIndex].firstName()).toBe(personData.firstName);
           expect(personsList[personIndex].lastName()).toBe(personData.lastName);
           expect(personsList[personIndex].email()).toBe(personData.email);
+        });
+
+        var reversePersons = people.getData().reverse();
+        people.set(reversePersons);
+        reversePersonsList = people();
+        _.each(reversePersons, function(personData, personIndex) {
+          expect(reversePersonsList[personIndex].firstName()).toBe(personData.firstName);
+          expect(reversePersonsList[personIndex].lastName()).toBe(personData.lastName);
+          expect(reversePersonsList[personIndex].email()).toBe(personData.email);
         });
 
         expect(_.partial(people.set, {})).toThrow();

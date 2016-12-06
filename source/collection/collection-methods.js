@@ -1,12 +1,63 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var objectTools = require('./object-tools');
-var regExpIsEqual = objectTools.regExpIsEqual;
-var sortOfEqual = objectTools.sortOfEqual;
-
 var makeOrGetRequest = require('../misc/ajax').makeOrGetRequest;
 var privateDataSymbol = require('../misc/util').getSymbol('footwork');
+
+/**
+ * Performs an equality comparison between two objects while ensuring atleast one or more keys/values match and that all keys/values from object A also exist in B
+ * Note: object 'a' can provide a regex value for a property and have it searched matching on the regex value
+ * @param  {object} a Object to compare (which can contain regex values for properties)
+ * @param  {object} b Object to compare
+ * @param  {function} isEqual evauluator to use (optional)
+ * @return boolean   Result of equality comparison
+ */
+function regExpIsEqual (a, b, isEq) {
+  isEq = isEq || regExpIsEqual;
+
+  if (_.isObject(a) && _.isObject(b)) {
+    return _.every(_.reduce(a, function (comparison, paramValue, paramName) {
+      var isCongruent = false;
+      var bParamValue = b[paramName];
+      if (bParamValue) {
+        if (_.isRegExp(paramValue)) {
+          isCongruent = !_.isNull(bParamValue.match(paramValue));
+        } else {
+          isCongruent = isEq(paramValue, bParamValue);
+        }
+      }
+
+      comparison.push(isCongruent);
+      return comparison;
+    }, []));
+  } else {
+    return a === b;
+  }
+}
+
+/**
+ * Performs an equality comparison between two objects while ensuring atleast one or more keys/values match and that all keys/values from object A also exist in B
+ * In other words: A == B, but B does not necessarily == A
+ * @param  {object} a Object to compare
+ * @param  {object} b Object to compare
+ * @param  {function} isEqual evauluator to use (optional)
+ * @return boolean   Result of equality comparison
+ */
+function sortOfEqual (a, b, isEq) {
+  isEq = isEq || _.isEqual;
+
+  if (_.isObject(a) && _.isObject(b)) {
+    var AKeys = _.keys(a);
+    var BKeys = _.keys(b);
+    var commonKeys = _.intersection(AKeys, BKeys);
+    var hasAllAKeys = _.every(AKeys, function (Akey) {
+      return BKeys.indexOf(Akey) !== -1;
+    })
+    return commonKeys.length > 0 && hasAllAKeys && isEq(_.pick(a, commonKeys), _.pick(b, commonKeys));
+  } else {
+    return a === b;
+  }
+}
 
 function collectionSync () {
   return fw.sync.apply(this, arguments);
@@ -242,52 +293,50 @@ function addModel (models, options) {
     models = [models];
   }
 
-  if (models.length) {
-    var collectionData = collection();
-    var castAsDataModel = collection[privateDataSymbol].castAs.dataModel;
-    var castAsModelData = collection[privateDataSymbol].castAs.modelData;
-    var idAttribute = collection[privateDataSymbol].getIdAttribute();
+  var collectionData = collection();
+  var castAsDataModel = collection[privateDataSymbol].castAs.dataModel;
+  var castAsModelData = collection[privateDataSymbol].castAs.modelData;
+  var idAttribute = collection[privateDataSymbol].getIdAttribute();
 
-    if (_.isNumber(options.at)) {
-      var newModels = _.map(models, castAsDataModel);
+  if (_.isNumber(options.at)) {
+    var newModels = _.map(models, castAsDataModel);
 
-      collectionData.splice.apply(collectionData, [options.at, 0].concat(newModels));
-      affectedModels.concat(newModels);
-      collection.$namespace.publish('_.add', newModels);
+    collectionData.splice.apply(collectionData, [options.at, 0].concat(newModels));
+    affectedModels.concat(newModels);
+    collection.$namespace.publish('_.add', newModels);
 
-      collection.valueHasMutated();
-    } else {
-      _.each(models, function checkModelPresence (modelData) {
-        var modelPresent = false;
-        var theModelData = castAsModelData(modelData);
+    collection.valueHasMutated();
+  } else {
+    _.each(models, function checkModelPresence (modelData) {
+      var modelPresent = false;
+      var theModelData = castAsModelData(modelData);
 
-        _.each(collectionData, function lookForModel (model) {
-          var collectionModelData = castAsModelData(model);
+      _.each(collectionData, function lookForModel (model) {
+        var collectionModelData = castAsModelData(model);
 
-          if (!_.isUndefined(theModelData[idAttribute]) && !_.isNull(theModelData[idAttribute]) && theModelData[idAttribute] === collectionModelData[idAttribute]) {
-            modelPresent = true;
-            if (options.merge && !sortOfEqual(theModelData, collectionModelData)) {
-              // found model, but needs an update
-              if (fw.isDataModel(model)) {
-                model.set(theModelData);
-              } else {
-                _.extend(model, theModelData);
-              }
-
-              collection.$namespace.publish('_.change', model);
-              affectedModels.push(model);
+        if (!_.isUndefined(theModelData[idAttribute]) && !_.isNull(theModelData[idAttribute]) && theModelData[idAttribute] === collectionModelData[idAttribute]) {
+          modelPresent = true;
+          if (options.merge && !sortOfEqual(theModelData, collectionModelData)) {
+            // found model, but needs an update
+            if (fw.isDataModel(model)) {
+              model.set(theModelData);
+            } else {
+              _.extend(model, theModelData);
             }
-          }
-        });
 
-        if (!modelPresent) {
-          // not found in collection, we have to add this model
-          var newModel = castAsDataModel(modelData);
-          collection.push(newModel);
-          affectedModels.push(newModel);
+            collection.$namespace.publish('_.change', model);
+            affectedModels.push(model);
+          }
         }
       });
-    }
+
+      if (!modelPresent) {
+        // not found in collection, we have to add this model
+        var newModel = castAsDataModel(modelData);
+        collection.push(newModel);
+        affectedModels.push(newModel);
+      }
+    });
   }
 
   return affectedModels;
