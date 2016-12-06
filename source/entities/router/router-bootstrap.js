@@ -44,7 +44,7 @@ function routerBootstrap (instance, configParams) {
       historyPopstateListener: fw.observable(),
       outlets: {},
       configParams: _.extend(privateData.configParams, descriptor.resource.defaultConfig, {
-        baseRoute: fw.router.baseRoute() + (resultBound(configParams, 'baseRoute', instance) || '')
+        baseRoute: fw.router.baseRoute + (resultBound(configParams, 'baseRoute', instance) || '')
       }, configParams || {})
     });
 
@@ -93,7 +93,7 @@ function routerBootstrap (instance, configParams) {
 
           // setup html5 history event listener
           /* istanbul ignore if */
-          if (!fw.router.disableHistory()) {
+          if (!fw.router.disableHistory) {
             var popstateEvent = function () {
               instance.$currentState(trimBaseRoute(instance, getLocation()));
             };

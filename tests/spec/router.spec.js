@@ -5,7 +5,7 @@ define(['footwork', 'lodash'],
       afterEach(cleanTestEnv);
 
       beforeAll(function() {
-        fw.router.disableHistory(true);
+        fw.router.disableHistory = true;
       });
 
       it('has the ability to create a router', function() {

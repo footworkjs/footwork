@@ -141,7 +141,7 @@ function changeRoute (router, historyMethod, route, routeParams) {
 
       if (resultBound(configParams, 'beforeRoute', router, [route || '/'])) {
         /* istanbul ignore if */
-        if (!router[privateDataSymbol].activating && route && router[privateDataSymbol].historyPopstateListener() && !fw.router.disableHistory()) {
+        if (!router[privateDataSymbol].activating && route && router[privateDataSymbol].historyPopstateListener() && !fw.router.disableHistory) {
           history[historyMethod + 'State'](null, '', configParams.baseRoute + route);
         }
         router.$currentState(route);

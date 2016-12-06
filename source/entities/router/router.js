@@ -14,9 +14,9 @@ require('./outlet/outlet');
 
 fw[entityName] = {
   boot: require('./router-bootstrap'),
-  baseRoute: fw.observable(''),
-  activeRouteClassName: fw.observable('active'),
-  disableHistory: fw.observable(false),
+  baseRoute: '',
+  activeRouteClassName: 'active',
+  disableHistory: false,
   defaultConfig: {
     showDuringLoad: require('./router-defaults').noComponentSelected,
     onDispose: _.noop,

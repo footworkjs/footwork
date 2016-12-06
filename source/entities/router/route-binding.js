@@ -115,7 +115,7 @@ fw.bindingHandlers.$route = {
       if (elementWithState) {
         if (_.isString(mySegment)) {
           var currentRoute = router[privateDataSymbol].currentRoute();
-          var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router) || fw.router.activeRouteClassName();
+          var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router) || fw.router.activeRouteClassName;
           mySegment = mySegment.replace(startingHashRegex, '/');
 
           if (_.isObject(currentRoute)) {
