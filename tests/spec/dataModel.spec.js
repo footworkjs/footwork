@@ -322,26 +322,12 @@ define(['footwork', 'lodash', 'fetch-mock'],
       it('can have a specific file extension set and used correctly', function() {
         var namespaceName = generateNamespaceName();
         var customExtension = '.jscript';
-        fw.dataModel.fileExtensions(customExtension);
+        fw.dataModel.fileExtensions = customExtension;
         fw.dataModel.registerLocation(namespaceName, '/bogus/path/');
 
         expect(fw.dataModel.getFileName(namespaceName)).toBe(namespaceName + customExtension);
 
-        fw.dataModel.fileExtensions('.js');
-      });
-
-      it('can have a callback specified as the extension with it invoked and the return value used', function() {
-        var namespaceName = generateNamespaceName();
-        var customExtension = '.jscriptFunction';
-        fw.dataModel.fileExtensions(function(moduleName) {
-          expect(moduleName).toBe(namespaceName);
-          return customExtension;
-        });
-        fw.dataModel.registerLocation(namespaceName, '/bogus/path/');
-
-        expect(fw.dataModel.getFileName(namespaceName)).toBe(namespaceName + customExtension);
-
-        fw.dataModel.fileExtensions('.js');
+        fw.dataModel.fileExtensions = '.js';
       });
 
       it('can load via registered dataModel with a declarative initialization', function(done) {

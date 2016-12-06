@@ -1,7 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var getModelReferences = require('../../../entities/resource-tools').getModelReferences;
+var getModelReferences = require('../../resource-tools').getModelReferences;
 var util = require('../../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
 var getSymbol = util.getSymbol;
@@ -30,16 +30,11 @@ var descriptor = {
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
   },
-  resourceLocations: {},
-  registered: {},
-  fileExtensions: fw.observable('.js'),
   referenceNamespace: '__' + capitalizeFirstLetter(entityName) + 'Reference'
 };
+
+require('../../resource-tools').addResourceTools(descriptor);
 require('../../entity-descriptors').push(descriptor);
-
-fw[entityName].get = _.partial(getModelReferences, descriptor);
-
-fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 
 var routerDefaults = require('../router-defaults');
 fw.components.register(routerDefaults.noComponentSelected, {
@@ -60,4 +55,6 @@ fw.components.register(routerDefaults.defaultLoadingComponent, {
             </div>',
   synchronus: true
 });
+
+fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 

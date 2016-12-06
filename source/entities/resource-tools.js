@@ -53,8 +53,8 @@ function getModelExtension (extensions, modelName) {
 }
 
 function getFileName (descriptor, modelName) {
-  var modelResourceLocations = descriptor.resourceLocations;
-  var fileName = modelName + '.' + getModelExtension(descriptor.fileExtensions(), modelName);
+  var modelResourceLocations = descriptor.registeredLocations;
+  var fileName = modelName + '.' + getModelExtension(descriptor.resource.fileExtensions, modelName);
 
   if (!_.isUndefined(modelResourceLocations[modelName])) {
     var registeredLocation = modelResourceLocations[modelName];
@@ -73,11 +73,11 @@ function registerLocation (descriptor, modelName, location) {
       registerLocation(descriptor, name, location);
     });
   }
-  descriptor.resourceLocations[ modelName ] = location;
+  descriptor.registeredLocations[ modelName ] = location;
 }
 
 function modelResourceLocation (descriptor, modelName) {
-  return _.reduce(descriptor.resourceLocations, function (registeredLocation, location, registeredName) {
+  return _.reduce(descriptor.registeredLocations, function (registeredLocation, location, registeredName) {
     if (!registeredLocation) {
       if (!_.isNull(registeredName.match(regExpMatch)) && !_.isNull(modelName.match(registeredName.replace(regExpMatch, '')))) {
         registeredLocation = location;
@@ -91,7 +91,7 @@ function modelResourceLocation (descriptor, modelName) {
 
 function getLocation (descriptor, modelName) {
   if (_.isUndefined(modelName)) {
-    return descriptor.resourceLocations;
+    return descriptor.registeredLocations;
   }
 
   return modelResourceLocation(descriptor, modelName);
@@ -142,13 +142,13 @@ function getResourceOrLocation (descriptor, moduleName) {
 
 
 /**
- * Hydrates each entity resource with the necessary utility methods.
+ * Hydrates a entity descriptors resource with the necessary utility methods.
  *
  * @param {object} descriptor (as defined in each entity and extended onto the entity-descriptors)
  * @returns
  */
-function resourceHelperFactory (descriptor) {
-  var resourceMethods = {
+function addResourceTools (descriptor) {
+  _.extend(descriptor.resource, {
     getFileName: _.partial(getFileName, descriptor),
     register: _.partial(register, descriptor),
     isRegistered: _.partial(isRegistered, descriptor),
@@ -157,18 +157,10 @@ function resourceHelperFactory (descriptor) {
     locationIsRegistered: _.partial(locationIsRegistered, descriptor),
     getLocation: _.partial(getLocation, descriptor),
     getResourceOrLocation: _.partial(getResourceOrLocation, descriptor),
+    get: _.partial(getModelReferences, descriptor)
+  });
 
-    fileExtensions: descriptor.fileExtensions,
-    resourceLocations: descriptor.resourceLocations
-  };
-
-  if (!_.isUndefined(descriptor.referenceNamespace)) {
-    // Returns a reference to the specified models.
-    // If no name is supplied, a reference to an array containing all viewModel references is returned.
-    resourceMethods.get = _.partial(getModelReferences, descriptor);
-  }
-
-  return resourceMethods;
+  return descriptor;
 }
 
 /**
@@ -179,24 +171,20 @@ function resourceHelperFactory (descriptor) {
  * @returns {string} the file extension (ie: 'js')
  */
 function getComponentExtension (componentName, fileType) {
-  var componentExtensions = fw.components.fileExtensions();
+  var componentExtensions = fw.components.fileExtensions;
   var fileExtension = '';
 
-  if (_.isFunction(componentExtensions)) {
-    fileExtension = componentExtensions(componentName)[fileType];
-  } else if (_.isObject(componentExtensions)) {
-    if (_.isFunction(componentExtensions[fileType])) {
-      fileExtension = componentExtensions[fileType](componentName);
-    } else {
-      fileExtension = componentExtensions[fileType] || '';
-    }
+  if (_.isFunction(componentExtensions[fileType])) {
+    fileExtension = componentExtensions[fileType](componentName);
+  } else {
+    fileExtension = componentExtensions[fileType] || '';
   }
 
   return fileExtension.replace(/^\./, '') || '';
 }
 
 module.exports = {
-  resourceHelperFactory: resourceHelperFactory,
+  addResourceTools: addResourceTools,
   getComponentExtension: getComponentExtension,
   getModelReferences: getModelReferences
 };

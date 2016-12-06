@@ -16,13 +16,13 @@ require('./component-lifecycle-loader');
 
 var getComponentExtension = require('../entities/resource-tools').getComponentExtension;
 
-fw.components.resourceLocations = {};
+fw.components.registeredLocations = {};
 
-fw.components.fileExtensions = fw.observable({
+fw.components.fileExtensions = {
   combined: '.js',
   viewModel: '.js',
   template: '.html'
-});
+};
 
 var originalComponentRegisterFunc = fw.components.register;
 fw.components.register = function (componentName, options) {
@@ -106,11 +106,11 @@ fw.components.registerLocation = function (componentName, componentLocation, fol
     componentLocation.folderOffset = !!folderOffset;
   }
 
-  fw.components.resourceLocations[componentName] = _.extend({}, baseComponentLocation, forceViewModelComponentConvention(componentLocation));
+  fw.components.registeredLocations[componentName] = _.extend({}, baseComponentLocation, forceViewModelComponentConvention(componentLocation));
 };
 
 fw.components.getRegisteredLocation = function (componentName) {
-  return _.reduce(fw.components.resourceLocations, function (registeredLocation, location, registeredComponentName) {
+  return _.reduce(fw.components.registeredLocations, function (registeredLocation, location, registeredComponentName) {
     if (!registeredLocation) {
       if (!_.isNull(registeredComponentName.match(regExpMatch)) && !_.isNull(componentName.match(registeredComponentName.replace(regExpMatch, '')))) {
         registeredLocation = location;
@@ -129,7 +129,7 @@ fw.components.locationIsRegistered = function (componentName) {
 // Return the component resource definition for the supplied componentName
 fw.components.getLocation = function (componentName) {
   if (_.isUndefined(componentName)) {
-    return fw.components.resourceLocations;
+    return fw.components.registeredLocations;
   }
   return _.omitBy(fw.components.getRegisteredLocation(componentName), _.isNull);
 };

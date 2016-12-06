@@ -326,26 +326,12 @@ define(['footwork', 'lodash'],
       it('can have a specific file extension set and used correctly', function() {
         var namespaceName = generateNamespaceName();
         var customExtension = '.jscript';
-        fw.router.fileExtensions(customExtension);
+        fw.router.fileExtensions = customExtension;
         fw.router.registerLocation(namespaceName, '/bogus/path/');
 
         expect(fw.router.getFileName(namespaceName)).toBe(namespaceName + customExtension);
 
-        fw.router.fileExtensions('.js');
-      });
-
-      it('can have a callback specified as the extension with it invoked and the return value used', function() {
-        var namespaceName = generateNamespaceName();
-        var customExtension = '.jscriptFunction';
-        fw.router.fileExtensions(function(moduleName) {
-          expect(moduleName).toBe(namespaceName);
-          return customExtension;
-        });
-        fw.router.registerLocation(namespaceName, '/bogus/path/');
-
-        expect(fw.router.getFileName(namespaceName)).toBe(namespaceName + customExtension);
-
-        fw.router.fileExtensions('.js');
+        fw.router.fileExtensions = '.js';
       });
 
       it('can load via registered router with a declarative initialization', function(done) {

@@ -12,6 +12,7 @@ var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
 
 fw[entityName] = {
   boot: require('./dataModel-bootstrap'),
+  fileExtensions: '.js',
   defaultConfig: {
     idAttribute: 'id',
     url: null,
@@ -29,18 +30,14 @@ var descriptor = {
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
   },
-  resourceLocations: {},
+  registeredLocations: {},
   registered: {},
-  fileExtensions: fw.observable('.js'),
   referenceNamespace: '__' + capitalizeFirstLetter(entityName) + 'Reference'
 };
 
+require('../resource-tools').addResourceTools(descriptor);
 require('../entity-descriptors').push(descriptor);
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
-
-// Add/extend on the various resource methods (registerLocation/etc)
-var resourceHelperFactory = require('../../entities/resource-tools').resourceHelperFactory;
-_.extend(descriptor.resource, resourceHelperFactory(descriptor));
 
 
