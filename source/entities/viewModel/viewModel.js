@@ -2,7 +2,6 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var entityTools = require('../entity-tools');
-var resolveEntityImmediately = entityTools.resolveEntityImmediately;
 
 var util = require('../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
@@ -17,7 +16,9 @@ fw[entityName] = {
   defaultConfig: {
     namespace: undefined,
     afterRender: _.noop,
-    afterResolving: resolveEntityImmediately,
+    afterResolving: function resolveImmediately (resolveNow) {
+      resolveNow(true);
+    },
     sequenceAnimations: false,
     onDispose: _.noop
   }

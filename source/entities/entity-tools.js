@@ -55,17 +55,7 @@ function nearestEntity ($context, predicate) {
   return foundEntity;
 }
 
-/**
- * Function which calls resolveNow to resolve the entity immediately
- *
- * @param {function} resolveNow
- */
-function resolveEntityImmediately (resolveNow) {
-  resolveNow(true);
-}
-
 module.exports = {
   isEntity: isEntity,
-  nearestEntity: nearestEntity,
-  resolveEntityImmediately: resolveEntityImmediately
+  nearestEntity: nearestEntity
 };
