@@ -60,13 +60,13 @@ fw.components.registerLocation = function (componentName, componentLocation, fol
   }
 
   if (_.isString(componentLocation)) {
-    componentLocation = _.extend({}, {
+    componentLocation = {
       viewModel: componentLocation,
       template: componentLocation,
-      folderOffset: !!folderOffset
-    });
+      folderOffset: folderOffset
+    };
   } else if (_.isObject(componentLocation)) {
-    componentLocation.folderOffset = !!folderOffset;
+    componentLocation.folderOffset = folderOffset;
   }
 
   fw.components.registeredLocations[componentName] = _.extend({}, forceViewModelComponentConvention(componentLocation));
