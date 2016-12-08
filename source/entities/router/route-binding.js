@@ -55,65 +55,44 @@ fw.bindingHandlers.$route = {
       routeHandlerDescription.url = function () { return routeHandlerDescriptionURL; };
     }
 
-    function getRouteURL () {
-      var routeURL = routeHandlerDescription.url();
-
-      if (!isFullURL(routeURL) && hasHashStart(routeURL)) {
-        var currentRoute = router[privateDataSymbol].currentRoute();
-        if (currentRoute) {
-          routeURL = currentRoute.segment + routeURL;
-        }
-      }
-
-      return routeURL;
-    };
-
-    function checkForMatchingSegment (mySegment, newRoute) {
-      if (_.isString(mySegment)) {
+    function checkForMatchingRoute (myRoute, newRoute) {
+      if (_.isString(myRoute)) {
         var currentRoute = router[privateDataSymbol].currentRoute();
         var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router);
 
-        if (_.isObject(currentRoute)) {
-          if (_.isString(activeRouteClassName) && activeRouteClassName.length) {
-            if (mySegment === '/') {
-              mySegment = '';
-            }
-
-            if (!_.isNull(newRoute) && newRoute.segment === mySegment) {
-              // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
-              addClass(element, activeRouteClassName);
-            } else if (hasClass(element, activeRouteClassName)) {
-              removeClass(element, activeRouteClassName);
-            }
+        if (_.isObject(currentRoute) && _.isString(activeRouteClassName) && activeRouteClassName.length) {
+          if (!_.isNull(newRoute) && newRoute.url === myRoute) {
+            // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
+            addClass(element, activeRouteClassName);
+          } else {
+            removeClass(element, activeRouteClassName);
           }
         }
       }
-
-      if (_.isNull(newRoute)) {
-        // No route currently selected, remove the activeRouteClassName from the element
-        removeClass(element, activeRouteClassName);
-      }
-    };
+    }
 
     function setUpElement () {
       if (!isNullRouter(router)) {
-        var myCurrentSegment = getRouteURL();
+        var routeUrl = routeHandlerDescription.url();
         var configParams = router[privateDataSymbol].configParams;
+
+        hashOnly = !!routeUrl.match(startingHashRegex);
+
         if (element.tagName.toLowerCase() === 'a') {
-          element.href = configParams.baseRoute + getRouteURL();
+          element.href = configParams.baseRoute + routeUrl;
         }
 
         if (_.isObject(stateTracker) && _.isFunction(stateTracker.dispose)) {
           stateTracker.dispose();
         }
-        stateTracker = router[privateDataSymbol].currentRoute.subscribe(_.partial(checkForMatchingSegment, myCurrentSegment));
+        stateTracker = router[privateDataSymbol].currentRoute.subscribe(_.partial(checkForMatchingRoute, routeUrl));
 
         if (elementIsSetup === false) {
           elementIsSetup = true;
-          checkForMatchingSegment(myCurrentSegment, router[privateDataSymbol].currentRoute());
+          checkForMatchingRoute(routeUrl, router[privateDataSymbol].currentRoute());
 
           fw.utils.registerEventHandler(element, resultBound(routeHandlerDescription, 'on', router), function (event) {
-            var currentRouteURL = getRouteURL();
+            var currentRouteURL = routeHandlerDescription.url();
             var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
             if (handlerResult) {
               if (_.isString(handlerResult)) {
