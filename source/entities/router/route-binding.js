@@ -15,23 +15,6 @@ var routerTools = require('./router-tools');
 var nearestParentRouter = routerTools.nearestParentRouter;
 var isNullRouter = routerTools.isNullRouter;
 
-function findParentNode (element, selector) {
-  if (selector === true) {
-    return element.parentNode;
-  }
-
-  if (element.parentNode && _.isFunction(element.parentNode.querySelectorAll)) {
-    var parentNode = element.parentNode;
-    var matches = parentNode.querySelectorAll(selector);
-    if (matches.length && _.includes(matches, element)) {
-      return element;
-    }
-    return findParentNode(parentNode, selector);
-  }
-
-  return undefined;
-}
-
 var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
 var isFullURL = fw.utils.isFullURL = function (thing) {
   return _.isString(thing) && isFullURLRegex.test(thing);
