@@ -105,8 +105,7 @@ fw.components.getComponentNameForNode = function (node) {
 
   if (fw.components.isRegistered(tagName)
      || fw.components.locationIsRegistered(tagName)
-     || entityDescriptors.tagNameIsPresent(tagName)
-     || tagName === 'outlet') {
+     || entityDescriptors.tagNameIsPresent(tagName)) {
     return tagName;
   }
 
