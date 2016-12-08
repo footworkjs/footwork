@@ -106,6 +106,7 @@ module.exports = {
               outletViewModel.routeIsLoading(false);
               outletViewModel.routeOnComplete = function () {
                 onComplete.call(router, outletElement);
+                router[privateDataSymbol].gotoFragment();
               };
             } else {
               onComplete.call(router, outletElement);

@@ -2041,6 +2041,8 @@ define(['footwork', 'lodash'],
         var customHandlerSpy;
         var routeSpy = jasmine.createSpy('routeSpy');
         var allowHandlerEvent;
+        var alternateRoute = generateUrl();
+        var alternateRouteSpy = jasmine.createSpy('alternateRouteSpy');
 
         fw.router.register(routerNamespaceName, routerInitializeSpy = jasmine.createSpy('routerInitializeSpy', function() {
           fw.router.boot(this, {
@@ -2049,6 +2051,10 @@ define(['footwork', 'lodash'],
               {
                 route: mockUrl,
                 controller: routeSpy
+              },
+              {
+                route: alternateRoute,
+                controller: alternateRouteSpy
               }
             ]
           });
@@ -2100,6 +2106,11 @@ define(['footwork', 'lodash'],
             expect(customHandlerSpy).toHaveBeenCalledTimes(2);
             expect($link.hasClass('active')).toBe(true);
 
+            allowHandlerEvent = alternateRoute;
+            $link.click();
+            expect(alternateRouteSpy).toHaveBeenCalled();
+            expect(customHandlerSpy).toHaveBeenCalledTimes(3);
+
             done();
           }, ajaxWait);
         }, 0);
@@ -2144,6 +2155,53 @@ define(['footwork', 'lodash'],
             done();
           }, ajaxWait);
         }, 0);
+      });
+
+      it('can trigger a scroll based on a url fragment after outlet loading', function(done) {
+        var testContainer;
+        var fragmentIdentifier = 'test-fragment';
+        var mockUrl = generateUrl();
+        var namespaceName = generateNamespaceName();
+        var outletDisplayName = generateNamespaceName();
+        var initializeSpy;
+        var routeSpy;
+
+        fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.router.boot(this, {
+            namespace: namespaceName,
+            routes: [
+              {
+                route: mockUrl,
+                controller: routeSpy = jasmine.createSpy('routeSpy', function() {
+                  this.outlet('display', outletDisplayName);
+                }).and.callThrough()
+              }
+            ]
+          });
+        }).and.callThrough());
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        fw.outlet.registerView(outletDisplayName, '<div id="' + fragmentIdentifier + '">fragmentIdentifier</div>');
+
+        fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
+          <a class="mockUrl" data-bind="$route: \'' + mockUrl + '#' + fragmentIdentifier + '\'"></a>\
+          <outlet name="display"></outlet>\
+        </router>'));
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+
+          var $link = $(testContainer).find('a.mockUrl');
+
+          expect(routeSpy).not.toHaveBeenCalled();
+          expect($link.attr('href')).toBe(mockUrl + '#' + fragmentIdentifier);
+
+          $link.click();
+          expect(routeSpy).toHaveBeenCalled();
+
+          done();
+        }, ajaxWait);
       });
 
       it('can trigger a route via the pushState command', function() {

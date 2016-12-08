@@ -62,7 +62,6 @@ fw.bindingHandlers.$route = {
 
         if (_.isObject(currentRoute) && _.isString(activeRouteClassName) && activeRouteClassName.length) {
           if (!_.isNull(newRoute) && newRoute.url === myRoute) {
-            // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
             addClass(element, activeRouteClassName);
           } else {
             removeClass(element, activeRouteClassName);

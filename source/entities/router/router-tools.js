@@ -206,7 +206,6 @@ function getRouteForURL (router, routes, url) {
 
     var routeString = matchedRoute.routeString;
     var routeParams = _.clone(matchedRoute.routeParams);
-    var splatSegment = routeParams.pop() || '';
     var routeParamNames = _.map(routeString.match(namedParamRegex), function (param) {
       return param.replace(':', '');
     });
@@ -217,7 +216,6 @@ function getRouteForURL (router, routes, url) {
 
     currentRouteDetails = {
       url: url,
-      segment: url.substr(0, url.length - splatSegment.length),
       routeParams: routeParams
     };
 
@@ -231,7 +229,6 @@ function getRouteForURL (router, routes, url) {
     controller: routeConfiguration.controller || _.noop,
     name: routeConfiguration.name,
     title: routeConfiguration.title,
-    segment: '',
     routeParams: {},
     __isRoute: true
   }, currentRouteDetails);

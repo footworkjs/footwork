@@ -76,8 +76,19 @@ function routerBootstrap (instance, configParams) {
       fw.computed(function () {
         // Automatically trigger the currentRoute controller whenever the currentRoute() updates and the router is activated
         var currentRoute = instance[privateDataSymbol].currentRoute();
+        var $currentState = instance.$currentState();
         var activated = instance.$activated();
         if (activated && currentRoute) {
+          if (($currentState || '').indexOf('#') !== -1) {
+            var fragmentIdentifier = $currentState.split('#')[1];
+            instance[privateDataSymbol].gotoFragment = function () {
+              var elementToScrollTo = document.getElementById(fragmentIdentifier);
+              elementToScrollTo && elementToScrollTo.scrollIntoView();
+            };
+          } else {
+            instance[privateDataSymbol].gotoFragment = _.noop;
+          }
+
           triggerRoute(instance, currentRoute);
         }
       }),
