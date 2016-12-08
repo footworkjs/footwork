@@ -49,7 +49,6 @@ fw.bindingHandlers.$route = {
       on: 'click',
       url: function defaultURLForRoute () { return element.getAttribute('href'); },
       activeClass: fw.router.activeClass,
-      parentHasState: false,
       history: 'push',
       handler: function defaultHandlerForRouteBinding (event, url) {
         /* istanbul ignore else */
@@ -87,32 +86,29 @@ fw.bindingHandlers.$route = {
     };
 
     function checkForMatchingSegment (mySegment, newRoute) {
-      var elementWithState = routeHandlerDescription.parentHasState ? findParentNode(element, routeHandlerDescription.parentHasState) : element;
-      if (elementWithState) {
-        if (_.isString(mySegment)) {
-          var currentRoute = router[privateDataSymbol].currentRoute();
-          var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router);
+      if (_.isString(mySegment)) {
+        var currentRoute = router[privateDataSymbol].currentRoute();
+        var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router);
 
-          if (_.isObject(currentRoute)) {
-            if (_.isString(activeRouteClassName) && activeRouteClassName.length) {
-              if (mySegment === '/') {
-                mySegment = '';
-              }
+        if (_.isObject(currentRoute)) {
+          if (_.isString(activeRouteClassName) && activeRouteClassName.length) {
+            if (mySegment === '/') {
+              mySegment = '';
+            }
 
-              if (!_.isNull(newRoute) && newRoute.segment === mySegment) {
-                // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
-                addClass(elementWithState, activeRouteClassName);
-              } else if (hasClass(elementWithState, activeRouteClassName)) {
-                removeClass(elementWithState, activeRouteClassName);
-              }
+            if (!_.isNull(newRoute) && newRoute.segment === mySegment) {
+              // newRoute.segment is the same as this routers segment...add the activeRouteClassName to the element to indicate it is active
+              addClass(element, activeRouteClassName);
+            } else if (hasClass(element, activeRouteClassName)) {
+              removeClass(element, activeRouteClassName);
             }
           }
         }
+      }
 
-        if (_.isNull(newRoute)) {
-          // No route currently selected, remove the activeRouteClassName from the elementWithState
-          removeClass(elementWithState, activeRouteClassName);
-        }
+      if (_.isNull(newRoute)) {
+        // No route currently selected, remove the activeRouteClassName from the element
+        removeClass(element, activeRouteClassName);
       }
     };
 
