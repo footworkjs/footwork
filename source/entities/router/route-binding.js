@@ -75,36 +75,21 @@ fw.bindingHandlers.$route = {
     }
 
     function getRouteURL () {
-      var parentRoutePath = '';
       var routeURL = routeHandlerDescription.url();
-      var myLinkPath = routeURL || '';
 
-      if (!_.isNull(routeURL)) {
-        if (_.isUndefined(routeURL)) {
-          routeURL = myLinkPath;
-        }
-
-        if (!isFullURL(myLinkPath)) {
-          if (!hasPathStart(myLinkPath)) {
-            var currentRoute = router[privateDataSymbol].currentRoute();
-            if (hasHashStart(myLinkPath)) {
-              if (currentRoute) {
-                myLinkPath = currentRoute.segment + myLinkPath;
-              }
-              hashOnly = true;
-            } else {
-              // relative url, prepend current segment
-              if (currentRoute) {
-                myLinkPath = currentRoute.segment + '/' + myLinkPath;
-              }
+      if (!isFullURL(routeURL)) {
+        if (!hasPathStart(routeURL)) {
+          var currentRoute = router[privateDataSymbol].currentRoute();
+          if (hasHashStart(routeURL)) {
+            if (currentRoute) {
+              routeURL = currentRoute.segment + routeURL;
             }
+            hashOnly = true;
           }
         }
-
-        return myLinkPath;
       }
 
-      return null;
+      return routeURL;
     };
 
     function checkForMatchingSegment (mySegment, newRoute) {
@@ -177,6 +162,7 @@ fw.bindingHandlers.$route = {
     }
     setUpElement();
 
+    /* istanbul ignore next */
     fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
       if (_.isObject(stateTracker)) {
         stateTracker.dispose();

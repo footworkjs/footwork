@@ -1616,7 +1616,7 @@ define(['footwork', 'lodash'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="$route: { url: \'' + mockUrl + '\', replaceState: false }"></a>\
+          <a data-bind="$route: { url: \'' + mockUrl + '\', history: \'replace\' }"></a>\
         </router>');
         fw.start(testContainer);
 
