@@ -15,7 +15,6 @@ var routerTools = require('./router-tools');
 var nearestParentRouter = routerTools.nearestParentRouter;
 var isNullRouter = routerTools.isNullRouter;
 
-
 function findParentNode (element, selector) {
   if (selector === true) {
     return element.parentNode;
@@ -77,15 +76,10 @@ fw.bindingHandlers.$route = {
     function getRouteURL () {
       var routeURL = routeHandlerDescription.url();
 
-      if (!isFullURL(routeURL)) {
-        if (!hasPathStart(routeURL)) {
-          var currentRoute = router[privateDataSymbol].currentRoute();
-          if (hasHashStart(routeURL)) {
-            if (currentRoute) {
-              routeURL = currentRoute.segment + routeURL;
-            }
-            hashOnly = true;
-          }
+      if (!isFullURL(routeURL) && hasHashStart(routeURL)) {
+        var currentRoute = router[privateDataSymbol].currentRoute();
+        if (currentRoute) {
+          routeURL = currentRoute.segment + routeURL;
         }
       }
 
@@ -98,7 +92,6 @@ fw.bindingHandlers.$route = {
         if (_.isString(mySegment)) {
           var currentRoute = router[privateDataSymbol].currentRoute();
           var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router);
-          mySegment = mySegment.replace(startingHashRegex, '/');
 
           if (_.isObject(currentRoute)) {
             if (_.isString(activeRouteClassName) && activeRouteClassName.length) {

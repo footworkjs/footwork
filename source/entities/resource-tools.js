@@ -16,7 +16,7 @@ var regExpMatch = /^\/|\/$/g;
  */
 function isRegistered (descriptor, resourceName) {
   return !_.isUndefined(descriptor.registered[resourceName]);
-};
+}
 
 /**
  * Return the resource registered on the descriptor using the specified resourceName.
@@ -27,7 +27,7 @@ function isRegistered (descriptor, resourceName) {
  */
 function getRegistered (descriptor, resourceName) {
   return descriptor.registered[resourceName];
-};
+}
 
 /**
  * Register a resource using a given resourceName on a descriptor.
@@ -38,33 +38,10 @@ function getRegistered (descriptor, resourceName) {
  */
 function register (descriptor, resourceName, resource) {
   descriptor.registered[resourceName] = resource;
-};
-
-function getModelExtension (extensions, modelName) {
-  var fileExtension = '';
-
-  if (_.isFunction(extensions)) {
-    fileExtension = extensions(modelName);
-  } else if (_.isString(extensions)) {
-    fileExtension = extensions;
-  }
-
-  return fileExtension.replace(/^\./, '') || '';
 }
 
 function getFileName (descriptor, modelName) {
-  var modelResourceLocations = descriptor.registeredLocations;
-  var fileName = modelName + '.' + getModelExtension(descriptor.resource.fileExtensions, modelName);
-
-  if (!_.isUndefined(modelResourceLocations[modelName])) {
-    var registeredLocation = modelResourceLocations[modelName];
-    if (_.isString(registeredLocation) && !isPath(registeredLocation)) {
-      // full filename was supplied, lets return that
-      fileName = _.last(registeredLocation.split('/'));
-    }
-  }
-
-  return fileName;
+  return modelName + '.' + descriptor.resource.fileExtensions.replace(/^\./, '') || '';
 }
 
 function registerLocation (descriptor, modelName, location) {
