@@ -90,12 +90,7 @@ function save (attrs, options) {
 
       ajax.handleJsonResponse(xhr)
         .then(function handleResponseData (data) {
-          var parsedData = configParams.parse ? configParams.parse.call(dataModel, data, method) : data;
-
-          if (options.wait && !_.isNull(attrs)) {
-            parsedData = _.extend({}, attrs, parsedData);
-          }
-
+          var parsedData = configParams.parse.call(dataModel, data, method);
           if (_.isObject(parsedData)) {
             dataModel.set(parsedData);
           }
@@ -111,10 +106,10 @@ function save (attrs, options) {
 /**
  * Delete/destroy the data on the server.
  *
- * @param {object} options (optional) Options passed to sync()
+ * @param {boolean} wait Flag telling footwork to wait for the request to finish before sending the destroy event
  * @returns {object} Promise for the HTTP Request
  */
-function destroy (options) {
+function destroy (wait) {
   var ajax = require('../../misc/ajax');
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
@@ -127,26 +122,16 @@ function destroy (options) {
         return false;
       }
 
-      options = options ? _.clone(options) : {};
-      var success = options.success;
-      var wait = options.wait;
-
       function sendDestroyEvent () {
-        dataModel.$namespace.publish('destroy', options);
-      };
-
-      if (!options.wait) {
-        sendDestroyEvent();
+        dataModel.$namespace.publish('destroy', { wait: wait });
       }
+      !wait && sendDestroyEvent();
 
-      var xhr = dataModel.sync('delete', dataModel, options);
-
+      var xhr = dataModel.sync('delete', dataModel, { wait: wait });
       ajax.handleJsonResponse(xhr)
         .then(function handleResponseData (data) {
           dataModel[privateDataSymbol].idAttributeObservable(undefined);
-          if (options.wait) {
-            sendDestroyEvent();
-          }
+          wait && sendDestroyEvent();
         });
 
       return xhr;
