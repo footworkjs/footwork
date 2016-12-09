@@ -1337,7 +1337,7 @@ define(['footwork', 'lodash'],
               expect($(testContainer).find('.fw-loaded-display.' + fw.animationClass.animateIn)).lengthToBeGreaterThan(0);
               expect(outletCallbackSpy).toHaveBeenCalled();
               done();
-            }, 240);
+            }, 340);
           }, 0);
         }, 0);
       });
