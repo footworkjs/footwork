@@ -81,12 +81,12 @@ function routerBootstrap (instance, configParams) {
         if (activated && currentRoute) {
           if (($currentState || '').indexOf('#') !== -1) {
             var fragmentIdentifier = $currentState.split('#')[1];
-            instance[privateDataSymbol].gotoFragment = function () {
+            instance[privateDataSymbol].scrollToFragment = function () {
               var elementToScrollTo = document.getElementById(fragmentIdentifier);
               elementToScrollTo && elementToScrollTo.scrollIntoView();
             };
           } else {
-            instance[privateDataSymbol].gotoFragment = _.noop;
+            instance[privateDataSymbol].scrollToFragment = _.noop;
           }
 
           triggerRoute(instance, currentRoute);

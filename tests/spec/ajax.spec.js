@@ -20,6 +20,15 @@ define(['footwork', 'lodash', 'fetch-mock'],
         });
         expect(function() { fw.sync('get', testDataModel) }).toThrow();
       });
+
+      it('sync throws error when attempting to request using an invalid action', function() {
+        var testDataModel = new (function () {
+          fw.dataModel.boot(this, {
+            url: '/fetch/url',
+          });
+        });
+        expect(function() { fw.sync('INVALID-ACTION', testDataModel) }).toThrow();
+      });
     });
   }
 );

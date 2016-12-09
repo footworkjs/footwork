@@ -2,10 +2,7 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var util = require('../../misc/util');
-var hasPathStart = util.hasPathStart;
-var hasHashStart = util.hasHashStart;
 var resultBound  = util.resultBound;
-var startingHashRegex = util.startingHashRegex;
 var removeClass = util.removeClass;
 var addClass = util.addClass;
 var hasClass = util.hasClass;
@@ -15,6 +12,7 @@ var routerTools = require('./router-tools');
 var nearestParentRouter = routerTools.nearestParentRouter;
 var isNullRouter = routerTools.isNullRouter;
 
+var startingHashRegex = /^#/;
 var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
 var isFullURL = fw.utils.isFullURL = function (thing) {
   return _.isString(thing) && isFullURLRegex.test(thing);

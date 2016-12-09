@@ -121,29 +121,21 @@ function sync (action, concern, options) {
   } else if (_.isString(url)) {
     // string specified, use the default method for this action and url
     method = methodMap[action];
+    if (!_.isString(method)) {
+      throw Error('Invalid action resolved for sync operation');
+    }
 
     // add the :id to the url if needed
     if (fw.isDataModel(concern) && _.includes(['read', 'update', 'patch', 'delete'], action)) {
       urlPieces = url.split('?');
       var urlRoute = urlPieces.shift();
-
-      var queryString = '';
-      if (urlPieces.length) {
-        queryString = '?' + urlPieces.join('?');
-      }
-
+      var queryString = urlPieces.length ? '?' + urlPieces.join('?') : '';
       url = urlRoute.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute + queryString;
     }
   }
 
   if (!_.isString(url)) {
     throw Error('A url must be specified for sync operation');
-  }
-
-  if (!_.isString(method)) {
-    throw Error('Invalid method (' + method + ') resolved for sync operation');
-  } else {
-    method = method.toUpperCase();
   }
 
   // replace any interpolated parameters
@@ -158,17 +150,13 @@ function sync (action, concern, options) {
 
   // construct the fetch options object
   options = _.extend({
-      method: method,
+      method: method.toUpperCase(),
       body: null,
       headers: {}
     },
     resultBound(fw, 'fetchOptions', concern, [action, options]) || {},
     resultBound(configParams, 'fetchOptions', concern, [action, options]) || {},
     options || {});
-
-  if (!_.isString(options.method)) {
-    throw Error('Invalid action (' + action + ') specified for sync operation');
-  }
 
   if (_.isNull(options.body) && concern && _.includes(['create', 'update', 'patch'], action)) {
     options.headers['content-type'] = 'application/json';
@@ -191,7 +179,7 @@ function sync (action, concern, options) {
  * @returns {promise} the instrumented promise
  */
 function makePromiseQueryable (promise) {
-  if (promise.isResolved) {
+  if (promise.isFulfilled) {
     return promise;
   }
 
@@ -203,8 +191,6 @@ function makePromiseQueryable (promise) {
     function (v) { isResolved = true; return v; },
     function (e) { isRejected = true; throw e; });
   result.isFulfilled = function () { return isResolved || isRejected; };
-  result.isResolved = function () { return isResolved; }
-  result.isRejected = function () { return isRejected; }
   return result;
 }
 

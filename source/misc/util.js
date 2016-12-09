@@ -117,37 +117,14 @@ function isPath (pathOrFile) {
   return _.isString(pathOrFile) && trailingSlashRegex.test(pathOrFile);
 }
 
-var startingSlashRegex = /^\//;
-
 /**
- * Determine whether or not the supplied path starts with a slash (/) (is the start of a path)
- *
- * @param {any} path
- * @returns {boolean} true if the supplied path starts with a slash (/), false if not
- */
-function hasPathStart (path) {
-  return _.isString(path) && startingSlashRegex.test(path);
-}
-
-var startingHashRegex = /^#/;
-/**
- * Determine whether or not the supplied string starts with a hash mark (#)
- *
- * @param {any} string
- * @returns {boolean} true if the supplied value starts with a hash mark (#)
- */
-function hasHashStart (string) {
-  return _.isString(string) && startingHashRegex.test(string);
-}
-
-/**
- * Calls dispose() on the supplied property if it exists.
+ * Calls dispose() on the supplied property if it exists and can be dispose()'d.
  *
  * @param {any} property
  */
 function propertyDispose (property) {
-  if (property && (_.isFunction(property.dispose) || _.isFunction(property.unsubscribe))) {
-    (property.dispose || property.unsubscribe).call(property);
+  if (property && _.isFunction(property.dispose)) {
+    property.dispose();
   }
 }
 
@@ -238,12 +215,9 @@ module.exports = {
   removeClass: removeClass,
   nextFrame: nextFrame,
   isPath: isPath,
-  hasPathStart: hasPathStart,
-  hasHashStart: hasHashStart,
   propertyDispose: propertyDispose,
   isDocumentFragment: isDocumentFragment,
   isDomElement: isDomElement,
-  startingHashRegex: startingHashRegex,
   capitalizeFirstLetter: capitalizeFirstLetter,
   getPrivateData: getPrivateData,
   getSymbol: getSymbol,

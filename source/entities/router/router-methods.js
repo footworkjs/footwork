@@ -11,7 +11,6 @@ var changeRoute = routerTools.changeRoute;
 var util = require('../../misc/util');
 var resultBound = util.resultBound;
 var propertyDispose = util.propertyDispose;
-var startingHashRegex = util.startingHashRegex;
 var privateDataSymbol = util.getSymbol('footwork');
 
 var viewModelMethodDispose = require('../viewModel/viewModel-methods').dispose;
@@ -106,7 +105,7 @@ module.exports = {
               outletViewModel.routeIsLoading(false);
               outletViewModel.routeOnComplete = function () {
                 onComplete.call(router, outletElement);
-                router[privateDataSymbol].gotoFragment();
+                router[privateDataSymbol].scrollToFragment();
               };
             } else {
               onComplete.call(router, outletElement);
