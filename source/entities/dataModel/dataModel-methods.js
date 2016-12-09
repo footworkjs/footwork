@@ -66,7 +66,6 @@ function save (attrs, options) {
   var attrs = isNode(attrs) ? {} : attrs;
 
   options = _.extend({
-    parse: true,
     wait: false,
     patch: false
   }, options);
