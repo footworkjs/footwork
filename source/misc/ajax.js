@@ -158,7 +158,7 @@ function sync (action, concern, options) {
     resultBound(configParams, 'fetchOptions', concern, [action, options]) || {},
     options || {});
 
-  if (_.isNull(options.body) && concern && _.includes(['create', 'update', 'patch'], action)) {
+  if (_.isNull(options.body) && _.includes(['create', 'update', 'patch'], action)) {
     options.headers['content-type'] = 'application/json';
     options.body = JSON.stringify(options.attrs || concern.get());
   }
@@ -173,7 +173,7 @@ function sync (action, concern, options) {
 };
 
 /**
- * Place isFulfilled/isRejected/isResolved hooks onto a promise which can be used to syncronously determine a promises state.
+ * Place isFulfilled hook onto a promise which can be used to syncronously determine a promises state.
  *
  * @param {promise} promise
  * @returns {promise} the instrumented promise

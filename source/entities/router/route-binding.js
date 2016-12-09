@@ -54,16 +54,14 @@ fw.bindingHandlers.$route = {
     }
 
     function checkForMatchingRoute (myRoute, newRoute) {
-      if (_.isString(myRoute)) {
-        var currentRoute = router[privateDataSymbol].currentRoute();
-        var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router);
+      var currentRoute = router[privateDataSymbol].currentRoute();
+      var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router);
 
-        if (_.isObject(currentRoute) && _.isString(activeRouteClassName) && activeRouteClassName.length) {
-          if (!_.isNull(newRoute) && newRoute.url === myRoute) {
-            addClass(element, activeRouteClassName);
-          } else {
-            removeClass(element, activeRouteClassName);
-          }
+      if (_.isObject(currentRoute) && activeRouteClassName) {
+        if (!_.isNull(newRoute) && newRoute.url === myRoute) {
+          addClass(element, activeRouteClassName);
+        } else {
+          removeClass(element, activeRouteClassName);
         }
       }
     }

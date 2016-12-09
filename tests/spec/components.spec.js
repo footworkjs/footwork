@@ -295,6 +295,57 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, ajaxWait);
       });
 
+      it('can instantiate a component registered using a document fragment as the template', function(done) {
+        var namespaceName = generateNamespaceName();
+        var textToFind = randomString();
+        var initializeSpy;
+
+        var fragment = document.createDocumentFragment();
+        var elementToFind = document.createElement("div");
+        elementToFind.className = namespaceName;
+        fragment.appendChild(elementToFind);
+
+        testContainer = getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>');
+
+        fw.components.register(namespaceName, {
+          template: fragment,
+          viewModel: initializeSpy = jasmine.createSpy('initializeSpy', function() {
+            fw.viewModel.boot(this);
+          }).and.callThrough(),
+          synchronous: true
+        });
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer);
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+          expect($(testContainer).find('.' + namespaceName)).lengthToBeGreaterThan(0);
+          done();
+        }, ajaxWait);
+      });
+
+      it('correctly throws an error with an invalid element specified in the template config', function() {
+        var namespaceName = generateNamespaceName();
+        var textToFind = randomString();
+        var initializeSpy;
+
+        testContainer = getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>');
+
+        fw.components.register(namespaceName, {
+          template: { element: 42 },
+          viewModel: initializeSpy = jasmine.createSpy('initializeSpy', function() {
+            fw.viewModel.boot(this);
+          }).and.callThrough(),
+          synchronous: true
+        });
+
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        expect(function() { fw.start(testContainer); }).toThrow();
+      });
+
       it('calls the dispose() callback of a viewModel when the parent component is removed from the DOM', function(done) {
         var componentNamespaceName = generateNamespaceName();
         var viewModelNamespaceName = generateNamespaceName();

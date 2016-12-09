@@ -101,15 +101,11 @@ module.exports = {
 
           return function addBindingOnComplete () {
             var outletViewModel = outlets[outletName].outletViewModel;
-            if (outletViewModel) {
-              outletViewModel.routeIsLoading(false);
-              outletViewModel.routeOnComplete = function () {
-                onComplete.call(router, outletElement);
-                router[privateDataSymbol].scrollToFragment();
-              };
-            } else {
+            outletViewModel.routeIsLoading(false);
+            outletViewModel.routeOnComplete = function () {
               onComplete.call(router, outletElement);
-            }
+              router[privateDataSymbol].scrollToFragment();
+            };
           };
         };
 

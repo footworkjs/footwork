@@ -53,7 +53,7 @@ function registerLocation (descriptor, modelName, location) {
   descriptor.registeredLocations[ modelName ] = location;
 }
 
-function modelResourceLocation (descriptor, modelName) {
+function getLocation (descriptor, modelName) {
   return _.reduce(descriptor.registeredLocations, function (registeredLocation, location, registeredName) {
     if (!registeredLocation) {
       if (!_.isNull(registeredName.match(regExpMatch)) && !_.isNull(modelName.match(registeredName.replace(regExpMatch, '')))) {
@@ -64,18 +64,6 @@ function modelResourceLocation (descriptor, modelName) {
     }
     return registeredLocation;
   }, undefined);
-}
-
-function getLocation (descriptor, modelName) {
-  if (_.isUndefined(modelName)) {
-    return descriptor.registeredLocations;
-  }
-
-  return modelResourceLocation(descriptor, modelName);
-}
-
-function locationIsRegistered (descriptor, modelName) {
-  return !!modelResourceLocation(descriptor, modelName);
 }
 
 function getModelReferences (descriptor, namespaceName) {
@@ -131,7 +119,6 @@ function addResourceTools (descriptor) {
     isRegistered: _.partial(isRegistered, descriptor),
     getRegistered: _.partial(getRegistered, descriptor),
     registerLocation: _.partial(registerLocation, descriptor),
-    locationIsRegistered: _.partial(locationIsRegistered, descriptor),
     getLocation: _.partial(getLocation, descriptor),
     getResourceOrLocation: _.partial(getResourceOrLocation, descriptor),
     get: _.partial(getModelReferences, descriptor)

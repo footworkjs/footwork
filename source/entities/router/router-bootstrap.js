@@ -61,12 +61,7 @@ function routerBootstrap (instance, configParams) {
     });
 
     instance.$currentRoute = fw.computed(function () {
-      var currentRoute = privateData.currentRoute();
-      if (currentRoute) {
-        return currentRoute.routeConfiguration;
-      } else {
-        return null;
-      }
+      return (privateData.currentRoute() || {}).routeConfiguration;
     });
 
     instance.$namespace.subscribe('pushState', _.partial(routerStateChangeCommandHandler, instance, 'push'));
