@@ -4,7 +4,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
       beforeEach(prepareTestEnv);
       afterEach(cleanTestEnv);
 
-      it('can be instantiated and correctly set() with some data', function() {
+      it('can be instantiated and correctly set() with some data using a dataModel', function() {
         var initializeSpy;
 
         var persons = [];
@@ -62,6 +62,51 @@ define(['footwork', 'lodash', 'fetch-mock'],
         people.dispose();
 
         expect(fw.utils.getPrivateData(people).isDisposed).toBe(true);
+      });
+
+      it('can be instantiated and correctly set() with some data using a POJO', function() {
+        var persons = [];
+        _.each(_.range(1, 8), function(id) {
+          persons.push({
+            id: id,
+            firstName: randomString(),
+            lastName: randomString(),
+            email: randomString()
+          });
+        });
+
+        var people = fw.collection();
+
+        expect(people()).lengthToBe(0);
+
+        people.set(persons);
+
+        expect(people()).lengthToBe(persons.length);
+
+        var personsList = people();
+        _.each(persons, function(personData, personIndex) {
+          expect(personsList[personIndex].firstName).toBe(personData.firstName);
+          expect(personsList[personIndex].lastName).toBe(personData.lastName);
+          expect(personsList[personIndex].email).toBe(personData.email);
+        });
+
+        persons = [];
+        _.each(_.range(1, 8), function(id) {
+          persons.push({
+            id: id,
+            firstName: randomString(),
+            lastName: randomString(),
+            email: randomString()
+          });
+        });
+        people.set(persons);
+
+        var personsList = people();
+        _.each(persons, function(personData, personIndex) {
+          expect(personsList[personIndex].firstName).toBe(personData.firstName);
+          expect(personsList[personIndex].lastName).toBe(personData.lastName);
+          expect(personsList[personIndex].email).toBe(personData.email);
+        });
       });
 
       it('can be instantiated and correctly set() with some data and options', function() {
@@ -174,7 +219,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         });
       });
 
-      it('can be instantiated with some data and then add()ed onto correctly', function() {
+      it('can be instantiated with some data using dataModels and then add()ed onto correctly', function() {
         var initializeSpy;
         var insertTestValue = randomString();
         var insertTestValue2 = randomString();
@@ -229,6 +274,49 @@ define(['footwork', 'lodash', 'fetch-mock'],
         mergePerson.firstName = 'findme';
         people.add(mergePerson, { merge: true });
         expect(merger.firstName()).toBe(mergePerson.firstName);
+      });
+
+      it('can be instantiated with some data and then add()ed onto correctly', function() {
+        var insertTestValue = randomString();
+        var insertTestValue2 = randomString();
+        var insertPosition = 2;
+
+        var persons = [
+          {
+            id: 100,
+            firstName: randomString(),
+            lastName: randomString(),
+            email: randomString()
+          }, {
+            id: 101,
+            firstName: randomString(),
+            lastName: randomString(),
+            email: randomString(),
+          }
+        ];
+
+
+        var people = fw.collection(persons);
+
+        expect(people()).lengthToBe(persons.length);
+
+        people.add({
+          id: 102,
+          firstName: randomString(),
+          lastName: randomString(),
+          email: randomString()
+        });
+        expect(people()).lengthToBe(persons.length + 1);
+
+        people.add(_.extend({}, persons[0], {
+          firstName: 'addTest'
+        }));
+        expect(people()[0].firstName).not.toBe('addTest');
+
+        people.add(_.extend({}, persons[0], {
+          firstName: 'mergeTest'
+        }), { merge: true });
+        expect(people()[0].firstName).toBe('mergeTest');
       });
 
       it('can have data plucked from its entries', function() {
@@ -402,6 +490,11 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(people.where({ commonTerm: persons[2].commonTerm })).lengthToBe(2);
       });
 
+      it('throws error when create is called and no dataModel is specified', function() {
+        var collection = fw.collection();
+        expect(function() {collection.create()}).toThrow();
+      });
+
       it('can create a new model and add it to the collection correctly', function(done) {
         var initializeSpy;
 
@@ -477,28 +570,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
           expect(people.findWhere(createdPersonData)).toBeAn('object');
           done();
         }, 100);
-      });
-
-      it('can initialize and manipulate a plain collection including removal of an item', function() {
-        var persons = [];
-        _.each(_.range(1, 8), function() {
-          persons.push({
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
-          });
-        });
-
-        var people = fw.collection(persons);
-        var randomPerson = _.sample(persons);
-
-        expect(people()).lengthToBe(persons.length);
-        expect(people.findWhere(randomPerson)).toEqual(randomPerson);
-
-        var removedModels = people.removeModel({ firstName: randomPerson.firstName });
-
-        expect(people.findWhere(randomPerson)).toBe(null);
-        expect(removedModels).toEqual([randomPerson]);
       });
 
       it('can be serialized into JSON correctly', function() {

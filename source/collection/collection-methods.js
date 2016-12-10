@@ -46,17 +46,13 @@ function regExpIsEqual (a, b, isEq) {
 function sortOfEqual (a, b, isEq) {
   isEq = isEq || _.isEqual;
 
-  if (_.isObject(a) && _.isObject(b)) {
-    var AKeys = _.keys(a);
-    var BKeys = _.keys(b);
-    var commonKeys = _.intersection(AKeys, BKeys);
-    var hasAllAKeys = _.every(AKeys, function (Akey) {
-      return BKeys.indexOf(Akey) !== -1;
-    })
-    return commonKeys.length > 0 && hasAllAKeys && isEq(_.pick(a, commonKeys), _.pick(b, commonKeys));
-  } else {
-    return a === b;
-  }
+  var AKeys = _.keys(a);
+  var BKeys = _.keys(b);
+  var commonKeys = _.intersection(AKeys, BKeys);
+  var hasAllAKeys = _.every(AKeys, function (Akey) {
+    return BKeys.indexOf(Akey) !== -1;
+  })
+  return commonKeys.length > 0 && hasAllAKeys && isEq(_.pick(a, commonKeys), _.pick(b, commonKeys));
 }
 
 function collectionSync () {
@@ -138,7 +134,7 @@ function set (newCollection, options) {
             if (fw.isDataModel(model)) {
               model.set(modelData);
             } else {
-              collectionStore[indexOfModel] = modelData;
+              _.extend(model, modelData);
             }
             collection.$namespace.publish('_.change', model);
             affectedModels.push(model);
@@ -365,68 +361,31 @@ function create (model, options) {
   var configParams = collection[privateDataSymbol].configParams;
   options = options ? _.clone(options) : {};
 
-  var requestInfo = {
+  if (!_.isFunction(configParams.dataModel)) {
+    throw Error('No dataModel specified, cannot create() a new collection item');
+  }
+
+  return makeOrGetRequest('create', {
     requestRunning: collection.isCreating,
     requestLull: configParams.requestLull,
     entity: collection,
     allowConcurrent: true,
     createRequest: function () {
       var newModel = castAsDataModel(model);
-      var xhr;
+      var xhr = newModel.save();
 
-      if (fw.isDataModel(newModel)) {
-        xhr = newModel.save();
-
-        if (options.wait) {
-          ajax.handleJsonResponse(xhr)
-            .then(function (responseData) {
-              responseData && collection.add(newModel);
-            });
-        } else {
-          collection.add(newModel)
-        }
+      if (options.wait) {
+        ajax.handleJsonResponse(xhr)
+          .then(function (responseData) {
+            responseData && collection.add(newModel);
+          });
       } else {
-        return newModel;
+        collection.add(newModel)
       }
 
       return xhr;
     }
-  };
-
-  if (!_.isFunction(configParams.dataModel)) {
-    throw Error('No dataModel specified, cannot create() a new collection item');
-  }
-
-  return makeOrGetRequest('create', requestInfo);
-}
-
-function removeModel (models) {
-  var collection = this;
-  var affectedModels = [];
-
-  if (_.isObject(models)) {
-    models = [models];
-  }
-  if (!_.isArray(models)) {
-    models = !_.isUndefined(models) && !_.isNull(models) ? [models] : [];
-  }
-
-  return _.reduce(models, function (removedModels, model) {
-    var removed = null;
-    if (fw.isDataModel(model)) {
-      removed = collection.remove(model);
-    } else {
-      var modelsToRemove = collection.where(model);
-      if (!_.isNull(modelsToRemove)) {
-        removed = collection.removeAll(modelsToRemove);
-      }
-    }
-
-    if (!_.isNull(removed)) {
-      return removedModels.concat(removed);
-    }
-    return removedModels;
-  }, []);
+  });
 }
 
 module.exports = {
@@ -440,6 +399,5 @@ module.exports = {
   where: where,
   findWhere: findWhere,
   add: add,
-  create: create,
-  removeModel: removeModel
+  create: create
 };
