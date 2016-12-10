@@ -177,7 +177,7 @@ function set (attributes, clearDirty) {
  * @param {boolean} includeRoot (optional) if true it will include the root object in the result
  * @returns {object} The POJO representation of the dataModel
  */
-function getData (referenceField, includeRoot) {
+function get (referenceField, includeRoot) {
   var dataModel = this;
   if (_.isArray(referenceField)) {
     return _.reduce(referenceField, function (jsObject, fieldMap) {
@@ -203,7 +203,7 @@ function getData (referenceField, includeRoot) {
  * @returns {string} The stringified result of the data
  */
 function toJSON () {
-  return this.getData();
+  return this.get();
 }
 
 /**
@@ -260,8 +260,7 @@ module.exports = {
   save: save,
   destroy: destroy,
   set: set,
-  get: getData,
-  getData: getData,
+  get: get,
   toJSON: toJSON,
   clean: clean,
   sync: dataModelSync,

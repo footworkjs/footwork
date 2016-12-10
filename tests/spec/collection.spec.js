@@ -48,7 +48,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           expect(personsList[personIndex].email()).toBe(personData.email);
         });
 
-        var reversePersons = people.getData().reverse();
+        var reversePersons = people.toJSON().reverse();
         people.set(reversePersons);
         reversePersonsList = people();
         _.each(reversePersons, function(personData, personIndex) {
@@ -548,7 +548,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         expect(initializeSpy).toHaveBeenCalledTimes(persons.length);
         expect(people()).lengthToBe(persons.length);
-        expect(people.getData()).toEqual(persons);
+        expect(people.toJSON()).toEqual(persons);
       });
 
       it('can correctly trigger change/add/remove events for dataModels in a set() call as appropriate', function() {

@@ -73,7 +73,7 @@ fw.collection = function createCollection (collectionData, configParams) {
     castAs: {
       modelData: function (modelData, attribute) {
         if (fw.isDataModel(modelData)) {
-          return modelData.getData(attribute);
+          return modelData.get(attribute);
         }
         if (_.isUndefined(attribute)) {
           return modelData;

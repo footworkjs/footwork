@@ -71,23 +71,15 @@ function collectionSync () {
  */
 function get (id) {
   var collection = this;
-  return _.find(collection(), function findModelWithId (model) {
-    return _.result(model, collection[privateDataSymbol].getIdAttribute()) === id;
-  });
-}
-
-/**
- * Get the data of the collection. This returns the raw POJO version of the collection.
- *
- * @returns {array} The collection of data
- */
-function getData () {
-  var collection = this;
-  var castAsModelData = collection[privateDataSymbol].castAs.modelData;
-  return _.reduce(collection(), function (models, model) {
-    models.push(castAsModelData(model));
-    return models;
-  }, []);
+  return _.reduce(collection(), function(found, model) {
+    var wasFound = _.isUndefined(id) || _.result(model, collection[privateDataSymbol].getIdAttribute()) === id;
+    if(id && !found && wasFound) {
+      found = model;
+    } else if (!id && wasFound) {
+      found.push(model);
+    }
+    return found;
+  }, id ? null : []);
 }
 
 /**
@@ -96,7 +88,15 @@ function getData () {
  * @returns {array} The collection of data
  */
 function toJSON () {
-  return this.getData();
+  var data = this.get();
+  return _.reduce(this.get(), function(blob, entry) {
+    if(fw.isDataModel(entry)) {
+      blob.push(entry.get());
+    } else {
+      blob.push(entry);
+    }
+    return blob;
+  }, []);
 }
 
 function pluck (attribute) {
@@ -432,7 +432,6 @@ function removeModel (models) {
 module.exports = {
   sync: collectionSync,
   get: get,
-  getData: getData,
   toJSON: toJSON,
   pluck: pluck,
   set: set,
