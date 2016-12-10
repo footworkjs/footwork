@@ -210,10 +210,10 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(initializeSpy).toHaveBeenCalledTimes(persons.length);
         expect(people()).lengthToBe(persons.length);
 
-        people.addModel(persons[0]);
+        people.add(persons[0]);
         expect(people()).lengthToBe(3);
 
-        people.addModel(_.extend(persons[0], { firstName: insertTestValue }), { at: insertPosition });
+        people.add(_.extend(persons[0], { firstName: insertTestValue }), { at: insertPosition });
         expect(people()[insertPosition].firstName()).toBe(insertTestValue);
 
         var mergePerson = {
@@ -222,12 +222,12 @@ define(['footwork', 'lodash', 'fetch-mock'],
           lastName: randomString(),
           email: randomString()
         };
-        people.addModel(mergePerson);
+        people.add(mergePerson);
         var merger = people.findWhere(mergePerson);
         expect(merger.firstName()).toEqual(mergePerson.firstName);
 
         mergePerson.firstName = 'findme';
-        people.addModel(mergePerson, { merge: true });
+        people.add(mergePerson, { merge: true });
         expect(merger.firstName()).toBe(mergePerson.firstName);
       });
 

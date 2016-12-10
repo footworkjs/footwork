@@ -63,23 +63,13 @@ function collectionSync () {
   return fw.sync.apply(this, arguments);
 }
 
-/**
- * Get the collection item with the specified id
- *
- * @param {any} id The id (mapped via idAttribute config option) of the entry to get
- * @returns {any} the found result (if any)
- */
-function get (id) {
+function pluck (attribute) {
   var collection = this;
-  return _.reduce(collection(), function(found, model) {
-    var wasFound = _.isUndefined(id) || _.result(model, collection[privateDataSymbol].getIdAttribute()) === id;
-    if(id && !found && wasFound) {
-      found = model;
-    } else if (!id && wasFound) {
-      found.push(model);
-    }
-    return found;
-  }, id ? null : []);
+  var castAsModelData = collection[privateDataSymbol].castAs.modelData;
+  return _.reduce(collection(), function (pluckedValues, model) {
+    pluckedValues.push(castAsModelData(model, attribute));
+    return pluckedValues;
+  }, []);
 }
 
 /**
@@ -99,13 +89,23 @@ function toJSON () {
   }, []);
 }
 
-function pluck (attribute) {
+/**
+ * Get the collection item with the specified id
+ *
+ * @param {any} id The id (mapped via idAttribute config option) of the entry to get
+ * @returns {any} the found result (if any)
+ */
+function get (id) {
   var collection = this;
-  var castAsModelData = collection[privateDataSymbol].castAs.modelData;
-  return _.reduce(collection(), function (pluckedValues, model) {
-    pluckedValues.push(castAsModelData(model, attribute));
-    return pluckedValues;
-  }, []);
+  return _.reduce(collection(), function(found, model) {
+    var wasFound = _.isUndefined(id) || _.result(model, collection[privateDataSymbol].getIdAttribute()) === id;
+    if(id && !found && wasFound) {
+      found = model;
+    } else if (!id && wasFound) {
+      found.push(model);
+    }
+    return found;
+  }, id ? null : []);
 }
 
 function set (newCollection, options) {
@@ -135,8 +135,8 @@ function set (newCollection, options) {
           modelPresent = true;
           if (options.merge !== false && !sortOfEqual(collectionModelData, modelData)) {
             // found model, but needs an update
-            if (_.isFunction(model.set)) {
-              model.set.call(model, modelData);
+            if (fw.isDataModel(model)) {
+              model.set(modelData);
             } else {
               collectionStore[indexOfModel] = modelData;
             }
@@ -300,7 +300,7 @@ function findWhere (modelData, options) {
   }, null);
 }
 
-function addModel (models, options) {
+function add (models, options) {
   var collection = this;
   var affectedModels = [];
   options = options || {};
@@ -380,10 +380,10 @@ function create (model, options) {
         if (options.wait) {
           ajax.handleJsonResponse(xhr)
             .then(function (responseData) {
-              responseData && collection.addModel(newModel);
+              responseData && collection.add(newModel);
             });
         } else {
-          collection.addModel(newModel)
+          collection.add(newModel)
         }
       } else {
         return newModel;
@@ -439,7 +439,7 @@ module.exports = {
   fetch: fetch,
   where: where,
   findWhere: findWhere,
-  addModel: addModel,
+  add: add,
   create: create,
   removeModel: removeModel
 };
