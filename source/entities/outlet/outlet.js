@@ -40,10 +40,6 @@ fw.components.register(routerDefaults.noComponentSelected, {
   template: ' ',
   synchronus: true
 });
-fw.components.register(routerDefaults.nullComponent, {
-  template: ' ',
-  synchronus: true
-});
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 

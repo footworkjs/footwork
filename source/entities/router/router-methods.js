@@ -17,7 +17,7 @@ var viewModelMethodDispose = require('../viewModel/viewModel-methods').dispose;
 var clearSequenceQueue = require('../../binding/animation-sequencing').clearSequenceQueue;
 var routerDefaults = require('./router-defaults');
 var noComponentSelected = routerDefaults.noComponentSelected;
-var nullComponent = routerDefaults.nullComponent;
+var noComponentSelected = routerDefaults.noComponentSelected;
 var activeOutlets = routerDefaults.activeOutlets;
 
 module.exports = {
@@ -52,7 +52,7 @@ module.exports = {
     }
 
     if (arguments.length > 1 && !componentToDisplay) {
-      componentToDisplay = nullComponent;
+      componentToDisplay = noComponentSelected;
     }
 
     // grab and set the loadingDisplay if needed
@@ -92,7 +92,7 @@ module.exports = {
           var outletElement = element.parentNode;
 
           activeOutlets.remove(outlet);
-          outletElement.setAttribute('data-rendered', (componentToDisplay === nullComponent ? '' : componentToDisplay));
+          outletElement.setAttribute('data-rendered', (componentToDisplay === noComponentSelected ? '' : componentToDisplay));
 
           return function addBindingOnComplete () {
             var outletViewModel = outlets[outletName].outletViewModel;

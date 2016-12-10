@@ -9,7 +9,7 @@ var nextFrame = util.nextFrame;
 var privateDataSymbol = util.getSymbol('footwork');
 
 var routerDefaults = require('../router/router-defaults');
-var nullComponent = routerDefaults.nullComponent;
+var noComponentSelected = routerDefaults.noComponentSelected;
 
 var visibleCSS = { 'height': '', 'overflow': '' };
 var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
@@ -46,7 +46,7 @@ function outletBootstrap (instance, configParams) {
 
     var resolvedCallbacks = [];
     _.extend(instance, {
-      loadingDisplay: fw.observable(nullComponent),
+      loadingDisplay: fw.observable(noComponentSelected),
       routeIsLoading: fw.observable(true),
       routeIsResolving: fw.observable(true),
       addResolvedCallbackOrExecute: function (callback) {

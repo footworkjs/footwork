@@ -5,7 +5,6 @@ nullRouter[require('../../misc/util').getSymbol('isNullRouter')] = true;
 
 module.exports = {
   noComponentSelected: '_noComponentSelected',
-  nullComponent: '_nullComponent',
   invalidRoutePathIdentifier: '___invalid-route',
   routesAreCaseSensitive: true,
   nullRouter: nullRouter,
