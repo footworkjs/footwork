@@ -10,7 +10,6 @@ var privateDataSymbol = util.getSymbol('footwork');
 
 var routerTools = require('./router-tools');
 var nearestParentRouter = routerTools.nearestParentRouter;
-var isNullRouter = routerTools.isNullRouter;
 
 var startingHashRegex = /^#/;
 var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
@@ -67,39 +66,37 @@ fw.bindingHandlers.$route = {
     }
 
     function setUpElement () {
-      if (!isNullRouter(router)) {
-        var routeUrl = routeHandlerDescription.url();
-        var configParams = router[privateDataSymbol].configParams;
+      var routeUrl = routeHandlerDescription.url();
+      var configParams = router[privateDataSymbol].configParams;
 
-        hashOnly = !!routeUrl.match(startingHashRegex);
+      hashOnly = !!routeUrl.match(startingHashRegex);
 
-        if (element.tagName.toLowerCase() === 'a') {
-          element.href = configParams.baseRoute + routeUrl;
-        }
+      if (element.tagName.toLowerCase() === 'a') {
+        element.href = configParams.baseRoute + routeUrl;
+      }
 
-        if (_.isObject(stateTracker) && _.isFunction(stateTracker.dispose)) {
-          stateTracker.dispose();
-        }
-        stateTracker = router[privateDataSymbol].currentRoute.subscribe(_.partial(checkForMatchingRoute, routeUrl));
+      if (_.isObject(stateTracker) && _.isFunction(stateTracker.dispose)) {
+        stateTracker.dispose();
+      }
+      stateTracker = router[privateDataSymbol].currentRoute.subscribe(_.partial(checkForMatchingRoute, routeUrl));
 
-        if (elementIsSetup === false) {
-          elementIsSetup = true;
-          checkForMatchingRoute(routeUrl, router[privateDataSymbol].currentRoute());
+      if (elementIsSetup === false) {
+        elementIsSetup = true;
+        checkForMatchingRoute(routeUrl, router[privateDataSymbol].currentRoute());
 
-          fw.utils.registerEventHandler(element, resultBound(routeHandlerDescription, 'on', router), function (event) {
-            var currentRouteURL = routeHandlerDescription.url();
-            var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
-            if (handlerResult) {
-              if (_.isString(handlerResult)) {
-                currentRouteURL = handlerResult;
-              }
-              if (_.isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
-                router[resultBound(routeHandlerDescription, 'history', router) + 'State'](currentRouteURL);
-              }
+        fw.utils.registerEventHandler(element, resultBound(routeHandlerDescription, 'on', router), function (event) {
+          var currentRouteURL = routeHandlerDescription.url();
+          var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
+          if (handlerResult) {
+            if (_.isString(handlerResult)) {
+              currentRouteURL = handlerResult;
             }
-            return true;
-          });
-        }
+            if (_.isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
+              router[resultBound(routeHandlerDescription, 'history', router) + 'State'](currentRouteURL);
+            }
+          }
+          return true;
+        });
       }
     }
 

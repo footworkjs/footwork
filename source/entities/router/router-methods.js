@@ -4,7 +4,6 @@ var fw = require('knockout/build/output/knockout-latest');
 var isEntity = require('../entity-tools').isEntity;
 
 var routerTools = require('./router-tools');
-var isNullRouter = routerTools.isNullRouter;
 var trimBaseRoute = routerTools.trimBaseRoute;
 var changeRoute = routerTools.changeRoute;
 
@@ -15,10 +14,11 @@ var privateDataSymbol = util.getSymbol('footwork');
 
 var viewModelMethodDispose = require('../viewModel/viewModel-methods').dispose;
 var clearSequenceQueue = require('../../binding/animation-sequencing').clearSequenceQueue;
-var routerDefaults = require('./router-defaults');
+var routerDefaults = require('./router-config');
 var noComponentSelected = routerDefaults.noComponentSelected;
 var noComponentSelected = routerDefaults.noComponentSelected;
-var activeOutlets = routerDefaults.activeOutlets;
+
+var activeOutlets = fw.observableArray();
 
 module.exports = {
   outlet: function (outletName, componentToDisplay, options) {

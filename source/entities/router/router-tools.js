@@ -9,9 +9,7 @@ var resultBound = util.resultBound;
 var alwaysPassPredicate = util.alwaysPassPredicate;
 var privateDataSymbol = util.getSymbol('footwork');
 
-var routerDefaults = require('./router-defaults');
-var nullRouter = routerDefaults.nullRouter;
-var routesAreCaseSensitive = routerDefaults.routesAreCaseSensitive;
+var routerDefaults = require('./router-config');
 var baseRoute = routerDefaults.baseRoute;
 
 var optionalParamRegex = /\((.*?)\)/g;
@@ -35,11 +33,7 @@ function routeStringToRegExp (routeString) {
     })
     .replace(splatParamRegex, "(.*?)");
 
-  return new RegExp('^' + routeString + (routeString !== '/' ? '(\\/.*)*$' : '$'), routesAreCaseSensitive ? undefined : 'i');
-}
-
-function isNullRouter (thing) {
-  return _.isObject(thing) && !!thing[getSymbol('isNullRouter')];
+  return new RegExp('^' + routeString + (routeString !== '/' ? '(\\/.*)*$' : '$'));
 }
 
 function isRoute (thing) {
@@ -49,13 +43,13 @@ function isRoute (thing) {
 /**
  * Locate the nearest router from a given ko $context
  * (travels up through $parentContext chain to find the router if not found on the
- * immediate $context). Returns nullRouter if none is found.
+ * immediate $context). Returns null if none is found.
  *
  * @param {object} $context
- * @returns {object} router instance or nullRouter if none found
+ * @returns {object} router instance or null if none found
  */
 function nearestParentRouter ($context) {
-  return nearestEntity($context.$parentContext, fw.isRouter) || nullRouter;
+  return nearestEntity($context.$parentContext, fw.isRouter);
 }
 
 /**
@@ -248,7 +242,6 @@ module.exports = {
   namedParamRegex: namedParamRegex,
   hashMatchRegex: hashMatchRegex,
   routeStringToRegExp: routeStringToRegExp,
-  isNullRouter: isNullRouter,
   isRoute: isRoute,
   nearestParentRouter: nearestParentRouter,
   registerOutlet: registerOutlet,

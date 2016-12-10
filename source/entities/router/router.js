@@ -18,7 +18,7 @@ fw[entityName] = {
   disableHistory: false,
   fileExtensions: '.js',
   defaultConfig: {
-    showDuringLoad: require('./router-defaults').noComponentSelected,
+    showDuringLoad: require('./router-config').noComponentSelected,
     onDispose: _.noop,
     baseRoute: '',
     activate: true,
