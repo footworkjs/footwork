@@ -1,2 +1,10 @@
-@import "source/styles/entity.scss";
-@import "source/styles/animation.scss";
+$animateInClass: 'animateIn';
+$animateInDuration: 0.5s;
+$normalDistance: 50px;
+$bigDistance: 200px;
+
+@import "../node_modules/footwork-animate/animate.scss";
+
+viewModel, dataModel, router, outlet {
+  display: block;
+}
