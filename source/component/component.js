@@ -14,8 +14,6 @@ require('./component-resource-loader');
 // Custom loader used to wrap components with the $lifecycle binding
 require('./component-lifecycle-loader');
 
-var getComponentExtension = require('../entities/resource-tools').getComponentExtension;
-
 fw.components.registeredLocations = {};
 
 fw.components.fileExtensions = {
@@ -49,7 +47,16 @@ function forceViewModelComponentConvention (componentLocation) {
 }
 
 fw.components.getFileName = function (componentName, fileType) {
-  return componentName + '.' + getComponentExtension(componentName, fileType);
+  var componentExtensions = fw.components.fileExtensions;
+  var fileExtension = '';
+
+  if (_.isFunction(componentExtensions[fileType])) {
+    fileExtension = componentExtensions[fileType](componentName);
+  } else {
+    fileExtension = componentExtensions[fileType] || '';
+  }
+
+  return componentName + '.' + (fileExtension.replace(/^\./, '') || '');
 };
 
 fw.components.registerLocation = function (componentName, componentLocation, folderOffset) {

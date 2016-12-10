@@ -41,7 +41,7 @@ var descriptor = {
   referenceNamespace: '__' + capitalizeFirstLetter(entityName) + 'Reference'
 };
 
-require('../resource-tools').addResourceTools(descriptor);
+require('../resource-tools')(descriptor);
 require('../entity-descriptors').push(descriptor);
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;

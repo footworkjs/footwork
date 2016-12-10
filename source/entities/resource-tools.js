@@ -1,10 +1,6 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var util = require('../misc/util');
-var isPath = util.isPath;
-var isAmdResolved = util.isAmdResolved;
-
 var regExpMatch = /^\/|\/$/g;
 
 /**
@@ -112,7 +108,7 @@ function getResourceOrLocation (descriptor, moduleName) {
  * @param {object} descriptor (as defined in each entity and extended onto the entity-descriptors)
  * @returns
  */
-function addResourceTools (descriptor) {
+function resourceTools (descriptor) {
   _.extend(descriptor.resource, {
     getFileName: _.partial(getFileName, descriptor),
     register: _.partial(register, descriptor),
@@ -127,28 +123,4 @@ function addResourceTools (descriptor) {
   return descriptor;
 }
 
-/**
- * Return the file name extension for the given componentName and fileType.
- *
- * @param {string} componentName
- * @param {string} fileType (combined/viewModel/template)
- * @returns {string} the file extension (ie: 'js')
- */
-function getComponentExtension (componentName, fileType) {
-  var componentExtensions = fw.components.fileExtensions;
-  var fileExtension = '';
-
-  if (_.isFunction(componentExtensions[fileType])) {
-    fileExtension = componentExtensions[fileType](componentName);
-  } else {
-    fileExtension = componentExtensions[fileType] || '';
-  }
-
-  return fileExtension.replace(/^\./, '') || '';
-}
-
-module.exports = {
-  addResourceTools: addResourceTools,
-  getComponentExtension: getComponentExtension,
-  getModelReferences: getModelReferences
-};
+module.exports = resourceTools;

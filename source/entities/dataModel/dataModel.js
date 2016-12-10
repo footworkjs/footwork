@@ -34,7 +34,7 @@ var descriptor = {
 };
 
 require('./map');
-require('../resource-tools').addResourceTools(descriptor);
+require('../resource-tools')(descriptor);
 require('../entity-descriptors').push(descriptor);
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
