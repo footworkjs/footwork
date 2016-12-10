@@ -447,7 +447,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           viewModel: function() {
             fw.viewModel.boot(this, {
               namespace: componentNamespaceName,
-              sequenceAnimations: 30
+              sequence: 30
             })
           }
         });

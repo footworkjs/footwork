@@ -53,15 +53,15 @@ function runAnimationSequenceQueue (queue, runNextStepNow) {
 
 /**
  * Add an element to be displayed into a queue. Either add to an existing one or insert into and return a new queue.
- * New queues are created based on the namespace of the viewModel and whether or not the viewModel is configured for/with a sequenceAnimations property
+ * New queues are created based on the namespace of the viewModel and whether or not the viewModel is configured for/with a sequence property
  *
  * @param {any} element The element that needs the animation class added
- * @param {any} viewModel The viewModel that contains a sequenceAnimations configuration option
+ * @param {any} viewModel The viewModel that contains a sequence configuration option
  * @returns {object} queue The animation sequence queue
  */
 function addToAndFetchQueue (element, viewModel) {
   var configParams = (viewModel[privateDataSymbol] || {}).configParams || {};
-  var sequenceTimeout = resultBound(configParams, 'sequenceAnimations', viewModel) || 0;
+  var sequenceTimeout = resultBound(configParams, 'sequence', viewModel) || 0;
   var namespaceName = configParams.namespace;
   var animationSequenceQueue = sequenceQueue[namespaceName] = (sequenceQueue[namespaceName] || []);
   var newSequenceIteration = {

@@ -17,7 +17,7 @@ fw[entityName] = {
     afterResolve: function resolveImmediately (resolveNow) {
       resolveNow(true);
     },
-    sequenceAnimations: false,
+    sequence: false,
     onDispose: _.noop
   }
 };
