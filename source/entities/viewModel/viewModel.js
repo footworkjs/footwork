@@ -14,7 +14,7 @@ fw[entityName] = {
   defaultConfig: {
     namespace: undefined,
     afterRender: _.noop,
-    afterResolving: function resolveImmediately (resolveNow) {
+    afterResolve: function resolveImmediately (resolveNow) {
       resolveNow(true);
     },
     sequenceAnimations: false,

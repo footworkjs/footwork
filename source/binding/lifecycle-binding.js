@@ -88,7 +88,7 @@ fw.bindingHandlers.$lifecycle = {
 };
 
 /**
- * Mark the element/tracker as resolved on the parent entity (if it exists) and supply the resolveInstanceNow callback to afterResolving which
+ * Mark the element/tracker as resolved on the parent entity (if it exists) and supply the resolveInstanceNow callback to afterResolve which
  * takes the user supplied isResolved value and adds the animation class via addAnimationClass when it has resolved.
  *
  * @param {DOMElement} element
@@ -139,7 +139,7 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
     }
 
    function maybeResolve () {
-      viewModel[privateDataSymbol].configParams.afterResolving.call(viewModel, resolveInstanceNow);
+      viewModel[privateDataSymbol].configParams.afterResolve.call(viewModel, resolveInstanceNow);
     }
 
     // have to delay child check for one tick to let sub-components/entities begin binding

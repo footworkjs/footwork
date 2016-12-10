@@ -455,7 +455,7 @@ define(['footwork', 'lodash'],
         fw.viewModel.register(parentNamespaceName, function() {
           fw.viewModel.boot(this, {
             namespace: parentNamespaceName,
-            afterResolving: parentResolver = jasmine.createSpy('parentResolver', function(resolve) {
+            afterResolve: parentResolver = jasmine.createSpy('parentResolver', function(resolve) {
               expect(childResolver).toHaveBeenCalled();
               resolve(true);
               done();
@@ -466,7 +466,7 @@ define(['footwork', 'lodash'],
         fw.viewModel.register(childNamespaceName, function() {
           fw.viewModel.boot(this, {
             namespace: childNamespaceName,
-            afterResolving: childResolver = jasmine.createSpy('childResolver', function(resolve) {
+            afterResolve: childResolver = jasmine.createSpy('childResolver', function(resolve) {
               setTimeout(function() {
                 expect(parentResolver).not.toHaveBeenCalled();
                 resolve(true);
@@ -489,7 +489,7 @@ define(['footwork', 'lodash'],
         fw.viewModel.register(parentNamespaceName, function() {
           fw.viewModel.boot(this, {
             namespace: parentNamespaceName,
-            afterResolving: parentResolver = jasmine.createSpy('parentResolver', function(resolve) {
+            afterResolve: parentResolver = jasmine.createSpy('parentResolver', function(resolve) {
               expect(childResolver).toHaveBeenCalled();
               expect(promiseResolvedSpy).toHaveBeenCalledTimes(2);
               resolve(true);
@@ -512,7 +512,7 @@ define(['footwork', 'lodash'],
         fw.viewModel.register(childNamespaceName, function() {
           fw.viewModel.boot(this, {
             namespace: childNamespaceName,
-            afterResolving: childResolver = jasmine.createSpy('childResolver', function(resolve) {
+            afterResolve: childResolver = jasmine.createSpy('childResolver', function(resolve) {
               setTimeout(function() {
                 expect(parentResolver).not.toHaveBeenCalled();
                 resolve([promiseA, promiseB]);
@@ -532,7 +532,7 @@ define(['footwork', 'lodash'],
         fw.viewModel.register(namespaceName, function() {
           fw.viewModel.boot(this, {
             namespace: namespaceName,
-            afterResolving: function(resolve) {
+            afterResolve: function(resolve) {
               expect(function() {
                 resolve([false]);
               }).toThrow();
