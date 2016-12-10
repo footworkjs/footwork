@@ -13,8 +13,7 @@ var postboxes = {};
  * @returns {object} subscribable communications channel
  */
 function postbox (namespaceName) {
-  postboxes[namespaceName] = postboxes[namespaceName] || new fw.subscribable();
-  return postboxes[namespaceName];
+  return postboxes[namespaceName] = postboxes[namespaceName] || new fw.subscribable();
 }
 
 /**
