@@ -37,11 +37,11 @@ require('../entity-descriptors').push(descriptor);
 
 var routerDefaults = require('../router/router-defaults');
 fw.components.register(routerDefaults.noComponentSelected, {
-  template: '<div class="--no-component-selected"></div>',
+  template: ' ',
   synchronus: true
 });
 fw.components.register(routerDefaults.nullComponent, {
-  template: '<div class="--null-component"></div>',
+  template: ' ',
   synchronus: true
 });
 
