@@ -10,7 +10,6 @@ var entityName = 'router';
 var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
 
 require('./route-binding');
-require('./outlet/outlet');
 
 fw[entityName] = {
   boot: require('./router-bootstrap'),

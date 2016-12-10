@@ -1,7 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var util = require('../../../misc/util');
+var util = require('../../misc/util');
 var capitalizeFirstLetter = util.capitalizeFirstLetter;
 var getSymbol = util.getSymbol;
 
@@ -32,10 +32,10 @@ var descriptor = {
   referenceNamespace: '__' + capitalizeFirstLetter(entityName) + 'Reference'
 };
 
-require('../../resource-tools')(descriptor);
-require('../../entity-descriptors').push(descriptor);
+require('../resource-tools')(descriptor);
+require('../entity-descriptors').push(descriptor);
 
-var routerDefaults = require('../router-defaults');
+var routerDefaults = require('../router/router-defaults');
 fw.components.register(routerDefaults.noComponentSelected, {
   template: '<div class="no-component-selected"></div>',
   synchronus: true

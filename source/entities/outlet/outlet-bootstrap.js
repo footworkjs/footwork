@@ -1,14 +1,14 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var entityDescriptors = require('../../entity-descriptors');
-var viewModelBootstrap = require('../../viewModel/viewModel-bootstrap');
+var entityDescriptors = require('../entity-descriptors');
+var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
 
-var util = require('../../../misc/util');
+var util = require('../../misc/util');
 var nextFrame = util.nextFrame;
 var privateDataSymbol = util.getSymbol('footwork');
 
-var routerDefaults = require('../../router/router-defaults');
+var routerDefaults = require('../router/router-defaults');
 var nullComponent = routerDefaults.nullComponent;
 
 var visibleCSS = { 'height': '', 'overflow': '' };

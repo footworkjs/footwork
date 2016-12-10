@@ -1,8 +1,8 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var bindingElement = require('../../../binding/binding-element');
-var routerDefaults = require('../router-defaults');
+var bindingElement = require('../../binding/binding-element');
+var routerDefaults = require('../router/router-defaults');
 var outletLoadedDisplay = routerDefaults.outletLoadedDisplay;
 var outletLoadingDisplay = routerDefaults.outletLoadingDisplay;
 

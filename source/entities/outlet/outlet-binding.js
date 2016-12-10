@@ -1,8 +1,8 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var privateDataSymbol = require('../../../misc/util').getSymbol('footwork');
-var nearestParentRouter = require('../router-tools').nearestParentRouter;
+var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
+var nearestParentRouter = require('../router/router-tools').nearestParentRouter;
 
 /**
  * This custom binding binds/registers the outlet on the router
