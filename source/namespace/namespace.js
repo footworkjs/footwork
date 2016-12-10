@@ -3,24 +3,16 @@ var _ = require('footwork-lodash');
 
 var privateDataSymbol = require('../misc/util').getSymbol('footwork');
 
-// Namespace postbox-based communication based on: http://www.knockmeout.net/2012/05/using-ko-native-pubsub.html
+/**
+ * Namespace postbox-based communication based on: http://www.knockmeout.net/2012/05/using-ko-native-pubsub.html
+ */
 var postboxes = {};
 
 /**
- * Generate and/or return the postbox communications channel for a given namespaceName
- *
- * @param {string} namespaceName The namespace channel for the postbox
- * @returns {object} subscribable communications channel
- */
-function postbox (namespaceName) {
-  return postboxes[namespaceName] = postboxes[namespaceName] || new fw.subscribable();
-}
-
-/**
- * Construct a new namespace instance.
+ * Construct a new namespace instance. The generator also creates or returns an instance of the namespace subscribable.
  *
  * @param {string} namespaceName
- * @returns
+ * @returns {object} the namespace (this)
  */
 function Namespace (namespaceName) {
   if (!(this instanceof Namespace)) {
@@ -29,7 +21,7 @@ function Namespace (namespaceName) {
 
   this[privateDataSymbol] = {
     namespaceName: namespaceName || '__footwork',
-    postbox: postbox(namespaceName),
+    postbox: postboxes[namespaceName] = postboxes[namespaceName] || new fw.subscribable(),
     subscriptions: []
   };
 }
