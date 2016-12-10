@@ -18,7 +18,6 @@ var clearSequenceQueue = require('../../binding/animation-sequencing').clearSequ
 var routerDefaults = require('./router-defaults');
 var noComponentSelected = routerDefaults.noComponentSelected;
 var nullComponent = routerDefaults.nullComponent;
-var defaultLoadingComponent = routerDefaults.defaultLoadingComponent;
 var activeOutlets = routerDefaults.activeOutlets;
 
 module.exports = {
@@ -62,10 +61,6 @@ module.exports = {
 
       // Show the loading component (if one is defined)
       var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || outlet().name]);
-      if (showDuringLoadComponent === true) {
-        showDuringLoadComponent = defaultLoadingComponent;
-      }
-
       if (showDuringLoadComponent) {
         outletViewModel.loadingDisplay(showDuringLoadComponent);
       }

@@ -37,21 +37,11 @@ require('../entity-descriptors').push(descriptor);
 
 var routerDefaults = require('../router/router-defaults');
 fw.components.register(routerDefaults.noComponentSelected, {
-  template: '<div class="no-component-selected"></div>',
+  template: '<div class="--no-component-selected"></div>',
   synchronus: true
 });
 fw.components.register(routerDefaults.nullComponent, {
-  template: '<div class="null-component"></div>',
-  synchronus: true
-});
-fw.components.register(routerDefaults.defaultLoadingComponent, {
-  template: '<div class="sk-wave ' + routerDefaults.defaultLoadingComponent + ' fade-in">\
-               <div class="sk-rect sk-rect1"></div>\
-               <div class="sk-rect sk-rect2"></div>\
-               <div class="sk-rect sk-rect3"></div>\
-               <div class="sk-rect sk-rect4"></div>\
-               <div class="sk-rect sk-rect5"></div>\
-            </div>',
+  template: '<div class="--null-component"></div>',
   synchronus: true
 });
 

@@ -1070,63 +1070,6 @@ define(['footwork', 'lodash'],
         }, 0);
       });
 
-      it('can display the default temporary loading component in place of a component that is being downloaded', function(done) {
-        var mockUrl = generateUrl();
-        var outletLoaderTestLoadingNamespace = randomString();
-        var outletLoaderTestLoadedNamespace = randomString();
-        var routerNamespace = randomString();
-        var changeOutletControllerSpy;
-        var outletCallbackSpy;
-        var outletLoaderTestLoadedSpy;
-
-        function router(name) {
-          return fw.router.get(name);
-        }
-
-        fw.components.register(outletLoaderTestLoadedNamespace, {
-          viewModel: outletLoaderTestLoadedSpy = jasmine.createSpy('outletLoaderTestLoadedSpy'),
-          template: '<div class="' + outletLoaderTestLoadedNamespace + '"></div>'
-        });
-
-        fw.router.register(routerNamespace, function() {
-          fw.router.boot(this, {
-            namespace: routerNamespace,
-            showDuringLoad: true,
-            routes: [
-              {
-                route: mockUrl,
-                controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', outletLoaderTestLoadedNamespace, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
-                    expect(element.tagName.toLowerCase()).toBe('outlet');
-                    expect($(element).find('.default-loading-display').length).toBe(1);
-                  }).and.callThrough());
-                }).and.callThrough()
-              }
-            ]
-          });
-        });
-
-        expect(changeOutletControllerSpy).toBe(undefined);
-        expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
-
-        fw.start(testContainer = getFixtureContainer('<router module="' + routerNamespace + '">\
-          <outlet name="output"></outlet>\
-        </router>'));
-
-        setTimeout(function() {
-          router(routerNamespace).replaceState(mockUrl);
-
-          expect(changeOutletControllerSpy).toHaveBeenCalled();
-          expect(outletCallbackSpy).not.toHaveBeenCalled();
-
-          setTimeout(function() {
-            expect(outletLoaderTestLoadedSpy).toHaveBeenCalled();
-            expect(outletCallbackSpy).toHaveBeenCalled();
-            done();
-          }, ajaxWait);
-        }, 0);
-      });
-
       it('can display a temporary loading component (source from callback) in place of a component that is being downloaded', function(done) {
         var mockUrl = generateUrl();
         var outletLoaderTestLoadingNamespace = randomString();

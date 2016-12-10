@@ -4,7 +4,6 @@ var nullRouter = {};
 nullRouter[require('../../misc/util').getSymbol('isNullRouter')] = true;
 
 module.exports = {
-  defaultLoadingComponent: 'default-loading-display',
   noComponentSelected: '_noComponentSelected',
   nullComponent: '_nullComponent',
   invalidRoutePathIdentifier: '___invalid-route',
