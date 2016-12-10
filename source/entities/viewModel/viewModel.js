@@ -32,7 +32,7 @@ var descriptor = {
   },
   registeredLocations: {},
   registered: {},
-  referenceNamespace: '__' + capitalizeFirstLetter(entityName) + 'Reference'
+  referenceNamespace: getSymbol(entityName)
 };
 
 require('../resource-tools')(descriptor);

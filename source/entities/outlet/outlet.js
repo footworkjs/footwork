@@ -29,7 +29,7 @@ var descriptor = {
   isEntity: function (thing) {
     return _.isObject(thing) && !!thing[isEntityDuckTag];
   },
-  referenceNamespace: '__' + capitalizeFirstLetter(entityName) + 'Reference'
+  referenceNamespace: getSymbol(entityName)
 };
 
 require('../resource-tools')(descriptor);
