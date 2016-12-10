@@ -61,14 +61,13 @@ function runAnimationSequenceQueue (queue, runNextStepNow) {
  */
 function addToAndFetchQueue (element, viewModel) {
   var configParams = (viewModel[privateDataSymbol] || {}).configParams || {};
-  var sequenceTimeout = resultBound(configParams, 'sequence', viewModel) || 0;
   var namespaceName = configParams.namespace;
   var animationSequenceQueue = sequenceQueue[namespaceName] = (sequenceQueue[namespaceName] || []);
   var newSequenceIteration = {
     addAnimationClass: function addBindingFromQueue () {
       addClass(element, fw.animationClass.animateIn);
     },
-    nextIteration: sequenceTimeout
+    nextIteration: configParams.sequence
   };
 
   fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
