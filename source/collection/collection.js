@@ -34,6 +34,7 @@ function addAndNotify (originalFunction) {
   return originalResult;
 }
 
+var collectionCount = 0;
 fw.collection = function createCollection (collectionData, configParams) {
   if (!_.isArray(collectionData)) {
     configParams = collectionData;
@@ -46,7 +47,7 @@ fw.collection = function createCollection (collectionData, configParams) {
   var collection = fw.observableArray();
 
   _.extend(collection, collectionMethods, {
-    $namespace: fw.namespace(configParams.namespace || _.uniqueId('collection')),
+    $namespace: fw.namespace(configParams.namespace || ('collection' + collectionCount++)),
     remove: _.bind(removeDisposeAndNotify, collection, collection.remove),
     pop: _.bind(removeDisposeAndNotify, collection, collection.pop),
     shift: _.bind(removeDisposeAndNotify, collection, collection.shift),

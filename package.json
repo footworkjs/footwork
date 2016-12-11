@@ -61,7 +61,7 @@
     "knockout": "3.4.1",
     "less-plugin-autoprefix": "1.5.1",
     "less-plugin-clean-css": "1.5.1",
-    "footwork-lodash": "2.0.0",
+    "footwork-lodash": "2.0.1",
     "footwork-animate": "3.5.13",
     "requirejs": "*",
     "requirejs-text": "*",

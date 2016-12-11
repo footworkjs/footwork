@@ -5,6 +5,12 @@ var entityDescriptors = require('../entity-descriptors');
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 var resultBound = require('../../misc/util').resultBound;
 
+var entityCount = {};
+function getNextEntity(entityName) {
+  entityCount[entityName] = entityCount[entityName] || 0;
+  return entityCount[entityName]++;
+}
+
 /**
  * Bootstrap an instance with viewModel capabilities (lifecycle/etc).
  *
@@ -25,7 +31,7 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
     instance[descriptor.isEntityDuckTag] = true;
 
     configParams = _.extend({}, descriptor.resource.defaultConfig, {
-      namespace: (configParams || {}).namespace ? null : _.uniqueId(requestHandlerDescriptor.entityName)
+      namespace: (configParams || {}).namespace ? null : getNextEntity(requestHandlerDescriptor.entityName)
     }, configParams);
 
     instance[privateDataSymbol] = {

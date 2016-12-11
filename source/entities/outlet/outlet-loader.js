@@ -8,9 +8,7 @@ var outletLoadingDisplay = routerConfig.outletLoadingDisplay;
 
 
 function Outlet () {
-  fw.outlet.boot(this, {
-    namespace: _.uniqueId('outlet')
-  });
+  fw.outlet.boot(this);
 }
 
 /**
