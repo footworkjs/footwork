@@ -25,7 +25,7 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
     instance[descriptor.isEntityDuckTag] = true;
 
     configParams = _.extend({}, descriptor.resource.defaultConfig, {
-      namespace: (configParams || {}).namespace ? null : _.uniqueId('instance')
+      namespace: (configParams || {}).namespace ? null : _.uniqueId(requestHandlerDescriptor.entityName)
     }, configParams);
 
     instance[privateDataSymbol] = {
