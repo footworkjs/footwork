@@ -42,7 +42,7 @@ function componentBindingInit (element, valueAccessor, allBindings, viewModel, b
     }
   }
 
-  if (entityDescriptors.tagNameIsPresent(tagName)) {
+  if (entityDescriptors.getDescriptor(tagName)) {
     // save the tracker so that the (../entities/entity-loader) loader can find out what module was requested (the element is not available to it so we save it here for reference later)
     setLoadingTracker(loadingTracker);
 
