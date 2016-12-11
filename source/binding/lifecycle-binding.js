@@ -140,7 +140,11 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
       viewModel[privateDataSymbol].configParams.afterResolve.call(viewModel, resolveInstanceNow);
     }
 
-    // have to delay child check for one tick to let sub-components/entities begin binding
+    /**
+     * Have to delay child check for one tick to let its children begin binding.
+     * By doing this they have a chance to add/register themselves to/with loadingChildren()
+     * before we check its length and determine if we need to wait for any children to resolve.
+     */
     setTimeout(function () {
       var loadingChildren = viewModel[privateDataSymbol].loadingChildren;
 
