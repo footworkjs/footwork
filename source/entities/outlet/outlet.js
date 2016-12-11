@@ -33,8 +33,7 @@ var descriptor = {
 require('../resource-tools')(descriptor);
 require('../entity-descriptors').push(descriptor);
 
-var routerDefaults = require('../router/router-config');
-fw.components.register(routerDefaults.noComponentSelected, {
+fw.components.register(require('../router/router-config').noComponentSelected, {
   template: ' ',
   synchronus: true
 });

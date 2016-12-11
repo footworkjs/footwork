@@ -9,8 +9,8 @@ var resultBound = util.resultBound;
 var alwaysPassPredicate = util.alwaysPassPredicate;
 var privateDataSymbol = util.getSymbol('footwork');
 
-var routerDefaults = require('./router-config');
-var baseRoute = routerDefaults.baseRoute;
+var routerConfig = require('./router-config');
+var baseRoute = routerConfig.baseRoute;
 
 var optionalParamRegex = /\((.*?)\)/g;
 var namedParamRegex = /(\(\?)?:\w+/g;

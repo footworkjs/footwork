@@ -8,8 +8,8 @@ var util = require('../../misc/util');
 var nextFrame = util.nextFrame;
 var privateDataSymbol = util.getSymbol('footwork');
 
-var routerDefaults = require('../router/router-config');
-var noComponentSelected = routerDefaults.noComponentSelected;
+var routerConfig = require('../router/router-config');
+var noComponentSelected = routerConfig.noComponentSelected;
 
 var visibleCSS = { 'height': '', 'overflow': '' };
 var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };

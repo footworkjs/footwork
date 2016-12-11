@@ -14,9 +14,9 @@ var privateDataSymbol = util.getSymbol('footwork');
 
 var viewModelMethodDispose = require('../viewModel/viewModel-methods').dispose;
 var clearSequenceQueue = require('../../binding/animation-sequencing').clearSequenceQueue;
-var routerDefaults = require('./router-config');
-var noComponentSelected = routerDefaults.noComponentSelected;
-var noComponentSelected = routerDefaults.noComponentSelected;
+var routerConfig = require('./router-config');
+var noComponentSelected = routerConfig.noComponentSelected;
+var noComponentSelected = routerConfig.noComponentSelected;
 
 var activeOutlets = fw.observableArray();
 

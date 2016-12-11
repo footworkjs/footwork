@@ -10,9 +10,9 @@ var nearestEntity = entityTools.nearestEntity;
 var isEntity = entityTools.isEntity;
 var isRouter = entityTools.isRouter;
 
-var routerDefaults = require('../entities/router/router-config');
-var outletLoadedDisplay = routerDefaults.outletLoadedDisplay;
-var outletLoadingDisplay = routerDefaults.outletLoadingDisplay;
+var routerConfig = require('../entities/router/router-config');
+var outletLoadedDisplay = routerConfig.outletLoadedDisplay;
+var outletLoadingDisplay = routerConfig.outletLoadingDisplay;
 
 var util = require('../misc/util');
 var addClass = util.addClass;
