@@ -6,7 +6,6 @@ var capitalizeFirstLetter = util.capitalizeFirstLetter;
 var getSymbol = util.getSymbol;
 
 var entityName = 'dataModel';
-var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
 
 fw[entityName] = {
   boot: require('./dataModel-bootstrap'),
@@ -24,9 +23,9 @@ var descriptor = {
   tagName: entityName.toLowerCase(),
   entityName: entityName,
   resource: fw[entityName],
-  isEntityDuckTag: isEntityDuckTag,
+  isEntityDuckTag: getSymbol('is' + capitalizeFirstLetter(entityName)),
   isEntity: function (thing) {
-    return _.isObject(thing) && !!thing[isEntityDuckTag];
+    return _.isObject(thing) && thing[descriptor.isEntityDuckTag];
   },
   registeredLocations: {},
   registered: {},

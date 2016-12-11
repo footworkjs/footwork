@@ -7,7 +7,6 @@ var getSymbol = util.getSymbol;
 var alwaysPassPredicate = util.alwaysPassPredicate;
 
 var entityName = 'router';
-var isEntityDuckTag = getSymbol('is' + capitalizeFirstLetter(entityName));
 
 require('./route-binding');
 
@@ -31,9 +30,9 @@ var descriptor = {
   tagName: entityName.toLowerCase(),
   entityName: entityName,
   resource: fw[entityName],
-  isEntityDuckTag: isEntityDuckTag,
+  isEntityDuckTag: getSymbol('is' + capitalizeFirstLetter(entityName)),
   isEntity: function (thing) {
-    return _.isObject(thing) && !!thing[isEntityDuckTag];
+    return _.isObject(thing) && thing[descriptor.isEntityDuckTag];
   },
   registeredLocations: {},
   registered: {},
