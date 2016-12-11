@@ -125,20 +125,18 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
           }
 
           var promises = _.map([].concat(isResolved), makePromiseQueryable);
-          var checkPromise = function (promise) {
+          _.each(promises, function checkPromise (promise) {
             promise.then(function () {
               if (_.every(promises, promiseIsFulfilled)) {
                 finishResolution();
               }
             });
-          };
-
-          _.each(promises, checkPromise);
+          });
         }
       }
     }
 
-   function maybeResolve () {
+    function maybeResolve () {
       viewModel[privateDataSymbol].configParams.afterResolve.call(viewModel, resolveInstanceNow);
     }
 
