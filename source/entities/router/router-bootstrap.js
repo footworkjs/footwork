@@ -70,18 +70,18 @@ function routerBootstrap (instance, configParams) {
     instance.disposeWithInstance(
       fw.computed(function () {
         // Automatically trigger the currentRoute controller whenever the currentRoute() updates and the router is activated
-        var currentRoute = instance[privateDataSymbol].currentRoute();
+        var currentRoute = privateData.currentRoute();
         var $currentState = instance.$currentState();
         var activated = instance.$activated();
         if (activated && currentRoute) {
           if (($currentState || '').indexOf('#') !== -1) {
             var fragmentIdentifier = $currentState.split('#')[1];
-            instance[privateDataSymbol].scrollToFragment = function () {
+            privateData.scrollToFragment = function () {
               var elementToScrollTo = document.getElementById(fragmentIdentifier);
               elementToScrollTo && elementToScrollTo.scrollIntoView();
             };
           } else {
-            instance[privateDataSymbol].scrollToFragment = _.noop;
+            privateData.scrollToFragment = _.noop;
           }
 
           triggerRoute(instance, currentRoute);
@@ -93,9 +93,9 @@ function routerBootstrap (instance, configParams) {
           // activate the router
 
           // set the current state as of page-load
-          instance[privateDataSymbol].activating = true;
+          privateData.activating = true;
           instance.pushState(getLocation());
-          instance[privateDataSymbol].activating = false;
+          privateData.activating = false;
 
           // setup html5 history event listener
           /* istanbul ignore if */
@@ -108,7 +108,7 @@ function routerBootstrap (instance, configParams) {
               window[eventInfo[0]](eventInfo[1] + 'popstate', popstateEvent, false);
             })(window.addEventListener ? ['addEventListener', ''] : /* istanbul ignore next */ ['attachEvent', 'on']);
 
-            instance[privateDataSymbol].historyPopstateListener(popstateEvent);
+            privateData.historyPopstateListener(popstateEvent);
           }
 
           // notify any listeners of the activation event
@@ -117,7 +117,7 @@ function routerBootstrap (instance, configParams) {
           // deactivate the router
 
           // dispose of the history popstate event listener
-          var historyPopstateListener = instance[privateDataSymbol].historyPopstateListener();
+          var historyPopstateListener = privateData.historyPopstateListener();
           /* istanbul ignore if */
           if (historyPopstateListener) {
             (function popStateListener (eventInfo) {
