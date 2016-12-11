@@ -1,7 +1,7 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var makeOrGetRequest = require('../misc/ajax').makeOrGetRequest;
+var ajax = require('../misc/ajax');
 var privateDataSymbol = require('../misc/util').getSymbol('footwork');
 
 /**
@@ -228,7 +228,6 @@ function reset (newCollection) {
 }
 
 function fetch (options) {
-  var ajax = require('../misc/ajax');
   var collection = this;
   var configParams = collection[privateDataSymbol].configParams;
   options = options ? _.clone(options) : {};
@@ -263,7 +262,7 @@ function fetch (options) {
     }
   };
 
-  return makeOrGetRequest('fetch', requestInfo);
+  return ajax.makeOrGetRequest('fetch', requestInfo);
 }
 
 function where (modelData, options) {
@@ -355,7 +354,6 @@ function add (models, options) {
 }
 
 function create (model, options) {
-  var ajax = require('../misc/ajax');
   var collection = this;
   var castAsDataModel = collection[privateDataSymbol].castAs.dataModel;
   var configParams = collection[privateDataSymbol].configParams;
@@ -365,7 +363,7 @@ function create (model, options) {
     throw Error('No dataModel specified, cannot create() a new collection item');
   }
 
-  return makeOrGetRequest('create', {
+  return ajax.makeOrGetRequest('create', {
     requestRunning: collection.isCreating,
     requestLull: configParams.requestLull,
     entity: collection,

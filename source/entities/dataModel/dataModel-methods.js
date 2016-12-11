@@ -2,6 +2,7 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
+var ajax = require('../../misc/ajax');
 var dataTools = require('./data-tools');
 var insertValueIntoObject = dataTools.insertValueIntoObject;
 var getNestedReference = dataTools.getNestedReference;
@@ -22,7 +23,6 @@ function isNode (thing) {
  * @returns {object} Promise Promise for the HTTP Request
  */
 function fetchModel (options) {
-  var ajax = require('../../misc/ajax');
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
   var requestInfo = {
@@ -60,7 +60,6 @@ function fetchModel (options) {
  * @returns {object} Promise Promise for the HTTP Request
  */
 function save (attrs, options) {
-  var ajax = require('../../misc/ajax');
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
   var attrs = isNode(attrs) ? {} : attrs;
@@ -109,7 +108,6 @@ function save (attrs, options) {
  * @returns {object} Promise for the HTTP Request
  */
 function destroy (wait) {
-  var ajax = require('../../misc/ajax');
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
   var requestInfo = {
