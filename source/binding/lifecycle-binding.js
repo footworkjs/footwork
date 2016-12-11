@@ -8,7 +8,6 @@ var runAnimationSequenceQueue = animationSequencing.runAnimationSequenceQueue;
 var entityTools = require('../entities/entity-tools');
 var nearestEntity = entityTools.nearestEntity;
 var isEntity = entityTools.isEntity;
-var isRouter = entityTools.isRouter;
 
 var routerConfig = require('../entities/router/router-config');
 var outletLoadedDisplay = routerConfig.outletLoadedDisplay;
@@ -19,8 +18,9 @@ var addClass = util.addClass;
 var hasClass = util.hasClass;
 var isPromise = util.isPromise;
 var promiseIsFulfilled = util.promiseIsFulfilled;
-var getSymbol = util.getSymbol;
+
 var privateDataSymbol = util.getSymbol('footwork');
+var loadingTrackerSymbol = util.getSymbol('loadingTracker');
 
 var makePromiseQueryable = require('../misc/ajax').makePromiseQueryable;
 
@@ -97,7 +97,7 @@ fw.bindingHandlers.$lifecycle = {
  * @param {function} addAnimationClass
  */
 function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationClass) {
-  var loadingTracker = element[getSymbol('loadingTracker')];
+  var loadingTracker = element[loadingTrackerSymbol];
   var loadingParentChildren;
 
   var parentEntity = nearestEntity($context.$parentContext);
