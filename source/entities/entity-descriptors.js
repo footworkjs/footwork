@@ -6,7 +6,7 @@ module.exports = _.extend([
   getDescriptor: function getDescriptor (tagName) {
     tagName = tagName.toLowerCase();
     return _.reduce(this, function reduceDescriptor (foundDescriptor, descriptor) {
-      return descriptor.tagName.toLowerCase() === tagName ? descriptor : foundDescriptor;
+      return descriptor.entityName.toLowerCase() === tagName ? descriptor : foundDescriptor;
     }, null);
   }
 });

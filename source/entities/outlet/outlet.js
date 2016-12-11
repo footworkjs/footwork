@@ -21,12 +21,11 @@ fw[entityName] = {
 };
 
 var descriptor = {
-  tagName: entityName.toLowerCase(),
   entityName: entityName,
   resource: fw[entityName],
   isEntityDuckTag: getSymbol('is' + capitalizeFirstLetter(entityName)),
   isEntity: function (thing) {
-    return _.isObject(thing) && !!thing[descriptor.isEntityDuckTag];
+    return _.isObject(thing) && thing[descriptor.isEntityDuckTag];
   },
   referenceNamespace: getSymbol(entityName)
 };

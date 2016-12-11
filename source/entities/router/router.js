@@ -27,7 +27,6 @@ fw[entityName] = {
 };
 
 var descriptor = {
-  tagName: entityName.toLowerCase(),
   entityName: entityName,
   resource: fw[entityName],
   isEntityDuckTag: getSymbol('is' + capitalizeFirstLetter(entityName)),
