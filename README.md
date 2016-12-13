@@ -16,7 +16,7 @@ It has features such as:
 * Automatic resolution and binding of declarative resources
 * Page routing with unlimited outlet support
 * Transition effect and animation system including sequenced animations
-* Simple one-file use not requiring dependencies or build systems (but it works great with them)
+* Simple one-file use with no dependencies and not requiring any build system (but it works great with them)
 * Much, much more...
 
 For more details, [see the main website](http://footworkjs.com/ "http://footworkjs.com").
