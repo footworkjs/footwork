@@ -144,7 +144,7 @@ Contributions are encouraged, please feel free to fork the repository and begin 
 * If creating a new feature, please also add the corresponding test(s) for it.
 * In your pull-request, please do not include an update dist build (generated via *gulp dist*), that is a final step done prior to release.
 
-### Documentation and Website Contributions
+#### Documentation and Website Contributions
 
 There are companion repositories for both the documentation and website, please contribute to those:
 
