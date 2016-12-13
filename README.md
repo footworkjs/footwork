@@ -17,7 +17,6 @@ It has features such as:
 * Page routing with unlimited outlet support
 * Transition effect and animation system including sequenced animations
 * Simple one-file use not requiring dependencies or build systems (but it works great with them)
-* Retains all of and retains compatibility with the slick features of KnockoutJS (and its various plugins)
 * Much, much more...
 
 For more details, [see the main website](http://footworkjs.com/ "http://footworkjs.com").
