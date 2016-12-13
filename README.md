@@ -1,5 +1,4 @@
 ![footwork.js](https://raw.github.com/footworkjs/footwork/master/dist/gh-footwork-logo.png)
-========
 
 *```A solid footing for web applications.```*
 
@@ -24,8 +23,6 @@ It has features such as:
 For more details, [see the main website](http://footworkjs.com/ "http://footworkjs.com").
 
 [![Join the chat at https://gitter.im/footworkjs/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/footworkjs/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-========
 
 ### Downloading / Installing Footwork
 
