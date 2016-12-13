@@ -11,6 +11,16 @@
 
 Footwork is a frontend javascript framework based on [KnockoutJS](http://knockoutjs.com/) that aims to be fully featured, expressive, and easy to use while remaining as idiomatic and compatible with Knockout and its existing code base as possible.
 
+It has features such as:
+
+* Custom elements/components and declarative view models
+* Automatic resolution and binding of declarative resources
+* Page routing with unlimited outlet support
+* Transition effect and animation system including sequenced animations
+* Simple one-file use not requiring dependencies or build systems (but it works great with them)
+* Retains all of and retains compatibility with the slick features of KnockoutJS (and its various plugins)
+* Much, much more...
+
 For more details, [see the main website](http://footworkjs.com/ "http://footworkjs.com").
 
 [![Join the chat at https://gitter.im/footworkjs/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/footworkjs/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -57,7 +67,7 @@ Contributions are encouraged, please feel free to fork the repository and begin 
 
 * Please continue the coding style expressed in the rest of source.
 * If creating a new feature, please also add the corresponding test(s) for it.
-* In your pull-request, please do not include an update dist build (generated via *gulp dist*), that is a final step done prior to release.
+* In your pull-request, please do not include an updated `dist/` build (generated via *gulp dist*), that is a final step done prior to release.
 
 #### Documentation and Website Contributions
 
