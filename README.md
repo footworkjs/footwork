@@ -57,7 +57,7 @@ Contributions are encouraged, please feel free to fork the repository and begin 
 1. **Clone** the project to your own machine
 1. **Commit** changes to your own branch
 1. **Push** your work back up to your fork
-1. Submit a **Pull request** so that your changes can be reviewed
+1. Submit a **Pull request** to the **dev** branch so that your changes can be reviewed
 
 #### Submission Notes
 
