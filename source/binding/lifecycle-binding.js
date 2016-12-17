@@ -114,17 +114,17 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
 
   if (isEntity(viewModel)) {
     var wasResolved = false;
-    function resolveInstanceNow (isResolved) {
+    function resolveInstanceNow (promisesToWaitFor) {
       if (!wasResolved) {
         wasResolved = true;
-        if (_.isUndefined(isResolved)) {
+        if (_.isUndefined(promisesToWaitFor)) {
           finishResolution();
           return Promise.resolve();
-        } else if (isPromise(isResolved) || _.isArray(isResolved) && _.every([].concat(isResolved), isPromise)) {
-          var allPromises = new Promise(function (resolve) {
-            var promises = _.map([].concat(isResolved), makePromiseQueryable);
-            _.each(promises, function checkPromise (promise) {
-              promise.then(function () {
+        } else if (isPromise(promisesToWaitFor) || _.isArray(promisesToWaitFor) && _.every([].concat(promisesToWaitFor), isPromise)) {
+          return new Promise(function (resolve) {
+            var promises = _.map([].concat(promisesToWaitFor), makePromiseQueryable);
+            _.each(promises, function waitForPromise (promise) {
+              promise.then(function checkAllPromises () {
                 if (_.every(promises, promiseIsFulfilled)) {
                   resolve();
                   finishResolution();
@@ -132,8 +132,6 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
               });
             });
           });
-
-          return allPromises;
         } else {
           throw Error('Can only pass promises to resolve callback');
         }
