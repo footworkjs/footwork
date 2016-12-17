@@ -119,11 +119,7 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
         wasResolved = true;
         if (_.isUndefined(isResolved)) {
           finishResolution();
-        } else if (isPromise(isResolved) || _.isArray(isResolved)) {
-          if (!_.every([].concat(isResolved), isPromise)) {
-            throw Error('Can only pass array of promises to resolved()');
-          }
-
+        } else if (isPromise(isResolved) || _.isArray(isResolved) && _.every([].concat(isResolved), isPromise)) {
           var promises = _.map([].concat(isResolved), makePromiseQueryable);
           _.each(promises, function checkPromise (promise) {
             promise.then(function () {
@@ -132,6 +128,8 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
               }
             });
           });
+        } else {
+          throw Error('Can only pass promises to resolve callback');
         }
       }
     }
