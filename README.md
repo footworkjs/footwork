@@ -16,10 +16,14 @@ It has features such as:
 * Automatic resolution and binding of declarative resources
 * Page routing with unlimited outlet support
 * Transition effect and animation system including sequenced animations
-* Simple one-file use with no dependencies and not requiring any build system (but it works great with them)
+* Simple one-file use with no dependencies
+* Does not require a build system or module loader (but it works great with them)
 * Much, much more...
 
-For more details, [see the main website](http://footworkjs.com/ "http://footworkjs.com").
+For more details see:
+
+* Main Website: [http://footworkjs.com/](http://footworkjs.com/ "Main Website")
+* Documentation: [http://docs.footworkjs.com/latest](http://docs.footworkjs.com/latest "Documentation")
 
 [![Join the chat at https://gitter.im/footworkjs/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/footworkjs/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 

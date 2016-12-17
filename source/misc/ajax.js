@@ -122,7 +122,7 @@ function sync (action, concern, options) {
     // string specified, use the default method for this action and url
     method = methodMap[action];
     if (!_.isString(method)) {
-      throw Error('Invalid action resolved for sync operation');
+      throw Error('Invalid action resolved for ' + action + ' sync operation');
     }
 
     // add the :id to the url if needed
