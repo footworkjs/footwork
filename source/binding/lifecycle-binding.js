@@ -113,33 +113,29 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
   }
 
   if (isEntity(viewModel)) {
-    var wasResolved = false;
     function resolveInstanceNow (promisesToWaitFor) {
-      if (!wasResolved) {
-        wasResolved = true;
-        if (_.isUndefined(promisesToWaitFor)) {
-          finishResolution();
-          return Promise.resolve();
-        } else if (isPromise(promisesToWaitFor) || _.isArray(promisesToWaitFor) && _.every([].concat(promisesToWaitFor), isPromise)) {
-          return new Promise(function (resolve) {
-            var promises = _.map([].concat(promisesToWaitFor), makePromiseQueryable);
-            _.each(promises, function waitForPromise (promise) {
-              promise.then(function checkAllPromises () {
-                if (_.every(promises, promiseIsFulfilled)) {
-                  resolve();
-                  finishResolution();
-                }
-              });
+      if (_.isUndefined(promisesToWaitFor)) {
+        finishResolution();
+        return Promise.resolve();
+      } else if (isPromise(promisesToWaitFor) || _.isArray(promisesToWaitFor) && _.every([].concat(promisesToWaitFor), isPromise)) {
+        return new Promise(function (resolve) {
+          var promises = _.map([].concat(promisesToWaitFor), makePromiseQueryable);
+          _.each(promises, function waitForPromise (promise) {
+            promise.then(function checkAllPromises () {
+              if (_.every(promises, promiseIsFulfilled)) {
+                resolve();
+                finishResolution();
+              }
             });
           });
-        } else {
-          throw Error('Can only pass promises to resolve callback');
-        }
+        });
+      } else {
+        throw Error('Can only pass promises to resolve callback');
       }
     }
 
     function maybeResolve () {
-      viewModel[privateDataSymbol].configParams.afterResolve.call(viewModel, resolveInstanceNow);
+      viewModel[privateDataSymbol].configParams.afterResolve.call(viewModel, _.once(resolveInstanceNow));
     }
 
     /**
