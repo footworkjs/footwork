@@ -117,7 +117,7 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
     function resolveInstanceNow (isResolved) {
       if (!wasResolved) {
         wasResolved = true;
-        if (isResolved === true) {
+        if (_.isUndefined(isResolved)) {
           finishResolution();
         } else if (isPromise(isResolved) || _.isArray(isResolved)) {
           if (!_.every([].concat(isResolved), isPromise)) {

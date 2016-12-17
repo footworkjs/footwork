@@ -14,7 +14,7 @@ fw[entityName] = {
     namespace: undefined,
     afterRender: _.noop,
     afterResolve: function resolveImmediately (resolveNow) {
-      resolveNow(true);
+      resolveNow();
     },
     sequence: false,
     onDispose: _.noop

@@ -457,7 +457,7 @@ define(['footwork', 'lodash'],
             namespace: parentNamespaceName,
             afterResolve: parentResolver = jasmine.createSpy('parentResolver', function(resolve) {
               expect(childResolver).toHaveBeenCalled();
-              resolve(true);
+              resolve();
               done();
             }).and.callThrough()
           });
@@ -469,7 +469,7 @@ define(['footwork', 'lodash'],
             afterResolve: childResolver = jasmine.createSpy('childResolver', function(resolve) {
               setTimeout(function() {
                 expect(parentResolver).not.toHaveBeenCalled();
-                resolve(true);
+                resolve();
               }, 150);
             }).and.callThrough()
           });
@@ -492,7 +492,7 @@ define(['footwork', 'lodash'],
             afterResolve: parentResolver = jasmine.createSpy('parentResolver', function(resolve) {
               expect(childResolver).toHaveBeenCalled();
               expect(promiseResolvedSpy).toHaveBeenCalledTimes(2);
-              resolve(true);
+              resolve();
               done();
             }).and.callThrough()
           });
@@ -501,12 +501,12 @@ define(['footwork', 'lodash'],
         var promiseResolvedSpy = jasmine.createSpy('promiseResolvedSpy');
         var promiseA = new Promise(function(resolve) {
           setTimeout(function() {
-            resolve(true);
+            resolve();
           }, 60);
         }).then(promiseResolvedSpy);
         var promiseB = new Promise(function(resolve) {
           setTimeout(function() {
-            resolve(true);
+            resolve();
           }, 75);
         }).then(promiseResolvedSpy);
         fw.viewModel.register(childNamespaceName, function() {
