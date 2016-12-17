@@ -54,7 +54,7 @@ fw.collection = function createCollection (collectionData, configParams) {
     splice: _.bind(removeDisposeAndNotify, collection, collection.splice),
     push: _.bind(addAndNotify, collection, collection.push),
     unshift: _.bind(addAndNotify, collection, collection.unshift),
-    isFetching: fw.observable(false),
+    isReading: fw.observable(false),
     isCreating: fw.observable(false),
     dispose: function () {
       if (!collection[privateDataSymbol].isDisposed) {
@@ -92,7 +92,7 @@ fw.collection = function createCollection (collectionData, configParams) {
   };
 
   collection.requestInProgress = fw.pureComputed(function () {
-    return collection.isFetching() || collection.isCreating();
+    return collection.isReading() || collection.isCreating();
   });
 
   if (collectionData) {

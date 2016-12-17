@@ -26,7 +26,7 @@ function fetchModel (options) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
   var requestInfo = {
-    requestRunning: dataModel.isFetching,
+    requestRunning: dataModel.isReading,
     requestLull: configParams.requestLull,
     entity: dataModel,
     createRequest: function () {
@@ -75,7 +75,7 @@ function save (attrs, options) {
   }
 
   var requestInfo = {
-    requestRunning: (method === 'create' ? dataModel.isCreating : dataModel.isSaving),
+    requestRunning: (method === 'create' ? dataModel.isCreating : dataModel.isUpdating),
     requestLull: configParams.requestLull,
     entity: dataModel,
     createRequest: function () {
@@ -111,7 +111,7 @@ function destroy (wait) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
   var requestInfo = {
-    requestRunning: dataModel.isDestroying,
+    requestRunning: dataModel.isDeleting,
     requestLull: configParams.requestLull,
     entity: dataModel,
     createRequest: function () {

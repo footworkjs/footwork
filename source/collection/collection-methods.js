@@ -233,7 +233,7 @@ function fetch (options) {
   options = options ? _.clone(options) : {};
 
   var requestInfo = {
-    requestRunning: collection.isFetching,
+    requestRunning: collection.isReading,
     requestLull: configParams.requestLull,
     entity: collection,
     createRequest: function () {

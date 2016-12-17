@@ -36,16 +36,16 @@ function dataModelBootstrap (instance, configParams) {
 
     _.extend(instance, require('./dataModel-methods'), {
       isCreating: fw.observable(false),
-      isSaving: fw.observable(false),
-      isFetching: fw.observable(false),
-      isDestroying: fw.observable(false),
+      isReading: fw.observable(false),
+      isUpdating: fw.observable(false),
+      isDeleting: fw.observable(false),
       isNew: fw.observable(true),
       isDirty: fw.observable(false)
     });
 
     _.extend(instance, {
       requestInProgress: fw.computed(function computeIfRequestInProgress () {
-        return instance.isCreating() || instance.isSaving() || instance.isFetching() || instance.isDestroying();
+        return instance.isCreating() || instance.isUpdating() || instance.isReading() || instance.isDeleting();
       })
     });
 
