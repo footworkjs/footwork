@@ -23,7 +23,7 @@ It has features such as:
 For more details see:
 
 * Main Website: [http://footworkjs.com/](http://footworkjs.com/ "Main Website")
-* Documentation: [http://docs.footworkjs.com/latest](http://docs.footworkjs.com/latest "Documentation")
+* Documentation: [http://docs.footworkjs.com](http://docs.footworkjs.com "Documentation")
 
 [![Join the chat at https://gitter.im/footworkjs/footwork](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/footworkjs/footwork?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
