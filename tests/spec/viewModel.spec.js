@@ -457,7 +457,7 @@ define(['footwork', 'lodash'],
             namespace: parentNamespaceName,
             afterResolve: parentResolver = jasmine.createSpy('parentResolver', function(resolve) {
               expect(childResolver).toHaveBeenCalled();
-              resolve();
+              expect(resolve()).toBeA('promise');
               done();
             }).and.callThrough()
           });
@@ -492,7 +492,7 @@ define(['footwork', 'lodash'],
             afterResolve: parentResolver = jasmine.createSpy('parentResolver', function(resolve) {
               expect(childResolver).toHaveBeenCalled();
               expect(promiseResolvedSpy).toHaveBeenCalledTimes(2);
-              resolve();
+              expect(resolve()).toBeA('promise');
               done();
             }).and.callThrough()
           });
@@ -515,7 +515,9 @@ define(['footwork', 'lodash'],
             afterResolve: childResolver = jasmine.createSpy('childResolver', function(resolve) {
               setTimeout(function() {
                 expect(parentResolver).not.toHaveBeenCalled();
-                resolve([promiseA, promiseB]);
+                resolve([promiseA, promiseB]).then(function() {
+                  expect(promiseResolvedSpy).toHaveBeenCalledTimes(2);
+                });
               }, 25);
             }).and.callThrough()
           });
