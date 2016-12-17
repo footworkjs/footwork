@@ -135,7 +135,7 @@ function sync (action, concern, options) {
   }
 
   if (!_.isString(url)) {
-    throw Error('A url must be specified for sync operation');
+    throw Error('A url must be specified for ' + action + ' sync operation');
   }
 
   // replace any interpolated parameters
