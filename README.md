@@ -69,17 +69,17 @@ Contributions are encouraged, please feel free to fork the repository and begin 
 * If creating a new feature, please also add the corresponding test(s) for it.
 * In your pull-request, please do not include an updated `dist/` build (generated via `gulp dist`), that is a final step done prior to release.
 
-#### Documentation and Website Contributions
+#### Website and Documentation Contributions
 
-There are companion repositories for both the documentation and website, please contribute to those:
-
-* Documentation ([http://docs.footworkjs.com](http://docs.footworkjs.com))
-
-  [https://github.com/footworkjs/footwork-documentation](https://github.com/footworkjs/footwork-documentation)
+There are companion repositories for both the website and documentation, please contribute to those:
 
 * Website ([http://footworkjs.com](http://footworkjs.com))
 
   [https://github.com/footworkjs/footwork-website](https://github.com/footworkjs/footwork-website)
+
+* Documentation ([http://docs.footworkjs.com](http://docs.footworkjs.com))
+
+  [https://github.com/footworkjs/footwork-documentation](https://github.com/footworkjs/footwork-documentation)
 
 ### Building Footwork from source and running tests
 
