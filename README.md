@@ -71,7 +71,7 @@ Contributions are encouraged, please feel free to fork the repository and begin 
 
 #### Website and Documentation Contributions
 
-There are companion repositories for both the website and documentation, please contribute to those:
+Contributions towards the website and/or documentation are also encouraged. There are companion repositories for both of these, please contribute to them directly:
 
 * Website ([http://footworkjs.com](http://footworkjs.com))
 
