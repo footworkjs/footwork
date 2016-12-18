@@ -74,6 +74,12 @@ function save (attrs, options) {
     options.attrs = attrs;
   }
 
+  function clearDirtyFlags () {
+    _.each(dataModel[privateDataSymbol].mappings, function(mappedObservable) {
+      mappedObservable.isDirty(false);
+    });
+  }
+
   var requestInfo = {
     requestRunning: (method === 'create' ? dataModel.isCreating : dataModel.isUpdating),
     requestLull: configParams.requestLull,
@@ -81,6 +87,7 @@ function save (attrs, options) {
     createRequest: function () {
       if (!options.wait && !_.isNull(attrs)) {
         dataModel.set(attrs);
+        clearDirtyFlags();
       }
 
       // retrieve data dataModel the from server using the id
@@ -91,6 +98,7 @@ function save (attrs, options) {
           var parsedData = configParams.parse.call(dataModel, data, method);
           if (_.isObject(parsedData)) {
             dataModel.set(parsedData);
+            clearDirtyFlags();
           }
         });
 

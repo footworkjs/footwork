@@ -44,7 +44,7 @@ function dataModelBootstrap (instance, configParams) {
     });
 
     _.extend(instance, {
-      requestInProgress: fw.computed(function computeIfRequestInProgress () {
+      requestInProgress: fw.computed(function computeRequestInProgress () {
         return instance.isCreating() || instance.isUpdating() || instance.isReading() || instance.isDeleting();
       })
     });
