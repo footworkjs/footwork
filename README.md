@@ -49,7 +49,7 @@ For information on how to use FootworkJS please [see the main website](http://fo
 
 ### Issues
 
-Please keep the [issue tracker](http://github.com/hakimel/reveal.js/issues) limited to **bug reports**, **feature requests** and **pull requests**. If you are reporting a bug make sure to include information about which browser and operating system you are using as well as the necessary steps to reproduce the issue.
+Please keep the [issue tracker](http://github.com/footworkjs/footwork/issues) limited to **bug reports**, **feature requests** and **pull requests**. If you are reporting a bug make sure to include information about which browser and operating system you are using as well as the necessary steps to reproduce the issue.
 
 ### Contributing
 
