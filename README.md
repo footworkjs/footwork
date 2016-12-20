@@ -1,6 +1,4 @@
-![footwork.js](https://raw.github.com/footworkjs/footwork/master/dist/gh-footwork-logo.png)
-
-*```A solid footing for web applications.```*
+![footwork.js](https://raw.github.com/footworkjs/footwork/master/dist/gh-footwork-logo.png?v=2)
 
 [![Build Status](https://travis-ci.org/footworkjs/footwork.png?branch=master)](https://travis-ci.org/footworkjs/footwork) [![Test Coverage](https://coveralls.io/repos/github/footworkjs/footwork/badge.svg?branch=master&r=111)](https://coveralls.io/github/footworkjs/footwork) [![Bower version](https://badge.fury.io/bo/footwork.svg)](https://badge.fury.io/bo/footwork) [![npm version](https://badge.fury.io/js/footwork.svg)](https://badge.fury.io/js/footwork)
 
