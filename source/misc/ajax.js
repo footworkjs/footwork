@@ -11,7 +11,6 @@ var privateDataSymbol = util.getSymbol('footwork');
 var methodMap = {
   'create': 'POST',
   'update': 'PUT',
-  'patch':  'PATCH',
   'delete': 'DELETE',
   'read':   'GET'
 };
@@ -126,7 +125,7 @@ function sync (action, concern, options) {
     }
 
     // add the :id to the url if needed
-    if (fw.isDataModel(concern) && _.includes(['read', 'update', 'patch', 'delete'], action)) {
+    if (fw.isDataModel(concern) && _.includes(['read', 'update', 'delete'], action)) {
       urlPieces = url.split('?');
       var urlRoute = urlPieces.shift();
       var queryString = urlPieces.length ? '?' + urlPieces.join('?') : '';
@@ -158,7 +157,7 @@ function sync (action, concern, options) {
     resultBound(configParams, 'fetchOptions', concern, [action, options]) || {},
     options || {});
 
-  if (_.isNull(options.body) && _.includes(['create', 'update', 'patch'], action)) {
+  if (_.isNull(options.body) && _.includes(['create', 'update'], action)) {
     options.headers['content-type'] = 'application/json';
     options.body = JSON.stringify(options.attrs || concern.get());
   }

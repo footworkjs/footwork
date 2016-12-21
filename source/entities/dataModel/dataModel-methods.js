@@ -36,10 +36,7 @@ function fetchModel (options) {
 
         ajax.handleJsonResponse(xhr)
           .then(function handleResponseData (data) {
-            var parsedData = configParams.parse ? configParams.parse.call(dataModel, data, 'read') : data;
-            if (!_.isUndefined(parsedData[configParams.idAttribute])) {
-              dataModel.set(parsedData);
-            }
+            dataModel.set(configParams.parse ? configParams.parse.call(dataModel, data, 'read') : data);
           });
 
         return xhr;
@@ -53,7 +50,7 @@ function fetchModel (options) {
 }
 
 /**
- * PUT / POST / PATCH to server
+ * PUT / POST to server
  *
  * @param {object} options (optional) Options passed to sync()
  * @returns {object} Promise Promise for the HTTP Request
@@ -63,37 +60,32 @@ function save (options) {
   var configParams = dataModel[privateDataSymbol].configParams;
 
   options = _.extend({
-    wait: false,
-    patch: false
+    writeData: true
   }, isNode(options) ? {} : options);
 
-  var method = dataModel.isNew() ? 'create' : (options.patch ? 'patch' : 'update');
-
-  function clearDirtyFlags () {
-    _.each(dataModel[privateDataSymbol].mappings, function(mappedObservable) {
-      mappedObservable.isDirty(false);
-    });
-  }
+  var method = dataModel.isNew() ? 'create' : 'update';
 
   var requestInfo = {
     requestRunning: (method === 'create' ? dataModel.isCreating : dataModel.isUpdating),
     requestLull: configParams.requestLull,
     entity: dataModel,
     createRequest: function () {
-      if (!options.wait) {
-        clearDirtyFlags();
-      }
-
       // retrieve data dataModel the from server using the id
       var xhr = dataModel.sync(method, dataModel, options);
 
       ajax.handleJsonResponse(xhr)
         .then(function handleResponseData (data) {
           var parsedData = configParams.parse.call(dataModel, data, method);
-          if (_.isObject(parsedData)) {
+
+          // if an object was returned lets attempt to write its values back to the dataModel
+          if (options.writeData && _.isObject(parsedData)) {
             dataModel.set(parsedData);
           }
-          clearDirtyFlags();
+
+          // clear all dirty flags for mapped observables
+          _.each(dataModel[privateDataSymbol].mappings, function(mappedObservable) {
+            mappedObservable.isDirty(false);
+          });
         });
 
       return xhr;
@@ -109,9 +101,11 @@ function save (options) {
  * @param {boolean} wait Flag telling footwork to wait for the request to finish before sending the destroy event
  * @returns {object} Promise for the HTTP Request
  */
-function destroy (wait) {
+function destroy (options) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
+  options = options || {};
+
   var requestInfo = {
     requestRunning: dataModel.isDeleting,
     requestLull: configParams.requestLull,
@@ -121,16 +115,10 @@ function destroy (wait) {
         return false;
       }
 
-      function sendDestroyEvent () {
-        dataModel.$namespace.publish('destroy', { wait: wait });
-      }
-      !wait && sendDestroyEvent();
-
-      var xhr = dataModel.sync('delete', dataModel, { wait: wait });
+      var xhr = dataModel.sync('delete', dataModel, options);
       ajax.handleJsonResponse(xhr)
         .then(function handleResponseData (data) {
           dataModel[privateDataSymbol].idAttributeObservable(undefined);
-          wait && sendDestroyEvent();
         });
 
       return xhr;
@@ -151,7 +139,7 @@ function set (attributes, clearDirty) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
 
-  clearDirty = clearDirty || _.isUndefined(clearDirty);
+  clearDirty = clearDirty || arguments.length === 1;
 
   var mappingsChanged = false;
   _.each(this[privateDataSymbol].mappings, function (fieldObservable, fieldMap) {

@@ -1404,7 +1404,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var readUrl = generateUrl();
         var updateUrl = generateUrl();
         var deleteUrl = generateUrl();
-        var patchUrl = generateUrl();
 
         var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this, {
@@ -1412,8 +1411,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
               'create': 'POST ' + createUrl,
               'read': 'GET ' + readUrl,
               'update': updateUrl, // test url only (footwork should fill in request method from default list)
-              'delete': 'DELETE ' + deleteUrl,
-              'patch': 'PATCH ' + patchUrl
+              'delete': 'DELETE ' + deleteUrl
             }
           });
           person = person || {};
@@ -1436,16 +1434,12 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var deleteSpy = jasmine.createSpy('deleteSpy').and.returnValue(personData);
         fetchMock.delete(deleteUrl, deleteSpy);
 
-        var patchSpy = jasmine.createSpy('patchSpy').and.returnValue(personData);
-        fetchMock.patch(patchUrl, patchSpy);
-
         expect(Person).not.toHaveBeenCalled();
 
         var createPerson = new Person();
         var readPerson = new Person(personData);
         var updatePerson = new Person(personData);
         var deletePerson = new Person(personData);
-        var patchPerson = new Person(personData);
 
         expect(Person).toHaveBeenCalled();
 
@@ -1453,14 +1447,12 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(readPerson.fetch()).toBeA('promise');
         expect(updatePerson.save()).toBeA('promise');
         expect(deletePerson.destroy()).toBeA('promise');
-        expect(patchPerson.save({ patch: true })).toBeA('promise');
 
         setTimeout(function() {
           expect(postSpy).toHaveBeenCalled();
           expect(readSpy).toHaveBeenCalled();
           expect(updateSpy).toHaveBeenCalled();
           expect(deleteSpy).toHaveBeenCalled();
-          expect(patchSpy).toHaveBeenCalled();
 
           done();
         }, ajaxWait);
@@ -1477,7 +1469,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var readUrl = generateUrl();
         var updateUrl = generateUrl();
         var deleteUrl = generateUrl();
-        var patchUrl = generateUrl();
 
         var Person = jasmine.createSpy('PersonSpy', function(person) {
           fw.dataModel.boot(this, {
@@ -1497,10 +1488,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
               'delete': function() {
                 expect(this).toBeA('dataModel');
                 return 'DELETE ' + deleteUrl;
-              },
-              'patch': function() {
-                expect(this).toBeA('dataModel');
-                return 'PATCH ' + patchUrl;
               }
             }
           });
@@ -1524,16 +1511,12 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var deleteSpy = jasmine.createSpy('deleteSpy').and.returnValue(personData);
         fetchMock.delete(deleteUrl, deleteSpy);
 
-        var patchSpy = jasmine.createSpy('patchSpy').and.returnValue(personData);
-        fetchMock.patch(patchUrl, patchSpy);
-
         expect(Person).not.toHaveBeenCalled();
 
         var createPerson = new Person();
         var readPerson = new Person(personData);
         var updatePerson = new Person(personData);
         var deletePerson = new Person(personData);
-        var patchPerson = new Person(personData);
 
         expect(Person).toHaveBeenCalled();
 
@@ -1541,14 +1524,12 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(readPerson.fetch()).toBeA('promise');
         expect(updatePerson.save()).toBeA('promise');
         expect(deletePerson.destroy()).toBeA('promise');
-        expect(patchPerson.save({ patch: true })).toBeA('promise');
 
         setTimeout(function() {
           expect(postSpy).toHaveBeenCalled();
           expect(readSpy).toHaveBeenCalled();
           expect(updateSpy).toHaveBeenCalled();
           expect(deleteSpy).toHaveBeenCalled();
-          expect(patchSpy).toHaveBeenCalled();
 
           done();
         }, ajaxWait);

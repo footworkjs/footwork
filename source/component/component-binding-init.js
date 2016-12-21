@@ -5,8 +5,8 @@ var setLoadingTracker = require('../binding/loading-tracker').set;
 var nearestEntity = require('../entities/entity-tools').nearestEntity;
 var getSymbol = require('../misc/util').getSymbol;
 var entityDescriptors = require('../entities/entity-descriptors');
-var originalComponentBindingInit = fw.bindingHandlers.component.init;
 var privateDataSymbol = getSymbol('footwork');
+var originalComponentBindingInit = fw.bindingHandlers.component.init;
 
 /**
  * Monkey patch to bootstrap a component, tagging it with the loadingTracker.
