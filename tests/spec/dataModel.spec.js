@@ -875,57 +875,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, ajaxWait);
       });
 
-      it('can correctly save() data with specified object of data', function(done) {
-        var mockUrl = generateUrl();
-        var postValue = randomString();
-        var saveDataSpy = jasmine.createSpy('saveDataSpy');
-        var responseData = {
-          "id": 1,
-          "firstName": postValue,
-          "lastName": null,
-          "email": null
-        };
-        var saveData = {
-          "id": 2,
-          "firstName": postValue,
-          "lastName": null,
-          "email": null
-        };
-
-        var Person = jasmine.createSpy('PersonSpy', function(person) {
-          fw.dataModel.boot(this, {
-            url: mockUrl
-          });
-          person = person || {};
-          this.id = fw.observable(person.id).map('id', this);
-          this.firstName = fw.observable(person.firstName).map('firstName', this);
-          this.lastName = fw.observable(person.lastName).map('lastName', this);
-          this.email = fw.observable(person.email).map('email', this);
-        }).and.callThrough();
-
-        expect(Person).not.toHaveBeenCalled();
-
-        var person = new Person();
-
-        expect(Person).toHaveBeenCalled();
-        expect(person.firstName()).not.toBe(postValue);
-
-        fetchMock.restore().post(mockUrl, saveDataSpy = jasmine.createSpy('saveDataSpy', function(url, options) {
-          var data = JSON.parse(options.body);
-          expect(data).toEqual(saveData);
-          return { body: responseData };
-        }).and.callThrough());
-        expect(person.save(saveData)).toBeA('promise');
-
-        setTimeout(function() {
-          expect(person.id()).toBe(1);
-          expect(person.firstName()).toBe(postValue);
-
-          expect(saveDataSpy).toHaveBeenCalled();
-          done();
-        }, ajaxWait);
-      });
-
       it('can correctly DELETE data on destroy()', function(done) {
         var postValue = randomString();
         var responseData = {
@@ -1504,7 +1453,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(readPerson.fetch()).toBeA('promise');
         expect(updatePerson.save()).toBeA('promise');
         expect(deletePerson.destroy()).toBeA('promise');
-        expect(patchPerson.save(null, { patch: true })).toBeA('promise');
+        expect(patchPerson.save({ patch: true })).toBeA('promise');
 
         setTimeout(function() {
           expect(postSpy).toHaveBeenCalled();
@@ -1592,7 +1541,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(readPerson.fetch()).toBeA('promise');
         expect(updatePerson.save()).toBeA('promise');
         expect(deletePerson.destroy()).toBeA('promise');
-        expect(patchPerson.save(null, { patch: true })).toBeA('promise');
+        expect(patchPerson.save({ patch: true })).toBeA('promise');
 
         setTimeout(function() {
           expect(postSpy).toHaveBeenCalled();

@@ -55,24 +55,19 @@ function fetchModel (options) {
 /**
  * PUT / POST / PATCH to server
  *
- * @param {string} (optional) attrs
  * @param {object} options (optional) Options passed to sync()
  * @returns {object} Promise Promise for the HTTP Request
  */
-function save (attrs, options) {
+function save (options) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
-  var attrs = isNode(attrs) ? {} : attrs;
 
   options = _.extend({
     wait: false,
     patch: false
-  }, options);
+  }, isNode(options) ? {} : options);
 
   var method = dataModel.isNew() ? 'create' : (options.patch ? 'patch' : 'update');
-  if (method === 'patch' && !options.attrs) {
-    options.attrs = attrs;
-  }
 
   function clearDirtyFlags () {
     _.each(dataModel[privateDataSymbol].mappings, function(mappedObservable) {
@@ -85,8 +80,7 @@ function save (attrs, options) {
     requestLull: configParams.requestLull,
     entity: dataModel,
     createRequest: function () {
-      if (!options.wait && !_.isNull(attrs)) {
-        dataModel.set(attrs);
+      if (!options.wait) {
         clearDirtyFlags();
       }
 
@@ -98,8 +92,8 @@ function save (attrs, options) {
           var parsedData = configParams.parse.call(dataModel, data, method);
           if (_.isObject(parsedData)) {
             dataModel.set(parsedData);
-            clearDirtyFlags();
           }
+          clearDirtyFlags();
         });
 
       return xhr;
