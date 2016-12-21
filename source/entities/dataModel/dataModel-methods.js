@@ -104,8 +104,6 @@ function save (options) {
 function destroy (options) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
-  options = options || {};
-
   var requestInfo = {
     requestRunning: dataModel.isDeleting,
     requestLull: configParams.requestLull,
