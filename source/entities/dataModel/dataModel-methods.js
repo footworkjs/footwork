@@ -60,7 +60,7 @@ function save (options) {
   var configParams = dataModel[privateDataSymbol].configParams;
 
   options = _.extend({
-    writeData: true
+    writeResponse: true
   }, isNode(options) ? {} : options);
 
   var method = dataModel.isNew() ? 'create' : 'update';
@@ -78,7 +78,7 @@ function save (options) {
           var parsedData = configParams.parse.call(dataModel, data, method);
 
           // if an object was returned lets attempt to write its values back to the dataModel
-          if (options.writeData && _.isObject(parsedData)) {
+          if (options.writeResponse && _.isObject(parsedData)) {
             dataModel.set(parsedData);
           }
 
