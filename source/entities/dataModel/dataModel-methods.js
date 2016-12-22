@@ -25,6 +25,9 @@ function isNode (thing) {
 function fetchModel (options) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
+
+  options = isNode(options) ? {} : options;
+
   var requestInfo = {
     requestRunning: dataModel.isReading,
     requestLull: configParams.requestLull,
@@ -104,6 +107,9 @@ function save (options) {
 function destroy (options) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
+
+  options = isNode(options) ? {} : options;
+
   var requestInfo = {
     requestRunning: dataModel.isDeleting,
     requestLull: configParams.requestLull,
