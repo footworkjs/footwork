@@ -36,10 +36,6 @@ function routeStringToRegExp (routeString) {
   return new RegExp('^' + routeString + (routeString !== '/' ? '(\\/.*)*$' : '$'));
 }
 
-function isRoute (thing) {
-  return _.isObject(thing) && !!thing.__isRoute;
-}
-
 /**
  * Locate the nearest router from a given ko $context
  * (travels up through $parentContext chain to find the router if not found on the
@@ -86,15 +82,13 @@ function trimBaseRoute (router, url) {
 }
 
 function triggerRoute (router, route) {
-  if (isRoute(route)) {
-    if (!_.isUndefined(route.title)) {
-      window.document.title = _.isFunction(route.title) ? route.title.apply(router, _.values(route.routeParams)) : route.title;
-    }
+  if (!_.isUndefined(route.title)) {
+    window.document.title = _.isFunction(route.title) ? route.title.apply(router, _.values(route.routeParams)) : route.title;
+  }
 
-    if (_.isUndefined(router[privateDataSymbol].previousRoute) || !sameRoute(router[privateDataSymbol].previousRoute, route)) {
-      router[privateDataSymbol].previousRoute = route;
-      route.controller.apply(router, _.values(route.routeParams));
-    }
+  if (_.isUndefined(router[privateDataSymbol].previousRoute) || !sameRoute(router[privateDataSymbol].previousRoute, route)) {
+    router[privateDataSymbol].previousRoute = route;
+    route.controller.apply(router, _.values(route.routeParams));
   }
 }
 
@@ -131,9 +125,8 @@ function changeRoute (router, historyMethod, route, routeParams) {
     }
 
     if (!fw.utils.isFullURL(route)) {
-      route = trimBaseRoute(router, route);
-
-      if (resultBound(configParams, 'beforeRoute', router, [route || '/'])) {
+      var foundRoute = getRouteForURL(router, route);
+      if (foundRoute && (foundRoute.routeConfiguration.beforeRoute || alwaysPassPredicate).call(router, foundRoute.url) && resultBound(configParams, 'beforeRoute', router, [route || '/'])) {
         /* istanbul ignore if */
         if (!router[privateDataSymbol].activating && route && router[privateDataSymbol].historyPopstateListener() && !fw.router.disableHistory) {
           history[historyMethod + 'State'](null, '', configParams.baseRoute + route);
@@ -160,10 +153,12 @@ function stripQueryStringAndHashFromPath (url) {
   }
 }
 
-function getRouteForURL (router, routes, url) {
+function getRouteForURL (router, url) {
   var currentRouteDetails;
   var matchedRoutes = [];
   var routeConfiguration;
+  var routes = router.$routes();
+  url = trimBaseRoute(router, stripQueryStringAndHashFromPath(url));
 
   // find all routes with a matching routeString
   if (routes) {
@@ -223,8 +218,7 @@ function getRouteForURL (router, routes, url) {
     controller: routeConfiguration.controller || _.noop,
     name: routeConfiguration.name,
     title: routeConfiguration.title,
-    routeParams: {},
-    __isRoute: true
+    routeParams: {}
   }, currentRouteDetails);
 }
 
@@ -242,13 +236,10 @@ module.exports = {
   namedParamRegex: namedParamRegex,
   hashMatchRegex: hashMatchRegex,
   routeStringToRegExp: routeStringToRegExp,
-  isRoute: isRoute,
   nearestParentRouter: nearestParentRouter,
   registerOutlet: registerOutlet,
   unregisterOutlet: unregisterOutlet,
-  trimBaseRoute: trimBaseRoute,
   changeRoute: changeRoute,
-  stripQueryStringAndHashFromPath: stripQueryStringAndHashFromPath,
   getRouteForURL: getRouteForURL,
   triggerRoute: triggerRoute,
   getLocation: getLocation

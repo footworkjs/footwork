@@ -4,16 +4,16 @@ var _ = require('footwork-lodash');
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 var entityDescriptors = require('../entity-descriptors');
 var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
-var resultBound = require('../../misc/util').resultBound;
+
+var util = require('../../misc/util');
+var resultBound = util.resultBound;
+var alwaysPassPredicate = util.alwaysPassPredicate;
 
 var routerTools = require('./router-tools');
 var registerOutlet = routerTools.registerOutlet;
 var unregisterOutlet = routerTools.unregisterOutlet;
-var trimBaseRoute = routerTools.trimBaseRoute;
 var getRouteForURL = routerTools.getRouteForURL;
 var triggerRoute = routerTools.triggerRoute;
-var isRoute = routerTools.isRoute;
-var stripQueryStringAndHashFromPath = routerTools.stripQueryStringAndHashFromPath;
 var getLocation = routerTools.getLocation;
 
 /**
@@ -55,9 +55,7 @@ function routerBootstrap (instance, configParams) {
     });
 
     privateData.currentRoute = fw.computed(function () {
-      var routes = instance.$routes();
-      var $currentState = instance.$currentState();
-      return getRouteForURL(instance, routes, trimBaseRoute(instance, stripQueryStringAndHashFromPath($currentState)));
+      return getRouteForURL(instance, instance.$currentState());
     });
 
     instance.$currentRoute = fw.computed(function () {
@@ -101,7 +99,7 @@ function routerBootstrap (instance, configParams) {
           /* istanbul ignore if */
           if (!fw.router.disableHistory) {
             var popstateEvent = function () {
-              instance.$currentState(trimBaseRoute(instance, getLocation()));
+              instance.$currentState(getLocation());
             };
 
             (function (eventInfo) {

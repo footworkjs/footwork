@@ -2,10 +2,7 @@ var _ = require('footwork-lodash');
 var fw = require('knockout/build/output/knockout-latest');
 
 var isEntity = require('../entity-tools').isEntity;
-
-var routerTools = require('./router-tools');
-var trimBaseRoute = routerTools.trimBaseRoute;
-var changeRoute = routerTools.changeRoute;
+var changeRoute = require('./router-tools').changeRoute;
 
 var util = require('../../misc/util');
 var resultBound = util.resultBound;
