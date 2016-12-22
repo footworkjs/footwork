@@ -1317,9 +1317,18 @@ define(['footwork', 'lodash', 'fetch-mock'],
           "email": null
         };
         var mockUrl = generateUrl();
+        var passedOptions = {
+          someUniqueValue: randomString()
+        };
 
-        fw.fetchOptions = {
-          method: 'post'
+        fw.fetchOptions = function(action, concern, options) {
+          expect(action).toBe('read');
+          expect(concern).toBeA('dataModel');
+          expect(options).toEqual(passedOptions);
+
+          return {
+            method: 'post'
+          };
         };
 
         var Person = jasmine.createSpy('PersonSpy', function(person) {
@@ -1340,7 +1349,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(Person).toHaveBeenCalled();
 
         fetchMock.restore().post(mockUrl + '/' + personData.id, personData);
-        expect(person.fetch()).toBeA('promise');
+        expect(person.fetch(passedOptions)).toBeA('promise');
 
         setTimeout(function() {
           expect(person.firstName()).toBe(personData.firstName);
