@@ -1242,7 +1242,7 @@ define(['footwork', 'lodash'],
           fw.router.boot(this, {
             namespace: routerNamespace,
             showDuringLoad: outletLoaderTestLoadingNamespace,
-            minTransitionPeriod: 75,
+            transition: 75,
             routes: [
               {
                 route: mockUrl,
@@ -1294,7 +1294,7 @@ define(['footwork', 'lodash'],
         var outletCallbackSpy;
         var outletLoaderTestLoadingSpy;
         var outletLoaderTestLoadedSpy;
-        var minTransitionPeriodSpy;
+        var transitionSpy;
 
         function router(name) {
           return fw.router.get(name);
@@ -1315,7 +1315,7 @@ define(['footwork', 'lodash'],
           fw.router.boot(this, {
             namespace: routerNamespace,
             showDuringLoad: outletLoaderTestLoadingNamespace,
-            minTransitionPeriod: minTransitionPeriodSpy = jasmine.createSpy('minTransitionPeriodSpy', function(outletName, componentToDisplay) {
+            transition: transitionSpy = jasmine.createSpy('transitionSpy', function(outletName, componentToDisplay) {
               expect(outletName).toBe('output');
               expect(componentToDisplay).toBe(outletLoaderTestLoadedNamespace);
               return 75;
@@ -1336,7 +1336,7 @@ define(['footwork', 'lodash'],
 
         expect(changeOutletControllerSpy).toBe(undefined);
         expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
-        expect(minTransitionPeriodSpy).toBe(undefined);
+        expect(transitionSpy).toBe(undefined);
 
         fw.start(testContainer = getFixtureContainer('<router module="' + routerNamespace + '">\
           <outlet name="output"></outlet>\
@@ -1348,7 +1348,7 @@ define(['footwork', 'lodash'],
           router(routerNamespace).replaceState(mockUrl);
 
           expect(outletLoaderTestLoadingSpy).toHaveBeenCalled();
-          expect(minTransitionPeriodSpy).toHaveBeenCalled();
+          expect(transitionSpy).toHaveBeenCalled();
           expect(changeOutletControllerSpy).toHaveBeenCalled();
           expect(outletCallbackSpy).not.toHaveBeenCalled();
 

@@ -82,7 +82,7 @@ module.exports = {
       if (outletHasMutated) {
         clearSequenceQueue();
 
-        currentOutletDef.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
+        currentOutletDef.transition = resultBound(configParams, 'transition', router, [outletName, componentToDisplay]);
         if (outletViewModel) {
           outletViewModel[privateDataSymbol].loadingChildren.removeAll();
           outletViewModel.routeIsLoading(true);

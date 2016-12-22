@@ -89,9 +89,9 @@ function outletBootstrap (instance, configParams) {
     var transitionTriggerTimeout;
     function showLoaded () {
       clearTimeout(transitionTriggerTimeout);
-      var minTransitionPeriod = instance.display.peek().minTransitionPeriod;
-      if (minTransitionPeriod) {
-        transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, minTransitionPeriod);
+      var transition = instance.display.peek().transition;
+      if (transition) {
+        transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, transition);
       } else {
         showLoadedAfterMinimumTransition();
       }

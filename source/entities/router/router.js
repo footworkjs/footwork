@@ -22,7 +22,7 @@ fw[entityName] = {
     baseRoute: '',
     activate: true,
     beforeRoute: alwaysPassPredicate,
-    minTransitionPeriod: 0
+    transition: 0
   }
 };
 
