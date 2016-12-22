@@ -153,8 +153,8 @@ function sync (action, concern, options) {
       body: null,
       headers: {}
     },
-    resultBound(fw, 'fetchOptions', concern, [action, options]) || {},
-    resultBound(configParams, 'fetchOptions', concern, [action, options]) || {},
+    resultBound(fw, 'fetchOptions', concern, [action, concern, options]) || {},
+    resultBound(configParams, 'fetchOptions', concern, [action, concern, options]) || {},
     options || {});
 
   if (_.isNull(options.body) && _.includes(['create', 'update'], action)) {
