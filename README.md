@@ -14,8 +14,8 @@ It has features such as:
 * Automatic resolution and binding of declarative resources
 * Page routing with unlimited outlet support
 * Transition effect and animation system including sequenced animations
-* Simple one-file use with no dependencies
 * Does not require a build system or module loader (but it works great with them)
+* Inter-module communication and state sharing
 * Much, much more...
 
 For more details see:
@@ -30,13 +30,13 @@ For more details see:
 * You can install via bower:
 
   ```bash
-  $ bower install footwork --save
+  bower install footwork --save
   ```
 
 * or you can install via npm:
 
   ```bash
-  $ npm install footwork --save
+  npm install footwork --save
   ```
 
 * or you can download it directly:
