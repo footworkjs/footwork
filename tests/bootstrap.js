@@ -30,7 +30,7 @@ Object.keys(window.__karma__.files).forEach(function(file) {
     var normalizedTestModule = file.replace(/^\/base\/|\.js$/g, '');
 
     // use the shouldRunTest callback below to limit the tests to an individual file or files
-    /* shouldRunTest(normalizedTestModule, [
+    shouldRunTest(normalizedTestModule, [
       'viewModel',
       'dataModel',
       'router',
@@ -38,7 +38,7 @@ Object.keys(window.__karma__.files).forEach(function(file) {
       'collection',
       'component',
       'broadcast-receive'
-    ]) && */ allTestFiles.push(normalizedTestModule);
+    ]) && allTestFiles.push(normalizedTestModule);
   }
 });
 

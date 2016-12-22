@@ -18,15 +18,12 @@ var noComponentSelected = routerConfig.noComponentSelected;
 var activeOutlets = fw.observableArray();
 
 module.exports = {
-  outlet: function (outletName, componentToDisplay, options) {
-    options = options || {};
-    if (_.isFunction(options)) {
-      options = { onComplete: options };
+  outlet: function (outletName, options) {
+    if(!_.isObject(options)) {
+      options = { display: arguments.length > 1 ? options || noComponentSelected : undefined };
     }
 
     var router = this;
-    var viewModelParameters = options.params;
-    var onComplete = options.onComplete || _.noop;
     var configParams = router[privateDataSymbol].configParams;
     var outlets = router[privateDataSymbol].outlets;
     var outletProperties = outlets[outletName] || {};
@@ -48,38 +45,34 @@ module.exports = {
       };
     }
 
-    if (arguments.length > 1 && !componentToDisplay) {
-      componentToDisplay = noComponentSelected;
-    }
-
     // grab and set the loadingDisplay if needed
-    if (outletViewModel && (!outletViewModel[privateDataSymbol].outletIsSetup || componentToDisplay)) {
+    if (outletViewModel && (!outletViewModel[privateDataSymbol].outletIsSetup || options.display)) {
       outletViewModel[privateDataSymbol].outletIsSetup = true;
 
       // Show the loading component (if one is defined)
-      var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || outlet().name]);
+      var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, options.display || outlet().name]);
       if (showDuringLoadComponent) {
         outletViewModel.loadingDisplay(showDuringLoadComponent);
       }
     }
 
     var outletHasMutated = false;
-    if (!_.isUndefined(componentToDisplay)) {
+    if (!_.isUndefined(options.display)) {
       var currentOutletDef = outlet();
 
-      if (currentOutletDef.name !== componentToDisplay) {
-        currentOutletDef.name = componentToDisplay;
+      if (currentOutletDef.name !== options.display) {
+        currentOutletDef.name = options.display;
         outletHasMutated = true;
       }
-      if (_.isObject(viewModelParameters)) {
-        currentOutletDef.params = viewModelParameters;
+      if (_.isObject(options.params)) {
+        currentOutletDef.params = options.params;
         outletHasMutated = true;
       }
 
       if (outletHasMutated) {
         clearSequenceQueue();
 
-        currentOutletDef.transition = resultBound(configParams, 'transition', router, [outletName, componentToDisplay]);
+        currentOutletDef.transition = resultBound(configParams, 'transition', router, [outletName, options.display]);
         if (outletViewModel) {
           outletViewModel[privateDataSymbol].loadingChildren.removeAll();
           outletViewModel.routeIsLoading(true);
@@ -89,13 +82,13 @@ module.exports = {
           var outletElement = element.parentNode;
 
           activeOutlets.remove(outlet);
-          outletElement.setAttribute('data-rendered', (componentToDisplay === noComponentSelected ? '' : componentToDisplay));
+          outletElement.setAttribute('data-rendered', (options.display === noComponentSelected ? '' : options.display));
 
           return function addBindingOnComplete () {
             var outletViewModel = outlets[outletName].outletViewModel;
             outletViewModel.routeIsLoading(false);
             outletViewModel.routeOnComplete = function () {
-              onComplete.call(router, outletElement);
+              (options.onComplete || _.noop).call(router, outletElement);
               router[privateDataSymbol].scrollToFragment();
             };
           };

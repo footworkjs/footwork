@@ -775,7 +775,7 @@ define(['footwork', 'lodash'],
               {
                 route: manipulateOutletUrl,
                 controller: manipulateOutletControllerSpy = jasmine.createSpy('manipulateOutletControllerSpy', function(params) {
-                  this.outlet('output', manipulateOutletComponentNamespace, { params: passedInParams, onComplete: outletOnCompleteSpy });
+                  this.outlet('output', { display: manipulateOutletComponentNamespace, params: passedInParams, onComplete: outletOnCompleteSpy });
                 }).and.callThrough()
               }, {
                 route: '/clearOutlet',
@@ -903,10 +903,10 @@ define(['footwork', 'lodash'],
               {
                 route: mockUrl,
                 controller: function() {
-                  this.outlet('output', outletCallbackName, triggerOutletCallbackControllerSpy = jasmine.createSpy('triggerOutletCallbackControllerSpy', function(element) {
+                  this.outlet('output', { display: outletCallbackName, onComplete: triggerOutletCallbackControllerSpy = jasmine.createSpy('triggerOutletCallbackControllerSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
                     expect($(element).find('.' + outletCallbackName).length).toBe(1);
-                  }));
+                  }) });
                 }
               }
             ]
@@ -963,11 +963,11 @@ define(['footwork', 'lodash'],
             routes: [
               {
                 route: '/outletAfterRouter',
-                controller:changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', outletComponentNamespace, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
+                  this.outlet('output', { display: outletComponentNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
                     expect($(element).find('.' + outletComponentNamespace).length).toBe(1);
-                  }).and.callThrough());
+                  }).and.callThrough() });
                 }).and.callThrough()
               }
             ]
@@ -1038,10 +1038,10 @@ define(['footwork', 'lodash'],
               {
                 route: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', outletLoaderTestLoadedNamespace, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
                     expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
-                  }).and.callThrough());
+                  }).and.callThrough() });
                 }).and.callThrough()
               }
             ]
@@ -1106,10 +1106,10 @@ define(['footwork', 'lodash'],
               {
                 route: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', outletLoaderTestLoadedNamespace, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
                     expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
-                  }).and.callThrough());
+                  }).and.callThrough() });
                 }).and.callThrough()
               }
             ]
@@ -1176,10 +1176,10 @@ define(['footwork', 'lodash'],
               {
                 route: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', outletLoaderTestLoadedNamespace, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
                     expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
-                  }).and.callThrough());
+                  }).and.callThrough() });
                 }).and.callThrough()
               }
             ]
@@ -1247,10 +1247,10 @@ define(['footwork', 'lodash'],
               {
                 route: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', outletLoaderTestLoadedNamespace, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
                     expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
-                  }).and.callThrough());
+                  }).and.callThrough() });
                 }).and.callThrough()
               }
             ]
@@ -1324,10 +1324,10 @@ define(['footwork', 'lodash'],
               {
                 route: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', outletLoaderTestLoadedNamespace, outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
                     expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
-                  }).and.callThrough());
+                  }).and.callThrough() });
                 }).and.callThrough()
               }
             ]
