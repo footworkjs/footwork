@@ -21,7 +21,7 @@ fw[entityName] = {
     onDispose: _.noop,
     baseRoute: '',
     activate: true,
-    beforeRoute: alwaysPassPredicate,
+    predicate: alwaysPassPredicate,
     transition: 0
   }
 };
