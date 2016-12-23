@@ -23,7 +23,7 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
         viewModel: Outlet,
         template: bindingElement.open.prefix + '$lifecycle, $outlet' + bindingElement.open.postfix +
           '<div class="' + outletLoadingDisplay + '" ' +
-            'data-bind="style: loadingStyle, css: loadingClass, component: loadingDisplay"></div>' +
+            'data-bind="style: loadingStyle, css: loadingClass, component: loading"></div>' +
           '<div class="' + outletLoadedDisplay + '" ' +
             'data-bind="style: loadedStyle, css: loadedClass, component: display"></div>' +
         bindingElement.close,

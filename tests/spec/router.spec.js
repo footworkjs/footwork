@@ -1007,7 +1007,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can display a temporary loading component in place of a component that is being downloaded', function(done) {
         var mockUrl = generateUrl();
-        var outletLoaderTestLoadingNamespace = 'test-loading-123';
+        var outletLoaderTestLoadingNamespace = randomString();
         var outletLoaderTestLoadedNamespace = randomString();
         var routerNamespace = randomString();
         var changeOutletControllerSpy;
@@ -1037,7 +1037,74 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 route: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, loadingDisplay: outletLoaderTestLoadingNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, loading: outletLoaderTestLoadingNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                    expect(element.tagName.toLowerCase()).toBe('outlet');
+                    expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
+                  }).and.callThrough() });
+                }).and.callThrough()
+              }
+            ]
+          });
+        });
+
+        expect(changeOutletControllerSpy).toBe(undefined);
+        expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer = getFixtureContainer('<router module="' + routerNamespace + '">\
+          <outlet name="output"></outlet>\
+        </router>'));
+
+        setTimeout(function() {
+          router(routerNamespace).replaceState(mockUrl);
+
+          expect(changeOutletControllerSpy).toHaveBeenCalled();
+          expect(outletCallbackSpy).not.toHaveBeenCalled();
+          expect(outletLoaderTestLoadingSpy).toHaveBeenCalled();
+
+          setTimeout(function() {
+            expect(outletLoaderTestLoadedSpy).toHaveBeenCalled();
+            expect(outletCallbackSpy).toHaveBeenCalled();
+            done();
+          }, ajaxWait);
+        }, 0);
+      });
+
+      it('can display a temporary loading component in place of a component that is being downloaded by specifying via router outlet options object', function(done) {
+        var mockUrl = generateUrl();
+        var outletLoaderTestLoadingNamespace = randomString();
+        var outletLoaderTestLoadedNamespace = randomString();
+        var routerNamespace = randomString();
+        var changeOutletControllerSpy;
+        var outletCallbackSpy;
+        var outletLoaderTestLoadingSpy;
+        var outletLoaderTestLoadedSpy;
+
+        function router(name) {
+          return fw.router.get(name);
+        }
+
+        fw.components.register(outletLoaderTestLoadingNamespace, {
+          viewModel: outletLoaderTestLoadingSpy = jasmine.createSpy('outletLoaderTestLoadingSpy'),
+          template: '<div class="' + outletLoaderTestLoadingNamespace + '"></div>',
+          synchronous: true
+        });
+
+        fw.components.register(outletLoaderTestLoadedNamespace, {
+          viewModel: outletLoaderTestLoadedSpy = jasmine.createSpy('outletLoaderTestLoadedSpy'),
+          template: '<div class="' + outletLoaderTestLoadedNamespace + '"></div>'
+        });
+
+        fw.router.register(routerNamespace, function() {
+          fw.router.boot(this, {
+            namespace: routerNamespace,
+            outlet: {
+              loading: outletLoaderTestLoadingNamespace
+            },
+            routes: [
+              {
+                route: mockUrl,
+                controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
+                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
                     expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
                   }).and.callThrough() });
@@ -1101,7 +1168,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 route: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, transition: 75, loadingDisplay: outletLoaderTestLoadingNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, transition: 75, loading: outletLoaderTestLoadingNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
                     expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
                   }).and.callThrough() });

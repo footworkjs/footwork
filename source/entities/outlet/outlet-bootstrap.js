@@ -46,7 +46,7 @@ function outletBootstrap (instance, configParams) {
 
     var resolvedCallbacks = [];
     _.extend(instance, {
-      loadingDisplay: fw.observable(noComponentSelected),
+      loading: fw.observable(noComponentSelected),
       routeIsLoading: fw.observable(true),
       routeIsResolving: fw.observable(true),
       addResolvedCallbackOrExecute: function (callback) {

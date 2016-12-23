@@ -26,6 +26,7 @@ module.exports = {
     var outletProperties = outlets[outletName] || {};
     var outlet = outletProperties.routeObservable;
     var outletViewModel = outletProperties.outletViewModel;
+    var routerOutletOptions = resultBound(router[privateDataSymbol].configParams, 'outlet', router, [outletName, options]) || {};
 
     if (!fw.isObservable(outlet)) {
       // router outlet observable not found, we must create a new one
@@ -33,7 +34,7 @@ module.exports = {
         name: noComponentSelected,
         params: {},
         getOnCompleteCallback: function () { return _.noop; },
-        loadingDisplay: options.loadingDisplay
+        loading: options.loading || routerOutletOptions.loading
       });
 
       // register the new outlet under its outletName
@@ -43,13 +44,13 @@ module.exports = {
       };
     }
 
-    // grab and set the loadingDisplay if needed
+    // grab and set the loading display if needed
     if (outletViewModel && (!outletViewModel[privateDataSymbol].outletIsSetup || options.display)) {
       outletViewModel[privateDataSymbol].outletIsSetup = true;
 
       // Show the loading component (if one is defined)
-      var loadingDisplay = arguments.length > 1 ? options.loadingDisplay : outlet().loadingDisplay;
-      loadingDisplay && outletViewModel.loadingDisplay(loadingDisplay);
+      var loading = arguments.length > 1 ? (options.loading || routerOutletOptions.loading) : outlet().loading;
+      loading && outletViewModel.loading(loading);
     }
 
     var outletHasMutated = false;
@@ -68,7 +69,7 @@ module.exports = {
       if (outletHasMutated) {
         clearSequenceQueue();
 
-        currentOutletDef.transition = options.transition;
+        currentOutletDef.transition = options.transition || routerOutletOptions.transition || 0;
         if (outletViewModel) {
           outletViewModel[privateDataSymbol].loadingChildren.removeAll();
           outletViewModel.routeIsLoading(true);
@@ -84,7 +85,7 @@ module.exports = {
             var outletViewModel = outlets[outletName].outletViewModel;
             outletViewModel.routeIsLoading(false);
             outletViewModel.routeOnComplete = function () {
-              (options.onComplete || _.noop).call(router, outletElement);
+              (options.onComplete || routerOutletOptions.onComplete || _.noop).call(router, outletElement);
               router[privateDataSymbol].scrollToFragment();
             };
           };
