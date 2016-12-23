@@ -45,12 +45,10 @@ module.exports = {
     }
 
     // grab and set the loading display if needed
-    if (outletViewModel && (!outletViewModel[privateDataSymbol].outletIsSetup || options.display)) {
-      outletViewModel[privateDataSymbol].outletIsSetup = true;
-
-      // Show the loading component (if one is defined)
-      var loading = arguments.length > 1 ? (options.loading || routerOutletOptions.loading) : outlet().loading;
-      loading && outletViewModel.loading(loading);
+    var loadingDisplay = arguments.length > 1 ? (options.loading || routerOutletOptions.loading) : outlet().loading;
+    if (outletViewModel && loadingDisplay) {
+      outletViewModel.loading(loadingDisplay);
+      delete routerOutletOptions.loading;
     }
 
     var outletHasMutated = false;
