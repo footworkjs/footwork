@@ -41,7 +41,7 @@ For more details see:
 
 * or you can download it directly:
 
-  https://github.com/footworkjs/footwork/blob/master/dist
+  https://github.com/footworkjs/footwork/blob/2.0.0/dist
 
 For information on how to use FootworkJS please [see the main website](http://footworkjs.com/ "http://footworkjs.com").
 
