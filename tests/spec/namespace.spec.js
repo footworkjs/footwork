@@ -20,7 +20,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('has basic pub/sub capability', function() {
         var namespace = fw.namespace(generateNamespaceName());
-        var testValue = randomString();
+        var testValue = _.uniqueId();
         var subscriptionCallbackSpy;
         var testContext = { testContext: true };
 
@@ -55,7 +55,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var namespace1 = fw.namespace(namespaceName);
         var namespace2 = fw.namespace(namespaceName);
         var subscriptionCallbackSpy;
-        var testValue = randomString();
+        var testValue = _.uniqueId();
 
         namespace1.subscribe('testMessageTopic', subscriptionCallbackSpy = jasmine.createSpy('', function(parameter) {
           expect(parameter).toBe(testValue);
@@ -158,7 +158,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
       it('can unregister request handlers when namespace is disposed', function() {
         var namespace = fw.namespace(generateNamespaceName());
         var handlerCallbackSpy;
-        var testValue = randomString();
+        var testValue = _.uniqueId();
 
         namespace.requestHandler('testDispose', handlerCallbackSpy = jasmine.createSpy('handlerCallbackSpy', function() {
           return testValue;

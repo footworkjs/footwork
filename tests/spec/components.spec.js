@@ -84,7 +84,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can instantiate a component registered using an element sourced from its id as its template', function(done) {
         var namespaceName = generateNamespaceName();
-        var textToFind = randomString();
+        var textToFind = _.uniqueId();
         var initializeSpy;
 
         fw.components.register(namespaceName, {
@@ -107,7 +107,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can properly throw an error when specifying an incorrect element sourced from its id as its template', function() {
         var namespaceName = generateNamespaceName();
-        var textToFind = randomString();
+        var textToFind = _.uniqueId();
         var initializeSpy;
 
         fw.components.register(namespaceName, {
@@ -126,7 +126,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can properly throw an error when specifying an incorrect element config for its template', function() {
         var namespaceName = generateNamespaceName();
-        var textToFind = randomString();
+        var textToFind = _.uniqueId();
         var initializeSpy;
 
         fw.components.register(namespaceName, {
@@ -145,7 +145,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can properly throw an error when specifying an incorrect template config', function() {
         var namespaceName = generateNamespaceName();
-        var textToFind = randomString();
+        var textToFind = _.uniqueId();
         var initializeSpy;
 
         fw.components.register(namespaceName, {
@@ -164,7 +164,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can instantiate a component registered using an array of DOM nodes as its template', function(done) {
         var namespaceName = generateNamespaceName();
-        var textToFind = randomString();
+        var textToFind = _.uniqueId();
         var initializeSpy;
 
         testContainer = getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>');
@@ -193,7 +193,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can instantiate a component registered using an element instance as its template', function(done) {
         var namespaceName = generateNamespaceName();
-        var textToFind = randomString();
+        var textToFind = _.uniqueId();
         var initializeSpy;
 
         testContainer = getFixtureContainer('<div id=' + namespaceName + '>' + textToFind + '</div><' + namespaceName + '></' + namespaceName + '>');
@@ -219,7 +219,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can instantiate a component registered using a template element as its template', function(done) {
         var namespaceName = generateNamespaceName();
-        var textToFind = randomString();
+        var textToFind = _.uniqueId();
         var initializeSpy;
 
         testContainer = getFixtureContainer('<template id=' + namespaceName + '>' + textToFind + '</template><' + namespaceName + '></' + namespaceName + '>');
@@ -245,7 +245,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can instantiate a component registered using a script element as its template', function(done) {
         var namespaceName = generateNamespaceName();
-        var textToFind = randomString();
+        var textToFind = _.uniqueId();
         var initializeSpy;
 
         testContainer = getFixtureContainer('<script id=' + namespaceName + ' type="text">' + textToFind + '</script><' + namespaceName + '></' + namespaceName + '>');
@@ -271,7 +271,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can instantiate a component registered using a textarea element as its template', function(done) {
         var namespaceName = generateNamespaceName();
-        var textToFind = randomString();
+        var textToFind = _.uniqueId();
         var initializeSpy;
 
         testContainer = getFixtureContainer('<textarea id=' + namespaceName + '>' + textToFind + '</textarea><' + namespaceName + '></' + namespaceName + '>');
@@ -297,7 +297,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can instantiate a component registered using a document fragment as the template', function(done) {
         var namespaceName = generateNamespaceName();
-        var textToFind = randomString();
+        var textToFind = _.uniqueId();
         var initializeSpy;
 
         var fragment = document.createDocumentFragment();
@@ -328,7 +328,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('correctly throws an error with an invalid element specified in the template config', function() {
         var namespaceName = generateNamespaceName();
-        var textToFind = randomString();
+        var textToFind = _.uniqueId();
         var initializeSpy;
 
         testContainer = getFixtureContainer('<' + namespaceName + '></' + namespaceName + '>');
@@ -353,7 +353,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var componentInitializeSpy;
         var componentOnDisposeSpy;
         var containerViewModel;
-        var valueToCheckFor = randomString();
+        var valueToCheckFor = _.uniqueId();
 
         fw.viewModel.register(viewModelNamespaceName, viewModelInitializeSpy = jasmine.createSpy('viewModelInitializeSpy', function() {
           fw.viewModel.boot(this, {
@@ -527,7 +527,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can set and return fileExtensions correctly', function() {
         var originalExtensions = fw.components.fileExtensions;
-        var fileName = randomString();
+        var fileName = _.uniqueId();
         var extensions = {
           combined: '.combinedTest',
           viewModel: '.viewModelTest',

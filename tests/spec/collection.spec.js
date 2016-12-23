@@ -11,9 +11,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         _.each(_.range(1, 8), function(id) {
           persons.push({
             id: id,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 
@@ -69,9 +69,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         _.each(_.range(1, 8), function(id) {
           persons.push({
             id: id,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 
@@ -94,9 +94,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         _.each(_.range(1, 8), function(id) {
           persons.push({
             id: id,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
         people.set(persons);
@@ -111,29 +111,29 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can be instantiated and correctly set() with some data and options', function() {
         var initializeSpy;
-        var noMergeValue = randomString();
+        var noMergeValue = _.uniqueId();
 
         var persons = [
           {
             id: 1,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           }, {
             id: 2,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           }, {
             id: 3,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           }, {
             id: 4,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           }
         ];
 
@@ -187,9 +187,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var persons = [];
         _.each(_.range(1, 8), function() {
           persons.push({
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 
@@ -221,8 +221,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can be instantiated with some data using dataModels and then add()ed onto correctly', function() {
         var initializeSpy;
-        var insertTestValue = randomString();
-        var insertTestValue2 = randomString();
+        var insertTestValue = _.uniqueId();
+        var insertTestValue2 = _.uniqueId();
         var insertPosition = 2;
 
         var persons = [
@@ -263,9 +263,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         var mergePerson = {
           id: 100,
-          firstName: randomString(),
-          lastName: randomString(),
-          email: randomString()
+          firstName: _.uniqueId(),
+          lastName: _.uniqueId(),
+          email: _.uniqueId()
         };
         people.add(mergePerson);
         var merger = people.findWhere(mergePerson);
@@ -277,21 +277,21 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can be instantiated with some data and then add()ed onto correctly', function() {
-        var insertTestValue = randomString();
-        var insertTestValue2 = randomString();
+        var insertTestValue = _.uniqueId();
+        var insertTestValue2 = _.uniqueId();
         var insertPosition = 2;
 
         var persons = [
           {
             id: 100,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           }, {
             id: 101,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString(),
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId(),
           }
         ];
 
@@ -302,9 +302,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         people.add({
           id: 102,
-          firstName: randomString(),
-          lastName: randomString(),
-          email: randomString()
+          firstName: _.uniqueId(),
+          lastName: _.uniqueId(),
+          email: _.uniqueId()
         });
         expect(people()).lengthToBe(persons.length + 1);
 
@@ -323,9 +323,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var persons = [];
         _.each(_.range(1, 8), function() {
           persons.push({
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 
@@ -375,7 +375,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can find an item that matches a set of attributes in a complex set of models', function() {
-        var valueToFind = randomString();
+        var valueToFind = _.uniqueId();
         var persons = [
           {
             firstName: 'PersonFirstNameTest',
@@ -501,15 +501,15 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var destUrl = generateUrl();
         var responseValue = {
           success: true,
-          randomValueToFind: randomString()
+          randomValueToFind: _.uniqueId()
         };
 
         var persons = [];
         _.each(_.range(1, 8), function() {
           persons.push({
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 
@@ -534,14 +534,14 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(people()).lengthToBe(persons.length);
 
         var createdPersonData = {
-          firstName: randomString(),
-          lastName: randomString(),
-          email: randomString()
+          firstName: _.uniqueId(),
+          lastName: _.uniqueId(),
+          email: _.uniqueId()
         };
         var noWaitCreatedPersonData = {
-          firstName: randomString(),
-          lastName: randomString(),
-          email: randomString()
+          firstName: _.uniqueId(),
+          lastName: _.uniqueId(),
+          email: _.uniqueId()
         };
 
         expect(people.findWhere(noWaitCreatedPersonData)).toBe(null);
@@ -576,9 +576,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var persons = [];
         _.each(_.range(1, 8), function() {
           persons.push({
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 
@@ -593,9 +593,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         _.each(_.range(1, 8), function() {
           persons.push({
             id: undefined,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 
@@ -753,9 +753,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         _.each(_.range(1, 8), function(id) {
           persons.push({
             id: id,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
         var randomPerson = _.sample(persons);
@@ -801,9 +801,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var persons = [];
         _.each(_.range(1, 8), function(id) {
           persons.push({
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 
@@ -861,9 +861,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var persons = [];
         _.each(_.range(1, 8), function(id) {
           persons.push({
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 
@@ -897,9 +897,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var persons = [];
         _.each(_.range(1, 8), function(id) {
           persons.push({
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 
@@ -1012,9 +1012,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         _.each(_.range(1, 8), function(id) {
           persons.push({
             id: id,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 
@@ -1050,9 +1050,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         _.each(_.range(1, 8), function(id) {
           persons.push({
             id: id,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 
@@ -1088,9 +1088,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         _.each(_.range(1, 8), function(id) {
           persons.push({
             id: id,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 
@@ -1126,9 +1126,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         _.each(_.range(1, 8), function(id) {
           persons.push({
             id: id,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 
@@ -1164,9 +1164,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         _.each(_.range(1, 8), function(id) {
           persons.push({
             id: id,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 
@@ -1207,9 +1207,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         _.each(_.range(1, 8), function(id) {
           persons.push({
             id: id,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 
@@ -1245,9 +1245,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         _.each(_.range(1, 8), function(id) {
           persons.push({
             id: id,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 
@@ -1285,9 +1285,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         _.each(_.range(1, 8), function(id) {
           persons.push({
             id: id,
-            firstName: randomString(),
-            lastName: randomString(),
-            email: randomString()
+            firstName: _.uniqueId(),
+            lastName: _.uniqueId(),
+            email: _.uniqueId()
           });
         });
 

@@ -72,23 +72,6 @@ function generateUrl() {
 }
 
 /**
- * Generate a string of the length given (or a random length if none provided)
- *
- * @param {int} length (optional)
- * @returns {string} The generated string
- */
-function randomString(length) {
-  var charSet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  var result = '';
-
-  for (var i = (length || 20); i > 0; --i) {
-    result += charSet.charAt(Math.floor(Math.random() * charSet.length));
-  }
-
-  return result;
-}
-
-/**
  * Adds error output for a test to its wrapper
  *
  * @param {array} failedTests The failed tests
