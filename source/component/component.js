@@ -1,9 +1,6 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var util = require('../misc/util');
-var isPath = util.isPath;
-var privateDataSymbol = util.getSymbol('footwork');
 var regExpMatch = /^\/|\/$/g;
 
 require('./component-binding-init');
