@@ -17,12 +17,10 @@ fw[entityName] = {
   disableHistory: false,
   fileExtensions: '.js',
   defaultConfig: {
-    showDuringLoad: require('./router-config').noComponentSelected,
     onDispose: _.noop,
     baseRoute: '',
     activate: true,
-    predicate: alwaysPassPredicate,
-    transition: 0
+    predicate: alwaysPassPredicate
   }
 };
 

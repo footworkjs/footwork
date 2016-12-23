@@ -49,7 +49,7 @@ module.exports = {
       outletViewModel[privateDataSymbol].outletIsSetup = true;
 
       // Show the loading component (if one is defined)
-      options.showDuringLoad && outletViewModel.loadingDisplay(options.showDuringLoad);
+      options.loadingDisplay && outletViewModel.loadingDisplay(options.loadingDisplay);
     }
 
     var outletHasMutated = false;

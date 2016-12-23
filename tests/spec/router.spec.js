@@ -1037,7 +1037,7 @@ define(['footwork', 'lodash'],
               {
                 route: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, showDuringLoad: outletLoaderTestLoadingNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, loadingDisplay: outletLoaderTestLoadingNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
                     expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
                   }).and.callThrough() });
@@ -1100,7 +1100,7 @@ define(['footwork', 'lodash'],
               {
                 route: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, transition: 75, showDuringLoad: outletLoaderTestLoadingNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, transition: 75, loadingDisplay: outletLoaderTestLoadingNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
                     expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
                   }).and.callThrough() });

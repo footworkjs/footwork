@@ -45,7 +45,7 @@ function dataModelBootstrap (instance, configParams) {
 
     _.extend(instance, {
       requestInProgress: fw.computed(function computeRequestInProgress () {
-        return instance.isCreating() || instance.isUpdating() || instance.isReading() || instance.isDeleting();
+        return instance.isCreating() || instance.isReading() || instance.isUpdating() || instance.isDeleting();
       })
     });
 
