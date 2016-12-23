@@ -24,7 +24,6 @@ module.exports = {
     }
 
     var router = this;
-    var configParams = router[privateDataSymbol].configParams;
     var outlets = router[privateDataSymbol].outlets;
     var outletProperties = outlets[outletName] || {};
     var outlet = outletProperties.routeObservable;
@@ -50,10 +49,7 @@ module.exports = {
       outletViewModel[privateDataSymbol].outletIsSetup = true;
 
       // Show the loading component (if one is defined)
-      var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, options.display || outlet().name]);
-      if (showDuringLoadComponent) {
-        outletViewModel.loadingDisplay(showDuringLoadComponent);
-      }
+      options.showDuringLoad && outletViewModel.loadingDisplay(options.showDuringLoad);
     }
 
     var outletHasMutated = false;
@@ -72,7 +68,7 @@ module.exports = {
       if (outletHasMutated) {
         clearSequenceQueue();
 
-        currentOutletDef.transition = resultBound(configParams, 'transition', router, [outletName, options.display]);
+        currentOutletDef.transition = options.transition;
         if (outletViewModel) {
           outletViewModel[privateDataSymbol].loadingChildren.removeAll();
           outletViewModel.routeIsLoading(true);
