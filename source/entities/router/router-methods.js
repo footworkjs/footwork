@@ -113,7 +113,7 @@ module.exports = {
       viewModelMethodDispose.call(this);
 
       // deactivate the router (unbinds the history event listener)
-      this.$activated(false);
+      this.activated(false);
 
       // dispose of all privately stored properties
       _.each(this[privateDataSymbol], propertyDispose);

@@ -49,16 +49,16 @@ function routerBootstrap (instance, configParams) {
     });
 
     _.extend(instance, require('./router-methods'), {
-      $currentState: fw.observable(),
-      $activated: fw.observable(false),
-      $routes: fw.collection(privateData.configParams.routes)
+      currentState: fw.observable(),
+      activated: fw.observable(false),
+      routes: fw.collection(privateData.configParams.routes)
     });
 
     privateData.currentRoute = fw.computed(function () {
-      return getRouteForURL(instance, instance.$currentState());
+      return getRouteForURL(instance, instance.currentState());
     });
 
-    instance.$currentRoute = fw.computed(function () {
+    instance.currentRoute = fw.computed(function () {
       return (privateData.currentRoute() || {}).routeConfiguration;
     });
 
@@ -69,11 +69,11 @@ function routerBootstrap (instance, configParams) {
       fw.computed(function () {
         // Automatically trigger the currentRoute controller whenever the currentRoute() updates and the router is activated
         var currentRoute = privateData.currentRoute();
-        var $currentState = instance.$currentState();
-        var activated = instance.$activated();
+        var currentState = instance.currentState();
+        var activated = instance.activated();
         if (activated && currentRoute) {
-          if (($currentState || '').indexOf('#') !== -1) {
-            var fragmentIdentifier = $currentState.split('#')[1];
+          if ((currentState || '').indexOf('#') !== -1) {
+            var fragmentIdentifier = currentState.split('#')[1];
             privateData.scrollToFragment = function () {
               var elementToScrollTo = document.getElementById(fragmentIdentifier);
               elementToScrollTo && elementToScrollTo.scrollIntoView();
@@ -85,8 +85,8 @@ function routerBootstrap (instance, configParams) {
           triggerRoute(instance, currentRoute);
         }
       }),
-      instance.$activated.subscribe(function (activated) {
-        // activate/deactivate the router when the $activated flag is set
+      instance.activated.subscribe(function (activated) {
+        // activate/deactivate the router when the activated flag is set
         if (activated) {
           // activate the router
 
@@ -99,7 +99,7 @@ function routerBootstrap (instance, configParams) {
           /* istanbul ignore if */
           if (!fw.router.disableHistory) {
             var popstateEvent = function () {
-              instance.$currentState(getLocation());
+              instance.currentState(getLocation());
             };
 
             (function (eventInfo) {

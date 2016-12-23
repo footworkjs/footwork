@@ -102,19 +102,19 @@ function triggerRoute (router, route) {
  * @returns {object} the router
  */
 function changeRoute (router, historyMethod, route, routeParams) {
-  if (router.$activated()) {
+  if (router.activated()) {
     var namedRoute = _.isObject(routeParams) ? route : null;
     var configParams = router[privateDataSymbol].configParams;
     route = route;
 
     if (!_.isNull(namedRoute)) {
       // must convert namedRoute into its URL form
-      var routeDescription = _.find(router.$routes(), function (route) {
+      var routeDescription = _.find(router.routes(), function (route) {
         return route.name === namedRoute;
       });
 
       if (!_.isUndefined(routeDescription)) {
-        // render the url of the named route to store in the $currentState
+        // render the url of the named route to store in the currentState
         route = routeDescription.route;
         _.each(routeParams, function (value, fieldName) {
           route = route.replace(':' + fieldName, routeParams[fieldName]);
@@ -131,7 +131,7 @@ function changeRoute (router, historyMethod, route, routeParams) {
         if (!router[privateDataSymbol].activating && route && router[privateDataSymbol].historyPopstateListener() && !fw.router.disableHistory) {
           history[historyMethod + 'State'](null, '', configParams.baseRoute + route);
         }
-        router.$currentState(route);
+        router.currentState(route);
       }
     }
   }
@@ -157,7 +157,7 @@ function getRouteForURL (router, url) {
   var currentRouteDetails;
   var matchedRoutes = [];
   var routeConfiguration;
-  var routes = router.$routes();
+  var routes = router.routes();
   url = trimBaseRoute(router, stripQueryStringAndHashFromPath(url));
 
   // find all routes with a matching routeString

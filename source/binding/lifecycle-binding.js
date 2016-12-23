@@ -34,7 +34,7 @@ fw.bindingHandlers.$lifecycle = {
 
     // if this is a router and its configured to do so, activate it now that its being bound
     if (fw.isRouter(viewModel) && viewModel[privateDataSymbol].configParams.activate) {
-      viewModel.$activated(true);
+      viewModel.activated(true);
     }
 
     if (fw.isViewModel(viewModel)) {
