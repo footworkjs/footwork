@@ -30,10 +30,10 @@ fw.components.register = function (componentName, options) {
     throw Error('Components must be provided a componentName.');
   }
 
-  originalComponentRegisterFunc(componentName, {
+  originalComponentRegisterFunc(componentName, _.extend({
     viewModel: viewModel,
     template: options.template
-  });
+  }, options));
 };
 
 function forceViewModelComponentConvention (componentLocation) {

@@ -1,4 +1,4 @@
-define(['footwork', 'lodash'],
+define(['footwork', 'lodash', 'fetch-mock'],
   function(fw, _) {
     describe('viewModel', function() {
       beforeEach(prepareTestEnv);

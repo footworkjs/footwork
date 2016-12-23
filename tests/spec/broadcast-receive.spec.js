@@ -1,4 +1,4 @@
-define(['footwork'],
+define(['footwork', 'fetch-mock'],
   function(fw) {
     describe('broadcast-receive', function() {
       beforeEach(prepareTestEnv);

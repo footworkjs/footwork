@@ -1,4 +1,4 @@
-define(['footwork', 'lodash'],
+define(['footwork', 'lodash', 'fetch-mock'],
   function(fw, _) {
     describe('router', function() {
       beforeEach(prepareTestEnv);
@@ -1059,9 +1059,9 @@ define(['footwork', 'lodash'],
 
           expect(changeOutletControllerSpy).toHaveBeenCalled();
           expect(outletCallbackSpy).not.toHaveBeenCalled();
+          expect(outletLoaderTestLoadingSpy).toHaveBeenCalled();
 
           setTimeout(function() {
-            expect(outletLoaderTestLoadingSpy).toHaveBeenCalled();
             expect(outletLoaderTestLoadedSpy).toHaveBeenCalled();
             expect(outletCallbackSpy).toHaveBeenCalled();
             done();
@@ -1085,7 +1085,8 @@ define(['footwork', 'lodash'],
 
         fw.components.register(outletLoaderTestLoadingNamespace, {
           viewModel: outletLoaderTestLoadingSpy = jasmine.createSpy('outletLoaderTestLoadingSpy'),
-          template: '<div class="' + outletLoaderTestLoadingNamespace + '"></div>'
+          template: '<div class="' + outletLoaderTestLoadingNamespace + '"></div>',
+          synchronous: true
         });
 
         fw.components.register(outletLoaderTestLoadedNamespace, {
@@ -1122,9 +1123,9 @@ define(['footwork', 'lodash'],
 
           expect(changeOutletControllerSpy).toHaveBeenCalled();
           expect(outletCallbackSpy).not.toHaveBeenCalled();
+          expect(outletLoaderTestLoadingSpy).toHaveBeenCalled();
 
           setTimeout(function() {
-            expect(outletLoaderTestLoadingSpy).toHaveBeenCalled();
             expect(outletLoaderTestLoadedSpy).toHaveBeenCalled();
             expect($(testContainer).find('.fw-loaded-display.' + fw.animationClass.animateIn)).lengthToBe(0);
             expect(outletCallbackSpy).not.toHaveBeenCalled();

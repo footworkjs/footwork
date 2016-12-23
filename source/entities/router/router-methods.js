@@ -11,9 +11,7 @@ var privateDataSymbol = util.getSymbol('footwork');
 
 var viewModelMethodDispose = require('../viewModel/viewModel-methods').dispose;
 var clearSequenceQueue = require('../../binding/animation-sequencing').clearSequenceQueue;
-var routerConfig = require('./router-config');
-var noComponentSelected = routerConfig.noComponentSelected;
-var noComponentSelected = routerConfig.noComponentSelected;
+var noComponentSelected = require('./router-config').noComponentSelected;
 
 var activeOutlets = fw.observableArray();
 
@@ -34,7 +32,8 @@ module.exports = {
       outlet = fw.observable({
         name: noComponentSelected,
         params: {},
-        getOnCompleteCallback: function () { return _.noop; }
+        getOnCompleteCallback: function () { return _.noop; },
+        loadingDisplay: options.loadingDisplay
       });
 
       // register the new outlet under its outletName
@@ -49,7 +48,8 @@ module.exports = {
       outletViewModel[privateDataSymbol].outletIsSetup = true;
 
       // Show the loading component (if one is defined)
-      options.loadingDisplay && outletViewModel.loadingDisplay(options.loadingDisplay);
+      var loadingDisplay = arguments.length > 1 ? options.loadingDisplay : outlet().loadingDisplay;
+      loadingDisplay && outletViewModel.loadingDisplay(loadingDisplay);
     }
 
     var outletHasMutated = false;
