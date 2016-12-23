@@ -22,20 +22,6 @@ fw.components.fileExtensions = {
   template: '.html'
 };
 
-var originalComponentRegisterFunc = fw.components.register;
-fw.components.register = function (componentName, options) {
-  var viewModel = options.viewModel || options.dataModel || options.router;
-
-  if (!_.isString(componentName)) {
-    throw Error('Components must be provided a componentName.');
-  }
-
-  originalComponentRegisterFunc(componentName, _.extend({
-    viewModel: viewModel,
-    template: options.template
-  }, options));
-};
-
 function forceViewModelComponentConvention (componentLocation) {
   if (_.isObject(componentLocation) && _.isUndefined(componentLocation.viewModel) && _.isUndefined(componentLocation.combined)) {
     return {

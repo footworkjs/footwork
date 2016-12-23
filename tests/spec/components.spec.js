@@ -630,12 +630,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, ajaxWait);
       });
 
-      it('throws error when not provided a component name to register', function() {
-        var namespaceName = 'template-only-component';
-
-        expect(function() { fw.components.register(null, function() {}) }).toThrow();
-      });
-
       it('can specify and load via a registered combined component module', function(done) {
         var namespaceName = 'registered-combined-component-location';
 
