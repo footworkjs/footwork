@@ -86,7 +86,7 @@ function save (options) {
           }
 
           // clear all dirty flags for mapped observables
-          _.each(dataModel[privateDataSymbol].mappings, function(mappedObservable) {
+          _.each(dataModel[privateDataSymbol].mappings, function (mappedObservable) {
             mappedObservable.isDirty(false);
           });
         });

@@ -45,7 +45,7 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
     });
 
     // Setup the request handler which returns the instance
-    instance.disposeWithInstance(fw.namespace(requestHandlerDescriptor.referenceNamespace).requestHandler('ref', function(namespaceName) {
+    instance.disposeWithInstance(fw.namespace(requestHandlerDescriptor.referenceNamespace).requestHandler('ref', function (namespaceName) {
       if (_.isString(namespaceName) || _.isArray(namespaceName)) {
         if (_.isArray(namespaceName) && _.indexOf(namespaceName, configParams.namespace) !== -1) {
           return instance;

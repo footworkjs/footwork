@@ -11,7 +11,7 @@ var bindingElement = {
 
 /* istanbul ignore next */
 (function checkForOldIE () {
-  if(typeof navigator !== 'undefined') {
+  if (typeof navigator !== 'undefined') {
     var clientNavigator = navigator.userAgent.toLowerCase();
     var exploderVersion = (clientNavigator.indexOf('msie') != -1) ? parseInt(clientNavigator.split('msie')[1]) : (oldExploderVersion + 1);
 

@@ -17,7 +17,7 @@ var activeOutlets = fw.observableArray();
 
 module.exports = {
   outlet: function (outletName, options) {
-    if(!_.isObject(options)) {
+    if (!_.isObject(options)) {
       options = { display: arguments.length > 1 ? options || noComponentSelected : undefined };
     }
 

@@ -75,8 +75,8 @@ function pluck (attribute) {
  */
 function toJSON () {
   var data = this.get();
-  return _.reduce(this.get(), function(blob, entry) {
-    if(fw.isDataModel(entry)) {
+  return _.reduce(this.get(), function (blob, entry) {
+    if (fw.isDataModel(entry)) {
       blob.push(entry.get());
     } else {
       blob.push(entry);
@@ -93,9 +93,9 @@ function toJSON () {
  */
 function get (id) {
   var collection = this;
-  return _.reduce(collection(), function(found, model) {
+  return _.reduce(collection(), function (found, model) {
     var wasFound = _.isUndefined(id) || _.result(model, collection[privateDataSymbol].getIdAttribute()) === id;
-    if(id && !found && wasFound) {
+    if (id && !found && wasFound) {
       found = model;
     } else if (!id && wasFound) {
       found.push(model);
