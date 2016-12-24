@@ -12,7 +12,6 @@ require('./route-binding');
 
 fw[entityName] = {
   boot: require('./router-bootstrap'),
-  baseRoute: '',
   activeClass: 'active',
   disableHistory: false,
   fileExtensions: '.js',

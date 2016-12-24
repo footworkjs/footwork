@@ -43,9 +43,7 @@ function routerBootstrap (instance, configParams) {
       unregisterOutlet: _.partial(unregisterOutlet, instance),
       historyPopstateListener: fw.observable(),
       outlets: {},
-      configParams: _.extend(privateData.configParams, descriptor.resource.defaultConfig, {
-        baseRoute: fw.router.baseRoute + (resultBound(configParams, 'baseRoute', instance) || '')
-      }, configParams || {})
+      configParams: _.extend(privateData.configParams, descriptor.resource.defaultConfig, configParams || {})
     });
 
     _.extend(instance, require('./router-methods'), {

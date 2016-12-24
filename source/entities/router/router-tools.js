@@ -9,9 +9,6 @@ var resultBound = util.resultBound;
 var alwaysPassPredicate = util.alwaysPassPredicate;
 var privateDataSymbol = util.getSymbol('footwork');
 
-var routerConfig = require('./router-config');
-var baseRoute = routerConfig.baseRoute;
-
 var optionalParamRegex = /\((.*?)\)/g;
 var namedParamRegex = /(\(\?)?:\w+/g;
 var splatParamRegex = /\*\w*/g;
@@ -71,9 +68,9 @@ function unregisterOutlet (router, outletName) {
 }
 
 function trimBaseRoute (router, url) {
-  var configParams = router[privateDataSymbol].configParams;
-  if (configParams.baseRoute && url && url.indexOf(configParams.baseRoute) === 0) {
-    url = url.substr(configParams.baseRoute.length);
+  var baseRoute = router[privateDataSymbol].configParams.baseRoute;
+  if (baseRoute && url && url.indexOf(baseRoute) === 0) {
+    url = url.substr(baseRoute.length);
     if (url.length > 1) {
       url = url.replace(hashMatchRegex, '/');
     }
