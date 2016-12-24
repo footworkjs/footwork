@@ -125,7 +125,7 @@ function changeRoute (router, historyMethod, route, routeParams) {
       var foundRoute = getRouteForURL(router, route);
       if (foundRoute && (foundRoute.routeConfiguration.predicate || alwaysPassPredicate).call(router, foundRoute.url) && resultBound(configParams, 'predicate', router, [route || '/'])) {
         /* istanbul ignore if */
-        if (!router[privateDataSymbol].activating && route && router[privateDataSymbol].historyPopstateListener() && !fw.router.disableHistory) {
+        if (!router[privateDataSymbol].activating && route && router[privateDataSymbol].historyPopstateHandler && !fw.router.disableHistory) {
           history[historyMethod + 'State'](null, '', configParams.baseRoute + route);
         }
         router.currentState(route);

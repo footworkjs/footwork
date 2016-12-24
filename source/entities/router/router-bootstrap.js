@@ -41,7 +41,6 @@ function routerBootstrap (instance, configParams) {
     _.extend(privateData, {
       registerOutlet: _.partial(registerOutlet, instance),
       unregisterOutlet: _.partial(unregisterOutlet, instance),
-      historyPopstateListener: fw.observable(),
       outlets: {},
       configParams: _.extend(privateData.configParams, descriptor.resource.defaultConfig, configParams || {})
     });
@@ -96,15 +95,11 @@ function routerBootstrap (instance, configParams) {
           // setup html5 history event listener
           /* istanbul ignore if */
           if (!fw.router.disableHistory) {
-            var popstateEvent = function () {
-              instance.currentState(getLocation());
-            };
-
             (function (eventInfo) {
-              window[eventInfo[0]](eventInfo[1] + 'popstate', popstateEvent, false);
+              window[eventInfo[0]](eventInfo[1] + 'popstate', privateData.historyPopstateHandler = function popstateEventHandler () {
+                instance.currentState(getLocation());
+              }, false);
             })(window.addEventListener ? ['addEventListener', ''] : /* istanbul ignore next */ ['attachEvent', 'on']);
-
-            privateData.historyPopstateListener(popstateEvent);
           }
 
           // notify any listeners of the activation event
@@ -113,11 +108,10 @@ function routerBootstrap (instance, configParams) {
           // deactivate the router
 
           // dispose of the history popstate event listener
-          var historyPopstateListener = privateData.historyPopstateListener();
           /* istanbul ignore if */
-          if (historyPopstateListener) {
+          if (privateData.historyPopstateHandler) {
             (function popStateListener (eventInfo) {
-              window[eventInfo[0]](eventInfo[1] + 'popstate', historyPopstateListener);
+              window[eventInfo[0]](eventInfo[1] + 'popstate', privateData.historyPopstateHandler);
             })(window.removeEventListener ? ['removeEventListener', ''] : /* istanbul ignore next */ ['detachEvent', 'on']);
           }
         }
