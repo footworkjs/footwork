@@ -48,7 +48,7 @@ function routerBootstrap (instance, configParams) {
     _.extend(instance, require('./router-methods'), {
       currentState: fw.observable(),
       activated: fw.observable(false),
-      routes: fw.collection(privateData.configParams.routes)
+      routes: fw.observableArray(privateData.configParams.routes)
     });
 
     privateData.currentRoute = fw.computed(function () {
