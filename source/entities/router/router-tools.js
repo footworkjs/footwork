@@ -13,7 +13,6 @@ var optionalParamRegex = /\((.*?)\)/g;
 var namedParamRegex = /(\(\?)?:\w+/g;
 var splatParamRegex = /\*\w*/g;
 var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
-var hashMatchRegex = /(^\/#)/;
 
 function sameRoute (route1, route2) {
   return route1.routeConfiguration === route2.routeConfiguration && _.isEqual(route1.routeParams, route2.routeParams);
@@ -67,13 +66,16 @@ function unregisterOutlet (router, outletName) {
   delete router[privateDataSymbol].outlets[outletName];
 }
 
+/**
+ * Remove the begging portion of a url so that when matching routes we do not need to specify it in each one
+ *
+ * @param {object} router the router
+ * @param {string} url portion of url to ignore
+ */
 function trimBaseRoute (router, url) {
   var baseRoute = router[privateDataSymbol].configParams.baseRoute;
   if (baseRoute && url && url.indexOf(baseRoute) === 0) {
     url = url.substr(baseRoute.length);
-    if (url.length > 1) {
-      url = url.replace(hashMatchRegex, '/');
-    }
   }
   return url;
 }
@@ -231,7 +233,6 @@ function getLocation () {
 
 module.exports = {
   namedParamRegex: namedParamRegex,
-  hashMatchRegex: hashMatchRegex,
   routeStringToRegExp: routeStringToRegExp,
   nearestParentRouter: nearestParentRouter,
   registerOutlet: registerOutlet,
