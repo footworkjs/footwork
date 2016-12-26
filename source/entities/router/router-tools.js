@@ -168,7 +168,7 @@ function getRouteForURL (router, url) {
 
         if (_.isString(routeString) && _.isString(url)) {
           routeParams = url.match(routeStringToRegExp(routeString));
-          if (!_.isNull(routeParams) && (routeConfiguration.filter || alwaysPassPredicate).call(router, routeParams)) {
+          if (!_.isNull(routeParams)) {
             matches.push({
               routeString: routeString,
               specificity: routeString.replace(namedParamRegex, "*").length,
