@@ -11,12 +11,9 @@ var privateDataSymbol = util.getSymbol('footwork');
 
 var optionalParamRegex = /\((.*?)\)/g;
 var namedParamRegex = /(\(\?)?:\w+/g;
+var requiredNamedParamRegex = /\/:(\w+)/g;
 var splatParamRegex = /\*\w*/g;
 var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
-
-function sameRoute (route1, route2) {
-  return route1.routeConfiguration === route2.routeConfiguration && _.isEqual(route1.routeParams, route2.routeParams);
-}
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine
 // whether that uri matches the described route as well as parse and retrieve its tokens
@@ -80,64 +77,6 @@ function trimBaseRoute (router, url) {
   return url;
 }
 
-function triggerRoute (router, route) {
-  if (!_.isUndefined(route.title)) {
-    window.document.title = _.isFunction(route.title) ? route.title.apply(router, _.values(route.routeParams)) : route.title;
-  }
-
-  if (_.isUndefined(router[privateDataSymbol].previousRoute) || !sameRoute(router[privateDataSymbol].previousRoute, route)) {
-    router[privateDataSymbol].previousRoute = route;
-    route.controller.apply(router, _.values(route.routeParams));
-  }
-}
-
-/**
- * Change the route on the specified router to the specified route using the specified historyMethod and routeParams
- *
- * @param {object} router The router instance to manipulate
- * @param {string} historyMethod push/replace the url onto the history stack (if using history)
- * @param {string} route The desired route to change to
- * @param {object} routeParams (optional) parameters to pass to the route controller
- * @returns {object} the router
- */
-function changeRoute (router, historyMethod, route, routeParams) {
-  if (router.activated()) {
-    var namedRoute = _.isObject(routeParams) ? route : null;
-    var configParams = router[privateDataSymbol].configParams;
-    route = route;
-
-    if (!_.isNull(namedRoute)) {
-      // must convert namedRoute into its URL form
-      var routeDescription = _.find(router.routes(), function (route) {
-        return route.name === namedRoute;
-      });
-
-      if (!_.isUndefined(routeDescription)) {
-        // render the url of the named route to store in the currentState
-        route = routeDescription.route;
-        _.each(routeParams, function (value, fieldName) {
-          route = route.replace(':' + fieldName, routeParams[fieldName]);
-        });
-      } else {
-        throw Error('Could not locate named route: ' + namedRoute);
-      }
-    }
-
-    if (!fw.utils.isFullURL(route)) {
-      var foundRoute = getRouteForURL(router, route);
-      if (foundRoute && (foundRoute.routeConfiguration.predicate || alwaysPassPredicate).call(router, foundRoute.url) && resultBound(configParams, 'predicate', router, [route || '/'])) {
-        /* istanbul ignore if */
-        if (!router[privateDataSymbol].activating && route && router[privateDataSymbol].historyPopstateHandler && !fw.router.disableHistory) {
-          history[historyMethod + 'State'](null, '', configParams.baseRoute + route);
-        }
-        router.currentState(route);
-      }
-    }
-  }
-
-  return router;
-}
-
 /**
  * Remove the query string and hash from a url
  *
@@ -152,73 +91,115 @@ function stripQueryStringAndHashFromPath (url) {
   }
 }
 
-function getRouteForURL (router, url) {
-  var currentRouteDetails;
-  var matchedRoutes = [];
-  var routeConfiguration;
-  var routes = router.routes();
-  url = trimBaseRoute(router, stripQueryStringAndHashFromPath(url));
+function getRouteParams (route, url) {
+  var matchedRoute = getMatchedRoutes(route, url)[0];
 
-  // find all routes with a matching routeString
-  if (routes) {
-    matchedRoutes = _.reduce(routes, function (matches, routeConfiguration) {
-      var routeConfigRoute = [].concat(routeConfiguration.route);
-      _.each(routeConfigRoute, function (routeString) {
-        var routeParams = [];
-
-        if (_.isString(routeString) && _.isString(url)) {
-          routeParams = url.match(routeStringToRegExp(routeString));
-          if (!_.isNull(routeParams)) {
-            matches.push({
-              routeString: routeString,
-              specificity: routeString.replace(namedParamRegex, "*").length,
-              routeConfiguration: routeConfiguration,
-              routeParams: routeParams
-            });
-          }
-        }
-      });
-      return matches;
-    }, []);
-  }
-
-  // If there are matchedRoutes, find the one with the highest 'specificity' (longest matching routeString)
-  // and convert it into the actual route
-  if (matchedRoutes.length) {
-    var matchedRoute = _.reduce(matchedRoutes, function (matchedRoute, foundRoute) {
-      if (_.isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity) {
-        matchedRoute = foundRoute;
-      }
-      return matchedRoute;
-    }, null);
-
-    var routeString = matchedRoute.routeString;
-    var routeParams = _.clone(matchedRoute.routeParams);
-    var routeParamNames = _.map(routeString.match(namedParamRegex), function (param) {
+  if (matchedRoute) {
+    var routeUrl = getMatchedRoutes(route, url)[0].routeString;
+    var routeParamNames = _.map(routeUrl.match(namedParamRegex), function (param) {
       return param.replace(':', '');
     });
-    var routeParams = _.reduce(routeParamNames, function (parameterNames, parameterName, index) {
+    var routeParams = url.match(routeStringToRegExp(routeUrl));
+
+    return _.reduce(routeParamNames, function (parameterNames, parameterName, index) {
       parameterNames[parameterName] = routeParams[index + 1];
       return parameterNames;
     }, {});
-
-    currentRouteDetails = {
-      url: url,
-      routeParams: routeParams
-    };
-
-    routeConfiguration = matchedRoute.routeConfiguration;
-  } else {
-    routeConfiguration = _.find(routes, { unknown: true }) || {};
   }
 
-  return _.extend({
-    routeConfiguration: routeConfiguration,
-    controller: routeConfiguration.controller || _.noop,
-    name: routeConfiguration.name,
-    title: routeConfiguration.title,
-    routeParams: {}
-  }, currentRouteDetails);
+  return {};
+}
+
+function getUnknownRoute (router) {
+  return _.find(router.routes(), { unknown: true });
+}
+
+/**
+ * Change the route on the specified router to the specified route.
+ *
+ * @param {object} router The router instance to manipulate
+ * @param {string} historyMethod push/replace the url onto the history stack (if using history)
+ * @param {string} route The desired route to change to
+ * @returns {object} the router
+ */
+function changeState (router, historyMethod, newState) {
+  if (router.activated()) {
+    var configParams = router[privateDataSymbol].configParams;
+    var foundRoute = null;
+    var routeUrl;
+
+    if (_.isObject(newState)) {
+      // find named route
+      foundRoute = _.find(router.routes(), function (routeConfig) {
+        var requiredRouteParams = [];
+        var isNamedRoute = routeConfig.name === newState.name;
+        if (isNamedRoute) {
+          requiredRouteParams = _.map(routeConfig.route.match(requiredNamedParamRegex), function (param) {
+            return param.substr(2);
+          });
+
+          return _.isEqual(requiredRouteParams, _.keys(newState.params));
+        }
+        return false;
+      });
+
+      if (foundRoute) {
+        // render the url of the named route to store in the currentState
+        routeUrl = foundRoute.route;
+        _.each(newState.params, function (value, fieldName) {
+          routeUrl = routeUrl.replace(':' + fieldName, routeUrlParams[fieldName]);
+        });
+      } else {
+        foundRoute = getUnknownRoute(router);
+        routeUrl = newState;
+      }
+    } else if (!fw.utils.isFullURL(newState)) {
+      // find route via url route string
+      foundRoute = getRouteForURL(router, newState);
+      routeUrl = newState;
+    }
+
+    if (foundRoute && (foundRoute.predicate || alwaysPassPredicate).call(router, routeUrl) && configParams.predicate.call(router, routeUrl)) {
+      /* istanbul ignore if */
+      if (historyMethod && routeUrl && !fw.router.disableHistory) {
+        history[historyMethod + 'State'](null, '', configParams.baseRoute + routeUrl);
+      }
+
+      router.currentState(routeUrl);
+    }
+  }
+
+  return router;
+}
+
+function getRouteForURL (router, url) {
+  var routes = router.routes.peek();
+  var matchedRoutes = getMatchedRoutes(routes, trimBaseRoute(router, stripQueryStringAndHashFromPath(url)));
+  var matchedRoute;
+
+  // If there are matchedRoutes, return the one with the highest 'specificity'
+  if (matchedRoutes.length) {
+    matchedRoute = matchedRoutes[0].routeConfiguration;
+  }
+
+  return matchedRoute || getUnknownRoute(router);
+}
+
+function getMatchedRoutes (routes, url) {
+  return _.reduce([].concat(routes), function (matches, routeConfiguration) {
+    _.each([].concat(routeConfiguration.route), function (routeString) {
+      if (_.isString(routeString) && _.isString(url) && url.match(routeStringToRegExp(routeString))) {
+        matches.push({
+          specificity: routeString.replace(namedParamRegex, "*").length,
+          routeConfiguration: routeConfiguration,
+          routeString: routeString
+        });
+      }
+    });
+    return matches;
+  }, []).sort(function orderBySpecificity (a, b) {
+    return a.specificity > b.specificity ? -1 : 0;
+  });
 }
 
 /**
@@ -232,13 +213,12 @@ function getLocation () {
 }
 
 module.exports = {
-  namedParamRegex: namedParamRegex,
   routeStringToRegExp: routeStringToRegExp,
   nearestParentRouter: nearestParentRouter,
   registerOutlet: registerOutlet,
   unregisterOutlet: unregisterOutlet,
-  changeRoute: changeRoute,
+  changeState: changeState,
   getRouteForURL: getRouteForURL,
-  triggerRoute: triggerRoute,
-  getLocation: getLocation
+  getLocation: getLocation,
+  getRouteParams: getRouteParams
 };

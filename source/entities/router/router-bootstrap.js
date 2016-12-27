@@ -13,8 +13,9 @@ var routerTools = require('./router-tools');
 var registerOutlet = routerTools.registerOutlet;
 var unregisterOutlet = routerTools.unregisterOutlet;
 var getRouteForURL = routerTools.getRouteForURL;
-var triggerRoute = routerTools.triggerRoute;
 var getLocation = routerTools.getLocation;
+var changeState = routerTools.changeState;
+var getRouteParams = routerTools.getRouteParams;
 
 /**
  * Bootstrap an instance with router capabilities (state management, outlet control, etc).
@@ -51,69 +52,66 @@ function routerBootstrap (instance, configParams) {
       routes: fw.observableArray(privateData.configParams.routes)
     });
 
-    privateData.currentRoute = fw.computed(function () {
+    instance.currentRoute = fw.computed(function () {
+      var currentState = instance.currentState();
       return getRouteForURL(instance, instance.currentState());
     });
 
-    instance.currentRoute = fw.computed(function () {
-      return (privateData.currentRoute() || {}).routeConfiguration;
-    });
-
-    instance.$namespace.subscribe('pushState', _.partial(routerStateChangeCommandHandler, instance, 'push'));
-    instance.$namespace.subscribe('replaceState', _.partial(routerStateChangeCommandHandler, instance, 'replace'));
-
+    var previousRoute;
+    var previousRouteParams;
     instance.disposeWithInstance(
-      fw.computed(function () {
-        // Automatically trigger the currentRoute controller whenever the currentRoute() updates and the router is activated
-        var currentRoute = privateData.currentRoute();
-        var currentState = instance.currentState();
-        var activated = instance.activated();
-        if (activated && currentRoute) {
-          if ((currentState || '').indexOf('#') !== -1) {
-            var fragmentIdentifier = currentState.split('#')[1];
-            privateData.scrollToFragment = function () {
-              var elementToScrollTo = document.getElementById(fragmentIdentifier);
-              elementToScrollTo && elementToScrollTo.scrollIntoView();
-            };
-          } else {
-            privateData.scrollToFragment = _.noop;
-          }
-
-          triggerRoute(instance, currentRoute);
-        }
-      }),
       instance.activated.subscribe(function (activated) {
         // activate/deactivate the router when the activated flag is set
         if (activated) {
           // activate the router
+          // set the current state/route as of page-load
+          changeState(instance, null, getLocation());
 
-          // set the current state as of page-load
-          privateData.activating = true;
-          instance.pushState(getLocation());
-          privateData.activating = false;
-
-          // setup html5 history event listener
           /* istanbul ignore if */
           if (!fw.router.disableHistory) {
-            (function (eventInfo) {
+            (function setupPopStateListener (eventInfo) {
               window[eventInfo[0]](eventInfo[1] + 'popstate', privateData.historyPopstateHandler = function popstateEventHandler () {
                 instance.currentState(getLocation());
               }, false);
-            })(window.addEventListener ? ['addEventListener', ''] : /* istanbul ignore next */ ['attachEvent', 'on']);
+            })(window.addEventListener ? ['addEventListener', ''] : ['attachEvent', 'on']);
           }
 
           // notify any listeners of the activation event
           instance.$namespace.publish('activated', true);
         } else {
           // deactivate the router
-
-          // dispose of the history popstate event listener
           /* istanbul ignore if */
           if (privateData.historyPopstateHandler) {
-            (function popStateListener (eventInfo) {
+            (function removePopStateListener (eventInfo) {
               window[eventInfo[0]](eventInfo[1] + 'popstate', privateData.historyPopstateHandler);
-            })(window.removeEventListener ? ['removeEventListener', ''] : /* istanbul ignore next */ ['detachEvent', 'on']);
+            })(window.removeEventListener ? ['removeEventListener', ''] : ['detachEvent', 'on']);
           }
+        }
+      }),
+      instance.currentRoute.subscribe(function (currentRoute) {
+        // Automatically trigger the currentRoute controller whenever the currentRoute() updates and the router is activated
+        var currentState = instance.currentState() || '';
+        var routeParams = getRouteParams(currentRoute, currentState);
+
+        if (instance.activated() && currentRoute && (previousRoute !== currentRoute || !_.isEqual(previousRouteParams, routeParams))) {
+          previousRouteParams = routeParams;
+          previousRoute = currentRoute;
+
+          if (currentState.indexOf('#') !== -1) {
+            var fragmentIdentifier = currentState.split('#')[1];
+            privateData.scrollToFragment = function () {
+              var elementToScrollTo = document.getElementById(fragmentIdentifier);
+              elementToScrollTo && _.isFunction(elementToScrollTo.scrollIntoView) && elementToScrollTo.scrollIntoView();
+            };
+          } else {
+            privateData.scrollToFragment = _.noop;
+          }
+
+          // trigger the route
+          if (currentRoute.title) {
+            window.document.title = resultBound(currentRoute, 'title', instance);
+          }
+          currentRoute.controller.call(instance, routeParams);
         }
       })
     );

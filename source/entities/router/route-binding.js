@@ -52,12 +52,12 @@ fw.bindingHandlers.$route = {
       routeHandlerDescription.url = function () { return routeHandlerDescriptionURL; };
     }
 
-    function checkForMatchingRoute (myRoute, newRoute) {
-      var currentRoute = router[privateDataSymbol].currentRoute();
+    function checkForMatchingRoute (myRoute) {
+      var currentState = router.currentState();
       var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router);
 
-      if (_.isObject(currentRoute) && activeRouteClassName) {
-        if (!_.isNull(newRoute) && newRoute.url === myRoute) {
+      if (activeRouteClassName) {
+        if (myRoute === currentState) {
           addClass(element, activeRouteClassName);
         } else {
           removeClass(element, activeRouteClassName);
@@ -78,11 +78,11 @@ fw.bindingHandlers.$route = {
       if (_.isObject(stateTracker) && _.isFunction(stateTracker.dispose)) {
         stateTracker.dispose();
       }
-      stateTracker = router[privateDataSymbol].currentRoute.subscribe(_.partial(checkForMatchingRoute, routeUrl));
+      stateTracker = router.currentRoute.subscribe(_.partial(checkForMatchingRoute, routeUrl));
 
       if (elementIsSetup === false) {
         elementIsSetup = true;
-        checkForMatchingRoute(routeUrl, router[privateDataSymbol].currentRoute());
+        checkForMatchingRoute(routeUrl);
 
         fw.utils.registerEventHandler(element, resultBound(routeHandlerDescription, 'on', router), function (event) {
           var currentRouteURL = routeHandlerDescription.url();

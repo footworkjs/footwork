@@ -584,50 +584,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
-          router.pushState(mockNamedState, { name: true });
+          router.pushState({ name: mockNamedState });
           expect(routeControllerSpy).toHaveBeenCalled();
-
-          expect(function() {router.pushState('state-that-does-not-exist', { named: true })}).toThrow();
-
-          done();
-        }, ajaxWait);
-      });
-
-      it('can trigger a specified name-based route with a command', function(done) {
-        var mockNamedState = _.uniqueId();
-        var mockUrl = generateUrl();
-        var namespaceName = generateNamespaceName();
-        var routeControllerSpy = jasmine.createSpy('routeControllerSpy');
-        var initializeSpy;
-        var router;
-
-        fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
-          fw.router.boot(this, {
-            namespace: namespaceName,
-            routes: [
-              {
-                route: mockUrl,
-                name: mockNamedState,
-                controller: routeControllerSpy
-              }
-            ]
-          });
-          router = this;
-        }).and.callThrough());
-
-        expect(routeControllerSpy).not.toHaveBeenCalled();
-        expect(initializeSpy).not.toHaveBeenCalled();
-
-        fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '"></router>'));
-
-        var routerNS = fw.namespace(namespaceName);
-
-        setTimeout(function() {
-          expect(initializeSpy).toHaveBeenCalled();
-          routerNS.publish('pushState', { name: mockNamedState });
-          expect(routeControllerSpy).toHaveBeenCalled();
-
-          expect(function() {router.pushState('state-that-does-not-exist', { named: true })}).toThrow();
 
           done();
         }, ajaxWait);
@@ -681,7 +639,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 route: mockUrl + '/:testParam',
                 controller: routeControllerSpy = jasmine.createSpy('routeControllerSpy', function(passedTestParam) {
-                  expect(passedTestParam).toBe(testParam);
+                  expect(passedTestParam).toEqual({ testParam: testParam });
                 }).and.callThrough()
               }
             ]
@@ -719,12 +677,12 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 route: mockUrl + '/optParamNotSupplied(/:testParam)',
                 controller: optParamNotSuppliedSpy = jasmine.createSpy('optParamNotSuppliedSpy', function(testParam) {
-                  expect(testParam).toBe(undefined);
+                  expect(testParam).toEqual({ testParam: undefined });
                 }).and.callThrough()
               }, {
                 route: mockUrl + '/optParamSupplied(/:testParam)',
                 controller: optParamSuppliedSpy = jasmine.createSpy('optParamSuppliedSpy', function(passedTestParam) {
-                  expect(passedTestParam).toBe(testParam);
+                  expect(passedTestParam).toEqual({ testParam: testParam });
                 }).and.callThrough()
               }
             ]
@@ -1989,58 +1947,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, ajaxWait);
       });
 
-      it('can trigger a route via the pushState command', function() {
-        var namespaceName = generateNamespaceName();
-        var mockUrl = generateUrl();
-        var routeSpy = jasmine.createSpy('routeSpy');
-        var MyRouter = function() {
-          fw.router.boot(this, {
-            namespace: namespaceName,
-            routes: [
-              {
-                route: mockUrl,
-                controller: routeSpy
-              }
-            ]
-          });
-        };
-
-        var router = new MyRouter();
-        expect(routeSpy).not.toHaveBeenCalled();
-
-        router.activated(true);
-        expect(routeSpy).not.toHaveBeenCalled();
-
-        fw.namespace(namespaceName).publish('pushState', mockUrl);
-        expect(routeSpy).toHaveBeenCalled();
-      });
-
-      it('can trigger a route via the replaceState command', function() {
-        var namespaceName = generateNamespaceName();
-        var mockUrl = generateUrl();
-        var routeSpy = jasmine.createSpy('routeSpy');
-        var MyRouter = function() {
-          fw.router.boot(this, {
-            namespace: namespaceName,
-            routes: [
-              {
-                route: mockUrl,
-                controller: routeSpy
-              }
-            ]
-          });
-        };
-
-        var router = new MyRouter();
-        expect(routeSpy).not.toHaveBeenCalled();
-
-        router.activated(true);
-        expect(routeSpy).not.toHaveBeenCalled();
-
-        fw.namespace(namespaceName).publish('replaceState', mockUrl);
-        expect(routeSpy).toHaveBeenCalled();
-      });
-
       it('can be activated and deactivated', function() {
         var namespaceName = generateNamespaceName();
         var mockUrl = generateUrl();
@@ -2070,23 +1976,23 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         var routerNS = fw.namespace(namespaceName);
 
-        routerNS.publish('replaceState', mockUrl);
+        router.replaceState(mockUrl);
         expect(routeSpy).toHaveBeenCalled();
         router.activated(false);
 
-        routerNS.publish('replaceState', mockUrl2);
+        router.replaceState(mockUrl2);
         expect(routeSpy).toHaveBeenCalledTimes(1);
         router.activated(true);
 
-        routerNS.publish('pushState', mockUrl2);
+        router.replaceState(mockUrl2);
         expect(routeSpy).toHaveBeenCalledTimes(2);
         router.activated(false);
 
-        routerNS.publish('replaceState', mockUrl);
+        router.replaceState(mockUrl);
         expect(routeSpy).toHaveBeenCalledTimes(2);
         router.activated(true);
 
-        routerNS.publish('pushState', mockUrl);
+        router.replaceState(mockUrl);
         expect(routeSpy).toHaveBeenCalledTimes(3);
       });
     });

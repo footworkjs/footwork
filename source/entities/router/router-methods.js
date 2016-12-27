@@ -2,7 +2,7 @@ var _ = require('footwork-lodash');
 var fw = require('knockout/build/output/knockout-latest');
 
 var isEntity = require('../entity-tools').isEntity;
-var changeRoute = require('./router-tools').changeRoute;
+var changeState = require('./router-tools').changeState;
 
 var util = require('../../misc/util');
 var resultBound = util.resultBound;
@@ -48,7 +48,6 @@ module.exports = {
     var loadingDisplay = arguments.length > 1 ? (options.loading || routerOutletOptions.loading) : outlet().loading;
     if (outletViewModel && loadingDisplay) {
       outletViewModel.loading(loadingDisplay);
-      delete routerOutletOptions.loading;
     }
 
     var outletHasMutated = false;
@@ -99,13 +98,13 @@ module.exports = {
 
     return outlet;
   },
-  replaceState: function (route, routeParams) {
-    changeRoute(this, 'replace', route, routeParams);
-    return self;
+  replaceState: function (route) {
+    fw.ignoreDependencies(changeState, this, [this, 'replace', route]);
+    return this;
   },
-  pushState: function (route, routeParams) {
-    changeRoute(this, 'push', route, routeParams);
-    return self;
+  pushState: function (route) {
+    fw.ignoreDependencies(changeState, this, [this, 'push', route]);
+    return this;
   },
   dispose: function () {
     if (!this[privateDataSymbol].isDisposed) {
