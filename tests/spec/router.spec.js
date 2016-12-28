@@ -658,7 +658,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 route: mockUrl + '/:testParam(/:optional)',
                 controller: specificRouteControllerSpy = jasmine.createSpy('specificRouteControllerSpy', function(passedTestParam) {
-                  expect(passedTestParam).toEqual({ testParam: testParam, optional: 'optional' });
+                  expect(passedTestParam).toEqual({ testParam: testParam, optional: undefined });
                 }).and.callThrough()
               }
             ]
@@ -674,7 +674,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
 
-          router.replaceState(mockUrl + '/' + testParam + '/optional');
+          router.replaceState(mockUrl + '/' + testParam);
 
           expect(routeControllerSpy).not.toHaveBeenCalled();
           expect(specificRouteControllerSpy).toHaveBeenCalled();
