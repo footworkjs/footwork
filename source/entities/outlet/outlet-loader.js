@@ -3,13 +3,6 @@ var _ = require('footwork-lodash');
 
 var bindingElement = require('../../binding/binding-element');
 var routerConfig = require('../router/router-config');
-var outletLoadedDisplay = routerConfig.outletLoadedDisplay;
-var outletLoadingDisplay = routerConfig.outletLoadingDisplay;
-
-
-function Outlet () {
-  fw.outlet.boot(this);
-}
 
 /**
  * The outlet loader has two functions:
@@ -20,11 +13,13 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
   getConfig: function (componentName, callback) {
     if (componentName === 'outlet') {
       callback({
-        viewModel: Outlet,
+        viewModel: function Outlet () {
+          fw.outlet.boot(this);
+        },
         template: bindingElement.open.prefix + '$lifecycle, $outlet' + bindingElement.open.postfix +
-          '<div class="' + outletLoadingDisplay + '" ' +
+          '<div class="' + routerConfig.outletLoadingDisplay + '" ' +
             'data-bind="style: loadingStyle, css: loadingClass, component: loading"></div>' +
-          '<div class="' + outletLoadedDisplay + '" ' +
+          '<div class="' + routerConfig.outletLoadedDisplay + '" ' +
             'data-bind="style: loadedStyle, css: loadedClass, component: display"></div>' +
         bindingElement.close,
         synchronous: true

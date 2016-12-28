@@ -88,7 +88,7 @@ function routerBootstrap (instance, configParams) {
         }
       }),
       instance.currentRoute.subscribe(function (currentRoute) {
-        // Automatically trigger the currentRoute controller whenever the currentRoute() updates and the router is activated
+        // Trigger the currentRoute controller whenever the currentRoute() updates
         var currentState = instance.currentState() || '';
         var routeParams = getRouteParams(currentRoute, currentState);
 
@@ -106,7 +106,7 @@ function routerBootstrap (instance, configParams) {
             privateData.scrollToFragment = _.noop;
           }
 
-          // trigger the route
+          // set the title and trigger the controller
           if (currentRoute.title) {
             window.document.title = resultBound(currentRoute, 'title', instance);
           }
