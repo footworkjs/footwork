@@ -110,10 +110,6 @@ function getRouteParams (route, url) {
   return {};
 }
 
-function getUnknownRoute (router) {
-  return _.find(router.routes(), { unknown: true });
-}
-
 /**
  * Change the route on the specified router to the specified route.
  *
@@ -125,6 +121,7 @@ function getUnknownRoute (router) {
 function changeState (router, historyMethod, newState) {
   if (router.activated()) {
     var configParams = router[privateDataSymbol].configParams;
+    var routePredicate = alwaysPassPredicate;
     var foundRoute = null;
     var routeUrl;
 
@@ -144,29 +141,27 @@ function changeState (router, historyMethod, newState) {
       });
 
       if (foundRoute) {
+        routePredicate = foundRoute.predicate || alwaysPassPredicate;
+
         // render the url of the named route to store in the currentState
         routeUrl = foundRoute.route;
+        var routeParams = getRouteParams(foundRoute, newState);
         _.each(newState.params, function (value, fieldName) {
-          routeUrl = routeUrl.replace(':' + fieldName, routeUrlParams[fieldName]);
+          routeUrl = routeUrl.replace(':' + fieldName, routeParams[fieldName]);
         });
-      } else {
-        foundRoute = getUnknownRoute(router);
-        routeUrl = newState;
       }
     } else if (!fw.utils.isFullURL(newState)) {
       // find route via url route string
-      foundRoute = getRouteForURL(router, newState);
+      routePredicate = (getRouteForURL(router, newState) || {}).predicate || alwaysPassPredicate;
       routeUrl = newState;
     }
 
-    if (foundRoute && (foundRoute.predicate || alwaysPassPredicate).call(router, routeUrl) && configParams.predicate.call(router, routeUrl)) {
-      /* istanbul ignore if */
-      if (historyMethod && routeUrl && !fw.router.disableHistory) {
-        history[historyMethod + 'State'](null, '', configParams.baseRoute + routeUrl);
-      }
-
-      router.currentState(routeUrl);
+    /* istanbul ignore if */
+    if (routeUrl && routePredicate.call(router, newState) && configParams.predicate.call(router, newState) && historyMethod && !fw.router.disableHistory) {
+      history[historyMethod + 'State'](null, '', configParams.baseRoute + routeUrl);
     }
+
+    router.currentState(routeUrl);
   }
 
   return router;
@@ -182,12 +177,12 @@ function getRouteForURL (router, url) {
     matchedRoute = matchedRoutes[0].routeConfiguration;
   }
 
-  return matchedRoute || getUnknownRoute(router);
+  return matchedRoute || _.find(router.routes(), { unknown: true });
 }
 
 function getMatchedRoutes (routes, url) {
   return _.reduce([].concat(routes), function (matches, routeConfiguration) {
-    _.each([].concat(routeConfiguration.route), function (routeString) {
+    routeConfiguration && routeConfiguration.route && _.each([].concat(routeConfiguration.route), function (routeString) {
       if (_.isString(routeString) && _.isString(url) && url.match(routeStringToRegExp(routeString))) {
         matches.push({
           specificity: routeString.replace(namedParamRegex, "*").length,

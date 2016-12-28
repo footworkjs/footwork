@@ -557,9 +557,11 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can trigger a specified name-based route', function(done) {
         var mockNamedState = _.uniqueId();
-        var mockUrl = generateUrl();
+        var mockUrl = generateUrl() + '/:required';
+        var invalidNamedState = _.uniqueId();
         var namespaceName = generateNamespaceName();
         var routeControllerSpy = jasmine.createSpy('routeControllerSpy');
+        var unknownRouteControllerSpy = jasmine.createSpy('unknownRouteControllerSpy');
         var initializeSpy;
         var router;
 
@@ -571,6 +573,10 @@ define(['footwork', 'lodash', 'fetch-mock'],
                 route: mockUrl,
                 name: mockNamedState,
                 controller: routeControllerSpy
+              },
+              {
+                unknown: true,
+                controller: unknownRouteControllerSpy
               }
             ]
           });
@@ -585,7 +591,13 @@ define(['footwork', 'lodash', 'fetch-mock'],
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
           router.pushState({ name: mockNamedState });
+          expect(routeControllerSpy).not.toHaveBeenCalled();
+
+          router.pushState({ name: mockNamedState, params: { required: true } });
           expect(routeControllerSpy).toHaveBeenCalled();
+
+          router.pushState({ name: invalidNamedState, params: { required: true } });
+          expect(unknownRouteControllerSpy).toHaveBeenCalled();
 
           done();
         }, ajaxWait);
@@ -620,6 +632,52 @@ define(['footwork', 'lodash', 'fetch-mock'],
           expect(initializeSpy).toHaveBeenCalled();
           router.replaceState(mockUrl + '2');
           expect(routeControllerSpy).toHaveBeenCalled();
+          done();
+        }, ajaxWait);
+      });
+
+      it('triggers route with higher specificity', function(done) {
+        var mockUrl = generateUrl();
+        var namespaceName = generateNamespaceName();
+        var routeControllerSpy;
+        var specificRouteControllerSpy;
+        var initializeSpy;
+        var testParam = _.uniqueId();
+        var router;
+
+        fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
+          fw.router.boot(this, {
+            namespace: namespaceName,
+            routes: [
+              {
+                route: mockUrl + '/:testParam',
+                controller: routeControllerSpy = jasmine.createSpy('routeControllerSpy', function(passedTestParam) {
+                  expect(passedTestParam).toEqual({ testParam: testParam });
+                }).and.callThrough()
+              },
+              {
+                route: mockUrl + '/:testParam(/:optional)',
+                controller: specificRouteControllerSpy = jasmine.createSpy('specificRouteControllerSpy', function(passedTestParam) {
+                  expect(passedTestParam).toEqual({ testParam: testParam, optional: 'optional' });
+                }).and.callThrough()
+              }
+            ]
+          });
+          router = this;
+        }).and.callThrough());
+
+        expect(routeControllerSpy).toBe(undefined);
+        expect(initializeSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '"></router>'));
+
+        setTimeout(function() {
+          expect(initializeSpy).toHaveBeenCalled();
+
+          router.replaceState(mockUrl + '/' + testParam + '/optional');
+
+          expect(routeControllerSpy).not.toHaveBeenCalled();
+          expect(specificRouteControllerSpy).toHaveBeenCalled();
           done();
         }, ajaxWait);
       });

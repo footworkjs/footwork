@@ -53,7 +53,6 @@ function routerBootstrap (instance, configParams) {
     });
 
     instance.currentRoute = fw.computed(function () {
-      var currentState = instance.currentState();
       return getRouteForURL(instance, instance.currentState());
     });
 
@@ -120,20 +119,6 @@ function routerBootstrap (instance, configParams) {
   }
 
   return instance;
-}
-
-function routerStateChangeCommandHandler (instance, mode, state) {
-  var route;
-  var params;
-
-  if (_.isObject(state)) {
-    route = state.name;
-    params = state.params || {};
-  } else {
-    route = state;
-  }
-
-  instance[mode + 'State'](route, params);
 }
 
 module.exports = routerBootstrap;
