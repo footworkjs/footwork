@@ -754,7 +754,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var clearOutletControllerSpy;
         var emptyOutletControllerSpy;
         var manipulateOutletComponentSpy;
-        var outletOnCompleteSpy = jasmine.createSpy();
+        var outletOnCompleteSpy = jasmine.createSpy('outletOnCompleteSpy');
         var router;
         var testContainer;
         var $testContainer;
@@ -766,6 +766,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
           fw.router.boot(this, {
             namespace: namespaceName,
             afterRender: afterRenderSpy = jasmine.createSpy('afterRenderSpy'),
+            outlet: {
+              onComplete: outletOnCompleteSpy
+            },
             routes: [
               {
                 route: manipulateOutletUrl,
@@ -802,6 +805,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           expect(manipulateOutletControllerSpy).toHaveBeenCalled();
 
           setTimeout(function() {
+            expect(outletOnCompleteSpy).toHaveBeenCalledTimes(2);
             expect($testContainer.find('outlet[name="output"]').attr('data-rendered')).toBe(manipulateOutletComponentNamespace);
             expect($testContainer.find('outlet[name="output"] .manipulateOutlet')).lengthToBe(1);
 
@@ -811,7 +815,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
             setTimeout(function() {
               expect($testContainer.find('outlet[name="output"]').attr('data-rendered')).not.toBe(manipulateOutletComponentNamespace);
               expect($testContainer.find('outlet[name="output"] .component-loaded').length).toBe(0);
-              expect(outletOnCompleteSpy).toHaveBeenCalled();
               done();
             }, ajaxWait);
           }, ajaxWait);
