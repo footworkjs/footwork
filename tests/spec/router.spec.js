@@ -672,6 +672,31 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, ajaxWait);
       });
 
+      it('can trigger a route at activation', function() {
+        var mockUrl = generateUrl();
+        var routeControllerSpy = jasmine.createSpy('routeControllerSpy');
+
+        function Router () {
+          fw.router.boot(this, {
+            routes: [
+              {
+                route: mockUrl,
+                controller: routeControllerSpy
+              }
+            ]
+          });
+        }
+
+        var router = new Router();
+        router.currentState(mockUrl);
+
+        expect(routeControllerSpy).not.toHaveBeenCalled();
+
+        router.activated(true);
+
+        expect(routeControllerSpy).toHaveBeenCalled();
+      });
+
       it('can trigger a specified route with an optional parameter with and without the parameter', function(done) {
         var mockUrl = generateUrl();
         var namespaceName = generateNamespaceName();

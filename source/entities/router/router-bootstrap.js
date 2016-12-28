@@ -63,8 +63,10 @@ function routerBootstrap (instance, configParams) {
         // activate/deactivate the router when the activated flag is set
         if (activated) {
           // activate the router
-          // set the current state/route as of page-load
-          changeState(instance, null, getLocation());
+          // set the current state/route as of activation (if specified) or get it from the browser
+          var stateWasSetExplicitly = !!instance.currentState();
+          changeState(instance, null, instance.currentState() || getLocation());
+          stateWasSetExplicitly && instance.currentState.notifySubscribers();
 
           /* istanbul ignore if */
           if (!fw.router.disableHistory) {
@@ -74,9 +76,6 @@ function routerBootstrap (instance, configParams) {
               }, false);
             })(window.addEventListener ? ['addEventListener', ''] : ['attachEvent', 'on']);
           }
-
-          // notify any listeners of the activation event
-          instance.$namespace.publish('activated', true);
         } else {
           // deactivate the router
           /* istanbul ignore if */
