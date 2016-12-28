@@ -82,7 +82,9 @@ module.exports = {
             var outletViewModel = outlets[outletName].outletViewModel;
             outletViewModel.routeIsLoading(false);
             outletViewModel.routeOnComplete = function () {
-              (options.onComplete || routerOutletOptions.onComplete || _.noop).call(router, outletElement);
+              [routerOutletOptions.onComplete, options.onComplete].forEach(function callOnCompleteFunctions (onComplete) {
+                (onComplete || _.noop).call(router, outletElement);
+              });
               router[privateDataSymbol].scrollToFragment();
             };
           };
