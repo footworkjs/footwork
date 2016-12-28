@@ -636,52 +636,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, ajaxWait);
       });
 
-      it('triggers route with higher specificity', function(done) {
-        var mockUrl = generateUrl();
-        var namespaceName = generateNamespaceName();
-        var routeControllerSpy;
-        var specificRouteControllerSpy;
-        var initializeSpy;
-        var testParam = _.uniqueId();
-        var router;
-
-        fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
-          fw.router.boot(this, {
-            namespace: namespaceName,
-            routes: [
-              {
-                route: mockUrl + '/:testParam',
-                controller: routeControllerSpy = jasmine.createSpy('routeControllerSpy', function(passedTestParam) {
-                  expect(passedTestParam).toEqual({ testParam: testParam });
-                }).and.callThrough()
-              },
-              {
-                route: mockUrl + '/:testParam(/:optional)',
-                controller: specificRouteControllerSpy = jasmine.createSpy('specificRouteControllerSpy', function(passedTestParam) {
-                  expect(passedTestParam).toEqual({ testParam: testParam, optional: undefined });
-                }).and.callThrough()
-              }
-            ]
-          });
-          router = this;
-        }).and.callThrough());
-
-        expect(routeControllerSpy).toBe(undefined);
-        expect(initializeSpy).not.toHaveBeenCalled();
-
-        fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '"></router>'));
-
-        setTimeout(function() {
-          expect(initializeSpy).toHaveBeenCalled();
-
-          router.replaceState(mockUrl + '/' + testParam);
-
-          expect(routeControllerSpy).not.toHaveBeenCalled();
-          expect(specificRouteControllerSpy).toHaveBeenCalled();
-          done();
-        }, ajaxWait);
-      });
-
       it('can trigger a specified route with a required parameter', function(done) {
         var mockUrl = generateUrl();
         var namespaceName = generateNamespaceName();

@@ -185,16 +185,13 @@ function getMatchedRoutes (routes, url) {
     routeConfiguration && routeConfiguration.route && _.each([].concat(routeConfiguration.route), function (routeString) {
       if (_.isString(routeString) && _.isString(url) && url.match(routeStringToRegExp(routeString))) {
         matches.push({
-          specificity: routeString.replace(namedParamRegex, "*").length,
           routeConfiguration: routeConfiguration,
           routeString: routeString
         });
       }
     });
     return matches;
-  }, []).sort(function orderBySpecificity (a, b) {
-    return a.specificity > b.specificity ? -1 : 0;
-  });
+  }, []);
 }
 
 /**
