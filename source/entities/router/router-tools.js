@@ -92,9 +92,9 @@ function stripQueryStringAndHashFromPath (url) {
 }
 
 function getRouteParams (route, url) {
-  var matchedRoute = getMatchedRoutes(route, url)[0];
+  var matchedRoute = getMatchedRoute(route, url);
 
-  if (matchedRoute) {
+  if (matchedRoute && matchedRoute.routeString) {
     var routeUrl = matchedRoute.routeString;
     var routeParamNames = _.map(routeUrl.match(namedParamRegex), function (param) {
       return param.replace(':', '');
@@ -169,29 +169,22 @@ function changeState (router, historyMethod, newState) {
 
 function getCurrentRoute (router, currentState) {
   var routes = router.routes.peek();
-  var matchedRoutes = getMatchedRoutes(routes, trimBaseRoute(router, stripQueryStringAndHashFromPath(currentState)));
-  var matchedRoute;
-
-  // If there are matchedRoutes, return the one with the highest 'specificity'
-  if (matchedRoutes.length) {
-    matchedRoute = matchedRoutes[0].routeConfiguration;
-  }
-
-  return matchedRoute || _.find(routes, { unknown: true });
+  var matchedRoute = getMatchedRoute(routes, trimBaseRoute(router, stripQueryStringAndHashFromPath(currentState)));
+  return (matchedRoute ? matchedRoute.routeConfiguration : undefined);
 }
 
-function getMatchedRoutes (routes, url) {
-  return _.reduce([].concat(routes), function (matches, routeConfiguration) {
+function getMatchedRoute (routes, url) {
+  return _.reduce([].concat(routes), function (match, routeConfiguration) {
     routeConfiguration && routeConfiguration.route && _.each([].concat(routeConfiguration.route), function (routeString) {
       if (_.isString(routeString) && _.isString(url) && url.match(routeStringToRegExp(routeString))) {
-        matches.push({
+        match = {
           routeConfiguration: routeConfiguration,
           routeString: routeString
-        });
+        };
       }
     });
-    return matches;
-  }, []);
+    return match;
+  }, { routeConfiguration: _.find(routes, { unknown: true }) });
 }
 
 /**
