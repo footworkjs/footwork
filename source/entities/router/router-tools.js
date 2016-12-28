@@ -95,7 +95,7 @@ function getRouteParams (route, url) {
   var matchedRoute = getMatchedRoutes(route, url)[0];
 
   if (matchedRoute) {
-    var routeUrl = getMatchedRoutes(route, url)[0].routeString;
+    var routeUrl = matchedRoute.routeString;
     var routeParamNames = _.map(routeUrl.match(namedParamRegex), function (param) {
       return param.replace(':', '');
     });
@@ -152,7 +152,7 @@ function changeState (router, historyMethod, newState) {
       }
     } else if (!fw.utils.isFullURL(newState)) {
       // find route via url route string
-      routePredicate = (getRouteForURL(router, newState) || {}).predicate || alwaysPassPredicate;
+      routePredicate = (getCurrentRoute(router, newState) || {}).predicate || alwaysPassPredicate;
       routeUrl = newState;
     }
 
@@ -167,9 +167,9 @@ function changeState (router, historyMethod, newState) {
   return router;
 }
 
-function getRouteForURL (router, url) {
+function getCurrentRoute (router, currentState) {
   var routes = router.routes.peek();
-  var matchedRoutes = getMatchedRoutes(routes, trimBaseRoute(router, stripQueryStringAndHashFromPath(url)));
+  var matchedRoutes = getMatchedRoutes(routes, trimBaseRoute(router, stripQueryStringAndHashFromPath(currentState)));
   var matchedRoute;
 
   // If there are matchedRoutes, return the one with the highest 'specificity'
@@ -177,7 +177,7 @@ function getRouteForURL (router, url) {
     matchedRoute = matchedRoutes[0].routeConfiguration;
   }
 
-  return matchedRoute || _.find(router.routes(), { unknown: true });
+  return matchedRoute || _.find(routes, { unknown: true });
 }
 
 function getMatchedRoutes (routes, url) {
@@ -210,7 +210,7 @@ module.exports = {
   registerOutlet: registerOutlet,
   unregisterOutlet: unregisterOutlet,
   changeState: changeState,
-  getRouteForURL: getRouteForURL,
+  getCurrentRoute: getCurrentRoute,
   getLocation: getLocation,
   getRouteParams: getRouteParams
 };
