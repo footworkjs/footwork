@@ -367,7 +367,6 @@ function create (model, options) {
     requestRunning: collection.isCreating,
     requestLull: configParams.requestLull,
     entity: collection,
-    allowConcurrent: true,
     createRequest: function () {
       var newModel = castAsDataModel(model);
       var xhr = newModel.save();

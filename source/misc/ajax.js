@@ -33,52 +33,38 @@ function makeOrGetRequest (operationType, requestInfo) {
   var requestRunning = requestInfo.requestRunning;
   var requestLull = requestInfo.requestLull;
   var entity = requestInfo.entity;
-  var createRequest = requestInfo.createRequest;
-  var promiseName = operationType + 'Promise';
-  var allowConcurrent = requestInfo.allowConcurrent;
-  var requests = entity[privateDataSymbol][promiseName] || [];
-  var theRequest = _.last(requests);
+  var theRequest = requestInfo.createRequest();
 
-  if ((allowConcurrent || !fw.isObservable(requestRunning) || !requestRunning()) || !requests.length) {
-    theRequest = createRequest();
+  if (!isPromise(theRequest)) {
+    // returned value from createRequest() is a value not a promise, lets return the value in a promise
+    theRequest = Promise.resolve(theRequest);
+  }
+  theRequest = makePromiseQueryable(theRequest);
 
-    if (!isPromise(theRequest)) {
-      // returned value from createRequest() is a value not a promise, lets return the value in a promise
-      theRequest = Promise.resolve(theRequest);
+  requestRunning(true);
+
+  var lullFinished = fw.observable(false);
+  var requestFinished = fw.observable(false);
+  var requestWatcher = fw.computed(function () {
+    if (lullFinished() && requestFinished()) {
+      requestRunning(false);
+      requestWatcher.dispose();
     }
-    theRequest = makePromiseQueryable(theRequest);
+  });
 
-    requests.push(theRequest);
-    entity[privateDataSymbol][promiseName] = requests;
-
-    requestRunning(true);
-
-    var lullFinished = fw.observable(false);
-    var requestFinished = fw.observable(false);
-    var requestWatcher = fw.computed(function () {
-      if (lullFinished() && requestFinished()) {
-        requestRunning(false);
-        requestWatcher.dispose();
-      }
-    });
-
-    requestLull = (_.isFunction(requestLull) ? requestLull.call(entity, operationType) : requestLull);
-    if (requestLull) {
-      setTimeout(function () {
-        lullFinished(true);
-      }, requestLull);
-    } else {
+  requestLull = (_.isFunction(requestLull) ? requestLull.call(entity, operationType) : requestLull);
+  if (requestLull) {
+    setTimeout(function () {
       lullFinished(true);
-    }
+    }, requestLull);
+  } else {
+    lullFinished(true);
+  }
 
-    if (isPromise(theRequest)) {
-      theRequest.then(function () {
-        if (_.every(requests, promiseIsFulfilled)) {
-          requestFinished(true);
-          entity[privateDataSymbol].promiseName = [];
-        }
-      });
-    }
+  if (isPromise(theRequest)) {
+    theRequest.then(function () {
+      requestFinished(true);
+    });
   }
 
   return theRequest;
