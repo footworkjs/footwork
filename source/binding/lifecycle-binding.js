@@ -14,7 +14,6 @@ var outletLoadedDisplay = routerConfig.outletLoadedDisplay;
 var outletLoadingDisplay = routerConfig.outletLoadingDisplay;
 
 var util = require('../misc/util');
-var addClass = util.addClass;
 var hasClass = util.hasClass;
 var isPromise = util.isPromise;
 var promiseIsFulfilled = util.promiseIsFulfilled;
