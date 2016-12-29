@@ -61,11 +61,9 @@ function makeOrGetRequest (operationType, requestInfo) {
     lullFinished(true);
   }
 
-  if (isPromise(theRequest)) {
-    theRequest.then(function () {
-      requestFinished(true);
-    });
-  }
+  theRequest.then(function () {
+    requestFinished(true);
+  });
 
   return theRequest;
 }
