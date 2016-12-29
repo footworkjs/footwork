@@ -135,7 +135,7 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
     }
 
     function maybeResolve () {
-      viewModel[privateDataSymbol].configParams.afterResolve.call(viewModel, _.once(resolveInstanceNow));
+      viewModel[privateDataSymbol].configParams.afterResolve.call(viewModel, resolveInstanceNow);
     }
 
     /**
