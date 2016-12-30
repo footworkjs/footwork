@@ -106,7 +106,7 @@ function routerBootstrap (instance, configParams) {
           }
 
           // set the title and trigger the controller
-          if (currentRoute.title) {
+          if (currentRoute.hasOwnProprty('title')) {
             window.document.title = resultBound(currentRoute, 'title', instance);
           }
           currentRoute.controller.call(instance, routeParams);
