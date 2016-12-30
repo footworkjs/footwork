@@ -1,7 +1,7 @@
 /**
  * footwork - A solid footing for web applications.
  * Author: Jonathan Newman (http://staticty.pe)
- * Version: v2.0.0-beta
+ * Version: v2.0.0-beta2
  * Url: http://footworkjs.com
  * License: MIT
  */
@@ -11,7 +11,7 @@ var fw = require('knockout/build/output/knockout-latest');
 
 fw.version = {
   knockout: fw.version,
-  footwork: '2.0.0-beta'
+  footwork: '2.0.0-beta2'
 };
 
 require('./namespace/namespace');
@@ -6664,7 +6664,7 @@ var bindingElement = {
 
 /* istanbul ignore next */
 (function checkForOldIE () {
-  if(typeof navigator !== 'undefined') {
+  if (typeof navigator !== 'undefined') {
     var clientNavigator = navigator.userAgent.toLowerCase();
     var exploderVersion = (clientNavigator.indexOf('msie') != -1) ? parseInt(clientNavigator.split('msie')[1]) : (oldExploderVersion + 1);
 
@@ -6698,7 +6698,6 @@ var outletLoadedDisplay = routerConfig.outletLoadedDisplay;
 var outletLoadingDisplay = routerConfig.outletLoadingDisplay;
 
 var util = require('../misc/util');
-var addClass = util.addClass;
 var hasClass = util.hasClass;
 var isPromise = util.isPromise;
 var promiseIsFulfilled = util.promiseIsFulfilled;
@@ -6718,7 +6717,7 @@ fw.bindingHandlers.$lifecycle = {
 
     // if this is a router and its configured to do so, activate it now that its being bound
     if (fw.isRouter(viewModel) && viewModel[privateDataSymbol].configParams.activate) {
-      viewModel.$activated(true);
+      viewModel.activated(true);
     }
 
     if (fw.isViewModel(viewModel)) {
@@ -6797,26 +6796,24 @@ function resolveTrackerAndAnimate (element, viewModel, $context, addAnimationCla
   }
 
   if (isEntity(viewModel)) {
-    var wasResolved = false;
-    function resolveInstanceNow (isResolved) {
-      if (!wasResolved) {
-        wasResolved = true;
-        if (isResolved === true) {
-          finishResolution();
-        } else if (isPromise(isResolved) || _.isArray(isResolved)) {
-          if (!_.every([].concat(isResolved), isPromise)) {
-            throw Error('Can only pass array of promises to resolved()');
-          }
-
-          var promises = _.map([].concat(isResolved), makePromiseQueryable);
-          _.each(promises, function checkPromise (promise) {
-            promise.then(function () {
+    function resolveInstanceNow (promisesToWaitFor) {
+      if (_.isUndefined(promisesToWaitFor)) {
+        finishResolution();
+        return Promise.resolve();
+      } else if (isPromise(promisesToWaitFor) || _.isArray(promisesToWaitFor) && _.every([].concat(promisesToWaitFor), isPromise)) {
+        return new Promise(function (resolve) {
+          var promises = _.map([].concat(promisesToWaitFor), makePromiseQueryable);
+          _.each(promises, function waitForPromise (promise) {
+            promise.then(function checkAllPromises () {
               if (_.every(promises, promiseIsFulfilled)) {
+                resolve();
                 finishResolution();
               }
             });
           });
-        }
+        });
+      } else {
+        throw Error('Can only pass promises to resolve callback');
       }
     }
 
@@ -7068,8 +7065,8 @@ function pluck (attribute) {
  */
 function toJSON () {
   var data = this.get();
-  return _.reduce(this.get(), function(blob, entry) {
-    if(fw.isDataModel(entry)) {
+  return _.reduce(this.get(), function (blob, entry) {
+    if (fw.isDataModel(entry)) {
       blob.push(entry.get());
     } else {
       blob.push(entry);
@@ -7086,9 +7083,9 @@ function toJSON () {
  */
 function get (id) {
   var collection = this;
-  return _.reduce(collection(), function(found, model) {
+  return _.reduce(collection(), function (found, model) {
     var wasFound = _.isUndefined(id) || _.result(model, collection[privateDataSymbol].getIdAttribute()) === id;
-    if(id && !found && wasFound) {
+    if (id && !found && wasFound) {
       found = model;
     } else if (!id && wasFound) {
       found.push(model);
@@ -7226,7 +7223,7 @@ function fetch (options) {
   options = options ? _.clone(options) : {};
 
   var requestInfo = {
-    requestRunning: collection.isFetching,
+    requestRunning: collection.isReading,
     requestLull: configParams.requestLull,
     entity: collection,
     createRequest: function () {
@@ -7360,7 +7357,6 @@ function create (model, options) {
     requestRunning: collection.isCreating,
     requestLull: configParams.requestLull,
     entity: collection,
-    allowConcurrent: true,
     createRequest: function () {
       var newModel = castAsDataModel(model);
       var xhr = newModel.save();
@@ -7450,7 +7446,7 @@ fw.collection = function createCollection (collectionData, configParams) {
     splice: _.bind(removeDisposeAndNotify, collection, collection.splice),
     push: _.bind(addAndNotify, collection, collection.push),
     unshift: _.bind(addAndNotify, collection, collection.unshift),
-    isFetching: fw.observable(false),
+    isReading: fw.observable(false),
     isCreating: fw.observable(false),
     dispose: function () {
       if (!collection[privateDataSymbol].isDisposed) {
@@ -7488,7 +7484,7 @@ fw.collection = function createCollection (collectionData, configParams) {
   };
 
   collection.requestInProgress = fw.pureComputed(function () {
-    return collection.isFetching() || collection.isCreating();
+    return collection.isReading() || collection.isCreating();
   });
 
   if (collectionData) {
@@ -7506,8 +7502,8 @@ var setLoadingTracker = require('../binding/loading-tracker').set;
 var nearestEntity = require('../entities/entity-tools').nearestEntity;
 var getSymbol = require('../misc/util').getSymbol;
 var entityDescriptors = require('../entities/entity-descriptors');
-var originalComponentBindingInit = fw.bindingHandlers.component.init;
 var privateDataSymbol = getSymbol('footwork');
+var originalComponentBindingInit = fw.bindingHandlers.component.init;
 
 /**
  * Monkey patch to bootstrap a component, tagging it with the loadingTracker.
@@ -7748,9 +7744,6 @@ fw.components.loaders.push(fw.components.locationLoader = {
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var util = require('../misc/util');
-var isPath = util.isPath;
-var privateDataSymbol = util.getSymbol('footwork');
 var regExpMatch = /^\/|\/$/g;
 
 require('./component-binding-init');
@@ -7767,20 +7760,6 @@ fw.components.fileExtensions = {
   combined: '.js',
   viewModel: '.js',
   template: '.html'
-};
-
-var originalComponentRegisterFunc = fw.components.register;
-fw.components.register = function (componentName, options) {
-  var viewModel = options.viewModel || options.dataModel || options.router;
-
-  if (!_.isString(componentName)) {
-    throw Error('Components must be provided a componentName.');
-  }
-
-  originalComponentRegisterFunc(componentName, {
-    viewModel: viewModel,
-    template: options.template
-  });
 };
 
 function forceViewModelComponentConvention (componentLocation) {
@@ -7866,7 +7845,7 @@ fw.components.getComponentNameForNode = function (node) {
   return null;
 };
 
-},{"../entities/entity-descriptors":24,"../misc/util":42,"./component-binding-init":14,"./component-lifecycle-loader":15,"./component-resource-loader":16,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],18:[function(require,module,exports){
+},{"../entities/entity-descriptors":24,"./component-binding-init":14,"./component-lifecycle-loader":15,"./component-resource-loader":16,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],18:[function(require,module,exports){
 var _ = require('footwork-lodash');
 
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
@@ -7961,16 +7940,19 @@ function dataModelBootstrap (instance, configParams) {
 
     _.extend(instance, require('./dataModel-methods'), {
       isCreating: fw.observable(false),
-      isSaving: fw.observable(false),
-      isFetching: fw.observable(false),
-      isDestroying: fw.observable(false),
+      isReading: fw.observable(false),
+      isUpdating: fw.observable(false),
+      isDeleting: fw.observable(false),
       isNew: fw.observable(true),
       isDirty: fw.observable(false)
     });
 
     _.extend(instance, {
-      requestInProgress: fw.computed(function computeIfRequestInProgress () {
-        return instance.isCreating() || instance.isSaving() || instance.isFetching() || instance.isDestroying();
+      isSaving: fw.computed(function computeRequestInProgress () {
+        return instance.isCreating() || instance.isUpdating();
+      }),
+      requestInProgress: fw.computed(function computeRequestInProgress () {
+        return instance.isCreating() || instance.isReading() || instance.isUpdating() || instance.isDeleting();
       })
     });
 
@@ -8018,8 +8000,11 @@ function isNode (thing) {
 function fetchModel (options) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
+
+  options = isNode(options) ? {} : options;
+
   var requestInfo = {
-    requestRunning: dataModel.isFetching,
+    requestRunning: dataModel.isReading,
     requestLull: configParams.requestLull,
     entity: dataModel,
     createRequest: function () {
@@ -8029,15 +8014,12 @@ function fetchModel (options) {
 
         ajax.handleJsonResponse(xhr)
           .then(function handleResponseData (data) {
-            var parsedData = configParams.parse ? configParams.parse.call(dataModel, data, 'read') : data;
-            if (!_.isUndefined(parsedData[configParams.idAttribute])) {
-              dataModel.set(parsedData);
-            }
+            dataModel.set(configParams.parse ? configParams.parse.call(dataModel, data, 'read') : data);
           });
 
         return xhr;
       } else {
-        return Promise.reject(new Error("Must have ID provided to a dataModel in order to fetch its data"));
+        return Promise.reject("Must have ID provided to a dataModel in order to fetch its data");
       }
     }
   };
@@ -8046,45 +8028,42 @@ function fetchModel (options) {
 }
 
 /**
- * PUT / POST / PATCH to server
+ * PUT / POST to server
  *
- * @param {string} (optional) attrs
  * @param {object} options (optional) Options passed to sync()
  * @returns {object} Promise Promise for the HTTP Request
  */
-function save (attrs, options) {
+function save (options) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
-  var attrs = isNode(attrs) ? {} : attrs;
 
   options = _.extend({
-    wait: false,
-    patch: false
-  }, options);
+    writeResponse: true
+  }, isNode(options) ? {} : options);
 
-  var method = dataModel.isNew() ? 'create' : (options.patch ? 'patch' : 'update');
-  if (method === 'patch' && !options.attrs) {
-    options.attrs = attrs;
-  }
+  var method = dataModel.isNew() ? 'create' : 'update';
 
   var requestInfo = {
-    requestRunning: (method === 'create' ? dataModel.isCreating : dataModel.isSaving),
+    requestRunning: (method === 'create' ? dataModel.isCreating : dataModel.isUpdating),
     requestLull: configParams.requestLull,
     entity: dataModel,
     createRequest: function () {
-      if (!options.wait && !_.isNull(attrs)) {
-        dataModel.set(attrs);
-      }
-
       // retrieve data dataModel the from server using the id
       var xhr = dataModel.sync(method, dataModel, options);
 
       ajax.handleJsonResponse(xhr)
         .then(function handleResponseData (data) {
           var parsedData = configParams.parse.call(dataModel, data, method);
-          if (_.isObject(parsedData)) {
+
+          // if an object was returned lets attempt to write its values back to the dataModel
+          if (options.writeResponse && _.isObject(parsedData)) {
             dataModel.set(parsedData);
           }
+
+          // clear all dirty flags for mapped observables
+          _.each(dataModel[privateDataSymbol].mappings, function (mappedObservable) {
+            mappedObservable.isDirty(false);
+          });
         });
 
       return xhr;
@@ -8100,11 +8079,14 @@ function save (attrs, options) {
  * @param {boolean} wait Flag telling footwork to wait for the request to finish before sending the destroy event
  * @returns {object} Promise for the HTTP Request
  */
-function destroy (wait) {
+function destroy (options) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
+
+  options = isNode(options) ? {} : options;
+
   var requestInfo = {
-    requestRunning: dataModel.isDestroying,
+    requestRunning: dataModel.isDeleting,
     requestLull: configParams.requestLull,
     entity: dataModel,
     createRequest: function () {
@@ -8112,16 +8094,10 @@ function destroy (wait) {
         return false;
       }
 
-      function sendDestroyEvent () {
-        dataModel.$namespace.publish('destroy', { wait: wait });
-      }
-      !wait && sendDestroyEvent();
-
-      var xhr = dataModel.sync('delete', dataModel, { wait: wait });
+      var xhr = dataModel.sync('delete', dataModel, options);
       ajax.handleJsonResponse(xhr)
         .then(function handleResponseData (data) {
           dataModel[privateDataSymbol].idAttributeObservable(undefined);
-          wait && sendDestroyEvent();
         });
 
       return xhr;
@@ -8142,7 +8118,7 @@ function set (attributes, clearDirty) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
 
-  clearDirty = clearDirty || _.isUndefined(clearDirty);
+  clearDirty = clearDirty || arguments.length === 1;
 
   var mappingsChanged = false;
   _.each(this[privateDataSymbol].mappings, function (fieldObservable, fieldMap) {
@@ -8588,7 +8564,7 @@ function outletBootstrap (instance, configParams) {
 
     var resolvedCallbacks = [];
     _.extend(instance, {
-      loadingDisplay: fw.observable(noComponentSelected),
+      loading: fw.observable(noComponentSelected),
       routeIsLoading: fw.observable(true),
       routeIsResolving: fw.observable(true),
       addResolvedCallbackOrExecute: function (callback) {
@@ -8631,9 +8607,9 @@ function outletBootstrap (instance, configParams) {
     var transitionTriggerTimeout;
     function showLoaded () {
       clearTimeout(transitionTriggerTimeout);
-      var minTransitionPeriod = instance.display.peek().minTransitionPeriod;
-      if (minTransitionPeriod) {
-        transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, minTransitionPeriod);
+      var transition = instance.display.peek().transition;
+      if (transition) {
+        transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, transition);
       } else {
         showLoadedAfterMinimumTransition();
       }
@@ -8696,13 +8672,6 @@ var _ = require('footwork-lodash');
 
 var bindingElement = require('../../binding/binding-element');
 var routerConfig = require('../router/router-config');
-var outletLoadedDisplay = routerConfig.outletLoadedDisplay;
-var outletLoadingDisplay = routerConfig.outletLoadingDisplay;
-
-
-function Outlet () {
-  fw.outlet.boot(this);
-}
 
 /**
  * The outlet loader has two functions:
@@ -8713,11 +8682,13 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
   getConfig: function (componentName, callback) {
     if (componentName === 'outlet') {
       callback({
-        viewModel: Outlet,
+        viewModel: function Outlet () {
+          fw.outlet.boot(this);
+        },
         template: bindingElement.open.prefix + '$lifecycle, $outlet' + bindingElement.open.postfix +
-          '<div class="' + outletLoadingDisplay + '" ' +
-            'data-bind="style: loadingStyle, css: loadingClass, component: loadingDisplay"></div>' +
-          '<div class="' + outletLoadedDisplay + '" ' +
+          '<div class="' + routerConfig.outletLoadingDisplay + '" ' +
+            'data-bind="style: loadingStyle, css: loadingClass, component: loading"></div>' +
+          '<div class="' + routerConfig.outletLoadedDisplay + '" ' +
             'data-bind="style: loadedStyle, css: loadedClass, component: display"></div>' +
         bindingElement.close,
         synchronous: true
@@ -8955,12 +8926,12 @@ fw.bindingHandlers.$route = {
       routeHandlerDescription.url = function () { return routeHandlerDescriptionURL; };
     }
 
-    function checkForMatchingRoute (myRoute, newRoute) {
-      var currentRoute = router[privateDataSymbol].currentRoute();
+    function checkForMatchingRoute (myRoute) {
+      var currentState = router.currentState();
       var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router);
 
-      if (_.isObject(currentRoute) && activeRouteClassName) {
-        if (!_.isNull(newRoute) && newRoute.url === myRoute) {
+      if (activeRouteClassName) {
+        if (myRoute === currentState) {
           addClass(element, activeRouteClassName);
         } else {
           removeClass(element, activeRouteClassName);
@@ -8981,11 +8952,11 @@ fw.bindingHandlers.$route = {
       if (_.isObject(stateTracker) && _.isFunction(stateTracker.dispose)) {
         stateTracker.dispose();
       }
-      stateTracker = router[privateDataSymbol].currentRoute.subscribe(_.partial(checkForMatchingRoute, routeUrl));
+      stateTracker = router.currentRoute.subscribe(_.partial(checkForMatchingRoute, routeUrl));
 
       if (elementIsSetup === false) {
         elementIsSetup = true;
-        checkForMatchingRoute(routeUrl, router[privateDataSymbol].currentRoute());
+        checkForMatchingRoute(routeUrl);
 
         fw.utils.registerEventHandler(element, resultBound(routeHandlerDescription, 'on', router), function (event) {
           var currentRouteURL = routeHandlerDescription.url();
@@ -9024,17 +8995,18 @@ var _ = require('footwork-lodash');
 var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 var entityDescriptors = require('../entity-descriptors');
 var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
-var resultBound = require('../../misc/util').resultBound;
+
+var util = require('../../misc/util');
+var resultBound = util.resultBound;
+var alwaysPassPredicate = util.alwaysPassPredicate;
 
 var routerTools = require('./router-tools');
 var registerOutlet = routerTools.registerOutlet;
 var unregisterOutlet = routerTools.unregisterOutlet;
-var trimBaseRoute = routerTools.trimBaseRoute;
-var getRouteForURL = routerTools.getRouteForURL;
-var triggerRoute = routerTools.triggerRoute;
-var isRoute = routerTools.isRoute;
-var stripQueryStringAndHashFromPath = routerTools.stripQueryStringAndHashFromPath;
+var getCurrentRoute = routerTools.getCurrentRoute;
 var getLocation = routerTools.getLocation;
+var changeState = routerTools.changeState;
+var getRouteParams = routerTools.getRouteParams;
 
 /**
  * Bootstrap an instance with router capabilities (state management, outlet control, etc).
@@ -9061,89 +9033,74 @@ function routerBootstrap (instance, configParams) {
     _.extend(privateData, {
       registerOutlet: _.partial(registerOutlet, instance),
       unregisterOutlet: _.partial(unregisterOutlet, instance),
-      historyPopstateListener: fw.observable(),
       outlets: {},
-      configParams: _.extend(privateData.configParams, descriptor.resource.defaultConfig, {
-        baseRoute: fw.router.baseRoute + (resultBound(configParams, 'baseRoute', instance) || '')
-      }, configParams || {})
+      configParams: _.extend(privateData.configParams, descriptor.resource.defaultConfig, configParams || {})
     });
 
     _.extend(instance, require('./router-methods'), {
-      $currentState: fw.observable(),
-      $activated: fw.observable(false),
-      $routes: fw.collection(privateData.configParams.routes)
+      currentState: fw.observable(),
+      activated: fw.observable(false),
+      routes: fw.observableArray(privateData.configParams.routes)
     });
 
-    privateData.currentRoute = fw.computed(function () {
-      var routes = instance.$routes();
-      var $currentState = instance.$currentState();
-      return getRouteForURL(instance, routes, trimBaseRoute(instance, stripQueryStringAndHashFromPath($currentState)));
+    instance.currentRoute = fw.computed(function () {
+      return getCurrentRoute(instance, instance.currentState());
     });
 
-    instance.$currentRoute = fw.computed(function () {
-      return (privateData.currentRoute() || {}).routeConfiguration;
-    });
-
-    instance.$namespace.subscribe('pushState', _.partial(routerStateChangeCommandHandler, instance, 'push'));
-    instance.$namespace.subscribe('replaceState', _.partial(routerStateChangeCommandHandler, instance, 'replace'));
-
+    var previousRoute;
+    var previousRouteParams;
     instance.disposeWithInstance(
-      fw.computed(function () {
-        // Automatically trigger the currentRoute controller whenever the currentRoute() updates and the router is activated
-        var currentRoute = privateData.currentRoute();
-        var $currentState = instance.$currentState();
-        var activated = instance.$activated();
-        if (activated && currentRoute) {
-          if (($currentState || '').indexOf('#') !== -1) {
-            var fragmentIdentifier = $currentState.split('#')[1];
+      instance.activated.subscribe(function (activated) {
+        // activate/deactivate the router when the activated flag is set
+        if (activated) {
+          // activate the router
+          // set the current state/route as of activation (if specified) or get it from the browser
+          var stateWasSetExplicitly = !!instance.currentState();
+          changeState(instance, null, instance.currentState() || getLocation());
+          stateWasSetExplicitly && instance.currentState.notifySubscribers();
+
+          /* istanbul ignore if */
+          if (!fw.router.disableHistory) {
+            (function setupPopStateListener (eventInfo) {
+              window[eventInfo[0]](eventInfo[1] + 'popstate', privateData.historyPopstateHandler = function popstateEventHandler () {
+                instance.currentState(getLocation());
+              }, false);
+            })(window.addEventListener ? ['addEventListener', ''] : ['attachEvent', 'on']);
+          }
+        } else {
+          // deactivate the router
+          /* istanbul ignore if */
+          if (privateData.historyPopstateHandler) {
+            (function removePopStateListener (eventInfo) {
+              window[eventInfo[0]](eventInfo[1] + 'popstate', privateData.historyPopstateHandler);
+            })(window.removeEventListener ? ['removeEventListener', ''] : ['detachEvent', 'on']);
+          }
+        }
+      }),
+      instance.currentRoute.subscribe(function (currentRoute) {
+        // Trigger the currentRoute controller whenever the currentRoute() updates
+        var currentState = instance.currentState() || '';
+        var routeParams = getRouteParams(currentRoute, currentState);
+
+        if (instance.activated() && currentRoute && (previousRoute !== currentRoute || !_.isEqual(previousRouteParams, routeParams))) {
+          previousRouteParams = routeParams;
+          previousRoute = currentRoute;
+
+          if (currentState.indexOf('#') !== -1) {
+            var fragmentIdentifier = currentState.split('#')[1];
             privateData.scrollToFragment = function () {
               var elementToScrollTo = document.getElementById(fragmentIdentifier);
-              elementToScrollTo && elementToScrollTo.scrollIntoView();
+              elementToScrollTo && _.isFunction(elementToScrollTo.scrollIntoView) && elementToScrollTo.scrollIntoView();
             };
           } else {
             privateData.scrollToFragment = _.noop;
           }
 
-          triggerRoute(instance, currentRoute);
-        }
-      }),
-      instance.$activated.subscribe(function (activated) {
-        // activate/deactivate the router when the $activated flag is set
-        if (activated) {
-          // activate the router
-
-          // set the current state as of page-load
-          privateData.activating = true;
-          instance.pushState(getLocation());
-          privateData.activating = false;
-
-          // setup html5 history event listener
-          /* istanbul ignore if */
-          if (!fw.router.disableHistory) {
-            var popstateEvent = function () {
-              instance.$currentState(trimBaseRoute(instance, getLocation()));
-            };
-
-            (function (eventInfo) {
-              window[eventInfo[0]](eventInfo[1] + 'popstate', popstateEvent, false);
-            })(window.addEventListener ? ['addEventListener', ''] : /* istanbul ignore next */ ['attachEvent', 'on']);
-
-            privateData.historyPopstateListener(popstateEvent);
+          // set the title and trigger the controller
+          if (currentRoute.title) {
+            window.document.title = resultBound(currentRoute, 'title', instance);
           }
-
-          // notify any listeners of the activation event
-          instance.$namespace.publish('activated', true);
-        } else {
-          // deactivate the router
-
-          // dispose of the history popstate event listener
-          var historyPopstateListener = privateData.historyPopstateListener();
-          /* istanbul ignore if */
-          if (historyPopstateListener) {
-            (function popStateListener (eventInfo) {
-              window[eventInfo[0]](eventInfo[1] + 'popstate', historyPopstateListener);
-            })(window.removeEventListener ? ['removeEventListener', ''] : /* istanbul ignore next */ ['detachEvent', 'on']);
-          }
+          currentRoute.controller.call(instance, routeParams);
         }
       })
     );
@@ -9152,20 +9109,6 @@ function routerBootstrap (instance, configParams) {
   }
 
   return instance;
-}
-
-function routerStateChangeCommandHandler (instance, mode, state) {
-  var route;
-  var params;
-
-  if (_.isObject(state)) {
-    route = state.name;
-    params = state.params || {};
-  } else {
-    route = state;
-  }
-
-  instance[mode + 'State'](route, params);
 }
 
 module.exports = routerBootstrap;
@@ -9182,10 +9125,7 @@ var _ = require('footwork-lodash');
 var fw = require('knockout/build/output/knockout-latest');
 
 var isEntity = require('../entity-tools').isEntity;
-
-var routerTools = require('./router-tools');
-var trimBaseRoute = routerTools.trimBaseRoute;
-var changeRoute = routerTools.changeRoute;
+var changeState = require('./router-tools').changeState;
 
 var util = require('../../misc/util');
 var resultBound = util.resultBound;
@@ -9194,34 +9134,30 @@ var privateDataSymbol = util.getSymbol('footwork');
 
 var viewModelMethodDispose = require('../viewModel/viewModel-methods').dispose;
 var clearSequenceQueue = require('../../binding/animation-sequencing').clearSequenceQueue;
-var routerConfig = require('./router-config');
-var noComponentSelected = routerConfig.noComponentSelected;
-var noComponentSelected = routerConfig.noComponentSelected;
+var noComponentSelected = require('./router-config').noComponentSelected;
 
 var activeOutlets = fw.observableArray();
 
 module.exports = {
-  outlet: function (outletName, componentToDisplay, options) {
-    options = options || {};
-    if (_.isFunction(options)) {
-      options = { onComplete: options };
+  outlet: function (outletName, options) {
+    if (!_.isObject(options)) {
+      options = { display: arguments.length > 1 ? options || noComponentSelected : undefined };
     }
 
     var router = this;
-    var viewModelParameters = options.params;
-    var onComplete = options.onComplete || _.noop;
-    var configParams = router[privateDataSymbol].configParams;
     var outlets = router[privateDataSymbol].outlets;
     var outletProperties = outlets[outletName] || {};
     var outlet = outletProperties.routeObservable;
     var outletViewModel = outletProperties.outletViewModel;
+    var routerOutletOptions = resultBound(router[privateDataSymbol].configParams, 'outlet', router, [outletName, options]) || {};
 
     if (!fw.isObservable(outlet)) {
       // router outlet observable not found, we must create a new one
       outlet = fw.observable({
         name: noComponentSelected,
         params: {},
-        getOnCompleteCallback: function () { return _.noop; }
+        getOnCompleteCallback: function () { return _.noop; },
+        loading: options.loading || routerOutletOptions.loading
       });
 
       // register the new outlet under its outletName
@@ -9231,38 +9167,29 @@ module.exports = {
       };
     }
 
-    if (arguments.length > 1 && !componentToDisplay) {
-      componentToDisplay = noComponentSelected;
-    }
-
-    // grab and set the loadingDisplay if needed
-    if (outletViewModel && (!outletViewModel[privateDataSymbol].outletIsSetup || componentToDisplay)) {
-      outletViewModel[privateDataSymbol].outletIsSetup = true;
-
-      // Show the loading component (if one is defined)
-      var showDuringLoadComponent = resultBound(configParams, 'showDuringLoad', router, [outletName, componentToDisplay || outlet().name]);
-      if (showDuringLoadComponent) {
-        outletViewModel.loadingDisplay(showDuringLoadComponent);
-      }
+    // grab and set the loading display if needed
+    var loadingDisplay = arguments.length > 1 ? (options.loading || routerOutletOptions.loading) : outlet().loading;
+    if (outletViewModel && loadingDisplay) {
+      outletViewModel.loading(loadingDisplay);
     }
 
     var outletHasMutated = false;
-    if (!_.isUndefined(componentToDisplay)) {
+    if (!_.isUndefined(options.display)) {
       var currentOutletDef = outlet();
 
-      if (currentOutletDef.name !== componentToDisplay) {
-        currentOutletDef.name = componentToDisplay;
+      if (currentOutletDef.name !== options.display) {
+        currentOutletDef.name = options.display;
         outletHasMutated = true;
       }
-      if (_.isObject(viewModelParameters)) {
-        currentOutletDef.params = viewModelParameters;
+      if (_.isObject(options.params)) {
+        currentOutletDef.params = options.params;
         outletHasMutated = true;
       }
 
       if (outletHasMutated) {
         clearSequenceQueue();
 
-        currentOutletDef.minTransitionPeriod = resultBound(configParams, 'minTransitionPeriod', router, [outletName, componentToDisplay]);
+        currentOutletDef.transition = options.transition || routerOutletOptions.transition || 0;
         if (outletViewModel) {
           outletViewModel[privateDataSymbol].loadingChildren.removeAll();
           outletViewModel.routeIsLoading(true);
@@ -9272,13 +9199,15 @@ module.exports = {
           var outletElement = element.parentNode;
 
           activeOutlets.remove(outlet);
-          outletElement.setAttribute('data-rendered', (componentToDisplay === noComponentSelected ? '' : componentToDisplay));
+          outletElement.setAttribute('data-rendered', (options.display === noComponentSelected ? '' : options.display));
 
           return function addBindingOnComplete () {
             var outletViewModel = outlets[outletName].outletViewModel;
             outletViewModel.routeIsLoading(false);
             outletViewModel.routeOnComplete = function () {
-              onComplete.call(router, outletElement);
+              [routerOutletOptions.onComplete, options.onComplete].forEach(function callOnCompleteFunctions (onComplete) {
+                (onComplete || _.noop).call(router, outletElement);
+              });
               router[privateDataSymbol].scrollToFragment();
             };
           };
@@ -9294,13 +9223,13 @@ module.exports = {
 
     return outlet;
   },
-  replaceState: function (route, routeParams) {
-    changeRoute(this, 'replace', route, routeParams);
-    return self;
+  replaceState: function (route) {
+    fw.ignoreDependencies(changeState, this, [this, 'replace', route]);
+    return this;
   },
-  pushState: function (route, routeParams) {
-    changeRoute(this, 'push', route, routeParams);
-    return self;
+  pushState: function (route) {
+    fw.ignoreDependencies(changeState, this, [this, 'push', route]);
+    return this;
   },
   dispose: function () {
     if (!this[privateDataSymbol].isDisposed) {
@@ -9308,7 +9237,7 @@ module.exports = {
       viewModelMethodDispose.call(this);
 
       // deactivate the router (unbinds the history event listener)
-      this.$activated(false);
+      this.activated(false);
 
       // dispose of all privately stored properties
       _.each(this[privateDataSymbol], propertyDispose);
@@ -9332,18 +9261,11 @@ var resultBound = util.resultBound;
 var alwaysPassPredicate = util.alwaysPassPredicate;
 var privateDataSymbol = util.getSymbol('footwork');
 
-var routerConfig = require('./router-config');
-var baseRoute = routerConfig.baseRoute;
-
 var optionalParamRegex = /\((.*?)\)/g;
 var namedParamRegex = /(\(\?)?:\w+/g;
+var requiredNamedParamRegex = /\/:(\w+)/g;
 var splatParamRegex = /\*\w*/g;
 var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
-var hashMatchRegex = /(^\/#)/;
-
-function sameRoute (route1, route2) {
-  return route1.routeConfiguration === route2.routeConfiguration && _.isEqual(route1.routeParams, route2.routeParams);
-}
 
 // Convert a route string to a regular expression which is then used to match a uri against it and determine
 // whether that uri matches the described route as well as parse and retrieve its tokens
@@ -9357,10 +9279,6 @@ function routeStringToRegExp (routeString) {
     .replace(splatParamRegex, "(.*?)");
 
   return new RegExp('^' + routeString + (routeString !== '/' ? '(\\/.*)*$' : '$'));
-}
-
-function isRoute (thing) {
-  return _.isObject(thing) && !!thing.__isRoute;
 }
 
 /**
@@ -9397,76 +9315,18 @@ function unregisterOutlet (router, outletName) {
   delete router[privateDataSymbol].outlets[outletName];
 }
 
+/**
+ * Remove the begging portion of a url so that when matching routes we do not need to specify it in each one
+ *
+ * @param {object} router the router
+ * @param {string} url portion of url to ignore
+ */
 function trimBaseRoute (router, url) {
-  var configParams = router[privateDataSymbol].configParams;
-  if (configParams.baseRoute && url && url.indexOf(configParams.baseRoute) === 0) {
-    url = url.substr(configParams.baseRoute.length);
-    if (url.length > 1) {
-      url = url.replace(hashMatchRegex, '/');
-    }
+  var baseRoute = router[privateDataSymbol].configParams.baseRoute;
+  if (baseRoute && url && url.indexOf(baseRoute) === 0) {
+    url = url.substr(baseRoute.length);
   }
   return url;
-}
-
-function triggerRoute (router, route) {
-  if (isRoute(route)) {
-    if (!_.isUndefined(route.title)) {
-      window.document.title = _.isFunction(route.title) ? route.title.apply(router, _.values(route.routeParams)) : route.title;
-    }
-
-    if (_.isUndefined(router[privateDataSymbol].previousRoute) || !sameRoute(router[privateDataSymbol].previousRoute, route)) {
-      router[privateDataSymbol].previousRoute = route;
-      route.controller.apply(router, _.values(route.routeParams));
-    }
-  }
-}
-
-/**
- * Change the route on the specified router to the specified route using the specified historyMethod and routeParams
- *
- * @param {object} router The router instance to manipulate
- * @param {string} historyMethod push/replace the url onto the history stack (if using history)
- * @param {string} route The desired route to change to
- * @param {object} routeParams (optional) parameters to pass to the route controller
- * @returns {object} the router
- */
-function changeRoute (router, historyMethod, route, routeParams) {
-  if (router.$activated()) {
-    var namedRoute = _.isObject(routeParams) ? route : null;
-    var configParams = router[privateDataSymbol].configParams;
-    route = route;
-
-    if (!_.isNull(namedRoute)) {
-      // must convert namedRoute into its URL form
-      var routeDescription = _.find(router.$routes(), function (route) {
-        return route.name === namedRoute;
-      });
-
-      if (!_.isUndefined(routeDescription)) {
-        // render the url of the named route to store in the $currentState
-        route = routeDescription.route;
-        _.each(routeParams, function (value, fieldName) {
-          route = route.replace(':' + fieldName, routeParams[fieldName]);
-        });
-      } else {
-        throw Error('Could not locate named route: ' + namedRoute);
-      }
-    }
-
-    if (!fw.utils.isFullURL(route)) {
-      route = trimBaseRoute(router, route);
-
-      if (resultBound(configParams, 'beforeRoute', router, [route || '/'])) {
-        /* istanbul ignore if */
-        if (!router[privateDataSymbol].activating && route && router[privateDataSymbol].historyPopstateListener() && !fw.router.disableHistory) {
-          history[historyMethod + 'State'](null, '', configParams.baseRoute + route);
-        }
-        router.$currentState(route);
-      }
-    }
-  }
-
-  return router;
 }
 
 /**
@@ -9483,72 +9343,100 @@ function stripQueryStringAndHashFromPath (url) {
   }
 }
 
-function getRouteForURL (router, routes, url) {
-  var currentRouteDetails;
-  var matchedRoutes = [];
-  var routeConfiguration;
+function getRouteParams (route, url) {
+  var matchedRoute = getMatchedRoute(route, url);
 
-  // find all routes with a matching routeString
-  if (routes) {
-    matchedRoutes = _.reduce(routes, function (matches, routeConfiguration) {
-      var routeConfigRoute = [].concat(routeConfiguration.route);
-      _.each(routeConfigRoute, function (routeString) {
-        var routeParams = [];
-
-        if (_.isString(routeString) && _.isString(url)) {
-          routeParams = url.match(routeStringToRegExp(routeString));
-          if (!_.isNull(routeParams) && (routeConfiguration.filter || alwaysPassPredicate).call(router, routeParams)) {
-            matches.push({
-              routeString: routeString,
-              specificity: routeString.replace(namedParamRegex, "*").length,
-              routeConfiguration: routeConfiguration,
-              routeParams: routeParams
-            });
-          }
-        }
-      });
-      return matches;
-    }, []);
-  }
-
-  // If there are matchedRoutes, find the one with the highest 'specificity' (longest matching routeString)
-  // and convert it into the actual route
-  if (matchedRoutes.length) {
-    var matchedRoute = _.reduce(matchedRoutes, function (matchedRoute, foundRoute) {
-      if (_.isNull(matchedRoute) || foundRoute.specificity > matchedRoute.specificity) {
-        matchedRoute = foundRoute;
-      }
-      return matchedRoute;
-    }, null);
-
-    var routeString = matchedRoute.routeString;
-    var routeParams = _.clone(matchedRoute.routeParams);
-    var routeParamNames = _.map(routeString.match(namedParamRegex), function (param) {
+  if (matchedRoute && matchedRoute.routeString) {
+    var routeUrl = matchedRoute.routeString;
+    var routeParamNames = _.map(routeUrl.match(namedParamRegex), function (param) {
       return param.replace(':', '');
     });
-    var routeParams = _.reduce(routeParamNames, function (parameterNames, parameterName, index) {
+    var routeParams = url.match(routeStringToRegExp(routeUrl));
+
+    return _.reduce(routeParamNames, function (parameterNames, parameterName, index) {
       parameterNames[parameterName] = routeParams[index + 1];
       return parameterNames;
     }, {});
-
-    currentRouteDetails = {
-      url: url,
-      routeParams: routeParams
-    };
-
-    routeConfiguration = matchedRoute.routeConfiguration;
-  } else {
-    routeConfiguration = _.find(routes, { unknown: true }) || {};
   }
 
-  return _.extend({
-    routeConfiguration: routeConfiguration,
-    controller: routeConfiguration.controller || _.noop,
-    name: routeConfiguration.name,
-    title: routeConfiguration.title,
-    routeParams: {},
-    __isRoute: true
-  }, currentRouteDetails);
+  return {};
+}
+
+/**
+ * Change the route on the specified router to the specified route.
+ *
+ * @param {object} router The router instance to manipulate
+ * @param {string} historyMethod push/replace the url onto the history stack (if using history)
+ * @param {string} route The desired route to change to
+ * @returns {object} the router
+ */
+function changeState (router, historyMethod, newState) {
+  if (router.activated()) {
+    var configParams = router[privateDataSymbol].configParams;
+    var routePredicate = alwaysPassPredicate;
+    var foundRoute = null;
+    var routeUrl;
+
+    if (_.isObject(newState)) {
+      // find named route
+      foundRoute = _.find(router.routes(), function (routeConfig) {
+        var requiredRouteParams = [];
+        var isNamedRoute = routeConfig.name === newState.name;
+        if (isNamedRoute) {
+          requiredRouteParams = _.map(routeConfig.route.match(requiredNamedParamRegex), function (param) {
+            return param.substr(2);
+          });
+
+          return _.isEqual(requiredRouteParams, _.keys(newState.params));
+        }
+        return false;
+      });
+
+      if (foundRoute) {
+        routePredicate = foundRoute.predicate || alwaysPassPredicate;
+
+        // render the url of the named route to store in the currentState
+        routeUrl = foundRoute.route;
+        var routeParams = getRouteParams(foundRoute, newState);
+        _.each(newState.params, function (value, fieldName) {
+          routeUrl = routeUrl.replace(':' + fieldName, routeParams[fieldName]);
+        });
+      }
+    } else if (!fw.utils.isFullURL(newState)) {
+      // find route via url route string
+      routePredicate = (getCurrentRoute(router, newState) || {}).predicate || alwaysPassPredicate;
+      routeUrl = newState;
+    }
+
+    /* istanbul ignore if */
+    if (routeUrl && routePredicate.call(router, newState) && configParams.predicate.call(router, newState) && historyMethod && !fw.router.disableHistory) {
+      history[historyMethod + 'State'](null, '', configParams.baseRoute + routeUrl);
+    }
+
+    router.currentState(routeUrl);
+  }
+
+  return router;
+}
+
+function getCurrentRoute (router, currentState) {
+  var routes = router.routes.peek();
+  var matchedRoute = getMatchedRoute(routes, trimBaseRoute(router, stripQueryStringAndHashFromPath(currentState)));
+  return (matchedRoute ? matchedRoute.routeConfiguration : undefined);
+}
+
+function getMatchedRoute (routes, url) {
+  return _.reduce([].concat(routes), function (match, routeConfiguration) {
+    routeConfiguration && routeConfiguration.route && _.each([].concat(routeConfiguration.route), function (routeString) {
+      if (_.isString(routeString) && _.isString(url) && url.match(routeStringToRegExp(routeString))) {
+        match = {
+          routeConfiguration: routeConfiguration,
+          routeString: routeString
+        };
+      }
+    });
+    return match;
+  }, { routeConfiguration: _.find(routes, { unknown: true }) });
 }
 
 /**
@@ -9562,22 +9450,17 @@ function getLocation () {
 }
 
 module.exports = {
-  namedParamRegex: namedParamRegex,
-  hashMatchRegex: hashMatchRegex,
   routeStringToRegExp: routeStringToRegExp,
-  isRoute: isRoute,
   nearestParentRouter: nearestParentRouter,
   registerOutlet: registerOutlet,
   unregisterOutlet: unregisterOutlet,
-  trimBaseRoute: trimBaseRoute,
-  changeRoute: changeRoute,
-  stripQueryStringAndHashFromPath: stripQueryStringAndHashFromPath,
-  getRouteForURL: getRouteForURL,
-  triggerRoute: triggerRoute,
-  getLocation: getLocation
+  changeState: changeState,
+  getCurrentRoute: getCurrentRoute,
+  getLocation: getLocation,
+  getRouteParams: getRouteParams
 };
 
-},{"../../misc/util":42,"../entity-tools":26,"./router-config":34,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],37:[function(require,module,exports){
+},{"../../misc/util":42,"../entity-tools":26,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],37:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9592,17 +9475,14 @@ require('./route-binding');
 
 fw[entityName] = {
   boot: require('./router-bootstrap'),
-  baseRoute: '',
   activeClass: 'active',
   disableHistory: false,
   fileExtensions: '.js',
   defaultConfig: {
-    showDuringLoad: require('./router-config').noComponentSelected,
     onDispose: _.noop,
     baseRoute: '',
     activate: true,
-    beforeRoute: alwaysPassPredicate,
-    minTransitionPeriod: 0
+    predicate: alwaysPassPredicate
   }
 };
 
@@ -9623,7 +9503,7 @@ require('../entity-descriptors').push(descriptor);
 
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 
-},{"../../misc/util":42,"../entity-descriptors":24,"../resource-tools":31,"./route-binding":32,"./router-bootstrap":33,"./router-config":34,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],38:[function(require,module,exports){
+},{"../../misc/util":42,"../entity-descriptors":24,"../resource-tools":31,"./route-binding":32,"./router-bootstrap":33,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],38:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -9671,7 +9551,7 @@ function viewModelBootstrap (instance, configParams, requestHandlerDescriptor) {
     });
 
     // Setup the request handler which returns the instance
-    instance.disposeWithInstance(fw.namespace(requestHandlerDescriptor.referenceNamespace).requestHandler('ref', function(namespaceName) {
+    instance.disposeWithInstance(fw.namespace(requestHandlerDescriptor.referenceNamespace).requestHandler('ref', function (namespaceName) {
       if (_.isString(namespaceName) || _.isArray(namespaceName)) {
         if (_.isArray(namespaceName) && _.indexOf(namespaceName, configParams.namespace) !== -1) {
           return instance;
@@ -9750,7 +9630,7 @@ fw[entityName] = {
     namespace: undefined,
     afterRender: _.noop,
     afterResolve: function resolveImmediately (resolveNow) {
-      resolveNow(true);
+      resolveNow();
     },
     sequence: false,
     onDispose: _.noop
@@ -9790,7 +9670,6 @@ var privateDataSymbol = util.getSymbol('footwork');
 var methodMap = {
   'create': 'POST',
   'update': 'PUT',
-  'patch':  'PATCH',
   'delete': 'DELETE',
   'read':   'GET'
 };
@@ -9813,53 +9692,37 @@ function makeOrGetRequest (operationType, requestInfo) {
   var requestRunning = requestInfo.requestRunning;
   var requestLull = requestInfo.requestLull;
   var entity = requestInfo.entity;
-  var createRequest = requestInfo.createRequest;
-  var promiseName = operationType + 'Promise';
-  var allowConcurrent = requestInfo.allowConcurrent;
-  var requests = entity[privateDataSymbol][promiseName] || [];
-  var theRequest = _.last(requests);
+  var theRequest = requestInfo.createRequest();
 
-  if ((allowConcurrent || !fw.isObservable(requestRunning) || !requestRunning()) || !requests.length) {
-    theRequest = createRequest();
-
-    if (!isPromise(theRequest)) {
-      // returned value from createRequest() is a value not a promise, lets return the value in a promise
-      theRequest = Promise.resolve(theRequest);
-    }
-    theRequest = makePromiseQueryable(theRequest);
-
-    requests.push(theRequest);
-    entity[privateDataSymbol][promiseName] = requests;
-
-    requestRunning(true);
-
-    var lullFinished = fw.observable(false);
-    var requestFinished = fw.observable(false);
-    var requestWatcher = fw.computed(function () {
-      if (lullFinished() && requestFinished()) {
-        requestRunning(false);
-        requestWatcher.dispose();
-      }
-    });
-
-    requestLull = (_.isFunction(requestLull) ? requestLull.call(entity, operationType) : requestLull);
-    if (requestLull) {
-      setTimeout(function () {
-        lullFinished(true);
-      }, requestLull);
-    } else {
-      lullFinished(true);
-    }
-
-    if (isPromise(theRequest)) {
-      theRequest.then(function () {
-        if (_.every(requests, promiseIsFulfilled)) {
-          requestFinished(true);
-          entity[privateDataSymbol].promiseName = [];
-        }
-      });
-    }
+  if (!isPromise(theRequest)) {
+    // returned value from createRequest() is a value not a promise, lets return the value in a promise
+    theRequest = Promise.resolve(theRequest);
   }
+  theRequest = makePromiseQueryable(theRequest);
+
+  requestRunning(true);
+
+  var lullFinished = fw.observable(false);
+  var requestFinished = fw.observable(false);
+  var requestWatcher = fw.computed(function () {
+    if (lullFinished() && requestFinished()) {
+      requestRunning(false);
+      requestWatcher.dispose();
+    }
+  });
+
+  requestLull = (_.isFunction(requestLull) ? requestLull.call(entity, operationType) : requestLull);
+  if (requestLull) {
+    setTimeout(function () {
+      lullFinished(true);
+    }, requestLull);
+  } else {
+    lullFinished(true);
+  }
+
+  theRequest.then(function () {
+    requestFinished(true);
+  });
 
   return theRequest;
 }
@@ -9901,11 +9764,11 @@ function sync (action, concern, options) {
     // string specified, use the default method for this action and url
     method = methodMap[action];
     if (!_.isString(method)) {
-      throw Error('Invalid action resolved for sync operation');
+      throw Error('Invalid method resolved for ' + action + ' sync operation');
     }
 
     // add the :id to the url if needed
-    if (fw.isDataModel(concern) && _.includes(['read', 'update', 'patch', 'delete'], action)) {
+    if (fw.isDataModel(concern) && _.includes(['read', 'update', 'delete'], action)) {
       urlPieces = url.split('?');
       var urlRoute = urlPieces.shift();
       var queryString = urlPieces.length ? '?' + urlPieces.join('?') : '';
@@ -9914,7 +9777,7 @@ function sync (action, concern, options) {
   }
 
   if (!_.isString(url)) {
-    throw Error('A url must be specified for sync operation');
+    throw Error('A url must be specified for ' + action + ' sync operation');
   }
 
   // replace any interpolated parameters
@@ -9933,11 +9796,11 @@ function sync (action, concern, options) {
       body: null,
       headers: {}
     },
-    resultBound(fw, 'fetchOptions', concern, [action, options]) || {},
-    resultBound(configParams, 'fetchOptions', concern, [action, options]) || {},
+    resultBound(fw, 'fetchOptions', concern, [action, concern, options]) || {},
+    resultBound(configParams, 'fetchOptions', concern, [action, concern, options]) || {},
     options || {});
 
-  if (_.isNull(options.body) && _.includes(['create', 'update', 'patch'], action)) {
+  if (_.isNull(options.body) && _.includes(['create', 'update'], action)) {
     options.headers['content-type'] = 'application/json';
     options.body = JSON.stringify(options.attrs || concern.get());
   }
