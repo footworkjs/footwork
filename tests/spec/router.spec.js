@@ -145,8 +145,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
                                              <span class="result" data-bind="text: boundProperty"></span>\
                                            </viewModel>');
 
-        expect(testContainer.innerHTML.indexOf(boundPropertyValue)).toBe(-1);
-
         fw.start(testContainer);
 
         setTimeout(function() {
