@@ -133,7 +133,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can bind to the DOM using a shared instance', function(done) {
         var namespaceName = generateNamespaceName();
-        var boundPropertyValue = _.uniqueId();
+        var boundPropertyValue = _.uniqueId('random');
 
         fw.viewModel.register(namespaceName, {
           instance: {
@@ -157,7 +157,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can bind to the DOM using a generated instance', function(done) {
         var namespaceName = generateNamespaceName();
-        var boundPropertyValue = _.uniqueId();
+        var boundPropertyValue = _.uniqueId('random');
         var boundPropertyValueElement = boundPropertyValue + '-element';
         var createViewModelInstance;
 
@@ -216,8 +216,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can nest router declarations', function(done) {
-        var namespaceNameOuter = _.uniqueId();
-        var namespaceNameInner = _.uniqueId();
+        var namespaceNameOuter = _.uniqueId('random');
+        var namespaceNameInner = _.uniqueId('random');
         var initializeSpy = jasmine.createSpy('initializeSpy', function() { fw.router.boot(this); });
 
         fw.router.register(namespaceNameOuter, initializeSpy);
@@ -397,8 +397,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
       it('can be nested and initialized declaratively', function(done) {
         var outerInitializeSpy;
         var innerInitializeSpy;
-        var outerNamespaceName = _.uniqueId();
-        var innerNamespaceName = _.uniqueId();
+        var outerNamespaceName = _.uniqueId('random');
+        var innerNamespaceName = _.uniqueId('random');
 
         fw.router.register(outerNamespaceName, outerInitializeSpy = jasmine.createSpy('outerInitializeSpy', function() {
           fw.router.boot(this, {
@@ -462,8 +462,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var routeControllerSpy = jasmine.createSpy('routeControllerSpy');
         var initializeSpy;
         var router;
-        var testTitle = _.uniqueId();
-        var testTitle2 = _.uniqueId();
+        var testTitle = _.uniqueId('random');
+        var testTitle2 = _.uniqueId('random');
 
         fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.router.boot(this, {
@@ -556,9 +556,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can trigger a specified name-based route', function(done) {
-        var mockNamedState = _.uniqueId();
+        var mockNamedState = _.uniqueId('random');
         var mockUrl = generateUrl() + '/:required';
-        var invalidNamedState = _.uniqueId();
+        var invalidNamedState = _.uniqueId('random');
         var namespaceName = generateNamespaceName();
         var routeControllerSpy = jasmine.createSpy('routeControllerSpy');
         var unknownRouteControllerSpy = jasmine.createSpy('unknownRouteControllerSpy');
@@ -641,7 +641,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var namespaceName = generateNamespaceName();
         var routeControllerSpy;
         var initializeSpy;
-        var testParam = _.uniqueId();
+        var testParam = _.uniqueId('random');
         var router;
 
         fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
@@ -704,7 +704,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var initializeSpy;
         var optParamNotSuppliedSpy;
         var optParamSuppliedSpy;
-        var testParam = _.uniqueId();
+        var testParam = _.uniqueId('random');
         var router;
 
         fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
@@ -746,7 +746,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can manipulate an outlet', function(done) {
         var manipulateOutletUrl = generateUrl();
-        var manipulateOutletComponentNamespace = _.uniqueId();
+        var manipulateOutletComponentNamespace = _.uniqueId('random');
         var namespaceName = generateNamespaceName();
         var initializeSpy;
         var afterRenderSpy;
@@ -852,7 +852,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var namespaceName = generateNamespaceName();
         var initializeSpy;
         var router;
-        var outletName = _.uniqueId();
+        var outletName = _.uniqueId('random');
 
         fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.router.boot(this, {
@@ -883,7 +883,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
       it('can have callback triggered after outlet component is resolved and composed', function(done) {
         var mockUrl = generateUrl();
         var namespaceName = generateNamespaceName();
-        var outletCallbackName = _.uniqueId();
+        var outletCallbackName = _.uniqueId('random');
         var initializeSpy;
         var outletCallbackComponentSpy;
         var triggerOutletCallbackControllerSpy;
@@ -934,9 +934,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can instantiate and properly render an outlet after its router has initialized', function(done) {
-        var outletControlingViewModelNamespace = _.uniqueId();
-        var outletComponentNamespace = _.uniqueId();
-        var routerNamespace = _.uniqueId();
+        var outletControlingViewModelNamespace = _.uniqueId('random');
+        var outletComponentNamespace = _.uniqueId('random');
+        var routerNamespace = _.uniqueId('random');
         var initializeSpy;
         var changeOutletControllerSpy;
         var outletCallbackSpy;
@@ -1005,9 +1005,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can display a temporary loading component in place of a component that is being downloaded', function(done) {
         var mockUrl = generateUrl();
-        var outletLoaderTestLoadingNamespace = _.uniqueId();
-        var outletLoaderTestLoadedNamespace = _.uniqueId();
-        var routerNamespace = _.uniqueId();
+        var outletLoaderTestLoadingNamespace = _.uniqueId('random');
+        var outletLoaderTestLoadedNamespace = _.uniqueId('random');
+        var routerNamespace = _.uniqueId('random');
         var changeOutletControllerSpy;
         var outletCallbackSpy;
         var outletLoaderTestLoadingSpy;
@@ -1069,9 +1069,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can display a temporary loading component in place of a component that is being downloaded by specifying via router outlet options object', function(done) {
         var mockUrl = generateUrl();
-        var outletLoaderTestLoadingNamespace = _.uniqueId();
-        var outletLoaderTestLoadedNamespace = _.uniqueId();
-        var routerNamespace = _.uniqueId();
+        var outletLoaderTestLoadingNamespace = _.uniqueId('random');
+        var outletLoaderTestLoadedNamespace = _.uniqueId('random');
+        var routerNamespace = _.uniqueId('random');
         var changeOutletControllerSpy;
         var outletCallbackSpy;
         var outletLoaderTestLoadingSpy;
@@ -1136,9 +1136,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can display a temporary loading component in place of a component that is being downloaded with a custom minimum transition time', function(done) {
         var mockUrl = generateUrl();
-        var outletLoaderTestLoadingNamespace = _.uniqueId();
-        var outletLoaderTestLoadedNamespace = _.uniqueId();
-        var routerNamespace = _.uniqueId();
+        var outletLoaderTestLoadingNamespace = _.uniqueId('random');
+        var outletLoaderTestLoadedNamespace = _.uniqueId('random');
+        var routerNamespace = _.uniqueId('random');
         var changeOutletControllerSpy;
         var outletCallbackSpy;
         var outletLoaderTestLoadingSpy;
@@ -1301,8 +1301,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
       it('can have a route bound link correctly composed with an href attribute using an observable', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
-        var routerNamespaceName = _.uniqueId();
-        var viewModelNamespaceName = _.uniqueId();
+        var routerNamespaceName = _.uniqueId('random');
+        var viewModelNamespaceName = _.uniqueId('random');
         var viewModelInitializeSpy;
         var routerInitializeSpy;
         var routeSpy = jasmine.createSpy('routeSpy');
@@ -1474,7 +1474,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var testContainer;
         var mockUrl = generateUrl();
         var namespaceName = generateNamespaceName();
-        var activeClassName = _.uniqueId();
+        var activeClassName = _.uniqueId('random');
         var initializeSpy;
         var routeSpy = jasmine.createSpy('routeSpy');
 
@@ -1519,10 +1519,10 @@ define(['footwork', 'lodash', 'fetch-mock'],
       it('can have a route bound link that expresses a custom \'active\' class defined by an observable when the route matches', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
-        var routerNamespaceName = _.uniqueId();
-        var viewModelNamespaceName = _.uniqueId();
-        var activeClassName = _.uniqueId();
-        var parentClassName = _.uniqueId();
+        var routerNamespaceName = _.uniqueId('random');
+        var viewModelNamespaceName = _.uniqueId('random');
+        var activeClassName = _.uniqueId('random');
+        var parentClassName = _.uniqueId('random');
         var viewModelInitializeSpy;
         var routerInitializeSpy;
         var routeSpy = jasmine.createSpy('routeSpy');
@@ -1817,8 +1817,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
       it('can have a route bound link correctly composed with a custom callback handler', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
-        var routerNamespaceName = _.uniqueId();
-        var viewModelNamespaceName = _.uniqueId();
+        var routerNamespaceName = _.uniqueId('random');
+        var viewModelNamespaceName = _.uniqueId('random');
         var viewModelInitializeSpy;
         var routerInitializeSpy;
         var customHandlerSpy;
@@ -1902,8 +1902,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
       it('can have a route bound link correctly composed with a custom URL callback', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
-        var routerNamespaceName = _.uniqueId();
-        var viewModelNamespaceName = _.uniqueId();
+        var routerNamespaceName = _.uniqueId('random');
+        var viewModelNamespaceName = _.uniqueId('random');
         var viewModelInitializeSpy;
         var initializeSpy;
         var urlResolverSpy;

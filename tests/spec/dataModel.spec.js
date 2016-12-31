@@ -129,7 +129,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can bind to the DOM using a shared instance', function(done) {
         var namespaceName = generateNamespaceName();
-        var boundPropertyValue = _.uniqueId();
+        var boundPropertyValue = _.uniqueId('random');
 
         fw.dataModel.register(namespaceName, {
           instance: {
@@ -153,7 +153,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can bind to the DOM using a generated instance', function(done) {
         var namespaceName = generateNamespaceName();
-        var boundPropertyValue = _.uniqueId();
+        var boundPropertyValue = _.uniqueId('random');
         var boundPropertyValueElement = boundPropertyValue + '-element';
         var createDataModelInstance;
 
@@ -212,8 +212,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can nest dataModel declarations', function(done) {
-        var namespaceNameOuter = _.uniqueId();
-        var namespaceNameInner = _.uniqueId();
+        var namespaceNameOuter = _.uniqueId('random');
+        var namespaceNameInner = _.uniqueId('random');
         var initializeSpy = jasmine.createSpy('initializeSpy', function() { fw.dataModel.boot(this); });
 
         fw.dataModel.register(namespaceNameOuter, initializeSpy);
@@ -424,8 +424,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(Person).not.toHaveBeenCalled();
 
         var personData = {
-          firstName: _.uniqueId(),
-          lastName: _.uniqueId()
+          firstName: _.uniqueId('random'),
+          lastName: _.uniqueId('random')
         };
         var personDataNoFirstName = {
           lastName: personData.lastName
@@ -836,7 +836,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can correctly POST data on initial save()', function(done) {
         var mockUrl = generateUrl();
-        var postValue = _.uniqueId();
+        var postValue = _.uniqueId('random');
         var responseData = {
           "id": 1,
           "firstName": postValue,
@@ -876,7 +876,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly DELETE data on destroy()', function(done) {
-        var postValue = _.uniqueId();
+        var postValue = _.uniqueId('random');
         var responseData = {
           "id": 1,
           "firstName": postValue,
@@ -921,8 +921,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can correctly POST data on initial save() and then PUT on subsequent calls', function(done) {
         var mockUrl = generateUrl();
-        var postValue = _.uniqueId();
-        var putValue = _.uniqueId();
+        var postValue = _.uniqueId('random');
+        var putValue = _.uniqueId('random');
         var personData = {
           "id": 1,
           "firstName": null,
@@ -968,7 +968,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
       it('can correctly POST data and apply parse() method with return on save()', function(done) {
         var parseSpy;
         var mockUrl = generateUrl();
-        var postValue = _.uniqueId();
+        var postValue = _.uniqueId('random');
 
         var mockResponse = {
           "id": 1,
@@ -1016,7 +1016,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can correctly fetch() data from the server via a pre-filled idAttribute', function(done) {
         var mockUrl = generateUrl();
-        var getValue = _.uniqueId();
+        var getValue = _.uniqueId('random');
         var personData = {
           "id": 100,
           "firstName": null,
@@ -1054,7 +1054,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can correctly generate rejected promise from fetch() requested without an idAttribute value', function(done) {
         var mockUrl = generateUrl();
-        var getValue = _.uniqueId();
+        var getValue = _.uniqueId('random');
         var personData = {
           "id": null,
           "firstName": null,
@@ -1103,7 +1103,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           return 150;
         }).and.callThrough();
         var mockUrl = generateUrl();
-        var getValue = _.uniqueId();
+        var getValue = _.uniqueId('random');
         var personData = {
           "id": 100,
           "firstName": null,
@@ -1188,7 +1188,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
       it('can correctly fetch() data from the server with a provided parse() method', function(done) {
         var parseSpy;
         var mockUrl = generateUrl();
-        var getValue = _.uniqueId();
+        var getValue = _.uniqueId('random');
         var personData = {
           "id": 100,
           "firstName": null,
@@ -1234,7 +1234,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can correctly fetch() data from the server via a pre-filled custom idAttribute', function(done) {
         var mockUrl = generateUrl();
-        var getValue = _.uniqueId();
+        var getValue = _.uniqueId('random');
         var personData = {
           "customId": 100,
           "firstName": null,
@@ -1274,7 +1274,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
       it('can correctly fetch() data from the server with overridden fetchOptions', function(done) {
         var personData = {
           "id": 100,
-          "firstName": _.uniqueId(),
+          "firstName": _.uniqueId('random'),
           "lastName": null,
           "email": null
         };
@@ -1312,13 +1312,13 @@ define(['footwork', 'lodash', 'fetch-mock'],
       it('can correctly fetch() data from the server with overridden global fetchOptions', function(done) {
         var personData = {
           "id": 100,
-          "firstName": _.uniqueId(),
+          "firstName": _.uniqueId('random'),
           "lastName": null,
           "email": null
         };
         var mockUrl = generateUrl();
         var passedOptions = {
-          someUniqueValue: _.uniqueId()
+          someUniqueValue: _.uniqueId('random')
         };
 
         fw.fetchOptions = function(action, concern, options) {
@@ -1361,7 +1361,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
       it('can correctly fetch() data from the server via a url based on an evaluator function', function(done) {
         var urlSpy;
         var mockUrl = generateUrl();
-        var getValue = _.uniqueId();
+        var getValue = _.uniqueId('random');
         var personData = {
           "id": 100,
           "firstName": null,
@@ -1403,7 +1403,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly construct and issue requests via a url based on a explicit action definitions', function(done) {
-        var getValue = _.uniqueId();
+        var getValue = _.uniqueId('random');
         var personData = {
           "id": 100,
           "firstName": null
@@ -1468,10 +1468,10 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can correctly construct and issue requests via a url based on a explicit action definitions defined by a callback', function(done) {
-        var getValue = _.uniqueId();
+        var getValue = _.uniqueId('random');
         var personData = {
           "id": 100,
-          "firstName": _.uniqueId()
+          "firstName": _.uniqueId('random')
         };
 
         var createUrl = generateUrl();

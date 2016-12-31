@@ -8,9 +8,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var persons = [];
         _.each(_.range(1, 8), function() {
           persons.push({
-            firstName: _.uniqueId(),
-            lastName: _.uniqueId(),
-            email: _.uniqueId()
+            firstName: _.uniqueId('random'),
+            lastName: _.uniqueId('random'),
+            email: _.uniqueId('random')
           });
         });
 
@@ -44,7 +44,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can find an item that matches a set of attributes in a complex set of models', function() {
-        var valueToFind = _.uniqueId();
+        var valueToFind = _.uniqueId('random');
         var persons = [
           {
             firstName: 'PersonFirstNameTest',
@@ -156,9 +156,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var persons = [];
         _.each(_.range(1, 8), function() {
           persons.push({
-            firstName: _.uniqueId(),
-            lastName: _.uniqueId(),
-            email: _.uniqueId()
+            firstName: _.uniqueId('random'),
+            lastName: _.uniqueId('random'),
+            email: _.uniqueId('random')
           });
         });
 
@@ -176,9 +176,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var persons = [];
         _.each(_.range(1, 8), function(id) {
           persons.push({
-            firstName: _.uniqueId(),
-            lastName: _.uniqueId(),
-            email: _.uniqueId()
+            firstName: _.uniqueId('random'),
+            lastName: _.uniqueId('random'),
+            email: _.uniqueId('random')
           });
         });
 
@@ -220,9 +220,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var persons = [];
         _.each(_.range(1, 8), function(id) {
           persons.push({
-            firstName: _.uniqueId(),
-            lastName: _.uniqueId(),
-            email: _.uniqueId()
+            firstName: _.uniqueId('random'),
+            lastName: _.uniqueId('random'),
+            email: _.uniqueId('random')
           });
         });
 

@@ -20,8 +20,8 @@ define(['footwork', 'fetch-mock'],
       });
 
       it('has the ability to create a broadcastable based on a string identifier', function() {
-        var namespaceName = _.uniqueId();
-        var testValue = _.uniqueId();
+        var namespaceName = _.uniqueId('random');
+        var testValue = _.uniqueId('random');
 
         var broadcaster = fw.observable(testValue).broadcast('broadcaster', namespaceName);
         var receiver = fw.observable().receive('broadcaster', namespaceName);
@@ -38,10 +38,10 @@ define(['footwork', 'fetch-mock'],
       });
 
       it('can create and dispose of a broadcastable correctly', function() {
-        var namespaceName = _.uniqueId();
-        var testValue = _.uniqueId();
-        var testValue2 = _.uniqueId();
-        var testValue3 = _.uniqueId();
+        var namespaceName = _.uniqueId('random');
+        var testValue = _.uniqueId('random');
+        var testValue2 = _.uniqueId('random');
+        var testValue3 = _.uniqueId('random');
 
         var broadcaster = fw.observable(testValue).broadcast('broadcaster', namespaceName);
         var receiver = fw.observable().receive('broadcaster', namespaceName);
@@ -56,10 +56,10 @@ define(['footwork', 'fetch-mock'],
       });
 
       it('can create and dispose of a receivable correctly', function() {
-        var namespaceName = _.uniqueId();
-        var testValue = _.uniqueId();
-        var testValue2 = _.uniqueId();
-        var testValue3 = _.uniqueId();
+        var namespaceName = _.uniqueId('random');
+        var testValue = _.uniqueId('random');
+        var testValue2 = _.uniqueId('random');
+        var testValue3 = _.uniqueId('random');
 
         var broadcaster = fw.observable(testValue).broadcast('broadcaster', namespaceName);
         var receiver = fw.observable().receive('broadcaster', namespaceName);
@@ -113,7 +113,7 @@ define(['footwork', 'fetch-mock'],
         var modelB = new ModelB();
         expect(modelBInitializeSpy).toHaveBeenCalled();
 
-        var testValue = _.uniqueId();
+        var testValue = _.uniqueId('random');
         modelA.broadcaster(testValue);
         expect(modelB.receiver()).toBe(testValue);
       });
@@ -124,7 +124,7 @@ define(['footwork', 'fetch-mock'],
         var receivable = fw.observable(null).receive('broadcaster', namespace);
         expect(receivable()).toBe(null);
 
-        var broadcastable = fw.observable(_.uniqueId()).broadcast('broadcaster', namespace);
+        var broadcastable = fw.observable(_.uniqueId('random')).broadcast('broadcaster', namespace);
         expect(receivable()).toBe(broadcastable());
       });
 
@@ -153,7 +153,7 @@ define(['footwork', 'fetch-mock'],
         var modelB = new ModelB();
         expect(modelBInitializeSpy).toHaveBeenCalled();
 
-        var testValue = _.uniqueId();
+        var testValue = _.uniqueId('random');
         modelB.writableReceiver(testValue);
 
         expect(modelA.writableBroadcaster()).toBe(testValue);
@@ -167,7 +167,7 @@ define(['footwork', 'fetch-mock'],
         var nonwritableBroadcaster = fw.observable().broadcast('nonwritableBroadcaster', modelANamespaceName);
         var nonwritableReceiver = fw.observable().receive('nonwritableBroadcaster', modelANamespaceName);
 
-        var testValue = _.uniqueId();
+        var testValue = _.uniqueId('random');
         nonwritableReceiver(testValue);
         expect(nonwritableReceiver()).not.toBe(testValue);
         expect(nonwritableBroadcaster()).not.toBe(testValue);

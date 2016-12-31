@@ -124,7 +124,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can bind to the DOM using a shared instance', function(done) {
         var namespaceName = generateNamespaceName();
-        var boundPropertyValue = _.uniqueId();
+        var boundPropertyValue = _.uniqueId('random');
 
         fw.viewModel.register(namespaceName, {
           instance: {
@@ -148,7 +148,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can bind to the DOM using a generated instance', function(done) {
         var namespaceName = generateNamespaceName();
-        var boundPropertyValue = _.uniqueId();
+        var boundPropertyValue = _.uniqueId('random');
         var boundPropertyValueElement = boundPropertyValue + '-element';
         var createViewModelInstance;
 
@@ -240,8 +240,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
       });
 
       it('can nest viewModel declarations', function(done) {
-        var namespaceNameOuter = _.uniqueId();
-        var namespaceNameInner = _.uniqueId();
+        var namespaceNameOuter = _.uniqueId('random');
+        var namespaceNameInner = _.uniqueId('random');
         var initializeSpy = jasmine.createSpy('initializeSpy', function() { fw.viewModel.boot(this); });
 
         fw.viewModel.register(namespaceNameOuter, initializeSpy);
@@ -280,7 +280,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
       it('can dispose of items properly', function() {
         var namespaceName = generateNamespaceName();
-        var checkValue = _.uniqueId();
+        var checkValue = _.uniqueId('random');
         var initializeSpy;
         var callbackSpy = jasmine.createSpy('callbackSpy');
         var callbackArraySpy = jasmine.createSpy('callbackArraySpy');
