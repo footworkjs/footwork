@@ -607,7 +607,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           expect(namespaceNameSinglestring).toBeLoaded();
           expect(namespaceNameFullpath).toBeLoaded();
           done();
-        }, ajaxWait);
+        }, ajaxWait * 3);
       });
 
       it('can specify and load a template-only component via a registered location', function(done) {
