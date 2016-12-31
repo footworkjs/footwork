@@ -150,7 +150,6 @@ function sync (action, concern, options) {
 
   var requestNotice = { url: url, request: promise, options: options };
   requestNotice[fw.isDataModel(concern) ? 'dataModel' : 'collection'] = concern;
-  concern.$namespace.publish('_.request', requestNotice);
 
   return promise;
 };
