@@ -17,7 +17,7 @@ var isFullURL = fw.utils.isFullURL = function (thing) {
   return _.isString(thing) && isFullURLRegex.test(thing);
 };
 
-fw.bindingHandlers.$route = {
+fw.bindingHandlers.route = {
   init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
     var router = nearestParentRouter(bindingContext);
     var routeParams = valueAccessor();

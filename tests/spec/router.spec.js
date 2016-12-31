@@ -1204,7 +1204,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, 0);
       });
 
-      it('can have a $route bound link correctly composed with an href attribute using passed in string route', function(done) {
+      it('can have a route bound link correctly composed with an href attribute using passed in string route', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
         var hashMockUrl = '#hash-only-url';
@@ -1232,8 +1232,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a class="mockUrl" data-bind="$route: \'' + mockUrl + '\'"></a>\
-          <a class="hashMockUrl" data-bind="$route: \'' + hashMockUrl + '\'"></a>\
+          <a class="mockUrl" data-bind="route: \'' + mockUrl + '\'"></a>\
+          <a class="hashMockUrl" data-bind="route: \'' + hashMockUrl + '\'"></a>\
         </router>'));
 
         setTimeout(function() {
@@ -1253,7 +1253,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, ajaxWait);
       });
 
-      it('can have a $route bound link correctly composed using the elements existing href attribute', function(done) {
+      it('can have a route bound link correctly composed using the elements existing href attribute', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
         var namespaceName = generateNamespaceName();
@@ -1280,7 +1280,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a href="' + mockUrl + '" data-bind="$route"></a>\
+          <a href="' + mockUrl + '" data-bind="route"></a>\
         </router>');
         fw.start(testContainer);
 
@@ -1298,7 +1298,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, ajaxWait);
       });
 
-      it('can have a $route bound link correctly composed with an href attribute using an observable', function(done) {
+      it('can have a route bound link correctly composed with an href attribute using an observable', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
         var routerNamespaceName = _.uniqueId();
@@ -1341,7 +1341,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         testContainer = getFixtureContainer('<router module="' + routerNamespaceName + '">\
           <viewModel module="' + viewModelNamespaceName + '">\
-            <a data-bind="$route: routeHrefBindingObservable"></a>\
+            <a data-bind="route: routeHrefBindingObservable"></a>\
           </viewModel>\
         </router>');
         fw.start(testContainer);
@@ -1372,7 +1372,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, 0);
       });
 
-      it('can have a $route bound link that uses replaceState on its parent router', function(done) {
+      it('can have a route bound link that uses replaceState on its parent router', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
         var namespaceName = generateNamespaceName();
@@ -1399,7 +1399,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="$route: { url: \'' + mockUrl + '\', history: \'replace\' }"></a>\
+          <a data-bind="route: { url: \'' + mockUrl + '\', history: \'replace\' }"></a>\
         </router>');
         fw.start(testContainer);
 
@@ -1421,7 +1421,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, 0);
       });
 
-      it('can have a $route bound link that expresses the default active class when the route matches', function(done) {
+      it('can have a route bound link that expresses the default active class when the route matches', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
         var namespaceName = generateNamespaceName();
@@ -1448,7 +1448,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="$route: \'' + mockUrl + '\'"></a>\
+          <a data-bind="route: \'' + mockUrl + '\'"></a>\
         </router>');
         fw.start(testContainer);
 
@@ -1470,7 +1470,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, 0);
       });
 
-      it('can have a $route bound link that expresses a custom \'active\' class when the route matches', function(done) {
+      it('can have a route bound link that expresses a custom \'active\' class when the route matches', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
         var namespaceName = generateNamespaceName();
@@ -1494,7 +1494,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\' }"></a>\
+          <a data-bind="route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\' }"></a>\
         </router>');
         fw.start(testContainer);
 
@@ -1516,7 +1516,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, 0);
       });
 
-      it('can have a $route bound link that expresses a custom \'active\' class defined by an observable when the route matches', function(done) {
+      it('can have a route bound link that expresses a custom \'active\' class defined by an observable when the route matches', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
         var routerNamespaceName = _.uniqueId();
@@ -1552,7 +1552,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         testContainer = getFixtureContainer('<router module="' + routerNamespaceName + '">\
           <viewModel module="' + viewModelNamespaceName + '">\
-            <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: activeClassObservable }"></a>\
+            <a data-bind="route: { url: \'' + mockUrl + '\', activeClass: activeClassObservable }"></a>\
           </viewModel>\
         </router>');
         fw.start(testContainer);
@@ -1576,7 +1576,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, 0);
       });
 
-      it('can have a $route bound link that disables the active class state based on activeClass being falsey', function(done) {
+      it('can have a route bound link that disables the active class state based on activeClass being falsey', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
         var namespaceName = generateNamespaceName();
@@ -1599,7 +1599,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: false }"></a>\
+          <a data-bind="route: { url: \'' + mockUrl + '\', activeClass: false }"></a>\
         </router>'));
 
         setTimeout(function() {
@@ -1620,7 +1620,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, 0);
       });
 
-      it('can have a $route bound link that disables the active class state using an observable', function(done) {
+      it('can have a route bound link that disables the active class state using an observable', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
         var namespaceName = generateNamespaceName();
@@ -1644,7 +1644,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="$route: { url: \'' + mockUrl + '\', activeClass: disableActiveClass }"></a>\
+          <a data-bind="route: { url: \'' + mockUrl + '\', activeClass: disableActiveClass }"></a>\
         </router>'));
 
         setTimeout(function() {
@@ -1665,7 +1665,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, 0);
       });
 
-      it('can have a $route bound link with its active class removed properly when the route switches away from it', function(done) {
+      it('can have a route bound link with its active class removed properly when the route switches away from it', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
         var mockUrl2 = generateUrl();
@@ -1695,8 +1695,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a class="' + mockUrl.replace('/', '') + '" data-bind="$route: \'' + mockUrl + '\'"></a>\
-          <a class="' + mockUrl2.replace('/', '') + '" data-bind="$route: \'' + mockUrl2 + '\'"></a>\
+          <a class="' + mockUrl.replace('/', '') + '" data-bind="route: \'' + mockUrl + '\'"></a>\
+          <a class="' + mockUrl2.replace('/', '') + '" data-bind="route: \'' + mockUrl2 + '\'"></a>\
         </router>'));
 
         setTimeout(function() {
@@ -1725,7 +1725,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, 10);
       });
 
-      it('can have a $route bound link that triggers based on a custom event defined by a string', function(done) {
+      it('can have a route bound link that triggers based on a custom event defined by a string', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
         var namespaceName = generateNamespaceName();
@@ -1748,7 +1748,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="$route: { url: \'' + mockUrl + '\', on: \'dblclick\' }"></a>\
+          <a data-bind="route: { url: \'' + mockUrl + '\', on: \'dblclick\' }"></a>\
         </router>'));
 
         setTimeout(function() {
@@ -1769,7 +1769,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, 0);
       });
 
-      it('can have a $route bound link that triggers based on a custom event defined by a callback/observable', function(done) {
+      it('can have a route bound link that triggers based on a custom event defined by a callback/observable', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
         var namespaceName = generateNamespaceName();
@@ -1793,7 +1793,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="$route: { url: \'' + mockUrl + '\', on: customEvent }"></a>\
+          <a data-bind="route: { url: \'' + mockUrl + '\', on: customEvent }"></a>\
         </router>'));
 
         setTimeout(function() {
@@ -1814,7 +1814,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, 0);
       });
 
-      it('can have a $route bound link correctly composed with a custom callback handler', function(done) {
+      it('can have a route bound link correctly composed with a custom callback handler', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
         var routerNamespaceName = _.uniqueId();
@@ -1861,7 +1861,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         testContainer = getFixtureContainer('<router module="' + routerNamespaceName + '">\
           <viewModel module="' + viewModelNamespaceName + '">\
-            <a data-bind="$route: { url: \'' + mockUrl + '\', handler: routeHrefBindingCustomHandler }"></a>\
+            <a data-bind="route: { url: \'' + mockUrl + '\', handler: routeHrefBindingCustomHandler }"></a>\
           </viewModel>\
         </router>');
         fw.start(testContainer);
@@ -1899,7 +1899,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, 0);
       });
 
-      it('can have a $route bound link correctly composed with a custom URL callback', function(done) {
+      it('can have a route bound link correctly composed with a custom URL callback', function(done) {
         var testContainer;
         var mockUrl = generateUrl();
         var routerNamespaceName = _.uniqueId();
@@ -1921,7 +1921,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(initializeSpy).not.toHaveBeenCalled();
 
         testContainer = getFixtureContainer('<router module="' + routerNamespaceName + '">\
-          <a data-bind="$route: { url: routeHrefBindingCustomUrlCallback }"></a>\
+          <a data-bind="route: { url: routeHrefBindingCustomUrlCallback }"></a>\
         </router>');
         fw.start(testContainer);
 
@@ -1968,7 +1968,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         fw.outlet.registerView(outletDisplayName, '<div id="' + fragmentIdentifier + '">fragmentIdentifier</div>');
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a class="mockUrl" data-bind="$route: \'' + mockUrl + '#' + fragmentIdentifier + '\'"></a>\
+          <a class="mockUrl" data-bind="route: \'' + mockUrl + '#' + fragmentIdentifier + '\'"></a>\
           <outlet name="display"></outlet>\
         </router>'));
 
