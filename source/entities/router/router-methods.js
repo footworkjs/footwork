@@ -26,7 +26,7 @@ module.exports = {
     var outletProperties = outlets[outletName] || {};
     var outlet = outletProperties.routeObservable;
     var outletViewModel = outletProperties.outletViewModel;
-    var routerOutletOptions = resultBound(router[privateDataSymbol].configParams, 'outlet', router, [outletName, options]) || {};
+    var routerOutletOptions = router[privateDataSymbol].configParams.outlet || {};
 
     if (!fw.isObservable(outlet)) {
       // router outlet observable not found, we must create a new one
@@ -76,7 +76,7 @@ module.exports = {
           var outletElement = element.parentNode;
 
           activeOutlets.remove(outlet);
-          outletElement.setAttribute('data-rendered', (options.display === noComponentSelected ? '' : options.display));
+          outletElement.setAttribute('data-rendered', currentOutletDef.name);
 
           return function addBindingOnComplete () {
             var outletViewModel = outlets[outletName].outletViewModel;
