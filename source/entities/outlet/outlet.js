@@ -10,16 +10,6 @@ require('./outlet-binding');
 
 var entityName = 'outlet';
 
-fw[entityName] = {
-  boot: require('./outlet-bootstrap'),
-  registerView: function (viewName, templateHTML) {
-    fw.components.register(viewName, { template: templateHTML });
-  },
-  registerViewLocation: function (viewName, viewLocation) {
-    fw.components.registerLocation(viewName, { template: viewLocation });
-  }
-};
-
 var descriptor = {
   entityName: entityName,
   resource: fw[entityName],

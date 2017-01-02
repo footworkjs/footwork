@@ -3,6 +3,7 @@ var _ = require('footwork-lodash');
 
 var bindingElement = require('../../binding/binding-element');
 var routerConfig = require('../router/router-config');
+var outletBootstrap = require('./outlet-bootstrap');
 
 /**
  * The outlet loader has two functions:
@@ -14,7 +15,7 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
     if (componentName === 'outlet') {
       callback({
         viewModel: function Outlet () {
-          fw.outlet.boot(this);
+          outletBootstrap(this);
         },
         template: bindingElement.open.prefix + '$lifecycle, $outlet' + bindingElement.open.postfix +
           '<div class="' + routerConfig.outletLoadingDisplay + '" ' +

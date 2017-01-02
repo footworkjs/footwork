@@ -758,7 +758,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var $testContainer;
         var passedInParams = { params: true };
 
-        fw.outlet.registerViewLocation(manipulateOutletComponentNamespace, 'tests/assets/fixtures/manipulateOutlet.html');
+        fw.components.registerLocation(manipulateOutletComponentNamespace, { template: 'tests/assets/fixtures/manipulateOutlet.html' });
 
         fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.router.boot(this, {
@@ -943,7 +943,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var router;
         var viewModel;
 
-        fw.outlet.registerView(outletComponentNamespace, '<div class="' + outletComponentNamespace + '"></div>');
+        fw.components.register(outletComponentNamespace, { template: '<div class="' + outletComponentNamespace + '"></div>' });
 
         fw.viewModel.register(outletControlingViewModelNamespace, initializeViewModelSpy = jasmine.createSpy('initializeViewModelSpy', function() {
           fw.viewModel.boot(this, {
@@ -1963,7 +1963,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         expect(initializeSpy).not.toHaveBeenCalled();
 
-        fw.outlet.registerView(outletDisplayName, '<div id="' + fragmentIdentifier + '">fragmentIdentifier</div>');
+        fw.components.register(outletDisplayName, { template: '<div id="' + fragmentIdentifier + '">fragmentIdentifier</div>' });
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
           <a class="mockUrl" data-bind="route: \'' + mockUrl + '#' + fragmentIdentifier + '\'"></a>\
