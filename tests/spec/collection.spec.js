@@ -172,7 +172,10 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var getMockUrl = generateUrl();
         var getOverrideMockUrl = generateUrl();
         var fetchOptionsSpy;
-        var changeEventSpy;
+        var getCallbackUrl = generateUrl();
+        var peopleUrlCallbackSpy = jasmine.createSpy('peopleUrlCallbackSpy', function() {
+          return getCallbackUrl;
+        }).and.callThrough;
         var persons = [];
         _.each(_.range(1, 8), function(id) {
           persons.push({
@@ -184,6 +187,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         var people = fw.collection({
           url: getMockUrl
+        });
+        var peopleFromCallbackUrl = fw.collection({
+          url: peopleUrlCallbackSpy
         });
         var peopleAjaxOptions = fw.collection({
           url: getOverrideMockUrl,
@@ -198,6 +204,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(people.fetch()).toBeA('promise');
         expect(people.requestInProgress()).toBe(true);
 
+        fetchMock.restore().get(getCallbackUrl, persons);
+        peopleFromCallbackUrl.fetch();
+
         fetchMock.restore().post(getOverrideMockUrl, persons);
         peopleAjaxOptions.fetch();
 
@@ -206,6 +215,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
           expect(people()).lengthToBe(persons.length);
           expect(people()[0].firstName).toBe(persons[0].firstName);
+
+          expect(peopleFromCallbackUrl()).lengthToBe(persons.length);
+          expect(peopleFromCallbackUrl()[0].firstName).toBe(persons[0].firstName);
 
           expect(peopleAjaxOptions()).lengthToBe(persons.length);
           expect(peopleAjaxOptions()[0].firstName).toBe(persons[0].firstName);

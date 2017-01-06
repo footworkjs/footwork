@@ -81,42 +81,40 @@ function sync (action, concern, options) {
     throw Error('Must supply a dataModel or collection to sync');
   }
 
-  var urlPieces;
   var configParams = concern[privateDataSymbol].configParams;
-
-  var method;
   var url = resultBound(configParams, 'url', concern);
-  if (_.isObject(url)) {
+  var method;
+
+  if (_.isObject(url) && !_.isFunction(url)) {
     // user is explicitly defining the individual request url or method+url
     var requestAction = resultBound(url, action, concern, [action, options]);
     if (_.isString(requestAction)) {
       if (requestAction.indexOf(' ') !== -1) {
-        // method url
+        // 'method url'
         requestAction = requestAction.split(' ');
         method = requestAction[0];
         url = requestAction[1];
       } else {
-        // url
-        method = methodMap[action];
+        // 'url'
         url = requestAction;
       }
     }
-  } else if (_.isString(url)) {
-    // string specified, use the default method for this action and url
-    method = methodMap[action];
-    if (!_.isString(method)) {
-      throw Error('Invalid method resolved for ' + action + ' sync operation');
-    }
+  } else if (_.isString(url) || _.isFunction(url)) {
+    url = _.isFunction(url) ? url.call(concern, action, options) : url;
 
     // add the :id to the url if needed
-    if (fw.isDataModel(concern) && _.includes(['read', 'update', 'delete'], action)) {
-      urlPieces = url.split('?');
+    if (fw.isDataModel(concern) && _.includes(['read', 'update', 'delete'], action) && url) {
+      var urlPieces = url.split('?');
       var urlRoute = urlPieces.shift();
       var queryString = urlPieces.length ? '?' + urlPieces.join('?') : '';
       url = urlRoute.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute + queryString;
     }
   }
 
+  method = method || methodMap[action];
+  if (!_.isString(method)) {
+    throw Error('Invalid method resolved for ' + action + ' sync operation');
+  }
   if (!_.isString(url)) {
     throw Error('A url must be specified for ' + action + ' sync operation');
   }

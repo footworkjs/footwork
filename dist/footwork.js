@@ -8359,6 +8359,7 @@ var _ = require('footwork-lodash');
 
 var bindingElement = require('../../binding/binding-element');
 var routerConfig = require('../router/router-config');
+var outletBootstrap = require('./outlet-bootstrap');
 
 /**
  * The outlet loader has two functions:
@@ -8370,7 +8371,7 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
     if (componentName === 'outlet') {
       callback({
         viewModel: function Outlet () {
-          fw.outlet.boot(this);
+          outletBootstrap(this);
         },
         template: bindingElement.open.prefix + '$lifecycle, $outlet' + bindingElement.open.postfix +
           '<div class="' + routerConfig.outletLoadingDisplay + '" ' +
@@ -8386,7 +8387,7 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
   }
 });
 
-},{"../../binding/binding-element":6,"../router/router-config":34,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],30:[function(require,module,exports){
+},{"../../binding/binding-element":6,"../router/router-config":34,"./outlet-bootstrap":28,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],30:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
@@ -8398,16 +8399,6 @@ require('./outlet-loader');
 require('./outlet-binding');
 
 var entityName = 'outlet';
-
-fw[entityName] = {
-  boot: require('./outlet-bootstrap'),
-  registerView: function (viewName, templateHTML) {
-    fw.components.register(viewName, { template: templateHTML });
-  },
-  registerViewLocation: function (viewName, viewLocation) {
-    fw.components.registerLocation(viewName, { template: viewLocation });
-  }
-};
 
 var descriptor = {
   entityName: entityName,
@@ -8430,7 +8421,7 @@ fw.components.register(require('../router/router-config').noComponentSelected, {
 fw['is' + capitalizeFirstLetter(entityName)] = descriptor.isEntity;
 
 
-},{"../../misc/util":42,"../entity-descriptors":24,"../resource-tools":31,"../router/router-config":34,"./outlet-binding":27,"./outlet-bootstrap":28,"./outlet-loader":29,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],31:[function(require,module,exports){
+},{"../../misc/util":42,"../entity-descriptors":24,"../resource-tools":31,"../router/router-config":34,"./outlet-binding":27,"./outlet-loader":29,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],31:[function(require,module,exports){
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
