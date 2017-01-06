@@ -49,7 +49,7 @@ module.exports = {
   sl_android_4_2: {
     base: 'SauceLabs',
     browserName: 'android',
-    version: '4.2'
+    version: '4.4'
   },
   sl_android_5_1: {
     base: 'SauceLabs',
