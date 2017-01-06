@@ -87,7 +87,7 @@ function sync (action, concern, options) {
 
   if (_.isObject(url) && !_.isFunction(url)) {
     // user is explicitly defining the individual request url or method+url
-    var requestAction = resultBound(url, action, concern, [action, options]);
+    var requestAction = resultBound(url, action, concern, [options]);
     if (_.isString(requestAction)) {
       if (requestAction.indexOf(' ') !== -1) {
         // 'method url'
