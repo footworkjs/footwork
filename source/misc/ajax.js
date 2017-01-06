@@ -83,22 +83,10 @@ function sync (action, concern, options) {
 
   var configParams = concern[privateDataSymbol].configParams;
   var url = resultBound(configParams, 'url', concern);
-  var method;
 
   if (_.isObject(url) && !_.isFunction(url)) {
     // user is explicitly defining the individual request url or method+url
-    var requestAction = resultBound(url, action, concern, [options]);
-    if (_.isString(requestAction)) {
-      if (requestAction.indexOf(' ') !== -1) {
-        // 'method url'
-        requestAction = requestAction.split(' ');
-        method = requestAction[0];
-        url = requestAction[1];
-      } else {
-        // 'url'
-        url = requestAction;
-      }
-    }
+    url = resultBound(url, action, concern, [options]);
   } else if (_.isString(url) || _.isFunction(url)) {
     url = _.isFunction(url) ? url.call(concern, action, options) : url;
 
@@ -111,10 +99,20 @@ function sync (action, concern, options) {
     }
   }
 
-  method = method || methodMap[action];
+  var method;
+  if (_.isString(url) && url.indexOf(' ') !== -1) {
+    // address in form of: 'method url'
+    url = url.split(' ');
+    method = url[0];
+    url = url[1];
+  } else {
+    method = methodMap[action];
+  }
+
   if (!_.isString(method)) {
     throw Error('Invalid method resolved for ' + action + ' sync operation');
   }
+
   if (!_.isString(url)) {
     throw Error('A url must be specified for ' + action + ' sync operation');
   }
