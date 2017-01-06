@@ -1197,7 +1197,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
               expect($(testContainer).find('.fw-loaded-display.' + fw.animationClass.animateIn)).lengthToBeGreaterThan(0);
               expect(outletCallbackSpy).toHaveBeenCalled();
               done();
-            }, 340);
+            }, 500);
           }, 0);
         }, 0);
       });
