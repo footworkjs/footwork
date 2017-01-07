@@ -71,22 +71,6 @@ function where (modelData, comparator) {
   }, []);
 }
 
-/**
- * Get first item that matches modelData
- *
- * @param {object} modelData object to compare against
- * @param {function} comparator callback function used to compare the values
- * @returns {any} the found result (if any)
- */
-function findWhere (modelData, comparator) {
-  return _.reduce(this(), function findModel (foundModel, model) {
-    if (_.isNull(foundModel) && regExpIsEqual(modelData, model, comparator)) {
-      return model;
-    }
-    return foundModel;
-  }, null);
-}
-
 function fetchCollection (options) {
   var collection = this;
   var configParams = collection[privateDataSymbol].configParams;
@@ -117,6 +101,5 @@ module.exports = {
   toJSON: toJSON,
   pluck: pluck,
   fetch: fetchCollection,
-  where: where,
-  findWhere: findWhere
+  where: where
 };

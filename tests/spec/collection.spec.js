@@ -23,26 +23,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, []));
       });
 
-      it('can find an individual model that matches a set of attributes', function() {
-        var persons = [
-          {
-            firstName: 'PersonFirstNameTest',
-            lastName: 'PersonLastNameTest',
-            email: 'PersonEmailTest'
-          }, {
-            firstName: 'PersonFirstNameTest',
-            email: 'PersonEmailTest'
-          }
-        ];
-
-        var people = fw.collection(persons);
-
-        expect(people()).lengthToBe(persons.length);
-
-        expect(people.findWhere(persons[0])).toBeAn('object');
-        expect(people.findWhere({ shouldNotFind: true })).toBe(null);
-      });
-
       it('can find an item that matches a set of attributes in a complex set of models', function() {
         var valueToFind = _.uniqueId('random');
         var persons = [
@@ -98,7 +78,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var people = fw.collection(persons);
 
         expect(people()).lengthToBe(persons.length);
-        expect(people.findWhere({ id: persons[2].id })).toEqual(persons[2]);
+        expect(people.where({ id: persons[2].id })).toEqual([ persons[2] ]);
       });
 
       it('can find an individual model that matches a regex attribute', function() {
@@ -117,8 +97,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         expect(people()).lengthToBe(persons.length);
 
-        expect(people.findWhere({ lastName: /FINDME/ })).toBeAn('object');
-        expect(people.findWhere({ lastName: /NOTFINDME/ })).toBe(null);
+        expect(people.where({ lastName: /FINDME/ })).lengthToBe(1);
+        expect(people.where({ lastName: /NOTFINDME/ })).lengthToBe(0);
       });
 
       it('can find where a set of models matches some data', function() {

@@ -7049,18 +7049,6 @@ function toJSON () {
 }
 
 /**
- * Get the collection item with the specified id
- *
- * @param {any} id The id (mapped via idAttribute config option) of the entry to get
- * @returns {any} the found result (if any)
- */
-function get (id) {
-  var findObject = {};
-  findObject[this[privateDataSymbol].configParams.idAttribute] = id;
-  return findWhere.call(this, findObject);
-}
-
-/**
  * Get list of items that match modelData
  *
  * @param {object} modelData object to compare against
@@ -7119,7 +7107,6 @@ function fetchCollection (options) {
 
 module.exports = {
   sync: collectionSync,
-  get: get,
   toJSON: toJSON,
   pluck: pluck,
   fetch: fetchCollection,
@@ -7140,7 +7127,6 @@ fw.isCollection = function (thing) {
 
 var defaultCollectionConfig = {
   url: null,
-  idAttribute: 'id',
   parse: _.identity,
   fetchOptions: {}
 };
@@ -9418,40 +9404,36 @@ function sync (action, concern, options) {
     throw Error('Must supply a dataModel or collection to sync');
   }
 
-  var urlPieces;
   var configParams = concern[privateDataSymbol].configParams;
-
-  var method;
   var url = resultBound(configParams, 'url', concern);
-  if (_.isObject(url)) {
+
+  if (_.isObject(url) && !_.isFunction(url)) {
     // user is explicitly defining the individual request url or method+url
-    var requestAction = resultBound(url, action, concern, [action, options]);
-    if (_.isString(requestAction)) {
-      if (requestAction.indexOf(' ') !== -1) {
-        // method url
-        requestAction = requestAction.split(' ');
-        method = requestAction[0];
-        url = requestAction[1];
-      } else {
-        // url
-        method = methodMap[action];
-        url = requestAction;
-      }
-    }
-  } else if (_.isString(url)) {
-    // string specified, use the default method for this action and url
-    method = methodMap[action];
-    if (!_.isString(method)) {
-      throw Error('Invalid method resolved for ' + action + ' sync operation');
-    }
+    url = resultBound(url, action, concern, [options]);
+  } else if (_.isString(url) || _.isFunction(url)) {
+    url = _.isFunction(url) ? url.call(concern, action, options) : url;
 
     // add the :id to the url if needed
-    if (fw.isDataModel(concern) && _.includes(['read', 'update', 'delete'], action)) {
-      urlPieces = url.split('?');
+    if (fw.isDataModel(concern) && _.includes(['read', 'update', 'delete'], action) && url) {
+      var urlPieces = url.split('?');
       var urlRoute = urlPieces.shift();
       var queryString = urlPieces.length ? '?' + urlPieces.join('?') : '';
       url = urlRoute.replace(trailingSlashRegex, '') + '/:' + configParams.idAttribute + queryString;
     }
+  }
+
+  var method;
+  if (_.isString(url) && url.indexOf(' ') !== -1) {
+    // address in form of: 'method url'
+    url = url.split(' ');
+    method = url[0];
+    url = url[1];
+  } else {
+    method = methodMap[action];
+  }
+
+  if (!_.isString(method)) {
+    throw Error('Invalid method resolved for ' + action + ' sync operation');
   }
 
   if (!_.isString(url)) {
@@ -9483,12 +9465,7 @@ function sync (action, concern, options) {
     options.body = JSON.stringify(options.attrs || concern.get());
   }
 
-  var promise = makePromiseQueryable(fetch(url, options));
-
-  var requestNotice = { url: url, request: promise, options: options };
-  requestNotice[fw.isDataModel(concern) ? 'dataModel' : 'collection'] = concern;
-
-  return promise;
+  return makePromiseQueryable(fetch(url, options));
 };
 
 /**
