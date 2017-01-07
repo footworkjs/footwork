@@ -142,12 +142,7 @@ function sync (action, concern, options) {
     options.body = JSON.stringify(options.attrs || concern.get());
   }
 
-  var promise = makePromiseQueryable(fetch(url, options));
-
-  var requestNotice = { url: url, request: promise, options: options };
-  requestNotice[fw.isDataModel(concern) ? 'dataModel' : 'collection'] = concern;
-
-  return promise;
+  return makePromiseQueryable(fetch(url, options));
 };
 
 /**
