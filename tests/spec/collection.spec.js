@@ -98,7 +98,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var people = fw.collection(persons);
 
         expect(people()).lengthToBe(persons.length);
-        expect(people.get(persons[2].id)).toEqual(persons[2]);
+        expect(people.findWhere({ id: persons[2].id })).toEqual(persons[2]);
       });
 
       it('can find an individual model that matches a regex attribute', function() {

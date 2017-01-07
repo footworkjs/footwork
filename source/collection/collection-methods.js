@@ -56,18 +56,6 @@ function toJSON () {
 }
 
 /**
- * Get the collection item with the specified id
- *
- * @param {any} id The id (mapped via idAttribute config option) of the entry to get
- * @returns {any} the found result (if any)
- */
-function get (id) {
-  var findObject = {};
-  findObject[this[privateDataSymbol].configParams.idAttribute] = id;
-  return findWhere.call(this, findObject);
-}
-
-/**
  * Get list of items that match modelData
  *
  * @param {object} modelData object to compare against
@@ -126,7 +114,6 @@ function fetchCollection (options) {
 
 module.exports = {
   sync: collectionSync,
-  get: get,
   toJSON: toJSON,
   pluck: pluck,
   fetch: fetchCollection,

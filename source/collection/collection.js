@@ -10,7 +10,6 @@ fw.isCollection = function (thing) {
 
 var defaultCollectionConfig = {
   url: null,
-  idAttribute: 'id',
   parse: _.identity,
   fetchOptions: {}
 };
