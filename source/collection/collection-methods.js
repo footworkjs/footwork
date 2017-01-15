@@ -39,13 +39,6 @@ function collectionSync () {
   return fw.sync.apply(this, arguments);
 }
 
-function pluck (attribute) {
-  return _.reduce(this(), function (pluckedValues, model) {
-    pluckedValues.push(model[attribute]);
-    return pluckedValues;
-  }, []);
-}
-
 /**
  * Convert the collection to its plain object form for toJSON support.
  *
@@ -99,7 +92,6 @@ function fetchCollection (options) {
 module.exports = {
   sync: collectionSync,
   toJSON: toJSON,
-  pluck: pluck,
   fetch: fetchCollection,
   where: where
 };

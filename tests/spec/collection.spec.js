@@ -4,25 +4,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
       beforeEach(prepareTestEnv);
       afterEach(cleanTestEnv);
 
-      it('can have data plucked from its entries', function() {
-        var persons = [];
-        _.each(_.range(1, 8), function() {
-          persons.push({
-            firstName: _.uniqueId('random'),
-            lastName: _.uniqueId('random'),
-            email: _.uniqueId('random')
-          });
-        });
-
-        var people = fw.collection(persons);
-        expect(people()).lengthToBe(persons.length);
-
-        expect(people.pluck('firstName', this)).toEqual(_.reduce(persons, function(values, person) {
-          values.push(person['firstName']);
-          return values;
-        }, []));
-      });
-
       it('can find an item that matches a set of attributes in a complex set of models', function() {
         var valueToFind = _.uniqueId('random');
         var persons = [
