@@ -1319,7 +1319,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           someUniqueValue: _.uniqueId('random')
         };
 
-        fw.fetchOptions = function(action, concern, options) {
+        fw.options.fetchOptions = function(action, concern, options) {
           expect(action).toBe('read');
           expect(concern).toBeA('dataModel');
           expect(options).toEqual(passedOptions);
@@ -1351,7 +1351,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         setTimeout(function() {
           expect(person.firstName()).toBe(personData.firstName);
-          fw.fetchOptions = {};
+          fw.options.fetchOptions = {};
           done();
         }, ajaxWait);
       });
