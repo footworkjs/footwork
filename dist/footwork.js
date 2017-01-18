@@ -7032,13 +7032,6 @@ function collectionSync () {
   return fw.sync.apply(this, arguments);
 }
 
-function pluck (attribute) {
-  return _.reduce(this(), function (pluckedValues, model) {
-    pluckedValues.push(model[attribute]);
-    return pluckedValues;
-  }, []);
-}
-
 /**
  * Convert the collection to its plain object form for toJSON support.
  *
@@ -7062,22 +7055,6 @@ function where (modelData, comparator) {
     }
     return foundModels;
   }, []);
-}
-
-/**
- * Get first item that matches modelData
- *
- * @param {object} modelData object to compare against
- * @param {function} comparator callback function used to compare the values
- * @returns {any} the found result (if any)
- */
-function findWhere (modelData, comparator) {
-  return _.reduce(this(), function findModel (foundModel, model) {
-    if (_.isNull(foundModel) && regExpIsEqual(modelData, model, comparator)) {
-      return model;
-    }
-    return foundModel;
-  }, null);
 }
 
 function fetchCollection (options) {
@@ -7108,10 +7085,8 @@ function fetchCollection (options) {
 module.exports = {
   sync: collectionSync,
   toJSON: toJSON,
-  pluck: pluck,
   fetch: fetchCollection,
-  where: where,
-  findWhere: findWhere
+  where: where
 };
 
 },{"../misc/ajax":41,"../misc/util":42,"footwork-lodash":2,"knockout/build/output/knockout-latest":3}],13:[function(require,module,exports){
@@ -9456,7 +9431,7 @@ function sync (action, concern, options) {
       body: null,
       headers: {}
     },
-    resultBound(fw, 'fetchOptions', concern, [action, concern, options]) || {},
+    resultBound(fw.options, 'fetchOptions', concern, [action, concern, options]) || {},
     resultBound(configParams, 'fetchOptions', concern, [action, concern, options]) || {},
     options || {});
 
@@ -9509,7 +9484,7 @@ function handleJsonResponse (xhr) {
     });
 }
 
-fw.fetchOptions = {};
+fw.options.fetchOptions = {};
 fw.sync = sync;
 
 module.exports = {
