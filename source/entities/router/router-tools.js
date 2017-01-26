@@ -12,6 +12,7 @@ var privateDataSymbol = util.getSymbol('footwork');
 var optionalParamRegex = /\((.*?)\)/g;
 var namedParamRegex = /(\(\?)?:\w+/g;
 var requiredNamedParamRegex = /\/:(\w+)/g;
+var removeOptionalParamRegex = /\(\/:\w+\)/g;
 var splatParamRegex = /\*\w*/g;
 var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 
@@ -110,6 +111,22 @@ function getRouteParams (route, url) {
   return {};
 }
 
+function getNamedRoute (router, namedRoute) {
+  return _.find(router.routes(), function (routeConfig) {
+    var requiredRouteParams = [];
+    var isNamedRoute = routeConfig.name === namedRoute.name;
+    if (isNamedRoute) {
+      var routeString = routeConfig.route.replace(removeOptionalParamRegex, '');
+      requiredRouteParams = _.map(routeString.match(requiredNamedParamRegex), function (param) {
+        return param.substr(2);
+      });
+
+      return _.isEqual(requiredRouteParams, _.keys(namedRoute.params));
+    }
+    return false;
+  });
+}
+
 /**
  * Change the route on the specified router to the specified route.
  *
@@ -127,19 +144,7 @@ function changeState (router, historyMethod, newState) {
 
     if (_.isObject(newState)) {
       // find named route
-      foundRoute = _.find(router.routes(), function (routeConfig) {
-        var requiredRouteParams = [];
-        var isNamedRoute = routeConfig.name === newState.name;
-        if (isNamedRoute) {
-          requiredRouteParams = _.map(routeConfig.route.match(requiredNamedParamRegex), function (param) {
-            return param.substr(2);
-          });
-
-          return _.isEqual(requiredRouteParams, _.keys(newState.params));
-        }
-        return false;
-      });
-
+      foundRoute = getNamedRoute(router, newState);
       if (foundRoute) {
         routePredicate = foundRoute.predicate || alwaysPassPredicate;
 
@@ -152,7 +157,7 @@ function changeState (router, historyMethod, newState) {
       }
     } else if (!fw.utils.isFullURL(newState)) {
       // find route via url route string
-      routePredicate = (getCurrentRoute(router, newState) || {}).predicate || alwaysPassPredicate;
+      routePredicate = (routeForState(router, newState) || {}).predicate || alwaysPassPredicate;
       routeUrl = newState;
     }
 
@@ -167,10 +172,13 @@ function changeState (router, historyMethod, newState) {
   return router;
 }
 
-function getCurrentRoute (router, currentState) {
-  var routes = router.routes.peek();
-  var matchedRoute = getMatchedRoute(routes, trimBaseRoute(router, stripQueryStringAndHashFromPath(currentState)));
-  return (matchedRoute ? matchedRoute.routeConfiguration : undefined);
+function routeForState (router, currentState) {
+  if (_.isObject(currentState)) {
+    return getNamedRoute(router, currentState);
+  } else {
+    var matchedRoute = getMatchedRoute(router.routes.peek(), trimBaseRoute(router, stripQueryStringAndHashFromPath(currentState)));
+    return (matchedRoute ? matchedRoute.routeConfiguration : undefined);
+  }
 }
 
 function getMatchedRoute (routes, url) {
@@ -203,7 +211,7 @@ module.exports = {
   registerOutlet: registerOutlet,
   unregisterOutlet: unregisterOutlet,
   changeState: changeState,
-  getCurrentRoute: getCurrentRoute,
+  routeForState: routeForState,
   getLocation: getLocation,
   getRouteParams: getRouteParams
 };

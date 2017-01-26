@@ -12,7 +12,7 @@ var alwaysPassPredicate = util.alwaysPassPredicate;
 var routerTools = require('./router-tools');
 var registerOutlet = routerTools.registerOutlet;
 var unregisterOutlet = routerTools.unregisterOutlet;
-var getCurrentRoute = routerTools.getCurrentRoute;
+var routeForState = routerTools.routeForState;
 var getLocation = routerTools.getLocation;
 var changeState = routerTools.changeState;
 var getRouteParams = routerTools.getRouteParams;
@@ -52,8 +52,9 @@ function routerBootstrap (instance, configParams) {
       routes: fw.observableArray(privateData.configParams.routes)
     });
 
+    instance.getRouteForState = routeForState.bind(null, instance);
     instance.currentRoute = fw.computed(function () {
-      return getCurrentRoute(instance, instance.currentState());
+      return routeForState(instance, instance.currentState());
     });
 
     var previousRoute;
