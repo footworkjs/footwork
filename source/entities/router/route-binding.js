@@ -54,6 +54,9 @@ fw.bindingHandlers.route = {
 
     function checkForMatchingRoute (myRoute) {
       var currentState = router.currentState();
+      if (currentState && currentState.indexOf('?') !== -1) {
+        currentState = currentState.substr(0, currentState.indexOf('?'));
+      }
       var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router);
 
       if (activeRouteClassName) {
