@@ -104,7 +104,8 @@ function getRouteParams (route, url) {
 
     return _.reduce(routeParamNames, function (parameterNames, parameterName, index) {
       var paramValue = parameterNames[parameterName] = routeParams[index + 1];
-      if (paramValue.indexOf('?') !== -1) {
+      // remove any query string parameters from the value if found
+      if (paramValue && paramValue.indexOf('?') !== -1) {
         parameterNames[parameterName] = paramValue.substr(0, paramValue.indexOf('?'));
       }
       return parameterNames;

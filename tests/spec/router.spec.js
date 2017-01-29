@@ -735,7 +735,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           router.replaceState(mockUrl + '/optParamNotSupplied');
           expect(optParamNotSuppliedSpy).toHaveBeenCalled();
 
-          router.replaceState(mockUrl + '/optParamSupplied/' + testParam);
+          router.replaceState(mockUrl + '/optParamSupplied/' + testParam + '?query=should-be-removed&should=not-break-routing');
           expect(optParamSuppliedSpy).toHaveBeenCalled();
 
           done();
