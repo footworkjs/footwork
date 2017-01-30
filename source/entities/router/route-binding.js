@@ -10,6 +10,7 @@ var privateDataSymbol = util.getSymbol('footwork');
 
 var routerTools = require('./router-tools');
 var nearestParentRouter = routerTools.nearestParentRouter;
+var stripQueryStringAndHash = routerTools.stripQueryStringAndHash;
 
 var startingHashRegex = /^#/;
 var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
@@ -53,10 +54,7 @@ fw.bindingHandlers.route = {
     }
 
     function checkForMatchingRoute (myRoute) {
-      var currentState = router.currentState();
-      if (currentState && currentState.indexOf('?') !== -1) {
-        currentState = currentState.substr(0, currentState.indexOf('?'));
-      }
+      var currentState = stripQueryStringAndHash(router.currentState());
       var activeRouteClassName = resultBound(routeHandlerDescription, 'activeClass', router);
 
       if (activeRouteClassName) {

@@ -84,7 +84,7 @@ function trimBaseRoute (router, url) {
  * @param {string} url The url to remove the query string and hash from
  * @returns {string} the stripped url
  */
-function stripQueryStringAndHashFromPath (url) {
+function stripQueryStringAndHash (url) {
   if (url) {
     return url.split("?")[0].split("#")[0];
   } else {
@@ -103,11 +103,7 @@ function getRouteParams (route, url) {
     var routeParams = url.match(routeStringToRegExp(routeUrl));
 
     return _.reduce(routeParamNames, function (parameterNames, parameterName, index) {
-      var paramValue = parameterNames[parameterName] = routeParams[index + 1];
-      // remove any query string parameters from the value if found
-      if (paramValue && paramValue.indexOf('?') !== -1) {
-        parameterNames[parameterName] = paramValue.substr(0, paramValue.indexOf('?'));
-      }
+      parameterNames[parameterName] = stripQueryStringAndHash(routeParams[index + 1]);
       return parameterNames;
     }, {});
   }
@@ -180,7 +176,7 @@ function routeForState (router, currentState) {
   if (_.isObject(currentState)) {
     return getNamedRoute(router, currentState);
   } else {
-    var matchedRoute = getMatchedRoute(router.routes.peek(), trimBaseRoute(router, stripQueryStringAndHashFromPath(currentState)));
+    var matchedRoute = getMatchedRoute(router.routes.peek(), trimBaseRoute(router, stripQueryStringAndHash(currentState)));
     return (matchedRoute ? matchedRoute.routeConfiguration : undefined);
   }
 }
@@ -217,5 +213,6 @@ module.exports = {
   changeState: changeState,
   routeForState: routeForState,
   getLocation: getLocation,
-  getRouteParams: getRouteParams
+  getRouteParams: getRouteParams,
+  stripQueryStringAndHash: stripQueryStringAndHash
 };
