@@ -157,7 +157,7 @@ function changeState (router, historyMethod, newState) {
       }
     } else if (!fw.utils.isFullURL(newState)) {
       // find route via url route string
-      routePredicate = (routeForState(router, newState) || {}).predicate || alwaysPassPredicate;
+      routePredicate = (router.getRouteForState(newState) || {}).predicate || alwaysPassPredicate;
       routeUrl = newState;
     }
 
@@ -170,15 +170,6 @@ function changeState (router, historyMethod, newState) {
   }
 
   return router;
-}
-
-function routeForState (router, currentState) {
-  if (_.isObject(currentState)) {
-    return getNamedRoute(router, currentState);
-  } else {
-    var matchedRoute = getMatchedRoute(router.routes.peek(), trimBaseRoute(router, stripQueryStringAndHash(currentState)));
-    return (matchedRoute ? matchedRoute.routeConfiguration : undefined);
-  }
 }
 
 function getMatchedRoute (routes, url) {
@@ -211,7 +202,9 @@ module.exports = {
   registerOutlet: registerOutlet,
   unregisterOutlet: unregisterOutlet,
   changeState: changeState,
-  routeForState: routeForState,
+  getNamedRoute: getNamedRoute,
+  getMatchedRoute: getMatchedRoute,
+  trimBaseRoute: trimBaseRoute,
   getLocation: getLocation,
   getRouteParams: getRouteParams,
   stripQueryStringAndHash: stripQueryStringAndHash

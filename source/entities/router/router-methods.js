@@ -2,7 +2,13 @@ var _ = require('footwork-lodash');
 var fw = require('knockout/build/output/knockout-latest');
 
 var isEntity = require('../entity-tools').isEntity;
-var changeState = require('./router-tools').changeState;
+
+var routerTools = require('./router-tools');
+var changeState = routerTools.changeState;
+var getNamedRoute = routerTools.getNamedRoute;
+var getMatchedRoute = routerTools.getMatchedRoute;
+var trimBaseRoute = routerTools.trimBaseRoute;
+var stripQueryStringAndHash = routerTools.stripQueryStringAndHash;
 
 var util = require('../../misc/util');
 var resultBound = util.resultBound;
@@ -99,6 +105,14 @@ module.exports = {
     }
 
     return outlet;
+  },
+  getRouteForState: function (currentState) {
+    if (_.isObject(currentState)) {
+      return getNamedRoute(this, currentState);
+    } else {
+      var matchedRoute = getMatchedRoute(this.routes.peek(), trimBaseRoute(this, stripQueryStringAndHash(currentState)));
+      return (matchedRoute ? matchedRoute.routeConfiguration : undefined);
+    }
   },
   replaceState: function (route) {
     fw.ignoreDependencies(changeState, this, [this, 'replace', route]);

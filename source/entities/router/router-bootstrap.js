@@ -52,9 +52,8 @@ function routerBootstrap (instance, configParams) {
       routes: fw.observableArray(privateData.configParams.routes)
     });
 
-    instance.getRouteForState = routeForState.bind(null, instance);
     instance.currentRoute = fw.computed(function () {
-      return routeForState(instance, instance.currentState());
+      return instance.getRouteForState(instance.currentState());
     });
 
     var previousRoute;
