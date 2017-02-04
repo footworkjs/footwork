@@ -39,7 +39,7 @@ function fetchModel (options) {
 
         ajax.handleJsonResponse(xhr)
           .then(function handleResponseData (data) {
-            dataModel.set(configParams.parse ? configParams.parse.call(dataModel, data, 'read') : data);
+            dataModel.set(configParams.parse.call(dataModel, data, 'read'));
           });
 
         return xhr;

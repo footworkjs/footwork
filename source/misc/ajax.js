@@ -81,6 +81,10 @@ function sync (action, concern, options) {
     throw Error('Must supply a dataModel or collection to sync');
   }
 
+  if (concern[privateDataSymbol][action]) {
+    concern[privateDataSymbol][action].replaced = true;
+  }
+
   var configParams = concern[privateDataSymbol].configParams;
   var url = resultBound(configParams, 'url', concern);
 
@@ -142,7 +146,8 @@ function sync (action, concern, options) {
     options.body = JSON.stringify(options.attrs || concern.get());
   }
 
-  return makePromiseQueryable(fetch(url, options));
+  concern[privateDataSymbol][action] = makePromiseQueryable(fetch(url, options));
+  return concern[privateDataSymbol][action];
 };
 
 /**
@@ -176,7 +181,7 @@ function makePromiseQueryable (promise) {
  */
 function handleJsonResponse (xhr) {
   return xhr.then(function (response) {
-      if (response.ok) {
+      if (response.ok && !xhr.replaced) {
         var json;
         try {
           json = response.clone().json();
