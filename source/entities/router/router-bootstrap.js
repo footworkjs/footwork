@@ -39,6 +39,8 @@ function routerBootstrap (instance, configParams) {
     var privateData = instance[privateDataSymbol];
     instance[descriptor.isEntityDuckTag] = true;
 
+    var previousRoute;
+
     _.extend(privateData, {
       registerOutlet: _.partial(registerOutlet, instance),
       unregisterOutlet: _.partial(unregisterOutlet, instance),
@@ -48,31 +50,24 @@ function routerBootstrap (instance, configParams) {
 
     _.extend(instance, require('./router-methods'), {
       currentState: fw.observable(),
+      currentRoute: fw.observable(),
       activated: fw.observable(false),
       routes: fw.observableArray(privateData.configParams.routes)
     });
 
-    instance.currentRoute = fw.computed(function () {
-      return instance.getRouteForState(instance.currentState());
-    });
-
-    var previousRoute;
-    var previousRouteParams;
     instance.disposeWithInstance(
       instance.activated.subscribe(function (activated) {
         // activate/deactivate the router when the activated flag is set
         if (activated) {
           // activate the router
           // set the current state/route as of activation (if specified) or get it from the browser
-          var stateWasSetExplicitly = !!instance.currentState();
           changeState(instance, null, instance.currentState() || getLocation());
-          stateWasSetExplicitly && instance.currentState.notifySubscribers();
 
           /* istanbul ignore if */
           if (!fw.router.disableHistory) {
             (function setupPopStateListener (eventInfo) {
-              window[eventInfo[0]](eventInfo[1] + 'popstate', privateData.historyPopstateHandler = function popstateEventHandler () {
-                instance.currentState(getLocation());
+              window[eventInfo[0]](eventInfo[1] + 'popstate', privateData.historyPopstateHandler = function popstateEventHandler (event) {
+                instance.currentState(event.state);
               }, false);
             })(window.addEventListener ? ['addEventListener', ''] : ['attachEvent', 'on']);
           }
@@ -86,30 +81,32 @@ function routerBootstrap (instance, configParams) {
           }
         }
       }),
+      instance.currentState.subscribe(function evalCurrentRoute (currentState) {
+        instance.currentRoute(instance.getRouteForState(currentState));
+      }),
       instance.currentRoute.subscribe(function (currentRoute) {
         // Trigger the currentRoute controller whenever the currentRoute() updates
-        var currentState = instance.currentState() || '';
-        var routeParams = getRouteParams(currentRoute, currentState);
+        if (instance.activated() && currentRoute && !_.isEqual(previousRoute, currentRoute)) {
+          var state = instance.currentState() || '';
+          var route = currentRoute.route;
+          var params = currentRoute.params;
 
-        if (instance.activated() && currentRoute && (previousRoute !== currentRoute || !_.isEqual(previousRouteParams, routeParams))) {
-          previousRouteParams = routeParams;
-          previousRoute = currentRoute;
-
-          if (currentState.indexOf('#') !== -1) {
-            var fragmentIdentifier = currentState.split('#')[1];
+          // register the callback for any defined fragment identifier found in the currentState if needed (after the route loads we need to trigger scrolling to the fragment)
+          privateData.scrollToFragment = _.noop;
+          if (_.isString(state) && state.indexOf('#') !== -1) {
+            var fragmentIdentifier = state.split('#')[1];
             privateData.scrollToFragment = function () {
               var elementToScrollTo = document.getElementById(fragmentIdentifier);
               elementToScrollTo && _.isFunction(elementToScrollTo.scrollIntoView) && elementToScrollTo.scrollIntoView();
             };
-          } else {
-            privateData.scrollToFragment = _.noop;
           }
 
           // set the title and trigger the controller
-          if (currentRoute.hasOwnProperty('title')) {
-            window.document.title = resultBound(currentRoute, 'title', instance);
+          if (route.hasOwnProperty('title')) {
+            window.document.title = resultBound(route, 'title', instance);
           }
-          currentRoute.controller.call(instance, routeParams);
+          previousRoute = route;
+          route.controller.call(instance, params);
         }
       })
     );

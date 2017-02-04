@@ -84,7 +84,7 @@ function trimBaseRoute (router, url) {
  * @param {string} url The url to remove the query string and hash from
  * @returns {string} the stripped url
  */
-function stripQueryStringAndHash (url) {
+function stripQueryStringAndFragment (url) {
   if (url) {
     return url.split("?")[0].split("#")[0];
   } else {
@@ -92,39 +92,47 @@ function stripQueryStringAndHash (url) {
   }
 }
 
-function getRouteParams (route, url) {
-  var matchedRoute = getMatchedRoute(route, url);
+function getRouteParams (route, routeUrl, destinationUrl) {
+  var paramNames = _.map(routeUrl.match(namedParamRegex), function (param) {
+    return param.replace(':', '');
+  });
+  var paramValues = destinationUrl.match(routeStringToRegExp(routeUrl));
 
-  if (matchedRoute && matchedRoute.routeString) {
-    var routeUrl = matchedRoute.routeString;
-    var routeParamNames = _.map(routeUrl.match(namedParamRegex), function (param) {
-      return param.replace(':', '');
-    });
-    var routeParams = url.match(routeStringToRegExp(routeUrl));
-
-    return _.reduce(routeParamNames, function (parameterNames, parameterName, index) {
-      parameterNames[parameterName] = stripQueryStringAndHash(routeParams[index + 1]);
-      return parameterNames;
-    }, {});
-  }
-
-  return {};
+  return _.reduce(paramNames, function (routeParams, parameterName, index) {
+    routeParams[parameterName] = stripQueryStringAndFragment(paramValues[index + 1]);
+    return routeParams;
+  }, {});
 }
 
 function getNamedRoute (router, namedRoute) {
-  return _.find(router.routes(), function (routeConfig) {
-    var requiredRouteParams = [];
-    var isNamedRoute = routeConfig.name === namedRoute.name;
-    if (isNamedRoute) {
-      var routeString = routeConfig.route.replace(removeOptionalParamRegex, '');
-      requiredRouteParams = _.map(routeString.match(requiredNamedParamRegex), function (param) {
-        return param.substr(2);
-      });
-
-      return _.isEqual(requiredRouteParams, _.keys(namedRoute.params));
+  return _.reduce(router.routes(), function (foundNamedRoute, route) {
+    if (route.name === namedRoute.name) {
+      foundNamedRoute = {
+        route: route,
+        params: namedRoute.params
+      };
     }
-    return false;
-  });
+    return foundNamedRoute;
+  }, null);
+}
+
+function getMatchedRoute (router, destinationUrl) {
+  destinationUrl = trimBaseRoute(router, stripQueryStringAndFragment(destinationUrl));
+
+  return _.reduce(router.routes(), function (matchedRoute, routeConfiguration) {
+    var path = routeConfiguration.path;
+    if (_.isString(path) || _.isArray(path)) {
+      _.each([].concat(path), function (routePath) {
+        if (_.isString(routePath) && _.isString(destinationUrl) && destinationUrl.match(routeStringToRegExp(routePath))) {
+          matchedRoute = {
+            route: routeConfiguration,
+            params: getRouteParams(routeConfiguration, routePath, destinationUrl)
+          };
+        }
+      });
+    }
+    return matchedRoute;
+  }, null);
 }
 
 /**
@@ -138,52 +146,37 @@ function getNamedRoute (router, namedRoute) {
 function changeState (router, historyMethod, newState) {
   if (router.activated()) {
     var configParams = router[privateDataSymbol].configParams;
-    var routePredicate = alwaysPassPredicate;
-    var foundRoute = null;
     var routeUrl;
+    var route;
 
     if (_.isObject(newState)) {
       // find named route
-      foundRoute = getNamedRoute(router, newState);
-      if (foundRoute) {
-        routePredicate = foundRoute.predicate || alwaysPassPredicate;
+      route = getNamedRoute(router, newState);
 
+      if (route && route.path) {
         // render the url of the named route to store in the currentState
-        routeUrl = foundRoute.route;
-        var routeParams = getRouteParams(foundRoute, newState);
+        routeUrl = route.path;
+        var routeParams = getRouteParams(route, newState);
         _.each(newState.params, function (value, fieldName) {
           routeUrl = routeUrl.replace(':' + fieldName, routeParams[fieldName]);
         });
       }
     } else if (!fw.utils.isFullURL(newState)) {
-      // find route via url route string
-      routePredicate = (router.getRouteForState(newState) || {}).predicate || alwaysPassPredicate;
+      route = router.getRouteForState(newState);
       routeUrl = newState;
     }
 
-    /* istanbul ignore if */
-    if (routeUrl && routePredicate.call(router, newState) && configParams.predicate.call(router, newState) && historyMethod && !fw.router.disableHistory) {
-      history[historyMethod + 'State'](null, '', configParams.baseRoute + routeUrl);
-    }
+    if (route && (route.predicate || alwaysPassPredicate).call(router, newState) && configParams.predicate.call(router, newState)) {
+      /* istanbul ignore if */
+      if (historyMethod && !fw.router.disableHistory) {
+        history[historyMethod + 'State'](newState, null, (routeUrl ? configParams.baseRoute + routeUrl : null));
+      }
 
-    router.currentState(routeUrl);
+      router.currentState(newState);
+    }
   }
 
   return router;
-}
-
-function getMatchedRoute (routes, url) {
-  return _.reduce([].concat(routes), function (match, routeConfiguration) {
-    routeConfiguration && routeConfiguration.route && _.each([].concat(routeConfiguration.route), function (routeString) {
-      if (_.isString(routeString) && _.isString(url) && url.match(routeStringToRegExp(routeString))) {
-        match = {
-          routeConfiguration: routeConfiguration,
-          routeString: routeString
-        };
-      }
-    });
-    return match;
-  }, { routeConfiguration: _.find(routes, { unknown: true }) });
 }
 
 /**
@@ -197,15 +190,13 @@ function getLocation () {
 }
 
 module.exports = {
-  routeStringToRegExp: routeStringToRegExp,
   nearestParentRouter: nearestParentRouter,
   registerOutlet: registerOutlet,
   unregisterOutlet: unregisterOutlet,
   changeState: changeState,
   getNamedRoute: getNamedRoute,
   getMatchedRoute: getMatchedRoute,
-  trimBaseRoute: trimBaseRoute,
   getLocation: getLocation,
   getRouteParams: getRouteParams,
-  stripQueryStringAndHash: stripQueryStringAndHash
+  stripQueryStringAndFragment: stripQueryStringAndFragment
 };

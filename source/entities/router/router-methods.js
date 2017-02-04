@@ -7,8 +7,6 @@ var routerTools = require('./router-tools');
 var changeState = routerTools.changeState;
 var getNamedRoute = routerTools.getNamedRoute;
 var getMatchedRoute = routerTools.getMatchedRoute;
-var trimBaseRoute = routerTools.trimBaseRoute;
-var stripQueryStringAndHash = routerTools.stripQueryStringAndHash;
 
 var util = require('../../misc/util');
 var resultBound = util.resultBound;
@@ -107,12 +105,22 @@ module.exports = {
     return outlet;
   },
   getRouteForState: function (currentState) {
+    var route;
+
     if (_.isObject(currentState)) {
-      return getNamedRoute(this, currentState);
+      route = getNamedRoute(this, currentState);
     } else {
-      var matchedRoute = getMatchedRoute(this.routes.peek(), trimBaseRoute(this, stripQueryStringAndHash(currentState)));
-      return (matchedRoute ? matchedRoute.routeConfiguration : undefined);
+      route = getMatchedRoute(this, currentState);
     }
+
+    if (!route) {
+      route = _.find(this.routes(), { unknown: true });
+      if (route) {
+        route = { route: route };
+      }
+    }
+
+    return route;
   },
   replaceState: function (route) {
     fw.ignoreDependencies(changeState, this, [this, 'replace', route]);

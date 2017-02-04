@@ -468,12 +468,12 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 title: testTitle,
                 controller: routeControllerSpy
               },
               {
-                route: mockUrl2,
+                path: mockUrl2,
                 title: function() {
                   return testTitle2;
                 },
@@ -494,12 +494,12 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
           router.pushState(mockUrl);
           expect(routeControllerSpy).toHaveBeenCalled();
-          expect(router.currentRoute().route).toBe(mockUrl);
+          expect(router.currentRoute().route.path).toBe(mockUrl);
           expect(document.title).toBe(testTitle);
 
           router.pushState(mockUrl2);
           expect(routeControllerSpy).toHaveBeenCalledTimes(2);
-          expect(router.currentRoute().route).toBe(mockUrl2);
+          expect(router.currentRoute().route.path).toBe(mockUrl2);
           expect(document.title).toBe(testTitle2);
 
           done();
@@ -521,11 +521,11 @@ define(['footwork', 'lodash', 'fetch-mock'],
             baseRoute: baseRoute,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: routeControllerSpy
               },
               {
-                route: mockUrl2,
+                path: mockUrl2,
                 controller: routeControllerSpy
               }
             ]
@@ -543,11 +543,11 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
           router.pushState(baseRoute + mockUrl);
           expect(routeControllerSpy).toHaveBeenCalled();
-          expect(router.currentRoute().route).toBe(mockUrl);
+          expect(router.currentRoute().route.path).toBe(mockUrl);
 
           router.pushState(baseRoute + mockUrl2);
           expect(routeControllerSpy).toHaveBeenCalledTimes(2);
-          expect(router.currentRoute().route).toBe(mockUrl2);
+          expect(router.currentRoute().route.path).toBe(mockUrl2);
 
           done();
         }, ajaxWait);
@@ -568,7 +568,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 name: mockNamedState,
                 controller: routeControllerSpy
               },
@@ -588,8 +588,6 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
-          router.pushState({ name: mockNamedState });
-          expect(routeControllerSpy).not.toHaveBeenCalled();
 
           router.pushState({ name: mockNamedState, params: { required: true } });
           expect(routeControllerSpy).toHaveBeenCalled();
@@ -613,7 +611,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: [ mockUrl, mockUrl + '2' ],
+                path: [ mockUrl, mockUrl + '2' ],
                 controller: routeControllerSpy
               }
             ]
@@ -647,7 +645,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: mockUrl + '/:testParam',
+                path: mockUrl + '/:testParam',
                 controller: routeControllerSpy = jasmine.createSpy('routeControllerSpy', function(passedTestParam) {
                   expect(passedTestParam).toEqual({ testParam: testParam });
                 }).and.callThrough()
@@ -678,7 +676,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           fw.router.boot(this, {
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: routeControllerSpy
               }
             ]
@@ -686,11 +684,10 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }
 
         var router = new Router();
-        router.currentState(mockUrl);
-
         expect(routeControllerSpy).not.toHaveBeenCalled();
 
         router.activated(true);
+        router.currentState(mockUrl);
 
         expect(routeControllerSpy).toHaveBeenCalled();
       });
@@ -710,12 +707,12 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: mockUrl + '/optParamNotSupplied(/:testParam)',
+                path: mockUrl + '/optParamNotSupplied(/:testParam)',
                 controller: optParamNotSuppliedSpy = jasmine.createSpy('optParamNotSuppliedSpy', function(testParam) {
                   expect(testParam).toEqual({ testParam: undefined });
                 }).and.callThrough()
               }, {
-                route: mockUrl + '/optParamSupplied(/:testParam)',
+                path: mockUrl + '/optParamSupplied(/:testParam)',
                 controller: optParamSuppliedSpy = jasmine.createSpy('optParamSuppliedSpy', function(passedTestParam) {
                   expect(passedTestParam).toEqual({ testParam: testParam });
                 }).and.callThrough()
@@ -769,12 +766,12 @@ define(['footwork', 'lodash', 'fetch-mock'],
             },
             routes: [
               {
-                route: manipulateOutletUrl,
+                path: manipulateOutletUrl,
                 controller: manipulateOutletControllerSpy = jasmine.createSpy('manipulateOutletControllerSpy', function(params) {
                   this.outlet('output', { display: manipulateOutletComponentNamespace, params: passedInParams, onComplete: outletOnCompleteSpy });
                 }).and.callThrough()
               }, {
-                route: '/clearOutlet',
+                path: '/clearOutlet',
                 controller: clearOutletControllerSpy = jasmine.createSpy('clearOutletControllerSpy', function() {
                   this.outlet('output', false);
                 }).and.callThrough()
@@ -897,7 +894,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: function() {
                   this.outlet('output', { display: outletCallbackName, onComplete: triggerOutletCallbackControllerSpy = jasmine.createSpy('triggerOutletCallbackControllerSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
@@ -958,7 +955,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: routerNamespace,
             routes: [
               {
-                route: '/outletAfterRouter',
+                path: '/outletAfterRouter',
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
                   this.outlet('output', { display: outletComponentNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
@@ -1031,7 +1028,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: routerNamespace,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
                   this.outlet('output', { display: outletLoaderTestLoadedNamespace, loading: outletLoaderTestLoadingNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
@@ -1098,7 +1095,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             },
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
                   this.outlet('output', { display: outletLoaderTestLoadedNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
@@ -1162,7 +1159,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: routerNamespace,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
                   this.outlet('output', { display: outletLoaderTestLoadedNamespace, transition: 75, loading: outletLoaderTestLoadingNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
@@ -1215,7 +1212,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: routeSpy
               }
             ]
@@ -1263,7 +1260,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: routeSpy
               }
             ]
@@ -1311,10 +1308,10 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: routerNamespaceName,
             routes: [
               {
-                route: '/routeHrefBindingObservable',
+                path: '/routeHrefBindingObservable',
                 controller: routeSpy
               }, {
-                route: '/routeHrefBindingObservableChangedRoute',
+                path: '/routeHrefBindingObservableChangedRoute',
                 controller: changedRouteSpy
               }
             ]
@@ -1386,7 +1383,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: routeSpy
               }
             ]
@@ -1435,7 +1432,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: routeSpy
               }
             ]
@@ -1481,7 +1478,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: routeSpy
               }
             ]
@@ -1537,7 +1534,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: routerNamespaceName,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: routeSpy
               }
             ]
@@ -1586,7 +1583,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: routeSpy
               }
             ]
@@ -1630,7 +1627,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: routeSpy
               }
             ]
@@ -1677,11 +1674,11 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: routeSpy
               },
               {
-                route: mockUrl2,
+                path: mockUrl2,
                 controller: routeSpy
               }
             ]
@@ -1735,7 +1732,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: routeSpy
               }
             ]
@@ -1779,7 +1776,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: routeSpy
               }
             ]
@@ -1830,11 +1827,11 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: routerNamespaceName,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: routeSpy
               },
               {
-                route: alternateRoute,
+                path: alternateRoute,
                 controller: alternateRouteSpy
               }
             ]
@@ -1952,7 +1949,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: routeSpy = jasmine.createSpy('routeSpy', function() {
                   this.outlet('display', outletDisplayName);
                 }).and.callThrough()
@@ -1995,11 +1992,11 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                route: mockUrl,
+                path: mockUrl,
                 controller: routeSpy
               },
               {
-                route: mockUrl2,
+                path: mockUrl2,
                 controller: routeSpy
               }
             ]
