@@ -69,12 +69,12 @@ function makeOrGetRequest (operationType, requestInfo) {
 }
 
 /**
- * Create an xmlhttprequest based on the desired action (read/write/etc), concern (dataModel/collection), and optional params.
+ * Create an fetch request based on the desired CRUD action, concern (dataModel/collection), and optional params to pass to fetch.
  *
  * @param {string} action
  * @param {object} concern
  * @param {object} options
- * @returns {object} htr
+ * @returns {Promise} Promise created from the request
  */
 function sync (action, concern, options) {
   if (!fw.isDataModel(concern) && !fw.isCollection(concern)) {

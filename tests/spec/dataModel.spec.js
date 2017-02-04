@@ -1400,6 +1400,47 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, ajaxWait);
       });
 
+      it('can correctly use only the latest fetch call (when writing) if multiple calls made in rapid succession', function(done) {
+        var firstNameWrite = jasmine.createSpy('firstNameWrite');
+        var mockUrl = generateUrl();
+        var values = [
+          _.uniqueId('random'),
+          _.uniqueId('random')
+        ];
+        var personData = {
+          "id": 100,
+          "firstName": null
+        };
+
+        function Person (person) {
+          fw.dataModel.boot(this, {
+            url: mockUrl
+          });
+          person = person || {};
+          this.id = fw.observable(person.id || null).map('id', this);
+          this.firstName = fw.observable(person.firstName || null).map('firstName', this);
+        }
+
+        var person = new Person(personData);
+
+        person.firstName.subscribe(firstNameWrite);
+        expect(firstNameWrite).not.toHaveBeenCalled();
+
+        var count = 0;
+        fetchMock.restore().get(mockUrl + "/" + personData.id, function () {
+          return _.extend({}, personData, { firstName: values[count++] });
+        });
+        expect(person.fetch()).toBeA('promise');
+        expect(person.fetch()).toBeA('promise');
+
+        setTimeout(function() {
+          expect(person.id()).toBe(personData.id);
+          expect(person.firstName()).toBe(values[1]);
+          expect(firstNameWrite).toHaveBeenCalledTimes(1);
+          done();
+        }, ajaxWait);
+      });
+
       it('can correctly construct and issue requests via a url based on a explicit action definitions', function(done) {
         var getValue = _.uniqueId('random');
         var personData = {

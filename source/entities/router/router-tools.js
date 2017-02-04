@@ -153,12 +153,11 @@ function changeState (router, historyMethod, newState) {
       // find named route
       route = getNamedRoute(router, newState);
 
-      if (route && route.path) {
+      if (route && route.route.path) {
         // render the url of the named route to store in the currentState
-        routeUrl = route.path;
-        var routeParams = getRouteParams(route, newState);
+        routeUrl = route.route.path;
         _.each(newState.params, function (value, fieldName) {
-          routeUrl = routeUrl.replace(':' + fieldName, routeParams[fieldName]);
+          routeUrl = routeUrl.replace(':' + fieldName, newState.params[fieldName]);
         });
       }
     } else if (!fw.utils.isFullURL(newState)) {
@@ -197,6 +196,5 @@ module.exports = {
   getNamedRoute: getNamedRoute,
   getMatchedRoute: getMatchedRoute,
   getLocation: getLocation,
-  getRouteParams: getRouteParams,
   stripQueryStringAndFragment: stripQueryStringAndFragment
 };

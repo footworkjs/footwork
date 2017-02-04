@@ -15,7 +15,6 @@ var unregisterOutlet = routerTools.unregisterOutlet;
 var routeForState = routerTools.routeForState;
 var getLocation = routerTools.getLocation;
 var changeState = routerTools.changeState;
-var getRouteParams = routerTools.getRouteParams;
 
 /**
  * Bootstrap an instance with router capabilities (state management, outlet control, etc).
