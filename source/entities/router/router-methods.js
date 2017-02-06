@@ -113,11 +113,8 @@ module.exports = {
       route = getMatchedRoute(this, currentState);
     }
 
-    if (!route) {
-      route = _.find(this.routes(), { unknown: true });
-      if (route) {
-        route = { route: route };
-      }
+    if (!route && (route = _.find(this.routes(), { unknown: true }))) {
+      route = { route: route };
     }
 
     return route;
