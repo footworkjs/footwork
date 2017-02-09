@@ -86,10 +86,10 @@ module.exports = {
             var outletViewModel = outlets[outletName].outletViewModel;
             outletViewModel.routeIsLoading(false);
             outletViewModel.routeOnComplete = function () {
+              router[privateDataSymbol].scrollToFragment();
               [routerOutletOptions.onComplete, options.onComplete].forEach(function callOnCompleteFunctions (onComplete) {
                 (onComplete || _.noop).call(router, outletElement);
               });
-              router[privateDataSymbol].scrollToFragment();
             };
           };
         };

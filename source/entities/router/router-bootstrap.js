@@ -55,10 +55,9 @@ function routerBootstrap (instance, configParams) {
     });
 
     instance.disposeWithInstance(
-      instance.activated.subscribe(function (activated) {
+      instance.activated.subscribe(function routeActivation (activated) {
         // activate/deactivate the router when the activated flag is set
         if (activated) {
-          // activate the router
           // set the current state/route as of activation (if specified) or get it from the browser
           changeState(instance, null, instance.currentState() || getLocation());
 
@@ -71,7 +70,6 @@ function routerBootstrap (instance, configParams) {
             })(window.addEventListener ? ['addEventListener', ''] : ['attachEvent', 'on']);
           }
         } else {
-          // deactivate the router
           /* istanbul ignore if */
           if (privateData.historyPopstateHandler) {
             (function removePopStateListener (eventInfo) {
@@ -83,10 +81,12 @@ function routerBootstrap (instance, configParams) {
       instance.currentState.subscribe(function evalCurrentRoute (currentState) {
         instance.currentRoute(instance.getRouteForState(currentState));
       }),
-      instance.currentRoute.subscribe(function (currentRoute) {
+      instance.currentRoute.subscribe(function execCurrentRoute (currentRoute) {
         // Trigger the currentRoute controller whenever the currentRoute() updates
-        if (instance.activated() && currentRoute && !_.isEqual(previousRoute, currentRoute)) {
-          var state = instance.currentState() || '';
+        if (instance.activated() && !_.isEqual(previousRoute, currentRoute)) {
+          previousRoute = currentRoute;
+
+          var state = instance.currentState();
           var route = currentRoute.route;
           var params = currentRoute.params;
 
@@ -101,11 +101,10 @@ function routerBootstrap (instance, configParams) {
           }
 
           // set the title and trigger the controller
-          if (route.hasOwnProperty('title')) {
+          if (route.title) {
             window.document.title = resultBound(route, 'title', instance);
           }
-          previousRoute = route;
-          route.controller.call(instance, params);
+          _.isFunction(route.controller) && route.controller.call(instance, params);
         }
       })
     );
