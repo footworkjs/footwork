@@ -92,7 +92,7 @@ fw.bindingHandlers.route = {
             if (_.isString(handlerResult)) {
               currentRouteState = handlerResult;
             }
-            if (_.isString(currentRouteState) && !isFullURL(currentRouteState)) {
+            if (_.isString(currentRouteState) && !isFullURL(currentRouteState) && routeHandlerDescription.history) {
               router[resultBound(routeHandlerDescription, 'history', router) + 'State'](currentRouteState);
             }
           }
