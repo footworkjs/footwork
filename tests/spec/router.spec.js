@@ -1394,7 +1394,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="route: { url: \'' + mockUrl + '\', history: \'replace\' }"></a>\
+          <a data-bind="route: { state: \'' + mockUrl + '\', history: \'replace\' }"></a>\
         </router>');
         fw.start(testContainer);
 
@@ -1489,7 +1489,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="route: { url: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\' }"></a>\
+          <a data-bind="route: { state: \'' + mockUrl + '\', activeClass: \'' + activeClassName + '\' }"></a>\
         </router>');
         fw.start(testContainer);
 
@@ -1547,7 +1547,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         testContainer = getFixtureContainer('<router module="' + routerNamespaceName + '">\
           <viewModel module="' + viewModelNamespaceName + '">\
-            <a data-bind="route: { url: \'' + mockUrl + '\', activeClass: activeClassObservable }"></a>\
+            <a data-bind="route: { state: \'' + mockUrl + '\', activeClass: activeClassObservable }"></a>\
           </viewModel>\
         </router>');
         fw.start(testContainer);
@@ -1594,7 +1594,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="route: { url: \'' + mockUrl + '\', activeClass: false }"></a>\
+          <a data-bind="route: { state: \'' + mockUrl + '\', activeClass: false }"></a>\
         </router>'));
 
         setTimeout(function() {
@@ -1639,7 +1639,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="route: { url: \'' + mockUrl + '\', activeClass: disableActiveClass }"></a>\
+          <a data-bind="route: { state: \'' + mockUrl + '\', activeClass: disableActiveClass }"></a>\
         </router>'));
 
         setTimeout(function() {
@@ -1743,7 +1743,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="route: { url: \'' + mockUrl + '\', on: \'dblclick\' }"></a>\
+          <a data-bind="route: { state: \'' + mockUrl + '\', on: \'dblclick\' }"></a>\
         </router>'));
 
         setTimeout(function() {
@@ -1788,7 +1788,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(routeSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <a data-bind="route: { url: \'' + mockUrl + '\', on: customEvent }"></a>\
+          <a data-bind="route: { state: \'' + mockUrl + '\', on: customEvent }"></a>\
         </router>'));
 
         setTimeout(function() {
@@ -1856,7 +1856,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         testContainer = getFixtureContainer('<router module="' + routerNamespaceName + '">\
           <viewModel module="' + viewModelNamespaceName + '">\
-            <a data-bind="route: { url: \'' + mockUrl + '\', handler: routeHrefBindingCustomHandler }"></a>\
+            <a data-bind="route: { state: \'' + mockUrl + '\', handler: routeHrefBindingCustomHandler }"></a>\
           </viewModel>\
         </router>');
         fw.start(testContainer);
@@ -1916,7 +1916,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(initializeSpy).not.toHaveBeenCalled();
 
         testContainer = getFixtureContainer('<router module="' + routerNamespaceName + '">\
-          <a data-bind="route: { url: routeHrefBindingCustomUrlCallback }"></a>\
+          <a data-bind="route: { state: routeHrefBindingCustomUrlCallback }"></a>\
         </router>');
         fw.start(testContainer);
 

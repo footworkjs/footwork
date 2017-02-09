@@ -28,7 +28,7 @@ fw.bindingHandlers.route = {
 
     var routeHandlerDescription = {
       on: 'click',
-      url: function defaultURLForRoute () { return element.getAttribute('href'); },
+      state: function defaultStateForRoute () { return element.getAttribute('href'); },
       activeClass: fw.router.activeClass,
       history: 'push',
       handler: function defaultHandlerForRouteBinding (event, url) {
@@ -43,14 +43,14 @@ fw.bindingHandlers.route = {
     };
 
     if (_.isFunction(routeParams) || _.isString(routeParams)) {
-      routeHandlerDescription.url = routeParams;
+      routeHandlerDescription.state = routeParams;
     } else if (_.isObject(routeParams)) {
       _.extend(routeHandlerDescription, routeParams);
     }
 
-    var routeHandlerDescriptionURL = routeHandlerDescription.url;
-    if (!_.isFunction(routeHandlerDescriptionURL)) {
-      routeHandlerDescription.url = function () { return routeHandlerDescriptionURL; };
+    var routeHandlerDescriptionState = routeHandlerDescription.state;
+    if (!_.isFunction(routeHandlerDescriptionState)) {
+      routeHandlerDescription.state = function () { return routeHandlerDescriptionState; };
     }
 
     function checkForMatchingRoute (myRoute) {
@@ -67,33 +67,33 @@ fw.bindingHandlers.route = {
     }
 
     function setUpElement () {
-      var routeUrl = routeHandlerDescription.url();
+      var routeState = routeHandlerDescription.state();
       var configParams = router[privateDataSymbol].configParams;
 
-      hashOnly = !!routeUrl.match(startingHashRegex);
+      hashOnly = !!routeState.match(startingHashRegex);
 
       if (element.tagName.toLowerCase() === 'a') {
-        element.href = configParams.baseRoute + routeUrl;
+        element.href = configParams.baseRoute + routeState;
       }
 
       if (_.isObject(stateTracker) && _.isFunction(stateTracker.dispose)) {
         stateTracker.dispose();
       }
-      stateTracker = router.currentRoute.subscribe(_.partial(checkForMatchingRoute, routeUrl));
+      stateTracker = router.currentRoute.subscribe(_.partial(checkForMatchingRoute, routeState));
 
       if (elementIsSetup === false) {
         elementIsSetup = true;
-        checkForMatchingRoute(routeUrl);
+        checkForMatchingRoute(routeState);
 
         fw.utils.registerEventHandler(element, resultBound(routeHandlerDescription, 'on', router), function (event) {
-          var currentRouteURL = routeHandlerDescription.url();
-          var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteURL);
+          var currentRouteState = routeHandlerDescription.state();
+          var handlerResult = routeHandlerDescription.handler.call(viewModel, event, currentRouteState);
           if (handlerResult) {
             if (_.isString(handlerResult)) {
-              currentRouteURL = handlerResult;
+              currentRouteState = handlerResult;
             }
-            if (_.isString(currentRouteURL) && !isFullURL(currentRouteURL)) {
-              router[resultBound(routeHandlerDescription, 'history', router) + 'State'](currentRouteURL);
+            if (_.isString(currentRouteState) && !isFullURL(currentRouteState)) {
+              router[resultBound(routeHandlerDescription, 'history', router) + 'State'](currentRouteState);
             }
           }
           return true;
@@ -101,8 +101,8 @@ fw.bindingHandlers.route = {
       }
     }
 
-    if (fw.isObservable(routeHandlerDescription.url)) {
-      router.disposeWithInstance(routeHandlerDescription.url.subscribe(setUpElement));
+    if (fw.isObservable(routeHandlerDescription.state)) {
+      router.disposeWithInstance(routeHandlerDescription.state.subscribe(setUpElement));
     }
     setUpElement();
 
