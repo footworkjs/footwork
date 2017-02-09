@@ -560,6 +560,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var namespaceName = generateNamespaceName();
         var routeControllerSpy = jasmine.createSpy('routeControllerSpy');
         var unknownRouteControllerSpy = jasmine.createSpy('unknownRouteControllerSpy');
+        var urlCallbackSpy = jasmine.createSpy('urlCallback', function (state) {
+          expect(state.name).toBe(mockNamedState);
+        }).and.callThrough();
         var initializeSpy;
         var router;
 
@@ -568,8 +571,8 @@ define(['footwork', 'lodash', 'fetch-mock'],
             namespace: namespaceName,
             routes: [
               {
-                path: mockUrl,
                 name: mockNamedState,
+                url: urlCallbackSpy,
                 controller: routeControllerSpy
               },
               {
@@ -583,6 +586,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
         expect(routeControllerSpy).not.toHaveBeenCalled();
         expect(initializeSpy).not.toHaveBeenCalled();
+        expect(urlCallbackSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '"></router>'));
 
@@ -591,6 +595,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
 
           router.pushState({ name: mockNamedState, params: { required: true } });
           expect(routeControllerSpy).toHaveBeenCalled();
+          expect(urlCallbackSpy).toHaveBeenCalled();
 
           router.pushState({ name: invalidNamedState, params: { required: true } });
           expect(unknownRouteControllerSpy).toHaveBeenCalled();

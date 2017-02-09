@@ -106,7 +106,7 @@ function getRouteParams (route, routeUrl, destinationUrl) {
 
 function getNamedRoute (router, namedRoute) {
   return _.reduce(router.routes(), function (foundNamedRoute, route) {
-    if (route.name === namedRoute.name) {
+    if (route.name === namedRoute.name && (route.predicate || alwaysPassPredicate).call(router, namedRoute) && router[privateDataSymbol].configParams.predicate.call(router, namedRoute)) {
       foundNamedRoute = {
         route: route,
         params: namedRoute.params
@@ -119,14 +119,14 @@ function getNamedRoute (router, namedRoute) {
 function getMatchedRoute (router, destinationUrl) {
   destinationUrl = trimBaseRoute(router, stripQueryStringAndFragment(destinationUrl));
 
-  return _.reduce(router.routes(), function (matchedRoute, routeConfiguration) {
-    var path = routeConfiguration.path;
+  return _.reduce(router.routes(), function (matchedRoute, route) {
+    var path = route.path;
     if (_.isString(path) || _.isArray(path)) {
       _.each([].concat(path), function (routePath) {
-        if (_.isString(routePath) && _.isString(destinationUrl) && destinationUrl.match(routeStringToRegExp(routePath))) {
+        if (_.isString(routePath) && _.isString(destinationUrl) && destinationUrl.match(routeStringToRegExp(routePath)) && (route.predicate || alwaysPassPredicate).call(router, destinationUrl) && router[privateDataSymbol].configParams.predicate.call(router, destinationUrl)) {
           matchedRoute = {
-            route: routeConfiguration,
-            params: getRouteParams(routeConfiguration, routePath, destinationUrl)
+            route: route,
+            params: getRouteParams(route, routePath, destinationUrl)
           };
         }
       });
@@ -145,30 +145,22 @@ function getMatchedRoute (router, destinationUrl) {
  */
 function changeState (router, historyMethod, newState) {
   if (router.activated()) {
-    var configParams = router[privateDataSymbol].configParams;
+    var route = router.getRouteForState(newState);
     var routeUrl;
-    var route;
 
     if (_.isObject(newState)) {
       // find named route
-      route = getNamedRoute(router, newState);
-
-      if (route && route.route.path) {
-        // render the url of the named route to store in the currentState
-        routeUrl = route.route.path;
-        _.each(newState.params, function (value, fieldName) {
-          routeUrl = routeUrl.replace(':' + fieldName, newState.params[fieldName]);
-        });
+      if (route) {
+        routeUrl = resultBound(route.route, 'url', router, [newState]);
       }
     } else if (!fw.utils.isFullURL(newState)) {
-      route = router.getRouteForState(newState);
       routeUrl = newState;
     }
 
-    if (route && (route.predicate || alwaysPassPredicate).call(router, newState) && configParams.predicate.call(router, newState)) {
+    if (route) {
       /* istanbul ignore if */
       if (historyMethod && !fw.router.disableHistory) {
-        history[historyMethod + 'State'](newState, null, (routeUrl ? configParams.baseRoute + routeUrl : null));
+        history[historyMethod + 'State'](newState, null, (routeUrl ? router[privateDataSymbol].configParams.baseRoute + routeUrl : null));
       }
 
       router.currentState(newState);
