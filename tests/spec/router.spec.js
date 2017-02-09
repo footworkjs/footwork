@@ -2030,6 +2030,59 @@ define(['footwork', 'lodash', 'fetch-mock'],
         router.replaceState(mockUrl);
         expect(routeSpy).toHaveBeenCalledTimes(3);
       });
+
+      it('can have custom route logic created', function() {
+        var namespaceName = generateNamespaceName();
+        var paramValue = _.uniqueId('random');
+        var mockUrl = generateUrl();
+        var mockUrl2 = generateUrl();
+        var routeSpy = jasmine.createSpy('routeSpy', function (params) {
+          expect(params).toEqual(paramValue);
+        });
+        var MyRouter = function() {
+          var self = fw.router.boot(this, {
+            namespace: namespaceName,
+            routes: [
+              {
+                id: mockUrl,
+                controller: routeSpy.and.callThrough()
+              },
+              {
+                id: mockUrl2,
+                controller: routeSpy.and.callThrough()
+              }
+            ]
+          });
+
+          self.getRouteForState = function (currentState) {
+            var foundRoute = self.routes().reduce(function (foundRoute, route) {
+              if (route.id === currentState) {
+                foundRoute = route;
+              }
+              return foundRoute;
+            }, null);
+
+            if (foundRoute) {
+              self.currentRoute({
+                route: foundRoute,
+                params: paramValue
+              });
+            }
+          }
+        };
+
+        var router = new MyRouter();
+        expect(routeSpy).not.toHaveBeenCalled();
+
+        router.activated(true);
+        expect(routeSpy).not.toHaveBeenCalled();
+
+        router.replaceState(mockUrl);
+        expect(routeSpy).toHaveBeenCalled();
+
+        router.replaceState(mockUrl2);
+        expect(routeSpy).toHaveBeenCalledTimes(2);
+      });
     });
   }
 );
