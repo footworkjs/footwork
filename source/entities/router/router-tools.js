@@ -126,6 +126,7 @@ function getMatchedRoute (router, destinationUrl) {
         if (_.isString(routePath) && _.isString(destinationUrl) && destinationUrl.match(routeStringToRegExp(routePath)) && (route.predicate || alwaysPassPredicate).call(router, destinationUrl) && router[privateDataSymbol].configParams.predicate.call(router, destinationUrl)) {
           matchedRoute = {
             route: route,
+            url: destinationUrl,
             params: getRouteParams(route, routePath, destinationUrl)
           };
         }
@@ -133,41 +134,6 @@ function getMatchedRoute (router, destinationUrl) {
     }
     return matchedRoute;
   }, null);
-}
-
-/**
- * Change the route on the specified router to the specified route.
- *
- * @param {object} router The router instance to manipulate
- * @param {string} historyMethod push/replace the url onto the history stack (if using history)
- * @param {string} route The desired route to change to
- * @returns {object} the router
- */
-function changeState (router, historyMethod, newState) {
-  if (router.activated()) {
-    var route = router.getRouteForState(newState);
-    var routeUrl;
-
-    if (_.isObject(newState)) {
-      // find named route
-      if (route) {
-        routeUrl = resultBound(route.route, 'url', router, [newState]);
-      }
-    } else if (!fw.utils.isFullURL(newState)) {
-      routeUrl = newState;
-    }
-
-    if (route) {
-      /* istanbul ignore if */
-      if (historyMethod && !fw.router.disableHistory) {
-        history[historyMethod + 'State'](newState, null, (routeUrl ? router[privateDataSymbol].configParams.baseRoute + routeUrl : null));
-      }
-
-      router.currentState(newState);
-    }
-  }
-
-  return router;
 }
 
 /**
@@ -184,7 +150,6 @@ module.exports = {
   nearestParentRouter: nearestParentRouter,
   registerOutlet: registerOutlet,
   unregisterOutlet: unregisterOutlet,
-  changeState: changeState,
   getNamedRoute: getNamedRoute,
   getMatchedRoute: getMatchedRoute,
   getLocation: getLocation,

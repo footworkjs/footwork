@@ -14,7 +14,6 @@ var registerOutlet = routerTools.registerOutlet;
 var unregisterOutlet = routerTools.unregisterOutlet;
 var routeForState = routerTools.routeForState;
 var getLocation = routerTools.getLocation;
-var changeState = routerTools.changeState;
 
 /**
  * Bootstrap an instance with router capabilities (state management, outlet control, etc).
@@ -59,7 +58,7 @@ function routerBootstrap (instance, configParams) {
         // activate/deactivate the router when the activated flag is set
         if (activated) {
           // set the current state/route as of activation (if specified) or get it from the browser
-          changeState(instance, null, instance.currentState() || getLocation());
+          instance.currentState(instance.currentState() || getLocation());
 
           /* istanbul ignore if */
           if (!fw.router.disableHistory) {
@@ -83,7 +82,7 @@ function routerBootstrap (instance, configParams) {
       }),
       instance.currentRoute.subscribe(function execCurrentRoute (currentRoute) {
         // Trigger the currentRoute controller whenever the currentRoute() updates
-        if (instance.activated() && !_.isEqual(previousRoute, currentRoute)) {
+        if (currentRoute && instance.activated() && !_.isEqual(previousRoute, currentRoute)) {
           previousRoute = currentRoute;
 
           var state = instance.currentState();
@@ -104,6 +103,13 @@ function routerBootstrap (instance, configParams) {
           if (route.title) {
             window.document.title = resultBound(route, 'title', instance);
           }
+
+          /* istanbul ignore if */
+          if (privateData.alterStateMethod && !fw.router.disableHistory) {
+            privateData.alterStateMethod.call(history, state, null, (currentRoute.url ? privateData.configParams.baseRoute + currentRoute.url : null));
+            privateData.alterStateMethod = null;
+          }
+
           _.isFunction(route.controller) && route.controller.call(instance, params);
         }
       })

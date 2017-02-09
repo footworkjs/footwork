@@ -4,7 +4,6 @@ var fw = require('knockout/build/output/knockout-latest');
 var isEntity = require('../entity-tools').isEntity;
 
 var routerTools = require('./router-tools');
-var changeState = routerTools.changeState;
 var getNamedRoute = routerTools.getNamedRoute;
 var getMatchedRoute = routerTools.getMatchedRoute;
 
@@ -119,12 +118,20 @@ module.exports = {
 
     return route;
   },
-  replaceState: function (route) {
-    fw.ignoreDependencies(changeState, this, [this, 'replace', route]);
+  replaceState: function (newState) {
+    if (this.activated()) {
+      this[privateDataSymbol].alterStateMethod = history.replaceState;
+      this.currentState(newState);
+    }
+
     return this;
   },
-  pushState: function (route) {
-    fw.ignoreDependencies(changeState, this, [this, 'push', route]);
+  pushState: function (newState) {
+    if (this.activated()) {
+      this[privateDataSymbol].alterStateMethod = history.pushState;
+      this.currentState(newState);
+    }
+
     return this;
   },
   dispose: function () {

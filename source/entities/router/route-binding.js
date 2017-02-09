@@ -11,7 +11,6 @@ var privateDataSymbol = util.getSymbol('footwork');
 var routerTools = require('./router-tools');
 var nearestParentRouter = routerTools.nearestParentRouter;
 var stripQueryStringAndFragment = routerTools.stripQueryStringAndFragment;
-var changeState = routerTools.changeState;
 
 var startingHashRegex = /^#/;
 var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
@@ -95,7 +94,7 @@ fw.bindingHandlers.route = {
             }
 
             if (_.isString(currentRouteState) && !isFullURL(currentRouteState)) {
-              changeState(router, resultBound(routeHandlerDescription, 'history', router), currentRouteState);
+              router[resultBound(routeHandlerDescription, 'history', router) + 'State'](currentRouteState);
             }
           }
           return true;
