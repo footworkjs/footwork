@@ -99,7 +99,7 @@ function getRouteParams (route, routeUrl, destinationUrl) {
   var paramValues = destinationUrl.match(routeStringToRegExp(routeUrl));
 
   return _.reduce(paramNames, function (routeParams, parameterName, index) {
-    routeParams[parameterName] = stripQueryStringAndFragment(paramValues[index + 1]);
+    routeParams[parameterName] = paramValues[index + 1];
     return routeParams;
   }, {});
 }
@@ -117,17 +117,17 @@ function getNamedRoute (router, namedRoute) {
 }
 
 function getMatchedRoute (router, destinationUrl) {
-  destinationUrl = trimBaseRoute(router, stripQueryStringAndFragment(destinationUrl));
+  var strippedDestinationUrl = trimBaseRoute(router, stripQueryStringAndFragment(destinationUrl));
 
   return _.reduce(router.routes(), function (matchedRoute, route) {
     var path = route.path;
     if (_.isString(path) || _.isArray(path)) {
       _.each([].concat(path), function (routePath) {
-        if (_.isString(routePath) && _.isString(destinationUrl) && destinationUrl.match(routeStringToRegExp(routePath)) && (route.predicate || alwaysPassPredicate).call(router, destinationUrl) && router[privateDataSymbol].configParams.predicate.call(router, destinationUrl)) {
+        if (_.isString(routePath) && _.isString(strippedDestinationUrl) && strippedDestinationUrl.match(routeStringToRegExp(routePath)) && (route.predicate || alwaysPassPredicate).call(router, strippedDestinationUrl) && router[privateDataSymbol].configParams.predicate.call(router, strippedDestinationUrl)) {
           matchedRoute = {
             route: route,
             url: destinationUrl,
-            params: getRouteParams(route, routePath, destinationUrl)
+            params: getRouteParams(route, routePath, strippedDestinationUrl)
           };
         }
       });
