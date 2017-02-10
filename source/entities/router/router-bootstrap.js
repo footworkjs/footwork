@@ -100,8 +100,8 @@ function routerBootstrap (instance, configParams) {
           }
 
           // set the title and trigger the controller
-          if (route.title) {
-            window.document.title = resultBound(route, 'title', instance);
+          if (currentRoute.title) {
+            window.document.title = currentRoute.title;
           }
 
           /* istanbul ignore if */

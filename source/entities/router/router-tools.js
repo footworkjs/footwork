@@ -108,7 +108,8 @@ function getNamedRoute (router, namedRoute) {
     if (route.name === namedRoute.name && (route.predicate || alwaysPassPredicate).call(router, namedRoute) && router[privateDataSymbol].configParams.predicate.call(router, namedRoute)) {
       foundNamedRoute = {
         route: route,
-        params: namedRoute.params
+        params: namedRoute.params,
+        title: resultBound(route, 'title', router, [namedRoute])
       };
     }
     return foundNamedRoute;
@@ -126,7 +127,8 @@ function getMatchedRoute (router, destinationUrl) {
           matchedRoute = {
             route: route,
             url: destinationUrl,
-            params: getRouteParams(route, routePath, strippedDestinationUrl)
+            params: getRouteParams(route, routePath, strippedDestinationUrl),
+            title: resultBound(route, 'title', router, [destinationUrl])
           };
         }
       });
