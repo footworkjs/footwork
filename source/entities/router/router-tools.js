@@ -86,10 +86,9 @@ function trimBaseRoute (router, url) {
  */
 function stripQueryStringAndFragment (url) {
   if (url) {
-    return url.split("?")[0].split("#")[0];
-  } else {
-    return url;
+    url = url.split("?")[0].split("#")[0];
   }
+  return url;
 }
 
 function getRouteParams (route, routeUrl, destinationUrl) {
