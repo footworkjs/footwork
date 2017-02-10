@@ -110,7 +110,7 @@ function routerBootstrap (instance, configParams) {
             privateData.alterStateMethod = null;
           }
 
-          _.isFunction(route.controller) && route.controller.call(instance, params);
+          _.isFunction(currentRoute.controller) && currentRoute.controller.call(instance, params);
         }
       })
     );

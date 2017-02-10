@@ -113,7 +113,11 @@ module.exports = {
     }
 
     if (!route && (route = _.find(this.routes(), { unknown: true }))) {
-      route = { route: route };
+      route = {
+        controller: route.controller,
+        title: route.title,
+        url: _.isString(currentState) ? currentState : null
+      };
     }
 
     return route;

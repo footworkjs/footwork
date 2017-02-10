@@ -104,31 +104,33 @@ function getRouteParams (route, routeUrl, destinationUrl) {
 }
 
 function getNamedRoute (router, namedRoute) {
-  return _.reduce(router.routes(), function (foundNamedRoute, route) {
-    if (route.name === namedRoute.name && (route.predicate || alwaysPassPredicate).call(router, namedRoute) && router[privateDataSymbol].configParams.predicate.call(router, namedRoute)) {
-      foundNamedRoute = {
-        route: route,
+  return _.reduce(router.routes(), function (matchedRoute, routeConfig) {
+    if (routeConfig.name === namedRoute.name && (routeConfig.predicate || alwaysPassPredicate).call(router, namedRoute) && router[privateDataSymbol].configParams.predicate.call(router, namedRoute)) {
+      matchedRoute = {
+        routeConfig: routeConfig,
         params: namedRoute.params,
-        title: resultBound(route, 'title', router, [namedRoute])
+        title: resultBound(routeConfig, 'title', router, [namedRoute]),
+        controller: routeConfig.controller
       };
     }
-    return foundNamedRoute;
+    return matchedRoute;
   }, null);
 }
 
 function getMatchedRoute (router, destinationUrl) {
   var strippedDestinationUrl = trimBaseRoute(router, stripQueryStringAndFragment(destinationUrl));
 
-  return _.reduce(router.routes(), function (matchedRoute, route) {
-    var path = route.path;
+  return _.reduce(router.routes(), function (matchedRoute, routeConfig) {
+    var path = routeConfig.path;
     if (_.isString(path) || _.isArray(path)) {
       _.each([].concat(path), function (routePath) {
-        if (_.isString(routePath) && _.isString(strippedDestinationUrl) && strippedDestinationUrl.match(routeStringToRegExp(routePath)) && (route.predicate || alwaysPassPredicate).call(router, strippedDestinationUrl) && router[privateDataSymbol].configParams.predicate.call(router, strippedDestinationUrl)) {
+        if (_.isString(routePath) && _.isString(strippedDestinationUrl) && strippedDestinationUrl.match(routeStringToRegExp(routePath)) && (routeConfig.predicate || alwaysPassPredicate).call(router, strippedDestinationUrl) && router[privateDataSymbol].configParams.predicate.call(router, strippedDestinationUrl)) {
           matchedRoute = {
-            route: route,
+            routeConfig: routeConfig,
             url: destinationUrl,
-            params: getRouteParams(route, routePath, strippedDestinationUrl),
-            title: resultBound(route, 'title', router, [destinationUrl])
+            params: getRouteParams(routeConfig, routePath, strippedDestinationUrl),
+            title: resultBound(routeConfig, 'title', router, [destinationUrl]),
+            controller: routeConfig.controller
           };
         }
       });
