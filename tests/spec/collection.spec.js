@@ -175,16 +175,16 @@ define(['footwork', 'lodash', 'fetch-mock'],
           expect(people.requestInProgress()).toBe(false);
 
           expect(people()).lengthToBe(persons.length);
-          expect(people()[0].firstName).toBe(persons[0].firstName);
+          expect(_.first(people()).firstName).toBe(_.first(persons).firstName);
 
           expect(peopleFromCallbackUrl()).lengthToBe(persons.length);
           expect(peopleFromCallbackUrl()[0].firstName).toBe(persons[0].firstName);
 
           expect(peopleAjaxOptions()).lengthToBe(persons.length);
-          expect(peopleAjaxOptions()[0].firstName).toBe(persons[0].firstName);
+          expect(_.first(peopleAjaxOptions()).firstName).toBe(_.first(persons).firstName);
 
           done();
-        }, 100);
+        }, ajaxWait);
       });
 
       it('can correctly fetch(), parse and set data from the server', function(done) {
@@ -220,7 +220,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
           expect(_.sample(people()).flag).toBe(true);
 
           done();
-        }, 100);
+        }, ajaxWait);
       });
     });
   }
