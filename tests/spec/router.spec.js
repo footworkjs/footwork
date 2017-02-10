@@ -2053,20 +2053,16 @@ define(['footwork', 'lodash', 'fetch-mock'],
             ]
           });
 
-          self.getRouteForState = function (currentState) {
-            var foundRoute = self.routes().reduce(function (foundRoute, route) {
+          self.getRouteForState = function getRouteForState (currentState) {
+            return self.routes().reduce(function (foundRoute, route) {
               if (route.id === currentState) {
-                foundRoute = route;
+                return {
+                  route: route,
+                  params: paramValue
+                };
               }
               return foundRoute;
             }, null);
-
-            if (foundRoute) {
-              return {
-                route: foundRoute,
-                params: paramValue
-              };
-            }
           }
         };
 
