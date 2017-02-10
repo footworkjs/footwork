@@ -53,47 +53,14 @@ function routerBootstrap (instance, configParams) {
       routes: fw.observableArray(privateData.configParams.routes)
     });
 
-    function execRoute (currentRoute) {
-      // Trigger the currentRoute controller whenever the currentRoute() updates
-      if (currentRoute && instance.activated() && !_.isEqual(previousRoute, currentRoute)) {
-        previousRoute = currentRoute;
-
-        var state = instance.currentState();
-        var route = currentRoute.route;
-        var params = currentRoute.params;
-
-        // register the callback for any defined fragment identifier found in the currentState if needed (after the route loads we need to trigger scrolling to the fragment)
-        privateData.scrollToFragment = _.noop;
-        if (_.isString(state) && state.indexOf('#') !== -1) {
-          var fragmentIdentifier = state.split('#')[1];
-          privateData.scrollToFragment = function () {
-            var elementToScrollTo = document.getElementById(fragmentIdentifier);
-            elementToScrollTo && _.isFunction(elementToScrollTo.scrollIntoView) && elementToScrollTo.scrollIntoView();
-          };
-        }
-
-        // set the title and trigger the controller
-        if (currentRoute.title) {
-          window.document.title = currentRoute.title;
-        }
-
-        /* istanbul ignore if */
-        if (privateData.alterStateMethod && !fw.router.disableHistory) {
-          privateData.alterStateMethod.call(history, state, null, (currentRoute.url ? privateData.configParams.baseRoute + currentRoute.url : null));
-          privateData.alterStateMethod = null;
-        }
-
-        _.isFunction(currentRoute.controller) && currentRoute.controller.call(instance, params);
-      }
-    }
-
     instance.disposeWithInstance(
-      instance.activated.subscribe(function routeActivation (activated) {
+      instance.activated.subscribe(function routerActivation (activated) {
         // activate/deactivate the router when the activated flag is set
         if (activated) {
-          if (instance.currentState()) {
+          var currentState = instance.currentState();
+          if (currentState) {
             // user set the state explicitly prior to activation, lets execute it now
-            execRoute();
+            instance.currentRoute(instance.getRouteForState(currentState));
           } else {
             // get the current state/route as of activation from the browser
             instance.currentState(getLocation());
@@ -116,10 +83,42 @@ function routerBootstrap (instance, configParams) {
           }
         }
       }),
-      instance.currentState.subscribe(function evalCurrentRoute (currentState) {
+      instance.currentState.subscribe(function evalRoute (currentState) {
         instance.currentRoute(instance.getRouteForState(currentState));
       }),
-      instance.currentRoute.subscribe(execRoute)
+      instance.currentRoute.subscribe(function execRoute (currentRoute) {
+        // Trigger the currentRoute controller whenever the currentRoute() updates
+        if (currentRoute && instance.activated() && !_.isEqual(previousRoute, currentRoute)) {
+          previousRoute = currentRoute;
+
+          var state = instance.currentState();
+          var route = currentRoute.route;
+          var params = currentRoute.params;
+
+          // register the callback for any defined fragment identifier found in the currentState if needed (after the route loads we need to trigger scrolling to the fragment)
+          privateData.scrollToFragment = _.noop;
+          if (_.isString(state) && state.indexOf('#') !== -1) {
+            var fragmentIdentifier = state.split('#')[1];
+            privateData.scrollToFragment = function () {
+              var elementToScrollTo = document.getElementById(fragmentIdentifier);
+              elementToScrollTo && _.isFunction(elementToScrollTo.scrollIntoView) && elementToScrollTo.scrollIntoView();
+            };
+          }
+
+          // set the title and trigger the controller
+          if (currentRoute.title) {
+            window.document.title = currentRoute.title;
+          }
+
+          /* istanbul ignore if */
+          if (privateData.alterStateMethod && !fw.router.disableHistory) {
+            privateData.alterStateMethod.call(history, state, null, (currentRoute.url ? privateData.configParams.baseRoute + currentRoute.url : null));
+            privateData.alterStateMethod = null;
+          }
+
+          _.isFunction(currentRoute.controller) && currentRoute.controller.call(instance, params);
+        }
+      })
     );
   } else {
     throw Error('Cannot bootstrap a ' + descriptor.entityName + ' more than once.');
