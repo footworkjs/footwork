@@ -205,6 +205,11 @@ function makeArray (arrayLikeObject) {
 
 fw.utils.getPrivateData = getPrivateData;
 
+var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
+fw.utils.isFullURL = function (thing) {
+  return _.isString(thing) && isFullURLRegex.test(thing);
+};
+
 module.exports = {
   alwaysPassPredicate: alwaysPassPredicate,
   resultBound: resultBound,

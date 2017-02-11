@@ -5,18 +5,12 @@ var util = require('../../misc/util');
 var resultBound  = util.resultBound;
 var removeClass = util.removeClass;
 var addClass = util.addClass;
-var hasClass = util.hasClass;
 var privateDataSymbol = util.getSymbol('footwork');
 
 var routerTools = require('./router-tools');
 var nearestParentRouter = routerTools.nearestParentRouter;
 var stripQueryStringAndFragment = routerTools.stripQueryStringAndFragment;
-
 var startingHashRegex = /^#/;
-var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
-var isFullURL = fw.utils.isFullURL = function (thing) {
-  return _.isString(thing) && isFullURLRegex.test(thing);
-};
 
 fw.bindingHandlers.route = {
   init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
@@ -33,7 +27,7 @@ fw.bindingHandlers.route = {
       history: 'push',
       handler: function defaultHandlerForRouteBinding (event, url) {
         /* istanbul ignore else */
-        if (!hashOnly && !isFullURL(url) && event.which !== 2) {
+        if (!hashOnly && !fw.utils.isFullURL(url) && event.which !== 2) {
           event.preventDefault();
           return true;
         } else {
@@ -93,7 +87,7 @@ fw.bindingHandlers.route = {
               currentRouteState = handlerResult;
             }
 
-            if (_.isString(currentRouteState) && !isFullURL(currentRouteState)) {
+            if (_.isString(currentRouteState) && !fw.utils.isFullURL(currentRouteState)) {
               router[resultBound(routeHandlerDescription, 'history', router) + 'State'](currentRouteState);
             }
           }

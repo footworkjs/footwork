@@ -5,14 +5,9 @@ var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
 var entityDescriptors = require('../entity-descriptors');
 var viewModelBootstrap = require('../viewModel/viewModel-bootstrap');
 
-var util = require('../../misc/util');
-var resultBound = util.resultBound;
-var alwaysPassPredicate = util.alwaysPassPredicate;
-
 var routerTools = require('./router-tools');
 var registerOutlet = routerTools.registerOutlet;
 var unregisterOutlet = routerTools.unregisterOutlet;
-var routeForState = routerTools.routeForState;
 var getLocation = routerTools.getLocation;
 
 /**

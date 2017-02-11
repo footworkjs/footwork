@@ -11,8 +11,6 @@ var privateDataSymbol = util.getSymbol('footwork');
 
 var optionalParamRegex = /\((.*?)\)/g;
 var namedParamRegex = /(\(\?)?:\w+/g;
-var requiredNamedParamRegex = /\/:(\w+)/g;
-var removeOptionalParamRegex = /\(\/:\w+\)/g;
 var splatParamRegex = /\*\w*/g;
 var escapeRegex = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 

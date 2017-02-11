@@ -8,7 +8,6 @@ var getNamedRoute = routerTools.getNamedRoute;
 var getMatchedRoute = routerTools.getMatchedRoute;
 
 var util = require('../../misc/util');
-var resultBound = util.resultBound;
 var propertyDispose = util.propertyDispose;
 var privateDataSymbol = util.getSymbol('footwork');
 
