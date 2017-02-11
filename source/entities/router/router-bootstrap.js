@@ -62,7 +62,7 @@ function routerBootstrap (instance, configParams) {
             // user set the state explicitly prior to activation, lets execute it now
             instance.currentRoute(instance.getRouteForState(currentState));
           } else {
-            // get the current state/route as of activation from the browser
+            // get the current state/route as of activation from the browser url/location
             instance.currentState(getLocation());
           }
 
@@ -105,7 +105,6 @@ function routerBootstrap (instance, configParams) {
             };
           }
 
-          // set the title and trigger the controller
           if (currentRoute.title) {
             window.document.title = currentRoute.title;
           }
