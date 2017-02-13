@@ -2,7 +2,11 @@ var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
 var ajax = require('../misc/ajax');
-var privateDataSymbol = require('../misc/util').getSymbol('footwork');
+
+var util = require('../misc/util');
+var privateDataSymbol = util.getSymbol('footwork');
+var isNode = util.isNode;
+var isEvent = util.isEvent;
 
 /**
  * Performs an equality comparison between two objects while ensuring atleast one or more keys/values match and that all keys/values from object A also exist in B
@@ -67,7 +71,7 @@ function where (modelData, comparator) {
 function fetchCollection (options) {
   var collection = this;
   var configParams = collection[privateDataSymbol].configParams;
-  options = _.extend({ parse: true }, options);
+  options = _.extend({ parse: true }, isNode(options) || fw.isCollection(options) || isEvent(options) ? {} : options);
 
   var requestInfo = {
     requestRunning: collection.isReading,

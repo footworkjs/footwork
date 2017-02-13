@@ -203,6 +203,18 @@ function makeArray (arrayLikeObject) {
   return convertedArray;
 }
 
+function isNode (thing) {
+  var thingIsObject = _.isObject(thing);
+  return (
+    thingIsObject ? thing instanceof Node :
+    thingIsObject && _.isNumber(thing.nodeType) === "number" && _.isString(thing.nodeName)
+  );
+}
+
+function isEvent (thing) {
+  return thing && (thing instanceof Event || thing.originalEvent instanceof Event);
+}
+
 fw.utils.getPrivateData = getPrivateData;
 
 var isFullURLRegex = /(^[a-z]+:\/\/|^\/\/)/i;
@@ -217,6 +229,8 @@ module.exports = {
   promiseIsFulfilled: promiseIsFulfilled,
   addClass: addClass,
   hasClass: hasClass,
+  isNode: isNode,
+  isEvent: isEvent,
   removeClass: removeClass,
   nextFrame: nextFrame,
   isPath: isPath,

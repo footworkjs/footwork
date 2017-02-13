@@ -1,20 +1,16 @@
 var fw = require('knockout/build/output/knockout-latest');
 var _ = require('footwork-lodash');
 
-var privateDataSymbol = require('../../misc/util').getSymbol('footwork');
+var util = require('../../misc/util');
+var privateDataSymbol = util.getSymbol('footwork');
+var isNode = util.isNode;
+var isEvent = util.isEvent;
+
 var ajax = require('../../misc/ajax');
 var dataTools = require('./data-tools');
 var insertValueIntoObject = dataTools.insertValueIntoObject;
 var getNestedReference = dataTools.getNestedReference;
 var evalDirtyState = dataTools.evalDirtyState;
-
-function isNode (thing) {
-  var thingIsObject = _.isObject(thing);
-  return (
-    thingIsObject ? thing instanceof Node :
-    thingIsObject && _.isNumber(thing.nodeType) === "number" && _.isString(thing.nodeName)
-  );
-}
 
 /**
  * GET from server and set in model
@@ -26,7 +22,7 @@ function fetchModel (options) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
 
-  options = isNode(options) || fw.isDataModel(options) ? {} : options;
+  options = isNode(options) || fw.isDataModel(options) || isEvent(options) ? {} : options;
 
   var requestInfo = {
     requestRunning: dataModel.isReading,
@@ -64,7 +60,7 @@ function save (options) {
 
   options = _.extend({
     writeResponse: true
-  }, isNode(options) || fw.isDataModel(options) ? {} : options);
+  }, isNode(options) || fw.isDataModel(options) || isEvent(options) ? {} : options);
 
   var method = dataModel.isNew() ? 'create' : 'update';
 
@@ -108,7 +104,7 @@ function destroy (options) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
 
-  options = isNode(options) || fw.isDataModel(options) ? {} : options;
+  options = isNode(options) || fw.isDataModel(options) || isEvent(options) ? {} : options;
 
   var requestInfo = {
     requestRunning: dataModel.isDeleting,
