@@ -8146,12 +8146,18 @@ fw.bindingHandlers.$outlet = {
 
     /* istanbul ignore else */
     if (fw.isRouter(parentRouter)) {
+      outletViewModel.originalDisplay = outletViewModel.$namespace.getName();
+      fw.components.register(outletViewModel.originalDisplay, {
+        template: valueAccessor()
+      });
+
       element = element.parentNode;
       var outletName = element.getAttribute('name') || /* istanbul ignore next */ element.getAttribute('data-name');
 
       // register the outlet with its parent router so it can manipulate it
       parentRouter[privateDataSymbol].registerOutlet(outletName, outletViewModel);
       fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
+        fw.components.unregister(outletViewModel.originalDisplay);
         parentRouter[privateDataSymbol].unregisterOutlet(outletName);
       });
 
@@ -8179,7 +8185,6 @@ var noComponentSelected = routerConfig.noComponentSelected;
 
 var visibleCSS = { 'height': '', 'overflow': '' };
 var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
-
 
 function addAnimation () {
   var addAnimation = {};
@@ -8322,6 +8327,8 @@ var bindingElement = require('../../binding/binding-element');
 var routerConfig = require('../router/router-config');
 var outletBootstrap = require('./outlet-bootstrap');
 
+var outletCount = 0;
+
 /**
  * The outlet loader has two functions:
  * 1. provides the outlet viewModel constructor to bind against and control an outlets display
@@ -8332,9 +8339,11 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
     if (componentName === 'outlet') {
       callback({
         viewModel: function Outlet () {
-          outletBootstrap(this);
+          outletBootstrap(this, {
+            namespace: '$outlet' + outletCount++
+          });
         },
-        template: bindingElement.open.prefix + '$lifecycle, $outlet' + bindingElement.open.postfix +
+        template: bindingElement.open.prefix + '$lifecycle, $outlet: $componentTemplateNodes' + bindingElement.open.postfix +
           '<div class="' + routerConfig.outletLoadingDisplay + '" ' +
             'data-bind="style: loadingStyle, css: loadingClass, component: loading"></div>' +
           '<div class="' + routerConfig.outletLoadedDisplay + '" ' +
@@ -8363,7 +8372,7 @@ var entityName = 'outlet';
 
 var descriptor = {
   entityName: entityName,
-  resource: fw[entityName],
+  resource: fw[entityName] = {},
   isEntityDuckTag: getSymbol('is' + capitalizeFirstLetter(entityName)),
   isEntity: function (thing) {
     return _.isObject(thing) && thing[descriptor.isEntityDuckTag];
@@ -8371,7 +8380,7 @@ var descriptor = {
   referenceNamespace: getSymbol(entityName)
 };
 
-require('../resource-tools')(descriptor);
+require('../resource-tools')(descriptor, ['get']);
 require('../entity-descriptors').push(descriptor);
 
 fw.components.register(require('../router/router-config').noComponentSelected, {
@@ -8493,8 +8502,8 @@ function getResourceOrLocation (descriptor, moduleName) {
  * @param {object} descriptor (as defined in each entity and extended onto the entity-descriptors)
  * @returns
  */
-function resourceTools (descriptor) {
-  _.extend(descriptor.resource, {
+function resourceTools (descriptor, included) {
+  var methods = {
     getFileName: _.partial(getFileName, descriptor),
     register: _.partial(register, descriptor),
     isRegistered: _.partial(isRegistered, descriptor),
@@ -8503,7 +8512,9 @@ function resourceTools (descriptor) {
     getLocation: _.partial(getLocation, descriptor),
     getResourceOrLocation: _.partial(getResourceOrLocation, descriptor),
     get: _.partial(getModelReferences, descriptor)
-  });
+  };
+
+  _.extend(descriptor.resource, included ? _.pick(methods, included) : methods);
 
   return descriptor;
 }
@@ -8769,6 +8780,7 @@ var getMatchedRoute = routerTools.getMatchedRoute;
 var util = require('../../misc/util');
 var propertyDispose = util.propertyDispose;
 var privateDataSymbol = util.getSymbol('footwork');
+var resultBound = util.resultBound;
 
 var viewModelMethodDispose = require('../viewModel/viewModel-methods').dispose;
 var clearSequenceQueue = require('../../binding/animation-sequencing').clearSequenceQueue;
@@ -8806,9 +8818,8 @@ module.exports = {
     }
 
     // grab and set the loading display if needed
-    var loadingDisplay = arguments.length > 1 ? (options.loading || routerOutletOptions.loading) : outlet().loading;
-    if (outletViewModel && loadingDisplay) {
-      outletViewModel.loading(loadingDisplay);
+    if (outletViewModel) {
+      outletViewModel.loading(options.loading || resultBound(routerOutletOptions, 'loading', router, [outletName]) || outletViewModel.originalDisplay);
     }
 
     var outletHasMutated = false;
