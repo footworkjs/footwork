@@ -14,7 +14,6 @@ var noComponentSelected = routerConfig.noComponentSelected;
 var visibleCSS = { 'height': '', 'overflow': '' };
 var hiddenCSS = { 'height': '0px', 'overflow': 'hidden' };
 
-
 function addAnimation () {
   var addAnimation = {};
   addAnimation[fw.animationClass.animateIn] = true;

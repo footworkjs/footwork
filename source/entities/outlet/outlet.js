@@ -12,7 +12,7 @@ var entityName = 'outlet';
 
 var descriptor = {
   entityName: entityName,
-  resource: fw[entityName],
+  resource: fw[entityName] = {},
   isEntityDuckTag: getSymbol('is' + capitalizeFirstLetter(entityName)),
   isEntity: function (thing) {
     return _.isObject(thing) && thing[descriptor.isEntityDuckTag];
@@ -20,7 +20,7 @@ var descriptor = {
   referenceNamespace: getSymbol(entityName)
 };
 
-require('../resource-tools')(descriptor);
+require('../resource-tools')(descriptor, ['get']);
 require('../entity-descriptors').push(descriptor);
 
 fw.components.register(require('../router/router-config').noComponentSelected, {

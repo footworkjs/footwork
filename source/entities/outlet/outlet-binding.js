@@ -14,6 +14,11 @@ fw.bindingHandlers.$outlet = {
 
     /* istanbul ignore else */
     if (fw.isRouter(parentRouter)) {
+      outletViewModel.originalDisplay = outletViewModel.$namespace.getName();
+      fw.components.register(outletViewModel.originalDisplay, {
+        template: valueAccessor()
+      });
+
       element = element.parentNode;
       var outletName = element.getAttribute('name') || /* istanbul ignore next */ element.getAttribute('data-name');
 

@@ -5,6 +5,8 @@ var bindingElement = require('../../binding/binding-element');
 var routerConfig = require('../router/router-config');
 var outletBootstrap = require('./outlet-bootstrap');
 
+var outletCount = 0;
+
 /**
  * The outlet loader has two functions:
  * 1. provides the outlet viewModel constructor to bind against and control an outlets display
@@ -15,9 +17,11 @@ fw.components.loaders.unshift(fw.components.outletLoader = {
     if (componentName === 'outlet') {
       callback({
         viewModel: function Outlet () {
-          outletBootstrap(this);
+          outletBootstrap(this, {
+            namespace: '$outlet' + outletCount++
+          });
         },
-        template: bindingElement.open.prefix + '$lifecycle, $outlet' + bindingElement.open.postfix +
+        template: bindingElement.open.prefix + '$lifecycle, $outlet: $componentTemplateNodes' + bindingElement.open.postfix +
           '<div class="' + routerConfig.outletLoadingDisplay + '" ' +
             'data-bind="style: loadingStyle, css: loadingClass, component: loading"></div>' +
           '<div class="' + routerConfig.outletLoadedDisplay + '" ' +

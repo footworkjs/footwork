@@ -10,6 +10,7 @@ var getMatchedRoute = routerTools.getMatchedRoute;
 var util = require('../../misc/util');
 var propertyDispose = util.propertyDispose;
 var privateDataSymbol = util.getSymbol('footwork');
+var resultBound = util.resultBound;
 
 var viewModelMethodDispose = require('../viewModel/viewModel-methods').dispose;
 var clearSequenceQueue = require('../../binding/animation-sequencing').clearSequenceQueue;
@@ -47,9 +48,8 @@ module.exports = {
     }
 
     // grab and set the loading display if needed
-    var loadingDisplay = arguments.length > 1 ? (options.loading || routerOutletOptions.loading) : outlet().loading;
-    if (outletViewModel && loadingDisplay) {
-      outletViewModel.loading(loadingDisplay);
+    if (outletViewModel) {
+      outletViewModel.loading(options.loading || resultBound(routerOutletOptions, 'loading', router, [outletName]) || outletViewModel.originalDisplay);
     }
 
     var outletHasMutated = false;
