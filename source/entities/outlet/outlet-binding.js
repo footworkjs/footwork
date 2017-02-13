@@ -25,6 +25,7 @@ fw.bindingHandlers.$outlet = {
       // register the outlet with its parent router so it can manipulate it
       parentRouter[privateDataSymbol].registerOutlet(outletName, outletViewModel);
       fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
+        fw.components.unregister(outletViewModel.originalDisplay);
         parentRouter[privateDataSymbol].unregisterOutlet(outletName);
       });
 
