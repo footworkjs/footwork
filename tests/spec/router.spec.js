@@ -1061,6 +1061,62 @@ define(['footwork', 'lodash', 'fetch-mock'],
         }, 0);
       });
 
+      it('can display a temporary loading component in place of a component that is being downloaded using original outlet contents', function(done) {
+        var mockUrl = generateUrl();
+        var outletLoaderTestLoadingNamespace = _.uniqueId('random');
+        var outletLoaderTestLoadedNamespace = _.uniqueId('random');
+        var routerNamespace = _.uniqueId('random');
+        var changeOutletControllerSpy;
+        var outletCallbackSpy;
+        var outletLoaderTestLoadedSpy;
+
+        function router(name) {
+          return fw.router.get(name);
+        }
+
+        fw.components.register(outletLoaderTestLoadedNamespace, {
+          viewModel: outletLoaderTestLoadedSpy = jasmine.createSpy('outletLoaderTestLoadedSpy'),
+          template: '<div class="' + outletLoaderTestLoadedNamespace + '"></div>'
+        });
+
+        fw.router.register(routerNamespace, function() {
+          fw.router.boot(this, {
+            namespace: routerNamespace,
+            routes: [
+              {
+                path: mockUrl,
+                controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
+                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                    expect(element.tagName.toLowerCase()).toBe('outlet');
+                    expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
+                  }).and.callThrough() });
+                }).and.callThrough()
+              }
+            ]
+          });
+        });
+
+        expect(changeOutletControllerSpy).toBe(undefined);
+        expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer = getFixtureContainer('<router module="' + routerNamespace + '">\
+          <outlet name="output"><div class="' + outletLoaderTestLoadingNamespace + '"></div></outlet>\
+        </router>'));
+
+        setTimeout(function() {
+          router(routerNamespace).replaceState(mockUrl);
+
+          expect(changeOutletControllerSpy).toHaveBeenCalled();
+          expect(outletCallbackSpy).not.toHaveBeenCalled();
+
+          setTimeout(function() {
+            expect(outletLoaderTestLoadedSpy).toHaveBeenCalled();
+            expect(outletCallbackSpy).toHaveBeenCalled();
+            done();
+          }, ajaxWait);
+        }, 0);
+      });
+
       it('can display a temporary loading component in place of a component that is being downloaded by specifying via router outlet options object', function(done) {
         var mockUrl = generateUrl();
         var outletLoaderTestLoadingNamespace = _.uniqueId('random');
