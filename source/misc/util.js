@@ -212,7 +212,7 @@ function isNode (thing) {
 }
 
 function isEvent (thing) {
-  return thing && (thing instanceof Event || thing.originalEvent instanceof Event);
+  return thing && (thing instanceof Event || _.isFunction(thing.preventDefault));
 }
 
 fw.utils.getPrivateData = getPrivateData;
