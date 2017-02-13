@@ -26,7 +26,7 @@ function fetchModel (options) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
 
-  options = isNode(options) ? {} : options;
+  options = isNode(options) || fw.isDataModel(options) ? {} : options;
 
   var requestInfo = {
     requestRunning: dataModel.isReading,
@@ -64,7 +64,7 @@ function save (options) {
 
   options = _.extend({
     writeResponse: true
-  }, isNode(options) ? {} : options);
+  }, isNode(options) || fw.isDataModel(options) ? {} : options);
 
   var method = dataModel.isNew() ? 'create' : 'update';
 
@@ -108,7 +108,7 @@ function destroy (options) {
   var dataModel = this;
   var configParams = dataModel[privateDataSymbol].configParams;
 
-  options = isNode(options) ? {} : options;
+  options = isNode(options) || fw.isDataModel(options) ? {} : options;
 
   var requestInfo = {
     requestRunning: dataModel.isDeleting,
