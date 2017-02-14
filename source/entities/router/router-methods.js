@@ -49,7 +49,7 @@ module.exports = {
 
     // grab and set the loading display if needed
     if (outletViewModel) {
-      outletViewModel.loading(options.loading || resultBound(routerOutletOptions, 'loading', router, [outletName]) || outletViewModel.originalDisplay);
+      outletViewModel.loading(options.loading || resultBound(routerOutletOptions, 'loading', router, [outletName, options.display]) || outletViewModel.originalDisplay);
     }
 
     var outletHasMutated = false;
@@ -68,7 +68,7 @@ module.exports = {
       if (outletHasMutated) {
         clearSequenceQueue();
 
-        currentOutletDef.transition = options.transition || resultBound(routerOutletOptions, 'transition', router, [outletName]) || 0;
+        currentOutletDef.transition = options.transition || resultBound(routerOutletOptions, 'transition', router, [outletName, options.display]) || 0;
         if (outletViewModel) {
           outletViewModel[privateDataSymbol].loadingChildren.removeAll();
           outletViewModel.routeIsLoading(true);

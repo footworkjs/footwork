@@ -1159,12 +1159,14 @@ define(['footwork', 'lodash', 'fetch-mock'],
                 expect(element.tagName.toLowerCase()).toBe('outlet');
                 expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
               }).and.callThrough(),
-              loading: loadingCallbackSpy = jasmine.createSpy('loadingCallbackSpy', function(outletName) {
+              loading: loadingCallbackSpy = jasmine.createSpy('loadingCallbackSpy', function(outletName, thingToDisplay) {
                 expect(outletName).toBe('output');
+                expect(_.isUndefined(thingToDisplay) || thingToDisplay === outletLoaderTestLoadedNamespace).toBe(true);
                 return null;
               }).and.callThrough(),
-              transition: transitionCallbackSpy = jasmine.createSpy('transitionCallbackSpy', function(outletName) {
+              transition: transitionCallbackSpy = jasmine.createSpy('transitionCallbackSpy', function(outletName, thingToDisplay) {
                 expect(outletName).toBe('output');
+                expect(thingToDisplay).toBe(outletLoaderTestLoadedNamespace);
                 return 0;
               }).and.callThrough()
             },
