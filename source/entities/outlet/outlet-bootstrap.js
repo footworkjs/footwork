@@ -83,6 +83,8 @@ function outletBootstrap (instance, configParams) {
         });
         resolvedCallbacks = [];
       }
+
+      instance.routeOnComplete();
     }
 
     var transitionTriggerTimeout;
@@ -130,12 +132,10 @@ function outletBootstrap (instance, configParams) {
             instance.loadingChildrenWatch = instance[privateDataSymbol].loadingChildren.subscribe(function (loadingChildren) {
               if (!loadingChildren.length) {
                 instance.routeIsResolving(false);
-                _.isFunction(instance.routeOnComplete) && instance.routeOnComplete();
               }
             });
           } else {
             instance.routeIsResolving(false);
-            _.isFunction(instance.routeOnComplete) && instance.routeOnComplete();
           }
         });
       }
