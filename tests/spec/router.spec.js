@@ -895,10 +895,13 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 path: mockUrl,
                 controller: function() {
-                  this.outlet('output', { display: outletCallbackName, onComplete: triggerOutletCallbackControllerSpy = jasmine.createSpy('triggerOutletCallbackControllerSpy', function(element) {
-                    expect(element.tagName.toLowerCase()).toBe('outlet');
-                    expect($(element).find('.' + outletCallbackName).length).toBe(1);
-                  }) });
+                  this.outlet('output', {
+                    display: outletCallbackName,
+                    onComplete: triggerOutletCallbackControllerSpy = jasmine.createSpy('triggerOutletCallbackControllerSpy', function(element) {
+                      expect(element.tagName.toLowerCase()).toBe('outlet');
+                      expect($(element).find('.' + outletCallbackName).length).toBe(1);
+                    })
+                  });
                 }
               }
             ]
@@ -956,10 +959,13 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 path: '/outletAfterRouter',
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', { display: outletComponentNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
-                    expect(element.tagName.toLowerCase()).toBe('outlet');
-                    expect($(element).find('.' + outletComponentNamespace).length).toBe(1);
-                  }).and.callThrough() });
+                  this.outlet('output', {
+                    display: outletComponentNamespace,
+                    onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                      expect(element.tagName.toLowerCase()).toBe('outlet');
+                      expect($(element).find('.' + outletComponentNamespace).length).toBe(1);
+                    }).and.callThrough()
+                  });
                 }).and.callThrough()
               }
             ]
@@ -1029,10 +1035,14 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 path: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, loading: outletLoaderTestLoadingNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
-                    expect(element.tagName.toLowerCase()).toBe('outlet');
-                    expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
-                  }).and.callThrough() });
+                  this.outlet('output', {
+                    display: outletLoaderTestLoadedNamespace,
+                    loading: outletLoaderTestLoadingNamespace,
+                    onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                      expect(element.tagName.toLowerCase()).toBe('outlet');
+                      expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
+                    }).and.callThrough()
+                  });
                 }).and.callThrough()
               }
             ]
@@ -1086,10 +1096,13 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 path: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
-                    expect(element.tagName.toLowerCase()).toBe('outlet');
-                    expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
-                  }).and.callThrough() });
+                  this.outlet('output', {
+                    display: outletLoaderTestLoadedNamespace,
+                    onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                      expect(element.tagName.toLowerCase()).toBe('outlet');
+                      expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
+                    }).and.callThrough()
+                  });
                 }).and.callThrough()
               }
             ]
@@ -1112,6 +1125,86 @@ define(['footwork', 'lodash', 'fetch-mock'],
           setTimeout(function() {
             expect(outletLoaderTestLoadedSpy).toHaveBeenCalled();
             expect(outletCallbackSpy).toHaveBeenCalled();
+            done();
+          }, ajaxWait);
+        }, 0);
+      });
+
+      it('uses callback options for outlet on the router config properly', function(done) {
+        var mockUrl = generateUrl();
+        var outletLoaderTestLoadingNamespace = _.uniqueId('random');
+        var outletLoaderTestLoadedNamespace = _.uniqueId('random');
+        var routerNamespace = _.uniqueId('random');
+        var changeOutletControllerSpy;
+        var outletCallbackSpy;
+        var outletLoaderTestLoadedSpy;
+        var onCompleteCallbackSpy;
+        var loadingCallbackSpy;
+        var transitionCallbackSpy;
+
+        function router(name) {
+          return fw.router.get(name);
+        }
+
+        fw.components.register(outletLoaderTestLoadedNamespace, {
+          viewModel: outletLoaderTestLoadedSpy = jasmine.createSpy('outletLoaderTestLoadedSpy'),
+          template: '<div class="' + outletLoaderTestLoadedNamespace + '"></div>'
+        });
+
+        fw.router.register(routerNamespace, function() {
+          fw.router.boot(this, {
+            namespace: routerNamespace,
+            outlet: {
+              onComplete: onCompleteCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                expect(element.tagName.toLowerCase()).toBe('outlet');
+                expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
+              }).and.callThrough(),
+              loading: loadingCallbackSpy = jasmine.createSpy('loadingCallbackSpy', function(outletName) {
+                expect(outletName).toBe('output');
+                return null;
+              }).and.callThrough(),
+              transition: transitionCallbackSpy = jasmine.createSpy('transitionCallbackSpy', function(outletName) {
+                expect(outletName).toBe('output');
+                return 0;
+              }).and.callThrough()
+            },
+            routes: [
+              {
+                path: mockUrl,
+                controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
+                  this.outlet('output', {
+                    display: outletLoaderTestLoadedNamespace,
+                    onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                      expect(element.tagName.toLowerCase()).toBe('outlet');
+                      expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
+                    }).and.callThrough()
+                  });
+                }).and.callThrough()
+              }
+            ]
+          });
+        });
+
+        expect(changeOutletControllerSpy).toBe(undefined);
+        expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
+
+        fw.start(testContainer = getFixtureContainer('<router module="' + routerNamespace + '">\
+          <outlet name="output">\
+            <div class="' + outletLoaderTestLoadingNamespace + '"></div>\
+          </outlet>\
+        </router>'));
+
+        setTimeout(function() {
+          router(routerNamespace).replaceState(mockUrl);
+
+          expect(changeOutletControllerSpy).toHaveBeenCalled();
+          expect(outletCallbackSpy).not.toHaveBeenCalled();
+
+          setTimeout(function() {
+            expect(outletLoaderTestLoadedSpy).toHaveBeenCalled();
+            expect(outletCallbackSpy).toHaveBeenCalled();
+            expect(loadingCallbackSpy).toHaveBeenCalled();
+            expect(transitionCallbackSpy).toHaveBeenCalled();
             done();
           }, ajaxWait);
         }, 0);

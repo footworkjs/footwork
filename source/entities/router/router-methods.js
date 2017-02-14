@@ -68,7 +68,7 @@ module.exports = {
       if (outletHasMutated) {
         clearSequenceQueue();
 
-        currentOutletDef.transition = options.transition || routerOutletOptions.transition || 0;
+        currentOutletDef.transition = options.transition || resultBound(routerOutletOptions, 'transition', router, [outletName]) || 0;
         if (outletViewModel) {
           outletViewModel[privateDataSymbol].loadingChildren.removeAll();
           outletViewModel.routeIsLoading(true);
