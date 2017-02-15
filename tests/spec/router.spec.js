@@ -753,6 +753,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var testContainer;
         var $testContainer;
         var passedInParams = { params: true };
+        var outletName = _.uniqueId('outlet');
 
         fw.components.registerLocation(manipulateOutletComponentNamespace, { template: 'tests/assets/fixtures/manipulateOutlet.html' });
 
@@ -767,12 +768,12 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 path: manipulateOutletUrl,
                 controller: manipulateOutletControllerSpy = jasmine.createSpy('manipulateOutletControllerSpy', function(params) {
-                  this.outlet('output', { display: manipulateOutletComponentNamespace, params: passedInParams, onComplete: outletOnCompleteSpy });
+                  this.outlet(outletName, { display: manipulateOutletComponentNamespace, params: passedInParams, onComplete: outletOnCompleteSpy });
                 }).and.callThrough()
               }, {
                 path: '/clearOutlet',
                 controller: clearOutletControllerSpy = jasmine.createSpy('clearOutletControllerSpy', function() {
-                  this.outlet('output', false);
+                  this.outlet(outletName, false);
                 }).and.callThrough()
               }
             ]
@@ -786,7 +787,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(clearOutletControllerSpy).toBe(undefined);
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <outlet name="output"></outlet>\
+          <outlet name="' + outletName + '"></outlet>\
         </router>'));
         $testContainer = $(testContainer);
 
@@ -794,21 +795,21 @@ define(['footwork', 'lodash', 'fetch-mock'],
           expect(initializeSpy).toHaveBeenCalled();
           expect(afterRenderSpy).toHaveBeenCalled();
 
-          expect($testContainer.find('outlet[name="output"]').attr('data-rendered')).not.toBe(manipulateOutletComponentNamespace);
+          expect($testContainer.find('outlet[name="' + outletName + '"]').attr('data-rendered')).not.toBe(manipulateOutletComponentNamespace);
           router.replaceState(manipulateOutletUrl);
           expect(manipulateOutletControllerSpy).toHaveBeenCalled();
 
           setTimeout(function() {
             expect(outletOnCompleteSpy).toHaveBeenCalledTimes(2);
-            expect($testContainer.find('outlet[name="output"]').attr('data-rendered')).toBe(manipulateOutletComponentNamespace);
-            expect($testContainer.find('outlet[name="output"] .manipulateOutlet')).lengthToBe(1);
+            expect($testContainer.find('outlet[name="' + outletName + '"]').attr('data-rendered')).toBe(manipulateOutletComponentNamespace);
+            expect($testContainer.find('outlet[name="' + outletName + '"] .manipulateOutlet')).lengthToBe(1);
 
             router.replaceState('/clearOutlet');
             expect(clearOutletControllerSpy).toHaveBeenCalled();
 
             setTimeout(function() {
-              expect($testContainer.find('outlet[name="output"]').attr('data-rendered')).not.toBe(manipulateOutletComponentNamespace);
-              expect($testContainer.find('outlet[name="output"] .component-loaded').length).toBe(0);
+              expect($testContainer.find('outlet[name="' + outletName + '"]').attr('data-rendered')).not.toBe(manipulateOutletComponentNamespace);
+              expect($testContainer.find('outlet[name="' + outletName + '"] .component-loaded').length).toBe(0);
               done();
             }, ajaxWait);
           }, ajaxWait);
@@ -819,6 +820,9 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var namespaceName = generateNamespaceName();
         var initializeSpy;
         var router;
+        var outletName1 = _.uniqueId('outlet');
+        var outletName2 = _.uniqueId('outlet');
+        var outletName3 = _.uniqueId('outlet');
 
         fw.router.register(namespaceName, initializeSpy = jasmine.createSpy('initializeSpy', function() {
           fw.router.boot(this, {
@@ -830,14 +834,14 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(initializeSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <outlet name="output1"></outlet>\
-          <outlet name="output2"></outlet>\
-          <outlet name="output3"></outlet>\
+          <outlet name="' + outletName1 + '"></outlet>\
+          <outlet name="' + outletName2 + '"></outlet>\
+          <outlet name="' + outletName3 + '"></outlet>\
         </router>'));
 
         setTimeout(function() {
           expect(initializeSpy).toHaveBeenCalled();
-          expect(_.keys(fw.utils.getPrivateData(router).outlets)).toEqual([ 'output1', 'output2', 'output3' ]);
+          expect(_.keys(fw.utils.getPrivateData(router).outlets)).toEqual([ outletName1, outletName2, outletName3 ]);
           done();
         }, ajaxWait);
       });
@@ -882,6 +886,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var outletCallbackComponentSpy;
         var triggerOutletCallbackControllerSpy;
         var router;
+        var outletName = _.uniqueId('outlet');
 
         fw.components.register(outletCallbackName, {
           viewModel: outletCallbackComponentSpy = jasmine.createSpy('outletCallbackComponentSpy'),
@@ -895,7 +900,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 path: mockUrl,
                 controller: function() {
-                  this.outlet('output', {
+                  this.outlet(outletName, {
                     display: outletCallbackName,
                     onComplete: triggerOutletCallbackControllerSpy = jasmine.createSpy('triggerOutletCallbackControllerSpy', function(element) {
                       expect(element.tagName.toLowerCase()).toBe('outlet');
@@ -913,7 +918,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(outletCallbackComponentSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + namespaceName + '">\
-          <outlet name="output"></outlet>\
+          <outlet name="' + outletName + '"></outlet>\
         </router>'));
 
         setTimeout(function() {
@@ -941,6 +946,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var initializeComponentViewModelSpy;
         var router;
         var viewModel;
+        var outletName = _.uniqueId('outlet');
 
         fw.components.register(outletComponentNamespace, { template: '<div class="' + outletComponentNamespace + '"></div>' });
 
@@ -959,7 +965,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 path: '/outletAfterRouter',
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', {
+                  this.outlet(outletName, {
                     display: outletComponentNamespace,
                     onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                       expect(element.tagName.toLowerCase()).toBe('outlet');
@@ -979,7 +985,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         fw.start(testContainer = getFixtureContainer('<router module="' + routerNamespace + '">\
           <viewModel module="' + outletControlingViewModelNamespace + '">\
             <div data-bind="if: outletVisible">\
-              <outlet name="output"></outlet>\
+              <outlet name="' + outletName + '"></outlet>\
             </div>\
           </viewModel>\
         </router>'));
@@ -1012,6 +1018,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var outletCallbackSpy;
         var outletLoaderTestLoadingSpy;
         var outletLoaderTestLoadedSpy;
+        var outletName = _.uniqueId('outlet');
 
         function router(name) {
           return fw.router.get(name);
@@ -1035,7 +1042,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 path: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', {
+                  this.outlet(outletName, {
                     display: outletLoaderTestLoadedNamespace,
                     loading: outletLoaderTestLoadingNamespace,
                     onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
@@ -1053,7 +1060,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + routerNamespace + '">\
-          <outlet name="output"></outlet>\
+          <outlet name="' + outletName + '"></outlet>\
         </router>'));
 
         setTimeout(function() {
@@ -1079,6 +1086,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var changeOutletControllerSpy;
         var outletCallbackSpy;
         var outletLoaderTestLoadedSpy;
+        var outletName = _.uniqueId('outlet');
 
         function router(name) {
           return fw.router.get(name);
@@ -1096,7 +1104,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 path: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', {
+                  this.outlet(outletName, {
                     display: outletLoaderTestLoadedNamespace,
                     onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                       expect(element.tagName.toLowerCase()).toBe('outlet');
@@ -1113,7 +1121,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + routerNamespace + '">\
-          <outlet name="output"><div class="' + outletLoaderTestLoadingNamespace + '"></div></outlet>\
+          <outlet name="' + outletName + '"><div class="' + outletLoaderTestLoadingNamespace + '"></div></outlet>\
         </router>'));
 
         setTimeout(function() {
@@ -1141,6 +1149,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var onCompleteCallbackSpy;
         var loadingCallbackSpy;
         var transitionCallbackSpy;
+        var outletName = _.uniqueId('outlet');
 
         function router(name) {
           return fw.router.get(name);
@@ -1160,12 +1169,12 @@ define(['footwork', 'lodash', 'fetch-mock'],
                 expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
               }).and.callThrough(),
               loading: loadingCallbackSpy = jasmine.createSpy('loadingCallbackSpy', function(outletName, thingToDisplay) {
-                expect(outletName).toBe('output');
+                expect(outletName).toBe(outletName);
                 expect(_.isUndefined(thingToDisplay) || thingToDisplay === outletLoaderTestLoadedNamespace).toBe(true);
                 return null;
               }).and.callThrough(),
               transition: transitionCallbackSpy = jasmine.createSpy('transitionCallbackSpy', function(outletName, thingToDisplay) {
-                expect(outletName).toBe('output');
+                expect(outletName).toBe(outletName);
                 expect(thingToDisplay).toBe(outletLoaderTestLoadedNamespace);
                 return 0;
               }).and.callThrough()
@@ -1174,7 +1183,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 path: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', {
+                  this.outlet(outletName, {
                     display: outletLoaderTestLoadedNamespace,
                     onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                       expect(element.tagName.toLowerCase()).toBe('outlet');
@@ -1191,7 +1200,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + routerNamespace + '">\
-          <outlet name="output">\
+          <outlet name="' + outletName + '">\
             <div class="' + outletLoaderTestLoadingNamespace + '"></div>\
           </outlet>\
         </router>'));
@@ -1221,6 +1230,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var outletCallbackSpy;
         var outletLoaderTestLoadingSpy;
         var outletLoaderTestLoadedSpy;
+        var outletName = _.uniqueId('outlet');
 
         function router(name) {
           return fw.router.get(name);
@@ -1247,7 +1257,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 path: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                  this.outlet(outletName, { display: outletLoaderTestLoadedNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
                     expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
                   }).and.callThrough() });
@@ -1261,7 +1271,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + routerNamespace + '">\
-          <outlet name="output"></outlet>\
+          <outlet name="' + outletName + '"></outlet>\
         </router>'));
 
         setTimeout(function() {
@@ -1288,6 +1298,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         var outletCallbackSpy;
         var outletLoaderTestLoadingSpy;
         var outletLoaderTestLoadedSpy;
+        var outletName = _.uniqueId('outlet');
 
         function router(name) {
           return fw.router.get(name);
@@ -1311,7 +1322,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
               {
                 path: mockUrl,
                 controller: changeOutletControllerSpy = jasmine.createSpy('changeOutletControllerSpy', function() {
-                  this.outlet('output', { display: outletLoaderTestLoadedNamespace, transition: 75, loading: outletLoaderTestLoadingNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
+                  this.outlet(outletName, { display: outletLoaderTestLoadedNamespace, transition: 75, loading: outletLoaderTestLoadingNamespace, onComplete: outletCallbackSpy = jasmine.createSpy('outletCallbackSpy', function(element) {
                     expect(element.tagName.toLowerCase()).toBe('outlet');
                     expect($(element).find('.' + outletLoaderTestLoadedNamespace).length).toBe(1);
                   }).and.callThrough() });
@@ -1325,7 +1336,7 @@ define(['footwork', 'lodash', 'fetch-mock'],
         expect(outletLoaderTestLoadedSpy).not.toHaveBeenCalled();
 
         fw.start(testContainer = getFixtureContainer('<router module="' + routerNamespace + '">\
-          <outlet name="output"></outlet>\
+          <outlet name="' + outletName + '"></outlet>\
         </router>'));
 
         setTimeout(function() {
