@@ -50,10 +50,10 @@ module.exports = {
       // grab and set the loading display if needed
       if (arguments.length > 1) {
         // user requested change, lets find out and inject what we need to display during load
-        outletViewModel.loading(options.loading || resultBound(routerOutletOptions, 'loading', router, [outletName, options.display]) || outletViewModel.originalDisplay);
+        outletViewModel.loading(options.loading || resultBound(routerOutletOptions, 'loading', router, [outletName, options.display]) || outletViewModel[privateDataSymbol].originalDisplay);
       } else {
         // bootup process, just show original contents during startup
-        outletViewModel.loading(outletViewModel.originalDisplay);
+        outletViewModel.loading(outletViewModel[privateDataSymbol].originalDisplay);
       }
     }
 
@@ -89,7 +89,7 @@ module.exports = {
           return function addBindingOnComplete () {
             var outletViewModel = outlets[outletName].outletViewModel;
             outletViewModel.routeIsLoading(false);
-            outletViewModel.routeOnComplete = function () {
+            outletViewModel[privateDataSymbol].routeOnComplete = function () {
               router[privateDataSymbol].scrollToFragment();
               [routerOutletOptions.onComplete, options.onComplete].forEach(function callOnCompleteFunctions (onComplete) {
                 (onComplete || _.noop).call(router, outletElement);

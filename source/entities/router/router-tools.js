@@ -50,6 +50,11 @@ function nearestParentRouter ($context) {
 function registerOutlet (router, outletName, outletViewModel) {
   var outletProperties = router[privateDataSymbol].outlets[outletName] = router[privateDataSymbol].outlets[outletName] || {};
   outletProperties.outletViewModel = outletViewModel;
+
+  // register the outletViewModel in a place the user can access it if needed
+  var outlets = router.outlets();
+  outlets[outletName] = outletViewModel;
+  router.outlets.notifySubscribers();
 }
 
 /**
@@ -60,6 +65,11 @@ function registerOutlet (router, outletName, outletViewModel) {
  */
 function unregisterOutlet (router, outletName) {
   delete router[privateDataSymbol].outlets[outletName];
+
+  // remove the outletViewModel user accessible registration
+  var outlets = router.outlets();
+  delete outlets[outletName];
+  router.outlets.notifySubscribers();
 }
 
 /**

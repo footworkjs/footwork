@@ -17,15 +17,15 @@ fw.bindingHandlers.$outlet = {
       element = element.parentNode;
       var outletName = element.getAttribute('name') || /* istanbul ignore next */ element.getAttribute('data-name');
 
-      outletViewModel.originalDisplay = '$outlet-' + outletName;
-      fw.components.register(outletViewModel.originalDisplay, {
+      outletViewModel[privateDataSymbol].originalDisplay = '$outlet-' + outletName;
+      fw.components.register(outletViewModel[privateDataSymbol].originalDisplay, {
         template: valueAccessor()
       });
 
       // register the outlet with its parent router so it can manipulate it
       parentRouter[privateDataSymbol].registerOutlet(outletName, outletViewModel);
       fw.utils.domNodeDisposal.addDisposeCallback(element, function () {
-        fw.components.unregister(outletViewModel.originalDisplay);
+        fw.components.unregister(outletViewModel[privateDataSymbol].originalDisplay);
         parentRouter[privateDataSymbol].unregisterOutlet(outletName);
       });
 

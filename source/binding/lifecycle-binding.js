@@ -73,7 +73,7 @@ fw.bindingHandlers.$lifecycle = {
           if (nearestOutlet) {
             // the parent outlet will run the callback that initiates the animation
             // sequence (once the rest of its dependencies finish loading as well)
-            nearestOutlet.addResolvedCallbackOrExecute(function () {
+            nearestOutlet[privateDataSymbol].addResolvedCallbackOrExecute(function () {
               runAnimationSequenceQueue(queue);
             });
           } else {

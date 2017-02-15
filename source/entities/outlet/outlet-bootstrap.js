@@ -41,13 +41,10 @@ function outletBootstrap (instance, configParams) {
 
   var hasBeenBootstrapped = !_.isUndefined(instance[descriptor.isEntityDuckTag]);
   if (!hasBeenBootstrapped) {
+    var privateData = instance[privateDataSymbol];
     instance[descriptor.isEntityDuckTag] = true; // mark as hasBeenBootstrapped
 
-    var resolvedCallbacks = [];
-    _.extend(instance, {
-      loading: fw.observable(noComponentSelected),
-      routeIsLoading: fw.observable(true),
-      routeIsResolving: fw.observable(true),
+    _.extend(privateData, {
       addResolvedCallbackOrExecute: function (callback) {
         /* istanbul ignore else */
         if (instance.routeIsResolving()) {
@@ -58,18 +55,12 @@ function outletBootstrap (instance, configParams) {
       }
     });
 
-    function showLoader () {
-      var removeAnim = removeAnimation();
-
-      instance.loadingClass(removeAnim);
-      instance.loadedClass(removeAnim);
-      instance.loadedStyle(hiddenCSS);
-      instance.loadingStyle(visibleCSS);
-
-      nextFrame(function () {
-        instance.loadingClass(addAnimation());
-      });
-    }
+    var resolvedCallbacks = [];
+    _.extend(instance, {
+      loading: fw.observable(noComponentSelected),
+      routeIsLoading: fw.observable(true),
+      routeIsResolving: fw.observable(true)
+    });
 
     function showLoadedAfterMinimumTransition () {
       instance.loadingClass(removeAnimation());
@@ -84,62 +75,72 @@ function outletBootstrap (instance, configParams) {
         resolvedCallbacks = [];
       }
 
-      instance.routeOnComplete();
+      instance[privateDataSymbol].routeOnComplete();
     }
 
     var transitionTriggerTimeout;
-    function showLoaded () {
-      clearTimeout(transitionTriggerTimeout);
-      var transition = instance.display.peek().transition;
-      if (transition) {
-        transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, transition);
-      } else {
-        showLoadedAfterMinimumTransition();
-      }
-    }
 
     _.extend(instance, {
       loadingStyle: fw.observable(),
       loadedStyle: fw.observable(),
       loadingClass: fw.observable(),
       loadedClass: fw.observable(),
-      showLoader: showLoader,
-      showLoaded: showLoaded
-    });
+      showLoader: function showLoader () {
+        var removeAnim = removeAnimation();
 
-    instance.transitionTrigger = fw.computed(function () {
-      var routeIsResolving = instance.routeIsResolving();
-      if (routeIsResolving) {
-        showLoader();
-      } else {
-        showLoaded();
-      }
-    });
+        instance.loadingClass(removeAnim);
+        instance.loadedClass(removeAnim);
+        instance.loadedStyle(hiddenCSS);
+        instance.loadingStyle(visibleCSS);
 
-    instance.disposeWithInstance(instance.routeIsLoading.subscribe(function disposeWithInstanceCallback (routeIsLoading) {
-      if (routeIsLoading) {
-        instance.routeIsResolving(true);
-      } else {
-        /* istanbul ignore next */
-        if (instance.loadingChildrenWatch && _.isFunction(instance.loadingChildrenWatch.dispose)) {
-          instance.loadingChildrenWatch.dispose();
-        }
-
-        // must allow binding to begin on any subcomponents/etc
         nextFrame(function () {
-          if (instance[privateDataSymbol].loadingChildren().length) {
-            /* istanbul ignore next */
-            instance.loadingChildrenWatch = instance[privateDataSymbol].loadingChildren.subscribe(function (loadingChildren) {
-              if (!loadingChildren.length) {
-                instance.routeIsResolving(false);
-              }
-            });
-          } else {
-            instance.routeIsResolving(false);
-          }
+          instance.loadingClass(addAnimation());
         });
+      },
+      showLoaded: function showLoaded () {
+        clearTimeout(transitionTriggerTimeout);
+        var transition = instance.display.peek().transition;
+        if (transition) {
+          transitionTriggerTimeout = setTimeout(showLoadedAfterMinimumTransition, transition);
+        } else {
+          showLoadedAfterMinimumTransition();
+        }
       }
-    }));
+    });
+
+    instance.disposeWithInstance(
+      instance.routeIsLoading.subscribe(function disposeWithInstanceCallback (routeIsLoading) {
+        if (routeIsLoading) {
+          instance.routeIsResolving(true);
+        } else {
+          /* istanbul ignore next */
+          if (instance.loadingChildrenWatch && _.isFunction(instance.loadingChildrenWatch.dispose)) {
+            instance.loadingChildrenWatch.dispose();
+          }
+
+          // must allow binding to begin on any subcomponents/etc
+          nextFrame(function () {
+            if (instance[privateDataSymbol].loadingChildren().length) {
+              /* istanbul ignore next */
+              instance.loadingChildrenWatch = instance[privateDataSymbol].loadingChildren.subscribe(function (loadingChildren) {
+                if (!loadingChildren.length) {
+                  instance.routeIsResolving(false);
+                }
+              });
+            } else {
+              instance.routeIsResolving(false);
+            }
+          });
+        }
+      }),
+      instance.routeIsResolving.subscribe(function transitionTrigger (routeIsResolving) {
+        if (routeIsResolving) {
+          instance.showLoader();
+        } else {
+          instance.showLoaded();
+        }
+      })
+    );
   }
 
   return instance;

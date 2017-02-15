@@ -108,7 +108,7 @@ function getResourceOrLocation (descriptor, moduleName) {
  * @param {object} descriptor (as defined in each entity and extended onto the entity-descriptors)
  * @returns
  */
-function resourceTools (descriptor, included) {
+function resourceTools (descriptor) {
   var methods = {
     getFileName: _.partial(getFileName, descriptor),
     register: _.partial(register, descriptor),
@@ -120,7 +120,7 @@ function resourceTools (descriptor, included) {
     get: _.partial(getModelReferences, descriptor)
   };
 
-  _.extend(descriptor.resource, included ? _.pick(methods, included) : methods);
+  _.extend(descriptor.resource, methods);
 
   return descriptor;
 }

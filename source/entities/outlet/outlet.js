@@ -20,7 +20,6 @@ var descriptor = {
   referenceNamespace: getSymbol(entityName)
 };
 
-require('../resource-tools')(descriptor, ['get']);
 require('../entity-descriptors').push(descriptor);
 
 fw.components.register(require('../router/router-config').noComponentSelected, {

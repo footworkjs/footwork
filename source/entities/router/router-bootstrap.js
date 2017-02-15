@@ -45,7 +45,8 @@ function routerBootstrap (instance, configParams) {
       currentState: fw.observable(),
       currentRoute: fw.observable(),
       activated: fw.observable(false),
-      routes: fw.observableArray(privateData.configParams.routes)
+      routes: fw.observableArray(privateData.configParams.routes),
+      outlets: fw.observable({})
     });
 
     instance.disposeWithInstance(
